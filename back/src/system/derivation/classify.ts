@@ -13,13 +13,20 @@ import { DerivedLine, resolvedValue } from './derive'
 import { reaches } from './reach'
 import { DeclarationReach } from './scope'
 import { ApplicabilityCondition, RegisterIndex } from './register'
-import { DEFERS_TO_ESTABLISHING_OBJECT, ElementClass, ItemRef, ResolutionLine, Verdict, ReasonCode } from './types'
+import { DEFERS_TO_ESTABLISHING_OBJECT, ElementClass, ItemRef, NO_FURTHER_VALUE, ResolutionLine, Verdict, ReasonCode, UNRESTRICTED } from './types'
 
 /** One declaration that took part in deciding a line's reason: who said it, what kind, about what. */
 export interface GoverningDeclaration {
     contractId: string
     declaration: string
     selector: string | null
+    /**
+     * Which of his three states a non-claim is (types.ts `NO_FURTHER_VALUE`), present only where the declaration
+     * carries one — 15 October 2026, stage K1. This record is the only allowlist on the way from a declaration to the
+     * rendering fixture (emit.ts and resolved-game.ts copy each entry whole), so a field it does not name is lost for
+     * every reader after it: the silent-loss pattern. `nonClaimState` reads it.
+     */
+    qualifier?: string
 }
 
 export interface ClassifiedLine {
@@ -125,6 +132,17 @@ const GENERAL_REQUIREMENTS = ['NOT_AUTHORED', 'EXCLUDED', 'CLAIMED']
  * only lose a declaration that never addressed the class or that requires nothing — never a requirement that does.
  * Selector-honouring alone, without step 3's precedence, would RELAX blocking lines (measured 15 October 2026);
  * it is not available separately.
+ *
+ * **Amended 15 October 2026 (stage K1): a ruled deferral steps aside only for a statement that SPECIFIES.** C50's
+ * deferral is his Option A (16 October, item 8): *"A context may explicitly establish that a particular
+ * scoring-condition detail requires no additional value. However, the engine must distinguish between: A field
+ * explicitly defined as not applicable or requiring no further value. A field whose value remains missing or
+ * unresolved."* And M6 (17 October) forbids the states to *"collapse into the same operational meaning"*. A legacy,
+ * unqualified non-claim says only that its object does not constrain the row — the C45 reading that would have
+ * counted the gate's passes anywhere — so it is not "explicitly defined" (OUR reading of item 8 with M6, recorded
+ * as such beside C50 in corpus-restatements.json). So the deferral applies only where the explicit statement includes
+ * a requirement kind or a QUALIFIED non-claim. Measured the day it landed: 0 lines move on the knowledge (pinned in
+ * governing-declarations.unit.ts); it closes the C45 hazard in the mechanism, not only in the data.
  */
 export function governingDeclarations(row: string, declarations: DeclarationReach[], cls?: ElementClass): DeclarationReach[] {
     const onRow = declarations.filter(d => d.row === row)
@@ -142,13 +160,15 @@ export function governingDeclarations(row: string, declarations: DeclarationReac
     )
     if (!explicit.length) return onRow
 
+    // A deferral steps aside only for a statement that specifies (the K1 amendment above).
+    const specifies = explicit.some(d => d.declaration !== 'NON_CLAIMED' || d.qualifier !== undefined)
     const general = onRow.filter(
         d =>
             !explicit.includes(d) &&
             GENERAL_REQUIREMENTS.includes(d.declaration) &&
             scopeReaches(d) &&
             (!d.parsed.predicate || reaches(d.parsed.predicate, cls) !== 'FALSE') &&
-            !(d.defersTo === DEFERS_TO_ESTABLISHING_OBJECT && !establishing.has(d.contractId)),
+            !(specifies && d.defersTo === DEFERS_TO_ESTABLISHING_OBJECT && !establishing.has(d.contractId)),
     )
     return [...explicit, ...general]
 }
@@ -156,8 +176,33 @@ export function governingDeclarations(row: string, declarations: DeclarationReac
 /** The governing set as the line carries it, in a stable order. */
 function governedByOn(row: string, declarations: DeclarationReach[], cls?: ElementClass): GoverningDeclaration[] {
     return governingDeclarations(row, declarations, cls)
-        .map(d => ({ contractId: d.contractId, declaration: d.declaration, selector: d.selector === undefined || d.selector === null ? null : String(d.selector) }))
+        .map(d => ({
+            contractId: d.contractId,
+            declaration: d.declaration,
+            selector: d.selector === undefined || d.selector === null ? null : String(d.selector),
+            ...(d.qualifier === undefined ? {} : { qualifier: String(d.qualifier) }),
+        }))
         .sort((a, b) => `${a.contractId}|${a.declaration}|${a.selector}`.localeCompare(`${b.contractId}|${b.declaration}|${b.selector}`))
+}
+
+/**
+ * **Which of his three states a 'not constrained' line is in** (15 October 2026, stage K1), read from the
+ * declarations that decided it — so it is answered once, from the record every reader already carries.
+ *
+ *   - `NO_FURTHER_VALUE` — every governing non-claim states that the field needs no further value: an established
+ *     absence by explicit statement, nothing to realize or say;
+ *   - `UNRESTRICTED` — some governing non-claim says the value is explicitly unrestricted (never reached today: the
+ *     loader refuses it until he rules what it permits);
+ *   - `null` — a legacy non-claim decided it ("this object does not constrain this row"), or the line is not a
+ *     'not constrained' line at all. A MISSING value is never answered here: it is 'declared gap' or 'claimed but
+ *     unresolved', and those still block.
+ */
+export function nonClaimState(reason: ReasonCode | string | null | undefined, governedBy: { declaration: string; qualifier?: unknown }[] | undefined): typeof NO_FURTHER_VALUE | typeof UNRESTRICTED | null {
+    if (reason !== 'not constrained' || !governedBy) return null
+    const nonClaims = governedBy.filter(g => g.declaration === 'NON_CLAIMED')
+    if (!nonClaims.length) return null
+    if (nonClaims.some(g => g.qualifier === UNRESTRICTED)) return UNRESTRICTED
+    return nonClaims.every(g => g.qualifier === NO_FURTHER_VALUE) ? NO_FURTHER_VALUE : null
 }
 
 /**

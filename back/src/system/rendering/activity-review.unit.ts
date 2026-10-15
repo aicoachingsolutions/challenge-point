@@ -228,6 +228,13 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
  * is hidden: the structural stops (GA-EPISODE-REACHABLE and the three context lines) are pinned below on a COPY of
  * the record whose gap entries are set aside, and they are exactly what they were. No other goal moves: none other
  * has a record.
+ *
+ * **15 October 2026, stage K1 — behind the record, three of those four stops are gone; the production refusal is
+ * unchanged.** His 17 October reply approved M6 and M8. C55 records that the build-out origin needs no further value
+ * (his 9.9, qualified NO_FURTHER_VALUE under M6), and C57 types the control and long-clearance referents as the
+ * objective reference of the scoring team (M8). Behind the record A01 now stops on GA-EPISODE-REACHABLE alone. The
+ * record lists the two as what existing knowledge authorizes, so its gaps are D1-D7, M1-M5 and M7; the production
+ * build still refuses at 'knowledge' on the same eight entries.
  */
 {
     const RECORD = "This goal's activity depends on set-up decisions and engine capabilities that are not in place yet, so no activity can be built for it."
@@ -332,7 +339,9 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
         assert.deepEqual(authorization.gaps, record.gaps)
         assert.deepEqual(authorization.manipulations.map(m => [m.category, m.gaps]), record.manipulations.map(m => [m.category, m.gaps]))
         assert.deepEqual(a01.account.authorizationLists, authorizationLists(record), 'the three lists, exactly as the record gives them')
-        assert.equal(a01.account.authorizationLists!.gaps.length, 15)
+        // 15 -> 13 on 15 October 2026 (stage K1): capabilities M6 and M8 built (C55, C57); the record lists them as what
+        // existing knowledge authorizes now, not as gaps.
+        assert.equal(a01.account.authorizationLists!.gaps.length, 13)
         assert.equal(a01.account.gameProblem?.gameProblemId, 'GP-005')
         assert.equal(a01.account.gameProblem?.status, 'APPROVED')
         assert.equal(a01.account.provisional, false)
@@ -365,7 +374,9 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
      * those entries' status (TEST-ONLY, never production data), so derivation runs on exactly the selection the real
      * build makes, and the structural stops are measured to be exactly what they were: nothing behind the record's
      * refusal is hidden. What moves each stop: GA-EPISODE-REACHABLE, capability M3; 18.f::V5 and 19.a::V5, capability
-     * M8 after decisions D1 and D3; 18.a::V6, capability M6 (ruling C55, his 9.9).
+     * M8 after decisions D1 and D3; 18.a::V6, capability M6 (ruling C55, his 9.9). **Since stage K1 (15 October 2026)
+     * the last three have moved** — M6 and M8 approved on 17 October, rulings C55 and C57 — and GA-EPISODE-REACHABLE
+     * is the one stop left (pinned below).
      */
     {
         const RECORD_REASONS = [
@@ -391,11 +402,12 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
             const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [ROLE]: keepers } }
             const reached = refused(buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, withoutGapEntries()).activity, `A01 (record gaps set aside), ${keepers} of ${ROLE}`)
             assert.equal(reached.stage, 'structure', JSON.stringify(reached.reasons))
-            assert.deepEqual(reached.reasons, [
-                'Gate A is FAIL',
-                'a pre-realization Gate A invariant fails: GA-EPISODE-REACHABLE, GA-NO-FAILED-LINE',
-                '3 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-001:RPC-001-18.f::V5, c:restated:RPC-001:RPC-001-19.a::V5, c:restated:RPC-001:RPC-001-18.a::V6',
-            ])
+            // **15 October 2026 (stage K1): GA-EPISODE-REACHABLE alone, measured, with two goalkeepers and none.** The three
+            // context lines are settled by his 17 October approvals: 18.f::V5 and 19.a::V5 by M8 (C57, typed as the
+            // objective reference of the scoring team), 18.a::V6 by M6 (C55, needs no further value). What still stops
+            // the game is the build-out episode's beginning: capability M3, and the typed begin condition (C58) held for
+            // his acknowledgement.
+            assert.deepEqual(reached.reasons, ['Gate A is FAIL', 'a pre-realization Gate A invariant fails: GA-EPISODE-REACHABLE'])
             assert.deepEqual(reached.account.constraints, [], 'no library constraint was selected')
             assert.equal(reached.account.constraintSource?.constraintPrinciple?.ruledOn, '2026-10-15', 'committed under his general principle')
             assert.equal(reached.account.context?.inThisActivity, true, 'the context is in the game')
@@ -515,9 +527,10 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
         ['knowledge (record)', 'An asymmetrical build-out-versus-press structure', ['D2', 'D7', 'M1', 'M2']],
         ['knowledge (record)', 'A new build-out episode begins with a goalkeeper or controlled defensive restart', ['D1', 'D5', 'M3', 'M4']],
         ['structure (behind the record)', 'GA-EPISODE-REACHABLE', ['M3']],
-        ['structure (behind the record)', 'c:restated:RPC-001:RPC-001-18.f::V5', ['D1', 'D3', 'M8']],
-        ['structure (behind the record)', 'c:restated:RPC-001:RPC-001-19.a::V5', ['D1', 'D3', 'M8']],
-        ['structure (behind the record)', 'c:restated:RPC-001:RPC-001-18.a::V6', ['M6']],
+        // **Three stops moved out on 15 October 2026 (stage K1): the work succeeding.** 18.f::V5 and 19.a::V5 (moved
+        // by M8, ruling C57) and 18.a::V6 (moved by M6, ruling C55) — his 17 October M8 and M6, recorded as what existing
+        // knowledge authorizes in A01's record. Measured: behind the record, GA-EPISODE-REACHABLE is now the only stop,
+        // and none of the three lines is reported (asserted below).
         ['the resolved game', 'its only transition is a possession change (GF2-07.a)', ['M3', 'M4']],
         ['the resolved game', 'no line on P8-P10: no starting placement for either team', ['D4', 'M5']],
     ]
@@ -534,6 +547,7 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
     }
     const behind = refused(buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, withoutGapEntries()).activity, 'A01 behind its record')
     for (const [, stop] of STOPS.filter(([where]) => where === 'structure (behind the record)')) assert.ok(behind.reasons.some(reason => reason.includes(stop)), `${stop}: ${JSON.stringify(behind.reasons)}`)
+    for (const moved of ['RPC-001-18.f::V5', 'RPC-001-19.a::V5', 'RPC-001-18.a::V6']) assert.ok(!behind.reasons.some(reason => reason.includes(moved)), `${moved} is no longer a stop (stage K1)`)
 
     // The resolved game A01's real selection makes (GF2, its lenses, RPC-001; no library constraint).
     const input: any = derivationInputFor(selectFor('A01', null))
@@ -1229,12 +1243,29 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
          * "explicitly unrestricted" reading he rejected — and that alone carries the demonstration from structure to
          * communication: Option A without C49 would have done exactly this to the real knowledge. With the deferral
          * stripped as well, it stays at structure.
+         *
+         * **Re-pointed 15 October 2026 (stage K1).** Since the deferral tightening recorded beside C50, a LEGACY
+         * non-claim no longer sets the possession game's gap aside — his M6 (17 October) keeps "no further value is
+         * required" apart from a non-claim that merely does not constrain — so C45's statement alone no longer carries
+         * the demonstration anywhere: measured, it stays at structure on the gate's place (asserted below). The copy
+         * that shows the clause past the place now says, TEST-ONLY, that the place needs no further value (qualifier
+         * NO_FURTHER_VALUE): the explicit statement his item 8 allows a context to make, which nobody has made for the gate.
          */
         const gateV5AsBeforeC49 = (contracts: any[]) => {
             const v5 = contracts.find(c => c.contractId === 'blind:PASS-COMBINATION-GATE').declarations.find((d: any) => d.row === 'V5')
             assert.equal(v5.declaration, 'NOT_AUTHORED', 'the copy starts from C49')
             v5.declaration = 'NON_CLAIMED'
+            v5.qualifier = 'NO_FURTHER_VALUE' // TEST-ONLY, never production data
         }
+        const legacyOnly = refused(
+            buildActivityOverAlteredKnowledge({ kind: 'mechanism-demonstration', demonstrationId: 'pass-combination-gate', session: { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: none } }, contracts => {
+                gateV5AsBeforeC49(contracts)
+                delete contracts.find(c => c.contractId === 'blind:PASS-COMBINATION-GATE').declarations.find((d: any) => d.row === 'V5').qualifier
+            }),
+            'the gate demonstration with C45\'s legacy non-claim back',
+        )
+        assert.equal(legacyOnly.stage, 'structure', 'a legacy non-claim no longer counts passes anywhere: the mechanism closes it too')
+        assert.ok(legacyOnly.reasons.some(reason => reason.endsWith('c:blind:PASS-COMBINATION-GATE:PCG-02::V5')))
         const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: none }
         const pastThePlace = refused(
             buildActivityOverAlteredKnowledge({ kind: 'mechanism-demonstration', demonstrationId: 'pass-combination-gate', session }, gateV5AsBeforeC49),

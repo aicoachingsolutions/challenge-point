@@ -134,6 +134,25 @@
  * realization digest are byte-identical. `npm run render:a04` was diffed before and after: the rendered text is
  * identical, only the two digests it prints moved. C49 (the gate's place) does not reach A04, which has no gate.
  *
+ * **Re-frozen 15 October 2026 (stage K1): `9ce40dc3` → `f3db590b`. The GAME did not move; the register did, and what
+ * the fixture KEEPS about its unestablished entries did.** Two causes, each deliberate:
+ *
+ *   1. **Register version 8** — his M6 qualifier vocabulary (*"the machine-readable representation must preserve the
+ *      distinction between: No further value is required. The value is explicitly unrestricted. A necessary value is
+ *      missing."*) and his M8 relational referent form, both approved 17 October. The register version is hashed into
+ *      the input, so `inputDigest` / `fromDigest` (d2fbd15e → f77ec627), the audit digest (cbf5c31d → 831ab337) and the
+ *      `registerVersion` sentence moved. Nothing the Golden Case selects carries a qualifier or a relational referent:
+ *      C55 and C57 are RPC-001's, which A04 does not select.
+ *   2. **`status.notEstablished` carries each entry's `governedBy` whole.** The fixture boundary kept only the reason
+ *      code and the row-wide kinds, so which of his three states a 'not constrained' entry is in was lost one step
+ *      before the renderer (the silent-loss pattern; rendering-fixture.ts). Each of the eight entries gains the
+ *      declarations that decided it — for the Golden Case every one is a legacy non-claim or nobody looking, so no
+ *      entry reads as "no further value" and no observation is added.
+ *
+ * `git diff` of the fixture shows those three digests, the version sentence and the eight `governedBy` lists, nothing
+ * else: `game`, every value, every choice, the geometry, the roster and the realization digest are byte-identical.
+ * `npm run render:a04` was diffed before and after: the rendered text is identical, only the two digests it prints moved.
+ *
  * Run: npm test
  */
 import assert from 'node:assert/strict'

@@ -51,6 +51,12 @@ export interface DeclarationReach {
      * and set by none on 15 October 2026; absent means no such relationship.
      */
     defersTo?: unknown
+    /**
+     * Which of his three states a non-claim is (`NO_FURTHER_VALUE`; types.ts). Carried 15 October 2026 (stage K1) the
+     * way `defersTo` is — present only where the declaration carries one — and read by `governingDeclarations`
+     * (classify.ts), which lets a qualified non-claim set a ruled deferral aside where a legacy one cannot.
+     */
+    qualifier?: unknown
 }
 
 /**
@@ -166,6 +172,7 @@ export function resolveScopes(contracts: LoadedContract[], classes: ElementClass
                 parsed: parseSelector(declaration.selector, row, index),
                 note: declaration.note,
                 ...(declaration.defersTo === undefined ? {} : { defersTo: declaration.defersTo }),
+                ...(declaration.qualifier === undefined ? {} : { qualifier: declaration.qualifier }),
             })
         }
     }

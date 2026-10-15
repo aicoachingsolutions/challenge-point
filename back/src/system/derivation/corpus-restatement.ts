@@ -26,7 +26,9 @@
  *     selects it reads the row as "no coverage" — nobody looked — even where the contract plainly did look at the
  *     performers the row belongs to. The addition is applied only to a contract that exists and does not already
  *     declare the row, so it can extend what a contract says and can never overwrite or contradict it; counted on
- *     its own, and never silent when it cannot be applied.
+ *     its own, and never silent when it cannot be applied. ONE exception since 15 October 2026 (stage K1, his 17
+ *     October M6): an addition that opts in with `onDeclaredRow: "PROVEN_DISJOINT"` may join a row the contract
+ *     already declares, only when it provably cannot contradict what is there (`provenDisjointRefusal`).
  */
 
 import fs from 'node:fs'
@@ -34,6 +36,8 @@ import path from 'node:path'
 
 import { AUDITS_DIR } from './knowledge-root'
 
+import { provablyDisjoint } from './reach'
+import { parsePredicate } from './selector'
 import { ContractItem, DEFERS_TO_ESTABLISHING_OBJECT, LoadedContract } from './types'
 
 /** The spellings the corpus used for "no row holds this", neither of them registered. */
@@ -107,9 +111,78 @@ export function restateDeclaration(declaration: Record<string, unknown>, restate
  */
 export interface DeclarationAddition {
     contractId: string
-    declaration: { row: string; declaration: string; selector: string; scope: string; note: string }
+    declaration: { row: string; declaration: string; selector: string; scope: string; note: string; qualifier?: string; defersTo?: string }
+    /**
+     * **The one way an addition may join a row its contract already declares** (15 October 2026, stage K1). Absent —
+     * C48's rule — an already-declared row refuses the addition. `PROVEN_DISJOINT` opts this addition into M6's
+     * exception, and is honoured only when the proof in `provenDisjointRefusal` holds.
+     */
+    onDeclaredRow?: 'PROVEN_DISJOINT'
     ruling: string
     why: string
+}
+
+/**
+ * **His M6 exception, and the proof it rests on** (15 October 2026, stage K1). His 17 October words: *"I approve the
+ * narrow authority exception where the added statement provably cannot contradict existing knowledge."* Until then a
+ * ruling could add a declaration only to a row its contract had not declared (C48), so no ruling could record that a
+ * context's own condition detail needs no further value — his 9.9 (16 October) for the build-out origin.
+ *
+ * An addition on an already-declared row is admitted only when ALL of these hold; otherwise nothing is added and the
+ * reason is named (never silent):
+ *
+ *   1. it is a NON_CLAIMED qualified with a registered state — a statement of what the field needs, not a requirement
+ *      that could compete with one, and never a legacy non-claim (which cannot be told from "unrestricted");
+ *   2. it carries no deferral (a deferral is a supersession, and only a declaration restatement writes one);
+ *   3. it is PROVABLY DISJOINT (reach.ts `provablyDisjoint`: FALSE both ways; `*`, CONTAINS and undetermined never
+ *      prove) from:
+ *        - every declaration its own contract already has on the row, whatever the kind;
+ *        - every CLAIMED declaration ANY contract has on the row — measured in the K1 design's verification: under
+ *          AM-23 a non-claim outranks a claim in one governing set, so a contract-local proof admitted a statement
+ *          that HID another contract's requirement on a test copy;
+ *        - every item on the row, in any contract, that authors a value the field must take: an authored value is
+ *          exactly what "needs no further value" would contradict.
+ *      An item of EXCLUSION strictness is not in that last list, and that is a reading recorded here rather than a
+ *      relaxation: it authors a value the field must NOT take, which "no further value is required" does not
+ *      contradict, and it keeps governing the line on its own (its contract's EXCLUDED outranks 'not constrained'
+ *      under AM-23 — measured: in the full corpus the origin line reads 'excluded' through the Neutral Player
+ *      Condition's own exclusion). Other contracts' EXCLUDED and NOT_AUTHORED declarations need no proof for the
+ *      same reason: they outrank 'not constrained' already, and the one NOT_AUTHORED that steps aside (C50) does so
+ *      on his ruling, not on this one.
+ *
+ * The selectors are compared by their syntax (selector.ts `parsePredicate`); an unparseable one is refused, never
+ * passed. The proof runs over every contract the corpus file holds, which is wider than any one composition and so
+ * can only refuse more. The Sport Profile is not in that file: it declares no condition row (O1, O3-O5, PS1).
+ */
+export function provenDisjointRefusal(addition: DeclarationAddition, contracts: LoadedContract[]): string | null {
+    const label = `${addition.contractId} declared row ${addition.declaration.row} (${addition.ruling})`
+    const row = String(addition.declaration.row)
+    if (addition.declaration.declaration !== 'NON_CLAIMED' || addition.declaration.qualifier === undefined) {
+        return `${label}: only a non-claim qualified with a registered state may join a row the contract already declares, so nothing is added`
+    }
+    if (addition.declaration.defersTo !== undefined) return `${label}: an added declaration may not carry a deferral, so nothing is added`
+    const added = parsePredicate(addition.declaration.selector)
+    if (!added.predicate) return `${label}: its own selector cannot be read (${added.defect}), so disjointness cannot be proved and nothing is added`
+
+    const against: { what: string; selector: unknown }[] = []
+    for (const contract of contracts) {
+        for (const declaration of (contract.declarations || []) as any[]) {
+            if (String(declaration.row) !== row) continue
+            if (contract.contractId === addition.contractId || declaration.declaration === 'CLAIMED') {
+                against.push({ what: `${contract.contractId === addition.contractId ? 'its' : `${contract.contractId}'s`} ${declaration.declaration} ${declaration.selector}`, selector: declaration.selector })
+            }
+        }
+        for (const item of contract.items || []) {
+            if (String(item.row) !== row || item.strictness === 'EXCLUSION') continue
+            against.push({ what: `item ${contract.contractId}::${item.itemId} ${String(item.selector ?? '*')}`, selector: item.selector })
+        }
+    }
+    for (const other of against) {
+        const parsed = parsePredicate(other.selector)
+        if (!parsed.predicate) return `${label}: ${other.what} cannot be read (${parsed.defect}), so disjointness cannot be proved and nothing is added`
+        if (!provablyDisjoint(added.predicate, parsed.predicate)) return `${label}: the added declaration is not proven disjoint from ${other.what}, so nothing is added`
+    }
+    return null
 }
 
 interface RestatementData {
@@ -146,9 +219,16 @@ export interface RestatementTally {
     /** Declarations a ruling added — tallied apart again, because adding what a contract says is not changing it. */
     declarationsAdded: number
     /**
+     * Declarations a ruling added to a row the contract ALREADY declared, under his M6 exception (`PROVEN_DISJOINT`,
+     * 15 October 2026, stage K1) — counted apart from C48's additions, which fill a row nobody had declared, so neither
+     * count can hide the other.
+     */
+    declarationsAddedOnDeclaredRows: number
+    /**
      * Anything named in a ruling that could not be found — never silent. An added declaration whose row the
      * contract already declares is recorded here too: the place it was to fill is not there, and adding it anyway
-     * would put a second account of the row beside the authored one.
+     * would put a second account of the row beside the authored one — unless the ruling opts into M6's exception and
+     * the proof holds; a failed proof is recorded here with its reason.
      */
     notFound: string[]
 }
@@ -176,7 +256,11 @@ export function applyNoRowRestatement(contracts: LoadedContract[], tally: Restat
     tally.declarationScopes = 0
     tally.declarationsRestated = 0
     tally.declarationsAdded = 0
+    tally.declarationsAddedOnDeclaredRows = 0
     tally.notFound = []
+    // M6 additions wait until every contract is restated, because their proof reads OTHER contracts' declarations and
+    // items as the rulings leave them (`provenDisjointRefusal`).
+    const onDeclaredRows: DeclarationAddition[] = []
 
     // An item can carry more than one ruling — A01-02-05.a carries SD-87's selector and SD-88's
     // authored ownership — so they are collected per item and applied in the order listed. Keying one
@@ -267,6 +351,10 @@ export function applyNoRowRestatement(contracts: LoadedContract[], tally: Restat
             if (addition.contractId !== contract.contractId) continue
             const row = String(addition.declaration.row)
             const existing = declarations.filter((declaration: any) => String(declaration.row) === row)
+            if (existing.length && addition.onDeclaredRow === 'PROVEN_DISJOINT') {
+                onDeclaredRows.push(addition)
+                continue
+            }
             if (existing.length) {
                 const kinds = existing.map((declaration: any) => String(declaration.declaration)).join(', ')
                 tally.notFound.push(`${addition.contractId} undeclared row ${row} (${addition.ruling}): it already declares ${kinds}, so nothing is added`)
@@ -278,6 +366,17 @@ export function applyNoRowRestatement(contracts: LoadedContract[], tally: Restat
 
         return { ...contract, items, declarations }
     })
+    // His M6 exception, applied last and one addition at a time, so each proof reads every earlier one as admitted.
+    for (const addition of onDeclaredRows) {
+        const refusal = provenDisjointRefusal(addition, result)
+        if (refusal) {
+            tally.notFound.push(refusal)
+            continue
+        }
+        const at = result.findIndex(contract => contract.contractId === addition.contractId)
+        result[at] = { ...result[at], declarations: [...(result[at].declarations || []), { ...addition.declaration }] }
+        tally.declarationsAddedOnDeclaredRows++
+    }
     for (const restatement of DECLARATION_RESTATEMENTS) {
         if (!result.some(contract => contract.contractId === restatement.contractId)) tally.notFound.push(`${restatement.contractId} (declaration restatement ${restatement.ruling})`)
     }

@@ -239,9 +239,16 @@ test('registering the member changed no verdict in any of the thirteen goals', (
      * objective gone so is the line. Each team keeps its own live objective (GF2-08.c, GF2-08.e), pinned in
      * derivation-stage11.unit.ts.
      */
-    const A01_COMPOSITION = { failed: 13, gateA: 'FAIL', reachable: true }
+    /**
+     * **11 · 15 October, stage K1 — A01 12 → 10 and its old composition 13 → 11, measured; no verdict moves.** His M8
+     * (17 October: *"Apply the qualifying conditions to the target and scoring episode actually being evaluated"*,
+     * ruling C57) types the referents of the context's control condition and long-clearance exclusion, so those two
+     * lines are derived. (The origin's value line, C55 — his 9.9 — stays unauthored: it now needs no further value,
+     * an established absence, still counted here as a line with no value.) Gate A stays FAIL: GA-EPISODE-REACHABLE.
+     */
+    const A01_COMPOSITION = { failed: 11, gateA: 'FAIL', reachable: true }
     const expected: Record<string, { failed: number; gateA: string; reachable: boolean }> = {
-        A01: { failed: 12, gateA: 'FAIL', reachable: true },
+        A01: { failed: 10, gateA: 'FAIL', reachable: true },
         D01: { failed: 8, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
         TA01: { failed: 15, gateA: 'FAIL', reachable: false },
         TD01: { failed: 14, gateA: 'FAIL', reachable: false },

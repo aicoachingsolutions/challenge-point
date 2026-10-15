@@ -240,14 +240,22 @@ test('the declarations reaching a row travel with the line, because a reason cod
     // Read over the whole row instead, exactly five lines would carry another code — the five his rule moved
     // (measured 15 October 2026; governing-declarations.unit.ts pins each move). More lines than these decide over
     // a narrower set, but for the rest the narrowing drops only declarations that would not have changed the code.
+    //
+    // **Six since 15 October 2026 (stage K1, C55).** The origin's value line, RPC-001-18.a::V6, is decided by RPC-001's
+    // explicit "no further value" (his 9.9) beside the Neutral Player Condition's exclusion — 'excluded' — where the
+    // whole row would read GF2's deferring gap. governing-declarations.unit.ts pins the move and that nothing else moved.
     const moved = unestablished.filter(e => am23(e.declared) !== e.reason).map(e => e.lineId).sort()
     assert.deepEqual(moved, [
         'c:blind:GF4:I03::S4',
         'c:blind:GF4:I17::V9',
         'c:restated:GF2:GF2-03.e::S4',
         'c:restated:GF2:GF2-03.f::S4',
+        'c:restated:RPC-001:RPC-001-18.a::V6',
         'c:restated:VARIABLE-TARGET-CONDITION:VARTARGET-13.a::V20',
     ])
+    // The qualifier crosses into the resolved game on the declaration that decided (copied whole, never projected).
+    const origin = unestablished.find(e => e.lineId === 'c:restated:RPC-001:RPC-001-18.a::V6')!
+    assert.deepEqual(origin.governedBy.filter(g => g.declaration === 'NON_CLAIMED'), [{ contractId: 'restated:RPC-001', declaration: 'NON_CLAIMED', selector: 'type=origin', qualifier: 'NO_FURTHER_VALUE' }])
 })
 
 test('provenance names the run it came from', () => {

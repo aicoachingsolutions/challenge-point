@@ -162,6 +162,18 @@
                     "what": "Equal outfield numbers are the only allocation current knowledge authorizes.",
                     "sources": ["contract item GF2-14.b (OWNER_RULING, ruling C31b, 1 October 2026)"],
                     "note": "Whether they fit the asymmetric structure is decision D6; they are not applied as a default."
+                },
+                {
+                    "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
+                    "what": "The origin of a build-out needs no further value.",
+                    "sources": ["his 16 October reply, item 9.9", "his 17 October reply, M6", "ruling C55", "contract item RPC-001-18.a"],
+                    "note": "Recorded 15 October 2026 (stage K1) as RPC-001's own statement, qualified NO_FURTHER_VALUE - the first of his three states (M6) - so the field is valid and is never filled. It was capability M6 in this record's gaps; RPC-001-18.a::V6 is no longer a stop. Canonical context knowledge on his ruling, not a provisional choice. The wording of this line is ours."
+                },
+                {
+                    "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
+                    "what": "Controlled arrival and the long-clearance exclusion are judged against the target the scoring team attacks, within the build-out episode; a longer pass received under control is not excluded.",
+                    "sources": ["RPC-PROP-132 (approved 13 September 2026)", "his 16 October reply, item 9.2", "his 17 October reply, M8", "ruling C57", "contract item RPC-001-18.h", "contract item RPC-001-19.c"],
+                    "note": "Recorded 15 October 2026 (stage K1): the two referents typed as the objective reference of the scoring team, scoped to the build-out episode (C52), with his M8 safeguard beside the exclusion (RPC-001-19.b). It was capability M8 in this record's gaps; RPC-001-18.f::V5 and 19.a::V5 are no longer stops. 'The target the scoring team attacks' is our M8 wording, which he approved; it is not his sentence."
                 }
             ],
             "gaps": [
@@ -177,9 +189,7 @@
                 { "id": "M3", "kind": "CAPABILITY", "description": "Starts and restarts built from the knowledge: the goalkeeper or a controlled restart, the coach choosing the location, the method recorded per activity.", "note": "Would also move GA-EPISODE-REACHABLE, a stop at structure." },
                 { "id": "M4", "kind": "CAPABILITY", "description": "One coach-judged 'episode concluded' event, in his words.", "note": null },
                 { "id": "M5", "kind": "CAPABILITY", "description": "A starting placement for a team, built and stated to the coach (optionally re-established at restarts).", "note": null },
-                { "id": "M6", "kind": "CAPABILITY", "description": "Recording that the origin of a build-out needs no further value (his 9.9), through one narrow exception to the check that stops a ruling adding a statement.", "note": "Would move RPC-001-18.a::V6, a stop at structure." },
-                { "id": "M7", "kind": "CAPABILITY", "description": "Only if D3 calls for it: a target placed beyond the pressure reference, and his word on halfway.", "note": null },
-                { "id": "M8", "kind": "CAPABILITY", "description": "Judging controlled arrival and the long-clearance exclusion against the target the scoring team attacks (his 9.2), after D1 and D3.", "note": "Would move RPC-001-18.f::V5 and RPC-001-19.a::V5, stops at structure." }
+                { "id": "M7", "kind": "CAPABILITY", "description": "Only if D3 calls for it: a target placed beyond the pressure reference, and his word on halfway.", "note": null }
             ],
             "excluded": [
                 {

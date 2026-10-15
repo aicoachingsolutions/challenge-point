@@ -25,7 +25,7 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 
-import { ClassifiedLine, governingDeclarations, reasonFor } from './classify'
+import { ClassifiedLine, governingDeclarations, nonClaimState, reasonFor } from './classify'
 import { CONFORMANCE_DIR, corpusInput, loadRegister } from './corpus'
 import { restateDeclaration } from './corpus-restatement'
 import { runStages0to10 } from './engine'
@@ -115,13 +115,26 @@ const moves = (r: Run) =>
         .map(([lineId, [now, before]]) => `${lineId}: ${before} -> ${now}`)
         .sort()
 
-test('corpus-wide, exactly five lines move, each as the design analysis predicted', () => {
+/**
+ * **The line his 9.9 settles** (C55, stage K1, 15 October 2026). His 16 October reply, item 9 point 9: *"Build-out
+ * origin needs no further value: Approved under the narrow authority ruling."* RPC-001 now states it explicitly
+ * (NON_CLAIMED, NO_FURTHER_VALUE, `type=origin`), so this line is decided by that statement alone wherever GF2's
+ * deferring gap would otherwise govern — a move between the row-wide reading and the rule that is his ruling at work,
+ * not a relaxation the rule found. It is the ONE line exempted below, and every exemption names it.
+ */
+const ORIGIN_VALUE = 'c:restated:RPC-001:RPC-001-18.a::V6'
+
+test('corpus-wide, exactly five lines move, each as the design analysis predicted — and, since C55, the origin line his 9.9 settles', () => {
     // 30 lines are decided from declarations (derivation-stage10 pins the count, unchanged by this rule).
     // 30 -> 29 on 15 October 2026 (C51): RPC-001-11.a::J2 was one of them ('excluded' corpus-wide). His reply of that
     // day (9.5, "Retire the redundant separate scoring objective: Approved, provided the live attacking objective
     // remains represented") retired the objective it belonged to, so the line no longer exists. It never moved here.
+    // 29 -> 27 on 15 October 2026 (stage K1, C57): RPC-001-18.f::V5 and 19.a::V5 — the referents of the control
+    // condition and the long-clearance exclusion — are no longer decided from declarations: his M8 (17 October,
+    // "Apply the qualifying conditions to the target and scoring episode actually being evaluated") types each as
+    // the objective reference of the scoring team, so both lines are derived. Pinned in typed-referent.unit.ts.
     const corpus = run('corpus')
-    assert.equal(corpus.reasons.size, 29)
+    assert.equal(corpus.reasons.size, 27)
     assert.deepEqual(moves(corpus), [
         // An exclusion scoped to Wide Zone's OWN involvement had been relabelling regions it never addressed.
         'c:blind:GF4:I03::S4: excluded -> not constrained',
@@ -130,14 +143,23 @@ test('corpus-wide, exactly five lines move, each as the design analysis predicte
         'c:blind:GF4:I17::V9: declared gap -> claimed but unresolved',
         'c:restated:GF2:GF2-03.e::S4: excluded -> not constrained',
         'c:restated:GF2:GF2-03.f::S4: excluded -> not constrained',
+        // C55 (stage K1): RPC-001's explicit "no further value" for the origin, under C50's deferral. Corpus-wide it
+        // reads 'excluded', not 'not constrained': the Neutral Player Condition's own EXCLUDED * on V6 is a general
+        // requirement and stays in force, outranking the non-claim under AM-23.
+        `${ORIGIN_VALUE}: declared gap -> excluded`,
         'c:restated:VARIABLE-TARGET-CONDITION:VARTARGET-13.a::V20: declared gap -> claimed but unresolved',
     ])
 })
 
-test('no blocking line becomes non-blocking, in the corpus or in any composition', () => {
+test('no blocking line becomes non-blocking, in the corpus or in any composition — except the origin line his 9.9 settles (C55)', () => {
+    // Re-pointed 15 October 2026 (stage K1). The rule itself relaxes nothing; the one line that moves from blocking
+    // to non-blocking does so because RPC-001 now SAYS, explicitly, that it needs no further value (C55), and C50's
+    // deferral — his Option A — is the authorized relationship that lets the establishing object's explicit
+    // statement govern. Pinned by name so nothing else can join it unnoticed.
     for (const [name] of [...COMPOSITIONS, ...GF4_COMPOSITIONS]) {
-        const relaxed = [...run(name).reasons.entries()].filter(([, [now, before]]) => BLOCKING.includes(before) && !BLOCKING.includes(now))
-        assert.deepEqual(relaxed, [], `${name}: a requirement that blocked still blocks`)
+        const relaxed = [...run(name).reasons.entries()].filter(([, [now, before]]) => BLOCKING.includes(before) && !BLOCKING.includes(now)).map(([lineId]) => lineId)
+        const expected = name === 'corpus' || name.includes('RPC-001') ? [ORIGIN_VALUE] : []
+        assert.deepEqual(relaxed, expected, `${name}: a requirement that blocked still blocks`)
     }
 })
 
@@ -159,12 +181,22 @@ test('Gate A check verdicts are unchanged everywhere; the blockers the rule expo
         assert.equal(now.verdict, expected[name], `${name}: Gate A`)
         assert.equal(before.verdict, now.verdict, `${name}: Gate A is what it was`)
         const verdicts = (g: any) => Object.fromEntries(g.checks.map((c: any) => [c.checkId, c.verdict]))
-        assert.deepEqual(verdicts(now), verdicts(before), `${name}: no check verdict moves`)
+        // **15 October 2026 (stage K1, C55): one check moves, in one composition, and it is his 9.9.** In GF2 + RPC-001
+        // the origin's value line was the last line GA-NO-FAILED-LINE failed on once C57 typed the two referents; read
+        // row-wide it is a declared gap, read by the rule it is RPC-001's explicit "no further value". Measured: no
+        // other check moves anywhere, and Gate A stays FAIL (GA-EPISODE-REACHABLE).
+        const moved = name === 'GF2 + RPC-001' ? { 'GA-NO-FAILED-LINE': ['FAIL', 'PASS'] } : {}
+        for (const [checkId, [was, is]] of Object.entries(moved)) {
+            assert.deepEqual([verdicts(before)[checkId], verdicts(now)[checkId]], [was, is], `${name}: ${checkId} moves as pinned`)
+        }
+        const rest = (g: any) => Object.fromEntries(Object.entries(verdicts(g)).filter(([checkId]) => !(checkId in moved)))
+        assert.deepEqual(rest(now), rest(before), `${name}: no other check verdict moves`)
 
         const blockers = (g: any) => g.checks.find((c: any) => c.checkId === 'GA-NO-FAILED-LINE').subjects as string[]
         const added = blockers(now).filter(id => !blockers(before).includes(id))
         const removed = blockers(before).filter(id => !blockers(now).includes(id))
-        assert.deepEqual(removed, [], `${name}: no blocker is lost`)
+        // Re-pointed 15 October 2026 (stage K1): the origin line is the one blocker the rule sets aside, by C55 alone.
+        assert.deepEqual(removed, name === 'corpus' || name.includes('RPC-001') ? [ORIGIN_VALUE] : [], `${name}: no blocker is lost but the origin line his 9.9 settles`)
         // The context's objective claimed its own target and nothing resolved it. GF2's non-claim on REPRESENTATIVE
         // objectives — whose selector is FALSE for a PRIMARY_SCORING one — had been hiding that claim.
         // **Re-pointed 15 October 2026 (C51).** That gain, RPC-001-11.a::J2 in both GF2 + RPC-001 compositions, is
@@ -176,16 +208,37 @@ test('Gate A check verdicts are unchanged everywhere; the blockers the rule expo
     }
 })
 
-test('silence never overrides: RPC-001\'s control, exclusion and origin lines stay declared gaps, decided row-wide', () => {
-    // RPC-001 says nothing explicit about these (its control/exclusion place is UNDECLARED, "Referents never
-    // examined", and nothing of its own reaches the origin's value), so GF2's general gap still governs. His
-    // answer 9 does not unblock A01; only explicit knowledge about these details could.
+/** C55's declaration and C57's two items taken off a deep copy: the knowledge as it stood before stage K1. */
+const withoutK1 = (contracts: any[]) => {
+    for (const contract of contracts) {
+        contract.declarations = (contract.declarations ?? []).filter((d: any) => d.qualifier === undefined)
+        contract.items = (contract.items ?? []).filter((i: any) => !['RPC-001-18.h', 'RPC-001-19.c'].includes(i.itemId))
+    }
+}
+
+test('silence never overrides: RPC-001\'s control, exclusion and origin lines were declared gaps decided row-wide, and move only by what his rulings made explicit', () => {
+    // RPC-001 said nothing explicit about these (its control/exclusion place is UNDECLARED, "Referents never
+    // examined", and nothing of its own reached the origin's value), so GF2's general gap governed. His answer 9
+    // did not unblock A01; only explicit knowledge about these details could.
+    //
+    // **Re-pointed 15 October 2026 (stage K1).** That explicit knowledge now exists, written by his rulings and by
+    // nothing else: C57 (his M8) types the two referents, so those lines are DERIVED, and C55 (his 9.9) states that
+    // the origin's value needs no further value, so that line is decided by that statement alone. On a copy without
+    // the two rulings the three lines are exactly what they were — declared gaps over the whole row.
     for (const name of ['GF2 + RPC-001', 'GF2 + RPC-001 + A01-02']) {
         const r = run(name)
-        for (const lineId of ['c:restated:RPC-001:RPC-001-18.f::V5', 'c:restated:RPC-001:RPC-001-19.a::V5', 'c:restated:RPC-001:RPC-001-18.a::V6']) {
-            const line = r.staged.classified.get(lineId) as ClassifiedLine
-            assert.equal(line.reason, 'declared gap', `${name} ${lineId}`)
-            const rowWide = r.staged.scope.declarations.filter((d: DeclarationReach) => d.row === r.rowOf.get(lineId))
+        for (const lineId of ['c:restated:RPC-001:RPC-001-18.f::V5', 'c:restated:RPC-001:RPC-001-19.a::V5']) {
+            assert.equal((r.staged.classified.get(lineId) as ClassifiedLine).verdict, 'RESOLVED:ENTAILED', `${name} ${lineId}: derived from C57`)
+        }
+        const origin = r.staged.classified.get(ORIGIN_VALUE) as ClassifiedLine
+        assert.equal(origin.reason, 'not constrained', `${name}: the origin's value needs no further value`)
+        assert.deepEqual(origin.governedBy, [{ contractId: 'restated:RPC-001', declaration: 'NON_CLAIMED', selector: 'type=origin', qualifier: 'NO_FURTHER_VALUE' }], `${name}: decided by C55 alone`)
+
+        const before = stagedOver(COMPOSITIONS.find(([n]) => n === name)![1], withoutK1)
+        for (const lineId of ['c:restated:RPC-001:RPC-001-18.f::V5', 'c:restated:RPC-001:RPC-001-19.a::V5', ORIGIN_VALUE]) {
+            const line = before.classified.get(lineId) as ClassifiedLine
+            assert.equal(line.reason, 'declared gap', `${name} ${lineId}, without C55 and C57`)
+            const rowWide = before.scope.declarations.filter((d: DeclarationReach) => d.row === lineId.slice(lineId.lastIndexOf('::') + 2))
             assert.equal(line.governedBy!.length, rowWide.length, `${name} ${lineId}: the establishing object is silent, so the whole row decides`)
         }
     }
@@ -296,41 +349,68 @@ const PCG_COMPOSITIONS: [string, () => DerivationInput][] = [
     ['GF2 + Neutral + Pass Combination Gate', () => compose(['restated:GF2', 'restated:NEUTRAL-PLAYER-CONDITION', GATE])],
 ]
 
-test('Option A moves nothing, in the corpus or any composition: every reason and every Gate A check is what it is with the four deferrals stripped', () => {
+test('Option A moves exactly the origin line since C55, and nothing else, in the corpus or any composition (the four deferrals stripped)', () => {
     // Measured by probe on 15 October 2026 before this test was written (the design analysis predicted it): with C49
     // in place, Option A's four deferrals change no line anywhere. They are not idle — the constructed cases below
     // show each one bite — but no object in the corpus speaks explicitly about V3-V6 where GF2's gap reaches today
     // except the gate, whose own statement is now a gap too.
+    //
+    // **Re-pointed 15 October 2026 (stage K1): "moves nothing" -> "moves exactly 18.a::V6".** C55 is the first statement
+    // that speaks explicitly about V3-V6 where GF2's gap reaches, and it is exactly what his Option A was approved for:
+    // *"A context may explicitly establish that a particular scoring-condition detail requires no additional value."*
+    // Wherever GF2's deferring gap reaches the origin's value, stripping the deferral puts the gap back; and in GF2 +
+    // RPC-001, where it is the last blocker, GA-NO-FAILED-LINE with it. Nothing else moves (measured).
+    const ORIGIN_MOVE = (now: string) => `${ORIGIN_VALUE}: NOT_AUTHORED/declared gap -> NOT_AUTHORED/${now}`
+    const expected: Record<string, string[]> = {
+        corpus: [ORIGIN_MOVE('excluded')],
+        'GF2 + RPC-001': ['Gate A GA-NO-FAILED-LINE: FAIL -> PASS', ORIGIN_MOVE('not constrained')],
+        'GF2 + RPC-001 + A01-02': [ORIGIN_MOVE('not constrained')],
+    }
     for (const [name, make] of [...COMPOSITIONS, ...GF4_COMPOSITIONS, ...PCG_COMPOSITIONS]) {
-        assert.deepEqual(differences(stagedOver(make, stripDeferrals), stagedOver(make, () => undefined)), [], `${name}: Option A moves nothing`)
+        assert.deepEqual(differences(stagedOver(make, stripDeferrals), stagedOver(make, () => undefined)), expected[name] ?? [], `${name}: what Option A moves`)
     }
 })
 
-test('WHY C49 had to land with Option A, on a TEST-ONLY copy without it: the deferral would read the gate\'s non-claim as "count anywhere"', () => {
+test('WHY C49 had to land with Option A, on a TEST-ONLY copy without it: the deferral read the gate\'s non-claim as "count anywhere" — until the K1 tightening, which closes it in the mechanism too', () => {
     // The gate's V5 put back to C45's NON_CLAIMED on a copy. With the four deferrals, the possession game's gap
     // steps aside for the gate's explicit statement, and that statement is a non-claim: the gate's condition would
     // count passes anywhere — exactly the reading his 16 October item 8 rejected ("removing 'in their half' should not
     // automatically be interpreted as authorizing pass counting anywhere"). Without the deferrals, or with C49, it
     // stays a declared gap. The demonstration-level consequence (structure -> communication) is pinned in
     // activity-review.unit.ts.
+    //
+    // **Re-pointed 15 October 2026 (stage K1): since the deferral tightening the MECHANISM closes this too.** A ruled
+    // deferral now steps aside only for a statement that specifies (classify.ts, recorded beside C50), and C45's
+    // non-claim was a legacy one: it said only that the gate does not constrain its place. So without C49 the line
+    // stays a declared gap — measured, the design analysis predicted it — and the "count anywhere" reading cannot
+    // come back through an unqualified non-claim. It comes back only through a statement that the place needs no
+    // further value (the third column, a TEST-ONLY qualifier on the copy): exactly the explicit statement his item 8
+    // says a context MAY make, and that nobody has made for the gate.
     const line = `c:${GATE}:PCG-02::V5`
-    const expected: Record<string, [string, string, string]> = {
-        // [with C49 and Option A, without C49 but with Option A, without C49 and without Option A]
-        corpus: ['declared gap', 'excluded', 'declared gap'],
-        'GF2 + Pass Combination Gate': ['declared gap', 'not constrained', 'declared gap'],
-        'GF2 + Neutral + Pass Combination Gate': ['declared gap', 'not constrained', 'declared gap'],
+    const qualifiedAsBeforeC49 = (contracts: any[]) => {
+        gateV5AsBeforeC49(contracts)
+        contracts.find(c => c.contractId === GATE).declarations.find((d: any) => d.row === 'V5').qualifier = 'NO_FURTHER_VALUE' // TEST-ONLY
+    }
+    const expected: Record<string, [string, string, string, string]> = {
+        // [with C49 and Option A, without C49 but with Option A, without C49 qualified NO_FURTHER_VALUE (TEST-ONLY), without C49 and without Option A]
+        corpus: ['declared gap', 'declared gap', 'excluded', 'declared gap'],
+        'GF2 + Pass Combination Gate': ['declared gap', 'declared gap', 'not constrained', 'declared gap'],
+        'GF2 + Neutral + Pass Combination Gate': ['declared gap', 'declared gap', 'not constrained', 'declared gap'],
     }
     for (const [name, make] of [...COMPOSITIONS, ...PCG_COMPOSITIONS].filter(([n]) => n in expected)) {
         const now = stagedOver(make, () => undefined)
         const withoutC49 = stagedOver(make, gateV5AsBeforeC49)
+        const qualified = stagedOver(make, qualifiedAsBeforeC49)
         const neither = stagedOver(make, contracts => (gateV5AsBeforeC49(contracts), stripDeferrals(contracts)))
-        assert.deepEqual([now, withoutC49, neither].map(s => s.classified.get(line).reason), expected[name], name)
-        // Nothing but that line (and the checks it feeds) moves.
-        assert.deepEqual(differences(now, withoutC49).filter(d => !d.startsWith('Gate A')), [`${line}: NOT_AUTHORED/declared gap -> NOT_AUTHORED/${expected[name][1]}`], name)
+        assert.deepEqual([now, withoutC49, qualified, neither].map(s => s.classified.get(line).reason), expected[name], name)
+        // Without C49 nothing moves at all now; only the qualified statement moves that line (and the checks it feeds).
+        assert.deepEqual(differences(now, withoutC49), [], name)
+        assert.deepEqual(differences(now, qualified).filter(d => !d.startsWith('Gate A')), [`${line}: NOT_AUTHORED/declared gap -> NOT_AUTHORED/${expected[name][2]}`], name)
     }
     const gf2Gate = stagedOver(() => compose(['restated:GF2', GATE]), gateV5AsBeforeC49)
-    assert.equal(gf2Gate.gates.gateA.verdict, 'DEFERRED_TO_REALIZATION', 'without C49 the gate composition would pass Gate A')
-    assert.equal(stagedOver(() => compose(['restated:GF2', GATE]), () => undefined).gates.gateA.verdict, 'FAIL', 'with it, it does not')
+    assert.equal(gf2Gate.gates.gateA.verdict, 'FAIL', 'without C49 the gate composition no longer passes Gate A (before the K1 tightening it read DEFERRED_TO_REALIZATION)')
+    assert.equal(stagedOver(() => compose(['restated:GF2', GATE]), qualifiedAsBeforeC49).gates.gateA.verdict, 'DEFERRED_TO_REALIZATION', 'only an explicit "no further value" would let it through')
+    assert.equal(stagedOver(() => compose(['restated:GF2', GATE]), () => undefined).gates.gateA.verdict, 'FAIL', 'with C49, it does not')
 })
 
 test('TIGHTENED by C49 (15 October 2026): the gate composed with the second game form, or alone, no longer counts passes anywhere', () => {
@@ -372,25 +452,35 @@ function controlLineWithRpc001(rpc001V5: Record<string, unknown>[], strip = fals
                 ...rpc.declarations.filter((d: any) => String(d.row) !== 'V5'),
                 ...rpc001V5.map(d => ({ row: 'V5', scope: 'WHOLE_GAME', note: 'TEST-ONLY construction', ...d })),
             ]
+            // Since C57 (stage K1, 15 October 2026) RPC-001 authors this referent, so the line is derived and no
+            // declaration decides it. The item is taken off the copy, so the declarations alone decide it again.
+            rpc.items = rpc.items.filter((i: any) => i.itemId !== 'RPC-001-18.h')
             if (strip) stripDeferrals(contracts)
         },
     )
     return staged.classified.get('c:restated:RPC-001:RPC-001-18.f::V5') as ClassifiedLine
 }
 
-test('his item 8 distinction, constructed on copies: an explicit "no further value" is valid, a missing value still blocks', () => {
+test('his item 8 distinction, constructed on copies: an explicit "no further value" is valid, a missing value still blocks — and since M6 "explicit" means QUALIFIED', () => {
     // RPC-001-18.f establishes a control condition (type=control). TEST-ONLY: RPC-001 is made to say, explicitly, that
     // its control condition's place needs no further value — NON_CLAIMED for type=control. Nothing authored says so.
-    const explicit = controlLineWithRpc001([{ declaration: 'NON_CLAIMED', selector: 'type=control' }])
+    //
+    // **Re-pointed 15 October 2026 (stage K1).** "Explicitly" is now machine-readable: his M6 (17 October) keeps "no
+    // further value is required" apart from a non-claim that merely does not constrain, so the TEST-ONLY statement
+    // carries the qualifier NO_FURTHER_VALUE. The same statement unqualified is a legacy non-claim and, under the
+    // deferral tightening recorded beside C50, no longer sets GF2's gap aside: a declared gap, as below.
+    const explicit = controlLineWithRpc001([{ declaration: 'NON_CLAIMED', selector: 'type=control', qualifier: 'NO_FURTHER_VALUE' }])
     assert.equal(explicit.reason, 'not constrained', '"A field explicitly defined as not applicable or requiring no further value ... should be valid"')
-    assert.deepEqual(explicit.governedBy!.map(d => `${d.contractId} ${d.declaration}`), ['restated:RPC-001 NON_CLAIMED'], 'decided by the establishing object; GF2\'s gap deferred')
+    assert.deepEqual(explicit.governedBy!.map(d => `${d.contractId} ${d.declaration} ${d.qualifier}`), ['restated:RPC-001 NON_CLAIMED NO_FURTHER_VALUE'], 'decided by the establishing object; GF2\'s gap deferred')
+    assert.equal(nonClaimState(explicit.reason, explicit.governedBy), 'NO_FURTHER_VALUE', 'and the line says which state it is in')
+    assert.equal(controlLineWithRpc001([{ declaration: 'NON_CLAIMED', selector: 'type=control' }]).reason, 'declared gap', 'an unqualified non-claim is not "explicitly defined": the gap governs')
     // Missing: RPC-001 silent, or UNDECLARED (recorded silence) — the gap governs.
     assert.equal(controlLineWithRpc001([]).reason, 'declared gap', '"A field whose value remains missing or unresolved" stays a gap')
     assert.equal(controlLineWithRpc001([{ declaration: 'UNDECLARED', selector: 'type=control' }]).reason, 'declared gap', 'UNDECLARED is not an explicit statement')
-    // The production state: RPC-001's own V5 for control is UNDECLARED, so the line is still a declared gap.
-    assert.equal(run('GF2 + RPC-001').staged.classified.get('c:restated:RPC-001:RPC-001-18.f::V5').reason, 'declared gap')
+    // The production state: RPC-001's own V5 for control is UNDECLARED and, since C57, an item authors the referent.
+    assert.equal(run('GF2 + RPC-001').staged.classified.get('c:restated:RPC-001:RPC-001-18.f::V5').verdict, 'RESOLVED:ENTAILED', 'derived from C57 (his M8)')
     // Only the ruled relationship lets it through: without the deferral, the explicit statement is not enough.
-    assert.equal(controlLineWithRpc001([{ declaration: 'NON_CLAIMED', selector: 'type=control' }], true).reason, 'declared gap', 'strict without the ruling')
+    assert.equal(controlLineWithRpc001([{ declaration: 'NON_CLAIMED', selector: 'type=control', qualifier: 'NO_FURTHER_VALUE' }], true).reason, 'declared gap', 'strict without the ruling')
 })
 
 test('the supersession mechanism: written only by a restatement, honoured only where the establishing object is explicit', () => {
@@ -416,8 +506,12 @@ test('the supersession mechanism: written only by a restatement, honoured only w
 
     // Explicit establishing statement: the general gap stays in force unless it defers.
     assert.equal(reasonFor('X', [reach('E', 'NON_CLAIMED'), general], cls), 'declared gap', 'a general requirement remains applicable')
-    assert.equal(reasonFor('X', [reach('E', 'NON_CLAIMED'), deferring], cls), 'not constrained', 'superseded only through the marked relationship')
-    // Establishing object silent: nothing is superseded, deferral or not.
+    // Re-pointed 15 October 2026 (stage K1): the deferral steps aside for a statement that SPECIFIES — a requirement
+    // kind or a qualified non-claim — and not for a legacy non-claim, which says only that E does not constrain X.
+    const noFurtherValue = reach('E', 'NON_CLAIMED', { qualifier: 'NO_FURTHER_VALUE' })
+    assert.equal(reasonFor('X', [noFurtherValue, deferring], cls), 'not constrained', 'superseded only through the marked relationship, by a statement that specifies')
+    assert.equal(reasonFor('X', [reach('E', 'NON_CLAIMED'), deferring], cls), 'declared gap', 'an unqualified non-claim does not set the deferral aside')
+    assert.equal(reasonFor('X', [reach('E', 'CLAIMED'), deferring], cls), 'claimed but unresolved', 'a requirement kind does — and it still blocks on its own')    // Establishing object silent: nothing is superseded, deferral or not.
     assert.equal(reasonFor('X', [reach('E', 'UNDECLARED'), deferring], cls), 'declared gap', 'silence never overrides')
     assert.equal(reasonFor('X', [deferring], cls), 'declared gap')
     // A non-claim from elsewhere is not a requirement; an exclusion scoped to another object's own involvement does not reach.
@@ -458,7 +552,9 @@ test('GF4 composed with anything: only tightenings, two Gate A verdicts move NOT
         assert.equal(before.verdict, expected[name].before, `${name}: Gate A row-wide`)
         assert.equal(now.verdict, expected[name].now, `${name}: Gate A under the rule`)
         const blockers = (g: any) => (g.checks.find((c: any) => c.checkId === 'GA-NO-FAILED-LINE')?.subjects ?? []) as string[]
-        assert.deepEqual(blockers(before).filter(id => !blockers(now).includes(id)), [], `${name}: no blocker is lost`)
+        // Re-pointed 15 October 2026 (stage K1): with RPC-001 composed, the origin line his 9.9 settles (C55) is the
+        // one blocker the rule sets aside; GF4 states nothing that is a requirement on V6, so no deferral is involved.
+        assert.deepEqual(blockers(before).filter(id => !blockers(now).includes(id)), name === 'GF4 + RPC-001' ? [ORIGIN_VALUE] : [], `${name}: no blocker is lost but the origin line`)
         assert.deepEqual(blockers(now).filter(id => !blockers(before).includes(id)).sort(), expected[name].gains, `${name}: blockers gained`)
         // The only other check that may move is GA-NO-FAILED-LINE itself, from PASS to FAIL.
         const verdicts = (g: any) => Object.fromEntries(g.checks.filter((c: any) => c.checkId !== 'GA-NO-FAILED-LINE').map((c: any) => [c.checkId, c.verdict]))
@@ -479,6 +575,9 @@ function v5Under(gf2: Record<string, unknown>[], rpc001: Record<string, unknown>
     }
     setV5('restated:GF2', gf2)
     setV5('restated:RPC-001', rpc001)
+    // The line as it was before C57 (stage K1, 15 October 2026), so the declarations alone decide it.
+    const rpc: any = input.contracts.find(c => c.contractId === 'restated:RPC-001')
+    rpc.items = rpc.items.filter((i: any) => i.itemId !== 'RPC-001-18.h')
     const staged: any = runStages0to10(input)
     return staged.classified.get('c:restated:RPC-001:RPC-001-18.f::V5') as ClassifiedLine
 }
@@ -576,6 +675,110 @@ test('every deferral the engine loads traces to a ruled declaration restatement'
         if (d.defersTo === undefined) continue
         assert.ok(ruled.has(`${d.contractId}|${d.row}|${d.declaration}|${d.defersTo}`), `${d.contractId} ${d.row}: a deferral no ruling wrote`)
     }
+})
+
+// ---------------------------------------------------------------------------------------------
+// Stage K1, 15 October 2026 — his M6 (17 October): three states, kept apart.
+//
+//   *"the machine-readable representation must preserve the distinction between: No further value is required. The
+//   value is explicitly unrestricted. A necessary value is missing. These must not collapse into the same operational
+//   meaning, even if their current surface representation is similar."*
+// ---------------------------------------------------------------------------------------------
+
+/** The origin's statement (C55) on a copy, with its qualifier set to `qualifier` — or removed, for `undefined`. */
+const originQualified = (qualifier: string | undefined) => (contracts: any[]) => {
+    const statement = contracts.find(c => c.contractId === 'restated:RPC-001').declarations.find((d: any) => d.row === 'V6' && d.selector === 'type=origin')
+    assert.ok(statement, 'the copy starts from C55')
+    if (qualifier === undefined) delete statement.qualifier
+    else statement.qualifier = qualifier
+}
+const gf2Rpc001 = () => compose(['restated:GF2', 'restated:RPC-001'])
+
+test('M6: three states, three outcomes — no further value passes, missing blocks, unrestricted is refused at load; none reads as another', () => {
+    const blockers = (staged: any) => staged.gates.gateA.checks.find((c: any) => c.checkId === 'GA-NO-FAILED-LINE')
+    // No further value is required: an established absence. It is not a blocker, and the line says which state it is.
+    const now = stagedOver(gf2Rpc001, () => undefined)
+    const origin = now.classified.get(ORIGIN_VALUE) as ClassifiedLine
+    assert.equal(nonClaimState(origin.reason, origin.governedBy), 'NO_FURTHER_VALUE')
+    assert.ok(!blockers(now).subjects.includes(ORIGIN_VALUE))
+    assert.equal(blockers(now).verdict, 'PASS', 'the last blocker in GF2 + RPC-001 since C57')
+    // A necessary value is missing: the statement taken off the copy — the gap governs and blocks, naming the line.
+    const gap = stagedOver(gf2Rpc001, contracts => {
+        const rpc = contracts.find(c => c.contractId === 'restated:RPC-001')
+        rpc.declarations = rpc.declarations.filter((d: any) => d.qualifier === undefined)
+    })
+    assert.equal((gap.classified.get(ORIGIN_VALUE) as ClassifiedLine).reason, 'declared gap')
+    assert.equal(nonClaimState('declared gap', (gap.classified.get(ORIGIN_VALUE) as ClassifiedLine).governedBy), null, 'missing is never a non-claim state')
+    assert.equal(blockers(gap).verdict, 'FAIL')
+    assert.deepEqual(blockers(gap).subjects, [ORIGIN_VALUE])
+    // The value is explicitly unrestricted: registered, so the state exists and is distinct, but refused at load —
+    // the contract that says it is refused whole, so it can never be read as absent, as zero, or as open.
+    const unrestricted = stagedOver(gf2Rpc001, originQualified('UNRESTRICTED'))
+    const refusal = unrestricted.failures.find((f: any) => f.kind === 'LOAD_REFUSAL' && f.locus?.contractId === 'restated:RPC-001')
+    assert.ok(refusal, 'RPC-001 is refused at load')
+    assert.ok(String(refusal.detailRef).includes('UNRESTRICTED is registered, but no operational reading of "any value" has been ruled'), String(refusal.detailRef))
+    assert.ok(!unrestricted.classified.has(ORIGIN_VALUE), 'and nothing of it reaches a line')
+    // A legacy non-claim — the same statement unqualified — is a fourth reading the engine keeps apart from all three:
+    // it does not constrain, and it cannot set the ruled deferral aside, so here the gap governs (the qualifier is load-bearing).
+    const legacy = stagedOver(gf2Rpc001, originQualified(undefined))
+    assert.equal((legacy.classified.get(ORIGIN_VALUE) as ClassifiedLine).reason, 'declared gap')
+})
+
+test('M6: a qualifier is registered data, valid only on a non-claim — anything else refuses its contract at load, naming why', () => {
+    const reasonOf = (alter: (contracts: any[]) => void) => {
+        const staged = stagedOver(gf2Rpc001, alter)
+        return staged.failures.filter((f: any) => f.kind === 'LOAD_REFUSAL').map((f: any) => `${f.locus?.contractId}: ${f.detailRef}`).join(' | ')
+    }
+    assert.match(reasonOf(originQualified('ANY_VALUE_AT_ALL')), /declaration qualifier is not registered/)
+    assert.match(
+        reasonOf(contracts => {
+            const claim = contracts.find(c => c.contractId === 'restated:RPC-001').declarations.find((d: any) => d.row === 'V6' && d.declaration === 'CLAIMED')
+            claim.qualifier = 'NO_FURTHER_VALUE'
+        }),
+        /only a NON_CLAIMED declaration may carry one/,
+    )
+    assert.equal(reasonOf(() => undefined), '', 'the knowledge as it stands loads whole')
+    // Every qualifier the engine loads traces to a ruling that added it; contracts.json carries none.
+    const raw = JSON.parse(fs.readFileSync(path.join(CONFORMANCE_DIR, 'stage-b/contracts.json'), 'utf8'))
+    assert.ok(!JSON.stringify(raw).includes('"qualifier"'), 'contracts.json carries no qualifier')
+    const restatements = JSON.parse(fs.readFileSync(path.join(CONFORMANCE_DIR, 'stage-b/corpus-restatements.json'), 'utf8').replace(/^﻿/, ''))
+    const ruled = (restatements.declarationsAdded ?? []).filter((a: any) => 'qualifier' in a.declaration).map((a: any) => `${a.contractId} ${a.declaration.row} ${a.declaration.selector} ${a.declaration.qualifier} ${a.ruling}`)
+    assert.deepEqual(ruled, ['restated:RPC-001 V6 type=origin NO_FURTHER_VALUE C55'])
+    const loaded = (run('corpus').staged.scope.declarations as DeclarationReach[]).filter(d => d.qualifier !== undefined).map(d => `${d.contractId} ${d.row} ${d.selector} ${d.qualifier}`)
+    assert.deepEqual(loaded, ['restated:RPC-001 V6 type=origin NO_FURTHER_VALUE'], 'the one qualifier loaded is C55\'s')
+})
+
+test('the deferral tightening (recorded beside C50) moves NOTHING: every reason and Gate A check equals its value under the untightened rule, computed here', () => {
+    // The untightened rule let ANY explicit statement set a deferral aside, a legacy non-claim included. Emulated on a
+    // copy by qualifying every legacy non-claim NO_FURTHER_VALUE — which changes no reason code (AM-23 reads kinds),
+    // only whether a non-claim counts as specifying. Measured the day it landed, and predicted by the design analysis:
+    // 0 moves. It closes the C45 hazard in the mechanism, not only in the data.
+    const untightened = (contracts: any[]) => {
+        for (const contract of contracts) for (const d of contract.declarations ?? []) if (d.declaration === 'NON_CLAIMED' && d.qualifier === undefined) d.qualifier = 'NO_FURTHER_VALUE'
+    }
+    for (const [name, make] of [...COMPOSITIONS, ...GF4_COMPOSITIONS, ...PCG_COMPOSITIONS]) {
+        assert.deepEqual(differences(stagedOver(make, untightened), stagedOver(make, () => undefined)), [], `${name}: the tightening moves nothing`)
+    }
+})
+
+test('C55 moves exactly the origin line, wherever RPC-001 is composed — and one check, where it was the last blocker', () => {
+    // Measured by taking the statement off a copy. His 9.9 settles one field, and nothing else in any composition moves.
+    const strip = (contracts: any[]) => {
+        for (const contract of contracts) contract.declarations = (contract.declarations ?? []).filter((d: any) => d.qualifier === undefined)
+    }
+    const ORIGIN_MOVE = (now: string) => `${ORIGIN_VALUE}: NOT_AUTHORED/declared gap -> NOT_AUTHORED/${now}`
+    const expected: Record<string, string[]> = {
+        corpus: [ORIGIN_MOVE('excluded')],
+        'GF2 + RPC-001': ['Gate A GA-NO-FAILED-LINE: FAIL -> PASS', ORIGIN_MOVE('not constrained')],
+        'GF2 + RPC-001 + A01-02': [ORIGIN_MOVE('not constrained')],
+        'GF4 + RPC-001': [ORIGIN_MOVE('not constrained')],
+    }
+    for (const [name, make] of [...COMPOSITIONS, ...GF4_COMPOSITIONS, ...PCG_COMPOSITIONS]) {
+        assert.deepEqual(differences(stagedOver(make, strip), stagedOver(make, () => undefined)), expected[name] ?? [], `${name}: what C55 moves`)
+    }
+    // Gate A stays FAIL where the context is composed with the possession game: the build-out episode cannot begin yet.
+    assert.equal(run('GF2 + RPC-001').staged.gates.gateA.verdict, 'FAIL')
+    assert.equal(run('GF2 + RPC-001').staged.gates.gateA.checks.find((c: any) => c.checkId === 'GA-EPISODE-REACHABLE').verdict, 'FAIL')
 })
 
 console.log(`governing declarations: ${passed} passed`)

@@ -1,7 +1,7 @@
 {
   "title": "Atomic field-path register — Game Representation Specification revision 4",
   "date": "2026-09-18",
-  "version": "7, adds P6c (performers.neutrals.affiliation.takesEffect: when a neutral player's change of affiliation takes effect, IMMEDIATE or AT_NEXT_RESTART) with its vocabulary and version, on the ruling of 2026-10-14 (Christian). Supersedes version 6, which added the along-axis `longitudinal` selector attribute. Nothing existing changes: P6a keeps its one trigger.",
+  "version": "8, adds the declaration qualifier vocabulary (contractEnums.declarationQualifier: NO_FURTHER_VALUE, UNRESTRICTED - his M6 three states) and the relational V5 referent form (the objective reference of a team designation - his M8), both approved in his reply filed 17 October 2026, recorded 2026-10-15. Supersedes version 7, which added P6c (performers.neutrals.affiliation.takesEffect: when a neutral player's change of affiliation takes effect, IMMEDIATE or AT_NEXT_RESTART) on the ruling of 2026-10-14. Nothing existing changes: no declaration is requalified, and every existing V5 value reads as before.",
   "source": "docs/design/game-representation-spec-2026-09-18.md §5 (the eight areas), §3 (statuses), §6 (the contract), §2 (standing decisions)",
   "rowKinds": {
     "COLLECTION": "The existence and count of elements in a collection. Items on a COLLECTION row say that elements matching a selector exist (EXISTS), how many (COUNT/RANGE), or that none may (NOT_EXISTS).",
@@ -708,7 +708,7 @@
       "path": "value.primaryEvent.conditions[].referents",
       "ownerRow": "V3",
       "kind": "FIELD",
-      "valueType": "references to regions, objects or placements; never a player's position during play. One property per referent",
+      "valueType": "references to regions, objects or placements; never a player's position during play. One property per referent. A referent may also be RELATIONAL (version 2, 15 October 2026, M8): {objectiveReferenceOf: D, role: R}, the reference (J2) of each objective the game holds with role R that is attacked by the team D designates (a registered team designation, evaluated at the trigger) - for D = SCORING_TEAM, per team, the target that team attacks. Written only by a ruled restatement (C57), never inferred from prose; an objective whose reference is open text resolves to open text. The phrase 'the objective reference of SCORING_TEAM' is our M8 wording, which Christian approved (17 October: \"M8 — Controlled arrival and long-clearance validation: Approved.\"); it is not his sentence",
       "sourceKinds": [
         "SELECTION"
       ],
@@ -1094,6 +1094,8 @@
       "contractEnums.basis": "1 (2026-09-18)",
       "contractEnums.checkability": "1 (2026-09-18)",
       "contractEnums.declaration": "1 (2026-09-18)",
+      "contractEnums.declarationQualifier": "1 (2026-10-15, register version 8) - his three states (M6, reply filed 17 October 2026); UNRESTRICTED registered and refused at load until he rules its reading",
+      "V5.valueType": "2 (2026-10-15, register version 8) - adds the relational referent form 'the objective reference of designation D' (M8, reply filed 17 October 2026). Version 1 is the 2026-09-18 text: references to regions, objects or placements",
       "R2.kind": "1 (2026-09-24, draft) - narrow by intent; not a general rules ontology",
       "R3.effect": "1 (2026-09-24)",
       "P12.state": "1 (2026-09-24) - bound to knowledge core EM-0007 EMD-0014 EMP-0040 \"Active / Inactive / Waiting / Resting / Observing\"; not duplicate vocabulary",
@@ -1245,7 +1247,12 @@
         "NON_CLAIMED",
         "NOT_AUTHORED",
         "UNDECLARED"
-      ]
+      ],
+      "declarationQualifier": [
+        "NO_FURTHER_VALUE",
+        "UNRESTRICTED"
+      ],
+      "declarationQualifierNote": "ADDED 15 October 2026 (register version 8) on Christian's M6, approved in his reply filed 17 October 2026. HIS WORDS: \"M6 — Explicit no-further-value status: Approved with a safeguard. I approve the narrow authority exception where the added statement provably cannot contradict existing knowledge. However, the machine-readable representation must preserve the distinction between: No further value is required. The value is explicitly unrestricted. A necessary value is missing. These must not collapse into the same operational meaning, even if their current surface representation is similar.\" OUR OPERATIONAL GLOSSES (engineering, not his words): a qualifier is valid only on a NON_CLAIMED declaration and says which state that non-claim is. NO_FURTHER_VALUE = an explicit statement that the field needs nothing more: an established absence, never filled, nothing said to the coach, and - unlike a legacy non-claim - able to set a ruled deferral aside. UNRESTRICTED = registered so the state exists and stays distinct, but REFUSED AT LOAD until he rules what 'any value' permits on a row; refusing is our fail-closed default, and SD-39 (a non-claim permits a choice only inside an already-supported choice space) is the existing ruled grounding for the alternative reading. Absent = a LEGACY non-claim, 'this object does not constrain this row' (our restater's doesNotConstrain), unchanged; no existing declaration is requalified. A necessary value MISSING is not a qualifier: it stays NOT_AUTHORED or an unresolved CLAIMED, the two that block."
     },
     "scopeConformance": "CHECKED 20 September at his instruction, against his definition. All six uses: RPC-001-11.b (J11b) CONFORMS - it is about the build-out episode and cites KR-02/KR-03 as OWNER_RULING - and so does its J11b declaration. The other four do NOT: RPC-001-16.a (T4), 16.b (T3) and 16.c (T6) are all keyed on the selector trigger in {SCORE, OUT_END_LINE, OUT_TOUCHLINE, POSSESSION_CHANGE}, which are the triggers that END an episode and begin the NEXT one, so scoping them to the build-out episode claims exactly the extension to subsequent attacking episodes his definition excludes. The T4 declaration inherits 16.a. All three items are also basis ENGINE_ONLY on the sentence retired under KR-05 item 6, so they support nothing under SD-21, and 16.c additionally contradicts SD-20. Reported, not broadened; recorded as a contract-authoring task.",
     "scopePlaceholderDefect": "Separately, 64 items and declarations carry an em-dash placeholder where a scope belongs. A contract-authoring defect from the restatement exercise, not a vocabulary question.",

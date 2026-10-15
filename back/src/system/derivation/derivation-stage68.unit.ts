@@ -581,6 +581,13 @@ function testEveryAuthoredDeclarationFieldArrives(): void {
         assert.deepEqual(reach.parsed, parseSelector(reach.selector, reach.row, index), 'and read by the one parser, against the declaration\'s own row')
     }
 
+    // **The qualifier, by name (15 October 2026, stage K1).** His M6 state travels on the record it was written on —
+    // C55's "no further value" for the build-out origin is the one in the knowledge — and then on to the line that it
+    // decides (classify.ts `governedByOn`, the one allowlist after this boundary).
+    const qualified = reaches.filter(r => r.qualifier !== undefined)
+    assert.deepEqual(qualified.map(r => `${r.contractId} ${r.row} ${String(r.selector)} ${String(r.qualifier)}`), ['restated:RPC-001 V6 type=origin NO_FURTHER_VALUE'])
+    assert.ok(reaches.filter(r => r.qualifier === undefined).every(r => !('qualifier' in r)), 'absent where the declaration carries none, so no other record changed shape')
+
     // It bites: a field the knowledge gains later and stage 3 does not carry is named, not dropped.
     const grown: LoadedContract[] = JSON.parse(JSON.stringify(contracts))
     ;(grown[0].declarations[0] as any).laterField = 'authored after this test was written'

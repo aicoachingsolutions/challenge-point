@@ -81,7 +81,15 @@ export function assembleRenderingFixture({ resolved, realized, entailed, envelop
                 .sort()
                 .map(lineId => ({ lineId, path: pathOf.get(lineId) ?? null, bounds: resolved.extentBounds[lineId] as Bounds[] })),
             jointConditions: resolved.jointConditions,
-            notEstablished: resolved.notEstablished.map(n => ({ path: n.path, lineId: n.lineId, reason: n.reason, declared: n.declared })),
+            /**
+             * `governedBy` crosses WHOLE since 15 October 2026 (stage K1). His 17 October M6: the three states — no
+             * further value, explicitly unrestricted, missing — *"must not collapse into the same operational
+             * meaning"*. Which one an entry is lives on the declarations that decided it (classify.ts
+             * `nonClaimState`), and this allowlist kept only the reason code and the row-wide kinds, so the state was
+             * lost one step before the renderer, which then could not tell a field needing nothing from a field
+             * nobody constrains. Each declaration is copied whole, so the next field on it cannot be lost here either.
+             */
+            notEstablished: resolved.notEstablished.map(n => ({ path: n.path, lineId: n.lineId, reason: n.reason, declared: n.declared, governedBy: n.governedBy.map(g => ({ ...g })) })),
         },
     }
 }

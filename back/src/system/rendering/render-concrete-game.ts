@@ -45,7 +45,9 @@
  * The standing rule that follows from that: **if a sentence here names something in the game, the name
  * comes from the game and the path is cited.** "Obvious in the sport" is not a source.
  */
+import { nonClaimState } from '../derivation/classify'
 import { effectiveValue } from '../derivation/rational'
+import { NO_FURTHER_VALUE } from '../derivation/types'
 import { CONDITION_ROW, conditionScopeNotEvaluable } from '../derivation/resolved-game'
 import { approvedWording, ApprovedWording, WordingMatch } from './approved-wording'
 import { exclusionFor } from './coach-facing-exclusions'
@@ -1509,6 +1511,21 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
                 `(${channels.map((c: any) => c.elementId).join(', ')}). A pitch has two touchlines, so a coach following this literally ` +
                 `would mark one strip ${channels.length} times. The channels come from three separate Wide Zone contributions; whether they ` +
                 `describe three regions or one region three times is a knowledge question, not a rendering one.`,
+        )
+    }
+
+    /**
+     * **Fields the knowledge says need nothing more — a technical observation, never coach text** (15 October 2026,
+     * stage K1). His 17 October M6 keeps "no further value is required" apart from "explicitly unrestricted" and from
+     * "missing"; the fixture now carries which one each unestablished entry is, and this is the account that reads it,
+     * so the state is shown to whoever reviews the game rather than only carried. A coach is told nothing: a field
+     * that needs no further value is not something a coach would say before starting. DRAFT wording.
+     */
+    const noFurtherValue = (fixture.status.notEstablished ?? []).filter((n: any) => nonClaimState(n.reason, n.governedBy) === NO_FURTHER_VALUE)
+    if (noFurtherValue.length) {
+        observations.push(
+            `${noFurtherValue.length} field(s) need no further value, by an explicit statement of the knowledge that establishes them ` +
+                `(${noFurtherValue.map((n: any) => n.path).join('; ')}). Nothing is missing there, and the coach is told nothing about them.`,
         )
     }
 

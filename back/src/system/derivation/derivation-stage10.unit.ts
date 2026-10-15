@@ -991,7 +991,9 @@ test('the corpus run reproduces the reported figures exactly', () => {
     // declared gap (the possession game's general V5 NOT_AUTHORED reaches it), pending his OD1 decision.
     // **72 since 14 October 2026.** The new P6c line (above) is entailed by C43, his allegiance ruling of that day.
     // **70 since ruling C51 of 15 October 2026.** The retired separate objective's J3 and J4 lines were entailed.
-    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 70)
+    // **72 since stage K1, 15 October 2026 (C57).** His M8 types the referents of RPC-001's control condition and
+    // long-clearance exclusion (18.f::V5, 19.a::V5) as the objective reference of the scoring team, so both lines entail.
+    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 72)
     // **NOT_AUTHORED fell 54 → 26 across the 29 September rulings, and only five of those twenty-eight
     // were closed by authoring anything.**
     //   −9  T1a/T1b/T1c demanded of three POSSESSION_CHANGE transitions. A turnover has no last touch
@@ -1023,9 +1025,11 @@ test('the corpus run reproduces the reported figures exactly', () => {
     // (PCG-06, removed by his answer) and is now a declared gap — the one line that moved out of the count above.
     // **29 since ruling C51 of 15 October 2026.** The retired separate objective's target reference
     // (RPC-001-11.a::J2, 'excluded' on this mixed load) goes with it.
-    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 29)
+    // **27 since stage K1, 15 October 2026 (C57).** The same two lines leave the unauthored count. (C55 moves the origin's
+    // value line from 'declared gap' to 'excluded' on this mixed load — still unauthored, so it stays counted here.)
+    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 27)
     assert.equal(result.failures.filter((f: any) => f.kind === 'REFERENCE_DEFECT').length, 0, 'cluster 3 cleared the whole population')
-    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 29, 'one GAP per unauthored line, and none for a withdrawn one -- 29 since ruling C51, tracking the NOT_AUTHORED count above')
+    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 27, 'one GAP per unauthored line, and none for a withdrawn one -- 27 since stage K1 (C57), tracking the NOT_AUTHORED count above')
     // 17 since C33: the removed third region took its one open S5 line (a channel along-extent) with it.
     // **18 since ruling C42.** The two new target regions each bring an open across-extent and an open noun,
     // and the retired shared target took its two with it, so the balance is one more than before.

@@ -115,7 +115,32 @@ export interface Declaration {
     note?: unknown
     /** A ruled supersession, written only by a restatement (corpus-restatement.ts); see `DeclarationReach.defersTo`. */
     defersTo?: unknown
+    /**
+     * **Which of his three states a non-claim is** (register `contractEnums.declarationQualifier`, 15 October 2026,
+     * stage K1) — valid only on NON_CLAIMED, validated at load (load.ts). Absent means a LEGACY non-claim: "this object
+     * does not constrain this row", exactly as before. See `NO_FURTHER_VALUE` / `UNRESTRICTED` below.
+     */
+    qualifier?: unknown
 }
+
+/**
+ * **His three states, kept apart in the machine-readable representation** — 17 October M6: *"the machine-readable
+ * representation must preserve the distinction between: No further value is required. The value is explicitly
+ * unrestricted. A necessary value is missing. These must not collapse into the same operational meaning, even if
+ * their current surface representation is similar."*
+ *
+ *   - `NO_FURTHER_VALUE` — a non-claim that STATES the field needs nothing more: an established absence. It passes,
+ *     never blocks, is never filled, and nothing is said to the coach. Unlike a legacy non-claim it is an explicit
+ *     statement, so it may set a ruled deferral aside (classify.ts `governingDeclarations`).
+ *   - `UNRESTRICTED` — registered so the state exists and cannot collapse into another, but REFUSED AT LOAD (load.ts):
+ *     no operational reading of "any value" has been ruled. Refusing is OUR engineering default, fail-closed; SD-39
+ *     (a non-claim permits a choice only inside an already-supported choice space) is the existing ruled grounding
+ *     for the alternative reading, and which applies is his to say.
+ *   - A necessary value MISSING is not a qualifier: it stays NOT_AUTHORED ('declared gap') or an unresolved claim
+ *     ('claimed but unresolved') — the two codes that block — unchanged.
+ */
+export const NO_FURTHER_VALUE = 'NO_FURTHER_VALUE'
+export const UNRESTRICTED = 'UNRESTRICTED'
 
 /**
  * The one supersession the data may name (15 October 2026, his answer 9): a general declaration that DEFERS to the
@@ -345,6 +370,33 @@ export interface Bounds {
 export function structuralRefOf(value: unknown): { contractId: string; itemId: string } | null {
     const ref = value && typeof value === 'object' ? (value as any).structuralRef : null
     return ref && typeof ref.contractId === 'string' && typeof ref.itemId === 'string' ? ref : null
+}
+
+/**
+ * **A relational referent (register V5 valueType, version 8): "the objective reference of designation D"** — 15
+ * October 2026, stage K1, capability M8. His 17 October words: *"M8 — Controlled arrival and long-clearance
+ * validation: Approved. Apply the qualifying conditions to the target and scoring episode actually being evaluated.
+ * The purpose is to recognize controlled, functional progression rather than reward an uncontrolled clearance."*
+ *
+ * A condition's referent written this way names no element directly: it names the J2 reference of each objective
+ * held by the game whose role is `role` and whose team is the one `objectiveReferenceOf` designates at the trigger
+ * (for SCORING_TEAM, the team that scored — so per team, the target THAT team attacks). The gates resolve it
+ * (gates.ts `resolveRelational`) to the held objectives' own references, so it composes with any game form without
+ * naming another contract's items. Only a ruled restatement writes one (C57); it is never inferred from prose, and
+ * it is never a route to reference open text — an objective whose reference is open text resolves to open text.
+ * "the objective reference of SCORING_TEAM" is OUR M8 wording, which he approved; it is not his sentence.
+ */
+export interface RelationalReferent {
+    objectiveReferenceOf: string
+    role: string
+    asAuthored?: string
+}
+
+/** Recognised in one place, beside `structuralRefOf`, so derivation and the gates agree on what counts. */
+export function relationalReferentOf(value: unknown): RelationalReferent | null {
+    if (!value || typeof value !== 'object') return null
+    const v = value as any
+    return typeof v.objectiveReferenceOf === 'string' && typeof v.role === 'string' && !v.structuralRef ? (v as RelationalReferent) : null
 }
 
 export interface SelectorPredicate {

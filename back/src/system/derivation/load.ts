@@ -10,7 +10,7 @@
  */
 
 import { RegisterIndex } from './register'
-import { ContractItem, LoadedContract, SpecClause } from './types'
+import { ContractItem, LoadedContract, SpecClause, UNRESTRICTED } from './types'
 
 export interface LoadRefusal {
     contractId: string
@@ -178,6 +178,26 @@ function checkModifierOperations(contract: LoadedContract): LoadRefusal | null {
     return null
 }
 
+/**
+ * **His three states, validated where the knowledge enters** (15 October 2026, stage K1). His 17 October M6: *"the
+ * machine-readable representation must preserve the distinction between: No further value is required. The value is
+ * explicitly unrestricted. A necessary value is missing. These must not collapse into the same operational meaning."*
+ *
+ * A qualifier is registered data (`contractEnums.declarationQualifier`) and says which state a NON-CLAIM is, so it is
+ * refused on any other kind — a qualified claim or gap would be a fourth state nobody defined. UNRESTRICTED is
+ * registered, so the state is expressible and distinct, but refused here until he rules what "any value" permits:
+ * read as absent it would collapse into "no further value", read as zero into a count, read as open into a realization
+ * choice — each a reading nobody ruled. Refusing is our fail-closed default (types.ts `UNRESTRICTED` names SD-39 as
+ * the ruled alternative reading). Absent is a legacy non-claim and is untouched.
+ */
+function qualifierRefused(declaration: { declaration?: unknown; qualifier?: unknown }, index: RegisterIndex): string | null {
+    if (declaration.qualifier === undefined) return null
+    if (!enumOk(index, 'declarationQualifier', declaration.qualifier)) return 'declaration qualifier is not registered'
+    if (declaration.declaration !== 'NON_CLAIMED') return 'a declaration qualifier says which state a non-claim is, so only a NON_CLAIMED declaration may carry one'
+    if (declaration.qualifier === UNRESTRICTED) return 'the declaration qualifier UNRESTRICTED is registered, but no operational reading of "any value" has been ruled, so it is refused rather than read as absent, zero or open'
+    return null
+}
+
 export function loadContracts(contracts: LoadedContract[], index: RegisterIndex): LoadOutcome {
     const admitted: LoadedContract[] = []
     const refusals: LoadRefusal[] = []
@@ -217,6 +237,11 @@ export function loadContracts(contracts: LoadedContract[], index: RegisterIndex)
                         reason: 'declaration scope is not registered',
                         offendingInput: JSON.stringify(declaration.scope),
                     }
+                    break
+                }
+                const qualifierRefusal = qualifierRefused(declaration, index)
+                if (qualifierRefusal) {
+                    refusal = { contractId: contract.contractId, reason: qualifierRefusal, offendingInput: JSON.stringify({ row: declaration.row, declaration: declaration.declaration, qualifier: declaration.qualifier }) }
                     break
                 }
             }

@@ -61,7 +61,9 @@ test('the register holds P6c as a closed, versioned vocabulary, and not as a tri
     assert.deepEqual([row.path, row.kind, row.sourceKinds], ['performers.neutrals.affiliation.takesEffect', 'FIELD', ['SELECTION']], 'no REALIZATION source: realization can never choose it')
     assert.deepEqual(register.vocabularies['P6c.takesEffect'], ['IMMEDIATE', 'AT_NEXT_RESTART'])
     assert.ok(!register.vocabularies.triggerRows.includes('P6c'), 'a timing, not a trigger')
-    assert.match(String(register.version), /^7, adds P6c/)
+    // Re-pointed 15 October 2026 (stage K1): register version 8 (his M6 qualifier vocabulary and M8 relational
+    // referent) supersedes 7, and its sentence still names version 7 as the one that added P6c.
+    assert.match(String(register.version), /^8, adds .*Supersedes version 7, which added P6c/)
     // The H2 guard, measured: a vocabulary with no version halts every derivation. Every array carries one.
     const index = indexRegister(register)
     for (const name of index.vocabularies.keys()) assert.ok(index.vocabularyVersions[name], `${name} carries a version`)

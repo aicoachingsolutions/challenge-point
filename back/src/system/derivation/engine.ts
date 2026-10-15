@@ -29,6 +29,7 @@ import {
     RefusalRecord,
     ResolutionLine,
     SpecClause,
+    relationalReferentOf,
 } from './types'
 
 export const ENGINE_VERSION = '0.1.0-increment-1'
@@ -97,6 +98,9 @@ const EXISTENCE_REQUIREMENTS = new Set(['EXISTS', 'COUNT', 'RANGE'])
 function memberKey(member: unknown): string {
     const ref = member && typeof member === 'object' ? (member as { structuralRef?: { contractId?: unknown; itemId?: unknown } }).structuralRef : undefined
     if (ref && ref.contractId !== undefined && ref.itemId !== undefined) return `${String(ref.contractId)}::${String(ref.itemId)}`
+    // A relational referent (M8, 15 October 2026) is identified by what it designates, never as "[object Object]".
+    const relational = relationalReferentOf(member)
+    if (relational) return `objective-reference-of:${relational.objectiveReferenceOf}:${relational.role}`
     return String(member)
 }
 

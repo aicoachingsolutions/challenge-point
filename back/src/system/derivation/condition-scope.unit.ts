@@ -164,7 +164,10 @@ test('C52: the nine items of the build-out condition carry BUILD_OUT_EPISODE, an
     const rpc = loadCorpusContracts().find(c => c.contractId === RPC)!
     for (const id of CONDITION_ITEMS) assert.equal(rpc.items.find(i => i.itemId === id)?.scope, 'BUILD_OUT_EPISODE', id)
     // No other RPC-001 item is episode-scoped by this ruling (11.b was authored so; nothing else is).
-    assert.deepEqual(rpc.items.filter(i => i.scope === 'BUILD_OUT_EPISODE').map(i => i.itemId).sort(), [...CONDITION_ITEMS, 'RPC-001-11.b'].sort())
+    // **Since stage K1 (15 October 2026), two more, by another ruling and in the same scope:** C57's referents of the
+    // control condition and the long-clearance exclusion (18.h, 19.c) — his M8, "Apply the qualifying conditions to the
+    // target and scoring episode actually being evaluated" — take the scope of the conditions they belong to.
+    assert.deepEqual(rpc.items.filter(i => i.scope === 'BUILD_OUT_EPISODE').map(i => i.itemId).sort(), [...CONDITION_ITEMS, 'RPC-001-11.b', 'RPC-001-18.h', 'RPC-001-19.c'].sort())
 })
 
 test('C52, EXPECTED AND PINNED: Play Out from the Back is refused at Gate A naming the scope — no transition can begin a build-out episode', () => {

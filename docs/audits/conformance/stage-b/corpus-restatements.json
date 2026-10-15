@@ -749,6 +749,14 @@
         "fitNote": "RESTATED 15 October 2026 (C54): two distinct references, recorded apart. The authored phrase \"the initial pressure or progression line\" (RPC-PROP-132, \"progressing beyond the initial pressure or progression line\") named two relationships with one \"or\". (1) THE PROGRESSION REFERENCE - where build-out success is measured - is this condition's referent, the value above (our 15 October email, change 1, as he approved it: \"the target, where build-out success is measured\"). (2) THE INITIAL PRESSURE REFERENCE - which, in his words of 16 October item 4, \"helps establish the defensive problem\" - is a DISTINCT relationship and is NOT this condition's referent; no row holds it and it is placed nowhere. Neither is placed: where either sits is his decision D3, and a machine-readable referent for the progression reference is capability M8 (until then the value is open text, as it was). Not carried: the email's gloss of the pressure reference as \"the pressure line, where defenders start\" - item 3 keeps a designated pressure line as one potential realization only, so that reading is an open question to him, not knowledge. The original value and fitNote stay in contracts.json; the original fitNote read: \"'Progression line' as the scoring reference is a reading.\""
       },
       "why": "His words, reply received 15 October 2026 (his 16 October reply), item 9 point 1: \"Separate pressure and progression references: Approved. They are distinct relationships, even when they coincide spatially.\" Item 4: \"I also want to preserve the distinction between: The initial pressure reference, which helps establish the defensive problem. The progression reference, which identifies successful access beyond that problem. They may coincide in a particular activity, but they should not be treated as conceptually identical.\" Value and fitNote only; row, selector, requirement, strictness, scope, basis and its evidence are unchanged. Engine effect: none - the value was open text and stays open text, which establishes no structural identity (SD-63), so every check reads it exactly as before (measured); a typed referent waits on capability M8 and his decisions D1 and D3. No location, depth or \"where defenders start\" is written."
+    },
+    {
+      "item": "restated:RPC-001::RPC-001-19.b",
+      "ruling": "C57",
+      "set": {
+        "fitNote": "The authored term is 'long clearance', while SD-15 names 'long kick' (COACH_RULES only). Whether FREE(b) covers it is open (L-11). SAFEGUARD (C57, recorded 15 October 2026) - his words, reply filed 17 October 2026, M8: \"Please ensure this does not inadvertently prohibit a functional longer pass that is received under control beyond pressure.\" This exclusion is the authored term only - a long clearance that HAPPENS to reach the target - and the engine gives 'long' no threshold (RPC-001's NOT_AUTHORED declaration for the exclusion's value, notAuthored 3, stays): nothing structural excludes a pass for its length, so a longer pass received under control is judged by the control condition (RPC-001-18.f/18.g), never excluded by this one. Whether a given kick is such a clearance is judged in play, outside the boundary (KR-05 5c). The original fitNote stays in contracts.json."
+      },
+      "why": "His M8 safeguard recorded verbatim beside the exclusion it guards. His words, reply filed 17 October 2026: \"M8 — Controlled arrival and long-clearance validation: Approved. Apply the qualifying conditions to the target and scoring episode actually being evaluated. The purpose is to recognize controlled, functional progression rather than reward an uncontrolled clearance.\" \"Please ensure this does not inadvertently prohibit a functional longer pass that is received under control beyond pressure.\" Only the fitNote moves; value, strictness, scope (C52) and evidence are unchanged, and the referent of the exclusion is typed by the C57 item RPC-001-19.c beside it."
     }
   ],
   "added": [
@@ -1251,6 +1259,58 @@
         "fitNote": "Held on P6c, not P6a. P6a holds one trigger and stays STANDING (NEUTRAL-03.b, NEUTRAL-14.a), which already makes the neutrals follow the possession relation (NEUTRAL-03.a / 14.b, ATTACKING_TEAM). This item settles only WHEN the change of side takes effect. It answers the P6a NOT_AUTHORED declaration (\"whether re-affiliation on a turnover is instantaneous or takes effect at a restart\"), which stays verbatim for provenance."
       },
       "why": "the timing his ruling makes explicit had no row to hold it; P6a could not take a second value without a collision (Gate A FAIL measured 13 October). Register version 7 adds P6c for it."
+    },
+    {
+      "contractId": "restated:RPC-001",
+      "after": "RPC-001-18.g",
+      "ruling": "C57",
+      "item": {
+        "itemId": "RPC-001-18.h",
+        "origId": "RPC-001-18",
+        "row": "V5",
+        "selector": "type=control",
+        "requirement": "EQUALS",
+        "value": {
+          "objectiveReferenceOf": "SCORING_TEAM",
+          "role": "PRIMARY_SCORING",
+          "asAuthored": "with possession controlled on arrival - arrival at the target the scoring team attacks"
+        },
+        "valueStatus": "REQUIRED_RANGE",
+        "strictness": "REQUIRED",
+        "scope": "BUILD_OUT_EPISODE",
+        "basis": "OWNER_RULING",
+        "checkability": "STRUCTURAL",
+        "structuralClause": "whole item",
+        "basisEvidence": "Christian, reply filed 17 October 2026: \"M8 — Controlled arrival and long-clearance validation: Approved. Apply the qualifying conditions to the target and scoring episode actually being evaluated. The purpose is to recognize controlled, functional progression rather than reward an uncontrolled clearance.\" With his reply filed 16 October 2026, item 9 point 2: \"Controlled arrival and long-clearance exclusion: Approved in principle, provided they are evaluated against the intended progression outcome and not merely whichever target the current engine can represent.\" The condition itself is RPC-PROP-132: \"with possession controlled on arrival\".",
+        "fitNote": "The control condition (RPC-001-18.f, value 18.g) is judged on arrival at the target the scoring team attacks: a relational referent (register V5 version 2), never open text and never a named region, so it composes with any game form. The arrival is controlled possession of the ball; how control is judged stays a coach judgement (SD-15, FREE(b))."
+      },
+      "why": "ADDED 15 October 2026 (C57), capability M8. RPC-001-18.f establishes the control condition (\"with possession controlled on arrival\", RPC-PROP-132) and nothing typed WHERE the arrival is. RPC-001 recorded the referents of its control and exclusion conditions as UNDECLARED (\"Referents never examined\"), so each referent line was a declared gap under GF2's general gap. This item types the referent as the objective reference of SCORING_TEAM: the target the team that scores attacks, resolved by GA-REFERENCE-INTEGRITY to the references of the PRIMARY_SCORING objectives the game holds - per team, the target that team attacks - so the condition is judged against the target actually being entered. 'The objective reference of SCORING_TEAM' (the target the team that scores attacks) is OUR M8 wording, approved by his \"M8 ... Approved.\"; it is not his sentence. Scope BUILD_OUT_EPISODE, the scope of the condition it belongs to (C52): within a build-out episode the condition is judged against the target the scoring team attacks, and outside one it does not apply. Typing only (SD-98): no referent is selected, inferred or substituted, nothing is said about pass length or distance, and no threshold is added. RPC-001-18.d (the progression reference) is NOT retyped here: that is C54/D3/M7, not M8. contracts.json is untouched."
+    },
+    {
+      "contractId": "restated:RPC-001",
+      "after": "RPC-001-19.b",
+      "ruling": "C57",
+      "item": {
+        "itemId": "RPC-001-19.c",
+        "origId": "RPC-001-19",
+        "row": "V5",
+        "selector": "type=exclusion",
+        "requirement": "EQUALS",
+        "value": {
+          "objectiveReferenceOf": "SCORING_TEAM",
+          "role": "PRIMARY_SCORING",
+          "asAuthored": "a long clearance that happens to reach the target - the target the scoring team attacks"
+        },
+        "valueStatus": "REQUIRED_RANGE",
+        "strictness": "REQUIRED",
+        "scope": "BUILD_OUT_EPISODE",
+        "basis": "OWNER_RULING",
+        "checkability": "STRUCTURAL",
+        "structuralClause": "whole item",
+        "basisEvidence": "Christian, reply filed 17 October 2026: \"M8 — Controlled arrival and long-clearance validation: Approved. Apply the qualifying conditions to the target and scoring episode actually being evaluated. The purpose is to recognize controlled, functional progression rather than reward an uncontrolled clearance.\" With his reply filed 16 October 2026, item 9 point 2: \"Controlled arrival and long-clearance exclusion: Approved in principle, provided they are evaluated against the intended progression outcome and not merely whichever target the current engine can represent.\" The condition itself is RPC-PROP-132: \"A long clearance that happens to reach the target does not satisfy the event.\".",
+        "fitNote": "\"The target\" of the exclusion (RPC-001-19.a, value 19.b) is the target the scoring team attacks: a relational referent (register V5 version 2). His safeguard stands beside 19.b: \"Please ensure this does not inadvertently prohibit a functional longer pass that is received under control beyond pressure.\""
+      },
+      "why": "ADDED 15 October 2026 (C57), capability M8. RPC-001-19.a establishes the long-clearance exclusion (\"A long clearance that happens to reach the target does not satisfy the event.\", RPC-PROP-132) and nothing typed which target \"the target\" is. RPC-001 recorded the referents of its control and exclusion conditions as UNDECLARED (\"Referents never examined\"), so each referent line was a declared gap under GF2's general gap. This item types the referent as the objective reference of SCORING_TEAM: the target the team that scores attacks, resolved by GA-REFERENCE-INTEGRITY to the references of the PRIMARY_SCORING objectives the game holds - per team, the target that team attacks - so the condition is judged against the target actually being entered. 'The objective reference of SCORING_TEAM' (the target the team that scores attacks) is OUR M8 wording, approved by his \"M8 ... Approved.\"; it is not his sentence. Scope BUILD_OUT_EPISODE, the scope of the condition it belongs to (C52): within a build-out episode the condition is judged against the target the scoring team attacks, and outside one it does not apply. Typing only (SD-98): no referent is selected, inferred or substituted, nothing is said about pass length or distance, and no threshold is added. RPC-001-18.d (the progression reference) is NOT retyped here: that is C54/D3/M7, not M8. contracts.json is untouched."
     }
   ],
   "declarations": [
@@ -1277,7 +1337,7 @@
       "to": "NOT_AUTHORED",
       "defersTo": "ESTABLISHING_OBJECT",
       "ruling": "C50",
-      "why": "OPTION A, approved on his reply received 15 October 2026 (his 16 October reply, item 8), for exactly four statements: GF2's NOT_AUTHORED declarations on V3, V4, V5 and V6 (\"notAuthored: the qualifying condition of the primary scoring event; any control requirement must come from elsewhere.\" - that wording is our 17 September restatement of GF2, shown to him as ours in the 15 October email, not his words). His words: \"I approve your recommended Option A for the four identified statements. A context may explicitly establish that a particular scoring-condition detail requires no additional value. However, the engine must distinguish between: A field explicitly defined as not applicable or requiring no further value. A field whose value remains missing or unresolved. The former should be valid. The latter should remain a knowledge gap when that information is necessary. This is not permission for the engine to fill missing values through inference.\" So this declaration DEFERS to the object establishing a condition wherever that object speaks explicitly about this row (his answer 9 of 15 October: general requirements stay applicable \"unless the specific knowledge explicitly supersedes them through an authorized relationship\" - this ruling is that relationship, for these four statements and no other). The kind stays NOT_AUTHORED: where the establishing object is silent or UNDECLARED, or says nothing explicit, the gap still governs and still blocks. Nothing is filled. GF2's NON_CLAIMED declarations on the same rows are not marked. Lands with C49, never before it: measured, without C49 this deferral would read the Pass Combination Gate's NON_CLAIMED place as 'count anywhere'."
+      "why": "OPTION A, approved on his reply received 15 October 2026 (his 16 October reply, item 8), for exactly four statements: GF2's NOT_AUTHORED declarations on V3, V4, V5 and V6 (\"notAuthored: the qualifying condition of the primary scoring event; any control requirement must come from elsewhere.\" - that wording is our 17 September restatement of GF2, shown to him as ours in the 15 October email, not his words). His words: \"I approve your recommended Option A for the four identified statements. A context may explicitly establish that a particular scoring-condition detail requires no additional value. However, the engine must distinguish between: A field explicitly defined as not applicable or requiring no further value. A field whose value remains missing or unresolved. The former should be valid. The latter should remain a knowledge gap when that information is necessary. This is not permission for the engine to fill missing values through inference.\" So this declaration DEFERS to the object establishing a condition wherever that object speaks explicitly about this row (his answer 9 of 15 October: general requirements stay applicable \"unless the specific knowledge explicitly supersedes them through an authorized relationship\" - this ruling is that relationship, for these four statements and no other). The kind stays NOT_AUTHORED: where the establishing object is silent or UNDECLARED, or says nothing explicit, the gap still governs and still blocks. Nothing is filled. GF2's NON_CLAIMED declarations on the same rows are not marked. Lands with C49, never before it: measured, without C49 this deferral would read the Pass Combination Gate's NON_CLAIMED place as 'count anywhere'. AMENDED 15 October 2026 (stage K1), listed as an additional semantic change under his 16 October item 9 (\"identify any additional semantic changes before making them authoritative\"): this deferral now steps aside only for an establishing statement that SPECIFIES - a requirement kind, or a non-claim qualified NO_FURTHER_VALUE (register contractEnums.declarationQualifier, his 17 October M6). A legacy, unqualified non-claim no longer sets it aside: it says only that its object does not constrain the row, which is not what he called \"A field explicitly defined as not applicable or requiring no further value.\" (OUR reading of his item 8 with M6, not his words). Measured the day it landed: 0 lines move on the knowledge, in the corpus and every pinned composition (governing-declarations.unit.ts); it closes in the mechanism the hazard C49 closed in the data."
     },
     {
       "contractId": "restated:GF2",
@@ -1471,6 +1531,20 @@
       },
       "ruling": "C48",
       "why": "Register row P6c (performers.neutrals.affiliation.takesEffect: when a neutral player's change of side takes effect) was added in register version 7 on the owner's ruling of 14 October 2026 (C43), after this contract was written, so it could not have declared the row, and every game selecting it without the Neutral Player Condition read P6c as 'no coverage' - nobody looked. It already declares every other neutral property NON_CLAIMED (P5, P6a, P6b, P7), its P6a note reading \"No neutrals.\" The new property belongs to the same performers, so the same declaration is extended to it mechanically: kind, selector, scope and note copied from its P6a declaration. No knowledge is changed - nothing is authored or forbidden on P6c - and contracts.json is untouched."
+    },
+    {
+      "contractId": "restated:RPC-001",
+      "declaration": {
+        "row": "V6",
+        "declaration": "NON_CLAIMED",
+        "qualifier": "NO_FURTHER_VALUE",
+        "selector": "type=origin",
+        "scope": "WHOLE_GAME",
+        "note": "RULED C55 (his 9.9): the origin of a build-out (RPC-001-18.a) needs no further value. This note is our gloss; his words are in the ruling."
+      },
+      "onDeclaredRow": "PROVEN_DISJOINT",
+      "ruling": "C55",
+      "why": "ADDED 15 October 2026 (C55), under his M6 exception. His words, reply filed 16 October 2026, item 9 point 9: \"Build-out origin needs no further value: Approved under the narrow authority ruling.\" - approving change 9 of our 15 October email (\"The origin of a build-out needs no further value\", our wording). His reply filed 17 October 2026, M6: \"I approve the narrow authority exception where the added statement provably cannot contradict existing knowledge. However, the machine-readable representation must preserve the distinction between: No further value is required. The value is explicitly unrestricted. A necessary value is missing.\" And his 16 October item 8: \"A context may explicitly establish that a particular scoring-condition detail requires no additional value.\" RPC-001-18.a establishes the origin condition (type=origin). RPC-001 already declares V6 (CLAIMED type IN {progression, control, exclusion}; NOT_AUTHORED type=control; NOT_AUTHORED type=exclusion), none of which reaches the origin, so its value line was a declared gap under GF2's general gap. This declaration says explicitly - qualifier NO_FURTHER_VALUE, the first of his three states - that the origin's value needs nothing more. It joins a row RPC-001 already declares only through the M6 exception (onDeclaredRow PROVEN_DISJOINT, corpus-restatement.ts provenDisjointRefusal): a qualified non-claim, no deferral, proved disjoint from every declaration RPC-001 has on V6, every CLAIMED any contract has on V6, and every value-authoring item on V6. Scope WHOLE_GAME like its sibling V6 declarations: the condition's episode scope is its item's (C52); the declaration says only what the field needs. Canonical RPC-001 knowledge on his ruling, not a provisional choice. Measured the day it landed: the only line that moves anywhere is RPC-001-18.a::V6 (declared gap -> not constrained, NO_FURTHER_VALUE, in every composition holding RPC-001; 'excluded' in the full corpus, through the Neutral Player Condition's own exclusion), and no Gate A check verdict moves. contracts.json is untouched."
     }
   ],
   "declarationScope": {

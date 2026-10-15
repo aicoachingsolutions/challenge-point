@@ -1633,4 +1633,29 @@ for (const observation of rendered.coachingObservations) {
     }
 }
 
+// ── His M6 state reaches the account, never the coach (stage K1, 15 October 2026) ─────────────────────────────
+//
+// His 17 October M6: "No further value is required" must not collapse into a non-claim that merely does not
+// constrain. The fixture carries each unestablished entry's deciding declarations WHOLE (rendering-fixture.ts), and
+// the renderer reads the state from them: a technical observation names the fields that need no further value, and
+// no instruction mentions them. On a COPY of the frozen fixture, with one entry restated TEST-ONLY.
+{
+    // Key identity: every unestablished entry of the frozen fixture carries the declarations that decided it.
+    for (const entry of fixture.status.notEstablished) assert.ok(Array.isArray(entry.governedBy), `${entry.lineId} carries governedBy`)
+    assert.ok(!rendered.coachingObservations.some(o => o.includes('need no further value')), 'the Golden Case has no such field')
+
+    const copy = JSON.parse(JSON.stringify(fixture))
+    const entry = copy.status.notEstablished.find((n: any) => n.reason === 'not constrained')
+    entry.governedBy = [{ contractId: 'TEST-ONLY', declaration: 'NON_CLAIMED', selector: '*', qualifier: 'NO_FURTHER_VALUE' }]
+    const out = renderConcreteGame(copy)
+    const said = out.coachingObservations.filter(o => o.includes('need no further value'))
+    assert.deepEqual(said, [
+        `1 field(s) need no further value, by an explicit statement of the knowledge that establishes them (${entry.path}). Nothing is missing there, and the coach is told nothing about them.`,
+    ])
+    assert.deepEqual(out.instructions.map(i => i.text), rendered.instructions.map(i => i.text), 'no coach-facing sentence moves')
+    // A legacy non-claim beside it is not that state, and is not reported as it.
+    entry.governedBy.push({ contractId: 'TEST-ONLY-2', declaration: 'NON_CLAIMED', selector: '*' })
+    assert.ok(!renderConcreteGame(copy).coachingObservations.some(o => o.includes('need no further value')))
+}
+
 console.log('rendering.unit.ts — ok')

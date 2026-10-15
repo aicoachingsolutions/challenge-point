@@ -258,18 +258,26 @@ test('his 16 October provisional choices, each cited, with whether the activity 
     for (const refused of ['5 m zone at the far end', 'high-regain bonus is added', 'transition window applies']) assert.ok(!all.includes(refused), refused)
 })
 
-test('the decisions and capabilities the activity waits on: D1-D7 and M1-M8, each defined once, each named entry resolving', () => {
+test('the decisions and capabilities the activity waits on: D1-D7 and M1-M5 and M7, each defined once, each named entry resolving', () => {
     const gaps = a01().gaps!
-    assert.deepEqual(gaps.map(gap => gap.id), ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7', 'M8'])
+    // **M6 and M8 leave the gaps on 15 October 2026 (stage K1): built, and each now what existing knowledge authorizes.**
+    // His 17 October reply approved both — M6 ("I approve the narrow authority exception where the added statement
+    // provably cannot contradict existing knowledge") and M8 ("Apply the qualifying conditions to the target and scoring
+    // episode actually being evaluated") — and rulings C55 and C57 record them; the three context lines they named are
+    // no longer stops (activity-review.unit.ts). Their entries in existingKnowledge cite the rulings and the items.
+    assert.deepEqual(gaps.map(gap => gap.id), ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'M1', 'M2', 'M3', 'M4', 'M5', 'M7'])
     assert.ok(gaps.every(gap => gap.kind === (gap.id.startsWith('D') ? 'DECISION' : 'CAPABILITY') && gap.description.trim()), 'each a decision or a capability, with a line saying what it is')
     // D8 (the gate's place) was recorded as not yet authored rather than put to him, and affects no Learning Goal.
     assert.ok(!gaps.some(gap => gap.id === 'D8'))
-    // Every gap an entry names is defined; the context-line capabilities (M6, M8) and the conditional one (M7) are
-    // defined and named by no entry: they move stops at structure, which their notes say.
+    // Every gap an entry names is defined; the conditional capability (M7) is defined and named by no entry.
     const named = new Set([...a01().manipulations.flatMap(m => m.gaps), ...a01().provisionalChoices!.flatMap(c => c.gaps)])
     assert.deepEqual([...named].sort(), ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'M1', 'M2', 'M3', 'M4', 'M5'])
-    assert.ok(gaps.find(gap => gap.id === 'M6')!.note!.includes('RPC-001-18.a::V6'))
-    assert.ok(gaps.find(gap => gap.id === 'M8')!.note!.includes('RPC-001-18.f::V5') && gaps.find(gap => gap.id === 'M8')!.note!.includes('RPC-001-19.a::V5'))
+    const known = a01().existingKnowledge!
+    const origin = known.find(entry => entry.what === 'The origin of a build-out needs no further value.')!
+    assert.ok(origin.sources.includes('ruling C55') && origin.note!.includes('RPC-001-18.a::V6') && origin.note!.includes('capability M6'))
+    const referents = known.find(entry => entry.what.startsWith('Controlled arrival and the long-clearance exclusion are judged against the target the scoring team attacks'))!
+    assert.ok(referents.sources.includes('ruling C57') && referents.note!.includes('RPC-001-18.f::V5 and 19.a::V5') && referents.note!.includes('capability M8'))
+    assert.ok(referents.note!.includes('is our M8 wording, which he approved; it is not his sentence'), 'our wording is never presented as his')
     // Our wording, as put to him — never presented as his.
     assert.ok(learningGoalAuthorizationsAbout().includes('The decision and capability ids (D1-D7, M1-M8) and their one-line descriptions are OUR wording, as put to him; none is his.'))
 })
@@ -281,7 +289,9 @@ test('the decisions and capabilities the activity waits on: D1-D7 and M1-M8, eac
  */
 test('what existing knowledge already authorizes, every source resolving to the knowledge', () => {
     const known = a01().existingKnowledge!
-    assert.equal(known.length, 10)
+    // 10 -> 12 on 15 October 2026 (stage K1): the origin needing no further value (C55) and the two referents judged
+    // against the target the scoring team attacks (C57), each built from his 17 October M6 / M8 approvals.
+    assert.equal(known.length, 12)
     assert.ok(known.every(entry => entry.category === 'EXISTING_KNOWLEDGE_TO_VERIFY' && entry.sources.length > 0))
     const library = JSON.stringify(rpcLibraryJson)
     const items = new Set(loadCorpusContracts().flatMap(contract => contract.items.map(item => item.itemId)))
@@ -297,7 +307,9 @@ test('what existing knowledge already authorizes, every source resolving to the 
             checked++
         }
     }
-    assert.equal(checked, 19, 'every library id and contract item cited is checked')
+    // 19 -> 23 on 15 October 2026 (stage K1): RPC-001-18.a (C55), and RPC-PROP-132 with C57's two referent items
+    // RPC-001-18.h and 19.c — live in the loaded corpus, added by the ruling, never in contracts.json.
+    assert.equal(checked, 23, 'every library id and contract item cited is checked')
     /**
      * **Added at the stage H3 review, 15 October 2026: the specification decisions too, and what the one about the
      * session says.** The session entry cited SD-33, which exists — it is the engine's report-only rule — but says
@@ -386,7 +398,7 @@ test('authorizationLists: authorized by existing knowledge, his provisional choi
         'field dimensions',
         "progression references — each team's own target, in a different place, inside the area",
     ])
-    assert.deepEqual(lists.authorizedByExistingKnowledge.slice(0, 10).map(entry => entry.sources), record.existingKnowledge!.map(known => known.sources))
+    assert.deepEqual(lists.authorizedByExistingKnowledge.slice(0, record.existingKnowledge!.length).map(entry => entry.sources), record.existingKnowledge!.map(known => known.sources))
     assert.deepEqual(lists.provisionalChoices.map(entry => entry.label), [
         ...record.provisionalChoices!.map(choice => choice.choice),
         'starting positions — where the team building out starts',
@@ -396,7 +408,8 @@ test('authorizationLists: authorized by existing knowledge, his provisional choi
     assert.deepEqual(lists.provisionalChoices.slice(0, 6).map(entry => [entry.words, entry.citedAs, entry.status, entry.gaps]), record.provisionalChoices!.map(choice => [choice.words, choice.citedAs, choice.status, choice.gaps]))
     assert.deepEqual(lists.gaps.map(({ neededBy, ...gap }) => gap), record.gaps, 'each definition whole')
     assert.deepEqual(lists.gaps.find(gap => gap.id === 'D6')!.neededBy, ['defensive numbers', 'goalkeeper positioning', 'overloads'])
-    assert.deepEqual(lists.gaps.find(gap => gap.id === 'M8')!.neededBy, [], 'a context-line capability waits on no entry here')
+    // Re-pointed 15 October 2026 (stage K1) from M8, which left the gaps when it was built (C57).
+    assert.deepEqual(lists.gaps.find(gap => gap.id === 'M7')!.neededBy, [], 'the conditional capability waits on no entry here')
     const accounted = new Set([...lists.authorizedByExistingKnowledge, ...lists.provisionalChoices].map(entry => entry.label).concat(lists.gaps.flatMap(gap => gap.neededBy)))
     for (const manipulation of record.manipulations) {
         const label = manipulation.aspect ? `${manipulation.phrase} — ${manipulation.aspect}` : manipulation.phrase

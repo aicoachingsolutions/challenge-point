@@ -26,7 +26,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import { justifiedDefaults } from '../realization/justified-defaults'
-import { CONFORMANCE_DIR, corpusInput, loadCorpusContracts } from './corpus'
+import { CONFORMANCE_DIR, corpusInput, loadCorpusContracts, loadRegister } from './corpus'
 import { runDerivation, runStages0to10 } from './engine'
 import { runGates } from './gates'
 import { indexRegister } from './register'
@@ -174,10 +174,16 @@ test('a typed V5 referent to a region is looked up as that region, not reported 
         // than a declared gap. Re-pointed 15 October 2026: until C49 the same state was reached by dropping the
         // possession game's gap, which no longer suffices once the gate's own statement is a gap. Nothing here
         // authors the place; it shows what the clause does once a line IS an established absence.
+        //
+        // **Re-pointed 15 October 2026 (stage K1).** Since the deferral tightening recorded beside C50, an UNQUALIFIED
+        // non-claim no longer sets the possession game's gap aside (his M6: "No further value is required" must not
+        // collapse into a mere non-claim), so the TEST-ONLY statement says explicitly that the place needs no further
+        // value — the qualifier is part of the same test device, and still nothing authors the place.
         const input = gateComposition()
         const gateV5 = contractOf(input, GATE).declarations.find((d: any) => d.row === 'V5')
         assert.equal(gateV5.declaration, 'NOT_AUTHORED', 'the copy starts from his answers')
         gateV5.declaration = 'NON_CLAIMED'
+        gateV5.qualifier = 'NO_FURTHER_VALUE' // TEST-ONLY
         const result: any = runStages0to10(input)
         assert.deepEqual([result.classified.get(v5Line).verdict, result.classified.get(v5Line).reason], ['NOT_AUTHORED', 'not constrained'])
         const position = clause(result, 'GA-ONE-PRIMARY-EVENT', 'every member of the event reference')
@@ -350,12 +356,15 @@ test('the corpus-wide Gate A, check by check', () => {
     const primaryEvent = check(result, 'GA-ONE-PRIMARY-EVENT')
     for (const [id, verdict] of [
         [`c:${GATE}:PCG-02::V5`, 'NOT_AUTHORED'],
-        ['c:restated:RPC-001:RPC-001-18.f::V5', 'NOT_AUTHORED'],
-        ['c:restated:RPC-001:RPC-001-19.a::V5', 'NOT_AUTHORED'],
         ['c:restated:RPC-001:RPC-001-18.a::V5', 'FREE(choice)'],
     ]) {
         assert.ok(primaryEvent.blockedBy.includes(id) || primaryEvent.pendingOn.includes(id), id)
         assert.equal(result.classified.get(id).verdict, verdict, id)
+    }
+    // **15 October 2026 (stage K1, C57): RPC-001's control and exclusion places are no longer declared gaps.** His M8
+    // typed each as the objective reference of the scoring team, so both lines are derived (section (f) below).
+    for (const id of ['c:restated:RPC-001:RPC-001-18.f::V5', 'c:restated:RPC-001:RPC-001-19.a::V5']) {
+        assert.equal(result.classified.get(id).verdict, 'RESOLVED:ENTAILED', id)
     }
     const verdicts = Object.fromEntries(result.gates.gateA.checks.map((c: any) => [c.checkId, c.verdict]))
     assert.deepEqual(verdicts, {
@@ -391,7 +400,9 @@ test('the corpus-wide Gate A, check by check', () => {
         'GA-TRIGGER-UNIQUE': 'PASS',
     })
     assert.equal(result.gates.gateA.verdict, 'FAIL')
-    assert.match(check(result, 'GA-NO-FAILED-LINE').why, /^13 required line\(s\) are unestablished/)
+    // 13 -> 10 on 15 October 2026 (stage K1): RPC-001-18.f::V5 and 19.a::V5 derived by C57 (his M8), and 18.a::V6
+    // 'excluded' corpus-wide by C55 (his 9.9, decided with the Neutral Player Condition's own exclusion beside it).
+    assert.match(check(result, 'GA-NO-FAILED-LINE').why, /^10 required line\(s\) are unestablished/)
     // PCG-11's CONTRADICTED became NOT_COMPARED when C44 typed it (S1c); the other two are untouched.
     assert.deepEqual(codes(result).sort(), [
         `CONSTITUTIVE_SELECTOR_CONTRADICTED@c:${GATE}:PCG-02::V4`,
@@ -403,5 +414,125 @@ test('the corpus-wide Gate A, check by check', () => {
     // The copies above reached nothing shared.
     assert.ok(!JSON.stringify(loadCorpusContracts()).includes('a test fixture, not authored knowledge'))
 })
+
+// ── (f) M8: the relational referent — "the objective reference of SCORING_TEAM" (C57, stage K1) ──────────────
+/**
+ * His 17 October words: *"M8 — Controlled arrival and long-clearance validation: Approved. Apply the qualifying
+ * conditions to the target and scoring episode actually being evaluated. The purpose is to recognize controlled,
+ * functional progression rather than reward an uncontrolled clearance. Please ensure this does not inadvertently
+ * prohibit a functional longer pass that is received under control beyond pressure."* And 16 October, 9.2: *"provided
+ * they are evaluated against the intended progression outcome and not merely whichever target the current engine can
+ * represent."*
+ *
+ * C57 types the referents of RPC-001's control condition (18.f) and long-clearance exclusion (19.a) as the objective
+ * reference of SCORING_TEAM (register V5, version 2). "The objective reference of SCORING_TEAM" is OUR M8 wording,
+ * approved by his "M8 ... Approved."; it is not his sentence. 18.d — the progression reference — is NOT retyped by
+ * M8 (C54/D3/M7), and it is still open text; where a test needs every referent typed, a TEST-ONLY copy types it too,
+ * and says so.
+ */
+{
+    const RPC = 'restated:RPC-001'
+    const A01_FORMS = () => JSON.parse(JSON.stringify(derivationInputFor({ selected: [{ id: 'restated:GF2', role: 'game form' }, { id: RPC, role: 'context' }] })))
+    const CONTROL = `c:${RPC}:RPC-001-18.f::V5`
+    const EXCLUSION = `c:${RPC}:RPC-001-19.a::V5`
+    const relational = { objectiveReferenceOf: 'SCORING_TEAM', role: 'PRIMARY_SCORING' }
+    /** TEST-ONLY: 18.d's open-text progression reference typed the same way, so nothing else blocks the referent checks. */
+    const progressionTyped = (input: any) => {
+        contractOf(input, RPC).items.find((i: any) => i.itemId === 'RPC-001-18.d').value = { ...relational, asAuthored: 'TEST-ONLY: not a ruling' }
+        return input
+    }
+
+    test('C57: the control and long-clearance referents are derived as the objective reference of SCORING_TEAM, and no longer block', () => {
+        const result = runStages0to10(A01_FORMS()) as any
+        for (const lineId of [CONTROL, EXCLUSION]) {
+            assert.equal(result.classified.get(lineId).verdict, 'RESOLVED:ENTAILED', lineId)
+            const value = result.derived.lines.get(lineId).entailing[0].value
+            assert.deepEqual({ objectiveReferenceOf: value.objectiveReferenceOf, role: value.role }, relational, lineId)
+            assert.ok(!check(result, 'GA-NO-FAILED-LINE').subjects.includes(lineId), `${lineId} leaves the blockers`)
+        }
+        // Carried onto the resolved game's conditions whole, beside the scope C52 gave them: within a build-out episode.
+        const game: any = assembleResolvedGame(runDerivation(A01_FORMS()) as any, result.classes, indexRegister(loadRegister()), A01_FORMS().contracts)
+        const conditions = game.game.value.primaryEvent.conditions.filter((c: any) => ['control', 'exclusion'].includes(c.type))
+        assert.deepEqual(conditions.map((c: any) => [c.type, c.scope, c.referents.objectiveReferenceOf, c.referents.role]), [
+            ['control', 'BUILD_OUT_EPISODE', 'SCORING_TEAM', 'PRIMARY_SCORING'],
+            ['exclusion', 'BUILD_OUT_EPISODE', 'SCORING_TEAM', 'PRIMARY_SCORING'],
+        ])
+    })
+
+    test('C57: it resolves to the target each team attacks — per team, that team\'s own target — and the referent checks pass on it', () => {
+        // With the progression reference typed too (TEST-ONLY), every referent of every condition is typed: the
+        // reference check resolves them all and the position clause waits only on where realization puts the targets.
+        const result = runStages0to10(progressionTyped(A01_FORMS())) as any
+        assert.equal(check(result, 'GA-REFERENCE-INTEGRITY').verdict, 'PASS')
+        assert.match(check(result, 'GA-REFERENCE-INTEGRITY').why, /0 named no held element; 0 established no structural identity/)
+        // The position clause is still withheld — by the ORIGIN's referent alone (18.a::V5, a free choice between two
+        // open-text placements, which C58 would type; held for his acknowledgement). Nothing it designates is unpositioned,
+        // and neither relational line is what it waits on.
+        const primaryEvent = check(result, 'GA-ONE-PRIMARY-EVENT')
+        assert.equal(clause(result, 'GA-ONE-PRIMARY-EVENT', 'every member of the event reference').verdict, 'NOT_EVALUABLE')
+        assert.match(primaryEvent.why, /0 unpositioned/)
+        assert.ok(primaryEvent.pendingOn.includes(`c:${RPC}:RPC-001-18.a::V5`), 'the origin is what it waits on')
+        for (const lineId of [CONTROL, EXCLUSION]) assert.ok(!primaryEvent.blockedBy.includes(lineId), `${lineId} does not block the position clause`)
+        // What it designates: the two PRIMARY_SCORING objectives' own references — each team's target at the opposite end.
+        const objectives = result.classes.filter((c: any) => c.row === 'J1' && !c.constraints.any)
+        const targets = objectives.map((o: any) => result.derived.lines.get(`${o.classId}::J2`).entailing[0].value.structuralRef.itemId).sort()
+        assert.deepEqual(targets, ['GF2-03.e', 'GF2-03.f'])
+    })
+
+    test('C57: a relational referent that designates nothing FAILS, one that designates open text is a gap — it is never read as text', () => {
+        const withControl = (value: unknown, alter: (input: any) => void = () => undefined) => {
+            const input = progressionTyped(A01_FORMS())
+            contractOf(input, RPC).items.find((i: any) => i.itemId === 'RPC-001-18.h').value = value
+            alter(input)
+            return runStages0to10(input) as any
+        }
+        // A designation the register does not define (TEST-ONLY).
+        const unregistered = withControl({ objectiveReferenceOf: 'NO_SUCH_TEAM', role: 'PRIMARY_SCORING' })
+        assert.equal(check(unregistered, 'GA-REFERENCE-INTEGRITY').verdict, 'FAIL')
+        assert.match(check(unregistered, 'GA-REFERENCE-INTEGRITY').why, /1 named no held element/)
+        assert.equal(clause(unregistered, 'GA-ONE-PRIMARY-EVENT', 'every member of the event reference').verdict, 'FAIL')
+        // A role no individuated objective of this game has. The possession game also asserts, without individuating
+        // them, that each side has at least one objective (GF2-09.a, existential coverage under SD-97), so one of that
+        // role might exist: what the referent designates is unknown — a gap naming the line, never a pass and never a
+        // failure the knowledge does not establish.
+        const noRole = withControl({ objectiveReferenceOf: 'SCORING_TEAM', role: 'REPRESENTATIVE' })
+        assert.equal(check(noRole, 'GA-REFERENCE-INTEGRITY').verdict, 'NOT_EVALUABLE')
+        assert.ok(check(noRole, 'GA-REFERENCE-INTEGRITY').blockedBy.includes(CONTROL), 'blocked on the relational line')
+        // An objective whose reference is open text: what it designates has no identity — a gap naming the line, not a pass.
+        const openText = withControl({ ...relational }, input => {
+            contractOf(input, 'restated:GF2').items.find((i: any) => i.itemId === 'GF2-08.d').value = 'the far target (TEST-ONLY open text)'
+        })
+        assert.equal(check(openText, 'GA-REFERENCE-INTEGRITY').verdict, 'NOT_EVALUABLE')
+        assert.ok(check(openText, 'GA-REFERENCE-INTEGRITY').blockedBy.includes(CONTROL), 'the block names the relational line')
+        // Written as a SET of referents it is one member per designation, never "[object Object]". (TEST-ONLY: the copy's
+        // value status is set so the array is a set of members, not SD-78's set of permitted alternatives.)
+        const asSet = withControl([{ ...relational }], input => {
+            contractOf(input, RPC).items.find((i: any) => i.itemId === 'RPC-001-18.h').valueStatus = 'N/A'
+        })
+        assert.ok([...asSet.classified.keys()].includes(`${CONTROL}::objective-reference-of:SCORING_TEAM:PRIMARY_SCORING`))
+        assert.ok(!JSON.stringify([...asSet.classified.keys()]).includes('[object Object]'))
+    })
+
+    test("C57 / his M8 safeguard: a longer pass received under control is not excluded — the exclusion is the authored term only, and 'long' has no threshold", () => {
+        const loaded: any = loadCorpusContracts().find(c => c.contractId === RPC)!
+        const item = (id: string) => loaded.items.find((i: any) => i.itemId === id)
+        // His sentence, verbatim, beside the exclusion it guards.
+        assert.ok(item('RPC-001-19.b').fitNote.includes('"Please ensure this does not inadvertently prohibit a functional longer pass that is received under control beyond pressure."'))
+        // The exclusion excludes what was authored and nothing more: a clearance that HAPPENS to reach the target.
+        assert.equal(item('RPC-001-19.b').value, 'a long clearance that happens to reach the target')
+        // Nothing gives "long" a number: the exclusion's value stays the qualitative term, and RPC-001 still says no
+        // threshold is authored for it.
+        assert.ok(loaded.declarations.some((d: any) => d.row === 'V6' && d.declaration === 'NOT_AUTHORED' && d.selector === 'type=exclusion'))
+        assert.ok(!loaded.items.some((i: any) => ['V3', 'V5', 'V6'].includes(String(i.row)) && /\d+\s*m\b|metre|meter|distance|length/i.test(JSON.stringify(i.value))), 'no pass length or distance anywhere in the build-out condition')
+        // No condition of the game is about pass length: the four authored types and no other.
+        const result = runStages0to10(A01_FORMS()) as any
+        const types = result.classes.filter((c: any) => c.row === 'V3').map((c: any) => c.constraints.terms.find((t: any) => t.attribute === 'type')?.value).sort()
+        assert.deepEqual(types, ['control', 'exclusion', 'origin', 'progression'])
+        // And the control condition is judged on arrival at the target the scoring team attacks — wherever the pass
+        // came from: its value is the authored "controlled on arrival", typed to no pass length or origin of the ball.
+        assert.equal(item('RPC-001-18.g').value, 'controlled on arrival')
+        assert.deepEqual({ objectiveReferenceOf: item('RPC-001-18.h').value.objectiveReferenceOf, role: item('RPC-001-18.h').value.role }, relational)
+    })
+}
 
 console.log(`typed-referent.unit.ts — ${passed} passed`)

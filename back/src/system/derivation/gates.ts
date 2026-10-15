@@ -29,12 +29,12 @@
  * instances or found none, and the report carries that split so a summary cannot flatten it.
  */
 
-import { ClassifiedLine } from './classify'
+import { ClassifiedLine, nonClaimState } from './classify'
 import { DerivedLine, resolvedValue } from './derive'
 import { ItemOutcome } from './forward'
 import { RegisterIndex } from './register'
 import { add, compare, Interval, lt, lte, Rational, toInterval, toRational, ZERO } from './rational'
-import { ElementClass, Envelope, FailureRecord, ItemRef, LoadedContract, RefusalRecord, ResolutionLine, SpecClause, structuralRefOf } from './types'
+import { ElementClass, Envelope, FailureRecord, ItemRef, LoadedContract, NO_FURTHER_VALUE, RefusalRecord, ResolutionLine, SpecClause, relationalReferentOf, structuralRefOf } from './types'
 
 /**
  * `DEFERRED_TO_REALIZATION` is the clause verdict added on 30 September, and it is a different
@@ -360,7 +360,61 @@ function sameReferent(ctx: GateContext, a: unknown, b: unknown): boolean {
 /** A referent as a reason may print it: `contractId::itemId` for a typed reference, never `[object Object]`. */
 function describeReferent(value: unknown): string {
     const typed = asStructuralRef(value)
-    return typed ? `${typed.contractId}::${typed.itemId}` : String(value)
+    if (typed) return `${typed.contractId}::${typed.itemId}`
+    const relational = relationalReferentOf(value)
+    return relational ? `the ${relational.role} objective reference of ${relational.objectiveReferenceOf}` : String(value)
+}
+
+/**
+ * **A relational referent, resolved to the references it designates** (15 October 2026, stage K1, capability M8). His
+ * 17 October words: *"Apply the qualifying conditions to the target and scoring episode actually being evaluated."*
+ *
+ * The referent names "the objective reference of D" (types.ts `RelationalReferent`): the J2 reference of each
+ * objective the game holds with the referent's role, attacked by the team D designates. Which team D picks out —
+ * the team that scored, for SCORING_TEAM — is decided at the trigger, not at structure, so before any trigger the
+ * referent stands for EVERY such objective's reference: per team, the target that team attacks. Every one of them
+ * must then be held (and, where a check asks, positioned), which can only make a check stricter, never looser; a
+ * later designation resolver may narrow the set, never widen it.
+ *
+ *   - `dangling` — the designation is not one the register defines, or the game holds no objective of that role and
+ *     asserts none it has not individuated: the referent names nothing, which the engine can establish, so the caller
+ *     FAILS it;
+ *   - otherwise `references` — the objectives' own J2 values, each to be judged exactly as a written referent is
+ *     (held, dangling or open text). A role or reference line that is not derived is read through the probe, so it
+ *     blocks the check by name (`pending`), and is never resolved by guessing.
+ */
+function resolveRelational(ctx: GateContext, probe: Probe, referent: { objectiveReferenceOf: string; role: string }, lineId: string): { references: unknown[]; pending: boolean; dangling: string | null } {
+    const designated = referent.objectiveReferenceOf
+    if (!(ctx.index.teamDesignations ?? []).some(d => d === designated || d.startsWith(`${designated} `))) {
+        return { references: [], pending: false, dangling: `${designated} is not a team designation the register defines` }
+    }
+    const references: unknown[] = []
+    let objectives = 0
+    let pending = false
+    for (const objective of classesOn(ctx, 'J1')) {
+        const role = probe.cell(lineOf(objective.classId, 'J4'))
+        if (role.state !== 'DERIVED') {
+            if (!(role.state === 'ABSENT' && role.established)) pending = true
+            continue
+        }
+        if (String(role.value) !== referent.role) continue
+        objectives++
+        const reference = probe.cell(lineOf(objective.classId, 'J2'))
+        if (reference.state !== 'DERIVED') pending = true
+        references.push(...referentsOf(reference))
+    }
+    if (!objectives && !pending) {
+        // An objective asserted to exist but individuated by nothing (SD-97's existential coverage) might be one of
+        // that role: what the referent designates is then unknown, which is a gap naming this line — not a referent
+        // that names nothing. Measured the day it landed: RPC-001 alone, and RPC-001 with GF4, are such games, and
+        // reading them as FAILs would have moved two checks from NOT_EVALUABLE on knowledge nobody had changed.
+        if (allClassesOn(ctx, 'J1').some(c => c.constraints.any && !c.singletonBy)) {
+            probe.unestablished(lineId)
+            return { references, pending: true, dangling: null }
+        }
+        return { references, pending, dangling: `the game holds no objective whose role is ${referent.role}` }
+    }
+    return { references, pending, dangling: null }
 }
 
 function identityOf(ctx: GateContext, value: unknown): ReferenceIdentity {
@@ -841,6 +895,23 @@ function gaReferenceIntegrity(ctx: GateContext): CheckOutcome {
         const cell = probe.cell(line.lineId)
         for (const name of referentsOf(cell)) {
             if (typeof name === 'object' && (name as any).dynamic) continue // 'where the ball went out' — a token, not an element
+            /**
+             * A relational referent (M8, 15 October 2026) is one reference: resolved when everything it designates is
+             * held, dangling when it designates nothing (or something held by nobody), and a gap naming this line when
+             * what it designates is open text — never itself read as text.
+             */
+            const relational = relationalReferentOf(name)
+            if (relational) {
+                const resolution = resolveRelational(ctx, probe, relational, line.lineId)
+                const identities = resolution.references.map(reference => identityOf(ctx, reference))
+                if (resolution.dangling) dangling.push(`${line.lineId} → ${describeReferent(name)}: ${resolution.dangling}`)
+                else if (identities.includes('DANGLING')) dangling.push(`${line.lineId} → ${describeReferent(name)}: it designates a reference that names no held element`)
+                else if (identities.includes('OPEN_TEXT')) {
+                    openText++
+                    probe.unestablished(line.lineId)
+                } else if (!resolution.pending) resolved++
+                continue
+            }
             const identity = identityOf(ctx, name)
             if (identity === 'HELD') resolved++
             else if (identity === 'DANGLING') dangling.push(`${line.lineId} → ${describeReferent(name)}`)
@@ -1463,8 +1534,14 @@ function gaNoFailedLine(ctx: GateContext): CheckOutcome {
     const notConstrained = withoutValue.filter(l => l.reason === 'not constrained').length
     const unspoken = withoutValue.filter(l => l.reason === 'coverage' || l.reason === 'no coverage').length
 
+    // His M6 (17 October): "No further value is required" is kept apart from a non-claim that merely does not constrain,
+    // so the aside says how many of the 'not constrained' lines are each — and says nothing new where none is.
+    const noFurtherValue = withoutValue.filter(l => nonClaimState(l.reason, l.governedBy) === NO_FURTHER_VALUE).length
+
     for (const lineId of blocking) if (!probe.subjects.includes(lineId)) probe.subjects.push(lineId)
-    const aside = `${excluded} excluded, ${notConstrained} not constrained, ${unspoken} unspoken — established absences and non-requirements, not missing values`
+    const aside =
+        `${excluded} excluded, ${notConstrained} not constrained${noFurtherValue ? ` (${noFurtherValue} of them needing no further value)` : ''}, ${unspoken} unspoken` +
+        ' — established absences and non-requirements, not missing values'
     return result(
         'GA-NO-FAILED-LINE',
         probe,
@@ -1611,7 +1688,21 @@ function gaOnePrimaryEvent(ctx: GateContext): CheckOutcome {
             otherwiseBlocked = true
             continue
         }
-        for (const name of Array.isArray(referents.value) ? referents.value : [referents.value]) {
+        // A relational referent (M8, 15 October 2026) stands for every reference it designates, and each of those must
+        // be positioned: the clause iterates the resolved set, so it neither skips the referent nor reads it as text.
+        const named: unknown[] = []
+        for (const written of Array.isArray(referents.value) ? referents.value : [referents.value]) {
+            const relational = relationalReferentOf(written)
+            if (!relational) {
+                named.push(written)
+                continue
+            }
+            const resolution = resolveRelational(ctx, probe, relational, lineOf(condition.classId, 'V5'))
+            if (resolution.dangling) unpositioned.push(`${describeReferent(written)}: ${resolution.dangling}`)
+            else if (resolution.pending) otherwiseBlocked = true
+            named.push(...resolution.references)
+        }
+        for (const name of named) {
             // SD-63 — open text establishes no identity, so it establishes no violation either.
             if (identityOf(ctx, name) === 'OPEN_TEXT') {
                 probe.unestablished(lineOf(condition.classId, 'V5'))
