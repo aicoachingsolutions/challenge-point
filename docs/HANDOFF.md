@@ -8330,3 +8330,66 @@ On his answers: restate RPC-001 per his rulings (corpus-restatements only), OD1 
 `d-design-step4.txt`), AM-01 designation reach for the goalkeeper per team, zone target + depth, restart rules, the
 approved-wording entries for RPC-001's four conditions, then serve A01 on the review page with rationale and evidence
 (design: `d-design-a01-activity.txt`). Then use game-form differentiation to pick goals 2 and 3.
+
+## 15–16 OCTOBER — GAIN ACCESS RECORDED, CONSTRAINTS BY AUTHORIZATION ONLY, HIS AUTHORITY RULE; THEN HIS ASYMMETRIC TURN
+
+His replies, verbatim, in the session scratchpad: `christian-2026-10-15.txt` (A01 Game Problem approved and eleven
+rulings) and `christian-2026-10-16.txt` (his second reply, received 15 Oct local: the asymmetric first activity).
+Memory: `christian-rulings-2026-10-15.md`, `christian-rulings-2026-10-16.md` (the newer one supersedes the symmetric
+parts). Brief for G1–G5: `scratchpad/BRIEF-OCT15.md`. The decision email that his second reply answers:
+`scratchpad/2026-10-15-a01-build-decisions.txt`.
+
+### G1 (`1f18a02`, review `d6dd9e8`) — A01's constraints come only from its authorization record; Gain Access recorded
+
+- `test-library/library/learning-goal-authorizations.json` + loader with an integrity gate (citation required; an id
+  may not be both authorized and excluded/held; records passed in by tests are gated too). A01: RPC-001, GP-005, his
+  item 1 verbatim, `authorizedConstraints: []`, `zeroConstraintRuling: null`, excluded Wide Zone (item 7) + the PCG
+  hold, ten manipulations with statuses (defenders' start / pressing release / zone depth = MISSING_KNOWLEDGE).
+- `guidedSelectionHints` is the single consultation point (both pathways). `constraintAuthority` AUTHORIZATION_RECORD
+  vs VOCABULARY_POOL carried to the trace, the account, the live usage record. Empty set + null ruling → typed gap
+  `NO_AUTHORIZED_CONSTRAINTS`: review page refuses at 'selection'; live route 400 with the existing gap sentence, NO
+  model call (verified through the built bundle). The zero-constraint commitment is engineered and OFF by data; on a
+  copy with a test-only ruling A01 reaches 'structure' (18.f::V5, 19.a::V5, 18.a::V6).
+- Session Planning Model: `session-planning/workbook-projection.ts` (dependency-free zip reader/projector, refuses
+  formulas and non-integers) reproduces project-workbook.py exactly; agreement test in session-planning-model.unit.ts
+  rebuilds the archive and bites on tampering. `scripts/apply-spm-2026-10-15-a01-game-problem.ts` (idempotent, anchors
+  asserted) wrote B2 = GP-005 + a provenance note; only sheet5.xml changed. **Never re-run apply-cycle8-decisions.py**
+  (it would revert A01; its docstring now says so). Provisional list now [A04, A05, A06].
+- 13 positive controls that used `selectFor('A01', …)` re-pointed to `derivation/composition-fixtures.ts` (the exact
+  objects/roles/order selectFor returned at e73dc80), assertions unchanged.
+- Side effect to remember: with GP-005 governing, A01's candidate LENSES now come from Coverage CV-005 (labelled
+  ENGINE_LENS). Whether lenses also need authorization was never asked.
+- `run-contract-coverage.ts` (npm run corpus:coverage, not in the suite) crashes on GoalSelectionGap (A01, A02, D03).
+
+### G2 (`902a4b5`, `b0cd9e9`, review `cac9a93`) — his item 9 rule, strict form
+
+- DeclarationReach carries `selector` + `parsed` (key-identity test: every authored declaration field arrives or is
+  named). `governingDeclarations` (classify.ts) — one function for classifyLines and the roster read: the establishing
+  object's EXPLICIT declarations + other objects' general requirements that still reach; AM-23 order inside; supersession
+  (`defersTo`) is data, EMPTY, and a durable test requires every deferral to trace to a ruled `declarations` entry.
+  `ClassifiedLine.governedBy`; `declared` stays row-wide.
+- Measured exactly as predicted: 5 lines move corpus-wide, none blocking → non-blocking; RPC-001-11.a::J2 becomes a
+  blocker in GF2+RPC-001; 18.f::V5, 19.a::V5, 18.a::V6 stay declared gaps. The reviewer found and fixed a real defect
+  (a supporting object's OWN_INVOLVEMENT declaration counted as explicit) and found **GF4 compositions now FAIL Gate A**
+  (GF4+GF2, GF4+PCG NOT_EVALUABLE → FAIL on GF4:I17::V8b/V9) — consistent with his rule; it will bite when an RPC
+  contract for a GF4 goal (D02/TA01/TD01/TD02) lands.
+- Nothing a coach sees moved (13 goals + 3 demonstrations at 0/1/2 role availability, ts-node and bundle identical).
+  A04 fixture **a0d5e683** unchanged. governedBy has no runtime consumer beyond the resolved game yet (carrying it into
+  the rendering fixture would move the A04 digest).
+
+Suite **FILES 86 FAILED 0**. Pushed `cac9a93`.
+
+### HIS SECOND REPLY (16 Oct) — what changed
+
+Asymmetric build-out-vs-press first activity (roles exchanged over episodes/blocks); intermediate progression target
+(no far-end 5 m zone); a separate post-regain target area for the pressing team (controlled entry, no prescribed
+action — he REJECTED our "receive a pass inside" rule); immediate pressing from a representative starting arrangement
+(no timed release; a high-regain incentive only after evaluating existing consequences); learning-oriented restarts
+(GENERAL principle); "a library constraint is not mandatory unless justified" as a GENERAL principle — **no A01
+special case**; Option A narrowly (explicit "no further value" valid, missing stays a gap); the PCG's removed "in their
+half" does NOT mean "count anywhere" (our C45 NON_CLAIMED reading must be corrected); acknowledgements 1, 3, 4, 7, 8,
+9, 10 approved, 2 and 5 conditionally, 6 to be revised for asymmetry. He asks us to check five capabilities
+(asymmetry; distinct targets; continued play after a regain with a different success; learning-oriented restarts;
+defensive starting conditions) BEFORE extending anything, and for a focused RPC-001 document-vs-workbook
+reconciliation. Running: workflow `oct16-a01-capability-check` (seven analysts, each adversarially verified, then a
+synthesis into his four categories).
