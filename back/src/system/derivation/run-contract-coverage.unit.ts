@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 
 import { SelectionKnowledgeGap } from '../test-library/generateSelection'
-import { needsFor } from './run-contract-coverage'
+import { buildReportData, needsFor } from './run-contract-coverage'
 import { GoalSelectionGap } from './run-bounded-selection'
 import type { BoundedSelection } from './run-bounded-selection'
 
@@ -58,8 +58,28 @@ function testUnrelatedErrorIsNotSwallowed(): void {
     )
 }
 
+// WHY: a refused goal must leave every count for the other goals exactly as it would be without it.
+function testSelectionGapLeavesOtherCountsUnchanged(): void {
+    const error = selectionGap()
+    const selector = (goalId: string) => {
+        if (goalId === 'X02') throw error
+        return normalSelection()
+    }
+    const withGap = buildReportData(['X01', 'X02'], selector)
+    const withoutGap = buildReportData(['X01'], selector)
+
+    assert.deepEqual([...withGap.selectionObjects], [...withoutGap.selectionObjects])
+    assert.deepEqual([...withGap.situationObjects], [...withoutGap.situationObjects])
+    assert.deepEqual([...withGap.all], [...withoutGap.all])
+    assert.deepEqual(withGap.missing, withoutGap.missing)
+    assert.deepEqual(withGap.missingSituations, withoutGap.missingSituations)
+    assert.deepEqual(withGap.gaps.map(n => n.goalId), ['X02'])
+    assert.deepEqual(withoutGap.gaps, [])
+}
+
 testNormalSelectionKeepsItsNeed()
 testSelectionGapIsReported()
 testUnrelatedErrorIsNotSwallowed()
+testSelectionGapLeavesOtherCountsUnchanged()
 
 console.log('run-contract-coverage unit tests passed')
