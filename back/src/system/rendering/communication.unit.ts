@@ -114,9 +114,11 @@ test('1. the review draft of A01: every sentence the game holds, each a DRAFT, n
 })
 
 test('2. key identity: the draft reaches the administrator\'s review answer and nothing else', () => {
-    // The same build with and without the draft: identical but for the one key.
-    const { draft, ...rest } = review
-    assert.ok(draft)
+    // The same build with and without the draft: identical but for the admin-only keys. Moved 15 October 2026 (stage K8): the
+    // administrator's answer for a goal whose record carries his review request also carries `evidence` (review-evidence.unit.ts pins
+    // it); taken out here beside the draft, the rest is still exactly the coach's answer.
+    const { draft, evidence, ...rest } = review
+    assert.ok(draft && evidence)
     assert.deepEqual(rest, plain)
     assert.ok(!('draft' in plain), 'buildActivity never carries it')
     assert.deepEqual(buildActivityForReview(a01, { includeDrafts: false }), plain, 'the review build without drafts is buildActivity exactly')

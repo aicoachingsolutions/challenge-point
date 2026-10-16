@@ -60,6 +60,7 @@ import type { ConstraintAuthority, ConstraintPoolAccount } from '../test-library
 import { contextScoringFindings, EPISODE_REACHABLE_CHECK } from './context-scoring-guard'
 import { checkFidelity, FidelityFinding } from './fidelity'
 import { ReviewDraft, reviewDraftOf } from './review-draft'
+import { EvidenceBlock, ReviewEvidence, reviewEvidenceOf } from './review-evidence'
 import { mechanismDemonstration } from './mechanism-demonstrations'
 import { RenderedActivity, renderConcreteGame } from './render-concrete-game'
 import { assembleRenderingFixture } from './rendering-fixture'
@@ -254,6 +255,8 @@ export interface ServedActivity {
      * Absent for every other activity, so what they serve is unchanged.
      */
     roleBlocks?: RoleBlockAccount
+    /** The admin-only review evidence (stage K8), where the goal's record asks for one; see `RefusedActivity.evidence`. */
+    evidence?: ReviewEvidence
 }
 
 /** The role blocks of a served activity, for the technical account (stage K3). */
@@ -303,6 +306,12 @@ export interface RefusedActivity {
      * `includeDrafts`; `buildActivity`, the pilot and the live route never carry the key.
      */
     draft?: ReviewDraft
+    /**
+     * **Only for an administrator's review of a goal whose record asks for one** (stage K8, 15 October 2026): the facts the generated
+     * game holds, item by item as he asked, with each element's and sentence's layer and standing (`review-evidence.ts`). Produced only
+     * by `buildActivityForReview` with `includeDrafts`, on a refusal at communication; never on a coach's, the pilot's or the live answer.
+     */
+    evidence?: ReviewEvidence
 }
 
 /**
@@ -406,7 +415,9 @@ function constraintSourceOf(pool: ConstraintPoolAccount, gap: SelectionKnowledge
 /** The authorization record as the account carries it: whole, a copy, each exclusion with its library title. */
 function authorizationOf(record: LearningGoalAuthorization | null): ActivityAccount['authorization'] {
     if (!record) return null
-    const copy: LearningGoalAuthorization = JSON.parse(JSON.stringify(record))
+    // His review request (stage K8) is read only by the administrator's review evidence, which quotes it; the account a coach's answer
+    // carries leaves it out, so what the coach receives is what it was before the request was recorded.
+    const { reviewRequest: _reviewRequest, ...copy }: LearningGoalAuthorization = JSON.parse(JSON.stringify(record))
     return { ...copy, excluded: copy.excluded.map(exclusion => ({ ...exclusion, title: constraintTitle(exclusion.knowledgeId) })) }
 }
 
@@ -1045,8 +1056,8 @@ function build(
             }
             const games = blocks.map(entry =>
                 entry.outcome.outcome === 'built'
-                    ? { block: entry.block, fixture: entry.outcome.fixture, contracts: entry.outcome.contracts, rendered: entry.outcome.rendered, violations: [] as FidelityFinding[] }
-                    : { block: entry.block, fixture: entry.outcome.fixture as Record<string, unknown>, contracts: entry.outcome.communication!.contracts, rendered: entry.outcome.communication!.rendered, violations: entry.outcome.communication!.violations },
+                    ? { block: entry.block, fixture: entry.outcome.fixture, contracts: entry.outcome.contracts, rendered: entry.outcome.rendered, violations: [] as FidelityFinding[], evidence: entry.outcome.evidence }
+                    : { block: entry.block, fixture: entry.outcome.fixture as Record<string, unknown>, contracts: entry.outcome.communication!.contracts, rendered: entry.outcome.communication!.rendered, violations: entry.outcome.communication!.violations, evidence: entry.outcome.communication!.evidence },
             )
             const checks = checkRoleBlocks(
                 games.map(entry => ({ block: entry.block, fixture: entry.fixture, contracts: entry.contracts })),
@@ -1073,9 +1084,17 @@ function build(
             const composed = composeRoleBlockActivity(renders, roleIndex)
             const composition = checkRoleBlockComposition(renders, composed, roleIndex)
             const violations = composition.filter(finding => finding.severity === 'VIOLATION')
+            /**
+             * The admin-only review evidence of the composed activity (stage K8), for a goal whose record asks for one: read from the two
+             * games as built, the cross-block checks and the composition. Never on a coach's answer.
+             */
+            const evidenceOf = (outcome: string) =>
+                reviewEvidenceFor(review, goalSelection, account, roleIndex, session, outcome, composed, composition, checks, games.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, fixture: entry.fixture, contracts: entry.contracts, rendered: entry.rendered, ...entry.evidence })))
             /** The admin-only draft of the composed activity (stage K7), attached to a refusal at communication where it was asked for. */
             const withDraft = (refusal: ReturnType<typeof refuse>) => {
                 if (review.includeDrafts) (refusal.activity as RefusedActivity).draft = reviewDraftOf(games.map(entry => entry.fixture), composed, [...games.flatMap(entry => entry.violations), ...violations])
+                const evidence = evidenceOf(refusal.activity.outcome === 'refused' ? refusal.activity.stage : 'served')
+                if (evidence) (refusal.activity as RefusedActivity).evidence = evidence
                 return refusal
             }
             if (stopped.length) return withDraft(refuse(first.outcome.stage, first.outcome.summary, [...stoppedReasons, ...violations.map(v => `fidelity Q${v.question}: ${v.what}`)]))
@@ -1116,6 +1135,8 @@ function build(
                         firstBlock: 'COACH_CHOICE',
                         firstBlockBasis: FIRST_BLOCK_BASIS,
                     },
+                    // Stage K8: the admin-only review evidence, where the goal's record asks for one; absent on every coach's answer.
+                    ...((evidence => (evidence ? { evidence } : {}))(evidenceOf('served'))),
                 },
             )
         }
@@ -1140,9 +1161,50 @@ function build(
         const refusal = refuse(one.stage, one.summary, one.reasons)
         // The admin-only draft (stage K7): only on a refusal at communication, only where the review asked for it.
         if (review.includeDrafts && one.communication) (refusal.activity as RefusedActivity).draft = reviewDraftOf([one.fixture], one.communication.rendered, one.communication.violations)
+        // And the admin-only review evidence (stage K8), where the goal's record asks for one.
+        const evidence = one.communication && one.fixture ? reviewEvidenceFor(review, goalSelection, account, roleIndex, session, one.stage, one.communication.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.communication.contracts, rendered: one.communication.rendered, ...one.communication.evidence }]) : null
+        if (evidence) (refusal.activity as RefusedActivity).evidence = evidence
         return refusal
     }
-    return serve(one)
+    const evidence = reviewEvidenceFor(review, goalSelection, account, roleIndex, session, 'served', one.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.contracts, rendered: one.rendered, ...one.evidence }])
+    return serve(one, evidence ? { evidence } : {})
+}
+
+/** The block id the review evidence gives a game not played in role blocks. */
+const ONE_GAME = 'ONE_GAME'
+
+/**
+ * **The admin-only review evidence of a build, or null** (stage K8, 15 October 2026). Only for the review build asked with drafts (the
+ * route's administrator check), and only for a goal whose authorization record carries his review request — read from data, so no goal
+ * is named here; every other build, and every coach's answer, carries nothing. `reviewEvidence.ts` reads the games as built.
+ */
+function reviewEvidenceFor(
+    review: { includeDrafts: boolean },
+    goalSelection: BoundedSelection | null,
+    account: Partial<ActivityAccount>,
+    index: ReturnType<typeof indexRegister>,
+    session: ActivitySession,
+    outcome: string,
+    composed: RenderedActivity,
+    compositionFindings: FidelityFinding[],
+    crossBlock: RoleBlockCheck[],
+    blocks: EvidenceBlock[],
+): ReviewEvidence | null {
+    const record = goalSelection?.authorization
+    if (!review.includeDrafts || !record?.reviewRequest) return null
+    return reviewEvidenceOf({
+        outcome,
+        session,
+        blocks,
+        composed,
+        compositionFindings,
+        crossBlock,
+        record: record as LearningGoalAuthorization & { reviewRequest: NonNullable<LearningGoalAuthorization['reviewRequest']> },
+        lists: account.authorizationLists ?? null,
+        relationships: contextManipulationRelationships(),
+        selectedConstraints: (account.constraints ?? []).map(constraint => constraint.id),
+        index,
+    })
 }
 
 /** What one game's build needs beyond its derivation input. */
@@ -1173,7 +1235,7 @@ type GameOutcome =
            * could say, what it withheld and what fidelity found are carried for the admin-only review draft and for the cross-block
            * checks, which belong to validation and so still run before the activity is refused at communication. Never served.
            */
-          communication?: { rendered: RenderedActivity; violations: FidelityFinding[]; contracts: LoadedContract[] }
+          communication?: { rendered: RenderedActivity; violations: FidelityFinding[]; contracts: LoadedContract[]; evidence: GameEvidence }
       }
     | {
           outcome: 'built'
@@ -1183,7 +1245,19 @@ type GameOutcome =
           contracts: LoadedContract[]
           /** Every Gate A check as rerun on this game's concrete game (stage K4): read only into a role block's account. */
           concreteChecks: { checkId: string; verdict: string }[]
+          evidence: GameEvidence
       }
+
+/**
+ * **What the review evidence reads of one game beyond its fixture** (stage K8, 15 October 2026): Gate A as rerun on the concrete game,
+ * clause by clause, the post-realization owed invariants, and every fidelity finding. Carried on a game that reached communication only,
+ * and read only by `reviewEvidenceOf` for an administrator's review; nothing a coach is served carries it.
+ */
+interface GameEvidence {
+    gateChecks: EvidenceBlock['gateChecks']
+    owed: EvidenceBlock['owed']
+    findings: FidelityFinding[]
+}
 
 /**
  * The DRAFT noun for each kind of performer a reassignment may move (stage K4): the register's outfield noun, and a
@@ -1360,8 +1434,14 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
     const rendered = renderConcreteGame(fixture)
     const report = checkFidelity(fixture, rendered)
     const violations = report.findings.filter((f: any) => f.severity === 'VIOLATION')
+    // Stage K8: what the admin-only review evidence reads of this game (the gate rerun clause by clause, the owed invariants, every finding).
+    const evidence: GameEvidence = {
+        gateChecks: post.gateA.checks.map(check => ({ checkId: check.checkId, verdict: String(check.verdict), clauses: check.clauses.map(clause => ({ clause: clause.clause, verdict: String(clause.verdict), ...(clause.basis ? { basis: String(clause.basis) } : {}), ...(typeof clause.instances === 'number' ? { instances: clause.instances } : {}) })) })),
+        owed: post.owed.map(entry => ({ checkId: entry.checkId, clause: entry.clause, verdict: entry.verdict })),
+        findings: report.findings.map((finding: FidelityFinding) => ({ ...finding })),
+    }
     // Stage K7: a refusal at communication carries what was rendered, for the admin-only review draft and the cross-block checks.
-    const atCommunication = (summary: string, reasons: string[]): GameOutcome => ({ outcome: 'refused', stage: 'communication', summary, reasons, fixture, communication: { rendered, violations, contracts: input.contracts } })
+    const atCommunication = (summary: string, reasons: string[]): GameOutcome => ({ outcome: 'refused', stage: 'communication', summary, reasons, fixture, communication: { rendered, violations, contracts: input.contracts, evidence } })
     /**
      * **Part of the game has no approved wording yet, so the activity is not shown** — chosen from the
      * renderer's typed `withheld` list, never from the fidelity text (which reports the same fields as
@@ -1396,5 +1476,6 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
         },
         contracts: input.contracts,
         concreteChecks: post.gateA.checks.map(check => ({ checkId: check.checkId, verdict: String(check.verdict) })),
+        evidence,
     }
 }

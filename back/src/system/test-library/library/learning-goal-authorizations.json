@@ -502,7 +502,478 @@
                     "statusBasis": "His 16 October reply, item 3: 'For the first activity, I favor allowing immediate pressing from a representative starting arrangement, with starting positions and distances used to regulate the challenge.' 'I do not favor a timed release.' 'However, please do not automatically add a high-regain bonus.'",
                     "note": "Immediate pressing needs no mechanism: nothing in the game restricts when the opposition may press (RPC-001 declares S4 access, V11 and V23-V26 NON_CLAIMED and V25 NOT_AUTHORED). A designated pressure line and release when the goalkeeper plays the ball are kept as potential realizations only, and not built (item 3). No existing knowledge authorizes a high-regain incentive, and none is added. The starting arrangement that regulates the challenge is the defending team's starting relationship above (D4, M5). Nothing yet tells the coach that pressing may begin immediately: the renderer states no NON_CLAIMED declaration. Until 15 October 2026 (stage H3) this was MISSING_KNOWLEDGE; his item 3 answers it."
                 }
-            ]
+            ],
+            "reviewRequest": {
+                "ruledOn": "2026-10-17",
+                "by": "Christian",
+                "citedAs": "his reply filed 17 October 2026, Next review and acceptance evidence",
+                "note": "Read only by the review evidence (back/src/system/rendering/review-evidence.ts), for an administrator's review: his request for the next review, verbatim, with the register rows, checks and evidence sections each item is read from. The rows, checks, sections, roles and feature labels are OURS (presentation), never his words; a wrong mapping would hide an item, so every item must resolve to game elements or sentences or name what is missing (review-evidence.unit.ts).",
+                "layers": {
+                    "citedAs": "his reply filed 18 October 2026, item 7",
+                    "words": "For any new engine capability, please maintain a clear separation between:",
+                    "entries": [
+                        {
+                            "code": "GENERAL_ENGINE_MECHANISM",
+                            "words": "General engine mechanisms."
+                        },
+                        {
+                            "code": "SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS",
+                            "words": "Sport-specific knowledge and authorized relationships."
+                        },
+                        {
+                            "code": "ACTIVITY_REALIZATION_CHOICE",
+                            "words": "Activity-specific realization choices."
+                        }
+                    ]
+                },
+                "items": [
+                    {
+                        "id": "R1",
+                        "words": "Player allocation and goalkeeper role.",
+                        "role": null,
+                        "kind": "GAME",
+                        "rows": [
+                            "E1",
+                            "P1",
+                            "P2",
+                            "P3",
+                            "B4",
+                            "B5",
+                            "B6",
+                            "B7"
+                        ],
+                        "checks": [
+                            "GA-ROSTER-SUM",
+                            "RB-6",
+                            "RB-M"
+                        ],
+                        "sections": [
+                            "ALLOCATION",
+                            "SPECIALIZED_ROLES"
+                        ]
+                    },
+                    {
+                        "id": "R2",
+                        "words": "Field setup and both target areas.",
+                        "role": null,
+                        "kind": "GAME",
+                        "rows": [
+                            "E2",
+                            "E3",
+                            "S1",
+                            "S2",
+                            "S3",
+                            "S5",
+                            "S6"
+                        ],
+                        "checks": [
+                            "GA-ENVELOPE-FIT",
+                            "GA-LAYOUT-FEASIBLE",
+                            "GA-DIRECTION",
+                            "GA-RELATIVE-PLACEMENT",
+                            "GA-REGION-FUNCTION",
+                            "RB-3",
+                            "RB-8"
+                        ],
+                        "sections": [
+                            "SPATIAL"
+                        ]
+                    },
+                    {
+                        "id": "R3",
+                        "words": "Defensive starting relationship.",
+                        "role": null,
+                        "kind": "GAME",
+                        "rows": [
+                            "P8",
+                            "P9",
+                            "P10",
+                            "P10a",
+                            "P10b"
+                        ],
+                        "checks": [
+                            "GA-RELATIVE-PLACEMENT",
+                            "GA-EPISODE-REACHABLE"
+                        ],
+                        "sections": [
+                            "PRESSURE"
+                        ]
+                    },
+                    {
+                        "id": "R4",
+                        "words": "The building team's success condition.",
+                        "role": "BUILDING",
+                        "kind": "GAME",
+                        "rows": [
+                            "J1",
+                            "J2",
+                            "J3",
+                            "J4",
+                            "V0",
+                            "V1",
+                            "V2",
+                            "V3",
+                            "V4",
+                            "V5",
+                            "V6"
+                        ],
+                        "checks": [
+                            "GA-ONE-PRIMARY-EVENT",
+                            "GA-OBJECTIVE-SETS",
+                            "GA-REFERENCE-INTEGRITY",
+                            "GA-EPISODE-REACHABLE"
+                        ],
+                        "sections": [
+                            "SCORING"
+                        ]
+                    },
+                    {
+                        "id": "R5",
+                        "words": "The pressing team's post-regain objective.",
+                        "role": "PRESSING",
+                        "kind": "GAME",
+                        "rows": [
+                            "J1",
+                            "J2",
+                            "J3",
+                            "J4",
+                            "V1",
+                            "V2"
+                        ],
+                        "checks": [
+                            "GA-ONE-PRIMARY-EVENT",
+                            "GA-DIRECTION",
+                            "RB-3"
+                        ],
+                        "sections": [
+                            "SCORING",
+                            "FLAGS"
+                        ]
+                    },
+                    {
+                        "id": "R6",
+                        "words": "What happens after a regain, score, ball out, and coach-judged episode conclusion.",
+                        "role": null,
+                        "kind": "GAME",
+                        "rows": [
+                            "PS1",
+                            "T1",
+                            "T1a",
+                            "T1b",
+                            "T1c",
+                            "T2",
+                            "T3",
+                            "T4",
+                            "T5",
+                            "T6",
+                            "T7"
+                        ],
+                        "checks": [
+                            "GA-TRANSITION-COHERENCE",
+                            "GA-TRIGGER-REACHABLE",
+                            "GA-TRIGGER-UNIQUE",
+                            "GA-EPISODE-REACHABLE"
+                        ],
+                        "sections": [
+                            "RESTARTS"
+                        ]
+                    },
+                    {
+                        "id": "R7",
+                        "words": "Role exchange between blocks.",
+                        "role": null,
+                        "kind": "GAME",
+                        "rows": [
+                            "B1",
+                            "B2",
+                            "B3",
+                            "B4",
+                            "B5",
+                            "B6",
+                            "B7"
+                        ],
+                        "checks": [
+                            "RB-1",
+                            "RB-2",
+                            "RB-3",
+                            "RB-4",
+                            "RB-5",
+                            "RB-6",
+                            "RB-7",
+                            "RB-8",
+                            "RB-M"
+                        ],
+                        "sections": [
+                            "ROLE_EXCHANGE"
+                        ]
+                    },
+                    {
+                        "id": "R8",
+                        "words": "Coach-facing activity instructions.",
+                        "role": null,
+                        "kind": "INSTRUCTIONS",
+                        "rows": [],
+                        "checks": [],
+                        "sections": [
+                            "INSTRUCTIONS"
+                        ]
+                    },
+                    {
+                        "id": "R9",
+                        "words": "Provenance distinguishing approved knowledge, provisional realization choices, and any remaining gaps.",
+                        "role": null,
+                        "kind": "PROVENANCE",
+                        "rows": [],
+                        "checks": [],
+                        "sections": [
+                            "PROVENANCE"
+                        ]
+                    }
+                ],
+                "requests": [
+                    {
+                        "words": "Please verify the configuration's structural consistency, including player totals, spatial relationships, scoring conditions, and restarts.",
+                        "citedAs": "his reply filed 17 October 2026, Next review and acceptance evidence",
+                        "sections": [
+                            "STRUCTURE"
+                        ]
+                    },
+                    {
+                        "words": "I would also like the review to demonstrate that the goalkeeper remains a functional deep support option and that the activity does not require predetermined passing patterns or prescribed player behaviors.",
+                        "citedAs": "his reply filed 17 October 2026, Next review and acceptance evidence",
+                        "sections": [
+                            "SPECIALIZED_ROLES",
+                            "NO_PRESCRIPTION"
+                        ]
+                    },
+                    {
+                        "words": "The important test is whether the activity creates meaningful opportunities to recognize and solve defensive pressure, including recycling possession, changing the point of attack, and progressing through or around the press.",
+                        "citedAs": "his reply filed 17 October 2026, Next review and acceptance evidence",
+                        "sections": [
+                            "PRESSURE",
+                            "RATIONALE"
+                        ]
+                    }
+                ],
+                "evaluation": {
+                    "citedAs": "his reply filed 18 October 2026, item 8",
+                    "words": "I would like to evaluate the resulting activity as a coach, particularly:",
+                    "points": [
+                        {
+                            "id": "E1",
+                            "words": "Whether the goalkeeper is a functional supporting option.",
+                            "sections": [
+                                "SPECIALIZED_ROLES"
+                            ]
+                        },
+                        {
+                            "id": "E2",
+                            "words": "Whether attacking players have meaningful opportunities to recognize and solve pressure.",
+                            "sections": [
+                                "ALLOCATION",
+                                "PRESSURE"
+                            ]
+                        },
+                        {
+                            "id": "E3",
+                            "words": "Whether the opposing team creates realistic defensive problems.",
+                            "sections": [
+                                "PRESSURE"
+                            ]
+                        },
+                        {
+                            "id": "E4",
+                            "words": "Whether the progression and post-regain scoring conditions create the intended consequences.",
+                            "sections": [
+                                "SCORING",
+                                "RESTARTS"
+                            ]
+                        },
+                        {
+                            "id": "E5",
+                            "words": "Whether any artificial shortcuts emerge, including the advanced-positioning concern described above.",
+                            "sections": [
+                                "NO_PRESCRIPTION",
+                                "FLAGS"
+                            ]
+                        }
+                    ]
+                },
+                "flags": [
+                    {
+                        "id": "F1",
+                        "kind": "ADVANCED_POSITIONING",
+                        "role": "BUILDING",
+                        "words": [
+                            {
+                                "words": "Please flag whether the generated activity permits players to remain beyond the progression line without any meaningful defensive interaction.",
+                                "citedAs": "his reply filed 18 October 2026, item 6"
+                            },
+                            {
+                                "words": "We can evaluate the actual activity and decide whether a spatial eligibility regulation is necessary.",
+                                "citedAs": "his reply filed 18 October 2026, item 6"
+                            },
+                            {
+                                "words": "If one is needed, we should first determine whether the existing Interaction Regulation knowledge supports it. Any implementation should express a reusable relationship, not a special Play Out from the Back exception.",
+                                "citedAs": "his reply filed 18 October 2026, item 6"
+                            }
+                        ]
+                    },
+                    {
+                        "id": "F2",
+                        "kind": "REGAIN_INSIDE_TARGET",
+                        "role": "PRESSING",
+                        "words": [
+                            {
+                                "words": "I agree that the unresolved regain-inside-target case should remain flagged for review rather than be settled through an invented rule.",
+                                "citedAs": "his reply filed 18 October 2026, item 8"
+                            },
+                            {
+                                "words": "A successful regain alone should not count as controlled progression into the target area.",
+                                "citedAs": "his reply filed 17 October 2026, D7"
+                            },
+                            {
+                                "words": "Nor should we require an additional pass simply because a regain occurred inside or near the target.",
+                                "citedAs": "his reply filed 17 October 2026, D7"
+                            },
+                            {
+                                "words": "The scoring event should evaluate the actual controlled progression outcome.",
+                                "citedAs": "his reply filed 17 October 2026, D7"
+                            }
+                        ]
+                    }
+                ],
+                "pathway": {
+                    "words": "Similarly, I understand that the checked review pathway is not yet the live application pathway because of the outstanding constraint requirement. Please keep that distinction visible as we approach acceptance.",
+                    "citedAs": "his reply filed 18 October 2026, item 7"
+                },
+                "judgement": {
+                    "words": [
+                        "The objective is not to demonstrate that the engine can satisfy a collection of rules. It is to demonstrate that those rules produce a representative learning environment.",
+                        "Once the activity is generated, we can evaluate its learning-design quality before extending the work to additional goals or variations."
+                    ],
+                    "citedAs": "his reply filed 17 October 2026, Next review and acceptance evidence"
+                },
+                "rationale": [
+                    {
+                        "feature": "The building team has more players than the pressing team (the starting configuration)",
+                        "words": [
+                            {
+                                "words": "In match play, teams building from the back commonly have more players available in their defensive third than the opposition initially commits to pressing.",
+                                "citedAs": "his reply filed 17 October 2026, D6"
+                            },
+                            {
+                                "words": "That numerical relationship can create opportunities to circulate possession, attract pressure, recycle through the goalkeeper, and find a different route forward.",
+                                "citedAs": "his reply filed 17 October 2026, D6"
+                            },
+                            {
+                                "words": "A building-team numerical advantage is therefore not necessarily an artificial simplification. It can be representative of the actual performance environment.",
+                                "citedAs": "his reply filed 17 October 2026, D6"
+                            }
+                        ],
+                        "statements": [
+                            "RPC-PROP-017"
+                        ]
+                    },
+                    {
+                        "feature": "One active specialized player, always with the building team",
+                        "words": [
+                            {
+                                "words": "The goalkeeper should be available as a deep supporting passing option.",
+                                "citedAs": "his reply filed 17 October 2026, D6"
+                            },
+                            {
+                                "words": "Players may use the goalkeeper to recycle possession, draw pressure, change the point of attack, or create a new progression opportunity.",
+                                "citedAs": "his reply filed 17 October 2026, D6"
+                            },
+                            {
+                                "words": "Those are available solutions, not required behaviors.",
+                                "citedAs": "his reply filed 17 October 2026, D6"
+                            }
+                        ],
+                        "statements": []
+                    },
+                    {
+                        "feature": "One team builds out while the other presses, exchanged by block",
+                        "words": [
+                            {
+                                "words": "The reason for choosing asymmetry initially is to increase the frequency of meaningful encounters with the build-out problem while preserving active opposition and the consequences of losing possession.",
+                                "citedAs": "his reply received 15 October 2026 (16 October reply), item 2"
+                            }
+                        ],
+                        "statements": []
+                    },
+                    {
+                        "feature": "The pressing team starts from a marked relationship and may press immediately",
+                        "words": [
+                            {
+                                "words": "That is one possible way to regulate the challenge, but it can remove important information and decisions from the goalkeeper's initial interaction with the defense.",
+                                "citedAs": "his reply received 15 October 2026 (16 October reply), item 3"
+                            },
+                            {
+                                "words": "For the first activity, I favor allowing immediate pressing from a representative starting arrangement, with starting positions and distances used to regulate the challenge.",
+                                "citedAs": "his reply received 15 October 2026 (16 October reply), item 3"
+                            },
+                            {
+                                "words": "Defenders should be permitted to press immediately unless a specific, authorized realization calls for a restriction.",
+                                "citedAs": "his reply filed 17 October 2026, D4"
+                            }
+                        ],
+                        "statements": []
+                    },
+                    {
+                        "feature": "The building team's target begins at the pressure reference, entered under control",
+                        "words": [
+                            {
+                                "words": "The intended outcome is controlled progression beyond meaningful defensive pressure, establishing the opportunity to continue an organized attack.",
+                                "citedAs": "his reply received 15 October 2026 (16 October reply), item 4"
+                            },
+                            {
+                                "words": "Success should permit multiple functional solutions, including carrying the ball, passing through or around pressure, and using a more direct option when appropriate.",
+                                "citedAs": "his reply received 15 October 2026 (16 October reply), item 4"
+                            }
+                        ],
+                        "statements": [
+                            "RPC-PROP-132",
+                            "RPC-PROP-010"
+                        ]
+                    },
+                    {
+                        "feature": "The pressing team's post-regain target, with play continuing after a regain",
+                        "words": [
+                            {
+                                "words": "The target area's position matters. It should represent a meaningful attacking connection following the regain, without being so distant that the defending team's motivation to contest the build-out disappears.",
+                                "citedAs": "his reply received 15 October 2026 (16 October reply), item 5"
+                            },
+                            {
+                                "words": "The target should be positioned so that regaining possession does not automatically constitute successful progression.",
+                                "citedAs": "his reply filed 17 October 2026, D3"
+                            }
+                        ],
+                        "statements": []
+                    },
+                    {
+                        "feature": "Build-out episodes restart with the building team",
+                        "words": [
+                            {
+                                "words": "Restarts should preferentially recreate representative opportunities to encounter and solve the selected Learning Goal, while preserving meaningful game consequences and continuity.",
+                                "citedAs": "his reply received 15 October 2026 (16 October reply), item 6"
+                            }
+                        ],
+                        "statements": []
+                    },
+                    {
+                        "feature": "No library constraint is selected",
+                        "words": [
+                            {
+                                "words": "The game form and its inherent conditions may already create the affordances needed for the Learning Goal. Additional constraints should be selected because they serve a documented learning-design purpose, not because the engine requires a particular number.",
+                                "citedAs": "his reply received 15 October 2026 (16 October reply), item 1"
+                            }
+                        ],
+                        "statements": []
+                    }
+                ]
+            }
         }
     ]
 }

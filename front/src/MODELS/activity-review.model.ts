@@ -259,6 +259,8 @@ export interface ServedActivity {
      * activity composed from both blocks. Technical account only.
      */
     roleBlocks?: ReviewRoleBlocks
+    /** The administrator-only review evidence (stage K8), where the goal's record asks for one; see `RefusedActivity.evidence`. */
+    evidence?: ReviewEvidence
 }
 
 /** One cross-block check (RB-1 to RB-8, and RB-M since stage K4). */
@@ -319,6 +321,77 @@ export interface RefusedActivity {
      * served to a coach (`back/src/system/rendering/review-draft.ts`).
      */
     draft?: ReviewDraft
+    /**
+     * Only for an administrator, only for a goal whose record carries Christian's review request (15 October 2026, stage K8): the facts
+     * the generated game holds, item by item as he asked, with each sentence's layer and standing (`back/src/system/rendering/
+     * review-evidence.ts`). Never served to a coach.
+     */
+    evidence?: ReviewEvidence
+}
+
+/** One fact the review evidence read from the game: what it is, and its value as the server sent it. */
+export interface ReviewFact {
+    what: string
+    value: unknown
+}
+
+export interface ReviewCheckRow {
+    checkId: string
+    verdict: string
+    clauseCount: number
+    vacuousClauses: string[]
+    clausesNotPassing: { clause: string; verdict: string; basis: string | null; instances: number | null }[]
+}
+
+export interface ReviewEvidenceSource {
+    layer: string
+    standing: string
+    ref: string
+    detail: string | null
+}
+
+/** The review evidence (stage K8). Shown as sent, in the technical panel; every quotation is his, from the record. */
+export interface ReviewEvidence {
+    status: 'EVIDENCE_FOR_REVIEW_NOT_SERVED'
+    about: string
+    measured: { blocks: { blockId: string; inputDigest: string | null; registerVersion: string | null; engineVersion: string | null }[] }
+    pathway: { route: string; facts: ReviewFact[]; his: { words: string; citedAs: string } }
+    acceptance: ReviewFact[]
+    layers: { code: string; words: string }[]
+    items: {
+        id: string
+        words: string
+        citedAs: string
+        kind: string
+        role: string | null
+        blocks: { blockId: string; elements: { path: string; row: string; value: unknown }[] }[]
+        checks: { checkId: string; blockId: string | null; verdict: string }[]
+        sentences: number[]
+        awaiting: string[]
+        sections: string[]
+        resolved: boolean
+    }[]
+    structure: {
+        blocks: { blockId: string; holders: Record<string, string>; sections: Record<string, { checks: ReviewCheckRow[]; facts: ReviewFact[] }>; owed: { checkId: string; clause: string; verdict: string }[] }[]
+        crossBlock: { checkId: string; what: string; verdict: string; problems: string[] }[]
+        composition: string[]
+        summary: { gateChecks: Record<string, number>; crossBlock: Record<string, number>; owed: Record<string, number>; everyCheckPasses: boolean; vacuousClauses: string[] }
+    }
+    sections: {
+        allocation: ReviewFact[]
+        specializedRoles: { role: string; row: string; available: unknown; facts: ReviewFact[] }[]
+        pressure: ReviewFact[]
+        scoring: ReviewFact[]
+        restarts: Record<string, unknown>[]
+        roleExchange: ReviewFact[]
+        noPrescription: ReviewFact[]
+        instructions: { index: number; section: string; block: string | null; text: string; wording: 'APPROVED' | 'DRAFT'; obligationWords: string[]; q4: string[]; layers: string[]; standings: string[]; sources: ReviewEvidenceSource[] }[]
+    }
+    flags: { id: string; kind: string; role: string; his: { words: string; citedAs: string }[]; status: string; answer: string; blocks: { blockId: string; facts: ReviewFact[] }[]; knowledge?: { libraryEntries: ReviewFact[]; registerRows: ReviewFact[]; corpusItems: ReviewFact[] } }[]
+    evaluation: { his: { words: string; citedAs: string }; points: { id: string; words: string; sections: string[] }[]; judgement: string }
+    requests: { words: string; citedAs: string; sections: string[] }[]
+    provenance: { elements: { path: string; row: string | null; blocks: string[]; layers: string[]; standings: string[]; sources: ReviewEvidenceSource[] }[]; untraced: string[]; lists: Record<string, unknown> | null; openForReview: ReviewFact[] }
+    rationale: { features: { feature: string; featureBasis: 'OURS'; words: { words: string; citedAs: string }[]; statements: { id: string; category: string | null; text: string | null; provenance: string | null }[] }[]; his: { words: string[]; citedAs: string }; judgement: string }
 }
 
 /** One sentence of the review draft: the instruction, whose wording it is, and the provisional choices it rests on. */

@@ -227,6 +227,90 @@ export interface ProvisionalChoice {
     note: string | null
 }
 
+/**
+ * **The evidence sections a review request may point at** — stage K8, 15 October 2026. Named by the review evidence
+ * (`rendering/review-evidence.ts`), which fills each from the game; listed here so the record's loader can refuse a section no
+ * reader fills. Engine vocabulary, never his words.
+ */
+export const REVIEW_SECTIONS = ['ALLOCATION', 'SPECIALIZED_ROLES', 'SPATIAL', 'PRESSURE', 'SCORING', 'RESTARTS', 'ROLE_EXCHANGE', 'INSTRUCTIONS', 'PROVENANCE', 'STRUCTURE', 'NO_PRESCRIPTION', 'FLAGS', 'RATIONALE'] as const
+export type ReviewSection = (typeof REVIEW_SECTIONS)[number]
+/** His three layers (reply filed 18 October 2026, item 7), as codes; the words are read from the record. */
+export const REVIEW_LAYERS = ['GENERAL_ENGINE_MECHANISM', 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS', 'ACTIVITY_REALIZATION_CHOICE'] as const
+export type ReviewLayer = (typeof REVIEW_LAYERS)[number]
+/** The two cases he asked to see flagged, each an analysis the review evidence makes from the game and never a rule. */
+export const REVIEW_FLAG_KINDS = ['ADVANCED_POSITIONING', 'REGAIN_INSIDE_TARGET'] as const
+export type ReviewFlagKind = (typeof REVIEW_FLAG_KINDS)[number]
+
+/** One of his sentences with where he said it. */
+export interface CitedWords {
+    words: string
+    citedAs: string
+}
+
+/**
+ * **What he asked the next review of this goal's activity to show, in his words** — stage K8, 15 October 2026. His reply filed 17
+ * October 2026, *"Next review and acceptance evidence"* (the nine items, the structural consistency, the specialized player as a
+ * deep support option, no prescribed patterns), and his reply filed 18 October 2026 (item 6, the flag; item 7, the three layers and
+ * the checked pathway; item 8, the points he will evaluate as a coach). Read only by the review evidence for an administrator's
+ * review; never by selection, derivation or rendering. Every `words` is his, verbatim; every row, check, section, role and feature
+ * label is OURS (presentation), which is why each item must resolve to the game or name what is missing.
+ */
+export interface ReviewRequest {
+    ruledOn: string
+    by: string
+    citedAs: string
+    note: string | null
+    layers: { citedAs: string; words: string; entries: { code: ReviewLayer; words: string }[] }
+    items: { id: string; words: string; role: string | null; kind: 'GAME' | 'INSTRUCTIONS' | 'PROVENANCE'; rows: string[]; checks: string[]; sections: ReviewSection[] }[]
+    requests: (CitedWords & { sections: ReviewSection[] })[]
+    evaluation: { citedAs: string; words: string; points: { id: string; words: string; sections: ReviewSection[] }[] }
+    flags: { id: string; kind: ReviewFlagKind; role: string; words: CitedWords[] }[]
+    pathway: CitedWords
+    judgement: { words: string[]; citedAs: string }
+    rationale: { feature: string; words: CitedWords[]; statements: string[] }[]
+}
+
+/** Everything wrong with one review request, as sentences (stage K8). */
+export function validateReviewRequest(goal: string, request: ReviewRequest): string[] {
+    const errors: string[] = []
+    const cited = (entry: CitedWords | undefined) => !!entry && filled(entry.words) && filled(entry.citedAs)
+    const sectionsKnown = (sections: unknown) => Array.isArray(sections) && sections.length > 0 && sections.every(section => (REVIEW_SECTIONS as readonly string[]).includes(String(section)))
+    if (!filled(request.ruledOn) || !filled(request.by) || !filled(request.citedAs)) errors.push(`${goal}: the review request cites no ruling (ruledOn, by and citedAs are required)`)
+    const codes = (request.layers?.entries ?? []).map(entry => entry.code)
+    if (!filled(request.layers?.words) || !filled(request.layers?.citedAs) || codes.length !== REVIEW_LAYERS.length || !REVIEW_LAYERS.every(code => codes.includes(code)) || !(request.layers?.entries ?? []).every(entry => filled(entry.words))) {
+        errors.push(`${goal}: the review request must name his three layers once each, in his words`)
+    }
+    const ids = new Set<string>()
+    for (const [i, item] of (request.items ?? []).entries()) {
+        const which = `${goal}: review item ${i + 1}`
+        if (!filled(item.id) || ids.has(item.id)) errors.push(`${which} has no id or repeats one`)
+        ids.add(item.id)
+        if (!filled(item.words)) errors.push(`${which} quotes nothing`)
+        if (!['GAME', 'INSTRUCTIONS', 'PROVENANCE'].includes(item.kind)) errors.push(`${which} has the unknown kind ${item.kind}`)
+        if (!Array.isArray(item.rows) || !Array.isArray(item.checks) || ![...item.rows, ...item.checks].every(filled)) errors.push(`${which} must list its rows and checks (empty lists say none)`)
+        if (item.kind === 'GAME' && !item.rows.length) errors.push(`${which} is read from the game and names no register row`)
+        if (item.role !== null && !filled(item.role)) errors.push(`${which} names an empty role`)
+        if (!sectionsKnown(item.sections)) errors.push(`${which} points at no section the review evidence fills`)
+    }
+    if (!(request.items ?? []).length) errors.push(`${goal}: the review request lists no item`)
+    for (const [i, entry] of (request.requests ?? []).entries()) if (!cited(entry) || !sectionsKnown(entry.sections)) errors.push(`${goal}: review request ${i + 1} must quote him, cite where and point at a section`)
+    if (!filled(request.evaluation?.words) || !filled(request.evaluation?.citedAs) || !(request.evaluation?.points ?? []).length) errors.push(`${goal}: the evaluation points must quote him and cite where`)
+    for (const [i, point] of (request.evaluation?.points ?? []).entries()) if (!filled(point.id) || !filled(point.words) || !sectionsKnown(point.sections)) errors.push(`${goal}: evaluation point ${i + 1} must have an id, his words and a section`)
+    for (const [i, flag] of (request.flags ?? []).entries()) {
+        if (!(REVIEW_FLAG_KINDS as readonly string[]).includes(flag.kind) || !filled(flag.id) || !filled(flag.role) || !(flag.words ?? []).length || !flag.words.every(cited)) {
+            errors.push(`${goal}: flag ${i + 1} must be of a known kind, name a role and quote him with citations`)
+        }
+    }
+    if (!cited(request.pathway)) errors.push(`${goal}: the review request must quote his words on the checked pathway`)
+    if (!filled(request.judgement?.citedAs) || !(request.judgement?.words ?? []).length || !request.judgement.words.every(filled)) errors.push(`${goal}: the judgement must quote him`)
+    for (const [i, entry] of (request.rationale ?? []).entries()) {
+        if (!filled(entry.feature) || !(entry.words ?? []).length || !entry.words.every(cited) || !Array.isArray(entry.statements) || !entry.statements.every(filled)) {
+            errors.push(`${goal}: rationale ${i + 1} must name the feature and quote only his reasons, each cited`)
+        }
+    }
+    return errors
+}
+
 export interface LearningGoalAuthorization {
     learningGoalId: string
     contextId: string
@@ -256,6 +340,8 @@ export interface LearningGoalAuthorization {
     provisionalRealization?: string
     /** The adjustments he authorized for this goal's activity (15 October 2026, stage K4), or absent. */
     authorizedAdjustments?: AuthorizedAdjustments
+    /** What he asked the next review of this goal's activity to show (stage K8, 15 October 2026), or absent. */
+    reviewRequest?: ReviewRequest
 }
 
 const filled = (value: unknown): boolean => typeof value === 'string' && value.trim().length > 0
@@ -290,6 +376,8 @@ export function validateLearningGoalAuthorizations(
             errors.push(`${goal}: authorizedConstraints must be a list (the evaluation) or null (not yet evaluated)`)
         }
         if ('zeroConstraintRuling' in (entry as object)) errors.push(`${goal}: a per-goal zero-constraint ruling is not read; the general principle governs every record alike`)
+        // Stage K8: a review request that cannot be read whole would let the review evidence silently omit what he asked to see.
+        if (entry.reviewRequest !== undefined) errors.push(...validateReviewRequest(goal, entry.reviewRequest))
         // A record that names a provisional realization nobody can find would build the goal without the choices it asks for.
         if (entry.provisionalRealization !== undefined && (!filled(entry.provisionalRealization) || !provisionalIds.includes(String(entry.provisionalRealization)))) {
             errors.push(`${goal}: names the provisional realization ${entry.provisionalRealization}, which provisional-realizations.json does not hold`)

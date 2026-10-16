@@ -333,9 +333,15 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
             gap: null,
         })
         const authorization = a01.account.authorization!
-        assert.deepEqual(Object.keys(authorization).sort(), Object.keys(record).sort(), 'every field of the record reaches the account')
+        // Moved 15 October 2026 (stage K8): one field is excluded BY NAME, with its reason, and every other still reaches the account.
+        // `reviewRequest` (his request for the next review, verbatim) is read only by the administrator's review evidence, which quotes
+        // it (review-evidence.unit.ts 4 pins that consumer and its key identity); the coach's account leaves it out, so the coach's
+        // answer is what it was before the request was recorded (bundle probe: 0 differences from d29eaba).
+        const NOT_IN_THE_ACCOUNT = ['reviewRequest']
+        assert.deepEqual(Object.keys(authorization).sort(), Object.keys(record).filter(key => !NOT_IN_THE_ACCOUNT.includes(key)).sort(), 'every field of the record but the named one reaches the account')
+        assert.ok(NOT_IN_THE_ACCOUNT.every(key => key in record), 'the exclusion names a field the record has')
         const { excluded, ...rest } = authorization
-        const { excluded: recordExcluded, ...recordRest } = record
+        const { excluded: recordExcluded, reviewRequest: _reviewRequest, ...recordRest } = record
         assert.deepEqual(rest, recordRest, 'carried verbatim')
         assert.deepEqual(excluded.map(({ title, ...exclusion }) => exclusion), recordExcluded, 'exclusions carried verbatim')
         assert.deepEqual(excluded.map(e => e.title), ['Wide Zone Advantage', 'Pass Combination Gate'], 'each named by its library title')

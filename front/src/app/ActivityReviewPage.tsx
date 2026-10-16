@@ -44,6 +44,8 @@ import {
     RefusedActivity,
     ReviewDraft,
     ReviewDraftInstruction,
+    ReviewEvidence,
+    ReviewFact,
     ReviewInstruction,
     ServedActivity,
 } from '@/MODELS/activity-review.model'
@@ -472,6 +474,7 @@ export default function ActivityReviewPage() {
                 {result?.outcome === 'served' && <ActivityBlock activity={result} />}
                 {result?.outcome === 'refused' && <RefusalBlock refusal={result} />}
                 {result?.outcome === 'refused' && result.draft && <DraftBlock refusal={result} draft={result.draft} />}
+                {result?.evidence && <ReviewEvidencePanel evidence={result.evidence} />}
 
                 {/* 5. Everything technical, secondary. */}
                 {result && <ArrivedAt result={result} />}
@@ -722,6 +725,205 @@ function DraftBlock({ refusal, draft }: { refusal: RefusedActivity; draft: Revie
                 )}
             </div>
         </article>
+    )
+}
+
+/** A fact as the server sent it: what it is, and its value printed plainly (a list or an object as compact JSON). */
+function FactLine({ fact }: { fact: ReviewFact }) {
+    const value = typeof fact.value === 'string' || typeof fact.value === 'number' || typeof fact.value === 'boolean' ? String(fact.value) : JSON.stringify(fact.value)
+    return (
+        <li className='text-xs text-gray-600 break-words'>
+            <span className='text-gray-800'>{fact.what}</span>: <span className='font-mono'>{value}</span>
+        </li>
+    )
+}
+
+function Facts({ facts }: { facts: ReviewFact[] }) {
+    return (
+        <ul className='space-y-0.5'>
+            {facts.map((fact, index) => (
+                <FactLine key={index} fact={fact} />
+            ))}
+        </ul>
+    )
+}
+
+/** A quotation of Christian's, with where he said it. */
+function His({ words, citedAs }: { words: string; citedAs: string }) {
+    return (
+        <p className='text-xs text-gray-700'>
+            &ldquo;{words}&rdquo; <span className='text-gray-400'>({citedAs})</span>
+        </p>
+    )
+}
+
+/** One collapsible part of the evidence. Closed until opened: the activity stays primary. */
+function EvidencePart({ title, children }: { title: string; children: React.ReactNode }) {
+    const [open, setOpen] = useState(false)
+    return (
+        <div className='border-t border-gray-200'>
+            <button type='button' className='flex items-center justify-between w-full py-2 text-sm font-medium text-left text-gray-700' aria-expanded={open} onClick={() => setOpen(!open)}>
+                {title}
+                {open ? <ChevronUpIcon className='w-4 h-4' /> : <ChevronDownIcon className='w-4 h-4' />}
+            </button>
+            {open && <div className='pb-3 space-y-3'>{children}</div>}
+        </div>
+    )
+}
+
+/**
+ * **The review evidence, for an administrator only — stage K8, 15 October 2026 (labels DRAFT).** The server attaches it only to an
+ * administrator's review of a goal whose record carries Christian's review request. Technical and secondary: the activity (or its draft)
+ * stays primary above. Everything is shown as the server sent it — facts read from the generated game, the gates' own verdicts, his
+ * words from the record — and nothing here claims how the activity plays; that judgement is his, and the panel says so in his words.
+ */
+function ReviewEvidencePanel({ evidence }: { evidence: ReviewEvidence }) {
+    const blockLabel = (blockId: string) => {
+        const at = evidence.measured.blocks.findIndex((block) => block.blockId === blockId)
+        return at >= 0 ? `Block ${at + 1}` : blockId
+    }
+    return (
+        <section className='bg-white border rounded-lg shadow-sm'>
+            <div className='px-6 pt-4'>
+                <p className='text-sm font-medium text-gray-800'>Review evidence (technical, administrators only)</p>
+                <p className='mt-1 text-xs text-gray-500'>{evidence.about}</p>
+            </div>
+            <div className='px-6 pb-4 mt-3'>
+                <EvidencePart title='Acceptance and the checked pathway'>
+                    <Facts facts={evidence.acceptance} />
+                    <Facts facts={evidence.pathway.facts} />
+                    <His {...evidence.pathway.his} />
+                </EvidencePart>
+                <EvidencePart title='The nine items you asked for'>
+                    {evidence.items.map((item) => (
+                        <div key={item.id} className='text-xs text-gray-600'>
+                            <His words={item.words} citedAs={item.citedAs} />
+                            <p className='mt-0.5'>
+                                {item.resolved ? 'Resolved' : 'NOT RESOLVED'} · elements per block {item.blocks.map((block) => block.elements.length).join(' / ')} · sentences{' '}
+                                {item.sentences.map((index) => index + 1).join(', ') || 'none'} · checks {item.checks.map((check) => `${check.checkId}${check.blockId ? ` (${blockLabel(check.blockId)})` : ''} ${check.verdict}`).join(', ') || 'none'}
+                                {item.awaiting.length > 0 && ` · ${item.awaiting.length} field(s) awaiting approved wording`}
+                            </p>
+                        </div>
+                    ))}
+                </EvidencePart>
+                <EvidencePart title='Structural consistency'>
+                    <p className='text-xs text-gray-600'>
+                        Every check passes: {evidence.structure.summary.everyCheckPasses ? 'yes' : 'NO'} · Gate A per block {JSON.stringify(evidence.structure.summary.gateChecks)} · owed {JSON.stringify(evidence.structure.summary.owed)} · cross-block{' '}
+                        {JSON.stringify(evidence.structure.summary.crossBlock)} · vacuous passes named: {evidence.structure.summary.vacuousClauses.length}
+                    </p>
+                    {evidence.structure.blocks.map((block) => (
+                        <div key={block.blockId} className='space-y-1'>
+                            <p className='text-xs font-semibold text-gray-700'>
+                                {blockLabel(block.blockId)}: {Object.entries(block.holders).map(([role, team]) => `${role} = ${team}`).join(', ')}
+                            </p>
+                            {Object.entries(block.sections).map(([name, section]) => (
+                                <div key={name} className='pl-3'>
+                                    <p className='text-xs text-gray-500'>
+                                        {name}: {section.checks.map((check) => `${check.checkId} ${check.verdict}`).join(', ') || 'no check'}
+                                    </p>
+                                    <Facts facts={section.facts} />
+                                </div>
+                            ))}
+                        </div>
+                    ))}
+                    <ul className='space-y-0.5'>
+                        {evidence.structure.crossBlock.map((check) => (
+                            <li key={check.checkId} className='text-xs text-gray-600'>
+                                {check.checkId} {check.verdict}: {check.what}
+                            </li>
+                        ))}
+                    </ul>
+                </EvidencePart>
+                <EvidencePart title='The specialized player as a supporting option'>
+                    {evidence.sections.specializedRoles.map((role) => (
+                        <div key={role.role}>
+                            <p className='text-xs font-semibold text-gray-700'>
+                                {role.role} (available in the session: {String(role.available)})
+                            </p>
+                            <Facts facts={role.facts} />
+                        </div>
+                    ))}
+                </EvidencePart>
+                <EvidencePart title='Pressure, scoring and restarts'>
+                    <Facts facts={evidence.sections.allocation} />
+                    <Facts facts={evidence.sections.pressure} />
+                    <Facts facts={evidence.sections.scoring} />
+                    <Facts facts={evidence.sections.restarts.map((row) => ({ what: `${blockLabel(String(row.blockId))}: ${String(row.elementId)}`, value: { ...row, blockId: undefined, elementId: undefined } }))} />
+                    <Facts facts={evidence.sections.roleExchange} />
+                </EvidencePart>
+                <EvidencePart title='No prescribed patterns or behaviours'>
+                    <Facts facts={evidence.sections.noPrescription} />
+                </EvidencePart>
+                <EvidencePart title='Flagged for your review'>
+                    {evidence.flags.map((flag) => (
+                        <div key={flag.id} className='space-y-1'>
+                            <p className='text-xs font-semibold text-gray-700'>
+                                {flag.kind} — {flag.status}
+                            </p>
+                            {flag.his.map((said, index) => (
+                                <His key={index} {...said} />
+                            ))}
+                            <p className='text-xs text-gray-800'>{flag.answer}</p>
+                            {flag.blocks.map((block) => (
+                                <div key={block.blockId} className='pl-3'>
+                                    <p className='text-xs text-gray-500'>{blockLabel(block.blockId)}</p>
+                                    <Facts facts={block.facts} />
+                                </div>
+                            ))}
+                            {flag.knowledge && (
+                                <div className='pl-3'>
+                                    <p className='text-xs text-gray-500'>Existing knowledge that could carry such a relationship (read only; nothing selected or built)</p>
+                                    <Facts facts={[...flag.knowledge.libraryEntries, ...flag.knowledge.corpusItems, ...flag.knowledge.registerRows]} />
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </EvidencePart>
+                <EvidencePart title='Sentences: wording, layers and provenance'>
+                    <p className='text-xs text-gray-500'>Layers: {evidence.layers.map((layer) => `${layer.code} = "${layer.words}"`).join('; ')}; the session is none of them.</p>
+                    <ol className='space-y-1 list-decimal list-inside'>
+                        {evidence.sections.instructions.map((sentence) => (
+                            <li key={sentence.index} className='text-xs text-gray-700'>
+                                {sentence.block && `${blockLabel(sentence.block)} only: `}
+                                {sentence.text} <span className='text-violet-700'>[{sentence.wording}]</span>
+                                <span className='block pl-4 text-gray-500'>
+                                    {sentence.layers.join(' + ')} · {sentence.standings.join(' + ')} · {sentence.sources.map((source) => `${source.standing} ${source.ref}`).join('; ')}
+                                </span>
+                            </li>
+                        ))}
+                    </ol>
+                    <Facts facts={evidence.provenance.openForReview} />
+                </EvidencePart>
+                <EvidencePart title='The points you will evaluate, and your reasons'>
+                    <His {...evidence.evaluation.his} />
+                    <ul className='space-y-0.5'>
+                        {evidence.evaluation.points.map((point) => (
+                            <li key={point.id} className='text-xs text-gray-600'>
+                                {point.words} <span className='text-gray-400'>(sections {point.sections.join(', ')})</span>
+                            </li>
+                        ))}
+                    </ul>
+                    <p className='text-xs text-gray-500'>{evidence.evaluation.judgement}</p>
+                    {evidence.rationale.features.map((feature, index) => (
+                        <div key={index} className='space-y-0.5'>
+                            <p className='text-xs font-semibold text-gray-700'>{feature.feature} (our label)</p>
+                            {feature.words.map((said, at) => (
+                                <His key={at} {...said} />
+                            ))}
+                            {feature.statements.map((statement) => (
+                                <p key={statement.id} className='text-xs text-gray-500'>
+                                    {statement.id}: {statement.text}
+                                </p>
+                            ))}
+                        </div>
+                    ))}
+                    {evidence.rationale.his.words.map((words, index) => (
+                        <His key={index} words={words} citedAs={evidence.rationale.his.citedAs} />
+                    ))}
+                    <p className='text-xs text-gray-500'>{evidence.rationale.judgement}</p>
+                </EvidencePart>
+            </div>
+        </section>
     )
 }
 
