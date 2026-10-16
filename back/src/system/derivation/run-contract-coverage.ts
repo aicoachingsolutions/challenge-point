@@ -98,27 +98,50 @@ export function buildReportData(goalIds: string[], selector: CoverageSelector = 
     }
 }
 
-function report(title: string, goalIds: string[], titleDetail: ((data: CoverageReportData) => string) | null = null): void {
-    const { needs, selectionObjects, situationObjects, all, missing, missingSituations, gaps } = buildReportData(goalIds)
+export type TitleDetail = (data: CoverageReportData) => string
 
-    console.log(`\n${title}  (${goalIds.length} goal${goalIds.length === 1 ? '' : 's'}${titleDetail ? `; ${titleDetail({ needs, selectionObjects, situationObjects, all, missing, missingSituations, gaps })}` : ''})`)
-    console.log('-'.repeat(78))
+/** The guided title counts rows and refusals separately, so a refused goal is not read as a row. */
+export const selectedAndRefused: TitleDetail = data => `${data.needs.length - data.gaps.length} selected, ${data.gaps.length} refused`
+
+export interface GoalBlock {
+    title: string
+    goalIds: string[]
+    titleDetail?: TitleDetail
+}
+
+/** The goal blocks, in print order; the last one holds every goal the guided filter leaves out. */
+export const GOAL_BLOCKS: GoalBlock[] = [
+    { title: 'BOUNDED ATTACKING FAMILY', goalIds: BOUNDED },
+    { title: 'ALL GUIDED GOALS', goalIds: guidedGoalIds, titleDetail: selectedAndRefused },
+    { title: 'GOALS WITHOUT PRACTICE SITUATIONS', goalIds: goalsWithoutPracticeSituationIds },
+]
+
+export function reportLines(block: GoalBlock, selector: CoverageSelector = selectFor): string[] {
+    const { title, goalIds, titleDetail } = block
+    const data = buildReportData(goalIds, selector)
+    const { needs, selectionObjects, situationObjects, all, missing, missingSituations, gaps } = data
+    const detail = titleDetail ? `; ${titleDetail(data)}` : ''
+    const lines: string[] = []
+
+    lines.push(`\n${title}  (${goalIds.length} goal${goalIds.length === 1 ? '' : 's'}${detail})`)
+    lines.push('-'.repeat(78))
     for (const n of needs) {
         if (n.gap) continue
         const have = n.selection.filter(s => contracted.has(key(s))).length
         const sitHave = n.situations.filter(s => contracted.has(key(s))).length
-        console.log(`  ${n.goalId.padEnd(6)} selection ${have}/${n.selection.length}   situations ${sitHave}/${n.situations.length}   ${n.goalName}`)
+        lines.push(`  ${n.goalId.padEnd(6)} selection ${have}/${n.selection.length}   situations ${sitHave}/${n.situations.length}   ${n.goalName}`)
     }
-    console.log(`  distinct objects the selections commit to      ${selectionObjects.size}`)
-    console.log(`  distinct Practice Situations a coach may pick  ${situationObjects.size}  (of which ${situationObjects.size - missingSituations.length} contracted)`)
-    console.log(`  TOTAL distinct objects                         ${all.size}`)
-    console.log(`  ALREADY CONTRACTED                             ${all.size - missing.length}`)
-    console.log(`  STILL TO AUTHOR                                ${missing.length}`)
-    console.log(`     ${missing.join(', ') || 'none'}`)
+    lines.push(`  distinct objects the selections commit to      ${selectionObjects.size}`)
+    lines.push(`  distinct Practice Situations a coach may pick  ${situationObjects.size}  (of which ${situationObjects.size - missingSituations.length} contracted)`)
+    lines.push(`  TOTAL distinct objects                         ${all.size}`)
+    lines.push(`  ALREADY CONTRACTED                             ${all.size - missing.length}`)
+    lines.push(`  STILL TO AUTHOR                                ${missing.length}`)
+    lines.push(`     ${missing.join(', ') || 'none'}`)
     if (gaps.length) {
-        console.log('  REFUSED AT SELECTION')
-        for (const n of gaps) console.log(`     ${n.goalId}  ${n.goalName}  ${n.gap!.reason}`)
+        lines.push('  REFUSED AT SELECTION')
+        for (const n of gaps) lines.push(`     ${n.goalId}  ${n.goalName}  ${n.gap!.reason}`)
     }
+    return lines
 }
 
 if (require.main === module) {
@@ -126,9 +149,7 @@ if (require.main === module) {
     console.log('='.repeat(78))
     console.log(`contracts that exist today: ${[...contracted].sort().join(', ')}`)
 
-    report('BOUNDED ATTACKING FAMILY', BOUNDED)
-    report('ALL GUIDED GOALS', guidedGoalIds, data => `${data.needs.length - data.gaps.length} selected, ${data.gaps.length} refused`)
-    report('GOALS WITHOUT PRACTICE SITUATIONS', goalsWithoutPracticeSituationIds)
+    for (const block of GOAL_BLOCKS) console.log(reportLines(block).join('\n'))
 
     // The figure that makes the Practice Situation cost visible on its own.
     const withoutSituations = new Set(BOUNDED.map(goalId => needsFor(goalId)).flatMap(n => n.selection))

@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict'
 
+import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { SelectionKnowledgeGap } from '../test-library/generateSelection'
-import { buildReportData, goalsWithoutPracticeSituationIds, guidedGoalIds, needsFor } from './run-contract-coverage'
+import { buildReportData, GOAL_BLOCKS, needsFor, reportLines } from './run-contract-coverage'
 import { GoalSelectionGap } from './run-bounded-selection'
 import type { BoundedSelection } from './run-bounded-selection'
 
@@ -77,24 +78,58 @@ function testSelectionGapLeavesOtherCountsUnchanged(): void {
     assert.deepEqual(withoutGap.gaps, [])
 }
 
-function testGoalsWithoutPracticeSituationsAreCovered(): void {
-    assert.deepEqual(goalsWithoutPracticeSituationIds, ['D03', 'A04', 'A05', 'A06'])
-    assert.deepEqual(goalsWithoutPracticeSituationIds, [...new Set([...goalsWithoutPracticeSituationIds].filter(id => !guidedGoalIds.includes(id)))])
+// The goal sets are computed here from the Session Planning Model, not read back from the module's own filter.
+const allGoalIds = (sessionPlanningModel.learningGoals() as any[]).map(g => String(g.ID))
+const goalsWithSituations = allGoalIds.filter(id => sessionPlanningModel.practiceSituationsFor(id).length > 0)
+const goalsWithoutSituations = allGoalIds.filter(id => !goalsWithSituations.includes(id))
+
+const blockTitled = (title: string) => GOAL_BLOCKS.find(block => block.title === title)!
+const rowGoalIds = (lines: string[]) => lines.filter(line => line.includes('   situations ')).map(line => line.trim().split(' ')[0])
+const refusedLines = (lines: string[]) => {
+    const at = lines.indexOf('  REFUSED AT SELECTION')
+    return at < 0 ? [] : lines.slice(at + 1)
+}
+
+function refusing(refusedGoalId: string, error: GoalSelectionGap) {
+    return (goalId: string) => {
+        if (goalId === refusedGoalId) throw error
+        return { ...normalSelection(), goalId, goalName: `${goalId} normal goal` }
+    }
+}
+
+// WHY: every Learning Goal the guided filter leaves out is printed, as a row or as a refusal with its typed reason.
+function testGoalsWithoutPracticeSituationsBlock(): void {
+    assert.deepEqual(goalsWithoutSituations, ['D03', 'A04', 'A05', 'A06'])
+    const block = blockTitled('GOALS WITHOUT PRACTICE SITUATIONS')
+    assert.deepEqual(block.goalIds, goalsWithoutSituations)
 
     const error = selectionGap('D03')
-    const data = buildReportData(goalsWithoutPracticeSituationIds, goalId => {
-        if (goalId === 'D03') throw error
-        return { ...normalSelection(), goalId, goalName: `${goalId} normal goal` }
-    })
+    const lines = reportLines(block, refusing('D03', error))
 
-    assert.deepEqual(data.needs.map(need => need.goalId), goalsWithoutPracticeSituationIds)
-    assert.deepEqual(data.gaps.map(need => [need.goalId, need.gap!.reason]), [['D03', error.gap.reason]])
+    assert.equal(lines[0], '\nGOALS WITHOUT PRACTICE SITUATIONS  (4 goals)')
+    assert.deepEqual(rowGoalIds(lines), ['A04', 'A05', 'A06'])
+    assert.deepEqual(refusedLines(lines), [`     D03  ${error.goalName}  ${error.gap.reason}`])
+}
+
+// WHY: "9 goals" counted a refused goal as if it had a row; the title now says how many of each.
+function testGuidedTitleCountsRowsAndRefusals(): void {
+    const block = blockTitled('ALL GUIDED GOALS')
+    assert.deepEqual(block.goalIds, goalsWithSituations)
+
+    const refusedGoalId = goalsWithSituations[0]
+    const lines = reportLines(block, refusing(refusedGoalId, selectionGap(refusedGoalId)))
+    const n = goalsWithSituations.length
+
+    assert.equal(lines[0], `\nALL GUIDED GOALS  (${n} goals; ${n - 1} selected, 1 refused)`)
+    assert.equal(rowGoalIds(lines).length, n - 1)
+    assert.equal(refusedLines(lines).length, 1)
 }
 
 testNormalSelectionKeepsItsNeed()
 testSelectionGapIsReported()
 testUnrelatedErrorIsNotSwallowed()
 testSelectionGapLeavesOtherCountsUnchanged()
-testGoalsWithoutPracticeSituationsAreCovered()
+testGoalsWithoutPracticeSituationsBlock()
+testGuidedTitleCountsRowsAndRefusals()
 
 console.log('run-contract-coverage unit tests passed')
