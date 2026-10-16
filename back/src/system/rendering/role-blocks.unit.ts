@@ -103,13 +103,21 @@ test('one activity from two complete games: each block passed alone, every cross
     assert.deepEqual(account.checks.map(check => [check.checkId, check.verdict]), ['RB-1', 'RB-2', 'RB-3', 'RB-4', 'RB-5', 'RB-6', 'RB-7', 'RB-8'].map(id => [id, 'PASS']))
     assert.equal(account.exchange, 'COACH_CALLS')
     assert.equal(account.firstBlock, 'COACH_CHOICE', 'which block is first is the coach (inferred from his D2, never chosen here)')
+    // K3 review, 15 October 2026: labelled INFERRED for the reader (verifier correction, g-part-09), his D2 sentence exact.
+    assert.ok(account.firstBlockBasis.startsWith('INFERRED') && account.firstBlockBasis.includes('"The coach determines when the teams exchange roles."'))
     assert.deepEqual(account.roles.map(role => [role.role, role.coachNoun, role.nounStatus]), [['BUILDING', 'building team', 'DRAFT'], ['PRESSING', 'pressing team', 'DRAFT']])
 
     const exchange = activity.rendered.instructions.filter(i => i.section === ROLE_EXCHANGE).map(i => i.text)
+    // Re-pointed 15 October 2026 (K3 review): the second sentence no longer says each team keeps "the target it attacks,
+    // for the whole activity". His D2 asks for the opposite half of the distinction to be explicit — "role-specific
+    // objectives and target configurations change when the teams exchange roles" — and his M1 "Allow target configurations
+    // to reflect each team's role during the block." The ends are fixed (C42); the target configurations are not.
     assert.deepEqual(exchange, [
         'Play in blocks: in each block one team is the building team and the other is the pressing team',
-        'Each team keeps its end, and the target it attacks, for the whole activity. When you call the next block the teams exchange roles, not ends; there is no set block length',
+        'Each team keeps its end for the whole activity. When you call the next block the teams exchange roles, not ends; there is no set block length',
     ])
+    // The guard: no sentence of the role-exchange section says a team's target stays the same across blocks.
+    assert.ok(!exchange.some(text => /\btarget\b/i.test(text) && /\b(keeps?|same|whole activity|does not change|stays?)\b/i.test(text)), 'his D2: target configurations change with the roles')
     // Every sentence of each block's render is said once; in this game the blocks say the same, so none is block-only.
     const texts = activity.rendered.instructions.map(i => i.text)
     assert.equal(new Set(texts).size, texts.length, 'nothing said twice')
@@ -274,6 +282,9 @@ test('part of a role exchange is refused at structure, never completed', () => {
     assert.ok(noExchange.reasons.some(r => r.includes('how the role passes to the other team is not established')))
 })
 
+// What moves this stop (K3 review, 15 October 2026): the build-out episode's beginning — capability M3 (stage K5) and the
+// typed begin condition C58, held for his acknowledgement (our email of 17 October) — exactly as for the single game
+// (activity-review.unit.ts). The role blocks neither cause it nor move it.
 test('A01 behind its record: two blocks built, each stopping where the single game stopped (GA-EPISODE-REACHABLE), named by block', () => {
     const behind = learningGoalAuthorizations().map((record: any) => ({
         ...record,

@@ -15,7 +15,7 @@ import { countBounds, deriveLines, DerivedLine, establishesExistence } from './d
 import { classifyLines, ClassifiedLine } from './classify'
 import { forwardResults } from './forward'
 import { runGates } from './gates'
-import { markTargets } from './target-of'
+import { markTargets, regionsEstablishedByTarget } from './target-of'
 import { reaches } from './reach'
 import { emit, DerivationResult, StampedHalt } from './emit'
 import { parseSelector, predicateKey, selectorApplies } from './selector'
@@ -448,6 +448,20 @@ export function runStages0to2(input: DerivationInput): PartialResult {
     // Stage K3, 15 October 2026 (his M1): an objective region carries what it is the target of — before reach, so a
     // selector naming "the target a team attacks" reaches the region its objective references (`target-of.ts`).
     markTargets(classes, loaded.admitted, index, input.roleBlock ?? null)
+    // K3 review, 15 October 2026: targetOf selects a region that exists and never establishes one (C42, "not three"). An
+    // item establishing a region by it is a selector defect, reported in every game, so no third region passes Gate A.
+    regionsEstablishedByTarget(loaded.admitted, index).forEach(({ contract, item }, ordinal) =>
+        failures.push({
+            failureId: recordId('REFERENCE_DEFECT', `${contract.contractId}:${item.itemId}:targetOf`, ordinal),
+            kind: 'REFERENCE_DEFECT',
+            stage: 2,
+            locus: { contractId: contract.contractId, itemRef: { contractId: contract.contractId, itemId: item.itemId } },
+            implicated: { contractIds: [contract.contractId], objectIds: [contract.objectId] },
+            clause: CLAUSE('§2.2 stage 2'),
+            offendingInput: String(item.selector ?? ''),
+            detailRef: `${index.targetOf?.attribute} is derived from the objectives (register targetOf): it selects an objective region the game holds and cannot establish one`,
+        }),
+    )
     const triggers = constructTriggers(classes, index, input.envelope)
     const lines = enumerateLines(classes, index, stopped)
 

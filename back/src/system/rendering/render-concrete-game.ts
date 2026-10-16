@@ -1530,9 +1530,14 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
      *
      * Said only for a game that holds roles, and only what the game holds: which roles there are (each role element's
      * own value, cited), that every role passes by the coach's call with no block length (each element's exchange,
-     * cited), and that each team keeps its end and the target it attacks while the roles exchange (each objective's
-     * team and reference, cited). Nothing here says a target changes with a role: no target configuration is keyed to a
-     * role in any game yet, and a sentence may say only what the game establishes. The nouns are the register's DRAFT
+     * cited), and that each team keeps its end while the roles exchange (each objective's team and reference, cited: the
+     * end a team keeps is the one opposite the target its objective references, C42). Nothing here says a target changes
+     * with a role: no target configuration is keyed to a role in any game yet, and a sentence may say only what the game
+     * establishes. **Nor does it say a target stays the same** (K3 review, 15 October 2026): an earlier draft said each
+     * team keeps "the target it attacks, for the whole activity", which is the opposite of the half of the distinction he
+     * asked to be made explicit — *"role-specific objectives and target configurations change when the teams exchange
+     * roles"* (D2) and *"Allow target configurations to reflect each team's role during the block"* (M1). The region a
+     * team attacks is fixed (C42); its configuration is not, so the sentence speaks of ends only. The nouns are the register's DRAFT
      * coach nouns, carried in the fixture; a value the register gives no noun for is not said (and is then uncarried, so
      * the fidelity check refuses the activity rather than this renderer naming a role itself). Every sentence is a DRAFT.
      */
@@ -1551,7 +1556,7 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
             say(
                 ROLE_EXCHANGE,
                 statusAt([...exchangePaths, ...endPaths], 'DERIVED'),
-                'Each team keeps its end, and the target it attacks, for the whole activity. When you call the next block the teams exchange roles, not ends; there is no set block length',
+                'Each team keeps its end for the whole activity. When you call the next block the teams exchange roles, not ends; there is no set block length',
                 [...exchangePaths, ...endPaths],
             )
         }

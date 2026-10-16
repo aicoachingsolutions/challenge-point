@@ -28,7 +28,9 @@ import { specializedRoleNames } from '../rendering/session-envelope'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { loadProvisionalRealizations, loadRegister } from './corpus'
 import { designationEntry, designationKey, holderInBlock, memberDesignations, roleHolderNames, roleOfHolder } from './designation'
-import { runStages0to2, runStages0to5 } from './engine'
+import { isStampedHalt } from './emit'
+import { runDerivation, runStages0to10, runStages0to2, runStages0to5 } from './engine'
+import { assembleResolvedGame } from './resolved-game'
 import { reaches } from './reach'
 import { designationName, HaltError, indexRegister } from './register'
 import { blockIdOf, exchangeOf, roleBlocksOf } from './role-blocks'
@@ -191,6 +193,27 @@ test('targetOf reaches the region its objective references: GF2-03.f for the bui
     assert.deepEqual(regionsIn(blockX).map(cls => cls.classId), runStages0to2(gf2()).classes.filter(c => c.row === 'S2').map(c => c.classId))
 })
 
+/**
+ * **No third region, in any game** (K3 review, 15 October 2026). The probe above sits on a field row. On the REGION row an
+ * establishing item with a targetOf selector created a third region class (measured: `c:TEST-ONLY:roles:T-9` beside
+ * GF2-03.e/f), stopped in a role-block game only by RB-3 at validation and in a single game by nothing naming it. It is a
+ * selector defect now, reported at stage 2 and failed by GA-REFERENCE-INTEGRITY, with or without a block; C42: "exactly two
+ * active objectives and two corresponding target regions, not three".
+ */
+test('an item establishing a region by targetOf is a reference defect that fails Gate A, block or none; a field item is not', () => {
+    const creating = { itemId: 'T-9', row: 'S2', selector: 'targetOf=ROLE_HOLDER_BUILDING', requirement: 'EXISTS', value: 'N/A' }
+    const defects = (result: any) => (result.failures ?? []).filter((f: any) => f.kind === 'REFERENCE_DEFECT' && f.locus?.itemRef?.itemId === 'T-9')
+    for (const [extra, roleBlock] of [[[creating], undefined], [[...ROLE_ITEMS, creating], blockX], [[{ ...creating, selector: `targetOf=${START}` }], undefined]] as const) {
+        const result: any = runStages0to10(gf2([...extra], roleBlock))
+        assert.equal(defects(result).length, 1, `${roleBlock?.blockId ?? 'no block'}: ${JSON.stringify(result.failures)}`)
+        const integrity = result.gates.gateA.checks.find((c: any) => c.checkId === 'GA-REFERENCE-INTEGRITY')
+        assert.equal(integrity.verdict, 'FAIL', `${roleBlock?.blockId ?? 'no block'}: GA-REFERENCE-INTEGRITY`)
+    }
+    const selecting = { itemId: 'T-9', row: 'S3', selector: 'targetOf=ROLE_HOLDER_BUILDING', requirement: 'EQUALS', value: 'zone', valueStatus: 'REQUIRED_RANGE' }
+    assert.equal(defects(runStages0to10(gf2([selecting], blockX))).length, 0, 'selecting a region by targetOf is what the attribute is for')
+    assert.equal(defects(runStages0to10(gf2())).length, 0)
+})
+
 test('a game that never asks for targetOf carries nothing new on its classes', () => {
     for (const cls of runStages0to2(gf2()).classes) assert.equal(cls.designations, undefined, cls.classId)
     for (const cls of runStages0to2(gf2([], blockX)).classes) assert.equal(cls.designations, undefined, `${cls.classId}, even inside a block`)
@@ -251,6 +274,54 @@ test('A01-R1 carries the two roles and the exchange, each his choice in his word
     // His sentences, exactly as filed (reply of 17 October 2026, D2 and D7).
     assert.equal((realization.items[2] as any).words, 'Roles exchange when the coach calls for the next block.')
     assert.equal((realization.items[1] as any).words, 'One team builds out while the other presses.')
+})
+
+/**
+ * **Key identity of the provisional category on the role lines** (K3 review, 15 October 2026). provisional-realization.unit.ts
+ * re-pointed its category test to a copy holding the TEST-ONLY item alone, saying A01-R1's own role lines are "pinned in
+ * role-blocks.unit.ts" — and nothing here pinned them. His 16 October item 10, "Please keep those categories distinct.":
+ * every resolved role line A01-R1 supports carries PROVISIONAL_REALIZATION_CHOICE on its support entry, in each block and
+ * with no block, so a reader of the game can tell his first-activity choice from canonical knowledge.
+ */
+test('A01-R1\'s role lines carry its category on every support entry, in both blocks (key identity, the real chain)', () => {
+    const input = derivationInputFor(selectFor('A01', null))
+    for (const roleBlock of [undefined, blockX, blockY]) {
+        const run = { ...input, ...(roleBlock ? { roleBlock } : {}) }
+        const result: any = runDerivation(run)
+        assert.ok(!isStampedHalt(result), roleBlock?.blockId ?? 'no block')
+        const resolved = assembleResolvedGame(result, (runStages0to10(run) as any).classes, index, input.contracts)
+        const own = resolved.derived.filter(entry => String(entry.lineId).startsWith('c:provisional:A01-R1:'))
+        assert.deepEqual(own.map(entry => entry.path).sort(), [
+            'activityRoles[c:provisional:A01-R1:A01-R1-B1-1].activityRole',
+            'activityRoles[c:provisional:A01-R1:A01-R1-B1-1].exchange',
+            'activityRoles[c:provisional:A01-R1:A01-R1-B1-2].activityRole',
+            'activityRoles[c:provisional:A01-R1:A01-R1-B1-2].exchange',
+        ])
+        for (const entry of own) {
+            assert.ok(entry.support.length > 0, entry.path)
+            for (const support of entry.support as any[]) assert.equal(support.category, 'PROVISIONAL_REALIZATION_CHOICE', `${roleBlock?.blockId ?? 'no block'}: ${entry.path}`)
+        }
+    }
+})
+
+/**
+ * **An assumed reference decides nothing** (K3 review, 15 October 2026). An assumed item bounds and never entails (SD-27);
+ * `target-of.ts` skipped it and still read the answer as decided, so on a copy of the possession game whose axis-start
+ * objective reference was assumed, `targetOf=TEAM_AT_AXIS_START` reached NEITHER region (FALSE, FALSE) — a configuration
+ * written for that team's target would have reached nothing. It is undetermined now; the authored game is unchanged.
+ */
+test('targetOf never concludes from an assumed reference: undetermined, never FALSE on both regions', () => {
+    const probe = { itemId: 'T-9', row: 'S3', selector: `targetOf=${START}`, requirement: 'EQUALS', value: 'zone', valueStatus: 'REQUIRED_RANGE' }
+    const reach = (assumed: boolean) => {
+        const input = gf2([probe])
+        if (assumed) for (const contract of input.contracts) for (const item of contract.items ?? []) if (item.itemId === 'GF2-08.d') (item as any).basis = 'ASSUMED'
+        const selector = parseSelector(`targetOf=${START}`, 'S3', index).predicate!
+        return Object.fromEntries(runStages0to2(input).classes.filter(c => c.row === 'S2').map(cls => [cls.classId.split(':').pop(), reaches(selector, cls)]))
+    }
+    assert.deepEqual(reach(false), { 'GF2-03.e': 'FALSE', 'GF2-03.f': 'TRUE' }, 'as authored (GF2-08.d entails the axis-start reference)')
+    const assumed = reach(true)
+    assert.ok(!Object.values(assumed).every(verdict => verdict === 'FALSE'), JSON.stringify(assumed))
+    assert.equal(assumed['GF2-03.f'], 'UNDETERMINED', 'the region the assumed reference names is undecided, not "not the target"')
 })
 
 test('no goal, role, designation or vocabulary literal in the two new derivation modules', () => {

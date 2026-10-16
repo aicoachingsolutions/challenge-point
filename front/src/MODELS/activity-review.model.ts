@@ -269,6 +269,8 @@ export interface ReviewRoleBlocks {
     blocks: { blockId: string; holders: Record<string, string>; integrity: ActivityIntegrity }[]
     checks: ReviewRoleBlockCheck[]
     firstBlock: string
+    /** Why the coach picks the first block: OUR inference from his D2, labelled so (K3 review, 15 October 2026). */
+    firstBlockBasis: string
 }
 
 export interface RefusedActivity {

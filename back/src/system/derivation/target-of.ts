@@ -26,7 +26,7 @@
  *
  * Sport-neutral: rows, attributes and the role value are register data (`targetOf`, register version 10).
  */
-import { entails } from './derive'
+import { entails, establishesExistence } from './derive'
 import { targetDesignations } from './designation'
 import { reaches } from './reach'
 import { RegisterIndex } from './register'
@@ -53,6 +53,30 @@ function asked(contracts: LoadedContract[], index: RegisterIndex, row: string, a
 }
 
 /**
+ * **The items that would CREATE a region by `targetOf`** (K3 review, 15 October 2026). The register says a targetOf
+ * selector "identifies an existing objective region and never creates one" (C42: *"exactly two active objectives and two
+ * corresponding target regions, not three"*). Measured at K3, an item that ESTABLISHES a region (EXISTS, COUNT, RANGE on
+ * the region row) with a targetOf selector did create one: a third region class, refused in a role-block game only by the
+ * cross-block check RB-3 at validation and in a single game by nothing that names it. The attribute is derived from the
+ * objectives and has no element to establish, so such an item is a selector defect — the engine reports it (stage 2,
+ * a reference defect, which GA-REFERENCE-INTEGRITY fails on) in every game, block or none. A field item selecting a
+ * region by targetOf is what the attribute is for and is untouched.
+ */
+export function regionsEstablishedByTarget(contracts: LoadedContract[], index: RegisterIndex): { contract: LoadedContract; item: any }[] {
+    const spec = index.targetOf
+    if (!spec) return []
+    const found: { contract: LoadedContract; item: any }[] = []
+    for (const contract of contracts) {
+        for (const item of contract.items ?? []) {
+            if (String(item.row) !== spec.row || !establishesExistence(item)) continue
+            const parsed = parseSelector(item.selector, String(item.row), index)
+            if (parsed.predicate?.terms.some(term => term.attribute === spec.attribute)) found.push({ contract, item })
+        }
+    }
+    return found
+}
+
+/**
  * Mark every objective-row region with what it is the target of, where a selector asks. Mutates the classes it is handed
  * (derivation's own, before reach); returns how many it marked.
  */
@@ -72,9 +96,23 @@ export function markTargets(classes: ElementClass[], contracts: LoadedContract[]
     const attackers = new Map<string, Set<string>>()
     for (const contract of contracts) {
         for (const item of contract.items ?? []) {
-            if (String(item.row) !== spec.referenceRow || !entails(item)) continue
-            const ref = structuralRefOf(item.value)
+            if (String(item.row) !== spec.referenceRow) continue
             const parsed = parseSelector(item.selector, String(item.row), index)
+            if (!entails(item)) {
+                /**
+                 * **An assumed reference leaves the relation undecided — it is not an absent one** (K3 review, 15 October
+                 * 2026). An assumed item bounds and never entails (SD-27), so it cannot make a region the target of its
+                 * objective; but neither may its silence be read as "this objective references no region". Skipping it
+                 * while keeping the answer decided did exactly that, measured on a copy of the possession game with the
+                 * axis-start objective's reference assumed: `targetOf=TEAM_AT_AXIS_START` reached NEITHER region (FALSE,
+                 * FALSE), so a configuration written for that team's target would have reached nothing instead of
+                 * waiting on the reference. Undetermined is never rounded (invariant 3). Inert wording (engine-only, a
+                 * typical example, an exclusion) still says nothing about which region an objective references.
+                 */
+                if (item.basis === 'ASSUMED' && (!parsed.predicate || ofRole.some(objective => reaches(parsed.predicate!, objective) !== 'FALSE'))) decided = false
+                continue
+            }
+            const ref = structuralRefOf(item.value)
             if (!parsed.predicate) {
                 decided = false
                 continue

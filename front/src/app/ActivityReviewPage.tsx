@@ -1063,7 +1063,10 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                                         Roles:{' '}
                                         {served.roleBlocks.roles.map((role) => `${role.role} ("${role.coachNoun}", ${role.nounStatus})`).join(' · ')}
                                     </li>
-                                    <li>Exchange: {served.roleBlocks.exchange} — which block is played first: {served.roleBlocks.firstBlock}</li>
+                                    <li>
+                                        Exchange: {served.roleBlocks.exchange} — which block is played first: {served.roleBlocks.firstBlock} (
+                                        {served.roleBlocks.firstBlockBasis})
+                                    </li>
                                     {served.roleBlocks.blocks.map((block, index) => (
                                         <li key={block.blockId} className='break-words'>
                                             Block {index + 1}:{' '}

@@ -215,7 +215,16 @@ export interface RoleBlockAccount {
      * roles."*) and stated beside the possession game's own governed choice of which team starts; never chosen here.
      */
     firstBlock: 'COACH_CHOICE'
+    /**
+     * The same label carried to the reader (K3 review, 15 October 2026): the verifier's correction (g-part-09) asks that
+     * "the coach decides which block is played first" be labelled INFERRED wherever it is stated, because he did not say
+     * it. Without this the page showed `COACH_CHOICE` bare, as if it were his.
+     */
+    firstBlockBasis: typeof FIRST_BLOCK_BASIS
 }
+
+/** Our inference, said as ours: which block is played first. His sentence is quoted exactly (D2, reply filed 17 October 2026). */
+export const FIRST_BLOCK_BASIS = 'INFERRED from his D2, "The coach determines when the teams exchange roles." — not his words. The possession game\'s own governed choice of which team starts is listed with the realization choices.' as const
 
 export interface RefusedActivity {
     outcome: 'refused'
@@ -904,6 +913,7 @@ function build(
                         blocks: built.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, integrity: entry.built.integrity })),
                         checks: checks.map(check => ({ ...check, problems: [...check.problems] })),
                         firstBlock: 'COACH_CHOICE',
+                        firstBlockBasis: FIRST_BLOCK_BASIS,
                     },
                 },
             )
