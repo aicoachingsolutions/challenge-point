@@ -22,7 +22,7 @@ function parseArgs(args) {
             options.jobs = 1
         } else if (arg === '--jobs' || arg === '--timeout' || arg === '--out') {
             const value = args[++i]
-            if (!value) throw new Error(`${arg} needs a value`)
+            if (!value || value.startsWith('--')) throw new Error(`${arg} needs a value`)
             if (arg === '--out') {
                 options.out = value
             } else {
@@ -43,9 +43,10 @@ function testFiles() {
     const script = JSON.parse(fs.readFileSync(PACKAGE, 'utf8')).scripts.test
     if (typeof script !== 'string') throw new Error('package.json has no test script')
 
+    // Every command must be exactly the one commandFor runs, so a file listed with other flags cannot run differently here.
     return script.split('&&').map(command => {
-        const match = command.trim().match(/(\.\/src\/[^\s]+\.unit\.ts)$/)
-        if (!match) throw new Error(`cannot read a unit test path from: ${command.trim()}`)
+        const match = command.trim().match(/^ts-node --files -r tsconfig-paths\/register (\.\/src\/\S+\.ts)$/)
+        if (!match) throw new Error(`not the standard ts-node test command: ${command.trim()}`)
         const file = match[1]
         if (!fs.existsSync(path.resolve(BACK, file))) throw new Error(`listed test file does not exist: ${file}`)
         return file
@@ -96,6 +97,8 @@ function runFile(file, timeoutMs) {
             child.kill()
         }, timeoutMs)
 
+        child.stdout.setEncoding('utf8')
+        child.stderr.setEncoding('utf8')
         child.stdout.on('data', chunk => {
             stdout += chunk
         })
@@ -124,8 +127,8 @@ async function runPool(files, jobs, timeoutMs) {
 }
 
 function lastLines(result) {
-    const output = [result.stdout, result.stderr].filter(Boolean).join('\n').trim()
-    return output.split(/\r?\n/).slice(-80)
+    const output = [result.stdout.trim(), result.stderr.trim()].filter(Boolean).join('\n')
+    return output ? output.split(/\r?\n/).slice(-80) : []
 }
 
 function resultLine(result) {
@@ -162,7 +165,7 @@ async function main() {
 
     const text = `${report.join('\n')}\n`
     process.stdout.write(text)
-    if (options.out) fs.writeFileSync(path.resolve(BACK, options.out), text)
+    if (options.out) fs.writeFileSync(path.resolve(options.out), text)
     if (failed.length) process.exitCode = 1
 }
 
