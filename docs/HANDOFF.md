@@ -8447,3 +8447,52 @@ K1 M6 + C55, M8 + C57 · K2 provisional carrier `provisional-realizations.json` 
 resolver · K3 role blocks · K4 allocation + C56 · K5 M3/M4 + A01 transitions (C58 as a PROPOSAL only) · K6 M7/M5 spatial
 · K7 communication (admin-only review shows DRAFT text) · K8 reviewEvidence + TEST-ONLY end-to-end proof to
 'communication'. RD values and C58 never enter production data.
+
+## 18 OCTOBER — THE FIRST COMPLETE ACTIVITY (K1–K8), CODEX TOOLING, `npm test` FIXED
+
+His fourth reply on A01 (all decisions in): `scratchpad/christian-2026-10-18.txt` (memory `christian-rulings-2026-10-18.md`):
+RD-1(a) goalkeeper + one outfield player transfer at the exchange, with role exchange and participant reassignment kept
+SEPARATE; touchline throw-in / end line coach's method; pressure reference 20 m (target begins there; 5 m post-regain
+area; builders START short of the line); C58 acknowledged; EM-0002 / EM-0006 relationships confirmed; flag (not fix)
+advanced positioning; three-layer architecture; 11–12 players and 40×30 are testing boundaries held as data.
+
+### K1–K8 (brief `scratchpad/BRIEF-OCT17.md` + its section 5 addendum; design `scratchpad/g-synthesis.txt`)
+
+Workflow `oct17-a01-build-k1-k8` (stopped and resumed once to switch K4–K8 to his 18 Oct answers; stopped once by a
+weekly usage limit and resumed — the interrupted K4 edits were backed up to `scratchpad/k4-interrupted.patch` and
+completed by the restarted implementer). Each stage built then adversarially reviewed:
+K1 M6 three states (NO_FURTHER_VALUE; UNRESTRICTED refused at load), PROVEN_DISJOINT loader exception, C55, M8 relational
+V5 referent + C57 · K2 provisional carrier `docs/audits/conformance/stage-b/provisional-realizations.json` (A01-R1, joins
+derivation only where the goal's record names it) + AM-01 designation resolver `derivation/designation.ts` · K3 role
+blocks (register v10 B1–B3, each block derived as its own game, cross-block checks) · K4 allocation (C56 GF2-14.b
+defersTo AUTHORIZED_REALIZATION through EM-0006) + participant reassignment as its own capability · K5 M3/M4 (coach-judged
+episode conclusion trigger, starts/restarts from knowledge, out-of-play partition, C58 active) · K6 M7/M5 (relative
+positions, separated targets, start placements re-established only at build-out starters) · K7 communication (exchange
+section, Q4 prescription rule, admin-only draft display, checked-vs-live statement) · K8 `rendering/review-evidence.ts`
+(nine items, provenance by his three layers, structural report, flags F1 advanced positioning / F2 regain inside target).
+
+**Result:** A01 at 12 players, 40×30, PRODUCTION data, through the checked pathway: both blocks valid, every structural
+check PASS, refused only at 'communication' (the four build-out condition parts await his approved wording). Live route
+still refuses A01 with no model call (zero-constraint selections are not served live).
+
+### Integration (`128600b` … `8cb7205`)
+
+- The audited Codex tooling cherry-picked (8 commits from `codex/tooling-2026-10-18`; audits in `scratchpad/codex-audit*`):
+  `npm run corpus:coverage` reports selection gaps (A02, D03) instead of crashing; `npm run snapshot` / `snapshot:diff`
+  — a regression snapshot of every goal × role case through the real router (coach AND administrator views, 107 keys),
+  outbound network refused, a diff that counts what it compared.
+- **`npm test` works on Windows again** (Joe approved): the ordered list lives in `back/scripts/unit-tests.json`; `npm
+  test` = parallel runner (~3.5 min), `npm run test:serial` the same one at a time. **Register a new unit file in
+  unit-tests.json**, not in package.json. The runner refuses missing, non-.unit.ts, duplicate and wrong-case entries.
+- Two of A01's draft restart sentences reworded (no "M3 capability", no duplicate). "with the ball in hand" kept: the word
+  "throw-in" needs a sport-profile noun for the method (small addition, his call).
+
+Suite **FILES 98 FAILED 0**. Pushed `8cb7205` (77 commits ahead of main; last merge 9 Oct, PR #128).
+
+### OPEN
+
+- His approval of the build-out condition wording (draft sent in `scratchpad/2026-10-18-a01-first-activity-review.txt`),
+  then the entries in `docs/audits/approved-coach-wording.json` → A01 served on the review page.
+- The review page shows drafts and evidence only to administrators: Christian's account needs `permissions.isAdmin`
+  (unverified; the user record is in Mongo), and the branch must be deployed for him to see it.
+- His item 6 decision (spatial eligibility) — note GF2-22 excludes rules that ban receivers; the regain-inside case.
