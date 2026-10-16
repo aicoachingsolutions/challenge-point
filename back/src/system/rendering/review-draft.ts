@@ -5,8 +5,11 @@
  * condition, an information rule) or when fidelity finds something it cannot say faithfully. Until this stage the reviewer saw only
  * the refusal, so the sentences that ARE ready — every one an in-code DRAFT template — could not be read in context, and the
  * wording he has to approve could not be judged against the activity it belongs to. His 14 October item 7: *"Please continue
- * submitting new wording for approval under the Coach Communication Standard."* And 15 October item 11: *"I want to evaluate it as
- * a coach."*
+ * submitting new wording for approval under the Coach Communication Standard, but feel free to propose consolidated, more natural
+ * language rather than preserving unnecessary sentence-by-sentence technical structure."* And 15 October item 11: *"Once we have that
+ * activity, I want to evaluate it as a coach, particularly whether the environment offers multiple functional ways to solve the problem
+ * under meaningful opposition."* (Both quoted whole since the K7 review: each had been cut mid-sentence and closed with a full stop
+ * he did not write.)
  *
  * So the refusal carries, for the admin-only review response only (`buildActivityForReview` with `includeDrafts`, which the review
  * route sets from its existing administrator check), the rendering the builder already made: every sentence the renderer could say,

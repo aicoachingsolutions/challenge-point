@@ -63,20 +63,52 @@ const CHOICE_WORDS = [/\bpick\b/i, /\bchoose\b/i, /\bdecide\b/i]
  * transition or an access rule, and the verification showed that exemption let through exactly the likely prescriptions (a mandatory
  * pass cited against the origin condition, "waits until" cited against a start); so there is no citation exemption. A part passes only
  * where he approved its sentence, or where a pinned template restates the cited element's OWN value with the word (the allowlist below).
+ *
+ * **Widened by the K7 review (15 October 2026), a TIGHTENING.** As landed the lexicon missed his own words: on the real A01 rendering,
+ * with the citations a prescription would carry, "A pass to the [role] is mandatory before the building team progresses" (citing the
+ * start's taker), "The building team passes along a fixed sequence", "The [role] always receives the first pass of each build-out",
+ * "The [role] should take part in every build-out", "Never restart from a different spot" and the standing restrictions "… cannot enter
+ * the target zone before the ball is played" and "… stay short of the marked line throughout play" all passed (measured). His D5 says
+ * *"mandatory"* and *"prescribed passing sequence"*, D6 *"not required behaviors"*, and his 18 October item 3 *"The building team's
+ * initial positioning requirement should not prevent players from advancing into useful positions as play develops."* So the
+ * obligation, prohibition and standing words join, each measured at zero hits across every sentence any activity serves or drafts and
+ * the frozen A04 fixture (39 sentences): the served activities move nothing.
  */
 export const OBLIGATIONS = [
     /\bmust\b/i,
     /\bha(s|ve) to\b/i,
-    /\brequired to\b/i,
+    // "required", "requires", "requirement"; the bare verb is NECESSITY's ("the rules require"), checked above with its own message.
+    /\brequire(d|s|ment)\b/i,
+    /\bmandatory\b/i,
+    /\bprescribed?\b/i,
+    /\bshould\b/i,
+    /\balways\b/i,
+    /\bnever\b/i,
+    /\bcan ?not\b/i,
+    /\bcan't\b/i,
+    /\bmay not\b/i,
+    /\bforbidden\b/i,
     /\bneeds? to\b/i,
     /\bonly (after|once|when|if|until)\b/i,
-    /\bnot allowed\b/i,
+    /\bnot (allowed|permitted)\b/i,
     /\buntil\b/i,
+    /\bthroughout\b/i,
+    /\bat all times\b/i,
     /\bfirst\b[^.;]*\bthen\b/i,
-    /\bin (sequence|order)\b/i,
+    /\bsequences?\b/i,
+    /\bin order\b/i,
     /\bpatterns?\b/i,
     /\b(every|each) time\b/i,
 ]
+
+/**
+ * **Ordering a specialized role's part in play** — K7 review, 15 October 2026. Held only with the role rule below: a sentence naming a
+ * specialized role and putting something before or after its involvement orders the play around it, his D5 *"No mandatory [specialized-role]
+ * pass"*. Measured: "The building team plays the ball back to the [role] before moving forward" passed every rule. Not in the general
+ * lexicon, because two served or drafted sentences that name no role use "before" for the coach's own setup (the frozen A04 fixture's
+ * "tell both teams before you start", and A01's start placement "Before each of these restarts").
+ */
+export const ROLE_ORDERING = [/\bbefore\b/i]
 
 /**
  * **The templates whose obligation word is the cited element's own value, pinned** (stage K7). Each holds only where the part cites
@@ -1035,7 +1067,7 @@ export function checkFidelity(
     const specialized = Object.keys(fixture.envelope?.roles ?? {})
     for (const instruction of rendered.instructions) {
         const role = specialized.find(name => namesRole(instruction.text, name))
-        if (role && OBLIGATIONS.some(word => word.test(instruction.text))) {
+        if (role && [...OBLIGATIONS, ...ROLE_ORDERING].some(word => word.test(instruction.text))) {
             findings.push({ question: 4, severity: 'VIOLATION', what: `"${instruction.text}" names the ${role} with a word of obligation or order: a specialized role is an available option, never a required behavior` })
         }
     }

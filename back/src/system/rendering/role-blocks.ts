@@ -517,5 +517,21 @@ export function checkRoleBlockComposition(blocks: RenderedBlock[], composed: Ren
     for (const instruction of composed.instructions) {
         if (ENDS_CHANGE.some(pattern => pattern.test(instruction.text))) findings.push({ question: 6, severity: 'VIOLATION', what: `"${instruction.text}" says the ends change; each team keeps its end in both blocks (RB-2)` })
     }
+    /**
+     * **No team named by who has the ball, in an activity played in role blocks** — K7 review, 15 October 2026, a TIGHTENING. His D7,
+     * reply filed 17 October 2026: *"Please use the assigned team roles rather than referring generically to "the defending team," since
+     * possession and defensive responsibilities change during play."* Until this only a render test kept such a noun out (the renderer
+     * has no words for it), and a sentence naming "the defending team" passed every check (measured on the real A01 rendering). The
+     * nouns are the register's own: each designation whose typed resolution follows the possession relation (POSSESSION_RELATION), its
+     * name in words, so no team noun is written here.
+     */
+    const byPossession = [...index.designations.resolutions.entries()]
+        .filter(([, resolution]) => resolution.kind === 'POSSESSION_RELATION')
+        .map(([name]) => name.toLowerCase().split('_').filter(Boolean).join(' '))
+    for (const instruction of composed.instructions) {
+        const words = ` ${instruction.text.toLowerCase().split(/[^a-z0-9]+/).join(' ')} `
+        const noun = byPossession.find(name => words.includes(` ${name} `) || words.includes(` ${name}s `))
+        if (noun) findings.push({ question: 6, severity: 'VIOLATION', what: `"${instruction.text}" names a team as "the ${noun}", which changes with possession; in role blocks a team is named by the role it holds (his D7)` })
+    }
     return findings
 }

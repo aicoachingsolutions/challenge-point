@@ -212,6 +212,53 @@ test('3b. the one template whose obligation word is its element\'s own value pas
     assert.ok(checkFidelity(withCondition, saidRole, roleLine).findings.some(f => f.question === 4 && f.what.includes(`names the ${ROLE}`)), 'approval never exempts a role named with an obligation')
 })
 
+/**
+ * K7 review, 15 October 2026. As landed, the lexicon missed his own words and the standing restrictions, and nothing but a render test
+ * kept "the defending team" out: each line below PASSED every rule on the real A01 rendering with the citation shown (measured at
+ * 665bc7c). Now each is refused; the two residuals that carry no word of obligation are pinned beside the earlier one.
+ */
+test('3c. (K7 review) his words "mandatory", "sequence", "required" and the standing restrictions are refused; "the defending team" is refused in role blocks', () => {
+    const fixture = blockFixtures[0]
+    const rendered = renderConcreteGame(fixture)
+    const start = 'transitions[c:provisional:A01-R1:A01-R1-T1-1]'
+    const placement = 'performers.startPlacement[c:provisional:A01-R1:A01-R1-P8-1]'
+    const refusedAt4 = (text: string, from: string[]) => {
+        const forced = { ...rendered, instructions: [...rendered.instructions, { section: 'How it works' as const, text, status: 'DERIVED' as const, from, quantities: [] }] }
+        return checkFidelity(fixture, forced as any).findings.filter(f => f.question === 4 && f.severity === 'VIOLATION' && f.what.includes(text))
+    }
+    // TEST-ONLY lines from his 17 October D5/D6 and 18 October item 3, each citing what a prescription would most plausibly cite.
+    for (const [text, from] of [
+        [`A pass to the ${ROLE} is mandatory before the building team progresses`, [`${start}.placement.actor`]],
+        [`A pass to the ${ROLE} is required before the building team progresses`, [`${start}.placement.actor`]],
+        ['The building team passes along a fixed sequence', [`${start}.awardedTo`]],
+        [`The ${ROLE} always receives the first pass of each build-out`, [`${start}.placement.actor`]],
+        [`The ${ROLE} should take part in every build-out`, [`${start}.placement.actor`]],
+        ['Never restart from a different spot', [`${start}.placement.region`]],
+        ["The building team's outfield players cannot enter the target zone before the ball is played", [`${placement}.region`, `${placement}.timing`]],
+        ["The building team's outfield players stay short of the marked line throughout play", [`${placement}.region`, `${placement}.timing`]],
+    ] as [string, string[]][]) {
+        assert.ok(refusedAt4(text, from).length >= 1, `refused: ${text}`)
+    }
+    // A specialized role with an ordering word: refused on the role rule (the general lexicon leaves "before" to the coach's setup).
+    const ordering = `The building team plays the ball back to the ${ROLE} before moving forward`
+    assert.ok(refusedAt4(ordering, [`${start}.placement.actor`, `${start}.awardedTo`]).some(f => f.what.includes(`names the ${ROLE}`)))
+    // KNOWN LIMITS, pinned: no word of obligation, order or role — his approval of each sentence is the guard that remains.
+    assert.equal(refusedAt4('The building team plays back before progressing', [`${start}.awardedTo`]).length, 0)
+    assert.equal(refusedAt4("The building team's outfield players stay short of the marked line", [`${placement}.region`, `${placement}.timing`]).length, 0)
+    // Nothing the activity says moves: the A01 draft and every served activity carry no word of the widened lexicon.
+    assert.equal(checkFidelity(fixture, rendered).findings.filter(f => f.question === 4).length, 0)
+
+    // "The defending team": refused by the composition check of a game in role blocks (his D7), whatever it cites.
+    const renders = blockFixtures.map((blockFixture, i) => ({ blockId: BLOCKS[i], fixture: blockFixture, rendered: renderConcreteGame(blockFixture) }))
+    const composed = composeRoleBlockActivity(renders, index)
+    for (const text of ['The defending team presses as soon as play restarts', 'The attacking team restarts play']) {
+        const forced = { ...composed, instructions: [...composed.instructions, { section: 'How it works' as const, text, status: 'DERIVED' as const, from: [`${start}.playState`], quantities: [] }] }
+        const q6 = checkRoleBlockComposition(renders, forced as any, index).filter(f => f.severity === 'VIOLATION' && f.what.includes(text) && f.what.includes('changes with possession'))
+        assert.equal(q6.length, 1, text)
+    }
+    assert.deepEqual(checkRoleBlockComposition(renders, composed, index).filter(f => f.severity === 'VIOLATION'), [], 'the A01 composition names every team by its role')
+})
+
 test('4. a restart discharges its episode boundary only with its awardee', () => {
     const fixture = blockFixtures[0]
     const rendered = renderConcreteGame(fixture)
