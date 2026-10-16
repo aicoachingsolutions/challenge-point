@@ -21,15 +21,29 @@
  *   5. the specialized role as a deep support option, and no prescription, as facts of the game;
  *   6. his item 6 flag answered from the game (yes: nothing prevents it), with the read-only knowledge listing, and the regain case
  *      flagged and never settled — and a TEST-ONLY action restriction changes the answer;
- *   7. the structural report reads the gates' own verdicts, and the request's loader refuses a damaged request.
+ *   7. the structural report reads the gates' own verdicts, and the request's loader refuses a damaged request;
+ *   8. (K8 review) the structural report FAILS on a broken copy of each part he named — player totals, spatial relationships, scoring
+ *      conditions, restarts — with the post-realization gates rerun on the broken concrete game, never a verdict written by hand;
+ *   9. (K8 review) the relationships he confirmed on 18 October reach every element and sentence whose item cites one, a relationship
+ *      not CONFIRMED is not approved, and a withheld field keeps the row the renderer reported.
  */
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 
 import { loadRegister } from '../derivation/corpus'
+import { runDerivation, runStages0to10, runStages0to5 } from '../derivation/engine'
+import { applyRealizationDeferrals } from '../derivation/realization-deferral'
 import { indexRegister } from '../derivation/register'
-import { learningGoalAuthorization, REVIEW_LAYERS, validateLearningGoalAuthorizations, validateReviewRequest } from '../test-library/learning-goal-authorizations'
+import { assembleResolvedGame } from '../derivation/resolved-game'
+import { roleBlocksOf } from '../derivation/role-blocks'
+import { derivationInputFor, selectFor } from '../derivation/run-bounded-selection'
+import { LoadedContract, RoleBlock } from '../derivation/types'
+import { completeConcreteGame } from '../realization/assemble-concrete-game'
+import { realizeWithJustifiedDefaults } from '../realization/justified-defaults'
+import { runPostRealizationGates } from '../realization/post-realization-gate'
+import { suppliedRealizationFor } from '../realization/supplied-realization'
+import { contextManipulationRelationships, learningGoalAuthorization, REVIEW_LAYERS, validateLearningGoalAuthorizations, validateReviewRequest } from '../test-library/learning-goal-authorizations'
 import { reviewActivity } from './activity-review'
 import { buildActivity, buildActivityForReview, buildActivityWithFixture, RefusedActivity } from './build-activity'
 import { buildPilotActivity } from './build-pilot-activity'
@@ -285,6 +299,146 @@ test('7. the structural report reads the gates\' own verdicts; the checked pathw
     // readPath reads member ids that hold dots and colons whole.
     assert.equal(readPath({ regions: [{ elementId: 'c:x:Y-1.e', noun: 'zone' }] }, 'regions[c:x:Y-1.e].noun'), 'zone')
     assert.deepEqual(readPath({ teams: [{ n: 1 }, { n: 2 }] }, 'teams[].n'), [1, 2])
+})
+
+/*
+ * K8 review, 15 October 2026. Each block of A01's production selection built through the same steps as the checked pathway (as
+ * target-placement.unit.ts builds them), so a COPY of a block's concrete game can be broken and the post-realization gates rerun on it.
+ * The evidence for a broken copy is then made from the gates' own verdicts on that copy: nothing below writes a verdict by hand.
+ */
+const productionFixture: any = buildActivityWithFixture(a01).fixture
+const productionBlocks: any[] = productionFixture.roleBlocks.blocks
+function a01Games() {
+    const selection = selectFor('A01', null)
+    const input: any = { ...derivationInputFor(selection), envelope: session }
+    input.contracts = applyRealizationDeferrals(JSON.parse(JSON.stringify(input.contracts)), contextManipulationRelationships(), index).contracts
+    const base: any = runStages0to5(input)
+    const found: any = roleBlocksOf(base.classes, base.derived.lines, index)
+    assert.equal(found?.kind, 'BLOCKS')
+    return (found.blocks as RoleBlock[]).map(block => {
+        const blockInput = { ...input, roleBlock: block }
+        const derived: any = runDerivation(blockInput)
+        const staged: any = runStages0to10(blockInput)
+        const resolved: any = assembleResolvedGame(derived, staged.classes, index, blockInput.contracts)
+        const ctx = { ...staged.gateContext, contracts: blockInput.contracts }
+        const { realization } = realizeWithJustifiedDefaults(resolved, JSON.parse(JSON.stringify(suppliedRealizationFor(selection))), index, blockInput.envelope, ctx)
+        const realized: any = realization
+        assert.equal(realized.outcome, 'REALIZED')
+        completeConcreteGame(ctx, realized)
+        const owed = resolved.coherence.postRealizationRequired.map((o: any) => ({ checkId: o.checkId, clause: o.clause }))
+        return { block, ctx, owed, realized, contracts: blockInput.contracts as LoadedContract[] }
+    })
+}
+const games = a01Games()
+/** One block's evidence input from a (possibly broken) concrete game: the gates rerun on it, mapped exactly as build-activity maps them. */
+function evidenceBlock(game: ReturnType<typeof a01Games>[number], realized: any, ctx: any = game.ctx, alterFixture: (fixture: any) => void = () => undefined): EvidenceBlock {
+    const post = runPostRealizationGates(ctx, game.owed, realized)
+    const production = productionBlocks.find(b => b.blockId === game.block.blockId)
+    const fixture = JSON.parse(JSON.stringify(production.fixture))
+    alterFixture(fixture)
+    return {
+        blockId: game.block.blockId,
+        holders: { ...production.holders },
+        fixture,
+        contracts: game.contracts,
+        rendered: renderConcreteGame(fixture),
+        findings: [],
+        gateChecks: post.gateA.checks.map(check => ({ checkId: check.checkId, verdict: String(check.verdict), clauses: check.clauses.map(clause => ({ clause: clause.clause, verdict: String(clause.verdict), ...(clause.basis ? { basis: String(clause.basis) } : {}), ...(typeof clause.instances === 'number' ? { instances: clause.instances } : {}) })) })),
+        owed: post.owed.map(entry => ({ checkId: entry.checkId, clause: entry.clause, verdict: entry.verdict })),
+    }
+}
+const evidenceFrom = (blocks: EvidenceBlock[], relationships = contextManipulationRelationships()) =>
+    reviewEvidenceOf({ outcome: 'TEST-ONLY', session, blocks, composed: blocks[0].rendered, compositionFindings: [], crossBlock: [], record: record as any, lists: null, relationships, selectedConstraints: [], index })
+const copyOf = (realized: any) => JSON.parse(JSON.stringify(realized))
+
+test('8. the structural report FAILS on a broken copy of each part he named, from the gates rerun on that copy', () => {
+    // The helper reproduces the pathway: on the unbroken games every rerun check passes, the same checks the production evidence shows.
+    const intact = evidenceFrom(games.map(game => evidenceBlock(game, game.realized)))
+    assert.equal(intact.structure.summary.everyCheckPasses, true)
+    assert.deepEqual(intact.structure.summary.gateChecks, evidence.structure.summary.gateChecks)
+
+    const [first, second] = games
+    const broken = (section: 'playerTotals' | 'spatial' | 'scoring' | 'restarts', checkId: string, clause: string, block: EvidenceBlock) => {
+        const report = evidenceFrom([block, evidenceBlock(second, second.realized)])
+        const row = report.structure.blocks[0].sections[section].checks.find(c => c.checkId === checkId)
+        assert.ok(row, `${section}: ${checkId} is shown`)
+        assert.equal(row!.verdict, 'FAIL', `${section}: ${checkId}`)
+        assert.ok(row!.clausesNotPassing.some(c => c.clause === clause && c.verdict === 'FAIL'), `${section}: ${JSON.stringify(row!.clausesNotPassing)}`)
+        assert.equal(report.structure.summary.everyCheckPasses, false, section)
+        assert.equal(fact(report.acceptance, 'every structural check passes (Gate A rerun per block, post-realization owed invariants, cross-block checks, composition)'), false, section)
+        assert.equal(report.structure.blocks[1].sections[section].checks.every(c => c.verdict === 'PASS'), true, `${section}: the other block is untouched`)
+        return report
+    }
+
+    // Player totals (TEST-ONLY): one more outfield player on the team holding the building role than the session has.
+    const roster = copyOf(first.realized)
+    roster.game.performers.teams[0].outfieldCount += 1
+    const totals = broken('playerTotals', 'GA-ROSTER-SUM', 'outfield + goalkeepers + neutrals = the session players', evidenceBlock(first, roster, first.ctx, fixture => (fixture.game.performers.teams[0].outfieldCount += 1)))
+    assert.deepEqual(fact(totals.structure.blocks[0].sections.playerTotals.facts, 'players in the teams, against the session'), { inTeams: 13, session: 12 })
+
+    // Spatial relationships (TEST-ONLY): the pressing role's target stretched from 5 m to 25 m deep, into the building role's target.
+    const spatial = copyOf(first.realized)
+    spatial.record.geometry.find((g: any) => g.lineId === 'c:restated:GF2:GF2-03.e::S5').geometry.interval = { from: 0, to: 25 }
+    broken('spatial', 'GA-DIRECTION', "the opposed objectives' targets do not overlap along the axis", evidenceBlock(first, spatial))
+
+    // Scoring conditions (TEST-ONLY): a primary event of no registered kind.
+    const scoring = copyOf(first.realized)
+    scoring.record.choices.find((c: any) => c.lineId === 'game::V1').value = 'TEST-ONLY-kind'
+    broken('scoring', 'GA-ONE-PRIMARY-EVENT', 'exactly one primary event, of a registered kind', evidenceBlock(first, scoring))
+
+    // Restarts (TEST-ONLY): the start transition made CONTINUE while it still carries its taker and the coach's location.
+    const playState = 'c:provisional:A01-R1:A01-R1-T1-1::T6'
+    const line = first.ctx.derived.get(playState)
+    const derived = new Map(first.ctx.derived)
+    derived.set(playState, { ...line, entailing: line.entailing.map((e: any) => ({ ...e, value: 'CONTINUE' })) })
+    broken('restarts', 'GA-TRANSITION-COHERENCE', 'a CONTINUE transition carries no placement', evidenceBlock(first, first.realized, { ...first.ctx, derived }))
+})
+
+test('9. the relationships he confirmed reach every element and sentence whose item cites one; a withheld field keeps its row', () => {
+    // Every provisional item that cites a relationship, wherever it is a source, stands beside that relationship, CONFIRMED and approved.
+    const cites = new Map<string, string>(games[0].contracts.flatMap(contract => (contract.items ?? []).filter((item: any) => typeof item.authorizedBy === 'string').map((item: any) => [`${contract.contractId}::${item.itemId}`, String(item.authorizedBy)] as const)))
+    assert.equal(cites.size, 8, 'eight provisional items cite a relationship (measured at this stage)')
+    const carriers = [...evidence.provenance.elements, ...evidence.sections.instructions]
+    let seen = 0
+    for (const carrier of carriers) {
+        for (const source of carrier.sources) {
+            const relationship = cites.get(source.ref)
+            if (!relationship) continue
+            seen++
+            assert.ok(carrier.sources.some(s => s.ref === `relationship ${relationship}` && s.standing === 'APPROVED' && s.layer === 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS'), `${source.ref} without ${relationship}`)
+        }
+    }
+    assert.ok(seen > 0)
+    const said = (start: string) => evidence.sections.instructions.find(i => i.text.startsWith(start))!
+    assert.ok(said('Divide 12 players').sources.some(s => s.ref === 'relationship RPC-001~EM-0006' && s.standing === 'APPROVED'))
+    assert.ok(said('Before each of these restarts').sources.some(s => s.ref === 'relationship RPC-001~EM-0002' && s.standing === 'APPROVED'))
+    // TEST-ONLY: the same relationship not CONFIRMED is our reading, never approved; one the record file lacks is named as missing.
+    const blocks = games.map(game => evidenceBlock(game, game.realized))
+    const unconfirmed = evidenceFrom(blocks, contextManipulationRelationships().map(r => ({ ...r, status: 'TEST-ONLY' as any })))
+    const placement = unconfirmed.provenance.elements.find(e => e.sources.some(s => s.ref === 'relationship RPC-001~EM-0002'))!
+    assert.ok(placement.sources.filter(s => s.ref === 'relationship RPC-001~EM-0002').every(s => s.standing === 'OUR_READING'))
+    const missing = evidenceFrom(blocks, [])
+    assert.ok(missing.provenance.elements.some(e => e.sources.some(s => s.ref === 'relationship RPC-001~EM-0006' && s.standing === 'OUR_READING' && String(s.detail).includes('not found'))))
+
+    // A withheld field keeps the row the renderer reported: the four condition scopes (V3) are rows, and item 4 waits on all 15.
+    const scopes = evidence.provenance.elements.filter(e => e.path.endsWith('.scope') && e.path.startsWith('value.primaryEvent.conditions['))
+    assert.equal(scopes.length, 4)
+    assert.ok(scopes.every(e => e.row === 'V3' && e.sources.some(s => s.standing === 'GAP' && String(s.detail).startsWith('row V3:'))))
+    assert.ok(!evidence.provenance.elements.some(e => e.standings.includes('GAP') && e.row === null))
+    const r4 = evidence.items.find(i => i.id === 'R4')!
+    assert.equal(r4.awaiting.length, new Set(review.draft!.withheld.map(w => w.path)).size)
+
+    // His M8 safeguard, recorded on the item that types the exclusion's target, is read beside the conditions (scoring and the item 6
+    // flag), whole from the knowledge: compared with the item's own note, never with a sentence written here.
+    const noted = games[0].contracts.flatMap(contract => (contract.items ?? []).map((item: any) => ({ ref: `${contract.contractId}::${item.itemId}`, fitNote: item.fitNote })))
+    const notes = (value: any[]) => value.flatMap(condition => condition.notes as { item: string; fitNote: string }[])
+    const scoringNotes = notes(fact(evidence.sections.scoring, `block ${BLOCKS[0]}: the items each condition rests on, and the notes the knowledge records on them`))
+    const flagNotes = notes(fact(evidence.flags[0].blocks[0].facts, 'conditions on the primary event, with the episode each applies within and the notes the knowledge records on the items each rests on'))
+    for (const list of [scoringNotes, flagNotes]) {
+        assert.ok(list.length > 0)
+        for (const note of list) assert.equal(note.fitNote, noted.find(n => n.ref === note.item)!.fitNote, note.item)
+        assert.ok(list.some(note => note.fitNote.includes('SAFEGUARD')), 'the safeguard is among the notes')
+    }
 })
 
 console.log(`review-evidence.unit.ts — ${passed} passed`)

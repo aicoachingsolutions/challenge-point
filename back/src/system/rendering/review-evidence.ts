@@ -331,6 +331,27 @@ function itemSource(ref: { contractId: string; itemId: string }, items: Map<stri
     return { layer: 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS', standing: approved ? 'APPROVED' : 'OUR_READING', ref: `${ref.contractId}::${ref.itemId}`, detail: basis ? `basis ${basis}` : 'basis not found in the contracts the block was derived from' }
 }
 
+/** A knowledge-authorized relationship as a source: CONFIRMED by him is approved; any other status, or one the record file lacks, is not. */
+function relationshipSource(id: string, relationships: Map<string, any>): EvidenceSource {
+    const relationship = relationships.get(id)
+    if (!relationship) return { layer: 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS', standing: 'OUR_READING', ref: `relationship ${id}`, detail: 'cited, and not found in the record file\'s relationships' }
+    return { layer: 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS', standing: relationship.status === 'CONFIRMED' ? 'APPROVED' : 'OUR_READING', ref: `relationship ${relationship.id}`, detail: `${relationship.status}${relationship.confirmedOn ? ` ${relationship.confirmedOn}` : ''}` }
+}
+
+/**
+ * **An item's sources: the item, and the knowledge-authorized relationship it cites in `authorizedBy`, where it cites one** — K8 review,
+ * 15 October 2026. His reply filed 18 October 2026, item 5, confirmed the two relationships of the context with Performer
+ * Configuration and with Participant Composition: *"Both should be represented as knowledge-authorized relationships rather than
+ * hardcoded behavior for this Learning Goal."*, and item 7 names *"Sport-specific knowledge and authorized relationships."* as a layer of
+ * its own. Until this review the evidence read the relationship only on an adjustment, so the starting counts and start placements that
+ * cite it (eight provisional items) showed his provisional choice and no authorizing relationship: the layer he asked to see was missing
+ * from exactly the elements it authorizes.
+ */
+function itemSources(ref: { contractId: string; itemId: string }, items: Map<string, any>, category: unknown, relationships: Map<string, any>): EvidenceSource[] {
+    const cited = items.get(`${ref.contractId}::${ref.itemId}`)?.authorizedBy
+    return [itemSource(ref, items, category), ...(typeof cited === 'string' && cited.length ? [relationshipSource(cited, relationships)] : [])]
+}
+
 /** Every source of one path in one block, from what the fixture carries; empty where nothing traces it. */
 /**
  * **The items that bound a target's line for the team holding a role** (`targetOf=ROLE_HOLDER_<role>`). The fixture carries a line's bound
@@ -360,7 +381,7 @@ function sourcesOf(path: string, block: EvidenceBlock, items: Map<string, any>, 
     for (const derived of status.derived ?? []) {
         if (derived?.path !== path) continue
         for (const support of derived.support ?? []) {
-            if (support?.kind === 'CONTRACT_ITEM') found.push(itemSource(support, items, support.category))
+            if (support?.kind === 'CONTRACT_ITEM') found.push(...itemSources(support, items, support.category, relationships))
             else if (support?.kind === 'STANDING_DECISION') found.push({ layer: 'GENERAL_ENGINE_MECHANISM', standing: 'APPROVED', ref: String(support.id), detail: `standing decision, resolved by ${derived.resolvedBy ?? 'derivation'}` })
             else if (support?.kind === 'SESSION') found.push({ layer: 'SESSION_INPUT', standing: 'SESSION', ref: `session row ${support.row}`, detail: null })
             else found.push({ layer: 'GENERAL_ENGINE_MECHANISM', standing: 'OUR_READING', ref: String(support?.kind ?? 'unknown support'), detail: null })
@@ -377,7 +398,7 @@ function sourcesOf(path: string, block: EvidenceBlock, items: Map<string, any>, 
     for (const entailed of status.entailed ?? []) {
         if (entailed?.path !== path && `${entailed?.collection}[].${entailed?.leaf}` !== generic) continue
         found.push({ layer: 'GENERAL_ENGINE_MECHANISM', standing: 'APPROVED', ref: 'entailment at assembly', detail: `${entailed.collection}[${entailed.handle}].${entailed.leaf} = ${JSON.stringify(entailed.value)}` })
-        for (const ref of entailed.supportedBy ?? []) found.push(itemSource(ref, items, null))
+        for (const ref of entailed.supportedBy ?? []) found.push(...itemSources(ref, items, null, relationships))
     }
     for (const geometry of status.geometry ?? []) {
         if (geometry?.path !== path) continue
@@ -385,28 +406,31 @@ function sourcesOf(path: string, block: EvidenceBlock, items: Map<string, any>, 
     }
     for (const instantiation of status.instantiations ?? []) {
         const handle = String(instantiation?.handle ?? instantiation?.elementId ?? '')
-        if (handle && path.includes(`[${handle}]`) && instantiation.satisfies) found.push(itemSource(itemRefOf(String(instantiation.satisfies)) ?? { contractId: '', itemId: '' }, items, null))
+        if (handle && path.includes(`[${handle}]`) && instantiation.satisfies) found.push(...itemSources(itemRefOf(String(instantiation.satisfies)) ?? { contractId: '', itemId: '' }, items, null, relationships))
     }
     if (path.startsWith('adjustments[')) {
         const id = path.slice('adjustments['.length, path.indexOf(']'))
         const entry = adjustments.get(id)
         found.push({ layer: 'ACTIVITY_REALIZATION_CHOICE', standing: 'PROVISIONAL', ref: `record ${id}`, detail: entry ? entry.citedAs : null })
         const relationship = entry ? relationships.get(entry.relationship) : null
-        if (relationship) found.push({ layer: 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS', standing: relationship.status === 'CONFIRMED' ? 'APPROVED' : 'OUR_READING', ref: `relationship ${relationship.id}`, detail: `${relationship.status}${relationship.confirmedOn ? ` ${relationship.confirmedOn}` : ''}` })
+        if (relationship) found.push(relationshipSource(String(relationship.id), relationships))
     }
-    for (const ref of boundingItemsOf(path, block, index)) found.push({ ...itemSource(ref, items, null), detail: `bounds this line for the team holding a role (${index.targetOf?.attribute ?? 'targetOf'})` })
+    for (const ref of boundingItemsOf(path, block, index)) {
+        const [item, ...authorizing] = itemSources(ref, items, null, relationships)
+        found.push({ ...item, detail: `bounds this line for the team holding a role (${index.targetOf?.attribute ?? 'targetOf'})` }, ...authorizing)
+    }
     if (path.startsWith('envelope.')) found.push({ layer: 'SESSION_INPUT', standing: 'SESSION', ref: 'session', detail: path })
     if (!found.length) {
         // The element's own establishing item: every element id names the item that established it.
         const first = segmentsOf(path).find(s => s.id)
         const ref = first?.id ? itemRefOf(first.id) : null
-        if (ref) found.push(itemSource(ref, items, null))
+        if (ref) found.push(...itemSources(ref, items, null, relationships))
         // A whole collection cited as such (`transitions`, `performers.teams`): the items that established its members.
         if (!first) {
             const members = readPath(block.fixture?.game ?? {}, path)
             for (const member of asList(members)) {
                 const memberRef = member?.elementId ? itemRefOf(String(member.elementId)) : null
-                if (memberRef) found.push(itemSource(memberRef, items, null))
+                if (memberRef) found.push(...itemSources(memberRef, items, null, relationships))
             }
         }
     }
@@ -553,6 +577,14 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
 
     /* Withheld fields: the parts awaiting approved wording, and which fidelity findings are about them rather than the text said. */
     const withheld = composed.withheld.map(field => field.path)
+    /**
+     * The row of a path: the register's, or — for a withheld field whose path the register does not spell (a condition's scope, row V3,
+     * is withheld at `…conditions[x].scope`) — the row the renderer reported it on. K8 review, 15 October 2026: read from the path alone,
+     * the four withheld scope fields had no row, so his item 4 listed 11 of the 15 fields its conditions wait on, and the provenance named
+     * their row '?'.
+     */
+    const withheldRow = new Map(composed.withheld.map(field => [field.path, String(field.row)] as const))
+    const rowAt = (path: string): string | null => rowOf(index, path) ?? withheldRow.get(path) ?? null
     const aboutWithheld = (finding: FidelityFinding) => finding.question === 3 && withheld.some(path => finding.what.startsWith(`${path} `))
     const violations = allFindings.filter(f => f.severity === 'VIOLATION')
     const inSaidText = violations.filter(f => !aboutWithheld(f))
@@ -573,9 +605,9 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
     const untraced: string[] = []
     const elements: ElementProvenance[] = [...paths.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([path, where]) => {
         const sources = dedupe(blocks.filter(block => where.has(block.blockId)).flatMap(block => sourcesOf(path, block, blockItems[blocks.indexOf(block)], adjustments, relationships, index)))
-        if (withheld.includes(path)) sources.push({ layer: 'GENERAL_ENGINE_MECHANISM', standing: 'GAP', ref: 'awaiting approved wording', detail: `row ${rowOf(index, path) ?? '?'}: no approved sentence says it yet` })
+        if (withheld.includes(path)) sources.push({ layer: 'GENERAL_ENGINE_MECHANISM', standing: 'GAP', ref: 'awaiting approved wording', detail: `row ${rowAt(path) ?? '?'}: no approved sentence says it yet` })
         if (!sources.length) untraced.push(path)
-        return { path, row: rowOf(index, path), blocks: [...where].sort(), layers: layersOf(sources), standings: standingsOf(sources), sources }
+        return { path, row: rowAt(path), blocks: [...where].sort(), layers: layersOf(sources), standings: standingsOf(sources), sources }
     })
 
     /* Structural report, block by block. */
@@ -703,12 +735,38 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
         ]
     })
 
+    /**
+     * **Each condition on the primary event, with the episode it applies within and the notes recorded on the items it rests on** — K8
+     * review, 15 October 2026. The design's item 4 asks for his M8 safeguard beside the exclusion it guards (reply filed 17 October 2026,
+     * M8), and it bears on his item 6 flag: whether a pass to a player waiting in the target can count. The safeguard is recorded, in his
+     * words, in the note of the item that types the exclusion's target (C57); until this review the evidence showed the conditions and
+     * none of what the knowledge records beside them. Read whole from the items the block was derived from (their own `fitNote`), never
+     * restated here; a note is the knowledge's record, his words only where it quotes him.
+     */
+    const conditionsOf = (block: EvidenceBlock) => {
+        const at = container(index, 'V3')
+        const items: Map<string, any> = blockItems[blocks.indexOf(block)]
+        return membersAt(block.fixture?.game ?? {}, index, 'V3').map(condition => {
+            const prefix = `${at}[${condition?.elementId}]`
+            const refs = new Set<string>()
+            const own = itemRefOf(String(condition?.elementId ?? ''))
+            if (own) refs.add(`${own.contractId}::${own.itemId}`)
+            for (const derived of block.fixture?.status?.derived ?? []) {
+                if (!String(derived?.path ?? '').startsWith(prefix)) continue
+                for (const support of derived.support ?? []) if (support?.kind === 'CONTRACT_ITEM') refs.add(`${support.contractId}::${support.itemId}`)
+            }
+            const notes = [...refs].map(ref => ({ item: ref, fitNote: items.get(ref)?.fitNote })).filter(note => typeof note.fitNote === 'string' && note.fitNote.length > 0)
+            return { elementId: condition?.elementId ?? null, type: condition?.type ?? null, scope: condition?.scope ?? 'WHOLE_GAME', items: [...refs], notes }
+        })
+    }
+
     const scoring: Fact[] = blocks.flatMap(block => {
         const game = block.fixture?.game ?? {}
         const rows = transitionsOf(block, index)
         return [
             ...objectivesOf(block, index).map(o => ({ what: `block ${block.blockId}: ${o.role ?? o.team} scores by ${readPath(game, 'value.primaryEvent.kind')} in ${o.regionId}`, value: { along: along(o.region), noun: o.region?.noun ?? null } })),
             ...membersAt(game, index, 'V3').map(c => ({ what: `block ${block.blockId}: condition ${c?.elementId} (${c?.type}) applies within ${c?.scope ?? 'WHOLE_GAME'}`, value: c?.referents ?? c?.value ?? null })),
+            { what: `block ${block.blockId}: the items each condition rests on, and the notes the knowledge records on them`, value: conditionsOf(block).map(({ elementId, items, notes }) => ({ elementId, items, notes })) },
             { what: `block ${block.blockId}: after a score`, value: rows.filter(t => t.trigger === 'SCORE').map(t => ({ playState: t.playState, awardedToRole: t.awardedToRole, actor: t.actor, startsEpisode: t.startsEpisode })) },
             { what: `block ${block.blockId}: after a change of possession`, value: rows.filter(t => t.trigger === 'POSSESSION_CHANGE').map(t => ({ playState: t.playState, startsEpisode: t.startsEpisode, beginsConditionedEpisode: t.beginsConditionedEpisode })) },
         ]
@@ -755,6 +813,10 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
                 facts.push({ what: 'the transitions at which it is re-established', value: rows.filter(t => t.beginsConditionedEpisode).map(t => t.elementId) })
                 facts.push({ what: 'the other role\'s start placement, and whether it lies in this target', value: others.map(p => ({ group: p.group, region: along(p, 'region'), insideTarget: overlaps(along(p, 'region'), target) })) })
                 facts.push(...restrictionsOf(game, index))
+                // K8 review: whether a score can come from a player already in the target is decided, if at all, by the conditions on the
+                // primary event; they are listed with the notes their items record (his M8 safeguard among them), and their wording is
+                // still awaiting his approval.
+                facts.push({ what: 'conditions on the primary event, with the episode each applies within and the notes the knowledge records on the items each rests on', value: conditionsOf(block) })
             } else {
                 facts.push({ what: `the ${flag.role} role's target (${own?.regionId ?? 'none'})`, value: target })
                 facts.push({ what: 'start placements lying in it', value: placements.map(p => ({ group: p.group, region: along(p, 'region'), overlaps: overlaps(along(p, 'region'), target) })) })
@@ -816,12 +878,12 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
             return !otherHolders.some(name => mentions.includes(`"${name}"`)) || (!!holder && mentions.includes(`"${holder}"`))
         }
         return [...paths.keys()].filter(path => paths.get(path)!.has(block.blockId)).filter(path => {
-            const row = rowOf(index, path)
+            const row = rowAt(path)
             return row !== null && (wanted.has(row) || wanted.has(index.ownerRow.get(row) ?? '')) && belongs(path)
         })
     }
     const items: ItemEvidence[] = request.items.map(item => {
-        const perBlock = blocks.map(block => ({ blockId: block.blockId, elements: item.kind === 'GAME' ? itemPaths(item, block).map(path => ({ path, row: rowOf(index, path) ?? '', value: readPath(block.fixture?.game ?? {}, path.replace(/#realized$/, '')) })) : [] }))
+        const perBlock = blocks.map(block => ({ blockId: block.blockId, elements: item.kind === 'GAME' ? itemPaths(item, block).map(path => ({ path, row: rowAt(path) ?? '', value: readPath(block.fixture?.game ?? {}, path.replace(/#realized$/, '')) })) : [] }))
         const carried = new Set(perBlock.flatMap(b => b.elements.map(e => e.path)))
         const sentences = item.kind === 'INSTRUCTIONS' ? instructions.map(i => i.index) : item.kind === 'GAME' ? instructions.filter(i => composed.instructions[i.index].from.some(path => carried.has(path) || (genericOf(path) !== path && [...carried].some(c => genericOf(c) === genericOf(path))))).map(i => i.index) : []
         const checks = item.checks.flatMap((checkId): ItemEvidence['checks'] =>
