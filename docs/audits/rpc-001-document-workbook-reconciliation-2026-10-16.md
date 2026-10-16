@@ -101,9 +101,18 @@ prescribing a single solution."). We identified it under his D6 instruction; he 
 2026, item 5: "Goalkeeper Build-Out with Participant Composition." and "Both should be represented as knowledge-authorized
 relationships rather than hardcoded behavior for this Learning Goal." It is recorded once, at context level, in
 `learning-goal-authorizations.json` (`contextManipulationRelationships`, `RPC-001~EM-0006`), and it is what lets the
-possession game's equal-numbers item defer to the first activity's counts by role (ruling C56). The Performer
-Configuration relationship he confirmed in the same sentence is linked when the starting arrangement that needs it is
-built. The other names of row 2 stay unlinked, as he asked.
+possession game's equal-numbers item defer to the first activity's counts by role (ruling C56). The other names of row 2
+stay unlinked, as he asked.
+
+**A second, added 15 October 2026 (stage K6).** The document's Core manipulation "build-out starting positions" to EM-0002
+Performer Configuration (an RC1 Candidate: "Owns the spatial pose of performers within the performance environment."), with
+the workbook's own RPC-PROP-016 ("Adjust starting positions or progression zones while preserving build-out identity."). We
+identified it under his 17 October D4 instruction ("Please use the existing Performer Configuration knowledge where supported,
+documenting the relationship to Goalkeeper Build-Out rather than inventing a new constraint."); he confirmed it in the same
+sentence of 18 October, item 5: "Goalkeeper Build-Out with Performer Configuration." Recorded once, at context level, in
+`learning-goal-authorizations.json` (`RPC-001~EM-0002`), and bound in the register (register version 13: rows P8-P10b to
+EM-0002 EMD-0004, its timing to EMP-0013); the first activity's starting placements cite it. It fixes no distance and no
+formation, and EM-0002's example "Start defenders five metres deeper." stays an illustration.
 
 Sources: his reply received 15 October 2026 (`christian-2026-10-16.txt`, verbatim); the reconciliation analysis and its
 verification of 15 October 2026 (`f-part-00`, `f-part-07`); the workbook and its projection named above.

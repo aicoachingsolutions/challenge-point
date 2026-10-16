@@ -88,8 +88,9 @@ test('the register carries the role-block capability as data (version 10), each 
     // Re-pointed 15 October 2026 (stage K4): version 11 (participant reassignment, his RD-1 answer) supersedes 10 and keeps
     // the whole chain, so version 10's entry for role blocks is still there, word for word.
     // Re-pointed again 15 October 2026 (stage K5): version 12 (starts and restarts, his M3/M4) supersedes 11, and the chain
-    // still holds version 10's entry word for word.
-    assert.match(String(register.version), /^12, adds starts and restarts .*Supersedes version 11, which adds participant reassignment .*Supersedes version 10, which adds role blocks for his M1/)
+    // still holds version 10's entry word for word. And again (stage K6): version 13 (relative positions and start placements,
+    // his M7/M5) supersedes 12, the chain kept whole.
+    assert.match(String(register.version), /^13, adds positions stated relative .*Supersedes version 12, which adds starts and restarts .*Supersedes version 11, which adds participant reassignment .*Supersedes version 10, which adds role blocks for his M1/)
     assert.ok(String(register.version).includes('Keep role assignments separate from fixed ends.'), 'the version entry quotes M1')
     assert.ok(String(register.version).includes('Supersedes version 9'), 'and keeps the history')
     assert.ok(index.rows.get('S2')!.selectorAttributes!.includes('targetOf'))
@@ -310,6 +311,17 @@ test('A01-R1\'s role lines carry its category on every support entry, in both bl
             'activityRoles[c:provisional:A01-R1:A01-R1-B1-1].exchange',
             'activityRoles[c:provisional:A01-R1:A01-R1-B1-2].activityRole',
             'activityRoles[c:provisional:A01-R1:A01-R1-B1-2].exchange',
+            // 15 October 2026 (stage K6): the two starting placements (his D4 and his 18 October item 3) and the pressure
+            // reference's noun, position and width are lines A01-R1 supports too, with the same category.
+            'performers.startPlacement[c:provisional:A01-R1:A01-R1-P8-1].group',
+            'performers.startPlacement[c:provisional:A01-R1:A01-R1-P8-1].region',
+            'performers.startPlacement[c:provisional:A01-R1:A01-R1-P8-1].resetsAt',
+            'performers.startPlacement[c:provisional:A01-R1:A01-R1-P8-1].timing',
+            'performers.startPlacement[c:provisional:A01-R1:A01-R1-P8-2].group',
+            'performers.startPlacement[c:provisional:A01-R1:A01-R1-P8-2].region',
+            'performers.startPlacement[c:provisional:A01-R1:A01-R1-P8-2].resetsAt',
+            'performers.startPlacement[c:provisional:A01-R1:A01-R1-P8-2].timing',
+            // (reassignments sort before space)
             // 15 October 2026 (stage K4): the two reassignments of his RD-1 answer are lines A01-R1 supports too, and they
             // carry the same category — held to it here with the role lines.
             'reassignments[c:provisional:A01-R1:A01-R1-B4-1].count',
@@ -318,6 +330,9 @@ test('A01-R1\'s role lines carry its category on every support entry, in both bl
             'reassignments[c:provisional:A01-R1:A01-R1-B4-2].count',
             'reassignments[c:provisional:A01-R1:A01-R1-B4-2].performerRow',
             'reassignments[c:provisional:A01-R1:A01-R1-B4-2].toRole',
+            'space.regions[c:provisional:A01-R1:A01-R1-S2-1].noun',
+            'space.regions[c:provisional:A01-R1:A01-R1-S2-1].position.across',
+            'space.regions[c:provisional:A01-R1:A01-R1-S2-1].position.along',
         ])
         for (const entry of own) {
             assert.ok(entry.support.length > 0, entry.path)

@@ -1,7 +1,7 @@
 {
   "title": "Atomic field-path register — Game Representation Specification revision 4",
   "date": "2026-09-18",
-  "version": "12, adds starts and restarts built from knowledge and the coach-judged episode conclusion for his M3 and M4 in the reply filed 17 October 2026 (\"Support goalkeeper or controlled defensive starts, coach-selected restart locations, and activity-specific restart methods. These choices must remain distinguishable from universal requirements.\" / \"Support one explicit coach-judged event representing the conclusion of a meaningful episode. Do not substitute a timer, possession change, or arbitrary pass count.\"), recorded 2026-10-15: the trigger COACH_JUDGED_EPISODE_CONCLUSION (trigger version 4) with its semantics and a structural prerequisite read generically; the restart method FROM_THE_FEET (T5.method version 2) with its semantics; T4 and T5 fillable as the coach's choice only where every bounding item is an OWNER_RULING or AUTHORED range in words (fillableRequires, an SD-15 extension); T2's existing restriction 'for trigger START' made data (fillableWhen), which can only close lines; PS1 entailed by START's awardee where the knowledge entails it (entailedBy, the row's own note made data); and V5's begin-condition referent form (V5.valueType version 3) for ruling C58, his acknowledgement in the reply filed 18 October 2026, item 4. Nothing else changes: no existing list member, gloss or note is altered. Supersedes version 11, which adds participant reassignment at a role exchange for his answer to RD-1 in the reply filed 18 October 2026 (\"One architectural distinction: role exchange and participant reassignment should remain separate capabilities. Exchanging roles should not inherently require players to change teams. This particular realization uses both mechanisms to preserve its intended numerical relationship.\"), recorded 2026-10-15: rows B4 (reassignments[]), B5 (reassignments[].toRole), B6 (reassignments[].performerRow) and B7 (reassignments[].count), and the reassignment block naming them. A role exchange moves no performer; a reassignment says which performers change team at an exchange, by the row that counts them and how many, to the team newly holding which role. Nothing existing changes: no row, list entry, gloss or note is altered, and a game establishing no reassignment enumerates exactly the lines it did. Supersedes version 10, which adds role blocks for his M1 in the reply filed 17 October 2026 (\"M1 — Role exchange by block: Approved. Keep role assignments separate from fixed ends. Allow target configurations to reflect each team's role during the block. The coach controls the exchange. No new block-duration system is needed.\"), recorded 2026-10-15: rows B1 (activityRoles[]), B2 (activityRoles[].activityRole) and B3 (activityRoles[].exchange, closed list COACH_CALLS); vocabularies B1.activityRole and B3.exchange; the block-scoped designation ROLE_HOLDER_<role> (BLOCK_ROLE, our extension of AM-01); the derived S2 selector attribute targetOf; and the roleBlocks block naming them. Nothing existing changes: no row, list entry, gloss or note is altered, and a game establishing no role enumerates exactly the lines it did. Supersedes version 9, which adds a typed resolution to every team designation (teamDesignations.resolutions, with closed kinds and scopes, the designation-valued selector attributes and the scopes a standing team property may be reached through) for his M2 in the reply filed 17 October 2026, recorded 2026-10-15; each resolution restates its entry's gloss or is marked OUR_INTERPRETATION. Nothing existing changes: no list entry, gloss or note is altered. Supersedes version 8, which added the declaration qualifier vocabulary (contractEnums.declarationQualifier: NO_FURTHER_VALUE, UNRESTRICTED - his M6 three states) and the relational V5 referent form (the objective reference of a team designation - his M8), both approved in his reply filed 17 October 2026, recorded 2026-10-15. Supersedes version 7, which added P6c (performers.neutrals.affiliation.takesEffect: when a neutral player's change of affiliation takes effect, IMMEDIATE or AT_NEXT_RESTART) on the ruling of 2026-10-14. Nothing existing changes: no declaration is requalified, and every existing V5 value reads as before.",
+  "version": "13, adds positions stated relative to another element or to a team, and start placements re-established when an episode begins, for his M7 and M5 in the reply filed 17 October 2026 (\"M7 — Target relative to pressure reference: Approved if required. The progression target should be permitted at or before halfway when justified by the learning problem. Do not introduce a universal halfway restriction.\" / \"M5 — Team starting placement: Approved. Support a relationship-based starting arrangement that can be stated clearly to the coach and re-established at build-out restarts. No universal starting distance or formation.\") and his starting values in the reply filed 18 October 2026, item 3 (\"Pressure reference: 20 m from the building team's end line.\" \"Please retain the separation between the pressure reference and the progression target in the knowledge representation, even when they occupy the same location in this realization.\"), recorded 2026-10-15: S2.longitudinalValues narrowed to the ends alone (version 2: 'does not contain the midpoint' becomes 'does not touch the opposite end line'; the separation it implied is GA-DIRECTION's new clause); RC-21's canonical 'beyond X (for team T)' made machine-readable (relativeTerms.machineReadable, kind relative) and 'own end (of team T)' / 'attacking end (of team T)' read for a team the game resolves (relativeTerms.machineReadable.teamNote); S5.valueType version 2 (an interval in metres may state its origin as the end line a team defends, and an extent may be bounded by a relative position); P10.valueType version 2 (a start placement's region may be a relative position); rows P10a (startPlacement[].timing, closed list P10a.timing: INITIAL, CONDITIONAL_RESET) and P10b (startPlacement[].resetsAt, the episode at whose beginning a CONDITIONAL_RESET placement is re-established), P10b applicable only where P10a is CONDITIONAL_RESET; P8-P10b bound to the knowledge core's EM-0002 Performer Configuration (boundVocabularies), the relationship he confirmed on 18 October (item 5). Nothing else changes: no existing list member, gloss or row is altered beyond the four named texts, and a game holding no start placement and no relative position enumerates exactly the lines it did. Supersedes version 12, which adds starts and restarts built from knowledge and the coach-judged episode conclusion for his M3 and M4 in the reply filed 17 October 2026 (\"Support goalkeeper or controlled defensive starts, coach-selected restart locations, and activity-specific restart methods. These choices must remain distinguishable from universal requirements.\" / \"Support one explicit coach-judged event representing the conclusion of a meaningful episode. Do not substitute a timer, possession change, or arbitrary pass count.\"), recorded 2026-10-15: the trigger COACH_JUDGED_EPISODE_CONCLUSION (trigger version 4) with its semantics and a structural prerequisite read generically; the restart method FROM_THE_FEET (T5.method version 2) with its semantics; T4 and T5 fillable as the coach's choice only where every bounding item is an OWNER_RULING or AUTHORED range in words (fillableRequires, an SD-15 extension); T2's existing restriction 'for trigger START' made data (fillableWhen), which can only close lines; PS1 entailed by START's awardee where the knowledge entails it (entailedBy, the row's own note made data); and V5's begin-condition referent form (V5.valueType version 3) for ruling C58, his acknowledgement in the reply filed 18 October 2026, item 4. Nothing else changes: no existing list member, gloss or note is altered. Supersedes version 11, which adds participant reassignment at a role exchange for his answer to RD-1 in the reply filed 18 October 2026 (\"One architectural distinction: role exchange and participant reassignment should remain separate capabilities. Exchanging roles should not inherently require players to change teams. This particular realization uses both mechanisms to preserve its intended numerical relationship.\"), recorded 2026-10-15: rows B4 (reassignments[]), B5 (reassignments[].toRole), B6 (reassignments[].performerRow) and B7 (reassignments[].count), and the reassignment block naming them. A role exchange moves no performer; a reassignment says which performers change team at an exchange, by the row that counts them and how many, to the team newly holding which role. Nothing existing changes: no row, list entry, gloss or note is altered, and a game establishing no reassignment enumerates exactly the lines it did. Supersedes version 10, which adds role blocks for his M1 in the reply filed 17 October 2026 (\"M1 — Role exchange by block: Approved. Keep role assignments separate from fixed ends. Allow target configurations to reflect each team's role during the block. The coach controls the exchange. No new block-duration system is needed.\"), recorded 2026-10-15: rows B1 (activityRoles[]), B2 (activityRoles[].activityRole) and B3 (activityRoles[].exchange, closed list COACH_CALLS); vocabularies B1.activityRole and B3.exchange; the block-scoped designation ROLE_HOLDER_<role> (BLOCK_ROLE, our extension of AM-01); the derived S2 selector attribute targetOf; and the roleBlocks block naming them. Nothing existing changes: no row, list entry, gloss or note is altered, and a game establishing no role enumerates exactly the lines it did. Supersedes version 9, which adds a typed resolution to every team designation (teamDesignations.resolutions, with closed kinds and scopes, the designation-valued selector attributes and the scopes a standing team property may be reached through) for his M2 in the reply filed 17 October 2026, recorded 2026-10-15; each resolution restates its entry's gloss or is marked OUR_INTERPRETATION. Nothing existing changes: no list entry, gloss or note is altered. Supersedes version 8, which added the declaration qualifier vocabulary (contractEnums.declarationQualifier: NO_FURTHER_VALUE, UNRESTRICTED - his M6 three states) and the relational V5 referent form (the objective reference of a team designation - his M8), both approved in his reply filed 17 October 2026, recorded 2026-10-15. Supersedes version 7, which added P6c (performers.neutrals.affiliation.takesEffect: when a neutral player's change of affiliation takes effect, IMMEDIATE or AT_NEXT_RESTART) on the ruling of 2026-10-14. Nothing existing changes: no declaration is requalified, and every existing V5 value reads as before.",
   "source": "docs/design/game-representation-spec-2026-09-18.md §5 (the eight areas), §3 (statuses), §6 (the contract), §2 (standing decisions)",
   "rowKinds": {
     "COLLECTION": "The existence and count of elements in a collection. Items on a COLLECTION row say that elements matching a selector exist (EXISTS), how many (COUNT/RANGE), or that none may (NOT_EXISTS).",
@@ -88,7 +88,7 @@
         "SELECTION",
         "REALIZATION"
       ],
-      "longitudinalValues": "closed list (draft, C42), the along-axis mirror of lateralValues, each with its interval test against the element position.along, on an envelope of length L with the midpoint at L/2. end-near: touches the 0 end line and does not contain the midpoint. end-far: touches the L end line and does not contain the midpoint. end: either of those. longitudinal is SET-VALUED on the same terms as lateral, so an end-near region also carries end. Intervals are closed at both ends, and touches means shares an endpoint with the end line. The list is NOT exhaustive and is deliberately smaller than lateralValues: only the two ends and their union are defined, because the only thing it was authored to do is tell two opposing target regions apart. An element matching none carries no longitudinal value, and no longitudinal selector can reach it. A longitudinal selector identifies an existing region; it never creates one (AM-13 preserved). As with AM-17, these values are a capability offered to CONTRACT AUTHORS: derivation never rewrites an authored selector or scope to use them (AM-12), so an existing contract gains nothing from this until it is restated."
+      "longitudinalValues": "closed list (draft, C42), the along-axis mirror of lateralValues, each with its interval test against the element position.along, on an envelope of length L with the midpoint at L/2. end-near: touches the 0 end line and does not touch the L end line. end-far: touches the L end line and does not touch the 0 end line. end: either of those. longitudinal is SET-VALUED on the same terms as lateral, so an end-near region also carries end. Intervals are closed at both ends, and touches means shares an endpoint with the end line. The list is NOT exhaustive and is deliberately smaller than lateralValues: only the two ends and their union are defined, because the only thing it was authored to do is tell two opposing target regions apart. An element matching none carries no longitudinal value, and no longitudinal selector can reach it. A longitudinal selector identifies an existing region; it never creates one (AM-13 preserved). As with AM-17, these values are a capability offered to CONTRACT AUTHORS: derivation never rewrites an authored selector or scope to use them (AM-12), so an existing contract gains nothing from this until it is restated. NARROWED 15 October 2026 (register version 13, S2.longitudinalValues version 2) on his reply filed 17 October 2026, M7: \"M7 — Target relative to pressure reference: Approved if required. The progression target should be permitted at or before halfway when justified by the learning problem. Do not introduce a universal halfway restriction.\" and D3: \"The progression target may be at or before halfway when that better represents successfully playing beyond the initial pressure. Halfway is not a required location.\" Until then each test also read 'and does not contain the midpoint': no code enforced it (measured by the design verification of 17 October: a target [20,40] passed every gate), and on the register's own definition it would have left a target that begins at or before halfway with no end value, so no longitudinal selector could reach it. That two opposed targets do not overlap - the only work the midpoint clause did - is now GA-DIRECTION's clause 'the opposed objectives' targets do not overlap along the axis', added in the same version."
     },
     {
       "id": "S3",
@@ -118,7 +118,7 @@
       "path": "space.regions[].position.along",
       "ownerRow": "S2",
       "kind": "FIELD",
-      "valueType": "interval along the axis, in metres or relative (see relative terms)",
+      "valueType": "interval along the axis, in metres or relative (see relative terms). Version 2 (15 October 2026, register version 13): an interval in metres may state its ORIGIN as the end line a team defends - {term: 'own end (of team T)', forTeam: T, offsetM: {from, to}}, metres measured into the area from that end line - because in a game played in role blocks which end a team defends is decided by the block; and an extent may be bounded by a RELATIVE position - {term: 'beyond X (for team T)', of: a typed reference to X, forTeam: T} - which realization composes from the element's anchor back to X's far edge where no metric extent is required, and GA-RELATIVE-PLACEMENT checks on the realized geometry either way. Written for his reply filed 18 October 2026, item 3: \"Pressure reference: 20 m from the building team's end line.\" and \"Building team's progression target: begins at the pressure reference.\" A team is a registered designation; a role holder answers through the role block.",
       "fillable": "metres and position inside authored bounds",
       "sourceKinds": [
         "SELECTION",
@@ -270,10 +270,32 @@
       "path": "performers.startPlacement[].region",
       "ownerRow": "P8",
       "kind": "FIELD",
-      "valueType": "region reference",
+      "valueType": "region reference. Version 2 (15 October 2026, register version 13): or a RELATIVE position, RC-21's 'beyond X (for team T)' - {term, of: a typed reference to X, forTeam: T} - the part of the area beyond X in T's attacking direction, for a starting relationship stated to a marked reference rather than to a region of its own (his D4: \"I favor a marked spatial reference that establishes the defenders' starting relationship to the goalkeeper, ball, and initial build-out space.\"; his reply filed 18 October 2026, item 3: \"Starting placement: building-team outfield players begin short of the pressure/progression line.\"). Short of X for one team is beyond X in the opposing team's attacking direction, RC-21's own test read for the other team.",
       "sourceKinds": [
         "SELECTION"
       ]
+    },
+{
+      "id": "P10a",
+      "path": "performers.startPlacement[].timing",
+      "ownerRow": "P8",
+      "kind": "FIELD",
+      "valueType": "closed list (P10a.timing, draft), bound to the knowledge core's EM-0002 Performer Configuration, EMD-0004 Position, EMP-0013 Timing (\"Initial / Restart / Conditional reset\", \"When the parameter is instantiated.\"): INITIAL - the placement holds at the start of the activity only; CONDITIONAL_RESET - it holds at the start and is re-established at every transition that begins the episode P10b names (EMP-0013 'Conditional reset', the condition being that beginning). EMP-0013's 'Restart' (every restart) is deliberately not listed: an ordinary restart does not re-establish a starting relationship (his reply filed 18 October 2026, item 2: \"I agree that these ordinary restarts are distinct from deliberately initiating a new build-out episode.\"). No value is a standing restriction: a start placement says where a group BEGINS, never where it may go once play runs.",
+      "sourceKinds": [
+        "SELECTION"
+      ],
+      "note": "Added 15 October 2026 (register version 13) for his M5 and D4, reply filed 17 October 2026: \"M5 — Team starting placement: Approved. Support a relationship-based starting arrangement that can be stated clearly to the coach and re-established at build-out restarts. No universal starting distance or formation.\" \"That relationship should be re-established at the beginning of each new build-out episode.\" and his reply filed 18 October 2026, item 3: \"The building team's initial positioning requirement should not prevent players from advancing into useful positions as play develops.\" Until now a start placement was held at START only (game-representation-spec-2026-09-18.md, startPlacement[] \"at START only\"), and nothing consumed it. GA-EPISODE-REACHABLE's third clause checks that a CONDITIONAL_RESET placement names an episode some transition begins; the transitions it finds are where it is re-established."
+    },
+{
+      "id": "P10b",
+      "path": "performers.startPlacement[].resetsAt",
+      "ownerRow": "P8",
+      "kind": "FIELD",
+      "valueType": "an episode scope (contractEnums.scope, an episode: BUILD_OUT_EPISODE today): the episode at whose every beginning a CONDITIONAL_RESET placement is re-established - the transitions the typed begin condition for that episode picks out (ruling C58; GA-EPISODE-REACHABLE), and no other. Applies only where P10a is CONDITIONAL_RESET (applicability).",
+      "sourceKinds": [
+        "SELECTION"
+      ],
+      "note": "Added 15 October 2026 (register version 13), with P10a, for his D4: \"That relationship should be re-established at the beginning of each new build-out episode.\" Not a trigger and not T7: a change of possession begins an attacking episode (RPC-001-17.a) and must not re-establish a starting relationship (design verification of 17 October: a guard on T7 was refuted), so the episode is named and its beginnings are the ones the begin condition types."
     },
     {
       "id": "P11",
@@ -1220,6 +1242,10 @@
       "R3.effect": "1 (2026-09-24)",
       "P12.state": "1 (2026-09-24) - bound to knowledge core EM-0007 EMD-0014 EMP-0040 \"Active / Inactive / Waiting / Resting / Observing\"; not duplicate vocabulary",
       "P13.persistence": "1 (2026-09-24) - bound to EM-0007 EMP-0042 \"Temporary / Persistent\"",
+      "P10a.timing": "1 (2026-10-15, register version 13, draft) - INITIAL and CONDITIONAL_RESET, bound to EM-0002 Performer Configuration EMP-0013 Timing (Initial / Conditional reset; its Restart deliberately not listed), for his M5 and D4 (reply filed 17 October 2026)",
+      "S2.longitudinalValues": "2 (2026-10-15, register version 13) - end-near and end-far no longer say 'does not contain the midpoint', for his M7 (\"Do not introduce a universal halfway restriction.\") and D3 (\"Halfway is not a required location.\"), reply filed 17 October 2026. Version 1: C42, 9 October 2026",
+      "S5.valueType": "2 (2026-10-15, register version 13) - an interval in metres may state its origin as the end line a team defends, and an extent may be bounded by RC-21's 'beyond X (for team T)' (his M7, reply filed 17 October 2026; his starting values, reply filed 18 October 2026, item 3). Version 1 is the 2026-09-18 text",
+      "P10.valueType": "2 (2026-10-15, register version 13) - a start placement's region may be a relative position, 'beyond X (for team T)' (his D4 and M5, reply filed 17 October 2026; his reply filed 18 October 2026, item 3). Version 1 is the 2026-09-18 text: region reference",
       "P6c.takesEffect": "1 (2026-10-14, draft) - when a neutral player's change of affiliation takes effect, on Christian's ruling of that day. AT_NEXT_RESTART is listed because the contract's own P6a NOT_AUTHORED note names it as the alternative; it cannot authorize until the register holds a machine-readable class of restarts (GA-AFFILIATION, NOT_EVALUABLE)",
       "B1.activityRole": "1 (2026-10-15, register version 10, draft) - the two roles of his M1 role blocks, named from his D7 wording ('The building team attempts controlled progression into its designated target.' / 'The pressing team attempts to prevent progression, regain possession, and reach its post-regain target.'); the tokens are ours",
       "B3.exchange": "1 (2026-10-15, register version 10, draft) - one member, COACH_CALLS, for his M1 'The coach controls the exchange. No new block-duration system is needed.' and D2 'The coach determines when the teams exchange roles. No mandatory block duration is needed.'"
@@ -1410,6 +1436,10 @@
       "IMMEDIATE",
       "AT_NEXT_RESTART"
     ],
+    "P10a.timing": [
+      "INITIAL",
+      "CONDITIONAL_RESET"
+    ],
     "B1.activityRole": [
       "BUILDING",
       "PRESSING"
@@ -1532,6 +1562,16 @@
         ]
       },
       "text": "applies only when V13 effect is ACCESS"
+    },
+    "P10b": {
+      "when": {
+        "row": "P10a",
+        "sameElement": true,
+        "in": [
+          "CONDITIONAL_RESET"
+        ]
+      },
+      "text": "applies only when P10a timing is CONDITIONAL_RESET (register version 13)"
     },
     "V14c": {
       "when": {
@@ -1732,8 +1772,14 @@
           "from": 0.15,
           "to": 0.25,
           "why": "OWNER-AUTHORED canonical knowledge, Christian 1 October: the required extent of a wide channel is a minimum of 0.15 and a maximum of 0.25 of the available across dimension. Explicitly NOT derived from the existing 6-10 m guidance, which remains PREFERRED realization guidance only. Fractions of the named axis, so the relationship scales with the envelope and no metre value enters the knowledge. Axis-free: the row being read supplies the axis."
+        },
+        "beyond X (for team T)": {
+          "kind": "relative",
+          "relation": "beyond",
+          "why": "RC-21's canonical prose since 18 September: \"the element's near edge is at or past X's far edge, in T's attacking direction\". Made machine-readable 15 October 2026 (register version 13) for his M7, reply filed 17 October 2026: \"M7 — Target relative to pressure reference: Approved if required. The progression target should be permitted at or before halfway when justified by the learning problem. Do not introduce a universal halfway restriction.\" A value names X by a typed reference and T by a registered team designation ({term, of, forTeam}); nothing is parsed from prose. Composed at realization from the element's anchor back to X's far edge - the widest extent the test admits, the existing widest-extent convention - where no metric extent is required; checked on the realized geometry by GA-RELATIVE-PLACEMENT either way. As a start placement's region (P10 version 2) it is the part of the area beyond X in T's attacking direction. It states no distance."
         }
-      }
+      },
+      "teamNote": "Added 15 October 2026 (register version 13). 'own end (of team T)' and 'attacking end (of team T)' are anchors at an end line; until now the end was always fixed by the element's own longitudinal selector, so T never had to be resolved. A value may now name T ({term, forTeam}, S5.valueType version 2): the realizer reads which end T attacks from the game's own objectives - the end its primary objective's target touches (back/src/system/realization/team-ends.ts) - and a role holder answers through the role block the game is derived for. A team whose end the game does not establish places nothing."
     },
     "phraseIndex": {
       "note": "Authored values are phrases, not bare terms. This maps each phrase to the canonical term it instantiates, so recognition is by term and the prose keeps its own provenance. A phrase absent here is simply not recognised, and nothing is guessed from it.",
@@ -1915,6 +1961,31 @@
       "owner": "knowledge core EM-0007 Participant State",
       "dimension": "EMD-0014",
       "parameter": "EMP-0042"
+    },
+    "P8": {
+      "owner": "knowledge core EM-0002 Performer Configuration (\"Owns the spatial pose of performers within the performance environment.\")",
+      "dimension": "EMD-0004",
+      "parameters": [
+        "EMP-0008 Reference Basis",
+        "EMP-0009 Reference Target",
+        "EMP-0010 Direction",
+        "EMP-0011 Magnitude",
+        "EMP-0012 Scope",
+        "EMP-0013 Timing"
+      ],
+      "rows": [
+        "P8",
+        "P9",
+        "P10",
+        "P10a",
+        "P10b"
+      ],
+      "note": "Added 15 October 2026 (register version 13). A start placement is EM-0002's Position: its group is EMP-0012 Scope, its region (or the relative position P10 version 2 states) EMP-0008/0009/0010/0011 (Relative, an environmental object, Ahead/Farther, a qualitative relation), its timing EMP-0013. Bound, not re-authored. EM-0002 is an RC1 Candidate (em-schema.v2.0-rc1.json), not canonical knowledge. The relationship of Goalkeeper Build-Out to it is the one he confirmed, reply filed 18 October 2026, item 5: \"I confirm both documented relationships: Goalkeeper Build-Out with Performer Configuration. Goalkeeper Build-Out with Participant Composition. Both should be represented as knowledge-authorized relationships rather than hardcoded behavior for this Learning Goal.\" - recorded once in learning-goal-authorizations.json (contextManipulationRelationships, RPC-001~EM-0002), which a realization's placement items cite."
+    },
+    "P10a.timing": {
+      "owner": "knowledge core EM-0002 Performer Configuration",
+      "dimension": "EMD-0004",
+      "parameter": "EMP-0013"
     }
   },
   "selectorAttributeNote": "Added 27 September (SD-92). A FIELD row that corresponds to one of its collection’s selectorAttributes now names it here, instead of leaving the correspondence to be recovered by matching the path tail. Membership is unchanged. It also reconciles the one spelling difference the matching exposed: rows T1a/T1b/T1c carry the path \"transitions[].qualifiers.<name>\" while T1 registers the selector attribute as \"qualifier.<name>\". Both spellings stay exactly as authored; this field states which pairs with which, so nothing has to normalise a string to find out.",

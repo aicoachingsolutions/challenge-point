@@ -321,9 +321,12 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
     // 58 -> 59 on 15 October 2026 (stage K5, C58): RPC-001-18.b's referent typed as the restarts that begin a build-out episode,
     // his 18 October acknowledgement "A restart, taken by the goalkeeper or as a controlled defensive restart, that begins a
     // build-out episode." 18.b also carries C52's scope: one item, two rulings. Pinned in starts-and-restarts.unit.ts.
+    // 59 -> 60 on 15 October 2026 (stage K6, C59): RPC-001-18.d's referent - the progression reference C54 recorded - typed as the
+    // objective reference of SCORING_TEAM, the M8 form C54 named ("a machine-readable referent for the progression reference is
+    // capability M8"). 18.d also carries C52's scope and C54's value: one item, three rulings. Pinned in target-placement.unit.ts.
     assert.equal(
         restatementTally.itemsRestated,
-        59,
+        60,
         'six Phase A rulings, six sets (SD-79), two exclusion bounds (SD-86), eight goal-kick selectors (SD-87), one restart ownership (SD-89), ' +
             'one typed reference (SD-98), one Wide Zone gloss (C29a), one DISTINCT_ON mark (C29b/C29e), two typed neutral bounds (C29c), ' +
             'one typed channel width (C30b), one equal-outfield promotion (C31b), three Wide Zone lateral restatements (C33), ' +
@@ -1392,9 +1395,17 @@ test('C51: GA-DIRECTION is the only check that moves, and only as pinned here; G
         // the ONLY line GA-NO-FAILED-LINE would fail on if it were put back: C55 and C57 settled the three context
         // lines that failed beside it (their own pins are in governing-declarations.unit.ts and typed-referent.unit.ts).
         // So putting it back moves that check too; what C51 itself moved is unchanged. Measured.
-        const alsoMoved = name === 'GF2 + RPC-001' || name === 'RPC-001' ? ['GA-NO-FAILED-LINE'] : []
-        assert.deepEqual(moved, ['GA-DIRECTION', ...alsoMoved], `${name}: only the ends clause moves (and, since K1, the failed-line check where 11.a's target would be its only blocker)`)
-        if (alsoMoved.length) assert.deepEqual([was['GA-NO-FAILED-LINE'], is['GA-NO-FAILED-LINE']], ['FAIL', 'PASS'], name)
+        // **Re-pointed again 15 October 2026 (stage K6).** Ruling C59 typed the progression condition's referent (RPC-001-18.d), the
+        // other open text GA-ONE-PRIMARY-EVENT and GA-REFERENCE-INTEGRITY withheld on wherever the possession game is composed. So
+        // where it is, the retired objective's open-text target put back is now the only reason those two would withhold, and
+        // putting it back moves them too (measured: NOT_EVALUABLE with it, DEFERRED_TO_REALIZATION and PASS without). What C51
+        // itself moved is unchanged.
+        const alsoMoved = [...(name === 'GF2 + RPC-001' || name === 'RPC-001' ? ['GA-NO-FAILED-LINE'] : []), ...(name.startsWith('GF2 + RPC-001') ? ['GA-ONE-PRIMARY-EVENT', 'GA-REFERENCE-INTEGRITY'] : [])]
+        const sinceC59 = name === 'GF2 + RPC-001 + A01-02' ? ['GA-ONE-PRIMARY-EVENT'] : alsoMoved
+        assert.deepEqual(moved, ['GA-DIRECTION', ...sinceC59], `${name}: only the ends clause moves (and, since K1 and K6, the checks where 11.a's target would be the only blocker)`)
+        if (sinceC59.includes('GA-NO-FAILED-LINE')) assert.deepEqual([was['GA-NO-FAILED-LINE'], is['GA-NO-FAILED-LINE']], ['FAIL', 'PASS'], name)
+        if (sinceC59.includes('GA-ONE-PRIMARY-EVENT')) assert.deepEqual([was['GA-ONE-PRIMARY-EVENT'], is['GA-ONE-PRIMARY-EVENT']], ['NOT_EVALUABLE', 'DEFERRED_TO_REALIZATION'], name)
+        if (sinceC59.includes('GA-REFERENCE-INTEGRITY')) assert.deepEqual([was['GA-REFERENCE-INTEGRITY'], is['GA-REFERENCE-INTEGRITY']], ['NOT_EVALUABLE', 'PASS'], name)
         assert.deepEqual([was['GA-DIRECTION'], is['GA-DIRECTION']], [before, now], name)
         assert.equal(is['Gate A'], 'FAIL', `${name}: still refused`)
     }
@@ -1459,26 +1470,35 @@ test('C54: RPC-001-18.d names the progression reference; the pressure reference 
     const authored = rpc001AsAuthored().items.find((i: any) => i.id === 'RPC-001-18.d')
     const loaded: any = loadCorpusContracts().find(c => c.contractId === RPC)!.items.find(i => i.itemId === 'RPC-001-18.d')
     assert.equal(authored.value, 'the initial pressure or progression line', 'the provenance keeps the authored phrase')
-    assert.equal(loaded.value, 'the progression reference: where build-out success is measured')
+    // Re-pointed 15 October 2026 (stage K6): ruling C59 typed this referent (the objective reference of SCORING_TEAM, the M8 form
+    // C54 named), keeping C54's words as its asAuthored and C54's whole fitNote; so C54's open-text value is read from the ruling.
+    const c54 = (readJson('stage-b/corpus-restatements.json').items as any[]).find(r => r.ruling === 'C54' && r.item === `${RPC}::RPC-001-18.d`)
+    assert.equal(c54.set.value, 'the progression reference: where build-out success is measured')
+    assert.deepEqual(loaded.value, { objectiveReferenceOf: 'SCORING_TEAM', role: 'PRIMARY_SCORING', asAuthored: 'the progression reference: where build-out success is measured - the target the scoring team attacks' })
+    assert.ok(loaded.fitNote.startsWith(c54.set.fitNote) && loaded.fitNote.includes('(C59, stage K6)'), 'C54 kept whole, C59 beside it')
     assert.ok(loaded.fitNote.includes('THE INITIAL PRESSURE REFERENCE') && loaded.fitNote.includes('is a DISTINCT relationship and is NOT this condition\'s referent'), loaded.fitNote)
     assert.ok(loaded.fitNote.includes('placed nowhere'), 'unplaced: no location is written')
-    assert.ok(!String(loaded.value).includes('defenders'), 'the referent says nothing of where defenders start')
+    assert.ok(!JSON.stringify(loaded.value).includes('defenders'), 'the referent says nothing of where defenders start')
     // The gloss appears once, and only as what is NOT carried.
     assert.equal(loaded.fitNote.split('where defenders start').length - 1, 1)
     assert.ok(loaded.fitNote.includes('Not carried: the email\'s gloss of the pressure reference as "the pressure line, where defenders start"'), loaded.fitNote)
-    for (const field of ['row', 'selector', 'requirement', 'strictness', 'valueStatus', 'basis', 'basisEvidence', 'checkability', 'structuralClause']) {
+    // basis and basisEvidence moved with C59 (stage K6: the typed referent is his M8 and 18 October item 3); the rest is as authored.
+    for (const field of ['row', 'selector', 'requirement', 'strictness', 'valueStatus', 'checkability', 'structuralClause']) {
         assert.deepEqual(loaded[field], authored[field], `RPC-001-18.d ${field} unchanged`)
     }
+    assert.equal(loaded.basis, 'OWNER_RULING')
     assert.equal(loaded.scope, 'BUILD_OUT_EPISODE', 'and C52 still applies to it — both rulings land on the one item')
-    // Open text before, open text after: putting the authored phrase back on a copy moves no line and no gate verdict.
-    const putBack = (input: DerivationInput) => {
+    // Open text before, open text after: C54's phrase against the authored phrase, both put on copies, moves no line and no gate
+    // verdict. (Re-pointed 15 October 2026, stage K6: C59 has since typed the referent, which does move what it was meant to -
+    // pinned in target-placement.unit.ts - so C54's own claim is measured between the two open texts it chose between.)
+    const withValue = (value: string) => (input: DerivationInput) => {
         input.contracts = JSON.parse(JSON.stringify(input.contracts))
         const item: any = input.contracts.find(c => c.contractId === RPC)!.items.find(i => i.itemId === 'RPC-001-18.d')
-        item.value = authored.value
+        item.value = value
         return input
     }
     for (const ids of [['restated:GF2', RPC], ['restated:GF2', RPC, 'restated:A01-02']]) {
-        assert.deepEqual(movesBetween(runStages0to10(putBack(composeFor(ids))), runStages0to10(composeFor(ids))), [], ids.join(' + '))
+        assert.deepEqual(movesBetween(runStages0to10(withValue(authored.value)(composeFor(ids))), runStages0to10(withValue(c54.set.value)(composeFor(ids)))), [], ids.join(' + '))
     }
 })
 

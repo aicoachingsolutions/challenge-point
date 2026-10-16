@@ -397,6 +397,10 @@ test('the corpus-wide Gate A, check by check', () => {
         'GA-ONE-PRIMARY-EVENT': 'NOT_EVALUABLE',
         'GA-REFERENCE-INTEGRITY': 'NOT_EVALUABLE',
         'GA-REGION-FUNCTION': 'PASS',
+        // Added 15 October 2026 (stage K6, the nineteenth check, his M7). The corpus holds no position stated relative to another
+        // element or to a team (a provisional realization joins only the goal its record names), so it passes with no applicable
+        // instance.
+        'GA-RELATIVE-PLACEMENT': 'PASS',
         'GA-ROSTER-SUM': 'DEFERRED_TO_REALIZATION',
         'GA-TIME-WINDOWS': 'PASS',
         'GA-TRANSITION-COHERENCE': 'NOT_EVALUABLE',
@@ -404,6 +408,7 @@ test('the corpus-wide Gate A, check by check', () => {
         'GA-TRIGGER-UNIQUE': 'PASS',
     })
     assert.equal(result.gates.gateA.verdict, 'FAIL')
+    assert.equal(check(result, 'GA-RELATIVE-PLACEMENT').clauses.every((c: any) => c.basis === 'NO_APPLICABLE_INSTANCES'), true)
     // 13 -> 10 on 15 October 2026 (stage K1): RPC-001-18.f::V5 and 19.a::V5 derived by C57 (his M8), and 18.a::V6
     // 'excluded' corpus-wide by C55 (his 9.9, decided with the Neutral Player Condition's own exclusion beside it).
     assert.match(check(result, 'GA-NO-FAILED-LINE').why, /^10 required line\(s\) are unestablished/)
@@ -548,18 +553,20 @@ test('the corpus-wide Gate A, check by check', () => {
         assert.deepEqual({ objectiveReferenceOf: item('RPC-001-18.h').value.objectiveReferenceOf, role: item('RPC-001-18.h').value.role }, relational)
     })
 
-    test('C57: a relational referent enters the knowledge only through a ruling — the two loaded are C57\'s, and no authored file carries one', () => {
+    test('C57 and C59: a relational referent enters the knowledge only through a ruling — the three loaded are C57\'s and C59\'s, and no authored file carries one', () => {
         // Added at the K1 review, 15 October 2026. The register's V5 text says the relational form is "Written only by a
         // ruled restatement (C57), never inferred from prose"; until now nothing held the knowledge to that sentence.
         // Every value the engine loads, a set's members included, is read by the one recogniser the gates use.
         const relationalIn = (value: unknown) => (Array.isArray(value) ? value : [value]).some(member => relationalReferentOf(member) !== null)
         const loaded = loadCorpusContracts().flatMap(contract => contract.items.filter(item => relationalIn(item.value)).map(item => `${contract.contractId}::${item.itemId}`))
-        assert.deepEqual(loaded, [`${RPC}::RPC-001-18.h`, `${RPC}::RPC-001-19.c`])
+        // 15 October 2026 (stage K6): ruling C59 restates RPC-001-18.d's value to the same form - the progression reference C54
+        // recorded, typed as C54 said M8 would type it. The third, and the one item restatement that writes one.
+        assert.deepEqual(loaded, [`${RPC}::RPC-001-18.d`, `${RPC}::RPC-001-18.h`, `${RPC}::RPC-001-19.c`])
         const restatements = JSON.parse(fs.readFileSync(path.join(CONFORMANCE_DIR, 'stage-b/corpus-restatements.json'), 'utf8').replace(/^﻿/, ''))
         const ruled = (restatements.added ?? []).filter((entry: any) => relationalIn(entry.item?.value)).map((entry: any) => `${entry.item.itemId} ${entry.ruling}`)
         assert.deepEqual(ruled, ['RPC-001-18.h C57', 'RPC-001-19.c C57'], 'each added by the ruling that records his M8')
-        // Nor does a value restatement or an authored file carry one: only C57's two additions do.
-        assert.ok(!(restatements.items ?? []).some((entry: any) => relationalIn(entry.set?.value)), 'no item restatement writes one')
+        // Nor does an authored file carry one, and the one value restatement that writes one is C59's (stage K6).
+        assert.deepEqual((restatements.items ?? []).filter((entry: any) => relationalIn(entry.set?.value)).map((entry: any) => `${entry.item} ${entry.ruling}`), [`${RPC}::RPC-001-18.d C59`])
         for (const file of ['stage-b/contracts.json', 'stage-b/sport-profile-soccer.json']) {
             assert.ok(!fs.readFileSync(path.join(CONFORMANCE_DIR, file), 'utf8').includes('objectiveReferenceOf'), `${file} carries none`)
         }

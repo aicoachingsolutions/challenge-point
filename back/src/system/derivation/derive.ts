@@ -15,7 +15,7 @@ import { RegisterIndex } from './register'
 import { reaches, Reach } from './reach'
 import { parseSelector, selectorApplies } from './selector'
 import { ApplicationSet, DeclarationReach } from './scope'
-import { Bounds, ElementClass, ItemRef, LoadedContract, NamedDiagnostic, ResolutionLine, structuralRefOf, SupportRef } from './types'
+import { Bounds, ElementClass, ItemRef, LoadedContract, NamedDiagnostic, ResolutionLine, relativePositionOf, structuralRefOf, SupportRef } from './types'
 
 /** How a contribution reads against a class's constitutive selector (SD-101). */
 type Comparison = 'STANDS' | 'CONTRADICTS' | 'NOT_COMPARED'
@@ -545,6 +545,20 @@ function boundsOf(item: any, index?: RegisterIndex): Bounds {
         const term = ((index.relativeTerms as any)?.machineReadable?.terms ?? {})[item.value]
         if (term && term.kind === 'interval' && typeof term.from === 'number' && typeof term.to === 'number') {
             return { kind: 'COUNT', min: term.from, max: term.to, term: item.value, fractionOfAxis: true, ...status } as Bounds
+        }
+    }
+    /**
+     * **A value that is RC-21's "beyond X (for team T)" carries that relation as a RELATIVE bound** — 15 October 2026 (stage K6,
+     * register version 13), his M7: *"M7 — Target relative to pressure reference: Approved if required."* The relation is the
+     * register's (a machine-readable term of kind `relative`), the referent a typed reference (SD-98) and the team a designation
+     * — nothing is parsed from prose. Realization composes an extent from it where no metric extent is authored, and
+     * GA-RELATIVE-PLACEMENT checks it on the realized geometry either way.
+     */
+    const relative = index ? relativePositionOf(item.value) : null
+    if (index && relative) {
+        const term = ((index.relativeTerms as any)?.machineReadable?.terms ?? {})[relative.term]
+        if (term && term.kind === 'relative' && typeof term.relation === 'string') {
+            return { kind: 'RELATIVE', relation: term.relation, term: relative.term, of: { ...relative.of.structuralRef }, forTeam: relative.forTeam, ...status }
         }
     }
     // **A typed bound moved out of the prose by an authored restatement**, on the SD-86 precedent:

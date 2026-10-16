@@ -207,6 +207,16 @@
  * 8bbfc003) and the `registerVersion` sentence moved, and `git diff` of the fixture shows those four lines and nothing else.
  * The rendered instructions of the frozen fixture before and after were diffed (renderConcreteGame on each): identical.
  *
+ * **Re-frozen 15 October 2026 (stage K6): `4551a03d` → `7d8b5ed7`. The GAME did not move; the register version did.**
+ * Register version 13 — positions stated relative to another element or to a team (RC-21's "beyond X (for team T)" made
+ * machine-readable, his M7: *"M7 — Target relative to pressure reference: Approved if required."*), the narrowed longitudinal
+ * tests, and start placements re-established when an episode begins (rows P10a/P10b, his M5). The Golden Case holds no
+ * relative position and no start placement, so GA-RELATIVE-PLACEMENT passes with no applicable instance and GA-DIRECTION's new
+ * separation clause passes on its two lines at the two end lines; neither reaches the fixture. So `inputDigest` / `fromDigest`
+ * (e555acf8 → d258a5a1), the audit digest (8bbfc003 → 2ecc9210) and the `registerVersion` sentence moved, and a key-by-key
+ * diff of the fixture shows those four values and nothing else. The rendered instructions before and after (npm run
+ * render:a04): identical apart from the two digests the run prints.
+ *
  * **Since stage K3 a fixture may be COMPOSED from two role blocks** (`build-activity.ts`, `role-blocks.ts`): block one's
  * fixture with a `roleBlocks` block carrying each block's own fixture whole. The Golden Case is a single game and is
  * frozen as one; the composed shape is guarded below by key identity, so a future frozen two-block fixture cannot lose a

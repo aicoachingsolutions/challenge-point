@@ -228,6 +228,14 @@ export interface ProvisionalRealization extends LoadedContract {
 /** A realization's testing boundaries (stage K4): what its items should admit, in his words. */
 export interface TestingBoundaries {
     players: number[]
+    /**
+     * **The areas the realization's metric starting values were given for** (15 October 2026, stage K6). His reply filed 18 October
+     * 2026, item 3: *"The pressure reference should be adjustable in either direction. Twenty meters is our initial hypothesis, not a
+     * canonical distance or a requirement for other field sizes."* Item 7: the 40 × 30 m prototype values are *"acceptable current
+     * testing boundaries, but they should not become permanent architectural limitations."* Data, read by the builder
+     * (`testingAreaRefusal`), never a limit in code. Absent where the realization holds no metric value.
+     */
+    areas?: { lengthM: number; widthM: number }[]
     words: string
     citedAs: string
     note: string | null
@@ -286,6 +294,12 @@ export function validateProvisionalRealizations(
             const counts = Array.isArray(boundaries.players) ? boundaries.players : []
             if (!counts.length || !counts.every((n: unknown) => Number.isInteger(n) && Number(n) > 0)) errors.push(`${which}: testingBoundaries.players must list whole player counts`)
             if (!filledText(boundaries.words) || !filledText(boundaries.citedAs)) errors.push(`${which}: testingBoundaries must quote him and say where`)
+            // The areas its metric starting values were given for (stage K6, his 18 October item 3 and item 7), where recorded.
+            if (boundaries.areas !== undefined) {
+                const areas = Array.isArray(boundaries.areas) ? boundaries.areas : []
+                const measured = (n: unknown) => typeof n === 'number' && Number.isFinite(n) && n > 0
+                if (!areas.length || !areas.every((area: any) => area && measured(area.lengthM) && measured(area.widthM))) errors.push(`${which}: testingBoundaries.areas must list areas, each with a length and a width in metres`)
+            }
         }
         if (!Array.isArray(realization?.declarations) || realization.declarations.length) errors.push(`${which} holds a declaration; a provisional realization says what its activity does, never what knowledge does not constrain`)
         if (!Array.isArray(realization?.relationshipRules) || realization.relationshipRules.length) errors.push(`${which} holds a relationship rule, which no provisional realization has a reading for`)
@@ -341,7 +355,13 @@ export function loadProvisionalRealizations(file: any = readJson(PROVISIONAL_REA
         realizationChoices: realization.realizationChoices ? String(realization.realizationChoices) : null,
         notWithPracticeSituations: (realization.notWithPracticeSituations as any[]).map(s => ({ id: String(s.id), basis: String(s.basis), because: String(s.because) })),
         testingBoundaries: realization.testingBoundaries
-            ? { players: (realization.testingBoundaries.players as number[]).map(Number), words: String(realization.testingBoundaries.words), citedAs: String(realization.testingBoundaries.citedAs), note: realization.testingBoundaries.note ? String(realization.testingBoundaries.note) : null }
+            ? {
+                  players: (realization.testingBoundaries.players as number[]).map(Number),
+                  ...(Array.isArray(realization.testingBoundaries.areas) ? { areas: (realization.testingBoundaries.areas as any[]).map(area => ({ lengthM: Number(area.lengthM), widthM: Number(area.widthM) })) } : {}),
+                  words: String(realization.testingBoundaries.words),
+                  citedAs: String(realization.testingBoundaries.citedAs),
+                  note: realization.testingBoundaries.note ? String(realization.testingBoundaries.note) : null,
+              }
             : null,
     }))
 }

@@ -115,7 +115,8 @@ const realizationItem = (contracts: LoadedContract[], id: string) => contracts.f
 
 // ── 1. The register ─────────────────────────────────────────────────────────────────────────────────────
 test('register version 12 carries the capabilities as data, each in his words or labelled ours, and a damaged copy halts H1', () => {
-    assert.ok(String(register.version).startsWith('12, adds starts and restarts built from knowledge and the coach-judged episode conclusion'))
+    // Re-pointed 15 October 2026 (stage K6): version 13 (relative positions and start placements) supersedes 12 and keeps its entry.
+    assert.ok(String(register.version).includes('Supersedes version 12, which adds starts and restarts built from knowledge and the coach-judged episode conclusion'))
     assert.ok(String(register.version).includes('Supersedes version 11'), 'the version history is kept')
     assert.ok(index.vocabularies.get('trigger')!.includes(TOKEN))
     assert.ok(index.vocabularyVersions.trigger.startsWith('4 (2026-10-15, register version 12'))
@@ -266,7 +267,9 @@ test('GA-TRANSITION-COHERENCE defers an open restart location to realization, an
     }
     const [missing] = a01Blocks(contracts => {
         const realization = contracts.find(c => c.contractId === 'provisional:A01-R1')!
-        realization.items = realization.items.filter(i => i.itemId !== 'A01-R1-T4-1') // TEST-ONLY: the coach's location withdrawn
+        // TEST-ONLY: the coach's location withdrawn - both its bounds since stage K6 (15 October 2026), when his D3 agreement on the
+        // goalkeeper's start became a second range in words on the same line (A01-R1-T4-4).
+        realization.items = realization.items.filter(i => i.itemId !== 'A01-R1-T4-1' && i.itemId !== 'A01-R1-T4-4')
     })
     assert.equal(check(missing.staged, 'GA-TRANSITION-COHERENCE').clauses[1].verdict, 'NOT_EVALUABLE', 'a location nobody authored blocks; it is never deferred')
 })
@@ -295,7 +298,9 @@ test('GA-EPISODE-REACHABLE passes in each block of A01: the start, the after-sco
     for (const { block, staged } of a01Blocks()) {
         const reach = check(staged, 'GA-EPISODE-REACHABLE')
         assert.equal(reach.verdict, 'PASS', `${block.blockId}: ${reach.why}`)
-        assert.deepEqual(reach.clauses.map((c: any) => c.verdict), ['PASS', 'PASS'])
+        // A third clause since stage K6 (15 October 2026): the starting placements are re-established at the same three
+        // transitions (target-placement.unit.ts).
+        assert.deepEqual(reach.clauses.map((c: any) => c.verdict), ['PASS', 'PASS', 'PASS'])
         assert.equal(reach.clauses[1].instances, 3, 'three transitions begin the build-out episode')
         for (const id of ['A01-R1-T1-1: START', 'A01-R1-T1-2: SCORE', `A01-R1-T1-3: ${TOKEN}`]) assert.ok(reach.why.includes(`c:provisional:A01-R1:${id}`), id)
         assert.ok(reach.why.includes('awarded to ROLE_HOLDER_BUILDING'), 'only the building team initiates new build-out episodes (his D7)')
@@ -314,10 +319,12 @@ test('the two clauses bite: a second awardee fails, no starter fails, and withou
         realizationItem(contracts, 'A01-R1-T2-1').selector = 'trigger ∈ {START, COACH_JUDGED_EPISODE_CONCLUSION}'
         realization.items.push({ ...realizationItem(contracts, 'A01-R1-T2-1'), itemId: 'A01-R1-TEST-ONLY', selector: 'trigger=SCORE', value: 'ROLE_HOLDER_PRESSING' })
     })
-    assert.deepEqual(check(split.staged, 'GA-EPISODE-REACHABLE').clauses.map((c: any) => c.verdict), ['PASS', 'FAIL'])
+    // The third clause (stage K6): the placements are still re-established at the three starters.
+    assert.deepEqual(check(split.staged, 'GA-EPISODE-REACHABLE').clauses.map((c: any) => c.verdict), ['PASS', 'FAIL', 'PASS'])
     // TEST-ONLY: no restart taken by an arm's taker — nothing begins the episode.
     const [none] = a01Blocks(contracts => void (realizationItem(contracts, 'A01-R1-T3-1').value = 'TEST-ONLY taker'))
-    assert.deepEqual(check(none.staged, 'GA-EPISODE-REACHABLE').clauses.map((c: any) => c.verdict), ['FAIL', 'PASS'])
+    // The third clause (stage K6) fails with it: a placement re-established when no transition begins its episode never would be.
+    assert.deepEqual(check(none.staged, 'GA-EPISODE-REACHABLE').clauses.map((c: any) => c.verdict), ['FAIL', 'PASS', 'FAIL'])
     // TEST-ONLY: the origin's original placement texts back — the check withholds (SD-63), exactly as before C58.
     const original = JSON.parse(fs.readFileSync(path.join(CONFORMANCE_DIR, 'stage-b', 'contracts.json'), 'utf8'))
     const [untyped] = a01Blocks(contracts => {
@@ -390,7 +397,12 @@ test("A01-R1's transitions as his decisions establish them, and no timer, window
         assert.equal(value(`${id}::T3`), KEEPER, trigger)
         assert.equal(value(`${id}::T5`), 'FROM_THE_FEET', trigger)
         assert.equal(verdictOf(x.staged, `${id}::T4`), 'FREE(a)', `${trigger}: the coach chooses where (COACH_DECIDES), never a fixed location`)
-        assert.deepEqual(x.staged.derived.lines.get(`${id}::T4`).bounding.map((b: any) => b.bound.kind), ['QUALITATIVE'])
+        // Two ranges in words since stage K6 (15 October 2026): his D5 location and his D3 agreement that the goalkeeper begins in
+        // front of the post-regain area (A01-R1-T4-4). Still the coach's: no region, no distance.
+        assert.deepEqual(x.staged.derived.lines.get(`${id}::T4`).bounding.map((b: any) => [b.bound.kind, b.bound.term]), [
+            ['QUALITATIVE', 'a location the coach chooses, consistent with the intended build-out situation'],
+            ['QUALITATIVE', "in front of the pressing team's post-regain area"],
+        ])
     }
     assert.ok(!x.staged.triggers.some((t: string) => t.startsWith('TIME_EXPIRY')), 'no timer')
     assert.ok(!x.staged.classes.some((c: any) => c.row === 'V23'), 'no time window')
@@ -409,9 +421,25 @@ test("A01-R1's transitions as his decisions establish them, and no timer, window
 
 // ── 9. Realization ─────────────────────────────────────────────────────────────────────────────────────
 test('realization: the COACH_DECIDES stand-ins, the possession game initial-holder choice withdrawn and carried into the fixture', () => {
+    /**
+     * Re-pointed 15 October 2026 (stage K6): A01-R1 now also carries his starting values and placements, which reach realization
+     * only where the build-out begin condition is typed (the context, RPC-001: the placements are re-established at the
+     * beginnings it types, and with no context GA-EPISODE-REACHABLE withholds on them - measured). This test is about the
+     * transitions' stand-ins and the withdrawal, so the composition takes A01-R1 without its spatial items, and the targets'
+     * noun and scoring kind its file replaces are put back as the possession game's (TEST-ONLY, on copies). The spatial items
+     * are pinned in target-placement.unit.ts, on A01's own selection.
+     */
+    const SPATIAL = ['S2', 'S5', 'S6', 'P8', 'P10', 'P10a', 'P10b']
     const built = buildActivityFromKnowledge(['GF2'], sessionOf(12, 1), {
-        alter: contracts => void contracts.push(provisionalRealizationNamed('A01-R1')!),
-        alterSupplied: supplied => assert.deepEqual(withProvisionalRealizationChoices(supplied, 'A01-R1'), []),
+        alter: contracts => {
+            const realization: any = JSON.parse(JSON.stringify(provisionalRealizationNamed('A01-R1')!))
+            realization.items = realization.items.filter((i: any) => !SPATIAL.includes(String(i.row)) && i.itemId !== 'A01-R1-T4-4')
+            contracts.push(realization)
+        },
+        alterSupplied: supplied => {
+            assert.deepEqual(withProvisionalRealizationChoices(supplied, 'A01-R1'), [])
+            for (const replaced of (supplied as any).replaced) (supplied.choices.find((c: any) => c.lineId === replaced.lineId) as any).value = replaced.replacedValue
+        },
     })
     const activity = built.activity as RefusedActivity
     // Realized, validated and rendered; the restarts are not said yet (their rendering is stage K7), so fidelity refuses it.

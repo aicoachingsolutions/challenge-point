@@ -293,22 +293,33 @@ test('part of a role exchange is refused at structure, never completed', () => {
 // restarts and C58 (his 18 October acknowledgement) let the build-out episode begin, so GA-EPISODE-REACHABLE passes in each
 // block; each block now stops, the same in both, on the progression reference (RPC-001-18.d, open text: what moves it is the
 // target placement of stage K6, C54/D3/M7), which leaves GA-ONE-PRIMARY-EVENT and GA-REFERENCE-INTEGRITY unevaluable.
-test('A01 behind its record: two blocks built, each stopping in the same place (the progression reference, stage K6), named by block', () => {
+//
+// **Moved 15 October 2026 (stage K6), as predicted: the work succeeding.** Ruling C59 typed the progression reference and A01-R1
+// places the pressure reference, the targets and the starting placements (his 18 October item 3), so both blocks pass structure,
+// realization and the post-realization gates. With no goalkeeper in the session each block is now refused for that (the
+// realization's keeper for the building role); with one, each stops at validation in the same place, named by block: the
+// context-scoring guard reads only whole-game conditions, and RPC-001's four are authored for the build-out episode.
+test('A01 behind its record: two blocks built, each stopping in the same place, named by block (stage K6: validation)', () => {
     const behind = learningGoalAuthorizations().map((record: any) => ({
         ...record,
         manipulations: record.manipulations.map((m: any) => (m.status === 'MISSING_KNOWLEDGE' || m.status === 'MISSING_CAPABILITY' ? { ...m, category: 'EXISTING_KNOWLEDGE_TO_VERIFY', status: 'NOT_SELECTED_FOR_FIRST_DEMO', gaps: [], note: 'TEST-ONLY' } : m)),
         provisionalChoices: (record.provisionalChoices ?? []).map((c: any) => (c.status === 'MISSING_KNOWLEDGE' || c.status === 'MISSING_CAPABILITY' ? { ...c, status: 'AUTHORIZED_BY_RULING', gaps: [], note: 'TEST-ONLY' } : c)),
     }))
-    const a01 = refused(buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, behind as any).activity, 'A01 behind its record')
-    assert.equal(a01.stage, 'structure')
-    assert.deepEqual(a01.reasons, [
-        'block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: Gate A is NOT_EVALUABLE',
-        'block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: a pre-realization Gate A invariant cannot be evaluated, so it is not satisfied: GA-ONE-PRIMARY-EVENT, GA-REFERENCE-INTEGRITY',
-        'block BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: Gate A is NOT_EVALUABLE',
-        'block BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: a pre-realization Gate A invariant cannot be evaluated, so it is not satisfied: GA-ONE-PRIMARY-EVENT, GA-REFERENCE-INTEGRITY',
-    ])
-    // DRAFT coach sentence for this refusal (existing wording, 13 October): the description of a rule is incomplete.
-    assert.equal(a01.summary, 'This goal selects a rule whose description is still incomplete, so the activity cannot be checked yet.')
+    const keeperless = refused(buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, behind as any).activity, 'A01 behind its record, no goalkeeper')
+    assert.equal(keeperless.stage, 'session')
+    assert.equal(keeperless.summary, `This game needs 1 ${specializedRoleNames()[0]} in all and the session has 0.`)
+    const withKeeper = { ...session, roles: { ...none, [specializedRoleNames()[0]]: 1 } }
+    const a01 = refused(buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: withKeeper }, behind as any).activity, 'A01 behind its record')
+    assert.equal(a01.stage, 'validation')
+    const conditions = [['origin', '18.a'], ['progression', '18.c'], ['control', '18.f'], ['exclusion', '19.a']]
+    assert.deepEqual(
+        a01.reasons,
+        ['BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END', 'BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START'].flatMap(block =>
+            conditions.map(([type, id]) => `block ${block}: the ${type} condition RPC-001 constitutes (RPC-001-${id}) cannot be confirmed to govern this game: c:restated:RPC-001:RPC-001-${id} is authored for the BUILD_OUT_EPISODE scope, and applying it to every score would be a different and wider rule than the one authored`),
+        ),
+    )
+    // DRAFT coach sentence for this refusal (existing wording): the game did not pass its own checks.
+    assert.equal(a01.summary, 'The game built for this activity did not pass its own checks, so it is not being shown.')
 })
 
 console.log(`role-blocks.unit.ts (rendering) — ${passed} passed`)

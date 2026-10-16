@@ -236,6 +236,14 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
  * objective reference of the scoring team (M8). Behind the record A01 now stops on GA-EPISODE-REACHABLE alone. The
  * record lists the two as what existing knowledge authorizes, so its gaps are D1-D7, M1-M5 and M7; the production
  * build still refuses at 'knowledge' on the same eight entries.
+ *
+ * **15 October 2026, stage K6 — A01 moves from `knowledge` to `session`: its record names no gap, and the session the page
+ * stores names no goalkeeper.** Stages K4-K6 carried every entry the record named (the counts by role, the starts and restarts,
+ * and now his 18 October starting values and the Performer Configuration relationship), and the stale asymmetric-structure
+ * entry is moved; ruling C59 typed the progression reference. So the build derives both role blocks, realizes them and refuses
+ * on the realization's own requirement - one goalkeeper for the team holding the building role - which this stored session
+ * (every specialized role at 0) cannot meet: a session the coach can change. With a goalkeeper it stops at validation (pinned
+ * below and in target-placement.unit.ts).
  */
 {
     const RECORD = "This goal's activity depends on set-up decisions and engine capabilities that are not in place yet, so no activity can be built for it."
@@ -245,7 +253,7 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
     const CONTEXT = "The scoring this goal's context calls for has not been built into the activity engine yet, so no activity can be built for it."
     // [stage, summary, the game form is contracted, the reason names]
     const expected: Record<string, [RefusedActivity['stage'], string, boolean, string]> = {
-        A01: ['knowledge', RECORD, true, 'parts of the activity the authorization record of A01 asks for are not in place yet'],
+        A01: ['session', `This game needs 1 ${ROLES[0]} in all and the session has 0.`, true, 'roster (AVAILABILITY_SHORT)'],
         A02: ['selection', GAP, false, 'NO_COMPATIBLE_COMBINATION'],
         A03: ['knowledge', NOT_BUILT, false, 'the game form GF3 has no contribution contract'],
         A04: ['knowledge', CONTEXT, true, 'the Representative Performance Context RPC-004 has no contribution contract'],
@@ -347,9 +355,13 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
         // two reassignments with their counts (pinned in allocation.unit.ts), each one of his provisional choices.
         // 10 -> 34 on 15 October 2026 (stage K5): his D1/D5/M3/M4 start, after-score and coach-conclusion transitions and his 18
         // October RD-2 ordinary restarts, 24 items (pinned in starts-and-restarts.unit.ts), each one of his provisional choices.
-        assert.equal(a01.account.authorizationLists!.provisionalChoices.filter(e => e.from === 'provisional realization').length, 34, 'the roles, the exchange, the counts, the keeper, the reassignments and the transitions')
-        // The allocation's authority reaches the technical account of the refusal too (stage K4), read from the record.
-        assert.deepEqual(a01.account.allocation!.relationships.map(r => r.id), ['RPC-001~EM-0006'])
+        // 34 -> 47 on 15 October 2026 (stage K6): his 18 October starting values and D3/D4/M5 relationships - the pressure reference,
+        // the targets keyed by role, the starting placements with their timing, and the restart location's D3 bound - 13 items
+        // (pinned in target-placement.unit.ts), each one of his provisional choices.
+        assert.equal(a01.account.authorizationLists!.provisionalChoices.filter(e => e.from === 'provisional realization').length, 47, 'the roles, the exchange, the counts, the keeper, the reassignments, the transitions and the starting placements')
+        // The allocation's authority reaches the technical account of the refusal too (stage K4), read from the record; since stage
+        // K6 with the Performer Configuration relationship the starting placements cite.
+        assert.deepEqual(a01.account.allocation!.relationships.map(r => r.id), ['RPC-001~EM-0006', 'RPC-001~EM-0002'])
         // 15 -> 13 on 15 October 2026 (stage K1): capabilities M6 and M8 built (C55, C57); the record lists them as what
         // existing knowledge authorizes now, not as gaps.
         assert.equal(a01.account.authorizationLists!.gaps.length, 13)
@@ -396,45 +408,35 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
         // 6 -> 3 on 15 October 2026 (stage K5): where the building team starts and the goalkeeper's part (M3) and the episodes
         // and restarts (D1, D5, M3, M4) are carried by A01-R1's transitions and ruling C58. What remains is stage K6's (D3,
         // D4/M5) and the asymmetric-structure entry, which still names D2, D7, M1 and M2 (stale, flagged by the K4 review).
-        const RECORD_REASONS = [
-            '3 parts of the activity the authorization record of A01 asks for are not in place yet',
-            'manipulation "starting positions — the defending team\'s starting relationship" is MISSING_KNOWLEDGE (GENUINE_GAP), waiting on D4, M5',
-            'manipulation "progression references — where each target sits: the build-out progression target and the post-regain area" is MISSING_KNOWLEDGE (GENUINE_GAP), waiting on D3',
-            'provisional choice "An asymmetrical build-out-versus-press structure: one team builds out, the other presses to prevent progression, regain possession and exploit the regain, and the teams exchange roles over successive episodes or blocks." is MISSING_CAPABILITY (PROVISIONAL_REALIZATION_CHOICE), waiting on D2, D7, M1, M2',
-        ]
+        // 3 -> 0 on 15 October 2026 (stage K6): his 18 October starting values and the Performer Configuration relationship he
+        // confirmed carry the starting arrangement and the targets' placement (D3, D4, M5, M7), and the asymmetric-structure entry,
+        // stale since K3 (D2, D7, M1, M2 answered and built), is moved. So no record entry stops it, and the production build and
+        // the copy with its gap entries set aside are now the same build (asserted). What stops it, in both blocks: the
+        // context-scoring guard, which reads only whole-game conditions, on RPC-001's four build-out conditions (authored for the
+        // build-out episode, SD-36). With no goalkeeper it stops earlier, at the session: the realization's keeper for the building
+        // role (his D6). Ruling C59 typed the progression reference, the last stop behind the record until then.
+        const blocks = ['BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END', 'BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START']
+        const conditions = [['origin', '18.a'], ['progression', '18.c'], ['control', '18.f'], ['exclusion', '19.a']]
+        const SCOPE_REASONS = blocks.flatMap(block =>
+            conditions.map(([type, id]) => `block ${block}: the ${type} condition RPC-001 constitutes (RPC-001-${id}) cannot be confirmed to govern this game: c:restated:RPC-001:RPC-001-${id} is authored for the BUILD_OUT_EPISODE scope, and applying it to every score would be a different and wider rule than the one authored`),
+        )
         for (const keepers of [2, 0]) {
-            // Production: refused on the record's gaps, before derivation — the same with two goalkeepers or none.
             const production = refused(reviewActivity(stored({ specializedRoles: { ...none, [ROLE]: keepers } }), { learningGoalId: 'A01', durationMin: 20 }), `A01, ${keepers} of ${ROLE}`)
-            assert.equal(production.stage, 'knowledge', JSON.stringify(production.reasons))
-            assert.deepEqual(production.reasons, RECORD_REASONS)
+            if (keepers) {
+                assert.equal(production.stage, 'validation', JSON.stringify(production.reasons))
+                assert.deepEqual(production.reasons, SCOPE_REASONS)
+            } else {
+                assert.equal(production.stage, 'session', JSON.stringify(production.reasons))
+                assert.equal(production.summary, `This game needs 1 ${ROLE} in all and the session has 0.`)
+            }
+            assert.ok(!production.reasons.some(reason => reason.includes('authorization record')), 'no record entry stops it')
             assert.deepEqual(production.account.constraints, [], 'no library constraint was selected')
             assert.equal(production.account.context?.inThisActivity, true, 'the context is in the game')
 
-            // Behind it, on the copy: the structural stops, exactly as before stage H3.
+            // Behind it, on the copy: the same build, because the record has no gap entry left to set aside.
             const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [ROLE]: keepers } }
             const reached = refused(buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, withoutGapEntries()).activity, `A01 (record gaps set aside), ${keepers} of ${ROLE}`)
-            assert.equal(reached.stage, 'structure', JSON.stringify(reached.reasons))
-            // **15 October 2026 (stage K1): GA-EPISODE-REACHABLE alone, measured, with two goalkeepers and none.** The three
-            // context lines are settled by his 17 October approvals: 18.f::V5 and 19.a::V5 by M8 (C57, typed as the
-            // objective reference of the scoring team), 18.a::V6 by M6 (C55, needs no further value). What still stops
-            // the game is the build-out episode's beginning: capability M3, and the typed begin condition (C58) held for
-            // his acknowledgement.
-            // **15 October 2026 (stage K3): the same stop, now in each of two role blocks.** A01-R1 carries his D2(a) roles
-            // and exchange (M1), so the game is built once per block; each block stops exactly where the single game did,
-            // and the reasons are named by block. Measured with two goalkeepers and none.
-            // **15 October 2026 (stage K5): GA-EPISODE-REACHABLE passes in both blocks, measured with two goalkeepers and
-            // none.** A01-R1's start, after-score and coach-judged restarts begin the build-out episode under the begin
-            // condition C58 types (his 18 October item 4), with one awardee. What each block stops on now is the progression
-            // reference (RPC-001-18.d, open text), which leaves GA-ONE-PRIMARY-EVENT and GA-REFERENCE-INTEGRITY unevaluable —
-            // the target placement of stage K6 (C54, his D3, M7).
-            const blocks = ['BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END', 'BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START']
-            assert.deepEqual(
-                reached.reasons,
-                blocks.flatMap(block => [
-                    `block ${block}: Gate A is NOT_EVALUABLE`,
-                    `block ${block}: a pre-realization Gate A invariant cannot be evaluated, so it is not satisfied: GA-ONE-PRIMARY-EVENT, GA-REFERENCE-INTEGRITY`,
-                ]),
-            )
+            assert.deepEqual([reached.stage, reached.reasons], [production.stage, production.reasons])
             assert.deepEqual(reached.account.constraints, [], 'no library constraint was selected')
             assert.equal(reached.account.constraintSource?.constraintPrinciple?.ruledOn, '2026-10-15', 'committed under his general principle')
             assert.equal(reached.account.context?.inThisActivity, true, 'the context is in the game')
@@ -544,45 +546,31 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
     const defined = new Set(record.gaps!.map(gap => gap.id))
     const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: none }
     // [where it stops, the stop as the chain reports it, what would move it]
-    const STOPS: [string, string, string[]][] = [
-        // **Four stops moved out on 15 October 2026 (stage K5): the work succeeding.** 'starting positions — where the team
-        // building out starts' (M3), 'goalkeeper positioning' (M3), 'A new build-out episode begins …' (D1, D5, M3, M4) and,
-        // behind the record, GA-EPISODE-REACHABLE (M3) — moved by A01-R1's start, after-score, coach-conclusion and
-        // out-of-play transitions (his 17 October D1/D5/M3/M4, his 18 October items 2 and 4, ruling C58). So did the resolved
-        // game's "its only transition is a possession change (GF2-07.a)" (M3, M4). Each is asserted absent below, and the
-        // transitions themselves are pinned in starts-and-restarts.unit.ts.
-        ['knowledge (record)', "starting positions — the defending team's starting relationship", ['D4', 'M5']],
-        ['knowledge (record)', 'progression references — where each target sits: the build-out progression target and the post-regain area', ['D3']],
-        // **Two stops moved out and one narrowed on 15 October 2026 (stage K4): the work succeeding.** 'defensive numbers' and
-        // 'overloads' (D6) are carried by A01-R1's counts by role under the relationship he confirmed on 18 October. Pinned
-        // in allocation.unit.ts; asserted absent below.
-        ['knowledge (record)', 'An asymmetrical build-out-versus-press structure', ['D2', 'D7', 'M1', 'M2']],
-        // What stops each block behind the record since stage K5: the progression reference (RPC-001-18.d), open text, which
-        // the target placement moves (D3, and M7 if his D3 calls for it).
-        ['structure (behind the record)', 'GA-ONE-PRIMARY-EVENT, GA-REFERENCE-INTEGRITY', ['D3', 'M7']],
-        // **Three stops moved out on 15 October 2026 (stage K1): the work succeeding.** 18.f::V5 and 19.a::V5 (moved
-        // by M8, ruling C57) and 18.a::V6 (moved by M6, ruling C55) — his 17 October M8 and M6, recorded as what existing
-        // knowledge authorizes in A01's record. None of the three lines is reported (asserted below).
-        ['the resolved game', 'no line on P8-P10: no starting placement for either team', ['D4', 'M5']],
-    ]
+    // **Every stop this table listed moved out on 15 October 2026 (stage K6): the work succeeding.** The two spatial record entries
+    // ("starting positions — the defending team's starting relationship", D4/M5; "progression references — where each target
+    // sits", D3) are carried by his 18 October starting values and the Performer Configuration relationship he confirmed; the
+    // asymmetric-structure entry (D2, D7, M1, M2) is moved, stale since stage K3; behind the record, GA-ONE-PRIMARY-EVENT and
+    // GA-REFERENCE-INTEGRITY no longer withhold on the progression reference (ruling C59, M7); and the resolved game holds the two
+    // starting placements (P8-P10, M5). Each is asserted absent below. What stops the activity now is not a decision of his or a
+    // capability he approved: the context-scoring guard reads only whole-game conditions (pinned in target-placement.unit.ts).
+    const STOPS: [string, string, string[]][] = []
     for (const [where, stop, movedBy] of STOPS) {
         assert.ok(movedBy.length > 0, `${stop}: a stop is named for what would move it`)
         for (const id of movedBy) assert.ok(defined.has(id), `${where} / ${stop}: ${id} is defined in the record`)
     }
 
-    const production = refused(reviewActivity(stored(), { learningGoalId: 'A01', durationMin: 20 }), 'A01')
-    for (const [, stop, movedBy] of STOPS.filter(([where]) => where === 'knowledge (record)')) {
-        const line = production.reasons.find(reason => reason.includes(`"${stop}`))
-        assert.ok(line, `the record stop "${stop}" is reported: ${JSON.stringify(production.reasons)}`)
-        assert.ok(line!.endsWith(`waiting on ${movedBy.join(', ')}`), line)
-    }
+    const withKeeper = { ...session, roles: { ...none, [ROLE]: 1 } }
+    const production = refused(buildActivity({ kind: 'learning-goal', goalId: 'A01', session: withKeeper }), 'A01')
     for (const moved of ['"defensive numbers"', '"overloads"']) assert.ok(!production.reasons.some(reason => reason.includes(moved)), `${moved} is no longer a stop (stage K4)`)
     for (const moved of ['"starting positions — where the team building out starts"', '"goalkeeper positioning"', '"A new build-out episode begins'])
         assert.ok(!production.reasons.some(reason => reason.includes(moved)), `${moved} is no longer a stop (stage K5)`)
-    const behind = refused(buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, withoutGapEntries()).activity, 'A01 behind its record')
-    for (const [, stop] of STOPS.filter(([where]) => where === 'structure (behind the record)')) assert.ok(behind.reasons.some(reason => reason.includes(stop)), `${stop}: ${JSON.stringify(behind.reasons)}`)
+    for (const moved of ['"starting positions — the', '"progression references — where each target sits', '"An asymmetrical build-out-versus-press structure'])
+        assert.ok(!production.reasons.some(reason => reason.includes(moved)), `${moved} is no longer a stop (stage K6)`)
+    const behind = refused(buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: withKeeper }, withoutGapEntries()).activity, 'A01 behind its record')
     for (const moved of ['RPC-001-18.f::V5', 'RPC-001-19.a::V5', 'RPC-001-18.a::V6']) assert.ok(!behind.reasons.some(reason => reason.includes(moved)), `${moved} is no longer a stop (stage K1)`)
     assert.ok(!behind.reasons.some(reason => reason.includes('GA-EPISODE-REACHABLE')), 'GA-EPISODE-REACHABLE is no longer a stop (stage K5)')
+    assert.ok(!behind.reasons.some(reason => reason.includes('GA-ONE-PRIMARY-EVENT, GA-REFERENCE-INTEGRITY')), 'the progression reference is no longer a stop (stage K6)')
+    assert.equal(behind.stage, 'validation')
 
     // The resolved game A01's real selection makes (GF2, its lenses, RPC-001, its provisional realization; no library
     // constraint). Re-pointed 15 October 2026 (stage K5): it holds the realization's start, after-score and coach-judged
@@ -597,7 +585,13 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
         ['COACH_JUDGED_EPISODE_CONCLUSION', 'OUT_END_LINE', 'OUT_END_LINE', 'OUT_TOUCHLINE', 'OUT_TOUCHLINE', 'POSSESSION_CHANGE', 'SCORE', 'START'],
         'a start, an after-score restart and the coach-judged conclusion now begin the build-out episode',
     )
-    assert.deepEqual([...staged.classified.keys()].filter((id: string) => id.endsWith('::P8') || id.endsWith('::P9') || id.endsWith('::P10')), [], 'no starting placement line for either team')
+    // Re-pointed 15 October 2026 (stage K6): a starting placement for each role, its group, its region (stated relative to the
+    // pressure reference), its timing and the episode it is re-established at (rows P8-P10b, his D4 and his 18 October item 3).
+    assert.deepEqual(
+        [...staged.classified.keys()].filter((id: string) => ['::P8', '::P9', '::P10', '::P10a', '::P10b'].some(row => id.endsWith(row))).sort(),
+        ['A01-R1-P8-1', 'A01-R1-P8-2'].flatMap(p => ['P10', 'P10a', 'P10b', 'P9'].map(row => `c:provisional:A01-R1:${p}::${row}`)).sort(),
+        'a starting placement line for each role',
+    )
 }
 
 /**
@@ -1610,10 +1604,23 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
     // measured. The block is about the guard, so the session states what the realization needs.
     const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [ROLE]: 1 } }
     const PENDING = ['18.a', '18.b', '18.c', '18.d', '18.e', '18.f', '18.g', '19.a', '19.b', '11.a', '11.b', '08.c', '13', '14.a', '02', '03'].map(id => `RPC-001-${id}`)
+    /**
+     * Re-pointed 15 October 2026 (stage K6): the copy also takes out A01-R1's starting values and placements (rows S2, S5, S6,
+     * P8-P10b and the restart location's D3 bound), and the realizer's choices put the possession game's line targets back in
+     * place of the zones they give depths to. The placements are re-established at the build-out episode's beginnings, which
+     * only the build-out conditions type; with the conditions taken out, GA-EPISODE-REACHABLE withholds on them (measured). The
+     * block is about the guard, which reads none of them.
+     */
+    const SPATIAL_ROWS = ['S2', 'S5', 'S6', 'P8', 'P10', 'P10a', 'P10b']
     const trimmed = (contracts: any[]) => {
         const rpc = contracts.find(contract => contract.objectId === 'RPC-001')
         assert.ok(rpc, 'A01 carries its context\'s contract into derivation')
         rpc.items = rpc.items.filter((item: any) => !PENDING.includes(item.itemId))
+        const realization = contracts.find(contract => contract.contractId === 'provisional:A01-R1')
+        realization.items = realization.items.filter((item: any) => !SPATIAL_ROWS.includes(String(item.row)) && item.itemId !== 'A01-R1-T4-4')
+    }
+    const linesBack = (supplied: any) => {
+        for (const replaced of supplied.replaced) supplied.choices.find((choice: any) => choice.lineId === replaced.lineId).value = replaced.replacedValue
     }
     /**
      * **Re-pointed 15 October 2026** from `buildActivityOverAlteredKnowledge` to the same alteration under a COPY of
@@ -1631,7 +1638,7 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
      * this block is about the guard behind it. Measured: the outcomes below are unchanged.
      */
     const a01 = { kind: 'learning-goal' as const, goalId: 'A01', session }
-    const underTestRuling = (alter: (contracts: any[]) => void) => buildActivityUnderAuthorizationRecords(a01, withoutGapEntries(), { alter }).activity
+    const underTestRuling = (alter: (contracts: any[]) => void) => buildActivityUnderAuthorizationRecords(a01, withoutGapEntries(), { alter, alterSupplied: linesBack }).activity
     /**
      * **Re-pointed 15 October 2026 (his 9.8): refused at `communication` -> SERVED, over this TEST-ONLY copy, measured.**
      * What stopped it at communication was TWO balls — the context's own (RPC-001-10.a) beside the Sport Profile's —
@@ -1651,7 +1658,7 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
      * the uncarried restarts and the opening holder, and nothing else. The ball is still said, read from the rendering of the
      * fixture the build stopped with.
      */
-    const reached = buildActivityUnderAuthorizationRecords(a01, withoutGapEntries(), { alter: trimmed })
+    const reached = buildActivityUnderAuthorizationRecords(a01, withoutGapEntries(), { alter: trimmed, alterSupplied: linesBack })
     const passed = refused(reached.activity, 'A01 over the trimmed copy')
     assert.equal(passed.stage, 'communication', JSON.stringify(passed.reasons.slice(0, 3)))
     assert.ok(passed.reasons.every(reason => reason.includes('fidelity Q3') && (reason.includes('transitions[') || reason.includes('possession.team'))), 'only the restarts and the opening holder are unsaid')
@@ -1692,9 +1699,19 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
  */
 {
     const CONDITIONS = ['18.a', '18.b', '18.c', '18.d', '18.e', '18.f', '18.g', '19.a', '19.b'].map(id => `RPC-001-${id}`)
+    // Re-pointed 15 October 2026 (stage K6): with the conditions taken out, A01-R1's starting values and placements go too, and the
+    // realizer's choices put the possession game's line targets back (`placementsOut`): the placements are re-established at the
+    // build-out episode's beginnings, which only those conditions type (without them GA-EPISODE-REACHABLE withholds, measured),
+    // and this block is about the roster, which reads none of them.
+    const SPATIAL_ROWS = ['S2', 'S5', 'S6', 'P8', 'P10', 'P10a', 'P10b']
     const withoutConditions = (contracts: any[]) => {
         const rpc = contracts.find(contract => contract.contractId === 'restated:RPC-001')
         rpc.items = rpc.items.filter((item: any) => !CONDITIONS.includes(item.itemId))
+        const realization = contracts.find(contract => contract.contractId === 'provisional:A01-R1')
+        realization.items = realization.items.filter((item: any) => !SPATIAL_ROWS.includes(String(item.row)) && item.itemId !== 'A01-R1-T4-4')
+    }
+    const placementsOut = (supplied: any) => {
+        for (const replaced of supplied.replaced) supplied.choices.find((choice: any) => choice.lineId === replaced.lineId).value = replaced.replacedValue
     }
     const raw: any[] = repairCorpusEncoding(readJson('stage-b/contracts.json'), { strings: 0, charactersRecovered: 0 })
     const authoredRpc = raw.find(entry => String(entry.name).startsWith('RPC-001')).result
@@ -1713,7 +1730,7 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
 
     // Re-pointed 15 October 2026 (stage H3) over the records with their gap entries set aside (TEST-ONLY): production A01
     // now stops before derivation on its record's gaps, goalkeeper positioning among them (D6, M2, M3). Measured unchanged.
-    const overCopy = (session: any, alter: (contracts: any[]) => void) => buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, withoutGapEntries(), { alter }).activity
+    const overCopy = (session: any, alter: (contracts: any[]) => void) => buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, withoutGapEntries(), { alter, alterSupplied: placementsOut }).activity
     for (const keepers of [2, 0]) {
         const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [ROLE]: keepers } }
         const before = refused(overCopy(session, asBeforeC53), `A01 before C53, ${keepers} of ${ROLE}`)
@@ -1750,6 +1767,7 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
             realization.items = realization.items.filter((item: any) => !String(item.row).startsWith('T'))
         }
         const noTransitionChoices = (supplied: any) => {
+            placementsOut(supplied)
             supplied.choices = supplied.choices.filter((choice: any) => !String(choice.lineId).startsWith('c:provisional:A01-R1:A01-R1-T'))
             for (const withdrawn of supplied.withdrawn) supplied.choices.push({ lineId: withdrawn.lineId, value: withdrawn.withdrawnValue, because: 'TEST-ONLY: restored with the transitions taken out' })
             supplied.withdrawn = []

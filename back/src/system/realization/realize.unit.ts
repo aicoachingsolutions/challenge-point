@@ -981,7 +981,7 @@ test('realization REFUSES a game whose Gate A fails, and names the check that re
  * game — the last assertion below pins that identity, because "three goals work" would otherwise be exactly
  * the selective report this test exists to prevent. Three goals served is one activity served three times.
  */
-test('four goals are realization-authorized, they are two games, and the other nine are accounted for', () => {
+test('five goals are realization-authorized, they are three games, and the other eight are accounted for', () => {
     const authorized: string[] = []
     const failed: string[] = []
     const notEvaluable: string[] = []
@@ -1018,10 +1018,13 @@ test('four goals are realization-authorized, they are two games, and the other n
      * game. Authorization here is derivation's; the review page still refuses all four, because none of their
      * contexts has a contract. Four goals authorized is two activities, neither a learning-design example.
      */
-    assert.deepEqual(authorized.sort(), ['A04', 'A05', 'D01', 'TA02'], 'four goals reach realization')
+    // **Five since 15 October 2026 (stage K6), and three games: A01 joins.** Ruling C59 types its progression reference (the open
+    // text it was unevaluable on) and its provisional realization places what it names, so derivation authorizes realization
+    // (here with no role block, as this census always derived; per block see target-placement.unit.ts). Its game is its own.
+    assert.deepEqual(authorized.sort(), ['A01', 'A04', 'A05', 'D01', 'TA02'], 'five goals reach realization')
     assert.deepEqual(
         [...authorizedGames.values()].map(goals => goals.sort().join(',')).sort(),
-        ['A04,D01', 'A05,TA02'],
+        ['A01', 'A04,D01', 'A05,TA02'],
         'and they are two games: the bare possession game, and the possession game with Wide Zone Advantage',
     )
     // A01 joins the gaps on 15 October 2026: its authorization record authorizes no constraint (his item 1 of that day).
@@ -1063,8 +1066,8 @@ test('four goals are realization-authorized, they are two games, and the other n
         assert.equal(r.coherence.gateA, 'FAIL', 'the composition A01 selected until 15 October fails Gate A')
     }
     // The four that selected the Pass Combination Gate were the unevaluable ones. No goal selects it now.
-    // Since 15 October 2026 (stage K5) one is: A01, as said above.
-    assert.deepEqual(notEvaluable.sort(), ['A01'], 'A01 alone cannot be evaluated yet: its progression reference is open text')
+    // Since 15 October 2026 (stage K5) one was: A01, as said above - until stage K6 the same day typed its progression reference.
+    assert.deepEqual(notEvaluable.sort(), [], 'no goal is unevaluable: A01 is authorized since stage K6')
 })
 
 /**

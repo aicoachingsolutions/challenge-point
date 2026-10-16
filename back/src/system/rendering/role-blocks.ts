@@ -41,8 +41,9 @@
  */
 import { expectedChange, reassignmentsIn } from '../derivation/reassignment'
 import { exchangeOf } from '../derivation/role-blocks'
-import { roleHolderNames } from '../derivation/designation'
+import { roleHolderNames, roleOfHolder } from '../derivation/designation'
 import { RegisterIndex } from '../derivation/register'
+import { parseSelector } from '../derivation/selector'
 import { splitPath } from '../derivation/resolved-game'
 import { LoadedContract, RoleBlock } from '../derivation/types'
 import { FidelityFinding } from './fidelity'
@@ -186,13 +187,39 @@ export function checkRoleBlocks(blocks: BuiltBlock[], index: RegisterIndex, role
                 if (!property) return false
                 return property.support.some((ref: any) => ref?.kind === 'CONTRACT_ITEM' && roleKeyed(items[i].get(`${ref.contractId}::${ref.itemId}`), holders))
             }
+            /**
+             * **A target's extent written for the role that attacks it** (15 October 2026, stage K6). A target's position is the
+             * possession game's (its anchor at an end), and what makes it differ between the blocks is an item bounding its extent
+             * written for a role holder by \`targetOf\` (his 18 October item 3: the post-regain area's depth, the progression target
+             * beginning at the pressure reference) — an item that BOUNDS the line, so it is not among the line's entailing support.
+             * It explains the difference only where, in that block, the region is the target of the team holding that role.
+             */
+            const rowOfPath = (line: string): string | null => {
+                const open = line.indexOf('[')
+                const close = line.indexOf(']', open)
+                if (open < 0 || close < 0) return null
+                const generic = `${line.slice(0, open)}[]${line.slice(close + 1)}`
+                return [...index.rows.values()].find(row => String(row.path) === generic)?.id ?? null
+            }
+            const targetedFor = (line: string, i: number): boolean => {
+                if (!spec) return false
+                const open = line.indexOf('[')
+                const close = line.indexOf(']', open)
+                const regionId = open < 0 || close < 0 ? '' : line.slice(open + 1, close)
+                const rowId = rowOfPath(line)
+                const objective = ((read(games[i], objectivesAt) ?? []) as any[]).find(o => o?.[spec.roleLeaf] === spec.role && `c:${o?.[spec.referenceLeaf]?.structuralRef?.contractId}:${o?.[spec.referenceLeaf]?.structuralRef?.itemId}` === regionId)
+                const role = objective ? roles.find(r => blocks[i].block.holders[r] === String(objective[spec.teamLeaf])) : undefined
+                const holder = role ? holders.find(name => roleOfHolder(index, name) === role) : undefined
+                if (!holder || !rowId) return false
+                return [...items[i].values()].some(item => String(item?.row) === rowId && (parseSelector(item?.selector, rowId, index).predicate?.terms ?? []).some(term => term.attribute === spec.attribute && term.op === '=' && term.value === holder))
+            }
             for (const path of [...new Set([...a.keys(), ...b.keys()])].sort()) {
                 const [x, y] = [a.get(path), b.get(path)]
                 if (x && y && same(x.value, y.value)) continue
                 if (path.endsWith('#realized')) {
                     // A realized position differs only where the position it realizes is role-keyed; RB-8 then mirrors it.
                     const line = path.slice(0, -'#realized'.length)
-                    if (explained(a.get(line), 0) && explained(b.get(line), 1)) differing.push({ path: line, kind: 'geometry' })
+                    if ((explained(a.get(line), 0) && explained(b.get(line), 1)) || (targetedFor(line, 0) && targetedFor(line, 1))) differing.push({ path: line, kind: 'geometry' })
                     else problems.push(`${line} is realized differently in the two blocks and nothing role-keyed supports it`)
                     continue
                 }
@@ -274,6 +301,23 @@ export function checkRoleBlocks(blocks: BuiltBlock[], index: RegisterIndex, role
                 if (open < 0 || close < 0) continue
                 const regionId = path.slice(open + 1, close)
                 const axisLeaf = path.slice(close + 1)
+                /**
+                 * **An element placed relative to a role is its own counterpart** (15 October 2026, stage K6). The pressure reference
+                 * ("20 m from the building team's end line") and the starting regions (short of / beyond it) are elements of the
+                 * realization with one identity in both blocks, positioned for the team holding a role (RB-4 admitted the difference
+                 * only on that support). Exchanging the roles with the ends fixed must mirror each along the axis, exactly as a
+                 * role's target is mirrored onto its counterpart. A start placement's region (P10 version 2) is an along interval.
+                 */
+                const geometryAt = (fixture: any) => (fixture.status?.geometry ?? []).find((g: any) => g.path === path)?.geometry
+                const own = attackerOf(games[0], regionId) === null && geometryAt(blocks[0].fixture)?.axis === 'along'
+                if (own) {
+                    const [here, there] = [geometryAt(blocks[0].fixture)?.interval, geometryAt(blocks[1].fixture)?.interval]
+                    if (!here || !there || !Number.isFinite(length)) problems.push(`${path} differs between the blocks and one of them holds no interval for it`)
+                    else if (here.from !== length - there.to || here.to !== length - there.from) {
+                        problems.push(`${path} is [${here.from}, ${here.to}] in one block and [${there.from}, ${there.to}] in the other, which is not its mirror along a ${length} m axis`)
+                    }
+                    continue
+                }
                 if (!axisLeaf.endsWith('.along')) continue
                 const attacker = attackerOf(games[0], regionId)
                 const role = attacker ? roles.find(r => blocks[0].block.holders[r] === attacker) : undefined

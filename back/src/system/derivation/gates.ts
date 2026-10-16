@@ -29,13 +29,13 @@
  * instances or found none, and the report carries that split so a summary cannot flatten it.
  */
 
-import { designationKey, followsPossessionRelation, isAllTeams, isListedDesignation } from './designation'
+import { designationKey, followsPossessionRelation, holderInBlock, isAllTeams, isListedDesignation, resolutionOf } from './designation'
 import { ClassifiedLine, nonClaimState } from './classify'
 import { DerivedLine, resolvedValue } from './derive'
 import { ItemOutcome } from './forward'
 import { RegisterIndex } from './register'
 import { add, compare, Interval, lt, lte, Rational, toInterval, toRational, ZERO } from './rational'
-import { BeginConditionReferent, beginConditionReferentOf, ElementClass, Envelope, FailureRecord, ItemRef, LoadedContract, NO_FURTHER_VALUE, RefusalRecord, ResolutionLine, RoleBlock, SpecClause, relationalReferentOf, structuralRefOf } from './types'
+import { BeginConditionReferent, beginConditionReferentOf, ElementClass, Envelope, FailureRecord, ItemRef, LoadedContract, NO_FURTHER_VALUE, RefusalRecord, ResolutionLine, RoleBlock, SpecClause, relationalReferentOf, relativePositionOf, structuralRefOf, teamEndPositionOf } from './types'
 
 /**
  * `DEFERRED_TO_REALIZATION` is the clause verdict added on 30 September, and it is a different
@@ -921,6 +921,23 @@ function gaReferenceIntegrity(ctx: GateContext): CheckOutcome {
              */
             if (line.row === 'V5' && beginConditionReferentOf(name)) continue
             /**
+             * A relative position (RC-21 "beyond X (for team T)", register version 13; on P10, a start placement's region, version 2)
+             * is one reference: to X, named by a typed reference. Resolved where X is held and T is a registered team designation;
+             * dangling where X names no held element or T is no designation the register lists — never read as text. Whether the
+             * relation holds of the realized geometry is GA-RELATIVE-PLACEMENT's question, answered there once.
+             */
+            const relative = relativePositionOf(name)
+            if (relative) {
+                const identity = identityOf(ctx, relative.of)
+                if (identity === 'DANGLING' || !holdsAnEnd(ctx.index, relative.forTeam)) dangling.push(`${line.lineId} → ${describeReferent(relative.of)} (for ${relative.forTeam})`)
+                else if (identity === 'HELD') resolved++
+                else {
+                    openText++
+                    probe.unestablished(line.lineId)
+                }
+                continue
+            }
+            /**
              * A relational referent (M8, 15 October 2026) is one reference: resolved when everything it designates is
              * held, dangling when it designates nothing (or something held by nobody), and a gap naming this line when
              * what it designates is open text — never itself read as text.
@@ -1318,6 +1335,76 @@ function buildOutStarters(
     return { starters, undecided, blocked, ruledOut }
 }
 
+/**
+ * **Where a start placement is re-established, and that something re-establishes it** — 15 October 2026 (stage K6, register version
+ * 13, rows P10a/P10b bound to EM-0002 Performer Configuration, EMP-0013 Timing). Christian, reply filed 17 October 2026, D4: *"That
+ * relationship should be re-established at the beginning of each new build-out episode."* M5: *"Support a relationship-based starting
+ * arrangement that can be stated clearly to the coach and re-established at build-out restarts."* A placement timed
+ * CONDITIONAL_RESET is re-established at every transition that begins the episode it names (P10b) — the transitions the typed begin
+ * condition for that episode picks out (C58, `buildOutStarters`), so an ordinary restart and a change of possession never
+ * re-establish it — and it must name an episode some transition begins, or it would silently never be re-established.
+ *
+ * One clause, vacuous where no placement is re-established. The transitions found are returned so the realized game can say where.
+ */
+export interface PlacementReset {
+    placementClassId: string
+    episode: string
+    transitions: string[]
+}
+
+function placementResets(
+    ctx: GateContext,
+    probe: Probe,
+    typedFor: (scope: string) => BeginConditionReferent | undefined,
+): { clause: ClauseResult; why: string; resets: PlacementReset[] } {
+    const RESETS = 'every start placement re-established when an episode begins names an episode a transition begins'
+    const resetting: { classId: string; episode: string }[] = []
+    let gap = false
+    for (const placement of classesOn(ctx, 'P8')) {
+        const timing = probe.peek(lineOf(placement.classId, 'P10a'))
+        if (timing.state !== 'DERIVED') {
+            // A placement whose timing is not established says nothing about re-establishment; that gap is GA-NO-FAILED-LINE's.
+            continue
+        }
+        if (String(timing.value) !== 'CONDITIONAL_RESET') continue
+        const episode = probe.cell(lineOf(placement.classId, 'P10b'))
+        if (episode.state !== 'DERIVED') {
+            gap = true
+            continue
+        }
+        resetting.push({ classId: placement.classId, episode: String(episode.value) })
+    }
+    if (!resetting.length) return { clause: gap ? notEvaluable(RESETS) : pass(RESETS, 0), why: '', resets: [] }
+    const resets: PlacementReset[] = []
+    let undecided = false
+    let blocked = gap
+    const none: string[] = []
+    for (const placement of resetting) {
+        const typed = typedFor(placement.episode)
+        if (!typed) {
+            blocked = true
+            continue
+        }
+        const found = buildOutStarters(ctx, probe, typed)
+        if (found.starters.length) resets.push({ placementClassId: placement.classId, episode: placement.episode, transitions: found.starters.map(starter => starter.classId) })
+        else if (found.undecided.length) undecided = true
+        else if (found.blocked.length) blocked = true
+        else none.push(placement.classId)
+    }
+    const clause = none.length
+        ? fail(RESETS, resetting.length)
+        : blocked
+          ? notEvaluable(RESETS)
+          : undecided
+            ? deferred(RESETS, 'which transitions begin the episode each re-established start placement names')
+            : pass(RESETS, resetting.length)
+    const why =
+        `; ${resetting.length} start placement(s) re-established when an episode begins` +
+        (resets.length ? ` (${resets.map(reset => `${reset.placementClassId} at ${reset.transitions.join(', ')}`).join('; ')})` : '') +
+        (none.length ? `; no transition begins the episode of ${none.join(', ')}` : '')
+    return { clause, why, resets }
+}
+
 function gaEpisodeReachable(ctx: GateContext): CheckOutcome {
     const CLAUSE = 'every condition authored for an episode has a transition that can begin that episode'
     const AWARDEE = 'every transition that begins such an episode is awarded to one and the same team'
@@ -1325,7 +1412,18 @@ function gaEpisodeReachable(ctx: GateContext): CheckOutcome {
     const scopeOf = (cls: ElementClass) =>
         String((ctx.contracts.find(c => c.contractId === cls.fromItem.contractId)?.items ?? []).find(i => i.itemId === cls.fromItem.itemId)?.scope ?? '')
     const scoped = ctx.classes.filter(c => c.row === 'V3' && EPISODE_SCOPES.includes(scopeOf(c)))
-    if (!scoped.length) return result('GA-EPISODE-REACHABLE', probe, [pass(CLAUSE, 0), pass(AWARDEE, 0)], 'no condition is authored for an episode')
+    /** The typed begin condition an episode-scoped condition holds for its own episode (C58), for the given scope. */
+    const typedFor = (scope: string): BeginConditionReferent | undefined =>
+        scoped
+            .filter(c => scopeOf(c) === scope)
+            .flatMap(c => {
+                const cell = probe.peek(lineOf(c.classId, 'V5'))
+                const values = cell.state === 'DERIVED' ? (Array.isArray(cell.value) ? cell.value : [cell.value]) : []
+                return values.map(beginConditionReferentOf).filter((referent): referent is BeginConditionReferent => referent !== null && referent.beginsEpisodeOf === scope)
+            })
+            .find(() => true)
+    const resets = placementResets(ctx, probe, typedFor)
+    if (!scoped.length) return result('GA-EPISODE-REACHABLE', probe, [pass(CLAUSE, 0), pass(AWARDEE, 0), resets.clause], 'no condition is authored for an episode' + resets.why)
     const named = scoped.map(c => `${c.classId} (${scopeOf(c)})`).join(', ')
 
     // The typed begin condition, where an episode-scoped condition holds one as its referent (C58) — and only one for THAT
@@ -1362,13 +1460,14 @@ function gaEpisodeReachable(ctx: GateContext): CheckOutcome {
         return result(
             'GA-EPISODE-REACHABLE',
             probe,
-            [reach, awardee],
+            [reach, awardee, resets.clause],
             `${scoped.length} condition(s) are authored for an episode — ${named}; the begin condition is typed (${typed.asAuthored ?? 'C58'}): ` +
                 `${found.starters.length} transition(s) begin one (${found.starters.map(s => `${s.classId}: ${s.trigger}`).join('; ') || 'none'})` +
                 (found.starters.length ? `, awarded to ${keys.join(', ') || 'no established team'}` : '') +
                 (found.undecided.length ? `; ${found.undecided.length} undecided until realization: ${found.undecided.join('; ')}` : '') +
                 (found.blocked.length ? `; ${found.blocked.length} blocked on a gap: ${found.blocked.join('; ')}` : '') +
-                (found.ruledOut.length ? `; ruled out: ${found.ruledOut.join('; ')}` : ''),
+                (found.ruledOut.length ? `; ruled out: ${found.ruledOut.join('; ')}` : '') +
+                resets.why,
         )
     }
 
@@ -1393,9 +1492,10 @@ function gaEpisodeReachable(ctx: GateContext): CheckOutcome {
         return result(
             'GA-EPISODE-REACHABLE',
             probe,
-            [fail(CLAUSE, scoped.length), pass(AWARDEE, 0)],
+            [fail(CLAUSE, scoped.length), pass(AWARDEE, 0), resets.clause],
             `${scoped.length} condition(s) are authored for an episode — ${named} — and no transition can begin one` +
-                (ruledOut.length ? `: ${ruledOut.join('; ')}` : ': the game holds no transition element'),
+                (ruledOut.length ? `: ${ruledOut.join('; ')}` : ': the game holds no transition element') +
+                resets.why,
         )
     }
     const takers = candidates.map(c => probe.cell(lineOf(c.classId, 'T3')))
@@ -1406,9 +1506,10 @@ function gaEpisodeReachable(ctx: GateContext): CheckOutcome {
     return result(
         'GA-EPISODE-REACHABLE',
         probe,
-        [verdict, verdict.verdict === 'DEFERRED_TO_REALIZATION' ? deferred(AWARDEE, 'which transitions begin the episode, and their realized awardees') : notEvaluable(AWARDEE)],
+        [verdict, verdict.verdict === 'DEFERRED_TO_REALIZATION' ? deferred(AWARDEE, 'which transitions begin the episode, and their realized awardees') : notEvaluable(AWARDEE), resets.clause],
         `${scoped.length} condition(s) are authored for an episode — ${named}; ${candidates.length} transition(s) may begin one ` +
-            `(${candidates.map(c => `${c.classId}: ${c.trigger}`).join('; ')}), and whether one begins as the begin condition requires is not established`,
+            `(${candidates.map(c => `${c.classId}: ${c.trigger}`).join('; ')}), and whether one begins as the begin condition requires is not established` +
+            resets.why,
     )
 }
 
@@ -2000,23 +2101,35 @@ function gaDirection(ctx: GateContext): CheckOutcome {
 
     // Opposite ends: an objective's end is the end of the axis its referent sits in. `lo + hi` against
     // the area length compares the referent's midpoint with the centre without dividing.
-    const endOf = (objectiveClassId: string): 'LOW' | 'HIGH' | 'CENTRE' | null => {
-        const reference = probe.cell(lineOf(objectiveClassId, 'J2'))
-        if (reference.state !== 'DERIVED' || length.state !== 'DERIVED') return null
-        // SD-63 — an objective reference that is open text establishes no identity, so no end is read.
-        if (identityOf(ctx, reference.value) === 'OPEN_TEXT') {
-            probe.unestablished(lineOf(objectiveClassId, 'J2'))
-            return null
+    // Each objective's target is read ONCE (stage K6, 15 October 2026): the separation clause below reads the same intervals, and
+    // a second read would record a second refusal for one unplaced target, which no game's report should gain.
+    const targetIntervals = new Map<string, Interval | null>()
+    const targetIntervalOf = (objectiveClassId: string): Interval | null => {
+        if (targetIntervals.has(objectiveClassId)) return targetIntervals.get(objectiveClassId)!
+        const read = (): Interval | null => {
+            const reference = probe.cell(lineOf(objectiveClassId, 'J2'))
+            if (reference.state !== 'DERIVED' || length.state !== 'DERIVED') return null
+            // SD-63 — an objective reference that is open text establishes no identity, so no end is read.
+            if (identityOf(ctx, reference.value) === 'OPEN_TEXT') {
+                probe.unestablished(lineOf(objectiveClassId, 'J2'))
+                return null
+            }
+            const referent = referentClass(ctx, reference.value)
+            if (!referent) return null
+            const alongRow = referent.row === 'S2' ? 'S5' : referent.row === 'O1' ? 'O4' : null
+            if (!alongRow) return null
+            return intervalOf(probe, lineOf(referent.classId, alongRow)).interval
         }
-        const referent = referentClass(ctx, reference.value)
-        if (!referent) return null
-        const alongRow = referent.row === 'S2' ? 'S5' : referent.row === 'O1' ? 'O4' : null
-        if (!alongRow) return null
-        const read = intervalOf(probe, lineOf(referent.classId, alongRow))
-        if (!read.interval) return null
+        const interval = read()
+        targetIntervals.set(objectiveClassId, interval)
+        return interval
+    }
+    const endOf = (objectiveClassId: string): 'LOW' | 'HIGH' | 'CENTRE' | null => {
+        const interval = targetIntervalOf(objectiveClassId)
+        if (!interval || length.state !== 'DERIVED') return null
         const area = toRational(length.value)
         if (!area) return null
-        const span = add(read.interval.lo, read.interval.hi)
+        const span = add(interval.lo, interval.hi)
         const side = compare(span, area)
         return side < 0 ? 'LOW' : side > 0 ? 'HIGH' : 'CENTRE'
     }
@@ -2056,12 +2169,191 @@ function gaDirection(ctx: GateContext): CheckOutcome {
         else oppositeClause = pass(OPPOSITE, ends.length)
     }
 
+    /**
+     * **The opposed targets do not overlap** — added 15 October 2026 (stage K6). Christian, reply filed 17 October 2026, D3:
+     * *"Please verify that the two targets can coexist without overlapping or contradictory scoring conditions."* Measured before
+     * this clause (design verification of 17 October): overlapping target zones [0,24] and [16,40] passed every gate, because the
+     * opposite-ends clause compares only each target's midpoint with the centre. And the register's "does not contain the
+     * midpoint" wording, the only written statement that kept targets apart, was enforced by no code and is narrowed in the same
+     * change (his M7: *"Do not introduce a universal halfway restriction."*). So: the along intervals of two opposed objectives'
+     * targets are strictly apart — a shared boundary is an overlap, a ball on it would be in both. Deferred exactly where the
+     * opposite-ends clause is, read from the same intervals (no second refusal), and generic: it names no target and no sport.
+     */
+    const SEPARATED = "the opposed objectives' targets do not overlap along the axis"
+    let separatedClause: ClauseResult
+    if (opposed.length < 2) separatedClause = pass(SEPARATED, 0)
+    else if (oppositeClause.verdict === 'DEFERRED_TO_REALIZATION' || oppositeClause.verdict === 'NOT_EVALUABLE') {
+        separatedClause = oppositeClause.verdict === 'DEFERRED_TO_REALIZATION' ? deferred(SEPARATED, 'the realized extent of each objective target, which fixes whether two of them overlap') : notEvaluable(SEPARATED)
+    } else {
+        const intervals = opposed.map(d => targetIntervalOf(attacked.get(d)![0]))
+        if (intervals.some(i => !i)) separatedClause = notEvaluable(SEPARATED)
+        else {
+            let overlapping = 0
+            for (let i = 0; i < intervals.length; i++)
+                for (let j = i + 1; j < intervals.length; j++) {
+                    const [a, b] = [intervals[i]!, intervals[j]!]
+                    if (!(lt(a.hi, b.lo) || lt(b.hi, a.lo))) overlapping++
+                }
+            separatedClause = overlapping ? fail(SEPARATED, intervals.length) : pass(SEPARATED, intervals.length)
+        }
+    }
+
     return result(
         'GA-DIRECTION',
         probe,
-        [attacksClause, oppositeClause, noChangeClause, outside(PERCEIVED)],
+        [attacksClause, oppositeClause, separatedClause, noChangeClause, outside(PERCEIVED)],
         `${objectives.length} individuated objective(s); ${attacked.size} designation(s) attack one` +
             `${shared ? ', including a shared target' : ''}; ${directional.length} direction-changing effect(s) in the register`,
+    )
+}
+
+/**
+ * **Which way a team attacks along the axis, read from the realized position of its target** — stage K6, 15 October 2026. +1
+ * toward the far end line, -1 toward the 0 end line, null where it is not established (before realization, or for a designation
+ * that stands for no setup assignment in this game). A role holder answers through the role block (his M1); the team's primary
+ * objective (the register's `targetOf` rows) references the target, and the target's realized interval says which end it is at
+ * — the same reading GA-DIRECTION's opposite-ends clause makes. Read quietly: an unplaced target is a deferral here, not a refusal.
+ */
+function attackDirection(ctx: GateContext, probe: Probe, designation: string): 1 | -1 | null {
+    const spec = ctx.index.targetOf
+    if (!spec) return null
+    const team = holderInBlock(ctx.index, designation, ctx.roleBlock) ?? (resolutionOf(ctx.index, designation)?.kind === 'SETUP_ASSIGNMENT' ? designationKey(ctx.index, designation) : null)
+    if (!team) return null
+    const length = toRational(resolvedValue(ctx.derived.get('game::E2'))?.value)
+    if (!length) return null
+    const attacking = classesOn(ctx, spec.objectivesRow).filter(objective => {
+        const role = probe.peek(lineOf(objective.classId, spec.roleRow))
+        const by = probe.peek(lineOf(objective.classId, spec.teamRow))
+        return role.state === 'DERIVED' && String(role.value) === spec.role && by.state === 'DERIVED' && designationKey(ctx.index, by.value) === team
+    })
+    if (attacking.length !== 1) return null
+    const reference = probe.peek(lineOf(attacking[0].classId, spec.referenceRow))
+    if (reference.state !== 'DERIVED') return null
+    const referent = referentClass(ctx, reference.value)
+    const interval = referent ? quietInterval(probe, lineOf(referent.classId, referent.row === 'S2' ? 'S5' : 'O4')) : null
+    if (!interval) return null
+    const side = compare(add(interval.lo, interval.hi), length)
+    return side > 0 ? 1 : side < 0 ? -1 : null
+}
+
+/**
+ * **Can a designation hold an end of the axis?** (stage K6, 15 October 2026.) A position stated "for team T" reads T's direction of
+ * attack, so T must be a team whose end is fixed for the game or the block: a setup assignment by its own spelling (TEAM_AT_AXIS_*),
+ * or a role holder (ROLE_HOLDER_<role>, a role of the register's role vocabulary), which answers through the role block. A
+ * possession-relative, episode or trigger designation holds no end, and a named team or a glossed spelling is not taken for its
+ * entry (the K2 review's rule: registration by the list's own spelling, never by mapping).
+ */
+function holdsAnEnd(index: RegisterIndex, value: string): boolean {
+    const resolved = resolutionOf(index, value)
+    if (!resolved) return false
+    return resolved.kind === 'BLOCK_ROLE' || (resolved.kind === 'SETUP_ASSIGNMENT' && resolved.entry === value)
+}
+
+/** A geometric line's interval where it holds one, read without refusing: anything else is simply not placed yet. */
+function quietInterval(probe: Probe, lineId: string): Interval | null {
+    const cell = probe.peek(lineId)
+    return cell.state === 'DERIVED' ? toInterval(cell.value) : null
+}
+
+/**
+ * `GA-RELATIVE-PLACEMENT` — every position stated relative to another element, or measured from a team's end line, names what it
+ * is relative to and holds of the realized geometry. Added 15 October 2026 (stage K6, register version 13), the nineteenth check.
+ *
+ * Christian, reply filed 17 October 2026, M7: *"M7 — Target relative to pressure reference: Approved if required."* D3: *"I agree
+ * with your recommendation to position the building team's progression target relative to the defensive pressure reference, with
+ * the coach able to adjust its precise location."* Reply filed 18 October 2026, item 3: *"Please retain the separation between the
+ * pressure reference and the progression target in the knowledge representation, even when they occupy the same location in this
+ * realization."* So the target and the reference stay two elements, and the relation between them is checked, not assumed:
+ *
+ *   - **names** — every RC-21 "beyond X (for team T)" (a RELATIVE bound on a line, or a relative position as a line's value) names
+ *     an element X the game holds and a team designation the register lists; every position measured from a team's end line names
+ *     a listed designation. A name that resolves to nothing FAILS; open text withholds (SD-63).
+ *   - **holds** — on realized geometry, RC-21's own test: the element's near edge is at or past X's far edge, in T's attacking
+ *     direction; and a position measured from a team's end line is placed from an end the game establishes T attacks. Before
+ *     realization the positions are not intervals yet, so the clause is DEFERRED and owed (never passed unexamined). Where a
+ *     metric extent is required beside the relation, realization composes the metric one and this clause is what catches a
+ *     relation it breaks — measured on a TEST-ONLY copy, a post-regain area deepened past the pressure reference.
+ *
+ * Generic: it names no element, no team and no sport; the relation and its test are the register's.
+ */
+function gaRelativePlacement(ctx: GateContext): CheckOutcome {
+    const NAMES = 'every relative position names a held element and a registered team designation'
+    const HOLDS = 'every relative position holds of the realized geometry'
+    const probe = new Probe(ctx, 'GA-RELATIVE-PLACEMENT')
+    const relations: { lineId: string; of: { contractId: string; itemId: string }; forTeam: string; region: boolean }[] = []
+    const fromEnds: { lineId: string; forTeam: string }[] = []
+    for (const line of ctx.lines) {
+        const record = ctx.derived.get(line.lineId)
+        for (const bounding of record?.bounding ?? []) {
+            const bound = bounding.bound
+            if (bound?.kind === 'RELATIVE' && bound.of && bound.forTeam && !bound.forbidden) relations.push({ lineId: line.lineId, of: bound.of, forTeam: bound.forTeam, region: false })
+        }
+        const value = resolvedValue(record)?.value
+        const relative = relativePositionOf(value)
+        if (relative) relations.push({ lineId: line.lineId, of: relative.of.structuralRef, forTeam: relative.forTeam, region: true })
+        const fromEnd = teamEndPositionOf(value)
+        if (fromEnd) fromEnds.push({ lineId: line.lineId, forTeam: fromEnd.forTeam })
+    }
+    const total = relations.length + fromEnds.length
+    if (!total) return result('GA-RELATIVE-PLACEMENT', probe, [pass(NAMES, 0), pass(HOLDS, 0)], 'no position in this game is stated relative to another element or to a team')
+
+    const dangling: string[] = []
+    let openText = false
+    for (const relation of relations) {
+        probe.peek(relation.lineId)
+        const identity = identityOf(ctx, { structuralRef: relation.of })
+        if (identity === 'DANGLING') dangling.push(`${relation.lineId} → ${relation.of.contractId}::${relation.of.itemId}`)
+        else if (identity === 'OPEN_TEXT') openText = true
+        if (!holdsAnEnd(ctx.index, relation.forTeam)) dangling.push(`${relation.lineId}: ${relation.forTeam} is not a team designation that holds an end (a setup assignment, or a role holder answering through the role block)`)
+    }
+    for (const position of fromEnds) {
+        probe.peek(position.lineId)
+        if (!holdsAnEnd(ctx.index, position.forTeam)) dangling.push(`${position.lineId}: ${position.forTeam} is not a team designation that holds an end (a setup assignment, or a role holder answering through the role block)`)
+    }
+    const names = dangling.length ? fail(NAMES, total) : openText ? notEvaluable(NAMES) : pass(NAMES, total)
+
+    const broken: string[] = []
+    let unplaced = 0
+    for (const relation of relations) {
+        const direction = attackDirection(ctx, probe, relation.forTeam)
+        const referent = referentClass(ctx, { structuralRef: relation.of })
+        const x = referent ? quietInterval(probe, lineOf(referent.classId, referent.row === 'S2' ? 'S5' : 'O4')) : null
+        if (direction === null || !x) {
+            unplaced++
+            continue
+        }
+        const far = direction > 0 ? x.hi : x.lo
+        if (relation.region) {
+            // A region stated as the part of the area beyond X: it holds by its own definition, so what is checked is that it is
+            // a part of the area at all — X's far edge strictly inside the axis, so the region beyond it is not empty.
+            const length = toRational(resolvedValue(ctx.derived.get('game::E2'))?.value)
+            if (!length || !(lt(ZERO, far) && lt(far, length))) broken.push(`${relation.lineId}: nothing of the area lies beyond ${relation.of.itemId} for ${relation.forTeam}`)
+            continue
+        }
+        const e = quietInterval(probe, relation.lineId)
+        if (!e) {
+            unplaced++
+            continue
+        }
+        const near = direction > 0 ? e.lo : e.hi
+        const holds = direction > 0 ? compare(near, far) >= 0 : compare(near, far) <= 0
+        if (!holds) broken.push(`${relation.lineId}: its near edge is not at or past the far edge of ${relation.of.itemId} in the attacking direction of ${relation.forTeam}`)
+    }
+    for (const position of fromEnds) {
+        if (attackDirection(ctx, probe, position.forTeam) === null || !quietInterval(probe, position.lineId)) unplaced++
+    }
+    const holds = broken.length
+        ? fail(HOLDS, total)
+        : unplaced
+          ? deferred(HOLDS, 'the realized position of each element stated relative to another, of what it is relative to, and the end each team attacks')
+          : pass(HOLDS, total)
+    return result(
+        'GA-RELATIVE-PLACEMENT',
+        probe,
+        [names, holds],
+        `${relations.length} relative position(s), ${fromEnds.length} measured from a team's end line; ${dangling.length} name nothing held or registered; ${broken.length} broken on the realized geometry` +
+            (broken.length ? `: ${broken.join('; ')}` : '') +
+            (unplaced ? `; ${unplaced} not yet placed` : ''),
     )
 }
 
@@ -2495,6 +2787,8 @@ const GATE_A_CHECKS: ((ctx: GateContext) => CheckOutcome)[] = [
     gaAffiliation,
     // Eighteenth, added 15 October 2026 when conditions began carrying their authored scope (SD-36; his 16 October 9.3).
     gaEpisodeReachable,
+    // Nineteenth, added 15 October 2026 (stage K6, register version 13) for his M7 and his 18 October item 3.
+    gaRelativePlacement,
 ]
 
 export interface GateOutcome {

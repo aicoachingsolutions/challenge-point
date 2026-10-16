@@ -404,7 +404,16 @@ export type SupportRef =
     | { kind: 'SESSION'; row: string }
 
 export interface Bounds {
-    kind: 'COUNT' | 'INTERVAL' | 'SET' | 'QUALITATIVE'
+    /**
+     * `RELATIVE` added 15 October 2026 (stage K6, register version 13) for his M7, reply filed 17 October 2026: *"M7 — Target
+     * relative to pressure reference: Approved if required."* RC-21's canonical *"beyond X (for team T)"* made machine-readable:
+     * the extent reaches X's far edge in T's attacking direction. `of` and `forTeam` carry the referent and the team.
+     */
+    kind: 'COUNT' | 'INTERVAL' | 'SET' | 'QUALITATIVE' | 'RELATIVE'
+    /** For a RELATIVE bound: the register's relation (`beyond`), the element it is relative to, and the team whose direction it reads. */
+    relation?: string
+    of?: { contractId: string; itemId: string }
+    forTeam?: string
     min?: number | null
     max?: number | null
     members?: unknown[]
@@ -496,6 +505,54 @@ export function beginConditionReferentOf(value: unknown): BeginConditionReferent
     if (typeof v.beginsEpisodeOf !== 'string' || !Array.isArray(v.arms) || !v.arms.length || v.structuralRef || v.objectiveReferenceOf) return null
     const wellFormed = v.arms.every((arm: any) => arm && typeof arm === 'object' && (typeof arm.takenBy === 'string') !== (typeof arm.restartKind === 'string'))
     return wellFormed ? (v as BeginConditionReferent) : null
+}
+
+/**
+ * **A position stated relative to another element, for a team: RC-21's "beyond X (for team T)"** — 15 October 2026, stage K6,
+ * register version 13, his M7 (reply filed 17 October 2026): *"M7 — Target relative to pressure reference: Approved if
+ * required."* RC-21's test, canonical prose since 18 September: *"the element's near edge is at or past X's far edge, in T's
+ * attacking direction"*. `term` names the register's machine-readable term (`relativeTerms.machineReadable.terms`, kind
+ * `relative`), `of` the element X by a typed structural reference (SD-98), and `forTeam` a registered team designation whose
+ * direction of attack the relation reads — a role holder answers through the role block the game is derived for.
+ *
+ * On an extent row (S5) it is a RELATIVE bound beside the element's anchor; as a start placement's region (P10, version 2) it
+ * is the part of the area beyond X in that direction. Written only in an item, never inferred; the gates resolve `of`
+ * (GA-REFERENCE-INTEGRITY) and check the relation on realized geometry (GA-RELATIVE-PLACEMENT).
+ */
+export interface RelativePosition {
+    term: string
+    of: { structuralRef: { contractId: string; itemId: string }; asAuthored?: string }
+    forTeam: string
+    asAuthored?: string
+}
+
+/** Recognised in one place, beside `structuralRefOf`, so derivation, realization and the gates agree on what counts. */
+export function relativePositionOf(value: unknown): RelativePosition | null {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return null
+    const v = value as any
+    return typeof v.term === 'string' && typeof v.forTeam === 'string' && structuralRefOf(v.of) && !v.structuralRef && !v.objectiveReferenceOf ? (v as RelativePosition) : null
+}
+
+/**
+ * **A position measured from the end line a team defends — RC-21's "own end (of team T)" with a distance from it** — 15 October
+ * 2026, stage K6, register version 13 (S5.valueType version 2). Register S5 reads *"interval along the axis, in metres or
+ * relative"*; in a game played in role blocks the end a team defends is decided by the block, so an interval in metres states
+ * its origin: `offsetM` metres measured from the end line `forTeam` defends, into the area. Written for his reply filed 18
+ * October 2026, item 3: *"Pressure reference: 20 m from the building team's end line."* Only an item writes one.
+ */
+export interface TeamEndPosition {
+    term: string
+    forTeam: string
+    offsetM: { from: number; to: number }
+    asAuthored?: string
+}
+
+export function teamEndPositionOf(value: unknown): TeamEndPosition | null {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return null
+    const v = value as any
+    const offset = v.offsetM
+    const finite = (n: unknown) => typeof n === 'number' && Number.isFinite(n) && n >= 0
+    return typeof v.term === 'string' && typeof v.forTeam === 'string' && offset && finite(offset.from) && finite(offset.to) && offset.from <= offset.to && !v.of ? (v as TeamEndPosition) : null
 }
 
 /** Recognised in one place, beside `structuralRefOf`, so derivation and the gates agree on what counts. */

@@ -151,6 +151,26 @@ entries, and a game value written "(= entry)" counts as that entry.
 > realization choice by declaration (`withdraws`), recorded and carried into the fixture. AM-15's by-construction transitions
 > remain unimplemented for every other game.
 
+> **Engineering line, 15 October 2026 (stage K6) — ours, outside his adopted text.** Implemented for his M7, M5, D3 and D4 of
+> 17 October and his starting values of 18 October (item 3). (1) RC-21's canonical "beyond X (for team T)" is machine-readable
+> (register version 13, kind `relative`): a value `{term, of, forTeam}` names X by a typed reference and T by a designation that
+> holds an end (a setup assignment by its own spelling, or a role holder answering through the role block). On an extent row it
+> is a RELATIVE bound beside the element's anchor; as a start placement's region (P10 version 2) it is the part of the area beyond
+> X in T's direction. (2) An interval in metres may state its origin as the end line a team defends (S5 version 2). (3) Which end
+> a team attacks is read from the game's own objectives: the end its primary objective's target touches (its `longitudinal`
+> selector), for the block (`realization/team-ends.ts`); realization places an element relative to another after it, composes
+> the widest extent "at or past" admits where no metric extent is required, and leaves unplaced (never defaulted) an element
+> whose referent or team end is not established. (4) GA-RELATIVE-PLACEMENT, the nineteenth check: every relative position names a
+> held element and a team that holds an end (FAIL otherwise), and holds of the realized geometry (DEFERRED before realization,
+> owed, then checked by RC-21's own test). (5) GA-DIRECTION's separation clause: the opposed objectives' targets do not overlap
+> along the axis (a shared boundary is an overlap), deferred where the opposite-ends clause is and read from the same intervals.
+> The register's "does not contain the midpoint" (S2.longitudinalValues) is narrowed in the same version. (6) Start placements
+> carry a timing (P10a: INITIAL or CONDITIONAL_RESET, bound to EM-0002 EMP-0013) and, re-established, the episode at whose every
+> beginning they are (P10b): GA-EPISODE-REACHABLE's third clause requires a transition the typed begin condition picks out, so an
+> ordinary restart or a change of possession never re-establishes one. (7) The post-realization context substitutes realized
+> metres only on position rows. (8) A record-named realization listing the areas its metric values were given for
+> (`testingBoundaries.areas`) is built only for those areas; any other area is refused at `session` (DRAFT sentence).
+
 **Every structural reference normalises, not only selectors (SD-32, ruled).** In his words:
 
 > "Any structural reference participating in derivation must resolve through the registered

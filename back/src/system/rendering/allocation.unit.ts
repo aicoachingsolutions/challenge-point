@@ -60,8 +60,14 @@ const sessionOf = (players: number, keepers: number) => ({ players, lengthM: 40,
  * realization's own choices file and are not said to a coach until stage K7 (their rendering), so a game carrying them stops at
  * 'communication' — pinned in starts-and-restarts.unit.ts. What this file proves is the allocation, the deferral and the
  * reassignment, and none of them reads a transition: every other item of the production realization is composed as it stands.
+ *
+ * Re-pointed again 15 October 2026 (stage K6): without its spatial items too (the pressure reference, the targets' depths and
+ * relations, the starting placements - rows S2, S5, S6, P8-P10b). They re-establish the placements at the build-out episode's
+ * beginnings, which only the context types (with the possession game alone GA-EPISODE-REACHABLE withholds on them, measured),
+ * and are pinned in target-placement.unit.ts; the allocation reads none of them.
  */
-const allocationOnly = (realization: any) => void (realization.items = realization.items.filter((item: any) => !String(item.row).startsWith('T')))
+const SPATIAL_ROWS = ['S2', 'S5', 'S6', 'P8', 'P10', 'P10a', 'P10b']
+const allocationOnly = (realization: any) => void (realization.items = realization.items.filter((item: any) => !String(item.row).startsWith('T') && !SPATIAL_ROWS.includes(String(item.row))))
 const withRealization = (players: number, keepers: number, alter: (realization: any) => void = () => undefined) =>
     buildActivityFromKnowledge(['GF2'], sessionOf(players, keepers), {
         alter: contracts => {
@@ -369,18 +375,22 @@ test('the adjustments are said only under "Adjusting the activity", in his words
 // arrangement and the targets' placement, RD-3). The allocation no longer stands among them (stage K4).
 // 15 October 2026 (stage K5): six entries -> three. K5 carried the build-out start, the goalkeeper's part and the episodes and
 // restarts (M3, M4, D1, D5); what remains is K6's (D3, D4/M5) and the stale asymmetric-structure entry the K4 review flagged.
-test('production A01: refused at its record on three entries (the allocation and restart entries carried), with the allocation authority in the account', () => {
+// 15 October 2026 (stage K6): three entries -> none. K6 carried the starting arrangement and the targets' placement (his 18 October
+// item 3, the Performer Configuration relationship) and moved the stale asymmetric-structure entry; production A01 passes its
+// record and stops at validation (pinned in target-placement.unit.ts).
+test('production A01: past its record (every entry carried), with the allocation authority and both relationships in the account', () => {
     const activity = refused(buildActivity({ kind: 'learning-goal', goalId: 'A01', session: sessionOf(12, 1) }), 'production A01')
-    assert.equal(activity.stage, 'knowledge')
-    assert.equal(activity.reasons[0], '3 parts of the activity the authorization record of A01 asks for are not in place yet')
-    assert.ok(!activity.reasons.some(r => r.includes('"defensive numbers"') || r.includes('"overloads"')))
-    assert.ok(!activity.reasons.some(r => r.includes('"goalkeeper positioning"')), 'the goalkeeper entry is carried since stage K5 (it waited on M3)')
+    assert.equal(activity.stage, 'validation')
+    assert.ok(!activity.reasons.some(r => r.includes('authorization record')), 'no record entry stops it')
     const allocation = activity.account.allocation!
     assert.equal(allocation.principle.principle, allocationPrinciple().principle)
-    assert.deepEqual(allocation.relationships.map(r => [r.id, r.status]), [['RPC-001~EM-0006', 'CONFIRMED']])
+    // Since stage K6 the Performer Configuration relationship he confirmed is cited too, by the starting placements.
+    assert.deepEqual(allocation.relationships.map(r => [r.id, r.status]), [['RPC-001~EM-0006', 'CONFIRMED'], ['RPC-001~EM-0002', 'CONFIRMED']])
     assert.deepEqual(allocation.alternatives.map(a => `${a.contractId}::${a.itemId}`), ['restated:GF2::GF2-14.b'])
     assert.equal(allocation.adjustments.length, 2)
     assert.deepEqual(allocation.testingBoundaries!.players, [11, 12])
+    // The area his starting values were given for crosses into the account with the player counts (stage K6).
+    assert.deepEqual(allocation.testingBoundaries!.areas, [{ lengthM: 40, widthM: 30 }])
 })
 
 console.log(`allocation.unit.ts — ${passed} passed`)

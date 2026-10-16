@@ -461,6 +461,27 @@ function gapAccountOf(gap: GoalSelectionGap): Partial<ActivityAccount> {
 }
 
 /**
+ * **A session area a realization's starting values were not given for** (15 October 2026, stage K6), or null. The areas are the
+ * realization's testing boundaries (data); an area matches as recorded, length and width: the gates read the session's length as the
+ * axis length (E2), so a 30 x 40 m session is not the 40 x 30 m area (measured 15 October 2026: its far-end target fell outside).
+ * The summary is a DRAFT for his approval; the numbers in it are the session's, never the realization's.
+ */
+export function testingAreaRefusal(realization: ProvisionalRealization, session: ActivitySession): { summary: string; reasons: string[] } | null {
+    const areas = realization.testingBoundaries?.areas
+    if (!areas || !areas.length) return null
+    const [long, short] = [Number(session.lengthM), Number(session.widthM)]
+    if (areas.some(area => area.lengthM === long && area.widthM === short)) return null
+    const given = areas.map(area => `${area.lengthM} x ${area.widthM} m`).join(', ')
+    const asked = Number.isFinite(long) && Number.isFinite(short) ? `${session.lengthM} x ${session.widthM} m` : 'this'
+    return {
+        summary: `The starting positions for this activity have not been decided for a ${asked} area.`,
+        reasons: [
+            `the provisional realization ${realization.provisionalId} gives its starting values for ${given} only (its testing boundaries, ${realization.testingBoundaries!.citedAs}): ${asked} is not one of them`,
+        ],
+    }
+}
+
+/**
  * **The roster rule's cause, as the sentence a coach can act on.** Each is built from the numbers the rule
  * reports and from the role's name as the register gave it; none is written for a particular role.
  *
@@ -904,6 +925,22 @@ function build(
             `${recordGaps.length} part${recordGaps.length === 1 ? '' : 's'} of the activity the authorization record of ${goalSelection!.goalId} asks for ${recordGaps.length === 1 ? 'is' : 'are'} not in place yet`,
             ...recordGaps.map(gap => `${gap.from} "${gap.label}" is ${gap.status} (${gap.category}), waiting on ${gap.gaps.map(named => named.id).join(', ')}`),
         ])
+    }
+
+    /**
+     * **Starting values given for one area are built for that area only** — 15 October 2026 (stage K6); the coach's sentence is a
+     * DRAFT. Christian, reply filed 18 October 2026, item 3: *"The pressure reference should be adjustable in either direction. Twenty
+     * meters is our initial hypothesis, not a canonical distance or a requirement for other field sizes."* Item 7: *"The 11–12-player
+     * support and 40 × 30 m prototype values are acceptable current testing boundaries, but they should not become permanent
+     * architectural limitations."* His values are metres for the prototype area, so a realization whose testing boundaries list the
+     * areas they were given for is built only for those areas, as recorded; any other area is told the starting positions have
+     * not been decided for it, never that it is wrong. Read from the realization derivation received, so no area, goal or value is
+     * named here; a realization listing no areas is untouched. A session refusal: the coach can change the area.
+     */
+    {
+        const received = (input.contracts as LoadedContract[]).find(contract => contract.contractId === `provisional:${goalSelection?.authorization?.provisionalRealization}`) as ProvisionalRealization | undefined
+        const refusal = received ? testingAreaRefusal(received, session) : null
+        if (refusal) return refuse('session', refusal.summary, refusal.reasons)
     }
 
     /**

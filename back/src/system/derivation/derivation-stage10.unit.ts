@@ -555,7 +555,10 @@ function directionFixture(bHi: number, bLo: number): LoadedContract[] {
 test('GA-DIRECTION reports its three structural claims separately, not as one fused clause', () => {
     const result: any = runStages0to10(input(directionFixture(40, 35)))
     const direction = check(result, 'GA-DIRECTION')
-    assert.equal(direction.clauses.length, 4, 'three structural clauses and one outside the representation')
+    // 4 -> 5 on 15 October 2026 (stage K6): the separation clause, his 17 October D3 "Please verify that the two targets can coexist
+    // without overlapping or contradictory scoring conditions." (overlap passed every gate before it).
+    assert.equal(direction.clauses.length, 5, 'four structural clauses and one outside the representation')
+    assert.ok(direction.clauses.some((c: any) => /do not overlap/.test(c.clause)))
     assert.ok(direction.clauses.some((c: any) => /attacks/.test(c.clause)))
     assert.ok(direction.clauses.some((c: any) => /opposite ends/.test(c.clause)))
     assert.ok(direction.clauses.some((c: any) => /changes a team's direction/.test(c.clause)))
@@ -569,6 +572,17 @@ test('objectives at opposite ends pass; objectives at the same end fail', () => 
     const sameEnd: any = runStages0to10(input(directionFixture(8, 3)))
     const sameClause = check(sameEnd, 'GA-DIRECTION').clauses.find((c: any) => /opposite ends/.test(c.clause))
     assert.equal(sameClause.verdict, 'FAIL', 'both objectives in the same half of the axis')
+})
+
+test('opposed targets that overlap fail the separation clause, though they lie at opposite ends (stage K6)', () => {
+    const separated = (result: any) => check(result, 'GA-DIRECTION').clauses.find((c: any) => /do not overlap/.test(c.clause))
+    assert.equal(separated(runStages0to10(input(directionFixture(40, 35)))).verdict, 'PASS', '[0,5] and [35,40]')
+    // [0,5] and [4,40]: each at its own end by midpoint, so the opposite-ends clause passes - and they overlap.
+    const overlapping: any = runStages0to10(input(directionFixture(40, 4)))
+    assert.equal(check(overlapping, 'GA-DIRECTION').clauses.find((c: any) => /opposite ends/.test(c.clause)).verdict, 'PASS')
+    assert.equal(separated(overlapping).verdict, 'FAIL')
+    // A shared boundary is an overlap: a ball on it would be in both targets.
+    assert.equal(separated(runStages0to10(input(directionFixture(40, 5)))).verdict, 'FAIL', '[0,5] and [5,40]')
 })
 
 test('GA-ONE-PRIMARY-EVENT separates existence, base value and referent position', () => {
@@ -1183,7 +1197,7 @@ test('FIRST_FORWARD_PASS is registered, and it is the only trigger the 29 Septem
     )
 })
 
-test('the eighteen Gate A checks are all present, and GA-RESIDUAL-SPACE is gone (SD-45)', () => {
+test('the nineteen Gate A checks are all present, and GA-RESIDUAL-SPACE is gone (SD-45)', () => {
     const result: any = runStages0to10(corpusInput())
     const ids = gateA(result).checks.map((c: any) => c.checkId).sort()
     // Seventeen since 14 October 2026: GA-AFFILIATION reads register row P6c, added that day on his ruling
@@ -1193,7 +1207,11 @@ test('the eighteen Gate A checks are all present, and GA-RESIDUAL-SPACE is gone 
     // transition that can begin that episode — possible to ask only once conditions carried their authored scope
     // (SD-36; his 16 October 9.3, "Build-out condition applies only to build-out episodes: Approved."). See
     // condition-scope.unit.ts.
-    assert.equal(ids.length, 18)
+    // Nineteen since 15 October 2026 (stage K6): GA-RELATIVE-PLACEMENT checks every position stated relative to another element or
+    // to a team (RC-21's "beyond X (for team T)", made machine-readable for his M7, reply filed 17 October 2026: "M7 — Target
+    // relative to pressure reference: Approved if required."). See target-placement.unit.ts.
+    assert.equal(ids.length, 19)
+    assert.ok(ids.includes('GA-RELATIVE-PLACEMENT'))
     assert.ok(ids.includes('GA-EPISODE-REACHABLE'))
     assert.ok(ids.includes('GA-AFFILIATION'))
     assert.ok(!ids.includes('GA-RESIDUAL-SPACE'), 'SD-45 removed it; no machine-testable concept is created')

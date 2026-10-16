@@ -258,9 +258,18 @@ test('registering the member changed no verdict in any of the thirteen goals', (
      * role block, as this table always derived, so the block-scoped awardees are not resolved; in its blocks see
      * starts-and-restarts.unit.ts. The old composition carries no realization and keeps its FAIL.
      */
+    /**
+     * **13 · 15 October, stage K6 — A01's Gate A NOT_EVALUABLE → DEFERRED_TO_REALIZATION and 10 → 11 failed lines, measured.**
+     * Ruling C59 types the progression condition's referent (RPC-001-18.d), the open text Gate A withheld on, so nothing knowledge
+     * could settle is left unsettled; what remains is owed to realization (the spatial placements among it). The one line added is
+     * the pressure reference's function line (c:provisional:A01-R1:A01-R1-S2-1::S4): a region A01-R1 now establishes (his 18
+     * October item 3), whose functions beyond the one its selector names are declared free by the possession game, exactly as the
+     * two targets' S4 lines are - an established absence, which GA-NO-FAILED-LINE does not block on. The old composition is
+     * unchanged.
+     */
     const A01_COMPOSITION = { failed: 11, gateA: 'FAIL', reachable: true }
     const expected: Record<string, { failed: number; gateA: string; reachable: boolean }> = {
-        A01: { failed: 10, gateA: 'NOT_EVALUABLE', reachable: true },
+        A01: { failed: 11, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
         D01: { failed: 8, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
         TA01: { failed: 15, gateA: 'FAIL', reachable: false },
         TD01: { failed: 14, gateA: 'FAIL', reachable: false },

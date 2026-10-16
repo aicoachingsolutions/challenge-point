@@ -56,6 +56,17 @@ const damaged = (mutate: (record: LearningGoalAuthorization) => void): string[] 
     mutate(copy.find(entry => entry.learningGoalId === 'A01')!)
     return validateLearningGoalAuthorizations(copy)
 }
+/**
+ * **A01's record as it stood before stage K6 (15 October 2026), on a COPY (TEST-ONLY)**: the pressing team's starting
+ * relationship and where the targets sit as genuine gaps, the asymmetric structure as a missing capability. Stage K6 carried all
+ * three, so the production record names no gap; the gate's refusals and the gap reader are proved on this copy instead.
+ */
+const asBeforeK6 = (record: LearningGoalAuthorization): LearningGoalAuthorization => {
+    Object.assign(record.manipulations[1], { category: 'GENUINE_GAP', status: 'MISSING_KNOWLEDGE', gaps: ['D4', 'M5'] })
+    Object.assign(record.manipulations[4], { category: 'GENUINE_GAP', status: 'MISSING_KNOWLEDGE', gaps: ['D3'] })
+    Object.assign(record.provisionalChoices![1], { status: 'MISSING_CAPABILITY', gaps: ['D2', 'D7', 'M1', 'M2'] })
+    return record
+}
 
 test('one record, for A01, and the production records pass the gate', () => {
     assert.deepEqual(learningGoalAuthorizations().map(entry => entry.learningGoalId), ['A01'], 'only the goal he ruled on has a record')
@@ -158,10 +169,16 @@ test('each manipulation his context names, with its category and status', () => 
         // restarts (taken by the building team's goalkeeper from the feet, at a location the coach chooses). It read
         // MISSING_CAPABILITY ['M3'] until then.
         ['starting positions', 'where the team building out starts', 'PROVISIONAL_REALIZATION_CHOICE', 'AUTHORIZED_BY_RULING', []],
-        ['starting positions', "the defending team's starting relationship", 'GENUINE_GAP', 'MISSING_KNOWLEDGE', ['D4', 'M5']],
+        // Moved 15 October 2026 (stage K6): capability M5 is built (register version 13, P10a/P10b bound to EM-0002) and A01-R1
+        // carries his D4 starting relationship through the Performer Configuration relationship he confirmed on 18 October; the
+        // aspect names the role (his D7). It read "the defending team's starting relationship", GENUINE_GAP / MISSING_KNOWLEDGE
+        // ['D4', 'M5'] until then.
+        ['starting positions', "the pressing team's starting relationship", 'PROVISIONAL_REALIZATION_CHOICE', 'AUTHORIZED_BY_RULING', []],
         ['field dimensions', null, 'EXISTING_KNOWLEDGE_TO_VERIFY', 'AUTHORIZED_VIA_GAME_FORM_OR_SESSION', []],
         ['progression references', "each team's own target, in a different place, inside the area", 'EXISTING_KNOWLEDGE_TO_VERIFY', 'AUTHORIZED_VIA_GAME_FORM_OR_SESSION', []],
-        ['progression references', 'where each target sits: the build-out progression target and the post-regain area', 'GENUINE_GAP', 'MISSING_KNOWLEDGE', ['D3']],
+        // Moved 15 October 2026 (stage K6): his 18 October item 3 values, for the 40 x 30 m prototype, carried by A01-R1 on
+        // capability M7 (register version 13). It read GENUINE_GAP / MISSING_KNOWLEDGE ['D3'] until then.
+        ['progression references', 'where each target sits: the build-out progression target and the post-regain area', 'PROVISIONAL_REALIZATION_CHOICE', 'AUTHORIZED_BY_RULING', []],
         // Moved 15 October 2026 (stage K4): his D6 of 17 October and his confirmation of the Participant Composition
         // relationship on 18 October (item 5) are carried by the provisional realization's counts by role — so the numbers
         // entries are his provisional choice, authorized by his ruling, and the goalkeeper entry waits on M3 alone (its start
@@ -184,6 +201,8 @@ test('each manipulation his context names, with its category and status', () => 
     const placement = a01().manipulations.find(m => m.aspect === 'where each target sits: the build-out progression target and the post-regain area')!
     assert.ok(placement.statusBasis.includes('I therefore favor an intermediate progression reference or target over a distant terminal end zone for this first activity.'))
     assert.ok(placement.statusBasis.includes('A midfield line or zone may be appropriate, but I do not want to mandate midfield or prescribe a universal depth.'))
+    // 15 October 2026 (stage K6): his 18 October values lead the basis; the item 4 words stay beside them as the earlier basis.
+    assert.ok(placement.statusBasis.startsWith("His reply filed 18 October 2026, item 3: 'I approve the following provisional values:'"))
     assert.ok(placement.note!.includes('A 5 m end-zone depth could be considered as an initial prototype for a 40 × 30 m area, but I am not approving it as a canonical value.'))
     assert.ok(placement.note!.includes('superseded by item 4'))
     // Press timing is answered by his item 3, and what he kept as potential realizations is not built.
@@ -246,7 +265,10 @@ test('his 16 October provisional choices, each cited, with whether the activity 
     const rows = a01().provisionalChoices!.map(choice => [choice.citedAs.split('), ').pop(), choice.status, choice.gaps])
     assert.deepEqual(rows, [
         ['item 1', 'AUTHORIZED_BY_RULING', []],
-        ['item 2', 'MISSING_CAPABILITY', ['D2', 'D7', 'M1', 'M2']],
+        // 15 October 2026 (stage K6): carried since K3 (M1 role blocks, his D2(a) roles and exchange in A01-R1) and K2 (M2), his D7
+        // wording through the targets keyed by role; moved now, flagged stale by the K4 and K5 reviews. It read
+        // MISSING_CAPABILITY ['D2', 'D7', 'M1', 'M2'] until then.
+        ['item 2', 'AUTHORIZED_BY_RULING', []],
         ['item 4', 'AUTHORIZED_BY_RULING', []],
         ['item 5', 'AUTHORIZED_BY_RULING', []],
         // 15 October 2026 (stage K5): his 17 October D1, D5, M3 and M4 and 18 October items 2 and 4 are carried by A01-R1's
@@ -285,7 +307,10 @@ test('the decisions and capabilities the activity waits on: D1-D7 and M1-M5 and 
     // the provisional realization's counts by role; its definition stays, as M7's does, so the record keeps what it asked.
     // D1, D5, M3 and M4 are named by no entry since 15 October 2026 (stage K5): his D1/D5 decisions and the M3/M4 capabilities
     // are carried by A01-R1's transitions; their definitions stay, as D6's and M7's do.
-    assert.deepEqual([...named].sort(), ['D2', 'D3', 'D4', 'D7', 'M1', 'M2', 'M5'])
+    // None is named by any entry since 15 October 2026 (stage K6): D3, D4 and M5 by the starting values and placements A01-R1
+    // carries (his 18 October item 3, the Performer Configuration relationship he confirmed), D2, D7, M1 and M2 by the
+    // asymmetric-structure entry, moved at last (stale since K3). Every definition stays, so the record keeps what it asked.
+    assert.deepEqual([...named].sort(), [])
     const known = a01().existingKnowledge!
     const origin = known.find(entry => entry.what === 'The origin of a build-out needs no further value.')!
     assert.ok(origin.sources.includes('ruling C55') && origin.note!.includes('RPC-001-18.a::V6') && origin.note!.includes('capability M6'))
@@ -358,22 +383,24 @@ test('the gate refuses a category or a status that does not agree, and a gap nob
     assert.deepEqual(validateLearningGoalAuthorizations(learningGoalAuthorizations()), [])
     assert.ok(damaged(r => ((r.manipulations[2] as any).category = undefined)).some(e => e.includes('names no category of his')))
     assert.ok(damaged(r => ((r.manipulations[2] as any).category = 'GENERAL_PRINCIPLE')).some(e => e.includes('names no category of his')), 'a principle is recorded once, never as an entry')
-    assert.ok(damaged(r => (r.manipulations[1].status = 'AUTHORIZED_VIA_GAME_FORM_OR_SESSION')).some(e => e.includes('is a GENUINE_GAP with the status')))
-    assert.ok(damaged(r => (r.manipulations[1].gaps = [])).some(e => e.includes('names no decision or capability that would supply it')))
+    assert.ok(damaged(r => (asBeforeK6(r).manipulations[1].status = 'AUTHORIZED_VIA_GAME_FORM_OR_SESSION')).some(e => e.includes('is a GENUINE_GAP with the status')))
+    assert.ok(damaged(r => (asBeforeK6(r).manipulations[1].gaps = [])).some(e => e.includes('names no decision or capability that would supply it')))
     assert.ok(damaged(r => (r.manipulations[2].gaps = ['D1'])).some(e => e.includes('only a missing entry waits on one')))
-    assert.ok(damaged(r => (r.manipulations[1].gaps = ['D99'])).some(e => e.includes('names the gap D99, which the record does not define')))
-    assert.ok(damaged(r => ((r.manipulations[1] as any).gaps = undefined)).some(e => e.includes('lists no gaps')))
+    assert.ok(damaged(r => (asBeforeK6(r).manipulations[1].gaps = ['D99'])).some(e => e.includes('names the gap D99, which the record does not define')))
+    assert.ok(damaged(r => ((asBeforeK6(r).manipulations[1] as any).gaps = undefined)).some(e => e.includes('lists no gaps')))
     assert.ok(damaged(r => (r.manipulations[2].category = 'PROVISIONAL_REALIZATION_CHOICE')).some(e => e.includes('AUTHORIZED_VIA_GAME_FORM_OR_SESSION but not EXISTING_KNOWLEDGE_TO_VERIFY')))
     assert.ok(damaged(r => (r.manipulations[9].category = 'EXISTING_KNOWLEDGE_TO_VERIFY')).some(e => e.includes('AUTHORIZED_BY_RULING but not his PROVISIONAL_REALIZATION_CHOICE')))
     assert.ok(damaged(r => ((r.provisionalChoices![1] as any).status = 'BUILT')).some(e => e.includes('provisional choice 2 has the unknown status BUILT')))
-    assert.ok(damaged(r => (r.provisionalChoices![1].gaps = [])).some(e => e.includes('provisional choice 2 is MISSING_CAPABILITY and names no decision')))
+    assert.ok(damaged(r => (asBeforeK6(r).provisionalChoices![1].gaps = [])).some(e => e.includes('provisional choice 2 is MISSING_CAPABILITY and names no decision')))
     assert.ok(damaged(r => r.gaps!.push({ ...r.gaps![0] })).some(e => e.includes('the gap D1 is defined twice')))
     assert.ok(damaged(r => ((r.gaps![0] as any).kind = 'WISH')).some(e => e.includes('gap 1 must have an id, a kind')))
     assert.ok(damaged(r => (r.existingKnowledge![0].sources = [])).some(e => e.includes('existing knowledge 1 must say what is authorized and cite at least one source')))
     assert.ok(damaged(r => ((r.existingKnowledge![0] as any).category = 'GENUINE_GAP')).some(e => e.includes('existing knowledge 1 is not labelled EXISTING_KNOWLEDGE_TO_VERIFY')))
     // Removing a definition an entry names is refused: a refusal must never cite a decision nobody can find.
     // Re-pointed 15 October 2026 (stage K4) from D6, which no entry names now (its entries are carried): D3 still is.
-    assert.ok(damaged(r => (r.gaps = r.gaps!.filter(gap => gap.id !== 'D3'))).some(e => e.includes('names the gap D3, which the record does not define')))
+    // Re-pointed again 15 October 2026 (stage K6): no production entry names D3 now, so the record as it stood before K6 (a copy).
+    // The four refusals above on manipulation 1 and provisional choice 2 are re-pointed to the same copy for the same reason.
+    assert.ok(damaged(r => (asBeforeK6(r).gaps = r.gaps!.filter(gap => gap.id !== 'D3'))).some(e => e.includes('names the gap D3, which the record does not define')))
 })
 
 /**
@@ -381,7 +408,12 @@ test('the gate refuses a category or a status that does not agree, and a gap nob
  * capabilities that would supply it, read from the record — for any goal's record alike.
  */
 test('neededRecordGaps: the six parts of the activity not in place, each with what would supply it', () => {
-    const needed = neededRecordGaps(a01())
+    // Three -> none on 15 October 2026 (stage K6): his 18 October starting values and the Performer Configuration relationship
+    // carry the two spatial entries, and the asymmetric-structure entry (stale since K3) is moved. Production A01 names no gap.
+    assert.deepEqual(neededRecordGaps(a01()), [])
+    // What follows is re-pointed to the record as it stood before K6, on a copy (TEST-ONLY), so the reader stays proved.
+    const before = asBeforeK6(JSON.parse(JSON.stringify(a01())))
+    const needed = neededRecordGaps(before)
     // Eight -> six on 15 October 2026 (stage K4): 'defensive numbers' and 'overloads' (both D6) are carried by the
     // provisional realization's counts by role, and 'goalkeeper positioning' waits on M3 alone (it read D6, M2, M3).
     // Six -> three on 15 October 2026 (stage K5): where the building team starts and the goalkeeper's part (both M3) and the
@@ -394,17 +426,17 @@ test('neededRecordGaps: the six parts of the activity not in place, each with wh
         ['provisional choice', 'MISSING_CAPABILITY', ['D2', 'D7', 'M1', 'M2']],
     ])
     assert.deepEqual(needed.slice(0, 2).map(gap => gap.label), [
-        "starting positions — the defending team's starting relationship",
+        "starting positions — the pressing team's starting relationship",
         'progression references — where each target sits: the build-out progression target and the post-regain area',
     ])
     assert.equal(needed[0].gaps[0].description, a01().gaps!.find(gap => gap.id === 'D4')!.description, 'the description is the record\'s')
     // No goal is special: the same entries under another goal's id give the same gaps, and a record with no gap entry
     // (or an evaluated-empty test record with no entries) gives none.
-    assert.deepEqual(neededRecordGaps({ ...a01(), learningGoalId: 'TEST-ONLY' }), needed)
-    assert.deepEqual(neededRecordGaps({ ...a01(), manipulations: [], provisionalChoices: [] }), [])
-    const handed = neededRecordGaps(a01())
+    assert.deepEqual(neededRecordGaps({ ...before, learningGoalId: 'TEST-ONLY' }), needed)
+    assert.deepEqual(neededRecordGaps({ ...before, manipulations: [], provisionalChoices: [] }), [])
+    const handed = neededRecordGaps(before)
     handed[0].gaps[0].description = 'edited'
-    assert.notEqual(neededRecordGaps(a01())[0].gaps[0].description, 'edited', 'handed out as copies')
+    assert.notEqual(neededRecordGaps(before)[0].gaps[0].description, 'edited', 'handed out as copies')
 })
 
 /**
@@ -425,6 +457,9 @@ test('authorizationLists: authorized by existing knowledge, his provisional choi
     assert.deepEqual(lists.provisionalChoices.map(entry => entry.label), [
         ...record.provisionalChoices!.map(choice => choice.choice),
         'starting positions — where the team building out starts',
+        // 15 October 2026 (stage K6): the two spatial entries are his provisional choices now (they were gaps).
+        "starting positions — the pressing team's starting relationship",
+        'progression references — where each target sits: the build-out progression target and the post-regain area',
         // 15 October 2026 (stage K4): the two numbers entries are his provisional choices now (they were gaps).
         'defensive numbers',
         'goalkeeper positioning',
@@ -439,6 +474,8 @@ test('authorizationLists: authorized by existing knowledge, his provisional choi
     // Re-pointed 15 October 2026 (stage K5): M3 is needed by no entry now (it was needed by the two starting entries and the
     // episodes-and-restarts choice), and neither are D1, D5 or M4.
     for (const id of ['M3', 'M4', 'D1', 'D5']) assert.deepEqual(lists.gaps.find(gap => gap.id === id)!.neededBy, [], id)
+    // Re-pointed 15 October 2026 (stage K6): no decision or capability is needed by any entry now.
+    for (const gap of lists.gaps) assert.deepEqual(gap.neededBy, [], gap.id)
     // Re-pointed 15 October 2026 (stage K1) from M8, which left the gaps when it was built (C57).
     assert.deepEqual(lists.gaps.find(gap => gap.id === 'M7')!.neededBy, [], 'the conditional capability waits on no entry here')
     const accounted = new Set([...lists.authorizedByExistingKnowledge, ...lists.provisionalChoices].map(entry => entry.label).concat(lists.gaps.flatMap(gap => gap.neededBy)))

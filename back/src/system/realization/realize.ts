@@ -31,8 +31,9 @@ import { practical, practicalRequirement } from '../derivation/practical'
 import { scaleExactly } from '../derivation/rational'
 import { RegisterIndex } from '../derivation/register'
 import { DesignationBinding, designationKey, resolutionOf } from '../derivation/designation'
-import { Bounds, RoleBlock } from '../derivation/types'
+import { Bounds, relativePositionOf, RoleBlock } from '../derivation/types'
 import { realizeSpatialRelation, RealizedGeometry } from './spatial'
+import { attackingEndIn } from './team-ends'
 
 /** A value the realizer chooses for one open line. */
 export interface Choice {
@@ -1258,8 +1259,52 @@ export function realize(
             return derivedNoun ? String(derivedNoun.value) : undefined
         }
 
-        for (const entry of spatial) {
-            const axis = axisOf(entry.lineId)
+        /**
+         * **Positions stated relative to a team or to another element** — 15 October 2026 (stage K6, register version 13), his M7
+         * (*"M7 — Target relative to pressure reference: Approved if required."*) and his reply filed 18 October 2026, item 3
+         * (*"Pressure reference: 20 m from the building team's end line."*, *"Building team's progression target: begins at the
+         * pressure reference."*). Which end a team attacks is read from this game's own objectives (team-ends.ts), for the role
+         * block the game was derived for; an element placed relative to another is placed after it, and one whose referent never
+         * realizes is left unplaced (never defaulted), so the post-realization gates refuse it by name.
+         */
+        const teamAttackingEnd = (designation: string) => attackingEndIn(game, index, roleBlock, designation)
+        const relativeOf = (lineId: string): Bounds | undefined =>
+            ([...(resolved.open.find(o => o.lineId === lineId)?.bounds ?? []), ...(resolved.extentBounds?.[lineId] ?? [])] as Bounds[]).find(b => b && b.kind === 'RELATIVE' && !b.forbidden && b.of && b.forTeam)
+        const placed = new Map<string, RealizedGeometry>()
+        const referentInterval = (ref: { contractId: string; itemId: string }) => {
+            const prefix = `c:${ref.contractId}:${ref.itemId}::`
+            for (const [lineId, geometry] of placed) if (lineId.startsWith(prefix) && geometry.axis === 'along' && geometry.interval) return { ...geometry.interval }
+            return null
+        }
+        // A start placement's region stated as a relative position (P10 version 2) is along the axis, where RC-21 states the relation.
+        const axisOfEntry = (entry: { lineId: string; value: unknown }): 'along' | 'across' | null => axisOf(entry.lineId) ?? (relativePositionOf(entry.value) ? 'along' : null)
+        const referentOf = (entry: { lineId: string; value: unknown }) => relativePositionOf(entry.value)?.of.structuralRef ?? relativeOf(entry.lineId)?.of ?? null
+        const ordered: typeof spatial = []
+        {
+            const pending = spatial.filter(entry => axisOfEntry(entry))
+            const done = new Set<string>()
+            const awaits = (entry: { lineId: string; value: unknown }) => {
+                const ref = referentOf(entry)
+                if (!ref) return false
+                const prefix = `c:${ref.contractId}:${ref.itemId}::`
+                return pending.some(other => other !== entry && !done.has(other.lineId) && other.lineId.startsWith(prefix) && axisOfEntry(other) === 'along')
+            }
+            let progress = true
+            while (pending.some(entry => !done.has(entry.lineId)) && progress) {
+                progress = false
+                for (const entry of pending) {
+                    if (done.has(entry.lineId) || awaits(entry)) continue
+                    ordered.push(entry)
+                    done.add(entry.lineId)
+                    progress = true
+                }
+            }
+            // A cycle of relative positions: each is realized as it stands, its referent unplaced, so it stays unresolved.
+            for (const entry of pending) if (!done.has(entry.lineId)) ordered.push(entry)
+        }
+
+        for (const entry of ordered) {
+            const axis = axisOfEntry(entry)
             if (!axis) continue
             const elementId = splitElementPath(entry.path)?.elementId ?? ''
             const noun = nounOf(elementId)
@@ -1296,8 +1341,12 @@ export function realize(
                 otherAxisHasExtent,
                 lateral: typeof lateral === 'string' ? lateral : undefined,
                 longitudinal: typeof longitudinal === 'string' ? longitudinal : undefined,
+                teamAttackingEnd,
+                referentInterval,
+                relativeBound: relativeOf(entry.lineId),
             })
             if (!realizedGeometry) continue
+            placed.set(entry.lineId, realizedGeometry)
             geometry.push({ lineId: entry.lineId, path: entry.path, geometry: realizedGeometry })
             const parts = splitElementPath(entry.path)
             if (!parts) continue

@@ -88,8 +88,11 @@ test('one home: the file loads, A01-R1 is labelled his provisional choice, and o
     // October 2026 (stage K4): his D6 counts by role (P2 x2), the building role's keeper (P3) and his 18 October RD-1
     // answer as two reassignments with their counts (B4 x2, B7 x2) — pinned item by item in allocation.unit.ts. 10 -> 34 on 15
     // October 2026 (stage K5): his D1/D5/M3/M4 start, after-score and coach-conclusion transitions and his 18 October RD-2
-    // ordinary restarts (24 items on rows T1-T7) — pinned in starts-and-restarts.unit.ts.
-    assert.deepEqual([realization.provisionalId, realization.contractId, realization.category, realization.realizes, realization.items.length, realization.declarations.length], ['A01-R1', 'provisional:A01-R1', PROVISIONAL_REALIZATION_CHOICE, 'RPC-001', 34, 0])
+    // ordinary restarts (24 items on rows T1-T7) — pinned in starts-and-restarts.unit.ts. 34 -> 47 on 15 October 2026 (stage K6):
+    // his 18 October starting values and his D3/D4/M5 relationships - the pressure reference (S2, S5, S6), the two targets keyed by
+    // role (S5 x3), the two starting placements (P8 x2, P10 x2) with their timing and episode (P10a, P10b), and the restart
+    // location's D3 bound (T4) - pinned in target-placement.unit.ts.
+    assert.deepEqual([realization.provisionalId, realization.contractId, realization.category, realization.realizes, realization.items.length, realization.declarations.length], ['A01-R1', 'provisional:A01-R1', PROVISIONAL_REALIZATION_CHOICE, 'RPC-001', 47, 0])
     assert.equal(realization.realizationChoices, 'realization-choices-a01-r1.json')
     assert.ok(realization.words.includes('The priority remains producing one complete, representative Play Out from the Back activity through the normal generation pathway, without introducing unnecessary architecture or treating this first realization as the canonical version of the Learning Goal.'))
     const naming = learningGoalAuthorizations().filter(record => record.provisionalRealization).map(record => [record.learningGoalId, record.provisionalRealization])
@@ -185,6 +188,21 @@ test('the realization moves exactly what its items establish — the role lines 
     const transition = (line: string) => line.startsWith('c:provisional:A01-R1:A01-R1-T')
     assert.equal(lines(named).filter(transition).length, 63)
     assert.deepEqual(lines(named).filter((line: string) => own(line) && !transition(line)), [
+        // 15 October 2026 (stage K6): the pressure reference's lines (its function line an established absence, as the targets'
+        // are) and the two starting placements' fields, each placement re-established at the build-out episode's beginnings.
+        // The targets' depth and relations add no line of their own: they bound the possession game's target lines.
+        'c:provisional:A01-R1:A01-R1-S2-1::S3|derived|RESOLVED:ENTAILED||"line"',
+        'c:provisional:A01-R1:A01-R1-S2-1::S4|failed|NOT_AUTHORED|not constrained|null',
+        'c:provisional:A01-R1:A01-R1-S2-1::S5|derived|RESOLVED:ENTAILED||{"term":"own end (of team T)","forTeam":"ROLE_HOLDER_BUILDING","offsetM":{"from":20,"to":20},"asAuthored":"20 m from the building team\'s end line"}',
+        'c:provisional:A01-R1:A01-R1-S2-1::S6|derived|RESOLVED:ENTAILED||{"term":"full extent (of an axis)","asAuthored":"across the area, touchline to touchline"}',
+        'c:provisional:A01-R1:A01-R1-P8-1::P9|derived|RESOLVED:ENTAILED||"ROLE_HOLDER_BUILDING"',
+        'c:provisional:A01-R1:A01-R1-P8-2::P9|derived|RESOLVED:ENTAILED||"ROLE_HOLDER_PRESSING"',
+        'c:provisional:A01-R1:A01-R1-P8-1::P10|derived|RESOLVED:ENTAILED||{"term":"beyond X (for team T)","of":{"structuralRef":{"contractId":"provisional:A01-R1","itemId":"A01-R1-S2-1"},"asAuthored":"the pressure reference"},"forTeam":"ROLE_HOLDER_PRESSING","asAuthored":"short of the pressure/progression line"}',
+        'c:provisional:A01-R1:A01-R1-P8-2::P10|derived|RESOLVED:ENTAILED||{"term":"beyond X (for team T)","of":{"structuralRef":{"contractId":"provisional:A01-R1","itemId":"A01-R1-S2-1"},"asAuthored":"the pressure reference"},"forTeam":"ROLE_HOLDER_BUILDING","asAuthored":"beyond the pressure reference"}',
+        'c:provisional:A01-R1:A01-R1-P8-1::P10a|derived|RESOLVED:ENTAILED||"CONDITIONAL_RESET"',
+        'c:provisional:A01-R1:A01-R1-P8-2::P10a|derived|RESOLVED:ENTAILED||"CONDITIONAL_RESET"',
+        'c:provisional:A01-R1:A01-R1-P8-1::P10b|derived|RESOLVED:ENTAILED||"BUILD_OUT_EPISODE"',
+        'c:provisional:A01-R1:A01-R1-P8-2::P10b|derived|RESOLVED:ENTAILED||"BUILD_OUT_EPISODE"',
         'c:provisional:A01-R1:A01-R1-B1-1::B2|derived|RESOLVED:ENTAILED||"BUILDING"',
         'c:provisional:A01-R1:A01-R1-B1-2::B2|derived|RESOLVED:ENTAILED||"PRESSING"',
         'c:provisional:A01-R1:A01-R1-B1-1::B3|derived|RESOLVED:ENTAILED||"COACH_CALLS"',
@@ -200,15 +218,17 @@ test('the realization moves exactly what its items establish — the role lines 
         'c:provisional:A01-R1:A01-R1-B4-2::B7|derived|RESOLVED:ENTAILED||1',
     ])
     // Two checks move since stage K5, both by what the transitions establish: the build-out episode can begin (C58), and the
-    // coach's restart locations are owed to realization.
+    // coach's restart locations are owed to realization. A third since stage K6 (15 October 2026): the positions stated relative
+    // to the pressure reference and to the teams are owed to realization (GA-RELATIVE-PLACEMENT, which passes with no applicable
+    // instance where the realization is not named).
     const moved = (result: any) => result.gates.gateA.checks.map((c: any) => `${c.checkId}|${c.verdict}`)
     assert.deepEqual(
         moved(named).filter((x: string, i: number) => x !== moved(unnamed)[i]),
-        ['GA-EPISODE-REACHABLE|PASS', 'GA-TRANSITION-COHERENCE|DEFERRED_TO_REALIZATION'],
+        ['GA-EPISODE-REACHABLE|PASS', 'GA-RELATIVE-PLACEMENT|DEFERRED_TO_REALIZATION', 'GA-TRANSITION-COHERENCE|DEFERRED_TO_REALIZATION'],
     )
     assert.deepEqual(
         moved(unnamed).filter((x: string, i: number) => x !== moved(named)[i]),
-        ['GA-EPISODE-REACHABLE|FAIL', 'GA-TRANSITION-COHERENCE|PASS'],
+        ['GA-EPISODE-REACHABLE|FAIL', 'GA-RELATIVE-PLACEMENT|PASS', 'GA-TRANSITION-COHERENCE|PASS'],
     )
     assert.deepEqual(
         named.versions.objects.map((o: any) => o.id).filter((id: string) => !unnamed.versions.objects.some((u: any) => u.id === id)),
@@ -268,34 +288,31 @@ const reading = (alter: (name: string, contents: any) => void) => (name: string)
     return contents
 }
 /**
- * The three entries the file is for (its note): measured to move the one path that realizes A01 while the zones have no
- * depth (RD-3), so they land with stage K6 and stand here only on a TEST-ONLY copy.
+ * The three entries the file is for (its note) stood here on a TEST-ONLY copy until 15 October 2026 (stage K6), when his 18 October
+ * item 3 gave the zones their depths and they joined the production file; the tests below read the production file since.
  */
-const theTargetEntries = (name: string, contents: any) => {
-    if (name !== OURS) return
-    contents.choices.push(
-        { lineId: 'c:restated:GF2:GF2-03.e::S3', value: 'zone', replaces: 'a04-realization-choices.json', category: PROVISIONAL_REALIZATION_CHOICE, because: 'TEST-ONLY' },
-        { lineId: 'c:restated:GF2:GF2-03.f::S3', value: 'zone', replaces: 'a04-realization-choices.json', category: PROVISIONAL_REALIZATION_CHOICE, because: 'TEST-ONLY' },
-        { lineId: 'game::V1', value: 'target_zone_entered', replaces: 'a04-realization-choices.json', category: PROVISIONAL_REALIZATION_CHOICE, because: 'TEST-ONLY' },
-    )
-}
+const asFiled = (_name: string, _contents: any) => undefined
 
-test('production: A01 reads the game form\'s file, the context\'s and its realization\'s, which replaces nothing', () => {
+test('production: A01 reads the game form\'s file, the context\'s and its realization\'s, which replaces the targets\' noun and the scoring kind', () => {
     const supplied: any = suppliedRealizationFor(selectFor('A01', null))
     assert.deepEqual(supplied.from, ['a04-realization-choices.json', 'realization-choices-rpc-001.json', OURS])
-    assert.deepEqual(supplied.replaced, [])
+    // Re-pointed 15 October 2026 (stage K6): the three replacements the file was for, by declaration (pinned in the next test).
+    assert.deepEqual(supplied.replaced.map((r: any) => r.lineId), ['c:restated:GF2:GF2-03.e::S3', 'c:restated:GF2:GF2-03.f::S3', 'game::V1'])
     // Re-pointed 15 October 2026 (stage K5): the file is no longer empty — it holds the seven COACH_DECIDES stand-ins of the
     // coach's restart locations and end-line method, and the withdrawal of the game form's initial-holder choice (pinned in
     // starts-and-restarts.unit.ts). What this pinned still holds: no depth, position or target value (RD-3, stage K6), and
     // nothing replaces a game-form entry.
     const choices = JSON.parse(fs.readFileSync(path.join(AUDITS_DIR, OURS), 'utf8')).choices
-    assert.ok(choices.every((c: any) => c.withdraws || (typeof c.value?.coachDecides === 'string' && /::T[45]$/.test(c.lineId))), 'no depth, position or target value before RD-3')
+    // Since stage K6 the targets' noun and the scoring kind too; still no depth, distance or position (those are A01-R1's items,
+    // for the 40 x 30 m prototype only).
+    const targetEntry = (c: any) => c.replaces === 'a04-realization-choices.json' && ['c:restated:GF2:GF2-03.e::S3', 'c:restated:GF2:GF2-03.f::S3', 'game::V1'].includes(c.lineId)
+    assert.ok(choices.every((c: any) => c.withdraws || targetEntry(c) || (typeof c.value?.coachDecides === 'string' && /::T[45]$/.test(c.lineId))), 'no depth, position or target value in the choices')
     assert.deepEqual(supplied.withdrawn.map((w: any) => [w.lineId, w.withdrawnFrom]), [['game::PS1', 'a04-realization-choices.json']])
 })
 
 test('the realization\'s choices replace the game form\'s only by declaration; the replacements are recorded and the rest is carried', () => {
     const selection = selectFor('A01', null)
-    const supplied: any = suppliedRealizationFor(selection, reading(theTargetEntries))
+    const supplied: any = suppliedRealizationFor(selection, reading(asFiled))
     assert.deepEqual(supplied.from, ['a04-realization-choices.json', 'realization-choices-rpc-001.json', OURS])
     assert.deepEqual(
         supplied.replaced.map((r: any) => [r.lineId, r.replacedFrom, r.replacedValue, r.value]),
@@ -327,7 +344,6 @@ test('a second answer to one line, or a replacement nobody can trace, refuses th
         const supplied: any = suppliedRealizationFor(
             selection,
             reading((name, contents) => {
-                theTargetEntries(name, contents)
                 alter(name, contents)
             }),
         )
@@ -354,9 +370,10 @@ test('A01 with the From Goal Kicks practice situation is refused at knowledge wi
     // DRAFT coach sentence (approved-coach-wording.json is empty), 15 October 2026.
     assert.equal(refused.summary, "This goal's first activity was not designed for the chosen practice situation, so no activity can be built for it.")
     assert.ok(refused.reasons[0].startsWith('the provisional realization A01-R1 named by the authorization record of A01 was not designed for the practice situation A01-02 (OUR_READING)'))
-    // Without the situation A01 is refused where it was: the record's gaps.
+    // Without the situation A01 is not refused for it. Re-pointed 15 October 2026 (stage K6): the record names no gap now, so it
+    // gets past knowledge (its next stop is pinned in target-placement.unit.ts).
     const plain: any = buildActivity({ kind: 'learning-goal', goalId: 'A01', session } as any)
-    assert.deepEqual([plain.stage, plain.summary], ['knowledge', "This goal's activity depends on set-up decisions and engine capabilities that are not in place yet, so no activity can be built for it."])
+    assert.notEqual(plain.stage, 'knowledge', JSON.stringify(plain.reasons))
 })
 
 console.log(`provisional-realization.unit.ts — ${passed} passed`)

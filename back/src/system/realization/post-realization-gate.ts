@@ -73,6 +73,11 @@ function concreteContext(ctx: GateContext, realized: Realized): GateContext {
     // refuses them, which is the honest answer.
     for (const entry of realized.record.geometry) {
         if (!entry.geometry.interval) continue
+        // Only a POSITION row takes the interval in place of its value (15 October 2026, stage K6). A start placement's region
+        // stated as a relative position (P10 version 2) is realized too, and recorded so it traces, but its line is a reference:
+        // replacing the reference with metres would leave GA-REFERENCE-INTEGRITY reading an interval as open text.
+        const rowPath = String(ctx.index.rows.get(entry.lineId.split('::').pop() ?? '')?.path ?? '')
+        if (!rowPath.endsWith('.along') && !rowPath.endsWith('.across')) continue
         const record = derived.get(entry.lineId)
         const before = classified.get(entry.lineId)
         if (!record || !before) continue

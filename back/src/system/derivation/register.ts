@@ -178,6 +178,9 @@ export interface TargetOfRegister {
     attribute: string
     objectivesRow: string
     referenceRow: string
+    /** The objective's team and role rows (stage K6, 15 October 2026: GA-RELATIVE-PLACEMENT reads a team's direction of attack through them). */
+    teamRow: string
+    roleRow: string
     /** The objective's selector attributes for its team and its role (the team and role rows' own `selectorAttribute`). */
     teamAttribute: string
     roleAttribute: string
@@ -205,7 +208,7 @@ function indexTargetOf(block: any, rows: Map<string, RegisterRow>, vocabularies:
     const role = String(block.role ?? '')
     if (!(vocabularies.get(`${roleRow}.${roleAttribute}`) ?? []).includes(role)) throw new HaltError('H1', `targetOf: ${role} is not a member of ${roleRow}.${roleAttribute}`)
     const leaf = (id: string) => String(rows.get(id)?.path ?? '').split('[].').pop() ?? ''
-    return { row, attribute, objectivesRow, referenceRow, teamAttribute, roleAttribute, role, referenceLeaf: leaf(referenceRow), teamLeaf: leaf(teamRow), roleLeaf: leaf(roleRow) }
+    return { row, attribute, objectivesRow, referenceRow, teamRow, roleRow, teamAttribute, roleAttribute, role, referenceLeaf: leaf(referenceRow), teamLeaf: leaf(teamRow), roleLeaf: leaf(roleRow) }
 }
 
 /**
