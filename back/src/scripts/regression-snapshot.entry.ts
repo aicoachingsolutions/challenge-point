@@ -1,4 +1,4 @@
-// The regression snapshot's probe: every Learning Goal and demonstration through the review endpoint, for each
+// The regression snapshot's probe: every Learning Goal and demonstration through the review endpoint, as the session's coach and as an administrator, for each
 // specialized-role case, and every guided goal through the live route, all through the REAL router. Bundled and run by
 // scripts/regression-snapshot.js, which reads the one line this prints after PROBE-JSON.
 // Stood in: the session read (Mongo), the signed-in user, the usage and log writes (captured) and the generation client
@@ -97,10 +97,16 @@ const matrix = () => [
     ...roles.flatMap(role => [1, 2].map(availability => ({ id: `${role}-${availability}`, roles: Object.fromEntries(roles.map(name => [name, name === role ? availability : 0])) }))),
 ]
 
+// The signed-in user is the session's own coach, except during the administrator pass below. Since stage K7 an
+// administrator's review also carries `draft` (the rendering made before a refusal at communication) and since K8
+// `evidence`; a coach's carries neither, so a snapshot taken only as the coach could not see a draft sentence change
+// at all (18 October 2026: the first post-K wording fix moved only draft sentences and a coach-only snapshot said
+// "0 differences" for it).
+let asAdmin = false
 const app = express()
 app.use(express.json())
 app.use((_req, res, next) => {
-    res.locals.sessionUser = { _id: USER_ID, permissions: { isAdmin: false } }
+    res.locals.sessionUser = { _id: USER_ID, permissions: { isAdmin: asAdmin } }
     next()
 })
 app.use('/api/app', appRouter)
@@ -121,6 +127,19 @@ const server = app.listen(0, '127.0.0.1', async () => {
             }
             for (const demonstration of MECHANISM_DEMONSTRATIONS) {
                 snapshot[`review/${demonstration.id}/${matrixCase.id}`] = await capture(port, 'POST', `/api/app/checked-activity/${SESSION_ID}`, { demonstrationId: demonstration.id, durationMin: 20 })
+            }
+            // The same requests as an administrator, recorded whole beside the coach's (drafts and evidence included).
+            asAdmin = true
+            try {
+                for (const goal of goals) {
+                    const id = String(goal.ID)
+                    snapshot[`review-admin/${id}/${matrixCase.id}`] = await capture(port, 'POST', `/api/app/checked-activity/${SESSION_ID}`, { learningGoalId: id, durationMin: 20 })
+                }
+                for (const demonstration of MECHANISM_DEMONSTRATIONS) {
+                    snapshot[`review-admin/${demonstration.id}/${matrixCase.id}`] = await capture(port, 'POST', `/api/app/checked-activity/${SESSION_ID}`, { demonstrationId: demonstration.id, durationMin: 20 })
+                }
+            } finally {
+                asAdmin = false
             }
         }
         stored = { _id: SESSION_ID, createdBy: USER_ID, playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: Object.fromEntries(roles.map(role => [role, 0])) }
