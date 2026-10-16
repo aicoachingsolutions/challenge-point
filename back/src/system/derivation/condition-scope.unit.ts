@@ -26,7 +26,8 @@ import { indexRegister } from './register'
 import { derivationInputFor, selectFor } from './run-bounded-selection'
 import { DerivationInput, ElementClass } from './types'
 import { nothingInvented, nothingLost } from '../realization/realize'
-import { contextScoringFindings } from '../rendering/context-scoring-guard'
+import { contextScoringFindings, EPISODE_REACHABLE_CHECK, episodeConfirmed } from '../rendering/context-scoring-guard'
+import { EPISODE_SCOPES } from './gates'
 import { checkFidelity } from '../rendering/fidelity'
 import { renderConcreteGame } from '../rendering/render-concrete-game'
 import { buildActivityFromKnowledge } from '../rendering/build-activity'
@@ -257,6 +258,87 @@ test('the context-scoring guard: a scoped condition is present but cannot be con
     assert.ok(carried.every(f => f.includes('cannot be confirmed to govern this game') && f.includes('BUILD_OUT_EPISODE')), JSON.stringify(carried))
     const dropped = contextScoringFindings('RPC-001', rpc, game(undefined), ['line_crossed'])
     assert.ok(dropped.every(f => f.includes('is authored for the BUILD_OUT_EPISODE scope and reached the realized game as "WHOLE_GAME"')), JSON.stringify(dropped))
+})
+
+/**
+ * ── Stage K7, 15 October 2026: the guard confirms an episode-scoped condition where the concrete game begins its episode ──────
+ *
+ * The K6 review measured A01 stopping at validation on this guard with no decision of his behind it, and named what would move it.
+ * K7 built it (context-scoring-guard.ts `episodeConfirmed`): his 16 October 9.3 approves the scope, and the Gate A check deciding the
+ * episode, rerun on the concrete game, shows the game begins it. Pinned here: exactly that confirms, and nothing weaker.
+ */
+test('the context-scoring guard confirms an episode-scoped condition only where the concrete game begins that episode (stage K7)', () => {
+    const rpc: any = JSON.parse(JSON.stringify(loadCorpusContracts().find(c => c.contractId === RPC)))
+    for (const item of rpc.items) if (CONDITION_ITEMS.includes(item.itemId)) item.scope = 'BUILD_OUT_EPISODE'
+    const conditions = (scope: string | undefined) =>
+        ['18.a:origin', '18.c:progression', '18.f:control', '19.a:exclusion'].map(pair => {
+            const [id, type] = pair.split(':')
+            return { elementId: `c:${RPC}:RPC-001-${id}`, type, ...(scope === undefined ? {} : { scope }) }
+        })
+    const game = (scope: string | undefined) => ({ value: { primaryEvent: { value: 1, kind: 'line_crossed', conditions: conditions(scope) } } })
+    const clause = (verdict: string, extra: Record<string, unknown> = {}) => ({ clause: 'TEST-ONLY', verdict, basis: 'EVALUATED', instances: 4, ...extra })
+    const checkWith = (verdict: string, clauses: any[], checkId = EPISODE_REACHABLE_CHECK): any => ({ checkId, verdict, subjects: [], why: 'TEST-ONLY', clauses, pendingOn: [], blockedBy: [] })
+    const passing = checkWith('PASS', [clause('PASS'), clause('PASS'), clause('PASS')])
+    assert.deepEqual(contextScoringFindings('RPC-001', rpc, game('BUILD_OUT_EPISODE'), ['line_crossed'], passing), [], 'carried with its scope, and the game begins its episode: confirmed')
+    const unconfirmed = (check: any) => contextScoringFindings('RPC-001', rpc, game('BUILD_OUT_EPISODE'), ['line_crossed'], check)
+    for (const [why, check] of [
+        ['no check given', undefined],
+        ['deferred', checkWith('DEFERRED_TO_REALIZATION', [clause('DEFERRED_TO_REALIZATION'), clause('PASS'), clause('PASS')])],
+        ['withheld', checkWith('NOT_EVALUABLE', [clause('NOT_EVALUABLE'), clause('NOT_EVALUABLE'), clause('PASS')])],
+        ['a second awardee', checkWith('FAIL', [clause('PASS'), clause('FAIL'), clause('PASS')])],
+        ['a vacuous pass', checkWith('PASS', [clause('PASS', { basis: 'NO_APPLICABLE_INSTANCES', instances: 0 }), clause('PASS'), clause('PASS')])],
+        ['another check', checkWith('PASS', [clause('PASS'), clause('PASS'), clause('PASS')], 'GA-TRIGGER-REACHABLE')],
+        ['a PASS verdict over a failing clause', checkWith('PASS', [clause('PASS'), clause('FAIL'), clause('PASS')])],
+    ] as [string, any][]) {
+        const found = unconfirmed(check)
+        assert.equal(found.length, 4, `${why}: nothing is confirmed`)
+        assert.ok(found.every(f => f.includes('cannot be confirmed to govern this game')), `${why}: ${JSON.stringify(found)}`)
+    }
+    // A dropped scope is named even where the episode is begun: present is not carried with its authored scope.
+    const dropped = contextScoringFindings('RPC-001', rpc, game(undefined), ['line_crossed'], passing)
+    assert.ok(dropped.length === 4 && dropped.every(f => f.includes('reached the realized game as "WHOLE_GAME"')), JSON.stringify(dropped))
+    // A scope the episode check does not decide is never confirmed by it (PER_TEAM, the gate condition's own scope).
+    for (const item of rpc.items) if (CONDITION_ITEMS.includes(item.itemId)) item.scope = 'PER_TEAM'
+    assert.equal(contextScoringFindings('RPC-001', rpc, game('PER_TEAM'), ['line_crossed'], passing).length, 4, 'only an episode scope the check decides')
+    assert.deepEqual(EPISODE_SCOPES, ['BUILD_OUT_EPISODE'])
+    assert.equal(episodeConfirmed('BUILD_OUT_EPISODE', passing), true)
+    // The event is still read first: an unapproved event is named whatever the episode check says.
+    for (const item of rpc.items) if (CONDITION_ITEMS.includes(item.itemId)) item.scope = 'BUILD_OUT_EPISODE'
+    assert.equal(contextScoringFindings('RPC-001', rpc, game('BUILD_OUT_EPISODE'), ['regain'], passing).length, 1)
+})
+
+/**
+ * ── Stage K7 (design step B2, as the verification g-part-08 corrected it): a scoped condition said by an approved sentence carrying
+ * its exact scope, and only so ──────────────────────────────────────────────────────────────────────────────────────────────────
+ */
+test('B2: a scoped condition is said only by an approved entry covering its exact scope, and fidelity admits only that sentence', () => {
+    const base = 'value.primaryEvent.conditions[c:TEST-ONLY:C-1]'
+    const scoped = (scope: unknown) => [
+        { id: 'TEST-ONLY-SCOPED', covers: [{ row: 'V3', match: { equals: scope } }, { row: 'V4', match: { equals: 'progression' } }, { row: 'V6', match: { equals: 'beyond' } }], sentence: 'In a TEST-ONLY episode, a test sentence', section: 'How to score' as const, approvedBy: approval },
+    ]
+    const fixture = withCondition(scopedCondition)
+    const rendered = renderConcreteGame(fixture, scoped('BUILD_OUT_EPISODE') as any)
+    const said = rendered.instructions.find(i => i.text === 'In a TEST-ONLY episode, a test sentence')
+    assert.ok(said, 'said by the entry covering its exact scope')
+    assert.deepEqual([...said!.from].sort(), [`${base}.scope`, `${base}.type`, `${base}.value`].sort(), 'it cites the scope with the fields it covers')
+    assert.deepEqual(rendered.withheld.filter(w => w.path.startsWith(base)), [], 'nothing of it withheld')
+    assert.deepEqual(checkFidelity(fixture, rendered, scoped('BUILD_OUT_EPISODE') as any).findings.filter(f => f.severity === 'VIOLATION' && f.what.includes('states a condition as a rule')), [], 'fidelity admits the approved sentence')
+    // The same sentence checked against the real (empty) table is not approved wording, so it is refused: the check reads the table.
+    assert.equal(checkFidelity(fixture, rendered).findings.filter(f => f.severity === 'VIOLATION' && f.what.includes('In a TEST-ONLY episode')).length, 1)
+    // A cover of another scope, or a scope cover that is not an exact value, leaves it withheld whole, as before B2.
+    for (const other of ['WHOLE_GAME', 'TEST-ONLY-EPISODE']) {
+        const again = renderConcreteGame(fixture, scoped(other) as any)
+        assert.ok(!again.instructions.some(i => i.text.includes('TEST-ONLY episode')), other)
+        assert.deepEqual(again.withheld.filter(w => w.path.startsWith(base)).map(w => w.row), ['V4', 'V6', 'V3'], other)
+    }
+    const notExact = [{ ...scoped('BUILD_OUT_EPISODE')[0], covers: [{ row: 'V3', match: { refersToOwnCondition: true } }, { row: 'V4', match: { equals: 'progression' } }] }]
+    assert.ok(!renderConcreteGame(fixture, notExact as any).instructions.some(i => i.text.includes('TEST-ONLY episode')), 'only an exact value covers a scope')
+    // A citation alone never satisfies the guard: a sentence citing the condition AND its scope that is not approved wording is refused.
+    const forced = { ...rendered, instructions: [...rendered.instructions, { section: 'How to score' as const, text: 'A forced sentence', status: 'DERIVED' as const, from: [`${base}.type`, `${base}.scope`], quantities: [] }] }
+    assert.equal(checkFidelity(fixture, forced as any, scoped('BUILD_OUT_EPISODE') as any).findings.filter(f => f.severity === 'VIOLATION' && f.what.includes('A forced sentence') && f.what.includes('states a condition')).length, 1)
+    // A whole-game condition carries no scope field, so B2 moves nothing for it.
+    const { scope, ...whole } = scopedCondition
+    assert.ok(renderConcreteGame(withCondition(whole), sentenceFor).instructions.some(i => i.text === 'A test sentence'), `whole-game (not ${scope}) is said as before`)
 })
 
 test('realization: the scope must survive into the concrete game, and a scope the resolved game does not carry is an invention', () => {

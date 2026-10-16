@@ -1276,7 +1276,7 @@ function gaTriggerReachable(ctx: GateContext): CheckOutcome {
  * (T2, compared as canonical entries). Without the typed referent nothing changes: the check withholds exactly as before.
  * Both clauses are reported on every path (SD-53), vacuously where nothing applies.
  */
-const EPISODE_SCOPES = ['BUILD_OUT_EPISODE']
+export const EPISODE_SCOPES = ['BUILD_OUT_EPISODE']
 
 /**
  * The transitions of the game that meet a begin-condition referent (C58), decided line by line, never guessed. A transition

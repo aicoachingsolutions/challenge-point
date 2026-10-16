@@ -187,6 +187,14 @@ export interface AuthorizedAdjustment {
     words: string
     /** His sentence on its consequence, verbatim, where he gave one. */
     consequence: string | null
+    /**
+     * **Our DRAFT coach wording for the choice, where his words are not themselves a choice a coach can be given** — stage K7, 15
+     * October 2026. His 18 October item 3, *"The pressure reference should be adjustable in either direction."*, authorizes an
+     * adjustment and is not an instruction; the renderer puts an adjustment to the coach as "You may choose to …", which needs an
+     * action. Optional and never his: `words` stays his sentence, verbatim, and is what the review cites as the authority. Absent on
+     * an entry whose own words are the action (his D6 list).
+     */
+    coachWords?: string
     /** The relationship (an id in `contextManipulationRelationships`) and the manipulation's parameter it moves. */
     relationship: string
     parameter: string
@@ -442,6 +450,7 @@ export function validateContextManipulationRelationships(
             if (adjustment.category !== 'PROVISIONAL_REALIZATION_CHOICE') errors.push(`${which} is not labelled PROVISIONAL_REALIZATION_CHOICE`)
             if (!filled(adjustment.words) || !filled(adjustment.citedAs) || !filled(adjustment.ruledOn) || !filled(adjustment.by)) errors.push(`${which} must quote him and say who ruled it, when and where`)
             if (adjustment.consequence !== null && !filled(adjustment.consequence)) errors.push(`${which} gives a consequence that is not his sentence`)
+            if (adjustment.coachWords !== undefined && !filled(adjustment.coachWords)) errors.push(`${which} gives coach wording that says nothing`)
             if (!byId.has(adjustment.relationship)) errors.push(`${which} names the relationship ${adjustment.relationship}, which contextManipulationRelationships does not hold`)
             if (!filled(adjustment.role) || !filled(adjustment.parameter)) errors.push(`${which} must name the role whose team it changes and the parameter it moves`)
         }

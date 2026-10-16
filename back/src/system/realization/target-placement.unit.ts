@@ -390,7 +390,7 @@ test('the placements, their timing and their composed geometry reach the concret
 })
 
 // ── 9. Production A01 passes the record and the spatial stages; what stops it now ──────────────────────
-test('production A01 reaches validation in both blocks; what stops it is the context-scoring guard on the episode scope', () => {
+test('production A01 passes validation in both blocks (stage K7); what stops it is the build-out condition awaiting approved wording', () => {
     /**
      * What moves this stop (named in the K6 review, 16 October 2026; the pin said only what stops it). The guard
      * (context-scoring-guard.ts) confirms a context condition by its presence in the realized game, so a condition authored for
@@ -399,17 +399,30 @@ test('production A01 reaches validation in both blocks; what stops it is the con
      * beginnings are now typed and reached (C58, GA-EPISODE-REACHABLE PASS in both blocks), so no decision of his stands behind
      * it: it moves when the guard can confirm an episode-scoped condition against the episode the game carries - an engineering
      * capability no stage has been assigned yet, for the lead to place (K7 carries the communication half of scoped conditions).
+     *
+     * **Moved 15 October 2026 (stage K7), the work succeeding: validation -> communication.** K7 built that capability, because
+     * without it the communication it was given could not be measured on production at all: the guard confirms an episode-scoped
+     * condition carried with its authored scope where the Gate A check deciding that episode passes as rerun on the concrete game
+     * (context-scoring-guard.ts `episodeConfirmed`; pinned there in condition-scope.unit.ts, including what never confirms). Both
+     * blocks now pass validation and the cross-block checks, and stop at communication on the four build-out conditions alone,
+     * which wait on his approved wording: each field withheld (type, referents, value where held, scope) and fidelity's Q3 note of
+     * each as uncarried. Every other part of the activity is said (DRAFT).
      */
     const refused = buildActivity({ kind: 'learning-goal', goalId: 'A01', session: sessionOf() }) as RefusedActivity
-    assert.equal(refused.stage, 'validation', JSON.stringify(refused.reasons))
+    assert.equal(refused.stage, 'communication', JSON.stringify(refused.reasons))
     const blocksNamed = ['BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END', 'BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START']
-    const conditions = [['origin', '18.a'], ['progression', '18.c'], ['control', '18.f'], ['exclusion', '19.a']]
+    const fields: [string, string[]][] = [['18.a', ['type', 'referents', 'scope']], ['18.c', ['type', 'referents', 'value', 'scope']], ['18.f', ['type', 'referents', 'value', 'scope']], ['19.a', ['type', 'referents', 'value', 'scope']]]
+    const ROW: Record<string, string> = { type: 'V4', referents: 'V5', value: 'V6', scope: 'V3' }
     assert.deepEqual(
         refused.reasons,
-        blocksNamed.flatMap(block => conditions.map(([type, id]) => `block ${block}: the ${type} condition RPC-001 constitutes (RPC-001-${id}) cannot be confirmed to govern this game: c:restated:RPC-001:RPC-001-${id} is authored for the BUILD_OUT_EPISODE scope, and applying it to every score would be a different and wider rule than the one authored`)),
+        blocksNamed.flatMap(block => [
+            ...fields.flatMap(([id, held]) => held.map(field => `block ${block}: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-${id}].${field} (${ROW[field]})`)),
+            ...fields.flatMap(([id, held]) => held.filter(field => field !== 'scope').map(field => `block ${block}: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-${id}].${field} is established by the game and no instruction carries it`)),
+        ]),
     )
-    // Nothing spatial, no record gap and no post-realization gate is among the reasons.
-    assert.ok(!refused.reasons.some(r => r.includes('post-realization') || r.includes('authorization record')))
+    assert.equal(refused.summary, 'Part of this activity is still waiting for approved coach wording, so it is not being shown.')
+    // Nothing spatial, no record gap, no post-realization gate and no context-scoring finding is among the reasons.
+    assert.ok(!refused.reasons.some(r => r.includes('post-realization') || r.includes('authorization record') || r.includes('cannot be confirmed to govern')))
     // Behind the record nothing changes: the record has no gap left.
     const behind = buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: sessionOf() }, learningGoalAuthorizations()).activity as RefusedActivity
     assert.deepEqual(behind.reasons, refused.reasons)

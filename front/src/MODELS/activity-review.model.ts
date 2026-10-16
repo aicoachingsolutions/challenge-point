@@ -313,6 +313,25 @@ export interface RefusedActivity {
     reasons: string[]
     /** Whatever was established before the refusal. */
     account: Partial<ActivityAccount>
+    /**
+     * Only for an administrator, only on a refusal at communication (15 October 2026, stage K7): the rendering the server made before
+     * refusing — every sentence it could say, marked APPROVED or DRAFT — the fields it withheld, and its fidelity verdict. Never
+     * served to a coach (`back/src/system/rendering/review-draft.ts`).
+     */
+    draft?: ReviewDraft
+}
+
+/** One sentence of the review draft: the instruction, whose wording it is, and the provisional choices it rests on. */
+export interface ReviewDraftInstruction extends ReviewInstruction {
+    wording: 'APPROVED' | 'DRAFT'
+    provisionalSources: string[]
+}
+
+export interface ReviewDraft {
+    status: 'DRAFT_NOT_SERVED'
+    instructions: ReviewDraftInstruction[]
+    withheld: { path: string; row: string; reason: string }[]
+    fidelity: { passed: boolean; violations: string[] }
 }
 
 export type ActivityReviewResult = ServedActivity | RefusedActivity

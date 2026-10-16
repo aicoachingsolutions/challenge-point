@@ -415,16 +415,24 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
         // context-scoring guard, which reads only whole-game conditions, on RPC-001's four build-out conditions (authored for the
         // build-out episode, SD-36). With no goalkeeper it stops earlier, at the session: the realization's keeper for the building
         // role (his D6). Ruling C59 typed the progression reference, the last stop behind the record until then.
+        // 15 October 2026 (stage K7): validation -> communication. The guard confirms an episode-scoped condition where the concrete
+        // game begins its episode (context-scoring-guard.ts `episodeConfirmed`, GA-EPISODE-REACHABLE as rerun on the game), so both
+        // blocks pass validation and the cross-block checks; what stops A01 now is the four build-out conditions, each field of which
+        // waits on his approved wording (and fidelity's Q3 note of each as uncarried). Every other part is said (DRAFT).
         const blocks = ['BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END', 'BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START']
-        const conditions = [['origin', '18.a'], ['progression', '18.c'], ['control', '18.f'], ['exclusion', '19.a']]
-        const SCOPE_REASONS = blocks.flatMap(block =>
-            conditions.map(([type, id]) => `block ${block}: the ${type} condition RPC-001 constitutes (RPC-001-${id}) cannot be confirmed to govern this game: c:restated:RPC-001:RPC-001-${id} is authored for the BUILD_OUT_EPISODE scope, and applying it to every score would be a different and wider rule than the one authored`),
-        )
+        const fields: [string, string[]][] = [['18.a', ['type', 'referents', 'scope']], ['18.c', ['type', 'referents', 'value', 'scope']], ['18.f', ['type', 'referents', 'value', 'scope']], ['19.a', ['type', 'referents', 'value', 'scope']]]
+        const ROW: Record<string, string> = { type: 'V4', referents: 'V5', value: 'V6', scope: 'V3' }
+        const WORDING_REASONS = blocks.flatMap(block => [
+            ...fields.flatMap(([id, held]) => held.map(field => `block ${block}: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-${id}].${field} (${ROW[field]})`)),
+            ...fields.flatMap(([id, held]) => held.filter(field => field !== 'scope').map(field => `block ${block}: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-${id}].${field} is established by the game and no instruction carries it`)),
+        ])
         for (const keepers of [2, 0]) {
             const production = refused(reviewActivity(stored({ specializedRoles: { ...none, [ROLE]: keepers } }), { learningGoalId: 'A01', durationMin: 20 }), `A01, ${keepers} of ${ROLE}`)
             if (keepers) {
-                assert.equal(production.stage, 'validation', JSON.stringify(production.reasons))
-                assert.deepEqual(production.reasons, SCOPE_REASONS)
+                assert.equal(production.stage, 'communication', JSON.stringify(production.reasons))
+                assert.deepEqual(production.reasons, WORDING_REASONS)
+                assert.equal(production.summary, 'Part of this activity is still waiting for approved coach wording, so it is not being shown.')
+                assert.ok(!('draft' in production), 'the review answer carries no draft unless the route asks for it (stage K7)')
             } else {
                 assert.equal(production.stage, 'session', JSON.stringify(production.reasons))
                 assert.equal(production.summary, `This game needs 1 ${ROLE} in all and the session has 0.`)
@@ -555,7 +563,8 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
     // the context-scoring guard confirms only whole-game conditions, and RPC-001's four build-out conditions are scoped to the
     // build-out episode, which his 16 October 9.3 approved (C52). It moves when the guard can confirm an episode-scoped condition
     // against the episode the game carries - an engineering capability not yet assigned to a stage (named in the K6 review, 16
-    // October 2026; pinned with that note in target-placement.unit.ts).
+    // October 2026; pinned with that note in target-placement.unit.ts). Built in stage K7 (15 October 2026): what stops it now is
+    // the build-out condition's wording, which is his to approve (pinned above).
     const STOPS: [string, string, string[]][] = []
     for (const [where, stop, movedBy] of STOPS) {
         assert.ok(movedBy.length > 0, `${stop}: a stop is named for what would move it`)
@@ -573,7 +582,9 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
     for (const moved of ['RPC-001-18.f::V5', 'RPC-001-19.a::V5', 'RPC-001-18.a::V6']) assert.ok(!behind.reasons.some(reason => reason.includes(moved)), `${moved} is no longer a stop (stage K1)`)
     assert.ok(!behind.reasons.some(reason => reason.includes('GA-EPISODE-REACHABLE')), 'GA-EPISODE-REACHABLE is no longer a stop (stage K5)')
     assert.ok(!behind.reasons.some(reason => reason.includes('GA-ONE-PRIMARY-EVENT, GA-REFERENCE-INTEGRITY')), 'the progression reference is no longer a stop (stage K6)')
-    assert.equal(behind.stage, 'validation')
+    // validation -> communication on 15 October 2026 (stage K7): the guard confirms the episode-scoped conditions (see above).
+    assert.ok(!behind.reasons.some(reason => reason.includes('cannot be confirmed to govern')), 'the context-scoring guard is no longer a stop (stage K7)')
+    assert.equal(behind.stage, 'communication')
 
     // The resolved game A01's real selection makes (GF2, its lenses, RPC-001, its provisional realization; no library
     // constraint). Re-pointed 15 October 2026 (stage K5): it holds the realization's start, after-score and coach-judged
@@ -1661,10 +1672,16 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
      * the uncarried restarts and the opening holder, and nothing else. The ball is still said, read from the rendering of the
      * fixture the build stopped with.
      */
+    /**
+     * **Re-pointed 15 October 2026 (stage K7): refused at `communication` -> SERVED again, over the same TEST-ONLY copy, measured.**
+     * K7 says the restarts and the opening holder (DRAFT), which were the whole of what stopped it, so with the build-out condition
+     * taken out on this copy nothing is withheld and the copy is served — the guard having passed, which is what this block is about.
+     * Production keeps the condition and stops at communication on its wording (pinned above).
+     */
     const reached = buildActivityUnderAuthorizationRecords(a01, withoutGapEntries(), { alter: trimmed, alterSupplied: linesBack })
-    const passed = refused(reached.activity, 'A01 over the trimmed copy')
-    assert.equal(passed.stage, 'communication', JSON.stringify(passed.reasons.slice(0, 3)))
-    assert.ok(passed.reasons.every(reason => reason.includes('fidelity Q3') && (reason.includes('transitions[') || reason.includes('possession.team'))), 'only the restarts and the opening holder are unsaid')
+    const passed = served(reached.activity, 'A01 over the trimmed copy')
+    assert.ok(passed.rendered.instructions.some(i => i.from.includes('possession.team')), 'the opening holder is said')
+    assert.ok(passed.rendered.instructions.some(i => i.from.some(path => path.endsWith('.awardedTo'))), 'the restarts are said')
     assert.equal(renderConcreteGame(reached.fixture as any).instructions.filter(i => /\bball\b/.test(i.text)).length > 0, true, 'the ball is still said')
 
     const read = rpcLibrary.scoringEventsForContext
@@ -1792,9 +1809,13 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
         const adjusting = now.rendered.instructions.filter(instruction => instruction.from.some(path => path.startsWith('adjustments[')))
         assert.deepEqual(
             adjusting.map(instruction => [instruction.tier, instruction.status, instruction.block ?? null, instruction.text]),
+            // 2 -> 4 on 15 October 2026 (stage K7): his item 3 (the pressure reference either way) and his D4 (the starting
+            // arrangement), recorded beside his D6 two, each in our DRAFT coach words with his own words cited (allocation.unit.ts).
             [
                 ['adjust', 'COACH_CHOICE', null, 'You may choose to add a pressing player, representing an opponent committing additional numbers forward: adding a pressing player can increase pressure but may also expose space behind the press'],
                 ['adjust', 'COACH_CHOICE', null, "You may choose to remove a build-out player, reducing the building team's available support options"],
+                ['adjust', 'COACH_CHOICE', null, 'You may choose to move the marked line nearer to either end line'],
+                ['adjust', 'COACH_CHOICE', null, 'You may choose to change where the teams start when the pressure you see is not creating an appropriate challenge'],
             ],
         )
         assert.deepEqual(now.account.allocation!.alternatives.map(alternative => `${alternative.contractId}::${alternative.itemId}`), ['restated:GF2::GF2-14.b'])

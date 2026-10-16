@@ -24,6 +24,7 @@
 import assert from 'node:assert/strict'
 
 import { loadRegister } from '../derivation/corpus'
+import { roleHolderNames } from '../derivation/designation'
 import { indexRegister } from '../derivation/register'
 import { LoadedContract } from '../derivation/types'
 import { learningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
@@ -148,7 +149,11 @@ test('key identity: each block fixture crosses whole, with the block it was deri
     for (const [i, block] of blocks.entries()) {
         assert.deepEqual(Object.keys(block.fixture).sort(), [...Object.keys(single), 'roleNouns'].sort(), 'a block fixture has every key a single fixture has, plus the role nouns')
         assert.deepEqual(block.fixture.record.roleBlock, { blockId: block.blockId, holders: block.holders }, 'the game records the block it was derived for')
-        assert.deepEqual(block.fixture.roleNouns, { status: 'DRAFT', nouns: { BUILDING: 'building team', PRESSING: 'pressing team' } })
+        // Moved 15 October 2026 (stage K7): the role nouns cross with which role each block-scoped holder names (`holders`), so a value
+        // written for a role holder (a restart's awardee, a start placement's group) is said by that role's noun. Its consumer is the
+        // renderer (render-concrete-game.ts `teamNoun`); key identity with the register's holders below.
+        assert.deepEqual(block.fixture.roleNouns, { status: 'DRAFT', nouns: { BUILDING: 'building team', PRESSING: 'pressing team' }, holders: { ROLE_HOLDER_BUILDING: 'BUILDING', ROLE_HOLDER_PRESSING: 'PRESSING' } })
+        assert.deepEqual(Object.keys(block.fixture.roleNouns.holders), roleHolderNames(index), 'key identity: every holder the register names, and no other')
         assert.equal(activity.roleBlocks!.blocks[i].blockId, block.blockId)
         assert.ok(Array.isArray(block.fixture.game.activityRoles) && block.fixture.game.activityRoles.length === 2, 'the roles are elements of each game')
     }
@@ -299,7 +304,7 @@ test('part of a role exchange is refused at structure, never completed', () => {
 // realization and the post-realization gates. With no goalkeeper in the session each block is now refused for that (the
 // realization's keeper for the building role); with one, each stops at validation in the same place, named by block: the
 // context-scoring guard reads only whole-game conditions, and RPC-001's four are authored for the build-out episode.
-test('A01 behind its record: two blocks built, each stopping in the same place, named by block (stage K6: validation)', () => {
+test('A01 behind its record: two blocks built, each stopping in the same place, named by block (stage K7: communication, was validation)', () => {
     const behind = learningGoalAuthorizations().map((record: any) => ({
         ...record,
         manipulations: record.manipulations.map((m: any) => (m.status === 'MISSING_KNOWLEDGE' || m.status === 'MISSING_CAPABILITY' ? { ...m, category: 'EXISTING_KNOWLEDGE_TO_VERIFY', status: 'NOT_SELECTED_FOR_FIRST_DEMO', gaps: [], note: 'TEST-ONLY' } : m)),
@@ -310,16 +315,25 @@ test('A01 behind its record: two blocks built, each stopping in the same place, 
     assert.equal(keeperless.summary, `This game needs 1 ${specializedRoleNames()[0]} in all and the session has 0.`)
     const withKeeper = { ...session, roles: { ...none, [specializedRoleNames()[0]]: 1 } }
     const a01 = refused(buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: withKeeper }, behind as any).activity, 'A01 behind its record')
-    assert.equal(a01.stage, 'validation')
-    const conditions = [['origin', '18.a'], ['progression', '18.c'], ['control', '18.f'], ['exclusion', '19.a']]
+    /**
+     * **Moved 15 October 2026 (stage K7): validation -> communication, the work succeeding.** The guard now confirms an episode-scoped
+     * condition where the concrete game begins its episode (GA-EPISODE-REACHABLE PASS as rerun on it: context-scoring-guard.ts
+     * `episodeConfirmed`), so each block passes validation, the cross-block checks run and pass, and both blocks stop at
+     * communication on the same fields: the four build-out conditions (type, referents, value where they hold one, and the scope),
+     * which wait on his approved wording, and fidelity's Q3 note of each as uncarried. Every other sentence is said (K7, DRAFT).
+     */
+    assert.equal(a01.stage, 'communication')
+    const fields: [string, string[]][] = [['18.a', ['type', 'referents', 'scope']], ['18.c', ['type', 'referents', 'value', 'scope']], ['18.f', ['type', 'referents', 'value', 'scope']], ['19.a', ['type', 'referents', 'value', 'scope']]]
+    const ROW: Record<string, string> = { type: 'V4', referents: 'V5', value: 'V6', scope: 'V3' }
     assert.deepEqual(
         a01.reasons,
-        ['BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END', 'BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START'].flatMap(block =>
-            conditions.map(([type, id]) => `block ${block}: the ${type} condition RPC-001 constitutes (RPC-001-${id}) cannot be confirmed to govern this game: c:restated:RPC-001:RPC-001-${id} is authored for the BUILD_OUT_EPISODE scope, and applying it to every score would be a different and wider rule than the one authored`),
-        ),
+        ['BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END', 'BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START'].flatMap(block => [
+            ...fields.flatMap(([id, held]) => held.map(field => `block ${block}: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-${id}].${field} (${ROW[field]})`)),
+            ...fields.flatMap(([id, held]) => held.filter(field => field !== 'scope').map(field => `block ${block}: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-${id}].${field} is established by the game and no instruction carries it`)),
+        ]),
     )
-    // DRAFT coach sentence for this refusal (existing wording): the game did not pass its own checks.
-    assert.equal(a01.summary, 'The game built for this activity did not pass its own checks, so it is not being shown.')
+    // DRAFT coach sentence for this refusal (existing wording).
+    assert.equal(a01.summary, 'Part of this activity is still waiting for approved coach wording, so it is not being shown.')
 })
 
 console.log(`role-blocks.unit.ts (rendering) — ${passed} passed`)

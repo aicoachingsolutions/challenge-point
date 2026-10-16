@@ -38,6 +38,7 @@ import { isStampedHalt } from '../derivation/emit'
 import { runDerivation, runStages0to10, runStages0to5 } from '../derivation/engine'
 import { indexRegister } from '../derivation/register'
 import { assembleResolvedGame, splitPath } from '../derivation/resolved-game'
+import { roleHolderNames, roleOfHolder } from '../derivation/designation'
 import { roleBlocksOf } from '../derivation/role-blocks'
 import { BoundedSelection, CONTEXT_ROLE, contractCoverage, derivationInputFor, GoalSelectionGap, knowledgeKey, KnowledgeSelection, selectFor } from '../derivation/run-bounded-selection'
 import { LoadedContract, RoleBlock } from '../derivation/types'
@@ -56,8 +57,9 @@ import type { AuthorizationExclusion, AuthorizationLists, AuthorizedAdjustment, 
 import { allocationPrinciple, authorizationLists, contextManipulationRelationships, learningGoalAuthorizations, libraryConstraintPrinciple, neededRecordGaps } from '../test-library/learning-goal-authorizations'
 import { applyRealizationDeferrals } from '../derivation/realization-deferral'
 import type { ConstraintAuthority, ConstraintPoolAccount } from '../test-library/types'
-import { contextScoringFindings } from './context-scoring-guard'
-import { checkFidelity } from './fidelity'
+import { contextScoringFindings, EPISODE_REACHABLE_CHECK } from './context-scoring-guard'
+import { checkFidelity, FidelityFinding } from './fidelity'
+import { ReviewDraft, reviewDraftOf } from './review-draft'
 import { mechanismDemonstration } from './mechanism-demonstrations'
 import { RenderedActivity, renderConcreteGame } from './render-concrete-game'
 import { assembleRenderingFixture } from './rendering-fixture'
@@ -294,6 +296,13 @@ export interface RefusedActivity {
     reasons: string[]
     /** Whatever was established before the refusal. */
     account: Partial<ActivityAccount>
+    /**
+     * **Only for an administrator's review, only on a refusal at communication** (stage K7, 15 October 2026): the rendering the
+     * builder made before refusing — every sentence it could say, marked APPROVED or DRAFT, with the provisional choices behind it —
+     * the withheld fields, and the fidelity verdict (`review-draft.ts`). Produced only by `buildActivityForReview` with
+     * `includeDrafts`; `buildActivity`, the pilot and the live route never carry the key.
+     */
+    draft?: ReviewDraft
 }
 
 /**
@@ -584,6 +593,17 @@ export function buildActivityWithSelection(request: ActivityRequest): ActivityBu
 }
 
 /**
+ * **The checked review's build: the same pathway, and — for an administrator only — the draft beside a refusal at communication**
+ * (stage K7, 15 October 2026). With `includeDrafts` false this is `buildActivity` exactly (same result, same keys). With it true, a
+ * refusal at communication also carries `draft` (`review-draft.ts`): what was rendered and withheld, and fidelity's verdict, never
+ * served. The review route sets `includeDrafts` from its existing administrator check (`viewer.permissions.isAdmin === true`); the
+ * pilot and the live route never call this.
+ */
+export function buildActivityForReview(request: ActivityRequest, options: { includeDrafts: boolean }): ServedActivity | RefusedActivity {
+    return build(request, null, null, null, learningGoalAuthorizations(), null, { includeDrafts: options.includeDrafts === true }).activity
+}
+
+/**
  * **For tests, and for nothing that serves a coach.** The activity together with the rendering fixture it
  * was rendered and checked from — null where the build stopped before there was one.
  *
@@ -708,6 +728,8 @@ function build(
     records: LearningGoalAuthorization[] = learningGoalAuthorizations(),
     /** Tests only (`buildActivityOverAlteredKnowledge`): alters a copy of the realization choices. */
     alterSupplied: ((supplied: SuppliedRealization) => void) | null = null,
+    /** The admin-only review (`buildActivityForReview`, stage K7): attach the draft to a refusal at communication. */
+    review: { includeDrafts: boolean } = { includeDrafts: false },
 ): ActivityBuild & { fixture: Record<string, unknown> | null } {
     const { kind, title, subtitle } = composed ? { kind: 'mechanism-demonstration' as const, title: composed.join(' + '), subtitle: null } : describeRequest(request)
     // "This goal …" for a Learning Goal and "This demonstration …" for a demonstration: a demonstration is
@@ -947,7 +969,15 @@ function build(
      * What crosses with every game of this build into its fixture (stage K4): the adjustments the goal's record authorizes, in
      * his words, and what defers in this composition, listed as the alternative. Both absent for every other activity.
      */
-    const adjustments = (goalSelection?.authorization?.authorizedAdjustments?.entries ?? []).map(entry => ({ id: entry.id, words: entry.words, consequence: entry.consequence, citedAs: entry.citedAs }))
+    // `coachWords` (stage K7): our DRAFT coach wording beside his words, carried only where an entry has it (his words are not always
+    // a sentence a coach can be given as a choice: "The pressure reference should be adjustable in either direction.").
+    const adjustments = (goalSelection?.authorization?.authorizedAdjustments?.entries ?? []).map(entry => ({
+        id: entry.id,
+        words: entry.words,
+        consequence: entry.consequence,
+        citedAs: entry.citedAs,
+        ...(typeof entry.coachWords === 'string' ? { coachWords: entry.coachWords } : {}),
+    }))
     const alternatives = deferral.deferred.map(entry => ({
         contractId: entry.contractId,
         itemId: entry.item.itemId,
@@ -998,23 +1028,32 @@ function build(
         if (found?.kind === 'BLOCKS') {
             const blocks = found.blocks.map(block => ({ block, outcome: buildOneGame({ ...input, roleBlock: block }, game) }))
             const stopped = blocks.filter((entry): entry is { block: RoleBlock; outcome: Extract<GameOutcome, { outcome: 'refused' }> } => entry.outcome.outcome === 'refused')
-            if (stopped.length) {
-                // The earliest stage any block stopped at, in pathway order; every block that stopped is named.
-                const first = [...stopped].sort((a, b) => STAGE_ORDER.indexOf(a.outcome.stage) - STAGE_ORDER.indexOf(b.outcome.stage))[0]
+            // The earliest stage any block stopped at, in pathway order; every block that stopped is named.
+            const first = [...stopped].sort((a, b) => STAGE_ORDER.indexOf(a.outcome.stage) - STAGE_ORDER.indexOf(b.outcome.stage))[0]
+            const stoppedReasons = stopped.flatMap(entry => entry.outcome.reasons.map(reason => `block ${entry.block.blockId}: ${reason}`))
+            /**
+             * **A block refused at communication passed validation, so the cross-block checks still run before the refusal** (stage K7, 15
+             * October 2026). The cross-block checks are validation (a refusal there says "did not pass its own checks"), which comes
+             * before communication in the pathway; until this stage a block stopping at communication skipped them, so a disagreement
+             * between the blocks could hide behind a wording refusal. Where every block was built or refused only at communication, both
+             * games are complete through validation and are checked against each other first; any earlier stop refuses as before.
+             */
+            const throughValidation = blocks.every(entry => entry.outcome.outcome === 'built' || !!entry.outcome.communication)
+            if (stopped.length && !throughValidation) {
                 fixture = first.outcome.fixture
-                return refuse(
-                    first.outcome.stage,
-                    first.outcome.summary,
-                    stopped.flatMap(entry => entry.outcome.reasons.map(reason => `block ${entry.block.blockId}: ${reason}`)),
-                )
+                return refuse(first.outcome.stage, first.outcome.summary, stoppedReasons)
             }
-            const built = blocks.map(entry => ({ block: entry.block, built: entry.outcome as Extract<GameOutcome, { outcome: 'built' }> }))
+            const games = blocks.map(entry =>
+                entry.outcome.outcome === 'built'
+                    ? { block: entry.block, fixture: entry.outcome.fixture, contracts: entry.outcome.contracts, rendered: entry.outcome.rendered, violations: [] as FidelityFinding[] }
+                    : { block: entry.block, fixture: entry.outcome.fixture as Record<string, unknown>, contracts: entry.outcome.communication!.contracts, rendered: entry.outcome.communication!.rendered, violations: entry.outcome.communication!.violations },
+            )
             const checks = checkRoleBlocks(
-                built.map(entry => ({ block: entry.block, fixture: entry.built.fixture, contracts: entry.built.contracts })),
+                games.map(entry => ({ block: entry.block, fixture: entry.fixture, contracts: entry.contracts })),
                 roleIndex,
                 found.roles,
             )
-            fixture = { ...built[0].built.fixture, roleBlocks: roleBlockFixture(found, built.map(entry => ({ block: entry.block, fixture: entry.built.fixture })), checks, roleIndex) }
+            fixture = { ...games[0].fixture, roleBlocks: roleBlockFixture(found, games.map(entry => ({ block: entry.block, fixture: entry.fixture })), checks, roleIndex) }
             const failing = checks.filter(check => check.verdict === 'FAIL')
             /**
              * **Where only the membership check fails, the coach is told what has not been decided** (15 October 2026, stage K4,
@@ -1030,16 +1069,26 @@ function build(
                     ...failing.flatMap(check => check.problems.map(problem => `${check.checkId}: ${problem}`)),
                 ])
             }
-            const composed = composeRoleBlockActivity(built.map(entry => ({ blockId: entry.block.blockId, rendered: entry.built.rendered, fixture: entry.built.fixture })), roleIndex)
-            const composition = checkRoleBlockComposition(built.map(entry => ({ blockId: entry.block.blockId, rendered: entry.built.rendered, fixture: entry.built.fixture })), composed, roleIndex)
+            const renders = games.map(entry => ({ blockId: entry.block.blockId, rendered: entry.rendered, fixture: entry.fixture }))
+            const composed = composeRoleBlockActivity(renders, roleIndex)
+            const composition = checkRoleBlockComposition(renders, composed, roleIndex)
             const violations = composition.filter(finding => finding.severity === 'VIOLATION')
+            /** The admin-only draft of the composed activity (stage K7), attached to a refusal at communication where it was asked for. */
+            const withDraft = (refusal: ReturnType<typeof refuse>) => {
+                if (review.includeDrafts) (refusal.activity as RefusedActivity).draft = reviewDraftOf(games.map(entry => entry.fixture), composed, [...games.flatMap(entry => entry.violations), ...violations])
+                return refusal
+            }
+            if (stopped.length) return withDraft(refuse(first.outcome.stage, first.outcome.summary, [...stoppedReasons, ...violations.map(v => `fidelity Q${v.question}: ${v.what}`)]))
             if (violations.length) {
-                return refuse(
-                    'communication',
-                    'Part of this activity cannot be explained to a coach yet, so it is not being shown.',
-                    violations.map(v => `fidelity Q${v.question}: ${v.what}`),
+                return withDraft(
+                    refuse(
+                        'communication',
+                        'Part of this activity cannot be explained to a coach yet, so it is not being shown.',
+                        violations.map(v => `fidelity Q${v.question}: ${v.what}`),
+                    ),
                 )
             }
+            const built = games.map(entry => ({ block: entry.block, built: blocks.find(b => b.block === entry.block)!.outcome as Extract<GameOutcome, { outcome: 'built' }> }))
             return serve(
                 {
                     ...built[0].built,
@@ -1088,7 +1137,10 @@ function build(
     const one = buildOneGame(input, game)
     if (one.outcome === 'refused') {
         fixture = one.fixture
-        return refuse(one.stage, one.summary, one.reasons)
+        const refusal = refuse(one.stage, one.summary, one.reasons)
+        // The admin-only draft (stage K7): only on a refusal at communication, only where the review asked for it.
+        if (review.includeDrafts && one.communication) (refusal.activity as RefusedActivity).draft = reviewDraftOf([one.fixture], one.communication.rendered, one.communication.violations)
+        return refusal
     }
     return serve(one)
 }
@@ -1103,14 +1155,26 @@ interface GameContext {
     context: { id: string; role: string } | undefined
     alterSupplied: ((supplied: SuppliedRealization) => void) | null
     /** The record's authorized adjustments, in his words, for the fixture (stage K4). Empty for every other activity. */
-    adjustments: { id: string; words: string; consequence: string | null; citedAs: string }[]
+    adjustments: { id: string; words: string; consequence: string | null; citedAs: string; coachWords?: string }[]
     /** What defers in this composition (ruling C56), for the fixture. Empty wherever nothing defers. */
     alternatives: { contractId: string; itemId: string; row: string; value: unknown; defersTo: string; deferredTo: { contractId: string; itemId: string }[]; relationship: string }[]
 }
 
 /** One game built from its derivation input to communication, or the stage it stopped at. */
 type GameOutcome =
-    | { outcome: 'refused'; stage: ActivityStage; summary: string; reasons: string[]; fixture: Record<string, unknown> | null }
+    | {
+          outcome: 'refused'
+          stage: ActivityStage
+          summary: string
+          reasons: string[]
+          fixture: Record<string, unknown> | null
+          /**
+           * Only on a refusal AT communication (stage K7, 15 October 2026): the game passed every earlier stage, so what the renderer
+           * could say, what it withheld and what fidelity found are carried for the admin-only review draft and for the cross-block
+           * checks, which belong to validation and so still run before the activity is refused at communication. Never served.
+           */
+          communication?: { rendered: RenderedActivity; violations: FidelityFinding[]; contracts: LoadedContract[] }
+      }
     | {
           outcome: 'built'
           fixture: Record<string, unknown>
@@ -1261,7 +1325,10 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
      */
     if (context && selection.contracted.includes(context.id)) {
         const contract = (input.contracts as LoadedContract[]).find(c => knowledgeKey(c.contractId) === knowledgeKey(context.id))
-        invalid.push(...contextScoringFindings(context.id, contract, realized.game, rpcLibrary.scoringEventsForContext(context.id)))
+        // Stage K7: the episode check as rerun on this concrete game, so a condition authored for an episode the game is shown to
+        // begin is confirmed (context-scoring-guard.ts `episodeConfirmed`); every other condition is read as before.
+        const episodeCheck = post.gateA.checks.find(check => check.checkId === EPISODE_REACHABLE_CHECK)
+        invalid.push(...contextScoringFindings(context.id, contract, realized.game, rpcLibrary.scoringEventsForContext(context.id), episodeCheck))
     }
     if (invalid.length) return refuse('validation', 'The game built for this activity did not pass its own checks, so it is not being shown.', invalid)
 
@@ -1282,7 +1349,7 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
         envelope: { ...session, roles: { ...session.roles } },
         accepted: Object.values(acceptance).every(entries => !(entries as unknown[]).length),
         postRealizationValidated: Boolean(post.validated),
-        ...(holdsRoles ? { roleNouns: { ...index.roleBlocks!.coachNouns } } : {}),
+        ...(holdsRoles ? { roleNouns: { ...index.roleBlocks!.coachNouns }, roleHolders: Object.fromEntries(roleHolderNames(index).map(name => [name, String(roleOfHolder(index, name))])) } : {}),
         ...(holdsReassignments ? { reassignmentNouns: reassignmentNounsOf(index) } : {}),
         ...(adjustments.length ? { adjustments } : {}),
         ...(alternatives.length ? { alternatives } : {}),
@@ -1293,6 +1360,8 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
     const rendered = renderConcreteGame(fixture)
     const report = checkFidelity(fixture, rendered)
     const violations = report.findings.filter((f: any) => f.severity === 'VIOLATION')
+    // Stage K7: a refusal at communication carries what was rendered, for the admin-only review draft and the cross-block checks.
+    const atCommunication = (summary: string, reasons: string[]): GameOutcome => ({ outcome: 'refused', stage: 'communication', summary, reasons, fixture, communication: { rendered, violations, contracts: input.contracts } })
     /**
      * **Part of the game has no approved wording yet, so the activity is not shown** — chosen from the
      * renderer's typed `withheld` list, never from the fidelity text (which reports the same fields as
@@ -1301,14 +1370,13 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
      * rule of the game said in words nobody approved would be a rule on the renderer's authority.
      */
     if (rendered.withheld.length) {
-        return refuse('communication', 'Part of this activity is still waiting for approved coach wording, so it is not being shown.', [
+        return atCommunication('Part of this activity is still waiting for approved coach wording, so it is not being shown.', [
             ...rendered.withheld.map(field => `awaiting approved wording: ${field.path} (${field.row})`),
             ...violations.map((v: any) => `fidelity Q${v.question}: ${v.what}`),
         ])
     }
     if (violations.length) {
-        return refuse(
-            'communication',
+        return atCommunication(
             'Part of this activity cannot be explained to a coach yet, so it is not being shown.',
             violations.map((v: any) => `fidelity Q${v.question}: ${v.what}`),
         )

@@ -21,7 +21,7 @@
  * front end's service layer keeps only five fields of a non-2xx body and the sentence would not survive.
  * The two errors thrown here are for a request that names nothing: there is no activity it could have been.
  */
-import { ActivitySubject, buildActivity, describeRequest, RefusedActivity, ServedActivity } from './build-activity'
+import { ActivitySubject, buildActivity, buildActivityForReview, describeRequest, RefusedActivity, ServedActivity } from './build-activity'
 import { MECHANISM_DEMONSTRATIONS } from './mechanism-demonstrations'
 import { sessionEnvelopeFrom, specializedRoleNames, StoredSession } from './session-envelope'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
@@ -41,7 +41,12 @@ export class ActivityReviewRequestError extends Error {}
 
 const named = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0
 
-export function reviewActivity(stored: StoredSession, body: ActivityReviewBody): ServedActivity | RefusedActivity {
+/**
+ * `includeDrafts` (stage K7, 15 October 2026): the route sets it from its administrator check, and only then does a refusal at
+ * communication carry the draft rendering (`review-draft.ts`). Absent or false, the answer is exactly `buildActivity`'s — the same
+ * keys, nothing drafted — which is what the coach whose session it is receives.
+ */
+export function reviewActivity(stored: StoredSession, body: ActivityReviewBody, options: { includeDrafts?: boolean } = {}): ServedActivity | RefusedActivity {
     if (!body || typeof body !== 'object' || Array.isArray(body)) throw new ActivityReviewRequestError('the request has no body to read')
     const goal = named(body.learningGoalId)
     const demonstration = named(body.demonstrationId)
@@ -61,7 +66,8 @@ export function reviewActivity(stored: StoredSession, body: ActivityReviewBody):
     if (envelope.outcome === 'not-stated') {
         return { outcome: 'refused', kind, title, stage: 'session', summary: envelope.summary, reasons: envelope.reasons, account: {} }
     }
-    return buildActivity({ ...subject, session: envelope.session })
+    const request = { ...subject, session: envelope.session }
+    return options.includeDrafts === true ? buildActivityForReview(request, { includeDrafts: true }) : buildActivity(request)
 }
 
 export interface ActivityReviewOptions {

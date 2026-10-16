@@ -60,6 +60,13 @@ export interface RenderingFixtureParts {
      */
     roleNouns?: Record<string, string>
     /**
+     * Which role each block-scoped role holder names (`ROLE_HOLDER_BUILDING` -> `BUILDING`, register `roleBlocks.holderDesignation`),
+     * carried beside the nouns and only where they are — stage K7, 15 October 2026. Read by the renderer to say a value written for a
+     * role holder (a restart's awardee, a start placement's group, a position measured from a team's end) by that role's DRAFT noun.
+     * Absent, the fixture is exactly what it was.
+     */
+    roleHolders?: Record<string, string>
+    /**
      * DRAFT coach nouns for each kind of performer a reassignment moves (register `reassignment`), given only where the game
      * holds a reassignment — stage K4, 15 October 2026, his RD-1 answer. Absent, the fixture is exactly what it was.
      */
@@ -68,7 +75,7 @@ export interface RenderingFixtureParts {
      * The adjustments the goal's authorization record authorizes, in his words, given only where it has them — stage K4. Read
      * by the renderer for "Adjusting the activity" alone. Absent, the fixture is exactly what it was.
      */
-    adjustments?: { id: string; words: string; consequence: string | null; citedAs: string }[]
+    adjustments?: { id: string; words: string; consequence: string | null; citedAs: string; coachWords?: string }[]
     /**
      * What defers in this composition (ruling C56), listed as the alternative with its provenance — stage K4. Absent wherever
      * nothing defers.
@@ -82,7 +89,7 @@ export interface RenderingFixtureParts {
     withdrawnChoices?: { lineId: string; withdrawnFrom: string; by: string; withdrawnValue: unknown; because: string }[]
 }
 
-export function assembleRenderingFixture({ resolved, realized, entailed, envelope, accepted, postRealizationValidated, roleNouns, reassignmentNouns, adjustments, alternatives, withdrawnChoices }: RenderingFixtureParts): Record<string, unknown> {
+export function assembleRenderingFixture({ resolved, realized, entailed, envelope, accepted, postRealizationValidated, roleNouns, roleHolders, reassignmentNouns, adjustments, alternatives, withdrawnChoices }: RenderingFixtureParts): Record<string, unknown> {
     const pathOf = new Map(resolved.derived.map(entry => [entry.lineId, entry.path]))
     return {
         provenance: resolved.provenance,
@@ -118,7 +125,7 @@ export function assembleRenderingFixture({ resolved, realized, entailed, envelop
              */
             notEstablished: resolved.notEstablished.map(n => ({ path: n.path, lineId: n.lineId, reason: n.reason, declared: n.declared, governedBy: n.governedBy.map(g => ({ ...g })) })),
         },
-        ...(roleNouns ? { roleNouns: { status: 'DRAFT', nouns: { ...roleNouns } } } : {}),
+        ...(roleNouns ? { roleNouns: { status: 'DRAFT', nouns: { ...roleNouns }, ...(roleHolders ? { holders: { ...roleHolders } } : {}) } } : {}),
         ...(reassignmentNouns ? { reassignmentNouns: { status: 'DRAFT', nouns: JSON.parse(JSON.stringify(reassignmentNouns)) } } : {}),
         ...(adjustments?.length ? { adjustments: { status: 'DRAFT', entries: JSON.parse(JSON.stringify(adjustments)) } } : {}),
         ...(alternatives?.length ? { alternatives: JSON.parse(JSON.stringify(alternatives)) } : {}),

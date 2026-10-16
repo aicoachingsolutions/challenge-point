@@ -137,11 +137,19 @@ test('the record: his allocation principle once, the relationship he confirmed, 
 
     const adjustments = learningGoalAuthorization('A01')!.authorizedAdjustments!
     assert.deepEqual(adjustments, (record as any).authorizations[0].authorizedAdjustments, 'key identity')
+    // 2 -> 4 on 15 October 2026 (stage K7): his 18 October item 3 (the pressure reference adjustable in either direction) and his D4
+    // (the starting arrangement adjustable) are recorded beside his two numerical adjustments so "Adjusting the activity" can say them,
+    // under the Performer Configuration relationship he confirmed (18 October, item 5). His D6 two stay first and unchanged.
     assert.deepEqual(adjustments.entries.map(e => e.words), [
         'Add a pressing player, representing an opponent committing additional numbers forward.',
         "Remove a build-out player, reducing the building team's available support options.",
+        'The pressure reference should be adjustable in either direction. Twenty meters is our initial hypothesis, not a canonical distance or a requirement for other field sizes.',
+        'The coach should retain the ability to adjust the starting arrangement when the observed pressure is not creating an appropriate challenge.',
     ])
-    assert.ok(adjustments.entries.every(e => e.category === 'PROVISIONAL_REALIZATION_CHOICE' && e.relationship === relationship.id))
+    assert.ok(adjustments.entries.every(e => e.category === 'PROVISIONAL_REALIZATION_CHOICE'))
+    assert.deepEqual(adjustments.entries.map(e => e.relationship), [relationship.id, relationship.id, 'RPC-001~EM-0002', 'RPC-001~EM-0002'])
+    // Our DRAFT coach wording only where his words are not themselves an action, and never in place of his words.
+    assert.deepEqual(adjustments.entries.map(e => e.coachWords ?? null), [null, null, 'move the marked line nearer to either end line', 'change where the teams start when the pressure you see is not creating an appropriate challenge'])
 })
 
 test('the record gate refuses an uncited, mis-scoped or unconfirmed relationship and an adjustment naming none', () => {
@@ -359,13 +367,18 @@ test('the possession game alone is unchanged: equal numbers in force, nothing de
 test('the adjustments are said only under "Adjusting the activity", in his words, as the coach\'s choice, with no challenge level', () => {
     const block = JSON.parse(JSON.stringify(twelveFixture.roleBlocks.blocks[0].fixture))
     const entries = learningGoalAuthorization('A01')!.authorizedAdjustments!.entries
-    block.adjustments = { status: 'DRAFT', entries: entries.map(e => ({ id: e.id, words: e.words, consequence: e.consequence, citedAs: e.citedAs })) }
+    block.adjustments = { status: 'DRAFT', entries: entries.map(e => ({ id: e.id, words: e.words, consequence: e.consequence, citedAs: e.citedAs, ...(e.coachWords ? { coachWords: e.coachWords } : {}) })) }
     const rendered = renderConcreteGame(block)
     const said = rendered.instructions.filter(i => i.from.some(p => p.startsWith('adjustments[')))
+    // 2 -> 4 on 15 October 2026 (stage K7): the pressure line either way and the starting arrangement (his item 3 and D4), each in our
+    // DRAFT coach words with his words cited beside them (`coachWords`), still the coach's choice and still no challenge level.
     assert.deepEqual(said.map(i => [i.tier, i.status, i.text]), [
         ['adjust', 'COACH_CHOICE', 'You may choose to add a pressing player, representing an opponent committing additional numbers forward: adding a pressing player can increase pressure but may also expose space behind the press'],
         ['adjust', 'COACH_CHOICE', "You may choose to remove a build-out player, reducing the building team's available support options"],
+        ['adjust', 'COACH_CHOICE', 'You may choose to move the marked line nearer to either end line'],
+        ['adjust', 'COACH_CHOICE', 'You may choose to change where the teams start when the pressure you see is not creating an appropriate challenge'],
     ])
+    assert.deepEqual(said[2].from, ['adjustments[A01-ADJ-3].words', 'adjustments[A01-ADJ-3].coachWords'], 'his words are cited beside ours')
     const text = rendered.instructions.map(i => i.text).join(' | ')
     for (const level of ['Comfortable', 'Stretch', 'Demanding']) assert.ok(!text.includes(level))
     assert.deepEqual(checkFidelity(block, rendered).findings.filter(f => f.severity === 'VIOLATION'), [])
@@ -378,16 +391,20 @@ test('the adjustments are said only under "Adjusting the activity", in his words
 // 15 October 2026 (stage K6): three entries -> none. K6 carried the starting arrangement and the targets' placement (his 18 October
 // item 3, the Performer Configuration relationship) and moved the stale asymmetric-structure entry; production A01 passes its
 // record and stops at validation (pinned in target-placement.unit.ts).
+// 15 October 2026 (stage K7): validation -> communication. The context-scoring guard confirms an episode-scoped condition where the
+// concrete game begins that episode (context-scoring-guard.ts `episodeConfirmed`), so A01 now stops only on the build-out condition's
+// wording, which awaits his approval (pinned in activity-review.unit.ts).
 test('production A01: past its record (every entry carried), with the allocation authority and both relationships in the account', () => {
     const activity = refused(buildActivity({ kind: 'learning-goal', goalId: 'A01', session: sessionOf(12, 1) }), 'production A01')
-    assert.equal(activity.stage, 'validation')
+    assert.equal(activity.stage, 'communication')
     assert.ok(!activity.reasons.some(r => r.includes('authorization record')), 'no record entry stops it')
     const allocation = activity.account.allocation!
     assert.equal(allocation.principle.principle, allocationPrinciple().principle)
     // Since stage K6 the Performer Configuration relationship he confirmed is cited too, by the starting placements.
     assert.deepEqual(allocation.relationships.map(r => [r.id, r.status]), [['RPC-001~EM-0006', 'CONFIRMED'], ['RPC-001~EM-0002', 'CONFIRMED']])
     assert.deepEqual(allocation.alternatives.map(a => `${a.contractId}::${a.itemId}`), ['restated:GF2::GF2-14.b'])
-    assert.equal(allocation.adjustments.length, 2)
+    // 2 -> 4 on 15 October 2026 (stage K7): the pressure line either way and the starting arrangement (his item 3 and D4).
+    assert.equal(allocation.adjustments.length, 4)
     assert.deepEqual(allocation.testingBoundaries!.players, [11, 12])
     // The area his starting values were given for crosses into the account with the player counts (stage K6).
     assert.deepEqual(allocation.testingBoundaries!.areas, [{ lengthM: 40, widthM: 30 }])

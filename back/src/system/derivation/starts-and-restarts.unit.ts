@@ -441,10 +441,18 @@ test('realization: the COACH_DECIDES stand-ins, the possession game initial-hold
             for (const replaced of (supplied as any).replaced) (supplied.choices.find((c: any) => c.lineId === replaced.lineId) as any).value = replaced.replacedValue
         },
     })
-    const activity = built.activity as RefusedActivity
-    // Realized, validated and rendered; the restarts are not said yet (their rendering is stage K7), so fidelity refuses it.
-    assert.equal(activity.stage, 'communication', JSON.stringify(activity.reasons.slice(0, 3)))
-    assert.ok(activity.reasons.every(reason => reason.includes('fidelity Q3') && (reason.includes('transitions[') || reason.includes('possession.team'))), 'only the uncarried restarts and the opening holder')
+    /**
+     * Realized, validated and rendered. **Moved 15 October 2026 (stage K7): served.** Until K7 the restarts and the opening holder had
+     * no sentence, so fidelity refused this composition at communication on exactly those (the assertion this replaces: every reason
+     * a fidelity Q3 loss of a `transitions[` field or `possession.team`). K7 says each from the values the game holds (DRAFT), so with
+     * no context — no scoped condition to withhold — the TEST-ONLY composition is served, and what moved is exactly those sentences.
+     */
+    assert.equal((built.activity as any).outcome, 'served', JSON.stringify((built.activity as RefusedActivity).reasons?.slice(0, 3)))
+    const said = (built.activity as any).rendered.instructions as { text: string; from: string[] }[]
+    for (const transition of (built.fixture as any).game.transitions.filter((t: any) => t.playState === 'STOP_RESUME')) {
+        assert.ok(said.some(i => i.from.includes(`transitions[${transition.elementId}].awardedTo`) && i.from.includes(`transitions[${transition.elementId}].playState`)), `${transition.elementId}: its restart is said with its awardee and play state`)
+    }
+    assert.ok(said.some(i => i.from.includes('possession.team') && i.text === 'The building team starts with the ball'), 'the opening holder, by its role')
     const fixture: any = built.fixture
     const coach = fixture.status.choices.filter((c: any) => String(c.lineId).startsWith('c:provisional:A01-R1:'))
     assert.equal(coach.length, 7)

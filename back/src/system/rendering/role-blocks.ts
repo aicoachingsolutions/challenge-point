@@ -47,7 +47,7 @@ import { parseSelector } from '../derivation/selector'
 import { splitPath } from '../derivation/resolved-game'
 import { LoadedContract, RoleBlock } from '../derivation/types'
 import { FidelityFinding } from './fidelity'
-import { Instruction, RenderedActivity, ROLE_EXCHANGE } from './render-concrete-game'
+import { Instruction, RenderedActivity, ROLE_EXCHANGE, roleKeyedPositions } from './render-concrete-game'
 
 /** One cross-block check, with what it found. */
 export interface RoleBlockCheck {
@@ -502,6 +502,16 @@ export function checkRoleBlockComposition(blocks: RenderedBlock[], composed: Ren
         }
         if (!composed.instructions.some(i => i.section === ROLE_EXCHANGE && cites(i, rolesStated))) {
             findings.push({ question: 6, severity: 'VIOLATION', what: 'no sentence says which roles the teams hold in a block' })
+        }
+        /**
+         * **And the other half of his distinction: what changes with the roles** (stage K7, 15 October 2026). His D2: *"Team ends can
+         * remain fixed, while role-specific objectives and target configurations change when the teams exchange roles."* Wherever the
+         * blocks hold positions written for a role holder (`roleKeyedPositions`), a role-exchange sentence must cite every one of them
+         * — the sentence that says they are set out again for the new roles. A game with no such position owes nothing here.
+         */
+        const keyed = roleKeyedPositions(entry.fixture)
+        if (keyed.length && !composed.instructions.some(i => i.section === ROLE_EXCHANGE && cites(i, keyed))) {
+            findings.push({ question: 6, severity: 'VIOLATION', what: `no sentence says that the markings written for the roles (${keyed.join(', ')}) change when the roles exchange (his D2: "role-specific objectives and target configurations change when the teams exchange roles")` })
         }
     }
     for (const instruction of composed.instructions) {

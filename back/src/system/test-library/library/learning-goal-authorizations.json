@@ -334,6 +334,40 @@
                             "RPC-PROP-017 (BEHAVIOR_ADJUSTMENT): 'Manipulate numerical relationships without prescribing a single solution.'"
                         ],
                         "note": null
+                    },
+                    {
+                        "id": "A01-ADJ-3",
+                        "category": "PROVISIONAL_REALIZATION_CHOICE",
+                        "ruledOn": "2026-10-18",
+                        "by": "Christian",
+                        "citedAs": "his reply filed 18 October 2026, item 3",
+                        "words": "The pressure reference should be adjustable in either direction. Twenty meters is our initial hypothesis, not a canonical distance or a requirement for other field sizes.",
+                        "consequence": null,
+                        "coachWords": "move the marked line nearer to either end line",
+                        "relationship": "RPC-001~EM-0002",
+                        "parameter": "EMP-0011 Magnitude: the pressure reference's distance from the building team's end line",
+                        "role": "BUILDING",
+                        "sources": [
+                            "RPC-PROP-016 (rpc-library.rc1.json, RPC-001, BEHAVIOR_ADJUSTMENT, COMMON): 'Adjust starting positions or progression zones while preserving build-out identity.'"
+                        ],
+                        "note": "Recorded 15 October 2026 (stage K7) so 'Adjusting the activity' can say it. The pressure reference is the marked spatial reference his D4 favours for the defenders' starting relationship (reply filed 17 October 2026: \"I favor a marked spatial reference that establishes the defenders' starting relationship to the goalkeeper, ball, and initial build-out space.\"), so the adjustment is read under the Performer Configuration relationship he confirmed on 18 October (item 5); that reading, the parameter named and the role (its distance is measured from the building team's end line, A01-R1-S5-1) are ours. coachWords is our DRAFT wording, never his; 'the marked line' is the renderer's name for the pressure reference, which the game holds as a line with no noun of its own. The progression target begins at the pressure reference (A01-R1-S5-2), so moving the line moves where the target begins: his D3 'with the coach able to adjust its precise location' is not given a sentence of its own."
+                    },
+                    {
+                        "id": "A01-ADJ-4",
+                        "category": "PROVISIONAL_REALIZATION_CHOICE",
+                        "ruledOn": "2026-10-17",
+                        "by": "Christian",
+                        "citedAs": "his reply filed 17 October 2026, D4",
+                        "words": "The coach should retain the ability to adjust the starting arrangement when the observed pressure is not creating an appropriate challenge.",
+                        "consequence": null,
+                        "coachWords": "change where the teams start when the pressure you see is not creating an appropriate challenge",
+                        "relationship": "RPC-001~EM-0002",
+                        "parameter": "EMP-0010 Direction: where a team's start placement lies relative to the pressure reference",
+                        "role": "PRESSING",
+                        "sources": [
+                            "RPC-PROP-016 (rpc-library.rc1.json, RPC-001, BEHAVIOR_ADJUSTMENT, COMMON): 'Adjust starting positions or progression zones while preserving build-out identity.'"
+                        ],
+                        "note": "Recorded 15 October 2026 (stage K7) so 'Adjusting the activity' can say it, under the Performer Configuration relationship he confirmed on 18 October (item 5), which his D4 named for the starting arrangement (\"Please use the existing Performer Configuration knowledge where supported, documenting the relationship to Goalkeeper Build-Out rather than inventing a new constraint.\"). The parameter named and the role (D4 is about the defensive starting arrangement) are our reading. coachWords is our DRAFT wording, never his. Like his numerical adjustments, it is a choice put to the coach and mapped to no challenge level; no live mechanism carries it."
                     }
                 ]
             },

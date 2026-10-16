@@ -508,6 +508,9 @@ const WORDED_ONLY: { base: string; elements: (game: any) => unknown; fields: { f
             { field: 'type', row: 'V4' },
             { field: 'referents', row: 'V5' },
             { field: 'value', row: 'V6' },
+            // Stage K7 (B2): a condition's scope, which a whole-game condition does not carry (resolved-game.ts), so nothing moves for
+            // one. A scoped condition is said only by an entry covering this row with its exact scope (below).
+            { field: 'scope', row: CONDITION_ROW },
         ],
     },
     {
@@ -538,11 +541,53 @@ const CRITERION_WORDING: Record<string, (object: string, where: string) => strin
     'a controlled attacking-team touch within a referent wide channel, where controlled means a touch after which the touching player’s team retains possession': (object, where) =>
         `once the attacking team has touched the ${object} inside ${where} and kept it after that touch`,
 }
-const ENDS_ON_WORDING: Record<string, () => string> = {
+export const ENDS_ON_WORDING: Record<string, () => string> = {
     // Was "Once met it stays live while that team keeps the ball, and a change of possession ends it" (DRAFT, S-C2).
     // It names no object now, so it no longer needs one to be said.
     POSSESSION_CHANGE: () => 'lasts until possession changes',
 }
+
+/**
+ * **Restarts, worded for EXACT values only — DRAFT, 15 October 2026 (stage K7), NOT approved wording.** His decisions of 17
+ * October (D1, D5, M3, M4) and 18 October (item 2) gave the first activity starts, restarts after a score, a coach-judged end of
+ * an episode and ordinary restarts when the ball goes out; the game holds each as a transition element (T1-T7), and until this
+ * stage none had a sentence, so the activity was refused for every one of them as uncarried. Each map below is keyed to the
+ * register vocabulary value it translates (trigger, T5 method, T2 designation); any other value has no sentence and stays
+ * uncarried, which fidelity refuses — never paraphrased. Objects are named from `objects[].kind` (SD-103), roles and teams from
+ * the game's data, so no noun of a sport is written here.
+ *
+ *   - the trigger phrases say when a restart happens. The coach-judged conclusion is said in his D5 terms: *"An episode concludes
+ *     when either team scores or when the coach judges that the meaningful attacking opportunity has ended. The coach may make that
+ *     judgment at a stoppage or during play."*;
+ *   - the method phrases say how: `FROM_THE_FEET` with the register's gloss of it (ours, labelled so there) that the ball need not be
+ *     still — his D5, *"a stationary-ball restart should not be universally required"*; `IN_HAND`, the restart taken with the
+ *     object in the hands;
+ *   - the designation phrases say who restarts where the game names a team by the last touch (the register's gloss of LAST_TOUCH;
+ *     NOT_LAST_TOUCH has none, and is read as the team that did not touch it last, as the register records).
+ */
+const TRIGGER_PHRASE: Record<string, string> = {
+    START: 'at the start',
+    SCORE: 'after either team scores',
+    COACH_JUDGED_EPISODE_CONCLUSION: 'whenever you decide that an attack has run its course (at a stoppage or while play is on)',
+}
+const METHOD_PHRASE: Record<string, (object: string) => string> = {
+    FROM_THE_FEET: object => `from the feet, with the ${object} still or moving`,
+    IN_HAND: object => `with the ${object} in hand`,
+}
+const LAST_TOUCH_PHRASE: Record<string, (object: string) => string> = {
+    LAST_TOUCH: object => `the team that touched the ${object} last`,
+    NOT_LAST_TOUCH: object => `the team that did not touch the ${object} last`,
+}
+/** Where the object leaves play, by trigger: the end line is told apart by its qualifier (T1b), read below. */
+const OUT_OF_PLAY_TRIGGERS = ['OUT_TOUCHLINE', 'OUT_END_LINE']
+/** The one authored taker that is not a role: a player of the team the restart is awarded to (A01-R1's T3 for ordinary restarts). */
+const PLAYER_OF_AWARDEE = "a player of the team in this element's T2"
+/** The scoring event that is ENTRY into a target region, worded for that value only (its other kinds keep the line wording). */
+const ZONE_ENTRY_EVENT = 'target_zone_entered'
+/** The relative position RC-21 names (register `relativeTerms`, version 13), read where a start placement is stated by it. */
+const BEYOND = 'beyond X (for team T)'
+/** The end a target touches, as RC-21 names it: the end its attacking team attacks, which is the other team's end (C42). */
+const ATTACKING_END = 'attacking end (of team T)'
 
 const fieldOf = (element: any, field: string): unknown => field.split('.').reduce<any>((node, key) => (node == null ? undefined : node[key]), element)
 const present = (value: unknown): boolean => value !== undefined && value !== null
@@ -573,18 +618,22 @@ function sayInApprovedWords(game: any, wording: ApprovedWording[], push: (instru
             const held = fields.filter(f => present(fieldOf(element, f.field)))
             /**
              * **A condition authored for less than every score is not said as if it governed every score** — 15
-             * October 2026. No approved sentence carries a scope, so saying any of them for such a condition would
-             * state a wider rule than the one authored (SD-36; his 16 October 9.3, "Build-out condition applies only
-             * to build-out episodes: Approved."). Every field it holds, and the scope itself, is withheld instead,
-             * which refuses the activity at communication. No sentence is written for it here.
+             * October 2026. Saying it in a sentence that does not carry its scope would state a wider rule than the one
+             * authored (SD-36; his 16 October 9.3, "Build-out condition applies only to build-out episodes: Approved.").
+             *
+             * **Since stage K7 (15 October 2026, design step B2) it can be said, by an approved sentence that carries the scope,
+             * and only so.** His 14 October item 3: *"Enable accurate coach-facing communication of scoring conditions and
+             * information rules, using approved language."* Until then no entry could ever apply to such a condition (the scope
+             * was no field an entry could cover, and the condition was skipped before any entry was tried), so the activity
+             * would stay refused after he approved its sentence. Now an entry applies to a scoped condition only where one of its
+             * covers is the scope row, holding EXACTLY that scope (`equals`); every other entry is passed over for it, and with
+             * none, every field it holds — the scope among them — is withheld exactly as before, which refuses the activity at
+             * communication. A whole-game condition carries no scope field, so nothing about it moves.
              */
-            if (conditionScopeNotEvaluable(element)) {
-                for (const field of held) withheld.push({ path: pathOf(field.field), row: field.row, reason: 'AWAITING_APPROVED_WORDING' })
-                withheld.push({ path: pathOf('scope'), row: CONDITION_ROW, reason: 'AWAITING_APPROVED_WORDING' })
-                continue
-            }
+            const scoped = !!conditionScopeNotEvaluable(element)
             const said = new Set<string>()
             for (const entry of wording) {
+                if (scoped && !entry.covers.some(cover => cover.row === CONDITION_ROW && 'equals' in cover.match && JSON.stringify(cover.match.equals) === JSON.stringify(element?.scope))) continue
                 const covered = entry.covers.map(cover => ({ cover, field: held.find(f => f.row === cover.row) }))
                 if (covered.some(({ cover, field }) => !field || !coverHolds(game, cover.match, fieldOf(element, field.field)))) continue
                 const slots = Object.entries(entry.slots ?? {}).map(([name, slot]) => ({ name, field: slot.field, value: fieldOf(element, slot.field) }))
@@ -602,6 +651,39 @@ function sayInApprovedWords(game: any, wording: ApprovedWording[], push: (instru
             for (const field of held) if (!said.has(field.field)) withheld.push({ path: pathOf(field.field), row: field.row, reason: 'AWAITING_APPROVED_WORDING' })
         }
     }
+}
+
+/**
+ * **The positions a game writes for a role holder** — stage K7, 15 October 2026: every region whose along position is written for a
+ * block-scoped role holder (`roleNouns.holders`), by its value (a distance from that team's end), by its realized relation ("beyond X
+ * (for team T)") or by a bound on it. These are the markings that are set out again when the roles exchange (his D2: *"role-specific
+ * objectives and target configurations change when the teams exchange roles"*): the exchange sentence cites them, and fidelity Q6
+ * (role-blocks.ts) requires a sentence that does. Empty for every game with no role holder.
+ */
+export function roleKeyedPositions(fixture: any): string[] {
+    const holders = new Set(Object.keys(fixture?.roleNouns?.holders ?? {}))
+    if (!holders.size) return []
+    return ((fixture?.game?.space?.regions ?? []) as any[])
+        .map(region => ({ region, path: `space.regions[${region?.elementId}].position.along` }))
+        .filter(({ region, path }) => {
+            const value = region?.position?.along
+            const relation = (fixture.status?.geometry ?? []).find((g: any) => g.path === path)?.geometry?.relation
+            const bounds = (fixture.status?.bounds ?? []).filter((entry: any) => entry.path === path).flatMap((entry: any) => entry.bounds ?? [])
+            return (value && typeof value === 'object' && holders.has(String(value.forTeam))) || holders.has(String(relation?.forTeam)) || bounds.some((bound: any) => holders.has(String(bound?.forTeam)))
+        })
+        .map(({ path }) => path)
+}
+
+/**
+ * **The sentences approved wording says for this game, and nothing else** — stage K7, 15 October 2026. The independent checks read
+ * them (fidelity.ts): a sentence citing a scoped condition is admitted only where it IS one of these (and these say a scoped
+ * condition only from an entry covering its exact scope, above), and the obligation lexicon passes over a sentence he approved. The
+ * same function the renderer says them with, so the two cannot drift; nothing is withheld or pushed anywhere else.
+ */
+export function approvedSentences(game: any, wording: ApprovedWording[] = approvedWording()): Instruction[] {
+    const said: Instruction[] = []
+    sayInApprovedWords(game, wording, instruction => said.push(instruction), [])
+    return said
 }
 
 export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] = approvedWording()): RenderedActivity {
@@ -648,6 +730,58 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
      */
     const carrier = (game.objects ?? []).find((object: any) => typeof object?.kind === 'string')
 
+    /**
+     * **A team named by the role it holds in this block — stage K7, 15 October 2026 (DRAFT nouns).** His D7, reply filed 17 October
+     * 2026: *"Please use the assigned team roles rather than referring generically to "the defending team," since possession and
+     * defensive responsibilities change during play."* A value the game writes for a role holder (`ROLE_HOLDER_BUILDING`) or for the
+     * end-assigned team holding a role in this block (`TEAM_AT_AXIS_START`, through the block's own binding) is said by that role's
+     * DRAFT noun, read from the fixture (`roleNouns.nouns`, `roleNouns.holders`, `record.roleBlock`). Any other designation has no
+     * noun here, so a sentence needing one is not said.
+     */
+    const roleNounOf: Record<string, string> = fixture.roleNouns?.nouns ?? {}
+    const roleOfHolderName: Record<string, string> = fixture.roleNouns?.holders ?? {}
+    const holdersInBlock: Record<string, string> = fixture.record?.roleBlock?.holders ?? {}
+    const roleOfDesignation = (designation: unknown): string | null => {
+        const name = String(designation)
+        const role = roleOfHolderName[name] ?? Object.entries(holdersInBlock).find(([, team]) => team === name)?.[0]
+        return role && roleNounOf[role] ? role : null
+    }
+    const teamNoun = (designation: unknown): string | null => {
+        const role = roleOfDesignation(designation)
+        return role ? roleNounOf[role] : null
+    }
+    /** The noun of the one other role in the block, where there is exactly one. */
+    const otherTeamNoun = (designation: unknown): string | null => {
+        const role = roleOfDesignation(designation)
+        const others = Object.keys(holdersInBlock).filter(other => other !== role && roleNounOf[other])
+        return role && others.length === 1 ? roleNounOf[others[0]] : null
+    }
+    const capital = (text: string) => `${text.charAt(0).toUpperCase()}${text.slice(1)}`
+    const listed = (items: string[]) => (items.length > 1 ? `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}` : items[0] ?? '')
+    const areaLength = Number(game.envelope?.area?.length_m)
+    const areaWidth = Number(game.envelope?.area?.width_m)
+
+    /**
+     * **A line marked across the area at a distance from the end line a team defends — stage K7 (DRAFT).** His reply filed 18 October
+     * 2026, item 3: *"Pressure reference: 20 m from the building team's end line."* The game holds it as a line (S2) positioned by
+     * RC-21's "own end (of team T)" with an offset in metres (S5 version 2), realized inside the area. It was said as a line "on the end
+     * line itself" (the only line this renderer knew), which put it 20 m from where the game holds it. Said only where the game holds
+     * exactly that — the offset one number, the team one with a noun, the line inside the area and touchline to touchline — and the
+     * coach is told the distance and the team, both cited. The line has no noun of its own beyond "line", so later sentences call it
+     * "the marked line": the only line a coach marks in such a game besides the area's own edges.
+     */
+    const fromTeamEnd = (region: any): { team: string; offset: number } | null => {
+        if (region?.noun !== 'line') return null
+        const along = region?.position?.along
+        const offset = along && typeof along === 'object' ? along.offsetM : null
+        if (!offset || !stated(offset.from) || offset.from !== offset.to || !teamNoun(along.forTeam)) return null
+        const at = geometryFor(region.elementId, 'along')?.geometry?.interval
+        const across = geometryFor(region.elementId, 'across')?.geometry?.interval
+        if (!at || at.from !== at.to || !(at.from > 0 && at.from < areaLength) || !across || across.from !== 0 || across.to !== areaWidth) return null
+        return { team: teamNoun(along.forTeam)!, offset: offset.from }
+    }
+    const markedLines = new Set<string>((game.space?.regions ?? []).filter((region: any) => fromTeamEnd(region)).map((region: any) => String(region.elementId)))
+
     // ── Set up ──────────────────────────────────────────────────────────────────────────────────
     const area = game.envelope?.area
     if (area) {
@@ -671,6 +805,8 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
      * the game does not hold — because the only fact available is that they are at opposite ends.
      */
     const degenerateAlong = (game.space?.regions ?? [])
+        // A line marked at a distance from an end is not at an end (stage K7).
+        .filter((r: any) => !markedLines.has(String(r.elementId)))
         .map(r => geometryFor(r.elementId, 'along')?.geometry.interval)
         .filter(i => i && i.from === i.to)
         .map(i => i!.from as number)
@@ -698,12 +834,46 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
      * "end lines" (they ARE the end lines) and still observed. The length is not said: it is the width of the area,
      * stated in the sentence before.
      */
-    const lines = regions.filter(r => r.noun === 'line')
+    const lines = regions.filter(r => r.noun === 'line' && !markedLines.has(String(r.elementId)))
     const referencedBy = (region: any) =>
         (game.objectives ?? []).find((o: any) => {
             const ref = o?.reference?.structuralRef
             return ref && `c:${ref.contractId}:${ref.itemId}` === String(region.elementId)
         })
+
+    /**
+     * **A team's target zone, said by the role that attacks it and where it lies — stage K7, 15 October 2026 (DRAFT).** His reply filed
+     * 18 October 2026, item 3: *"Building team's progression target: begins at the pressure reference."* / *"Pressing team's post-regain
+     * target area: 5 m deep at the building team's end."* The game holds two objective regions, each the target of the team holding a
+     * role in the block (objectives, C42), touching the end of the other team (RC-21 "attacking end (of team T)"), across the whole
+     * width, and either a required depth or a beginning at the marked line ("beyond X (for team T)", realized from the line to the end).
+     * Until this stage they were said as strips "along the touchline … up to 30 m wide", the channel sentence, which is not where the
+     * game puts them. Said only where the game holds all of that and the roles have nouns; anything else falls back to what was said.
+     * "Target" is the objective that references the region (cited); the noun is the region's own.
+     */
+    const targetZone = (region: any): { text: string; from: string[]; bindings: Binding[] } | null => {
+        if (typeof region?.noun !== 'string' || region.noun === 'line') return null
+        const objective = referencedBy(region)
+        const attacker = objective ? teamNoun(objective.team) : null
+        const defender = objective ? otherTeamNoun(objective.team) : null
+        const along = geometryFor(region.elementId, 'along')
+        const across = geometryFor(region.elementId, 'across')
+        const span = along?.geometry?.interval
+        const wide = across?.geometry?.interval
+        if (!objective || !attacker || !defender || !span || !wide || wide.from !== 0 || wide.to !== areaWidth || along.geometry.term !== ATTACKING_END) return null
+        if (!(span.from === 0 || span.to === areaLength)) return null
+        const from = [`space.regions[${region.elementId}].noun`, along.path, across.path, `objectives[${objective.elementId}].team`, `objectives[${objective.elementId}].reference`]
+        const depth = along.geometry.extentBound?.requiredWithin
+        if (depth && stated(depth.min) && depth.min === depth.max && span.to - span.from === depth.min) {
+            return { text: `Mark the ${attacker}'s target ${region.noun} at the ${defender}'s end, ${metres(depth.min)} deep, across the full width`, from, bindings: [{ quantity: depth.min, path: along.path }] }
+        }
+        const of = along.geometry.relation?.of
+        const referent = of ? `c:${of.contractId}:${of.itemId}` : null
+        if (referent && markedLines.has(referent) && along.geometry.relation.term === BEYOND) {
+            return { text: `Mark the ${attacker}'s target ${region.noun} from the marked line to the ${defender}'s end line, across the full width`, from: [...from, `space.regions[${referent}].noun`], bindings: [] }
+        }
+        return null
+    }
     const mergeLines =
         lines.length === 2 &&
         endsDiffer &&
@@ -751,7 +921,7 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
             unfit: unfit && unfit.compatible === false ? unfit : null,
         }
     }
-    const channels2 = regions.filter(r => r.noun !== 'line')
+    const channels2 = regions.filter(r => r.noun !== 'line' && !targetZone(r))
     const mergeChannels = (() => {
         if (channels2.length !== 2 || !paired || !channels2.every(lateralOf) || new Set(channels2.map(r => r.noun)).size !== 1) return false
         const [a, b] = channels2.map(channelPlan)
@@ -766,6 +936,18 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
         const across = geometryFor(region.elementId, 'across')
         const nounPath = `space.regions[${region.elementId}].noun`
         const status = statusOf.get(nounPath) ?? 'DERIVED'
+
+        // Stage K7 (DRAFT): a line marked at a distance from a team's end, and a team's target zone (above).
+        const positioned = fromTeamEnd(region)
+        if (positioned) {
+            say('Set up', status, `Mark a ${noun} across the area, ${metres(positioned.offset)} from the ${positioned.team}'s end line`, [nounPath, along?.path, across?.path].filter(Boolean) as string[], along?.path ? [{ quantity: positioned.offset, path: along.path }] : [])
+            continue
+        }
+        const zone = targetZone(region)
+        if (zone) {
+            say('Set up', status, zone.text, zone.from, zone.bindings)
+            continue
+        }
 
         if (noun === 'line') {
             const { lengthAxis, atAxis, length, at } = lineGeometry(region)
@@ -1321,6 +1503,18 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
                         : `Nothing in this game reads the relationship, so it is an initial state a coach may settle however they like. `) +
                     `It is a knowledge gap and not a rendering one: nothing authors anything that tells the two teams apart.`,
             )
+        } else if (teamNoun(holder)) {
+            /**
+             * **The team holding a role starts with the object — stage K7, 15 October 2026 (DRAFT).** In a game played in role blocks the
+             * initial holder is entailed from the start's awardee (PS1 `entailedBy`, register version 12): his D5, *"The designated
+             * building team restarts."* It names a role holder, not a member, so it can be said by the role's noun, and it is.
+             */
+            say(
+                'How it works',
+                recorded('possession.team', 'DERIVED'),
+                carrier ? `The ${teamNoun(holder)} starts with the ${carrier.kind}` : `The ${teamNoun(holder)} starts in possession`,
+                ['possession.team', ...(carrier ? [`objects[${carrier.elementId}].kind`] : [])],
+            )
         } else {
             observations.push(
                 `\`possession.team\` names ${String(holder)}, which is not one of the game's own teams, so the activity says nothing ` +
@@ -1372,11 +1566,24 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
     const objective = objectives[0]
     const shared = objective?.team === 'EACH_TEAM'
     const directional = !!objective && !shared && objectives.length > 1
+    /**
+     * **The targets' noun, where the objectives reference regions of one noun other than a line — stage K7 (DRAFT).** The sentences
+     * below said "line" for every target, which was true of every game until the first activity's targets became zones (his 18
+     * October item 3). The noun is read from the referenced regions and cited; where it is a line, or the targets differ, every
+     * sentence is exactly what it was.
+     */
+    const targetRegions = objectives.map(o => regions.find(r => referencedBy(r) === o)).filter(Boolean)
+    const targetNoun: string | null =
+        targetRegions.length === objectives.length && targetRegions.length > 1 && new Set(targetRegions.map((r: any) => r.noun)).size === 1 && typeof targetRegions[0].noun === 'string' && targetRegions[0].noun !== 'line'
+            ? String(targetRegions[0].noun)
+            : null
+    const targetNounPaths = targetNoun ? targetRegions.map((r: any) => `space.regions[${r.elementId}].noun`) : []
     // That the team winning possession keeps attacking the same line: the objectives' teams are fixed designations.
     const sameLine = (lead: string) =>
-        part(statusAt([`objectives[${objectives[0].elementId}].team`], 'DERIVED'), `${lead}the team that wins possession attacks the same line it was already attacking`, [
+        part(statusAt([`objectives[${objectives[0].elementId}].team`], 'DERIVED'), `${lead}the team that wins possession attacks the same ${targetNoun ?? 'line'} it was already attacking`, [
             `objectives[${objectives[0].elementId}].team`,
             'transitions',
+            ...targetNounPaths,
         ])
     if (continuingOnPossessionChange.length) {
         instructions.push(
@@ -1387,6 +1594,147 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
                     continuingOnPossessionChange.flatMap(transition => [`transitions[${transition.elementId}].playState`, `transitions[${transition.elementId}].selector`]),
                 ),
                 ...(directional && game.value?.primaryEvent ? [sameLine(', and ')] : []),
+            ]),
+        )
+    }
+
+    // ── Restarts, and where the teams start (stage K7, 15 October 2026, all DRAFT) ──────────────────
+    /**
+     * **Each transition that stops and restarts play, said from the values it holds.** His reply filed 17 October 2026, D1: *"When
+     * the building team achieves controlled progression into its designated target, the successful build-out counts and the episode
+     * concludes. The activity then restarts to create another opportunity to solve the build-out problem."* D5: *"The designated
+     * building team restarts."* / *"The coach chooses an appropriate restart location consistent with the intended build-out
+     * situation."* / *"The initial demonstration may use [specialized-role] distribution from the feet."* And his 18 October item 2:
+     * *"Touchline: conventional [hand restart] where the ball crossed the line, taken by the team that did not touch it last."* /
+     * *"End line: coach-selected restart method, using the approved M3 capability."* (Two of his terms are bracketed: the coupling
+     * ratchet keeps a sport's nouns out of this layer, as the header says of the sport itself.)
+     *
+     * Transitions that restart play the same way — the same awardee, taker, method and location — are said in one sentence naming
+     * each trigger; the others one by one. Every part cites the fields it says (trigger, qualifiers, awardee, taker, method,
+     * location, play state), and a field the maps above have no words for leaves its transition unsaid, so fidelity refuses the
+     * activity rather than this renderer paraphrasing it. A location or method the coach decides (`COACH_DECIDES`) is put to the
+     * coach as a choice, with the bound the knowledge gives it in the knowledge's own words.
+     */
+    const transitionsHeld: any[] = game.transitions ?? []
+    const objectNoun = carrier ? String(carrier.kind) : null
+    const objectPath = carrier ? [`objects[${carrier.elementId}].kind`] : []
+    const triggerOf = (transition: any): string | null => {
+        const term = (transition?.selector ?? []).find((t: any) => t?.attribute === 'trigger' && t?.op === '=')
+        return term ? String(term.value) : null
+    }
+    const pathAt = (transition: any, field: string) => `transitions[${transition.elementId}].${field}`
+    const coachDecides = (value: unknown): string | null => (value && typeof value === 'object' && typeof (value as any).coachDecides === 'string' ? (value as any).coachDecides : null)
+    /** Who takes a restart: a specialized role of the team it is awarded to, or a player of that team — or nothing sayable. */
+    const takerOf = (transition: any): string | null => {
+        const actor = transition?.placement?.actor
+        const awardee = teamNoun(transition?.awardedTo) ? `the ${teamNoun(transition.awardedTo)}` : objectNoun && LAST_TOUCH_PHRASE[transition?.awardedTo] ? LAST_TOUCH_PHRASE[transition.awardedTo](objectNoun) : null
+        if (!awardee || typeof actor !== 'string') return null
+        if (Object.keys(fixture.envelope?.roles ?? {}).includes(actor)) return `${awardee}'s ${actor}`
+        if (actor === PLAYER_OF_AWARDEE) return `a player of ${awardee}`
+        return null
+    }
+    /** The status of a part resting on these paths, read as a sentence's status is (`combinedStatus`): never firmer than its weakest firm part. */
+    const partStatus = (paths: string[]): SourceStatus => combinedStatus(paths.map(p => statusOf.get(p) ?? 'DERIVED'))
+    const restarting = transitionsHeld.filter(transition => transition?.playState === 'STOP_RESUME')
+
+    // The restarts awarded to a team holding a role, keyed on triggers the maps word: said together where they restart alike.
+    const roleRestarts = restarting.filter(t => teamNoun(t.awardedTo) && TRIGGER_PHRASE[triggerOf(t) ?? ''] && METHOD_PHRASE[t?.placement?.method] && takerOf(t) && coachDecides(t?.placement?.region) && objectNoun)
+    const restartGroups = new Map<string, any[]>()
+    for (const transition of roleRestarts) {
+        const key = JSON.stringify([transition.awardedTo, transition.placement.actor, transition.placement.method, transition.placement.region])
+        restartGroups.set(key, [...(restartGroups.get(key) ?? []), transition])
+    }
+    const saidRestarts: any[][] = []
+    for (const group of restartGroups.values()) {
+        const [first] = group
+        const firm = group.flatMap(t => [pathAt(t, 'awardedTo'), pathAt(t, 'placement.actor'), pathAt(t, 'placement.method'), pathAt(t, 'playState')])
+        instructions.push(
+            joined('How it works', [
+                part(partStatus(firm), `${capital(takerOf(first)!)} restarts play ${METHOD_PHRASE[first.placement.method](objectNoun!)}`, [...firm, ...objectPath]),
+                part(partStatus([]), `: ${listed(group.map(t => TRIGGER_PHRASE[triggerOf(t)!]))}`, group.map(t => pathAt(t, 'selector'))),
+            ]),
+        )
+        const locations = group.map(t => pathAt(t, 'placement.region'))
+        say('How it works', partStatus(locations), `You choose where ${group.length > 1 ? 'each of these restarts is' : 'it is'} taken: ${coachDecides(first.placement.region)}`, locations)
+        saidRestarts.push(group)
+    }
+
+    /**
+     * **Where each team starts, and that it is free to move once play restarts** — his D4: *"That relationship should be re-established
+     * at the beginning of each new build-out episode."*; his reply filed 18 October 2026, item 3: *"Starting placement: building-team
+     * outfield players begin short of the pressure/progression line."* and *"The building team's initial positioning requirement should
+     * not prevent players from advancing into useful positions as play develops."* A placement the game holds as RC-21's "beyond X (for
+     * team T)" of the marked line, with T the other team, is the team's own side of the line; with T the team itself, past it. Timed
+     * CONDITIONAL_RESET (P10a, EM-0002 EMP-0013), it is re-established at exactly the transitions that begin the episode it names — the
+     * ones whose taker meets an arm of that episode's typed begin condition (C58), which GA-EPISODE-REACHABLE checked on this concrete
+     * game; said with the restart sentence above only where those transitions are exactly one group said there ("Before each of these
+     * restarts"). The begin condition itself is withheld until approved wording, so it is read here and not cited. Nothing holds a
+     * player in a region during play (no access rule, no consequence), which is what "free to move" says, citing the timing.
+     */
+    const placementsHeld: any[] = game.performers?.startPlacement ?? []
+    const beginsEpisode = (episode: unknown): string[] => {
+        const arms = (game.value?.primaryEvent?.conditions ?? [])
+            .map((condition: any) => condition?.referents)
+            .filter((referent: any) => referent && referent.beginsEpisodeOf === episode && Array.isArray(referent.arms))
+            .flatMap((referent: any) => referent.arms.map((arm: any) => arm?.takenBy).filter((taker: unknown) => typeof taker === 'string'))
+        return transitionsHeld
+            .filter(t => t?.playState === 'STOP_RESUME' && String(t?.startsEpisode) === 'true' && arms.includes(t?.placement?.actor))
+            .map(t => String(t.elementId))
+            .sort()
+    }
+    const sideOf = (placement: any): 'own side' | 'past' | null => {
+        const region = placement?.region
+        const ref = region?.of?.structuralRef
+        if (!region || region.term !== BEYOND || !ref || !markedLines.has(`c:${ref.contractId}:${ref.itemId}`) || !teamNoun(placement.group) || !teamNoun(region.forTeam)) return null
+        if (roleOfDesignation(region.forTeam) === roleOfDesignation(placement.group)) return 'past'
+        return otherTeamNoun(placement.group) === teamNoun(region.forTeam) ? 'own side' : null
+    }
+    const sayablePlacements = placementsHeld.filter(p => sideOf(p) && p.timing === 'CONDITIONAL_RESET')
+    const resetAt = sayablePlacements.length ? beginsEpisode(sayablePlacements[0].resetsAt) : []
+    const resetGroup = saidRestarts.find(group => JSON.stringify(group.map(t => String(t.elementId)).sort()) === JSON.stringify(resetAt))
+    if (sayablePlacements.length && resetGroup && sayablePlacements.every(p => p.resetsAt === sayablePlacements[0].resetsAt)) {
+        const lineRef = sayablePlacements[0].region.of.structuralRef
+        const placementPaths = sayablePlacements.flatMap(p => ['group', 'region', 'timing', 'resetsAt'].map(field => `performers.startPlacement[${p.elementId}].${field}`))
+        const own = sayablePlacements.filter(p => sideOf(p) === 'own side').map(p => `the ${teamNoun(p.group)}`)
+        const past = sayablePlacements.filter(p => sideOf(p) === 'past').map(p => `the ${teamNoun(p.group)}`)
+        const clauses = [
+            ...(own.length ? [`${listed(own)} ${own.length > 1 ? 'each set up on their own side' : 'sets up on its own side'} of the marked line`] : []),
+            ...(past.length ? [`${listed(past)} ${past.length > 1 ? 'set up past' : 'sets up past'} the marked line`] : []),
+        ]
+        say(
+            'How it works',
+            statusAt(placementPaths, 'DERIVED'),
+            `Before each of these restarts, ${clauses.join(', and ')}; once play restarts, every player is free to move anywhere`,
+            [...placementPaths, `space.regions[c:${lineRef.contractId}:${lineRef.itemId}].noun`, ...resetGroup.map(t => pathAt(t, 'selector'))],
+        )
+    }
+
+    // Ordinary restarts when the object goes out of play, one sentence per trigger where its transitions restart alike.
+    const outGroups = new Map<string, any[]>()
+    for (const transition of restarting.filter(t => OUT_OF_PLAY_TRIGGERS.includes(triggerOf(t) ?? '') && takerOf(t) && objectNoun)) {
+        const key = JSON.stringify([triggerOf(transition), transition.qualifiers?.endLine ?? null, transition.awardedTo, transition.placement?.actor, transition.placement?.method, transition.placement?.region])
+        outGroups.set(key, [...(outGroups.get(key) ?? []), transition])
+    }
+    for (const group of outGroups.values()) {
+        const [first] = group
+        const endLine = first.qualifiers?.endLine
+        const where = triggerOf(first) === 'OUT_TOUCHLINE' ? 'a touchline' : endLine === 'EACH_TEAM' ? 'either end line' : teamNoun(endLine) ? `the ${teamNoun(endLine)}'s end line` : null
+        const region = first.placement?.region
+        const method = first.placement?.method
+        const dynamic = region && typeof region === 'object' && typeof region.dynamic === 'string' ? String(region.dynamic) : null
+        const fixedMethod = typeof method === 'string' && METHOD_PHRASE[method] ? METHOD_PHRASE[method](objectNoun!) : null
+        const choiceOfPlace = coachDecides(region)
+        const choiceOfMethod = coachDecides(method)
+        if (!where || (!dynamic && !choiceOfPlace) || (!fixedMethod && !choiceOfMethod)) continue
+        const qualifiers = group.flatMap(t => Object.keys(t.qualifiers ?? {}).map(field => pathAt(t, `qualifiers.${field}`)))
+        const firm = group.flatMap(t => [pathAt(t, 'awardedTo'), pathAt(t, 'placement.actor'), pathAt(t, 'playState'), ...(dynamic ? [pathAt(t, 'placement.region')] : []), ...(fixedMethod ? [pathAt(t, 'placement.method')] : [])])
+        const chosen = group.flatMap(t => [...(choiceOfPlace ? [pathAt(t, 'placement.region')] : []), ...(choiceOfMethod ? [pathAt(t, 'placement.method')] : [])])
+        const choices = [...(choiceOfPlace ? [`where (${choiceOfPlace})`] : []), ...(choiceOfMethod ? [`how (${choiceOfMethod})`] : [])]
+        instructions.push(
+            joined('How it works', [
+                part(partStatus(qualifiers), `If the ${objectNoun} goes out over ${where}`, [...group.map(t => pathAt(t, 'selector')), ...qualifiers, ...objectPath]),
+                part(partStatus(firm), `, ${takerOf(first)} restarts play${dynamic ? ` ${dynamic}` : ''}${fixedMethod ? `, ${fixedMethod}` : ''}`, firm),
+                ...(choices.length ? [part(partStatus(chosen), `; you choose ${listed(choices)}`, chosen)] : []),
             ]),
         )
     }
@@ -1402,7 +1750,23 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
          * reference."* The noun is read from `objects[].kind` and that path is CITED; `objectives[].role =
          * PRIMARY_SCORING` is what makes this the way to score at all, so it is cited here too.
          */
-        say(
+        /**
+         * **Entry into a target zone, said for that event and for zones only — stage K7, 15 October 2026 (DRAFT).** The sentence
+         * below says "across the line" for every event, which is the line-crossing event's wording; the first activity scores by
+         * entering a zone (its realization choice, game::V1), whose meaning the choice quotes from his D3: *"Success occurs through
+         * controlled entry, whether by carrying the ball or passing to a teammate who receives under control."* So for that event,
+         * with zone targets and an object, the sentence says entry under control, carried or received, citing the event, its
+         * value, the object and each target's noun. Every other game reads exactly as before.
+         */
+        if (primary.kind === ZONE_ENTRY_EVENT && carrier && objectives.length > 1 && targetNoun) {
+            say(
+                'How to score',
+                statusOf.get(kindPath) ?? 'DERIVED',
+                `A team scores ${primary.value} point by getting the ${carrier.kind} under control into the ${targetNoun} it is attacking: running it in, or passing to a teammate who receives it under control inside`,
+                [kindPath, 'value.primaryEvent.value', `objects[${carrier.elementId}].kind`, ...targetNounPaths, ...(objective ? [`objectives[${objective.elementId}].role`] : [])],
+                [{ quantity: primary.value, path: 'value.primaryEvent.value' }],
+            )
+        } else say(
             'How to score',
             statusOf.get(kindPath) ?? 'DERIVED',
             // "the marked line" is only unambiguous while there is one; with a target per team the objective each team
@@ -1434,7 +1798,11 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
          */
         if (directional) {
             const provenance = objectives.flatMap(o => [`objectives[${o.elementId}].team`, `objectives[${o.elementId}].reference`, `objectives[${o.elementId}].role`])
-            say('How to score', statusAt(provenance, 'DERIVED'), `Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game`, provenance)
+            // Stage K7 (DRAFT): where the targets are regions of another noun, each is the target at the other team's end (RC-21
+            // "attacking end (of team T)", C42), said with that noun and citing it; "defends one line" stays for line targets.
+            if (targetNoun) {
+                say('How to score', statusAt(provenance, 'DERIVED'), `Each team attacks the ${targetNoun} at the other team's end. Decide which team starts at which end; the ends stay the same for the whole game`, [...provenance, ...targetNounPaths])
+            } else say('How to score', statusAt(provenance, 'DERIVED'), `Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game`, provenance)
             // Said with the possession-change sentence where there is one; on its own otherwise.
             if (!continuingOnPossessionChange.length) instructions.push(joined('How to score', [sameLine('When possession changes, ')]))
         } else if (objective) {
@@ -1613,11 +1981,29 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
         if (exchanges.every(exchange => exchange === COACH_CALLS) && objectivesHeld.length) {
             const exchangePaths = roleElements.map(element => `activityRoles[${element.elementId}].exchange`)
             const endPaths = objectivesHeld.flatMap((o: any) => [`objectives[${o.elementId}].team`, `objectives[${o.elementId}].reference`])
+            /**
+             * **And what changes with the roles: the markings set out for them — stage K7, 15 October 2026 (DRAFT).** His D2: *"Team ends
+             * can remain fixed, while role-specific objectives and target configurations change when the teams exchange roles. Please
+             * make that distinction explicit in the coach-facing instructions."* Since stage K6 the game holds positions written for a
+             * role holder (the marked line measured from the building team's end; each target's extent bounded or begun for the role
+             * attacking it), so the half K3 could not say is now held: those positions are set out again for the new roles. Read as
+             * every region whose along position is written for a role holder — by its value, its realized relation, or a bound on it —
+             * and cited, so the same sentence (same citations) holds in both blocks; fidelity Q6 requires it wherever such a position
+             * exists. Where none exists the sentence is exactly what it was.
+             */
+            const keyedPaths = roleKeyedPositions(fixture)
+            const roleKeyed = regions.filter((region: any) => keyedPaths.includes(`space.regions[${region.elementId}].position.along`))
+            const keyedTargets = roleKeyed.filter((region: any) => targetRegions.includes(region)).length
+            const named = [
+                ...(roleKeyed.some((region: any) => markedLines.has(String(region.elementId))) ? ['the marked line'] : []),
+                ...(targetNoun && keyedTargets === 2 ? [`both target ${targetNoun}s`] : targetNoun && keyedTargets === 1 ? [`the target ${targetNoun}`] : []),
+            ]
+            const markings = !keyedPaths.length ? '' : named.length ? `, and ${named.join(' and ')} ${named.length > 1 || keyedTargets === 2 ? 'are' : 'is'} set out again for the new roles` : ', and the markings that go with them are set out again for the new roles'
             say(
                 ROLE_EXCHANGE,
                 statusAt([...exchangePaths, ...endPaths], 'DERIVED'),
-                'Each team keeps its end for the whole activity. When you call the next block the teams exchange roles, not ends; there is no set block length',
-                [...exchangePaths, ...endPaths],
+                `Each team keeps its end for the whole activity. When you call the next block the teams exchange roles, not ends${markings}; there is no set block length`,
+                [...exchangePaths, ...endPaths, ...keyedPaths, ...(keyedPaths.length ? targetNounPaths : [])],
             )
         }
 
@@ -1661,15 +2047,21 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
      * sentence would be reworded as a recommendation of the knowledge, which this is not. Read from the authorization record
      * that crossed with the game (`adjustments`); nothing here names a role, a count or a challenge level.
      */
-    for (const adjustment of (fixture.adjustments?.entries ?? []) as { id: string; words: string; consequence: string | null }[]) {
+    for (const adjustment of (fixture.adjustments?.entries ?? []) as { id: string; words: string; consequence: string | null; coachWords?: string }[]) {
         if (typeof adjustment?.words !== 'string' || !adjustment.words.trim()) continue
-        const own = adjustment.words.trim().replace(/\.$/, '')
+        /**
+         * Our DRAFT coach wording where the record gives one (stage K7, 15 October 2026): his words then stay the authority, cited
+         * beside it, and are not put to the coach as an action they are not ("The pressure reference should be adjustable in either
+         * direction."). Without it, his own sentence is the action, as before.
+         */
+        const coachWords = typeof adjustment.coachWords === 'string' && adjustment.coachWords.trim() ? adjustment.coachWords.trim() : null
+        const own = (coachWords ?? adjustment.words.trim()).replace(/\.$/, '')
         const consequence = typeof adjustment.consequence === 'string' ? adjustment.consequence.trim().split('. ')[0].replace(/\.$/, '') : ''
         say(
             ADJUSTING,
             'COACH_CHOICE',
             `You may choose to ${own.charAt(0).toLowerCase()}${own.slice(1)}${consequence ? `: ${consequence.charAt(0).toLowerCase()}${consequence.slice(1)}` : ''}`,
-            [`adjustments[${adjustment.id}].words`, ...(consequence ? [`adjustments[${adjustment.id}].consequence`] : [])],
+            [`adjustments[${adjustment.id}].words`, ...(coachWords ? [`adjustments[${adjustment.id}].coachWords`] : []), ...(consequence ? [`adjustments[${adjustment.id}].consequence`] : [])],
         )
     }
 

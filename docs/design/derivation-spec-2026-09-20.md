@@ -175,6 +175,24 @@ entries, and a game value written "(= entry)" counts as that entry.
 > are realized). The design asked for it and K6 had not built it: a pressing start around its own target, or a building start
 > inside its own target, passed every gate (measured on TEST-ONLY copies at 723eee2).
 
+> **Engineering line, 15 October 2026 (stage K7) — ours, outside his adopted text.** Communication of the first complete activity.
+> (1) The context-scoring guard confirms a context condition authored for an episode (SD-36; his 16 October 9.3, ruling C52) where it
+> reached the realized game with its authored scope AND the Gate A check deciding that episode (GA-EPISODE-REACHABLE, rerun on the
+> concrete game) passes as a whole and non-vacuously; any weaker verdict, another scope, or no check confirms nothing, and no reader
+> that applies a condition to every score is changed. The K6 review named this as what moved A01's validation stop, with no decision
+> of his behind it; K7 built it because its communication could not otherwise be measured on production. (2) A scoped condition may be
+> said only by an approved coach sentence covering its exact scope (design step B2): the renderer passes over every other entry for
+> it, and fidelity admits a sentence citing it only where that sentence IS approved wording for the game and cites the scope — a
+> citation alone never satisfies it. (3) Fidelity Q4 holds an obligation/ordering lexicon to every non-approved sentence part, with a
+> pinned allowlist of templates whose word restates the cited element's own value (one: a value modifier's termination); and,
+> regardless of approval, refuses a sentence naming a specialized role (read from the session's data) with such a word. (4) An episode
+> boundary on a transition that restarts play is discharged only by a sentence citing its play state and its awardee. (5) Where a
+> game holds positions written for a role holder, fidelity Q6 requires a role-exchange sentence citing them (his D2, "target
+> configurations change"). (6) A refusal at communication carries, for the checked review's administrator only, the rendering made
+> before the refusal, the withheld fields and the fidelity verdict (`rendering/review-draft.ts`); the coach's review answer, the pilot
+> and the live route never carry it. The cross-block checks of a game in role blocks run before a refusal at communication, since
+> they are validation.
+
 **Every structural reference normalises, not only selectors (SD-32, ruled).** In his words:
 
 > "Any structural reference participating in derivation must resolve through the registered

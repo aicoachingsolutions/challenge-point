@@ -42,6 +42,8 @@ import {
     ActivityReviewRequest,
     ActivityReviewResult,
     RefusedActivity,
+    ReviewDraft,
+    ReviewDraftInstruction,
     ReviewInstruction,
     ServedActivity,
 } from '@/MODELS/activity-review.model'
@@ -463,9 +465,13 @@ export default function ActivityReviewPage() {
                     </div>
                 )}
 
+                {/* Which pathway built it, and whether the live app serves it (stage K7, his 18 October item 7). */}
+                {result && <PathwayNote result={result} />}
+
                 {/* 3 and 4. The answer, primary: the activity, or the sentence saying why there is none. */}
                 {result?.outcome === 'served' && <ActivityBlock activity={result} />}
                 {result?.outcome === 'refused' && <RefusalBlock refusal={result} />}
+                {result?.outcome === 'refused' && result.draft && <DraftBlock refusal={result} draft={result.draft} />}
 
                 {/* 5. Everything technical, secondary. */}
                 {result && <ArrivedAt result={result} />}
@@ -613,6 +619,108 @@ function RefusalBlock({ refusal }: { refusal: RefusedActivity }) {
             {refusal.kind === 'mechanism-demonstration' && <DemonstrationLabel />}
             <h2 className='text-lg font-semibold text-amber-900'>{refusal.title} cannot be built as an activity yet.</h2>
             {refusal.summary && <p className='mt-2 leading-relaxed text-amber-800'>{refusal.summary}</p>}
+        </article>
+    )
+}
+
+/**
+ * **Which pathway built this, and whether the live app serves it — stage K7, 15 October 2026 (wording DRAFT).** Christian, reply filed
+ * 18 October 2026, item 7: "Similarly, I understand that the checked review pathway is not yet the live application pathway because
+ * of the outstanding constraint requirement. Please keep that distinction visible as we approach acceptance."
+ *
+ * Every result on this page comes through the checked review pathway, so that is said for every result. Where a Learning Goal's
+ * selection holds no library constraint, the live app refuses it before any activity is made (it builds only from a selection with
+ * at least one), so the page says the live app does not serve it yet and why. Read from the account the server sent (the selected
+ * constraints); no goal is named here.
+ */
+function PathwayNote({ result }: { result: ActivityReviewResult }) {
+    const constraints = result.account?.constraints
+    const notLive = result.kind === 'learning-goal' && Array.isArray(constraints) && constraints.length === 0
+    return (
+        <div role='note' className='p-4 text-sm border rounded-lg text-slate-700 bg-slate-50 border-slate-200'>
+            <p className='font-medium'>Built through the checked review pathway, not the live app.</p>
+            {notLive && (
+                <p className='mt-1'>
+                    The live app does not serve this activity yet: it builds only from a selection with at least one library constraint, and
+                    this goal&apos;s selection has none, so the activity can only come through this checked pathway. Your reply of 18 October
+                    (item 7): &ldquo;I understand that the checked review pathway is not yet the live application pathway because of the
+                    outstanding constraint requirement.&rdquo;
+                </p>
+            )}
+        </div>
+    )
+}
+
+/**
+ * **The draft activity, for an administrator only — stage K7, 15 October 2026 (labels DRAFT).** The server attaches it to a refusal at
+ * communication only when the request came from an administrator; a coach never receives it. It shows the sentences the server could
+ * say, in the same sections as an activity, each DRAFT one badged; what has no approved wording yet; and the fidelity verdict on the
+ * draft. It is not an activity a coach can be given, and the banner says so before anything else.
+ */
+function DraftBlock({ refusal, draft }: { refusal: RefusedActivity; draft: ReviewDraft }) {
+    const grouped = groupBySection(draft.instructions)
+    const blockIds = [...new Set(draft.instructions.map((instruction) => instruction.block).filter((id): id is string => !!id))]
+    const rows = [...new Set(draft.withheld.map((field) => field.row))]
+    return (
+        <article className='bg-white border-2 border-dashed rounded-lg border-violet-300'>
+            <div role='note' className='px-6 py-3 text-sm font-medium border-b rounded-t-lg text-violet-900 bg-violet-50 border-violet-200'>
+                Draft coach instructions for {refusal.title}, awaiting approval. Not shown to coaches.
+            </div>
+            <div className='p-6 space-y-5'>
+                {grouped.map((group) => (
+                    <div key={group.section}>
+                        <p className='mb-1 text-xs font-semibold tracking-wide text-gray-400 uppercase'>{group.section}</p>
+                        <ul className='space-y-1'>
+                            {group.lines.map((line, index) => {
+                                const instruction = line as ReviewDraftInstruction
+                                const block = instruction.block ? blockIds.indexOf(instruction.block) + 1 : 0
+                                return (
+                                    <li key={index} className='flex items-start gap-2 text-sm text-gray-700'>
+                                        <span aria-hidden className='text-gray-400'>
+                                            &bull;
+                                        </span>
+                                        <span className='leading-relaxed'>
+                                            {block > 0 && `Block ${block} only: `}
+                                            {instruction.text}
+                                            {instruction.wording === 'DRAFT' && (
+                                                <span className='ml-2 inline-block px-1.5 py-0.5 text-[10px] font-semibold text-violet-800 bg-violet-100 rounded'>Draft wording</span>
+                                            )}
+                                            {instruction.provisionalSources?.length > 0 && (
+                                                <span className='block text-xs text-gray-400'>Provisional choices: {instruction.provisionalSources.join(', ')}</span>
+                                            )}
+                                        </span>
+                                    </li>
+                                )
+                            })}
+                        </ul>
+                    </div>
+                ))}
+                {draft.withheld.length > 0 && (
+                    <div className='pt-4 border-t border-gray-200'>
+                        <p className='text-sm font-medium text-gray-700'>
+                            No approved wording yet for {draft.withheld.length} field{draft.withheld.length === 1 ? '' : 's'} (register rows {rows.join(', ')}), so the activity is
+                            not shown to coaches:
+                        </p>
+                        <ul className='mt-1 space-y-0.5 text-xs text-gray-500 break-all'>
+                            {draft.withheld.map((field, index) => (
+                                <li key={index}>
+                                    {field.row}: {field.path}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+                <p className='text-sm text-gray-600'>
+                    Fidelity on this draft: {draft.fidelity.passed ? 'nothing lost, invented or changed in status' : `${draft.fidelity.violations.length} finding(s)`}.
+                </p>
+                {!draft.fidelity.passed && (
+                    <ul className='space-y-0.5 text-xs text-gray-500 break-all'>
+                        {draft.fidelity.violations.map((violation, index) => (
+                            <li key={index}>{violation}</li>
+                        ))}
+                    </ul>
+                )}
+            </div>
         </article>
     )
 }

@@ -1753,7 +1753,9 @@ router.post(`${ROUTES.checkedActivity}/:id`, async (req: Request, res: Response)
 
         // Since 15 October 2026 (stage K3, his M1) a game played in role blocks answers with ONE composed activity and its
         // `roleBlocks` — each block's bindings and integrity and the cross-block checks — sent whole, as everything else here.
-        return res.json(reviewActivity(session, req.body ?? {}))
+        // Since stage K7 (15 October 2026) an administrator's answer to a refusal at communication also carries `draft`: the
+        // rendering made before the refusal, labelled, never served. The coach whose session it is receives no draft.
+        return res.json(reviewActivity(session, req.body ?? {}, { includeDrafts: viewer?.permissions?.isAdmin === true }))
     } catch (error) {
         if (error instanceof ActivityReviewRequestError || error instanceof UnknownActivityRequest) {
             return res.status(400).json({ error: error.message })

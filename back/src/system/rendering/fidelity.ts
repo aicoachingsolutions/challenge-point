@@ -19,8 +19,9 @@
 import { practical, PracticalKind, practicalRequirement } from '../derivation/practical'
 import { effectiveValue, scaleExactly } from '../derivation/rational'
 import { conditionScopeNotEvaluable } from '../derivation/resolved-game'
+import { ApprovedWording, approvedWording } from './approved-wording'
 import { CoachFacingExclusion, exclusionFor } from './coach-facing-exclusions'
-import { ADJUSTING, Binding, combinedStatus, Instruction, RenderedActivity, SourceStatus } from './render-concrete-game'
+import { ADJUSTING, approvedSentences, Binding, combinedStatus, ENDS_ON_WORDING, Instruction, RenderedActivity, SourceStatus } from './render-concrete-game'
 
 export interface FidelityFinding {
     /** 6 since 15 October 2026 (stage K3): an activity composed from role blocks lost or invented nothing (`role-blocks.ts`). */
@@ -50,6 +51,56 @@ const IMPERATIVES = [/\bmust\b/i, /\balways\b/i, /\bexactly\b/i, /\brequired\b/i
 const NECESSITY = [/\bmust\b/i, /\bthe rules require\b/i, /\bby definition\b/i, /\balways\b/i, /\bnecessarily\b/i]
 /** Wording that puts a choice to the coach. A COACH_CHOICE sentence that carries none states a fact it does not hold. */
 const CHOICE_WORDS = [/\bpick\b/i, /\bchoose\b/i, /\bdecide\b/i]
+
+/**
+ * **Wording that obliges a player or orders their actions — the prescription rule, stage K7, 15 October 2026 (design step B1, as the
+ * verification g-part-08 corrected it).** His 14 October item 2: *"shape players' attention and behavior without prescribing a
+ * particular action sequence"*; 17 October D5: *"No mandatory [specialized-role] pass, prescribed passing sequence, or fixed restart
+ * location is needed."*; D6: *"Those are available solutions, not required behaviors."* Sport-neutral: no action of any sport is named
+ * (the role he named is bracketed, as this file's header does for the sport, because the coupling ratchet keeps it out of this layer).
+ *
+ * Held to every sentence part that is not approved wording. The design first exempted any part citing a condition, a modifier, a
+ * transition or an access rule, and the verification showed that exemption let through exactly the likely prescriptions (a mandatory
+ * pass cited against the origin condition, "waits until" cited against a start); so there is no citation exemption. A part passes only
+ * where he approved its sentence, or where a pinned template restates the cited element's OWN value with the word (the allowlist below).
+ */
+export const OBLIGATIONS = [
+    /\bmust\b/i,
+    /\bha(s|ve) to\b/i,
+    /\brequired to\b/i,
+    /\bneeds? to\b/i,
+    /\bonly (after|once|when|if|until)\b/i,
+    /\bnot allowed\b/i,
+    /\buntil\b/i,
+    /\bfirst\b[^.;]*\bthen\b/i,
+    /\bin (sequence|order)\b/i,
+    /\bpatterns?\b/i,
+    /\b(every|each) time\b/i,
+]
+
+/**
+ * **The templates whose obligation word is the cited element's own value, pinned** (stage K7). Each holds only where the part cites
+ * exactly the one field the template translates and says exactly the words the renderer's map gives for that field's value, so the
+ * word restates the game rather than adding to it. One entry: a value modifier's termination ("lasts until possession changes"), the
+ * one hit the design measured across every served activity.
+ */
+export const OBLIGATION_ALLOWLIST: { id: string; holds: (part: { text: string; from: string[] }, fixture: any) => boolean }[] = [
+    {
+        id: 'VALUE_MODIFIER_ENDS_ON',
+        holds: (part, fixture) =>
+            (fixture?.game?.value?.valueModifiers ?? []).some((modifier: any) => {
+                const worded = typeof modifier?.endsOn === 'string' ? ENDS_ON_WORDING[modifier.endsOn] : undefined
+                return !!worded && part.from.length === 1 && part.from[0] === `value.valueModifiers[${modifier.elementId}].endsOn` && part.text.endsWith(worded())
+            }),
+    },
+]
+
+/** Does this text name the role (a specialized role the session states, read from data), as a word or its plural? */
+function namesRole(text: string, role: string): boolean {
+    const words = ` ${text.toLowerCase().split(/[^a-z0-9]+/).join(' ')} `
+    const name = role.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean).join(' ')
+    return !!name && (words.includes(` ${name} `) || words.includes(` ${name}s `))
+}
 
 /**
  * Every number anywhere in the concrete game and its realization record, as a set of strings.
@@ -416,7 +467,7 @@ function loadBearingPaths(fixture: any): {
         // Only a property re-addressed to the element standing for it is folded into one already owed there.
         if (entry.path !== original.path && (coachFacing.includes(entry.path) || excluded.some(x => x.path === entry.path))) continue
         const rule = exclusionFor(entry.path, fixture)
-        if (rule) excluded.push({ path: entry.path, because: rule.because, ground: rule.ground, ruling: rule.ruling, consequences: rule.consequences(entry.path), dischargedBy: rule.dischargedBy })
+        if (rule) excluded.push({ path: entry.path, because: rule.because, ground: rule.ground, ruling: rule.ruling, consequences: rule.consequences(entry.path, fixture), dischargedBy: rule.dischargedBy })
         else coachFacing.push(entry.path)
     }
     /**
@@ -560,8 +611,17 @@ function statementsOf(instruction: Instruction): { statements: Statement[]; inco
     return { statements: parts.map(p => ({ text: p.text, status: p.status, from: p.from, quantities: p.quantities, bindings: Array.isArray(p.bindings) ? p.bindings : [] })), inconsistency: null }
 }
 
-export function checkFidelity(fixture: any, rendered: RenderedActivity): FidelityReport {
+export function checkFidelity(
+    fixture: any,
+    rendered: RenderedActivity,
+    /** The approved wording the rendering was made with (stage K7): read to tell an approved sentence from a draft. Production passes none. */
+    wording: ApprovedWording[] = approvedWording(),
+): FidelityReport {
     const findings: FidelityFinding[] = []
+    /** The sentences approved wording says for this game (stage K7), each with exactly what it cites. */
+    const approved = approvedSentences(fixture.game, wording)
+    const isApproved = (part: { text: string; from: string[] }) =>
+        approved.some(sentence => sentence.text === part.text && sentence.from.length === new Set(part.from).size && sentence.from.every(path => part.from.includes(path)))
     const cited = new Set(rendered.instructions.flatMap(i => i.from))
     const inGame = quantitiesInGame(fixture)
     const { ranges, unreadable } = lineRanges(fixture)
@@ -959,6 +1019,28 @@ export function checkFidelity(fixture: any, rendered: RenderedActivity): Fidelit
         }
     }
     /**
+     * **No sentence obliges a player or orders their actions where the game holds no such rule — stage K7, 15 October 2026.** The
+     * prescription rule (`OBLIGATIONS`, above), held to every part that is not approved wording and not a pinned template restating
+     * its element's own value. And, independently and regardless of approval, citation or template: **no sentence naming a
+     * specialized role carries an obligation word** — his D6, *"The [specialized role] should be available as a deep supporting
+     * passing option. Players may use the [specialized role] to recycle possession, draw pressure, change the point of attack, or
+     * create a new progression opportunity. Those are available solutions, not required behaviors."* (the role bracketed for the
+     * coupling ratchet). The role names are the session's (data), so no role is named here.
+     */
+    for (const statement of statements) {
+        if (!OBLIGATIONS.some(word => word.test(statement.text))) continue
+        if (isApproved(statement) || OBLIGATION_ALLOWLIST.some(template => template.holds(statement, fixture))) continue
+        findings.push({ question: 4, severity: 'VIOLATION', what: `"${statement.text}" states a player obligation or an order of actions that no approved sentence and no rule of the game words that way` })
+    }
+    const specialized = Object.keys(fixture.envelope?.roles ?? {})
+    for (const instruction of rendered.instructions) {
+        const role = specialized.find(name => namesRole(instruction.text, name))
+        if (role && OBLIGATIONS.some(word => word.test(instruction.text))) {
+            findings.push({ question: 4, severity: 'VIOLATION', what: `"${instruction.text}" names the ${role} with a word of obligation or order: a specialized role is an available option, never a required behavior` })
+        }
+    }
+
+    /**
      * **A value the activity only STARTS at is shown as adjustable** — the review of S-C1, 14 October 2026, a
      * TIGHTENING. His §3: *"the coach should receive a clear description of the starting configuration, without
      * implying that it cannot be adjusted"*; his §7: *"Alternative ranges, adjustments, and supporting explanations
@@ -1036,6 +1118,12 @@ export function checkFidelity(fixture: any, rendered: RenderedActivity): Fidelit
      * Approved."). The renderer withholds such a condition rather than say it (no approved sentence carries a scope);
      * this is the independent check that it did, so a later change to the renderer cannot state the condition as a
      * rule of every score without being caught.
+     *
+     * **Since stage K7 (15 October 2026, design step B2) one sentence may cite it: an approved sentence that carries its scope.** The
+     * renderer now says a scoped condition through an approved entry covering its exact scope (render-concrete-game.ts). This check
+     * admits a sentence citing such a condition only where the sentence IS one approved wording says for this game AND it cites the
+     * condition's scope. A citation alone never satisfies it (the verification g-part-08: citing the scope path proves nothing about
+     * whether the sentence states it): a sentence that is not approved wording is refused however it cites, exactly as before.
      */
     for (const condition of fixture.game.value?.primaryEvent?.conditions ?? []) {
         const notEvaluable = conditionScopeNotEvaluable(condition)
@@ -1043,6 +1131,7 @@ export function checkFidelity(fixture: any, rendered: RenderedActivity): Fidelit
         const at = `value.primaryEvent.conditions[${condition.elementId}]`
         const saying = rendered.instructions.filter(i => i.from.some(f => f === at || f.startsWith(`${at}.`)))
         for (const instruction of saying) {
+            if (isApproved(instruction) && instruction.from.includes(`${at}.scope`)) continue
             findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" states a condition as a rule of the game when ${notEvaluable}` })
         }
     }

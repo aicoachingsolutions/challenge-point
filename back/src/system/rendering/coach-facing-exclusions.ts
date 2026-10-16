@@ -48,7 +48,7 @@ export interface CoachFacingExclusion {
     /** The owner's words that admit this ground, verbatim, with who and when. */
     ruling: string
     /** The paths that must be cited for the exclusion to be honoured — the property's operational consequences. */
-    consequences: (path: string) => string[]
+    consequences: (path: string, fixture?: any) => string[]
     /** Where present, the entry excludes `path` only when this holds on the fixture. */
     applies?: (path: string, fixture: any) => boolean
     /**
@@ -103,7 +103,19 @@ export const COACH_FACING_EXCLUSIONS: CoachFacingExclusion[] = [
         ruling: ACCOUNTING_RULING,
         // Its one operational consequence — that this occurrence does not stop play — is carried by the playState
         // instruction for the SAME element (corrected 13 October: it named one element's play state outright).
-        consequences: path => [`${path.slice(0, path.length - '.startsEpisode'.length)}.playState`],
+        /**
+         * **And where the element restarts play, by the restart sentence — stage K7, 15 October 2026.** For a transition that stops and
+         * restarts play, what a coach does differently at an episode's beginning is who restarts it: the team the element awards the
+         * restart to (T2). So where the element holds an awardee, the consequence is that sentence — it must cite the play state AND the
+         * awardee — and a restart said without its awardee leaves the exclusion undischarged. A transition with no awardee (one that
+         * continues play) reads exactly as before.
+         */
+        consequences: (path, fixture) => {
+            const base = path.slice(0, path.length - '.startsEpisode'.length)
+            const id = base.startsWith('transitions[') ? base.slice('transitions['.length, -1) : null
+            const element = id ? (fixture?.game?.transitions ?? []).find((t: any) => String(t?.elementId) === id) : undefined
+            return [`${base}.playState`, ...(element && element.awardedTo !== undefined ? [`${base}.awardedTo`] : [])]
+        },
     },
     {
         suffix: 'space.axis',
