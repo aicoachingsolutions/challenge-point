@@ -907,15 +907,19 @@ function gaReferenceIntegrity(ctx: GateContext): CheckOutcome {
         for (const name of referentsOf(cell)) {
             if (typeof name === 'object' && (name as any).dynamic) continue // 'where the ball went out' — a token, not an element
             // A realized coach's decision (COACH_DECIDES, register version 12): the value records that the place is the coach's
-            // and within what words; it names no element, so there is nothing for it to dangle from or resolve to.
-            if (typeof name === 'object' && typeof (name as any).coachDecides === 'string') continue
+            // and within what words; it names no element, so there is nothing for it to dangle from or resolve to. ONLY on a row
+            // the register opens as the coach's (`fillableRequires`, T4/T5) — K5 review, 15 October 2026: the exemption read
+            // every reference row, so a stand-in written as a condition referent (V5) left this clause unblocked, where before
+            // K5 it was read as text and blocked it (measured on a TEST-ONLY copy; pinned in starts-and-restarts.unit.ts).
+            if (typeof name === 'object' && typeof (name as any).coachDecides === 'string' && ctx.index.fillableRequires.has(line.row)) continue
             /**
              * A begin-condition referent (C58, 15 October 2026) names no element: it designates the restarts that meet it, and
              * whether any does — and whether they share an awardee — is GA-EPISODE-REACHABLE's question, answered there once.
              * Read here as text it would be a gap it is not; asked here as well, a game with no such restart would fail twice
-             * for one fact.
+             * for one fact. Only as a condition referent (V5), the one row whose valueType carries the form (V5 version 3) —
+             * K5 review, 15 October 2026: on any other reference row it is read as text, as it was before K5.
              */
-            if (beginConditionReferentOf(name)) continue
+            if (line.row === 'V5' && beginConditionReferentOf(name)) continue
             /**
              * A relational referent (M8, 15 October 2026) is one reference: resolved when everything it designates is
              * held, dangling when it designates nothing (or something held by nobody), and a gap naming this line when
@@ -1324,12 +1328,17 @@ function gaEpisodeReachable(ctx: GateContext): CheckOutcome {
     if (!scoped.length) return result('GA-EPISODE-REACHABLE', probe, [pass(CLAUSE, 0), pass(AWARDEE, 0)], 'no condition is authored for an episode')
     const named = scoped.map(c => `${c.classId} (${scopeOf(c)})`).join(', ')
 
-    // The typed begin condition, where an episode-scoped condition holds one as its referent (C58).
+    // The typed begin condition, where an episode-scoped condition holds one as its referent (C58) — and only one for THAT
+    // condition's episode. K5 review, 15 October 2026: the referent's own `beginsEpisodeOf` was never read, so a begin
+    // condition naming another episode passed a build-out condition (measured on a TEST-ONLY copy: PASS). Now such a referent
+    // types nothing here and the check withholds exactly as it did before C58.
     const typed = scoped
-        .map(c => probe.peek(lineOf(c.classId, 'V5')))
-        .flatMap(cell => (cell.state === 'DERIVED' ? (Array.isArray(cell.value) ? cell.value : [cell.value]) : []))
-        .map(beginConditionReferentOf)
-        .find((referent): referent is BeginConditionReferent => referent !== null)
+        .flatMap(c => {
+            const cell = probe.peek(lineOf(c.classId, 'V5'))
+            const values = cell.state === 'DERIVED' ? (Array.isArray(cell.value) ? cell.value : [cell.value]) : []
+            return values.map(beginConditionReferentOf).filter((referent): referent is BeginConditionReferent => referent !== null && referent.beginsEpisodeOf === scopeOf(c))
+        })
+        .find(() => true)
     if (typed) {
         const found = buildOutStarters(ctx, probe, typed)
         const reach = found.starters.length

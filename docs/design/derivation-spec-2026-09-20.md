@@ -144,7 +144,8 @@ entries, and a game value written "(= entry)" counts as that entry.
 > T5: OWNER_RULING or AUTHORED ranges in words), closed COACH_DECIDES. (3) A game-level row's `entailedBy` takes the entailed
 > value and support of a named line on the one element a rule names (PS1 from START's T2, where it is entailed and applies).
 > (4) GA-TRANSITION-COHERENCE defers its resume clause where a taker or region is an open choice. (5) Where an episode-scoped
-> condition holds a begin-condition referent (ruling C58), GA-EPISODE-REACHABLE decides which transitions meet it (stop and
+> condition holds a begin-condition referent for that condition's own episode (ruling C58; a referent naming another
+> episode types nothing, K5 review), GA-EPISODE-REACHABLE decides which transitions meet it (stop and
 > restart, begin an episode, taken by an arm's taker; an arm naming a restart kind is met by none) and passes only where one
 > does and every one that does has one awardee. (6) A record-named provisional realization may withdraw another file's
 > realization choice by declaration (`withdraws`), recorded and carried into the fixture. AM-15's by-construction transitions

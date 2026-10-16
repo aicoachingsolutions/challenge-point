@@ -328,6 +328,42 @@ test('the two clauses bite: a second awardee fails, no starter fails, and withou
     assert.equal(check(untyped.staged, 'GA-EPISODE-REACHABLE').verdict, 'NOT_EVALUABLE')
 })
 
+/**
+ * **K5 review, 15 October 2026: the exemptions stage K5 added are only as wide as the register says.** Each case below was
+ * measured on the K5 commit (8f389fa) passing where, before K5, it was refused or withheld:
+ *   - a begin condition naming ANOTHER episode typed the build-out condition (GA-EPISODE-REACHABLE PASS): the referent's own
+ *     `beginsEpisodeOf` was never read;
+ *   - a coach's-decision stand-in written as a condition referent (V5) was skipped by GA-REFERENCE-INTEGRITY on every
+ *     reference row, so the origin line no longer blocked the clause; the register opens a coach's choice on T4/T5 only;
+ *   - a begin-condition referent was skipped on every reference row, though only V5's valueType carries the form.
+ */
+test('the begin condition counts only for its own episode, and the two referent exemptions only on the rows the register names', () => {
+    const origin = (contracts: LoadedContract[]) => contracts.find(c => c.contractId === 'restated:RPC-001')!.items.find(i => i.itemId === 'RPC-001-18.b')!
+    // TEST-ONLY: the begin condition re-aimed at another episode — it types nothing here, so the check withholds as before C58.
+    const [elsewhere] = a01Blocks(contracts => void (origin(contracts).value = { ...(origin(contracts).value as any), beginsEpisodeOf: 'TEST-ONLY_OTHER_EPISODE' }))
+    const reach = check(elsewhere.staged, 'GA-EPISODE-REACHABLE')
+    assert.equal(reach.verdict, 'NOT_EVALUABLE', reach.why)
+    assert.ok(!reach.why.includes('the begin condition is typed'))
+
+    // TEST-ONLY: a coach's-decision stand-in as the origin's referent — a condition referent, not a coach-chosen place.
+    const [stand] = a01Blocks(contracts => void (origin(contracts).value = { coachDecides: 'TEST-ONLY: wherever the coach likes' }))
+    const integrity = check(stand.staged, 'GA-REFERENCE-INTEGRITY')
+    assert.equal(integrity.clauses[1].verdict, 'NOT_EVALUABLE')
+    assert.ok(integrity.blockedBy.includes('c:restated:RPC-001:RPC-001-18.a::V5'), `the stand-in is read, not skipped: ${JSON.stringify(integrity.blockedBy)}`)
+    // ... while on T4, where the register opens the coach's choice, it is exempt: the realized game passes the post-realization
+    // gate with the stand-ins in place (the 'communication' stop pinned in the realization test below).
+
+    // TEST-ONLY: a begin-condition referent written as a restart location (T4) — read as text there, never skipped.
+    const [placed] = a01Blocks(contracts => void (realizationItem(contracts, 'A01-R1-T4-2').value = origin(contracts).value))
+    const located = check(placed.staged, 'GA-REFERENCE-INTEGRITY')
+    assert.notEqual(located.clauses[1].verdict, 'PASS', located.why)
+    assert.ok(JSON.stringify(located.blockedBy).includes('A01-R1-T1-4::T4') || located.clauses[1].verdict === 'FAIL', located.why)
+    // The production begin condition is unaffected: it types the build-out condition and the clause is not blocked by it.
+    const [x] = a01Blocks()
+    assert.equal(check(x.staged, 'GA-EPISODE-REACHABLE').verdict, 'PASS')
+    assert.ok(!check(x.staged, 'GA-REFERENCE-INTEGRITY').blockedBy.includes('c:restated:RPC-001:RPC-001-18.a::V5'))
+})
+
 // ── 8. A01-R1's transitions, and what must not appear ──────────────────────────────────────────────────
 test("A01-R1's transitions as his decisions establish them, and no timer, window, pass count, conceding award or stopped turnover", () => {
     const [x] = a01Blocks()
