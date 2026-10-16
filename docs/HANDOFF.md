@@ -50,8 +50,12 @@ first (it supersedes the historical sections below). Then the memory files (auto
 
    Note `back/.env` was NOT gitignored (root `.gitignore` had `*.env.*`, which never matches a bare
    `.env`), so a live API key sat one `git add -A` from a public remote. Fixed; keep it that way.
-4. **Verify changes with:** from `back/`: `npx tsc --noEmit -p tsconfig.json` and `npm test` (**32 unit
-   suites** as of 2026-08-16; `deriveInputConstraints.unit.ts` is the main routing test — extend it when you
+4. **Verify changes with:** from `back/`: `npx tsc --noEmit -p tsconfig.json` and `npm test` (**98 unit
+   files** as of 2026-10-18, run in parallel by `back/scripts/test-parallel.js`, ending `FILES n  FAILED m`;
+   `npm run test:serial` runs them one at a time. **A new unit file is registered in
+   `back/scripts/unit-tests.json`** (the ordered list; until 18 Oct it was the `test` script's &&-chain, which
+   outgrew cmd.exe's 8191-character limit and made `npm test` fail on Windows before running anything);
+   `deriveInputConstraints.unit.ts` is the main routing test — extend it when you
    change routing). Front-end changes: `npx tsc --noEmit` from `front/`. Behaviour-preservation gate for
    engine changes: the selection-pipeline `bestScore` sequence must stay **`70,68,98,119,94,99,86`**
    (**gate v2**, re-baselined 2026-08-05 when the Soccer Module became load-bearing — see MIGRATION
@@ -72,7 +76,7 @@ first (it supersedes the historical sections below). Then the memory files (auto
    `back/data/knowledge-core/`, generate a complete JSON projection into
    `back/src/system/knowledge-core/` with python+`openpyxl` (install if missing), write a typed loader
    whose **integrity gate validates against the workbook's own declared expected counts**, add a unit
-   suite, wire it into `package.json`'s `test` chain. Gotchas: header row is usually row 0 but the ATM
+   suite, register it in `back/scripts/unit-tests.json`. Gotchas: header row is usually row 0 but the ATM
    workbooks use title/blank/**header row 2**; the ATM Ratings Grid has **two side-by-side tables**
    sharing a `canonical_name` header (extract by column range). Newer workbooks declare `header_row` and
    `one_table_per_sheet` in metadata — trust those. `resolveJsonModule` is enabled in `tsconfig.json`.

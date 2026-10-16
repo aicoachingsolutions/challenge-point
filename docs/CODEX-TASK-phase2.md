@@ -86,7 +86,8 @@ stable and unchanged — nothing that references them by id needs updating.
   (they participate in the same `targetAffordancePrimary` / info-realization checks). Current data must
   pass. Extend the registry unit test to assert the EM library registers, validates, and that
   `constraints().length + environmentalManipulations().length === 23` and the union equals the old pool.
-- Wire any new unit file into `back/package.json` `test`. Commit.
+- Wire any new unit file into `back/package.json` `test`. Commit. [Since 18 Oct 2026: register it in
+  `back/scripts/unit-tests.json`; the `test` script runs that list.]
 
 ## Definition of done
 2a–2c committed; tsc clean; all unit tests pass; selection-pipeline bestScore sequence unchanged

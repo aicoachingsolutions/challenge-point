@@ -3,8 +3,13 @@ const os = require('node:os')
 const path = require('node:path')
 const { spawn, spawnSync } = require('node:child_process')
 
+// npm test (parallel), npm run test:serial (one file at a time), npm run test:parallel (alias of npm test).
+// The ORDERED list of back-end unit files is back/scripts/unit-tests.json: a new .unit.ts file is registered THERE,
+// not in package.json. Until 18 October 2026 the list was the package.json "test" script itself, one &&-chain of
+// ts-node commands; at 9470 characters it was over cmd.exe's 8191-character command-line limit, so `npm test` on
+// Windows failed in a second ("The command line is too long.") before running anything (broken since 14 October).
 const BACK = path.resolve(__dirname, '..')
-const PACKAGE = path.join(BACK, 'package.json')
+const UNIT_TESTS = path.join(__dirname, 'unit-tests.json')
 
 // Filled only by files whose results differ between serial and parallel evidence runs.
 const ISOLATE = []
@@ -40,15 +45,22 @@ function parseArgs(args) {
 }
 
 function testFiles() {
-    const script = JSON.parse(fs.readFileSync(PACKAGE, 'utf8')).scripts.test
-    if (typeof script !== 'string') throw new Error('package.json has no test script')
+    let files
+    try {
+        files = JSON.parse(fs.readFileSync(UNIT_TESTS, 'utf8'))
+    } catch (error) {
+        throw new Error(`cannot read ${path.relative(BACK, UNIT_TESTS)}: ${error.message}`)
+    }
+    if (!Array.isArray(files) || !files.length) throw new Error(`${path.relative(BACK, UNIT_TESTS)} must be a non-empty array of unit file paths`)
 
-    // Every command must be exactly the one commandFor runs, so a file listed with other flags cannot run differently here.
-    return script.split('&&').map(command => {
-        const match = command.trim().match(/^ts-node --files -r tsconfig-paths\/register (\.\/src\/\S+\.ts)$/)
-        if (!match) throw new Error(`not the standard ts-node test command: ${command.trim()}`)
-        const file = match[1]
-        if (!fs.existsSync(path.resolve(BACK, file))) throw new Error(`listed test file does not exist: ${file}`)
+    // Every file runs through the one command commandFor builds, so an entry can only name a file: a ./src/ path to an
+    // existing .unit.ts, no flags, no spaces, listed once. Anything else is refused rather than run differently or skipped.
+    const seen = new Set()
+    return files.map(file => {
+        if (typeof file !== 'string' || !/^\.\/src\/\S+\.unit\.ts$/.test(file)) throw new Error(`not a ./src/... .unit.ts path: ${JSON.stringify(file)}`)
+        if (seen.has(file)) throw new Error(`listed twice: ${file}`)
+        seen.add(file)
+        if (!fs.statSync(path.resolve(BACK, file), { throwIfNoEntry: false })?.isFile()) throw new Error(`listed test file does not exist: ${file}`)
         return file
     })
 }
