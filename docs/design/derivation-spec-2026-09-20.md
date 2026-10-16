@@ -170,6 +170,10 @@ entries, and a game value written "(= entry)" counts as that entry.
 > ordinary restart or a change of possession never re-establishes one. (7) The post-realization context substitutes realized
 > metres only on position rows. (8) A record-named realization listing the areas its metric values were given for
 > (`testingBoundaries.areas`) is built only for those areas; any other area is refused at `session` (DRAFT sentence).
+> (9) Added in the K6 review, 16 October 2026: GA-RELATIVE-PLACEMENT's third clause - no start placement's region shares a
+> stretch of the axis with the target its own group's team attacks (touching at one boundary is not sharing; deferred until both
+> are realized). The design asked for it and K6 had not built it: a pressing start around its own target, or a building start
+> inside its own target, passed every gate (measured on TEST-ONLY copies at 723eee2).
 
 **Every structural reference normalises, not only selectors (SD-32, ruled).** In his words:
 

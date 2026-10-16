@@ -2215,12 +2215,28 @@ function gaDirection(ctx: GateContext): CheckOutcome {
  * — the same reading GA-DIRECTION's opposite-ends clause makes. Read quietly: an unplaced target is a deferral here, not a refusal.
  */
 function attackDirection(ctx: GateContext, probe: Probe, designation: string): 1 | -1 | null {
+    const length = toRational(resolvedValue(ctx.derived.get('game::E2'))?.value)
+    const interval = ownTargetInterval(ctx, probe, designation)
+    if (!length || !interval) return null
+    const side = compare(add(interval.lo, interval.hi), length)
+    return side > 0 ? 1 : side < 0 ? -1 : null
+}
+
+/** The team a designation stands for in this game (a role holder through the role block, or a setup assignment), or null. */
+function teamOf(ctx: GateContext, designation: string): string | null {
+    return holderInBlock(ctx.index, designation, ctx.roleBlock) ?? (resolutionOf(ctx.index, designation)?.kind === 'SETUP_ASSIGNMENT' ? designationKey(ctx.index, designation) : null)
+}
+
+/**
+ * The realized along interval of the target a designation's team attacks — its one primary objective's reference (the register's
+ * `targetOf` rows) — or null where there is no team, not exactly one such objective, or no realized interval yet. Read quietly.
+ * (Split out of `attackDirection` in the K6 review, 16 October 2026, so the start-placement clause reads the same target.)
+ */
+function ownTargetInterval(ctx: GateContext, probe: Probe, designation: string): Interval | null {
     const spec = ctx.index.targetOf
     if (!spec) return null
-    const team = holderInBlock(ctx.index, designation, ctx.roleBlock) ?? (resolutionOf(ctx.index, designation)?.kind === 'SETUP_ASSIGNMENT' ? designationKey(ctx.index, designation) : null)
+    const team = teamOf(ctx, designation)
     if (!team) return null
-    const length = toRational(resolvedValue(ctx.derived.get('game::E2'))?.value)
-    if (!length) return null
     const attacking = classesOn(ctx, spec.objectivesRow).filter(objective => {
         const role = probe.peek(lineOf(objective.classId, spec.roleRow))
         const by = probe.peek(lineOf(objective.classId, spec.teamRow))
@@ -2230,10 +2246,26 @@ function attackDirection(ctx: GateContext, probe: Probe, designation: string): 1
     const reference = probe.peek(lineOf(attacking[0].classId, spec.referenceRow))
     if (reference.state !== 'DERIVED') return null
     const referent = referentClass(ctx, reference.value)
-    const interval = referent ? quietInterval(probe, lineOf(referent.classId, referent.row === 'S2' ? 'S5' : 'O4')) : null
-    if (!interval) return null
-    const side = compare(add(interval.lo, interval.hi), length)
-    return side > 0 ? 1 : side < 0 ? -1 : null
+    return referent ? quietInterval(probe, lineOf(referent.classId, referent.row === 'S2' ? 'S5' : 'O4')) : null
+}
+
+/**
+ * The along interval a start placement's region (P10) covers on the realized geometry, or null while it has none: a region
+ * reference reads the region's own interval; RC-21's "beyond X (for team T)" (P10 version 2) is the part of the area from X's far
+ * edge, in T's attacking direction, to the end line T attacks — the same reading `realizeTypedPosition` composes. (K6 review.)
+ */
+function startRegionInterval(ctx: GateContext, probe: Probe, placementClassId: string): Interval | null {
+    const cell = probe.peek(lineOf(placementClassId, 'P10'))
+    if (cell.state !== 'DERIVED') return null
+    const relative = relativePositionOf(cell.value)
+    const referent = referentClass(ctx, relative ? { structuralRef: relative.of.structuralRef } : cell.value)
+    const x = referent ? quietInterval(probe, lineOf(referent.classId, referent.row === 'S2' ? 'S5' : 'O4')) : null
+    if (!x) return null
+    if (!relative) return x
+    const direction = attackDirection(ctx, probe, relative.forTeam)
+    const length = toRational(resolvedValue(ctx.derived.get('game::E2'))?.value)
+    if (direction === null || !length) return null
+    return direction > 0 ? { axis: 'along', lo: x.hi, hi: length } : { axis: 'along', lo: ZERO, hi: x.lo }
 }
 
 /**
@@ -2273,6 +2305,7 @@ function quietInterval(probe: Probe, lineId: string): Interval | null {
  *     realization the positions are not intervals yet, so the clause is DEFERRED and owed (never passed unexamined). Where a
  *     metric extent is required beside the relation, realization composes the metric one and this clause is what catches a
  *     relation it breaks — measured on a TEST-ONLY copy, a post-regain area deepened past the pressure reference.
+ *   - **own target** (K6 review, 16 October 2026) — no start placement lies inside the target its own group attacks (below).
  *
  * Generic: it names no element, no team and no sport; the relation and its test are the register's.
  */
@@ -2295,7 +2328,46 @@ function gaRelativePlacement(ctx: GateContext): CheckOutcome {
         if (fromEnd) fromEnds.push({ lineId: line.lineId, forTeam: fromEnd.forTeam })
     }
     const total = relations.length + fromEnds.length
-    if (!total) return result('GA-RELATIVE-PLACEMENT', probe, [pass(NAMES, 0), pass(HOLDS, 0)], 'no position in this game is stated relative to another element or to a team')
+
+    /**
+     * **No group begins inside the target it attacks** — added in the K6 review, 16 October 2026. The design this stage built
+     * asked for it in so many words ("a pressing start overlapping its own target fails GA-RELATIVE-PLACEMENT"), and the stage did
+     * not build it: measured on TEST-ONLY copies of A01, the pressing team's start moved to the building team's side of the
+     * pressure reference (so it contained the post-regain area it attacks), or the building team's start moved onto its own
+     * target, passed every gate in both blocks. His words it protects, reply filed 17 October 2026, D3: *"The target should be
+     * positioned so that regaining possession does not automatically constitute successful progression."*; reply filed 18
+     * October 2026, item 3: *"Starting placement: building-team outfield players begin short of the pressure/progression line."*
+     *
+     * A start placement's region (P10, read on the realized geometry) may not share a stretch of the axis with the target its own
+     * group's team attacks (its primary objective's reference, the register's `targetOf` rows). Touching at one boundary is not
+     * sharing a stretch: RC-21's "beyond" is "at or past", so a region beyond a reference and a target beginning at it meet on
+     * the reference line by definition, and a start placement says where a group BEGINS, never where it may go. A group that
+     * stands for no team holding an end attacks no target of its own: no applicable instance. Deferred, never passed, while
+     * either interval is not yet realized. Generic: rows and the role are the register's; no element, team or sport is named.
+     */
+    const OWN_TARGET = 'no start placement lies inside the target its own group attacks'
+    const inside: string[] = []
+    let applicable = 0
+    let notYet = 0
+    for (const placement of classesOn(ctx, 'P8')) {
+        const group = probe.peek(lineOf(placement.classId, 'P9'))
+        // A group that is not established is GA-NO-FAILED-LINE's to report; one that is no team holding an end has no own target.
+        if (group.state !== 'DERIVED' || typeof group.value !== 'string' || !teamOf(ctx, group.value)) continue
+        applicable++
+        const target = ownTargetInterval(ctx, probe, group.value)
+        const region = startRegionInterval(ctx, probe, placement.classId)
+        if (!target || !region) {
+            notYet++
+            continue
+        }
+        const lo = compare(target.lo, region.lo) > 0 ? target.lo : region.lo
+        const hi = compare(target.hi, region.hi) < 0 ? target.hi : region.hi
+        if (lt(lo, hi)) inside.push(`${placement.classId} (${group.value}) begins inside the target its team attacks`)
+    }
+    const own = inside.length ? fail(OWN_TARGET, applicable) : notYet ? deferred(OWN_TARGET, 'the realized start region of each placement and the target its group attacks') : pass(OWN_TARGET, applicable)
+    const ownWhy = applicable ? `; ${applicable} start placement(s) for a team that attacks a target` + (inside.length ? `: ${inside.join('; ')}` : '') + (notYet ? `; ${notYet} not yet placed` : '') : ''
+
+    if (!total) return result('GA-RELATIVE-PLACEMENT', probe, [pass(NAMES, 0), pass(HOLDS, 0), own], 'no position in this game is stated relative to another element or to a team' + ownWhy)
 
     const dangling: string[] = []
     let openText = false
@@ -2350,10 +2422,11 @@ function gaRelativePlacement(ctx: GateContext): CheckOutcome {
     return result(
         'GA-RELATIVE-PLACEMENT',
         probe,
-        [names, holds],
+        [names, holds, own],
         `${relations.length} relative position(s), ${fromEnds.length} measured from a team's end line; ${dangling.length} name nothing held or registered; ${broken.length} broken on the realized geometry` +
             (broken.length ? `: ${broken.join('; ')}` : '') +
-            (unplaced ? `; ${unplaced} not yet placed` : ''),
+            (unplaced ? `; ${unplaced} not yet placed` : '') +
+            ownWhy,
     )
 }
 

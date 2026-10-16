@@ -113,6 +113,7 @@ const FAR = 'c:restated:GF2:GF2-03.f::S5'
 const SEPARATED = "the opposed objectives' targets do not overlap along the axis"
 const HOLDS = 'every relative position holds of the realized geometry'
 const RESETS = 'every start placement re-established when an episode begins names an episode a transition begins'
+const OWN_TARGET = 'no start placement lies inside the target its own group attacks'
 
 // ── 1. The register ─────────────────────────────────────────────────────────────────────────────────────
 test('register version 13 carries the capabilities as data, quoting him, and a damaged copy halts H1', () => {
@@ -173,8 +174,10 @@ test('A01 realizes in both role blocks: his values, mirrored, every spatial gate
     assert.deepEqual(interval(y.realized, `c:${R}:A01-R1-P8-1::P10`), { from: 20, to: 40 })
     assert.deepEqual(interval(y.realized, `c:${R}:A01-R1-P8-2::P10`), { from: 0, to: 20 })
     // Before realization nothing spatial is passed unexamined: the relation is owed, and names what it is relative to.
+    // Third clause added 16 October 2026 (K6 review): no start placement lies inside the target its own group attacks - owed too.
     const pre = preCheck(x.staged, 'GA-RELATIVE-PLACEMENT')
-    assert.deepEqual(pre.clauses.map((c: any) => c.verdict), ['PASS', 'DEFERRED_TO_REALIZATION'])
+    assert.deepEqual(pre.clauses.map((c: any) => c.verdict), ['PASS', 'DEFERRED_TO_REALIZATION', 'DEFERRED_TO_REALIZATION'])
+    for (const { post, block } of blocks) assert.deepEqual(clause(postCheck(post, 'GA-RELATIVE-PLACEMENT'), OWN_TARGET), { clause: OWN_TARGET, verdict: 'PASS', basis: 'EVALUATED', instances: 2 }, block.blockId)
     assert.ok(x.resolved.coherence.postRealizationRequired.some((o: any) => o.checkId === 'GA-RELATIVE-PLACEMENT' && o.clause === HOLDS), 'owed to the post-realization gate')
 })
 
@@ -232,6 +235,25 @@ test('overlapping targets FAIL (they passed every gate until this clause), and a
         assert.equal(clause(postCheck(post, 'GA-DIRECTION'), SEPARATED).verdict, 'FAIL')
         assert.equal(clause(postCheck(post, 'GA-RELATIVE-PLACEMENT'), HOLDS).verdict, 'FAIL')
         assert.ok(postCheck(post, 'GA-RELATIVE-PLACEMENT').why.includes('in the attacking direction of ROLE_HOLDER_PRESSING'), postCheck(post, 'GA-RELATIVE-PLACEMENT').why)
+    }
+    /**
+     * **A group that begins inside the target it attacks FAILS** — K6 review, 16 October 2026. The design asked for it ("a pressing
+     * start overlapping its own target fails GA-RELATIVE-PLACEMENT") and K6 did not build it: measured at 723eee2, both TEST-ONLY
+     * copies below passed every gate in both blocks (his D3, "The target should be positioned so that regaining possession does
+     * not automatically constitute successful progression."; his 18 October item 3, "Starting placement: building-team outfield
+     * players begin short of the pressure/progression line."). The production layout touches only on the line (asserted PASS above).
+     */
+    for (const [label, id, forTeam, group] of [
+        ['the pressing team starts on the building side of the line, around the post-regain area it attacks', 'A01-R1-P10-2', 'ROLE_HOLDER_PRESSING', 'A01-R1-P8-2'],
+        ['the building team starts beyond the line, inside its own target', 'A01-R1-P10-1', 'ROLE_HOLDER_BUILDING', 'A01-R1-P8-1'],
+    ]) {
+        for (const { post, block } of a01Blocks(contracts => void (item(contracts, id).value.forTeam = forTeam))) {
+            assert.equal(post.validated, false, `TEST-ONLY ${label}: ${block.blockId}`)
+            assert.equal(clause(postCheck(post, 'GA-RELATIVE-PLACEMENT'), OWN_TARGET).verdict, 'FAIL', label)
+            assert.ok(postCheck(post, 'GA-RELATIVE-PLACEMENT').why.includes(`c:${R}:${group} (`), postCheck(post, 'GA-RELATIVE-PLACEMENT').why)
+            assert.equal(clause(postCheck(post, 'GA-RELATIVE-PLACEMENT'), HOLDS).verdict, 'PASS', 'the relations themselves still hold: only the new clause catches it')
+            assert.equal(clause(postCheck(post, 'GA-DIRECTION'), SEPARATED).verdict, 'PASS', 'and the targets are still apart')
+        }
     }
     // A relation naming an element the game does not hold is a FAIL at structure, never a deferral.
     const [dangling] = a01Blocks(contracts => void (item(contracts, 'A01-R1-S5-2').value.of.structuralRef.itemId = 'TEST-ONLY-NO-SUCH-ITEM'))
@@ -369,6 +391,15 @@ test('the placements, their timing and their composed geometry reach the concret
 
 // ── 9. Production A01 passes the record and the spatial stages; what stops it now ──────────────────────
 test('production A01 reaches validation in both blocks; what stops it is the context-scoring guard on the episode scope', () => {
+    /**
+     * What moves this stop (named in the K6 review, 16 October 2026; the pin said only what stops it). The guard
+     * (context-scoring-guard.ts) confirms a context condition by its presence in the realized game, so a condition authored for
+     * the build-out episode only (SD-36; his 16 October 9.3, "Build-out condition applies only to build-out episodes: Approved.";
+     * ruling C52) is refused as unconfirmable rather than passed on every score. The scope is approved and the episode's
+     * beginnings are now typed and reached (C58, GA-EPISODE-REACHABLE PASS in both blocks), so no decision of his stands behind
+     * it: it moves when the guard can confirm an episode-scoped condition against the episode the game carries - an engineering
+     * capability no stage has been assigned yet, for the lead to place (K7 carries the communication half of scoped conditions).
+     */
     const refused = buildActivity({ kind: 'learning-goal', goalId: 'A01', session: sessionOf() }) as RefusedActivity
     assert.equal(refused.stage, 'validation', JSON.stringify(refused.reasons))
     const blocksNamed = ['BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END', 'BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START']

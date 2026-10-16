@@ -551,8 +551,11 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
     // sits", D3) are carried by his 18 October starting values and the Performer Configuration relationship he confirmed; the
     // asymmetric-structure entry (D2, D7, M1, M2) is moved, stale since stage K3; behind the record, GA-ONE-PRIMARY-EVENT and
     // GA-REFERENCE-INTEGRITY no longer withhold on the progression reference (ruling C59, M7); and the resolved game holds the two
-    // starting placements (P8-P10, M5). Each is asserted absent below. What stops the activity now is not a decision of his or a
-    // capability he approved: the context-scoring guard reads only whole-game conditions (pinned in target-placement.unit.ts).
+    // starting placements (P8-P10, M5). Each is asserted absent below. What stops the activity now waits on no decision of his:
+    // the context-scoring guard confirms only whole-game conditions, and RPC-001's four build-out conditions are scoped to the
+    // build-out episode, which his 16 October 9.3 approved (C52). It moves when the guard can confirm an episode-scoped condition
+    // against the episode the game carries - an engineering capability not yet assigned to a stage (named in the K6 review, 16
+    // October 2026; pinned with that note in target-placement.unit.ts).
     const STOPS: [string, string, string[]][] = []
     for (const [where, stop, movedBy] of STOPS) {
         assert.ok(movedBy.length > 0, `${stop}: a stop is named for what would move it`)
