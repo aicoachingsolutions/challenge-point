@@ -61,8 +61,23 @@ function testFiles() {
         if (seen.has(file)) throw new Error(`listed twice: ${file}`)
         seen.add(file)
         if (!fs.statSync(path.resolve(BACK, file), { throwIfNoEntry: false })?.isFile()) throw new Error(`listed test file does not exist: ${file}`)
+        if (!exactCase(file)) throw new Error(`listed path differs in letter case from the file on disk: ${file}`)
         return file
     })
+}
+
+// Windows finds a file whatever the letter case of its path, so an entry cased differently from the file passed the
+// existence check and ran that file a second time beside its correct entry, while on a case-sensitive system the same
+// list is refused as naming a missing file (measured 18 October 2026, post-K review: "./src/system/activity/PLAYER-FORMAT.unit.ts"
+// was accepted and started). Each segment is compared with its directory's own listing, so the check does not depend on
+// how the checkout's own path is spelled.
+function exactCase(file) {
+    let directory = BACK
+    for (const segment of file.slice('./'.length).split('/')) {
+        if (!fs.readdirSync(directory).includes(segment)) return false
+        directory = path.join(directory, segment)
+    }
+    return true
 }
 
 function commandFor(file) {
