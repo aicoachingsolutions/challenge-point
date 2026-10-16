@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 
 import { SelectionKnowledgeGap } from '../test-library/generateSelection'
-import { buildReportData, needsFor } from './run-contract-coverage'
+import { buildReportData, goalsWithoutPracticeSituationIds, guidedGoalIds, needsFor } from './run-contract-coverage'
 import { GoalSelectionGap } from './run-bounded-selection'
 import type { BoundedSelection } from './run-bounded-selection'
 
@@ -18,14 +18,14 @@ function normalSelection(): BoundedSelection {
     } as BoundedSelection
 }
 
-function selectionGap(): GoalSelectionGap {
-    const gap = new SelectionKnowledgeGap('X02', 'GF1', 'NO_AUTHORIZED_CONSTRAINTS', {
+function selectionGap(goalId: string = 'X02'): GoalSelectionGap {
+    const gap = new SelectionKnowledgeGap(goalId, 'GF1', 'NO_AUTHORIZED_CONSTRAINTS', {
         candidateConstraintIds: [],
         authorizedConstraintIds: [],
         heldByRuling: [],
         unfilledRoles: ['foundation'],
     } as any)
-    return new GoalSelectionGap(gap, 'A refused goal', null as any, null)
+    return new GoalSelectionGap(gap, `${goalId} refused goal`, null as any, null)
 }
 
 function testNormalSelectionKeepsItsNeed(): void {
@@ -77,9 +77,24 @@ function testSelectionGapLeavesOtherCountsUnchanged(): void {
     assert.deepEqual(withoutGap.gaps, [])
 }
 
+function testGoalsWithoutPracticeSituationsAreCovered(): void {
+    assert.deepEqual(goalsWithoutPracticeSituationIds, ['D03', 'A04', 'A05', 'A06'])
+    assert.deepEqual(goalsWithoutPracticeSituationIds, [...new Set([...goalsWithoutPracticeSituationIds].filter(id => !guidedGoalIds.includes(id)))])
+
+    const error = selectionGap('D03')
+    const data = buildReportData(goalsWithoutPracticeSituationIds, goalId => {
+        if (goalId === 'D03') throw error
+        return { ...normalSelection(), goalId, goalName: `${goalId} normal goal` }
+    })
+
+    assert.deepEqual(data.needs.map(need => need.goalId), goalsWithoutPracticeSituationIds)
+    assert.deepEqual(data.gaps.map(need => [need.goalId, need.gap!.reason]), [['D03', error.gap.reason]])
+}
+
 testNormalSelectionKeepsItsNeed()
 testSelectionGapIsReported()
 testUnrelatedErrorIsNotSwallowed()
 testSelectionGapLeavesOtherCountsUnchanged()
+testGoalsWithoutPracticeSituationsAreCovered()
 
 console.log('run-contract-coverage unit tests passed')

@@ -29,7 +29,10 @@ const key = (id: string) =>
 const BOUNDED = ['A01', 'A04', 'A05', 'TA01', 'TA02']
 
 const contracted = new Set(loadCorpusContracts().map(c => key(c.contractId)))
-const guided: any[] = (sessionPlanningModel.learningGoals() as any[]).filter(g => sessionPlanningModel.practiceSituationsFor(String(g.ID)).length > 0)
+const learningGoals: any[] = sessionPlanningModel.learningGoals() as any[]
+const guided: any[] = learningGoals.filter(g => sessionPlanningModel.practiceSituationsFor(String(g.ID)).length > 0)
+export const guidedGoalIds = guided.map(g => String(g.ID))
+export const goalsWithoutPracticeSituationIds = learningGoals.filter(g => !guidedGoalIds.includes(String(g.ID))).map(g => String(g.ID))
 
 export interface Need {
     goalId: string
@@ -95,10 +98,10 @@ export function buildReportData(goalIds: string[], selector: CoverageSelector = 
     }
 }
 
-function report(title: string, goalIds: string[]): void {
+function report(title: string, goalIds: string[], titleDetail: ((data: CoverageReportData) => string) | null = null): void {
     const { needs, selectionObjects, situationObjects, all, missing, missingSituations, gaps } = buildReportData(goalIds)
 
-    console.log(`\n${title}  (${goalIds.length} goal${goalIds.length === 1 ? '' : 's'})`)
+    console.log(`\n${title}  (${goalIds.length} goal${goalIds.length === 1 ? '' : 's'}${titleDetail ? `; ${titleDetail({ needs, selectionObjects, situationObjects, all, missing, missingSituations, gaps })}` : ''})`)
     console.log('-'.repeat(78))
     for (const n of needs) {
         if (n.gap) continue
@@ -124,7 +127,8 @@ if (require.main === module) {
     console.log(`contracts that exist today: ${[...contracted].sort().join(', ')}`)
 
     report('BOUNDED ATTACKING FAMILY', BOUNDED)
-    report('ALL GUIDED GOALS', guided.map(g => String(g.ID)))
+    report('ALL GUIDED GOALS', guidedGoalIds, data => `${data.needs.length - data.gaps.length} selected, ${data.gaps.length} refused`)
+    report('GOALS WITHOUT PRACTICE SITUATIONS', goalsWithoutPracticeSituationIds)
 
     // The figure that makes the Practice Situation cost visible on its own.
     const withoutSituations = new Set(BOUNDED.map(goalId => needsFor(goalId)).flatMap(n => n.selection))
