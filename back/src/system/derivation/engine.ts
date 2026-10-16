@@ -30,6 +30,7 @@ import {
     RefusalRecord,
     ResolutionLine,
     SpecClause,
+    beginConditionReferentOf,
     relationalReferentOf,
 } from './types'
 
@@ -105,6 +106,9 @@ function memberKey(member: unknown): string {
     // A relational referent (M8, 15 October 2026) is identified by what it designates, never as "[object Object]".
     const relational = relationalReferentOf(member)
     if (relational) return `objective-reference-of:${relational.objectiveReferenceOf}:${relational.role}`
+    // A begin-condition referent (C58, 15 October 2026) is identified by the episode it begins and its arms, likewise.
+    const begins = beginConditionReferentOf(member)
+    if (begins) return `begins-episode-of:${begins.beginsEpisodeOf}:${JSON.stringify(begins.arms)}`
     return String(member)
 }
 
@@ -276,6 +280,24 @@ function constructTriggers(classes: ElementClass[], index: RegisterIndex, envelo
 
     for (const region of classes.filter(c => c.row === 'S2')) triggers.push(`REGION_ENTRY{${region.classId}}`)
     for (const window of classes.filter(c => c.row === 'V23')) triggers.push(`TIME_EXPIRY{${window.classId}}`)
+
+    /**
+     * **A trigger whose registered semantics name a structural prerequisite is reachable where the game holds it** — added
+     * 15 October 2026 (register version 12) for his M4, reply filed 17 October 2026: *"Support one explicit coach-judged event
+     * representing the conclusion of a meaningful episode."* SD-44: *"A trigger is structurally reachable when the Game
+     * Representation contains the resolved structural prerequisites necessary for that trigger to occur"*. Until now this
+     * function never read the trigger semantics, so a token registered there could never be reached (COMPLETED_PASS's own
+     * entry says so). Read GENERICALLY, so no trigger is named here: an entry stating `structuralPrerequisite` — a collection
+     * row, its selector attribute and a value — is reachable where a class on that row is fixed to that value by an `=` term.
+     * A class-level fact, because this runs before any line is derived; the prerequisite itself is the register's (labelled
+     * there as our operational proposal), never this function's. An entry with no prerequisite is unchanged: not reachable.
+     */
+    for (const [name, entry] of Object.entries(index.triggerSemantics ?? {})) {
+        const prerequisite = entry && typeof entry === 'object' ? (entry as { structuralPrerequisite?: { collectionRow?: unknown; selectorAttribute?: unknown; value?: unknown } }).structuralPrerequisite : undefined
+        if (!prerequisite || typeof prerequisite.collectionRow !== 'string' || typeof prerequisite.selectorAttribute !== 'string') continue
+        const held = classes.some(c => c.row === prerequisite.collectionRow && c.constraints.terms.some(t => t.attribute === prerequisite.selectorAttribute && t.op === '=' && t.value === prerequisite.value))
+        if (held && !triggers.includes(name)) triggers.push(name)
+    }
 
     return triggers.sort()
 }

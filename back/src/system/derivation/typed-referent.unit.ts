@@ -355,13 +355,16 @@ test('the corpus-wide Gate A, check by check', () => {
     // position — and it is pinned so a change to it is a visible decision (raised with the lead).
     const result: any = runStages0to10(corpusInput())
     const primaryEvent = check(result, 'GA-ONE-PRIMARY-EVENT')
-    for (const [id, verdict] of [
-        [`c:${GATE}:PCG-02::V5`, 'NOT_AUTHORED'],
-        ['c:restated:RPC-001:RPC-001-18.a::V5', 'FREE(choice)'],
-    ]) {
+    for (const [id, verdict] of [[`c:${GATE}:PCG-02::V5`, 'NOT_AUTHORED']]) {
         assert.ok(primaryEvent.blockedBy.includes(id) || primaryEvent.pendingOn.includes(id), id)
         assert.equal(result.classified.get(id).verdict, verdict, id)
     }
+    // **15 October 2026 (stage K5, C58): the origin place is no longer an open choice between two placement texts.** His 18
+    // October acknowledgement types it as the restarts that begin a build-out episode, so the line is derived, names no
+    // place, and blocks nothing here (which restarts meet it is GA-EPISODE-REACHABLE's question). It read FREE(choice).
+    const origin = 'c:restated:RPC-001:RPC-001-18.a::V5'
+    assert.equal(result.classified.get(origin).verdict, 'RESOLVED:ENTAILED')
+    assert.ok(!primaryEvent.blockedBy.includes(origin) && !primaryEvent.pendingOn.includes(origin))
     // **15 October 2026 (stage K1, C57): RPC-001's control and exclusion places are no longer declared gaps.** His M8
     // typed each as the objective reference of the scoring team, so both lines are derived (section (f) below).
     for (const id of ['c:restated:RPC-001:RPC-001-18.f::V5', 'c:restated:RPC-001:RPC-001-19.a::V5']) {
@@ -466,13 +469,15 @@ test('the corpus-wide Gate A, check by check', () => {
         const result = runStages0to10(progressionTyped(A01_FORMS())) as any
         assert.equal(check(result, 'GA-REFERENCE-INTEGRITY').verdict, 'PASS')
         assert.match(check(result, 'GA-REFERENCE-INTEGRITY').why, /0 named no held element; 0 established no structural identity/)
-        // The position clause is still withheld — by the ORIGIN's referent alone (18.a::V5, a free choice between two
-        // open-text placements, which C58 would type; held for his acknowledgement). Nothing it designates is unpositioned,
+        // **Re-pointed 15 October 2026 (stage K5, C58).** The position clause was withheld by the ORIGIN's referent alone (18.a::V5,
+        // then a free choice between two open-text placements). His 18 October acknowledgement typed it as the restarts that
+        // begin a build-out episode, which names no place, so with the progression reference typed too (TEST-ONLY) the clause
+        // waits only on where realization puts the targets: DEFERRED, not withheld. Nothing it designates is unpositioned,
         // and neither relational line is what it waits on.
         const primaryEvent = check(result, 'GA-ONE-PRIMARY-EVENT')
-        assert.equal(clause(result, 'GA-ONE-PRIMARY-EVENT', 'every member of the event reference').verdict, 'NOT_EVALUABLE')
-        assert.match(primaryEvent.why, /0 unpositioned/)
-        assert.ok(primaryEvent.pendingOn.includes(`c:${RPC}:RPC-001-18.a::V5`), 'the origin is what it waits on')
+        assert.equal(clause(result, 'GA-ONE-PRIMARY-EVENT', 'every member of the event reference').verdict, 'DEFERRED_TO_REALIZATION')
+        assert.match(primaryEvent.why, /0 unpositioned; 1 condition\(s\) name no place/)
+        assert.ok(!primaryEvent.pendingOn.includes(`c:${RPC}:RPC-001-18.a::V5`), 'the origin is no longer what it waits on')
         for (const lineId of [CONTROL, EXCLUSION]) assert.ok(!primaryEvent.blockedBy.includes(lineId), `${lineId} does not block the position clause`)
         // What it designates: the two PRIMARY_SCORING objectives' own references — each team's target at the opposite end.
         const objectives = result.classes.filter((c: any) => c.row === 'J1' && !c.constraints.any)

@@ -45,10 +45,12 @@ const CONDITION_ITEMS = ['RPC-001-18.a', 'RPC-001-18.b', 'RPC-001-18.c', 'RPC-00
 const compose = (ids: string[]): DerivationInput => derivationInputFor({ selected: ids.map(id => ({ id, role: 'test composition' })) })
 
 /** GF2 + RPC-001 over a DEEP COPY with the nine condition items given one scope (the loader's objects are shared). */
-function resolvedWith(scope: string | null, ids: string[] = ['restated:GF2', RPC]) {
+function resolvedWith(scope: string | null, ids: string[] = ['restated:GF2', RPC], untypedOrigin = false) {
     const input = compose(ids)
     input.contracts = JSON.parse(JSON.stringify(input.contracts))
     const rpc: any = input.contracts.find(c => c.contractId === RPC)
+    // TEST-ONLY (stage K5): the origin's referent as it was before ruling C58 — two placement texts, no structural identity.
+    if (untypedOrigin) rpc.items.find((i: any) => i.itemId === 'RPC-001-18.b').value = ["the goalkeeper's START/restart placement", 'a controlled defensive restart placement']
     for (const item of rpc?.items ?? []) {
         if (!CONDITION_ITEMS.includes(item.itemId)) continue
         if (scope === null) delete item.scope
@@ -144,7 +146,14 @@ test('GA-EPISODE-REACHABLE FAILS where the only transition is a possession chang
 
 test('GA-EPISODE-REACHABLE never passes a candidate it cannot judge: it defers on an open taker and withholds on a settled one', () => {
     // A TEST-ONLY transition element keyed on a trigger that is not a possession change, added to the gate context.
-    const { staged } = resolvedWith('BUILD_OUT_EPISODE')
+    //
+    // **Re-pointed 15 October 2026 (stage K5) onto a copy whose begin condition is UNTYPED**, as it was until ruling C58: his
+    // 18 October acknowledgement typed the origin's referent (RPC-001-18.b) as the restarts that begin a build-out episode,
+    // and with it held the check decides rather than withholds (starts-and-restarts.unit.ts). The untyped path — any context
+    // whose begin condition is placement text — still behaves exactly as pinned here, so the copy restores 18.b's original
+    // value (TEST-ONLY) and nothing else. Under C58 the same element, with no play state or episode line to read, blocks
+    // (pinned at the end).
+    const { staged } = resolvedWith('BUILD_OUT_EPISODE', ['restated:GF2', RPC], true)
     const ctx = staged.gateContext
     const start: ElementClass = {
         classId: 'c:TEST-ONLY:START', row: 'T1', fromItem: { contractId: 'TEST-ONLY', itemId: 'START' }, supportedBy: [{ contractId: 'TEST-ONLY', itemId: 'START' }],
@@ -156,6 +165,9 @@ test('GA-EPISODE-REACHABLE never passes a candidate it cannot judge: it defers o
     classified.set('c:TEST-ONLY:START::T3', { lineId: 'c:TEST-ONLY:START::T3', verdict: 'FREE(choice)', lineState: 'ENUMERATED' } as any)
     const open = runGates({ ...ctx, classes: [...ctx.classes, start], classified })
     assert.equal(episodeCheck(open.gateA).verdict, 'DEFERRED_TO_REALIZATION', 'the taker is a choice realization still owes')
+    // Typed (production, C58): an element with no play state or episode line cannot be shown to meet the begin condition.
+    const typed = resolvedWith('BUILD_OUT_EPISODE').staged.gateContext
+    assert.equal(episodeCheck(runGates({ ...typed, classes: [...typed.classes, start] }).gateA).verdict, 'NOT_EVALUABLE')
 })
 
 // ── C52, the same day: the build-out condition restated to the build-out episode, in production ──────────────
@@ -172,11 +184,19 @@ test('C52: the nine items of the build-out condition carry BUILD_OUT_EPISODE, an
 
 test('C52, EXPECTED AND PINNED: Play Out from the Back is refused at Gate A naming the scope — no transition can begin a build-out episode', () => {
     // A01's real selection (GF2, its lenses, RPC-001; no library constraint under his general principle).
-    const input = derivationInputFor(selectFor('A01', null))
+    //
+    // **Re-pointed 15 October 2026 (stage K5): the stop moved, as predicted — the work succeeding.** A01's selection now carries
+    // the provisional realization A01-R1 (its record names it), whose start, after-score and coach-judged restarts begin the
+    // build-out episode under the begin condition C58 types; GA-EPISODE-REACHABLE passes in each role block
+    // (starts-and-restarts.unit.ts). The FAIL this test pinned is kept where it still holds: the possession game with the
+    // context and NO realization — no transition but the possession change.
+    const selection = derivationInputFor(selectFor('A01', null))
+    const input = { ...selection, contracts: selection.contracts.filter(c => !c.contractId.startsWith('provisional:')) }
     const staged: any = runStages0to10(input)
     const check = episodeCheck(staged.gates.gateA)
     assert.equal(check.verdict, 'FAIL')
     assert.ok(check.why.includes('BUILD_OUT_EPISODE') && check.why.includes('possession change begins an attacking episode, never a build-out one'), check.why)
+    assert.ok(selection.contracts.some(c => c.contractId === 'provisional:A01-R1'), "A01's own selection carries the realization")
     const result = runDerivation(input)
     assert.ok(!isStampedHalt(result))
     const game: any = assembleResolvedGame(result as any, staged.classes, indexRegister(input.register), input.contracts)

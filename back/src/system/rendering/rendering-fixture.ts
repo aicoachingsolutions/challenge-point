@@ -74,9 +74,15 @@ export interface RenderingFixtureParts {
      * nothing defers.
      */
     alternatives?: { contractId: string; itemId: string; row: string; value: unknown; defersTo: string; deferredTo: { contractId: string; itemId: string }[]; relationship: string }[]
+    /**
+     * The game-form choices a record-named provisional realization withdrew by declaration, with why — stage K5, 15 October
+     * 2026 (supplied-realization.ts `withdrawn`): the line is settled by the realization's own knowledge (the initial holder of
+     * possession, entailed by the start's awardee). Absent wherever nothing is withdrawn.
+     */
+    withdrawnChoices?: { lineId: string; withdrawnFrom: string; by: string; withdrawnValue: unknown; because: string }[]
 }
 
-export function assembleRenderingFixture({ resolved, realized, entailed, envelope, accepted, postRealizationValidated, roleNouns, reassignmentNouns, adjustments, alternatives }: RenderingFixtureParts): Record<string, unknown> {
+export function assembleRenderingFixture({ resolved, realized, entailed, envelope, accepted, postRealizationValidated, roleNouns, reassignmentNouns, adjustments, alternatives, withdrawnChoices }: RenderingFixtureParts): Record<string, unknown> {
     const pathOf = new Map(resolved.derived.map(entry => [entry.lineId, entry.path]))
     return {
         provenance: resolved.provenance,
@@ -116,5 +122,6 @@ export function assembleRenderingFixture({ resolved, realized, entailed, envelop
         ...(reassignmentNouns ? { reassignmentNouns: { status: 'DRAFT', nouns: JSON.parse(JSON.stringify(reassignmentNouns)) } } : {}),
         ...(adjustments?.length ? { adjustments: { status: 'DRAFT', entries: JSON.parse(JSON.stringify(adjustments)) } } : {}),
         ...(alternatives?.length ? { alternatives: JSON.parse(JSON.stringify(alternatives)) } : {}),
+        ...(withdrawnChoices?.length ? { withdrawnChoices: JSON.parse(JSON.stringify(withdrawnChoices)) } : {}),
     }
 }

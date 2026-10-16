@@ -196,6 +196,17 @@
  * value, every choice, the geometry, the roster and the realization digest are byte-identical. The rendered instructions
  * of the frozen fixture before and after were diffed (renderConcreteGame on each): identical.
  *
+ * **Re-frozen 15 October 2026 (stage K5): `2cde97ca` → `4551a03d`. The GAME did not move; the register version did.**
+ * Register version 12 — starts and restarts built from knowledge and the coach-judged episode conclusion, his M3 and M4 of 17
+ * October (*"Support one explicit coach-judged event representing the conclusion of a meaningful episode."*): the trigger
+ * COACH_JUDGED_EPISODE_CONCLUSION, the method FROM_THE_FEET, T4/T5 `fillableRequires`, T2 `fillableWhen`, PS1 `entailedBy`
+ * and V5's begin-condition form (ruling C58). The register version is hashed into the input; the vocabulary versions
+ * (trigger 4, T5.method 2) and the restated RPC-001-18.b do not reach the Golden Case, which selects no context and holds no
+ * start element (so PS1 stays the governed choice, and its POSSESSION_CHANGE awardee line, already withdrawn, only loses
+ * an open choice space no reader saw). So `inputDigest` / `fromDigest` (064b13b7 → e555acf8), the audit digest (8b4dd3a4 →
+ * 8bbfc003) and the `registerVersion` sentence moved, and `git diff` of the fixture shows those four lines and nothing else.
+ * The rendered instructions of the frozen fixture before and after were diffed (renderConcreteGame on each): identical.
+ *
  * **Since stage K3 a fixture may be COMPOSED from two role blocks** (`build-activity.ts`, `role-blocks.ts`): block one's
  * fixture with a `roleBlocks` block carrying each block's own fixture whole. The Golden Case is a single game and is
  * frozen as one; the composed shape is guarded below by key identity, so a future frozen two-block fixture cannot lose a

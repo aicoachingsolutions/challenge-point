@@ -134,6 +134,22 @@ entries, and a game value written "(= entry)" counts as that entry.
 > cross-block check RB-M admits a change of a team's counts exactly where one states it, and none where none is recorded —
 > the exchange of roles moves nobody.
 
+> **Engineering line, 15 October 2026 (stage K5) — ours, outside his adopted text.** Implemented for his M3, M4 and D5 of 17
+> October and his answers of 18 October (items 2 and 4). (1) Stage 2 reads each trigger-semantics entry's
+> `structuralPrerequisite` generically (a collection row, its selector attribute, a value): the trigger is reachable where a
+> class on that row is fixed to that value. The one entry carrying one is COACH_JUDGED_EPISODE_CONCLUSION, reachable where a
+> start element exists. (2) A row's `fillableWhen` restricts its choice space to the elements whose selector fixes an
+> attribute to a listed value (T2: START only, the restriction its fillable text always stated); a row's `fillableRequires`
+> opens it only where every bounding item has a listed requirement and basis and gives a bound of the listed kind (T4 and
+> T5: OWNER_RULING or AUTHORED ranges in words), closed COACH_DECIDES. (3) A game-level row's `entailedBy` takes the entailed
+> value and support of a named line on the one element a rule names (PS1 from START's T2, where it is entailed and applies).
+> (4) GA-TRANSITION-COHERENCE defers its resume clause where a taker or region is an open choice. (5) Where an episode-scoped
+> condition holds a begin-condition referent (ruling C58), GA-EPISODE-REACHABLE decides which transitions meet it (stop and
+> restart, begin an episode, taken by an arm's taker; an arm naming a restart kind is met by none) and passes only where one
+> does and every one that does has one awardee. (6) A record-named provisional realization may withdraw another file's
+> realization choice by declaration (`withdraws`), recorded and carried into the fixture. AM-15's by-construction transitions
+> remain unimplemented for every other game.
+
 **Every structural reference normalises, not only selectors (SD-32, ruled).** In his words:
 
 > "Any structural reference participating in derivation must resolve through the registered

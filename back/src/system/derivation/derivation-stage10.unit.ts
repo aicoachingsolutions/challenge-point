@@ -993,7 +993,10 @@ test('the corpus run reproduces the reported figures exactly', () => {
     // **70 since ruling C51 of 15 October 2026.** The retired separate objective's J3 and J4 lines were entailed.
     // **72 since stage K1, 15 October 2026 (C57).** His M8 types the referents of RPC-001's control condition and
     // long-clearance exclusion (18.f::V5, 19.a::V5) as the objective reference of the scoring team, so both lines entail.
-    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 72)
+    // **73 since stage K5, 15 October 2026 (C58).** His 18 October acknowledgement types the build-out origin's referent
+    // (RPC-001-18.b) as one begin-condition referent, so 18.a::V5 entails it; it was an open choice between two placement
+    // texts.
+    assert.equal(result.run.counts['verdict:RESOLVED:ENTAILED'], 73)
     // **NOT_AUTHORED fell 54 → 26 across the 29 September rulings, and only five of those twenty-eight
     // were closed by authoring anything.**
     //   −9  T1a/T1b/T1c demanded of three POSSESSION_CHANGE transitions. A turnover has no last touch
@@ -1033,7 +1036,11 @@ test('the corpus run reproduces the reported figures exactly', () => {
     // 17 since C33: the removed third region took its one open S5 line (a channel along-extent) with it.
     // **18 since ruling C42.** The two new target regions each bring an open across-extent and an open noun,
     // and the retired shared target took its two with it, so the balance is one more than before.
-    assert.equal([...result.derived.lines.values()].filter((l: any) => l.open).length, 18, 'open lines, 18 since the directional arrangement')
+    // **15 since stage K5, 15 October 2026 (register version 12).** T2's fillable text has always said "for trigger START",
+    // and `fillableWhen` now holds it: the three POSSESSION_CHANGE transitions' awardee lines (GF4 I06, GF2-07.a,
+    // NEUTRAL-12.a) no longer carry an open choice space. Each was already withdrawn (play continues, RC-20) and carried no
+    // verdict, so nothing a game says moves (measured on HEAD 9f8812f and after: the same 15 others, line for line).
+    assert.equal([...result.derived.lines.values()].filter((l: any) => l.open).length, 15, 'open lines, 15 since T2 opens for START only')
 
     // SD-88 evaluated the conditional lines; the selector-based rule settles its own at enumeration.
     // Twelve withdrawals come from the governing-line path (the three CONTINUE transitions carry no

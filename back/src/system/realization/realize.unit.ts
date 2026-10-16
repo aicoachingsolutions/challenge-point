@@ -1050,7 +1050,11 @@ test('four goals are realization-authorized, they are two games, and the other n
     // so the finding is not lost with the selection.
     // **Seven again later on 15 October:** under his general principle A01 selects with no library constraint, reaches
     // derivation, and FAILS Gate A on its context's four unestablished lines (pinned in activity-review.unit.ts).
-    assert.deepEqual(failed.sort(), ['A01', 'A03', 'A06', 'D02', 'TA01', 'TD01', 'TD02'], 'seven goals reach a verdict and fail it')
+    // **Six again on 15 October 2026 (stage K5): A01 moves from failing to unevaluable.** Its provisional realization's start,
+    // after-score and coach-judged restarts begin the build-out episode under the begin condition C58 types, so
+    // GA-EPISODE-REACHABLE no longer fails; Gate A cannot yet be evaluated on the progression reference (RPC-001-18.d, open
+    // text — stage K6). Listed below as the one unevaluable goal.
+    assert.deepEqual(failed.sort(), ['A03', 'A06', 'D02', 'TA01', 'TD01', 'TD02'], 'six goals reach a verdict and fail it')
     {
         const input = derivationInputFor(a01CompositionUntil15October(null))
         const result = runDerivation(input)
@@ -1059,7 +1063,8 @@ test('four goals are realization-authorized, they are two games, and the other n
         assert.equal(r.coherence.gateA, 'FAIL', 'the composition A01 selected until 15 October fails Gate A')
     }
     // The four that selected the Pass Combination Gate were the unevaluable ones. No goal selects it now.
-    assert.deepEqual(notEvaluable.sort(), [], 'no goal is left that cannot be evaluated')
+    // Since 15 October 2026 (stage K5) one is: A01, as said above.
+    assert.deepEqual(notEvaluable.sort(), ['A01'], 'A01 alone cannot be evaluated yet: its progression reference is open text')
 })
 
 /**

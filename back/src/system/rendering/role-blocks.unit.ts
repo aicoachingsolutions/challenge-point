@@ -15,8 +15,9 @@
  *   4. fidelity Q6 refuses a lost sentence, an invented one, a sentence for the wrong block, the missing ends-fixed or roles
  *      statement, and any sentence saying the ends change;
  *   5. no defending-team noun, and no sentence dividing the session's minutes among blocks;
- *   6. A01 behind its record (gap entries set aside on a COPY): both blocks built, both stopping where the single game
- *      stopped — GA-EPISODE-REACHABLE — each named by its block. Production A01 is unchanged (activity-review.unit.ts).
+ *   6. A01 behind its record (gap entries set aside on a COPY): both blocks built, both stopping in the same place — since
+ *      stage K5 the progression reference (GA-ONE-PRIMARY-EVENT, GA-REFERENCE-INTEGRITY), until then GA-EPISODE-REACHABLE —
+ *      each named by its block. Production A01 is pinned in activity-review.unit.ts.
  *
  * Run: npx ts-node --files -r tsconfig-paths/register ./src/system/rendering/role-blocks.unit.ts
  */
@@ -287,7 +288,12 @@ test('part of a role exchange is refused at structure, never completed', () => {
 // What moves this stop (K3 review, 15 October 2026): the build-out episode's beginning — capability M3 (stage K5) and the
 // typed begin condition C58, held for his acknowledgement (our email of 17 October) — exactly as for the single game
 // (activity-review.unit.ts). The role blocks neither cause it nor move it.
-test('A01 behind its record: two blocks built, each stopping where the single game stopped (GA-EPISODE-REACHABLE), named by block', () => {
+//
+// **Moved 15 October 2026 (stage K5), as predicted: the work succeeding.** A01-R1's start, after-score and coach-judged
+// restarts and C58 (his 18 October acknowledgement) let the build-out episode begin, so GA-EPISODE-REACHABLE passes in each
+// block; each block now stops, the same in both, on the progression reference (RPC-001-18.d, open text: what moves it is the
+// target placement of stage K6, C54/D3/M7), which leaves GA-ONE-PRIMARY-EVENT and GA-REFERENCE-INTEGRITY unevaluable.
+test('A01 behind its record: two blocks built, each stopping in the same place (the progression reference, stage K6), named by block', () => {
     const behind = learningGoalAuthorizations().map((record: any) => ({
         ...record,
         manipulations: record.manipulations.map((m: any) => (m.status === 'MISSING_KNOWLEDGE' || m.status === 'MISSING_CAPABILITY' ? { ...m, category: 'EXISTING_KNOWLEDGE_TO_VERIFY', status: 'NOT_SELECTED_FOR_FIRST_DEMO', gaps: [], note: 'TEST-ONLY' } : m)),
@@ -296,11 +302,13 @@ test('A01 behind its record: two blocks built, each stopping where the single ga
     const a01 = refused(buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, behind as any).activity, 'A01 behind its record')
     assert.equal(a01.stage, 'structure')
     assert.deepEqual(a01.reasons, [
-        'block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: Gate A is FAIL',
-        'block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: a pre-realization Gate A invariant fails: GA-EPISODE-REACHABLE',
-        'block BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: Gate A is FAIL',
-        'block BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: a pre-realization Gate A invariant fails: GA-EPISODE-REACHABLE',
+        'block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: Gate A is NOT_EVALUABLE',
+        'block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: a pre-realization Gate A invariant cannot be evaluated, so it is not satisfied: GA-ONE-PRIMARY-EVENT, GA-REFERENCE-INTEGRITY',
+        'block BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: Gate A is NOT_EVALUABLE',
+        'block BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: a pre-realization Gate A invariant cannot be evaluated, so it is not satisfied: GA-ONE-PRIMARY-EVENT, GA-REFERENCE-INTEGRITY',
     ])
+    // DRAFT coach sentence for this refusal (existing wording, 13 October): the description of a rule is incomplete.
+    assert.equal(a01.summary, 'This goal selects a rule whose description is still incomplete, so the activity cannot be checked yet.')
 })
 
 console.log(`role-blocks.unit.ts (rendering) — ${passed} passed`)

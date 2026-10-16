@@ -1,5 +1,67 @@
 {
-    "note": "The realization choices of the provisional realization A01-R1 (docs/audits/conformance/stage-b/provisional-realizations.json), named by it and read ONLY where A01's authorization record names that realization. A REALIZER's input, not knowledge, and his choice for this one activity, never the possession game form's: every other game built from the game form keeps the game form's own file unchanged. Added 15 October 2026 (stage K2). EXPLICIT REPLACEMENT: an entry here may close a line the game form's file also closes only by declaring `replaces` with that file's name; it then takes the game form's entry's place for that line and the replacement is recorded beside the choice (supplied-realization.ts). An entry that closes a line another file closes without declaring it, or that declares a replacement of an entry that does not exist, refuses the realization input: two answers to one line are never resolved by order. Nothing else is replaced: the game form's other entries, its instantiations of the two teams (GF2-14.a), its end bindings and its initial possession holder are carried unchanged. EMPTY AT LANDING, and why: the first entries this file is for are the two targets' noun and the scoring kind, zone, zone and target_zone_entered, after his review list for the first complete activity, 'Field setup and both target areas.' (reply filed 17 October 2026, next review item 2), with SD-06's one primary scoring event. Measured 15 October 2026 with those three entries in place: the one path that realizes A01 today (the context-scoring guard's TEST-ONLY copy in activity-review.unit.ts) went from served to refused at validation, GA-DIRECTION STILL_NOT_EVALUABLE, because a zone with no depth cannot be placed or checked, and the depths wait on the decision put to him in our email of 17 October (RD-3). So the entries join with the targets keyed by role and that decision's record gap (stage K6), and the replacement mechanism is pinned meanwhile on TEST-ONLY copies of this file (provisional-realization.unit.ts). No value is written here for a depth or a position.",
-    "choices": [],
+    "note": "The realization choices of the provisional realization A01-R1 (docs/audits/conformance/stage-b/provisional-realizations.json), named by it and read ONLY where A01's authorization record names that realization. A REALIZER's input, not knowledge, and his choice for this one activity, never the possession game form's: every other game built from the game form keeps the game form's own file unchanged. Added 15 October 2026 (stage K2). EXPLICIT REPLACEMENT: an entry here may close a line the game form's file also closes only by declaring `replaces` with that file's name; it then takes the game form's entry's place for that line and the replacement is recorded beside the choice (supplied-realization.ts). An entry that closes a line another file closes without declaring it, or that declares a replacement of an entry that does not exist, refuses the realization input: two answers to one line are never resolved by order. Nothing else is replaced: the game form's other entries, its instantiations of the two teams (GF2-14.a), its end bindings and its initial possession holder are carried unchanged. EMPTY AT LANDING, and why: the first entries this file is for are the two targets' noun and the scoring kind, zone, zone and target_zone_entered, after his review list for the first complete activity, 'Field setup and both target areas.' (reply filed 17 October 2026, next review item 2), with SD-06's one primary scoring event. Measured 15 October 2026 with those three entries in place: the one path that realizes A01 today (the context-scoring guard's TEST-ONLY copy in activity-review.unit.ts) went from served to refused at validation, GA-DIRECTION STILL_NOT_EVALUABLE, because a zone with no depth cannot be placed or checked, and the depths wait on the decision put to him in our email of 17 October (RD-3). So the entries join with the targets keyed by role and that decision's record gap (stage K6), and the replacement mechanism is pinned meanwhile on TEST-ONLY copies of this file (provisional-realization.unit.ts). No value is written here for a depth or a position. FIRST ENTRIES, 15 October 2026 (stage K5): the seven COACH_DECIDES lines his decisions leave to the coach - the restart location of the start, of the build-out after a score and of the build-out after the coach concludes an episode (A01-R1-T4-1), and the location and method of an end-line restart (A01-R1-T4-3, A01-R1-T5-3) - each value a stand-in that records the decision as the coach's and within what, never a location, region or method; and one WITHDRAWAL (`withdraws`, supplied-realization.ts): the possession game's choice of the initial holder of possession, which the start's awardee now entails. The targets' noun, the scoring kind and the depths still wait for stage K6.",
+    "choices": [
+        {
+            "lineId": "c:provisional:A01-R1:A01-R1-T1-1::T4",
+            "value": {
+                "coachDecides": "a location the coach chooses, consistent with the intended build-out situation"
+            },
+            "because": "COACH_DECIDES, a stand-in for the coach's decision, never a location: where the start restarts is the coach's, bounded only by his words (A01-R1-T4-1; his D5, \"The coach chooses an appropriate restart location consistent with the intended build-out situation.\"; M3, \"coach-selected restart locations\"). The value records that it is the coach's and within what; it names no region and no distance, and no check compares it geometrically.",
+            "category": "PROVISIONAL_REALIZATION_CHOICE"
+        },
+        {
+            "lineId": "c:provisional:A01-R1:A01-R1-T1-2::T4",
+            "value": {
+                "coachDecides": "a location the coach chooses, consistent with the intended build-out situation"
+            },
+            "because": "COACH_DECIDES, a stand-in for the coach's decision, never a location: where the build-out after a score restarts is the coach's, bounded only by his words (A01-R1-T4-1; his D5, \"The coach chooses an appropriate restart location consistent with the intended build-out situation.\"; M3, \"coach-selected restart locations\"). The value records that it is the coach's and within what; it names no region and no distance, and no check compares it geometrically.",
+            "category": "PROVISIONAL_REALIZATION_CHOICE"
+        },
+        {
+            "lineId": "c:provisional:A01-R1:A01-R1-T1-3::T4",
+            "value": {
+                "coachDecides": "a location the coach chooses, consistent with the intended build-out situation"
+            },
+            "because": "COACH_DECIDES, a stand-in for the coach's decision, never a location: where the build-out after the coach concludes an episode restarts is the coach's, bounded only by his words (A01-R1-T4-1; his D5, \"The coach chooses an appropriate restart location consistent with the intended build-out situation.\"; M3, \"coach-selected restart locations\"). The value records that it is the coach's and within what; it names no region and no distance, and no check compares it geometrically.",
+            "category": "PROVISIONAL_REALIZATION_CHOICE"
+        },
+        {
+            "lineId": "c:provisional:A01-R1:A01-R1-T1-6::T4",
+            "value": {
+                "coachDecides": "a location the coach selects for the restart, using the approved M3 capability"
+            },
+            "because": "COACH_DECIDES, a stand-in for the coach's decision: where an end-line restart is taken after the pressing team plays the ball out (A01-R1-T4-3; his reply filed 18 October 2026, item 2, \"End line: coach-selected restart method, using the approved M3 capability.\"). That the location is the coach's as well as the method is our reading, put to him for a one-line confirmation.",
+            "category": "PROVISIONAL_REALIZATION_CHOICE"
+        },
+        {
+            "lineId": "c:provisional:A01-R1:A01-R1-T1-7::T4",
+            "value": {
+                "coachDecides": "a location the coach selects for the restart, using the approved M3 capability"
+            },
+            "because": "COACH_DECIDES, a stand-in for the coach's decision: where an end-line restart is taken after the building team plays the ball out (A01-R1-T4-3, as above; our reading, put to him for a one-line confirmation).",
+            "category": "PROVISIONAL_REALIZATION_CHOICE"
+        },
+        {
+            "lineId": "c:provisional:A01-R1:A01-R1-T1-6::T5",
+            "value": {
+                "coachDecides": "a restart method the coach selects, using the approved M3 capability"
+            },
+            "because": "COACH_DECIDES, a stand-in for the coach's decision: how an end-line restart is taken after the pressing team plays the ball out (A01-R1-T5-3; his reply filed 18 October 2026, item 2, \"End line: coach-selected restart method, using the approved M3 capability.\"). No method from the register's list is chosen for him: the value records that the method is the coach's.",
+            "category": "PROVISIONAL_REALIZATION_CHOICE"
+        },
+        {
+            "lineId": "c:provisional:A01-R1:A01-R1-T1-7::T5",
+            "value": {
+                "coachDecides": "a restart method the coach selects, using the approved M3 capability"
+            },
+            "because": "COACH_DECIDES, a stand-in for the coach's decision: how an end-line restart is taken after the building team plays the ball out (A01-R1-T5-3, as above).",
+            "category": "PROVISIONAL_REALIZATION_CHOICE"
+        },
+        {
+            "lineId": "game::PS1",
+            "withdraws": "a04-realization-choices.json",
+            "because": "Not the possession game's to choose in this activity: the start's awardee entails the opening holder of possession (register version 12, PS1 entailedBy - the row's own note, \"Its INITIAL value is a governed realization choice over the established teams unless selected knowledge says otherwise\"), and the start is awarded to the team holding the building role in each block (A01-R1-T2-1; his D5, \"The designated building team restarts.\"). Left in, the game form's choice (the first instantiated team, in every block) would be a choice for a line that is not open, and in the second block it would name the pressing team."
+        }
+    ],
     "instantiations": []
 }

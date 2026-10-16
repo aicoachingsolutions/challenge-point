@@ -665,10 +665,14 @@ export function buildActivityOverAlteredSelection(
 export function buildActivityUnderAuthorizationRecords(
     request: Extract<ActivityRequest, { kind: 'learning-goal' }>,
     records: LearningGoalAuthorization[],
-    /** Also tests only: alter a copy of the contracts, or of the selection, exactly as the two entries above do. */
-    options: { alter?: (contracts: LoadedContract[]) => void; alterSelection?: (selection: BoundedSelection) => void } = {},
+    /**
+     * Also tests only: alter a copy of the contracts, or of the selection, exactly as the two entries above do — and (stage K5,
+     * 15 October 2026) a copy of the realization input, as `buildActivityOverAlteredKnowledge` does, for a proof that takes a
+     * provisional realization's items out on a copy and must take the choices made for them out too.
+     */
+    options: { alter?: (contracts: LoadedContract[]) => void; alterSelection?: (selection: BoundedSelection) => void; alterSupplied?: (supplied: SuppliedRealization) => void } = {},
 ): { activity: ServedActivity | RefusedActivity; fixture: Record<string, unknown> | null } {
-    const { activity, fixture } = build(request, options.alter ?? null, null, options.alterSelection ?? null, JSON.parse(JSON.stringify(records)))
+    const { activity, fixture } = build(request, options.alter ?? null, null, options.alterSelection ?? null, JSON.parse(JSON.stringify(records)), options.alterSupplied ?? null)
     return { activity, fixture }
 }
 
@@ -1245,6 +1249,8 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
         ...(holdsReassignments ? { reassignmentNouns: reassignmentNounsOf(index) } : {}),
         ...(adjustments.length ? { adjustments } : {}),
         ...(alternatives.length ? { alternatives } : {}),
+        // What a provisional realization withdrew from the game form's choices, with why (stage K5); absent elsewhere.
+        ...(supplied.withdrawn.length ? { withdrawnChoices: supplied.withdrawn } : {}),
     })
 
     const rendered = renderConcreteGame(fixture)

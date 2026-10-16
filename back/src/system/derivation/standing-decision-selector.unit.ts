@@ -184,9 +184,12 @@ test('the repair removes exactly one application and leaves the rest', () => {
         }
     }
     // Was three, all SD-14: the two POSSESSION_CHANGE transitions and the goal kick. The goal kick is gone.
+    // Four since 15 October 2026 (stage K5): A01's provisional realization A01-R1 forms the first START and SCORE elements
+    // any goal holds, and SD-14 gives each its episode boundary — the two applications its own selector names. SD-13 still
+    // fires nowhere: their method is FROM_THE_FEET, not a stationary-ball or kickoff START, and SD-20 nowhere either.
     assert.deepEqual(
         [...pairs].sort(),
-        ['c:blind:GF4:I06::T7 <- SD-14', 'c:restated:GF2:GF2-07.a::T7 <- SD-14'],
+        ['c:blind:GF4:I06::T7 <- SD-14', 'c:provisional:A01-R1:A01-R1-T1-1::T7 <- SD-14', 'c:provisional:A01-R1:A01-R1-T1-2::T7 <- SD-14', 'c:restated:GF2:GF2-07.a::T7 <- SD-14'],
         `exactly the two legitimate applications remain; got ${JSON.stringify([...pairs])}`,
     )
 })

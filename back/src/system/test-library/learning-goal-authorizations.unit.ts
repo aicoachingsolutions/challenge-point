@@ -154,7 +154,10 @@ test('it excludes Wide Zone Advantage by his item 7, and cross-references the ex
 test('each manipulation his context names, with its category and status', () => {
     const rows = a01().manipulations.map(m => [m.phrase, m.aspect, m.category, m.status, m.gaps])
     assert.deepEqual(rows, [
-        ['starting positions', 'where the team building out starts', 'PROVISIONAL_REALIZATION_CHOICE', 'MISSING_CAPABILITY', ['M3']],
+        // Moved 15 October 2026 (stage K5): capability M3 is built (register version 12) and A01-R1 carries his D5 start and
+        // restarts (taken by the building team's goalkeeper from the feet, at a location the coach chooses). It read
+        // MISSING_CAPABILITY ['M3'] until then.
+        ['starting positions', 'where the team building out starts', 'PROVISIONAL_REALIZATION_CHOICE', 'AUTHORIZED_BY_RULING', []],
         ['starting positions', "the defending team's starting relationship", 'GENUINE_GAP', 'MISSING_KNOWLEDGE', ['D4', 'M5']],
         ['field dimensions', null, 'EXISTING_KNOWLEDGE_TO_VERIFY', 'AUTHORIZED_VIA_GAME_FORM_OR_SESSION', []],
         ['progression references', "each team's own target, in a different place, inside the area", 'EXISTING_KNOWLEDGE_TO_VERIFY', 'AUTHORIZED_VIA_GAME_FORM_OR_SESSION', []],
@@ -164,7 +167,8 @@ test('each manipulation his context names, with its category and status', () => 
         // entries are his provisional choice, authorized by his ruling, and the goalkeeper entry waits on M3 alone (its start
         // role). They read GENUINE_GAP / MISSING_KNOWLEDGE ['D6'] and ['D6', 'M2', 'M3'] until then.
         ['defensive numbers', null, 'PROVISIONAL_REALIZATION_CHOICE', 'AUTHORIZED_BY_RULING', []],
-        ['goalkeeper positioning', null, 'PROVISIONAL_REALIZATION_CHOICE', 'MISSING_CAPABILITY', ['M3']],
+        // 15 October 2026 (stage K5): the goalkeeper's start role is carried too (A01-R1-T3-1, M3); it read MISSING_CAPABILITY ['M3'].
+        ['goalkeeper positioning', null, 'PROVISIONAL_REALIZATION_CHOICE', 'AUTHORIZED_BY_RULING', []],
         ['overloads', null, 'PROVISIONAL_REALIZATION_CHOICE', 'AUTHORIZED_BY_RULING', []],
         ['support spacing', null, 'EXISTING_KNOWLEDGE_TO_VERIFY', 'NOT_SELECTED_FOR_FIRST_DEMO', []],
         ['when and how defenders can press', null, 'PROVISIONAL_REALIZATION_CHOICE', 'AUTHORIZED_BY_RULING', []],
@@ -245,7 +249,9 @@ test('his 16 October provisional choices, each cited, with whether the activity 
         ['item 2', 'MISSING_CAPABILITY', ['D2', 'D7', 'M1', 'M2']],
         ['item 4', 'AUTHORIZED_BY_RULING', []],
         ['item 5', 'AUTHORIZED_BY_RULING', []],
-        ['item 6 and 6.ii', 'MISSING_CAPABILITY', ['D1', 'D5', 'M3', 'M4']],
+        // 15 October 2026 (stage K5): his 17 October D1, D5, M3 and M4 and 18 October items 2 and 4 are carried by A01-R1's
+        // transitions and ruling C58. It read MISSING_CAPABILITY ['D1', 'D5', 'M3', 'M4'] until then.
+        ['item 6 and 6.ii', 'AUTHORIZED_BY_RULING', []],
         ['item 6', 'AUTHORIZED_BY_RULING', []],
     ])
     const [, asymmetry, intermediate, regain, restarts, thirdOrigin] = a01().provisionalChoices!
@@ -277,7 +283,9 @@ test('the decisions and capabilities the activity waits on: D1-D7 and M1-M5 and 
     const named = new Set([...a01().manipulations.flatMap(m => m.gaps), ...a01().provisionalChoices!.flatMap(c => c.gaps)])
     // D6 is named by no entry since 15 October 2026 (stage K4): his D6 of 17 October and his 18 October answers are carried by
     // the provisional realization's counts by role; its definition stays, as M7's does, so the record keeps what it asked.
-    assert.deepEqual([...named].sort(), ['D1', 'D2', 'D3', 'D4', 'D5', 'D7', 'M1', 'M2', 'M3', 'M4', 'M5'])
+    // D1, D5, M3 and M4 are named by no entry since 15 October 2026 (stage K5): his D1/D5 decisions and the M3/M4 capabilities
+    // are carried by A01-R1's transitions; their definitions stay, as D6's and M7's do.
+    assert.deepEqual([...named].sort(), ['D2', 'D3', 'D4', 'D7', 'M1', 'M2', 'M5'])
     const known = a01().existingKnowledge!
     const origin = known.find(entry => entry.what === 'The origin of a build-out needs no further value.')!
     assert.ok(origin.sources.includes('ruling C55') && origin.note!.includes('RPC-001-18.a::V6') && origin.note!.includes('capability M6'))
@@ -297,7 +305,11 @@ test('what existing knowledge already authorizes, every source resolving to the 
     const known = a01().existingKnowledge!
     // 10 -> 12 on 15 October 2026 (stage K1): the origin needing no further value (C55) and the two referents judged
     // against the target the scoring team attacks (C57), each built from his 17 October M6 / M8 approvals.
-    assert.equal(known.length, 12)
+    // 12 -> 13 on 15 October 2026 (stage K5): the typed build-out begin condition (C58), on his 18 October acknowledgement.
+    assert.equal(known.length, 13)
+    const begins = known.find(entry => entry.sources.includes('ruling C58'))!
+    assert.ok(begins.note!.includes('"A restart, taken by the goalkeeper or as a controlled defensive restart, that begins a build-out episode."'))
+    assert.ok(begins.note!.includes('The wording of this line is ours.'))
     assert.ok(known.every(entry => entry.category === 'EXISTING_KNOWLEDGE_TO_VERIFY' && entry.sources.length > 0))
     const library = JSON.stringify(rpcLibraryJson)
     const items = new Set(loadCorpusContracts().flatMap(contract => contract.items.map(item => item.itemId)))
@@ -315,7 +327,8 @@ test('what existing knowledge already authorizes, every source resolving to the 
     }
     // 19 -> 23 on 15 October 2026 (stage K1): RPC-001-18.a (C55), and RPC-PROP-132 with C57's two referent items
     // RPC-001-18.h and 19.c — live in the loaded corpus, added by the ruling, never in contracts.json.
-    assert.equal(checked, 23, 'every library id and contract item cited is checked')
+    // 23 -> 25 on 15 October 2026 (stage K5): RPC-PROP-132 and RPC-001-18.b (restated by C58), cited by the begin condition.
+    assert.equal(checked, 25, 'every library id and contract item cited is checked')
     /**
      * **Added at the stage H3 review, 15 October 2026: the specification decisions too, and what the one about the
      * session says.** The session entry cited SD-33, which exists — it is the engine's report-only rule — but says
@@ -371,20 +384,20 @@ test('neededRecordGaps: the six parts of the activity not in place, each with wh
     const needed = neededRecordGaps(a01())
     // Eight -> six on 15 October 2026 (stage K4): 'defensive numbers' and 'overloads' (both D6) are carried by the
     // provisional realization's counts by role, and 'goalkeeper positioning' waits on M3 alone (it read D6, M2, M3).
+    // Six -> three on 15 October 2026 (stage K5): where the building team starts and the goalkeeper's part (both M3) and the
+    // episodes and restarts (D1, D5, M3, M4) are carried by A01-R1's transitions. What remains is stage K6's (D3, D4/M5) and
+    // the asymmetric-structure entry, which still names D2, D7, M1 and M2 though M1/M2 were built and D2 is answered (a stale
+    // entry the K4 review flagged for the lead; left as recorded).
     assert.deepEqual(needed.map(gap => [gap.from, gap.status, gap.gaps.map(named => named.id)]), [
-        ['manipulation', 'MISSING_CAPABILITY', ['M3']],
         ['manipulation', 'MISSING_KNOWLEDGE', ['D4', 'M5']],
         ['manipulation', 'MISSING_KNOWLEDGE', ['D3']],
-        ['manipulation', 'MISSING_CAPABILITY', ['M3']],
         ['provisional choice', 'MISSING_CAPABILITY', ['D2', 'D7', 'M1', 'M2']],
-        ['provisional choice', 'MISSING_CAPABILITY', ['D1', 'D5', 'M3', 'M4']],
     ])
-    assert.deepEqual(needed.slice(0, 3).map(gap => gap.label), [
-        'starting positions — where the team building out starts',
+    assert.deepEqual(needed.slice(0, 2).map(gap => gap.label), [
         "starting positions — the defending team's starting relationship",
         'progression references — where each target sits: the build-out progression target and the post-regain area',
     ])
-    assert.equal(needed[1].gaps[0].description, a01().gaps!.find(gap => gap.id === 'D4')!.description, 'the description is the record\'s')
+    assert.equal(needed[0].gaps[0].description, a01().gaps!.find(gap => gap.id === 'D4')!.description, 'the description is the record\'s')
     // No goal is special: the same entries under another goal's id give the same gaps, and a record with no gap entry
     // (or an evaluated-empty test record with no entries) gives none.
     assert.deepEqual(neededRecordGaps({ ...a01(), learningGoalId: 'TEST-ONLY' }), needed)
@@ -423,7 +436,9 @@ test('authorizationLists: authorized by existing knowledge, his provisional choi
     // Re-pointed 15 October 2026 (stage K4): D6 is needed by no entry now (it was needed by 'defensive numbers', 'goalkeeper
     // positioning' and 'overloads'); M3 is needed by the goalkeeper entry among others.
     assert.deepEqual(lists.gaps.find(gap => gap.id === 'D6')!.neededBy, [])
-    assert.ok(lists.gaps.find(gap => gap.id === 'M3')!.neededBy.includes('goalkeeper positioning'))
+    // Re-pointed 15 October 2026 (stage K5): M3 is needed by no entry now (it was needed by the two starting entries and the
+    // episodes-and-restarts choice), and neither are D1, D5 or M4.
+    for (const id of ['M3', 'M4', 'D1', 'D5']) assert.deepEqual(lists.gaps.find(gap => gap.id === id)!.neededBy, [], id)
     // Re-pointed 15 October 2026 (stage K1) from M8, which left the gaps when it was built (C57).
     assert.deepEqual(lists.gaps.find(gap => gap.id === 'M7')!.neededBy, [], 'the conditional capability waits on no entry here')
     const accounted = new Set([...lists.authorizedByExistingKnowledge, ...lists.provisionalChoices].map(entry => entry.label).concat(lists.gaps.flatMap(gap => gap.neededBy)))

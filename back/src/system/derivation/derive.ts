@@ -656,6 +656,7 @@ function mayBeOpen(
     cls: ElementClass | undefined,
     referenced: Set<string>,
     relational: Set<string>,
+    itemsById: Map<string, any> = new Map(),
 ): { authority: string; choiceSpace: string } | null {
     const row = line.row
     const choiceSpace = index.fillable.get(row)
@@ -663,6 +664,47 @@ function mayBeOpen(
     if (record.session) return null // the session resolved it; a resolved line is not a free one
     if (record.entailing.length > 0) return null
     if (record.standingDecisions.length > 0) return null
+
+    /**
+     * **A choice space for some elements only is open for those elements only** — register version 12, 15 October 2026. T2's
+     * fillable text has said "only which team starts, for trigger START" since 21 September, and nothing read the restriction:
+     * once a SCORE element's play state resolved, its awardee opened as a free choice over the game form's and the context's
+     * NOT_AUTHORED declarations (measured by the design verification of 17 October), an after-score rule nobody
+     * authored. Read from the register (`fillableWhen`): the element's own selector must fix the attribute to a listed value.
+     * It can only close lines.
+     */
+    const when = index.fillableWhen.get(row)
+    if (when) {
+        const term = cls?.constraints.terms.find(t => t.attribute === when.selectorAttribute && t.op === '=')
+        if (!term || term.op !== '=' || !when.in.includes(String(term.value))) return null
+    }
+
+    /**
+     * **A coach's choice opens only on the bounds the register names for it** — register version 12, 15 October 2026. Christian,
+     * reply filed 17 October 2026, M3 (register T4 `fillableAuthority`, where his sentence is quoted whole): *"coach-selected
+     * restart locations, and activity-specific restart methods. These choices must remain distinguishable from universal
+     * requirements."* Where the row
+     * says (`fillableRequires`), EVERY item bounding the line must carry one of the listed requirements and bases and give a bound
+     * of the listed kind, and there must be at least one: silence never opens the line, and an assumed, engine-only, positioned
+     * or preferred bound never does either (the bare word "authored" in the fillable text was measured opening a goal-kick
+     * location to an ASSUMED "own end"). Open, it closes as COACH_DECIDES (realize.ts `closureOf`).
+     */
+    const requires = index.fillableRequires.get(row)
+    if (requires) {
+        if (!record.bounding.length) return null
+        const qualifies = record.bounding.every(entry => {
+            const item = itemsById.get(`${entry.item.contractId}:${entry.item.itemId}`)
+            return (
+                !!item &&
+                requires.requirement.includes(String(item.requirement)) &&
+                requires.basis.includes(String(item.basis)) &&
+                entry.bound.kind === requires.bound &&
+                !entry.bound.preferred &&
+                !entry.bound.forbidden
+            )
+        })
+        if (!qualifies) return null
+    }
 
     // **AM-04, narrowed on his ruling of 29 September.** It had been a per-row veto: one `UNDECLARED`
     // declaration anywhere on the row barred openness for every element on it, which let one object's
@@ -912,6 +954,10 @@ export function deriveLines(
 
     applySession(lines, derived, index, envelope || {}, stopped)
 
+    // Register version 12: a game-level row another line entails takes that line's entailed value (the initial holder of
+    // possession, from the start's awardee). After the items, displacement and the session, before anything reads a value.
+    applyEntailedBy(lines, derived, classes, index)
+
     // Restricted computation 3 — the monotone closure over citable standing decisions. It may only add
     // support that the decision already carries, so it terminates and its order cannot matter.
     let changed = true
@@ -939,7 +985,7 @@ export function deriveLines(
         record.entailing.sort((a, b) => `${a.item.contractId}:${a.item.itemId}`.localeCompare(`${b.item.contractId}:${b.item.itemId}`))
         record.bounding.sort((a, b) => `${a.item.contractId}:${a.item.itemId}`.localeCompare(`${b.item.contractId}:${b.item.itemId}`))
         record.standingDecisions.sort()
-        record.open = mayBeOpen(line, index, record, declarations, envelope, stopped, line.elementId ? byClass.get(line.elementId) : undefined, referenced, relational)
+        record.open = mayBeOpen(line, index, record, declarations, envelope, stopped, line.elementId ? byClass.get(line.elementId) : undefined, referenced, relational, itemsById)
     }
 
     return {
@@ -947,6 +993,40 @@ export function deriveLines(
         undeterminedReaches: undeterminedReaches.sort((a, b) => a.classId.localeCompare(b.classId)),
         stopped: [...new Map(stopped.map(s => [s.where + s.why, s])).values()].sort((a, b) => a.where.localeCompare(b.where)),
         diagnostics: diagnostics.sort((a, b) => `:`.localeCompare(`:`)),
+    }
+}
+
+/**
+ * **A game-level row takes the value another line ENTAILS, where the register says so** — register version 12, 15 October
+ * 2026 (`EntailedBy`). The initial holder of possession's own note: *"Its INITIAL value is a governed realization choice over
+ * the established teams unless selected knowledge says otherwise"* and *"START begins an episode and requires the
+ * initial-possession choice."* Where the game holds exactly one element the rule names, and the named line on it is entailed
+ * — every entailing item agreeing, and the line applying (its governing line, where the register makes it conditional,
+ * entailed to a value it applies for) — the row is entailed with the same value and the same support. Nothing is chosen and
+ * nothing defaulted: a line that is open, gapped, colliding or conditional on an open choice entails nothing here, and the
+ * row stays exactly what it was (the governed choice SD-39 carries). Measured 15 October 2026: no game but Play Out from the
+ * Back's holds a start element at all, so no other line moves.
+ */
+function applyEntailedBy(lines: ResolutionLine[], derived: Map<string, DerivedLine>, classes: ElementClass[], index: RegisterIndex): void {
+    for (const [rowId, rule] of index.entailedBy) {
+        for (const line of lines) {
+            if (line.row !== rowId || line.elementId) continue
+            const record = derived.get(line.lineId)
+            if (!record || record.session || record.entailing.length) continue
+            const sources = classes.filter(c => c.row === rule.collectionRow && c.constraints.terms.some(t => t.attribute === rule.selectorAttribute && t.op === '=' && t.value === rule.value))
+            if (sources.length !== 1) continue
+            const source = derived.get(`${sources[0].classId}::${rule.row}`)
+            if (!source || !source.entailing.length) continue
+            if (new Set(source.entailing.map(entry => JSON.stringify(entry.value))).size !== 1) continue
+            const condition = index.applicability.get(rule.row)
+            if (condition?.row) {
+                const governing = derived.get(`${sources[0].classId}::${condition.row}`)
+                const values = [...new Set((governing?.entailing ?? []).map(entry => String(entry.value)))]
+                const admitted = ((condition as { in?: unknown[] }).in ?? []).map(String)
+                if (values.length !== 1 || !admitted.includes(values[0])) continue
+            }
+            record.entailing.push(...source.entailing.map(entry => ({ item: { ...entry.item }, value: entry.value, support: { ...entry.support } })))
+        }
     }
 }
 

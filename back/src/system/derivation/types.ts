@@ -471,6 +471,33 @@ export interface RelationalReferent {
     asAuthored?: string
 }
 
+/**
+ * **A begin-condition referent (register V5 valueType, version 3): the restarts that begin a build-out episode** — 15
+ * October 2026, stage K5, ruling C58. His words, reply filed 18 October 2026, item 4, acknowledging the begin condition's
+ * wording (quoted whole in ruling C58, corpus-restatements.json): *"This provides the checkable event distinction needed to
+ * separate deliberate build-out starts from ordinary restarts."*
+ *
+ * A condition's referent written this way names no element and no place: it designates the transitions of the game that
+ * are such a restart — stopping and restarting play (T6 STOP_RESUME), beginning an episode (T7 true), and meeting one of
+ * the `arms` (a taker the restart is taken by, T3; or a restart kind). `GA-EPISODE-REACHABLE` decides which transitions
+ * meet it (gates.ts `buildOutStarters`), so no ordinary restart is ever read as a deliberate build-out start. Only a ruled
+ * restatement writes one (C58); it is never inferred from prose.
+ */
+export interface BeginConditionReferent {
+    beginsEpisodeOf: string
+    arms: ({ takenBy: string } | { restartKind: string })[]
+    asAuthored?: string
+}
+
+/** Recognised in one place, beside `relationalReferentOf`, so derivation and the gates agree on what counts. */
+export function beginConditionReferentOf(value: unknown): BeginConditionReferent | null {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return null
+    const v = value as any
+    if (typeof v.beginsEpisodeOf !== 'string' || !Array.isArray(v.arms) || !v.arms.length || v.structuralRef || v.objectiveReferenceOf) return null
+    const wellFormed = v.arms.every((arm: any) => arm && typeof arm === 'object' && (typeof arm.takenBy === 'string') !== (typeof arm.restartKind === 'string'))
+    return wellFormed ? (v as BeginConditionReferent) : null
+}
+
 /** Recognised in one place, beside `structuralRefOf`, so derivation and the gates agree on what counts. */
 export function relationalReferentOf(value: unknown): RelationalReferent | null {
     if (!value || typeof value !== 'object') return null

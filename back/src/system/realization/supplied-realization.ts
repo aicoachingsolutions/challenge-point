@@ -61,6 +61,12 @@ export interface SuppliedRealization {
      * 2026, stage K2): the line, the file replaced and the file replacing it, the two values, and the replacing reason.
      */
     replaced: { lineId: string; replacedFrom: string; by: string; replacedValue: unknown; value: unknown; because: string }[]
+    /**
+     * Each line whose game-form entry a record-named provisional realization WITHDREW, by declaration (15 October 2026, stage
+     * K5): the realization's own knowledge settles the line, so it is not the game form's to choose. Carried into the
+     * rendering fixture (`withdrawnChoices`) so the account can show what was set aside and why.
+     */
+    withdrawn: { lineId: string; withdrawnFrom: string; by: string; withdrawnValue: unknown; because: string }[]
 }
 
 /**
@@ -84,7 +90,7 @@ const readKnowledgeFile = (name: string): any => JSON.parse(fs.readFileSync(path
  */
 export function suppliedRealizationFor(selection: KnowledgeSelection, read: (name: string) => any = readKnowledgeFile): SuppliedRealization | NoSuppliedRealization {
     const index = JSON.parse(fs.readFileSync(path.join(AUDITS_DIR, INDEX), 'utf8')).byKnowledgeObject as Record<string, string>
-    const supplied: SuppliedRealization = { choices: [], instantiations: [], satisfiedByEstablished: [], designationBindings: [], from: [], replaced: [] }
+    const supplied: SuppliedRealization = { choices: [], instantiations: [], satisfiedByEstablished: [], designationBindings: [], from: [], replaced: [], withdrawn: [] }
     const conflicts: string[] = []
     // Which file closed each line, so a later entry for the same line is told apart from a declared replacement.
     const closedBy = new Map<string, string>()
@@ -111,11 +117,50 @@ export function suppliedRealizationFor(selection: KnowledgeSelection, read: (nam
     }
 
     const provisional = provisionalRealizationNamed(selection.authorization?.provisionalRealization)
-    if (provisional?.realizationChoices) {
-        const file = provisional.realizationChoices
+    if (provisional?.realizationChoices) conflicts.push(...applyProvisionalChoices(supplied, provisional.realizationChoices, read, closedBy))
+    return conflicts.length ? { missingFor: null, conflicts } : supplied
+}
+
+/**
+ * **For tests, and for nothing that serves a coach** (15 October 2026, stage K5): a provisional realization's choices applied
+ * to an input assembled WITHOUT a goal's record — the composition a mechanism proof builds (`buildActivityFromKnowledge` with
+ * the realization composed in) — by the same rule the record-named path uses, so the proof and the served game can never
+ * read the file differently. Returns the conflicts it found; the input is changed in place, as `alterSupplied` lends it.
+ */
+export function withProvisionalRealizationChoices(supplied: SuppliedRealization, provisionalId: string, read: (name: string) => any = readKnowledgeFile): string[] {
+    const closedBy = new Map<string, string>()
+    for (const file of supplied.from) for (const choice of (read(file).choices ?? []) as Choice[]) if (!closedBy.has(choice.lineId)) closedBy.set(choice.lineId, file)
+    const provisional = provisionalRealizationNamed(provisionalId)
+    return provisional?.realizationChoices ? applyProvisionalChoices(supplied, provisional.realizationChoices, read, closedBy) : []
+}
+
+/**
+ * One provisional realization's choices, applied: each entry closes a line, replaces another file's entry by declaration
+ * (stage K2), or — stage K5, 15 October 2026 — WITHDRAWS another file's entry by declaration, for a line the realization's
+ * own knowledge settles so that it is no longer the game form's to choose. The one withdrawal today is the possession game's
+ * choice of the initial holder of possession, which the start's awardee entails in Play Out from the Back's activity
+ * (register version 12, `entailedBy`): left in, realization would refuse a choice for a line that is not open. A withdrawal
+ * carries no value, names the file whose entry it withdraws, and is refused where that file has no entry for the line in this
+ * game; every withdrawal is recorded (`withdrawn`). Returns the conflicts; nothing is ever settled by order.
+ */
+function applyProvisionalChoices(supplied: SuppliedRealization, file: string, read: (name: string) => any, closedBy: Map<string, string>): string[] {
+    const conflicts: string[] = []
+    {
         const contents = read(file)
-        for (const choice of (contents.choices ?? []) as (Choice & { replaces?: unknown })[]) {
+        for (const choice of (contents.choices ?? []) as (Choice & { replaces?: unknown; withdraws?: unknown })[]) {
             const earlier = closedBy.get(choice.lineId)
+            if (choice.withdraws !== undefined) {
+                const named = String(choice.withdraws)
+                if (choice.replaces !== undefined || (choice as { value?: unknown }).value !== undefined) conflicts.push(`${file}'s entry for ${choice.lineId} withdraws ${named}'s and also gives a value or a replacement; a withdrawal says only that the line is not the other file's to close`)
+                else if (named === file || !earlier || earlier !== named) conflicts.push(`${file} withdraws ${named}'s entry for ${choice.lineId}, and ${earlier ? `the line is closed by ${earlier}` : `${named} has no entry for that line in this game`}`)
+                else {
+                    const at = supplied.choices.findIndex(existing => existing.lineId === choice.lineId)
+                    const [withdrawnChoice] = supplied.choices.splice(at, 1)
+                    supplied.withdrawn.push({ lineId: choice.lineId, withdrawnFrom: named, by: file, withdrawnValue: withdrawnChoice.value, because: choice.because })
+                    closedBy.delete(choice.lineId)
+                }
+                continue
+            }
             const declared = choice.replaces === undefined ? null : String(choice.replaces)
             // K2 review, 15 October 2026: a replacement is of ANOTHER file's entry. Two entries of this file for one line,
             // the later declaring `replaces` with this file's own name, were otherwise settled by order.
@@ -152,5 +197,5 @@ export function suppliedRealizationFor(selection: KnowledgeSelection, read: (nam
         supplied.designationBindings.push(...(contents.designationBindings ?? []))
         supplied.from.push(file)
     }
-    return conflicts.length ? { missingFor: null, conflicts } : supplied
+    return conflicts
 }

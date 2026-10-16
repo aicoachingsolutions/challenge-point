@@ -86,8 +86,10 @@ test('one home: the file loads, A01-R1 is labelled his provisional choice, and o
     // Empty at landing (stage K2). 0 -> 3 items on 15 October 2026 (stage K3): his D2(a)/M1 role blocks — the two roles and
     // how they pass between the teams — pinned item by item in role-blocks.unit.ts. Still no declaration. 3 -> 10 on 15
     // October 2026 (stage K4): his D6 counts by role (P2 x2), the building role's keeper (P3) and his 18 October RD-1
-    // answer as two reassignments with their counts (B4 x2, B7 x2) — pinned item by item in allocation.unit.ts.
-    assert.deepEqual([realization.provisionalId, realization.contractId, realization.category, realization.realizes, realization.items.length, realization.declarations.length], ['A01-R1', 'provisional:A01-R1', PROVISIONAL_REALIZATION_CHOICE, 'RPC-001', 10, 0])
+    // answer as two reassignments with their counts (B4 x2, B7 x2) — pinned item by item in allocation.unit.ts. 10 -> 34 on 15
+    // October 2026 (stage K5): his D1/D5/M3/M4 start, after-score and coach-conclusion transitions and his 18 October RD-2
+    // ordinary restarts (24 items on rows T1-T7) — pinned in starts-and-restarts.unit.ts.
+    assert.deepEqual([realization.provisionalId, realization.contractId, realization.category, realization.realizes, realization.items.length, realization.declarations.length], ['A01-R1', 'provisional:A01-R1', PROVISIONAL_REALIZATION_CHOICE, 'RPC-001', 34, 0])
     assert.equal(realization.realizationChoices, 'realization-choices-a01-r1.json')
     assert.ok(realization.words.includes('The priority remains producing one complete, representative Play Out from the Back activity through the normal generation pathway, without introducing unnecessary architecture or treating this first realization as the canonical version of the Learning Goal.'))
     const naming = learningGoalAuthorizations().filter(record => record.provisionalRealization).map(record => [record.learningGoalId, record.provisionalRealization])
@@ -172,8 +174,17 @@ test('the realization moves exactly what its items establish — the role lines 
     assert.ok(!isStampedHalt(named) && !isStampedHalt(unnamed))
     const lines = (result: any) => result.resolution.map((e: any) => `${e.lineId}|${e.state}|${e.verdict ?? ''}|${e.reason ?? ''}|${JSON.stringify(e.value ?? null)}`)
     const own = (line: string) => line.startsWith('c:provisional:A01-R1:')
-    assert.deepEqual(lines(named).filter((line: string) => !own(line)), lines(unnamed))
-    assert.deepEqual(lines(named).filter(own), [
+    // **15 October 2026 (stage K5): one line outside its own moves, by an engine rule, and is pinned.** The opening holder of
+    // possession is entailed by the start's awardee (register version 12, PS1 entailedBy), so naming the realization moves
+    // game::PS1 from the governed open choice to the realization's awardee. Every other line is as it was.
+    const ps1 = (line: string) => line.startsWith('game::PS1|')
+    assert.deepEqual(lines(named).filter((line: string) => !own(line) && !ps1(line)), lines(unnamed).filter((line: string) => !ps1(line)))
+    assert.deepEqual(lines(unnamed).filter(ps1), ['game::PS1|open|FREE(a)||null'])
+    assert.deepEqual(lines(named).filter(ps1), ['game::PS1|derived|RESOLVED:ENTAILED||"ROLE_HOLDER_BUILDING"'])
+    // Its transitions (stage K5, 63 lines on rows T1a-T7 of eight elements) are pinned in starts-and-restarts.unit.ts.
+    const transition = (line: string) => line.startsWith('c:provisional:A01-R1:A01-R1-T')
+    assert.equal(lines(named).filter(transition).length, 63)
+    assert.deepEqual(lines(named).filter((line: string) => own(line) && !transition(line)), [
         'c:provisional:A01-R1:A01-R1-B1-1::B2|derived|RESOLVED:ENTAILED||"BUILDING"',
         'c:provisional:A01-R1:A01-R1-B1-2::B2|derived|RESOLVED:ENTAILED||"PRESSING"',
         'c:provisional:A01-R1:A01-R1-B1-1::B3|derived|RESOLVED:ENTAILED||"COACH_CALLS"',
@@ -188,9 +199,16 @@ test('the realization moves exactly what its items establish — the role lines 
         'c:provisional:A01-R1:A01-R1-B4-1::B7|derived|RESOLVED:ENTAILED||1',
         'c:provisional:A01-R1:A01-R1-B4-2::B7|derived|RESOLVED:ENTAILED||1',
     ])
+    // Two checks move since stage K5, both by what the transitions establish: the build-out episode can begin (C58), and the
+    // coach's restart locations are owed to realization.
+    const moved = (result: any) => result.gates.gateA.checks.map((c: any) => `${c.checkId}|${c.verdict}`)
     assert.deepEqual(
-        named.gates.gateA.checks.map((c: any) => `${c.checkId}|${c.verdict}`),
-        unnamed.gates.gateA.checks.map((c: any) => `${c.checkId}|${c.verdict}`),
+        moved(named).filter((x: string, i: number) => x !== moved(unnamed)[i]),
+        ['GA-EPISODE-REACHABLE|PASS', 'GA-TRANSITION-COHERENCE|DEFERRED_TO_REALIZATION'],
+    )
+    assert.deepEqual(
+        moved(unnamed).filter((x: string, i: number) => x !== moved(named)[i]),
+        ['GA-EPISODE-REACHABLE|FAIL', 'GA-TRANSITION-COHERENCE|PASS'],
     )
     assert.deepEqual(
         named.versions.objects.map((o: any) => o.id).filter((id: string) => !unnamed.versions.objects.some((u: any) => u.id === id)),
@@ -262,11 +280,17 @@ const theTargetEntries = (name: string, contents: any) => {
     )
 }
 
-test('production: A01 reads the game form\'s file, the context\'s and its realization\'s, which is empty at landing and replaces nothing', () => {
+test('production: A01 reads the game form\'s file, the context\'s and its realization\'s, which replaces nothing', () => {
     const supplied: any = suppliedRealizationFor(selectFor('A01', null))
     assert.deepEqual(supplied.from, ['a04-realization-choices.json', 'realization-choices-rpc-001.json', OURS])
     assert.deepEqual(supplied.replaced, [])
-    assert.deepEqual(JSON.parse(fs.readFileSync(path.join(AUDITS_DIR, OURS), 'utf8')).choices, [], 'no value is written before RD-3')
+    // Re-pointed 15 October 2026 (stage K5): the file is no longer empty — it holds the seven COACH_DECIDES stand-ins of the
+    // coach's restart locations and end-line method, and the withdrawal of the game form's initial-holder choice (pinned in
+    // starts-and-restarts.unit.ts). What this pinned still holds: no depth, position or target value (RD-3, stage K6), and
+    // nothing replaces a game-form entry.
+    const choices = JSON.parse(fs.readFileSync(path.join(AUDITS_DIR, OURS), 'utf8')).choices
+    assert.ok(choices.every((c: any) => c.withdraws || (typeof c.value?.coachDecides === 'string' && /::T[45]$/.test(c.lineId))), 'no depth, position or target value before RD-3')
+    assert.deepEqual(supplied.withdrawn.map((w: any) => [w.lineId, w.withdrawnFrom]), [['game::PS1', 'a04-realization-choices.json']])
 })
 
 test('the realization\'s choices replace the game form\'s only by declaration; the replacements are recorded and the rest is carried', () => {
@@ -284,8 +308,11 @@ test('the realization\'s choices replace the game form\'s only by declaration; t
     // One answer per line, the replacing one keeping its declaration and category into the realization record.
     assert.equal(new Set(supplied.choices.map((c: any) => c.lineId)).size, supplied.choices.length)
     assert.ok(supplied.choices.filter((c: any) => c.replaces).every((c: any) => c.category === PROVISIONAL_REALIZATION_CHOICE))
-    // Carried: the game form's initial possession holder, its two team instantiations (GF2-14.a), its end bindings, the ball.
-    assert.ok(supplied.choices.some((c: any) => c.lineId === 'game::PS1'))
+    // Carried: the game form's two team instantiations (GF2-14.a), its end bindings, the ball. (Its initial possession holder
+    // was carried too until 15 October 2026, stage K5: the realization withdraws it by declaration, the start's awardee
+    // entailing the line — pinned in starts-and-restarts.unit.ts.)
+    assert.ok(!supplied.choices.some((c: any) => c.lineId === 'game::PS1'))
+    assert.deepEqual(supplied.withdrawn.map((w: any) => w.lineId), ['game::PS1'])
     assert.deepEqual(supplied.instantiations.map((i: any) => i.classId), ['c:restated:GF2:GF2-14.a', 'c:restated:GF2:GF2-14.a'])
     assert.equal(supplied.designationBindings.length, 2)
     assert.equal(supplied.satisfiedByEstablished.length, 1)
@@ -307,9 +334,12 @@ test('a second answer to one line, or a replacement nobody can trace, refuses th
         assert.equal(supplied.missingFor, null)
         return supplied.conflicts
     }
-    assert.ok(conflicts((name, contents) => name === OURS && delete contents.choices[2].replaces).some(c => c.includes(`both a04-realization-choices.json and ${OURS} close game::V1`)))
+    // Re-pointed 15 October 2026 (stage K5): the file holds entries of its own before the TEST-ONLY target entries now, so each
+    // is found by its line rather than by position.
+    const entry = (contents: any, lineId: string) => contents.choices.find((c: any) => c.lineId === lineId)
+    assert.ok(conflicts((name, contents) => name === OURS && delete entry(contents, 'game::V1').replaces).some(c => c.includes(`both a04-realization-choices.json and ${OURS} close game::V1`)))
     assert.ok(conflicts((name, contents) => name === OURS && contents.choices.push({ lineId: 'game::E4', value: 1, replaces: 'a04-realization-choices.json', because: 'TEST-ONLY' })).some(c => c.includes('has no entry for that line')))
-    assert.ok(conflicts((name, contents) => name === OURS && (contents.choices[0].replaces = 'realization-choices-rpc-001.json')).some(c => c.includes('and the line is closed by a04-realization-choices.json')))
+    assert.ok(conflicts((name, contents) => name === OURS && (entry(contents, 'c:restated:GF2:GF2-03.e::S3').replaces = 'realization-choices-rpc-001.json')).some(c => c.includes('and the line is closed by a04-realization-choices.json')))
     assert.ok(conflicts((name, contents) => name === 'a04-realization-choices.json' && (contents.choices[0].replaces = 'x')).some(c => c.includes('only a provisional realization')))
     assert.ok(conflicts((name, contents) => name === OURS && contents.instantiations.push({ classId: 'c:restated:GF2:GF2-14.a', member: {}, because: 'TEST-ONLY' })).some(c => c.includes('members are never doubled')))
     // K2 review, 15 October 2026: the realization's file may not replace ITS OWN entry. Two entries of one file for one

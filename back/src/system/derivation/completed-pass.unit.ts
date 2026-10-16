@@ -47,10 +47,14 @@ const index = indexRegister(register)
 // ── Registered, and the vocabulary is versioned as the register requires ──────────────────────────
 test('COMPLETED_PASS is a registered trigger, and the vocabulary version records why', () => {
     assert.ok(index.vocabularies.get('trigger')!.includes('COMPLETED_PASS'), 'it is in the closed list')
-    assert.equal(index.vocabularies.get('trigger')!.length, 10, 'one member added, not several')
+    // 10 -> 11 and version 3 -> 4 on 15 October 2026 (stage K5): COACH_JUDGED_EPISODE_CONCLUSION, his M4 of 17 October,
+    // is the next member (pinned in starts-and-restarts.unit.ts). COMPLETED_PASS was the one member version 3 added, and
+    // version 4's entry keeps saying so.
+    assert.equal(index.vocabularies.get('trigger')!.length, 11, 'one member added, not several, by each version')
+    assert.equal(index.vocabularies.get('trigger')!.indexOf('COMPLETED_PASS'), 9)
     const version = String(register.vocabularies.versions.trigger)
-    assert.match(version, /^3 /, 'the version is bumped, so a stored result can be known stale')
-    assert.match(version, /COMPLETED_PASS/, version)
+    assert.match(version, /^4 /, 'the version is bumped, so a stored result can be known stale')
+    assert.match(version, /Version 3, 2026-10-04: adds COMPLETED_PASS/, version)
 })
 
 // ── The semantics entry carries the ruling, and the whole of the meaning is completion ─────────────
@@ -246,9 +250,17 @@ test('registering the member changed no verdict in any of the thirteen goals', (
      * lines are derived. (The origin's value line, C55 — his 9.9 — stays unauthored: it now needs no further value,
      * an established absence, still counted here as a line with no value.) Gate A stays FAIL: GA-EPISODE-REACHABLE.
      */
+    /**
+     * **12 · 15 October, stage K5 — A01's Gate A FAIL → NOT_EVALUABLE, measured; no failed line moves.** Its selection carries
+     * the provisional realization A01-R1 (its record names it), whose start, after-score and coach-judged restarts begin the
+     * build-out episode under the begin condition ruling C58 types (his 18 October item 4), so GA-EPISODE-REACHABLE no longer
+     * fails; what remains unevaluable is the progression reference (RPC-001-18.d, open text — stage K6). Derived here with no
+     * role block, as this table always derived, so the block-scoped awardees are not resolved; in its blocks see
+     * starts-and-restarts.unit.ts. The old composition carries no realization and keeps its FAIL.
+     */
     const A01_COMPOSITION = { failed: 11, gateA: 'FAIL', reachable: true }
     const expected: Record<string, { failed: number; gateA: string; reachable: boolean }> = {
-        A01: { failed: 10, gateA: 'FAIL', reachable: true },
+        A01: { failed: 10, gateA: 'NOT_EVALUABLE', reachable: true },
         D01: { failed: 8, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
         TA01: { failed: 15, gateA: 'FAIL', reachable: false },
         TD01: { failed: 14, gateA: 'FAIL', reachable: false },

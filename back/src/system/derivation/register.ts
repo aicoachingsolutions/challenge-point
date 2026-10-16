@@ -32,8 +32,46 @@ export interface RegisterRow {
     fillable?: string
     /** The collection whose members are this row's choice space, where the row's value is a reference to one. */
     fillableFrom?: string
+    /** What every item bounding the line must be for the line to open (register version 12; `FillableRequirement`). */
+    fillableRequires?: FillableRequirement
+    /** The elements of the owning collection the choice space is for, by a selector attribute (register version 12). */
+    fillableWhen?: { selectorAttribute: string; in: string[] }
+    /** The line on one element whose entailed value this game-level row takes, where the knowledge entails it (register version 12). */
+    entailedBy?: EntailedBy
     outerBound?: string
     sourceKinds?: string[]
+}
+
+/**
+ * **What may open a coach's choice on a row — register version 12, 15 October 2026.** Christian, reply filed 17 October
+ * 2026, M3 (quoted whole in the register's T4 `fillableAuthority`): *"coach-selected restart locations, and activity-specific
+ * restart methods. These choices must remain distinguishable from universal requirements."*
+ *
+ * A row's `fillable` text says in words what may fill it; where the choice is the coach's (SD-15: a term in words is a
+ * coach's judgement), this says, as data, which bounds may open it: EVERY item bounding the line must have one of these
+ * requirements and bases and give a bound of this kind. So silence never opens the line, and neither does an assumed,
+ * engine-only or positioned bound — the design verification of 17 October measured the bare word "authored" in the
+ * fillable text opening a goal-kick location to an ASSUMED "own end".
+ */
+export interface FillableRequirement {
+    requirement: string[]
+    bound: 'QUALITATIVE'
+    basis: string[]
+}
+
+/**
+ * **A game-level row whose value another line entails — register version 12, 15 October 2026.** The initial possession
+ * holder's own note: *"Its INITIAL value is a governed realization choice over the established teams unless selected
+ * knowledge says otherwise"* and *"START begins an episode and requires the initial-possession choice."* Where the game holds
+ * exactly one element of `collectionRow` whose selector fixes `selectorAttribute` to `value`, and that element's `row` line is
+ * entailed, the knowledge has said otherwise: the row takes that line's entailed value and support (derive.ts
+ * `applyEntailedBy`). Never a choice and never a default; where the source is absent, open or unentailed, nothing changes.
+ */
+export interface EntailedBy {
+    collectionRow: string
+    selectorAttribute: string
+    value: string
+    row: string
 }
 
 /**
@@ -278,6 +316,15 @@ export interface RegisterIndex {
      * gates. Realization now requires the value to be a member of the collection named here.
      */
     fillableFrom: Map<string, string>
+    /** Row id → what every bounding item must be for the line to open (register version 12, his M3). */
+    fillableRequires: Map<string, FillableRequirement>
+    /**
+     * Row id → the elements its choice space is for, by the owning collection's selector attribute (register version 12).
+     * T2's fillable text has always said "for trigger START"; until this nothing read it.
+     */
+    fillableWhen: Map<string, { selectorAttribute: string; in: string[] }>
+    /** Game-level row id → the element line whose entailed value it takes (register version 12; `EntailedBy`). */
+    entailedBy: Map<string, EntailedBy>
     /** Row id -> the authoritative structure that supplies its OUTER bound, where one does. */
     outerBound: Map<string, string>
     /** RC-21 relative spatial terms: prose test, machine-readable form and phrase index, all canonical. */
@@ -453,6 +500,51 @@ export function indexRegister(register: any): RegisterIndex {
     }
     const contractEnums: Record<string, string[]> = (vocabBlock.contractEnums as any) || {}
 
+    /**
+     * **Which bounds may open a coach's choice, and for which elements — register version 12 (his M3), validated as the rest
+     * of the register is (halt H1).** A requirement, basis or bound kind outside the closed lists, a restriction on a row
+     * with no choice space, or one naming an attribute the owning collection does not carry would each let a line open on
+     * something the register does not say.
+     */
+    const fillableRequires = new Map<string, FillableRequirement>()
+    const fillableWhen = new Map<string, { selectorAttribute: string; in: string[] }>()
+    for (const row of rows.values()) {
+        if (row.fillableRequires !== undefined) {
+            const raw: any = row.fillableRequires
+            if (!row.fillable) throw new HaltError('H1', `fillableRequires on ${row.id}, which has no fillable choice space`)
+            const requirement = Array.isArray(raw?.requirement) ? raw.requirement.map(String) : []
+            const basis = Array.isArray(raw?.basis) ? raw.basis.map(String) : []
+            if (!requirement.length || requirement.some((r: string) => !(contractEnums.requirement ?? []).includes(r))) throw new HaltError('H1', `fillableRequires on ${row.id} names a requirement outside contractEnums.requirement`)
+            if (!basis.length || basis.some((b: string) => !(contractEnums.basis ?? []).includes(b))) throw new HaltError('H1', `fillableRequires on ${row.id} names a basis outside contractEnums.basis`)
+            if (raw?.bound !== 'QUALITATIVE') throw new HaltError('H1', `fillableRequires on ${row.id} names a bound kind other than QUALITATIVE`)
+            fillableRequires.set(row.id, { requirement, basis, bound: 'QUALITATIVE' })
+        }
+        if (row.fillableWhen !== undefined) {
+            const raw: any = row.fillableWhen
+            if (!row.fillable) throw new HaltError('H1', `fillableWhen on ${row.id}, which has no fillable choice space`)
+            const owner = row.ownerRow ? rows.get(row.ownerRow) : undefined
+            const attribute = String(raw?.selectorAttribute ?? '')
+            if (!owner || !(owner.selectorAttributes ?? []).includes(attribute)) throw new HaltError('H1', `fillableWhen on ${row.id} names ${attribute}, which is not a selector attribute of its owning collection`)
+            const members = Array.isArray(raw?.in) ? raw.in.map(String) : []
+            const vocabulary = vocabularies.get(attribute)
+            if (!members.length || (vocabulary && members.some((m: string) => !vocabulary.includes(m)))) throw new HaltError('H1', `fillableWhen on ${row.id} names no value, or one outside the ${attribute} vocabulary`)
+            fillableWhen.set(row.id, { selectorAttribute: attribute, in: members })
+        }
+    }
+    const entailedBy = new Map<string, EntailedBy>()
+    for (const row of rows.values()) {
+        if (row.entailedBy === undefined) continue
+        const raw: any = row.entailedBy
+        const collection = rows.get(String(raw?.collectionRow ?? ''))
+        const source = rows.get(String(raw?.row ?? ''))
+        if (row.ownerRow) throw new HaltError('H1', `entailedBy on ${row.id}, which is not a game-level row`)
+        if (!collection || collection.kind !== 'COLLECTION' || !(collection.selectorAttributes ?? []).includes(String(raw?.selectorAttribute))) throw new HaltError('H1', `entailedBy on ${row.id} names no collection carrying the selector attribute ${raw?.selectorAttribute}`)
+        if (!source || source.kind !== 'FIELD' || source.ownerRow !== collection.id) throw new HaltError('H1', `entailedBy on ${row.id} names ${raw?.row}, which is not a field of ${collection.id}`)
+        const vocabulary = vocabularies.get(String(raw.selectorAttribute))
+        if (typeof raw?.value !== 'string' || (vocabulary && !vocabulary.includes(raw.value))) throw new HaltError('H1', `entailedBy on ${row.id} names a value outside the ${raw.selectorAttribute} vocabulary`)
+        entailedBy.set(row.id, { collectionRow: collection.id, selectorAttribute: String(raw.selectorAttribute), value: raw.value, row: source.id })
+    }
+
     // A sentinel may never collide with a row id: that is what keeps it outside the representation.
     const sentinels: Record<string, any> = {}
     for (const [key, entry] of Object.entries(register.contractSentinels || {})) {
@@ -481,6 +573,9 @@ export function indexRegister(register: any): RegisterIndex {
         ownerRow,
         fillable,
         fillableFrom,
+        fillableRequires,
+        fillableWhen,
+        entailedBy,
         outerBound,
         relativeTerms: register.relativeTerms || {},
         nounSemantics: (register.vocabularies && register.vocabularies.nounSemantics) || {},

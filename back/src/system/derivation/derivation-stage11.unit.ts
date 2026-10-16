@@ -318,9 +318,12 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
     // 57 -> 58 on 15 October 2026 (stage K4, C56): GF2-14.b carries defersTo AUTHORIZED_REALIZATION, his 17 October D6
     // "please document it as a knowledge-authorized realization, preserving equal numbers as an alternative." GF2-14.b
     // also carries C31b's promotion: one item, two rulings, counted per ruling. Pinned in allocation.unit.ts.
+    // 58 -> 59 on 15 October 2026 (stage K5, C58): RPC-001-18.b's referent typed as the restarts that begin a build-out episode,
+    // his 18 October acknowledgement "A restart, taken by the goalkeeper or as a controlled defensive restart, that begins a
+    // build-out episode." 18.b also carries C52's scope: one item, two rulings. Pinned in starts-and-restarts.unit.ts.
     assert.equal(
         restatementTally.itemsRestated,
-        58,
+        59,
         'six Phase A rulings, six sets (SD-79), two exclusion bounds (SD-86), eight goal-kick selectors (SD-87), one restart ownership (SD-89), ' +
             'one typed reference (SD-98), one Wide Zone gloss (C29a), one DISTINCT_ON mark (C29b/C29e), two typed neutral bounds (C29c), ' +
             'one typed channel width (C30b), one equal-outfield promotion (C31b), three Wide Zone lateral restatements (C33), ' +
@@ -339,7 +342,8 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
             'and, from 55 the same day, the nine build-out condition items scoped to the build-out episode (C52, his 9.3) — ' +
             'and, from 56, RPC-001-18.d recorded as the progression reference, distinct from the pressure reference (C54, his 9.1) — ' +
             'and, from 57, his M8 safeguard beside the long-clearance exclusion, RPC-001-19.b (C57) — ' +
-            'and, from 58, GF2-14.b deferring to a knowledge-authorized realization (C56, his D6)',
+            'and, from 58, GF2-14.b deferring to a knowledge-authorized realization (C56, his D6) — ' +
+            'and, from 59, the build-out origin typed as the restarts that begin a build-out episode (C58, his 18 October item 4)',
     )
     // **4 since ruling C42.** GF2-08.a and GF2-03.a are retired — the shared objective's existence and the
     // target it referenced — so the game holds exactly two objectives and two targets rather than three of each.

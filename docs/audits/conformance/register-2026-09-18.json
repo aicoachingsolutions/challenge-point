@@ -1,7 +1,7 @@
 {
   "title": "Atomic field-path register — Game Representation Specification revision 4",
   "date": "2026-09-18",
-  "version": "11, adds participant reassignment at a role exchange for his answer to RD-1 in the reply filed 18 October 2026 (\"One architectural distinction: role exchange and participant reassignment should remain separate capabilities. Exchanging roles should not inherently require players to change teams. This particular realization uses both mechanisms to preserve its intended numerical relationship.\"), recorded 2026-10-15: rows B4 (reassignments[]), B5 (reassignments[].toRole), B6 (reassignments[].performerRow) and B7 (reassignments[].count), and the reassignment block naming them. A role exchange moves no performer; a reassignment says which performers change team at an exchange, by the row that counts them and how many, to the team newly holding which role. Nothing existing changes: no row, list entry, gloss or note is altered, and a game establishing no reassignment enumerates exactly the lines it did. Supersedes version 10, which adds role blocks for his M1 in the reply filed 17 October 2026 (\"M1 — Role exchange by block: Approved. Keep role assignments separate from fixed ends. Allow target configurations to reflect each team's role during the block. The coach controls the exchange. No new block-duration system is needed.\"), recorded 2026-10-15: rows B1 (activityRoles[]), B2 (activityRoles[].activityRole) and B3 (activityRoles[].exchange, closed list COACH_CALLS); vocabularies B1.activityRole and B3.exchange; the block-scoped designation ROLE_HOLDER_<role> (BLOCK_ROLE, our extension of AM-01); the derived S2 selector attribute targetOf; and the roleBlocks block naming them. Nothing existing changes: no row, list entry, gloss or note is altered, and a game establishing no role enumerates exactly the lines it did. Supersedes version 9, which adds a typed resolution to every team designation (teamDesignations.resolutions, with closed kinds and scopes, the designation-valued selector attributes and the scopes a standing team property may be reached through) for his M2 in the reply filed 17 October 2026, recorded 2026-10-15; each resolution restates its entry's gloss or is marked OUR_INTERPRETATION. Nothing existing changes: no list entry, gloss or note is altered. Supersedes version 8, which added the declaration qualifier vocabulary (contractEnums.declarationQualifier: NO_FURTHER_VALUE, UNRESTRICTED - his M6 three states) and the relational V5 referent form (the objective reference of a team designation - his M8), both approved in his reply filed 17 October 2026, recorded 2026-10-15. Supersedes version 7, which added P6c (performers.neutrals.affiliation.takesEffect: when a neutral player's change of affiliation takes effect, IMMEDIATE or AT_NEXT_RESTART) on the ruling of 2026-10-14. Nothing existing changes: no declaration is requalified, and every existing V5 value reads as before.",
+  "version": "12, adds starts and restarts built from knowledge and the coach-judged episode conclusion for his M3 and M4 in the reply filed 17 October 2026 (\"Support goalkeeper or controlled defensive starts, coach-selected restart locations, and activity-specific restart methods. These choices must remain distinguishable from universal requirements.\" / \"Support one explicit coach-judged event representing the conclusion of a meaningful episode. Do not substitute a timer, possession change, or arbitrary pass count.\"), recorded 2026-10-15: the trigger COACH_JUDGED_EPISODE_CONCLUSION (trigger version 4) with its semantics and a structural prerequisite read generically; the restart method FROM_THE_FEET (T5.method version 2) with its semantics; T4 and T5 fillable as the coach's choice only where every bounding item is an OWNER_RULING or AUTHORED range in words (fillableRequires, an SD-15 extension); T2's existing restriction 'for trigger START' made data (fillableWhen), which can only close lines; PS1 entailed by START's awardee where the knowledge entails it (entailedBy, the row's own note made data); and V5's begin-condition referent form (V5.valueType version 3) for ruling C58, his acknowledgement in the reply filed 18 October 2026, item 4. Nothing else changes: no existing list member, gloss or note is altered. Supersedes version 11, which adds participant reassignment at a role exchange for his answer to RD-1 in the reply filed 18 October 2026 (\"One architectural distinction: role exchange and participant reassignment should remain separate capabilities. Exchanging roles should not inherently require players to change teams. This particular realization uses both mechanisms to preserve its intended numerical relationship.\"), recorded 2026-10-15: rows B4 (reassignments[]), B5 (reassignments[].toRole), B6 (reassignments[].performerRow) and B7 (reassignments[].count), and the reassignment block naming them. A role exchange moves no performer; a reassignment says which performers change team at an exchange, by the row that counts them and how many, to the team newly holding which role. Nothing existing changes: no row, list entry, gloss or note is altered, and a game establishing no reassignment enumerates exactly the lines it did. Supersedes version 10, which adds role blocks for his M1 in the reply filed 17 October 2026 (\"M1 — Role exchange by block: Approved. Keep role assignments separate from fixed ends. Allow target configurations to reflect each team's role during the block. The coach controls the exchange. No new block-duration system is needed.\"), recorded 2026-10-15: rows B1 (activityRoles[]), B2 (activityRoles[].activityRole) and B3 (activityRoles[].exchange, closed list COACH_CALLS); vocabularies B1.activityRole and B3.exchange; the block-scoped designation ROLE_HOLDER_<role> (BLOCK_ROLE, our extension of AM-01); the derived S2 selector attribute targetOf; and the roleBlocks block naming them. Nothing existing changes: no row, list entry, gloss or note is altered, and a game establishing no role enumerates exactly the lines it did. Supersedes version 9, which adds a typed resolution to every team designation (teamDesignations.resolutions, with closed kinds and scopes, the designation-valued selector attributes and the scopes a standing team property may be reached through) for his M2 in the reply filed 17 October 2026, recorded 2026-10-15; each resolution restates its entry's gloss or is marked OUR_INTERPRETATION. Nothing existing changes: no list entry, gloss or note is altered. Supersedes version 8, which added the declaration qualifier vocabulary (contractEnums.declarationQualifier: NO_FURTHER_VALUE, UNRESTRICTED - his M6 three states) and the relational V5 referent form (the objective reference of a team designation - his M8), both approved in his reply filed 17 October 2026, recorded 2026-10-15. Supersedes version 7, which added P6c (performers.neutrals.affiliation.takesEffect: when a neutral player's change of affiliation takes effect, IMMEDIATE or AT_NEXT_RESTART) on the ruling of 2026-10-14. Nothing existing changes: no declaration is requalified, and every existing V5 value reads as before.",
   "source": "docs/design/game-representation-spec-2026-09-18.md §5 (the eight areas), §3 (statuses), §6 (the contract), §2 (standing decisions)",
   "rowKinds": {
     "COLLECTION": "The existence and count of elements in a collection. Items on a COLLECTION row say that elements matching a selector exist (EXISTS), how many (COUNT/RANGE), or that none may (NOT_EXISTS).",
@@ -314,6 +314,13 @@
       "valueType": "a reference to one of the teams the game establishes: the team that currently possesses the ball",
       "fillable": "one of the teams the game establishes",
       "fillableFrom": "performers.teams[]",
+      "entailedBy": {
+        "collectionRow": "T1",
+        "selectorAttribute": "trigger",
+        "value": "START",
+        "row": "T2",
+        "note": "ADDED 15 October 2026 (register version 12): this row's own note, as data the engine reads (derive.ts applyEntailedBy) - \"Its INITIAL value is a governed realization choice over the established teams unless selected knowledge says otherwise\" and \"START begins an episode and requires the initial-possession choice.\" Where the game holds exactly one transition element keyed on START and its awardee (T2) is entailed by the knowledge - and applies, its play state being one T2 applies to - selected knowledge HAS said otherwise: the opening holder of possession is the team the start awards the ball to, entailed with the awardee's own value and support, never chosen. Wherever no start element carries an entailed awardee (every game but one today, measured 15 October 2026), nothing changes and the initial holder stays the governed choice of SD-39. First read for Play Out from the Back's provisional realization, where his D5 (\"The designated building team restarts.\") and D3 (\"the activity's starting and restart structure should mean that the pressing team's normal opportunity to attack that target arises from contesting the build-out\") make the start's awardee the building team in each block; the wording of this note is ours."
+      },
       "fillableAuthority": "SD-39 (ruled 21 September), the authority for OPEN. It applies to this row only because SD-39's own qualification is met independently: \"the property's existence and legitimate choice space must already be supported\". The Sport Profile's bounds-only contribution of 6 October supplies exactly that -- it establishes the possession relationship as legitimate game structure over the participating opposing teams and leaves its initial holder unfixed, so the freedom sits inside a supported property rather than standing in for absent knowledge. Replaces the earlier citation of SD-R2, a REJECTED default (coin-toss own-half start). Its SUBSTANCE survives -- \"which team starts can remain a permitted free choice unless selected knowledge requires otherwise\" -- but, in his words, \"a rejected default cannot be cited as one\". T2 already carries this same correction; PS1 kept the retired citation until now.",
       "sourceKinds": [
         "SELECTION",
@@ -595,6 +602,13 @@
       "valueType": "team designation evaluated at the trigger. N/A when playState is CONTINUE (RC-20)",
       "fillable": "only which team starts, for trigger START",
       "fillableAuthority": "SD-39 (ruled 21 September), where the property and its choice space are independently supported - the START transition exists and two teams exist. Replaces the earlier citation of SD-R2, a rejected default that could not be cited as an authority",
+      "fillableWhen": {
+        "selectorAttribute": "trigger",
+        "in": [
+          "START"
+        ],
+        "note": "ADDED 15 October 2026 (register version 12): the fillable text's own restriction, 'for trigger START', as data the engine reads (derive.ts mayBeOpen). Until then nothing read it, so once any other transition's play state resolved its awardee opened as a free choice too - measured by the design verification of 17 October: a SCORE element's T2 opened as FREE(choice) over the possession game's and Goalkeeper Build-Out's NOT_AUTHORED declarations, an invented after-score rule. A restatement of the text above in a form a check can read; nothing new is authorized, and it can only close lines."
+      },
       "sourceKinds": [
         "SELECTION",
         "REALIZATION"
@@ -617,6 +631,19 @@
       "ownerRow": "T1",
       "kind": "FIELD",
       "valueType": "region reference, or 'where the ball went out'. N/A when CONTINUE",
+      "fillable": "a restart location the coach chooses, where an authored item bounds it by a qualitative condition",
+      "fillableAuthority": "Christian, reply filed 17 October 2026, M3: \"M3 — Starts and restarts built from knowledge: Approved. Support goalkeeper or controlled defensive starts, coach-selected restart locations, and activity-specific restart methods. These choices must remain distinguishable from universal requirements.\" and D5: \"The coach chooses an appropriate restart location consistent with the intended build-out situation.\" An extension of SD-15 (a qualitative term is a coach's judgement, which SD-15 applied to two terms only) to this row, recorded in game-representation-spec-2026-09-18.md as SD-15-T4. Added 15 October 2026 (register version 12).",
+      "fillableRequires": {
+        "requirement": [
+          "RANGE"
+        ],
+        "bound": "QUALITATIVE",
+        "basis": [
+          "OWNER_RULING",
+          "AUTHORED"
+        ],
+        "note": "The line opens only where EVERY item bounding it is a RANGE in words (a qualitative bound) whose basis is his ruling or authored knowledge (derive.ts mayBeOpen): silence never opens it, and neither does an assumed, engine-only, positioned or preferred bound - measured by the design verification of 17 October, the bare word 'authored' in the fillable text would have opened the From Goal Kicks situation's goal-kick location to its ASSUMED 'own end' bound. Open, it closes as COACH_DECIDES (realize.ts closureOf): the recorded value stands in for the coach's decision."
+      },
       "sourceKinds": [
         "SELECTION"
       ]
@@ -626,7 +653,20 @@
       "path": "transitions[].placement.method",
       "ownerRow": "T1",
       "kind": "FIELD",
-      "valueType": "closed list (draft, proposal P-1): STATIONARY_BALL, SERVED, IN_HAND. N/A when CONTINUE",
+      "valueType": "closed list (draft, proposal P-1): STATIONARY_BALL, SERVED, IN_HAND; FROM_THE_FEET added 15 October 2026 (T5.method version 2). N/A when CONTINUE",
+      "fillable": "a restart method the coach chooses, where an authored item bounds it by a qualitative condition",
+      "fillableAuthority": "Christian, reply filed 17 October 2026, M3: \"Support goalkeeper or controlled defensive starts, coach-selected restart locations, and activity-specific restart methods. These choices must remain distinguishable from universal requirements.\" and his reply filed 18 October 2026, item 2: \"End line: coach-selected restart method, using the approved M3 capability.\" The same SD-15 extension as T4 (SD-15-T5). Added 15 October 2026 (register version 12).",
+      "fillableRequires": {
+        "requirement": [
+          "RANGE"
+        ],
+        "bound": "QUALITATIVE",
+        "basis": [
+          "OWNER_RULING",
+          "AUTHORED"
+        ],
+        "note": "As on T4: the line opens only where every item bounding it is a RANGE in words whose basis is his ruling or authored knowledge, and closes as COACH_DECIDES. A method from the closed list is still entailed by an EQUALS item, never chosen."
+      },
       "sourceKinds": [
         "SELECTION"
       ]
@@ -710,7 +750,7 @@
       "path": "value.primaryEvent.conditions[].referents",
       "ownerRow": "V3",
       "kind": "FIELD",
-      "valueType": "references to regions, objects or placements; never a player's position during play. One property per referent. A referent may also be RELATIONAL (version 2, 15 October 2026, M8): {objectiveReferenceOf: D, role: R}, the reference (J2) of each objective the game holds with role R that is attacked by the team D designates (a registered team designation, evaluated at the trigger) - for D = SCORING_TEAM, per team, the target that team attacks. Written only by a ruled restatement (C57), never inferred from prose; an objective whose reference is open text resolves to open text. The phrase 'the objective reference of SCORING_TEAM' is our M8 wording, which Christian approved (17 October: \"M8 — Controlled arrival and long-clearance validation: Approved.\"); it is not his sentence",
+      "valueType": "references to regions, objects or placements; never a player's position during play. One property per referent. A referent may also be RELATIONAL (version 2, 15 October 2026, M8): {objectiveReferenceOf: D, role: R}, the reference (J2) of each objective the game holds with role R that is attacked by the team D designates (a registered team designation, evaluated at the trigger) - for D = SCORING_TEAM, per team, the target that team attacks. Written only by a ruled restatement (C57), never inferred from prose; an objective whose reference is open text resolves to open text. The phrase 'the objective reference of SCORING_TEAM' is our M8 wording, which Christian approved (17 October: \"M8 — Controlled arrival and long-clearance validation: Approved.\"); it is not his sentence. A referent may also be a BEGIN CONDITION (version 3, 15 October 2026, ruling C58): {beginsEpisodeOf: S, arms: [{takenBy: R} | {restartKind: K}]}, the transitions of the game that begin an episode of scope S - each stopping and restarting play (T6 STOP_RESUME), beginning an episode (T7 true) and meeting an arm: taken by R (T3), or a restart of kind K, which no row carries yet, so such an arm is met by no transition until one does. It names no element and no place; GA-EPISODE-REACHABLE decides which transitions meet it. Written only by a ruled restatement (C58), never inferred from prose. The wording it types is his, acknowledged 18 October 2026: \"A restart, taken by the goalkeeper or as a controlled defensive restart, that begins a build-out episode.\"",
       "sourceKinds": [
         "SELECTION"
       ],
@@ -1156,8 +1196,8 @@
       "S3.noun": "2 (2026-10-01, draft) - adds `line` on Christian’s ruling, prompted by the inconsistency the A04 trace exposed",
       "S4.functions": "1 (2026-09-18, draft)",
       "O2.kind": "1 (2026-09-18, draft)",
-      "trigger": "3 (2026-10-04, draft) - adds COMPLETED_PASS on Christian ruling, for the reveal trigger his 29 September Pass Combination Gate ruling requires. Bounded exactly to that: not a generalization of FIRST_FORWARD_PASS and not a contact or pass ontology",
-      "T5.method": "1 (2026-09-18, draft)",
+      "trigger": "4 (2026-10-15, register version 12, draft) - adds COACH_JUDGED_EPISODE_CONCLUSION for his M4, reply filed 17 October 2026: \"Support one explicit coach-judged event representing the conclusion of a meaningful episode.\" Bounded exactly to that: an event the coach judges, not a timer, a possession change or a pass count, and not SD-14's attacking episode. Version 3, 2026-10-04: adds COMPLETED_PASS on Christian ruling, for the reveal trigger his 29 September Pass Combination Gate ruling requires.",
+      "T5.method": "2 (2026-10-15, register version 12, draft) - adds FROM_THE_FEET for his D5, reply filed 17 October 2026: \"The initial demonstration may use goalkeeper distribution from the feet.\" (T5.methodSemantics). Version 1: 2026-09-18.",
       "T6.playState": "1 (2026-09-18)",
       "V4.conditionType": "1 (2026-09-18, draft)",
       "V8a.conditionType": "1 (2026-09-18, draft)",
@@ -1175,7 +1215,7 @@
       "contractEnums.checkability": "1 (2026-09-18)",
       "contractEnums.declaration": "1 (2026-09-18)",
       "contractEnums.declarationQualifier": "1 (2026-10-15, register version 8) - his three states (M6, reply filed 17 October 2026); UNRESTRICTED registered and refused at load until he rules its reading",
-      "V5.valueType": "2 (2026-10-15, register version 8) - adds the relational referent form 'the objective reference of designation D' (M8, reply filed 17 October 2026). Version 1 is the 2026-09-18 text: references to regions, objects or placements",
+      "V5.valueType": "3 (2026-10-15, register version 12) - adds the begin-condition referent form 'the restarts that begin an episode of scope S, taken by R or of kind K' (ruling C58, his acknowledgement in the reply filed 18 October 2026, item 4). Version 2 (2026-10-15, register version 8) adds the relational referent form 'the objective reference of designation D' (M8, reply filed 17 October 2026). Version 1 is the 2026-09-18 text: references to regions, objects or placements",
       "R2.kind": "1 (2026-09-24, draft) - narrow by intent; not a general rules ontology",
       "R3.effect": "1 (2026-09-24)",
       "P12.state": "1 (2026-09-24) - bound to knowledge core EM-0007 EMD-0014 EMP-0040 \"Active / Inactive / Waiting / Resting / Observing\"; not duplicate vocabulary",
@@ -1217,7 +1257,8 @@
       "TIME_EXPIRY",
       "STANDING",
       "FIRST_FORWARD_PASS",
-      "COMPLETED_PASS"
+      "COMPLETED_PASS",
+      "COACH_JUDGED_EPISODE_CONCLUSION"
     ],
     "triggerQualifiers": {
       "REGION_ENTRY": "a region reference (T1c)",
@@ -1233,8 +1274,15 @@
     "T5.method": [
       "STATIONARY_BALL",
       "SERVED",
-      "IN_HAND"
+      "IN_HAND",
+      "FROM_THE_FEET"
     ],
+    "T5.methodSemantics": {
+      "FROM_THE_FEET": {
+        "note": "OUR operational gloss, for his sight: the player taking the restart plays the ball from their feet; the ball may be still when play restarts, or the player may receive it and play on. It is NOT IN_HAND, it does not decide who delivers a ball the player receives (a teammate, the coach or either - not settled), and it is not a universal start: an item states it for one activity, and nothing makes a restart begin this way unless an item says so. SD-13 (a stationary-ball or kickoff START) does not fire on it. Added 15 October 2026 (T5.method version 2).",
+        "basisEvidence": "Christian, reply filed 17 October 2026, D5: \"The initial demonstration may use goalkeeper distribution from the feet.\" and \"The goalkeeper may receive and play from the feet; a stationary-ball restart should not be universally required.\" M3: \"Support goalkeeper or controlled defensive starts, coach-selected restart locations, and activity-specific restart methods. These choices must remain distinguishable from universal requirements.\""
+      }
+    },
     "T6.playState": [
       "STOP_RESUME",
       "CONTINUE"
@@ -1381,6 +1429,29 @@
         "basisEvidence": "Christian, 2026-09-29, the ruling that requires it: \"The current connected-pass count is revealed immediately following each qualifying pass and updates progressively as the count changes.\" What \"qualifying\" means is fixed by PCG-05 (AUTHORED, REQUIRED, REQUIRED_RANGE): \"counts ATTACKING_TEAM’s connected passes; the count resets on {POSSESSION_CHANGE, OUT_END_LINE, OUT_TOUCHLINE}\". So the kind is a pass that CONNECTS, and nothing further. PCG-14.b (V19 = IMMEDIATE_AFTER_TRIGGER, OWNER_RULING) is what makes V17 load-bearing by construction: \"immediately after the trigger\" denotes nothing unless a trigger is named.",
         "evaluabilityDependsOn": null,
         "whyNoDependency": "Unlike FIRST_FORWARD_PASS, which depends on DV1 because \"forward\" is measured against an attacking direction the representation establishes, completion is measured against nothing the representation holds - whether a pass reached a teammate is an in-play judgement. So this kind registers NO row dependency, and a check has nothing to consult for it. Note the consequence, reported rather than repaired: constructTriggers never reads vocabularies.trigger, so a new token is never structurally reachable, and GA-INFORMATION does not test reachability on V17 the way GA-EFFECT-TYPED does on V12. An item authoring this token on V17 is therefore admitted on registration alone and is never asked whether the occurrence can arise."
+      },
+      "COACH_JUDGED_EPISODE_CONCLUSION": {
+        "note": "An EVENT the coach judges, in play or at a stoppage: that the meaningful attacking opportunity of an episode has ended. It implies NOTHING about time, possession, a change of possession, a pass or a pass count, a region, the ball going out or a score, and must not be read as doing so. Its episode is HIS (D5): the one a transition beginning a build-out episode begins, which a score or this judgement concludes, and which may span changes of possession - not SD-14's attacking episode (T7) and not SD-36's BUILD_OUT_EPISODE scope, though a transition keyed on it may begin an episode of both kinds. That a judgement made at a stoppage takes the place of that stoppage's ordinary restart is OUR operational reading of his D5 and of his 18 October item 2 (\"At any stoppage, the coach may instead conclude the current episode and initiate another build-out.\"), labelled so. Whether play stops when the coach judges, and how it restarts, is stated by the transition keyed on it (T6-T7), never by this entry. Added 15 October 2026 (trigger version 4) on his M4; the wording of this note is ours.",
+        "basisEvidence": "Christian, reply filed 17 October 2026, M4: \"M4 — Coach-judged episode conclusion: Approved.\" \"Support one explicit coach-judged event representing the conclusion of a meaningful episode.\" \"Do not substitute a timer, possession change, or arbitrary pass count.\" D5: \"An episode concludes when either team scores or when the coach judges that the meaningful attacking opportunity has ended.\" \"The coach may make that judgment at a stoppage or during play.\" His reply filed 18 October 2026, item 2: \"At any stoppage, the coach may instead conclude the current episode and initiate another build-out.\"",
+        "independentOf": [
+          "TIME_EXPIRY",
+          "POSSESSION_CHANGE",
+          "COMPLETED_PASS",
+          "FIRST_FORWARD_PASS",
+          "SCORE",
+          "OUT_END_LINE",
+          "OUT_TOUCHLINE",
+          "REGION_ENTRY"
+        ],
+        "independentOfNote": "The substitutes his M4 forbids (\"a timer, possession change, or arbitrary pass count\") and the occurrences his D5 sets beside it (\"when either team scores or when the coach judges\"): the judgement is none of them and is not derived from any of them. Not a hierarchy: no ordering between this member and any other may be inferred.",
+        "evaluabilityDependsOn": null,
+        "whyNoDependency": "The judgement is the coach's, made in play or at a stoppage, and is measured against nothing the representation holds, so no row's establishment is consulted for it (as COMPLETED_PASS).",
+        "structuralPrerequisite": {
+          "collectionRow": "T1",
+          "selectorAttribute": "trigger",
+          "value": "START"
+        },
+        "structuralPrerequisiteNote": "OUR operational proposal, labelled so and not his words: SD-44 makes a trigger exist by construction only where its structural prerequisites are in the game, and a conclusion needs an episode to conclude, which begins with a start - so the trigger is reachable where the game holds a transition element keyed on START (engine.ts constructTriggers reads this entry generically; no trigger is named in code). It is a class-level fact, because triggers are constructed before any line is derived. It refers to no pressure, likelihood or play state."
       }
     },
     "nounSemantics": {

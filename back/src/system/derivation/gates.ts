@@ -35,7 +35,7 @@ import { DerivedLine, resolvedValue } from './derive'
 import { ItemOutcome } from './forward'
 import { RegisterIndex } from './register'
 import { add, compare, Interval, lt, lte, Rational, toInterval, toRational, ZERO } from './rational'
-import { ElementClass, Envelope, FailureRecord, ItemRef, LoadedContract, NO_FURTHER_VALUE, RefusalRecord, ResolutionLine, RoleBlock, SpecClause, relationalReferentOf, structuralRefOf } from './types'
+import { BeginConditionReferent, beginConditionReferentOf, ElementClass, Envelope, FailureRecord, ItemRef, LoadedContract, NO_FURTHER_VALUE, RefusalRecord, ResolutionLine, RoleBlock, SpecClause, relationalReferentOf, structuralRefOf } from './types'
 
 /**
  * `DEFERRED_TO_REALIZATION` is the clause verdict added on 30 September, and it is a different
@@ -368,7 +368,9 @@ function describeReferent(value: unknown): string {
     const typed = asStructuralRef(value)
     if (typed) return `${typed.contractId}::${typed.itemId}`
     const relational = relationalReferentOf(value)
-    return relational ? `the ${relational.role} objective reference of ${relational.objectiveReferenceOf}` : String(value)
+    if (relational) return `the ${relational.role} objective reference of ${relational.objectiveReferenceOf}`
+    const begins = beginConditionReferentOf(value)
+    return begins ? `the restarts that begin ${begins.beginsEpisodeOf}` : String(value)
 }
 
 /**
@@ -904,6 +906,16 @@ function gaReferenceIntegrity(ctx: GateContext): CheckOutcome {
         const cell = probe.cell(line.lineId)
         for (const name of referentsOf(cell)) {
             if (typeof name === 'object' && (name as any).dynamic) continue // 'where the ball went out' — a token, not an element
+            // A realized coach's decision (COACH_DECIDES, register version 12): the value records that the place is the coach's
+            // and within what words; it names no element, so there is nothing for it to dangle from or resolve to.
+            if (typeof name === 'object' && typeof (name as any).coachDecides === 'string') continue
+            /**
+             * A begin-condition referent (C58, 15 October 2026) names no element: it designates the restarts that meet it, and
+             * whether any does — and whether they share an awardee — is GA-EPISODE-REACHABLE's question, answered there once.
+             * Read here as text it would be a gap it is not; asked here as well, a game with no such restart would fail twice
+             * for one fact.
+             */
+            if (beginConditionReferentOf(name)) continue
             /**
              * A relational referent (M8, 15 October 2026) is one reference: resolved when everything it designates is
              * held, dangling when it designates nothing (or something held by nobody), and a gap naming this line when
@@ -1230,15 +1242,126 @@ function gaTriggerReachable(ctx: GateContext): CheckOutcome {
  *     withholds rather than infers that it matches.
  * It never passes a condition whose episode it cannot find. Every condition whose scope is not an episode is outside
  * it (a vacuous pass, SD-54).
+ *
+ * **Where the begin condition is TYPED, the check decides it — 15 October 2026, stage K5, ruling C58.** His words, reply
+ * filed 18 October 2026, item 4, acknowledging the wording of the begin condition (quoted whole in ruling C58,
+ * corpus-restatements.json): *"This provides the checkable event distinction needed to separate deliberate build-out starts
+ * from ordinary restarts."* C58 types the origin's referent (RPC-001-18.b) as a
+ * begin-condition referent (types.ts `BeginConditionReferent`), so the SD-63 withholding above no longer applies where it is
+ * held: `buildOutStarters` asks each transition whether it IS such a restart — it stops and restarts play (T6), begins an
+ * episode (T7) and meets an arm (its taker, T3; or a restart kind, which no row carries yet, so that arm is met by no
+ * transition) — and the reach clause PASSES only where at least one is. A second clause, his D7 (*"Only the building team
+ * initiates new build-out episodes."*): every transition that is such a restart is awarded to one and the same designation
+ * (T2, compared as canonical entries). Without the typed referent nothing changes: the check withholds exactly as before.
+ * Both clauses are reported on every path (SD-53), vacuously where nothing applies.
  */
 const EPISODE_SCOPES = ['BUILD_OUT_EPISODE']
+
+/**
+ * The transitions of the game that meet a begin-condition referent (C58), decided line by line, never guessed. A transition
+ * is ruled out where an established value says it is not such a restart; it is undecided where a value it needs is still an
+ * open choice (realization will close it, and the clause defers); and it blocks where a value it needs is a gap.
+ */
+function buildOutStarters(
+    ctx: GateContext,
+    probe: Probe,
+    referent: BeginConditionReferent,
+): { starters: { classId: string; trigger: string }[]; undecided: string[]; blocked: string[]; ruledOut: string[] } {
+    const starters: { classId: string; trigger: string }[] = []
+    const undecided: string[] = []
+    const blocked: string[] = []
+    const ruledOut: string[] = []
+    for (const transition of classesOn(ctx, 'T1')) {
+        const term = (transition.constraints?.terms || []).find(t => t.attribute === 'trigger' && t.op === '=')
+        const trigger = term && term.op === '=' ? String(term.value) : 'not fixed'
+        if (trigger === 'POSSESSION_CHANGE') {
+            ruledOut.push(`${transition.classId} (a possession change begins an attacking episode, never a build-out one)`)
+            continue
+        }
+        const states: [string, Cell][] = [
+            ['T6', probe.cell(lineOf(transition.classId, 'T6'))],
+            ['T7', probe.cell(lineOf(transition.classId, 'T7'))],
+        ]
+        const [[, playState], [, startsEpisode]] = states
+        // Read with the other two, so a gap on the taker is named among what the check was blocked on.
+        const taker = probe.cell(lineOf(transition.classId, 'T3'))
+        if (playState.state === 'DERIVED' && String(playState.value) !== 'STOP_RESUME') {
+            ruledOut.push(`${transition.classId} (play continues: it is not a restart)`)
+            continue
+        }
+        if (startsEpisode.state === 'DERIVED' && String(startsEpisode.value) !== 'true') {
+            ruledOut.push(`${transition.classId} (begins no episode)`)
+            continue
+        }
+        if (states.some(([, cell]) => cell.state !== 'DERIVED' && cell.state !== 'OPEN')) {
+            blocked.push(transition.classId)
+            continue
+        }
+        if (taker.state === 'OPEN' || states.some(([, cell]) => cell.state === 'OPEN')) {
+            undecided.push(transition.classId)
+            continue
+        }
+        if (taker.state !== 'DERIVED') {
+            blocked.push(transition.classId)
+            continue
+        }
+        // An arm naming a restart kind is met by no transition: no row carries a restart kind (register V5 version 3), so
+        // nothing marks a restart as one, and an ordinary restart is never read as a deliberate one (his item 2).
+        const meets = referent.arms.some(arm => 'takenBy' in arm && arm.takenBy === String(taker.value))
+        if (meets) starters.push({ classId: transition.classId, trigger })
+        else ruledOut.push(`${transition.classId} (taken by "${String(taker.value)}": it meets no arm of the begin condition)`)
+    }
+    return { starters, undecided, blocked, ruledOut }
+}
+
 function gaEpisodeReachable(ctx: GateContext): CheckOutcome {
     const CLAUSE = 'every condition authored for an episode has a transition that can begin that episode'
+    const AWARDEE = 'every transition that begins such an episode is awarded to one and the same team'
     const probe = new Probe(ctx, 'GA-EPISODE-REACHABLE')
     const scopeOf = (cls: ElementClass) =>
         String((ctx.contracts.find(c => c.contractId === cls.fromItem.contractId)?.items ?? []).find(i => i.itemId === cls.fromItem.itemId)?.scope ?? '')
     const scoped = ctx.classes.filter(c => c.row === 'V3' && EPISODE_SCOPES.includes(scopeOf(c)))
-    if (!scoped.length) return result('GA-EPISODE-REACHABLE', probe, [pass(CLAUSE, 0)], 'no condition is authored for an episode')
+    if (!scoped.length) return result('GA-EPISODE-REACHABLE', probe, [pass(CLAUSE, 0), pass(AWARDEE, 0)], 'no condition is authored for an episode')
+    const named = scoped.map(c => `${c.classId} (${scopeOf(c)})`).join(', ')
+
+    // The typed begin condition, where an episode-scoped condition holds one as its referent (C58).
+    const typed = scoped
+        .map(c => probe.peek(lineOf(c.classId, 'V5')))
+        .flatMap(cell => (cell.state === 'DERIVED' ? (Array.isArray(cell.value) ? cell.value : [cell.value]) : []))
+        .map(beginConditionReferentOf)
+        .find((referent): referent is BeginConditionReferent => referent !== null)
+    if (typed) {
+        const found = buildOutStarters(ctx, probe, typed)
+        const reach = found.starters.length
+            ? pass(CLAUSE, scoped.length)
+            : found.undecided.length
+              ? deferred(CLAUSE, 'the realized play state, episode boundary and taker of each transition that may begin the episode, which fix whether it meets the begin condition')
+              : found.blocked.length
+                ? notEvaluable(CLAUSE)
+                : fail(CLAUSE, scoped.length)
+        // D7: one awardee for every transition that meets the begin condition, compared as canonical entries.
+        const awardees = found.starters.map(starter => ({ classId: starter.classId, cell: probe.cell(lineOf(starter.classId, 'T2')) }))
+        const keys = [...new Set(awardees.filter(a => a.cell.state === 'DERIVED').map(a => designationKey(ctx.index, (a.cell as { value: unknown }).value)))]
+        const awardee =
+            keys.length > 1
+                ? fail(AWARDEE, awardees.length)
+                : awardees.some(a => a.cell.state === 'OPEN') || found.undecided.length
+                  ? deferred(AWARDEE, 'the realized awardee of each transition that begins the episode, and whether each undecided transition is one')
+                  : awardees.some(a => a.cell.state !== 'DERIVED') || found.blocked.length
+                    ? notEvaluable(AWARDEE)
+                    : pass(AWARDEE, awardees.length)
+        return result(
+            'GA-EPISODE-REACHABLE',
+            probe,
+            [reach, awardee],
+            `${scoped.length} condition(s) are authored for an episode — ${named}; the begin condition is typed (${typed.asAuthored ?? 'C58'}): ` +
+                `${found.starters.length} transition(s) begin one (${found.starters.map(s => `${s.classId}: ${s.trigger}`).join('; ') || 'none'})` +
+                (found.starters.length ? `, awarded to ${keys.join(', ') || 'no established team'}` : '') +
+                (found.undecided.length ? `; ${found.undecided.length} undecided until realization: ${found.undecided.join('; ')}` : '') +
+                (found.blocked.length ? `; ${found.blocked.length} blocked on a gap: ${found.blocked.join('; ')}` : '') +
+                (found.ruledOut.length ? `; ruled out: ${found.ruledOut.join('; ')}` : ''),
+        )
+    }
 
     const candidates: { classId: string; trigger: string }[] = []
     const ruledOut: string[] = []
@@ -1257,12 +1380,11 @@ function gaEpisodeReachable(ctx: GateContext): CheckOutcome {
         candidates.push({ classId: transition.classId, trigger: trigger ?? 'not fixed' })
     }
 
-    const named = scoped.map(c => `${c.classId} (${scopeOf(c)})`).join(', ')
     if (!candidates.length) {
         return result(
             'GA-EPISODE-REACHABLE',
             probe,
-            [fail(CLAUSE, scoped.length)],
+            [fail(CLAUSE, scoped.length), pass(AWARDEE, 0)],
             `${scoped.length} condition(s) are authored for an episode — ${named} — and no transition can begin one` +
                 (ruledOut.length ? `: ${ruledOut.join('; ')}` : ': the game holds no transition element'),
         )
@@ -1271,10 +1393,11 @@ function gaEpisodeReachable(ctx: GateContext): CheckOutcome {
     const verdict = takers.some(t => t.state === 'OPEN')
         ? deferred(CLAUSE, 'the realized taker of the episode-starting transition, which fixes whether the episode begins as the begin condition requires')
         : notEvaluable(CLAUSE)
+    // Untyped: which transitions begin the episode is not established, so neither is whether they share an awardee.
     return result(
         'GA-EPISODE-REACHABLE',
         probe,
-        [verdict],
+        [verdict, verdict.verdict === 'DEFERRED_TO_REALIZATION' ? deferred(AWARDEE, 'which transitions begin the episode, and their realized awardees') : notEvaluable(AWARDEE)],
         `${scoped.length} condition(s) are authored for an episode — ${named}; ${candidates.length} transition(s) may begin one ` +
             `(${candidates.map(c => `${c.classId}: ${c.trigger}`).join('; ')}), and whether one begins as the begin condition requires is not established`,
     )
@@ -1296,6 +1419,18 @@ function gaTransitionCoherence(ctx: GateContext): CheckOutcome {
     // clause had genuinely examined as if it had never run.
     let continueBlocked = false
     let resumeBlocked = false
+    /**
+     * **An OPEN taker or region is realization's to close, so the clause DEFERS rather than fails on it** — 15 October 2026
+     * (register version 12). Christian, reply filed 17 October 2026, M3 (quoted whole in the register's T4 `fillableAuthority`):
+     * *"coach-selected restart locations, and activity-specific restart methods."* and D5: *"The coach chooses an appropriate
+     * restart location consistent with the intended build-out situation."* A coach-selected location is an open line before
+     * realization (closed COACH_DECIDES), and every open line takes exactly one value there, so the region a STOP_RESUME
+     * transition carries is owed, not missing: the clause is asked again over the concrete game (post-realization gate), where
+     * it passes only if the value is there. Until 15 October an open region counted as a violation, which no coach-selected
+     * restart location could ever pass (measured on Play Out from the Back's provisional realization: five transitions).
+     * Nothing else moves: a FAILED taker or region still blocks, and a missing one still fails.
+     */
+    let resumeDeferred = false
     let continueSeen = 0
     let resumeSeen = 0
 
@@ -1323,13 +1458,20 @@ function gaTransitionCoherence(ctx: GateContext): CheckOutcome {
             const region = probe.cell(lineOf(transition.classId, 'T4'))
             if (!carries(actor) || !carries(region)) {
                 if (actor.state === 'FAILED' || region.state === 'FAILED') resumeBlocked = true
+                else if ((actor.state === 'OPEN' || carries(actor)) && (region.state === 'OPEN' || carries(region))) resumeDeferred = true
                 else resumeViolations.push(transition.classId)
             }
         }
     }
 
     const continueClause = continueViolations.length ? fail(CONTINUE_CLAUSE, continueSeen) : continueBlocked ? notEvaluable(CONTINUE_CLAUSE) : pass(CONTINUE_CLAUSE, continueSeen)
-    const resumeClause = resumeViolations.length ? fail(RESUME_CLAUSE, resumeSeen) : resumeBlocked ? notEvaluable(RESUME_CLAUSE) : pass(RESUME_CLAUSE, resumeSeen)
+    const resumeClause = resumeViolations.length
+        ? fail(RESUME_CLAUSE, resumeSeen)
+        : resumeBlocked
+          ? notEvaluable(RESUME_CLAUSE)
+          : resumeDeferred
+            ? deferred(RESUME_CLAUSE, 'the realized taker and region of each STOP_RESUME transition whose taker or region is an open choice (a coach-selected restart location closes COACH_DECIDES)')
+            : pass(RESUME_CLAUSE, resumeSeen)
     return result(
         'GA-TRANSITION-COHERENCE',
         probe,
@@ -1337,7 +1479,8 @@ function gaTransitionCoherence(ctx: GateContext): CheckOutcome {
         `${continueViolations.length} CONTINUE transition(s) carry a placement; ${resumeViolations.length} STOP_RESUME transition(s) lack a taker or region` +
             // Without this, a clause blocked on an unauthored taker reads "0 lack a taker or region",
             // which is true of violations and false of the corpus.
-            (resumeBlocked ? '; the resume clause is blocked on an unauthored taker or region, so it counts no violation either way' : ''),
+            (resumeBlocked ? '; the resume clause is blocked on an unauthored taker or region, so it counts no violation either way' : '') +
+            (!resumeBlocked && !resumeViolations.length && resumeDeferred ? '; the resume clause is owed to realization: a taker or region is an open choice' : ''),
     )
 }
 
@@ -1701,6 +1844,12 @@ function gaOnePrimaryEvent(ctx: GateContext): CheckOutcome {
         // be positioned: the clause iterates the resolved set, so it neither skips the referent nor reads it as text.
         const named: unknown[] = []
         for (const written of Array.isArray(referents.value) ? referents.value : [referents.value]) {
+            // A begin-condition referent (C58, 15 October 2026) names restarts, not a place: where each begins is the
+            // transition's own placement (GA-TRANSITION-COHERENCE), and which restarts meet it is GA-EPISODE-REACHABLE's.
+            if (beginConditionReferentOf(written)) {
+                namesNoPlace++
+                continue
+            }
             const relational = relationalReferentOf(written)
             if (!relational) {
                 named.push(written)

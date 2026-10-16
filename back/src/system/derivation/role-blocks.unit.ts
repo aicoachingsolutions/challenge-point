@@ -87,7 +87,9 @@ test('the register carries the role-block capability as data (version 10), each 
     for (const name of ['B1.activityRole', 'B3.exchange']) assert.match(String(index.vocabularyVersions[name]), /^1 \(2026-10-15, register version 10/, `${name} carries a versions entry`)
     // Re-pointed 15 October 2026 (stage K4): version 11 (participant reassignment, his RD-1 answer) supersedes 10 and keeps
     // the whole chain, so version 10's entry for role blocks is still there, word for word.
-    assert.match(String(register.version), /^11, adds participant reassignment .*Supersedes version 10, which adds role blocks for his M1/)
+    // Re-pointed again 15 October 2026 (stage K5): version 12 (starts and restarts, his M3/M4) supersedes 11, and the chain
+    // still holds version 10's entry word for word.
+    assert.match(String(register.version), /^12, adds starts and restarts .*Supersedes version 11, which adds participant reassignment .*Supersedes version 10, which adds role blocks for his M1/)
     assert.ok(String(register.version).includes('Keep role assignments separate from fixed ends.'), 'the version entry quotes M1')
     assert.ok(String(register.version).includes('Supersedes version 9'), 'and keeps the history')
     assert.ok(index.rows.get('S2')!.selectorAttributes!.includes('targetOf'))
@@ -298,7 +300,12 @@ test('A01-R1\'s role lines carry its category on every support entry, in both bl
         assert.ok(!isStampedHalt(result), roleBlock?.blockId ?? 'no block')
         const resolved = assembleResolvedGame(result, (runStages0to10(run) as any).classes, index, input.contracts)
         const own = resolved.derived.filter(entry => String(entry.lineId).startsWith('c:provisional:A01-R1:'))
-        assert.deepEqual(own.map(entry => entry.path).sort(), [
+        // 15 October 2026 (stage K5): the realization's transitions are lines it supports too (pinned in
+        // starts-and-restarts.unit.ts); they carry the same category, held to it below with the rest, and the role and
+        // reassignment lines are listed apart.
+        const transitions = own.filter(entry => String(entry.path).startsWith('transitions['))
+        assert.ok(transitions.length > 0, 'the transitions are lines it supports')
+        assert.deepEqual(own.filter(entry => !String(entry.path).startsWith('transitions[')).map(entry => entry.path).sort(), [
             'activityRoles[c:provisional:A01-R1:A01-R1-B1-1].activityRole',
             'activityRoles[c:provisional:A01-R1:A01-R1-B1-1].exchange',
             'activityRoles[c:provisional:A01-R1:A01-R1-B1-2].activityRole',
@@ -314,8 +321,21 @@ test('A01-R1\'s role lines carry its category on every support entry, in both bl
         ])
         for (const entry of own) {
             assert.ok(entry.support.length > 0, entry.path)
-            for (const support of entry.support as any[]) assert.equal(support.category, 'PROVISIONAL_REALIZATION_CHOICE', `${roleBlock?.blockId ?? 'no block'}: ${entry.path}`)
+            // Every support from the realization carries its category. (Since stage K5 some transition lines are supported by
+            // canonical knowledge instead, which carries none: SD-14 gives the start and the after-score restart their
+            // episode boundary, and the possession game's GF2-16.a gives an out-of-play restart its awardee.)
+            for (const support of entry.support as any[]) {
+                if (support.contractId !== 'provisional:A01-R1') {
+                    assert.ok(String(entry.path).startsWith('transitions[') && (support.id === 'SD-14' || support.itemId === 'GF2-16.a'), `${entry.path}: ${JSON.stringify(support)}`)
+                    assert.equal(support.category, undefined)
+                    continue
+                }
+                assert.equal(support.category, 'PROVISIONAL_REALIZATION_CHOICE', `${roleBlock?.blockId ?? 'no block'}: ${entry.path}`)
+            }
         }
+        // The opening holder of possession, entailed by the start's awardee (stage K5), carries the awardee's category too.
+        const holder = resolved.derived.find(entry => entry.lineId === 'game::PS1')!
+        assert.deepEqual(holder.support.map((s: any) => [s.itemId, s.category]), [['A01-R1-T2-1', 'PROVISIONAL_REALIZATION_CHOICE']])
     }
 })
 
