@@ -1613,7 +1613,13 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
      * each trigger; the others one by one. Every part cites the fields it says (trigger, qualifiers, awardee, taker, method,
      * location, play state), and a field the maps above have no words for leaves its transition unsaid, so fidelity refuses the
      * activity rather than this renderer paraphrasing it. A location or method the coach decides (`COACH_DECIDES`) is put to the
-     * coach as a choice, with the bound the knowledge gives it in the knowledge's own words.
+     * coach as a choice, with the bound its realization choice records in words.
+     *
+     * Since 18 October 2026 (post-K wording, DRAFT) the recorded words are the bound ALONE, and an empty record means nothing bounds
+     * the decision beyond the coach's own judgement: the stand-ins had restated that the choice was the coach's ("You choose where
+     * each of these restarts is taken: a location the coach chooses, ...") and, for an end-line restart, said engine provenance to
+     * the coach in brackets ("you choose where (a location the coach selects for the restart, using the approved M3 capability)").
+     * A bounded choice is said with its bound; an unbounded one as the bare choice ("restarts play where and how you choose").
      */
     const transitionsHeld: any[] = game.transitions ?? []
     const objectNoun = carrier ? String(carrier.kind) : null
@@ -1638,7 +1644,7 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
     const restarting = transitionsHeld.filter(transition => transition?.playState === 'STOP_RESUME')
 
     // The restarts awarded to a team holding a role, keyed on triggers the maps word: said together where they restart alike.
-    const roleRestarts = restarting.filter(t => teamNoun(t.awardedTo) && TRIGGER_PHRASE[triggerOf(t) ?? ''] && METHOD_PHRASE[t?.placement?.method] && takerOf(t) && coachDecides(t?.placement?.region) && objectNoun)
+    const roleRestarts = restarting.filter(t => teamNoun(t.awardedTo) && TRIGGER_PHRASE[triggerOf(t) ?? ''] && METHOD_PHRASE[t?.placement?.method] && takerOf(t) && coachDecides(t?.placement?.region) !== null && objectNoun)
     const restartGroups = new Map<string, any[]>()
     for (const transition of roleRestarts) {
         const key = JSON.stringify([transition.awardedTo, transition.placement.actor, transition.placement.method, transition.placement.region])
@@ -1655,7 +1661,8 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
             ]),
         )
         const locations = group.map(t => pathAt(t, 'placement.region'))
-        say('How it works', partStatus(locations), `You choose where ${group.length > 1 ? 'each of these restarts is' : 'it is'} taken: ${coachDecides(first.placement.region)}`, locations)
+        const bound = coachDecides(first.placement.region)
+        say('How it works', partStatus(locations), `You choose where ${group.length > 1 ? 'each of these restarts is' : 'it is'} taken${bound ? `, ${bound}` : ''}`, locations)
         saidRestarts.push(group)
     }
 
@@ -1725,16 +1732,22 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
         const fixedMethod = typeof method === 'string' && METHOD_PHRASE[method] ? METHOD_PHRASE[method](objectNoun!) : null
         const choiceOfPlace = coachDecides(region)
         const choiceOfMethod = coachDecides(method)
-        if (!where || (!dynamic && !choiceOfPlace) || (!fixedMethod && !choiceOfMethod)) continue
+        if (!where || (!dynamic && choiceOfPlace === null) || (!fixedMethod && choiceOfMethod === null)) continue
         const qualifiers = group.flatMap(t => Object.keys(t.qualifiers ?? {}).map(field => pathAt(t, `qualifiers.${field}`)))
         const firm = group.flatMap(t => [pathAt(t, 'awardedTo'), pathAt(t, 'placement.actor'), pathAt(t, 'playState'), ...(dynamic ? [pathAt(t, 'placement.region')] : []), ...(fixedMethod ? [pathAt(t, 'placement.method')] : [])])
-        const chosen = group.flatMap(t => [...(choiceOfPlace ? [pathAt(t, 'placement.region')] : []), ...(choiceOfMethod ? [pathAt(t, 'placement.method')] : [])])
-        const choices = [...(choiceOfPlace ? [`where (${choiceOfPlace})`] : []), ...(choiceOfMethod ? [`how (${choiceOfMethod})`] : [])]
+        const chosen = group.flatMap(t => [...(choiceOfPlace !== null ? [pathAt(t, 'placement.region')] : []), ...(choiceOfMethod !== null ? [pathAt(t, 'placement.method')] : [])])
+        // A bounded choice keeps its bound beside it; where neither choice is bounded and nothing fixed is said after "restarts
+        // play", the choice closes the clause ("restarts play where and how you choose"), 18 October 2026 (DRAFT).
+        const choices = [
+            ...(choiceOfPlace !== null ? [choiceOfPlace ? `where (${choiceOfPlace})` : 'where'] : []),
+            ...(choiceOfMethod !== null ? [choiceOfMethod ? `how (${choiceOfMethod})` : 'how'] : []),
+        ]
+        const bare = !choiceOfPlace && !choiceOfMethod && !dynamic && !fixedMethod
         instructions.push(
             joined('How it works', [
                 part(partStatus(qualifiers), `If the ${objectNoun} goes out over ${where}`, [...group.map(t => pathAt(t, 'selector')), ...qualifiers, ...objectPath]),
                 part(partStatus(firm), `, ${takerOf(first)} restarts play${dynamic ? ` ${dynamic}` : ''}${fixedMethod ? `, ${fixedMethod}` : ''}`, firm),
-                ...(choices.length ? [part(partStatus(chosen), `; you choose ${listed(choices)}`, chosen)] : []),
+                ...(choices.length ? [part(partStatus(chosen), bare ? ` ${listed(choices)} you choose` : `; you choose ${listed(choices)}`, chosen)] : []),
             ]),
         )
     }

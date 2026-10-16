@@ -83,10 +83,17 @@ test('1. the review draft of A01: every sentence the game holds, each a DRAFT, n
         'How it works: The building team starts with the ball',
         'How it works: When possession changes, play carries on with no stoppage, and the team that wins possession attacks the same zone it was already attacking',
         `How it works: The building team's ${ROLE} restarts play from the feet, with the ball still or moving: at the start, after either team scores and whenever you decide that an attack has run its course (at a stoppage or while play is on)`,
-        "How it works: You choose where each of these restarts is taken: a location the coach chooses, consistent with the intended build-out situation, in front of the pressing team's post-regain area",
+        // Moved 18 October 2026 (post-K wording, DRAFT): the two choice sentences no longer restate that the choice is the coach's,
+        // no longer name the post-regain area by a noun the set-up sentences do not use, and no longer say engine provenance
+        // ("using the approved M3 capability") to the coach in brackets. Was: "You choose where each of these restarts is taken: a
+        // location the coach chooses, consistent with the intended build-out situation, in front of the pressing team's post-regain
+        // area" and "... restarts play; you choose where (a location the coach selects for the restart, using the approved M3
+        // capability) and how (a restart method the coach selects, using the approved M3 capability)". The touchline sentence is
+        // unchanged: his "conventional throw-in" has no data route to the renderer yet (a wording point put to him).
+        "How it works: You choose where each of these restarts is taken, consistent with the intended build-out situation, in front of the pressing team's target zone",
         'How it works: Before each of these restarts, the building team and the pressing team each set up on their own side of the marked line; once play restarts, every player is free to move anywhere',
         'How it works: If the ball goes out over a touchline, a player of the team that did not touch the ball last restarts play where the ball went out, with the ball in hand',
-        'How it works: If the ball goes out over either end line, a player of the team that did not touch the ball last restarts play; you choose where (a location the coach selects for the restart, using the approved M3 capability) and how (a restart method the coach selects, using the approved M3 capability)',
+        'How it works: If the ball goes out over either end line, a player of the team that did not touch the ball last restarts play where and how you choose',
         'How to score: A team scores 1 point by getting the ball under control into the zone it is attacking: running it in, or passing to a teammate who receives it under control inside',
         "How to score: Each team attacks the zone at the other team's end. Decide which team starts at which end; the ends stay the same for the whole game",
         `${ROLE_EXCHANGE}: Play in blocks: in each block one team is the building team and the other is the pressing team`,
