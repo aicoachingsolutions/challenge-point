@@ -342,7 +342,11 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
         // and A01-R1 is no longer empty — its three role-block items are listed among his provisional choices. So the
         // expectation is the record together with that realization, exactly as the builder reads it.
         assert.deepEqual(a01.account.authorizationLists, authorizationLists(record, provisionalRealizationNamed(record.provisionalRealization)), 'the three lists, exactly as the record and its realization give them')
-        assert.equal(a01.account.authorizationLists!.provisionalChoices.filter(e => e.from === 'provisional realization').length, 3, 'the two roles and the exchange')
+        // 3 -> 10 on 15 October 2026 (stage K4): with his D6 counts by role, the building role's keeper and his RD-1 answer as
+        // two reassignments with their counts (pinned in allocation.unit.ts), each one of his provisional choices.
+        assert.equal(a01.account.authorizationLists!.provisionalChoices.filter(e => e.from === 'provisional realization').length, 10, 'the two roles, the exchange, the counts by role, the keeper and the reassignments')
+        // The allocation's authority reaches the technical account of the refusal too (stage K4), read from the record.
+        assert.deepEqual(a01.account.allocation!.relationships.map(r => r.id), ['RPC-001~EM-0006'])
         // 15 -> 13 on 15 October 2026 (stage K1): capabilities M6 and M8 built (C55, C57); the record lists them as what
         // existing knowledge authorizes now, not as gaps.
         assert.equal(a01.account.authorizationLists!.gaps.length, 13)
@@ -383,14 +387,15 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
      * is the one stop left (pinned below).
      */
     {
+        // 8 -> 6 on 15 October 2026 (stage K4): 'defensive numbers' and 'overloads' (D6) are carried by A01-R1's counts by role
+        // under the relationship he confirmed on 18 October (allocation.unit.ts), and 'goalkeeper positioning' waits on M3
+        // alone (it read D6, M2, M3). The remaining six move with K5 (M3/M4) and K6 (D3, D4/M5).
         const RECORD_REASONS = [
-            '8 parts of the activity the authorization record of A01 asks for are not in place yet',
+            '6 parts of the activity the authorization record of A01 asks for are not in place yet',
             'manipulation "starting positions — where the team building out starts" is MISSING_CAPABILITY (PROVISIONAL_REALIZATION_CHOICE), waiting on M3',
             'manipulation "starting positions — the defending team\'s starting relationship" is MISSING_KNOWLEDGE (GENUINE_GAP), waiting on D4, M5',
             'manipulation "progression references — where each target sits: the build-out progression target and the post-regain area" is MISSING_KNOWLEDGE (GENUINE_GAP), waiting on D3',
-            'manipulation "defensive numbers" is MISSING_KNOWLEDGE (GENUINE_GAP), waiting on D6',
-            'manipulation "goalkeeper positioning" is MISSING_CAPABILITY (PROVISIONAL_REALIZATION_CHOICE), waiting on D6, M2, M3',
-            'manipulation "overloads" is MISSING_KNOWLEDGE (GENUINE_GAP), waiting on D6',
+            'manipulation "goalkeeper positioning" is MISSING_CAPABILITY (PROVISIONAL_REALIZATION_CHOICE), waiting on M3',
             'provisional choice "An asymmetrical build-out-versus-press structure: one team builds out, the other presses to prevent progression, regain possession and exploit the regain, and the teams exchange roles over successive episodes or blocks." is MISSING_CAPABILITY (PROVISIONAL_REALIZATION_CHOICE), waiting on D2, D7, M1, M2',
             'provisional choice "A new build-out episode begins with a goalkeeper or controlled defensive restart once the previous episode has meaningfully concluded, without interrupting a promising attack; after a score play stops and restarts, at a location the coach selects." is MISSING_CAPABILITY (PROVISIONAL_REALIZATION_CHOICE), waiting on D1, D5, M3, M4',
         ]
@@ -520,7 +525,7 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
  * the real chain, and named for the decisions (D1-D7) and capabilities (M1-M8) put to him that would move it. Each of
  * those ids must be defined in A01's authorization record, which is where their descriptions live. A stop that moves
  * is the work succeeding: re-pin it with the reason. (The roster stop — two goalkeepers available, 6 + 0 against 6 + 0,
- * moved by D6 and M2 — is pinned in the C53 block below. The live route's refusal of a zero-constraint selection, with
+ * moved by D6 and M2 — moved on 15 October 2026, stage K4: the C53 block below pins what replaced it. The live route's refusal of a zero-constraint selection, with
  * no model call, has no unit test: it is measured on the built bundle at each stage's review.)
  */
 {
@@ -532,9 +537,10 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
         ['knowledge (record)', 'starting positions — where the team building out starts', ['M3']],
         ['knowledge (record)', "starting positions — the defending team's starting relationship", ['D4', 'M5']],
         ['knowledge (record)', 'progression references — where each target sits: the build-out progression target and the post-regain area', ['D3']],
-        ['knowledge (record)', 'defensive numbers', ['D6']],
-        ['knowledge (record)', 'goalkeeper positioning', ['D6', 'M2', 'M3']],
-        ['knowledge (record)', 'overloads', ['D6']],
+        // **Two stops moved out and one narrowed on 15 October 2026 (stage K4): the work succeeding.** 'defensive numbers' and
+        // 'overloads' (D6) are carried by A01-R1's counts by role under the relationship he confirmed on 18 October; the
+        // goalkeeper entry waits on M3 alone (it read D6, M2, M3). Pinned in allocation.unit.ts; asserted absent below.
+        ['knowledge (record)', 'goalkeeper positioning', ['M3']],
         ['knowledge (record)', 'An asymmetrical build-out-versus-press structure', ['D2', 'D7', 'M1', 'M2']],
         ['knowledge (record)', 'A new build-out episode begins with a goalkeeper or controlled defensive restart', ['D1', 'D5', 'M3', 'M4']],
         ['structure (behind the record)', 'GA-EPISODE-REACHABLE', ['M3']],
@@ -556,6 +562,7 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
         assert.ok(line, `the record stop "${stop}" is reported: ${JSON.stringify(production.reasons)}`)
         assert.ok(line!.endsWith(`waiting on ${movedBy.join(', ')}`), line)
     }
+    for (const moved of ['"defensive numbers"', '"overloads"']) assert.ok(!production.reasons.some(reason => reason.includes(moved)), `${moved} is no longer a stop (stage K4)`)
     const behind = refused(buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, withoutGapEntries()).activity, 'A01 behind its record')
     for (const [, stop] of STOPS.filter(([where]) => where === 'structure (behind the record)')) assert.ok(behind.reasons.some(reason => reason.includes(stop)), `${stop}: ${JSON.stringify(behind.reasons)}`)
     for (const moved of ['RPC-001-18.f::V5', 'RPC-001-19.a::V5', 'RPC-001-18.a::V6']) assert.ok(!behind.reasons.some(reason => reason.includes(moved)), `${moved} is no longer a stop (stage K1)`)
@@ -1578,7 +1585,10 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
  * corrects) — so that half stays proven on constructed games above.
  */
 {
-    const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: none }
+    // One specialized performer available since 15 October 2026 (stage K4): A01-R1 now involves one for the building role
+    // (his D6, A01-R1-P3-1), so with none available this copy stops at the roster (AVAILABILITY_SHORT) before the guard —
+    // measured. The block is about the guard, so the session states what the realization needs.
+    const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [ROLE]: 1 } }
     const PENDING = ['18.a', '18.b', '18.c', '18.d', '18.e', '18.f', '18.g', '19.a', '19.b', '11.a', '11.b', '08.c', '13', '14.a', '02', '03'].map(id => `RPC-001-${id}`)
     const trimmed = (contracts: any[]) => {
         const rpc = contracts.find(contract => contract.objectId === 'RPC-001')
@@ -1681,13 +1691,41 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
         for (const block of ['BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END', 'BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START']) {
             assert.ok(before.reasons.some(reason => reason.startsWith(`block ${block}: roster (INVOLVEMENT_NOT_SETTLED): restated:RPC-001::RPC-001-02 speaks of particular teams`)), JSON.stringify(before.reasons))
         }
+        /**
+         * **Re-pointed 15 October 2026 (stage K4): the roster stop this block pinned has MOVED — the work succeeding.** It was
+         * 6 + 0 against 6 + 0 with both counts (two goalkeepers playing outfield, or none), "moved by D6 and M2". His D6 of
+         * 17 October and his 18 October answers are now A01-R1's counts by role, its keeper for the building role and his
+         * 1(a) as a reassignment (allocation.unit.ts). Measured on this copy: with two available it is served as two blocks,
+         * 6 + 1 against 5 in each, every cross-block check passing (RB-M included), the other keeper playing outfield; with
+         * none available it is refused for the session, which now needs one.
+         */
+        if (keepers === 0) {
+            const short = refused(overCopy(session, withoutConditions), `A01 after C53, 0 of ${ROLE}`)
+            assert.equal(short.stage, 'session')
+            assert.equal(short.summary, `This game needs 1 ${ROLE} in all and the session has 0.`)
+            continue
+        }
         const now = served(overCopy(session, withoutConditions), `A01 after C53, ${keepers} of ${ROLE}`)
-        // And after C53 the copy is SERVED as two blocks (stage K3): each a complete game, every cross-block check passing.
-        assert.deepEqual(now.roleBlocks?.checks.map(check => check.verdict), Array(8).fill('PASS'))
-        const roster = now.rendered.instructions.find(instruction => instruction.text.startsWith('Divide 12 players into 2 teams of 6'))
+        assert.deepEqual(now.roleBlocks?.checks.map(check => check.verdict), Array(9).fill('PASS'))
+        const roster = now.rendered.instructions.find(instruction => instruction.text.startsWith('Divide 12 players into 2 teams'))
         assert.ok(roster, JSON.stringify(now.rendered.instructions.map(i => i.text)))
-        // 6 + 0 against 6 + 0: with two available the goalkeepers play outfield (unused as goalkeepers) — D6 / M2.
-        assert.equal(roster!.text, keepers ? `Divide 12 players into 2 teams of 6; ${ROLE}s play as outfield players in this activity` : `Divide 12 players into 2 teams of 6, with no ${ROLE}s`)
+        assert.equal(roster!.text, `Divide 12 players into 2 teams: the building team has 6 outfield players and 1 ${ROLE}; the pressing team has 5 outfield players; the other ${ROLE} plays as an outfield player`)
+        /**
+         * Through the GOAL pathway (the record crosses into each block's fixture) the two adjustments he authorized reach the
+         * composed activity — K4 review, 15 October 2026: allocation.unit.ts proves them on a constructed fixture only, so
+         * this is the consumer on the real chain. Each said ONCE (both blocks render it alike), only under "Adjusting the
+         * activity", as the coach's choice, in his words; the account carries the allocation's authority beside it.
+         */
+        const adjusting = now.rendered.instructions.filter(instruction => instruction.from.some(path => path.startsWith('adjustments[')))
+        assert.deepEqual(
+            adjusting.map(instruction => [instruction.tier, instruction.status, instruction.block ?? null, instruction.text]),
+            [
+                ['adjust', 'COACH_CHOICE', null, 'You may choose to add a pressing player, representing an opponent committing additional numbers forward: adding a pressing player can increase pressure but may also expose space behind the press'],
+                ['adjust', 'COACH_CHOICE', null, "You may choose to remove a build-out player, reducing the building team's available support options"],
+            ],
+        )
+        assert.deepEqual(now.account.allocation!.alternatives.map(alternative => `${alternative.contractId}::${alternative.itemId}`), ['restated:GF2::GF2-14.b'])
+        assert.deepEqual(now.roleBlocks!.blocks.map(block => block.concreteChecks.find(check => check.checkId === 'GA-ROSTER-SUM')?.verdict), ['PASS', 'PASS'], 'GA-ROSTER-SUM in each block')
     }
 }
 

@@ -180,6 +180,22 @@
  * collection), its classes carry nothing new, and `git diff` of the fixture shows those four lines and nothing else.
  * `npm run render:a04` was diffed before and after: identical apart from the two digests it prints.
  *
+ * **Re-frozen 15 October 2026 (stage K4): `2f9cce9b` → `2cde97ca`. The GAME did not move; the register version did, and
+ * one item the Golden Case selects now carries a ruled supersession.** Two causes, each deliberate:
+ *
+ *   1. **Register version 11** — participant reassignment at a role exchange, for his answer to RD-1 (reply filed 18
+ *      October 2026: *"role exchange and participant reassignment should remain separate capabilities."*): rows B4-B7 and
+ *      the reassignment block. The register version is hashed into the input.
+ *   2. **GF2-14.b carries `defersTo: AUTHORIZED_REALIZATION`** (ruling C56, his D6 of 17 October: *"please document it as
+ *      a knowledge-authorized realization, preserving equal numbers as an alternative."*). Contracts are hashed into the
+ *      input whole. Nothing the Golden Case selects authors the outfield count per team or cites a relationship, so the
+ *      item does NOT defer here: equality is in force exactly as before and the roster is 6 v 6 as before.
+ *
+ * So `inputDigest` / `fromDigest` (197bf9e3 → 064b13b7), the audit digest (3b8e5a7b → 8b4dd3a4) and the
+ * `registerVersion` sentence moved, and `git diff` of the fixture shows those four lines and nothing else: `game`, every
+ * value, every choice, the geometry, the roster and the realization digest are byte-identical. The rendered instructions
+ * of the frozen fixture before and after were diffed (renderConcreteGame on each): identical.
+ *
  * **Since stage K3 a fixture may be COMPOSED from two role blocks** (`build-activity.ts`, `role-blocks.ts`): block one's
  * fixture with a `roleBlocks` block carrying each block's own fixture whole. The Golden Case is a single game and is
  * frozen as one; the composed shape is guarded below by key identity, so a future frozen two-block fixture cannot lose a

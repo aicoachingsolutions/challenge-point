@@ -315,9 +315,12 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
     // 56 -> 57 on 15 October 2026 (stage K1, C57): his M8 safeguard recorded verbatim in RPC-001-19.b's fitNote — "Please
     // ensure this does not inadvertently prohibit a functional longer pass that is received under control beyond
     // pressure." — beside the exclusion it guards. 19.b also carries C52's scope: one item, two rulings, counted per ruling.
+    // 57 -> 58 on 15 October 2026 (stage K4, C56): GF2-14.b carries defersTo AUTHORIZED_REALIZATION, his 17 October D6
+    // "please document it as a knowledge-authorized realization, preserving equal numbers as an alternative." GF2-14.b
+    // also carries C31b's promotion: one item, two rulings, counted per ruling. Pinned in allocation.unit.ts.
     assert.equal(
         restatementTally.itemsRestated,
-        57,
+        58,
         'six Phase A rulings, six sets (SD-79), two exclusion bounds (SD-86), eight goal-kick selectors (SD-87), one restart ownership (SD-89), ' +
             'one typed reference (SD-98), one Wide Zone gloss (C29a), one DISTINCT_ON mark (C29b/C29e), two typed neutral bounds (C29c), ' +
             'one typed channel width (C30b), one equal-outfield promotion (C31b), three Wide Zone lateral restatements (C33), ' +
@@ -335,7 +338,8 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
             'and, from 46 on 15 October 2026, RPC-001-13 without "own-half start area" (C51, his 9.10) — ' +
             'and, from 55 the same day, the nine build-out condition items scoped to the build-out episode (C52, his 9.3) — ' +
             'and, from 56, RPC-001-18.d recorded as the progression reference, distinct from the pressure reference (C54, his 9.1) — ' +
-            'and, from 57, his M8 safeguard beside the long-clearance exclusion, RPC-001-19.b (C57)',
+            'and, from 57, his M8 safeguard beside the long-clearance exclusion, RPC-001-19.b (C57) — ' +
+            'and, from 58, GF2-14.b deferring to a knowledge-authorized realization (C56, his D6)',
     )
     // **4 since ruling C42.** GF2-08.a and GF2-03.a are retired — the shared objective's existence and the
     // target it referenced — so the game holds exactly two objectives and two targets rather than three of each.

@@ -28,7 +28,10 @@
  *     block-duration system is needed"*; nothing switches an objective on and off by role);
  *   - **RB-8** a role-keyed position is the same by role and mirrored along the axis: what the building team's target is
  *     at one end it is, measured from the other end, in the other block. A role-keyed position that does not mirror is
- *     an absolute position written for a role, which cannot hold at both ends.
+ *     an absolute position written for a role, which cannot hold at both ends;
+ *   - **RB-M** (stage K4, his RD-1 answer of 18 October 2026: *"role exchange and participant reassignment should remain
+ *     separate capabilities"*) each team's counts change between the blocks exactly as a recorded reassignment states, and
+ *     not at all where none is recorded — the exchange of roles moves nobody.
  *
  * Then the coach reads one activity: a sentence the two renders say alike is said once, a sentence only one block says is
  * said under that block, and fidelity Q6 checks that the composition lost nothing from either render, invented nothing,
@@ -36,6 +39,7 @@
  *
  * Sport-neutral: rows, roles and nouns are register data; every check reads the games and the register.
  */
+import { expectedChange, reassignmentsIn } from '../derivation/reassignment'
 import { exchangeOf } from '../derivation/role-blocks'
 import { roleHolderNames } from '../derivation/designation'
 import { RegisterIndex } from '../derivation/register'
@@ -46,7 +50,7 @@ import { Instruction, RenderedActivity, ROLE_EXCHANGE } from './render-concrete-
 
 /** One cross-block check, with what it found. */
 export interface RoleBlockCheck {
-    checkId: 'RB-1' | 'RB-2' | 'RB-3' | 'RB-4' | 'RB-5' | 'RB-6' | 'RB-7' | 'RB-8'
+    checkId: 'RB-1' | 'RB-2' | 'RB-3' | 'RB-4' | 'RB-5' | 'RB-6' | 'RB-7' | 'RB-8' | 'RB-M'
     what: string
     verdict: 'PASS' | 'FAIL'
     problems: string[]
@@ -94,7 +98,16 @@ function propertiesOf(fixture: any): Map<string, { value: unknown; support: any[
     const found = new Map<string, { value: unknown; support: any[]; kind: string }>()
     for (const entry of fixture.status?.derived ?? []) found.set(entry.path, { value: entry.value, support: entry.support ?? [], kind: 'derived' })
     for (const choice of fixture.status?.choices ?? []) found.set(choice.path, { value: choice.value, support: [], kind: 'choice' })
-    for (const entailed of fixture.status?.entailed ?? []) found.set(`${entailed.collection}[${entailed.handle}].${entailed.leaf}`, { value: entailed.value, support: [{ chain: entailed.chain ?? entailed.basis ?? null }], kind: 'entailed' })
+    /**
+     * An entailed value's support is the items that decided it for that member (`supportedBy`, stage K4). Until 15 October
+     * 2026 (stage K4) this read `entailed.chain ?? entailed.basis`, fields an entailment never has (it carries `because`), so
+     * no entailed difference could ever be explained: measured with that reading put back, A01-R1's counts by role on the
+     * possession game refused at RB-4 on all four team counts, each supported by an item written for a role holder.
+     */
+    for (const entailed of fixture.status?.entailed ?? []) {
+        const support = ((entailed.supportedBy ?? []) as { contractId: string; itemId: string }[]).map(ref => ({ kind: 'CONTRACT_ITEM', contractId: ref.contractId, itemId: ref.itemId }))
+        found.set(`${entailed.collection}[${entailed.handle}].${entailed.leaf}`, { value: entailed.value, support, kind: 'entailed' })
+    }
     for (const geometry of fixture.status?.geometry ?? []) found.set(`${geometry.path}#realized`, { value: geometry.geometry, support: [], kind: 'geometry' })
     return found
 }
@@ -102,7 +115,7 @@ function propertiesOf(fixture: any): Map<string, { value: unknown; support: any[
 const check = (checkId: RoleBlockCheck['checkId'], what: string, problems: string[]): RoleBlockCheck => ({ checkId, what, verdict: problems.length ? 'FAIL' : 'PASS', problems })
 
 /**
- * The cross-block checks, RB-1 to RB-8, over two blocks built as complete games. Every check runs and reports, so a refusal
+ * The cross-block checks, RB-1 to RB-8 and RB-M, over two blocks built as complete games. Every check runs and reports, so a refusal
  * names every disagreement at once.
  */
 export function checkRoleBlocks(blocks: BuiltBlock[], index: RegisterIndex, roles: string[]): RoleBlockCheck[] {
@@ -171,7 +184,6 @@ export function checkRoleBlocks(blocks: BuiltBlock[], index: RegisterIndex, role
             const [a, b] = blocks.map(entry => propertiesOf(entry.fixture))
             const explained = (property: { support: any[]; kind: string } | undefined, i: number): boolean => {
                 if (!property) return false
-                if (property.kind === 'entailed') return property.support.some(s => holders.some(holder => String(s?.chain ?? '').includes(holder)))
                 return property.support.some((ref: any) => ref?.kind === 'CONTRACT_ITEM' && roleKeyed(items[i].get(`${ref.contractId}::${ref.itemId}`), holders))
             }
             for (const path of [...new Set([...a.keys(), ...b.keys()])].sort()) {
@@ -278,6 +290,55 @@ export function checkRoleBlocks(blocks: BuiltBlock[], index: RegisterIndex, role
             }
         }
         results.push(check('RB-8', 'a position written for a role is the same by role and mirrored along the axis', problems))
+    }
+
+    /**
+     * RB-M — **membership changes between the blocks exactly as a recorded reassignment states, and never by the exchange
+     * alone** (15 October 2026, stage K4). His answer to RD-1, reply filed 18 October 2026: *"role exchange and participant
+     * reassignment should remain separate capabilities. Exchanging roles should not inherently require players to change
+     * teams."* Each team (by its handle, bound to the same end in both blocks, RB-2) is counted in each block for every kind
+     * of performer the register counts per team; the change from the first block to the second must be exactly what the
+     * reassignments both blocks hold state (`derivation/reassignment.ts`). With none recorded, every count must be the same in
+     * both blocks — his Option 1(c), membership kept, is that case.
+     */
+    {
+        const problems: string[] = []
+        if (pair) {
+            const teamsAt = containerOf(index, 'P1') ?? 'performers.teams'
+            const rows = index.reassignment?.performerRows ?? ['P2', ...index.specializedRoleRows.keys()]
+            const leafOf = (rowId: string) => String(index.rows.get(rowId)?.path ?? '').split('[].').pop() ?? rowId
+            const found = blocks.map(entry => reassignmentsIn(entry.fixture?.game ?? {}, index))
+            for (const [i, entry] of found.entries()) for (const problem of entry.problems) problems.push(`block ${blocks[i].block.blockId}: ${problem}`)
+            if (!same(found[0].found, found[1].found)) problems.push(`the two blocks hold different reassignments: ${JSON.stringify(found[0].found)} and ${JSON.stringify(found[1].found)}`)
+            const bindings = (blocks[0].fixture?.record?.designationBindings ?? []) as { designation: string; handle: string }[]
+            const expected = expectedChange(found[0].found, blocks[0].block, blocks[1].block, bindings, index)
+            problems.push(...expected.problems)
+            const teamsOf = (game: any) => new Map(((read(game, teamsAt) ?? []) as any[]).map(team => [String(team?.elementId), team]))
+            const [first, second] = games.map(teamsOf)
+            for (const [handle, team] of first) {
+                const other = second.get(handle)
+                if (!other) {
+                    problems.push(`the team ${handle} is in one block only`)
+                    continue
+                }
+                for (const rowId of rows) {
+                    const leaf = leafOf(rowId)
+                    const [a, b] = [team?.[leaf], other?.[leaf]]
+                    if (!Number.isInteger(a) || !Number.isInteger(b)) {
+                        problems.push(`the team ${handle} carries no whole ${leaf} count in ${Number.isInteger(a) ? 'the second' : 'the first'} block, so whether its membership changed cannot be told`)
+                        continue
+                    }
+                    const stated = expected.change.get(handle)?.get(rowId) ?? 0
+                    if (b - a === stated) continue
+                    problems.push(
+                        found[0].found.length
+                            ? `the team ${handle} holds ${a} ${leaf} in the first block and ${b} in the second, a change of ${b - a} where the recorded reassignments state ${stated}`
+                            : `the team ${handle} holds ${a} ${leaf} in the first block and ${b} in the second, and no reassignment is recorded: an exchange of roles moves no player by itself`,
+                    )
+                }
+            }
+        }
+        results.push(check('RB-M', 'membership changes between the blocks exactly as a recorded reassignment states, and never by the exchange of roles alone', problems))
     }
 
     return results

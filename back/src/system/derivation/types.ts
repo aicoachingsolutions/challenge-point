@@ -113,6 +113,17 @@ export interface ContractItem {
      * canonical knowledge. Carried onto every support entry the item gives a derived value.
      */
     category?: unknown
+    /**
+     * A ruled supersession on an item (15 October 2026, stage K4, ruling C56): only `DEFERS_TO_AUTHORIZED_REALIZATION`, written
+     * only by a restatement. Honoured in `realization-deferral.ts`.
+     */
+    defersTo?: unknown
+    /**
+     * The context-manipulation relationship a provisional realization's item cites as its authority (15 October 2026, stage
+     * K4): the id of an entry of the authorization records' `contextManipulationRelationships`, checked at load
+     * (`learning-goal-authorizations.ts`) and read by the deferral (`realization-deferral.ts`).
+     */
+    authorizedBy?: unknown
 }
 
 export interface Declaration {
@@ -160,6 +171,17 @@ export const UNRESTRICTED = 'UNRESTRICTED'
  */
 export const DEFERS_TO_ESTABLISHING_OBJECT = 'ESTABLISHING_OBJECT'
 
+/**
+ * **The second supersession, and the first for an ITEM** — 15 October 2026 (stage K4, ruling C56). Christian, reply filed 17
+ * October 2026, D6: *"If the 6 + GK versus 5 configuration requires a narrow exception to the possession game's
+ * equal-outfield-number rule, please document it as a knowledge-authorized realization, preserving equal numbers as an
+ * alternative."* An item carrying it (written only by a ruled restatement, corpus-restatement.ts) defers wherever a selected
+ * contribution authors the same row per team and cites a confirmed context-manipulation relationship authorizing that row
+ * (realization-deferral.ts); it is then listed as the alternative and never evaluated. The supersession vocabulary is one
+ * list with two members, each for one kind of statement; any other value is refused at load.
+ */
+export const DEFERS_TO_AUTHORIZED_REALIZATION = 'AUTHORIZED_REALIZATION'
+
 export interface LoadedContract {
     contractId: string
     objectId: string
@@ -170,6 +192,22 @@ export interface LoadedContract {
     declarations: Declaration[]
     relationshipRules?: unknown[]
     notAuthored?: unknown[]
+    /**
+     * Items of this contract that DEFER in this composition (15 October 2026, stage K4, ruling C56): moved out of `items`
+     * by `realization-deferral.ts`, so that no check evaluates them, and kept here whole with what they defer to, so the
+     * alternative stays visible. Absent wherever nothing defers.
+     */
+    deferredItems?: DeferredItem[]
+}
+
+/** An item that defers in this composition, with what it defers to (stage K4, ruling C56). */
+export interface DeferredItem {
+    item: ContractItem
+    defersTo: string
+    /** The items that author the row per team and cite the relationship. */
+    deferredTo: { contractId: string; itemId: string }[]
+    /** The relationship they cite. */
+    relationship: string
 }
 
 export interface SelectionEntry {

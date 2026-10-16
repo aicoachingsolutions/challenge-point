@@ -257,6 +257,13 @@ export interface RealizationRecord {
         path: string
         value: unknown
         because: string
+        /**
+         * The items that decide the value FOR THIS MEMBER, where an item speaks of particular teams (15 October 2026, stage
+         * K4): those that reach it, and those that speak of another team and so leave it its count. Structural, so a reader
+         * (the cross-block check RB-4) asks the items rather than the sentence. Absent wherever no such item exists, so every
+         * other game's record keeps its shape.
+         */
+        supportedBy?: { contractId: string; itemId: string }[]
     }[]
     /**
      * Choices whose bound is a qualitative term. SD-15 forbids inventing a number for one, so the

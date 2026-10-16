@@ -120,6 +120,20 @@ entries, and a game value written "(= entry)" counts as that entry.
 > attribute `targetOf` (the team whose primary scoring objective references it), set before reach from the objectives'
 > selectors and the reference items that entail them, and only where a selector asks for it.
 
+> **Engineering line, 15 October 2026 (stage K4) — ours, outside his adopted text.** Implemented for his D6 of 17 October
+> and his answers of 18 October (RD-1, item 5, item 7). (1) An item carrying `defersTo: AUTHORIZED_REALIZATION` (ruling C56,
+> GF2-14.b only) is moved aside before anything reads the composition — kept on its contract as `deferredItems`, listed as
+> the alternative — wherever another selected contribution authors the same row per team (a selector naming particular
+> teams through a designation-valued attribute) and cites, in `authorizedBy`, a CONFIRMED context-manipulation relationship
+> for the context it realizes that authorizes the row (`realization-deferral.ts`). (2) The roster reads an outfield count
+> authored per team as a set of counts and closes it from the session total: exactly one allocation must fit
+> (CONFIGURATION_DOES_NOT_FIT where none does, with the player counts that would, asked of the rule; ALLOCATION_NOT_SETTLED
+> where more than one does; NO_AUTHORIZED_ASYMMETRY where only an unequal one fits and an equality is still in force).
+> (3) Participant reassignment is its own capability (register version 11, rows B4-B7): a reassignment element says how
+> many performers of the kind a row counts move, at each exchange of roles, to the team newly holding a role; the
+> cross-block check RB-M admits a change of a team's counts exactly where one states it, and none where none is recorded —
+> the exchange of roles moves nobody.
+
 **Every structural reference normalises, not only selectors (SD-32, ruled).** In his words:
 
 > "Any structural reference participating in derivation must resolve through the registered

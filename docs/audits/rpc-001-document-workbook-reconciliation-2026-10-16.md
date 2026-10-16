@@ -91,5 +91,19 @@ solution"); the staging rows with his 13 September deferral (READ, MEASURED).
   their omissions are non-blocking because of what the engine reads, not because they are narrative.
 - "Not affected" for the restart location holds only while every restart is from the goalkeeper.
 
+## 7 · One relationship resolved explicitly (added 15 October 2026, stage K4)
+
+His reply filed 17 October 2026: "Where a specific missing relationship is necessary for Play Out from the Back, identify
+and resolve that relationship explicitly." Row 2's class stays as it is; ONE of its names is now linked, because the first
+activity needs it: the document's Common manipulations "defensive numbers; numerical overloads" to EM-0006 Participant
+Composition (an RC1 Candidate), with the workbook's own RPC-PROP-017 ("Manipulate numerical relationships without
+prescribing a single solution."). We identified it under his D6 instruction; he confirmed it in his reply filed 18 October
+2026, item 5: "Goalkeeper Build-Out with Participant Composition." and "Both should be represented as knowledge-authorized
+relationships rather than hardcoded behavior for this Learning Goal." It is recorded once, at context level, in
+`learning-goal-authorizations.json` (`contextManipulationRelationships`, `RPC-001~EM-0006`), and it is what lets the
+possession game's equal-numbers item defer to the first activity's counts by role (ruling C56). The Performer
+Configuration relationship he confirmed in the same sentence is linked when the starting arrangement that needs it is
+built. The other names of row 2 stay unlinked, as he asked.
+
 Sources: his reply received 15 October 2026 (`christian-2026-10-16.txt`, verbatim); the reconciliation analysis and its
 verification of 15 October 2026 (`f-part-00`, `f-part-07`); the workbook and its projection named above.

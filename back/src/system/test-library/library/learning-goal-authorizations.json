@@ -1,5 +1,5 @@
 {
-    "about": "Which library constraints a Learning Goal may select, by owner ruling, with the manipulations its context names evaluated against the knowledge that exists. Ids, citations, statuses and his words only: nothing here is a value, a mapping to an Environmental Manipulation or Affordance Target id, or a candidate pool. Where a goal has an entry, selection draws its constraints from authorizedConstraints and from nothing else (not the wording pool, not the Game Problem's Coverage row), in both pathways. authorizedConstraints null means the record has not yet evaluated which constraints the knowledge justifies: a knowledge gap (NO_AUTHORIZED_CONSTRAINTS), never a fallback. A list (with its finding) is the evaluation; an EMPTY list means none is justified, and under the general principle below the goal is selected with no library constraint. The principle is recorded once, here, and applies to every record alike: no goal is special-cased. ADDED 15 October 2026 (stage H3, his 16 October reply, item 10: 'The decisions above should be interpreted as either: General learning-design principles. Provisional realization choices for the first activity. Existing knowledge relationships that require verification. Genuine implementation or knowledge gaps. Please keep those categories distinct.'): every manipulation and provisional choice names its CATEGORY (what its authority is: PROVISIONAL_REALIZATION_CHOICE, his choice for this activity; EXISTING_KNOWLEDGE_TO_VERIFY, the game form, the context or the session, offered for his verification; GENUINE_GAP, nothing settles it; a GENERAL_PRINCIPLE is recorded once, at the top) beside its STATUS (whether the activity can carry it now). A status of MISSING_KNOWLEDGE or MISSING_CAPABILITY means the activity his rulings ask for needs it and it is not in place; it names the decisions and capabilities (gaps, defined in the record) that would supply it, and the build refuses the goal naming each one rather than build an activity that solves a different problem. existingKnowledge lists what existing knowledge already authorizes for the activity, with its sources. The decision and capability ids (D1-D7, M1-M8) and their one-line descriptions are OUR wording, as put to him; none is his. AMENDED 15 October 2026 (stage K2), narrowly, for his reply filed 17 October 2026: 'The priority remains producing one complete, representative Play Out from the Back activity through the normal generation pathway, without introducing unnecessary architecture or treating this first realization as the canonical version of the Learning Goal.' A record may name ONE provisional realization (provisionalRealization: an id in docs/audits/conformance/stage-b/provisional-realizations.json). That file, not this one, holds his provisional realization choices as contract items in his words; derivation adds them only for the goal whose record names the realization, every one carries the category PROVISIONAL_REALIZATION_CHOICE into the game, and none is canonical knowledge of the context. This record still holds no value: it names the realization, as it names a constraint.",
+    "about": "Which library constraints a Learning Goal may select, by owner ruling, with the manipulations its context names evaluated against the knowledge that exists. Ids, citations, statuses and his words only: nothing here is a value, a mapping to an Environmental Manipulation or Affordance Target id, or a candidate pool. Where a goal has an entry, selection draws its constraints from authorizedConstraints and from nothing else (not the wording pool, not the Game Problem's Coverage row), in both pathways. authorizedConstraints null means the record has not yet evaluated which constraints the knowledge justifies: a knowledge gap (NO_AUTHORIZED_CONSTRAINTS), never a fallback. A list (with its finding) is the evaluation; an EMPTY list means none is justified, and under the general principle below the goal is selected with no library constraint. The principle is recorded once, here, and applies to every record alike: no goal is special-cased. ADDED 15 October 2026 (stage H3, his 16 October reply, item 10: 'The decisions above should be interpreted as either: General learning-design principles. Provisional realization choices for the first activity. Existing knowledge relationships that require verification. Genuine implementation or knowledge gaps. Please keep those categories distinct.'): every manipulation and provisional choice names its CATEGORY (what its authority is: PROVISIONAL_REALIZATION_CHOICE, his choice for this activity; EXISTING_KNOWLEDGE_TO_VERIFY, the game form, the context or the session, offered for his verification; GENUINE_GAP, nothing settles it; a GENERAL_PRINCIPLE is recorded once, at the top) beside its STATUS (whether the activity can carry it now). A status of MISSING_KNOWLEDGE or MISSING_CAPABILITY means the activity his rulings ask for needs it and it is not in place; it names the decisions and capabilities (gaps, defined in the record) that would supply it, and the build refuses the goal naming each one rather than build an activity that solves a different problem. existingKnowledge lists what existing knowledge already authorizes for the activity, with its sources. The decision and capability ids (D1-D7, M1-M8) and their one-line descriptions are OUR wording, as put to him; none is his. AMENDED 15 October 2026 (stage K2), narrowly, for his reply filed 17 October 2026: 'The priority remains producing one complete, representative Play Out from the Back activity through the normal generation pathway, without introducing unnecessary architecture or treating this first realization as the canonical version of the Learning Goal.' A record may name ONE provisional realization (provisionalRealization: an id in docs/audits/conformance/stage-b/provisional-realizations.json). That file, not this one, holds his provisional realization choices as contract items in his words; derivation adds them only for the goal whose record names the realization, every one carries the category PROVISIONAL_REALIZATION_CHOICE into the game, and none is canonical knowledge of the context. This record still holds no value: it names the realization, as it names a constraint. AMENDED 15 October 2026 (stage K4), narrowly, for his replies filed 17 and 18 October 2026: the file now records ONE mapping to an Environmental Manipulation, the context-manipulation relationship he asked for and then confirmed (contextManipulationRelationships; 17 October, D6: 'Please authorize this initial numerical asymmetry through the appropriate existing knowledge relationship, rather than hardcoding it to Play Out from the Back.'; 18 October, item 5: 'Goalkeeper Build-Out with Participant Composition.'), his allocation principle once (allocationPrinciple), and, in a record, the adjustments he authorized for that goal's activity, in his words (authorizedAdjustments). An adjustment names a count only where his words do. The starting counts themselves stay in the provisional realization, never here.",
     "libraryConstraintPrinciple": {
         "category": "GENERAL_PRINCIPLE",
         "ruledOn": "2026-10-15",
@@ -16,6 +16,51 @@
         ],
         "appliedAs": "Every Learning Goal whose authorization record has evaluated its authorized constraints and found none justified (an empty list) is selected with its game form and lenses and no library constraint; derivation, realization and every gate still run on it. Applied incrementally, as his words allow: a goal reaches it only once it has a record, and goals without one keep the vocabulary pool and the two-to-four rule. The lens rule (two or three) is unchanged: his item 1 speaks of library constraints, not lenses."
     },
+    "allocationPrinciple": {
+        "category": "GENERAL_PRINCIPLE",
+        "ruledOn": "2026-10-17",
+        "by": "Christian",
+        "citedAs": "his reply filed 17 October 2026, D6",
+        "principle": "The important principle is that player allocation should reflect representative numerical relationships, not default to equal outfield numbers regardless of the Learning Goal.",
+        "words": [
+            "In match play, teams building from the back commonly have more players available in their defensive third than the opposition initially commits to pressing.",
+            "A building-team numerical advantage is therefore not necessarily an artificial simplification. It can be representative of the actual performance environment.",
+            "The important principle is that player allocation should reflect representative numerical relationships, not default to equal outfield numbers regardless of the Learning Goal.",
+            "Please authorize this initial numerical asymmetry through the appropriate existing knowledge relationship, rather than hardcoding it to Play Out from the Back.",
+            "Please do not assign a goalkeeper an inactive role solely to preserve a symmetrical team structure."
+        ],
+        "appliedAs": "Recorded once, with no goal id, and applied without one. Equal outfield numbers stay the possession game's own knowledge (GF2-14.b): ruling C56 lets that item defer only in a composition where another selected contribution authors the outfield count per team and cites a CONFIRMED relationship below that authorizes the row (back/src/system/derivation/realization-deferral.ts); it is then listed as the alternative. The roster reads per-team counts from such items alone and refuses rather than choose: an allocation that fits no authored count is refused for that session (CONFIGURATION_DOES_NOT_FIT), and authored per-team counts with the equal-numbers requirement still in force are refused (NO_AUTHORIZED_ASYMMETRY). A goalkeeper available and not involved is counted among the outfield players by the roster's availability-is-not-involvement rule (his ruling of 30 September), so no goalkeeper is idled to make the teams symmetric; that is the only reading given to his last sentence, kept to what he said."
+    },
+    "contextManipulationRelationships": [
+        {
+            "id": "RPC-001~EM-0006",
+            "category": "EXISTING_KNOWLEDGE_RELATIONSHIP",
+            "contextId": "RPC-001",
+            "contextName": "Goalkeeper Build-Out",
+            "manipulationId": "EM-0006",
+            "manipulationName": "Participant Composition",
+            "manipulationStatus": "RC1 Candidate, version 0.1 (back/src/system/knowledge-core/em-schema.v2.0-rc1.json): an object inside the canonical projection, not canonical knowledge itself",
+            "dimension": "EMD-0013 Quantity",
+            "parameters": ["EMP-0036 Direction", "EMP-0037 Value", "EMP-0039 Scope"],
+            "scope": "Team",
+            "rows": ["P2"],
+            "via": [
+                "RPC-PROP-017 (rpc-library.rc1.json, BEHAVIOR_ADJUSTMENT, COMMON): 'Manipulate numerical relationships without prescribing a single solution.'",
+                "RC1.1 Representative Performance Context Library (docx), RPC-001, Typical Environmental Manipulations, Common: 'defensive numbers; numerical overloads' (not in the workbook; logged in docs/audits/rpc-001-document-workbook-reconciliation-2026-10-16.md)"
+            ],
+            "identified": "By us, 15 October 2026, under his instruction of 17 October 2026, D6: 'Please authorize this initial numerical asymmetry through the appropriate existing knowledge relationship, rather than hardcoding it to Play Out from the Back.' and his reconciliation paragraph: 'Where a specific missing relationship is necessary for Play Out from the Back, identify and resolve that relationship explicitly.' Which relationship, and that its scope is the whole context, were put to him in our email of 17 October 2026.",
+            "status": "CONFIRMED",
+            "confirmedOn": "2026-10-18",
+            "confirmedBy": "Christian",
+            "citedAs": "his reply filed 18 October 2026, item 5",
+            "words": [
+                "I confirm both documented relationships:",
+                "Goalkeeper Build-Out with Participant Composition.",
+                "Both should be represented as knowledge-authorized relationships rather than hardcoded behavior for this Learning Goal."
+            ],
+            "note": "Context-level, so any Goalkeeper Build-Out realization may cite it; nothing in it names a goal. It authorizes a realization to author the outfield count PER TEAM (row P2), which is what lets the possession game's equal-numbers item defer (ruling C56); it fixes no number. The Performer Configuration relationship he confirmed in the same sentence (Goalkeeper Build-Out with EM-0002) joins this list with the starting arrangement that uses it (stage K6), so that nothing here is recorded before a reader exists for it."
+        }
+    ],
     "authorizations": [
         {
             "learningGoalId": "A01",
@@ -160,9 +205,9 @@
                 },
                 {
                     "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
-                    "what": "Equal outfield numbers are the only allocation current knowledge authorizes.",
+                    "what": "Equal outfield numbers (the possession game, GF2-14.b) remain the alternative allocation, in force wherever no knowledge-authorized realization authors the counts per team.",
                     "sources": ["contract item GF2-14.b (OWNER_RULING, ruling C31b, 1 October 2026)"],
-                    "note": "Whether they fit the asymmetric structure is decision D6; they are not applied as a default."
+                    "note": "Restated 15 October 2026 (stage K4, ruling C56, his 17 October D6: 'preserving equal numbers as an alternative'): in this goal's activity GF2-14.b defers to the provisional realization's per-team counts, which cite the relationship he confirmed on 18 October, and it is listed as the alternative. It read 'Equal outfield numbers are the only allocation current knowledge authorizes.' until then."
                 },
                 {
                     "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
@@ -208,6 +253,50 @@
                     "heldBy": "learning-design-holds.json"
                 }
             ],
+            "authorizedAdjustments": {
+                "words": [
+                    "The coach should also be able to change the numerical relationship when the activity warrants it.",
+                    "These are different environmental manipulations, with different consequences.",
+                    "Neither adjustment should be automatically mapped to Comfortable, Stretch, or Demanding.",
+                    "For now, I am asking that these remain possible, authorized adjustments—not that we implement a live challenge-regulation system."
+                ],
+                "citedAs": "his reply filed 17 October 2026, D6 (Adjusting the challenge)",
+                "note": "Rendered only in 'Adjusting the activity', in his words (DRAFT). No state, trigger or live mechanism carries them, nothing maps them to a challenge level, and no count is written for them: how either is made with every player already in a team (a 13th player, or a building player moving across; one player sitting out) is said in our email of 17 October and left to the coach.",
+                "entries": [
+                    {
+                        "id": "A01-ADJ-1",
+                        "category": "PROVISIONAL_REALIZATION_CHOICE",
+                        "ruledOn": "2026-10-17",
+                        "by": "Christian",
+                        "citedAs": "his reply filed 17 October 2026, D6 (Adjusting the challenge)",
+                        "words": "Add a pressing player, representing an opponent committing additional numbers forward.",
+                        "consequence": "Adding a pressing player can increase pressure but may also expose space behind the press. That relationship is itself something players should learn to recognize and exploit.",
+                        "relationship": "RPC-001~EM-0006",
+                        "parameter": "EMP-0036 Direction: Increase",
+                        "role": "PRESSING",
+                        "sources": [
+                            "RPC-PROP-017 (BEHAVIOR_ADJUSTMENT): 'Manipulate numerical relationships without prescribing a single solution.'"
+                        ],
+                        "note": null
+                    },
+                    {
+                        "id": "A01-ADJ-2",
+                        "category": "PROVISIONAL_REALIZATION_CHOICE",
+                        "ruledOn": "2026-10-17",
+                        "by": "Christian",
+                        "citedAs": "his reply filed 17 October 2026, D6 (Adjusting the challenge)",
+                        "words": "Remove a build-out player, reducing the building team's available support options.",
+                        "consequence": null,
+                        "relationship": "RPC-001~EM-0006",
+                        "parameter": "EMP-0036 Direction: Decrease",
+                        "role": "BUILDING",
+                        "sources": [
+                            "RPC-PROP-017 (BEHAVIOR_ADJUSTMENT): 'Manipulate numerical relationships without prescribing a single solution.'"
+                        ],
+                        "note": null
+                    }
+                ]
+            },
             "manipulations": [
                 {
                     "phrase": "starting positions",
@@ -281,11 +370,11 @@
                     "tier": "COMMON",
                     "source": "RC1.1 Representative Performance Context Library (docx), RPC-001 Goalkeeper Build-Out, Typical Environmental Manipulations, Common: 'defensive numbers'",
                     "registerRows": ["P2"],
-                    "category": "GENUINE_GAP",
-                    "status": "MISSING_KNOWLEDGE",
-                    "gaps": ["D6"],
-                    "statusBasis": "His 16 October reply, item 7: 'The player allocation also needs to support the chosen asymmetrical game structure, rather than automatically inheriting the symmetrical possession game's team organization.' GF2-14.b equal outfield counts is OWNER_RULING since ruling C31b (1 October 2026), with his caution that other authoritative knowledge may establish asymmetry where the learning problem requires it; nothing selected for this activity establishes it, and RPC-001 declares P2 NON_CLAIMED.",
-                    "note": "Equal outfield numbers are the only allocation current knowledge authorizes; applying them by default would be the inheritance item 7 warns against, so the allocation waits on decision D6. Until 15 October 2026 (stage H3) this was NOT_SELECTED_FOR_FIRST_DEMO, our identification of the smallest set."
+                    "category": "PROVISIONAL_REALIZATION_CHOICE",
+                    "status": "AUTHORIZED_BY_RULING",
+                    "gaps": [],
+                    "statusBasis": "His reply filed 17 October 2026, D6: 'For the initial 12-player demonstration, I favor six outfield players plus one goalkeeper building out against five pressing players.' 'However, five outfield players plus a goalkeeper against five pressing players is also a legitimate configuration when the roster supports it.' 'Please authorize this initial numerical asymmetry through the appropriate existing knowledge relationship, rather than hardcoding it to Play Out from the Back.' His reply filed 18 October 2026, item 5, confirming the relationship: 'Goalkeeper Build-Out with Participant Composition.'",
+                    "note": "Carried since 15 October 2026 (stage K4) by the provisional realization A01-R1: the outfield count per role (A01-R1-P2-1 pressing = 5, A01-R1-P2-2 building 5 or 6), each citing the context-manipulation relationship he confirmed on 18 October (recorded once, at the top of this file, contextManipulationRelationships; no manipulation id is written into this entry), under which the possession game's equal-numbers item GF2-14.b defers and is listed as the alternative (ruling C56). The session total decides which of his two configurations applies; no other count is decided. Until 15 October 2026 (stage K4) this was MISSING_KNOWLEDGE waiting on D6, and until stage H3 NOT_SELECTED_FOR_FIRST_DEMO."
                 },
                 {
                     "phrase": "goalkeeper positioning",
@@ -296,9 +385,9 @@
                     "registerRows": ["P3", "T3"],
                     "category": "PROVISIONAL_REALIZATION_CHOICE",
                     "status": "MISSING_CAPABILITY",
-                    "gaps": ["D6", "M2", "M3"],
+                    "gaps": ["M3"],
                     "statusBasis": "His 16 October reply, item 7: 'I approve two goalkeepers for the initial 12-player, 40 × 30 m demonstration if that configuration is supported by the selected game form.' 'However, the broader goalkeeper-or-controlled-restart alternative must remain intact.' 'Two goalkeepers should not become a universal requirement for Play Out from the Back.' Item 9.4: 'Goalkeeper-or-controlled-restart alternative: Approved.' (ruling C53: the context no longer requires a goalkeeper on every team).",
-                    "note": "Measured 15 October 2026 (C53): with two goalkeepers available the roster gives each team six outfield players and no goalkeeper, because nothing gives a team its goalkeeper (capabilities M2 and M3). Whether the possession game's silence on goalkeepers counts as 'supported by the selected game form', and what a team's goalkeeper does while it presses, are decision D6; two goalkeepers are not called supported here. His 15 October item 3 ('one goalkeeper per team for the initial symmetrical build-out demonstration') framed the symmetric game and is superseded by his 16 October items 2 and 7. Until 15 October 2026 (stage H3) this was AUTHORIZED_BY_RULING."
+                    "note": "The goalkeeper COUNT is carried since 15 October 2026 (stage K4): one goalkeeper for the team holding the building role in each block (A01-R1-P3-1, his D6 'For this first asymmetrical activity, I favor one active goalkeeper serving the team currently building out.'), moving with the role at each exchange by the recorded reassignment (A01-R1-B4-1/B7-1, his 18 October item 1). What still waits is the goalkeeper's part in starting a build-out (T3, his D5 'The initial demonstration may use goalkeeper distribution from the feet.'), capability M3; D6 and M2 no longer stand behind this entry. Before stage K4: measured 15 October 2026 (C53), with two goalkeepers available the roster gave each team six outfield players and no goalkeeper, and the entry also waited on D6 and M2. His 15 October item 3 ('one goalkeeper per team for the initial symmetrical build-out demonstration') framed the symmetric game and is superseded by his 16 October items 2 and 7 and his 17 October D6. Until 15 October 2026 (stage H3) this was AUTHORIZED_BY_RULING."
                 },
                 {
                     "phrase": "overloads",
@@ -306,12 +395,12 @@
                     "aspect": null,
                     "tier": "COMMON",
                     "source": "RC1.1 Representative Performance Context Library (docx), RPC-001 Goalkeeper Build-Out, Typical Environmental Manipulations, Common: 'numerical overloads'",
-                    "registerRows": ["P5"],
-                    "category": "GENUINE_GAP",
-                    "status": "MISSING_KNOWLEDGE",
-                    "gaps": ["D6"],
-                    "statusBasis": "His 16 October reply, item 7: 'The player allocation also needs to support the chosen asymmetrical game structure, rather than automatically inheriting the symmetrical possession game's team organization.' RPC-001 and GF2 both declare P5 NON_CLAIMED, and GF2-14.b requires equal outfield counts (OWNER_RULING, C31b).",
-                    "note": "Whether the asymmetry is carried by numbers (an overload) or by roles and targets with equal numbers is decision D6. Until 15 October 2026 (stage H3) this was NOT_SELECTED_FOR_FIRST_DEMO."
+                    "registerRows": ["P2"],
+                    "category": "PROVISIONAL_REALIZATION_CHOICE",
+                    "status": "AUTHORIZED_BY_RULING",
+                    "gaps": [],
+                    "statusBasis": "His reply filed 17 October 2026, D6: 'In match play, teams building from the back commonly have more players available in their defensive third than the opposition initially commits to pressing.' 'For the initial 12-player demonstration, I favor six outfield players plus one goalkeeper building out against five pressing players.' 'This uses all 12 players and creates a modest numerical advantage for the building team.'",
+                    "note": "Carried since 15 October 2026 (stage K4) by the unequal outfield counts per role (row P2, the same A01-R1 items as 'defensive numbers'), never by neutral players: his overload is a building-team advantage, and the Neutral Player Condition is not authorized for this goal (row P5 stays unused). Until 15 October 2026 (stage K4) the entry named P5 and was MISSING_KNOWLEDGE waiting on D6, and until stage H3 NOT_SELECTED_FOR_FIRST_DEMO."
                 },
                 {
                     "phrase": "support spacing",

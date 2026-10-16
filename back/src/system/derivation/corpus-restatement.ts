@@ -38,7 +38,7 @@ import { AUDITS_DIR } from './knowledge-root'
 
 import { provablyDisjoint } from './reach'
 import { parsePredicate } from './selector'
-import { ContractItem, DEFERS_TO_ESTABLISHING_OBJECT, LoadedContract } from './types'
+import { ContractItem, DEFERS_TO_AUTHORIZED_REALIZATION, DEFERS_TO_ESTABLISHING_OBJECT, LoadedContract } from './types'
 
 /** The spellings the corpus used for "no row holds this", neither of them registered. */
 const UNREGISTERED_SPELLINGS = ['NONE', '—']
@@ -102,6 +102,21 @@ export function restateDeclaration(declaration: Record<string, unknown>, restate
         declaration: restatement.to,
         ...(restatement.defersTo === undefined ? {} : { defersTo: restatement.defersTo }),
     }
+}
+
+/**
+ * **An item restatement may write a supersession only as ruled** — 15 October 2026 (stage K4, ruling C56). Christian, reply
+ * filed 17 October 2026, D6: *"If the 6 + GK versus 5 configuration requires a narrow exception to the possession game's
+ * equal-outfield-number rule, please document it as a knowledge-authorized realization, preserving equal numbers as an
+ * alternative."* The supersession vocabulary gains one value for items, `DEFERS_TO_AUTHORIZED_REALIZATION`; the
+ * declarations' value is not an item's, and an unknown value is not a supersession the engine knows. Either is refused and
+ * named (null where the ruling may be applied), exactly as a declaration's is in `restateDeclaration`.
+ */
+export function itemDeferralRefusal(key: string, ruling: ItemRestatement): string | null {
+    if (!ruling.set || !('defersTo' in ruling.set)) return null
+    const value = ruling.set.defersTo
+    if (value === DEFERS_TO_AUTHORIZED_REALIZATION) return null
+    return `${key} (${ruling.ruling}): ${JSON.stringify(value)} is not a supersession an item may carry (only ${DEFERS_TO_AUTHORIZED_REALIZATION}), so the ruling is not applied`
 }
 
 /**
@@ -307,6 +322,13 @@ export function applyNoRowRestatement(contracts: LoadedContract[], tally: Restat
 
             let restated: any = { ...item }
             for (const ruling of rulings) {
+                // An item's supersession is a ruled one and has one value (15 October 2026, stage K4, C56); any other is
+                // refused and named, never applied — the declaration's rule (`restateDeclaration`), for an item.
+                const refusal = itemDeferralRefusal(key, ruling)
+                if (refusal) {
+                    tally.notFound.push(refusal)
+                    continue
+                }
                 tally.itemsRestated++
                 restated = { ...restated, ...(ruling.set || {}) }
                 for (const [field, value] of Object.entries(ruling.set || {})) if (value === undefined) delete restated[field]

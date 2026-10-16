@@ -906,6 +906,30 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
     const size = sizes.length === 1 ? Number(sizes[0]) : null
 
     /**
+     * **Teams told apart by the role each holds in this block — DRAFT, 15 October 2026 (stage K4).** For his starting
+     * configurations of 17 October 2026 (D6, unequal counts by role) and his D7: *"Please use the assigned team roles rather
+     * than referring generically to "the defending team,""*. Where the teams hold different counts, nothing told them apart before, so the counts were
+     * withheld. In a game derived for a role block the record says which end-assigned team holds each role
+     * (`record.roleBlock`) and which team holds each end (`record.designationBindings`), and the role's DRAFT noun crossed
+     * with the game (`roleNouns`): so each team is named by its role, and its counts are said as its own. Read only from the
+     * fixture; a team no role names leaves the old withholding in place.
+     */
+    const block: { holders?: Record<string, string> } | undefined = fixture.record?.roleBlock
+    const teamNouns: Record<string, string> = fixture.roleNouns?.nouns ?? {}
+    const bound: { designation: string; handle: string }[] = fixture.record?.designationBindings ?? []
+    const roleOfTeam = (team: any): string | null => {
+        for (const [role, holder] of Object.entries(block?.holders ?? {})) {
+            if (bound.some(binding => binding.designation === holder && binding.handle === team?.elementId)) return role
+        }
+        return null
+    }
+    const roleOrder = Object.keys(block?.holders ?? {})
+    const namedByRole = teams.length > 0 && teams.every(team => !!roleOfTeam(team) && !!teamNouns[roleOfTeam(team)!]) && new Set(teams.map(roleOfTeam)).size === teams.length
+    const specializedHeld = Object.keys(fixture.envelope?.roles ?? {})
+    const countsDiffer = size === null || specializedHeld.some(role => new Set(teams.map((t: any) => t[role])).size > 1)
+    const byRole = namedByRole && countsDiffer && teams.every((t: any) => Number.isInteger(t.outfieldCount) && specializedHeld.every(role => Number.isInteger(t[role])))
+
+    /**
      * **NEUTRAL PLAYERS, AND A GROUP'S PARTICIPATION STATE — added 13 October 2026, consolidated 14 October.**
      *
      * Christian, 13 October: *"For the proposed neutral-player condition, my preference is that the neutral supports
@@ -953,7 +977,28 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
     if (Number.isFinite(players)) {
         roster.push(part(recorded('envelope.players', 'SESSION'), teams.length ? `Divide ${players} players` : `${players} players in total`, ['envelope.players'], [{ quantity: players, path: 'envelope.players' }]))
     }
-    if (teams.length) {
+    if (teams.length && byRole) {
+        /**
+         * **Each team's counts, by the role it holds** (stage K4, DRAFT): "Divide 12 players into 2 teams: the building team has
+         * 6 outfield players and 1 <role>; the pressing team has 5 outfield players". Each count is cited by its PROPERTY
+         * path (never a member's handle, `identity.unit.ts`) and bound to it, so fidelity checks the number against what the
+         * teams hold; a specialized role is said only for a team that involves it, by the role's own name.
+         */
+        roster.push(part('INSTANTIATED', roster.length ? ` into ${teams.length} teams` : `${teams.length} teams`, ['performers.teams'], [{ quantity: teams.length, path: 'performers.teams' }]))
+        const ordered = [...teams].sort((a, b) => roleOrder.indexOf(roleOfTeam(a)!) - roleOrder.indexOf(roleOfTeam(b)!))
+        ordered.forEach((team, i) => {
+            const outfield = Number(team.outfieldCount)
+            roster.push(
+                part('DERIVED', `${i === 0 ? ': ' : '; '}the ${teamNouns[roleOfTeam(team)!]} has ${outfield} outfield player${outfield === 1 ? '' : 's'}`, ['performers.teams[].outfieldCount'], [
+                    { quantity: outfield, path: 'performers.teams[].outfieldCount' },
+                ]),
+            )
+            for (const role of specializedHeld) {
+                const held = Number(team[role])
+                if (held > 0) roster.push(part('DERIVED', ` and ${held} ${role}${held === 1 ? '' : 's'}`, [`performers.teams[].${role}`], [{ quantity: held, path: `performers.teams[].${role}` }]))
+            }
+        })
+    } else if (teams.length) {
         /**
          * **A per-team property is cited by its PROPERTY path, never by a member's address.** The size is entailed
          * onto each team at that member's own address, which carries its handle, and a handle is identity, not a
@@ -1003,11 +1048,25 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
                 }
                 continue
             }
-            if (new Set(held).size !== 1) {
+            if (new Set(held).size !== 1 && !byRole) {
                 observations.push(
                     `The teams hold different ${role} counts (${held.join(' and ')}), and nothing in the game tells the teams apart, so the ` +
                         `activity cannot say which team has which. Withheld rather than averaged.`,
                 )
+                continue
+            }
+            if (byRole) {
+                /**
+                 * **A specialized performer available and not used is said to play outfield — DRAFT, stage K4.** His D6 asks
+                 * that none be given an inactive role solely to keep the teams symmetric (quoted in the authorization record's
+                 * allocation principle). The roster counts a performer available and not involved among the outfield players;
+                 * where some of the role ARE involved, the rest are "the other" ones. The rotation into the active role he
+                 * permits (D6) is not said: nothing in the game carries it yet.
+                 */
+                const used = held.reduce((sum: number, n: unknown) => sum + Number(n), 0)
+                const spare = available - used
+                if (spare > 0) rolesUnused.push(part('DERIVED', used > 0 ? `; the other ${role}${spare === 1 ? ' plays as an outfield player' : 's play as outfield players'}` : `; ${role}s play as outfield players in this activity`, ['envelope.roles', property]))
+                else if (used === 0 && available === 0) rolesNone.push({ role, from: ['envelope.roles', property] })
                 continue
             }
             const involved = Number(held[0])
@@ -1197,7 +1256,8 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
     }
     for (const adjusting of neutralAdjusting.filter(i => i.section === ADJUSTING)) instructions.push(adjusting)
 
-    if (teams.length && size === null) {
+    // Where each team's size was said by its role (stage K4), the teams do have sizes: this observation is not about them.
+    if (teams.length && size === null && !byRole) {
         // NOT repaired. The renderer could divide 12 by 2 and write "two teams of six" — and that is exactly the
         // forbidden move. The post-realization gate derived the size into its own evaluation context and the value
         // never reached the game, so a renderer that recomputed it would be inventing a number on its own authority.
@@ -1560,6 +1620,57 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
                 [...exchangePaths, ...endPaths],
             )
         }
+
+        /**
+         * **Who changes team at the exchange — said only where a reassignment is recorded; DRAFT, 15 October 2026 (stage K4).**
+         * His answer to RD-1, reply filed 18 October 2026 (the first realization's reassignment, quoted on its items), and his
+         * *"role exchange and participant reassignment should remain separate capabilities."* So the exchange sentence above
+         * moves nobody, and this one says,
+         * from each reassignment element the game holds, how many of which performers go to the team that becomes the holder
+         * of which role — every count bound to its element, every element's three fields cited. Nouns: the register's DRAFT
+         * outfield noun and a specialized role's own name, crossed with the game (`reassignmentNouns`). An element with no
+         * noun is not said, and is then uncarried, so fidelity refuses rather than this renderer naming a performer itself.
+         */
+        const reassignments: any[] = Array.isArray(game.reassignments) ? game.reassignments : []
+        const performerNouns: Record<string, { singular: string; plural: string }> = fixture.reassignmentNouns?.nouns ?? {}
+        for (const role of roleElements.map(roleOf)) {
+            // A count is said only where the game holds it as a number, so fidelity can hold the sentence to it.
+            const moving = reassignments.filter(element => element?.toRole === role && performerNouns[element?.performerRow] && Number.isInteger(element?.count))
+            if (!moving.length || !roleNouns[role!]) continue
+            const counted = moving.map(element => ({ element, count: Number(element.count) }))
+            const said = counted.map(({ element, count }) => `${count} ${count === 1 ? performerNouns[element.performerRow].singular : performerNouns[element.performerRow].plural}`)
+            const total = counted.reduce((sum, entry) => sum + entry.count, 0)
+            const paths = moving.flatMap(element => [`reassignments[${element.elementId}].toRole`, `reassignments[${element.elementId}].performerRow`, `reassignments[${element.elementId}].count`])
+            say(
+                ROLE_EXCHANGE,
+                statusAt(paths, 'DERIVED'),
+                `When you call the next block, ${said.length > 1 ? `${said.slice(0, -1).join(', ')} and ${said[said.length - 1]}` : said[0]} ${total === 1 ? 'moves' : 'move'} to the team that becomes the ${roleNouns[role!]}`,
+                paths,
+                counted.map(({ element, count }) => ({ quantity: count, path: `reassignments[${element.elementId}].count` })),
+            )
+        }
+    }
+
+    /**
+     * **The adjustments he authorized, in his words, in "Adjusting the activity" only — DRAFT, 15 October 2026 (stage K4).**
+     * His reply filed 17 October 2026, D6: *"The coach should also be able to change the numerical relationship when the
+     * activity warrants it."* *"For now, I am asking that these remain possible, authorized adjustments—not that we implement
+     * a live challenge-regulation system."* *"Neither adjustment should be automatically mapped to Comfortable, Stretch, or
+     * Demanding."* Each is put to the coach as a choice in his own sentence, with the first sentence of his consequence, where he
+     * gave one, in his words after it (it keeps his own hedges, "can" and "may"). One sentence, a coach's choice: an ADVISORY
+     * sentence would be reworded as a recommendation of the knowledge, which this is not. Read from the authorization record
+     * that crossed with the game (`adjustments`); nothing here names a role, a count or a challenge level.
+     */
+    for (const adjustment of (fixture.adjustments?.entries ?? []) as { id: string; words: string; consequence: string | null }[]) {
+        if (typeof adjustment?.words !== 'string' || !adjustment.words.trim()) continue
+        const own = adjustment.words.trim().replace(/\.$/, '')
+        const consequence = typeof adjustment.consequence === 'string' ? adjustment.consequence.trim().split('. ')[0].replace(/\.$/, '') : ''
+        say(
+            ADJUSTING,
+            'COACH_CHOICE',
+            `You may choose to ${own.charAt(0).toLowerCase()}${own.slice(1)}${consequence ? `: ${consequence.charAt(0).toLowerCase()}${consequence.slice(1)}` : ''}`,
+            [`adjustments[${adjustment.id}].words`, ...(consequence ? [`adjustments[${adjustment.id}].consequence`] : [])],
+        )
     }
 
     // ── Observations about the game, not fixes to it ─────────────────────────────────────────────

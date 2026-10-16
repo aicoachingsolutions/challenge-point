@@ -195,6 +195,71 @@ function indexRoleBlocks(block: any, rows: Map<string, RegisterRow>, vocabularie
     return { rolesRow, roleAttribute, roles: [...roles], exchangeRow, exchanges: [...exchanges], holderDesignation, coachNouns: Object.fromEntries(roles.map(role => [role, String(nouns[role])])) }
 }
 
+/**
+ * **Where the participant-reassignment capability finds its rows** — register version 11, 15 October 2026, for his answer
+ * to RD-1 (reply filed 18 October 2026): *"role exchange and participant reassignment should remain separate capabilities.
+ * Exchanging roles should not inherently require players to change teams. This particular realization uses both mechanisms
+ * to preserve its intended numerical relationship."* Read by `derivation/reassignment.ts`; no row id is written there.
+ */
+export interface ReassignmentRegister {
+    /** The COLLECTION row whose elements are the reassignments (`reassignments[]`). */
+    row: string
+    /** The FIELD rows owned by it: the role the performers join, the kind of performer, and how many. */
+    toRoleRow: string
+    performerRowRow: string
+    countRow: string
+    /** The leaves those fields sit at in a game. */
+    toRoleLeaf: string
+    performerRowLeaf: string
+    countLeaf: string
+    /** The row counting a team's outfield players. */
+    outfieldRow: string
+    /** Every row that counts a kind of performer per team: the outfield row, then the specialized-role rows of the teams row. */
+    performerRows: string[]
+    /** DRAFT coach noun for an outfield player — not approved wording. */
+    outfieldNoun: { singular: string; plural: string }
+}
+
+/**
+ * The reassignment block, validated as the rest of the register is (halt H1): its rows must be the collection and the three
+ * fields it owns, the two carried fields must be carried from the collection's own selector attributes (SD-92), and the
+ * outfield row must be a field of the teams row. A register without the block has no reassignment, and every game derives
+ * as before. It needs the role-block capability: a reassignment happens at an exchange of roles and at nothing else.
+ */
+function indexReassignment(block: any, rows: Map<string, RegisterRow>, roleBlocks: RoleBlockRegister | null, designations: DesignationRegister): ReassignmentRegister | null {
+    if (!block || typeof block !== 'object') return null
+    if (!roleBlocks) throw new HaltError('H1', 'reassignment: a reassignment happens at an exchange of roles, and the register has no roleBlocks block')
+    const row = String(block.row ?? '')
+    if (rows.get(row)?.kind !== 'COLLECTION') throw new HaltError('H1', `reassignment.row ${row} is not a COLLECTION row`)
+    const owned = (id: string) => rows.get(id)?.kind === 'FIELD' && rows.get(id)?.ownerRow === row
+    const [toRoleRow, performerRowRow, countRow] = [String(block.toRoleRow ?? ''), String(block.performerRowRow ?? ''), String(block.countRow ?? '')]
+    for (const id of [toRoleRow, performerRowRow, countRow]) if (!owned(id)) throw new HaltError('H1', `reassignment: ${id} is not a FIELD row owned by ${row}`)
+    const attributes = rows.get(row)?.selectorAttributes ?? []
+    for (const id of [toRoleRow, performerRowRow]) {
+        const carried = rows.get(id)?.selectorAttribute
+        if (!carried || !attributes.includes(carried)) throw new HaltError('H1', `reassignment: ${id} must carry a selector attribute of ${row} (SD-92)`)
+    }
+    const outfieldRow = String(block.outfieldRow ?? '')
+    const teamsRow = designations.teamsRow
+    if (rows.get(outfieldRow)?.kind !== 'FIELD' || rows.get(outfieldRow)?.ownerRow !== teamsRow) throw new HaltError('H1', `reassignment.outfieldRow ${outfieldRow} is not a FIELD row of the teams row ${teamsRow}`)
+    const specialized = [...rows.values()].filter(r => (r as { specializedRole?: boolean }).specializedRole && r.ownerRow === teamsRow).map(r => r.id)
+    const noun = block.outfieldNoun ?? {}
+    if (typeof noun.singular !== 'string' || !noun.singular.trim() || typeof noun.plural !== 'string' || !noun.plural.trim()) throw new HaltError('H1', 'reassignment.outfieldNoun names no singular and plural noun')
+    const leaf = (id: string) => String(rows.get(id)?.path ?? '').split('[].').pop() ?? ''
+    return {
+        row,
+        toRoleRow,
+        performerRowRow,
+        countRow,
+        toRoleLeaf: leaf(toRoleRow),
+        performerRowLeaf: leaf(performerRowRow),
+        countLeaf: leaf(countRow),
+        outfieldRow,
+        performerRows: [outfieldRow, ...specialized],
+        outfieldNoun: { singular: String(noun.singular), plural: String(noun.plural) },
+    }
+}
+
 export interface RegisterIndex {
     rows: Map<string, RegisterRow>
     /** Position in `register.rows`, the canonical row order (package §8). */
@@ -267,6 +332,8 @@ export interface RegisterIndex {
     roleBlocks: RoleBlockRegister | null
     /** The derived region attribute naming the team that attacks it (register version 10), or null without it. */
     targetOf: TargetOfRegister | null
+    /** The participant-reassignment capability's rows (register version 11, his RD-1 answer), or null without it. */
+    reassignment: ReassignmentRegister | null
     registerVersion: string
 }
 
@@ -406,6 +473,7 @@ export function indexRegister(register: any): RegisterIndex {
 
     const citable = new Set<string>((register.citableStandingDecisions || []).map((d: any) => d.id).filter(Boolean))
     const designations = indexDesignations(register.teamDesignations, rows)
+    const roleBlocks = indexRoleBlocks(register.roleBlocks, rows, vocabularies, designations)
 
     return {
         rows,
@@ -432,8 +500,9 @@ export function indexRegister(register: any): RegisterIndex {
         standingDecisions: (register.citableStandingDecisions || []).filter((d: any) => d && d.id),
         teamDesignations: Array.isArray(register.teamDesignations?.list) ? register.teamDesignations.list.map(String) : [],
         designations,
-        roleBlocks: indexRoleBlocks(register.roleBlocks, rows, vocabularies, designations),
+        roleBlocks,
         targetOf: indexTargetOf(register.targetOf, rows, vocabularies, designations),
+        reassignment: indexReassignment(register.reassignment, rows, roleBlocks, designations),
         registerVersion: register.version,
     }
 }

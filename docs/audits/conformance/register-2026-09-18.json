@@ -1,7 +1,7 @@
 {
   "title": "Atomic field-path register — Game Representation Specification revision 4",
   "date": "2026-09-18",
-  "version": "10, adds role blocks for his M1 in the reply filed 17 October 2026 (\"M1 — Role exchange by block: Approved. Keep role assignments separate from fixed ends. Allow target configurations to reflect each team's role during the block. The coach controls the exchange. No new block-duration system is needed.\"), recorded 2026-10-15: rows B1 (activityRoles[]), B2 (activityRoles[].activityRole) and B3 (activityRoles[].exchange, closed list COACH_CALLS); vocabularies B1.activityRole and B3.exchange; the block-scoped designation ROLE_HOLDER_<role> (BLOCK_ROLE, our extension of AM-01); the derived S2 selector attribute targetOf; and the roleBlocks block naming them. Nothing existing changes: no row, list entry, gloss or note is altered, and a game establishing no role enumerates exactly the lines it did. Supersedes version 9, which adds a typed resolution to every team designation (teamDesignations.resolutions, with closed kinds and scopes, the designation-valued selector attributes and the scopes a standing team property may be reached through) for his M2 in the reply filed 17 October 2026, recorded 2026-10-15; each resolution restates its entry's gloss or is marked OUR_INTERPRETATION. Nothing existing changes: no list entry, gloss or note is altered. Supersedes version 8, which added the declaration qualifier vocabulary (contractEnums.declarationQualifier: NO_FURTHER_VALUE, UNRESTRICTED - his M6 three states) and the relational V5 referent form (the objective reference of a team designation - his M8), both approved in his reply filed 17 October 2026, recorded 2026-10-15. Supersedes version 7, which added P6c (performers.neutrals.affiliation.takesEffect: when a neutral player's change of affiliation takes effect, IMMEDIATE or AT_NEXT_RESTART) on the ruling of 2026-10-14. Nothing existing changes: no declaration is requalified, and every existing V5 value reads as before.",
+  "version": "11, adds participant reassignment at a role exchange for his answer to RD-1 in the reply filed 18 October 2026 (\"One architectural distinction: role exchange and participant reassignment should remain separate capabilities. Exchanging roles should not inherently require players to change teams. This particular realization uses both mechanisms to preserve its intended numerical relationship.\"), recorded 2026-10-15: rows B4 (reassignments[]), B5 (reassignments[].toRole), B6 (reassignments[].performerRow) and B7 (reassignments[].count), and the reassignment block naming them. A role exchange moves no performer; a reassignment says which performers change team at an exchange, by the row that counts them and how many, to the team newly holding which role. Nothing existing changes: no row, list entry, gloss or note is altered, and a game establishing no reassignment enumerates exactly the lines it did. Supersedes version 10, which adds role blocks for his M1 in the reply filed 17 October 2026 (\"M1 — Role exchange by block: Approved. Keep role assignments separate from fixed ends. Allow target configurations to reflect each team's role during the block. The coach controls the exchange. No new block-duration system is needed.\"), recorded 2026-10-15: rows B1 (activityRoles[]), B2 (activityRoles[].activityRole) and B3 (activityRoles[].exchange, closed list COACH_CALLS); vocabularies B1.activityRole and B3.exchange; the block-scoped designation ROLE_HOLDER_<role> (BLOCK_ROLE, our extension of AM-01); the derived S2 selector attribute targetOf; and the roleBlocks block naming them. Nothing existing changes: no row, list entry, gloss or note is altered, and a game establishing no role enumerates exactly the lines it did. Supersedes version 9, which adds a typed resolution to every team designation (teamDesignations.resolutions, with closed kinds and scopes, the designation-valued selector attributes and the scopes a standing team property may be reached through) for his M2 in the reply filed 17 October 2026, recorded 2026-10-15; each resolution restates its entry's gloss or is marked OUR_INTERPRETATION. Nothing existing changes: no list entry, gloss or note is altered. Supersedes version 8, which added the declaration qualifier vocabulary (contractEnums.declarationQualifier: NO_FURTHER_VALUE, UNRESTRICTED - his M6 three states) and the relational V5 referent form (the objective reference of a team designation - his M8), both approved in his reply filed 17 October 2026, recorded 2026-10-15. Supersedes version 7, which added P6c (performers.neutrals.affiliation.takesEffect: when a neutral player's change of affiliation takes effect, IMMEDIATE or AT_NEXT_RESTART) on the ruling of 2026-10-14. Nothing existing changes: no declaration is requalified, and every existing V5 value reads as before.",
   "source": "docs/design/game-representation-spec-2026-09-18.md §5 (the eight areas), §3 (statuses), §6 (the contract), §2 (standing decisions)",
   "rowKinds": {
     "COLLECTION": "The existence and count of elements in a collection. Items on a COLLECTION row say that elements matching a selector exist (EXISTS), how many (COUNT/RANGE), or that none may (NOT_EXISTS).",
@@ -1080,6 +1080,51 @@
       "sourceKinds": [
         "SELECTION"
       ]
+    },
+    {
+      "id": "B4",
+      "path": "reassignments[]",
+      "kind": "COLLECTION",
+      "selectorAttributes": [
+        "toRole",
+        "performerRow"
+      ],
+      "valueType": "the performers who change team when the teams exchange roles, one element per kind of performer: which performers (performerRow, B6), how many (count, B7), and to the team that newly holds which role (toRole, B5). ADDED 15 October 2026 (register version 11) for his answer to RD-1, reply filed 18 October 2026: \"One architectural distinction: role exchange and participant reassignment should remain separate capabilities. Exchanging roles should not inherently require players to change teams. This particular realization uses both mechanisms to preserve its intended numerical relationship.\" A capability of its own, apart from the role exchange (B1-B3): a role exchange never moves a performer, and where no reassignment is established every team keeps the same performers in every block. Read only in a game played in role blocks, where the cross-block membership check (RB-M) admits a change in a team's counts between the two blocks exactly where an element here states it. Apart from the end assignment too (ruling C42): he confirmed \"that the previously approved fixed team ends do not prohibit participant reassignment.\" The rows and the check are our engineering; his words are the two quoted",
+      "sourceKinds": [
+        "SELECTION"
+      ]
+    },
+    {
+      "id": "B5",
+      "path": "reassignments[].toRole",
+      "ownerRow": "B4",
+      "kind": "FIELD",
+      "valueType": "a role of the role vocabulary (roleBlocks.roleVocabulary): at an exchange the performers join the team that holds this role in the block the exchange begins, coming from the team that held it in the block before. Carried from the establishing selector (SD-92). Added 15 October 2026 (register version 11)",
+      "sourceKinds": [
+        "SELECTION"
+      ],
+      "selectorAttribute": "toRole"
+    },
+    {
+      "id": "B6",
+      "path": "reassignments[].performerRow",
+      "ownerRow": "B4",
+      "kind": "FIELD",
+      "valueType": "the id of the register row that counts these performers per team: the outfield count (reassignment.outfieldRow) or a specialized-role row owned by the teams row. Carried from the establishing selector (SD-92). Added 15 October 2026 (register version 11)",
+      "sourceKinds": [
+        "SELECTION"
+      ],
+      "selectorAttribute": "performerRow"
+    },
+    {
+      "id": "B7",
+      "path": "reassignments[].count",
+      "ownerRow": "B4",
+      "kind": "FIELD",
+      "valueType": "integer, 1 or more: how many of those performers change team at each exchange. Added 15 October 2026 (register version 11)",
+      "sourceKinds": [
+        "SELECTION"
+      ]
     }
   ],
   "comparison": {
@@ -1557,6 +1602,19 @@
       "status": "DRAFT",
       "from": "his D7, reply filed 17 October 2026: \"The building team attempts controlled progression into its designated target.\" / \"The pressing team attempts to prevent progression, regain possession, and reach its post-regain target.\"",
       "nouns": { "BUILDING": "building team", "PRESSING": "pressing team" }
+    }
+  },
+  "reassignment": {
+    "note": "ADDED 15 October 2026 (register version 11): where the participant-reassignment capability finds its rows, so the engine names none of them (back/src/system/derivation/reassignment.ts, read by the cross-block membership check RB-M in back/src/system/rendering/role-blocks.ts and by the renderer). His answer to RD-1, reply filed 18 October 2026: \"role exchange and participant reassignment should remain separate capabilities. Exchanging roles should not inherently require players to change teams. This particular realization uses both mechanisms to preserve its intended numerical relationship.\" A reassignment element says that, at each exchange of roles, count performers of the kind performerRow counts move to the team newly holding toRole, from the team that held it before. performerRow names the outfield count (outfieldRow) or a specialized-role row owned by the teams row; nothing else is a kind of performer here. With no element, an exchange moves nobody. outfieldNoun is DRAFT coach wording for his approval; a specialized role is named by its row's own leaf, as the session names it.",
+    "row": "B4",
+    "toRoleRow": "B5",
+    "performerRowRow": "B6",
+    "countRow": "B7",
+    "outfieldRow": "P2",
+    "outfieldNoun": {
+      "status": "DRAFT",
+      "singular": "outfield player",
+      "plural": "outfield players"
     }
   },
   "relativeTerms": {

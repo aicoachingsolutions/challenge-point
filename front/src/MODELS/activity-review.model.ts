@@ -214,6 +214,13 @@ export interface ActivityAccount {
      * 2026) — technical account only. Optional: older accounts lack it.
      */
     authorizationLists?: ReviewAuthorizationLists | null
+    /**
+     * The authority behind a per-team allocation (15 October 2026, stage K4) — technical account only, present only where a
+     * goal's provisional realization authors counts per team: his principle, the relationship he confirmed, what defers to it
+     * (listed as the alternative), his authorized adjustments and the testing boundaries. Optional: absent for every other
+     * activity.
+     */
+    allocation?: ReviewAllocation
     selectedWithoutContract: string[]
     /**
      * True where the goal's Game Problem is unresolved: the activity is provisional and not a completed
@@ -254,7 +261,7 @@ export interface ServedActivity {
     roleBlocks?: ReviewRoleBlocks
 }
 
-/** One cross-block check (RB-1 to RB-8). */
+/** One cross-block check (RB-1 to RB-8, and RB-M since stage K4). */
 export interface ReviewRoleBlockCheck {
     checkId: string
     what: string
@@ -266,11 +273,33 @@ export interface ReviewRoleBlockCheck {
 export interface ReviewRoleBlocks {
     exchange: string
     roles: { role: string; coachNoun: string; nounStatus: string }[]
-    blocks: { blockId: string; holders: Record<string, string>; integrity: ActivityIntegrity }[]
+    /** `concreteChecks` (stage K4): each block's Gate A rerun on its concrete game, check by check. Optional for older accounts. */
+    blocks: { blockId: string; holders: Record<string, string>; integrity: ActivityIntegrity; concreteChecks?: { checkId: string; verdict: string }[] }[]
     checks: ReviewRoleBlockCheck[]
     firstBlock: string
     /** Why the coach picks the first block: OUR inference from his D2, labelled so (K3 review, 15 October 2026). */
     firstBlockBasis: string
+}
+
+/** The allocation's authority, as the server sends it (stage K4). Every string is the record's or the realization's. */
+export interface ReviewAllocation {
+    principle: { ruledOn: string; by: string; citedAs: string; principle: string }
+    relationships: {
+        id: string
+        contextId: string
+        manipulationId: string
+        manipulationName: string
+        manipulationStatus: string
+        rows: string[]
+        status: string
+        confirmedOn: string | null
+        citedAs: string
+        words: string[]
+        identified: string
+    }[]
+    alternatives: { contractId: string; itemId: string; row: string; value: unknown; defersTo: string; deferredTo: { contractId: string; itemId: string }[]; relationship: string }[]
+    adjustments: { id: string; words: string; consequence: string | null; citedAs: string; parameter: string; role: string; relationship: string }[]
+    testingBoundaries: { players: number[]; words: string; citedAs: string; note: string | null } | null
 }
 
 export interface RefusedActivity {

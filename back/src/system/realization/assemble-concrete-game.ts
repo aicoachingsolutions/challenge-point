@@ -30,7 +30,8 @@
 
 import { ClassifiedLine, reasonFor } from '../derivation/classify'
 import { Comparison, comparisonOf } from '../derivation/comparison'
-import { DerivedLine, entails, resolvedValue } from '../derivation/derive'
+import { countBounds, DerivedLine, entails, resolvedValue } from '../derivation/derive'
+import { namesParticularTeams } from '../derivation/realization-deferral'
 import { GateContext } from '../derivation/gates'
 import { toRational } from '../derivation/rational'
 import { memberDesignations, whyNotReached } from '../derivation/designation'
@@ -120,23 +121,52 @@ export type RosterRefusal =
     | { cause: 'DOES_NOT_DIVIDE'; players: number; teams: number; involved: number; neutrals: number; why: string }
     /** Nobody is left for the outfield: every team would have fewer than one outfield player. */
     | { cause: 'NO_OUTFIELD_PLAYERS'; players: number; teams: number; involved: number; neutrals: number; why: string }
+    /**
+     * The outfield count is authored per team, and no allocation the authored counts admit fits this session (15 October
+     * 2026, stage K4). `fits` are the session player counts that would fit, as the rule itself answers them — null where the
+     * authored counts set no upper limit to search to.
+     */
+    | { cause: 'CONFIGURATION_DOES_NOT_FIT'; players: number; involved: number; neutrals: number; fits: number[] | null; why: string }
+    /**
+     * The outfield count is authored per team and only an unequal allocation fits, while an equal-numbers requirement is in
+     * force — no knowledge-authorized realization lets it defer (ruling C56) — so nothing licenses the asymmetry (stage K4).
+     */
+    | { cause: 'NO_AUTHORIZED_ASYMMETRY'; why: string }
+    /**
+     * The outfield count is authored per team and what it says of a team is undetermined, a team has no authored count, or
+     * more than one allocation fits and nothing authored decides between them (stage K4). Never chosen.
+     */
+    | { cause: 'ALLOCATION_NOT_SETTLED'; why: string }
+
+/** The items that decide one member's value, where an item speaks of particular teams (stage K4; see `Entailment`). */
+type Supported = { supportedBy?: { contractId: string; itemId: string }[] }
 
 /** What the roster rule derived: a size for every instantiated team, and each team's specialized-role involvement. */
 interface Roster {
     teams: Realized['record']['instantiations']
-    perTeam: number
+    /**
+     * Each team's outfield count, `outfield[i]` belonging to `teams[i]`, with why. One number for every team where equality
+     * is authored; the counts authored per team, closed from the session total, where a realization authors them (stage K4,
+     * which replaced the single `perTeam`).
+     */
+    outfield: ({ value: number; because: string } & Supported)[]
     /** One entry per specialized-role row, `perTeam[i]` belonging to `teams[i]`. */
-    involvement: { rowId: string; role: string; available: number; perTeam: { value: number; basis: string }[] }[]
+    involvement: { rowId: string; role: string; available: number; perTeam: ({ value: number; basis: string } & Supported)[] }[]
     /** The recorded realization choices the neutral count was read from — empty where derivation settled it. */
     neutralChoices: Realized['record']['choices']
     players: number
     chain: string
 }
 
-/** "Suppose this line held this count": the roster rule's own answer for a count other than the one in the game. */
+/**
+ * "Suppose this line held this count", or "suppose the session had this many players": the roster rule's own answer for a
+ * count other than the one in the game. The player count joined on 15 October 2026 (stage K4), so the counts a per-team
+ * allocation admits are the rule's answer too, never a second statement of its arithmetic.
+ */
 interface Supposing {
-    lineId: string
-    value: number
+    lineId?: string
+    value?: number
+    players?: number
 }
 
 const isRosterRefusal = (outcome: Roster | RosterRefusal): outcome is RosterRefusal => 'cause' in outcome
@@ -188,7 +218,7 @@ const establishedAbsence = (line: { lineState: string }, entry: ClassifiedLine |
  */
 function rosterFor(ctx: GateContext, realized: Realized, supposing?: Supposing): Roster | RosterRefusal {
     const envelope = ctx.envelope as { players?: unknown; roles?: Record<string, number> } | undefined
-    const players = Number(envelope?.players)
+    const players = supposing?.players ?? Number(envelope?.players)
     const roles = envelope?.roles
     if (!Number.isFinite(players)) return { cause: 'PLAYERS_NOT_STATED', why: 'the envelope carries no session player count' }
     if (!roles) {
@@ -227,16 +257,88 @@ function rosterFor(ctx: GateContext, realized: Realized, supposing?: Supposing):
      * the finished game is a separate obligation, and `comparison.stillOpen` currently refuses it — see
      * `comparison.ts`.
      */
-    const equality = ctx.contracts.some(contract =>
-        (contract.items ?? []).some(item => {
-            if (String(item.row) !== 'P2') return false
-            if (String((item as { valueStatus?: unknown }).valueStatus) !== 'REQUIRED_RANGE') return false
-            const comparison = comparisonOf(String(contract.contractId), item as unknown as Record<string, unknown>)
-            // An assumed comparison bounds and never entails (SD-27 / §3), so it may not license a division.
-            return !!comparison && comparison.authoritative && comparison.operator === '=' && sameRow(comparison, 'P2')
-        }),
+    const equalityItems = ctx.contracts.flatMap(contract =>
+        (contract.items ?? [])
+            .filter(item => {
+                if (String(item.row) !== 'P2') return false
+                if (String((item as { valueStatus?: unknown }).valueStatus) !== 'REQUIRED_RANGE') return false
+                const comparison = comparisonOf(String(contract.contractId), item as unknown as Record<string, unknown>)
+                // An assumed comparison bounds and never entails (SD-27 / §3), so it may not license a division.
+                return !!comparison && comparison.authoritative && comparison.operator === '=' && sameRow(comparison, 'P2')
+            })
+            .map(item => `${contract.contractId}::${item.itemId}`),
     )
-    if (!equality) {
+    const equality = equalityItems.length > 0
+
+    let scopes: ReturnType<typeof resolveScopes> | null = null
+    const scoped = () => (scopes = scopes ?? resolveScopes(ctx.contracts, ctx.classes, ctx.index))
+
+    /** The member as the engine asks about it: its claim's class, carrying what the designation resolver says it meets. */
+    const memberOf = (instantiation: Roster['teams'][number]) => {
+        const claim = ctx.classes.find(candidate => candidate.classId === instantiation.classId)
+        if (!claim) return null
+        const designations = ctx.index.designations.teamsRow === claim.row ? memberDesignations(ctx.index, claim.row, instantiation.handle, realized.record.designationBindings ?? [], realized.record.roleBlock ?? null) : undefined
+        return { claim, designations, member: { ...claim, constraints: { any: false, terms: [] }, ...(designations ? { designations } : {}) } }
+    }
+
+    /**
+     * **The outfield count a realization authors for THIS team** — 15 October 2026 (stage K4), for his two starting
+     * configurations of 17 October 2026 (D6, quoted on the items that carry them in provisional-realizations.json) and the
+     * principle beside them: *"player allocation should reflect representative numerical relationships, not default to equal
+     * outfield numbers regardless of the Learning Goal."*
+     *
+     * Only items that speak of PARTICULAR teams are read here (`namesParticularTeams`: a designation that is not every team),
+     * so a selector of `*` — the equality above, an example, a typical split — is never mistaken for one team's count, and
+     * a game with no such item takes the equal path exactly as before. Each item is put the questions `authoredFor` puts
+     * (scope, reach, requirement): an item that speaks of another team is passed over (and kept, because it is why this team
+     * has its count); undetermined reach, an assumed or preferred item, or a count in words leaves the count unsettled. What
+     * is read is the authored SET of counts — one number from an entailing item, a typed or numeric range otherwise — and
+     * two items intersect. Null where no team-naming item exists on the row at all.
+     */
+    const outfieldAuthoredFor = (instantiation: Roster['teams'][number]): ({ min: number | null; max: number | null; from: string[] } & Supported) | { unsettled: string } | null => {
+        const speaking = ctx.contracts.flatMap(contract =>
+            (contract.items ?? []).filter(item => String(item.row) === 'P2' && namesParticularTeams(item, ctx.index)).map(item => ({ contractId: String(contract.contractId), item })),
+        )
+        if (!speaking.length) return null
+        const asked = memberOf(instantiation)
+        if (!asked) return { unsettled: `the class ${instantiation.classId} this team satisfies is not in the run` }
+        let min: number | null = null
+        let max: number | null = null
+        const from: string[] = []
+        const supportedBy: { contractId: string; itemId: string }[] = []
+        for (const { contractId, item } of speaking) {
+            const name = `${contractId}::${item.itemId}`
+            const parsed = parseSelector(item.selector, 'P2', ctx.index)
+            if (!parsed.predicate) return { unsettled: `${name} is authored on P2 with a selector that cannot be read (${parsed.defect})` }
+            const reach = reaches(parsed.predicate, asked.member)
+            supportedBy.push({ contractId, itemId: item.itemId })
+            if (reach === 'FALSE') continue
+            const application = scoped().applicationSets.find(set => set.item.contractId === contractId && set.item.itemId === item.itemId)
+            if (!application?.classIds.includes(instantiation.classId)) return { unsettled: `${name} is authored on P2 and its scope does not take in this team's class, so what it says of this team is not established` }
+            if (reach !== 'TRUE') {
+                const named = parsed.predicate.terms.flatMap(term => (term.op === 'IN' ? term.values : term.op === '=' ? [term.value] : []))
+                const why = whyNotReached(asked.designations, named)
+                return { unsettled: `${name} speaks of particular teams (${JSON.stringify(item.selector)}), and whether it reaches this team is undetermined${why ? ` (${why})` : ''}` }
+            }
+            if (String((item as { valueStatus?: unknown }).valueStatus) !== 'REQUIRED_RANGE' || item.basis === 'ASSUMED' || item.strictness === 'EXCLUSION') {
+                return { unsettled: `${name} speaks about P2 without fixing it as a requirement, and a count nobody fixed is not one to choose here` }
+            }
+            const exact = entails(item) ? wholeCount(item.value) : null
+            const bounds = exact !== null ? { min: exact, max: exact } : countBounds(item)
+            if (!bounds || (bounds.min !== null && !Number.isInteger(bounds.min)) || (bounds.max !== null && !Number.isInteger(bounds.max))) {
+                return { unsettled: `${name} holds ${JSON.stringify(item.value)}, which states no whole count of players` }
+            }
+            min = bounds.min === null ? min : Math.max(min ?? bounds.min, bounds.min)
+            max = bounds.max === null ? max : Math.min(max ?? bounds.max, bounds.max)
+            from.push(`${name} (${String(item.selector)}: ${String(item.value)})`)
+        }
+        if (!from.length) return { unsettled: `the outfield count is authored for particular teams (${speaking.map(s => `${s.contractId}::${s.item.itemId}`).join(', ')}), and none of it reaches this team` }
+        return { min, max, from, supportedBy }
+    }
+    const allocation = teams.map(outfieldAuthoredFor)
+    const perTeamAuthored = allocation.some(entry => entry !== null)
+
+    if (!equality && !perTeamAuthored) {
         return { cause: 'EQUALITY_NOT_AUTHORED', why: 'no authoritative REQUIRED equality is authored on P2, so nothing licenses dividing the players evenly' }
     }
 
@@ -281,7 +383,7 @@ function rosterFor(ctx: GateContext, realized: Realized, supposing?: Supposing):
     for (const line of neutralLines) {
         const derivedValue = resolvedValue(ctx.derived.get(line.lineId))?.value
         const chosen = derivedValue === undefined ? realized.record.choices.find(choice => choice.lineId === line.lineId) : undefined
-        const value = supposing && supposing.lineId === line.lineId ? supposing.value : (derivedValue ?? chosen?.value)
+        const value = supposing?.lineId !== undefined && supposing.lineId === line.lineId ? supposing.value : (derivedValue ?? chosen?.value)
         if (value !== undefined) {
             const count = wholeCount(value)
             // A neutral count that is not a whole number of people is not something to do arithmetic over.
@@ -315,8 +417,6 @@ function rosterFor(ctx: GateContext, realized: Realized, supposing?: Supposing):
      * from another: where any selected object carries an ITEM on the row, the knowledge speaks about the
      * count, and a declaration elsewhere may not read its silence as none.
      */
-    let scopes: ReturnType<typeof resolveScopes> | null = null
-    const scoped = () => (scopes = scopes ?? resolveScopes(ctx.contracts, ctx.classes, ctx.index))
 
     /**
      * **What the knowledge AUTHORS about this team's count — added in review, 13 October.**
@@ -360,18 +460,21 @@ function rosterFor(ctx: GateContext, realized: Realized, supposing?: Supposing):
         rowId: string,
         leaf: string,
         speaking: { contractId: string; item: LoadedContract['items'][number] }[],
-    ): { value: number; basis: string } | { unsettled: string } | null => {
-        const claim = ctx.classes.find(candidate => candidate.classId === instantiation.classId)
-        if (!claim) return { unsettled: `the class ${instantiation.classId} this team satisfies is not in the run` }
-        const designations = ctx.index.designations.teamsRow === claim.row ? memberDesignations(ctx.index, claim.row, instantiation.handle, realized.record.designationBindings ?? [], realized.record.roleBlock ?? null) : undefined
-        const member = { ...claim, constraints: { any: false, terms: [] }, ...(designations ? { designations } : {}) }
+    ): ({ value: number; basis: string } & Supported) | { unsettled: string } | { passedOver: { contractId: string; itemId: string }[] } => {
+        const asked = memberOf(instantiation)
+        if (!asked) return { unsettled: `the class ${instantiation.classId} this team satisfies is not in the run` }
+        const { member, designations } = asked
         const counts = new Set<number>()
         const from: string[] = []
+        // The items that speak of particular teams and so decide this one's count (stage K4): reaching it, or passed over
+        // because they speak of another team. Kept for the record, so a reader asks the items rather than the sentence.
+        const supportedBy: { contractId: string; itemId: string }[] = []
         for (const { contractId, item } of speaking) {
             const name = `${contractId}::${item.itemId}`
             const parsed = parseSelector(item.selector, rowId, ctx.index)
             if (!parsed.predicate) return { unsettled: `${name} is authored on ${rowId} with a selector that cannot be read (${parsed.defect})` }
             const reach = reaches(parsed.predicate, member)
+            if (namesParticularTeams(item, ctx.index)) supportedBy.push({ contractId, itemId: item.itemId })
             if (reach === 'FALSE') continue
             const application = scoped().applicationSets.find(set => set.item.contractId === contractId && set.item.itemId === item.itemId)
             if (!application?.classIds.includes(instantiation.classId)) {
@@ -394,13 +497,14 @@ function rosterFor(ctx: GateContext, realized: Realized, supposing?: Supposing):
             counts.add(count)
             from.push(name)
         }
-        if (!from.length) return null
+        if (!from.length) return { passedOver: supportedBy }
         if (counts.size !== 1) return { unsettled: `${from.join(' and ')} fix different counts on ${rowId}, and no single value satisfies both` }
         const [value] = [...counts]
-        return { value, basis: `${from.join(' and ')} require${from.length === 1 ? 's' : ''} ${leaf} = ${value} of every team` }
+        // "of this team" where an item that reached speaks of particular teams (stage K4): it did not say it of every team.
+        return { value, basis: `${from.join(' and ')} require${from.length === 1 ? 's' : ''} ${leaf} = ${value} of ${supportedBy.length ? 'this team' : 'every team'}`, ...(supportedBy.length ? { supportedBy } : {}) }
     }
 
-    const involvementOf = (instantiation: Roster['teams'][number], rowId: string, leaf: string): { value: number; basis: string } | { unsettled: string } => {
+    const involvementOf = (instantiation: Roster['teams'][number], rowId: string, leaf: string): ({ value: number; basis: string } & Supported) | { unsettled: string } => {
         const inGame = memberInGame(realized, collectionPath(instantiation.path), instantiation.handle)
         const own = readAt(instantiation.member as Record<string, unknown>, leaf) ?? (inGame ? readAt(inGame, leaf) : undefined)
         if (own !== undefined) {
@@ -428,11 +532,14 @@ function rosterFor(ctx: GateContext, realized: Realized, supposing?: Supposing):
         const speaking = ctx.contracts.flatMap(contract =>
             (contract.items ?? []).filter(item => String(item.row) === rowId).map(item => ({ contractId: String(contract.contractId), item })),
         )
+        let passedOver: { contractId: string; itemId: string }[] = []
         if (speaking.length) {
             const read = authoredFor(instantiation, rowId, leaf, speaking)
-            // Null: every item on the row speaks of another team (a setup assignment bound elsewhere), so this team's
-            // count is read exactly as it is where nothing is authored at all — from the declarations, below.
-            if (read) return read
+            // Passed over: every item on the row speaks of another team (a setup assignment bound elsewhere, or a role this
+            // team does not hold in the block), so this team's count is read exactly as it is where nothing is authored at
+            // all — from the declarations, below — and those items are kept as what left it that count (stage K4).
+            if (!('passedOver' in read)) return read
+            passedOver = read.passedOver
         }
 
         // The team's own class goes with the question since 15 October 2026, so this read and a line's reason are
@@ -440,7 +547,13 @@ function rosterFor(ctx: GateContext, realized: Realized, supposing?: Supposing):
         const declarations = scoped().declarations
         const reason = reasonFor(rowId, declarations, ctx.classes.find(candidate => candidate.classId === instantiation.classId))
         return reason === 'excluded' || reason === 'not constrained'
-            ? { value: 0, basis: `no selected knowledge establishes ${leaf} in this game (${rowId} is ${reason})` }
+            ? {
+                  value: 0,
+                  basis: passedOver.length
+                      ? `no selected knowledge establishes ${leaf} for this team (${rowId} is ${reason}; ${passedOver.map(ref => `${ref.contractId}::${ref.itemId}`).join(' and ')} speak${passedOver.length === 1 ? 's' : ''} of another team)`
+                      : `no selected knowledge establishes ${leaf} in this game (${rowId} is ${reason})`,
+                  ...(passedOver.length ? { supportedBy: passedOver } : {}),
+              }
             : { unsettled: `nothing selected settles ${rowId} for this team (${reason})` }
     }
 
@@ -457,7 +570,7 @@ function rosterFor(ctx: GateContext, realized: Realized, supposing?: Supposing):
             return { cause: 'AVAILABILITY_NOT_STATED', role, why: `the session states no availability for the specialized role ${role}, and absent means NOT STATED` }
         }
 
-        const perTeam: { value: number; basis: string }[] = []
+        const perTeam: ({ value: number; basis: string } & Supported)[] = []
         for (const team of teams) {
             const read = involvementOf(team, rowId, leaf)
             if ('unsettled' in read) return { cause: 'INVOLVEMENT_NOT_SETTLED', role, why: read.unsettled }
@@ -507,6 +620,87 @@ function rosterFor(ctx: GateContext, realized: Realized, supposing?: Supposing):
             why: `${left}, so each of the ${teams.length} teams would have fewer than one outfield player`,
         }
     }
+    const neutralsSaid = `${neutrals ? ` − ${neutrals} neutral${neutralChoices.length ? ' (the count realization closed, inside its authored range)' : ''}` : ''}`
+
+    /**
+     * **The outfield count authored per team, closed from the session total — never chosen** (15 October 2026, stage K4).
+     * Christian, reply filed 17 October 2026, D6: *"The important principle is that player allocation should reflect
+     * representative numerical relationships, not default to equal outfield numbers regardless of the Learning Goal."* His 16
+     * October item 7, still in force: *"Please preserve the coach's player count and available-space inputs, and report any
+     * configuration that cannot be constructed validly."*
+     *
+     * Every allocation the authored counts admit is tried against what is left for the outfield; exactly one must fit. None
+     * fitting is the session's (CONFIGURATION_DOES_NOT_FIT, with the player counts that would fit, asked of this rule itself);
+     * more than one fitting is refused rather than chosen between (ALLOCATION_NOT_SETTLED); and where an equal-numbers
+     * requirement is still in force — nothing let it defer (ruling C56) — only an equal allocation may fit, so an unequal one
+     * is refused as unauthorized (NO_AUTHORIZED_ASYMMETRY). The coach's count is never changed and no number is written here:
+     * at 12 players the first such realization's five pressing and five-or-six building players fit only as six and five, at
+     * 11 only as five and five, and at any other count not at all — his testing boundaries (18 October, item 7), held as data.
+     */
+    if (perTeamAuthored) {
+        const unsettled = allocation.find((entry): entry is { unsettled: string } => !!entry && 'unsettled' in entry)
+        if (unsettled) return { cause: 'ALLOCATION_NOT_SETTLED', why: unsettled.unsettled }
+        const missing = allocation.findIndex(entry => entry === null)
+        if (missing >= 0) {
+            return { cause: 'ALLOCATION_NOT_SETTLED', why: `the outfield count is authored for particular teams, and nothing authored speaks of the team ${teams[missing].handle}` }
+        }
+        const ranges = allocation as ({ min: number | null; max: number | null; from: string[] } & Supported)[]
+        const options = ranges.map(range => {
+            const low = Math.max(1, range.min ?? 1)
+            const high = Math.min(range.max ?? outfieldTotal, outfieldTotal)
+            return Array.from({ length: Math.max(0, high - low + 1) }, (_, i) => low + i)
+        })
+        let combinations: number[][] = [[]]
+        for (const values of options) combinations = combinations.flatMap(combination => values.map(value => [...combination, value]))
+        const fitting = combinations.filter(combination => combination.reduce((sum, n) => sum + n, 0) === outfieldTotal)
+        const admitted = equality ? fitting.filter(combination => combination.every(n => n === combination[0])) : fitting
+        const authored = ranges.map(range => range.from.join(' and ')).join('; ')
+        if (!fitting.length) {
+            /**
+             * The player counts that WOULD fit, asked of this rule with each count supposed — only where every authored count
+             * has an upper limit, so the search is finite, and never from a supposition (which would ask forever).
+             */
+            const ceiling = ranges.every(range => range.max !== null) ? ranges.reduce((sum, range) => sum + (range.max ?? 0), 0) + involved + neutrals : null
+            const fits = ceiling !== null && supposing?.players === undefined ? Array.from({ length: ceiling }, (_, i) => i + 1).filter(n => !isRosterRefusal(rosterFor(ctx, realized, { players: n }))) : null
+            return {
+                cause: 'CONFIGURATION_DOES_NOT_FIT',
+                players,
+                involved,
+                neutrals,
+                fits,
+                why: `${left}, and no allocation the counts authored per team admit (${authored}) adds up to it${fits ? `; the session player counts these per-team counts fit are ${fits.join(', ') || 'none'} (whether who changes team at an exchange holds at those counts is a separate check, RB-M)` : ''}`,
+            }
+        }
+        if (!admitted.length) {
+            return {
+                cause: 'NO_AUTHORIZED_ASYMMETRY',
+                why: `${left}, which the counts authored per team (${authored}) allocate only unequally (${fitting.map(c => c.join(' and ')).join('; ')}), while the equal-numbers requirement ${equalityItems.join(' and ')} is in force: no knowledge-authorized realization lets it defer (ruling C56)`,
+            }
+        }
+        if (admitted.length > 1) {
+            return { cause: 'ALLOCATION_NOT_SETTLED', why: `${left}, and the counts authored per team (${authored}) admit ${admitted.length} allocations (${admitted.map(c => c.join(' and ')).join('; ')}); nothing authored decides between them, and none is chosen here` }
+        }
+        const [values] = admitted
+        const deferring = ctx.contracts.flatMap(contract => (contract.deferredItems ?? []).filter(entry => String(entry.item.row) === 'P2').map(entry => `${contract.contractId}::${entry.item.itemId} defers to ${entry.relationship}`))
+        const chain =
+            `${players} session performers` +
+            `${involved ? ` − ${involved} in specialized roles` : ''}` +
+            neutralsSaid +
+            ` over ${teams.length} teams, with the outfield count authored per team${deferring.length ? ` (${deferring.join('; ')}, ruling C56)` : ''}`
+        return {
+            teams,
+            outfield: values.map((value, i) => ({
+                value,
+                because: `entailed from the session and the count authored for this team: ${ranges[i].from.join(' and ')}; ${chain}; the only allocation that fits is ${values.join(' and ')}`,
+                ...(ranges[i].supportedBy?.length ? { supportedBy: ranges[i].supportedBy } : {}),
+            })),
+            involvement,
+            neutralChoices,
+            players,
+            chain,
+        }
+    }
+
     if (outfieldTotal % teams.length !== 0) {
         // Does not come out whole; derive nothing.
         return {
@@ -519,17 +713,14 @@ function rosterFor(ctx: GateContext, realized: Realized, supposing?: Supposing):
         }
     }
 
+    const chain = `${players} session performers` + `${involved ? ` − ${involved} in specialized roles` : ''}` + neutralsSaid + ` over ${teams.length} teams, with equality authored on P2`
     return {
         teams,
-        perTeam: outfieldTotal / teams.length,
+        outfield: teams.map(() => ({ value: outfieldTotal / teams.length, because: `entailed from the session and the authored equality: ${chain}` })),
         involvement,
         neutralChoices,
         players,
-        chain:
-            `${players} session performers` +
-            `${involved ? ` − ${involved} in specialized roles` : ''}` +
-            `${neutrals ? ` − ${neutrals} neutral${neutralChoices.length ? ' (the count realization closed, inside its authored range)' : ''}` : ''}` +
-            ` over ${teams.length} teams, with equality authored on P2`,
+        chain,
     }
 }
 
@@ -627,8 +818,8 @@ const deriveRoster: EntailmentRule = (ctx, realized, into) => {
 
     roster.teams.forEach((instantiation, teamIndex) => {
         const collection = collectionPath(instantiation.path)
-        const owed: { rowId: string; value: number; because: string }[] = [
-            { rowId: 'P2', value: roster.perTeam, because: `entailed from the session and the authored equality: ${roster.chain}` },
+        const owed: ({ rowId: string; value: number; because: string } & Supported)[] = [
+            { rowId: 'P2', ...roster.outfield[teamIndex] },
             ...roster.involvement.map(entry => ({
                 rowId: entry.rowId,
                 value: entry.perTeam[teamIndex].value,
@@ -637,9 +828,10 @@ const deriveRoster: EntailmentRule = (ctx, realized, into) => {
                 because:
                     `${entry.perTeam[teamIndex].basis}; the session has ${entry.available} available, which covers it and is not itself ` +
                     `instantiated into the game; the register declares ${entry.rowId} a specialized role`,
+                ...(entry.perTeam[teamIndex].supportedBy ? { supportedBy: entry.perTeam[teamIndex].supportedBy } : {}),
             })),
         ]
-        for (const { rowId, value, because } of owed) {
+        for (const { rowId, value, because, supportedBy } of owed) {
             const row = ctx.index.rows.get(rowId)
             if (!row) continue
             const leaf = splitPath(String(row.path)).leaf
@@ -656,6 +848,7 @@ const deriveRoster: EntailmentRule = (ctx, realized, into) => {
                 path: `${collection}[${instantiation.handle}].${leaf}`,
                 value,
                 because,
+                ...(supportedBy?.length ? { supportedBy: supportedBy.map(ref => ({ ...ref })) } : {}),
             })
         }
     })

@@ -216,6 +216,21 @@ export interface ProvisionalRealization extends LoadedContract {
     /** The realization-choices file (under docs/audits) whose declared entries replace the game form's, or null. */
     realizationChoices: string | null
     notWithPracticeSituations: NotWithPracticeSituation[]
+    /**
+     * **His testing boundaries for this realization, as data** (15 October 2026, stage K4) — reply filed 18 October 2026,
+     * item 7: *"The 11–12-player support and 40 × 30 m prototype values are acceptable current testing boundaries, but they
+     * should not become permanent architectural limitations."* The player counts the realization's own items admit, recorded
+     * so a test can hold the roster's answer to them; nothing in code limits a count. Null where none is recorded.
+     */
+    testingBoundaries: TestingBoundaries | null
+}
+
+/** A realization's testing boundaries (stage K4): what its items should admit, in his words. */
+export interface TestingBoundaries {
+    players: number[]
+    words: string
+    citedAs: string
+    note: string | null
 }
 
 const filledText = (value: unknown): boolean => typeof value === 'string' && value.trim().length > 0
@@ -264,6 +279,13 @@ export function validateProvisionalRealizations(
                 continue
             }
             if (!filledText(situation?.id) || !filledText(situation?.because) || !filledText(situation?.basis)) errors.push(`${which}: practice situation ${j + 1} must say which, why and on what basis`)
+        }
+        // His testing boundaries (stage K4), where recorded: whole player counts in his words. Data only.
+        const boundaries = realization?.testingBoundaries
+        if (boundaries !== undefined && boundaries !== null) {
+            const counts = Array.isArray(boundaries.players) ? boundaries.players : []
+            if (!counts.length || !counts.every((n: unknown) => Number.isInteger(n) && Number(n) > 0)) errors.push(`${which}: testingBoundaries.players must list whole player counts`)
+            if (!filledText(boundaries.words) || !filledText(boundaries.citedAs)) errors.push(`${which}: testingBoundaries must quote him and say where`)
         }
         if (!Array.isArray(realization?.declarations) || realization.declarations.length) errors.push(`${which} holds a declaration; a provisional realization says what its activity does, never what knowledge does not constrain`)
         if (!Array.isArray(realization?.relationshipRules) || realization.relationshipRules.length) errors.push(`${which} holds a relationship rule, which no provisional realization has a reading for`)
@@ -318,6 +340,9 @@ export function loadProvisionalRealizations(file: any = readJson(PROVISIONAL_REA
         words: (realization.words as unknown[]).map(String),
         realizationChoices: realization.realizationChoices ? String(realization.realizationChoices) : null,
         notWithPracticeSituations: (realization.notWithPracticeSituations as any[]).map(s => ({ id: String(s.id), basis: String(s.basis), because: String(s.because) })),
+        testingBoundaries: realization.testingBoundaries
+            ? { players: (realization.testingBoundaries.players as number[]).map(Number), words: String(realization.testingBoundaries.words), citedAs: String(realization.testingBoundaries.citedAs), note: realization.testingBoundaries.note ? String(realization.testingBoundaries.note) : null }
+            : null,
     }))
 }
 

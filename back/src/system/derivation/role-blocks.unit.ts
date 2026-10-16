@@ -85,7 +85,9 @@ test('the register carries the role-block capability as data (version 10), each 
     assert.deepEqual(roles, ['BUILDING', 'PRESSING'])
     assert.deepEqual(index.roleBlocks!.exchanges, ['COACH_CALLS'], 'his M1: "No new block-duration system is needed." — no duration, count, timer or trigger can be stated')
     for (const name of ['B1.activityRole', 'B3.exchange']) assert.match(String(index.vocabularyVersions[name]), /^1 \(2026-10-15, register version 10/, `${name} carries a versions entry`)
-    assert.match(String(register.version), /^10, adds role blocks for his M1/)
+    // Re-pointed 15 October 2026 (stage K4): version 11 (participant reassignment, his RD-1 answer) supersedes 10 and keeps
+    // the whole chain, so version 10's entry for role blocks is still there, word for word.
+    assert.match(String(register.version), /^11, adds participant reassignment .*Supersedes version 10, which adds role blocks for his M1/)
     assert.ok(String(register.version).includes('Keep role assignments separate from fixed ends.'), 'the version entry quotes M1')
     assert.ok(String(register.version).includes('Supersedes version 9'), 'and keeps the history')
     assert.ok(index.rows.get('S2')!.selectorAttributes!.includes('targetOf'))
@@ -131,6 +133,9 @@ test('the index refuses a damaged role-block or targetOf block (halt H1)', () =>
     const before = JSON.parse(JSON.stringify(register))
     delete before.roleBlocks
     delete before.targetOf
+    // 15 October 2026 (stage K4): nor version 11's reassignment block, which needs role blocks (a register keeping it without
+    // them halts H1, allocation.unit.ts) — so the "before version 10" copy drops it too.
+    delete before.reassignment
     assert.equal(indexRegister(before).roleBlocks, null)
     assert.equal(indexRegister(before).targetOf, null)
 })
@@ -265,7 +270,9 @@ test('part of a role exchange is refused with each reason, never completed', () 
 
 test('A01-R1 carries the two roles and the exchange, each his choice in his words', () => {
     const realization = loadProvisionalRealizations().find(r => r.provisionalId === 'A01-R1')!
-    const items = realization.items.map((item: any) => [item.itemId, item.row, item.selector, item.value, item.category, item.basis])
+    // Re-pointed 15 October 2026 (stage K4): the realization holds more since (the counts by role, the keeper and the two
+    // reassignments, pinned in allocation.unit.ts); this test is about its role-block items, so it reads those.
+    const items = realization.items.filter((item: any) => ['B1', 'B3'].includes(String(item.row))).map((item: any) => [item.itemId, item.row, item.selector, item.value, item.category, item.basis])
     assert.deepEqual(items, [
         ['A01-R1-B1-1', 'B1', 'activityRole=BUILDING', 'N/A', 'PROVISIONAL_REALIZATION_CHOICE', 'OWNER_RULING'],
         ['A01-R1-B1-2', 'B1', 'activityRole=PRESSING', 'N/A', 'PROVISIONAL_REALIZATION_CHOICE', 'OWNER_RULING'],
@@ -296,6 +303,14 @@ test('A01-R1\'s role lines carry its category on every support entry, in both bl
             'activityRoles[c:provisional:A01-R1:A01-R1-B1-1].exchange',
             'activityRoles[c:provisional:A01-R1:A01-R1-B1-2].activityRole',
             'activityRoles[c:provisional:A01-R1:A01-R1-B1-2].exchange',
+            // 15 October 2026 (stage K4): the two reassignments of his RD-1 answer are lines A01-R1 supports too, and they
+            // carry the same category — held to it here with the role lines.
+            'reassignments[c:provisional:A01-R1:A01-R1-B4-1].count',
+            'reassignments[c:provisional:A01-R1:A01-R1-B4-1].performerRow',
+            'reassignments[c:provisional:A01-R1:A01-R1-B4-1].toRole',
+            'reassignments[c:provisional:A01-R1:A01-R1-B4-2].count',
+            'reassignments[c:provisional:A01-R1:A01-R1-B4-2].performerRow',
+            'reassignments[c:provisional:A01-R1:A01-R1-B4-2].toRole',
         ])
         for (const entry of own) {
             assert.ok(entry.support.length > 0, entry.path)

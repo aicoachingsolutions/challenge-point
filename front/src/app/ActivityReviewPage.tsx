@@ -947,6 +947,57 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                             </AccountField>
                         )}
 
+                        {/*
+                          * 15 October 2026 (stage K4). Christian, reply filed 17 October 2026, D6: "please document it as a
+                          * knowledge-authorized realization, preserving equal numbers as an alternative." The allocation's
+                          * authority as the server sent it — his principle, the relationship he confirmed (18 October, item
+                          * 5), what defers to it, his adjustments in his words, the testing boundaries. Technical account
+                          * only. Labels are DRAFTS.
+                          */}
+                        {account.allocation && (
+                            <AccountField label='Allocation'>
+                                <p className='mb-1 text-xs text-gray-700'>
+                                    Principle: "{account.allocation.principle.principle}" ({account.allocation.principle.citedAs})
+                                </p>
+                                <ul className='mb-2 space-y-1'>
+                                    {account.allocation.relationships.map((relationship) => (
+                                        <li key={relationship.id} className='text-xs'>
+                                            <span className='mr-2 font-mono'>{relationship.id}</span>
+                                            {relationship.contextId} with {relationship.manipulationId} {relationship.manipulationName} ({relationship.manipulationStatus}) — rows{' '}
+                                            {relationship.rows.join(', ')}
+                                            <Mark positive={relationship.status === 'CONFIRMED'}>{relationship.status}</Mark>
+                                            {relationship.words.length > 0 && (
+                                                <span className='block text-gray-600'>
+                                                    "{relationship.words.join(' ')}" ({relationship.citedAs})
+                                                </span>
+                                            )}
+                                        </li>
+                                    ))}
+                                </ul>
+                                {account.allocation.alternatives.map((alternative) => (
+                                    <p key={`${alternative.contractId}::${alternative.itemId}`} className='mb-1 text-xs text-gray-600'>
+                                        Alternative (defers, ruling C56): {alternative.contractId}::{alternative.itemId} ({alternative.row}: {String(alternative.value)}) — defers to{' '}
+                                        {alternative.deferredTo.map((ref) => `${ref.contractId}::${ref.itemId}`).join(', ')} under {alternative.relationship}
+                                    </p>
+                                ))}
+                                {account.allocation.adjustments.length > 0 && (
+                                    <ul className='mb-2 space-y-1'>
+                                        {account.allocation.adjustments.map((adjustment) => (
+                                            <li key={adjustment.id} className='text-xs'>
+                                                Adjustment: "{adjustment.words}" ({adjustment.citedAs}; {adjustment.parameter}, {adjustment.role})
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                                {account.allocation.testingBoundaries && (
+                                    <p className='text-xs text-gray-600'>
+                                        Testing boundaries: {account.allocation.testingBoundaries.players.join(', ')} players — "{account.allocation.testingBoundaries.words}" (
+                                        {account.allocation.testingBoundaries.citedAs})
+                                    </p>
+                                )}
+                            </AccountField>
+                        )}
+
                         {account.authorization && (
                             <AccountField label='Authorization record'>
                                 <p className='mb-1 text-xs text-gray-600'>
@@ -1075,6 +1126,11 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                                                 .join(', ')}{' '}
                                             — Gate A {String(block.integrity?.gateA)}, post-realization gates validated{' '}
                                             {yesNo(block.integrity?.postRealizationValidated)}, fidelity violations {String(block.integrity?.fidelityViolations)}
+                                            {block.concreteChecks && block.concreteChecks.length > 0 && (
+                                                <span className='block text-gray-600'>
+                                                    Checks on this block's realized game: {block.concreteChecks.map((check) => `${check.checkId} ${check.verdict}`).join(' · ')}
+                                                </span>
+                                            )}
                                         </li>
                                     ))}
                                     {served.roleBlocks.checks.map((check) => (

@@ -59,9 +59,24 @@ export interface RenderingFixtureParts {
      * and so a frozen fixture renders the same words. Absent, the fixture is exactly what it was.
      */
     roleNouns?: Record<string, string>
+    /**
+     * DRAFT coach nouns for each kind of performer a reassignment moves (register `reassignment`), given only where the game
+     * holds a reassignment — stage K4, 15 October 2026, his RD-1 answer. Absent, the fixture is exactly what it was.
+     */
+    reassignmentNouns?: Record<string, { singular: string; plural: string }>
+    /**
+     * The adjustments the goal's authorization record authorizes, in his words, given only where it has them — stage K4. Read
+     * by the renderer for "Adjusting the activity" alone. Absent, the fixture is exactly what it was.
+     */
+    adjustments?: { id: string; words: string; consequence: string | null; citedAs: string }[]
+    /**
+     * What defers in this composition (ruling C56), listed as the alternative with its provenance — stage K4. Absent wherever
+     * nothing defers.
+     */
+    alternatives?: { contractId: string; itemId: string; row: string; value: unknown; defersTo: string; deferredTo: { contractId: string; itemId: string }[]; relationship: string }[]
 }
 
-export function assembleRenderingFixture({ resolved, realized, entailed, envelope, accepted, postRealizationValidated, roleNouns }: RenderingFixtureParts): Record<string, unknown> {
+export function assembleRenderingFixture({ resolved, realized, entailed, envelope, accepted, postRealizationValidated, roleNouns, reassignmentNouns, adjustments, alternatives }: RenderingFixtureParts): Record<string, unknown> {
     const pathOf = new Map(resolved.derived.map(entry => [entry.lineId, entry.path]))
     return {
         provenance: resolved.provenance,
@@ -98,5 +113,8 @@ export function assembleRenderingFixture({ resolved, realized, entailed, envelop
             notEstablished: resolved.notEstablished.map(n => ({ path: n.path, lineId: n.lineId, reason: n.reason, declared: n.declared, governedBy: n.governedBy.map(g => ({ ...g })) })),
         },
         ...(roleNouns ? { roleNouns: { status: 'DRAFT', nouns: { ...roleNouns } } } : {}),
+        ...(reassignmentNouns ? { reassignmentNouns: { status: 'DRAFT', nouns: JSON.parse(JSON.stringify(reassignmentNouns)) } } : {}),
+        ...(adjustments?.length ? { adjustments: { status: 'DRAFT', entries: JSON.parse(JSON.stringify(adjustments)) } } : {}),
+        ...(alternatives?.length ? { alternatives: JSON.parse(JSON.stringify(alternatives)) } : {}),
     }
 }

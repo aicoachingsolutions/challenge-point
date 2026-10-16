@@ -100,7 +100,9 @@ test('one activity from two complete games: each block passed alone, every cross
         assert.equal(block.integrity.fidelityViolations, 0)
         assert.deepEqual(Object.values(block.integrity.acceptance).flat(), [], 'all three acceptance conditions hold in each block')
     }
-    assert.deepEqual(account.checks.map(check => [check.checkId, check.verdict]), ['RB-1', 'RB-2', 'RB-3', 'RB-4', 'RB-5', 'RB-6', 'RB-7', 'RB-8'].map(id => [id, 'PASS']))
+    // RB-M joined 15 October 2026 (stage K4, his RD-1 answer): here no reassignment is recorded and no count differs, so the
+    // exchange of roles moved nobody and it passes.
+    assert.deepEqual(account.checks.map(check => [check.checkId, check.verdict]), ['RB-1', 'RB-2', 'RB-3', 'RB-4', 'RB-5', 'RB-6', 'RB-7', 'RB-8', 'RB-M'].map(id => [id, 'PASS']))
     assert.equal(account.exchange, 'COACH_CALLS')
     assert.equal(account.firstBlock, 'COACH_CHOICE', 'which block is first is the coach (inferred from his D2, never chosen here)')
     // K3 review, 15 October 2026: labelled INFERRED for the reader (verifier correction, g-part-09), his D2 sentence exact.

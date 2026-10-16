@@ -33,7 +33,7 @@
  *
  * It does not touch generation. Nothing here calls the frozen activity-generation path.
  */
-import { ProvisionalRealization, provisionalRealizationNamed } from '../derivation/corpus'
+import { ProvisionalRealization, provisionalRealizationNamed, TestingBoundaries } from '../derivation/corpus'
 import { isStampedHalt } from '../derivation/emit'
 import { runDerivation, runStages0to10, runStages0to5 } from '../derivation/engine'
 import { indexRegister } from '../derivation/register'
@@ -52,8 +52,9 @@ import { rpcLibrary } from '../sport-module/rpc-library'
 import { TEST_LIBRARY_V0_AFFORDANCE_LENSES, TEST_LIBRARY_V0_ARCHETYPES, TEST_LIBRARY_V0_CONSTRAINTS, TEST_LIBRARY_V0_ENVIRONMENTAL_MANIPULATIONS } from '../test-library'
 import type { SelectionKnowledgeGapReason } from '../test-library/generateSelection'
 import { learningGoalSelectionHolds } from '../test-library/learning-design-holds'
-import type { AuthorizationExclusion, AuthorizationLists, LearningGoalAuthorization } from '../test-library/learning-goal-authorizations'
-import { authorizationLists, learningGoalAuthorizations, libraryConstraintPrinciple, neededRecordGaps } from '../test-library/learning-goal-authorizations'
+import type { AuthorizationExclusion, AuthorizationLists, AuthorizedAdjustment, ContextManipulationRelationship, LearningGoalAuthorization } from '../test-library/learning-goal-authorizations'
+import { allocationPrinciple, authorizationLists, contextManipulationRelationships, learningGoalAuthorizations, libraryConstraintPrinciple, neededRecordGaps } from '../test-library/learning-goal-authorizations'
+import { applyRealizationDeferrals } from '../derivation/realization-deferral'
 import type { ConstraintAuthority, ConstraintPoolAccount } from '../test-library/types'
 import { contextScoringFindings } from './context-scoring-guard'
 import { checkFidelity } from './fidelity'
@@ -172,6 +173,56 @@ export interface ActivityAccount {
     provisional: boolean
     /** Why it is provisional, for the technical account. Null where it is not. */
     provisionalReason: string | null
+    /**
+     * **The authority behind a per-team allocation — TECHNICAL account only, present only where one applies** (15 October
+     * 2026, stage K4). His reply filed 17 October 2026, D6: *"please document it as a knowledge-authorized realization,
+     * preserving equal numbers as an alternative."* Absent for every other activity, so what they serve is unchanged.
+     */
+    allocation?: AllocationAccount
+}
+
+/**
+ * The allocation's authority as the review page shows it (stage K4): his principle (recorded once), the relationships the
+ * realization's items cite, what defers to them and is listed as the alternative, the adjustments he authorized, and the
+ * realization's testing boundaries. Every string is copied from the record or the realization, never written here.
+ */
+export interface AllocationAccount {
+    principle: { ruledOn: string; by: string; citedAs: string; principle: string }
+    relationships: Pick<ContextManipulationRelationship, 'id' | 'contextId' | 'manipulationId' | 'manipulationName' | 'manipulationStatus' | 'rows' | 'status' | 'confirmedOn' | 'citedAs' | 'words' | 'identified'>[]
+    /** What defers in this composition (ruling C56): the alternative, with what it defers to. */
+    alternatives: { contractId: string; itemId: string; row: string; value: unknown; defersTo: string; deferredTo: { contractId: string; itemId: string }[]; relationship: string }[]
+    adjustments: AuthorizedAdjustment[]
+    testingBoundaries: TestingBoundaries | null
+}
+
+/**
+ * The allocation account of a goal whose record names a provisional realization, or null where its items cite no
+ * relationship and the record authorizes no adjustment (stage K4). Read from the record, the realization derivation received
+ * and the deferral this composition made.
+ */
+function allocationAccountOf(record: LearningGoalAuthorization, realization: ProvisionalRealization | null, deferred: ReturnType<typeof applyRealizationDeferrals>['deferred']): AllocationAccount | null {
+    const cited = new Set((realization?.items ?? []).map(item => item.authorizedBy).filter((id): id is string => typeof id === 'string'))
+    const adjustments = record.authorizedAdjustments?.entries ?? []
+    for (const adjustment of adjustments) cited.add(adjustment.relationship)
+    if (!cited.size) return null
+    const { ruledOn, by, citedAs, principle } = allocationPrinciple()
+    return {
+        principle: { ruledOn, by, citedAs, principle },
+        relationships: contextManipulationRelationships()
+            .filter(entry => cited.has(entry.id))
+            .map(({ id, contextId, manipulationId, manipulationName, manipulationStatus, rows, status, confirmedOn, citedAs: where, words, identified }) => ({ id, contextId, manipulationId, manipulationName, manipulationStatus, rows: [...rows], status, confirmedOn, citedAs: where, words: [...words], identified })),
+        alternatives: deferred.map(entry => ({
+            contractId: entry.contractId,
+            itemId: entry.item.itemId,
+            row: String(entry.item.row),
+            value: entry.item.value,
+            defersTo: entry.defersTo,
+            deferredTo: entry.deferredTo.map(ref => ({ ...ref })),
+            relationship: entry.relationship,
+        })),
+        adjustments: JSON.parse(JSON.stringify(adjustments)),
+        testingBoundaries: realization?.testingBoundaries ? JSON.parse(JSON.stringify(realization.testingBoundaries)) : null,
+    }
 }
 
 export interface ServedActivity {
@@ -208,7 +259,13 @@ export interface RoleBlockAccount {
     /** How the roles pass between the teams (the exchange vocabulary's member the knowledge established). */
     exchange: string
     roles: { role: string; coachNoun: string; nounStatus: 'DRAFT' }[]
-    blocks: { blockId: string; holders: Record<string, string>; integrity: ServedActivity['integrity'] }[]
+    /**
+     * `concreteChecks` (stage K4, 15 October 2026): each block's Gate A as rerun on its own concrete game, check by check —
+     * so "the roster sums to the session players in every block" (GA-ROSTER-SUM per block, his 17 October request to
+     * "verify the configuration's structural consistency, including player totals") is read as the gate's verdict in each
+     * block, not inferred from `postRealizationValidated`.
+     */
+    blocks: { blockId: string; holders: Record<string, string>; integrity: ServedActivity['integrity']; concreteChecks: { checkId: string; verdict: string }[] }[]
     checks: RoleBlockCheck[]
     /**
      * Which block is played first is the coach's. INFERRED from his D2 (*"The coach determines when the teams exchange
@@ -427,6 +484,21 @@ function rosterSummary(roster: RosterRefusal): { stage: ActivityStage; summary: 
                 stage: 'session',
                 summary: `${roster.players} player${roster.players === 1 ? ' is' : 's are'} not enough for this game — every team needs at least one outfield player.`,
             }
+        case 'CONFIGURATION_DOES_NOT_FIT': {
+            /**
+             * DRAFT (15 October 2026, stage K4). The counts authored per team fit no allocation of this session's players. His
+             * reply filed 18 October 2026, item 7: *"The 11–12-player support and 40 × 30 m prototype values are acceptable
+             * current testing boundaries, but they should not become permanent architectural limitations."* So the coach is
+             * told the set-up has not been decided for this count — never that the count is wrong. The counts the per-team
+             * counts fit stay in the technical reasons only: the K4 work-in-progress told the coach "it has been decided for 11
+             * and 12 players", and measured, 11 is then refused at the membership check (his 1(a) keeps 6 + GK v 5, which 11
+             * players cannot), so the coach would have been told a count works that does not.
+             */
+            return {
+                stage: 'session',
+                summary: `The team set-up for this activity has not been decided for ${roster.players} player${roster.players === 1 ? '' : 's'}.`,
+            }
+        }
         case 'AVAILABILITY_SHORT':
             return {
                 stage: 'session',
@@ -786,14 +858,6 @@ function build(
         ])
     }
 
-    const recordGaps = goalSelection?.authorization ? neededRecordGaps(goalSelection.authorization) : []
-    if (recordGaps.length) {
-        return refuse('knowledge', "This goal's activity depends on set-up decisions and engine capabilities that are not in place yet, so no activity can be built for it.", [
-            `${recordGaps.length} part${recordGaps.length === 1 ? '' : 's'} of the activity the authorization record of ${goalSelection!.goalId} asks for ${recordGaps.length === 1 ? 'is' : 'are'} not in place yet`,
-            ...recordGaps.map(gap => `${gap.from} "${gap.label}" is ${gap.status} (${gap.category}), waiting on ${gap.gaps.map(named => named.id).join(', ')}`),
-        ])
-    }
-
     // The coach's envelope, whole. It used to be spread over the corpus envelope, which is how the pilot
     // came to inherit a statement about specialized roles that nobody had made for it.
     const session = request.session
@@ -804,6 +868,16 @@ function build(
         alter(input.contracts)
     }
     /**
+     * **What defers to a knowledge-authorized realization is set aside HERE, once, for every reader** — 15 October 2026 (stage
+     * K4, ruling C56). Christian, reply filed 17 October 2026, D6: *"please document it as a knowledge-authorized realization,
+     * preserving equal numbers as an alternative."* After any alteration (so a test's copy is judged as it stands) and before
+     * anything reads the contracts, so derivation, the role blocks, the roster and the post-realization comparisons all see
+     * the same composition; the deferred item travels beside its contract and into the fixture as the alternative. Where no
+     * selected contribution cites a confirmed relationship nothing moves, and the input is the same objects as before.
+     */
+    const deferral = applyRealizationDeferrals(input.contracts as LoadedContract[], contextManipulationRelationships(), indexRegister(input.register))
+    input.contracts = deferral.contracts
+    /**
      * **The record's lists read the provisional realization derivation actually received** (15 October 2026, stage K2), so
      * the review page and the game can never disagree about which provisional choices shaped it. Production passes the
      * file's own copy; a test that altered a copy of the contracts sees its copy listed.
@@ -811,9 +885,38 @@ function build(
     if (goalSelection?.authorization?.provisionalRealization) {
         const received = (input.contracts as LoadedContract[]).find(contract => contract.contractId === `provisional:${goalSelection!.authorization!.provisionalRealization}`) as ProvisionalRealization | undefined
         account.authorizationLists = authorizationLists(goalSelection.authorization, received ?? null)
+        const allocation = allocationAccountOf(goalSelection.authorization, received ?? null, deferral.deferred)
+        if (allocation) account.allocation = allocation
     }
 
-    const game: GameContext = { subject, session, selection, context, alterSupplied }
+    /**
+     * The record's gaps refuse here — after the input is assembled (stage K4 moved this below it, so the technical account of
+     * a refusal carries the allocation's authority too; assembling the input refuses nothing, so the order of refusals a
+     * coach can meet is unchanged).
+     */
+    const recordGaps = goalSelection?.authorization ? neededRecordGaps(goalSelection.authorization) : []
+    if (recordGaps.length) {
+        return refuse('knowledge', "This goal's activity depends on set-up decisions and engine capabilities that are not in place yet, so no activity can be built for it.", [
+            `${recordGaps.length} part${recordGaps.length === 1 ? '' : 's'} of the activity the authorization record of ${goalSelection!.goalId} asks for ${recordGaps.length === 1 ? 'is' : 'are'} not in place yet`,
+            ...recordGaps.map(gap => `${gap.from} "${gap.label}" is ${gap.status} (${gap.category}), waiting on ${gap.gaps.map(named => named.id).join(', ')}`),
+        ])
+    }
+
+    /**
+     * What crosses with every game of this build into its fixture (stage K4): the adjustments the goal's record authorizes, in
+     * his words, and what defers in this composition, listed as the alternative. Both absent for every other activity.
+     */
+    const adjustments = (goalSelection?.authorization?.authorizedAdjustments?.entries ?? []).map(entry => ({ id: entry.id, words: entry.words, consequence: entry.consequence, citedAs: entry.citedAs }))
+    const alternatives = deferral.deferred.map(entry => ({
+        contractId: entry.contractId,
+        itemId: entry.item.itemId,
+        row: String(entry.item.row),
+        value: entry.item.value,
+        defersTo: entry.defersTo,
+        deferredTo: entry.deferredTo.map(ref => ({ ...ref })),
+        relationship: entry.relationship,
+    }))
+    const game: GameContext = { subject, session, selection, context, alterSupplied, adjustments, alternatives }
     /** A game built through to communication becomes the served activity; one refused on the way says where. */
     const serve = (built: Extract<GameOutcome, { outcome: 'built' }>, extra: Partial<ServedActivity> = {}): ActivityBuild & { fixture: Record<string, unknown> | null } => ({
         activity: { outcome: 'served', kind, title, subtitle, session, rendered: built.rendered, account: account as ActivityAccount, integrity: built.integrity, ...extra },
@@ -872,8 +975,16 @@ function build(
             )
             fixture = { ...built[0].built.fixture, roleBlocks: roleBlockFixture(found, built.map(entry => ({ block: entry.block, fixture: entry.built.fixture })), checks, roleIndex) }
             const failing = checks.filter(check => check.verdict === 'FAIL')
+            /**
+             * **Where only the membership check fails, the coach is told what has not been decided** (15 October 2026, stage K4,
+             * DRAFT). Both blocks were built and every other cross-block check holds, so what is missing is who changes team at
+             * the exchange for this session's numbers — measured: at 11 players the A01 realization's teams are 5 + 1 against 5
+             * in both blocks, and his 1(a) moves an outfield player too ("This preserves the 6 + GK versus 5 relationship in both
+             * blocks."), which that configuration does not keep. Never resolved here.
+             */
+            const membershipOnly = failing.length > 0 && failing.every(check => check.checkId === 'RB-M')
             if (failing.length) {
-                return refuse('validation', 'The game built for this activity did not pass its own checks, so it is not being shown.', [
+                return refuse('validation', membershipOnly ? `Who changes team when the roles exchange has not been decided for ${session.players} players, so this activity is not being shown.` : 'The game built for this activity did not pass its own checks, so it is not being shown.', [
                     'the two role blocks do not agree as the exchange of each other',
                     ...failing.flatMap(check => check.problems.map(problem => `${check.checkId}: ${problem}`)),
                 ])
@@ -910,7 +1021,7 @@ function build(
                     roleBlocks: {
                         exchange: found.exchange,
                         roles: found.roles.map(role => ({ role, coachNoun: roleIndex.roleBlocks!.coachNouns[role], nounStatus: 'DRAFT' as const })),
-                        blocks: built.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, integrity: entry.built.integrity })),
+                        blocks: built.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, integrity: entry.built.integrity, concreteChecks: entry.built.concreteChecks.map(check => ({ ...check })) })),
                         checks: checks.map(check => ({ ...check, problems: [...check.problems] })),
                         firstBlock: 'COACH_CHOICE',
                         firstBlockBasis: FIRST_BLOCK_BASIS,
@@ -918,6 +1029,19 @@ function build(
                 },
             )
         }
+    }
+
+    /**
+     * **A reassignment happens at an exchange of roles and nowhere else** (15 October 2026, stage K4, his RD-1 answer: *"This
+     * particular realization uses both mechanisms"*). A game that establishes who changes team at an exchange and is not
+     * played in role blocks has no exchange for it to happen at, so it is refused as part of a description, never built as
+     * though the reassignment were not there. DRAFT refusal reason.
+     */
+    const reassignmentRow = roleIndex.reassignment?.row
+    if (reassignmentRow && (input.contracts as LoadedContract[]).some(contract => (contract.items ?? []).some(item => String(item.row) === reassignmentRow))) {
+        return refuse('structure', `The game this ${subject} selects is not yet described completely enough to be set up.`, [
+            'the game establishes players changing team at an exchange of roles, and it is not played in role blocks, so there is no exchange for them to change at',
+        ])
     }
 
     const one = buildOneGame(input, game)
@@ -937,12 +1061,39 @@ interface GameContext {
     /** The selected context, where there is one. */
     context: { id: string; role: string } | undefined
     alterSupplied: ((supplied: SuppliedRealization) => void) | null
+    /** The record's authorized adjustments, in his words, for the fixture (stage K4). Empty for every other activity. */
+    adjustments: { id: string; words: string; consequence: string | null; citedAs: string }[]
+    /** What defers in this composition (ruling C56), for the fixture. Empty wherever nothing defers. */
+    alternatives: { contractId: string; itemId: string; row: string; value: unknown; defersTo: string; deferredTo: { contractId: string; itemId: string }[]; relationship: string }[]
 }
 
 /** One game built from its derivation input to communication, or the stage it stopped at. */
 type GameOutcome =
     | { outcome: 'refused'; stage: ActivityStage; summary: string; reasons: string[]; fixture: Record<string, unknown> | null }
-    | { outcome: 'built'; fixture: Record<string, unknown>; rendered: RenderedActivity; integrity: ServedActivity['integrity']; contracts: LoadedContract[] }
+    | {
+          outcome: 'built'
+          fixture: Record<string, unknown>
+          rendered: RenderedActivity
+          integrity: ServedActivity['integrity']
+          contracts: LoadedContract[]
+          /** Every Gate A check as rerun on this game's concrete game (stage K4): read only into a role block's account. */
+          concreteChecks: { checkId: string; verdict: string }[]
+      }
+
+/**
+ * The DRAFT noun for each kind of performer a reassignment may move (stage K4): the register's outfield noun, and a
+ * specialized role by its own name as the session states it. Read from the register, never written here.
+ */
+function reassignmentNounsOf(index: ReturnType<typeof indexRegister>): Record<string, { singular: string; plural: string }> {
+    const spec = index.reassignment!
+    return Object.fromEntries(
+        spec.performerRows.map(rowId => {
+            if (rowId === spec.outfieldRow) return [rowId, { ...spec.outfieldNoun }]
+            const role = index.specializedRoleRows.get(rowId) ?? rowId
+            return [rowId, { singular: role, plural: `${role}s` }]
+        }),
+    )
+}
 
 /** The pathway's stages in order, so an earlier stop wins when two blocks stop at different stages. */
 const STAGE_ORDER: ActivityStage[] = ['session', 'selection', 'knowledge', 'structure', 'realization', 'validation', 'communication']
@@ -952,7 +1103,7 @@ const STAGE_ORDER: ActivityStage[] = ['session', 'selection', 'knowledge', 'stru
  * K3) so that a game played in role blocks runs it once per block. Every refusal sentence, reason and order is what it
  * was: measured, every goal and demonstration answers byte-identically through the review route.
  */
-function buildOneGame(input: any, { subject, session, selection, context, alterSupplied }: GameContext): GameOutcome {
+function buildOneGame(input: any, { subject, session, selection, context, alterSupplied, adjustments, alternatives }: GameContext): GameOutcome {
     let fixture: any = null
     const refuse = (stage: ActivityStage, summary: string, reasons: string[]): GameOutcome => ({ outcome: 'refused', stage, summary, reasons, fixture })
 
@@ -1080,6 +1231,9 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
     // from the fixture like everything else it says, and every game without roles assembles exactly as before.
     const rolesAt = index.roleBlocks ? splitPath(String(index.rows.get(index.roleBlocks.rolesRow)?.path ?? '')).container : null
     const holdsRoles = !!rolesAt && Array.isArray(rolesAt.split('.').reduce<any>((node, key) => (node == null ? node : node[key]), realized.game))
+    // The DRAFT nouns for the performers a reassignment moves cross the same way, only where the game holds one (stage K4).
+    const reassignmentsAt = index.reassignment ? splitPath(String(index.rows.get(index.reassignment.row)?.path ?? '')).container : null
+    const holdsReassignments = !!reassignmentsAt && Array.isArray(reassignmentsAt.split('.').reduce<any>((node, key) => (node == null ? node : node[key]), realized.game))
     fixture = assembleRenderingFixture({
         resolved,
         realized,
@@ -1088,6 +1242,9 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
         accepted: Object.values(acceptance).every(entries => !(entries as unknown[]).length),
         postRealizationValidated: Boolean(post.validated),
         ...(holdsRoles ? { roleNouns: { ...index.roleBlocks!.coachNouns } } : {}),
+        ...(holdsReassignments ? { reassignmentNouns: reassignmentNounsOf(index) } : {}),
+        ...(adjustments.length ? { adjustments } : {}),
+        ...(alternatives.length ? { alternatives } : {}),
     })
 
     const rendered = renderConcreteGame(fixture)
@@ -1127,5 +1284,6 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
             fidelityViolations: violations.length,
         },
         contracts: input.contracts,
+        concreteChecks: post.gateA.checks.map(check => ({ checkId: check.checkId, verdict: String(check.verdict) })),
     }
 }

@@ -141,6 +141,69 @@ export interface LibraryConstraintPrinciple {
     appliedAs: string
 }
 
+/**
+ * **A relationship between a context and an Environmental Manipulation, as he confirmed it** — added 15 October 2026 (stage
+ * K4). His reply filed 17 October 2026, D6: *"Please authorize this initial numerical asymmetry through the appropriate
+ * existing knowledge relationship, rather than hardcoding it to Play Out from the Back."* His reply filed 18 October 2026,
+ * item 5: *"Both should be represented as knowledge-authorized relationships rather than hardcoded behavior for this Learning
+ * Goal."* Context-level: it names no goal. `rows` are the register rows a realization citing it may author per team; it
+ * authorizes something only once `status` is CONFIRMED (`realization-deferral.ts`).
+ */
+export interface ContextManipulationRelationship {
+    id: string
+    category: 'EXISTING_KNOWLEDGE_RELATIONSHIP'
+    contextId: string
+    contextName: string
+    manipulationId: string
+    manipulationName: string
+    manipulationStatus: string
+    dimension: string
+    parameters: string[]
+    scope: string
+    rows: string[]
+    via: string[]
+    identified: string
+    status: 'IDENTIFIED' | 'CONFIRMED'
+    confirmedOn: string | null
+    confirmedBy: string | null
+    citedAs: string
+    /** His words, verbatim: the confirmation. */
+    words: string[]
+    note: string | null
+}
+
+/**
+ * **The adjustments he authorized for one goal's activity, in his words** — added 15 October 2026 (stage K4). His reply filed
+ * 17 October 2026, D6: *"For now, I am asking that these remain possible, authorized adjustments—not that we implement a live
+ * challenge-regulation system."* Read only to say them in "Adjusting the activity" (DRAFT); no state, trigger or count.
+ */
+export interface AuthorizedAdjustment {
+    id: string
+    category: 'PROVISIONAL_REALIZATION_CHOICE'
+    ruledOn: string
+    by: string
+    citedAs: string
+    /** His sentence naming the adjustment, verbatim. */
+    words: string
+    /** His sentence on its consequence, verbatim, where he gave one. */
+    consequence: string | null
+    /** The relationship (an id in `contextManipulationRelationships`) and the manipulation's parameter it moves. */
+    relationship: string
+    parameter: string
+    /** The role whose team it changes (a role of the register's role vocabulary). */
+    role: string
+    sources: string[]
+    note: string | null
+}
+
+export interface AuthorizedAdjustments {
+    /** His sentences framing the adjustments, verbatim. */
+    words: string[]
+    citedAs: string
+    note: string | null
+    entries: AuthorizedAdjustment[]
+}
+
 /** A PROVISIONAL REALIZATION CHOICE of his for one goal's activity: cited, labelled provisional, never a mechanism. */
 export interface ProvisionalChoice {
     category: 'PROVISIONAL_REALIZATION_CHOICE'
@@ -183,6 +246,8 @@ export interface LearningGoalAuthorization {
      * a goal whose record names it (`derivationInputFor`), and the record itself still holds no value.
      */
     provisionalRealization?: string
+    /** The adjustments he authorized for this goal's activity (15 October 2026, stage K4), or absent. */
+    authorizedAdjustments?: AuthorizedAdjustments
 }
 
 const filled = (value: unknown): boolean => typeof value === 'string' && value.trim().length > 0
@@ -311,11 +376,102 @@ export function validateLibraryConstraintPrinciple(principle: LibraryConstraintP
     return errors
 }
 
+/**
+ * **His allocation principle, held to the same gate as the library-constraint principle** (15 October 2026, stage K4): its
+ * rule sentence must be one of his recorded sentences, so it cannot drift from his words without the file failing to load.
+ */
+export function validateAllocationPrinciple(principle: LibraryConstraintPrinciple | null | undefined): string[] {
+    return validateLibraryConstraintPrinciple(principle).map(error => error.replace('the library-constraint principle', 'the allocation principle'))
+}
+
+/**
+ * Everything wrong with the context-manipulation relationships, and with what cites them, as sentences (15 October 2026,
+ * stage K4). A relationship must say what it links, which rows it authorizes, who identified it and — where it is
+ * CONFIRMED — who confirmed it, when and in his words. Every provisional realization item that cites one (`authorizedBy`)
+ * must name a relationship that exists, for the context that realization realizes, authorizing the item's row; every
+ * authorized adjustment must name one that exists. A citation that resolves to nothing would let a requirement defer on
+ * nobody's word. Parameters exist so a test can hand the gate a damaged copy.
+ */
+export function validateContextManipulationRelationships(
+    relationships: ContextManipulationRelationship[] | undefined,
+    records: LearningGoalAuthorization[],
+    provisional: ProvisionalRealization[] = loadProvisionalRealizations(),
+): string[] {
+    const errors: string[] = []
+    const list = relationships ?? []
+    if (!Array.isArray(list)) return ['contextManipulationRelationships must be a list']
+    const byId = new Map<string, ContextManipulationRelationship>()
+    for (const [i, entry] of list.entries()) {
+        const which = `relationship ${entry?.id || i + 1}`
+        if (!filled(entry?.id)) errors.push(`relationship ${i + 1} has no id`)
+        if (byId.has(entry.id)) errors.push(`${which} is defined twice`)
+        byId.set(entry.id, entry)
+        if (entry.category !== 'EXISTING_KNOWLEDGE_RELATIONSHIP') errors.push(`${which} is not labelled EXISTING_KNOWLEDGE_RELATIONSHIP`)
+        if (!filled(entry.contextId) || !filled(entry.manipulationId) || !filled(entry.manipulationStatus)) errors.push(`${which} must name its context, its manipulation and the manipulation's status`)
+        if (!Array.isArray(entry.rows) || !entry.rows.length || !entry.rows.every(filled)) errors.push(`${which} authorizes no register row`)
+        if (!Array.isArray(entry.via) || !entry.via.length || !entry.via.every(filled)) errors.push(`${which} names nothing the relationship runs through (via)`)
+        if (!filled(entry.identified)) errors.push(`${which} does not say who identified it`)
+        if (entry.status !== 'IDENTIFIED' && entry.status !== 'CONFIRMED') errors.push(`${which} has the unknown status ${entry.status}`)
+        if (entry.status === 'CONFIRMED' && (!filled(entry.confirmedOn) || !filled(entry.confirmedBy) || !filled(entry.citedAs) || !Array.isArray(entry.words) || !entry.words.length || !entry.words.every(filled))) {
+            errors.push(`${which} is CONFIRMED and does not say who confirmed it, when, where and in his words`)
+        }
+    }
+    for (const realization of provisional) {
+        for (const item of realization.items) {
+            if (item.authorizedBy === undefined) continue
+            const at = `${realization.contractId}::${item.itemId}`
+            const relationship = typeof item.authorizedBy === 'string' ? byId.get(item.authorizedBy) : undefined
+            if (!relationship) {
+                errors.push(`${at} cites the relationship ${JSON.stringify(item.authorizedBy)}, which contextManipulationRelationships does not hold`)
+                continue
+            }
+            if (relationship.contextId !== realization.realizes) errors.push(`${at} cites ${relationship.id}, a relationship of ${relationship.contextId}, while its realization realizes ${realization.realizes}`)
+            if (!relationship.rows.includes(String(item.row))) errors.push(`${at} is on ${String(item.row)}, which ${relationship.id} does not authorize`)
+        }
+    }
+    for (const entry of records) {
+        const adjustments = entry.authorizedAdjustments
+        if (adjustments === undefined) continue
+        const goal = entry.learningGoalId
+        if (!Array.isArray(adjustments.words) || !adjustments.words.length || !adjustments.words.every(filled) || !filled(adjustments.citedAs)) errors.push(`${goal}: the authorized adjustments quote none of his words`)
+        const seen = new Set<string>()
+        for (const [i, adjustment] of (Array.isArray(adjustments.entries) ? adjustments.entries : []).entries()) {
+            const which = `${goal}: adjustment ${adjustment?.id || i + 1}`
+            if (!filled(adjustment.id) || seen.has(adjustment.id)) errors.push(`${which} has no id, or one used twice`)
+            seen.add(adjustment.id)
+            if (adjustment.category !== 'PROVISIONAL_REALIZATION_CHOICE') errors.push(`${which} is not labelled PROVISIONAL_REALIZATION_CHOICE`)
+            if (!filled(adjustment.words) || !filled(adjustment.citedAs) || !filled(adjustment.ruledOn) || !filled(adjustment.by)) errors.push(`${which} must quote him and say who ruled it, when and where`)
+            if (adjustment.consequence !== null && !filled(adjustment.consequence)) errors.push(`${which} gives a consequence that is not his sentence`)
+            if (!byId.has(adjustment.relationship)) errors.push(`${which} names the relationship ${adjustment.relationship}, which contextManipulationRelationships does not hold`)
+            if (!filled(adjustment.role) || !filled(adjustment.parameter)) errors.push(`${which} must name the role whose team it changes and the parameter it moves`)
+        }
+        if (!Array.isArray(adjustments.entries) || !adjustments.entries.length) errors.push(`${goal}: authorizedAdjustments lists no adjustment`)
+    }
+    return errors
+}
+
 const RECORDS = record.authorizations as LearningGoalAuthorization[]
 const PRINCIPLE = (record as { libraryConstraintPrinciple?: LibraryConstraintPrinciple }).libraryConstraintPrinciple ?? null
+const ALLOCATION_PRINCIPLE = (record as { allocationPrinciple?: LibraryConstraintPrinciple }).allocationPrinciple ?? null
+const RELATIONSHIPS = ((record as { contextManipulationRelationships?: ContextManipulationRelationship[] }).contextManipulationRelationships ?? []) as ContextManipulationRelationship[]
 {
-    const errors = [...validateLibraryConstraintPrinciple(PRINCIPLE), ...validateLearningGoalAuthorizations(RECORDS)]
+    const errors = [
+        ...validateLibraryConstraintPrinciple(PRINCIPLE),
+        ...validateAllocationPrinciple(ALLOCATION_PRINCIPLE),
+        ...validateLearningGoalAuthorizations(RECORDS),
+        ...validateContextManipulationRelationships(RELATIONSHIPS, RECORDS),
+    ]
     if (errors.length) throw new Error(`learning-goal-authorizations.json failed its integrity gate: ${errors.join(' | ')}`)
+}
+
+/** His allocation principle (17 October 2026, D6), as a copy. */
+export function allocationPrinciple(): LibraryConstraintPrinciple {
+    return JSON.parse(JSON.stringify(ALLOCATION_PRINCIPLE)) as LibraryConstraintPrinciple
+}
+
+/** The context-manipulation relationships, as copies: what a realization may cite (`realization-deferral.ts`). */
+export function contextManipulationRelationships(): ContextManipulationRelationship[] {
+    return JSON.parse(JSON.stringify(RELATIONSHIPS)) as ContextManipulationRelationship[]
 }
 
 /** His general principle on library constraints, as a copy: what an evaluated, empty authorized set is read under. */

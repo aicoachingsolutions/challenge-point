@@ -84,8 +84,10 @@ test('one home: the file loads, A01-R1 is labelled his provisional choice, and o
     const [realization, ...others] = loadProvisionalRealizations()
     assert.equal(others.length, 0)
     // Empty at landing (stage K2). 0 -> 3 items on 15 October 2026 (stage K3): his D2(a)/M1 role blocks — the two roles and
-    // how they pass between the teams — pinned item by item in role-blocks.unit.ts. Still no declaration.
-    assert.deepEqual([realization.provisionalId, realization.contractId, realization.category, realization.realizes, realization.items.length, realization.declarations.length], ['A01-R1', 'provisional:A01-R1', PROVISIONAL_REALIZATION_CHOICE, 'RPC-001', 3, 0])
+    // how they pass between the teams — pinned item by item in role-blocks.unit.ts. Still no declaration. 3 -> 10 on 15
+    // October 2026 (stage K4): his D6 counts by role (P2 x2), the building role's keeper (P3) and his 18 October RD-1
+    // answer as two reassignments with their counts (B4 x2, B7 x2) — pinned item by item in allocation.unit.ts.
+    assert.deepEqual([realization.provisionalId, realization.contractId, realization.category, realization.realizes, realization.items.length, realization.declarations.length], ['A01-R1', 'provisional:A01-R1', PROVISIONAL_REALIZATION_CHOICE, 'RPC-001', 10, 0])
     assert.equal(realization.realizationChoices, 'realization-choices-a01-r1.json')
     assert.ok(realization.words.includes('The priority remains producing one complete, representative Play Out from the Back activity through the normal generation pathway, without introducing unnecessary architecture or treating this first realization as the canonical version of the Learning Goal.'))
     const naming = learningGoalAuthorizations().filter(record => record.provisionalRealization).map(record => [record.learningGoalId, record.provisionalRealization])
@@ -176,6 +178,15 @@ test('the realization moves exactly what its items establish — the role lines 
         'c:provisional:A01-R1:A01-R1-B1-2::B2|derived|RESOLVED:ENTAILED||"PRESSING"',
         'c:provisional:A01-R1:A01-R1-B1-1::B3|derived|RESOLVED:ENTAILED||"COACH_CALLS"',
         'c:provisional:A01-R1:A01-R1-B1-2::B3|derived|RESOLVED:ENTAILED||"COACH_CALLS"',
+        // 15 October 2026 (stage K4): the two reassignments of his 18 October RD-1 answer, each element's three fields. The
+        // counts by role (P2) and the keeper (P3) add no line: SD-97 enumerates none for a team nothing individuates, and
+        // the roster reads them at assembly (allocation.unit.ts).
+        'c:provisional:A01-R1:A01-R1-B4-1::B5|derived|RESOLVED:ENTAILED||"BUILDING"',
+        'c:provisional:A01-R1:A01-R1-B4-2::B5|derived|RESOLVED:ENTAILED||"BUILDING"',
+        'c:provisional:A01-R1:A01-R1-B4-1::B6|derived|RESOLVED:ENTAILED||"P3"',
+        'c:provisional:A01-R1:A01-R1-B4-2::B6|derived|RESOLVED:ENTAILED||"P2"',
+        'c:provisional:A01-R1:A01-R1-B4-1::B7|derived|RESOLVED:ENTAILED||1',
+        'c:provisional:A01-R1:A01-R1-B4-2::B7|derived|RESOLVED:ENTAILED||1',
     ])
     assert.deepEqual(
         named.gates.gateA.checks.map((c: any) => `${c.checkId}|${c.verdict}`),
