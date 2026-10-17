@@ -311,8 +311,19 @@ export function validateConstraintPackage(
         throw new SystemPipelineError('constraint-package-validation', 'An archetype is required before validation.')
     }
 
-    if (!constraintPackage.foundation || !constraintPackage.shaping) {
-        throw new SystemPipelineError('constraint-package-validation', 'A valid package requires both a foundation and shaping constraint.')
+    /**
+     * **A foundation is required; a shaping constraint is not — by his ruling, not as a relaxation.**
+     * Christian, 14 October 2026: *"I don't want us to assume that every activity necessarily requires an
+     * additional shaping constraint. The game form and its inherent conditions may already create the
+     * relevant affordances. What matters is whether the resulting environment meaningfully addresses the
+     * Learning Goal."* This clause required both, and is the reason selection borrowed a shaping constraint
+     * from the whole library for every goal whose own candidates hold none. Only the shaping half is
+     * removed: the foundation stays required (that was not ruled), and EVERY other check below — per member,
+     * per package, on the interaction exchange and the guardrails — applies exactly as before, including to
+     * a shaping constraint wherever one is present.
+     */
+    if (!constraintPackage.foundation) {
+        throw new SystemPipelineError('constraint-package-validation', 'A valid package requires a foundation constraint.')
     }
 
     if (!hasCompleteGuardrails(constraintPackage.assemblyGuardrails)) {

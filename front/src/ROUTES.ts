@@ -8,6 +8,9 @@ const endpoints = {
         generateActivities: '/generate-activities',
         // Session Planning Model registry — the conversation is rendered from this, never hardcoded.
         sessionPlanning: '/session-planning',
+        // The signed-in activity review: the activity a coach would receive for a goal, from their own session.
+        // Named apart from 'app/activity-review', which is the coach's feedback on a generated activity.
+        checkedActivity: '/checked-activity',
         // Client-side pilot evidence — the events that leave no server-side trace.
         coachEvent: '/coach-event',
         user: '/user',

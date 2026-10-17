@@ -77,6 +77,18 @@ export interface ISession {
     sessionEmphasis?: SessionEmphasis
     fieldLength?: string
     fieldWidth?: string
+    /**
+     * Specialized-role AVAILABILITY in the session: role name -> number of people (e.g. `{ goalkeeper: 2 }`).
+     *
+     * ABSENT MEANS NOT STATED, and that is different from zero. Christian, 13 October: "The system should
+     * not silently assume that no goalkeepers are available." So nothing here — not the form, not the
+     * review page, not the schema — fills in a zero the coach did not enter. A role with no entry is a
+     * question still to be asked, and the activity review asks it before it builds anything.
+     *
+     * Availability is not involvement: two goalkeepers at practice does not mean a game uses them. Whether
+     * a particular activity involves the role is decided by the game's own knowledge, on the server.
+     */
+    specializedRoles?: Record<string, number>
     fieldType?: string
     coachComments?: string
     createdAt: Date

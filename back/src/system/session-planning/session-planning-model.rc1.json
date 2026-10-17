@@ -597,9 +597,9 @@
   "engine_translation": [
     {
       "Learning Goal ID": "A01",
-      "Primary GP IDs": null,
+      "Primary GP IDs": "GP-005",
       "Secondary GP IDs": null,
-      "Notes": "Intentional runtime gap (Cycle 8 §5) — no placeholder mapping. Runtime realization opportunity, not a knowledge deficiency."
+      "Notes": "Approved 2026-10-15 (Christian, A01 decision 1) — Primary Representative Game Problem Translation: Gain Access, based on the approved Goalkeeper Build-Out context (RPC-001) and its scoring condition. No secondary (Cycle 8 §4 deferral retained). Replaces the Cycle 8 §5 intentional runtime gap. Does not by itself authorize candidate constraints derived from vocabulary coverage."
     },
     {
       "Learning Goal ID": "A02",

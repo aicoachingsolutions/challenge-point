@@ -25,7 +25,8 @@ import { corpusInput } from './corpus'
 import { runDerivation, runStages0to10 } from './engine'
 import { runGates } from './gates'
 import { indexRegister } from './register'
-import { derivationInputFor, selectFor } from './run-bounded-selection'
+import { a01CompositionUntil15October } from './composition-fixtures'
+import { derivationInputFor, GoalSelectionGap, selectFor } from './run-bounded-selection'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 
 let passed = 0
@@ -46,10 +47,14 @@ const index = indexRegister(register)
 // ── Registered, and the vocabulary is versioned as the register requires ──────────────────────────
 test('COMPLETED_PASS is a registered trigger, and the vocabulary version records why', () => {
     assert.ok(index.vocabularies.get('trigger')!.includes('COMPLETED_PASS'), 'it is in the closed list')
-    assert.equal(index.vocabularies.get('trigger')!.length, 10, 'one member added, not several')
+    // 10 -> 11 and version 3 -> 4 on 15 October 2026 (stage K5): COACH_JUDGED_EPISODE_CONCLUSION, his M4 of 17 October,
+    // is the next member (pinned in starts-and-restarts.unit.ts). COMPLETED_PASS was the one member version 3 added, and
+    // version 4's entry keeps saying so.
+    assert.equal(index.vocabularies.get('trigger')!.length, 11, 'one member added, not several, by each version')
+    assert.equal(index.vocabularies.get('trigger')!.indexOf('COMPLETED_PASS'), 9)
     const version = String(register.vocabularies.versions.trigger)
-    assert.match(version, /^3 /, 'the version is bumped, so a stored result can be known stale')
-    assert.match(version, /COMPLETED_PASS/, version)
+    assert.match(version, /^4 /, 'the version is bumped, so a stored result can be known stale')
+    assert.match(version, /Version 3, 2026-10-04: adds COMPLETED_PASS/, version)
 })
 
 // ── The semantics entry carries the ruling, and the whole of the meaning is completion ─────────────
@@ -157,29 +162,141 @@ test('registering the member changed no verdict in any of the thirteen goals', (
      *
      * TD02 and D03 move 11 → 13 failed lines: GF4's modifier gains the two new rows and authors neither.
      *
+     * **The six game-form goals moved again on 9 October (ruling C42), and again not because anything
+     * here changed.** The shared target was replaced by one per team, so every goal selecting that form
+     * gained two target regions and two objectives in place of one of each. A04 returns to 7; A01 and A05
+     * reach 8; TA01, A02 and TA02 reach 7. Only the goals selecting that form move, and no gate verdict
+     * does — A04 is still the only one that reaches realization.
+     *
      * **A04 moved 7 → 6 on 8 October, and not because anything here changed.** The attacking-duel
      * signal group resolves A04 to a matched package that no longer includes Wide Zone Advantage, so
      * the one failed line that object contributed went with it. A04 had stayed at 7 while Wide Zone
      * was still selected, because its two new rows resolved; now there is no Wide Zone modifier in
      * A04 at all. Its gate verdict is unchanged.
+     *
+     * **5 · 13 October — SEVEN ROWS MOVED AT ONCE, AND THIS TIME THE CAUSE IS THAT THE TABLE HAD BEEN
+     * DESCRIBING THE WRONG SELECTION.** `selectFor` composed its own hints and left out the context
+     * rule the application applies (his ruling of 12–13 September), so every row here recorded the game
+     * form a goal would take if that rule did not exist. It now calls the one function both pathways
+     * share (`sport-module/guided-selection.ts`), which also lets his approved Game Problem translation
+     * govern where the wording implies a different one. What moved, and why:
+     *
+     *   - **The context rule:** A02 and A03 land on Positional Play (no contract), D01 and D03 on
+     *     Directional Possession, TD01 on Transition Games. D01 and D03 therefore reach
+     *     DEFERRED_TO_REALIZATION beside A04 — the same bare game, since none of the three commits a
+     *     contracted constraint. That identity is a finding about coverage, not about this table.
+     *   - **The approved Game Problem:** Win the Ball Back (D02) is a Regain Possession goal and Attack
+     *     Quickly (TA01) an Exploit Space goal; both had been selected as possession goals because their
+     *     definitions contain the word. Both now land on Transition Games, whose own restatement fails
+     *     reachability — the defect D03 and TD02 used to show, now shown by D02, TA01, TD01 and TD02.
+     *   - A01, A04, A05, A06, TA02 and TD02 select exactly what they did. Their rows are unchanged.
+     *
+     * No gate, no contract and no register row changed. Every number that moved did so because a goal
+     * now loads the contracts the application would load for it.
+     *
+     * **6 · 14 October — FOUR ROWS MOVED AND TWO LEFT, by his two rulings of that day; measured.**
+     *
+     *   - *"Selection should only use constraints authorized for the Learning Goal"* and *"keep the current
+     *     Pass Combination Gate as a mechanism demonstration only."* The gate is held out of every Learning
+     *     Goal's selection, so A05 and TA02 lose their only NOT_EVALUABLE contract and keep Wide Zone
+     *     Advantage, one of their own candidates: both reach DEFERRED_TO_REALIZATION with 8 failed lines (TA02
+     *     had 7 with the gate). A02 and D03 can no longer borrow and their own candidates cannot be combined:
+     *     they are knowledge gaps, select nothing, and leave the table (asserted below as the gap list).
+     *   - *"the Primary Scoring Event and qualifying condition approved for each Representative Performance
+     *     Context should govern the generated activity."* Selection now carries the goal's context, and
+     *     RPC-001 is the one context with a contract: A01 loads it, and Gate A FAILS on the lines that context
+     *     leaves unestablished (8 → 13 failed lines). The other contexts have no contract, so they load
+     *     nothing and no other row moves for this reason.
+     *
+     * Every other row is unchanged. The gate's own information rule (the V17 line) is now measured on the
+     * gate's demonstration composition, in the next test, because no goal selects the gate.
      */
+    /**
+     * **7 · 14 October — EVERY ROW MOVED BY ONE, and no verdict did.** Register version 7 adds the game-level
+     * row P6c (when a neutral player's change of side takes effect), on his ruling of that day: *"Please add the
+     * explicit property governing when a neutral player changes allegiance."* A game-level row is a line in every
+     * game, and none of these goals selects the neutral condition, so in each the line is `NOT_AUTHORED / no
+     * coverage`: no contract speaks of the timing — the contracts that declare the neutral rows free (P5, P6a,
+     * P6b, P7) were written before the row existed, and a restatement cannot add a declaration. It is an
+     * established absence ("unspoken" in GA-NO-FAILED-LINE), so no Gate A verdict moves.
+     */
+    /**
+     * **8 · 15 October — A01 LEAVES THE TABLE FOR THE GAP LIST, and its row is kept on its composition.** His item 1
+     * of that day: approving Gain Access *"does not automatically authorize the candidate constraints currently
+     * derived from vocabulary coverage."* A01's authorization record authorizes no constraint, so it selects nothing
+     * (NO_AUTHORIZED_CONSTRAINTS). Its row — 14 failed lines, Gate A FAIL, reachable — described derivation over the
+     * objects it selected, so it is asserted on exactly those, named (composition-fixtures.ts), after the loop.
+     */
+    /**
+     * **9 · 15 October, later — A01 RETURNS TO THE TABLE, with no library constraint; measured.** His reply of that
+     * day (16 October, item 1) answered the zero-constraint question with a general principle: *"A library constraint
+     * is not mandatory unless its inclusion is justified by the approved knowledge and intended learning
+     * environment."* A01's record evaluated its set as empty, so it selects GF2, three lenses and RPC-001 and nothing
+     * else: 13 failed lines (one fewer than its vocabulary composition, which carried constraints of its own), Gate A
+     * FAIL, reachable. The composition row above is kept on its named objects.
+     */
+    /**
+     * **10 · 15 October, later still — A01 13 → 12 and its old composition 14 → 13, measured; no verdict moves.** His
+     * reply of that day (16 October, item 9 point 5) retired the context's separate scoring objective: *"Retire the
+     * redundant separate scoring objective: Approved, provided the live attacking objective remains represented"*
+     * (ruling C51). That objective's target reference, RPC-001-11.a::J2, was a failed line nothing resolved; with the
+     * objective gone so is the line. Each team keeps its own live objective (GF2-08.c, GF2-08.e), pinned in
+     * derivation-stage11.unit.ts.
+     */
+    /**
+     * **11 · 15 October, stage K1 — A01 12 → 10 and its old composition 13 → 11, measured; no verdict moves.** His M8
+     * (17 October: *"Apply the qualifying conditions to the target and scoring episode actually being evaluated"*,
+     * ruling C57) types the referents of the context's control condition and long-clearance exclusion, so those two
+     * lines are derived. (The origin's value line, C55 — his 9.9 — stays unauthored: it now needs no further value,
+     * an established absence, still counted here as a line with no value.) Gate A stays FAIL: GA-EPISODE-REACHABLE.
+     */
+    /**
+     * **12 · 15 October, stage K5 — A01's Gate A FAIL → NOT_EVALUABLE, measured; no failed line moves.** Its selection carries
+     * the provisional realization A01-R1 (its record names it), whose start, after-score and coach-judged restarts begin the
+     * build-out episode under the begin condition ruling C58 types (his 18 October item 4), so GA-EPISODE-REACHABLE no longer
+     * fails; what remains unevaluable is the progression reference (RPC-001-18.d, open text — stage K6). Derived here with no
+     * role block, as this table always derived, so the block-scoped awardees are not resolved; in its blocks see
+     * starts-and-restarts.unit.ts. The old composition carries no realization and keeps its FAIL.
+     */
+    /**
+     * **13 · 15 October, stage K6 — A01's Gate A NOT_EVALUABLE → DEFERRED_TO_REALIZATION and 10 → 11 failed lines, measured.**
+     * Ruling C59 types the progression condition's referent (RPC-001-18.d), the open text Gate A withheld on, so nothing knowledge
+     * could settle is left unsettled; what remains is owed to realization (the spatial placements among it). The one line added is
+     * the pressure reference's function line (c:provisional:A01-R1:A01-R1-S2-1::S4): a region A01-R1 now establishes (his 18
+     * October item 3), whose functions beyond the one its selector names are declared free by the possession game, exactly as the
+     * two targets' S4 lines are - an established absence, which GA-NO-FAILED-LINE does not block on. The old composition is
+     * unchanged.
+     */
+    const A01_COMPOSITION = { failed: 11, gateA: 'FAIL', reachable: true }
     const expected: Record<string, { failed: number; gateA: string; reachable: boolean }> = {
-        A01: { failed: 7, gateA: 'NOT_EVALUABLE', reachable: true },
-        D01: { failed: 6, gateA: 'NOT_EVALUABLE', reachable: true },
-        TA01: { failed: 6, gateA: 'NOT_EVALUABLE', reachable: true },
-        TD01: { failed: 6, gateA: 'NOT_EVALUABLE', reachable: true },
-        A02: { failed: 6, gateA: 'NOT_EVALUABLE', reachable: true },
-        D02: { failed: 7, gateA: 'FAIL', reachable: true },
-        TA02: { failed: 6, gateA: 'NOT_EVALUABLE', reachable: true },
-        TD02: { failed: 13, gateA: 'FAIL', reachable: false },
-        A03: { failed: 7, gateA: 'FAIL', reachable: true },
-        D03: { failed: 13, gateA: 'FAIL', reachable: false },
-        A04: { failed: 6, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
-        A05: { failed: 7, gateA: 'NOT_EVALUABLE', reachable: true },
-        A06: { failed: 7, gateA: 'FAIL', reachable: true },
+        A01: { failed: 11, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
+        D01: { failed: 8, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
+        TA01: { failed: 15, gateA: 'FAIL', reachable: false },
+        TD01: { failed: 14, gateA: 'FAIL', reachable: false },
+        D02: { failed: 14, gateA: 'FAIL', reachable: false },
+        TA02: { failed: 9, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
+        TD02: { failed: 14, gateA: 'FAIL', reachable: false },
+        A03: { failed: 8, gateA: 'FAIL', reachable: true },
+        A04: { failed: 8, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
+        A05: { failed: 9, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
+        A06: { failed: 8, gateA: 'FAIL', reachable: true },
     }
-    for (const goal of goals) {
-        const input = derivationInputFor(selectFor(goal, null))
+    const gaps: string[] = []
+    for (const goal of [...goals, 'A01 composition until 15 October']) {
+        let selection
+        if (goal === 'A01 composition until 15 October') {
+            selection = a01CompositionUntil15October(null)
+            expected[goal] = A01_COMPOSITION
+        } else {
+            try {
+                selection = selectFor(goal, null)
+            } catch (error) {
+                if (!(error instanceof GoalSelectionGap)) throw error
+                gaps.push(goal)
+                continue
+            }
+        }
+        const input = derivationInputFor(selection)
         const result: any = runDerivation(input)
         const staged: any = runStages0to10(input)
         const failedLines = (result.resolution ?? []).filter((e: any) => e.state === 'failed').map((e: any) => String(e.lineId))
@@ -188,6 +305,7 @@ test('registering the member changed no verdict in any of the thirteen goals', (
 
         // The two halves of the exchange, by name, because the count conceals it.
         assert.ok(!failedLines.includes('game::PS1'), `${goal}: the possession relation is bounded now, so it must not be a failed line`)
+        assert.ok(failedLines.includes('game::P6c'), `${goal}: the neutral timing is spoken of by no contract this goal selects (row added 14 October 2026)`)
         assert.ok(
             failedLines.includes('c:sport-profile:soccer:SPORT-SOCCER-01::O3'),
             `${goal}: the ball's count is deliberately unconstrained, so it stays a declared non-requirement and keeps the total steady`,
@@ -197,7 +315,18 @@ test('registering the member changed no verdict in any of the thirteen goals', (
         const passes = !reach.clauses.some((l: any) => l.verdict === 'FAIL')
         assert.equal(passes, expected[goal].reachable, `${goal}: reachability verdict must be the one his ruling implies`)
     }
+    // A01 was a gap from 15 October until his general principle later that day (note 9).
+    assert.deepEqual(gaps, ['A02', 'D03'], 'the knowledge gaps of 14 October, and no others')
 })
+
+/**
+ * The Pass Combination Gate as a mechanism demonstration composes it: the possession game form and the gate,
+ * named directly, through the same selection shape a demonstration uses. Since 14 October no Learning Goal
+ * selects the gate (his ruling: *"Please keep the current Pass Combination Gate as a mechanism demonstration
+ * only"*), so every test of the gate's own lines is made here rather than through a goal.
+ */
+const gateComposition = () =>
+    derivationInputFor({ selected: [{ id: 'GF2', role: 'game form' }, { id: 'tl-v0-constraint-pass-combination-gate', role: 'constraint' }] })
 
 test('the member alone closed nothing — it took a separate authoring act', () => {
     /**
@@ -208,17 +337,28 @@ test('the member alone closed nothing — it took a separate authoring act', () 
      *
      * So this now asserts the authored outcome, and the member's own inertness is proved by the forced negative
      * below rather than by a current-state baseline — which is the stronger evidence anyway.
+     *
+     * **Four goals since 13 October, not five.** Attack Quickly selected this contract only while it was
+     * being read as a possession goal. Under its approved Game Problem it selects no information rule,
+     * so it moves to the list below, where the absence is asserted rather than left unexamined.
+     *
+     * **None since 14 October: measured on the gate's demonstration composition.** The four goals that
+     * selected the gate (A01, A02, TA02, A05) no longer do — his ruling holds it out of Learning Goal
+     * selection, and A02 is now a knowledge gap — so the authored outcome is asserted where the gate now
+     * lives, and the three goals that still exist join the list of goals with no such line.
      */
-    for (const goal of ['A01', 'TA01', 'A02', 'TA02', 'A05']) {
-        const result: any = runDerivation(derivationInputFor(selectFor(goal, null)))
+    {
+        const result: any = runDerivation(gateComposition())
         const v17 = (result.resolution ?? []).filter((e: any) => /::V17$/.test(String(e.lineId)))
-        assert.equal(v17.length, 1, `${goal}: one information-rule trigger line`)
-        assert.equal(v17[0].verdict, 'RESOLVED:ENTAILED', `${goal}: closed by the authored item, not by the vocabulary`)
-        assert.equal(v17[0].value, 'COMPLETED_PASS', `${goal}: with the token the 29 September ruling requires`)
+        assert.equal(v17.length, 1, 'the gate composition: one information-rule trigger line')
+        assert.equal(v17[0].verdict, 'RESOLVED:ENTAILED', 'closed by the authored item, not by the vocabulary')
+        assert.equal(v17[0].value, 'COMPLETED_PASS', 'with the token the 29 September ruling requires')
     }
     // And the goals that do NOT select that contract have no such line at all, so nothing was created for them.
-    for (const goal of ['A04', 'A03', 'A06']) {
-        const result: any = runDerivation(derivationInputFor(selectFor(goal, null)))
+    // A01 by its composition until 15 October (composition-fixtures.ts), and since his general principle later that day
+    // by its own selection again (no library constraint): neither carries the gate.
+    for (const goal of ['A04', 'A03', 'A06', 'TA01', 'A01 composition', 'A01', 'TA02', 'A05']) {
+        const result: any = runDerivation(derivationInputFor(goal === 'A01 composition' ? a01CompositionUntil15October(null) : selectFor(goal, null)))
         assert.deepEqual(
             (result.resolution ?? []).filter((e: any) => /::V17$/.test(String(e.lineId))),
             [],
@@ -238,7 +378,8 @@ test('an item authoring the token is admitted WITH the member and rejected WITHO
         return information?.clauses.find((l: any) => /registered trigger/.test(String(l.clause)))
     }
     const withItem = (vocabulary: string[]) => {
-        const input: any = derivationInputFor(selectFor('A05', null))
+        // The gate's demonstration composition since 14 October: no goal selects the gate any more.
+        const input: any = gateComposition()
         input.register = JSON.parse(JSON.stringify(input.register))
         input.register.vocabularies.trigger = vocabulary
         const pcg: any = input.contracts.find((c: any) => /PASS-COMBINATION/.test(String(c.contractId)))
@@ -260,7 +401,8 @@ test('an item authoring the token is admitted WITH the member and rejected WITHO
 
 // ── A known limit, recorded rather than repaired ───────────────────────────────────────────────────
 test('the token is not structurally reachable, and that is reported not hidden', () => {
-    const staged: any = runStages0to10(derivationInputFor(selectFor('A05', null)))
+    // The gate's demonstration composition since 14 October: no goal selects the gate any more.
+    const staged: any = runStages0to10(gateComposition())
     const reachable = JSON.stringify([...(staged.gateContext?.triggers ?? [])])
     assert.ok(!reachable.includes('COMPLETED_PASS'), 'the reachable set is built by a hardcoded function, not from the vocabulary')
     // FIRST_FORWARD_PASS has been in the vocabulary since 29 September and is not reachable either, so this is

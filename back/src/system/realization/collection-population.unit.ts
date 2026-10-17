@@ -28,7 +28,8 @@ import assert from 'node:assert/strict'
 import { runDerivation, runStages0to10 } from '../derivation/engine'
 import { indexRegister } from '../derivation/register'
 import { assembleResolvedGame } from '../derivation/resolved-game'
-import { derivationInputFor, selectFor } from '../derivation/run-bounded-selection'
+import { a01CompositionUntil15October } from '../derivation/composition-fixtures'
+import { derivationInputFor, GoalSelectionGap, selectFor } from '../derivation/run-bounded-selection'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { realize } from './realize'
 
@@ -44,8 +45,19 @@ const test = (name: string, fn: () => void) => {
     }
 }
 
-function resolvedFor(goal: string) {
-    const input = derivationInputFor(selectFor(goal, null))
+/**
+ * The Pass Combination Gate's demonstration composition — the possession game form and the gate, named
+ * directly — and the same with Wide Zone Advantage beside them (the contracted part of A01's selection before
+ * 14 October). Since that day no Learning Goal selects the gate (his ruling: *"Please keep the current Pass
+ * Combination Gate as a mechanism demonstration only"*), so the shape this file repairs — two claims on one
+ * collection, the game form's and the gate's — lives only in compositions, and is tested there.
+ */
+const GATE = ['GF2', 'tl-v0-constraint-pass-combination-gate']
+const GATE_WITH_WIDE_ZONE = [...GATE, 'tl-v0-constraint-wide-zone-advantage']
+const composed = (ids: string[]) => ({ selected: ids.map((id, i) => ({ id, role: i ? 'constraint' : 'game form' })) })
+
+function resolvedFor(goalOrComposition: string | string[]) {
+    const input = derivationInputFor(typeof goalOrComposition === 'string' ? selectFor(goalOrComposition, null) : composed(goalOrComposition))
     const result: any = runDerivation(input)
     const staged: any = runStages0to10(input)
     const index = indexRegister(input.register)
@@ -53,27 +65,77 @@ function resolvedFor(goal: string) {
 }
 
 // ── The shape, and its real extent ────────────────────────────────────────────────────────────────
-test('five of the thirteen goals carry two claims on one collection', () => {
+//
+// **Three since 13 October, not five.** The shape needs a goal to load BOTH the possession game form and the
+// Pass Combination Gate, each claiming teams. Play Through Pressure now lands on a game form with no
+// contract (the context rule) and Attack Quickly no longer selects the gate (its approved Game Problem),
+// so each carries one claim. The repair is asserted on every goal that still has the shape.
+test('A01 alone carries two claims on one collection (objectives); the A01 composition and the gate compositions carry the shapes', () => {
     const goals: string[] = ((sessionPlanningModel as any).learningGoals?.() ?? []).map((g: any) => g.ID ?? g.id).filter(Boolean)
     assert.equal(goals.length, 13, `the corpus has 13 learning goals, got ${goals.length}: ${goals.join(' ')}`)
 
     const affected: string[] = []
+    const gaps: string[] = []
     for (const goal of goals) {
-        const { resolved } = resolvedFor(goal)
+        let resolved: any
+        try {
+            resolved = resolvedFor(goal).resolved
+        } catch (error) {
+            // A knowledge gap (14 October) selects nothing, so it holds no collection.
+            if (!(error instanceof GoalSelectionGap)) throw error
+            gaps.push(goal)
+            continue
+        }
         const byPath = new Map<string, number>()
         for (const claim of resolved.existential as any[]) byPath.set(claim.path, (byPath.get(claim.path) ?? 0) + 1)
         if ([...byPath.values()].some(n => n > 1)) affected.push(goal)
     }
-    assert.deepEqual(affected, ['A01', 'TA01', 'A02', 'TA02', 'A05'], `the multi-claim goals, got ${affected.join(', ')}`)
+    /**
+     * **One since 14 October, measured, and on a different collection.** The three goals that had the TEAMS
+     * shape (A01, TA02, A05) had it because they selected the gate beside the possession game form; his ruling
+     * holds the gate out of every Learning Goal's selection, so no goal has it, and it is asserted on the
+     * gate's compositions instead, where the repair below is exercised. A01 is still here for another reason:
+     * selection now carries its context, and RPC-001 claims an objective (RPC-001-14.a) beside the game
+     * form's (GF2-09.a) — two claims on `objectives[]`, which the same one-population rule governs.
+     */
+    /**
+     * **None since 15 October 2026.** A01 is a knowledge gap that day (its authorization record authorizes no
+     * constraint — his item 1), so it reaches no collection. The shape it carried — RPC-001's objective claim beside
+     * the game form's — is a property of the context composed with GF2, not of the goal, so it is asserted on the
+     * composition A01 selected until then, named (composition-fixtures.ts): the same two claims.
+     */
+    /**
+     * **A01 again, later on 15 October 2026.** His general principle of that day (16 October reply, item 1) lets its
+     * evaluated, empty record select GF2 and RPC-001 with no library constraint, so it reaches the collection once
+     * more and carries the same two objective claims as its composition (asserted on both).
+     */
+    assert.deepEqual(affected, ['A01'], `the multi-claim goals, got ${affected.join(', ')}`)
+    {
+        const objectives = (resolvedFor('A01').resolved.existential as any[]).filter(claim => claim.path === 'objectives[]').map(claim => claim.classId)
+        assert.deepEqual(objectives, ['c:restated:GF2:GF2-09.a', 'c:restated:RPC-001:RPC-001-14.a'], "A01 itself: the game form's objective claim and its context's")
+    }
+    {
+        const input = derivationInputFor(a01CompositionUntil15October(null))
+        const result: any = runDerivation(input)
+        const staged: any = runStages0to10(input)
+        const resolved: any = assembleResolvedGame(result, staged.classes, indexRegister(input.register), input.contracts)
+        const objectives = (resolved.existential as any[]).filter(claim => claim.path === 'objectives[]').map(claim => claim.classId)
+        assert.deepEqual(objectives, ['c:restated:GF2:GF2-09.a', 'c:restated:RPC-001:RPC-001-14.a'], 'the game form\'s objective claim and its context\'s')
+    }
+    assert.deepEqual(gaps, ['A02', 'D03'], 'the knowledge gaps of 14 October (A01 was one from 15 October until his general principle that day), and no others')
+    for (const composition of [GATE, GATE_WITH_WIDE_ZONE]) {
+        const teams = (resolvedFor(composition).resolved.existential as any[]).filter(claim => /teams/.test(claim.path))
+        assert.equal(teams.length, 2, `${composition.join(' + ')}: two claims on the teams collection`)
+    }
 })
 
 // ── THE REPAIR, with teeth in both directions ─────────────────────────────────────────────────────
 //
-// A01's Gate A is NOT_EVALUABLE for reasons unrelated to teams, so the authorization is exercised with that
-// one gate lifted and nothing else changed. The point is what the cardinality guard says, not whether A01 is
+// The gate composition's Gate A is NOT_EVALUABLE for reasons unrelated to teams (it was A01's until 14 October), so the authorization is exercised with that
+// one gate lifted and nothing else changed. The point is what the cardinality guard says, not whether the game is
 // realizable.
-function authorize(goal: string, counts: { pcg: number; gf2: number }) {
-    const { resolved, index, input } = resolvedFor(goal)
+function authorize(composition: string[], counts: { pcg: number; gf2: number }) {
+    const { resolved, index, input } = resolvedFor(composition)
     const claims = (resolved.existential as any[]).filter(e => /teams/.test(e.path))
     const pcg = claims.find(c => /PASS-COMBINATION-GATE/.test(c.classId))!.classId
     const gf2 = claims.find(c => /GF2-14/.test(c.classId))!.classId
@@ -89,12 +151,12 @@ function authorize(goal: string, counts: { pcg: number; gf2: number }) {
 test('the correct population of two is AUTHORIZED, whichever claim its members are attributed to', () => {
     // Before the repair BOTH of these were refused — the first because PCG-08 saw no members of its own, the
     // second because GF2-14.a saw only one. The correct game was unreachable.
-    assert.deepEqual(authorize('A01', { pcg: 0, gf2: 2 }), [], 'two members on one claim satisfy the collection')
-    assert.deepEqual(authorize('A01', { pcg: 1, gf2: 1 }), [], 'and so does one attributed to each claim')
+    assert.deepEqual(authorize(GATE, { pcg: 0, gf2: 2 }), [], 'two members on one claim satisfy the collection')
+    assert.deepEqual(authorize(GATE, { pcg: 1, gf2: 1 }), [], 'and so does one attributed to each claim')
 })
 
 test('three teams are REFUSED, and the refusal counts every claim on the collection', () => {
-    const objections = authorize('A01', { pcg: 1, gf2: 2 })
+    const objections = authorize(GATE, { pcg: 1, gf2: 2 })
     assert.equal(objections.length, 1, `exactly one objection, got ${JSON.stringify(objections)}`)
     assert.match(objections[0], /at most 2, and 3 would exist/, objections[0])
     assert.match(objections[0], /counting every claim on this collection/, 'the refusal must say why 3 was counted')
@@ -103,20 +165,22 @@ test('three teams are REFUSED, and the refusal counts every claim on the collect
 
 test('a maximum binds however the surplus is attributed', () => {
     // Four on one claim, and four split — the guard must not care which claim was named.
-    assert.match(authorize('A01', { pcg: 0, gf2: 4 }).join(' '), /at most 2, and 4 would exist/)
-    assert.match(authorize('A01', { pcg: 2, gf2: 2 }).join(' '), /at most 2, and 4 would exist/)
+    assert.match(authorize(GATE, { pcg: 0, gf2: 4 }).join(' '), /at most 2, and 4 would exist/)
+    assert.match(authorize(GATE, { pcg: 2, gf2: 2 }).join(' '), /at most 2, and 4 would exist/)
 })
 
 test('the repair holds on every affected goal, not just the one it was found on', () => {
-    for (const goal of ['A01', 'TA01', 'A02', 'TA02', 'A05']) {
-        assert.deepEqual(authorize(goal, { pcg: 0, gf2: 2 }), [], `${goal}: two teams must be authorized`)
-        assert.match(authorize(goal, { pcg: 1, gf2: 2 }).join(' '), /3 would exist/, `${goal}: three teams must be refused`)
+    // Re-pointed 14 October from the three goals that selected the gate to its two compositions (see above).
+    for (const composition of [GATE, GATE_WITH_WIDE_ZONE]) {
+        const label = composition.join(' + ')
+        assert.deepEqual(authorize(composition, { pcg: 0, gf2: 2 }), [], `${label}: two teams must be authorized`)
+        assert.match(authorize(composition, { pcg: 1, gf2: 2 }).join(' '), /3 would exist/, `${label}: three teams must be refused`)
     }
 })
 
 // ── The owed count is the GREATEST a claim requires, not the sum ───────────────────────────────────
 test('owed is the greatest single claim requirement, never the sum', () => {
-    const { resolved } = resolvedFor('A01')
+    const { resolved } = resolvedFor(GATE)
     const claims = (resolved.existential as any[]).filter(e => /teams/.test(e.path))
     const shortfalls = claims.map(c => c.shortfall).sort()
     // Both claims owe two since PCG-08's authored "at least 2 teams" was typed under SD-86 (C37). Before that
@@ -126,7 +190,7 @@ test('owed is the greatest single claim requirement, never the sum', () => {
     assert.equal(claims.find(c => /PCG-08/.test(c.classId))!.cardinality.min, 2, 'PCG-08 contributes its authored minimum')
     assert.equal(claims.find(c => /PCG-08/.test(c.classId))!.cardinality.max, null, 'and no maximum, because none is authored there')
     // Summing would owe FOUR, which is the wrong answer the old per-claim reading produced.
-    assert.deepEqual(authorize('A01', { pcg: 0, gf2: 2 }), [], 'two satisfies max(2,2), not 2+2')
+    assert.deepEqual(authorize(GATE, { pcg: 0, gf2: 2 }), [], 'two satisfies max(2,2), not 2+2')
 })
 
 // ── A04 is unaffected: one claim, and it still behaves exactly as before ───────────────────────────

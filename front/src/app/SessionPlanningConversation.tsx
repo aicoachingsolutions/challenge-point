@@ -111,8 +111,11 @@ const LEARNING_STAGES = [
  * duration is asked. Asking for the rest now would break the spec's own rule that every question
  * must materially improve the generated activity — they become questions the moment they influence
  * something.
+ *
+ * Exported so the activity review offers the same lengths a coach is offered here. A second list on
+ * that page would drift, and the two screens would then disagree about how long an activity can be.
  */
-const DURATION_OPTIONS = [15, 20, 25, 30, 40, 45]
+export const DURATION_OPTIONS = [15, 20, 25, 30, 40, 45]
 
 type StepId = 'goal' | 'situation' | 'stage' | 'team'
 

@@ -9,7 +9,10 @@
  * Run: part of `npm test`.
  */
 import assert from 'node:assert/strict'
+import fs from 'node:fs'
+import path from 'node:path'
 
+import { AUDITS_DIR } from '../derivation/knowledge-root'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import rpcWorkbook from './rpc-library.rc1.json'
 import { rpcLibrary, validateRpcLibraryIntegrity, type PlanningRoute, type RpcWorkbook } from './rpc-library'
@@ -245,7 +248,27 @@ function testGateFailsOnEachDefect(): void {
     ])
 }
 
+/**
+ * **The reconciliation record cites only rows that exist** (stage H3, 15 October 2026). His 16 October reply, item 1,
+ * asked for *"a focused reconciliation of the missing items"* with the workbook as the executable authority; the record
+ * (`docs/audits/rpc-001-document-workbook-reconciliation-2026-10-16.md`) points at workbook rows to say where each
+ * document item is or is not carried. A pointer to a row that is not in the workbook would be a reconciliation by
+ * assertion, so every RPC row id it cites (ranges by their two ends) is checked against the loaded workbook.
+ */
+function testReconciliationRecordCitesOnlyRowsThatExist(): void {
+    // Read with its line breaks folded to spaces, so a quotation wrapped across lines reads as he wrote it.
+    const record = fs.readFileSync(path.join(AUDITS_DIR, 'rpc-001-document-workbook-reconciliation-2026-10-16.md'), 'utf8').split(/\s+/).join(' ')
+    const cited = new Set(record.match(/RPC-(PROP|ID|REL|VAL|TR|STMT|MAP)-\d+/g) ?? [])
+    const library = JSON.stringify(REAL)
+    assert.ok(cited.size >= 30, `the record cites its rows (${cited.size})`)
+    for (const id of cited) assert.ok(library.includes(`"${id}"`), `${id} is cited by the reconciliation record and is not in the workbook`)
+    // The omission he asked to be recorded is recorded, with his words.
+    assert.ok(record.includes('The third build-out origin described in RC1.1 can remain outside the first implementation, as you recommend, while its workbook omission is recorded for reconciliation.'))
+    assert.ok(record.includes('**521 cells, 0 differences**'))
+}
+
 testIntegrityGatePasses()
+testReconciliationRecordCitesOnlyRowsThatExist()
 testLibraryVersionIsRc11OnTheFrozenSchema()
 testEveryContextCarriesItsIdentity()
 testFinishingContextOwnsAScoringIdentityAboutGoals()

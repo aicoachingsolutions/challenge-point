@@ -24,8 +24,10 @@ import { indexRegister } from '../derivation/register'
 import { assembleResolvedGame } from '../derivation/resolved-game'
 import { derivationInputFor, selectFor } from '../derivation/run-bounded-selection'
 import { completeConcreteGame } from '../realization/assemble-concrete-game'
+import { realizeWithJustifiedDefaults } from '../realization/justified-defaults'
 import { runPostRealizationGates } from '../realization/post-realization-gate'
-import { checkRealization, isRefused, realize, Realized } from '../realization/realize'
+import { checkRealization, isRefused, Realized } from '../realization/realize'
+import { assembleRenderingFixture } from './rendering-fixture'
 
 export const CHOICES = path.resolve(__dirname, '../../../../docs/audits/a04-realization-choices.json')
 export const OUT = path.resolve(__dirname, '../../../../docs/audits/a04-concrete-game-fixture.json')
@@ -69,13 +71,15 @@ export function buildGoldenCase(): Record<string, unknown> {
         )
     }
 
+    // What nobody chose is closed by rule where a rule applies, exactly as the builder closes it: the
+    // defaults are part of how this game comes to be the Golden Case, so they are part of what is frozen.
+    const gateContext = { ...staged.gateContext, contracts: input.contracts }
     const supplied = JSON.parse(fs.readFileSync(CHOICES, 'utf8'))
-    const realizationResult = realize(resolved, supplied.choices, supplied.instantiations, index, input.envelope)
+    const { realization: realizationResult } = realizeWithJustifiedDefaults(resolved, supplied, index, input.envelope, gateContext)
     if (isRefused(realizationResult)) throw new GoldenCaseUnavailable(`realization refused: ${realizationResult.because.join('; ')}`)
     const realized = realizationResult as Realized
 
     // Same order as the closure run: entail over the concrete game, THEN check it, THEN gate it.
-    const gateContext = { ...staged.gateContext, contracts: input.contracts }
     const entailed = completeConcreteGame(gateContext, realized)
 
     const checks = checkRealization(resolved, realized)
@@ -91,14 +95,17 @@ export function buildGoldenCase(): Record<string, unknown> {
     if (!accepted) throw new GoldenCaseUnavailable(`realization acceptance FAILED: ${JSON.stringify(checks)}`)
     if (!post.validated) throw new GoldenCaseUnavailable(`post-realization Gate A NOT PASSED: ${post.outstanding.join('; ')}`)
 
-    return {
-        provenance: resolved.provenance,
-        closure: {
-            preRealization: resolved.coherence.preRealization,
-            realizationAuthorized: resolved.coherence.realizationAuthorized,
-            postRealizationValidated: post.validated,
-            renderEligible: accepted && post.validated,
-        },
+    /**
+     * **The fixture is assembled by the builder's own assembler — since 13 October there is one.** This file
+     * kept its own copy of the shape, and the copy is how a frozen fixture drifts from a served one: when
+     * choices began to carry what they were chosen within, the two would have had to be changed alike by
+     * hand, for ever. `assembleRenderingFixture` is called here and in `build-activity`, and nowhere else
+     * is the shape written down.
+     */
+    return assembleRenderingFixture({
+        resolved,
+        realized,
+        entailed,
         envelope: {
             players: (input.envelope as any).players,
             lengthM: (input.envelope as any).area?.length_m ?? (input.envelope as any).lengthM,
@@ -106,18 +113,9 @@ export function buildGoldenCase(): Record<string, unknown> {
             durationMin: (input.envelope as any).duration_min ?? (input.envelope as any).durationMin,
             roles: (input.envelope as any).roles ?? {},
         },
-        game: realized.game,
-        record: realized.record,
-        status: {
-            derived: resolved.derived.map(d => ({ path: d.path, lineId: d.lineId, value: d.value })),
-            choices: realized.record.choices.map(c => ({ path: c.path, lineId: c.lineId, value: c.value })),
-            instantiations: realized.record.instantiations.map(i => ({ path: i.path, classId: i.classId, handle: i.handle, memberIndex: i.memberIndex, member: i.member })),
-            entailed,
-            geometry: realized.record.geometry,
-            jointConditions: resolved.jointConditions,
-            notEstablished: resolved.notEstablished.map(n => ({ path: n.path, lineId: n.lineId, reason: n.reason, declared: n.declared })),
-        },
-    }
+        accepted,
+        postRealizationValidated: post.validated,
+    })
 }
 
 /**

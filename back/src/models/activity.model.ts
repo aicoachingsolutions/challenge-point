@@ -47,7 +47,8 @@ export interface ISystemTrace {
     archetypeId: string
     archetypeName: string
     foundationConstraintId: string
-    shapingConstraintId: string
+    /** Optional since 14 October 2026: his ruling that not every activity needs a shaping constraint. */
+    shapingConstraintId?: string
     consequenceConstraintId?: string
     /**
      * IC-003 Invariant 5 — generated activities remain traceable to COACH PLANNING DECISIONS.

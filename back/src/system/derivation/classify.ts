@@ -10,9 +10,24 @@
  */
 
 import { DerivedLine, resolvedValue } from './derive'
+import { reaches } from './reach'
 import { DeclarationReach } from './scope'
 import { ApplicabilityCondition, RegisterIndex } from './register'
-import { ItemRef, ResolutionLine, Verdict, ReasonCode } from './types'
+import { DEFERS_TO_ESTABLISHING_OBJECT, ElementClass, ItemRef, NO_FURTHER_VALUE, ResolutionLine, Verdict, ReasonCode, UNRESTRICTED } from './types'
+
+/** One declaration that took part in deciding a line's reason: who said it, what kind, about what. */
+export interface GoverningDeclaration {
+    contractId: string
+    declaration: string
+    selector: string | null
+    /**
+     * Which of his three states a non-claim is (types.ts `NO_FURTHER_VALUE`), present only where the declaration
+     * carries one — 15 October 2026, stage K1. This record is the only allowlist on the way from a declaration to the
+     * rendering fixture (emit.ts and resolved-game.ts copy each entry whole), so a field it does not name is lost for
+     * every reader after it: the silent-loss pattern. `nonClaimState` reads it.
+     */
+    qualifier?: string
+}
 
 export interface ClassifiedLine {
     lineId: string
@@ -28,8 +43,18 @@ export interface ClassifiedLine {
     /**
      * Every declaration reaching the row, iff NOT_AUTHORED. AM-23's three reason codes cannot
      * express the five-declaration vocabulary, so this is what the knowledge actually said.
+     *
+     * It stays ROW-WIDE after 15 October 2026: what governs a line is now a subset of it (`governedBy`), and
+     * keeping the whole is what keeps the narrowing from being a loss.
      */
     declared?: string[]
+    /**
+     * **The declarations the reason was decided over** (15 October 2026, his answer 9), iff NOT_AUTHORED. Equal
+     * to every declaration on the row wherever the establishing object said nothing explicit about this
+     * element; otherwise its explicit statement plus the general requirements still in force — see
+     * `governingDeclarations`.
+     */
+    governedBy?: GoverningDeclaration[]
 }
 
 /** Two entailing items collide when no single value satisfies both (§6). */
@@ -46,15 +71,138 @@ function collides(line: DerivedLine): ItemRef[] {
  *   declared gap — a NOT_AUTHORED declaration reaches the row: an object said it needs this and
  *                  cannot author it;
  *   coverage     — only an UNDECLARED declaration reaches it: nobody looked.
+ *
+ * Exported 13 October so the roster rule can ask the same question of a row that has NO line — a
+ * per-member property of a class nothing individuates (SD-97) — and get the same answer a line on that
+ * row would have carried, rather than keeping a second copy of this precedence.
+ *
+ * **Since 15 October 2026 the order is applied over `governingDeclarations`**, not over every declaration on the
+ * row; the order itself is unchanged. Called without a class it is exactly what it was.
  */
-function reasonFor(row: string, declarations: DeclarationReach[]): ReasonCode {
-    const reaching = declarations.filter(d => d.row === row)
+export function reasonFor(row: string, declarations: DeclarationReach[], cls?: ElementClass): ReasonCode {
+    const reaching = governingDeclarations(row, declarations, cls)
     if (!reaching.length) return 'no coverage'
     if (reaching.some(d => d.declaration === 'NOT_AUTHORED')) return 'declared gap'
     if (reaching.some(d => d.declaration === 'EXCLUDED')) return 'excluded'
     if (reaching.some(d => d.declaration === 'NON_CLAIMED')) return 'not constrained'
     if (reaching.some(d => d.declaration === 'CLAIMED')) return 'claimed but unresolved'
     return 'coverage'
+}
+
+/** The kinds that state a requirement, and so stay in force against a more specific statement. */
+const GENERAL_REQUIREMENTS = ['NOT_AUTHORED', 'EXCLUDED', 'CLAIMED']
+
+/**
+ * **Which declarations decide a line's reason — his answer 9 of 15 October 2026, in its strict form.**
+ *
+ * *"Specific knowledge governs where it explicitly defines or specializes a condition. General requirements
+ * remain applicable unless the specific knowledge explicitly supersedes them through an authorized
+ * relationship."* And the safeguard he put first: *"specificity should not mean that silence automatically
+ * overrides requirements established elsewhere."*
+ *
+ * Until now every declaration on a row reached every line on it, from every object, whatever its selector or
+ * scope said it was about. So an object's statement about its OWN element could be outranked by another
+ * object's statement about something else entirely: a non-claim whose selector excludes the element hid the
+ * establishing object's own claim, and an exclusion scoped to another object's own involvement relabelled
+ * regions it never addressed.
+ *
+ * The rule, for a line on element class `cls`:
+ *
+ *   1. The ESTABLISHING objects are those whose contributions form the class (`fromItem` and `supportedBy`).
+ *   2. Their EXPLICIT statement is every declaration of theirs on the row whose kind is not UNDECLARED, whose
+ *      scope reaches the class, and whose selector positively reaches it (`reaches` = TRUE). UNDECLARED is
+ *      recorded silence and an undetermined reach is not explicit, so neither counts — silence never overrides.
+ *      An OWN_INVOLVEMENT scope reaches only the classes its object FORMS (scope.ts `fixOwnInvolvement`), so a
+ *      supporting object's own-involvement declaration says nothing about a class it only supports, and does not
+ *      count as speaking about it (review, 15 October 2026: counted, it would have let a statement that never
+ *      reached the class switch the precedence on and drop another object's requirement — the relaxing path).
+ *   3. If there is no explicit statement — or no class, as for a game-level line — the answer is every
+ *      declaration on the row, exactly as before: behaviour is unchanged wherever the specific knowledge is silent.
+ *   4. Otherwise it is the explicit statement PLUS every general requirement (NOT_AUTHORED, EXCLUDED, CLAIMED)
+ *      that still reaches the class: its selector is not FALSE for it (an unreadable selector keeps reaching, so
+ *      a requirement is dropped only where it positively does not address the class), and its scope reaches it.
+ *      That holds for the establishing object's OWN requirements too: one whose reach is undetermined is not
+ *      explicit, but nothing explicit superseded it either, and *"General requirements remain applicable unless
+ *      the specific knowledge explicitly supersedes them"* (review, 15 October 2026; dropped 0 times on that
+ *      day's knowledge, kept so the property below holds by construction rather than by luck). A non-claim from
+ *      elsewhere is not a requirement and drops out; so does another object's requirement the data marks as
+ *      deferring to the establishing object — and the data marks none.
+ *
+ * AM-23's order is then applied to this set unchanged. Only the membership moves, and by construction it can
+ * only lose a declaration that never addressed the class or that requires nothing — never a requirement that does.
+ * Selector-honouring alone, without step 3's precedence, would RELAX blocking lines (measured 15 October 2026);
+ * it is not available separately.
+ *
+ * **Amended 15 October 2026 (stage K1): a ruled deferral steps aside only for a statement that SPECIFIES.** C50's
+ * deferral is his Option A (16 October, item 8): *"A context may explicitly establish that a particular
+ * scoring-condition detail requires no additional value. However, the engine must distinguish between: A field
+ * explicitly defined as not applicable or requiring no further value. A field whose value remains missing or
+ * unresolved."* And M6 (17 October) forbids the states to *"collapse into the same operational meaning"*. A legacy,
+ * unqualified non-claim says only that its object does not constrain the row — the C45 reading that would have
+ * counted the gate's passes anywhere — so it is not "explicitly defined" (OUR reading of item 8 with M6, recorded
+ * as such beside C50 in corpus-restatements.json). So the deferral applies only where the explicit statement includes
+ * a requirement kind or a QUALIFIED non-claim. Measured the day it landed: 0 lines move on the knowledge (pinned in
+ * governing-declarations.unit.ts); it closes the C45 hazard in the mechanism, not only in the data.
+ */
+export function governingDeclarations(row: string, declarations: DeclarationReach[], cls?: ElementClass): DeclarationReach[] {
+    const onRow = declarations.filter(d => d.row === row)
+    if (!cls) return onRow
+
+    const establishing = new Set([cls.fromItem.contractId, ...cls.supportedBy.map(s => s.contractId)])
+    const scopeReaches = (d: DeclarationReach) => d.scope !== 'OWN_INVOLVEMENT' || cls.fromItem.contractId === d.contractId // scope.ts's own-involvement rule
+    const explicit = onRow.filter(
+        d =>
+            establishing.has(d.contractId) &&
+            d.declaration !== 'UNDECLARED' &&
+            scopeReaches(d) &&
+            !!d.parsed.predicate &&
+            reaches(d.parsed.predicate, cls) === 'TRUE',
+    )
+    if (!explicit.length) return onRow
+
+    // A deferral steps aside only for a statement that specifies (the K1 amendment above).
+    const specifies = explicit.some(d => d.declaration !== 'NON_CLAIMED' || d.qualifier !== undefined)
+    const general = onRow.filter(
+        d =>
+            !explicit.includes(d) &&
+            GENERAL_REQUIREMENTS.includes(d.declaration) &&
+            scopeReaches(d) &&
+            (!d.parsed.predicate || reaches(d.parsed.predicate, cls) !== 'FALSE') &&
+            !(specifies && d.defersTo === DEFERS_TO_ESTABLISHING_OBJECT && !establishing.has(d.contractId)),
+    )
+    return [...explicit, ...general]
+}
+
+/** The governing set as the line carries it, in a stable order. */
+function governedByOn(row: string, declarations: DeclarationReach[], cls?: ElementClass): GoverningDeclaration[] {
+    return governingDeclarations(row, declarations, cls)
+        .map(d => ({
+            contractId: d.contractId,
+            declaration: d.declaration,
+            selector: d.selector === undefined || d.selector === null ? null : String(d.selector),
+            ...(d.qualifier === undefined ? {} : { qualifier: String(d.qualifier) }),
+        }))
+        .sort((a, b) => `${a.contractId}|${a.declaration}|${a.selector}`.localeCompare(`${b.contractId}|${b.declaration}|${b.selector}`))
+}
+
+/**
+ * **Which of his three states a 'not constrained' line is in** (15 October 2026, stage K1), read from the
+ * declarations that decided it — so it is answered once, from the record every reader already carries.
+ *
+ *   - `NO_FURTHER_VALUE` — every governing non-claim states that the field needs no further value: an established
+ *     absence by explicit statement, nothing to realize or say;
+ *   - `UNRESTRICTED` — some governing non-claim says the value is explicitly unrestricted (never reached today: the
+ *     loader refuses it until he rules what it permits);
+ *   - `null` — a legacy non-claim decided it ("this object does not constrain this row"), or the line is not a
+ *     'not constrained' line at all. A MISSING value is never answered here: it is 'declared gap' or 'claimed but
+ *     unresolved', and those still block.
+ */
+export function nonClaimState(reason: ReasonCode | string | null | undefined, governedBy: { declaration: string; qualifier?: unknown }[] | undefined): typeof NO_FURTHER_VALUE | typeof UNRESTRICTED | null {
+    if (reason !== 'not constrained' || !governedBy) return null
+    const nonClaims = governedBy.filter(g => g.declaration === 'NON_CLAIMED')
+    if (!nonClaims.length) return null
+    if (nonClaims.some(g => g.qualifier === UNRESTRICTED)) return UNRESTRICTED
+    return nonClaims.every(g => g.qualifier === NO_FURTHER_VALUE) ? NO_FURTHER_VALUE : null
 }
 
 /**
@@ -148,8 +296,13 @@ export function classifyLines(
     declarations: DeclarationReach[],
     index: RegisterIndex,
     stopped: { where: string; why: string }[] = [],
+    classes: ElementClass[] = [],
 ): Map<string, ClassifiedLine> {
     const classified = new Map<string, ClassifiedLine>()
+    // The element each line is about, so its reason can be decided by what governs THAT element (answer 9).
+    // A line whose element is not given here is read row-wide, exactly as before 15 October 2026.
+    const byClass = new Map(classes.map(c => [c.classId, c]))
+    const classOf = (line: ResolutionLine) => (line.elementId ? byClass.get(line.elementId) : undefined)
 
     for (const line of lines) {
         const record = derived.get(line.lineId)
@@ -184,8 +337,9 @@ export function classifyLines(
 
         if (noDependency) {
             result.verdict = 'NOT_AUTHORED'
-            result.reason = reasonFor(line.row, declarations)
+            result.reason = reasonFor(line.row, declarations, classOf(line))
             result.declared = declaredOn(line.row, declarations)
+            result.governedBy = governedByOn(line.row, declarations, classOf(line))
             classified.set(line.lineId, result)
             continue
         }
@@ -240,7 +394,8 @@ export function classifyLines(
         }
 
         result.verdict = 'NOT_AUTHORED'
-        result.reason = reasonFor(line.row, declarations)
+        result.reason = reasonFor(line.row, declarations, classOf(line))
+        result.governedBy = governedByOn(line.row, declarations, classOf(line))
         classified.set(line.lineId, result)
     }
 

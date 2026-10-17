@@ -20,6 +20,19 @@ const endpoints = {
         session: '/session',
         generateActivities: '/generate-activities',
         testSelection: '/test-selection',
+        // The A04 pilot activity, read-only. Serves the validated, rendered concrete game and nothing
+        // else: no generation, no variants, no write path. Limited to this one activity for the
+        // Christian-only pilot.
+        pilotActivity: '/pilot-activity',
+        // The signed-in activity review (13 October): any of the thirteen Learning Goals, built through the
+        // integrity-checked pathway from the coach's own session. Read-only — it stores nothing. Answers
+        // with the activity a coach would receive, or with a plain sentence saying why none can be given.
+        //
+        // NOT '/activity-review': that path is already the coach's "would you run this as written?"
+        // feedback (POST, see app.routes), which the generated-activity page posts to by its literal
+        // path. The two never collided by method and path, but one name for two unrelated things is how
+        // the next route gets added to the wrong one.
+        checkedActivity: '/checked-activity',
         // The Session Planning Model registry, served so the front end RENDERS the conversation
         // rather than hardcoding it. Christian's Implementation Guide: "The workbook defines the
         // conversation. The application renders it."

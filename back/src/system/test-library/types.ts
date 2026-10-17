@@ -120,6 +120,63 @@ export interface TestLibrarySelectionInput {
 
 export type ConstraintBalanceBucket = 'foundation' | 'shaping' | 'consequence'
 
+/**
+ * What selection drew its constraints from, without the constraint objects — ids, roles and rulings only, so
+ * it can travel in the selection trace and every reader READS what selection used instead of recomputing it.
+ * Computed in one place, `constraintPoolFor`; see it for the rule.
+ */
+export interface ConstraintPoolAccount {
+    /**
+     * `GOAL_CANDIDATES` for a Learning Goal, always since 14 October; `WHOLE_LIBRARY` only for free text.
+     * `AUTHORIZATION_RECORD` since 15 October 2026 for a goal whose constraints come from his authorization record
+     * (`learning-goal-authorizations.json`) instead of a vocabulary-derived pool.
+     */
+    source: 'GOAL_CANDIDATES' | 'WHOLE_LIBRARY' | 'AUTHORIZATION_RECORD'
+    /**
+     * Whose authority the candidate constraints carry (15 October 2026). `AUTHORIZATION_RECORD`: an owner-ruled
+     * record names them. `VOCABULARY_POOL`: they were derived from wording or from a Game Problem's Coverage row —
+     * both parser-derived, and not authorized in his sense of 15 October item 1.
+     */
+    constraintAuthority: ConstraintAuthority
+    /**
+     * His general principle (16 October reply, item 1 — *"A library constraint is not mandatory unless its inclusion is
+     * justified by the approved knowledge and intended learning environment"*) where the record has EVALUATED its
+     * authorized set, so the set is read under it: an empty one then commits no library constraint. Null for a
+     * vocabulary pool, free text, and a record not yet evaluated. Replaced the per-record `zeroConstraintRuling` on
+     * 15 October 2026: the principle is recorded once and names no goal.
+     */
+    constraintPrinciple: { ruledOn: string; by: string } | null
+    /** FREE TEXT ONLY: why the wording's candidates were set aside for the whole library. Null otherwise. */
+    setAsideBecause: 'FEWER_THAN_TWO' | 'NO_FOUNDATION_AND_SHAPING' | null
+    /** FREE TEXT ONLY: the roles the wording's candidates could not fill, where that is why they were set aside. */
+    missingRoles: ConstraintBalanceBucket[]
+    /** The candidate ids as stated — a held candidate stays listed here. */
+    candidateIds: string[]
+    /** Candidates left out of a Learning Goal's selection by an owner ruling, with the ruling. */
+    heldByRuling: { id: string; ruledOn: string; ruling: string }[]
+    /**
+     * LEARNING GOALS: the roles no unheld, selectable candidate fills. Each is a knowledge gap, reported and
+     * never filled from elsewhere (his ruling of 14 October). Empty for free text.
+     */
+    unfilledRoles: ConstraintBalanceBucket[]
+}
+
+export type ConstraintAuthority = 'AUTHORIZATION_RECORD' | 'VOCABULARY_POOL'
+
+/**
+ * What the hints say about where a guided goal's candidate constraints came from (15 October 2026). Set only by
+ * `guidedSelectionHints`, and only for a goal with an authorization record; absent means the vocabulary pool.
+ */
+export interface ConstraintAuthorityHint {
+    authority: 'AUTHORIZATION_RECORD'
+    learningGoalId: string
+    /**
+     * The general principle the record's EVALUATED authorized set is read under, or null where the record has not
+     * evaluated it yet (`authorizedConstraints: null`). Never per goal: it is the one recorded principle.
+     */
+    constraintPrinciple: { ruledOn: string; by: string; principle: string } | null
+}
+
 export interface SelectionReasonEntry {
     id: string
     score: number
@@ -179,6 +236,14 @@ export interface TestLibrarySelectionResult {
             /** Session Planning Model "RPC Routing" for this goal. Trace only - no selection influence yet. */
             routedRpcId: string | null
         }
+        /** The pool selection drew its constraints from (`constraintPoolFor`), ids only. */
+        constraintPool?: ConstraintPoolAccount
+        /**
+         * What the selected lenses are (15 October 2026): the engine's own reasoning dimension, never an
+         * authorized affordance target — he deferred mapping affordance targets to runtime ids on 13 September,
+         * and an authorization record names constraints only.
+         */
+        lensAuthority?: 'ENGINE_LENS'
         /**
          * RAS RC1 Stage-3 SHADOW artifact: the Resolved Affordance Target Profile for this decision
          * (canonical Game Problems + merged affordance-target ratings from the versioned Affordance

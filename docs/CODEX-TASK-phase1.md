@@ -59,7 +59,8 @@ changes behaviorally but the coupling is broken.
   `{ valid: boolean, errors: {field, message}[] }` reusing/extending the `libraryConversionReport` error
   shape. Run validation at registration; surface failures in the load report. Add a unit test file
   (`library/schema/*.unit.ts`) and wire it into the `test` script in `back/package.json` (follow the
-  existing `&&`-chained ts-node pattern). Behavior-preserving: current data must pass validation.
+  existing `&&`-chained ts-node pattern). [Since 18 Oct 2026 a new unit file is registered in
+  `back/scripts/unit-tests.json` instead; the `test` script runs that list.] Behavior-preserving: current data must pass validation.
 
 ### Step 1c — Composition-interface checks
 - Create `library/composition.ts` validating cross-object references at registration:

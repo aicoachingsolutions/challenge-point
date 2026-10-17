@@ -1,10 +1,16 @@
 import { testLibraryRegistry } from '../test-library/library/registry'
+import type { ConstraintAuthorityHint } from '../test-library/types'
 
 export interface InputConstraintHints {
     candidateArchetypeIds: string[]
     candidateAffordanceLensIds: string[]
     candidateConstraintIds: string[]
     matchedSignals: string[]
+    /**
+     * Set only for a guided goal whose constraints come from his authorization record (15 October 2026), by
+     * `guidedSelectionHints`. Absent everywhere else, which means the candidates are the vocabulary pool.
+     */
+    constraintAuthority?: ConstraintAuthorityHint
 }
 
 function normalizeTitle(title: string): string {

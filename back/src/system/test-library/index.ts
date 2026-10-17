@@ -5,7 +5,7 @@ export { TEST_LIBRARY_V0_ARCHETYPES } from './archetypes'
 export { TEST_LIBRARY_V0_LOAD_REPORT } from './libraryConversionReport'
 export { getTestLibraryV0LoadDebug } from './libraryLoadDebug'
 export { registerLibrary, testLibraryRegistry } from './library/registry'
-export { generateSelection, constraintBalanceBucket } from './generateSelection'
+export { generateSelection, constraintBalanceBucket, SelectionKnowledgeGap, isSelectionKnowledgeGap } from './generateSelection'
 export { isSelectionPackageCompatible } from './selection-compatibility'
 export { normalizeCoachingInput } from './normalizeCoachingInput'
 export { systemAssemblyInputFromTestLibrarySelection } from './systemAssemblyInputFromSelection'
@@ -16,6 +16,7 @@ export type {
     TestLibrarySelectionInput,
     TestLibrarySelectionResult,
     ConstraintBalanceBucket,
+    ConstraintPoolAccount,
     SelectionReasonEntry,
     TestLibraryV0LoadReport,
     TestLibraryConversionSkippedRow,

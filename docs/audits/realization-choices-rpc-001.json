@@ -1,0 +1,13 @@
+{
+  "note": "The realization input the RPC-001 (Goalkeeper Build-Out) contract needs. A REALIZER's input, not knowledge: nothing here is authored learning design, and the realization record keeps it separate from what was derived. Added 15 October 2026 for one entry, his approval of that day. It holds no choices and no instantiations: RPC-001 leaves nothing open that this file decides. ONE BALL. The context's own existence item RPC-001-10.a (\"a ball exists\", presupposed by \"with possession controlled on arrival\", RPC-PROP-132) forms an element of its own, and so does the Sport Profile's ball (SPORT-SOCCER-01), so a concrete game carrying both held TWO balls - measured 15 October 2026 through the real chain over a copy of Play Out from the Back's knowledge with the build-out condition items taken out: two ball objects in the concrete game, and the build refused at communication because the profile's ball was said by no instruction. Our 15 October email, change 8: \"The context's own ball is the same ball as the game's.\" His reply received that day (16 October, item 9 point 8): \"One ball shared between context and game: Approved.\" Recorded on the 30 September precedent in `a04-realization-choices.json`, where a claim already met by an established member is recorded as satisfied by it \"instead\" of a second member being put in the game. Realization checks the two are in one collection with the same authored selector and that nothing derived about the context's ball differs from the profile's, and only then lets the profile's ball stand for both (`realize.ts`, `SatisfiedByEstablished`). This is not a general merge rule: no other pair of elements is ever merged.",
+  "choices": [],
+  "instantiations": [],
+  "satisfiedByEstablished": [
+    {
+      "classId": "c:restated:RPC-001:RPC-001-10.a",
+      "satisfiedBy": "c:sport-profile:soccer:SPORT-SOCCER-01",
+      "ruling": "Christian, reply received 15 October 2026 (16 October reply), item 9 point 8: \"One ball shared between context and game: Approved.\"",
+      "because": "RPC-001-10.a asserts that a ball exists; the Sport Profile's ball is that ball. Our 15 October email, change 8, as he approved it: \"The context's own ball is the same ball as the game's.\""
+    }
+  ]
+}

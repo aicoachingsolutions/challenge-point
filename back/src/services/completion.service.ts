@@ -679,7 +679,7 @@ function buildAssemblyPayload(
 ) {
     const constraintTitles = [
         input.constraintPackage.foundation.constraint.title,
-        input.constraintPackage.shaping.constraint.title,
+        input.constraintPackage.shaping?.constraint.title,
         input.constraintPackage.consequence?.constraint.title,
     ]
         .filter(Boolean)
@@ -878,6 +878,15 @@ function generateAssemblyPrompt(input: SystemAssemblyInput) {
         )
     }
     const affordanceRuleLock = affordanceRuleLockLines.join('\n')
+    /**
+     * The constraint-theme lines name only the roles the package actually holds. A shaping constraint is
+     * optional since 14 October (his ruling: *"I don't want us to assume that every activity necessarily
+     * requires an additional shaping constraint"*), and a prompt that still told the model to echo "the
+     * shaping constraint" would invite it to invent one the goal was never given.
+     */
+    const suppliedThemes = input.constraintPackage.shaping ? 'foundation, shaping,' : 'foundation'
+    const noShapingNote = input.constraintPackage.shaping ? '' : ' No shaping constraint is supplied for this goal: do not add one.'
+    const echoedTitles = input.constraintPackage.shaping ? 'foundation and shaping constraint titles' : 'foundation constraint title'
 
     return `You are filling a system-owned skeleton. Do not invent a different activity structure. Do not omit required mechanics. Return valid JSON only.
 
@@ -1010,7 +1019,7 @@ Output requirements (system-owned schema — do not add, remove, or rename keys)
 - "setup": space, numbers, zones, equipment, and environment only (no compliance drills).
 - "teams": who plays whom (e.g. attackers vs defenders), showing opposition.
 - "objective": the game problem players read (not a coach command).
-- "constraints": reference the supplied foundation, shaping, and (if present) consequence constraint themes in environment language.
+- "constraints": reference the supplied ${suppliedThemes} and (if present) consequence constraint themes in environment language.${noShapingNote}
 - "coachingFocus": short reminders about what to observe (not prescriptive technique commands).
 
 Affordance expression in structure (required for every selected affordance lens):
@@ -1035,7 +1044,7 @@ Decision-making language (required for every one of the 3 activities):
 - Never echo compliance-style negatives from these instructions inside JSON; avoid prescriptive command patterns the server rejects (see Assembly requirements).
 
 Assembly requirements:
-- Echo the selected foundation and shaping constraint titles or themes inside constraints/scoring as appropriate; include consequence language when supplied.
+- Echo the selected ${echoedTitles} or themes inside constraints/scoring as appropriate; include consequence language when supplied.
 - Treat constraintPackage.assemblyGuardrails as the locked design brief.
 - Preserve continuous play, directional realism, active opposition, and multiple solutions.
 - Avoid prescriptive command chains the server rejects: ordered skill drills, "only use" locks, fixed repetition scripts, technique scripts — phrase as environment, trade-offs, and incentives instead.

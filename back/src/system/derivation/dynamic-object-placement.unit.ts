@@ -28,6 +28,7 @@ import { corpusInput, loadCorpusContracts, loadRegister } from './corpus'
 import { runDerivation, runStages0to10 } from './engine'
 import { indexRegister } from './register'
 import { assembleResolvedGame } from './resolved-game'
+import { a01CompositionUntil15October } from './composition-fixtures'
 import { derivationInputFor, selectFor } from './run-bounded-selection'
 
 let passed = 0
@@ -112,8 +113,13 @@ test('the negative form is validated: in and notIn are alternatives, and notIn n
 })
 
 // ── HIS COUNTERFACTUAL, on real authored knowledge ─────────────────────────────────────────────────
+//
+// Re-pointed 15 October 2026, here and in the two tests below that used it, from selectFor('A01', 'A01-02') to the
+// same objects named (composition-fixtures.ts). These are about the authored ball and team cardinality under
+// derivation; A01's own selection now stops at selection (its authorization record authorizes nothing yet, his
+// 15 October item 1).
 test('an AUTHORED ball exists, carries no static position, and opens no realization freedom', () => {
-    const { result, game } = resolve(derivationInputFor(selectFor('A01', 'A01-02')))
+    const { result, game } = resolve(derivationInputFor(a01CompositionUntil15October('A01-02')))
     const ball = (game.game.objects ?? []).find((o: any) => o.kind === 'ball')
     assert.ok(ball, 'the ball his knowledge authors must be in the game')
     assert.equal(ball.position, undefined, 'and must carry no static layout position')
@@ -129,7 +135,7 @@ test('an AUTHORED ball exists, carries no static position, and opens no realizat
 })
 
 test('and the trigger that needs the ball becomes reachable because the ball exists', () => {
-    const { staged } = resolve(derivationInputFor(selectFor('A01', 'A01-02')))
+    const { staged } = resolve(derivationInputFor(a01CompositionUntil15October('A01-02')))
     assert.ok(staged.triggers.includes('POSSESSION_CHANGE'), 'possession needs a ball, and this game has one')
 })
 
@@ -261,7 +267,7 @@ test('a team class establishing only ONE team does not make a possession change 
 })
 
 test('and the real cases still work: one class establishing two teams is enough', () => {
-    const { staged } = resolve(derivationInputFor(selectFor('A01', 'A01-02')))
+    const { staged } = resolve(derivationInputFor(a01CompositionUntil15October('A01-02')))
     const p1 = staged.classes.filter((c: any) => c.row === 'P1')
     assert.ok(
         p1.some((c: any) => (c.cardinality?.min ?? 0) >= 2),

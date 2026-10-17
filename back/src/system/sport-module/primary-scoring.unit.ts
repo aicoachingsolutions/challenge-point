@@ -16,10 +16,10 @@ import { findCommunicationStandardViolations } from '../activity/coach-communica
 import { toCoachScoringSentence } from '../activity/coach-voice'
 import { compressActivityForCoach } from '../activity/compress-activity-output'
 import { validateActivityAgainstSkeleton, withScoringObjectInSetup } from '../activity/validate-activity-skeleton'
-import { deriveInputConstraints } from '../input-constraints/deriveInputConstraints'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
-import { generateSelection } from '../test-library/generateSelection'
+import { generateSelection, isSelectionKnowledgeGap } from '../test-library/generateSelection'
 import { gateCandidateGameFormsToContext } from './context-selection'
+import { guidedSelectionHints } from './guided-selection'
 import {
     COACH_RULES,
     PrimaryScoringResolutionError,
@@ -323,13 +323,29 @@ function testCompressionPinsTheResolvedRule(): void {
 function testEveryGuidedGoalResolvesThroughContextGatedSelection(): void {
     const originalLog = console.log
     console.log = () => undefined
+    /**
+     * Since 14 October two goals are KNOWLEDGE GAPS: selection draws only from a goal's own candidates (his
+     * ruling of that day), and Play Through Pressure's and Defend 1v1's cannot be combined on the game form
+     * chosen for them. They select nothing, so there is no form to check here; the list is asserted, so a goal
+     * joining or leaving it is noticed. The game form the gap was found on is still one the context declares.
+     */
+    const gaps: string[] = []
     try {
         for (const goal of sessionPlanningModel.learningGoals()) {
             const id = String(goal['ID'])
             const name = String(goal['Learning Goal'])
             const rpcId = sessionPlanningModel.rpcRouting().find((route) => route.learningGoalId === id)!.rpcId
-            const hints = gateCandidateGameFormsToContext(deriveInputConstraints(name), rpcId)
-            const selection = generateSelection({ learningGoals: [name], learningGoalId: id }, hints)
+            // The same hints the application gives selection: approved Game Problem, then context.
+            const hints = guidedSelectionHints(id, name).hints
+            let selection: ReturnType<typeof generateSelection>
+            try {
+                selection = generateSelection({ learningGoals: [name], learningGoalId: id }, hints)
+            } catch (error) {
+                if (!isSelectionKnowledgeGap(error)) throw error
+                gaps.push(id)
+                assert.ok(rpcLibrary.gameFormsForContext(rpcId).some((form) => form.relatedId === error.archetypeId), `${id}: the gap was found on ${error.archetypeId}, which ${rpcId} does not declare.`)
+                continue
+            }
             const formId = selection.archetype.game_form_id
             assert.ok(
                 rpcLibrary.gameFormsForContext(rpcId).some((form) => form.relatedId === formId),
@@ -340,6 +356,13 @@ function testEveryGuidedGoalResolvesThroughContextGatedSelection(): void {
     } finally {
         console.log = originalLog
     }
+    // A01 joins them on 15 October 2026: its authorization record authorizes no constraint (his item 1 of that day:
+    // approving Gain Access "does not automatically authorize the candidate constraints currently derived from
+    // vocabulary coverage"), so it is NO_AUTHORIZED_CONSTRAINTS — found on GF2, a form RPC-001 declares (checked above).
+    // And it leaves again later the same day: his general principle (16 October reply, item 1 — "A library constraint is
+    // not mandatory unless its inclusion is justified by the approved knowledge and intended learning environment")
+    // lets its evaluated, empty record select GF2 with no constraint, and GF2 resolves RPC-001's three events (above).
+    assert.deepEqual(gaps, ['A02', 'D03'], 'the knowledge gaps of 14 October, and no others')
 
     // Parser order survives among declared forms; undeclared parser candidates are dropped.
     const gated = gateCandidateGameFormsToContext(

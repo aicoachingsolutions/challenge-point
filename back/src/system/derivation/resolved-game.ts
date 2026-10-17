@@ -24,9 +24,11 @@
  *     layer still has to satisfy them.
  */
 
+import { GoverningDeclaration } from './classify'
 import { DerivationResult, ResolutionEntry } from './emit'
 import { RegisterIndex } from './register'
 import { ElementClass, ItemRef, LoadedContract, SupportRef } from './types'
+import { itemsByRef, Strength, strengthOf } from './strength'
 
 /** A line an authority left open, and everything the realization layer needs to close it. */
 export interface OpenChoice {
@@ -61,6 +63,13 @@ export interface NotEstablished {
      * second is nobody having looked. Carried so the difference survives to whoever rules on it.
      */
     declared: string[]
+    /**
+     * The declarations `reason` was decided over — who said what, about which elements (his answer 9 of
+     * 15 October 2026; classify.ts `governingDeclarations`). Row-wide where the establishing object is silent,
+     * so it equals `declared` there; narrower only where that object spoke explicitly. Empty where no reason was
+     * decided from declarations.
+     */
+    governedBy: GoverningDeclaration[]
 }
 
 /**
@@ -207,8 +216,15 @@ export interface ResolvedGame {
      * them was established, which is the one confusion this object exists to prevent.
      */
     game: Record<string, unknown>
-    /** Every derived value again, flat, with its support — so nothing has to be re-derived to trace it. */
-    derived: { path: string; lineId: string; value: unknown; resolvedBy: string; support: SupportRef[] }[]
+    /**
+     * Every derived value again, flat, with its support — so nothing has to be re-derived to trace it — and,
+     * since 14 October 2026, its `strength` (`strength.ts`): whether the knowledge REQUIRES it, prefers it as a
+     * DEFAULT, or only ADVISES it. His words that day: *"Preserve whether each condition is required, preferred,
+     * advisory, or left to the coach, all the way through rendering and validation."* Computed here, where the
+     * contracts are to hand, so no later stage has to look an item up to ask. Always set by the assembler;
+     * optional in the type only so a hand-built game in a test need not invent one.
+     */
+    derived: { path: string; lineId: string; value: unknown; resolvedBy: string; support: SupportRef[]; strength?: Strength }[]
     open: OpenChoice[]
     existential: ExistentialClaim[]
     /**
@@ -263,6 +279,32 @@ export function splitPath(path: string): { container: string | null; leaf: strin
         return { container: null, leaf: dot === -1 ? path : path }
     }
     return { container: path.slice(0, at), leaf: path.slice(at + 2).replace(/^\./, '') }
+}
+
+/** The register row whose collection holds the primary event's conditions (`value.primaryEvent.conditions[]`). */
+export const CONDITION_ROW = 'V3'
+/** The one condition scope every downstream reader can evaluate: the condition governs every score. */
+export const EVALUABLE_CONDITION_SCOPE = 'WHOLE_GAME'
+
+/**
+ * **Why a condition element cannot be evaluated by a reader that applies conditions to every score — or null.**
+ *
+ * The one reading of the carried `scope` (see `assembleResolvedGame`), shared by realization, the context-scoring
+ * guard, rendering and fidelity so they cannot come to read it differently. The brief's rule, from his SD-36 and
+ * his 16 October 9.3: a reader that cannot evaluate a scope narrower than the whole game refuses or reports it as
+ * not evaluable — it never passes the condition and never applies it to every score. The precedent is the
+ * joint-condition reading in realize.ts (*"A scope this layer cannot evaluate makes the condition NOT EVALUABLE,
+ * never satisfied"*), which likewise evaluates WHOLE_GAME alone: PER_TEAM is not read as "every score" here either,
+ * because that reading would be ours.
+ */
+export function conditionScopeNotEvaluable(element: unknown): string | null {
+    if (!element || typeof element !== 'object' || !Object.prototype.hasOwnProperty.call(element, 'scope')) return null
+    const scope = (element as { scope?: unknown }).scope
+    if (scope === EVALUABLE_CONDITION_SCOPE) return null
+    const id = String((element as { elementId?: unknown }).elementId ?? 'a condition')
+    return scope === null || scope === undefined
+        ? `${id} states no scope, so whether it governs every score is not established`
+        : `${id} is authored for the ${String(scope)} scope, and applying it to every score would be a different and wider rule than the one authored`
 }
 
 /** Read whatever sits at a dotted path, or undefined. */
@@ -345,6 +387,35 @@ function authorization(
     const unresolved = notEstablished.filter(e => e.verdict === 'UNRESOLVED')
     if (unresolved.length) because.push(`${unresolved.length} unresolved structural relationship(s) remain: ${unresolved.map(e => e.lineId).join(', ')}`)
 
+    /**
+     * **A selected contract refused at load is a blocking knowledge gap, and nothing here treated it as one.**
+     *
+     * Stage 0 refuses a whole contract when one of its items is malformed — an item with no basis evidence
+     * is enough — and records the refusal. Derivation then proceeds without it, correctly: it cannot derive
+     * from knowledge it did not admit. But every check above reads the game that results, and that game is
+     * internally coherent. So a goal that selected the Pass Combination Gate, with one item of that contract
+     * missing its evidence, was AUTHORIZED as the bare possession game — one authoring slip turning
+     * "cannot be evaluated" into "may be realized", with the selection still listing the gate as contracted.
+     * Measured on Secure Possession, 13 October.
+     *
+     * That is the outcome he ranked worst: a plausible activity presented for a goal whose selected knowledge
+     * is not in it. The record of the refusal already exists; what was missing is that it refuses.
+     */
+    // Named by contract where the refusal names one, and by the refusal itself where it does not — a load
+    // refusal that implicates nothing must still refuse, not slip through for want of a label.
+    const refusedAtLoad = [
+        ...new Set(
+            result.failures
+                .filter(f => f.kind === 'LOAD_REFUSAL')
+                .flatMap(f => (f.implicated?.contractIds?.length ? f.implicated.contractIds : [f.failureId])),
+        ),
+    ]
+    if (refusedAtLoad.length) {
+        because.push(
+            `selected knowledge was refused at load, so the game does not contain what was selected: ${refusedAtLoad.join(', ')}`,
+        )
+    }
+
     const authorized = because.length === 0
     return {
         // Never `PASS`: the state is "the pre-realization requirements are satisfied", which does not
@@ -364,6 +435,7 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
     const derived: ResolvedGame['derived'] = []
     const open: OpenChoice[] = []
     const notEstablished: NotEstablished[] = []
+    const items = itemsByRef(contracts)
 
     // Elements, in the order the enumeration fixed, so the assembled object is as canonical as the
     // result it comes from (§8).
@@ -413,6 +485,49 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
         return terms.length ? terms.map(t => ({ ...t })) : undefined
     }
 
+    /**
+     * **A primary-event condition carries its authored scope** — 15 October 2026, the loss SD-36 was waiting on.
+     *
+     * Christian, 20 September (SD-36), the BUILD_OUT_EPISODE scope *"applies to the attacking episode whose
+     * beginning satisfies the resolved RPC-001 build-out begin condition. It does NOT automatically extend to
+     * subsequent attacking episodes"*; and in his reply received 15 October 2026 (16 October, item 9 point 3):
+     * *"Build-out condition applies only to build-out episodes: Approved."* Until now a condition element was
+     * built from its id and selector alone, so the scope its item authored was dropped here, and every downstream
+     * reader treated the condition as governing every score. Measured that day on a deep copy of the possession
+     * game with the build-out context, its four conditions re-scoped to the episode: the resolved game was
+     * byte-identical to the unscoped one apart from the input digest — the restatement would have been inert.
+     *
+     * **Carried only where it is not WHOLE_GAME** (decided and pinned in condition-scope.unit.ts). Whole-game is
+     * what every reader already did with a condition, so a game whose conditions are all whole-game assembles
+     * exactly as before — same object, same fixture, same digest downstream — and the key's PRESENCE is what tells
+     * a reader that this condition is narrower than every score. A condition whose item states no scope carries
+     * `scope: null`: absent would read as whole-game, and that is not what was authored. `conditionScopeNotEvaluable`
+     * is the one reading of it, for every consumer.
+     */
+    const conditionsAt = splitPath(String(rows.get(CONDITION_ROW)?.path ?? '')).container
+    const conditionScopeOf = (elementId: string): { scope: string | null } | undefined => {
+        const cls = classes.find(c => c.classId === elementId)
+        if (!cls) return undefined
+        const authored = items.get(`${cls.fromItem.contractId}:${cls.fromItem.itemId}`)?.scope
+        if (authored === EVALUABLE_CONDITION_SCOPE) return undefined
+        return { scope: authored === undefined || authored === null ? null : String(authored) }
+    }
+
+    /**
+     * **A support entry says when its item is his provisional choice** — 15 October 2026 (stage K2). His 16 October item
+     * 10: *"Please keep those categories distinct."* An item of a record-named provisional realization is graded exactly as
+     * any OWNER_RULING item (it establishes, entails, bounds by the same rules), so the grading cannot tell it from
+     * canonical knowledge; only its `category` can. It is copied onto the item's support entry here, where the items are
+     * to hand, and from there crosses into the fixture whole (`rendering-fixture.ts`). An item with no category — every
+     * canonical item — leaves its entry exactly as it was, so a game with no provisional realization assembles unchanged.
+     */
+    const categorized = (support: SupportRef[] | undefined): SupportRef[] | undefined =>
+        support?.map(ref => {
+            if (ref.kind !== 'CONTRACT_ITEM') return ref
+            const category = items.get(`${ref.contractId}:${ref.itemId}`)?.category
+            return category === undefined || category === null ? ref : { ...ref, category: String(category) }
+        })
+
     const ensureElement = (elementId: string, row: { path: string }): Record<string, unknown> => {
         const { container } = splitPath(row.path)
         const key = container ?? row.path
@@ -420,7 +535,8 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
         const bucket = elements.get(key)!
         if (!bucket.entries.has(elementId)) {
             const selector = selectorOf(elementId)
-            bucket.entries.set(elementId, selector ? { elementId, selector } : { elementId })
+            const scoped = conditionsAt && key === conditionsAt ? conditionScopeOf(elementId) : undefined
+            bucket.entries.set(elementId, { elementId, ...(selector ? { selector } : {}), ...(scoped ?? {}) })
         }
         return bucket.entries.get(elementId)!
     }
@@ -433,7 +549,7 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
         if (entry.elementId && row && entry.lineState === 'ENUMERATED') ensureElement(entry.elementId, row)
 
         if (entry.state === 'derived') {
-            derived.push({ path, lineId: entry.lineId, value: entry.value, resolvedBy: String(entry.resolvedBy ?? ''), support: entry.support })
+            derived.push({ path, lineId: entry.lineId, value: entry.value, resolvedBy: String(entry.resolvedBy ?? ''), support: categorized(entry.support), strength: strengthOf(entry.support, items) })
             if (!entry.elementId) {
                 if (row) place(game, row.path, entry.value)
             } else if (row) {
@@ -503,6 +619,7 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
                     ? `applicability unresolved: it depends on ${entry.conditionalOn}, which settled nothing`
                     : "applicability unresolved: the element's own selector does not decide whether this row applies to it",
                 declared: entry.declared ? [...entry.declared] : [],
+                governedBy: entry.governedBy ? entry.governedBy.map(g => ({ ...g })) : [],
             })
             continue
         }
@@ -517,6 +634,7 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
                 verdict: String(entry.verdict ?? ''),
                 reason: entry.reason ?? null,
                 declared: entry.declared ? [...entry.declared] : [],
+                governedBy: entry.governedBy ? entry.governedBy.map(g => ({ ...g })) : [],
             })
         }
     }

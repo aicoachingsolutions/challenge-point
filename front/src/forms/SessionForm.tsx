@@ -51,7 +51,35 @@ const SessionForm: React.FC<{}> = () => {
             insertIntoPostBody={{ createdBy: user._id, sessionStatus: SessionStatus['Draft'] }}
             submitButtonClass={'max-w-sm mx-auto px-8 py-3 text-lg font-semibold shadow-lg'}
         >
-            {(f) => {
+            {(f, { formValues, setFormValues }) => {
+                /**
+                 * Record how many people in a specialized role are at this session — or record nothing.
+                 *
+                 * This field is written by hand rather than through `f(...)` for one reason: the form
+                 * helper stores whatever the input reports, and a cleared number input reports NaN,
+                 * which is posted as `null`. A `null` here would be a third state between "not stated"
+                 * and a number, and the session must only ever hold the two. So a whole number of zero
+                 * or more is stored, and anything else REMOVES the role's entry.
+                 *
+                 * An untouched field never reaches this function, so a new session posts no
+                 * `specializedRoles` at all — and typing an answer then clearing it comes to the same
+                 * thing, because an empty map on a session not yet stored is dropped again. On a
+                 * session that IS stored the empty map is kept and posted, so that clearing an answer
+                 * it already held is sent as a change instead of being lost as an omission.
+                 */
+                const setRoleAvailability = (role: string, count: number) =>
+                    setFormValues((values) => {
+                        const specializedRoles = { ...(values?.specializedRoles ?? {}) }
+                        if (Number.isInteger(count) && count >= 0) specializedRoles[role] = count
+                        else delete specializedRoles[role]
+
+                        if (!values?._id && Object.keys(specializedRoles).length === 0) {
+                            const { specializedRoles: _nothingStated, ...rest } = values ?? {}
+                            return rest
+                        }
+                        return { ...values, specializedRoles }
+                    })
+
                 return (
                     <div className='min-h-screen px-2 py-6 sm:px-4 lg:px-0'>
                         <div className='max-w-sm mx-auto sm:max-w-3xl'>
@@ -120,6 +148,45 @@ const SessionForm: React.FC<{}> = () => {
                                                     placeholder='Select age group'
                                                     className='w-full transition-colors border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500'
                                                 />
+                                            </div>
+
+                                            {/*
+                                              * GOALKEEPERS AVAILABLE — asked, never assumed.
+                                              *
+                                              * Christian, 13 October: "Goalkeeper availability should
+                                              * come from the Team Profile or session configuration,
+                                              * with the coach able to confirm or adjust it. The system
+                                              * should not silently assume that no goalkeepers are
+                                              * available."
+                                              *
+                                              * NO DEFAULT VALUE, and that is the whole design. Blank
+                                              * means the coach has not said, and it is stored as
+                                              * nothing; zero means there are none, and it is stored as
+                                              * zero. A pre-filled 0 would turn every coach who skipped
+                                              * the question into one who answered it.
+                                              *
+                                              * The key is the role's name as the knowledge register
+                                              * holds it, which is what the activity review looks up.
+                                              *
+                                              * This asks who is AVAILABLE, not who plays in goal in a
+                                              * given activity: whether a game uses a goalkeeper is
+                                              * decided by that game.
+                                              */}
+                                            <div>
+                                                <NumberField
+                                                    label='Goalkeepers available'
+                                                    value={formValues?.specializedRoles?.goalkeeper}
+                                                    onChange={(count) => setRoleAvailability('goalkeeper', count)}
+                                                    labelClass='text-gray-700 font-medium mb-2 block'
+                                                    inputClass='text-base'
+                                                    placeholder='e.g., 2 — enter 0 if none'
+                                                    min={0}
+                                                    step={1}
+                                                    className='w-full transition-colors border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500'
+                                                />
+                                                <p className='mt-2 text-sm text-gray-500'>
+                                                    How many of your players are goalkeepers today. Leave it blank if you are not sure yet.
+                                                </p>
                                             </div>
                                         </div>
 

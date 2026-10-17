@@ -15,7 +15,10 @@ import { RegisterIndex } from './register'
 import { reaches, Reach } from './reach'
 import { parseSelector, selectorApplies } from './selector'
 import { ApplicationSet, DeclarationReach } from './scope'
-import { Bounds, ElementClass, ItemRef, LoadedContract, NamedDiagnostic, ResolutionLine, SupportRef } from './types'
+import { Bounds, ElementClass, ItemRef, LoadedContract, NamedDiagnostic, ResolutionLine, relativePositionOf, structuralRefOf, SupportRef } from './types'
+
+/** How a contribution reads against a class's constitutive selector (SD-101). */
+type Comparison = 'STANDS' | 'CONTRADICTS' | 'NOT_COMPARED'
 
 export interface DerivedLine {
     lineId: string
@@ -251,6 +254,44 @@ function applyConstitutiveSelector(
 ): void {
     const byClass = new Map(classes.map(c => [c.classId, c]))
 
+    /**
+     * **A typed value is compared by class identity — 14 October 2026**, Step 4 component 1, which he approved
+     * that day (*"Correct the two reference/condition faults"*). Before, a typed reference was never a string,
+     * so it could contradict nothing under `=` and `IN` and stood by accident; under `∋` it was compared as
+     * `"[object Object]"`. Now:
+     *
+     *   - against a selector value that IS a held class id, it contradicts exactly when it resolves to a
+     *     different class (the class it names is the one whose establishing item it cites, `fromItem`);
+     *   - against open text it is NOT compared. SD-63: open text establishes no identity, so it can establish
+     *     neither agreement nor contradiction. The contribution stands (SD-92) and a diagnostic says so —
+     *     reported, never silently decided either way. The same holds for a typed reference that resolves to
+     *     no class: nothing establishes what it is to compare.
+     *
+     * A plain string keeps exactly today's reading.
+     */
+    const classOfRef = (value: unknown): ElementClass | undefined => {
+        const ref = structuralRefOf(value)
+        return ref ? classes.find(c => c.fromItem.contractId === ref.contractId && c.fromItem.itemId === ref.itemId) : undefined
+    }
+    // A reference that resolves to an allowed class AGREES, whatever else the selector lists: identity with one
+    // member is established. Only a selector made wholly of held class ids can establish disagreement; one
+    // that also lists open text cannot (SD-63), so a non-match there is NOT_COMPARED, never CONTRADICTS.
+    // (S-B review, 14 October 2026: an `∈` selector mixing a class id with open text reported an established
+    // agreement as "not compared".)
+    const typedAgainst = (value: unknown, allowed: string[]): Comparison => {
+        const cls = classOfRef(value)
+        if (!cls) return 'NOT_COMPARED'
+        if (allowed.includes(cls.classId)) return 'STANDS'
+        return allowed.every(id => byClass.has(id)) ? 'CONTRADICTS' : 'NOT_COMPARED'
+    }
+    const containsReading = (members: unknown[], wanted: string): Comparison => {
+        if (members.some(m => !structuralRefOf(m) && String(m) === wanted)) return 'STANDS'
+        if (byClass.has(wanted) && members.some(m => classOfRef(m)?.classId === wanted)) return 'STANDS'
+        // A typed member that could not be compared leaves the set's agreement undecided.
+        const undecided = members.some(m => structuralRefOf(m) && (!byClass.has(wanted) || !classOfRef(m)))
+        return undecided ? 'NOT_COMPARED' : 'CONTRADICTS'
+    }
+
     for (const line of lines) {
         if (!line.elementId) continue
         const row = index.rows.get(line.row)
@@ -261,13 +302,33 @@ function applyConstitutiveSelector(
         if (!term) continue
 
         const record = derived.get(line.lineId)!
-        const contradicts = (value: unknown): boolean => {
-            if (term.op === '=') return typeof value === 'string' && value !== term.value
-            if (term.op === 'IN') return typeof value === 'string' && !term.values.includes(value)
+        const reading = (value: unknown): Comparison => {
+            if (term.op === '=') return structuralRefOf(value) ? typedAgainst(value, [term.value]) : typeof value === 'string' && value !== term.value ? 'CONTRADICTS' : 'STANDS'
+            if (term.op === 'IN') return structuralRefOf(value) ? typedAgainst(value, term.values) : typeof value === 'string' && !term.values.includes(value) ? 'CONTRADICTS' : 'STANDS'
             // A `∋` term says the set holds this member. Only an explicit set that leaves it out
             // contradicts it; anything else is not something this can decide.
-            if (term.op === 'CONTAINS') return Array.isArray(value) && !value.map(String).includes(term.value)
-            return false
+            if (term.op === 'CONTAINS') return Array.isArray(value) ? containsReading(value, term.value) : 'STANDS'
+            return 'STANDS'
+        }
+        const contradicts = (value: unknown): boolean => reading(value) === 'CONTRADICTS'
+
+        for (const entry of record.entailing.filter(e => reading(e.value) === 'NOT_COMPARED')) {
+            // Two causes, said as what they are (S-B review, 14 October 2026): the detail had called every
+            // case "open text", including a reference that resolves to no class against a class-id selector.
+            const fixedAs = JSON.stringify('value' in term ? term.value : term.values)
+            const members = Array.isArray(entry.value) ? entry.value : [entry.value]
+            const dangling = members.some(m => structuralRefOf(m) && !classOfRef(m))
+            diagnostics.push({
+                code: 'CONSTITUTIVE_SELECTOR_NOT_COMPARED',
+                where: line.lineId,
+                detail: dangling
+                    ? `${entry.item.contractId}::${entry.item.itemId} entails ${JSON.stringify(entry.value)}, a typed reference that resolves to no element class, on a property ` +
+                      `the class's own selector fixes as ${fixedAs}. Nothing establishes what the reference names, so it can establish neither agreement nor ` +
+                      'contradiction: the two are not compared and the contribution stands (SD-92).'
+                    : `${entry.item.contractId}::${entry.item.itemId} entails the typed reference ${JSON.stringify(entry.value)} on a property the class's own selector ` +
+                      `fixes as the open text ${fixedAs}. Open text establishes no identity (SD-63), so it can establish ` +
+                      'neither agreement nor contradiction: the two are not compared and the contribution stands (SD-92).',
+            })
         }
 
         const offending = record.entailing.filter(e => contradicts(e.value))
@@ -434,8 +495,14 @@ function assertsNothing(item: any, index: RegisterIndex): boolean {
     return String(item.requirement) === 'EXISTS' && index.rows.get(String(item.row))?.kind === 'FIELD'
 }
 
-/** An item entails only when it fixes the value: an assumed item bounds but never entails (§3). */
-function entails(item: any): boolean {
+/**
+ * An item entails only when it fixes the value: an assumed item bounds but never entails (§3).
+ *
+ * Exported 13 October for the roster rule, which has to put this same question to an item that reaches a
+ * team realization instantiated — a member with no line for the item to have been asked on (SD-97). A
+ * second copy of the test there would be free to disagree with this one about what an assumed item may do.
+ */
+export function entails(item: any): boolean {
     if (!isSupportCapable(item)) return false
     if (item.basis === 'ASSUMED') return false
     if (item.strictness === 'EXCLUSION') return false
@@ -448,8 +515,28 @@ function entails(item: any): boolean {
  * carrying the authored term — not a numeric bound with nothing in it. SD-15 forbids inventing a number
  * here, and a `COUNT` with null endpoints bounds nothing while still looking numeric to a consumer,
  * which is how "beyond the first defenders" came to be silently ignored by a feasibility check.
+ *
+ * **Every shape says how binding it is — completed 13 October.** A bound is only usable downstream if a
+ * reader can tell a requirement from a preference from an exclusion, and three of the five shapes here did
+ * not say. Measured before this: eight bounds from `PREFERRED_DEFAULT` items carried no flag (the target's
+ * across-extent, both channels' along-extent, the pass threshold among them), so a preferred value and a
+ * required one were the same object; and an `EXCLUSION` item came out as `{ kind: 'SET', members }`, which
+ * is the shape of a PERMITTED set — with the one narrowing above it withheld, the scoring kind was refused
+ * for not being among its own forbidden values. His instruction of the same day is that authored ranges,
+ * starting values and alternatives are preserved *"throughout realization and communication"*; that starts
+ * with the bound keeping its status where it is made.
+ *
+ * `preferred` is stated on every shape, true or false. `forbidden` is present only where it is true, so a
+ * bound that is not an exclusion reads exactly as it did.
  */
 function boundsOf(item: any, index?: RegisterIndex): Bounds {
+    const preferred = item.valueStatus === 'PREFERRED_DEFAULT'
+    // **An assumed bound says so — 14 October 2026** (Step 4 component 2). An `ASSUMED` item is the restater's
+    // reading, not the author's words (§3: it bounds and never entails), so a consumer must be able to tell it
+    // from authored guidance before ever offering it to a coach as such. Present only where true, so every
+    // other bound reads exactly as it did.
+    const assumed = item.basis === 'ASSUMED' ? { assumed: true as const } : {}
+    const status = item.strictness === 'EXCLUSION' ? { preferred, forbidden: true, ...assumed } : { preferred, ...assumed }
     // **A value that IS a canonical relative term carries that term's bound.** The fractions live once,
     // in RC-21, and a contract item names the relation rather than restating a number — which is what
     // keeps a proportional rule from being copied into every object that uses it. The term is resolved
@@ -457,7 +544,21 @@ function boundsOf(item: any, index?: RegisterIndex): Bounds {
     if (index && typeof item.value === 'string') {
         const term = ((index.relativeTerms as any)?.machineReadable?.terms ?? {})[item.value]
         if (term && term.kind === 'interval' && typeof term.from === 'number' && typeof term.to === 'number') {
-            return { kind: 'COUNT', min: term.from, max: term.to, term: item.value, fractionOfAxis: true, preferred: item.valueStatus === 'PREFERRED_DEFAULT' } as Bounds
+            return { kind: 'COUNT', min: term.from, max: term.to, term: item.value, fractionOfAxis: true, ...status } as Bounds
+        }
+    }
+    /**
+     * **A value that is RC-21's "beyond X (for team T)" carries that relation as a RELATIVE bound** — 15 October 2026 (stage K6,
+     * register version 13), his M7: *"M7 — Target relative to pressure reference: Approved if required."* The relation is the
+     * register's (a machine-readable term of kind `relative`), the referent a typed reference (SD-98) and the team a designation
+     * — nothing is parsed from prose. Realization composes an extent from it where no metric extent is authored, and
+     * GA-RELATIVE-PLACEMENT checks it on the realized geometry either way.
+     */
+    const relative = index ? relativePositionOf(item.value) : null
+    if (index && relative) {
+        const term = ((index.relativeTerms as any)?.machineReadable?.terms ?? {})[relative.term]
+        if (term && term.kind === 'relative' && typeof term.relation === 'string') {
+            return { kind: 'RELATIVE', relation: term.relation, term: relative.term, of: { ...relative.of.structuralRef }, forTeam: relative.forTeam, ...status }
         }
     }
     // **A typed bound moved out of the prose by an authored restatement**, on the SD-86 precedent:
@@ -467,13 +568,14 @@ function boundsOf(item: any, index?: RegisterIndex): Bounds {
     // carried alongside so the source stays visible beside its typed form.
     if (item.typedBound && typeof item.typedBound === 'object') {
         const { min = null, max = null } = item.typedBound
-        return { kind: 'COUNT', min, max, term: String(item.value ?? ''), preferred: item.valueStatus === 'PREFERRED_DEFAULT' }
+        return { kind: 'COUNT', min, max, term: String(item.value ?? ''), ...status }
     }
-    if (item.requirement !== 'RANGE' && item.requirement !== 'COUNT') return { kind: 'SET', members: [item.value] as any }
+    if (item.requirement !== 'RANGE' && item.requirement !== 'COUNT') return { kind: 'SET', members: [item.value] as any, ...status }
 
+    // The authored words travel with a parsed count as they already do with a typed one.
     const count = countBounds(item)
-    if (count) return { kind: 'COUNT', min: count.min, max: count.max }
-    return { kind: 'QUALITATIVE', term: String(item.value ?? '').trim() }
+    if (count) return { kind: 'COUNT', min: count.min, max: count.max, term: String(item.value ?? '').trim(), ...status }
+    return { kind: 'QUALITATIVE', term: String(item.value ?? '').trim(), ...status }
 }
 
 /**
@@ -568,6 +670,7 @@ function mayBeOpen(
     cls: ElementClass | undefined,
     referenced: Set<string>,
     relational: Set<string>,
+    itemsById: Map<string, any> = new Map(),
 ): { authority: string; choiceSpace: string } | null {
     const row = line.row
     const choiceSpace = index.fillable.get(row)
@@ -575,6 +678,47 @@ function mayBeOpen(
     if (record.session) return null // the session resolved it; a resolved line is not a free one
     if (record.entailing.length > 0) return null
     if (record.standingDecisions.length > 0) return null
+
+    /**
+     * **A choice space for some elements only is open for those elements only** — register version 12, 15 October 2026. T2's
+     * fillable text has said "only which team starts, for trigger START" since 21 September, and nothing read the restriction:
+     * once a SCORE element's play state resolved, its awardee opened as a free choice over the game form's and the context's
+     * NOT_AUTHORED declarations (measured by the design verification of 17 October), an after-score rule nobody
+     * authored. Read from the register (`fillableWhen`): the element's own selector must fix the attribute to a listed value.
+     * It can only close lines.
+     */
+    const when = index.fillableWhen.get(row)
+    if (when) {
+        const term = cls?.constraints.terms.find(t => t.attribute === when.selectorAttribute && t.op === '=')
+        if (!term || term.op !== '=' || !when.in.includes(String(term.value))) return null
+    }
+
+    /**
+     * **A coach's choice opens only on the bounds the register names for it** — register version 12, 15 October 2026. Christian,
+     * reply filed 17 October 2026, M3 (register T4 `fillableAuthority`, where his sentence is quoted whole): *"coach-selected
+     * restart locations, and activity-specific restart methods. These choices must remain distinguishable from universal
+     * requirements."* Where the row
+     * says (`fillableRequires`), EVERY item bounding the line must carry one of the listed requirements and bases and give a bound
+     * of the listed kind, and there must be at least one: silence never opens the line, and an assumed, engine-only, positioned
+     * or preferred bound never does either (the bare word "authored" in the fillable text was measured opening a goal-kick
+     * location to an ASSUMED "own end"). Open, it closes as COACH_DECIDES (realize.ts `closureOf`).
+     */
+    const requires = index.fillableRequires.get(row)
+    if (requires) {
+        if (!record.bounding.length) return null
+        const qualifies = record.bounding.every(entry => {
+            const item = itemsById.get(`${entry.item.contractId}:${entry.item.itemId}`)
+            return (
+                !!item &&
+                requires.requirement.includes(String(item.requirement)) &&
+                requires.basis.includes(String(item.basis)) &&
+                entry.bound.kind === requires.bound &&
+                !entry.bound.preferred &&
+                !entry.bound.forbidden
+            )
+        })
+        if (!qualifies) return null
+    }
 
     // **AM-04, narrowed on his ruling of 29 September.** It had been a per-row veto: one `UNDECLARED`
     // declaration anywhere on the row barred openness for every element on it, which let one object's
@@ -824,6 +968,10 @@ export function deriveLines(
 
     applySession(lines, derived, index, envelope || {}, stopped)
 
+    // Register version 12: a game-level row another line entails takes that line's entailed value (the initial holder of
+    // possession, from the start's awardee). After the items, displacement and the session, before anything reads a value.
+    applyEntailedBy(lines, derived, classes, index)
+
     // Restricted computation 3 — the monotone closure over citable standing decisions. It may only add
     // support that the decision already carries, so it terminates and its order cannot matter.
     let changed = true
@@ -851,7 +999,7 @@ export function deriveLines(
         record.entailing.sort((a, b) => `${a.item.contractId}:${a.item.itemId}`.localeCompare(`${b.item.contractId}:${b.item.itemId}`))
         record.bounding.sort((a, b) => `${a.item.contractId}:${a.item.itemId}`.localeCompare(`${b.item.contractId}:${b.item.itemId}`))
         record.standingDecisions.sort()
-        record.open = mayBeOpen(line, index, record, declarations, envelope, stopped, line.elementId ? byClass.get(line.elementId) : undefined, referenced, relational)
+        record.open = mayBeOpen(line, index, record, declarations, envelope, stopped, line.elementId ? byClass.get(line.elementId) : undefined, referenced, relational, itemsById)
     }
 
     return {
@@ -859,6 +1007,40 @@ export function deriveLines(
         undeterminedReaches: undeterminedReaches.sort((a, b) => a.classId.localeCompare(b.classId)),
         stopped: [...new Map(stopped.map(s => [s.where + s.why, s])).values()].sort((a, b) => a.where.localeCompare(b.where)),
         diagnostics: diagnostics.sort((a, b) => `:`.localeCompare(`:`)),
+    }
+}
+
+/**
+ * **A game-level row takes the value another line ENTAILS, where the register says so** — register version 12, 15 October
+ * 2026 (`EntailedBy`). The initial holder of possession's own note: *"Its INITIAL value is a governed realization choice over
+ * the established teams unless selected knowledge says otherwise"* and *"START begins an episode and requires the
+ * initial-possession choice."* Where the game holds exactly one element the rule names, and the named line on it is entailed
+ * — every entailing item agreeing, and the line applying (its governing line, where the register makes it conditional,
+ * entailed to a value it applies for) — the row is entailed with the same value and the same support. Nothing is chosen and
+ * nothing defaulted: a line that is open, gapped, colliding or conditional on an open choice entails nothing here, and the
+ * row stays exactly what it was (the governed choice SD-39 carries). Measured 15 October 2026: no game but Play Out from the
+ * Back's holds a start element at all, so no other line moves.
+ */
+function applyEntailedBy(lines: ResolutionLine[], derived: Map<string, DerivedLine>, classes: ElementClass[], index: RegisterIndex): void {
+    for (const [rowId, rule] of index.entailedBy) {
+        for (const line of lines) {
+            if (line.row !== rowId || line.elementId) continue
+            const record = derived.get(line.lineId)
+            if (!record || record.session || record.entailing.length) continue
+            const sources = classes.filter(c => c.row === rule.collectionRow && c.constraints.terms.some(t => t.attribute === rule.selectorAttribute && t.op === '=' && t.value === rule.value))
+            if (sources.length !== 1) continue
+            const source = derived.get(`${sources[0].classId}::${rule.row}`)
+            if (!source || !source.entailing.length) continue
+            if (new Set(source.entailing.map(entry => JSON.stringify(entry.value))).size !== 1) continue
+            const condition = index.applicability.get(rule.row)
+            if (condition?.row) {
+                const governing = derived.get(`${sources[0].classId}::${condition.row}`)
+                const values = [...new Set((governing?.entailing ?? []).map(entry => String(entry.value)))]
+                const admitted = ((condition as { in?: unknown[] }).in ?? []).map(String)
+                if (values.length !== 1 || !admitted.includes(values[0])) continue
+            }
+            record.entailing.push(...source.entailing.map(entry => ({ item: { ...entry.item }, value: entry.value, support: { ...entry.support } })))
+        }
     }
 }
 

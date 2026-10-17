@@ -12,6 +12,8 @@
  * Run: part of `npm test`.
  */
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
 
 import workbook from './session-planning-model.rc1.json'
 import {
@@ -20,6 +22,132 @@ import {
     translationStatus,
     validateSessionPlanningModel,
 } from './session-planning-model'
+import { crc32, projectSessionPlanningWorkbook, projectSessionPlanningWorkbookObject, readSheetCells, readZipEntries, zipEntryData } from './workbook-projection'
+
+const XLSX = path.resolve(__dirname, '../../../data/session-planning/session-planning-model.rc1.xlsx')
+const JSON_PATH = path.resolve(__dirname, 'session-planning-model.rc1.json')
+
+/** Where two Engine Translation sheets disagree, named by goal and column — so a failure says WHICH row moved. */
+function engineTranslationDisagreements(projected: Array<Record<string, unknown>>, committed: Array<Record<string, unknown>>): string[] {
+    const out: string[] = []
+    const ids = new Set([...projected, ...committed].map(row => String(row['Learning Goal ID'])))
+    for (const id of ids) {
+        const a = projected.find(row => String(row['Learning Goal ID']) === id)
+        const b = committed.find(row => String(row['Learning Goal ID']) === id)
+        if (!a || !b) {
+            out.push(`${id}: present in ${a ? 'the workbook' : 'the JSON'} only`)
+            continue
+        }
+        for (const column of new Set([...Object.keys(a), ...Object.keys(b)])) {
+            if (JSON.stringify(a[column]) !== JSON.stringify(b[column])) out.push(`${id} ${column}: workbook ${JSON.stringify(a[column])}, JSON ${JSON.stringify(b[column])}`)
+        }
+    }
+    return out
+}
+
+/**
+ * **The committed JSON IS the committed workbook's projection** — added 15 October 2026 (stage G1).
+ *
+ * The loader's header says the .xlsx is canonical and the JSON a projection *"never hand-edit"*, and until this
+ * nothing checked it: the projector was Python, which this environment lacks, so an approval written into one
+ * file and not the other would have loaded without complaint. `workbook-projection.ts` reads the workbook with
+ * no dependency by project-workbook.py's rules; this requires the text to be equal (line endings aside — git
+ * keeps the JSON LF and a Windows checkout writes CRLF), and then the Engine Translation field by field against
+ * what the LOADER imported, so a drift names the goal and the column rather than a character offset. Measured
+ * equal on 14 October before any data changed.
+ */
+function testCommittedJsonIsTheWorkbookProjection(): void {
+    const zip = readFileSync(XLSX)
+    const committed = readFileSync(JSON_PATH, 'utf8').split('\r\n').join('\n')
+    assert.equal(projectSessionPlanningWorkbook(zip), committed, 'the committed JSON must be exactly the committed workbook projected')
+
+    const projected = projectSessionPlanningWorkbookObject(zip) as { engine_translation: Array<Record<string, unknown>> }
+    const imported = (workbook as unknown as { engine_translation: Array<Record<string, unknown>> }).engine_translation
+    assert.deepEqual(engineTranslationDisagreements(projected.engine_translation, imported), [], 'Engine Translation: workbook and loader agree field by field')
+
+    // It bites: one goal's Primary changed in a copy is named, by goal and column, and nothing else is.
+    const altered = JSON.parse(JSON.stringify(projected.engine_translation)) as Array<Record<string, unknown>>
+    altered.find(row => row['Learning Goal ID'] === 'A01')!['Primary GP IDs'] = 'GP-999'
+    const found = engineTranslationDisagreements(altered, imported)
+    assert.equal(found.length, 1, `exactly one disagreement, got ${found.join(' | ')}`)
+    assert.ok(found[0].startsWith('A01 Primary GP IDs:'), found[0])
+
+    /**
+     * **And it bites on the WORKBOOK, not only on a copy of the projection** (G1 review, 15 October 2026). The case
+     * above alters the projected object, which proves the comparer; it never handed the projector a changed
+     * workbook. Here the committed archive is rebuilt (every entry stored, so no deflate is involved): untouched it
+     * still projects to the committed JSON, and with A01's Primary changed, or a Secondary written into C2 (his
+     * Cycle 8 §4 deferral, retained on 15 October), it does not — so an approval written into one file and not the
+     * other cannot load quietly.
+     */
+    const entries = readZipEntries(zip).map(entry => ({ name: entry.name, data: zipEntryData(zip, entry) }))
+    const sheet = 'xl/worksheets/sheet5.xml'
+    const rebuilt = (from: string, to: string) =>
+        storedZip(entries.map(entry => (entry.name === sheet ? { name: entry.name, data: Buffer.from(entry.data.toString('utf8').replace(from, to), 'utf8') } : entry)))
+    assert.equal(projectSessionPlanningWorkbook(storedZip(entries)), committed, 'the rebuilt archive, untouched, is still the committed projection')
+    for (const [from, to, what] of [
+        ['<t>GP-005</t>', '<t>GP-006</t>', "A01's Primary changed"],
+        ['<c r="C2" s="4" t="n" />', '<c r="C2" s="4" t="inlineStr"><is><t>GP-010</t></is></c>', 'a Secondary written for A01'],
+    ]) {
+        assert.ok(entries.find(entry => entry.name === sheet)!.data.toString('utf8').includes(from), `${what}: the anchor exists`)
+        assert.notEqual(projectSessionPlanningWorkbook(rebuilt(from, to)), committed, `${what}: the workbook no longer projects to the committed JSON`)
+    }
+}
+
+/** For the test above only: a ZIP archive with every entry STORED (method 0), written from scratch. */
+function storedZip(files: { name: string; data: Buffer }[]): Buffer {
+    const locals: Buffer[] = []
+    const centrals: Buffer[] = []
+    let offset = 0
+    for (const file of files) {
+        const name = Buffer.from(file.name, 'utf8')
+        const crc = crc32(file.data)
+        const local = Buffer.alloc(30)
+        local.writeUInt32LE(0x04034b50, 0)
+        local.writeUInt16LE(20, 4)
+        local.writeUInt32LE(crc, 14)
+        local.writeUInt32LE(file.data.length, 18)
+        local.writeUInt32LE(file.data.length, 22)
+        local.writeUInt16LE(name.length, 26)
+        const central = Buffer.alloc(46)
+        central.writeUInt32LE(0x02014b50, 0)
+        central.writeUInt16LE(20, 4)
+        central.writeUInt16LE(20, 6)
+        central.writeUInt32LE(crc, 16)
+        central.writeUInt32LE(file.data.length, 20)
+        central.writeUInt32LE(file.data.length, 24)
+        central.writeUInt16LE(name.length, 28)
+        central.writeUInt32LE(offset, 42)
+        locals.push(local, name, file.data)
+        centrals.push(central, name)
+        offset += local.length + name.length + file.data.length
+    }
+    const directory = Buffer.concat(centrals)
+    const end = Buffer.alloc(22)
+    end.writeUInt32LE(0x06054b50, 0)
+    end.writeUInt16LE(files.length, 8)
+    end.writeUInt16LE(files.length, 10)
+    end.writeUInt32LE(directory.length, 12)
+    end.writeUInt32LE(offset, 16)
+    return Buffer.concat([...locals, directory, end])
+}
+
+/**
+ * **What openpyxl would read differently is refused, not guessed** (15 October 2026). A formula's cached value,
+ * a float Python would print as 2.0, a number in a date format: none is in the workbook, and each would project
+ * differently from project-workbook.py's output, so each throws naming the cell.
+ */
+function testReaderRefusesWhatItCannotMirror(): void {
+    const sheet = (cells: string) => `<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData><row r="1">${cells}</row></sheetData></worksheet>`
+    assert.equal(readSheetCells(sheet('<c r="A1" t="inlineStr"><is><t>A &amp; B</t></is></c><c r="B1"><v>7</v></c><c r="C1" t="n" />')).get(1)!.get(1), 'A & B')
+    assert.deepEqual([...readSheetCells(sheet('<c r="A1" t="inlineStr"><is><t>x</t></is></c><c r="B1"><v>7</v></c><c r="C1" t="n" />')).get(1)!.values()], ['x', 7, null])
+    assert.throws(() => readSheetCells(sheet('<c r="A1"><f>1+1</f><v>2</v></c>')), /A1 holds a formula/)
+    assert.throws(() => readSheetCells(sheet('<c r="A1"><v>2.5</v></c>')), /A1 holds the non-integer number 2.5/)
+    assert.throws(() => readSheetCells(sheet('<c r="A1" s="1"><v>45000</v></c>'), [], [0, 14]), /A1 holds a number in format 14/)
+    assert.throws(() => readSheetCells(sheet('<c r="A1" t="b"><v>1</v></c>')), /cell type "b"/)
+    assert.equal(readSheetCells(sheet('<c r="A1" t="s"><v>1</v></c>'), ['zero', 'one']).get(1)!.get(1), 'one')
+    assert.throws(() => readSheetCells(sheet('<c r="A1" t="s"><v>5</v></c>'), ['zero']), /shared string 5/)
+}
 
 function testIntegrityGate(): void {
     const result = validateSessionPlanningModel()
@@ -91,37 +219,48 @@ function testPracticeSituationsResolve(): void {
  * would force a conscious update rather than appearing silently. It fired exactly as intended when
  * the Cycle 8 decisions landed, and is now updated to the approved state.
  *
- * Nine of eleven are mapped. A01 and A04 remain EMPTY by explicit decision (Cycle 8 §5: "No
+ * Nine of eleven were mapped. A01 and A04 remained EMPTY by explicit decision (Cycle 8 §5: "No
  * placeholder mappings should be introduced") — they are runtime realization opportunities rather
  * than knowledge deficiencies, so an empty cell here is the correct recorded answer, not an omission.
+ *
+ * **Ten since 15 October 2026.** Christian: "I approve Gain Access as the primary Game Problem for Play Out from
+ * the Back … This resolves the Cycle 8 translation gap for this Learning Goal through the approved context rather
+ * than inference from the goal's wording." A01 is GP-005, primary only ("Let's retain our existing decision to
+ * defer secondary Game Problems"), written into the workbook and its projection by
+ * apply-spm-2026-10-15-a01-game-problem.ts. A04 stays the one intentional gap.
  */
 function testEngineTranslationMatchesApprovedRc11(): void {
     const status = translationStatus()
     assert.equal(status.total, 13, 'Every Learning Goal must have an Engine Translation row.')
-    assert.equal(status.populated, 9, 'Cycle 8 approved nine mappings.')
+    assert.equal(status.populated, 10, 'Cycle 8 approved nine mappings; his 15 October item 1 approved A01.')
     assert.deepEqual(
         status.unpopulated.sort(),
-        ['A01', 'A04', 'A05', 'A06'],
-        'A01 and A04 are the intentional runtime gaps; A05 and A06 are new at RC1.1 and not yet translated. ' +
+        ['A04', 'A05', 'A06'],
+        'A04 is the intentional runtime gap; A05 and A06 are new at RC1.1 and not yet translated. ' +
             'Any other unmapped goal is a regression.'
     )
 
-    // The two kinds of unmapped must stay distinguishable in the workbook itself: A01/A04 were looked
+    // The two kinds of unmapped must stay distinguishable in the workbook itself: A04 was looked
     // at and deliberately left EMPTY; A05/A06 have not been looked at yet, and say TBD.
     const raw = (id: string) =>
         (workbook as unknown as { engine_translation: Array<Record<string, unknown>> }).engine_translation.find(
             (r) => r['Learning Goal ID'] === id
         )
-    for (const gap of ['A01', 'A04']) assert.equal(raw(gap)?.['Primary GP IDs'], null, `${gap} is an intentional gap, not TBD`)
+    for (const gap of ['A04']) assert.equal(raw(gap)?.['Primary GP IDs'], null, `${gap} is an intentional gap, not TBD`)
     for (const pending of ['A05', 'A06']) assert.equal(raw(pending)?.['Primary GP IDs'], 'TBD', `${pending} is pending, not a gap`)
+    // A01 carries his ruling, and its note says the ruling authorizes no vocabulary-derived constraint.
+    assert.equal(raw('A01')?.['Primary GP IDs'], 'GP-005')
+    assert.equal(raw('A01')?.['Secondary GP IDs'], null, 'no secondary: the Cycle 8 §4 deferral is retained')
+    assert.ok(String(raw('A01')?.['Notes']).startsWith('Approved 2026-10-15 (Christian, A01 decision 1)'), String(raw('A01')?.['Notes']))
 
     // Spot-pin two approved mappings so a silent change to the canonical workbook is caught.
     assert.deepEqual(gameProblemsForLearningGoal('A02')?.primary, ['GP-015'])
     assert.deepEqual(gameProblemsForLearningGoal('D02')?.primary, ['GP-016'])
+    assert.deepEqual(gameProblemsForLearningGoal('A01'), { primary: ['GP-005'], secondary: [] }, 'his 15 October item 1')
 
     // `null` rather than an empty array for a gap: "no mapping" and "no game problems apply" are
     // opposite meanings, and the Implementation Guide requires failing loudly over defaulting.
-    assert.equal(gameProblemsForLearningGoal('A01'), null, 'An intentional gap must report null, not empty.')
+    assert.equal(gameProblemsForLearningGoal('A04'), null, 'An intentional gap must report null, not empty.')
     assert.equal(gameProblemsForLearningGoal('NOPE'), null, 'An unknown Learning Goal must report null.')
 
     // Cycle 8 §4 defers secondary Game Problems to a future version, so none should be recorded.
@@ -231,6 +370,8 @@ function testGateCatchesBrokenReferences(): void {
 
 function runAll(): void {
     testIntegrityGate()
+    testCommittedJsonIsTheWorkbookProjection()
+    testReaderRefusesWhatItCannotMirror()
     testRc1Shape()
     testDisplayOrderPreserved()
     testPracticeSituationsResolve()

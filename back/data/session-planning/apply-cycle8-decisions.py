@@ -1,6 +1,12 @@
 """
 Apply Christian's Cycle 8 Canonical Decisions to the canonical Session Planning workbook.
 
+MUST NOT BE RE-RUN: it would revert A01 (15 Oct ruling). On 15 October 2026 Christian approved Gain Access
+(GP-005) as A01's primary Game Problem, recorded by back/src/scripts/apply-spm-2026-10-15-a01-game-problem.ts.
+This script writes primary None and the Cycle 8 §5 note for every row whose proposed primary is empty, and
+engine-translation.proposed.json still has A01 empty; it asserts no prior state, so a re-run would silently
+undo that ruling. Kept as the provenance of Cycle 8.
+
 This is the FIRST script here that writes the canonical workbook rather than a review copy.
 Christian's Cycle 8 email put workbook implementation and validation on our side: "Rather than
 editing the workbooks ourselves, we're leaving workbook implementation and validation in your

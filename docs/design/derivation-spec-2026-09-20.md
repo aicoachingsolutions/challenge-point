@@ -92,6 +92,107 @@ designation is met by each team the game's stated transitions make it at some tr
 team is the team awarded the start placement (KR-03). In a value, designations compare as canonical
 entries, and a game value written "(= entry)" counts as that entry.
 
+> **Engineering line, 15 October 2026 (stage K2) — ours, outside his adopted text.** Implemented for his M2 of
+> 17 October ("Please implement the previously adopted September 20 designation rule, rather than introducing a
+> narrower workaround solely for this activity."). Each register designation now carries a typed resolution
+> (register version 9, `teamDesignations.resolutions`: a kind and a scope; `GLOSS` where it restates the entry's gloss,
+> `OUR_INTERPRETATION` where the entry has none) and one resolver, `back/src/system/derivation/designation.ts`, answers
+> for every consumer: value comparison (GA-DIRECTION's RC-22 equality), the possession-relation test (GA-AFFILIATION),
+> registration (GA-REFERENCE-INTEGRITY's relational referent), and which instantiated team a team-naming selector
+> reaches (the member classes of `post-realization-gate.ts`, read by `reach.ts`, and the roster). A standing team
+> property is reached only through an ACTIVITY- or BLOCK-scoped designation; an EPISODE, DYNAMIC or TRIGGER designation
+> never yields one, which keeps "an episode-scoped designation remains episode-scoped" for performer counts. Which
+> instantiated team holds a setup assignment (TEAM_AT_AXIS_*) is a governed symmetric choice recorded by realization
+> (SD-39), never read from an ordinal. Derivation classes fix no designation (SD-95), so stage 4 is unchanged and
+> class-to-class comparison stays the spelled-value comparison it was. The BLOCK scope (a role held for a coach-called
+> block, his M1) is our extension of AM-01, registered and not yet used.
+
+> **Engineering line, 15 October 2026 (stage K3) — ours, outside his adopted text.** Implemented for his M1 of 17 October
+> ("M1 — Role exchange by block: Approved. Keep role assignments separate from fixed ends. Allow target configurations to
+> reflect each team's role during the block. The coach controls the exchange. No new block-duration system is needed.").
+> A block-scoped designation is met by the team the role block the game is derived for binds to it: `ROLE_HOLDER_<role>`
+> (register version 10, kind BLOCK_ROLE, scope BLOCK) resolves to the setup assignment (TEAM_AT_AXIS_*) the block binds the
+> role to, and from there to the team realization recorded for that setup assignment; without a block it is undetermined,
+> never guessed. A game whose contributions establish the register's roles (`roleBlocks`) is derived once per block — the
+> two bijections of two roles onto two ends are entailed, not chosen — with the block as input (in the input digest, the
+> gate context and the realization record, never in the game), and the blocks are then checked against each other
+> (RB-1..RB-8). One exception to "derivation classes fix no designation": an objective region carries the derived
+> attribute `targetOf` (the team whose primary scoring objective references it), set before reach from the objectives'
+> selectors and the reference items that entail them, and only where a selector asks for it.
+
+> **Engineering line, 15 October 2026 (stage K4) — ours, outside his adopted text.** Implemented for his D6 of 17 October
+> and his answers of 18 October (RD-1, item 5, item 7). (1) An item carrying `defersTo: AUTHORIZED_REALIZATION` (ruling C56,
+> GF2-14.b only) is moved aside before anything reads the composition — kept on its contract as `deferredItems`, listed as
+> the alternative — wherever another selected contribution authors the same row per team (a selector naming particular
+> teams through a designation-valued attribute) and cites, in `authorizedBy`, a CONFIRMED context-manipulation relationship
+> for the context it realizes that authorizes the row (`realization-deferral.ts`). (2) The roster reads an outfield count
+> authored per team as a set of counts and closes it from the session total: exactly one allocation must fit
+> (CONFIGURATION_DOES_NOT_FIT where none does, with the player counts that would, asked of the rule; ALLOCATION_NOT_SETTLED
+> where more than one does; NO_AUTHORIZED_ASYMMETRY where only an unequal one fits and an equality is still in force).
+> (3) Participant reassignment is its own capability (register version 11, rows B4-B7): a reassignment element says how
+> many performers of the kind a row counts move, at each exchange of roles, to the team newly holding a role; the
+> cross-block check RB-M admits a change of a team's counts exactly where one states it, and none where none is recorded —
+> the exchange of roles moves nobody.
+
+> **Engineering line, 15 October 2026 (stage K5) — ours, outside his adopted text.** Implemented for his M3, M4 and D5 of 17
+> October and his answers of 18 October (items 2 and 4). (1) Stage 2 reads each trigger-semantics entry's
+> `structuralPrerequisite` generically (a collection row, its selector attribute, a value): the trigger is reachable where a
+> class on that row is fixed to that value. The one entry carrying one is COACH_JUDGED_EPISODE_CONCLUSION, reachable where a
+> start element exists. (2) A row's `fillableWhen` restricts its choice space to the elements whose selector fixes an
+> attribute to a listed value (T2: START only, the restriction its fillable text always stated); a row's `fillableRequires`
+> opens it only where every bounding item has a listed requirement and basis and gives a bound of the listed kind (T4 and
+> T5: OWNER_RULING or AUTHORED ranges in words), closed COACH_DECIDES. (3) A game-level row's `entailedBy` takes the entailed
+> value and support of a named line on the one element a rule names (PS1 from START's T2, where it is entailed and applies).
+> (4) GA-TRANSITION-COHERENCE defers its resume clause where a taker or region is an open choice. (5) Where an episode-scoped
+> condition holds a begin-condition referent for that condition's own episode (ruling C58; a referent naming another
+> episode types nothing, K5 review), GA-EPISODE-REACHABLE decides which transitions meet it (stop and
+> restart, begin an episode, taken by an arm's taker; an arm naming a restart kind is met by none) and passes only where one
+> does and every one that does has one awardee. (6) A record-named provisional realization may withdraw another file's
+> realization choice by declaration (`withdraws`), recorded and carried into the fixture. AM-15's by-construction transitions
+> remain unimplemented for every other game.
+
+> **Engineering line, 15 October 2026 (stage K6) — ours, outside his adopted text.** Implemented for his M7, M5, D3 and D4 of
+> 17 October and his starting values of 18 October (item 3). (1) RC-21's canonical "beyond X (for team T)" is machine-readable
+> (register version 13, kind `relative`): a value `{term, of, forTeam}` names X by a typed reference and T by a designation that
+> holds an end (a setup assignment by its own spelling, or a role holder answering through the role block). On an extent row it
+> is a RELATIVE bound beside the element's anchor; as a start placement's region (P10 version 2) it is the part of the area beyond
+> X in T's direction. (2) An interval in metres may state its origin as the end line a team defends (S5 version 2). (3) Which end
+> a team attacks is read from the game's own objectives: the end its primary objective's target touches (its `longitudinal`
+> selector), for the block (`realization/team-ends.ts`); realization places an element relative to another after it, composes
+> the widest extent "at or past" admits where no metric extent is required, and leaves unplaced (never defaulted) an element
+> whose referent or team end is not established. (4) GA-RELATIVE-PLACEMENT, the nineteenth check: every relative position names a
+> held element and a team that holds an end (FAIL otherwise), and holds of the realized geometry (DEFERRED before realization,
+> owed, then checked by RC-21's own test). (5) GA-DIRECTION's separation clause: the opposed objectives' targets do not overlap
+> along the axis (a shared boundary is an overlap), deferred where the opposite-ends clause is and read from the same intervals.
+> The register's "does not contain the midpoint" (S2.longitudinalValues) is narrowed in the same version. (6) Start placements
+> carry a timing (P10a: INITIAL or CONDITIONAL_RESET, bound to EM-0002 EMP-0013) and, re-established, the episode at whose every
+> beginning they are (P10b): GA-EPISODE-REACHABLE's third clause requires a transition the typed begin condition picks out, so an
+> ordinary restart or a change of possession never re-establishes one. (7) The post-realization context substitutes realized
+> metres only on position rows. (8) A record-named realization listing the areas its metric values were given for
+> (`testingBoundaries.areas`) is built only for those areas; any other area is refused at `session` (DRAFT sentence).
+> (9) Added in the K6 review, 16 October 2026: GA-RELATIVE-PLACEMENT's third clause - no start placement's region shares a
+> stretch of the axis with the target its own group's team attacks (touching at one boundary is not sharing; deferred until both
+> are realized). The design asked for it and K6 had not built it: a pressing start around its own target, or a building start
+> inside its own target, passed every gate (measured on TEST-ONLY copies at 723eee2).
+
+> **Engineering line, 15 October 2026 (stage K7) — ours, outside his adopted text.** Communication of the first complete activity.
+> (1) The context-scoring guard confirms a context condition authored for an episode (SD-36; his 16 October 9.3, ruling C52) where it
+> reached the realized game with its authored scope AND the Gate A check deciding that episode (GA-EPISODE-REACHABLE, rerun on the
+> concrete game) passes as a whole and non-vacuously; any weaker verdict, another scope, or no check confirms nothing, and no reader
+> that applies a condition to every score is changed. The K6 review named this as what moved A01's validation stop, with no decision
+> of his behind it; K7 built it because its communication could not otherwise be measured on production. (2) A scoped condition may be
+> said only by an approved coach sentence covering its exact scope (design step B2): the renderer passes over every other entry for
+> it, and fidelity admits a sentence citing it only where that sentence IS approved wording for the game and cites the scope — a
+> citation alone never satisfies it. (3) Fidelity Q4 holds an obligation/ordering lexicon to every non-approved sentence part, with a
+> pinned allowlist of templates whose word restates the cited element's own value (one: a value modifier's termination); and,
+> regardless of approval, refuses a sentence naming a specialized role (read from the session's data) with such a word. (4) An episode
+> boundary on a transition that restarts play is discharged only by a sentence citing its play state and its awardee. (5) Where a
+> game holds positions written for a role holder, fidelity Q6 requires a role-exchange sentence citing them (his D2, "target
+> configurations change"). (6) A refusal at communication carries, for the checked review's administrator only, the rendering made
+> before the refusal, the withheld fields and the fidelity verdict (`rendering/review-draft.ts`); the coach's review answer, the pilot
+> and the live route never carry it. The cross-block checks of a game in role blocks run before a refusal at communication, since
+> they are validation.
+
 **Every structural reference normalises, not only selectors (SD-32, ruled).** In his words:
 
 > "Any structural reference participating in derivation must resolve through the registered

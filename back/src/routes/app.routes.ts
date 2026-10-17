@@ -29,6 +29,9 @@ import User from '../models/user.model'
 import Logger from '../logger'
 import LoggingService from '../services/logging.service'
 import { deriveInputConstraints } from '../system/input-constraints/deriveInputConstraints'
+import { ActivityReviewRequestError, activityReviewOptions, reviewActivity } from '../system/rendering/activity-review'
+import { UnknownActivityRequest } from '../system/rendering/build-activity'
+import { buildPilotActivity, isPilotRefused } from '../system/rendering/build-pilot-activity'
 import { describeUnsupportedGoal, isKnownUnsupportedGoal } from '../system/session-planning/goal-support'
 import {
     buildMultipleIntentionGuidance,
@@ -44,11 +47,12 @@ import {
 import { emCanonical } from '../system/knowledge-core/em-canonical'
 import { reasonEnvironmentalManipulations } from '../system/knowledge-core/em-selection-metadata'
 import { recordUsageEvent, summarizeUsage } from '../services/usage-telemetry.service'
-import { generateSelection, getTestLibraryV0LoadDebug, systemAssemblyInputFromTestLibrarySelection } from '../system/test-library'
+import { generateSelection, getTestLibraryV0LoadDebug, isSelectionKnowledgeGap, systemAssemblyInputFromTestLibrarySelection } from '../system/test-library'
 import { ENDPOINTS } from './_endpoints'
 import BaseRoutes from './helper'
 import { ActivityAssemblyRequest, PrimaryScoringDirective, SystemAssemblyInput, SystemPipelineError } from '../system/types'
 import { gateCandidateGameFormsToContext } from '../system/sport-module/context-selection'
+import { guidedGoalText, guidedSelectionHints } from '../system/sport-module/guided-selection'
 import { resolvePrimaryScoringDirectives } from '../system/sport-module/primary-scoring'
 import { rpcLibrary } from '../system/sport-module/rpc-library'
 import { validateConstraintPackage } from '../system/validate-constraint-package'
@@ -776,7 +780,32 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
 
         const generationStart = Date.now()
         const goalText = learningGoals.join(' ')
-        const inputConstraints = deriveInputConstraints(goalText)
+        const guidedGoalId = planning?.learningGoalId
+
+        // THE APPROVED GAME PROBLEM GOVERNS A GUIDED GOAL (Christian, 13 October). The hints the wording
+        // produces stand unless the Session Planning Model holds an approved translation that names a
+        // different Game Problem, in which case the candidates are that Game Problem’s own. Applied
+        // here, before the refusal checks and the trace, so every later reader sees one set of hints
+        // — and through the same function the checked pathway calls. Free text is untouched: a Game
+        // Problem is approved for a Learning Goal, never inferred onto typed wording.
+        //
+        // ONE GOAL TEXT FOR BOTH PATHWAYS (14 October 2026, his 13 October "same rules" ruling). A guided goal is
+        // selected from the registry's own words for it — the same `guidedGoalText` and the same
+        // `guidedSelectionHints` (Game Problem, then the context's game forms) the checked pathway uses — not from
+        // what the planning conversation composed. Until this, the coach's practice situation and note were part
+        // of the selection text, so the same goal selected differently here and on the review page (measured in
+        // the S-A review: Play Through Pressure (A02) landed on another game form, Play Out from the Back on other
+        // candidates). The coach's own text still reaches generation (`learningGoals`, below), never selection.
+        //
+        // An id the registry does not hold is answered as it was before this stage (review of S-C2, 14 October 2026):
+        // a 400 with selection's own message. `guidedGoalText` throws for it, which reached the catch-all as a 500.
+        if (guidedGoalId && !sessionPlanningModel.learningGoal(guidedGoalId)) {
+            return res.status(400).json({ error: ['Unknown learningGoalId', guidedGoalId, 'in Test Library selection input.'].join(' ') })
+        }
+        const guided = guidedGoalId ? guidedSelectionHints(guidedGoalId, guidedGoalText(guidedGoalId)) : null
+        const selectionText = guidedGoalId ? guidedGoalText(guidedGoalId) : goalText
+        const gameProblemAuthority = guided ? { gameProblem: guided.gameProblem } : null
+        const inputConstraints = guided?.hints ?? deriveInputConstraints(goalText)
 
         // RC1.1 — A GUIDED GOAL SELECTS WITHIN ITS CONTEXT, AND SCORES ON ITS CONTEXT'S EVENT.
         // Only once the RPC library is ACTIVE (Christian made ACTIVE conditional on these changes being
@@ -784,7 +813,6 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
         // conversation: a context is never inferred from free-text wording, so free text is unchanged.
         // See sport-module/context-selection.ts for why gating is required before primary scoring can
         // resolve — ungated, Create Scoring Chances landed on a game form with no valid event.
-        const guidedGoalId = planning?.learningGoalId
         const routedRpcId =
             guidedGoalId && rpcLibrary.runtimeStatus === 'ACTIVE'
                 ? (sessionPlanningModel.rpcRouting().find((route) => route.learningGoalId === guidedGoalId)?.rpcId ?? null)
@@ -811,7 +839,8 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
         // constraints. A route that changes nothing cannot license a refusal being skipped, so the
         // test is now whether selection actually resolved, which is what `reachedOnlyFallback`
         // already measures. A goal that routes AND resolves has it false and proceeds as before.
-        const knownGap = reachedOnlyFallback && isKnownUnsupportedGoal(goalText)
+        // Read from the text selection reads (stage S-C2): a guided goal's own words, the coach's for free text.
+        const knownGap = reachedOnlyFallback && isKnownUnsupportedGoal(selectionText)
 
         if (inputConstraints.matchedSignals.length === 0 || knownGap) {
             // MVP field evidence: rejected goals ARE the vocabulary-gap dataset. A known gap is
@@ -875,14 +904,17 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
             },
         })
 
-        const selectionHints = routedRpcId ? gateCandidateGameFormsToContext(inputConstraints, routedRpcId) : inputConstraints
+        // A guided goal's hints are already gated to its context by `guidedSelectionHints`, as the checked pathway's are.
+        const selectionHints = guided ? guided.hints : routedRpcId ? gateCandidateGameFormsToContext(inputConstraints, routedRpcId) : inputConstraints
 
         let selection
         try {
             Logger.info(`[Activity Generation] coach learning goals (original): ${JSON.stringify(learningGoals)}`)
             selection = generateSelection(
                 {
-                    learningGoals,
+                    // The text lenses and constraints are scored against: the goal's own words for a guided goal (the
+                    // checked pathway's `selectFor` passes the same), the coach's words for free text.
+                    learningGoals: guidedGoalId ? [selectionText] : learningGoals,
                     challengeLevel,
                     learningGoalId: planning?.learningGoalId,
                 },
@@ -890,6 +922,40 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
             )
         } catch (selErr) {
             const message = selErr instanceof Error ? selErr.message : String(selErr)
+            /**
+             * **A knowledge gap is answered in a coach's words and recorded as what it is.** Christian, 14
+             * October 2026: *"If no appropriate shaping constraint is available, please report that as a
+             * knowledge gap … keep those gaps visible rather than compensating through fallback selection."*
+             * The goal's own designated constraints cannot be combined into a game, and nothing is borrowed to
+             * make one, so no model is called. The coach gets the same sentence the review page shows (a DRAFT
+             * for his approval); the engine's message goes only to debug and to the usage record, with the roles
+             * no candidate fills — the coverage evidence he asked to keep visible.
+             */
+            if (isSelectionKnowledgeGap(selErr)) {
+                Logger.warn(`[Activity Generation] Knowledge gap: ${message}`)
+                recordUsageEvent({
+                    eventType: 'generation_failed',
+                    sessionId: req.params.id,
+                    payload: {
+                        stage: 'knowledge-gap',
+                        reason: selErr.reason,
+                        learningGoalId: selErr.learningGoalId,
+                        gameForm: selErr.archetypeId,
+                        unfilledRoles: selErr.pool.unfilledRoles,
+                        heldByRuling: selErr.pool.heldByRuling.map((hold) => hold.id),
+                        // 15 October 2026: whose authority the candidates carried. A goal whose record has not yet
+                        // evaluated its constraints reaches this branch as NO_AUTHORIZED_CONSTRAINTS, and no model is
+                        // called, as for every other gap. (Play Out from the Back did until his general principle of
+                        // that day; its evaluated, empty set now meets the zero-constraint refusal below.)
+                        constraintAuthority: selErr.pool.constraintAuthority,
+                    },
+                })
+                return res.status(400).json({
+                    error: "This goal's designated constraints cannot yet be combined into a game, so no activity can be built for it.",
+                    resolutionStatus: 'knowledge-gap',
+                    ...(debug ? { stage: 'knowledge-gap', details: [message] } : {}),
+                })
+            }
             Logger.warn(`[Activity Generation] Test Library selection failed: ${message}`)
             recordUsageEvent({
                 eventType: 'generation_failed',
@@ -897,6 +963,34 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                 payload: { stage: 'selection', reason: message.slice(0, 300) },
             })
             return res.status(400).json({ error: message })
+        }
+
+        /**
+         * **A selection with NO library constraint is not served here** (15 October 2026). It exists only for a goal
+         * whose authorization record has evaluated its authorized set as empty, under his general principle of that
+         * day (16 October reply, item 1 — Play Out from the Back since then), and its environment is the game form
+         * and the context's contract. This route consumes no contracts: it would
+         * hand the model a constraint-free package and prose, which cannot carry the context's start, target or
+         * restart knowledge. So it answers with the same gap sentence and calls no model; the checked pathway is
+         * where such an activity is built.
+         */
+        if (!selection.constraints.length) {
+            recordUsageEvent({
+                eventType: 'generation_failed',
+                sessionId: req.params.id,
+                payload: {
+                    stage: 'knowledge-gap',
+                    reason: 'ZERO_CONSTRAINT_SELECTION_NOT_SERVED_LIVE',
+                    learningGoalId: selection.selectionTrace.planning?.learningGoalId ?? null,
+                    gameForm: selection.archetype.game_form_id,
+                    constraintAuthority: selection.selectionTrace.constraintPool?.constraintAuthority ?? null,
+                },
+            })
+            return res.status(400).json({
+                error: "This goal's designated constraints cannot yet be combined into a game, so no activity can be built for it.",
+                resolutionStatus: 'knowledge-gap',
+                ...(debug ? { stage: 'knowledge-gap', details: ['a zero-constraint selection is built only by the checked pathway'] } : {}),
+            })
         }
 
         // The primary scoring event is resolved BEFORE any activity text exists. An empty intersection
@@ -937,6 +1031,13 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                     gatedToContext: routedRpcId,
                     primaryScoringEvents: primaryScoring ? primaryScoring.map((directive) => directive.eventKey) : null,
                     shadowAtpPrimary: atp?.primaryGameProblem ?? null,
+                    gameProblemAuthority: gameProblemAuthority?.gameProblem ?? null,
+                    // What selection could draw from (14 October): the roles no designated candidate fills,
+                    // and the candidates his rulings hold. Read from the trace, not recomputed.
+                    constraintGaps: selection.selectionTrace.constraintPool?.unfilledRoles ?? [],
+                    heldByRuling: (selection.selectionTrace.constraintPool?.heldByRuling ?? []).map((hold) => hold.id),
+                    // 15 October 2026: AUTHORIZATION_RECORD or VOCABULARY_POOL, read from the trace.
+                    constraintAuthority: selection.selectionTrace.constraintPool?.constraintAuthority ?? null,
                     versions: selection.selectionTrace.versions ?? null,
                 },
             })
@@ -1034,10 +1135,12 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                                     id: assemblyInput.constraintPackage.foundation.constraint._id,
                                     title: assemblyInput.constraintPackage.foundation.constraint.title,
                                 },
-                                shaping: {
-                                    id: assemblyInput.constraintPackage.shaping.constraint._id,
-                                    title: assemblyInput.constraintPackage.shaping.constraint.title,
-                                },
+                                shaping: assemblyInput.constraintPackage.shaping
+                                    ? {
+                                          id: assemblyInput.constraintPackage.shaping.constraint._id,
+                                          title: assemblyInput.constraintPackage.shaping.constraint.title,
+                                      }
+                                    : null,
                                 consequence: assemblyInput.constraintPackage.consequence
                                     ? {
                                           id: assemblyInput.constraintPackage.consequence.constraint._id,
@@ -1104,10 +1207,12 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                                 id: assemblyInput.constraintPackage.foundation.constraint._id,
                                 title: assemblyInput.constraintPackage.foundation.constraint.title,
                             },
-                            shaping: {
-                                id: assemblyInput.constraintPackage.shaping.constraint._id,
-                                title: assemblyInput.constraintPackage.shaping.constraint.title,
-                            },
+                            shaping: assemblyInput.constraintPackage.shaping
+                                ? {
+                                      id: assemblyInput.constraintPackage.shaping.constraint._id,
+                                      title: assemblyInput.constraintPackage.shaping.constraint.title,
+                                  }
+                                : null,
                             consequence: assemblyInput.constraintPackage.consequence
                                 ? {
                                       id: assemblyInput.constraintPackage.consequence.constraint._id,
@@ -1543,3 +1648,123 @@ BaseRoutes(router, {
 })
 
 export default router
+
+/**
+ * **The A04 pilot activity, read-only.**
+ *
+ * His authorization, and the whole of the scope: *"the narrow, read-only route serving the validated
+ * A04 activity"*, which must *"serve the same validated artifact without unverified transformations,
+ * leave the frozen generation pathway untouched, and remain limited to this pilot activity"*.
+ *
+ * So: one GET, no body, no parameters that change the game, nothing written. The pipeline is the one
+ * `buildPilotActivity` calls, which the pilot script also calls — one implementation, so what is
+ * served is what was validated. (Since 13 October that implementation is `buildActivity`, shared with the
+ * activity review below; `buildPilotActivity` fixes the goal and the session and adds nothing to it.)
+ * Generation is not reached from here.
+ *
+ * **It refuses rather than degrades.** `buildPilotActivity` returns a refusal if anything in the chain
+ * fails to authorize, fails acceptance, fails a post-realization gate, or renders with a fidelity
+ * violation. That refusal is served as a 409 naming what failed, because his standing instruction is
+ * not to substitute fallback output or present an activity that has not passed the checks. A coach
+ * seeing an error is told the truth; a coach seeing a plausible activity that failed its checks is not.
+ *
+ * The session is fixed rather than taken from the request. The envelope is session input and a coach
+ * will want to vary it, but varying it from a query string would mean serving games this route had not
+ * validated, so it stays fixed for the pilot and the variation question waits for field evidence.
+ *
+ * **That question was answered on 13 October for the activity review, and not for this route.** The review
+ * below takes a coach's own session because it validates every response when it is asked for. This route
+ * is unchanged: one activity, one session, nothing read from the request.
+ */
+router.get(ROUTES.pilotActivity, async (_req: Request, res: Response) => {
+    try {
+        const activity = buildPilotActivity()
+        if (isPilotRefused(activity)) {
+            return res.status(409).json({
+                error: 'The pilot activity did not pass its checks, so it is not being served.',
+                because: activity.because,
+            })
+        }
+        return res.json(activity)
+    } catch (error) {
+        return res.status(500).json({
+            error: 'The pilot activity could not be built.',
+            detail: error instanceof Error ? error.message : String(error),
+        })
+    }
+})
+
+/**
+ * **The activity review — any Learning Goal, from the coach's own session, read-only.**
+ *
+ * Christian, 13 October 2026: *"The review page should accept any of the thirteen Learning Goals and use the
+ * coach's actual session context. … Where an activity cannot be generated, I'd prefer a brief,
+ * understandable explanation rather than a generic failure. Please keep the actual coach-facing activity
+ * primary, with its selection rationale and technical evidence available separately."*
+ *
+ * That lifts the pilot route's recorded limit for THIS route and not for that one: the pilot route above
+ * still serves one activity at one fixed session, unchanged. The reason it gave for fixing the session —
+ * that varying it *"would mean serving games this route had not validated"* — is answered here rather than
+ * waived: nothing is served that was validated beforehand, because every response is validated when it is
+ * asked for. Selection, the gates, realization, the gates again and the fidelity check all run per
+ * request, in `buildActivity`, and whatever does not pass is refused in a sentence instead of shown.
+ *
+ * **Two routes, and neither writes.** The GET says what can be asked for. The POST builds it; it is a POST
+ * only because it carries a body, and it stores nothing — not the activity, not the duration, not the
+ * coach's statement of who is available, which adjusts this review and leaves the session as saved.
+ *
+ * **A refusal is answered 200.** It is an answer a coach can act on, and the front end's service layer
+ * keeps only `error`, `message`, `stage` and `details` from a non-2xx body, so the sentence would not
+ * arrive. Non-2xx is kept for what is not an answer about an activity at all: no such session, not your
+ * session, or a request that names nothing to build.
+ *
+ * **Whose session.** The neighbouring session routes do not check ownership — the session CRUD is not
+ * `userSpecific` and the generate route loads by id alone. This one does, because it is new and reading
+ * someone else's session is not something the review needs; the older routes are left as they are and the
+ * difference is recorded rather than quietly propagated in either direction. An administrator is let
+ * through, as everywhere else an administrator can already open a coach's session.
+ *
+ * **The path is not `/activity-review`.** That one is the coach's feedback on a generated activity, above.
+ */
+router.get(ROUTES.checkedActivity, async (_req: Request, res: Response) => {
+    try {
+        return res.json(activityReviewOptions())
+    } catch (error) {
+        return res.status(500).json({
+            error: 'The activity review could not be prepared.',
+            detail: error instanceof Error ? error.message : String(error),
+        })
+    }
+})
+
+router.post(`${ROUTES.checkedActivity}/:id`, async (req: Request, res: Response) => {
+    try {
+        if (!Types.ObjectId.isValid(req.params.id)) return res.status(404).json({ error: 'Session not found' })
+        const session = await Session.findById(req.params.id).lean()
+        if (!session) return res.status(404).json({ error: 'Session not found' })
+        // The coach whose session it is, or an administrator: the page that links here already shows an
+        // administrator any session, and a review that refused them would stop the one person who has to
+        // look at a coach's session when that coach reports what they were shown.
+        const viewer = res.locals.sessionUser
+        const own = String(session.createdBy) === String(viewer?._id)
+        if (!own && viewer?.permissions?.isAdmin !== true) {
+            return res.status(403).json({ error: 'This session belongs to another coach, so it cannot be reviewed from this account.' })
+        }
+
+        // Since 15 October 2026 (stage K3, his M1) a game played in role blocks answers with ONE composed activity and its
+        // `roleBlocks` — each block's bindings and integrity and the cross-block checks — sent whole, as everything else here.
+        // Since stage K7 (15 October 2026) an administrator's answer to a refusal at communication also carries `draft`: the
+        // rendering made before the refusal, labelled, never served. The coach whose session it is receives no draft. Since stage K8
+        // the same administrator's answer for a goal whose record carries his review request also carries `evidence` (the facts the
+        // generated game holds, item by item); the coach receives none of it.
+        return res.json(reviewActivity(session, req.body ?? {}, { includeDrafts: viewer?.permissions?.isAdmin === true }))
+    } catch (error) {
+        if (error instanceof ActivityReviewRequestError || error instanceof UnknownActivityRequest) {
+            return res.status(400).json({ error: error.message })
+        }
+        return res.status(500).json({
+            error: 'The activity could not be built.',
+            detail: error instanceof Error ? error.message : String(error),
+        })
+    }
+})

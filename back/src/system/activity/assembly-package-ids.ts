@@ -31,7 +31,7 @@ export function getAssemblySelectedAffordanceIds(input: SystemAssemblyInput): st
 export function getAssemblySelectedConstraintIds(input: SystemAssemblyInput): string[] {
     return [
         input.constraintPackage.foundation.constraint._id,
-        input.constraintPackage.shaping.constraint._id,
+        input.constraintPackage.shaping?.constraint._id,
         input.constraintPackage.consequence?.constraint._id,
     ]
         .map((id) => registryIdString(id))

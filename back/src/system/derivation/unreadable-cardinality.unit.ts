@@ -29,7 +29,8 @@ import { countBounds } from './derive'
 import { runDerivation, runStages0to10 } from './engine'
 import { indexRegister } from './register'
 import { assembleResolvedGame } from './resolved-game'
-import { derivationInputFor, selectFor } from './run-bounded-selection'
+import { a01CompositionUntil15October } from './composition-fixtures'
+import { derivationInputFor, GoalSelectionGap, selectFor } from './run-bounded-selection'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { realize } from '../realization/realize'
 
@@ -162,11 +163,29 @@ test('no learning goal carries an unreadable claim, so no goal outcome changes',
     const goals: string[] = ((sessionPlanningModel as any).learningGoals?.() ?? []).map((g: any) => g.ID ?? g.id).filter(Boolean)
     assert.equal(goals.length, 13, 'thirteen goals')
     const affected: string[] = []
+    // Since 14 October two goals are knowledge gaps (selection draws only from a goal's own candidates, his
+    // ruling of that day): they select nothing, so there is nothing to derive. Asserted as a list.
+    const gaps: string[] = []
     for (const goal of goals) {
-        const { resolved } = resolvedFor(derivationInputFor(selectFor(goal, null)))
+        let selection
+        try {
+            selection = selectFor(goal, null)
+        } catch (error) {
+            if (!(error instanceof GoalSelectionGap)) throw error
+            gaps.push(goal)
+            continue
+        }
+        const { resolved } = resolvedFor(derivationInputFor(selection))
         if ((resolved.existential as any[]).some(c => c.cardinalityUnreadable)) affected.push(goal)
     }
+    // A01 joins the gaps on 15 October 2026 (its authorization record authorizes nothing yet, his item 1 of that day).
+    // What it composed until then is checked by name, so the claim about it is not lost with its selection.
+    // And leaves them later the same day: his general principle (16 October reply, item 1) lets its evaluated, empty
+    // record select GF2 and RPC-001 with no library constraint, so it is derived again above and carries no unreadable claim.
+    assert.deepEqual(gaps, ['A02', 'D03'], 'the knowledge gaps of 14 October, and no others')
     assert.deepEqual(affected, [], `the correction must touch no goal, and touches ${affected.join(', ') || 'none'}`)
+    const { resolved: a01 } = resolvedFor(derivationInputFor(a01CompositionUntil15October(null)))
+    assert.ok(!(a01.existential as any[]).some(c => c.cardinalityUnreadable), 'the composition A01 selected until 15 October carries no unreadable claim')
 })
 
 /**

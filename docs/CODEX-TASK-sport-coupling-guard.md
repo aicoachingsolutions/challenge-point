@@ -30,6 +30,8 @@ Separability is not maintainable by discipline. It needs a build guard.
 
 Add the unit test to the `test` script chain in `back/package.json`, following the existing pattern
 (it is a long `&&`-joined list of `ts-node --files -r tsconfig-paths/register ...` invocations).
+[Since 18 Oct 2026 a new unit file is registered in `back/scripts/unit-tests.json` instead; the `test` script
+runs that list.]
 
 ---
 

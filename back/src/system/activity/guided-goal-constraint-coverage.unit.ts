@@ -20,11 +20,10 @@ import type { IAffordance } from '../../models/affordance.model'
 import { ConstraintRoles, type IConstraint } from '../../models/constraint.model'
 import { SessionStatus, type ISession } from '../../models/session.model'
 import { buildConstraintPackage } from '../build-constraint-package'
-import { deriveInputConstraints } from '../input-constraints/deriveInputConstraints'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
-import { gateCandidateGameFormsToContext } from '../sport-module/context-selection'
+import { guidedSelectionHints } from '../sport-module/guided-selection'
 import { resolvePrimaryScoringDirectives } from '../sport-module/primary-scoring'
-import { generateSelection } from '../test-library/generateSelection'
+import { generateSelection, isSelectionKnowledgeGap } from '../test-library/generateSelection'
 import type { TestLibrarySelectionResult } from '../test-library/types'
 import type { AffordanceField, SystemAssemblyInput } from '../types'
 import { buildActivityMechanicsFromSkeleton } from './build-activity-mechanics'
@@ -112,9 +111,16 @@ function assemblyInput(selection: Selection, learningGoalId: string, learningGoa
     } as SystemAssemblyInput
 }
 
+/**
+ * **252 since 15 October 2026, measured (279 before).** A01's authorization record authorizes no constraint (his
+ * item 1 of that day), so A01 is a knowledge gap and its 27 slot requirements are not built; nothing else moved.
+ */
+const CHECKED_FLOOR = 252
 function testSystemTextAloneMeetsEveryConstraintRequirement(): void {
     const unmet: string[] = []
     let checked = 0
+    const gaps: string[] = []
+    const noConstraint: string[] = []
     const originalLog = console.log
     console.log = () => undefined
     try {
@@ -122,10 +128,26 @@ function testSystemTextAloneMeetsEveryConstraintRequirement(): void {
             const id = String(goal['ID'])
             const name = String(goal['Learning Goal'])
             const rpcId = sessionPlanningModel.rpcRouting().find((route) => route.learningGoalId === id)!.rpcId
-            const selection = generateSelection(
-                { learningGoals: [name], learningGoalId: id },
-                gateCandidateGameFormsToContext(deriveInputConstraints(name), rpcId)
-            )
+            let selection: Selection
+            try {
+                selection = generateSelection(
+                    { learningGoals: [name], learningGoalId: id },
+                    // The same hints the application gives selection: approved Game Problem, then context.
+                    guidedSelectionHints(id, name).hints
+                )
+            } catch (error) {
+                // A knowledge gap (14 October) selects nothing, so there is no skeleton to check.
+                if (!isSelectionKnowledgeGap(error)) throw error
+                gaps.push(id)
+                continue
+            }
+            // A selection with NO library constraint (his general principle, 15 October 2026) has no constraint
+            // requirement to check, and the live route refuses it before any package or text exists
+            // (ZERO_CONSTRAINT_SELECTION_NOT_SERVED_LIVE), so nothing here would ever be generated for it.
+            if (!selection.constraints.length) {
+                noConstraint.push(id)
+                continue
+            }
             const skeleton = buildActivitySkeleton(assemblyInput(selection, id, name, rpcId))
             const mechanics = buildActivityMechanicsFromSkeleton(skeleton)
             skeleton.activities.forEach((slot, index) => {
@@ -142,7 +164,23 @@ function testSystemTextAloneMeetsEveryConstraintRequirement(): void {
     } finally {
         console.log = originalLog
     }
-    assert.ok(checked > 300, `expected every slot's constraint requirements to be checked, got ${checked}`)
+    /**
+     * **Floor re-measured 14 October 2026: 279 requirements checked (it was "more than 300").** Selection now
+     * draws only from a goal's own candidates (his ruling of that day), so fewer requirements exist to check,
+     * for two reasons and no other: A02 and D03 are knowledge gaps and build no skeleton, and the goals whose
+     * candidates hold no shaping constraint (A04, D01, D02, TD01, TD02) no longer carry a borrowed one, so a
+     * shaping requirement per slot is gone. The gaps are asserted so the floor cannot drop silently for a
+     * third reason.
+     */
+    // A01 joins the gaps on 15 October 2026: its authorization record authorizes no constraint (his item 1 of that day),
+    // so it builds no skeleton and its slots' requirements are no longer checked — the only reason the floor moves.
+    // Later the same day A01 leaves the gaps: his general principle (16 October reply, item 1 — "A library constraint is
+    // not mandatory unless its inclusion is justified by the approved knowledge and intended learning environment")
+    // lets its evaluated, empty record select with NO constraint. It still builds no skeleton here, so the floor of
+    // 252 holds; it is listed apart, so a goal arriving at zero constraints is noticed, not silently skipped.
+    assert.deepEqual(gaps, ['A02', 'D03'], 'the knowledge gaps of 14 October, and no others')
+    assert.deepEqual(noConstraint, ['A01'], 'the goals selected with no library constraint under his general principle')
+    assert.ok(checked >= CHECKED_FLOOR, `expected every slot's constraint requirements to be checked, got ${checked}`)
     assert.deepEqual(unmet, [], `Constraint requirements that only the model's wording could meet:\n${unmet.join('\n')}`)
 }
 

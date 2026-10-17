@@ -1,0 +1,979 @@
+{
+    "about": "Which library constraints a Learning Goal may select, by owner ruling, with the manipulations its context names evaluated against the knowledge that exists. Ids, citations, statuses and his words only: nothing here is a value, a mapping to an Environmental Manipulation or Affordance Target id, or a candidate pool. Where a goal has an entry, selection draws its constraints from authorizedConstraints and from nothing else (not the wording pool, not the Game Problem's Coverage row), in both pathways. authorizedConstraints null means the record has not yet evaluated which constraints the knowledge justifies: a knowledge gap (NO_AUTHORIZED_CONSTRAINTS), never a fallback. A list (with its finding) is the evaluation; an EMPTY list means none is justified, and under the general principle below the goal is selected with no library constraint. The principle is recorded once, here, and applies to every record alike: no goal is special-cased. ADDED 15 October 2026 (stage H3, his 16 October reply, item 10: 'The decisions above should be interpreted as either: General learning-design principles. Provisional realization choices for the first activity. Existing knowledge relationships that require verification. Genuine implementation or knowledge gaps. Please keep those categories distinct.'): every manipulation and provisional choice names its CATEGORY (what its authority is: PROVISIONAL_REALIZATION_CHOICE, his choice for this activity; EXISTING_KNOWLEDGE_TO_VERIFY, the game form, the context or the session, offered for his verification; GENUINE_GAP, nothing settles it; a GENERAL_PRINCIPLE is recorded once, at the top) beside its STATUS (whether the activity can carry it now). A status of MISSING_KNOWLEDGE or MISSING_CAPABILITY means the activity his rulings ask for needs it and it is not in place; it names the decisions and capabilities (gaps, defined in the record) that would supply it, and the build refuses the goal naming each one rather than build an activity that solves a different problem. existingKnowledge lists what existing knowledge already authorizes for the activity, with its sources. The decision and capability ids (D1-D7, M1-M8) and their one-line descriptions are OUR wording, as put to him; none is his. AMENDED 15 October 2026 (stage K2), narrowly, for his reply filed 17 October 2026: 'The priority remains producing one complete, representative Play Out from the Back activity through the normal generation pathway, without introducing unnecessary architecture or treating this first realization as the canonical version of the Learning Goal.' A record may name ONE provisional realization (provisionalRealization: an id in docs/audits/conformance/stage-b/provisional-realizations.json). That file, not this one, holds his provisional realization choices as contract items in his words; derivation adds them only for the goal whose record names the realization, every one carries the category PROVISIONAL_REALIZATION_CHOICE into the game, and none is canonical knowledge of the context. This record still holds no value: it names the realization, as it names a constraint. AMENDED 15 October 2026 (stage K4), narrowly, for his replies filed 17 and 18 October 2026: the file now records ONE mapping to an Environmental Manipulation, the context-manipulation relationship he asked for and then confirmed (contextManipulationRelationships; 17 October, D6: 'Please authorize this initial numerical asymmetry through the appropriate existing knowledge relationship, rather than hardcoding it to Play Out from the Back.'; 18 October, item 5: 'Goalkeeper Build-Out with Participant Composition.'), his allocation principle once (allocationPrinciple), and, in a record, the adjustments he authorized for that goal's activity, in his words (authorizedAdjustments). An adjustment names a count only where his words do. The starting counts themselves stay in the provisional realization, never here.",
+    "libraryConstraintPrinciple": {
+        "category": "GENERAL_PRINCIPLE",
+        "ruledOn": "2026-10-15",
+        "by": "Christian",
+        "citedAs": "his reply received 15 October 2026 (called his 16 October reply, to keep it apart from his first 15 October reply), item 1",
+        "principle": "A library constraint is not mandatory unless its inclusion is justified by the approved knowledge and intended learning environment.",
+        "words": [
+            "I agree that an activity should not require two to four library constraints simply to satisfy an engine quota.",
+            "The game form and its inherent conditions may already create the affordances needed for the Learning Goal. Additional constraints should be selected because they serve a documented learning-design purpose, not because the engine requires a particular number.",
+            "However, I want the underlying principle to apply generally:",
+            "A library constraint is not mandatory unless its inclusion is justified by the approved knowledge and intended learning environment.",
+            "I understand that applying this immediately to every Learning Goal could interrupt existing functionality. We can implement the correction incrementally, but please don't establish Play Out from the Back as a permanent special-case exception.",
+            "The engine should continue enforcing structural validity and any genuinely required conditions."
+        ],
+        "appliedAs": "Every Learning Goal whose authorization record has evaluated its authorized constraints and found none justified (an empty list) is selected with its game form and lenses and no library constraint; derivation, realization and every gate still run on it. Applied incrementally, as his words allow: a goal reaches it only once it has a record, and goals without one keep the vocabulary pool and the two-to-four rule. The lens rule (two or three) is unchanged: his item 1 speaks of library constraints, not lenses."
+    },
+    "allocationPrinciple": {
+        "category": "GENERAL_PRINCIPLE",
+        "ruledOn": "2026-10-17",
+        "by": "Christian",
+        "citedAs": "his reply filed 17 October 2026, D6",
+        "principle": "The important principle is that player allocation should reflect representative numerical relationships, not default to equal outfield numbers regardless of the Learning Goal.",
+        "words": [
+            "In match play, teams building from the back commonly have more players available in their defensive third than the opposition initially commits to pressing.",
+            "A building-team numerical advantage is therefore not necessarily an artificial simplification. It can be representative of the actual performance environment.",
+            "The important principle is that player allocation should reflect representative numerical relationships, not default to equal outfield numbers regardless of the Learning Goal.",
+            "Please authorize this initial numerical asymmetry through the appropriate existing knowledge relationship, rather than hardcoding it to Play Out from the Back.",
+            "Please do not assign a goalkeeper an inactive role solely to preserve a symmetrical team structure."
+        ],
+        "appliedAs": "Recorded once, with no goal id, and applied without one. Equal outfield numbers stay the possession game's own knowledge (GF2-14.b): ruling C56 lets that item defer only in a composition where another selected contribution authors the outfield count per team and cites a CONFIRMED relationship below that authorizes the row (back/src/system/derivation/realization-deferral.ts); it is then listed as the alternative. The roster reads per-team counts from such items alone and refuses rather than choose: an allocation that fits no authored count is refused for that session (CONFIGURATION_DOES_NOT_FIT), and authored per-team counts with the equal-numbers requirement still in force are refused (NO_AUTHORIZED_ASYMMETRY). A goalkeeper available and not involved is counted among the outfield players by the roster's availability-is-not-involvement rule (his ruling of 30 September), so no goalkeeper is idled to make the teams symmetric; that is the only reading given to his last sentence, kept to what he said."
+    },
+    "contextManipulationRelationships": [
+        {
+            "id": "RPC-001~EM-0006",
+            "category": "EXISTING_KNOWLEDGE_RELATIONSHIP",
+            "contextId": "RPC-001",
+            "contextName": "Goalkeeper Build-Out",
+            "manipulationId": "EM-0006",
+            "manipulationName": "Participant Composition",
+            "manipulationStatus": "RC1 Candidate, version 0.1 (back/src/system/knowledge-core/em-schema.v2.0-rc1.json): an object inside the canonical projection, not canonical knowledge itself",
+            "dimension": "EMD-0013 Quantity",
+            "parameters": ["EMP-0036 Direction", "EMP-0037 Value", "EMP-0039 Scope"],
+            "scope": "Team",
+            "rows": ["P2"],
+            "via": [
+                "RPC-PROP-017 (rpc-library.rc1.json, BEHAVIOR_ADJUSTMENT, COMMON): 'Manipulate numerical relationships without prescribing a single solution.'",
+                "RC1.1 Representative Performance Context Library (docx), RPC-001, Typical Environmental Manipulations, Common: 'defensive numbers; numerical overloads' (not in the workbook; logged in docs/audits/rpc-001-document-workbook-reconciliation-2026-10-16.md)"
+            ],
+            "identified": "By us, 15 October 2026, under his instruction of 17 October 2026, D6: 'Please authorize this initial numerical asymmetry through the appropriate existing knowledge relationship, rather than hardcoding it to Play Out from the Back.' and his reconciliation paragraph: 'Where a specific missing relationship is necessary for Play Out from the Back, identify and resolve that relationship explicitly.' Which relationship, and that its scope is the whole context, were put to him in our email of 17 October 2026.",
+            "status": "CONFIRMED",
+            "confirmedOn": "2026-10-18",
+            "confirmedBy": "Christian",
+            "citedAs": "his reply filed 18 October 2026, item 5",
+            "words": [
+                "I confirm both documented relationships:",
+                "Goalkeeper Build-Out with Participant Composition.",
+                "Both should be represented as knowledge-authorized relationships rather than hardcoded behavior for this Learning Goal."
+            ],
+            "note": "Context-level, so any Goalkeeper Build-Out realization may cite it; nothing in it names a goal. It authorizes a realization to author the outfield count PER TEAM (row P2), which is what lets the possession game's equal-numbers item defer (ruling C56); it fixes no number. The Performer Configuration relationship he confirmed in the same sentence (Goalkeeper Build-Out with EM-0002) is recorded beside it since 15 October 2026 (stage K6), with the starting placements that cite it, so that nothing here was recorded before a reader existed for it."
+        },
+        {
+            "id": "RPC-001~EM-0002",
+            "category": "EXISTING_KNOWLEDGE_RELATIONSHIP",
+            "contextId": "RPC-001",
+            "contextName": "Goalkeeper Build-Out",
+            "manipulationId": "EM-0002",
+            "manipulationName": "Performer Configuration",
+            "manipulationStatus": "RC1 Candidate, version 0.2 (back/src/system/knowledge-core/em-schema.v2.0-rc1.json): an object inside the canonical projection, not canonical knowledge itself",
+            "dimension": "EMD-0004 Position",
+            "parameters": ["EMP-0008 Reference Basis", "EMP-0009 Reference Target", "EMP-0010 Direction", "EMP-0011 Magnitude", "EMP-0012 Scope", "EMP-0013 Timing"],
+            "scope": "Team",
+            "rows": ["P8", "P9", "P10", "P10a", "P10b"],
+            "via": [
+                "RPC-PROP-016 (rpc-library.rc1.json, RPC-001, BEHAVIOR_ADJUSTMENT, COMMON): 'Adjust starting positions or progression zones while preserving build-out identity.'",
+                "RC1.1 Representative Performance Context Library (docx), RPC-001, Typical Environmental Manipulations, Core: 'build-out starting positions' (not in the workbook; logged in docs/audits/rpc-001-document-workbook-reconciliation-2026-10-16.md)"
+            ],
+            "identified": "By us, 15 October 2026, under his instruction of 17 October 2026, D4: 'Please use the existing Performer Configuration knowledge where supported, documenting the relationship to Goalkeeper Build-Out rather than inventing a new constraint.' EM-0002 'Owns the spatial pose of performers within the performance environment.'; its Position dimension (EMD-0004) holds a starting relationship stated relative to a marked reference (EMP-0008 Relative, EMP-0009 an environmental object, EMP-0010 a direction, EMP-0011 a qualitative relation), for a team (EMP-0012) and when it is instantiated (EMP-0013 Timing: Initial / Restart / Conditional reset). Which relationship, and that its scope is the whole context, were put to him in our email of 17 October 2026.",
+            "status": "CONFIRMED",
+            "confirmedOn": "2026-10-18",
+            "confirmedBy": "Christian",
+            "citedAs": "his reply filed 18 October 2026, item 5",
+            "words": [
+                "I confirm both documented relationships:",
+                "Goalkeeper Build-Out with Performer Configuration.",
+                "Both should be represented as knowledge-authorized relationships rather than hardcoded behavior for this Learning Goal."
+            ],
+            "note": "Context-level, so any Goalkeeper Build-Out realization may cite it; nothing in it names a goal, a team, a distance or a formation. It authorizes a realization to state where a team BEGINS (rows P8-P10b: the group, its region or its relation to a marked reference, and when it is re-established), never where it may go once play runs - EM-0002's own guidance: 'Changes interpersonal relations and initial information without prescribing later movement.' (EMG-0003) and 'Rigid positional templates can suppress self-organization.' (EMG-0004). The register binds rows P8-P10b to EM-0002 (boundVocabularies, register version 13). Read by the record's loader (every placement item citing it must name it, for its own row) and listed on the review page with the relationships the realization's items cite. EMX-0003 ('Start defenders five metres deeper.') is an illustration, never a value."
+        }
+    ],
+    "authorizations": [
+        {
+            "learningGoalId": "A01",
+            "contextId": "RPC-001",
+            "gameProblemId": "GP-005",
+            "ruledOn": "2026-10-15",
+            "by": "Christian",
+            "ruling": [
+                "I approve Gain Access as the primary Game Problem for Play Out from the Back, based on the approved Goalkeeper Build-Out context and its scoring condition.",
+                "Create Space remains relevant as a potential means of solving the problem, but I agree that we should not assign it as a secondary Game Problem at this stage. Let's retain our existing decision to defer secondary Game Problems.",
+                "This resolves the Cycle 8 translation gap for this Learning Goal through the approved context rather than inference from the goal's wording.",
+                "One important distinction: approving Gain Access does not automatically authorize the candidate constraints currently derived from vocabulary coverage.",
+                "I would prefer that the activity's constraints be selected based on their documented relationship to the approved context, Game Problem, and target affordances.",
+                "The context's existing manipulations—starting positions, field dimensions, progression references, defensive numbers, goalkeeper positioning, overloads, and support spacing—are appropriate candidates for evaluation. However, they should not automatically become selected constraints simply because they appear in that list.",
+                "Please identify the smallest set of authorized manipulations needed to create a representative build-out problem, and flag any missing knowledge rather than filling gaps through inference."
+            ],
+            "provisionalRealization": "A01-R1",
+            "authorizedConstraints": [],
+            "authorizedConstraintsFinding": "No library constraint has a documented relationship to Goalkeeper Build-Out (RPC-001), Gain Access (GP-005) or this goal's affordances. RPC-001's relationships in rpc-library.rc1.json reach only the game archetype, Game Problem, game form, Learning Goal and scoring event libraries, and it has no manipulation property; its affordance targets RPC-MAP-091..096 are DEFERRED by Christian on 13 September 2026 ('canonical Affordance Target ids are not to be inferred to reach runtime'); every Soccer Module realization row has universal_concept_id and primary_game_problem_ids null; the Coverage rows and the wording pools were both derived by the parser. Finding of 15 October 2026 (stage G1), for his review: it names no constraint as authorized.",
+            "provisionalChoices": [
+                {
+                    "category": "PROVISIONAL_REALIZATION_CHOICE",
+                    "choice": "The first Play Out from the Back activity carries no selected library constraint (Option A): its environment is the game form, the approved context and what he authorizes.",
+                    "ruledOn": "2026-10-15",
+                    "by": "Christian",
+                    "citedAs": "his reply received 15 October 2026 (16 October reply), item 1",
+                    "words": "Please proceed with Option A for Play Out from the Back.",
+                    "status": "AUTHORIZED_BY_RULING",
+                    "gaps": [],
+                    "note": "Not the mechanism: selection commits no constraint here because the authorized set is evaluated and empty, under the general principle recorded once at the top of this file. This entry records that he chose it for this activity, and that it is provisional."
+                },
+                {
+                    "category": "PROVISIONAL_REALIZATION_CHOICE",
+                    "choice": "An asymmetrical build-out-versus-press structure: one team builds out, the other presses to prevent progression, regain possession and exploit the regain, and the teams exchange roles over successive episodes or blocks.",
+                    "ruledOn": "2026-10-15",
+                    "by": "Christian",
+                    "citedAs": "his reply received 15 October 2026 (16 October reply), item 2",
+                    "words": "For the first demonstration, I favor an asymmetrical game structure. One team begins by building out from its goalkeeper or a controlled defensive restart. The opposing team attempts to prevent progression, regain possession, and exploit the regain. The teams exchange roles over successive episodes or blocks so both experience the Learning Goal. This is a provisional realization choice, not a universal requirement for Play Out from the Back.",
+                    "status": "AUTHORIZED_BY_RULING",
+                    "gaps": [],
+                    "note": "Carried since 15 October 2026 by the provisional realization A01-R1: the two roles and the coach-called exchange (A01-R1-B1-1, A01-R1-B1-2, A01-R1-B3-1; his D2(a), reply filed 17 October 2026, 'Approve D2(a): Coach-controlled blocks. One team builds out while the other presses. The coach determines when the teams exchange roles.') on capability M1 (role blocks, register version 10, stage K3) and M2 (team designations, register version 9, stage K2), and the role-specific objectives (his D7, 'I approve your proposed role-specific wording, with the adjustments established above.') through the targets keyed by role. Moved at stage K6, 15 October 2026: it should have moved at stage K3, and the K4 and K5 reviews flagged it as stale. Until then: Nothing in the knowledge attaches a fact to one team by its role for a block, and nothing represents blocks or exchanging roles (measured 15 October 2026: the roster gives every team one equal count, and a team-specific selector is refused as not settled). Whether roles swap by block or by episode is decision D2; the pressing team's objective and how it is named (his 9.6, revised by us) wait on his acknowledgement, D7. His item 2 also: 'Symmetrical, continuous games should remain legitimate alternatives when they create the appropriate learning environment.'"
+                },
+                {
+                    "category": "PROVISIONAL_REALIZATION_CHOICE",
+                    "choice": "An intermediate progression reference or target for the build-out, not a distant terminal end zone; no mandated midfield and no universal depth.",
+                    "ruledOn": "2026-10-15",
+                    "by": "Christian",
+                    "citedAs": "his reply received 15 October 2026 (16 October reply), item 4",
+                    "words": "I therefore favor an intermediate progression reference or target over a distant terminal end zone for this first activity.",
+                    "status": "AUTHORIZED_BY_RULING",
+                    "gaps": [],
+                    "note": "The choice stands; WHERE the target sits is the gap recorded on 'progression references' below (D3). It supersedes the far-end 5 m prototype of his 15 October item 2."
+                },
+                {
+                    "category": "PROVISIONAL_REALIZATION_CHOICE",
+                    "choice": "After a defensive regain, the pressing team plays for a target area toward a higher attacking player or attacking space, reached by controlled entry; not, for now, a goalkeeper-defended goal.",
+                    "ruledOn": "2026-10-15",
+                    "by": "Christian",
+                    "citedAs": "his reply received 15 October 2026 (16 October reply), item 5",
+                    "words": "After considering the available targets, I favor a target area representing successful progression toward a higher attacking player or attacking space for the first demonstration. This target would be available following a defensive regain. Success should be possible through controlled entry, either by carrying the ball or by passing to a teammate who receives under control.",
+                    "status": "AUTHORIZED_BY_RULING",
+                    "gaps": [],
+                    "note": "Each team already has its own target in a different place (ruling C42), so the area itself is representable; its depth is the gap on 'progression references' below (D3), and whether it is live throughout the pressing team's block is part of D7. Item 5 also refuses a rule requiring a teammate to receive inside the target after a regain there, and asks for no transition window, pass sequence, timing condition or automatic high-regain bonus; none is recorded. A target player, small goal or goalkeeper-defended goal stays an alternative, not excluded: alongside a zone for the other team it would need a scoring event kind per team, which one primary scoring event per game (SD-06) does not allow today."
+                },
+                {
+                    "category": "PROVISIONAL_REALIZATION_CHOICE",
+                    "choice": "A new build-out episode begins with a goalkeeper or controlled defensive restart once the previous episode has meaningfully concluded, without interrupting a promising attack; after a score play stops and restarts, at a location the coach selects.",
+                    "ruledOn": "2026-10-15",
+                    "by": "Christian",
+                    "citedAs": "his reply received 15 October 2026 (16 October reply), item 6 and 6.ii",
+                    "words": "For this first activity, I favor returning to a goalkeeper or controlled defensive restart when an episode has meaningfully concluded. However, the activity should not interrupt a promising attacking or counterattacking opportunity simply because the initial build-out objective has been achieved. … After a score: Yes, play stops and restarts. The coach can select an appropriate authorized restart location, consistent with the intended build-out situation.",
+                    "status": "AUTHORIZED_BY_RULING",
+                    "gaps": [],
+                    "note": "Nothing in the knowledge means 'the episode has concluded' (the trigger list is closed: a score, the ball going out, a change of possession, a completed pass and the like), and the game holds no start or score transition element, so no build-out episode can begin (measured 15 October 2026: GA-EPISODE-REACHABLE). The restart location as the coach's choice extends what a coach decides and needs his ruling (D5, M3). Whether reaching the progression target is a score that stops play is D1: his 6.ii answered a question we had framed around the far-end zone. The possession game's ordinary out-of-play rule is not the preferred restart here (6.iii). Carried since 15 October 2026 (stage K5), on his 17 October D1, D5, M3 and M4 and his 18 October items 2 and 4: A01-R1's start, after-score and coach-judged conclusion transitions stop and restart play, are awarded to the team holding the building role and taken by its goalkeeper from the feet at a location the coach chooses (A01-R1-T1-1..3, T6-1, T7-1, T2-1, T3-1, T4-1, T5-1); the coach-judged conclusion is the trigger registered for his M4 (register version 12); ball out is an ordinary restart partitioned by who touched it last - a throw-in on the touchline, the coach's method on the end line - that continues the episode off the pressing team and ends the build-out off the building team (A01-R1-T1-4..7 and their items); and the build-out begin condition is typed in his acknowledged wording (ruling C58), so GA-EPISODE-REACHABLE passes in both blocks with one awardee. That the end-line location is the coach's too, and who takes an end-line restart, are our readings put to him for a one-line confirmation. Until stage K5 this was MISSING_CAPABILITY, waiting on D1, D5, M3 and M4."
+                },
+                {
+                    "category": "PROVISIONAL_REALIZATION_CHOICE",
+                    "choice": "The third build-out origin described in RC1.1 stays outside the first implementation, its workbook omission recorded for reconciliation.",
+                    "ruledOn": "2026-10-15",
+                    "by": "Christian",
+                    "citedAs": "his reply received 15 October 2026 (16 October reply), item 6",
+                    "words": "The third build-out origin described in RC1.1 can remain outside the first implementation, as you recommend, while its workbook omission is recorded for reconciliation.",
+                    "status": "AUTHORIZED_BY_RULING",
+                    "gaps": [],
+                    "note": "Recorded in docs/audits/rpc-001-document-workbook-reconciliation-2026-10-16.md."
+                }
+            ],
+            "existingKnowledge": [
+                {
+                    "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
+                    "what": "Two opposed teams, the opposition live and able to deny, redirect or reverse progression.",
+                    "sources": ["RPC-REL-001 (GA-001, REQUIRED)", "contract item RPC-001-01.b", "RPC-VAL-004"],
+                    "note": null
+                },
+                {
+                    "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
+                    "what": "Each team attacks its own target, the two targets in different places.",
+                    "sources": ["ruling C42 (9 October 2026)", "contract item GF2-08.c (to GF2-03.f)", "contract item GF2-08.e (to GF2-03.e)"],
+                    "note": null
+                },
+                {
+                    "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
+                    "what": "One scoring event kind serves both targets, and the context approves a zone entered or a line crossed.",
+                    "sources": ["RPC-REL-071", "RPC-REL-072", "contract item GF2-19", "SD-06"],
+                    "note": "The vocabulary definition of a zone being entered is our drafting, not his words; his item 5 sentence on controlled entry is the authority for the post-regain target."
+                },
+                {
+                    "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
+                    "what": "The build-out scoring condition (controlled arrival beyond the initial pressure or progression line; a long clearance does not count) applies only to build-out episodes.",
+                    "sources": ["RPC-PROP-132 (approved 13 September 2026)", "SD-36", "KR-03", "his 16 October reply, item 9.3", "ruling C52"],
+                    "note": "Carried by the engine since 15 October 2026; with no transition that can begin a build-out episode the build refused at structure (GA-EPISODE-REACHABLE) until stage K5 (15 October 2026): the provisional realization's start, after-score and coach-judged restarts now begin the build-out episode, and the begin condition is typed (ruling C58)."
+                },
+                {
+                    "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
+                    "what": "Play continues after a change of possession, and a regain begins a new episode.",
+                    "sources": ["SD-20", "contract item GF2-17", "contract item RPC-001-17.a"],
+                    "note": null
+                },
+                {
+                    "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
+                    "what": "Pressure is bounded on both sides: the building team has stability enough to organize, and established coordinated high pressure does not become the dominant identity without the context passing to RPC-002.",
+                    "sources": ["RPC-PROP-002", "RPC-ID-001", "RPC-ID-005", "contract item RPC-001-21.b"],
+                    "note": null
+                },
+                {
+                    "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
+                    "what": "Several progression routes stay available (at least two).",
+                    "sources": ["RPC-ID-003", "contract item RPC-001-22"],
+                    "note": null
+                },
+                {
+                    "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
+                    "what": "Goalkeeper involvement is typical but not independently defining.",
+                    "sources": ["RPC-ID-004"],
+                    "note": null
+                },
+                {
+                    "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
+                    "what": "The coach's player count and playing area reach the game unchanged, and a count that cannot be split is refused with a sentence.",
+                    "sources": ["SD-55", "his 16 October reply, item 7"],
+                    "note": "SD-55: session-supplied values must survive into the resolved record. The refusal of a count that cannot be split is the engine's own roster check, measured. Until the stage H3 review (15 October 2026) this entry cited SD-33, the engine's report-only rule, which does not say either."
+                },
+                {
+                    "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
+                    "what": "Equal outfield numbers (the possession game, GF2-14.b) remain the alternative allocation, in force wherever no knowledge-authorized realization authors the counts per team.",
+                    "sources": ["contract item GF2-14.b (OWNER_RULING, ruling C31b, 1 October 2026)"],
+                    "note": "Restated 15 October 2026 (stage K4, ruling C56, his 17 October D6: 'preserving equal numbers as an alternative'): in this goal's activity GF2-14.b defers to the provisional realization's per-team counts, which cite the relationship he confirmed on 18 October, and it is listed as the alternative. It read 'Equal outfield numbers are the only allocation current knowledge authorizes.' until then."
+                },
+                {
+                    "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
+                    "what": "The origin of a build-out needs no further value.",
+                    "sources": ["his 16 October reply, item 9.9", "his 17 October reply, M6", "ruling C55", "contract item RPC-001-18.a"],
+                    "note": "Recorded 15 October 2026 (stage K1) as RPC-001's own statement, qualified NO_FURTHER_VALUE - the first of his three states (M6) - so the field is valid and is never filled. It was capability M6 in this record's gaps; RPC-001-18.a::V6 is no longer a stop. Canonical context knowledge on his ruling, not a provisional choice. The wording of this line is ours."
+                },
+                {
+                    "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
+                    "what": "Controlled arrival and the long-clearance exclusion are judged against the target the scoring team attacks, within the build-out episode; a longer pass received under control is not excluded.",
+                    "sources": ["RPC-PROP-132 (approved 13 September 2026)", "his 16 October reply, item 9.2", "his 17 October reply, M8", "ruling C57", "contract item RPC-001-18.h", "contract item RPC-001-19.c"],
+                    "note": "Recorded 15 October 2026 (stage K1): the two referents typed as the objective reference of the scoring team, scoped to the build-out episode (C52), with his M8 safeguard beside the exclusion (RPC-001-19.b). It was capability M8 in this record's gaps; RPC-001-18.f::V5 and 19.a::V5 are no longer stops. 'The target the scoring team attacks' is our M8 wording, which he approved; it is not his sentence."
+                },
+                {
+                    "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
+                    "what": "A build-out episode begins with a restart taken by the goalkeeper or as a controlled defensive restart; an ordinary restart does not begin one.",
+                    "sources": [
+                        "RPC-PROP-132 (approved 13 September 2026)",
+                        "his 18 October reply, item 4",
+                        "his 18 October reply, item 2",
+                        "ruling C58",
+                        "contract item RPC-001-18.b"
+                    ],
+                    "note": "Recorded 15 October 2026 (stage K5): his acknowledgement of our wording, \"A restart, taken by the goalkeeper or as a controlled defensive restart, that begins a build-out episode.\", typed as the origin's referent (register V5 version 3) and decided by GA-EPISODE-REACHABLE: a transition begins a build-out episode where it stops and restarts play, begins an episode and is taken by the goalkeeper; a controlled defensive restart is not built (no row carries a restart kind), and nothing is read as one. Canonical context knowledge on his ruling, not a provisional choice; separate from the origin needing no further value (C55), as he said. The wording of this line is ours."
+                }
+            ],
+            "gaps": [
+                { "id": "D1", "kind": "DECISION", "description": "When the building team reaches its progression target under control, does play stop (a score) or continue?", "note": null },
+                { "id": "D2", "kind": "DECISION", "description": "How the teams exchange roles: after a block (the coach deciding when, ends kept) or after every episode.", "note": null },
+                { "id": "D3", "kind": "DECISION", "description": "Where the two targets sit: the building team's progression target (placed relative to the pressure, or a prototype edge; may it sit at or short of halfway?) and the depth of the pressing team's post-regain area.", "note": null },
+                { "id": "D4", "kind": "DECISION", "description": "The defenders' starting arrangement: left to the coach, a relationship he authors, or a value he authors; measured from what; re-established at each build-out episode or not.", "note": null },
+                { "id": "D5", "kind": "DECISION", "description": "Restarts: what concludes an episode, where a build-out restarts, who restarts after a score inside a block, and what 'from the feet' means.", "note": null },
+                { "id": "D6", "kind": "DECISION", "description": "Allocation and goalkeepers: equal outfield numbers with the asymmetry carried by roles and targets, or unequal numbers; whether the game form's silence supports two goalkeepers; what a team's goalkeeper does while it presses.", "note": null },
+                { "id": "D7", "kind": "DECISION", "description": "For acknowledgement (his 9.6, revised by us): the pressing team's objective is its post-regain area, live throughout its block, with no build-out start of its own, named as the team assigned to that end.", "note": null },
+                { "id": "M1", "kind": "CAPABILITY", "description": "Role exchange by block: the building and pressing roles assigned to the two teams for a block, apart from the fixed ends, with a size per block for each team's target.", "note": null },
+                { "id": "M2", "kind": "CAPABILITY", "description": "Facts that differ by team (his 20 September designation rule), or the narrower form: each team's goalkeeper supplied from the chosen restart.", "note": null },
+                { "id": "M3", "kind": "CAPABILITY", "description": "Starts and restarts built from the knowledge: the goalkeeper or a controlled restart, the coach choosing the location, the method recorded per activity.", "note": "Would also move GA-EPISODE-REACHABLE, a stop at structure." },
+                { "id": "M4", "kind": "CAPABILITY", "description": "One coach-judged 'episode concluded' event, in his words.", "note": null },
+                { "id": "M5", "kind": "CAPABILITY", "description": "A starting placement for a team, built and stated to the coach (optionally re-established at restarts).", "note": null },
+                { "id": "M7", "kind": "CAPABILITY", "description": "Only if D3 calls for it: a target placed beyond the pressure reference, and his word on halfway.", "note": null }
+            ],
+            "excluded": [
+                {
+                    "knowledgeId": "tl-v0-constraint-wide-zone-advantage",
+                    "ruledOn": "2026-10-15",
+                    "by": "Christian",
+                    "ruling": "Approved. Please leave Wide Zone Advantage out of this initial Play Out from the Back demonstration. Width may be a useful environmental manipulation, but its inclusion should be justified by the intended affordances and the activity's actual conditions, not merely by its presence in a candidate list.",
+                    "heldBy": null
+                },
+                {
+                    "knowledgeId": "tl-v0-constraint-pass-combination-gate",
+                    "ruledOn": "2026-10-15",
+                    "by": "Christian",
+                    "ruling": "The Pass Combination Gate remains excluded under our previous decision.",
+                    "heldBy": "learning-design-holds.json"
+                }
+            ],
+            "authorizedAdjustments": {
+                "words": [
+                    "The coach should also be able to change the numerical relationship when the activity warrants it.",
+                    "These are different environmental manipulations, with different consequences.",
+                    "Neither adjustment should be automatically mapped to Comfortable, Stretch, or Demanding.",
+                    "For now, I am asking that these remain possible, authorized adjustments—not that we implement a live challenge-regulation system."
+                ],
+                "citedAs": "his reply filed 17 October 2026, D6 (Adjusting the challenge)",
+                "note": "Rendered only in 'Adjusting the activity', in his words (DRAFT). No state, trigger or live mechanism carries them, nothing maps them to a challenge level, and no count is written for them: how either is made with every player already in a team (a 13th player, or a building player moving across; one player sitting out) is said in our email of 17 October and left to the coach.",
+                "entries": [
+                    {
+                        "id": "A01-ADJ-1",
+                        "category": "PROVISIONAL_REALIZATION_CHOICE",
+                        "ruledOn": "2026-10-17",
+                        "by": "Christian",
+                        "citedAs": "his reply filed 17 October 2026, D6 (Adjusting the challenge)",
+                        "words": "Add a pressing player, representing an opponent committing additional numbers forward.",
+                        "consequence": "Adding a pressing player can increase pressure but may also expose space behind the press. That relationship is itself something players should learn to recognize and exploit.",
+                        "relationship": "RPC-001~EM-0006",
+                        "parameter": "EMP-0036 Direction: Increase",
+                        "role": "PRESSING",
+                        "sources": [
+                            "RPC-PROP-017 (BEHAVIOR_ADJUSTMENT): 'Manipulate numerical relationships without prescribing a single solution.'"
+                        ],
+                        "note": null
+                    },
+                    {
+                        "id": "A01-ADJ-2",
+                        "category": "PROVISIONAL_REALIZATION_CHOICE",
+                        "ruledOn": "2026-10-17",
+                        "by": "Christian",
+                        "citedAs": "his reply filed 17 October 2026, D6 (Adjusting the challenge)",
+                        "words": "Remove a build-out player, reducing the building team's available support options.",
+                        "consequence": null,
+                        "relationship": "RPC-001~EM-0006",
+                        "parameter": "EMP-0036 Direction: Decrease",
+                        "role": "BUILDING",
+                        "sources": [
+                            "RPC-PROP-017 (BEHAVIOR_ADJUSTMENT): 'Manipulate numerical relationships without prescribing a single solution.'"
+                        ],
+                        "note": null
+                    },
+                    {
+                        "id": "A01-ADJ-3",
+                        "category": "PROVISIONAL_REALIZATION_CHOICE",
+                        "ruledOn": "2026-10-18",
+                        "by": "Christian",
+                        "citedAs": "his reply filed 18 October 2026, item 3",
+                        "words": "The pressure reference should be adjustable in either direction. Twenty meters is our initial hypothesis, not a canonical distance or a requirement for other field sizes.",
+                        "consequence": null,
+                        "coachWords": "move the marked line nearer to either end line",
+                        "relationship": "RPC-001~EM-0002",
+                        "parameter": "EMP-0011 Magnitude: the pressure reference's distance from the building team's end line",
+                        "role": "BUILDING",
+                        "sources": [
+                            "RPC-PROP-016 (rpc-library.rc1.json, RPC-001, BEHAVIOR_ADJUSTMENT, COMMON): 'Adjust starting positions or progression zones while preserving build-out identity.'"
+                        ],
+                        "note": "Recorded 15 October 2026 (stage K7) so 'Adjusting the activity' can say it. The pressure reference is the marked spatial reference his D4 favours for the defenders' starting relationship (reply filed 17 October 2026: \"I favor a marked spatial reference that establishes the defenders' starting relationship to the goalkeeper, ball, and initial build-out space.\"), so the adjustment is read under the Performer Configuration relationship he confirmed on 18 October (item 5); that reading, the parameter named and the role (its distance is measured from the building team's end line, A01-R1-S5-1) are ours. coachWords is our DRAFT wording, never his; 'the marked line' is the renderer's name for the pressure reference, which the game holds as a line with no noun of its own. The progression target begins at the pressure reference (A01-R1-S5-2), so moving the line moves where the target begins: his D3 'with the coach able to adjust its precise location' is not given a sentence of its own."
+                    },
+                    {
+                        "id": "A01-ADJ-4",
+                        "category": "PROVISIONAL_REALIZATION_CHOICE",
+                        "ruledOn": "2026-10-17",
+                        "by": "Christian",
+                        "citedAs": "his reply filed 17 October 2026, D4",
+                        "words": "The coach should retain the ability to adjust the starting arrangement when the observed pressure is not creating an appropriate challenge.",
+                        "consequence": null,
+                        "coachWords": "change where the teams start when the pressure you see is not creating an appropriate challenge",
+                        "relationship": "RPC-001~EM-0002",
+                        "parameter": "EMP-0010 Direction: where a team's start placement lies relative to the pressure reference",
+                        "role": "PRESSING",
+                        "sources": [
+                            "RPC-PROP-016 (rpc-library.rc1.json, RPC-001, BEHAVIOR_ADJUSTMENT, COMMON): 'Adjust starting positions or progression zones while preserving build-out identity.'"
+                        ],
+                        "note": "Recorded 15 October 2026 (stage K7) so 'Adjusting the activity' can say it, under the Performer Configuration relationship he confirmed on 18 October (item 5), which his D4 named for the starting arrangement (\"Please use the existing Performer Configuration knowledge where supported, documenting the relationship to Goalkeeper Build-Out rather than inventing a new constraint.\"). The parameter named and the role (D4 is about the defensive starting arrangement) are our reading. coachWords is our DRAFT wording, never his. Like his numerical adjustments, it is a choice put to the coach and mapped to no challenge level; no live mechanism carries it."
+                    }
+                ]
+            },
+            "manipulations": [
+                {
+                    "phrase": "starting positions",
+                    "phraseFrom": "Christian, 15 October 2026, item 1",
+                    "aspect": "where the team building out starts",
+                    "tier": "CORE",
+                    "source": "RC1.1 Representative Performance Context Library (docx), RPC-001 Goalkeeper Build-Out, Typical Environmental Manipulations, Core: 'build-out starting positions'",
+                    "registerRows": ["T3", "T4"],
+                    "category": "PROVISIONAL_REALIZATION_CHOICE",
+                    "status": "AUTHORIZED_BY_RULING",
+                    "gaps": [],
+                    "statusBasis": "Christian, 15 October 2026, item 4: 'I agree with starting possession from the goalkeeper for the two-goalkeeper realization. The coach may choose an appropriate starting location, provided it remains consistent with the intended restart.' His 16 October reply, item 2: 'One team begins by building out from its goalkeeper or a controlled defensive restart.' and 6.i: 'Goalkeeper distribution: Starting from the feet is acceptable for this initial realization. It should not become a universal requirement for all goalkeeper build-out activities.'",
+                    "note": "His choice; the engine cannot carry it yet: the game built from the possession game and this context holds no start transition element (its only transition is a possession change, measured 15 October 2026), so nothing establishes where or how a build-out begins. Capability M3. Until 15 October 2026 (stage H3) this was AUTHORIZED_BY_RULING; MISSING_CAPABILITY did not exist as a status. Carried since 15 October 2026 (stage K5) by the provisional realization A01-R1: the building team starts and restarts every build-out (A01-R1-T2-1), its goalkeeper takes it (A01-R1-T3-1) from the feet (A01-R1-T5-1), at a location the coach chooses (A01-R1-T4-1, his D5 'The coach chooses an appropriate restart location consistent with the intended build-out situation.'), closed COACH_DECIDES - capability M3 (register version 12: T4 and T5 open only on his or authored ranges in words). Where the building team's outfield players start (his 18 October item 3) is carried since stage K6 (15 October 2026): short of the pressure reference, re-established at every build-out (A01-R1-P8-1, A01-R1-P10-1). Until stage K5 this was MISSING_CAPABILITY, waiting on M3."
+                },
+                {
+                    "phrase": "starting positions",
+                    "phraseFrom": "Christian, 15 October 2026, item 1",
+                    "aspect": "the pressing team's starting relationship",
+                    "tier": "CORE",
+                    "source": "RC1.1 Representative Performance Context Library (docx), RPC-001 Goalkeeper Build-Out, Typical Environmental Manipulations, Core: 'build-out starting positions'",
+                    "registerRows": ["P8", "P9", "P10", "P10a", "P10b"],
+                    "category": "PROVISIONAL_REALIZATION_CHOICE",
+                    "status": "AUTHORIZED_BY_RULING",
+                    "gaps": [],
+                    "statusBasis": "His reply filed 17 October 2026, D4: 'Approve D4(b): A relationship-based starting arrangement.' 'I favor a marked spatial reference that establishes the defenders' starting relationship to the goalkeeper, ball, and initial build-out space.' 'That relationship should be re-established at the beginning of each new build-out episode.' 'Defenders should be permitted to press immediately unless a specific, authorized realization calls for a restriction.' His reply filed 18 October 2026, item 5, confirming the relationship: 'Goalkeeper Build-Out with Performer Configuration.' Until 15 October 2026 (stage K6) this was MISSING_KNOWLEDGE (GENUINE_GAP), waiting on D4 and M5, on: His 16 October reply, item 3: 'I agree that we need an explicit, valid starting arrangement, but I don't want to mandate that defenders begin behind a midfield line and wait until the goalkeeper plays the ball before pressing.' 'For the first activity, I favor allowing immediate pressing from a representative starting arrangement, with starting positions and distances used to regulate the challenge.' 'If the existing knowledge cannot authorize a particular starting arrangement or incentive, please identify the missing relationship rather than infer it.' No knowledge object authorizes a starting arrangement for this context: his Performer Configuration manipulation covers the idea and has no documented relationship to Goalkeeper Build-Out.",
+                    "note": "GF2 declares P8-P10 NON_CLAIMED (positions free). The RPC-001 items once on these rows (RPC-001-04.a-c) were ENGINE_ONLY wording, retired by ruling C51 with provenance kept; they are not a source. Nothing in the engine builds or states a starting placement (capability M5). The gloss 'where defenders start' for the pressure reference is ours, not his (D4 asks it). Carried since 15 October 2026 (stage K6) by the provisional realization A01-R1, citing the relationship he confirmed on 18 October (recorded once, at the top of this file, contextManipulationRelationships; no manipulation id is written into this entry): the pressure reference is marked as its own element (A01-R1-S2-1, 20 m from the building team's end line, his 18 October item 3), the pressing team begins beyond it (A01-R1-P8-2, A01-R1-P10-2 - beyond it is our reading, stated in our email of 17 October and not objected to) and the building team short of it (A01-R1-P8-1, A01-R1-P10-1, his 18 October item 3), both re-established at every beginning of a build-out episode and nowhere else (A01-R1-P10a-1, A01-R1-P10b-1, capability M5, register version 13). No release line, no timed release, no formation, no distance from the ball. The aspect read 'the defending team's starting relationship' until stage K6; his D7 asks for the assigned roles."
+                },
+                {
+                    "phrase": "field dimensions",
+                    "phraseFrom": "Christian, 15 October 2026, item 1",
+                    "aspect": null,
+                    "tier": "CORE",
+                    "source": "RC1.1 Representative Performance Context Library (docx), RPC-001 Goalkeeper Build-Out, Typical Environmental Manipulations, Core: 'field dimensions'",
+                    "registerRows": ["E2", "E3"],
+                    "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
+                    "status": "AUTHORIZED_VIA_GAME_FORM_OR_SESSION",
+                    "gaps": [],
+                    "statusBasis": "The session states the area; GF2-24.a and GF2-24.b give a typical 40-60 m by 25-40 m (SUPPORTING, contracts.json); RPC-001 declares E2 and E3 NON_CLAIMED. His 16 October reply, item 7: 'Please preserve the coach's player count and available-space inputs, and report any configuration that cannot be constructed validly.'",
+                    "note": null
+                },
+                {
+                    "phrase": "progression references",
+                    "phraseFrom": "Christian, 15 October 2026, item 1",
+                    "aspect": "each team's own target, in a different place, inside the area",
+                    "tier": "CORE",
+                    "source": "RC1.1 Representative Performance Context Library (docx), RPC-001 Goalkeeper Build-Out, Typical Environmental Manipulations, Core: 'progression zones'",
+                    "registerRows": ["S2", "S3", "S5", "V1"],
+                    "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
+                    "status": "AUTHORIZED_VIA_GAME_FORM_OR_SESSION",
+                    "gaps": [],
+                    "statusBasis": "GF2-03.b and GF2-04 (AUTHORED, contracts.json), from GF2's setup guidance: 'a directional target line or zone at one end'; ruling C42 (9 October 2026): each team attacks its own target, GF2-08.c referencing GF2-03.f and GF2-08.e referencing GF2-03.e; Christian, 15 October 2026, item 2: 'The progression target is inside the playable area or otherwise permits a valid controlled reception.'",
+                    "note": "Which of line or zone, and where each target sits, are not decided here (the next entry). Existing knowledge to verify: what the progression target marks, RPC-PROP-003 'Organized attack is established.' and the handover RPC-TR-002. Until 15 October 2026 (stage H3) the aspect read 'the target's placement at one end, inside the area', which predates his 16 October item 4."
+                },
+                {
+                    "phrase": "progression references",
+                    "phraseFrom": "Christian, 15 October 2026, item 1",
+                    "aspect": "where each target sits: the build-out progression target and the post-regain area",
+                    "tier": "CORE",
+                    "source": "RC1.1 Representative Performance Context Library (docx), RPC-001 Goalkeeper Build-Out, Typical Environmental Manipulations, Core: 'progression zones'",
+                    "registerRows": ["S5"],
+                    "category": "PROVISIONAL_REALIZATION_CHOICE",
+                    "status": "AUTHORIZED_BY_RULING",
+                    "gaps": [],
+                    "statusBasis": "His reply filed 18 October 2026, item 3: 'I approve the following provisional values:' 'Pressure reference: 20 m from the building team's end line.' 'Building team's progression target: begins at the pressure reference.' 'Pressing team's post-regain target area: 5 m deep at the building team's end.' 'Please retain the separation between the pressure reference and the progression target in the knowledge representation, even when they occupy the same location in this realization.' His reply filed 17 October 2026, D3: 'Please verify that the two targets can coexist without overlapping or contradictory scoring conditions.' and M7: 'M7 — Target relative to pressure reference: Approved if required.' Until 15 October 2026 (stage K6) this was MISSING_KNOWLEDGE (GENUINE_GAP), waiting on D3, on: His 16 October reply, item 4: 'I therefore favor an intermediate progression reference or target over a distant terminal end zone for this first activity.' 'A midfield line or zone may be appropriate, but I do not want to mandate midfield or prescribe a universal depth.' 'The location should make sense in relation to the defensive pressure, playing area, and available progression opportunities.' Item 5: 'I don't want to prescribe an arbitrary distance or zone depth. Please identify a configuration supported by the existing knowledge or bring back the smallest necessary decision.'",
+                    "note": "GF2 declares the depth of a zone NOT_AUTHORED and RPC-001 places neither target. His 15 October prototype, 'A 5 m end-zone depth could be considered as an initial prototype for a 40 × 30 m area, but I am not approving it as a canonical value.', was framed around a far-end zone and is superseded by item 4; it is not recorded as a value. A target placed relative to the pressure reference, or an edge at or short of halfway, would need capability M7, only if D3 calls for it. Until 15 October 2026 (stage H3) the aspect read 'the zone's depth'. Carried since 15 October 2026 (stage K6) by the provisional realization A01-R1, for the 40 x 30 m prototype only (its testing boundaries): the building team's target begins at the pressure reference (A01-R1-S5-2, RC-21's 'beyond X (for team T)', capability M7, register version 13), two elements meeting on one line; the post-regain area is 5 m deep at the building team's end (A01-R1-S5-3) and lies short of the pressure reference (A01-R1-S5-4, our reading of his D3, checked by GA-RELATIVE-PLACEMENT); both are zones scored by controlled entry (realization-choices-a01-r1.json). That the two targets do not overlap is GA-DIRECTION's clause, added for his D3 request; the register's halfway wording is narrowed for his M7."
+                },
+                {
+                    "phrase": "defensive numbers",
+                    "phraseFrom": "Christian, 15 October 2026, item 1",
+                    "aspect": null,
+                    "tier": "COMMON",
+                    "source": "RC1.1 Representative Performance Context Library (docx), RPC-001 Goalkeeper Build-Out, Typical Environmental Manipulations, Common: 'defensive numbers'",
+                    "registerRows": ["P2"],
+                    "category": "PROVISIONAL_REALIZATION_CHOICE",
+                    "status": "AUTHORIZED_BY_RULING",
+                    "gaps": [],
+                    "statusBasis": "His reply filed 17 October 2026, D6: 'For the initial 12-player demonstration, I favor six outfield players plus one goalkeeper building out against five pressing players.' 'However, five outfield players plus a goalkeeper against five pressing players is also a legitimate configuration when the roster supports it.' 'Please authorize this initial numerical asymmetry through the appropriate existing knowledge relationship, rather than hardcoding it to Play Out from the Back.' His reply filed 18 October 2026, item 5, confirming the relationship: 'Goalkeeper Build-Out with Participant Composition.'",
+                    "note": "Carried since 15 October 2026 (stage K4) by the provisional realization A01-R1: the outfield count per role (A01-R1-P2-1 pressing = 5, A01-R1-P2-2 building 5 or 6), each citing the context-manipulation relationship he confirmed on 18 October (recorded once, at the top of this file, contextManipulationRelationships; no manipulation id is written into this entry), under which the possession game's equal-numbers item GF2-14.b defers and is listed as the alternative (ruling C56). The session total decides which of his two configurations applies; no other count is decided. Until 15 October 2026 (stage K4) this was MISSING_KNOWLEDGE waiting on D6, and until stage H3 NOT_SELECTED_FOR_FIRST_DEMO."
+                },
+                {
+                    "phrase": "goalkeeper positioning",
+                    "phraseFrom": "Christian, 15 October 2026, item 1",
+                    "aspect": null,
+                    "tier": "COMMON",
+                    "source": "RC1.1 Representative Performance Context Library (docx), RPC-001 Goalkeeper Build-Out, Typical Environmental Manipulations, Common: 'goalkeeper positioning'",
+                    "registerRows": ["P3", "T3"],
+                    "category": "PROVISIONAL_REALIZATION_CHOICE",
+                    "status": "AUTHORIZED_BY_RULING",
+                    "gaps": [],
+                    "statusBasis": "His 16 October reply, item 7: 'I approve two goalkeepers for the initial 12-player, 40 × 30 m demonstration if that configuration is supported by the selected game form.' 'However, the broader goalkeeper-or-controlled-restart alternative must remain intact.' 'Two goalkeepers should not become a universal requirement for Play Out from the Back.' Item 9.4: 'Goalkeeper-or-controlled-restart alternative: Approved.' (ruling C53: the context no longer requires a goalkeeper on every team).",
+                    "note": "The goalkeeper COUNT is carried since 15 October 2026 (stage K4): one goalkeeper for the team holding the building role in each block (A01-R1-P3-1, his D6 'For this first asymmetrical activity, I favor one active goalkeeper serving the team currently building out.'), moving with the role at each exchange by the recorded reassignment (A01-R1-B4-1/B7-1, his 18 October item 1). What still waits is the goalkeeper's part in starting a build-out (T3, his D5 'The initial demonstration may use goalkeeper distribution from the feet.'), capability M3; D6 and M2 no longer stand behind this entry. Before stage K4: measured 15 October 2026 (C53), with two goalkeepers available the roster gave each team six outfield players and no goalkeeper, and the entry also waited on D6 and M2. His 15 October item 3 ('one goalkeeper per team for the initial symmetrical build-out demonstration') framed the symmetric game and is superseded by his 16 October items 2 and 7 and his 17 October D6. Until 15 October 2026 (stage H3) this was AUTHORIZED_BY_RULING. Carried since 15 October 2026 (stage K5): the goalkeeper takes the start and every build-out restart (A01-R1-T3-1, his D5 'The initial demonstration may use goalkeeper distribution from the feet.', from the feet, A01-R1-T5-1), on capability M3 (register version 12), and the begin condition is typed in his acknowledged wording (ruling C58). Where the goalkeeper begins relative to the pressing team's post-regain area (his D3, 'I agree with your proposal to begin with the building goalkeeper positioned in front of the post-regain area, provided the resulting layout is coherent and representative.') is carried since stage K6 (15 October 2026) as a second range in words on the coach's restart location (A01-R1-T4-4): in front of the post-regain area, still the coach's choice. Until stage K5 this was MISSING_CAPABILITY, waiting on M3."
+                },
+                {
+                    "phrase": "overloads",
+                    "phraseFrom": "Christian, 15 October 2026, item 1",
+                    "aspect": null,
+                    "tier": "COMMON",
+                    "source": "RC1.1 Representative Performance Context Library (docx), RPC-001 Goalkeeper Build-Out, Typical Environmental Manipulations, Common: 'numerical overloads'",
+                    "registerRows": ["P2"],
+                    "category": "PROVISIONAL_REALIZATION_CHOICE",
+                    "status": "AUTHORIZED_BY_RULING",
+                    "gaps": [],
+                    "statusBasis": "His reply filed 17 October 2026, D6: 'In match play, teams building from the back commonly have more players available in their defensive third than the opposition initially commits to pressing.' 'For the initial 12-player demonstration, I favor six outfield players plus one goalkeeper building out against five pressing players.' 'This uses all 12 players and creates a modest numerical advantage for the building team.'",
+                    "note": "Carried since 15 October 2026 (stage K4) by the unequal outfield counts per role (row P2, the same A01-R1 items as 'defensive numbers'), never by neutral players: his overload is a building-team advantage, and the Neutral Player Condition is not authorized for this goal (row P5 stays unused). Until 15 October 2026 (stage K4) the entry named P5 and was MISSING_KNOWLEDGE waiting on D6, and until stage H3 NOT_SELECTED_FOR_FIRST_DEMO."
+                },
+                {
+                    "phrase": "support spacing",
+                    "phraseFrom": "Christian, 15 October 2026, item 1",
+                    "aspect": null,
+                    "tier": "COMMON",
+                    "source": "RC1.1 Representative Performance Context Library (docx), RPC-001 Goalkeeper Build-Out, Typical Environmental Manipulations, Common: 'support spacing'",
+                    "registerRows": [],
+                    "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
+                    "status": "NOT_SELECTED_FOR_FIRST_DEMO",
+                    "gaps": [],
+                    "statusBasis": "No register row expresses spacing during play without fixing positions. Our identification of the smallest set under his item 1, for him to confirm.",
+                    "note": null
+                },
+                {
+                    "phrase": "when and how defenders can press",
+                    "phraseFrom": "Christian, 15 October 2026, item 10: 'Clear conditions governing when and how defenders can press.'",
+                    "aspect": null,
+                    "tier": "COMMON",
+                    "source": "RC1.1 Representative Performance Context Library (docx), RPC-001 Goalkeeper Build-Out, Typical Interaction Regulations, Common: 'defensive release timing' (no rule given)",
+                    "registerRows": ["S4", "V11", "V12", "V13", "V23", "V24", "V25", "V26"],
+                    "category": "PROVISIONAL_REALIZATION_CHOICE",
+                    "status": "AUTHORIZED_BY_RULING",
+                    "gaps": [],
+                    "statusBasis": "His 16 October reply, item 3: 'For the first activity, I favor allowing immediate pressing from a representative starting arrangement, with starting positions and distances used to regulate the challenge.' 'I do not favor a timed release.' 'However, please do not automatically add a high-regain bonus.'",
+                    "note": "Immediate pressing needs no mechanism: nothing in the game restricts when the opposition may press (RPC-001 declares S4 access, V11 and V23-V26 NON_CLAIMED and V25 NOT_AUTHORED). A designated pressure line and release when the goalkeeper plays the ball are kept as potential realizations only, and not built (item 3). No existing knowledge authorizes a high-regain incentive, and none is added. The starting arrangement that regulates the challenge is the defending team's starting relationship above (D4, M5). Nothing yet tells the coach that pressing may begin immediately: the renderer states no NON_CLAIMED declaration. Until 15 October 2026 (stage H3) this was MISSING_KNOWLEDGE; his item 3 answers it."
+                }
+            ],
+            "reviewRequest": {
+                "ruledOn": "2026-10-17",
+                "by": "Christian",
+                "citedAs": "his reply filed 17 October 2026, Next review and acceptance evidence",
+                "note": "Read only by the review evidence (back/src/system/rendering/review-evidence.ts), for an administrator's review: his request for the next review, verbatim, with the register rows, checks and evidence sections each item is read from. The rows, checks, sections, roles and feature labels are OURS (presentation), never his words; a wrong mapping would hide an item, so every item must resolve to game elements or sentences or name what is missing (review-evidence.unit.ts).",
+                "layers": {
+                    "citedAs": "his reply filed 18 October 2026, item 7",
+                    "words": "For any new engine capability, please maintain a clear separation between:",
+                    "entries": [
+                        {
+                            "code": "GENERAL_ENGINE_MECHANISM",
+                            "words": "General engine mechanisms."
+                        },
+                        {
+                            "code": "SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS",
+                            "words": "Sport-specific knowledge and authorized relationships."
+                        },
+                        {
+                            "code": "ACTIVITY_REALIZATION_CHOICE",
+                            "words": "Activity-specific realization choices."
+                        }
+                    ]
+                },
+                "items": [
+                    {
+                        "id": "R1",
+                        "words": "Player allocation and goalkeeper role.",
+                        "role": null,
+                        "kind": "GAME",
+                        "rows": [
+                            "E1",
+                            "P1",
+                            "P2",
+                            "P3",
+                            "B4",
+                            "B5",
+                            "B6",
+                            "B7"
+                        ],
+                        "checks": [
+                            "GA-ROSTER-SUM",
+                            "RB-6",
+                            "RB-M"
+                        ],
+                        "sections": [
+                            "ALLOCATION",
+                            "SPECIALIZED_ROLES"
+                        ]
+                    },
+                    {
+                        "id": "R2",
+                        "words": "Field setup and both target areas.",
+                        "role": null,
+                        "kind": "GAME",
+                        "rows": [
+                            "E2",
+                            "E3",
+                            "S1",
+                            "S2",
+                            "S3",
+                            "S5",
+                            "S6"
+                        ],
+                        "checks": [
+                            "GA-ENVELOPE-FIT",
+                            "GA-LAYOUT-FEASIBLE",
+                            "GA-DIRECTION",
+                            "GA-RELATIVE-PLACEMENT",
+                            "GA-REGION-FUNCTION",
+                            "RB-3",
+                            "RB-8"
+                        ],
+                        "sections": [
+                            "SPATIAL"
+                        ]
+                    },
+                    {
+                        "id": "R3",
+                        "words": "Defensive starting relationship.",
+                        "role": null,
+                        "kind": "GAME",
+                        "rows": [
+                            "P8",
+                            "P9",
+                            "P10",
+                            "P10a",
+                            "P10b"
+                        ],
+                        "checks": [
+                            "GA-RELATIVE-PLACEMENT",
+                            "GA-EPISODE-REACHABLE"
+                        ],
+                        "sections": [
+                            "PRESSURE"
+                        ]
+                    },
+                    {
+                        "id": "R4",
+                        "words": "The building team's success condition.",
+                        "role": "BUILDING",
+                        "kind": "GAME",
+                        "rows": [
+                            "J1",
+                            "J2",
+                            "J3",
+                            "J4",
+                            "V0",
+                            "V1",
+                            "V2",
+                            "V3",
+                            "V4",
+                            "V5",
+                            "V6"
+                        ],
+                        "checks": [
+                            "GA-ONE-PRIMARY-EVENT",
+                            "GA-OBJECTIVE-SETS",
+                            "GA-REFERENCE-INTEGRITY",
+                            "GA-EPISODE-REACHABLE"
+                        ],
+                        "sections": [
+                            "SCORING"
+                        ]
+                    },
+                    {
+                        "id": "R5",
+                        "words": "The pressing team's post-regain objective.",
+                        "role": "PRESSING",
+                        "kind": "GAME",
+                        "rows": [
+                            "J1",
+                            "J2",
+                            "J3",
+                            "J4",
+                            "V1",
+                            "V2"
+                        ],
+                        "checks": [
+                            "GA-ONE-PRIMARY-EVENT",
+                            "GA-DIRECTION",
+                            "RB-3"
+                        ],
+                        "sections": [
+                            "SCORING",
+                            "FLAGS"
+                        ]
+                    },
+                    {
+                        "id": "R6",
+                        "words": "What happens after a regain, score, ball out, and coach-judged episode conclusion.",
+                        "role": null,
+                        "kind": "GAME",
+                        "rows": [
+                            "PS1",
+                            "T1",
+                            "T1a",
+                            "T1b",
+                            "T1c",
+                            "T2",
+                            "T3",
+                            "T4",
+                            "T5",
+                            "T6",
+                            "T7"
+                        ],
+                        "checks": [
+                            "GA-TRANSITION-COHERENCE",
+                            "GA-TRIGGER-REACHABLE",
+                            "GA-TRIGGER-UNIQUE",
+                            "GA-EPISODE-REACHABLE"
+                        ],
+                        "sections": [
+                            "RESTARTS"
+                        ]
+                    },
+                    {
+                        "id": "R7",
+                        "words": "Role exchange between blocks.",
+                        "role": null,
+                        "kind": "GAME",
+                        "rows": [
+                            "B1",
+                            "B2",
+                            "B3",
+                            "B4",
+                            "B5",
+                            "B6",
+                            "B7"
+                        ],
+                        "checks": [
+                            "RB-1",
+                            "RB-2",
+                            "RB-3",
+                            "RB-4",
+                            "RB-5",
+                            "RB-6",
+                            "RB-7",
+                            "RB-8",
+                            "RB-M"
+                        ],
+                        "sections": [
+                            "ROLE_EXCHANGE"
+                        ]
+                    },
+                    {
+                        "id": "R8",
+                        "words": "Coach-facing activity instructions.",
+                        "role": null,
+                        "kind": "INSTRUCTIONS",
+                        "rows": [],
+                        "checks": [],
+                        "sections": [
+                            "INSTRUCTIONS"
+                        ]
+                    },
+                    {
+                        "id": "R9",
+                        "words": "Provenance distinguishing approved knowledge, provisional realization choices, and any remaining gaps.",
+                        "role": null,
+                        "kind": "PROVENANCE",
+                        "rows": [],
+                        "checks": [],
+                        "sections": [
+                            "PROVENANCE"
+                        ]
+                    }
+                ],
+                "requests": [
+                    {
+                        "words": "Please verify the configuration's structural consistency, including player totals, spatial relationships, scoring conditions, and restarts.",
+                        "citedAs": "his reply filed 17 October 2026, Next review and acceptance evidence",
+                        "sections": [
+                            "STRUCTURE"
+                        ]
+                    },
+                    {
+                        "words": "I would also like the review to demonstrate that the goalkeeper remains a functional deep support option and that the activity does not require predetermined passing patterns or prescribed player behaviors.",
+                        "citedAs": "his reply filed 17 October 2026, Next review and acceptance evidence",
+                        "sections": [
+                            "SPECIALIZED_ROLES",
+                            "NO_PRESCRIPTION"
+                        ]
+                    },
+                    {
+                        "words": "The important test is whether the activity creates meaningful opportunities to recognize and solve defensive pressure, including recycling possession, changing the point of attack, and progressing through or around the press.",
+                        "citedAs": "his reply filed 17 October 2026, Next review and acceptance evidence",
+                        "sections": [
+                            "PRESSURE",
+                            "RATIONALE"
+                        ]
+                    }
+                ],
+                "evaluation": {
+                    "citedAs": "his reply filed 18 October 2026, item 8",
+                    "words": "I would like to evaluate the resulting activity as a coach, particularly:",
+                    "points": [
+                        {
+                            "id": "E1",
+                            "words": "Whether the goalkeeper is a functional supporting option.",
+                            "sections": [
+                                "SPECIALIZED_ROLES"
+                            ]
+                        },
+                        {
+                            "id": "E2",
+                            "words": "Whether attacking players have meaningful opportunities to recognize and solve pressure.",
+                            "sections": [
+                                "ALLOCATION",
+                                "PRESSURE"
+                            ]
+                        },
+                        {
+                            "id": "E3",
+                            "words": "Whether the opposing team creates realistic defensive problems.",
+                            "sections": [
+                                "PRESSURE"
+                            ]
+                        },
+                        {
+                            "id": "E4",
+                            "words": "Whether the progression and post-regain scoring conditions create the intended consequences.",
+                            "sections": [
+                                "SCORING",
+                                "RESTARTS"
+                            ]
+                        },
+                        {
+                            "id": "E5",
+                            "words": "Whether any artificial shortcuts emerge, including the advanced-positioning concern described above.",
+                            "sections": [
+                                "NO_PRESCRIPTION",
+                                "FLAGS"
+                            ]
+                        }
+                    ]
+                },
+                "flags": [
+                    {
+                        "id": "F1",
+                        "kind": "ADVANCED_POSITIONING",
+                        "role": "BUILDING",
+                        "words": [
+                            {
+                                "words": "Please flag whether the generated activity permits players to remain beyond the progression line without any meaningful defensive interaction.",
+                                "citedAs": "his reply filed 18 October 2026, item 6"
+                            },
+                            {
+                                "words": "We can evaluate the actual activity and decide whether a spatial eligibility regulation is necessary.",
+                                "citedAs": "his reply filed 18 October 2026, item 6"
+                            },
+                            {
+                                "words": "If one is needed, we should first determine whether the existing Interaction Regulation knowledge supports it. Any implementation should express a reusable relationship, not a special Play Out from the Back exception.",
+                                "citedAs": "his reply filed 18 October 2026, item 6"
+                            }
+                        ]
+                    },
+                    {
+                        "id": "F2",
+                        "kind": "REGAIN_INSIDE_TARGET",
+                        "role": "PRESSING",
+                        "words": [
+                            {
+                                "words": "I agree that the unresolved regain-inside-target case should remain flagged for review rather than be settled through an invented rule.",
+                                "citedAs": "his reply filed 18 October 2026, item 8"
+                            },
+                            {
+                                "words": "A successful regain alone should not count as controlled progression into the target area.",
+                                "citedAs": "his reply filed 17 October 2026, D7"
+                            },
+                            {
+                                "words": "Nor should we require an additional pass simply because a regain occurred inside or near the target.",
+                                "citedAs": "his reply filed 17 October 2026, D7"
+                            },
+                            {
+                                "words": "The scoring event should evaluate the actual controlled progression outcome.",
+                                "citedAs": "his reply filed 17 October 2026, D7"
+                            }
+                        ]
+                    }
+                ],
+                "pathway": {
+                    "words": "Similarly, I understand that the checked review pathway is not yet the live application pathway because of the outstanding constraint requirement. Please keep that distinction visible as we approach acceptance.",
+                    "citedAs": "his reply filed 18 October 2026, item 7"
+                },
+                "judgement": {
+                    "words": [
+                        "The objective is not to demonstrate that the engine can satisfy a collection of rules. It is to demonstrate that those rules produce a representative learning environment.",
+                        "Once the activity is generated, we can evaluate its learning-design quality before extending the work to additional goals or variations."
+                    ],
+                    "citedAs": "his reply filed 17 October 2026, Next review and acceptance evidence"
+                },
+                "rationale": [
+                    {
+                        "feature": "The building team has more players than the pressing team (the starting configuration)",
+                        "words": [
+                            {
+                                "words": "In match play, teams building from the back commonly have more players available in their defensive third than the opposition initially commits to pressing.",
+                                "citedAs": "his reply filed 17 October 2026, D6"
+                            },
+                            {
+                                "words": "That numerical relationship can create opportunities to circulate possession, attract pressure, recycle through the goalkeeper, and find a different route forward.",
+                                "citedAs": "his reply filed 17 October 2026, D6"
+                            },
+                            {
+                                "words": "A building-team numerical advantage is therefore not necessarily an artificial simplification. It can be representative of the actual performance environment.",
+                                "citedAs": "his reply filed 17 October 2026, D6"
+                            }
+                        ],
+                        "statements": [
+                            "RPC-PROP-017"
+                        ]
+                    },
+                    {
+                        "feature": "One active specialized player, always with the building team",
+                        "words": [
+                            {
+                                "words": "The goalkeeper should be available as a deep supporting passing option.",
+                                "citedAs": "his reply filed 17 October 2026, D6"
+                            },
+                            {
+                                "words": "Players may use the goalkeeper to recycle possession, draw pressure, change the point of attack, or create a new progression opportunity.",
+                                "citedAs": "his reply filed 17 October 2026, D6"
+                            },
+                            {
+                                "words": "Those are available solutions, not required behaviors.",
+                                "citedAs": "his reply filed 17 October 2026, D6"
+                            }
+                        ],
+                        "statements": []
+                    },
+                    {
+                        "feature": "One team builds out while the other presses, exchanged by block",
+                        "words": [
+                            {
+                                "words": "The reason for choosing asymmetry initially is to increase the frequency of meaningful encounters with the build-out problem while preserving active opposition and the consequences of losing possession.",
+                                "citedAs": "his reply received 15 October 2026 (16 October reply), item 2"
+                            }
+                        ],
+                        "statements": []
+                    },
+                    {
+                        "feature": "The pressing team starts from a marked relationship and may press immediately",
+                        "words": [
+                            {
+                                "words": "That is one possible way to regulate the challenge, but it can remove important information and decisions from the goalkeeper's initial interaction with the defense.",
+                                "citedAs": "his reply received 15 October 2026 (16 October reply), item 3"
+                            },
+                            {
+                                "words": "For the first activity, I favor allowing immediate pressing from a representative starting arrangement, with starting positions and distances used to regulate the challenge.",
+                                "citedAs": "his reply received 15 October 2026 (16 October reply), item 3"
+                            },
+                            {
+                                "words": "Defenders should be permitted to press immediately unless a specific, authorized realization calls for a restriction.",
+                                "citedAs": "his reply filed 17 October 2026, D4"
+                            }
+                        ],
+                        "statements": []
+                    },
+                    {
+                        "feature": "The building team's target begins at the pressure reference, entered under control",
+                        "words": [
+                            {
+                                "words": "The intended outcome is controlled progression beyond meaningful defensive pressure, establishing the opportunity to continue an organized attack.",
+                                "citedAs": "his reply received 15 October 2026 (16 October reply), item 4"
+                            },
+                            {
+                                "words": "Success should permit multiple functional solutions, including carrying the ball, passing through or around pressure, and using a more direct option when appropriate.",
+                                "citedAs": "his reply received 15 October 2026 (16 October reply), item 4"
+                            }
+                        ],
+                        "statements": [
+                            "RPC-PROP-132",
+                            "RPC-PROP-010"
+                        ]
+                    },
+                    {
+                        "feature": "The pressing team's post-regain target, with play continuing after a regain",
+                        "words": [
+                            {
+                                "words": "The target area's position matters. It should represent a meaningful attacking connection following the regain, without being so distant that the defending team's motivation to contest the build-out disappears.",
+                                "citedAs": "his reply received 15 October 2026 (16 October reply), item 5"
+                            },
+                            {
+                                "words": "The target should be positioned so that regaining possession does not automatically constitute successful progression.",
+                                "citedAs": "his reply filed 17 October 2026, D3"
+                            }
+                        ],
+                        "statements": []
+                    },
+                    {
+                        "feature": "Build-out episodes restart with the building team",
+                        "words": [
+                            {
+                                "words": "Restarts should preferentially recreate representative opportunities to encounter and solve the selected Learning Goal, while preserving meaningful game consequences and continuity.",
+                                "citedAs": "his reply received 15 October 2026 (16 October reply), item 6"
+                            }
+                        ],
+                        "statements": []
+                    },
+                    {
+                        "feature": "No library constraint is selected",
+                        "words": [
+                            {
+                                "words": "The game form and its inherent conditions may already create the affordances needed for the Learning Goal. Additional constraints should be selected because they serve a documented learning-design purpose, not because the engine requires a particular number.",
+                                "citedAs": "his reply received 15 October 2026 (16 October reply), item 1"
+                            }
+                        ],
+                        "statements": []
+                    }
+                ]
+            }
+        }
+    ]
+}

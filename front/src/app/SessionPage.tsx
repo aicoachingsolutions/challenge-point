@@ -93,6 +93,28 @@ export default function SessionPage() {
                     )}
 
                     {session && <SessionMetadata session={session} />}
+
+                    {/*
+                      * THE ENTRY TO THE ACTIVITY REVIEW. It sits with the session's own facts because
+                      * those facts are what the review builds from, and it is shown in every session
+                      * state — a completed session can still be reviewed, since the review stores
+                      * nothing and changes nothing.
+                      *
+                      * It is not reachable from here for a brand-new session: the effect above sends a
+                      * Draft session with no activities straight to the generator. That redirect is left
+                      * alone; where else the entry should appear is a decision still to be made.
+                      */}
+                    {session && (
+                        <div className='flex flex-col items-start gap-1 mt-4'>
+                            <Button.Outline onClick={() => navigate('activity-review')} className='text-sm'>
+                                <ClipboardDocumentIcon className='w-4 h-4 mr-2' />
+                                Review an activity for this session
+                            </Button.Outline>
+                            <p className='text-xs text-gray-500'>
+                                See the activity a Learning Goal produces from these players and this playing area. Nothing is saved.
+                            </p>
+                        </div>
+                    )}
                 </div>
             </header>
 

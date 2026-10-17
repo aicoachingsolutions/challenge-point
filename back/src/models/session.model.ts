@@ -85,6 +85,17 @@ export interface ISession {
     fieldLength?: string
     fieldWidth?: string
     fieldType?: string
+    /**
+     * Specialized-role AVAILABILITY in this session: role name -> how many people. The role names are the
+     * register's (its `specializedRole` rows), so this model names none.
+     *
+     * Christian, 13 October 2026: availability *"should come from the Team Profile or session
+     * configuration, with the coach able to confirm or adjust it. The system should not silently assume
+     * that no[ne] are available."* So an absent entry means NOT STATED — never none — and the activity
+     * review asks rather than proceeding. It is availability, not involvement: a role available here is
+     * put into a particular game only where that game's knowledge establishes it.
+     */
+    specializedRoles?: Record<string, number>
     coachComments?: string
     createdAt: Date
     updatedAt: Date
@@ -110,6 +121,13 @@ const sessionSchema = new Schema<ISession>(
         fieldLength: { type: String },
         fieldWidth: { type: String },
         fieldType: { type: String },
+        specializedRoles: {
+            type: Schema.Types.Mixed,
+            // NO DEFAULT, for the same reason `sessionEmphasis` above has none. A default here — `{}`, or
+            // a zero for each role — would be the schema stating on every session that the coach has no
+            // specialized players, which is exactly the silent assumption the field exists to remove. An
+            // untouched session stores nothing, and the review reads nothing as "not stated".
+        },
         coachComments: { type: String },
     },
     {

@@ -71,32 +71,51 @@ function parseTerm(conjunct: string): SelectorTerm | { defect: string } {
 }
 
 /**
- * Parse and validate a selector against the attributes its row actually offers.
- * `rowId` is the row the item sits on; a field row's attributes come from its `ownerRow`.
+ * The one parse loop. `attributeDefect`, when given, is asked of each term as it is read, so a selector
+ * validated against its row fails on exactly the term — and with exactly the message — it always did.
  */
-export function parseSelector(selector: unknown, rowId: string, index: RegisterIndex): ParseResult {
+function parseWith(selector: unknown, attributeDefect: ((term: SelectorTerm) => string | null) | null): ParseResult {
     if (selector === null || selector === undefined || (typeof selector === 'string' && ANY.test(selector))) {
         return { predicate: { any: true, terms: [] } }
     }
     if (typeof selector !== 'string') return { defect: `selector is not text: ${JSON.stringify(selector)}` }
 
-    const attributeSource = index.ownerRow.get(rowId) || rowId
-    const attributes = index.rows.get(attributeSource)?.selectorAttributes || []
-
     const terms: SelectorTerm[] = []
     for (const conjunct of splitConjuncts(selector)) {
         const parsed = parseTerm(conjunct)
         if ('defect' in parsed) return { defect: parsed.defect }
-        if (!attributes.includes(parsed.attribute)) {
-            return {
-                defect: `attribute ${JSON.stringify(parsed.attribute)} is not a selector attribute of ${attributeSource}` +
-                    ` (registered: ${attributes.join(', ') || 'none'})`,
-            }
-        }
+        const defect = attributeDefect ? attributeDefect(parsed) : null
+        if (defect) return { defect }
         terms.push(parsed)
     }
     if (!terms.length) return { defect: `selector has no registered term: ${selector}` }
     return { predicate: { any: false, terms } }
+}
+
+/**
+ * **The selector's SYNTAX alone** — the operators and the terms, with no register to say which attributes a row
+ * offers. Extracted 15 October 2026 (stage K1) for the one caller that has no register to hand: the restatement
+ * loader, proving an added declaration disjoint from the declarations already on its row (his 17 October M6, *"the
+ * narrow authority exception where the added statement provably cannot contradict existing knowledge"*). A proof by
+ * contradiction needs only the terms; that the attributes are registered is checked where it always was, by
+ * `parseSelector` at stage 3, which refuses an unregistered attribute as the reference defect it is.
+ */
+export function parsePredicate(selector: unknown): ParseResult {
+    return parseWith(selector, null)
+}
+
+/**
+ * Parse and validate a selector against the attributes its row actually offers.
+ * `rowId` is the row the item sits on; a field row's attributes come from its `ownerRow`.
+ */
+export function parseSelector(selector: unknown, rowId: string, index: RegisterIndex): ParseResult {
+    const attributeSource = index.ownerRow.get(rowId) || rowId
+    const attributes = index.rows.get(attributeSource)?.selectorAttributes || []
+    return parseWith(selector, term =>
+        attributes.includes(term.attribute)
+            ? null
+            : `attribute ${JSON.stringify(term.attribute)} is not a selector attribute of ${attributeSource}` + ` (registered: ${attributes.join(', ') || 'none'})`,
+    )
 }
 
 /**

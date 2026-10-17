@@ -16,6 +16,7 @@
 import assert from 'node:assert/strict'
 
 import { loadRegister } from '../derivation/corpus'
+import { scaleExactly } from '../derivation/rational'
 import { indexRegister } from '../derivation/register'
 import { realizeSpatialRelation, SpatialContext } from './spatial'
 
@@ -123,6 +124,48 @@ test('a REQUIRED extent composes, at the widest permitted extent', () => {
     const required = realizeSpatialRelation(TOUCHLINE, index, ctx({ axis: 'across', extentBound: { min: 6, max: 10 } }))!
     assert.deepEqual(required.interval, { from: 0, to: 10 }, 'containment is checked at the widest permitted extent')
     assert.equal(required.extentUnresolved, false)
+})
+
+/**
+ * **A fraction of an axis is multiplied EXACTLY** — added 13 October.
+ *
+ * A proportional rule is authored as a decimal fraction and becomes metres by multiplying, and the float
+ * product is not that number for most widths: `0.15 * 23` is `3.4499999999999997`. The interval is what a
+ * coach is given and what the fidelity check compares, so it has to be the decimal the fraction spells.
+ * Nothing is rounded: two exact decimals have an exact decimal product.
+ */
+/**
+ * **Re-pointed 14 October 2026: the exact decimal is now what gets ROUNDED, inward, to the practical grain.** His
+ * §7: *"Where practical rounding is appropriate, apply it when the configuration is established so the actual game
+ * and its instructions remain consistent."* (The grain is data and a proposal awaiting his confirmation.) The
+ * widest permitted extent on a 25 m width is still exactly 6.25 m — and the channel is composed 6 m wide, the
+ * practical value inside it. The exact decimal is still what the rounding is applied to (`practical.ts` works
+ * over exact rationals), and still what the record and the remaining assertions below hold.
+ */
+test('a FRACTIONAL extent composes from the exact decimal, rounded inward to the practical grain', () => {
+    const bound = { min: 0.15, max: 0.25, fractionOfAxis: true }
+    for (const [width, practicalWidest, exactWidest] of [
+        [30, 7.5, 7.5],
+        [25, 6, 6.25],
+        [15, 3.5, 3.75],
+        [23, 5.5, 5.75],
+        [22.5, 5.5, 5.625],
+    ]) {
+        const channel = realizeSpatialRelation(TOUCHLINE, index, ctx({ envelope: { lengthM: 40, widthM: width }, axis: 'across', extentBound: bound }))!
+        assert.deepEqual(channel.interval, { from: 0, to: practicalWidest }, `a quarter of ${width} m`)
+        assert.equal(scaleExactly(0.25, width), exactWidest, `the exact widest extent on ${width} m`)
+    }
+    assert.equal(scaleExactly(0.15, 23), 3.45)
+    assert.notEqual(0.15 * 23, 3.45, 'which the float product is not')
+    assert.equal(scaleExactly(0.15, 3), 0.45)
+    assert.notEqual(0.15 * 3, 0.45)
+    assert.equal(scaleExactly(0.3, 0.1), 0.03)
+    assert.equal(scaleExactly(1, 40), 40)
+    assert.equal(scaleExactly(0.15, 0), 0)
+    assert.equal(scaleExactly(-0.5, 3), -1.5)
+    // A whole-number result has no decimal point to place, and a long fraction keeps every digit.
+    assert.equal(scaleExactly(0.25, 40), 10)
+    assert.equal(scaleExactly(0.125, 0.5), 0.0625)
 })
 
 // ---------------------------------------------------------------------------------------------

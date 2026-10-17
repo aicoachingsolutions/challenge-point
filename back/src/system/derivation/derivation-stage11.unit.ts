@@ -12,11 +12,14 @@
  */
 import assert from 'node:assert/strict'
 
-import { corpusInput, loadRegister, loadCorpusContracts, repairTally, restatementTally } from './corpus'
-import { repairEncoding } from './corpus-repair'
-import { NO_ROW_RESTATEMENTS } from './corpus-restatement'
-import { reaches } from './reach'
+import { corpusInput, loadRegister, loadCorpusContracts, readJson, repairTally, restatementTally } from './corpus'
+import { repairCorpusEncoding, repairEncoding } from './corpus-repair'
+import { DECLARATION_ADDITIONS, NO_ROW_RESTATEMENTS, provenDisjointRefusal } from './corpus-restatement'
+import { provablyDisjoint, reaches } from './reach'
+import { parsePredicate, parseSelector } from './selector'
 import { indexRegister } from './register'
+import { assembleResolvedGame } from './resolved-game'
+import { derivationInputFor } from './run-bounded-selection'
 import { runDerivation, runStages0to10 } from './engine'
 import { isStampedHalt } from './emit'
 import { ContractItem, DerivationInput, LoadedContract } from './types'
@@ -300,21 +303,81 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
     loadCorpusContracts()
     assert.equal(restatementTally.applied, 20, 'the twenty NO_ROW items')
     assert.deepEqual(restatementTally.withheld, [], 'none was named but disqualified')
+    // 45 -> 46 on 15 October 2026 (C51): RPC-001-13's statement of direction loses the engine wording "own-half start
+    // area" (his reply received that day, item 9 point 10: "Remove unsupported "own-half start area" wording:
+    // Approved."). Pinned in the C51 test below.
+    // 55 -> 56 the same day (C54): RPC-001-18.d's referent recorded as the progression reference, distinct from the
+    // initial pressure reference (his 9.1, "They are distinct relationships, even when they coincide spatially.").
+    // 18.d also carries C52's scope, so it is one item with two rulings and counts once per ruling.
+    // 46 -> 55 the same day (C52): the nine items of RPC-001's build-out condition (18.a-18.g, 19.a, 19.b) scoped
+    // WHOLE_GAME -> BUILD_OUT_EPISODE, his 16 October 9.3: "Build-out condition applies only to build-out episodes:
+    // Approved." Pinned in condition-scope.unit.ts.
+    // 56 -> 57 on 15 October 2026 (stage K1, C57): his M8 safeguard recorded verbatim in RPC-001-19.b's fitNote — "Please
+    // ensure this does not inadvertently prohibit a functional longer pass that is received under control beyond
+    // pressure." — beside the exclusion it guards. 19.b also carries C52's scope: one item, two rulings, counted per ruling.
+    // 57 -> 58 on 15 October 2026 (stage K4, C56): GF2-14.b carries defersTo AUTHORIZED_REALIZATION, his 17 October D6
+    // "please document it as a knowledge-authorized realization, preserving equal numbers as an alternative." GF2-14.b
+    // also carries C31b's promotion: one item, two rulings, counted per ruling. Pinned in allocation.unit.ts.
+    // 58 -> 59 on 15 October 2026 (stage K5, C58): RPC-001-18.b's referent typed as the restarts that begin a build-out episode,
+    // his 18 October acknowledgement "A restart, taken by the goalkeeper or as a controlled defensive restart, that begins a
+    // build-out episode." 18.b also carries C52's scope: one item, two rulings. Pinned in starts-and-restarts.unit.ts.
+    // 59 -> 60 on 15 October 2026 (stage K6, C59): RPC-001-18.d's referent - the progression reference C54 recorded - typed as the
+    // objective reference of SCORING_TEAM, the M8 form C54 named ("a machine-readable referent for the progression reference is
+    // capability M8"). 18.d also carries C52's scope and C54's value: one item, three rulings. Pinned in target-placement.unit.ts.
     assert.equal(
         restatementTally.itemsRestated,
-        40,
+        60,
         'six Phase A rulings, six sets (SD-79), two exclusion bounds (SD-86), eight goal-kick selectors (SD-87), one restart ownership (SD-89), ' +
             'one typed reference (SD-98), one Wide Zone gloss (C29a), one DISTINCT_ON mark (C29b/C29e), two typed neutral bounds (C29c), ' +
             'one typed channel width (C30b), one equal-outfield promotion (C31b), three Wide Zone lateral restatements (C33), ' +
             'three stale comparison claims corrected (C36a/b/c) — the fitNotes that still said no requirement kind compares two ' +
             'elements, which AM-16 made obsolete on 20 September; C31b carries the fourth, on the item it also types as a COMPARES — ' +
             "and ONE TYPED FORBIDDEN VALUE under the same SD-86 treatment (C40) — WIDEZONE-08.c's two wide channels, moved out of a prose value that the new forbidden-value check could not compare, which is what makes that exclusion violable at all — and two typed cardinalities under SD-86 — PCG-08's authored \"at least 2 teams\" (C37) and " +
-            "RPC-001-14.a's authored \">=1\" (C38), both moved out of prose where the count reader could not see them",
+            "RPC-001-14.a's authored \">=1\" (C38), both moved out of prose where the count reader could not see them, " +
+            'and TWO SELECTOR SCOPINGS under ruling C42 of 9 October — GF2-12.a and GF2-08.b narrowed to the shared arrangement they were made ' +
+            'about, so the shared target is preserved and inert while the directional one is active — ' +
+            'and, from 44 on 14 October 2026, TWO of his answers about the Pass Combination Gate: PCG-11 typed to the gate’s own condition (C44, ' +
+            '"the counting information refers to that gate’s own condition") and PCG-04 typed a preferred 4-6, SUPPORTING (C46, "a preferred range ' +
+            'of 4–6, not a requirement or a predetermined starting count"). Neither approves the gate for a Learning Goal — ' +
+            'and, from 45 the same day, his bibs ruling (C47): NEUTRAL-06.b, the authored means, marked SUPPORTING ("Contrasting bibs should be ' +
+            'treated as a practical recommendation for distinguishing neutrals, not a universal requirement"); its value stays a preferred default — ' +
+            'and, from 46 on 15 October 2026, RPC-001-13 without "own-half start area" (C51, his 9.10) — ' +
+            'and, from 55 the same day, the nine build-out condition items scoped to the build-out episode (C52, his 9.3) — ' +
+            'and, from 56, RPC-001-18.d recorded as the progression reference, distinct from the pressure reference (C54, his 9.1) — ' +
+            'and, from 57, his M8 safeguard beside the long-clearance exclusion, RPC-001-19.b (C57) — ' +
+            'and, from 58, GF2-14.b deferring to a knowledge-authorized realization (C56, his D6) — ' +
+            'and, from 59, the build-out origin typed as the restarts that begin a build-out episode (C58, his 18 October item 4)',
     )
-    assert.equal(restatementTally.itemsRemoved, 2, 'WIDEZONE-13.a and 13.b')
+    // **4 since ruling C42.** GF2-08.a and GF2-03.a are retired — the shared objective's existence and the
+    // target it referenced — so the game holds exactly two objectives and two targets rather than three of each.
+    // Both items stay in contracts.json verbatim, with the 28 September decision beside them.
+    //
+    // **6 since ruling C45 of 14 October 2026.** PCG-06 (the gate condition's place, "own half of ATTACKING_TEAM")
+    // and PCG-07 (the per-team half it needed) are removed from the active gate knowledge, his words: *"Record this
+    // as removed from the active gate knowledge, retaining the original for provenance."* Both stay verbatim in
+    // contracts.json.
+    //
+    // **20 since ruling C51 of 15 October 2026.** Twelve RPC-001 items whose basis is ENGINE_ONLY (04.a, 04.b, 04.c,
+    // 05.a, 05.b, 06, 09.a, 09.b, 16.a, 16.b, 16.c, 20 — implementation wording from the engine's own coach rules,
+    // in no workbook) are retired as cleanup, his reply of that day, item 8: *"Cleanup that removes redundant or
+    // superseded implementation language ... can proceed as proposed."* — and the context's separate scoring
+    // objective with its target reference (11.a, 08.c), his 9.5: *"Retire the redundant separate scoring objective:
+    // Approved, provided the live attacking objective remains represented."* All fourteen stay verbatim in
+    // contracts.json ("Please preserve provenance for the retired engine-authored wording ...").
+    //
+    // **22 since ruling C53, the same day.** RPC-001-02 and RPC-001-03 — exactly one goalkeeper on every build-out
+    // team and on every attacking team — stop being universal, his 9.4: *"Goalkeeper-or-controlled-restart
+    // alternative: Approved."* (our change 4, "applying where the activity includes a goalkeeper, not as a
+    // requirement on every team"). Both stay verbatim in contracts.json; the roster consequence is pinned in
+    // activity-review.unit.ts.
+    assert.equal(restatementTally.itemsRemoved, 22, 'WIDEZONE-13.a and 13.b, GF2-08.a and GF2-03.a (C42), PCG-06 and PCG-07 (C45), fourteen RPC-001 items (C51), and RPC-001-02 and -03 (C53)')
+    // 23 -> 25 on 15 October 2026 (stage K1, C57): the referents of RPC-001's control condition and long-clearance
+    // exclusion, RPC-001-18.h and 19.c, typed as the objective reference of the scoring team — his M8, 17 October:
+    // "Apply the qualifying conditions to the target and scoring episode actually being evaluated." Pinned in
+    // typed-referent.unit.ts.
     assert.equal(
         restatementTally.itemsAdded,
-        16,
+        25,
         'the recovered GF4 operation, the traced neutral existence, SD-102’s canonical shared objective, the five connected-pass IE dimensions (C29d), ' +
             'the three Wide Zone value-modifier items — existence, magnitude 2 and MULTIPLY (C34) — and its second typed referent (C35), ' +
             'and the required channel extent as a proportion (C31a), ' +
@@ -322,9 +385,44 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
             'reveal ruling left unauthored while it filled the five dimensions beside it, ' +
             "and the two halves of the Wide Zone qualifying interaction (C40) — the criterion that satisfies the condition on V8c and the " +
             'POSSESSION_CHANGE that ends the modification on V8d, kept as two items because he instructed that criterion and persistence not be ' +
-            'compressed into one field',
+            'compressed into one field, ' +
+            'and the SIX items of the directional arrangement under ruling C42 of 9 October: two target regions told apart by the new ' +
+            'along-axis selector attribute, two per-team objectives whose selectors also constitute the team that attacks each, and the ' +
+            'two typed references pairing each team with the target at the opposite end, ' +
+            'and, from 23 on 14 October 2026, his allegiance ruling as ONE item (C43): NEUTRAL-14.c, P6c = IMMEDIATE, on the new register row ' +
+            '(version 7) — "Please add the explicit property governing when a neutral player changes allegiance, using immediate switching ' +
+            'upon possession change as the approved behavior for the current mechanism" — ' +
+            'and, from 25 on 15 October 2026, the two typed referents of his M8 (C57): RPC-001-18.h and RPC-001-19.c',
     )
     assert.equal(restatementTally.declarationScopes, 64)
+    // **New on 14 October 2026, counted apart from scopes.** The gate's V5 and SV1 declarations CLAIMED those rows
+    // on the strength of PCG-06 and PCG-07; with the items removed (C45) the claims are restated, or they would
+    // assert a place and a half that nobody now authors. SV1 is NON_CLAIMED. V5 was NON_CLAIMED until his reply
+    // received 15 October 2026 (16 October, item 8: "removing 'in their half' should not automatically be
+    // interpreted as authorizing pass counting anywhere"), and is NOT_AUTHORED since (C45/C49, amended in place, so
+    // it still counts once).
+    //
+    // **2 -> 6 on 15 October 2026 (C50).** His Option A, item 8 of the same reply — "I approve your recommended
+    // Option A for the four identified statements" — marks GF2's four NOT_AUTHORED declarations on V3, V4, V5 and V6
+    // as deferring to the establishing object. A deferral is a declaration restatement that keeps its kind, so each
+    // counts here; which four, and that no other declaration defers, is pinned in governing-declarations.unit.ts.
+    //
+    // **6 -> 15 on 15 October 2026 (C51).** Nine RPC-001 declarations CLAIMED a row on the strength of items C51
+    // retires and nothing else (SV1, P4, P8, P10, S5, O4, J2, V2, T4); each is restated beside the retirement, as C45
+    // did for the gate. Which kind each became, and that no line or gate verdict moved, is pinned in the C51 test below.
+    // **16 since C53, the same day**: RPC-001's P3 claim cited only 02 and 03, so it is restated NON_CLAIMED beside them.
+    assert.equal(restatementTally.declarationsRestated, 16, 'the gate’s V5 and SV1 claims (C45, V5 corrected by C49), GF2’s four deferring V3-V6 gaps (C50), nine RPC-001 claims on retired items (C51), and its P3 claim (C53)')
+    // **New on 14 October 2026 (C48), counted apart from both.** Register row P6c was added that day (C43) after
+    // every contract was written, so none declared it and every game without neutrals read it as "no coverage" —
+    // nobody looked. The seven contracts that declare P6a NON_CLAIMED get the same declaration on P6c; the Neutral
+    // Player Condition, which authors P6c through C43, gets none. Which seven is checked from the data below, not
+    // pinned here.
+    assert.equal(restatementTally.declarationsAdded, 7, 'P6c NON_CLAIMED, beside P6a NON_CLAIMED, on the seven contracts that declare it (C48)')
+    // **New on 15 October 2026 (stage K1), counted apart from C48's.** His M6 (17 October): "I approve the narrow
+    // authority exception where the added statement provably cannot contradict existing knowledge." One addition joins a
+    // row its contract already declares, under that exception: RPC-001's origin needs no further value (C55, his 9.9).
+    // The proof and each refusal it gives are pinned in the M6 tests below.
+    assert.equal(restatementTally.declarationsAddedOnDeclaredRows, 1, 'RPC-001 V6 NON_CLAIMED NO_FURTHER_VALUE type=origin (C55)')
     assert.deepEqual(restatementTally.notFound, [], 'every item a ruling names was found')
 
     // A01-02-05.a is the first item two rulings touch: SD-87 set its selector, SD-89 its value and
@@ -336,6 +434,183 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
     assert.match(goalKick.selector, /qualifier\.lastTouch=ATTACKING_TEAM/, 'SD-87 selector kept')
     assert.equal(goalKick.value, 'DEFENDING_TEAM', 'SD-89 value applied')
     assert.equal(goalKick.basis, 'AUTHORED', 'SD-89 made the ownership authoritative; it was ASSUMED')
+})
+
+/**
+ * C48, 14 October 2026 — the P6a declaration extended to the timing row added that day. Checked against the data
+ * rather than a list written here, so a contract that gains or loses its P6a declaration moves this test with it.
+ */
+test('C48: P6c is declared exactly where P6a is declared NON_CLAIMED, as the same declaration, and nowhere in contracts.json', () => {
+    const contracts = loadCorpusContracts()
+    const extended: string[] = []
+    for (const c of contracts) {
+        const p6a = (c.declarations || []).filter((d: any) => d.row === 'P6a' && d.declaration === 'NON_CLAIMED')
+        const p6c = (c.declarations || []).filter((d: any) => d.row === 'P6c')
+        if (!p6a.length) {
+            assert.deepEqual(p6c, [], `${c.contractId} does not declare P6a NON_CLAIMED, so it gains no P6c declaration`)
+            continue
+        }
+        assert.deepEqual(p6c, p6a.map((d: any) => ({ ...d, row: 'P6c' })), `${c.contractId}: the same kind, selector, scope and note as its P6a declaration`)
+        extended.push(c.contractId)
+    }
+    assert.equal(extended.length, restatementTally.declarationsAdded, 'every addition is one of these, and each is counted once')
+    const neutral = contracts.find(c => c.contractId === 'restated:NEUTRAL-PLAYER-CONDITION')!
+    assert.ok(!extended.includes(neutral.contractId) && neutral.items.some((i: any) => i.row === 'P6c'), 'the Neutral Player Condition authors P6c (C43) and is not given a declaration on it')
+    // A restatement, not an edit: the authored file still declares the row nowhere.
+    const raw = readJson('stage-b/contracts.json')
+    const entries: any[] = Array.isArray(raw) ? raw : Object.values(raw)
+    assert.ok(!entries.some(e => (e.result?.declarations || []).some((d: any) => d.row === 'P6c')), 'contracts.json is untouched')
+})
+
+test('C48: an added declaration is refused, and said, where the contract is missing or already declares the row', () => {
+    const before = DECLARATION_ADDITIONS.length
+    // The tally as the data leaves it, read before the refused additions go in. (Until stage K1 this was the length of
+    // the additions list, which equalled it; since C55 one addition is counted apart, under his M6 exception.)
+    loadCorpusContracts()
+    const counted = restatementTally.declarationsAdded
+    const declaration = { row: 'P6a', declaration: 'NON_CLAIMED', selector: '*', scope: 'WHOLE_GAME', note: 'test' }
+    DECLARATION_ADDITIONS.push(
+        { contractId: 'restated:GF2', declaration, ruling: 'TEST', why: 'GF2 already declares P6a' },
+        { contractId: 'restated:NO-SUCH-CONTRACT', declaration, ruling: 'TEST', why: 'no such contract' },
+    )
+    try {
+        const gf2 = loadCorpusContracts().find(c => c.contractId === 'restated:GF2')!
+        assert.equal(restatementTally.declarationsAdded, counted, 'neither refused addition is counted')
+        assert.equal(gf2.declarations.filter((d: any) => d.row === 'P6a').length, 1, 'the authored P6a declaration is not joined by a second account of the row')
+        assert.equal(gf2.declarations.find((d: any) => d.row === 'P6a')!.note, 'doesNotConstrain: performers outside the two teams are neither authored nor forbidden.')
+        assert.deepEqual(restatementTally.notFound, [
+            'restated:GF2 undeclared row P6a (TEST): it already declares NON_CLAIMED, so nothing is added',
+            'restated:NO-SUCH-CONTRACT (declaration addition TEST)',
+        ])
+    } finally {
+        DECLARATION_ADDITIONS.splice(before)
+        loadCorpusContracts()
+    }
+    assert.deepEqual(restatementTally.notFound, [], 'restored')
+})
+
+/**
+ * ── His M6 exception (stage K1, 15 October 2026) ────────────────────────────────────────────────────────────
+ *
+ * His 17 October words: *"I approve the narrow authority exception where the added statement provably cannot
+ * contradict existing knowledge."* C48's rule — an addition only on a row its contract has not declared — stays the
+ * default; an addition that opts in (`onDeclaredRow: "PROVEN_DISJOINT"`) may join a declared row only when the proof
+ * holds (corpus-restatement.ts `provenDisjointRefusal`). The design analysis's verifier REFUTED a contract-local
+ * proof by measurement — under AM-23 a non-claim outranks a claim, so it hid another contract's requirement on a test
+ * copy — so the proof covers every contract's CLAIMED and every value-authoring item on the row too.
+ */
+test('M6: C55 joins a row RPC-001 already declares, as the fourth V6 declaration, qualified, with no deferral; contracts.json untouched', () => {
+    const rpc = loadCorpusContracts().find(c => c.contractId === 'restated:RPC-001')!
+    const v6 = (rpc.declarations || []).filter((d: any) => d.row === 'V6').map((d: any) => `${d.declaration} ${d.selector}${d.qualifier ? ` ${d.qualifier}` : ''}`)
+    assert.deepEqual(v6, ['CLAIMED type ∈ {progression, control, exclusion}', 'NOT_AUTHORED type=control', 'NOT_AUTHORED type=exclusion', 'NON_CLAIMED type=origin NO_FURTHER_VALUE'])
+    assert.ok(!('defersTo' in (rpc.declarations || []).find((d: any) => d.qualifier)!), 'an added declaration carries no deferral')
+    assert.equal(restatementTally.declarationsAddedOnDeclaredRows, 1)
+    assert.deepEqual(restatementTally.notFound, [])
+    const raw = readJson('stage-b/contracts.json')
+    const authored = (Array.isArray(raw) ? raw : Object.values(raw)).find((e: any) => /RPC-001/.test(e.name))
+    assert.equal(authored.result.declarations.filter((d: any) => d.row === 'V6').length, 3, 'the authored file still holds three')
+})
+
+test('M6: the proof — FALSE both ways under the reach semantics; *, CONTAINS and undetermined never prove', () => {
+    const p = (s: string) => parsePredicate(s).predicate!
+    assert.ok(provablyDisjoint(p('type=origin'), p('type=control')))
+    assert.ok(provablyDisjoint(p('type=origin'), p('type ∈ {progression, control, exclusion}')))
+    assert.ok(provablyDisjoint(p('type ∈ {progression, control, exclusion}'), p('type=origin')), 'symmetric')
+    assert.ok(!provablyDisjoint(p('type ∈ {origin, control}'), p('type=control')), 'an overlap is not disjoint')
+    assert.ok(!provablyDisjoint(p('type=origin'), p('*')), '* reaches everything')
+    assert.ok(!provablyDisjoint(p('*'), p('type=origin')))
+    assert.ok(!provablyDisjoint(p('functions ∋ objective-area'), p('functions ∋ access')), 'CONTAINS never proves')
+    assert.ok(!provablyDisjoint(p('type=origin'), p('team=TEAM_AT_AXIS_START')), 'different attributes: undetermined, not disjoint')
+    assert.ok(!provablyDisjoint(p('type=origin'), p('type=origin')), 'identical selectors overlap')
+    // The syntax-only parser reads exactly what the register-validating one reads, wherever both read.
+    const index = indexRegister(REGISTER)
+    for (const contract of loadCorpusContracts()) {
+        for (const d of contract.declarations || []) {
+            const checked = parseSelector(d.selector, String(d.row), index)
+            if (checked.predicate) assert.deepEqual(parsePredicate(d.selector), checked, `${contract.contractId} ${String(d.row)}`)
+        }
+    }
+})
+
+test('M6: every addition that could contradict is refused with its own reason, and nothing is added', () => {
+    const before = DECLARATION_ADDITIONS.length
+    const origin = { row: 'V6', declaration: 'NON_CLAIMED', qualifier: 'NO_FURTHER_VALUE', selector: 'type=origin', scope: 'WHOLE_GAME', note: 'TEST-ONLY' }
+    const attempts: [Record<string, unknown>, string][] = [
+        [{ ...origin, selector: 'type ∈ {origin, control}' }, 'the added declaration is not proven disjoint from its CLAIMED type ∈ {progression, control, exclusion}, so nothing is added'], // the first statement it overlaps is named
+        [{ ...origin, selector: '*' }, 'the added declaration is not proven disjoint from its CLAIMED type ∈ {progression, control, exclusion}, so nothing is added'],
+        [{ ...origin, qualifier: undefined }, 'only a non-claim qualified with a registered state may join a row the contract already declares, so nothing is added'],
+        [{ ...origin, declaration: 'CLAIMED' }, 'only a non-claim qualified with a registered state may join a row the contract already declares, so nothing is added'],
+        [{ ...origin, defersTo: 'ESTABLISHING_OBJECT' }, 'an added declaration may not carry a deferral, so nothing is added'],
+        [{ ...origin, selector: 'type IN origin' }, 'its own selector cannot be read (malformed IN term: type IN origin), so disjointness cannot be proved and nothing is added'],
+    ]
+    try {
+        for (const [declaration, reason] of attempts) {
+            const clean = Object.fromEntries(Object.entries(declaration).filter(([, v]) => v !== undefined))
+            DECLARATION_ADDITIONS.push({ contractId: 'restated:RPC-001', declaration: clean as any, onDeclaredRow: 'PROVEN_DISJOINT', ruling: 'TEST', why: 'TEST-ONLY' })
+            const rpc = loadCorpusContracts().find(c => c.contractId === 'restated:RPC-001')!
+            assert.deepEqual(restatementTally.notFound, [`restated:RPC-001 declared row V6 (TEST): ${reason}`], JSON.stringify(clean))
+            assert.equal(restatementTally.declarationsAddedOnDeclaredRows, 1, 'only C55 is counted')
+            assert.equal((rpc.declarations || []).filter((d: any) => d.row === 'V6').length, 4, 'nothing is added')
+            DECLARATION_ADDITIONS.splice(before)
+        }
+        // Without the opt-in, C48's rule and C48's words, exactly as before.
+        DECLARATION_ADDITIONS.push({ contractId: 'restated:RPC-001', declaration: { ...origin, selector: 'type=eligibility' } as any, ruling: 'TEST', why: 'TEST-ONLY' })
+        loadCorpusContracts()
+        assert.deepEqual(restatementTally.notFound, ['restated:RPC-001 undeclared row V6 (TEST): it already declares CLAIMED, NOT_AUTHORED, NOT_AUTHORED, so nothing is added']) // C55 joins after every contract is restated, so C48's check reads the authored three
+    } finally {
+        DECLARATION_ADDITIONS.splice(before)
+        loadCorpusContracts()
+    }
+    assert.deepEqual(restatementTally.notFound, [], 'restored')
+})
+
+test("M6: the proof reads OTHER contracts — another contract's claim, or an item authoring a value, on the row refuses the addition", () => {
+    // Constructed, TEST-ONLY. The verifier's measured hazard: a GF2 CLAIMED type=origin on V6 would have been hidden by
+    // C55 (AM-23 puts a non-claim above a claim), and a contract-local proof admitted it.
+    const addition = DECLARATION_ADDITIONS.find(a => a.ruling === 'C55')!
+    const contracts = (): LoadedContract[] => JSON.parse(JSON.stringify(loadCorpusContracts())).map((c: any) => (c.contractId === 'restated:RPC-001' ? { ...c, declarations: c.declarations.filter((d: any) => !d.qualifier) } : c))
+    assert.equal(provenDisjointRefusal(addition, contracts()), null, 'the real knowledge: proven')
+    const claimed = contracts()
+    claimed.find(c => c.contractId === 'restated:GF2')!.declarations.push({ row: 'V6', declaration: 'CLAIMED', selector: 'type=origin', scope: 'WHOLE_GAME', note: 'TEST-ONLY' } as any)
+    assert.equal(provenDisjointRefusal(addition, claimed), "restated:RPC-001 declared row V6 (C55): the added declaration is not proven disjoint from restated:GF2's CLAIMED type=origin, so nothing is added")
+    const valued = contracts()
+    valued.find(c => c.contractId === 'restated:A01-02')!.items.push({ itemId: 'T-V6', row: 'V6', selector: 'type=origin', requirement: 'EQUALS', value: 'TEST-ONLY', strictness: 'REQUIRED' } as any)
+    assert.equal(provenDisjointRefusal(addition, valued), 'restated:RPC-001 declared row V6 (C55): the added declaration is not proven disjoint from item restated:A01-02::T-V6 type=origin, so nothing is added')
+    // Another contract's NON_CLAIMED or EXCLUDED needs no proof (it is not outranked), and an EXCLUSION item forbids a
+    // value the field must not take, which "needs no further value" does not contradict — NEUTRAL-16.a is one, `*`.
+    const neutral = loadCorpusContracts().find(c => c.contractId === 'restated:NEUTRAL-PLAYER-CONDITION')!
+    assert.ok(neutral.items.some((i: any) => i.itemId === 'NEUTRAL-16.a' && i.row === 'V6' && i.selector === '*' && i.strictness === 'EXCLUSION'), 'the exclusion item the proof passes over is real')
+})
+
+test('M6, K1 review: a QUALIFIED addition on a row its contract has not declared is proved too — C48\'s path admits only unqualified ones unproved', () => {
+    // Added at the K1 review, 15 October 2026. C48's path never looked at other contracts, which was sound for what it
+    // was built for (a legacy non-claim copied beside its sibling); a qualified statement there could sit above another
+    // contract's claim or item and set a ruled deferral aside, unproved. Constructed, TEST-ONLY: GF2 declares nothing
+    // on V8c, and the Wide Zone item WIDEZONE-18.d authors a value there for condition.type=region.
+    const before = DECLARATION_ADDITIONS.length
+    loadCorpusContracts()
+    const counted = restatementTally.declarationsAdded
+    const statement = { row: 'V8c', declaration: 'NON_CLAIMED', qualifier: 'NO_FURTHER_VALUE', scope: 'WHOLE_GAME', note: 'TEST-ONLY' }
+    try {
+        DECLARATION_ADDITIONS.push({ contractId: 'restated:GF2', declaration: { ...statement, selector: 'condition.type=region' } as any, ruling: 'TEST', why: 'TEST-ONLY' })
+        let gf2 = loadCorpusContracts().find(c => c.contractId === 'restated:GF2')!
+        assert.deepEqual(restatementTally.notFound, ['restated:GF2 undeclared row V8c (TEST): the added declaration is not proven disjoint from item restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-18.d condition.type=region, so nothing is added'])
+        assert.ok(!(gf2.declarations || []).some((d: any) => d.row === 'V8c'), 'nothing is added')
+        assert.equal(restatementTally.declarationsAdded, counted, 'and nothing is counted')
+        DECLARATION_ADDITIONS.splice(before)
+        // Proved disjoint, it is admitted, and counted with C48's additions (its row was undeclared), not as an M6 one.
+        DECLARATION_ADDITIONS.push({ contractId: 'restated:GF2', declaration: { ...statement, selector: 'condition.type=event' } as any, ruling: 'TEST', why: 'TEST-ONLY' })
+        gf2 = loadCorpusContracts().find(c => c.contractId === 'restated:GF2')!
+        assert.deepEqual(restatementTally.notFound, [])
+        assert.deepEqual((gf2.declarations || []).filter((d: any) => d.row === 'V8c').map((d: any) => `${d.declaration} ${d.selector} ${d.qualifier}`), ['NON_CLAIMED condition.type=event NO_FURTHER_VALUE'])
+        assert.equal(restatementTally.declarationsAdded, counted + 1)
+        assert.equal(restatementTally.declarationsAddedOnDeclaredRows, 1, 'only C55 is an M6 addition')
+    } finally {
+        DECLARATION_ADDITIONS.splice(before)
+        loadCorpusContracts()
+    }
+    assert.deepEqual(restatementTally.notFound, [], 'restored')
+    assert.equal(restatementTally.declarationsAdded, counted, 'restored')
 })
 
 /**
@@ -978,6 +1253,253 @@ test('each of the five structural items got its own ruled treatment, not the bla
     // No item anywhere still carries an unregistered no-row spelling.
     const leftover = contracts.flatMap(c => c.items.filter(i => ['NONE', '—'].includes(String(i.row))).map(i => `${c.contractId}::${i.itemId}`))
     assert.deepEqual(leftover, [])
+})
+
+/**
+ * ── Ruling C51, 15 October 2026: the context's cleanup, with provenance kept and the proviso measured ──────────────
+ *
+ * Three kinds of change, kept apart because he asked for them to be (his reply of that day, item 8: *"please
+ * distinguish between: Cleanup that removes redundant or superseded implementation language. Changes that alter the
+ * functional meaning of the approved context. The first can proceed as proposed."*):
+ *   - CLEANUP: the twelve RPC-001 items whose basis is ENGINE_ONLY — wording from the engine's own coach rules
+ *     (primary-scoring.ts), in no workbook. Inert under SD-21, so retiring them must move nothing; that is checked by
+ *     putting them back on a copy, not assumed.
+ *   - FUNCTIONAL, identified and approved: the separate scoring objective (11.a) with its target reference (08.c),
+ *     his 9.5 — *"Approved, provided the live attacking objective remains represented"* — so the proviso is measured.
+ *   - FUNCTIONAL, identified and approved: "own-half start area" out of RPC-001-13, his 9.10.
+ * Every retired item stays verbatim in contracts.json: *"Please preserve provenance for the retired engine-authored
+ * wording and identify any additional semantic changes before making them authoritative."*
+ */
+const ENGINE_ONLY_RETIRED = ['RPC-001-04.a', 'RPC-001-04.b', 'RPC-001-04.c', 'RPC-001-05.a', 'RPC-001-05.b', 'RPC-001-06', 'RPC-001-09.a', 'RPC-001-09.b', 'RPC-001-16.a', 'RPC-001-16.b', 'RPC-001-16.c', 'RPC-001-20']
+const RPC = 'restated:RPC-001'
+/** RPC-001 exactly as contracts.json holds it — the provenance, encoding repaired the way the loader repairs it. */
+const rpc001AsAuthored = (): any => {
+    const raw: any[] = repairCorpusEncoding(readJson('stage-b/contracts.json'), { strings: 0, charactersRecovered: 0 })
+    return raw.find(entry => entry.kind === 'restated' && String(entry.name).startsWith('RPC-001')).result
+}
+const composeFor = (ids: string[]): DerivationInput => derivationInputFor({ selected: ids.map(id => ({ id, role: 'test composition' })) })
+/** Every line whose verdict or reason differs, and every Gate A check that moves, between two runs. */
+const movesBetween = (a: any, b: any): string[] => {
+    const out: string[] = []
+    for (const id of new Set([...a.classified.keys(), ...b.classified.keys()])) {
+        const x = a.classified.get(id), y = b.classified.get(id)
+        const vx = x ? `${x.verdict}/${x.reason ?? ''}` : 'absent', vy = y ? `${y.verdict}/${y.reason ?? ''}` : 'absent'
+        if (vx !== vy) out.push(`${id}: ${vx} -> ${vy}`)
+    }
+    const va: any = Object.fromEntries([['verdict', a.gates.gateA.verdict], ...a.gates.gateA.checks.map((c: any) => [c.checkId, c.verdict])])
+    const vb: any = Object.fromEntries([['verdict', b.gates.gateA.verdict], ...b.gates.gateA.checks.map((c: any) => [c.checkId, c.verdict])])
+    for (const k of new Set([...Object.keys(va), ...Object.keys(vb)])) if (va[k] !== vb[k]) out.push(`Gate A ${k}: ${va[k]} -> ${vb[k]}`)
+    return out.sort()
+}
+
+test('C51: fourteen RPC-001 items leave the active knowledge, each kept verbatim in contracts.json with the basis that put it on the list', () => {
+    const authored = rpc001AsAuthored()
+    const basisOf = (id: string) => authored.items.find((i: any) => i.id === id)?.basis
+    for (const id of ENGINE_ONLY_RETIRED) assert.equal(basisOf(id), 'ENGINE_ONLY', `${id}: verified engine wording before it was retired as cleanup`)
+    assert.equal(basisOf('RPC-001-11.a'), 'OWNER_RULING', 'the separate objective is not engine wording: retiring it is functional, and he approved it (9.5)')
+    assert.equal(basisOf('RPC-001-08.c'), 'AUTHORED', 'nor is its target reference')
+    // Nothing ENGINE_ONLY is left behind in the context, and nothing else of its was retired.
+    assert.deepEqual(authored.items.filter((i: any) => i.basis === 'ENGINE_ONLY').map((i: any) => i.id), ENGINE_ONLY_RETIRED, 'exactly the twelve, verified one by one')
+    const loaded = loadCorpusContracts().find(c => c.contractId === RPC)!
+    const retired = [...ENGINE_ONLY_RETIRED, 'RPC-001-11.a', 'RPC-001-08.c']
+    assert.deepEqual(loaded.items.filter(i => retired.includes(i.itemId)), [], 'none reaches derivation')
+    // Less the two goalkeeper items C53 retired later the same day (RPC-001-02, -03; their own test is in activity-review),
+    // and plus the two referents C57 added in stage K1 (RPC-001-18.h, 19.c — his M8; pinned in typed-referent.unit.ts).
+    assert.equal(loaded.items.length, authored.items.length - retired.length - 2 + 2)
+    assert.deepEqual(loaded.items.filter(i => !authored.items.some((a: any) => a.id === i.itemId)).map(i => i.itemId), ['RPC-001-18.h', 'RPC-001-19.c'], 'the only items not in contracts.json are C57\'s')
+    // "The part that says this objective is live during the build-out is kept" (our change 5, as approved).
+    assert.ok(loaded.items.some(i => i.itemId === 'RPC-001-11.b'), 'RPC-001-11.b, the live-in-the-episode clause, is kept')
+})
+
+test('C51: retiring the twelve engine-only items moved nothing — measured by putting them back on a copy', () => {
+    const authored = rpc001AsAuthored()
+    const putBack = (input: DerivationInput) => {
+        input.contracts = JSON.parse(JSON.stringify(input.contracts)) // the loader's objects are shared
+        const rpc: any = input.contracts.find(c => c.contractId === RPC)
+        for (const id of ENGINE_ONLY_RETIRED) {
+            const { id: itemId, ...rest } = authored.items.find((i: any) => i.id === id)
+            rpc.items.push({ itemId, ...rest })
+        }
+        return input
+    }
+    for (const ids of [['restated:GF2', RPC], ['restated:GF2', RPC, 'restated:A01-02'], [RPC]]) {
+        const now = runStages0to10(composeFor(ids))
+        const before = runStages0to10(putBack(composeFor(ids)))
+        assert.deepEqual(movesBetween(before, now), [], `${ids.join(' + ')}: SD-21 kept them inert, so their retirement is cleanup and nothing else`)
+    }
+    assert.deepEqual(movesBetween(runStages0to10(putBack(corpusInput())), runStages0to10(corpusInput())), [], 'corpus-wide too')
+})
+
+test('C51: the proviso — the live attacking objective remains represented, and the redundant one\'s blocker is gone', () => {
+    for (const ids of [['restated:GF2', RPC], ['restated:GF2', RPC, 'restated:A01-02']]) {
+        const input = composeFor(ids)
+        const staged: any = runStages0to10(input)
+        const result = runDerivation(input)
+        assert.ok(!isStampedHalt(result))
+        const game = assembleResolvedGame(result as any, staged.classes, indexRegister(input.register), input.contracts)
+        const objectives = (game.game as any).objectives.map((o: any) => `${o.elementId} ${o.role} ${o.team} -> ${o.reference?.structuralRef?.itemId ?? 'NOTHING'}`)
+        // Before (measured that day): three — these two and RPC-001-11.a (BUILD_OUT_TEAM -> NOTHING, the failed J2).
+        assert.deepEqual(objectives, [
+            'c:restated:GF2:GF2-08.c PRIMARY_SCORING TEAM_AT_AXIS_START -> GF2-03.f',
+            'c:restated:GF2:GF2-08.e PRIMARY_SCORING TEAM_AT_AXIS_END -> GF2-03.e',
+        ], `${ids.join(' + ')}: each team attacks its own target, so whichever team builds out has its live objective`)
+        assert.ok(![...staged.classified.keys()].some((id: string) => id.includes('RPC-001-11.a')), 'the separate objective and its unresolved reference are gone')
+        const blockers = staged.gates.gateA.checks.find((c: any) => c.checkId === 'GA-NO-FAILED-LINE').subjects.filter((id: string) => id.includes('RPC-001'))
+        // **3 -> 0 on 15 October 2026 (stage K1), measured.** 18.a::V6 by C55 — his 9.9, "Build-out origin needs no further
+        // value: Approved under the narrow authority ruling." — and 18.f::V5 and 19.a::V5 by C57, his M8: "Apply the
+        // qualifying conditions to the target and scoring episode actually being evaluated." No RPC-001 line blocks now;
+        // the build-out episode's beginning still does (GA-EPISODE-REACHABLE, capability M3, pinned in condition-scope).
+        assert.deepEqual(blockers.sort(), [], 'RPC-001-11.a::J2 cleared (C51); the other three context lines since by C55 and C57')
+    }
+})
+
+/**
+ * **Added in review, 15 October 2026: the one CHECK verdict C51 softens, pinned so it cannot pass unnoticed.**
+ * Retiring 11.a and 08.c (his 9.5, *"Retire the redundant separate scoring objective: Approved, provided the live
+ * attacking objective remains represented"*) moves GA-DIRECTION and nothing else at check level. Where the
+ * possession game is composed — A01's own compositions — it moves NOT_EVALUABLE -> DEFERRED_TO_REALIZATION: the
+ * objective whose target nothing positioned is gone, and the post-realization gate still judges the ends clause.
+ * Where RPC-001 is composed WITHOUT the possession game (alone, with the goal-kick situation, or with GF4 — no goal
+ * selects any of these) it moves FAIL -> NOT_EVALUABLE, because the context's own objective was the only one there:
+ * the context no longer gives any team an objective, so the proviso is met only through the game form's objectives.
+ * NOT_EVALUABLE still blocks realization, and Gate A stays FAIL in every one of them. Measured by putting the two
+ * items and their J2 claim back on a copy.
+ */
+test('C51: GA-DIRECTION is the only check that moves, and only as pinned here; Gate A stays as it was', () => {
+    const authored = rpc001AsAuthored()
+    const putBack = (input: DerivationInput) => {
+        input.contracts = JSON.parse(JSON.stringify(input.contracts))
+        const rpc: any = input.contracts.find(c => c.contractId === RPC)
+        for (const id of ['RPC-001-11.a', 'RPC-001-08.c']) {
+            const { id: itemId, ...rest } = authored.items.find((i: any) => i.id === id)
+            rpc.items.push({ itemId, ...rest })
+        }
+        const j2 = rpc.declarations.findIndex((d: any) => d.row === 'J2' && d.declaration === 'UNDECLARED' && d.note === 'RPC-001-08.c.')
+        assert.ok(j2 >= 0, 'the restated J2 declaration is found')
+        rpc.declarations[j2] = { ...rpc.declarations[j2], declaration: 'CLAIMED' }
+        return input
+    }
+    const checks = (staged: any) => Object.fromEntries([['Gate A', staged.gates.gateA.verdict], ...staged.gates.gateA.checks.map((c: any) => [c.checkId, c.verdict])])
+    const expected: [string, string[], string, string][] = [
+        ['GF2 + RPC-001', ['restated:GF2', RPC], 'NOT_EVALUABLE', 'DEFERRED_TO_REALIZATION'],
+        ['GF2 + RPC-001 + A01-02', ['restated:GF2', RPC, 'restated:A01-02'], 'NOT_EVALUABLE', 'DEFERRED_TO_REALIZATION'],
+        ['RPC-001', [RPC], 'FAIL', 'NOT_EVALUABLE'],
+        ['RPC-001 + A01-02', [RPC, 'restated:A01-02'], 'FAIL', 'NOT_EVALUABLE'],
+        ['GF4 + RPC-001', ['blind:GF4', RPC], 'FAIL', 'NOT_EVALUABLE'],
+    ]
+    for (const [name, ids, before, now] of expected) {
+        const was = checks(runStages0to10(putBack(composeFor(ids))))
+        const is = checks(runStages0to10(composeFor(ids)))
+        const moved = Object.keys({ ...was, ...is }).filter(k => was[k] !== is[k])
+        // **Re-pointed 15 October 2026 (stage K1).** In GF2 + RPC-001, and in RPC-001 alone, the retired objective's unresolved target is now
+        // the ONLY line GA-NO-FAILED-LINE would fail on if it were put back: C55 and C57 settled the three context
+        // lines that failed beside it (their own pins are in governing-declarations.unit.ts and typed-referent.unit.ts).
+        // So putting it back moves that check too; what C51 itself moved is unchanged. Measured.
+        // **Re-pointed again 15 October 2026 (stage K6).** Ruling C59 typed the progression condition's referent (RPC-001-18.d), the
+        // other open text GA-ONE-PRIMARY-EVENT and GA-REFERENCE-INTEGRITY withheld on wherever the possession game is composed. So
+        // where it is, the retired objective's open-text target put back is now the only reason those two would withhold, and
+        // putting it back moves them too (measured: NOT_EVALUABLE with it, DEFERRED_TO_REALIZATION and PASS without). What C51
+        // itself moved is unchanged.
+        const alsoMoved = [...(name === 'GF2 + RPC-001' || name === 'RPC-001' ? ['GA-NO-FAILED-LINE'] : []), ...(name.startsWith('GF2 + RPC-001') ? ['GA-ONE-PRIMARY-EVENT', 'GA-REFERENCE-INTEGRITY'] : [])]
+        const sinceC59 = name === 'GF2 + RPC-001 + A01-02' ? ['GA-ONE-PRIMARY-EVENT'] : alsoMoved
+        assert.deepEqual(moved, ['GA-DIRECTION', ...sinceC59], `${name}: only the ends clause moves (and, since K1 and K6, the checks where 11.a's target would be the only blocker)`)
+        if (sinceC59.includes('GA-NO-FAILED-LINE')) assert.deepEqual([was['GA-NO-FAILED-LINE'], is['GA-NO-FAILED-LINE']], ['FAIL', 'PASS'], name)
+        if (sinceC59.includes('GA-ONE-PRIMARY-EVENT')) assert.deepEqual([was['GA-ONE-PRIMARY-EVENT'], is['GA-ONE-PRIMARY-EVENT']], ['NOT_EVALUABLE', 'DEFERRED_TO_REALIZATION'], name)
+        if (sinceC59.includes('GA-REFERENCE-INTEGRITY')) assert.deepEqual([was['GA-REFERENCE-INTEGRITY'], is['GA-REFERENCE-INTEGRITY']], ['NOT_EVALUABLE', 'PASS'], name)
+        assert.deepEqual([was['GA-DIRECTION'], is['GA-DIRECTION']], [before, now], name)
+        assert.equal(is['Gate A'], 'FAIL', `${name}: still refused`)
+    }
+})
+
+test('C51: "own-half start area" leaves RPC-001-13, and nothing else about the item changes', () => {
+    const authored = rpc001AsAuthored().items.find((i: any) => i.id === 'RPC-001-13')
+    const loaded: any = loadCorpusContracts().find(c => c.contractId === RPC)!.items.find(i => i.itemId === 'RPC-001-13')
+    assert.ok(authored.value.includes('own-half start area'), 'the provenance keeps the original wording')
+    assert.equal(loaded.value, 'BUILD_OUT_TEAM attacks toward its PRIMARY_SCORING reference and defends the opposite')
+    assert.ok(!JSON.stringify(loaded.value).includes('own'), 'no "own half" and no "own end" was put in its place')
+    for (const field of ['row', 'selector', 'requirement', 'strictness', 'valueStatus', 'scope', 'basis', 'basisEvidence', 'checkability', 'structuralClause']) {
+        assert.deepEqual(loaded[field], authored[field], `RPC-001-13 ${field} is unchanged`)
+    }
+})
+
+test('C51: the nine declarations that claimed a row on retired items alone are restated, and no line or gate verdict moves for it', () => {
+    const authored = rpc001AsAuthored()
+    const expected: Record<string, string> = { SV1: 'NON_CLAIMED', P4: 'NON_CLAIMED', P8: 'NOT_AUTHORED', P10: 'NOT_AUTHORED', S5: 'NOT_AUTHORED', O4: 'NOT_AUTHORED', J2: 'UNDECLARED', V2: 'NON_CLAIMED', T4: 'NOT_AUTHORED' }
+    const loaded = loadCorpusContracts().find(c => c.contractId === RPC)!
+    for (const [row, kind] of Object.entries(expected)) {
+        const claims = authored.declarations.filter((d: any) => d.row === row && d.declaration === 'CLAIMED')
+        assert.equal(claims.length, 1, `${row}: one authored claim`)
+        assert.ok(!loaded.declarations.some((d: any) => d.row === row && d.declaration === 'CLAIMED'), `${row}: no claim survives on retired items`)
+        assert.ok(loaded.declarations.some((d: any) => d.row === row && d.declaration === kind && d.selector === claims[0].selector && d.note === claims[0].note), `${row}: ${kind}, selector and note kept`)
+    }
+    // Every claim still standing cites at least one item that is still active (the T3, T6 and J1 claims cite 15.b, 17.b, 14.a).
+    const activeIds = new Set(loaded.items.map(i => i.itemId.replace('RPC-001-', '')))
+    for (const d of loaded.declarations.filter((x: any) => x.declaration === 'CLAIMED')) {
+        assert.ok([...activeIds].some(id => String(d.note).includes(id)), `RPC-001 ${d.row}: "${d.note}" still cites an active item`)
+    }
+    // Measured: the kind chosen changes no reason (no P8-P10 line exists to govern — the defenders' starting
+    // arrangement is surfaced by the authorization record, not here), so putting the claims back moves nothing.
+    const claimsBack = (input: DerivationInput) => {
+        input.contracts = JSON.parse(JSON.stringify(input.contracts))
+        const rpc: any = input.contracts.find(c => c.contractId === RPC)
+        for (const row of Object.keys(expected)) {
+            const at = rpc.declarations.findIndex((d: any) => d.row === row && d.declaration === expected[row] && d.note === authored.declarations.find((a: any) => a.row === row && a.declaration === 'CLAIMED').note)
+            rpc.declarations[at] = { ...rpc.declarations[at], declaration: 'CLAIMED' }
+        }
+        return input
+    }
+    for (const ids of [['restated:GF2', RPC], ['restated:GF2', RPC, 'restated:A01-02']]) {
+        const now: any = runStages0to10(composeFor(ids))
+        assert.deepEqual(movesBetween(runStages0to10(claimsBack(composeFor(ids))), now), [], ids.join(' + '))
+        assert.ok(![...now.classified.keys()].some((id: string) => /::P(8|9|10)$/.test(id)), `${ids.join(' + ')}: still no line on P8-P10`)
+        assert.equal(now.classified.get('game::V2').verdict, 'RESOLVED:ENTAILED', 'the value line still resolves (SD-25) without RPC-001-20')
+    }
+})
+
+/**
+ * ── Ruling C54, 15 October 2026: two distinct references, recorded apart ───────────────────────────────────────
+ *
+ * His reply received that day (16 October, item 9 point 1): *"Separate pressure and progression references:
+ * Approved. They are distinct relationships, even when they coincide spatially."* RPC-001-18.d's referent named both
+ * with one "or" ("the initial pressure or progression line"). It now names the progression reference — where
+ * build-out success is measured — and its fitNote records the pressure reference as distinct and unplaced. Our gloss
+ * "the pressure line, where defenders start" is NOT carried (his item 3 keeps a designated pressure line as one
+ * potential realization only). No engine effect until a typed referent exists (capability M8).
+ */
+test('C54: RPC-001-18.d names the progression reference; the pressure reference is recorded as distinct and unplaced; no gloss carried', () => {
+    const authored = rpc001AsAuthored().items.find((i: any) => i.id === 'RPC-001-18.d')
+    const loaded: any = loadCorpusContracts().find(c => c.contractId === RPC)!.items.find(i => i.itemId === 'RPC-001-18.d')
+    assert.equal(authored.value, 'the initial pressure or progression line', 'the provenance keeps the authored phrase')
+    // Re-pointed 15 October 2026 (stage K6): ruling C59 typed this referent (the objective reference of SCORING_TEAM, the M8 form
+    // C54 named), keeping C54's words as its asAuthored and C54's whole fitNote; so C54's open-text value is read from the ruling.
+    const c54 = (readJson('stage-b/corpus-restatements.json').items as any[]).find(r => r.ruling === 'C54' && r.item === `${RPC}::RPC-001-18.d`)
+    assert.equal(c54.set.value, 'the progression reference: where build-out success is measured')
+    assert.deepEqual(loaded.value, { objectiveReferenceOf: 'SCORING_TEAM', role: 'PRIMARY_SCORING', asAuthored: 'the progression reference: where build-out success is measured - the target the scoring team attacks' })
+    assert.ok(loaded.fitNote.startsWith(c54.set.fitNote) && loaded.fitNote.includes('(C59, stage K6)'), 'C54 kept whole, C59 beside it')
+    assert.ok(loaded.fitNote.includes('THE INITIAL PRESSURE REFERENCE') && loaded.fitNote.includes('is a DISTINCT relationship and is NOT this condition\'s referent'), loaded.fitNote)
+    assert.ok(loaded.fitNote.includes('placed nowhere'), 'unplaced: no location is written')
+    assert.ok(!JSON.stringify(loaded.value).includes('defenders'), 'the referent says nothing of where defenders start')
+    // The gloss appears once, and only as what is NOT carried.
+    assert.equal(loaded.fitNote.split('where defenders start').length - 1, 1)
+    assert.ok(loaded.fitNote.includes('Not carried: the email\'s gloss of the pressure reference as "the pressure line, where defenders start"'), loaded.fitNote)
+    // basis and basisEvidence moved with C59 (stage K6: the typed referent is his M8 and 18 October item 3); the rest is as authored.
+    for (const field of ['row', 'selector', 'requirement', 'strictness', 'valueStatus', 'checkability', 'structuralClause']) {
+        assert.deepEqual(loaded[field], authored[field], `RPC-001-18.d ${field} unchanged`)
+    }
+    assert.equal(loaded.basis, 'OWNER_RULING')
+    assert.equal(loaded.scope, 'BUILD_OUT_EPISODE', 'and C52 still applies to it — both rulings land on the one item')
+    // Open text before, open text after: C54's phrase against the authored phrase, both put on copies, moves no line and no gate
+    // verdict. (Re-pointed 15 October 2026, stage K6: C59 has since typed the referent, which does move what it was meant to -
+    // pinned in target-placement.unit.ts - so C54's own claim is measured between the two open texts it chose between.)
+    const withValue = (value: string) => (input: DerivationInput) => {
+        input.contracts = JSON.parse(JSON.stringify(input.contracts))
+        const item: any = input.contracts.find(c => c.contractId === RPC)!.items.find(i => i.itemId === 'RPC-001-18.d')
+        item.value = value
+        return input
+    }
+    for (const ids of [['restated:GF2', RPC], ['restated:GF2', RPC, 'restated:A01-02']]) {
+        assert.deepEqual(movesBetween(runStages0to10(withValue(authored.value)(composeFor(ids))), runStages0to10(withValue(c54.set.value)(composeFor(ids)))), [], ids.join(' + '))
+    }
 })
 
 console.log(`\n${passed} assertions passed — increment 5\n`)

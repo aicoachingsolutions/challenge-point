@@ -16,33 +16,95 @@
  *
  * Run: npm run bounded:selection -- A05
  */
-import { deriveInputConstraints } from '../input-constraints/deriveInputConstraints'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
-import { generateSelection } from '../test-library'
-import { CORPUS_ENVELOPE, loadCorpusContracts, loadRegister, loadSportProfile } from './corpus'
+import { GameProblemAuthority, guidedGoalText, guidedSelectionHints } from '../sport-module/guided-selection'
+import { constraintBalanceBucket, generateSelection, isSelectionKnowledgeGap, SelectionKnowledgeGap } from '../test-library'
+import type { LearningGoalAuthorization } from '../test-library/learning-goal-authorizations'
+import { learningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
+import type { ConstraintAuthority, ConstraintPoolAccount } from '../test-library/types'
+import { CORPUS_ENVELOPE, loadCorpusContracts, loadRegister, loadSportProfile, provisionalRealizationNamed } from './corpus'
 import { isStampedHalt } from './emit'
 import { runDerivation, runStages0to10 } from './engine'
+import { knowledgeKey } from './knowledge-key'
 import { indexRegister } from './register'
 import { assembleResolvedGame } from './resolved-game'
 import { DerivationInput, LoadedContract } from './types'
 
-/** Library ids and contract ids spell the same object differently; neither is rewritten. */
-const key = (id: string) =>
-    String(id)
-        .replace(/^(restated|blind):/, '')
-        .replace(/^tl-v0-constraint-/, '')
-        .toUpperCase()
+/**
+ * Library ids and contract ids spell the same object differently; neither is rewritten.
+ *
+ * Exported 13 October as `knowledgeKey`, because a second thing now has to ask "which knowledge object is
+ * this?" — the builder looks up a game form's realization choices by it — and a second spelling rule beside
+ * this one is how the two would come to disagree. Since 14 October 2026 the rule itself lives in
+ * `knowledge-key.ts`, so selection can apply holds by it too; it is re-exported here unchanged.
+ */
+export { knowledgeKey }
+const key = knowledgeKey
 
-export interface BoundedSelection {
-    goalId: string
-    goalName: string
-    /** Every knowledge object the live selection committed to. */
+/**
+ * What a set of selected knowledge objects comes to at the contract boundary: which of them have a
+ * contribution contract and which do not. Affordance lenses are a reasoning dimension and are in neither.
+ *
+ * Its own type since 13 October because a mechanism demonstration is exactly this and nothing more — it
+ * names its knowledge objects and involves no Learning Goal — so the pathway from derivation onward has to
+ * be able to run on it without a goal having been invented to carry it.
+ */
+export interface KnowledgeSelection {
+    /** Every knowledge object selected, with the part it plays. */
     selected: { id: string; role: string }[]
     contracted: string[]
     missing: string[]
+    /**
+     * The authorization record of the goal the selection was made for, where there is one (a demonstration has none).
+     * Read here for one thing since 15 October 2026 (stage K2): the provisional realization the record names, which
+     * `derivationInputFor` adds and `suppliedRealizationFor` reads the realization choices of.
+     */
+    authorization?: LearningGoalAuthorization | null
+}
+
+/** Split selected knowledge into what is contracted and what is not. One rule, for a goal and for a demonstration. */
+export function contractCoverage(selected: { id: string; role: string }[]): Pick<KnowledgeSelection, 'contracted' | 'missing'> {
+    const available = new Map(loadCorpusContracts().map(c => [key(c.contractId), c.contractId]))
+    const knowledge = selected.filter(s => !s.role.startsWith('affordance lens'))
+    return {
+        contracted: knowledge.filter(s => available.has(key(s.id))).map(s => s.id),
+        missing: knowledge.filter(s => !available.has(key(s.id))).map(s => s.id),
+    }
+}
+
+export interface BoundedSelection extends KnowledgeSelection {
+    goalId: string
+    goalName: string
+    /**
+     * The signal groups the selection resolved through, as selection reported them. Carried since
+     * 13 October so the account of an activity reads them from the run instead of from a literal: the
+     * pilot's account named its group in a string constant, which stayed true only while nobody moved it.
+     */
+    matchedSignalGroups: string[]
     practiceSituations: { id: string; name: string }[]
     /** The situation the coach chose, resolved to its canonical identity (never to prose). */
     chosenSituation: { id: string; name: string } | null
+    /**
+     * Whose Game Problem this selection was made for: the approved translation, or UNRESOLVED where none
+     * is approved. Carried so the account of an activity can say which, and never has to infer it.
+     */
+    gameProblem: GameProblemAuthority
+    /** The Representative Performance Context the goal routes to, which limited the game forms. */
+    contextId: string | null
+    /**
+     * What the constraints were drawn from: the goal's own candidates (always, since his ruling of 14
+     * October), which of them his rulings hold, and which roles none of them fills — each a knowledge gap,
+     * reported and never filled. READ from the selection trace, where `constraintPoolFor` put it, so the
+     * account cannot disagree with what selection did: there is no second computation to drift.
+     */
+    constraintPool: ConstraintPoolAccount
+    /**
+     * Whose authority the candidate constraints carried (15 October 2026), read from the pool account selection
+     * produced: `AUTHORIZATION_RECORD` for a goal his record governs, `VOCABULARY_POOL` otherwise.
+     */
+    constraintAuthority: ConstraintAuthority
+    /** The authorization record selection used, as a copy, or null where the goal has none. */
+    authorization: LearningGoalAuthorization | null
 }
 
 /**
@@ -72,11 +134,55 @@ function resolveSituation(goalId: string, situationId: string | null): { id: str
     return { id: String(match.ID), name: String(match['Practice Situation']) }
 }
 
-export function selectFor(goalId: string, situationId: string | null = null): BoundedSelection {
+/** The part a goal's Representative Performance Context plays in a selection. A role name, not a sport term. */
+export const CONTEXT_ROLE = 'representative performance context'
+
+/**
+ * A Learning Goal whose designated knowledge cannot be combined into a selection (`SelectionKnowledgeGap`),
+ * with what this boundary adds: the goal's name, its Game Problem authority and its context. Thrown by
+ * `selectFor` so the builder can refuse at `selection` with a filled account.
+ */
+export class GoalSelectionGap extends Error {
+    constructor(
+        readonly gap: SelectionKnowledgeGap,
+        readonly goalName: string,
+        readonly gameProblem: GameProblemAuthority,
+        readonly contextId: string | null,
+        /** The authorization record selection consulted (15 October 2026), or null where the goal has none. */
+        readonly authorization: LearningGoalAuthorization | null = null,
+    ) {
+        super(gap.message)
+        this.name = 'GoalSelectionGap'
+    }
+}
+
+/**
+ * `records` — the authorization records in force — is a parameter ONLY so a test can run this identical selection
+ * over a copy carrying a test-only ruling (15 October 2026). Nothing that serves a coach passes it.
+ */
+export function selectFor(goalId: string, situationId: string | null = null, records: LearningGoalAuthorization[] = learningGoalAuthorizations()): BoundedSelection {
     const goal: any = sessionPlanningModel.learningGoal(goalId)
     if (!goal) throw new Error(`no such learning goal: ${goalId}`)
-    const text = `${goal['Learning Goal']}. ${goal['Coach Definition']}`
-    const result: any = generateSelection({ learningGoals: [text], learningGoalId: goalId } as any, deriveInputConstraints(text))
+    // The one canonical text, from the same function the application route uses (stage S-C2, 14 October 2026).
+    const text = guidedGoalText(goalId)
+    /**
+     * **The same hints the application gives selection, from the same function.** This used to pass the
+     * wording's hints straight through, which left out the context rule the application route applies —
+     * so seven of the thirteen goals were selected here onto a game form the application would never
+     * have chosen, and every figure reported from this pathway for a month described a selection no
+     * coach could reach. An approved rule carried by one caller and not the other is the same loss as
+     * an authored field dropped by a projection; it is closed the same way, by having one source.
+     */
+    const guided = guidedSelectionHints(goalId, text, records)
+    let result: any
+    try {
+        result = generateSelection({ learningGoals: [text], learningGoalId: goalId } as any, guided.hints)
+    } catch (error) {
+        // A knowledge gap is reported WITH what this boundary alone knows — the goal's Game Problem authority
+        // and its context — so the account of the refusal is filled from the same computation, not a second one.
+        if (isSelectionKnowledgeGap(error)) throw new GoalSelectionGap(error, String(goal['Learning Goal']), guided.gameProblem, guided.contextId, guided.authorization)
+        throw error
+    }
 
     /**
      * **A selection that did not resolve must not proceed as a successful Learning Goal selection.**
@@ -110,9 +216,11 @@ export function selectFor(goalId: string, situationId: string | null = null): Bo
         if (id) selected.push({ id: String(id), role })
     }
     add(result.archetype?.id, 'game form')
-    // Selection returns the constraint package as a list, in its balance order.
-    const buckets = ['foundation constraint', 'shaping constraint', 'consequence constraint']
-    ;(result.constraints ?? []).forEach((c: any, i: number) => add(c?.id, buckets[i] ?? 'constraint'))
+    // Each constraint by its own balance role. These were labelled by POSITION in the list (first
+    // foundation, second shaping, third consequence), which named a second foundation constraint a shaping
+    // one — wrong for A03 before 14 October, and wrong for every goal whose candidates hold no shaping
+    // constraint once selection stopped borrowing one.
+    ;(result.constraints ?? []).forEach((c: any) => add(c?.id, `${constraintBalanceBucket(c)} constraint`))
     // Affordance lenses are a reasoning dimension, not authored knowledge with a contract. They are
     // listed so the account of what was selected is complete, and excluded from what is derived.
     ;(result.affordanceLenses ?? []).forEach((l: any) => add(l?.id, 'affordance lens (not contracted knowledge)'))
@@ -121,23 +229,56 @@ export function selectFor(goalId: string, situationId: string | null = null): Bo
     const chosenSituation = resolveSituation(goalId, situationId)
     if (chosenSituation) selected.push({ id: chosenSituation.id, role: 'practice situation' })
 
-    const available = new Map(loadCorpusContracts().map(c => [key(c.contractId), c.contractId]))
-    const knowledge = selected.filter(s => !s.role.startsWith('affordance lens'))
+    /**
+     * **The goal's context, as a selected knowledge object — so its approved scoring governs the game.**
+     * Christian, 14 October 2026: *"the Primary Scoring Event and qualifying condition approved for each
+     * Representative Performance Context should govern the generated activity. This is particularly
+     * important because scoring defines what constitutes success within the environment."*
+     *
+     * Selection used to hand derivation a game form and constraints and never the context, so every activity
+     * served here was scored by a set-up choice whatever the context approved — three of them (A04, D01, D03)
+     * on an event their context does not approve, D01 and D03 being exactly his counter-example of a
+     * defending goal measured by the attacking team's progression. Carried here, the context goes through the
+     * same contract rule as every other object: contracted, its contract shapes the game (RPC-001 loads by
+     * `knowledgeKey`); not contracted, it is reported missing and the builder refuses the goal before
+     * derivation rather than serve it scored some other way.
+     */
+    if (guided.contextId) selected.push({ id: guided.contextId, role: CONTEXT_ROLE })
+
     return {
         goalId,
         goalName: String(goal['Learning Goal']),
+        matchedSignalGroups: ((result.resolution?.matchedSignalGroups ?? []) as unknown[]).map(String),
         selected,
-        contracted: knowledge.filter(s => available.has(key(s.id))).map(s => s.id),
-        missing: knowledge.filter(s => !available.has(key(s.id))).map(s => s.id),
+        ...contractCoverage(selected),
         practiceSituations: (sessionPlanningModel.practiceSituationsFor(goalId) as any[]).map(p => ({ id: p.ID, name: p['Practice Situation'] })),
         chosenSituation,
+        gameProblem: guided.gameProblem,
+        contextId: guided.contextId,
+        constraintPool: result.selectionTrace.constraintPool as ConstraintPoolAccount,
+        constraintAuthority: (result.selectionTrace.constraintPool as ConstraintPoolAccount).constraintAuthority,
+        authorization: guided.authorization,
     }
 }
 
-/** The derivation input a selection implies: the contracts for the objects it chose, and nothing else. */
-export function derivationInputFor(selection: BoundedSelection): DerivationInput {
+/**
+ * The derivation input a selection implies: the contracts for the objects it chose, and nothing else.
+ *
+ * It reads only WHICH objects were selected, so it takes exactly that — a goal's selection and a mechanism
+ * demonstration's are the same thing to derivation, which has never known what a goal is.
+ */
+export function derivationInputFor(selection: Pick<KnowledgeSelection, 'selected' | 'authorization'>): DerivationInput {
     const wanted = new Set(selection.selected.map(s => key(s.id)))
-    const selected: LoadedContract[] = loadCorpusContracts().filter(c => wanted.has(key(c.contractId)))
+    /**
+     * **His provisional realization joins only where the goal's record names it** — 15 October 2026 (stage K2). Christian,
+     * reply filed 17 October 2026: *"without introducing unnecessary architecture or treating this first realization as the
+     * canonical version of the Learning Goal."* The record is the only route in: no goal is named here, a demonstration
+     * (which has no record) never receives one, and a record that names none derives exactly as before. The realization is
+     * a contract like the others, so it also enters the provenance stamp (`versions.objects`) — a stored game knows it was
+     * built with his provisional choices.
+     */
+    const provisional = provisionalRealizationNamed(selection.authorization?.provisionalRealization)
+    const selected: LoadedContract[] = [...loadCorpusContracts().filter(c => wanted.has(key(c.contractId))), ...(provisional ? [provisional] : [])]
 
     /**
      * **The Sport Profile is added unconditionally, because it is constitutive rather than selected.**
@@ -166,7 +307,15 @@ export function derivationInputFor(selection: BoundedSelection): DerivationInput
     }
 }
 
-if (require.main === module) {
+/**
+ * **Only when this file is the script that was run.** `require.main === module` is not enough: the deployed
+ * server is one bundle, in which every module is the main one, so that test alone made the server print this
+ * report for A05 at start-up — and exit if the run halted. The entry script's own name is what distinguishes
+ * `npm run bounded:selection` from a server that merely imports `selectFor`.
+ */
+const runAsScript = require.main === module && String(process.argv[1] ?? '').includes('run-bounded-selection')
+
+if (runAsScript) {
     const goalId = process.argv.find(a => /^[A-Z]+[0-9]+$/.test(a)) ?? 'A05'
     const situationId = process.argv.find(a => /^[A-Z]+[0-9]+-[0-9]+$/.test(a)) ?? null
     const selection = selectFor(goalId, situationId)

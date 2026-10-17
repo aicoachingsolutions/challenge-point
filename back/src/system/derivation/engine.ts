@@ -15,6 +15,7 @@ import { countBounds, deriveLines, DerivedLine, establishesExistence } from './d
 import { classifyLines, ClassifiedLine } from './classify'
 import { forwardResults } from './forward'
 import { runGates } from './gates'
+import { markTargets, regionsEstablishedByTarget } from './target-of'
 import { reaches } from './reach'
 import { emit, DerivationResult, StampedHalt } from './emit'
 import { parseSelector, predicateKey, selectorApplies } from './selector'
@@ -29,6 +30,8 @@ import {
     RefusalRecord,
     ResolutionLine,
     SpecClause,
+    beginConditionReferentOf,
+    relationalReferentOf,
 } from './types'
 
 export const ENGINE_VERSION = '0.1.0-increment-1'
@@ -72,6 +75,9 @@ function canonicalInput(input: DerivationInput): unknown {
         envelope: input.envelope,
         registerVersion: input.register?.version,
         derivationRules: input.derivationRules,
+        // The role block is input like the envelope (stage K3, 15 October 2026): two blocks are two inputs and must be
+        // told apart by their digest. Present only where there is one, so every other game's digest is what it was.
+        ...(input.roleBlock ? { roleBlock: input.roleBlock } : {}),
     })
 }
 
@@ -97,6 +103,12 @@ const EXISTENCE_REQUIREMENTS = new Set(['EXISTS', 'COUNT', 'RANGE'])
 function memberKey(member: unknown): string {
     const ref = member && typeof member === 'object' ? (member as { structuralRef?: { contractId?: unknown; itemId?: unknown } }).structuralRef : undefined
     if (ref && ref.contractId !== undefined && ref.itemId !== undefined) return `${String(ref.contractId)}::${String(ref.itemId)}`
+    // A relational referent (M8, 15 October 2026) is identified by what it designates, never as "[object Object]".
+    const relational = relationalReferentOf(member)
+    if (relational) return `objective-reference-of:${relational.objectiveReferenceOf}:${relational.role}`
+    // A begin-condition referent (C58, 15 October 2026) is identified by the episode it begins and its arms, likewise.
+    const begins = beginConditionReferentOf(member)
+    if (begins) return `begins-episode-of:${begins.beginsEpisodeOf}:${JSON.stringify(begins.arms)}`
     return String(member)
 }
 
@@ -269,6 +281,24 @@ function constructTriggers(classes: ElementClass[], index: RegisterIndex, envelo
     for (const region of classes.filter(c => c.row === 'S2')) triggers.push(`REGION_ENTRY{${region.classId}}`)
     for (const window of classes.filter(c => c.row === 'V23')) triggers.push(`TIME_EXPIRY{${window.classId}}`)
 
+    /**
+     * **A trigger whose registered semantics name a structural prerequisite is reachable where the game holds it** — added
+     * 15 October 2026 (register version 12) for his M4, reply filed 17 October 2026: *"Support one explicit coach-judged event
+     * representing the conclusion of a meaningful episode."* SD-44: *"A trigger is structurally reachable when the Game
+     * Representation contains the resolved structural prerequisites necessary for that trigger to occur"*. Until now this
+     * function never read the trigger semantics, so a token registered there could never be reached (COMPLETED_PASS's own
+     * entry says so). Read GENERICALLY, so no trigger is named here: an entry stating `structuralPrerequisite` — a collection
+     * row, its selector attribute and a value — is reachable where a class on that row is fixed to that value by an `=` term.
+     * A class-level fact, because this runs before any line is derived; the prerequisite itself is the register's (labelled
+     * there as our operational proposal), never this function's. An entry with no prerequisite is unchanged: not reachable.
+     */
+    for (const [name, entry] of Object.entries(index.triggerSemantics ?? {})) {
+        const prerequisite = entry && typeof entry === 'object' ? (entry as { structuralPrerequisite?: { collectionRow?: unknown; selectorAttribute?: unknown; value?: unknown } }).structuralPrerequisite : undefined
+        if (!prerequisite || typeof prerequisite.collectionRow !== 'string' || typeof prerequisite.selectorAttribute !== 'string') continue
+        const held = classes.some(c => c.row === prerequisite.collectionRow && c.constraints.terms.some(t => t.attribute === prerequisite.selectorAttribute && t.op === '=' && t.value === prerequisite.value))
+        if (held && !triggers.includes(name)) triggers.push(name)
+    }
+
     return triggers.sort()
 }
 
@@ -437,6 +467,23 @@ export function runStages0to2(input: DerivationInput): PartialResult {
 
     // Stage 2 — classes, triggers, lines.
     const classes = formClasses(loaded.admitted, index, stopped)
+    // Stage K3, 15 October 2026 (his M1): an objective region carries what it is the target of — before reach, so a
+    // selector naming "the target a team attacks" reaches the region its objective references (`target-of.ts`).
+    markTargets(classes, loaded.admitted, index, input.roleBlock ?? null)
+    // K3 review, 15 October 2026: targetOf selects a region that exists and never establishes one (C42, "not three"). An
+    // item establishing a region by it is a selector defect, reported in every game, so no third region passes Gate A.
+    regionsEstablishedByTarget(loaded.admitted, index).forEach(({ contract, item }, ordinal) =>
+        failures.push({
+            failureId: recordId('REFERENCE_DEFECT', `${contract.contractId}:${item.itemId}:targetOf`, ordinal),
+            kind: 'REFERENCE_DEFECT',
+            stage: 2,
+            locus: { contractId: contract.contractId, itemRef: { contractId: contract.contractId, itemId: item.itemId } },
+            implicated: { contractIds: [contract.contractId], objectIds: [contract.objectId] },
+            clause: CLAUSE('§2.2 stage 2'),
+            offendingInput: String(item.selector ?? ''),
+            detailRef: `${index.targetOf?.attribute} is derived from the objectives (register targetOf): it selects an objective region the game holds and cannot establish one`,
+        }),
+    )
     const triggers = constructTriggers(classes, index, input.envelope)
     const lines = enumerateLines(classes, index, stopped)
 
@@ -644,6 +691,7 @@ export function runStages0to10(input: DerivationInput) {
         failures: base.failures,
         forward: base.forward || [],
         contracts: admitted,
+        ...(input.roleBlock ? { roleBlock: input.roleBlock } : {}),
     }
     const gates = runGates(gateContext)
 
@@ -681,7 +729,7 @@ export function runStages0to8(input: DerivationInput) {
     const index = indexRegister(input.register)
     const admitted = (input.contracts || []).filter(c => !base.failures.some(f => f.kind === 'LOAD_REFUSAL' && f.locus.contractId === c.contractId))
 
-    const classified = classifyLines(base.lines, base.derived.lines, base.scope.declarations, index, base.stopped)
+    const classified = classifyLines(base.lines, base.derived.lines, base.scope.declarations, index, base.stopped, base.classes)
     const forward = forwardResults(admitted, base.lines, base.derived.lines, classified, base.scope.applicationSets, index, base.classes)
 
     // SD-51 — member lines, materialized only from an authoritatively resolved member set.
@@ -762,7 +810,7 @@ export function runStages0to5(input: DerivationInput): PartialResult & {
     const index = indexRegister(input.register)
     const admitted = (input.contracts || []).filter(c => !base.failures.some(f => f.kind === 'LOAD_REFUSAL' && f.locus.contractId === c.contractId))
 
-    const scope = resolveScopes(admitted, base.classes)
+    const scope = resolveScopes(admitted, base.classes, index)
     base.diagnostics.push(...scope.diagnostics) // SD-93 — carried to the emitted result, never dropped
     for (const divergence of scope.divergence) {
         base.refusals.push({

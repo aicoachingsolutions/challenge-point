@@ -12,9 +12,13 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import { classifyLines } from './classify'
+import { loadCorpusContracts, loadSportProfile } from './corpus'
 import { DerivedLine, resolvedValue } from './derive'
 import { runStages0to5, runStages0to8 } from './engine'
+import { reaches } from './reach'
 import { indexRegister } from './register'
+import { DECLARATION_FIELDS_NOT_CARRIED, DeclarationReach, resolveScopes } from './scope'
+import { parseSelector } from './selector'
 import { ContractItem, DerivationInput, LoadedContract, ResolutionLine, VERDICTS, FORWARD_RESULTS } from './types'
 
 const DOCS = path.resolve(__dirname, '../../../../docs/audits/conformance')
@@ -525,6 +529,91 @@ function testAdaptationCannotCreateSupport(): void {
     assert.notEqual(outcomeFor(result, 'A').result, 'ADAPTED', 'an assumption bounds and never entailed, so it was never displaced (SD-83)')
 }
 
+// ---------------------------------------------------------------------------------------------
+// The declaration boundary — stage 3's `DeclarationReach`, 15 October 2026 (stage G2).
+//
+// His answer 9 of 15 October makes a declaration's selector decide which condition it speaks about, and the
+// record a declaration travels in was built field by field without it. A projection is only proved by a
+// consumer and a key-identity check, so this asserts the second: every field of every authored declaration
+// arrives on its `DeclarationReach`, or is named in `DECLARATION_FIELDS_NOT_CARRIED` with a reason.
+// ---------------------------------------------------------------------------------------------
+
+/**
+ * Every authored declaration field that did not arrive. Declarations are paired per contract and row in
+ * authored order — `resolveScopes` sorts by contract and row only, and the sort is stable, so within one row
+ * the authored order survives.
+ */
+function uncarriedDeclarationFields(contracts: LoadedContract[], reaches: DeclarationReach[]): string[] {
+    const lost: string[] = []
+    for (const c of contracts) {
+        const authored = c.declarations || []
+        const arrived = reaches.filter(r => r.contractId === c.contractId)
+        if (arrived.length !== authored.length) lost.push(`${c.contractId}: ${authored.length} declarations authored, ${arrived.length} arrived`)
+        const seenPerRow = new Map<string, number>()
+        for (const declaration of authored) {
+            const row = String(declaration.row)
+            const at = seenPerRow.get(row) ?? 0
+            seenPerRow.set(row, at + 1)
+            const reach = arrived.filter(r => r.row === row)[at] as any
+            if (!reach) {
+                lost.push(`${c.contractId} ${row}: declaration ${at} did not arrive`)
+                continue
+            }
+            for (const [field, value] of Object.entries(declaration as unknown as Record<string, unknown>)) {
+                if (field in DECLARATION_FIELDS_NOT_CARRIED) continue
+                if (!(field in reach) || JSON.stringify(reach[field]) !== JSON.stringify(field === 'row' || field === 'declaration' || field === 'scope' ? String(value) : value)) {
+                    lost.push(`${c.contractId} ${row} ${field}`)
+                }
+            }
+        }
+    }
+    return lost
+}
+
+function testEveryAuthoredDeclarationFieldArrives(): void {
+    const contracts = [...loadCorpusContracts(), ...loadSportProfile()]
+    const index = indexRegister(REGISTER)
+    const reaches = resolveScopes(contracts, [], index).declarations
+    assert.ok(reaches.length > 800, `the corpus does exercise the boundary (${reaches.length} declarations)`)
+    assert.deepEqual(uncarriedDeclarationFields(contracts, reaches), [], 'no authored declaration field is lost at stage 3')
+    for (const reach of reaches) {
+        assert.ok(Boolean(reach.parsed.predicate) !== Boolean(reach.parsed.defect), `${reach.contractId} ${reach.row}: the selector is either read or its defect recorded`)
+        assert.deepEqual(reach.parsed, parseSelector(reach.selector, reach.row, index), 'and read by the one parser, against the declaration\'s own row')
+    }
+
+    // **The qualifier, by name (15 October 2026, stage K1).** His M6 state travels on the record it was written on —
+    // C55's "no further value" for the build-out origin is the one in the knowledge — and then on to the line that it
+    // decides (classify.ts `governedByOn`, the one allowlist after this boundary).
+    const qualified = reaches.filter(r => r.qualifier !== undefined)
+    assert.deepEqual(qualified.map(r => `${r.contractId} ${r.row} ${String(r.selector)} ${String(r.qualifier)}`), ['restated:RPC-001 V6 type=origin NO_FURTHER_VALUE'])
+    assert.ok(reaches.filter(r => r.qualifier === undefined).every(r => !('qualifier' in r)), 'absent where the declaration carries none, so no other record changed shape')
+
+    // It bites: a field the knowledge gains later and stage 3 does not carry is named, not dropped.
+    const grown: LoadedContract[] = JSON.parse(JSON.stringify(contracts))
+    ;(grown[0].declarations[0] as any).laterField = 'authored after this test was written'
+    const lost = uncarriedDeclarationFields(grown, resolveScopes(grown, [], index).declarations)
+    assert.deepEqual(lost, [`${grown[0].contractId} ${String(grown[0].declarations[0].row)} laterField`])
+}
+
+function testTheGateConditionSelectorReachesItsOwnClass(): void {
+    // The case his answer 9 was asked about: the Pass Combination Gate declares its condition's place for
+    // `type=connected-pass-combination`. Carried, that selector positively reaches the condition class the gate
+    // itself establishes — so the gate's own statement is what governs the line.
+    //
+    // **NON_CLAIMED -> NOT_AUTHORED on 15 October 2026 (C45/C49).** His reply of that day (16 October, item 8):
+    // "removing 'in their half' should not automatically be interpreted as authorizing pass counting anywhere.
+    // Please distinguish whether location is explicitly unrestricted or simply not yet authored." C45 had restated
+    // the claim NON_CLAIMED — read through this very selector, 'explicitly unrestricted'. The place is not yet
+    // authored, so the gate's own statement is now a gap. The selector is unchanged, and still reaches.
+    const staged: any = runStages0to5(input(loadCorpusContracts().filter(c => ['restated:GF2', 'blind:PASS-COMBINATION-GATE'].includes(c.contractId))))
+    const declaration = staged.scope.declarations.find((d: DeclarationReach) => d.contractId === 'blind:PASS-COMBINATION-GATE' && d.row === 'V5') as DeclarationReach
+    assert.equal(declaration.selector, 'type=connected-pass-combination')
+    assert.equal(declaration.declaration, 'NOT_AUTHORED')
+    const condition = staged.classes.find((c: any) => c.fromItem.contractId === 'blind:PASS-COMBINATION-GATE' && c.fromItem.itemId === 'PCG-02')
+    assert.ok(condition, 'the gate establishes its condition class')
+    assert.equal(reaches(declaration.parsed.predicate!, condition), 'TRUE')
+}
+
 const TESTS: [string, () => void][] = [
     ['an entailed line resolves', testEntailedLineResolves],
     ['an unauthored line is a gap with its reason', testUnauthoredLineIsAGapWithItsReason],
@@ -552,6 +641,8 @@ const TESTS: [string, () => void][] = [
     ['SD-90: a preferred default alone keeps its existing behaviour', testPreferredDefaultAloneIsUnchanged],
     ['SD-90: two required contributions still collide', testTwoRequiredContributionsStillCollide],
     ['SD-90: adaptation cannot turn an unsupported contribution into support', testAdaptationCannotCreateSupport],
+    ['every authored declaration field arrives on its DeclarationReach, or is named with a reason', testEveryAuthoredDeclarationFieldArrives],
+    ["the gate condition's carried selector reaches the class the gate establishes", testTheGateConditionSelectorReachesItsOwnClass],
 ]
 
 let failed = 0

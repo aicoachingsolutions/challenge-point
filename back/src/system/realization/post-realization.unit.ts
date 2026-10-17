@@ -18,10 +18,12 @@ import { isStampedHalt } from '../derivation/emit'
 import { runDerivation, runStages0to10 } from '../derivation/engine'
 import { indexRegister } from '../derivation/register'
 import { assembleResolvedGame, splitPath } from '../derivation/resolved-game'
-import { derivationInputFor, selectFor } from '../derivation/run-bounded-selection'
-import { completeConcreteGame } from './assemble-concrete-game'
+import { contractCoverage, derivationInputFor, selectFor } from '../derivation/run-bounded-selection'
+import { completeConcreteGame, countsTheRosterAdmits, rosterRefusal } from './assemble-concrete-game'
+import { realizeWithJustifiedDefaults } from './justified-defaults'
 import { runPostRealizationGates } from './post-realization-gate'
-import { checkRealization, isRefused, nothingInvented, realize, Realized } from './realize'
+import { checkRealization, isRefused, nothingInvented, Realized } from './realize'
+import { isNoSuppliedRealization, suppliedRealizationFor } from './supplied-realization'
 
 const CHOICES = path.resolve(__dirname, '../../../../docs/audits/a04-realization-choices.json')
 const SUPPLIED = JSON.parse(fs.readFileSync(CHOICES, 'utf8'))
@@ -36,22 +38,30 @@ const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value))
  * now, and the choices are copied here for the same reason: a test that mutates shared input is testing a
  * different run from the one it describes.
  */
-function chain(override?: (envelope: Record<string, unknown>) => void) {
+function chain(override?: (envelope: Record<string, unknown>) => void, knowledge?: (contracts: any[]) => void) {
     const selection = selectFor('A04', null)
     const input = derivationInputFor(selection)
     const supplied = copy(SUPPLIED)
     if (override) override(input.envelope as Record<string, unknown>)
+    // The loader returns SHARED contract objects, so knowledge a block alters is altered on a copy — and
+    // BEFORE derivation, so the engine sees it exactly as it would see it authored.
+    if (knowledge) {
+        input.contracts = copy(input.contracts)
+        knowledge(input.contracts as any[])
+    }
     const result = runDerivation(input)
     if (isStampedHalt(result)) throw new Error('halted')
     const staged: any = runStages0to10(input)
     const index = indexRegister(input.register)
     const resolved = assembleResolvedGame(result, staged.classes, index, input.contracts)
-    const realizationResult = realize(resolved, supplied.choices, supplied.instantiations, index, input.envelope)
+    // As the pathway realizes it: what the file chooses, plus the justified defaults for what it does not.
+    const ctx = { ...staged.gateContext, contracts: input.contracts }
+    const realizationResult = realizeWithJustifiedDefaults(resolved, supplied, index, input.envelope, ctx).realization
     if (isRefused(realizationResult)) throw new Error(`refused: ${realizationResult.because.join('; ')}`)
     return {
         resolved,
         realized: realizationResult as Realized,
-        ctx: { ...staged.gateContext, contracts: input.contracts },
+        ctx,
         owed: resolved.coherence.postRealizationRequired.map((o: any) => ({ checkId: o.checkId, clause: o.clause })),
     }
 }
@@ -401,6 +411,269 @@ const teamsOf = (realized: Realized) => (realized.game as any).performers.teams 
     }
 }
 
+/**
+ * **AVAILABILITY IS NOT INVOLVEMENT — added 13 October, with the defect it repairs.**
+ *
+ * His rule of 30 September, recorded on `Envelope.roles`: *"Stating availability is not stating involvement: a
+ * role available in the session is instantiated into a particular game only where the selected knowledge
+ * establishes it."* The roster rule subtracted every stated count from every team and wrote the stated count
+ * onto each team instead. Measured before the repair, on this game, with one specialized performer available
+ * per team: `outfieldCount: 5` and the role written as `1` on both teams, from twelve players, in a game whose
+ * selected knowledge declares it does not constrain the role at all — and the roster gate PASSED, because the
+ * sum it verifies was built from the same terms.
+ *
+ * The role's name is read from the register here as everywhere else, so this block names none.
+ */
+{
+    const roleOf = (ctx: any): { rowId: string; role: string } => {
+        const [rowId, role] = [...ctx.index.specializedRoleRows].find(([id]: [string, string]) => ctx.index.ownerRow.get(id) === 'P1') as [string, string]
+        return { rowId, role }
+    }
+    const withRoles = (ctx: any, roles: Record<string, unknown> | undefined) => {
+        ctx.envelope = { ...ctx.envelope, roles }
+    }
+
+    // Availability the game does not involve leaves everyone in the outfield, and the team holds ZERO.
+    for (const available of [1, 2, 5]) {
+        const { realized, ctx, owed } = chain()
+        const { role } = roleOf(ctx)
+        withRoles(ctx, { [role]: available })
+        const entailed = completeConcreteGame(ctx, realized)
+        assert.equal(rosterRefusal(ctx, realized), null, `availability ${available} must still derive a roster`)
+        for (const team of teamsOf(realized)) {
+            assert.equal(team.outfieldCount, 6, `${available} available and none involved: 12 players are 2 teams of 6, not of ${(12 - 2 * available) / 2}`)
+            assert.equal(team[role], 0, 'the team holds the INVOLVEMENT, which is none — not the availability')
+        }
+        const written = entailed.filter(e => e.leaf === role)
+        assert.equal(written.length, 2)
+        for (const entry of written) assert.ok(entry.because.includes(`${available} available`), `the provenance must keep the availability it was covered by: ${entry.because}`)
+        // The invariant agrees, reading the persisted game: 6 + 0 + 6 + 0 + 0 neutrals = 12.
+        assert.equal(runPostRealizationGates(ctx, owed, realized).validated, true, 'and the roster gate validates the game it now holds')
+    }
+
+    // A stated zero is the Golden Case, and it is unchanged: same sizes, same zero.
+    {
+        const { realized, ctx } = chain()
+        const { role } = roleOf(ctx)
+        completeConcreteGame(ctx, realized)
+        for (const team of teamsOf(realized)) assert.deepEqual([team.outfieldCount, team[role]], [6, 0])
+    }
+
+    // Involvement the game DOES hold is taken off the outfield, once per team that holds it, and written as held.
+    {
+        const { realized, ctx, owed } = chain()
+        const { role } = roleOf(ctx)
+        for (const team of teamsOf(realized)) team[role] = 1
+        withRoles(ctx, { [role]: 2 })
+        completeConcreteGame(ctx, realized)
+        for (const team of teamsOf(realized)) assert.deepEqual([team.outfieldCount, team[role]], [5, 1], '12 − 2 involved over 2 teams is 5 a side')
+        assert.equal(runPostRealizationGates(ctx, owed, realized).gateA.checks.find(c => c.checkId === 'GA-ROSTER-SUM')?.verdict, 'PASS')
+    }
+
+    // ...and availability must COVER it. One available for a game that involves one per team derives nothing.
+    {
+        const { realized, ctx } = chain()
+        const { role } = roleOf(ctx)
+        for (const team of teamsOf(realized)) team[role] = 1
+        withRoles(ctx, { [role]: 1 })
+        assert.equal(completeConcreteGame(ctx, realized).length, 0, 'a roster the session cannot staff must not be derived')
+        const refusal = rosterRefusal(ctx, realized)
+        assert.equal(refusal?.cause, 'AVAILABILITY_SHORT')
+        assert.deepEqual(
+            refusal && refusal.cause === 'AVAILABILITY_SHORT' ? [refusal.role, refusal.perTeam, refusal.teams, refusal.needed, refusal.available] : null,
+            [role, 1, 2, 2, 1],
+            'the refusal must carry the numbers a caller needs to say it plainly',
+        )
+    }
+
+    /**
+     * ...and somebody has to be left to play. **A team with fewer than one outfield player derives nothing —
+     * added 13 October.** Zero divides evenly by anything, so this roster used to be derived: two players,
+     * one of the role on each team, was two teams of nobody, and the sum the roster gate checks came to two.
+     * It has its own cause, because what a coach must be told is that there are too few players, not that
+     * the players do not divide.
+     */
+    {
+        const { realized, ctx } = chain()
+        const { role } = roleOf(ctx)
+        for (const team of teamsOf(realized)) team[role] = 1
+        ctx.envelope = { ...ctx.envelope, players: 2, roles: { [role]: 2 } }
+        assert.equal(completeConcreteGame(ctx, realized).length, 0, 'a roster with nobody in the outfield must not be derived')
+        const refusal = rosterRefusal(ctx, realized)
+        assert.deepEqual(
+            refusal && refusal.cause === 'NO_OUTFIELD_PLAYERS' ? [refusal.players, refusal.teams, refusal.involved, refusal.neutrals] : refusal,
+            [2, 2, 2, 0],
+            'the refusal carries the numbers, and is not reported as a division that failed',
+        )
+        // One more player than the roles take is still not two whole teams — that one IS a division that fails.
+        ctx.envelope = { ...ctx.envelope, players: 3 }
+        assert.equal(rosterRefusal(ctx, realized)?.cause, 'DOES_NOT_DIVIDE')
+        // And two more is the smallest game there is: one outfield player a side.
+        ctx.envelope = { ...ctx.envelope, players: 4 }
+        assert.equal(rosterRefusal(ctx, realized), null)
+        completeConcreteGame(ctx, realized)
+        for (const team of teamsOf(realized)) assert.deepEqual([team.outfieldCount, team[role]], [1, 1])
+    }
+
+    // A row nobody looked at is NOT an established absence. Strip the declarations and zero may not be assumed.
+    {
+        const { realized, ctx } = chain()
+        const { rowId, role } = roleOf(ctx)
+        ctx.contracts = copy(ctx.contracts).map((c: any) => ({ ...c, declarations: (c.declarations ?? []).filter((d: any) => String(d.row) !== rowId) }))
+        assert.equal(completeConcreteGame(ctx, realized).length, 0, 'an undeclared specialized-role row must not be read as none involved')
+        const refusal = rosterRefusal(ctx, realized)
+        assert.equal(refusal?.cause, 'INVOLVEMENT_NOT_SETTLED')
+        assert.equal((refusal as any).role, role)
+    }
+
+    /**
+     * **An ITEM on the row is the knowledge speaking, and it wins over a declaration elsewhere** — which
+     * `reasonFor` alone would not let it: another object still declares the row unconstrained.
+     *
+     * **Re-pointed in review, 13 October — the assertion that was here pinned a defect.** It added an
+     * authored *"one per team"* and required `INVOLVEMENT_NOT_SETTLED`, on the reasoning that no line
+     * delivers the item to an instantiated team. That is true of every instantiated team (SD-97), so it
+     * made involvement unreachable: with such an item, two available refused exactly as none did, and the
+     * only count this rule could ever derive from knowledge was zero. The rule now reads the item — by the
+     * engine's own scope, reach and entailment tests — so the same item is a count the session has to
+     * cover. What the old assertion was FOR is kept, and is the first assertion below: an authored count
+     * is never read as none.
+     *
+     * The item was also pushed onto `ctx.contracts` after derivation had run, so the engine never saw it.
+     * These blocks put it in the contracts the run derives from.
+     */
+    const roleRow = roleOf(chain().ctx)
+    const authored = (over: Record<string, unknown> = {}) => (contracts: any[]) => {
+        const form = contracts.find(c => (c.items ?? []).some((i: any) => String(i.row) === 'P1'))
+        form.items.push({
+            itemId: 'TEST-ROLE-ITEM',
+            origId: 'TEST-ROLE-ITEM',
+            row: roleRow.rowId,
+            selector: '*',
+            requirement: 'EQUALS',
+            value: '1',
+            strictness: 'REQUIRED',
+            valueStatus: 'REQUIRED_RANGE',
+            scope: 'PER_TEAM',
+            basis: 'AUTHORED',
+            basisEvidence: 'a test fixture, not authored knowledge',
+            checkability: 'STRUCTURAL',
+            structuralClause: 'whole item',
+            ...over,
+        })
+        form.declarations = (form.declarations ?? []).map((d: any) => (String(d.row) === roleRow.rowId ? { ...d, declaration: 'CLAIMED', scope: 'PER_TEAM' } : d))
+    }
+
+    // The knowledge requires one per team and the session cannot staff it: refused, by name, with the numbers.
+    for (const available of [0, 1]) {
+        const { realized, ctx } = chain(undefined, authored())
+        withRoles(ctx, { [roleRow.role]: available })
+        assert.equal(completeConcreteGame(ctx, realized).length, 0, 'an authored count must not be read as none, and a roster the session cannot staff is not derived')
+        const refusal = rosterRefusal(ctx, realized)
+        assert.deepEqual(
+            refusal && refusal.cause === 'AVAILABILITY_SHORT' ? [refusal.role, refusal.perTeam, refusal.teams, refusal.needed, refusal.available] : refusal,
+            [roleRow.role, 1, 2, 2, available],
+            `one per team authored and ${available} available`,
+        )
+    }
+
+    // ...and with two it DERIVES: one a side taken off the outfield, written as held, and the sum agrees.
+    {
+        const { realized, ctx, owed, resolved } = chain(undefined, authored())
+        withRoles(ctx, { [roleRow.role]: 2 })
+        const entailed = completeConcreteGame(ctx, realized)
+        assert.equal(rosterRefusal(ctx, realized), null)
+        for (const team of teamsOf(realized)) assert.deepEqual([team.outfieldCount, team[roleRow.role]], [5, 1], 'one per team authored: 12 players are 2 teams of 5 and 1')
+        const written = entailed.filter(e => e.leaf === roleRow.role)
+        assert.equal(written.length, 2)
+        for (const entry of written) assert.ok(entry.because.includes('TEST-ROLE-ITEM'), `the provenance must name the item that requires it: ${entry.because}`)
+        const post = runPostRealizationGates(ctx, owed, realized)
+        assert.equal(post.validated, true, `the roster gate must validate the game it now holds: ${JSON.stringify(post.outstanding)}`)
+        assert.deepEqual(checkRealization(resolved, realized).nothingInvented, [], 'and the count is accounted for, not invented')
+    }
+
+    // A third available changes nothing: availability covers involvement and is never itself instantiated.
+    {
+        const { realized, ctx } = chain(undefined, authored())
+        withRoles(ctx, { [roleRow.role]: 3 })
+        completeConcreteGame(ctx, realized)
+        for (const team of teamsOf(realized)) assert.deepEqual([team.outfieldCount, team[roleRow.role]], [5, 1])
+    }
+
+    // A count spelled as a number is the same count as one spelled as text, and two a side is two a side.
+    {
+        const { realized, ctx } = chain(undefined, authored({ value: 2 }))
+        withRoles(ctx, { [roleRow.role]: 4 })
+        completeConcreteGame(ctx, realized)
+        for (const team of teamsOf(realized)) assert.deepEqual([team.outfieldCount, team[roleRow.role]], [4, 2])
+    }
+
+    /**
+     * **What an item may NOT do.** Each of these speaks about the count without settling it for THIS team,
+     * and each must refuse rather than be read as a count, or as none:
+     *
+     *   - it names a particular team, and nothing tells one instantiated team from the other;
+     *   - it is assumed — §3, an assumed item bounds and never entails;
+     *   - it is a preferred default or an example — the bar the equality on the outfield count is held to;
+     *   - it is an exclusion, which never supports;
+     *   - its value is not a whole count;
+     *   - two items fix different counts.
+     */
+    const unsettled: [string, (contracts: any[]) => void][] = [
+        ['a selector naming one team', authored({ selector: 'team=ATTACKING_TEAM' })],
+        ['an assumed item', authored({ basis: 'ASSUMED' })],
+        ['a preferred default', authored({ valueStatus: 'PREFERRED_DEFAULT' })],
+        ['an example', authored({ valueStatus: 'TYPICAL_EXAMPLE' })],
+        ['an exclusion', authored({ strictness: 'EXCLUSION' })],
+        ['a value that is not a count', authored({ value: 'one' })],
+        ['a fractional count', authored({ value: '0.5' })],
+        [
+            'two items that disagree',
+            contracts => {
+                authored()(contracts)
+                authored({ itemId: 'TEST-ROLE-ITEM-2', origId: 'TEST-ROLE-ITEM-2', value: '2' })(contracts)
+            },
+        ],
+    ]
+    for (const [what, knowledge] of unsettled) {
+        const { realized, ctx } = chain(undefined, knowledge)
+        withRoles(ctx, { [roleRow.role]: 4 })
+        assert.equal(completeConcreteGame(ctx, realized).length, 0, `${what} must derive no roster`)
+        const refusal = rosterRefusal(ctx, realized)
+        assert.equal(refusal?.cause, 'INVOLVEMENT_NOT_SETTLED', `${what} must leave involvement unsettled; got ${JSON.stringify(refusal)}`)
+        assert.equal((refusal as any).role, roleRow.role)
+    }
+
+    /**
+     * **Every way of deriving nothing now has its own name.** Before this, each of these reached a caller as
+     * the same sentence from the roster gate, so a coach with nine players and a coach who was never asked
+     * about a specialized role could not be told different things.
+     */
+    const causeOf = (mutate: (ctx: any, role: string) => void): string | undefined => {
+        const { realized, ctx } = chain()
+        mutate(ctx, roleOf(ctx).role)
+        assert.equal(completeConcreteGame(ctx, realized).length, 0, 'a refused roster writes nothing')
+        return rosterRefusal(ctx, realized)?.cause
+    }
+    assert.equal(causeOf(ctx => { ctx.envelope = { ...ctx.envelope, players: 9 } }), 'DOES_NOT_DIVIDE', '9 players do not split into 2 equal teams')
+    assert.equal(causeOf(ctx => { ctx.envelope = { ...ctx.envelope, players: 7.5 } }), 'DOES_NOT_DIVIDE')
+    assert.equal(causeOf(ctx => { ctx.envelope = { ...ctx.envelope, players: 1 } }), 'DOES_NOT_DIVIDE', 'one player is a count that does not divide')
+    assert.equal(causeOf(ctx => { ctx.envelope = { ...ctx.envelope, players: 0 } }), 'NO_OUTFIELD_PLAYERS', 'nobody at all is not "divides evenly": it was derived as 2 teams of 0')
+    assert.equal(causeOf(ctx => { ctx.envelope = { ...ctx.envelope, players: undefined } }), 'PLAYERS_NOT_STATED')
+    assert.equal(causeOf(ctx => withRoles(ctx, undefined)), 'AVAILABILITY_NOT_STATED', 'no statement at all is NOT STATED')
+    assert.equal(causeOf(ctx => withRoles(ctx, {})), 'AVAILABILITY_NOT_STATED', 'and so is a statement that leaves the role out')
+    assert.equal(causeOf((ctx, role) => withRoles(ctx, { [role]: -1 })), 'AVAILABILITY_NOT_A_COUNT')
+    assert.equal(causeOf(ctx => { ctx.contracts = copy(ctx.contracts).map((c: any) => ({ ...c, items: c.items.filter((i: any) => String(i.row) !== 'P2') })) }), 'EQUALITY_NOT_AUTHORED')
+
+    const nine = (() => {
+        const { realized, ctx } = chain()
+        ctx.envelope = { ...ctx.envelope, players: 9 }
+        completeConcreteGame(ctx, realized)
+        return rosterRefusal(ctx, realized)
+    })()
+    assert.deepEqual(nine && nine.cause === 'DOES_NOT_DIVIDE' ? [nine.players, nine.teams, nine.involved, nine.neutrals] : null, [9, 2, 0, 0])
+}
+
 // ── Neutrals are READ from P5, not counted from a filter that cannot match ────────────────────────
 //
 // `classes.filter(c => c.row === 'P5' && ...)` was structurally always 0: P5 is `performers.neutrals.count`,
@@ -428,6 +701,24 @@ const teamsOf = (realized: Realized) => (realized.game as any).performers.teams 
         for (const s of sizes) assert.equal(s.value, 5, '12 - 2 neutrals over 2 teams is 5 a side, not 6')
     }
 
+    // The count is read as the roster gate reads its terms (§1.9) — added 13 October. A count authored as
+    // `"2"` is two people: this read wanted a JavaScript number, called it unsettled and derived nothing.
+    // And a count that is not a whole number of people is refused rather than subtracted.
+    for (const [held, expected] of [['2', 5], [4, 4], [1.5, null], ['two', null]] as const) {
+        const { realized, ctx: c4 } = chain()
+        for (const line of c4.lines.filter((l: any) => String(l.row) === 'P5')) {
+            c4.classified.set(line.lineId, { lineId: line.lineId, lineState: 'ENUMERATED', verdict: 'RESOLVED:ENTAILED', resolvedBy: 'SESSION', reason: null, collidingItems: [] } as any)
+            c4.derived.set(line.lineId, { lineId: line.lineId, session: { value: held, row: 'P5' }, entailing: [], bounding: [], narrowing: [], standingDecisions: [], undetermined: [], open: null } as any)
+        }
+        const sizes = completeConcreteGame(c4, realized).filter(e => e.leaf === 'outfieldCount')
+        if (expected === null) {
+            assert.equal(sizes.length, 0, `a neutral count of ${JSON.stringify(held)} must derive nothing`)
+            assert.equal(rosterRefusal(c4, realized)?.cause, 'NEUTRALS_NOT_SETTLED')
+        } else {
+            assert.deepEqual(sizes.map(s => s.value), [expected, expected], `a neutral count of ${JSON.stringify(held)}`)
+        }
+    }
+
     // Required but unestablished derives nothing rather than assuming zero.
     {
         const { realized, ctx: c3 } = chain()
@@ -440,6 +731,185 @@ const teamsOf = (realized: Realized) => (realized.game as any).performers.teams 
             0,
             'an unestablished neutral count must not be assumed to be zero',
         )
+    }
+}
+
+/**
+ * ── A NEUTRAL COUNT THAT REALIZATION CLOSED REACHES THE ROSTER — added 13 October 2026 ────────────
+ *
+ * Christian, 13 October: *"Please proceed with the neutral-player participation functionality, including
+ * roster arithmetic and coach-facing communication."*
+ *
+ * The neutral condition leaves its count open inside an authored range (*"one or more"*, with *"one or two"*
+ * preferred), so the count is a realization choice and never a derived value. The roster rule read the count
+ * from the derived context only. Measured before the completion, on this game: realization recorded two
+ * neutrals, assembly entailed NOTHING, no team had a size, and the roster gate could not be evaluated — so no
+ * neutral configuration could be validated at all, whatever else was built around it.
+ *
+ * This is the real chain over the possession game form with the neutral condition — the knowledge the
+ * `neutral-players` mechanism demonstration names, and no Learning Goal's — with the count chosen explicitly
+ * so each case is the count it says it is. The 15-player rows are the knowledge's own two examples
+ * (*"for 15 players: 6v6 + 3 neutrals, or 7v7 + 1 neutral"*).
+ */
+{
+    const KNOWLEDGE = ['GF2', 'tl-v0-constraint-neutral-player-condition']
+    // Derived once per squad size — the count is a realization input, so only realization is repeated.
+    const derivedFor = new Map<number, any>()
+    const derivation = (players: number) => {
+        if (derivedFor.has(players)) return derivedFor.get(players)
+        const entries = KNOWLEDGE.map((id, i) => ({ id, role: i === 0 ? 'game form' : 'constraint' }))
+        const selection = { selected: entries, ...contractCoverage(entries) }
+        const input = derivationInputFor(selection)
+        ;(input.envelope as Record<string, unknown>).players = players
+        const result = runDerivation(input)
+        if (isStampedHalt(result)) throw new Error('halted')
+        const staged: any = runStages0to10(input)
+        const index = indexRegister(input.register)
+        const resolved = assembleResolvedGame(result, staged.classes, index, input.contracts)
+        const found = suppliedRealizationFor(selection)
+        if (isNoSuppliedRealization(found)) throw new Error(`no realization input for ${found.missingFor}`)
+        const derived = { resolved, index, envelope: input.envelope, ctx: { ...staged.gateContext, contracts: input.contracts }, found }
+        derivedFor.set(players, derived)
+        return derived
+    }
+    const withNeutrals = (players: number, neutrals: unknown) => {
+        const { resolved, index, envelope, ctx, found } = derivation(players)
+        const supplied = { choices: [...copy(found.choices), { lineId: 'game::P5', value: neutrals, because: 'a test: the count this case is about' }], instantiations: copy(found.instantiations) }
+        const realization = realizeWithJustifiedDefaults(resolved, supplied, index, envelope, ctx).realization
+        return { resolved, realization, ctx, owed: resolved.coherence.postRealizationRequired.map((o: any) => ({ checkId: o.checkId, clause: o.clause })) }
+    }
+    const realizedWith = (players: number, neutrals: unknown) => {
+        const run = withNeutrals(players, neutrals)
+        if (isRefused(run.realization)) throw new Error(`refused: ${run.realization.because.join('; ')}`)
+        return { ...run, realized: run.realization as Realized }
+    }
+    const countOf = (realized: Realized) => realized.record.choices.find(choice => choice.lineId === 'game::P5')!
+
+    // Twelve players, two neutrals: five a side, written into the game, and the gate validates what it holds.
+    {
+        const { resolved, realized, ctx, owed } = realizedWith(12, 2)
+        assert.deepEqual([countOf(realized).path, countOf(realized).boundCheck, countOf(realized).closure], ['performers.neutrals.count', 'WITHIN_COUNT', 'STARTING_VALUE_IN_RANGE'])
+        for (const team of teamsOf(realized)) assert.equal(team.outfieldCount, undefined, 'before assembly no team has a size')
+
+        const sizes = completeConcreteGame(ctx, realized).filter(e => e.leaf === 'outfieldCount')
+        assert.deepEqual(sizes.map(s => s.value), [5, 5], '12 − 2 neutrals over 2 teams is 5 a side')
+        for (const size of sizes) assert.ok(size.because.includes('− 2 neutral (the count realization closed'), `the chain must say where the count came from: ${size.because}`)
+        for (const team of teamsOf(realized)) assert.equal(team.outfieldCount, 5, 'and it is in the game')
+
+        assert.deepEqual(checkRealization(resolved, realized), { nothingClosedWithoutAuthority: [], nothingLost: [], nothingInvented: [] })
+        const post = runPostRealizationGates(ctx, owed, realized)
+        assert.equal(post.gateA.checks.find(c => c.checkId === 'GA-ROSTER-SUM')?.verdict, 'PASS', '5 + 0 + 5 + 0 + 2 neutrals = 12')
+        assert.equal(post.validated, true, JSON.stringify(post.outstanding))
+    }
+
+    // Other counts and sessions, each the size the arithmetic gives and nothing rounded.
+    for (const [players, neutrals, perTeam] of [[12, 4, 4], [13, 1, 6], [15, 3, 6], [15, 1, 7], [8, 2, 3], [3, 1, 1]] as const) {
+        const { realized, ctx, owed } = realizedWith(players, neutrals)
+        completeConcreteGame(ctx, realized)
+        assert.deepEqual(teamsOf(realized).map(team => team.outfieldCount), [perTeam, perTeam], `${players} players, ${neutrals} neutral`)
+        assert.equal(runPostRealizationGates(ctx, owed, realized).validated, true, `${players} players, ${neutrals} neutral must validate`)
+    }
+
+    // A count inside the authored bound that this session cannot field derives NOTHING and names why.
+    {
+        const { realized, ctx, owed } = realizedWith(12, 1)
+        assert.equal(completeConcreteGame(ctx, realized).length, 0, '11 does not split into two teams, and a rounded roster is an invented one')
+        const refusal = rosterRefusal(ctx, realized)
+        assert.deepEqual(refusal && refusal.cause === 'DOES_NOT_DIVIDE' ? [refusal.players, refusal.teams, refusal.involved, refusal.neutrals] : refusal, [12, 2, 0, 1])
+        assert.equal(runPostRealizationGates(ctx, owed, realized).validated, false, 'and the game is not render-eligible')
+        assert.equal(countOf(realized).within.configurations, undefined, 'a refused roster writes nothing, the configurations included')
+    }
+
+    /**
+     * **Twelve neutrals of twelve players is not a game.** The authored bound is *"one or more"* with no
+     * maximum, so realization has no ground to refuse the count and does not. Measured on 13 October with the
+     * guard below taken out: the roster came out as *"2 teams of 0"*, the gate summed 0 + 0 + 12 = 12 and
+     * validated it, and the activity was served. Nobody plays in a team of nobody.
+     */
+    {
+        const { realized, ctx, owed } = realizedWith(12, 12)
+        assert.equal(countOf(realized).boundCheck, 'WITHIN_COUNT', 'the authored bound admits it')
+        assert.equal(completeConcreteGame(ctx, realized).length, 0, 'a team with no outfield player must not be derived')
+        const refusal = rosterRefusal(ctx, realized)
+        assert.deepEqual(refusal && refusal.cause === 'NO_OUTFIELD_PLAYERS' ? [refusal.players, refusal.teams, refusal.involved, refusal.neutrals] : refusal, [12, 2, 0, 12])
+        assert.equal(runPostRealizationGates(ctx, owed, realized).validated, false)
+        const over = realizedWith(12, 14)
+        assert.equal(rosterRefusal(over.ctx, over.realized)?.cause, 'NO_OUTFIELD_PLAYERS', 'more neutrals than players, likewise')
+    }
+
+    // A count that is not a whole number of people is inside the bound as a number and is not a roster term.
+    {
+        const { realized, ctx } = realizedWith(12, 1.5)
+        assert.equal(completeConcreteGame(ctx, realized).length, 0)
+        assert.equal(rosterRefusal(ctx, realized)?.cause, 'NEUTRALS_NOT_SETTLED')
+    }
+
+    // Zero neutrals is not a value of this constraint at all: it is the constraint withdrawn.
+    {
+        const { realization } = withNeutrals(12, 0)
+        assert.ok(isRefused(realization) && realization.because.some(reason => reason.includes('0 is below the authored minimum 1')), JSON.stringify((realization as any).because))
+    }
+
+    /**
+     * **THE CONFIGURATIONS STAY WITH THE CHOICE** — `within.configurations`. Re-pointed 14 October 2026 from
+     * `within.rosterAdmits`, whose values are now `configurations.authorized`, unchanged.
+     *
+     * Christian, 13 October: *"I also want neutral-player numbers and participation conditions to remain
+     * adjustable during a session, within valid configurations. The coach may need to add or remove a neutral
+     * player to maintain an appropriate challenge."* With equal teams required, the valid counts for a session
+     * are two apart: adding ONE neutral to twelve players leaves eleven for two teams.
+     *
+     * And on 14 October he split "valid" in three: *"Structural validity … Knowledge authorization … Ecological
+     * appropriateness … A configuration with ten neutral players and two teams of one may satisfy roster
+     * arithmetic, but that does not make it an appropriate alternative to a 5v5+2 activity."* So the record keeps
+     * the roster arithmetic alone (`structural`, from 0), what the REQUIRED bound authorizes of it (`authorized`),
+     * what his preferred range offers for a normal start (`offered`), and says the ecological question has not
+     * been assessed. The top of each authorized list is the last count that still leaves one outfield player a side.
+     */
+    for (const [players, neutrals, structural, authorized, offered] of [
+        [12, 2, [0, 2, 4, 6, 8, 10], [2, 4, 6, 8, 10], [2]],
+        [13, 1, [1, 3, 5, 7, 9, 11], [1, 3, 5, 7, 9, 11], [1]],
+        [15, 3, [1, 3, 5, 7, 9, 11, 13], [1, 3, 5, 7, 9, 11, 13], [1]],
+        [3, 1, [1], [1], [1]],
+    ] as const) {
+        const { realized, ctx } = realizedWith(players, neutrals)
+        completeConcreteGame(ctx, realized)
+        const within = countOf(realized).within
+        const configurations = within.configurations!
+        assert.deepEqual(
+            [configurations.structural, configurations.authorized, configurations.offered, configurations.offeredBasis, configurations.ecological],
+            [structural, authorized, offered, 'PREFERRED_RANGE_FOR_NORMAL_STARTING_CONFIGURATIONS', 'NOT_ASSESSED'],
+            `${players} players`,
+        )
+        assert.ok(configurations.authorized.includes(neutrals), 'the count in the game is one the knowledge authorizes')
+        // Each set lies inside the one before it.
+        assert.ok(configurations.authorized.every(n => configurations.structural.includes(n)) && configurations.offered.every(n => configurations.authorized.includes(n)))
+        // The authored range is still beside it, each bound with its status.
+        assert.deepEqual(within.bounds.map(b => [b.min, b.max, !!b.preferred]), [[1, null, false], [1, 2, true]])
+        // It is the roster rule's own answer for each count, asked again here one at a time.
+        for (let n = 1; n <= players; n++) {
+            const trial = realizedWith(players, n)
+            assert.equal(rosterRefusal(trial.ctx, trial.realized) === null, configurations.authorized.includes(n), `${players} players, ${n} neutral`)
+        }
+        assert.deepEqual(countsTheRosterAdmits(ctx, realized, 'game::P5', 0, players), configurations.structural, 'structural is the arithmetic, from 0')
+    }
+
+    // His own example, at twelve players: ten neutrals and two teams of one. The arithmetic admits it and the
+    // knowledge's "one or more" authorizes it; it is NOT offered, because it is outside the preferred range.
+    {
+        const { realized, ctx } = realizedWith(12, 2)
+        completeConcreteGame(ctx, realized)
+        const configurations = countOf(realized).within.configurations!
+        assert.ok(configurations.structural.includes(10) && configurations.authorized.includes(10) && !configurations.offered.includes(10))
+        // Without neutrals the roster divides as well — structurally valid, and not this constraint at all.
+        assert.ok(configurations.structural.includes(0) && !configurations.authorized.includes(0))
+    }
+
+    // A game with no neutral count chosen carries no configurations: there is no choice to keep them with.
+    {
+        const { realized, ctx } = chain()
+        completeConcreteGame(ctx, realized)
+        assert.ok(realized.record.choices.every(choice => choice.within.configurations === undefined))
     }
 }
 

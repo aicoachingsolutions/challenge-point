@@ -9,6 +9,8 @@
  * are declared where increment 1 populates them, and omitted where it does not.
  */
 
+import type { MemberDesignations } from './designation'
+
 // ---------------------------------------------------------------------------------------------
 // Closed lists — the register's `vocabularies.contractEnums`, and the package's own closed lists.
 // ---------------------------------------------------------------------------------------------
@@ -105,6 +107,23 @@ export interface ContractItem {
     checkability?: unknown
     structuralClause?: unknown
     comparison?: unknown
+    /**
+     * What the item's authority is, where the item states it (15 October 2026, stage K2): PROVISIONAL_REALIZATION_CHOICE
+     * on every item of a record-named provisional realization (`corpus.ts` `loadProvisionalRealizations`), absent on
+     * canonical knowledge. Carried onto every support entry the item gives a derived value.
+     */
+    category?: unknown
+    /**
+     * A ruled supersession on an item (15 October 2026, stage K4, ruling C56): only `DEFERS_TO_AUTHORIZED_REALIZATION`, written
+     * only by a restatement. Honoured in `realization-deferral.ts`.
+     */
+    defersTo?: unknown
+    /**
+     * The context-manipulation relationship a provisional realization's item cites as its authority (15 October 2026, stage
+     * K4): the id of an entry of the authorization records' `contextManipulationRelationships`, checked at load
+     * (`learning-goal-authorizations.ts`) and read by the deferral (`realization-deferral.ts`).
+     */
+    authorizedBy?: unknown
 }
 
 export interface Declaration {
@@ -113,7 +132,55 @@ export interface Declaration {
     scope?: unknown
     declaration: unknown
     note?: unknown
+    /** A ruled supersession, written only by a restatement (corpus-restatement.ts); see `DeclarationReach.defersTo`. */
+    defersTo?: unknown
+    /**
+     * **Which of his three states a non-claim is** (register `contractEnums.declarationQualifier`, 15 October 2026,
+     * stage K1) — valid only on NON_CLAIMED, validated at load (load.ts). Absent means a LEGACY non-claim: "this object
+     * does not constrain this row", exactly as before. See `NO_FURTHER_VALUE` / `UNRESTRICTED` below.
+     */
+    qualifier?: unknown
 }
+
+/**
+ * **His three states, kept apart in the machine-readable representation** — 17 October M6: *"the machine-readable
+ * representation must preserve the distinction between: No further value is required. The value is explicitly
+ * unrestricted. A necessary value is missing. These must not collapse into the same operational meaning, even if
+ * their current surface representation is similar."*
+ *
+ *   - `NO_FURTHER_VALUE` — a non-claim that STATES the field needs nothing more: an established absence. It passes,
+ *     never blocks, is never filled, and nothing is said to the coach. Unlike a legacy non-claim it is an explicit
+ *     statement, so it may set a ruled deferral aside (classify.ts `governingDeclarations`).
+ *   - `UNRESTRICTED` — registered so the state exists and cannot collapse into another, but REFUSED AT LOAD (load.ts):
+ *     no operational reading of "any value" has been ruled. Refusing is OUR engineering default, fail-closed; SD-39
+ *     (a non-claim permits a choice only inside an already-supported choice space) is the existing ruled grounding
+ *     for the alternative reading, and which applies is his to say.
+ *   - A necessary value MISSING is not a qualifier: it stays NOT_AUTHORED ('declared gap') or an unresolved claim
+ *     ('claimed but unresolved') — the two codes that block — unchanged.
+ */
+export const NO_FURTHER_VALUE = 'NO_FURTHER_VALUE'
+export const UNRESTRICTED = 'UNRESTRICTED'
+
+/**
+ * The one supersession the data may name (15 October 2026, his answer 9): a general declaration that DEFERS to the
+ * object establishing an element, wherever that object speaks explicitly. Read from the declaration's `defersTo`,
+ * which only a ruled restatement writes (corpus-restatement.ts), and honoured in one place (classify.ts
+ * `governingDeclarations`) — never from a row or contract named in code. No declaration carries it on 15 October
+ * 2026: whether any statement in the knowledge is such a relationship is his decision. Here, beside the record
+ * it marks, so the restatement loader can name it without importing the classifier.
+ */
+export const DEFERS_TO_ESTABLISHING_OBJECT = 'ESTABLISHING_OBJECT'
+
+/**
+ * **The second supersession, and the first for an ITEM** — 15 October 2026 (stage K4, ruling C56). Christian, reply filed 17
+ * October 2026, D6: *"If the 6 + GK versus 5 configuration requires a narrow exception to the possession game's
+ * equal-outfield-number rule, please document it as a knowledge-authorized realization, preserving equal numbers as an
+ * alternative."* An item carrying it (written only by a ruled restatement, corpus-restatement.ts) defers wherever a selected
+ * contribution authors the same row per team and cites a confirmed context-manipulation relationship authorizing that row
+ * (realization-deferral.ts); it is then listed as the alternative and never evaluated. The supersession vocabulary is one
+ * list with two members, each for one kind of statement; any other value is refused at load.
+ */
+export const DEFERS_TO_AUTHORIZED_REALIZATION = 'AUTHORIZED_REALIZATION'
 
 export interface LoadedContract {
     contractId: string
@@ -125,6 +192,22 @@ export interface LoadedContract {
     declarations: Declaration[]
     relationshipRules?: unknown[]
     notAuthored?: unknown[]
+    /**
+     * Items of this contract that DEFER in this composition (15 October 2026, stage K4, ruling C56): moved out of `items`
+     * by `realization-deferral.ts`, so that no check evaluates them, and kept here whole with what they defer to, so the
+     * alternative stays visible. Absent wherever nothing defers.
+     */
+    deferredItems?: DeferredItem[]
+}
+
+/** An item that defers in this composition, with what it defers to (stage K4, ruling C56). */
+export interface DeferredItem {
+    item: ContractItem
+    defersTo: string
+    /** The items that author the row per team and cite the relationship. */
+    deferredTo: { contractId: string; itemId: string }[]
+    /** The relationship they cite. */
+    relationship: string
 }
 
 export interface SelectionEntry {
@@ -148,6 +231,10 @@ export interface Envelope {
      * into a particular game only where the selected knowledge establishes it, and only an instantiated
      * group has a participation state at all.
      *
+     * That sentence was the rule and, until 13 October, not the behaviour: the roster rule took every
+     * stated count off every team. It now reads what a team HOLDS from the game and asks of this count
+     * only that it cover it — see `rosterFor` in `realization/assemble-concrete-game.ts`.
+     *
      * The pathway is deliberately shaped so a Team Profile can supply defaults and a session override
      * them — both upstream. The engine reads whatever it is given and infers nothing from silence: an
      * absent entry means *not stated*, never *none available*.
@@ -162,6 +249,8 @@ export interface DerivationInput {
     register: any
     derivationRules: { version: string; adoptedLabels?: string[] }
     candidate?: unknown
+    /** The role block this game is derived for (stage K3, his M1); absent for every game without role blocks. */
+    roleBlock?: RoleBlock
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -215,6 +304,34 @@ export interface ElementClass {
     /** Attribute constraints from the selector: `=` fixes one value, `IN` a set, `CONTAINS` a member. */
     constraints: SelectorPredicate
     cardinality: { min: number | null; max: number | null }
+    /**
+     * **What an instantiated team meets, for a standing property** (15 October 2026, stage K2, his M2) — set only on the
+     * member class realization forms for a team (`post-realization-gate.ts`), from `designation.ts`, the one resolver.
+     * A derived class never carries it: derivation classes fix no designation (SD-95), so stage 4 is unchanged.
+     *
+     * **One exception since 15 October 2026 (stage K3, his M1): an objective REGION carries what it is the target of.**
+     * *"Allow target configurations to reflect each team's role during the block."* The register's derived attribute
+     * `targetOf` (version 10) is set before reach on the classes the objectives reference — from the objectives' own
+     * selectors and the reference items that entail them (`designation.ts` `targetDesignations`), never from the region's
+     * authored selector, which is unchanged. It is what lets a selector name "the target the building team attacks"
+     * without creating a third region. Every other derived class still carries nothing here.
+     */
+    designations?: MemberDesignations
+}
+
+/**
+ * **The role block a game is derived for** — 15 October 2026 (stage K3), his M1 (reply filed 17 October 2026): *"Keep role
+ * assignments separate from fixed ends. Allow target configurations to reflect each team's role during the block. The
+ * coach controls the exchange."* Each role of the register's role vocabulary, bound to the setup assignment
+ * (TEAM_AT_AXIS_*) whose team holds it in this block. The two bijections of two roles onto two ends are entailed, never
+ * chosen (`role-blocks.ts`); which is played first is the coach's. It is INPUT, like the envelope: it enters the input
+ * digest and the gate context, and realization records it beside the game — never as a property of the game.
+ */
+export interface RoleBlock {
+    /** The block, named by its own bindings (`BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END`). */
+    blockId: string
+    /** Role -> the setup assignment holding it in this block. */
+    holders: Record<string, string>
 }
 
 export interface ResolutionLine {
@@ -279,12 +396,24 @@ export type SupportRef =
     // `CARRIES` is SD-92's relation: the value came from the selector of the existence item that
     // established the element, not from an item written on the row. It is still that item's support,
     // so it is a CONTRACT_ITEM; naming the relation keeps the two visibly different in provenance.
-    | { kind: 'CONTRACT_ITEM'; contractId: string; itemId: string; relation: 'ENTAILS' | 'NARROWS' | 'CARRIES' }
+    // `category` (15 October 2026, stage K2): the item's own category where it carries one — today only an item of a
+    // record-named provisional realization, PROVISIONAL_REALIZATION_CHOICE. Added at assembly (resolved-game.ts), so a
+    // reader of the game can tell his choice for one activity from canonical knowledge (his 16 October item 10).
+    | { kind: 'CONTRACT_ITEM'; contractId: string; itemId: string; relation: 'ENTAILS' | 'NARROWS' | 'CARRIES'; category?: string }
     | { kind: 'STANDING_DECISION'; id: string }
     | { kind: 'SESSION'; row: string }
 
 export interface Bounds {
-    kind: 'COUNT' | 'INTERVAL' | 'SET' | 'QUALITATIVE'
+    /**
+     * `RELATIVE` added 15 October 2026 (stage K6, register version 13) for his M7, reply filed 17 October 2026: *"M7 — Target
+     * relative to pressure reference: Approved if required."* RC-21's canonical *"beyond X (for team T)"* made machine-readable:
+     * the extent reaches X's far edge in T's attacking direction. `of` and `forTeam` carry the referent and the team.
+     */
+    kind: 'COUNT' | 'INTERVAL' | 'SET' | 'QUALITATIVE' | 'RELATIVE'
+    /** For a RELATIVE bound: the register's relation (`beyond`), the element it is relative to, and the team whose direction it reads. */
+    relation?: string
+    of?: { contractId: string; itemId: string }
+    forTeam?: string
     min?: number | null
     max?: number | null
     members?: unknown[]
@@ -297,10 +426,140 @@ export interface Bounds {
      * does not state (SD-90 governs the relationship).
      */
     preferred?: boolean
+    /**
+     * The bound comes from an EXCLUSION item: what it carries is what the value may NOT be. Added 13 October.
+     *
+     * An exclusion that does not entail lands in a line's bounds beside the requirements, and it used to
+     * arrive shaped exactly like one — `{ kind: 'SET', members: [...] }`, the shape of a permitted set. A
+     * reader that takes `members` for the values a line may hold therefore took a forbidden value for a
+     * permitted one. So the bound says which it is, and every reader that asks "what may this be?" skips
+     * it. Whether a value BREACHES an exclusion is not decided from here: that is the forward list's job,
+     * over typed `forbiddenValues`, and prose members are not something to compare a value with.
+     */
+    forbidden?: boolean
+    /**
+     * The bound comes from an `ASSUMED` item — the restater's reading, not authored guidance. Added 14 October
+     * 2026 so an assumed bound is never offered to a coach as though the knowledge stated it. Present only
+     * where true.
+     */
+    assumed?: true
     /** min/max are FRACTIONS of the named axis, not metres - a proportional rule, resolved at realization. */
     fractionOfAxis?: boolean
     /** Which axis a fractional bound is of, where the bound itself knows. */
     axis?: string
+}
+
+/**
+ * **A typed structural reference (SD-98), recognised in one place.** The gates read one when they resolve a
+ * referent and derivation reads one when SD-101 compares a contribution with a class's own selector, and the
+ * two must agree on what counts as typed. It lives here, beside the shared record types, so derivation does
+ * not import the gates to ask (14 October 2026, Step 4 component 1).
+ */
+export function structuralRefOf(value: unknown): { contractId: string; itemId: string } | null {
+    const ref = value && typeof value === 'object' ? (value as any).structuralRef : null
+    return ref && typeof ref.contractId === 'string' && typeof ref.itemId === 'string' ? ref : null
+}
+
+/**
+ * **A relational referent (register V5 valueType, version 8): "the objective reference of designation D"** — 15
+ * October 2026, stage K1, capability M8. His 17 October words: *"M8 — Controlled arrival and long-clearance
+ * validation: Approved. Apply the qualifying conditions to the target and scoring episode actually being evaluated.
+ * The purpose is to recognize controlled, functional progression rather than reward an uncontrolled clearance."*
+ *
+ * A condition's referent written this way names no element directly: it names the J2 reference of each objective
+ * held by the game whose role is `role` and whose team is the one `objectiveReferenceOf` designates at the trigger
+ * (for SCORING_TEAM, the team that scored — so per team, the target THAT team attacks). The gates resolve it
+ * (gates.ts `resolveRelational`) to the held objectives' own references, so it composes with any game form without
+ * naming another contract's items. Only a ruled restatement writes one (C57); it is never inferred from prose, and
+ * it is never a route to reference open text — an objective whose reference is open text resolves to open text.
+ * "the objective reference of SCORING_TEAM" is OUR M8 wording, which he approved; it is not his sentence.
+ */
+export interface RelationalReferent {
+    objectiveReferenceOf: string
+    role: string
+    asAuthored?: string
+}
+
+/**
+ * **A begin-condition referent (register V5 valueType, version 3): the restarts that begin a build-out episode** — 15
+ * October 2026, stage K5, ruling C58. His words, reply filed 18 October 2026, item 4, acknowledging the begin condition's
+ * wording (quoted whole in ruling C58, corpus-restatements.json): *"This provides the checkable event distinction needed to
+ * separate deliberate build-out starts from ordinary restarts."*
+ *
+ * A condition's referent written this way names no element and no place: it designates the transitions of the game that
+ * are such a restart — stopping and restarting play (T6 STOP_RESUME), beginning an episode (T7 true), and meeting one of
+ * the `arms` (a taker the restart is taken by, T3; or a restart kind). `GA-EPISODE-REACHABLE` decides which transitions
+ * meet it (gates.ts `buildOutStarters`), so no ordinary restart is ever read as a deliberate build-out start. Only a ruled
+ * restatement writes one (C58); it is never inferred from prose.
+ */
+export interface BeginConditionReferent {
+    beginsEpisodeOf: string
+    arms: ({ takenBy: string } | { restartKind: string })[]
+    asAuthored?: string
+}
+
+/** Recognised in one place, beside `relationalReferentOf`, so derivation and the gates agree on what counts. */
+export function beginConditionReferentOf(value: unknown): BeginConditionReferent | null {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return null
+    const v = value as any
+    if (typeof v.beginsEpisodeOf !== 'string' || !Array.isArray(v.arms) || !v.arms.length || v.structuralRef || v.objectiveReferenceOf) return null
+    const wellFormed = v.arms.every((arm: any) => arm && typeof arm === 'object' && (typeof arm.takenBy === 'string') !== (typeof arm.restartKind === 'string'))
+    return wellFormed ? (v as BeginConditionReferent) : null
+}
+
+/**
+ * **A position stated relative to another element, for a team: RC-21's "beyond X (for team T)"** — 15 October 2026, stage K6,
+ * register version 13, his M7 (reply filed 17 October 2026): *"M7 — Target relative to pressure reference: Approved if
+ * required."* RC-21's test, canonical prose since 18 September: *"the element's near edge is at or past X's far edge, in T's
+ * attacking direction"*. `term` names the register's machine-readable term (`relativeTerms.machineReadable.terms`, kind
+ * `relative`), `of` the element X by a typed structural reference (SD-98), and `forTeam` a registered team designation whose
+ * direction of attack the relation reads — a role holder answers through the role block the game is derived for.
+ *
+ * On an extent row (S5) it is a RELATIVE bound beside the element's anchor; as a start placement's region (P10, version 2) it
+ * is the part of the area beyond X in that direction. Written only in an item, never inferred; the gates resolve `of`
+ * (GA-REFERENCE-INTEGRITY) and check the relation on realized geometry (GA-RELATIVE-PLACEMENT).
+ */
+export interface RelativePosition {
+    term: string
+    of: { structuralRef: { contractId: string; itemId: string }; asAuthored?: string }
+    forTeam: string
+    asAuthored?: string
+}
+
+/** Recognised in one place, beside `structuralRefOf`, so derivation, realization and the gates agree on what counts. */
+export function relativePositionOf(value: unknown): RelativePosition | null {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return null
+    const v = value as any
+    return typeof v.term === 'string' && typeof v.forTeam === 'string' && structuralRefOf(v.of) && !v.structuralRef && !v.objectiveReferenceOf ? (v as RelativePosition) : null
+}
+
+/**
+ * **A position measured from the end line a team defends — RC-21's "own end (of team T)" with a distance from it** — 15 October
+ * 2026, stage K6, register version 13 (S5.valueType version 2). Register S5 reads *"interval along the axis, in metres or
+ * relative"*; in a game played in role blocks the end a team defends is decided by the block, so an interval in metres states
+ * its origin: `offsetM` metres measured from the end line `forTeam` defends, into the area. Written for his reply filed 18
+ * October 2026, item 3: *"Pressure reference: 20 m from the building team's end line."* Only an item writes one.
+ */
+export interface TeamEndPosition {
+    term: string
+    forTeam: string
+    offsetM: { from: number; to: number }
+    asAuthored?: string
+}
+
+export function teamEndPositionOf(value: unknown): TeamEndPosition | null {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return null
+    const v = value as any
+    const offset = v.offsetM
+    const finite = (n: unknown) => typeof n === 'number' && Number.isFinite(n) && n >= 0
+    return typeof v.term === 'string' && typeof v.forTeam === 'string' && offset && finite(offset.from) && finite(offset.to) && offset.from <= offset.to && !v.of ? (v as TeamEndPosition) : null
+}
+
+/** Recognised in one place, beside `structuralRefOf`, so derivation and the gates agree on what counts. */
+export function relationalReferentOf(value: unknown): RelationalReferent | null {
+    if (!value || typeof value !== 'object') return null
+    const v = value as any
+    return typeof v.objectiveReferenceOf === 'string' && typeof v.role === 'string' && !v.structuralRef ? (v as RelationalReferent) : null
 }
 
 export interface SelectorPredicate {

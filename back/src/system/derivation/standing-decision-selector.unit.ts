@@ -22,7 +22,8 @@ import assert from 'node:assert/strict'
 import { corpusInput } from './corpus'
 import { runDerivation, runStages0to10 } from './engine'
 import { indexRegister } from './register'
-import { derivationInputFor, selectFor } from './run-bounded-selection'
+import { a01CompositionUntil15October } from './composition-fixtures'
+import { CONTEXT_ROLE, derivationInputFor, selectFor } from './run-bounded-selection'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 
 let passed = 0
@@ -56,9 +57,13 @@ test('three citable standing decisions register a selector, and it is now read',
 // The real corpus case. A01-02's goal kick is a transition whose trigger is OUT_END_LINE — present, carried by a
 // transition, and named by neither SD-14's selector nor SD-20's. Nothing authors its episode boundary. Before the
 // repair it carried `startsEpisode = true` sourced from SD-14, which names three triggers and not that one.
+//
+// Re-pointed 15 October 2026 from selectFor('A01', 'A01-02') to the same objects named (composition-fixtures.ts):
+// the case is A01-02's goal-kick transition under derivation, and A01 now selects from its authorization record,
+// which authorizes nothing yet (his 15 October item 1), so its own selection stops before derivation.
 test('a transition whose trigger is outside the selector does NOT acquire the episode boundary', () => {
-    const result: any = runDerivation(derivationInputFor(selectFor('A01', 'A01-02')))
-    const staged: any = runStages0to10(derivationInputFor(selectFor('A01', 'A01-02')))
+    const result: any = runDerivation(derivationInputFor(a01CompositionUntil15October('A01-02')))
+    const staged: any = runStages0to10(derivationInputFor(a01CompositionUntil15October('A01-02')))
 
     const line = result.resolution.find((e: any) => String(e.lineId) === 'c:restated:A01-02:A01-02-01.a::T7')
     assert.ok(line, 'the goal-kick transition has an episode-boundary line')
@@ -75,9 +80,24 @@ test('a transition whose trigger is outside the selector does NOT acquire the ep
 //
 // The repair must not be a blanket refusal. A transition whose trigger IS named keeps its value, from the same
 // decision, on the same row.
+/**
+ * **Re-pointed 14 October 2026 to A01 + From Goal Kicks WITHOUT its context.** Since that day selection carries
+ * the goal's context (his ruling that the approved scoring governs), and A01's context, RPC-001, AUTHORS this
+ * line: item RPC-001-17.a entails the episode boundary of a POSSESSION_CHANGE transition, and an authored item
+ * takes precedence over a standing decision. So on A01's full selection the line is established by the
+ * context, not by SD-14, and no longer tests the decision. The control is about SD-14's selector, so it is
+ * made where nothing else authors the line: the same selection with the context left out. (Measured: with the
+ * context the value is RPC-001-17.a's, authored as the STRING "true", not the boolean — recorded for the lead,
+ * not changed here, since the corpus is his.)
+ *
+ * **Re-pointed again 15 October 2026** to the same composition named (composition-fixtures.ts), for the reason
+ * above it: A01's own selection stops at selection since his 15 October item 1.
+ */
 test('a transition whose trigger IS named still receives it, from the same decision', () => {
-    const result: any = runDerivation(derivationInputFor(selectFor('A01', 'A01-02')))
-    const staged: any = runStages0to10(derivationInputFor(selectFor('A01', 'A01-02')))
+    const selection = a01CompositionUntil15October('A01-02')
+    const withoutContext = { selected: selection.selected.filter(entry => entry.role !== CONTEXT_ROLE) }
+    const result: any = runDerivation(derivationInputFor(withoutContext))
+    const staged: any = runStages0to10(derivationInputFor(withoutContext))
 
     const line = result.resolution.find((e: any) => String(e.lineId) === 'c:restated:GF2:GF2-07.a::T7')
     assert.equal(line.value, true, 'a POSSESSION_CHANGE transition still begins an episode')
@@ -164,9 +184,12 @@ test('the repair removes exactly one application and leaves the rest', () => {
         }
     }
     // Was three, all SD-14: the two POSSESSION_CHANGE transitions and the goal kick. The goal kick is gone.
+    // Four since 15 October 2026 (stage K5): A01's provisional realization A01-R1 forms the first START and SCORE elements
+    // any goal holds, and SD-14 gives each its episode boundary — the two applications its own selector names. SD-13 still
+    // fires nowhere: their method is FROM_THE_FEET, not a stationary-ball or kickoff START, and SD-20 nowhere either.
     assert.deepEqual(
         [...pairs].sort(),
-        ['c:blind:GF4:I06::T7 <- SD-14', 'c:restated:GF2:GF2-07.a::T7 <- SD-14'],
+        ['c:blind:GF4:I06::T7 <- SD-14', 'c:provisional:A01-R1:A01-R1-T1-1::T7 <- SD-14', 'c:provisional:A01-R1:A01-R1-T1-2::T7 <- SD-14', 'c:restated:GF2:GF2-07.a::T7 <- SD-14'],
         `exactly the two legitimate applications remain; got ${JSON.stringify([...pairs])}`,
     )
 })
@@ -180,7 +203,15 @@ test('A04 is unaffected: its only transition is a POSSESSION_CHANGE', () => {
     // contributed is gone with it. What this test is about — that the standing-decision selector
     // leaves A04's single POSSESSION_CHANGE transition alone — is unchanged, and the clause below
     // still checks it directly.
-    assert.equal((result.resolution ?? []).filter((e: any) => e.state === 'failed').length, 6, 'six failed lines; was seven while Wide Zone was still selected')
+    // **8 since 14 October 2026**: register version 7 adds the game-level row P6c (when a neutral player's change of
+    // side takes effect, his ruling that day). A04 has no neutrals and no contract it selects speaks of the timing, so
+    // the line is `NOT_AUTHORED` — an established absence that moves no gate verdict. Its reason was `no coverage`
+    // until C48, later the same day, extended GF2's P6a NON_CLAIMED declaration to P6c (a row added after GF2 was
+    // written): it is `not constrained` now, which is what GF2 says of every other neutral property. Still failed,
+    // still eight.
+    const failed = (result.resolution ?? []).filter((e: any) => e.state === 'failed')
+    assert.ok(failed.some((e: any) => e.lineId === 'game::P6c' && e.reason === 'not constrained'))
+    assert.equal(failed.length, 8, 'eight failed lines: 6 after Wide Zone left on 8 October, 7 since the directional arrangement of 9 October added a second target and a second objective, and 8 since P6c (14 October)')
     const t7 = result.resolution.find((e: any) => /GF2-07\.a::T7$/.test(String(e.lineId)))
     assert.equal(t7?.value, true, 'and it still begins an episode, legitimately')
 })
@@ -190,13 +221,28 @@ test('A04 is unaffected: its only transition is a POSSESSION_CHANGE', () => {
 // Authored on his instruction of 4 October, with the 29 September ruling as its evidence. Kept in this file
 // because its only live interaction is with the trigger machinery the repair above also touches.
 test('the Pass Combination Gate trigger row is now authored and resolves', () => {
-    for (const goal of ['A01', 'TA01', 'A02', 'TA02', 'A05']) {
-        const result: any = runDerivation(derivationInputFor(selectFor(goal, null)))
-        const v17 = (result.resolution ?? []).filter((e: any) => /::V17$/.test(String(e.lineId)))
-        assert.equal(v17.length, 1, `${goal}: one information-rule trigger line`)
-        assert.equal(v17[0].verdict, 'RESOLVED:ENTAILED', `${goal}: the line the 29 September ruling left failed is closed`)
-        assert.equal(v17[0].value, 'COMPLETED_PASS', `${goal}: with the token the ruling requires`)
+    // The goals that select that contract. Attack Quickly left this list on 13 October: it selected the
+    // gate only while its wording was read as a possession goal, and its approved Game Problem governs now.
+    //
+    // **No goal selects it since 14 October** (his ruling: *"Please keep the current Pass Combination Gate as a
+    // mechanism demonstration only"*), so the authored line is checked on the gate's demonstration composition
+    // — the possession game form and the gate, named directly — and on no goal.
+    const composition = derivationInputFor({ selected: [{ id: 'GF2', role: 'game form' }, { id: 'tl-v0-constraint-pass-combination-gate', role: 'constraint' }] })
+    const result: any = runDerivation(composition)
+    const v17 = (result.resolution ?? []).filter((e: any) => /::V17$/.test(String(e.lineId)))
+    assert.equal(v17.length, 1, 'one information-rule trigger line')
+    assert.equal(v17[0].verdict, 'RESOLVED:ENTAILED', 'the line the 29 September ruling left failed is closed')
+    assert.equal(v17[0].value, 'COMPLETED_PASS', 'with the token the ruling requires')
+    // **A01 rejoins the list later on 15 October 2026.** From that morning it carried no line of the gate because it
+    // reached no derivation at all (NO_AUTHORIZED_CONSTRAINTS). His general principle of that day (16 October reply,
+    // item 1) lets its evaluated, empty record select GF2 with no library constraint — and its record excludes the gate
+    // ("The Pass Combination Gate remains excluded under our previous decision", his item 7) — so it derives, without
+    // the gate's line.
+    for (const goal of ['TA02', 'A05', 'A01']) {
+        const selected: any = runDerivation(derivationInputFor(selectFor(goal, null)))
+        assert.deepEqual((selected.resolution ?? []).filter((e: any) => /::V17$/.test(String(e.lineId))), [], `${goal}: the gate is held, so no goal carries its line`)
     }
+    assert.ok(!selectFor('A01', null).selected.some(entry => entry.id === 'tl-v0-constraint-pass-combination-gate'), 'A01 selects no gate')
 })
 
 test('the item carries the authority the ruling specified, and displaces nothing', () => {

@@ -46,6 +46,7 @@ import AdminCategoriesTable from './admin/AdminCategoriesTable'
 import AdminconstraintManagementTable from './admin/AdminConstraintManagementTable'
 import ActivityGenerator from './app/ActivityGenerator'
 import ActivityPage from './app/ActivityPage'
+import ActivityReviewPage from './app/ActivityReviewPage'
 import DebugEmReasoning from './app/DebugEmReasoning'
 import DebugSelection from './app/DebugSelection'
 import DebugUsage from './app/DebugUsage'
@@ -83,6 +84,8 @@ root.render(
                                     <Route path='activity/:id' element={<ActivityPage />} />
                                     <Route path='session/:id' element={<SessionPage />} />
                                     <Route path='session/:id/activity-generator' element={<ActivityGenerator />} />
+                                    {/* The signed-in activity review: read-only, built from the coach's own session. */}
+                                    <Route path='session/:id/activity-review' element={<ActivityReviewPage />} />
                                     <Route path='session-library' element={<SessionLibrary />} />
                                     {/* TEMPORARY developer/testing view — selection debug. Route out before production polish. */}
                                     <Route path='debug' element={<DebugSelection />} />
