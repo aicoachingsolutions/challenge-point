@@ -203,6 +203,21 @@ test('(M3, L8) a locator picking out no element or more than one, a scoped condi
     nothingSaid(bound, 'a bound cover holding another value')
 })
 
+test('(M3 review) a located entry binds exactly the fields it names: a field of a located element it does not cover stays withheld', () => {
+    // Added in the M3 review, 17 October 2026: the entry without its value covers (V6) is still said, and every value field stays
+    // withheld, so the activity is still refused at communication naming them; nothing it does not name is said by it.
+    const entry = buildOutEntry(a01Block.game)
+    entry.covers = entry.covers.filter(cover => cover.row !== 'V6')
+    const rendered = renderConcreteGame(a01Block, [entry])
+    const said = rendered.instructions.filter(i => i.text === HIS_ITEM_1)
+    assert.equal(said.length, 1)
+    assert.ok(!said[0].from.some(p => p.endsWith('.value')), 'it cites no field it does not cover')
+    const values = a01Block.game.value.primaryEvent.conditions.filter((c: any) => 'value' in c).map((c: any) => `${CONDITIONS}[${c.elementId}].value`)
+    assert.ok(values.length > 0)
+    assert.deepEqual(alsoCountsWithheld(rendered), alsoCountsWithheld(renderConcreteGame(a01Block)), 'the regain fields stay withheld too')
+    assert.deepEqual(rendered.withheld.map(w => w.path).filter(p => p.startsWith(`${CONDITIONS}[`) || p.startsWith(`${ROLES}[`)).sort(), [...values].sort())
+})
+
 test('(M3, L8) covers compare as canonical JSON: an approved value whose keys are written in another order still holds', () => {
     const entry = buildOutEntry(a01Block.game)
     for (const cover of entry.covers) {

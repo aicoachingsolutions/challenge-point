@@ -367,6 +367,15 @@ test('8. (M3, L9) where a role\'s credit is bounded, no scoring sentence speaks 
     assert.equal(q2('Building team: Score by getting the ball into the zone it is attacking', [kind, `${building}.activityRole`]).length, 1, 'a DRAFT for the bounded role citing anything of it')
     assert.equal(q2('The building team scores only in its build-out', [`${building}.creditedWithin`]).length, 1, 'a DRAFT citing the bound, with or without the event')
     assert.equal(q2('Pressing team: Score by getting the ball into the zone it is attacking', [kind, `${pressing}.creditedWithin`]).length, 0, 'the whole-game role may be told in a draft')
+    // Added in the M3 review, 17 October 2026 (measured: each of these passed the rule as first built, which read only citations).
+    // The old sentence, or the bounded role's own name, cannot borrow the whole-game role's citations; nor does leaving out the kind
+    // stop a sentence citing the value with what it is scored by from being a scoring sentence.
+    assert.equal(q2(old, [kind, 'value.primaryEvent.value', `${pressing}.creditedWithin`]).length, 1, 'the old team-neutral sentence citing the whole-game role\'s bound')
+    assert.equal(q2(old, [kind, 'value.primaryEvent.value', `${pressing}.activityRole`]).length, 1, 'the old team-neutral sentence citing anything of the whole-game role')
+    assert.equal(q2('Building team: Score by getting the ball into the zone it is attacking', [kind, `${pressing}.creditedWithin`]).length, 1, 'the bounded role named, the whole-game role cited')
+    assert.equal(q2(old, ['value.primaryEvent.value', 'objects[c:sport-profile:soccer:SPORT-SOCCER-01].kind', 'objectives[c:restated:GF2:GF2-08.c].role']).length, 1, 'the old sentence without the kind it scores')
+    assert.equal(q2('Building team: Score whenever the ball is in the zone', ['objectives[c:restated:GF2:GF2-08.c].role']).length, 1, 'a How to score sentence naming the bounded role, whatever it cites')
+    assert.equal(q2('Each score is worth 1 point', ['value.primaryEvent.value']).length, 0, 'the value alone says how much, never how or when')
     // His approved sentence (TEST-ONLY approval) passes Q2; it cites the building role's bound.
     const wording = locatedEntry(fixture.game, HIS_ITEM_1, ALL_TYPES)
     const approved = renderConcreteGame(fixture, wording)

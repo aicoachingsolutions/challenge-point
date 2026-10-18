@@ -170,6 +170,10 @@ entries, and a game value written "(= entry)" counts as that entry.
 > ordinary restart or a change of possession never re-establishes one. (7) The post-realization context substitutes realized
 > metres only on position rows. (8) A record-named realization listing the areas its metric values were given for
 > (`testingBoundaries.areas`) is built only for those areas; any other area is refused at `session` (DRAFT sentence).
+> (9) Added in the K6 review, 16 October 2026: GA-RELATIVE-PLACEMENT's third clause - no start placement's region shares a
+> stretch of the axis with the target its own group's team attacks (touching at one boundary is not sharing; deferred until both
+> are realized). The design asked for it and K6 had not built it: a pressing start around its own target, or a building start
+> inside its own target, passed every gate (measured on TEST-ONLY copies at 723eee2).
 
 > **Engineering line, 17 October 2026 (stage M1) — ours, outside his adopted text.** Implemented for his reply filed 19 October
 > 2026, item 1 ("Please ensure the underlying scoring eligibility reflects this distinction, rather than relying solely on the
@@ -212,11 +216,11 @@ entries, and a game value written "(= entry)" counts as that entry.
 > any unapproved sentence speaking for a bounded role. (4) The review evidence shows each role's credit, what begins, ends and
 > keeps it (`awardeeRelation`) beside GA-EPISODE-REACHABLE's own verdict on its two credit clauses, the V27 element per block,
 > transition columns beginsCredit/endsCredit, flag status SETTLED_BY_RULING only where his recorded ruling (`settledBy`) and the
-> element in every block meet, and the limitations of his item 5 (`reviewRequest.limitations`).
-> (9) Added in the K6 review, 16 October 2026: GA-RELATIVE-PLACEMENT's third clause - no start placement's region shares a
-> stretch of the axis with the target its own group's team attacks (touching at one boundary is not sharing; deferred until both
-> are realized). The design asked for it and K6 had not built it: a pressing start around its own target, or a building start
-> inside its own target, passed every gate (measured on TEST-ONLY copies at 723eee2).
+> element in every block meet, and the limitations of his item 5 (`reviewRequest.limitations`). (5) Added in the M3 review: Q2
+> reads what a sentence says as well as what it cites. A sentence citing the event's kind, or its value with anything else, is a
+> scoring sentence; it is team-neutral where it cites no role or its text names no role's noun (the nouns are fixture data); and
+> it speaks for a bounded role its text names. Measured: the old "A team scores ..." citing the whole-game role's bound, and
+> "Building team: Score ..." citing that bound, had both passed as drafts.
 
 > **Engineering line, 15 October 2026 (stage K7) — ours, outside his adopted text.** Communication of the first complete activity.
 > (1) The context-scoring guard confirms a context condition authored for an episode (SD-36; his 16 October 9.3, ruling C52) where it

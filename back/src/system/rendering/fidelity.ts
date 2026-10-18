@@ -1215,20 +1215,42 @@ export function checkFidelity(
      * A sentence for a role whose bound is the whole game is untouched (it may be a draft), and a game whose roles carry no bound owes
      * nothing here. A citation alone never satisfies the rule: approval is `isApproved`, the sentence approved wording says with
      * exactly these citations.
+     *
+     * **What a sentence says, not only what it cites** — stage M3 review, 17 October 2026. Measured on the real A01 block: the old
+     * "A team scores 1 point by getting the ball under control into the zone it is attacking: ..." passed this rule as a DRAFT once it
+     * also cited the whole-game role's bound (a role path made it read as that role's sentence, whatever its text said); "Building
+     * team: Score ..." citing the whole-game role's bound passed too; and the old sentence citing the event's value with its object and
+     * objective, but not its kind, was never read as a scoring sentence. So, with the role nouns read from the fixture (data):
+     *
+     *   - a sentence is a scoring sentence where it cites the event's kind, or its value together with anything else ("Each score is
+     *     worth N point", citing the value alone, says how much and never how or when);
+     *   - a scoring sentence is team-neutral where it cites no role OR its text names no role's noun;
+     *   - it speaks for a bounded role it names in its text, as for one whose bound it cites or (scoring) anything of which it cites;
+     *     and a How to score sentence naming a bounded role speaks for it whatever it cites.
      */
     const roleElements: any[] = Array.isArray(fixture.game.activityRoles) ? fixture.game.activityRoles : []
     const boundedRoles = roleElements.filter(element => element?.creditedWithin !== undefined && element?.creditedWithin !== null && element.creditedWithin !== UNBOUNDED_CREDIT).map(element => `activityRoles[${element.elementId}]`)
     if (boundedRoles.length) {
         const KIND = 'value.primaryEvent.kind'
+        const VALUE = 'value.primaryEvent.value'
+        const nounOf: Record<string, string> = fixture.roleNouns?.nouns ?? {}
+        const nounsOf = (element: any): string | null => (typeof element?.activityRole === 'string' && typeof nounOf[element.activityRole] === 'string' ? nounOf[element.activityRole] : null)
+        const namedIn = (text: string) => roleElements.filter(element => !!nounsOf(element) && namesRole(text, nounsOf(element)!)).map(element => `activityRoles[${element.elementId}]`)
         for (const instruction of rendered.instructions) {
-            const scoring = instruction.from.includes(KIND)
+            const scoring = instruction.from.includes(KIND) || (instruction.from.includes(VALUE) && instruction.from.some(path => path !== VALUE))
             const roleCited = instruction.from.some(path => path.startsWith('activityRoles['))
-            if (scoring && !roleCited) {
+            const named = namedIn(instruction.text)
+            if (scoring && (!roleCited || !named.length)) {
                 if (isApproved(instruction) && boundedRoles.every(at => instruction.from.includes(`${at}.creditedWithin`))) continue
                 findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" says how a score is made for every team, and the credit of ${boundedRoles.join(', ')} is confined to an episode: only an approved sentence citing each such bound may say it` })
                 continue
             }
-            const speaksFor = boundedRoles.filter(at => instruction.from.includes(`${at}.creditedWithin`) || (scoring && instruction.from.some(path => path.startsWith(`${at}.`))))
+            const speaksFor = boundedRoles.filter(
+                at =>
+                    instruction.from.includes(`${at}.creditedWithin`) ||
+                    (scoring && (instruction.from.some(path => path.startsWith(`${at}.`)) || named.includes(at))) ||
+                    (instruction.section === 'How to score' && named.includes(at)),
+            )
             if (speaksFor.length && !isApproved(instruction)) {
                 findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" speaks for the scoring of ${speaksFor.join(', ')}, whose credit is confined to an episode, and is not approved wording` })
             }
