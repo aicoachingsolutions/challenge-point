@@ -803,6 +803,14 @@ function ReviewEvidencePanel({ evidence }: { evidence: ReviewEvidence }) {
                                 {item.sentences.map((index) => index + 1).join(', ') || 'none'} · checks {item.checks.map((check) => `${check.checkId}${check.blockId ? ` (${blockLabel(check.blockId)})` : ''} ${check.verdict}`).join(', ') || 'none'}
                                 {item.awaiting.length > 0 && ` · ${item.awaiting.length} field(s) awaiting approved wording`}
                             </p>
+                            {(item.facts ?? [])
+                                .filter((block) => block.facts.length > 0)
+                                .map((block) => (
+                                    <div key={block.blockId} className='pl-3'>
+                                        <p className='text-xs text-gray-500'>{blockLabel(block.blockId)}</p>
+                                        <Facts facts={block.facts} />
+                                    </div>
+                                ))}
                         </div>
                     ))}
                 </EvidencePart>
@@ -863,6 +871,10 @@ function ReviewEvidencePanel({ evidence }: { evidence: ReviewEvidence }) {
                             {flag.his.map((said, index) => (
                                 <His key={index} {...said} />
                             ))}
+                            {(flag.settledBy ?? []).length > 0 && <p className='text-xs text-gray-500'>Your ruling on it:</p>}
+                            {(flag.settledBy ?? []).map((said, index) => (
+                                <His key={`settled-${index}`} {...said} />
+                            ))}
                             <p className='text-xs text-gray-800'>{flag.answer}</p>
                             {flag.blocks.map((block) => (
                                 <div key={block.blockId} className='pl-3'>
@@ -876,6 +888,21 @@ function ReviewEvidencePanel({ evidence }: { evidence: ReviewEvidence }) {
                                     <Facts facts={[...flag.knowledge.libraryEntries, ...flag.knowledge.corpusItems, ...flag.knowledge.registerRows]} />
                                 </div>
                             )}
+                        </div>
+                    ))}
+                </EvidencePart>
+                <EvidencePart title='Limitations kept visible'>
+                    {(evidence.limitations ?? []).map((limitation) => (
+                        <div key={limitation.id} className='space-y-1'>
+                            <p className='text-xs font-semibold text-gray-700'>
+                                {limitation.id} — {limitation.kind}
+                            </p>
+                            {limitation.his.map((said, index) => (
+                                <His key={index} {...said} />
+                            ))}
+                            <div className='pl-3'>
+                                <Facts facts={limitation.facts} />
+                            </div>
                         </div>
                     ))}
                 </EvidencePart>

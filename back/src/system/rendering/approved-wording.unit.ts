@@ -12,8 +12,10 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 
-import { approvedWording, ApprovedWording, partitionWording, unapprovedWording } from './approved-wording'
+import { approvedWording, ApprovedWording, canonicalJson, partitionWording, unapprovedWording } from './approved-wording'
+import { buildActivityWithFixture } from './build-activity'
 import { renderConcreteGame } from './render-concrete-game'
+import { specializedRoleNames } from './session-envelope'
 
 let passed = 0
 function test(name: string, body: () => void): void {
@@ -116,6 +118,113 @@ test('a cover that does not hold exactly leaves the field withheld', () => {
     fixture.game.value.informationRules[0].subject = { structuralRef: { contractId: 'T', itemId: 'NOT-A-CONDITION' } }
     const elsewhere = renderConcreteGame(fixture, [entry({ id: 'T-RULE', covers: [{ row: 'V16', match: { refersToOwnCondition: true } }] })])
     assert.ok(elsewhere.withheld.some(w => w.path.endsWith('.subject')), 'a subject that is not one of this game\'s conditions is not covered')
+})
+
+/*
+ * Stage M3, 17 October 2026 (design step L8): one approved sentence for several elements, said once. Christian, reply filed 19
+ * October 2026, item 1: "Approved with revised wording" - one sentence for the build-out scoring rule, which the game holds as the
+ * building role's credit bound (B8) and four conditions on the primary event (V3-V6). Read on a block of A01 as the checked pathway
+ * built it. Every entry below is TEST-ONLY (approvedBy names TEST-ONLY): the production table stays empty (BASELINE above) until
+ * design step L13 writes his entry; the sentence is his item-1 wording verbatim, so the mechanism is exercised on the text it is for.
+ */
+const ROLE = specializedRoleNames()[0]
+const noRoles = Object.fromEntries(specializedRoleNames().map(role => [role, 0]))
+const a01Session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...noRoles, [ROLE]: 1 } }
+const a01Block: any = (buildActivityWithFixture({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: a01Session }).fixture as any).roleBlocks.blocks[0].fixture
+const HIS_ITEM_1 =
+    "Building team: Score by carrying the ball beyond the marked line or passing to a teammate who receives it under control beyond the line. The progression must begin with the goalkeeper's build-out and occur before the building team loses possession. Uncontrolled clearances do not score."
+const TEST_APPROVAL = { who: 'TEST-ONLY', date: '2026-10-19', quote: 'TEST-ONLY', ccs: 'TEST-ONLY' }
+const ROLES = 'activityRoles'
+const CONDITIONS = 'value.primaryEvent.conditions'
+/** A TEST-ONLY located entry covering the building role's bound and every field of every condition, read from the game itself. */
+function buildOutEntry(game: any): ApprovedWording {
+    const conditions: any[] = game.value.primaryEvent.conditions
+    const covers: ApprovedWording['covers'] = [
+        { row: 'B8', match: { equals: 'BUILD_OUT_EPISODE' }, element: { base: ROLES, field: 'activityRole', equals: 'BUILDING' } },
+        ...conditions.flatMap(condition => {
+            const element = { base: CONDITIONS, field: 'type', equals: condition.type }
+            return [
+                { row: 'V3', match: { equals: condition.scope }, element },
+                { row: 'V4', match: { equals: condition.type }, element },
+                { row: 'V5', match: { equals: condition.referents }, element },
+                ...('value' in condition ? [{ row: 'V6', match: { equals: condition.value }, element }] : []),
+            ]
+        }),
+    ]
+    return { id: 'TEST-ONLY-W1', covers, sentence: HIS_ITEM_1, section: 'How to score', approvedBy: TEST_APPROVAL }
+}
+const alsoCountsWithheld = (rendered: ReturnType<typeof renderConcreteGame>) => rendered.withheld.map(w => w.path).filter(p => !p.startsWith(`${ROLES}[`) && !p.startsWith(`${CONDITIONS}[`))
+
+test('(M3, L8) a located entry is said ONCE for all its elements, citing every covered field in cover order', () => {
+    const entry = buildOutEntry(a01Block.game)
+    assert.deepEqual(partitionWording([entry]).unapproved, [])
+    const rendered = renderConcreteGame(a01Block, [entry])
+    const said = rendered.instructions.filter(i => i.text === HIS_ITEM_1)
+    assert.equal(said.length, 1, 'his sentence once, not once per element')
+    const pathOf = (cover: ApprovedWording['covers'][number]) => {
+        const element = cover.element!
+        const member = (element.base === ROLES ? a01Block.game.activityRoles : a01Block.game.value.primaryEvent.conditions).find((m: any) => m[element.field] === element.equals)
+        const field = { B8: 'creditedWithin', V3: 'scope', V4: 'type', V5: 'referents', V6: 'value' }[cover.row as 'B8']
+        return `${element.base}[${member.elementId}].${field}`
+    }
+    assert.deepEqual(said[0].from, entry.covers.map(pathOf))
+    assert.equal(said[0].section, 'How to score')
+    // Every field it covers is said; what is left withheld is exactly the regain score's four fields (no entry covers them).
+    const alone = renderConcreteGame(a01Block)
+    assert.equal(alone.withheld.length, entry.covers.length + 4)
+    assert.deepEqual(rendered.withheld.map(w => w.path), alsoCountsWithheld(alone))
+})
+
+test('(M3, L8) a locator picking out no element or more than one, a scoped condition without its exact scope, or one failing cover: nothing is said', () => {
+    const withheldAlone = renderConcreteGame(a01Block).withheld
+    const nothingSaid = (entry: ApprovedWording, why: string) => {
+        const rendered = renderConcreteGame(a01Block, [entry])
+        assert.ok(!rendered.instructions.some(i => i.text === HIS_ITEM_1), why)
+        assert.deepEqual(rendered.withheld, withheldAlone, `${why}: every field stays withheld`)
+    }
+    const base = () => JSON.parse(JSON.stringify(buildOutEntry(a01Block.game))) as ApprovedWording
+    const none = base()
+    none.covers[0].element!.equals = 'TEST-ONLY-NO-SUCH-ROLE'
+    nothingSaid(none, 'a locator matching no element')
+    const two = base()
+    for (const cover of two.covers.slice(1)) if (cover.row === 'V3') cover.element = { base: CONDITIONS, field: 'scope', equals: 'BUILD_OUT_EPISODE' }
+    nothingSaid(two, 'a locator matching four elements')
+    const unscoped = base()
+    unscoped.covers = unscoped.covers.filter(cover => !(cover.row === 'V3' && cover.element!.equals === 'progression'))
+    nothingSaid(unscoped, 'a scoped condition covered without its exact scope')
+    const wrongScope = base()
+    wrongScope.covers.find(cover => cover.row === 'V3')!.match = { equals: 'WHOLE_GAME' }
+    nothingSaid(wrongScope, 'a scope cover holding another scope')
+    const failing = base()
+    failing.covers.find(cover => cover.row === 'V5' && cover.element!.equals === 'exclusion')!.match = { equals: { asAuthored: 'TEST-ONLY' } }
+    nothingSaid(failing, 'one cover that does not hold')
+    const bound = base()
+    bound.covers[0].match = { equals: 'WHOLE_GAME' }
+    nothingSaid(bound, 'a bound cover holding another value')
+})
+
+test('(M3, L8) covers compare as canonical JSON: an approved value whose keys are written in another order still holds', () => {
+    const entry = buildOutEntry(a01Block.game)
+    for (const cover of entry.covers) {
+        if (cover.row !== 'V5') continue
+        const value = (cover.match as { equals: any }).equals
+        ;(cover.match as { equals: any }).equals = Object.fromEntries(Object.keys(value).reverse().map(key => [key, value[key]]))
+    }
+    assert.notEqual(JSON.stringify((entry.covers.find(c => c.row === 'V5' && c.element!.equals === 'progression')!.match as any).equals), JSON.stringify(a01Block.game.value.primaryEvent.conditions.find((c: any) => c.type === 'progression').referents), 'the keys really are in another order')
+    assert.equal(renderConcreteGame(a01Block, [entry]).instructions.filter(i => i.text === HIS_ITEM_1).length, 1)
+    assert.equal(canonicalJson({ b: 1, a: [{ d: 2, c: 3 }] }), canonicalJson({ a: [{ c: 3, d: 2 }], b: 1 }))
+})
+
+test('(M3, L8) an entry mixing located and unlocated covers, or a located entry with slots, is not an entry', () => {
+    const mixed = buildOutEntry(a01Block.game)
+    delete mixed.covers[1].element
+    const slotted = { ...buildOutEntry(a01Block.game), slots: { n: { field: 'value' } } }
+    const incomplete = buildOutEntry(a01Block.game)
+    incomplete.covers[0].element = { base: ROLES, field: '', equals: 'BUILDING' }
+    const { approved, unapproved } = partitionWording([mixed, slotted, incomplete])
+    assert.deepEqual(approved, [])
+    assert.deepEqual(unapproved.map(u => u.why), ['it mixes covers that name their element with covers that do not', 'a slot names no element, and its covers each name one', 'the cover on B8 names an element it cannot pick out (base, field and equals are required)'])
+    // An unlocated entry is matched element by element exactly as before (the tests above, on the Golden Case copy).
 })
 
 console.log(`approved-wording.unit.ts — ${passed} passed`)

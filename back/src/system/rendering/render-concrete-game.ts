@@ -49,7 +49,7 @@ import { nonClaimState } from '../derivation/classify'
 import { effectiveValue } from '../derivation/rational'
 import { NO_FURTHER_VALUE } from '../derivation/types'
 import { CONDITION_ROW, conditionScopeNotEvaluable } from '../derivation/resolved-game'
-import { approvedWording, ApprovedWording, WordingMatch } from './approved-wording'
+import { approvedWording, ApprovedWording, canonicalJson, WordingMatch } from './approved-wording'
 import { exclusionFor } from './coach-facing-exclusions'
 
 /**
@@ -497,6 +497,12 @@ function extentRange(entry: any): BoundedLine | null {
 }
 
 /**
+ * **The credit bound that bounds nothing** (row B8: the register's `contractEnums.scope` member for the whole game) — stage M1, named
+ * once in stage M3 so the withheld-field table, the How to score split and fidelity Q2 read one value.
+ */
+export const UNBOUNDED_CREDIT = 'WHOLE_GAME'
+
+/**
  * **The fields only approved wording may say**, by register row (V4-V6 for a primary-event condition, V16-V22
  * for an information rule). Paths and rows are the register's; nothing here names a sport.
  */
@@ -513,7 +519,7 @@ const WORDED_ONLY: { base: string; elements: (game: any) => unknown; fields: { f
          */
         base: 'activityRoles',
         elements: game => game.activityRoles,
-        fields: [{ field: 'creditedWithin', row: 'B8', unlessEquals: 'WHOLE_GAME' }],
+        fields: [{ field: 'creditedWithin', row: 'B8', unlessEquals: UNBOUNDED_CREDIT }],
     },
     {
         base: 'value.primaryEvent.conditions',
@@ -631,7 +637,8 @@ const present = (value: unknown): boolean => value !== undefined && value !== nu
  * 14 October that counting information *"refers to that gate's own condition"*, made checkable.
  */
 function coverHolds(game: any, match: WordingMatch, value: unknown): boolean {
-    if ('equals' in match) return JSON.stringify(match.equals) === JSON.stringify(value)
+    // Stage M3: compared as canonical JSON (keys sorted), so an approved value spelled with its keys in another order still equals it.
+    if ('equals' in match) return canonicalJson(match.equals) === canonicalJson(value)
     const ref = (value as any)?.structuralRef
     if (!ref || typeof ref.contractId !== 'string' || typeof ref.itemId !== 'string') return false
     const conditions: any[] = Array.isArray(game.value?.primaryEvent?.conditions) ? game.value.primaryEvent.conditions : []
@@ -644,12 +651,67 @@ function coverHolds(game: any, match: WordingMatch, value: unknown): boolean {
  * holds and holds on that field's value; its slots are filled only from fields of the same element, each cited.
  * A slot whose value is not a plain number or string cannot be said faithfully, so that entry does not apply.
  */
+/** The fields of one element only approved words may say, as it holds them (a value equal to `unlessEquals` states no condition). */
+const heldWordedFields = (fields: (typeof WORDED_ONLY)[number]['fields'], element: any) =>
+    fields.filter(f => present(fieldOf(element, f.field)) && !('unlessEquals' in f && canonicalJson(fieldOf(element, f.field)) === canonicalJson(f.unlessEquals)))
+
+/**
+ * **One approved sentence for several elements, said once** — stage M3, 17 October 2026 (design step L8). Christian, reply filed 19
+ * October 2026, item 1: *"Approved with revised wording"* — one sentence for the build-out scoring rule, which the game holds as a
+ * role's credit bound and four conditions on the primary event. An entry whose covers each name their element (`ElementLocator`)
+ * applies only where:
+ *
+ *   - each locator picks out EXACTLY ONE element of its collection (none or two or more: the entry does not apply — never a guess at
+ *     which element he meant);
+ *   - every cover holds on its element, on a field the element holds (the canonical comparison of `coverHolds`);
+ *   - every located condition authored for less than every score is covered with its exact scope (the K7 rule above, held per
+ *     element: a scoped condition is never said by a sentence that does not carry its scope).
+ *
+ * Then ONE instruction is said, citing every covered field in cover order, and those fields are said. Nothing else moves: an
+ * entry whose covers name no element is matched element by element exactly as before.
+ */
+function locatedSentence(game: any, entry: ApprovedWording): { paths: string[] } | null {
+    const groups = new Map<string, { locator: NonNullable<ApprovedWording['covers'][number]['element']>; covers: ApprovedWording['covers'] }>()
+    for (const cover of entry.covers) {
+        if (!cover.element) return null
+        const key = canonicalJson([cover.element.base, cover.element.field, cover.element.equals])
+        if (!groups.has(key)) groups.set(key, { locator: cover.element, covers: [] })
+        groups.get(key)!.covers.push(cover)
+    }
+    const pathByCover = new Map<ApprovedWording['covers'][number], string>()
+    for (const { locator, covers } of groups.values()) {
+        const spec = WORDED_ONLY.find(s => s.base === locator.base)
+        if (!spec) return null
+        const members = Array.isArray(spec.elements(game)) ? (spec.elements(game) as any[]) : []
+        const picked = members.filter(member => canonicalJson(fieldOf(member, locator.field)) === canonicalJson(locator.equals))
+        if (picked.length !== 1) return null
+        const [element] = picked
+        const held = heldWordedFields(spec.fields, element)
+        if (conditionScopeNotEvaluable(element) && !covers.some(cover => cover.row === CONDITION_ROW && 'equals' in cover.match && canonicalJson(cover.match.equals) === canonicalJson(element?.scope))) return null
+        for (const cover of covers) {
+            const field = held.find(f => f.row === cover.row)
+            if (!field || !coverHolds(game, cover.match, fieldOf(element, field.field))) return null
+            pathByCover.set(cover, `${spec.base}[${element?.elementId}].${field.field}`)
+        }
+    }
+    return { paths: entry.covers.map(cover => pathByCover.get(cover)!) }
+}
+
 function sayInApprovedWords(game: any, wording: ApprovedWording[], push: (instruction: Instruction) => void, withheld: WithheldField[]): void {
+    /** Every field an approved sentence says, by its full path (stage M3: a located entry says fields of several elements at once). */
+    const saidPaths = new Set<string>()
+    for (const entry of wording) {
+        if (!entry.covers.length || !entry.covers.every(cover => cover.element)) continue
+        const located = locatedSentence(game, entry)
+        if (!located) continue
+        push(instruction(entry.section, 'DERIVED', entry.sentence, located.paths, []))
+        for (const path of located.paths) saidPaths.add(path)
+    }
     for (const { base, elements, fields } of WORDED_ONLY) {
         for (const element of Array.isArray(elements(game)) ? (elements(game) as any[]) : []) {
             const pathOf = (field: string) => `${base}[${element?.elementId}].${field}`
             // A value equal to the field's `unlessEquals` (stage M1: a credit bound of the whole game) states no condition, so no entry is owed for it.
-            const held = fields.filter(f => present(fieldOf(element, f.field)) && !('unlessEquals' in f && JSON.stringify(fieldOf(element, f.field)) === JSON.stringify(f.unlessEquals)))
+            const held = heldWordedFields(fields, element)
             /**
              * **A condition authored for less than every score is not said as if it governed every score** — 15
              * October 2026. Saying it in a sentence that does not carry its scope would state a wider rule than the one
@@ -665,9 +727,10 @@ function sayInApprovedWords(game: any, wording: ApprovedWording[], push: (instru
              * communication. A whole-game condition carries no scope field, so nothing about it moves.
              */
             const scoped = !!conditionScopeNotEvaluable(element)
-            const said = new Set<string>()
             for (const entry of wording) {
-                if (scoped && !entry.covers.some(cover => cover.row === CONDITION_ROW && 'equals' in cover.match && JSON.stringify(cover.match.equals) === JSON.stringify(element?.scope))) continue
+                // Stage M3: an entry whose covers name their elements was said (or not) once, above; it is never matched element by element.
+                if (entry.covers.some(cover => cover.element)) continue
+                if (scoped && !entry.covers.some(cover => cover.row === CONDITION_ROW && 'equals' in cover.match && canonicalJson(cover.match.equals) === canonicalJson(element?.scope))) continue
                 const covered = entry.covers.map(cover => ({ cover, field: held.find(f => f.row === cover.row) }))
                 if (covered.some(({ cover, field }) => !field || !coverHolds(game, cover.match, fieldOf(element, field.field)))) continue
                 const slots = Object.entries(entry.slots ?? {}).map(([name, slot]) => ({ name, field: slot.field, value: fieldOf(element, slot.field) }))
@@ -680,9 +743,9 @@ function sayInApprovedWords(game: any, wording: ApprovedWording[], push: (instru
                     .sort((a, b) => a.at - b.at)
                     .map(({ slot }) => ({ quantity: slot.value as number, path: pathOf(slot.field) }))
                 push(instruction(entry.section, 'DERIVED', text, [...covered.map(({ field }) => pathOf(field!.field)), ...slots.map(slot => pathOf(slot.field))], numeric))
-                for (const { field } of covered) said.add(field!.field)
+                for (const { field } of covered) saidPaths.add(pathOf(field!.field))
             }
-            for (const field of held) if (!said.has(field.field)) withheld.push({ path: pathOf(field.field), row: field.row, reason: 'AWAITING_APPROVED_WORDING' })
+            for (const field of held) if (!saidPaths.has(pathOf(field.field))) withheld.push({ path: pathOf(field.field), row: field.row, reason: 'AWAITING_APPROVED_WORDING' })
         }
     }
 }
@@ -1805,29 +1868,57 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
          * with zone targets and an object, the sentence says entry under control, carried or received, citing the event, its
          * value, the object and each target's noun. Every other game reads exactly as before.
          */
-        if (primary.kind === ZONE_ENTRY_EVENT && carrier && objectives.length > 1 && targetNoun) {
+        // How a score is made, and what the sentence saying it cites beyond the event and its value.
+        const zoneEntry = primary.kind === ZONE_ENTRY_EVENT && carrier && objectives.length > 1 && targetNoun
+        const how = zoneEntry
+            ? `by getting the ${carrier.kind} under control into the ${targetNoun} it is attacking: running it in, or passing to a teammate who receives it under control inside`
+            : // "the marked line" is only unambiguous while there is one; with a target per team the objective each team
+              // attacks is named relationally.
+              carrier
+              ? objectives.length > 1
+                  ? `by getting the ${carrier.kind} across the line it is attacking`
+                  : `by getting the ${carrier.kind} across the marked line`
+              : objectives.length > 1
+                ? 'when the line it is attacking is crossed'
+                : 'when the marked line is crossed'
+        const howPaths = [...(carrier ? [`objects[${carrier.elementId}].kind`] : []), ...(zoneEntry ? targetNounPaths : []), ...(objective ? [`objectives[${objective.elementId}].role`] : [])]
+        /**
+         * **Where a role's scoring credit is confined to an episode, no sentence speaks for every team** — stage M3, 17 October 2026
+         * (design step L9). Christian, reply filed 19 October 2026, item 1: *"The important distinction is that the building team's
+         * scoring opportunity applies only during an active build-out episode."* and *"Please ensure the underlying scoring eligibility
+         * reflects this distinction, rather than relying solely on the coach-facing wording."*; item 4: *"please ensure the surrounding
+         * scoring instructions make clear that continuing to attack does not automatically restore the building team's eligibility to
+         * score."* The team-neutral "A team scores …" says that every team scores the same way at any time, which is false for a role
+         * whose credit is bounded (row B8 not the whole game). So, where any role element carries such a bound:
+         *
+         *   - "A team scores …" is not said;
+         *   - "Each score is worth N point" is said, citing the value only (it says how much, never how or when);
+         *   - each role whose bound is the whole game (stated, never assumed from silence) is told how it scores in a sentence of its
+         *     own, "{Role noun}: Score {how}", citing the event, its own bound and what `how` cites (DRAFT);
+         *   - a bounded role is told only in his approved words (its bound is said only by an approved entry: WORDED_ONLY above), and
+         *     fidelity Q2 refuses any other scoring sentence that speaks for it.
+         *
+         * Role nouns and the element's role are data; every game whose roles carry no bound reads exactly as before.
+         */
+        const roleElements: any[] = Array.isArray(game.activityRoles) ? game.activityRoles : []
+        const boundedCredit = roleElements.some(element => present(element?.creditedWithin) && canonicalJson(element.creditedWithin) !== canonicalJson(UNBOUNDED_CREDIT))
+        if (boundedCredit) {
+            for (const element of roleElements) {
+                if (canonicalJson(element?.creditedWithin) !== canonicalJson(UNBOUNDED_CREDIT)) continue
+                const noun = typeof element?.activityRole === 'string' ? roleNounOf[element.activityRole] : undefined
+                if (!noun) continue
+                const creditPath = `activityRoles[${element.elementId}].creditedWithin`
+                say('How to score', statusAt([kindPath, creditPath], 'DERIVED'), `${capital(noun)}: Score ${how}`, [kindPath, creditPath, ...howPaths])
+            }
+            say('How to score', statusOf.get('value.primaryEvent.value') ?? statusOf.get(kindPath) ?? 'DERIVED', `Each score is worth ${primary.value} point`, ['value.primaryEvent.value'], [{ quantity: primary.value, path: 'value.primaryEvent.value' }])
+        } else
             say(
                 'How to score',
                 statusOf.get(kindPath) ?? 'DERIVED',
-                `A team scores ${primary.value} point by getting the ${carrier.kind} under control into the ${targetNoun} it is attacking: running it in, or passing to a teammate who receives it under control inside`,
-                [kindPath, 'value.primaryEvent.value', `objects[${carrier.elementId}].kind`, ...targetNounPaths, ...(objective ? [`objectives[${objective.elementId}].role`] : [])],
+                `A team scores ${primary.value} point ${how}`,
+                [kindPath, 'value.primaryEvent.value', ...howPaths],
                 [{ quantity: primary.value, path: 'value.primaryEvent.value' }],
             )
-        } else say(
-            'How to score',
-            statusOf.get(kindPath) ?? 'DERIVED',
-            // "the marked line" is only unambiguous while there is one; with a target per team the objective each team
-            // attacks is named relationally.
-            carrier
-                ? objectives.length > 1
-                    ? `A team scores ${primary.value} point by getting the ${carrier.kind} across the line it is attacking`
-                    : `A team scores ${primary.value} point by getting the ${carrier.kind} across the marked line`
-                : objectives.length > 1
-                  ? `A team scores ${primary.value} point when the line it is attacking is crossed`
-                  : `A team scores ${primary.value} point when the marked line is crossed`,
-            [kindPath, 'value.primaryEvent.value', ...(carrier ? [`objects[${carrier.elementId}].kind`] : []), ...(objective ? [`objectives[${objective.elementId}].role`] : [])],
-            [{ quantity: primary.value, path: 'value.primaryEvent.value' }],
-        )
         if (!carrier) {
             observations.push(
                 `The scoring event is established and what crosses the line is not: the game holds no object, so the ` +

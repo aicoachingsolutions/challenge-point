@@ -240,6 +240,26 @@ export type ReviewLayer = (typeof REVIEW_LAYERS)[number]
 /** The two cases he asked to see flagged, each an analysis the review evidence makes from the game and never a rule. */
 export const REVIEW_FLAG_KINDS = ['ADVANCED_POSITIONING', 'REGAIN_INSIDE_TARGET'] as const
 export type ReviewFlagKind = (typeof REVIEW_FLAG_KINDS)[number]
+/**
+ * **The flag kinds a ruling of his can settle, because the review evidence reads the game for what the ruling put there** — stage M3,
+ * 17 October 2026 (design step L7). His reply filed 19 October 2026, item 2, settles the regain case provisionally; the evidence then
+ * shows it SETTLED only where every block holds the element carrying it (`review-evidence.ts`). A kind whose evidence reads no such
+ * element cannot be settled by words alone, so `settledBy` on it is refused.
+ */
+export const SETTLEABLE_FLAG_KINDS: readonly ReviewFlagKind[] = ['REGAIN_INSIDE_TARGET']
+/**
+ * **The limitations he asked to keep visible, by what the evidence reads for each** — stage M3, 17 October 2026 (design step L7). His
+ * reply filed 19 October 2026, item 5: *"The second-[specialized role] case and optional rotation can remain visible as limitations for
+ * now."* (the role bracketed for the coupling ratchet; the record quotes him whole),
+ * the advanced-positioning case he acknowledged there, and the live application. Engine vocabulary, never his words:
+ *
+ *   - `SPECIALIZED_PERFORMERS_BEYOND_ROLE`: performers of a specialized role the session has beyond those the teams' counts of that
+ *     role hold (read per block from the game), and who moves at an exchange;
+ *   - `FLAGGED_CASE`: a case one of the request's flags analyses (the flag's own status and answer);
+ *   - `CHECKED_PATHWAY_ONLY`: the activity is built only through the checked review pathway (the pathway facts).
+ */
+export const REVIEW_LIMITATION_KINDS = ['SPECIALIZED_PERFORMERS_BEYOND_ROLE', 'FLAGGED_CASE', 'CHECKED_PATHWAY_ONLY'] as const
+export type ReviewLimitationKind = (typeof REVIEW_LIMITATION_KINDS)[number]
 
 /** One of his sentences with where he said it. */
 export interface CitedWords {
@@ -264,7 +284,10 @@ export interface ReviewRequest {
     items: { id: string; words: string; role: string | null; kind: 'GAME' | 'INSTRUCTIONS' | 'PROVENANCE'; rows: string[]; checks: string[]; sections: ReviewSection[] }[]
     requests: (CitedWords & { sections: ReviewSection[] })[]
     evaluation: { citedAs: string; words: string; points: { id: string; words: string; sections: ReviewSection[] }[] }
-    flags: { id: string; kind: ReviewFlagKind; role: string; words: CitedWords[] }[]
+    /** `settledBy` (stage M3): his words settling the case, for a kind in SETTLEABLE_FLAG_KINDS only. */
+    flags: { id: string; kind: ReviewFlagKind; role: string; words: CitedWords[]; settledBy?: CitedWords[] }[]
+    /** What he asked to keep visible as limitations (stage M3), each in his words; `role` names a specialized role, `flag` a flag id. */
+    limitations?: { id: string; kind: ReviewLimitationKind; role?: string; flag?: string; words: CitedWords[] }[]
     pathway: CitedWords
     judgement: { words: string[]; citedAs: string }
     rationale: { feature: string; words: CitedWords[]; statements: string[] }[]
@@ -300,6 +323,22 @@ export function validateReviewRequest(goal: string, request: ReviewRequest): str
         if (!(REVIEW_FLAG_KINDS as readonly string[]).includes(flag.kind) || !filled(flag.id) || !filled(flag.role) || !(flag.words ?? []).length || !flag.words.every(cited)) {
             errors.push(`${goal}: flag ${i + 1} must be of a known kind, name a role and quote him with citations`)
         }
+        // Stage M3: a ruling settling a flag is his words, cited, on a kind whose evidence reads the game for what it settles.
+        if (flag.settledBy !== undefined) {
+            if (!Array.isArray(flag.settledBy) || !flag.settledBy.length || !flag.settledBy.every(cited)) errors.push(`${goal}: flag ${i + 1} is settled by no cited words of his`)
+            if (!SETTLEABLE_FLAG_KINDS.includes(flag.kind)) errors.push(`${goal}: flag ${i + 1} (${flag.kind}) is of a kind no ruling settles: the evidence reads nothing in the game for it`)
+        }
+    }
+    const flagIds = new Set((request.flags ?? []).map(flag => flag.id))
+    const limitationIds = new Set<string>()
+    for (const [i, limitation] of (request.limitations ?? []).entries()) {
+        const which = `${goal}: limitation ${i + 1}`
+        if (!filled(limitation.id) || limitationIds.has(limitation.id)) errors.push(`${which} has no id or repeats one`)
+        limitationIds.add(limitation.id)
+        if (!(REVIEW_LIMITATION_KINDS as readonly string[]).includes(limitation.kind)) errors.push(`${which} has the unknown kind ${limitation.kind}`)
+        if (!(limitation.words ?? []).length || !limitation.words.every(cited)) errors.push(`${which} must quote him with citations`)
+        if (limitation.kind === 'SPECIALIZED_PERFORMERS_BEYOND_ROLE' && !filled(limitation.role)) errors.push(`${which} names no specialized role`)
+        if (limitation.kind === 'FLAGGED_CASE' && !flagIds.has(String(limitation.flag))) errors.push(`${which} names the flag ${limitation.flag}, which the request does not hold`)
     }
     if (!cited(request.pathway)) errors.push(`${goal}: the review request must quote his words on the checked pathway`)
     if (!filled(request.judgement?.citedAs) || !(request.judgement?.words ?? []).length || !request.judgement.words.every(filled)) errors.push(`${goal}: the judgement must quote him`)

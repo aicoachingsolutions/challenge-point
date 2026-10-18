@@ -626,7 +626,8 @@
                             "V3",
                             "V4",
                             "V5",
-                            "V6"
+                            "V6",
+                            "B8"
                         ],
                         "checks": [
                             "GA-ONE-PRIMARY-EVENT",
@@ -654,7 +655,8 @@
                             "V28",
                             "V29",
                             "V30",
-                            "V31"
+                            "V31",
+                            "B8"
                         ],
                         "checks": [
                             "GA-ONE-PRIMARY-EVENT",
@@ -855,6 +857,58 @@
                             {
                                 "words": "The scoring event should evaluate the actual controlled progression outcome.",
                                 "citedAs": "his reply filed 17 October 2026, D7"
+                            }
+                        ],
+                        "settledBy": [
+                            {
+                                "words": "The pressing team retains its separate objective of regaining possession and attacking the 5 m target area.",
+                                "citedAs": "his reply filed 19 October 2026, item 2"
+                            },
+                            {
+                                "words": "For the previously flagged corner case, I favor allowing a controlled regain inside that area to count as a score, provided the pressing team genuinely establishes possession.",
+                                "citedAs": "his reply filed 19 October 2026, item 2"
+                            },
+                            {
+                                "words": "A contested touch, deflection, or loose ball should not qualify.",
+                                "citedAs": "his reply filed 19 October 2026, item 2"
+                            },
+                            {
+                                "words": "This is a provisional scoring choice for the current realization, not a universal rule equating every regain with successful progression.",
+                                "citedAs": "his reply filed 19 October 2026, item 2"
+                            }
+                        ]
+                    }
+                ],
+                "limitations": [
+                    {
+                        "id": "L1",
+                        "kind": "SPECIALIZED_PERFORMERS_BEYOND_ROLE",
+                        "role": "goalkeeper",
+                        "words": [
+                            {
+                                "words": "The second-goalkeeper case and optional rotation can remain visible as limitations for now. I don't want to prescribe an outfield role for a goalkeeper universally.",
+                                "citedAs": "his reply filed 19 October 2026, item 5"
+                            }
+                        ]
+                    },
+                    {
+                        "id": "L2",
+                        "kind": "FLAGGED_CASE",
+                        "flag": "F1",
+                        "words": [
+                            {
+                                "words": "I acknowledge that attackers can currently remain beyond the progression line. Let's evaluate whether this produces an unrepresentative shortcut before authorizing a spatial eligibility or offside mechanism.",
+                                "citedAs": "his reply filed 19 October 2026, item 5"
+                            }
+                        ]
+                    },
+                    {
+                        "id": "L3",
+                        "kind": "CHECKED_PATHWAY_ONLY",
+                        "words": [
+                            {
+                                "words": "I understand that the activity currently runs through the checked review pathway, not the live app. The mandatory library-constraint requirement remains a separate systemic issue to resolve before pilot delivery.",
+                                "citedAs": "his reply filed 19 October 2026, item 5"
                             }
                         ]
                     }

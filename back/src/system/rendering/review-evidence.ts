@@ -25,17 +25,18 @@
  * Sport-neutral: role names, nouns, rows and the items he asked for are data; no goal, sport term or knowledge id is written here.
  */
 import { RegisterIndex } from '../derivation/register'
-import { roleHolderNames, roleOfHolder } from '../derivation/designation'
+import { awardeeRelation, roleHolderNames, roleOfHolder } from '../derivation/designation'
+import { CREDIT_BEGINS_CLAUSE, CREDIT_ENDS_CLAUSE } from '../derivation/gates'
 import { LoadedContract } from '../derivation/types'
 import { contractCoverage } from '../derivation/run-bounded-selection'
 import { loadCorpusContracts } from '../derivation/corpus'
 import { parseSelector } from '../derivation/selector'
 import { rpcLibrary } from '../sport-module/rpc-library'
-import type { AuthorizationLists, ContextManipulationRelationship, LearningGoalAuthorization, ReviewLayer, ReviewRequest } from '../test-library/learning-goal-authorizations'
+import type { AuthorizationLists, CitedWords, ContextManipulationRelationship, LearningGoalAuthorization, ReviewLayer, ReviewRequest } from '../test-library/learning-goal-authorizations'
 import { learningGoalSelectionHolds } from '../test-library/learning-design-holds'
 import { testLibraryRegistry } from '../test-library/library/registry'
 import { FidelityFinding, OBLIGATIONS } from './fidelity'
-import { approvedSentences, Instruction, RenderedActivity } from './render-concrete-game'
+import { approvedSentences, Instruction, RenderedActivity, UNBOUNDED_CREDIT } from './render-concrete-game'
 import type { RoleBlockCheck } from './role-blocks'
 import type { ActivitySession } from './session-envelope'
 
@@ -120,6 +121,8 @@ export interface ReviewEvidence {
         instructions: InstructionEvidence[]
     }
     flags: FlagEvidence[]
+    /** What he asked to keep visible as limitations (stage M3), each in his words with the facts the game holds for it. */
+    limitations: LimitationEvidence[]
     evaluation: { his: { words: string; citedAs: string }; points: { id: string; words: string; sections: string[] }[]; judgement: string }
     requests: { words: string; citedAs: string; sections: string[] }[]
     provenance: { elements: ElementProvenance[]; untraced: string[]; lists: { at: string; authorizedByExistingKnowledge: number; provisionalChoices: number; gaps: number; gapsStillNeeded: string[] } | null; openForReview: Fact[] }
@@ -140,6 +143,20 @@ export interface ItemEvidence {
     awaiting: string[]
     sections: string[]
     resolved: boolean
+    /**
+     * For an item about one role (stage M3, design step L7): per block, the role's scoring credit (row B8) with the items it rests on;
+     * where it is confined to an episode, the transitions that begin, end and keep it (read from the game with `awardeeRelation`) and
+     * the episode check's verdict on its two credit clauses, which is the authority; and the occurrences that also count as the
+     * primary event for the team holding the role (V27). Empty for an item about no role.
+     */
+    facts: { blockId: string; facts: Fact[] }[]
+}
+
+export interface LimitationEvidence {
+    id: string
+    kind: string
+    his: { words: string; citedAs: string }[]
+    facts: Fact[]
 }
 
 export interface StructuralReport {
@@ -170,6 +187,10 @@ export interface TransitionRow {
     startsEpisode: boolean
     /** Read from the begin condition's arms; the authority is the episode gate's verdict in the structural report. */
     beginsConditionedEpisode: boolean
+    /** The roles whose credit, confined to an episode (row B8), this transition begins (stage M3, design step L7). */
+    beginsCredit: string[]
+    /** The roles whose credit, confined to an episode, this transition ends: it begins another episode (stage M3). */
+    endsCredit: string[]
 }
 
 export interface InstructionEvidence {
@@ -199,7 +220,13 @@ export interface FlagEvidence {
     kind: string
     role: string
     his: { words: string; citedAs: string }[]
-    status: 'FLAGGED_FOR_REVIEW'
+    /**
+     * Stage M3 (design step L7): SETTLED_BY_RULING where the record carries his ruling (`settledBy`) and every block holds what it put
+     * in the game; RULED_NOT_IN_GAME where the ruling is recorded and some block does not hold it; FLAGGED_FOR_REVIEW otherwise.
+     */
+    status: 'FLAGGED_FOR_REVIEW' | 'SETTLED_BY_RULING' | 'RULED_NOT_IN_GAME'
+    /** His words settling the case, read from the record (empty where none). */
+    settledBy: { words: string; citedAs: string }[]
     answer: string
     blocks: { blockId: string; facts: Fact[] }[]
     knowledge?: { libraryEntries: Fact[]; registerRows: Fact[]; corpusItems: Fact[] }
@@ -496,10 +523,110 @@ function objectivesOf(block: EvidenceBlock, index: RegisterIndex): { elementId: 
 /** The designation a role is held under (ROLE_HOLDER_<role>, read from the register), or null. */
 const holderOf = (index: RegisterIndex, role: string): string | null => roleHolderNames(index).find(name => roleOfHolder(index, name) === role) ?? null
 
+/** The items a game path rests on, as the fixture records them, with each one's basis and where he said it. */
+function supportOf(block: EvidenceBlock, path: string, items: Map<string, any>): { item: string; basis: string | null; citedAs: string | null }[] {
+    return (block.fixture?.status?.derived ?? [])
+        .filter((derived: any) => derived?.path === path)
+        .flatMap((derived: any) => asList(derived.support))
+        .filter((support: any) => support?.kind === 'CONTRACT_ITEM')
+        .map((support: any) => {
+            const item = items.get(`${support.contractId}::${support.itemId}`)
+            return { item: `${support.contractId}::${support.itemId}`, basis: item?.basis ? String(item.basis) : null, citedAs: item?.citedAs ? String(item.citedAs) : null }
+        })
+}
+
+/** A transition's selector terms as the gate reads them (attribute -> value), qualifiers included. */
+const termsOf = (transition: any): Record<string, unknown> => Object.fromEntries(asList(transition?.selector).filter(term => term?.op === '=').map(term => [String(term.attribute), term.value]))
+
+/**
+ * **A role's scoring credit, and where it is confined to an episode, what begins, ends and keeps it** — stage M3, 17 October 2026
+ * (design step L7). Christian, reply filed 19 October 2026, item 1: *"If the building team loses possession, that scoring opportunity
+ * ends. If it subsequently regains possession, play may continue, but the original build-out scoring opportunity is not restored."*;
+ * item 6: *"please proceed with the review-page activity, provided its actual scoring eligibility matches the approved distinction
+ * between an active build-out and subsequent possession regains."* Read from the block's game as GA-EPISODE-REACHABLE's clauses 4 and
+ * 5 read its classes, and never instead of them: the gate's verdict is the authority and is shown beside these facts.
+ *
+ *   - begins: a restart (play stops and resumes) that begins an episode and is taken by an arm of the begin condition of the episode
+ *     the bound names (the condition whose referents begin that episode);
+ *   - ends: a change of possession that begins an episode, and any other restart that begins one;
+ *   - keeps: a restart that begins none, awarded to the role's holder (`awardeeRelation` HOLDER);
+ *   - notEnded: a change of possession that begins no episode, or a restart that begins none and is not shown to be the holder's.
+ *
+ * Null where the role holds no element; `bounded` false where its bound is absent or the whole game.
+ */
+function creditOf(block: EvidenceBlock, index: RegisterIndex, role: string, items: Map<string, any>) {
+    const spec = index.roleBlocks
+    const game = block.fixture?.game ?? {}
+    if (!spec) return null
+    const element = membersAt(game, index, spec.rolesRow).find(member => member?.[spec.roleAttribute] === role)
+    if (!element) return null
+    const leaf = String(index.rows.get('B8')?.path ?? '').split('[].').pop() ?? ''
+    const path = `${container(index, spec.rolesRow)}[${element.elementId}].${leaf}`
+    const creditedWithin = element?.[leaf] ?? null
+    const bounded = creditedWithin !== null && creditedWithin !== UNBOUNDED_CREDIT
+    const facts = { element: String(element.elementId), path, creditedWithin, support: supportOf(block, path, items), bounded, begins: [] as string[], ends: [] as string[], keeps: [] as string[], notEnded: [] as { elementId: string; why: string }[] }
+    if (!bounded) return facts
+    const holder = holderOf(index, role)
+    const takers = new Set(membersAt(game, index, 'V3').filter(condition => condition?.referents?.beginsEpisodeOf === creditedWithin).flatMap(condition => asList(condition?.referents?.arms).filter(arm => arm?.takenBy !== undefined).map(arm => String(arm.takenBy))))
+    const teamCount = membersAt(game, index, 'P1').length || null
+    for (const transition of membersAt(game, index, 'T1')) {
+        const id = String(transition?.elementId)
+        const terms = termsOf(transition)
+        const starts = truthy(transition?.startsEpisode)
+        if (terms.trigger === 'POSSESSION_CHANGE') {
+            if (starts) facts.ends.push(id)
+            else facts.notEnded.push({ elementId: id, why: 'a change of possession that begins no episode' })
+            continue
+        }
+        if (String(transition?.playState) !== 'STOP_RESUME') continue
+        if (starts) {
+            if (takers.has(String(transition?.placement?.actor))) facts.begins.push(id)
+            else facts.ends.push(id)
+            continue
+        }
+        const relation = holder ? awardeeRelation(index, transition?.awardedTo, terms, holder, teamCount) : 'UNDETERMINED'
+        if (relation === 'HOLDER') facts.keeps.push(id)
+        else facts.notEnded.push({ elementId: id, why: `a restart that begins no episode, awarded ${relation === 'OTHER' ? 'away from the holder' : 'to a team not shown to be the holder'}` })
+    }
+    return facts
+}
+
+/**
+ * **The occurrences that also count as the primary event for the team holding a role** (row V27) — stage M3 (design step L7). His
+ * reply filed 19 October 2026, item 2: *"For the previously flagged corner case, I favor allowing a controlled regain inside that area
+ * to count as a score, provided the pressing team genuinely establishes possession."* Each element with its team, trigger, the target
+ * it lies inside (the one its team attacks: the role's own objective, as GA-ONE-PRIMARY-EVENT's clause reads it), its control and
+ * exclusion as recorded, and the items it rests on with their basis and citation.
+ */
+function alsoCountsFor(block: EvidenceBlock, index: RegisterIndex, role: string, items: Map<string, any>) {
+    const game = block.fixture?.game ?? {}
+    const holder = holderOf(index, role)
+    const at = container(index, 'V27')
+    const own = objectivesOf(block, index).find(o => o.role === role)
+    return membersAt(game, index, 'V27')
+        .filter(element => holder !== null && element?.team === holder)
+        .map(element => {
+            const prefix = `${at}[${element.elementId}]`
+            const support = dedupeSupport(['team', 'trigger', 'control', 'exclusion'].flatMap(field => supportOf(block, `${prefix}.${field}`, items)))
+            return {
+                elementId: String(element.elementId),
+                team: element.team ?? null,
+                trigger: element.trigger ?? null,
+                target: own ? { region: own.regionId, along: along(own.region) } : null,
+                control: element.control ?? null,
+                exclusion: element.exclusion ?? null,
+                support,
+                everyItemHisRuling: support.length > 0 && support.every(s => s.basis === 'OWNER_RULING'),
+            }
+        })
+}
+const dedupeSupport = <T extends { item: string }>(list: T[]): T[] => [...new Map(list.map(entry => [entry.item, entry])).values()]
+
 /** Every transition of a block as a row: who, where, how, and whether it begins the episode the conditions are scoped to. */
 function transitionsOf(block: EvidenceBlock, index: RegisterIndex): TransitionRow[] {
     const game = block.fixture?.game ?? {}
     const beginArms = membersAt(game, index, 'V3').flatMap(condition => asList(condition?.referents?.arms).map(arm => ({ arm, episode: condition?.referents?.beginsEpisodeOf })))
+    const credits = Object.keys(block.holders).map(role => ({ role, credit: creditOf(block, index, role, new Map()) })).filter(entry => entry.credit?.bounded)
     return membersAt(game, index, 'T1').map(transition => {
         const trigger = asList(transition?.selector).find(term => term?.attribute === 'trigger')?.value ?? null
         const awarded = transition?.awardedTo
@@ -518,6 +645,8 @@ function transitionsOf(block: EvidenceBlock, index: RegisterIndex): TransitionRo
             method: transition?.placement?.method ?? null,
             startsEpisode: starts,
             beginsConditionedEpisode: starts && String(transition?.playState) === 'STOP_RESUME' && beginArms.some(({ arm }) => arm?.takenBy !== undefined && arm.takenBy === actor),
+            beginsCredit: credits.filter(entry => entry.credit!.begins.includes(String(transition?.elementId))).map(entry => entry.role),
+            endsCredit: credits.filter(entry => entry.credit!.ends.includes(String(transition?.elementId))).map(entry => entry.role),
         }
     })
 }
@@ -540,6 +669,8 @@ function restrictionsOf(game: any, index: RegisterIndex): Fact[] {
 }
 
 /* ------------------------------------------------------------------ the evidence ------------------------------------------------------------------ */
+
+const LIVE_ROUTE_REFUSES = 'does not serve this activity: it builds only from a selection with at least one library constraint, and this selection has none, so it refuses with no model call'
 
 const PLAIN_ABOUT =
     'Facts read from the games the checked pathway built, for an administrator\'s review; never served. Every verdict is a gate\'s or a cross-block check\'s (each refuses the build where it fails); every fact is read from the game; every quotation is read from the goal\'s authorization record. Nothing here claims how the activity plays.'
@@ -783,6 +914,8 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
     const noPrescription: Fact[] = [
         ...blocks.flatMap(block => restrictionsOf(block.fixture?.game ?? {}, index).map(fact => ({ ...fact, what: `block ${block.blockId}: ${fact.what}` }))),
         ...blocks.map(block => ({ what: `block ${block.blockId}: condition types the game holds`, value: membersAt(block.fixture?.game ?? {}, index, 'V3').map(c => c?.type) })),
+        // Stage M3: a further way to score is no restriction (F1 does not read it), and it is listed here so nothing scoring is unseen.
+        ...blocks.map(block => ({ what: `block ${block.blockId}: occurrences that also count as the primary event (V27)`, value: membersAt(block.fixture?.game ?? {}, index, 'V27').map(e => ({ elementId: e?.elementId, team: e?.team ?? null, trigger: e?.trigger ?? null })) })),
         ...blocks.map(block => ({ what: `block ${block.blockId}: start placement timing`, value: membersAt(block.fixture?.game ?? {}, index, 'P8').map(p => ({ group: p?.group, timing: p?.timing, resetsAt: p?.resetsAt })) })),
         { what: 'prescription rule (fidelity Q4) findings on the activity', value: allFindings.filter(f => f.question === 4).map(f => f.what) },
         { what: 'sentences carrying a word of the obligation lexicon', value: instructions.filter(i => i.obligationWords.length).map(i => i.text) },
@@ -824,10 +957,17 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
                 facts.push({ what: 'a change of possession', value: rows.filter(t => t.trigger === 'POSSESSION_CHANGE').map(t => ({ playState: t.playState, beginsConditionedEpisode: t.beginsConditionedEpisode })) })
                 facts.push({ what: 'conditions on the primary event, with the episode each applies within', value: membersAt(game, index, 'V3').map(c => ({ elementId: c?.elementId, type: c?.type, scope: c?.scope ?? 'WHOLE_GAME' })) })
                 facts.push({ what: 'the primary event', value: readPath(game, 'value.primaryEvent.kind') })
+                // Stage M3 (design step L7): his 19 October item 2 makes a controlled regain inside this target count as a score; it is
+                // carried by an occurrence that also counts as the primary event (V27), not by a new meaning of entering the target.
+                facts.push({ what: 'elements deciding whether gaining possession inside the target scores', value: alsoCountsFor(block, index, flag.role, blockItems[blocks.indexOf(block)]) })
                 facts.push({ what: 'elements deciding whether gaining possession inside the target is an entry into it', value: [] })
             }
             return { blockId: block.blockId, facts }
         })
+        const settledBy: CitedWords[] = (flag.settledBy ?? []).map(w => ({ ...w }))
+        const regains = blocks.map(block => alsoCountsFor(block, index, flag.role, blockItems[blocks.indexOf(block)]).filter(e => e.target && e.everyItemHisRuling))
+        const inEveryBlock = blocks.length > 0 && regains.every(list => list.length > 0)
+        const status: FlagEvidence['status'] = flag.kind === 'REGAIN_INSIDE_TARGET' && settledBy.length ? (inEveryBlock ? 'SETTLED_BY_RULING' : 'RULED_NOT_IN_GAME') : 'FLAGGED_FOR_REVIEW'
         const unrestricted = blocks.every(block => restrictionsOf(block.fixture?.game ?? {}, index).every(fact => (Array.isArray(fact.value) ? fact.value.length === 0 : fact.value === 0)))
         const placementOnlyAtRestarts = blocks.every(block => membersAt(block.fixture?.game ?? {}, index, 'P8').filter(p => p?.group === holder).every(p => ['INITIAL', 'CONDITIONAL_RESET'].includes(String(p?.timing))))
         const answer =
@@ -835,8 +975,14 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
                 ? unrestricted && placementOnlyAtRestarts
                     ? `Yes. Once play starts, nothing in the generated game prevents a player of the ${flag.role} role from moving beyond the element its target begins at and staying there: its start placement applies only at the transitions that (re)start an episode, and the game holds no action restriction, access rule, eligibility condition, consequence or time window. Whether the defensive interaction there is meaningful is not a fact the game holds; it is for his evaluation.`
                     : `The game holds a rule or a standing placement that bears on where a player of the ${flag.role} role may be; see the facts. Whether it settles his concern is for his evaluation.`
-                : 'Not settled by the game: no element decides whether gaining possession inside this target is an entry into it. Flagged for his review, as he asked; no rule is invented.'
-        const evidence: FlagEvidence = { id: flag.id, kind: flag.kind, role: flag.role, his: flag.words.map(w => ({ ...w })), status: 'FLAGGED_FOR_REVIEW', answer, blocks: perBlock }
+                : status === 'SETTLED_BY_RULING'
+                  ? `Settled by his ruling, provisionally (${[...new Set(settledBy.map(w => w.citedAs))].join('; ')}): in every block the game holds an occurrence that also counts as the primary event (${readPath(blocks[0]?.fixture?.game ?? {}, 'value.primaryEvent.kind')}) for the team holding the ${flag.role} role, inside the target that team attacks, on ${[...new Set(regains.flat().map(e => String(e.trigger)))].join(', ')}, with its control ("${[...new Set(regains.flat().map(e => String(e.control)))].join('", "')}") and exclusion ("${[...new Set(regains.flat().map(e => String(e.exclusion)))].join('", "')}") recorded in his words; it earns the primary event's own value, and every item it rests on is his ruling. Entering the target keeps its meaning: no element makes gaining possession inside it an entry into it. Whether this creates the intended consequences is for his evaluation.`
+                  : status === 'RULED_NOT_IN_GAME'
+                    ? `Ruled and not in the game: the record carries his ruling settling this case, and not every block holds an occurrence that also counts as the primary event for the team holding the ${flag.role} role inside its target, resting only on his ruling. See the facts.`
+                    : regains.some(list => list.length)
+                      ? `The game holds an occurrence that also counts as the primary event inside this target for the team holding the ${flag.role} role, and the record carries no ruling settling the case. Flagged for his review.`
+                      : 'Not settled by the game: no element decides whether gaining possession inside this target is an entry into it. Flagged for his review, as he asked; no rule is invented.'
+        const evidence: FlagEvidence = { id: flag.id, kind: flag.kind, role: flag.role, his: flag.words.map(w => ({ ...w })), status, settledBy, answer, blocks: perBlock }
         if (flag.kind === 'ADVANCED_POSITIONING') {
             // Read-only: which knowledge the engine holds that could carry a spatial eligibility relationship. Nothing is selected or built.
             const entries = testLibraryRegistry.constraints() as any[]
@@ -858,6 +1004,65 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
         return evidence
     })
 
+    /**
+     * **What an item about one role shows of the role's scoring** — stage M3, 17 October 2026 (design step L7). His reply filed 19
+     * October 2026, item 6: *"please proceed with the review-page activity, provided its actual scoring eligibility matches the
+     * approved distinction between an active build-out and subsequent possession regains."* So the item of each role shows its credit
+     * bound and, where bounded, what begins, ends and keeps it beside the episode check's own verdict on the two credit clauses (the
+     * authority), and the occurrences that also count as the primary event for its team. Facts only; no verdict is made here.
+     */
+    const roleFacts = (block: EvidenceBlock, role: string): Fact[] => {
+        const items = blockItems[blocks.indexOf(block)]
+        const credit = creditOf(block, index, role, items)
+        const check = block.gateChecks.find(c => c.checkId === 'GA-EPISODE-REACHABLE')
+        const clause = (name: string) => check?.clauses.find(c => c.clause === name) ?? null
+        const facts: Fact[] = [{ what: `the ${role} role's scoring credit (B8), and the items it rests on`, value: credit ? { element: credit.path, creditedWithin: credit.creditedWithin, support: credit.support } : null }]
+        if (credit?.bounded) {
+            facts.push(
+                { what: `the transitions that begin the ${role} role's credit (its episode begins)`, value: credit.begins },
+                { what: `the transitions that end it (each begins another episode)`, value: credit.ends },
+                { what: `the restarts that keep it (they begin no episode and are awarded to the team holding the ${role} role)`, value: credit.keeps },
+                { what: 'transitions that neither end nor keep it', value: credit.notEnded },
+                {
+                    what: 'the authority: the episode check (GA-EPISODE-REACHABLE) on this block, and its two credit clauses',
+                    value: { verdict: check?.verdict ?? 'NOT_RUN', begins: clause(CREDIT_BEGINS_CLAUSE), ends: clause(CREDIT_ENDS_CLAUSE) },
+                },
+            )
+        }
+        facts.push({ what: `occurrences that also count as the primary event for the team holding the ${role} role (V27)`, value: alsoCountsFor(block, index, role, items) })
+        return facts
+    }
+
+    /**
+     * **The limitations he asked to keep visible** — stage M3, 17 October 2026 (design step L7). His reply filed 19 October 2026, item
+     * 5, each limitation in his words from the record with what the game or the build holds for it. Nothing here implements or decides
+     * any of them: his item 5 asks for them *"to retain for review, not additional implementation now"*.
+     */
+    const limitations: LimitationEvidence[] = (request.limitations ?? []).map(limitation => {
+        const facts: Fact[] = []
+        if (limitation.kind === 'SPECIALIZED_PERFORMERS_BEYOND_ROLE' && limitation.role) {
+            const role = limitation.role
+            const row = [...index.specializedRoleRows.entries()].find(([, name]) => name === role)?.[0] ?? null
+            const leaf = row ? String(index.rows.get(row)?.path ?? '').split('[].').pop() ?? role : role
+            const available = Number(input.session.roles?.[role] ?? 0)
+            facts.push({ what: `${role}s available in the session`, value: available })
+            for (const block of blocks) {
+                const teams = teamsOf(block, index)
+                const held = teams.reduce((n, team) => n + (team.counts[leaf] ?? 0), 0)
+                facts.push({ what: `block ${block.blockId}: ${role}s each team's count holds`, value: teams.map(team => ({ team: team.handle, role: team.role, count: team.counts[leaf] ?? 0 })) })
+                facts.push({ what: `block ${block.blockId}: ${role}s the session has beyond the teams' counts (counted among the other players)`, value: Math.max(0, available - held) })
+            }
+            facts.push({ what: `at an exchange of roles, ${role}s that move`, value: blocks.slice(0, 1).flatMap(block => membersAt(block.fixture?.game ?? {}, index, 'B4').filter(r => r?.performerRow === row).map(r => ({ elementId: r.elementId, count: r.count, toRole: r.toRole }))) })
+        } else if (limitation.kind === 'FLAGGED_CASE') {
+            const flag = flags.find(f => f.id === limitation.flag)
+            facts.push({ what: `flag ${limitation.flag}`, value: flag ? { kind: flag.kind, status: flag.status, answer: flag.answer } : null })
+        } else if (limitation.kind === 'CHECKED_PATHWAY_ONLY') {
+            facts.push({ what: 'library constraints selected', value: [...input.selectedConstraints] })
+            facts.push({ what: 'the live generation route', value: input.selectedConstraints.length === 0 ? LIVE_ROUTE_REFUSES : 'not measured here' })
+        }
+        return { id: limitation.id, kind: limitation.kind, his: limitation.words.map(w => ({ ...w })), facts }
+    })
+
     /* The nine items. */
     const itemPaths = (item: ReviewRequest['items'][number], block: EvidenceBlock): string[] => {
         const game = block.fixture?.game ?? {}
@@ -873,6 +1078,10 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
             if (row && (index.ownerRow.get(row) ?? row) === (index.targetOf?.objectivesRow ?? 'J1')) return objectives.some(o => o.elementId === first.id && o.role === item.role)
             if (row && (index.ownerRow.get(row) ?? row) === 'S2') return ownRegions.has(first.id)
             const element = readPath(game, path.slice(0, path.indexOf(']') + 1)) as any
+            // Stage M3: a role element belongs to the item about that role, by the role it names (its selector attribute, SD-92); it
+            // names no holder, so the test below would give every role's element to every role's item.
+            const spec = index.roleBlocks
+            if (spec && row && (index.ownerRow.get(row) ?? row) === spec.rolesRow) return element?.[spec.roleAttribute] === item.role
             const mentions = JSON.stringify(element ?? null)
             const otherHolders = roleHolderNames(index).filter(name => name !== holder)
             return !otherHolders.some(name => mentions.includes(`"${name}"`)) || (!!holder && mentions.includes(`"${holder}"`))
@@ -893,7 +1102,8 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
         )
         const awaiting = item.kind === 'INSTRUCTIONS' ? [...withheld] : withheld.filter(path => carried.has(path))
         const resolved = item.kind === 'PROVENANCE' ? elements.length > 0 : item.kind === 'INSTRUCTIONS' ? instructions.length > 0 : carried.size > 0 || sentences.length > 0
-        return { id: item.id, words: item.words, citedAs: request.citedAs, kind: item.kind, role: item.role, blocks: perBlock, checks, sentences, awaiting: [...new Set(awaiting)], sections: [...item.sections], resolved }
+        const facts = blocks.map(block => ({ blockId: block.blockId, facts: item.role ? roleFacts(block, item.role) : [] }))
+        return { id: item.id, words: item.words, citedAs: request.citedAs, kind: item.kind, role: item.role, blocks: perBlock, checks, sentences, awaiting: [...new Set(awaiting)], sections: [...item.sections], resolved, facts }
     })
 
     /* Rationale: his reasons, and the approved statements they cite, read whole. */
@@ -929,9 +1139,7 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
                 { what: 'library constraints selected', value: [...input.selectedConstraints] },
                 {
                     what: 'the live generation route',
-                    value: constraintsNone
-                        ? 'does not serve this activity: it builds only from a selection with at least one library constraint, and this selection has none, so it refuses with no model call'
-                        : 'not measured here',
+                    value: constraintsNone ? LIVE_ROUTE_REFUSES : 'not measured here',
                 },
             ],
             his: { ...request.pathway },
@@ -950,6 +1158,7 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
         structure,
         sections: { allocation, specializedRoles, pressure, scoring, restarts: transitions, roleExchange, noPrescription, instructions },
         flags,
+        limitations,
         evaluation: {
             his: { words: request.evaluation.words, citedAs: request.evaluation.citedAs },
             points: request.evaluation.points.map(point => ({ ...point, sections: [...point.sections] })),
@@ -966,6 +1175,7 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
             openForReview: [
                 { what: 'fields awaiting his approved wording', value: [...new Set(withheld)] },
                 ...flags.map(flag => ({ what: `flag ${flag.id} (${flag.kind})`, value: flag.status })),
+                { what: 'limitations kept visible, as he asked', value: limitations.map(l => l.id) },
                 { what: 'record gaps any entry still waits on', value: (input.lists?.gaps ?? []).filter(g => g.neededBy.length).map(g => g.id) },
             ],
         },

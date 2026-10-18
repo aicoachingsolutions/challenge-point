@@ -26,9 +26,40 @@ import { AUDITS_DIR } from '../derivation/knowledge-root'
 
 export type WordingMatch = { equals: unknown } | { refersToOwnCondition: true }
 
+/**
+ * **The one element of a collection said only in approved words whose field equals a value** — stage M3, 17 October 2026 (design
+ * step L8). Christian, reply filed 19 October 2026, item 1: *"Approved with revised wording"*, one sentence of his for a scoring rule
+ * the game holds in five parts — the building role's credit bound (row B8, on a role element) and the four conditions on the primary
+ * event (rows V3-V6, each its own element). An entry matched element by element could only say his sentence once per element (four
+ * or five times), so a cover may name the element it holds on: `base` is a collection the renderer says only in approved words,
+ * `field` a field of its elements (a role's own name is its selector attribute, which has no row of its own), `equals` the value
+ * that picks the element out. The locator is data, so no role, condition type or sport term is written in code.
+ */
+export interface ElementLocator {
+    base: string
+    field: string
+    equals: unknown
+}
+
+/**
+ * **A value as one canonical string: object keys sorted at every depth** — stage M3 (design step L8). `JSON.stringify` follows the
+ * order keys were written in, so an approved cover written `{ "role": …, "objectiveReferenceOf": … }` failed to equal the game's
+ * `{ "objectiveReferenceOf": …, "role": … }` (READ in the design; measured in approved-wording.unit.ts). Equality of approved values
+ * is equality of what they say, never of how the file spelled them.
+ */
+export function canonicalJson(value: unknown): string {
+    const sorted = (node: unknown): unknown => {
+        if (Array.isArray(node)) return node.map(sorted)
+        if (node && typeof node === 'object') return Object.fromEntries(Object.keys(node as object).sort().map(key => [key, sorted((node as Record<string, unknown>)[key])]))
+        return node
+    }
+    return JSON.stringify(sorted(value)) ?? 'undefined'
+}
+
 export interface ApprovedWording {
     id: string
-    covers: { row: string; match: WordingMatch }[]
+    /** `element` (stage M3): every cover of an entry names the element it holds on, or none does (`unusableBecause`). */
+    covers: { row: string; match: WordingMatch; element?: ElementLocator }[]
     sentence: string
     /** Each slot is filled from one field of the same element, which is then cited. */
     slots?: Record<string, { field: string }>
@@ -56,7 +87,15 @@ export function unusableBecause(entry: any): string | null {
         if (!filled(cover?.row)) return 'a cover names no row'
         const match = cover.match ?? {}
         if (!('equals' in match) && match.refersToOwnCondition !== true) return `the cover on ${cover.row} has no match it can be tested by`
+        if (cover.element !== undefined) {
+            const locator = cover.element
+            if (!locator || typeof locator !== 'object' || !filled(locator.base) || !filled(locator.field) || !('equals' in locator)) return `the cover on ${cover.row} names an element it cannot pick out (base, field and equals are required)`
+        }
     }
+    // Stage M3: an entry is said once for the elements it names, or once per element it holds on; never half of each.
+    const located = entry.covers.filter((cover: any) => cover.element !== undefined).length
+    if (located && located !== entry.covers.length) return 'it mixes covers that name their element with covers that do not'
+    if (located && entry.slots !== undefined && Object.keys(entry.slots ?? {}).length) return 'a slot names no element, and its covers each name one'
     return null
 }
 

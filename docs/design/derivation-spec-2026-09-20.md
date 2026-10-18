@@ -199,6 +199,20 @@ entries, and a game value written "(= entry)" counts as that entry.
 > guard requires every item that establishes or fills such an element to be an OWNER_RULING item, since the context's own scoring
 > events need not approve the further way to score (`alsoCountsFindings`). (4) Its four fields are said to the coach only in
 > approved words (`WORDED_ONLY`), so A01 is refused at communication naming them until he approves a sentence.
+
+> **Engineering line, 17 October 2026 (stage M3) — ours, outside his adopted text; rendering and review, no derivation change.**
+> For his reply filed 19 October 2026, item 1 ("Approved with revised wording"; "Please ensure the underlying scoring eligibility
+> reflects this distinction, rather than relying solely on the coach-facing wording."), item 4 and item 6. (1) An approved entry
+> may name the element each cover holds on (`ElementLocator` {base, field, equals}); each locator must pick out exactly one
+> element, a located scoped condition needs its exact V3 cover, and the sentence is said ONCE citing every covered field; covers
+> compare as canonical JSON. (2) Fidelity's role rule passes over an approved sentence only where the role it names is a string
+> value of a field it cites (a RELAXATION quoting item 1). (3) Where a role element's B8 is not the whole game, the renderer says
+> no team-neutral "A team scores ...": a whole-game role gets its own DRAFT sentence citing its bound, the value is said alone, and
+> the bounded role only in approved words; fidelity Q2 refuses any unapproved sentence citing the event's kind and no role, and
+> any unapproved sentence speaking for a bounded role. (4) The review evidence shows each role's credit, what begins, ends and
+> keeps it (`awardeeRelation`) beside GA-EPISODE-REACHABLE's own verdict on its two credit clauses, the V27 element per block,
+> transition columns beginsCredit/endsCredit, flag status SETTLED_BY_RULING only where his recorded ruling (`settledBy`) and the
+> element in every block meet, and the limitations of his item 5 (`reviewRequest.limitations`).
 > (9) Added in the K6 review, 16 October 2026: GA-RELATIVE-PLACEMENT's third clause - no start placement's region shares a
 > stretch of the axis with the target its own group's team attacks (touching at one boundary is not sharing; deferred until both
 > are realized). The design asked for it and K6 had not built it: a pressing start around its own target, or a building start

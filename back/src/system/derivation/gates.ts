@@ -1433,10 +1433,13 @@ function placementResets(
  * POSSESSION_CHANGE, already read here.
  */
 const CREDIT_ROW = 'B8'
+/** The two clauses by name, exported (stage M3) so the review evidence reads their verdicts by name, never by position. */
+export const CREDIT_BEGINS_CLAUSE = 'every role whose scoring credit is confined to an episode holds the award of every transition that begins that episode'
+export const CREDIT_ENDS_CLAUSE = 'every transition that can take possession from such a role begins another episode'
 
 function creditClauses(ctx: GateContext, probe: Probe, typedFor: (scope: string) => BeginConditionReferent | undefined): { clauses: [ClauseResult, ClauseResult]; why: string } {
-    const BEGINS = 'every role whose scoring credit is confined to an episode holds the award of every transition that begins that episode'
-    const ENDS = 'every transition that can take possession from such a role begins another episode'
+    const BEGINS = CREDIT_BEGINS_CLAUSE
+    const ENDS = CREDIT_ENDS_CLAUSE
     const spec = ctx.index.roleBlocks
     if (!spec) return { clauses: [pass(BEGINS, 0), pass(ENDS, 0)], why: '' }
     const bounded: { classId: string; role: string; holder: string; scope: string }[] = []
