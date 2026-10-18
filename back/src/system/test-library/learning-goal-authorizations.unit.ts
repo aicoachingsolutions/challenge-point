@@ -275,7 +275,14 @@ test('his 16 October provisional choices, each cited, with whether the activity 
         // transitions and ruling C58. It read MISSING_CAPABILITY ['D1', 'D5', 'M3', 'M4'] until then.
         ['item 6 and 6.ii', 'AUTHORIZED_BY_RULING', []],
         ['item 6', 'AUTHORIZED_BY_RULING', []],
+        // Added 17 October 2026 (stage M2): his reply filed 19 October 2026, item 2 (a controlled regain inside the pressing team's own
+        // target counts as a score), carried by A01-R1-V27-1; the six entries of his 16 October reply above are unchanged.
+        ['his reply filed 19 October 2026, item 2', 'AUTHORIZED_BY_RULING', []],
     ])
+    const regainScores = a01().provisionalChoices![6]
+    assert.equal(regainScores.ruledOn, '2026-10-19')
+    assert.ok(regainScores.words.startsWith('For the previously flagged corner case, I favor allowing a controlled regain inside that area to count as a score, provided the pressing team genuinely establishes possession. A contested touch, deflection, or loose ball should not qualify.'))
+    assert.ok(regainScores.words.endsWith('This is a provisional scoring choice for the current realization, not a universal rule equating every regain with successful progression.'))
     const [, asymmetry, intermediate, regain, restarts, thirdOrigin] = a01().provisionalChoices!
     // His words, verbatim (16 October reply). The asymmetry is HIS provisional choice, and he said so.
     assert.ok(asymmetry.words.startsWith('For the first demonstration, I favor an asymmetrical game structure.'))
@@ -466,7 +473,10 @@ test('authorizationLists: authorized by existing knowledge, his provisional choi
         'overloads',
         'when and how defenders can press',
     ])
-    assert.deepEqual(lists.provisionalChoices.slice(0, 6).map(entry => [entry.words, entry.citedAs, entry.status, entry.gaps]), record.provisionalChoices!.map(choice => [choice.words, choice.citedAs, choice.status, choice.gaps]))
+    // Re-pointed 17 October 2026 (stage M2): the record holds seven provisional choices (his reply filed 19 October 2026, item 2, joins
+    // the six of his 16 October reply), and each still opens the list in order, whole.
+    assert.equal(record.provisionalChoices!.length, 7)
+    assert.deepEqual(lists.provisionalChoices.slice(0, 7).map(entry => [entry.words, entry.citedAs, entry.status, entry.gaps]), record.provisionalChoices!.map(choice => [choice.words, choice.citedAs, choice.status, choice.gaps]))
     assert.deepEqual(lists.gaps.map(({ neededBy, ...gap }) => gap), record.gaps, 'each definition whole')
     // Re-pointed 15 October 2026 (stage K4): D6 is needed by no entry now (it was needed by 'defensive numbers', 'goalkeeper
     // positioning' and 'overloads'); M3 is needed by the goalkeeper entry among others.

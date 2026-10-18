@@ -528,6 +528,25 @@ const WORDED_ONLY: { base: string; elements: (game: any) => unknown; fields: { f
         ],
     },
     {
+        /**
+         * **An occurrence that also counts as the primary event** (rows V27-V31, register version 14) — stage M2, 17 October 2026.
+         * Christian, reply filed 19 October 2026, item 2: *"For the previously flagged corner case, I favor allowing a controlled
+         * regain inside that area to count as a score, provided the pressing team genuinely establishes possession."* It is a further
+         * way to score, so under his 14 October item 3 (*"Enable accurate coach-facing communication of scoring conditions and
+         * information rules, using approved language."*) every field is said only by an approved entry covering it with its exact
+         * value, and withheld otherwise: the activity is refused at communication naming these fields until he approves a sentence.
+         * His ruling prose is a decision, not approved coach wording, and no draft template says it.
+         */
+        base: 'value.primaryEvent.alsoCounts',
+        elements: game => game.value?.primaryEvent?.alsoCounts,
+        fields: [
+            { field: 'team', row: 'V28' },
+            { field: 'trigger', row: 'V29' },
+            { field: 'control', row: 'V30' },
+            { field: 'exclusion', row: 'V31' },
+        ],
+    },
+    {
         base: 'value.informationRules',
         elements: game => game.value?.informationRules,
         fields: [

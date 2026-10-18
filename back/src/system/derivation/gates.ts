@@ -2217,13 +2217,251 @@ function gaOnePrimaryEvent(ctx: GateContext): CheckOutcome {
             ? deferred(POSITION, 'the chosen position of every referent of the primary event')
             : pass(POSITION, positioned.length)
 
+    // Stage M2 (register version 14, rows V27-V31): appended, and only where the game holds an occurrence that also counts as the
+    // primary event, so every other game's clauses and reason read exactly as they did.
+    const also = alsoCountsClauses(ctx, probe)
     return result(
         'GA-ONE-PRIMARY-EVENT',
         probe,
-        [oneClause, valueClause, positionClause, outside(STATES)],
+        [oneClause, valueClause, positionClause, outside(STATES), ...also.clauses],
         `${events.length || (entailedBySd06 ? 1 : 0)} primary event(s); ${positioned.length} positioned referent(s); ${unpositioned.length} unpositioned` +
-            (namesNoPlace ? `; ${namesNoPlace} condition(s) name no place` : ''),
+            (namesNoPlace ? `; ${namesNoPlace} condition(s) name no place` : '') +
+            also.why,
     )
+}
+
+/**
+ * **An occurrence that also counts as the one primary event, for one team** — 17 October 2026 (stage M2, register version 14, rows
+ * V27 `value.primaryEvent.alsoCounts[]`, V28 team, V29 trigger, V30 control, V31 exclusion). Christian, reply filed 19 October 2026,
+ * item 2: *"For the previously flagged corner case, I favor allowing a controlled regain inside that area to count as a score,
+ * provided the pressing team genuinely establishes possession."* *"A contested touch, deflection, or loose ball should not
+ * qualify."* *"This is a provisional scoring choice for the current realization, not a universal rule equating every regain with
+ * successful progression."* His 17 October D3: *"Please verify that the two targets can coexist without overlapping or
+ * contradictory scoring conditions."* Item 5: *"Any further changes should address general capabilities rather than introduce
+ * special cases for this Learning Goal."* (Reading 'count as a score' as counting as the one primary event and earning its value
+ * is OUR READING, SD-113; the clauses below are our engineering.)
+ *
+ * Only tightens: SD-06's "exactly one primary event" is clause 1 above and is unchanged. Seven clauses, each over every element:
+ *
+ *   - **team** — V28 names exactly one team of the game for the block (a setup assignment, or a role holder through the block);
+ *     a designation of every team, or one decided by possession, an episode, a trigger or an outcome, FAILS;
+ *   - **trigger** — V29 is a member of its closed list, the game holds a transition keyed on it in which play continues (an event
+ *     in play, never a restart award), and the game holds the score transition that follows it (the register's SCORE trigger: it
+ *     is a score, so that transition governs play state at that moment);
+ *   - **target** — the element's own team attacks exactly one primary objective, whose reference is positioned (deferred until
+ *     realization places it): the occurrence lies inside THAT target (the register's targetOf, his "inside that area"), so it can
+ *     never reach the other team's target;
+ *   - **control** — V30 is stated (the possession relation states nothing about how possession is gained, PS1);
+ *   - **one per team** — at most one element per team;
+ *   - **episode** — the trigger's transition begins an episode (T7 true), so the occurrence is evaluated in the episode its trigger
+ *     begins, and it begins none that an episode-scoped condition of the primary event is authored for, so no such condition can
+ *     govern it (OUR INFERENCE from his item 1, *"If the building team loses possession, that scoring opportunity ends."*, and
+ *     RPC-001-17.a; labelled so);
+ *   - **no whole-game condition** — no condition of the primary event is authored for every score: one would govern this
+ *     occurrence too, or not, and the representation does not say which, so the contradiction is refused rather than guessed.
+ *
+ * No clause is added where the game holds no element. Every name read is the register's (row ids, the closed list, the SCORE and
+ * POSSESSION_CHANGE triggers already read in this file); no team, role, kind or sport term is named.
+ */
+const ALSO_COUNTS_ROW = 'V27'
+const SCORE_TRIGGER = 'SCORE'
+
+function alsoCountsClauses(ctx: GateContext, probe: Probe): { clauses: ClauseResult[]; why: string } {
+    const elements = classesOn(ctx, ALSO_COUNTS_ROW)
+    if (!elements.length) return { clauses: [], why: '' }
+    const TEAM = 'every occurrence that also counts as the primary event is for exactly one team'
+    const TRIGGER = 'its trigger is an event in play the game holds, and the game holds the score that follows it'
+    const TARGET = 'it lies inside the one positioned target its own team attacks'
+    const CONTROL = 'it states the control under which the occurrence is established'
+    const ONE = 'at most one such occurrence for each team'
+    const EPISODE = 'its trigger begins an episode, and none that a condition of the primary event is authored for'
+    const WHOLE = 'no condition of the primary event is authored for every score beside it'
+    type Tally = { fail: boolean; blocked: boolean; open: boolean; instances: number }
+    const tally = (): Tally => ({ fail: false, blocked: false, open: false, instances: 0 })
+    const verdictOf = (t: Tally, clause: string, owes: string): ClauseResult => (t.fail ? fail(clause, t.instances) : t.blocked ? notEvaluable(clause) : t.open ? deferred(clause, owes) : pass(clause, t.instances))
+    const team = tally()
+    const trigger = tally()
+    const target = tally()
+    const control = tally()
+    const one = tally()
+    const episode = tally()
+    const whole = tally()
+    const said: string[] = []
+    const termsOf = (cls: ElementClass): Record<string, unknown> => Object.fromEntries((cls.constraints?.terms || []).filter(t => t.op === '=').map(t => [t.attribute, (t as { value: unknown }).value]))
+    const transitionsOn = (value: string) => classesOn(ctx, 'T1').filter(transition => String(termsOf(transition).trigger) === value)
+    const scopeOf = (cls: ElementClass) => String((ctx.contracts.find(c => c.contractId === cls.fromItem.contractId)?.items ?? []).find(i => i.itemId === cls.fromItem.itemId)?.scope ?? '')
+    const conditions = classesOn(ctx, 'V3')
+    const episodeScopes = [...new Set(conditions.map(scopeOf).filter(scope => EPISODE_SCOPES.includes(scope)))]
+    // The typed begin condition an episode-scoped condition holds for its own episode (C58), read as GA-EPISODE-REACHABLE reads it.
+    const typedFor = (scope: string): BeginConditionReferent | undefined =>
+        conditions
+            .filter(c => scopeOf(c) === scope)
+            .flatMap(c => {
+                const cell = probe.peek(lineOf(c.classId, 'V5'))
+                const values = cell.state === 'DERIVED' ? (Array.isArray(cell.value) ? cell.value : [cell.value]) : []
+                return values.map(beginConditionReferentOf).filter((referent): referent is BeginConditionReferent => referent !== null && referent.beginsEpisodeOf === scope)
+            })
+            .find(() => true)
+    const teams = new Map<string, string[]>()
+
+    for (const element of elements) {
+        // Team: exactly one team for the block.
+        const teamCell = probe.cell(lineOf(element.classId, 'V28'))
+        let resolvedTeam: string | null = null
+        // Whether this element's team is one team, none, or not yet known. A role holder read outside a block (a derivation with no role
+        // block, which the checked pathway never serves: it derives each block) names one team in every block, but which one the block
+        // says, so it is owed, as GA-RELATIVE-PLACEMENT defers a direction it cannot read for a role holder there.
+        let teamState: 'ONE' | 'NONE' | 'OPEN' | 'BLOCKED' = 'BLOCKED'
+        team.instances++
+        if (teamCell.state === 'OPEN') teamState = 'OPEN'
+        else if (teamCell.state === 'DERIVED') {
+            const kind = resolutionOf(ctx.index, teamCell.value)?.kind
+            if (kind === 'BLOCK_ROLE' && !ctx.roleBlock) teamState = 'OPEN'
+            else if (kind === 'BLOCK_ROLE' || kind === 'SETUP_ASSIGNMENT') {
+                resolvedTeam = teamOf(ctx, String(teamCell.value))
+                teamState = resolvedTeam ? 'ONE' : 'NONE'
+            } else teamState = 'NONE'
+        }
+        if (teamState === 'OPEN') team.open = true
+        else if (teamState === 'BLOCKED') team.blocked = true
+        else if (teamState === 'NONE') team.fail = true
+        if (resolvedTeam) teams.set(resolvedTeam, [...(teams.get(resolvedTeam) ?? []), element.classId])
+
+        // Trigger: a member of the closed list, an event in play the game holds, followed by a score the game holds.
+        const triggerCell = probe.cell(lineOf(element.classId, 'V29'))
+        const listed = ctx.index.vocabularies.get('V29.trigger') ?? []
+        let keyed: ElementClass[] = []
+        const triggerNotes: string[] = []
+        trigger.instances++
+        if (triggerCell.state === 'OPEN') trigger.open = true
+        else if (triggerCell.state !== 'DERIVED') trigger.blocked = true
+        else if (!listed.includes(String(triggerCell.value))) {
+            trigger.fail = true
+            triggerNotes.push('not a member of its closed list')
+        } else {
+            keyed = transitionsOn(String(triggerCell.value))
+            if (!keyed.length) triggerNotes.push('the game holds no transition keyed on it')
+            if (!transitionsOn(SCORE_TRIGGER).length) triggerNotes.push('the game holds no score transition')
+            if (!keyed.length || !transitionsOn(SCORE_TRIGGER).length) trigger.fail = true
+            for (const transition of keyed) {
+                const playState = probe.cell(lineOf(transition.classId, 'T6'))
+                if (playState.state === 'OPEN') trigger.open = true
+                else if (playState.state !== 'DERIVED') trigger.blocked = true
+                else if (String(playState.value) !== 'CONTINUE') {
+                    trigger.fail = true
+                    triggerNotes.push(`${transition.classId} stops play: it is no event in play`)
+                }
+            }
+        }
+
+        // Target: the one primary objective its own team attacks, positioned.
+        let targetSaid = 'no target'
+        target.instances++
+        const spec = ctx.index.targetOf
+        if (!spec || teamState === 'BLOCKED') target.blocked = true
+        else if (teamState === 'OPEN') target.open = true
+        else if (!resolvedTeam) target.fail = true
+        else {
+            const objectives = classesOn(ctx, spec.objectivesRow)
+            const unsettled = objectives.some(objective => [spec.roleRow, spec.teamRow].some(row => probe.peek(lineOf(objective.classId, row)).state !== 'DERIVED'))
+            const attacking = objectives.filter(objective => {
+                const role = probe.peek(lineOf(objective.classId, spec.roleRow))
+                const by = probe.peek(lineOf(objective.classId, spec.teamRow))
+                return role.state === 'DERIVED' && String(role.value) === spec.role && by.state === 'DERIVED' && designationKey(ctx.index, by.value) === resolvedTeam
+            })
+            if (attacking.length !== 1) {
+                if (unsettled) target.blocked = true
+                else target.fail = true
+                targetSaid = `${attacking.length} primary objectives attacked by ${resolvedTeam}`
+            } else {
+                const reference = probe.cell(lineOf(attacking[0].classId, spec.referenceRow))
+                const referent = reference.state === 'DERIVED' ? referentClass(ctx, reference.value) : null
+                if (reference.state === 'OPEN') target.open = true
+                else if (reference.state !== 'DERIVED') target.blocked = true
+                else if (!referent || (referent.row !== 'S2' && referent.row !== 'O1')) target.fail = true
+                else {
+                    const position = probe.cell(lineOf(referent.classId, referent.row === 'S2' ? 'S5' : 'O4'))
+                    if (position.state === 'OPEN') target.open = true
+                    else if (position.state !== 'DERIVED') target.blocked = true
+                    targetSaid = `the target of ${attacking[0].classId}, ${referent.classId}`
+                }
+            }
+        }
+
+        // Control: stated.
+        const controlCell = probe.cell(lineOf(element.classId, 'V30'))
+        control.instances++
+        if (controlCell.state === 'OPEN') control.open = true
+        else if (controlCell.state !== 'DERIVED') control.blocked = true
+        else if (typeof controlCell.value !== 'string' || !controlCell.value.trim()) control.fail = true
+
+        // Episode: the trigger begins an episode, and none an episode-scoped condition is authored for.
+        episode.instances++
+        if (triggerCell.state !== 'DERIVED') episode.blocked = true
+        for (const transition of keyed) {
+            const starts = probe.cell(lineOf(transition.classId, 'T7'))
+            if (starts.state === 'OPEN') episode.open = true
+            else if (starts.state !== 'DERIVED') episode.blocked = true
+            else if (String(starts.value) !== 'true') {
+                episode.fail = true
+                triggerNotes.push(`${transition.classId} begins no episode`)
+            }
+        }
+        for (const scope of episodeScopes) {
+            const typed = typedFor(scope)
+            if (!typed) {
+                episode.blocked = true
+                continue
+            }
+            const found = buildOutStarters(ctx, probe, typed)
+            const begun = found.starters.filter(starter => keyed.some(transition => transition.classId === starter.classId))
+            if (begun.length) {
+                episode.fail = true
+                triggerNotes.push(`${begun.map(starter => starter.classId).join(', ')} begins ${scope}, which a condition of the primary event is authored for`)
+            }
+        }
+        said.push(
+            `${element.classId} for ${teamCell.state === 'DERIVED' ? String(teamCell.value) : 'no established team'}` +
+                (resolvedTeam ? ` (${resolvedTeam})` : '') +
+                ` at ${triggerCell.state === 'DERIVED' ? String(triggerCell.value) : 'no established trigger'} (${keyed.map(t => t.classId).join(', ') || 'no transition'}` +
+                (triggerNotes.length ? `; ${triggerNotes.join('; ')}` : '') +
+                `), inside ${targetSaid}`,
+        )
+    }
+
+    // One per team.
+    one.instances = elements.length
+    if (team.blocked) one.blocked = true
+    else if (team.open) one.open = true
+    const shared = [...teams.entries()].filter(([, ids]) => ids.length > 1)
+    if (shared.length) one.fail = true
+
+    // No whole-game condition beside it.
+    whole.instances = conditions.length
+    const wholeGame: string[] = []
+    for (const condition of conditions) {
+        const scope = scopeOf(condition)
+        if (EPISODE_SCOPES.includes(scope)) continue
+        if (scope === 'WHOLE_GAME' || scope === '') {
+            whole.fail = true
+            wholeGame.push(condition.classId)
+        } else whole.blocked = true
+    }
+    if (shared.length) said.push(`more than one for ${shared.map(([teamKey, ids]) => `${teamKey} (${ids.join(', ')})`).join('; ')}`)
+    if (wholeGame.length) said.push(`authored for every score beside it: ${wholeGame.join(', ')}`)
+
+    return {
+        clauses: [
+            verdictOf(team, TEAM, 'the team each occurrence is for'),
+            verdictOf(trigger, TRIGGER, 'the realized play state of each transition keyed on the trigger'),
+            verdictOf(target, TARGET, 'the realized position of the target each occurrence lies inside'),
+            verdictOf(control, CONTROL, 'the control each occurrence states'),
+            verdictOf(one, ONE, 'the team each occurrence is for'),
+            verdictOf(episode, EPISODE, 'the realized episode boundary of each transition keyed on the trigger'),
+            verdictOf(whole, WHOLE, 'the scope of each condition of the primary event'),
+        ],
+        why: `; ${elements.length} occurrence(s) also count as the primary event: ${said.join('; ')}`,
+    }
 }
 
 /**

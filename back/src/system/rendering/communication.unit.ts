@@ -116,18 +116,26 @@ test('1. the review draft of A01: every sentence the game holds, each a DRAFT, n
     // October 2026, item 1 and item 3 C), said only in approved words. The pressing role's WHOLE_GAME states no condition and is
     // not withheld.
     const CREDIT_BOUND = 'activityRoles[c:provisional:A01-R1:A01-R1-B1-1].creditedWithin'
-    assert.equal(draft.withheld.length, 32)
-    assert.deepEqual(draft.withheld.filter(field => !field.path.startsWith('value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-')).map(field => [field.path, field.row]), [[CREDIT_BOUND, 'B8'], [CREDIT_BOUND, 'B8']], JSON.stringify(draft.withheld))
+    // Moved 17 October 2026 (stage M2), 32 -> 40: and the pressing role's regain score in each block (rows V28-V31, his reply filed
+    // 19 October 2026, item 2) - exactly its four fields, said only in approved words, so the activity is refused at communication
+    // naming them until he approves a sentence.
+    const ALSO = (field: string) => `value.primaryEvent.alsoCounts[c:provisional:A01-R1:A01-R1-V27-1].${field}`
+    const alsoWithheld = [['team', 'V28'], ['trigger', 'V29'], ['control', 'V30'], ['exclusion', 'V31']].map(([field, row]) => [ALSO(field), row])
+    assert.equal(draft.withheld.length, 40)
+    assert.deepEqual(draft.withheld.filter(field => !field.path.startsWith('value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-')).map(field => [field.path, field.row]), [[CREDIT_BOUND, 'B8'], ...alsoWithheld, [CREDIT_BOUND, 'B8'], ...alsoWithheld], JSON.stringify(draft.withheld))
     // Fidelity on the draft: only the same conditions, noted as uncarried; no sentence lost, invented or changed in status.
     // Moved 17 October 2026 (stage M1), 22 -> 26: both roles' credit bounds per block are uncarried too - the building role's because
     // it is withheld, the pressing role's WHOLE_GAME because no sentence cites it yet (the per-role scoring sentence that will is
     // design step L9, stage M3). Reported, never filtered.
     const uncarriedCondition = (v: string) => v.startsWith('fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-') && v.endsWith('is established by the game and no instruction carries it')
     const uncarriedBound = (v: string) => /^fidelity Q3: activityRoles\[c:provisional:A01-R1:A01-R1-B1-[12]\]\.creditedWithin is established by the game and no instruction carries it$/.test(v)
+    // Moved 17 October 2026 (stage M2), 26 -> 34: the regain score's four fields per block are uncarried too, because they are withheld.
+    const uncarriedAlso = (v: string) => /^fidelity Q3: value\.primaryEvent\.alsoCounts\[c:provisional:A01-R1:A01-R1-V27-1\]\.(team|trigger|control|exclusion) is established by the game and no instruction carries it$/.test(v)
     assert.equal(draft.fidelity.passed, false)
-    assert.ok(draft.fidelity.violations.every(v => uncarriedCondition(v) || uncarriedBound(v)), JSON.stringify(draft.fidelity.violations))
+    assert.ok(draft.fidelity.violations.every(v => uncarriedCondition(v) || uncarriedBound(v) || uncarriedAlso(v)), JSON.stringify(draft.fidelity.violations))
     assert.equal(draft.fidelity.violations.filter(uncarriedBound).length, 4)
-    assert.equal(draft.fidelity.violations.length, 26)
+    assert.equal(draft.fidelity.violations.filter(uncarriedAlso).length, 8)
+    assert.equal(draft.fidelity.violations.length, 34)
 })
 
 test('2. key identity: the draft reaches the administrator\'s review answer and nothing else', () => {

@@ -437,7 +437,10 @@ test('realization: the COACH_DECIDES stand-ins, the possession game initial-hold
     // Re-pointed 17 October 2026 (stage M1): without the roles' credit bounds too (row B8, his reply filed 19 October 2026, item 1 and
     // item 3 C). The building role's bound is the build-out episode, whose beginnings only the context types, so with the possession
     // game alone GA-EPISODE-REACHABLE's fourth clause withholds on it (measured: refused at structure) - pinned in credit-episode.unit.ts.
-    const CREDIT = ['B8']
+    // Re-pointed 17 October 2026 (stage M2): without the pressing role's regain score too (rows V27-V31, his reply filed 19 October
+    // 2026, item 2). It is said only in approved words, so with it this TEST-ONLY composition stops at communication on its four
+    // fields (measured) - which is right, and pinned in also-counts.unit.ts; the transitions' stand-ins read none of it.
+    const CREDIT = ['B8', 'V27', 'V28', 'V29', 'V30', 'V31']
     const built = buildActivityFromKnowledge(['GF2'], sessionOf(12, 1), {
         alter: contracts => {
             const realization: any = JSON.parse(JSON.stringify(provisionalRealizationNamed('A01-R1')!))

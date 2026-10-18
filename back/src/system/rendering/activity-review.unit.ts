@@ -366,7 +366,9 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
         // (pinned in target-placement.unit.ts), each one of his provisional choices.
         // 47 -> 49 on 17 October 2026 (stage M1): his reply filed 19 October 2026, item 1 and item 3 C - the credit bound on the two
         // roles, 2 items (pinned in credit-episode.unit.ts), each one of his provisional choices.
-        assert.equal(a01.account.authorizationLists!.provisionalChoices.filter(e => e.from === 'provisional realization').length, 49, 'the roles, the exchange, the counts, the keeper, the reassignments, the transitions, the starting placements and the credit bounds')
+        // 49 -> 53 on 17 October 2026 (stage M2): his reply filed 19 October 2026, item 2 - the occurrence that also counts as the
+        // primary event for the pressing role, 4 items (pinned in also-counts.unit.ts), each one of his provisional choices.
+        assert.equal(a01.account.authorizationLists!.provisionalChoices.filter(e => e.from === 'provisional realization').length, 53, 'the roles, the exchange, the counts, the keeper, the reassignments, the transitions, the starting placements, the credit bounds and the regain score of the pressing role')
         // The allocation's authority reaches the technical account of the refusal too (stage K4), read from the record; since stage
         // K6 with the Performer Configuration relationship the starting placements cite.
         assert.deepEqual(a01.account.allocation!.relationships.map(r => r.id), ['RPC-001~EM-0006', 'RPC-001~EM-0002'])
@@ -434,10 +436,16 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
         // withheld list gains the building role's bound, which only approved words may say, first in each block; fidelity notes both
         // roles' bounds as uncarried (the pressing role's WHOLE_GAME is not withheld, and no sentence cites it until design step L9).
         const bound = (element: string) => `activityRoles[c:provisional:A01-R1:A01-R1-${element}].creditedWithin`
+        // 17 October 2026 (stage M2): and the pressing role's regain score (rows V28-V31, his reply filed 19 October 2026, item 2) - its
+        // four fields withheld until approved words say them, after the conditions in each block, and each noted by fidelity.
+        const ALSO: [string, string][] = [['team', 'V28'], ['trigger', 'V29'], ['control', 'V30'], ['exclusion', 'V31']]
+        const also = (field: string) => `value.primaryEvent.alsoCounts[c:provisional:A01-R1:A01-R1-V27-1].${field}`
         const WORDING_REASONS = blocks.flatMap(block => [
             `block ${block}: awaiting approved wording: ${bound('B1-1')} (B8)`,
             ...fields.flatMap(([id, held]) => held.map(field => `block ${block}: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-${id}].${field} (${ROW[field]})`)),
+            ...ALSO.map(([field, row]) => `block ${block}: awaiting approved wording: ${also(field)} (${row})`),
             ...['B1-1', 'B1-2'].map(element => `block ${block}: fidelity Q3: ${bound(element)} is established by the game and no instruction carries it`),
+            ...ALSO.map(([field]) => `block ${block}: fidelity Q3: ${also(field)} is established by the game and no instruction carries it`),
             ...fields.flatMap(([id, held]) => held.filter(field => field !== 'scope').map(field => `block ${block}: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-${id}].${field} is established by the game and no instruction carries it`)),
         ])
         for (const keepers of [2, 0]) {
@@ -1645,8 +1653,13 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
      * C). The building role's bound is the build-out episode, whose beginnings only the build-out conditions type; with them taken out
      * GA-EPISODE-REACHABLE's fourth clause withholds on it (measured: refused at structure), as it does on the placements. The block is
      * about the guard, which reads neither.
+     *
+     * Re-pointed 17 October 2026 (stage M2): and the pressing role's regain score (rows V27-V31, his reply filed 19 October 2026, item
+     * 2). With it the copy passes the guard (every item behind it is his ruling) and stops after it, at communication, on its four
+     * fields awaiting approved wording (measured) - the same stop production has. The guard's own reading of it is pinned in
+     * also-counts.unit.ts; this block keeps proving that nothing else stops the copy once the guard has passed.
      */
-    const CREDIT_ROWS = ['B8']
+    const CREDIT_ROWS = ['B8', 'V27', 'V28', 'V29', 'V30', 'V31']
     const trimmed = (contracts: any[]) => {
         const rpc = contracts.find(contract => contract.objectId === 'RPC-001')
         assert.ok(rpc, 'A01 carries its context\'s contract into derivation')
@@ -1748,7 +1761,11 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
     // Re-pointed 17 October 2026 (stage M1): and the roles' credit bounds (row B8, his reply filed 19 October 2026, item 1 and item 3
     // C). The building role's bound is the build-out episode, which only those conditions type (without them GA-EPISODE-REACHABLE's
     // fourth clause withholds, measured: refused at structure); this block is about the roster, which reads none of it.
-    const CREDIT_ROWS = ['B8']
+    // Re-pointed 17 October 2026 (stage M2): and the pressing role's regain score (rows V27-V31, his reply filed 19 October 2026, item
+    // 2). Its trigger must be followed by a score, and the copy below takes the transitions out, the score transition among them, so
+    // GA-ONE-PRIMARY-EVENT's trigger clause fails on it (measured: refused at structure) - pinned in also-counts.unit.ts; the roster
+    // reads none of it.
+    const CREDIT_ROWS = ['B8', 'V27', 'V28', 'V29', 'V30', 'V31']
     const withoutConditions = (contracts: any[]) => {
         const rpc = contracts.find(contract => contract.contractId === 'restated:RPC-001')
         rpc.items = rpc.items.filter((item: any) => !CONDITIONS.includes(item.itemId))

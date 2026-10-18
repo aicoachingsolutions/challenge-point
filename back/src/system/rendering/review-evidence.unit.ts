@@ -93,8 +93,11 @@ test('1. end to end on production data: only communication stops it, both blocks
     // The 22 violations are all Q3 "established and no instruction carries it" on the withheld build-out conditions (communication.unit.ts 1).
     // Moved 17 October 2026 (stage M1), 22 -> 24 and 30 -> 32: the building role's credit bound, withheld in each block until approved
     // words say it (communication.unit.ts 1; credit-episode.unit.ts).
-    assert.equal(fact(evidence.acceptance, 'fidelity violations about fields awaiting approved wording'), 24)
-    assert.equal(fact(evidence.acceptance, 'fields awaiting approved wording'), 32)
+    // Moved 17 October 2026 (stage M2), 24 -> 32 and 32 -> 40: the pressing role's regain score, its four fields withheld in each block
+    // until approved words say them (rows V28-V31, his reply filed 19 October 2026, item 2; communication.unit.ts 1; also-counts.unit.ts).
+    // The text that is said gains no violation: the fact above is unchanged.
+    assert.equal(fact(evidence.acceptance, 'fidelity violations about fields awaiting approved wording'), 32)
+    assert.equal(fact(evidence.acceptance, 'fields awaiting approved wording'), 40)
     assert.deepEqual(fact(evidence.acceptance, 'sentences'), { total: 24, approved: 0, draft: 24 })
     // Measured at this stage: 19 Gate A checks per block, all PASS; the 9 cross-block checks; 11 owed invariants per block.
     assert.deepEqual(evidence.structure.summary.gateChecks, { PASS: 38 })
@@ -442,7 +445,12 @@ test('9. the relationships he confirmed reach every element and sentence whose i
     assert.deepEqual([...r4.awaiting].sort(), conditionPaths.sort())
     const r7 = evidence.items.find(i => i.id === 'R7')!
     assert.deepEqual(r7.awaiting, ['activityRoles[c:provisional:A01-R1:A01-R1-B1-1].creditedWithin'])
-    assert.equal(r4.awaiting.length + r7.awaiting.length, withheldPaths.size)
+    // Re-pointed 17 October 2026 (stage M2): the pressing role's regain score (rows V27-V31, his reply filed 19 October 2026, item 2)
+    // is withheld too, and the record's item 5 (R5, the pressing team's post-regain objective) now lists its rows, so R5 awaits exactly
+    // its four fields; between the three items every withheld field is awaited.
+    const r5 = evidence.items.find(i => i.id === 'R5')!
+    assert.deepEqual([...r5.awaiting].sort(), ['control', 'exclusion', 'team', 'trigger'].map(field => `value.primaryEvent.alsoCounts[c:provisional:A01-R1:A01-R1-V27-1].${field}`))
+    assert.equal(r4.awaiting.length + r5.awaiting.length + r7.awaiting.length, withheldPaths.size)
 
     // His M8 safeguard, recorded on the item that types the exclusion's target, is read beside the conditions (scoring and the item 6
     // flag), whole from the knowledge: compared with the item's own note, never with a sentence written here.

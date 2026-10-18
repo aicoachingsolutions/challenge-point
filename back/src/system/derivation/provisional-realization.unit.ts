@@ -93,8 +93,10 @@ test('one home: the file loads, A01-R1 is labelled his provisional choice, and o
     // role (S5 x3), the two starting placements (P8 x2, P10 x2) with their timing and episode (P10a, P10b), and the restart
     // location's D3 bound (T4) - pinned in target-placement.unit.ts. 47 -> 49 on 17 October 2026 (stage M1): his reply filed 19
     // October 2026, item 1 and item 3 C, as the credit bound on the two roles (B8 x2: the building role's BUILD_OUT_EPISODE, the
-    // pressing role's WHOLE_GAME stated explicitly) - pinned in credit-episode.unit.ts.
-    assert.deepEqual([realization.provisionalId, realization.contractId, realization.category, realization.realizes, realization.items.length, realization.declarations.length], ['A01-R1', 'provisional:A01-R1', PROVISIONAL_REALIZATION_CHOICE, 'RPC-001', 49, 0])
+    // pressing role's WHOLE_GAME stated explicitly) - pinned in credit-episode.unit.ts. 49 -> 53 on 17 October 2026 (stage M2): his
+    // reply filed 19 October 2026, item 2, as the occurrence that also counts as the primary event for the pressing role (V27, with
+    // its trigger V29, control V30 and exclusion V31) - pinned in also-counts.unit.ts.
+    assert.deepEqual([realization.provisionalId, realization.contractId, realization.category, realization.realizes, realization.items.length, realization.declarations.length], ['A01-R1', 'provisional:A01-R1', PROVISIONAL_REALIZATION_CHOICE, 'RPC-001', 53, 0])
     assert.equal(realization.realizationChoices, 'realization-choices-a01-r1.json')
     assert.ok(realization.words.includes('The priority remains producing one complete, representative Play Out from the Back activity through the normal generation pathway, without introducing unnecessary architecture or treating this first realization as the canonical version of the Learning Goal.'))
     const naming = learningGoalAuthorizations().filter(record => record.provisionalRealization).map(record => [record.learningGoalId, record.provisionalRealization])
@@ -205,6 +207,12 @@ test('the realization moves exactly what its items establish — the role lines 
         'c:provisional:A01-R1:A01-R1-P8-2::P10a|derived|RESOLVED:ENTAILED||"CONDITIONAL_RESET"',
         'c:provisional:A01-R1:A01-R1-P8-1::P10b|derived|RESOLVED:ENTAILED||"BUILD_OUT_EPISODE"',
         'c:provisional:A01-R1:A01-R1-P8-2::P10b|derived|RESOLVED:ENTAILED||"BUILD_OUT_EPISODE"',
+        // 17 October 2026 (stage M2): the occurrence that also counts as the primary event for the pressing role (his reply filed 19
+        // October 2026, item 2), its four fields - the team carried from the selector, the trigger, and his control and exclusion.
+        'c:provisional:A01-R1:A01-R1-V27-1::V28|derived|RESOLVED:ENTAILED||"ROLE_HOLDER_PRESSING"',
+        'c:provisional:A01-R1:A01-R1-V27-1::V29|derived|RESOLVED:ENTAILED||"POSSESSION_CHANGE"',
+        'c:provisional:A01-R1:A01-R1-V27-1::V30|derived|RESOLVED:ENTAILED||"genuinely establishes possession"',
+        'c:provisional:A01-R1:A01-R1-V27-1::V31|derived|RESOLVED:ENTAILED||"a contested touch, deflection, or loose ball"',
         'c:provisional:A01-R1:A01-R1-B1-1::B2|derived|RESOLVED:ENTAILED||"BUILDING"',
         'c:provisional:A01-R1:A01-R1-B1-2::B2|derived|RESOLVED:ENTAILED||"PRESSING"',
         'c:provisional:A01-R1:A01-R1-B1-1::B3|derived|RESOLVED:ENTAILED||"COACH_CALLS"',

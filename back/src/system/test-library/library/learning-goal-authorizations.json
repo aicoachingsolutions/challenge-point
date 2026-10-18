@@ -151,7 +151,7 @@
                     "words": "After considering the available targets, I favor a target area representing successful progression toward a higher attacking player or attacking space for the first demonstration. This target would be available following a defensive regain. Success should be possible through controlled entry, either by carrying the ball or by passing to a teammate who receives under control.",
                     "status": "AUTHORIZED_BY_RULING",
                     "gaps": [],
-                    "note": "Each team already has its own target in a different place (ruling C42), so the area itself is representable; its depth is the gap on 'progression references' below (D3), and whether it is live throughout the pressing team's block is part of D7. Item 5 also refuses a rule requiring a teammate to receive inside the target after a regain there, and asks for no transition window, pass sequence, timing condition or automatic high-regain bonus; none is recorded. A target player, small goal or goalkeeper-defended goal stays an alternative, not excluded: alongside a zone for the other team it would need a scoring event kind per team, which one primary scoring event per game (SD-06) does not allow today."
+                    "note": "Each team already has its own target in a different place (ruling C42), so the area itself is representable; its depth is the gap on 'progression references' below (D3), and whether it is live throughout the pressing team's block is part of D7. Item 5 also refuses a rule requiring a teammate to receive inside the target after a regain there, and asks for no transition window, pass sequence, timing condition or automatic high-regain bonus; none is recorded. Amended 17 October 2026 (stage M2): his reply filed 19 October 2026, item 2, now counts a controlled regain inside this area as a score for the pressing team (\"For the previously flagged corner case, I favor allowing a controlled regain inside that area to count as a score, provided the pressing team genuinely establishes possession.\"), carried by A01-R1-V27-1 with V29-1, V30-1 and V31-1; it earns the ordinary value of a score, so still no bonus is recorded, and no teammate is required to receive after it (\"without requiring an arbitrary additional pass or dribble\"). A target player, small goal or goalkeeper-defended goal stays an alternative, not excluded: alongside a zone for the other team it would need a scoring event kind per team, which one primary scoring event per game (SD-06) does not allow today."
                 },
                 {
                     "category": "PROVISIONAL_REALIZATION_CHOICE",
@@ -174,6 +174,17 @@
                     "status": "AUTHORIZED_BY_RULING",
                     "gaps": [],
                     "note": "Recorded in docs/audits/rpc-001-document-workbook-reconciliation-2026-10-16.md."
+                },
+                {
+                    "category": "PROVISIONAL_REALIZATION_CHOICE",
+                    "choice": "A controlled regain inside the pressing team's own target area counts as a score for the pressing team, of ordinary value, when it genuinely establishes possession; a contested touch, deflection or loose ball does not.",
+                    "ruledOn": "2026-10-19",
+                    "by": "Christian",
+                    "citedAs": "his reply filed 19 October 2026, item 2",
+                    "words": "For the previously flagged corner case, I favor allowing a controlled regain inside that area to count as a score, provided the pressing team genuinely establishes possession. A contested touch, deflection, or loose ball should not qualify. This gives the pressing team a meaningful incentive to recognize and exploit high-regain opportunities without requiring an arbitrary additional pass or dribble. This is a provisional scoring choice for the current realization, not a universal rule equating every regain with successful progression.",
+                    "status": "AUTHORIZED_BY_RULING",
+                    "gaps": [],
+                    "note": "Added 17 October 2026 (stage M2). Carried by A01-R1-V27-1 with V29-1, V30-1 and V31-1 (register row V27: an occurrence that also counts as the one primary event and earns its value; the name and that reading are ours, SD-113), for the pressing role only, and checked by GA-ONE-PRIMARY-EVENT in both blocks. The zone entry keeps its meaning, so his 17 October D7 on entry stands. Said to the coach only in approved words: until he approves a sentence, the activity is refused at communication naming the element's four fields."
                 }
             ],
             "existingKnowledge": [
@@ -500,7 +511,7 @@
                     "status": "AUTHORIZED_BY_RULING",
                     "gaps": [],
                     "statusBasis": "His 16 October reply, item 3: 'For the first activity, I favor allowing immediate pressing from a representative starting arrangement, with starting positions and distances used to regulate the challenge.' 'I do not favor a timed release.' 'However, please do not automatically add a high-regain bonus.'",
-                    "note": "Immediate pressing needs no mechanism: nothing in the game restricts when the opposition may press (RPC-001 declares S4 access, V11 and V23-V26 NON_CLAIMED and V25 NOT_AUTHORED). A designated pressure line and release when the goalkeeper plays the ball are kept as potential realizations only, and not built (item 3). No existing knowledge authorizes a high-regain incentive, and none is added. The starting arrangement that regulates the challenge is the defending team's starting relationship above (D4, M5). Nothing yet tells the coach that pressing may begin immediately: the renderer states no NON_CLAIMED declaration. Until 15 October 2026 (stage H3) this was MISSING_KNOWLEDGE; his item 3 answers it."
+                    "note": "Immediate pressing needs no mechanism: nothing in the game restricts when the opposition may press (RPC-001 declares S4 access, V11 and V23-V26 NON_CLAIMED and V25 NOT_AUTHORED). A designated pressure line and release when the goalkeeper plays the ball are kept as potential realizations only, and not built (item 3). No existing knowledge authorizes a high-regain incentive, and none is added. Amended 17 October 2026 (stage M2): his reply filed 19 October 2026, item 2, now authorizes one, as a score of ordinary value and not a bonus: \"This gives the pressing team a meaningful incentive to recognize and exploit high-regain opportunities without requiring an arbitrary additional pass or dribble.\" It is carried by A01-R1-V27-1 (a controlled regain inside the pressing team's own target counts as a score); no value is changed, so his item 3 above still holds. The starting arrangement that regulates the challenge is the defending team's starting relationship above (D4, M5). Nothing yet tells the coach that pressing may begin immediately: the renderer states no NON_CLAIMED declaration. Until 15 October 2026 (stage H3) this was MISSING_KNOWLEDGE; his item 3 answers it."
                 }
             ],
             "reviewRequest": {
@@ -638,7 +649,12 @@
                             "J3",
                             "J4",
                             "V1",
-                            "V2"
+                            "V2",
+                            "V27",
+                            "V28",
+                            "V29",
+                            "V30",
+                            "V31"
                         ],
                         "checks": [
                             "GA-ONE-PRIMARY-EVENT",

@@ -184,6 +184,21 @@ entries, and a game value written "(= entry)" counts as that entry.
 > possession T7 true, NOT_EVALUABLE where the game holds none; a stop-and-restart beginning none must be awarded to the holder).
 > Both appended after the existing three clauses, vacuous where no role is bounded, so the context-scoring guard still reads the
 > reach clause first. (4) A bound other than WHOLE_GAME is said to the coach only in approved words (`WORDED_ONLY`, `unlessEquals`).
+
+> **Engineering line, 17 October 2026 (stage M2) — ours, outside his adopted text.** Implemented for his reply filed 19 October
+> 2026, item 2 ("For the previously flagged corner case, I favor allowing a controlled regain inside that area to count as a score,
+> provided the pressing team genuinely establishes possession." "A contested touch, deflection, or loose ball should not qualify.")
+> and his 17 October D3 ("Please verify that the two targets can coexist without overlapping or contradictory scoring conditions.").
+> (1) GA-ONE-PRIMARY-EVENT gains seven clauses, appended and only where the game holds an element of row V27
+> (`value.primaryEvent.alsoCounts[]`), so every other game reads exactly as before: the element is for exactly one team for the
+> block (a setup assignment or a role holder; a role holder read with no block is owed); its trigger is a member of V29's closed
+> list, keyed by a transition in which play continues, and the game holds the SCORE transition; it lies inside the one positioned
+> target its own team attacks (the register's targetOf); its control is stated; at most one element per team; its trigger's
+> transition begins an episode and none an episode-scoped condition of the primary event is authored for; and no condition of the
+> primary event is authored for every score beside it. (2) RB-1 compares V27's elements across the blocks. (3) The context-scoring
+> guard requires every item that establishes or fills such an element to be an OWNER_RULING item, since the context's own scoring
+> events need not approve the further way to score (`alsoCountsFindings`). (4) Its four fields are said to the coach only in
+> approved words (`WORDED_ONLY`), so A01 is refused at communication naming them until he approves a sentence.
 > (9) Added in the K6 review, 16 October 2026: GA-RELATIVE-PLACEMENT's third clause - no start placement's region shares a
 > stretch of the axis with the target its own group's team attacks (touching at one boundary is not sharing; deferred until both
 > are realized). The design asked for it and K6 had not built it: a pressing start around its own target, or a building start

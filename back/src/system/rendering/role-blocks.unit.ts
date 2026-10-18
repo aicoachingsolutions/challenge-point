@@ -173,6 +173,11 @@ test('every cross-block check refuses its own violation, made on a copy', () => 
     const extraRegion = built()
     extraRegion[1].fixture.game.space.regions.push({ elementId: 'c:TEST-ONLY:region' })
     assert.ok(failing(extraRegion).includes('RB-1'))
+    // RB-1 (stage M2, 17 October 2026): an occurrence that also counts as the primary event (row V27) in one block only. Before V27
+    // joined RB-1's rows, an element missing from one block passed the cross-block check (the design verifier read role-blocks.ts).
+    const extraOccurrence = built()
+    extraOccurrence[1].fixture.game.value.primaryEvent.alsoCounts = [{ elementId: 'c:TEST-ONLY:also' }]
+    assert.deepEqual(failing(extraOccurrence), ['RB-1'])
 
     // RB-2: an objective's team moved in one block — an end changed with the roles.
     const movedEnd = built()
@@ -332,12 +337,21 @@ test('A01 behind its record: two blocks built, each stopping in the same place, 
      * cites it yet (design step L9, stage M3). Nothing else moves; the stage and the summary are unchanged.
      */
     const bound = (element: string) => `activityRoles[c:provisional:A01-R1:A01-R1-${element}].creditedWithin`
+    /**
+     * **Moved 17 October 2026 (stage M2): the pressing role's regain score joins the same stop, in each block.** Rows V28-V31 (his
+     * reply filed 19 October 2026, item 2): its four fields wait on approved wording, and fidelity notes each as uncarried. The
+     * cross-block checks still pass (RB-1 now compares the element in both blocks, and it is one element). Nothing else moves.
+     */
+    const ALSO: [string, string][] = [['team', 'V28'], ['trigger', 'V29'], ['control', 'V30'], ['exclusion', 'V31']]
+    const also = (field: string) => `value.primaryEvent.alsoCounts[c:provisional:A01-R1:A01-R1-V27-1].${field}`
     assert.deepEqual(
         a01.reasons,
         ['BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END', 'BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START'].flatMap(block => [
             `block ${block}: awaiting approved wording: ${bound('B1-1')} (B8)`,
             ...fields.flatMap(([id, held]) => held.map(field => `block ${block}: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-${id}].${field} (${ROW[field]})`)),
+            ...ALSO.map(([field, row]) => `block ${block}: awaiting approved wording: ${also(field)} (${row})`),
             ...['B1-1', 'B1-2'].map(element => `block ${block}: fidelity Q3: ${bound(element)} is established by the game and no instruction carries it`),
+            ...ALSO.map(([field]) => `block ${block}: fidelity Q3: ${also(field)} is established by the game and no instruction carries it`),
             ...fields.flatMap(([id, held]) => held.filter(field => field !== 'scope').map(field => `block ${block}: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-${id}].${field} is established by the game and no instruction carries it`)),
         ]),
     )

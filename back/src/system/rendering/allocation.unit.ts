@@ -73,7 +73,13 @@ const SPATIAL_ROWS = ['S2', 'S5', 'S6', 'P8', 'P10', 'P10a', 'P10b']
  * game alone GA-EPISODE-REACHABLE's fourth clause withholds on it (measured: NOT_EVALUABLE, refused at structure) - which is right,
  * and pinned in credit-episode.unit.ts; the allocation reads none of it.
  */
-const CREDIT_ROWS = ['B8']
+/**
+ * Re-pointed again 17 October 2026 (stage M2): without the pressing role's regain score too (rows V27-V31, his reply filed 19 October
+ * 2026, item 2). Its trigger is followed by a score, and the score transition is among the transitions taken out above, so with the
+ * possession game alone GA-ONE-PRIMARY-EVENT's trigger clause fails on it (measured: refused at structure) - which is right, and
+ * pinned in also-counts.unit.ts; the allocation reads none of it.
+ */
+const CREDIT_ROWS = ['B8', 'V27', 'V28', 'V29', 'V30', 'V31']
 const allocationOnly = (realization: any) => void (realization.items = realization.items.filter((item: any) => !String(item.row).startsWith('T') && !SPATIAL_ROWS.includes(String(item.row)) && !CREDIT_ROWS.includes(String(item.row))))
 const withRealization = (players: number, keepers: number, alter: (realization: any) => void = () => undefined) =>
     buildActivityFromKnowledge(['GF2'], sessionOf(players, keepers), {

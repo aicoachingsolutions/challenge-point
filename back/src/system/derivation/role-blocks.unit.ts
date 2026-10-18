@@ -338,6 +338,12 @@ test('A01-R1\'s role lines carry its category on every support entry, in both bl
             'space.regions[c:provisional:A01-R1:A01-R1-S2-1].noun',
             'space.regions[c:provisional:A01-R1:A01-R1-S2-1].position.across',
             'space.regions[c:provisional:A01-R1:A01-R1-S2-1].position.along',
+            // 17 October 2026 (stage M2): the occurrence that also counts as the primary event for the pressing role (rows V28-V31,
+            // his reply filed 19 October 2026, item 2) - lines A01-R1 supports with the same category, carried into the resolved game.
+            'value.primaryEvent.alsoCounts[c:provisional:A01-R1:A01-R1-V27-1].control',
+            'value.primaryEvent.alsoCounts[c:provisional:A01-R1:A01-R1-V27-1].exclusion',
+            'value.primaryEvent.alsoCounts[c:provisional:A01-R1:A01-R1-V27-1].team',
+            'value.primaryEvent.alsoCounts[c:provisional:A01-R1:A01-R1-V27-1].trigger',
         ])
         for (const entry of own) {
             assert.ok(entry.support.length > 0, entry.path)

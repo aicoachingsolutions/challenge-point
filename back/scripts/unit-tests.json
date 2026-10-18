@@ -97,5 +97,6 @@
     "./src/system/rendering/review-evidence.unit.ts",
     "./src/system/derivation/starts-and-restarts.unit.ts",
     "./src/system/derivation/credit-episode.unit.ts",
+    "./src/system/derivation/also-counts.unit.ts",
     "./src/system/derivation/run-contract-coverage.unit.ts"
 ]

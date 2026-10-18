@@ -1402,7 +1402,20 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
         // Stage K7: the episode check as rerun on this concrete game, so a condition authored for an episode the game is shown to
         // begin is confirmed (context-scoring-guard.ts `episodeConfirmed`); every other condition is read as before.
         const episodeCheck = post.gateA.checks.find(check => check.checkId === EPISODE_REACHABLE_CHECK)
-        invalid.push(...contextScoringFindings(context.id, contract, realized.game, rpcLibrary.scoringEventsForContext(context.id), episodeCheck))
+        // Stage M2: what establishes and fills each occurrence that also counts as the primary event (a collection whose elements earn
+        // another row's value, register `earnsValueOf`), read from the derived lines, so the guard can require his ruling behind it.
+        const earning = [...index.rows.values()].filter(row => row.earnsValueOf !== undefined).map(row => row.id)
+        const basisOf = (ref: { contractId: string; itemId: string }) =>
+            String((input.contracts as LoadedContract[]).find(c => c.contractId === ref.contractId)?.items.find(i => i.itemId === ref.itemId)?.basis ?? 'not found')
+        const alsoCountsSupport = ctx.classes
+            .filter((c: any) => earning.includes(c.row))
+            .map((c: any) => {
+                const fields = [...index.rows.values()].filter(row => row.ownerRow === c.row).map(row => row.id)
+                const refs: { contractId: string; itemId: string }[] = [c.fromItem, ...fields.flatMap(row => (ctx.derived.get(`${c.classId}::${row}`)?.entailing ?? []).map((e: any) => e.item))]
+                const unique = refs.filter((ref, i) => refs.findIndex(other => other.contractId === ref.contractId && other.itemId === ref.itemId) === i)
+                return { elementId: String(c.classId), items: unique.map(ref => ({ contractId: ref.contractId, itemId: ref.itemId, basis: basisOf(ref) })) }
+            })
+        invalid.push(...contextScoringFindings(context.id, contract, realized.game, rpcLibrary.scoringEventsForContext(context.id), episodeCheck, alsoCountsSupport))
     }
     if (invalid.length) return refuse('validation', 'The game built for this activity did not pass its own checks, so it is not being shown.', invalid)
 
