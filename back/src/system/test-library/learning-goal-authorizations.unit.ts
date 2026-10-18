@@ -497,6 +497,30 @@ test('authorizationLists: authorized by existing knowledge, his provisional choi
     assert.deepEqual(authorizationLists({ ...record, existingKnowledge: undefined, gaps: undefined, provisionalChoices: undefined, manipulations: [] }), { authorizedByExistingKnowledge: [], provisionalChoices: [], gaps: [] })
 })
 
+/**
+ * **Every gap the record names is settled by his words — stage M4, 17 October 2026 (design step L11).** His reply filed 17 October 2026
+ * asked for "Provenance distinguishing approved knowledge, provisional realization choices, and any remaining gaps."; the review page
+ * listed all thirteen as "still needed". A gap is settled only by his cited words (`settledBy`), never by an empty `neededBy`, and never
+ * while an entry still waits on it; the lists carry the words, and the page splits the list.
+ */
+test('(M4, L11) every record gap is settled by his cited words, and the gate refuses settled words that are uncited or premature', () => {
+    const record = a01()
+    assert.deepEqual(record.gaps!.map(gap => gap.id), ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'M1', 'M2', 'M3', 'M4', 'M5', 'M7'])
+    for (const gap of record.gaps!) {
+        assert.ok((gap.settledBy ?? []).length > 0, `${gap.id} is settled`)
+        for (const said of gap.settledBy!) assert.match(said.citedAs, /^his reply filed 1[789] October 2026, /, `${gap.id}: ${said.citedAs}`)
+    }
+    assert.deepEqual(record.gaps!.find(gap => gap.id === 'M1')!.settledBy, [{ words: 'M1 — Role exchange by block: Approved.', citedAs: 'his reply filed 17 October 2026, M1' }])
+    // The lists carry the words whole beside each definition.
+    assert.deepEqual(authorizationLists(record).gaps.map(gap => [gap.id, gap.settledBy]), record.gaps!.map(gap => [gap.id, gap.settledBy]))
+    // Refused: words that are not cited, an empty list, and a gap marked settled while an entry still waits on it.
+    assert.ok(damaged(r => (r.gaps![0].settledBy = [{ words: 'TEST-ONLY', citedAs: '' }])).some(e => e.includes('the gap D1 is settled by no cited words of his')))
+    assert.ok(damaged(r => (r.gaps![0].settledBy = [])).some(e => e.includes('the gap D1 is settled by no cited words of his')))
+    assert.ok(damaged(r => void asBeforeK6(r)).some(e => e.includes('the gap D3 is marked settled, and') && e.includes('still waits on it')))
+    // Without settledBy a gap stays unsettled, and nothing else is refused for it.
+    assert.deepEqual(damaged(r => delete r.gaps![0].settledBy), [])
+})
+
 test('the record is handed out as copies, so no caller edits a ruling in place', () => {
     a01().authorizedConstraints.push(WIDE_ZONE)
     learningGoalAuthorizations()[0].ruling[0] = 'edited'

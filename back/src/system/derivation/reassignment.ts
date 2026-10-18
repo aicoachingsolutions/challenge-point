@@ -72,6 +72,88 @@ export function reassignmentsIn(game: any, index: RegisterIndex): { found: Reass
 }
 
 /**
+ * **A relative count, resolved inside the one block whose game holds it** — register B7 version 2 (register version 14), stage M4,
+ * 17 October 2026. His reply filed 19 October 2026, item 3 F: *"With 5 outfield players plus a [specialized role] against 5 outfield
+ * players, only the [specialized role] changes teams at a role exchange. No additional outfield player transfer is required."* (his
+ * role noun bracketed, as the coupling ratchet keeps a sport's nouns out of this layer) and his
+ * reply filed 18 October 2026, item 1: *"This preserves the 6 + GK versus 5 relationship in both blocks."*
+ *
+ * A count written `{keepsCountOf: R}` (R a role of the role vocabulary) is the number of these performers that keeps, in the
+ * block the exchange begins, the count of this row the team holding R had in this block. With the two roles of a role block it
+ * is the same number whichever role R names: the team holding `toRole` here has n, the team holding the other role has m, and
+ * moving n − m keeps both roles' counts (OUR ARITHMETIC, from his stated reason; the relative form is ours, SD-113). It is read
+ * from THIS block's game only — its teams, the roles they hold and the end bindings — never from the other block, so the
+ * cross-block membership check (RB-M, `rendering/role-blocks.ts`) still compares the second block, built independently, with
+ * what this count states. Where it resolves to 0, no reassignment of these performers is established: the element is taken
+ * out of the game, never written with a count of 0 (`reassignmentsIn` still refuses a count below 1). Anything that does not
+ * resolve — an unknown role, not exactly two roles, a role no bound team holds, a count no team carries, a negative difference —
+ * is a problem named, and the element is left as it was, so the membership check refuses it too. Mutates `game`; a game holding
+ * no relative count is untouched. Sport-neutral: the rows, roles and leaves are register data.
+ */
+export function resolveRelativeCounts(
+    game: any,
+    index: RegisterIndex,
+    roleBlock: RoleBlock | null,
+    bindings: { designation: string; handle: string }[],
+): { resolved: { elementId: string; count: number }[]; removed: string[]; problems: string[] } {
+    const spec = index.reassignment
+    const out = { resolved: [] as { elementId: string; count: number }[], removed: [] as string[], problems: [] as string[] }
+    if (!spec) return out
+    const at = containerOf(index, spec.row)
+    const elements: any[] = at && Array.isArray(read(game, at)) ? read(game, at) : []
+    const relative = (raw: unknown): raw is { keepsCountOf: unknown } => !!raw && typeof raw === 'object' && !Array.isArray(raw) && 'keepsCountOf' in (raw as object)
+    if (!elements.some(element => relative(element?.[spec.countLeaf]))) return out
+    const roles = index.roleBlocks?.roles ?? []
+    const teamsAt = index.designations.teamsRow ? containerOf(index, index.designations.teamsRow) : null
+    const teams: any[] = teamsAt && Array.isArray(read(game, teamsAt)) ? read(game, teamsAt) : []
+    const handleOf = (setup: string | undefined) => (setup ? bindings.find(binding => designationKey(index, binding.designation) === designationKey(index, setup))?.handle : undefined)
+    const leafOf = (rowId: string) => String(index.rows.get(rowId)?.path ?? '').split('[].').pop() ?? rowId
+    const keep: any[] = []
+    for (const element of elements) {
+        const raw = element?.[spec.countLeaf]
+        if (!relative(raw)) {
+            keep.push(element)
+            continue
+        }
+        const id = String(element?.elementId)
+        const fail = (why: string) => {
+            out.problems.push(`${at}[${id}]: the count ${JSON.stringify(raw)} cannot be resolved in this block: ${why}`)
+            keep.push(element)
+        }
+        const toRole = element?.[spec.toRoleLeaf]
+        const performerRow = element?.[spec.performerRowLeaf]
+        const keeps = raw.keepsCountOf
+        if (typeof keeps !== 'string' || !roles.includes(keeps)) { fail(`${JSON.stringify(keeps)} is not a role of the role vocabulary (${roles.join(', ')})`); continue }
+        if (typeof toRole !== 'string' || !roles.includes(toRole)) { fail(`the role the performers join, ${JSON.stringify(toRole)}, is not a role of the role vocabulary`); continue }
+        if (typeof performerRow !== 'string' || !spec.performerRows.includes(performerRow)) { fail(`the performers are counted by ${JSON.stringify(performerRow)}, which is not one of ${spec.performerRows.join(', ')}`); continue }
+        if (roles.length !== 2) { fail(`a relative count is defined for two roles, and the role vocabulary holds ${roles.length}`); continue }
+        if (!roleBlock) { fail('the game is not one block of a role exchange'); continue }
+        const other = roles.find(role => role !== toRole)!
+        const [gainingRoleHolder, otherHolder] = [handleOf(roleBlock.holders[toRole]), handleOf(roleBlock.holders[other])]
+        if (!gainingRoleHolder || !otherHolder || gainingRoleHolder === otherHolder) { fail(`the ${toRole} and ${other} roles are not held by two teams bound to an end in this block`); continue }
+        const leaf = leafOf(performerRow)
+        const countOf = (handle: string) => teams.find(team => String(team?.elementId) === handle)?.[leaf]
+        const [n, m] = [countOf(gainingRoleHolder), countOf(otherHolder)]
+        if (!Number.isInteger(n) || !Number.isInteger(m)) { fail(`the teams carry no whole ${leaf} count in this block`); continue }
+        const count = n - m
+        if (count < 0) { fail(`the team holding the ${toRole} role has ${n} ${leaf} and the team holding the ${other} role ${m}, so keeping both counts would move performers away from the ${toRole} role`); continue }
+        if (count === 0) {
+            out.removed.push(id)
+            continue
+        }
+        element[spec.countLeaf] = count
+        out.resolved.push({ elementId: id, count })
+        keep.push(element)
+    }
+    if (out.removed.length) {
+        const parts = at!.split('.')
+        const parent = parts.length > 1 ? read(game, parts.slice(0, -1).join('.')) : game
+        parent[parts[parts.length - 1]] = keep
+    }
+    return out
+}
+
+/**
  * **The change in each team's counts from one block to the next, as the reassignments state it** — keyed by the team's
  * handle, then by the row that counts the performers. The team newly holding `toRole` gains `count`, the team that held it
  * loses `count`; every other change is zero. `bindings` are the end-to-team bindings realization recorded (identical in

@@ -20,6 +20,7 @@
  * Sport-neutral: it reads the fixture and the rendering, never a knowledge object by name.
  */
 import { FidelityFinding } from './fidelity'
+import { approvedTemplateSentences } from './approved-wording'
 import { approvedSentences, Instruction, RenderedActivity, WithheldField } from './render-concrete-game'
 
 /** One sentence as the reviewer reads it: the instruction, whose wording it is, and the provisional choices behind it. */
@@ -72,7 +73,12 @@ function provisionalSourcesOf(fixture: any, paths: string[]): string[] {
  */
 export function reviewDraftOf(fixtures: any[], rendered: RenderedActivity, violations: FidelityFinding[]): ReviewDraft {
     const approved = fixtures.flatMap(fixture => approvedSentences(fixture?.game ?? {}))
-    const isApproved = (instruction: Instruction) => approved.some(sentence => sentence.text === instruction.text && sentence.from.length === new Set(instruction.from).size && sentence.from.every(path => instruction.from.includes(path)))
+    // Stage M4 (17 October 2026): a sentence that IS one of his approved template sentences, word for word, is approved wording too
+    // (approved-wording.ts approvedTemplateSentences); the same template filled with any other value stays DRAFT.
+    const templates = approvedTemplateSentences().map(template => template.sentence.replace(/\.$/, ''))
+    const isApproved = (instruction: Instruction) =>
+        templates.includes(instruction.text) ||
+        approved.some(sentence => sentence.text === instruction.text && sentence.from.length === new Set(instruction.from).size && sentence.from.every(path => instruction.from.includes(path)))
     return {
         status: 'DRAFT_NOT_SERVED',
         instructions: rendered.instructions.map(instruction => ({

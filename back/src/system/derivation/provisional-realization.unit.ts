@@ -225,7 +225,9 @@ test('the realization moves exactly what its items establish — the role lines 
         'c:provisional:A01-R1:A01-R1-B4-1::B6|derived|RESOLVED:ENTAILED||"P3"',
         'c:provisional:A01-R1:A01-R1-B4-2::B6|derived|RESOLVED:ENTAILED||"P2"',
         'c:provisional:A01-R1:A01-R1-B4-1::B7|derived|RESOLVED:ENTAILED||1',
-        'c:provisional:A01-R1:A01-R1-B4-2::B7|derived|RESOLVED:ENTAILED||1',
+        // Re-pointed 17 October 2026 (stage M4): the outfield reassignment's count is relative (register B7 version 2, his reply filed
+        // 19 October 2026, item 3 F), derived as written and resolved at assembly from each block's own teams (allocation.unit.ts).
+        'c:provisional:A01-R1:A01-R1-B4-2::B7|derived|RESOLVED:ENTAILED||{"keepsCountOf":"BUILDING"}',
         // 17 October 2026 (stage M1): the roles' credit bounds (row B8, register version 14), his reply filed 19 October 2026, item 1
         // and item 3 C - the building role's confined to the build-out episode, the pressing role's stated as the whole game.
         'c:provisional:A01-R1:A01-R1-B1-1::B8|derived|RESOLVED:ENTAILED||"BUILD_OUT_EPISODE"',
@@ -388,6 +390,48 @@ test('A01 with the From Goal Kicks practice situation is refused at knowledge wi
     // gets past knowledge (its next stop is pinned in target-placement.unit.ts).
     const plain: any = buildActivity({ kind: 'learning-goal', goalId: 'A01', session } as any)
     assert.notEqual(plain.stage, 'knowledge', JSON.stringify(plain.reasons))
+})
+
+/**
+ * **His six confirmations, recorded in his letters — stage M4, 17 October 2026 (design step L11).** His reply filed 19 October 2026,
+ * item 3 A-F ("These are approved for the current activity configuration."), answering the six readings our 18 October email put to
+ * him. Each item that carried one now quotes his letter in its words and cites it, so the review page's provisional list shows it; no
+ * fitNote still calls its reading one awaiting his confirmation, and no value uses his "using the approved M3 capability" as our gloss.
+ */
+test('(M4, L11) confirmations A-F: his letters on the items they answer, shown in the provisional list; no reading left awaiting him', () => {
+    const items = new Map(provisionalRealizationNamed('A01-R1')!.items.map(item => [item.itemId, item as any]))
+    const CONFIRMED: [string, string, string][] = [
+        ['A01-R1-T4-3', 'item 3 A', 'Yes. The coach determines both, with the understanding that ordinary restarts should preserve meaningful game relationships rather than create an automatic scoring shortcut.'],
+        ['A01-R1-T5-3', 'item 3 A', 'Yes. The coach determines both, with the understanding that ordinary restarts should preserve meaningful game relationships rather than create an automatic scoring shortcut.'],
+        ['A01-R1-T3-3', 'item 3 B', 'Yes. Any player from the team awarded the end-line restart may take it, consistent with that safeguard.'],
+        ['A01-R1-T7-3', 'item 3 C', 'Yes. The build-out scoring episode ends. Ordinary play may continue following the restart, but build-out scoring eligibility does not return until a new deliberate goalkeeper restart.'],
+        ['A01-R1-P8-1', 'item 3 D', 'Yes. It includes the goalkeeper and outfield players.'],
+        ['A01-R1-S6-1', 'item 3 E', 'Yes. It extends across the full width of the playing area.'],
+        ['A01-R1-B7-2', 'item 3 F', 'With 5 outfield players plus a goalkeeper against 5 outfield players, only the goalkeeper changes teams at a role exchange. No additional outfield player transfer is required.'],
+    ]
+    for (const [id, item, words] of CONFIRMED) {
+        const entry = items.get(id)!
+        assert.ok(String(entry.words).endsWith(words), `${id}: his ${item} words close its words`)
+        assert.ok(String(entry.citedAs).endsWith(`his reply filed 19 October 2026, ${item}`), `${id}: ${entry.citedAs}`)
+        assert.ok(String(entry.basisEvidence).includes(words), `${id}: and its basis quotes them`)
+    }
+    for (const item of items.values()) {
+        assert.ok(!String(item.fitNote ?? '').startsWith('OUR READING, for his one-line confirmation'), `${item.itemId} still awaits him`)
+        assert.ok(!JSON.stringify(item.value).includes('M3 capability'), `${item.itemId}: his phrase is not our gloss`)
+    }
+    // The review page's provisional list reads exactly these words and citations.
+    const lists = authorizationLists(learningGoalAuthorizations().find(r => r.learningGoalId === 'A01')!, provisionalRealizationNamed('A01-R1')!)
+    for (const [id, , words] of CONFIRMED) {
+        const shown = lists.provisionalChoices.find(entry => entry.sources.includes(`provisional:A01-R1::${id}`))!
+        assert.ok(String(shown.words).endsWith(words) && String(shown.citedAs).includes('19 October 2026'), id)
+    }
+    // His 3 A understanding bounds the coach's end-line choice in the realization choices, in our gerund form (DRAFT, labelled there).
+    const choices = JSON.parse(fs.readFileSync(path.join(AUDITS_DIR, 'realization-choices-a01-r1.json'), 'utf8')).choices
+    for (const line of ['T1-6::T4', 'T1-6::T5', 'T1-7::T4', 'T1-7::T5']) {
+        const choice = choices.find((c: any) => c.lineId === `c:provisional:A01-R1:A01-R1-${line}`)
+        assert.equal(choice.value.coachDecides, 'preserving meaningful game relationships rather than creating an automatic scoring shortcut', line)
+        assert.ok(choice.because.includes('CONFIRMED in his reply filed 19 October 2026, item 3 A') && choice.because.includes('OUR gerund form'), line)
+    }
 })
 
 console.log(`provisional-realization.unit.ts — ${passed} passed`)

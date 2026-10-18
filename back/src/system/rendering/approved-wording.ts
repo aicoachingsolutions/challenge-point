@@ -111,9 +111,73 @@ export function partitionWording(entries: unknown[]): { approved: ApprovedWordin
     return { approved, unapproved }
 }
 
+/**
+ * **A sentence he approved for a template the renderer already says** — stage M4, 17 October 2026 (design step L10). His reply filed
+ * 19 October 2026, item 4: *"I approve both of your proposed revisions:"* … *"Use: "When possession changes, play carries on without a
+ * stoppage, and each team keeps attacking the same zone.""* An entry (above) holds wording for a field the renderer may NOT say on its
+ * own; this sentence translates fields it already says (a transition's play state, the objectives' teams, the targets' noun), so making
+ * them withheld would refuse every game that holds them. So it is a template: its parts are the renderer's words, `{slot}`s are filled
+ * from the game and cited, and it is usable only where (a) it carries his approval as an entry does, (b) his sentence appears verbatim
+ * in the quote, and (c) its parts, filled with the example values, reproduce his sentence exactly (a final full stop aside — a
+ * coach-facing instruction carries none). So the record cannot drift from his words, and a renderer saying the template is saying them.
+ * Filled with any other value (the demonstrations' "line") the sentence is a generalization of his words: DRAFT.
+ */
+export interface ApprovedTemplateSentence {
+    id: string
+    /** What it says and where the renderer says it (documentation). */
+    renders: string
+    /** The parts the renderer joins, in order; `{slot}` names a slot. */
+    parts: string[]
+    /** The slot values that reproduce his sentence. */
+    example: Record<string, string>
+    /** His sentence, verbatim. */
+    sentence: string
+    approvedBy: { who: string; date: string; quote: string; ccs: string }
+}
+
+/** The template's parts joined, each `{slot}` filled from `values`; null where a slot has no value. */
+export function fillTemplate(parts: string[], values: Record<string, string>): string | null {
+    let missing = false
+    const text = parts.join('').replace(/\{(\w+)\}/g, (_, slot: string) => {
+        if (typeof values[slot] !== 'string') missing = true
+        return String(values[slot])
+    })
+    return missing ? null : text
+}
+
+/** Why a template sentence cannot be used, or null where it can. */
+export function templateUnusableBecause(entry: any): string | null {
+    if (!entry || typeof entry !== 'object') return 'not an object'
+    if (!filled(entry.id)) return 'it has no id'
+    const approval = entry.approvedBy
+    if (!approval || !filled(approval.who)) return 'it does not say who approved it'
+    if (!isDate(approval.date)) return 'it carries no approval date'
+    if (!filled(approval.quote)) return 'it carries no verbatim approval'
+    if (!filled(approval.ccs)) return 'it does not name the standard it was reviewed under'
+    if (!filled(entry.sentence)) return 'it has no sentence'
+    if (!approval.quote.includes(entry.sentence)) return 'his sentence is not in the quote of his approval'
+    if (!Array.isArray(entry.parts) || !entry.parts.length || !entry.parts.every(filled)) return 'it has no parts'
+    if (!entry.example || typeof entry.example !== 'object') return 'it gives no example values'
+    const reproduced = fillTemplate(entry.parts, entry.example)
+    if (reproduced === null) return 'a slot of its parts has no example value'
+    if (reproduced !== entry.sentence.replace(/\.$/, '')) return `its parts with the example values read "${reproduced}", not his sentence`
+    return null
+}
+
 export const APPROVED_WORDING_FILE = path.join(AUDITS_DIR, 'approved-coach-wording.json')
 
-const TABLE = partitionWording(JSON.parse(fs.readFileSync(APPROVED_WORDING_FILE, 'utf8').replace(/^﻿/, '')).entries ?? [])
+const FILE = JSON.parse(fs.readFileSync(APPROVED_WORDING_FILE, 'utf8').replace(/^﻿/, ''))
+const TABLE = partitionWording(FILE.entries ?? [])
+const TEMPLATES = (FILE.approvedTemplateSentences ?? []).map((entry: any) => ({ entry, why: templateUnusableBecause(entry) }))
+
+/** The template sentences that may be used, as copies (stage M4). */
+export const approvedTemplateSentences = (): ApprovedTemplateSentence[] => TEMPLATES.filter((t: any) => !t.why).map((t: any) => JSON.parse(JSON.stringify(t.entry)))
+
+/** The template sentences in the file that may NOT be used — each one a data defect the test reports (stage M4). */
+export const unapprovedTemplateSentences = (): { id: string; why: string }[] => TEMPLATES.filter((t: any) => t.why).map((t: any) => ({ id: String(t.entry?.id ?? '(no id)'), why: String(t.why) }))
+
+/** The id the renderer reads his possession sentence by (stage M4): a name for the template, never words. */
+export const POSSESSION_CONTINUES = 'POSSESSION_CONTINUES'
 
 /** The approved entries, as copies. */
 export const approvedWording = (): ApprovedWording[] => TABLE.approved.map(entry => JSON.parse(JSON.stringify(entry)))

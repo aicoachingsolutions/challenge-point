@@ -106,6 +106,15 @@ export interface RecordGapDefinition {
     kind: 'DECISION' | 'CAPABILITY'
     description: string
     note: string | null
+    /**
+     * **His words settling it, where he has** — stage M4, 17 October 2026 (design step L11). His reply filed 17 October 2026 asked for
+     * *"Provenance distinguishing approved knowledge, provisional realization choices, and any remaining gaps."*, and by 19 October every
+     * decision and capability the record named had been ruled on; the review page listed them all as "still needed" because nothing
+     * marked one settled, and no entry waiting on it (`neededBy` empty) cannot say so — a gap can wait on the context's own lines rather
+     * than on an entry. So a gap is settled only by his cited words, never by an empty `neededBy`; the validator refuses settled words
+     * on a gap an entry still waits on, and the page splits the list into still needed and settled.
+     */
+    settledBy?: { words: string; citedAs: string }[]
 }
 
 /** Something existing knowledge already authorizes for the activity, with the sources that carry it. */
@@ -434,6 +443,15 @@ export function validateLearningGoalAuthorizations(
             }
             if (defined.has(gap.id)) errors.push(`${goal}: the gap ${gap.id} is defined twice`)
             defined.add(gap.id)
+            // Stage M4: settled only by his cited words, and never while an entry of the record still waits on it.
+            if (gap.settledBy !== undefined) {
+                if (!Array.isArray(gap.settledBy) || !gap.settledBy.length || !gap.settledBy.every(w => filled(w?.words) && filled(w?.citedAs))) errors.push(`${goal}: the gap ${gap.id} is settled by no cited words of his`)
+                const waiting = [
+                    ...(entry.manipulations ?? []).filter(m => isGapStatus(m.status) && Array.isArray(m.gaps) && m.gaps.includes(gap.id)).map(m => m.phrase),
+                    ...(entry.provisionalChoices ?? []).filter(c => isGapStatus(c.status) && Array.isArray(c.gaps) && c.gaps.includes(gap.id)).map(c => c.choice),
+                ]
+                if (waiting.length) errors.push(`${goal}: the gap ${gap.id} is marked settled, and ${waiting.join('; ')} still waits on it`)
+            }
         }
         for (const [i, known] of (entry.existingKnowledge ?? []).entries()) {
             if (known.category !== 'EXISTING_KNOWLEDGE_TO_VERIFY') errors.push(`${goal}: existing knowledge ${i + 1} is not labelled EXISTING_KNOWLEDGE_TO_VERIFY`)

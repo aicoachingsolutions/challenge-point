@@ -165,6 +165,68 @@ export function loadSportProfile(): LoadedContract[] {
 }
 
 /**
+ * **The sport's coach vocabulary: its words for what a game already holds, never structure** — stage M4, 17 October 2026 (design
+ * step L10). His reply filed 19 October 2026, item 4: *"I approve both of your proposed revisions:"* and his words on the first, a
+ * restart method's noun (quoted in the file, which the coupling ratchet keeps out of this sport-neutral module). Found by pattern
+ * beside the Sport Profile and tied to it by `sportId`, exactly as the profile is found (no sport named here); none is allowed (a
+ * sport with no vocabulary yet says every method by its sport-neutral phrase), two are a choice of sport and refused. Every entry
+ * must carry his approval (`approvedBy`, his words cited) and name the trigger and method it is the noun for, once; ANY defect
+ * refuses the whole file, because a noun that slipped in unapproved would be said to every coach of the sport.
+ */
+export interface SportRestartMethodNoun {
+    trigger: string
+    method: string
+    article: string
+    noun: string
+    approvedBy: { words: string; citedAs: string }[]
+}
+
+export interface SportCoachVocabulary {
+    sportId: string
+    file: string
+    restartMethodNouns: SportRestartMethodNoun[]
+}
+
+/** Everything wrong with a sport's coach vocabulary, as sentences; empty means it may be loaded. `sportId` is the profile's. */
+export function validateSportCoachVocabulary(raw: any, sportId: string | null): string[] {
+    const errors: string[] = []
+    const text = (value: unknown): boolean => typeof value === 'string' && value.trim().length > 0
+    if (!raw || typeof raw !== 'object') return ['the vocabulary is not an object']
+    if (raw.kind !== 'SPORT_COACH_VOCABULARY') errors.push(`its kind is ${JSON.stringify(raw.kind)}, not SPORT_COACH_VOCABULARY`)
+    if (!text(raw.sportId) || raw.sportId !== sportId) errors.push(`it is for ${JSON.stringify(raw.sportId)}, and the Sport Profile is ${JSON.stringify(sportId)}`)
+    const entries = raw.restartMethodNouns?.entries
+    if (!Array.isArray(entries)) return [...errors, 'it holds no restartMethodNouns.entries list']
+    const seen = new Set<string>()
+    for (const [i, entry] of entries.entries()) {
+        const which = `restart method noun ${i + 1}`
+        if (!text(entry?.trigger) || !text(entry?.method)) errors.push(`${which} names no trigger and method`)
+        if (!text(entry?.noun) || !text(entry?.article)) errors.push(`${which} has no noun or article`)
+        const approval = entry?.approvedBy
+        if (!Array.isArray(approval) || !approval.length || !approval.every((w: any) => text(w?.words) && text(w?.citedAs))) errors.push(`${which} carries no approval in his cited words`)
+        const key = `${entry?.trigger}|${entry?.method}`
+        if (seen.has(key)) errors.push(`${which} repeats the trigger and method ${key}`)
+        seen.add(key)
+    }
+    return errors
+}
+
+export function loadSportCoachVocabulary(): SportCoachVocabulary | null {
+    const dir = path.join(CONFORMANCE_DIR, 'stage-b')
+    const found = fs
+        .readdirSync(dir)
+        .filter(name => /^sport-coach-vocabulary-.+\.json$/.test(name))
+        .sort()
+    if (!found.length) return null
+    if (found.length > 1) throw new Error(`${found.length} sport coach vocabularies in ${dir} (${found.join(', ')}): which sport's words a coach reads is a decision, not a sort order`)
+    const file = `stage-b/${found[0]}`
+    const raw = readJson(file)
+    const sportId = sportProfileFiles().map(name => readJson(name).sportId).find(id => typeof id === 'string') ?? null
+    const errors = validateSportCoachVocabulary(raw, sportId)
+    if (errors.length) throw new Error(`${file} is refused: ${errors.join('; ')}`)
+    return { sportId: String(raw.sportId), file, restartMethodNouns: JSON.parse(JSON.stringify(raw.restartMethodNouns.entries)) }
+}
+
+/**
  * **Provisional realizations — his provisional choices for one goal's activity, built like knowledge and never mistaken
  * for it.** Added 15 October 2026 (stage K2).
  *

@@ -8,5 +8,34 @@
         "section": "Set up | Players | How it works | How to score | What to watch",
         "approvedBy": "{ who, date, quote, ccs }"
     },
-    "entries": []
+    "entries": [],
+    "templateShape": {
+        "note": "Added 17 October 2026 (stage M4) for his reply filed 19 October 2026, item 4. A sentence he approved for a template the renderer already says - fields it may say on its own, so not an entry above (which holds wording only for fields said in approved words). Read by approved-wording.ts approvedTemplateSentences(): usable only where it carries approvedBy as an entry does, his sentence is verbatim inside the quote, and its parts filled with the example values reproduce his sentence exactly (a final full stop aside). Filled with any other value it is a generalization of his words, DRAFT.",
+        "id": "the name the renderer reads it by (render-concrete-game.ts); never words",
+        "renders": "what it says and where the renderer says it",
+        "parts": "the renderer's parts, in order; {slot} names a slot filled from a cited game value",
+        "example": "{ slot: value } reproducing his sentence",
+        "sentence": "his sentence, verbatim",
+        "approvedBy": "{ who, date, quote, ccs }"
+    },
+    "approvedTemplateSentences": [
+        {
+            "id": "POSSESSION_CONTINUES",
+            "renders": "A game whose transition keyed on a change of possession continues play, with one objective per team: the first part cites each such transition's play state and selector, the second the objectives' team and the targets' noun (render-concrete-game.ts, 'How it works'). The second part is said only where the two objectives name different teams; targetNoun is the referenced regions' one noun, and 'line' where they name no other.",
+            "parts": [
+                "When possession changes, play carries on without a stoppage",
+                ", and each team keeps attacking the same {targetNoun}"
+            ],
+            "example": {
+                "targetNoun": "zone"
+            },
+            "sentence": "When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone.",
+            "approvedBy": {
+                "who": "Christian",
+                "date": "2026-10-19",
+                "quote": "I approve both of your proposed revisions: … Use: \"When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone.\" For the second sentence, please ensure the surrounding scoring instructions make clear that continuing to attack does not automatically restore the building team's eligibility to score.",
+                "ccs": "Coach Communication Standard RC2: our draft, section 4 of our email of 18 October 2026, which put every sentence to him as a draft"
+            }
+        }
+    ]
 }

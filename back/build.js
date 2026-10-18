@@ -40,6 +40,10 @@ async function preBuildOperations() {
         const sportProfiles = (await fs.readdir(path.join(auditsPath, stageB))).filter(
             (name) => name.startsWith('sport-profile-') && name.endsWith('.json')
         )
+        // The sport's coach vocabulary (stage M4, 17 October 2026) is found by pattern beside its profile, at module load.
+        const sportVocabularies = (await fs.readdir(path.join(auditsPath, stageB))).filter(
+            (name) => name.startsWith('sport-coach-vocabulary-') && name.endsWith('.json')
+        )
         // The realization choices are found through an index that says which file belongs to which
         // knowledge object, so the files to copy are read FROM it: an entry added there travels with the
         // bundle without this list having to be remembered as well.
@@ -56,6 +60,7 @@ async function preBuildOperations() {
             `${stageB}/contracts.json`,
             `${stageB}/corpus-restatements.json`,
             ...sportProfiles.map((name) => `${stageB}/${name}`),
+            ...sportVocabularies.map((name) => `${stageB}/${name}`),
             choicesIndex,
             // Step 4 component 3 (14 October 2026): the coach wording he has approved, read at runtime by the renderer.
             'approved-coach-wording.json',

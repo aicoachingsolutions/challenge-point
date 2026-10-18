@@ -36,6 +36,7 @@ import type { AuthorizationLists, CitedWords, ContextManipulationRelationship, L
 import { learningGoalSelectionHolds } from '../test-library/learning-design-holds'
 import { testLibraryRegistry } from '../test-library/library/registry'
 import { FidelityFinding, OBLIGATIONS } from './fidelity'
+import { approvedTemplateSentences } from './approved-wording'
 import { approvedSentences, Instruction, RenderedActivity, UNBOUNDED_CREDIT } from './render-concrete-game'
 import type { RoleBlockCheck } from './role-blocks'
 import type { ActivitySession } from './session-envelope'
@@ -125,7 +126,7 @@ export interface ReviewEvidence {
     limitations: LimitationEvidence[]
     evaluation: { his: { words: string; citedAs: string }; points: { id: string; words: string; sections: string[] }[]; judgement: string }
     requests: { words: string; citedAs: string; sections: string[] }[]
-    provenance: { elements: ElementProvenance[]; untraced: string[]; lists: { at: string; authorizedByExistingKnowledge: number; provisionalChoices: number; gaps: number; gapsStillNeeded: string[] } | null; openForReview: Fact[] }
+    provenance: { elements: ElementProvenance[]; untraced: string[]; lists: { at: string; authorizedByExistingKnowledge: number; provisionalChoices: number; gaps: number; gapsStillNeeded: string[]; gapsSettled: string[] } | null; openForReview: Fact[] }
     rationale: { features: RationaleEntry[]; his: { words: string[]; citedAs: string }; judgement: string }
 }
 
@@ -688,6 +689,9 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
 
     /* Instructions, with their provenance and the prescription rule's findings on them. */
     const approved = blocks.flatMap(block => approvedSentences(block.fixture?.game ?? {}))
+    // Stage M4: a sentence that IS one of his approved template sentences, word for word (an instruction carries no final full stop),
+    // is approved wording too; the same template filled with any other value is a generalization of his words, DRAFT.
+    const approvedTemplates = approvedTemplateSentences().map(template => template.sentence.replace(/\.$/, ''))
     const allFindings = [...blocks.flatMap(block => block.findings), ...input.compositionFindings]
     const instructions: InstructionEvidence[] = composed.instructions.map((instruction: Instruction, i) => {
         const owners = instruction.block ? blocks.filter(block => block.blockId === instruction.block) : blocks
@@ -697,7 +701,7 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
             section: instruction.section,
             block: instruction.block ?? null,
             text: instruction.text,
-            wording: approved.some(sentence => sentence.text === instruction.text) ? 'APPROVED' : 'DRAFT',
+            wording: approved.some(sentence => sentence.text === instruction.text) || approvedTemplates.includes(instruction.text) ? 'APPROVED' : 'DRAFT',
             obligationWords: OBLIGATIONS.filter(word => word.test(instruction.text)).map(word => String(word)),
             q4: allFindings.filter(f => f.question === 4 && f.what.includes(instruction.text)).map(f => `${f.severity}: ${f.what}`),
             layers: layersOf(sources),
@@ -1170,7 +1174,15 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
             untraced,
             // The record's three lists are on the same answer (`account.authorizationLists`); named here, not copied a second time.
             lists: input.lists
-                ? { at: 'account.authorizationLists', authorizedByExistingKnowledge: input.lists.authorizedByExistingKnowledge.length, provisionalChoices: input.lists.provisionalChoices.length, gaps: input.lists.gaps.length, gapsStillNeeded: input.lists.gaps.filter(g => g.neededBy.length).map(g => g.id) }
+                ? {
+                      at: 'account.authorizationLists',
+                      authorizedByExistingKnowledge: input.lists.authorizedByExistingKnowledge.length,
+                      provisionalChoices: input.lists.provisionalChoices.length,
+                      gaps: input.lists.gaps.length,
+                      // Stage M4: still needed unless his words settle it (`settledBy`), and always while an entry waits on it.
+                      gapsStillNeeded: input.lists.gaps.filter(g => g.neededBy.length || !(g.settledBy ?? []).length).map(g => g.id),
+                      gapsSettled: input.lists.gaps.filter(g => !g.neededBy.length && (g.settledBy ?? []).length).map(g => g.id),
+                  }
                 : null,
             openForReview: [
                 { what: 'fields awaiting his approved wording', value: [...new Set(withheld)] },

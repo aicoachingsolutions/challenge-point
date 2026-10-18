@@ -49,7 +49,7 @@ import { nonClaimState } from '../derivation/classify'
 import { effectiveValue } from '../derivation/rational'
 import { NO_FURTHER_VALUE } from '../derivation/types'
 import { CONDITION_ROW, conditionScopeNotEvaluable } from '../derivation/resolved-game'
-import { approvedWording, ApprovedWording, canonicalJson, WordingMatch } from './approved-wording'
+import { ApprovedTemplateSentence, approvedTemplateSentences, approvedWording, ApprovedWording, canonicalJson, fillTemplate, POSSESSION_CONTINUES, WordingMatch } from './approved-wording'
 import { exclusionFor } from './coach-facing-exclusions'
 
 /**
@@ -783,7 +783,7 @@ export function approvedSentences(game: any, wording: ApprovedWording[] = approv
     return said
 }
 
-export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] = approvedWording()): RenderedActivity {
+export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] = approvedWording(), templates: ApprovedTemplateSentence[] = approvedTemplateSentences()): RenderedActivity {
     const instructions: Instruction[] = []
     const observations: string[] = []
     const withheld: WithheldField[] = []
@@ -1256,7 +1256,49 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
     if (Number.isFinite(players)) {
         roster.push(part(recorded('envelope.players', 'SESSION'), teams.length ? `Divide ${players} players` : `${players} players in total`, ['envelope.players'], [{ quantity: players, path: 'envelope.players' }]))
     }
+    /**
+     * **More of a specialized role than the teams involve: counted, never given an outfield role — stage M4, 17 October 2026 (design
+     * step L11, DRAFT).** His reply filed 19 October 2026, item 5: *"The second-[specialized role] case and optional rotation can remain
+     * visible as limitations for now. I don't want to prescribe an outfield role for a [specialized role] universally."* (his role noun
+     * bracketed, as the coupling ratchet keeps a sport's nouns out of this layer). In a game played by role, where the teams involve
+     * some of a role and the session has more, the roster says what each team holds, counting everyone else as "other players"
+     * ("Divide 12 players into 2 teams: the building team has 1 <role> and 6 other players; the pressing team has 5 other players").
+     * Was (stage K4, DRAFT): "...; the other <role> plays as an outfield player". The design put the session's count in the sentence
+     * too ("12 players, 2 of them <role>s"); measured, fidelity refuses that number, which the game does not hold, so it is not said. The counting rule beneath is unchanged (assemble-concrete-game.ts rosterFor counts a performer available and
+     * not involved in the outfield places, his 30 September "availability is not involvement"); which team that player joins, and
+     * whether the role rotates, are not carried, and the review page shows them as a limitation. The universal sentence for a game
+     * that involves none of the role is not this branch and is unchanged.
+     */
+    const countedOnly: { role: string; available: number }[] = []
     if (teams.length && byRole) {
+        for (const [role, available] of Object.entries(fixture.envelope?.roles ?? {}).map(([r, c]) => [r, Number(c)] as const)) {
+            const held = teams.map((t: any) => t[role])
+            if (!held.every((n: unknown) => Number.isInteger(n) && Number(n) >= 0)) continue
+            const used = held.reduce((sum: number, n: unknown) => sum + Number(n), 0)
+            if (used > 0 && available > used) countedOnly.push({ role, available })
+        }
+    }
+    if (teams.length && byRole && countedOnly.length) {
+        // The session's count of the role is not said: the game holds only each team's (measured 17 October 2026, stage M4 - a
+        // binding of the session's 2 to `envelope.roles` is refused by fidelity Q2, the game holding no such number). "Other
+        // players" counts everyone else, the unused performers of the role among them, and names no part they play.
+        roster.push(part('INSTANTIATED', roster.length ? ` into ${teams.length} teams` : `${teams.length} teams`, ['performers.teams'], [{ quantity: teams.length, path: 'performers.teams' }]))
+        const ordered = [...teams].sort((a, b) => roleOrder.indexOf(roleOfTeam(a)!) - roleOrder.indexOf(roleOfTeam(b)!))
+        ordered.forEach((team, i) => {
+            const outfield = Number(team.outfieldCount)
+            const lead = `${i === 0 ? ': ' : '; '}the ${teamNouns[roleOfTeam(team)!]} has `
+            const roles = specializedHeld.filter(role => Number(team[role]) > 0)
+            roles.forEach((role, j) => {
+                const held = Number(team[role])
+                roster.push(part('DERIVED', `${j === 0 ? lead : ', '}${held} ${role}${held === 1 ? '' : 's'}`, ['envelope.roles', `performers.teams[].${role}`], [{ quantity: held, path: `performers.teams[].${role}` }]))
+            })
+            roster.push(
+                part('DERIVED', `${roles.length ? ' and ' : lead}${outfield} other player${outfield === 1 ? '' : 's'}`, ['performers.teams[].outfieldCount'], [
+                    { quantity: outfield, path: 'performers.teams[].outfieldCount' },
+                ]),
+            )
+        })
+    } else if (teams.length && byRole) {
         /**
          * **Each team's counts, by the role it holds** (stage K4, DRAFT): "Divide 12 players into 2 teams: the building team has
          * 6 outfield players and 1 <role>; the pressing team has 5 outfield players". Each count is cited by its PROPERTY
@@ -1344,7 +1386,10 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
                  */
                 const used = held.reduce((sum: number, n: unknown) => sum + Number(n), 0)
                 const spare = available - used
-                if (spare > 0) rolesUnused.push(part('DERIVED', used > 0 ? `; the other ${role}${spare === 1 ? ' plays as an outfield player' : 's play as outfield players'}` : `; ${role}s play as outfield players in this activity`, ['envelope.roles', property]))
+                // Stage M4: said by count in the roster sentence above, never as an outfield role (his reply filed 19 October 2026, item 5).
+                if (countedOnly.some(entry => entry.role === role)) continue
+                // Reached only where the teams involve none of the role (some involved and more available is said by count above).
+                if (spare > 0) rolesUnused.push(part('DERIVED', `; ${role}s play as outfield players in this activity`, ['envelope.roles', property]))
                 else if (used === 0 && available === 0) rolesNone.push({ role, from: ['envelope.roles', property] })
                 continue
             }
@@ -1682,16 +1727,38 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
             'transitions',
             ...targetNounPaths,
         ])
-    if (continuingOnPossessionChange.length) {
+    /**
+     * **His possession sentence, read from the record — stage M4, 17 October 2026 (design step L10).** His reply filed 19 October 2026,
+     * item 4: *"I approve both of your proposed revisions:"* … *"Use: "When possession changes, play carries on without a stoppage, and
+     * each team keeps attacking the same zone.""* The words are the approved template sentence's parts (`approved-coach-wording.json`,
+     * read by `approved-wording.ts`, which refuses a template whose parts do not reproduce his sentence), never written here: the first
+     * part cites each continuing transition's play state and selector, as the DRAFT it replaces did; the second, said where the
+     * objectives name different teams, cites the objectives' team and the targets' noun, filled from the game (`zone` reproduces his
+     * sentence; `line`, in the demonstrations, is a generalization of his words, DRAFT). Without the template the sentence is not said,
+     * so fidelity finds the play state uncarried and refuses, rather than this renderer saying it in words nobody approved. Was
+     * (DRAFT): "When possession changes, play carries on with no stoppage, and the team that wins possession attacks the same {noun} it
+     * was already attacking". A game with no continuing transition reads exactly as before (the How to score sentence below).
+     */
+    const possessionTemplate = templates.find(template => template.id === POSSESSION_CONTINUES && template.parts.length === 2)
+    if (continuingOnPossessionChange.length && possessionTemplate) {
+        const [playsOn, keepsAttacking] = possessionTemplate.parts
+        const keeps = fillTemplate([keepsAttacking], { targetNoun: targetNoun ?? 'line' })
         instructions.push(
             joined('How it works', [
                 part(
                     statusAt(continuingOnPossessionChange.map(transition => `transitions[${transition.elementId}].playState`), 'DERIVED'),
-                    'When possession changes, play carries on with no stoppage',
+                    playsOn,
                     continuingOnPossessionChange.flatMap(transition => [`transitions[${transition.elementId}].playState`, `transitions[${transition.elementId}].selector`]),
                 ),
-                ...(directional && game.value?.primaryEvent ? [sameLine(', and ')] : []),
+                ...(directional && game.value?.primaryEvent && keeps
+                    ? [part(statusAt([`objectives[${objectives[0].elementId}].team`], 'DERIVED'), keeps, [`objectives[${objectives[0].elementId}].team`, 'transitions', ...targetNounPaths])]
+                    : []),
             ]),
+        )
+    } else if (continuingOnPossessionChange.length) {
+        observations.push(
+            `The game continues play on a change of possession (${continuingOnPossessionChange.map(t => t.elementId).join(', ')}), and the approved ` +
+                `sentence for it (${POSSESSION_CONTINUES}) is not in the approved wording, so it is not said rather than said in unapproved words.`,
         )
     }
 
@@ -1829,6 +1896,14 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
         const fixedMethod = typeof method === 'string' && METHOD_PHRASE[method] ? METHOD_PHRASE[method](objectNoun!) : null
         const choiceOfPlace = coachDecides(region)
         const choiceOfMethod = coachDecides(method)
+        /**
+         * **The sport's approved noun for the method, where it has one — stage M4, 17 October 2026 (design step L10).** His reply filed
+         * 19 October 2026, item 4, approving our proposed revision of the touchline restart: the noun his 18 October item 2 named
+         * replaces the method's sport-neutral phrase. Read from the fixture (`methodNouns`, the sport's coach vocabulary, carried only
+         * for a trigger and method the game holds), so no sport word is written here; the method's path is cited as before. DRAFT
+         * sentence around his approved word. Every method without a noun is said exactly as before.
+         */
+        const methodNoun = ((fixture as any).methodNouns?.entries ?? []).find((entry: any) => entry?.trigger === triggerOf(first) && entry?.method === method && typeof entry?.noun === 'string' && typeof entry?.article === 'string')
         if (!where || (!dynamic && choiceOfPlace === null) || (!fixedMethod && choiceOfMethod === null)) continue
         const qualifiers = group.flatMap(t => Object.keys(t.qualifiers ?? {}).map(field => pathAt(t, `qualifiers.${field}`)))
         const firm = group.flatMap(t => [pathAt(t, 'awardedTo'), pathAt(t, 'placement.actor'), pathAt(t, 'playState'), ...(dynamic ? [pathAt(t, 'placement.region')] : []), ...(fixedMethod ? [pathAt(t, 'placement.method')] : [])])
@@ -1840,11 +1915,25 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
             ...(choiceOfMethod !== null ? [choiceOfMethod ? `how (${choiceOfMethod})` : 'how'] : []),
         ]
         const bare = !choiceOfPlace && !choiceOfMethod && !dynamic && !fixedMethod
+        /**
+         * **One bound for both choices is said once — stage M4, 17 October 2026 (design step L11, DRAFT).** His reply filed 19 October
+         * 2026, item 3 A: *"Yes. The coach determines both, with the understanding that ordinary restarts should preserve meaningful
+         * game relationships rather than create an automatic scoring shortcut."* Where the place and the method are both the coach's
+         * and their recorded bound is the same words, the sentence closes on the bare choice and then the bound, once ("restarts play
+         * where and how you choose, {bound}"), rather than repeating it in brackets after each. The bound's words are the realization
+         * choice's (our gerund form of his, DRAFT, labelled there). Every other combination is said exactly as before.
+         */
+        const oneBound = !dynamic && !fixedMethod && !!choiceOfPlace && choiceOfPlace === choiceOfMethod
+        const restarts = methodNoun && fixedMethod ? `, ${takerOf(first)} restarts play with ${methodNoun.article} ${methodNoun.noun}${dynamic ? ` ${dynamic}` : ''}` : `, ${takerOf(first)} restarts play${dynamic ? ` ${dynamic}` : ''}${fixedMethod ? `, ${fixedMethod}` : ''}`
         instructions.push(
             joined('How it works', [
                 part(partStatus(qualifiers), `If the ${objectNoun} goes out over ${where}`, [...group.map(t => pathAt(t, 'selector')), ...qualifiers, ...objectPath]),
-                part(partStatus(firm), `, ${takerOf(first)} restarts play${dynamic ? ` ${dynamic}` : ''}${fixedMethod ? `, ${fixedMethod}` : ''}`, firm),
-                ...(choices.length ? [part(partStatus(chosen), bare ? ` ${listed(choices)} you choose` : `; you choose ${listed(choices)}`, chosen)] : []),
+                part(partStatus(firm), restarts, firm),
+                ...(oneBound
+                    ? [part(partStatus(chosen), ` where and how you choose, ${choiceOfPlace}`, chosen)]
+                    : choices.length
+                      ? [part(partStatus(chosen), bare ? ` ${listed(choices)} you choose` : `; you choose ${listed(choices)}`, chosen)]
+                      : []),
             ]),
         )
     }

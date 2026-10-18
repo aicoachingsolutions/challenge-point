@@ -12,8 +12,20 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 
-import { approvedWording, ApprovedWording, canonicalJson, partitionWording, unapprovedWording } from './approved-wording'
+import {
+    approvedTemplateSentences,
+    approvedWording,
+    ApprovedWording,
+    canonicalJson,
+    fillTemplate,
+    partitionWording,
+    POSSESSION_CONTINUES,
+    templateUnusableBecause,
+    unapprovedTemplateSentences,
+    unapprovedWording,
+} from './approved-wording'
 import { buildActivityWithFixture } from './build-activity'
+import { checkFidelity } from './fidelity'
 import { renderConcreteGame } from './render-concrete-game'
 import { specializedRoleNames } from './session-envelope'
 
@@ -240,6 +252,56 @@ test('(M3, L8) an entry mixing located and unlocated covers, or a located entry 
     assert.deepEqual(approved, [])
     assert.deepEqual(unapproved.map(u => u.why), ['it mixes covers that name their element with covers that do not', 'a slot names no element, and its covers each name one', 'the cover on B8 names an element it cannot pick out (base, field and equals are required)'])
     // An unlocated entry is matched element by element exactly as before (the tests above, on the Golden Case copy).
+})
+
+/**
+ * **His approved template sentence — stage M4, 17 October 2026 (design step L10).** His reply filed 19 October 2026, item 4: "I approve
+ * both of your proposed revisions:" ... Use: "When possession changes, play carries on without a stoppage, and each team keeps
+ * attacking the same zone." A template, not an entry: it translates fields the renderer already says.
+ */
+const HIS_POSSESSION_SENTENCE = 'When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone.'
+
+test('(M4, L10) one approved template sentence, his words verbatim, reproduced exactly by its parts', () => {
+    assert.deepEqual(unapprovedTemplateSentences(), [], 'the loader ignores these, and the data must not hold them')
+    const templates = approvedTemplateSentences()
+    assert.deepEqual(templates.map(t => t.id), [POSSESSION_CONTINUES])
+    const [template] = templates
+    assert.equal(template.sentence, HIS_POSSESSION_SENTENCE)
+    assert.ok(template.approvedBy.quote.includes(HIS_POSSESSION_SENTENCE))
+    assert.equal(template.approvedBy.date, '2026-10-19')
+    // His letter, verbatim.
+    const letter = fs.readFileSync(path.resolve(__dirname, '../../../../docs/audits/approved-coach-wording.json'), 'utf8')
+    assert.ok(letter.includes('"approvedTemplateSentences"'))
+    assert.equal(fillTemplate(template.parts, template.example), HIS_POSSESSION_SENTENCE.replace(/\.$/, ''))
+})
+
+test('(M4, L10) a template without his approval, whose sentence is not in the quote, or whose parts do not reproduce it, is not used', () => {
+    const [good] = approvedTemplateSentences()
+    const bad = (over: Record<string, unknown>) => templateUnusableBecause({ ...JSON.parse(JSON.stringify(good)), ...over })
+    assert.equal(templateUnusableBecause(good), null)
+    assert.equal(bad({ approvedBy: { ...good.approvedBy, who: '' } }), 'it does not say who approved it')
+    assert.equal(bad({ approvedBy: { ...good.approvedBy, quote: 'something else he said' } }), 'his sentence is not in the quote of his approval')
+    assert.equal(bad({ parts: ['When possession changes, play carries on with no stoppage', good.parts[1]] }), `its parts with the example values read "When possession changes, play carries on with no stoppage, and each team keeps attacking the same zone", not his sentence`)
+    assert.equal(bad({ example: {} }), 'a slot of its parts has no example value')
+    assert.equal(bad({ parts: [] }), 'it has no parts')
+})
+
+test('(M4, L10) the renderer says the record: A01 reads his sentence verbatim, a TEST-ONLY template moves it, no template says nothing', () => {
+    const a01 = buildActivityWithFixture({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...Object.fromEntries(specializedRoleNames().map(r => [r, 0])), [specializedRoleNames()[0]]: 1 } } } as any)
+    const block = (a01.fixture as any).roleBlocks.blocks[0].fixture
+    const possession = (rendered: ReturnType<typeof renderConcreteGame>) => rendered.instructions.filter(i => i.text.startsWith('When possession changes')).map(i => i.text)
+    assert.deepEqual(possession(renderConcreteGame(block)), [HIS_POSSESSION_SENTENCE.replace(/\.$/, '')], 'his words, from the record')
+    const [template] = approvedTemplateSentences()
+    const moved = { ...template, parts: ['TEST-ONLY first part', ', TEST-ONLY second part about the {targetNoun}'] }
+    assert.deepEqual(possession(renderConcreteGame(block, approvedWording(), [moved])), [], 'the sentence follows the record, not code')
+    assert.ok(renderConcreteGame(block, approvedWording(), [moved]).instructions.some(i => i.text === 'TEST-ONLY first part, TEST-ONLY second part about the zone'))
+    const without = renderConcreteGame(block, approvedWording(), [])
+    assert.deepEqual(possession(without), [])
+    assert.ok(without.coachingObservations.some(o => o.includes(POSSESSION_CONTINUES) && o.includes('not said rather than said in unapproved words')))
+    // And fidelity then refuses: the continuing transition's play state is established and nothing carries it.
+    assert.ok(checkFidelity(block, without).findings.some(f => f.question === 3 && f.severity === 'VIOLATION' && /^transitions\[[^\]]+\]\.playState is established/.test(f.what)))
+    // A game with line targets reads the same template with its own noun: a generalization of his words, DRAFT.
+    assert.deepEqual(possession(renderConcreteGame(golden)), ['When possession changes, play carries on without a stoppage, and each team keeps attacking the same line'])
 })
 
 console.log(`approved-wording.unit.ts — ${passed} passed`)

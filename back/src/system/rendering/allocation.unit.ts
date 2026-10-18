@@ -24,6 +24,7 @@ import assert from 'node:assert/strict'
 
 import { loadCorpusContracts, loadProvisionalRealizations, loadRegister, provisionalRealizationNamed, readJson, validateProvisionalRealizations } from '../derivation/corpus'
 import { itemDeferralRefusal } from '../derivation/corpus-restatement'
+import { resolveRelativeCounts } from '../derivation/reassignment'
 import { applyRealizationDeferrals, namesParticularTeams } from '../derivation/realization-deferral'
 import { indexRegister } from '../derivation/register'
 import { DEFERS_TO_AUTHORIZED_REALIZATION, DEFERS_TO_ESTABLISHING_OBJECT, LoadedContract } from '../derivation/types'
@@ -162,7 +163,18 @@ test('the record: his allocation principle once, the relationship he confirmed, 
     assert.ok(adjustments.entries.every(e => e.category === 'PROVISIONAL_REALIZATION_CHOICE'))
     assert.deepEqual(adjustments.entries.map(e => e.relationship), [relationship.id, relationship.id, 'RPC-001~EM-0002', 'RPC-001~EM-0002'])
     // Our DRAFT coach wording only where his words are not themselves an action, and never in place of his words.
-    assert.deepEqual(adjustments.entries.map(e => e.coachWords ?? null), [null, null, 'move the marked line nearer to either end line', 'change where the teams start when the pressure you see is not creating an appropriate challenge'])
+    // Re-pointed 17 October 2026 (stage M4): his D6 two gain our DRAFT coachWords too, for his reply filed 19 October 2026, item 4 -
+    // "The coach-facing suggestions should not imply those changes can occur without accounting for every player." His words stay
+    // whole beside them (above). Adding a player uses his "reallocating someone or introducing an additional player"; removing one picks
+    // no option he did not choose (his words for it were only "a practical adjustment to the roster").
+    assert.deepEqual(adjustments.entries.map(e => e.coachWords ?? null), [
+        'add a pressing player, representing an opponent committing additional numbers forward; with every player already in a team, reallocate someone or introduce an additional player',
+        "remove a build-out player, deciding where that player goes so every player is still accounted for, reducing the building team's available support options",
+        'move the marked line nearer to either end line',
+        'change where the teams start when the pressure you see is not creating an appropriate challenge',
+    ])
+    // Neither picks a way of removing the player for him: no sitting out, no moving across.
+    for (const word of ['rest', 'sit', 'across', 'bench']) assert.ok(!adjustments.entries[1].coachWords!.split(/\W+/).includes(word), word)
 })
 
 test('the record gate refuses an uncited, mis-scoped or unconfirmed relationship and an adjustment naming none', () => {
@@ -190,7 +202,11 @@ test('the realization: his counts by role, one keeper for the building role, his
     assert.equal(byId.get('A01-R1-P3-1')!.selector, 'team=ROLE_HOLDER_BUILDING')
     for (const id of ['A01-R1-P2-1', 'A01-R1-P2-2']) assert.equal(byId.get(id)!.authorizedBy, 'RPC-001~EM-0006')
     assert.deepEqual(['A01-R1-B4-1', 'A01-R1-B4-2'].map(id => byId.get(id)!.selector), ['toRole=BUILDING AND performerRow=P3', 'toRole=BUILDING AND performerRow=P2'])
-    assert.deepEqual(['A01-R1-B7-1', 'A01-R1-B7-2'].map(id => byId.get(id)!.value), [1, 1])
+    // Re-pointed 17 October 2026 (stage M4): the outfield count is relative (register B7 version 2), his reply filed 19 October 2026,
+    // item 3 F, beside his 18 October item 1 - quoted on the item.
+    assert.deepEqual(['A01-R1-B7-1', 'A01-R1-B7-2'].map(id => byId.get(id)!.value), [1, { keepsCountOf: 'BUILDING' }])
+    assert.equal(byId.get('A01-R1-B7-2')!.citedAs, 'his reply filed 18 October 2026, item 1; his reply filed 19 October 2026, item 3 F')
+    assert.ok(String(byId.get('A01-R1-B7-2')!.basisEvidence).includes('only the goalkeeper changes teams at a role exchange. No additional outfield player transfer is required.'))
     for (const item of realization.items) {
         assert.equal(item.category, 'PROVISIONAL_REALIZATION_CHOICE')
         assert.equal(item.basis, 'OWNER_RULING')
@@ -270,19 +286,100 @@ test('the coach reads the counts by role, who changes team at the exchange, and 
     for (const block of twelveFixture.roleBlocks.blocks) assert.deepEqual(checkFidelity(block.fixture, renderConcreteGame(block.fixture)).findings.filter(f => f.severity === 'VIOLATION'), [])
 })
 
-test('12 players, two keepers: the same allocation, and the other keeper plays outfield (never idled)', () => {
+/**
+ * Re-pointed 17 October 2026 (stage M4, design step L11). His reply filed 19 October 2026, item 5: "The second-goalkeeper case and
+ * optional rotation can remain visible as limitations for now. I don't want to prescribe an outfield role for a goalkeeper
+ * universally." The sentence counts and names no part for the second keeper (DRAFT); was "...; the other goalkeeper plays as an
+ * outfield player". The allocation itself is unchanged (still never idled: counted among the other players).
+ */
+test('12 players, two keepers: the same allocation, the second keeper counted among the other players, no outfield role named', () => {
     const two = served(withRealization(12, 2).activity, '12 players, 2 goalkeepers')
-    assert.ok(two.rendered.instructions.some(i => i.text === 'Divide 12 players into 2 teams: the building team has 6 outfield players and 1 goalkeeper; the pressing team has 5 outfield players; the other goalkeeper plays as an outfield player'))
+    const players = two.rendered.instructions.filter(i => i.section === 'Players').map(i => i.text)
+    assert.deepEqual(players, ['Divide 12 players into 2 teams: the building team has 1 goalkeeper and 6 other players; the pressing team has 5 other players'])
+    assert.ok(!two.rendered.instructions.some(i => i.text.includes('plays as an outfield player') || i.text.includes('play as outfield players')))
+    assert.equal(two.integrity.fidelityViolations, 0)
+    // One keeper is said exactly as before.
+    assert.ok(twelveServed.rendered.instructions.some(i => i.text === 'Divide 12 players into 2 teams: the building team has 6 outfield players and 1 goalkeeper; the pressing team has 5 outfield players'))
 })
 
-test('11 players: 5 + keeper against 5 in each block, and refused at the membership check — his 1(a) was not decided for it', () => {
+/**
+ * Re-pointed 17 October 2026 (stage M4, design step L12). His reply filed 19 October 2026, item 3 F: "Yes. With 5 outfield players
+ * plus a goalkeeper against 5 outfield players, only the goalkeeper changes teams at a role exchange. No additional outfield player
+ * transfer is required." A01-R1-B7-2's count is relative (register B7 version 2, {keepsCountOf: BUILDING}), resolved at assembly from
+ * each block's own teams: 6 - 5 = 1 at 12 players, 5 - 5 = 0 at 11, where no outfield reassignment is established. Was: refused at
+ * the membership check, "Who changes team when the roles exchange has not been decided for 11 players".
+ */
+test('11 players: 5 + keeper against 5 in each block, only the keeper moves, every cross-block check passing', () => {
     const eleven = withRealization(11, 1)
-    const activity = refused(eleven.activity, '11 players')
-    assert.equal(activity.stage, 'validation')
-    assert.equal(activity.summary, 'Who changes team when the roles exchange has not been decided for 11 players, so this activity is not being shown.')
-    assert.ok(activity.reasons.every(r => r === 'the two role blocks do not agree as the exchange of each other' || r.startsWith('RB-M: ')))
+    const activity = served(eleven.activity, '11 players')
     const blocks: any[] = (eleven.fixture as any).roleBlocks.blocks
-    assert.deepEqual(teamsOf(blocks[0].fixture).map((t: any) => [t.outfield, t.keeper]), [[5, 1], [5, 0]])
+    assert.deepEqual(blocks.map(b => teamsOf(b.fixture).map((t: any) => [t.outfield, t.keeper])), [
+        [[5, 1], [5, 0]],
+        [[5, 0], [5, 1]],
+    ])
+    for (const block of blocks) {
+        assert.deepEqual(block.fixture.game.reassignments.map((r: any) => [r.elementId, r.performerRow, r.count]), [['c:provisional:A01-R1:A01-R1-B4-1', 'P3', 1]], 'no outfield reassignment is established')
+        assert.deepEqual(block.fixture.record.relativeCounts, { resolved: [], removed: ['c:provisional:A01-R1:A01-R1-B4-2'], problems: [] })
+        assert.ok(!block.fixture.status.derived.some((d: any) => String(d.path).includes('A01-R1-B4-2')), 'nothing owes the coach a sentence about it')
+    }
+    assert.deepEqual(activity.roleBlocks!.checks.map(c => [c.checkId, c.verdict]), ['RB-1', 'RB-2', 'RB-3', 'RB-4', 'RB-5', 'RB-6', 'RB-7', 'RB-8', 'RB-M'].map(id => [id, 'PASS']))
+    const exchange = activity.rendered.instructions.filter(i => i.section === ROLE_EXCHANGE).map(i => i.text)
+    assert.ok(exchange.includes('When you call the next block, 1 goalkeeper moves to the team that becomes the building team'), JSON.stringify(exchange))
+    assert.ok(activity.rendered.instructions.some(i => i.text === 'Divide 11 players into 2 teams: the building team has 5 outfield players and 1 goalkeeper; the pressing team has 5 outfield players'))
+    assert.equal(activity.integrity.fidelityViolations, 0)
+    // 12 players is unchanged: the relative count resolves to his one outfield player.
+    for (const block of twelveFixture.roleBlocks.blocks) {
+        assert.deepEqual(block.fixture.game.reassignments.map((r: any) => [r.performerRow, r.count]), [['P3', 1], ['P2', 1]])
+        assert.deepEqual(block.fixture.record.relativeCounts, { resolved: [{ elementId: 'c:provisional:A01-R1:A01-R1-B4-2', count: 1 }], removed: [], problems: [] })
+    }
+})
+
+test('the relative count is read from one block and the membership check still compares the other (TEST-ONLY copies)', () => {
+    // A second block whose composition was built differently still fails RB-M: the count states 0 at 11 players, and a copy of the
+    // second block that moves an outfield player across is a change no reassignment states. RB-M is not relaxed.
+    const eleven: any = withRealization(11, 1).fixture
+    const contracts = (() => {
+        const captured: LoadedContract[][] = []
+        buildActivityFromKnowledge(['GF2'], sessionOf(11, 1), { alter: c => void (c.push(provisionalRealizationNamed('A01-R1') as any), captured.push(c)) })
+        return captured[0]
+    })()
+    const built = () => eleven.roleBlocks.blocks.map((b: any) => ({ block: { blockId: b.blockId, holders: { ...b.holders } }, fixture: JSON.parse(JSON.stringify(b.fixture)), contracts: JSON.parse(JSON.stringify(contracts)) }))
+    const verdict = (from: any[]) => checkRoleBlocks(from, index, roles).find(c => c.checkId === 'RB-M')!
+    assert.equal(verdict(built()).verdict, 'PASS')
+    const moved = built()
+    moved[1].fixture.game.performers.teams[0].outfieldCount -= 1
+    moved[1].fixture.game.performers.teams[1].outfieldCount += 1
+    assert.equal(verdict(moved).verdict, 'FAIL', 'an outfield player moved where the relative count states none')
+    // A count that cannot resolve is named and refuses the game: a role outside the vocabulary.
+    const unknown = refused(withRealization(12, 1, r => r.items.forEach((i: any) => i.itemId === 'A01-R1-B7-2' && (i.value = { keepsCountOf: 'TEST-ONLY' }))).activity, 'TEST-ONLY unknown role')
+    assert.equal(unknown.stage, 'validation')
+    assert.ok(unknown.reasons.some(r => r.includes('cannot be resolved in this block') && r.includes('is not a role of the role vocabulary')), JSON.stringify(unknown.reasons))
+    // The resolver itself, on copies of one block's game: read from that block alone; a negative difference is refused (never moved the
+    // other way); at 0 the element goes; a game with no relative count is untouched.
+    const block = twelveFixture.roleBlocks.blocks[0]
+    const roleBlock = { blockId: block.blockId, holders: { ...block.holders } }
+    const bindings = block.fixture.record.designationBindings
+    const relativeCopy = (alter: (game: any) => void = () => undefined) => {
+        const game = JSON.parse(JSON.stringify(block.fixture.game))
+        game.reassignments.find((r: any) => r.performerRow === 'P2').count = { keepsCountOf: 'BUILDING' }
+        alter(game)
+        return game
+    }
+    const building = (game: any) => game.performers.teams.find((t: any) => t.goalkeeper === 1)
+    const pressing = (game: any) => game.performers.teams.find((t: any) => t.goalkeeper === 0)
+    const one = relativeCopy()
+    assert.deepEqual(resolveRelativeCounts(one, index, roleBlock, bindings), { resolved: [{ elementId: 'c:provisional:A01-R1:A01-R1-B4-2', count: 1 }], removed: [], problems: [] })
+    const even = relativeCopy(game => (building(game).outfieldCount = 5))
+    assert.deepEqual(resolveRelativeCounts(even, index, roleBlock, bindings).removed, ['c:provisional:A01-R1:A01-R1-B4-2'])
+    assert.deepEqual(even.reassignments.map((r: any) => r.performerRow), ['P3'])
+    const negative = relativeCopy(game => (pressing(game).outfieldCount = 7))
+    const refusedCount = resolveRelativeCounts(negative, index, roleBlock, bindings)
+    assert.ok(refusedCount.problems.some(p => p.includes('would move performers away from the BUILDING role')), JSON.stringify(refusedCount))
+    assert.deepEqual(negative.reassignments.find((r: any) => r.performerRow === 'P2').count, { keepsCountOf: 'BUILDING' }, 'left as it was, so RB-M refuses it too')
+    assert.ok(resolveRelativeCounts(relativeCopy(), index, null, bindings).problems.some(p => p.includes('not one block of a role exchange')))
+    const plain = JSON.parse(JSON.stringify(block.fixture.game))
+    assert.deepEqual(resolveRelativeCounts(plain, index, roleBlock, bindings), { resolved: [], removed: [], problems: [] })
+    assert.deepEqual(plain, block.fixture.game, 'a game with no relative count is untouched')
 })
 
 /**
@@ -385,12 +482,16 @@ test('the adjustments are said only under "Adjusting the activity", in his words
     const said = rendered.instructions.filter(i => i.from.some(p => p.startsWith('adjustments[')))
     // 2 -> 4 on 15 October 2026 (stage K7): the pressure line either way and the starting arrangement (his item 3 and D4), each in our
     // DRAFT coach words with his words cited beside them (`coachWords`), still the coach's choice and still no challenge level.
+    // Re-pointed 17 October 2026 (stage M4): his D6 two say our DRAFT coachWords, accounting for every player (his reply filed 19 October
+    // 2026, item 4), with his words cited beside them; his consequence's first sentence still follows the first.
     assert.deepEqual(said.map(i => [i.tier, i.status, i.text]), [
-        ['adjust', 'COACH_CHOICE', 'You may choose to add a pressing player, representing an opponent committing additional numbers forward: adding a pressing player can increase pressure but may also expose space behind the press'],
-        ['adjust', 'COACH_CHOICE', "You may choose to remove a build-out player, reducing the building team's available support options"],
+        ['adjust', 'COACH_CHOICE', 'You may choose to add a pressing player, representing an opponent committing additional numbers forward; with every player already in a team, reallocate someone or introduce an additional player: adding a pressing player can increase pressure but may also expose space behind the press'],
+        ['adjust', 'COACH_CHOICE', "You may choose to remove a build-out player, deciding where that player goes so every player is still accounted for, reducing the building team's available support options"],
         ['adjust', 'COACH_CHOICE', 'You may choose to move the marked line nearer to either end line'],
         ['adjust', 'COACH_CHOICE', 'You may choose to change where the teams start when the pressure you see is not creating an appropriate challenge'],
     ])
+    assert.deepEqual(said[0].from, ['adjustments[A01-ADJ-1].words', 'adjustments[A01-ADJ-1].coachWords', 'adjustments[A01-ADJ-1].consequence'], 'his words are cited beside ours')
+    assert.deepEqual(said[1].from, ['adjustments[A01-ADJ-2].words', 'adjustments[A01-ADJ-2].coachWords'])
     assert.deepEqual(said[2].from, ['adjustments[A01-ADJ-3].words', 'adjustments[A01-ADJ-3].coachWords'], 'his words are cited beside ours')
     const text = rendered.instructions.map(i => i.text).join(' | ')
     for (const level of ['Comfortable', 'Stretch', 'Demanding']) assert.ok(!text.includes(level))

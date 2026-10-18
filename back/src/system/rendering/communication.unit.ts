@@ -85,7 +85,10 @@ test('1. the review draft of A01: every sentence the game holds, each a DRAFT, n
         `Players: Divide 12 players into 2 teams: the building team has 6 outfield players and 1 ${ROLE}; the pressing team has 5 outfield players`,
         'How it works: Play for 20 minutes',
         'How it works: The building team starts with the ball',
-        'How it works: When possession changes, play carries on with no stoppage, and the team that wins possession attacks the same zone it was already attacking',
+        // Moved 17 October 2026 (stage M4, design step L10): his approved words, reply filed 19 October 2026, item 4 (read from
+        // approved-coach-wording.json approvedTemplateSentences). Was: "When possession changes, play carries on with no stoppage, and
+        // the team that wins possession attacks the same zone it was already attacking".
+        'How it works: When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone',
         `How it works: The building team's ${ROLE} restarts play from the feet, with the ball still or moving: at the start, after either team scores and whenever you decide that an attack has run its course (at a stoppage or while play is on)`,
         // Moved 18 October 2026 (post-K wording, DRAFT): the two choice sentences no longer restate that the choice is the coach's,
         // no longer name the post-regain area by a noun the set-up sentences do not use, and no longer say engine provenance
@@ -96,8 +99,12 @@ test('1. the review draft of A01: every sentence the game holds, each a DRAFT, n
         // unchanged: his "conventional throw-in" has no data route to the renderer yet (a wording point put to him).
         "How it works: You choose where each of these restarts is taken, consistent with the intended build-out situation, in front of the pressing team's target zone",
         'How it works: Before each of these restarts, the building team and the pressing team each set up on their own side of the marked line; once play restarts, every player is free to move anywhere',
-        'How it works: If the ball goes out over a touchline, a player of the team that did not touch the ball last restarts play where the ball went out, with the ball in hand',
-        'How it works: If the ball goes out over either end line, a player of the team that did not touch the ball last restarts play where and how you choose',
+        // Moved 17 October 2026 (stage M4, design steps L10 and L11, DRAFT): the touchline restart says his approved noun (reply filed
+        // 19 October 2026, item 4), read from the sport's coach vocabulary through the fixture; was "... restarts play where the ball
+        // went out, with the ball in hand". The end-line restart says the coach's bound once, our gerund form of his item 3 A; was
+        // "... restarts play where and how you choose".
+        'How it works: If the ball goes out over a touchline, a player of the team that did not touch the ball last restarts play with a throw-in where the ball went out',
+        'How it works: If the ball goes out over either end line, a player of the team that did not touch the ball last restarts play where and how you choose, preserving meaningful game relationships rather than creating an automatic scoring shortcut',
         // Moved 17 October 2026 (stage M3, design step L9; his reply filed 19 October 2026, items 1 and 4): the team-neutral "A team
         // scores 1 point by getting the ball under control into the zone it is attacking: ..." is no longer said, because the building
         // role's credit is confined to its build-out episode (row B8). The pressing role, whose bound is the whole game (A01-R1-B8-2),
@@ -111,12 +118,18 @@ test('1. the review draft of A01: every sentence the game holds, each a DRAFT, n
         `${ROLE_EXCHANGE}: When you call the next block, 1 ${ROLE} and 1 outfield player move to the team that becomes the building team`,
         "Set up [2]: Mark the building team's target zone from the marked line to the pressing team's end line, across the full width",
         "Set up [2]: Mark the pressing team's target zone at the building team's end, 5 m deep, across the full width",
-        `${ADJUSTING}: You may choose to add a pressing player, representing an opponent committing additional numbers forward: adding a pressing player can increase pressure but may also expose space behind the press`,
-        `${ADJUSTING}: You may choose to remove a build-out player, reducing the building team's available support options`,
+        // Moved 17 October 2026 (stage M4, design step L11, DRAFT coachWords): his reply filed 19 October 2026, item 4, "The coach-facing
+        // suggestions should not imply those changes can occur without accounting for every player." Was "... additional numbers
+        // forward: adding ..." and "You may choose to remove a build-out player, reducing the building team's available support options".
+        `${ADJUSTING}: You may choose to add a pressing player, representing an opponent committing additional numbers forward; with every player already in a team, reallocate someone or introduce an additional player: adding a pressing player can increase pressure but may also expose space behind the press`,
+        `${ADJUSTING}: You may choose to remove a build-out player, deciding where that player goes so every player is still accounted for, reducing the building team's available support options`,
         `${ADJUSTING}: You may choose to move the marked line nearer to either end line`,
         `${ADJUSTING}: You may choose to change where the teams start when the pressure you see is not creating an appropriate challenge`,
     ])
-    assert.ok(draft.instructions.every(i => i.wording === 'DRAFT'), 'no sentence is approved wording: the table is empty')
+    // Re-pointed 17 October 2026 (stage M4): one sentence is his approved words - the possession sentence, an approved template
+    // sentence (reply filed 19 October 2026, item 4); the entries table is still empty, so every other sentence is DRAFT.
+    assert.deepEqual(draft.instructions.filter(i => i.wording === 'APPROVED').map(i => i.text), ['When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone'])
+    assert.equal(draft.instructions.filter(i => i.wording === 'DRAFT').length, draft.instructions.length - 1, 'every other sentence is DRAFT')
     // Provisional sources: the restarts rest on his provisional choices, the area on the session alone.
     assert.deepEqual(draft.instructions[0].provisionalSources, [])
     assert.ok(draft.instructions.find(i => i.text.includes('restarts play from the feet'))!.provisionalSources.includes('provisional:A01-R1::A01-R1-T3-1'))

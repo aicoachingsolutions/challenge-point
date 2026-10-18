@@ -103,6 +103,8 @@ export interface ReviewRecordGap {
     kind: string
     description: string
     note: string | null
+    /** His words settling it (stage M4, 17 October 2026); absent while it is still needed. */
+    settledBy?: { words: string; citedAs: string }[]
 }
 
 /** One line of the three lists, each field copied from the record by the server (15 October 2026). */

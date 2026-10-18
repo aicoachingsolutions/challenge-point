@@ -748,7 +748,11 @@ assert.deepEqual(
     [
         ['STARTING', 'Mark both end lines: they are the scoring lines'],
         ['COACH_CHOICE', 'Pick which team starts with the ball and tell both teams before you start'],
-        ['STARTING', 'When possession changes, play carries on with no stoppage, and the team that wins possession attacks the same line it was already attacking'],
+        // Re-pointed 17 October 2026 (stage M4): his approved possession sentence (reply filed 19 October 2026, item 4), read from
+        // approved-coach-wording.json; with this game's line targets it is a generalization of his words ("line"), DRAFT. Was:
+        // "When possession changes, play carries on with no stoppage, and the team that wins possession attacks the same line it
+        // was already attacking". Same statuses, same parts.
+        ['STARTING', 'When possession changes, play carries on without a stoppage, and each team keeps attacking the same line'],
         ['STARTING', 'A team scores 1 point by getting the ball across the line it is attacking'],
     ],
     'the Golden Case: what realization chose, what is left to the coach, and the one preferred default (GF2-17) — each in its own status',
@@ -997,8 +1001,10 @@ for (const observation of rendered.coachingObservations) {
 // `startsEpisode`'s one consequence and the exclusion must stop being honoured.
 {
     // Re-pointed 14 October 2026 (stage S-C2): the play-state sentence is the first part of "When possession changes,
-    // play carries on with no stoppage, and …"; the whole sentence is taken away.
-    const withoutContinuity = wrap(rendered.instructions.filter(i => !i.text.includes('play carries on with no stoppage')))
+    // play carries on with no stoppage, and …"; the whole sentence is taken away. Re-pointed 17 October 2026 (stage M4): his approved
+    // words, "… play carries on without a stoppage …" (reply filed 19 October 2026, item 4); the same sentence is taken away.
+    const withoutContinuity = wrap(rendered.instructions.filter(i => !i.text.includes('play carries on without a stoppage')))
+    assert.equal(withoutContinuity.instructions.length, rendered.instructions.length - 1, 'exactly the one sentence is taken away')
     const after = checkFidelity(fixture, withoutContinuity)
     const q3 = after.findings.filter(f => f.question === 3 && f.severity === 'VIOLATION')
     assert.ok(
@@ -1338,8 +1344,9 @@ for (const observation of rendered.coachingObservations) {
      */
     {
         // Re-pointed 14 October 2026 (stage S-C2): the play-state sentence is the first PART of "When possession changes,
-        // play carries on with no stoppage, and …"; it is that part that is said once and cites every transition.
-        const PLAY_ON = 'When possession changes, play carries on with no stoppage'
+        // play carries on with no stoppage, and …"; it is that part that is said once and cites every transition. Re-pointed 17
+        // October 2026 (stage M4) to his approved words (reply filed 19 October 2026, item 4), the template's first part.
+        const PLAY_ON = 'When possession changes, play carries on without a stoppage'
         const continuity = said.instructions.filter(i => i.text.startsWith(PLAY_ON))
         assert.equal(continuity.length, 1, 'said once, however many transitions assert it')
         const elements = game.game.transitions.map((t: any) => t.elementId)

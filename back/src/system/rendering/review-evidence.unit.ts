@@ -101,7 +101,10 @@ test('1. end to end on production data: only communication stops it, both blocks
     assert.equal(fact(evidence.acceptance, 'fields awaiting approved wording'), 40)
     // Moved 17 October 2026 (stage M3, design step L9), 24 -> 25: the team-neutral scoring sentence gives way to the pressing role's
     // own sentence and "Each score is worth 1 point" (both DRAFT; communication.unit.ts 1 and 8).
-    assert.deepEqual(fact(evidence.acceptance, 'sentences'), { total: 25, approved: 0, draft: 25 })
+    // Moved 17 October 2026 (stage M4, design step L10), approved 0 -> 1: the possession sentence is his approved words (reply filed 19
+    // October 2026, item 4), an approved template sentence read from approved-coach-wording.json; the total is unchanged.
+    assert.deepEqual(fact(evidence.acceptance, 'sentences'), { total: 25, approved: 1, draft: 24 })
+    assert.deepEqual(evidence.sections.instructions.filter(i => i.wording === 'APPROVED').map(i => i.text), ['When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone'])
     // Measured at this stage: 19 Gate A checks per block, all PASS; the 9 cross-block checks; 11 owed invariants per block.
     assert.deepEqual(evidence.structure.summary.gateChecks, { PASS: 38 })
     assert.deepEqual(evidence.structure.summary.crossBlock, { PASS: 9 })
@@ -162,6 +165,9 @@ test('3. provenance: his three layers and the standings, every cited path traced
     assert.ok(instructions.some(i => i.standings.includes('OUR_READING')))
     assert.equal(evidence.provenance.lists!.at, 'account.authorizationLists')
     assert.deepEqual(evidence.provenance.lists!.gapsStillNeeded, [])
+    // 17 October 2026 (stage M4, design step L11): still needed is now "no words of his settle it, or an entry waits on it" (it was
+    // only the latter, which cannot tell a settled gap from one waiting on the context's own lines); all thirteen are settled.
+    assert.deepEqual(evidence.provenance.lists!.gapsSettled, ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'M1', 'M2', 'M3', 'M4', 'M5', 'M7'])
 })
 
 test('4. key identity: the evidence reaches the administrator\'s review of a goal that asks for it, and nothing else', () => {

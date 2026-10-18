@@ -46,6 +46,7 @@ import { learningGoalAuthorizations, contextManipulationRelationships, validateC
 import { loadProvisionalRealizations, loadRegister, provisionalRealizationNamed } from '../derivation/corpus'
 import { runDerivation, runStages0to10, runStages0to5 } from '../derivation/engine'
 import { applyRealizationDeferrals } from '../derivation/realization-deferral'
+import { resolveRelativeCounts } from '../derivation/reassignment'
 import { HaltError, indexRegister } from '../derivation/register'
 import { assembleResolvedGame } from '../derivation/resolved-game'
 import { roleBlocksOf } from '../derivation/role-blocks'
@@ -99,6 +100,9 @@ function a01Blocks(alter: (contracts: LoadedContract[]) => void = () => undefine
         const entailed = realized.outcome === 'REALIZED' ? completeConcreteGame(ctx, realized) : []
         const acceptance = realized.outcome === 'REALIZED' ? checkRealization(resolved, realized) : null
         const post = realized.outcome === 'REALIZED' ? runPostRealizationGates(ctx, resolved.coherence.postRealizationRequired.map((o: any) => ({ checkId: o.checkId, clause: o.clause })), realized) : null
+        // 17 October 2026 (stage M4): the checked pathway's next step, as build-activity.ts takes it - the relative reassignment count
+        // (A01-R1-B7-2, register B7 version 2, his reply filed 19 October 2026, item 3 F) resolved from this block's own game.
+        if (realized.outcome === 'REALIZED') assert.deepEqual(resolveRelativeCounts(realized.game, index, realized.record.roleBlock ?? null, realized.record.designationBindings ?? []).problems, [])
         return { block, staged, resolved, realized, entailed, acceptance, post }
     })
 }

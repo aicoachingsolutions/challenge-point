@@ -222,6 +222,19 @@ entries, and a game value written "(= entry)" counts as that entry.
 > it speaks for a bounded role its text names. Measured: the old "A team scores ..." citing the whole-game role's bound, and
 > "Building team: Score ..." citing that bound, had both passed as drafts.
 
+> **Engineering line, 17 October 2026 (stage M4) — ours, outside his adopted text.** For his reply filed 19 October 2026, items 3,
+> 4 and 5. (1) A sentence he approved for a template the renderer already says is recorded as an approved template sentence
+> (`approved-coach-wording.json` `approvedTemplateSentences`), usable only where its parts, filled with its example values,
+> reproduce his sentence exactly and his sentence is verbatim in the quote; the renderer reads the possession sentence's parts from
+> it and says nothing where it is absent (fidelity then refuses). (2) A sport's coach vocabulary (`sport-coach-vocabulary-*.json`,
+> found by pattern beside the Sport Profile, tied to it by `sportId`, every entry approved in his cited words) carries a noun for a
+> restart method to the fixture (`methodNouns`) only for a transition the game holds; the renderer says it in place of the method's
+> sport-neutral phrase. (3) Register B7 version 2's relative count `{keepsCountOf: R}` is resolved from one block's own game after
+> the realization is checked (`resolveRelativeCounts`, build-activity.ts): n(team holding toRole) − n(team holding the other role);
+> at 0 the element and its derived lines are not established, a negative or unresolvable count refuses the game, and RB-M still
+> compares the other block, built independently. (4) A record gap is settled only by his cited words (`settledBy`), refused while an
+> entry still waits on it. (5) A coach's place and method bound, where they are the same words, is said once.
+
 > **Engineering line, 15 October 2026 (stage K7) — ours, outside his adopted text.** Communication of the first complete activity.
 > (1) The context-scoring guard confirms a context condition authored for an episode (SD-36; his 16 October 9.3, ruling C52) where it
 > reached the realized game with its authored scope AND the Gate A check deciding that episode (GA-EPISODE-REACHABLE, rerun on the

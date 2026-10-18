@@ -1083,7 +1083,11 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
         assert.deepEqual(text(neutrals, 'How it works'), [
             'Play for 20 minutes',
             'Pick which team starts with the ball and tell both teams before you start',
-            'When possession changes, play carries on with no stoppage, and the team that wins possession attacks the same line it was already attacking',
+            // Re-pointed 17 October 2026 (stage M4): his approved possession sentence (reply filed 19 October 2026, item 4), read from
+            // approved-coach-wording.json, with this game's "line" for his "zone" - a generalization of his words, DRAFT. Was: "When
+            // possession changes, play carries on with no stoppage, and the team that wins possession attacks the same line it was
+            // already attacking".
+            'When possession changes, play carries on without a stoppage, and each team keeps attacking the same line',
         ])
         assert.deepEqual(text(neutrals, 'How it works'), text(a04, 'How it works'))
         for (const said of neutrals.rendered.instructions) {
@@ -1843,7 +1847,10 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
         assert.deepEqual(now.roleBlocks?.checks.map(check => check.verdict), Array(9).fill('PASS'))
         const roster = now.rendered.instructions.find(instruction => instruction.text.startsWith('Divide 12 players into 2 teams'))
         assert.ok(roster, JSON.stringify(now.rendered.instructions.map(i => i.text)))
-        assert.equal(roster!.text, `Divide 12 players into 2 teams: the building team has 6 outfield players and 1 ${ROLE}; the pressing team has 5 outfield players; the other ${ROLE} plays as an outfield player`)
+        // Re-pointed 17 October 2026 (stage M4, design step L11): his reply filed 19 October 2026, item 5, "I don't want to prescribe
+        // an outfield role for a [specialized role] universally." The second one is counted among the other players and given no part
+        // (DRAFT); was "...; the pressing team has 5 outfield players; the other <role> plays as an outfield player".
+        assert.equal(roster!.text, `Divide 12 players into 2 teams: the building team has 1 ${ROLE} and 6 other players; the pressing team has 5 other players`)
         /**
          * Through the GOAL pathway (the record crosses into each block's fixture) the two adjustments he authorized reach the
          * composed activity — K4 review, 15 October 2026: allocation.unit.ts proves them on a constructed fixture only, so
@@ -1855,9 +1862,11 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
             adjusting.map(instruction => [instruction.tier, instruction.status, instruction.block ?? null, instruction.text]),
             // 2 -> 4 on 15 October 2026 (stage K7): his item 3 (the pressure reference either way) and his D4 (the starting
             // arrangement), recorded beside his D6 two, each in our DRAFT coach words with his own words cited (allocation.unit.ts).
+            // Re-pointed 17 October 2026 (stage M4): his D6 two in our DRAFT coachWords accounting for every player (his reply filed
+            // 19 October 2026, item 4), his words cited beside them (allocation.unit.ts).
             [
-                ['adjust', 'COACH_CHOICE', null, 'You may choose to add a pressing player, representing an opponent committing additional numbers forward: adding a pressing player can increase pressure but may also expose space behind the press'],
-                ['adjust', 'COACH_CHOICE', null, "You may choose to remove a build-out player, reducing the building team's available support options"],
+                ['adjust', 'COACH_CHOICE', null, 'You may choose to add a pressing player, representing an opponent committing additional numbers forward; with every player already in a team, reallocate someone or introduce an additional player: adding a pressing player can increase pressure but may also expose space behind the press'],
+                ['adjust', 'COACH_CHOICE', null, "You may choose to remove a build-out player, deciding where that player goes so every player is still accounted for, reducing the building team's available support options"],
                 ['adjust', 'COACH_CHOICE', null, 'You may choose to move the marked line nearer to either end line'],
                 ['adjust', 'COACH_CHOICE', null, 'You may choose to change where the teams start when the pressure you see is not creating an appropriate challenge'],
             ],

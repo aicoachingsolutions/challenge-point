@@ -1,0 +1,26 @@
+{
+    "kind": "SPORT_COACH_VOCABULARY",
+    "sportId": "sport.soccer",
+    "about": "The coach's words for things the game already holds, in this sport: VOCABULARY, never structure. Added 17 October 2026 (stage M4) for his reply filed 19 October 2026, item 4 (\"I approve both of your proposed revisions:\" ... 'Use \"throw-in\" rather than \"with the ball in hand.\"'). Read by derivation/corpus.ts loadSportCoachVocabulary(), found by pattern beside the Sport Profile like the profile itself, and carried to the rendering fixture only for a transition the game holds (rendering-fixture.ts methodNouns), so the sport's words live in data and the sport-neutral renderer reads them from the fixture. Kept OUT of sport-profile-soccer.json, our engineering choice and not his ruling: that file's ownership rule (Christian, 6 October 2026, \"It contributes constitutive sport structure when the selected game rules require that structure and no existing authoritative source supplies it.\") is about structure, and its deliberatelyNotContributed list names restarts; a noun for a restart method the game already holds contributes no structure and decides nothing. An entry without his approval (approvedBy: his words, cited) refuses the whole file at load.",
+    "restartMethodNouns": {
+        "note": "A noun for the way a restart is taken, keyed by the trigger and the register's method value (rows T1 trigger, T5 method). The renderer says it in place of the method's sport-neutral phrase ('with a throw-in' for 'with the ball in hand'). The game, its checks and every other sentence are unchanged.",
+        "entries": [
+            {
+                "trigger": "OUT_TOUCHLINE",
+                "method": "IN_HAND",
+                "article": "a",
+                "noun": "throw-in",
+                "approvedBy": [
+                    {
+                        "words": "Use \"throw-in\" rather than \"with the ball in hand.\"",
+                        "citedAs": "his reply filed 19 October 2026, item 4"
+                    },
+                    {
+                        "words": "Touchline: conventional throw-in where the ball crossed the line, taken by the team that did not touch it last.",
+                        "citedAs": "his reply filed 18 October 2026, item 2"
+                    }
+                ]
+            }
+        ]
+    }
+}
