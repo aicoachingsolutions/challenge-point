@@ -31,8 +31,9 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 
-import { ApprovedWording } from '../rendering/approved-wording'
-import { buildActivityForReview, buildActivityUnderAuthorizationRecords, RefusedActivity } from '../rendering/build-activity'
+import * as wordingModule from '../rendering/approved-wording'
+import { ApprovedWording, approvedWording } from '../rendering/approved-wording'
+import { buildActivityForReview, buildActivityUnderAuthorizationRecords, RefusedActivity, ServedActivity } from '../rendering/build-activity'
 import { alsoCountsFindings } from '../rendering/context-scoring-guard'
 import { mechanismDemonstration, MECHANISM_DEMONSTRATIONS } from '../rendering/mechanism-demonstrations'
 import { renderConcreteGame } from '../rendering/render-concrete-game'
@@ -213,8 +214,27 @@ test('production A01: the eight added clauses pass in both blocks, each over the
     }
 })
 
-test('the whole pathway: refused at communication naming exactly the occurrence\'s four fields in each block, and the guard finds nothing', () => {
-    const activity = buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: sessionOf() }, learningGoalAuthorizations()).activity as RefusedActivity
+/*
+ * Re-pointed 18 October 2026 (design step L14): his reply filed 20 October 2026, item 1, "Pressing team's regain score — Approved as
+ * written.", is entry A01-W2, so production says the occurrence's four fields in his approved sentence and A01 is SERVED; the guard
+ * still finds nothing. The refusal it replaced is still pinned, measured on a TEST-ONLY table without A01-W2.
+ */
+test('the whole pathway: served, the occurrence said once in his approved sentence (design step L14); without A01-W2 (TEST-ONLY) refused at communication naming exactly its four fields in each block; the guard finds nothing', () => {
+    const production = buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: sessionOf() }, learningGoalAuthorizations()).activity as ServedActivity
+    assert.equal(production.outcome, 'served', JSON.stringify((production as unknown as RefusedActivity).reasons))
+    const regain = production.rendered.instructions.filter(i => i.from.some(path => path.startsWith('value.primaryEvent.alsoCounts[')))
+    assert.deepEqual(regain.map(i => [i.section, i.text]), [['How to score', approvedWording().find(e => e.id === 'A01-W2')!.sentence]])
+    assert.deepEqual(regain[0].from, ['team', 'trigger', 'control', 'exclusion'].map(field => `value.primaryEvent.alsoCounts[${ELEMENT}].${field}`))
+    assert.ok(!JSON.stringify(production).includes('also counts as the primary event on'), 'every item behind it is his ruling')
+    const read = wordingModule.approvedWording
+    const table = read()
+    let activity: RefusedActivity
+    try {
+        ;(wordingModule as any).approvedWording = () => JSON.parse(JSON.stringify(table.filter(entry => entry.id !== 'A01-W2')))
+        activity = buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: sessionOf() }, learningGoalAuthorizations()).activity as RefusedActivity
+    } finally {
+        ;(wordingModule as any).approvedWording = read
+    }
     assert.equal(activity.stage, 'communication', activity.reasons.join(' | '))
     const awaiting = activity.reasons.filter(reason => reason.includes('awaiting approved wording: value.primaryEvent.alsoCounts['))
     assert.deepEqual(

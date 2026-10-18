@@ -8533,3 +8533,23 @@ Suite **FILES 101 FAILED 0**; pushed `c5c1632` (14 ahead of main; main = PR #129
 - His yes on A01-W2 (and W3 optional) → add the entries, re-run the snapshot, merge to main (PR), deploy → A01 SERVED.
 - First CI run on Linux (run 39102302282) — watch for the front `npm ci` esbuild platform binary.
 - The live app's mandatory library-constraint requirement (he calls it a systemic issue before pilot).
+
+## 20 OCTOBER — PLAY OUT FROM THE BACK IS SERVED
+
+His sixth reply: `scratchpad/christian-2026-10-20.txt` (memory `christian-rulings-2026-10-20.md`): A01-W2 (pressing regain)
+approved as written; A01-W3 approved in HIS wording ("If the building team loses possession or plays the ball out, it
+cannot score again until the next goalkeeper restart."). His approval covers only the scoring statements; every other
+sentence stays DRAFT.
+
+- `43d3fb7` W2 + W3 in `docs/audits/approved-coach-wording.json`, his words character for character; A01 SERVED through
+  the checked pathway at 12 players (1 and 2 goalkeepers) and 11 players, both blocks, every structural check PASS, 0
+  fidelity violations; 10 and 13 players refused at the session. W3's fields are a subset of W1's (said whenever W1 is;
+  pinned by tests). `2069314` review: a credit-episode test that had become vacuous now asserts nothing withheld.
+- `a769e31` review page: administrator view tags each served sentence Approved (4: possession, W1, W3, W2) or Draft (24),
+  joined to the server's evidence by index + section + block + text, untagged on any mismatch; coach view unchanged. The
+  approved noun "throw-in" is not carried in the response, so the page cannot mark it (a back-end field would be needed).
+- CI green on every push since c5c1632. Main = PR #130 (`4488c70`); these commits need PR #131 + Render deploy, then
+  the ready email `scratchpad/2026-10-20-a01-ready-for-review.txt`.
+
+NEXT: his evaluation of the activity as a coach. Not before it: new variations, the live app's mandatory
+library-constraint requirement (his systemic item), a spatial-eligibility rule (only if his evaluation calls for it).

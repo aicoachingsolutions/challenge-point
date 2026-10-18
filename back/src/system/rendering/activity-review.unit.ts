@@ -30,6 +30,7 @@ import { assembleResolvedGame } from '../derivation/resolved-game'
 import { CONTEXT_ROLE, derivationInputFor, selectFor } from '../derivation/run-bounded-selection'
 import { indexRegister } from '../derivation/register'
 import { ActivityReviewRequestError, activityReviewOptions, reviewActivity } from './activity-review'
+import * as wordingModule from './approved-wording'
 import { buildActivity, buildActivityFromKnowledge, buildActivityOverAlteredKnowledge, buildActivityOverAlteredSelection, buildActivityUnderAuthorizationRecords, RefusedActivity, ServedActivity, UnknownActivityRequest } from './build-activity'
 import { constitutedConditionTypes, contextScoringFindings } from './context-scoring-guard'
 import { renderConcreteGame } from './render-concrete-game'
@@ -450,26 +451,51 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
         ])
         const saidByHisSentence = [bound('B1-1'), ...fields.flatMap(([id, held]) => held.map(field => `value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-${id}].${field}`))]
         assert.equal(saidByHisSentence.length, 16, 'the bound and the fifteen condition fields')
-        for (const keepers of [2, 0]) {
-            const production = refused(reviewActivity(stored({ specializedRoles: { ...none, [ROLE]: keepers } }), { learningGoalId: 'A01', durationMin: 20 }), `A01, ${keepers} of ${ROLE}`)
-            if (keepers) {
-                assert.equal(production.stage, 'communication', JSON.stringify(production.reasons))
-                assert.deepEqual(production.reasons, WORDING_REASONS)
-                assert.ok(!production.reasons.some(reason => saidByHisSentence.some(path => reason.includes(path))), 'nothing his A01-W1 sentence says is among the reasons')
-                assert.equal(production.summary, 'Part of this activity is still waiting for approved coach wording, so it is not being shown.')
-                assert.ok(!('draft' in production), 'the review answer carries no draft unless the route asks for it (stage K7)')
-            } else {
-                assert.equal(production.stage, 'session', JSON.stringify(production.reasons))
-                assert.equal(production.summary, `This game needs 1 ${ROLE} in all and the session has 0.`)
+        /*
+         * Moved 18 October 2026 (design step L14), the work succeeding: with 2 of the role, communication -> SERVED. His reply filed 20
+         * October 2026, item 1: "Pressing team's regain score — Approved as written." (entry A01-W2, which says the four fields that
+         * were the whole stop, WORDING_REASONS); item 2, his own eligibility sentence (entry A01-W3). The stop as it stood is still
+         * pinned, measured on a TEST-ONLY table without A01-W2, so what moved it is visible. With 0 of the role it still stops at the
+         * session, unchanged.
+         */
+        const withoutW2 = <T>(body: () => T): T => {
+            const read = wordingModule.approvedWording
+            const production = read()
+            try {
+                ;(wordingModule as any).approvedWording = () => JSON.parse(JSON.stringify(production.filter(entry => entry.id !== 'A01-W2')))
+                return body()
+            } finally {
+                ;(wordingModule as any).approvedWording = read
             }
-            assert.ok(!production.reasons.some(reason => reason.includes('authorization record')), 'no record entry stops it')
+        }
+        for (const keepers of [2, 0]) {
+            const ask = () => reviewActivity(stored({ specializedRoles: { ...none, [ROLE]: keepers } }), { learningGoalId: 'A01', durationMin: 20 })
+            const production = ask()
+            if (keepers) {
+                const servedNow = served(production, `A01, ${keepers} of ${ROLE}`)
+                assert.deepEqual(servedNow.rendered.withheld, [])
+                assert.equal(servedNow.integrity.fidelityViolations, 0)
+                const stopBefore = refused(withoutW2(ask), `A01 without A01-W2 (TEST-ONLY), ${keepers} of ${ROLE}`)
+                assert.equal(stopBefore.stage, 'communication', JSON.stringify(stopBefore.reasons))
+                assert.deepEqual(stopBefore.reasons, WORDING_REASONS)
+                assert.ok(!stopBefore.reasons.some(reason => saidByHisSentence.some(path => reason.includes(path))), 'nothing his A01-W1 sentence says is among the reasons')
+                assert.equal(stopBefore.summary, 'Part of this activity is still waiting for approved coach wording, so it is not being shown.')
+                assert.ok(!('draft' in stopBefore), 'the review answer carries no draft unless the route asks for it (stage K7)')
+            } else {
+                const atSession = refused(production, `A01, ${keepers} of ${ROLE}`)
+                assert.equal(atSession.stage, 'session', JSON.stringify(atSession.reasons))
+                assert.equal(atSession.summary, `This game needs 1 ${ROLE} in all and the session has 0.`)
+                assert.ok(!atSession.reasons.some(reason => reason.includes('authorization record')), 'no record entry stops it')
+            }
             assert.deepEqual(production.account.constraints, [], 'no library constraint was selected')
             assert.equal(production.account.context?.inThisActivity, true, 'the context is in the game')
 
             // Behind it, on the copy: the same build, because the record has no gap entry left to set aside.
             const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [ROLE]: keepers } }
-            const reached = refused(buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, withoutGapEntries()).activity, `A01 (record gaps set aside), ${keepers} of ${ROLE}`)
-            assert.deepEqual([reached.stage, reached.reasons], [production.stage, production.reasons])
+            const reached = buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, withoutGapEntries()).activity
+            assert.equal(reached.outcome, production.outcome)
+            if (reached.outcome === 'served') assert.deepEqual(reached.rendered.instructions, (production as ServedActivity).rendered.instructions)
+            else assert.deepEqual([reached.stage, reached.reasons], [(production as RefusedActivity).stage, (production as RefusedActivity).reasons])
             assert.deepEqual(reached.account.constraints, [], 'no library constraint was selected')
             assert.equal(reached.account.constraintSource?.constraintPrinciple?.ruledOn, '2026-10-15', 'committed under his general principle')
             assert.equal(reached.account.context?.inThisActivity, true, 'the context is in the game')
@@ -597,19 +623,37 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
     }
 
     const withKeeper = { ...session, roles: { ...none, [ROLE]: 1 } }
-    const production = refused(buildActivity({ kind: 'learning-goal', goalId: 'A01', session: withKeeper }), 'A01')
+    /*
+     * Moved 18 October 2026 (design step L14), the work succeeding: the last stop, the regain score's wording, moved out - his reply filed
+     * 20 October 2026, item 1 (entry A01-W2) and item 2 (entry A01-W3) - so production A01 and the copy behind its record are both SERVED,
+     * which no stop below could survive. The stops each stage moved are still asserted absent, on the build that stopped last: a TEST-ONLY
+     * table without A01-W2, which stops at communication on its four fields alone.
+     */
+    assert.equal(buildActivity({ kind: 'learning-goal', goalId: 'A01', session: withKeeper }).outcome, 'served', 'nothing stops it (design step L14)')
+    assert.equal(buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: withKeeper }, withoutGapEntries()).activity.outcome, 'served', 'nothing stops it behind its record either')
+    const readWording = wordingModule.approvedWording
+    const productionWording = readWording()
+    let production: RefusedActivity
+    let behind: RefusedActivity
+    try {
+        ;(wordingModule as any).approvedWording = () => JSON.parse(JSON.stringify(productionWording.filter(entry => entry.id !== 'A01-W2')))
+        production = refused(buildActivity({ kind: 'learning-goal', goalId: 'A01', session: withKeeper }), 'A01 without A01-W2 (TEST-ONLY)')
+        behind = refused(buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: withKeeper }, withoutGapEntries()).activity, 'A01 behind its record, without A01-W2 (TEST-ONLY)')
+    } finally {
+        ;(wordingModule as any).approvedWording = readWording
+    }
     for (const moved of ['"defensive numbers"', '"overloads"']) assert.ok(!production.reasons.some(reason => reason.includes(moved)), `${moved} is no longer a stop (stage K4)`)
     for (const moved of ['"starting positions — where the team building out starts"', '"goalkeeper positioning"', '"A new build-out episode begins'])
         assert.ok(!production.reasons.some(reason => reason.includes(moved)), `${moved} is no longer a stop (stage K5)`)
     for (const moved of ['"starting positions — the', '"progression references — where each target sits', '"An asymmetrical build-out-versus-press structure'])
         assert.ok(!production.reasons.some(reason => reason.includes(moved)), `${moved} is no longer a stop (stage K6)`)
-    const behind = refused(buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: withKeeper }, withoutGapEntries()).activity, 'A01 behind its record')
     for (const moved of ['RPC-001-18.f::V5', 'RPC-001-19.a::V5', 'RPC-001-18.a::V6']) assert.ok(!behind.reasons.some(reason => reason.includes(moved)), `${moved} is no longer a stop (stage K1)`)
     assert.ok(!behind.reasons.some(reason => reason.includes('GA-EPISODE-REACHABLE')), 'GA-EPISODE-REACHABLE is no longer a stop (stage K5)')
     assert.ok(!behind.reasons.some(reason => reason.includes('GA-ONE-PRIMARY-EVENT, GA-REFERENCE-INTEGRITY')), 'the progression reference is no longer a stop (stage K6)')
     // validation -> communication on 15 October 2026 (stage K7): the guard confirms the episode-scoped conditions (see above).
     assert.ok(!behind.reasons.some(reason => reason.includes('cannot be confirmed to govern')), 'the context-scoring guard is no longer a stop (stage K7)')
     assert.equal(behind.stage, 'communication')
+    assert.ok(behind.reasons.every(reason => reason.includes('value.primaryEvent.alsoCounts[')), 'without A01-W2, only the regain score stops it')
 
     // The resolved game A01's real selection makes (GF2, its lenses, RPC-001, its provisional realization; no library
     // constraint). Re-pointed 15 October 2026 (stage K5): it holds the realization's start, after-score and coach-judged

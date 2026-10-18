@@ -28,6 +28,7 @@ import { roleHolderNames } from '../derivation/designation'
 import { indexRegister } from '../derivation/register'
 import { LoadedContract } from '../derivation/types'
 import { learningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
+import * as wordingModule from './approved-wording'
 import { buildActivityFromKnowledge, buildActivityUnderAuthorizationRecords, RefusedActivity, ServedActivity } from './build-activity'
 import { checkFidelity } from './fidelity'
 import { Instruction, renderConcreteGame, RenderedActivity, ROLE_EXCHANGE } from './render-concrete-game'
@@ -309,7 +310,7 @@ test('part of a role exchange is refused at structure, never completed', () => {
 // realization and the post-realization gates. With no goalkeeper in the session each block is now refused for that (the
 // realization's keeper for the building role); with one, each stops at validation in the same place, named by block: the
 // context-scoring guard reads only whole-game conditions, and RPC-001's four are authored for the build-out episode.
-test('A01 behind its record: two blocks built, each stopping in the same place, named by block (stage K7: communication, was validation)', () => {
+test('A01 behind its record: two blocks built and SERVED since design step L14; without A01-W2 (TEST-ONLY) each stops in the same place, named by block (stage K7: communication, was validation)', () => {
     const behind = learningGoalAuthorizations().map((record: any) => ({
         ...record,
         manipulations: record.manipulations.map((m: any) => (m.status === 'MISSING_KNOWLEDGE' || m.status === 'MISSING_CAPABILITY' ? { ...m, category: 'EXISTING_KNOWLEDGE_TO_VERIFY', status: 'NOT_SELECTED_FOR_FIRST_DEMO', gaps: [], note: 'TEST-ONLY' } : m)),
@@ -319,7 +320,24 @@ test('A01 behind its record: two blocks built, each stopping in the same place, 
     assert.equal(keeperless.stage, 'session')
     assert.equal(keeperless.summary, `This game needs 1 ${specializedRoleNames()[0]} in all and the session has 0.`)
     const withKeeper = { ...session, roles: { ...none, [specializedRoleNames()[0]]: 1 } }
-    const a01 = refused(buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: withKeeper }, behind as any).activity, 'A01 behind its record')
+    /**
+     * **Moved 18 October 2026 (design step L14): communication -> SERVED, the work succeeding.** His reply filed 20 October 2026, item 1:
+     * "Pressing team's regain score — Approved as written." (entry A01-W2, which says the four fields that were the whole stop pinned
+     * below), and item 2, his own eligibility sentence (entry A01-W3). Both blocks are served, every cross-block check passing. The stop
+     * as it stood is still pinned, measured on a TEST-ONLY table without A01-W2, so what moved it stays visible.
+     */
+    const servedNow = served(buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: withKeeper }, behind as any).activity, 'A01 behind its record')
+    assert.deepEqual(servedNow.roleBlocks!.checks.map(check => check.verdict), servedNow.roleBlocks!.checks.map(() => 'PASS'))
+    assert.deepEqual(servedNow.roleBlocks!.blocks.map(block => block.blockId), ['BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END', 'BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START'])
+    const readWording = wordingModule.approvedWording
+    const productionWording = readWording()
+    let a01: RefusedActivity
+    try {
+        ;(wordingModule as any).approvedWording = () => JSON.parse(JSON.stringify(productionWording.filter(entry => entry.id !== 'A01-W2')))
+        a01 = refused(buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: withKeeper }, behind as any).activity, 'A01 behind its record, without A01-W2 (TEST-ONLY)')
+    } finally {
+        ;(wordingModule as any).approvedWording = readWording
+    }
     /**
      * **Moved 15 October 2026 (stage K7): validation -> communication, the work succeeding.** The guard now confirms an episode-scoped
      * condition where the concrete game begins its episode (GA-EPISODE-REACHABLE PASS as rerun on it: context-scoring-guard.ts

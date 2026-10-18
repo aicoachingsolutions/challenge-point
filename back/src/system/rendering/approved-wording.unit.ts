@@ -52,10 +52,15 @@ test('every entry in the table carries his approval — an unapproved one is a d
  * progression must begin with the goalkeeper's build-out and occur before the building team loses possession. Uncontrolled clearances
  * do not score." The two sentences put to him on 19 October (A01-W2, the regain score; A01-W3, non-restoration) are NOT here: they
  * wait on his yes (design step L14).
+ * Moved 18 October 2026 (design step L14), 1 -> 3: his reply filed 20 October 2026. Item 1: "Pressing team's regain score — Approved
+ * as written." (entry A01-W2, our draft, his approval); item 2: "Building team's scoring eligibility — Include, with simplified
+ * wording." (entry A01-W3, HIS wording, which replaces our draft). "I understand that the remaining coach-facing sentences are still
+ * drafts, so this approval applies specifically to the two scoring statements, not yet to the entire activity." The table order is
+ * load-bearing (W1 before W3: both cite the building role's bound, and How to score keeps the order they are said in; measured below).
  */
-test('BASELINE: one approved entry since 18 October 2026 (stage M5): A01-W1, his item-1 sentence (was EMPTY since 14 October)', () => {
-    assert.equal(approvedWording().length, 1)
-    assert.deepEqual(approvedWording().map(e => e.id), ['A01-W1'])
+test('BASELINE: three approved entries since 18 October 2026 (design step L14): A01-W1, A01-W2, A01-W3, in that order (was 1 since stage M5, EMPTY since 14 October)', () => {
+    assert.equal(approvedWording().length, 3)
+    assert.deepEqual(approvedWording().map(e => e.id), ['A01-W1', 'A01-W2', 'A01-W3'])
 })
 
 const approval = { who: 'Christian', date: '2026-10-14', quote: 'a test approval, not his words', ccs: 'RC2' }
@@ -354,8 +359,10 @@ test('(M5, L13) key identity: A01-W1 covers exactly the values A01 holds in both
             assert.equal(said.length, 1, `${what}: said once`)
             assert.equal(said[0].from.length, 16, `${what}: the bound and the fifteen condition fields`)
             assert.ok(said[0].from.includes('activityRoles[c:provisional:A01-R1:A01-R1-B1-1].creditedWithin'))
-            // Nothing his sentence says is withheld; what is withheld is the regain score's four fields, awaiting A01-W2.
-            assert.deepEqual(renderConcreteGame(block).withheld.map(w => w.row), ['V28', 'V29', 'V30', 'V31'], what)
+            // Nothing his sentence says is withheld. Re-pointed 18 October 2026 (design step L14): what was withheld, the regain score's
+            // four fields awaiting A01-W2 (was ['V28', 'V29', 'V30', 'V31']), is said since his reply filed 20 October 2026, item 1, so
+            // nothing is withheld; that A01-W2 says exactly those four is pinned by the L14 tests below.
+            assert.deepEqual(renderConcreteGame(block).withheld.map(w => w.row), [], what)
         }
     }
 })
@@ -387,9 +394,127 @@ test('(M5) every field only approved words may say keeps its row whether it is s
     assert.equal(rows.length, 20, 'the bound, the fifteen condition fields and the four regain fields')
     assert.ok(rows.every(r => said.has(r.path) !== withheld.has(r.path)), 'each is said or withheld, never both or neither')
     assert.deepEqual(rows.filter(r => r.path.endsWith('.scope')).map(r => r.row), ['V3', 'V3', 'V3', 'V3'])
-    assert.deepEqual(rows.filter(r => withheld.has(r.path)).map(r => r.row), ['V28', 'V29', 'V30', 'V31'])
+    // Re-pointed 18 October 2026 (design step L14): the regain score's four rows were the ones withheld (was ['V28', 'V29', 'V30',
+    // 'V31']); since his reply filed 20 October 2026, item 1 (entry A01-W2) they are said, so all twenty are said and none withheld.
+    assert.deepEqual(rows.filter(r => withheld.has(r.path)).map(r => r.row), [])
+    assert.deepEqual(rows.filter(r => r.path.startsWith('value.primaryEvent.alsoCounts[') && said.has(r.path)).map(r => r.row), ['V28', 'V29', 'V30', 'V31'])
     // A whole-game bound states no condition and is not among them (unlessEquals).
     assert.ok(!rows.some(r => r.path.includes('A01-R1-B1-2')))
+})
+
+/**
+ * **His two scoring statements, A01-W2 and A01-W3 — design step L14, 18 October 2026.** His reply filed 20 October 2026, item 1:
+ * "Pressing team's regain score — Approved as written."; item 2: "Building team's scoring eligibility — Include, with simplified
+ * wording." with his own sentence, which replaces our draft. Each entry covers exactly the fields its sentence says, with the game's own
+ * values; these tests prove the file holds what A01 holds, and measure how two entries covering one field behave.
+ */
+const HIS_20_OCT_ITEM_1 = 'The pressing team also scores by winning the ball inside that zone, provided it genuinely establishes possession; a contested touch, deflection or loose ball does not count.'
+const HIS_20_OCT_ITEM_2 = 'If the building team loses possession or plays the ball out, it cannot score again until the next goalkeeper restart.'
+const byId = (id: string) => approvedWording().find(e => e.id === id)!
+const ALSO = 'value.primaryEvent.alsoCounts'
+
+test('(L14) A01-W2 and A01-W3 are his sentences verbatim, with his approval of 20 October 2026: who, the date, his words in the quote, the standard', () => {
+    for (const [id, his, heading] of [
+        ['A01-W2', HIS_20_OCT_ITEM_1, "1. Pressing team's regain score — Approved as written."],
+        ['A01-W3', HIS_20_OCT_ITEM_2, "2. Building team's scoring eligibility — Include, with simplified wording."],
+    ]) {
+        const e = byId(id)
+        assert.equal(e.sentence, his, id)
+        assert.equal(e.section, 'How to score', id)
+        assert.deepEqual([e.approvedBy.who, e.approvedBy.date], ['Christian', '2026-10-20'], id)
+        assert.ok(e.approvedBy.quote.startsWith(heading), `${id}: his item heading opens the quote`)
+        assert.ok(e.approvedBy.quote.includes(`"${his}"`), `${id}: his sentence is inside the quote of his approval`)
+        assert.ok(e.approvedBy.ccs.includes('Coach Communication Standard RC2'), id)
+        assert.ok(e.covers.every(cover => cover.element), `${id}: every cover names its element, so it is said once`)
+        assert.ok(!JSON.stringify(e).includes('TEST-ONLY'), id)
+    }
+})
+
+test('(L14) key identity: A01-W2 covers exactly the four fields of the pressing team\'s regain element, with the values A01 holds in both blocks at 12 and 11 players', () => {
+    const w2 = byId('A01-W2')
+    assert.deepEqual(w2.covers.map(cover => cover.row), ['V28', 'V29', 'V30', 'V31'])
+    assert.ok(w2.covers.every(cover => canonicalJson(cover.element) === canonicalJson({ base: ALSO, field: 'team', equals: 'ROLE_HOLDER_PRESSING' })))
+    for (const [players, keepers] of a01Sessions) {
+        for (const block of a01BlocksAt(players, keepers)) {
+            const what = `${players} players, ${keepers} keepers`
+            const elements: any[] = block.game.value.primaryEvent.alsoCounts
+            assert.equal(elements.length, 1, `${what}: one regain element`)
+            const [element] = elements
+            assert.deepEqual(w2.covers.map(cover => canonicalJson((cover.match as any).equals)), ['team', 'trigger', 'control', 'exclusion'].map(field => canonicalJson(element[field])), `${what}: the file holds the game's values`)
+            const said = renderConcreteGame(block).instructions.filter(i => i.text === HIS_20_OCT_ITEM_1)
+            assert.equal(said.length, 1, `${what}: said once`)
+            assert.deepEqual(said[0].from, ['team', 'trigger', 'control', 'exclusion'].map(field => `${ALSO}[${element.elementId}].${field}`), `${what}: it cites the four fields it says, and nothing else`)
+        }
+    }
+})
+
+test('(L14) key identity: A01-W3 covers the building role\'s bound and the origin condition only - the same values as A01-W1 - and is said once citing those four fields', () => {
+    const w1 = byId('A01-W1')
+    const w3 = byId('A01-W3')
+    // The fields his sentence says: the bound ("it cannot score again until ...") and the origin that names the goalkeeper restart.
+    const fromW1 = w1.covers.filter(cover => cover.row === 'B8' || cover.element?.equals === 'origin')
+    assert.equal(canonicalJson(w3.covers), canonicalJson(fromW1), 'the same covers, value for value, as A01-W1 holds for them')
+    assert.deepEqual(w3.covers.map(cover => cover.row), ['B8', 'V3', 'V4', 'V5'])
+    // Not the progression, control or exclusion conditions: his sentence does not say them.
+    assert.ok(!w3.covers.some(cover => ['progression', 'control', 'exclusion'].includes(String(cover.element?.equals))))
+    for (const [players, keepers] of a01Sessions) {
+        for (const block of a01BlocksAt(players, keepers)) {
+            const what = `${players} players, ${keepers} keepers`
+            const said = renderConcreteGame(block).instructions.filter(i => i.text === HIS_20_OCT_ITEM_2)
+            assert.equal(said.length, 1, `${what}: said once`)
+            assert.deepEqual(said[0].from, [
+                'activityRoles[c:provisional:A01-R1:A01-R1-B1-1].creditedWithin',
+                'value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-18.a].scope',
+                'value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-18.a].type',
+                'value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-18.a].referents',
+            ], what)
+        }
+    }
+})
+
+test('(L14) MEASURED, two entries covering one field: each is said once where its own covers hold, independently, and a field is withheld only where no entry says it', () => {
+    const block = a01BlocksAt(12, 1)[0]
+    const w1 = byId('A01-W1')
+    const w2 = byId('A01-W2')
+    const w3 = byId('A01-W3')
+    const textsOf = (rendered: ReturnType<typeof renderConcreteGame>) => rendered.instructions.map(i => i.text)
+    // Production: A01-W1 and A01-W3 both cite the bound and the origin's three fields; each is said once and nothing is withheld.
+    const both = renderConcreteGame(block)
+    const citing = (path: string) => both.instructions.filter(i => i.from.includes(path)).map(i => i.text)
+    assert.deepEqual(citing('activityRoles[c:provisional:A01-R1:A01-R1-B1-1].creditedWithin'), [HIS_ITEM_1, HIS_20_OCT_ITEM_2])
+    assert.deepEqual(both.withheld, [])
+    // Without A01-W1 (TEST-ONLY table): A01-W3 is still said, and the conditions only A01-W1 says are withheld (the activity refused).
+    const withoutW1 = renderConcreteGame(block, [w2, w3])
+    assert.ok(textsOf(withoutW1).includes(HIS_20_OCT_ITEM_2))
+    assert.deepEqual([...new Set(withoutW1.withheld.map(w => w.path.split('].')[0].split('[').pop()))], ['c:restated:RPC-001:RPC-001-18.c', 'c:restated:RPC-001:RPC-001-18.f', 'c:restated:RPC-001:RPC-001-19.a'])
+    // Without A01-W3: every field is still said by A01-W1, so nothing would stop a build missing his eligibility sentence - which is
+    // why first-activity-end-to-end.unit.ts pins that the served activity says it once.
+    const withoutW3 = renderConcreteGame(block, [w1, w2])
+    assert.deepEqual(withoutW3.withheld, [])
+    assert.ok(!textsOf(withoutW3).includes(HIS_20_OCT_ITEM_2))
+    // Table order decides the order of the two sentences citing one role's bound: W3 first in the table is said before W1.
+    const scoring = (rendered: ReturnType<typeof renderConcreteGame>) => rendered.instructions.filter(i => i.section === 'How to score').map(i => i.text)
+    assert.deepEqual(scoring(both).slice(0, 2), [HIS_ITEM_1, HIS_20_OCT_ITEM_2], 'production: his build-out sentence, then his eligibility sentence')
+    assert.deepEqual(scoring(renderConcreteGame(block, [w3, w2, w1])).slice(0, 2), [HIS_20_OCT_ITEM_2, HIS_ITEM_1], 'the order is the table\'s')
+})
+
+test('(L14) MEASURED: each field A01-W3 binds is needed - without the origin it may not name the goalkeeper, without the bound it is said after the pressing team\'s sentence', () => {
+    const block = a01BlocksAt(12, 1)[0]
+    const w1 = byId('A01-W1')
+    const w2 = byId('A01-W2')
+    const w3 = byId('A01-W3')
+    // Bound only (TEST-ONLY): said, but fidelity refuses it: an approved sentence may name the goalkeeper only where a field it covers names it (L8).
+    const boundOnly = { ...w3, id: 'TEST-ONLY-W3-BOUND', covers: w3.covers.filter(cover => cover.row === 'B8') }
+    const rendered = renderConcreteGame(block, [w1, w2, boundOnly])
+    assert.ok(rendered.instructions.some(i => i.text === HIS_20_OCT_ITEM_2))
+    const refusals = checkFidelity(block, rendered, [w1, w2, boundOnly]).findings.filter(f => f.severity === 'VIOLATION')
+    assert.ok(refusals.some(f => f.question === 4 && f.what.includes(HIS_20_OCT_ITEM_2)), JSON.stringify(refusals))
+    // Production: no fidelity violation.
+    assert.deepEqual(checkFidelity(block, renderConcreteGame(block)).findings.filter(f => f.severity === 'VIOLATION'), [])
+    // Origin only (TEST-ONLY): it no longer cites the building role's bound, so How to score no longer keeps it beside the build-out sentence.
+    const originOnly = { ...w3, id: 'TEST-ONLY-W3-ORIGIN', covers: w3.covers.filter(cover => cover.row !== 'B8') }
+    const scoring = renderConcreteGame(block, [w1, w2, originOnly]).instructions.filter(i => i.section === 'How to score').map(i => i.text)
+    assert.ok(scoring.indexOf(HIS_20_OCT_ITEM_2) > 1, JSON.stringify(scoring))
 })
 
 console.log(`approved-wording.unit.ts — ${passed} passed`)

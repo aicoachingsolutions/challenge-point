@@ -38,7 +38,8 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 
-import { buildActivity, buildActivityFromKnowledge, buildActivityOverAlteredKnowledge, buildActivityUnderAuthorizationRecords, RefusedActivity, testingAreaRefusal } from '../rendering/build-activity'
+import * as wordingModule from '../rendering/approved-wording'
+import { buildActivity, buildActivityFromKnowledge, buildActivityOverAlteredKnowledge, buildActivityUnderAuthorizationRecords, RefusedActivity, ServedActivity, testingAreaRefusal } from '../rendering/build-activity'
 import { assembleRenderingFixture } from '../rendering/rendering-fixture'
 import { checkRoleBlocks } from '../rendering/role-blocks'
 import { specializedRoleNames } from '../rendering/session-envelope'
@@ -399,7 +400,7 @@ test('the placements, their timing and their composed geometry reach the concret
 })
 
 // ── 9. Production A01 passes the record and the spatial stages; what stops it now ──────────────────────
-test('production A01 passes validation in both blocks (stage K7); what stops it is the regain score awaiting approved wording (stage M5; was the build-out condition)', () => {
+test('production A01 passes validation in both blocks (stage K7) and, since his two scoring statements (design step L14), nothing stops it: served (was the regain score awaiting approved wording, stage M5; before that the build-out condition)', () => {
     /**
      * What moves this stop (named in the K6 review, 16 October 2026; the pin said only what stops it). The guard
      * (context-scoring-guard.ts) confirms a context condition by its presence in the realized game, so a condition authored for
@@ -417,7 +418,31 @@ test('production A01 passes validation in both blocks (stage K7); what stops it 
      * which wait on his approved wording: each field withheld (type, referents, value where held, scope) and fidelity's Q3 note of
      * each as uncarried. Every other part of the activity is said (DRAFT).
      */
-    const refused = buildActivity({ kind: 'learning-goal', goalId: 'A01', session: sessionOf() }) as RefusedActivity
+    /*
+     * Moved 18 October 2026 (design step L14), the work succeeding: communication -> SERVED. His reply filed 20 October 2026, item 1:
+     * "Pressing team's regain score — Approved as written." (entry A01-W2, which says the four regain fields that were the whole stop
+     * below); item 2, his own eligibility sentence (entry A01-W3). The stop as it stood at stage M5 is kept below, measured on a
+     * TEST-ONLY table without A01-W2, so what moved it is pinned; on production nothing spatial, no record gap, no post-realization gate
+     * and no context-scoring finding stops it, and behind the record it is served the same.
+     */
+    const served = buildActivity({ kind: 'learning-goal', goalId: 'A01', session: sessionOf() }) as ServedActivity
+    assert.equal(served.outcome, 'served', JSON.stringify((served as unknown as RefusedActivity).reasons))
+    assert.deepEqual(served.rendered.withheld, [])
+    assert.equal(served.integrity.fidelityViolations, 0)
+    const servedBehind = buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: sessionOf() }, learningGoalAuthorizations()).activity as ServedActivity
+    assert.equal(servedBehind.outcome, 'served')
+    assert.deepEqual(servedBehind.rendered.instructions, served.rendered.instructions)
+    const read = wordingModule.approvedWording
+    const production = read()
+    let refused: RefusedActivity
+    let behind: RefusedActivity
+    try {
+        ;(wordingModule as any).approvedWording = () => JSON.parse(JSON.stringify(production.filter(entry => entry.id !== 'A01-W2')))
+        refused = buildActivity({ kind: 'learning-goal', goalId: 'A01', session: sessionOf() }) as RefusedActivity
+        behind = buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: sessionOf() }, learningGoalAuthorizations()).activity as RefusedActivity
+    } finally {
+        ;(wordingModule as any).approvedWording = read
+    }
     assert.equal(refused.stage, 'communication', JSON.stringify(refused.reasons))
     const blocksNamed = ['BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END', 'BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START']
     const fields: [string, string[]][] = [['18.a', ['type', 'referents', 'scope']], ['18.c', ['type', 'referents', 'value', 'scope']], ['18.f', ['type', 'referents', 'value', 'scope']], ['19.a', ['type', 'referents', 'value', 'scope']]]
@@ -450,7 +475,6 @@ test('production A01 passes validation in both blocks (stage K7); what stops it 
     // Nothing spatial, no record gap, no post-realization gate and no context-scoring finding is among the reasons.
     assert.ok(!refused.reasons.some(r => r.includes('post-realization') || r.includes('authorization record') || r.includes('cannot be confirmed to govern')))
     // Behind the record nothing changes: the record has no gap left.
-    const behind = buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: sessionOf() }, learningGoalAuthorizations()).activity as RefusedActivity
     assert.deepEqual(behind.reasons, refused.reasons)
 })
 

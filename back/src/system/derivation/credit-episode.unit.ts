@@ -36,7 +36,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import { approvedWording } from '../rendering/approved-wording'
-import { buildActivityForReview, buildActivityUnderAuthorizationRecords, RefusedActivity } from '../rendering/build-activity'
+import { buildActivityForReview, buildActivityUnderAuthorizationRecords, RefusedActivity, ServedActivity } from '../rendering/build-activity'
 import { episodeConfirmed } from '../rendering/context-scoring-guard'
 import { mechanismDemonstration, MECHANISM_DEMONSTRATIONS } from '../rendering/mechanism-demonstrations'
 import { renderConcreteGame } from '../rendering/render-concrete-game'
@@ -202,10 +202,16 @@ test('production A01: GA-EPISODE-REACHABLE passes in both blocks with clauses 4 
     }
 })
 
-test('the whole pathway: production A01 still reaches communication, its build-out conditions confirmed by the rerun check', () => {
-    const review = buildActivityForReview({ kind: 'learning-goal', goalId: 'A01', session: sessionOf() }, { includeDrafts: true }) as RefusedActivity
-    assert.equal(review.stage, 'communication', review.reasons.join(' | '))
-    assert.ok(!review.reasons.some(reason => reason.includes('cannot be confirmed to govern this game')), 'the context-scoring guard confirms the four BUILD_OUT_EPISODE conditions in both blocks')
+/*
+ * Re-pointed 18 October 2026 (design step L14): production A01 passes communication too and is SERVED - his reply filed 20 October 2026
+ * approved the regain sentence (item 1, entry A01-W2) and gave his own eligibility sentence (item 2, entry A01-W3). Being served, it
+ * passed the context-scoring guard in both blocks, which a guard refusal ("cannot be confirmed to govern this game") would have stopped.
+ * Was: it reached communication, with no guard reason among its reasons.
+ */
+test('the whole pathway: production A01 is served (design step L14; was: it reached communication), its build-out conditions confirmed by the rerun check', () => {
+    const review = buildActivityForReview({ kind: 'learning-goal', goalId: 'A01', session: sessionOf() }, { includeDrafts: true })
+    assert.equal(review.outcome, 'served', JSON.stringify((review as RefusedActivity).reasons))
+    assert.ok(!JSON.stringify(review).includes('cannot be confirmed to govern this game'), 'the context-scoring guard confirms the four BUILD_OUT_EPISODE conditions in both blocks')
 })
 
 // ── 4. Each reversal, refused at structure ─────────────────────────────────────────────────────────────
@@ -327,8 +333,21 @@ test('the fixture carries the bound in both blocks and the composed fixture; the
     assert.deepEqual(bounds(fixture.game), expected, 'the composed fixture')
     assert.equal(fixture.roleBlocks.blocks.length, 2)
     for (const block of fixture.roleBlocks.blocks) assert.deepEqual(bounds(block.fixture.game), expected, block.blockId)
-    const activity = built.activity as RefusedActivity
-    assert.equal(activity.stage, 'communication')
+    /*
+     * Moved 18 October 2026 (design step L14): communication -> served (his reply filed 20 October 2026, items 1 and 2: entries A01-W2 and
+     * A01-W3), so the activity has no reasons; read as an empty list, every assertion on them below still holds and now holds of a served
+     * activity. Was: refused at communication.
+     */
+    assert.equal(built.activity.outcome, 'served')
+    const activity = { reasons: [] as string[], ...(built.activity as Partial<RefusedActivity>) }
+    /*
+     * Added 18 October 2026 (review of design step L14): on a served activity the empty `reasons` makes the two reason checks below
+     * hold trivially, so what they stood for is asserted where a served activity records it - nothing withheld, so neither role's
+     * bound (nor anything else) is awaiting approved wording, and nothing said is unfaithful.
+     */
+    const servedNow = built.activity as ServedActivity
+    assert.deepEqual(servedNow.rendered.withheld, [], 'nothing awaits approved wording: both roles\' bounds are said or owe nothing')
+    assert.equal(servedNow.integrity.fidelityViolations, 0)
     /*
      * Moved 18 October 2026 (stage M5, design step L13): the building role's bound is no longer awaiting approved wording, 2 -> 0. It
      * is said in his words - entry A01-W1, his reply filed 19 October 2026, item 1 ("Approved with revised wording") - once per block,
@@ -339,9 +358,15 @@ test('the fixture carries the bound in both blocks and the composed fixture; the
     assert.deepEqual(awaiting, [], 'his approved sentence says the bound')
     const [entry] = approvedWording()
     assert.equal(entry.id, 'A01-W1')
+    /*
+     * Re-pointed 18 October 2026 (design step L14): and his eligibility sentence (entry A01-W3, his reply filed 20 October 2026, item 2:
+     * "If the building team loses possession or plays the ball out, it cannot score again until the next goalkeeper restart.") cites the
+     * bound too, after his build-out sentence. Both are his; still no sentence nobody approved cites it. Was: [A01-W1's sentence].
+     */
+    const eligibility = approvedWording().find(e => e.id === 'A01-W3')!
     for (const block of fixture.roleBlocks.blocks) {
         const citing = renderConcreteGame(block.fixture).instructions.filter(i => i.from.includes(`activityRoles[${R('B1-1')}].creditedWithin`))
-        assert.deepEqual(citing.map(i => i.text), [entry.sentence], `${block.blockId}: only his sentence cites the bound`)
+        assert.deepEqual(citing.map(i => i.text), [entry.sentence, eligibility.sentence], `${block.blockId}: only his sentences cite the bound`)
     }
     assert.ok(!activity.reasons.some(reason => reason.includes(`awaiting approved wording: activityRoles[${R('B1-2')}]`)), 'the whole game bounds nothing, so no approved wording is owed for it')
 })

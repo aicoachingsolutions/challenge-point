@@ -528,6 +528,47 @@ function DemonstrationLabel() {
     )
 }
 
+type Wording = ReviewEvidence['sections']['instructions'][number]['wording']
+
+/**
+ * Whose wording each served sentence is, for an administrator: APPROVED or DRAFT, as the review evidence says.
+ *
+ * Christian's reply filed 20 October 2026: "this approval applies specifically to the two scoring statements, not yet to
+ * the entire activity" — and we told him every other sentence is marked as a draft. The mark exists only in the evidence,
+ * so it is joined back to the rendered sentence here. The join is by index (the evidence's `index` is the sentence's place
+ * in `rendered.instructions`) AND by section, block and text: a sentence whose evidence does not match on all four gets no
+ * tag at all, because a wrong "Approved" is worse than none. Null for a coach, who receives no evidence.
+ */
+function wordingBySentence(activity: ServedActivity): { tags: Map<ReviewInstruction, Wording>; unmatched: number } | null {
+    const sentences = activity.evidence?.sections?.instructions
+    if (!Array.isArray(sentences)) return null
+    const tags = new Map<ReviewInstruction, Wording>()
+    let unmatched = 0
+    activity.rendered.instructions.forEach((instruction, at) => {
+        const candidates = sentences.filter((sentence) => sentence.index === at)
+        const sentence = candidates.length === 1 ? candidates[0] : null
+        const matches =
+            !!sentence &&
+            sentence.text === instruction.text &&
+            sentence.section === instruction.section &&
+            (sentence.block ?? null) === (instruction.block ?? null) &&
+            (sentence.wording === 'APPROVED' || sentence.wording === 'DRAFT')
+        if (matches) tags.set(instruction, sentence.wording)
+        else unmatched += 1
+    })
+    return { tags, unmatched }
+}
+
+/** The quiet tag beside a sentence in the administrator's view. Labels are DRAFT wording. */
+function WordingTag({ wording }: { wording: Wording | undefined }) {
+    if (!wording) return null
+    return wording === 'APPROVED' ? (
+        <span className='ml-2 inline-block px-1.5 py-0.5 text-[10px] font-medium text-emerald-800 bg-emerald-50 rounded'>Approved</span>
+    ) : (
+        <span className='ml-2 inline-block px-1.5 py-0.5 text-[10px] font-medium text-gray-500 bg-gray-100 rounded'>Draft</span>
+    )
+}
+
 /**
  * THE ACTIVITY, AS A COACH WOULD PRINT IT. Title, the one-line definition, then each section as plain
  * bullets — and nothing else. Since 14 October 2026 the activity is a starting setup with a separate adjusting
@@ -537,12 +578,17 @@ function DemonstrationLabel() {
  * Only `text` is read. An instruction also carries its status and the game paths it came from; those hold
  * internal handles (measured on the possession game: `space.regions[c:restated:GF2:GF2-03.e]...`) and are
  * shown in the account below, never here.
+ *
+ * The one addition is for an administrator only: where the response carries the review evidence, each sentence is
+ * tagged with whose wording it is (see `wordingBySentence`). The tag says Approved or Draft and nothing more — no
+ * register row, source or other internal handle. A coach's response has no evidence, and the block renders without tags.
  */
 function ActivityBlock({ activity }: { activity: ServedActivity }) {
     // The starting setup and playing instructions first; what a coach may adjust below a divider (14 October 2026).
     const grouped = groupBySection(activity.rendered.instructions)
     const sections = grouped.filter((group) => group.section !== ADJUSTING_SECTION)
     const adjusting = grouped.find((group) => group.section === ADJUSTING_SECTION)
+    const wording = wordingBySentence(activity)
 
     return (
         <article className='bg-white border rounded-lg shadow-sm'>
@@ -554,6 +600,14 @@ function ActivityBlock({ activity }: { activity: ServedActivity }) {
             {activity.account?.provisional && (
                 <div role='note' className='px-6 py-3 text-sm font-medium border-b rounded-t-lg text-amber-900 bg-amber-100 border-amber-200'>
                     Provisional — the Game Problem for this goal has not been decided, so this is not a completed learning-design example.
+                </div>
+            )}
+            {/* Administrator view only: what the tags mean, read before the sentences they mark. Wording is a DRAFT. */}
+            {wording && (
+                <div role='note' className='px-6 py-2 text-xs text-gray-500 border-b border-gray-100'>
+                    Approved: wording you have approved. Draft: wording awaiting your approval.
+                    {wording.unmatched > 0 &&
+                        ` ${wording.unmatched} sentence${wording.unmatched === 1 ? '' : 's'} could not be matched to the review evidence and ${wording.unmatched === 1 ? 'carries' : 'carry'} no tag.`}
                 </div>
             )}
             <div className='p-6'>
@@ -574,6 +628,7 @@ function ActivityBlock({ activity }: { activity: ServedActivity }) {
                                         <span className='leading-relaxed'>
                                             {blockLabel(activity, instruction)}
                                             {instruction.text}
+                                            <WordingTag wording={wording?.tags.get(instruction)} />
                                         </span>
                                     </li>
                                 ))}
@@ -599,6 +654,7 @@ function ActivityBlock({ activity }: { activity: ServedActivity }) {
                                     <span className='leading-relaxed'>
                                         {blockLabel(activity, instruction)}
                                         {instruction.text}
+                                        <WordingTag wording={wording?.tags.get(instruction)} />
                                     </span>
                                 </li>
                             ))}
