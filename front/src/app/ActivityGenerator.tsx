@@ -376,6 +376,17 @@ export default function ActivityGenerator() {
 
     return (
         <div className='flex flex-col justify-center pt-2'>
+            {id && (
+                <div className='flex flex-col items-start w-full max-w-2xl gap-1 px-4 mx-auto mb-4 sm:px-6 lg:px-8'>
+                    <Button.Outline onClick={() => navigate(`/session/${id}/activity-review`)} className='text-sm'>
+                        <ClipboardDocumentIcon className='w-4 h-4 mr-2' />
+                        Review an activity for this session
+                    </Button.Outline>
+                    <p className='text-xs text-gray-500'>
+                        See the activity a Learning Goal produces from these players and this playing area. Nothing is saved.
+                    </p>
+                </div>
+            )}
 
             {/* Developer debug trace (only with ?debug=1). Shows the resolution/selection chain that
                 produced THIS generation + the AI-stage validation result, next to the real output. */}
