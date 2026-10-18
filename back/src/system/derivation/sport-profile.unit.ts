@@ -29,7 +29,11 @@
  */
 import assert from 'node:assert/strict'
 
-import { loadSportProfile } from './corpus'
+import fs from 'node:fs'
+import path from 'node:path'
+
+import { buildActivityFromKnowledge, buildActivityWithFixture } from '../rendering/build-activity'
+import { CONFORMANCE_DIR, loadSportCoachVocabulary, loadSportProfile, readJson, validateSportCoachVocabulary } from './corpus'
 import { runDerivation, runStages0to10 } from './engine'
 import { indexRegister } from './register'
 import { assembleResolvedGame } from './resolved-game'
@@ -222,6 +226,53 @@ test('CONTROL — the relation alone does not make a possession change reachable
     assert.equal(check.verdict, 'FAIL')
     assert.equal(gateA, 'FAIL')
     assert.match(String(check.why), /POSSESSION_CHANGE/, 'and it names the transition that cannot fire')
+})
+
+// ── The sport's coach vocabulary (stage M4, 17 October 2026, design step L10) ───────────────────────────────
+
+/**
+ * His reply filed 19 October 2026, item 4: "I approve both of your proposed revisions:" ... Use "throw-in" rather than "with the ball in
+ * hand." The noun is the sport's, so it lives in a data file found by pattern beside the profile (never in the sport-neutral code; the
+ * coupling ratchet lists the term), carried to the fixture only for a transition the game holds, and read by the renderer from there.
+ */
+test('the coach vocabulary: one file, tied to the profile, every entry approved in his cited words', () => {
+    const vocabulary = loadSportCoachVocabulary()!
+    assert.equal(vocabulary.sportId, readJson(`stage-b/${fs.readdirSync(path.join(CONFORMANCE_DIR, 'stage-b')).find(n => n.startsWith('sport-profile-'))}`).sportId)
+    assert.deepEqual(vocabulary.restartMethodNouns.map(e => [e.trigger, e.method, e.article, e.noun]), [['OUT_TOUCHLINE', 'IN_HAND', 'a', 'throw-in']])
+    assert.deepEqual(vocabulary.restartMethodNouns[0].approvedBy.map(w => w.citedAs), ['his reply filed 19 October 2026, item 4', 'his reply filed 18 October 2026, item 2'])
+    assert.equal(vocabulary.restartMethodNouns[0].approvedBy[0].words, 'Use "throw-in" rather than "with the ball in hand."')
+    // Not a contribution of the profile: the profile's items and declarations are what they were.
+    assert.ok(!JSON.stringify(loadSportProfile()).includes('throw-in'))
+})
+
+test('the coach vocabulary refuses an entry without his approval, for another sport, or twice', () => {
+    const raw = readJson(loadSportCoachVocabulary()!.file)
+    const sportId = raw.sportId
+    assert.deepEqual(validateSportCoachVocabulary(raw, sportId), [])
+    const copy = () => JSON.parse(JSON.stringify(raw))
+    const unapproved = copy()
+    delete unapproved.restartMethodNouns.entries[0].approvedBy
+    assert.ok(validateSportCoachVocabulary(unapproved, sportId).some(e => e.includes('carries no approval in his cited words')))
+    const uncited = copy()
+    uncited.restartMethodNouns.entries[0].approvedBy = [{ words: 'TEST-ONLY', citedAs: '' }]
+    assert.ok(validateSportCoachVocabulary(uncited, sportId).some(e => e.includes('carries no approval in his cited words')))
+    assert.ok(validateSportCoachVocabulary(raw, 'TEST-ONLY').some(e => e.includes('and the Sport Profile is')))
+    const twice = copy()
+    twice.restartMethodNouns.entries.push(twice.restartMethodNouns.entries[0])
+    assert.ok(validateSportCoachVocabulary(twice, sportId).some(e => e.includes('repeats the trigger and method')))
+    // Stage M4 review (17 October 2026): an approval in his cited words that does not name the noun approves nothing for it.
+    const otherNoun = copy()
+    otherNoun.restartMethodNouns.entries[0].noun = 'TEST-ONLY-noun'
+    assert.ok(validateSportCoachVocabulary(otherNoun, sportId).some(e => e.includes('the noun "TEST-ONLY-noun" is not in his cited words')))
+})
+
+test('key identity: A01 carries exactly the vocabulary entry its touchline transitions use, and a game with none carries none', () => {
+    const vocabulary = loadSportCoachVocabulary()!
+    const a01: any = buildActivityWithFixture({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { goalkeeper: 1 } } } as any).fixture
+    for (const block of a01.roleBlocks.blocks) assert.deepEqual(block.fixture.methodNouns, { status: 'APPROVED', entries: vocabulary.restartMethodNouns })
+    const plain: any = buildActivityFromKnowledge(['GF2'], { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { goalkeeper: 0 } }).fixture
+    assert.ok(plain && plain.game, 'the possession game alone builds a fixture')
+    assert.equal(plain.methodNouns, undefined, 'no transition with that trigger and method, so nothing crosses')
 })
 
 console.log(`sport-profile: ${passed} passed`)

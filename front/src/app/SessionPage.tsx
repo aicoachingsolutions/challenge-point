@@ -102,7 +102,7 @@ export default function SessionPage() {
                       *
                       * It is not reachable from here for a brand-new session: the effect above sends a
                       * Draft session with no activities straight to the generator. That redirect is left
-                      * alone; where else the entry should appear is a decision still to be made.
+                      * alone; Joe decided on 19 October 2026 that the generator page carries the other entry.
                       */}
                     {session && (
                         <div className='flex flex-col items-start gap-1 mt-4'>

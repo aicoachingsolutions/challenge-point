@@ -803,6 +803,14 @@ function ReviewEvidencePanel({ evidence }: { evidence: ReviewEvidence }) {
                                 {item.sentences.map((index) => index + 1).join(', ') || 'none'} · checks {item.checks.map((check) => `${check.checkId}${check.blockId ? ` (${blockLabel(check.blockId)})` : ''} ${check.verdict}`).join(', ') || 'none'}
                                 {item.awaiting.length > 0 && ` · ${item.awaiting.length} field(s) awaiting approved wording`}
                             </p>
+                            {(item.facts ?? [])
+                                .filter((block) => block.facts.length > 0)
+                                .map((block) => (
+                                    <div key={block.blockId} className='pl-3'>
+                                        <p className='text-xs text-gray-500'>{blockLabel(block.blockId)}</p>
+                                        <Facts facts={block.facts} />
+                                    </div>
+                                ))}
                         </div>
                     ))}
                 </EvidencePart>
@@ -863,6 +871,10 @@ function ReviewEvidencePanel({ evidence }: { evidence: ReviewEvidence }) {
                             {flag.his.map((said, index) => (
                                 <His key={index} {...said} />
                             ))}
+                            {(flag.settledBy ?? []).length > 0 && <p className='text-xs text-gray-500'>Your ruling on it:</p>}
+                            {(flag.settledBy ?? []).map((said, index) => (
+                                <His key={`settled-${index}`} {...said} />
+                            ))}
                             <p className='text-xs text-gray-800'>{flag.answer}</p>
                             {flag.blocks.map((block) => (
                                 <div key={block.blockId} className='pl-3'>
@@ -876,6 +888,21 @@ function ReviewEvidencePanel({ evidence }: { evidence: ReviewEvidence }) {
                                     <Facts facts={[...flag.knowledge.libraryEntries, ...flag.knowledge.corpusItems, ...flag.knowledge.registerRows]} />
                                 </div>
                             )}
+                        </div>
+                    ))}
+                </EvidencePart>
+                <EvidencePart title='Limitations kept visible'>
+                    {(evidence.limitations ?? []).map((limitation) => (
+                        <div key={limitation.id} className='space-y-1'>
+                            <p className='text-xs font-semibold text-gray-700'>
+                                {limitation.id} — {limitation.kind}
+                            </p>
+                            {limitation.his.map((said, index) => (
+                                <His key={index} {...said} />
+                            ))}
+                            <div className='pl-3'>
+                                <Facts facts={limitation.facts} />
+                            </div>
                         </div>
                     ))}
                 </EvidencePart>
@@ -1242,17 +1269,46 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                                         </li>
                                     ))}
                                 </ul>
+                                {/*
+                                  * 17 October 2026 (stage M4). Every decision and capability the record named had been ruled on by
+                                  * his 19 October reply, and this list still read "still needed" for all of them. Split: a gap is
+                                  * settled only where the record carries his words settling it (`settledBy`) and no entry waits on it;
+                                  * everything else stays under "still needed". Labels are DRAFTS.
+                                  */}
                                 <p className='mb-1 text-xs font-semibold text-gray-700'>Gaps: decisions and capabilities still needed</p>
+                                <ul className='mb-3 space-y-1'>
+                                    {account.authorizationLists.gaps.filter((gap) => gap.neededBy.length > 0 || !(gap.settledBy ?? []).length).length === 0 && (
+                                        <li className='text-xs text-gray-500'>None.</li>
+                                    )}
+                                    {account.authorizationLists.gaps
+                                        .filter((gap) => gap.neededBy.length > 0 || !(gap.settledBy ?? []).length)
+                                        .map((gap) => (
+                                            <li key={gap.id} className='text-xs'>
+                                                <span className='mr-2 font-mono'>{gap.id}</span>
+                                                <span className='mr-2 text-gray-500'>({gap.kind.toLowerCase()})</span>
+                                                {gap.description}
+                                                {gap.neededBy.length > 0 && <span className='block text-amber-700'>Needed by: {gap.neededBy.join(' · ')}</span>}
+                                                {gap.note && <span className='block text-gray-500'>{gap.note}</span>}
+                                            </li>
+                                        ))}
+                                </ul>
+                                <p className='mb-1 text-xs font-semibold text-gray-700'>Gaps settled by your rulings (history)</p>
                                 <ul className='space-y-1'>
-                                    {account.authorizationLists.gaps.map((gap) => (
-                                        <li key={gap.id} className='text-xs'>
-                                            <span className='mr-2 font-mono'>{gap.id}</span>
-                                            <span className='mr-2 text-gray-500'>({gap.kind.toLowerCase()})</span>
-                                            {gap.description}
-                                            {gap.neededBy.length > 0 && <span className='block text-amber-700'>Needed by: {gap.neededBy.join(' · ')}</span>}
-                                            {gap.note && <span className='block text-gray-500'>{gap.note}</span>}
-                                        </li>
-                                    ))}
+                                    {account.authorizationLists.gaps
+                                        .filter((gap) => gap.neededBy.length === 0 && (gap.settledBy ?? []).length > 0)
+                                        .map((gap) => (
+                                            <li key={gap.id} className='text-xs'>
+                                                <span className='mr-2 font-mono'>{gap.id}</span>
+                                                <span className='mr-2 text-gray-500'>({gap.kind.toLowerCase()})</span>
+                                                {gap.description}
+                                                {(gap.settledBy ?? []).map((said, index) => (
+                                                    <span key={index} className='block text-gray-600'>
+                                                        "{said.words}" ({said.citedAs})
+                                                    </span>
+                                                ))}
+                                                {gap.note && <span className='block text-gray-500'>{gap.note}</span>}
+                                            </li>
+                                        ))}
                                 </ul>
                             </AccountField>
                         )}

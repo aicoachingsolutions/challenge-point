@@ -103,6 +103,8 @@ export interface ReviewRecordGap {
     kind: string
     description: string
     note: string | null
+    /** His words settling it (stage M4, 17 October 2026); absent while it is still needed. */
+    settledBy?: { words: string; citedAs: string }[]
 }
 
 /** One line of the three lists, each field copied from the record by the server (15 October 2026). */
@@ -370,6 +372,8 @@ export interface ReviewEvidence {
         awaiting: string[]
         sections: string[]
         resolved: boolean
+        /** Stage M3: per block, the role's scoring credit and the occurrences that also count as the primary event (empty for an item about no role). */
+        facts: { blockId: string; facts: ReviewFact[] }[]
     }[]
     structure: {
         blocks: { blockId: string; holders: Record<string, string>; sections: Record<string, { checks: ReviewCheckRow[]; facts: ReviewFact[] }>; owed: { checkId: string; clause: string; verdict: string }[] }[]
@@ -387,7 +391,9 @@ export interface ReviewEvidence {
         noPrescription: ReviewFact[]
         instructions: { index: number; section: string; block: string | null; text: string; wording: 'APPROVED' | 'DRAFT'; obligationWords: string[]; q4: string[]; layers: string[]; standings: string[]; sources: ReviewEvidenceSource[] }[]
     }
-    flags: { id: string; kind: string; role: string; his: { words: string; citedAs: string }[]; status: string; answer: string; blocks: { blockId: string; facts: ReviewFact[] }[]; knowledge?: { libraryEntries: ReviewFact[]; registerRows: ReviewFact[]; corpusItems: ReviewFact[] } }[]
+    flags: { id: string; kind: string; role: string; his: { words: string; citedAs: string }[]; status: string; settledBy: { words: string; citedAs: string }[]; answer: string; blocks: { blockId: string; facts: ReviewFact[] }[]; knowledge?: { libraryEntries: ReviewFact[]; registerRows: ReviewFact[]; corpusItems: ReviewFact[] } }[]
+    /** Stage M3: the limitations he asked to keep visible, each in his words with the facts the game holds. */
+    limitations: { id: string; kind: string; his: { words: string; citedAs: string }[]; facts: ReviewFact[] }[]
     evaluation: { his: { words: string; citedAs: string }; points: { id: string; words: string; sections: string[] }[]; judgement: string }
     requests: { words: string; citedAs: string; sections: string[] }[]
     provenance: { elements: { path: string; row: string | null; blocks: string[]; layers: string[]; standings: string[]; sources: ReviewEvidenceSource[] }[]; untraced: string[]; lists: Record<string, unknown> | null; openForReview: ReviewFact[] }

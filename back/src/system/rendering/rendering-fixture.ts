@@ -87,9 +87,16 @@ export interface RenderingFixtureParts {
      * possession, entailed by the start's awardee). Absent wherever nothing is withdrawn.
      */
     withdrawnChoices?: { lineId: string; withdrawnFrom: string; by: string; withdrawnValue: unknown; because: string }[]
+    /**
+     * The sport's approved noun for each restart method the game holds a transition for, keyed by trigger and method — stage M4,
+     * 17 October 2026, his reply filed 19 October 2026, item 4 (`derivation/corpus.ts` loadSportCoachVocabulary). Given only where
+     * the game holds such a transition, so the sport-neutral renderer reads the sport's word from the fixture. Absent, the fixture is
+     * exactly what it was.
+     */
+    methodNouns?: { trigger: string; method: string; article: string; noun: string; approvedBy: { words: string; citedAs: string }[] }[]
 }
 
-export function assembleRenderingFixture({ resolved, realized, entailed, envelope, accepted, postRealizationValidated, roleNouns, roleHolders, reassignmentNouns, adjustments, alternatives, withdrawnChoices }: RenderingFixtureParts): Record<string, unknown> {
+export function assembleRenderingFixture({ resolved, realized, entailed, envelope, accepted, postRealizationValidated, roleNouns, roleHolders, reassignmentNouns, adjustments, alternatives, withdrawnChoices, methodNouns }: RenderingFixtureParts): Record<string, unknown> {
     const pathOf = new Map(resolved.derived.map(entry => [entry.lineId, entry.path]))
     return {
         provenance: resolved.provenance,
@@ -130,5 +137,6 @@ export function assembleRenderingFixture({ resolved, realized, entailed, envelop
         ...(adjustments?.length ? { adjustments: { status: 'DRAFT', entries: JSON.parse(JSON.stringify(adjustments)) } } : {}),
         ...(alternatives?.length ? { alternatives: JSON.parse(JSON.stringify(alternatives)) } : {}),
         ...(withdrawnChoices?.length ? { withdrawnChoices: JSON.parse(JSON.stringify(withdrawnChoices)) } : {}),
+        ...(methodNouns?.length ? { methodNouns: { status: 'APPROVED', entries: JSON.parse(JSON.stringify(methodNouns)) } } : {}),
     }
 }

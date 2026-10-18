@@ -299,8 +299,10 @@ test('GA-EPISODE-REACHABLE passes in each block of A01: the start, the after-sco
         const reach = check(staged, 'GA-EPISODE-REACHABLE')
         assert.equal(reach.verdict, 'PASS', `${block.blockId}: ${reach.why}`)
         // A third clause since stage K6 (15 October 2026): the starting placements are re-established at the same three
-        // transitions (target-placement.unit.ts).
-        assert.deepEqual(reach.clauses.map((c: any) => c.verdict), ['PASS', 'PASS', 'PASS'])
+        // transitions (target-placement.unit.ts). A fourth and fifth since 17 October 2026 (stage M1, his reply filed 19 October 2026,
+        // item 1 and item 3 C): the building role's credit is begun only by those three, each awarded to it, and ended by every
+        // transition that can take possession from it (credit-episode.unit.ts).
+        assert.deepEqual(reach.clauses.map((c: any) => c.verdict), ['PASS', 'PASS', 'PASS', 'PASS', 'PASS'])
         assert.equal(reach.clauses[1].instances, 3, 'three transitions begin the build-out episode')
         for (const id of ['A01-R1-T1-1: START', 'A01-R1-T1-2: SCORE', `A01-R1-T1-3: ${TOKEN}`]) assert.ok(reach.why.includes(`c:provisional:A01-R1:${id}`), id)
         assert.ok(reach.why.includes('awarded to ROLE_HOLDER_BUILDING'), 'only the building team initiates new build-out episodes (his D7)')
@@ -319,12 +321,14 @@ test('the two clauses bite: a second awardee fails, no starter fails, and withou
         realizationItem(contracts, 'A01-R1-T2-1').selector = 'trigger ∈ {START, COACH_JUDGED_EPISODE_CONCLUSION}'
         realization.items.push({ ...realizationItem(contracts, 'A01-R1-T2-1'), itemId: 'A01-R1-TEST-ONLY', selector: 'trigger=SCORE', value: 'ROLE_HOLDER_PRESSING' })
     })
-    // The third clause (stage K6): the placements are still re-established at the three starters.
-    assert.deepEqual(check(split.staged, 'GA-EPISODE-REACHABLE').clauses.map((c: any) => c.verdict), ['PASS', 'FAIL', 'PASS'])
+    // The third clause (stage K6): the placements are still re-established at the three starters. The fourth (stage M1, 17 October
+    // 2026) fails with the second: a beginning of the building role's credited episode awarded to the pressing role.
+    assert.deepEqual(check(split.staged, 'GA-EPISODE-REACHABLE').clauses.map((c: any) => c.verdict), ['PASS', 'FAIL', 'PASS', 'FAIL', 'PASS'])
     // TEST-ONLY: no restart taken by an arm's taker — nothing begins the episode.
     const [none] = a01Blocks(contracts => void (realizationItem(contracts, 'A01-R1-T3-1').value = 'TEST-ONLY taker'))
     // The third clause (stage K6) fails with it: a placement re-established when no transition begins its episode never would be.
-    assert.deepEqual(check(none.staged, 'GA-EPISODE-REACHABLE').clauses.map((c: any) => c.verdict), ['FAIL', 'PASS', 'FAIL'])
+    // So does the fourth (stage M1, 17 October 2026): a credit confined to an episode nothing begins could never be earned.
+    assert.deepEqual(check(none.staged, 'GA-EPISODE-REACHABLE').clauses.map((c: any) => c.verdict), ['FAIL', 'PASS', 'FAIL', 'FAIL', 'PASS'])
     // TEST-ONLY: the origin's original placement texts back — the check withholds (SD-63), exactly as before C58.
     const original = JSON.parse(fs.readFileSync(path.join(CONFORMANCE_DIR, 'stage-b', 'contracts.json'), 'utf8'))
     const [untyped] = a01Blocks(contracts => {
@@ -430,10 +434,17 @@ test('realization: the COACH_DECIDES stand-ins, the possession game initial-hold
      * are pinned in target-placement.unit.ts, on A01's own selection.
      */
     const SPATIAL = ['S2', 'S5', 'S6', 'P8', 'P10', 'P10a', 'P10b']
+    // Re-pointed 17 October 2026 (stage M1): without the roles' credit bounds too (row B8, his reply filed 19 October 2026, item 1 and
+    // item 3 C). The building role's bound is the build-out episode, whose beginnings only the context types, so with the possession
+    // game alone GA-EPISODE-REACHABLE's fourth clause withholds on it (measured: refused at structure) - pinned in credit-episode.unit.ts.
+    // Re-pointed 17 October 2026 (stage M2): without the pressing role's regain score too (rows V27-V31, his reply filed 19 October
+    // 2026, item 2). It is said only in approved words, so with it this TEST-ONLY composition stops at communication on its four
+    // fields (measured) - which is right, and pinned in also-counts.unit.ts; the transitions' stand-ins read none of it.
+    const CREDIT = ['B8', 'V27', 'V28', 'V29', 'V30', 'V31']
     const built = buildActivityFromKnowledge(['GF2'], sessionOf(12, 1), {
         alter: contracts => {
             const realization: any = JSON.parse(JSON.stringify(provisionalRealizationNamed('A01-R1')!))
-            realization.items = realization.items.filter((i: any) => !SPATIAL.includes(String(i.row)) && i.itemId !== 'A01-R1-T4-4')
+            realization.items = realization.items.filter((i: any) => !SPATIAL.includes(String(i.row)) && !CREDIT.includes(String(i.row)) && i.itemId !== 'A01-R1-T4-4')
             contracts.push(realization)
         },
         alterSupplied: supplied => {

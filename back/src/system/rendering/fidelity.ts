@@ -21,7 +21,7 @@ import { effectiveValue, scaleExactly } from '../derivation/rational'
 import { conditionScopeNotEvaluable } from '../derivation/resolved-game'
 import { ApprovedWording, approvedWording } from './approved-wording'
 import { CoachFacingExclusion, exclusionFor } from './coach-facing-exclusions'
-import { ADJUSTING, approvedSentences, Binding, combinedStatus, ENDS_ON_WORDING, Instruction, RenderedActivity, SourceStatus } from './render-concrete-game'
+import { ADJUSTING, approvedSentences, Binding, combinedStatus, ENDS_ON_WORDING, Instruction, RenderedActivity, SourceStatus, UNBOUNDED_CREDIT } from './render-concrete-game'
 
 export interface FidelityFinding {
     /** 6 since 15 October 2026 (stage K3): an activity composed from role blocks lost or invented nothing (`role-blocks.ts`). */
@@ -455,7 +455,13 @@ function heldAt(fixture: any, path: string): number[] {
         else if (Array.isArray(node)) found.push(node.length)
         else if (node && typeof node === 'object') Object.values(node as Record<string, unknown>).forEach(collect)
     }
-    let nodes: unknown[] = [fixture.game]
+    nodesAt(fixture.game, path).forEach(collect)
+    return found
+}
+
+/** What the game holds at a path: one node, or every member's for an open subscript; nothing where the path leads nowhere. */
+function nodesAt(game: unknown, path: string): unknown[] {
+    let nodes: unknown[] = [game]
     for (const { key, subscript } of segmentsOf(path)) {
         nodes = nodes.flatMap(node => {
             const next = node && typeof node === 'object' ? (node as Record<string, unknown>)[key] : undefined
@@ -464,7 +470,18 @@ function heldAt(fixture: any, path: string): number[] {
             return subscript === '' ? next : next.filter(member => member === subscript || (member && typeof member === 'object' && (member as Record<string, unknown>).elementId === subscript))
         })
     }
-    nodes.forEach(collect)
+    return nodes
+}
+
+/** Every string value anywhere beneath the nodes at a path (keys are not values). */
+function stringsAt(game: unknown, path: string): string[] {
+    const found: string[] = []
+    const collect = (node: unknown) => {
+        if (typeof node === 'string') found.push(node)
+        else if (Array.isArray(node)) node.forEach(collect)
+        else if (node && typeof node === 'object') Object.values(node as Record<string, unknown>).forEach(collect)
+    }
+    nodesAt(game, path).forEach(collect)
     return found
 }
 
@@ -1064,9 +1081,24 @@ export function checkFidelity(
         if (isApproved(statement) || OBLIGATION_ALLOWLIST.some(template => template.holds(statement, fixture))) continue
         findings.push({ question: 4, severity: 'VIOLATION', what: `"${statement.text}" states a player obligation or an order of actions that no approved sentence and no rule of the game words that way` })
     }
+    /**
+     * **RELAXATION, narrow: an approved sentence restating a rule of the game that names the role** — stage M3, 17 October 2026
+     * (design step L8). Christian, reply filed 19 October 2026, item 1: *"Approved with revised wording"*, approving a sentence that
+     * names the [specialized role] with a word of obligation and an order — *"The progression must begin with the [specialized role]'s
+     * build-out and occur before the building team loses possession."* (the role bracketed, as above, for the coupling ratchet).
+     * There the role's name is not a behaviour asked of a player: it is the VALUE of a field the sentence translates (the episode's
+     * origin, a condition's `referents.arms[].takenBy`). So the role rule passes over an instruction only where BOTH hold: it is a
+     * sentence approved wording says for this game with exactly its citations (`isApproved`), and the role it names is a string value
+     * inside a field it cites. Everything else is refused exactly as before: a draft with the same words, an approved sentence naming
+     * a role no field it cites holds, and the adversarial lines of his D5/D6 (communication.unit.ts). His D6 still governs every
+     * sentence about how the role plays.
+     */
+    const sameName = (a: string, b: string) => a.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean).join(' ') === b.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean).join(' ')
+    const restatesCoveredValue = (instruction: Instruction, role: string) => isApproved(instruction) && instruction.from.some(path => stringsAt(fixture.game, path).some(value => sameName(value, role)))
     const specialized = Object.keys(fixture.envelope?.roles ?? {})
     for (const instruction of rendered.instructions) {
-        const role = specialized.find(name => namesRole(instruction.text, name))
+        // Every role the sentence names must be a covered value for it to pass; the first that is not is the one reported.
+        const role = specialized.filter(name => namesRole(instruction.text, name)).find(name => !restatesCoveredValue(instruction, name))
         if (role && [...OBLIGATIONS, ...ROLE_ORDERING].some(word => word.test(instruction.text))) {
             findings.push({ question: 4, severity: 'VIOLATION', what: `"${instruction.text}" names the ${role} with a word of obligation or order: a specialized role is an available option, never a required behavior` })
         }
@@ -1165,6 +1197,63 @@ export function checkFidelity(
         for (const instruction of saying) {
             if (isApproved(instruction) && instruction.from.includes(`${at}.scope`)) continue
             findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" states a condition as a rule of the game when ${notEvaluable}` })
+        }
+    }
+
+    /**
+     * **No scoring sentence speaks for a role whose credit is bounded unless he approved it** — stage M3, 17 October 2026 (design step
+     * L9, fidelity Q2). Christian, reply filed 19 October 2026, item 1: *"Please ensure the underlying scoring eligibility reflects this
+     * distinction, rather than relying solely on the coach-facing wording."*; item 4: *"please ensure the surrounding scoring
+     * instructions make clear that continuing to attack does not automatically restore the building team's eligibility to score."*
+     * The renderer no longer says "A team scores …" where a role's credit is bounded (render-concrete-game.ts); this is the independent
+     * check that no sentence does, whatever renders it. Where any role element carries a bound other than the whole game (row B8):
+     *
+     *   - a sentence citing the primary event's kind that cites no role (team-neutral) speaks for EVERY role, whichever objective it
+     *     cites, so it must be approved wording for this game AND cite every bounded role's bound;
+     *   - a sentence citing a bounded role's bound, or citing the event's kind and anything of a bounded role, must be approved.
+     *
+     * A sentence for a role whose bound is the whole game is untouched (it may be a draft), and a game whose roles carry no bound owes
+     * nothing here. A citation alone never satisfies the rule: approval is `isApproved`, the sentence approved wording says with
+     * exactly these citations.
+     *
+     * **What a sentence says, not only what it cites** — stage M3 review, 17 October 2026. Measured on the real A01 block: the old
+     * "A team scores 1 point by getting the ball under control into the zone it is attacking: ..." passed this rule as a DRAFT once it
+     * also cited the whole-game role's bound (a role path made it read as that role's sentence, whatever its text said); "Building
+     * team: Score ..." citing the whole-game role's bound passed too; and the old sentence citing the event's value with its object and
+     * objective, but not its kind, was never read as a scoring sentence. So, with the role nouns read from the fixture (data):
+     *
+     *   - a sentence is a scoring sentence where it cites the event's kind, or its value together with anything else ("Each score is
+     *     worth N point", citing the value alone, says how much and never how or when);
+     *   - a scoring sentence is team-neutral where it cites no role OR its text names no role's noun;
+     *   - it speaks for a bounded role it names in its text, as for one whose bound it cites or (scoring) anything of which it cites;
+     *     and a How to score sentence naming a bounded role speaks for it whatever it cites.
+     */
+    const roleElements: any[] = Array.isArray(fixture.game.activityRoles) ? fixture.game.activityRoles : []
+    const boundedRoles = roleElements.filter(element => element?.creditedWithin !== undefined && element?.creditedWithin !== null && element.creditedWithin !== UNBOUNDED_CREDIT).map(element => `activityRoles[${element.elementId}]`)
+    if (boundedRoles.length) {
+        const KIND = 'value.primaryEvent.kind'
+        const VALUE = 'value.primaryEvent.value'
+        const nounOf: Record<string, string> = fixture.roleNouns?.nouns ?? {}
+        const nounsOf = (element: any): string | null => (typeof element?.activityRole === 'string' && typeof nounOf[element.activityRole] === 'string' ? nounOf[element.activityRole] : null)
+        const namedIn = (text: string) => roleElements.filter(element => !!nounsOf(element) && namesRole(text, nounsOf(element)!)).map(element => `activityRoles[${element.elementId}]`)
+        for (const instruction of rendered.instructions) {
+            const scoring = instruction.from.includes(KIND) || (instruction.from.includes(VALUE) && instruction.from.some(path => path !== VALUE))
+            const roleCited = instruction.from.some(path => path.startsWith('activityRoles['))
+            const named = namedIn(instruction.text)
+            if (scoring && (!roleCited || !named.length)) {
+                if (isApproved(instruction) && boundedRoles.every(at => instruction.from.includes(`${at}.creditedWithin`))) continue
+                findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" says how a score is made for every team, and the credit of ${boundedRoles.join(', ')} is confined to an episode: only an approved sentence citing each such bound may say it` })
+                continue
+            }
+            const speaksFor = boundedRoles.filter(
+                at =>
+                    instruction.from.includes(`${at}.creditedWithin`) ||
+                    (scoring && (instruction.from.some(path => path.startsWith(`${at}.`)) || named.includes(at))) ||
+                    (instruction.section === 'How to score' && named.includes(at)),
+            )
+            if (speaksFor.length && !isApproved(instruction)) {
+                findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" speaks for the scoring of ${speaksFor.join(', ')}, whose credit is confined to an episode, and is not approved wording` })
+            }
         }
     }
 

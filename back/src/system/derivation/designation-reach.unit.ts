@@ -11,7 +11,9 @@
  *   4. the binding of a setup assignment to a team travels from the realization input to the fixture unchanged (key
  *      identity), is checked by realization, and steers a roster fact to exactly the bound team (a TEST-ONLY item on a copy);
  *   5. nothing on today's corpus moves except the recorded binding (measured over 25 compositions and 33 served fixtures
- *      when this landed; the served activities themselves are byte-identical).
+ *      when this landed; the served activities themselves are byte-identical);
+ *   6. since 17 October 2026 (stage M1, register version 14): whether a transition is awarded to a role's holder, read by
+ *      `awardeeRelation` from register data (NOT_LAST_TOUCH's relation to the last-touch qualifier, quoting his 18 October item 2).
  *
  * Run: npx ts-node --files -r tsconfig-paths/register ./src/system/derivation/designation-reach.unit.ts
  */
@@ -23,7 +25,7 @@ import { buildActivityFromKnowledge, buildActivityWithFixture } from '../renderi
 import { specializedRoleNames } from '../rendering/session-envelope'
 import { AUDITS_DIR } from './knowledge-root'
 import { loadRegister } from './corpus'
-import { designationEntry, designationKey, followsPossessionRelation, isAllTeams, isRegisteredDesignation, listedEntry, memberDesignations, sameDesignation, whyNotReached } from './designation'
+import { awardeeRelation, designationEntry, designationKey, followsPossessionRelation, isAllTeams, isRegisteredDesignation, listedEntry, memberDesignations, sameDesignation, whyNotReached } from './designation'
 import { reaches } from './reach'
 import { designationName, HaltError, indexRegister } from './register'
 import { ElementClass } from './types'
@@ -252,6 +254,65 @@ test('the roster asks the resolver (TEST-ONLY item on a copy): a fact for one en
         const built = withItem(`team=${designation}`, 12, 2)
         assert.ok(built.activity.reasons.some((r: string) => r.includes('INVOLVEMENT_NOT_SETTLED') && r.includes(scope)), `${designation}: ${JSON.stringify(built.activity.reasons)}`)
     }
+})
+
+/**
+ * **The one resolver says whether a transition is awarded to a role's holder** — 17 October 2026 (stage M1, register version 14).
+ * Christian, reply filed 19 October 2026, item 1: *"Please ensure the underlying scoring eligibility reflects this distinction,
+ * rather than relying solely on the coach-facing wording."* GA-EPISODE-REACHABLE's fifth clause asks it of every restart that
+ * begins no episode (credit-episode.unit.ts). The relation to the last-touch qualifier is register data quoting his 18 October
+ * item 2, never a reading of ours, and nothing in the resolver names a designation (the test above).
+ */
+test('awardeeRelation: HOLDER, OTHER or UNDETERMINED, through the register\'s relativeTo data and never by a guess', () => {
+    const BUILDING = 'ROLE_HOLDER_BUILDING'
+    const PRESSING = 'ROLE_HOLDER_PRESSING'
+    const LAST = 'qualifier.lastTouch'
+    const relation = register.teamDesignations.resolutions.NOT_LAST_TOUCH.relativeTo
+    assert.deepEqual({ qualifier: relation.qualifier, relation: relation.relation }, { qualifier: LAST, relation: 'OTHER' })
+    assert.equal(relation.words, 'Touchline: conventional throw-in where the ball crossed the line, taken by the team that did not touch it last.')
+    assert.equal(relation.citedAs, 'his reply filed 18 October 2026, item 2')
+    assert.deepEqual(Object.entries(register.teamDesignations.resolutions).filter(([, r]: [string, any]) => r.relativeTo).map(([name]) => name), ['NOT_LAST_TOUCH'], 'the one entry carrying a relation')
+    // The building team plays the ball out: the restart goes to the other team.
+    assert.equal(awardeeRelation(index, 'NOT_LAST_TOUCH', { [LAST]: BUILDING }, BUILDING, 2), 'OTHER')
+    // The pressing team plays it out: the restart is the building team's.
+    assert.equal(awardeeRelation(index, 'NOT_LAST_TOUCH', { [LAST]: PRESSING }, BUILDING, 2), 'HOLDER')
+    // "The other team" is one team only where the game holds two.
+    assert.equal(awardeeRelation(index, 'NOT_LAST_TOUCH', { [LAST]: BUILDING }, BUILDING, 3), 'UNDETERMINED')
+    assert.equal(awardeeRelation(index, 'NOT_LAST_TOUCH', { [LAST]: BUILDING }, BUILDING, null), 'UNDETERMINED')
+    // A transition that carries no last-touch qualifier says nothing about whom it is awarded to.
+    assert.equal(awardeeRelation(index, 'NOT_LAST_TOUCH', {}, BUILDING, 2), 'UNDETERMINED')
+    // An outcome designation with no relation in the register, and possession or episode designations, are undetermined.
+    for (const designation of ['CONCEDING_TEAM', 'SCORING_TEAM', 'ATTACKING_TEAM', 'BUILD_OUT_TEAM', 'WON_BALL']) assert.equal(awardeeRelation(index, designation, { [LAST]: BUILDING }, BUILDING, 2), 'UNDETERMINED', designation)
+    // Role holders and setup assignments compare as entries: one is the holder, two different ones are two teams.
+    assert.equal(awardeeRelation(index, BUILDING, {}, BUILDING, 2), 'HOLDER')
+    assert.equal(awardeeRelation(index, PRESSING, {}, BUILDING, 2), 'OTHER')
+    assert.equal(awardeeRelation(index, END, {}, START, 2), 'OTHER')
+    // Which setup assignment holds a role is the block's, not the resolver's: undetermined here.
+    assert.equal(awardeeRelation(index, START, {}, BUILDING, 2), 'UNDETERMINED')
+    // The relation is general: on a TEST-ONLY register copy LAST_TOUCH related SAME to the qualifier answers as its own gloss says.
+    const copy = JSON.parse(JSON.stringify(register))
+    copy.teamDesignations.resolutions.LAST_TOUCH.relativeTo = { qualifier: LAST, relation: 'SAME', words: 'TEST-ONLY', citedAs: 'TEST-ONLY' }
+    const copied = indexRegister(copy)
+    assert.equal(awardeeRelation(copied, 'LAST_TOUCH', { [LAST]: BUILDING }, BUILDING, 2), 'HOLDER')
+    assert.equal(awardeeRelation(copied, 'LAST_TOUCH', { [LAST]: PRESSING }, BUILDING, 3), 'OTHER', 'SAME needs no count of teams')
+})
+
+test('a relativeTo the register cannot stand behind halts H1: an unlisted qualifier, a third relation, or no words of his', () => {
+    const damaged = (mutate: (relative: any) => void): string => {
+        const copy = JSON.parse(JSON.stringify(register))
+        mutate(copy.teamDesignations.resolutions.NOT_LAST_TOUCH.relativeTo)
+        try {
+            indexRegister(copy)
+            return 'admitted'
+        } catch (error) {
+            assert.ok(error instanceof HaltError && error.halt === 'H1', String(error))
+            return error.message
+        }
+    }
+    assert.match(damaged(r => (r.qualifier = 'qualifier.colour')), /not a designation-valued attribute/)
+    assert.match(damaged(r => (r.relation = 'SOMETIMES')), /SAME or OTHER/)
+    assert.match(damaged(r => delete r.words), /quote his words/)
+    assert.match(damaged(r => (r.citedAs = ' ')), /quote his words/)
 })
 
 console.log(`designation-reach.unit.ts — ${passed} passed`)

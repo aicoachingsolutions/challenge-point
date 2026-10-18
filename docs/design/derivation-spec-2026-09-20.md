@@ -175,6 +175,66 @@ entries, and a game value written "(= entry)" counts as that entry.
 > are realized). The design asked for it and K6 had not built it: a pressing start around its own target, or a building start
 > inside its own target, passed every gate (measured on TEST-ONLY copies at 723eee2).
 
+> **Engineering line, 17 October 2026 (stage M1) — ours, outside his adopted text.** Implemented for his reply filed 19 October
+> 2026, item 1 ("Please ensure the underlying scoring eligibility reflects this distinction, rather than relying solely on the
+> coach-facing wording.") and item 3 C. (1) Register version 14, row B8 (`activityRoles[].creditedWithin`): the scope within which a
+> role's holder earns the primary event's credit, WHOLE_GAME or an episode scope. (2) `designation.ts` `awardeeRelation` says whether
+> a transition is awarded to a role's holder (HOLDER), away from it (OTHER) or cannot be said (UNDETERMINED), reading only register
+> data: RC-22's comparison, the bijective role holders and setup assignments, and a resolution's `relativeTo` relation to a qualifier,
+> which must quote him (NOT_LAST_TOUCH: his 18 October item 2, "taken by the team that did not touch it last"); OTHER through a
+> qualifier only in a game holding exactly two teams, counted once per establishing item. AM-01 is the adopted rule this answers
+> under. (3) GA-EPISODE-REACHABLE's fourth clause: every transition the typed begin condition picks out for a bounded role's episode
+> is awarded to its holder; its fifth: every transition able to take possession from the holder begins an episode (a change of
+> possession T7 true, NOT_EVALUABLE where the game holds none; a stop-and-restart beginning none must be awarded to the holder).
+> Both appended after the existing three clauses, vacuous where no role is bounded, so the context-scoring guard still reads the
+> reach clause first. (4) A bound other than WHOLE_GAME is said to the coach only in approved words (`WORDED_ONLY`, `unlessEquals`).
+
+> **Engineering line, 17 October 2026 (stage M2) — ours, outside his adopted text.** Implemented for his reply filed 19 October
+> 2026, item 2 ("For the previously flagged corner case, I favor allowing a controlled regain inside that area to count as a score,
+> provided the pressing team genuinely establishes possession." "A contested touch, deflection, or loose ball should not qualify.")
+> and his 17 October D3 ("Please verify that the two targets can coexist without overlapping or contradictory scoring conditions.").
+> (1) GA-ONE-PRIMARY-EVENT gains eight clauses (seven at M2, the eighth added in its review), appended and only where the game holds an element of row V27
+> (`value.primaryEvent.alsoCounts[]`), so every other game reads exactly as before: the element is for exactly one team for the
+> block (a setup assignment or a role holder; a role holder read with no block is owed); its trigger is a member of V29's closed
+> list, keyed by a transition in which play continues, and the game holds the SCORE transition; it lies inside the one positioned
+> target its own team attacks (the register's targetOf); its control is stated; at most one element per team; its trigger's
+> transition begins an episode and none an episode-scoped condition of the primary event is authored for; and no condition of the
+> primary event is authored for every score beside it; and (stage M2 review) its team holds no role whose scoring credit is confined to an episode (row B8) its trigger does not begin, so the building role's credit can never be restored by this element. (2) RB-1 compares V27's elements across the blocks. (3) The context-scoring
+> guard requires every item that establishes or fills such an element to be an OWNER_RULING item, since the context's own scoring
+> events need not approve the further way to score (`alsoCountsFindings`). (4) Its four fields are said to the coach only in
+> approved words (`WORDED_ONLY`), so A01 is refused at communication naming them until he approves a sentence.
+
+> **Engineering line, 17 October 2026 (stage M3) — ours, outside his adopted text; rendering and review, no derivation change.**
+> For his reply filed 19 October 2026, item 1 ("Approved with revised wording"; "Please ensure the underlying scoring eligibility
+> reflects this distinction, rather than relying solely on the coach-facing wording."), item 4 and item 6. (1) An approved entry
+> may name the element each cover holds on (`ElementLocator` {base, field, equals}); each locator must pick out exactly one
+> element, a located scoped condition needs its exact V3 cover, and the sentence is said ONCE citing every covered field; covers
+> compare as canonical JSON. (2) Fidelity's role rule passes over an approved sentence only where the role it names is a string
+> value of a field it cites (a RELAXATION quoting item 1). (3) Where a role element's B8 is not the whole game, the renderer says
+> no team-neutral "A team scores ...": a whole-game role gets its own DRAFT sentence citing its bound, the value is said alone, and
+> the bounded role only in approved words; fidelity Q2 refuses any unapproved sentence citing the event's kind and no role, and
+> any unapproved sentence speaking for a bounded role. (4) The review evidence shows each role's credit, what begins, ends and
+> keeps it (`awardeeRelation`) beside GA-EPISODE-REACHABLE's own verdict on its two credit clauses, the V27 element per block,
+> transition columns beginsCredit/endsCredit, flag status SETTLED_BY_RULING only where his recorded ruling (`settledBy`) and the
+> element in every block meet, and the limitations of his item 5 (`reviewRequest.limitations`). (5) Added in the M3 review: Q2
+> reads what a sentence says as well as what it cites. A sentence citing the event's kind, or its value with anything else, is a
+> scoring sentence; it is team-neutral where it cites no role or its text names no role's noun (the nouns are fixture data); and
+> it speaks for a bounded role its text names. Measured: the old "A team scores ..." citing the whole-game role's bound, and
+> "Building team: Score ..." citing that bound, had both passed as drafts.
+
+> **Engineering line, 17 October 2026 (stage M4) — ours, outside his adopted text.** For his reply filed 19 October 2026, items 3,
+> 4 and 5. (1) A sentence he approved for a template the renderer already says is recorded as an approved template sentence
+> (`approved-coach-wording.json` `approvedTemplateSentences`), usable only where its parts, filled with its example values,
+> reproduce his sentence exactly and his sentence is verbatim in the quote; the renderer reads the possession sentence's parts from
+> it and says nothing where it is absent (fidelity then refuses). (2) A sport's coach vocabulary (`sport-coach-vocabulary-*.json`,
+> found by pattern beside the Sport Profile, tied to it by `sportId`, every entry approved in his cited words) carries a noun for a
+> restart method to the fixture (`methodNouns`) only for a transition the game holds; the renderer says it in place of the method's
+> sport-neutral phrase. (3) Register B7 version 2's relative count `{keepsCountOf: R}` is resolved from one block's own game after
+> the realization is checked (`resolveRelativeCounts`, build-activity.ts): n(team holding toRole) − n(team holding the other role);
+> at 0 the element and its derived lines are not established, a negative or unresolvable count refuses the game, and RB-M still
+> compares the other block, built independently. (4) A record gap is settled only by his cited words (`settledBy`), refused while an
+> entry still waits on it. (5) A coach's place and method bound, where they are the same words, is said once.
+
 > **Engineering line, 15 October 2026 (stage K7) — ours, outside his adopted text.** Communication of the first complete activity.
 > (1) The context-scoring guard confirms a context condition authored for an episode (SD-36; his 16 October 9.3, ruling C52) where it
 > reached the realized game with its authored scope AND the Gate A check deciding that episode (GA-EPISODE-REACHABLE, rerun on the

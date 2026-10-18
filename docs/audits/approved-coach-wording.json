@@ -1,12 +1,113 @@
 {
-    "about": "Coach-facing wording Christian has APPROVED for parts of a game the renderer otherwise cannot say: primary-event conditions (register V4-V6) and information rules (V16-V22), and later the modifier criterion and termination (V8c, V8d). His order of 14 October 2026, Step 4 component 3: 'Enable accurate coach-facing communication of scoring conditions and information rules, using approved language.' An entry is used only when it carries approvedBy with who, a date, his words verbatim and the communication standard it was reviewed under; the loader ignores any other entry and a data test fails it. Wording is data, so no sport term enters universal code. Starts EMPTY on 14 October 2026: until he approves a sentence, every such field is withheld and the activity is refused at communication rather than paraphrased.",
+    "about": "Coach-facing wording Christian has APPROVED for parts of a game the renderer otherwise cannot say: primary-event conditions (register V4-V6) and information rules (V16-V22), and later the modifier criterion and termination (V8c, V8d). His order of 14 October 2026, Step 4 component 3: 'Enable accurate coach-facing communication of scoring conditions and information rules, using approved language.' An entry is used only when it carries approvedBy with who, a date, his words verbatim and the communication standard it was reviewed under; the loader ignores any other entry and a data test fails it. Wording is data, so no sport term enters universal code. Starts EMPTY on 14 October 2026: until he approves a sentence, every such field is withheld and the activity is refused at communication rather than paraphrased. The first entry, A01-W1, was added 18 October 2026 (stage M5): his own sentence for the build-out scoring rule, reply filed 19 October 2026, item 1.",
     "entryShape": {
         "id": "a stable id for the entry",
-        "covers": "[{ row: 'V4'|'V5'|'V6'|'V8c'|'V8d'|'V16'..'V22', match: { equals: <JSON value> } | { refersToOwnCondition: true } }] - every cover must hold on one element for the entry to apply",
+        "covers": "[{ row: 'V3' (a condition's scope)|'V4'|'V5'|'V6'|'V8c'|'V8d'|'V16'..'V22'|'B8' (a role's credit bound)|'V28'..'V31' (an occurrence that also counts as the primary event), match: { equals: <JSON value> } | { refersToOwnCondition: true }, element?: { base: '<a collection said only in approved words, e.g. activityRoles or value.primaryEvent.conditions>', field: '<a field of its elements>', equals: <JSON value> } }] - without `element`, every cover must hold on one element for the entry to apply, and it is said once per such element; with `element` on EVERY cover (stage M3, 17 October 2026), each locator must pick out exactly one element, every cover must hold on its own element, a located condition authored for less than every score needs its exact V3 cover, and the sentence is said ONCE citing every covered field (no slots); equality is canonical JSON, key order ignored (documentation only; the rows said only in approved words are render-concrete-game.ts WORDED_ONLY; B8 and V28-V31 listed 17 October 2026, stages M1 and M2)",
         "sentence": "the approved sentence; {slot} names a slot",
         "slots": "{ slotName: { field: '<field of the same element>' } } - filled only from cited game values",
         "section": "Set up | Players | How it works | How to score | What to watch",
+        "approvedBy": "{ who, date, quote, ccs }",
+        "note": "optional, documentation only (added 18 October 2026, stage M5): what the entry's match values are and whose words they are; never read by the renderer"
+    },
+    "entries": [
+        {
+            "id": "A01-W1",
+            "covers": [
+                { "row": "B8", "match": { "equals": "BUILD_OUT_EPISODE" }, "element": { "base": "activityRoles", "field": "activityRole", "equals": "BUILDING" } },
+                { "row": "V3", "match": { "equals": "BUILD_OUT_EPISODE" }, "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "origin" } },
+                { "row": "V4", "match": { "equals": "origin" }, "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "origin" } },
+                {
+                    "row": "V5",
+                    "match": {
+                        "equals": {
+                            "beginsEpisodeOf": "BUILD_OUT_EPISODE",
+                            "arms": [{ "takenBy": "goalkeeper" }, { "restartKind": "CONTROLLED_DEFENSIVE_RESTART" }],
+                            "asAuthored": "A restart, taken by the goalkeeper or as a controlled defensive restart, that begins a build-out episode."
+                        }
+                    },
+                    "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "origin" }
+                },
+                { "row": "V3", "match": { "equals": "BUILD_OUT_EPISODE" }, "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "progression" } },
+                { "row": "V4", "match": { "equals": "progression" }, "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "progression" } },
+                {
+                    "row": "V5",
+                    "match": {
+                        "equals": {
+                            "objectiveReferenceOf": "SCORING_TEAM",
+                            "role": "PRIMARY_SCORING",
+                            "asAuthored": "the progression reference: where build-out success is measured - the target the scoring team attacks"
+                        }
+                    },
+                    "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "progression" }
+                },
+                { "row": "V6", "match": { "equals": "beyond" }, "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "progression" } },
+                { "row": "V3", "match": { "equals": "BUILD_OUT_EPISODE" }, "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "control" } },
+                { "row": "V4", "match": { "equals": "control" }, "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "control" } },
+                {
+                    "row": "V5",
+                    "match": {
+                        "equals": {
+                            "objectiveReferenceOf": "SCORING_TEAM",
+                            "role": "PRIMARY_SCORING",
+                            "asAuthored": "with possession controlled on arrival - arrival at the target the scoring team attacks"
+                        }
+                    },
+                    "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "control" }
+                },
+                { "row": "V6", "match": { "equals": "controlled on arrival" }, "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "control" } },
+                { "row": "V3", "match": { "equals": "BUILD_OUT_EPISODE" }, "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "exclusion" } },
+                { "row": "V4", "match": { "equals": "exclusion" }, "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "exclusion" } },
+                {
+                    "row": "V5",
+                    "match": {
+                        "equals": {
+                            "objectiveReferenceOf": "SCORING_TEAM",
+                            "role": "PRIMARY_SCORING",
+                            "asAuthored": "a long clearance that happens to reach the target - the target the scoring team attacks"
+                        }
+                    },
+                    "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "exclusion" }
+                },
+                { "row": "V6", "match": { "equals": "a long clearance that happens to reach the target" }, "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "exclusion" } }
+            ],
+            "sentence": "Building team: Score by carrying the ball beyond the marked line or passing to a teammate who receives it under control beyond the line. The progression must begin with the goalkeeper's build-out and occur before the building team loses possession. Uncontrolled clearances do not score.",
+            "section": "How to score",
+            "approvedBy": {
+                "who": "Christian",
+                "date": "2026-10-19",
+                "quote": "1. Build-out scoring condition — Approved with revised wording\nI'd like to simplify the coach-facing wording while preserving the four conditions established in the knowledge.\nSuggested wording:\n\"Building team: Score by carrying the ball beyond the marked line or passing to a teammate who receives it under control beyond the line. The progression must begin with the goalkeeper's build-out and occur before the building team loses possession. Uncontrolled clearances do not score.\"\nA longer pass received under control remains a valid solution.\nThe important distinction is that the building team's scoring opportunity applies only during an active build-out episode.",
+                "ccs": "Coach Communication Standard RC2: his own revision of our draft condition sentence, section 4 of our email of 18 October 2026 (\"The wording that needs your approval\"), which put every sentence to him as a draft"
+            },
+            "note": "Added 18 October 2026 (stage M5, design step L13); his reply filed 19 October 2026, item 1. One sentence for the build-out scoring rule, said once: the building role's credit bound (B8 = BUILD_OUT_EPISODE, his item 1 and item 3 C, A01-R1-B8-1) and the four conditions his item 1 preserves (origin RPC-001-18.a, progression 18.c, control 18.f, exclusion 19.a), each covered with its exact scope (V3). The match values are the game's own, copied from A01 as the checked pathway builds it at 12 and 11 players, identical in both blocks (measured). The 18.a asAuthored text is the wording he approved on 18 October 2026, item 4 (\"I acknowledge and approve your proposed wording\": our proposal, approved by him, so not an unapproved gloss of ours), which names both arms of the origin (the goalkeeper, or a controlled defensive restart). His 19 October sentence names only the goalkeeper. OUR INFERRED READING: he narrowed his own wording to the one arm this realization builds, after section 4 of our email of 18 October 2026 told him that every build-out in this activity starts with the goalkeeper and the engine cannot yet build the controlled-defensive-restart arm; a test pins that no episode starter of A01 carries a restart kind, so the arm his sentence leaves unnamed cannot occur. The suffixes after ' - ' on the 18.c, 18.f and 19.a asAuthored texts are our glosses, matched here as data only. If any of these values changes, the entry stops matching, the fields are withheld again and A01 is refused at communication (a safe failure)."
+        }
+    ],
+    "templateShape": {
+        "note": "Added 17 October 2026 (stage M4) for his reply filed 19 October 2026, item 4. A sentence he approved for a template the renderer already says - fields it may say on its own, so not an entry above (which holds wording only for fields said in approved words). Read by approved-wording.ts approvedTemplateSentences(): usable only where it carries approvedBy as an entry does, his sentence is verbatim inside the quote, and its parts filled with the example values reproduce his sentence exactly (a final full stop aside). Filled with any other value it is a generalization of his words, DRAFT.",
+        "id": "the name the renderer reads it by (render-concrete-game.ts); never words",
+        "renders": "what it says and where the renderer says it",
+        "parts": "the renderer's parts, in order; {slot} names a slot filled from a cited game value",
+        "example": "{ slot: value } reproducing his sentence",
+        "sentence": "his sentence, verbatim",
         "approvedBy": "{ who, date, quote, ccs }"
     },
-    "entries": []
+    "approvedTemplateSentences": [
+        {
+            "id": "POSSESSION_CONTINUES",
+            "renders": "A game whose transition keyed on a change of possession continues play, with one objective per team: the first part cites each such transition's play state and selector, the second the objectives' team and the targets' noun (render-concrete-game.ts, 'How it works'). The second part is said only where the two objectives name different teams; targetNoun is the referenced regions' one noun, and 'line' where they name no other.",
+            "parts": [
+                "When possession changes, play carries on without a stoppage",
+                ", and each team keeps attacking the same {targetNoun}"
+            ],
+            "example": {
+                "targetNoun": "zone"
+            },
+            "sentence": "When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone.",
+            "approvedBy": {
+                "who": "Christian",
+                "date": "2026-10-19",
+                "quote": "I approve both of your proposed revisions: … Use: \"When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone.\" For the second sentence, please ensure the surrounding scoring instructions make clear that continuing to attack does not automatically restore the building team's eligibility to score.",
+                "ccs": "Coach Communication Standard RC2: our draft, section 4 of our email of 18 October 2026, which put every sentence to him as a draft"
+            }
+        }
+    ]
 }

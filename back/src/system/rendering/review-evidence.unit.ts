@@ -68,6 +68,9 @@ const index = indexRegister(loadRegister())
 const record = learningGoalAuthorization('A01')!
 const request = record.reviewRequest!
 const BLOCKS = ['BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END', 'BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START']
+/** His reply filed 19 October 2026, item 1, verbatim ("Approved with revised wording"): production entry A01-W1 since stage M5. */
+const HIS_ITEM_1 =
+    "Building team: Score by carrying the ball beyond the marked line or passing to a teammate who receives it under control beyond the line. The progression must begin with the goalkeeper's build-out and occur before the building team loses possession. Uncontrolled clearances do not score."
 
 const review = buildActivityForReview(a01, { includeDrafts: true }) as RefusedActivity
 const evidence = review.evidence!
@@ -84,11 +87,32 @@ test('1. end to end on production data: only communication stops it, both blocks
     assert.deepEqual(fact(evidence.acceptance, 'outcome of the build'), 'communication')
     assert.deepEqual(fact(evidence.acceptance, 'blocks built through validation'), BLOCKS)
     assert.equal(fact(evidence.acceptance, 'every structural check passes (Gate A rerun per block, post-realization owed invariants, cross-block checks, composition)'), true)
+    // Moved 17 October 2026 (stage M1), [] -> the pressing role's credit bound, once per block: row B8 (his reply filed 19 October 2026,
+    // item 1 and item 3 C) gives the pressing role WHOLE_GAME explicitly (A01-R1-B8-2), which states no condition and so is not
+    // withheld, and no sentence cites it yet - a Q3 loss, not a wrong statement. The per-role scoring sentence that cites it is design
+    // step L9 (stage M3), which returns this fact to []. Nothing in the said text is unfaithful.
+    // Moved back 17 October 2026 (stage M3, design step L9), [pressingBound, pressingBound] -> []: the pressing role's own scoring
+    // sentence ("Pressing team: Score by ...", DRAFT) cites its whole-game bound, so nothing in the said text is lost or unfaithful.
     assert.deepEqual(fact(evidence.acceptance, 'fidelity violations in the text that is said'), [])
     // The 22 violations are all Q3 "established and no instruction carries it" on the withheld build-out conditions (communication.unit.ts 1).
-    assert.equal(fact(evidence.acceptance, 'fidelity violations about fields awaiting approved wording'), 22)
-    assert.equal(fact(evidence.acceptance, 'fields awaiting approved wording'), 30)
-    assert.deepEqual(fact(evidence.acceptance, 'sentences'), { total: 24, approved: 0, draft: 24 })
+    // Moved 17 October 2026 (stage M1), 22 -> 24 and 30 -> 32: the building role's credit bound, withheld in each block until approved
+    // words say it (communication.unit.ts 1; credit-episode.unit.ts).
+    // Moved 17 October 2026 (stage M2), 24 -> 32 and 32 -> 40: the pressing role's regain score, its four fields withheld in each block
+    // until approved words say them (rows V28-V31, his reply filed 19 October 2026, item 2; communication.unit.ts 1; also-counts.unit.ts).
+    // The text that is said gains no violation: the fact above is unchanged.
+    // Moved 18 October 2026 (stage M5, design step L13), 32 -> 8 and 40 -> 8: his approved sentence (entry A01-W1, reply filed 19
+    // October 2026, item 1, "Approved with revised wording") says the building role's bound and every field of the four build-out
+    // conditions, so what awaits approved wording is the regain score's four fields per block alone (the sentence put to him, A01-W2).
+    assert.equal(fact(evidence.acceptance, 'fidelity violations about fields awaiting approved wording'), 8)
+    assert.equal(fact(evidence.acceptance, 'fields awaiting approved wording'), 8)
+    // Moved 17 October 2026 (stage M3, design step L9), 24 -> 25: the team-neutral scoring sentence gives way to the pressing role's
+    // own sentence and "Each score is worth 1 point" (both DRAFT; communication.unit.ts 1 and 8).
+    // Moved 17 October 2026 (stage M4, design step L10), approved 0 -> 1: the possession sentence is his approved words (reply filed 19
+    // October 2026, item 4), an approved template sentence read from approved-coach-wording.json; the total is unchanged.
+    // Moved 18 October 2026 (stage M5, design step L13), total 25 -> 26 and approved 1 -> 2: his build-out sentence, entry A01-W1, said
+    // once for the bound and the four conditions (the drafts are unchanged).
+    assert.deepEqual(fact(evidence.acceptance, 'sentences'), { total: 26, approved: 2, draft: 24 })
+    assert.deepEqual(evidence.sections.instructions.filter(i => i.wording === 'APPROVED').map(i => i.text), ['When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone', HIS_ITEM_1])
     // Measured at this stage: 19 Gate A checks per block, all PASS; the 9 cross-block checks; 11 owed invariants per block.
     assert.deepEqual(evidence.structure.summary.gateChecks, { PASS: 38 })
     assert.deepEqual(evidence.structure.summary.crossBlock, { PASS: 9 })
@@ -113,9 +137,17 @@ test('2. the nine items: his words from the record, each resolved to elements, c
     // Item 4 (the building team's success): its target and the four conditions; the conditions are what waits on his wording.
     assert.ok(byId.R4.blocks[0].elements.some(e => e.path === 'objectives[c:restated:GF2:GF2-08.c].reference'))
     assert.ok(!byId.R4.blocks[0].elements.some(e => e.path.startsWith('objectives[c:restated:GF2:GF2-08.e]')), 'the other role\'s objective is item 5\'s')
-    assert.ok(byId.R4.awaiting.length > 0 && byId.R4.awaiting.every(p => p.startsWith('value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-')))
+    // Re-pointed 17 October 2026 (stage M3, design step L7): item 4 also awaits the building role's credit bound (row B8), which it now
+    // lists; every other field it awaits is a condition's (test 9 pins the whole list).
+    // Re-pointed 18 October 2026 (stage M5, design step L13): item 4 awaits nothing - his approved sentence (A01-W1) says the bound and
+    // every condition field - and the sentence is among item 4's sentences, approved. Was: awaiting the bound and the condition fields.
+    assert.deepEqual(byId.R4.awaiting, [])
+    const his = evidence.sections.instructions.find(i => i.text === HIS_ITEM_1)!
+    assert.equal(his.wording, 'APPROVED')
+    assert.ok(byId.R4.sentences.includes(his.index), JSON.stringify(byId.R4.sentences))
     assert.ok(byId.R5.blocks[0].elements.some(e => e.path === 'objectives[c:restated:GF2:GF2-08.e].reference'))
-    assert.equal(byId.R8.sentences.length, 24)
+    // Moved 17 October 2026 (stage M3, design step L9), 24 -> 25 (test 1). Moved 18 October 2026 (stage M5), 25 -> 26: his sentence.
+    assert.equal(byId.R8.sentences.length, 26)
     assert.ok(byId.R7.checks.map(c => c.checkId).join() === 'RB-1,RB-2,RB-3,RB-4,RB-5,RB-6,RB-7,RB-8,RB-M')
 })
 
@@ -138,14 +170,20 @@ test('3. provenance: his three layers and the standings, every cited path traced
     const moveLine = said('You may choose to move the marked line')
     assert.ok(moveLine.sources.some(s => s.ref === 'record A01-ADJ-3' && s.standing === 'PROVISIONAL'))
     assert.ok(moveLine.sources.some(s => s.ref === 'relationship RPC-001~EM-0002' && s.standing === 'APPROVED' && s.layer === 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS'))
-    // The withheld conditions are GAP elements; nothing said is.
+    // The withheld fields are GAP elements; nothing said is. Re-pointed 18 October 2026 (stage M5, design step L13): the conditions are
+    // said in his approved words (A01-W1), so they are no longer GAP; the GAP elements are exactly the regain score's four fields, which
+    // await the sentence put to him (A01-W2). Was: the conditions were GAP.
     const conditions = evidence.provenance.elements.filter(e => e.path.startsWith('value.primaryEvent.conditions['))
-    assert.ok(conditions.some(e => e.standings.includes('GAP')))
+    assert.ok(conditions.length > 0 && conditions.every(e => !e.standings.includes('GAP')))
+    assert.deepEqual(evidence.provenance.elements.filter(e => e.standings.includes('GAP')).map(e => e.path).sort(), ['control', 'exclusion', 'team', 'trigger'].map(field => `value.primaryEvent.alsoCounts[c:provisional:A01-R1:A01-R1-V27-1].${field}`))
     assert.ok(instructions.every(i => !i.standings.includes('GAP')))
     // Our readings are named, not hidden: the assumed bound beside the across-the-axis default.
     assert.ok(instructions.some(i => i.standings.includes('OUR_READING')))
     assert.equal(evidence.provenance.lists!.at, 'account.authorizationLists')
     assert.deepEqual(evidence.provenance.lists!.gapsStillNeeded, [])
+    // 17 October 2026 (stage M4, design step L11): still needed is now "no words of his settle it, or an entry waits on it" (it was
+    // only the latter, which cannot tell a settled gap from one waiting on the context's own lines); all thirteen are settled.
+    assert.deepEqual(evidence.provenance.lists!.gapsSettled, ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'M1', 'M2', 'M3', 'M4', 'M5', 'M7'])
 })
 
 test('4. key identity: the evidence reaches the administrator\'s review of a goal that asks for it, and nothing else', () => {
@@ -176,7 +214,10 @@ test('4. key identity: the evidence reaches the administrator\'s review of a goa
     assert.deepEqual(evidence.pathway.his, request.pathway)
     assert.deepEqual(evidence.layers.map(l => l.words), request.layers.entries.map(e => e.words))
     // Key identity of the request: every key is read, or excluded here with its reason.
-    const READ = ['citedAs', 'layers', 'items', 'requests', 'evaluation', 'flags', 'pathway', 'judgement', 'rationale']
+    // 'limitations' joined 17 October 2026 (stage M3, design step L7): his reply filed 19 October 2026, item 5, read whole below.
+    const READ = ['citedAs', 'layers', 'items', 'requests', 'evaluation', 'flags', 'limitations', 'pathway', 'judgement', 'rationale']
+    assert.deepEqual(evidence.limitations.map(l => l.his), request.limitations!.map(l => l.words))
+    assert.deepEqual(evidence.flags.map(f => f.settledBy), request.flags.map(f => f.settledBy ?? []))
     const EXCLUDED = { ruledOn: 'the date travels in citedAs', by: 'the request is his; citedAs says where', note: 'for readers of the record file' }
     assert.deepEqual(Object.keys(request).sort(), [...READ, ...Object.keys(EXCLUDED)].sort())
     // The approved statements a rationale cites are read from the workbook, whole.
@@ -201,8 +242,13 @@ test('5. the specialized role as a deep support option, and no prescription, as 
         assert.deepEqual(fact(facts, `block ${blockId}: other places the game names the role (not a team count or a restart's taker)`), ['value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-18.a].referents.arms[0].takenBy'])
     }
     const naming = fact(facts, 'sentences naming the role, with any word of obligation or prescription finding')
-    assert.equal(naming.length, 3)
-    assert.ok(naming.every((s: any) => s.obligationWords.length === 0 && s.q4.length === 0))
+    // Moved 18 October 2026 (stage M5, design step L13), 3 -> 4: his approved build-out sentence (A01-W1) names the role ("the
+    // goalkeeper's build-out") and carries "must". It has no prescription finding: the role is a value of the origin condition it covers
+    // (arms[].takenBy), and his approval exempts it from the lexicon, never from the role rule (communication.unit.ts 3d). The evidence
+    // still lists the word, so he sees it. The three DRAFT sentences are unchanged.
+    assert.equal(naming.length, 4)
+    assert.ok(naming.every((s: any) => s.q4.length === 0))
+    assert.deepEqual(naming.filter((s: any) => s.obligationWords.length).map((s: any) => [s.text, s.obligationWords]), [[HIS_ITEM_1, [String(/\bmust\b/i)]]])
     // No prescription: nothing on the rows that would restrict play, no prescription finding, no lexicon word, no library constraint.
     const np = evidence.sections.noPrescription
     for (const blockId of BLOCKS) {
@@ -210,12 +256,13 @@ test('5. the specialized role as a deep support option, and no prescription, as 
         assert.deepEqual(fact(np, `block ${blockId}: condition types the game holds`), ['origin', 'progression', 'control', 'exclusion'])
     }
     assert.deepEqual(fact(np, 'prescription rule (fidelity Q4) findings on the activity'), [])
-    assert.deepEqual(fact(np, 'sentences carrying a word of the obligation lexicon'), [])
+    // Moved 18 October 2026 (stage M5), [] -> his approved sentence, which says "must" (above); no DRAFT sentence carries one.
+    assert.deepEqual(fact(np, 'sentences carrying a word of the obligation lexicon'), [HIS_ITEM_1])
     assert.deepEqual(fact(np, 'library constraints selected'), [])
     assert.ok(fact(np, 'excluded from this goal by its record').length >= 1)
 })
 
-test('6. his item 6 flag answered from the game, the read-only knowledge listed; the regain case flagged and never settled', () => {
+test('6. his item 6 flag answered from the game, the read-only knowledge listed; the regain case settled only by his ruling carried in the game (re-pointed 17 October 2026, stage M3)', () => {
     const [advanced, regain] = evidence.flags
     assert.equal(advanced.kind, 'ADVANCED_POSITIONING')
     assert.equal(advanced.status, 'FLAGGED_FOR_REVIEW')
@@ -244,10 +291,21 @@ test('6. his item 6 flag answered from the game, the read-only knowledge listed;
             ['restated:WIDE-ZONE-ADVANTAGE::WIDEZONE-13.c (V13)', 'SUPPORTING'],
         ],
     )
-    // The regain case: facts, no rule.
+    // The regain case: facts, no invented rule.
+    // Re-pointed 17 October 2026 (stage M3, design step L7): his reply filed 19 October 2026, item 2, settles it provisionally ("For the
+    // previously flagged corner case, I favor allowing a controlled regain inside that area to count as a score, provided the pressing
+    // team genuinely establishes possession."), and the game carries it (A01-R1-V27-1, stage M2). Was: status FLAGGED_FOR_REVIEW and
+    // the answer "Not settled by the game: ...", which test 10 shows returns exactly where the element and his ruling are both removed.
     assert.equal(regain.kind, 'REGAIN_INSIDE_TARGET')
-    assert.ok(regain.answer.startsWith('Not settled by the game'))
+    assert.equal(regain.status, 'SETTLED_BY_RULING')
+    assert.ok(regain.answer.startsWith('Settled by his ruling, provisionally (his reply filed 19 October 2026, item 2)'), regain.answer)
+    assert.deepEqual(regain.settledBy, request.flags[1].settledBy)
     assert.deepEqual(fact(regain.blocks[0].facts, "the PRESSING role's target (c:restated:GF2:GF2-03.e)"), { from: 0, to: 5 })
+    const deciding = (blockIndex: number) => fact(regain.blocks[blockIndex].facts, 'elements deciding whether gaining possession inside the target scores')
+    assert.deepEqual(deciding(0).map((e: any) => [e.elementId, e.team, e.trigger, e.target.region, e.everyItemHisRuling]), [['c:provisional:A01-R1:A01-R1-V27-1', 'ROLE_HOLDER_PRESSING', 'POSSESSION_CHANGE', 'c:restated:GF2:GF2-03.e', true]])
+    assert.deepEqual(deciding(1).map((e: any) => [e.elementId, e.target.region, e.target.along]), [['c:provisional:A01-R1:A01-R1-V27-1', 'c:restated:GF2:GF2-03.f', { from: 35, to: 40 }]])
+    assert.deepEqual(deciding(0)[0].support.map((s: any) => [s.item, s.basis, s.citedAs]), ['V27-1', 'V29-1', 'V30-1', 'V31-1'].map(id => [`provisional:A01-R1::A01-R1-${id}`, 'OWNER_RULING', 'his reply filed 19 October 2026, item 2']))
+    // The entry meaning is unchanged (his 17 October D7 on entry stands): still no element makes it an entry.
     assert.deepEqual(fact(regain.blocks[0].facts, 'elements deciding whether gaining possession inside the target is an entry into it'), [])
     assert.deepEqual(fact(regain.blocks[0].facts, 'a change of possession'), [{ playState: 'CONTINUE', beginsConditionedEpisode: false }])
 
@@ -420,13 +478,47 @@ test('9. the relationships he confirmed reach every element and sentence whose i
     const missing = evidenceFrom(blocks, [])
     assert.ok(missing.provenance.elements.some(e => e.sources.some(s => s.ref === 'relationship RPC-001~EM-0006' && s.standing === 'OUR_READING' && String(s.detail).includes('not found'))))
 
-    // A withheld field keeps the row the renderer reported: the four condition scopes (V3) are rows, and item 4 waits on all 15.
+    // A withheld field keeps the row the renderer reported. Re-pointed 18 October 2026 (stage M5, design step L13): the four condition
+    // scopes are no longer withheld or GAP, said by his approved sentence (A01-W1); the withheld fields are now the regain score's four,
+    // each GAP on the row the renderer reported (V28-V31). Was: the scopes GAP on row V3, and item 4 waiting on all 15. The scopes keep
+    // row V3 once said (wordedFieldRows, stage M5: measured, without it they lost the row and item 4 dropped its four scope elements),
+    // and item 4 still lists each scope in both blocks.
     const scopes = evidence.provenance.elements.filter(e => e.path.endsWith('.scope') && e.path.startsWith('value.primaryEvent.conditions['))
     assert.equal(scopes.length, 4)
-    assert.ok(scopes.every(e => e.row === 'V3' && e.sources.some(s => s.standing === 'GAP' && String(s.detail).startsWith('row V3:'))))
+    assert.ok(scopes.every(e => e.row === 'V3' && !e.sources.some(s => s.standing === 'GAP')), JSON.stringify(scopes.map(e => [e.path, e.row])))
+    const itemFour = evidence.items.find(i => i.id === 'R4')!
+    for (const block of itemFour.blocks) assert.deepEqual(block.elements.filter(e => e.path.endsWith('.scope')).map(e => [e.row, e.value]), scopes.map(() => ['V3', 'BUILD_OUT_EPISODE']), block.blockId)
+    const ALSO_ROWS: Record<string, string> = { team: 'V28', trigger: 'V29', control: 'V30', exclusion: 'V31' }
+    for (const [field, row] of Object.entries(ALSO_ROWS)) {
+        const element = evidence.provenance.elements.find(e => e.path === `value.primaryEvent.alsoCounts[c:provisional:A01-R1:A01-R1-V27-1].${field}`)!
+        assert.ok(element.row === row && element.sources.some(s => s.standing === 'GAP'), `${field}: ${JSON.stringify(element)}`)
+    }
     assert.ok(!evidence.provenance.elements.some(e => e.standings.includes('GAP') && e.row === null))
     const r4 = evidence.items.find(i => i.id === 'R4')!
-    assert.equal(r4.awaiting.length, new Set(review.draft!.withheld.map(w => w.path)).size)
+    // Re-pointed 17 October 2026 (stage M1): the building role's credit bound (row B8, his reply filed 19 October 2026, item 1 and item
+    // 3 C) is withheld too, and it sits on the role element, so the item whose rows hold the roles (R7) is the one that awaits it
+    // until design step L7 (stage M3) shows it under item 4. R4 still awaits every withheld condition field, and between them the two
+    // items await every withheld field.
+    // Re-pointed 17 October 2026 (stage M3, design step L7): item 4 now lists row B8, so it awaits the building role's bound beside the
+    // conditions; the role element belongs to the item of the role it names, so item 5 (which lists B8 too) does not await it.
+    // Re-pointed 18 October 2026 (stage M5, design step L13): items 4 and 7 await nothing - his approved sentence (A01-W1) says the bound
+    // and every condition field - so item 5 alone awaits, and its four fields are every withheld field. Was: R4 the conditions and the
+    // bound, R7 the bound.
+    const CREDIT_BOUND = 'activityRoles[c:provisional:A01-R1:A01-R1-B1-1].creditedWithin'
+    const withheldPaths = new Set(review.draft!.withheld.map(w => w.path))
+    assert.deepEqual([...withheldPaths].filter(p => p.startsWith('value.primaryEvent.conditions[') || p === CREDIT_BOUND), [])
+    assert.deepEqual(r4.awaiting, [])
+    const r7 = evidence.items.find(i => i.id === 'R7')!
+    assert.deepEqual(r7.awaiting, [])
+    // Re-pointed 17 October 2026 (stage M2): the pressing role's regain score (rows V27-V31, his reply filed 19 October 2026, item 2)
+    // is withheld too, and the record's item 5 (R5, the pressing team's post-regain objective) now lists its rows, so R5 awaits exactly
+    // its four fields; between the three items every withheld field is awaited.
+    const r5 = evidence.items.find(i => i.id === 'R5')!
+    assert.deepEqual([...r5.awaiting].sort(), ['control', 'exclusion', 'team', 'trigger'].map(field => `value.primaryEvent.alsoCounts[c:provisional:A01-R1:A01-R1-V27-1].${field}`))
+    // Re-pointed 17 October 2026 (stage M3): the bound is awaited by item 4 and item 7, so the union, not the sum, is every withheld field.
+    assert.deepEqual(new Set([...r4.awaiting, ...r5.awaiting, ...r7.awaiting]), withheldPaths)
+    assert.ok(!r5.blocks.some(b => b.elements.some(e => e.path === CREDIT_BOUND)), 'the building role\'s bound is not item 5\'s')
+    assert.ok(r5.blocks.every(b => b.elements.some(e => e.path === 'activityRoles[c:provisional:A01-R1:A01-R1-B1-2].creditedWithin' && e.value === 'WHOLE_GAME')), 'the pressing role\'s whole-game bound is item 5\'s')
 
     // His M8 safeguard, recorded on the item that types the exclusion's target, is read beside the conditions (scoring and the item 6
     // flag), whole from the knowledge: compared with the item's own note, never with a sentence written here.
@@ -439,6 +531,109 @@ test('9. the relationships he confirmed reach every element and sentence whose i
         for (const note of list) assert.equal(note.fitNote, noted.find(n => n.ref === note.item)!.fitNote, note.item)
         assert.ok(list.some(note => note.fitNote.includes('SAFEGUARD')), 'the safeguard is among the notes')
     }
+})
+
+/*
+ * Stage M3, 17 October 2026 (design step L7). His reply filed 19 October 2026: item 1 ("Please ensure the underlying scoring
+ * eligibility reflects this distinction, rather than relying solely on the coach-facing wording."), item 2 (the pressing team's
+ * controlled regain), item 5 (limitations kept visible) and item 6 ("please proceed with the review-page activity, provided its actual
+ * scoring eligibility matches the approved distinction between an active build-out and subsequent possession regains.").
+ */
+test('10. (M3) items 4 and 5 show each role\'s credit and the regain score; the transition table says what begins and ends credit; F2 follows the game and his ruling; the limitations are listed', () => {
+    const T = (id: string) => `c:provisional:A01-R1:A01-R1-${id}`
+    const byId = Object.fromEntries(evidence.items.map(i => [i.id, i]))
+    for (const [i, blockId] of BLOCKS.entries()) {
+        const r4 = byId.R4.facts.find(b => b.blockId === blockId)!.facts
+        assert.deepEqual(fact(r4, "the BUILDING role's scoring credit (B8), and the items it rests on"), {
+            element: `activityRoles[${T('B1-1')}].creditedWithin`,
+            creditedWithin: 'BUILD_OUT_EPISODE',
+            support: [{ item: 'provisional:A01-R1::A01-R1-B8-1', basis: 'OWNER_RULING', citedAs: 'his reply filed 19 October 2026, item 1; item 3 C' }],
+        })
+        // As stage M1 measured on the gate (credit-episode.unit.ts): begun by the three goalkeeper restarts, ended by the change of
+        // possession and the two restarts after the building team plays the ball out, kept by the two awarded to it.
+        assert.deepEqual(fact(r4, "the transitions that begin the BUILDING role's credit (its episode begins)"), [T('T1-1'), T('T1-2'), T('T1-3')], `block ${i + 1}`)
+        assert.deepEqual([...fact(r4, 'the transitions that end it (each begins another episode)')].sort(), [T('T1-5'), T('T1-7'), 'c:restated:GF2:GF2-07.a'].sort())
+        assert.deepEqual(fact(r4, "the restarts that keep it (they begin no episode and are awarded to the team holding the BUILDING role)"), [T('T1-4'), T('T1-6')])
+        assert.deepEqual(fact(r4, 'transitions that neither end nor keep it'), [])
+        const authority = fact(r4, 'the authority: the episode check (GA-EPISODE-REACHABLE) on this block, and its two credit clauses')
+        assert.equal(authority.verdict, 'PASS')
+        assert.equal(authority.begins.verdict, 'PASS')
+        assert.equal(authority.ends.verdict, 'PASS')
+        assert.notEqual(authority.begins.basis, 'NO_APPLICABLE_INSTANCES', 'clause 4 is not vacuous')
+        assert.notEqual(authority.ends.basis, 'NO_APPLICABLE_INSTANCES', 'clause 5 is not vacuous')
+        // No occurrence also counts as the primary event for the building team.
+        assert.deepEqual(fact(r4, 'occurrences that also count as the primary event for the team holding the BUILDING role (V27)'), [])
+        const r5 = byId.R5.facts.find(b => b.blockId === blockId)!.facts
+        assert.deepEqual(fact(r5, "the PRESSING role's scoring credit (B8), and the items it rests on").creditedWithin, 'WHOLE_GAME')
+        assert.ok(!r5.some(f => f.what.startsWith('the transitions that begin')), 'a whole-game credit has no beginning or end to show')
+        const regain = fact(r5, 'occurrences that also count as the primary event for the team holding the PRESSING role (V27)')
+        assert.deepEqual(regain.map((e: any) => [e.elementId, e.team, e.trigger, e.target.region, e.control, e.exclusion]), [
+            [T('V27-1'), 'ROLE_HOLDER_PRESSING', 'POSSESSION_CHANGE', i === 0 ? 'c:restated:GF2:GF2-03.e' : 'c:restated:GF2:GF2-03.f', 'genuinely establishes possession', 'a contested touch, deflection, or loose ball'],
+        ])
+        // The transition table: which transitions begin and end the building role's credit.
+        const rows = evidence.sections.restarts.filter(r => r.blockId === blockId)
+        assert.deepEqual(rows.filter(r => r.beginsCredit.length).map(r => [r.elementId, r.beginsCredit]), [T('T1-1'), T('T1-2'), T('T1-3')].map(id => [id, ['BUILDING']]))
+        assert.deepEqual(rows.filter(r => r.endsCredit.length).map(r => r.elementId).sort(), [T('T1-5'), T('T1-7'), 'c:restated:GF2:GF2-07.a'].sort())
+    }
+    // Items about no role carry no role facts.
+    assert.ok(evidence.items.filter(i => !i.role).every(i => i.facts.every(b => b.facts.length === 0)))
+    // The scoring section still lists the four condition types: the credit bound is no condition, and F1 does not read it.
+    for (const blockId of BLOCKS) assert.deepEqual(fact(evidence.sections.noPrescription, `block ${blockId}: condition types the game holds`), ['origin', 'progression', 'control', 'exclusion'])
+    assert.deepEqual(fact(evidence.sections.noPrescription, `block ${BLOCKS[0]}: occurrences that also count as the primary event (V27)`), [{ elementId: T('V27-1'), team: 'ROLE_HOLDER_PRESSING', trigger: 'POSSESSION_CHANGE' }])
+
+    // F2 follows the game and his ruling together (TEST-ONLY copies, the gates rerun on the unbroken games).
+    const intact = games.map(game => evidenceBlock(game, game.realized))
+    const withoutElement = games.map(game => evidenceBlock(game, game.realized, game.ctx, fixture => (fixture.game.value.primaryEvent.alsoCounts = [])))
+    const unruled = { ...request, flags: request.flags.map(f => ({ ...f, settledBy: undefined })) }
+    const from = (blocks: EvidenceBlock[], reviewRequest: any = request) => reviewEvidenceOf({ outcome: 'TEST-ONLY', session, blocks, composed: blocks[0].rendered, compositionFindings: [], crossBlock: [], record: { ...record, reviewRequest } as any, lists: null, relationships: contextManipulationRelationships(), selectedConstraints: [], index })
+    const settled = from(intact)
+    assert.equal(settled.flags[1].status, 'SETTLED_BY_RULING')
+    assert.equal(settled.flags[1].answer, evidence.flags[1].answer, 'the helper reproduces the production answer')
+    const notInGame = from(withoutElement)
+    assert.equal(notInGame.flags[1].status, 'RULED_NOT_IN_GAME')
+    assert.ok(notInGame.flags[1].answer.startsWith('Ruled and not in the game'))
+    const oneBlockOnly = from([intact[0], withoutElement[1]])
+    assert.equal(oneBlockOnly.flags[1].status, 'RULED_NOT_IN_GAME', 'every block must hold it')
+    const notHisRuling = from(games.map(game => ({ ...evidenceBlock(game, game.realized), contracts: game.contracts.map(c => ({ ...c, items: (c.items ?? []).map((item: any) => (String(item.itemId).startsWith('A01-R1-V') ? { ...item, basis: 'TEST-ONLY' } : item)) })) })))
+    assert.equal(notHisRuling.flags[1].status, 'RULED_NOT_IN_GAME', 'an element resting on anything but his ruling does not settle it')
+    const unsettled = from(withoutElement, unruled)
+    assert.equal(unsettled.flags[1].status, 'FLAGGED_FOR_REVIEW')
+    assert.equal(unsettled.flags[1].answer, 'Not settled by the game: no element decides whether gaining possession inside this target is an entry into it. Flagged for his review, as he asked; no rule is invented.', 'the old answer, exactly')
+    const elementOnly = from(intact, unruled)
+    assert.equal(elementOnly.flags[1].status, 'FLAGGED_FOR_REVIEW')
+    assert.ok(elementOnly.flags[1].answer.startsWith('The game holds an occurrence'), 'an element with no ruling is not settled')
+    // F1 is untouched by all of it: byte-identical answer and facts in every variant.
+    for (const variant of [notInGame, unsettled, elementOnly]) {
+        assert.equal(variant.flags[0].status, 'FLAGGED_FOR_REVIEW')
+        assert.deepEqual([variant.flags[0].answer, variant.flags[0].blocks], [settled.flags[0].answer, settled.flags[0].blocks])
+    }
+    assert.equal(evidence.flags[0].answer, settled.flags[0].answer)
+
+    // The limitations he asked to keep visible, each in his words with what the game or the build holds.
+    assert.deepEqual(evidence.limitations.map(l => [l.id, l.kind]), [['L1', 'SPECIALIZED_PERFORMERS_BEYOND_ROLE'], ['L2', 'FLAGGED_CASE'], ['L3', 'CHECKED_PATHWAY_ONLY']])
+    const [second, advanced, live] = evidence.limitations
+    assert.equal(fact(second.facts, `${ROLE}s available in the session`), 1)
+    assert.equal(fact(second.facts, `block ${BLOCKS[0]}: ${ROLE}s the session has beyond the teams' counts (counted among the other players)`), 0)
+    assert.deepEqual(fact(second.facts, `at an exchange of roles, ${ROLE}s that move`).map((r: any) => r.count), [1])
+    assert.deepEqual(fact(advanced.facts, 'flag F1'), { kind: 'ADVANCED_POSITIONING', status: 'FLAGGED_FOR_REVIEW', answer: evidence.flags[0].answer })
+    assert.ok(String(fact(live.facts, 'the live generation route')).startsWith('does not serve this activity'))
+    assert.deepEqual(fact(evidence.provenance.openForReview, 'limitations kept visible, as he asked'), ['L1', 'L2', 'L3'])
+    // At two goalkeepers the second is counted among the other players, in each block (a fact, no prescription).
+    const twoKeepers = (buildActivityForReview({ ...a01, session: { ...session, roles: { ...session.roles, [ROLE]: 2 } } }, { includeDrafts: true }) as RefusedActivity).evidence!
+    assert.equal(fact(twoKeepers.limitations[0].facts, `block ${BLOCKS[1]}: ${ROLE}s the session has beyond the teams' counts (counted among the other players)`), 1)
+
+    // The loader refuses a ruling on a flag no ruling settles, a settledBy without his cited words, and a limitation it cannot read.
+    const damaged = (alter: (copy: any) => void) => {
+        const copy = JSON.parse(JSON.stringify(request))
+        alter(copy)
+        return validateReviewRequest('A01', copy)
+    }
+    assert.ok(damaged(c => (c.flags[0].settledBy = c.flags[1].settledBy)).some(e => e.includes('of a kind no ruling settles')))
+    assert.ok(damaged(c => (c.flags[1].settledBy = [{ words: '', citedAs: 'x' }])).some(e => e.includes('settled by no cited words')))
+    assert.ok(damaged(c => (c.limitations[1].flag = 'F9')).some(e => e.includes('names the flag F9')))
+    assert.ok(damaged(c => (c.limitations[0].kind = 'TEST-ONLY')).some(e => e.includes('unknown kind')))
+    assert.ok(damaged(c => delete c.limitations[0].role).some(e => e.includes('names no specialized role')))
+    assert.ok(damaged(c => (c.limitations[2].words = [])).some(e => e.includes('must quote him')))
 })
 
 console.log(`review-evidence.unit.ts — ${passed} passed`)

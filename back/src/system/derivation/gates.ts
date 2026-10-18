@@ -29,7 +29,7 @@
  * instances or found none, and the report carries that split so a summary cannot flatten it.
  */
 
-import { designationKey, followsPossessionRelation, holderInBlock, isAllTeams, isListedDesignation, resolutionOf } from './designation'
+import { AwardeeRelation, awardeeRelation, designationKey, followsPossessionRelation, holderInBlock, isAllTeams, isListedDesignation, resolutionOf, roleHolderNames, roleOfHolder } from './designation'
 import { ClassifiedLine, nonClaimState } from './classify'
 import { DerivedLine, resolvedValue } from './derive'
 import { ItemOutcome } from './forward'
@@ -1405,6 +1405,215 @@ function placementResets(
     return { clause, why, resets }
 }
 
+/**
+ * **A role whose scoring credit is confined to an episode: who begins that episode, and what ends it** — 17 October 2026 (stage M1,
+ * register version 14, row B8 `activityRoles[].creditedWithin`). Christian, reply filed 19 October 2026, item 1: *"If the building
+ * team loses possession, that scoring opportunity ends. If it subsequently regains possession, play may continue, but the original
+ * build-out scoring opportunity is not restored."* *"Please ensure the underlying scoring eligibility reflects this distinction,
+ * rather than relying solely on the coach-facing wording."* Item 3 C: *"Yes. The build-out scoring episode ends."* His D7 of 17
+ * October: *"Only the building team initiates new build-out episodes."* (His sentences naming who restarts are quoted whole in
+ * register row B8's note; this module names no player role.)
+ *
+ * For each role element whose B8 value is a scope S other than WHOLE_GAME (the holder: the role holder of its role, register data):
+ *
+ *   - **clause 4** — every transition the typed begin condition for S picks out (C58, `buildOutStarters`) is awarded to the holder:
+ *     NOT_EVALUABLE where nothing types S's beginning, FAIL where nothing begins S or a beginning is awarded to another team,
+ *     DEFERRED while a beginning or its awardee is still open;
+ *   - **clause 5** — every transition that can take possession from the holder begins another episode, so the credit ends there:
+ *     a change of possession must begin one (T7 true; NOT_EVALUABLE where the game holds no change of possession, so the end at a
+ *     loss of possession is never assumed), and a restart that begins none must be awarded to the holder (`awardeeRelation`: OTHER
+ *     FAILS, UNDETERMINED is NOT_EVALUABLE). A transition in which play continues and that is not a change of possession awards
+ *     nothing.
+ *
+ * Both vacuous where no role carries such a bound (SD-54), and appended after the existing clauses on every path, because
+ * `context-scoring-guard.ts` reads the first clause as the reach clause. B8 is read without blocking: a role whose bound nobody
+ * stated (NOT_AUTHORED) is unbounded, as a whole-game role is, and that silence is GA-NO-FAILED-LINE's to report; a bound two items
+ * disagree on (UNRESOLVED), or one otherwise not established, blocks both clauses by name, and one still open to a choice defers
+ * them (stage M1 review). No role, team, trigger or designation is named beyond the register's
+ * POSSESSION_CHANGE, already read here.
+ */
+const CREDIT_ROW = 'B8'
+/** The two clauses by name, exported (stage M3) so the review evidence reads their verdicts by name, never by position. */
+export const CREDIT_BEGINS_CLAUSE = 'every role whose scoring credit is confined to an episode holds the award of every transition that begins that episode'
+export const CREDIT_ENDS_CLAUSE = 'every transition that can take possession from such a role begins another episode'
+
+function creditClauses(ctx: GateContext, probe: Probe, typedFor: (scope: string) => BeginConditionReferent | undefined): { clauses: [ClauseResult, ClauseResult]; why: string } {
+    const BEGINS = CREDIT_BEGINS_CLAUSE
+    const ENDS = CREDIT_ENDS_CLAUSE
+    const spec = ctx.index.roleBlocks
+    if (!spec) return { clauses: [pass(BEGINS, 0), pass(ENDS, 0)], why: '' }
+    const bounded: { classId: string; role: string; holder: string; scope: string }[] = []
+    let gap = false
+    let undecided = false
+    for (const element of classesOn(ctx, spec.rolesRow)) {
+        const lineId = lineOf(element.classId, CREDIT_ROW)
+        const cell = probe.peek(lineId)
+        /**
+         * **Only silence reads as unbounded** — stage M1 review, 17 October 2026. A bound nobody stated (NOT_AUTHORED) or one the
+         * knowledge settled as absent is unbounded, and that silence is GA-NO-FAILED-LINE's to report. A bound still open to a choice
+         * (FREE) is undecided, and a bound blocked on a gap, invented, or in collision is not established: reading either as the whole
+         * game would pass the clauses on a value nobody holds (his 16 October item 8: *"A field whose value remains missing or
+         * unresolved."* is not *"A field explicitly defined as not applicable or requiring no further value."*). Measured before this
+         * line: a FREE, CONDITIONAL or INVENTED bound on the building role passed both clauses with no applicable instance.
+         */
+        const silent = (cell.state === 'ABSENT' && cell.established) || (cell.state === 'FAILED' && ctx.classified.get(lineId)?.verdict === 'NOT_AUTHORED')
+        if (silent) continue
+        if (cell.state === 'OPEN') {
+            probe.cell(lineId)
+            undecided = true
+            continue
+        }
+        if (cell.state !== 'DERIVED') {
+            probe.cell(lineId)
+            gap = true
+            continue
+        }
+        if (String(cell.value) === 'WHOLE_GAME') continue
+        const term = (element.constraints?.terms || []).find(t => t.attribute === spec.roleAttribute && t.op === '=')
+        const role = term && term.op === '=' ? String(term.value) : ''
+        const holder = roleHolderNames(ctx.index).find(name => roleOfHolder(ctx.index, name) === role)
+        if (!holder) {
+            gap = true
+            continue
+        }
+        bounded.push({ classId: element.classId, role, holder, scope: String(cell.value) })
+    }
+    if (gap && !bounded.length) return { clauses: [notEvaluable(BEGINS), notEvaluable(ENDS)], why: '; a role\'s credit bound is not established' }
+    if (undecided && !bounded.length) {
+        const owes = 'the credit bound of each role, still open to a choice'
+        return { clauses: [deferred(BEGINS, owes), deferred(ENDS, owes)], why: '; a role\'s credit bound is not yet decided' }
+    }
+    if (!bounded.length) return { clauses: [pass(BEGINS, 0), pass(ENDS, 0)], why: '' }
+
+    // How many teams the game holds, where its team classes fix it (OTHER is decided only between exactly two). One count per
+    // establishing item: the members realization instantiates from a claim (post-realization-gate.ts) carry the claim's item and
+    // no cardinality of their own, so they are the claim's members, never more teams. An item no class gives a fixed count fixes none.
+    const teamGroups = new Map<string, ElementClass[]>()
+    for (const c of ctx.index.designations.teamsRow ? allClassesOn(ctx, ctx.index.designations.teamsRow) : []) {
+        const key = `${c.fromItem.contractId}::${c.fromItem.itemId}`
+        teamGroups.set(key, [...(teamGroups.get(key) ?? []), c])
+    }
+    const fixedCount = (group: ElementClass[]): number | null => {
+        const fixed = group.find(c => c.cardinality.min !== null && c.cardinality.min === c.cardinality.max)
+        return fixed ? Number(fixed.cardinality.min) : null
+    }
+    const counts = [...teamGroups.values()].map(fixedCount)
+    const teamCount = counts.length && counts.every(n => n !== null) ? counts.reduce<number>((sum, n) => sum + (n as number), 0) : null
+    const termsOf = (transition: ElementClass): Record<string, unknown> =>
+        Object.fromEntries((transition.constraints?.terms || []).filter(t => t.op === '=').map(t => [t.attribute, (t as { value: unknown }).value]))
+    const triggerOf = (transition: ElementClass): string => String(termsOf(transition).trigger ?? 'not fixed')
+    const relationOf = (transition: ElementClass, holder: string): AwardeeRelation | 'OPEN' | 'GAP' => {
+        const award = probe.cell(lineOf(transition.classId, 'T2'))
+        if (award.state === 'OPEN') return 'OPEN'
+        if (award.state !== 'DERIVED') return 'GAP'
+        return awardeeRelation(ctx.index, award.value, termsOf(transition), holder, teamCount)
+    }
+    const verdictOf = (fails: boolean, blocked: boolean, open: boolean, instances: number, clause: string, owes: string): ClauseResult =>
+        fails ? fail(clause, instances) : blocked ? notEvaluable(clause) : open ? deferred(clause, owes) : pass(clause, instances)
+
+    let beginsFail = false
+    let beginsBlocked = gap
+    let beginsOpen = undecided
+    let beginsInstances = 0
+    let endsFail = false
+    let endsBlocked = gap
+    let endsOpen = undecided
+    let endsInstances = 0
+    const said: string[] = []
+    for (const role of bounded) {
+        // Clause 4: the beginnings of the role's episode, each awarded to its holder.
+        const typed = typedFor(role.scope)
+        const starters = new Set<string>()
+        const awardedAway: string[] = []
+        if (!typed) beginsBlocked = true
+        else {
+            const found = buildOutStarters(ctx, probe, typed)
+            if (!found.starters.length && !found.undecided.length && !found.blocked.length) beginsFail = true
+            if (found.undecided.length) beginsOpen = true
+            if (found.blocked.length) beginsBlocked = true
+            for (const starter of found.starters) {
+                starters.add(starter.classId)
+                beginsInstances++
+                const transition = classesOn(ctx, 'T1').find(c => c.classId === starter.classId)!
+                const relation = relationOf(transition, role.holder)
+                if (relation === 'OTHER') {
+                    beginsFail = true
+                    awardedAway.push(starter.classId)
+                } else if (relation === 'OPEN') beginsOpen = true
+                else if (relation !== 'HOLDER') beginsBlocked = true
+            }
+        }
+
+        // Clause 5: every transition that can take possession from the holder begins an episode.
+        const enders: string[] = []
+        const keepers: string[] = []
+        const kept: string[] = []
+        let possessionChanges = 0
+        for (const transition of classesOn(ctx, 'T1')) {
+            const trigger = triggerOf(transition)
+            if (trigger === 'POSSESSION_CHANGE') {
+                const starts = probe.cell(lineOf(transition.classId, 'T7'))
+                possessionChanges++
+                endsInstances++
+                if (starts.state === 'DERIVED' && String(starts.value) === 'true') enders.push(transition.classId)
+                else if (starts.state === 'DERIVED') {
+                    endsFail = true
+                    kept.push(`${transition.classId} (a change of possession that begins no episode)`)
+                } else if (starts.state === 'OPEN') endsOpen = true
+                else endsBlocked = true
+                continue
+            }
+            const playState = probe.cell(lineOf(transition.classId, 'T6'))
+            if (playState.state === 'OPEN') {
+                endsOpen = true
+                continue
+            }
+            if (playState.state !== 'DERIVED') {
+                endsBlocked = true
+                continue
+            }
+            if (String(playState.value) !== 'STOP_RESUME') continue
+            endsInstances++
+            const starts = probe.cell(lineOf(transition.classId, 'T7'))
+            if (starts.state === 'OPEN') {
+                endsOpen = true
+                continue
+            }
+            if (starts.state !== 'DERIVED') {
+                endsBlocked = true
+                continue
+            }
+            if (String(starts.value) === 'true') {
+                if (!starters.has(transition.classId)) enders.push(transition.classId)
+                continue
+            }
+            const relation = relationOf(transition, role.holder)
+            if (relation === 'HOLDER') keepers.push(transition.classId)
+            else if (relation === 'OTHER') {
+                endsFail = true
+                kept.push(`${transition.classId} (a restart awarded away from ${role.holder} that begins no episode)`)
+            } else if (relation === 'OPEN') endsOpen = true
+            else endsBlocked = true
+        }
+        if (!possessionChanges) endsBlocked = true
+        said.push(
+            `${role.classId} (${role.holder}) earns its credit within ${role.scope}: begun by ${[...starters].join(', ') || 'no transition'}` +
+                (awardedAway.length ? ` (awarded away from ${role.holder}: ${awardedAway.join(', ')})` : '') +
+                `; ended by ${enders.join(', ') || 'no transition'}` +
+                (possessionChanges ? '' : ' (the game holds no change of possession, so its end at a loss of possession is not established)') +
+                `; kept by ${keepers.join(', ') || 'no transition'} (restarts awarded to ${role.holder} that begin no episode)` +
+                (kept.length ? `; credit not ended by ${kept.join('; ')}` : ''),
+        )
+    }
+    return {
+        clauses: [
+            verdictOf(beginsFail, beginsBlocked, beginsOpen, beginsInstances, BEGINS, 'which transitions begin each bounded role\'s episode, and their realized awardees'),
+            verdictOf(endsFail, endsBlocked, endsOpen, endsInstances, ENDS, 'the realized play state, episode boundary and awardee of each transition that may take possession from a bounded role'),
+        ],
+        why: `; credit confined to an episode: ${said.join('; ')}`,
+    }
+}
+
 function gaEpisodeReachable(ctx: GateContext): CheckOutcome {
     const CLAUSE = 'every condition authored for an episode has a transition that can begin that episode'
     const AWARDEE = 'every transition that begins such an episode is awarded to one and the same team'
@@ -1423,7 +1632,9 @@ function gaEpisodeReachable(ctx: GateContext): CheckOutcome {
             })
             .find(() => true)
     const resets = placementResets(ctx, probe, typedFor)
-    if (!scoped.length) return result('GA-EPISODE-REACHABLE', probe, [pass(CLAUSE, 0), pass(AWARDEE, 0), resets.clause], 'no condition is authored for an episode' + resets.why)
+    // Clauses 4 and 5 (stage M1, register version 14): appended on every path, after the reach clause context-scoring-guard.ts reads first.
+    const credit = creditClauses(ctx, probe, typedFor)
+    if (!scoped.length) return result('GA-EPISODE-REACHABLE', probe, [pass(CLAUSE, 0), pass(AWARDEE, 0), resets.clause, ...credit.clauses], 'no condition is authored for an episode' + resets.why + credit.why)
     const named = scoped.map(c => `${c.classId} (${scopeOf(c)})`).join(', ')
 
     // The typed begin condition, where an episode-scoped condition holds one as its referent (C58) — and only one for THAT
@@ -1460,14 +1671,15 @@ function gaEpisodeReachable(ctx: GateContext): CheckOutcome {
         return result(
             'GA-EPISODE-REACHABLE',
             probe,
-            [reach, awardee, resets.clause],
+            [reach, awardee, resets.clause, ...credit.clauses],
             `${scoped.length} condition(s) are authored for an episode — ${named}; the begin condition is typed (${typed.asAuthored ?? 'C58'}): ` +
                 `${found.starters.length} transition(s) begin one (${found.starters.map(s => `${s.classId}: ${s.trigger}`).join('; ') || 'none'})` +
                 (found.starters.length ? `, awarded to ${keys.join(', ') || 'no established team'}` : '') +
                 (found.undecided.length ? `; ${found.undecided.length} undecided until realization: ${found.undecided.join('; ')}` : '') +
                 (found.blocked.length ? `; ${found.blocked.length} blocked on a gap: ${found.blocked.join('; ')}` : '') +
                 (found.ruledOut.length ? `; ruled out: ${found.ruledOut.join('; ')}` : '') +
-                resets.why,
+                resets.why +
+                credit.why,
         )
     }
 
@@ -1492,10 +1704,11 @@ function gaEpisodeReachable(ctx: GateContext): CheckOutcome {
         return result(
             'GA-EPISODE-REACHABLE',
             probe,
-            [fail(CLAUSE, scoped.length), pass(AWARDEE, 0), resets.clause],
+            [fail(CLAUSE, scoped.length), pass(AWARDEE, 0), resets.clause, ...credit.clauses],
             `${scoped.length} condition(s) are authored for an episode — ${named} — and no transition can begin one` +
                 (ruledOut.length ? `: ${ruledOut.join('; ')}` : ': the game holds no transition element') +
-                resets.why,
+                resets.why +
+                credit.why,
         )
     }
     const takers = candidates.map(c => probe.cell(lineOf(c.classId, 'T3')))
@@ -1506,10 +1719,11 @@ function gaEpisodeReachable(ctx: GateContext): CheckOutcome {
     return result(
         'GA-EPISODE-REACHABLE',
         probe,
-        [verdict, verdict.verdict === 'DEFERRED_TO_REALIZATION' ? deferred(AWARDEE, 'which transitions begin the episode, and their realized awardees') : notEvaluable(AWARDEE), resets.clause],
+        [verdict, verdict.verdict === 'DEFERRED_TO_REALIZATION' ? deferred(AWARDEE, 'which transitions begin the episode, and their realized awardees') : notEvaluable(AWARDEE), resets.clause, ...credit.clauses],
         `${scoped.length} condition(s) are authored for an episode — ${named}; ${candidates.length} transition(s) may begin one ` +
             `(${candidates.map(c => `${c.classId}: ${c.trigger}`).join('; ')}), and whether one begins as the begin condition requires is not established` +
-            resets.why,
+            resets.why +
+            credit.why,
     )
 }
 
@@ -2006,13 +2220,313 @@ function gaOnePrimaryEvent(ctx: GateContext): CheckOutcome {
             ? deferred(POSITION, 'the chosen position of every referent of the primary event')
             : pass(POSITION, positioned.length)
 
+    // Stage M2 (register version 14, rows V27-V31): appended, and only where the game holds an occurrence that also counts as the
+    // primary event, so every other game's clauses and reason read exactly as they did.
+    const also = alsoCountsClauses(ctx, probe)
     return result(
         'GA-ONE-PRIMARY-EVENT',
         probe,
-        [oneClause, valueClause, positionClause, outside(STATES)],
+        [oneClause, valueClause, positionClause, outside(STATES), ...also.clauses],
         `${events.length || (entailedBySd06 ? 1 : 0)} primary event(s); ${positioned.length} positioned referent(s); ${unpositioned.length} unpositioned` +
-            (namesNoPlace ? `; ${namesNoPlace} condition(s) name no place` : ''),
+            (namesNoPlace ? `; ${namesNoPlace} condition(s) name no place` : '') +
+            also.why,
     )
+}
+
+/**
+ * **An occurrence that also counts as the one primary event, for one team** — 17 October 2026 (stage M2, register version 14, rows
+ * V27 `value.primaryEvent.alsoCounts[]`, V28 team, V29 trigger, V30 control, V31 exclusion). Christian, reply filed 19 October 2026,
+ * item 2: *"For the previously flagged corner case, I favor allowing a controlled regain inside that area to count as a score,
+ * provided the pressing team genuinely establishes possession."* *"A contested touch, deflection, or loose ball should not
+ * qualify."* *"This is a provisional scoring choice for the current realization, not a universal rule equating every regain with
+ * successful progression."* His 17 October D3: *"Please verify that the two targets can coexist without overlapping or
+ * contradictory scoring conditions."* Item 5: *"Any further changes should address general capabilities rather than introduce
+ * special cases for this Learning Goal."* (Reading 'count as a score' as counting as the one primary event and earning its value
+ * is OUR READING, SD-113; the clauses below are our engineering.)
+ *
+ * Only tightens: SD-06's "exactly one primary event" is clause 1 above and is unchanged. Eight clauses, each over every element:
+ *
+ *   - **team** — V28 names exactly one team of the game for the block (a setup assignment, or a role holder through the block);
+ *     a designation of every team, or one decided by possession, an episode, a trigger or an outcome, FAILS;
+ *   - **trigger** — V29 is a member of its closed list, the game holds a transition keyed on it in which play continues (an event
+ *     in play, never a restart award), and the game holds the score transition that follows it (the register's SCORE trigger: it
+ *     is a score, so that transition governs play state at that moment);
+ *   - **target** — the element's own team attacks exactly one primary objective, whose reference is positioned (deferred until
+ *     realization places it): the occurrence lies inside THAT target (the register's targetOf, his "inside that area"), so it can
+ *     never reach the other team's target;
+ *   - **control** — V30 is stated (the possession relation states nothing about how possession is gained, PS1);
+ *   - **one per team** — at most one element per team;
+ *   - **episode** — the trigger's transition begins an episode (T7 true), so the occurrence is evaluated in the episode its trigger
+ *     begins, and it begins none that an episode-scoped condition of the primary event is authored for, so no such condition can
+ *     govern it (OUR INFERENCE from his item 1, *"If the building team loses possession, that scoring opportunity ends."*, and
+ *     RPC-001-17.a; labelled so);
+ *   - **no whole-game condition** — no condition of the primary event is authored for every score: one would govern this
+ *     occurrence too, or not, and the representation does not say which, so the contradiction is refused rather than guessed;
+ *   - **credit bound** (added in the stage M2 review, 17 October 2026) — the element's team, in the block, holds no role whose
+ *     scoring credit is confined to an episode (row B8 other than WHOLE_GAME) that its trigger does not begin. His item 1:
+ *     *"If the building team loses possession, that scoring opportunity ends. If it subsequently regains possession, play may
+ *     continue, but the original build-out scoring opportunity is not restored."* and *"Please ensure the underlying scoring
+ *     eligibility reflects this distinction, rather than relying solely on the coach-facing wording."* Measured before this
+ *     clause on TEST-ONLY copies: an element for the building role's holder, or for a setup team in the block where that team
+ *     builds, passed every structural check in both blocks and was refused only at communication (its wording) - a credit outside
+ *     the role's own episode that only the coach-facing wording held back. The bound is read as GA-EPISODE-REACHABLE's fourth
+ *     clause reads it: only silence is unbounded; a bound still open defers, one not established withholds.
+ *
+ * No clause is added where the game holds no element. Every name read is the register's (row ids, the closed list, the SCORE and
+ * POSSESSION_CHANGE triggers already read in this file); no team, role, kind or sport term is named.
+ */
+const ALSO_COUNTS_ROW = 'V27'
+const SCORE_TRIGGER = 'SCORE'
+
+function alsoCountsClauses(ctx: GateContext, probe: Probe): { clauses: ClauseResult[]; why: string } {
+    const elements = classesOn(ctx, ALSO_COUNTS_ROW)
+    if (!elements.length) return { clauses: [], why: '' }
+    const TEAM = 'every occurrence that also counts as the primary event is for exactly one team'
+    const TRIGGER = 'its trigger is an event in play the game holds, and the game holds the score that follows it'
+    const TARGET = 'it lies inside the one positioned target its own team attacks'
+    const CONTROL = 'it states the control under which the occurrence is established'
+    const ONE = 'at most one such occurrence for each team'
+    const EPISODE = 'its trigger begins an episode, and none that a condition of the primary event is authored for'
+    const WHOLE = 'no condition of the primary event is authored for every score beside it'
+    const CREDIT = 'its team holds no role whose scoring credit is confined to an episode its trigger does not begin'
+    type Tally = { fail: boolean; blocked: boolean; open: boolean; instances: number }
+    const tally = (): Tally => ({ fail: false, blocked: false, open: false, instances: 0 })
+    const verdictOf = (t: Tally, clause: string, owes: string): ClauseResult => (t.fail ? fail(clause, t.instances) : t.blocked ? notEvaluable(clause) : t.open ? deferred(clause, owes) : pass(clause, t.instances))
+    const team = tally()
+    const trigger = tally()
+    const target = tally()
+    const control = tally()
+    const one = tally()
+    const episode = tally()
+    const whole = tally()
+    const credit = tally()
+    const said: string[] = []
+    const termsOf = (cls: ElementClass): Record<string, unknown> => Object.fromEntries((cls.constraints?.terms || []).filter(t => t.op === '=').map(t => [t.attribute, (t as { value: unknown }).value]))
+    const transitionsOn = (value: string) => classesOn(ctx, 'T1').filter(transition => String(termsOf(transition).trigger) === value)
+    const scopeOf = (cls: ElementClass) => String((ctx.contracts.find(c => c.contractId === cls.fromItem.contractId)?.items ?? []).find(i => i.itemId === cls.fromItem.itemId)?.scope ?? '')
+    const conditions = classesOn(ctx, 'V3')
+    const episodeScopes = [...new Set(conditions.map(scopeOf).filter(scope => EPISODE_SCOPES.includes(scope)))]
+    // The typed begin condition an episode-scoped condition holds for its own episode (C58), read as GA-EPISODE-REACHABLE reads it.
+    const typedFor = (scope: string): BeginConditionReferent | undefined =>
+        conditions
+            .filter(c => scopeOf(c) === scope)
+            .flatMap(c => {
+                const cell = probe.peek(lineOf(c.classId, 'V5'))
+                const values = cell.state === 'DERIVED' ? (Array.isArray(cell.value) ? cell.value : [cell.value]) : []
+                return values.map(beginConditionReferentOf).filter((referent): referent is BeginConditionReferent => referent !== null && referent.beginsEpisodeOf === scope)
+            })
+            .find(() => true)
+    const teams = new Map<string, string[]>()
+    // Each role's credit bound (row B8), read as GA-EPISODE-REACHABLE's fourth clause reads it, with the team holding the role in
+    // this block (null where no block says it). Stage M2 review, 17 October 2026.
+    type Bound = { role: string; team: string | null; state: 'BOUNDED' | 'OPEN' | 'BLOCKED'; scope: string }
+    const bounds: Bound[] = []
+    const roleSpec = ctx.index.roleBlocks
+    for (const roleElement of roleSpec ? classesOn(ctx, roleSpec.rolesRow) : []) {
+        const lineId = lineOf(roleElement.classId, CREDIT_ROW)
+        const cell = probe.peek(lineId)
+        const silent = (cell.state === 'ABSENT' && cell.established) || (cell.state === 'FAILED' && ctx.classified.get(lineId)?.verdict === 'NOT_AUTHORED')
+        if (silent || (cell.state === 'DERIVED' && String(cell.value) === 'WHOLE_GAME')) continue
+        const term = (roleElement.constraints?.terms || []).find(t => t.attribute === roleSpec!.roleAttribute && t.op === '=')
+        const role = term && term.op === '=' ? String(term.value) : ''
+        const holder = roleHolderNames(ctx.index).find(name => roleOfHolder(ctx.index, name) === role)
+        const holderTeam = holder ? teamOf(ctx, holder) : null
+        if (cell.state === 'OPEN') {
+            probe.cell(lineId)
+            bounds.push({ role, team: holderTeam, state: 'OPEN', scope: '' })
+        } else if (cell.state !== 'DERIVED' || !holder) {
+            probe.cell(lineId)
+            bounds.push({ role, team: holderTeam, state: 'BLOCKED', scope: '' })
+        } else bounds.push({ role, team: holderTeam, state: 'BOUNDED', scope: String(cell.value) })
+    }
+
+    for (const element of elements) {
+        // Team: exactly one team for the block.
+        const teamCell = probe.cell(lineOf(element.classId, 'V28'))
+        let resolvedTeam: string | null = null
+        // Whether this element's team is one team, none, or not yet known. A role holder read outside a block (a derivation with no role
+        // block, which the checked pathway never serves: it derives each block) names one team in every block, but which one the block
+        // says, so it is owed, as GA-RELATIVE-PLACEMENT defers a direction it cannot read for a role holder there.
+        let teamState: 'ONE' | 'NONE' | 'OPEN' | 'BLOCKED' = 'BLOCKED'
+        team.instances++
+        if (teamCell.state === 'OPEN') teamState = 'OPEN'
+        else if (teamCell.state === 'DERIVED') {
+            const kind = resolutionOf(ctx.index, teamCell.value)?.kind
+            if (kind === 'BLOCK_ROLE' && !ctx.roleBlock) teamState = 'OPEN'
+            else if (kind === 'BLOCK_ROLE' || kind === 'SETUP_ASSIGNMENT') {
+                resolvedTeam = teamOf(ctx, String(teamCell.value))
+                teamState = resolvedTeam ? 'ONE' : 'NONE'
+            } else teamState = 'NONE'
+        }
+        if (teamState === 'OPEN') team.open = true
+        else if (teamState === 'BLOCKED') team.blocked = true
+        else if (teamState === 'NONE') team.fail = true
+        if (resolvedTeam) teams.set(resolvedTeam, [...(teams.get(resolvedTeam) ?? []), element.classId])
+
+        // Trigger: a member of the closed list, an event in play the game holds, followed by a score the game holds.
+        const triggerCell = probe.cell(lineOf(element.classId, 'V29'))
+        const listed = ctx.index.vocabularies.get('V29.trigger') ?? []
+        let keyed: ElementClass[] = []
+        const triggerNotes: string[] = []
+        trigger.instances++
+        if (triggerCell.state === 'OPEN') trigger.open = true
+        else if (triggerCell.state !== 'DERIVED') trigger.blocked = true
+        else if (!listed.includes(String(triggerCell.value))) {
+            trigger.fail = true
+            triggerNotes.push('not a member of its closed list')
+        } else {
+            keyed = transitionsOn(String(triggerCell.value))
+            if (!keyed.length) triggerNotes.push('the game holds no transition keyed on it')
+            if (!transitionsOn(SCORE_TRIGGER).length) triggerNotes.push('the game holds no score transition')
+            if (!keyed.length || !transitionsOn(SCORE_TRIGGER).length) trigger.fail = true
+            for (const transition of keyed) {
+                const playState = probe.cell(lineOf(transition.classId, 'T6'))
+                if (playState.state === 'OPEN') trigger.open = true
+                else if (playState.state !== 'DERIVED') trigger.blocked = true
+                else if (String(playState.value) !== 'CONTINUE') {
+                    trigger.fail = true
+                    triggerNotes.push(`${transition.classId} stops play: it is no event in play`)
+                }
+            }
+        }
+
+        // Target: the one primary objective its own team attacks, positioned.
+        let targetSaid = 'no target'
+        target.instances++
+        const spec = ctx.index.targetOf
+        if (!spec || teamState === 'BLOCKED') target.blocked = true
+        else if (teamState === 'OPEN') target.open = true
+        else if (!resolvedTeam) target.fail = true
+        else {
+            const objectives = classesOn(ctx, spec.objectivesRow)
+            const unsettled = objectives.some(objective => [spec.roleRow, spec.teamRow].some(row => probe.peek(lineOf(objective.classId, row)).state !== 'DERIVED'))
+            const attacking = objectives.filter(objective => {
+                const role = probe.peek(lineOf(objective.classId, spec.roleRow))
+                const by = probe.peek(lineOf(objective.classId, spec.teamRow))
+                return role.state === 'DERIVED' && String(role.value) === spec.role && by.state === 'DERIVED' && designationKey(ctx.index, by.value) === resolvedTeam
+            })
+            if (attacking.length !== 1) {
+                if (unsettled) target.blocked = true
+                else target.fail = true
+                targetSaid = `${attacking.length} primary objectives attacked by ${resolvedTeam}`
+            } else {
+                const reference = probe.cell(lineOf(attacking[0].classId, spec.referenceRow))
+                const referent = reference.state === 'DERIVED' ? referentClass(ctx, reference.value) : null
+                if (reference.state === 'OPEN') target.open = true
+                else if (reference.state !== 'DERIVED') target.blocked = true
+                else if (!referent || (referent.row !== 'S2' && referent.row !== 'O1')) target.fail = true
+                else {
+                    const position = probe.cell(lineOf(referent.classId, referent.row === 'S2' ? 'S5' : 'O4'))
+                    if (position.state === 'OPEN') target.open = true
+                    else if (position.state !== 'DERIVED') target.blocked = true
+                    targetSaid = `the target of ${attacking[0].classId}, ${referent.classId}`
+                }
+            }
+        }
+
+        // Control: stated.
+        const controlCell = probe.cell(lineOf(element.classId, 'V30'))
+        control.instances++
+        if (controlCell.state === 'OPEN') control.open = true
+        else if (controlCell.state !== 'DERIVED') control.blocked = true
+        else if (typeof controlCell.value !== 'string' || !controlCell.value.trim()) control.fail = true
+
+        // Episode: the trigger begins an episode, and none an episode-scoped condition is authored for.
+        episode.instances++
+        if (triggerCell.state !== 'DERIVED') episode.blocked = true
+        for (const transition of keyed) {
+            const starts = probe.cell(lineOf(transition.classId, 'T7'))
+            if (starts.state === 'OPEN') episode.open = true
+            else if (starts.state !== 'DERIVED') episode.blocked = true
+            else if (String(starts.value) !== 'true') {
+                episode.fail = true
+                triggerNotes.push(`${transition.classId} begins no episode`)
+            }
+        }
+        for (const scope of episodeScopes) {
+            const typed = typedFor(scope)
+            if (!typed) {
+                episode.blocked = true
+                continue
+            }
+            const found = buildOutStarters(ctx, probe, typed)
+            const begun = found.starters.filter(starter => keyed.some(transition => transition.classId === starter.classId))
+            if (begun.length) {
+                episode.fail = true
+                triggerNotes.push(`${begun.map(starter => starter.classId).join(', ')} begins ${scope}, which a condition of the primary event is authored for`)
+            }
+        }
+
+        // Credit bound: the element's team holds no role whose credit is confined to an episode its trigger does not begin.
+        credit.instances++
+        if (teamState === 'OPEN') credit.open = true
+        else if (teamState !== 'ONE') credit.blocked = true
+        else
+            for (const bound of bounds) {
+                if (bound.team === null) {
+                    // A role's holder no block names: which team holds it is owed, as the team clause owes it.
+                    credit.open = true
+                    continue
+                }
+                if (bound.team !== resolvedTeam) continue
+                if (bound.state === 'OPEN') credit.open = true
+                else if (bound.state === 'BLOCKED') credit.blocked = true
+                else {
+                    const typed = typedFor(bound.scope)
+                    if (!typed) {
+                        credit.blocked = true
+                        continue
+                    }
+                    const begins = new Set(buildOutStarters(ctx, probe, typed).starters.map(starter => starter.classId))
+                    if (!keyed.length || keyed.some(transition => !begins.has(transition.classId))) {
+                        credit.fail = true
+                        triggerNotes.push(`${resolvedTeam} holds the role ${bound.role}, whose scoring credit is confined to ${bound.scope}, which its trigger does not begin`)
+                    }
+                }
+            }
+        said.push(
+            `${element.classId} for ${teamCell.state === 'DERIVED' ? String(teamCell.value) : 'no established team'}` +
+                (resolvedTeam ? ` (${resolvedTeam})` : '') +
+                ` at ${triggerCell.state === 'DERIVED' ? String(triggerCell.value) : 'no established trigger'} (${keyed.map(t => t.classId).join(', ') || 'no transition'}` +
+                (triggerNotes.length ? `; ${triggerNotes.join('; ')}` : '') +
+                `), inside ${targetSaid}`,
+        )
+    }
+
+    // One per team.
+    one.instances = elements.length
+    if (team.blocked) one.blocked = true
+    else if (team.open) one.open = true
+    const shared = [...teams.entries()].filter(([, ids]) => ids.length > 1)
+    if (shared.length) one.fail = true
+
+    // No whole-game condition beside it.
+    whole.instances = conditions.length
+    const wholeGame: string[] = []
+    for (const condition of conditions) {
+        const scope = scopeOf(condition)
+        if (EPISODE_SCOPES.includes(scope)) continue
+        if (scope === 'WHOLE_GAME' || scope === '') {
+            whole.fail = true
+            wholeGame.push(condition.classId)
+        } else whole.blocked = true
+    }
+    if (shared.length) said.push(`more than one for ${shared.map(([teamKey, ids]) => `${teamKey} (${ids.join(', ')})`).join('; ')}`)
+    if (wholeGame.length) said.push(`authored for every score beside it: ${wholeGame.join(', ')}`)
+
+    return {
+        clauses: [
+            verdictOf(team, TEAM, 'the team each occurrence is for'),
+            verdictOf(trigger, TRIGGER, 'the realized play state of each transition keyed on the trigger'),
+            verdictOf(target, TARGET, 'the realized position of the target each occurrence lies inside'),
+            verdictOf(control, CONTROL, 'the control each occurrence states'),
+            verdictOf(one, ONE, 'the team each occurrence is for'),
+            verdictOf(episode, EPISODE, 'the realized episode boundary of each transition keyed on the trigger'),
+            verdictOf(whole, WHOLE, 'the scope of each condition of the primary event'),
+            verdictOf(credit, CREDIT, 'the team holding each role whose scoring credit is bounded, and each bound'),
+        ],
+        why: `; ${elements.length} occurrence(s) also count as the primary event: ${said.join('; ')}`,
+    }
 }
 
 /**

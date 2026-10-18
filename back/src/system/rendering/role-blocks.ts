@@ -129,7 +129,8 @@ export function checkRoleBlocks(blocks: BuiltBlock[], index: RegisterIndex, role
     {
         const problems: string[] = []
         if (!pair) problems.push(`role blocks come in two; ${blocks.length} were built`)
-        for (const rowId of ['S2', 'J1', 'T1', 'V0', 'V3', 'P1']) {
+        // V27 added 17 October 2026 (stage M2): an occurrence that also counts as the primary event, compared like every other element.
+        for (const rowId of ['S2', 'J1', 'T1', 'V0', 'V3', 'V27', 'P1']) {
             const container = containerOf(index, rowId)
             if (!container || !pair) continue
             const [a, b] = games.map(game => idsAt(game, container))

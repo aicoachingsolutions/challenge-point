@@ -364,7 +364,11 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
         // 34 -> 47 on 15 October 2026 (stage K6): his 18 October starting values and D3/D4/M5 relationships - the pressure reference,
         // the targets keyed by role, the starting placements with their timing, and the restart location's D3 bound - 13 items
         // (pinned in target-placement.unit.ts), each one of his provisional choices.
-        assert.equal(a01.account.authorizationLists!.provisionalChoices.filter(e => e.from === 'provisional realization').length, 47, 'the roles, the exchange, the counts, the keeper, the reassignments, the transitions and the starting placements')
+        // 47 -> 49 on 17 October 2026 (stage M1): his reply filed 19 October 2026, item 1 and item 3 C - the credit bound on the two
+        // roles, 2 items (pinned in credit-episode.unit.ts), each one of his provisional choices.
+        // 49 -> 53 on 17 October 2026 (stage M2): his reply filed 19 October 2026, item 2 - the occurrence that also counts as the
+        // primary event for the pressing role, 4 items (pinned in also-counts.unit.ts), each one of his provisional choices.
+        assert.equal(a01.account.authorizationLists!.provisionalChoices.filter(e => e.from === 'provisional realization').length, 53, 'the roles, the exchange, the counts, the keeper, the reassignments, the transitions, the starting placements, the credit bounds and the regain score of the pressing role')
         // The allocation's authority reaches the technical account of the refusal too (stage K4), read from the record; since stage
         // K6 with the Performer Configuration relationship the starting placements cite.
         assert.deepEqual(a01.account.allocation!.relationships.map(r => r.id), ['RPC-001~EM-0006', 'RPC-001~EM-0002'])
@@ -428,15 +432,30 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
         const blocks = ['BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END', 'BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START']
         const fields: [string, string[]][] = [['18.a', ['type', 'referents', 'scope']], ['18.c', ['type', 'referents', 'value', 'scope']], ['18.f', ['type', 'referents', 'value', 'scope']], ['19.a', ['type', 'referents', 'value', 'scope']]]
         const ROW: Record<string, string> = { type: 'V4', referents: 'V5', value: 'V6', scope: 'V3' }
+        // 17 October 2026 (stage M1): and the roles' credit bounds (row B8, his reply filed 19 October 2026, item 1 and item 3 C). The
+        // withheld list gains the building role's bound, which only approved words may say, first in each block; fidelity notes both
+        // roles' bounds as uncarried (the pressing role's WHOLE_GAME is not withheld, and no sentence cites it until design step L9).
+        const bound = (element: string) => `activityRoles[c:provisional:A01-R1:A01-R1-${element}].creditedWithin`
+        // 17 October 2026 (stage M2): and the pressing role's regain score (rows V28-V31, his reply filed 19 October 2026, item 2) - its
+        // four fields withheld until approved words say them, after the conditions in each block, and each noted by fidelity.
+        const ALSO: [string, string][] = [['team', 'V28'], ['trigger', 'V29'], ['control', 'V30'], ['exclusion', 'V31']]
+        const also = (field: string) => `value.primaryEvent.alsoCounts[c:provisional:A01-R1:A01-R1-V27-1].${field}`
+        // Moved 18 October 2026 (stage M5, design step L13): the building role's bound and every field of the four build-out conditions
+        // leave the stop, said by his approved sentence (entry A01-W1, his reply filed 19 October 2026, item 1: "Approved with revised
+        // wording"). What stops A01 is the regain score alone, in each block: its four fields awaiting the sentence put to him (A01-W2),
+        // and fidelity's Q3 note of each. Was: the bound, the condition fields and the regain fields, withheld and uncarried.
         const WORDING_REASONS = blocks.flatMap(block => [
-            ...fields.flatMap(([id, held]) => held.map(field => `block ${block}: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-${id}].${field} (${ROW[field]})`)),
-            ...fields.flatMap(([id, held]) => held.filter(field => field !== 'scope').map(field => `block ${block}: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-${id}].${field} is established by the game and no instruction carries it`)),
+            ...ALSO.map(([field, row]) => `block ${block}: awaiting approved wording: ${also(field)} (${row})`),
+            ...ALSO.map(([field]) => `block ${block}: fidelity Q3: ${also(field)} is established by the game and no instruction carries it`),
         ])
+        const saidByHisSentence = [bound('B1-1'), ...fields.flatMap(([id, held]) => held.map(field => `value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-${id}].${field}`))]
+        assert.equal(saidByHisSentence.length, 16, 'the bound and the fifteen condition fields')
         for (const keepers of [2, 0]) {
             const production = refused(reviewActivity(stored({ specializedRoles: { ...none, [ROLE]: keepers } }), { learningGoalId: 'A01', durationMin: 20 }), `A01, ${keepers} of ${ROLE}`)
             if (keepers) {
                 assert.equal(production.stage, 'communication', JSON.stringify(production.reasons))
                 assert.deepEqual(production.reasons, WORDING_REASONS)
+                assert.ok(!production.reasons.some(reason => saidByHisSentence.some(path => reason.includes(path))), 'nothing his A01-W1 sentence says is among the reasons')
                 assert.equal(production.summary, 'Part of this activity is still waiting for approved coach wording, so it is not being shown.')
                 assert.ok(!('draft' in production), 'the review answer carries no draft unless the route asks for it (stage K7)')
             } else {
@@ -1065,7 +1084,11 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
         assert.deepEqual(text(neutrals, 'How it works'), [
             'Play for 20 minutes',
             'Pick which team starts with the ball and tell both teams before you start',
-            'When possession changes, play carries on with no stoppage, and the team that wins possession attacks the same line it was already attacking',
+            // Re-pointed 17 October 2026 (stage M4): his approved possession sentence (reply filed 19 October 2026, item 4), read from
+            // approved-coach-wording.json, with this game's "line" for his "zone" - a generalization of his words, DRAFT. Was: "When
+            // possession changes, play carries on with no stoppage, and the team that wins possession attacks the same line it was
+            // already attacking".
+            'When possession changes, play carries on without a stoppage, and each team keeps attacking the same line',
         ])
         assert.deepEqual(text(neutrals, 'How it works'), text(a04, 'How it works'))
         for (const said of neutrals.rendered.instructions) {
@@ -1632,12 +1655,24 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
      * block is about the guard, which reads none of them.
      */
     const SPATIAL_ROWS = ['S2', 'S5', 'S6', 'P8', 'P10', 'P10a', 'P10b']
+    /**
+     * Re-pointed 17 October 2026 (stage M1): and the roles' credit bounds (row B8, his reply filed 19 October 2026, item 1 and item 3
+     * C). The building role's bound is the build-out episode, whose beginnings only the build-out conditions type; with them taken out
+     * GA-EPISODE-REACHABLE's fourth clause withholds on it (measured: refused at structure), as it does on the placements. The block is
+     * about the guard, which reads neither.
+     *
+     * Re-pointed 17 October 2026 (stage M2): and the pressing role's regain score (rows V27-V31, his reply filed 19 October 2026, item
+     * 2). With it the copy passes the guard (every item behind it is his ruling) and stops after it, at communication, on its four
+     * fields awaiting approved wording (measured) - the same stop production has. The guard's own reading of it is pinned in
+     * also-counts.unit.ts; this block keeps proving that nothing else stops the copy once the guard has passed.
+     */
+    const CREDIT_ROWS = ['B8', 'V27', 'V28', 'V29', 'V30', 'V31']
     const trimmed = (contracts: any[]) => {
         const rpc = contracts.find(contract => contract.objectId === 'RPC-001')
         assert.ok(rpc, 'A01 carries its context\'s contract into derivation')
         rpc.items = rpc.items.filter((item: any) => !PENDING.includes(item.itemId))
         const realization = contracts.find(contract => contract.contractId === 'provisional:A01-R1')
-        realization.items = realization.items.filter((item: any) => !SPATIAL_ROWS.includes(String(item.row)) && item.itemId !== 'A01-R1-T4-4')
+        realization.items = realization.items.filter((item: any) => !SPATIAL_ROWS.includes(String(item.row)) && !CREDIT_ROWS.includes(String(item.row)) && item.itemId !== 'A01-R1-T4-4')
     }
     const linesBack = (supplied: any) => {
         for (const replaced of supplied.replaced) supplied.choices.find((choice: any) => choice.lineId === replaced.lineId).value = replaced.replacedValue
@@ -1730,11 +1765,19 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
     // build-out episode's beginnings, which only those conditions type (without them GA-EPISODE-REACHABLE withholds, measured),
     // and this block is about the roster, which reads none of them.
     const SPATIAL_ROWS = ['S2', 'S5', 'S6', 'P8', 'P10', 'P10a', 'P10b']
+    // Re-pointed 17 October 2026 (stage M1): and the roles' credit bounds (row B8, his reply filed 19 October 2026, item 1 and item 3
+    // C). The building role's bound is the build-out episode, which only those conditions type (without them GA-EPISODE-REACHABLE's
+    // fourth clause withholds, measured: refused at structure); this block is about the roster, which reads none of it.
+    // Re-pointed 17 October 2026 (stage M2): and the pressing role's regain score (rows V27-V31, his reply filed 19 October 2026, item
+    // 2). Its trigger must be followed by a score, and the copy below takes the transitions out, the score transition among them, so
+    // GA-ONE-PRIMARY-EVENT's trigger clause fails on it (measured: refused at structure) - pinned in also-counts.unit.ts; the roster
+    // reads none of it.
+    const CREDIT_ROWS = ['B8', 'V27', 'V28', 'V29', 'V30', 'V31']
     const withoutConditions = (contracts: any[]) => {
         const rpc = contracts.find(contract => contract.contractId === 'restated:RPC-001')
         rpc.items = rpc.items.filter((item: any) => !CONDITIONS.includes(item.itemId))
         const realization = contracts.find(contract => contract.contractId === 'provisional:A01-R1')
-        realization.items = realization.items.filter((item: any) => !SPATIAL_ROWS.includes(String(item.row)) && item.itemId !== 'A01-R1-T4-4')
+        realization.items = realization.items.filter((item: any) => !SPATIAL_ROWS.includes(String(item.row)) && !CREDIT_ROWS.includes(String(item.row)) && item.itemId !== 'A01-R1-T4-4')
     }
     const placementsOut = (supplied: any) => {
         for (const replaced of supplied.replaced) supplied.choices.find((choice: any) => choice.lineId === replaced.lineId).value = replaced.replacedValue
@@ -1805,7 +1848,10 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
         assert.deepEqual(now.roleBlocks?.checks.map(check => check.verdict), Array(9).fill('PASS'))
         const roster = now.rendered.instructions.find(instruction => instruction.text.startsWith('Divide 12 players into 2 teams'))
         assert.ok(roster, JSON.stringify(now.rendered.instructions.map(i => i.text)))
-        assert.equal(roster!.text, `Divide 12 players into 2 teams: the building team has 6 outfield players and 1 ${ROLE}; the pressing team has 5 outfield players; the other ${ROLE} plays as an outfield player`)
+        // Re-pointed 17 October 2026 (stage M4, design step L11): his reply filed 19 October 2026, item 5, "I don't want to prescribe
+        // an outfield role for a [specialized role] universally." The second one is counted among the other players and given no part
+        // (DRAFT); was "...; the pressing team has 5 outfield players; the other <role> plays as an outfield player".
+        assert.equal(roster!.text, `Divide 12 players into 2 teams: the building team has 1 ${ROLE} and 6 other players; the pressing team has 5 other players`)
         /**
          * Through the GOAL pathway (the record crosses into each block's fixture) the two adjustments he authorized reach the
          * composed activity — K4 review, 15 October 2026: allocation.unit.ts proves them on a constructed fixture only, so
@@ -1817,9 +1863,11 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
             adjusting.map(instruction => [instruction.tier, instruction.status, instruction.block ?? null, instruction.text]),
             // 2 -> 4 on 15 October 2026 (stage K7): his item 3 (the pressure reference either way) and his D4 (the starting
             // arrangement), recorded beside his D6 two, each in our DRAFT coach words with his own words cited (allocation.unit.ts).
+            // Re-pointed 17 October 2026 (stage M4): his D6 two in our DRAFT coachWords accounting for every player (his reply filed
+            // 19 October 2026, item 4), his words cited beside them (allocation.unit.ts).
             [
-                ['adjust', 'COACH_CHOICE', null, 'You may choose to add a pressing player, representing an opponent committing additional numbers forward: adding a pressing player can increase pressure but may also expose space behind the press'],
-                ['adjust', 'COACH_CHOICE', null, "You may choose to remove a build-out player, reducing the building team's available support options"],
+                ['adjust', 'COACH_CHOICE', null, 'You may choose to add a pressing player, representing an opponent committing additional numbers forward; with every player already in a team, reallocate someone or introduce an additional player: adding a pressing player can increase pressure but may also expose space behind the press'],
+                ['adjust', 'COACH_CHOICE', null, "You may choose to remove a build-out player, deciding where that player goes so every player is still accounted for, reducing the building team's available support options"],
                 ['adjust', 'COACH_CHOICE', null, 'You may choose to move the marked line nearer to either end line'],
                 ['adjust', 'COACH_CHOICE', null, 'You may choose to change where the teams start when the pressure you see is not creating an appropriate challenge'],
             ],

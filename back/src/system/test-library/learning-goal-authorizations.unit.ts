@@ -275,7 +275,14 @@ test('his 16 October provisional choices, each cited, with whether the activity 
         // transitions and ruling C58. It read MISSING_CAPABILITY ['D1', 'D5', 'M3', 'M4'] until then.
         ['item 6 and 6.ii', 'AUTHORIZED_BY_RULING', []],
         ['item 6', 'AUTHORIZED_BY_RULING', []],
+        // Added 17 October 2026 (stage M2): his reply filed 19 October 2026, item 2 (a controlled regain inside the pressing team's own
+        // target counts as a score), carried by A01-R1-V27-1; the six entries of his 16 October reply above are unchanged.
+        ['his reply filed 19 October 2026, item 2', 'AUTHORIZED_BY_RULING', []],
     ])
+    const regainScores = a01().provisionalChoices![6]
+    assert.equal(regainScores.ruledOn, '2026-10-19')
+    assert.ok(regainScores.words.startsWith('For the previously flagged corner case, I favor allowing a controlled regain inside that area to count as a score, provided the pressing team genuinely establishes possession. A contested touch, deflection, or loose ball should not qualify.'))
+    assert.ok(regainScores.words.endsWith('This is a provisional scoring choice for the current realization, not a universal rule equating every regain with successful progression.'))
     const [, asymmetry, intermediate, regain, restarts, thirdOrigin] = a01().provisionalChoices!
     // His words, verbatim (16 October reply). The asymmetry is HIS provisional choice, and he said so.
     assert.ok(asymmetry.words.startsWith('For the first demonstration, I favor an asymmetrical game structure.'))
@@ -466,7 +473,10 @@ test('authorizationLists: authorized by existing knowledge, his provisional choi
         'overloads',
         'when and how defenders can press',
     ])
-    assert.deepEqual(lists.provisionalChoices.slice(0, 6).map(entry => [entry.words, entry.citedAs, entry.status, entry.gaps]), record.provisionalChoices!.map(choice => [choice.words, choice.citedAs, choice.status, choice.gaps]))
+    // Re-pointed 17 October 2026 (stage M2): the record holds seven provisional choices (his reply filed 19 October 2026, item 2, joins
+    // the six of his 16 October reply), and each still opens the list in order, whole.
+    assert.equal(record.provisionalChoices!.length, 7)
+    assert.deepEqual(lists.provisionalChoices.slice(0, 7).map(entry => [entry.words, entry.citedAs, entry.status, entry.gaps]), record.provisionalChoices!.map(choice => [choice.words, choice.citedAs, choice.status, choice.gaps]))
     assert.deepEqual(lists.gaps.map(({ neededBy, ...gap }) => gap), record.gaps, 'each definition whole')
     // Re-pointed 15 October 2026 (stage K4): D6 is needed by no entry now (it was needed by 'defensive numbers', 'goalkeeper
     // positioning' and 'overloads'); M3 is needed by the goalkeeper entry among others.
@@ -485,6 +495,30 @@ test('authorizationLists: authorized by existing knowledge, his provisional choi
     }
     // A record with nothing in a category gives an empty list, not a missing one.
     assert.deepEqual(authorizationLists({ ...record, existingKnowledge: undefined, gaps: undefined, provisionalChoices: undefined, manipulations: [] }), { authorizedByExistingKnowledge: [], provisionalChoices: [], gaps: [] })
+})
+
+/**
+ * **Every gap the record names is settled by his words — stage M4, 17 October 2026 (design step L11).** His reply filed 17 October 2026
+ * asked for "Provenance distinguishing approved knowledge, provisional realization choices, and any remaining gaps."; the review page
+ * listed all thirteen as "still needed". A gap is settled only by his cited words (`settledBy`), never by an empty `neededBy`, and never
+ * while an entry still waits on it; the lists carry the words, and the page splits the list.
+ */
+test('(M4, L11) every record gap is settled by his cited words, and the gate refuses settled words that are uncited or premature', () => {
+    const record = a01()
+    assert.deepEqual(record.gaps!.map(gap => gap.id), ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'M1', 'M2', 'M3', 'M4', 'M5', 'M7'])
+    for (const gap of record.gaps!) {
+        assert.ok((gap.settledBy ?? []).length > 0, `${gap.id} is settled`)
+        for (const said of gap.settledBy!) assert.match(said.citedAs, /^his reply filed 1[789] October 2026, /, `${gap.id}: ${said.citedAs}`)
+    }
+    assert.deepEqual(record.gaps!.find(gap => gap.id === 'M1')!.settledBy, [{ words: 'M1 — Role exchange by block: Approved.', citedAs: 'his reply filed 17 October 2026, M1' }])
+    // The lists carry the words whole beside each definition.
+    assert.deepEqual(authorizationLists(record).gaps.map(gap => [gap.id, gap.settledBy]), record.gaps!.map(gap => [gap.id, gap.settledBy]))
+    // Refused: words that are not cited, an empty list, and a gap marked settled while an entry still waits on it.
+    assert.ok(damaged(r => (r.gaps![0].settledBy = [{ words: 'TEST-ONLY', citedAs: '' }])).some(e => e.includes('the gap D1 is settled by no cited words of his')))
+    assert.ok(damaged(r => (r.gaps![0].settledBy = [])).some(e => e.includes('the gap D1 is settled by no cited words of his')))
+    assert.ok(damaged(r => void asBeforeK6(r)).some(e => e.includes('the gap D3 is marked settled, and') && e.includes('still waits on it')))
+    // Without settledBy a gap stays unsettled, and nothing else is refused for it.
+    assert.deepEqual(damaged(r => delete r.gaps![0].settledBy), [])
 })
 
 test('the record is handed out as copies, so no caller edits a ruling in place', () => {

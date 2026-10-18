@@ -8496,3 +8496,40 @@ Suite **FILES 98 FAILED 0**. Pushed `8cb7205` (77 commits ahead of main; last me
 - The review page shows drafts and evidence only to administrators: Christian's account needs `permissions.isAdmin`
   (unverified; the user record is in Mongo), and the branch must be deployed for him to see it.
 - His item 6 decision (spatial eligibility) — note GF2-22 excludes rules that ban receivers; the regain-inside case.
+
+## 19 OCTOBER — BUILD-OUT-ONLY SCORING, THE PRESSING REGAIN, HIS FIRST APPROVED WORDING; CODEX LINK + CI
+
+His fifth A01 reply: `scratchpad/christian-2026-10-19.txt` (memory `christian-rulings-2026-10-19.md`). Design
+`scratchpad/l-synthesis.txt`; brief `scratchpad/BRIEF-OCT19.md`; workflow `oct19-a01-build-m1-m5` (each stage built and
+adversarially reviewed).
+
+- **M1** register v14: B8 `activityRoles[].creditedWithin` (a role earns credit only inside an episode of that scope);
+  A01-R1-B8-1 building role = BUILD_OUT_EPISODE (his item 1 + 3C), B8-2 pressing = WHOLE_GAME explicitly;
+  GA-EPISODE-REACHABLE clauses 4 (every episode start awarded to the holder) and 5 (every possession loss ends it).
+  Proven: a regain restoring credit, 3C reversed, or a starter awarded to the presser are each refused at structure.
+- **M2** V27–V31 `value.primaryEvent.alsoCounts[]`: a controlled regain inside the pressing role's OWN target counts as
+  the one primary event (contested touch / deflection / loose ball excluded in his words); never the building role; SD-06
+  holds.
+- **M3** review evidence shows each role's credit and the alsoCounts element; F2 settled by his item 2; limitations list;
+  multi-element approved-wording entries; How to score split; fidelity Q2 (no unbounded scoring sentence served).
+- **M4** his possession sentence as an approved template; "throw-in" as sport coach-vocabulary data; confirmations A–F in
+  his letters; end-line bound (DRAFT); adjustments accounting for every player (DRAFT); second-goalkeeper limitation;
+  review-page Gaps split into still-needed vs settled; 11 players with only the goalkeeper moving.
+- **M5** `docs/audits/approved-coach-wording.json` **entry A01-W1 = his build-out sentence verbatim** (the first approved
+  coach wording). A01 at 12 and 11 players passes every structural check in both blocks and is refused ONLY at
+  communication for the pressing-regain sentence (A01-W2, sent to him 19 Oct). The non-restoration sentence (W3) is not
+  required by any mechanism; with a TEST-ONLY W2 the activity is SERVED.
+
+Codex (branch `codex/tooling-2026-10-19`, audited): the review-page link on the activity generator page (`ca7ed0f`) and
+a GitHub Actions check `.github/workflows/checks.yml` (`90e803d`, `a4d21f5`, hardened `c5c1632`: read-only token, job
+time limits) — back tsc / npm test / build / snapshot artifact, front build. The test speed-up (7407dc6) was NOT merged:
+it saved ~1.6 ms; the suite is bound by total work, not its slowest files. Front lint is broken repo-wide (the root
+.eslintrc needs @typescript-eslint/parser, not installed).
+
+Suite **FILES 101 FAILED 0**; pushed `c5c1632` (14 ahead of main; main = PR #129 deployed on Render).
+
+### OPEN
+
+- His yes on A01-W2 (and W3 optional) → add the entries, re-run the snapshot, merge to main (PR), deploy → A01 SERVED.
+- First CI run on Linux (run 39102302282) — watch for the front `npm ci` esbuild platform binary.
+- The live app's mandatory library-constraint requirement (he calls it a systemic issue before pilot).

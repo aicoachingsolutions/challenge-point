@@ -33,9 +33,10 @@
  *
  * It does not touch generation. Nothing here calls the frozen activity-generation path.
  */
-import { ProvisionalRealization, provisionalRealizationNamed, TestingBoundaries } from '../derivation/corpus'
+import { loadSportCoachVocabulary, ProvisionalRealization, provisionalRealizationNamed, TestingBoundaries } from '../derivation/corpus'
 import { isStampedHalt } from '../derivation/emit'
 import { runDerivation, runStages0to10, runStages0to5 } from '../derivation/engine'
+import { resolveRelativeCounts } from '../derivation/reassignment'
 import { indexRegister } from '../derivation/register'
 import { assembleResolvedGame, splitPath } from '../derivation/resolved-game'
 import { roleHolderNames, roleOfHolder } from '../derivation/designation'
@@ -1390,6 +1391,25 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
         if (said) return refuse(said.stage, said.summary, invalid)
     }
     /**
+     * **A relative reassignment count is resolved from this block's own game** (register B7 version 2, stage M4, 17 October 2026;
+     * his reply filed 19 October 2026, item 3 F). Once the teams' counts are entailed and the realization is checked as realized
+     * (nothing lost, nothing invented: the count is still exactly what was derived), `{keepsCountOf: R}` becomes the number that
+     * keeps each role's count across the exchange, and at 0 the element is not established (`derivation/reassignment.ts`). Read
+     * from this block only, so the cross-block membership check still compares the other block, built independently. Recorded on
+     * the realization record only where the game held one (every other record is exactly what it was); a count that does not
+     * resolve is named and refuses the game.
+     */
+    const relativeCounts = resolveRelativeCounts(realized.game, index, (realized.record as any).roleBlock ?? null, (realized.record as any).designationBindings ?? [])
+    if (relativeCounts.resolved.length || relativeCounts.removed.length || relativeCounts.problems.length) (realized.record as any).relativeCounts = relativeCounts
+    invalid.push(...relativeCounts.problems)
+    // An element not established is not established anywhere downstream either: the lines derived for its fields go with it, so
+    // nothing owes the coach a sentence about performers who do not move (fidelity reads the derived lines as what is established).
+    if (relativeCounts.removed.length) {
+        const gone = (path: unknown) => relativeCounts.removed.some(id => String(path).includes(`[${id}]`))
+        resolved.derived = (resolved.derived as { path: string }[]).filter(line => !gone(line.path))
+        realized.record.choices = realized.record.choices.filter((choice: { path?: string; lineId?: string }) => !gone(choice.path) && !gone(choice.lineId))
+    }
+    /**
      * **The realized game must carry the context's approved scoring.** A context's contract reaching
      * derivation is not yet proof that its scoring reached the game: a projection is only proved by a
      * consumer. So where the context is contracted, the concrete game's primary event must be one the context
@@ -1402,7 +1422,20 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
         // Stage K7: the episode check as rerun on this concrete game, so a condition authored for an episode the game is shown to
         // begin is confirmed (context-scoring-guard.ts `episodeConfirmed`); every other condition is read as before.
         const episodeCheck = post.gateA.checks.find(check => check.checkId === EPISODE_REACHABLE_CHECK)
-        invalid.push(...contextScoringFindings(context.id, contract, realized.game, rpcLibrary.scoringEventsForContext(context.id), episodeCheck))
+        // Stage M2: what establishes and fills each occurrence that also counts as the primary event (a collection whose elements earn
+        // another row's value, register `earnsValueOf`), read from the derived lines, so the guard can require his ruling behind it.
+        const earning = [...index.rows.values()].filter(row => row.earnsValueOf !== undefined).map(row => row.id)
+        const basisOf = (ref: { contractId: string; itemId: string }) =>
+            String((input.contracts as LoadedContract[]).find(c => c.contractId === ref.contractId)?.items.find(i => i.itemId === ref.itemId)?.basis ?? 'not found')
+        const alsoCountsSupport = ctx.classes
+            .filter((c: any) => earning.includes(c.row))
+            .map((c: any) => {
+                const fields = [...index.rows.values()].filter(row => row.ownerRow === c.row).map(row => row.id)
+                const refs: { contractId: string; itemId: string }[] = [c.fromItem, ...fields.flatMap(row => (ctx.derived.get(`${c.classId}::${row}`)?.entailing ?? []).map((e: any) => e.item))]
+                const unique = refs.filter((ref, i) => refs.findIndex(other => other.contractId === ref.contractId && other.itemId === ref.itemId) === i)
+                return { elementId: String(c.classId), items: unique.map(ref => ({ contractId: ref.contractId, itemId: ref.itemId, basis: basisOf(ref) })) }
+            })
+        invalid.push(...contextScoringFindings(context.id, contract, realized.game, rpcLibrary.scoringEventsForContext(context.id), episodeCheck, alsoCountsSupport))
     }
     if (invalid.length) return refuse('validation', 'The game built for this activity did not pass its own checks, so it is not being shown.', invalid)
 
@@ -1416,6 +1449,12 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
     // The DRAFT nouns for the performers a reassignment moves cross the same way, only where the game holds one (stage K4).
     const reassignmentsAt = index.reassignment ? splitPath(String(index.rows.get(index.reassignment.row)?.path ?? '')).container : null
     const holdsReassignments = !!reassignmentsAt && Array.isArray(reassignmentsAt.split('.').reduce<any>((node, key) => (node == null ? node : node[key]), realized.game))
+    // The sport's approved noun for a restart method crosses only for a transition the game holds with that trigger and method
+    // (stage M4, his reply filed 19 October 2026, item 4), so every game without one assembles exactly as before.
+    const triggerOfTransition = (transition: any) => (transition?.selector ?? []).find((term: any) => term?.attribute === 'trigger' && term?.op === '=')?.value
+    const methodNouns = (loadSportCoachVocabulary()?.restartMethodNouns ?? []).filter(entry =>
+        ((realized.game as any).transitions ?? []).some((transition: any) => triggerOfTransition(transition) === entry.trigger && transition?.placement?.method === entry.method),
+    )
     fixture = assembleRenderingFixture({
         resolved,
         realized,
@@ -1429,6 +1468,7 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
         ...(alternatives.length ? { alternatives } : {}),
         // What a provisional realization withdrew from the game form's choices, with why (stage K5); absent elsewhere.
         ...(supplied.withdrawn.length ? { withdrawnChoices: supplied.withdrawn } : {}),
+        ...(methodNouns.length ? { methodNouns } : {}),
     })
 
     const rendered = renderConcreteGame(fixture)

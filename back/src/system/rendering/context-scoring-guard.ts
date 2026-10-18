@@ -53,6 +53,45 @@ export function episodeConfirmed(scope: unknown, check: CheckResult | undefined)
     return reach.basis !== 'NO_APPLICABLE_INSTANCES' && Number(reach.instances) > 0
 }
 
+/**
+ * **Another occurrence counted as the context's primary event stands only on his explicit ruling** — 17 October 2026 (stage M2,
+ * register version 14, row V27 `value.primaryEvent.alsoCounts[]`). The context's approved scoring governs (his 14 October words
+ * above), and an occurrence that also counts as its primary event is a further way to score that the context's own scoring events
+ * may not approve: the design verifier read that RPC-001 approves the zone entry but not the regain (approved only for other
+ * contexts). It is admitted beside the context's event only on his explicit ruling, under his answer 9 of 15 October 2026:
+ * *"Specific knowledge governs where it explicitly defines or specializes a condition."* The ruling is his reply filed 19 October
+ * 2026, item 2: *"For the previously flagged
+ * corner case, I favor allowing a controlled regain inside that area to count as a score, provided the pressing team genuinely
+ * establishes possession."* So every item that establishes such an element or fills one of its fields must be an OWNER_RULING
+ * item; any other basis is named here and refuses the game. A game holding such an element with no support given cannot be
+ * confirmed, and says so. Names no kind, team or sport term: the element is read at the register's path.
+ */
+export interface AlsoCountsSupport {
+    elementId: string
+    /** Every item that establishes the element or entails one of its fields, with its basis. */
+    items: { contractId: string; itemId: string; basis: string }[]
+}
+
+export function alsoCountsFindings(contextId: string, game: any, approvedEvents: string[], support: AlsoCountsSupport[] | undefined): string[] {
+    const elements: any[] = Array.isArray(game?.value?.primaryEvent?.alsoCounts) ? game.value.primaryEvent.alsoCounts : []
+    const findings: string[] = []
+    for (const element of elements) {
+        const id = String(element?.elementId)
+        const found = (support ?? []).find(entry => entry.elementId === id)
+        if (!found || !found.items.length) {
+            findings.push(`the occurrence ${id} also counts as the primary event, and what establishes it was not given, so it cannot be confirmed to stand on his ruling`)
+            continue
+        }
+        for (const item of found.items) {
+            if (item.basis === 'OWNER_RULING') continue
+            findings.push(
+                `the occurrence ${id} also counts as the primary event on ${item.contractId}::${item.itemId}, whose basis is ${item.basis}: the Representative Performance Context ${contextId} approves ${approvedEvents.join(', ') || 'nothing'}, so a further way to score stands only on his explicit ruling (OWNER_RULING)`,
+            )
+        }
+    }
+    return findings
+}
+
 /** The condition types the context's contract constitutes, each with the item that constitutes it. */
 export function constitutedConditionTypes(contract: LoadedContract): { type: string; itemId: string }[] {
     const prefix = 'type='
@@ -73,9 +112,11 @@ export function contextScoringFindings(
     approvedEvents: string[],
     /** Stage K7: the episode check as rerun on this concrete game, where the caller has one (`episodeConfirmed`). */
     episodeCheck?: CheckResult,
+    /** Stage M2: the items that establish and fill each occurrence the game counts as its primary event (`AlsoCountsSupport`). */
+    alsoCountsSupport?: AlsoCountsSupport[],
 ): string[] {
     if (!contract) return [`the contract of the Representative Performance Context ${contextId} did not reach the build, so its scoring cannot be checked`]
-    const findings: string[] = []
+    const findings: string[] = [...alsoCountsFindings(contextId, game, approvedEvents, alsoCountsSupport)]
     const event = game?.value?.primaryEvent
     const kind = event?.kind
     if (!approvedEvents.includes(String(kind))) {

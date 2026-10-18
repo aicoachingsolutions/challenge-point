@@ -17,7 +17,11 @@
  *      not a served activity), and the live route never asks for it;
  *   3. the prescription rule (fidelity Q4): his adversarial lines are refused WITH plausible citations; the one template whose
  *      obligation word restates its element's own value passes, and only as that template; approval exempts a sentence from the
- *      lexicon and never from the specialized-role rule; the residual it cannot see is pinned as a known limit;
+ *      lexicon and never from the specialized-role rule; the residual it cannot see is pinned as a known limit; (3d, stage M3, 17
+ *      October 2026, design step L8) one narrow exception, quoting his reply filed 19 October 2026, item 1 ("Approved with revised
+ *      wording"): an approved sentence passes the role rule only where the role it names is a value of a field it covers;
+ *   8. (stage M3, design step L9, fidelity Q2) where a role's credit is bounded, no scoring sentence speaks for it, or for every
+ *      team, unless it is approved wording citing the bound;
  *   4. the restart sentence discharges an episode boundary only with its awardee;
  *   5. the exchange states the ends fixed AND the markings set out again for the new roles, and separately who changes team;
  *      fidelity Q6 refuses it without the markings clause;
@@ -63,11 +67,14 @@ const plain = buildActivity(a01) as RefusedActivity
 const { fixture: composedFixture } = buildActivityWithFixture(a01)
 const blockFixtures: any[] = ((composedFixture as any)?.roleBlocks?.blocks ?? []).map((block: any) => block.fixture)
 const BLOCKS = ['BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END', 'BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START']
+/** His reply filed 19 October 2026, item 1, verbatim ("Approved with revised wording"); production entry A01-W1 since stage M5. */
+const HIS_ITEM_1 =
+    "Building team: Score by carrying the ball beyond the marked line or passing to a teammate who receives it under control beyond the line. The progression must begin with the goalkeeper's build-out and occur before the building team loses possession. Uncontrolled clearances do not score."
 
 /** The sentences of a rendering by section and block, so a pin reads like the activity. */
 const sentences = (instructions: Instruction[]) => instructions.map(i => `${i.section}${i.block ? ` [${BLOCKS.indexOf(i.block) + 1}]` : ''}: ${i.text}`)
 
-test('1. the review draft of A01: every sentence the game holds, each a DRAFT, nothing withheld but the build-out condition', () => {
+test('1. the review draft of A01: every sentence the game holds, each a DRAFT but his approved two, nothing withheld but the regain score (stage M5; was the build-out condition)', () => {
     assert.equal(review.stage, 'communication')
     assert.ok(review.draft, 'the administrator receives the draft')
     const draft = review.draft!
@@ -81,7 +88,10 @@ test('1. the review draft of A01: every sentence the game holds, each a DRAFT, n
         `Players: Divide 12 players into 2 teams: the building team has 6 outfield players and 1 ${ROLE}; the pressing team has 5 outfield players`,
         'How it works: Play for 20 minutes',
         'How it works: The building team starts with the ball',
-        'How it works: When possession changes, play carries on with no stoppage, and the team that wins possession attacks the same zone it was already attacking',
+        // Moved 17 October 2026 (stage M4, design step L10): his approved words, reply filed 19 October 2026, item 4 (read from
+        // approved-coach-wording.json approvedTemplateSentences). Was: "When possession changes, play carries on with no stoppage, and
+        // the team that wins possession attacks the same zone it was already attacking".
+        'How it works: When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone',
         `How it works: The building team's ${ROLE} restarts play from the feet, with the ball still or moving: at the start, after either team scores and whenever you decide that an attack has run its course (at a stoppage or while play is on)`,
         // Moved 18 October 2026 (post-K wording, DRAFT): the two choice sentences no longer restate that the choice is the coach's,
         // no longer name the post-regain area by a noun the set-up sentences do not use, and no longer say engine provenance
@@ -92,32 +102,84 @@ test('1. the review draft of A01: every sentence the game holds, each a DRAFT, n
         // unchanged: his "conventional throw-in" has no data route to the renderer yet (a wording point put to him).
         "How it works: You choose where each of these restarts is taken, consistent with the intended build-out situation, in front of the pressing team's target zone",
         'How it works: Before each of these restarts, the building team and the pressing team each set up on their own side of the marked line; once play restarts, every player is free to move anywhere',
-        'How it works: If the ball goes out over a touchline, a player of the team that did not touch the ball last restarts play where the ball went out, with the ball in hand',
-        'How it works: If the ball goes out over either end line, a player of the team that did not touch the ball last restarts play where and how you choose',
-        'How to score: A team scores 1 point by getting the ball under control into the zone it is attacking: running it in, or passing to a teammate who receives it under control inside',
+        // Moved 17 October 2026 (stage M4, design steps L10 and L11, DRAFT): the touchline restart says his approved noun (reply filed
+        // 19 October 2026, item 4), read from the sport's coach vocabulary through the fixture; was "... restarts play where the ball
+        // went out, with the ball in hand". The end-line restart says the coach's bound once, our gerund form of his item 3 A; was
+        // "... restarts play where and how you choose".
+        'How it works: If the ball goes out over a touchline, a player of the team that did not touch the ball last restarts play with a throw-in where the ball went out',
+        'How it works: If the ball goes out over either end line, a player of the team that did not touch the ball last restarts play where and how you choose, preserving meaningful game relationships rather than creating an automatic scoring shortcut',
+        // Moved 17 October 2026 (stage M3, design step L9; his reply filed 19 October 2026, items 1 and 4): the team-neutral "A team
+        // scores 1 point by getting the ball under control into the zone it is attacking: ..." is no longer said, because the building
+        // role's credit is confined to its build-out episode (row B8). The pressing role, whose bound is the whole game (A01-R1-B8-2),
+        // is told how it scores in a sentence of its own (DRAFT), the value is said on its own (DRAFT), and the building role is told
+        // only in his approved words (withheld until approved-coach-wording.json holds them, design step L13).
+        // Added 18 October 2026 (stage M5, design step L13): his approved words, said once for the building role's bound and the four
+        // build-out conditions (entry A01-W1, reply filed 19 October 2026, item 1, "Approved with revised wording").
+        // Moved 18 October 2026 (review of stage M5): How to score reads role by role where a role's credit is bounded
+        // (render-concrete-game.ts scoringInRoleOrder), so his sentence comes first, as the design's coach text and our email of 19
+        // October 2026 showed him. Was: after the pressing team's sentence, the value and the ends (the renderer said approved
+        // entries last). No sentence changed.
+        `How to score: ${HIS_ITEM_1}`,
+        'How to score: Pressing team: Score by getting the ball under control into the zone it is attacking: running it in, or passing to a teammate who receives it under control inside',
+        'How to score: Each score is worth 1 point',
         "How to score: Each team attacks the zone at the other team's end. Decide which team starts at which end; the ends stay the same for the whole game",
         `${ROLE_EXCHANGE}: Play in blocks: in each block one team is the building team and the other is the pressing team`,
         `${ROLE_EXCHANGE}: Each team keeps its end for the whole activity. When you call the next block the teams exchange roles, not ends, and the marked line and both target zones are set out again for the new roles; there is no set block length`,
         `${ROLE_EXCHANGE}: When you call the next block, 1 ${ROLE} and 1 outfield player move to the team that becomes the building team`,
         "Set up [2]: Mark the building team's target zone from the marked line to the pressing team's end line, across the full width",
         "Set up [2]: Mark the pressing team's target zone at the building team's end, 5 m deep, across the full width",
-        `${ADJUSTING}: You may choose to add a pressing player, representing an opponent committing additional numbers forward: adding a pressing player can increase pressure but may also expose space behind the press`,
-        `${ADJUSTING}: You may choose to remove a build-out player, reducing the building team's available support options`,
+        // Moved 17 October 2026 (stage M4, design step L11, DRAFT coachWords): his reply filed 19 October 2026, item 4, "The coach-facing
+        // suggestions should not imply those changes can occur without accounting for every player." Was "... additional numbers
+        // forward: adding ..." and "You may choose to remove a build-out player, reducing the building team's available support options".
+        `${ADJUSTING}: You may choose to add a pressing player, representing an opponent committing additional numbers forward; with every player already in a team, reallocate someone or introduce an additional player: adding a pressing player can increase pressure but may also expose space behind the press`,
+        `${ADJUSTING}: You may choose to remove a build-out player, deciding where that player goes so every player is still accounted for, reducing the building team's available support options`,
         `${ADJUSTING}: You may choose to move the marked line nearer to either end line`,
         `${ADJUSTING}: You may choose to change where the teams start when the pressure you see is not creating an appropriate challenge`,
     ])
-    assert.ok(draft.instructions.every(i => i.wording === 'DRAFT'), 'no sentence is approved wording: the table is empty')
+    // Re-pointed 17 October 2026 (stage M4): one sentence is his approved words - the possession sentence, an approved template
+    // sentence (reply filed 19 October 2026, item 4); the entries table is still empty, so every other sentence is DRAFT.
+    // Re-pointed 18 October 2026 (stage M5, design step L13): and his build-out sentence, the first approved entry (A01-W1); every
+    // other sentence is DRAFT.
+    assert.deepEqual(draft.instructions.filter(i => i.wording === 'APPROVED').map(i => i.text), ['When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone', HIS_ITEM_1])
+    assert.equal(draft.instructions.filter(i => i.wording === 'DRAFT').length, draft.instructions.length - 2, 'every other sentence is DRAFT')
     // Provisional sources: the restarts rest on his provisional choices, the area on the session alone.
     assert.deepEqual(draft.instructions[0].provisionalSources, [])
     assert.ok(draft.instructions.find(i => i.text.includes('restarts play from the feet'))!.provisionalSources.includes('provisional:A01-R1::A01-R1-T3-1'))
     assert.ok(draft.instructions.find(i => i.text.includes('nearer to either end line'))!.provisionalSources.includes('record A01-ADJ-3'))
     // Withheld: the four build-out conditions in each block (type, referents, value where held, scope) and nothing else.
-    assert.equal(draft.withheld.length, 30)
-    assert.ok(draft.withheld.every(field => field.path.startsWith('value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-')), JSON.stringify(draft.withheld))
+    // Moved 17 October 2026 (stage M1), 30 -> 32: and the building role's credit bound in each block (row B8, his reply filed 19
+    // October 2026, item 1 and item 3 C), said only in approved words. The pressing role's WHOLE_GAME states no condition and is
+    // not withheld.
+    const CREDIT_BOUND = 'activityRoles[c:provisional:A01-R1:A01-R1-B1-1].creditedWithin'
+    // Moved 17 October 2026 (stage M2), 32 -> 40: and the pressing role's regain score in each block (rows V28-V31, his reply filed
+    // 19 October 2026, item 2) - exactly its four fields, said only in approved words, so the activity is refused at communication
+    // naming them until he approves a sentence.
+    const ALSO = (field: string) => `value.primaryEvent.alsoCounts[c:provisional:A01-R1:A01-R1-V27-1].${field}`
+    const alsoWithheld = [['team', 'V28'], ['trigger', 'V29'], ['control', 'V30'], ['exclusion', 'V31']].map(([field, row]) => [ALSO(field), row])
+    // Moved 18 October 2026 (stage M5, design step L13), 40 -> 8: his approved sentence (A01-W1) says the building role's bound and
+    // every field of the four build-out conditions in each block, so exactly the regain score's four fields per block are withheld,
+    // awaiting the sentence put to him (A01-W2). Was: the bound, the fifteen condition fields and the regain fields, per block.
+    assert.equal(draft.withheld.length, 8)
+    assert.deepEqual(draft.withheld.map(field => [field.path, field.row]), [...alsoWithheld, ...alsoWithheld], JSON.stringify(draft.withheld))
+    assert.ok(!draft.withheld.some(field => field.path === CREDIT_BOUND || field.path.startsWith('value.primaryEvent.conditions[')))
     // Fidelity on the draft: only the same conditions, noted as uncarried; no sentence lost, invented or changed in status.
+    // Moved 17 October 2026 (stage M1), 22 -> 26: both roles' credit bounds per block are uncarried too - the building role's because
+    // it is withheld, the pressing role's WHOLE_GAME because no sentence cites it yet (the per-role scoring sentence that will is
+    // design step L9, stage M3). Reported, never filtered.
+    const uncarriedCondition = (v: string) => v.startsWith('fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-') && v.endsWith('is established by the game and no instruction carries it')
+    const uncarriedBound = (v: string) => /^fidelity Q3: activityRoles\[c:provisional:A01-R1:A01-R1-B1-[12]\]\.creditedWithin is established by the game and no instruction carries it$/.test(v)
+    // Moved 17 October 2026 (stage M2), 26 -> 34: the regain score's four fields per block are uncarried too, because they are withheld.
+    const uncarriedAlso = (v: string) => /^fidelity Q3: value\.primaryEvent\.alsoCounts\[c:provisional:A01-R1:A01-R1-V27-1\]\.(team|trigger|control|exclusion) is established by the game and no instruction carries it$/.test(v)
     assert.equal(draft.fidelity.passed, false)
-    assert.ok(draft.fidelity.violations.every(v => v.startsWith('fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-') && v.endsWith('is established by the game and no instruction carries it')), JSON.stringify(draft.fidelity.violations))
-    assert.equal(draft.fidelity.violations.length, 22)
+    assert.ok(draft.fidelity.violations.every(v => uncarriedCondition(v) || uncarriedBound(v) || uncarriedAlso(v)), JSON.stringify(draft.fidelity.violations))
+    // Moved 17 October 2026 (stage M3, design step L9), 4 -> 2 and 34 -> 32: the pressing role's whole-game bound is now carried by its
+    // own scoring sentence; only the building role's bound, withheld, is uncarried in each block.
+    // Moved 18 October 2026 (stage M5, design step L13), 2 -> 0, 22 -> 0 and 32 -> 8: his approved sentence carries the building role's
+    // bound and the conditions, so the only uncarried fields are the regain score's four per block, which are withheld.
+    assert.equal(draft.fidelity.violations.filter(uncarriedBound).length, 0)
+    assert.equal(draft.fidelity.violations.filter(uncarriedCondition).length, 0)
+    assert.equal(draft.fidelity.violations.filter(uncarriedAlso).length, 8)
+    assert.equal(draft.fidelity.violations.length, 8)
 })
 
 test('2. key identity: the draft reaches the administrator\'s review answer and nothing else', () => {
@@ -181,7 +243,12 @@ test('3. the prescription rule (Q4): his adversarial lines are refused with plau
     assert.equal(checkFidelity(fixture, residual as any).findings.filter(f => f.question === 4 && f.what.includes('Use the')).length, 0)
     // The draft itself has no hit: the A01 rendering passes the rule as it stands.
     assert.equal(checkFidelity(fixture, rendered).findings.filter(f => f.question === 4).length, 0)
-    assert.ok(!rendered.instructions.some(i => OBLIGATIONS.some(word => word.test(i.text))), 'no obligation word in any A01 sentence')
+    // Re-pointed 18 October 2026 (stage M5, design step L13): his approved build-out sentence (A01-W1) says "must" ("The progression
+    // must begin with the goalkeeper's build-out ..."), and it is the one sentence with an obligation word. His approval exempts it from
+    // the lexicon, never from the role rule (test 3b), and Q4 above finds nothing in it. Every DRAFT sentence still has none.
+    // Was: no obligation word in any A01 sentence.
+    const withObligation = rendered.instructions.filter(i => OBLIGATIONS.some(word => word.test(i.text)))
+    assert.deepEqual(withObligation.map(i => i.text), [HIS_ITEM_1], 'no obligation word in any A01 DRAFT sentence')
 })
 
 test('3b. the one template whose obligation word is its element\'s own value passes, and only as that template; approval exempts from the lexicon, never from the role rule', () => {
@@ -268,6 +335,108 @@ test('3c. (K7 review) his words "mandatory", "sequence", "required" and the stan
     assert.deepEqual(checkRoleBlockComposition(renders, composed, index).filter(f => f.severity === 'VIOLATION'), [], 'the A01 composition names every team by its role')
 })
 
+/*
+ * Stage M3, 17 October 2026 (design steps L8 and L9). The entry below is TEST-ONLY (approvedBy names TEST-ONLY; the production table
+ * stays empty until design step L13), and its sentence is his reply filed 19 October 2026, item 1, verbatim ("Approved with revised
+ * wording"), located on the building role's bound and the four conditions, its match values read from the game. (HIS_ITEM_1 is
+ * declared at the top since stage M5, 18 October 2026, because test 1 now reads it: his sentence is production entry A01-W1.)
+ */
+const testApproval = { who: 'TEST-ONLY', date: '2026-10-19', quote: 'TEST-ONLY', ccs: 'TEST-ONLY' }
+function locatedEntry(game: any, sentence: string, types: string[], bound = true): any[] {
+    const conditions: any[] = game.value.primaryEvent.conditions.filter((c: any) => types.includes(c.type))
+    const covers = [
+        ...(bound ? [{ row: 'B8', match: { equals: 'BUILD_OUT_EPISODE' }, element: { base: 'activityRoles', field: 'activityRole', equals: 'BUILDING' } }] : []),
+        ...conditions.flatMap(condition => {
+            const element = { base: 'value.primaryEvent.conditions', field: 'type', equals: condition.type }
+            return [{ row: 'V3', match: { equals: condition.scope }, element }, { row: 'V4', match: { equals: condition.type }, element }, { row: 'V5', match: { equals: condition.referents }, element }, ...('value' in condition ? [{ row: 'V6', match: { equals: condition.value }, element }] : [])]
+        }),
+    ]
+    return [{ id: 'TEST-ONLY', covers, sentence, section: 'How to score', approvedBy: testApproval }]
+}
+const ALL_TYPES = ['origin', 'progression', 'control', 'exclusion']
+
+test('3d. (M3, L8) the role rule passes over his approved sentence only where the role is a value of a field it covers', () => {
+    const fixture = blockFixtures[0]
+    const wording = locatedEntry(fixture.game, HIS_ITEM_1, ALL_TYPES)
+    const rendered = renderConcreteGame(fixture, wording)
+    const his = rendered.instructions.find(i => i.text === HIS_ITEM_1)!
+    assert.ok(his, 'said')
+    // The origin condition's referents name the role as a value (arms[].takenBy): the sentence restates a rule of the game.
+    assert.ok(his.from.includes('value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-18.a].referents'))
+    assert.deepEqual(checkFidelity(fixture, rendered, wording).findings.filter(f => f.question === 4), [], 'approved, and the role is a covered value: no Q4 finding')
+    // The same words as a DRAFT with the same citations: refused by the role rule (and the lexicon).
+    const draft = { ...rendered, instructions: rendered.instructions.map(i => (i === his ? { ...i } : i)) }
+    // Re-pointed 18 October 2026 (stage M5): checked with NO approved wording ([]), which is what the default meant while the table was
+    // empty; the production table now holds his sentence (A01-W1), so the default would approve it. The intent is unchanged.
+    const asDraft = checkFidelity(fixture, draft, []).findings.filter(f => f.question === 4 && f.what.includes('The progression must begin'))
+    assert.ok(asDraft.some(f => f.what.includes(`names the ${ROLE}`)), JSON.stringify(asDraft))
+    // An approved sentence naming the role whose covered fields hold no such value: refused (progression, control, exclusion and the
+    // bound name no role).
+    const uncovered = locatedEntry(fixture.game, HIS_ITEM_1, ['progression', 'control', 'exclusion'])
+    const renderedUncovered = renderConcreteGame(fixture, uncovered)
+    assert.ok(renderedUncovered.instructions.some(i => i.text === HIS_ITEM_1), 'said by the narrower entry')
+    assert.ok(checkFidelity(fixture, renderedUncovered, uncovered).findings.some(f => f.question === 4 && f.what.includes(`names the ${ROLE}`)), 'a role no covered field holds is refused')
+    // His adversarial lines (tests 3 and 3c) are re-run unchanged above, under the same rule.
+})
+
+test('8. (M3, L9) where a role\'s credit is bounded, no scoring sentence speaks for it unless approved (fidelity Q2)', () => {
+    const fixture = blockFixtures[0]
+    const rendered = renderConcreteGame(fixture)
+    const kind = 'value.primaryEvent.kind'
+    const building = 'activityRoles[c:provisional:A01-R1:A01-R1-B1-1]'
+    const pressing = 'activityRoles[c:provisional:A01-R1:A01-R1-B1-2]'
+    const q2 = (text: string, from: string[], wording?: any[]) => {
+        const forced = { ...rendered, instructions: [...rendered.instructions, { section: 'How to score' as const, text, status: 'DERIVED' as const, from, quantities: [] }] }
+        // Only the bounded-credit rule's findings (a number said without its binding is refused by another Q2 rule as well).
+        return checkFidelity(fixture, forced as any, wording).findings.filter(f => f.question === 2 && f.severity === 'VIOLATION' && f.what.includes(text) && f.what.includes('confined to an episode'))
+    }
+    // As rendered: nothing team-neutral is said, the pressing role's own sentence and the value pass Q2.
+    assert.ok(!rendered.instructions.some(i => i.text.startsWith('A team scores')))
+    assert.deepEqual(checkFidelity(fixture, rendered).findings.filter(f => f.question === 2), [])
+    const pressingLine = rendered.instructions.find(i => i.text.startsWith('Pressing team: Score'))!
+    assert.ok(pressingLine.from.includes(kind) && pressingLine.from.includes(`${pressing}.creditedWithin`))
+    assert.deepEqual(rendered.instructions.find(i => i.text === 'Each score is worth 1 point')!.from, ['value.primaryEvent.value'])
+    // TEST-ONLY adversarial lines on the real A01 fixture, each with the citations it would most plausibly carry.
+    const old = 'A team scores 1 point by getting the ball under control into the zone it is attacking: running it in, or passing to a teammate who receives it under control inside'
+    assert.equal(q2(old, [kind, 'value.primaryEvent.value', 'objects[c:sport-profile:soccer:SPORT-SOCCER-01].kind', 'space.regions[c:restated:GF2:GF2-03.f].noun', 'space.regions[c:restated:GF2:GF2-03.e].noun', 'objectives[c:restated:GF2:GF2-08.c].role']).length, 1, 'the old team-neutral sentence')
+    assert.equal(q2('A team scores by getting the ball into the zone it is attacking', [kind, 'objectives[c:restated:GF2:GF2-08.e].role']).length, 1, 'team-neutral citing only the pressing holder\'s objective still speaks for every team')
+    assert.equal(q2('Building team: Score by getting the ball into the zone it is attacking', [kind, `${building}.creditedWithin`]).length, 1, 'a DRAFT citing the bounded role\'s bound')
+    assert.equal(q2('Building team: Score by getting the ball into the zone it is attacking', [kind, `${building}.activityRole`]).length, 1, 'a DRAFT for the bounded role citing anything of it')
+    assert.equal(q2('The building team scores only in its build-out', [`${building}.creditedWithin`]).length, 1, 'a DRAFT citing the bound, with or without the event')
+    assert.equal(q2('Pressing team: Score by getting the ball into the zone it is attacking', [kind, `${pressing}.creditedWithin`]).length, 0, 'the whole-game role may be told in a draft')
+    // Added in the M3 review, 17 October 2026 (measured: each of these passed the rule as first built, which read only citations).
+    // The old sentence, or the bounded role's own name, cannot borrow the whole-game role's citations; nor does leaving out the kind
+    // stop a sentence citing the value with what it is scored by from being a scoring sentence.
+    assert.equal(q2(old, [kind, 'value.primaryEvent.value', `${pressing}.creditedWithin`]).length, 1, 'the old team-neutral sentence citing the whole-game role\'s bound')
+    assert.equal(q2(old, [kind, 'value.primaryEvent.value', `${pressing}.activityRole`]).length, 1, 'the old team-neutral sentence citing anything of the whole-game role')
+    assert.equal(q2('Building team: Score by getting the ball into the zone it is attacking', [kind, `${pressing}.creditedWithin`]).length, 1, 'the bounded role named, the whole-game role cited')
+    assert.equal(q2(old, ['value.primaryEvent.value', 'objects[c:sport-profile:soccer:SPORT-SOCCER-01].kind', 'objectives[c:restated:GF2:GF2-08.c].role']).length, 1, 'the old sentence without the kind it scores')
+    assert.equal(q2('Building team: Score whenever the ball is in the zone', ['objectives[c:restated:GF2:GF2-08.c].role']).length, 1, 'a How to score sentence naming the bounded role, whatever it cites')
+    assert.equal(q2('Each score is worth 1 point', ['value.primaryEvent.value']).length, 0, 'the value alone says how much, never how or when')
+    // His approved sentence (TEST-ONLY approval) passes Q2; it cites the building role's bound.
+    const wording = locatedEntry(fixture.game, HIS_ITEM_1, ALL_TYPES)
+    const approved = renderConcreteGame(fixture, wording)
+    assert.deepEqual(checkFidelity(fixture, approved, wording).findings.filter(f => f.question === 2), [])
+    // An approved team-neutral sentence that does not cite the bounded role's bound is still refused (TEST-ONLY entry on the four
+    // conditions alone, the bound left out).
+    const neutral = locatedEntry(fixture.game, 'TEST-ONLY team-neutral sentence', ALL_TYPES, false)
+    const neutralRendered = renderConcreteGame(fixture, neutral)
+    const forcedNeutral = { ...neutralRendered, instructions: neutralRendered.instructions.map(i => (i.text === 'TEST-ONLY team-neutral sentence' ? { ...i, from: [...i.from, kind] } : i)) }
+    assert.ok(checkFidelity(fixture, forcedNeutral as any, neutral).findings.some(f => f.question === 2 && f.what.includes('TEST-ONLY team-neutral sentence')))
+    // TEST-ONLY: the same game with the building role's bound the whole game reads as every unbounded game does.
+    const unbounded = JSON.parse(JSON.stringify(fixture))
+    unbounded.game.activityRoles.find((r: any) => r.activityRole === 'BUILDING').creditedWithin = 'WHOLE_GAME'
+    const plainScoring = renderConcreteGame(unbounded).instructions.filter(i => i.section === 'How to score').map(i => i.text)
+    assert.ok(plainScoring.includes(old), JSON.stringify(plainScoring))
+    assert.ok(!plainScoring.some(t => t.startsWith('Each score is worth') || t.includes(': Score ')))
+    // Every served demonstration reads as before: no role there carries a bound.
+    for (const demonstration of MECHANISM_DEMONSTRATIONS) {
+        const built = buildActivityWithFixture({ kind: 'mechanism-demonstration', demonstrationId: demonstration.id, session: { ...session, roles: none } })
+        if (built.activity.outcome !== 'served') continue
+        assert.ok(!(built.activity as ServedActivity).rendered.instructions.some(i => i.text.startsWith('Each score is worth')), demonstration.id)
+    }
+})
+
 test('4. a restart discharges its episode boundary only with its awardee', () => {
     const fixture = blockFixtures[0]
     const rendered = renderConcreteGame(fixture)
@@ -317,10 +486,14 @@ test('6. no noun the game does not hold, no challenge level, no bare decision im
     }
     for (const level of ['Comfortable', 'Stretch', 'Demanding']) assert.ok(!texts.some(t => t.includes(level)), level)
     assert.ok(!texts.some(t => /^(Choose|Decide) (when|where|whether)\b/.test(t)))
+    // Re-pointed 18 October 2026 (stage M5, design step L13): his approved sentence (A01-W1) is said exactly as he wrote it, its own
+    // full stops included, so the standard leaves it byte for byte as it is; it still finds nothing in it. Every DRAFT is as before.
+    const approved = new Set(review.draft!.instructions.filter(i => i.wording === 'APPROVED').map(i => i.text))
+    assert.ok(approved.has(HIS_ITEM_1))
     for (const text of texts) {
         assert.deepEqual(findCommunicationStandardViolations(text), [], text)
         // The standard ends a sentence with a full stop, which the renderer leaves to the page: nothing else changes.
-        assert.equal(applyCoachCommunicationStandard(text), `${text}.`, text)
+        assert.equal(applyCoachCommunicationStandard(text), text.endsWith('.') && approved.has(text) ? text : `${text}.`, text)
     }
 })
 
