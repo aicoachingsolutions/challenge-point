@@ -37,7 +37,7 @@ import { learningGoalSelectionHolds } from '../test-library/learning-design-hold
 import { testLibraryRegistry } from '../test-library/library/registry'
 import { FidelityFinding, OBLIGATIONS } from './fidelity'
 import { approvedTemplateSentences } from './approved-wording'
-import { approvedSentences, Instruction, RenderedActivity, UNBOUNDED_CREDIT } from './render-concrete-game'
+import { approvedSentences, Instruction, RenderedActivity, UNBOUNDED_CREDIT, wordedFieldRows } from './render-concrete-game'
 import type { RoleBlockCheck } from './role-blocks'
 import type { ActivitySession } from './session-envelope'
 
@@ -719,7 +719,10 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
      * their row '?'.
      */
     const withheldRow = new Map(composed.withheld.map(field => [field.path, String(field.row)] as const))
-    const rowAt = (path: string): string | null => rowOf(index, path) ?? withheldRow.get(path) ?? null
+    // Stage M5, 18 October 2026: and a field only approved words may say keeps its row once his sentence says it (wordedFieldRows):
+    // measured, the four build-out scopes lost row V3, and his item 4 its four scope elements, when his first approved entry said them.
+    const wordedRow = new Map(blocks.flatMap(block => wordedFieldRows(block.fixture?.game ?? {})).map(field => [field.path, field.row] as const))
+    const rowAt = (path: string): string | null => rowOf(index, path) ?? withheldRow.get(path) ?? wordedRow.get(path) ?? null
     const aboutWithheld = (finding: FidelityFinding) => finding.question === 3 && withheld.some(path => finding.what.startsWith(`${path} `))
     const violations = allFindings.filter(f => f.severity === 'VIOLATION')
     const inSaidText = violations.filter(f => !aboutWithheld(f))

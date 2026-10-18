@@ -777,6 +777,19 @@ export function roleKeyedPositions(fixture: any): string[] {
  * condition only from an entry covering its exact scope, above), and the obligation lexicon passes over a sentence he approved. The
  * same function the renderer says them with, so the two cannot drift; nothing is withheld or pushed anywhere else.
  */
+/**
+ * **The row of every field only approved words may say, as this game holds it — said or withheld** — stage M5, 18 October 2026. The
+ * review evidence knew the row of such a field only from the withheld list (a condition's scope, row V3, has no path the register
+ * spells), so the moment his first approved sentence (reply filed 19 October 2026, item 1) said the four build-out scopes, they lost
+ * their row: his item 4 dropped them from its elements and the provenance named no row (MEASURED in the M5 snapshot diff). The rows
+ * are the table's above, read from the game; nothing is said or withheld here.
+ */
+export function wordedFieldRows(game: any): { path: string; row: string }[] {
+    return WORDED_ONLY.flatMap(({ base, elements, fields }) =>
+        (Array.isArray(elements(game)) ? (elements(game) as any[]) : []).flatMap(element => heldWordedFields(fields, element).map(field => ({ path: `${base}[${element?.elementId}].${field.field}`, row: field.row }))),
+    )
+}
+
 export function approvedSentences(game: any, wording: ApprovedWording[] = approvedWording()): Instruction[] {
     const said: Instruction[] = []
     sayInApprovedWords(game, wording, instruction => said.push(instruction), [])

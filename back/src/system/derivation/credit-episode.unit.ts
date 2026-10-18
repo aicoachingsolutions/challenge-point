@@ -35,9 +35,11 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 
+import { approvedWording } from '../rendering/approved-wording'
 import { buildActivityForReview, buildActivityUnderAuthorizationRecords, RefusedActivity } from '../rendering/build-activity'
 import { episodeConfirmed } from '../rendering/context-scoring-guard'
 import { mechanismDemonstration, MECHANISM_DEMONSTRATIONS } from '../rendering/mechanism-demonstrations'
+import { renderConcreteGame } from '../rendering/render-concrete-game'
 import { specializedRoleNames } from '../rendering/session-envelope'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { contextManipulationRelationships, learningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
@@ -327,9 +329,20 @@ test('the fixture carries the bound in both blocks and the composed fixture; the
     for (const block of fixture.roleBlocks.blocks) assert.deepEqual(bounds(block.fixture.game), expected, block.blockId)
     const activity = built.activity as RefusedActivity
     assert.equal(activity.stage, 'communication')
+    /*
+     * Moved 18 October 2026 (stage M5, design step L13): the building role's bound is no longer awaiting approved wording, 2 -> 0. It
+     * is said in his words - entry A01-W1, his reply filed 19 October 2026, item 1 ("Approved with revised wording") - once per block,
+     * by the one sentence citing the bound with the four build-out conditions. Was: one "awaiting approved wording" reason per block.
+     * Still nothing says it in words nobody approved: the only sentence citing the bound is his.
+     */
     const awaiting = activity.reasons.filter(reason => reason.includes('awaiting approved wording: activityRoles['))
-    assert.equal(awaiting.length, 2, 'one per block')
-    assert.ok(awaiting.every(reason => reason.endsWith(`awaiting approved wording: activityRoles[${R('B1-1')}].creditedWithin (B8)`)), awaiting.join(' | '))
+    assert.deepEqual(awaiting, [], 'his approved sentence says the bound')
+    const [entry] = approvedWording()
+    assert.equal(entry.id, 'A01-W1')
+    for (const block of fixture.roleBlocks.blocks) {
+        const citing = renderConcreteGame(block.fixture).instructions.filter(i => i.from.includes(`activityRoles[${R('B1-1')}].creditedWithin`))
+        assert.deepEqual(citing.map(i => i.text), [entry.sentence], `${block.blockId}: only his sentence cites the bound`)
+    }
     assert.ok(!activity.reasons.some(reason => reason.includes(`awaiting approved wording: activityRoles[${R('B1-2')}]`)), 'the whole game bounds nothing, so no approved wording is owed for it')
 })
 

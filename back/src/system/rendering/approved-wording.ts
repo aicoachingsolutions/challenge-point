@@ -16,7 +16,8 @@
  * used, and the data test fails on it — so a sentence cannot slip into a coach's activity by being added here
  * with good intentions.
  *
- * The table starts EMPTY (14 October 2026). Read through `AUDITS_DIR`, so the bundled server finds it in
+ * The table started EMPTY (14 October 2026); its first entry is his own sentence for the build-out scoring rule (reply filed
+ * 19 October 2026, item 1, "Approved with revised wording"), added 18 October 2026 (stage M5). Read through `AUDITS_DIR`, so the bundled server finds it in
  * `dist/knowledge`; `build.js` copies it.
  */
 import fs from 'node:fs'

@@ -399,7 +399,7 @@ test('the placements, their timing and their composed geometry reach the concret
 })
 
 // ── 9. Production A01 passes the record and the spatial stages; what stops it now ──────────────────────
-test('production A01 passes validation in both blocks (stage K7); what stops it is the build-out condition awaiting approved wording', () => {
+test('production A01 passes validation in both blocks (stage K7); what stops it is the regain score awaiting approved wording (stage M5; was the build-out condition)', () => {
     /**
      * What moves this stop (named in the K6 review, 16 October 2026; the pin said only what stops it). The guard
      * (context-scoring-guard.ts) confirms a context condition by its presence in the realized game, so a condition authored for
@@ -430,19 +430,22 @@ test('production A01 passes validation in both blocks (stage K7); what stops it 
     // 2026, item 2) - its four fields withheld until approved words say them, each noted by fidelity as uncarried. Nothing spatial moves.
     const ALSO: [string, string][] = [['team', 'V28'], ['trigger', 'V29'], ['control', 'V30'], ['exclusion', 'V31']]
     const also = (field: string) => `value.primaryEvent.alsoCounts[c:provisional:A01-R1:A01-R1-V27-1].${field}`
+    /*
+     * Moved 18 October 2026 (stage M5, design step L13): the building role's bound and the four build-out conditions leave the stop.
+     * They are said by his approved sentence, entry A01-W1 in approved-coach-wording.json (his reply filed 19 October 2026, item 1:
+     * "Approved with revised wording"), so none of them is withheld or uncarried any more. What stops A01 now is the pressing role's
+     * regain score alone: its four fields (rows V28-V31) wait on the sentence put to him (A01-W2), and fidelity notes each as uncarried.
+     * Was: the bound and every condition field above, then the regain fields, in each block. Nothing spatial moves.
+     */
     assert.deepEqual(
         refused.reasons,
         blocksNamed.flatMap(block => [
-            `block ${block}: awaiting approved wording: ${bound('B1-1')} (B8)`,
-            ...fields.flatMap(([id, held]) => held.map(field => `block ${block}: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-${id}].${field} (${ROW[field]})`)),
             ...ALSO.map(([field, row]) => `block ${block}: awaiting approved wording: ${also(field)} (${row})`),
-            // Moved 17 October 2026 (stage M3, design step L9): the pressing role's WHOLE_GAME is now cited by its own scoring sentence,
-            // so only the building role's withheld bound is uncarried (was ['B1-1', 'B1-2']).
-            ...['B1-1'].map(element => `block ${block}: fidelity Q3: ${bound(element)} is established by the game and no instruction carries it`),
             ...ALSO.map(([field]) => `block ${block}: fidelity Q3: ${also(field)} is established by the game and no instruction carries it`),
-            ...fields.flatMap(([id, held]) => held.filter(field => field !== 'scope').map(field => `block ${block}: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-${id}].${field} is established by the game and no instruction carries it`)),
         ]),
     )
+    const saidByHisSentence = [bound('B1-1'), ...fields.flatMap(([id, held]) => held.map(field => `value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-${id}].${field} (${ROW[field]})`))]
+    assert.ok(!refused.reasons.some(reason => saidByHisSentence.some(path => reason.includes(path.split(' ')[0]))), 'nothing his A01-W1 sentence says is among the reasons')
     assert.equal(refused.summary, 'Part of this activity is still waiting for approved coach wording, so it is not being shown.')
     // Nothing spatial, no record gap, no post-realization gate and no context-scoring finding is among the reasons.
     assert.ok(!refused.reasons.some(r => r.includes('post-realization') || r.includes('authorization record') || r.includes('cannot be confirmed to govern')))

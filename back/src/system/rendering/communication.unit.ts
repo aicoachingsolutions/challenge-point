@@ -67,11 +67,14 @@ const plain = buildActivity(a01) as RefusedActivity
 const { fixture: composedFixture } = buildActivityWithFixture(a01)
 const blockFixtures: any[] = ((composedFixture as any)?.roleBlocks?.blocks ?? []).map((block: any) => block.fixture)
 const BLOCKS = ['BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END', 'BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START']
+/** His reply filed 19 October 2026, item 1, verbatim ("Approved with revised wording"); production entry A01-W1 since stage M5. */
+const HIS_ITEM_1 =
+    "Building team: Score by carrying the ball beyond the marked line or passing to a teammate who receives it under control beyond the line. The progression must begin with the goalkeeper's build-out and occur before the building team loses possession. Uncontrolled clearances do not score."
 
 /** The sentences of a rendering by section and block, so a pin reads like the activity. */
 const sentences = (instructions: Instruction[]) => instructions.map(i => `${i.section}${i.block ? ` [${BLOCKS.indexOf(i.block) + 1}]` : ''}: ${i.text}`)
 
-test('1. the review draft of A01: every sentence the game holds, each a DRAFT, nothing withheld but the build-out condition', () => {
+test('1. the review draft of A01: every sentence the game holds, each a DRAFT but his approved two, nothing withheld but the regain score (stage M5; was the build-out condition)', () => {
     assert.equal(review.stage, 'communication')
     assert.ok(review.draft, 'the administrator receives the draft')
     const draft = review.draft!
@@ -113,6 +116,10 @@ test('1. the review draft of A01: every sentence the game holds, each a DRAFT, n
         'How to score: Pressing team: Score by getting the ball under control into the zone it is attacking: running it in, or passing to a teammate who receives it under control inside',
         'How to score: Each score is worth 1 point',
         "How to score: Each team attacks the zone at the other team's end. Decide which team starts at which end; the ends stay the same for the whole game",
+        // Added 18 October 2026 (stage M5, design step L13): his approved words, said once for the building role's bound and the four
+        // build-out conditions (entry A01-W1, reply filed 19 October 2026, item 1, "Approved with revised wording"). The renderer says
+        // approved entries after its own How to score sentences, so it follows the DRAFT lines above (measured; not reordered here).
+        `How to score: ${HIS_ITEM_1}`,
         `${ROLE_EXCHANGE}: Play in blocks: in each block one team is the building team and the other is the pressing team`,
         `${ROLE_EXCHANGE}: Each team keeps its end for the whole activity. When you call the next block the teams exchange roles, not ends, and the marked line and both target zones are set out again for the new roles; there is no set block length`,
         `${ROLE_EXCHANGE}: When you call the next block, 1 ${ROLE} and 1 outfield player move to the team that becomes the building team`,
@@ -128,8 +135,10 @@ test('1. the review draft of A01: every sentence the game holds, each a DRAFT, n
     ])
     // Re-pointed 17 October 2026 (stage M4): one sentence is his approved words - the possession sentence, an approved template
     // sentence (reply filed 19 October 2026, item 4); the entries table is still empty, so every other sentence is DRAFT.
-    assert.deepEqual(draft.instructions.filter(i => i.wording === 'APPROVED').map(i => i.text), ['When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone'])
-    assert.equal(draft.instructions.filter(i => i.wording === 'DRAFT').length, draft.instructions.length - 1, 'every other sentence is DRAFT')
+    // Re-pointed 18 October 2026 (stage M5, design step L13): and his build-out sentence, the first approved entry (A01-W1); every
+    // other sentence is DRAFT.
+    assert.deepEqual(draft.instructions.filter(i => i.wording === 'APPROVED').map(i => i.text), ['When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone', HIS_ITEM_1])
+    assert.equal(draft.instructions.filter(i => i.wording === 'DRAFT').length, draft.instructions.length - 2, 'every other sentence is DRAFT')
     // Provisional sources: the restarts rest on his provisional choices, the area on the session alone.
     assert.deepEqual(draft.instructions[0].provisionalSources, [])
     assert.ok(draft.instructions.find(i => i.text.includes('restarts play from the feet'))!.provisionalSources.includes('provisional:A01-R1::A01-R1-T3-1'))
@@ -144,8 +153,12 @@ test('1. the review draft of A01: every sentence the game holds, each a DRAFT, n
     // naming them until he approves a sentence.
     const ALSO = (field: string) => `value.primaryEvent.alsoCounts[c:provisional:A01-R1:A01-R1-V27-1].${field}`
     const alsoWithheld = [['team', 'V28'], ['trigger', 'V29'], ['control', 'V30'], ['exclusion', 'V31']].map(([field, row]) => [ALSO(field), row])
-    assert.equal(draft.withheld.length, 40)
-    assert.deepEqual(draft.withheld.filter(field => !field.path.startsWith('value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-')).map(field => [field.path, field.row]), [[CREDIT_BOUND, 'B8'], ...alsoWithheld, [CREDIT_BOUND, 'B8'], ...alsoWithheld], JSON.stringify(draft.withheld))
+    // Moved 18 October 2026 (stage M5, design step L13), 40 -> 8: his approved sentence (A01-W1) says the building role's bound and
+    // every field of the four build-out conditions in each block, so exactly the regain score's four fields per block are withheld,
+    // awaiting the sentence put to him (A01-W2). Was: the bound, the fifteen condition fields and the regain fields, per block.
+    assert.equal(draft.withheld.length, 8)
+    assert.deepEqual(draft.withheld.map(field => [field.path, field.row]), [...alsoWithheld, ...alsoWithheld], JSON.stringify(draft.withheld))
+    assert.ok(!draft.withheld.some(field => field.path === CREDIT_BOUND || field.path.startsWith('value.primaryEvent.conditions[')))
     // Fidelity on the draft: only the same conditions, noted as uncarried; no sentence lost, invented or changed in status.
     // Moved 17 October 2026 (stage M1), 22 -> 26: both roles' credit bounds per block are uncarried too - the building role's because
     // it is withheld, the pressing role's WHOLE_GAME because no sentence cites it yet (the per-role scoring sentence that will is
@@ -158,10 +171,12 @@ test('1. the review draft of A01: every sentence the game holds, each a DRAFT, n
     assert.ok(draft.fidelity.violations.every(v => uncarriedCondition(v) || uncarriedBound(v) || uncarriedAlso(v)), JSON.stringify(draft.fidelity.violations))
     // Moved 17 October 2026 (stage M3, design step L9), 4 -> 2 and 34 -> 32: the pressing role's whole-game bound is now carried by its
     // own scoring sentence; only the building role's bound, withheld, is uncarried in each block.
-    assert.equal(draft.fidelity.violations.filter(uncarriedBound).length, 2)
-    assert.ok(draft.fidelity.violations.filter(uncarriedBound).every(v => v.includes('A01-R1-B1-1]')))
+    // Moved 18 October 2026 (stage M5, design step L13), 2 -> 0, 22 -> 0 and 32 -> 8: his approved sentence carries the building role's
+    // bound and the conditions, so the only uncarried fields are the regain score's four per block, which are withheld.
+    assert.equal(draft.fidelity.violations.filter(uncarriedBound).length, 0)
+    assert.equal(draft.fidelity.violations.filter(uncarriedCondition).length, 0)
     assert.equal(draft.fidelity.violations.filter(uncarriedAlso).length, 8)
-    assert.equal(draft.fidelity.violations.length, 32)
+    assert.equal(draft.fidelity.violations.length, 8)
 })
 
 test('2. key identity: the draft reaches the administrator\'s review answer and nothing else', () => {
@@ -225,7 +240,12 @@ test('3. the prescription rule (Q4): his adversarial lines are refused with plau
     assert.equal(checkFidelity(fixture, residual as any).findings.filter(f => f.question === 4 && f.what.includes('Use the')).length, 0)
     // The draft itself has no hit: the A01 rendering passes the rule as it stands.
     assert.equal(checkFidelity(fixture, rendered).findings.filter(f => f.question === 4).length, 0)
-    assert.ok(!rendered.instructions.some(i => OBLIGATIONS.some(word => word.test(i.text))), 'no obligation word in any A01 sentence')
+    // Re-pointed 18 October 2026 (stage M5, design step L13): his approved build-out sentence (A01-W1) says "must" ("The progression
+    // must begin with the goalkeeper's build-out ..."), and it is the one sentence with an obligation word. His approval exempts it from
+    // the lexicon, never from the role rule (test 3b), and Q4 above finds nothing in it. Every DRAFT sentence still has none.
+    // Was: no obligation word in any A01 sentence.
+    const withObligation = rendered.instructions.filter(i => OBLIGATIONS.some(word => word.test(i.text)))
+    assert.deepEqual(withObligation.map(i => i.text), [HIS_ITEM_1], 'no obligation word in any A01 DRAFT sentence')
 })
 
 test('3b. the one template whose obligation word is its element\'s own value passes, and only as that template; approval exempts from the lexicon, never from the role rule', () => {
@@ -315,10 +335,9 @@ test('3c. (K7 review) his words "mandatory", "sequence", "required" and the stan
 /*
  * Stage M3, 17 October 2026 (design steps L8 and L9). The entry below is TEST-ONLY (approvedBy names TEST-ONLY; the production table
  * stays empty until design step L13), and its sentence is his reply filed 19 October 2026, item 1, verbatim ("Approved with revised
- * wording"), located on the building role's bound and the four conditions, its match values read from the game.
+ * wording"), located on the building role's bound and the four conditions, its match values read from the game. (HIS_ITEM_1 is
+ * declared at the top since stage M5, 18 October 2026, because test 1 now reads it: his sentence is production entry A01-W1.)
  */
-const HIS_ITEM_1 =
-    "Building team: Score by carrying the ball beyond the marked line or passing to a teammate who receives it under control beyond the line. The progression must begin with the goalkeeper's build-out and occur before the building team loses possession. Uncontrolled clearances do not score."
 const testApproval = { who: 'TEST-ONLY', date: '2026-10-19', quote: 'TEST-ONLY', ccs: 'TEST-ONLY' }
 function locatedEntry(game: any, sentence: string, types: string[], bound = true): any[] {
     const conditions: any[] = game.value.primaryEvent.conditions.filter((c: any) => types.includes(c.type))
@@ -344,7 +363,9 @@ test('3d. (M3, L8) the role rule passes over his approved sentence only where th
     assert.deepEqual(checkFidelity(fixture, rendered, wording).findings.filter(f => f.question === 4), [], 'approved, and the role is a covered value: no Q4 finding')
     // The same words as a DRAFT with the same citations: refused by the role rule (and the lexicon).
     const draft = { ...rendered, instructions: rendered.instructions.map(i => (i === his ? { ...i } : i)) }
-    const asDraft = checkFidelity(fixture, draft).findings.filter(f => f.question === 4 && f.what.includes('The progression must begin'))
+    // Re-pointed 18 October 2026 (stage M5): checked with NO approved wording ([]), which is what the default meant while the table was
+    // empty; the production table now holds his sentence (A01-W1), so the default would approve it. The intent is unchanged.
+    const asDraft = checkFidelity(fixture, draft, []).findings.filter(f => f.question === 4 && f.what.includes('The progression must begin'))
     assert.ok(asDraft.some(f => f.what.includes(`names the ${ROLE}`)), JSON.stringify(asDraft))
     // An approved sentence naming the role whose covered fields hold no such value: refused (progression, control, exclusion and the
     // bound name no role).
@@ -462,10 +483,14 @@ test('6. no noun the game does not hold, no challenge level, no bare decision im
     }
     for (const level of ['Comfortable', 'Stretch', 'Demanding']) assert.ok(!texts.some(t => t.includes(level)), level)
     assert.ok(!texts.some(t => /^(Choose|Decide) (when|where|whether)\b/.test(t)))
+    // Re-pointed 18 October 2026 (stage M5, design step L13): his approved sentence (A01-W1) is said exactly as he wrote it, its own
+    // full stops included, so the standard leaves it byte for byte as it is; it still finds nothing in it. Every DRAFT is as before.
+    const approved = new Set(review.draft!.instructions.filter(i => i.wording === 'APPROVED').map(i => i.text))
+    assert.ok(approved.has(HIS_ITEM_1))
     for (const text of texts) {
         assert.deepEqual(findCommunicationStandardViolations(text), [], text)
         // The standard ends a sentence with a full stop, which the renderer leaves to the page: nothing else changes.
-        assert.equal(applyCoachCommunicationStandard(text), `${text}.`, text)
+        assert.equal(applyCoachCommunicationStandard(text), text.endsWith('.') && approved.has(text) ? text : `${text}.`, text)
     }
 })
 

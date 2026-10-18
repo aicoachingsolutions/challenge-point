@@ -26,7 +26,7 @@ import {
 } from './approved-wording'
 import { buildActivityWithFixture } from './build-activity'
 import { checkFidelity } from './fidelity'
-import { renderConcreteGame } from './render-concrete-game'
+import { renderConcreteGame, wordedFieldRows } from './render-concrete-game'
 import { specializedRoleNames } from './session-envelope'
 
 let passed = 0
@@ -44,9 +44,18 @@ test('every entry in the table carries his approval — an unapproved one is a d
     assert.deepEqual(unapprovedWording(), [], 'the loader ignores these, and the data must not hold them')
 })
 
-test('BASELINE of 14 October 2026: the table is EMPTY', () => {
-    // So the first approved sentence is a visible change to this line, with his words beside it in the file.
-    assert.equal(approvedWording().length, 0)
+/*
+ * BASELINE of 14 October 2026: the table was EMPTY, so the first approved sentence would be a visible change to this line.
+ * Moved 18 October 2026 (stage M5, design step L13), 0 -> 1: entry A01-W1, his own sentence for the build-out scoring rule. Christian,
+ * reply filed 19 October 2026, item 1: "Build-out scoring condition — Approved with revised wording" ... Suggested wording: "Building
+ * team: Score by carrying the ball beyond the marked line or passing to a teammate who receives it under control beyond the line. The
+ * progression must begin with the goalkeeper's build-out and occur before the building team loses possession. Uncontrolled clearances
+ * do not score." The two sentences put to him on 19 October (A01-W2, the regain score; A01-W3, non-restoration) are NOT here: they
+ * wait on his yes (design step L14).
+ */
+test('BASELINE: one approved entry since 18 October 2026 (stage M5): A01-W1, his item-1 sentence (was EMPTY since 14 October)', () => {
+    assert.equal(approvedWording().length, 1)
+    assert.deepEqual(approvedWording().map(e => e.id), ['A01-W1'])
 })
 
 const approval = { who: 'Christian', date: '2026-10-14', quote: 'a test approval, not his words', ccs: 'RC2' }
@@ -138,6 +147,8 @@ test('a cover that does not hold exactly leaves the field withheld', () => {
  * building role's credit bound (B8) and four conditions on the primary event (V3-V6). Read on a block of A01 as the checked pathway
  * built it. Every entry below is TEST-ONLY (approvedBy names TEST-ONLY): the production table stays empty (BASELINE above) until
  * design step L13 writes his entry; the sentence is his item-1 wording verbatim, so the mechanism is exercised on the text it is for.
+ * Since stage M5 (18 October 2026) the production table holds his entry A01-W1, so every "with no entry" rendering below passes the
+ * empty table ([]) explicitly, which is what the default meant when these tests were written; nothing they assert has moved.
  */
 const ROLE = specializedRoleNames()[0]
 const noRoles = Object.fromEntries(specializedRoleNames().map(role => [role, 0]))
@@ -182,13 +193,13 @@ test('(M3, L8) a located entry is said ONCE for all its elements, citing every c
     assert.deepEqual(said[0].from, entry.covers.map(pathOf))
     assert.equal(said[0].section, 'How to score')
     // Every field it covers is said; what is left withheld is exactly the regain score's four fields (no entry covers them).
-    const alone = renderConcreteGame(a01Block)
+    const alone = renderConcreteGame(a01Block, [])
     assert.equal(alone.withheld.length, entry.covers.length + 4)
     assert.deepEqual(rendered.withheld.map(w => w.path), alsoCountsWithheld(alone))
 })
 
 test('(M3, L8) a locator picking out no element or more than one, a scoped condition without its exact scope, or one failing cover: nothing is said', () => {
-    const withheldAlone = renderConcreteGame(a01Block).withheld
+    const withheldAlone = renderConcreteGame(a01Block, []).withheld
     const nothingSaid = (entry: ApprovedWording, why: string) => {
         const rendered = renderConcreteGame(a01Block, [entry])
         assert.ok(!rendered.instructions.some(i => i.text === HIS_ITEM_1), why)
@@ -226,7 +237,7 @@ test('(M3 review) a located entry binds exactly the fields it names: a field of 
     assert.ok(!said[0].from.some(p => p.endsWith('.value')), 'it cites no field it does not cover')
     const values = a01Block.game.value.primaryEvent.conditions.filter((c: any) => 'value' in c).map((c: any) => `${CONDITIONS}[${c.elementId}].value`)
     assert.ok(values.length > 0)
-    assert.deepEqual(alsoCountsWithheld(rendered), alsoCountsWithheld(renderConcreteGame(a01Block)), 'the regain fields stay withheld too')
+    assert.deepEqual(alsoCountsWithheld(rendered), alsoCountsWithheld(renderConcreteGame(a01Block, [])), 'the regain fields stay withheld too')
     assert.deepEqual(rendered.withheld.map(w => w.path).filter(p => p.startsWith(`${CONDITIONS}[`) || p.startsWith(`${ROLES}[`)).sort(), [...values].sort())
 })
 
@@ -302,6 +313,83 @@ test('(M4, L10) the renderer says the record: A01 reads his sentence verbatim, a
     assert.ok(checkFidelity(block, without).findings.some(f => f.question === 3 && f.severity === 'VIOLATION' && /^transitions\[[^\]]+\]\.playState is established/.test(f.what)))
     // A game with line targets reads the same template with its own noun: a generalization of his words, DRAFT.
     assert.deepEqual(possession(renderConcreteGame(golden)), ['When possession changes, play carries on without a stoppage, and each team keeps attacking the same line'])
+})
+
+/**
+ * **His first approved entry, A01-W1 — stage M5, 18 October 2026 (design step L13).** His reply filed 19 October 2026, item 1:
+ * "Approved with revised wording", with his sentence for the build-out scoring rule. The entry's covers are the game's own values,
+ * written into the file; these tests prove the file says exactly what A01 holds, at every session the checked pathway builds.
+ */
+test('(M5, L13) A01-W1 is his item-1 sentence verbatim, with his approval: who, the date of his reply, his words and the standard', () => {
+    const [entry] = approvedWording()
+    assert.equal(entry.sentence, HIS_ITEM_1)
+    assert.equal(entry.section, 'How to score')
+    assert.deepEqual([entry.approvedBy.who, entry.approvedBy.date], ['Christian', '2026-10-19'])
+    assert.ok(entry.approvedBy.quote.includes(`"${HIS_ITEM_1}"`), 'his sentence is inside the quote of his approval')
+    assert.ok(entry.approvedBy.quote.includes('Approved with revised wording'))
+    assert.ok(entry.approvedBy.ccs.includes('Coach Communication Standard RC2'))
+    // The note names the narrowed origin arm as our inferred reading and the match values as the game's.
+    const note = String((entry as any).note ?? '')
+    assert.ok(note.includes('OUR INFERRED READING') && note.includes('item 4'), note)
+    // Every cover names its element (said once), and no cover is TEST-ONLY.
+    assert.ok(entry.covers.every(cover => cover.element))
+    assert.ok(!JSON.stringify(entry).includes('TEST-ONLY'))
+})
+
+/** A01 as the checked pathway builds it, block by block, at the three sessions it reaches communication with (stage M5). */
+const a01Sessions: [number, number][] = [[12, 1], [12, 2], [11, 1]]
+const a01BlocksAt = (players: number, keepers: number): any[] =>
+    ((buildActivityWithFixture({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: { ...a01Session, players, roles: { ...noRoles, [ROLE]: keepers } } }).fixture as any)?.roleBlocks?.blocks ?? []).map((b: any) => b.fixture)
+
+test('(M5, L13) key identity: A01-W1 covers exactly the values A01 holds in both blocks at 12 and 11 players, and is said once per block citing all 16', () => {
+    const [entry] = approvedWording()
+    for (const [players, keepers] of a01Sessions) {
+        const blocks = a01BlocksAt(players, keepers)
+        assert.equal(blocks.length, 2, `${players} players, ${keepers} keepers: two blocks`)
+        for (const block of blocks) {
+            const what = `${players} players, ${keepers} keepers`
+            // The production covers equal, value for value, the covers read from the game itself (buildOutEntry, above).
+            assert.equal(canonicalJson(entry.covers), canonicalJson(buildOutEntry(block.game).covers), `${what}: the file holds the game's values`)
+            const said = renderConcreteGame(block).instructions.filter(i => i.text === HIS_ITEM_1)
+            assert.equal(said.length, 1, `${what}: said once`)
+            assert.equal(said[0].from.length, 16, `${what}: the bound and the fifteen condition fields`)
+            assert.ok(said[0].from.includes('activityRoles[c:provisional:A01-R1:A01-R1-B1-1].creditedWithin'))
+            // Nothing his sentence says is withheld; what is withheld is the regain score's four fields, awaiting A01-W2.
+            assert.deepEqual(renderConcreteGame(block).withheld.map(w => w.row), ['V28', 'V29', 'V30', 'V31'], what)
+        }
+    }
+})
+
+test('(M5, L13) the origin arm his sentence leaves unnamed cannot occur: no transition carries a restart kind, and every build-out beginning is taken by the arm he names', () => {
+    for (const [players, keepers] of a01Sessions) {
+        for (const block of a01BlocksAt(players, keepers)) {
+            const game = block.game
+            const transitions: any[] = game.transitions
+            const origin = game.value.primaryEvent.conditions.find((c: any) => c.type === 'origin')
+            const named = origin.referents.arms.filter((arm: any) => typeof arm.takenBy === 'string').map((arm: any) => arm.takenBy)
+            assert.deepEqual(named, [ROLE], 'the one arm his sentence names')
+            assert.ok(!JSON.stringify(transitions).includes('restartKind'), 'no transition carries a restart kind')
+            // The beginnings awarded to the building role's holder (GA-EPISODE-REACHABLE's starters: start, after a score, the coach's call).
+            const beginnings = transitions.filter(t => String(t.startsEpisode) === 'true' && t.playState === 'STOP_RESUME' && t.awardedTo === 'ROLE_HOLDER_BUILDING')
+            assert.deepEqual(beginnings.map(t => t.selector.find((s: any) => s.attribute === 'trigger').value), ['START', 'SCORE', 'COACH_JUDGED_EPISODE_CONCLUSION'])
+            assert.ok(beginnings.every(t => named.includes(t.placement.actor)), JSON.stringify(beginnings.map(t => t.placement)))
+        }
+    }
+})
+
+test('(M5) every field only approved words may say keeps its row whether it is said or withheld (wordedFieldRows)', () => {
+    // Added 18 October 2026 (stage M5): measured, once A01-W1 said the four scopes the review evidence lost their row (V3), and his
+    // item 4 its scope elements, because a row was known only from the withheld list. The rows are the renderer's table, read from the game.
+    const [block] = a01BlocksAt(12, 1)
+    const rows = wordedFieldRows(block.game)
+    const said = new Set(renderConcreteGame(block).instructions.flatMap(i => i.from))
+    const withheld = new Set(renderConcreteGame(block).withheld.map(w => w.path))
+    assert.equal(rows.length, 20, 'the bound, the fifteen condition fields and the four regain fields')
+    assert.ok(rows.every(r => said.has(r.path) !== withheld.has(r.path)), 'each is said or withheld, never both or neither')
+    assert.deepEqual(rows.filter(r => r.path.endsWith('.scope')).map(r => r.row), ['V3', 'V3', 'V3', 'V3'])
+    assert.deepEqual(rows.filter(r => withheld.has(r.path)).map(r => r.row), ['V28', 'V29', 'V30', 'V31'])
+    // A whole-game bound states no condition and is not among them (unlessEquals).
+    assert.ok(!rows.some(r => r.path.includes('A01-R1-B1-2')))
 })
 
 console.log(`approved-wording.unit.ts — ${passed} passed`)

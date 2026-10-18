@@ -440,21 +440,22 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
         // four fields withheld until approved words say them, after the conditions in each block, and each noted by fidelity.
         const ALSO: [string, string][] = [['team', 'V28'], ['trigger', 'V29'], ['control', 'V30'], ['exclusion', 'V31']]
         const also = (field: string) => `value.primaryEvent.alsoCounts[c:provisional:A01-R1:A01-R1-V27-1].${field}`
+        // Moved 18 October 2026 (stage M5, design step L13): the building role's bound and every field of the four build-out conditions
+        // leave the stop, said by his approved sentence (entry A01-W1, his reply filed 19 October 2026, item 1: "Approved with revised
+        // wording"). What stops A01 is the regain score alone, in each block: its four fields awaiting the sentence put to him (A01-W2),
+        // and fidelity's Q3 note of each. Was: the bound, the condition fields and the regain fields, withheld and uncarried.
         const WORDING_REASONS = blocks.flatMap(block => [
-            `block ${block}: awaiting approved wording: ${bound('B1-1')} (B8)`,
-            ...fields.flatMap(([id, held]) => held.map(field => `block ${block}: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-${id}].${field} (${ROW[field]})`)),
             ...ALSO.map(([field, row]) => `block ${block}: awaiting approved wording: ${also(field)} (${row})`),
-            // Moved 17 October 2026 (stage M3, design step L9): the pressing role's WHOLE_GAME is now cited by its own scoring sentence,
-            // so only the building role's withheld bound is uncarried (was ['B1-1', 'B1-2']).
-            ...['B1-1'].map(element => `block ${block}: fidelity Q3: ${bound(element)} is established by the game and no instruction carries it`),
             ...ALSO.map(([field]) => `block ${block}: fidelity Q3: ${also(field)} is established by the game and no instruction carries it`),
-            ...fields.flatMap(([id, held]) => held.filter(field => field !== 'scope').map(field => `block ${block}: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-${id}].${field} is established by the game and no instruction carries it`)),
         ])
+        const saidByHisSentence = [bound('B1-1'), ...fields.flatMap(([id, held]) => held.map(field => `value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-${id}].${field}`))]
+        assert.equal(saidByHisSentence.length, 16, 'the bound and the fifteen condition fields')
         for (const keepers of [2, 0]) {
             const production = refused(reviewActivity(stored({ specializedRoles: { ...none, [ROLE]: keepers } }), { learningGoalId: 'A01', durationMin: 20 }), `A01, ${keepers} of ${ROLE}`)
             if (keepers) {
                 assert.equal(production.stage, 'communication', JSON.stringify(production.reasons))
                 assert.deepEqual(production.reasons, WORDING_REASONS)
+                assert.ok(!production.reasons.some(reason => saidByHisSentence.some(path => reason.includes(path))), 'nothing his A01-W1 sentence says is among the reasons')
                 assert.equal(production.summary, 'Part of this activity is still waiting for approved coach wording, so it is not being shown.')
                 assert.ok(!('draft' in production), 'the review answer carries no draft unless the route asks for it (stage K7)')
             } else {
