@@ -203,6 +203,9 @@ export function validateSportCoachVocabulary(raw: any, sportId: string | null): 
         if (!text(entry?.noun) || !text(entry?.article)) errors.push(`${which} has no noun or article`)
         const approval = entry?.approvedBy
         if (!Array.isArray(approval) || !approval.length || !approval.every((w: any) => text(w?.words) && text(w?.citedAs))) errors.push(`${which} carries no approval in his cited words`)
+        // Stage M4 review (17 October 2026): the noun said to the coach must be one his cited words name, as an approved template
+        // sentence must appear in its quote (approved-wording.ts) - an approval that names some other word approves nothing here.
+        else if (text(entry?.noun) && !approval.some((w: any) => String(w.words).includes(String(entry.noun)))) errors.push(`${which}: the noun ${JSON.stringify(entry.noun)} is not in his cited words`)
         const key = `${entry?.trigger}|${entry?.method}`
         if (seen.has(key)) errors.push(`${which} repeats the trigger and method ${key}`)
         seen.add(key)

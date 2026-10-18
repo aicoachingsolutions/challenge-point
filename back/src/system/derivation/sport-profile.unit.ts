@@ -260,6 +260,10 @@ test('the coach vocabulary refuses an entry without his approval, for another sp
     const twice = copy()
     twice.restartMethodNouns.entries.push(twice.restartMethodNouns.entries[0])
     assert.ok(validateSportCoachVocabulary(twice, sportId).some(e => e.includes('repeats the trigger and method')))
+    // Stage M4 review (17 October 2026): an approval in his cited words that does not name the noun approves nothing for it.
+    const otherNoun = copy()
+    otherNoun.restartMethodNouns.entries[0].noun = 'TEST-ONLY-noun'
+    assert.ok(validateSportCoachVocabulary(otherNoun, sportId).some(e => e.includes('the noun "TEST-ONLY-noun" is not in his cited words')))
 })
 
 test('key identity: A01 carries exactly the vocabulary entry its touchline transitions use, and a game with none carries none', () => {
