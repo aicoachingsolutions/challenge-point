@@ -1,0 +1,53 @@
+name: Checks
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - claude/serene-dewdney-c78e18
+
+concurrency:
+  group: checks-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  back:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: back
+    env:
+      OPENAI_API_KEY: placeholder-not-a-key
+      ANTHROPIC_API_KEY: placeholder-not-a-key
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: back/package-lock.json
+      - run: npm ci
+      - run: npx tsc --noEmit -p tsconfig.json
+      - run: npm test
+      - run: node build.js
+      - run: npm run snapshot -- --out snapshot.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: back-regression-snapshot
+          path: back/snapshot.json
+
+  front:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: front
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: front/package-lock.json
+      - run: npm ci
+      - run: npm run build

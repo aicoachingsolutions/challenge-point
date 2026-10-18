@@ -91,6 +91,12 @@ function killTree(pid) {
     if (!pid) return
     if (process.platform === 'win32') {
         spawnSync('taskkill', ['/pid', String(pid), '/T', '/F'], { stdio: 'ignore', windowsHide: true })
+    } else {
+        try {
+            process.kill(-pid, 'SIGKILL')
+        } catch (error) {
+            if (error.code !== 'ESRCH') throw error
+        }
     }
 }
 
@@ -98,7 +104,7 @@ function runFile(file, timeoutMs) {
     return new Promise(resolve => {
         const started = Date.now()
         const { command, args } = commandFor(file)
-        const child = spawn(command, args, { cwd: BACK, shell: false, windowsHide: true })
+        const child = spawn(command, args, { cwd: BACK, shell: false, windowsHide: true, detached: process.platform !== 'win32' })
         let stdout = ''
         let stderr = ''
         let timedOut = false
@@ -121,7 +127,7 @@ function runFile(file, timeoutMs) {
         const timer = setTimeout(() => {
             timedOut = true
             killTree(child.pid)
-            child.kill()
+            if (process.platform === 'win32') child.kill()
         }, timeoutMs)
 
         child.stdout.setEncoding('utf8')
