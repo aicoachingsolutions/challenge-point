@@ -43,6 +43,7 @@ import { sessionPlanningModel } from '../session-planning/session-planning-model
 import { contextManipulationRelationships, learningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
 import { CONFORMANCE_DIR, loadRegister, provisionalRealizationNamed } from './corpus'
 import { runStages0to10, runStages0to5 } from './engine'
+import { runGates } from './gates'
 import { applyRealizationDeferrals } from './realization-deferral'
 import { HaltError, indexRegister } from './register'
 import { roleBlocksOf } from './role-blocks'
@@ -251,6 +252,32 @@ test('TEST-ONLY: withheld, never passed, where the begin condition is untyped or
         assert.equal(reachOf(staged).clauses[4].verdict, 'NOT_EVALUABLE', block.blockId)
         assert.ok(reachOf(staged).why.includes('the game holds no change of possession, so its end at a loss of possession is not established'))
     }
+})
+
+test('TEST-ONLY: a credit bound that is undecided or not established is never read as the whole game (stage M1 review)', () => {
+    // Added 17 October 2026 in the stage M1 review: measured before the fix, a FREE, CONDITIONAL or INVENTED bound on the building
+    // role passed both clauses with no applicable instance - the building team's credit read as unbounded from a value nobody holds.
+    // Only silence (NOT_AUTHORED) reads as unbounded, and that is GA-NO-FAILED-LINE's to report (the design's L1 expectation).
+    const [{ staged }] = a01Blocks()
+    const ctx = staged.gateContext
+    const lineId = `${R('B1-1')}::B8`
+    const line = ctx.classified.get(lineId)
+    assert.ok(line, lineId)
+    const clausesWith = (patch: Record<string, unknown>) => {
+        const classified = new Map(ctx.classified)
+        classified.set(lineId, { ...line, ...patch })
+        const check: any = runGates({ ...ctx, classified }).gateA.checks.find((c: any) => c.checkId === CHECK)
+        return { verdict: check.verdict, credit: check.clauses.slice(3).map((c: any) => c.verdict) }
+    }
+    assert.deepEqual(clausesWith({}), { verdict: 'PASS', credit: ['PASS', 'PASS'] }, 'the production line, unpatched')
+    assert.deepEqual(clausesWith({ verdict: 'FREE(choice)' }), { verdict: 'DEFERRED_TO_REALIZATION', credit: ['DEFERRED_TO_REALIZATION', 'DEFERRED_TO_REALIZATION'] }, 'open to a choice: deferred')
+    for (const patch of [{ lineState: 'CONDITIONAL', verdict: null }, { verdict: 'INVENTED' }, { verdict: 'UNRESOLVED' }]) {
+        const result = clausesWith(patch)
+        assert.deepEqual(result.credit, ['NOT_EVALUABLE', 'NOT_EVALUABLE'], JSON.stringify(patch))
+        assert.notEqual(result.verdict, 'PASS', JSON.stringify(patch))
+    }
+    // Silence: unbounded, as the design states; the bound itself is pinned on production by the key-identity test above.
+    assert.deepEqual(clausesWith({ verdict: 'NOT_AUTHORED', reason: 'no coverage' }).credit, ['PASS', 'PASS'])
 })
 
 // ── 5. Everything else, and the guard ───────────────────────────────────────────────────────────────────

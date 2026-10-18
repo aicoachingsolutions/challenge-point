@@ -1428,7 +1428,8 @@ function placementResets(
  * Both vacuous where no role carries such a bound (SD-54), and appended after the existing clauses on every path, because
  * `context-scoring-guard.ts` reads the first clause as the reach clause. B8 is read without blocking: a role whose bound nobody
  * stated (NOT_AUTHORED) is unbounded, as a whole-game role is, and that silence is GA-NO-FAILED-LINE's to report; a bound two items
- * disagree on (UNRESOLVED) blocks both clauses by name. No role, team, trigger or designation is named beyond the register's
+ * disagree on (UNRESOLVED), or one otherwise not established, blocks both clauses by name, and one still open to a choice defers
+ * them (stage M1 review). No role, team, trigger or designation is named beyond the register's
  * POSSESSION_CHANGE, already read here.
  */
 const CREDIT_ROW = 'B8'
@@ -1440,15 +1441,31 @@ function creditClauses(ctx: GateContext, probe: Probe, typedFor: (scope: string)
     if (!spec) return { clauses: [pass(BEGINS, 0), pass(ENDS, 0)], why: '' }
     const bounded: { classId: string; role: string; holder: string; scope: string }[] = []
     let gap = false
+    let undecided = false
     for (const element of classesOn(ctx, spec.rolesRow)) {
         const lineId = lineOf(element.classId, CREDIT_ROW)
         const cell = probe.peek(lineId)
-        if (cell.state === 'FAILED' && ctx.classified.get(lineId)?.verdict === 'UNRESOLVED') {
+        /**
+         * **Only silence reads as unbounded** — stage M1 review, 17 October 2026. A bound nobody stated (NOT_AUTHORED) or one the
+         * knowledge settled as absent is unbounded, and that silence is GA-NO-FAILED-LINE's to report. A bound still open to a choice
+         * (FREE) is undecided, and a bound blocked on a gap, invented, or in collision is not established: reading either as the whole
+         * game would pass the clauses on a value nobody holds (his 16 October item 8: *"A field whose value remains missing or
+         * unresolved."* is not *"A field explicitly defined as not applicable or requiring no further value."*). Measured before this
+         * line: a FREE, CONDITIONAL or INVENTED bound on the building role passed both clauses with no applicable instance.
+         */
+        const silent = (cell.state === 'ABSENT' && cell.established) || (cell.state === 'FAILED' && ctx.classified.get(lineId)?.verdict === 'NOT_AUTHORED')
+        if (silent) continue
+        if (cell.state === 'OPEN') {
+            probe.cell(lineId)
+            undecided = true
+            continue
+        }
+        if (cell.state !== 'DERIVED') {
             probe.cell(lineId)
             gap = true
             continue
         }
-        if (cell.state !== 'DERIVED' || String(cell.value) === 'WHOLE_GAME') continue
+        if (String(cell.value) === 'WHOLE_GAME') continue
         const term = (element.constraints?.terms || []).find(t => t.attribute === spec.roleAttribute && t.op === '=')
         const role = term && term.op === '=' ? String(term.value) : ''
         const holder = roleHolderNames(ctx.index).find(name => roleOfHolder(ctx.index, name) === role)
@@ -1459,6 +1476,10 @@ function creditClauses(ctx: GateContext, probe: Probe, typedFor: (scope: string)
         bounded.push({ classId: element.classId, role, holder, scope: String(cell.value) })
     }
     if (gap && !bounded.length) return { clauses: [notEvaluable(BEGINS), notEvaluable(ENDS)], why: '; a role\'s credit bound is not established' }
+    if (undecided && !bounded.length) {
+        const owes = 'the credit bound of each role, still open to a choice'
+        return { clauses: [deferred(BEGINS, owes), deferred(ENDS, owes)], why: '; a role\'s credit bound is not yet decided' }
+    }
     if (!bounded.length) return { clauses: [pass(BEGINS, 0), pass(ENDS, 0)], why: '' }
 
     // How many teams the game holds, where its team classes fix it (OTHER is decided only between exactly two). One count per
@@ -1489,11 +1510,11 @@ function creditClauses(ctx: GateContext, probe: Probe, typedFor: (scope: string)
 
     let beginsFail = false
     let beginsBlocked = gap
-    let beginsOpen = false
+    let beginsOpen = undecided
     let beginsInstances = 0
     let endsFail = false
     let endsBlocked = gap
-    let endsOpen = false
+    let endsOpen = undecided
     let endsInstances = 0
     const said: string[] = []
     for (const role of bounded) {
