@@ -790,6 +790,34 @@ export function wordedFieldRows(game: any): { path: string; row: string }[] {
     )
 }
 
+/**
+ * **Where a role's credit is bounded, How to score reads role by role** — the review of stage M5, 18 October 2026. Organisation only:
+ * no sentence is added, removed, reworded or re-cited, and nothing is said or withheld here. Measured in M5: the approved sentences
+ * were pushed after every sentence the renderer says itself, so A01 read "Pressing team: Score ...", "Each score is worth 1 point",
+ * "Each team attacks ...", and only then the building team's sentence (his reply filed 19 October 2026, item 1) - not the order the
+ * design's coach text and our email of 19 October 2026 showed him ("For context, How to score would then read:" the building team's
+ * sentence, the non-restoration sentence, the pressing team's sentence, its regain sentence, "Each score is worth 1 point"). With the
+ * regain sentence put to him ("... winning the ball inside that zone ...") said straight after the building team's line, its "that
+ * zone" would point at the wrong team's target.
+ *
+ * So, only in a game where some role element's credit is bounded (row B8 not the whole game; every other game is untouched), the How to
+ * score sentences said so far are re-ordered in place, stably: first, role by role in the game's own role order, every sentence citing
+ * that role's credit bound (its own DRAFT sentence where the bound is the whole game; his approved words where it is not); then every
+ * other sentence said in approved words for How to score; then the rest, in the order the renderer said them. Read from citations and
+ * the game's role elements only; no role, goal or sport term.
+ */
+function scoringInRoleOrder(instructions: Instruction[], game: any, approved: Set<Instruction>): void {
+    const roleElements: any[] = Array.isArray(game?.activityRoles) ? game.activityRoles : []
+    if (!roleElements.some(element => present(element?.creditedWithin) && canonicalJson(element.creditedWithin) !== canonicalJson(UNBOUNDED_CREDIT))) return
+    const slots = instructions.map((instruction, at) => ({ instruction, at })).filter(({ instruction }) => instruction.section === 'How to score')
+    const rank = (instruction: Instruction): number => {
+        const role = roleElements.findIndex(element => instruction.from.includes(`activityRoles[${element?.elementId}].creditedWithin`))
+        return role >= 0 ? role : approved.has(instruction) ? roleElements.length : roleElements.length + 1
+    }
+    const ordered = slots.map(({ instruction }, said) => ({ instruction, said, rank: rank(instruction) })).sort((a, b) => a.rank - b.rank || a.said - b.said)
+    slots.forEach(({ at }, n) => (instructions[at] = ordered[n].instruction))
+}
+
 export function approvedSentences(game: any, wording: ApprovedWording[] = approvedWording()): Instruction[] {
     const said: Instruction[] = []
     sayInApprovedWords(game, wording, instruction => said.push(instruction), [])
@@ -2069,7 +2097,9 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
      * approved (`approved-coach-wording.json`) or listed in `withheld`, which refuses the activity. The table
      * is empty today, so every such field is withheld.
      */
-    sayInApprovedWords(game, wording, said => instructions.push(said), withheld)
+    const saidInApprovedWords = new Set<Instruction>()
+    sayInApprovedWords(game, wording, said => (instructions.push(said), saidInApprovedWords.add(said)), withheld)
+    scoringInRoleOrder(instructions, game, saidInApprovedWords)
 
     /**
      * **The value modifier, carried without inventing what satisfies it.**

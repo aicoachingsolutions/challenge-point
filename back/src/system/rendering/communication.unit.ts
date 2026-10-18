@@ -113,13 +113,16 @@ test('1. the review draft of A01: every sentence the game holds, each a DRAFT bu
         // role's credit is confined to its build-out episode (row B8). The pressing role, whose bound is the whole game (A01-R1-B8-2),
         // is told how it scores in a sentence of its own (DRAFT), the value is said on its own (DRAFT), and the building role is told
         // only in his approved words (withheld until approved-coach-wording.json holds them, design step L13).
+        // Added 18 October 2026 (stage M5, design step L13): his approved words, said once for the building role's bound and the four
+        // build-out conditions (entry A01-W1, reply filed 19 October 2026, item 1, "Approved with revised wording").
+        // Moved 18 October 2026 (review of stage M5): How to score reads role by role where a role's credit is bounded
+        // (render-concrete-game.ts scoringInRoleOrder), so his sentence comes first, as the design's coach text and our email of 19
+        // October 2026 showed him. Was: after the pressing team's sentence, the value and the ends (the renderer said approved
+        // entries last). No sentence changed.
+        `How to score: ${HIS_ITEM_1}`,
         'How to score: Pressing team: Score by getting the ball under control into the zone it is attacking: running it in, or passing to a teammate who receives it under control inside',
         'How to score: Each score is worth 1 point',
         "How to score: Each team attacks the zone at the other team's end. Decide which team starts at which end; the ends stay the same for the whole game",
-        // Added 18 October 2026 (stage M5, design step L13): his approved words, said once for the building role's bound and the four
-        // build-out conditions (entry A01-W1, reply filed 19 October 2026, item 1, "Approved with revised wording"). The renderer says
-        // approved entries after its own How to score sentences, so it follows the DRAFT lines above (measured; not reordered here).
-        `How to score: ${HIS_ITEM_1}`,
         `${ROLE_EXCHANGE}: Play in blocks: in each block one team is the building team and the other is the pressing team`,
         `${ROLE_EXCHANGE}: Each team keeps its end for the whole activity. When you call the next block the teams exchange roles, not ends, and the marked line and both target zones are set out again for the new roles; there is no set block length`,
         `${ROLE_EXCHANGE}: When you call the next block, 1 ${ROLE} and 1 outfield player move to the team that becomes the building team`,

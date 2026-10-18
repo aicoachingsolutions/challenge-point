@@ -125,6 +125,8 @@ test('1. production: every structural check passes in both blocks, his sentence 
         // His sentence: said once in the composed activity, APPROVED, under How to score.
         const his = evidence.sections.instructions.filter(i => i.text === HIS_ITEM_1)
         assert.deepEqual(his.map(i => [i.section, i.wording]), [['How to score', 'APPROVED']], what)
+        // Review of stage M5 (18 October 2026): and it opens How to score (role order, render-concrete-game.ts scoringInRoleOrder).
+        assert.equal(evidence.sections.instructions.find(i => i.section === 'How to score')!.text, HIS_ITEM_1, what)
         assert.ok(!evidence.sections.instructions.some(i => i.text === W2_DRAFT || i.text === W3_DRAFT), `${what}: neither sentence put to him is said`)
         assert.ok(!JSON.stringify(review).includes('TEST-ONLY'), `${what}: production data only`)
     }
@@ -154,6 +156,24 @@ test('2. TEST-ONLY approvals of both sentences put to him (A01-W2, A01-W3) on a 
         // The regain sentence cites the four fields it says, and nothing it does not.
         const regain = served.rendered.instructions.find(i => i.text === W2_DRAFT)!
         assert.deepEqual(regain.from, ALSO_ROWS.map(([field]) => `${ALSO}.${field}`), what)
+        /*
+         * Added 18 October 2026 (review of stage M5): How to score reads in the order the design's coach text and our email of 19 October
+         * 2026 showed him ("For context, How to score would then read:"): the building team's sentence, the non-restoration sentence, the
+         * pressing team's sentence, its regain sentence ("... inside that zone ..." straight after the sentence naming that zone), then
+         * the value and the ends. The TEST-ONLY table lists W2 before W3, so this is the renderer's role order, not the table's.
+         */
+        assert.deepEqual(
+            served.rendered.instructions.filter(i => i.section === 'How to score').map(i => i.text),
+            [
+                HIS_ITEM_1,
+                W3_DRAFT,
+                'Pressing team: Score by getting the ball under control into the zone it is attacking: running it in, or passing to a teammate who receives it under control inside',
+                W2_DRAFT,
+                'Each score is worth 1 point',
+                "Each team attacks the zone at the other team's end. Decide which team starts at which end; the ends stay the same for the whole game",
+            ],
+            what,
+        )
     }
     assert.equal(JSON.stringify(wordingModule.approvedWording()), before, 'the production table is restored')
 })
