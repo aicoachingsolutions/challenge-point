@@ -325,10 +325,19 @@ test('A01 behind its record: two blocks built, each stopping in the same place, 
     assert.equal(a01.stage, 'communication')
     const fields: [string, string[]][] = [['18.a', ['type', 'referents', 'scope']], ['18.c', ['type', 'referents', 'value', 'scope']], ['18.f', ['type', 'referents', 'value', 'scope']], ['19.a', ['type', 'referents', 'value', 'scope']]]
     const ROW: Record<string, string> = { type: 'V4', referents: 'V5', value: 'V6', scope: 'V3' }
+    /**
+     * **Moved 17 October 2026 (stage M1): the roles' credit bounds join the same stop, in each block.** Row B8 (his reply filed 19
+     * October 2026, item 1 and item 3 C): the building role's BUILD_OUT_EPISODE waits on approved wording first, and fidelity notes
+     * both roles' bounds as uncarried - the building role's because it is withheld, the pressing role's WHOLE_GAME because no sentence
+     * cites it yet (design step L9, stage M3). Nothing else moves; the stage and the summary are unchanged.
+     */
+    const bound = (element: string) => `activityRoles[c:provisional:A01-R1:A01-R1-${element}].creditedWithin`
     assert.deepEqual(
         a01.reasons,
         ['BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END', 'BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START'].flatMap(block => [
+            `block ${block}: awaiting approved wording: ${bound('B1-1')} (B8)`,
             ...fields.flatMap(([id, held]) => held.map(field => `block ${block}: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-${id}].${field} (${ROW[field]})`)),
+            ...['B1-1', 'B1-2'].map(element => `block ${block}: fidelity Q3: ${bound(element)} is established by the game and no instruction carries it`),
             ...fields.flatMap(([id, held]) => held.filter(field => field !== 'scope').map(field => `block ${block}: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-${id}].${field} is established by the game and no instruction carries it`)),
         ]),
     )

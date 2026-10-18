@@ -89,8 +89,9 @@ test('the register carries the role-block capability as data (version 10), each 
     // the whole chain, so version 10's entry for role blocks is still there, word for word.
     // Re-pointed again 15 October 2026 (stage K5): version 12 (starts and restarts, his M3/M4) supersedes 11, and the chain
     // still holds version 10's entry word for word. And again (stage K6): version 13 (relative positions and start placements,
-    // his M7/M5) supersedes 12, the chain kept whole.
-    assert.match(String(register.version), /^13, adds positions stated relative .*Supersedes version 12, which adds starts and restarts .*Supersedes version 11, which adds participant reassignment .*Supersedes version 10, which adds role blocks for his M1/)
+    // his M7/M5) supersedes 12, the chain kept whole. And again 17 October 2026 (stage M1): version 14 (a role's credit confined to
+    // an episode, alsoCounts, the relative count; his reply filed 19 October 2026) supersedes 13, the chain kept whole.
+    assert.match(String(register.version), /^14, adds a role's scoring credit .*Supersedes version 13, which adds positions stated relative .*Supersedes version 12, which adds starts and restarts .*Supersedes version 11, which adds participant reassignment .*Supersedes version 10, which adds role blocks for his M1/)
     assert.ok(String(register.version).includes('Keep role assignments separate from fixed ends.'), 'the version entry quotes M1')
     assert.ok(String(register.version).includes('Supersedes version 9'), 'and keeps the history')
     assert.ok(index.rows.get('S2')!.selectorAttributes!.includes('targetOf'))
@@ -308,8 +309,12 @@ test('A01-R1\'s role lines carry its category on every support entry, in both bl
         assert.ok(transitions.length > 0, 'the transitions are lines it supports')
         assert.deepEqual(own.filter(entry => !String(entry.path).startsWith('transitions[')).map(entry => entry.path).sort(), [
             'activityRoles[c:provisional:A01-R1:A01-R1-B1-1].activityRole',
+            // 17 October 2026 (stage M1): the roles' credit bounds (row B8, his reply filed 19 October 2026, item 1 and item 3 C),
+            // lines A01-R1 supports with the same category.
+            'activityRoles[c:provisional:A01-R1:A01-R1-B1-1].creditedWithin',
             'activityRoles[c:provisional:A01-R1:A01-R1-B1-1].exchange',
             'activityRoles[c:provisional:A01-R1:A01-R1-B1-2].activityRole',
+            'activityRoles[c:provisional:A01-R1:A01-R1-B1-2].creditedWithin',
             'activityRoles[c:provisional:A01-R1:A01-R1-B1-2].exchange',
             // 15 October 2026 (stage K6): the two starting placements (his D4 and his 18 October item 3) and the pressure
             // reference's noun, position and width are lines A01-R1 supports too, with the same category.

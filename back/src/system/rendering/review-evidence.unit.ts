@@ -84,10 +84,17 @@ test('1. end to end on production data: only communication stops it, both blocks
     assert.deepEqual(fact(evidence.acceptance, 'outcome of the build'), 'communication')
     assert.deepEqual(fact(evidence.acceptance, 'blocks built through validation'), BLOCKS)
     assert.equal(fact(evidence.acceptance, 'every structural check passes (Gate A rerun per block, post-realization owed invariants, cross-block checks, composition)'), true)
-    assert.deepEqual(fact(evidence.acceptance, 'fidelity violations in the text that is said'), [])
+    // Moved 17 October 2026 (stage M1), [] -> the pressing role's credit bound, once per block: row B8 (his reply filed 19 October 2026,
+    // item 1 and item 3 C) gives the pressing role WHOLE_GAME explicitly (A01-R1-B8-2), which states no condition and so is not
+    // withheld, and no sentence cites it yet - a Q3 loss, not a wrong statement. The per-role scoring sentence that cites it is design
+    // step L9 (stage M3), which returns this fact to []. Nothing in the said text is unfaithful.
+    const pressingBound = 'fidelity Q3: activityRoles[c:provisional:A01-R1:A01-R1-B1-2].creditedWithin is established by the game and no instruction carries it'
+    assert.deepEqual(fact(evidence.acceptance, 'fidelity violations in the text that is said'), [pressingBound, pressingBound])
     // The 22 violations are all Q3 "established and no instruction carries it" on the withheld build-out conditions (communication.unit.ts 1).
-    assert.equal(fact(evidence.acceptance, 'fidelity violations about fields awaiting approved wording'), 22)
-    assert.equal(fact(evidence.acceptance, 'fields awaiting approved wording'), 30)
+    // Moved 17 October 2026 (stage M1), 22 -> 24 and 30 -> 32: the building role's credit bound, withheld in each block until approved
+    // words say it (communication.unit.ts 1; credit-episode.unit.ts).
+    assert.equal(fact(evidence.acceptance, 'fidelity violations about fields awaiting approved wording'), 24)
+    assert.equal(fact(evidence.acceptance, 'fields awaiting approved wording'), 32)
     assert.deepEqual(fact(evidence.acceptance, 'sentences'), { total: 24, approved: 0, draft: 24 })
     // Measured at this stage: 19 Gate A checks per block, all PASS; the 9 cross-block checks; 11 owed invariants per block.
     assert.deepEqual(evidence.structure.summary.gateChecks, { PASS: 38 })
@@ -426,7 +433,16 @@ test('9. the relationships he confirmed reach every element and sentence whose i
     assert.ok(scopes.every(e => e.row === 'V3' && e.sources.some(s => s.standing === 'GAP' && String(s.detail).startsWith('row V3:'))))
     assert.ok(!evidence.provenance.elements.some(e => e.standings.includes('GAP') && e.row === null))
     const r4 = evidence.items.find(i => i.id === 'R4')!
-    assert.equal(r4.awaiting.length, new Set(review.draft!.withheld.map(w => w.path)).size)
+    // Re-pointed 17 October 2026 (stage M1): the building role's credit bound (row B8, his reply filed 19 October 2026, item 1 and item
+    // 3 C) is withheld too, and it sits on the role element, so the item whose rows hold the roles (R7) is the one that awaits it
+    // until design step L7 (stage M3) shows it under item 4. R4 still awaits every withheld condition field, and between them the two
+    // items await every withheld field.
+    const withheldPaths = new Set(review.draft!.withheld.map(w => w.path))
+    const conditionPaths = [...withheldPaths].filter(p => p.startsWith('value.primaryEvent.conditions['))
+    assert.deepEqual([...r4.awaiting].sort(), conditionPaths.sort())
+    const r7 = evidence.items.find(i => i.id === 'R7')!
+    assert.deepEqual(r7.awaiting, ['activityRoles[c:provisional:A01-R1:A01-R1-B1-1].creditedWithin'])
+    assert.equal(r4.awaiting.length + r7.awaiting.length, withheldPaths.size)
 
     // His M8 safeguard, recorded on the item that types the exclusion's target, is read beside the conditions (scoring and the item 6
     // flag), whole from the knowledge: compared with the item's own note, never with a sentence written here.

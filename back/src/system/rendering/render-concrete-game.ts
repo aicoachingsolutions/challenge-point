@@ -500,7 +500,21 @@ function extentRange(entry: any): BoundedLine | null {
  * **The fields only approved wording may say**, by register row (V4-V6 for a primary-event condition, V16-V22
  * for an information rule). Paths and rows are the register's; nothing here names a sport.
  */
-const WORDED_ONLY: { base: string; elements: (game: any) => unknown; fields: { field: string; row: string }[] }[] = [
+const WORDED_ONLY: { base: string; elements: (game: any) => unknown; fields: { field: string; row: string; unlessEquals?: unknown }[] }[] = [
+    {
+        /**
+         * **A role's scoring credit confined to an episode** (row B8, register version 14) — stage M1, 17 October 2026. Christian,
+         * reply filed 19 October 2026, item 1: *"Please ensure the underlying scoring eligibility reflects this distinction, rather
+         * than relying solely on the coach-facing wording."*; his 14 October item 3: *"Enable accurate coach-facing communication of
+         * scoring conditions and information rules, using approved language."* A bound on when a team may score is a scoring
+         * condition, so it is said only by an approved entry covering it with its exact value, and withheld otherwise. A value equal
+         * to `unlessEquals` (the whole game) bounds nothing and states no condition, so it is not withheld here; it is carried, or
+         * reported uncarried, like any other field.
+         */
+        base: 'activityRoles',
+        elements: game => game.activityRoles,
+        fields: [{ field: 'creditedWithin', row: 'B8', unlessEquals: 'WHOLE_GAME' }],
+    },
     {
         base: 'value.primaryEvent.conditions',
         elements: game => game.value?.primaryEvent?.conditions,
@@ -615,7 +629,8 @@ function sayInApprovedWords(game: any, wording: ApprovedWording[], push: (instru
     for (const { base, elements, fields } of WORDED_ONLY) {
         for (const element of Array.isArray(elements(game)) ? (elements(game) as any[]) : []) {
             const pathOf = (field: string) => `${base}[${element?.elementId}].${field}`
-            const held = fields.filter(f => present(fieldOf(element, f.field)))
+            // A value equal to the field's `unlessEquals` (stage M1: a credit bound of the whole game) states no condition, so no entry is owed for it.
+            const held = fields.filter(f => present(fieldOf(element, f.field)) && !('unlessEquals' in f && JSON.stringify(fieldOf(element, f.field)) === JSON.stringify(f.unlessEquals)))
             /**
              * **A condition authored for less than every score is not said as if it governed every score** — 15
              * October 2026. Saying it in a sentence that does not carry its scope would state a wider rule than the one

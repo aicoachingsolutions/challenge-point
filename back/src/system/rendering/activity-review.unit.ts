@@ -364,7 +364,9 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
         // 34 -> 47 on 15 October 2026 (stage K6): his 18 October starting values and D3/D4/M5 relationships - the pressure reference,
         // the targets keyed by role, the starting placements with their timing, and the restart location's D3 bound - 13 items
         // (pinned in target-placement.unit.ts), each one of his provisional choices.
-        assert.equal(a01.account.authorizationLists!.provisionalChoices.filter(e => e.from === 'provisional realization').length, 47, 'the roles, the exchange, the counts, the keeper, the reassignments, the transitions and the starting placements')
+        // 47 -> 49 on 17 October 2026 (stage M1): his reply filed 19 October 2026, item 1 and item 3 C - the credit bound on the two
+        // roles, 2 items (pinned in credit-episode.unit.ts), each one of his provisional choices.
+        assert.equal(a01.account.authorizationLists!.provisionalChoices.filter(e => e.from === 'provisional realization').length, 49, 'the roles, the exchange, the counts, the keeper, the reassignments, the transitions, the starting placements and the credit bounds')
         // The allocation's authority reaches the technical account of the refusal too (stage K4), read from the record; since stage
         // K6 with the Performer Configuration relationship the starting placements cite.
         assert.deepEqual(a01.account.allocation!.relationships.map(r => r.id), ['RPC-001~EM-0006', 'RPC-001~EM-0002'])
@@ -428,8 +430,14 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
         const blocks = ['BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END', 'BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START']
         const fields: [string, string[]][] = [['18.a', ['type', 'referents', 'scope']], ['18.c', ['type', 'referents', 'value', 'scope']], ['18.f', ['type', 'referents', 'value', 'scope']], ['19.a', ['type', 'referents', 'value', 'scope']]]
         const ROW: Record<string, string> = { type: 'V4', referents: 'V5', value: 'V6', scope: 'V3' }
+        // 17 October 2026 (stage M1): and the roles' credit bounds (row B8, his reply filed 19 October 2026, item 1 and item 3 C). The
+        // withheld list gains the building role's bound, which only approved words may say, first in each block; fidelity notes both
+        // roles' bounds as uncarried (the pressing role's WHOLE_GAME is not withheld, and no sentence cites it until design step L9).
+        const bound = (element: string) => `activityRoles[c:provisional:A01-R1:A01-R1-${element}].creditedWithin`
         const WORDING_REASONS = blocks.flatMap(block => [
+            `block ${block}: awaiting approved wording: ${bound('B1-1')} (B8)`,
             ...fields.flatMap(([id, held]) => held.map(field => `block ${block}: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-${id}].${field} (${ROW[field]})`)),
+            ...['B1-1', 'B1-2'].map(element => `block ${block}: fidelity Q3: ${bound(element)} is established by the game and no instruction carries it`),
             ...fields.flatMap(([id, held]) => held.filter(field => field !== 'scope').map(field => `block ${block}: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-${id}].${field} is established by the game and no instruction carries it`)),
         ])
         for (const keepers of [2, 0]) {
@@ -1632,12 +1640,19 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
      * block is about the guard, which reads none of them.
      */
     const SPATIAL_ROWS = ['S2', 'S5', 'S6', 'P8', 'P10', 'P10a', 'P10b']
+    /**
+     * Re-pointed 17 October 2026 (stage M1): and the roles' credit bounds (row B8, his reply filed 19 October 2026, item 1 and item 3
+     * C). The building role's bound is the build-out episode, whose beginnings only the build-out conditions type; with them taken out
+     * GA-EPISODE-REACHABLE's fourth clause withholds on it (measured: refused at structure), as it does on the placements. The block is
+     * about the guard, which reads neither.
+     */
+    const CREDIT_ROWS = ['B8']
     const trimmed = (contracts: any[]) => {
         const rpc = contracts.find(contract => contract.objectId === 'RPC-001')
         assert.ok(rpc, 'A01 carries its context\'s contract into derivation')
         rpc.items = rpc.items.filter((item: any) => !PENDING.includes(item.itemId))
         const realization = contracts.find(contract => contract.contractId === 'provisional:A01-R1')
-        realization.items = realization.items.filter((item: any) => !SPATIAL_ROWS.includes(String(item.row)) && item.itemId !== 'A01-R1-T4-4')
+        realization.items = realization.items.filter((item: any) => !SPATIAL_ROWS.includes(String(item.row)) && !CREDIT_ROWS.includes(String(item.row)) && item.itemId !== 'A01-R1-T4-4')
     }
     const linesBack = (supplied: any) => {
         for (const replaced of supplied.replaced) supplied.choices.find((choice: any) => choice.lineId === replaced.lineId).value = replaced.replacedValue
@@ -1730,11 +1745,15 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
     // build-out episode's beginnings, which only those conditions type (without them GA-EPISODE-REACHABLE withholds, measured),
     // and this block is about the roster, which reads none of them.
     const SPATIAL_ROWS = ['S2', 'S5', 'S6', 'P8', 'P10', 'P10a', 'P10b']
+    // Re-pointed 17 October 2026 (stage M1): and the roles' credit bounds (row B8, his reply filed 19 October 2026, item 1 and item 3
+    // C). The building role's bound is the build-out episode, which only those conditions type (without them GA-EPISODE-REACHABLE's
+    // fourth clause withholds, measured: refused at structure); this block is about the roster, which reads none of it.
+    const CREDIT_ROWS = ['B8']
     const withoutConditions = (contracts: any[]) => {
         const rpc = contracts.find(contract => contract.contractId === 'restated:RPC-001')
         rpc.items = rpc.items.filter((item: any) => !CONDITIONS.includes(item.itemId))
         const realization = contracts.find(contract => contract.contractId === 'provisional:A01-R1')
-        realization.items = realization.items.filter((item: any) => !SPATIAL_ROWS.includes(String(item.row)) && item.itemId !== 'A01-R1-T4-4')
+        realization.items = realization.items.filter((item: any) => !SPATIAL_ROWS.includes(String(item.row)) && !CREDIT_ROWS.includes(String(item.row)) && item.itemId !== 'A01-R1-T4-4')
     }
     const placementsOut = (supplied: any) => {
         for (const replaced of supplied.replaced) supplied.choices.find((choice: any) => choice.lineId === replaced.lineId).value = replaced.replacedValue

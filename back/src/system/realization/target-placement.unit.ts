@@ -117,7 +117,8 @@ const OWN_TARGET = 'no start placement lies inside the target its own group atta
 
 // ── 1. The register ─────────────────────────────────────────────────────────────────────────────────────
 test('register version 13 carries the capabilities as data, quoting him, and a damaged copy halts H1', () => {
-    assert.ok(String(register.version).startsWith('13, adds positions stated relative to another element or to a team'))
+    // Re-pointed 17 October 2026 (stage M1): version 14 (his reply filed 19 October 2026) supersedes 13 and keeps its entry whole.
+    assert.ok(String(register.version).includes('Supersedes version 13, which adds positions stated relative to another element or to a team'))
     assert.ok(String(register.version).includes('Supersedes version 12'), 'the version history is kept')
     const s2 = register.rows.find((r: any) => r.id === 'S2')
     assert.ok(!s2.longitudinalValues.includes('end-near: touches the 0 end line and does not contain the midpoint'), 'the halfway wording is narrowed')
@@ -202,7 +203,11 @@ test('the starting placements are re-established at the start, after a score and
             assert.deepEqual(clause(check, RESETS), { clause: RESETS, verdict: 'PASS', basis: 'EVALUATED', instances: 2 }, block.blockId)
             const starters = ['A01-R1-T1-1', 'A01-R1-T1-2', 'A01-R1-T1-3'].map(id => `c:${R}:${id}`).join(', ')
             assert.ok(check.why.includes(`c:${R}:A01-R1-P8-1 at ${starters}`) && check.why.includes(`c:${R}:A01-R1-P8-2 at ${starters}`), check.why)
-            for (const never of ['A01-R1-T1-4', 'A01-R1-T1-5', 'A01-R1-T1-6', 'A01-R1-T1-7', 'GF2-07.a']) assert.ok(!check.why.split('re-established when an episode begins')[1].includes(never), `${never} re-establishes nothing`)
+            // Re-pointed 17 October 2026 (stage M1): the reason now continues with the credit clauses (GA-EPISODE-REACHABLE clauses 4
+            // and 5), which name every transition that ends or keeps the building role's credit; the placements' part is read up to them.
+            const resets = check.why.split('re-established when an episode begins')[1].split('; credit confined to an episode')[0]
+            assert.ok(check.why.includes('; credit confined to an episode'), 'the credit clauses say their part after it')
+            for (const never of ['A01-R1-T1-4', 'A01-R1-T1-5', 'A01-R1-T1-6', 'A01-R1-T1-7', 'GF2-07.a']) assert.ok(!resets.includes(never), `${never} re-establishes nothing`)
         }
     }
     // The clause bites: a copy whose placements name an episode no transition begins is refused at structure.
@@ -413,10 +418,16 @@ test('production A01 passes validation in both blocks (stage K7); what stops it 
     const blocksNamed = ['BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END', 'BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START']
     const fields: [string, string[]][] = [['18.a', ['type', 'referents', 'scope']], ['18.c', ['type', 'referents', 'value', 'scope']], ['18.f', ['type', 'referents', 'value', 'scope']], ['19.a', ['type', 'referents', 'value', 'scope']]]
     const ROW: Record<string, string> = { type: 'V4', referents: 'V5', value: 'V6', scope: 'V3' }
+    // Moved 17 October 2026 (stage M1): the roles' credit bounds join the same stop (row B8, his reply filed 19 October 2026, item 1
+    // and item 3 C) - the building role's withheld until approved words say it, both noted by fidelity as uncarried (the pressing
+    // role's WHOLE_GAME is cited by no sentence until design step L9). Nothing spatial moves.
+    const bound = (element: string) => `activityRoles[c:provisional:A01-R1:A01-R1-${element}].creditedWithin`
     assert.deepEqual(
         refused.reasons,
         blocksNamed.flatMap(block => [
+            `block ${block}: awaiting approved wording: ${bound('B1-1')} (B8)`,
             ...fields.flatMap(([id, held]) => held.map(field => `block ${block}: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-${id}].${field} (${ROW[field]})`)),
+            ...['B1-1', 'B1-2'].map(element => `block ${block}: fidelity Q3: ${bound(element)} is established by the game and no instruction carries it`),
             ...fields.flatMap(([id, held]) => held.filter(field => field !== 'scope').map(field => `block ${block}: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-${id}].${field} is established by the game and no instruction carries it`)),
         ]),
     )

@@ -217,6 +217,16 @@
  * diff of the fixture shows those four values and nothing else. The rendered instructions before and after (npm run
  * render:a04): identical apart from the two digests the run prints.
  *
+ * **Re-frozen 17 October 2026 (stage M1): `7d8b5ed7` → `8d27c78a`. The GAME did not move; the register version did.** Register
+ * version 14 — a role's scoring credit confined to an episode (row B8), occurrences that also count as the primary event (rows
+ * V27-V31, the closed list V29.trigger), NOT_LAST_TOUCH's relation to the last-touch qualifier and B7's relative count, for his
+ * reply filed 19 October 2026 (item 1: *"Please ensure the underlying scoring eligibility reflects this distinction, rather than
+ * relying solely on the coach-facing wording."*). The Golden Case holds no role element, no alsoCounts element and no reassignment,
+ * so GA-EPISODE-REACHABLE's two new clauses pass with no applicable instance and nothing reaches the fixture. So `inputDigest` /
+ * `fromDigest` (d258a5a1 → 195bfd0c), the audit digest (2ecc9210 → 9c82f9e7) and the `registerVersion` sentence moved, and `git
+ * diff` of the fixture shows those four values and nothing else. The rendered instructions before and after (npm run render:a04):
+ * identical apart from the two digests the run prints.
+ *
  * **Since stage K3 a fixture may be COMPOSED from two role blocks** (`build-activity.ts`, `role-blocks.ts`): block one's
  * fixture with a `roleBlocks` block carrying each block's own fixture whole. The Golden Case is a single game and is
  * frozen as one; the composed shape is guarded below by key identity, so a future frozen two-block fixture cannot lose a

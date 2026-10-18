@@ -91,8 +91,10 @@ test('one home: the file loads, A01-R1 is labelled his provisional choice, and o
     // ordinary restarts (24 items on rows T1-T7) — pinned in starts-and-restarts.unit.ts. 34 -> 47 on 15 October 2026 (stage K6):
     // his 18 October starting values and his D3/D4/M5 relationships - the pressure reference (S2, S5, S6), the two targets keyed by
     // role (S5 x3), the two starting placements (P8 x2, P10 x2) with their timing and episode (P10a, P10b), and the restart
-    // location's D3 bound (T4) - pinned in target-placement.unit.ts.
-    assert.deepEqual([realization.provisionalId, realization.contractId, realization.category, realization.realizes, realization.items.length, realization.declarations.length], ['A01-R1', 'provisional:A01-R1', PROVISIONAL_REALIZATION_CHOICE, 'RPC-001', 47, 0])
+    // location's D3 bound (T4) - pinned in target-placement.unit.ts. 47 -> 49 on 17 October 2026 (stage M1): his reply filed 19
+    // October 2026, item 1 and item 3 C, as the credit bound on the two roles (B8 x2: the building role's BUILD_OUT_EPISODE, the
+    // pressing role's WHOLE_GAME stated explicitly) - pinned in credit-episode.unit.ts.
+    assert.deepEqual([realization.provisionalId, realization.contractId, realization.category, realization.realizes, realization.items.length, realization.declarations.length], ['A01-R1', 'provisional:A01-R1', PROVISIONAL_REALIZATION_CHOICE, 'RPC-001', 49, 0])
     assert.equal(realization.realizationChoices, 'realization-choices-a01-r1.json')
     assert.ok(realization.words.includes('The priority remains producing one complete, representative Play Out from the Back activity through the normal generation pathway, without introducing unnecessary architecture or treating this first realization as the canonical version of the Learning Goal.'))
     const naming = learningGoalAuthorizations().filter(record => record.provisionalRealization).map(record => [record.learningGoalId, record.provisionalRealization])
@@ -216,6 +218,10 @@ test('the realization moves exactly what its items establish — the role lines 
         'c:provisional:A01-R1:A01-R1-B4-2::B6|derived|RESOLVED:ENTAILED||"P2"',
         'c:provisional:A01-R1:A01-R1-B4-1::B7|derived|RESOLVED:ENTAILED||1',
         'c:provisional:A01-R1:A01-R1-B4-2::B7|derived|RESOLVED:ENTAILED||1',
+        // 17 October 2026 (stage M1): the roles' credit bounds (row B8, register version 14), his reply filed 19 October 2026, item 1
+        // and item 3 C - the building role's confined to the build-out episode, the pressing role's stated as the whole game.
+        'c:provisional:A01-R1:A01-R1-B1-1::B8|derived|RESOLVED:ENTAILED||"BUILD_OUT_EPISODE"',
+        'c:provisional:A01-R1:A01-R1-B1-2::B8|derived|RESOLVED:ENTAILED||"WHOLE_GAME"',
     ])
     // Two checks move since stage K5, both by what the transitions establish: the build-out episode can begin (C58), and the
     // coach's restart locations are owed to realization. A third since stage K6 (15 October 2026): the positions stated relative

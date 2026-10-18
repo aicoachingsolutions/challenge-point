@@ -40,6 +40,12 @@ export interface RegisterRow {
     entailedBy?: EntailedBy
     outerBound?: string
     sourceKinds?: string[]
+    /**
+     * **On a COLLECTION row: its elements earn the value another row holds, and hold none of their own** — register version 14,
+     * 17 October 2026 (V27, an occurrence that also counts as the primary event and earns its value, V2). Refused at load (H1)
+     * where a FIELD row the collection owns sits at the same leaf as the named row, so no element can carry a value of its own.
+     */
+    earnsValueOf?: string
 }
 
 /**
@@ -126,6 +132,15 @@ export interface DesignationResolution {
     at: string | null
     basis: 'GLOSS' | 'OUR_INTERPRETATION'
     from: string
+    /**
+     * **How the team picked out at a transition relates to the team a qualifier of that transition names** — register version
+     * 14, 17 October 2026, for his reply filed 19 October 2026, item 1: *"Please ensure the underlying scoring eligibility
+     * reflects this distinction, rather than relying solely on the coach-facing wording."* `qualifier` is a designation-valued
+     * selector attribute of the transitions row; `relation` SAME or OTHER (OTHER determinate only with exactly two teams). It
+     * carries his words and where he said them, because a relation that decides a gate clause may not be a reading of ours (the
+     * `followsPossessionRelation` precedent). Read only by `designation.ts` `awardeeRelation`.
+     */
+    relativeTo?: { qualifier: string; relation: 'SAME' | 'OTHER'; words: string; citedAs: string }
 }
 
 /** The register's team designations as data: each entry's resolution, keyed by the entry's NAME (its gloss stripped). */
@@ -416,6 +431,20 @@ function indexDesignations(block: any, rows: Map<string, RegisterRow>): Designat
     for (const { row, attribute } of attributes) {
         if (!(rows.get(row)?.selectorAttributes ?? []).includes(attribute)) throw new HaltError('H1', `designation attribute ${attribute} is not a selector attribute of ${row}`)
     }
+    /**
+     * **A relation to a qualifier, validated as the rest is (register version 14, 17 October 2026).** The qualifier must be a
+     * designation-valued attribute the register lists, the relation one of the two, and the relation must quote him with where he
+     * said it: a relation that is our reading would let our reading decide a gate clause.
+     */
+    for (const [name, raw] of Object.entries(block.resolutions as Record<string, any>)) {
+        const relative = raw?.relativeTo
+        if (relative === undefined) continue
+        const qualifier = String(relative?.qualifier ?? '')
+        if (!attributes.some((entry: { row: string; attribute: string }) => entry.attribute === qualifier)) throw new HaltError('H1', `designation ${name}: relativeTo names ${qualifier}, which is not a designation-valued attribute`)
+        if (relative.relation !== 'SAME' && relative.relation !== 'OTHER') throw new HaltError('H1', `designation ${name}: relativeTo relation must be SAME or OTHER`)
+        if (typeof relative.words !== 'string' || !relative.words.trim() || typeof relative.citedAs !== 'string' || !relative.citedAs.trim()) throw new HaltError('H1', `designation ${name}: relativeTo must quote his words and say where (words, citedAs)`)
+        resolutions.get(name)!.relativeTo = { qualifier, relation: relative.relation, words: relative.words, citedAs: relative.citedAs }
+    }
     return { resolutions, kinds, scopes, standingScopes, teamsRow, attributes }
 }
 
@@ -465,6 +494,18 @@ export function indexRegister(register: any): RegisterIndex {
         const target = rows.get(owner)
         if (!target) throw new HaltError('H1', `ownerRow ${owner} of ${rowId} is not a row`)
         if (target.kind !== 'COLLECTION') throw new HaltError('H1', `ownerRow ${owner} of ${rowId} is not a COLLECTION`)
+    }
+
+    // Register version 14: a collection whose elements earn another row's value holds no value of its own (`earnsValueOf`).
+    const leafOf = (path: string) => String(path).split('.').pop() ?? ''
+    for (const row of rows.values()) {
+        if (row.earnsValueOf === undefined) continue
+        const earned = rows.get(String(row.earnsValueOf))
+        if (row.kind !== 'COLLECTION') throw new HaltError('H1', `earnsValueOf on ${row.id}, which is not a COLLECTION row`)
+        if (!earned || earned.kind !== 'FIELD') throw new HaltError('H1', `earnsValueOf on ${row.id} names ${row.earnsValueOf}, which is not a FIELD row`)
+        for (const [rowId, owner] of ownerRow) {
+            if (owner === row.id && leafOf(rows.get(rowId)!.path) === leafOf(earned.path)) throw new HaltError('H1', `${rowId} gives ${row.id} a value of its own, and its elements earn ${earned.id}'s (earnsValueOf)`)
+        }
     }
 
     // A declared domain must BE a collection the register knows, or membership of it can never be decided

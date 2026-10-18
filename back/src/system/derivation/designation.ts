@@ -153,6 +153,44 @@ export function holderInBlock(index: RegisterIndex, value: unknown, roleBlock: R
     return holder && resolutionOf(index, holder)?.kind === 'SETUP_ASSIGNMENT' ? designationKey(index, holder) : null
 }
 
+/**
+ * **Is a transition awarded to a role's holder, away from it, or can that not be said?** — 17 October 2026 (stage M1, register
+ * version 14). Christian, reply filed 19 October 2026, item 1: *"Please ensure the underlying scoring eligibility reflects this
+ * distinction, rather than relying solely on the coach-facing wording."* The adopted rule this answers under is AM-01 (*"Use the
+ * game's transitions/episode context to resolve contextual team designations."*), which his M2 of 17 October asked us to implement
+ * *"rather than introducing a narrower workaround solely for this activity."*
+ *
+ *   - `HOLDER` where the awardee and the holder are one designation (RC-22's comparison, `designationKey`);
+ *   - `OTHER` where they are two entries of the same block-held or setup kind, so they cannot be one team: the two setup
+ *     assignments by ruling C42 (*"distinct teams assigned to opposite ends at setup"*), and the two role holders by the register's
+ *     role block of exactly two roles, one per team (his D2 of 17 October: *"One team builds out while the other presses."*);
+ *   - through a qualifier where the register says so as data (`relativeTo` on the awardee's resolution, quoting him): the team the
+ *     transition's qualifier names is related to the holder first, then SAME keeps that answer and OTHER turns it — OTHER only where
+ *     the game holds exactly two teams (`teamCount`);
+ *   - `UNDETERMINED` for everything else: a trigger, possession, episode or outcome designation with no such relation, a qualifier
+ *     the transition does not carry, a count of teams other than two. Never a guess, and no designation is named here.
+ */
+export type AwardeeRelation = 'HOLDER' | 'OTHER' | 'UNDETERMINED'
+
+export function awardeeRelation(index: RegisterIndex, awardee: unknown, qualifiers: Record<string, unknown>, holder: unknown, teamCount: number | null): AwardeeRelation {
+    const direct = (value: unknown): AwardeeRelation => {
+        const a = resolutionOf(index, value)
+        const h = resolutionOf(index, holder)
+        if (!a || !h) return 'UNDETERMINED'
+        if (designationKey(index, value) === designationKey(index, holder)) return 'HOLDER'
+        const bijective = (kind: string) => kind === 'BLOCK_ROLE' || kind === 'SETUP_ASSIGNMENT'
+        return a.kind === h.kind && bijective(a.kind) ? 'OTHER' : 'UNDETERMINED'
+    }
+    const answer = direct(awardee)
+    if (answer !== 'UNDETERMINED') return answer
+    const relative = resolutionOf(index, awardee)?.relativeTo
+    if (!relative || !(relative.qualifier in qualifiers)) return 'UNDETERMINED'
+    const named = direct(qualifiers[relative.qualifier])
+    if (named === 'UNDETERMINED' || relative.relation === 'SAME') return named
+    if (teamCount !== 2) return 'UNDETERMINED'
+    return named === 'HOLDER' ? 'OTHER' : 'HOLDER'
+}
+
 /** Equal as designations (RC-22), or null where either value is no registered designation. */
 export function sameDesignation(index: RegisterIndex, a: unknown, b: unknown): boolean | null {
     if (!isRegisteredDesignation(index, a) || !isRegisteredDesignation(index, b)) return null

@@ -953,6 +953,16 @@
                         "statements": []
                     },
                     {
+                        "feature": "The building team scores only during a build-out episode; a regain does not restore it",
+                        "words": [
+                            {
+                                "words": "This is intentional. Although counterpressing, regaining possession, and exploiting attacking transitions are meaningful parts of the game, they are not the primary Learning Goal for this activity.",
+                                "citedAs": "his reply filed 19 October 2026, item 1"
+                            }
+                        ],
+                        "statements": []
+                    },
+                    {
                         "feature": "Build-out episodes restart with the building team",
                         "words": [
                             {

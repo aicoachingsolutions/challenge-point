@@ -170,6 +170,20 @@ entries, and a game value written "(= entry)" counts as that entry.
 > ordinary restart or a change of possession never re-establishes one. (7) The post-realization context substitutes realized
 > metres only on position rows. (8) A record-named realization listing the areas its metric values were given for
 > (`testingBoundaries.areas`) is built only for those areas; any other area is refused at `session` (DRAFT sentence).
+
+> **Engineering line, 17 October 2026 (stage M1) — ours, outside his adopted text.** Implemented for his reply filed 19 October
+> 2026, item 1 ("Please ensure the underlying scoring eligibility reflects this distinction, rather than relying solely on the
+> coach-facing wording.") and item 3 C. (1) Register version 14, row B8 (`activityRoles[].creditedWithin`): the scope within which a
+> role's holder earns the primary event's credit, WHOLE_GAME or an episode scope. (2) `designation.ts` `awardeeRelation` says whether
+> a transition is awarded to a role's holder (HOLDER), away from it (OTHER) or cannot be said (UNDETERMINED), reading only register
+> data: RC-22's comparison, the bijective role holders and setup assignments, and a resolution's `relativeTo` relation to a qualifier,
+> which must quote him (NOT_LAST_TOUCH: his 18 October item 2, "taken by the team that did not touch it last"); OTHER through a
+> qualifier only in a game holding exactly two teams, counted once per establishing item. AM-01 is the adopted rule this answers
+> under. (3) GA-EPISODE-REACHABLE's fourth clause: every transition the typed begin condition picks out for a bounded role's episode
+> is awarded to its holder; its fifth: every transition able to take possession from the holder begins an episode (a change of
+> possession T7 true, NOT_EVALUABLE where the game holds none; a stop-and-restart beginning none must be awarded to the holder).
+> Both appended after the existing three clauses, vacuous where no role is bounded, so the context-scoring guard still reads the
+> reach clause first. (4) A bound other than WHOLE_GAME is said to the coach only in approved words (`WORDED_ONLY`, `unlessEquals`).
 > (9) Added in the K6 review, 16 October 2026: GA-RELATIVE-PLACEMENT's third clause - no start placement's region shares a
 > stretch of the axis with the target its own group's team attacks (touching at one boundary is not sharing; deferred until both
 > are realized). The design asked for it and K6 had not built it: a pressing start around its own target, or a building start

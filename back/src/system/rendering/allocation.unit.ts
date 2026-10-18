@@ -67,7 +67,14 @@ const sessionOf = (players: number, keepers: number) => ({ players, lengthM: 40,
  * and are pinned in target-placement.unit.ts; the allocation reads none of them.
  */
 const SPATIAL_ROWS = ['S2', 'S5', 'S6', 'P8', 'P10', 'P10a', 'P10b']
-const allocationOnly = (realization: any) => void (realization.items = realization.items.filter((item: any) => !String(item.row).startsWith('T') && !SPATIAL_ROWS.includes(String(item.row))))
+/**
+ * Re-pointed again 17 October 2026 (stage M1): without the roles' credit bounds too (row B8, his reply filed 19 October 2026, item 1
+ * and item 3 C). The building role's bound is the build-out episode, whose beginnings only the context types, so with the possession
+ * game alone GA-EPISODE-REACHABLE's fourth clause withholds on it (measured: NOT_EVALUABLE, refused at structure) - which is right,
+ * and pinned in credit-episode.unit.ts; the allocation reads none of it.
+ */
+const CREDIT_ROWS = ['B8']
+const allocationOnly = (realization: any) => void (realization.items = realization.items.filter((item: any) => !String(item.row).startsWith('T') && !SPATIAL_ROWS.includes(String(item.row)) && !CREDIT_ROWS.includes(String(item.row))))
 const withRealization = (players: number, keepers: number, alter: (realization: any) => void = () => undefined) =>
     buildActivityFromKnowledge(['GF2'], sessionOf(players, keepers), {
         alter: contracts => {
