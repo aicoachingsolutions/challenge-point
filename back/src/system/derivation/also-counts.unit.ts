@@ -15,7 +15,7 @@
  * What is pinned here:
  *   1. his item 2 is four A01-R1 items for the pressing role only, in his words, our glosses labelled ours, nothing canonical written;
  *   2. key identity: each item reaches its line in both blocks, and the element crosses into both block fixtures and the composed one;
- *   3. on production A01 both blocks pass GA-ONE-PRIMARY-EVENT's seven added clauses (before realization and as rerun on the concrete
+ *   3. on production A01 both blocks pass GA-ONE-PRIMARY-EVENT's eight added clauses (before realization and as rerun on the concrete
  *      game), the occurrence inside the pressing team's own target in each block, and the activity is refused at communication naming
  *      exactly the element's four fields - never for an unnamed reason;
  *   4. on TEST-ONLY copies each clause refuses its own violation at structure, and the guard refuses an element not standing on his
@@ -67,8 +67,10 @@ const ADDED = [
     'at most one such occurrence for each team',
     'its trigger begins an episode, and none that a condition of the primary event is authored for',
     'no condition of the primary event is authored for every score beside it',
+    // Added in the stage M2 review, 17 October 2026: an occurrence for a team whose credit is confined to an episode (row B8) passed.
+    'its team holds no role whose scoring credit is confined to an episode its trigger does not begin',
 ]
-const [TEAM, TRIGGER, TARGET, CONTROL, ONE, EPISODE, WHOLE] = ADDED
+const [TEAM, TRIGGER, TARGET, CONTROL, ONE, EPISODE, WHOLE, CREDIT] = ADDED
 const R = (id: string) => `c:provisional:A01-R1:A01-R1-${id}`
 const ELEMENT = R('V27-1')
 const BLOCK_X = 'BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END'
@@ -188,25 +190,26 @@ test('key identity: each item reaches its line in both blocks, and the element c
 })
 
 // ── 3. Production A01 ───────────────────────────────────────────────────────────────────────────────────
-test('production A01: the seven added clauses pass in both blocks, each over the one occurrence, inside the pressing team\'s own target', () => {
+test('production A01: the eight added clauses pass in both blocks, each over the one occurrence, inside the pressing team\'s own target', () => {
     const targets: Record<string, [string, string, string]> = { [BLOCK_X]: ['TEAM_AT_AXIS_END', 'GF2-08.e', 'GF2-03.e'], [BLOCK_Y]: ['TEAM_AT_AXIS_START', 'GF2-08.c', 'GF2-03.f'] }
     for (const { block, staged } of a01Blocks()) {
         const check = checkOf(staged)
         assert.deepEqual(check.clauses.map((c: any) => c.clause), [...EXISTING, ...ADDED], 'appended after the four existing clauses')
-        assert.deepEqual(added(staged).map((c: any) => [c.verdict, c.basis, c.instances]), [...Array(6).fill(['PASS', 'EVALUATED', 1]), ['PASS', 'EVALUATED', 4]], block.blockId)
+        assert.deepEqual(added(staged).map((c: any) => [c.verdict, c.basis, c.instances]), [...Array(6).fill(['PASS', 'EVALUATED', 1]), ['PASS', 'EVALUATED', 4], ['PASS', 'EVALUATED', 1]], block.blockId)
         const [team, objective, target] = targets[block.blockId]
         assert.ok(
             check.why.endsWith(`; 1 occurrence(s) also count as the primary event: ${ELEMENT} for ROLE_HOLDER_PRESSING (${team}) at POSSESSION_CHANGE (c:restated:GF2:GF2-07.a), inside the target of c:restated:GF2:${objective}, c:restated:GF2:${target}`),
             check.why,
         )
     }
-    // As rerun on the concrete game (post-realization), in the administrator's review evidence: still PASS, eleven clauses, per block.
+    // As rerun on the concrete game (post-realization), in the administrator's review evidence: still PASS, twelve clauses, per block
+    // (eleven until the stage M2 review added the credit-bound clause, 17 October 2026).
     const review = buildActivityForReview({ kind: 'learning-goal', goalId: 'A01', session: sessionOf() }, { includeDrafts: true }) as RefusedActivity
     const blocks = review.evidence!.structure.blocks
     assert.deepEqual(blocks.map(b => b.blockId), [BLOCK_X, BLOCK_Y])
     for (const block of blocks) {
         const rows = Object.values(block.sections).flatMap(section => section.checks).filter(row => row.checkId === CHECK)
-        assert.deepEqual(rows.map(row => [row.verdict, (row as any).clauseCount]), [['PASS', 11]], block.blockId)
+        assert.deepEqual(rows.map(row => [row.verdict, (row as any).clauseCount]), [['PASS', 12]], block.blockId)
     }
 })
 
@@ -291,6 +294,29 @@ test('TEST-ONLY: control unstated is withheld, never passed, and refused at stru
     const alter = (contracts: LoadedContract[]) => void (provisional(contracts).items = provisional(contracts).items.filter(i => i.itemId !== 'A01-R1-V30-1'))
     for (const { block, staged } of a01Blocks(alter)) assert.equal(verdictOf(staged, CONTROL), 'NOT_EVALUABLE', block.blockId)
     refusedAtStructure(builtWith(alter), 'control unstated')
+})
+
+test('TEST-ONLY: an occurrence for a team whose credit is confined to an episode fails the credit-bound clause and is refused at structure', () => {
+    // Stage M2 review, 17 October 2026. His item 1: "If the building team loses possession, that scoring opportunity ends. If it
+    // subsequently regains possession, play may continue, but the original build-out scoring opportunity is not restored." and
+    // "Please ensure the underlying scoring eligibility reflects this distinction, rather than relying solely on the coach-facing
+    // wording." Measured before the clause: each copy below passed every structural check and was refused only at communication.
+    const toBuilding = withSelector('team=ROLE_HOLDER_BUILDING')
+    for (const { block, staged } of a01Blocks(toBuilding)) {
+        assert.equal(verdictOf(staged, CREDIT), 'FAIL', block.blockId)
+        assert.ok(checkOf(staged).why.includes('holds the role BUILDING, whose scoring credit is confined to BUILD_OUT_EPISODE, which its trigger does not begin'), checkOf(staged).why)
+    }
+    refusedAtStructure(builtWith(toBuilding), 'for the building role')
+    // A setup team fails exactly in the block where it holds the bounded role, and passes where it presses.
+    const atEnd = withSelector('team=TEAM_AT_AXIS_END')
+    assert.deepEqual(Object.fromEntries(a01Blocks(atEnd).map(({ block, staged }) => [block.blockId, verdictOf(staged, CREDIT)])), { [BLOCK_X]: 'PASS', [BLOCK_Y]: 'FAIL' })
+    refusedAtStructure(builtWith(atEnd), 'for a setup team, in the block where it builds')
+    // General, decided by the bound and not by a role's name: with the building role's bound stated as the whole game, the clause passes.
+    const unbounded = (contracts: LoadedContract[]) => {
+        toBuilding(contracts)
+        ;(itemOf(contracts, 'provisional:A01-R1', 'A01-R1-B8-1') as any).value = 'WHOLE_GAME'
+    }
+    for (const { block, staged } of a01Blocks(unbounded)) assert.equal(verdictOf(staged, CREDIT), 'PASS', block.blockId)
 })
 
 test('TEST-ONLY: two occurrences for one team fail the one-per-team clause in the block where they coincide', () => {
@@ -379,6 +405,7 @@ test('derived with no role block: the role holder names one team in every block,
         [ONE, 'DEFERRED_TO_REALIZATION'],
         [EPISODE, 'PASS'],
         [WHOLE, 'PASS'],
+        [CREDIT, 'DEFERRED_TO_REALIZATION'],
     ])
 })
 

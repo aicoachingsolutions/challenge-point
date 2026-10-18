@@ -2241,7 +2241,7 @@ function gaOnePrimaryEvent(ctx: GateContext): CheckOutcome {
  * special cases for this Learning Goal."* (Reading 'count as a score' as counting as the one primary event and earning its value
  * is OUR READING, SD-113; the clauses below are our engineering.)
  *
- * Only tightens: SD-06's "exactly one primary event" is clause 1 above and is unchanged. Seven clauses, each over every element:
+ * Only tightens: SD-06's "exactly one primary event" is clause 1 above and is unchanged. Eight clauses, each over every element:
  *
  *   - **team** — V28 names exactly one team of the game for the block (a setup assignment, or a role holder through the block);
  *     a designation of every team, or one decided by possession, an episode, a trigger or an outcome, FAILS;
@@ -2258,7 +2258,16 @@ function gaOnePrimaryEvent(ctx: GateContext): CheckOutcome {
  *     govern it (OUR INFERENCE from his item 1, *"If the building team loses possession, that scoring opportunity ends."*, and
  *     RPC-001-17.a; labelled so);
  *   - **no whole-game condition** — no condition of the primary event is authored for every score: one would govern this
- *     occurrence too, or not, and the representation does not say which, so the contradiction is refused rather than guessed.
+ *     occurrence too, or not, and the representation does not say which, so the contradiction is refused rather than guessed;
+ *   - **credit bound** (added in the stage M2 review, 17 October 2026) — the element's team, in the block, holds no role whose
+ *     scoring credit is confined to an episode (row B8 other than WHOLE_GAME) that its trigger does not begin. His item 1:
+ *     *"If the building team loses possession, that scoring opportunity ends. If it subsequently regains possession, play may
+ *     continue, but the original build-out scoring opportunity is not restored."* and *"Please ensure the underlying scoring
+ *     eligibility reflects this distinction, rather than relying solely on the coach-facing wording."* Measured before this
+ *     clause on TEST-ONLY copies: an element for the building role's holder, or for a setup team in the block where that team
+ *     builds, passed every structural check in both blocks and was refused only at communication (its wording) - a credit outside
+ *     the role's own episode that only the coach-facing wording held back. The bound is read as GA-EPISODE-REACHABLE's fourth
+ *     clause reads it: only silence is unbounded; a bound still open defers, one not established withholds.
  *
  * No clause is added where the game holds no element. Every name read is the register's (row ids, the closed list, the SCORE and
  * POSSESSION_CHANGE triggers already read in this file); no team, role, kind or sport term is named.
@@ -2276,6 +2285,7 @@ function alsoCountsClauses(ctx: GateContext, probe: Probe): { clauses: ClauseRes
     const ONE = 'at most one such occurrence for each team'
     const EPISODE = 'its trigger begins an episode, and none that a condition of the primary event is authored for'
     const WHOLE = 'no condition of the primary event is authored for every score beside it'
+    const CREDIT = 'its team holds no role whose scoring credit is confined to an episode its trigger does not begin'
     type Tally = { fail: boolean; blocked: boolean; open: boolean; instances: number }
     const tally = (): Tally => ({ fail: false, blocked: false, open: false, instances: 0 })
     const verdictOf = (t: Tally, clause: string, owes: string): ClauseResult => (t.fail ? fail(clause, t.instances) : t.blocked ? notEvaluable(clause) : t.open ? deferred(clause, owes) : pass(clause, t.instances))
@@ -2286,6 +2296,7 @@ function alsoCountsClauses(ctx: GateContext, probe: Probe): { clauses: ClauseRes
     const one = tally()
     const episode = tally()
     const whole = tally()
+    const credit = tally()
     const said: string[] = []
     const termsOf = (cls: ElementClass): Record<string, unknown> => Object.fromEntries((cls.constraints?.terms || []).filter(t => t.op === '=').map(t => [t.attribute, (t as { value: unknown }).value]))
     const transitionsOn = (value: string) => classesOn(ctx, 'T1').filter(transition => String(termsOf(transition).trigger) === value)
@@ -2303,6 +2314,28 @@ function alsoCountsClauses(ctx: GateContext, probe: Probe): { clauses: ClauseRes
             })
             .find(() => true)
     const teams = new Map<string, string[]>()
+    // Each role's credit bound (row B8), read as GA-EPISODE-REACHABLE's fourth clause reads it, with the team holding the role in
+    // this block (null where no block says it). Stage M2 review, 17 October 2026.
+    type Bound = { role: string; team: string | null; state: 'BOUNDED' | 'OPEN' | 'BLOCKED'; scope: string }
+    const bounds: Bound[] = []
+    const roleSpec = ctx.index.roleBlocks
+    for (const roleElement of roleSpec ? classesOn(ctx, roleSpec.rolesRow) : []) {
+        const lineId = lineOf(roleElement.classId, CREDIT_ROW)
+        const cell = probe.peek(lineId)
+        const silent = (cell.state === 'ABSENT' && cell.established) || (cell.state === 'FAILED' && ctx.classified.get(lineId)?.verdict === 'NOT_AUTHORED')
+        if (silent || (cell.state === 'DERIVED' && String(cell.value) === 'WHOLE_GAME')) continue
+        const term = (roleElement.constraints?.terms || []).find(t => t.attribute === roleSpec!.roleAttribute && t.op === '=')
+        const role = term && term.op === '=' ? String(term.value) : ''
+        const holder = roleHolderNames(ctx.index).find(name => roleOfHolder(ctx.index, name) === role)
+        const holderTeam = holder ? teamOf(ctx, holder) : null
+        if (cell.state === 'OPEN') {
+            probe.cell(lineId)
+            bounds.push({ role, team: holderTeam, state: 'OPEN', scope: '' })
+        } else if (cell.state !== 'DERIVED' || !holder) {
+            probe.cell(lineId)
+            bounds.push({ role, team: holderTeam, state: 'BLOCKED', scope: '' })
+        } else bounds.push({ role, team: holderTeam, state: 'BOUNDED', scope: String(cell.value) })
+    }
 
     for (const element of elements) {
         // Team: exactly one team for the block.
@@ -2420,6 +2453,34 @@ function alsoCountsClauses(ctx: GateContext, probe: Probe): { clauses: ClauseRes
                 triggerNotes.push(`${begun.map(starter => starter.classId).join(', ')} begins ${scope}, which a condition of the primary event is authored for`)
             }
         }
+
+        // Credit bound: the element's team holds no role whose credit is confined to an episode its trigger does not begin.
+        credit.instances++
+        if (teamState === 'OPEN') credit.open = true
+        else if (teamState !== 'ONE') credit.blocked = true
+        else
+            for (const bound of bounds) {
+                if (bound.team === null) {
+                    // A role's holder no block names: which team holds it is owed, as the team clause owes it.
+                    credit.open = true
+                    continue
+                }
+                if (bound.team !== resolvedTeam) continue
+                if (bound.state === 'OPEN') credit.open = true
+                else if (bound.state === 'BLOCKED') credit.blocked = true
+                else {
+                    const typed = typedFor(bound.scope)
+                    if (!typed) {
+                        credit.blocked = true
+                        continue
+                    }
+                    const begins = new Set(buildOutStarters(ctx, probe, typed).starters.map(starter => starter.classId))
+                    if (!keyed.length || keyed.some(transition => !begins.has(transition.classId))) {
+                        credit.fail = true
+                        triggerNotes.push(`${resolvedTeam} holds the role ${bound.role}, whose scoring credit is confined to ${bound.scope}, which its trigger does not begin`)
+                    }
+                }
+            }
         said.push(
             `${element.classId} for ${teamCell.state === 'DERIVED' ? String(teamCell.value) : 'no established team'}` +
                 (resolvedTeam ? ` (${resolvedTeam})` : '') +
@@ -2459,6 +2520,7 @@ function alsoCountsClauses(ctx: GateContext, probe: Probe): { clauses: ClauseRes
             verdictOf(one, ONE, 'the team each occurrence is for'),
             verdictOf(episode, EPISODE, 'the realized episode boundary of each transition keyed on the trigger'),
             verdictOf(whole, WHOLE, 'the scope of each condition of the primary event'),
+            verdictOf(credit, CREDIT, 'the team holding each role whose scoring credit is bounded, and each bound'),
         ],
         why: `; ${elements.length} occurrence(s) also count as the primary event: ${said.join('; ')}`,
     }
