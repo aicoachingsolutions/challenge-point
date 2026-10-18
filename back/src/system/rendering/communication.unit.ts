@@ -38,6 +38,7 @@ import { applyCoachCommunicationStandard, findCommunicationStandardViolations } 
 import { loadRegister } from '../derivation/corpus'
 import { indexRegister } from '../derivation/register'
 import { reviewActivity } from './activity-review'
+import * as wordingModule from './approved-wording'
 import { buildActivity, buildActivityForReview, buildActivityFromKnowledge, buildActivityWithFixture, RefusedActivity, ServedActivity } from './build-activity'
 import { buildPilotActivity } from './build-pilot-activity'
 import { checkFidelity, OBLIGATION_ALLOWLIST, OBLIGATIONS } from './fidelity'
@@ -61,20 +62,66 @@ const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: 
 const a01 = { kind: 'learning-goal' as const, goalId: 'A01', situationId: null, session }
 const index = indexRegister(loadRegister())
 
-// Built once and read by every test below: the admin review answer, the plain answer, and the fixture the build stopped with.
-const review = buildActivityForReview(a01, { includeDrafts: true }) as RefusedActivity
-const plain = buildActivity(a01) as RefusedActivity
+/**
+ * Built once and read by every test below: the admin review answer, the plain answer, and the fixture the build stopped with.
+ *
+ * Re-pointed 18 October 2026 (design step L14): production A01 is SERVED since his reply filed 20 October 2026 (item 1, "Pressing team's
+ * regain score — Approved as written.", entry A01-W2; item 2, his own eligibility sentence, entry A01-W3), so it carries no draft: a
+ * draft belongs to a refusal at communication only. The draft mechanism these tests pin (what the administrator sees, and only he, while
+ * a sentence awaits his approval) is therefore measured on the build that last stopped there: a TEST-ONLY table as it stood at stage M5 (A01-W1 alone, neither A01-W2 nor A01-W3), which
+ * is refused at communication for the regain score's four fields alone, exactly as production was at stage M5 (`review`, `plain`). The
+ * served production answer is `served`; every test that reads the coach's sentences reads it.
+ */
+const asAtStageM5 = <T>(body: () => T): T => {
+    const read = wordingModule.approvedWording
+    const production = read()
+    try {
+        ;(wordingModule as any).approvedWording = () => JSON.parse(JSON.stringify(production.filter(entry => entry.id === 'A01-W1')))
+        return body()
+    } finally {
+        ;(wordingModule as any).approvedWording = read
+    }
+}
+const served = buildActivityForReview(a01, { includeDrafts: true }) as ServedActivity
+const servedPlain = buildActivity(a01) as ServedActivity
+const review = asAtStageM5(() => buildActivityForReview(a01, { includeDrafts: true })) as RefusedActivity
+const plain = asAtStageM5(() => buildActivity(a01)) as RefusedActivity
 const { fixture: composedFixture } = buildActivityWithFixture(a01)
 const blockFixtures: any[] = ((composedFixture as any)?.roleBlocks?.blocks ?? []).map((block: any) => block.fixture)
 const BLOCKS = ['BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END', 'BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START']
 /** His reply filed 19 October 2026, item 1, verbatim ("Approved with revised wording"); production entry A01-W1 since stage M5. */
 const HIS_ITEM_1 =
     "Building team: Score by carrying the ball beyond the marked line or passing to a teammate who receives it under control beyond the line. The progression must begin with the goalkeeper's build-out and occur before the building team loses possession. Uncontrolled clearances do not score."
+/** His reply filed 20 October 2026, item 1 (our draft, "Approved as written."): production entry A01-W2 since design step L14. */
+const HIS_W2 = 'The pressing team also scores by winning the ball inside that zone, provided it genuinely establishes possession; a contested touch, deflection or loose ball does not count.'
+/** His reply filed 20 October 2026, item 2 (his own wording): production entry A01-W3 since design step L14. */
+const HIS_W3 = 'If the building team loses possession or plays the ball out, it cannot score again until the next goalkeeper restart.'
 
 /** The sentences of a rendering by section and block, so a pin reads like the activity. */
 const sentences = (instructions: Instruction[]) => instructions.map(i => `${i.section}${i.block ? ` [${BLOCKS.indexOf(i.block) + 1}]` : ''}: ${i.text}`)
 
-test('1. the review draft of A01: every sentence the game holds, each a DRAFT but his approved two, nothing withheld but the regain score (stage M5; was the build-out condition)', () => {
+test('1p. production A01 is SERVED (design step L14): every sentence the game holds, his four approved sentences APPROVED and every other DRAFT, nothing withheld, nothing unfaithful', () => {
+    // Added 18 October 2026 (design step L14). The served text is test 1's draft with his two new scoring statements in place - A01-W3
+    // straight after his build-out sentence, A01-W2 straight after the pressing team's sentence - and no other sentence changed.
+    assert.equal(served.outcome, 'served', JSON.stringify((served as unknown as RefusedActivity).reasons))
+    assert.deepEqual(served.rendered.withheld, [])
+    assert.equal(served.integrity.fidelityViolations, 0)
+    assert.ok(!('draft' in served), 'a served activity carries no draft')
+    const draftTexts = sentences(review.draft!.instructions)
+    const at = (text: string) => draftTexts.indexOf(text)
+    const expected = [...draftTexts]
+    expected.splice(at(`How to score: ${HIS_ITEM_1}`) + 1, 0, `How to score: ${HIS_W3}`)
+    expected.splice(expected.indexOf('How to score: Pressing team: Score by getting the ball under control into the zone it is attacking: running it in, or passing to a teammate who receives it under control inside') + 1, 0, `How to score: ${HIS_W2}`)
+    assert.deepEqual(sentences(served.rendered.instructions), expected)
+    assert.deepEqual(served.evidence!.sections.instructions.filter(i => i.wording === 'APPROVED').map(i => i.text), ['When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone', HIS_ITEM_1, HIS_W3, HIS_W2])
+    assert.equal(served.evidence!.sections.instructions.filter(i => i.wording === 'DRAFT').length, served.rendered.instructions.length - 4, 'every other sentence is DRAFT')
+})
+
+/*
+ * Re-pointed 18 October 2026 (design step L14): read on the TEST-ONLY table as it stood at stage M5 (above), the build that is refused at
+ * communication exactly as production was at stage M5; every assertion below is unchanged. Production is served (test 1p).
+ */
+test('1. the review draft of A01 (TEST-ONLY: the table as at stage M5): every sentence the game holds, each a DRAFT but his approved two, nothing withheld but the regain score (stage M5; was the build-out condition)', () => {
     assert.equal(review.stage, 'communication')
     assert.ok(review.draft, 'the administrator receives the draft')
     const draft = review.draft!
@@ -190,15 +237,30 @@ test('2. key identity: the draft reaches the administrator\'s review answer and 
     assert.ok(draft && evidence)
     assert.deepEqual(rest, plain)
     assert.ok(!('draft' in plain), 'buildActivity never carries it')
-    assert.deepEqual(buildActivityForReview(a01, { includeDrafts: false }), plain, 'the review build without drafts is buildActivity exactly')
+    // Re-pointed 18 October 2026 (design step L14): on the TEST-ONLY table as at stage M5, like `plain`; and on production, served.
+    assert.deepEqual(asAtStageM5(() => buildActivityForReview(a01, { includeDrafts: false })), plain, 'the review build without drafts is buildActivity exactly')
+    assert.deepEqual(buildActivityForReview(a01, { includeDrafts: false }), servedPlain, 'the review build without drafts is buildActivity exactly (served)')
     assert.deepEqual(Object.keys(draft!).sort(), ['fidelity', 'instructions', 'status', 'withheld'])
     assert.deepEqual(Object.keys(draft!.instructions[0]).filter(key => ['wording', 'provisionalSources'].includes(key)).sort(), ['provisionalSources', 'wording'])
     // The review route: the coach whose session it is receives no draft; an administrator does.
     const stored: any = { _id: 'TEST-ONLY', createdBy: 'TEST-ONLY', playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: { ...none, [ROLE]: 1 } }
-    const coach = reviewActivity(stored, { learningGoalId: 'A01', durationMin: 20 }) as RefusedActivity
+    // Re-pointed 18 October 2026 (design step L14): measured on the TEST-ONLY table as at stage M5, the refusal at communication a draft
+    // belongs to (production is served: below).
+    const coach = asAtStageM5(() => reviewActivity(stored, { learningGoalId: 'A01', durationMin: 20 })) as RefusedActivity
     assert.ok(!('draft' in coach))
-    const admin = reviewActivity(stored, { learningGoalId: 'A01', durationMin: 20 }, { includeDrafts: true }) as RefusedActivity
+    const admin = asAtStageM5(() => reviewActivity(stored, { learningGoalId: 'A01', durationMin: 20 }, { includeDrafts: true })) as RefusedActivity
     assert.deepEqual(admin.draft, review.draft)
+    // Production (design step L14): the coach and the administrator are both served the same activity, neither with a draft; the
+    // administrator's answer carries the review evidence beside it, and nothing else differs.
+    const coachServed = reviewActivity(stored, { learningGoalId: 'A01', durationMin: 20 }) as ServedActivity
+    const adminServed = reviewActivity(stored, { learningGoalId: 'A01', durationMin: 20 }, { includeDrafts: true }) as ServedActivity
+    assert.deepEqual([coachServed.outcome, adminServed.outcome], ['served', 'served'])
+    assert.ok(!('draft' in coachServed) && !('draft' in adminServed))
+    assert.ok(!('evidence' in coachServed) && !!adminServed.evidence, 'the evidence is the administrator\'s')
+    const { evidence: servedEvidence, ...servedRest } = served
+    assert.ok(servedEvidence)
+    assert.deepEqual(servedRest, servedPlain, 'the served review answer is the coach\'s answer plus the evidence')
+    assert.deepEqual(adminServed.rendered, coachServed.rendered)
     // A served activity never carries a draft, even when asked: a draft belongs to a refusal at communication only.
     for (const demonstration of MECHANISM_DEMONSTRATIONS) {
         const asked = buildActivityForReview({ kind: 'mechanism-demonstration', demonstrationId: demonstration.id, session: { ...session, roles: none } }, { includeDrafts: true })
@@ -247,8 +309,12 @@ test('3. the prescription rule (Q4): his adversarial lines are refused with plau
     // must begin with the goalkeeper's build-out ..."), and it is the one sentence with an obligation word. His approval exempts it from
     // the lexicon, never from the role rule (test 3b), and Q4 above finds nothing in it. Every DRAFT sentence still has none.
     // Was: no obligation word in any A01 sentence.
+    // Re-pointed 18 October 2026 (design step L14): and his eligibility sentence (A01-W3, his reply filed 20 October 2026, item 2) says
+    // "cannot" ("... it cannot score again until the next goalkeeper restart"); approved, so exempt from the lexicon, and it passes the
+    // role rule only because it covers the origin condition that names the goalkeeper (approved-wording.unit.ts measures it without).
+    // Was: [HIS_ITEM_1].
     const withObligation = rendered.instructions.filter(i => OBLIGATIONS.some(word => word.test(i.text)))
-    assert.deepEqual(withObligation.map(i => i.text), [HIS_ITEM_1], 'no obligation word in any A01 DRAFT sentence')
+    assert.deepEqual(withObligation.map(i => i.text), [HIS_ITEM_1, HIS_W3], 'no obligation word in any A01 DRAFT sentence')
 })
 
 test('3b. the one template whose obligation word is its element\'s own value passes, and only as that template; approval exempts from the lexicon, never from the role rule', () => {
@@ -453,7 +519,8 @@ test('4. a restart discharges its episode boundary only with its awardee', () =>
 })
 
 test('5. the exchange: ends fixed AND the markings set out again for the new roles; separately, who changes team; Q6 needs both halves', () => {
-    const exchange = review.draft!.instructions.filter(i => i.section === ROLE_EXCHANGE)
+    // Re-pointed 18 October 2026 (design step L14): read from the served activity (was the review draft, which production no longer has).
+    const exchange = served.rendered.instructions.filter(i => i.section === ROLE_EXCHANGE)
     assert.equal(exchange.length, 3)
     const keyed = roleKeyedPositions(blockFixtures[0])
     assert.deepEqual(keyed, ['space.regions[c:provisional:A01-R1:A01-R1-S2-1].position.along', 'space.regions[c:restated:GF2:GF2-03.e].position.along', 'space.regions[c:restated:GF2:GF2-03.f].position.along'])
@@ -480,7 +547,9 @@ test('5. the exchange: ends fixed AND the markings set out again for the new rol
 })
 
 test('6. no noun the game does not hold, no challenge level, no bare decision imperative; the Communication Standard leaves each draft as it is', () => {
-    const texts = review.draft!.instructions.map(i => i.text)
+    // Re-pointed 18 October 2026 (design step L14): read from the served activity, his two new scoring statements among its sentences
+    // (was the review draft, which production no longer has).
+    const texts = served.rendered.instructions.map(i => i.text)
     for (const forbidden of ['halfway', 'own end', 'near its own goal', 'in goal', 'from the back', 'defending team', 'attacking team', 'pressure line', 'post-regain zone']) {
         assert.ok(!texts.some(t => t.toLowerCase().includes(forbidden)), forbidden)
     }
@@ -488,8 +557,8 @@ test('6. no noun the game does not hold, no challenge level, no bare decision im
     assert.ok(!texts.some(t => /^(Choose|Decide) (when|where|whether)\b/.test(t)))
     // Re-pointed 18 October 2026 (stage M5, design step L13): his approved sentence (A01-W1) is said exactly as he wrote it, its own
     // full stops included, so the standard leaves it byte for byte as it is; it still finds nothing in it. Every DRAFT is as before.
-    const approved = new Set(review.draft!.instructions.filter(i => i.wording === 'APPROVED').map(i => i.text))
-    assert.ok(approved.has(HIS_ITEM_1))
+    const approved = new Set(served.evidence!.sections.instructions.filter(i => i.wording === 'APPROVED').map(i => i.text))
+    assert.ok(approved.has(HIS_ITEM_1) && approved.has(HIS_W2) && approved.has(HIS_W3))
     for (const text of texts) {
         assert.deepEqual(findCommunicationStandardViolations(text), [], text)
         // The standard ends a sentence with a full stop, which the renderer leaves to the page: nothing else changes.

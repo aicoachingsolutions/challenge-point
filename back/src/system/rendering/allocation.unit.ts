@@ -508,10 +508,11 @@ test('the adjustments are said only under "Adjusting the activity", in his words
 // 15 October 2026 (stage K7): validation -> communication. The context-scoring guard confirms an episode-scoped condition where the
 // concrete game begins that episode (context-scoring-guard.ts `episodeConfirmed`), so A01 now stops only on the build-out condition's
 // wording, which awaits his approval (pinned in activity-review.unit.ts).
-test('production A01: past its record (every entry carried), with the allocation authority and both relationships in the account', () => {
-    const activity = refused(buildActivity({ kind: 'learning-goal', goalId: 'A01', session: sessionOf(12, 1) }), 'production A01')
-    assert.equal(activity.stage, 'communication')
-    assert.ok(!activity.reasons.some(r => r.includes('authorization record')), 'no record entry stops it')
+// 18 October 2026 (design step L14): communication -> SERVED. His reply filed 20 October 2026 approved the regain sentence (item 1,
+// entry A01-W2) and gave his own eligibility sentence (item 2, entry A01-W3), so nothing stops it; the account below is the served one.
+test('production A01: past its record (every entry carried) and served, with the allocation authority and both relationships in the account', () => {
+    const activity = served(buildActivity({ kind: 'learning-goal', goalId: 'A01', session: sessionOf(12, 1) }), 'production A01')
+    assert.deepEqual(activity.rendered.withheld, [], 'no record entry, and nothing else, stops it')
     const allocation = activity.account.allocation!
     assert.equal(allocation.principle.principle, allocationPrinciple().principle)
     // Since stage K6 the Performer Configuration relationship he confirmed is cited too, by the starting placements.

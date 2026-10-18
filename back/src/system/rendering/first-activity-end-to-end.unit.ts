@@ -1,27 +1,33 @@
 /**
- * **Stage M5, 18 October 2026 — the first complete activity end to end, with his first approved entry (design step L13).**
+ * **Stage M5, 18 October 2026 — the first complete activity end to end, with his first approved entry (design step L13); SERVED since
+ * design step L14 (18 October 2026), on his two scoring statements.**
  *
  * Christian, reply filed 19 October 2026, item 6: *"With the above decisions, please proceed with the review-page activity, provided its
  * actual scoring eligibility matches the approved distinction between an active build-out and subsequent possession regains."*; item 1:
- * *"Approved with revised wording"* (his sentence, now entry A01-W1 in approved-coach-wording.json).
+ * *"Approved with revised wording"* (his sentence, entry A01-W1 in approved-coach-wording.json). His reply filed 20 October 2026, item 1:
+ * *"Pressing team's regain score — Approved as written."* (entry A01-W2); item 2: *"Building team's scoring eligibility — Include, with
+ * simplified wording."* (entry A01-W3, his own sentence); *"With those two decisions, please proceed with making the complete activity
+ * available on the review page."* and *"I understand that the remaining coach-facing sentences are still drafts, so this approval
+ * applies specifically to the two scoring statements, not yet to the entire activity."*
  *
  * What is pinned, on the PRODUCTION chain (Play Out from the Back through the checked review pathway, 40 x 30 m, 20 minutes) at 12
  * players with 1 and with 2 goalkeepers and at 11 players with 1:
  *
- *   1. every structural check passes in both blocks (Gate A rerun per block, the owed post-realization invariants, the cross-block
- *      checks, the composition), nothing in the text that is said is unfaithful, his sentence is said once and APPROVED, and the
- *      activity is refused ONLY at communication, for exactly the four fields of the pressing team's regain score in each block (rows
- *      V28-V31) - the scoring rule the sentence put to him on 19 October (A01-W2) is for. Nothing his A01-W1 sentence says is among the
- *      reasons;
- *   2. on a DEEP COPY of the approved table with TEST-ONLY approvals of both sentences put to him (A01-W2, the regain score; A01-W3,
- *      non-restoration), the same build is SERVED with no fidelity violation, nothing withheld and all three sentences said once;
- *   3. MEASURED and pinned so a change to it is visible: with the TEST-ONLY regain approval alone (no A01-W3) it is served too. No
- *      mechanism requires the non-restoration sentence; whether it is needed is his answer to the 19 October email ("If you feel your own
- *      sentence already says this, tell us and we will leave this one out.");
- *   4. the production table is never touched: the copies are discarded with the call.
+ *   1. SERVED (re-pointed 18 October 2026, design step L14; until then refused only at communication, for exactly the four fields of
+ *      the pressing team's regain score in each block, rows V28-V31, awaiting A01-W2): every structural check passes in both blocks
+ *      (Gate A rerun per block, the owed post-realization invariants, the cross-block checks, the composition), nothing in the text that
+ *      is said is unfaithful, nothing is withheld, and each of his three scoring sentences is said once, APPROVED;
+ *   2. How to score reads in the order the design's coach text and our email of 19 October 2026 showed him (A01-W1, A01-W3, the
+ *      pressing team's sentence, A01-W2, the value, the ends), and the sentences marked APPROVED are exactly his: the three scoring
+ *      sentences and his possession sentence; every other sentence is DRAFT (the touchline sentence is DRAFT, its noun "throw-in" his
+ *      approved word, carried as APPROVED sport coach vocabulary);
+ *   3. MEASURED and pinned so a change to it is visible: no mechanism requires A01-W3 (every field it says is said by A01-W1 too), so a
+ *      TEST-ONLY table without it still serves - which is why test 2 pins that production says it once;
+ *   4. the production table holds his three entries, in that order, and no TEST-ONLY entry;
+ *   5. 10 and 13 players are still refused, at the session, with their sentences.
  *
- * The TEST-ONLY approvals stand in for the table the renderer, fidelity and the review evidence all read (approvedWording), restored in a
- * finally; the sentences are our drafts put to him, never his words, and approvedBy says TEST-ONLY.
+ * The TEST-ONLY table in test 3 stands in for the one the renderer, fidelity and the review evidence all read (approvedWording),
+ * restored in a finally.
  *
  * Run: npm test
  */
@@ -29,7 +35,7 @@ import assert from 'node:assert/strict'
 
 import * as wordingModule from './approved-wording'
 import { ApprovedWording } from './approved-wording'
-import { buildActivityForReview, RefusedActivity, ServedActivity } from './build-activity'
+import { buildActivityForReview, buildActivityWithFixture, RefusedActivity, ServedActivity } from './build-activity'
 import { specializedRoleNames } from './session-envelope'
 
 let passed = 0
@@ -38,7 +44,7 @@ function test(name: string, body: () => void): void {
     passed++
     console.log(`  ok  ${name}`)
 }
-console.log('the first complete activity end to end, with his first approved entry (stage M5)')
+console.log('the first complete activity end to end, served on his approved scoring statements (stages M5, L14)')
 
 const ROLE = specializedRoleNames()[0]
 const none = Object.fromEntries(specializedRoleNames().map(role => [role, 0]))
@@ -54,40 +60,23 @@ const fact = (facts: { what: string; value: unknown }[], what: string): any => {
 /** His reply filed 19 October 2026, item 1, verbatim: production entry A01-W1. */
 const HIS_ITEM_1 =
     "Building team: Score by carrying the ball beyond the marked line or passing to a teammate who receives it under control beyond the line. The progression must begin with the goalkeeper's build-out and occur before the building team loses possession. Uncontrolled clearances do not score."
-/** The two DRAFT sentences put to him on 19 October 2026 (our words, awaiting his yes). */
-const W2_DRAFT = 'The pressing team also scores by winning the ball inside that zone, provided it genuinely establishes possession; a contested touch, deflection or loose ball does not count.'
-const W3_DRAFT = 'Once the building team loses the ball, or plays it out of the area, its chance to score from that build-out is over, even if it wins the ball back later; its next chance starts with the next goalkeeper restart.'
+/** His reply filed 20 October 2026, item 1, verbatim (our draft, approved as written): production entry A01-W2. */
+const HIS_W2 = 'The pressing team also scores by winning the ball inside that zone, provided it genuinely establishes possession; a contested touch, deflection or loose ball does not count.'
+/** His reply filed 20 October 2026, item 2, verbatim (his own wording): production entry A01-W3. */
+const HIS_W3 = 'If the building team loses possession or plays the ball out, it cannot score again until the next goalkeeper restart.'
+/** His reply filed 19 October 2026, item 4 (approved template sentence), as an instruction says it (no final full stop). */
+const HIS_POSSESSION = 'When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone'
+/** The draft our 19 October email put to him as sentence 2; his item 2 replaced it, so it is never said. */
+const OUR_W3_DRAFT = 'Once the building team loses the ball, or plays it out of the area, its chance to score from that build-out is over, even if it wins the ball back later; its next chance starts with the next goalkeeper restart.'
 const ALSO = 'value.primaryEvent.alsoCounts[c:provisional:A01-R1:A01-R1-V27-1]'
 const ALSO_ROWS: [string, string][] = [['team', 'V28'], ['trigger', 'V29'], ['control', 'V30'], ['exclusion', 'V31']]
 
-const TEST_ONLY = { who: 'TEST-ONLY', date: '2026-10-19', quote: 'TEST-ONLY: a stand-in for his yes, not his words', ccs: 'TEST-ONLY' }
-const regainElement = { base: 'value.primaryEvent.alsoCounts', field: 'team', equals: 'ROLE_HOLDER_PRESSING' }
-/** TEST-ONLY A01-W2: the regain score's four fields on the pressing team's element (design step L14). */
-const W2: ApprovedWording = {
-    id: 'TEST-ONLY-A01-W2',
-    covers: [
-        { row: 'V28', match: { equals: 'ROLE_HOLDER_PRESSING' }, element: regainElement },
-        { row: 'V29', match: { equals: 'POSSESSION_CHANGE' }, element: regainElement },
-        { row: 'V30', match: { equals: 'genuinely establishes possession' }, element: regainElement },
-        { row: 'V31', match: { equals: 'a contested touch, deflection, or loose ball' }, element: regainElement },
-    ],
-    sentence: W2_DRAFT,
-    section: 'How to score',
-    approvedBy: TEST_ONLY,
-}
-/** TEST-ONLY A01-W3: the building role's bound and the origin condition (design step L14), its covers copied from A01-W1's. */
-const W3 = (production: ApprovedWording[]): ApprovedWording => {
-    const w1 = production.find(entry => entry.id === 'A01-W1')!
-    const covers = w1.covers.filter(cover => cover.row === 'B8' || cover.element?.equals === 'origin')
-    return { id: 'TEST-ONLY-A01-W3', covers: JSON.parse(JSON.stringify(covers)), sentence: W3_DRAFT, section: 'How to score', approvedBy: TEST_ONLY }
-}
-
-/** Builds under a DEEP COPY of the approved table with `extra` added; the shared table is restored whatever happens. */
-function underApprovals<T>(extra: (production: ApprovedWording[]) => ApprovedWording[], body: () => T): T {
+/** Builds under a DEEP COPY of the approved table filtered by `keep`; the shared table is restored whatever happens. */
+function underTable<T>(keep: (entry: ApprovedWording) => boolean, body: () => T): T {
     const read = wordingModule.approvedWording
     const production = read()
     try {
-        ;(wordingModule as any).approvedWording = () => JSON.parse(JSON.stringify([...production, ...extra(production)]))
+        ;(wordingModule as any).approvedWording = () => JSON.parse(JSON.stringify(production.filter(keep)))
         return body()
     } finally {
         ;(wordingModule as any).approvedWording = read
@@ -96,14 +85,16 @@ function underApprovals<T>(extra: (production: ApprovedWording[]) => ApprovedWor
 
 const before = JSON.stringify(wordingModule.approvedWording())
 
-test('1. production: every structural check passes in both blocks, his sentence is said once, and only the regain score is refused, at communication', () => {
+test('1. production: SERVED at 12 players (1 and 2 goalkeepers) and 11 - every structural check passes in both blocks, nothing unfaithful, nothing withheld', () => {
     for (const [players, keepers] of SESSIONS) {
         const what = `${players} players, ${keepers} ${ROLE}`
-        const review = buildActivityForReview(requestAt(players, keepers), { includeDrafts: true }) as RefusedActivity
-        assert.equal(review.outcome, 'refused', what)
-        assert.equal(review.stage, 'communication', `${what}: ${JSON.stringify(review.reasons)}`)
-        assert.equal(review.summary, 'Part of this activity is still waiting for approved coach wording, so it is not being shown.')
-        const evidence = review.evidence!
+        const served = buildActivityForReview(requestAt(players, keepers), { includeDrafts: true }) as ServedActivity
+        assert.equal(served.outcome, 'served', `${what}: ${JSON.stringify((served as unknown as RefusedActivity).reasons)}`)
+        assert.equal(served.integrity.fidelityViolations, 0, what)
+        assert.deepEqual(served.rendered.withheld, [], what)
+        assert.deepEqual(served.roleBlocks!.checks.map(check => check.verdict), served.roleBlocks!.checks.map(() => 'PASS'), what)
+        const evidence = served.evidence!
+        assert.equal(fact(evidence.acceptance, 'outcome of the build'), 'served', what)
         assert.deepEqual(fact(evidence.acceptance, 'blocks built through validation'), BLOCKS, what)
         assert.equal(fact(evidence.acceptance, 'every structural check passes (Gate A rerun per block, post-realization owed invariants, cross-block checks, composition)'), true, what)
         assert.deepEqual(evidence.structure.summary.gateChecks, { PASS: 38 }, what)
@@ -111,93 +102,101 @@ test('1. production: every structural check passes in both blocks, his sentence 
         assert.deepEqual(evidence.structure.summary.owed, { PASS: 22 }, what)
         assert.equal(evidence.structure.composition.length, 0, what)
         assert.deepEqual(fact(evidence.acceptance, 'fidelity violations in the text that is said'), [], what)
-        // Refused only for the regain score's four fields per block: withheld, and noted by fidelity as uncarried. Nothing else.
-        assert.deepEqual(
-            review.reasons,
-            BLOCKS.flatMap(block => [
-                ...ALSO_ROWS.map(([field, row]) => `block ${block}: awaiting approved wording: ${ALSO}.${field} (${row})`),
-                ...ALSO_ROWS.map(([field]) => `block ${block}: fidelity Q3: ${ALSO}.${field} is established by the game and no instruction carries it`),
-            ]),
-            what,
-        )
-        assert.deepEqual(review.draft!.withheld.map(w => w.row), ['V28', 'V29', 'V30', 'V31', 'V28', 'V29', 'V30', 'V31'], what)
-        assert.ok(!review.reasons.some(reason => reason.includes('creditedWithin') || reason.includes('primaryEvent.conditions[')), `${what}: nothing his sentence says`)
-        // His sentence: said once in the composed activity, APPROVED, under How to score.
-        const his = evidence.sections.instructions.filter(i => i.text === HIS_ITEM_1)
-        assert.deepEqual(his.map(i => [i.section, i.wording]), [['How to score', 'APPROVED']], what)
-        // Review of stage M5 (18 October 2026): and it opens How to score (role order, render-concrete-game.ts scoringInRoleOrder).
-        assert.equal(evidence.sections.instructions.find(i => i.section === 'How to score')!.text, HIS_ITEM_1, what)
-        assert.ok(!evidence.sections.instructions.some(i => i.text === W2_DRAFT || i.text === W3_DRAFT), `${what}: neither sentence put to him is said`)
-        assert.ok(!JSON.stringify(review).includes('TEST-ONLY'), `${what}: production data only`)
+        assert.equal(fact(evidence.acceptance, 'fields awaiting approved wording'), 0, what)
+        assert.equal(fact(evidence.acceptance, 'fidelity violations about fields awaiting approved wording'), 0, what)
+        // Each of his three scoring sentences: said once, under How to score, APPROVED.
+        for (const sentence of [HIS_ITEM_1, HIS_W2, HIS_W3]) {
+            assert.deepEqual(served.rendered.instructions.filter(i => i.text === sentence).map(i => i.section), ['How to score'], `${what}: said once`)
+            assert.deepEqual(evidence.sections.instructions.filter(i => i.text === sentence).map(i => i.wording), ['APPROVED'], `${what}: approved`)
+        }
+        // The regain sentence cites the four fields it says, and nothing it does not.
+        assert.deepEqual(served.rendered.instructions.find(i => i.text === HIS_W2)!.from, ALSO_ROWS.map(([field]) => `${ALSO}.${field}`), what)
+        assert.ok(!served.rendered.instructions.some(i => i.text === OUR_W3_DRAFT), `${what}: our draft, which his wording replaced, is not said`)
+        assert.ok(!JSON.stringify(served).includes('TEST-ONLY'), `${what}: production data only`)
     }
 })
 
-test('2. TEST-ONLY approvals of both sentences put to him (A01-W2, A01-W3) on a deep copy: SERVED, no fidelity violation, nothing withheld', () => {
+test('2. How to score in the order shown to him, and APPROVED exactly for his sentences: the three scoring statements and his possession sentence', () => {
     for (const [players, keepers] of SESSIONS) {
         const what = `${players} players, ${keepers} ${ROLE}`
-        const served = underApprovals(
-            production => [W2, W3(production)],
-            () => buildActivityForReview(requestAt(players, keepers), { includeDrafts: true }),
-        ) as ServedActivity
-        assert.equal(served.outcome, 'served', `${what}: ${JSON.stringify((served as unknown as RefusedActivity).reasons)}`)
-        assert.equal(served.integrity.fidelityViolations, 0, what)
-        assert.deepEqual(served.rendered.withheld, [], what)
-        assert.deepEqual(served.roleBlocks!.checks.map(check => check.verdict), served.roleBlocks!.checks.map(() => 'PASS'), what)
-        const evidence = served.evidence!
-        assert.equal(fact(evidence.acceptance, 'outcome of the build'), 'served', what)
-        assert.equal(fact(evidence.acceptance, 'every structural check passes (Gate A rerun per block, post-realization owed invariants, cross-block checks, composition)'), true, what)
-        assert.deepEqual(fact(evidence.acceptance, 'fidelity violations in the text that is said'), [], what)
-        assert.equal(fact(evidence.acceptance, 'fields awaiting approved wording'), 0, what)
-        assert.equal(fact(evidence.acceptance, 'fidelity violations about fields awaiting approved wording'), 0, what)
-        for (const sentence of [HIS_ITEM_1, W2_DRAFT, W3_DRAFT]) {
-            assert.deepEqual(served.rendered.instructions.filter(i => i.text === sentence).map(i => i.section), ['How to score'], `${what}: said once`)
-            assert.ok(evidence.sections.instructions.some(i => i.text === sentence && i.wording === 'APPROVED'), `${what}: approved`)
-        }
-        // The regain sentence cites the four fields it says, and nothing it does not.
-        const regain = served.rendered.instructions.find(i => i.text === W2_DRAFT)!
-        assert.deepEqual(regain.from, ALSO_ROWS.map(([field]) => `${ALSO}.${field}`), what)
+        const served = buildActivityForReview(requestAt(players, keepers), { includeDrafts: true }) as ServedActivity
         /*
-         * Added 18 October 2026 (review of stage M5): How to score reads in the order the design's coach text and our email of 19 October
-         * 2026 showed him ("For context, How to score would then read:"): the building team's sentence, the non-restoration sentence, the
-         * pressing team's sentence, its regain sentence ("... inside that zone ..." straight after the sentence naming that zone), then
-         * the value and the ends. The TEST-ONLY table lists W2 before W3, so this is the renderer's role order, not the table's.
+         * Added 18 October 2026 (review of stage M5), production since design step L14: How to score reads in the order the design's coach
+         * text and our email of 19 October 2026 showed him ("For context, How to score would read:"): the building team's sentence, the
+         * non-restoration sentence (now his own wording), the pressing team's sentence, its regain sentence ("... inside that zone ..."
+         * straight after the sentence naming that zone), then the value and the ends.
          */
         assert.deepEqual(
             served.rendered.instructions.filter(i => i.section === 'How to score').map(i => i.text),
             [
                 HIS_ITEM_1,
-                W3_DRAFT,
+                HIS_W3,
                 'Pressing team: Score by getting the ball under control into the zone it is attacking: running it in, or passing to a teammate who receives it under control inside',
-                W2_DRAFT,
+                HIS_W2,
                 'Each score is worth 1 point',
                 "Each team attacks the zone at the other team's end. Decide which team starts at which end; the ends stay the same for the whole game",
             ],
             what,
         )
+        // His approval covers his sentences only ("not yet to the entire activity"): every other sentence is a DRAFT.
+        const instructions = served.evidence!.sections.instructions
+        assert.deepEqual(instructions.filter(i => i.wording === 'APPROVED').map(i => i.text), [HIS_POSSESSION, HIS_ITEM_1, HIS_W3, HIS_W2], what)
+        assert.equal(instructions.filter(i => i.wording === 'DRAFT').length, instructions.length - 4, what)
+        // The touchline sentence is DRAFT; its noun is his approved word, carried into each block as APPROVED sport coach vocabulary.
+        const touchline = instructions.filter(i => i.text.includes('throw-in'))
+        assert.deepEqual(touchline.map(i => i.wording), ['DRAFT'], what)
+        const blocks: any[] = ((buildActivityWithFixture(requestAt(players, keepers)).fixture as any)?.roleBlocks?.blocks ?? []).map((b: any) => b.fixture)
+        assert.equal(blocks.length, 2, what)
+        for (const block of blocks) {
+            assert.equal(block.methodNouns?.status, 'APPROVED', what)
+            assert.deepEqual(block.methodNouns.entries.map((e: any) => e.noun), ['throw-in'], what)
+        }
     }
-    assert.equal(JSON.stringify(wordingModule.approvedWording()), before, 'the production table is restored')
 })
 
-test('3. MEASURED: the regain approval alone serves it too - no mechanism requires the non-restoration sentence (his answer decides)', () => {
+test('3. MEASURED: no mechanism requires A01-W3 - a TEST-ONLY table without it still serves, every field it says being said by A01-W1 too', () => {
     for (const [players, keepers] of SESSIONS) {
-        const served = underApprovals(
-            () => [W2],
+        const served = underTable(
+            entry => entry.id !== 'A01-W3',
             () => buildActivityForReview(requestAt(players, keepers), { includeDrafts: true }),
         ) as ServedActivity
         assert.equal(served.outcome, 'served', `${players} players, ${keepers} ${ROLE}`)
         assert.equal(served.integrity.fidelityViolations, 0)
-        assert.ok(!served.rendered.instructions.some(i => i.text === W3_DRAFT))
+        assert.ok(!served.rendered.instructions.some(i => i.text === HIS_W3))
     }
-    // And without either, production refuses (test 1): the regain sentence is the one that stops it.
+    // And without A01-W2 it is refused at communication for exactly the regain score's four fields per block (the state before L14).
+    const refused = underTable(
+        entry => entry.id !== 'A01-W2',
+        () => buildActivityForReview(requestAt(12, 1), { includeDrafts: true }),
+    ) as RefusedActivity
+    assert.equal(refused.outcome, 'refused')
+    assert.equal(refused.stage, 'communication')
+    assert.deepEqual(
+        refused.reasons,
+        BLOCKS.flatMap(block => [
+            ...ALSO_ROWS.map(([field, row]) => `block ${block}: awaiting approved wording: ${ALSO}.${field} (${row})`),
+            ...ALSO_ROWS.map(([field]) => `block ${block}: fidelity Q3: ${ALSO}.${field} is established by the game and no instruction carries it`),
+        ]),
+    )
     assert.equal(JSON.stringify(wordingModule.approvedWording()), before, 'the production table is restored')
 })
 
-test('4. the production table is untouched: A01-W1 alone, his words, no TEST-ONLY entry', () => {
+test('4. the production table holds his three entries, in order, his words, no TEST-ONLY entry', () => {
     const table = wordingModule.approvedWording()
-    assert.deepEqual(table.map(entry => entry.id), ['A01-W1'])
-    assert.equal(table[0].sentence, HIS_ITEM_1)
+    assert.deepEqual(table.map(entry => entry.id), ['A01-W1', 'A01-W2', 'A01-W3'])
+    assert.deepEqual(table.map(entry => entry.sentence), [HIS_ITEM_1, HIS_W2, HIS_W3])
     assert.ok(!JSON.stringify(table).includes('TEST-ONLY'))
     assert.equal(JSON.stringify(table), before)
+})
+
+test('5. 10 and 13 players are still refused at the session, each with its sentence', () => {
+    for (const players of [10, 13]) {
+        const refused = buildActivityForReview(requestAt(players, 1), { includeDrafts: true }) as RefusedActivity
+        assert.equal(refused.outcome, 'refused', `${players} players`)
+        assert.equal(refused.stage, 'session', `${players} players`)
+        assert.ok(refused.summary.length > 0, `${players} players: a sentence`)
+        assert.ok(refused.reasons.some(reason => reason.includes('CONFIGURATION_DOES_NOT_FIT') && reason.includes(`${players} session performers`)), `${players} players: ${JSON.stringify(refused.reasons)}`)
+    }
 })
 
 console.log(`first-activity-end-to-end.unit.ts — ${passed} passed`)

@@ -954,8 +954,9 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
                 facts.push({ what: 'the other role\'s start placement, and whether it lies in this target', value: others.map(p => ({ group: p.group, region: along(p, 'region'), insideTarget: overlaps(along(p, 'region'), target) })) })
                 facts.push(...restrictionsOf(game, index))
                 // K8 review: whether a score can come from a player already in the target is decided, if at all, by the conditions on the
-                // primary event; they are listed with the notes their items record (his M8 safeguard among them), and their wording is
-                // still awaiting his approval.
+                // primary event; they are listed with the notes their items record (his M8 safeguard among them). Their wording was
+                // awaiting his approval until his own sentence for them (approved-coach-wording.json, his reply filed 19 October 2026,
+                // item 1).
                 facts.push({ what: 'conditions on the primary event, with the episode each applies within and the notes the knowledge records on the items each rests on', value: conditionsOf(block) })
             } else {
                 facts.push({ what: `the ${flag.role} role's target (${own?.regionId ?? 'none'})`, value: target })
