@@ -36,7 +36,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import { approvedWording } from '../rendering/approved-wording'
-import { buildActivityForReview, buildActivityUnderAuthorizationRecords, RefusedActivity } from '../rendering/build-activity'
+import { buildActivityForReview, buildActivityUnderAuthorizationRecords, RefusedActivity, ServedActivity } from '../rendering/build-activity'
 import { episodeConfirmed } from '../rendering/context-scoring-guard'
 import { mechanismDemonstration, MECHANISM_DEMONSTRATIONS } from '../rendering/mechanism-demonstrations'
 import { renderConcreteGame } from '../rendering/render-concrete-game'
@@ -340,6 +340,14 @@ test('the fixture carries the bound in both blocks and the composed fixture; the
      */
     assert.equal(built.activity.outcome, 'served')
     const activity = { reasons: [] as string[], ...(built.activity as Partial<RefusedActivity>) }
+    /*
+     * Added 18 October 2026 (review of design step L14): on a served activity the empty `reasons` makes the two reason checks below
+     * hold trivially, so what they stood for is asserted where a served activity records it - nothing withheld, so neither role's
+     * bound (nor anything else) is awaiting approved wording, and nothing said is unfaithful.
+     */
+    const servedNow = built.activity as ServedActivity
+    assert.deepEqual(servedNow.rendered.withheld, [], 'nothing awaits approved wording: both roles\' bounds are said or owe nothing')
+    assert.equal(servedNow.integrity.fidelityViolations, 0)
     /*
      * Moved 18 October 2026 (stage M5, design step L13): the building role's bound is no longer awaiting approved wording, 2 -> 0. It
      * is said in his words - entry A01-W1, his reply filed 19 October 2026, item 1 ("Approved with revised wording") - once per block,
