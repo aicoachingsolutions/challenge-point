@@ -7,6 +7,9 @@ on:
       - main
       - claude/serene-dewdney-c78e18
 
+permissions:
+  contents: read
+
 concurrency:
   group: checks-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -14,6 +17,7 @@ concurrency:
 jobs:
   back:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     defaults:
       run:
         working-directory: back
@@ -36,6 +40,7 @@ jobs:
 
   front:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: front
