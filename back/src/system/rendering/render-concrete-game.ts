@@ -294,7 +294,7 @@ const STATUS_OF_STRENGTH: Record<string, SourceStatus> = { REQUIRED: 'DERIVED', 
  * requirement wins). A sentence that cites a required value and a default states a requirement.
  */
 const STRENGTH_ORDER: SourceStatus[] = ['DERIVED', 'INSTANTIATED', 'SESSION', 'STARTING', 'COACH_CHOICE', 'ADVISORY', 'PREFERENCE']
-const strongest = (statuses: SourceStatus[], fallback: SourceStatus): SourceStatus =>
+export const strongest = (statuses: SourceStatus[], fallback: SourceStatus): SourceStatus =>
     statuses.length ? statuses.reduce((a, b) => (STRENGTH_ORDER.indexOf(a) <= STRENGTH_ORDER.indexOf(b) ? a : b)) : fallback
 
 // ── One way of saying a range ───────────────────────────────────────────────────────────────────
@@ -479,7 +479,7 @@ function countRange(fixture: Fixture, path: string): BoundedLine | null {
  * ball"*), read from `objects[].kind`; "possession" is the relation the designation is decided by
  * (`possession.team`, the sentence's precondition), so no object noun is needed and none is said.
  */
-const SIDE_BY_POSSESSION: Record<string, string> = {
+export const SIDE_BY_POSSESSION: Record<string, string> = {
     ATTACKING_TEAM: 'whichever team has possession',
     DEFENDING_TEAM: 'whichever team does not have possession',
 }
@@ -644,9 +644,9 @@ const PLAYER_OF_AWARDEE = "a player of the team in this element's T2"
 /** The scoring event that is ENTRY into a target region, worded for that value only (its other kinds keep the line wording). */
 const ZONE_ENTRY_EVENT = 'target_zone_entered'
 /** The relative position RC-21 names (register `relativeTerms`, version 13), read where a start placement is stated by it. */
-const BEYOND = 'beyond X (for team T)'
+export const BEYOND = 'beyond X (for team T)'
 /** The end a target touches, as RC-21 names it: the end its attacking team attacks, which is the other team's end (C42). */
-const ATTACKING_END = 'attacking end (of team T)'
+export const ATTACKING_END = 'attacking end (of team T)'
 
 const fieldOf = (element: any, field: string): unknown => field.split('.').reduce<any>((node, key) => (node == null ? undefined : node[key]), element)
 const present = (value: unknown): boolean => value !== undefined && value !== null
@@ -943,49 +943,38 @@ export function producersProposals(fixture: Fixture, wording: ApprovedWording[] 
     return produceRendering(fixture, wording, templates).instructions
 }
 
-function produceRendering(fixture: Fixture, wording: ApprovedWording[], templates: ApprovedTemplateSentence[]): { instructions: Instruction[]; observations: string[]; withheld: WithheldField[]; approved: Set<Instruction> } {
-    const instructions: Instruction[] = []
-    const observations: string[] = []
-    const withheld: WithheldField[] = []
-    const game = fixture.game
-    /**
-     * **Each property's status, read from what crossed the boundary with it** — 14 October 2026. A derived value
-     * carries its `strength` (REQUIRED, DEFAULT or ADVISORY, computed once from its supporting items in
-     * `derivation/strength.ts`); a choice carries its `closure`. Every derived path read DERIVED and every choice
-     * REALIZATION_CHOICE before this, so a preferred default was stated as a rule of the game.
-     *
-     *   - a choice left to the coach (`COACH_DECIDES`) is a COACH_CHOICE;
-     *   - every other choice is where this activity STARTS — a starting value inside a range, an alternative
-     *     realization took (a line rather than a zone), or the only value an authored bound admits;
-     *   - a derived value is DERIVED, STARTING or ADVISORY by its strength. One carrying no strength (a fixture
-     *     frozen before it was carried) reads DERIVED, exactly as it always did: nothing is softened on a guess.
-     */
+/**
+ * **Each property's status, read from what crossed the boundary with it** — 14 October 2026. A derived value
+ * carries its `strength` (REQUIRED, DEFAULT or ADVISORY, computed once from its supporting items in
+ * `derivation/strength.ts`); a choice carries its `closure`. Every derived path read DERIVED and every choice
+ * REALIZATION_CHOICE before this, so a preferred default was stated as a rule of the game.
+ *
+ *   - a choice left to the coach (`COACH_DECIDES`) is a COACH_CHOICE;
+ *   - every other choice is where this activity STARTS — a starting value inside a range, an alternative
+ *     realization took (a line rather than a zone), or the only value an authored bound admits;
+ *   - a derived value is DERIVED, STARTING or ADVISORY by its strength. One carrying no strength (a fixture
+ *     frozen before it was carried) reads DERIVED, exactly as it always did: nothing is softened on a guess.
+ *
+ * Exported in stage 3A (21 October 2026) so the Coach Overview (`coach-overview.ts`) reads each property's status exactly as the
+ * Details sentences do; moved out of `produceRendering` unchanged.
+ */
+export function statusesOf(fixture: Fixture): Map<string, SourceStatus> {
     const statusOf = new Map<string, SourceStatus>()
     for (const d of fixture.status.derived) statusOf.set(d.path, STATUS_OF_STRENGTH[String(d.strength)] ?? 'DERIVED')
     for (const c of fixture.status.choices) statusOf.set(c.path, c.closure === 'COACH_DECIDES' ? 'COACH_CHOICE' : 'STARTING')
-    /** The status of a sentence resting on these paths: the strongest any of them carries. */
-    const statusAt = (paths: string[], fallback: SourceStatus): SourceStatus => strongest(paths.map(p => statusOf.get(p)).filter((s): s is SourceStatus => !!s), fallback)
+    return statusOf
+}
 
-    /** A plain sentence, one part, each number it says bound to the path it is of (stage S-C2). */
-    const say = (section: Instruction['section'], status: SourceStatus, core: string, from: string[], bindings: Binding[] = []) =>
-        instructions.push(instruction(section, status, core, from, bindings))
-
-    /**
-     * The status of a property is whatever the fixture records, never what the renderer assumes. Envelope
-     * facts in particular arrive from the session but are recorded as DERIVED once folded into the game,
-     * and labelling them SESSION would misstate the provenance trace even though both phrase identically.
-     */
-    const recorded = (path: string, fallback: SourceStatus): SourceStatus => statusOf.get(path) ?? fallback
-
+/**
+ * **How one game is read for the sentences that name a team, a target or the marked line** — exported in stage 3A, 21 October 2026,
+ * moved out of `produceRendering` unchanged, so the Coach Overview (`coach-overview.ts`) names each team, target and marked line by
+ * exactly the reading the Details sentences use and never by a second copy of it (his reply filed 22 October 2026, item 1: *"Both
+ * levels must derive from the same authorized activity representation, with no contradictions or invented instructions."*).
+ */
+export function gameReadingOf(fixture: Fixture) {
+    const game = fixture.game
     const geometryFor = (elementId: string, axis: 'along' | 'across') =>
         fixture.status.geometry.find((g: any) => g.path.includes(`[${elementId}]`) && g.path.endsWith(`.${axis}`))
-
-    /**
-     * The object the game establishes, read once for every sentence that names it. Its `kind` is the only
-     * source of the noun (SD-103, below at the scoring instruction, where the rule was first applied), and a
-     * sentence that uses it cites `objects[…].kind`.
-     */
-    const carrier = (game.objects ?? []).find((object: any) => typeof object?.kind === 'string')
 
     /**
      * **A team named by the role it holds in this block — stage K7, 15 October 2026 (DRAFT nouns).** His D7, reply filed 17 October
@@ -1013,8 +1002,6 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
         const others = Object.keys(holdersInBlock).filter(other => other !== role && roleNounOf[other])
         return role && others.length === 1 ? roleNounOf[others[0]] : null
     }
-    const capital = (text: string) => `${text.charAt(0).toUpperCase()}${text.slice(1)}`
-    const listed = (items: string[]) => (items.length > 1 ? `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}` : items[0] ?? '')
     const areaLength = Number(game.envelope?.area?.length_m)
     const areaWidth = Number(game.envelope?.area?.width_m)
 
@@ -1038,6 +1025,223 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
         return { team: teamNoun(along.forTeam)!, offset: offset.from }
     }
     const markedLines = new Set<string>((game.space?.regions ?? []).filter((region: any) => fromTeamEnd(region)).map((region: any) => String(region.elementId)))
+    const referencedBy = (region: any) =>
+        (game.objectives ?? []).find((o: any) => {
+            const ref = o?.reference?.structuralRef
+            return ref && `c:${ref.contractId}:${ref.itemId}` === String(region.elementId)
+        })
+    return { geometryFor, roleNounOf, holdersInBlock, roleOfDesignation, teamNoun, otherTeamNoun, areaLength, areaWidth, fromTeamEnd, markedLines, referencedBy }
+}
+
+/** One count a team holds, as the Players sentence says it ("6 outfield players", "1 <role>", "6 other players"). */
+export interface CountSegment {
+    /** What joins it to the segment before it in the team's phrase: nothing for the first, else ", " or " and ". */
+    joiner: '' | ', ' | ' and '
+    text: string
+    status: SourceStatus
+    /** The PROPERTY paths it is of (never a member's handle, `identity.unit.ts`). */
+    from: string[]
+    /** Its one number, bound to the property path, exactly as the Players sentence binds it. */
+    bindings: Binding[]
+}
+
+/** One team's counts, said by the role it holds in this block. */
+export interface TeamCountPhrase {
+    /** Which team: its position in `performers.teams` (the team is never named by its handle). */
+    team: number
+    /** The role the team holds in this block, and that role's DRAFT noun. */
+    role: string
+    noun: string
+    /** "6 outfield players" + " and 1 <role>"; "1 <role>" + " and 6 other players"; "5 other players". */
+    segments: CountSegment[]
+}
+
+/**
+ * **The teams' counts, by team** — the Players sentence's own builder, exported in stage 3A (21 October 2026). The BUILD PLAN's
+ * reconciliation: *"one shared team-indexed count builder serves the Players sentence, the overview and the diagram"* (the D4 verifier
+ * showed the roster sentence's parts are split by quantity, not by team, so nothing may read the counts back out of the sentence).
+ * Moved out of `produceRendering` with every rule unchanged (K4, M4, S-C2, below), so the Players sentence is byte-identical:
+ *
+ *   - `BY_ROLE`: each team said by the role it holds in this block, its own counts ("the building team has 6 outfield players and
+ *     1 <role>; the pressing team has 5 outfield players");
+ *   - `BY_ROLE_COUNTED`: the same where the session has more of a specialized role than the teams involve, everyone else counted as
+ *     "other players" ("1 <role> and 6 other players"; "5 other players");
+ *   - `EQUAL`: no team told apart, the teams said together ("2 teams of 6", or "2 teams" where they hold no one size);
+ *   - `NONE`: the game has no teams.
+ *
+ * `teams` holds one entry per team, in the block's role order, in the two by-role modes, and is empty otherwise. `neutrals` is the
+ * neutral count the roster says ("2 neutral players"), where the game states one.
+ */
+export interface TeamCountPhrases {
+    mode: 'BY_ROLE' | 'BY_ROLE_COUNTED' | 'EQUAL' | 'NONE'
+    /** "2 teams" in the by-role modes; "2 teams of 6" or "2 teams" where EQUAL; null with no teams. */
+    teamsCount: { text: string; status: SourceStatus; from: string[]; bindings: Binding[] } | null
+    teams: TeamCountPhrase[]
+    /** The one size every team holds, or null. */
+    size: number | null
+    /** Whether the teams are told apart by the roles they hold (both by-role modes). */
+    byRole: boolean
+    /** The specialized roles the session has more of than the teams involve (`BY_ROLE_COUNTED`). */
+    countedOnly: { role: string; available: number }[]
+    neutrals: { count: number; text: string; status: SourceStatus; from: string[]; bindings: Binding[] } | null
+}
+
+export function teamCountPhrases(fixture: Fixture): TeamCountPhrases {
+    const game = fixture.game
+    const statusOf = statusesOf(fixture)
+    const teams: any[] = game.performers?.teams ?? []
+    const sizes = [...new Set(teams.map((t: any) => t.outfieldCount).filter((n: any) => Number.isFinite(n)))]
+    const size = sizes.length === 1 ? Number(sizes[0]) : null
+
+    /**
+     * **Teams told apart by the role each holds in this block — DRAFT, 15 October 2026 (stage K4).** For his starting
+     * configurations of 17 October 2026 (D6, unequal counts by role) and his D7: *"Please use the assigned team roles rather
+     * than referring generically to "the defending team,""*. Where the teams hold different counts, nothing told them apart before, so the counts were
+     * withheld. In a game derived for a role block the record says which end-assigned team holds each role
+     * (`record.roleBlock`) and which team holds each end (`record.designationBindings`), and the role's DRAFT noun crossed
+     * with the game (`roleNouns`): so each team is named by its role, and its counts are said as its own. Read only from the
+     * fixture; a team no role names leaves the old withholding in place.
+     */
+    const block: { holders?: Record<string, string> } | undefined = fixture.record?.roleBlock
+    const teamNouns: Record<string, string> = fixture.roleNouns?.nouns ?? {}
+    const bound: { designation: string; handle: string }[] = fixture.record?.designationBindings ?? []
+    const roleOfTeam = (team: any): string | null => {
+        for (const [role, holder] of Object.entries(block?.holders ?? {})) {
+            if (bound.some(binding => binding.designation === holder && binding.handle === team?.elementId)) return role
+        }
+        return null
+    }
+    const roleOrder = Object.keys(block?.holders ?? {})
+    const namedByRole = teams.length > 0 && teams.every(team => !!roleOfTeam(team) && !!teamNouns[roleOfTeam(team)!]) && new Set(teams.map(roleOfTeam)).size === teams.length
+    const specializedHeld = Object.keys(fixture.envelope?.roles ?? {})
+    const countsDiffer = size === null || specializedHeld.some(role => new Set(teams.map((t: any) => t[role])).size > 1)
+    const byRole = namedByRole && countsDiffer && teams.every((t: any) => Number.isInteger(t.outfieldCount) && specializedHeld.every(role => Number.isInteger(t[role])))
+
+    /**
+     * **More of a specialized role than the teams involve: counted, never given an outfield role — stage M4, 17 October 2026 (design
+     * step L11, DRAFT).** His reply filed 19 October 2026, item 5: *"The second-[specialized role] case and optional rotation can remain
+     * visible as limitations for now. I don't want to prescribe an outfield role for a [specialized role] universally."* (his role noun
+     * bracketed, as the coupling ratchet keeps a sport's nouns out of this layer). In a game played by role, where the teams involve
+     * some of a role and the session has more, the roster says what each team holds, counting everyone else as "other players"
+     * ("Divide 12 players into 2 teams: the building team has 1 <role> and 6 other players; the pressing team has 5 other players").
+     * Was (stage K4, DRAFT): "...; the other <role> plays as an outfield player". The design put the session's count in the sentence
+     * too ("12 players, 2 of them <role>s"); measured, fidelity refuses that number, which the game does not hold, so it is not said. The counting rule beneath is unchanged (assemble-concrete-game.ts rosterFor counts a performer available and
+     * not involved in the outfield places, his 30 September "availability is not involvement"); which team that player joins, and
+     * whether the role rotates, are not carried, and the review page shows them as a limitation. The universal sentence for a game
+     * that involves none of the role is not this branch and is unchanged.
+     */
+    const countedOnly: { role: string; available: number }[] = []
+    if (teams.length && byRole) {
+        for (const [role, available] of Object.entries(fixture.envelope?.roles ?? {}).map(([r, c]) => [r, Number(c)] as const)) {
+            const held = teams.map((t: any) => t[role])
+            if (!held.every((n: unknown) => Number.isInteger(n) && Number(n) >= 0)) continue
+            const used = held.reduce((sum: number, n: unknown) => sum + Number(n), 0)
+            if (used > 0 && available > used) countedOnly.push({ role, available })
+        }
+    }
+
+    const segment = (joiner: CountSegment['joiner'], text: string, from: string[], bindings: Binding[]): CountSegment => ({ joiner, text, status: 'DERIVED', from: [...new Set(from)], bindings })
+    // Each team in the block's role order, keeping its position in `performers.teams`.
+    const inRoleOrder = teams.map((team, index) => ({ team, index })).sort((a, b) => roleOrder.indexOf(roleOfTeam(a.team)!) - roleOrder.indexOf(roleOfTeam(b.team)!))
+    const phrases: TeamCountPhrase[] = []
+    let mode: TeamCountPhrases['mode'] = 'NONE'
+    let teamsCount: TeamCountPhrases['teamsCount'] = null
+    if (teams.length && byRole && countedOnly.length) {
+        // The session's count of the role is not said: the game holds only each team's (measured 17 October 2026, stage M4 - a
+        // binding of the session's 2 to `envelope.roles` is refused by fidelity Q2, the game holding no such number). "Other
+        // players" counts everyone else, the unused performers of the role among them, and names no part they play.
+        mode = 'BY_ROLE_COUNTED'
+        teamsCount = { text: `${teams.length} teams`, status: 'INSTANTIATED', from: ['performers.teams'], bindings: [{ quantity: teams.length, path: 'performers.teams' }] }
+        for (const { team, index } of inRoleOrder) {
+            const outfield = Number(team.outfieldCount)
+            const roles = specializedHeld.filter(role => Number(team[role]) > 0)
+            const segments: CountSegment[] = roles.map((role, j) => {
+                const held = Number(team[role])
+                return segment(j === 0 ? '' : ', ', `${held} ${role}${held === 1 ? '' : 's'}`, ['envelope.roles', `performers.teams[].${role}`], [{ quantity: held, path: `performers.teams[].${role}` }])
+            })
+            segments.push(segment(roles.length ? ' and ' : '', `${outfield} other player${outfield === 1 ? '' : 's'}`, ['performers.teams[].outfieldCount'], [{ quantity: outfield, path: 'performers.teams[].outfieldCount' }]))
+            phrases.push({ team: index, role: roleOfTeam(team)!, noun: teamNouns[roleOfTeam(team)!], segments })
+        }
+    } else if (teams.length && byRole) {
+        /**
+         * **Each team's counts, by the role it holds** (stage K4, DRAFT): "Divide 12 players into 2 teams: the building team has
+         * 6 outfield players and 1 <role>; the pressing team has 5 outfield players". Each count is cited by its PROPERTY
+         * path (never a member's handle, `identity.unit.ts`) and bound to it, so fidelity checks the number against what the
+         * teams hold; a specialized role is said only for a team that involves it, by the role's own name.
+         */
+        mode = 'BY_ROLE'
+        teamsCount = { text: `${teams.length} teams`, status: 'INSTANTIATED', from: ['performers.teams'], bindings: [{ quantity: teams.length, path: 'performers.teams' }] }
+        for (const { team, index } of inRoleOrder) {
+            const outfield = Number(team.outfieldCount)
+            const segments: CountSegment[] = [segment('', `${outfield} outfield player${outfield === 1 ? '' : 's'}`, ['performers.teams[].outfieldCount'], [{ quantity: outfield, path: 'performers.teams[].outfieldCount' }])]
+            for (const role of specializedHeld) {
+                const held = Number(team[role])
+                if (held > 0) segments.push(segment(' and ', `${held} ${role}${held === 1 ? '' : 's'}`, [`performers.teams[].${role}`], [{ quantity: held, path: `performers.teams[].${role}` }]))
+            }
+            phrases.push({ team: index, role: roleOfTeam(team)!, noun: teamNouns[roleOfTeam(team)!], segments })
+        }
+    } else if (teams.length) {
+        /**
+         * **A per-team property is cited by its PROPERTY path, never by a member's address.** The size is entailed
+         * onto each team at that member's own address, which carries its handle, and a handle is identity, not a
+         * property: `identity.unit.ts` pins that none may reach coach-facing output, citations included. So the part
+         * that speaks for every team cites the register's own path for the property, with the member left open —
+         * which is also exactly what it claims, since it is only said where every team holds the same number.
+         */
+        mode = 'EQUAL'
+        teamsCount = {
+            text: size === null ? `${teams.length} teams` : `${teams.length} teams of ${size}`,
+            status: 'INSTANTIATED',
+            from: size === null ? ['performers.teams'] : ['performers.teams', 'performers.teams[].outfieldCount'],
+            bindings: [{ quantity: teams.length, path: 'performers.teams' }, ...(size === null ? [] : [{ quantity: size, path: 'performers.teams[].outfieldCount' }])],
+        }
+    }
+
+    // The neutral count, as the roster says it, where the game states one (the roster's own condition; its observations stay there).
+    const neutralsHeld = game.performers?.neutrals
+    const count = neutralsHeld && typeof neutralsHeld === 'object' ? neutralsHeld.count : undefined
+    const countPath = 'performers.neutrals.count'
+    const neutrals = stated(count)
+        ? { count, text: `${count} ${count === 1 ? 'neutral player' : 'neutral players'}`, status: statusOf.get(countPath) ?? ('DERIVED' as SourceStatus), from: [countPath], bindings: [{ quantity: count, path: countPath }] }
+        : null
+    return { mode, teamsCount, teams: phrases, size, byRole, countedOnly, neutrals }
+}
+
+function produceRendering(fixture: Fixture, wording: ApprovedWording[], templates: ApprovedTemplateSentence[]): { instructions: Instruction[]; observations: string[]; withheld: WithheldField[]; approved: Set<Instruction> } {
+    const instructions: Instruction[] = []
+    const observations: string[] = []
+    const withheld: WithheldField[] = []
+    const game = fixture.game
+    // Each property's status (`statusesOf`, above; moved out unchanged in stage 3A).
+    const statusOf = statusesOf(fixture)
+    /** The status of a sentence resting on these paths: the strongest any of them carries. */
+    const statusAt = (paths: string[], fallback: SourceStatus): SourceStatus => strongest(paths.map(p => statusOf.get(p)).filter((s): s is SourceStatus => !!s), fallback)
+
+    /** A plain sentence, one part, each number it says bound to the path it is of (stage S-C2). */
+    const say = (section: Instruction['section'], status: SourceStatus, core: string, from: string[], bindings: Binding[] = []) =>
+        instructions.push(instruction(section, status, core, from, bindings))
+
+    /**
+     * The status of a property is whatever the fixture records, never what the renderer assumes. Envelope
+     * facts in particular arrive from the session but are recorded as DERIVED once folded into the game,
+     * and labelling them SESSION would misstate the provenance trace even though both phrase identically.
+     */
+    const recorded = (path: string, fallback: SourceStatus): SourceStatus => statusOf.get(path) ?? fallback
+
+    /**
+     * The object the game establishes, read once for every sentence that names it. Its `kind` is the only
+     * source of the noun (SD-103, below at the scoring instruction, where the rule was first applied), and a
+     * sentence that uses it cites `objects[…].kind`.
+     */
+    const carrier = (game.objects ?? []).find((object: any) => typeof object?.kind === 'string')
+
+    /**
+     * Each team named by the role it holds in this block (stage K7, DRAFT nouns), the marked line (stage K7), and the objective that
+     * references a region: read by `gameReadingOf` (above), moved out of here unchanged in stage 3A so the Coach Overview reads them alike.
+     */
+    const { geometryFor, roleNounOf, holdersInBlock, roleOfDesignation, teamNoun, otherTeamNoun, areaLength, areaWidth, fromTeamEnd, markedLines, referencedBy } = gameReadingOf(fixture)
+    const capital = (text: string) => `${text.charAt(0).toUpperCase()}${text.slice(1)}`
+    const listed = (items: string[]) => (items.length > 1 ? `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}` : items[0] ?? '')
     /**
      * **Every block's markings set out once, where his recorded choice applies — stage 2D, 21 October 2026 (DRAFT wording).** His reply
      * filed 22 October 2026, item 7: *"For this particular 40 × 30 m configuration, we can also simplify setup by marking the halfway line
@@ -1100,12 +1304,8 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
      * "end lines" (they ARE the end lines) and still observed. The length is not said: it is the width of the area,
      * stated in the sentence before.
      */
+    // The objective that references a region: `referencedBy`, read by `gameReadingOf` (stage 3A, moved out unchanged).
     const lines = regions.filter(r => r.noun === 'line' && !markedLines.has(String(r.elementId)))
-    const referencedBy = (region: any) =>
-        (game.objectives ?? []).find((o: any) => {
-            const ref = o?.reference?.structuralRef
-            return ref && `c:${ref.contractId}:${ref.itemId}` === String(region.elementId)
-        })
 
     /**
      * **A team's target zone, said by the role that attacks it and where it lies — stage K7, 15 October 2026 (DRAFT).** His reply filed
@@ -1441,32 +1641,13 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
     // ── Players ─────────────────────────────────────────────────────────────────────────────────
     const teams: any[] = game.performers?.teams ?? []
     const players = game.envelope?.players
-    const sizes = [...new Set(teams.map((t: any) => t.outfieldCount).filter((n: any) => Number.isFinite(n)))]
-    const size = sizes.length === 1 ? Number(sizes[0]) : null
-
     /**
-     * **Teams told apart by the role each holds in this block — DRAFT, 15 October 2026 (stage K4).** For his starting
-     * configurations of 17 October 2026 (D6, unequal counts by role) and his D7: *"Please use the assigned team roles rather
-     * than referring generically to "the defending team,""*. Where the teams hold different counts, nothing told them apart before, so the counts were
-     * withheld. In a game derived for a role block the record says which end-assigned team holds each role
-     * (`record.roleBlock`) and which team holds each end (`record.designationBindings`), and the role's DRAFT noun crossed
-     * with the game (`roleNouns`): so each team is named by its role, and its counts are said as its own. Read only from the
-     * fixture; a team no role names leaves the old withholding in place.
+     * Each team's counts, by team (stage 3A): `teamCountPhrases`, above, the one builder the Players sentence, the Coach Overview and the
+     * diagram share. Teams told apart by the role each holds in this block (stage K4), everyone else counted as "other players" where the
+     * session has more of a specialized role than the teams involve (stage M4), or the teams said together: every rule there, unchanged.
      */
-    const block: { holders?: Record<string, string> } | undefined = fixture.record?.roleBlock
-    const teamNouns: Record<string, string> = fixture.roleNouns?.nouns ?? {}
-    const bound: { designation: string; handle: string }[] = fixture.record?.designationBindings ?? []
-    const roleOfTeam = (team: any): string | null => {
-        for (const [role, holder] of Object.entries(block?.holders ?? {})) {
-            if (bound.some(binding => binding.designation === holder && binding.handle === team?.elementId)) return role
-        }
-        return null
-    }
-    const roleOrder = Object.keys(block?.holders ?? {})
-    const namedByRole = teams.length > 0 && teams.every(team => !!roleOfTeam(team) && !!teamNouns[roleOfTeam(team)!]) && new Set(teams.map(roleOfTeam)).size === teams.length
-    const specializedHeld = Object.keys(fixture.envelope?.roles ?? {})
-    const countsDiffer = size === null || specializedHeld.some(role => new Set(teams.map((t: any) => t[role])).size > 1)
-    const byRole = namedByRole && countsDiffer && teams.every((t: any) => Number.isInteger(t.outfieldCount) && specializedHeld.every(role => Number.isInteger(t[role])))
+    const counts = teamCountPhrases(fixture)
+    const { size, byRole, countedOnly } = counts
 
     /**
      * **NEUTRAL PLAYERS, AND A GROUP'S PARTICIPATION STATE — added 13 October 2026, consolidated 14 October.**
@@ -1517,83 +1698,18 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
         roster.push(part(recorded('envelope.players', 'SESSION'), teams.length ? `Divide ${players} players` : `${players} players in total`, ['envelope.players'], [{ quantity: players, path: 'envelope.players' }]))
     }
     /**
-     * **More of a specialized role than the teams involve: counted, never given an outfield role — stage M4, 17 October 2026 (design
-     * step L11, DRAFT).** His reply filed 19 October 2026, item 5: *"The second-[specialized role] case and optional rotation can remain
-     * visible as limitations for now. I don't want to prescribe an outfield role for a [specialized role] universally."* (his role noun
-     * bracketed, as the coupling ratchet keeps a sport's nouns out of this layer). In a game played by role, where the teams involve
-     * some of a role and the session has more, the roster says what each team holds, counting everyone else as "other players"
-     * ("Divide 12 players into 2 teams: the building team has 1 <role> and 6 other players; the pressing team has 5 other players").
-     * Was (stage K4, DRAFT): "...; the other <role> plays as an outfield player". The design put the session's count in the sentence
-     * too ("12 players, 2 of them <role>s"); measured, fidelity refuses that number, which the game does not hold, so it is not said. The counting rule beneath is unchanged (assemble-concrete-game.ts rosterFor counts a performer available and
-     * not involved in the outfield places, his 30 September "availability is not involvement"); which team that player joins, and
-     * whether the role rotates, are not carried, and the review page shows them as a limitation. The universal sentence for a game
-     * that involves none of the role is not this branch and is unchanged.
+     * The teams, then each team's own counts by the role it holds where the teams are told apart by role ("into 2 teams: the building
+     * team has 6 outfield players and 1 <role>; the pressing team has 5 outfield players"; "...: the building team has 1 <role> and 6
+     * other players; ..."), else the teams said together ("into 2 teams of 6"). Every word, part, status, citation and binding is the
+     * shared builder's (`teamCountPhrases`, stage 3A); only the joining words of this sentence are said here.
      */
-    const countedOnly: { role: string; available: number }[] = []
-    if (teams.length && byRole) {
-        for (const [role, available] of Object.entries(fixture.envelope?.roles ?? {}).map(([r, c]) => [r, Number(c)] as const)) {
-            const held = teams.map((t: any) => t[role])
-            if (!held.every((n: unknown) => Number.isInteger(n) && Number(n) >= 0)) continue
-            const used = held.reduce((sum: number, n: unknown) => sum + Number(n), 0)
-            if (used > 0 && available > used) countedOnly.push({ role, available })
-        }
-    }
-    if (teams.length && byRole && countedOnly.length) {
-        // The session's count of the role is not said: the game holds only each team's (measured 17 October 2026, stage M4 - a
-        // binding of the session's 2 to `envelope.roles` is refused by fidelity Q2, the game holding no such number). "Other
-        // players" counts everyone else, the unused performers of the role among them, and names no part they play.
-        roster.push(part('INSTANTIATED', roster.length ? ` into ${teams.length} teams` : `${teams.length} teams`, ['performers.teams'], [{ quantity: teams.length, path: 'performers.teams' }]))
-        const ordered = [...teams].sort((a, b) => roleOrder.indexOf(roleOfTeam(a)!) - roleOrder.indexOf(roleOfTeam(b)!))
-        ordered.forEach((team, i) => {
-            const outfield = Number(team.outfieldCount)
-            const lead = `${i === 0 ? ': ' : '; '}the ${teamNouns[roleOfTeam(team)!]} has `
-            const roles = specializedHeld.filter(role => Number(team[role]) > 0)
-            roles.forEach((role, j) => {
-                const held = Number(team[role])
-                roster.push(part('DERIVED', `${j === 0 ? lead : ', '}${held} ${role}${held === 1 ? '' : 's'}`, ['envelope.roles', `performers.teams[].${role}`], [{ quantity: held, path: `performers.teams[].${role}` }]))
-            })
-            roster.push(
-                part('DERIVED', `${roles.length ? ' and ' : lead}${outfield} other player${outfield === 1 ? '' : 's'}`, ['performers.teams[].outfieldCount'], [
-                    { quantity: outfield, path: 'performers.teams[].outfieldCount' },
-                ]),
-            )
+    if (counts.teamsCount) {
+        const { text, status, from, bindings } = counts.teamsCount
+        roster.push(part(status, roster.length ? ` into ${text}` : text, from, bindings))
+        counts.teams.forEach((team, i) => {
+            const lead = `${i === 0 ? ': ' : '; '}the ${team.noun} has `
+            team.segments.forEach((segment, j) => roster.push(part(segment.status, `${j === 0 ? lead : segment.joiner}${segment.text}`, segment.from, segment.bindings)))
         })
-    } else if (teams.length && byRole) {
-        /**
-         * **Each team's counts, by the role it holds** (stage K4, DRAFT): "Divide 12 players into 2 teams: the building team has
-         * 6 outfield players and 1 <role>; the pressing team has 5 outfield players". Each count is cited by its PROPERTY
-         * path (never a member's handle, `identity.unit.ts`) and bound to it, so fidelity checks the number against what the
-         * teams hold; a specialized role is said only for a team that involves it, by the role's own name.
-         */
-        roster.push(part('INSTANTIATED', roster.length ? ` into ${teams.length} teams` : `${teams.length} teams`, ['performers.teams'], [{ quantity: teams.length, path: 'performers.teams' }]))
-        const ordered = [...teams].sort((a, b) => roleOrder.indexOf(roleOfTeam(a)!) - roleOrder.indexOf(roleOfTeam(b)!))
-        ordered.forEach((team, i) => {
-            const outfield = Number(team.outfieldCount)
-            roster.push(
-                part('DERIVED', `${i === 0 ? ': ' : '; '}the ${teamNouns[roleOfTeam(team)!]} has ${outfield} outfield player${outfield === 1 ? '' : 's'}`, ['performers.teams[].outfieldCount'], [
-                    { quantity: outfield, path: 'performers.teams[].outfieldCount' },
-                ]),
-            )
-            for (const role of specializedHeld) {
-                const held = Number(team[role])
-                if (held > 0) roster.push(part('DERIVED', ` and ${held} ${role}${held === 1 ? '' : 's'}`, [`performers.teams[].${role}`], [{ quantity: held, path: `performers.teams[].${role}` }]))
-            }
-        })
-    } else if (teams.length) {
-        /**
-         * **A per-team property is cited by its PROPERTY path, never by a member's address.** The size is entailed
-         * onto each team at that member's own address, which carries its handle, and a handle is identity, not a
-         * property: `identity.unit.ts` pins that none may reach coach-facing output, citations included. So the part
-         * that speaks for every team cites the register's own path for the property, with the member left open —
-         * which is also exactly what it claims, since it is only said where every team holds the same number.
-         */
-        const said = size === null ? `${teams.length} teams` : `${teams.length} teams of ${size}`
-        roster.push(
-            part('INSTANTIATED', roster.length ? ` into ${said}` : said, size === null ? ['performers.teams'] : ['performers.teams', 'performers.teams[].outfieldCount'], [
-                { quantity: teams.length, path: 'performers.teams' },
-                ...(size === null ? [] : [{ quantity: size, path: 'performers.teams[].outfieldCount' }]),
-            ]),
-        )
     }
 
     /**
@@ -1665,7 +1781,9 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
     const neutralAdjusting: Instruction[] = []
     if (hasNeutrals) {
         if (stated(count) && Number.isFinite(players)) {
-            neutralPart = part(recorded(countPath, 'DERIVED'), `, with ${count} ${neutralNoun(count)}`, [countPath], [{ quantity: count, path: countPath }])
+            // The count as the shared builder says it (`teamCountPhrases`, stage 3A): its words, status, citation and binding.
+            const said = counts.neutrals!
+            neutralPart = part(said.status, `, with ${said.text}`, said.from, said.bindings)
             const range = countRange(fixture, countPath)
             if (range?.required) {
                 // Where the count is only where this activity STARTS, its required limit is what a coach may adjust

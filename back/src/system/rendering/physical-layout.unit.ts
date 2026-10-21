@@ -445,7 +445,9 @@ test('10. hardening H1: where his recorded choice does not apply, why is said to
     assert.ok(!coach.rendered.coachingObservations.some(o => o.includes('set out once')), JSON.stringify(coach.rendered.coachingObservations))
     // Nor in the activity the administrator is served: only the evidence beside it says it; the two answers differ by the evidence alone.
     assert.ok(!JSON.stringify(admin.rendered).includes(FALLBACK))
-    const { evidence: _evidence, ...rest } = admin
+    // Re-pointed 21 October 2026 (stage 3A): the administrator's answer also carries the overview draft (admin-only); the coach's does not.
+    const { evidence: _evidence, overviewDraft: _overview, ...rest } = admin
+    assert.ok(_overview && !('overviewDraft' in coach))
     assert.deepEqual(rest, coach)
     // Production (the choice applies at 40 x 30 m): no such fact.
     const production = buildActivityUnderAuthorizationRecords(a01, learningGoalAuthorizations(), { review: { includeDrafts: true } }).activity as ServedActivity

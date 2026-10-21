@@ -58,6 +58,7 @@ import type { AuthorizationExclusion, AuthorizationLists, AuthorizedAdjustment, 
 import { allocationPrinciple, authorizationLists, contextManipulationRelationships, learningGoalAuthorizations, libraryConstraintPrinciple, neededRecordGaps } from '../test-library/learning-goal-authorizations'
 import { applyRealizationDeferrals } from '../derivation/realization-deferral'
 import type { ConstraintAuthority, ConstraintPoolAccount } from '../test-library/types'
+import { CoachOverviewDraft, coachOverviewDraftOf } from './coach-overview'
 import { contextScoringFindings, EPISODE_REACHABLE_CHECK } from './context-scoring-guard'
 import { checkFidelity, FidelityFinding } from './fidelity'
 import { ReviewDraft, reviewDraftOf } from './review-draft'
@@ -259,6 +260,14 @@ export interface ServedActivity {
     roleBlocks?: RoleBlockAccount
     /** The admin-only review evidence (stage K8), where the goal's record asks for one; see `RefusedActivity.evidence`. */
     evidence?: ReviewEvidence
+    /**
+     * **The Coach Overview's learning purpose, game sentence and basic parameters, for an administrator only** (stage 3A, 21 October
+     * 2026; `coach-overview.ts`). Computed from the same games the served activity was rendered from (each role block, or the one game),
+     * only by the review build with drafts (`buildActivityForReview`, the route's administrator check), for every served activity that
+     * build makes. Not served to a coach: stage 3D serves the overview once its agreement check (Q7) is in place. It never decides
+     * whether an activity is served; whatever it cannot say is a gap inside it.
+     */
+    overviewDraft?: CoachOverviewDraft
 }
 
 /** The role blocks of a served activity, for the technical account (stage K3). */
@@ -1016,6 +1025,20 @@ function build(
         selection: goalSelection,
         fixture: built.fixture,
     })
+    /**
+     * Stage 3A: the Coach Overview's purpose, game sentence and parameters, for an administrator's review only (`overviewDraft`). The
+     * purpose is the goal's (a demonstration has none); the game and parameters are read from each game served. Whatever goes wrong is a
+     * gap inside it, never a refusal: the activity is served or refused exactly as it would be without it.
+     */
+    const purposeGoal = kind === 'learning-goal' && request.kind === 'learning-goal' ? request.goalId : null
+    const overviewDraftFor = (games: { blockId: string; fixture: any }[]): Partial<ServedActivity> => {
+        if (!review.includeDrafts) return {}
+        try {
+            return { overviewDraft: coachOverviewDraftOf(purposeGoal, games) }
+        } catch (error) {
+            return { overviewDraft: { served: false, purpose: null, blocks: [], sameTextInEveryBlock: false, gaps: [{ part: 'game', what: `the overview could not be computed: ${error instanceof Error ? error.message : String(error)}` }] } }
+        }
+    }
 
     /**
      * **A game played in role blocks is built twice: one complete game per block, then the blocks against each other** —
@@ -1202,6 +1225,8 @@ function build(
                     },
                     // Stage K8: the admin-only review evidence, where the goal's record asks for one; absent on every coach's answer.
                     ...((evidence => (evidence ? { evidence } : {}))(evidenceOf('served'))),
+                    // Stage 3A: the overview's parts, read from each block's own game as served, for an administrator only.
+                    ...overviewDraftFor(games.map(entry => ({ blockId: entry.block.blockId, fixture: entry.fixture }))),
                 },
             )
         }
@@ -1232,7 +1257,7 @@ function build(
         return refusal
     }
     const evidence = reviewEvidenceFor(review, goalSelection, account, roleIndex, session, 'served', one.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.contracts, rendered: one.rendered, ...one.evidence }])
-    return serve(one, evidence ? { evidence } : {})
+    return serve(one, { ...(evidence ? { evidence } : {}), ...overviewDraftFor([{ blockId: ONE_GAME, fixture: one.fixture }]) })
 }
 
 /** The block id the review evidence gives a game not played in role blocks. */
