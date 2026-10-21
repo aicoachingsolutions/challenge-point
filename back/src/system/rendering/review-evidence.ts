@@ -35,10 +35,10 @@ import { rpcLibrary } from '../sport-module/rpc-library'
 import type { AuthorizationLists, CitedWords, ContextManipulationRelationship, LearningGoalAuthorization, ReviewLayer, ReviewRequest } from '../test-library/learning-goal-authorizations'
 import { learningGoalSelectionHolds } from '../test-library/learning-design-holds'
 import { testLibraryRegistry } from '../test-library/library/registry'
+import { approvedEntriesSaid, detailsWordingOf, WordingSource, WordingStatus } from './derived-wording'
 import { FidelityFinding, OBLIGATIONS } from './fidelity'
-import { approvedTemplateSentences } from './approved-wording'
 import { layoutNumbersAt } from './physical-layout'
-import { approvedSentences, Instruction, RenderedActivity, UNBOUNDED_CREDIT, wordedFieldRows } from './render-concrete-game'
+import { Instruction, RenderedActivity, UNBOUNDED_CREDIT, wordedFieldRows } from './render-concrete-game'
 import type { RoleBlockCheck } from './role-blocks'
 import { SectionLabel, sectionLabelsOf } from './sections'
 import type { ActivitySession } from './session-envelope'
@@ -228,7 +228,14 @@ export interface InstructionEvidence {
      */
     counterparts?: { blockId: string; from: string[] }[]
     text: string
-    wording: 'APPROVED' | 'DRAFT'
+    /**
+     * Stage 3B (21 October 2026): one of the three statuses his reply filed 22 October 2026, item 4, distinguishes (`derived-wording.ts`).
+     * A Coach Details sentence is APPROVED (approved wording said whole) or DRAFT; Details never say a shortened approved sentence, so
+     * DERIVED_FROM_APPROVED never appears here.
+     */
+    wording: WordingStatus
+    /** Stage 3B: the approved entry or template sentence an APPROVED sentence is, by its id; null for a DRAFT sentence. */
+    wordingSource: WordingSource | null
     obligationWords: string[]
     q4: string[]
     layers: Layer[]
@@ -754,10 +761,11 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
     const nouns: Record<string, string> = index.roleBlocks?.coachNouns ?? {}
 
     /* Instructions, with their provenance and the prescription rule's findings on them. */
-    const approved = blocks.flatMap(block => approvedSentences(block.fixture?.game ?? {}))
-    // Stage M4: a sentence that IS one of his approved template sentences, word for word (an instruction carries no final full stop),
-    // is approved wording too; the same template filled with any other value is a generalization of his words, DRAFT.
-    const approvedTemplates = approvedTemplateSentences().map(template => template.sentence.replace(/\.$/, ''))
+    // Stage 3B: the approved entries each block's game says, by id (the renderer's own `approvedSentences`, entry by entry). A sentence
+    // is APPROVED where it says one of them, or IS one of his template sentences word for word (stage M4: an instruction carries no final
+    // full stop; the same template filled with any other value is a generalization of his words, DRAFT) — the rule as before, decided by
+    // text — and now names which (`detailsWordingOf`).
+    const said = blocks.flatMap(block => approvedEntriesSaid(block.fixture?.game ?? {}))
     const allFindings = [...blocks.flatMap(block => block.findings), ...input.compositionFindings]
     /**
      * What a sentence cites in each block that says it (stage 2C, 21 October 2026): a sentence under one block cites its `from` there; a
@@ -773,13 +781,15 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
         })
     const instructions: InstructionEvidence[] = composed.instructions.map((instruction: Instruction, i) => {
         const sources = dedupe(citedIn(instruction).flatMap(({ block, from }) => from.flatMap(path => sourcesOf(path, block, blockItems[blocks.indexOf(block)], adjustments, relationships, index))))
+        const { wording, source } = detailsWordingOf(instruction.text, said)
         return {
             index: i,
             section: instruction.section,
             block: instruction.block ?? null,
             ...(instruction.counterparts ? { counterparts: instruction.counterparts.map(entry => ({ blockId: entry.blockId, from: [...entry.from] })) } : {}),
             text: instruction.text,
-            wording: approved.some(sentence => sentence.text === instruction.text) || approvedTemplates.includes(instruction.text) ? 'APPROVED' : 'DRAFT',
+            wording,
+            wordingSource: source,
             obligationWords: OBLIGATIONS.filter(word => word.test(instruction.text)).map(word => String(word)),
             q4: allFindings.filter(f => f.question === 4 && f.what.includes(instruction.text)).map(f => `${f.severity}: ${f.what}`),
             layers: layersOf(sources),

@@ -265,7 +265,9 @@ export interface ServedActivity {
      * 2026; `coach-overview.ts`). Computed from the same games the served activity was rendered from (each role block, or the one game),
      * only by the review build with drafts (`buildActivityForReview`, the route's administrator check), for every served activity that
      * build makes. Not served to a coach: stage 3D serves the overview once its agreement check (Q7) is in place. It never decides
-     * whether an activity is served; whatever it cannot say is a gap inside it.
+     * whether an activity is served; whatever it cannot say is a gap inside it. Since stage 3B it also lists, per block, the verbatim
+     * extracts of the approved wording that block's game says (`derived-wording.ts`), each DERIVED_FROM_APPROVED with its source entry and
+     * cover accounting, and those withheld with why.
      */
     overviewDraft?: CoachOverviewDraft
 }
@@ -1036,7 +1038,7 @@ function build(
         try {
             return { overviewDraft: coachOverviewDraftOf(purposeGoal, games) }
         } catch (error) {
-            return { overviewDraft: { served: false, purpose: null, blocks: [], sameTextInEveryBlock: false, gaps: [{ part: 'game', what: `the overview could not be computed: ${error instanceof Error ? error.message : String(error)}` }] } }
+            return { overviewDraft: { served: false, purpose: null, blocks: [], sameTextInEveryBlock: false, gaps: [{ part: 'game', what: `the overview could not be computed: ${error instanceof Error ? error.message : String(error)}` }], extracts: [] } }
         }
     }
 

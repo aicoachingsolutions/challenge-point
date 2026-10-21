@@ -11,7 +11,8 @@
  *
  * This stage computes three parts of the overview, for an administrator only (`ServedActivity.overviewDraft`, set by the review build
  * with drafts); nothing here is served to a coach and nothing here decides whether an activity is served. Stage 3B adds the wording
- * statuses as data, 3C the scoring group, and 3D the agreement check (Q7) and serving.
+ * statuses as data and, per block, the verbatim extracts of the approved wording the game says (`derived-wording.ts`); 3C the scoring
+ * group, and 3D the agreement check (Q7) and serving.
  *
  *   - **Learning purpose**: the Learning Goal's "Coach Definition", verbatim, cited to the planning model's `learning_goals` row. A
  *     mechanism demonstration has none. A goal with no definition shows none, with a gap for an administrator; none is ever composed.
@@ -30,6 +31,7 @@
  * both values. No goal, activity, value or sport term is written here; every noun is the game's or the role's DRAFT noun.
  */
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
+import { DerivedExtract, extractsFor, WithheldExtract } from './derived-wording'
 import { ATTACKING_END, BEYOND, Binding, gameReadingOf, InstructionPart, SIDE_BY_POSSESSION, SourceStatus, statusesOf, strongest, teamCountPhrases } from './render-concrete-game'
 
 /** Where a learning purpose is read from: the planning model's Learning Goals sheet, its coach-facing definition (his item 3). */
@@ -82,6 +84,12 @@ export interface CoachOverviewDraft {
     /** Whether every block says the same game and parameter words (Q7.8 will also compare what they cite). */
     sameTextInEveryBlock: boolean
     gaps: OverviewGap[]
+    /**
+     * **Stage 3B: the verbatim extracts of the approved wording each block's game says** (`derived-wording.ts` `extractsFor`), for the
+     * composer of stage 3C to choose from: each DERIVED_FROM_APPROVED, with its source entry and the covers it keeps and leaves; and those
+     * withheld, with why (a source entry the game does not say). None is a sentence of the overview yet. One entry per block.
+     */
+    extracts: { blockId: string; extracts: DerivedExtract[]; withheld: WithheldExtract[] }[]
 }
 
 const stated = (n: unknown): n is number => typeof n === 'number' && Number.isFinite(n)
@@ -297,5 +305,7 @@ export function coachOverviewDraftOf(goalId: string | null, blocks: { blockId: s
         return { blockId, game: game.sentence, parameters: parameters.sentence }
     })
     const textOf = (entry: (typeof read)[number]) => JSON.stringify([entry.game?.text ?? null, entry.parameters?.text ?? null])
-    return { served: false, purpose, blocks: read, sameTextInEveryBlock: read.length > 0 && read.every(entry => textOf(entry) === textOf(read[0])), gaps }
+    // Stage 3B: each block's extracts of the approved wording its own game says, read from that game alone.
+    const extracts = blocks.map(({ blockId, fixture }) => ({ blockId, ...extractsFor(fixture?.game ?? {}) }))
+    return { served: false, purpose, blocks: read, sameTextInEveryBlock: read.length > 0 && read.every(entry => textOf(entry) === textOf(read[0])), gaps, extracts }
 }
