@@ -39,6 +39,7 @@ import { FidelityFinding, OBLIGATIONS } from './fidelity'
 import { approvedTemplateSentences } from './approved-wording'
 import { approvedSentences, Instruction, RenderedActivity, UNBOUNDED_CREDIT, wordedFieldRows } from './render-concrete-game'
 import type { RoleBlockCheck } from './role-blocks'
+import { SectionLabel, sectionLabelsOf } from './sections'
 import type { ActivitySession } from './session-envelope'
 
 /** One block's game as the builder left it (a game not played in blocks is one block with no holders). */
@@ -120,6 +121,13 @@ export interface ReviewEvidence {
         roleExchange: Fact[]
         noPrescription: Fact[]
         instructions: InstructionEvidence[]
+        /**
+         * The review of stage 2A (21 October 2026): every section label the activity uses, in reading order, with when the coach needs
+         * what is under it, whose wording the label is (`sections.ts` `LABEL_STATUS`: none approved, every one DRAFT) and the indexes into
+         * `instructions` of the sentences under it. A label is coach-facing wording; his reply filed 22 October 2026, item 5, asks to see
+         * every draft in the final presentation.
+         */
+        labels: SectionLabel[]
     }
     flags: FlagEvidence[]
     /** What he asked to keep visible as limitations (stage M3), each in his words with the facts the game holds for it. */
@@ -709,6 +717,8 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
             sources,
         }
     })
+    /* The review of stage 2A: each section label the activity uses, with its status as data, read by the section's name (never by goal). */
+    const labels = sectionLabelsOf(composed.instructions)
 
     /* Withheld fields: the parts awaiting approved wording, and which fidelity findings are about them rather than the text said. */
     const withheld = composed.withheld.map(field => field.path)
@@ -1160,11 +1170,12 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
             { what: 'fidelity violations about fields awaiting approved wording', value: violations.length - inSaidText.length },
             { what: 'fields awaiting approved wording', value: withheld.length },
             { what: 'sentences', value: { total: instructions.length, approved: instructions.filter(i => i.wording === 'APPROVED').length, draft: instructions.filter(i => i.wording === 'DRAFT').length } },
+            { what: 'section labels', value: { total: labels.length, approved: labels.filter(l => l.status === 'APPROVED').length, draft: labels.filter(l => l.status === 'DRAFT').length, draftLabels: labels.filter(l => l.status === 'DRAFT').map(l => l.section) } },
         ],
         layers: request.layers.entries.map(entry => ({ ...entry })),
         items,
         structure,
-        sections: { allocation, specializedRoles, pressure, scoring, restarts: transitions, roleExchange, noPrescription, instructions },
+        sections: { allocation, specializedRoles, pressure, scoring, restarts: transitions, roleExchange, noPrescription, instructions, labels },
         flags,
         limitations,
         evaluation: {

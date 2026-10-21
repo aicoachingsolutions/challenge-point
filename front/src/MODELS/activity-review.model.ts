@@ -56,6 +56,11 @@ export interface ReviewInstruction {
     quantities?: number[]
     /** `setup` for the starting setup and playing instructions; `adjust` for what a coach may change from there. */
     tier?: 'setup' | 'adjust'
+    /**
+     * When the coach needs the sentence (stage 2A, 21 October 2026): `UNDERSTAND_AND_BEGIN`, `ADMINISTER` or `ADJUST`, read from its
+     * section by the server. A `string`, not the closed union, for the reason the header gives. Not shown yet.
+     */
+    when?: string
     /** The spans the sentence is made of, where the server sent them. */
     parts?: ReviewInstructionPart[]
     /**
@@ -390,6 +395,11 @@ export interface ReviewEvidence {
         roleExchange: ReviewFact[]
         noPrescription: ReviewFact[]
         instructions: { index: number; section: string; block: string | null; text: string; wording: 'APPROVED' | 'DRAFT'; obligationWords: string[]; q4: string[]; layers: string[]; standings: string[]; sources: ReviewEvidenceSource[] }[]
+        /**
+         * The review of stage 2A (21 October 2026): each section label the activity uses, with when the coach needs it, whose wording the
+         * label is, and the indexes of the sentences under it. Optional: evidence built before it lacks it.
+         */
+        labels?: { section: string; when: string; status: 'APPROVED' | 'DRAFT'; sentences: number[] }[]
     }
     flags: { id: string; kind: string; role: string; his: { words: string; citedAs: string }[]; status: string; settledBy: { words: string; citedAs: string }[]; answer: string; blocks: { blockId: string; facts: ReviewFact[] }[]; knowledge?: { libraryEntries: ReviewFact[]; registerRows: ReviewFact[]; corpusItems: ReviewFact[] } }[]
     /** Stage M3: the limitations he asked to keep visible, each in his words with the facts the game holds. */

@@ -1122,6 +1122,21 @@ export function checkFidelity(
         }
     }
 
+    /**
+     * **An approved sentence is said in the section his entry names** — the review of stage 2A, 21 October 2026, a TIGHTENING. Since
+     * stage 2A a sentence's section is assigned from what it cites (`sections.ts`), and an approved entry's own validated `section`
+     * (approved-coach-wording.json) is only its proposal; a unit test requires the two to agree for every production entry. This holds
+     * the same at run time, for every entry and game: where placement puts a sentence said in his approved words (by text and
+     * citations, as `isApproved` reads it) anywhere but the section his entry names, it is refused, because the section decides when a
+     * coach reads it — a rule he approved for How to score, placed in "Adjusting the activity", would read as an option.
+     */
+    for (const instruction of rendered.instructions) {
+        const own = approved.find(sentence => sentence.text === instruction.text && sentence.from.length === new Set(instruction.from).size && sentence.from.every(path => instruction.from.includes(path)))
+        if (own && own.section !== instruction.section) {
+            findings.push({ question: 4, severity: 'VIOLATION', what: `"${instruction.text}" is approved wording for "${own.section}" and is placed in "${instruction.section}"` })
+        }
+    }
+
     // ── Q5 — a coach could lay it out and play it ───────────────────────────────────────────────
     const sections = new Set(rendered.instructions.map(i => i.section))
     for (const required of ['Set up', 'Players', 'How to score'] as const) {

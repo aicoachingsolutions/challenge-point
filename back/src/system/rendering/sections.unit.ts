@@ -21,18 +21,44 @@
  *      dropped or reworded by placement;
  *   7. a required limit of a line the activity only starts at is adjusted within; the same limit of a line it fixes stays with it;
  *   8. the table and the assigner name no goal, activity or sport.
+ *
+ * Added in the review of stage 2A:
+ *
+ *   9. every section label's status is data (all DRAFT), every rendering's sections have one, and an unknown section is refused;
+ *  10. a role element and its role (rows B1, B2) place only a sentence citing nothing else, in Role exchange, and outrank nothing;
+ *  11. a cited transition whose play state cannot be read is refused rather than placed with how play runs;
+ *  12. fidelity Q4 refuses an approved sentence placed outside the section his entry names, and the build refuses it at communication.
  */
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 
 import { loadRegister } from '../derivation/corpus'
-import { approvedTemplateSentences, approvedWording } from './approved-wording'
-import { buildActivityWithFixture, ServedActivity } from './build-activity'
+import * as wordingModule from './approved-wording'
+import { ApprovedWording, approvedTemplateSentences, approvedWording } from './approved-wording'
+import { buildActivityWithFixture, RefusedActivity, ServedActivity } from './build-activity'
+import { checkFidelity } from './fidelity'
 import { OUT as A04_FIXTURE } from './freeze-a04-fixture'
 import { MECHANISM_DEMONSTRATIONS } from './mechanism-demonstrations'
 import { Instruction, producersProposals, renderConcreteGame, sectionFactsOf } from './render-concrete-game'
-import { assignSection, KIND_OF_ROW, Placement, RESTARTS, rowIndexOf, rowOfPath, registerRowIndex, SECTION_ORDER, SectionFacts, WHEN_IT_ENDS, WHEN_OF_SECTION } from './sections'
+import {
+    assignSection,
+    inSectionOrder,
+    KIND_OF_ROW,
+    LABEL_STATUS,
+    Placement,
+    PLAY_STATE_UNREADABLE,
+    RESTARTS,
+    ROLE_EXCHANGE,
+    rowIndexOf,
+    rowOfPath,
+    registerRowIndex,
+    SECTION_ORDER,
+    SectionFacts,
+    sectionLabelsOf,
+    WHEN_IT_ENDS,
+    WHEN_OF_SECTION,
+} from './sections'
 import { specializedRoleNames } from './session-envelope'
 
 let passed = 0
@@ -200,6 +226,90 @@ test('8. the table and the assigner name no goal, activity or sport', () => {
     for (const goal of ['A01', 'A02', 'A04', 'D01', 'D02', 'TA01', 'TD01']) assert.ok(!source.includes(goal), `no goal id (${goal})`)
     assert.ok(!source.toLowerCase().includes(String(ROLE).toLowerCase()), 'no specialized role')
     for (const demonstration of MECHANISM_DEMONSTRATIONS) assert.ok(!source.includes(demonstration.id), `no demonstration id (${demonstration.id})`)
+})
+
+/* The review of stage 2A, 21 October 2026. */
+
+test('9. every section label is recorded as data, all DRAFT; every rendering\'s sections have a recorded label; an unknown section is refused (TEST-ONLY)', () => {
+    assert.deepEqual(Object.keys(LABEL_STATUS), [...SECTION_ORDER], 'one status per section, in reading order')
+    assert.deepEqual(SECTION_ORDER.filter(section => LABEL_STATUS[section] !== 'DRAFT'), [], 'no section label is approved')
+    for (const { what, fixture } of games) {
+        const rendered = renderConcreteGame(fixture).instructions
+        const labels = sectionLabelsOf(rendered)
+        assert.deepEqual(
+            labels.map(l => l.section),
+            SECTION_ORDER.filter(section => rendered.some(i => i.section === section)),
+            `${what}: a label for every section used, in reading order`,
+        )
+        for (const label of labels) {
+            assert.deepEqual([label.when, label.status], [WHEN_OF_SECTION[label.section], 'DRAFT'], `${what}: ${label.section}`)
+            assert.ok(label.sentences.every(n => rendered[n].section === label.section), `${what}: ${label.section}`)
+        }
+        assert.deepEqual(labels.flatMap(l => l.sentences).sort((a, b) => a - b), rendered.map((_, n) => n), `${what}: every sentence under exactly one label`)
+    }
+    // TEST-ONLY sections: a name the approved-wording loader admits and no activity has, and a made-up one.
+    assert.throws(() => sectionLabelsOf([{ section: 'What to watch', text: 'TEST-ONLY' }]), /"What to watch", which is not one an activity has/)
+    assert.throws(() => inSectionOrder([{ section: 'Set up', text: 'TEST-ONLY a' }, { section: 'TEST-ONLY', text: 'TEST-ONLY b' }]), /"TEST-ONLY", which is not one an activity has/)
+})
+
+test('10. a role element and its role place only a sentence that cites nothing else, in Role exchange; they never outrank scoring, play or picking sides', () => {
+    const facts: SectionFacts = { transitionKind: () => null, startingLines: new Set() }
+    const at = (from: string[]) => assignSection({ status: 'DERIVED', from }, facts)
+    const role = 'activityRoles[c:x:y:z.1].activityRole'
+    assert.deepEqual([at([role]).section, at([role]).kind], [ROLE_EXCHANGE, 'ROLES'])
+    assert.equal(at(['activityRoles[c:x:y:z.1]']).section, ROLE_EXCHANGE)
+    assert.equal(at([role, 'value.primaryEvent.value']).section, 'How to score', 'a scoring sentence naming a role stays in How to score')
+    assert.equal(at([role, 'possession.team']).section, 'How it works', 'a how-play-works sentence naming a role stays in How it works')
+    assert.equal(at([role, 'performers.teams']).section, 'Players', 'picking sides naming a role stays in Players')
+    assert.equal(at([role, 'activityRoles[c:x:y:z.1].exchange']).section, ROLE_EXCHANGE, 'the exchange itself is still Role exchange')
+    // The served roles statement, which cites only the roles, is still in Role exchange (fidelity Q6 unchanged).
+    for (const { players, keepers, activity } of a01Built) {
+        const roles = (activity as ServedActivity).rendered.instructions.filter(i => i.from.length > 0 && i.from.every(p => p.startsWith('activityRoles[') && p.endsWith('.activityRole')))
+        assert.deepEqual(roles.map(i => i.section), [ROLE_EXCHANGE], `${players} players, ${keepers}`)
+    }
+})
+
+test('11. a cited transition whose play state is missing or neither STOP_RESUME nor CONTINUE is refused, not placed with how play runs (TEST-ONLY game)', () => {
+    for (const { what, fixture } of games) {
+        const facts = sectionFactsOf(fixture)
+        assert.ok(((fixture.game?.transitions ?? []) as any[]).every(t => facts.transitionKind(String(t.elementId)) !== PLAY_STATE_UNREADABLE), `${what}: every production transition is read`)
+    }
+    const [block] = a01Blocks.map(b => b.fixture)
+    const trigger = (t: any) => (t.selector ?? []).find((s: any) => s.attribute === 'trigger' && s.op === '=')?.value
+    for (const alter of [(t: any) => delete t.playState, (t: any) => (t.playState = 'TEST-ONLY')]) {
+        const broken = JSON.parse(JSON.stringify(block))
+        const out = broken.game.transitions.find((t: any) => trigger(t) === 'OUT_TOUCHLINE')
+        alter(out)
+        const facts = sectionFactsOf(broken)
+        assert.equal(facts.transitionKind(String(out.elementId)), PLAY_STATE_UNREADABLE)
+        assert.throws(() => assignSection({ status: 'DERIVED', from: [`transitions[${out.elementId}].awardedTo`] }, facts), /whose play state is neither STOP_RESUME nor CONTINUE/)
+    }
+})
+
+test('12. fidelity Q4 refuses an approved sentence placed outside the section his entry names (TEST-ONLY entry section), and the build refuses it at communication', () => {
+    const [block] = a01Blocks.map(b => b.fixture)
+    const production = approvedWording()
+    const misplaced = (wording: ApprovedWording[]) =>
+        checkFidelity(block, renderConcreteGame(block, wording), wording).findings.filter(f => f.question === 4 && f.what.includes('is approved wording for'))
+    assert.deepEqual(misplaced(production), [], 'production: every approved sentence is where his entry says')
+    // TEST-ONLY: W3's own section changed; placement (from what it cites) still puts it in How to score.
+    const w3 = production.find(entry => entry.id === 'A01-W3')!
+    const moved = production.map(entry => (entry.id === w3.id ? { ...JSON.parse(JSON.stringify(entry)), section: 'Set up' } : entry)) as ApprovedWording[]
+    const found = misplaced(moved)
+    assert.equal(found.length, 1, JSON.stringify(found))
+    assert.equal(found[0].severity, 'VIOLATION')
+    assert.equal(found[0].what, `"${w3.sentence}" is approved wording for "Set up" and is placed in "How to score"`)
+    // On the built chain: the activity is refused at communication rather than served with the sentence where his entry does not put it.
+    const read = wordingModule.approvedWording
+    try {
+        ;(wordingModule as any).approvedWording = () => JSON.parse(JSON.stringify(moved))
+        const refused = a01(12, 1).activity
+        assert.equal(refused.outcome, 'refused')
+        assert.equal((refused as RefusedActivity).stage, 'communication')
+    } finally {
+        ;(wordingModule as any).approvedWording = read
+    }
+    assert.equal(a01(12, 1).activity.outcome, 'served', 'production restored')
 })
 
 console.log(`\n${passed} passed`)

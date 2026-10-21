@@ -563,6 +563,38 @@ function wordingBySentence(activity: ServedActivity): { tags: Map<ReviewInstruct
     return { tags, unmatched }
 }
 
+/**
+ * Whose wording each section label is, for an administrator: the review of stage 2A, 21 October 2026. A section label is
+ * coach-facing wording like a sentence, and the server records its status beside the sentences' (`evidence.sections.labels`;
+ * none is approved yet). Joined by the section's name AND by the sentences under it: a label whose evidence does not list
+ * exactly the sentences the page shows under it gets no tag, as in `wordingBySentence`. Null for a coach, who receives no evidence.
+ */
+function wordingByLabel(activity: ServedActivity): Map<string, Wording> | null {
+    const labels = activity.evidence?.sections?.labels
+    if (!Array.isArray(labels)) return null
+    const tags = new Map<string, Wording>()
+    for (const label of labels) {
+        const shown = activity.rendered.instructions.flatMap((instruction, at) => (instruction.section === label.section ? [at] : []))
+        const matches =
+            Array.isArray(label.sentences) &&
+            label.sentences.length === shown.length &&
+            label.sentences.every((index, n) => index === shown[n]) &&
+            (label.status === 'APPROVED' || label.status === 'DRAFT')
+        if (matches) tags.set(label.section, label.status)
+    }
+    return tags
+}
+
+/** The tag beside a section heading in the administrator's view; the heading's capitals are not applied to it. */
+function LabelTag({ wording }: { wording: Wording | undefined }) {
+    if (!wording) return null
+    return (
+        <span className='tracking-normal normal-case'>
+            <WordingTag wording={wording} />
+        </span>
+    )
+}
+
 /** The quiet tag beside a sentence in the administrator's view. Labels are DRAFT wording. */
 function WordingTag({ wording }: { wording: Wording | undefined }) {
     if (!wording) return null
@@ -584,8 +616,9 @@ function WordingTag({ wording }: { wording: Wording | undefined }) {
  * shown in the account below, never here.
  *
  * The one addition is for an administrator only: where the response carries the review evidence, each sentence is
- * tagged with whose wording it is (see `wordingBySentence`). The tag says Approved or Draft and nothing more — no
- * register row, source or other internal handle. A coach's response has no evidence, and the block renders without tags.
+ * tagged with whose wording it is (see `wordingBySentence`), and so is each section label since the review of stage 2A
+ * (see `wordingByLabel`). The tag says Approved or Draft and nothing more — no register row, source or other internal
+ * handle. A coach's response has no evidence, and the block renders without tags.
  */
 function ActivityBlock({ activity }: { activity: ServedActivity }) {
     // The starting setup and playing instructions first; what a coach may adjust below a divider (14 October 2026).
@@ -593,6 +626,7 @@ function ActivityBlock({ activity }: { activity: ServedActivity }) {
     const sections = grouped.filter((group) => group.section !== ADJUSTING_SECTION)
     const adjusting = grouped.find((group) => group.section === ADJUSTING_SECTION)
     const wording = wordingBySentence(activity)
+    const labels = wordingByLabel(activity)
 
     return (
         <article className='bg-white border rounded-lg shadow-sm'>
@@ -622,7 +656,10 @@ function ActivityBlock({ activity }: { activity: ServedActivity }) {
                 <div className='mt-5 space-y-5'>
                     {sections.map((group) => (
                         <div key={group.section}>
-                            <p className='mb-1 text-xs font-semibold tracking-wide text-gray-400 uppercase'>{group.section}</p>
+                            <p className='mb-1 text-xs font-semibold tracking-wide text-gray-400 uppercase'>
+                                {group.section}
+                                <LabelTag wording={labels?.get(group.section)} />
+                            </p>
                             <ul className='space-y-1'>
                                 {group.lines.map((instruction, index) => (
                                     <li key={index} className='flex items-start gap-2 text-sm text-gray-700'>
@@ -647,7 +684,10 @@ function ActivityBlock({ activity }: { activity: ServedActivity }) {
                   */}
                 {adjusting && (
                     <div className='pt-4 mt-6 border-t border-gray-200'>
-                        <p className='mb-1 text-xs font-semibold tracking-wide text-gray-400 uppercase'>{adjusting.section}</p>
+                        <p className='mb-1 text-xs font-semibold tracking-wide text-gray-400 uppercase'>
+                            {adjusting.section}
+                            <LabelTag wording={labels?.get(adjusting.section)} />
+                        </p>
                         <p className='mb-2 text-sm text-gray-500'>{ADJUSTING_LEAD}</p>
                         <ul className='space-y-1'>
                             {adjusting.lines.map((instruction, index) => (

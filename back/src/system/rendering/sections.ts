@@ -23,8 +23,9 @@
  *
  * A path that resolves to no row and no known prefix, a row with no kind, a cited transition the game does not hold, and a sentence
  * no cited path decides are each refused loudly (an Error naming it): silence never places a sentence. Every name below is a DRAFT
- * for his review; "When it ends" is RC2's Win Condition, and "Restarts and ball out" is the consult-when-needed section his item 1
- * names ("restarts ... available when needed").
+ * for his review, recorded as data (`LABEL_STATUS`) and carried into the administrator's review evidence (`sectionLabelsOf`); "When it
+ * ends" is RC2's Win Condition, and "Restarts and ball out" is the consult-when-needed section his item 1 names ("restarts ...
+ * available when needed").
  *
  * **What stage 2A moves, and only that** (the BUILD PLAN): the duration, to When it ends, and every stop-and-restart that does not
  * open play or a bounded episode (the ball going out), to Restarts and ball out. Three readings keep today's placement where the
@@ -59,9 +60,29 @@ export const WHEN_IT_ENDS = 'When it ends'
 /** **How play is restarted when it stops for anything but the opening of play or of a bounded episode** — stage 2A, DRAFT name. */
 export const RESTARTS = 'Restarts and ball out'
 
-/** The order a coach reads Coach Details in (the BUILD PLAN, stage 2A). Every name is a DRAFT. */
+/** The order a coach reads Coach Details in (the BUILD PLAN, stage 2A). Every name is a DRAFT (`LABEL_STATUS`). */
 export const SECTION_ORDER = ['Set up', 'Players', 'How it works', 'How to score', WHEN_IT_ENDS, ROLE_EXCHANGE, RESTARTS, ADJUSTING] as const
 export type Section = (typeof SECTION_ORDER)[number]
+const isSection = (section: string): section is Section => (SECTION_ORDER as readonly string[]).includes(section)
+
+/**
+ * **Whose wording each section label is, as data** — the review of stage 2A, 21 October 2026. A section label is coach-facing wording
+ * like any sentence, and none of these has been approved: every one is DRAFT until he approves it, and only an entry carrying his
+ * approval may change that. Keyed by the section name, never by an activity. The administrator's review evidence carries the status of
+ * every label the served activity uses (`sectionLabelsOf`), as it carries each sentence's; his reply filed 22 October 2026, item 5,
+ * asks to see the final presentation, with every draft in it.
+ */
+export type LabelStatus = 'APPROVED' | 'DRAFT'
+export const LABEL_STATUS: Record<Section, LabelStatus> = {
+    'Set up': 'DRAFT',
+    Players: 'DRAFT',
+    'How it works': 'DRAFT',
+    'How to score': 'DRAFT',
+    [WHEN_IT_ENDS]: 'DRAFT',
+    [ROLE_EXCHANGE]: 'DRAFT',
+    [RESTARTS]: 'DRAFT',
+    [ADJUSTING]: 'DRAFT',
+}
 
 /**
  * **When the coach needs it** — his item 2: *"Some information is essential to understanding and beginning the game. Other
@@ -81,16 +102,22 @@ export const WHEN_OF_SECTION: Record<Section, When> = {
 }
 
 /** The kinds of element a sentence can state, each with its one section. */
-export type Kind = 'ADJUSTMENT' | 'ROLE_EXCHANGE' | 'SCORING' | 'EPISODE_OPENER' | 'RESTART' | 'IN_PLAY' | 'ORGANISATION' | 'OBJECTIVE' | 'DURATION' | 'PLAYERS'
+export type Kind = 'ADJUSTMENT' | 'ROLE_EXCHANGE' | 'SCORING' | 'EPISODE_OPENER' | 'RESTART' | 'IN_PLAY' | 'ORGANISATION' | 'OBJECTIVE' | 'DURATION' | 'PLAYERS' | 'ROLES'
 
 /**
  * **Which kind decides, highest first.** A sentence states several kinds of element at once (a marking sentence names the objective
  * whose target it marks; a scoring sentence names the object and the target noun), and the most specific function it serves decides:
  * a change a coach may make, then the exchange of roles, then how a team scores, then when play opens, then other restarts, then how
- * play runs, then organisation, then the objectives, then the duration, then picking sides. An opener ranks above other restarts, so
- * a sentence stating when play opens is never sent to the consult-when-needed section by a restart it also names.
+ * play runs, then organisation, then the objectives, then the duration, then picking sides, and last which roles the teams hold. An
+ * opener ranks above other restarts, so a sentence stating when play opens is never sent to the consult-when-needed section by a
+ * restart it also names.
+ *
+ * `ROLES` (rows B1, B2: a role element, and the role it is) is said in Role exchange, so the roles statement stays there (fidelity Q6
+ * unchanged), but it ranks LAST (the review of stage 2A): a role's name is cited wherever a sentence speaks for a role, and it must
+ * never pull a scoring or how-play-works sentence out of the first read into a consult-when-needed section. Only a sentence that cites
+ * nothing but the roles is placed by them.
  */
-export const PRECEDENCE: Kind[] = ['ADJUSTMENT', 'ROLE_EXCHANGE', 'SCORING', 'EPISODE_OPENER', 'RESTART', 'IN_PLAY', 'ORGANISATION', 'OBJECTIVE', 'DURATION', 'PLAYERS']
+export const PRECEDENCE: Kind[] = ['ADJUSTMENT', 'ROLE_EXCHANGE', 'SCORING', 'EPISODE_OPENER', 'RESTART', 'IN_PLAY', 'ORGANISATION', 'OBJECTIVE', 'DURATION', 'PLAYERS', 'ROLES']
 
 export const SECTION_OF_KIND: Record<Kind, Section> = {
     ADJUSTMENT: ADJUSTING,
@@ -103,6 +130,7 @@ export const SECTION_OF_KIND: Record<Kind, Section> = {
     OBJECTIVE: 'How to score',
     DURATION: WHEN_IT_ENDS,
     PLAYERS: 'Players',
+    ROLES: ROLE_EXCHANGE,
 }
 
 /**
@@ -222,10 +250,11 @@ export const KIND_OF_ROW: Record<string, Kind | 'TRANSITION' | 'NAME'> = {
     R2: 'IN_PLAY',
     R3: 'IN_PLAY',
     R4: 'IN_PLAY',
-    // Roles: which roles the teams hold and how they pass between them (the roles statement stays in Role exchange, fidelity Q6),
-    // who changes team at the exchange, and a role's scoring credit, which is how that team scores.
-    B1: 'ROLE_EXCHANGE',
-    B2: 'ROLE_EXCHANGE',
+    // Roles: which roles the teams hold (said in Role exchange, so the roles statement stays there, fidelity Q6, but ranked last: see
+    // PRECEDENCE), how they pass between them, who changes team at the exchange, and a role's scoring credit, which is how that team
+    // scores.
+    B1: 'ROLES',
+    B2: 'ROLES',
     B3: 'ROLE_EXCHANGE',
     B4: 'ROLE_EXCHANGE',
     B5: 'ROLE_EXCHANGE',
@@ -246,6 +275,12 @@ const underRoot = (path: string, root: string): boolean => path === root || path
 
 /** A transition as placement reads it. */
 export type TransitionKind = 'EPISODE_OPENER' | 'RESTART' | 'IN_PLAY'
+/**
+ * A transition whose play state (row T6, `STOP_RESUME` or `CONTINUE`) is missing or neither value: whether it stops play cannot be read,
+ * so a sentence citing it is refused rather than placed with how play runs (the review of stage 2A: silence never places a sentence).
+ */
+export const PLAY_STATE_UNREADABLE = 'PLAY_STATE_UNREADABLE'
+export type TransitionReading = TransitionKind | typeof PLAY_STATE_UNREADABLE
 
 /**
  * **The two structural facts placement reads beside the rows** — computed once per game by the renderer, which owns the reading
@@ -253,12 +288,13 @@ export type TransitionKind = 'EPISODE_OPENER' | 'RESTART' | 'IN_PLAY'
  *
  *   - `transitionKind`: for a transition element, whether it opens play (trigger START) or begins the episode a role's credit is
  *     confined to (row B8, its taker meeting an arm of that episode's typed begin condition, read exactly as `beginsEpisode` reads
- *     it), any other stop-and-restart, or a transition that keeps play going; null for an element the game does not hold;
+ *     it), any other stop-and-restart, or a transition that keeps play going; `PLAY_STATE_UNREADABLE` for one whose play state is
+ *     neither `STOP_RESUME` nor `CONTINUE`; null for an element the game does not hold;
  *   - `startingLines`: every line realization closed to a starting value inside a range (`STARTING_VALUE_IN_RANGE`), whose limits
  *     said as a REQUIRED_LIMIT are what a coach adjusts within.
  */
 export interface SectionFacts {
-    transitionKind: (elementId: string) => TransitionKind | null
+    transitionKind: (elementId: string) => TransitionReading | null
     startingLines: Set<string>
 }
 
@@ -326,7 +362,8 @@ export function rowOfPath(path: string, rows: Map<string, string>): string | nul
 
 /**
  * The kind one cited path states, or null where it decides nothing (a noun, a bare transition collection). Refuses loudly where the
- * path is on no row and no known prefix, its row has no kind, or it cites a transition the game does not hold.
+ * path is on no row and no known prefix, its row has no kind, or it cites a transition the game does not hold or whose play state
+ * cannot be read.
  */
 export function kindOfPath(path: string, facts: SectionFacts, rows: Map<string, string> = registerRowIndex()): Kind | null {
     const rooted = KIND_OF_ROOT.find(({ root }) => underRoot(path, root))
@@ -342,6 +379,7 @@ export function kindOfPath(path: string, facts: SectionFacts, rows: Map<string, 
     if (id === null) return null
     const transition = facts.transitionKind(id)
     if (!transition) throw new Error(`sections: "${path}" cites transition ${id}, which the game does not hold`)
+    if (transition === PLAY_STATE_UNREADABLE) throw new Error(`sections: "${path}" cites transition ${id}, whose play state is neither STOP_RESUME nor CONTINUE, so whether it stops play cannot be read`)
     return transition
 }
 
@@ -380,11 +418,39 @@ export function assignSection(instruction: Placeable, facts: SectionFacts, rows:
     return { section, when: WHEN_OF_SECTION[section], kind: best.kind, by: best.by }
 }
 
-/** Sentences in reading order: by section, keeping the order they were said in within each section. */
-export function inSectionOrder<T extends { section: string }>(instructions: T[]): T[] {
-    const rank = (section: string) => {
-        const at = (SECTION_ORDER as readonly string[]).indexOf(section)
-        return at < 0 ? SECTION_ORDER.length : at
-    }
+/** Refuses loudly a sentence whose section is not one an activity has (the review of stage 2A: no section is ranked on a guess). */
+function refuseUnknownSections(instructions: { section: string; text?: string }[]): void {
+    const unknown = instructions.find(instruction => !isSection(instruction.section))
+    if (unknown) throw new Error(`sections: "${unknown.text ?? '(a sentence)'}" is in the section "${unknown.section}", which is not one an activity has`)
+}
+
+/** Sentences in reading order: by section, keeping the order they were said in within each section. Refuses an unknown section. */
+export function inSectionOrder<T extends { section: string; text?: string }>(instructions: T[]): T[] {
+    refuseUnknownSections(instructions)
+    const rank = (section: string) => (SECTION_ORDER as readonly string[]).indexOf(section)
     return instructions.map((instruction, said) => ({ instruction, said })).sort((a, b) => rank(a.instruction.section) - rank(b.instruction.section) || a.said - b.said).map(({ instruction }) => instruction)
+}
+
+/** One section label an activity uses: when the coach needs what is under it, whose wording the label is, and the sentences under it. */
+export interface SectionLabel {
+    section: Section
+    when: When
+    status: LabelStatus
+    /** Indexes, in the order given, of the sentences placed under it. */
+    sentences: number[]
+}
+
+/**
+ * **The label of every section the sentences use, in reading order** — the review of stage 2A, 21 October 2026: the status of a label is
+ * recorded as data beside the sentences', read from `LABEL_STATUS` by the section's name. Refuses loudly a section an activity does not
+ * have, so no label reaches a reader without a recorded status.
+ */
+export function sectionLabelsOf(instructions: { section: string; text?: string }[]): SectionLabel[] {
+    refuseUnknownSections(instructions)
+    return SECTION_ORDER.filter(section => instructions.some(instruction => instruction.section === section)).map(section => ({
+        section,
+        when: WHEN_OF_SECTION[section],
+        status: LABEL_STATUS[section],
+        sentences: instructions.flatMap((instruction, at) => (instruction.section === section ? [at] : [])),
+    }))
 }

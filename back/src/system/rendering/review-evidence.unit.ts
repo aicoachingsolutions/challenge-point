@@ -25,7 +25,9 @@
  *   8. (K8 review) the structural report FAILS on a broken copy of each part he named — player totals, spatial relationships, scoring
  *      conditions, restarts — with the post-realization gates rerun on the broken concrete game, never a verdict written by hand;
  *   9. (K8 review) the relationships he confirmed on 18 October reach every element and sentence whose item cites one, a relationship
- *      not CONFIRMED is not approved, and a withheld field keeps the row the renderer reported.
+ *      not CONFIRMED is not approved, and a withheld field keeps the row the renderer reported;
+ *  11. (review of stage 2A) every section label the served activity uses is in the evidence with when the coach needs it and its
+ *      status, and none is approved.
  */
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
@@ -51,6 +53,7 @@ import { buildPilotActivity } from './build-pilot-activity'
 import { MECHANISM_DEMONSTRATIONS } from './mechanism-demonstrations'
 import { renderConcreteGame } from './render-concrete-game'
 import { EvidenceBlock, readPath, reviewEvidenceOf } from './review-evidence'
+import { RESTARTS, SECTION_ORDER, WHEN_IT_ENDS, WHEN_OF_SECTION } from './sections'
 import { specializedRoleNames } from './session-envelope'
 
 let passed = 0
@@ -699,6 +702,23 @@ test('10. (M3) items 4 and 5 show each role\'s credit and the regain score; the 
     assert.ok(damaged(c => (c.limitations[0].kind = 'TEST-ONLY')).some(e => e.includes('unknown kind')))
     assert.ok(damaged(c => delete c.limitations[0].role).some(e => e.includes('names no specialized role')))
     assert.ok(damaged(c => (c.limitations[2].words = [])).some(e => e.includes('must quote him')))
+})
+
+test('11. (review of stage 2A) every section label the served activity uses has a recorded status: none approved, When it ends and Restarts and ball out DRAFT', () => {
+    // A section label is coach-facing wording; until the review of stage 2A its status was in code comments only, and the evidence said
+    // each sentence's status but no label's. Read by the section's name (sections.ts LABEL_STATUS), never by goal.
+    const labels = evidence.sections.labels
+    const used = SECTION_ORDER.filter(section => review.rendered.instructions.some(i => i.section === section))
+    assert.deepEqual(labels.map(l => l.section), used, 'one label per section the served activity uses, in reading order')
+    assert.deepEqual(used, [...SECTION_ORDER], 'A01 uses every section')
+    for (const label of labels) {
+        assert.equal(label.when, WHEN_OF_SECTION[label.section], label.section)
+        assert.equal(label.status, 'DRAFT', `${label.section}: no section label is approved`)
+        assert.ok(label.sentences.length > 0 && label.sentences.every(n => evidence.sections.instructions[n].section === label.section), label.section)
+    }
+    assert.deepEqual(labels.flatMap(l => l.sentences).sort((a, b) => a - b), evidence.sections.instructions.map(i => i.index), 'every sentence under exactly one label')
+    for (const name of [WHEN_IT_ENDS, RESTARTS]) assert.equal(labels.find(l => l.section === name)?.status, 'DRAFT', name)
+    assert.deepEqual(fact(evidence.acceptance, 'section labels'), { total: 8, approved: 0, draft: 8, draftLabels: [...SECTION_ORDER] })
 })
 
 console.log(`review-evidence.unit.ts — ${passed} passed`)

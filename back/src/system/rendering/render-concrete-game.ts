@@ -51,7 +51,7 @@ import { NO_FURTHER_VALUE } from '../derivation/types'
 import { CONDITION_ROW, conditionScopeNotEvaluable } from '../derivation/resolved-game'
 import { ApprovedTemplateSentence, approvedTemplateSentences, approvedWording, ApprovedWording, canonicalJson, fillTemplate, POSSESSION_CONTINUES, WordingMatch } from './approved-wording'
 import { exclusionFor } from './coach-facing-exclusions'
-import { ADJUSTING, assignSection, inSectionOrder, ROLE_EXCHANGE, Section, SectionFacts, TransitionKind, When } from './sections'
+import { ADJUSTING, assignSection, inSectionOrder, PLAY_STATE_UNREADABLE, ROLE_EXCHANGE, Section, SectionFacts, TransitionReading, When } from './sections'
 
 // The two section names every importer has read from here since stages S-C1 and K3; since stage 2A they are named, with the rest
 // of the sections, in `sections.ts`, the one place a section is decided.
@@ -866,7 +866,9 @@ const triggerOfTransition = (transition: any): string | null => {
  *     taker meets an arm of the typed begin condition of an episode some role element's credit is confined to (row B8, any bound but
  *     the whole game) — read exactly as the start-placement sentence's `beginsEpisode` reads it;
  *   - any other stop-and-restart is a RESTART (the ball going out, in every game today);
- *   - a transition that does not stop play is part of how play runs.
+ *   - a transition whose play state is CONTINUE does not stop play, and is part of how play runs;
+ *   - a transition whose play state is missing or neither value (row T6) cannot be read, and a sentence citing it is refused (the review
+ *     of stage 2A: it was read as part of how play runs, so silence placed a sentence).
  *
  * And the lines realization closed to a starting value inside a range, whose required limits are what a coach adjusts within (the
  * neutral count's floor, said in Adjusting the activity since the review of S-C1).
@@ -880,9 +882,10 @@ export function sectionFactsOf(fixture: Fixture): SectionFacts {
         ...transitions.filter(t => t?.playState === 'STOP_RESUME' && triggerOfTransition(t) === 'START').map(t => String(t.elementId)),
         ...bounded.flatMap(episode => episodeStarters(transitions, beginArmTakers(game, episode)).map(t => String(t.elementId))),
     ])
-    const kinds = new Map<string, TransitionKind>(
-        transitions.map(t => [String(t?.elementId), t?.playState !== 'STOP_RESUME' ? 'IN_PLAY' : opening.has(String(t?.elementId)) ? 'EPISODE_OPENER' : 'RESTART'] as const),
-    )
+    // Row T6 holds STOP_RESUME or CONTINUE; any other value, or none, is read as nothing (a citation of it is refused in `sections.ts`).
+    const readingOf = (t: any): TransitionReading =>
+        t?.playState === 'CONTINUE' ? 'IN_PLAY' : t?.playState !== 'STOP_RESUME' ? PLAY_STATE_UNREADABLE : opening.has(String(t?.elementId)) ? 'EPISODE_OPENER' : 'RESTART'
+    const kinds = new Map<string, TransitionReading>(transitions.map(t => [String(t?.elementId), readingOf(t)] as const))
     const startingLines = new Set<string>(
         ((fixture?.status?.choices ?? []) as any[]).filter(choice => choice?.closure === 'STARTING_VALUE_IN_RANGE' && stated(choice?.value) && typeof choice?.path === 'string').map(choice => String(choice.path)),
     )
