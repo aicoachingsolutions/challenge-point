@@ -84,7 +84,8 @@ export function reviewDraftOf(fixtures: any[], rendered: RenderedActivity, viola
         instructions: rendered.instructions.map(instruction => ({
             ...JSON.parse(JSON.stringify(instruction)),
             wording: isApproved(instruction) ? 'APPROVED' : 'DRAFT',
-            provisionalSources: [...new Set(fixtures.flatMap(fixture => provisionalSourcesOf(fixture, instruction.from)))].sort(),
+            // Stage 2C (21 October 2026): a sentence said once for blocks that say it alike by role rests on each block's own citations too.
+            provisionalSources: [...new Set(fixtures.flatMap(fixture => provisionalSourcesOf(fixture, [...instruction.from, ...(instruction.counterparts ?? []).flatMap(entry => entry.from)])))].sort(),
         })),
         withheld: rendered.withheld.map(field => ({ ...field })),
         fidelity: { passed: !violations.some(v => v.severity === 'VIOLATION'), violations: violations.filter(v => v.severity === 'VIOLATION').map(v => `fidelity Q${v.question}: ${v.what}`) },

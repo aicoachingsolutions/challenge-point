@@ -28,7 +28,10 @@
  *   6. no noun the game does not hold, no challenge level, no bare decision imperative, and the Coach Communication Standard
  *      leaves every draft as it is;
  *   7. the start placement says players are free to move once play restarts, and is said only with the restarts that
- *      re-establish it.
+ *      re-establish it;
+ *   9. (stage 2C, 21 October 2026) a sentence the two blocks say alike by role is said once, block 1's citations exactly and block
+ *      2's beside them; Q6 refuses a counterpart one word different, missing or not mapping, and a repetition; the review evidence
+ *      shows both blocks' realized positions.
  */
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
@@ -45,7 +48,7 @@ import { checkFidelity, OBLIGATION_ALLOWLIST, OBLIGATIONS } from './fidelity'
 import { OUT as A04_FIXTURE } from './freeze-a04-fixture'
 import { MECHANISM_DEMONSTRATIONS } from './mechanism-demonstrations'
 import { ADJUSTING, Instruction, renderConcreteGame, ROLE_EXCHANGE, roleKeyedPositions } from './render-concrete-game'
-import { checkRoleBlockComposition, composeRoleBlockActivity } from './role-blocks'
+import { checkRoleBlockComposition, composeRoleBlockActivity, counterpartMap, counterpartPath } from './role-blocks'
 import { specializedRoleNames } from './session-envelope'
 
 let passed = 0
@@ -135,10 +138,13 @@ test('1. the review draft of A01 (TEST-ONLY: the table as at stage M5): every se
     assert.deepEqual(sentences(draft.instructions), [
         'Set up: Mark out an area 40 m long by 30 m wide',
         "Set up: Mark a line across the area, 20 m from the building team's end line",
-        "Set up [1]: Mark the pressing team's target zone at the building team's end, 5 m deep, across the full width",
-        "Set up [1]: Mark the building team's target zone from the marked line to the pressing team's end line, across the full width",
-        "Set up [2]: Mark the building team's target zone from the marked line to the pressing team's end line, across the full width",
-        "Set up [2]: Mark the pressing team's target zone at the building team's end, 5 m deep, across the full width",
+        // Moved 21 October 2026 (stage 2C, his reply filed 22 October 2026, item 8: "Correct section assignment, repetition, and
+        // information classification in the checked pathway."): each block said these two sentences in the same words, each citing its
+        // own role's target region and objective, so each is said once, with no block label, citing block 1's region and objective; block
+        // 2's own citations are kept beside it (`counterparts`, test 9). No word changed. Was: "Set up [1]: Mark the pressing team's ...",
+        // "Set up [1]: Mark the building team's ...", "Set up [2]: Mark the building team's ...", "Set up [2]: Mark the pressing team's ...".
+        "Set up: Mark the pressing team's target zone at the building team's end, 5 m deep, across the full width",
+        "Set up: Mark the building team's target zone from the marked line to the pressing team's end line, across the full width",
         `Players: Divide 12 players into 2 teams: the building team has 6 outfield players and 1 ${ROLE}; the pressing team has 5 outfield players`,
         'How it works: The building team starts with the ball',
         // Moved 17 October 2026 (stage M4, design step L10): his approved words, reply filed 19 October 2026, item 4 (read from
@@ -595,6 +601,141 @@ test('7. the start placement: free to move once play restarts, said only with th
     const rendered = renderConcreteGame(initial)
     assert.ok(!rendered.instructions.some(i => i.text.startsWith('Before each of these restarts')))
     assert.ok(checkFidelity(initial, rendered).findings.some(f => f.question === 3 && f.what.includes('performers.startPlacement[') && f.what.includes('.timing')))
+})
+
+/**
+ * Stage 2C, 21 October 2026. His reply filed 22 October 2026, item 8: "Correct section assignment, repetition, and information
+ * classification in the checked pathway."; item 7: "The knowledge can continue to represent the distinct targets and relationships for
+ * each block, even where the physical markings remain unchanged." Each block says the two target sentences in the same words, each
+ * citing its own role's target, so each is said once (paired, never pooled), and Q6 accepts the pair only as each block's own sentence.
+ */
+test('9. (stage 2C) a sentence the role blocks say alike by role is said once: block 1\'s citations exactly, block 2\'s beside them, never pooled; Q6 refuses a counterpart one word different, missing, or whose citations do not map, and a repetition; the evidence shows both blocks\' positions', () => {
+    const renders = blockFixtures.map((fixture, i) => ({ blockId: BLOCKS[i], fixture, rendered: renderConcreteGame(fixture) }))
+    const composed = composeRoleBlockActivity(renders, index)
+    assert.deepEqual(composed.instructions, served.rendered.instructions, 'the served activity is this composition of the two renders')
+    // The pairing, read from the two games: each role's objective and target region in block 1, and the same role's in block 2.
+    const pairing = counterpartMap(renders[0], renders[1], index)
+    assert.deepEqual(
+        [...pairing.entries()].sort(),
+        [
+            ['objectives[c:restated:GF2:GF2-08.c]', 'objectives[c:restated:GF2:GF2-08.e]'],
+            ['objectives[c:restated:GF2:GF2-08.e]', 'objectives[c:restated:GF2:GF2-08.c]'],
+            ['space.regions[c:restated:GF2:GF2-03.e]', 'space.regions[c:restated:GF2:GF2-03.f]'],
+            ['space.regions[c:restated:GF2:GF2-03.f]', 'space.regions[c:restated:GF2:GF2-03.e]'],
+        ],
+    )
+    // Said once, with no block label; nothing is said twice and nothing is under one block any more.
+    const mirrored = composed.instructions.filter(i => i.counterparts)
+    assert.deepEqual(mirrored.map(i => [i.section, i.text]), [
+        ['Set up', "Mark the pressing team's target zone at the building team's end, 5 m deep, across the full width"],
+        ['Set up', "Mark the building team's target zone from the marked line to the pressing team's end line, across the full width"],
+    ])
+    assert.ok(composed.instructions.every(i => i.block === undefined), 'no sentence is said under one block')
+    const texts = composed.instructions.map(i => i.text)
+    assert.equal(new Set(texts).size, texts.length, 'nothing is said twice')
+    assert.equal(composed.instructions.length, renders[0].rendered.instructions.length, 'every sentence of block 1 is said once, and nothing else')
+    // Never pooled: `from` is block 1's citations exactly, in order; the counterpart is block 2's exactly; each cites its own block's region.
+    for (const instruction of mirrored) {
+        const [one, two] = renders.map(entry => entry.rendered.instructions.filter(i => i.section === instruction.section && i.text === instruction.text))
+        assert.equal(one.length, 1, instruction.text)
+        assert.equal(two.length, 1, instruction.text)
+        assert.deepEqual(instruction.from, one[0].from, 'block 1\'s citations, exactly')
+        assert.deepEqual(instruction.counterparts, [{ blockId: BLOCKS[1], from: two[0].from }], 'block 2\'s citations, beside them')
+        assert.notDeepEqual([...one[0].from].sort(), [...two[0].from].sort(), 'each block cites its own role\'s target')
+        assert.deepEqual(two[0].from.map(path => counterpartPath(path, pairing)).sort(), [...one[0].from].sort(), 'block 2\'s citations are block 1\'s under the pairing (it is its own inverse here)')
+        assert.deepEqual(instruction.parts, one[0].parts, 'block 1\'s parts, exactly')
+    }
+    // Production at the other served sessions: two goalkeepers, and 11 players.
+    for (const other of [{ ...session, roles: { ...none, [ROLE]: 2 } }, { ...session, players: 11 }]) {
+        const activity = buildActivity({ ...a01, session: other }) as ServedActivity
+        assert.equal(activity.outcome, 'served', JSON.stringify(other))
+        assert.equal(activity.rendered.instructions.filter(i => i.counterparts).length, 2, JSON.stringify(other))
+        assert.ok(activity.rendered.instructions.every(i => i.block === undefined), JSON.stringify(other))
+    }
+
+    // Fidelity Q6 accepts the composition, and refuses each TEST-ONLY mutation below.
+    const q6 = (activity: { instructions: Instruction[]; coachingObservations: string[]; withheld: any[] }, from = renders) =>
+        checkRoleBlockComposition(from, activity, index).filter(f => f.severity === 'VIOLATION').map(f => f.what)
+    assert.deepEqual(q6(composed), [])
+    const pressing = mirrored[0]
+    const pressingInBlock2 = renders[1].rendered.instructions.find(i => i.section === pressing.section && i.text === pressing.text)!
+    const changed = (change: (i: Instruction) => Instruction) => ({ ...composed, instructions: composed.instructions.map(i => (i === pressing ? change(i) : i)) })
+    // (a) Block 2's sentence one word different (TEST-ONLY): the two are not paired, each is said under its own block, and Q6 accepts that;
+    // the activity that still says them as one is refused.
+    const oneWord = renders.map((entry, n) => (n === 1 ? { ...entry, rendered: { ...entry.rendered, instructions: entry.rendered.instructions.map(i => (i === pressingInBlock2 ? { ...i, text: i.text.replace('across the full width', 'across the whole width') } : i)) } } : entry))
+    const apart = composeRoleBlockActivity(oneWord, index)
+    assert.deepEqual(apart.instructions.filter(i => i.block).map(i => [i.block, i.text]), [
+        [BLOCKS[0], pressing.text],
+        [BLOCKS[1], pressing.text.replace('across the full width', 'across the whole width')],
+    ])
+    assert.deepEqual(q6(apart, oneWord), [])
+    const oneWordRefused = q6(composed, oneWord)
+    assert.ok(oneWordRefused.includes(`block ${BLOCKS[1]} says "${pressing.text.replace('across the full width', 'across the whole width')}" and the activity does not`), JSON.stringify(oneWordRefused))
+    assert.ok(oneWordRefused.includes(`"${pressing.text}" is said for block ${BLOCKS[1]} with citations that block's game does not say it with`), JSON.stringify(oneWordRefused))
+    // (b) A missing counterpart: none listed, or the field taken away (then it claims every block with block 1's citations).
+    const noCounterpart = q6(changed(i => ({ ...i, counterparts: [] })))
+    assert.ok(noCounterpart.includes(`"${pressing.text}" is said once for every block and carries 0 counterparts for block ${BLOCKS[1]}, not one`), JSON.stringify(noCounterpart))
+    assert.ok(noCounterpart.includes(`block ${BLOCKS[1]} says "${pressing.text}" and the activity does not`), JSON.stringify(noCounterpart))
+    const noField = q6(
+        changed(i => {
+            const { counterparts: _dropped, ...rest } = i
+            return rest
+        }),
+    )
+    assert.ok(noField.includes(`"${pressing.text}" is said for every block, and not every block's game says it`), JSON.stringify(noField))
+    // (c) Citations that do not map: block 2 (TEST-ONLY) also says the sentence with block 1's own citations, and the counterpart points
+    // there. Block 2's game says it, so only the pairing refuses it; and block 2's real sentence is then said by nothing.
+    const unpaired = renders.map((entry, n) => (n === 1 ? { ...entry, rendered: { ...entry.rendered, instructions: [...entry.rendered.instructions, { ...pressingInBlock2, from: [...pressing.from] }] } } : entry))
+    const unmapped = q6(changed(i => ({ ...i, counterparts: [{ blockId: BLOCKS[1], from: [...pressing.from] }] })), unpaired)
+    assert.ok(unmapped.some(what => what.startsWith(`"${pressing.text}": its citations in block ${BLOCKS[1]} are not block ${BLOCKS[0]}'s under the role pairing`)), JSON.stringify(unmapped))
+    assert.ok(unmapped.includes(`block ${BLOCKS[1]} says "${pressing.text}" and the activity does not`), JSON.stringify(unmapped))
+    // (d) A counterpart naming a block the activity does not have, and a mirrored sentence also put under a block.
+    assert.ok(q6(changed(i => ({ ...i, counterparts: [...i.counterparts!, { blockId: 'TEST-ONLY-block', from: [] }] }))).some(what => what.includes('carries a counterpart for block TEST-ONLY-block')))
+    assert.ok(q6(changed(i => ({ ...i, block: BLOCKS[0] }))).some(what => what.includes(`and also under block ${BLOCKS[0]}`)))
+    // (e) The tightening: block 2's sentence said again under its block, beside the pair, is a repetition.
+    const repeated = q6({ ...composed, instructions: [...composed.instructions, { ...pressingInBlock2, block: BLOCKS[1] }] })
+    assert.deepEqual(repeated, [`block ${BLOCKS[1]}'s sentence "${pressing.text}" is said 2 times by the activity`])
+
+    // The review evidence: the pair carries both blocks' citations, and its sources and the element provenance show BOTH blocks' realized
+    // positions (the D2 verification's defect: the dedupe kept one source per ref, so block 2's geometry replaced block 1's, and inside
+    // one sentence the across position replaced the along one).
+    const evidence = served.evidence!
+    const said = evidence.sections.instructions.find(i => i.text === pressing.text)!
+    assert.equal(said.block, null)
+    assert.deepEqual(said.counterparts, [{ blockId: BLOCKS[1], from: pressingInBlock2.from }])
+    const geometryOf = (fixture: any, path: string) => fixture.status.geometry.find((g: any) => g.path === path).geometry
+    const detailOf = (blockId: string, geometry: any) => `block ${blockId}: ${`${geometry.term ?? ''} ${JSON.stringify(geometry.interval ?? null)}`.trim()}`
+    const realized = (sources: { ref: string; detail: string | null }[]) => sources.filter(s => s.ref === 'realization (realized geometry)').map(s => s.detail)
+    const regionOf = (from: string[]) => from.find(path => path.endsWith('.position.along'))!.replace('.position.along', '')
+    const expected = [
+        ...['along', 'across'].map(axis => detailOf(BLOCKS[0], geometryOf(blockFixtures[0], `${regionOf(pressing.from)}.position.${axis}`))),
+        ...['along', 'across'].map(axis => detailOf(BLOCKS[1], geometryOf(blockFixtures[1], `${regionOf(pressingInBlock2.from)}.position.${axis}`))),
+    ]
+    assert.deepEqual(realized(said.sources).sort(), [...new Set(expected)].sort(), 'each block\'s own region, along and across')
+    assert.notEqual(expected[0], expected[2], 'the two blocks place the pressing team\'s target at opposite ends')
+    // One element held by both blocks at different positions: its provenance shows both.
+    const along = `${regionOf(pressing.from)}.position.along`
+    const element = evidence.provenance.elements.find(e => e.path === along)!
+    assert.deepEqual(realized(element.sources).sort(), BLOCKS.map((blockId, n) => detailOf(blockId, geometryOf(blockFixtures[n], along))).sort())
+    assert.notDeepEqual(geometryOf(blockFixtures[0], along).interval, geometryOf(blockFixtures[1], along).interval)
+    // With every source kept, an element naming one member rests on that member's entailments alone (in each block), never another
+    // member's (the old dedupe hid that it read every member's); a path through every member rests on every member's.
+    // Each entailment names its block ("block <id>: <member> = <value>"), as each realized position does.
+    const entailments = (sources: { ref: string; detail: string | null }[]) => sources.filter(s => s.ref === 'entailment at assembly').map(s => String(s.detail))
+    const unblocked = (detail: string) => {
+        const block = BLOCKS.find(blockId => detail.startsWith(`block ${blockId}: `))
+        assert.ok(block, `${detail} names its block`)
+        return detail.slice(`block ${block}: `.length)
+    }
+    const members = evidence.provenance.elements.filter(e => !e.path.includes('[]') && entailments(e.sources).length > 0)
+    assert.ok(members.length > 0, 'some element naming one member rests on an entailment')
+    for (const member of members) {
+        const own = entailments(member.sources)
+        assert.ok(own.map(unblocked).every(detail => detail.startsWith(`${member.path} = `)), `${member.path}: ${JSON.stringify(own)}`)
+        assert.deepEqual(BLOCKS.filter(blockId => own.some(detail => detail.startsWith(`block ${blockId}: `))), BLOCKS, `${member.path}: its entailment in each block`)
+    }
+    const players = evidence.sections.instructions.find(i => i.section === 'Players')!
+    assert.equal(new Set(entailments(players.sources).map(detail => unblocked(detail).split(' = ')[0])).size, members.length, 'the roster sentence, citing every member, rests on every member\'s entailment')
 })
 
 console.log(`communication.unit.ts — ${passed} passed`)

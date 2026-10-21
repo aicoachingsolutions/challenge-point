@@ -151,7 +151,10 @@ test('1. end to end on production data: SERVED (design step L14; was refused onl
     // specifically to the two scoring statements, not yet to the entire activity").
     // Moved 21 October 2026 (stage 2B), total 28 -> 29 and draft 24 -> 25: the opening restart is said as WHEN and HOW (both DRAFT; his
     // reply filed 22 October 2026, item 2), and where it is taken names its own restart; nothing approved changes.
-    assert.deepEqual(fact(evidence.acceptance, 'sentences'), { total: 29, approved: 4, draft: 25 })
+    // Moved 21 October 2026 (stage 2C), total 29 -> 27 and draft 25 -> 23: the two target sentences each block said in the same words,
+    // each citing its own role's target, are each said once (his reply filed 22 October 2026, item 8: "Correct section assignment,
+    // repetition, and information classification in the checked pathway."; communication.unit.ts 9); nothing approved changes.
+    assert.deepEqual(fact(evidence.acceptance, 'sentences'), { total: 27, approved: 4, draft: 23 })
     assert.deepEqual(evidence.sections.instructions.filter(i => i.wording === 'APPROVED').map(i => i.text), ['When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone', HIS_ITEM_1, HIS_W3, HIS_W2])
     // Measured at this stage: 19 Gate A checks per block, all PASS; the 9 cross-block checks; 11 owed invariants per block.
     assert.deepEqual(evidence.structure.summary.gateChecks, { PASS: 38 })
@@ -196,7 +199,8 @@ test('2. the nine items: his words from the record, each resolved to elements, c
     // Moved 17 October 2026 (stage M3, design step L9), 24 -> 25 (test 1). Moved 18 October 2026 (stage M5), 25 -> 26: his sentence.
     // Moved 18 October 2026 (design step L14), 26 -> 28: his two scoring statements (A01-W2, A01-W3).
     // Moved 21 October 2026 (stage 2B), 28 -> 29: the opening restart's WHEN and HOW are two sentences.
-    assert.equal(byId.R8.sentences.length, 29)
+    // Moved 21 October 2026 (stage 2C), 29 -> 27: the two mirrored target sentences are each said once (test 1).
+    assert.equal(byId.R8.sentences.length, 27)
     assert.ok(byId.R7.checks.map(c => c.checkId).join() === 'RB-1,RB-2,RB-3,RB-4,RB-5,RB-6,RB-7,RB-8,RB-M')
 })
 

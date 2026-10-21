@@ -83,11 +83,23 @@ const SECTION_ORDER = ['Set up', 'Players', 'How it works', 'How to score', 'Whe
 /**
  * "Block 1 only" for a sentence that holds in one role block (15 October 2026): the block's number in the order the
  * server lists the blocks, never its technical id. A DRAFT label; which block is played first is the coach's.
+ *
+ * Stage 2C (21 October 2026): a sentence the blocks say in the same words, each citing its own role's target, is said once
+ * (`counterparts`) and holds in every block, so it carries no block label, even if a block were also named on it.
  */
 function blockLabel(activity: ServedActivity, instruction: ReviewInstruction): string | null {
-    if (!instruction.block) return null
+    if (!instruction.block || instruction.counterparts) return null
     const at = (activity.roleBlocks?.blocks ?? []).findIndex((block) => block.blockId === instruction.block)
     return `Block ${at >= 0 ? at + 1 : '?'} only: `
+}
+
+/**
+ * "Block 2" for a block named in the account (stage 2C, 21 October 2026): its number in the order the server lists the blocks, never its
+ * technical id, as `blockLabel`. A DRAFT account label.
+ */
+function blockNumberLabel(activity: ServedActivity, blockId: string | undefined): string {
+    const at = (activity.roleBlocks?.blocks ?? []).findIndex((block) => block.blockId === blockId)
+    return `Block ${at >= 0 ? at + 1 : '?'}`
 }
 
 /**
@@ -1617,6 +1629,8 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                                             <p className='text-[11px] font-semibold tracking-wide text-gray-500 uppercase'>
                                                 {instruction.section} · {instruction.status}
                                                 {instruction.block && <span className='font-normal normal-case'> · block {instruction.block}</span>}
+                                                {/* Stage 2C (21 October 2026): said once for blocks that say it alike by role. A DRAFT account label. */}
+                                                {instruction.counterparts && <span className='font-normal normal-case'> · said once for every block, each citing its own</span>}
                                                 {STATUS_MEANING[instruction.status] && (
                                                     <span className='font-normal normal-case'> — {STATUS_MEANING[instruction.status]}</span>
                                                 )}
@@ -1633,6 +1647,10 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                                                     ))}
                                                 </ul>
                                             )}
+                                            {/* A sentence said once for every block (stage 2C): its `from` is block 1's citations, labelled so. */}
+                                            {instruction.counterparts && (instruction.from ?? []).length > 0 && (
+                                                <p className='mt-1 text-[11px] text-gray-500'>{blockNumberLabel(served, (served.roleBlocks?.blocks ?? []).find((block) => !instruction.counterparts!.some((c) => c.blockId === block.blockId))?.blockId)}:</p>
+                                            )}
                                             {(instruction.from ?? []).length > 0 ? (
                                                 <ul className='mt-1'>
                                                     {instruction.from.map((path, pathIndex) => (
@@ -1644,6 +1662,19 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                                             ) : (
                                                 <p className='mt-1 text-[11px] font-semibold text-amber-600'>No source path was given for this sentence.</p>
                                             )}
+                                            {/* And each other block's own citations, kept apart, never pooled into `from` (stage 2C). */}
+                                            {(instruction.counterparts ?? []).map((counterpart) => (
+                                                <div key={counterpart.blockId}>
+                                                    <p className='mt-1 text-[11px] text-gray-500'>{blockNumberLabel(served, counterpart.blockId)}:</p>
+                                                    <ul className='mt-1'>
+                                                        {counterpart.from.map((path, pathIndex) => (
+                                                            <li key={pathIndex} className='font-mono text-[11px] leading-snug text-gray-500 break-all'>
+                                                                {path}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            ))}
                                         </li>
                                     ))}
                                 </ol>

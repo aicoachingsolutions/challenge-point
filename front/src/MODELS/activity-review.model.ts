@@ -68,6 +68,12 @@ export interface ReviewInstruction {
      * absent where it holds in both. A technical id — the page shows the block's number, never the id.
      */
     block?: string
+    /**
+     * Stage 2C (21 October 2026): a sentence the blocks say in the same words, each citing its own role's target, said once. `from` is
+     * block 1's citations; each other block's own are here. Such a sentence has no `block` and the page gives it no block label.
+     * Account only.
+     */
+    counterparts?: { blockId: string; from: string[] }[]
 }
 
 export interface RenderedActivity {
@@ -394,7 +400,8 @@ export interface ReviewEvidence {
         restarts: Record<string, unknown>[]
         roleExchange: ReviewFact[]
         noPrescription: ReviewFact[]
-        instructions: { index: number; section: string; block: string | null; text: string; wording: 'APPROVED' | 'DRAFT'; obligationWords: string[]; q4: string[]; layers: string[]; standings: string[]; sources: ReviewEvidenceSource[] }[]
+        /** `counterparts` (stage 2C, 21 October 2026): present only on a sentence said once for blocks that say it alike by role. */
+        instructions: { index: number; section: string; block: string | null; counterparts?: { blockId: string; from: string[] }[]; text: string; wording: 'APPROVED' | 'DRAFT'; obligationWords: string[]; q4: string[]; layers: string[]; standings: string[]; sources: ReviewEvidenceSource[] }[]
         /**
          * The review of stage 2A (21 October 2026): each section label the activity uses, with when the coach needs it, whose wording the
          * label is, and the indexes of the sentences under it. Optional: evidence built before it lacks it.

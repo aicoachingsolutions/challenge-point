@@ -206,6 +206,11 @@ export interface InstructionEvidence {
     index: number
     section: string
     block: string | null
+    /**
+     * Stage 2C (21 October 2026): for a sentence said once for blocks that say it alike by role, each other block and its own citations
+     * (`Instruction.counterparts`); `sources` are read from each block's own. Absent on every other sentence.
+     */
+    counterparts?: { blockId: string; from: string[] }[]
     text: string
     wording: 'APPROVED' | 'DRAFT'
     obligationWords: string[]
@@ -410,6 +415,12 @@ function boundingItemsOf(path: string, block: EvidenceBlock, index: RegisterInde
     )
 }
 
+/**
+ * Where a per-block fact is said beside its value (stage 2C, 21 October 2026): "block <id>: " in a game played in role blocks, whose blocks
+ * are realized and entailed each on its own; nothing for a game not played in blocks.
+ */
+const inBlock = (block: EvidenceBlock): string => (Object.keys(block.holders ?? {}).length ? `block ${block.blockId}: ` : '')
+
 function sourcesOf(path: string, block: EvidenceBlock, items: Map<string, any>, adjustments: Map<string, any>, relationships: Map<string, any>, index: RegisterIndex): EvidenceSource[] {
     const status = block.fixture?.status ?? {}
     const generic = genericOf(path)
@@ -432,13 +443,23 @@ function sourcesOf(path: string, block: EvidenceBlock, items: Map<string, any>, 
         for (const bound of choice.within?.bounds ?? []) if (bound?.assumed) found.push({ layer: 'GENERAL_ENGINE_MECHANISM', standing: 'OUR_READING', ref: `bound of ${choice.lineId}`, detail: 'the bound is assumed' })
     }
     for (const entailed of status.entailed ?? []) {
-        if (entailed?.path !== path && `${entailed?.collection}[].${entailed?.leaf}` !== generic) continue
-        found.push({ layer: 'GENERAL_ENGINE_MECHANISM', standing: 'APPROVED', ref: 'entailment at assembly', detail: `${entailed.collection}[${entailed.handle}].${entailed.leaf} = ${JSON.stringify(entailed.value)}` })
+        /**
+         * A path through every member (`collection[].leaf`) rests on every member's entailment; a path naming one member rests on that
+         * member's own. Stage 2C (21 October 2026): this read every member's entailment for one member's path too, which the old dedupe hid
+         * by keeping only the last one found — for one team's count, another team's (measured on the first served activity in role blocks:
+         * the first team's specialized-role count showed the second team's block-2 entailment). With each source kept (`dedupe`), one
+         * member's path is read alone.
+         */
+        const member = `${entailed?.collection}[${entailed?.handle}].${entailed?.leaf}`
+        if (entailed?.path !== path && member !== path && (generic !== path || `${entailed?.collection}[].${entailed?.leaf}` !== generic)) continue
+        // Stage 2C: in role blocks each block entails its own counts, so the block is named beside the value (as for realized geometry).
+        found.push({ layer: 'GENERAL_ENGINE_MECHANISM', standing: 'APPROVED', ref: 'entailment at assembly', detail: `${inBlock(block)}${member} = ${JSON.stringify(entailed.value)}` })
         for (const ref of entailed.supportedBy ?? []) found.push(...itemSources(ref, items, null, relationships))
     }
     for (const geometry of status.geometry ?? []) {
         if (geometry?.path !== path) continue
-        found.push({ layer: 'GENERAL_ENGINE_MECHANISM', standing: 'APPROVED', ref: 'realization (realized geometry)', detail: `${geometry.geometry?.term ?? ''} ${JSON.stringify(geometry.geometry?.interval ?? null)}`.trim() })
+        // Stage 2C (21 October 2026): a game played in role blocks is realized once per block, so the block is named beside its position.
+        found.push({ layer: 'GENERAL_ENGINE_MECHANISM', standing: 'APPROVED', ref: 'realization (realized geometry)', detail: `${inBlock(block)}${`${geometry.geometry?.term ?? ''} ${JSON.stringify(geometry.geometry?.interval ?? null)}`.trim()}` })
     }
     for (const instantiation of status.instantiations ?? []) {
         const handle = String(instantiation?.handle ?? instantiation?.elementId ?? '')
@@ -473,9 +494,19 @@ function sourcesOf(path: string, block: EvidenceBlock, items: Map<string, any>, 
     return found
 }
 
+/**
+ * The sources of an element or a sentence, each said once. **A source is the same only where its detail is the same too** — stage 2C, 21
+ * October 2026, the defect the D2 verification found here: keyed on layer, standing and ref alone, a later source overwrote an earlier
+ * one with the same ref, so the realized geometry of block 2 replaced block 1's for every path both blocks hold (the review evidence showed
+ * one block's position as the element's), and inside one sentence an along position was replaced by the across position cited after it.
+ * Keyed with the detail as well, both are kept, in the order found; a source repeated whole is still said once.
+ */
 const dedupe = (sources: EvidenceSource[]): EvidenceSource[] => {
     const seen = new Map<string, EvidenceSource>()
-    for (const source of sources) seen.set(JSON.stringify([source.layer, source.standing, source.ref]), source)
+    for (const source of sources) {
+        const key = JSON.stringify([source.layer, source.standing, source.ref, source.detail])
+        if (!seen.has(key)) seen.set(key, source)
+    }
     return [...seen.values()]
 }
 const LAYER_ORDER: Layer[] = ['GENERAL_ENGINE_MECHANISM', 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS', 'ACTIVITY_REALIZATION_CHOICE', 'SESSION_INPUT']
@@ -701,13 +732,25 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
     // is approved wording too; the same template filled with any other value is a generalization of his words, DRAFT.
     const approvedTemplates = approvedTemplateSentences().map(template => template.sentence.replace(/\.$/, ''))
     const allFindings = [...blocks.flatMap(block => block.findings), ...input.compositionFindings]
+    /**
+     * What a sentence cites in each block that says it (stage 2C, 21 October 2026): a sentence under one block cites its `from` there; a
+     * sentence said once for blocks that say it alike by role cites its `from` in block 1 and, in every block it has a counterpart for,
+     * that counterpart's own citations (never block 1's paths read in the other block's game, where they are the other role's); any other
+     * sentence cites its `from` in every block.
+     */
+    const citedIn = (instruction: Instruction): { block: EvidenceBlock; from: string[] }[] =>
+        blocks.flatMap(block => {
+            if (instruction.block) return instruction.block === block.blockId ? [{ block, from: instruction.from }] : []
+            const counterpart = (instruction.counterparts ?? []).find(entry => entry.blockId === block.blockId)
+            return [{ block, from: counterpart ? counterpart.from : instruction.from }]
+        })
     const instructions: InstructionEvidence[] = composed.instructions.map((instruction: Instruction, i) => {
-        const owners = instruction.block ? blocks.filter(block => block.blockId === instruction.block) : blocks
-        const sources = dedupe(owners.flatMap(block => instruction.from.flatMap(path => sourcesOf(path, block, blockItems[blocks.indexOf(block)], adjustments, relationships, index))))
+        const sources = dedupe(citedIn(instruction).flatMap(({ block, from }) => from.flatMap(path => sourcesOf(path, block, blockItems[blocks.indexOf(block)], adjustments, relationships, index))))
         return {
             index: i,
             section: instruction.section,
             block: instruction.block ?? null,
+            ...(instruction.counterparts ? { counterparts: instruction.counterparts.map(entry => ({ blockId: entry.blockId, from: [...entry.from] })) } : {}),
             text: instruction.text,
             wording: approved.some(sentence => sentence.text === instruction.text) || approvedTemplates.includes(instruction.text) ? 'APPROVED' : 'DRAFT',
             obligationWords: OBLIGATIONS.filter(word => word.test(instruction.text)).map(word => String(word)),
@@ -748,7 +791,7 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
         for (const entry of [...(status.derived ?? []), ...(status.choices ?? []), ...(status.geometry ?? [])]) if (entry?.path) note(String(entry.path), block.blockId)
         for (const entry of status.entailed ?? []) note(String(entry.path ?? `${entry.collection}[${entry.handle}].${entry.leaf}`), block.blockId)
     }
-    for (const instruction of composed.instructions) for (const path of instruction.from) for (const block of blocks) if (!instruction.block || instruction.block === block.blockId) note(path, block.blockId)
+    for (const instruction of composed.instructions) for (const { block, from } of citedIn(instruction)) for (const path of from) note(path, block.blockId)
     for (const path of withheld) for (const block of blocks) note(path, block.blockId)
     const untraced: string[] = []
     const elements: ElementProvenance[] = [...paths.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([path, where]) => {
@@ -1112,7 +1155,9 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
     const items: ItemEvidence[] = request.items.map(item => {
         const perBlock = blocks.map(block => ({ blockId: block.blockId, elements: item.kind === 'GAME' ? itemPaths(item, block).map(path => ({ path, row: rowAt(path) ?? '', value: readPath(block.fixture?.game ?? {}, path.replace(/#realized$/, '')) })) : [] }))
         const carried = new Set(perBlock.flatMap(b => b.elements.map(e => e.path)))
-        const sentences = item.kind === 'INSTRUCTIONS' ? instructions.map(i => i.index) : item.kind === 'GAME' ? instructions.filter(i => composed.instructions[i.index].from.some(path => carried.has(path) || (genericOf(path) !== path && [...carried].some(c => genericOf(c) === genericOf(path))))).map(i => i.index) : []
+        // A sentence carries an item where what it cites in any block does (stage 2C: a sentence said once by role cites in each block).
+        const cites = (at: number) => citedIn(composed.instructions[at]).flatMap(entry => entry.from)
+        const sentences = item.kind === 'INSTRUCTIONS' ? instructions.map(i => i.index) : item.kind === 'GAME' ? instructions.filter(i => cites(i.index).some(path => carried.has(path) || (genericOf(path) !== path && [...carried].some(c => genericOf(c) === genericOf(path))))).map(i => i.index) : []
         const checks = item.checks.flatMap((checkId): ItemEvidence['checks'] =>
             checkId.startsWith('RB-')
                 ? input.crossBlock.filter(c => c.checkId === checkId).map(c => ({ checkId, blockId: null, verdict: c.verdict }))

@@ -148,6 +148,16 @@ export interface Instruction {
      * them; absent where the sentence holds in both. Organisation only; carries no authority.
      */
     block?: string
+    /**
+     * **A sentence the role blocks say alike by role, said once** (stage 2C, 21 October 2026). His reply filed 22 October 2026, item 8,
+     * asks to correct "section assignment, repetition, and information classification in the checked pathway". In an activity composed
+     * from role blocks, a sentence whose words, section and status are the same in every block, and whose citations are each other's
+     * under the role pairing (`role-blocks.ts` `counterpartMap`: each role's objective and target region in one block, the same role's in
+     * the other), is said once with no `block`. Its `from` is block 1's citations exactly; each other block's own citations are kept
+     * here, never pooled into `from`. Fidelity Q6 accepts an entry only where its block's own render says the sentence with exactly
+     * these citations and the pairing maps block 1's onto them. Absent on every other sentence. Organisation only; carries no authority.
+     */
+    counterparts?: { blockId: string; from: string[] }[]
     text: string
     status: SourceStatus
     /** Concrete-game property paths that produced it. Empty is a defect, not a style choice. */
