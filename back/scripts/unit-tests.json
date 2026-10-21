@@ -95,6 +95,7 @@
     "./src/system/rendering/allocation.unit.ts",
     "./src/system/rendering/communication.unit.ts",
     "./src/system/rendering/review-evidence.unit.ts",
+    "./src/system/rendering/sections.unit.ts",
     "./src/system/derivation/starts-and-restarts.unit.ts",
     "./src/system/derivation/credit-episode.unit.ts",
     "./src/system/derivation/also-counts.unit.ts",

@@ -127,13 +127,19 @@ test('1. the review draft of A01 (TEST-ONLY: the table as at stage M5): every se
     const draft = review.draft!
     assert.equal(draft.status, 'DRAFT_NOT_SERVED')
     // DRAFT coach wording, every sentence listed in the stage report for his approval (approved-coach-wording.json is empty).
+    // Re-pointed 21 October 2026 (stage 2A, his reply filed 22 October 2026, item 2: "Information should be classified according to
+    // when the coach needs it"): every section is assigned in sections.ts from what a sentence cites, and the activity reads in section
+    // order. Three moves, no sentence changed: the duration to When it ends (was How it works, first); the two ball-out restarts to
+    // Restarts and ball out (were How it works, last); and block 2's two Set up sentences now follow block 1's in Set up (they were
+    // listed after Role exchange, and the page already showed them under Set up).
     assert.deepEqual(sentences(draft.instructions), [
         'Set up: Mark out an area 40 m long by 30 m wide',
         "Set up: Mark a line across the area, 20 m from the building team's end line",
         "Set up [1]: Mark the pressing team's target zone at the building team's end, 5 m deep, across the full width",
         "Set up [1]: Mark the building team's target zone from the marked line to the pressing team's end line, across the full width",
+        "Set up [2]: Mark the building team's target zone from the marked line to the pressing team's end line, across the full width",
+        "Set up [2]: Mark the pressing team's target zone at the building team's end, 5 m deep, across the full width",
         `Players: Divide 12 players into 2 teams: the building team has 6 outfield players and 1 ${ROLE}; the pressing team has 5 outfield players`,
-        'How it works: Play for 20 minutes',
         'How it works: The building team starts with the ball',
         // Moved 17 October 2026 (stage M4, design step L10): his approved words, reply filed 19 October 2026, item 4 (read from
         // approved-coach-wording.json approvedTemplateSentences). Was: "When possession changes, play carries on with no stoppage, and
@@ -149,12 +155,6 @@ test('1. the review draft of A01 (TEST-ONLY: the table as at stage M5): every se
         // unchanged: his "conventional throw-in" has no data route to the renderer yet (a wording point put to him).
         "How it works: You choose where each of these restarts is taken, consistent with the intended build-out situation, in front of the pressing team's target zone",
         'How it works: Before each of these restarts, the building team and the pressing team each set up on their own side of the marked line; once play restarts, every player is free to move anywhere',
-        // Moved 17 October 2026 (stage M4, design steps L10 and L11, DRAFT): the touchline restart says his approved noun (reply filed
-        // 19 October 2026, item 4), read from the sport's coach vocabulary through the fixture; was "... restarts play where the ball
-        // went out, with the ball in hand". The end-line restart says the coach's bound once, our gerund form of his item 3 A; was
-        // "... restarts play where and how you choose".
-        'How it works: If the ball goes out over a touchline, a player of the team that did not touch the ball last restarts play with a throw-in where the ball went out',
-        'How it works: If the ball goes out over either end line, a player of the team that did not touch the ball last restarts play where and how you choose, preserving meaningful game relationships rather than creating an automatic scoring shortcut',
         // Moved 17 October 2026 (stage M3, design step L9; his reply filed 19 October 2026, items 1 and 4): the team-neutral "A team
         // scores 1 point by getting the ball under control into the zone it is attacking: ..." is no longer said, because the building
         // role's credit is confined to its build-out episode (row B8). The pressing role, whose bound is the whole game (A01-R1-B8-2),
@@ -170,11 +170,18 @@ test('1. the review draft of A01 (TEST-ONLY: the table as at stage M5): every se
         'How to score: Pressing team: Score by getting the ball under control into the zone it is attacking: running it in, or passing to a teammate who receives it under control inside',
         'How to score: Each score is worth 1 point',
         "How to score: Each team attacks the zone at the other team's end. Decide which team starts at which end; the ends stay the same for the whole game",
+        // Stage 2A: RC2's Win Condition ("When does the activity end?"), a DRAFT section name.
+        'When it ends: Play for 20 minutes',
         `${ROLE_EXCHANGE}: Play in blocks: in each block one team is the building team and the other is the pressing team`,
         `${ROLE_EXCHANGE}: Each team keeps its end for the whole activity. When you call the next block the teams exchange roles, not ends, and the marked line and both target zones are set out again for the new roles; there is no set block length`,
         `${ROLE_EXCHANGE}: When you call the next block, 1 ${ROLE} and 1 outfield player move to the team that becomes the building team`,
-        "Set up [2]: Mark the building team's target zone from the marked line to the pressing team's end line, across the full width",
-        "Set up [2]: Mark the pressing team's target zone at the building team's end, 5 m deep, across the full width",
+        // Stage 2A: consulted when needed (his item 1, "restarts ... available when needed"), a DRAFT section name.
+        // Moved 17 October 2026 (stage M4, design steps L10 and L11, DRAFT): the touchline restart says his approved noun (reply filed
+        // 19 October 2026, item 4), read from the sport's coach vocabulary through the fixture; was "... restarts play where the ball
+        // went out, with the ball in hand". The end-line restart says the coach's bound once, our gerund form of his item 3 A; was
+        // "... restarts play where and how you choose".
+        'Restarts and ball out: If the ball goes out over a touchline, a player of the team that did not touch the ball last restarts play with a throw-in where the ball went out',
+        'Restarts and ball out: If the ball goes out over either end line, a player of the team that did not touch the ball last restarts play where and how you choose, preserving meaningful game relationships rather than creating an automatic scoring shortcut',
         // Moved 17 October 2026 (stage M4, design step L11, DRAFT coachWords): his reply filed 19 October 2026, item 4, "The coach-facing
         // suggestions should not imply those changes can occur without accounting for every player." Was "... additional numbers
         // forward: adding ..." and "You may choose to remove a build-out player, reducing the building team's available support options".

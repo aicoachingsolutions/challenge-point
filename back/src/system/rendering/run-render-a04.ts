@@ -13,6 +13,9 @@ import path from 'node:path'
 import { checkFidelity } from './fidelity'
 import { goldenCaseDigest } from './freeze-a04-fixture'
 import { renderConcreteGame } from './render-concrete-game'
+// Every section an activity has, in reading order (stage 2A); the five-name list this replaced printed no Role exchange, When it ends,
+// Restarts and ball out or Adjusting sentence.
+import { SECTION_ORDER } from './sections'
 
 const FIXTURE = path.resolve(__dirname, '../../../../docs/audits/a04-concrete-game-fixture.json')
 const fixture = JSON.parse(fs.readFileSync(FIXTURE, 'utf8'))
@@ -38,7 +41,7 @@ const rendered = renderConcreteGame(fixture)
 
 // ---------------------------------------------------------------------------------------------
 rule('THE COACH-FACING ACTIVITY')
-for (const section of ['Set up', 'Players', 'How it works', 'How to score', 'What to watch'] as const) {
+for (const section of SECTION_ORDER) {
     const lines = rendered.instructions.filter(i => i.section === section)
     if (!lines.length) continue
     console.log(`\n${section}`)

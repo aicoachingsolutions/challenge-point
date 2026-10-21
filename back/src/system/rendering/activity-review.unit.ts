@@ -884,7 +884,8 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
     const activity = served(reviewActivity(stored({ playerCount: 16, fieldLength: '50', fieldWidth: '35' }), { ...VEHICLE, durationMin: 15 }), '16 players, 50 x 35')
     assert.ok(text(activity, 'Set up').includes('Mark out an area 50 m long by 35 m wide'))
     assert.ok(text(activity, 'Players').includes('Divide 16 players into 2 teams of 8, with no ' + ROLE + 's'), JSON.stringify(text(activity, 'Players')))
-    assert.ok(text(activity, 'How it works').includes('Play for 15 minutes'))
+    // Re-pointed 21 October 2026 (stage 2A): the duration is placed in When it ends (RC2's Win Condition); was How it works.
+    assert.ok(text(activity, 'When it ends').includes('Play for 15 minutes'))
     assert.deepEqual(activity.session, { players: 16, lengthM: 50, widthM: 35, durationMin: 15, roles: none })
 }
 
@@ -1008,7 +1009,8 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
         assert.deepEqual(text(activity, 'Adjusting the activity'), adjusting, `${length} x ${width}`)
         assert.ok(!activity.rendered.instructions.some(i => /perceptual reference/i.test(i.text)), 'no engine terminology reaches a coach')
         // Nothing but the area differs between them: the game is the same game on a different pitch.
-        for (const section of ['Players', 'How it works', 'How to score']) assert.deepEqual(text(activity, section), text(modifier, section), `${length} x ${width}: ${section}`)
+        // Stage 2A (21 October 2026): and When it ends, where the duration is placed since (was How it works).
+        for (const section of ['Players', 'How it works', 'How to score', 'When it ends']) assert.deepEqual(text(activity, section), text(modifier, section), `${length} x ${width}: ${section}`)
         // Every number said is declared, so every number said was checked — and none is a rounding.
         for (const said of activity.rendered.instructions) {
             assert.deepEqual([...said.text.matchAll(/\d+(?:\.\d+)?/g)].map(m => Number(m[0])).filter(n => !said.quantities.includes(n)), [], said.text)
@@ -1125,8 +1127,11 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
         // section is the bare possession game's, sentence for sentence. And what continues at a change of
         // possession is said ONCE, though two contracts assert that transition here.
         for (const section of ['Set up', 'How to score']) assert.deepEqual(text(neutrals, section), text(a04, section), `${players} players: ${section}`)
+        // Re-pointed 21 October 2026 (stage 2A): "Play for 20 minutes" is placed in When it ends (RC2's Win Condition); was the
+        // first sentence of How it works. No sentence changed.
+        assert.deepEqual(text(neutrals, 'When it ends'), ['Play for 20 minutes'])
+        assert.deepEqual(text(neutrals, 'When it ends'), text(a04, 'When it ends'))
         assert.deepEqual(text(neutrals, 'How it works'), [
-            'Play for 20 minutes',
             'Pick which team starts with the ball and tell both teams before you start',
             // Re-pointed 17 October 2026 (stage M4): his approved possession sentence (reply filed 19 October 2026, item 4), read from
             // approved-coach-wording.json, with this game's "line" for his "zone" - a generalization of his words, DRAFT. Was: "When
@@ -1254,7 +1259,8 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
         assert.deepEqual(composed.integrity.acceptance, { nothingClosedWithoutAuthority: [], nothingLost: [], nothingInvented: [] })
         // Each mechanism says exactly what it says alone, and neither disturbs the other.
         assert.deepEqual(text(composed, 'Players'), expectedPlayers, `${players} players`)
-        for (const section of ['Set up', 'How it works', 'How to score']) assert.deepEqual(text(composed, section), text(modifier, section), `${players} players: ${section}`)
+        // Stage 2A (21 October 2026): and When it ends, where the duration is placed since (was How it works).
+        for (const section of ['Set up', 'How it works', 'How to score', 'When it ends']) assert.deepEqual(text(composed, section), text(modifier, section), `${players} players: ${section}`)
     }
 
     /**

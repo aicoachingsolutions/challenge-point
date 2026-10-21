@@ -48,6 +48,7 @@ import { splitPath } from '../derivation/resolved-game'
 import { LoadedContract, RoleBlock } from '../derivation/types'
 import { FidelityFinding } from './fidelity'
 import { Instruction, RenderedActivity, ROLE_EXCHANGE, roleKeyedPositions } from './render-concrete-game'
+import { inSectionOrder } from './sections'
 
 /** One cross-block check, with what it found. */
 export interface RoleBlockCheck {
@@ -438,7 +439,9 @@ export function composeRoleBlockActivity(blocks: RenderedBlock[], _index: Regist
             composed.push(everywhere ? { ...instruction } : { ...instruction, block: blocks[i].blockId })
         }
     })
-    const ordered = [...composed.filter(i => i.tier !== 'adjust'), ...composed.filter(i => i.tier === 'adjust')]
+    // Stage 2A (21 October 2026): in reading order, by section, keeping the order said within each (block 1's sentences, then those
+    // only block 2 says); what a coach may adjust stays last, as the tier ordering this replaces kept it.
+    const ordered = inSectionOrder(composed)
     return {
         instructions: ordered,
         coachingObservations: [...new Set(blocks.flatMap(entry => entry.rendered.coachingObservations))],

@@ -73,8 +73,12 @@ const ADJUSTING_SECTION = 'Adjusting the activity'
  */
 const ROLE_EXCHANGE_SECTION = 'Role exchange'
 
-/** The order a coach reads an activity in. Organisation only — the section name comes from the server. */
-const SECTION_ORDER = ['Set up', 'Players', 'How it works', 'How to score', ROLE_EXCHANGE_SECTION, 'What to watch', ADJUSTING_SECTION]
+/**
+ * The order a coach reads an activity in. Organisation only — the section name comes from the server, which assigns it
+ * (back/src/system/rendering/sections.ts, SECTION_ORDER, stage 2A of 21 October 2026: "When it ends" and "Restarts and
+ * ball out" added, both DRAFT names). Kept equal to the server's order; a section this list lacks is still shown, after it.
+ */
+const SECTION_ORDER = ['Set up', 'Players', 'How it works', 'How to score', 'When it ends', ROLE_EXCHANGE_SECTION, 'Restarts and ball out', ADJUSTING_SECTION]
 
 /**
  * "Block 1 only" for a sentence that holds in one role block (15 October 2026): the block's number in the order the
@@ -122,7 +126,7 @@ const isReviewResult = (data: unknown): data is ActivityReviewResult => {
 }
 
 /**
- * The instructions under their sections: the five known sections in reading order, then any section the
+ * The instructions under their sections: the known sections in reading order, then any section the
  * server sent that this page has not heard of, in the order it first appears.
  *
  * The second half is the point. A fixed list of five would silently drop every instruction filed under a

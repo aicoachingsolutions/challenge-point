@@ -51,6 +51,11 @@ import { NO_FURTHER_VALUE } from '../derivation/types'
 import { CONDITION_ROW, conditionScopeNotEvaluable } from '../derivation/resolved-game'
 import { ApprovedTemplateSentence, approvedTemplateSentences, approvedWording, ApprovedWording, canonicalJson, fillTemplate, POSSESSION_CONTINUES, WordingMatch } from './approved-wording'
 import { exclusionFor } from './coach-facing-exclusions'
+import { ADJUSTING, assignSection, inSectionOrder, ROLE_EXCHANGE, Section, SectionFacts, TransitionKind, When } from './sections'
+
+// The two section names every importer has read from here since stages S-C1 and K3; since stage 2A they are named, with the rest
+// of the sections, in `sections.ts`, the one place a section is decided.
+export { ADJUSTING, ROLE_EXCHANGE }
 
 /**
  * Where a rendered instruction's authority comes from, and what wording that permits.
@@ -90,22 +95,6 @@ export type SourceStatus =
     | 'SESSION'
 
 /**
- * **The part of an activity a coach reads after the starting setup** — 14 October 2026, his §7: *"My preference
- * is that the main activity present a clear starting setup and playing instructions. Alternative ranges,
- * adjustments, and supporting explanations can be presented separately when useful."* Ranges a coach may move
- * within, preferences, and the limits of a value the activity only starts at go here. The section name is a
- * DRAFT for his review.
- */
-export const ADJUSTING = 'Adjusting the activity'
-
-/**
- * **The section saying how the roles pass between the teams** — 15 October 2026 (stage K3), for his D2: *"Please make that
- * distinction explicit in the coach-facing instructions."* Present only for a game played in role blocks. The section
- * name is a DRAFT for his review.
- */
-export const ROLE_EXCHANGE = 'Role exchange'
-
-/**
  * The one member of the register's exchange vocabulary (`B3.exchange`, version 10): the coach calls the next block. Named
  * here because the sentence below is its wording; any other member would have no sentence and stay uncarried, which the
  * fidelity check refuses.
@@ -143,8 +132,17 @@ export interface InstructionPart {
 }
 
 export interface Instruction {
-    /** Which part of the activity this belongs to. Organisation only; carries no authority. */
-    section: 'Set up' | 'Players' | 'How it works' | 'How to score' | 'What to watch' | typeof ROLE_EXCHANGE | typeof ADJUSTING
+    /**
+     * Which part of the activity this belongs to. Organisation only; carries no authority. Since stage 2A (21 October 2026) it is
+     * ASSIGNED as the renderer returns, by `sections.ts` from the rows the sentence cites; what a producer writes here is a proposal
+     * the assignment replaces (`producersProposals` shows them, for the tests).
+     */
+    section: Section
+    /**
+     * When the coach needs it (stage 2A): to understand and begin, to administer, or to adjust. The section's own reading
+     * (`WHEN_OF_SECTION`), set with it. Optional only for instructions built by hand.
+     */
+    when?: When
     /**
      * In an activity composed from two role blocks (stage K3), the block a sentence belongs to where it differs between
      * them; absent where the sentence holds in both. Organisation only; carries no authority.
@@ -159,7 +157,8 @@ export interface Instruction {
     /**
      * `setup` for the starting setup and playing instructions; `adjust` for what a coach may change from there.
      * Always the section's own reading (`adjust` exactly where the section is "Adjusting the activity"), set in
-     * one place as the renderer returns, so the two cannot disagree. Optional only for instructions built by hand.
+     * one place as the renderer returns, so the two cannot disagree. Since stage 2A it is derived from `when`
+     * (`adjust` exactly where `when` is ADJUST). Optional only for instructions built by hand.
      */
     tier?: 'setup' | 'adjust'
     /**
@@ -697,6 +696,14 @@ function locatedSentence(game: any, entry: ApprovedWording): { paths: string[] }
     return { paths: entry.covers.map(cover => pathByCover.get(cover)!) }
 }
 
+/**
+ * **An approved entry's own `section`, as its sentence's proposal** — stage 2A, 21 October 2026. The field stays validated by the loader
+ * (`approved-wording.ts`, unchanged) and documents where he saw the sentence; placement is assigned from what the sentence cites, like
+ * every other sentence's, and a test requires the assignment to equal each production entry's `section`. The loader admits one name
+ * no activity section has ("What to watch"); it is carried here only as a proposal the assignment replaces, so it is typed as one.
+ */
+const proposedBy = (entry: ApprovedWording): Section => entry.section as Section
+
 function sayInApprovedWords(game: any, wording: ApprovedWording[], push: (instruction: Instruction) => void, withheld: WithheldField[]): void {
     /** Every field an approved sentence says, by its full path (stage M3: a located entry says fields of several elements at once). */
     const saidPaths = new Set<string>()
@@ -704,7 +711,7 @@ function sayInApprovedWords(game: any, wording: ApprovedWording[], push: (instru
         if (!entry.covers.length || !entry.covers.every(cover => cover.element)) continue
         const located = locatedSentence(game, entry)
         if (!located) continue
-        push(instruction(entry.section, 'DERIVED', entry.sentence, located.paths, []))
+        push(instruction(proposedBy(entry), 'DERIVED', entry.sentence, located.paths, []))
         for (const path of located.paths) saidPaths.add(path)
     }
     for (const { base, elements, fields } of WORDED_ONLY) {
@@ -742,7 +749,7 @@ function sayInApprovedWords(game: any, wording: ApprovedWording[], push: (instru
                     .map(slot => ({ slot, at: entry.sentence.indexOf(`{${slot.name}}`) }))
                     .sort((a, b) => a.at - b.at)
                     .map(({ slot }) => ({ quantity: slot.value as number, path: pathOf(slot.field) }))
-                push(instruction(entry.section, 'DERIVED', text, [...covered.map(({ field }) => pathOf(field!.field)), ...slots.map(slot => pathOf(slot.field))], numeric))
+                push(instruction(proposedBy(entry), 'DERIVED', text, [...covered.map(({ field }) => pathOf(field!.field)), ...slots.map(slot => pathOf(slot.field))], numeric))
                 for (const { field } of covered) saidPaths.add(pathOf(field!.field))
             }
             for (const field of held) if (!saidPaths.has(pathOf(field.field))) withheld.push({ path: pathOf(field.field), row: field.row, reason: 'AWAITING_APPROVED_WORDING' })
@@ -805,6 +812,9 @@ export function wordedFieldRows(game: any): { path: string; row: string }[] {
  * that role's credit bound (its own DRAFT sentence where the bound is the whole game; his approved words where it is not); then every
  * other sentence said in approved words for How to score; then the rest, in the order the renderer said them. Read from citations and
  * the game's role elements only; no role, goal or sport term.
+ *
+ * Since stage 2A (21 October 2026) it runs after every sentence has been placed (`placeInstructions`), over the sentences ASSIGNED to
+ * How to score, so the role order is read on the section the coach sees and never on a producer's proposal.
  */
 function scoringInRoleOrder(instructions: Instruction[], game: any, approved: Set<Instruction>): void {
     const roleElements: any[] = Array.isArray(game?.activityRoles) ? game.activityRoles : []
@@ -818,13 +828,97 @@ function scoringInRoleOrder(instructions: Instruction[], game: any, approved: Se
     slots.forEach(({ at }, n) => (instructions[at] = ordered[n].instruction))
 }
 
+/**
+ * The sentences approved wording says for this game, each with exactly what it cites (read by text and citations; their `section` is
+ * the entry's own proposal, never placed here, since placement needs the fixture).
+ */
 export function approvedSentences(game: any, wording: ApprovedWording[] = approvedWording()): Instruction[] {
     const said: Instruction[] = []
     sayInApprovedWords(game, wording, instruction => said.push(instruction), [])
     return said
 }
 
+/** The takers that meet an arm of an episode's typed begin condition (C58), read from the primary event's conditions. */
+const beginArmTakers = (game: any, episode: unknown): string[] =>
+    (game?.value?.primaryEvent?.conditions ?? [])
+        .map((condition: any) => condition?.referents)
+        .filter((referent: any) => referent && referent.beginsEpisodeOf === episode && Array.isArray(referent.arms))
+        .flatMap((referent: any) => referent.arms.map((arm: any) => arm?.takenBy).filter((taker: unknown) => typeof taker === 'string'))
+
+/** The transitions that stop and restart play, begin an episode, and are taken by one of these takers. */
+const episodeStarters = (transitions: any[], takers: string[]): any[] =>
+    transitions.filter(t => t?.playState === 'STOP_RESUME' && String(t?.startsEpisode) === 'true' && takers.includes(t?.placement?.actor))
+
+/** A transition's trigger, where its selector fixes one. */
+const triggerOfTransition = (transition: any): string | null => {
+    const term = (transition?.selector ?? []).find((t: any) => t?.attribute === 'trigger' && t?.op === '=')
+    return term ? String(term.value) : null
+}
+
+/**
+ * **What placement reads beside the rows, for one game** — stage 2A, 21 October 2026 (`sections.ts` `SectionFacts`). His reply filed 22
+ * October 2026, item 2: *"For example, the basic [specialized-role] restart condition is essential because it determines when the
+ * building team can score again. The complete procedural details of every restart should remain accessible but do not all need to appear
+ * in the overview."* (his role noun bracketed, as the coupling ratchet keeps a sport's nouns out of this layer; nothing here reads it).
+ * So a transition that stops and restarts play is told apart by what it holds:
+ *
+ *   - it OPENS play, or the episode a role's credit is confined to, where its trigger is START, or where it begins an episode and its
+ *     taker meets an arm of the typed begin condition of an episode some role element's credit is confined to (row B8, any bound but
+ *     the whole game) — read exactly as the start-placement sentence's `beginsEpisode` reads it;
+ *   - any other stop-and-restart is a RESTART (the ball going out, in every game today);
+ *   - a transition that does not stop play is part of how play runs.
+ *
+ * And the lines realization closed to a starting value inside a range, whose required limits are what a coach adjusts within (the
+ * neutral count's floor, said in Adjusting the activity since the review of S-C1).
+ */
+export function sectionFactsOf(fixture: Fixture): SectionFacts {
+    const game = fixture?.game ?? {}
+    const transitions: any[] = Array.isArray(game.transitions) ? game.transitions : []
+    const roleElements: any[] = Array.isArray(game.activityRoles) ? game.activityRoles : []
+    const bounded = roleElements.map(element => element?.creditedWithin).filter(scope => present(scope) && canonicalJson(scope) !== canonicalJson(UNBOUNDED_CREDIT))
+    const opening = new Set<string>([
+        ...transitions.filter(t => t?.playState === 'STOP_RESUME' && triggerOfTransition(t) === 'START').map(t => String(t.elementId)),
+        ...bounded.flatMap(episode => episodeStarters(transitions, beginArmTakers(game, episode)).map(t => String(t.elementId))),
+    ])
+    const kinds = new Map<string, TransitionKind>(
+        transitions.map(t => [String(t?.elementId), t?.playState !== 'STOP_RESUME' ? 'IN_PLAY' : opening.has(String(t?.elementId)) ? 'EPISODE_OPENER' : 'RESTART'] as const),
+    )
+    const startingLines = new Set<string>(
+        ((fixture?.status?.choices ?? []) as any[]).filter(choice => choice?.closure === 'STARTING_VALUE_IN_RANGE' && stated(choice?.value) && typeof choice?.path === 'string').map(choice => String(choice.path)),
+    )
+    return { transitionKind: id => kinds.get(id) ?? null, startingLines }
+}
+
+/**
+ * **Every sentence placed, in reading order** — stage 2A, 21 October 2026. Each sentence is assigned its section and `when` from what it
+ * cites (`assignSection`), its `tier` is derived from `when`, How to score is read role by role where a role's credit is bounded
+ * (`scoringInRoleOrder`, over the sentences assigned there), and the sentences are put in section order, keeping the order they were
+ * said in within each section. Organisation only: no sentence is added, dropped, reworded or re-cited.
+ */
+function placeInstructions(produced: Instruction[], fixture: Fixture, approved: Set<Instruction>): Instruction[] {
+    const facts = sectionFactsOf(fixture)
+    const placed: Instruction[] = produced.map(instruction => {
+        const { section, when } = assignSection(instruction, facts)
+        return { ...instruction, section, when, tier: when === 'ADJUST' ? 'adjust' : 'setup' }
+    })
+    scoringInRoleOrder(placed, fixture.game, new Set(placed.filter((_, n) => approved.has(produced[n]))))
+    return inSectionOrder(placed)
+}
+
 export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] = approvedWording(), templates: ApprovedTemplateSentence[] = approvedTemplateSentences()): RenderedActivity {
+    const produced = produceRendering(fixture, wording, templates)
+    return { instructions: placeInstructions(produced.instructions, fixture, produced.approved), coachingObservations: produced.observations, withheld: produced.withheld }
+}
+
+/**
+ * **The sentences as their producers proposed them, before placement** — stage 2A, for the section tests only: each `section` is the
+ * producer's literal (or an approved entry's own), in the order the producers said them. The served rendering is `renderConcreteGame`.
+ */
+export function producersProposals(fixture: Fixture, wording: ApprovedWording[] = approvedWording(), templates: ApprovedTemplateSentence[] = approvedTemplateSentences()): Instruction[] {
+    return produceRendering(fixture, wording, templates).instructions
+}
+
+function produceRendering(fixture: Fixture, wording: ApprovedWording[], templates: ApprovedTemplateSentence[]): { instructions: Instruction[]; observations: string[]; withheld: WithheldField[]; approved: Set<Instruction> } {
     const instructions: Instruction[] = []
     const observations: string[] = []
     const withheld: WithheldField[] = []
@@ -1884,16 +1978,11 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
      * player in a region during play (no access rule, no consequence), which is what "free to move" says, citing the timing.
      */
     const placementsHeld: any[] = game.performers?.startPlacement ?? []
-    const beginsEpisode = (episode: unknown): string[] => {
-        const arms = (game.value?.primaryEvent?.conditions ?? [])
-            .map((condition: any) => condition?.referents)
-            .filter((referent: any) => referent && referent.beginsEpisodeOf === episode && Array.isArray(referent.arms))
-            .flatMap((referent: any) => referent.arms.map((arm: any) => arm?.takenBy).filter((taker: unknown) => typeof taker === 'string'))
-        return transitionsHeld
-            .filter(t => t?.playState === 'STOP_RESUME' && String(t?.startsEpisode) === 'true' && arms.includes(t?.placement?.actor))
+    // Read by the module's two helpers since stage 2A, which placement (`sectionFactsOf`) reads the same way.
+    const beginsEpisode = (episode: unknown): string[] =>
+        episodeStarters(transitionsHeld, beginArmTakers(game, episode))
             .map(t => String(t.elementId))
             .sort()
-    }
     const sideOf = (placement: any): 'own side' | 'past' | null => {
         const region = placement?.region
         const ref = region?.of?.structuralRef
@@ -2099,7 +2188,7 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
      */
     const saidInApprovedWords = new Set<Instruction>()
     sayInApprovedWords(game, wording, said => (instructions.push(said), saidInApprovedWords.add(said)), withheld)
-    scoringInRoleOrder(instructions, game, saidInApprovedWords)
+    // How to score is put in role order after placement (stage 2A, `placeInstructions`), over the sentences assigned there.
 
     /**
      * **The value modifier, carried without inventing what satisfies it.**
@@ -2398,9 +2487,9 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
     }
 
     /**
-     * The tier is the section's own reading, set here and nowhere else; and what a coach may adjust is read after
-     * the starting setup, so it is moved to the end with its order kept. Organisation only — no instruction is
-     * added, dropped or reworded by this.
+     * The tier is the section's own reading, and what a coach may adjust is read after the starting setup. Since
+     * stage 2A both are set by `placeInstructions`, with the section itself, as the renderer returns. Organisation
+     * only — no instruction is added, dropped or reworded by this.
      */
     /**
      * **Alternatives realization did not take are reported, not offered** — stage S-C2, 14 October 2026. A line
@@ -2426,6 +2515,6 @@ export function renderConcreteGame(fixture: Fixture, wording: ApprovedWording[] 
         )
     }
 
-    const tiered = instructions.map(i => ({ ...i, tier: (i.section === ADJUSTING ? 'adjust' : 'setup') as 'setup' | 'adjust' }))
-    return { instructions: [...tiered.filter(i => i.tier === 'setup'), ...tiered.filter(i => i.tier === 'adjust')], coachingObservations: observations, withheld }
+    // Placed, tiered and ordered by `placeInstructions` (stage 2A): the section, `when` and `tier` are set there and nowhere else.
+    return { instructions, observations, withheld, approved: saidInApprovedWords }
 }
