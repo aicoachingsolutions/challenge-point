@@ -31,7 +31,11 @@
  *     an absolute position written for a role, which cannot hold at both ends;
  *   - **RB-M** (stage K4, his RD-1 answer of 18 October 2026: *"role exchange and participant reassignment should remain
  *     separate capabilities"*) each team's counts change between the blocks exactly as a recorded reassignment states, and
- *     not at all where none is recorded — the exchange of roles moves nobody.
+ *     not at all where none is recorded — the exchange of roles moves nobody;
+ *   - **RB-L** (stage 2D, 21 October 2026, his reply filed 22 October 2026, item 7: *"Role exchanges should not require unnecessary
+ *     physical re-marking."*) the markings set out once that a block carries (`fixture.layout`) are exactly the union of every block's
+ *     realized edges, recomputed here from the blocks and his recorded choice (`physical-layout.ts`), and are carried only where that
+ *     choice applies and the markings can be (`checkRoleBlockLayout`, run once the layout is attached).
  *
  * Then the coach reads one activity: a sentence the two renders say alike is said once, a sentence they say alike by role
  * (stage 2C: the same words, each block citing its own role's target) is said once with each block's citations kept apart,
@@ -49,12 +53,13 @@ import { parseSelector } from '../derivation/selector'
 import { splitPath } from '../derivation/resolved-game'
 import { LoadedContract, RoleBlock } from '../derivation/types'
 import { FidelityFinding } from './fidelity'
+import { LayoutChoice, LayoutMover, layoutOf } from './physical-layout'
 import { Instruction, RenderedActivity, ROLE_EXCHANGE, roleKeyedPositions } from './render-concrete-game'
 import { inSectionOrder } from './sections'
 
 /** One cross-block check, with what it found. */
 export interface RoleBlockCheck {
-    checkId: 'RB-1' | 'RB-2' | 'RB-3' | 'RB-4' | 'RB-5' | 'RB-6' | 'RB-7' | 'RB-8' | 'RB-M'
+    checkId: 'RB-1' | 'RB-2' | 'RB-3' | 'RB-4' | 'RB-5' | 'RB-6' | 'RB-7' | 'RB-8' | 'RB-M' | 'RB-L'
     what: string
     verdict: 'PASS' | 'FAIL'
     problems: string[]
@@ -393,6 +398,35 @@ export function checkRoleBlocks(blocks: BuiltBlock[], index: RegisterIndex, role
 }
 
 /**
+ * **RB-L — the markings set out once are the blocks' own, recomputed** — stage 2D, 21 October 2026, the compensating check for the two
+ * validation extensions that read the physical layout (fidelity Q2 admitting a number the layout holds, and Q5-L reading the layout's
+ * marks and zones). Christian, reply filed 22 October 2026, item 7: *"The knowledge can continue to represent the distinct targets and
+ * relationships for each block, even where the physical markings remain unchanged."* The layout is not knowledge and not a block's own
+ * game: it is a reading of every block's realized geometry together, so it is checked against that reading done again here, from the
+ * blocks with their layout taken away and the same recorded choice and adjustments (`layoutOf`). A FAIL where:
+ *
+ *   - the layout applies and a block carries none, or one that differs in any field from the recomputed union;
+ *   - the layout does not apply (no choice recorded for this area, or the markings cannot be set out once) and a block carries one.
+ *
+ * Every block is read; nothing here names a goal, a value or a sport.
+ */
+export function checkRoleBlockLayout(blocks: { blockId: string; fixture: any }[], choices: LayoutChoice[], movers: LayoutMover[]): RoleBlockCheck {
+    const problems: string[] = []
+    const decision = layoutOf(
+        blocks.map(entry => ({ blockId: entry.blockId, fixture: { ...entry.fixture, layout: undefined } })),
+        choices,
+        movers,
+    )
+    for (const entry of blocks) {
+        const carried = entry.fixture?.layout ?? null
+        if (decision.applies && !carried) problems.push(`block ${entry.blockId} carries no layout, and the recorded choice applies and every block's markings can be set out once`)
+        else if (decision.applies && !same(carried, decision.layout)) problems.push(`block ${entry.blockId} carries a layout that is not the union of every block's realized edges, recomputed from the blocks and the record`)
+        else if (!decision.applies && carried) problems.push(`block ${entry.blockId} carries a layout, and ${decision.recorded ? `the markings cannot be set out once here: ${decision.why.join('; ')}` : 'no choice to set the markings out once is recorded for this activity'}`)
+    }
+    return check('RB-L', "the markings set out once are exactly the union of every block's realized edges, recomputed, and are carried only where his recorded choice applies and they can be", problems)
+}
+
+/**
  * The two blocks as the composed fixture carries them (`build-activity.ts`): each block's own fixture WHOLE, with its
  * binding, beside the exchange, the roles with their DRAFT nouns, and the cross-block checks. Carried whole so a reader of
  * the composed fixture — the frozen-fixture guard, a later renderer — loses nothing either block held.
@@ -436,9 +470,13 @@ const keyOf = (instruction: Instruction): string => JSON.stringify([instruction.
  * elements it maps to. Where that does not hold — a role with no objective, or more than one, in a block; a region two roles share —
  * the map is empty, so no sentence pairs and each block's sentences are said under their block, as before this stage.
  *
- * The axis mirror for physical marks the design names (D2: "layout.marks map by x -> L - x") has nothing to map here: no game holds
- * a layout mark yet (stage 2D adds them), and a role-relative element (the marked line, a start placement) is cited by the same path in
- * both blocks.
+ * **And the axis mirror for the markings set out once** (stage 2D, 21 October 2026; D2: "layout.marks map by x -> L - x"). Where both
+ * blocks carry the same physical layout (`physical-layout.ts`), a sentence naming the zone a role's target IS (or lies in) names the end
+ * zone at one end in one block and the one at the other end in the other block: the same zone by role, mirrored along the length. So
+ * each zone maps to the zone at its mirror position (from L - to, to L - from) and each mark to the mark at L - at; a zone or mark that
+ * is its own mirror (the line at half the length) is its own counterpart and is not listed. A layout carried by one block only, or
+ * different in the two, or a zone or mark with no single mirror, empties the map, as a broken role pairing does. A role-relative element
+ * (the marked line, a start placement) is cited by the same path in both blocks.
  */
 export function counterpartMap(from: { fixture: any }, to: { fixture: any }, index: RegisterIndex): Map<string, string> {
     const none = new Map<string, string>()
@@ -467,6 +505,24 @@ export function counterpartMap(from: { fixture: any }, to: { fixture: any }, ind
         if (!a || !b) return none
         if (!pair(`${objectivesAt}[${here[0].elementId}]`, `${objectivesAt}[${there[0].elementId}]`) || !pair(`${regionsAt}[${a}]`, `${regionsAt}[${b}]`)) return none
     }
+    // Stage 2D: the markings set out once, mirrored along the length (see above).
+    const layouts = [from, to].map(entry => entry.fixture?.layout ?? null)
+    if (layouts[0] || layouts[1]) {
+        if (!same(layouts[0], layouts[1])) return none
+        const length = Number(layouts[0].lengthM)
+        for (const [collection, ends] of [
+            ['zones', (z: any) => [z.from, z.to]],
+            ['marks', (m: any) => [m.at, m.at]],
+        ] as [string, (element: any) => number[]][]) {
+            const members: any[] = Array.isArray(layouts[0][collection]) ? layouts[0][collection] : []
+            for (const member of members) {
+                const [low, high] = ends(member)
+                const mirrors = members.filter(other => ends(other)[0] === length - high && ends(other)[1] === length - low)
+                if (mirrors.length !== 1) return none
+                if (mirrors[0].elementId !== member.elementId && !pair(`layout.${collection}[${member.elementId}]`, `layout.${collection}[${mirrors[0].elementId}]`)) return none
+            }
+        }
+    }
     const [keys, values] = [[...map.keys()].sort(), [...map.values()].sort()]
     if (!same(keys, values) || new Set(values).size !== values.length) return none
     return map
@@ -482,6 +538,12 @@ export function counterpartPath(path: string, map: Map<string, string>): string 
 
 /** The identity block 1's sentence has in a block it is paired with: the same section, words and status, its citations' counterparts. */
 const mirroredKeyOf = (instruction: Instruction, map: Map<string, string>): string => keyOf({ ...instruction, from: instruction.from.map(path => counterpartPath(path, map)) })
+
+/** A sentence's parts as Q6 compares a pair (stage 2D): each part's words, status, citations and bindings, paths read under a pairing. */
+const partsOf = (instruction: Instruction, map: Map<string, string> | null): string => {
+    const at = (path: string) => (map ? counterpartPath(path, map) : path)
+    return JSON.stringify((instruction.parts ?? []).map(part => [part.text, part.status, [...part.from].map(at).sort(), (part.bindings ?? []).map(binding => [binding.quantity, at(binding.path), binding.as ?? null])]))
+}
 
 /**
  * **One activity from two renders.** A sentence both renders say alike — same section, words, status and citations — is
@@ -563,6 +625,11 @@ const ENDS_CHANGE = [/\b(swap|swaps|switch|switches|change|changes|exchange|exch
  * (`counterpartMap`). A counterpart that is not accepted says nothing, so that block's sentence is reported lost as well. A sentence
  * said for every block or under one block is checked as before. And a TIGHTENING: a block's sentence said more than once by the
  * activity (directly, under its block or as a counterpart) is a VIOLATION, so saying a sentence once cannot hide a repetition.
+ *
+ * **Stage 2D, 21 October 2026, a second TIGHTENING:** a counterpart is accepted only where that block's own sentence has block 1's
+ * parts — the same words, status, citations and numbers, each path the counterpart of block 1's under the pairing — so a number bound
+ * outside the pairing in one block cannot pair unnoticed behind block 1's served parts. The pairing itself now also mirrors the markings
+ * set out once along the length (`counterpartMap`).
  */
 export function checkRoleBlockComposition(blocks: RenderedBlock[], composed: RenderedActivity, index: RegisterIndex): FidelityFinding[] {
     const findings: FidelityFinding[] = []
@@ -592,6 +659,14 @@ export function checkRoleBlockComposition(blocks: RenderedBlock[], composed: Ren
                 const counterpartKey = keyOf({ ...instruction, from: own[0].from })
                 if (!keys[i].has(counterpartKey)) return violation(`"${instruction.text}" is said for block ${entry.blockId} with citations that block's game does not say it with`)
                 if (counterpartKey !== mirroredKeyOf(instruction, maps[i]!)) return violation(`"${instruction.text}": its citations in block ${entry.blockId} are not block ${blocks[0].blockId}'s under the role pairing (each role's objective and target region), so the two are not the same sentence by role`)
+                /**
+                 * **And its numbers are bound alike** — stage 2D, 21 October 2026, a TIGHTENING (the 2C review: the identity above reads no
+                 * part, so a counterpart whose number is bound to a path outside the pairing would pair unnoticed, and only block 1's parts
+                 * are served). Block 2's own sentence must give each part block 1's words, status and bindings, each binding's path the
+                 * counterpart of block 1's (the end zone's depth in one block is the other end zone's in the other).
+                 */
+                const theirs = entry.rendered.instructions.find(other => keyOf(other) === counterpartKey)
+                if (!theirs || partsOf(instruction, maps[i]!) !== partsOf(theirs, null)) return violation(`"${instruction.text}": its parts in block ${entry.blockId} do not say block ${blocks[0].blockId}'s words and numbers bound to their counterparts under the role pairing`)
                 say(i, counterpartKey)
             })
             continue
@@ -644,11 +719,15 @@ export function checkRoleBlockComposition(blocks: RenderedBlock[], composed: Ren
          * **And the other half of his distinction: what changes with the roles** (stage K7, 15 October 2026). His D2: *"Team ends can
          * remain fixed, while role-specific objectives and target configurations change when the teams exchange roles."* Wherever the
          * blocks hold positions written for a role holder (`roleKeyedPositions`), a role-exchange sentence must cite every one of them
-         * — the sentence that says they are set out again for the new roles. A game with no such position owes nothing here.
+         * — the sentence that says what changes with the roles: block by block, that they are set out again for the new roles; with every
+         * block's markings set out once (stage 2D, 21 October 2026, his reply filed 22 October 2026, item 7: "Role exchanges should not
+         * require unnecessary physical re-marking."), which marked zone each team now attacks, and that nothing is re-marked. The logic is
+         * unchanged by stage 2D (the same citations are required); only this comment and the finding's words are. A game with no such
+         * position owes nothing here.
          */
         const keyed = roleKeyedPositions(entry.fixture)
         if (keyed.length && !composed.instructions.some(i => i.section === ROLE_EXCHANGE && cites(i, keyed))) {
-            findings.push({ question: 6, severity: 'VIOLATION', what: `no sentence says that the markings written for the roles (${keyed.join(', ')}) change when the roles exchange (his D2: "role-specific objectives and target configurations change when the teams exchange roles")` })
+            findings.push({ question: 6, severity: 'VIOLATION', what: `no sentence says what the markings written for the roles (${keyed.join(', ')}) mean when the roles exchange (his D2: "role-specific objectives and target configurations change when the teams exchange roles")` })
         }
     }
     for (const instruction of composed.instructions) {

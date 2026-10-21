@@ -23,8 +23,10 @@
  *   8. (stage M3, design step L9, fidelity Q2) where a role's credit is bounded, no scoring sentence speaks for it, or for every
  *      team, unless it is approved wording citing the bound;
  *   4. the restart sentence discharges an episode boundary only with its awardee;
- *   5. the exchange states the ends fixed AND the markings set out again for the new roles, and separately who changes team;
- *      fidelity Q6 refuses it without the markings clause;
+ *   5. the exchange states the ends fixed AND what changes with the roles (since stage 2D, 21 October 2026, with every block's
+ *      markings set out once: which marked zone each team attacks, and that nothing is re-marked unless the line was moved; until then,
+ *      the markings set out again for the new roles), and separately who changes team; fidelity Q6 refuses it without that clause's
+ *      citations;
  *   6. no noun the game does not hold, no challenge level, no bare decision imperative, and the Coach Communication Standard
  *      leaves every draft as it is;
  *   7. the start placement says players are free to move once play restarts, and is said only with the restarts that
@@ -137,14 +139,20 @@ test('1. the review draft of A01 (TEST-ONLY: the table as at stage M5): every se
     // listed after Role exchange, and the page already showed them under Set up).
     assert.deepEqual(sentences(draft.instructions), [
         'Set up: Mark out an area 40 m long by 30 m wide',
-        "Set up: Mark a line across the area, 20 m from the building team's end line",
-        // Moved 21 October 2026 (stage 2C, his reply filed 22 October 2026, item 8: "Correct section assignment, repetition, and
-        // information classification in the checked pathway."): each block said these two sentences in the same words, each citing its
-        // own role's target region and objective, so each is said once, with no block label, citing block 1's region and objective; block
-        // 2's own citations are kept beside it (`counterparts`, test 9). No word changed. Was: "Set up [1]: Mark the pressing team's ...",
-        // "Set up [1]: Mark the building team's ...", "Set up [2]: Mark the building team's ...", "Set up [2]: Mark the pressing team's ...".
-        "Set up: Mark the pressing team's target zone at the building team's end, 5 m deep, across the full width",
-        "Set up: Mark the building team's target zone from the marked line to the pressing team's end line, across the full width",
+        // Moved 21 October 2026 (stage 2D, his reply filed 22 October 2026, item 7: "For this particular 40 × 30 m configuration, we can
+        // also simplify setup by marking the halfway line and both 5 m end zones at the beginning. Role exchanges should not require
+        // unnecessary physical re-marking."; recorded as the choice MARK_UNION_ONCE, physical-layout.unit.ts): every block's markings set
+        // out once, and each role's target said by role (DRAFT). "Halfway" is read from the values (the line at 20 m of 40 m). Was:
+        // "Mark a line across the area, 20 m from the building team's end line"; then (stage 2C, each said once for both blocks) "Mark the
+        // pressing team's target zone at the building team's end, 5 m deep, across the full width" and "Mark the building team's target
+        // zone from the marked line to the pressing team's end line, across the full width"; and (How to score) "Each team attacks the
+        // zone at the other team's end. Decide which team starts at which end; the ends stay the same for the whole game", whose first
+        // clause the target sentences now carry and whose last clause the exchange sentence already says.
+        'Set up: Mark a line across the area at halfway, 20 m from each end line',
+        'Set up: Mark a 5 m end zone across the full width at each end',
+        "Set up: The building team's target zone is everything beyond the marked line, up to the pressing team's end line, including the end zone there",
+        "Set up: The pressing team's target zone is the 5 m end zone at the building team's end",
+        'Set up: Decide which team starts at which end',
         `Players: Divide 12 players into 2 teams: the building team has 6 outfield players and 1 ${ROLE}; the pressing team has 5 outfield players`,
         'How it works: The building team starts with the ball',
         // Moved 17 October 2026 (stage M4, design step L10): his approved words, reply filed 19 October 2026, item 4 (read from
@@ -173,11 +181,13 @@ test('1. the review draft of A01 (TEST-ONLY: the table as at stage M5): every se
         `How to score: ${HIS_ITEM_1}`,
         'How to score: Pressing team: Score by getting the ball under control into the zone it is attacking: running it in, or passing to a teammate who receives it under control inside',
         'How to score: Each score is worth 1 point',
-        "How to score: Each team attacks the zone at the other team's end. Decide which team starts at which end; the ends stay the same for the whole game",
         // Stage 2A: RC2's Win Condition ("When does the activity end?"), a DRAFT section name.
         'When it ends: Play for 20 minutes',
         `${ROLE_EXCHANGE}: Play in blocks: in each block one team is the building team and the other is the pressing team`,
-        `${ROLE_EXCHANGE}: Each team keeps its end for the whole activity. When you call the next block the teams exchange roles, not ends, and the marked line and both target zones are set out again for the new roles; there is no set block length`,
+        // Moved 21 October 2026 (stage 2D, his item 7 above): the exchange states what changes, not re-marking, with the qualification an
+        // adjustment that moves the marked line owes (DRAFT). Was: "... exchange roles, not ends, and the marked line and both target zones
+        // are set out again for the new roles; there is no set block length".
+        `${ROLE_EXCHANGE}: Each team keeps its end for the whole activity. When you call the next block the teams exchange roles, not ends: each team now attacks the target zone of its new role, and nothing is re-marked unless you have moved the marked line; there is no set block length`,
         `${ROLE_EXCHANGE}: When you call the next block, 1 ${ROLE} and 1 outfield player move to the team that becomes the building team`,
         // Stage 2A: consulted when needed (his item 1, "restarts ... available when needed"), a DRAFT section name.
         // Moved 17 October 2026 (stage M4, design steps L10 and L11, DRAFT): the touchline restart says his approved noun (reply filed
@@ -203,7 +213,10 @@ test('1. the review draft of A01 (TEST-ONLY: the table as at stage M5): every se
         // forward: adding ..." and "You may choose to remove a build-out player, reducing the building team's available support options".
         `${ADJUSTING}: You may choose to add a pressing player, representing an opponent committing additional numbers forward; with every player already in a team, reallocate someone or introduce an additional player: adding a pressing player can increase pressure but may also expose space behind the press`,
         `${ADJUSTING}: You may choose to remove a build-out player, deciding where that player goes so every player is still accounted for, reducing the building team's available support options`,
-        `${ADJUSTING}: You may choose to move the marked line nearer to either end line`,
+        // Moved 21 October 2026 (stage 2D): the general consequence rule for an adjustment that moves a mark set out once (DRAFT clause,
+        // from the line's own position: measured from the building team's end line). Was: "You may choose to move the marked line nearer to
+        // either end line".
+        `${ADJUSTING}: You may choose to move the marked line nearer to either end line; it is measured from the building team's end line, so when the roles exchange, set it out again at the same distance from the new building team's end line`,
         `${ADJUSTING}: You may choose to change where the teams start when the pressure you see is not creating an appropriate challenge`,
     ])
     // Re-pointed 17 October 2026 (stage M4): one sentence is his approved words - the possession sentence, an approved template
@@ -216,6 +229,8 @@ test('1. the review draft of A01 (TEST-ONLY: the table as at stage M5): every se
     assert.deepEqual(draft.instructions[0].provisionalSources, [])
     assert.ok(draft.instructions.find(i => i.text.includes('restarts play from the feet'))!.provisionalSources.includes('provisional:A01-R1::A01-R1-T3-1'))
     assert.ok(draft.instructions.find(i => i.text.includes('nearer to either end line'))!.provisionalSources.includes('record A01-ADJ-3'))
+    // Stage 2D: the markings set out once rest on his recorded choice, named by its code.
+    assert.ok(draft.instructions.find(i => i.text.startsWith('Mark a 5 m end zone'))!.provisionalSources.includes('record MARK_UNION_ONCE'))
     // Withheld: the four build-out conditions in each block (type, referents, value where held, scope) and nothing else.
     // Moved 17 October 2026 (stage M1), 30 -> 32: and the building role's credit bound in each block (row B8, his reply filed 19
     // October 2026, item 1 and item 3 C), said only in approved words. The pressing role's WHOLE_GAME states no condition and is
@@ -541,10 +556,16 @@ test('4. a restart discharges its episode boundary only with its awardee', () =>
     assert.ok(undischarged.every(f => f.what.includes('.awardedTo')))
 })
 
-test('5. the exchange: ends fixed AND the markings set out again for the new roles; separately, who changes team; Q6 needs both halves', () => {
+test('5. the exchange: ends fixed AND what changes with the roles; separately, who changes team; Q6 needs both halves', () => {
     // Re-pointed 18 October 2026 (design step L14): read from the served activity (was the review draft, which production no longer has).
     const exchange = served.rendered.instructions.filter(i => i.section === ROLE_EXCHANGE)
     assert.equal(exchange.length, 3)
+    // Re-pointed 21 October 2026 (stage 2D, his reply filed 22 October 2026, item 7: "Role exchanges should not require unnecessary
+    // physical re-marking."): with every block's markings set out once, the half that changes is which marked zone each team attacks, and
+    // nothing is re-marked unless the coach has moved the line (physical-layout.unit.ts 7). Was: "..., and the marked line and both target
+    // zones are set out again for the new roles; ...". The citations Q6 reads are the same.
+    assert.equal(exchange[1].text, 'Each team keeps its end for the whole activity. When you call the next block the teams exchange roles, not ends: each team now attacks the target zone of its new role, and nothing is re-marked unless you have moved the marked line; there is no set block length')
+    assert.ok(!served.rendered.instructions.some(i => i.section === ROLE_EXCHANGE && i.text.includes('set out again')))
     const keyed = roleKeyedPositions(blockFixtures[0])
     assert.deepEqual(keyed, ['space.regions[c:provisional:A01-R1:A01-R1-S2-1].position.along', 'space.regions[c:restated:GF2:GF2-03.e].position.along', 'space.regions[c:restated:GF2:GF2-03.f].position.along'])
     assert.deepEqual(roleKeyedPositions(blockFixtures[1]), keyed, 'the same markings in both blocks, so the sentence is said once')
@@ -573,9 +594,13 @@ test('6. no noun the game does not hold, no challenge level, no bare decision im
     // Re-pointed 18 October 2026 (design step L14): read from the served activity, his two new scoring statements among its sentences
     // (was the review draft, which production no longer has).
     const texts = served.rendered.instructions.map(i => i.text)
-    for (const forbidden of ['halfway', 'own end', 'near its own goal', 'in goal', 'from the back', 'defending team', 'attacking team', 'pressure line', 'post-regain zone']) {
+    // Re-pointed 21 October 2026 (stage 2D): "halfway" left this list. It is now said, in one sentence, as a term derived from the values
+    // the game holds (the line 20 m from the building team's end line on a 40 m length: 2 x 20 = 40), citing both, and only with the
+    // markings set out once; a line off half the length never prints it (physical-layout.unit.ts 4 and 9).
+    for (const forbidden of ['own end', 'near its own goal', 'in goal', 'from the back', 'defending team', 'attacking team', 'pressure line', 'post-regain zone']) {
         assert.ok(!texts.some(t => t.toLowerCase().includes(forbidden)), forbidden)
     }
+    assert.deepEqual(texts.filter(t => t.toLowerCase().includes('halfway')), ['Mark a line across the area at halfway, 20 m from each end line'])
     for (const level of ['Comfortable', 'Stretch', 'Demanding']) assert.ok(!texts.some(t => t.includes(level)), level)
     assert.ok(!texts.some(t => /^(Choose|Decide) (when|where|whether)\b/.test(t)))
     // Re-pointed 18 October 2026 (stage M5, design step L13): his approved sentence (A01-W1) is said exactly as he wrote it, its own
@@ -615,8 +640,10 @@ test('9. (stage 2C) a sentence the role blocks say alike by role is said once: b
     assert.deepEqual(composed.instructions, served.rendered.instructions, 'the served activity is this composition of the two renders')
     // The pairing, read from the two games: each role's objective and target region in block 1, and the same role's in block 2.
     const pairing = counterpartMap(renders[0], renders[1], index)
+    // Re-pointed 21 October 2026 (stage 2D): the blocks now carry the markings set out once, so the pairing also mirrors the layout's end
+    // zones and their marks along the length (physical-layout.unit.ts 8); the role pairing is unchanged.
     assert.deepEqual(
-        [...pairing.entries()].sort(),
+        [...pairing.entries()].filter(([from]) => !from.startsWith('layout.')).sort(),
         [
             ['objectives[c:restated:GF2:GF2-08.c]', 'objectives[c:restated:GF2:GF2-08.e]'],
             ['objectives[c:restated:GF2:GF2-08.e]', 'objectives[c:restated:GF2:GF2-08.c]'],
@@ -625,10 +652,13 @@ test('9. (stage 2C) a sentence the role blocks say alike by role is said once: b
         ],
     )
     // Said once, with no block label; nothing is said twice and nothing is under one block any more.
+    // Re-pointed 21 October 2026 (stage 2D): the two mirrored sentences are the target sentences said with the markings set out once, in
+    // role order. Was: "Mark the pressing team's target zone at the building team's end, 5 m deep, across the full width" and "Mark the
+    // building team's target zone from the marked line to the pressing team's end line, across the full width".
     const mirrored = composed.instructions.filter(i => i.counterparts)
     assert.deepEqual(mirrored.map(i => [i.section, i.text]), [
-        ['Set up', "Mark the pressing team's target zone at the building team's end, 5 m deep, across the full width"],
-        ['Set up', "Mark the building team's target zone from the marked line to the pressing team's end line, across the full width"],
+        ['Set up', "The building team's target zone is everything beyond the marked line, up to the pressing team's end line, including the end zone there"],
+        ['Set up', "The pressing team's target zone is the 5 m end zone at the building team's end"],
     ])
     assert.ok(composed.instructions.every(i => i.block === undefined), 'no sentence is said under one block')
     const texts = composed.instructions.map(i => i.text)
@@ -657,20 +687,23 @@ test('9. (stage 2C) a sentence the role blocks say alike by role is said once: b
     const q6 = (activity: { instructions: Instruction[]; coachingObservations: string[]; withheld: any[] }, from = renders) =>
         checkRoleBlockComposition(from, activity, index).filter(f => f.severity === 'VIOLATION').map(f => f.what)
     assert.deepEqual(q6(composed), [])
-    const pressing = mirrored[0]
+    // Re-pointed 21 October 2026 (stage 2D): the pressing team's target sentence is found by its words (it is now said second, in role order).
+    const pressing = mirrored.find(i => i.text.startsWith("The pressing team's"))!
     const pressingInBlock2 = renders[1].rendered.instructions.find(i => i.section === pressing.section && i.text === pressing.text)!
     const changed = (change: (i: Instruction) => Instruction) => ({ ...composed, instructions: composed.instructions.map(i => (i === pressing ? change(i) : i)) })
     // (a) Block 2's sentence one word different (TEST-ONLY): the two are not paired, each is said under its own block, and Q6 accepts that;
-    // the activity that still says them as one is refused.
-    const oneWord = renders.map((entry, n) => (n === 1 ? { ...entry, rendered: { ...entry.rendered, instructions: entry.rendered.instructions.map(i => (i === pressingInBlock2 ? { ...i, text: i.text.replace('across the full width', 'across the whole width') } : i)) } } : entry))
+    // the activity that still says them as one is refused. (Re-pointed in stage 2D to words the sentence still has: "end" for "end line".)
+    const oneWordOf = (text: string) => text.replace(" at the building team's end", " at the building team's end line")
+    assert.notEqual(oneWordOf(pressing.text), pressing.text)
+    const oneWord = renders.map((entry, n) => (n === 1 ? { ...entry, rendered: { ...entry.rendered, instructions: entry.rendered.instructions.map(i => (i === pressingInBlock2 ? { ...i, text: oneWordOf(i.text) } : i)) } } : entry))
     const apart = composeRoleBlockActivity(oneWord, index)
     assert.deepEqual(apart.instructions.filter(i => i.block).map(i => [i.block, i.text]), [
         [BLOCKS[0], pressing.text],
-        [BLOCKS[1], pressing.text.replace('across the full width', 'across the whole width')],
+        [BLOCKS[1], oneWordOf(pressing.text)],
     ])
     assert.deepEqual(q6(apart, oneWord), [])
     const oneWordRefused = q6(composed, oneWord)
-    assert.ok(oneWordRefused.includes(`block ${BLOCKS[1]} says "${pressing.text.replace('across the full width', 'across the whole width')}" and the activity does not`), JSON.stringify(oneWordRefused))
+    assert.ok(oneWordRefused.includes(`block ${BLOCKS[1]} says "${oneWordOf(pressing.text)}" and the activity does not`), JSON.stringify(oneWordRefused))
     assert.ok(oneWordRefused.includes(`"${pressing.text}" is said for block ${BLOCKS[1]} with citations that block's game does not say it with`), JSON.stringify(oneWordRefused))
     // (b) A missing counterpart: none listed, or the field taken away (then it claims every block with block 1's citations).
     const noCounterpart = q6(changed(i => ({ ...i, counterparts: [] })))

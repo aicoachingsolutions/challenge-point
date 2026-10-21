@@ -265,7 +265,8 @@ test('12 players, one keeper: 6 + keeper against 5 in both blocks, every cross-b
         assert.deepEqual(block.concreteChecks.filter(c => c.checkId === 'GA-ROSTER-SUM').map(c => c.verdict), ['PASS'], `block ${block.blockId}`)
         assert.ok(!block.concreteChecks.some(c => c.verdict === 'FAIL'), `block ${block.blockId}: ${JSON.stringify(block.concreteChecks)}`)
     }
-    assert.deepEqual(twelveServed.roleBlocks!.checks.map(c => [c.checkId, c.verdict]), ['RB-1', 'RB-2', 'RB-3', 'RB-4', 'RB-5', 'RB-6', 'RB-7', 'RB-8', 'RB-M'].map(id => [id, 'PASS']))
+    // RB-L joined 21 October 2026 (stage 2D): the markings set out once (his recorded choice for 40 x 30 m) are the blocks' own.
+    assert.deepEqual(twelveServed.roleBlocks!.checks.map(c => [c.checkId, c.verdict]), ['RB-1', 'RB-2', 'RB-3', 'RB-4', 'RB-5', 'RB-6', 'RB-7', 'RB-8', 'RB-M', 'RB-L'].map(id => [id, 'PASS']))
     // The deferred item travels into each block's fixture as the alternative, with what it defers to.
     for (const block of blocks) {
         assert.deepEqual(block.fixture.alternatives.map((a: any) => [`${a.contractId}::${a.itemId}`, a.defersTo, a.relationship]), [['restated:GF2::GF2-14.b', DEFERS_TO_AUTHORIZED_REALIZATION, 'RPC-001~EM-0006']])
@@ -322,7 +323,8 @@ test('11 players: 5 + keeper against 5 in each block, only the keeper moves, eve
         assert.deepEqual(block.fixture.record.relativeCounts, { resolved: [], removed: ['c:provisional:A01-R1:A01-R1-B4-2'], problems: [] })
         assert.ok(!block.fixture.status.derived.some((d: any) => String(d.path).includes('A01-R1-B4-2')), 'nothing owes the coach a sentence about it')
     }
-    assert.deepEqual(activity.roleBlocks!.checks.map(c => [c.checkId, c.verdict]), ['RB-1', 'RB-2', 'RB-3', 'RB-4', 'RB-5', 'RB-6', 'RB-7', 'RB-8', 'RB-M'].map(id => [id, 'PASS']))
+    // RB-L joined 21 October 2026 (stage 2D).
+    assert.deepEqual(activity.roleBlocks!.checks.map(c => [c.checkId, c.verdict]), ['RB-1', 'RB-2', 'RB-3', 'RB-4', 'RB-5', 'RB-6', 'RB-7', 'RB-8', 'RB-M', 'RB-L'].map(id => [id, 'PASS']))
     const exchange = activity.rendered.instructions.filter(i => i.section === ROLE_EXCHANGE).map(i => i.text)
     assert.ok(exchange.includes('When you call the next block, 1 goalkeeper moves to the team that becomes the building team'), JSON.stringify(exchange))
     assert.ok(activity.rendered.instructions.some(i => i.text === 'Divide 11 players into 2 teams: the building team has 5 outfield players and 1 goalkeeper; the pressing team has 5 outfield players'))

@@ -1895,7 +1895,8 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
             buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, withoutGapEntries(), { alter: withoutTransitions, alterSupplied: noTransitionChoices }).activity,
             `A01 after C53, ${keepers} of ${ROLE}`,
         )
-        assert.deepEqual(now.roleBlocks?.checks.map(check => check.verdict), Array(9).fill('PASS'))
+        // Re-pointed 21 October 2026 (stage 2D): ten cross-block checks, RB-L (the markings set out once are the blocks' own) joining.
+        assert.deepEqual(now.roleBlocks?.checks.map(check => check.verdict), Array(10).fill('PASS'))
         const roster = now.rendered.instructions.find(instruction => instruction.text.startsWith('Divide 12 players into 2 teams'))
         assert.ok(roster, JSON.stringify(now.rendered.instructions.map(i => i.text)))
         // Re-pointed 17 October 2026 (stage M4, design step L11): his reply filed 19 October 2026, item 5, "I don't want to prescribe

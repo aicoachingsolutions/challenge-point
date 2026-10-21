@@ -21,7 +21,8 @@ import { effectiveValue, scaleExactly } from '../derivation/rational'
 import { conditionScopeNotEvaluable } from '../derivation/resolved-game'
 import { ApprovedWording, approvedWording } from './approved-wording'
 import { CoachFacingExclusion, exclusionFor } from './coach-facing-exclusions'
-import { ADJUSTING, approvedSentences, Binding, combinedStatus, ENDS_ON_WORDING, Instruction, RenderedActivity, sectionFactsOf, SourceStatus, UNBOUNDED_CREDIT } from './render-concrete-game'
+import { layoutNumbersAt, MARK_UNION_ONCE, PhysicalLayout } from './physical-layout'
+import { ADJUSTING, approvedSentences, Binding, combinedStatus, ENDS_ON_WORDING, Instruction, RenderedActivity, ROLE_EXCHANGE, roleKeyedPositions, sectionFactsOf, SourceStatus, UNBOUNDED_CREDIT } from './render-concrete-game'
 import { firstReadUncarried } from './sections'
 
 export interface FidelityFinding {
@@ -549,6 +550,14 @@ function loadBearingPaths(fixture: any): {
  */
 function supportedQuantity(fixture: any, instruction: Pick<Instruction, 'from'>, quantity: number, inGame: Set<string>): boolean {
     if (inGame.has(String(quantity))) return true
+    /**
+     * **A number of the physical layout, for a sentence citing where the layout holds it** — stage 2D, 21 October 2026, a validation
+     * EXTENSION. The layout (`physical-layout.ts`) sits beside the game, not in it, so a mark's position or a zone's depth set out once is no
+     * value of the game this walks. Admitted only where the sentence cites the layout path holding exactly that number; the layout itself
+     * is held to the union of every block's realized edges by the cross-block check RB-L (role-blocks.ts), and to this block's own
+     * geometry by Q5-L below.
+     */
+    if (instruction.from.some(path => layoutNumbersAt(fixture.layout, path).includes(quantity))) return true
     for (const path of instruction.from) {
         const collection = path.split('.').reduce<any>((node, key) => (node == null ? node : node[key]), fixture.game)
         if (Array.isArray(collection) && collection.length === quantity) return true
@@ -659,6 +668,82 @@ function statementsOf(instruction: Instruction): { statements: Statement[]; inco
     // A part is held to its bindings always: one that arrives without a bindings list binds nothing, so any number it
     // says is refused (review of S-C2, 14 October 2026 — it fell back to the set-of-numbers check, which cannot see a swap).
     return { statements: parts.map(p => ({ text: p.text, status: p.status, from: p.from, quantities: p.quantities, bindings: Array.isArray(p.bindings) ? p.bindings : [] })), inconsistency: null }
+}
+
+/** Wording that tells the coach to set markings out again at the exchange: never said where the markings are set out once (Q5-L). */
+export const RE_MARKING_AT_EXCHANGE = [/\bset out again\b/i]
+
+/**
+ * **Q5-L — the markings set out once are said, and say each block's own geometry** — stage 2D, 21 October 2026, a NEW check, for his
+ * reply filed 22 October 2026, item 7 (*"For this particular 40 × 30 m configuration, we can also simplify setup by marking the halfway
+ * line and both 5 m end zones at the beginning. Role exchanges should not require unnecessary physical re-marking."*) and the BUILD
+ * PLAN's acceptance. Held only where the fixture carries a physical layout (`physical-layout.ts`); every other game owes nothing here. A
+ * VIOLATION where:
+ *
+ *   - a mark or a zone set out once is cited by no Set up sentence (a mark the coach is not told to make);
+ *   - a region of this block is realized at an interval the layout does not record for this block, or whose edges are not marks or the
+ *     area's end lines (the words, written from the layout, would then contradict the game);
+ *   - a region's position is denoted by no Set up sentence, or by more than one (each block's realized region interval is denoted exactly
+ *     once);
+ *   - a mark or a zone bounds nothing in this block and the layout records no other block it is marked for. This is how a mark set out
+ *     once for another block is reconciled with Q5's "marked, therefore it must do something": it does something in the block it is
+ *     recorded from, which RB-L recomputes from that block's own geometry, so it is never silently exempt;
+ *   - the exchange sentence that cites the positions written for a role is the block-by-block one (it does not cite the layout's
+ *     policy), or a Role exchange sentence says the markings are set out again;
+ *   - an authorized adjustment moves a mark set out once (`layout.movedBy`) and the exchange sentence does not carry that qualification,
+ *     or the adjustment's own sentence does not say what it means at the exchange.
+ *
+ * Read from citations, the layout and the geometry, never from the wording, except the one lexicon above (a tightening: the layout's
+ * exchange may not say "set out again").
+ */
+function layoutFindings(fixture: any, rendered: RenderedActivity): FidelityFinding[] {
+    const layout: PhysicalLayout | null = fixture?.layout?.policy === MARK_UNION_ONCE ? fixture.layout : null
+    if (!layout) return []
+    const findings: FidelityFinding[] = []
+    const violation = (what: string) => findings.push({ question: 5, severity: 'VIOLATION', what })
+    const blockId = String(fixture.record?.roleBlock?.blockId ?? '')
+    const setUp = rendered.instructions.filter(i => i.section === 'Set up' && i.status !== 'PREFERENCE')
+    const citesUnder = (instruction: Instruction, at: string) => instruction.from.some(path => path === at || path.startsWith(`${at}.`))
+    for (const mark of layout.marks ?? []) if (!setUp.some(i => citesUnder(i, `layout.marks[${mark.elementId}]`))) violation(`the mark at ${mark.at} m (layout.marks[${mark.elementId}]) is set out once and no Set up sentence tells the coach to make it`)
+    for (const zone of layout.zones ?? []) if (!setUp.some(i => citesUnder(i, `layout.zones[${zone.elementId}]`))) violation(`the zone from ${zone.from} m to ${zone.to} m (layout.zones[${zone.elementId}]) is set out once and no Set up sentence tells the coach to mark it`)
+    const edges = new Set<number>([0, Number(layout.lengthM), ...(layout.marks ?? []).map(mark => mark.at)])
+    const intervals: { from: number; to: number }[] = []
+    for (const region of fixture.game?.space?.regions ?? []) {
+        const path = `space.regions[${region.elementId}].position.along`
+        const interval = (fixture.status?.geometry ?? []).find((g: any) => g.path === path)?.geometry?.interval
+        const recorded = (layout.regions ?? []).find(entry => entry.blockId === blockId && entry.path === path)
+        if (!interval || !recorded || recorded.from !== interval.from || recorded.to !== interval.to) {
+            violation(`${path} is realized at ${interval ? `${interval.from}-${interval.to} m` : 'no interval'} in block ${blockId}, and the layout set out once records ${recorded ? `${recorded.from}-${recorded.to} m` : 'nothing'} for it there`)
+        }
+        if (interval) {
+            intervals.push(interval)
+            if (!edges.has(interval.from) || !edges.has(interval.to)) violation(`${path} runs from ${interval.from} m to ${interval.to} m, and its edges are not marks set out once or the area's end lines`)
+        }
+        const denoting = setUp.filter(i => i.from.includes(path)).length
+        if (denoting !== 1) violation(`${path} is denoted by ${denoting} Set up sentences in a layout set out once, not exactly one`)
+    }
+    for (const mark of layout.marks ?? []) {
+        const here = intervals.some(interval => interval.from === mark.at || interval.to === mark.at)
+        if (!here && !(mark.sources ?? []).some(source => source.blockId !== blockId)) violation(`the mark at ${mark.at} m bounds nothing in block ${blockId}, and the layout records no other block it is marked for`)
+    }
+    for (const zone of layout.zones ?? []) {
+        const here = intervals.some(interval => interval.from === zone.from && interval.to === zone.to)
+        if (!here && !(zone.sources ?? []).some(source => source.blockId !== blockId)) violation(`the zone from ${zone.from} m to ${zone.to} m is no region of block ${blockId}, and the layout records no other block it is marked for`)
+    }
+    const keyed = roleKeyedPositions(fixture)
+    const exchange = rendered.instructions.filter(i => i.section === ROLE_EXCHANGE && keyed.length > 0 && keyed.every(path => i.from.includes(path)))
+    if (keyed.length && !exchange.some(i => i.from.includes('layout.policy'))) violation('the markings are set out once, and the exchange sentence citing the positions written for a role is the block-by-block one (it does not cite the layout)')
+    for (const instruction of rendered.instructions) {
+        if (instruction.section === ROLE_EXCHANGE && RE_MARKING_AT_EXCHANGE.some(pattern => pattern.test(instruction.text))) violation(`"${instruction.text}" tells the coach to set the markings out again at the exchange, and they are set out once`)
+    }
+    for (const move of layout.movedBy ?? []) {
+        const qualifier = `layout.movedBy[${move.elementId}]`
+        if (!exchange.some(i => i.from.includes(qualifier))) violation(`${move.elementId} moves the mark at ${(layout.marks ?? []).find(mark => mark.elementId === move.mark)?.at ?? '?'} m, and the exchange sentence says nothing is re-marked without saying so`)
+        if (!rendered.instructions.some(i => i.section === ADJUSTING && i.from.includes(qualifier) && i.from.some(path => path.startsWith(`adjustments[${move.elementId}]`)))) {
+            violation(`${move.elementId} moves a mark set out once, and its sentence does not say what that means when the roles exchange`)
+        }
+    }
+    return findings
 }
 
 export function checkFidelity(
@@ -774,6 +859,8 @@ export function checkFidelity(
                       ? requiredLimit
                       : heldAt(fixture, path).some(n => n === quantity && (asStarting || !stated(begun) || n !== begun || [range?.required?.min, range?.required?.max].includes(n))) ||
                       (asStarting && stated(begun) && begun === quantity) ||
+                      // Stage 2D: a number bound to the physical layout is admitted only where the layout holds it at that path (RB-L, Q5-L).
+                      layoutNumbersAt(fixture.layout, path).includes(quantity) ||
                       (fixture.game?.value?.valueModifiers ?? []).some((modifier: any) => {
                           const at = `value.valueModifiers[${modifier.elementId}]`
                           return (
@@ -846,7 +933,8 @@ export function checkFidelity(
         const allowed = new Set<number>(
             instruction.from.flatMap(path => {
                 const begun = rangeAt.get(path)?.starting
-                return heldAt(fixture, path).filter(n => asChoice || !stated(begun) || n !== begun)
+                // Stage 2D: and a number the physical layout holds at a path the sentence cites (RB-L, Q5-L).
+                return [...heldAt(fixture, path).filter(n => asChoice || !stated(begun) || n !== begun), ...layoutNumbersAt(fixture.layout, path)]
             }),
         )
         for (const range of about) {
@@ -1190,6 +1278,7 @@ export function checkFidelity(
             })
         }
     }
+    findings.push(...layoutFindings(fixture, rendered))
     /**
      * **A scoring rule a coach cannot tell they have satisfied is operationally obscured.**
      *

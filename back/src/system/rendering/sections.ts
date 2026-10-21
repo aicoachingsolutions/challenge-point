@@ -284,10 +284,20 @@ export const KIND_OF_ROW: Record<string, Kind | 'TRANSITION' | 'NAME'> = {
 /**
  * The paths a renderer cites that are no register row, by their root: an authorized adjustment (`adjustments[<id>].words`, the
  * authorization record that crossed with the game), and the session's specialized-role counts (`envelope.roles`).
+ *
+ * **And the physical layout** (stage 2D, 21 October 2026: `physical-layout.ts`, his reply filed 22 October 2026, item 7, "simplify setup by
+ * marking the halfway line and both 5 m end zones at the beginning"): a mark or a zone set out once is what a coach marks, so it is
+ * organisation (Set up). The layout's policy and what an adjustment moves are cited beside what they qualify (the exchange that re-marks
+ * nothing, the adjustment that moves a mark) and decide no section (`null`, as a noun does): a policy is no instruction of its own, and
+ * what an adjustment moves must never pull the exchange into "Adjusting the activity", nor be owed to the first read. The two specific
+ * roots are read before the general one.
  */
-export const KIND_OF_ROOT: { root: string; kind: Kind }[] = [
+export const KIND_OF_ROOT: { root: string; kind: Kind | null }[] = [
     { root: 'adjustments', kind: 'ADJUSTMENT' },
     { root: 'envelope.roles', kind: 'PLAYERS' },
+    { root: 'layout.policy', kind: null },
+    { root: 'layout.movedBy', kind: null },
+    { root: 'layout', kind: 'ORGANISATION' },
 ]
 const underRoot = (path: string, root: string): boolean => path === root || path.startsWith(`${root}.`) || path.startsWith(`${root}[`)
 

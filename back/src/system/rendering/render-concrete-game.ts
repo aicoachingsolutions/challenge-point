@@ -51,6 +51,7 @@ import { NO_FURTHER_VALUE } from '../derivation/types'
 import { CONDITION_ROW, conditionScopeNotEvaluable } from '../derivation/resolved-game'
 import { ApprovedTemplateSentence, approvedTemplateSentences, approvedWording, ApprovedWording, canonicalJson, fillTemplate, POSSESSION_CONTINUES, WordingMatch } from './approved-wording'
 import { exclusionFor } from './coach-facing-exclusions'
+import { MARK_UNION_ONCE, PhysicalLayout } from './physical-layout'
 import { ADJUSTING, assignSection, inSectionOrder, PLAY_STATE_UNREADABLE, RESTARTS, ROLE_EXCHANGE, Section, SectionFacts, TransitionReading, When } from './sections'
 
 // The two section names every importer has read from here since stages S-C1 and K3; since stage 2A they are named, with the rest
@@ -770,9 +771,10 @@ function sayInApprovedWords(game: any, wording: ApprovedWording[], push: (instru
 /**
  * **The positions a game writes for a role holder** — stage K7, 15 October 2026: every region whose along position is written for a
  * block-scoped role holder (`roleNouns.holders`), by its value (a distance from that team's end), by its realized relation ("beyond X
- * (for team T)") or by a bound on it. These are the markings that are set out again when the roles exchange (his D2: *"role-specific
- * objectives and target configurations change when the teams exchange roles"*): the exchange sentence cites them, and fidelity Q6
- * (role-blocks.ts) requires a sentence that does. Empty for every game with no role holder.
+ * (for team T)") or by a bound on it. These are what changes with the roles (his D2: *"role-specific objectives and target configurations
+ * change when the teams exchange roles"*): block by block they are set out again for the new roles; with every block's markings set out
+ * once (stage 2D, `physical-layout.ts`), they are which marked zone each team now attacks. Either way the exchange sentence cites them,
+ * and fidelity Q6 (role-blocks.ts) requires a sentence that does. Empty for every game with no role holder.
  */
 export function roleKeyedPositions(fixture: any): string[] {
     const holders = new Set(Object.keys(fixture?.roleNouns?.holders ?? {}))
@@ -1026,6 +1028,15 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
         return { team: teamNoun(along.forTeam)!, offset: offset.from }
     }
     const markedLines = new Set<string>((game.space?.regions ?? []).filter((region: any) => fromTeamEnd(region)).map((region: any) => String(region.elementId)))
+    /**
+     * **Every block's markings set out once, where his recorded choice applies — stage 2D, 21 October 2026 (DRAFT wording).** His reply
+     * filed 22 October 2026, item 7: *"For this particular 40 × 30 m configuration, we can also simplify setup by marking the halfway line
+     * and both 5 m end zones at the beginning. Role exchanges should not require unnecessary physical re-marking."* and *"The knowledge can
+     * continue to represent the distinct targets and relationships for each block, even where the physical markings remain unchanged."*
+     * The layout is read from the fixture (`physical-layout.ts` computes it from both blocks' realized geometry and attaches it only where
+     * his recorded choice applies and the markings can coexist); without one, every sentence below is exactly what it was.
+     */
+    const layout: PhysicalLayout | null = fixture.layout?.policy === MARK_UNION_ONCE ? (fixture.layout as PhysicalLayout) : null
 
     // ── Set up ──────────────────────────────────────────────────────────────────────────────────
     const area = game.envelope?.area
@@ -1184,13 +1195,26 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
 
         // Stage K7 (DRAFT): a line marked at a distance from a team's end, and a team's target zone (above).
         const positioned = fromTeamEnd(region)
+        /**
+         * Stage 2D (DRAFT): a line held at one place in every block, set out once. "Halfway" is read from the values, never written as a
+         * fact: said only where the layout holds the line at a mark twice whose position is the area's length, and the offset from the
+         * team's end is that position, so it is the distance from each end line; the sentence cites the offset and the length both.
+         */
+        const once = positioned && layout ? layout.marks.find(mark => mark.line === String(region.elementId)) : undefined
+        if (positioned && once && along?.path && once.at * 2 === areaLength && positioned.offset === once.at) {
+            say('Set up', status, `Mark a ${noun} across the area at halfway, ${metres(positioned.offset)} from each end line`, [nounPath, along.path, across?.path, 'envelope.area.length_m', `layout.marks[${once.elementId}].at`].filter(Boolean) as string[], [
+                { quantity: positioned.offset, path: along.path },
+            ])
+            continue
+        }
         if (positioned) {
             say('Set up', status, `Mark a ${noun} across the area, ${metres(positioned.offset)} from the ${positioned.team}'s end line`, [nounPath, along?.path, across?.path].filter(Boolean) as string[], along?.path ? [{ quantity: positioned.offset, path: along.path }] : [])
             continue
         }
         const zone = targetZone(region)
         if (zone) {
-            say('Set up', status, zone.text, zone.from, zone.bindings)
+            // Stage 2D: with the markings set out once, each role's target is said after them, below.
+            if (!layout) say('Set up', status, zone.text, zone.from, zone.bindings)
             continue
         }
 
@@ -1323,6 +1347,84 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
                 )
             }
             if (ranged?.preferred) instructions.push(ranged.preferred)
+        }
+    }
+
+    /**
+     * **The end zones set out once, and each role's target said by role — stage 2D, 21 October 2026 (DRAFT wording).** His item 7 above,
+     * and the BUILD PLAN: "Set up says the union once, and two mirrored target sentences state each role's target, each citing its
+     * region's noun, position and the 5 m extent". Said only with a layout:
+     *
+     *   - the zones at the two ends, one depth, in one sentence ("Mark a {d} m end {noun} across the full width at each end"), citing the
+     *     noun of every region a zone is in some block, each zone's depth (the number is bound to the first, as the merged channel sentence
+     *     binds its own) and each zone's inner mark. The noun is the regions' own, so no noun is written here;
+     *   - then each target, in the block's role order, by the role that attacks it: "The {attacker}'s target {noun} is the {d} m end {noun}
+     *     at the {defender}'s end" where its region IS an end zone and its depth is required, or "... is everything beyond the marked line,
+     *     up to the {defender}'s end line[, including the end {noun} there]" where it begins at the marked line (the clause only where a
+     *     zone lies inside it at that end). Each cites its region's noun and positions, its objective's team, reference and role, and the
+     *     zone it names. The two blocks say these in the same words, each citing its own role's target, so the composition says each once
+     *     (stage 2C, with the layout's mirror, `role-blocks.ts` `counterpartMap`).
+     *
+     * A target the layout leaves nothing to say for is not said, so fidelity refuses the activity (Q5) rather than this renderer marking it
+     * block by block in a layout that sets the markings out once.
+     */
+    if (layout) {
+        const regionById = (id: string) => regions.find((r: any) => String(r.elementId) === id)
+        const nounOfZone = (zone: PhysicalLayout['zones'][number]): string | null => {
+            const nouns = [...new Set(zone.sources.map(source => regionById(source.regionId)?.noun))]
+            return nouns.length === 1 && typeof nouns[0] === 'string' ? nouns[0] : null
+        }
+        const [near, far] = layout.zones
+        if (layout.zones.length === 2 && near.depthM === far.depthM && nounOfZone(near) && nounOfZone(near) === nounOfZone(far)) {
+            const nounPaths = [...new Set(layout.zones.flatMap(zone => zone.sources.map(source => source.regionId)))].filter(id => regionById(id)).map(id => `space.regions[${id}].noun`)
+            say(
+                'Set up',
+                statusAt(nounPaths, 'DERIVED'),
+                `Mark a ${metres(near.depthM)} end ${nounOfZone(near)} across the full width at each end`,
+                [...nounPaths, ...layout.zones.map(zone => `layout.zones[${zone.elementId}].depthM`), ...layout.zones.map(zone => `layout.marks[${zone.inner}].at`)],
+                [{ quantity: near.depthM, path: `layout.zones[${near.elementId}].depthM` }],
+            )
+        }
+        const layoutTarget = (region: any): { text: string; from: string[]; bindings: Binding[] } | null => {
+            if (typeof region?.noun !== 'string' || region.noun === 'line') return null
+            const objective = referencedBy(region)
+            const attacker = objective ? teamNoun(objective.team) : null
+            const defender = objective ? otherTeamNoun(objective.team) : null
+            const along = geometryFor(region.elementId, 'along')
+            const across = geometryFor(region.elementId, 'across')
+            const span = along?.geometry?.interval
+            const wide = across?.geometry?.interval
+            if (!objective || !attacker || !defender || !span || !wide || wide.from !== 0 || wide.to !== areaWidth || along.geometry.term !== ATTACKING_END) return null
+            if (!(span.from === 0 || span.to === areaLength)) return null
+            const from = [`space.regions[${region.elementId}].noun`, along.path, across.path, `objectives[${objective.elementId}].team`, `objectives[${objective.elementId}].reference`, `objectives[${objective.elementId}].role`]
+            const exact = layout.zones.find(zone => zone.from === span.from && zone.to === span.to)
+            const depth = along.geometry.extentBound?.requiredWithin
+            if (exact && depth && stated(depth.min) && depth.min === depth.max && span.to - span.from === depth.min && nounOfZone(exact)) {
+                return { text: `The ${attacker}'s target ${region.noun} is the ${metres(depth.min)} end ${nounOfZone(exact)} at the ${defender}'s end`, from: [...from, `layout.zones[${exact.elementId}]`], bindings: [{ quantity: depth.min, path: along.path }] }
+            }
+            const of = along.geometry.relation?.of
+            const referent = of ? `c:${of.contractId}:${of.itemId}` : null
+            if (referent && markedLines.has(referent) && along.geometry.relation.term === BEYOND) {
+                const end = span.to === areaLength ? areaLength : 0
+                const inside = layout.zones.filter(zone => zone.from >= span.from && zone.to <= span.to && (zone.from === end || zone.to === end) && nounOfZone(zone))
+                const including = inside.length === 1 ? `, including the end ${nounOfZone(inside[0])} there` : ''
+                return {
+                    text: `The ${attacker}'s target ${region.noun} is everything beyond the marked line, up to the ${defender}'s end line${including}`,
+                    from: [...from, `space.regions[${referent}].noun`, ...(including ? [`layout.zones[${inside[0].elementId}]`] : [])],
+                    bindings: [],
+                }
+            }
+            return null
+        }
+        const roleRank = (region: any): number => {
+            const objective = referencedBy(region)
+            const role = objective ? roleOfDesignation(objective.team) : null
+            const rank = role ? Object.keys(holdersInBlock).indexOf(role) : -1
+            return rank < 0 ? Number.MAX_SAFE_INTEGER : rank
+        }
+        for (const region of regions.filter(r => targetZone(r)).sort((a, b) => roleRank(a) - roleRank(b))) {
+            const said = layoutTarget(region)
+            if (said) say('Set up', statusOf.get(`space.regions[${region.elementId}].noun`) ?? 'DERIVED', said.text, said.from, said.bindings)
         }
     }
 
@@ -2198,7 +2300,17 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
             const provenance = objectives.flatMap(o => [`objectives[${o.elementId}].team`, `objectives[${o.elementId}].reference`, `objectives[${o.elementId}].role`])
             // Stage K7 (DRAFT): where the targets are regions of another noun, each is the target at the other team's end (RC-21
             // "attacking end (of team T)", C42), said with that noun and citing it; "defends one line" stays for line targets.
-            if (targetNoun) {
+            /**
+             * Stage 2D (DRAFT): with the markings set out once, "Each team attacks the {noun} at the other team's end" would be ambiguous
+             * (the far end zone also touches the other team's end), so it is not said: each target sentence above says which marked zone
+             * each role attacks, citing its objective's team, reference and role. "The ends stay the same" is the exchange sentence's. What
+             * is left is the coach's setup: which team takes which end of the area, citing each objective's team (the end it is bound to)
+             * and the length whose ends they are, so it is read in Set up.
+             */
+            if (layout && targetNoun) {
+                const teamPaths = objectives.map(o => `objectives[${o.elementId}].team`)
+                say('Set up', statusAt(teamPaths, 'DERIVED'), 'Decide which team starts at which end', [...teamPaths, 'envelope.area.length_m'])
+            } else if (targetNoun) {
                 say('How to score', statusAt(provenance, 'DERIVED'), `Each team attacks the ${targetNoun} at the other team's end. Decide which team starts at which end; the ends stay the same for the whole game`, [...provenance, ...targetNounPaths])
             } else say('How to score', statusAt(provenance, 'DERIVED'), `Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game`, provenance)
             // Said with the possession-change sentence where there is one; on its own otherwise.
@@ -2398,12 +2510,35 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
                 ...(roleKeyed.some((region: any) => markedLines.has(String(region.elementId))) ? ['the marked line'] : []),
                 ...(targetNoun && keyedTargets === 2 ? [`both target ${targetNoun}s`] : targetNoun && keyedTargets === 1 ? [`the target ${targetNoun}`] : []),
             ]
-            const markings = !keyedPaths.length ? '' : named.length ? `, and ${named.join(' and ')} ${named.length > 1 || keyedTargets === 2 ? 'are' : 'is'} set out again for the new roles` : ', and the markings that go with them are set out again for the new roles'
+            /**
+             * **With the markings set out once, the exchange states what changes, not re-marking — stage 2D, 21 October 2026 (DRAFT).** His
+             * reply filed 22 October 2026, item 7: *"Role exchanges should not require unnecessary physical re-marking."* The same citations
+             * (so fidelity Q6 reads the same half of his D2 distinction: what changes with the roles), with the layout's policy, and the words
+             * say that each team now attacks the target of its new role and that nothing is re-marked. Where an authorized adjustment moves a
+             * mark set out once (`layout.movedBy`), that is not true once the coach has used it, so the sentence says so where it is made
+             * ("unless you have moved the marked line"), citing it: his item 6 asks that no shortened statement silently turn a qualified rule
+             * into an unrestricted one. Without a layout the sentence is exactly what it was.
+             */
+            const movedLines = new Set((layout?.movedBy ?? []).map(move => move.line))
+            const unless = !layout?.movedBy.length ? '' : movedLines.size === 1 && markedLines.has([...movedLines][0]) ? ' unless you have moved the marked line' : ' unless you have moved a marked line'
+            const markings = layout
+                ? `: each team now attacks the target ${targetNoun ?? 'line'} of its new role, and nothing is re-marked${unless}`
+                : !keyedPaths.length
+                  ? ''
+                  : named.length
+                    ? `, and ${named.join(' and ')} ${named.length > 1 || keyedTargets === 2 ? 'are' : 'is'} set out again for the new roles`
+                    : ', and the markings that go with them are set out again for the new roles'
             say(
                 ROLE_EXCHANGE,
                 statusAt([...exchangePaths, ...endPaths], 'DERIVED'),
                 `Each team keeps its end for the whole activity. When you call the next block the teams exchange roles, not ends${markings}; there is no set block length`,
-                [...exchangePaths, ...endPaths, ...keyedPaths, ...(keyedPaths.length ? targetNounPaths : [])],
+                [
+                    ...exchangePaths,
+                    ...endPaths,
+                    ...keyedPaths,
+                    ...(keyedPaths.length || layout ? targetNounPaths : []),
+                    ...(layout ? ['layout.policy', ...layout.movedBy.map(move => `layout.movedBy[${move.elementId}]`)] : []),
+                ],
             )
         }
 
@@ -2457,12 +2592,34 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
         const coachWords = typeof adjustment.coachWords === 'string' && adjustment.coachWords.trim() ? adjustment.coachWords.trim() : null
         const own = (coachWords ?? adjustment.words.trim()).replace(/\.$/, '')
         const consequence = typeof adjustment.consequence === 'string' ? adjustment.consequence.trim().split('. ')[0].replace(/\.$/, '') : ''
-        say(
-            ADJUSTING,
-            'COACH_CHOICE',
-            `You may choose to ${own.charAt(0).toLowerCase()}${own.slice(1)}${consequence ? `: ${consequence.charAt(0).toLowerCase()}${consequence.slice(1)}` : ''}`,
-            [`adjustments[${adjustment.id}].words`, ...(coachWords ? [`adjustments[${adjustment.id}].coachWords`] : []), ...(consequence ? [`adjustments[${adjustment.id}].consequence`] : [])],
-        )
+        const choiceText = `You may choose to ${own.charAt(0).toLowerCase()}${own.slice(1)}${consequence ? `: ${consequence.charAt(0).toLowerCase()}${consequence.slice(1)}` : ''}`
+        const choicePaths = [`adjustments[${adjustment.id}].words`, ...(coachWords ? [`adjustments[${adjustment.id}].coachWords`] : []), ...(consequence ? [`adjustments[${adjustment.id}].consequence`] : [])]
+        /**
+         * **An adjustment that moves a mark set out once says what that means at the exchange — stage 2D, the general consequence rule
+         * (DRAFT wording).** A line placed at a distance from the end a role's team defends, moved by an adjustment of that role's position
+         * (`layout.movedBy`, read in `physical-layout.ts` from the adjustment's parameter and role), no longer sits at the same place in both
+         * blocks: so its sentence adds, from the line's own position (its team, read from the game and cited), that it is measured from that
+         * team's end line and is set out again for the new team holding the role. A part of its own, of the line's status; the choice stays
+         * the coach's. Every other adjustment, and every adjustment without a layout, is said exactly as before.
+         */
+        const move = layout?.movedBy.find(entry => entry.elementId === adjustment.id)
+        const movedLine = move ? regions.find((region: any) => String(region.elementId) === move.line) : null
+        const measured = movedLine ? fromTeamEnd(movedLine) : null
+        const movedAlong = movedLine ? geometryFor(movedLine.elementId, 'along')?.path : null
+        if (move && measured && movedAlong) {
+            instructions.push(
+                joined(ADJUSTING, [
+                    part('COACH_CHOICE', phrase('COACH_CHOICE', choiceText), choicePaths),
+                    part(
+                        statusAt([movedAlong], 'DERIVED'),
+                        `; it is measured from the ${measured.team}'s end line, so when the roles exchange, set it out again at the same distance from the new ${measured.team}'s end line`,
+                        [movedAlong, `layout.movedBy[${move.elementId}]`],
+                    ),
+                ]),
+            )
+            continue
+        }
+        say(ADJUSTING, 'COACH_CHOICE', choiceText, choicePaths)
     }
 
     // ── Observations about the game, not fixes to it ─────────────────────────────────────────────

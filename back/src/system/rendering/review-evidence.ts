@@ -37,6 +37,7 @@ import { learningGoalSelectionHolds } from '../test-library/learning-design-hold
 import { testLibraryRegistry } from '../test-library/library/registry'
 import { FidelityFinding, OBLIGATIONS } from './fidelity'
 import { approvedTemplateSentences } from './approved-wording'
+import { layoutNumbersAt } from './physical-layout'
 import { approvedSentences, Instruction, RenderedActivity, UNBOUNDED_CREDIT, wordedFieldRows } from './render-concrete-game'
 import type { RoleBlockCheck } from './role-blocks'
 import { SectionLabel, sectionLabelsOf } from './sections'
@@ -475,6 +476,17 @@ function sourcesOf(path: string, block: EvidenceBlock, items: Map<string, any>, 
     for (const ref of boundingItemsOf(path, block, index)) {
         const [item, ...authorizing] = itemSources(ref, items, null, relationships)
         found.push({ ...item, detail: `bounds this line for the team holding a role (${index.targetOf?.attribute ?? 'targetOf'})` }, ...authorizing)
+    }
+    /**
+     * **A path of the physical layout** (stage 2D, 21 October 2026, `physical-layout.ts`): his recorded choice to set every block's markings
+     * out once (his reply filed 22 October 2026, item 7), and the reading of both blocks' realized geometry that set them out, our mechanism,
+     * with what it holds at that path in this block's fixture.
+     */
+    if (path.startsWith('layout.')) {
+        const layout = block.fixture?.layout
+        found.push({ layer: 'ACTIVITY_REALIZATION_CHOICE', standing: 'PROVISIONAL', ref: `record ${String(layout?.policy ?? 'layout')}`, detail: layout?.because?.citedAs ? String(layout.because.citedAs) : null })
+        const held = layoutNumbersAt(layout, path)
+        found.push({ layer: 'GENERAL_ENGINE_MECHANISM', standing: 'OUR_READING', ref: "physical layout (the union of every block's realized edges)", detail: `${inBlock(block)}${path}${held.length ? ` = ${JSON.stringify(held)}` : ''}` })
     }
     if (path.startsWith('envelope.')) found.push({ layer: 'SESSION_INPUT', standing: 'SESSION', ref: 'session', detail: path })
     if (!found.length) {

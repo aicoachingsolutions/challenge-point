@@ -63,6 +63,8 @@ function provisionalSourcesOf(fixture: any, paths: string[]): string[] {
             for (const ref of entailed.supportedBy ?? []) if (String(ref?.contractId).startsWith('provisional:')) found.add(`${ref.contractId}::${ref.itemId}`)
         }
         if (path.startsWith('adjustments[')) found.add(`record ${path.slice('adjustments['.length, path.indexOf(']'))}`)
+        // Stage 2D: the markings set out once rest on his recorded choice (reply filed 22 October 2026, item 7), named by its code.
+        if (path.startsWith('layout.') && fixture?.layout?.policy) found.add(`record ${String(fixture.layout.policy)}`)
     }
     return [...found].sort()
 }

@@ -105,7 +105,9 @@ test('one activity from two complete games: each block passed alone, every cross
     }
     // RB-M joined 15 October 2026 (stage K4, his RD-1 answer): here no reassignment is recorded and no count differs, so the
     // exchange of roles moved nobody and it passes.
-    assert.deepEqual(account.checks.map(check => [check.checkId, check.verdict]), ['RB-1', 'RB-2', 'RB-3', 'RB-4', 'RB-5', 'RB-6', 'RB-7', 'RB-8', 'RB-M'].map(id => [id, 'PASS']))
+    // RB-L joined 21 October 2026 (stage 2D, physical-layout.ts): no choice to set the markings out once is recorded here, and no block
+    // carries a layout, so it passes.
+    assert.deepEqual(account.checks.map(check => [check.checkId, check.verdict]), ['RB-1', 'RB-2', 'RB-3', 'RB-4', 'RB-5', 'RB-6', 'RB-7', 'RB-8', 'RB-M', 'RB-L'].map(id => [id, 'PASS']))
     assert.equal(account.exchange, 'COACH_CALLS')
     assert.equal(account.firstBlock, 'COACH_CHOICE', 'which block is first is the coach (inferred from his D2, never chosen here)')
     // K3 review, 15 October 2026: labelled INFERRED for the reader (verifier correction, g-part-09), his D2 sentence exact.
