@@ -21,7 +21,8 @@ import { effectiveValue, scaleExactly } from '../derivation/rational'
 import { conditionScopeNotEvaluable } from '../derivation/resolved-game'
 import { ApprovedWording, approvedWording } from './approved-wording'
 import { CoachFacingExclusion, exclusionFor } from './coach-facing-exclusions'
-import { ADJUSTING, approvedSentences, Binding, combinedStatus, ENDS_ON_WORDING, Instruction, RenderedActivity, SourceStatus, UNBOUNDED_CREDIT } from './render-concrete-game'
+import { ADJUSTING, approvedSentences, Binding, combinedStatus, ENDS_ON_WORDING, Instruction, RenderedActivity, sectionFactsOf, SourceStatus, UNBOUNDED_CREDIT } from './render-concrete-game'
+import { firstReadUncarried } from './sections'
 
 export interface FidelityFinding {
     /** 6 since 15 October 2026 (stage K3): an activity composed from role blocks lost or invented nothing (`role-blocks.ts`). */
@@ -951,6 +952,19 @@ export function checkFidelity(
         if (![...cited].some(c => c === path)) {
             findings.push({ question: 3, severity: 'VIOLATION', what: `${path} is established by the game and no instruction carries it` })
         }
+    }
+    /**
+     * **And nothing needed to understand and begin is carried only where it is consulted when needed** — stage 2B, 21 October 2026, a
+     * TIGHTENING. His reply filed 22 October 2026, item 2: *"Some information is essential to understanding and beginning the game.
+     * Other information is essential to administering the activity correctly but need not dominate the initial presentation."* and
+     * *"the basic [specialized-role] restart condition is essential because it determines when the building team can score again."*
+     * (the role bracketed, as above). The path test above finds a property no sentence carries; this finds one carried only in Role
+     * exchange, Restarts and ball out or Adjusting the activity while its own kind is read for understanding and beginning
+     * (`sections.ts` `firstReadUncarried`). Since stage 2B the opening restart's WHEN and HOW are two sentences in two sections, so
+     * this is what keeps the WHEN in the first read whatever places it.
+     */
+    for (const path of firstReadUncarried(rendered.instructions, sectionFactsOf(fixture))) {
+        findings.push({ question: 3, severity: 'VIOLATION', what: `${path} is needed to understand and begin the activity, and only a section consulted when needed carries it` })
     }
     /**
      * Every exclusion is reported — he asked for no silent filtering — and **each one must discharge the

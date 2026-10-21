@@ -28,6 +28,18 @@
  *  10. a role element and its role (rows B1, B2) place only a sentence citing nothing else, in Role exchange, and outrank nothing;
  *  11. a cited transition whose play state cannot be read is refused rather than placed with how play runs;
  *  12. fidelity Q4 refuses an approved sentence placed outside the section his entry names, and the build refuses it at communication.
+ *
+ * Added in stage 2B (21 October 2026, his item 2: "the basic goalkeeper restart condition is essential because it determines when the
+ * building team can score again. The complete procedural details of every restart should remain accessible but do not all need to appear
+ * in the overview."):
+ *
+ *  13. an opener is read per field (when it happens / who takes it / how it is taken), every transition row has a field, and the taker
+ *      never outranks a procedure, a fact of play or picking sides, while an opener's WHEN outranks its procedure;
+ *  14. the opening restart is said as WHEN (How it works, directly before the start placement) and HOW and WHERE (Restarts and ball out,
+ *      before the ball-out restarts) at every session: the one sentence's words cut at the colon, every path it cited cited again, the
+ *      taker by both halves and every other path by exactly one, the same nouns and counts at 12 players with 1 or 2 goalkeepers and at 11;
+ *  15. the first read carries every path read for understanding and beginning (fidelity Q3) on every production game; a TEST-ONLY move
+ *      of the WHEN into Restarts and ball out is refused by fidelity, and on the built chain at communication.
  */
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
@@ -41,13 +53,18 @@ import { checkFidelity } from './fidelity'
 import { OUT as A04_FIXTURE } from './freeze-a04-fixture'
 import { MECHANISM_DEMONSTRATIONS } from './mechanism-demonstrations'
 import { Instruction, producersProposals, renderConcreteGame, sectionFactsOf } from './render-concrete-game'
+import * as sectionsModule from './sections'
 import {
     assignSection,
+    firstReadUncarried,
     inSectionOrder,
+    KIND_OF_OPENER_FIELD,
     KIND_OF_ROW,
+    kindOfPath,
     LABEL_STATUS,
     Placement,
     PLAY_STATE_UNREADABLE,
+    PRECEDENCE,
     RESTARTS,
     ROLE_EXCHANGE,
     rowIndexOf,
@@ -56,6 +73,7 @@ import {
     SECTION_ORDER,
     SectionFacts,
     sectionLabelsOf,
+    TRANSITION_FIELD_OF_ROW,
     WHEN_IT_ENDS,
     WHEN_OF_SECTION,
 } from './sections'
@@ -67,7 +85,7 @@ function test(name: string, body: () => void): void {
     passed++
     console.log(`  ok  ${name}`)
 }
-console.log('one section and when-needed assigner (stage 2A)')
+console.log('one section and when-needed assigner (stages 2A and 2B)')
 
 const ROLE = specializedRoleNames()[0]
 const none = Object.fromEntries(specializedRoleNames().map(role => [role, 0]))
@@ -204,7 +222,8 @@ test('6b. the served A01 activity reads in section order, at every session, with
         assert.ok(instructions.every((i, n) => n === 0 || rank(instructions[n - 1].section) <= rank(i.section)), `${players} players: in section order`)
         assert.deepEqual([...new Set(instructions.map(i => i.section))], ['Set up', 'Players', 'How it works', 'How to score', WHEN_IT_ENDS, 'Role exchange', RESTARTS, 'Adjusting the activity'])
         assert.deepEqual(instructions.filter(i => i.section === WHEN_IT_ENDS).map(i => i.text), ['Play for 20 minutes'])
-        assert.equal(instructions.filter(i => i.section === RESTARTS).length, 2)
+        // Moved 21 October 2026 (stage 2B), 2 -> 4: the opening restart's HOW and where it is taken, before the two ball-out restarts.
+        assert.equal(instructions.filter(i => i.section === RESTARTS).length, 4)
         assert.ok(instructions.filter(i => i.section === RESTARTS).every(i => i.when === 'ADMINISTER' && i.block === undefined))
     }
 })
@@ -308,6 +327,167 @@ test('12. fidelity Q4 refuses an approved sentence placed outside the section hi
         assert.equal((refused as RefusedActivity).stage, 'communication')
     } finally {
         ;(wordingModule as any).approvedWording = read
+    }
+    assert.equal(a01(12, 1).activity.outcome, 'served', 'production restored')
+})
+
+/* Stage 2B, 21 October 2026: the opening restart's WHEN said apart from its HOW. */
+
+test('13. an opener is read per field (when / who / how); every transition row has a field; the taker never outranks, and an opener\'s WHEN outranks its procedure', () => {
+    const transitionRows = Object.entries(KIND_OF_ROW)
+        .filter(([, kind]) => kind === 'TRANSITION')
+        .map(([id]) => id)
+        .sort()
+    assert.deepEqual(Object.keys(TRANSITION_FIELD_OF_ROW).sort(), transitionRows, 'every transition row has a field, and the field table names no other row')
+    assert.deepEqual(KIND_OF_OPENER_FIELD, { WHEN: 'EPISODE_OPENER', WHO: 'OPENER_TAKER', HOW: 'RESTART' })
+    const rank = (kind: string) => PRECEDENCE.indexOf(kind as any)
+    assert.ok(rank('EPISODE_OPENER') < rank('RESTART') && rank('RESTART') < rank('OPENER_TAKER'), 'when it happens, then how, then who')
+    assert.deepEqual(PRECEDENCE.slice(-2), ['OPENER_TAKER', 'ROLES'], 'the taker outranks only the roles')
+    // TEST-ONLY facts: o opens play or a bounded episode, r is any other stop-and-restart, c keeps play going.
+    const readings: Record<string, any> = { o: 'EPISODE_OPENER', r: 'RESTART', c: 'IN_PLAY' }
+    const facts: SectionFacts = { transitionKind: id => readings[id] ?? null, startingLines: new Set() }
+    const at = (from: string[]) => {
+        const placed = assignSection({ status: 'DERIVED', from }, facts)
+        return [placed.section, placed.kind]
+    }
+    const o = 'transitions[o]'
+    for (const field of ['selector', 'qualifiers.lastTouch', 'qualifiers.endLine', 'qualifiers.region', 'playState', 'startsEpisode']) assert.deepEqual(at([`${o}.${field}`]), ['How it works', 'EPISODE_OPENER'], field)
+    assert.deepEqual(at([o]), ['How it works', 'EPISODE_OPENER'], 'the element itself')
+    for (const field of ['awardedTo', 'placement.actor']) assert.deepEqual(at([`${o}.${field}`]), ['How it works', 'OPENER_TAKER'], field)
+    for (const field of ['placement.method', 'placement.region']) assert.deepEqual(at([`${o}.${field}`]), [RESTARTS, 'RESTART'], field)
+    // Every field of any other transition is read whole, by its element, as in stage 2A.
+    for (const field of ['selector', 'awardedTo', 'placement.actor', 'placement.method', 'placement.region', 'playState']) {
+        assert.deepEqual(at([`transitions[r].${field}`]), [RESTARTS, 'RESTART'], field)
+        assert.deepEqual(at([`transitions[c].${field}`]), ['How it works', 'IN_PLAY'], field)
+    }
+    // The three sentences the renderer says of an opening restart, and the one sentence it said before stage 2B.
+    const who = [`${o}.awardedTo`, `${o}.placement.actor`]
+    assert.deepEqual(at([...who, `${o}.playState`, `${o}.selector`]), ['How it works', 'EPISODE_OPENER'], 'WHEN')
+    assert.deepEqual(at([...who, `${o}.placement.method`, 'objects[b].kind']), [RESTARTS, 'RESTART'], 'HOW')
+    assert.deepEqual(at([`${o}.placement.region`, ...who]), [RESTARTS, 'RESTART'], 'WHERE')
+    assert.deepEqual(at([...who, `${o}.placement.method`, `${o}.playState`, 'objects[b].kind', `${o}.selector`]), ['How it works', 'EPISODE_OPENER'], 'a sentence saying both stays in the first read')
+    // The taker never pulls a sentence out of its section: beside picking sides or a fact of play it is theirs; it outranks only a role.
+    assert.equal(at([`${o}.placement.actor`, 'performers.teams'])[0], 'Players')
+    assert.equal(at([`${o}.placement.actor`, 'possession.team'])[1], 'IN_PLAY')
+    assert.deepEqual(at([`${o}.placement.actor`, 'activityRoles[x].activityRole']), ['How it works', 'OPENER_TAKER'])
+    // On A01: the start and the two restarts that begin the bounded episode are read per field; the ball going out is read whole.
+    const [block] = a01Blocks.map(b => b.fixture)
+    const real = sectionFactsOf(block)
+    const readAs = new Map<string, number>()
+    for (const t of block.game.transitions as any[]) {
+        const id = `transitions[${t.elementId}]`
+        const reading = String(real.transitionKind(String(t.elementId)))
+        readAs.set(reading, (readAs.get(reading) ?? 0) + 1)
+        const kinds = ['selector', 'playState', 'awardedTo', 'placement.actor', 'placement.method', 'placement.region'].map(field => kindOfPath(`${id}.${field}`, real))
+        if (reading === 'EPISODE_OPENER') assert.deepEqual(kinds, ['EPISODE_OPENER', 'EPISODE_OPENER', 'OPENER_TAKER', 'OPENER_TAKER', 'RESTART', 'RESTART'], id)
+        else assert.deepEqual(kinds, Array(6).fill(reading), id)
+    }
+    assert.deepEqual(Object.fromEntries(readAs), { EPISODE_OPENER: 3, RESTART: 4, IN_PLAY: 1 }, 'the opening restarts, the ball going out, the turnover')
+    // A transition row the field table does not read is refused loudly where an opener cites it (TEST-ONLY row); any other reads whole.
+    const testOnlyRows = rowIndexOf([...((loadRegister().rows ?? []) as any[]).map(row => ({ id: String(row.id), path: String(row.path) })), { id: 'TEST-ONLY-T', path: 'transitions[].testOnly' }])
+    try {
+        ;(KIND_OF_ROW as any)['TEST-ONLY-T'] = 'TRANSITION'
+        assert.throws(() => kindOfPath('transitions[o].testOnly', facts, testOnlyRows), /register row TEST-ONLY-T .* is a transition row with no field reading/)
+        assert.equal(kindOfPath('transitions[r].testOnly', facts, testOnlyRows), 'RESTART')
+    } finally {
+        delete (KIND_OF_ROW as any)['TEST-ONLY-T']
+    }
+})
+
+/** His role's noun is the session's (data), read as every test here reads it. */
+const TAKER = `The building team's ${ROLE} restarts play`
+/** The one sentence said until stage 2B (served at every session, snapshot of stage 2A). */
+const ONE_SENTENCE = `${TAKER} from the feet, with the ball still or moving: at the start, after either team scores and whenever you decide that an attack has run its course (at a stoppage or while play is on)`
+
+test('14. the opening restart is said as WHEN (How it works, before the start placement) and HOW and WHERE (Restarts and ball out), at every session, from the one sentence\'s words and citations', () => {
+    const counts = new Set<number>()
+    for (const { players, keepers, activity, fixture } of a01Built) {
+        const what = `${players} players, ${keepers} ${ROLE}(s)`
+        const instructions = (activity as ServedActivity).rendered.instructions
+        counts.add(instructions.length)
+        const one = (start: string) => {
+            const found = instructions.filter(i => i.text.startsWith(start))
+            assert.equal(found.length, 1, `${what}: one sentence starting "${start}"`)
+            return found[0]
+        }
+        const when = one(`${TAKER}:`)
+        const how = one(`${TAKER} `)
+        const where = one(`You choose where the building team's ${ROLE} restarts play`)
+        // The words: the one sentence cut at the colon, its taker said again at the start of HOW; WHERE names its own restart.
+        assert.equal(`${how.text}${when.text.slice(TAKER.length)}`, ONE_SENTENCE, what)
+        assert.equal(when.text, `${TAKER}: at the start, after either team scores and whenever you decide that an attack has run its course (at a stoppage or while play is on)`, what)
+        assert.equal(how.text, `${TAKER} from the feet, with the ball still or moving`, what)
+        assert.equal(where.text, `You choose where the building team's ${ROLE} restarts play, consistent with the intended build-out situation, in front of the pressing team's target zone`, what)
+        assert.ok(!instructions.some(i => i.text.includes('each of these restarts is taken')), `${what}: no dangling "these restarts" in Restarts and ball out`)
+        assert.deepEqual([when, how, where].map(i => i.quantities), [[], [], []], `${what}: no number in any half`)
+        assert.deepEqual([when, how, where].map(i => i.block), [undefined, undefined, undefined], `${what}: said once, for both blocks`)
+        // Where each is read: WHEN in the first read, directly before the start placement (his D4); HOW and WHERE consulted when needed,
+        // before the ball-out restarts.
+        assert.deepEqual([when.section, when.when], ['How it works', 'UNDERSTAND_AND_BEGIN'], what)
+        assert.ok(instructions[instructions.indexOf(when) + 1].text.startsWith('Before each of these restarts'), `${what}: the start placement follows the WHEN directly`)
+        const restarts = instructions.filter(i => i.section === RESTARTS)
+        assert.deepEqual(restarts.slice(0, 2), [how, where], what)
+        assert.ok(restarts.slice(2).every(i => i.text.startsWith('If the ball goes out over ')), what)
+        assert.deepEqual([how.when, where.when], ['ADMINISTER', 'ADMINISTER'], what)
+        assert.equal(where.status, 'COACH_CHOICE', `${what}: where it is taken is the coach's`)
+        // The citations, in both blocks: every path the one sentence cited is cited again; the taker (awardee and taker), named by both
+        // halves, by both; every other path by exactly one. WHERE cites each location and the taker it names.
+        for (const block of blocksOf(fixture)) {
+            const facts = sectionFactsOf(block)
+            const openers = (block.game.transitions as any[]).filter(t => facts.transitionKind(String(t.elementId)) === 'EPISODE_OPENER')
+            assert.equal(openers.length, 3, what)
+            const at = (t: any, field: string) => `transitions[${t.elementId}].${field}`
+            const object = `objects[${(block.game.objects as any[]).find(o => typeof o?.kind === 'string').elementId}].kind`
+            const cited = [...openers.flatMap(t => ['awardedTo', 'placement.actor', 'placement.method', 'playState', 'selector'].map(field => at(t, field))), object]
+            assert.deepEqual([...new Set([...when.from, ...how.from])].sort(), [...cited].sort(), `${what}: the one sentence's paths and nothing else`)
+            for (const path_ of cited) {
+                const taker = path_.endsWith('.awardedTo') || path_.endsWith('.placement.actor')
+                assert.equal([when, how].filter(i => i.from.includes(path_)).length, taker ? 2 : 1, `${what}: ${path_}`)
+            }
+            assert.deepEqual([...where.from].sort(), openers.flatMap(t => ['placement.region', 'awardedTo', 'placement.actor'].map(field => at(t, field))).sort(), what)
+        }
+    }
+    assert.equal(counts.size, 1, `the same number of sentences at every session (${[...counts]})`)
+})
+
+test('15. the first read carries every path read for understanding and beginning (fidelity Q3); a TEST-ONLY move of the WHEN into Restarts and ball out is refused', () => {
+    for (const { what, fixture } of games) {
+        const rendered = renderConcreteGame(fixture)
+        assert.deepEqual(firstReadUncarried(rendered.instructions, sectionFactsOf(fixture)), [], what)
+        assert.deepEqual(checkFidelity(fixture, rendered).findings.filter(f => f.what.includes('is needed to understand and begin')), [], what)
+    }
+    const [block] = a01Blocks.map(b => b.fixture)
+    const facts = sectionFactsOf(block)
+    const rendered = renderConcreteGame(block)
+    const when = rendered.instructions.find(i => i.text.startsWith(`${TAKER}:`))!
+    const openers = (block.game.transitions as any[]).filter(t => facts.transitionKind(String(t.elementId)) === 'EPISODE_OPENER')
+    // The taker and the play state of each opening restart are cited in the first read only by the WHEN. (Its triggers' selectors are
+    // also cited by the start placement, its antecedent, so they stay carried: the check reads citations, not words.)
+    const expected = openers.flatMap(t => ['awardedTo', 'placement.actor', 'playState'].map(field => `transitions[${t.elementId}].${field}`)).sort()
+    const toRestarts = (i: Instruction): Instruction => ({ ...i, section: RESTARTS, when: 'ADMINISTER' })
+    const moved = { ...rendered, instructions: rendered.instructions.map(i => (i === when ? toRestarts(i) : i)) }
+    assert.deepEqual([...firstReadUncarried(moved.instructions, facts)].sort(), expected)
+    const q3 = checkFidelity(block, moved).findings.filter(f => f.what.includes('is needed to understand and begin'))
+    assert.deepEqual(q3.map(f => [f.question, f.severity]), expected.map(() => [3, 'VIOLATION']))
+    assert.deepEqual(q3.map(f => f.what.split(' ')[0]).sort(), expected)
+    // The start placement moved with it: the selectors are uncarried too.
+    const both = { ...moved, instructions: moved.instructions.map(i => (i.text.startsWith('Before each of these restarts') ? toRestarts(i) : i)) }
+    const selectors = openers.map(t => `transitions[${t.elementId}].selector`)
+    assert.ok(selectors.every(path_ => firstReadUncarried(both.instructions, facts).includes(path_)))
+    // On the built chain: TEST-ONLY placement sends the WHEN (an opener's sentence naming its taker) into Restarts and ball out; the activity
+    // is refused at communication, naming each path.
+    const original = sectionsModule.assignSection
+    try {
+        ;(sectionsModule as any).assignSection = (instruction: any, f: SectionFacts, rows?: Map<string, string>) => {
+            const placed = original(instruction, f, rows)
+            return placed.kind === 'EPISODE_OPENER' && instruction.from.some((p: string) => p.endsWith('.placement.actor')) ? { ...placed, section: RESTARTS, when: 'ADMINISTER' } : placed
+        }
+        const refused = a01(12, 1).activity as RefusedActivity
+        assert.equal(refused.outcome, 'refused')
+        assert.equal(refused.stage, 'communication')
+        for (const path_ of expected) assert.ok(refused.reasons.some(reason => reason.includes(`fidelity Q3: ${path_} is needed to understand and begin`)), path_)
+    } finally {
+        ;(sectionsModule as any).assignSection = original
     }
     assert.equal(a01(12, 1).activity.outcome, 'served', 'production restored')
 })

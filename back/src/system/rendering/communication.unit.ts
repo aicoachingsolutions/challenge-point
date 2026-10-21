@@ -145,15 +145,13 @@ test('1. the review draft of A01 (TEST-ONLY: the table as at stage M5): every se
         // approved-coach-wording.json approvedTemplateSentences). Was: "When possession changes, play carries on with no stoppage, and
         // the team that wins possession attacks the same zone it was already attacking".
         'How it works: When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone',
-        `How it works: The building team's ${ROLE} restarts play from the feet, with the ball still or moving: at the start, after either team scores and whenever you decide that an attack has run its course (at a stoppage or while play is on)`,
-        // Moved 18 October 2026 (post-K wording, DRAFT): the two choice sentences no longer restate that the choice is the coach's,
-        // no longer name the post-regain area by a noun the set-up sentences do not use, and no longer say engine provenance
-        // ("using the approved M3 capability") to the coach in brackets. Was: "You choose where each of these restarts is taken: a
-        // location the coach chooses, consistent with the intended build-out situation, in front of the pressing team's post-regain
-        // area" and "... restarts play; you choose where (a location the coach selects for the restart, using the approved M3
-        // capability) and how (a restart method the coach selects, using the approved M3 capability)". The touchline sentence is
-        // unchanged: his "conventional throw-in" has no data route to the renderer yet (a wording point put to him).
-        "How it works: You choose where each of these restarts is taken, consistent with the intended build-out situation, in front of the pressing team's target zone",
+        // Moved 21 October 2026 (stage 2B, his reply filed 22 October 2026, item 2: "the basic goalkeeper restart condition is essential
+        // because it determines when the building team can score again. The complete procedural details of every restart should remain
+        // accessible but do not all need to appear in the overview."): the one restart sentence is said as WHEN (here, directly before
+        // the start placement, his D4) and HOW (Restarts and ball out, below). Was: "The building team's goalkeeper restarts play from
+        // the feet, with the ball still or moving: at the start, after either team scores and whenever you decide that an attack has
+        // run its course (at a stoppage or while play is on)".
+        `How it works: The building team's ${ROLE} restarts play: at the start, after either team scores and whenever you decide that an attack has run its course (at a stoppage or while play is on)`,
         'How it works: Before each of these restarts, the building team and the pressing team each set up on their own side of the marked line; once play restarts, every player is free to move anywhere',
         // Moved 17 October 2026 (stage M3, design step L9; his reply filed 19 October 2026, items 1 and 4): the team-neutral "A team
         // scores 1 point by getting the ball under control into the zone it is attacking: ..." is no longer said, because the building
@@ -180,6 +178,18 @@ test('1. the review draft of A01 (TEST-ONLY: the table as at stage M5): every se
         // 19 October 2026, item 4), read from the sport's coach vocabulary through the fixture; was "... restarts play where the ball
         // went out, with the ball in hand". The end-line restart says the coach's bound once, our gerund form of his item 3 A; was
         // "... restarts play where and how you choose".
+        // Moved 21 October 2026 (stage 2B): the opening restart's HOW, and where it is taken, which names its own restart now that its
+        // antecedent is split (the D2 verification: "these restarts" had no referent in this section). Moved 18 October 2026 (post-K
+        // wording, DRAFT): the choice sentence no longer restates that the choice is the coach's, no longer names the post-regain area
+        // by a noun the set-up sentences do not use, and no longer says engine provenance ("using the approved M3 capability") to the
+        // coach in brackets. Was (stage 2A, How it works): "You choose where each of these restarts is taken, consistent with the
+        // intended build-out situation, in front of the pressing team's target zone"; before 18 October: "You choose where each of these
+        // restarts is taken: a location the coach chooses, consistent with the intended build-out situation, in front of the pressing
+        // team's post-regain area" and "... restarts play; you choose where (a location the coach selects for the restart, using the
+        // approved M3 capability) and how (a restart method the coach selects, using the approved M3 capability)". The touchline
+        // sentence is unchanged: his "conventional throw-in" has no data route to the renderer yet (a wording point put to him).
+        `Restarts and ball out: The building team's ${ROLE} restarts play from the feet, with the ball still or moving`,
+        `Restarts and ball out: You choose where the building team's ${ROLE} restarts play, consistent with the intended build-out situation, in front of the pressing team's target zone`,
         'Restarts and ball out: If the ball goes out over a touchline, a player of the team that did not touch the ball last restarts play with a throw-in where the ball went out',
         'Restarts and ball out: If the ball goes out over either end line, a player of the team that did not touch the ball last restarts play where and how you choose, preserving meaningful game relationships rather than creating an automatic scoring shortcut',
         // Moved 17 October 2026 (stage M4, design step L11, DRAFT coachWords): his reply filed 19 October 2026, item 4, "The coach-facing

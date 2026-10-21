@@ -149,7 +149,9 @@ test('1. end to end on production data: SERVED (design step L14; was refused onl
     // Moved 18 October 2026 (design step L14), total 26 -> 28 and approved 2 -> 4: his two scoring statements (entries A01-W2 and
     // A01-W3, his reply filed 20 October 2026, items 1 and 2), each said once; the drafts are unchanged ("this approval applies
     // specifically to the two scoring statements, not yet to the entire activity").
-    assert.deepEqual(fact(evidence.acceptance, 'sentences'), { total: 28, approved: 4, draft: 24 })
+    // Moved 21 October 2026 (stage 2B), total 28 -> 29 and draft 24 -> 25: the opening restart is said as WHEN and HOW (both DRAFT; his
+    // reply filed 22 October 2026, item 2), and where it is taken names its own restart; nothing approved changes.
+    assert.deepEqual(fact(evidence.acceptance, 'sentences'), { total: 29, approved: 4, draft: 25 })
     assert.deepEqual(evidence.sections.instructions.filter(i => i.wording === 'APPROVED').map(i => i.text), ['When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone', HIS_ITEM_1, HIS_W3, HIS_W2])
     // Measured at this stage: 19 Gate A checks per block, all PASS; the 9 cross-block checks; 11 owed invariants per block.
     assert.deepEqual(evidence.structure.summary.gateChecks, { PASS: 38 })
@@ -193,7 +195,8 @@ test('2. the nine items: his words from the record, each resolved to elements, c
     assert.ok(byId.R5.blocks[0].elements.some(e => e.path === 'objectives[c:restated:GF2:GF2-08.e].reference'))
     // Moved 17 October 2026 (stage M3, design step L9), 24 -> 25 (test 1). Moved 18 October 2026 (stage M5), 25 -> 26: his sentence.
     // Moved 18 October 2026 (design step L14), 26 -> 28: his two scoring statements (A01-W2, A01-W3).
-    assert.equal(byId.R8.sentences.length, 28)
+    // Moved 21 October 2026 (stage 2B), 28 -> 29: the opening restart's WHEN and HOW are two sentences.
+    assert.equal(byId.R8.sentences.length, 29)
     assert.ok(byId.R7.checks.map(c => c.checkId).join() === 'RB-1,RB-2,RB-3,RB-4,RB-5,RB-6,RB-7,RB-8,RB-M')
 })
 
@@ -205,10 +208,14 @@ test('3. provenance: his three layers and the standings, every cited path traced
     const said = (start: string) => instructions.find(i => i.text.startsWith(start))!
     // The area is the session's and nothing else.
     assert.deepEqual(said('Mark out an area').layers, ['SESSION_INPUT'])
-    // The restart rests on his provisional choices (the taker among them), the ball on the sport profile.
-    const restart = said(`The building team's ${ROLE} restarts play`)
-    assert.ok(restart.sources.some(s => s.standing === 'PROVISIONAL' && s.ref === 'provisional:A01-R1::A01-R1-T3-1'))
-    assert.ok(restart.sources.some(s => s.layer === 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS' && s.standing === 'APPROVED'))
+    // The restart rests on his provisional choices (the taker among them), the ball on the sport profile. Re-pointed 21 October 2026
+    // (stage 2B): it is said as WHEN ("... restarts play: {triggers}") and HOW ("... restarts play from the feet, ..."); both name the
+    // taker and rest on it, and only HOW names the ball. Was one sentence resting on both.
+    const restartWhen = said(`The building team's ${ROLE} restarts play:`)
+    const restartHow = said(`The building team's ${ROLE} restarts play from the feet`)
+    for (const restart of [restartWhen, restartHow]) assert.ok(restart.sources.some(s => s.standing === 'PROVISIONAL' && s.ref === 'provisional:A01-R1::A01-R1-T3-1'), restart.text)
+    assert.ok(restartHow.sources.some(s => s.layer === 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS' && s.standing === 'APPROVED'))
+    assert.ok(!restartWhen.sources.some(s => s.layer === 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS'), 'the WHEN names no ball')
     // The post-regain area's depth: the item bounding it is found (the fixture carries the bound without it).
     const depth = said("Mark the pressing team's target zone")
     assert.ok(depth.sources.some(s => s.ref === 'provisional:A01-R1::A01-R1-S5-3' && s.standing === 'PROVISIONAL'), JSON.stringify(depth.sources))
@@ -301,7 +308,14 @@ test('5. the specialized role as a deep support option, and no prescription, as 
     // Moved 18 October 2026 (design step L14), 4 -> 5: his eligibility sentence (A01-W3, his reply filed 20 October 2026, item 2) names
     // the role ("the next goalkeeper restart") and carries "cannot" and "until". No prescription finding, for the same reason as his build-out
     // sentence: it covers the origin condition whose arm the role is, and approval exempts it from the lexicon only. Listed, so he sees it.
-    assert.equal(naming.length, 5)
+    // Moved 21 October 2026 (stage 2B), 5 -> 7: the opening restart is said as WHEN and HOW, both naming its taker, and where it is taken
+    // now names its own restart ("You choose where the building team's goalkeeper restarts play, ..."), so three DRAFT sentences name the
+    // role where one did; none carries a word of obligation or a prescription finding.
+    assert.equal(naming.length, 7)
+    assert.deepEqual(
+        naming.filter((s: any) => s.text.includes(`building team's ${ROLE} restarts play`)).map((s: any) => s.text.split(',')[0].split(':')[0]),
+        [`The building team's ${ROLE} restarts play`, `The building team's ${ROLE} restarts play from the feet`, `You choose where the building team's ${ROLE} restarts play`],
+    )
     assert.ok(naming.every((s: any) => s.q4.length === 0))
     assert.deepEqual(naming.filter((s: any) => s.obligationWords.length).map((s: any) => [s.text, s.obligationWords]), [[HIS_ITEM_1, [String(/\bmust\b/i)]], [HIS_W3, [String(/\bcan ?not\b/i), String(/\buntil\b/i)]]])
     // No prescription: nothing on the rows that would restrict play, no prescription finding, no lexicon word, no library constraint.

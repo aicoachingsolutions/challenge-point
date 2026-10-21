@@ -51,7 +51,7 @@ import { NO_FURTHER_VALUE } from '../derivation/types'
 import { CONDITION_ROW, conditionScopeNotEvaluable } from '../derivation/resolved-game'
 import { ApprovedTemplateSentence, approvedTemplateSentences, approvedWording, ApprovedWording, canonicalJson, fillTemplate, POSSESSION_CONTINUES, WordingMatch } from './approved-wording'
 import { exclusionFor } from './coach-facing-exclusions'
-import { ADJUSTING, assignSection, inSectionOrder, PLAY_STATE_UNREADABLE, ROLE_EXCHANGE, Section, SectionFacts, TransitionReading, When } from './sections'
+import { ADJUSTING, assignSection, inSectionOrder, PLAY_STATE_UNREADABLE, RESTARTS, ROLE_EXCHANGE, Section, SectionFacts, TransitionReading, When } from './sections'
 
 // The two section names every importer has read from here since stages S-C1 and K3; since stage 2A they are named, with the rest
 // of the sections, in `sections.ts`, the one place a section is decided.
@@ -1952,22 +1952,6 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
         const key = JSON.stringify([transition.awardedTo, transition.placement.actor, transition.placement.method, transition.placement.region])
         restartGroups.set(key, [...(restartGroups.get(key) ?? []), transition])
     }
-    const saidRestarts: any[][] = []
-    for (const group of restartGroups.values()) {
-        const [first] = group
-        const firm = group.flatMap(t => [pathAt(t, 'awardedTo'), pathAt(t, 'placement.actor'), pathAt(t, 'placement.method'), pathAt(t, 'playState')])
-        instructions.push(
-            joined('How it works', [
-                part(partStatus(firm), `${capital(takerOf(first)!)} restarts play ${METHOD_PHRASE[first.placement.method](objectNoun!)}`, [...firm, ...objectPath]),
-                part(partStatus([]), `: ${listed(group.map(t => TRIGGER_PHRASE[triggerOf(t)!]))}`, group.map(t => pathAt(t, 'selector'))),
-            ]),
-        )
-        const locations = group.map(t => pathAt(t, 'placement.region'))
-        const bound = coachDecides(first.placement.region)
-        say('How it works', partStatus(locations), `You choose where ${group.length > 1 ? 'each of these restarts is' : 'it is'} taken${bound ? `, ${bound}` : ''}`, locations)
-        saidRestarts.push(group)
-    }
-
     /**
      * **Where each team starts, and that it is free to move once play restarts** — his D4: *"That relationship should be re-established
      * at the beginning of each new build-out episode."*; his reply filed 18 October 2026, item 3: *"Starting placement: building-team
@@ -1976,9 +1960,10 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
      * team T)" of the marked line, with T the other team, is the team's own side of the line; with T the team itself, past it. Timed
      * CONDITIONAL_RESET (P10a, EM-0002 EMP-0013), it is re-established at exactly the transitions that begin the episode it names — the
      * ones whose taker meets an arm of that episode's typed begin condition (C58), which GA-EPISODE-REACHABLE checked on this concrete
-     * game; said with the restart sentence above only where those transitions are exactly one group said there ("Before each of these
-     * restarts"). The begin condition itself is withheld until approved wording, so it is read here and not cited. Nothing holds a
-     * player in a region during play (no access rule, no consequence), which is what "free to move" says, citing the timing.
+     * game; said with the restart sentence below only where those transitions are exactly one group said there ("Before each of these
+     * restarts"), and since stage 2B directly after that group's WHEN sentence (his D4 keeps it with the restart moments). The begin
+     * condition itself is withheld until approved wording, so it is read here and not cited. Nothing holds a player in a region during
+     * play (no access rule, no consequence), which is what "free to move" says, citing the timing.
      */
     const placementsHeld: any[] = game.performers?.startPlacement ?? []
     // Read by the module's two helpers since stage 2A, which placement (`sectionFactsOf`) reads the same way.
@@ -1995,8 +1980,12 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
     }
     const sayablePlacements = placementsHeld.filter(p => sideOf(p) && p.timing === 'CONDITIONAL_RESET')
     const resetAt = sayablePlacements.length ? beginsEpisode(sayablePlacements[0].resetsAt) : []
-    const resetGroup = saidRestarts.find(group => JSON.stringify(group.map(t => String(t.elementId)).sort()) === JSON.stringify(resetAt))
-    if (sayablePlacements.length && resetGroup && sayablePlacements.every(p => p.resetsAt === sayablePlacements[0].resetsAt)) {
+    /** Whether the start placement is said with this group: its transitions are exactly the ones the placements are re-established at. */
+    const placementResetsAt = (group: any[]): boolean =>
+        sayablePlacements.length > 0 &&
+        sayablePlacements.every(p => p.resetsAt === sayablePlacements[0].resetsAt) &&
+        JSON.stringify(group.map(t => String(t.elementId)).sort()) === JSON.stringify(resetAt)
+    const sayPlacement = (resetGroup: any[]) => {
         const lineRef = sayablePlacements[0].region.of.structuralRef
         const placementPaths = sayablePlacements.flatMap(p => ['group', 'region', 'timing', 'resetsAt'].map(field => `performers.startPlacement[${p.elementId}].${field}`))
         const own = sayablePlacements.filter(p => sideOf(p) === 'own side').map(p => `the ${teamNoun(p.group)}`)
@@ -2011,6 +2000,45 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
             `Before each of these restarts, ${clauses.join(', and ')}; once play restarts, every player is free to move anywhere`,
             [...placementPaths, `space.regions[c:${lineRef.contractId}:${lineRef.itemId}].noun`, ...resetGroup.map(t => pathAt(t, 'selector'))],
         )
+    }
+
+    /**
+     * **When a role's restart happens, said apart from how it is taken — stage 2B, 21 October 2026 (DRAFT wording).** His reply filed 22
+     * October 2026, item 2: *"For example, the basic [specialized-role] restart condition is essential because it determines when the
+     * building team can score again. The complete procedural details of every restart should remain accessible but do not all need to
+     * appear in the overview."* (his role noun bracketed, as the header says of the sport). Until this stage one sentence said both
+     * ("{taker} restarts play {method}: {triggers}"), so either the procedure sat in the first read or the restart moments left it.
+     * Now each group says, in its own words and with its own citations:
+     *
+     *   - WHEN: "{Taker} restarts play: {triggers}", citing the awardee and taker, the play state and each trigger's selector. Placed by
+     *     what it cites (`sections.ts`): with a transition that opens play or a bounded episode, in How it works, and the start
+     *     placement follows it directly (his D4); with any other, in Restarts and ball out;
+     *   - HOW: "{Taker} restarts play {method}", citing the awardee and taker, the method and the object;
+     *   - WHERE: "You choose where {taker} restarts play{, bound}", citing the awardee and taker and each location. It names its own
+     *     restart: it said "each of these restarts", whose antecedent was the sentence now split (the D2 verification's finding).
+     *
+     * The taker is cited wherever it is named (SD-103, above), and so is said by all three; placement reads an opener's taker below its
+     * procedure (`OPENER_TAKER`), so HOW and WHERE go to Restarts and ball out. Every other path the one sentence cited is cited by
+     * exactly one of WHEN and HOW. The words are the one sentence's, cut at the colon, with the taker said again at the start of HOW;
+     * WHERE's "{taker} restarts play" replaces "each of these restarts is taken" (DRAFT).
+     */
+    for (const group of restartGroups.values()) {
+        const [first] = group
+        const taker = takerOf(first)!
+        const who = group.flatMap(t => [pathAt(t, 'awardedTo'), pathAt(t, 'placement.actor')])
+        const stops = group.map(t => pathAt(t, 'playState'))
+        const methods = group.map(t => pathAt(t, 'placement.method'))
+        const locations = group.map(t => pathAt(t, 'placement.region'))
+        instructions.push(
+            joined('How it works', [
+                part(partStatus([...who, ...stops]), `${capital(taker)} restarts play`, [...who, ...stops]),
+                part(partStatus([]), `: ${listed(group.map(t => TRIGGER_PHRASE[triggerOf(t)!]))}`, group.map(t => pathAt(t, 'selector'))),
+            ]),
+        )
+        if (placementResetsAt(group)) sayPlacement(group)
+        instructions.push(joined(RESTARTS, [part(partStatus([...who, ...methods]), `${capital(taker)} restarts play ${METHOD_PHRASE[first.placement.method](objectNoun!)}`, [...who, ...methods, ...objectPath])]))
+        const bound = coachDecides(first.placement.region)
+        say(RESTARTS, partStatus([...locations, ...who]), `You choose where ${taker} restarts play${bound ? `, ${bound}` : ''}`, [...locations, ...who])
     }
 
     // Ordinary restarts when the object goes out of play, one sentence per trigger where its transitions restart alike.

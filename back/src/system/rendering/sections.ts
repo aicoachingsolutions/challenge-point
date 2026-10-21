@@ -16,7 +16,8 @@
  *     to one of the two non-row roots a renderer cites (`adjustments`, `envelope.roles`);
  *   - each row has ONE kind (`KIND_OF_ROW`), keyed by the element it holds and never by an activity, a goal or a sentence;
  *   - a transition's kind is read per element from what it holds (`SectionFacts.transitionKind`): one that opens play or the episode
- *     a role's credit is confined to, any other stop-and-restart, or one that keeps play going;
+ *     a role's credit is confined to, any other stop-and-restart, or one that keeps play going; and, for an opener only, per field
+ *     (`TRANSITION_FIELD_OF_ROW`, stage 2B): when it happens, who takes it, or how it is taken;
  *   - two structural facts give ADJUST whatever is cited: a PREFERENCE, and a number said as the REQUIRED_LIMIT of a line the
  *     activity only starts at (`SectionFacts.startingLines`);
  *   - the highest kind in `PRECEDENCE` wins, and its section and `when` follow.
@@ -34,8 +35,18 @@
  * score, below the marking rows, so a marking sentence that names its objective stays in Set up. An episode opener keeps every
  * field in How it works until stage 2B splits its WHEN from its HOW.
  *
- * Organisation only: nothing is added, dropped, reworded or re-cited here (fidelity Q3 is unchanged), and approved wording is placed
- * like any other sentence (a test requires the classifier to give each approved entry its own validated `section`).
+ * **What stage 2B adds** (21 October 2026, his item 2: *"the basic [specialized-role] restart condition is essential because it
+ * determines when the building team can score again. The complete procedural details of every restart should remain accessible but do
+ * not all need to appear in the overview."*, the role bracketed for the coupling ratchet): an opener's fields are read apart. When it
+ * happens (trigger, qualifiers, play state, that it starts an episode) opens play and is read in How it works; who takes it (awardee,
+ * taker) is read there too but ranks below everything else that is not a role, so a procedure sentence naming its taker stays with
+ * the procedure; how it is taken (method, location) is a restart's procedure, read in Restarts and ball out. The renderer says the
+ * opener's WHEN and its HOW as two sentences. And what the first read must carry (`firstReadUncarried`): every cited path read for
+ * understanding and beginning is cited by a sentence placed there, which fidelity Q3 holds.
+ *
+ * Organisation only: nothing is added, dropped, reworded or re-cited here (fidelity Q3's path test is unchanged; stage 2B adds the
+ * first-read test beside it), and approved wording is placed like any other sentence (a test requires the classifier to give each
+ * approved entry its own validated `section`).
  */
 import { loadRegister } from '../derivation/corpus'
 
@@ -102,7 +113,7 @@ export const WHEN_OF_SECTION: Record<Section, When> = {
 }
 
 /** The kinds of element a sentence can state, each with its one section. */
-export type Kind = 'ADJUSTMENT' | 'ROLE_EXCHANGE' | 'SCORING' | 'EPISODE_OPENER' | 'RESTART' | 'IN_PLAY' | 'ORGANISATION' | 'OBJECTIVE' | 'DURATION' | 'PLAYERS' | 'ROLES'
+export type Kind = 'ADJUSTMENT' | 'ROLE_EXCHANGE' | 'SCORING' | 'EPISODE_OPENER' | 'RESTART' | 'IN_PLAY' | 'ORGANISATION' | 'OBJECTIVE' | 'DURATION' | 'PLAYERS' | 'OPENER_TAKER' | 'ROLES'
 
 /**
  * **Which kind decides, highest first.** A sentence states several kinds of element at once (a marking sentence names the objective
@@ -116,8 +127,14 @@ export type Kind = 'ADJUSTMENT' | 'ROLE_EXCHANGE' | 'SCORING' | 'EPISODE_OPENER'
  * unchanged), but it ranks LAST (the review of stage 2A): a role's name is cited wherever a sentence speaks for a role, and it must
  * never pull a scoring or how-play-works sentence out of the first read into a consult-when-needed section. Only a sentence that cites
  * nothing but the roles is placed by them.
+ *
+ * `OPENER_TAKER` (stage 2B: rows T2, T3 of a transition that opens play or a bounded episode, its awardee and its taker) is said in How
+ * it works, with when the opener happens, and ranks below every kind but the roles, for the same reason: who takes the opening restart
+ * is named, and cited, wherever a sentence speaks of that restart, and it must never pull the restart's procedure (its method and
+ * location, `RESTART`) out of Restarts and ball out into the first read. Only a sentence citing nothing but the taker (and the roles) is
+ * placed by it.
  */
-export const PRECEDENCE: Kind[] = ['ADJUSTMENT', 'ROLE_EXCHANGE', 'SCORING', 'EPISODE_OPENER', 'RESTART', 'IN_PLAY', 'ORGANISATION', 'OBJECTIVE', 'DURATION', 'PLAYERS', 'ROLES']
+export const PRECEDENCE: Kind[] = ['ADJUSTMENT', 'ROLE_EXCHANGE', 'SCORING', 'EPISODE_OPENER', 'RESTART', 'IN_PLAY', 'ORGANISATION', 'OBJECTIVE', 'DURATION', 'PLAYERS', 'OPENER_TAKER', 'ROLES']
 
 export const SECTION_OF_KIND: Record<Kind, Section> = {
     ADJUSTMENT: ADJUSTING,
@@ -130,6 +147,7 @@ export const SECTION_OF_KIND: Record<Kind, Section> = {
     OBJECTIVE: 'How to score',
     DURATION: WHEN_IT_ENDS,
     PLAYERS: 'Players',
+    OPENER_TAKER: 'How it works',
     ROLES: ROLE_EXCHANGE,
 }
 
@@ -273,6 +291,35 @@ export const KIND_OF_ROOT: { root: string; kind: Kind }[] = [
 ]
 const underRoot = (path: string, root: string): boolean => path === root || path.startsWith(`${root}.`) || path.startsWith(`${root}[`)
 
+/**
+ * **What each field of a transition says of it: when it happens, who takes it, or how it is taken** — stage 2B, 21 October 2026, keyed
+ * by register row and never by activity. Read only for a transition that opens play or a bounded episode (`EPISODE_OPENER`), whose
+ * WHEN opens play and is needed to begin (his item 2: the basic restart condition "determines when the building team can score
+ * again"), while its HOW is procedure, consulted when needed ("The complete procedural details of every restart should remain
+ * accessible but do not all need to appear in the overview"). Every other transition is read whole, by its element, as in stage 2A.
+ * Totality is a test: every row the table above reads as `TRANSITION` is here, and one that is not is refused loudly.
+ *
+ *   - WHEN: the transition and its trigger (T1, a selector cited through it), its qualifiers (T1a-T1c), that play stops (T6) and that
+ *     it starts an episode (T7);
+ *   - WHO: to whom it is awarded (T2) and who takes it (T3);
+ *   - HOW: where (T4) and how (T5) it is taken.
+ */
+export type TransitionField = 'WHEN' | 'WHO' | 'HOW'
+export const TRANSITION_FIELD_OF_ROW: Record<string, TransitionField> = {
+    T1: 'WHEN',
+    T1a: 'WHEN',
+    T1b: 'WHEN',
+    T1c: 'WHEN',
+    T2: 'WHO',
+    T3: 'WHO',
+    T4: 'HOW',
+    T5: 'HOW',
+    T6: 'WHEN',
+    T7: 'WHEN',
+}
+/** The kind each field of an opener states (`PRECEDENCE` ranks them: when it happens, then its procedure, and its taker near last). */
+export const KIND_OF_OPENER_FIELD: Record<TransitionField, Kind> = { WHEN: 'EPISODE_OPENER', WHO: 'OPENER_TAKER', HOW: 'RESTART' }
+
 /** A transition as placement reads it. */
 export type TransitionKind = 'EPISODE_OPENER' | 'RESTART' | 'IN_PLAY'
 /**
@@ -380,7 +427,11 @@ export function kindOfPath(path: string, facts: SectionFacts, rows: Map<string, 
     const transition = facts.transitionKind(id)
     if (!transition) throw new Error(`sections: "${path}" cites transition ${id}, which the game does not hold`)
     if (transition === PLAY_STATE_UNREADABLE) throw new Error(`sections: "${path}" cites transition ${id}, whose play state is neither STOP_RESUME nor CONTINUE, so whether it stops play cannot be read`)
-    return transition
+    if (transition !== 'EPISODE_OPENER') return transition
+    // An opener is read per field (stage 2B): when it happens, who takes it, or how it is taken.
+    const field = TRANSITION_FIELD_OF_ROW[row]
+    if (!field) throw new Error(`sections: register row ${row} (cited as "${path}") is a transition row with no field reading in the section table`)
+    return KIND_OF_OPENER_FIELD[field]
 }
 
 /** One sentence's placement: its section, when the coach needs it, the kind that decided, and what stated that kind. */
@@ -416,6 +467,30 @@ export function assignSection(instruction: Placeable, facts: SectionFacts, rows:
     const best = found.reduce((a, b) => (PRECEDENCE.indexOf(b.kind) < PRECEDENCE.indexOf(a.kind) ? b : a))
     const section = SECTION_OF_KIND[best.kind]
     return { section, when: WHEN_OF_SECTION[section], kind: best.kind, by: best.by }
+}
+
+/**
+ * **What the first read must carry** — stage 2B, 21 October 2026. His reply filed 22 October 2026, item 2: *"Some information is essential
+ * to understanding and beginning the game."* and *"the basic [specialized-role] restart condition is essential because it determines when
+ * the building team can score again."* Placement takes the highest kind a sentence cites, so a path read for understanding and beginning
+ * can sit in a sentence placed for administering or adjusting (the exchange names the objectives whose targets change). That loses
+ * nothing while another sentence carries the path in the first read, and it is a loss where none does: the coach would meet it only in
+ * a section consulted when needed. So this returns every cited path whose OWN kind is read UNDERSTAND_AND_BEGIN and that no sentence
+ * placed in an understand-and-begin section cites, in the order first cited; fidelity Q3 refuses each one.
+ *
+ * Paths the classifier reads as nouns (`NAME`, a bare collection) decide nothing and owe nothing here. A path that cannot be read at all
+ * (on no row, a transition the game does not hold or whose play state cannot be read) is refused loudly, as placement refuses it.
+ */
+export function firstReadUncarried(instructions: { section: string; from: string[] }[], facts: SectionFacts, rows: Map<string, string> = registerRowIndex()): string[] {
+    const firstRead = (section: string) => isSection(section) && WHEN_OF_SECTION[section] === 'UNDERSTAND_AND_BEGIN'
+    const carried = new Set(instructions.filter(instruction => firstRead(instruction.section)).flatMap(instruction => instruction.from))
+    const uncarried: string[] = []
+    for (const path of new Set(instructions.flatMap(instruction => instruction.from))) {
+        if (carried.has(path)) continue
+        const kind = kindOfPath(path, facts, rows)
+        if (kind && WHEN_OF_SECTION[SECTION_OF_KIND[kind]] === 'UNDERSTAND_AND_BEGIN') uncarried.push(path)
+    }
+    return uncarried
 }
 
 /** Refuses loudly a sentence whose section is not one an activity has (the review of stage 2A: no section is ranked on a guess). */
