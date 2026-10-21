@@ -438,6 +438,8 @@ test('14. the opening restart is said as WHEN (How it works, before the start pl
         // transitions, so "in both blocks" was claimed and not checked. Each block's OWN render is read now: its WHEN, HOW and WHERE, their
         // words and sections as composed, and their citations against that block's own transitions. The composed sentence (said once, with
         // no block label and no counterpart) then cites exactly what each block's own does.
+        // Two blocks, or "in both blocks" would pass with none (blocksOf falls back to [] when roleBlocks is absent).
+        assert.equal(blocksOf(fixture).length, 2, `${what}: the activity is played in two role blocks`)
         for (const [n, block] of blocksOf(fixture).entries()) {
             const inBlock = `${what}, block ${n + 1}`
             const own = renderConcreteGame(block).instructions

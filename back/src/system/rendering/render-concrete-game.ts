@@ -2249,8 +2249,10 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
          * only for zone targets: a game that scores across a line keeps "across the line it is attacking". The citations are unchanged
          * (each target's noun).
          */
+        // A region noun that already says "target" is not prefixed again ("its target target zone").
+        const targetPhrase = targetNoun && targetNoun.toLowerCase().startsWith('target') ? targetNoun : `target ${targetNoun}`
         const how = zoneEntry
-            ? `by getting the ${carrier.kind} under control into its target ${targetNoun}: running it in, or passing to a teammate who receives it under control inside`
+            ? `by getting the ${carrier.kind} under control into its ${targetPhrase}: running it in, or passing to a teammate who receives it under control inside`
             : // "the marked line" is only unambiguous while there is one; with a target per team the objective each team
               // attacks is named relationally.
               carrier
