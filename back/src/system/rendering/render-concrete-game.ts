@@ -102,6 +102,16 @@ export type SourceStatus =
  */
 export const COACH_CALLS = 'COACH_CALLS'
 
+/**
+ * **The exchange's words that nothing is re-marked, and the qualification a moved mark owes them** — stage 2D's DRAFT wording, kept in
+ * one place by hardening H2 (21 October 2026, the 2D review's should-fix 2): the renderer says them (the Role exchange sentence where the
+ * markings are set out once) and fidelity Q5-L reads them (a Role exchange sentence saying `NOTHING_RE_MARKED` where an authorized
+ * adjustment moves a mark set out once must say one of `MOVED_MARK_QUALIFICATIONS` straight after it). Never typed a second time.
+ * `the` where the one mark moved is the marked line, `a` where more than one line, or a line not called that, is moved.
+ */
+export const NOTHING_RE_MARKED = 'nothing is re-marked'
+export const MOVED_MARK_QUALIFICATIONS = { the: ' unless you have moved the marked line', a: ' unless you have moved a marked line' } as const
+
 /** One number a sentence says, and the concrete-game path whose number it is. */
 export interface Binding {
     quantity: number
@@ -2232,8 +2242,15 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
          */
         // How a score is made, and what the sentence saying it cites beyond the event and its value.
         const zoneEntry = primary.kind === ZONE_ENTRY_EVENT && carrier && objectives.length > 1 && targetNoun
+        /**
+         * Hardening H5, 21 October 2026 (DRAFT): the zone a team enters to score is its objective's region, its target, so it is named as
+         * "its target {noun}" — his term "target zone" (reply filed 22 October 2026, item 7, as the build plan's expected Details 14 records
+         * it), as the Set up sentences name each role's target — not "the {noun} it is attacking". Only the zone-entry wording changes, and
+         * only for zone targets: a game that scores across a line keeps "across the line it is attacking". The citations are unchanged
+         * (each target's noun).
+         */
         const how = zoneEntry
-            ? `by getting the ${carrier.kind} under control into the ${targetNoun} it is attacking: running it in, or passing to a teammate who receives it under control inside`
+            ? `by getting the ${carrier.kind} under control into its target ${targetNoun}: running it in, or passing to a teammate who receives it under control inside`
             : // "the marked line" is only unambiguous while there is one; with a target per team the objective each team
               // attacks is named relationally.
               carrier
@@ -2516,13 +2533,13 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
              * (so fidelity Q6 reads the same half of his D2 distinction: what changes with the roles), with the layout's policy, and the words
              * say that each team now attacks the target of its new role and that nothing is re-marked. Where an authorized adjustment moves a
              * mark set out once (`layout.movedBy`), that is not true once the coach has used it, so the sentence says so where it is made
-             * ("unless you have moved the marked line"), citing it: his item 6 asks that no shortened statement silently turn a qualified rule
-             * into an unrestricted one. Without a layout the sentence is exactly what it was.
+             * (`MOVED_MARK_QUALIFICATIONS`, read by fidelity Q5-L too), citing it: his item 6 asks that no shortened statement silently turn a
+             * qualified rule into an unrestricted one. Without a layout the sentence is exactly what it was.
              */
             const movedLines = new Set((layout?.movedBy ?? []).map(move => move.line))
-            const unless = !layout?.movedBy.length ? '' : movedLines.size === 1 && markedLines.has([...movedLines][0]) ? ' unless you have moved the marked line' : ' unless you have moved a marked line'
+            const unless = !layout?.movedBy.length ? '' : movedLines.size === 1 && markedLines.has([...movedLines][0]) ? MOVED_MARK_QUALIFICATIONS.the : MOVED_MARK_QUALIFICATIONS.a
             const markings = layout
-                ? `: each team now attacks the target ${targetNoun ?? 'line'} of its new role, and nothing is re-marked${unless}`
+                ? `: each team now attacks the target ${targetNoun ?? 'line'} of its new role, and ${NOTHING_RE_MARKED}${unless}`
                 : !keyedPaths.length
                   ? ''
                   : named.length

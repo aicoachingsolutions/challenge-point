@@ -132,7 +132,8 @@ test('2. How to score in the order shown to him, and APPROVED exactly for his se
             [
                 HIS_ITEM_1,
                 HIS_W3,
-                'Pressing team: Score by getting the ball under control into the zone it is attacking: running it in, or passing to a teammate who receives it under control inside',
+                // Moved 21 October 2026 (hardening H5, DRAFT): "into its target zone", his term; was "into the zone it is attacking".
+                'Pressing team: Score by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside',
                 HIS_W2,
                 'Each score is worth 1 point',
                 // Moved 21 October 2026 (stage 2D, his reply filed 22 October 2026, item 7): with every block's markings set out once, "Each

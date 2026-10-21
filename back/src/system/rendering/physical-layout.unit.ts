@@ -13,7 +13,7 @@
  *   2. TEST-ONLY blocks on a 50 x 30 m area (the line 20 m from the building team's end, so at 20 m in one block and 30 m in the other):
  *      inadmissible, and why is said; the production choice does not apply to that area at all;
  *   3. with no recorded choice (TEST-ONLY records), A01 reads exactly as the block-by-block renders compose, with nothing of a layout;
- *      with a choice recorded for another area, the same text plus a technical observation saying why;
+ *      with a choice recorded for another area, the same text, and why is said to an administrator only (since hardening H1);
  *   4. a TEST-ONLY offset that moves the line off half the length: built end to end, the markings stay block by block and why is said;
  *   5. RB-L refuses a layout that differs from the recomputed union, a block missing one, and one carried with no choice recorded;
  *   6. fidelity Q2 accepts a number bound to the layout only where the layout holds it there;
@@ -23,6 +23,15 @@
  *   8. the composition pairs the two target sentences under the role pairing with the layout's axis mirror, and Q6 refuses a pair
  *      whose block-2 parts bind a number outside the pairing (the 2C review's should-fix);
  *   9. the module names no goal, no value and no sport.
+ *
+ * Added in the hardening pass after stage 2 (21 October 2026, the 2D review's should-fixes):
+ *
+ *   3, 4 and 10 (H1). Where his recorded choice does not apply, why is said in the admin-only review evidence (the role exchange facts),
+ *      never on what a coach is served: a TEST-ONLY 15 m offset build carries it in the administrator's answer and nowhere in the coach's;
+ *   7 (e2) (H2). A Role exchange sentence saying nothing is re-marked, where an adjustment moves a mark set out once, must say the
+ *      qualification in words, not only cite it; the words are the renderer's constants, typed once;
+ *   6 (H3). Fidelity Q2 admits a number of the layout only through a leaf path holding it, never a broader node (TEST-ONLY sentences
+ *      citing `layout.because`, its area or a whole zone with 40 or 30 are refused; production passes).
  */
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
@@ -35,8 +44,8 @@ import { learningGoalAuthorization, learningGoalAuthorizations, LearningGoalAuth
 import { buildActivityUnderAuthorizationRecords, buildActivityWithFixture, ServedActivity } from './build-activity'
 import { checkFidelity } from './fidelity'
 import { MECHANISM_DEMONSTRATIONS } from './mechanism-demonstrations'
-import { layoutChoicesOf, layoutMoversOf, layoutNumbersAt, layoutOf, MARK_UNION_ONCE } from './physical-layout'
-import { Instruction, renderConcreteGame, ROLE_EXCHANGE } from './render-concrete-game'
+import { LAYOUT_NUMBER_LEAVES, layoutChoicesOf, layoutLeafNumberAt, layoutMoversOf, layoutNumbersAt, layoutOf, MARK_UNION_ONCE } from './physical-layout'
+import { Instruction, MOVED_MARK_QUALIFICATIONS, NOTHING_RE_MARKED, renderConcreteGame, ROLE_EXCHANGE } from './render-concrete-game'
 import { checkRoleBlockComposition, checkRoleBlockLayout, composeRoleBlockActivity, counterpartMap } from './role-blocks'
 import { specializedRoleNames } from './session-envelope'
 
@@ -63,6 +72,8 @@ const bare = (entry: { blockId: string; fixture: any }) => ({ blockId: entry.blo
 const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value))
 const LINE = 'c:provisional:A01-R1:A01-R1-S2-1'
 const PRESSING_TARGET_SENTENCE = "The pressing team's target zone is the 5 m end zone at the building team's end"
+/** How the admin-only fact saying why the markings stay block by block opens (hardening H1). */
+const FALLBACK = 'The markings are presented block by block'
 const HIS_ITEM_7 =
     'For this particular 40 × 30 m configuration, we can also simplify setup by marking the halfway line and both 5 m end zones at the beginning. Role exchanges should not require unnecessary physical re-marking. The knowledge can continue to represent the distinct targets and relationships for each block, even where the physical markings remain unchanged.'
 /** The A01 records with his recorded layout choice taken out (TEST-ONLY), or its scope replaced. */
@@ -165,15 +176,21 @@ test('3. with no recorded choice, A01 reads exactly as the block-by-block render
     assert.ok(!texts.some(text => text.includes('halfway')))
     assert.deepEqual(withoutServed.rendered.coachingObservations, served.rendered.coachingObservations, 'no observation: nothing was recorded')
     assert.deepEqual(withoutServed.roleBlocks!.checks.slice(-1).map(check => [check.checkId, check.verdict]), [['RB-L', 'PASS']])
-    // A choice recorded for another area (TEST-ONLY scope): the same text, and the technical account says why.
-    const elsewhere = buildActivityUnderAuthorizationRecords(a01, recordsWith(a01Record => (a01Record.provisionalChoices!.find(choice => choice.value)!.appliesTo = { lengthM: 50, widthM: 30 })))
+    // A choice recorded for another area (TEST-ONLY scope): the same text, and an administrator is told why. Moved 21 October 2026
+    // (hardening H1, the 2D review's should-fix 1): why was a technical observation every viewer could expand; it is now in the admin-only
+    // review evidence (test 10), and what a coach is served is exactly the activity without the choice.
+    const elsewhereRecords = recordsWith(a01Record => (a01Record.provisionalChoices!.find(choice => choice.value)!.appliesTo = { lengthM: 50, widthM: 30 }))
+    const elsewhere = buildActivityUnderAuthorizationRecords(a01, elsewhereRecords)
     const elsewhereServed = elsewhere.activity as ServedActivity
     assert.equal(elsewhereServed.outcome, 'served')
     assert.deepEqual(elsewhereServed.rendered.instructions, withoutServed.rendered.instructions)
-    assert.deepEqual(
-        elsewhereServed.rendered.coachingObservations.filter(o => !withoutServed.rendered.coachingObservations.includes(o)),
-        ["The markings are presented block by block, and not set out once as the recorded choice MARK_UNION_ONCE asks: the recorded choice MARK_UNION_ONCE (his reply filed 22 October 2026, item 7) applies to an area 50 m long by 30 m wide, and this session's area is 40 m long by 30 m wide."],
-    )
+    assert.deepEqual(elsewhereServed.rendered.coachingObservations, withoutServed.rendered.coachingObservations, 'nothing added to what a coach is served')
+    const elsewhereAdmin = buildActivityUnderAuthorizationRecords(a01, elsewhereRecords, { review: { includeDrafts: true } }).activity as ServedActivity
+    assert.deepEqual(elsewhereAdmin.evidence!.sections.roleExchange.filter(fact => fact.what.startsWith(FALLBACK)), [
+        { what: `${FALLBACK}, and not set out once as the recorded choice MARK_UNION_ONCE asks`, value: ["the recorded choice MARK_UNION_ONCE (his reply filed 22 October 2026, item 7) applies to an area 50 m long by 30 m wide, and this session's area is 40 m long by 30 m wide"] },
+    ])
+    const withoutAdmin = buildActivityUnderAuthorizationRecords(a01, recordsWith(a01Record => (a01Record.provisionalChoices = (a01Record.provisionalChoices ?? []).filter(choice => choice.value === undefined))), { review: { includeDrafts: true } }).activity as ServedActivity
+    assert.ok(!withoutAdmin.evidence!.sections.roleExchange.some(fact => fact.what.startsWith(FALLBACK)), 'nothing recorded, nothing said')
     // The served demonstrations hold no layout and read as before: no record, no role blocks.
     for (const demonstration of MECHANISM_DEMONSTRATIONS) {
         const demo = buildActivityWithFixture({ kind: 'mechanism-demonstration', demonstrationId: demonstration.id, session: { ...session, roles: none } })
@@ -182,11 +199,14 @@ test('3. with no recorded choice, A01 reads exactly as the block-by-block render
     }
 })
 
+/** TEST-ONLY: the marked line 15 m from the building team's end line (off half the length), on a copy of the contracts. */
+const offsetFifteen = (contracts: LoadedContract[]) => {
+    const item: any = contracts.find(contract => contract.contractId === 'provisional:A01-R1')!.items.find(entry => entry.itemId === 'A01-R1-S5-1')
+    item.value = { ...item.value, offsetM: { from: 15, to: 15 }, asAuthored: 'TEST-ONLY 15 m from the building team\'s end line' }
+}
+
 test('4. TEST-ONLY: the line 15 m from the building team\'s end (off half the length) is built end to end, presented block by block, and why is said', () => {
-    const alter = (contracts: LoadedContract[]) => {
-        const item: any = contracts.find(contract => contract.contractId === 'provisional:A01-R1')!.items.find(entry => entry.itemId === 'A01-R1-S5-1')
-        item.value = { ...item.value, offsetM: { from: 15, to: 15 }, asAuthored: 'TEST-ONLY 15 m from the building team\'s end line' }
-    }
+    const alter = offsetFifteen
     const moved = buildActivityUnderAuthorizationRecords(a01, learningGoalAuthorizations(), { alter })
     assert.equal(moved.activity.outcome, 'served', JSON.stringify((moved.activity as any).reasons))
     const activity = moved.activity as ServedActivity
@@ -196,7 +216,8 @@ test('4. TEST-ONLY: the line 15 m from the building team\'s end (off half the le
     assert.ok(!texts.some(text => text.includes('nothing is re-marked')), 'nor that nothing is re-marked')
     assert.ok(texts.some(text => text.includes('set out again for the new roles')))
     assert.ok(!activity.rendered.instructions.some(i => i.from.some(p => p.startsWith('layout.'))))
-    assert.ok(activity.rendered.coachingObservations.some(o => o.startsWith('The markings are presented block by block') && o.includes(`the line ${LINE} is not held at one position in every block (15-15 m in block`)), JSON.stringify(activity.rendered.coachingObservations))
+    // Moved 21 October 2026 (hardening H1): why is said to an administrator only (test 10), never in the account a coach can expand.
+    assert.ok(!activity.rendered.coachingObservations.some(o => o.startsWith(FALLBACK)), JSON.stringify(activity.rendered.coachingObservations))
 })
 
 test('5. RB-L refuses a layout that is not the recomputed union, a block carrying none, and one carried with no choice recorded', () => {
@@ -241,6 +262,40 @@ test('6. fidelity Q2 accepts a number bound to the layout only where the layout 
     assert.ok(q2(fixture, said6).some(f => f.what.includes('binds 6 to layout.zones[zone-1].depthM')))
     // Without a layout, a layout path holds nothing, so nothing bound to it is admitted.
     assert.ok(q2({ ...fixture, layout: undefined }, rendered).some(f => f.what.includes('layout.zones[zone-1].depthM')))
+
+    /*
+     * Hardening H3, 21 October 2026 (the 2D review's should-fix 4), a TIGHTENING: a number of the layout is admitted only through a LEAF
+     * path holding it (a mark's `at`, a zone's `from`, `to` or `depthM`). Before, every number held anywhere under the cited path was: the
+     * recorded choice's area (40, 30) under `layout.because`, any edge under `layout.zones[...]` or `layout.regions`.
+     */
+    assert.deepEqual(LAYOUT_NUMBER_LEAVES, { marks: ['at'], zones: ['from', 'to', 'depthM'] })
+    for (const block of blocks) assert.deepEqual(q2(block.fixture, renderConcreteGame(block.fixture)), [], `production passes in block ${block.blockId}`)
+    assert.deepEqual(layoutLeafNumberAt(fixture.layout, 'layout.zones[zone-2].to'), [40])
+    assert.deepEqual(layoutLeafNumberAt(fixture.layout, 'layout.marks[mark-2].at'), [20])
+    for (const broad of ['layout.because.appliesTo', 'layout.because', 'layout.zones[zone-2]', 'layout.zones', 'layout.regions', 'layout', 'layout.lengthM', 'layout.zones[zone-2].sources']) {
+        assert.deepEqual(layoutLeafNumberAt(fixture.layout, broad), [], broad)
+    }
+    // The broad reader (kept for the admin evidence's description) holds 40 and 30 there: that is what Q2 used to admit.
+    assert.deepEqual(layoutNumbersAt(fixture.layout, 'layout.because.appliesTo'), [40, 30])
+    // TEST-ONLY sentences, each binding its number to the path it cites (a Set up sentence copied from the end-zone one).
+    const said = (text: string, quantity: number, path: string): Instruction => ({
+        ...zones,
+        text,
+        from: [path],
+        quantities: [quantity],
+        parts: [{ ...zones.parts![0], text, from: [path], quantities: [quantity], bindings: [{ quantity, path }] }],
+    })
+    const withSentence = (instruction: Instruction) => ({ ...rendered, instructions: [...rendered.instructions, instruction] })
+    for (const [text, quantity, path] of [
+        ['TEST-ONLY: the area set out once is 40 m long', 40, 'layout.because.appliesTo'],
+        ['TEST-ONLY: the area set out once is 30 m wide', 30, 'layout.because'],
+        ['TEST-ONLY: the far end zone reaches 40 m', 40, 'layout.zones[zone-2]'],
+    ] as [string, number, string][]) {
+        const findings = q2(fixture, withSentence(said(text, quantity, path))).map(f => f.what)
+        assert.deepEqual(findings, [`"${text}" binds ${quantity} to ${path}, and that is not a number of that property as a ${zones.parts![0].status} statement may say it`], `${path}: ${JSON.stringify(findings)}`)
+    }
+    // Cited at its leaf, the same number is admitted.
+    assert.deepEqual(q2(fixture, withSentence(said('TEST-ONLY: the far end zone reaches 40 m', 40, 'layout.zones[zone-2].to'))), [])
 })
 
 test('7. Q5-L: every mark and zone said, each region denoted once where the layout records it, inert marks justified, the qualified exchange', () => {
@@ -272,6 +327,32 @@ test('7. Q5-L: every mark and zone said, each region denoted once where the layo
         i === exchange ? { ...i, text: i.text.replace(' unless you have moved the marked line', ''), from: i.from.filter(p => !p.startsWith('layout.movedBy')), parts: i.parts!.map(p => ({ ...p, text: p.text.replace(' unless you have moved the marked line', ''), from: p.from.filter(f => !f.startsWith('layout.movedBy')) })) } : i,
     )
     assert.ok(q5(fixture, { ...rendered, instructions: unqualified }).includes('A01-ADJ-3 moves the mark at 20 m, and the exchange sentence says nothing is re-marked without saying so'))
+    /*
+     * (e2) Hardening H2, 21 October 2026 (the 2D review's should-fix 2), a lexicon TIGHTENING: the words taken out and the citation of what
+     * moves the mark KEPT (TEST-ONLY). Before, only citations were read and this passed. The words are the renderer's constants, so the test
+     * removes exactly what the renderer says.
+     */
+    assert.ok(exchange.text.includes(`${NOTHING_RE_MARKED}${MOVED_MARK_QUALIFICATIONS.the}`))
+    const wordsOnly = (words: string) =>
+        rendered.instructions.map(i => (i === exchange ? { ...i, text: i.text.replace(MOVED_MARK_QUALIFICATIONS.the, words), parts: i.parts!.map(p => ({ ...p, text: p.text.replace(MOVED_MARK_QUALIFICATIONS.the, words) })) } : i))
+    const stripped = wordsOnly('')
+    const strippedExchange = stripped.find(i => i.section === ROLE_EXCHANGE && i.from.includes('layout.policy'))!
+    assert.ok(strippedExchange.from.includes('layout.movedBy[A01-ADJ-3]'), 'the citation is kept')
+    assert.deepEqual(q5(fixture, { ...rendered, instructions: stripped }), [`"${strippedExchange.text}" says nothing is re-marked without the qualification an adjustment that moves a mark set out once owes it (A01-ADJ-3)`])
+    // The renderer's other qualification is the qualification too; and where nothing moves a mark, "nothing is re-marked" owes none.
+    assert.deepEqual(q5(fixture, { ...rendered, instructions: wordsOnly(MOVED_MARK_QUALIFICATIONS.a) }), [])
+    const unmoved = { ...fixture, layout: { ...copy(fixture.layout), movedBy: [] } }
+    const unmovedRendered = renderConcreteGame(unmoved)
+    assert.ok(unmovedRendered.instructions.some(i => i.section === ROLE_EXCHANGE && i.text.includes(`${NOTHING_RE_MARKED};`)), 'said without the qualification')
+    assert.deepEqual(q5(unmoved, unmovedRendered), [])
+    // The words are typed once, in the renderer: neither fidelity nor the renderer's sentence code spells them again.
+    const fidelitySource = fs.readFileSync(path.join(__dirname, 'fidelity.ts'), 'utf8')
+    const rendererSource = fs.readFileSync(path.join(__dirname, 'render-concrete-game.ts'), 'utf8')
+    const tick = String.fromCharCode(96)
+    for (const words of [NOTHING_RE_MARKED, ...Object.values(MOVED_MARK_QUALIFICATIONS)]) {
+        assert.ok(!fidelitySource.includes(`'${words}`) && !fidelitySource.includes(`${tick}${words}`), `fidelity.ts types "${words}"`)
+        assert.equal(rendererSource.split(`'${words}'`).length - 1, 1, `render-concrete-game.ts types "${words}" once`)
+    }
     // (f) The adjustment that moves the line without its consequence (TEST-ONLY): refused.
     const moving = rendered.instructions.find(i => i.from.includes('layout.movedBy[A01-ADJ-3]') && i.section !== ROLE_EXCHANGE)!
     assert.equal(moving.text, "You may choose to move the marked line nearer to either end line; it is measured from the building team's end line, so when the roles exchange, set it out again at the same distance from the new building team's end line")
@@ -342,6 +423,33 @@ test('9. the module names no goal, no value and no sport; "halfway" is said only
     assert.equal(renderer.split('halfway').length - 1, 1)
     assert.ok(renderer.includes('once.at * 2 === areaLength'))
     assert.deepEqual(served.rendered.instructions.filter(i => i.text.includes('halfway')).map(i => i.from.filter(p => p === 'envelope.area.length_m' || p.endsWith('.position.along'))), [['space.regions[c:provisional:A01-R1:A01-R1-S2-1].position.along', 'envelope.area.length_m']])
+})
+
+test('10. hardening H1: where his recorded choice does not apply, why is said to an administrator only (TEST-ONLY 15 m offset)', () => {
+    // The same altered build twice: as a coach's answer, and as an administrator's review asks it.
+    const coach = buildActivityUnderAuthorizationRecords(a01, learningGoalAuthorizations(), { alter: offsetFifteen }).activity as ServedActivity
+    const admin = buildActivityUnderAuthorizationRecords(a01, learningGoalAuthorizations(), { alter: offsetFifteen, review: { includeDrafts: true } }).activity as ServedActivity
+    assert.deepEqual([coach.outcome, admin.outcome], ['served', 'served'])
+    // The administrator: the admin-only evidence says why, with the ids a reviewer needs.
+    const said = admin.evidence!.sections.roleExchange.filter(fact => fact.what.startsWith(FALLBACK))
+    assert.equal(said.length, 1)
+    assert.equal(said[0].what, `${FALLBACK}, and not set out once as the recorded choice ${MARK_UNION_ONCE} asks`)
+    const why = said[0].value as string[]
+    assert.ok(why.length > 0 && why.some(entry => entry.startsWith(`the line ${LINE} is not held at one position in every block (15-15 m in block`)), JSON.stringify(why))
+    // The coach: nothing of it anywhere in the answer — not the sentence, not the code's request, not any reason it gives.
+    const answer = JSON.stringify(coach)
+    assert.ok(!('evidence' in coach))
+    assert.ok(!answer.includes(FALLBACK))
+    assert.ok(!answer.includes(`${MARK_UNION_ONCE} asks`))
+    for (const entry of why) assert.ok(!answer.includes(entry), entry)
+    assert.ok(!coach.rendered.coachingObservations.some(o => o.includes('set out once')), JSON.stringify(coach.rendered.coachingObservations))
+    // Nor in the activity the administrator is served: only the evidence beside it says it; the two answers differ by the evidence alone.
+    assert.ok(!JSON.stringify(admin.rendered).includes(FALLBACK))
+    const { evidence: _evidence, ...rest } = admin
+    assert.deepEqual(rest, coach)
+    // Production (the choice applies at 40 x 30 m): no such fact.
+    const production = buildActivityUnderAuthorizationRecords(a01, learningGoalAuthorizations(), { review: { includeDrafts: true } }).activity as ServedActivity
+    assert.ok(!production.evidence!.sections.roleExchange.some(fact => fact.what.startsWith(FALLBACK)))
 })
 
 console.log(`physical-layout.unit.ts — ${passed} passed`)

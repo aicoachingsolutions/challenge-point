@@ -38,6 +38,8 @@
  *  14. the opening restart is said as WHEN (How it works, directly before the start placement) and HOW and WHERE (Restarts and ball out,
  *      before the ball-out restarts) at every session: the one sentence's words cut at the colon, every path it cited cited again, the
  *      taker by both halves and every other path by exactly one, the same nouns and counts at 12 players with 1 or 2 goalkeepers and at 11;
+ *      the citations read in each block's OWN render, against that block's own transitions (hardening H6, 21 October 2026), and the
+ *      composed sentence citing exactly what each block's own does;
  *  15. the first read carries every path read for understanding and beginning (fidelity Q3) on every production game; a TEST-ONLY move
  *      of the WHEN into Restarts and ball out is refused by fidelity, and on the built chain at communication.
  */
@@ -432,19 +434,34 @@ test('14. the opening restart is said as WHEN (How it works, before the start pl
         assert.equal(where.status, 'COACH_CHOICE', `${what}: where it is taken is the coach's`)
         // The citations, in both blocks: every path the one sentence cited is cited again; the taker (awardee and taker), named by both
         // halves, by both; every other path by exactly one. WHERE cites each location and the taker it names.
-        for (const block of blocksOf(fixture)) {
+        // Re-pointed 21 October 2026 (hardening H6, the 2B review's should-fix 1): this read the COMPOSED sentences against each block's
+        // transitions, so "in both blocks" was claimed and not checked. Each block's OWN render is read now: its WHEN, HOW and WHERE, their
+        // words and sections as composed, and their citations against that block's own transitions. The composed sentence (said once, with
+        // no block label and no counterpart) then cites exactly what each block's own does.
+        for (const [n, block] of blocksOf(fixture).entries()) {
+            const inBlock = `${what}, block ${n + 1}`
+            const own = renderConcreteGame(block).instructions
+            const ownOne = (start: string) => {
+                const found = own.filter(i => i.text.startsWith(start))
+                assert.equal(found.length, 1, `${inBlock}: one sentence of its own starting "${start}"`)
+                return found[0]
+            }
+            const [ownWhen, ownHow, ownWhere] = [ownOne(`${TAKER}:`), ownOne(`${TAKER} `), ownOne(`You choose where the building team's ${ROLE} restarts play`)]
+            assert.deepEqual([ownWhen, ownHow, ownWhere].map(i => [i.section, i.text]), [when, how, where].map(i => [i.section, i.text]), `${inBlock}: its own words and sections are the composed ones`)
             const facts = sectionFactsOf(block)
             const openers = (block.game.transitions as any[]).filter(t => facts.transitionKind(String(t.elementId)) === 'EPISODE_OPENER')
-            assert.equal(openers.length, 3, what)
+            assert.equal(openers.length, 3, inBlock)
             const at = (t: any, field: string) => `transitions[${t.elementId}].${field}`
             const object = `objects[${(block.game.objects as any[]).find(o => typeof o?.kind === 'string').elementId}].kind`
             const cited = [...openers.flatMap(t => ['awardedTo', 'placement.actor', 'placement.method', 'playState', 'selector'].map(field => at(t, field))), object]
-            assert.deepEqual([...new Set([...when.from, ...how.from])].sort(), [...cited].sort(), `${what}: the one sentence's paths and nothing else`)
+            assert.deepEqual([...new Set([...ownWhen.from, ...ownHow.from])].sort(), [...cited].sort(), `${inBlock}: the one sentence's paths and nothing else`)
             for (const path_ of cited) {
                 const taker = path_.endsWith('.awardedTo') || path_.endsWith('.placement.actor')
-                assert.equal([when, how].filter(i => i.from.includes(path_)).length, taker ? 2 : 1, `${what}: ${path_}`)
+                assert.equal([ownWhen, ownHow].filter(i => i.from.includes(path_)).length, taker ? 2 : 1, `${inBlock}: ${path_}`)
             }
-            assert.deepEqual([...where.from].sort(), openers.flatMap(t => ['placement.region', 'awardedTo', 'placement.actor'].map(field => at(t, field))).sort(), what)
+            assert.deepEqual([...ownWhere.from].sort(), openers.flatMap(t => ['placement.region', 'awardedTo', 'placement.actor'].map(field => at(t, field))).sort(), inBlock)
+            assert.deepEqual([when, how, where].map(i => [...i.from].sort()), [ownWhen, ownHow, ownWhere].map(i => [...i.from].sort()), `${inBlock}: the composed sentences cite exactly what this block's own do`)
+            assert.deepEqual([when, how, where].map(i => i.counterparts), [undefined, undefined, undefined], `${inBlock}: said once with no counterpart`)
         }
     }
     assert.equal(counts.size, 1, `the same number of sentences at every session (${[...counts]})`)

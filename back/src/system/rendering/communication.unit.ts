@@ -116,7 +116,7 @@ test('1p. production A01 is SERVED (design step L14): every sentence the game ho
     const at = (text: string) => draftTexts.indexOf(text)
     const expected = [...draftTexts]
     expected.splice(at(`How to score: ${HIS_ITEM_1}`) + 1, 0, `How to score: ${HIS_W3}`)
-    expected.splice(expected.indexOf('How to score: Pressing team: Score by getting the ball under control into the zone it is attacking: running it in, or passing to a teammate who receives it under control inside') + 1, 0, `How to score: ${HIS_W2}`)
+    expected.splice(expected.indexOf('How to score: Pressing team: Score by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside') + 1, 0, `How to score: ${HIS_W2}`)
     assert.deepEqual(sentences(served.rendered.instructions), expected)
     assert.deepEqual(served.evidence!.sections.instructions.filter(i => i.wording === 'APPROVED').map(i => i.text), ['When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone', HIS_ITEM_1, HIS_W3, HIS_W2])
     assert.equal(served.evidence!.sections.instructions.filter(i => i.wording === 'DRAFT').length, served.rendered.instructions.length - 4, 'every other sentence is DRAFT')
@@ -179,7 +179,9 @@ test('1. the review draft of A01 (TEST-ONLY: the table as at stage M5): every se
         // October 2026 showed him. Was: after the pressing team's sentence, the value and the ends (the renderer said approved
         // entries last). No sentence changed.
         `How to score: ${HIS_ITEM_1}`,
-        'How to score: Pressing team: Score by getting the ball under control into the zone it is attacking: running it in, or passing to a teammate who receives it under control inside',
+        // Moved 21 October 2026 (hardening H5, DRAFT): the zone a team enters is named as its target, his term "target zone" (reply filed
+        // 22 October 2026, item 7; the build plan's expected Details 14). Was: "... under control into the zone it is attacking: ...".
+        'How to score: Pressing team: Score by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside',
         'How to score: Each score is worth 1 point',
         // Stage 2A: RC2's Win Condition ("When does the activity end?"), a DRAFT section name.
         'When it ends: Play for 20 minutes',
@@ -531,7 +533,9 @@ test('8. (M3, L9) where a role\'s credit is bounded, no scoring sentence speaks 
     const unbounded = JSON.parse(JSON.stringify(fixture))
     unbounded.game.activityRoles.find((r: any) => r.activityRole === 'BUILDING').creditedWithin = 'WHOLE_GAME'
     const plainScoring = renderConcreteGame(unbounded).instructions.filter(i => i.section === 'How to score').map(i => i.text)
-    assert.ok(plainScoring.includes(old), JSON.stringify(plainScoring))
+    // Re-pointed 21 October 2026 (hardening H5, DRAFT): the zone each team enters is named as its target ("into its target zone"); the
+    // adversarial `old` lines above keep the earlier words, which the rule refuses by what they cite and speak for, not by their words.
+    assert.ok(plainScoring.includes(old.replace('into the zone it is attacking', 'into its target zone')), JSON.stringify(plainScoring))
     assert.ok(!plainScoring.some(t => t.startsWith('Each score is worth') || t.includes(': Score ')))
     // Every served demonstration reads as before: no role there carries a bound.
     for (const demonstration of MECHANISM_DEMONSTRATIONS) {

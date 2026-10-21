@@ -263,7 +263,37 @@ export function layoutOf(blocks: { blockId: string; fixture: any }[], choices: L
     }
 }
 
-/** A path under the layout, read as its own value: the numbers it holds (`layout.zones[zone-1].depthM` holds the zone's depth). */
+/**
+ * **The leaves of the layout that hold a number a sentence may say** — hardening H3, 21 October 2026 (the 2D review's should-fix 4): a
+ * mark's position, and a zone's two edges and its depth. Fidelity Q2 admits a number of the layout only through one of these, cited by its
+ * own path (`layout.zones[zone-1].depthM`): a broader node (`layout.zones[zone-1]`, `layout.marks`, the recorded choice's area under
+ * `layout.because`, the per-block `layout.regions`) holds numbers too, and citing it admitted any of them.
+ */
+export const LAYOUT_NUMBER_LEAVES: Record<'marks' | 'zones', string[]> = { marks: ['at'], zones: ['from', 'to', 'depthM'] }
+
+/** The number a leaf path of the layout holds (`LAYOUT_NUMBER_LEAVES`), as a list of one; empty for every other path or value. */
+export function layoutLeafNumberAt(layout: unknown, path: string): number[] {
+    if (!layout || typeof layout !== 'object' || !path.startsWith('layout.')) return []
+    const rest = path.slice('layout.'.length)
+    const open = rest.indexOf('[')
+    const close = rest.indexOf(']', open)
+    if (open < 0 || close < 0 || rest.charAt(close + 1) !== '.') return []
+    const collection = rest.slice(0, open)
+    const id = rest.slice(open + 1, close)
+    const leaf = rest.slice(close + 2)
+    const leaves = collection === 'marks' || collection === 'zones' ? LAYOUT_NUMBER_LEAVES[collection] : []
+    if (!leaves.includes(leaf)) return []
+    const members = (layout as Record<string, unknown>)[collection]
+    const member = Array.isArray(members) ? members.filter(entry => entry && typeof entry === 'object' && (entry as Record<string, unknown>).elementId === id) : []
+    if (member.length !== 1) return []
+    const value = (member[0] as Record<string, unknown>)[leaf]
+    return typeof value === 'number' && Number.isFinite(value) ? [value] : []
+}
+
+/**
+ * A path under the layout, read as its own value: every number it holds (`layout.zones[zone-1]` holds the zone's edges and depth). Read by
+ * the admin evidence to show what a cited layout path holds; fidelity admits a number only through `layoutLeafNumberAt` (hardening H3).
+ */
 export function layoutNumbersAt(layout: unknown, path: string): number[] {
     if (!layout || !path.startsWith('layout.')) return []
     let nodes: unknown[] = [layout]

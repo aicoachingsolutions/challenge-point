@@ -61,7 +61,7 @@ import type { ConstraintAuthority, ConstraintPoolAccount } from '../test-library
 import { contextScoringFindings, EPISODE_REACHABLE_CHECK } from './context-scoring-guard'
 import { checkFidelity, FidelityFinding } from './fidelity'
 import { ReviewDraft, reviewDraftOf } from './review-draft'
-import { EvidenceBlock, ReviewEvidence, reviewEvidenceOf } from './review-evidence'
+import { EvidenceBlock, LayoutFallback, ReviewEvidence, reviewEvidenceOf } from './review-evidence'
 import { mechanismDemonstration } from './mechanism-demonstrations'
 import { RenderedActivity, renderConcreteGame } from './render-concrete-game'
 import { assembleRenderingFixture } from './rendering-fixture'
@@ -724,9 +724,18 @@ export function buildActivityUnderAuthorizationRecords(
      * 15 October 2026) a copy of the realization input, as `buildActivityOverAlteredKnowledge` does, for a proof that takes a
      * provisional realization's items out on a copy and must take the choices made for them out too.
      */
-    options: { alter?: (contracts: LoadedContract[]) => void; alterSelection?: (selection: BoundedSelection) => void; alterSupplied?: (supplied: SuppliedRealization) => void } = {},
+    options: {
+        alter?: (contracts: LoadedContract[]) => void
+        alterSelection?: (selection: BoundedSelection) => void
+        alterSupplied?: (supplied: SuppliedRealization) => void
+        /**
+         * Hardening H1, 21 October 2026, tests only: the same build as an administrator's review asks it (`buildActivityForReview`), so a
+         * test can read the admin-only evidence and the coach's answer of one altered build side by side. Absent: a coach's build.
+         */
+        review?: { includeDrafts: boolean }
+    } = {},
 ): { activity: ServedActivity | RefusedActivity; fixture: Record<string, unknown> | null } {
-    const { activity, fixture } = build(request, options.alter ?? null, null, options.alterSelection ?? null, JSON.parse(JSON.stringify(records)), options.alterSupplied ?? null)
+    const { activity, fixture } = build(request, options.alter ?? null, null, options.alterSelection ?? null, JSON.parse(JSON.stringify(records)), options.alterSupplied ?? null, { includeDrafts: options.review?.includeDrafts === true })
     return { activity, fixture }
 }
 
@@ -1096,7 +1105,7 @@ function build(
              * is rendered and checked again with it (`recommunicate`), replacing its first render, findings and evidence, and the blocks are
              * read again from there (a block the layout render refuses at communication is refused like any other). Then RB-L recomputes the
              * layout from the blocks and holds every block's to it. Where it does not apply, nothing is re-rendered: the per-block text stays
-             * exactly as it was, and, where a choice was recorded, a technical observation says why.
+             * exactly as it was, and, where a choice was recorded, the admin-only review evidence says why (hardening H1, below).
              */
             const layoutChoices = layoutChoicesOf(goalSelection?.authorization)
             const layoutMovers = layoutMoversOf(goalSelection?.authorization)
@@ -1130,10 +1139,14 @@ function build(
             }
             const renders = games.map(entry => ({ blockId: entry.block.blockId, rendered: entry.rendered, fixture: entry.fixture }))
             const composed = composeRoleBlockActivity(renders, roleIndex)
-            // Stage 2D: where his choice is recorded and the markings stay block by block, the technical account says why (DRAFT words).
-            if (!layoutDecision.applies && layoutDecision.recorded) {
-                composed.coachingObservations.push(`The markings are presented block by block, and not set out once as the recorded choice ${MARK_UNION_ONCE} asks: ${layoutDecision.why.join('; ')}.`)
-            }
+            /**
+             * Stage 2D: where his choice is recorded and the markings stay block by block, why is said (DRAFT words) — to an administrator
+             * only. Hardening H1, 21 October 2026 (the 2D review's should-fix 1): it was pushed onto `coachingObservations`, which every
+             * viewer can expand under "How this was arrived at", and it carries internal ids (an element id, block ids, the choice's code).
+             * It now goes to the admin-only review evidence (`reviewEvidenceOf`, `layoutFallback`), and the composed activity a coach is
+             * served is exactly the composition of the block renders.
+             */
+            const layoutFallback = !layoutDecision.applies && layoutDecision.recorded ? { choice: MARK_UNION_ONCE, why: [...layoutDecision.why] } : null
             const composition = checkRoleBlockComposition(renders, composed, roleIndex)
             const violations = composition.filter(finding => finding.severity === 'VIOLATION')
             /**
@@ -1141,7 +1154,7 @@ function build(
              * games as built, the cross-block checks and the composition. Never on a coach's answer.
              */
             const evidenceOf = (outcome: string) =>
-                reviewEvidenceFor(review, goalSelection, account, roleIndex, session, outcome, composed, composition, checks, games.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, fixture: entry.fixture, contracts: entry.contracts, rendered: entry.rendered, ...entry.evidence })))
+                reviewEvidenceFor(review, goalSelection, account, roleIndex, session, outcome, composed, composition, checks, games.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, fixture: entry.fixture, contracts: entry.contracts, rendered: entry.rendered, ...entry.evidence })), layoutFallback)
             /** The admin-only draft of the composed activity (stage K7), attached to a refusal at communication where it was asked for. */
             const withDraft = (refusal: ReturnType<typeof refuse>) => {
                 if (review.includeDrafts) (refusal.activity as RefusedActivity).draft = reviewDraftOf(games.map(entry => entry.fixture), composed, [...games.flatMap(entry => entry.violations), ...violations])
@@ -1241,6 +1254,8 @@ function reviewEvidenceFor(
     compositionFindings: FidelityFinding[],
     crossBlock: RoleBlockCheck[],
     blocks: EvidenceBlock[],
+    /** Hardening H1: where a recorded choice to set the markings out once does not apply, why (admin-only). Null everywhere else. */
+    layoutFallback: LayoutFallback | null = null,
 ): ReviewEvidence | null {
     const record = goalSelection?.authorization
     if (!review.includeDrafts || !record?.reviewRequest) return null
@@ -1251,6 +1266,7 @@ function reviewEvidenceFor(
         composed,
         compositionFindings,
         crossBlock,
+        layoutFallback,
         record: record as LearningGoalAuthorization & { reviewRequest: NonNullable<LearningGoalAuthorization['reviewRequest']> },
         lists: account.authorizationLists ?? null,
         relationships: contextManipulationRelationships(),

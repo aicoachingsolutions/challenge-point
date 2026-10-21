@@ -69,6 +69,12 @@ export interface EvidenceInput {
     /** The composition's own fidelity findings (Q6); empty for one game. */
     compositionFindings: FidelityFinding[]
     crossBlock: RoleBlockCheck[]
+    /**
+     * Hardening H1, 21 October 2026 (the 2D review's should-fix 1): where a choice to set every block's markings out once is recorded and
+     * does not apply (`physical-layout.ts` `layoutOf`), the choice's code and why, for the administrator only. Absent or null everywhere
+     * else, so every other evidence is unchanged.
+     */
+    layoutFallback?: LayoutFallback | null
     record: LearningGoalAuthorization & { reviewRequest: ReviewRequest }
     lists: AuthorizationLists | null
     /** The knowledge-authorized relationships the record's adjustments cite (the record file's own list). */
@@ -77,6 +83,15 @@ export interface EvidenceInput {
     selectedConstraints: string[]
     index: RegisterIndex
 }
+
+/** A recorded choice to set the markings out once that does not apply to this build: its code and why (admin-only, hardening H1). */
+export interface LayoutFallback {
+    choice: string
+    why: string[]
+}
+
+/** The admin-only fact saying the markings stay block by block although a choice to set them out once is recorded (DRAFT words). */
+export const layoutFallbackFact = (fallback: LayoutFallback): Fact => ({ what: `The markings are presented block by block, and not set out once as the recorded choice ${fallback.choice} asks`, value: [...fallback.why] })
 
 export type Layer = ReviewLayer | 'SESSION_INPUT'
 export type Standing = 'APPROVED' | 'PROVISIONAL' | 'GAP' | 'OUR_READING' | 'SESSION'
@@ -980,6 +995,8 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
         ...blocks.map(block => ({ what: `block ${block.blockId}: holders`, value: { ...block.holders } })),
         { what: 'cross-block checks', value: input.crossBlock.map(c => `${c.checkId} ${c.verdict}`) },
         { what: 'a block length, time expiry or window written for a role (RB-7)', value: input.crossBlock.find(c => c.checkId === 'RB-7')?.problems ?? null },
+        // Hardening H1: why the markings stay block by block where his recorded choice does not apply (admin-only; never coach text).
+        ...(input.layoutFallback ? [layoutFallbackFact(input.layoutFallback)] : []),
     ]
 
     const holds = learningGoalSelectionHolds()

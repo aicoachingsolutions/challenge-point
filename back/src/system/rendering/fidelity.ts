@@ -21,8 +21,8 @@ import { effectiveValue, scaleExactly } from '../derivation/rational'
 import { conditionScopeNotEvaluable } from '../derivation/resolved-game'
 import { ApprovedWording, approvedWording } from './approved-wording'
 import { CoachFacingExclusion, exclusionFor } from './coach-facing-exclusions'
-import { layoutNumbersAt, MARK_UNION_ONCE, PhysicalLayout } from './physical-layout'
-import { ADJUSTING, approvedSentences, Binding, combinedStatus, ENDS_ON_WORDING, Instruction, RenderedActivity, ROLE_EXCHANGE, roleKeyedPositions, sectionFactsOf, SourceStatus, UNBOUNDED_CREDIT } from './render-concrete-game'
+import { layoutLeafNumberAt, MARK_UNION_ONCE, PhysicalLayout } from './physical-layout'
+import { ADJUSTING, approvedSentences, Binding, combinedStatus, ENDS_ON_WORDING, Instruction, MOVED_MARK_QUALIFICATIONS, NOTHING_RE_MARKED, RenderedActivity, ROLE_EXCHANGE, roleKeyedPositions, sectionFactsOf, SourceStatus, UNBOUNDED_CREDIT } from './render-concrete-game'
 import { firstReadUncarried } from './sections'
 
 export interface FidelityFinding {
@@ -555,9 +555,10 @@ function supportedQuantity(fixture: any, instruction: Pick<Instruction, 'from'>,
      * EXTENSION. The layout (`physical-layout.ts`) sits beside the game, not in it, so a mark's position or a zone's depth set out once is no
      * value of the game this walks. Admitted only where the sentence cites the layout path holding exactly that number; the layout itself
      * is held to the union of every block's realized edges by the cross-block check RB-L (role-blocks.ts), and to this block's own
-     * geometry by Q5-L below.
+     * geometry by Q5-L below. Since hardening H3 (21 October 2026, the 2D review's should-fix 4) that path must be a LEAF holding the
+     * number (`layoutLeafNumberAt`: a mark's `at`, a zone's `from`, `to` or `depthM`), never a broader node holding many numbers.
      */
-    if (instruction.from.some(path => layoutNumbersAt(fixture.layout, path).includes(quantity))) return true
+    if (instruction.from.some(path => layoutLeafNumberAt(fixture.layout, path).includes(quantity))) return true
     for (const path of instruction.from) {
         const collection = path.split('.').reduce<any>((node, key) => (node == null ? node : node[key]), fixture.game)
         if (Array.isArray(collection) && collection.length === quantity) return true
@@ -690,11 +691,12 @@ export const RE_MARKING_AT_EXCHANGE = [/\bset out again\b/i]
  *     recorded from, which RB-L recomputes from that block's own geometry, so it is never silently exempt;
  *   - the exchange sentence that cites the positions written for a role is the block-by-block one (it does not cite the layout's
  *     policy), or a Role exchange sentence says the markings are set out again;
- *   - an authorized adjustment moves a mark set out once (`layout.movedBy`) and the exchange sentence does not carry that qualification,
- *     or the adjustment's own sentence does not say what it means at the exchange.
+ *   - an authorized adjustment moves a mark set out once (`layout.movedBy`) and the exchange sentence does not carry that qualification
+ *     (by citation, or, since hardening H2, by its words: a Role exchange sentence saying `NOTHING_RE_MARKED` without one of
+ *     `MOVED_MARK_QUALIFICATIONS` straight after it), or the adjustment's own sentence does not say what it means at the exchange.
  *
- * Read from citations, the layout and the geometry, never from the wording, except the one lexicon above (a tightening: the layout's
- * exchange may not say "set out again").
+ * Read from citations, the layout and the geometry, never from the wording, except two lexicons (tightenings: the layout's exchange may
+ * not say "set out again", and may not say that nothing is re-marked without the moved-mark qualification where a mark is moved).
  */
 function layoutFindings(fixture: any, rendered: RenderedActivity): FidelityFinding[] {
     const layout: PhysicalLayout | null = fixture?.layout?.policy === MARK_UNION_ONCE ? fixture.layout : null
@@ -735,6 +737,22 @@ function layoutFindings(fixture: any, rendered: RenderedActivity): FidelityFindi
     if (keyed.length && !exchange.some(i => i.from.includes('layout.policy'))) violation('the markings are set out once, and the exchange sentence citing the positions written for a role is the block-by-block one (it does not cite the layout)')
     for (const instruction of rendered.instructions) {
         if (instruction.section === ROLE_EXCHANGE && RE_MARKING_AT_EXCHANGE.some(pattern => pattern.test(instruction.text))) violation(`"${instruction.text}" tells the coach to set the markings out again at the exchange, and they are set out once`)
+    }
+    /**
+     * Hardening H2, 21 October 2026 (the 2D review's should-fix 2), a lexicon TIGHTENING in the same style as "set out again": the moved-line
+     * qualification was read from citations only, so the words could go while `layout.movedBy` stayed cited and nothing refused it. Where an
+     * authorized adjustment moves a mark set out once, a Role exchange sentence that says nothing is re-marked must say the qualification
+     * straight after it. The words are the renderer's constants (`NOTHING_RE_MARKED`, `MOVED_MARK_QUALIFICATIONS`), never typed here.
+     */
+    if ((layout.movedBy ?? []).length) {
+        const qualified = Object.values(MOVED_MARK_QUALIFICATIONS).map(words => `${NOTHING_RE_MARKED}${words}`)
+        for (const instruction of rendered.instructions) {
+            const text = instruction.text.toLowerCase()
+            if (instruction.section !== ROLE_EXCHANGE || !text.includes(NOTHING_RE_MARKED)) continue
+            if (text.split(NOTHING_RE_MARKED).length - 1 !== qualified.reduce((n, words) => n + text.split(words).length - 1, 0)) {
+                violation(`"${instruction.text}" says ${NOTHING_RE_MARKED} without the qualification an adjustment that moves a mark set out once owes it (${(layout.movedBy ?? []).map(move => move.elementId).join(', ')})`)
+            }
+        }
     }
     for (const move of layout.movedBy ?? []) {
         const qualifier = `layout.movedBy[${move.elementId}]`
@@ -859,8 +877,8 @@ export function checkFidelity(
                       ? requiredLimit
                       : heldAt(fixture, path).some(n => n === quantity && (asStarting || !stated(begun) || n !== begun || [range?.required?.min, range?.required?.max].includes(n))) ||
                       (asStarting && stated(begun) && begun === quantity) ||
-                      // Stage 2D: a number bound to the physical layout is admitted only where the layout holds it at that path (RB-L, Q5-L).
-                      layoutNumbersAt(fixture.layout, path).includes(quantity) ||
+                      // Stage 2D: a number bound to the physical layout is admitted only where the layout holds it at that path (RB-L, Q5-L), a leaf (H3).
+                      layoutLeafNumberAt(fixture.layout, path).includes(quantity) ||
                       (fixture.game?.value?.valueModifiers ?? []).some((modifier: any) => {
                           const at = `value.valueModifiers[${modifier.elementId}]`
                           return (
@@ -933,8 +951,8 @@ export function checkFidelity(
         const allowed = new Set<number>(
             instruction.from.flatMap(path => {
                 const begun = rangeAt.get(path)?.starting
-                // Stage 2D: and a number the physical layout holds at a path the sentence cites (RB-L, Q5-L).
-                return [...heldAt(fixture, path).filter(n => asChoice || !stated(begun) || n !== begun), ...layoutNumbersAt(fixture.layout, path)]
+                // Stage 2D: and a number the physical layout holds at a leaf path the sentence cites (RB-L, Q5-L; leaf only since H3).
+                return [...heldAt(fixture, path).filter(n => asChoice || !stated(begun) || n !== begun), ...layoutLeafNumberAt(fixture.layout, path)]
             }),
         )
         for (const range of about) {
