@@ -1,5 +1,5 @@
 {
-    "about": "PROPOSED, NOT APPROVED. Which parts of how a team scores the Coach Overview must state, and which it may leave to Coach Details behind a 'full rule' pointer. His reply filed 22 October 2026, item 6: 'the overview should not reproduce every qualification, exception, and restart condition. Those belong in Coach Details, with any essential qualification included in the overview when omitting it would materially misrepresent the game.' Item 2: 'Please ensure that the completeness check verifies that all necessary information remains accessible and that abbreviated statements do not misrepresent the full rules.' Which kinds of condition qualify is a learning-design judgement, so it is recorded here once, by register row and condition type, never activity by activity, and read by the overview's composer (back/src/system/rendering/coach-overview.ts); nothing in code decides it. Every class below is OUR PROPOSAL for his decision (BUILD PLAN stage 3C, from design D3 build step 2 and the plan's reconciliations). The status stays PROPOSED until the file carries approvedBy with who, a date and his words verbatim, and every overview composed from it is labelled for an administrator as built on a PROPOSED table. Read through AUDITS_DIR, so the bundled server finds it in dist/knowledge; build.js copies it.",
+    "about": "PROPOSED, NOT APPROVED. Which parts of how a team scores the Coach Overview must state, and which it may leave to Coach Details behind a 'full rule' pointer. His reply filed 22 October 2026, item 6: 'the overview should not reproduce every qualification, exception, and restart condition. Those belong in Coach Details, with any essential qualification included in the overview when omitting it would materially misrepresent the game.' Item 2: 'Please ensure that the completeness check verifies that all necessary information remains accessible and that abbreviated statements do not misrepresent the full rules.' Which kinds of condition qualify is a learning-design judgement, so it is recorded here once, by register row and condition type, never activity by activity, and read by the overview's composer (back/src/system/rendering/coach-overview.ts); nothing in code decides it. Every class below is OUR PROPOSAL for his decision (BUILD PLAN stage 3C, from design D3 build step 2 and the plan's reconciliations). The status stays PROPOSED until the file carries approvedBy with who, a date and his words verbatim, and every overview composed from it is labelled for an administrator as built on a PROPOSED table. Read through AUDITS_DIR, so the bundled server finds it in dist/knowledge; build.js copies it. AMENDED 22 October 2026 (stage 3F, his reply filed 23 October 2026, items 4 and 6), each change OUR PROPOSAL for his decision: (1) item 4, 'An abbreviation should be accepted only when the overview as a whole preserves the material meaning of the full rule, including relevant initial conditions, scoring eligibility, and exceptions': the initial condition (ORIGIN_CONDITION) and the scoring eligibility (BOUNDED_CREDIT) stay ESSENTIAL, and a field counts as stated only by words whose meaning states it (his wording by its recorded reading, docs/audits/approved-wording-readings.json; a DRAFT sentence by the words of the parts it keeps), never by a sentence merely citing it; an exception is left to Coach Details only where the overview states the condition it follows from ('followsFrom': an uncontrolled clearance fails the control condition, a contested touch fails 'genuinely establishes possession'), and is material otherwise; (2) item 6, 'detailed qualifications and restart procedures should remain accessible in Coach Details unless omitting them would misrepresent the game': when the goalkeeper restarts and who takes the restart (BOUNDED_EPISODE_OPENER) is restart procedure, reclassified ESSENTIAL to DETAIL, with a 'full rule' pointer to the Details sentence saying it; the basic restart condition, what decides when the team can score again, stays ESSENTIAL through BOUNDED_CREDIT and ORIGIN_CONDITION.",
     "status": "PROPOSED",
     "proposal": {
         "by": "Claude, implementing stage 3C of the communication BUILD PLAN for his reply filed 22 October 2026",
@@ -17,6 +17,7 @@
         "rows": "register row ids (docs/audits/conformance/register-2026-09-18.json) the rule classes, wherever a Details sentence cites a field on one of them",
         "ways": "instead of rows, for the way-level rule only: COLLECTION rows each of whose elements is a way to score; every way a team's group speaks of must be shown by a stated CONSTITUTIVE field under it",
         "where": "optional, on the element the cited field belongs to (the element of the row's own collection): { field, equals } or { field, notEquals } (a condition type, a credit bound), or { beginsBoundedEpisode: true } (a transition that begins the episode a bounded role's credit is confined to, read as the renderer reads it)",
+        "followsFrom": "optional, on a DETAIL rule only (stage 3F): the ids of the CONSTITUTIVE or ESSENTIAL rules whose condition the exception follows from. The DETAIL may be left to Coach Details behind a pointer only where the team's group has a field those rules class under the same way to score and states every such field; otherwise the exception is material and the group must state it",
         "why": "the reason, in our words"
     },
     "rules": [
@@ -63,14 +64,14 @@
             "class": "ESSENTIAL",
             "rows": ["B8"],
             "where": { "field": "creditedWithin", "notEquals": "WHOLE_GAME" },
-            "why": "A role whose scores count only inside an episode: leaving it out turns a qualified rule into an unrestricted one (his item 4: 'silently turn a qualified rule into an unrestricted one'; his item 6 example, a new goalkeeper build-out after losing possession)."
+            "why": "A role whose scores count only inside an episode: leaving it out turns a qualified rule into an unrestricted one (his item 4: 'silently turn a qualified rule into an unrestricted one'; his item 6 example, a new goalkeeper build-out after losing possession). Stage 3F: the scoring eligibility of his reply filed 23 October 2026, item 4, and the basic restart condition of his reply filed 22 October 2026, item 2 ('it determines when the building team can score again'); stated only by words whose recorded meaning states it."
         },
         {
             "id": "ORIGIN_CONDITION",
             "class": "ESSENTIAL",
             "rows": ["V3", "V4", "V5", "V6"],
             "where": { "field": "type", "equals": "origin" },
-            "why": "Where a scoring attempt must begin decides whether and when a team can score (his item 2: 'the basic goalkeeper restart condition is essential because it determines when the building team can score again')."
+            "why": "Where a scoring attempt must begin decides whether and when a team can score (his item 2: 'the basic goalkeeper restart condition is essential because it determines when the building team can score again'). Stage 3F: the initial condition of his reply filed 23 October 2026, item 4, whose example is exactly this: 'saying that a new goalkeeper restart is required after possession loss does not, by itself, fully communicate that the original scoring opportunity must begin from the goalkeeper.'"
         },
         {
             "id": "CONTROL_CONDITION",
@@ -87,10 +88,10 @@
         },
         {
             "id": "BOUNDED_EPISODE_OPENER",
-            "class": "ESSENTIAL",
+            "class": "DETAIL",
             "rows": ["T1", "T1a", "T1b", "T1c", "T2", "T3", "T6", "T7"],
             "where": { "beginsBoundedEpisode": true },
-            "why": "When a bounded role's episode begins, and who begins it: the restart moments that reopen that team's scoring (his item 2). Only when and who; where and how the restart is taken (T4, T5) is procedure for Coach Details and is not classed here."
+            "why": "When a bounded role's episode begins, and who begins it: the restart moments (at the start, after a score, at the coach's call) and who takes the restart. Restart procedure (his reply filed 23 October 2026, item 6: 'detailed qualifications and restart procedures should remain accessible in Coach Details unless omitting them would misrepresent the game'), so left to Coach Details behind a 'full rule' pointer to the sentence saying them; where and how the restart is taken (T4, T5) is not classed here. The basic restart condition, what decides when the team can score again (his reply filed 22 October 2026, item 2), stays ESSENTIAL through BOUNDED_CREDIT and ORIGIN_CONDITION. Stage 3F: reclassified ESSENTIAL to DETAIL. FOR HIS DECISION."
         },
         {
             "id": "MODIFIER_CONDITION_AND_END",
@@ -103,13 +104,15 @@
             "class": "DETAIL",
             "rows": ["V3", "V4", "V5", "V6"],
             "where": { "field": "type", "equals": "exclusion" },
-            "why": "What does not score, where the conditions above already say what does (the BUILD PLAN's stage 3C DETAIL list). Left to Coach Details behind a pointer."
+            "followsFrom": ["CONTROL_CONDITION"],
+            "why": "What does not score, where the conditions above already say what does (the BUILD PLAN's stage 3C DETAIL list). Left to Coach Details behind a pointer. Stage 3F (his reply filed 23 October 2026, item 4: the overview preserves 'exceptions' where they are material): not material where the overview states the condition it follows from (followsFrom): a clearance that is not under control already fails the control condition, so stating the control states what the exclusion excludes. Where the control condition is not stated, the exclusion is material and the overview must state it. OUR PROPOSAL."
         },
         {
             "id": "ALSO_COUNTS_EXCLUSION",
             "class": "DETAIL",
             "rows": ["V31"],
-            "why": "What does not count as the occurrence (the BUILD PLAN's stage 3C DETAIL list). Left to Coach Details behind a pointer."
+            "followsFrom": ["ALSO_COUNTS_CONTROL"],
+            "why": "What does not count as the occurrence (the BUILD PLAN's stage 3C DETAIL list). Left to Coach Details behind a pointer. Stage 3F (his reply filed 23 October 2026, item 4): not material where the overview states the condition it follows from (followsFrom): a contested touch, deflection or loose ball is not a regain that genuinely establishes possession, so stating that condition states what the exclusion excludes. Where it is not stated, the exclusion is material and the overview must state it. OUR PROPOSAL."
         },
         {
             "id": "SCORE_VALUE",

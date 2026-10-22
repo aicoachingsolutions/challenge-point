@@ -1,16 +1,17 @@
 {
-    "about": "PROPOSED, NOT APPROVED. What a part of an approved entry states: for a verbatim extract of his approved wording (a whole sentence of an entry, or the leading clause of one up to its first ';'), which of the entry's covers those words say. His reply filed 22 October 2026, item 4: 'I approve generating abbreviated versions of approved statements for the Coach Overview, provided their meaning remains accurate.' and 'Shortening must not introduce new meanings, omit a condition that changes the essential understanding, or silently turn a qualified rule into an unrestricted one.' No field of approved-coach-wording.json records what a part of an entry states, and nothing in the words decides it mechanically, so it is a reading of his words: recorded here as data, keyed by approved-entry id exactly as the approved wording itself is, and never in code. Every reading below is OUR PROPOSAL for his confirmation (the coordinator's decision of 22 October 2026, stage 3E of the communication BUILD PLAN: the readings the BUILD PLAN's EXPECTED PRESENTATION assumes for its overview sentences 4 and 8). Each cover a reading says a part states is justified by the words of his sentence that state it ('statedBy', an exact substring of that part's words) and, where the entry's own note maps that field to words, by the note's words ('note', an exact substring of the entry's note). A cover not listed is left to the entry said whole in Coach Details. The status stays PROPOSED and the file carries no approvedBy; every extract built on a reading here is labelled for an administrator 'reading PROPOSED, awaiting confirmation', and a coach sees no status. Read by back/src/system/rendering/approved-wording-readings.ts through AUDITS_DIR, so the bundled server finds it in dist/knowledge; build.js copies it. approved-coach-wording.json is not changed by this file.",
+    "about": "PROPOSED, NOT APPROVED. What a part of an approved entry states: for a verbatim extract of his approved wording (a whole sentence of an entry, or the leading clause of one up to its first ';'), which of the entry's covers those words say. His reply filed 22 October 2026, item 4: 'I approve generating abbreviated versions of approved statements for the Coach Overview, provided their meaning remains accurate.' and 'Shortening must not introduce new meanings, omit a condition that changes the essential understanding, or silently turn a qualified rule into an unrestricted one.' No field of approved-coach-wording.json records what a part of an entry states, and nothing in the words decides it mechanically, so it is a reading of his words: recorded here as data, keyed by approved-entry id exactly as the approved wording itself is, and never in code. Every reading below is OUR PROPOSAL for his confirmation (the coordinator's decision of 22 October 2026, stage 3E of the communication BUILD PLAN: the readings the BUILD PLAN's EXPECTED PRESENTATION assumes for its overview sentences 4 and 8). Each cover a reading says a part states is justified by the words of his sentence that state it ('statedBy', an exact substring of that part's words) and, where the entry's own note maps that field to words, by the note's words ('note', an exact substring of the entry's note). A cover not listed is left to the entry said whole in Coach Details. The status stays PROPOSED and the file carries no approvedBy; every extract built on a reading here is labelled for an administrator 'reading PROPOSED, awaiting confirmation', and a coach sees no status. Read by back/src/system/rendering/approved-wording-readings.ts through AUDITS_DIR, so the bundled server finds it in dist/knowledge; build.js copies it. approved-coach-wording.json is not changed by this file. AMENDED 22 October 2026 (stage 3F, his reply filed 23 October 2026, item 4: 'An abbreviation should be accepted only when the overview as a whole preserves the material meaning of the full rule, including relevant initial conditions, scoring eligibility, and exceptions. For example, saying that a new goalkeeper restart is required after possession loss does not, by itself, fully communicate that the original scoring opportunity must begin from the goalkeeper. The system should evaluate the meaning of the complete overview rather than simply confirm that related words or conditions appear somewhere.'): every approved entry the overview may use, whole or as an extract, now has a reading, and his wording said whole counts only for what its reading says it states, never for every field it is matched against (an entry's covers are what it speaks about; a reading is what its words state). A reading may be of an entry said whole (every sentence of it, whole); the reading of several parts with no reading of their own together is the union of each part's reading. 'doesNotState' records, with our reason, a cover a reading says its parts do not state: A01-W3 said whole states the building team's scoring eligibility and NOT that its scoring opportunity must begin from the goalkeeper's build-out (his item-4 example). A note fragment a reading cites names its cover's row, and where an entry's note maps a row to quoted words, a reading of that row cites the mapping and the words lie inside the parts read (the 3E review's should-fix 1).",
     "status": "PROPOSED",
     "proposal": {
-        "by": "Claude, implementing stage 3E of the communication BUILD PLAN for his reply filed 22 October 2026",
-        "date": "2026-10-21",
-        "basis": "The coordinator's stage 3E decision (E2): one PROPOSED data file recording what each needed part of an approved entry states, for A01-W1 sentence 1 and A01-W2's leading clause, as the BUILD PLAN's EXPECTED PRESENTATION assumes them (overview sentence 4 'derived from approved: W1, sentence 1 extract' and sentence 8 'derived from approved: W2, leading-clause extract'). The 3B and 3C escalations named these two readings as the ones the overview needs; the cover indexes below were checked against approved-coach-wording.json."
+        "by": "Claude, implementing stage 3E of the communication BUILD PLAN for his reply filed 22 October 2026, and stage 3F for his reply filed 23 October 2026",
+        "date": "2026-10-22",
+        "basis": "Stage 3E: the coordinator's decision (E2): one PROPOSED data file recording what each needed part of an approved entry states, for A01-W1 sentence 1 and A01-W2's leading clause, as the BUILD PLAN's EXPECTED PRESENTATION assumes them (overview sentence 4 'derived from approved: W1, sentence 1 extract' and sentence 8 'derived from approved: W2, leading-clause extract'). The 3B and 3C escalations named these two readings as the ones the overview needs; the cover indexes below were checked against approved-coach-wording.json. Stage 3F (his reply filed 23 October 2026, item 4): a reading for every other part the overview may use, each checked the same way: A01-W1 sentences 2 and 3, A01-W2 said whole, and A01-W3 said whole. The readings of A01-W1 sentence 1 and A01-W2's leading clause are unchanged."
     },
     "readingShape": {
         "entry": "the id of an approved entry in approved-coach-wording.json",
-        "parts": "the parts of the entry the reading is of, in order: [{ sentence: <numbered from 1, as an extract's name numbers them: A01-W1:s1 is sentence 1>, part: 'WHOLE_SENTENCE' | 'LEADING_CLAUSE' }]",
+        "parts": "the parts of the entry the reading is of, in order: [{ sentence: <numbered from 1, as an extract's name numbers them: A01-W1:s1 is sentence 1>, part: 'WHOLE_SENTENCE' | 'LEADING_CLAUSE' }]; every sentence of the entry, whole, is the entry said whole (stage 3F)",
         "words": "those parts' words as the entry holds them (a leading clause closed by its sentence's own end mark), checked against the entry",
-        "states": "[{ coverIndex: <the cover's place in the entry's covers, numbered from 0 as an extract's keeps and leaves number them>, row, element: the cover's row and locator exactly as the entry gives them (checked), statedBy: an exact substring of 'words' that states it, why: our reason, note: an exact substring of the entry's own note where the note maps this field to words, else null }]"
+        "states": "[{ coverIndex: <the cover's place in the entry's covers, numbered from 0 as an extract's keeps and leaves number them>, row, element: the cover's row and locator exactly as the entry gives them (checked), statedBy: an exact substring of 'words' that states it, why: our reason, note: an exact substring of the entry's own note where the note maps this field to words, naming the cover's row, else null }]",
+        "doesNotState": "optional (stage 3F): [{ coverIndex, row, element (as for states), why: our reason those words do not state it }], for an administrator's evidence; a cover listed here is never also stated by the same reading"
     },
     "readings": [
         {
@@ -85,6 +86,92 @@
             ]
         },
         {
+            "entry": "A01-W1",
+            "parts": [{ "sentence": 2, "part": "WHOLE_SENTENCE" }],
+            "words": "The progression must begin with the goalkeeper's build-out and occur before the building team loses possession.",
+            "states": [
+                {
+                    "coverIndex": 1,
+                    "row": "V3",
+                    "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "origin" },
+                    "statedBy": "The progression must begin with the goalkeeper's build-out",
+                    "why": "The origin condition's scope is the build-out episode: his words make it a condition of 'The progression', the building team's way to score that his first sentence states, inside the episode the goalkeeper's build-out begins. Stage 3F, OUR READING.",
+                    "note": null
+                },
+                {
+                    "coverIndex": 2,
+                    "row": "V4",
+                    "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "origin" },
+                    "statedBy": "must begin with",
+                    "why": "The condition's type, origin: where a scoring attempt must begin. This is the initial condition of his reply filed 23 October 2026, item 4 ('the original scoring opportunity must begin from the goalkeeper').",
+                    "note": null
+                },
+                {
+                    "coverIndex": 3,
+                    "row": "V5",
+                    "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "origin" },
+                    "statedBy": "the goalkeeper's build-out",
+                    "why": "Its referent, the restart that begins a build-out episode, taken by the goalkeeper: the one arm this realization builds (the entry's note records his narrowing of his own wording to it).",
+                    "note": null
+                },
+                {
+                    "coverIndex": 4,
+                    "row": "V3",
+                    "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "progression" },
+                    "statedBy": "The progression must begin with the goalkeeper's build-out and occur before the building team loses possession",
+                    "why": "The progression condition's scope, the build-out episode: his words bound the progression by the episode's start (the goalkeeper's build-out) and its end (before the building team loses possession). A more direct statement of this cover than sentence 1's 'Building team: Score' (stage 3E), whose reading stays recorded for his confirmation.",
+                    "note": null
+                }
+            ],
+            "doesNotState": [
+                {
+                    "coverIndex": 0,
+                    "row": "B8",
+                    "element": { "base": "activityRoles", "field": "activityRole", "equals": "BUILDING" },
+                    "why": "It bounds the progression to before the building team loses possession, but does not say what follows a loss: that the building team cannot score again until the next goalkeeper restart. His reply filed 20 October 2026, item 2 added A01-W3 for exactly that ('Coaches should understand that regaining possession does not restore the original build-out scoring opportunity'), and his reply filed 22 October 2026, item 6 names it as warranting a concise mention in the overview. OUR READING, FOR HIS CONFIRMATION: if he reads this sentence as stating the building team's scoring eligibility, A01-W3 adds nothing to the overview and the composer leaves it to Coach Details."
+                }
+            ]
+        },
+        {
+            "entry": "A01-W1",
+            "parts": [{ "sentence": 3, "part": "WHOLE_SENTENCE" }],
+            "words": "Uncontrolled clearances do not score.",
+            "states": [
+                {
+                    "coverIndex": 12,
+                    "row": "V3",
+                    "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "exclusion" },
+                    "statedBy": "do not score",
+                    "why": "The exclusion's scope is the build-out episode, the one scope inside which the building team's scores are credited: his words say these clearances 'do not score', a condition of exactly those scores. OUR READING, with the same limit as sentence 1's scope covers.",
+                    "note": null
+                },
+                {
+                    "coverIndex": 13,
+                    "row": "V4",
+                    "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "exclusion" },
+                    "statedBy": "do not score",
+                    "why": "The condition's type, exclusion: what does not score.",
+                    "note": null
+                },
+                {
+                    "coverIndex": 14,
+                    "row": "V5",
+                    "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "exclusion" },
+                    "statedBy": "Uncontrolled clearances do not score",
+                    "why": "Its referent is the target the scoring team attacks: a clearance that reaches it would otherwise be a score, which is why his words say it does not score. OUR READING.",
+                    "note": null
+                },
+                {
+                    "coverIndex": 15,
+                    "row": "V6",
+                    "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "exclusion" },
+                    "statedBy": "Uncontrolled clearances",
+                    "why": "The condition's value, a long clearance that happens to reach the target: his words 'Uncontrolled clearances'.",
+                    "note": null
+                }
+            ]
+        },
+        {
             "entry": "A01-W2",
             "parts": [{ "sentence": 1, "part": "LEADING_CLAUSE" }],
             "words": "The pressing team also scores by winning the ball inside that zone, provided it genuinely establishes possession.",
@@ -112,6 +199,80 @@
                     "statedBy": "provided it genuinely establishes possession",
                     "why": "The control it must establish, in his item-2 words, as the entry's note maps it. The contested-touch exclusion (V31) follows the ';' and is left to the entry said whole.",
                     "note": "'provided it genuinely establishes possession' (V30, his item-2 words)"
+                }
+            ]
+        },
+        {
+            "entry": "A01-W2",
+            "parts": [{ "sentence": 1, "part": "WHOLE_SENTENCE" }],
+            "words": "The pressing team also scores by winning the ball inside that zone, provided it genuinely establishes possession; a contested touch, deflection or loose ball does not count.",
+            "states": [
+                {
+                    "coverIndex": 0,
+                    "row": "V28",
+                    "element": { "base": "value.primaryEvent.alsoCounts", "field": "team", "equals": "ROLE_HOLDER_PRESSING" },
+                    "statedBy": "The pressing team",
+                    "why": "Whose score it is: the team holding the pressing role, as the entry's note maps it.",
+                    "note": "'The pressing team' (V28, the team)"
+                },
+                {
+                    "coverIndex": 1,
+                    "row": "V29",
+                    "element": { "base": "value.primaryEvent.alsoCounts", "field": "team", "equals": "ROLE_HOLDER_PRESSING" },
+                    "statedBy": "winning the ball",
+                    "why": "What happens: an in-play change of possession to that team, as the entry's note maps it.",
+                    "note": "'winning the ball' (V29, an in-play change of possession, never a restart awarded to it: OUR READING on A01-R1-V29-1)"
+                },
+                {
+                    "coverIndex": 2,
+                    "row": "V30",
+                    "element": { "base": "value.primaryEvent.alsoCounts", "field": "team", "equals": "ROLE_HOLDER_PRESSING" },
+                    "statedBy": "provided it genuinely establishes possession",
+                    "why": "The control it must establish, in his item-2 words, as the entry's note maps it.",
+                    "note": "'provided it genuinely establishes possession' (V30, his item-2 words)"
+                },
+                {
+                    "coverIndex": 3,
+                    "row": "V31",
+                    "element": { "base": "value.primaryEvent.alsoCounts", "field": "team", "equals": "ROLE_HOLDER_PRESSING" },
+                    "statedBy": "a contested touch, deflection or loose ball does not count",
+                    "why": "What does not count as the regain, in his item-2 words, as the entry's note maps it.",
+                    "note": "'a contested touch, deflection or loose ball does not count' (V31, his item-2 words"
+                }
+            ]
+        },
+        {
+            "entry": "A01-W3",
+            "parts": [{ "sentence": 1, "part": "WHOLE_SENTENCE" }],
+            "words": "If the building team loses possession or plays the ball out, it cannot score again until the next goalkeeper restart.",
+            "states": [
+                {
+                    "coverIndex": 0,
+                    "row": "B8",
+                    "element": { "base": "activityRoles", "field": "activityRole", "equals": "BUILDING" },
+                    "statedBy": "it cannot score again until the next goalkeeper restart",
+                    "why": "The building role's credit bound, its scoring eligibility: once it loses possession or plays the ball out its scoring stops, and only the next goalkeeper restart opens another episode in which it can score. His reply filed 20 October 2026, item 2: 'Coaches should understand that regaining possession does not restore the original build-out scoring opportunity.'",
+                    "note": "the building role's credit bound (B8 = BUILD_OUT_EPISODE, A01-R1-B8-1: its holder scores only inside a build-out episode"
+                }
+            ],
+            "doesNotState": [
+                {
+                    "coverIndex": 1,
+                    "row": "V3",
+                    "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "origin" },
+                    "why": "It names the goalkeeper restart that reopens the building team's scoring, but not that its scoring opportunity must begin from the goalkeeper's build-out. His reply filed 23 October 2026, item 4: 'saying that a new goalkeeper restart is required after possession loss does not, by itself, fully communicate that the original scoring opportunity must begin from the goalkeeper.'"
+                },
+                {
+                    "coverIndex": 2,
+                    "row": "V4",
+                    "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "origin" },
+                    "why": "It does not say that a scoring attempt must begin anywhere (the origin condition's type): his reply filed 23 October 2026, item 4, as for the condition's scope."
+                },
+                {
+                    "coverIndex": 3,
+                    "row": "V5",
+                    "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "origin" },
+                    "why": "It names the restart, but as what reopens scoring after a loss, not as where the scoring opportunity must begin: his reply filed 23 October 2026, item 4, as for the condition's scope."
                 }
             ]
         }

@@ -5,30 +5,33 @@
  * should not reproduce every qualification, exception, and restart condition. Those belong in Coach Details, with any essential
  * qualification included in the overview when omitting it would materially misrepresent the game."* Item 4: *"Shortening must not
  * introduce new meanings, omit a condition that changes the essential understanding, or silently turn a qualified rule into an
- * unrestricted one."*
+ * unrestricted one."* Since stage 3F, his reply filed 23 October 2026, item 4: *"The system should evaluate the meaning of the complete
+ * overview rather than simply confirm that related words or conditions appear somewhere."* Item 6: *"a concise explanation that
+ * communicates the opposing objectives immediately, without requiring the coach to read several procedural statements first."*
  *
  * Pinned here, on the real chain:
  *
  *   1. the table: the production file loads as PROPOSED (no approvedBy), keyed by register rows, copied beside the bundle, and every
- *      overview built on it is labelled for an administrator;
+ *      overview built on it is labelled for an administrator; since stage 3F the restart moments are DETAIL and the two exclusions follow
+ *      from the conditions they exclude by (`followsFrom`);
  *   2. the loader refuses unknown classes, rules keyed by an activity (a key, a goal, an approved entry, a demonstration, an element), rows
- *      that are no register row, ways that are no collection, an APPROVED status without his approval, and a row classed twice; an
- *      unusable table withholds every group, never the activity;
- *   3. production A01 (12/1, 12/2, 11/1, both blocks), since stage 3E: the EXPECTED PRESENTATION's overview sentences 4, 5, 7 and 8 word
- *      for word with their statuses, and its sentence 6 as Details 10's own words cut before the aside — the extracts kept by the PROPOSED
- *      readings record, each naming it; a cut keeps only the citations of the parts it keeps whole, and the renderer attributes each
- *      citation to the words that state it (fix (a)); every DETAIL left out, and every way to score said shortened, points to its Details
- *      sentence; the same words in both blocks; the admin draft is this;
- *   4. the readings decide the extracts: a TEST-ONLY reading of the same covers gives the same words and names no record; with no reading
- *      his entries holding a DETAIL are said whole, with a note saying why;
- *   5. flipping a class in the table changes the composed group (the table decides, not code);
- *   6. without his building-team eligibility entry the extract of his first sentence never stands alone: another statement of the bound
- *      and the origin is found (his first sentence whole, or its first two sentences under a reading of them);
+ *      that are no register row, ways that are no collection, an APPROVED status without his approval, a row classed twice, and (stage 3F)
+ *      a `followsFrom` anywhere but on a DETAIL rule, or naming no other rule the overview must state; an unusable table withholds every
+ *      group, never the activity;
+ *   3. production A01 (12/1, 12/2, 11/1, both blocks), since stage 3F: each team's group opens with its one line saying how it scores (his
+ *      first building sentence; the cut of the pressing team's scoring sentence), then what the meaning test requires (his second building
+ *      sentence for the origin, his eligibility sentence for the eligibility; the regain clause); the restart moments are left to Coach
+ *      Details behind a pointer, as is every DETAIL not stated; the same words in both blocks; the admin draft is this;
+ *   4. the readings decide the words, never the composer: a TEST-ONLY copy of the record that names no record gives the same words; with no
+ *      reading nothing of his can be shown to be stated, so every group of his is withheld;
+ *   5. flipping a class, or what an exception follows from, changes the composed group (the table decides, not code);
+ *   6. without his eligibility sentence nothing states the building team's eligibility under the record, so the group is withheld; under a
+ *      TEST-ONLY reading in which his second sentence states it, his eligibility sentence adds nothing and is left to Coach Details;
  *   7. nothing is left out by default: a How to score sentence citing a scoring row the table does not class withholds the groups it
  *      speaks for, and a way to score with no CONSTITUTIVE field cannot be shown to appear;
  *   8. DRAFT shortenings are prefixes of their sentence, never a word added or changed, citing only the parts they keep whole (stage 3D);
  *   9. the demonstrations at every role case (the refused one has none), and a second synthetic Learning Goal (TEST-ONLY), by the same
- *      rules;
+ *      rules: there an exclusion with no condition to follow from is material and stated;
  *  10. only an administrator's answer carries it; the module and the table name nothing of the first activity.
  */
 import assert from 'node:assert/strict'
@@ -37,7 +40,7 @@ import path from 'node:path'
 
 import { reviewActivity } from './activity-review'
 import { APPROVED_WORDING_FILE, ApprovedWording, approvedWording } from './approved-wording'
-import { PROPOSED_READING_RECORD, READINGS_SOURCE } from './approved-wording-readings'
+import { PROPOSED_READING_RECORD, READINGS_SOURCE, recordedReading } from './approved-wording-readings'
 import { buildActivity, buildActivityForReview, buildActivityWithFixture, RefusedActivity, ServedActivity } from './build-activity'
 import {
     activityNames,
@@ -53,7 +56,7 @@ import {
     ScoringGroup,
     scoringGroupsOf,
 } from './coach-overview'
-import { CoverReading, extractsFor } from './derived-wording'
+import { CoverReading, extractsFor, NO_RECORDED_READING, wholeReadingsFor } from './derived-wording'
 import { MECHANISM_DEMONSTRATIONS } from './mechanism-demonstrations'
 import { renderConcreteGame } from './render-concrete-game'
 import { specializedRoleNames } from './session-envelope'
@@ -86,6 +89,12 @@ const tableWith = (change: (file: any) => void): EssentialsLoad => {
     return essentialsLoadOf(file)
 }
 const ruleOf = (file: any, id: string) => file.rules.find((rule: any) => rule.id === id)
+/** A rule made ESSENTIAL (TEST-ONLY): an ESSENTIAL rule follows from nothing (the loader refuses `followsFrom` on it). */
+const essential = (id: string) => (file: any) => {
+    const rule = ruleOf(file, id)
+    rule.class = 'ESSENTIAL'
+    delete rule.followsFrom
+}
 
 const entryOf = (id: string): ApprovedWording => approvedWording().find(entry => entry.id === id)!
 const W1 = entryOf('A01-W1')
@@ -97,6 +106,9 @@ const OVERVIEW_5 = 'If the building team loses possession or plays the ball out,
 const OVERVIEW_6_AS_WRITTEN = "The building team's goalkeeper restarts play at the start, after either team scores and whenever you decide an attack has run its course."
 const OVERVIEW_7 = 'Pressing team: Score by getting the ball under control into its target zone.'
 const OVERVIEW_8 = 'The pressing team also scores by winning the ball inside that zone, provided it genuinely establishes possession.'
+/** His second and third sentences of the building rule (stage 3F: the origin; the exclusion). */
+const W1_S2 = "The progression must begin with the goalkeeper's build-out and occur before the building team loses possession."
+const W1_S3 = 'Uncontrolled clearances do not score.'
 /** Sentence 6 as the composer cuts it from Details 10: its own words up to the bracketed aside (no word added or changed). */
 const OVERVIEW_6_CUT = "The building team's goalkeeper restarts play: at the start, after either team scores and whenever you decide that an attack has run its course."
 const DETAILS_10 = "The building team's goalkeeper restarts play: at the start, after either team scores and whenever you decide that an attack has run its course (at a stoppage or while play is on)"
@@ -104,16 +116,11 @@ const DETAILS_14 = 'Pressing team: Score by getting the ball under control into 
 const DETAILS_16 = 'Each score is worth 1 point'
 
 /**
- * A TEST-ONLY reading of what parts of his entries state: his first sentence of the building team's rule keeps the progression and
- * control covers (indexes 4-11 of the entry), the leading clause of the regain sentence keeps its team, trigger and control (0-2). NOT his
- * reading and not ours to record (the 3B escalation): a test hands it, to show what the composer does once one is recorded.
+ * A TEST-ONLY reading: the PROPOSED record's own reading of every part, handed in as a function that names no record. NOT his reading and
+ * not ours to record: a test hands it, to show that the words follow the reading and only the record it names is carried. (Re-pointed 22
+ * October 2026, stage 3F: was the record's two stage 3E readings written out, which no longer state the origin or the eligibility.)
  */
-const READING: CoverReading = (entry, units) => {
-    if (entry.id === 'A01-W1' && units.length === 1 && units[0].sentence === 0 && units[0].part === 'WHOLE_SENTENCE') return [4, 5, 6, 7, 8, 9, 10, 11]
-    if (entry.id === 'A01-W2' && units.length === 1 && units[0].part === 'LEADING_CLAUSE') return [0, 1, 2]
-    return null
-}
-const withReading = (reading: CoverReading, wording?: ApprovedWording[]) => (game: any) => extractsFor(game, { reading, ...(wording ? { wording } : {}) })
+const READING: CoverReading = (entry, units) => recordedReading()(entry, units)
 const groupsOf = (draft: { scoring: { blocks: { groups: ScoringGroup[] }[] } }, block = 0) => draft.scoring.blocks[block].groups
 const textsOf = (group: ScoringGroup) => group.sentences.map(sentence => sentence.text)
 
@@ -125,6 +132,9 @@ function assertComplete(group: ScoringGroup, what: string): void {
         else assert.ok(requirement.statedBy.length > 0, `${what}: ${requirement.class} ${requirement.path} is stated by no sentence`)
     }
     for (const way of group.ways) assert.ok(way.shownBy.length > 0, `${what}: way ${way.way}`)
+    // Stage 3F: one line, first, says how the team scores.
+    assert.deepEqual(group.sentences.map(sentence => sentence.place).filter(place => place === 'LEAD'), ['LEAD'], what)
+    assert.equal(group.sentences[0].place, 'LEAD', what)
 }
 
 test('1. the table: PROPOSED (no approvedBy), keyed by register rows, copied beside the bundle; an overview built on it is labelled', () => {
@@ -135,15 +145,22 @@ test('1. the table: PROPOSED (no approvedBy), keyed by register rows, copied bes
     assert.equal(load.table!.status, 'PROPOSED')
     assert.equal(load.table!.approvedBy, null)
     assert.deepEqual(load.table!.rules, TABLE.rules)
-    // The BUILD PLAN's classes are each carried by a rule (stage 3C): every way to score; a bound other than the whole game, the origin and
-    // the transitions beginning a bounded role's episode; the exclusion and the also-counts exclusion.
+    // The BUILD PLAN's classes are each carried by a rule (stage 3C): every way to score; a bound other than the whole game and the origin;
+    // the exclusion and the also-counts exclusion. Re-pointed 22 October 2026 (stage 3F, his reply filed 23 October 2026, item 6: "restart
+    // procedures should remain accessible in Coach Details"): the transitions beginning a bounded role's episode are DETAIL. Was: ESSENTIAL.
     const classOf = (id: string) => ruleOf(TABLE, id).class
     assert.deepEqual(
         ['EVERY_WAY_TO_SCORE', 'BOUNDED_CREDIT', 'ORIGIN_CONDITION', 'BOUNDED_EPISODE_OPENER', 'EXCLUSION_CONDITION', 'ALSO_COUNTS_EXCLUSION'].map(classOf),
-        ['CONSTITUTIVE', 'ESSENTIAL', 'ESSENTIAL', 'ESSENTIAL', 'DETAIL', 'DETAIL'],
+        ['CONSTITUTIVE', 'ESSENTIAL', 'ESSENTIAL', 'DETAIL', 'DETAIL', 'DETAIL'],
     )
     assert.deepEqual(ruleOf(TABLE, 'EVERY_WAY_TO_SCORE').ways, ['V0', 'V27', 'V7'])
     assert.deepEqual(ruleOf(TABLE, 'BOUNDED_CREDIT').where, { field: 'creditedWithin', notEquals: 'WHOLE_GAME' })
+    // Stage 3F (his item 4, "exceptions"): each exclusion follows from the condition it excludes by, and only those two rules follow from any.
+    assert.deepEqual(TABLE.rules.filter((rule: any) => rule.followsFrom).map((rule: any) => [rule.id, rule.followsFrom]), [
+        ['EXCLUSION_CONDITION', ['CONTROL_CONDITION']],
+        ['ALSO_COUNTS_EXCLUSION', ['ALSO_COUNTS_CONTROL']],
+    ])
+    assert.ok(TABLE.about.includes('AMENDED 22 October 2026 (stage 3F'))
     // build.js copies it into dist/knowledge, where the bundled server reads it.
     assert.ok(fs.readFileSync(path.resolve(__dirname, '../../../build.js'), 'utf8').includes("'overview-essentials.json'"))
     // The administrator's draft names the table and labels it while PROPOSED (DRAFT words).
@@ -194,6 +211,13 @@ test('2. the loader refuses unknown classes, activity-keyed rules, rows that are
     refused(file => file.rules.push({ ...copy(ruleOf(file, 'SCORE_VALUE')), id: 'SCORE_VALUE_AGAIN' }), 'row V2 is classed twice on the same element condition')
     refused(file => file.rules.push(copy(ruleOf(file, 'SCORE_VALUE'))), 'is listed twice')
     refused(file => delete ruleOf(file, 'SCORE_VALUE').why, 'it gives no reason')
+    // Stage 3F: an exception follows only from another rule of the table that the overview must state, and only a DETAIL follows from any.
+    refused(file => (ruleOf(file, 'CONTROL_CONDITION').followsFrom = ['ORIGIN_CONDITION']), 'only a DETAIL rule follows from another')
+    refused(file => (ruleOf(file, 'EXCLUSION_CONDITION').followsFrom = []), 'its followsFrom names no rule')
+    refused(file => (ruleOf(file, 'EXCLUSION_CONDITION').followsFrom = ['TEST_ONLY_RULE']), 'follows from "TEST_ONLY_RULE", which is no other rule of the table')
+    refused(file => (ruleOf(file, 'EXCLUSION_CONDITION').followsFrom = ['EXCLUSION_CONDITION']), 'which is no other rule of the table')
+    refused(file => (ruleOf(file, 'EXCLUSION_CONDITION').followsFrom = ['SCORE_VALUE']), 'a DETAIL: an exception is left to Coach Details only where')
+    refused(file => (ruleOf(file, 'EXCLUSION_CONDITION').followsFrom = ['A01']), 'it names "A01", an activity')
     // The status: APPROVED only with his approval; a PROPOSED table carries none.
     refused(file => (file.status = 'APPROVED'), 'it says APPROVED and carries no approvedBy')
     refused(file => (file.approvedBy = { who: 'TEST-ONLY', date: '2026-10-21', quote: 'TEST-ONLY' }), 'it carries approvedBy and says it is PROPOSED')
@@ -216,7 +240,7 @@ test('2. the loader refuses unknown classes, activity-keyed rules, rows that are
     assert.deepEqual([draft.purpose, draft.blocks, draft.extracts, draft.gaps], [whole.purpose, whole.blocks, whole.extracts, whole.gaps])
 })
 
-test('3. production A01: the EXPECTED PRESENTATION sentences 4-8, sentence 6 as Details 10 cut to its aside; pointers where shortened', () => {
+test("3. production A01: each team's line saying how it scores first, then what the meaning test requires; the restart moments behind a pointer", () => {
     for (const [players, keepers] of [[12, 1], [12, 2], [11, 1]] as const) {
         const what = `A01 ${players}/${keepers}`
         const served = admin(a01At(players, keepers))
@@ -230,53 +254,53 @@ test('3. production A01: the EXPECTED PRESENTATION sentences 4-8, sentence 6 as 
             assert.deepEqual([building.group, building.noun, pressing.group, pressing.noun], ['BUILDING', 'building team', 'PRESSING', 'pressing team'], at)
             assertComplete(building, at)
             assertComplete(pressing, at)
-            // Re-pointed 22 October 2026 (stage 3E). The renderer attributes each citation to the words that state it (fix (a)), so the cut of
-            // Details 10 to its aside and of Details 14 to its last colon each keep whole every part citing what the group must state; and the
-            // PROPOSED readings record gives his first sentence of the building rule and the regain clause what they state, so the composer
-            // chooses those extracts. Was (stage 3D): A01-W1 whole, A01-W3, Details 10 whole; Details 14 whole, A01-W2 whole.
-            assert.deepEqual(textsOf(building), [OVERVIEW_4, OVERVIEW_5, OVERVIEW_6_CUT], at)
+            // Re-pointed 22 October 2026 (stage 3F, his reply filed 23 October 2026, items 4 and 6). His eligibility sentence does not state
+            // that the scoring opportunity must begin from the goalkeeper's build-out (his item-4 example; the PROPOSED readings record), so
+            // his second building sentence is said for the origin; the restart moments are restart procedure, left to Coach Details. Each
+            // group opens with the line saying how the team scores. Was (stage 3E): OVERVIEW_4, OVERVIEW_5, OVERVIEW_6_CUT; OVERVIEW_7, OVERVIEW_8.
+            assert.deepEqual(textsOf(building), [OVERVIEW_4, W1_S2, OVERVIEW_5], at)
             assert.deepEqual(
-                building.sentences.map(s => [s.wording, s.source, s.chosenBy, s.form, s.extractId, s.fullRule ? [s.fullRule.text, s.fullRule.because] : null]),
+                building.sentences.map(s => [s.place, s.wording, s.source, s.chosenBy, s.form, s.extractId, s.fullRule ? [s.fullRule.text, s.fullRule.because] : null]),
                 [
-                    ['DERIVED_FROM_APPROVED', { kind: 'APPROVED_ENTRY', id: 'A01-W1' }, 'SHORTEST_EXTRACT', 'EXTRACT', 'A01-W1:s1', [W1.sentence, ['DETAIL_LEFT_OUT', 'SHORTENED_WAY_TO_SCORE']]],
-                    ['APPROVED', { kind: 'APPROVED_ENTRY', id: 'A01-W3' }, 'APPROVED_ENTRY', 'WHOLE', null, null],
-                    ['DRAFT', null, 'DETAILS_SENTENCE', 'SHORTENING', null, null],
+                    ['LEAD', 'DERIVED_FROM_APPROVED', { kind: 'APPROVED_ENTRY', id: 'A01-W1' }, 'SHORTEST_EXTRACT', 'EXTRACT', 'A01-W1:s1', [W1.sentence, ['DETAIL_LEFT_OUT', 'SHORTENED_WAY_TO_SCORE']]],
+                    ['QUALIFICATION', 'DERIVED_FROM_APPROVED', { kind: 'APPROVED_ENTRY', id: 'A01-W1' }, 'SHORTEST_EXTRACT', 'EXTRACT', 'A01-W1:s2', null],
+                    ['QUALIFICATION', 'APPROVED', { kind: 'APPROVED_ENTRY', id: 'A01-W3' }, 'APPROVED_ENTRY', 'WHOLE', null, null],
                 ],
                 at,
             )
-            // Sentence 6: Details 10's own words up to its aside; what it drops is the aside, which says more of the coach-judged moment it
-            // keeps (so no pointer: no field it must state is dropped). For his review list.
-            assert.equal(building.sentences[2].details.text, DETAILS_10, at)
-            assert.deepEqual(building.sentences[2].drops, ['(at a stoppage or while play is on)'], at)
             assert.deepEqual(textsOf(pressing), [OVERVIEW_7, OVERVIEW_8], at)
             assert.deepEqual(
-                pressing.sentences.map(s => [s.wording, s.source, s.chosenBy, s.form, s.extractId, s.fullRule ? [s.fullRule.text, s.fullRule.because] : null]),
+                pressing.sentences.map(s => [s.place, s.wording, s.source, s.chosenBy, s.form, s.extractId, s.fullRule ? [s.fullRule.text, s.fullRule.because] : null]),
                 [
-                    ['DRAFT', null, 'DETAILS_SENTENCE', 'SHORTENING', null, [DETAILS_14, ['SHORTENED_WAY_TO_SCORE']]],
-                    ['DERIVED_FROM_APPROVED', { kind: 'APPROVED_ENTRY', id: 'A01-W2' }, 'SHORTEST_EXTRACT', 'EXTRACT', 'A01-W2:c1', [W2.sentence, ['DETAIL_LEFT_OUT', 'SHORTENED_WAY_TO_SCORE']]],
+                    ['LEAD', 'DRAFT', null, 'DETAILS_SENTENCE', 'SHORTENING', null, [DETAILS_14, ['SHORTENED_WAY_TO_SCORE']]],
+                    ['QUALIFICATION', 'DERIVED_FROM_APPROVED', { kind: 'APPROVED_ENTRY', id: 'A01-W2' }, 'SHORTEST_EXTRACT', 'EXTRACT', 'A01-W2:c1', [W2.sentence, ['DETAIL_LEFT_OUT', 'SHORTENED_WAY_TO_SCORE']]],
                 ],
                 at,
             )
             assert.deepEqual(pressing.sentences[0].drops, [': running it in, or passing to a teammate who receives it under control inside'], at)
             // The cut of Details 14 cites everything that sentence cites (its lead part is all of it but the elaboration of the event).
             assert.deepEqual(pressing.sentences[0].from, served.rendered.instructions[pressing.sentences[0].details.blockIndex].from, at)
-            // Each extract names the PROPOSED record it keeps by ("reading PROPOSED, awaiting confirmation"); no other sentence names one.
-            assert.deepEqual([...building.sentences, ...pressing.sentences].map(s => s.reading), [PROPOSED_READING_RECORD, null, null, null, PROPOSED_READING_RECORD], at)
-            // The value of a score, a DETAIL said for every team, is left to Details behind a pointer in each team's group.
-            for (const group of [building, pressing]) assert.deepEqual(group.fullRules.map(p => [p.text, p.because, p.paths]), [[DETAILS_16, ['DETAIL_LEFT_OUT'], ['value.primaryEvent.value']]], at)
-            // The extracts the record does not read keep nothing; no approved sentence is said whole for want of one, so no note.
-            assert.deepEqual(building.extractsKeepingNothing, ['A01-W1:s2', 'A01-W1:s3', 'A01-W1:s1+s2', 'A01-W1:s1+s3', 'A01-W1:s2+s3'], at)
-            assert.deepEqual(pressing.extractsKeepingNothing, [], at)
+            // Every sentence of his read by the PROPOSED record names it ("reading PROPOSED, awaiting confirmation"), his eligibility sentence
+            // said whole included (stage 3F); the DRAFT cut names none.
+            assert.deepEqual([...building.sentences, ...pressing.sentences].map(s => s.reading), [PROPOSED_READING_RECORD, PROPOSED_READING_RECORD, PROPOSED_READING_RECORD, null, PROPOSED_READING_RECORD], at)
+            // Left to Details behind a pointer each: the restart moments (stage 3F: DETAIL) in the building team's group, the value of a score
+            // in both.
+            const opener = building.requirements.filter(r => r.rule === 'BOUNDED_EPISODE_OPENER')
+            assert.ok(opener.length > 0 && opener.every(r => r.class === 'DETAIL' && r.statedBy.length === 0 && r.pointedTo), at)
+            assert.deepEqual(building.fullRules.map(p => [p.text, p.because, p.paths]), [[DETAILS_10, ['DETAIL_LEFT_OUT'], opener.map(r => r.path)], [DETAILS_16, ['DETAIL_LEFT_OUT'], ['value.primaryEvent.value']]], at)
+            assert.deepEqual(pressing.fullRules.map(p => [p.text, p.because, p.paths]), [[DETAILS_16, ['DETAIL_LEFT_OUT'], ['value.primaryEvent.value']]], at)
+            // Every extract is kept by the record now; no approved sentence is said whole for want of one, so no note.
+            assert.deepEqual([building.extractsKeepingNothing, pressing.extractsKeepingNothing], [[], []], at)
             assert.deepEqual([building.notes, pressing.notes], [[], []], at)
-            // The extract keeps the progression and control; the bound and the origin are stated by his eligibility sentence beside it.
-            for (const r of building.requirements.filter(r => r.rule === 'BOUNDED_CREDIT' || r.rule === 'ORIGIN_CONDITION')) assert.deepEqual(r.statedBy, [1], at)
-            for (const r of building.requirements.filter(r => r.rule === 'PROGRESSION_CONDITION' || r.rule === 'CONTROL_CONDITION')) assert.deepEqual(r.statedBy, [0], at)
+            // What states what, by meaning: the eligibility by his eligibility sentence, the origin by his second sentence (never by his
+            // eligibility sentence, which cites it), the progression and the control by his first; the exclusion pointed to, since the group
+            // states the control it follows from.
+            const statedBy = (rule: string) => [...new Set(building.requirements.filter(r => r.rule === rule).flatMap(r => r.statedBy))].sort()
+            assert.deepEqual([statedBy('BOUNDED_CREDIT'), statedBy('ORIGIN_CONDITION'), statedBy('PROGRESSION_CONDITION'), statedBy('CONTROL_CONDITION'), statedBy('EXCLUSION_CONDITION')], [[2], [1], [0, 1], [0], []], at)
+            assert.ok(building.requirements.filter(r => r.rule === 'EXCLUSION_CONDITION').every(r => r.pointedTo), at)
             // The regain clause keeps "provided it genuinely establishes possession" (ESSENTIAL in the PROPOSED table).
             assert.ok(pressing.sentences[1].states.some(s => s.rule === 'ALSO_COUNTS_CONTROL'), at)
-            // The restart moments: the transitions beginning the building team's episode, when and who, classed ESSENTIAL, stated by the cut.
-            assert.ok(building.requirements.filter(r => r.rule === 'BOUNDED_EPISODE_OPENER').length > 0, at)
-            assert.ok(building.requirements.filter(r => r.rule === 'BOUNDED_EPISODE_OPENER').every(r => r.statedBy.includes(2)), at)
-            assert.deepEqual(building.ways.map(way => way.shownBy), [[0]], at)
+            assert.deepEqual(building.ways.map(way => way.shownBy), [[0, 1]], at)
             assert.deepEqual(pressing.ways.map(way => way.shownBy), [[0], [1]], at)
         }
         // The draft as built is the draft composed from the block games (each block rendered by the same renderer).
@@ -285,17 +309,19 @@ test('3. production A01: the EXPECTED PRESENTATION sentences 4-8, sentence 6 as 
     }
 })
 
-test('4. the readings decide the extracts, never the composer: a TEST-ONLY reading of the same covers gives the same words, naming no record', () => {
-    // Re-pointed 22 October 2026 (stage 3E). Until 3E no reading was recorded and this test showed, under a TEST-ONLY reading, what the
-    // composer would do once one was; production now has the PROPOSED record (test 3). What stays pinned: the words follow the reading
-    // handed in, and only the record it names is carried (a TEST-ONLY reading names none); with no reading his sentences are said whole.
+test('4. the readings decide the words, never the composer: a TEST-ONLY copy of the record gives the same words; with no reading nothing of his is stated', () => {
+    // Re-pointed 22 October 2026 (stage 3F). What stays pinned: the words follow the reading handed in, and only the record it names is
+    // carried (a TEST-ONLY reading names none). Changed: with no reading at all his wording is no longer counted for every field it cites
+    // (his reply filed 23 October 2026, item 4), so no group of his can be composed. Was: his sentences said whole, with a note.
     for (const [players, keepers] of [[12, 1], [12, 2], [11, 1]] as const) {
         const what = `A01 ${players}/${keepers}`
         const blocks = blocksOf(buildActivityWithFixture(a01At(players, keepers)).fixture)
         const production = coachOverviewDraftOf('A01', blocks)
-        const testOnly = coachOverviewDraftOf('A01', blocks, withReading(READING))
-        const unread = coachOverviewDraftOf('A01', blocks, withReading(() => null))
+        const testOnly = coachOverviewDraftOf('A01', blocks, undefined, { reading: READING })
+        const unread = coachOverviewDraftOf('A01', blocks, undefined, { reading: NO_RECORDED_READING })
         assert.equal(testOnly.scoring.sameTextInEveryBlock, true, what)
+        // The account describes the reading the overview was built with (the 3E review's bookkeeping item): one naming no record is not the record.
+        assert.deepEqual([testOnly.scoring.readings.status, unread.scoring.readings.status, production.scoring.readings.status], ['UNUSABLE', 'UNUSABLE', 'PROPOSED'], what)
         for (const [n, block] of testOnly.scoring.blocks.entries()) {
             const at = `${what} block ${n + 1}`
             const [building, pressing] = block.groups
@@ -304,35 +330,37 @@ test('4. the readings decide the extracts, never the composer: a TEST-ONLY readi
             assert.deepEqual(block.groups.map(textsOf), production.scoring.blocks[n].groups.map(textsOf), at)
             assert.deepEqual([...building.sentences, ...pressing.sentences].map(s => s.reading), [null, null, null, null, null], at)
             assert.deepEqual([...new Set(building.sentences[0].states.map(s => s.class))], ['CONSTITUTIVE', 'ESSENTIAL'], at)
-            // No reading at all: his entries holding a DETAIL are said whole (the stage 3D production overview, with the cuts of fix (a)).
+            // No reading at all: nothing of his can be shown to be stated, so both groups are withheld, each why naming the entry citing it.
             const [unreadBuilding, unreadPressing] = unread.scoring.blocks[n].groups
-            assert.deepEqual(textsOf(unreadBuilding), [W1.sentence, W3.sentence, OVERVIEW_6_CUT], at)
-            assert.deepEqual(textsOf(unreadPressing), [OVERVIEW_7, W2.sentence], at)
-            assert.ok(unreadBuilding.notes[0].startsWith('A01-W1 is said whole') && unreadBuilding.notes[0].includes('no reading of what a part of his wording states is recorded'), at)
+            assert.deepEqual([unreadBuilding.withheld, unreadPressing.withheld], [true, true], at)
+            assert.ok(unreadBuilding.why.some(why => why.includes('rule BOUNDED_CREDIT) is stated by no sentence of the group (A01-W1 and A01-W3 cite it')), JSON.stringify(unreadBuilding.why))
+            assert.ok(unreadBuilding.why.some(why => why.includes('rule PROGRESSION_CONDITION) is stated by no sentence of the group (A01-W1 cites it')), JSON.stringify(unreadBuilding.why))
+            assert.ok(unreadPressing.why.some(why => why.includes('rule ALSO_COUNTS_TEAM_AND_TRIGGER) is stated by no sentence of the group (A01-W2 cites it')), JSON.stringify(unreadPressing.why))
         }
     }
     // Sentence 6 as the EXPECTED PRESENTATION writes it drops the colon and "that": a rewording, which no cut of Details 10 gives (the
-    // composer never adds or changes a word); the cut to its aside keeps Details 10's own words.
+    // composer never adds or changes a word). Since stage 3F neither is in the overview (the restart moments are left to Coach Details).
     assert.notEqual(OVERVIEW_6_CUT, OVERVIEW_6_AS_WRITTEN)
     assert.ok(DETAILS_10.startsWith(OVERVIEW_6_CUT.slice(0, -1)))
 })
 
-test('5. flipping a class in the table changes the composed group: the table decides, not code', () => {
+test('5. flipping a class, or what an exception follows from, changes the composed group: the table decides, not code', () => {
     const blocks = blocksOf(buildActivityWithFixture(a01At(12, 1)).fixture)
-    const composed = (change: (file: any) => void) => groupsOf(coachOverviewDraftOf('A01', blocks, withReading(READING), { essentials: tableWith(change) }))
-    // The exclusion made ESSENTIAL: his first sentence holds no DETAIL, so it is chosen first, said whole as approved wording; it already
-    // states every field his eligibility sentence covers, so that one adds nothing and is not chosen.
-    // (Re-pointed 22 October 2026, stage 3E: Details 10 and 14 are cut, fix (a). Was: each said whole.)
-    const [exclusionEssential] = composed(file => (ruleOf(file, 'EXCLUSION_CONDITION').class = 'ESSENTIAL'))
-    assert.deepEqual(textsOf(exclusionEssential), [W1.sentence, OVERVIEW_6_CUT])
-    assert.deepEqual(exclusionEssential.sentences.map(s => [s.chosenBy, s.form, s.fullRule]), [['APPROVED_ENTRY', 'WHOLE', null], ['DETAILS_SENTENCE', 'SHORTENING', null]])
+    const composed = (change: (file: any) => void) => groupsOf(coachOverviewDraftOf('A01', blocks, undefined, { essentials: tableWith(change) }))
+    // The exclusion made ESSENTIAL: his building rule holds no DETAIL, so it is said whole as approved wording, and it states every field
+    // the group needs but the eligibility, which his eligibility sentence states beside it. (Re-pointed 22 October 2026, stage 3F: was his
+    // building rule whole and the restart cut; his eligibility sentence then counted as adding nothing because it cited nothing new.)
+    const [exclusionEssential] = composed(essential('EXCLUSION_CONDITION'))
+    assert.deepEqual(textsOf(exclusionEssential), [W1.sentence, W3.sentence])
+    assert.deepEqual(exclusionEssential.sentences.map(s => [s.place, s.chosenBy, s.form, s.fullRule]), [['LEAD', 'APPROVED_ENTRY', 'WHOLE', null], ['QUALIFICATION', 'APPROVED_ENTRY', 'WHOLE', null]])
     // The also-counts exclusion made ESSENTIAL: the regain sentence is said whole.
-    const [, regainEssential] = composed(file => (ruleOf(file, 'ALSO_COUNTS_EXCLUSION').class = 'ESSENTIAL'))
+    const [, regainEssential] = composed(essential('ALSO_COUNTS_EXCLUSION'))
     assert.deepEqual(textsOf(regainEssential), [OVERVIEW_7, W2.sentence])
-    // The restart moments made DETAIL: no restart sentence, and a pointer to Details 10 instead.
-    const [openerDetail] = composed(file => (ruleOf(file, 'BOUNDED_EPISODE_OPENER').class = 'DETAIL'))
-    assert.deepEqual(textsOf(openerDetail), [OVERVIEW_4, OVERVIEW_5])
-    assert.ok(openerDetail.fullRules.some(p => p.text === DETAILS_10 && p.because.includes('DETAIL_LEFT_OUT')), JSON.stringify(openerDetail.fullRules))
+    // Stage 3F: the restart moments made ESSENTIAL again (their class before 3F): the restart cut is said, after the scoring sentences, and
+    // nothing points to Details 10. (Re-pointed: was the flip to DETAIL, now the production class.)
+    const [openerEssential] = composed(file => (ruleOf(file, 'BOUNDED_EPISODE_OPENER').class = 'ESSENTIAL'))
+    assert.deepEqual(textsOf(openerEssential), [OVERVIEW_4, W1_S2, OVERVIEW_5, OVERVIEW_6_CUT])
+    assert.ok(!openerEssential.fullRules.some(p => p.text === DETAILS_10), JSON.stringify(openerEssential.fullRules))
     // The score's value made ESSENTIAL: "Each score is worth 1 point" is said, in both groups, and no longer pointed to.
     const valueEssential = composed(file => (ruleOf(file, 'SCORE_VALUE').class = 'ESSENTIAL'))
     for (const group of valueEssential) {
@@ -341,49 +369,53 @@ test('5. flipping a class in the table changes the composed group: the table dec
     }
     // The way-level rule removed: nothing else changes for this game (every way is also shown by its CONSTITUTIVE fields).
     const noWays = composed(file => (file.rules = file.rules.filter((rule: any) => rule.id !== 'EVERY_WAY_TO_SCORE')))
-    assert.deepEqual(noWays.map(textsOf), groupsOf(coachOverviewDraftOf('A01', blocks, withReading(READING))).map(textsOf))
+    assert.deepEqual(noWays.map(textsOf), groupsOf(coachOverviewDraftOf('A01', blocks)).map(textsOf))
     assert.deepEqual(noWays.map(group => group.ways), [[], []])
+    // Stage 3F: the exclusion said to follow from a condition this group has no field of (TEST-ONLY: the regain's control, under another way
+    // to score): it is material, so his building rule holds nothing left to Coach Details and is said whole, as with the exclusion
+    // ESSENTIAL; nothing points to it for a detail left out.
+    const [ungoverned] = composed(file => (ruleOf(file, 'EXCLUSION_CONDITION').followsFrom = ['ALSO_COUNTS_CONTROL']))
+    assert.deepEqual(textsOf(ungoverned), [W1.sentence, W3.sentence])
+    assert.ok(ungoverned.requirements.filter(r => r.rule === 'EXCLUSION_CONDITION').every(r => r.statedBy.includes(0) && !r.pointedTo))
+    assert.ok(W1.sentence.endsWith(W1_S3))
+    // Following from nothing, it stays a DETAIL behind the pointer: what it follows from is a judgement of the table, never needed by code.
+    const [plainDetail] = composed(file => delete ruleOf(file, 'EXCLUSION_CONDITION').followsFrom)
+    assert.deepEqual(textsOf(plainDetail), [OVERVIEW_4, W1_S2, OVERVIEW_5])
 })
 
-test("6. without his building-team eligibility entry, the extract of his first sentence never stands alone", () => {
+test("6. without his eligibility sentence nothing states the building team's eligibility; read as stating it (TEST-ONLY), his second sentence makes it unnecessary", () => {
     const fixture = buildActivityWithFixture(a01At(12, 1)).fixture
     const withoutW3 = approvedWording().filter(entry => entry.id !== 'A01-W3')
     // TEST-ONLY: Details rendered without the entry (the build would say his first sentence, which also covers the bound and the origin).
     const blocks = blocksOf(fixture).map(block => ({ ...block, rendered: renderConcreteGame(block.fixture, withoutW3) }))
     for (const block of blocks) assert.ok(!block.rendered.instructions.some(i => i.text === W3.sentence) && block.rendered.instructions.some(i => i.text === W1.sentence))
     const states = (group: ScoringGroup, rule: string) => group.sentences.some(s => s.states.some(x => x.rule === rule))
-    // (a) Only the first sentence is read: the bound and origin have no extract keeping them, so his first sentence is said whole, and the
-    // extract inside it is dropped.
-    // (Re-pointed 22 October 2026, stage 3E: Details 10 is cut to its aside, fix (a). Was: said whole.)
-    const [readOne] = groupsOf(coachOverviewDraftOf('A01', blocks, withReading(READING, withoutW3), { wording: withoutW3 }))
-    assert.deepEqual(textsOf(readOne), [W1.sentence, OVERVIEW_6_CUT])
-    assert.deepEqual(readOne.sentences.map(s => [s.form, s.chosenBy]), [['WHOLE', 'DETAILS_SENTENCE'], ['SHORTENING', 'DETAILS_SENTENCE']])
-    // The note says why his sentence is said whole: one of its extracts is kept by the (TEST-ONLY) reading, and none keeps what is needed.
-    assert.ok(readOne.notes[0].startsWith('A01-W1 is said whole') && readOne.notes[0].includes('1 of its 6 extracts are kept by a recorded reading'), readOne.notes[0])
-    // (b) The first two sentences read as well (TEST-ONLY): the bound and origin are kept by the second, and the two extracts become the one
-    // extract of both, listed and keeping what they keep.
-    const twoRead: CoverReading = (entry, units) => {
-        const id = units.map(u => `${u.part}${u.sentence}`).join('+')
-        if (entry.id === 'A01-W2') return READING(entry, units)
-        if (entry.id !== 'A01-W1') return null
-        if (id === 'WHOLE_SENTENCE0') return [4, 5, 6, 7, 8, 9, 10, 11]
-        if (id === 'WHOLE_SENTENCE1') return [0, 1, 2, 3]
-        if (id === 'WHOLE_SENTENCE0+WHOLE_SENTENCE1') return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-        return null
+    // (a) Re-pointed 22 October 2026 (stage 3F). Under the PROPOSED record his second sentence states the origin and not the eligibility
+    // (FOR HIS CONFIRMATION), and his rule said whole states what its sentences state; so without his eligibility sentence nothing states
+    // the eligibility, and the group is withheld, saying which of his entries cites it. Was: his rule said whole, counted for the bound.
+    const [recordOnly] = groupsOf(coachOverviewDraftOf('A01', blocks, undefined, { wording: withoutW3 }))
+    assert.equal(recordOnly.withheld, true)
+    assert.ok(recordOnly.why.some(why => why.includes('rule BOUNDED_CREDIT) is stated by no sentence of the group (A01-W1 cites it, and no recorded reading says those words state it)')), JSON.stringify(recordOnly.why))
+    // (b) A TEST-ONLY reading in which his second sentence also states the eligibility (the alternative reading his confirmation decides):
+    // the group is complete from his first two sentences, and his eligibility sentence, where it is said in Details, adds nothing to the
+    // overview and is left to Coach Details (the most concise set).
+    const secondStatesEligibility: CoverReading = (entry, units) => {
+        const read = READING(entry, units)
+        return read && entry.id === 'A01-W1' && units.some(unit => unit.sentence === 1 && unit.part === 'WHOLE_SENTENCE') ? [...new Set([0, ...read])].sort((a, b) => a - b) : read
     }
-    const [readTwo] = groupsOf(coachOverviewDraftOf('A01', blocks, withReading(twoRead, withoutW3), { wording: withoutW3 }))
-    assertComplete(readTwo, 'two sentences read')
-    assert.deepEqual(readTwo.sentences.map(s => [s.extractId, s.wording]), [['A01-W1:s1+s2', 'DERIVED_FROM_APPROVED'], [null, 'DRAFT']])
-    assert.equal(readTwo.sentences[0].text, `${OVERVIEW_4} ${W1.sentence.split('. ')[1]}.`)
+    const [readTwo] = groupsOf(coachOverviewDraftOf('A01', blocks, undefined, { reading: secondStatesEligibility, wording: withoutW3 }))
+    assertComplete(readTwo, 'second sentence read as stating the eligibility')
+    assert.deepEqual(textsOf(readTwo), [OVERVIEW_4, W1_S2])
+    const [withW3] = groupsOf(coachOverviewDraftOf('A01', blocksOf(fixture), undefined, { reading: secondStatesEligibility }))
+    assertComplete(withW3, 'with his eligibility sentence in Details')
+    assert.deepEqual(textsOf(withW3), [OVERVIEW_4, W1_S2])
     // In no case is the progression said without the bound and the origin.
-    for (const group of [readOne, readTwo]) {
-        assert.equal(group.withheld, false)
+    for (const group of [readTwo, withW3]) {
         assert.ok(states(group, 'PROGRESSION_CONDITION') && states(group, 'BOUNDED_CREDIT') && states(group, 'ORIGIN_CONDITION'))
-        assert.ok(!(group.sentences.length && textsOf(group).includes(OVERVIEW_4) && !states(group, 'BOUNDED_CREDIT')))
     }
-    // With his entry, the extract stands beside it (test 4): the bound and origin are stated by it.
-    const [withW3] = groupsOf(coachOverviewDraftOf('A01', blocksOf(fixture), withReading(READING)))
-    assert.deepEqual(textsOf(withW3).slice(0, 2), [OVERVIEW_4, OVERVIEW_5])
+    // Under the record, with his eligibility sentence: the origin by his second sentence and the eligibility by his eligibility sentence (test 3).
+    const [production] = groupsOf(coachOverviewDraftOf('A01', blocksOf(fixture)))
+    assert.deepEqual(textsOf(production), [OVERVIEW_4, W1_S2, OVERVIEW_5])
 })
 
 test('7. nothing is left out by default: an unclassed scoring row withholds its groups; a way with no CONSTITUTIVE field cannot be shown', () => {
@@ -403,7 +435,7 @@ test('7. nothing is left out by default: an unclassed scoring row withholds its 
     assert.ok(building.why.every(why => why.includes('is on row B8, which the essentials table does not class')))
     assert.equal(pressing.withheld, false)
     // The progression made ESSENTIAL: the building team's way to score has no CONSTITUTIVE field, so it cannot be shown to appear.
-    const [noWay] = groupsOf(coachOverviewDraftOf('A01', blocks, withReading(READING), { essentials: tableWith(file => (ruleOf(file, 'PROGRESSION_CONDITION').class = 'ESSENTIAL')) }))
+    const [noWay] = groupsOf(coachOverviewDraftOf('A01', blocks, undefined, { essentials: tableWith(file => (ruleOf(file, 'PROGRESSION_CONDITION').class = 'ESSENTIAL')) }))
     assert.equal(noWay.withheld, true)
     assert.deepEqual(noWay.why, ['the way to score value.primaryEvent has no field the essentials table classes CONSTITUTIVE, so it cannot be shown to appear'])
     // A field two rules class (conditions that overlap on one element) is ambiguous, never resolved by the rules' order.
@@ -483,6 +515,8 @@ test('9. the demonstrations at every role case, and a second synthetic Learning 
                     : ['A team scores 1 point by getting the ball across the line it is attacking.']
             assert.deepEqual(textsOf(groups[0]), expected, demonstration.id)
             assert.ok(groups[0].sentences.every(s => s.wording === 'DRAFT' && s.form === 'WHOLE' && s.fullRule === null))
+            // Stage 3F: the line saying how every team scores leads; the bonus is a qualification.
+            assert.deepEqual(groups[0].sentences.map(s => s.place), expected.map((_, n) => (n === 0 ? 'LEAD' : 'QUALIFICATION')))
             assert.deepEqual(groups[0].fullRules, [])
         }
     }
@@ -510,19 +544,41 @@ test('9. the demonstrations at every role case, and a second synthetic Learning 
     const wording = [entry]
     const rendered = renderConcreteGame(fixture, wording).instructions
     assert.ok(rendered.some(i => i.text === entry.sentence))
-    // No reading: the entry holds a DETAIL and no extract keeps anything, so it is said whole.
-    const plain = scoringGroupsOf(fixture, rendered, extractsFor(fixture.game, { wording }).extracts, essentialsTable(), wording)
+    // Re-pointed 22 October 2026 (stage 3F). No reading: his (TEST-ONLY) wording can be shown to state nothing, so the group is withheld,
+    // naming the entry that cites the field. Was: the entry said whole, counted for what it cites.
+    const plain = scoringGroupsOf(fixture, rendered, extractsFor(fixture.game, { wording }).extracts, essentialsTable(), wording, wholeReadingsFor(fixture.game, { wording }))
     assert.equal(plain.length, 1)
-    assertComplete(plain[0], 'A04 no reading')
-    assert.ok(textsOf(plain[0]).includes(entry.sentence))
-    // A TEST-ONLY reading of its first sentence: the extract stands for the progression, the exclusion is pointed to.
-    const reading: CoverReading = (e, units) => (e.id === 'TEST-LOCATED' && units.length === 1 && units[0].sentence === 0 && units[0].part === 'WHOLE_SENTENCE' ? [0, 1] : null)
-    const read = scoringGroupsOf(fixture, rendered, extractsFor(fixture.game, { wording, reading }).extracts, essentialsTable(), wording)
+    assert.equal(plain[0].withheld, true)
+    assert.ok(plain[0].why.some(why => why.includes('(TEST-LOCATED cites it, and no recorded reading says those words state it)')), JSON.stringify(plain[0].why))
+    // A TEST-ONLY reading of both its sentences. This game has no control condition for the exclusion to follow from, so the exclusion is
+    // material (stage 3F, `followsFrom`): the entry then holds nothing left to Coach Details, and is said whole as his wording first.
+    const reading: CoverReading = (e, units) => {
+        if (e.id !== 'TEST-LOCATED') return null
+        const each = units.map(unit => (unit.part !== 'WHOLE_SENTENCE' ? null : unit.sentence === 0 ? [0, 1] : unit.sentence === 1 ? [2, 3] : null))
+        return each.every(Boolean) ? (each as number[][]).flat() : null
+    }
+    const read = scoringGroupsOf(fixture, rendered, extractsFor(fixture.game, { wording, reading }).extracts, essentialsTable(), wording, wholeReadingsFor(fixture.game, { wording, reading }))
     assertComplete(read[0], 'A04 read')
-    const extract = read[0].sentences.find(s => s.form === 'EXTRACT')!
+    // The game's own scoring sentence (DRAFT, one sentence) leads; his whole entry follows it.
+    const SCORES = 'A team scores 1 point by getting the ball across the line it is attacking.'
+    assert.deepEqual(read[0].sentences.map(s => [s.text, s.form, s.place, s.fullRule]), [[SCORES, 'WHOLE', 'LEAD', null], [entry.sentence, 'WHOLE', 'QUALIFICATION', null]])
+    assert.ok(read[0].requirements.filter(r => r.rule === 'EXCLUSION_CONDITION').every(r => r.statedBy.length > 0 && !r.pointedTo), 'the material exclusion is stated')
+    // The same exclusion following from nothing (TEST-ONLY table): a DETAIL, left to Coach Details behind the pointer, and the extract of
+    // the first sentence leads alone.
+    const noFollows = essentialsLoadOf((() => {
+        const file = copy(TABLE)
+        delete ruleOf(file, 'EXCLUSION_CONDITION').followsFrom
+        return file
+    })())
+    const detail = scoringGroupsOf(fixture, rendered, extractsFor(fixture.game, { wording, reading }).extracts, noFollows, wording, wholeReadingsFor(fixture.game, { wording, reading }))
+    assertComplete(detail[0], 'A04 exclusion a plain DETAIL')
+    assert.ok(!textsOf(detail[0]).includes(entry.sentence))
+    const extract = detail[0].sentences.find(s => s.form === 'EXTRACT')!
     assert.deepEqual([extract.text, extract.wording, extract.extractId], ['Test team: Score by crossing the test line.', 'DERIVED_FROM_APPROVED', 'TEST-LOCATED:s1'])
     assert.deepEqual([extract.fullRule!.text, extract.fullRule!.because], [entry.sentence, ['DETAIL_LEFT_OUT', 'SHORTENED_WAY_TO_SCORE']])
-    assert.ok(!textsOf(read[0]).includes(entry.sentence))
+    // It states more of the first way to score than the game's own sentence, and both are one sentence: it leads.
+    assert.equal(extract.place, 'LEAD')
+    assert.deepEqual(textsOf(detail[0]), ['Test team: Score by crossing the test line.', SCORES])
 })
 
 test("10. only an administrator's answer carries the draft; the module and the table name nothing of the first activity", () => {
@@ -531,9 +587,12 @@ test("10. only an administrator's answer carries the draft; the module and the t
     const asAdmin = reviewActivity(stored, { learningGoalId: 'A01', durationMin: 20 }, { includeDrafts: true }) as ServedActivity
     assert.ok(!('overviewDraft' in coach))
     // Re-pointed 21 October 2026 (stage 3D): the coach is served the overview's words and its "full rule" pointers (DRAFT label), never the
-    // table, its status or its label. Was: no "full rule" in the coach's answer at all.
+    // table, its status or its label. Was: no "full rule" in the coach's answer at all. Re-pointed 22 October 2026 (stage 3F): the coach's
+    // scoring is its lead lines, its qualifications and the pointers no line carries.
     assert.ok(!JSON.stringify(coach).includes('PROPOSED') && !JSON.stringify(coach).includes('essentials'))
-    assert.ok(coach.overview!.scoring.every(group => group.fullRules.every(pointer => pointer.label === FULL_RULE_LABEL)))
+    const scoring = coach.overview!.scoring
+    const pointers = [...[...scoring.leads, ...scoring.qualifications].flatMap(line => (line.fullRule ? [line.fullRule] : [])), ...scoring.fullRules]
+    assert.ok(pointers.length > 0 && pointers.every(pointer => pointer.label === FULL_RULE_LABEL))
     assert.equal(asAdmin.overviewDraft!.served, true)
     assert.equal(asAdmin.overviewDraft!.scoring.blocks.length, 2)
     assert.ok(!('overviewDraft' in buildActivity(a01At(12, 1))))
@@ -547,11 +606,11 @@ test("10. only an administrator's answer carries the draft; the module and the t
         .split('\n')
         .filter(line => !/^\s*(\*|\/\*\*|\/\/)/.test(line))
         .join('\n')
-    for (const literal of ['progression', 'origin', "'control'", 'exclusion', "'V2'", "'V4'", "'B8'", 'V28', 'V31', "'BOUNDED_CREDIT'", 'ORIGIN_CONDITION', 'EVERY_WAY_TO_SCORE', 'goalkeeper', 'WHOLE_GAME'])
+    for (const literal of ['progression', 'origin', "'control'", 'exclusion', "'V2'", "'V4'", "'B8'", 'V28', 'V31', "'BOUNDED_CREDIT'", 'ORIGIN_CONDITION', 'EVERY_WAY_TO_SCORE', 'CONTROL_CONDITION', 'goalkeeper', 'WHOLE_GAME'])
         assert.ok(!code.includes(literal), literal)
     // His approved table is unchanged and holds no derived record.
     const approvedTable = fs.readFileSync(APPROVED_WORDING_FILE, 'utf8')
-    for (const word of ['DERIVED_FROM_APPROVED', 'CONSTITUTIVE', 'ESSENTIAL', '"keeps"']) assert.ok(!approvedTable.includes(word), word)
+    for (const word of ['DERIVED_FROM_APPROVED', 'CONSTITUTIVE', 'ESSENTIAL', '"keeps"', 'followsFrom', 'doesNotState']) assert.ok(!approvedTable.includes(word), word)
     assert.deepEqual(approvedWording().map(entry => entry.id), ['A01-W1', 'A01-W2', 'A01-W3'])
 })
 

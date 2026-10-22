@@ -11,9 +11,10 @@
  *   1. Coach Details: every sentence's status is the rule's as before (decided by text), now with the entry or template it is; approved
  *      wording is said whole, so no Details sentence is DERIVED_FROM_APPROVED;
  *   2. the extracts generated for A01 in each block: whole sentences, or a leading clause ending at ";", in order, each DERIVED_FROM_APPROVED
- *      with its source entry and a cover accounting that exactly partitions the entry's covers; since stage 3E the two parts the PROPOSED
- *      readings record reads keep what it gives them, named with that record, and every other keeps nothing and leaves every cover, at the
- *      field the Details sentence cites; the administrator's overview draft carries them;
+ *      with its source entry and a cover accounting that exactly partitions the entry's covers; since stage 3E the parts the PROPOSED
+ *      readings record reads keep what it gives them, named with that record (since stage 3F every extract of A01: each sentence of the
+ *      building rule is read, and parts together keep the union of their readings), and an extract with no reading keeps nothing and
+ *      leaves every cover, at the field the Details sentence cites; the administrator's overview draft carries them;
  *   3. an extract with one changed word (or any other departure from its source's parts) is refused; so is one relabelled, or one hiding
  *      the sentence it skips between its parts (`omitsBetween`, structural only);
  *   4. a cover accounting that does not partition the source's covers, or (against the game) leaves a cover at another field, is refused;
@@ -26,7 +27,10 @@
  *      located and one with a slot) generates, cites and withholds by the same rules;
  *   8. only an administrator's answer carries extracts; the module writes no goal, entry, condition type or value; the approved table holds
  *      no derived record;
- *   9. a block whose extracts cannot be generated lists none, with a gap for an administrator, and the overview's other parts stand.
+ *   9. a block whose extracts cannot be generated lists none, with a gap for an administrator, and the overview's other parts stand;
+ *  10. stage 3F: what his wording said whole states is its recorded reading of every sentence of it (`wholeReadingsFor`), never every
+ *      field it cites: A01-W3 states the building team's eligibility and not the origin, with the record's reason; with no reading his
+ *      wording said whole states nothing; a changed copy of an entry is read by nothing.
  */
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
@@ -46,9 +50,13 @@ import {
     extractStatusOf,
     extractsFor,
     extractUnusableBecause,
+    NO_RECORDED_READING,
     omittedBetweenOf,
     sentencesOf,
     unitSelectionsOf,
+    wholeReadingOfSentence,
+    wholeReadingsFor,
+    wholeUnitsOf,
 } from './derived-wording'
 import { MECHANISM_DEMONSTRATIONS } from './mechanism-demonstrations'
 import { approvedSentences, renderConcreteGame } from './render-concrete-game'
@@ -88,8 +96,20 @@ const W1_S3 = 'Uncontrolled clearances do not score.'
  * Stage 3E: the covers the PROPOSED record (docs/audits/approved-wording-readings.json, not his reading) says these two parts state — his
  * first sentence of the building rule the progression and control covers (4-11), the regain sentence's leading clause its team, trigger
  * and control (0-2). approved-wording-readings.unit.ts pins the record itself.
+ *
+ * Re-pointed 22 October 2026 (stage 3F): the record now reads every sentence of his building rule (sentence 2: the origin and the
+ * progression's scope, 1-4; sentence 3: the exclusion, 12-15), and several parts with no reading of their own state what each states (the
+ * union), so every extract of A01 is kept by it. Was: only A01-W1:s1 and A01-W2:c1; the other five kept nothing.
  */
-const PROPOSED_KEEPS: Record<string, number[]> = { 'A01-W1:s1': [4, 5, 6, 7, 8, 9, 10, 11], 'A01-W2:c1': [0, 1, 2] }
+const PROPOSED_KEEPS: Record<string, number[]> = {
+    'A01-W1:s1': [4, 5, 6, 7, 8, 9, 10, 11],
+    'A01-W1:s2': [1, 2, 3, 4],
+    'A01-W1:s3': [12, 13, 14, 15],
+    'A01-W1:s1+s2': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+    'A01-W1:s1+s3': [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+    'A01-W1:s2+s3': [1, 2, 3, 4, 12, 13, 14, 15],
+    'A01-W2:c1': [0, 1, 2],
+}
 
 test('1. Coach Details: each sentence\'s status is the rule\'s as before, now naming the entry or template it is; none is derived', () => {
     for (const [players, keepers] of [[12, 1], [12, 2], [11, 1]] as const) {
@@ -535,6 +555,40 @@ test('9. a block whose extracts cannot be generated lists none, with a gap; the 
     assert.deepEqual(built, composed)
     assert.deepEqual([served, check!.verdict, !!reading, !!presented], [true, 'PASS', true, true])
     assert.deepEqual([_served, _check, _reading, _presented], [false, null, null, null])
+})
+
+test('10. stage 3F: his wording said whole states only what its recorded reading of every sentence gives it, never every field it cites', () => {
+    const game = BLOCK_1.fixture.game
+    const details = renderConcreteGame(BLOCK_1.fixture).instructions
+    const wholes = wholeReadingsFor(game, { reading: recordedReading() })
+    assert.deepEqual(wholes.map(whole => [whole.id, whole.reading, whole.keeps.map(ref => ref.index), whole.doesNotState.map(left => left.index)]), [
+        ['A01-W1', 'RECORDED', [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], [0]],
+        ['A01-W2', 'RECORDED', [0, 1, 2, 3], []],
+        ['A01-W3', 'RECORDED', [0], [1, 2, 3]],
+    ])
+    // His item-4 example: A01-W3 cites the origin condition's fields (it covers them) and its reading says its words do not state them.
+    const w3 = wholes.find(whole => whole.source.id === 'A01-W3')!
+    const said = details.find(instruction => instruction.text === W3.sentence)!
+    assert.deepEqual(wholeReadingOfSentence(wholes, said, { kind: 'APPROVED_ENTRY', id: 'A01-W3' }), w3)
+    assert.equal(w3.states.length, 1)
+    assert.ok(w3.states[0].endsWith('.creditedWithin'), w3.states[0])
+    assert.ok(w3.leaves.every(ref => said.from.includes(ref.path!)), 'every cover it does not state is a field it cites')
+    assert.ok(w3.doesNotState.every(left => left.why.includes('his reply filed 23 October 2026, item 4') || left.why.includes('His reply filed 23 October 2026, item 4')), JSON.stringify(w3.doesNotState))
+    assert.deepEqual(w3.readingRecord, PROPOSED_READING_RECORD)
+    // His building rule said whole: what its three sentences state together; not the eligibility (his second sentence's reading leaves it).
+    const w1 = wholes.find(whole => whole.source.id === 'A01-W1')!
+    assert.ok(!w1.states.some(path => path.endsWith('.creditedWithin')))
+    assert.deepEqual(wholeUnitsOf(W1.sentence), [0, 1, 2].map(sentence => ({ sentence, part: 'WHOLE_SENTENCE' })))
+    // No reading: his wording said whole states nothing. A changed copy of his entry (TEST-ONLY) is not the entry the record was checked on.
+    assert.ok(wholeReadingsFor(game, { reading: NO_RECORDED_READING }).every(whole => whole.reading === 'NONE_RECORDED' && whole.states.length === 0 && whole.readingRecord === null))
+    assert.ok(wholeReadingsFor(game).every(whole => whole.reading === 'NONE_RECORDED'), 'none is recorded by default, as for extracts')
+    const changed = approvedWording().map(entry => (entry.id === 'A01-W3' ? { ...entry, covers: entry.covers.slice(0, 1) } : entry))
+    assert.equal(wholeReadingsFor(game, { wording: changed, reading: recordedReading() }).find(whole => whole.source.id === 'A01-W3')!.reading, 'NONE_RECORDED')
+    // The demonstrations' games say none of his entries: nothing is read.
+    for (const demonstration of MECHANISM_DEMONSTRATIONS) {
+        const built = buildActivityWithFixture({ kind: 'mechanism-demonstration', demonstrationId: demonstration.id, session: sessionAt(12, 1) })
+        if (built.activity.outcome === 'served') assert.deepEqual(wholeReadingsFor((built.fixture as any).game, { reading: recordedReading() }), [], demonstration.id)
+    }
 })
 
 console.log(`derived-wording.unit.ts — ${passed} passed`)

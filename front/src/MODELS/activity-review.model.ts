@@ -297,14 +297,24 @@ export interface OverviewPointer {
     text: string
 }
 
+/** One line of how the teams score (stage 3F): its words and the "full rule" pointer it carries. */
+export interface OverviewLine {
+    text: string
+    fullRule: OverviewPointer | null
+}
+
 /** The Coach Overview a coach is served (stage 3D): words and pointers only, no status, source or citation. */
 export interface CoachOverview {
     /** The Learning Goal's Coach Definition, verbatim; null for a mechanism demonstration, which claims no goal. */
     purpose: string | null
     game: string
     parameters: string
-    /** How each team scores: one group per team in the block's role order (one group where the game has no roles). */
-    scoring: { sentences: { text: string; fullRule: OverviewPointer | null }[]; fullRules: OverviewPointer[] }[]
+    /**
+     * How each team scores, in the order to present it (stage 3F, his reply filed 23 October 2026, item 6): one line per team saying how
+     * it scores (`leads`, in the block's role order; one line where the game has no roles), then the qualifications, then the "full rule"
+     * pointers no line carries, each once. Was (stages 3D-3E): one group of sentences per team.
+     */
+    scoring: { leads: OverviewLine[]; qualifications: OverviewLine[]; fullRules: OverviewPointer[] }
 }
 
 /** One of the three wording statuses (his reply filed 22 October 2026, item 4). A `string`, not the closed union, as the header explains. */
@@ -338,9 +348,36 @@ export interface ReviewPresentedOverview {
     scoring: {
         group: string
         noun: string | null
-        sentences: { text: string; wording: ReviewWordingStatus; source: { kind: string; id?: string } | null; fullRule: (OverviewPointer & { labelStatus: string }) | null; reading: ReviewReadingRecord | null }[]
+        /** `place` (stage 3F): the team's lead line ("LEAD") or a qualification. */
+        sentences: {
+            text: string
+            wording: ReviewWordingStatus
+            source: { kind: string; id?: string } | null
+            fullRule: (OverviewPointer & { labelStatus: string }) | null
+            reading: ReviewReadingRecord | null
+            place: 'LEAD' | 'QUALIFICATION' | string
+        }[]
         fullRules: (OverviewPointer & { labelStatus: string })[]
     }[]
+}
+
+/**
+ * One material element of a team's full rule, as the overview's agreement check read it (stage 3F): the rule classing it, whether the
+ * overview must state it and why, the overview sentences stating it (by their words), the Details sentence a pointer leads to where it is
+ * left to Coach Details, and each sentence citing it whose words are not read as stating it, with the reason. For an administrator only.
+ */
+export interface ReviewMeaningElement {
+    rule: string
+    class: string
+    material: boolean
+    element: string
+    way: string | null
+    fields: string[]
+    statedBy: string[]
+    complete: boolean
+    pointer: { section: string; text: string } | null
+    notStatedBy: { text: string; why: string }[]
+    because: string
 }
 
 /** One finding of the overview's agreement check (stage 3D): a VIOLATION withholds the overview, never the activity. */
@@ -520,7 +557,8 @@ export interface ReviewEvidence {
         served: boolean
         verdict: string
         findings: ReviewOverviewFinding[]
-        table: { source: string; status: string; label: string | null; labelStatus: string }
+        /** Stage 3F: with `why` (why the table cannot be used, or null). */
+        table: { source: string; status: string; label: string | null; labelStatus: string; why: string | null }
         readings: ReviewReadingsAccount
         sentences: {
             part: string
@@ -530,9 +568,13 @@ export interface ReviewEvidence {
             source: Record<string, unknown> | null
             fullRule: (OverviewPointer & { labelStatus: string }) | null
             reading: ReviewReadingRecord | null
+            /** Stage 3F: a scoring sentence's place (the team's lead line, or a qualification); null for the other parts. */
+            place: string | null
         }[]
         fullRules: (OverviewPointer & { labelStatus: string; group: string })[]
         reading: ReviewOverviewReading | null
+        /** Stage 3F: each team's material elements, and the overview sentence(s) stating each. */
+        meaning: { group: string; noun: string | null; elements: ReviewMeaningElement[] }[]
     }
 }
 

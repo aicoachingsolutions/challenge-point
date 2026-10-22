@@ -44,6 +44,11 @@
  * exists; where the element is gone, the game no longer holds what the entry said.
 
  *
+ * **Stage 3F, 22 October 2026: his wording said whole is read too** (`wholeReadingsFor`). His reply filed 23 October 2026, item 4: *"The
+ * system should evaluate the meaning of the complete overview rather than simply confirm that related words or conditions appear
+ * somewhere."* An entry's covers are what it speaks about; what its words state, said whole, is the reading recorded for every sentence of
+ * it, none without one. A reading may explain itself (`ReadingExplanation`), including what its parts do NOT state, for an administrator.
+ *
  * Everything is read from the entries and the game; no goal, entry id, condition type, sport term or value is written here.
  */
 import { ApprovedTemplateSentence, approvedTemplateSentences, ApprovedWording, approvedWording, canonicalJson, ElementLocator, fillTemplate } from './approved-wording'
@@ -232,12 +237,31 @@ export interface ReadingRecord {
 }
 
 /**
+ * **Why a reading says its parts state, or do not state, each cover** — stage 3F, 22 October 2026: the words of his that state a cover
+ * and our reason, and, for a cover the reading says its parts do NOT state, our reason (his reply filed 23 October 2026, item 4: a
+ * sentence requiring a new restart after a loss of possession does not, by itself, say where the original scoring opportunity must
+ * begin). For an administrator's evidence only; what an extract keeps is the reading itself.
+ */
+export interface ReadingExplanation {
+    states: { index: number; statedBy: string; why: string }[]
+    doesNotState: { index: number; why: string }[]
+}
+
+/**
  * **A reading of what a part of an approved entry states**: the indexes of the entry's covers these parts state, or null where no reading
  * is recorded. This module records none (module comment); since stage 3E the serving path hands the PROPOSED record
  * (`approved-wording-readings.ts`), which carries `record` (where it is recorded and its standing), and a test may hand one of its own.
+ * Since stage 3F it may also explain itself (`explain`, the record's words and reasons), and it reads his wording said whole
+ * (`wholeUnitsOf`) as it reads any part.
  */
-export type CoverReading = ((entry: ApprovedWording, units: ExtractUnit[]) => number[] | null) & { record?: ReadingRecord }
+export type CoverReading = ((entry: ApprovedWording, units: ExtractUnit[]) => number[] | null) & {
+    record?: ReadingRecord
+    explain?: (entry: ApprovedWording, units: ExtractUnit[]) => ReadingExplanation | null
+}
 export const NO_RECORDED_READING: CoverReading = () => null
+
+/** The parts of a statement said whole: each of its sentences, whole, in order (stage 3F: his wording said whole is read by these). */
+export const wholeUnitsOf = (text: string): ExtractUnit[] => sentencesOf(text).map((_, sentence) => ({ sentence, part: 'WHOLE_SENTENCE' as const }))
 
 /** A verbatim extract of an approved entry said for this game: DERIVED_FROM_APPROVED, with its source and its cover accounting. */
 export interface DerivedExtract {
@@ -521,6 +545,78 @@ export function extractsFor(game: any, options: { wording?: ApprovedWording[]; r
         }
     }
     return { extracts, withheld }
+}
+
+/**
+ * **What his approved wording said whole states, by the recorded reading** — stage 3F, 22 October 2026. His reply filed 23 October 2026,
+ * item 4: *"The system should evaluate the meaning of the complete overview rather than simply confirm that related words or conditions
+ * appear somewhere."* An entry's covers are the fields it is matched against: what it speaks about. What its words STATE is a reading of
+ * them, as for an extract: the covers the reading recorded for all its sentences, whole, gives it (`wholeUnitsOf`), none where none is
+ * recorded. So an approved sentence said whole never counts as stating a field merely because it cites it.
+ */
+export interface WholeReading {
+    /** The entry, and for an entry said element by element the element it was said for ("{entry}@{element}"). */
+    id: string
+    text: string
+    source: { kind: 'APPROVED_ENTRY'; id: string }
+    /** The entry's covers its words state (by the recorded reading), and the rest; each at the field this game holds it on. */
+    keeps: CoverRef[]
+    leaves: CoverRef[]
+    reading: 'NONE_RECORDED' | 'RECORDED'
+    /** Where that reading is recorded, and its standing (the PROPOSED record), for an administrator; null where none is recorded. */
+    readingRecord: ReadingRecord | null
+    /** The fields its words state: its kept covers' fields. */
+    states: string[]
+    /** The covers its reading says its words do NOT state, each with the reading's reason (for an administrator). */
+    doesNotState: { index: number; row: string; path: string | null; why: string }[]
+}
+
+/**
+ * **What each approved entry said for a game states, said whole** (`WholeReading`): one per saying of each entry (`approvedSentences`),
+ * read by `options.reading` (none recorded by default, as for extracts; the serving path hands the PROPOSED record).
+ */
+export function wholeReadingsFor(game: any, options: { wording?: ApprovedWording[]; reading?: CoverReading } = {}): WholeReading[] {
+    const wording = options.wording ?? approvedWording()
+    const reading = options.reading ?? NO_RECORDED_READING
+    const wholes: WholeReading[] = []
+    for (const entry of wording) {
+        if (!inPlay(game, entry)) continue
+        const units = wholeUnitsOf(entry.sentence)
+        for (const instance of instancesOf(game, entry)) {
+            const paths = coverPaths(game, entry, instance.prefix)
+            const recorded = reading(entry, units)
+            const valid = recorded !== null && recorded.every(index => Number.isInteger(index) && index >= 0 && index < entry.covers.length)
+            const kept = valid ? [...new Set(recorded!)].sort((a, b) => a - b) : []
+            const explanation = valid ? (reading.explain?.(entry, units) ?? null) : null
+            wholes.push({
+                id: `${entry.id}${instance.prefix ? `@${instance.prefix}` : ''}`,
+                text: instance.said.text,
+                source: { kind: 'APPROVED_ENTRY', id: entry.id },
+                keeps: refsOf(entry, kept, paths),
+                leaves: refsOf(
+                    entry,
+                    entry.covers.map((_, index) => index).filter(index => !kept.includes(index)),
+                    paths,
+                ),
+                reading: valid ? 'RECORDED' : 'NONE_RECORDED',
+                readingRecord: valid ? (reading.record ? { ...reading.record } : null) : null,
+                states: [...new Set(kept.map(index => paths[index]).filter((path): path is string => !!path))],
+                doesNotState: (explanation?.doesNotState ?? [])
+                    .filter(left => !kept.includes(left.index) && left.index >= 0 && left.index < entry.covers.length)
+                    .map(left => ({ index: left.index, row: entry.covers[left.index].row, path: paths[left.index] ?? null, why: left.why })),
+            })
+        }
+    }
+    return wholes
+}
+
+/**
+ * The whole reading of the approved entry a Details sentence says (its source entry, its words, and every field it states cited by the
+ * sentence), or null where the sentence is not an entry said for the game.
+ */
+export function wholeReadingOfSentence(wholes: WholeReading[], sentence: { text: string; from: string[] }, source: WordingSource | null): WholeReading | null {
+    if (source?.kind !== 'APPROVED_ENTRY') return null
+    return wholes.find(whole => whole.source.id === source.id && whole.text === sentence.text && whole.states.every(path => sentence.from.includes(path))) ?? null
 }
 
 /** A part of a statement that is not approved wording said whole (`extractStatusOf`): DRAFT, with its parts. */

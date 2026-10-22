@@ -47,6 +47,29 @@
  *     the lexicons.
  *   - **Q7.8 blocks**: the overview says the same words in every block (no sentence is told apart by block), or it is withheld.
  *
+ * **Stage 3F, 22 October 2026: completeness by meaning, and the opposing objectives first.** His reply filed 23 October 2026, item 4: *"An
+ * abbreviation should be accepted only when the overview as a whole preserves the material meaning of the full rule, including relevant
+ * initial conditions, scoring eligibility, and exceptions. [...] The system should evaluate the meaning of the complete overview rather than
+ * simply confirm that related words or conditions appear somewhere."* Item 6: *"a concise explanation that communicates the opposing
+ * objectives immediately, without requiring the coach to read several procedural statements first."* So, in addition:
+ *
+ *   - **Q7.4 by meaning**: his approved wording said whole states only what its recorded reading of all its sentences gives it
+ *     (`derived-wording.ts` `wholeReadingsFor`, re-read here from the game and the reading), nothing without one, never every field it
+ *     cites; it names that reading's record exactly (Q7.3). A verified extract states what its reading keeps and a DRAFT sentence what the
+ *     words of the parts it keeps whole cite, as before. Per team, the group as a whole must state every CONSTITUTIVE and ESSENTIAL field
+ *     (its ways to score, the initial condition, the scoring eligibility, ...) and every exception that is material: a DETAIL whose rule
+ *     follows from conditions (`followsFrom`) is excused by a pointer only where the group states every field those rules class under the
+ *     same way to score. His example is pinned: his first building sentence with his eligibility sentence, and no statement of the
+ *     build-out origin, is refused.
+ *   - **Q7.4 roles** (the 3E review's should-fix 2): no sentence of a team's group states a field another role owns
+ *     (`ScoringRequirements.owners`).
+ *   - **Q7.5 lead**: each group opens with exactly one line (`place: 'LEAD'`) stating a field of the team's first way to score; every other
+ *     sentence is a qualification. A lead of more than one sentence is a NOTE. The coach is served every team's lead before any
+ *     qualification.
+ *   - **Evidence**: for each team, each material element of its full rule (the fields one rule classes on one element), the sentence(s)
+ *     stating it, the pointer where it is left to Coach Details, each sentence citing it whose words are not read as stating it (with the
+ *     reading's reason), and why it is or is not material (`MeaningElement`, in `read` and the administrator's evidence).
+ *
  * Word counts and reading seconds are measured for the administrator as EVIDENCE and never read by the check (his acceptance criteria: *"The
  * reading and explanation times are usability targets, not hard validation gates."*). The coach is served the overview's words and its
  * "full rule" pointers only; statuses, sources, citations and bindings stay in the administrator's draft and evidence.
@@ -56,7 +79,7 @@
 import { findCommunicationStandardViolations } from '../activity/coach-communication-standard'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { ApprovedWording, approvedWording, canonicalJson } from './approved-wording'
-import { ReadingsAccount, recordedReading } from './approved-wording-readings'
+import { coverReadingOf, ReadingsAccount, ReadingsLoad, recordedReading } from './approved-wording-readings'
 import {
     bindingsOfInstruction,
     CoachOverviewDraft,
@@ -65,19 +88,34 @@ import {
     DetailsPointer,
     DetailsSentence,
     draftShorteningsOf,
+    elementPathOf,
     EssentialsLoad,
     essentialsTable,
     failedOverviewDraft,
+    followsFromOf,
     FULL_RULE_LABEL,
+    OverviewClass,
     OverviewSentence,
     PURPOSE_SOURCE,
+    ScoringRequirement,
     ScoringRequirements,
     scoringRequirementsOf,
     ScoringSentence,
     withFullStop,
     wordsIn,
 } from './coach-overview'
-import { CoverReading, DerivedExtract, extractsFor, extractUnusableBecause, ReadingRecord, WithheldExtract, WordingSource, WordingStatus } from './derived-wording'
+import {
+    CoverReading,
+    DerivedExtract,
+    extractUnusableBecause,
+    ReadingRecord,
+    sentencesOf,
+    wholeReadingOfSentence,
+    wholeReadingsFor,
+    WithheldExtract,
+    WordingSource,
+    WordingStatus,
+} from './derived-wording'
 import { namesRole, numbersIn, OBLIGATION_ALLOWLIST, OBLIGATIONS, ROLE_ORDERING, stringsAt } from './fidelity'
 import { Binding, gameReadingOf, Instruction, teamCountPhrases } from './render-concrete-game'
 
@@ -99,11 +137,33 @@ export interface SentenceReading {
     states: string[]
 }
 
-/** The agreement check's verdict, findings, and how it read each block's scoring sentences. */
+/**
+ * **One material element of a team's full rule, and which overview sentence states it** — stage 3F, 22 October 2026 (his reply filed 23
+ * October 2026, item 4: *"the overview as a whole preserves the material meaning of the full rule, including relevant initial conditions,
+ * scoring eligibility, and exceptions"*). The fields one rule of the PROPOSED table classes on one element of the game (a condition, a
+ * role's credit bound, a transition): whether the overview must state it (`material`) and why; the sentences of the group whose words
+ * state its fields (indexes in the group); whether every field is stated; the Details sentence a pointer leads to where it is left to
+ * Coach Details; and each sentence that cites a field of it whose words are not read as stating it, with the reading's reason.
+ */
+export interface MeaningElement {
+    rule: string
+    class: OverviewClass
+    material: boolean
+    element: string
+    way: string | null
+    fields: string[]
+    statedBy: number[]
+    complete: boolean
+    pointer: { section: string; text: string } | null
+    notStatedBy: { sentence: number; why: string }[]
+    because: string
+}
+
+/** The agreement check's verdict, findings, and how it read each block's scoring sentences (since stage 3F, with each team's elements). */
 export interface OverviewCheck {
     verdict: 'PASS' | 'FAIL'
     findings: OverviewFinding[]
-    read: { blockId: string; groups: { group: string; sentences: SentenceReading[] }[] }[]
+    read: { blockId: string; groups: { group: string; sentences: SentenceReading[]; elements: MeaningElement[] }[] }[]
 }
 
 /** Word count and reading seconds — EVIDENCE for the administrator, never a gate. */
@@ -125,13 +185,25 @@ export interface OverviewPointer {
     text: string
 }
 
+/** One line of how the teams score, as the coach receives it: its words and the "full rule" pointer it carries (stage 3F). */
+export interface OverviewLine {
+    text: string
+    fullRule: OverviewPointer | null
+}
+
 /** **The Coach Overview a coach is served**: words and pointers only. Present only where Q7 found no violation in any block. */
 export interface CoachOverview {
     purpose: string | null
     game: string
     parameters: string
-    /** How each team scores, a group per team in the block's role order (one group where the game has no roles). */
-    scoring: { sentences: { text: string; fullRule: OverviewPointer | null }[]; fullRules: OverviewPointer[] }[]
+    /**
+     * How each team scores. Since stage 3F (his reply filed 23 October 2026, item 6: *"a concise explanation that communicates the opposing
+     * objectives immediately, without requiring the coach to read several procedural statements first"*), in the order to present it: one
+     * line per team saying how it scores (`leads`, in the block's role order; one line where the game has no roles), then the
+     * qualifications (each team's, in role order), then the "full rule" pointers no line carries, each once. Was (stages 3D-3E): one group
+     * of sentences per team.
+     */
+    scoring: { leads: OverviewLine[]; qualifications: OverviewLine[]; fullRules: OverviewPointer[] }
 }
 
 /** The overview as presented, with each sentence's status and source, for an administrator (the page's tags; never a coach's). */
@@ -142,8 +214,18 @@ export interface PresentedOverview {
     scoring: {
         group: string
         noun: string | null
-        /** `reading` (stage 3E): for an extract kept by a recorded reading, that record and its label ("reading PROPOSED, awaiting confirmation"). */
-        sentences: { text: string; wording: WordingStatus; source: WordingSource | null; fullRule: (OverviewPointer & { labelStatus: 'DRAFT' }) | null; reading: ReadingRecord | null }[]
+        /**
+         * `reading` (stage 3E): for an extract kept by a recorded reading (since stage 3F also his wording said whole read by one), that
+         * record and its label ("reading PROPOSED, awaiting confirmation"). `place` (stage 3F): the team's lead line, or a qualification.
+         */
+        sentences: {
+            text: string
+            wording: WordingStatus
+            source: WordingSource | null
+            fullRule: (OverviewPointer & { labelStatus: 'DRAFT' }) | null
+            reading: ReadingRecord | null
+            place: 'LEAD' | 'QUALIFICATION'
+        }[]
         fullRules: (OverviewPointer & { labelStatus: 'DRAFT' })[]
     }[]
 }
@@ -157,7 +239,8 @@ export interface OverviewEvidence {
     served: boolean
     verdict: 'PASS' | 'FAIL' | 'NOT_CHECKED'
     findings: OverviewFinding[]
-    table: { source: string; status: string; label: string | null; labelStatus: 'DRAFT' }
+    /** Stage 3F (the 3E review's bookkeeping item): with the draft table's `why` (why it cannot be used, or null). */
+    table: { source: string; status: string; label: string | null; labelStatus: 'DRAFT'; why: string | null }
     readings: ReadingsAccount
     sentences: {
         part: 'purpose' | 'game' | 'parameters' | 'scoring'
@@ -167,9 +250,21 @@ export interface OverviewEvidence {
         source: WordingSource | null
         fullRule: (OverviewPointer & { labelStatus: 'DRAFT' }) | null
         reading: ReadingRecord | null
+        /** Stage 3F: for a scoring sentence, the team's lead line or a qualification; null for the purpose, game and parameters. */
+        place: 'LEAD' | 'QUALIFICATION' | null
     }[]
     fullRules: (OverviewPointer & { labelStatus: 'DRAFT'; group: string })[]
     reading: OverviewReading | null
+    /**
+     * Stage 3F: for each team, each material element of its full rule and the overview sentence(s) stating it, as the agreement check read
+     * the first block (every block says the same words, Q7.8): the sentences by their words; for an element left to Coach Details, the
+     * Details sentence its pointer leads to; and each sentence that cites it without stating it, with the reading's reason.
+     */
+    meaning: {
+        group: string
+        noun: string | null
+        elements: (Omit<MeaningElement, 'statedBy' | 'notStatedBy'> & { statedBy: string[]; notStatedBy: { text: string; why: string }[] })[]
+    }[]
 }
 
 /** What the agreement check reads: the draft, each game with its own Details render, the served Details, and the knowledge it was composed with. */
@@ -203,6 +298,8 @@ interface Read extends SentenceReading {
     statements: Statement[]
     /** `APPROVED_WHOLE`: his approved wording said whole, verified; `EXTRACT`: a verified extract of it; `DRAFT`: everything else. */
     words: 'APPROVED_WHOLE' | 'EXTRACT' | 'DRAFT'
+    /** Stage 3F: the fields his wording said whole cites and its recorded reading says it does not state, with the reading's reason. */
+    omissions: { path: string | null; why: string }[]
 }
 
 /** The member id a path names in a collection (`objectives[ID].team` gives ID), or null where the path is not in that collection. */
@@ -421,12 +518,15 @@ export function checkOverview(input: OverviewCheckInput): OverviewCheck {
             if (exact && exact.instruction.section === ref.section && exact.instruction.text === ref.text) return exact
             return details.find(entry => entry.instruction.section === ref.section && entry.instruction.text === ref.text) ?? null
         }
+        /** Stage 3F: what each approved entry said for this block states, said whole, read here by the recorded reading (never the draft's copy). */
+        const wholes = wholeReadingsFor(game, { wording, reading: recorded })
         /** What a scoring sentence's words are and state, read here (module comment, Q7.4), with the status findings (Q7.3). */
         const readSentence = (sentence: ScoringSentence, what: string): Read => {
-            const unverified = (statements: Statement[]): Read => ({ text: sentence.text, form: 'UNVERIFIED', states: [], statements, words: 'DRAFT' })
+            const unverified = (statements: Statement[]): Read => ({ text: sentence.text, form: 'UNVERIFIED', states: [], statements, words: 'DRAFT', omissions: [] })
             const referenced = detailsAt(sentence.details)
-            // Stage 3E: only an extract kept by a recorded reading names one (its label for an administrator); every other sentence names none.
-            if (sentence.wording !== 'DERIVED_FROM_APPROVED' && (sentence.reading ?? null) !== null) violation('7.3', blockId, `${what} names a reading of his wording (${JSON.stringify(sentence.reading)}), and only an extract kept by a recorded reading has one`)
+            // Stage 3E: only his wording read by a recorded reading names one (its label for an administrator): an extract kept by one, and
+            // since stage 3F his wording said whole (checked in its branch below); a DRAFT sentence names none.
+            if (sentence.wording === 'DRAFT' && (sentence.reading ?? null) !== null) violation('7.3', blockId, `${what} names a reading of his wording (${JSON.stringify(sentence.reading)}), and only his wording read by a recorded reading has one`)
             /** Q7.2 (stage 3E, the 3D review's should-fix 4): a Details sentence said whole binds exactly what that sentence binds, in order. */
             const sameBindings = (instruction: Instruction, kind: string) => {
                 const own = bindingsOfInstruction(instruction)
@@ -441,7 +541,21 @@ export function checkOverview(input: OverviewCheckInput): OverviewCheck {
                     return unverified([{ text: sentence.text, from: sentence.from }])
                 }
                 sameBindings(whole.instruction, 'his approved wording said whole')
-                return { text: sentence.text, form: 'WHOLE', states: [...whole.instruction.from], statements: whole.instruction.parts ?? [], words: 'APPROVED_WHOLE' }
+                // Stage 3F (his reply filed 23 October 2026, item 4): his wording said whole states only what its recorded reading gives it,
+                // never every field it cites; with no reading it states nothing. It names that reading's record, exactly.
+                const read = wholeReadingOfSentence(wholes, whole.instruction, whole.source)
+                const recordedWhole = read !== null && read.reading === 'RECORDED'
+                const expected = recordedWhole ? read!.readingRecord : null
+                if (canonicalJson(sentence.reading ?? null) !== canonicalJson(expected)) violation('7.3', blockId, `${what} names the reading ${JSON.stringify(sentence.reading ?? null)}, and his wording said whole is read by ${JSON.stringify(expected)}`)
+                if (!recordedWhole) note('7.4', blockId, `${what} is his wording said whole, and no reading of what it states is recorded, so it is read as stating nothing`)
+                return {
+                    text: sentence.text,
+                    form: 'WHOLE',
+                    states: recordedWhole ? [...read!.states] : [],
+                    statements: whole.instruction.parts ?? [],
+                    words: 'APPROVED_WHOLE',
+                    omissions: (read?.doesNotState ?? []).map(left => ({ path: left.path, why: left.why })),
+                }
             }
             if (sentence.wording === 'DERIVED_FROM_APPROVED') {
                 const extract = extracts.find(entry => entry.id === sentence.extractId)
@@ -461,7 +575,7 @@ export function checkOverview(input: OverviewCheckInput): OverviewCheck {
                     violation('7.3', blockId, `${what} is marked DERIVED_FROM_APPROVED and ${problems.join('; ')}`)
                     return unverified([{ text: sentence.text, from: sentence.from }])
                 }
-                return { text: sentence.text, form: 'EXTRACT', states: extract.keeps.map(ref => ref.path).filter((path): path is string => !!path), statements: [{ text: sentence.text, from: sentence.from }], words: 'EXTRACT' }
+                return { text: sentence.text, form: 'EXTRACT', states: extract.keeps.map(ref => ref.path).filter((path): path is string => !!path), statements: [{ text: sentence.text, from: sentence.from }], words: 'EXTRACT', omissions: [] }
             }
             if (sentence.wording !== 'DRAFT') {
                 violation('7.3', blockId, `${what} carries the status ${JSON.stringify(sentence.wording)}, which is none of the three`)
@@ -474,7 +588,8 @@ export function checkOverview(input: OverviewCheckInput): OverviewCheck {
                 if (whole.wording === 'APPROVED') violation('7.3', blockId, `${what} is his approved wording and is marked DRAFT`)
                 if (!sameSet(sentence.from, whole.instruction.from)) violation('7.1', blockId, `${what} is a Details sentence said whole and cites other paths than it does`)
                 sameBindings(whole.instruction, 'a Details sentence said whole')
-                return { text: sentence.text, form: 'WHOLE', states: [...whole.instruction.from], statements: whole.instruction.parts ?? [{ text: whole.instruction.text, from: whole.instruction.from }], words: 'DRAFT' }
+                // His wording marked DRAFT (refused above) states nothing: its meaning is its reading's, never its citations' (stage 3F).
+                return { text: sentence.text, form: 'WHOLE', states: whole.wording === 'APPROVED' ? [] : [...whole.instruction.from], statements: whole.instruction.parts ?? [{ text: whole.instruction.text, from: whole.instruction.from }], words: 'DRAFT', omissions: [] }
             }
             // A cut of a DRAFT Details sentence: it states only what the parts it keeps whole cite (the cut itself is the composer's rule).
             for (const entry of [referenced, ...details]) {
@@ -497,7 +612,7 @@ export function checkOverview(input: OverviewCheckInput): OverviewCheck {
                 if (!sameSet(sentence.from, states)) violation('7.1', blockId, `${what} is a cut of a Details sentence and cites ${JSON.stringify(sentence.from)}, where the parts it keeps whole cite ${JSON.stringify(states)}`)
                 // Stage 3E (with the whole-sentence rule above): a cut binds exactly what the parts it keeps whole bind, in order.
                 if (canonicalJson(sentence.bindings) !== canonicalJson(keptBindings)) violation('7.2', blockId, `${what} is a cut of a Details sentence and binds ${JSON.stringify(sentence.bindings)}, where the parts it keeps whole bind ${JSON.stringify(keptBindings)}`)
-                return { text: sentence.text, form: 'SHORTENING', states, statements: kept, words: 'DRAFT' }
+                return { text: sentence.text, form: 'SHORTENING', states, statements: kept, words: 'DRAFT', omissions: [] }
             }
             note('7.4', blockId, `${what} is neither a Details sentence of this block nor a cut of one: what its words state cannot be checked, so it is read as stating nothing`)
             return unverified([{ text: sentence.text, from: sentence.from }])
@@ -540,16 +655,93 @@ export function checkOverview(input: OverviewCheckInput): OverviewCheck {
                 lexicon(what, sentence.text, reading.statements, reading.words, sentence.from)
                 return reading
             })
-            blockRead.groups.push({ group: id, sentences: reads.map(({ text, form, states }) => ({ text, form, states })) })
             const stated = new Set(reads.flatMap(reading => reading.states))
             const pointers = [...group.sentences.flatMap(sentence => (sentence.fullRule ? [sentence.fullRule] : [])), ...group.fullRules]
             const resolved = pointers.map((pointer, n) => resolve(pointer, `the ${noun}'s "${FULL_RULE_LABEL}" pointer ${n + 1}`)).filter((entry): entry is DetailsSentence => entry !== null)
             const requirements = spec.requirements[id] ?? []
+            /** Stage 3F: the conditions an exception follows from that this group does not state (none, or null where it follows from none). */
+            const ungoverned = (requirement: ScoringRequirement): string[] | null => {
+                const governing = followsFromOf(requirement, requirements, load.table!)
+                return governing === null ? null : governing.filter(entry => !entry.fields.length || entry.fields.some(field => !stated.has(field.path))).map(entry => entry.rule)
+            }
             for (const requirement of requirements) {
                 if (stated.has(requirement.path)) continue
-                if (requirement.class !== 'DETAIL') violation('7.4', blockId, `${requirement.path} (${requirement.class}, rule ${requirement.rule}) is stated by no sentence of the ${noun}'s group: a pointer never excuses it`)
+                if (requirement.class !== 'DETAIL') {
+                    violation('7.4', blockId, `${requirement.path} (${requirement.class}, rule ${requirement.rule}) is stated by no sentence of the ${noun}'s group: a pointer never excuses it`)
+                    continue
+                }
+                // Stage 3F (his reply filed 23 October 2026, item 4): an exception is left to Coach Details only where the group states the
+                // condition it follows from; otherwise it is material, and a pointer does not excuse it.
+                const unstated = ungoverned(requirement)
+                if (unstated && unstated.length) violation('7.4', blockId, `${requirement.path} (DETAIL, rule ${requirement.rule}) is material in the ${noun}'s group: it follows from ${unstated.join(' and ')}, which the group does not state, so a pointer does not excuse it`)
                 else if (!resolved.some(target => target.instruction.from.includes(requirement.path))) violation('7.4', blockId, `${requirement.path} (DETAIL, rule ${requirement.rule}) is left out of the ${noun}'s group with no "${FULL_RULE_LABEL}" pointer to a Details sentence citing it`)
             }
+            // ── Stage 3F (the 3E review's should-fix 2): a team's group states only how that team scores, never a field another role owns ──
+            reads.forEach((reading, n) => {
+                for (const path of reading.states) {
+                    const own = spec.owners[path] ?? []
+                    if (own.length && !own.includes(id)) violation('7.4', blockId, `the ${noun}'s sentence ${n + 1} ${quoted(group.sentences[n].text)} states ${path}, which is how the ${own.map(role => spec.nouns[role] ?? role).join(' and ')} scores: a team's group says only how that team scores`)
+                }
+            })
+            // ── Stage 3F (his item 6): the group opens with exactly one line saying how the team scores (its first way to score); the rest qualify it ──
+            const firstWay = requirements.find(requirement => requirement.class === 'CONSTITUTIVE')?.way ?? null
+            group.sentences.forEach((sentence, n) => {
+                if (sentence.place !== 'LEAD' && sentence.place !== 'QUALIFICATION') violation('7.5', blockId, `the ${noun}'s sentence ${n + 1} is placed ${JSON.stringify(sentence.place)}, neither the line saying how the team scores nor a qualification`)
+            })
+            const leads = group.sentences.flatMap((sentence, n) => (sentence.place === 'LEAD' ? [n] : []))
+            if (leads.length !== 1 || leads[0] !== 0) violation('7.5', blockId, `the ${noun}'s group opens with ${leads.length === 1 ? 'a qualification' : `${leads.length} lines saying how it scores`}, where exactly one line, first, says how the team scores`)
+            else if (reads.length) {
+                const shows = reads[0].states.some(path => requirements.some(requirement => requirement.path === path && requirement.class === 'CONSTITUTIVE' && requirement.way === firstWay))
+                if (!shows) violation('7.5', blockId, `the ${noun}'s first line ${quoted(group.sentences[0].text)} states no field of the team's first way to score, so it does not say how the team scores`)
+                const count = sentencesOf(group.sentences[0].text).length
+                if (count !== 1) note('7.5', blockId, `the ${noun}'s first line is ${count} sentences, where one would say how the team scores at once`)
+            }
+            // ── Stage 3F: each material element of the team's full rule, and the sentence(s) stating it (the administrator's evidence) ──
+            const elements: MeaningElement[] = []
+            const byElement = new Map<string, ScoringRequirement[]>()
+            for (const requirement of requirements) {
+                const key = canonicalJson([requirement.rule, elementPathOf(requirement.path)])
+                byElement.set(key, [...(byElement.get(key) ?? []), requirement])
+            }
+            for (const fields of byElement.values()) {
+                const first = fields[0]
+                const unstated = ungoverned(first)
+                const material = first.class !== 'DETAIL' || (unstated !== null && unstated.length > 0)
+                const complete = fields.every(field => stated.has(field.path))
+                const statedBy = reads.flatMap((reading, n) => (fields.some(field => reading.states.includes(field.path)) ? [n] : []))
+                const target = complete ? null : (resolved.find(entry => fields.filter(field => !stated.has(field.path)).every(field => entry.instruction.from.includes(field.path))) ?? null)
+                const notStatedBy = group.sentences.flatMap((sentence, n) => {
+                    const cited = fields.filter(field => sentence.from.includes(field.path) && !reads[n].states.includes(field.path))
+                    if (!cited.length) return []
+                    const omission = reads[n].omissions.find(left => cited.some(field => field.path === left.path))
+                    return [{ sentence: n, why: omission?.why ?? 'its words are not read as stating it' }]
+                })
+                const governing = followsFromOf(first, requirements, load.table!)
+                const because =
+                    first.class === 'CONSTITUTIVE'
+                        ? 'a way the team scores, or part of one: the overview states it'
+                        : first.class === 'ESSENTIAL'
+                          ? 'a qualification the PROPOSED table holds material: the overview states it, and a pointer never excuses it'
+                          : material
+                            ? `an exception the PROPOSED table leaves to Coach Details only where the overview states the condition it follows from (${unstated!.join(' and ')}); this group does not, so it is material`
+                            : governing
+                              ? `an exception that follows from ${governing.map(entry => entry.rule).join(' and ')}, which this group states: left to Coach Details behind a "${FULL_RULE_LABEL}" pointer`
+                              : `left to Coach Details behind a "${FULL_RULE_LABEL}" pointer (PROPOSED table)`
+                elements.push({
+                    rule: first.rule,
+                    class: first.class,
+                    material,
+                    element: elementPathOf(first.path),
+                    way: first.way,
+                    fields: fields.map(field => field.path),
+                    statedBy,
+                    complete,
+                    pointer: target ? { section: target.instruction.section, text: target.instruction.text } : null,
+                    notStatedBy,
+                    because,
+                })
+            }
+            blockRead.groups.push({ group: id, sentences: reads.map(({ text, form, states }) => ({ text, form, states })), elements })
             // ── Q7.5: every way to score the group speaks of, shown by a stated CONSTITUTIVE field under it ──
             for (const way of [...new Set(requirements.map(requirement => requirement.way).filter((entry): entry is string => !!entry))]) {
                 const under = requirements.filter(requirement => requirement.way === way && requirement.class === 'CONSTITUTIVE')
@@ -572,7 +764,7 @@ export function checkOverview(input: OverviewCheckInput): OverviewCheck {
         return canonicalJson({
             game: own?.game?.text ?? null,
             parameters: own?.parameters?.text ?? null,
-            scoring: groups.map(group => [group.group, group.withheld, group.sentences.map(sentence => [sentence.text, sentence.wording, sentence.source, pointerWords(sentence.fullRule)]), group.fullRules.map(pointerWords)]),
+            scoring: groups.map(group => [group.group, group.withheld, group.sentences.map(sentence => [sentence.text, sentence.wording, sentence.source, pointerWords(sentence.fullRule), sentence.place ?? null]), group.fullRules.map(pointerWords)]),
         })
     }
     const differing = ids.filter(id => wordsOf(id) !== wordsOf(ids[0]))
@@ -600,23 +792,33 @@ export function presentedOf(draft: CoachOverviewDraft): PresentedOverview | null
                 source: sentence.source ? { ...sentence.source } : null,
                 fullRule: sentence.fullRule ? pointerOf(sentence.fullRule) : null,
                 reading: sentence.reading ? { ...sentence.reading } : null,
+                place: sentence.place,
             })),
             fullRules: group.fullRules.map(pointerOf),
         })),
     }
 }
 
-/** **What the coach is served**: the presented overview's words and pointers, nothing else (no status, source, citation or binding). */
+/**
+ * **What the coach is served**: the presented overview's words and pointers, nothing else (no status, source, citation or binding). Since
+ * stage 3F in the order to present it: every team's lead line, then the qualifications, then each pointer no line carries, once.
+ */
 export function coachOverviewOf(presented: PresentedOverview): CoachOverview {
     const pointerOf = (pointer: OverviewPointer): OverviewPointer => ({ label: pointer.label, section: pointer.section, text: pointer.text })
+    const lineOf = (sentence: PresentedOverview['scoring'][number]['sentences'][number]): OverviewLine => ({ text: sentence.text, fullRule: sentence.fullRule ? pointerOf(sentence.fullRule) : null })
+    const leads = presented.scoring.flatMap(group => group.sentences.filter(sentence => sentence.place === 'LEAD').map(lineOf))
+    const qualifications = presented.scoring.flatMap(group => group.sentences.filter(sentence => sentence.place !== 'LEAD').map(lineOf))
+    const same = (a: OverviewPointer, b: OverviewPointer) => a.section === b.section && a.text === b.text
+    const fullRules: OverviewPointer[] = []
+    for (const pointer of presented.scoring.flatMap(group => group.fullRules)) {
+        if ([...leads, ...qualifications].some(line => line.fullRule && same(line.fullRule, pointer)) || fullRules.some(held => same(held, pointer))) continue
+        fullRules.push(pointerOf(pointer))
+    }
     return {
         purpose: presented.purpose?.text ?? null,
         game: presented.game.text,
         parameters: presented.parameters.text,
-        scoring: presented.scoring.map(group => ({
-            sentences: group.sentences.map(sentence => ({ text: sentence.text, fullRule: sentence.fullRule ? pointerOf(sentence.fullRule) : null })),
-            fullRules: group.fullRules.map(pointerOf),
-        })),
+        scoring: { leads, qualifications, fullRules },
     }
 }
 
@@ -652,9 +854,9 @@ export function overviewEvidenceOf(draft: CoachOverviewDraft): OverviewEvidence 
     const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value))
     const sentences: OverviewEvidence['sentences'] = presented
         ? [
-              ...(presented.purpose ? [{ part: 'purpose' as const, group: null, text: presented.purpose.text, wording: presented.purpose.wording, source: copy(presented.purpose.source), fullRule: null, reading: null }] : []),
-              { part: 'game' as const, group: null, text: presented.game.text, wording: presented.game.wording, source: null, fullRule: null, reading: null },
-              { part: 'parameters' as const, group: null, text: presented.parameters.text, wording: presented.parameters.wording, source: null, fullRule: null, reading: null },
+              ...(presented.purpose ? [{ part: 'purpose' as const, group: null, text: presented.purpose.text, wording: presented.purpose.wording, source: copy(presented.purpose.source), fullRule: null, reading: null, place: null }] : []),
+              { part: 'game' as const, group: null, text: presented.game.text, wording: presented.game.wording, source: null, fullRule: null, reading: null, place: null },
+              { part: 'parameters' as const, group: null, text: presented.parameters.text, wording: presented.parameters.wording, source: null, fullRule: null, reading: null, place: null },
               ...presented.scoring.flatMap(group =>
                   group.sentences.map(sentence => ({
                       part: 'scoring' as const,
@@ -664,20 +866,38 @@ export function overviewEvidenceOf(draft: CoachOverviewDraft): OverviewEvidence 
                       source: sentence.source ? copy(sentence.source) : null,
                       fullRule: sentence.fullRule ? copy(sentence.fullRule) : null,
                       reading: sentence.reading ? copy(sentence.reading) : null,
+                      place: sentence.place,
                   })),
               ),
           ]
         : []
     const table = draft.scoring.table
+    // Stage 3F: each team's material elements as the check read the first block, its sentences by their words.
+    const firstRead = draft.check?.read[0]
+    const firstGroups = draft.scoring.blocks.find(block => block.blockId === firstRead?.blockId)?.groups ?? []
+    const meaning: OverviewEvidence['meaning'] = (firstRead?.groups ?? []).map(read => {
+        const composed = firstGroups.find(group => group.group === read.group)
+        const textOf = (n: number) => composed?.sentences[n]?.text ?? read.sentences[n]?.text ?? ''
+        return {
+            group: read.group,
+            noun: composed?.noun ?? null,
+            elements: read.elements.map(element => ({
+                ...copy(element),
+                statedBy: element.statedBy.map(textOf),
+                notStatedBy: element.notStatedBy.map(entry => ({ text: textOf(entry.sentence), why: entry.why })),
+            })),
+        }
+    })
     return {
         served: draft.served,
         verdict: draft.check ? draft.check.verdict : 'NOT_CHECKED',
         findings: draft.check ? draft.check.findings.map(finding => ({ ...finding })) : [],
-        table: { source: table.source, status: table.status, label: table.label, labelStatus: table.labelStatus },
+        table: { source: table.source, status: table.status, label: table.label, labelStatus: table.labelStatus, why: table.why },
         readings: copy(draft.scoring.readings),
         sentences,
         fullRules: presented ? presented.scoring.flatMap(group => group.fullRules.map(pointer => ({ group: group.group, ...copy(pointer) }))) : [],
         reading: draft.reading ? copy(draft.reading) : null,
+        meaning,
     }
 }
 
@@ -703,6 +923,8 @@ export function overviewForServing(input: {
         essentials?: EssentialsLoad
         wording?: ApprovedWording[]
         reading?: CoverReading
+        /** Stage 3F (the 3E review's bookkeeping item): a record of readings, read as the reading where no reading is handed in. */
+        readings?: ReadingsLoad
         extractsOf?: (game: any) => { extracts: DerivedExtract[]; withheld: WithheldExtract[] }
         lookup?: (id: string) => Record<string, unknown> | undefined
     }
@@ -710,11 +932,12 @@ export function overviewForServing(input: {
     const options = input.options ?? {}
     const wording = options.wording ?? approvedWording()
     // Stage 3E: the PROPOSED record of what parts of his wording state, for the extracts and the check alike (a test may hand another).
-    const reading = options.reading ?? recordedReading()
+    // Stage 3F: the same reading reads his wording said whole, and the draft's account describes it (`readings`, or the reading's record).
+    const reading = options.reading ?? (options.readings ? coverReadingOf(options.readings, wording) : recordedReading())
     const message = (error: unknown) => (error instanceof Error ? error.message : String(error))
     let draft: CoachOverviewDraft
     try {
-        draft = coachOverviewDraftOf(input.goalId, input.games, options.extractsOf ?? (game => extractsFor(game, { wording, reading })), { essentials: options.essentials, wording })
+        draft = coachOverviewDraftOf(input.goalId, input.games, options.extractsOf, { essentials: options.essentials, wording, reading: options.reading, readings: options.readings })
     } catch (error) {
         draft = failedOverviewDraft(message(error))
     }
