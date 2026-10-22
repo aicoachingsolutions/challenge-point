@@ -568,8 +568,10 @@ test('11. hardening H1, stage 2G: where the markings stay block by block, an adm
     // Nor in the activity the administrator is served: only the evidence beside it says it; the two answers differ by the evidence alone
     // (and, since stage 3A, the admin-only overview draft).
     assert.ok(!JSON.stringify(admin.rendered).includes(FALLBACK))
-    const { evidence: _evidence, overviewDraft: _overview, ...rest } = admin
+    // Re-pointed 22 October 2026 (stage 5A): and the admin-only diagram draft.
+    const { evidence: _evidence, overviewDraft: _overview, diagramDraft: _diagram, ...rest } = admin
     assert.ok(_overview && !('overviewDraft' in coach))
+    assert.ok(_diagram && !('diagramDraft' in coach))
     assert.deepEqual(rest, coach)
     // The provenance of the moving marks: his general rule, a general mechanism, and our reading of the blocks' edges.
     const instruction = admin.evidence!.sections.instructions.find(entry => entry.text === MOVED_EXCHANGE)!

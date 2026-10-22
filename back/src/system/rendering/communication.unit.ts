@@ -307,9 +307,13 @@ test('2. key identity: the draft reaches the administrator\'s review answer and 
     // Re-pointed 21 October 2026 (stage 3A): the administrator's served answer also carries the Coach Overview's parts as computed for
     // review (`overviewDraft`, admin-only until stage 3D serves the overview); the coach's carries neither, and nothing else differs.
     assert.ok(!('overviewDraft' in coachServed) && !!adminServed.overviewDraft, 'the overview draft is the administrator\'s')
-    const { evidence: servedEvidence, overviewDraft: servedOverview, ...servedRest } = served
-    assert.ok(servedEvidence && servedOverview)
-    assert.deepEqual(servedRest, servedPlain, 'the served review answer is the coach\'s answer plus the evidence and the overview draft')
+    // Re-pointed 22 October 2026 (stage 5A): the administrator's served answer also carries the field diagram's model and agreement check
+    // (`diagramDraft`, admin-only until stage 5B serves the diagram); the coach's does not, and nothing else differs.
+    assert.ok(!('diagramDraft' in coachServed) && !!adminServed.diagramDraft, 'the diagram draft is the administrator\'s')
+    const { evidence: servedEvidence, overviewDraft: servedOverview, diagramDraft: servedDiagram, ...servedRest } = served
+    assert.ok(servedEvidence && servedOverview && servedDiagram)
+    assert.ok(!('diagramDraft' in servedPlain))
+    assert.deepEqual(servedRest, servedPlain, 'the served review answer is the coach\'s answer plus the evidence, the overview draft and the diagram draft')
     assert.deepEqual(adminServed.rendered, coachServed.rendered)
     // A served activity never carries a draft, even when asked: a draft belongs to a refusal at communication only.
     for (const demonstration of MECHANISM_DEMONSTRATIONS) {

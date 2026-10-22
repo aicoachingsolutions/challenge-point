@@ -59,6 +59,7 @@ import { allocationPrinciple, authorizationLists, contextManipulationRelationshi
 import { applyRealizationDeferrals } from '../derivation/realization-deferral'
 import type { ConstraintAuthority, ConstraintPoolAccount } from '../test-library/types'
 import { CoachOverviewDraft, failedOverviewDraft } from './coach-overview'
+import { failedDiagramDraft, FieldDiagramDraft, fieldDiagramDraftOf } from './field-diagram'
 import { CoachOverview, OverviewEvidence, overviewEvidenceOf, overviewForServing, OverviewOutcome } from './overview-fidelity'
 import { contextScoringFindings, EPISODE_REACHABLE_CHECK } from './context-scoring-guard'
 import { checkFidelity, FidelityFinding } from './fidelity'
@@ -283,6 +284,15 @@ export interface ServedActivity {
      * The diagram is a later stage.
      */
     overview?: CoachOverview
+    /**
+     * **The field diagram as a model, and its agreement check, for an administrator only** — stage 5A, 22 October 2026
+     * (`field-diagram.ts`). His reply filed 22 October 2026, item 1, puts *"a simple diagram"* in the Coach Overview; his reply filed 23
+     * October 2026, item 5, says what it shows and when missing information may prevent it. Computed from the same games the activity was
+     * rendered from, only by the review build with drafts, for every served activity; checked against each block's Coach Details. DRAWN
+     * where it agrees, WITHHELD with every finding otherwise; it never decides whether an activity is served. Not served to a coach in this
+     * stage (stage 5B serves and draws it). Every word is DRAFT except his terms "marked line" and "target zone".
+     */
+    diagramDraft?: FieldDiagramDraft
 }
 
 /** The role blocks of a served activity, for the technical account (stage K3). */
@@ -1086,6 +1096,19 @@ function build(
      * on the register's roles row is even asked. A game establishing part of a role exchange is refused here.
      */
     const roleIndex = indexRegister(input.register)
+    /**
+     * Stage 5A: the field diagram's model and agreement check (`field-diagram.ts`), for an administrator's review only (`diagramDraft`), read
+     * from the games as served and held to each block's Details, the Details a coach is served and the served role-block account. Whatever
+     * fails, including the computation itself, withholds the diagram only: the activity is served or refused exactly as without it.
+     */
+    const diagramKeys = (games: { blockId: string; holders: Record<string, string>; fixture: any; rendered: Instruction[] }[], served: Instruction[], roleBlocks: { blockId: string; holders: Record<string, string> }[] | null): Partial<ServedActivity> => {
+        if (!review.includeDrafts) return {}
+        try {
+            return { diagramDraft: fieldDiagramDraftOf({ session, games, served, roleBlocks, index: roleIndex }) }
+        } catch (error) {
+            return { diagramDraft: failedDiagramDraft(error instanceof Error ? error.message : String(error)) }
+        }
+    }
     const rolesRow = roleIndex.roleBlocks?.rolesRow
     if (rolesRow && (input.contracts as LoadedContract[]).some(contract => (contract.items ?? []).some(item => String(item.row) === rolesRow))) {
         const base: any = runStages0to5(input)
@@ -1259,6 +1282,12 @@ function build(
                     ...((evidence => (evidence ? { evidence } : {}))(evidenceOf('served', overview.evidence))),
                     // Stage 3D: the overview where it agrees (every viewer); its draft and the check's findings for an administrator only.
                     ...overviewKeys(overview),
+                    // Stage 5A: the diagram's model and agreement check, for an administrator only.
+                    ...diagramKeys(
+                        games.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, fixture: entry.fixture, rendered: entry.rendered.instructions })),
+                        composed.instructions,
+                        built.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders } })),
+                    ),
                 },
             )
         }
@@ -1291,7 +1320,7 @@ function build(
     // Stage 3D: the overview of the one game, checked against its Details (which are what a coach is served).
     const overview = overviewOf([{ blockId: ONE_GAME, fixture: one.fixture, rendered: one.rendered }], one.rendered.instructions)
     const evidence = reviewEvidenceFor(review, goalSelection, account, roleIndex, session, 'served', one.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.contracts, rendered: one.rendered, ...one.evidence }], null, overview.evidence)
-    return serve(one, { ...(evidence ? { evidence } : {}), ...overviewKeys(overview) })
+    return serve(one, { ...(evidence ? { evidence } : {}), ...overviewKeys(overview), ...diagramKeys([{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, rendered: one.rendered.instructions }], one.rendered.instructions, null) })
 }
 
 /** The block id the review evidence gives a game not played in role blocks. */
