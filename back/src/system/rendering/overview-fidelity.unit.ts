@@ -47,6 +47,7 @@ import { ApprovedWording, approvedWording } from './approved-wording'
 import { buildActivity, buildActivityForReview, buildActivityUnderAuthorizationRecords, buildActivityWithFixture, RefusedActivity, ServedActivity } from './build-activity'
 import { CoachOverviewDraft, coachOverviewDraftOf, DetailsPointer, essentialsLoadOf, essentialsTable, FULL_RULE_LABEL, ScoringGroup, ScoringSentence } from './coach-overview'
 import { CoverReading, extractsFor, NO_RECORDED_READING } from './derived-wording'
+import { OBLIGATIONS, ROLE_ORDERING } from './fidelity'
 import { MECHANISM_DEMONSTRATIONS } from './mechanism-demonstrations'
 import { checkOverview, OverviewCheck, OverviewCheckInput, overviewEvidenceOf, overviewForServing } from './overview-fidelity'
 import { Instruction, renderConcreteGame } from './render-concrete-game'
@@ -746,6 +747,11 @@ test("stage 3E: the evidence is the draft's, pointers and labels included; a rea
     assert.deepEqual(evidence.fullRules.map(p => [p.group, p.text, p.label, p.labelStatus]), [['BUILDING', 'Each score is worth 1 point', FULL_RULE_LABEL, 'DRAFT'], ['PRESSING', 'Each score is worth 1 point', FULL_RULE_LABEL, 'DRAFT']])
     // Each extract built on the PROPOSED record is labelled so; nothing else is.
     assert.deepEqual(evidence.sentences.filter(s => s.reading).map(s => [s.text, s.reading!.label, s.reading!.status]), [[OVERVIEW_4, 'reading PROPOSED, awaiting confirmation', 'PROPOSED'], [OVERVIEW_8, 'reading PROPOSED, awaiting confirmation', 'PROPOSED']])
+    // Q7.7 exempts a verified extract from the general obligation and ordering lexicons (his words verbatim; the role rule still holds it).
+    // The two extracts served since stage 3E hold no word of either lexicon, so the exemption changes nothing for them today.
+    const derived = evidence.sentences.filter(s => s.wording === 'DERIVED_FROM_APPROVED')
+    assert.equal(derived.length, 2)
+    for (const sentence of derived) assert.ok(![...OBLIGATIONS, ...ROLE_ORDERING].some(word => word.test(sentence.text)), sentence.text)
     // Q7.3: his eligibility sentence (said whole) naming a reading is refused; an extract naming none, though its extract is kept by one, too.
     const labelled = everyBlock(SERVED_DRAFT, groups => (groups[0].sentences[1].reading = { ...groups[0].sentences[0].reading! }))
     assertRefused(check(labelled, PROD.games, PROD.served), '7.3', 'names a reading of his wording', 'his whole sentence labelled')
