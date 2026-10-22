@@ -157,9 +157,12 @@ test('T1. the A01 overview agrees with Details in both blocks and is served to c
         const draft = admin.overviewDraft!
         assertPasses(draft.check!, what)
         assert.deepEqual(violations(draft.check!), [], what)
-        assert.ok(draft.check!.findings.some(f => f.severity === 'NOTE' && f.what.includes('PROPOSED essentials table')), what)
-        // Stage 3E: and a NOTE that its words of his are read by the PROPOSED readings record, awaiting his confirmation.
-        assert.ok(draft.check!.findings.some(f => f.severity === 'NOTE' && f.question === '7.3' && f.what.includes('by a PROPOSED reading of his wording (docs/audits/approved-wording-readings.json)')), what)
+        // Re-pointed 24 October 2026 (C1, his reply filed 24 October 2026, items 1 and 2): a NOTE naming the rules of the partly approved
+        // table still PROPOSED, and one that its words of his are read by readings he approved; none says a PROPOSED reading. Was: a NOTE on
+        // the PROPOSED essentials table and one on the PROPOSED readings record.
+        assert.ok(draft.check!.findings.some(f => f.severity === 'NOTE' && f.what.includes('partly approved essentials table: he approved EXCLUSION_CONDITION, ALSO_COUNTS_EXCLUSION; these rules remain PROPOSED: EVERY_WAY_TO_SCORE')), what)
+        assert.ok(draft.check!.findings.some(f => f.severity === 'NOTE' && f.question === '7.3' && f.what.includes('by readings of his wording he approved (docs/audits/approved-wording-readings.json)')), what)
+        assert.ok(!draft.check!.findings.some(f => f.what.includes('by a PROPOSED reading of his wording')), what)
         assert.equal(draft.served, true, what)
         assert.ok(admin.overview && coach.overview, `${what}: served`)
         assert.deepEqual(coach.overview, admin.overview, `${what}: the coach and the administrator are served the same overview`)
@@ -613,7 +616,9 @@ test('an overview failure withholds only the overview: the activity is served ex
     assert.equal(unusable.overview, null)
     assert.ok(anyViolation(unusable.draft.check!, '7.0', 'the essentials table cannot be used'))
     // Stage 3F (the 3E review's bookkeeping item): the evidence carries the table's why.
-    assert.ok(unusable.evidence.table.why && unusable.evidence.table.why.includes('it says APPROVED and carries no approvedBy'), JSON.stringify(unusable.evidence.table))
+    // Re-pointed 24 October 2026 (C1: approval is per rule, so a table with no rules is refused for that). Was: "it says APPROVED and
+    // carries no approvedBy".
+    assert.ok(unusable.evidence.table.why && unusable.evidence.table.why.includes('it has no rules'), JSON.stringify(unusable.evidence.table))
     const throwing = overviewForServing({
         goalId: 'A01',
         games: PROD.games,
@@ -677,9 +682,10 @@ test('the coach receives words and "full rule" pointers only; every pointer lead
     assert.equal(new Set(pointers.map(pointer => `${pointer.section}|${pointer.text}`)).size, pointers.length)
     // The administrator sees the same overview, with each sentence's status in the draft (never on the coach's). Re-pointed 22 October 2026
     // (stage 3F): his second building sentence is an extract, and his eligibility sentence said whole names the PROPOSED record it is read
-    // by. Was (stage 3E): A01-W1:s1, A01-W3 (no reading), the restart cut, the pressing cut, A01-W2:c1.
+    // by. Was (stage 3E): A01-W1:s1, A01-W3 (no reading), the restart cut, the pressing cut, A01-W2:c1. Re-pointed 24 October 2026 (C1):
+    // each reading is approved, so each names "reading approved". Was: "reading PROPOSED, awaiting confirmation".
     assert.deepEqual(admin.overview, overview)
-    const LABEL = 'reading PROPOSED, awaiting confirmation'
+    const LABEL = 'reading approved'
     assert.deepEqual(
         admin.overviewDraft!.presented!.scoring.flatMap(group => group.sentences.map(s => [s.place, s.wording, (s.source as any)?.id ?? null, s.reading?.label ?? null])),
         [
@@ -805,7 +811,9 @@ test("stage 3E: the evidence is the draft's, pointers and labels included; a rea
     const draft = admin.overviewDraft!
     // The 3D review's should-fix 3: the table with its source and label status, each pointer with its label and label status. Stage 3F: and
     // the table's why.
-    assert.deepEqual(evidence.table, { source: draft.scoring.table.source, status: 'PROPOSED', label: draft.scoring.table.label, labelStatus: 'DRAFT', why: null })
+    // C1: partly approved, with its rules by standing (re-pointed 24 October 2026; was PROPOSED).
+    assert.deepEqual(evidence.table, { source: draft.scoring.table.source, status: 'PARTLY_APPROVED', label: draft.scoring.table.label, labelStatus: 'DRAFT', why: null, approved: draft.scoring.table.approved, proposed: draft.scoring.table.proposed })
+    assert.deepEqual(evidence.table.approved, ['EXCLUSION_CONDITION', 'ALSO_COUNTS_EXCLUSION'])
     assert.deepEqual(evidence.readings, draft.scoring.readings)
     const presented = draft.presented!.scoring.flatMap(group => group.sentences)
     assert.deepEqual(evidence.sentences.filter(s => s.part === 'scoring').map(s => [s.text, s.fullRule, s.reading, s.place]), presented.map(s => [s.text, s.fullRule, s.reading, s.place]))
@@ -818,9 +826,10 @@ test("stage 3E: the evidence is the draft's, pointers and labels included; a rea
         ['BUILDING', DETAILS_16, FULL_RULE_LABEL, 'DRAFT'],
         ['PRESSING', DETAILS_16, FULL_RULE_LABEL, 'DRAFT'],
     ])
-    // Each sentence of his read by the PROPOSED record is labelled so (since stage 3F his eligibility sentence said whole too); nothing else.
-    const LABEL = 'reading PROPOSED, awaiting confirmation'
-    assert.deepEqual(evidence.sentences.filter(s => s.reading).map(s => [s.text, s.reading!.label, s.reading!.status]), [OVERVIEW_4, W1_S2, OVERVIEW_5, OVERVIEW_8].map(text => [text, LABEL, 'PROPOSED']))
+    // Each sentence of his read by the record is labelled with its reading's standing (since stage 3F his eligibility sentence said whole
+    // too); nothing else. Re-pointed 24 October 2026 (C1): all four readings approved. Was: 'reading PROPOSED, awaiting confirmation'.
+    const LABEL = 'reading approved'
+    assert.deepEqual(evidence.sentences.filter(s => s.reading).map(s => [s.text, s.reading!.label, s.reading!.status]), [OVERVIEW_4, W1_S2, OVERVIEW_5, OVERVIEW_8].map(text => [text, LABEL, 'APPROVED']))
     // Q7.7 exempts a verified extract from the general obligation and ordering lexicons (his words verbatim; the role rule still holds it).
     // Re-pointed 22 October 2026 (stage 3F): since his second building sentence is served, the exemption is load-bearing in production —
     // "The progression must begin ..." holds the obligation word "must", in his approved words verbatim (said whole in Details, where
@@ -885,7 +894,7 @@ test("stage 3F: his example — his first building sentence with his eligibility
     const file = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../../../docs/audits/approved-wording-readings.json'), 'utf8'))
     file.readings = file.readings.filter((reading: any) => !(reading.entry === 'A01-W1' && reading.parts[0].sentence === 2))
     const withoutSecond = readingsLoadOf(file)
-    assert.equal(withoutSecond.status, 'PROPOSED')
+    assert.equal(withoutSecond.status, 'PARTLY_APPROVED')
     const outcome = overviewForServing({ goalId: 'A01', games: PROD.games, served: PROD.served, options: { readings: withoutSecond } })
     assert.equal(outcome.overview, null)
     assert.equal(outcome.draft.served, false)
@@ -894,7 +903,7 @@ test("stage 3F: his example — his first building sentence with his eligibility
     assert.ok(withheld.why.some(why => why.includes('rule ORIGIN_CONDITION) is stated by no sentence of the group (A01-W1 and A01-W3 cite it, and no recorded reading says those words state it)')), JSON.stringify(withheld.why))
     assertRefused(outcome.draft.check!, '7.5', 'how the building team scores is withheld', 'the overview withheld')
     // The record handed in is the one the draft's account describes (the 3E review's bookkeeping item).
-    assert.deepEqual(outcome.draft.scoring.readings.status, 'PROPOSED')
+    assert.deepEqual(outcome.draft.scoring.readings.status, 'PARTLY_APPROVED')
     assert.equal(outcome.evidence.served, false)
 })
 
@@ -1044,7 +1053,7 @@ test('stage 3F (the 3E review\'s bookkeeping item): the readings handed to servi
     assert.equal(testOnly.draft.check!.verdict, 'PASS', 'the TEST-ONLY copy is checked under itself')
     const recorded = overviewForServing({ goalId: 'A01', games: PROD.games, served: PROD.served, options: { readings: recordedReadings() } })
     assert.deepEqual(recorded.overview, overviewForServing({ goalId: 'A01', games: PROD.games, served: PROD.served }).overview)
-    assert.equal(recorded.draft.scoring.readings.status, 'PROPOSED')
+    assert.equal(recorded.draft.scoring.readings.status, 'PARTLY_APPROVED')
 })
 
 test('the module names nothing of the first activity', () => {

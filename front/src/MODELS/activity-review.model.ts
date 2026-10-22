@@ -318,11 +318,20 @@ export interface CoachDiagramBlock {
      * neutral arrows; null otherwise (and where none can be said, the arrows of unnamed teams are not drawn).
      */
     caption: string | null
+    /**
+     * Stage C2 (his reply filed 24 October 2026, item 4): what moves at the exchange into this block, the server's sentences (DRAFT), shown
+     * beside the drawing; empty where nothing moves or the game is not played in blocks. Optional for an answer served before C2.
+     */
+    exchange?: string[]
     lines: { along: DiagramInterval; across: DiagramInterval; markedLine: boolean; label: string | null }[]
     zones: { along: DiagramInterval; across: DiagramInterval; state: 'TARGET' | 'INSIDE_TARGET' | 'MARKED' | string }[]
     targets: { along: DiagramInterval; across: DiagramInterval; line: boolean; label: string | null }[]
     objects: { along: DiagramInterval; across: DiagramInterval; label: string | null; target: boolean }[]
-    teams: { identity: number; noun: string | null; counts: string[]; start: { along: DiagramInterval; across: DiagramInterval } | null; attacks: number[] }[]
+    /**
+     * `identity`: the team's look, its place among the realized teams, kept in every block whatever role it holds (since stage C2). `label`
+     * (stage C2): its DRAFT neutral label ("Team A") where teams are labelled, its `noun` then the role it holds in this block; else null.
+     */
+    teams: { identity: number; label?: string | null; noun: string | null; counts: string[]; start: { along: DiagramInterval; across: DiagramInterval } | null; attacks: number[] }[]
     dimensions: { kind: 'AREA_LENGTH' | 'AREA_WIDTH' | 'ZONE_DEPTH' | 'LINE_OFFSET' | string; axis: 'along' | 'across' | string; from: number; to: number; label: string }[]
 }
 
@@ -330,8 +339,11 @@ export interface CoachDiagramBlock {
 export interface CoachDiagram {
     area: { lengthM: number; widthM: number }
     counts: string[]
-    /** `TARGET_LINE` (polish pass P7): a target that is a line, named by its own noun (DRAFT). */
-    legend: { kind: 'MARKED_LINE' | 'TARGET_ZONE' | 'TARGET_LINE' | 'STARTING_AREA' | string; text: string }[]
+    /**
+     * `TARGET_LINE` (polish pass P7): a target that is a line, named by its own noun (DRAFT). Stage C2, where teams are labelled:
+     * `TEAM_COLOUR`, `ROLE` and `ATTACK` (DRAFT words for a team's colour, its role badge and its arrow).
+     */
+    legend: { kind: 'MARKED_LINE' | 'TARGET_ZONE' | 'TARGET_LINE' | 'STARTING_AREA' | 'TEAM_COLOUR' | 'ROLE' | 'ATTACK' | string; text: string }[]
     /** Polish pass P4: the block switcher's accessible name (DRAFT, the server's); null with one block. */
     tablistLabel: string | null
     blocks: CoachDiagramBlock[]
@@ -397,8 +409,9 @@ export interface CoachOverview {
 export type ReviewWordingStatus = 'APPROVED' | 'DERIVED_FROM_APPROVED' | 'DRAFT' | string
 
 /**
- * Where the reading an extract of his wording keeps by is recorded, and its standing (stage 3E): the PROPOSED record, labelled "reading
- * PROPOSED, awaiting confirmation" (DRAFT words). For an administrator only; a coach's answer carries none.
+ * Where the reading an extract of his wording keeps by is recorded, and its standing (stage 3E): labelled "reading PROPOSED, awaiting
+ * confirmation", or (C1, his reply filed 24 October 2026, item 1) "reading approved" where he approved every reading it stands by (DRAFT
+ * words; `status` PROPOSED or APPROVED). For an administrator only; a coach's answer carries none.
  */
 export interface ReviewReadingRecord {
     source: string
@@ -407,13 +420,29 @@ export interface ReviewReadingRecord {
     labelStatus: string
 }
 
-/** The PROPOSED readings record as the server names it (stage 3E): its standing, its label, and why it cannot be used. */
+/**
+ * The readings record as the server names it (stage 3E): its standing (C1: PROPOSED, PARTLY_APPROVED or APPROVED, from its readings'
+ * own), its label, why it cannot be used, and which readings he approved and which remain PROPOSED.
+ */
 export interface ReviewReadingsAccount {
     source: string
     status: string
     label: string | null
     labelStatus: string
     why: string | null
+    approved?: string[]
+    proposed?: string[]
+}
+
+/** C1: the essentials table as the server names it: its standing, its label, why it cannot be used, and its rules approved and PROPOSED. */
+export interface ReviewEssentialsAccount {
+    source: string
+    status: string
+    label: string | null
+    labelStatus: string
+    why: string | null
+    approved?: string[]
+    proposed?: string[]
 }
 
 /** The overview as presented, with each sentence's status and source, for an administrator only (stage 3D). */
@@ -483,7 +512,7 @@ export interface ReviewOverviewDraft {
     check: { verdict: 'PASS' | 'FAIL' | string; findings: ReviewOverviewFinding[] } | null
     reading: ReviewOverviewReading | null
     presented: ReviewPresentedOverview | null
-    scoring: { table: { source: string; status: string; label: string | null; labelStatus: string; why: string | null }; readings: ReviewReadingsAccount }
+    scoring: { table: ReviewEssentialsAccount; readings: ReviewReadingsAccount }
     /** What could not be composed, part by part (stage 3A): one of the reasons a withheld overview gives an administrator (stage 4). */
     gaps?: { part: string; what: string }[]
     [key: string]: unknown
@@ -638,8 +667,8 @@ export interface ReviewEvidence {
         served: boolean
         verdict: string
         findings: ReviewOverviewFinding[]
-        /** Stage 3F: with `why` (why the table cannot be used, or null). */
-        table: { source: string; status: string; label: string | null; labelStatus: string; why: string | null }
+        /** Stage 3F: with `why` (why the table cannot be used, or null). C1: and its rules approved and PROPOSED. */
+        table: ReviewEssentialsAccount
         readings: ReviewReadingsAccount
         sentences: {
             part: string

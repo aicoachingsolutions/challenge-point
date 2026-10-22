@@ -8637,3 +8637,29 @@ the scoring list) and colour by role; every DRAFT sentence/label/diagram word. O
 approved-coach-wording.json (ours, 18 Oct) still says W3 covers the origin (not edited: his file); H4 (which element an
 adjustment moves) unchanged; "How this was arrived at" shows technical paths to every viewer; the front has no test
 runner (page verified by tsc, build and the TEST-ONLY harness in `scratchpad/cd/build/harness/`).
+
+## 24 OCTOBER — HIS REVIEW OF THE PRESENTATION: APPROVALS, TEAM IDENTITY, AND A LEARNING-DESIGN INVESTIGATION
+
+His reply (`scratchpad/christian-2026-10-24.txt`, memory `christian-rulings-2026-10-24.md`): readings approved (four
+distinctions); both exclusions may stay in Coach details; adjustment consequence explanations kept in Details and RC3 2.1
+narrowed; diagram before scoring approved; colours by stable TEAM identity with roles separate; RC3 + KPS RC1.1 approved.
+PR #133 (Stages 3-5) merged as `c1ae0a8` before this.
+
+- `4edb9f1` C1: RC3 APPROVED with 2.1 narrowed to operational instructions (learning purposes, coaching observations and
+  concise knowledge-grounded consequence explanations permitted); KPS RC1.1 (title + "within each presentation level" on
+  every repetition line; changes file lists all eight lines); readings and the essentials table approved PER ITEM with his
+  words (four readings, two exclusion rules), everything else still PROPOSED; `overview-distinctions.unit.ts` pins his four
+  distinctions by meaning; Q7.4 keeps adjustment consequences out of the overview.
+- `c17565b` + review fix C2: diagram colour = the realized team in every block (Team A blue, Team B orange), role as a
+  separate badge, arrows in team colour, green targets; DRAFT "Team A"/"Team B" where a team's role changes; each block
+  says what the recorded reassignments move ("When you return to this block" for the first block, "When you call this
+  block" otherwise); D10 holds it all to the games. Suite FILES 112 FAILED 0.
+- Learning-design investigation (READ-ONLY, nothing built): `scratchpad/goal-inv/findings-technical.md` (T1-T49, each
+  SUPPORTED / NEEDS KNOWLEDGE / MISSING CAPABILITY / UNKNOWN with evidence) and `findings-for-christian.txt`. Headline:
+  none of goal-for-pressing / resource-selected zone / end exchange can be generated today; obstacles are his rulings
+  (SD-06 one event per game or per role; goal not an approved event for RPC-001/GF2; C42 fixed ends vs a coach-called end
+  exchange; resource relationship; no-GK restart) and general capabilities (event per role, object targets, end exchange
+  with team identity, session goal availability, restart kind, staffed-taker check). Latent: a TEST copy without the
+  one-goalkeeper choice served "The building team's goalkeeper restarts play" with 0 goalkeepers (no staffed-taker check).
+
+NEXT: one email with communication and learning design kept DISTINCT (his item 9).

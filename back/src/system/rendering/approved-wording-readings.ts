@@ -11,7 +11,8 @@
  * is, PROPOSED (the coordinator's decision for stage 3E), with no approval of its own. Nothing here names an entry, a row or a value.
  *
  * The loader (`readingsUnusableBecause`) refuses the whole record — so no extract keeps anything and the overview says his sentences whole,
- * exactly as with no record — where: it is not PROPOSED or carries `approvedBy` anywhere; a key is not one the record's shape has; a reading
+ * exactly as with no record — where (C1, below: was "it is not PROPOSED or carries `approvedBy` anywhere") a reading's standing or approval
+ * is not as C1 requires, or the record's status is not what its readings make it; a key is not one the record's shape has; a reading
  * names an entry that is not an approved entry, or a part the entry does not have (a sentence it lacks, a leading clause where the sentence
  * has no ";", parts out of order, the whole entry); its `words` are not that part's words; a cover is not one of the entry's (its index,
  * row or locator); a cover is listed twice; its `statedBy` is not found verbatim in that part's words; its `why` is empty; its `note` is
@@ -19,7 +20,7 @@
  *
  * A reading applies only to the entry it was checked against: handed an entry of the same id whose words or covers differ (a copy changed
  * for a test), it gives nothing. Every extract built on it names it (`ReadingRecord`): for an administrator, "reading PROPOSED, awaiting
- * confirmation" (DRAFT words); a coach sees no status.
+ * confirmation" (DRAFT words), or since C1 "reading approved"; a coach sees no status.
  *
  * **Stage 3F, 22 October 2026: meaning, not citations.** His reply filed 23 October 2026, item 4: *"An abbreviation should be accepted only
  * when the overview as a whole preserves the material meaning of the full rule, including relevant initial conditions, scoring eligibility,
@@ -34,6 +35,16 @@
  *   - the 3E review's should-fix 1 (a wrong reading was accepted): a note fragment a reading cites must name its cover's row; and where the
  *     entry's own note maps a row to quoted words (the form "'{words}' ({row}"), a reading claiming a cover on that row must cite that
  *     mapping, and the quoted words must lie inside the parts read. Keyed by row and read from the entry's note; nothing here names one.
+ *
+ * **C1, his reply filed 24 October 2026, item 1: approval per reading.** *"I agree with your interpretation of the approved scoring
+ * statements."* The readings the overview uses that our email of 23 October described are APPROVED; every other reading stays PROPOSED. So
+ * the standing is the reading's own, never the file's: each reading carries `status`, APPROVED only with `approvedBy` (who, the date, the
+ * reply it is filed in, naming that date in words, and his words verbatim), PROPOSED only without it; `approvedBy` appears nowhere else
+ * (not on the file, a part, a cover stated or one not stated); and the file's `status` must be what its readings make it (PROPOSED where
+ * none is approved, APPROVED where all are, PARTLY_APPROVED otherwise). A loosening of the 3E rule ("approvedBy anywhere refuses the whole
+ * record"), compensated by those checks and by the unit test pinning which readings are approved and his words in each. What an extract or
+ * a sentence said whole is kept by names the standing of exactly the readings it is read by (`recordFor`): APPROVED only where every one
+ * of them is ("reading approved", for an administrator), else PROPOSED ("reading PROPOSED, awaiting confirmation").
  */
 import fs from 'node:fs'
 import path from 'node:path'
@@ -45,8 +56,21 @@ import { CoverReading, ExtractUnit, NO_RECORDED_READING, ReadingExplanation, Rea
 /** Where the record is read from (`build.js` copies it beside the bundle), and how it is named to an administrator. */
 export const READINGS_FILE = path.join(AUDITS_DIR, 'approved-wording-readings.json')
 export const READINGS_SOURCE = 'docs/audits/approved-wording-readings.json' as const
-/** What an administrator is told of an extract built on the record while it is PROPOSED (DRAFT words). */
+/** What an administrator is told of an extract built on a reading of the record that is PROPOSED (DRAFT words). */
 export const READING_PROPOSED_LABEL = 'reading PROPOSED, awaiting confirmation'
+/** C1: what an administrator is told of an extract, or a sentence said whole, built only on readings he approved (DRAFT words). */
+export const READING_APPROVED_LABEL = 'reading approved'
+
+/** C1: a reading's own standing. */
+export type ReadingStatus = 'PROPOSED' | 'APPROVED'
+
+/** C1: his approval of a reading: who, the date (YYYY-MM-DD), the reply it is filed in (naming that date in words), and his words verbatim. */
+export interface ReadingApproval {
+    who: string
+    date: string
+    filed: string
+    quote: string
+}
 
 /** One cover a reading says its parts state, with the words of his that state it and our reason. */
 export interface ReadingStatement {
@@ -74,17 +98,25 @@ export interface WordingReading {
     states: ReadingStatement[]
     /** Stage 3F: the covers it says its parts do not state, each with why (none where it says nothing of them). */
     doesNotState: ReadingOmission[]
+    /** C1: its own standing, and his approval where it is APPROVED (null where it is PROPOSED). */
+    status: ReadingStatus
+    approvedBy: ReadingApproval | null
 }
 
-/** The record as loaded: PROPOSED with its readings, or UNUSABLE with why (then no reading is recorded). */
+/** The record's standing, read from its readings (C1). */
+export type RecordStatus = 'PROPOSED' | 'PARTLY_APPROVED' | 'APPROVED'
+
+/** The record as loaded: its standing (C1: what its readings make it) with its readings, or UNUSABLE with why (then no reading is recorded). */
 export interface ReadingsLoad {
-    status: 'PROPOSED' | 'UNUSABLE'
+    status: RecordStatus | 'UNUSABLE'
     readings: WordingReading[]
     why: string | null
 }
 
 const FILE_KEYS = new Set(['about', 'status', 'proposal', 'readingShape', 'readings'])
-const READING_KEYS = new Set(['entry', 'parts', 'words', 'states', 'doesNotState'])
+const READING_KEYS = new Set(['entry', 'parts', 'words', 'states', 'doesNotState', 'status', 'approvedBy'])
+const APPROVAL_KEYS = new Set(['who', 'date', 'filed', 'quote'])
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 const PART_KEYS = new Set(['sentence', 'part'])
 const STATE_KEYS = new Set(['coverIndex', 'row', 'element', 'statedBy', 'why', 'note'])
 const OMISSION_KEYS = new Set(['coverIndex', 'row', 'element', 'why'])
@@ -123,14 +155,54 @@ export function noteMappingsOf(note: string, rows: Set<string>): { row: string; 
     return found
 }
 
-/** Whether a value carries `approvedBy` at any depth: a reading has no approval of its own. */
+/** Whether a value carries `approvedBy` at any depth (C1: only a reading itself may, and only where it is APPROVED). */
 const carriesApproval = (value: unknown): boolean =>
     Array.isArray(value) ? value.some(carriesApproval) : isObject(value) ? Object.keys(value).includes('approvedBy') || Object.values(value).some(carriesApproval) : false
+
+/** A date as YYYY-MM-DD, read: its year, month (from 1) and day; null where it is not a calendar date. */
+function dateOf(value: string): { year: number; month: number; day: number } | null {
+    const parts = value.split('-')
+    if (parts.length !== 3 || parts[0].length !== 4 || parts[1].length !== 2 || parts[2].length !== 2 || !parts.every(part => [...part].every(ch => ch >= '0' && ch <= '9'))) return null
+    const [year, month, day] = parts.map(Number)
+    const date = new Date(Date.UTC(year, month - 1, day))
+    return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day ? { year, month, day } : null
+}
+
+/**
+ * **Why an approval of one item of a record cannot be used, or null** (C1, shared with the essentials table's rules): exactly who, a
+ * calendar date, the reply it is filed in (which says "filed" and that date in words: "filed 24 October 2026") and his words.
+ */
+export function approvalUnusableBecause(approval: unknown): string | null {
+    if (!isObject(approval)) return 'its approval is not an object'
+    for (const key of Object.keys(approval)) if (!APPROVAL_KEYS.has(key)) return `its approval carries "${key}", which no approval holds`
+    if (!nonEmpty(approval.who)) return 'its approval does not say who approved it'
+    const date = typeof approval.date === 'string' ? dateOf(approval.date) : null
+    if (!date) return `its approval date ${JSON.stringify(approval.date ?? null)} is not a calendar date (YYYY-MM-DD)`
+    const named = `${date.day} ${MONTHS[date.month - 1]} ${date.year}`
+    if (!nonEmpty(approval.filed) || !approval.filed.includes(`filed ${named}`)) return `its approval does not name the reply it is filed in, by the date ${named} ("filed ${named}")`
+    if (!nonEmpty(approval.quote)) return 'its approval does not give his words'
+    return null
+}
+
+/**
+ * **Why a reading's standing cannot be used, or null** (C1): `status` PROPOSED with no `approvedBy`, or APPROVED with `approvedBy` that
+ * `approvalUnusableBecause` accepts.
+ */
+function standingUnusableBecause(reading: Record<string, unknown>): string | null {
+    if (reading.status !== 'PROPOSED' && reading.status !== 'APPROVED') return `its status is ${JSON.stringify(reading.status)}: a reading is PROPOSED or APPROVED`
+    if (reading.status === 'PROPOSED') return 'approvedBy' in reading ? 'it is PROPOSED and carries approvedBy: a PROPOSED reading has no approval' : null
+    if (!('approvedBy' in reading)) return 'it is APPROVED and carries no approvedBy: a reading is APPROVED only with his approval, in his words'
+    return approvalUnusableBecause(reading.approvedBy)
+}
 
 /** Why one reading cannot be used against these entries, or null. */
 function readingUnusableBecause(reading: any, wording: ApprovedWording[]): string | null {
     if (!isObject(reading)) return 'it is not an object'
     for (const key of Object.keys(reading)) if (!READING_KEYS.has(key)) return `it carries "${key}", which no reading holds`
+    // C1: an approval is the reading's own, never a part's or a cover's; and its standing is PROPOSED or APPROVED, as the approval says.
+    if (carriesApproval([reading.parts, reading.states, reading.doesNotState, reading.approvedBy])) return 'it carries approvedBy inside it: only a reading itself is approved'
+    const standing = standingUnusableBecause(reading)
+    if (standing) return standing
     const entry = wording.find(candidate => candidate.id === reading.entry)
     if (!entry) return `it names ${JSON.stringify(reading.entry)}, which is not an approved entry`
     if (!Array.isArray(reading.parts) || !reading.parts.length) return 'it names no part of its entry'
@@ -205,9 +277,10 @@ function readingUnusableBecause(reading: any, wording: ApprovedWording[]): strin
  */
 export function readingsUnusableBecause(file: any, wording: ApprovedWording[] = approvedWording()): string | null {
     if (!isObject(file)) return 'the record is not an object'
-    if (carriesApproval(file)) return 'it carries approvedBy: a reading of his wording has no approval of its own, and this record stays PROPOSED'
+    // C1: an approval is a reading's own (checked per reading below), never the record's. The shape's description of the field (in
+    // `readingShape`, which nothing reads) is not one.
+    if (carriesApproval(Object.fromEntries(Object.entries(file).filter(([key]) => key !== 'readings' && key !== 'readingShape')))) return 'it carries approvedBy outside its readings: his approval is of a reading, never of the record'
     for (const key of Object.keys(file)) if (!FILE_KEYS.has(key)) return `the record carries "${key}", which no record holds`
-    if (file.status !== 'PROPOSED') return `its status is ${JSON.stringify(file.status)}: the record is PROPOSED until he confirms it, and this loader knows no confirmation`
     if (!Array.isArray(file.readings)) return 'it has no list of readings'
     const read = new Set<string>()
     for (const reading of file.readings) {
@@ -217,28 +290,43 @@ export function readingsUnusableBecause(file: any, wording: ApprovedWording[] = 
         if (read.has(key)) return `${reading.entry} ${JSON.stringify(reading.parts)} is read twice`
         read.add(key)
     }
+    // C1: the record's standing is what its readings make it, never more.
+    const standing = recordStatusOf((file.readings as any[]).map(reading => reading.status as ReadingStatus))
+    if (file.status !== standing) return `its status is ${JSON.stringify(file.status)}, and its readings make it ${standing}: the record says what its readings are, never more`
     return null
 }
+
+/** C1: the record's standing from its readings' own: APPROVED where every one is, PROPOSED where none is, PARTLY_APPROVED otherwise. */
+export const recordStatusOf = (statuses: ReadingStatus[]): RecordStatus =>
+    statuses.length && statuses.every(status => status === 'APPROVED') ? 'APPROVED' : statuses.some(status => status === 'APPROVED') ? 'PARTLY_APPROVED' : 'PROPOSED'
 
 /** The record from its parsed file: its readings (parts numbered from 0), or UNUSABLE with why. */
 export function readingsLoadOf(file: any, wording: ApprovedWording[] = approvedWording()): ReadingsLoad {
     const why = readingsUnusableBecause(file, wording)
     if (why) return { status: 'UNUSABLE', readings: [], why }
-    return {
-        status: 'PROPOSED',
-        readings: (file.readings as any[]).map(reading => ({
-            entry: String(reading.entry),
-            units: (reading.parts as any[]).map(part => ({ sentence: part.sentence - 1, part: part.part })),
-            words: String(reading.words),
-            states: (reading.states as any[]).map(state => ({ coverIndex: state.coverIndex, row: state.row, element: JSON.parse(JSON.stringify(state.element ?? null)), statedBy: state.statedBy, why: state.why, note: state.note })),
-            doesNotState: ((reading.doesNotState ?? []) as any[]).map(omission => ({ coverIndex: omission.coverIndex, row: omission.row, element: JSON.parse(JSON.stringify(omission.element ?? null)), why: omission.why })),
-        })),
-        why: null,
-    }
+    const readings: WordingReading[] = (file.readings as any[]).map(reading => ({
+        entry: String(reading.entry),
+        units: (reading.parts as any[]).map(part => ({ sentence: part.sentence - 1, part: part.part })),
+        words: String(reading.words),
+        states: (reading.states as any[]).map(state => ({ coverIndex: state.coverIndex, row: state.row, element: JSON.parse(JSON.stringify(state.element ?? null)), statedBy: state.statedBy, why: state.why, note: state.note })),
+        doesNotState: ((reading.doesNotState ?? []) as any[]).map(omission => ({ coverIndex: omission.coverIndex, row: omission.row, element: JSON.parse(JSON.stringify(omission.element ?? null)), why: omission.why })),
+        status: reading.status as ReadingStatus,
+        approvedBy: reading.status === 'APPROVED' ? { who: String(reading.approvedBy.who), date: String(reading.approvedBy.date), filed: String(reading.approvedBy.filed), quote: String(reading.approvedBy.quote) } : null,
+    }))
+    return { status: recordStatusOf(readings.map(reading => reading.status)), readings, why: null }
 }
 
-/** Where the record is and its standing, as an extract built on it names it (DRAFT label). */
+/** Where the record is and the standing of a reading in it, as an extract built on a PROPOSED reading names it (DRAFT label). */
 export const PROPOSED_READING_RECORD: ReadingRecord = { source: READINGS_SOURCE, status: 'PROPOSED', label: READING_PROPOSED_LABEL, labelStatus: 'DRAFT' }
+/** C1: the same, for an extract or a sentence said whole read only by readings he approved (DRAFT label). */
+export const APPROVED_READING_RECORD: ReadingRecord = { source: READINGS_SOURCE, status: 'APPROVED', label: READING_APPROVED_LABEL, labelStatus: 'DRAFT' }
+
+/** C1: the record each reading was built from (`coverReadingOf`), so its account describes exactly that record. */
+const BUILT_FROM = new WeakMap<CoverReading, ReadingsLoad>()
+
+/** C1: a reading's name for an administrator, read from the record: its entry and parts ("A-W1 sentence 2", "... sentence 1, leading clause"). */
+export const readingNameOf = (reading: { entry: string; units: ExtractUnit[] }): string =>
+    `${reading.entry} ${reading.units.map(unit => `sentence ${unit.sentence + 1}${unit.part === 'LEADING_CLAUSE' ? ', leading clause' : ''}`).join(' + ')}`
 
 /**
  * **The reading the record gives** (`CoverReading`, with its `record`): for an entry and parts it reads, the covers they state, in order;
@@ -251,7 +339,7 @@ export const PROPOSED_READING_RECORD: ReadingRecord = { source: READINGS_SOURCE,
  * listed as unstated).
  */
 export function coverReadingOf(load: ReadingsLoad, wording: ApprovedWording[] = approvedWording()): CoverReading {
-    if (load.status !== 'PROPOSED') return NO_RECORDED_READING
+    if (load.status === 'UNUSABLE') return NO_RECORDED_READING
     const checkedAgainst = new Map(wording.map(entry => [entry.id, canonicalJson([entry.sentence, entry.covers])] as const))
     const exactly = (entry: ApprovedWording, units: ExtractUnit[]): WordingReading | undefined => load.readings.find(candidate => candidate.entry === entry.id && canonicalJson(candidate.units) === canonicalJson(units))
     /** The readings these parts are read by: the one of exactly these parts, else one per part where every part has one; else null. */
@@ -267,7 +355,13 @@ export function coverReadingOf(load: ReadingsLoad, wording: ApprovedWording[] = 
         const read = readingsFor(entry, units)
         return read ? [...new Set(read.flatMap(one => one.states.map(state => state.coverIndex)))].sort((a, b) => a - b) : null
     }) as CoverReading
-    reading.record = { ...PROPOSED_READING_RECORD }
+    // C1: the standing of exactly the readings these parts are read by: APPROVED only where every one of them is.
+    reading.recordFor = (entry: ApprovedWording, units: ExtractUnit[]): ReadingRecord | null => {
+        const read = readingsFor(entry, units)
+        if (!read) return null
+        return { ...(read.every(one => one.status === 'APPROVED') ? APPROVED_READING_RECORD : PROPOSED_READING_RECORD) }
+    }
+    BUILT_FROM.set(reading, load)
     reading.explain = (entry: ApprovedWording, units: ExtractUnit[]): ReadingExplanation | null => {
         const read = readingsFor(entry, units)
         if (!read) return null
@@ -297,27 +391,42 @@ export const recordedReadings = (): ReadingsLoad => JSON.parse(JSON.stringify(RE
 /** The reading the record gives (the serving path's), checked against the approved table at module load. */
 export const recordedReading = (): CoverReading => RECORDED
 
-/** The record as an administrator is told of it: where it is, its standing and its label, and why it cannot be used. */
+/**
+ * The record as an administrator is told of it: where it is, its standing and its label, why it cannot be used, and (C1) which of its
+ * readings he approved and which remain PROPOSED, each named by its entry and parts.
+ */
 export interface ReadingsAccount {
     source: typeof READINGS_SOURCE
-    status: 'PROPOSED' | 'UNUSABLE'
+    status: RecordStatus | 'UNUSABLE'
     label: string | null
     labelStatus: 'DRAFT'
     why: string | null
+    approved: string[]
+    proposed: string[]
 }
-export const readingsAccountOf = (load: ReadingsLoad): ReadingsAccount => ({
-    source: READINGS_SOURCE,
-    status: load.status,
-    label: load.status === 'PROPOSED' ? READING_PROPOSED_LABEL : null,
-    labelStatus: 'DRAFT',
-    why: load.why,
-})
+/** C1: the record's label for an administrator (DRAFT words), naming the readings still PROPOSED where some are approved. */
+const recordLabelOf = (status: RecordStatus | 'UNUSABLE', approved: string[], proposed: string[]): string | null =>
+    status === 'PROPOSED'
+        ? READING_PROPOSED_LABEL
+        : status === 'APPROVED'
+          ? READING_APPROVED_LABEL
+          : status === 'PARTLY_APPROVED'
+            ? `readings partly approved. Approved: ${approved.join('; ')}. Still PROPOSED, awaiting confirmation: ${proposed.join('; ')}`
+            : null
+export const readingsAccountOf = (load: ReadingsLoad): ReadingsAccount => {
+    const approved = load.readings.filter(reading => reading.status === 'APPROVED').map(readingNameOf)
+    const proposed = load.readings.filter(reading => reading.status !== 'APPROVED').map(readingNameOf)
+    return { source: READINGS_SOURCE, status: load.status, label: recordLabelOf(load.status, approved, proposed), labelStatus: 'DRAFT', why: load.why, approved, proposed }
+}
 
 /**
  * The account of a reading handed in without its record (stage 3F, the 3E review's bookkeeping item: the account always describes the
- * reading the overview was built with): PROPOSED with its label where the reading names the PROPOSED record, UNUSABLE otherwise.
+ * reading the overview was built with): the account of the record it was built from (C1; was: PROPOSED where it named the PROPOSED
+ * record), UNUSABLE for a reading built from none.
  */
-export const readingsAccountOfReading = (reading: CoverReading): ReadingsAccount =>
-    reading.record && canonicalJson(reading.record) === canonicalJson(PROPOSED_READING_RECORD)
-        ? { source: READINGS_SOURCE, status: 'PROPOSED', label: READING_PROPOSED_LABEL, labelStatus: 'DRAFT', why: null }
-        : { source: READINGS_SOURCE, status: 'UNUSABLE', label: null, labelStatus: 'DRAFT', why: 'the overview was built with a reading handed in that names no record of what parts of his wording state' }
+export const readingsAccountOfReading = (reading: CoverReading): ReadingsAccount => {
+    const load = BUILT_FROM.get(reading)
+    return load
+        ? readingsAccountOf(load)
+        : { source: READINGS_SOURCE, status: 'UNUSABLE', label: null, labelStatus: 'DRAFT', why: 'the overview was built with a reading handed in that names no record of what parts of his wording state', approved: [], proposed: [] }
+}

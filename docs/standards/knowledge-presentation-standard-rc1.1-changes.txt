@@ -1,0 +1,43 @@
+Knowledge Presentation Standard RC1.0 -> RC1.1: every changed line, before and after
+
+Your reply filed 24 October 2026, item 5: "I approve the overall RC3 structure and the narrow alignment changes to the Knowledge Presentation Standard, incorporating the clarification to Section 2.1 above." and "Please ensure that the revised Knowledge Presentation Standard uses the appropriate updated version designation and that its non-redundancy language consistently permits the overview to summarize Coach Details."
+
+Eight lines of the 176 differ from RC1.0; every other line is unchanged, word for word. Changes 1 and 2 are the two you approved (your 23 Oct reply, item 1). Changes 3 to 8 are the ones your 24 Oct item 5 asked for: the version designation, and the same narrow qualification on each line that could otherwise be read to forbid the Coach Overview summarizing Coach Details ("within each presentation level"; in change 6, "in the same presentation level", so the sentence reads naturally). Their exact words are ours.
+
+CHANGE 1 (section 10, Success Measures, second line; your 23 Oct item 1, first point: no player script). Kept in the form you approved.
+BEFORE: explain the activity to players without rewording it
+AFTER:  understand the activity well enough to explain it to players concisely in their own language; Challenge Point should not provide or prescribe a player-facing script
+
+CHANGE 2 (section 8, Presentation Contracts, Non-Redundancy; your 23 Oct item 1, second point). Now the shorter alternative offered with RC1.1: your first sentence folded into the existing one, so the contract reads as one rule. The form shown first then is below, if you prefer it.
+BEFORE: Concepts should not be restated across multiple sections.
+AFTER:  Within each presentation level, concepts should not be restated across multiple sections. A concise Coach Overview may appropriately summarize information also available in Coach Details.
+(Sent before: "Concepts should not be restated across multiple sections. Non-redundancy should apply within each presentation level. A concise Coach Overview may appropriately summarize information also available in Coach Details.")
+
+CHANGE 3 (title line; your 24 Oct item 5, "the appropriate updated version designation")
+BEFORE: Challenge Point™ Knowledge Presentation Standard RC1.0
+AFTER:  Challenge Point™ Knowledge Presentation Standard RC1.1
+
+CHANGE 4 (section 7, Principle 2, first line; your 24 Oct item 5, non-redundancy)
+BEFORE: Every communicated sentence should provide new information.
+AFTER:  Within each presentation level, every communicated sentence should provide new information.
+
+CHANGE 5 (section 7, Principle 2, second line)
+BEFORE: Repeated ideas reduce clarity without increasing understanding.
+AFTER:  Within each presentation level, repeated ideas reduce clarity without increasing understanding.
+
+CHANGE 6 (section 7, Principle 2, third line)
+BEFORE: When two statements communicate substantially the same idea, only the strongest expression should remain.
+AFTER:  When two statements in the same presentation level communicate substantially the same idea, only the strongest expression should remain.
+
+CHANGE 7 (section 7, Principle 6, third line)
+BEFORE: Sections should not compete for ownership of the same idea.
+AFTER:  Within each presentation level, sections should not compete for ownership of the same idea.
+
+CHANGE 8 (section 9, Quality Standards, second item)
+BEFORE: ✓ No duplicated concepts
+AFTER:  ✓ No duplicated concepts within each presentation level
+
+NOT CHANGED
+- Principle 2's heading, "Every Sentence Must Earn Its Place", and Principle 6's other lines: they do not speak of repetition.
+- Section 10, "understand the activity within one minute", and section 8, Clarity, "A coach should understand the activity after one reading.": they sit beside RC3's 30-60 second target without conflicting with it.
+- The "Status: Constitutional Platform Standard" line.

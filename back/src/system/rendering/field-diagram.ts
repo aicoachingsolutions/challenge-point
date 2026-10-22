@@ -49,22 +49,38 @@
  * words from one table (`DIAGRAM_WORDS`); or a noun a served sentence already carries with its status (a role's DRAFT noun, a count as the
  * Players sentence says it). Never a data key, a designation or an actor value.
  *
- * **The agreement check** (`checkFieldDiagram`, D1-D8) holds the model to the served Coach Details, block by block, reading the game again
+ * **Team identity and roles** (stage C2, his reply filed 24 October 2026, item 4: *"For colors, I would generally prefer stable team
+ * identities, with building and pressing roles identified separately. If Team A is blue in Block 1, it should ordinarily remain blue in
+ * Block 2, even though its responsibilities change. However, the current activity also reassigns a [specialized role] and one outfield
+ * player between teams, so please check how best to represent that clearly. My priority is that a coach can distinguish team identity,
+ * assigned role, and attacking direction without confusion."*; his role noun bracketed, as above). Each team carries the realized team it
+ * is (`handle`, its element of the game's teams, the same team in every block, and `position`, its place among them), so its look follows
+ * the physical team, never the role it holds in a block. Where a team's noun (its role's) does not stay with it across the blocks, every team is named by a DRAFT neutral label
+ * in the realized team order (`label`, "Team A", "Team B": the knowledge holds no team names, so nothing else could name one), and the
+ * noun stays its role in the block. What changes between the blocks for each team is drawn as each block's counts, and said once per block
+ * (`exchanges`): the performers the recorded reassignments move to the team that newly holds a role, from the team that held it in the
+ * block the exchange is called from, in the words of the served Role exchange sentence that says them. No movement path or position.
+ *
+ * **The agreement check** (`checkFieldDiagram`, D1-D8, D10) holds the model to the served Coach Details, block by block, reading the game again
  * rather than taking the builder's word: the area; every drawn region cited (markings and targets by Set up, starting areas by the sentence
  * that says where the teams start), and every team's authorized starting area drawn; the markings exactly what Set up says to mark; every
  * number the game's own value at its path and stated by a sentence citing that path; each block's roles (D5: the served role-block account
  * and the model's holders are both built from the same block holders, so of D5's comparisons only the one with the game's own record,
  * `record.roleBlock.holders`, is independent of the builder); every word allowed; each arrow toward the end its own target touches;
- * nothing the standard leaves out. Any finding withholds the diagram only, with the reasons for the administrator; the activity is served
- * exactly as without it.
+ * nothing the standard leaves out; and (D10, stage C2) each team the realized team it says, at its place, in every block, its label the
+ * one its place gives, and what moves at each exchange exactly what the recorded reassignments, the served Role exchange sentence and each
+ * block's counts state. Any finding withholds the diagram only, with the reasons for the administrator; the activity is served exactly as
+ * without it.
  *
  * Nothing here names a goal, a role, a sport term or a value: every number comes from the game, every word from the table or a served sentence.
  */
 import { isRegisteredDesignation, roleOfHolder } from '../derivation/designation'
+import { Reassignment, reassignmentsIn } from '../derivation/reassignment'
 import { RegisterIndex } from '../derivation/register'
+import { splitPath } from '../derivation/resolved-game'
 import { asList, GameBlock, objectivesOf, readPath, teamsOf, transitionsOf } from './game-reading'
 import { layoutLeafNumberAt, MARK_UNION_ONCE, PhysicalLayout } from './physical-layout'
-import { Binding, gameReadingOf, Instruction, teamCountPhrases } from './render-concrete-game'
+import { Binding, gameReadingOf, Instruction, ROLE_EXCHANGE, teamCountPhrases } from './render-concrete-game'
 import type { ActivitySession } from './session-envelope'
 
 /**
@@ -73,12 +89,30 @@ import type { ActivitySession } from './session-envelope'
  * switcher (his reply filed 23 October 2026, item 5: *"A Block 1 / Block 2 view would be useful if it can be implemented simply."*), the
  * unit after a dimension, the legend's name for a starting area, and (polish pass P7, 22 October 2026) the word set before a target line's
  * own noun, read from the game (`targetLineWords`: a line a team scores at, "target line" where the game calls it a line), so the legend
- * can say what a green line is.
+ * can say what a green line is. Stage C2 (his reply filed 24 October 2026, item 4), all DRAFT: the word before a team's neutral label
+ * (`team`, "Team", then a letter for its place among the realized teams), and the legend's three words where teams are labelled: what a team
+ * colour is, what the role badge is, and what an arrow is.
  */
 export const DIAGRAM_WORDS = {
     his: { markedLine: 'marked line', targetZone: 'target zone' },
-    draft: { block: 'Block', metres: 'm', startingArea: 'starting area', target: 'target' },
+    draft: {
+        block: 'Block',
+        metres: 'm',
+        startingArea: 'starting area',
+        target: 'target',
+        team: 'Team',
+        teamColour: 'team colour, kept in every block',
+        role: 'role in this block',
+        attack: 'attacking direction',
+    },
 } as const
+
+/** The letters a team's neutral label takes, in the realized team order (DRAFT); a team beyond them has none. */
+const TEAM_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+
+/** **A team's neutral label** (stage C2, DRAFT): "Team" and the letter of its place among the realized teams, or null past the letters. */
+export const teamLabelText = (position: number): string | null =>
+    Number.isInteger(position) && position >= 0 && position < TEAM_LETTERS.length ? `${DIAGRAM_WORDS.draft.team} ${TEAM_LETTERS[position]}` : null
 
 /**
  * **The words for a target that is a line** (polish pass P7, DRAFT): the line's own noun as the game holds it, with the DRAFT word "target"
@@ -189,10 +223,38 @@ export interface DiagramTeam {
     key: string
     role: string | null
     designation: string | null
+    /** Stage C2: the realized team it is (its element of the game's teams), the same team in every block, whatever role it holds. */
+    handle: string
+    /** Stage C2: its place among the game's teams (0 for the first), the same in every block; its look and label follow it. */
+    position: number
+    /**
+     * Stage C2: its DRAFT neutral label ("Team A", by `position`) where some team's noun does not stay with it across the blocks, so the noun
+     * alone cannot say which team it is; null otherwise (the noun names it, as before).
+     */
+    label: DiagramWord | null
     noun: DiagramWord | null
     counts: DiagramCount[]
     start: DiagramStart | null
     attacks: DiagramAttack[]
+}
+
+/**
+ * **What moves at the exchange into a block** (stage C2): the performers the recorded reassignments move to the team that holds `toRole` in
+ * this block (`to`, a realized team), from the team that held it in the block the exchange is called from (`from`, `fromBlock`), as the served
+ * Role exchange sentence says them (`moving`, `noun`; each count bound to its reassignment). No movement path or position.
+ */
+export interface DiagramExchange {
+    toRole: string
+    to: string
+    from: string
+    fromBlock: string
+    moving: DiagramWord
+    /** How many performers move, together (the verb's number). */
+    total: number
+    /** The noun of the role they join, as the same sentence says it. */
+    noun: DiagramWord
+    bindings: Binding[]
+    cites: string[]
 }
 
 export type DimensionKind = 'AREA_LENGTH' | 'AREA_WIDTH' | 'ZONE_DEPTH' | 'LINE_OFFSET'
@@ -221,6 +283,8 @@ export interface DiagramBlock {
     markedZones: DiagramZoneState[]
     teams: DiagramTeam[]
     dimensions: DiagramDimension[]
+    /** Stage C2: what moves at the exchange into this block, one per role the performers join; none for a game not played in blocks. */
+    exchanges: DiagramExchange[]
 }
 
 export interface FieldDiagram {
@@ -239,9 +303,11 @@ export interface FieldDiagram {
  * The rules a model is held to. D0: a required relationship that cannot be read whole (the model is not built). D1 the area; D2 every drawn
  * region cited; D3 the markings exactly what Set up says to mark, and each marked zone's state; D4 every number; D5 the roles each block's
  * teams hold; D6 every word; D7 every attacking direction; D8 nothing the standard leaves out. D9 (stage 5B, `coach-diagram.ts`): the
- * diagram a coach is served says only what the checked model says, in coach words, with no data key, id or path in any of them.
+ * diagram a coach is served says only what the checked model says, in coach words, with no data key, id or path in any of them. D10 (stage
+ * C2): each team is the realized team it says, at its place, the same in every block, labelled as its place gives where labels are needed,
+ * and what moves at each exchange is what the reassignments, the served Role exchange sentence and the blocks' counts state.
  */
-export type DiagramRule = 'D0' | 'D1' | 'D2' | 'D3' | 'D4' | 'D5' | 'D6' | 'D7' | 'D8' | 'D9'
+export type DiagramRule = 'D0' | 'D1' | 'D2' | 'D3' | 'D4' | 'D5' | 'D6' | 'D7' | 'D8' | 'D9' | 'D10'
 
 export interface DiagramFinding {
     rule: DiagramRule
@@ -340,6 +406,33 @@ const statedAsLimit = (instructions: Instruction[], id: string): boolean => {
 }
 /** Whether a sentence of these states this number for this path: it cites the path and binds the number. */
 const stated = (instructions: Instruction[], path: string, quantity: number): boolean => instructions.some(instruction => instruction.from.includes(path) && bindingsOf(instruction).some(binding => binding.quantity === quantity))
+
+/** Where a game holds its reassignments (the register's reassignment row's collection), or null where the register has none. */
+const reassignmentsAt = (index: RegisterIndex): string | null => {
+    const path = index.reassignment ? index.rows.get(index.reassignment.row)?.path : undefined
+    return path ? (splitPath(String(path)).container ?? String(path)) : null
+}
+/** The game path of a reassignment's count, as a sentence binds it. */
+const reassignmentCountPath = (index: RegisterIndex, at: string, id: string): string => `${at}[${id}].${index.reassignment?.countLeaf ?? 'count'}`
+/** The leaf of a team element a performer row counts (`performers.teams[].<leaf>`). */
+const performerLeafOf = (index: RegisterIndex, row: string): string => String(index.rows.get(row)?.path ?? '').split('[].').pop() ?? row
+/** A realized team's count at a leaf, in this game, or null. */
+const teamCountAt = (fixture: any, handle: string, leaf: string): number | null => {
+    const value = asList(fixture?.game?.performers?.teams).find(team => String(team?.elementId) === handle)?.[leaf]
+    return finite(value) ? value : null
+}
+/** The reassignments a game holds, grouped by the role the performers join, in the order the roles first appear. */
+const reassignmentsByRole = (found: Reassignment[]): [string, Reassignment[]][] => {
+    const groups = new Map<string, Reassignment[]>()
+    for (const entry of found) groups.set(entry.toRole, [...(groups.get(entry.toRole) ?? []), entry])
+    return [...groups.entries()]
+}
+/**
+ * The block an exchange into block `i` is called from: the one before it, and for the first the last — with two blocks, the other one.
+ * Which block is played first is the coach's (`FIRST_BLOCK_BASIS`, INFERRED) and the coach calls every exchange ("When you call the next
+ * block"), so the first block shown is entered by an exchange too whenever it is called again.
+ */
+const calledFrom = (i: number, blocks: number): number => (i + blocks - 1) % blocks
 
 /** The role a team or role-holder designation names in this game, or null: a block's holders, then the role-holder names. */
 function roleNamedBy(fixture: any, index: RegisterIndex, holders: Record<string, string>, designation: unknown): string | null {
@@ -463,6 +556,9 @@ export function buildFieldDiagram(input: DiagramInput): { diagram: FieldDiagram 
                     key,
                     role,
                     designation: team.designation,
+                    handle: team.handle,
+                    position: teamIndex,
+                    label: null,
                     noun: nounText ? carried(nounText, carrier) : null,
                     counts: (phrase?.segments ?? []).map(segment => ({ word: carried(segment.text, players), bindings: segment.bindings.map(binding => ({ ...binding })), team: teamIndex })),
                     start: null,
@@ -605,8 +701,77 @@ export function buildFieldDiagram(input: DiagramInput): { diagram: FieldDiagram 
             }
         }
 
-        blocks.push({ blockId, label: games.length > 1 ? blockWord(i + 1) : null, holders: { ...game.holders }, markings, objects, targets, markedZones, teams, dimensions })
+        // ── What moves at the exchange into this block (stage C2): only where the game is played in blocks ─────────────────
+        const exchanges: DiagramExchange[] = []
+        const at = reassignmentsAt(index)
+        const { found, problems } = reassignmentsIn(fixture?.game ?? {}, index)
+        if (games.length > 1 && at) {
+            for (const problem of problems) gap(blockId, `a reassignment cannot be read, so what moves between the blocks cannot be said: ${problem}`)
+            const fromGame = games[calledFrom(i, games.length)]
+            const fromTeams = teamsOf(fromGame, index)
+            const nouns: Record<string, { singular?: unknown; plural?: unknown }> = fixture?.reassignmentNouns?.nouns ?? {}
+            for (const [toRole, moving] of reassignmentsByRole(found)) {
+                const joining = teams.find(team => team.role === toRole)
+                const left = fromTeams.find(team => team.role === toRole)?.handle
+                if (!joining || !left || left === joining.handle) {
+                    gap(blockId, `the ${toRole} role is not held by one team here and another in the block the exchange is called from, so where its reassigned performers go cannot be drawn`)
+                    continue
+                }
+                const countPaths = moving.map(entry => reassignmentCountPath(index, at, entry.elementId))
+                // The served Role exchange sentence that says these reassignments: it cites every count, and gives their order.
+                const sentence = rendered.find(instruction => instruction.section === ROLE_EXCHANGE && input.served.some(entry => entry.section === instruction.section && entry.text === instruction.text) && countPaths.every(path => instruction.from.includes(path)))
+                const nounText = reading.roleNounOf[toRole] ?? null
+                if (!sentence || !nounText) {
+                    gap(blockId, `no served Role exchange sentence says the reassignments to the ${toRole} role${nounText ? '' : ' by its noun'}, so what changes between the blocks cannot be shown`)
+                    continue
+                }
+                const ordered = [...moving].sort((a, b) => sentence.from.indexOf(reassignmentCountPath(index, at, a.elementId)) - sentence.from.indexOf(reassignmentCountPath(index, at, b.elementId)))
+                const said = ordered.map(entry => {
+                    const noun = nouns[entry.performerRow]
+                    const word = entry.count === 1 ? noun?.singular : noun?.plural
+                    return typeof word === 'string' && word.trim() ? `${entry.count} ${word}` : null
+                })
+                if (said.some(word => word === null)) {
+                    gap(blockId, `a reassignment to the ${toRole} role has no noun for its performers, so it cannot be said`)
+                    continue
+                }
+                const words = said as string[]
+                const phrase = words.length > 1 ? `${words.slice(0, -1).join(', ')} and ${words[words.length - 1]}` : words[0]
+                exchanges.push({
+                    toRole,
+                    to: joining.handle,
+                    from: left,
+                    fromBlock: fromGame.blockId,
+                    moving: carried(phrase, sentence),
+                    total: ordered.reduce((sum, entry) => sum + entry.count, 0),
+                    noun: carried(nounText, sentence),
+                    bindings: ordered.map(entry => ({ quantity: entry.count, path: reassignmentCountPath(index, at, entry.elementId) })),
+                    cites: ordered.flatMap(entry => [`${at}[${entry.elementId}].${index.reassignment!.toRoleLeaf}`, `${at}[${entry.elementId}].${index.reassignment!.performerRowLeaf}`, reassignmentCountPath(index, at, entry.elementId)]),
+                })
+            }
+        }
+
+        blocks.push({ blockId, label: games.length > 1 ? blockWord(i + 1) : null, holders: { ...game.holders }, markings, objects, targets, markedZones, teams, dimensions, exchanges })
     })
+
+    // ── Team identity across the blocks (stage C2): each realized team at one place in every block; labelled where its noun moves ─────
+    if (blocks.length > 1) {
+        const handlesOf = (block: DiagramBlock) => block.teams.map(team => `${team.position}:${team.handle}`).sort().join('|')
+        for (const block of blocks.slice(1)) {
+            if (handlesOf(block) !== handlesOf(blocks[0])) gap(block.blockId, 'the blocks do not hold the same realized teams at the same places, so no team can keep one look across them')
+        }
+    }
+    const handles = [...new Set(blocks.flatMap(block => block.teams.map(team => team.handle)))]
+    const labelled = blocks.length > 1 && handles.some(handle => new Set(blocks.map(block => block.teams.find(team => team.handle === handle)?.noun?.text ?? null)).size > 1)
+    if (labelled) {
+        for (const block of blocks) {
+            for (const team of block.teams) {
+                const text = teamLabelText(team.position)
+                if (text) team.label = draft(text)
+                else gap(block.blockId, `the team at place ${team.position} has no neutral label, so it cannot be told apart across the blocks`)
+            }
+        }
+    }
 
     // ── What the game holds and the diagram does not draw (optional elements), for the administrator ─────────────────────
     const restarts = transitionsOf(games[0], index).filter(row => row.location !== null)
@@ -632,6 +797,8 @@ export function buildFieldDiagram(input: DiagramInput): { diagram: FieldDiagram 
         ...(uses(block => block.targets.some(target => !target.line)) ? [his(DIAGRAM_WORDS.his.targetZone)] : []),
         ...lineTargetTexts.map(text => draft(text)),
         ...(uses(block => block.teams.some(team => !!team.start)) ? [draft(DIAGRAM_WORDS.draft.startingArea)] : []),
+        // Stage C2: where teams are labelled, colour, role and arrow are three carriers, and each is said once.
+        ...(labelled ? [draft(DIAGRAM_WORDS.draft.teamColour), draft(DIAGRAM_WORDS.draft.role), draft(DIAGRAM_WORDS.draft.attack)] : []),
     ]
     return { diagram: gaps.length ? null : { units: 'm', area, markingsSetOutOnce: setOutOnce, counts: together, blocks, legend }, gaps, notes }
 }
@@ -639,22 +806,25 @@ export function buildFieldDiagram(input: DiagramInput): { diagram: FieldDiagram 
 /* ------------------------------------------------------------------ the agreement check ------------------------------------------------------------------ */
 
 /** The keys each part of the model may hold (D8): no player, position inside an area, path or movement. */
-const MODEL_KEYS: Record<'diagram' | 'area' | 'block' | 'markings' | 'line' | 'zone' | 'object' | 'target' | 'zoneState' | 'team' | 'count' | 'start' | 'attack' | 'dimension' | 'word', string[]> = {
+const MODEL_KEYS: Record<'diagram' | 'area' | 'block' | 'markings' | 'line' | 'zone' | 'object' | 'target' | 'zoneState' | 'team' | 'count' | 'start' | 'attack' | 'dimension' | 'word' | 'exchange' | 'binding', string[]> = {
     diagram: ['units', 'area', 'markingsSetOutOnce', 'counts', 'blocks', 'legend'],
     area: ['lengthM', 'widthM', 'cites'],
-    block: ['blockId', 'label', 'holders', 'markings', 'objects', 'targets', 'markedZones', 'teams', 'dimensions'],
+    block: ['blockId', 'label', 'holders', 'markings', 'objects', 'targets', 'markedZones', 'teams', 'dimensions', 'exchanges'],
     markings: ['lines', 'zones'],
     line: ['elementId', 'along', 'across', 'markedLine', 'label', 'cites'],
     zone: ['elementId', 'along', 'across', 'cites'],
     object: ['elementId', 'along', 'across', 'label', 'cites'],
     target: ['objective', 'region', 'attackedBy', 'along', 'across', 'line', 'markedZone', 'label', 'cites'],
     zoneState: ['zone', 'state', 'of'],
-    team: ['key', 'role', 'designation', 'noun', 'counts', 'start', 'attacks'],
+    team: ['key', 'role', 'designation', 'handle', 'position', 'label', 'noun', 'counts', 'start', 'attacks'],
     count: ['word', 'bindings', 'team'],
     start: ['placement', 'along', 'across', 'timing', 'cites'],
     attack: ['end', 'target', 'objective', 'cites'],
     dimension: ['kind', 'axis', 'from', 'to', 'quantity', 'path', 'of', 'label'],
     word: ['text', 'status', 'carriedBy'],
+    // Stage C2: what moves at an exchange, as counts and words only: no path, position or movement.
+    exchange: ['toRole', 'to', 'from', 'fromBlock', 'moving', 'total', 'noun', 'bindings', 'cites'],
+    binding: ['quantity', 'path', 'as'],
 }
 
 /**
@@ -729,9 +899,16 @@ export function checkFieldDiagram(diagram: FieldDiagram, input: DiagramInput): D
             wordKeys('a target\'s label', target.label, at)
         }
         for (const state of block.markedZones) keysAre(`the state of ${state.zone}`, state, MODEL_KEYS.zoneState, at)
+        for (const exchange of block.exchanges ?? []) {
+            keysAre(`the exchange to the ${exchange.toRole} role`, exchange, MODEL_KEYS.exchange, at)
+            wordKeys('the performers an exchange moves', exchange.moving, at)
+            wordKeys('the noun of the role an exchange joins', exchange.noun, at)
+            for (const binding of exchange.bindings ?? []) keysAre('an exchange\'s count', binding, MODEL_KEYS.binding, at)
+        }
         for (const team of block.teams) {
             keysAre(`the ${team.key} team`, team, MODEL_KEYS.team, at)
             wordKeys('a team\'s noun', team.noun, at)
+            wordKeys('a team\'s label', team.label, at)
             for (const count of team.counts) countKeys(count, at)
             if (team.start) keysAre(`the ${team.key} team's starting area`, team.start, MODEL_KEYS.start, at)
             for (const attack of team.attacks) keysAre(`the ${team.key} team's direction`, attack, MODEL_KEYS.attack, at)
@@ -762,9 +939,19 @@ export function checkFieldDiagram(diagram: FieldDiagram, input: DiagramInput): D
         // No word names another block (his reply filed 23 October 2026, item 5).
         for (const other of blockOrdinals) if (other !== ordinal && word.text.includes(`${DIAGRAM_WORDS.draft.block} ${other}`)) finding('D6', blockId, `"${word.text}" names another block`)
     }
-    // A DRAFT legend word is the starting area's name, or (polish pass P7) a target line's words, which D6 holds to the game below.
+    // Stage C2 (D10): teams are labelled exactly where some realized team's noun does not stay with it across the blocks.
+    const handles = [...new Set(diagram.blocks.flatMap(block => block.teams.map(team => team.handle)))]
+    const labelled = diagram.blocks.length > 1 && handles.some(handle => new Set(diagram.blocks.map(block => block.teams.find(team => team.handle === handle)?.noun?.text ?? null)).size > 1)
+    const teamLegend: string[] = [DIAGRAM_WORDS.draft.teamColour, DIAGRAM_WORDS.draft.role, DIAGRAM_WORDS.draft.attack]
+    for (const text of teamLegend) {
+        const has = diagram.legend.some(word => word.text === text)
+        if (has !== labelled) finding('D10', null, `the legend ${has ? 'says' : 'does not say'} "${text}" where the teams ${labelled ? 'are' : 'are not'} labelled`)
+    }
+    // A DRAFT legend word is the starting area's name, (polish pass P7) a target line's words, which D6 holds to the game below, or (stage
+    // C2) one of the three words for labelled teams.
     const lineTargetTexts = new Set(diagram.blocks.flatMap(block => block.targets.filter(target => target.line && target.label).map(target => target.label!.text)))
-    for (const word of diagram.legend) checkWord(word, word.status === 'DRAFT' ? (lineTargetTexts.has(word.text) ? word.text : DIAGRAM_WORDS.draft.startingArea) : null, null, null, null)
+    const draftLegendWord = (text: string): string => (lineTargetTexts.has(text) || (labelled && teamLegend.includes(text)) ? text : DIAGRAM_WORDS.draft.startingArea)
+    for (const word of diagram.legend) checkWord(word, word.status === 'DRAFT' ? draftLegendWord(word.text) : null, null, null, null)
 
     // D4 for the counts said for every team together: the first block's Players sentence carries each, and each number is the game's.
     const countValue = (fixture: any, binding: Binding, team: number | null): number | null => {
@@ -921,6 +1108,71 @@ export function checkFieldDiagram(diagram: FieldDiagram, input: DiagramInput): D
             if (team ? team.start?.placement !== id : namesTeam(index, group)) finding('D2', blockId, `the starting area ${id} the game authorizes for ${group} is not drawn as ${team ? `the ${team.key} team's` : 'any drawn team\'s'}`)
         }
 
+        // D10 (stage C2): each team is the realized team it says, at its place among this block's game's teams, every one drawn once; its
+        // label the one its place gives, where teams are labelled, and none elsewhere.
+        const realizedTeams = teamsOf(game, index)
+        if (block.teams.length !== realizedTeams.length || new Set(block.teams.map(team => team.handle)).size !== block.teams.length) finding('D10', blockId, `${block.teams.length} teams are drawn and this block's game holds ${realizedTeams.length}, each to be drawn once`)
+        for (const team of block.teams) {
+            const held = realizedTeams[team.position]
+            if (!held || held.handle !== team.handle || held.designation !== team.designation) finding('D10', blockId, `the ${team.key} team is drawn as the realized team ${team.handle} at place ${team.position}, which this block's game does not hold there`)
+            if ((team.label !== null) !== labelled) finding('D10', blockId, `the ${team.key} team ${team.label ? `is labelled "${team.label.text}"` : 'has no label'} where the teams ${labelled ? 'are' : 'are not'} labelled`)
+            checkWord(team.label, labelled ? teamLabelText(team.position) : null, blockId, rendered, ordinal)
+        }
+
+        // D10: what moves at the exchange into this block, read again from this block's recorded reassignments, the teams holding each role
+        // here and in the block the exchange is called from, the served Role exchange sentence that says it, and both blocks' counts.
+        const reassignedAt = reassignmentsAt(index)
+        const groups = games.length > 1 && reassignedAt ? reassignmentsByRole(reassignmentsIn(fixture?.game ?? {}, index).found) : []
+        const exchanges = block.exchanges ?? []
+        const roleList = (roles: string[]) => roles.join(', ') || 'none'
+        if (exchanges.length !== groups.length || groups.some(([role]) => exchanges.filter(exchange => exchange.toRole === role).length !== 1)) {
+            finding('D10', blockId, `the exchanges drawn (${roleList(exchanges.map(exchange => exchange.toRole))}) are not the reassignments this block's game records (${roleList(groups.map(([role]) => role))})`)
+        }
+        const calledFromGame = games.length > 1 ? games[calledFrom(i, games.length)] : null
+        const there = calledFromGame ? teamsOf(calledFromGame, index) : []
+        const roleNouns = gameReadingOf(fixture).roleNounOf
+        const change = new Map<string, number>()
+        for (const exchange of exchanges) {
+            const group = groups.find(([role]) => role === exchange.toRole)?.[1] ?? []
+            const joins = realizedTeams.find(team => team.role === exchange.toRole)?.handle
+            const leaves = there.find(team => team.role === exchange.toRole)?.handle
+            if (!calledFromGame || exchange.fromBlock !== calledFromGame.blockId || exchange.to !== joins || exchange.from !== leaves || exchange.to === exchange.from) {
+                finding('D10', blockId, `the performers reassigned to the ${exchange.toRole} role are drawn moving from ${exchange.from} to ${exchange.to}, and the games move them from ${leaves ?? 'no team'} to ${joins ?? 'no team'}`)
+            }
+            const expected = group.map(entry => `${reassignmentCountPath(index, reassignedAt!, entry.elementId)}=${entry.count}`).sort()
+            const drawn = (exchange.bindings ?? []).map(binding => `${binding.path}=${binding.quantity}`).sort()
+            if (JSON.stringify(drawn) !== JSON.stringify(expected) || exchange.total !== group.reduce((sum, entry) => sum + entry.count, 0)) {
+                finding('D10', blockId, `the exchange to the ${exchange.toRole} role says ${drawn.join(', ') || 'no count'} (${exchange.total} together), and the game records ${expected.join(', ') || 'none'}`)
+            }
+            // The words: carried by one served Role exchange sentence (D6 holds each to it) that binds every count and says the role's noun.
+            checkWord(exchange.moving, null, blockId, rendered, ordinal)
+            checkWord(exchange.noun, null, blockId, rendered, ordinal)
+            const carrier = rendered.find(instruction => instruction.section === exchange.moving.carriedBy?.section && instruction.text === exchange.moving.carriedBy?.text)
+            if (!carrier || carrier.section !== ROLE_EXCHANGE || exchange.noun.carriedBy?.text !== carrier.text || !(exchange.bindings ?? []).every(binding => stated([carrier], binding.path, binding.quantity))) {
+                finding('D10', blockId, `the exchange to the ${exchange.toRole} role is not said by one served Role exchange sentence binding each of its counts`)
+            }
+            if (exchange.noun.text !== roleNouns[exchange.toRole]) finding('D10', blockId, `the exchange to the ${exchange.toRole} role names it "${exchange.noun.text}", which is not that role's noun`)
+            for (const entry of group) {
+                const leaf = performerLeafOf(index, entry.performerRow)
+                change.set(`${exchange.to}|${leaf}`, (change.get(`${exchange.to}|${leaf}`) ?? 0) + entry.count)
+                change.set(`${exchange.from}|${leaf}`, (change.get(`${exchange.from}|${leaf}`) ?? 0) - entry.count)
+            }
+        }
+        // Each team's counts here, against the block the exchange is called from: changed exactly as the exchanges drawn state, so the counts
+        // drawn in each block and the sentence drawn with them never disagree.
+        if (calledFromGame && index.reassignment) {
+            for (const team of realizedTeams) {
+                for (const leaf of index.reassignment.performerRows.map(row => performerLeafOf(index, row))) {
+                    const here = teamCountAt(fixture, team.handle, leaf)
+                    const before = teamCountAt(calledFromGame.fixture, team.handle, leaf)
+                    if (here === null && before === null) continue
+                    const actual = here === null || before === null ? NaN : here - before
+                    const drawnChange = change.get(`${team.handle}|${leaf}`) ?? 0
+                    if (actual !== drawnChange) finding('D10', blockId, `the team ${team.handle} holds ${here} ${leaf} here and ${before} in the block the exchange is called from, a change the exchanges drawn state as ${drawnChange}`)
+                }
+            }
+        }
+
         // D4: every dimension is the game's own value at its path, and a sentence of this block that cites the path says it.
         for (const dimension of block.dimensions) {
             checkWord(dimension.label, `${dimension.quantity} ${DIAGRAM_WORDS.draft.metres}`, blockId, rendered, ordinal)
@@ -948,6 +1200,14 @@ export function checkFieldDiagram(diagram: FieldDiagram, input: DiagramInput): D
             if (!stated(rendered.filter(servedSays), dimension.path, dimension.quantity)) finding('D4', blockId, `no served sentence of this block says ${dimension.quantity} citing ${dimension.path}`)
         }
     })
+    // D10 (stage C2): each realized team at one place in every block, so its look and label can follow it.
+    const placeOf = new Map<string, number>()
+    for (const block of diagram.blocks) {
+        for (const team of block.teams) {
+            if (placeOf.has(team.handle) && placeOf.get(team.handle) !== team.position) finding('D10', block.blockId, `the realized team ${team.handle} is at place ${placeOf.get(team.handle)} in one block and ${team.position} in another`)
+            else placeOf.set(team.handle, team.position)
+        }
+    }
     return findings
 }
 

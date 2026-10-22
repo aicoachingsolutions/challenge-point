@@ -1,5 +1,9 @@
 # Challenge Point — Coach Communication Standard (CCS)
 
+> **SUPERSEDED (22 October 2026).** Christian's Coach Communication Standard is now RC2, with the integrated RC3 sent
+> for his approval; both are stored word for word in [standards/](standards/README.md). This v1.0 capture is kept for
+> history only.
+
 **v1.0 (Draft)** · Christian · captured 2026-06-17
 
 > **Status:** a long-term, implementation-agnostic **design specification** for the coach-facing

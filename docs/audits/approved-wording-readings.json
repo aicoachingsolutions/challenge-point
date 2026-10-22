@@ -1,6 +1,6 @@
 {
-    "about": "PROPOSED, NOT APPROVED. What a part of an approved entry states: for a verbatim extract of his approved wording (a whole sentence of an entry, or the leading clause of one up to its first ';'), which of the entry's covers those words say. His reply filed 22 October 2026, item 4: 'I approve generating abbreviated versions of approved statements for the Coach Overview, provided their meaning remains accurate.' and 'Shortening must not introduce new meanings, omit a condition that changes the essential understanding, or silently turn a qualified rule into an unrestricted one.' No field of approved-coach-wording.json records what a part of an entry states, and nothing in the words decides it mechanically, so it is a reading of his words: recorded here as data, keyed by approved-entry id exactly as the approved wording itself is, and never in code. Every reading below is OUR PROPOSAL for his confirmation (the coordinator's decision of 22 October 2026, stage 3E of the communication BUILD PLAN: the readings the BUILD PLAN's EXPECTED PRESENTATION assumes for its overview sentences 4 and 8). Each cover a reading says a part states is justified by the words of his sentence that state it ('statedBy', an exact substring of that part's words) and, where the entry's own note maps that field to words, by the note's words ('note', an exact substring of the entry's note). A cover not listed is left to the entry said whole in Coach Details. The status stays PROPOSED and the file carries no approvedBy; every extract built on a reading here is labelled for an administrator 'reading PROPOSED, awaiting confirmation', and a coach sees no status. Read by back/src/system/rendering/approved-wording-readings.ts through AUDITS_DIR, so the bundled server finds it in dist/knowledge; build.js copies it. approved-coach-wording.json is not changed by this file. AMENDED 22 October 2026 (stage 3F, his reply filed 23 October 2026, item 4: 'An abbreviation should be accepted only when the overview as a whole preserves the material meaning of the full rule, including relevant initial conditions, scoring eligibility, and exceptions. For example, saying that a new goalkeeper restart is required after possession loss does not, by itself, fully communicate that the original scoring opportunity must begin from the goalkeeper. The system should evaluate the meaning of the complete overview rather than simply confirm that related words or conditions appear somewhere.'): every approved entry the overview may use, whole or as an extract, now has a reading, and his wording said whole counts only for what its reading says it states, never for every field it is matched against (an entry's covers are what it speaks about; a reading is what its words state). A reading may be of an entry said whole (every sentence of it, whole); the reading of several parts with no reading of their own together is the union of each part's reading. 'doesNotState' records, with our reason, a cover a reading says its parts do not state: A01-W3 said whole states the building team's scoring eligibility and NOT that its scoring opportunity must begin from the goalkeeper's build-out (his item-4 example). A note fragment a reading cites names its cover's row, and where an entry's note maps a row to quoted words, a reading of that row cites the mapping and the words lie inside the parts read (the 3E review's should-fix 1).",
-    "status": "PROPOSED",
+    "about": "PARTLY APPROVED since his reply filed 24 October 2026 (AMENDED C1, at the end): four readings are APPROVED, each with his words; every other reading stays PROPOSED. Until then: PROPOSED, NOT APPROVED. What a part of an approved entry states: for a verbatim extract of his approved wording (a whole sentence of an entry, or the leading clause of one up to its first ';'), which of the entry's covers those words say. His reply filed 22 October 2026, item 4: 'I approve generating abbreviated versions of approved statements for the Coach Overview, provided their meaning remains accurate.' and 'Shortening must not introduce new meanings, omit a condition that changes the essential understanding, or silently turn a qualified rule into an unrestricted one.' No field of approved-coach-wording.json records what a part of an entry states, and nothing in the words decides it mechanically, so it is a reading of his words: recorded here as data, keyed by approved-entry id exactly as the approved wording itself is, and never in code. Every reading below is OUR PROPOSAL for his confirmation (the coordinator's decision of 22 October 2026, stage 3E of the communication BUILD PLAN: the readings the BUILD PLAN's EXPECTED PRESENTATION assumes for its overview sentences 4 and 8). Each cover a reading says a part states is justified by the words of his sentence that state it ('statedBy', an exact substring of that part's words) and, where the entry's own note maps that field to words, by the note's words ('note', an exact substring of the entry's note). A cover not listed is left to the entry said whole in Coach Details. The status stays PROPOSED and the file carries no approvedBy; every extract built on a reading here is labelled for an administrator 'reading PROPOSED, awaiting confirmation', and a coach sees no status. Read by back/src/system/rendering/approved-wording-readings.ts through AUDITS_DIR, so the bundled server finds it in dist/knowledge; build.js copies it. approved-coach-wording.json is not changed by this file. AMENDED 22 October 2026 (stage 3F, his reply filed 23 October 2026, item 4: 'An abbreviation should be accepted only when the overview as a whole preserves the material meaning of the full rule, including relevant initial conditions, scoring eligibility, and exceptions. For example, saying that a new goalkeeper restart is required after possession loss does not, by itself, fully communicate that the original scoring opportunity must begin from the goalkeeper. The system should evaluate the meaning of the complete overview rather than simply confirm that related words or conditions appear somewhere.'): every approved entry the overview may use, whole or as an extract, now has a reading, and his wording said whole counts only for what its reading says it states, never for every field it is matched against (an entry's covers are what it speaks about; a reading is what its words state). A reading may be of an entry said whole (every sentence of it, whole); the reading of several parts with no reading of their own together is the union of each part's reading. 'doesNotState' records, with our reason, a cover a reading says its parts do not state: A01-W3 said whole states the building team's scoring eligibility and NOT that its scoring opportunity must begin from the goalkeeper's build-out (his item-4 example). A note fragment a reading cites names its cover's row, and where an entry's note maps a row to quoted words, a reading of that row cites the mapping and the words lie inside the parts read (the 3E review's should-fix 1). AMENDED C1 (his reply filed 24 October 2026, item 1, to our email of 23 October 2026 'Play Out from the Back - the new coach presentation is ready for you to evaluate', whose item a described our readings of the sentences the overview uses): 'I agree with your interpretation of the approved scoring statements.' and 'Please preserve these distinctions in the general abbreviation and completeness mechanisms.' So the four readings that email described, the ones the overview uses, are APPROVED: A01-W1 sentence 1, A01-W1 sentence 2, A01-W2's leading clause and A01-W3. Each carries its own status and approvedBy (who, the date, the reply it is filed in, and his words verbatim: his agreement and the distinction of his item 1 that the reading carries, '[...]' marking words left out between them). A01-W1 sentence 3 and A01-W2 said whole were not described and stay PROPOSED, with no approvedBy. Approval is per reading, never of the file: the file's status is what its readings make it (PARTLY_APPROVED), checked by the loader. The 'why' of each cover is unchanged: our reasons as proposed, including the places marked OUR READING.",
+    "status": "PARTLY_APPROVED",
     "proposal": {
         "by": "Claude, implementing stage 3E of the communication BUILD PLAN for his reply filed 22 October 2026, and stage 3F for his reply filed 23 October 2026",
         "date": "2026-10-22",
@@ -11,13 +11,22 @@
         "parts": "the parts of the entry the reading is of, in order: [{ sentence: <numbered from 1, as an extract's name numbers them: A01-W1:s1 is sentence 1>, part: 'WHOLE_SENTENCE' | 'LEADING_CLAUSE' }]; every sentence of the entry, whole, is the entry said whole (stage 3F)",
         "words": "those parts' words as the entry holds them (a leading clause closed by its sentence's own end mark), checked against the entry",
         "states": "[{ coverIndex: <the cover's place in the entry's covers, numbered from 0 as an extract's keeps and leaves number them>, row, element: the cover's row and locator exactly as the entry gives them (checked), statedBy: an exact substring of 'words' that states it, why: our reason, note: an exact substring of the entry's own note where the note maps this field to words, naming the cover's row, else null }]",
-        "doesNotState": "optional (stage 3F): [{ coverIndex, row, element (as for states), why: our reason those words do not state it }], for an administrator's evidence; a cover listed here is never also stated by the same reading"
+        "doesNotState": "optional (stage 3F): [{ coverIndex, row, element (as for states), why: our reason those words do not state it }], for an administrator's evidence; a cover listed here is never also stated by the same reading",
+        "status": "C1: the reading's own standing, PROPOSED or APPROVED",
+        "approvedBy": "C1, only where the reading is APPROVED, and nowhere else in the file: { who, date: YYYY-MM-DD, filed: the reply it is filed in, naming that date in words, quote: his words verbatim }"
     },
     "readings": [
         {
             "entry": "A01-W1",
             "parts": [{ "sentence": 1, "part": "WHOLE_SENTENCE" }],
             "words": "Building team: Score by carrying the ball beyond the marked line or passing to a teammate who receives it under control beyond the line.",
+            "status": "APPROVED",
+            "approvedBy": {
+                "who": "Christian",
+                "date": "2026-10-24",
+                "filed": "his reply filed 24 October 2026, item 1, to our email of 23 October 2026, whose item a described this reading",
+                "quote": "I agree with your interpretation of the approved scoring statements. [...] The overview appropriately distinguishes: [...] Controlled progression beyond the marked line."
+            },
             "states": [
                 {
                     "coverIndex": 4,
@@ -89,6 +98,13 @@
             "entry": "A01-W1",
             "parts": [{ "sentence": 2, "part": "WHOLE_SENTENCE" }],
             "words": "The progression must begin with the goalkeeper's build-out and occur before the building team loses possession.",
+            "status": "APPROVED",
+            "approvedBy": {
+                "who": "Christian",
+                "date": "2026-10-24",
+                "filed": "his reply filed 24 October 2026, item 1, to our email of 23 October 2026, whose item a described this reading",
+                "quote": "I agree with your interpretation of the approved scoring statements. [...] The overview appropriately distinguishes: [...] The requirement that the build-out begin with the goalkeeper."
+            },
             "states": [
                 {
                     "coverIndex": 1,
@@ -136,6 +152,7 @@
             "entry": "A01-W1",
             "parts": [{ "sentence": 3, "part": "WHOLE_SENTENCE" }],
             "words": "Uncontrolled clearances do not score.",
+            "status": "PROPOSED",
             "states": [
                 {
                     "coverIndex": 12,
@@ -175,6 +192,13 @@
             "entry": "A01-W2",
             "parts": [{ "sentence": 1, "part": "LEADING_CLAUSE" }],
             "words": "The pressing team also scores by winning the ball inside that zone, provided it genuinely establishes possession.",
+            "status": "APPROVED",
+            "approvedBy": {
+                "who": "Christian",
+                "date": "2026-10-24",
+                "filed": "his reply filed 24 October 2026, item 1, to our email of 23 October 2026, whose item a described this reading",
+                "quote": "I agree with your interpretation of the approved scoring statements. [...] The overview appropriately distinguishes: [...] The pressing team's controlled-entry and controlled-regain objectives."
+            },
             "states": [
                 {
                     "coverIndex": 0,
@@ -206,6 +230,7 @@
             "entry": "A01-W2",
             "parts": [{ "sentence": 1, "part": "WHOLE_SENTENCE" }],
             "words": "The pressing team also scores by winning the ball inside that zone, provided it genuinely establishes possession; a contested touch, deflection or loose ball does not count.",
+            "status": "PROPOSED",
             "states": [
                 {
                     "coverIndex": 0,
@@ -245,6 +270,13 @@
             "entry": "A01-W3",
             "parts": [{ "sentence": 1, "part": "WHOLE_SENTENCE" }],
             "words": "If the building team loses possession or plays the ball out, it cannot score again until the next goalkeeper restart.",
+            "status": "APPROVED",
+            "approvedBy": {
+                "who": "Christian",
+                "date": "2026-10-24",
+                "filed": "his reply filed 24 October 2026, item 1, to our email of 23 October 2026, whose item a described this reading",
+                "quote": "I agree with your interpretation of the approved scoring statements. [...] The overview appropriately distinguishes: [...] The loss of scoring eligibility following a turnover or ball out."
+            },
             "states": [
                 {
                     "coverIndex": 0,

@@ -226,12 +226,13 @@ export interface CoverRef {
 }
 
 /**
- * **Where a reading is recorded, and its standing** — stage 3E, 22 October 2026: the PROPOSED record of what parts of his entries state
- * (`approved-wording-readings.ts`), named for an administrator with its label (DRAFT words); never a coach's.
+ * **Where a reading is recorded, and its standing** — stage 3E, 22 October 2026: the record of what parts of his entries state
+ * (`approved-wording-readings.ts`), named for an administrator with its label (DRAFT words); never a coach's. C1 (his reply filed 24
+ * October 2026, item 1): the standing is that of the readings the parts are read by, APPROVED only where he approved every one of them.
  */
 export interface ReadingRecord {
     source: string
-    status: 'PROPOSED'
+    status: 'PROPOSED' | 'APPROVED'
     label: string
     labelStatus: 'DRAFT'
 }
@@ -255,10 +256,19 @@ export interface ReadingExplanation {
  * (`wholeUnitsOf`) as it reads any part.
  */
 export type CoverReading = ((entry: ApprovedWording, units: ExtractUnit[]) => number[] | null) & {
+    /** One record for every part it reads (a test's reading may name one). */
     record?: ReadingRecord
+    /** C1: the record's standing for exactly the readings these parts are read by (the recorded reading's; it names no single `record`). */
+    recordFor?: (entry: ApprovedWording, units: ExtractUnit[]) => ReadingRecord | null
     explain?: (entry: ApprovedWording, units: ExtractUnit[]) => ReadingExplanation | null
 }
 export const NO_RECORDED_READING: CoverReading = () => null
+
+/** The record a reading names for these parts (C1: its own per-part standing where it gives one, else its one record), as a copy; or null. */
+export function readingRecordOf(reading: CoverReading, entry: ApprovedWording, units: ExtractUnit[]): ReadingRecord | null {
+    const record = reading.recordFor ? reading.recordFor(entry, units) : (reading.record ?? null)
+    return record ? { ...record } : null
+}
 
 /** The parts of a statement said whole: each of its sentences, whole, in order (stage 3F: his wording said whole is read by these). */
 export const wholeUnitsOf = (text: string): ExtractUnit[] => sentencesOf(text).map((_, sentence) => ({ sentence, part: 'WHOLE_SENTENCE' as const }))
@@ -408,7 +418,7 @@ export function extractUnusableBecause(extract: any, options: { wording?: Approv
     if ((recorded === null) !== (extract.reading === 'NONE_RECORDED') || canonicalJson([...(recorded ?? [])].sort((a, b) => a - b)) !== canonicalJson(kept)) return 'what it keeps is not what the recorded reading gives it'
     // Stage 3E: where its reading is recorded, and its standing, are the reading's own (the one handed in), never the extract's word.
     if (!('readingRecord' in extract)) return 'it does not say where the reading it keeps by is recorded'
-    const record = recorded === null ? null : ((options.reading ?? NO_RECORDED_READING).record ?? null)
+    const record = recorded === null ? null : readingRecordOf(options.reading ?? NO_RECORDED_READING, entry, extract.units)
     if (canonicalJson(extract.readingRecord) !== canonicalJson(record)) return `it says its reading is recorded at ${JSON.stringify(extract.readingRecord)}, and the reading it is held to is recorded at ${JSON.stringify(record)}`
     const hasSlots = slotsIn(entry.sentence).length > 0
     if (options.game === undefined) {
@@ -533,7 +543,7 @@ export function extractsFor(game: any, options: { wording?: ApprovedWording[]; r
         for (const instance of instances) {
             for (const units of selections) {
                 const recorded = reading(entry, units)
-                const built = buildExtract(game, entry, instance, units, recorded ?? [], recorded === null ? 'NONE_RECORDED' : 'RECORDED', recorded === null ? null : (reading.record ?? null))
+                const built = buildExtract(game, entry, instance, units, recorded ?? [], recorded === null ? 'NONE_RECORDED' : 'RECORDED', recorded === null ? null : readingRecordOf(reading, entry, units))
                 if (typeof built === 'string') {
                     withheld.push({ id: extractId(entry.id, units, instance.prefix), text: null, source, units, why: built })
                     continue
@@ -599,7 +609,7 @@ export function wholeReadingsFor(game: any, options: { wording?: ApprovedWording
                     paths,
                 ),
                 reading: valid ? 'RECORDED' : 'NONE_RECORDED',
-                readingRecord: valid ? (reading.record ? { ...reading.record } : null) : null,
+                readingRecord: valid ? readingRecordOf(reading, entry, units) : null,
                 states: [...new Set(kept.map(index => paths[index]).filter((path): path is string => !!path))],
                 doesNotState: (explanation?.doesNotState ?? [])
                     .filter(left => !kept.includes(left.index) && left.index >= 0 && left.index < entry.covers.length)

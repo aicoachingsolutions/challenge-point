@@ -25,6 +25,14 @@
  *   state (A01-W3: not the origin, his item-4 example) and is checked; the 3E review's should-fix 1: a note fragment must name its cover's
  *   row, and where the entry's note maps a row to quoted words, a reading of that row must cite the mapping and the words must lie in the
  *   parts read (2b); with no usable record his wording can be shown to state nothing, so the overview is withheld (3, re-pointed).
+ *
+ *   C1 (his reply filed 24 October 2026, item 1: "I agree with your interpretation of the approved scoring statements."): approval is per
+ *   reading. Exactly the four readings the overview uses that our 23 October email described are APPROVED (A01-W1 sentences 1 and 2, A01-W2's
+ *   leading clause, A01-W3), each with his words verbatim; A01-W1 sentence 3 and A01-W2 said whole stay PROPOSED; the record is
+ *   PARTLY_APPROVED (1, re-pointed). The loader refuses an APPROVED reading without his approval (or with one that does not say who, a
+ *   calendar date, the reply it is filed in by that date, and his words), a PROPOSED reading with one, approvedBy anywhere but on a reading,
+ *   and a record status its readings do not make it (2c). Parts read by readings that are all APPROVED name the approved record; any
+ *   PROPOSED reading among them makes it PROPOSED (1c).
  */
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
@@ -32,10 +40,14 @@ import path from 'node:path'
 
 import { APPROVED_WORDING_FILE, ApprovedWording, approvedWording } from './approved-wording'
 import {
+    APPROVED_READING_RECORD,
     coverReadingOf,
     noteMappingsOf,
     PROPOSED_READING_RECORD,
+    READING_APPROVED_LABEL,
     READING_PROPOSED_LABEL,
+    readingsAccountOf,
+    readingsAccountOfReading,
     readingsLoadOf,
     readingsUnusableBecause,
     recordedReading,
@@ -63,12 +75,45 @@ const W1 = entryOf('A01-W1')
 const W2 = entryOf('A01-W2')
 const readingOf = (file: any, entry: string) => file.readings.find((reading: any) => reading.entry === entry)
 
-test('1. the production record: PROPOSED, the two decided readings, every cover justified by his words; the reading it gives', () => {
-    assert.equal(RECORD.status, 'PROPOSED')
-    assert.ok(!JSON.stringify(RECORD).includes('"approvedBy"'), 'a reading of his wording carries no approval of its own')
+/** His words, verbatim, filed 24 October 2026, item 1: his agreement, and each distinction it names (C1). */
+const HIS_AGREEMENT = 'I agree with your interpretation of the approved scoring statements.'
+const HIS_DISTINCTIONS = {
+    W1_S1: 'Controlled progression beyond the marked line.',
+    W1_S2: 'The requirement that the build-out begin with the goalkeeper.',
+    W3: 'The loss of scoring eligibility following a turnover or ball out.',
+    W2_C1: "The pressing team's controlled-entry and controlled-regain objectives.",
+}
+const approvalOf = (distinction: string) => ({
+    who: 'Christian',
+    date: '2026-10-24',
+    filed: 'his reply filed 24 October 2026, item 1, to our email of 23 October 2026, whose item a described this reading',
+    quote: `${HIS_AGREEMENT} [...] The overview appropriately distinguishes: [...] ${distinction}`,
+})
+
+test('1. the production record: PARTLY_APPROVED (C1), the decided readings, every cover justified by his words; the reading it gives', () => {
+    // Re-pointed 24 October 2026 (C1, his reply filed 24 October 2026, item 1). Was: PROPOSED, with no approvedBy anywhere.
+    assert.equal(RECORD.status, 'PARTLY_APPROVED')
     assert.equal(readingsUnusableBecause(RECORD), null)
     const load = recordedReadings()
-    assert.deepEqual([load.status, load.why], ['PROPOSED', null])
+    assert.deepEqual([load.status, load.why], ['PARTLY_APPROVED', null])
+    // Exactly the four readings the overview uses that our 23 October email described are APPROVED, each with his words verbatim; the
+    // other two stay PROPOSED with no approval.
+    assert.deepEqual(
+        load.readings.map(reading => [reading.entry, reading.units.map(unit => [unit.sentence, unit.part]), reading.status, reading.approvedBy]),
+        [
+            ['A01-W1', [[0, 'WHOLE_SENTENCE']], 'APPROVED', approvalOf(HIS_DISTINCTIONS.W1_S1)],
+            ['A01-W1', [[1, 'WHOLE_SENTENCE']], 'APPROVED', approvalOf(HIS_DISTINCTIONS.W1_S2)],
+            ['A01-W1', [[2, 'WHOLE_SENTENCE']], 'PROPOSED', null],
+            ['A01-W2', [[0, 'LEADING_CLAUSE']], 'APPROVED', approvalOf(HIS_DISTINCTIONS.W2_C1)],
+            ['A01-W2', [[0, 'WHOLE_SENTENCE']], 'PROPOSED', null],
+            ['A01-W3', [[0, 'WHOLE_SENTENCE']], 'APPROVED', approvalOf(HIS_DISTINCTIONS.W3)],
+        ],
+    )
+    // His approval is a reading's own: nowhere else in the file.
+    const approvals = (value: unknown): number => (Array.isArray(value) ? value.reduce((n, item) => n + approvals(item), 0) : value && typeof value === 'object' ? Object.entries(value).reduce((n, [key, item]) => n + (key === 'approvedBy' ? 1 : 0) + approvals(item), 0) : 0)
+    assert.equal(approvals(RECORD.readings), 4)
+    assert.equal(approvals({ ...RECORD, readings: [], readingShape: {} }), 0, 'none outside its readings (the shape only describes the field)')
+    assert.ok(RECORD.readings.every((reading: any) => ('approvedBy' in reading) === (reading.status === 'APPROVED')))
     // build.js copies it into dist/knowledge, where the bundled server reads it.
     assert.ok(fs.readFileSync(path.resolve(__dirname, '../../../build.js'), 'utf8').includes("'approved-wording-readings.json'"))
     // The two readings the coordinator decided for stage 3E, unchanged, and since stage 3F every other part the overview may use, each
@@ -133,9 +178,32 @@ test('1. the production record: PROPOSED, the two decided readings, every cover 
     const firstTwo = reading.explain!(W1, [0, 1].map(sentence => ({ sentence, part: 'WHOLE_SENTENCE' as const })))!
     assert.deepEqual(firstTwo.doesNotState.map(left => left.index), [0], 'neither sentence states the eligibility')
     assert.equal(reading.explain!(W1, [{ sentence: 0, part: 'LEADING_CLAUSE' }]), null)
-    assert.deepEqual(reading.record, { source: READINGS_SOURCE, status: 'PROPOSED', label: READING_PROPOSED_LABEL, labelStatus: 'DRAFT' })
-    assert.deepEqual(PROPOSED_READING_RECORD, reading.record)
+    // C1 (1c): the record a part names is the standing of exactly the readings it is read by. Re-pointed 24 October 2026: was one PROPOSED
+    // record for every part (`reading.record`), which the recorded reading no longer names.
+    assert.equal(reading.record, undefined)
+    const wholeOf = (...sentences: number[]) => sentences.map(sentence => ({ sentence, part: 'WHOLE_SENTENCE' as const }))
+    assert.deepEqual(PROPOSED_READING_RECORD, { source: READINGS_SOURCE, status: 'PROPOSED', label: READING_PROPOSED_LABEL, labelStatus: 'DRAFT' })
+    assert.deepEqual(APPROVED_READING_RECORD, { source: READINGS_SOURCE, status: 'APPROVED', label: READING_APPROVED_LABEL, labelStatus: 'DRAFT' })
     assert.equal(READING_PROPOSED_LABEL, 'reading PROPOSED, awaiting confirmation')
+    assert.equal(READING_APPROVED_LABEL, 'reading approved')
+    assert.deepEqual(reading.recordFor!(W1, wholeOf(0)), APPROVED_READING_RECORD, 'his first building sentence')
+    assert.deepEqual(reading.recordFor!(W1, wholeOf(1)), APPROVED_READING_RECORD, 'his second building sentence')
+    assert.deepEqual(reading.recordFor!(W1, wholeOf(2)), PROPOSED_READING_RECORD, 'his third building sentence: not described, so PROPOSED')
+    assert.deepEqual(reading.recordFor!(W1, wholeOf(0, 1)), APPROVED_READING_RECORD, 'two approved readings together')
+    assert.deepEqual(reading.recordFor!(W1, wholeOf(0, 1, 2)), PROPOSED_READING_RECORD, 'his building rule said whole: one of its readings is PROPOSED')
+    assert.deepEqual(reading.recordFor!(W2, [{ sentence: 0, part: 'LEADING_CLAUSE' }]), APPROVED_READING_RECORD, 'the regain clause')
+    assert.deepEqual(reading.recordFor!(W2, wholeOf(0)), PROPOSED_READING_RECORD, 'his regain sentence said whole')
+    assert.deepEqual(reading.recordFor!(W3, wholeOf(0)), APPROVED_READING_RECORD, 'his eligibility sentence')
+    assert.equal(reading.recordFor!(W1, [{ sentence: 1, part: 'LEADING_CLAUSE' }]), null, 'no reading, no record')
+    // The account an administrator is given names the approved readings and those still PROPOSED.
+    const account = readingsAccountOf(load)
+    assert.deepEqual([account.status, account.approved, account.proposed], [
+        'PARTLY_APPROVED',
+        ['A01-W1 sentence 1', 'A01-W1 sentence 2', 'A01-W2 sentence 1, leading clause', 'A01-W3 sentence 1'],
+        ['A01-W1 sentence 3', 'A01-W2 sentence 1'],
+    ])
+    assert.equal(account.label, 'readings partly approved. Approved: A01-W1 sentence 1; A01-W1 sentence 2; A01-W2 sentence 1, leading clause; A01-W3 sentence 1. Still PROPOSED, awaiting confirmation: A01-W1 sentence 3; A01-W2 sentence 1')
+    assert.deepEqual(readingsAccountOfReading(reading), account, 'the serving reading is described by the record it was built from')
     // His approved table is unchanged: no reading is written into it.
     const approved = fs.readFileSync(APPROVED_WORDING_FILE, 'utf8')
     for (const word of ['statedBy', 'coverIndex', 'readings', 'PROPOSED']) assert.ok(!approved.includes(word), word)
@@ -182,11 +250,12 @@ test('2. the loader refuses what it cannot check against his entries', () => {
     // A note not found verbatim in the entry's own note.
     refused(file => (w2(file).states[0].note = "'The pressing team' (V28, the team that presses)"), "is not found verbatim in A01-W2's own note")
     refused(file => (w1(file).states[0].note = 'TEST-ONLY'), "is not found verbatim in A01-W1's own note")
-    // No approval of its own, anywhere; PROPOSED only.
-    refused(file => (file.approvedBy = { who: 'TEST-ONLY', date: '2026-10-22', quote: 'TEST-ONLY' }), 'it carries approvedBy')
-    refused(file => (w2(file).approvedBy = { who: 'TEST-ONLY' }), 'it carries approvedBy')
-    refused(file => (w2(file).states[0].approvedBy = { who: 'TEST-ONLY' }), 'it carries approvedBy')
-    refused(file => (file.status = 'APPROVED'), 'the record is PROPOSED until he confirms it')
+    // Re-pointed 24 October 2026 (C1): approval is a reading's own, never the record's, a part's or a cover's; the record's status is what
+    // its readings make it. Was: approvedBy anywhere refused, and the status PROPOSED only. The per-reading rules are pinned in 2c.
+    refused(file => (file.approvedBy = { who: 'TEST-ONLY', date: '2026-10-22', quote: 'TEST-ONLY' }), 'it carries approvedBy outside its readings')
+    refused(file => (w2(file).states[0].approvedBy = { who: 'TEST-ONLY' }), 'it carries approvedBy inside it')
+    refused(file => (file.status = 'APPROVED'), 'and its readings make it PARTLY_APPROVED')
+    refused(file => (file.status = 'PROPOSED'), 'and its readings make it PARTLY_APPROVED')
     refused(file => delete file.status, 'its status is undefined')
     // Its shape.
     refused(file => (file.extra = true), 'the record carries "extra"')
@@ -246,6 +315,55 @@ test('2b. stage 3F, the 3E review\'s should-fix 1: a reading claiming words his 
     assert.equal(readingsUnusableBecause(copy(RECORD)), null)
 })
 
+test('2c. C1: an APPROVED reading carries his approval, in his words; a PROPOSED one carries none; the record says what its readings are', () => {
+    const refused = (change: (file: any) => void, includes: string) => {
+        const file = copy(RECORD)
+        change(file)
+        const why = readingsUnusableBecause(file)
+        assert.ok(why && why.includes(includes), `${includes} :: ${why}`)
+        assert.deepEqual([readingsLoadOf(file).status, readingsLoadOf(file).readings], ['UNUSABLE', []])
+    }
+    const approved = (file: any) => file.readings.find((reading: any) => reading.entry === 'A01-W3')
+    const proposed = (file: any) => file.readings.find((reading: any) => reading.entry === 'A01-W2' && reading.parts[0].part === 'WHOLE_SENTENCE')
+    // A reading's status is PROPOSED or APPROVED, and says so.
+    refused(file => delete approved(file).status, 'its status is undefined: a reading is PROPOSED or APPROVED')
+    refused(file => (approved(file).status = 'PARTLY_APPROVED'), 'a reading is PROPOSED or APPROVED')
+    // APPROVED only with his approval: who, a calendar date, the reply it is filed in by that date, and his words.
+    refused(file => delete approved(file).approvedBy, 'it is APPROVED and carries no approvedBy')
+    refused(file => (approved(file).approvedBy = 'TEST-ONLY'), 'its approval is not an object')
+    refused(file => (approved(file).approvedBy.who = ' '), 'its approval does not say who approved it')
+    refused(file => (approved(file).approvedBy.date = '24 October 2026'), 'is not a calendar date (YYYY-MM-DD)')
+    refused(file => (approved(file).approvedBy.date = '2026-02-30'), 'is not a calendar date (YYYY-MM-DD)')
+    refused(file => (approved(file).approvedBy.date = '2026-10-23'), 'its approval does not name the reply it is filed in, by the date 23 October 2026')
+    refused(file => (approved(file).approvedBy.filed = 'his reply of 24 October 2026'), 'its approval does not name the reply it is filed in')
+    refused(file => (approved(file).approvedBy.quote = ''), 'its approval does not give his words')
+    refused(file => (approved(file).approvedBy.ccs = 'TEST-ONLY'), 'its approval carries "ccs"')
+    refused(file => (approved(file).approvedBy.note = { approvedBy: 'TEST-ONLY' }), 'it carries approvedBy inside it')
+    // A PROPOSED reading carries no approval; a reading made APPROVED without one, or PROPOSED with one, is refused (no silent change).
+    refused(file => (proposed(file).approvedBy = approvalOf(HIS_DISTINCTIONS.W2_C1)), 'it is PROPOSED and carries approvedBy')
+    refused(file => (proposed(file).status = 'APPROVED'), 'it is APPROVED and carries no approvedBy')
+    // The record's status is what its readings make it.
+    const allProposed = copy(RECORD)
+    for (const reading of allProposed.readings) {
+        reading.status = 'PROPOSED'
+        delete reading.approvedBy
+    }
+    assert.ok(readingsUnusableBecause(allProposed)!.includes('and its readings make it PROPOSED'))
+    allProposed.status = 'PROPOSED'
+    assert.equal(readingsUnusableBecause(allProposed), null)
+    const proposedLoad = readingsLoadOf(allProposed)
+    assert.equal(proposedLoad.status, 'PROPOSED')
+    assert.deepEqual(readingsAccountOf(proposedLoad).label, READING_PROPOSED_LABEL)
+    // With every reading PROPOSED, every part names the PROPOSED record, exactly as before C1.
+    assert.deepEqual(coverReadingOf(proposedLoad).recordFor!(W1, [{ sentence: 0, part: 'WHOLE_SENTENCE' }]), PROPOSED_READING_RECORD)
+    const allApproved = copy(RECORD)
+    for (const reading of allApproved.readings) if (reading.status === 'PROPOSED') Object.assign(reading, { status: 'APPROVED', approvedBy: { ...approvalOf('TEST-ONLY'), who: 'TEST-ONLY' } })
+    assert.ok(readingsUnusableBecause(allApproved)!.includes('and its readings make it APPROVED'))
+    allApproved.status = 'APPROVED'
+    assert.equal(readingsLoadOf(allApproved).status, 'APPROVED')
+    assert.equal(readingsAccountOf(readingsLoadOf(allApproved)).label, READING_APPROVED_LABEL)
+})
+
 test('3. an unusable record gives no reading, and the overview is withheld (since stage 3F); a reading applies only to the entry it was checked on', () => {
     const unusable = readingsLoadOf({ ...copy(RECORD), status: 'APPROVED' })
     assert.equal(unusable.status, 'UNUSABLE')
@@ -263,12 +381,13 @@ test('3. an unusable record gives no reading, and the overview is withheld (sinc
     assert.ok(building.why.some(why => why.includes('A01-W1 and A01-W3 cite it, and no recorded reading says those words state it')), JSON.stringify(building.why))
     assert.ok(pressing.why.some(why => why.includes('A01-W2 cites it, and no recorded reading says those words state it')), JSON.stringify(pressing.why))
     assert.ok(withoutRecord.wholes.every(block => block.wholes.every(whole => whole.reading === 'NONE_RECORDED')))
-    assert.deepEqual(withoutRecord.scoring.readings, { source: READINGS_SOURCE, status: 'UNUSABLE', label: null, labelStatus: 'DRAFT', why: unusable.why })
-    // With the record, the same games: his first sentence and the regain clause as extracts, each naming the record.
+    assert.deepEqual(withoutRecord.scoring.readings, { source: READINGS_SOURCE, status: 'UNUSABLE', label: null, labelStatus: 'DRAFT', why: unusable.why, approved: [], proposed: [] })
+    // With the record, the same games: his first sentence and the regain clause as extracts, each naming the record. Re-pointed 24 October
+    // 2026 (C1): both readings are approved, so both name the approved record. Was: the PROPOSED record.
     const withRecord = coachOverviewDraftOf('A01', blocks)
     const [readBuilding, readPressing] = withRecord.scoring.blocks[0].groups
     assert.deepEqual([readBuilding.sentences[0].extractId, readPressing.sentences[1].extractId], ['A01-W1:s1', 'A01-W2:c1'])
-    assert.deepEqual([readBuilding.sentences[0].reading, readPressing.sentences[1].reading], [PROPOSED_READING_RECORD, PROPOSED_READING_RECORD])
+    assert.deepEqual([readBuilding.sentences[0].reading, readPressing.sentences[1].reading], [APPROVED_READING_RECORD, APPROVED_READING_RECORD])
     // A copy of his entry with other words or covers (TEST-ONLY) is not the entry the reading was checked against: it gives nothing.
     const reading = recordedReading()
     const units = [{ sentence: 0, part: 'WHOLE_SENTENCE' as const }]
