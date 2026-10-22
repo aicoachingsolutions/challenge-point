@@ -13,15 +13,19 @@
  *   2. the extracts generated for A01 in each block: whole sentences, or a leading clause ending at ";", in order, each DERIVED_FROM_APPROVED
  *      with its source entry and a cover accounting that exactly partitions the entry's covers; no reading is recorded, so each keeps
  *      nothing and leaves every cover, at the field the Details sentence cites; the administrator's overview draft carries them;
- *   3. an extract with one changed word (or any other departure from its source's parts) is refused;
- *   4. a cover accounting that does not partition the source's covers is refused; a recorded reading (TEST-ONLY) is carried and checked;
+ *   3. an extract with one changed word (or any other departure from its source's parts) is refused; so is one relabelled, or one hiding
+ *      the sentence it skips between its parts (`omitsBetween`, structural only);
+ *   4. a cover accounting that does not partition the source's covers, or (against the game) leaves a cover at another field, is refused;
+ *      a recorded reading (TEST-ONLY) is carried and checked; an extract declaring a reading for itself is refused unless the caller
+ *      hands the reading it was built from (none is recorded in production);
  *   5. an approved entry that stops matching the game demotes its extracts to withheld (TEST-ONLY copies); an entry about nothing the
- *      game holds has none;
+ *      game holds has none; the documented limit: a located entry whose locator changes gives nothing, and Details then refuse;
  *   6. a part of a DRAFT sentence is DRAFT, never derived;
  *   7. generality: a second synthetic Learning Goal fixture (the A04 Golden Case, with TEST-ONLY conditions and TEST-ONLY entries, one
  *      located and one with a slot) generates, cites and withholds by the same rules;
  *   8. only an administrator's answer carries extracts; the module writes no goal, entry, condition type or value; the approved table holds
- *      no derived record.
+ *      no derived record;
+ *   9. a block whose extracts cannot be generated lists none, with a gap for an administrator, and the overview's other parts stand.
  */
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
@@ -30,6 +34,7 @@ import path from 'node:path'
 import { reviewActivity } from './activity-review'
 import { APPROVED_WORDING_FILE, approvedTemplateSentences, ApprovedWording, approvedWording } from './approved-wording'
 import { buildActivity, buildActivityForReview, buildActivityWithFixture, RefusedActivity, ServedActivity } from './build-activity'
+import { coachOverviewDraftOf } from './coach-overview'
 import {
     approvedEntriesSaid,
     CoverReading,
@@ -39,6 +44,7 @@ import {
     extractStatusOf,
     extractsFor,
     extractUnusableBecause,
+    omittedBetweenOf,
     sentencesOf,
     unitSelectionsOf,
 } from './derived-wording'
@@ -144,6 +150,8 @@ test('2. the A01 extracts, per block: whole sentences or a leading clause, in or
             assert.deepEqual(listed, { blockId, ...extractsFor(fixture.game) }, `${what} ${blockId}`)
             assert.deepEqual(listed.withheld, [], `${what} ${blockId}`)
             assert.deepEqual(listed.extracts.map(e => [e.id, e.text]), expected, `${what} ${blockId}`)
+            // What each omits between its parts, structurally: only sentences 1 and 3 together skip one (the build-out sentence, 2).
+            assert.deepEqual(listed.extracts.filter(e => e.omitsBetween.length).map(e => [e.id, e.omitsBetween]), [['A01-W1:s1+s3', [2]]], `${what} ${blockId}`)
             // Each Details sentence of his, in this block's own render, cites what its extracts account for.
             const details = renderConcreteGame(fixture).instructions
             for (const extract of listed.extracts) {
@@ -196,6 +204,23 @@ test('3. an extract with one changed word, or any other departure from its sourc
     refused(e => (e.wording = 'APPROVED'))
     refused(e => (e.source = { kind: 'APPROVED_ENTRY', id: 'TEST-ONLY' }))
     refused(e => (e.source = { kind: 'APPROVED_TEMPLATE', id: 'POSSESSION_CONTINUES' }))
+    // Its name is its source and parts: relabelled as another extract, or given an element a located entry is never said for, it is refused.
+    assert.equal(refused(e => (e.id = 'A01-W1:s3')), 'it is named "A01-W1:s3", and those parts of A01-W1 are named "A01-W1:s1"')
+    refused(e => (e.id = 'A01-W1:s1@activityRoles[TEST-ONLY]'))
+    refused(e => delete e.id)
+    // What it omits between its parts is recorded, and an extract hiding the sentence it skips is refused.
+    const skipping: any = copy(FIRST('A01-W1:s1+s3'))
+    assert.deepEqual(skipping.omitsBetween, [2])
+    assert.equal(extractUnusableBecause(skipping, { game: BLOCK_1.fixture.game }), null)
+    skipping.omitsBetween = []
+    assert.equal(extractUnusableBecause(skipping), 'it says it omits [] between its parts, and its parts omit [2]')
+    assert.ok(extractUnusableBecause(skipping, { game: BLOCK_1.fixture.game }))
+    refused(e => (e.omitsBetween = [1]))
+    refused(e => delete e.omitsBetween)
+    // The rule, at the function: a skipped sentence, or the rest of one cut to its leading clause before a later part; never a stop or a late start.
+    assert.deepEqual(omittedBetweenOf([{ sentence: 0, part: 'LEADING_CLAUSE' }, { sentence: 1, part: 'WHOLE_SENTENCE' }]), [1])
+    assert.deepEqual(omittedBetweenOf([{ sentence: 0, part: 'WHOLE_SENTENCE' }, { sentence: 3, part: 'LEADING_CLAUSE' }]), [2, 3])
+    assert.deepEqual(omittedBetweenOf([{ sentence: 1, part: 'WHOLE_SENTENCE' }, { sentence: 2, part: 'LEADING_CLAUSE' }]), [])
     // The leading clause of the regain sentence: closed by its sentence's own full stop in place of ";", and nothing more.
     const clause = FIRST('A01-W2:c1')
     assert.equal(clause.text, OVERVIEW_8)
@@ -218,6 +243,13 @@ test('4. a cover accounting that does not partition the source\'s covers is refu
     refused(e => (e.leaves[1].row = 'V30'), 'cover 2 is named with another row or element')
     refused(e => (e.leaves[2].element = { ...e.leaves[2].element, equals: 'TEST-ONLY' }), 'cover 3 is named with another row or element')
     refused(e => delete e.keeps, 'it does not account for its source\'s covers')
+    // Each cover is left at the field this game holds it on (where a full-rule pointer will look): another path is refused against the game.
+    const moved: any = copy(extract)
+    moved.leaves[0].path = 'space.regions[TEST-ONLY].position.along'
+    assert.equal(extractUnusableBecause(moved, { game: BLOCK_1.fixture.game }), 'its keeps and leaves are not its source\'s covers as this game holds them (in order, each at the field this game says it on)')
+    const reordered: any = copy(extract)
+    reordered.leaves.reverse()
+    assert.ok(extractUnusableBecause(reordered, { game: BLOCK_1.fixture.game })!.startsWith('its keeps and leaves are not'))
     // Keeping a cover with no reading recorded is refused, however exact the partition: what a part states is never assumed.
     refused(e => e.keeps.push(e.leaves.shift()), 'it keeps covers with no reading recorded')
     refused(e => delete e.reading, 'it does not say whether what it keeps comes from a recorded reading')
@@ -229,15 +261,40 @@ test('4. a cover accounting that does not partition the source\'s covers is refu
     assert.deepEqual(read.keeps.map(ref => ref.row), ['V28', 'V29', 'V30'])
     assert.deepEqual(read.leaves.map(ref => ref.row), ['V31'])
     assert.deepEqual(read.from, read.keeps.map(ref => ref.path))
-    assert.equal(extractUnusableBecause(read, { game: BLOCK_1.fixture.game }), null)
+    // Accepted only against the reading it was built from: handed none, no reading is recorded (production), so its claim is refused.
+    const NO_READING = 'it says what it keeps comes from a recorded reading, and none is recorded for its parts'
+    assert.ok(extractUnusableBecause(read, { game: BLOCK_1.fixture.game })!.startsWith(NO_READING))
+    assert.ok(extractUnusableBecause(read)!.startsWith(NO_READING))
     assert.equal(extractUnusableBecause(read, { game: BLOCK_1.fixture.game, reading }), null)
+    assert.equal(extractUnusableBecause(read, { reading }), null)
     // Held to the reading it claims: against no reading, or another one, what it keeps is refused.
-    assert.equal(extractUnusableBecause(read, { reading: () => null }), 'what it keeps is not what the recorded reading gives it')
+    assert.ok(extractUnusableBecause(read, { reading: () => null })!.startsWith(NO_READING))
     assert.equal(extractUnusableBecause(read, { reading: () => [0, 1] }), 'what it keeps is not what the recorded reading gives it')
     assert.equal(extractUnusableBecause(FIRST('A01-W2:c1'), { reading }), 'what it keeps is not what the recorded reading gives it')
     const miscited: any = copy(read)
     miscited.from = [...read.from, read.leaves[0].path]
-    assert.ok(extractUnusableBecause(miscited, { game: BLOCK_1.fixture.game })!.startsWith('it cites'))
+    assert.ok(extractUnusableBecause(miscited, { game: BLOCK_1.fixture.game, reading })!.startsWith('it cites'))
+    // An extract that declares a reading for itself is refused, however exact its partition and citations: "Uncontrolled clearances do
+    // not score." claiming to keep all of its entry's covers, and the regain clause claiming the excluded touch its words drop.
+    const selfDeclared = (id: string): any => {
+        const claimed: any = copy(FIRST(id))
+        claimed.reading = 'RECORDED'
+        claimed.keeps = claimed.leaves
+        claimed.leaves = []
+        claimed.from = [...new Set(claimed.keeps.map((ref: any) => ref.path))]
+        return claimed
+    }
+    const clearances = selfDeclared('A01-W1:s3')
+    assert.equal(clearances.keeps.length, W1.covers.length)
+    const regainAll = selfDeclared('A01-W2:c1')
+    assert.deepEqual(regainAll.keeps.map((ref: any) => ref.row), ['V28', 'V29', 'V30', 'V31'])
+    for (const claimed of [clearances, regainAll]) {
+        assert.ok(extractUnusableBecause(claimed)!.startsWith(NO_READING), claimed.id)
+        assert.ok(extractUnusableBecause(claimed, { game: BLOCK_1.fixture.game })!.startsWith(NO_READING), claimed.id)
+        assert.ok(extractUnusableBecause(claimed, { game: BLOCK_1.fixture.game, reading: () => null })!.startsWith(NO_READING), claimed.id)
+    }
+    // And against a recorded reading that gives it less than it claims (the TEST-ONLY one leaves the contested touch to the entry).
+    assert.equal(extractUnusableBecause(regainAll, { game: BLOCK_1.fixture.game, reading }), 'what it keeps is not what the recorded reading gives it')
     // A reading naming a cover the entry does not have withholds that extract, with why; nothing is listed for it.
     const bad = extractsFor(BLOCK_1.fixture.game, { reading: entry => (entry.id === 'A01-W2' ? [9] : null) })
     assert.ok(!bad.extracts.some(e => e.source.id === 'A01-W2'))
@@ -270,6 +327,18 @@ test('5. an approved entry that stops matching the game demotes its extracts to 
     // A game holding none of the elements his entries speak about (the A04 Golden Case): nothing listed, nothing withheld.
     const golden = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../../../docs/audits/a04-concrete-game-fixture.json'), 'utf8'))
     assert.deepEqual(extractsFor(golden.game), { extracts: [], withheld: [] })
+    // The limit of the withheld record (module comment): a located entry whose locator value changes picks out no element, so it gives no
+    // extract and no withheld record. Never shown as derived, and its element's fields are then said by no entry, so the renderer withholds
+    // them and Coach Details refuse the activity at communication (no overview draft exists for it).
+    const relocated = copy(BLOCK_1.fixture)
+    relocated.game.value.primaryEvent.alsoCounts[0].team = 'TEST-ONLY'
+    const afterRelocated = extractsFor(relocated.game)
+    assert.ok(!afterRelocated.extracts.some(e => e.source.id === 'A01-W2') && !afterRelocated.withheld.some(w => w.source.id === 'A01-W2'))
+    assert.deepEqual(renderConcreteGame(relocated).withheld.filter(w => w.reason === 'AWAITING_APPROVED_WORDING').map(w => w.row), W2.covers.map(cover => cover.row))
+    // Its element gone: the game no longer holds what the entry said, and it gives nothing.
+    const gone = copy(BLOCK_1.fixture)
+    gone.game.value.primaryEvent.alsoCounts = []
+    assert.ok(!extractsFor(gone.game).withheld.some(w => w.source.id === 'A01-W2') && !extractsFor(gone.game).extracts.some(e => e.source.id === 'A01-W2'))
 })
 
 test('6. a part of a DRAFT sentence is DRAFT, never derived', () => {
@@ -409,6 +478,22 @@ test('8. only an administrator\'s answer carries extracts; the module writes no 
     const table = fs.readFileSync(APPROVED_WORDING_FILE, 'utf8')
     for (const word of ['DERIVED_FROM_APPROVED', '"keeps"', '"leaves"', '"derivedFrom"', '"units"']) assert.ok(!table.includes(word), word)
     assert.deepEqual(approvedWording().map(entry => entry.id), ['A01-W1', 'A01-W2', 'A01-W3'])
+})
+
+test('9. a block whose extracts cannot be generated lists none, with a gap; the purpose, game, parameters and other blocks stand', () => {
+    const games = blocksOf(buildActivityWithFixture(a01At(12, 1)).fixture)
+    assert.equal(games.length, 2)
+    const whole = coachOverviewDraftOf('A01', games)
+    const failing = coachOverviewDraftOf('A01', games, game => {
+        if (game === games[1].fixture.game) throw new Error('TEST-ONLY extractor failure')
+        return extractsFor(game)
+    })
+    assert.deepEqual([failing.purpose, failing.blocks, failing.sameTextInEveryBlock], [whole.purpose, whole.blocks, whole.sameTextInEveryBlock])
+    assert.deepEqual(failing.extracts, [whole.extracts[0], { blockId: games[1].blockId, extracts: [], withheld: [] }])
+    assert.deepEqual(whole.gaps, [])
+    assert.deepEqual(failing.gaps, [{ part: 'extracts', blockId: games[1].blockId, what: 'the extracts of approved wording could not be generated: TEST-ONLY extractor failure' }])
+    // The administrator's draft as built is the whole one.
+    assert.deepEqual(admin(a01At(12, 1)).overviewDraft, whole)
 })
 
 console.log(`derived-wording.unit.ts — ${passed} passed`)

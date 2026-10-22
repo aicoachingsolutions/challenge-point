@@ -25,12 +25,22 @@
  * case today: it then keeps nothing and leaves every cover to its source entry, which Coach Details say whole for the same game. That
  * never claims more than the extract's words are known to say; the overview's agreement check (stage 3D) reads `keeps`, so no extract
  * can stand for a condition until a reading is recorded. The slots of an entry are different: a slot inside the extract's own words IS
- * said there, so its field is cited and its number bound, mechanically.
+ * said there, so its field is cited and its number bound, mechanically. And what is structural is recorded: the source sentences whose
+ * words lie between two of its parts unsaid (`omitsBetween`, stage 3B review), so a candidate that drops a sentence between two it
+ * keeps is visible as such; whether it still means what the entry means is not decided here.
  *
  * **An approved entry that stops matching the game demotes its extracts to withheld.** An extract is listed as derived only where its
  * source entry is said for the game, exactly as the renderer says it (`approvedSentences`); an entry that speaks about elements the game
  * holds but no longer holds on its values has its extracts withheld, with why, and they are never shown as derived. The table itself is
  * read, never written: `approved-coach-wording.json` stays approved-only and unchanged.
+ *
+ * **A limit of the withheld record** (stage 3B review): "speaks about elements the game holds" is read from the entry's own covers — for a
+ * located entry, some locator picking out exactly one element that holds a field on its cover's row. So a located entry whose LOCATOR
+ * value itself changes (the one field that finds its element), or whose element is gone, picks out nothing: it gives no extract and no
+ * withheld record either, and the evidence is silent about it. That is never shown as derived. Where the element is still held, its
+ * fields are said by no entry and withheld by the renderer, so Coach Details refuse the activity at communication and no overview draft
+ * exists; where the element is gone, the game no longer holds what the entry said.
+
  *
  * Everything is read from the entries and the game; no goal, entry id, condition type, sport term or value is written here.
  */
@@ -185,6 +195,21 @@ export function unitSelectionsOf(sentences: SourceSentence[]): ExtractUnit[][] {
 const extractId = (entryId: string, units: ExtractUnit[], element: string | null): string =>
     `${entryId}:${units.map(unit => `${unit.part === 'WHOLE_SENTENCE' ? 's' : 'c'}${unit.sentence + 1}`).join('+')}${element ? `@${element}` : ''}`
 
+/**
+ * **The source's sentences (numbered from 1) with words between two of an extract's parts that it does not say**: a sentence skipped
+ * between two it says, or the rest of a sentence cut to its leading clause before a later part. Structural only, for the composer and
+ * its agreement check to see: whether the extract keeps its meaning without those words is not decided here (that is a reading of his
+ * wording), and an extract that only stops early, or starts after its source's first sentence, omits nothing BETWEEN its parts.
+ */
+export function omittedBetweenOf(units: ExtractUnit[]): number[] {
+    const omitted: number[] = []
+    for (let n = 0; n + 1 < units.length; n++) {
+        if (units[n].part === 'LEADING_CLAUSE') omitted.push(units[n].sentence + 1)
+        for (let skipped = units[n].sentence + 1; skipped < units[n + 1].sentence; skipped++) omitted.push(skipped + 1)
+    }
+    return omitted
+}
+
 /** One cover of the source entry, by its place in the entry: its row, the element it names, and the field it holds on in this game. */
 export interface CoverRef {
     index: number
@@ -207,6 +232,8 @@ export interface DerivedExtract {
     wording: 'DERIVED_FROM_APPROVED'
     source: { kind: 'APPROVED_ENTRY'; id: string }
     units: ExtractUnit[]
+    /** The source's sentences with words between two of its parts that it does not say (`omittedBetweenOf`); structural, never a judgement. */
+    omitsBetween: number[]
     /** The source's covers these words state (by a recorded reading), and those they leave to the source entry said whole in Details. */
     keeps: CoverRef[]
     leaves: CoverRef[]
@@ -302,9 +329,13 @@ function partitionUnusableBecause(entry: ApprovedWording, keeps: unknown, leaves
 /**
  * **Why an extract may not be shown as derived from approved wording**, or null: its source is an approved entry; it carries no approval
  * of its own; its parts are an extract of the source (in order, never the whole); its words are exactly those parts' words (no word
- * changed, added or dropped); its keeps and leaves exactly partition the source's covers; it keeps nothing unless a reading is recorded
- * (and, given the reading, exactly what it gives). Given a game, also: the source entry is said for it, the words are its parts there
- * (slots filled as said), and it cites exactly its kept covers' fields and the fields of the slots inside its words.
+ * changed, added or dropped); its keeps and leaves exactly partition the source's covers; it keeps exactly what the reading recorded for
+ * its parts gives it — `options.reading`, and with none handed in no reading is recorded (`NO_RECORDED_READING`, the production case), so
+ * it must keep nothing and say NONE_RECORDED: an extract's own claim to a recorded reading is never taken as one. Its name is its source
+ * and parts, and it records exactly what its parts omit between them (`omittedBetweenOf`). Given a game, also: the source entry is said
+ * for it, the words are its parts there (slots filled as said), its name is the one built there (with the element, for an entry said
+ * element by element), each cover kept and left is at the field this game holds it on, and it cites exactly its kept covers' fields and
+ * the fields of the slots inside its words. Without a game a cover's field is not checked: it is the game's.
  */
 export function extractUnusableBecause(extract: any, options: { wording?: ApprovedWording[]; game?: any; reading?: CoverReading } = {}): string | null {
     const wording = options.wording ?? approvedWording()
@@ -317,15 +348,21 @@ export function extractUnusableBecause(extract: any, options: { wording?: Approv
     const template = sentencesOf(entry.sentence)
     const units = unitsUnusableBecause(template, extract.units)
     if (units) return units
+    // Its name is its source and parts (and, for an entry said element by element, the element; checked exactly against the game below).
+    const named = extractId(entry.id, extract.units, null)
+    const perElement = !isLocated(entry) && typeof extract.id === 'string' && extract.id.startsWith(`${named}@`) && extract.id.length > named.length + 1
+    if (extract.id !== named && !perElement) return `it is named "${extract.id}", and those parts of ${entry.id} are named "${named}"`
+    if (canonicalJson(extract.omitsBetween ?? null) !== canonicalJson(omittedBetweenOf(extract.units))) return `it says it omits ${JSON.stringify(extract.omitsBetween ?? null)} between its parts, and its parts omit ${JSON.stringify(omittedBetweenOf(extract.units))}`
     const partition = partitionUnusableBecause(entry, extract.keeps, extract.leaves)
     if (partition) return partition
     if (extract.reading !== 'NONE_RECORDED' && extract.reading !== 'RECORDED') return 'it does not say whether what it keeps comes from a recorded reading'
     if (extract.reading === 'NONE_RECORDED' && extract.keeps.length) return 'it keeps covers with no reading recorded: what a part of an entry states is a reading of his words, never assumed'
-    if (options.reading) {
-        const recorded = options.reading(entry, extract.units)
-        const kept = (extract.keeps as CoverRef[]).map(ref => ref.index).sort((a, b) => a - b)
-        if ((recorded === null) !== (extract.reading === 'NONE_RECORDED') || canonicalJson([...(recorded ?? [])].sort((a, b) => a - b)) !== canonicalJson(kept)) return 'what it keeps is not what the recorded reading gives it'
-    }
+    // What it keeps is held to the reading recorded for its parts, never to the extract's own word that one was recorded: with no reading
+    // handed in, none is recorded (the production case), so an extract claiming RECORDED is refused.
+    const recorded = (options.reading ?? NO_RECORDED_READING)(entry, extract.units)
+    if (recorded === null && extract.reading === 'RECORDED') return 'it says what it keeps comes from a recorded reading, and none is recorded for its parts: what a part of an entry states is never taken from the extract itself'
+    const kept = (extract.keeps as CoverRef[]).map(ref => ref.index).sort((a, b) => a - b)
+    if ((recorded === null) !== (extract.reading === 'NONE_RECORDED') || canonicalJson([...(recorded ?? [])].sort((a, b) => a - b)) !== canonicalJson(kept)) return 'what it keeps is not what the recorded reading gives it'
     const hasSlots = slotsIn(entry.sentence).length > 0
     if (options.game === undefined) {
         if (hasSlots) return 'an extract of an entry with slots is checked only against the game that fills them'
@@ -334,15 +371,23 @@ export function extractUnusableBecause(extract: any, options: { wording?: Approv
     }
     const instances = instancesOf(options.game, entry)
     if (!instances.length) return `its source entry ${entry.id} is not said for this game`
+    let misnamed: string | null = null
     for (const instance of instances) {
         const built = buildExtract(options.game, entry, instance, extract.units, extract.keeps.map((ref: CoverRef) => ref.index), extract.reading === 'RECORDED' ? 'RECORDED' : 'NONE_RECORDED')
         if (typeof built === 'string') continue
         if (built.text !== extract.text) continue
+        // The same words said for another element of an entry said element by element are another extract: look on before refusing.
+        if (built.id !== extract.id) {
+            misnamed ??= `it is named "${extract.id}", and those parts of its source as this game says them are "${built.id}"`
+            continue
+        }
+        // Each cover kept or left, in its place, at the field this game holds it on: where a full-rule pointer will look.
+        if (canonicalJson(built.keeps) !== canonicalJson(extract.keeps) || canonicalJson(built.leaves) !== canonicalJson(extract.leaves)) return 'its keeps and leaves are not its source\'s covers as this game holds them (in order, each at the field this game says it on)'
         if (canonicalJson(built.from) !== canonicalJson(extract.from)) return `it cites ${JSON.stringify(extract.from)}, and its kept covers and slots are ${JSON.stringify(built.from)} in this game`
         if (canonicalJson(built.bindings) !== canonicalJson(extract.bindings ?? [])) return 'its numbers are not bound to the fields of the slots inside its words'
         return null
     }
-    return `its words are not those parts of its source as this game says it: "${extract.text}"`
+    return misnamed ?? `its words are not those parts of its source as this game says it: "${extract.text}"`
 }
 
 /** One saying of an entry for a game: the renderer's instruction, and the element it was said for (null for a located entry). */
@@ -351,8 +396,11 @@ interface Instance {
     prefix: string | null
 }
 
+/** Whether an entry is located (a locator on every cover: said once, for no one element) rather than said element by element. */
+const isLocated = (entry: ApprovedWording): boolean => entry.covers.length > 0 && entry.covers.every(cover => cover.element)
+
 function instancesOf(game: any, entry: ApprovedWording): Instance[] {
-    const located = entry.covers.length > 0 && entry.covers.every(cover => cover.element)
+    const located = isLocated(entry)
     return approvedSentences(game, [entry]).map(said => {
         const first = said.from[0] ?? ''
         return { said, prefix: located ? null : first.slice(0, first.lastIndexOf('].') + 1) || null }
@@ -389,6 +437,7 @@ function buildExtract(game: any, entry: ApprovedWording, instance: Instance, uni
         wording: 'DERIVED_FROM_APPROVED',
         source: { kind: 'APPROVED_ENTRY', id: entry.id },
         units: units.map(unit => ({ ...unit })),
+        omitsBetween: omittedBetweenOf(units),
         keeps: refsOf(entry, keptSorted, paths),
         leaves: refsOf(entry, left, paths),
         reading,
@@ -402,7 +451,8 @@ function buildExtract(game: any, entry: ApprovedWording, instance: Instance, uni
  * holds: where the game says it (`approvedSentences`), each extract its sentence admits (`unitSelectionsOf`), DERIVED_FROM_APPROVED,
  * keeping the covers a recorded reading gives it (none today) and leaving the rest, each checked by `extractUnusableBecause` against the
  * game before it is listed; where the game does not say it, every extract withheld, with why. An entry about nothing the game holds has
- * no extracts here. An entry with one sentence and no leading clause admits none.
+ * no extracts here, and no withheld record — including a located entry whose locator no longer picks out an element (module comment, "A
+ * limit of the withheld record"). An entry with one sentence and no leading clause admits none.
  */
 export function extractsFor(game: any, options: { wording?: ApprovedWording[]; reading?: CoverReading } = {}): { extracts: DerivedExtract[]; withheld: WithheldExtract[] } {
     const wording = options.wording ?? approvedWording()

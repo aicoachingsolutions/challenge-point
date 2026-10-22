@@ -68,7 +68,8 @@ export interface OverviewSentence {
 
 /** Something the overview could not say, for an administrator. Never a reason to refuse the activity. */
 export interface OverviewGap {
-    part: 'purpose' | 'game' | 'parameters'
+    /** `extracts` (stage 3B review): a block's extracts of approved wording could not be generated; that block lists none. */
+    part: 'purpose' | 'game' | 'parameters' | 'extracts'
     blockId?: string
     what: string
 }
@@ -292,8 +293,14 @@ export function parametersOf(fixture: any): { sentence: OverviewSentence | null;
 /**
  * **The overview's purpose, game sentence and parameters for one activity** (stage 3A, for an administrator): the purpose once, the game
  * and parameters per game the activity was built from. Whatever goes wrong is a gap: the overview never refuses, or changes, the activity.
+ * A block whose extracts cannot be generated lists none, with a gap naming why, and every other part stands (stage 3B review). `extractsOf`
+ * is the generator; a test may hand one that fails.
  */
-export function coachOverviewDraftOf(goalId: string | null, blocks: { blockId: string; fixture: any }[]): CoachOverviewDraft {
+export function coachOverviewDraftOf(
+    goalId: string | null,
+    blocks: { blockId: string; fixture: any }[],
+    extractsOf: (game: any) => { extracts: DerivedExtract[]; withheld: WithheldExtract[] } = game => extractsFor(game),
+): CoachOverviewDraft {
     const gaps: OverviewGap[] = []
     const { purpose, gap } = purposeOf(goalId)
     if (gap) gaps.push(gap)
@@ -305,7 +312,14 @@ export function coachOverviewDraftOf(goalId: string | null, blocks: { blockId: s
         return { blockId, game: game.sentence, parameters: parameters.sentence }
     })
     const textOf = (entry: (typeof read)[number]) => JSON.stringify([entry.game?.text ?? null, entry.parameters?.text ?? null])
-    // Stage 3B: each block's extracts of the approved wording its own game says, read from that game alone.
-    const extracts = blocks.map(({ blockId, fixture }) => ({ blockId, ...extractsFor(fixture?.game ?? {}) }))
+    // Stage 3B: each block's extracts of the approved wording its own game says, read from that game alone. A failure is that block's gap.
+    const extracts = blocks.map(({ blockId, fixture }) => {
+        try {
+            return { blockId, ...extractsOf(fixture?.game ?? {}) }
+        } catch (error) {
+            gaps.push({ part: 'extracts' as const, blockId, what: `the extracts of approved wording could not be generated: ${error instanceof Error ? error.message : String(error)}` })
+            return { blockId, extracts: [], withheld: [] }
+        }
+    })
     return { served: false, purpose, blocks: read, sameTextInEveryBlock: read.length > 0 && read.every(entry => textOf(entry) === textOf(read[0])), gaps, extracts }
 }
