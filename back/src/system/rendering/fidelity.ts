@@ -130,7 +130,7 @@ export const OBLIGATION_ALLOWLIST: { id: string; holds: (part: { text: string; f
 ]
 
 /** Does this text name the role (a specialized role the session states, read from data), as a word or its plural? */
-function namesRole(text: string, role: string): boolean {
+export function namesRole(text: string, role: string): boolean {
     const words = ` ${text.toLowerCase().split(/[^a-z0-9]+/).join(' ')} `
     const name = role.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean).join(' ')
     return !!name && (words.includes(` ${name} `) || words.includes(` ${name}s `))
@@ -195,7 +195,7 @@ const NUMBER_WORDS: Record<string, number> = {
 const NUMBER_TOKEN = new RegExp(`\\b(\\d+(?:\\.\\d+)?|${Object.keys(NUMBER_WORDS).join('|')})\\b`, 'gi')
 
 /** Every number in a sentence, as a number, in the order it is said — digits and the words two to twenty. */
-const numbersIn = (text: string): number[] =>
+export const numbersIn = (text: string): number[] =>
     [...text.matchAll(NUMBER_TOKEN)].map(match => (match[1].toLowerCase() in NUMBER_WORDS ? NUMBER_WORDS[match[1].toLowerCase()] : Number(match[1])))
 
 const stated = (n: unknown): n is number => typeof n === 'number' && Number.isFinite(n)
@@ -476,7 +476,7 @@ function nodesAt(game: unknown, path: string): unknown[] {
 }
 
 /** Every string value anywhere beneath the nodes at a path (keys are not values). */
-function stringsAt(game: unknown, path: string): string[] {
+export function stringsAt(game: unknown, path: string): string[] {
     const found: string[] = []
     const collect = (node: unknown) => {
         if (typeof node === 'string') found.push(node)

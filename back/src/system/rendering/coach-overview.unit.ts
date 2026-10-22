@@ -311,7 +311,7 @@ test('9. role blocks whose teams the counts do not tell apart: the teams said to
     assert.deepEqual(gameSentenceOf(empty), { sentence: null, gap: 'the game holds no teams to count' })
 })
 
-test('10. only an administrator\'s review answer carries the overview; nothing activity-specific is written in the module', () => {
+test('10. only an administrator\'s review answer carries the overview DRAFT; nothing activity-specific is written in the module', () => {
     const stored: any = { _id: 'TEST-ONLY', createdBy: 'TEST-ONLY', playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: { ...none, [ROLE]: 1 } }
     const coach = reviewActivity(stored, { learningGoalId: 'A01', durationMin: 20 }) as ServedActivity
     const admin = reviewActivity(stored, { learningGoalId: 'A01', durationMin: 20 }, { includeDrafts: true }) as ServedActivity
@@ -319,7 +319,12 @@ test('10. only an administrator\'s review answer carries the overview; nothing a
     assert.ok(!('overviewDraft' in buildActivity(a01At(12, 1))))
     assert.ok(!('overviewDraft' in buildActivityForReview(a01At(12, 1), { includeDrafts: false })))
     for (const demonstration of MECHANISM_DEMONSTRATIONS) assert.ok(!('overviewDraft' in buildActivity({ kind: 'mechanism-demonstration', demonstrationId: demonstration.id, session: sessionAt(12, 1) })), demonstration.id)
-    assert.equal(admin.overviewDraft!.served, false)
+    // Stage 3D: the overview is served (to both) once its agreement check passes; the draft, with the check, stays the administrator's.
+    assert.equal(admin.overviewDraft!.served, true)
+    assert.ok(!!coach.overview && JSON.stringify(coach.overview) === JSON.stringify(admin.overview))
+    assert.equal(coach.overview!.purpose, admin.overviewDraft!.purpose!.text)
+    assert.equal(coach.overview!.game, admin.overviewDraft!.blocks[0].game!.text)
+    assert.equal(coach.overview!.parameters, admin.overviewDraft!.blocks[0].parameters!.text)
     // No goal id, knowledge id, role code or typed value of the first activity in the module's code.
     const source = fs.readFileSync(path.join(__dirname, 'coach-overview.ts'), 'utf8')
     for (const row of PLANNING.learning_goals) assert.ok(!new RegExp(`\\b${row.ID}\\b`).test(source), row.ID)

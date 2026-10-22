@@ -58,7 +58,8 @@ import type { AuthorizationExclusion, AuthorizationLists, AuthorizedAdjustment, 
 import { allocationPrinciple, authorizationLists, contextManipulationRelationships, learningGoalAuthorizations, libraryConstraintPrinciple, neededRecordGaps } from '../test-library/learning-goal-authorizations'
 import { applyRealizationDeferrals } from '../derivation/realization-deferral'
 import type { ConstraintAuthority, ConstraintPoolAccount } from '../test-library/types'
-import { CoachOverviewDraft, coachOverviewDraftOf, failedOverviewDraft } from './coach-overview'
+import { CoachOverviewDraft, failedOverviewDraft } from './coach-overview'
+import { CoachOverview, OverviewEvidence, overviewEvidenceOf, overviewForServing, OverviewOutcome } from './overview-fidelity'
 import { contextScoringFindings, EPISODE_REACHABLE_CHECK } from './context-scoring-guard'
 import { checkFidelity, FidelityFinding } from './fidelity'
 import { ReviewDraft, reviewDraftOf } from './review-draft'
@@ -268,9 +269,20 @@ export interface ServedActivity {
      * whether an activity is served; whatever it cannot say is a gap inside it. Since stage 3B it also lists, per block, the verbatim
      * extracts of the approved wording that block's game says (`derived-wording.ts`), each DERIVED_FROM_APPROVED with its source entry and
      * cover accounting, and those withheld with why. Since stage 3C, how each team scores, per block (`scoring`), composed through the
-     * PROPOSED essentials table and labelled as built on it.
+     * PROPOSED essentials table and labelled as built on it. Since stage 3D, the agreement check's verdict and findings (`check`), whether
+     * the overview is served (`served`), the overview as presented with each sentence's status (`presented`) and its word count and reading
+     * seconds (`reading`, evidence only).
      */
     overviewDraft?: CoachOverviewDraft
+    /**
+     * **The Coach Overview, served to every viewer** — stage 3D, 21 October 2026 (`overview-fidelity.ts`). His reply filed 22 October 2026,
+     * item 1: *"Coach Overview — The immediate understanding of the activity: learning purpose, one-sentence game description, basic
+     * parameters, essential scoring objectives, and a simple diagram."* Words and "full rule" pointers only (no status, source, citation or
+     * binding: those are the administrator's, in `overviewDraft`). Present only where the overview agrees with Coach Details in every block
+     * (Q7); withheld otherwise, the activity served exactly as without it. Every word is DRAFT except his purpose and his approved wording.
+     * The diagram is a later stage.
+     */
+    overview?: CoachOverview
 }
 
 /** The role blocks of a served activity, for the technical account (stage K3). */
@@ -1035,14 +1047,24 @@ function build(
      * is handed in, so how each team scores is composed from exactly the Details that game says.
      */
     const purposeGoal = kind === 'learning-goal' && request.kind === 'learning-goal' ? request.goalId : null
-    const overviewDraftFor = (games: { blockId: string; fixture: any; rendered: { instructions: Instruction[] } }[]): Partial<ServedActivity> => {
-        if (!review.includeDrafts) return {}
+    /**
+     * Stage 3D: the overview, composed from the games as served, checked against each game's own Details (Q7) and against the Details a
+     * coach is served, for EVERY build that serves (a coach's and an administrator's alike). Served (`overview`) only where it agrees; the
+     * draft with the check's findings goes to an administrator only (`overviewDraft`, and the review evidence where the record asks for
+     * one). Whatever fails withholds the overview only.
+     */
+    const overviewOf = (games: { blockId: string; fixture: any; rendered: { instructions: Instruction[] } }[], served: Instruction[]): OverviewOutcome => {
         try {
-            return { overviewDraft: coachOverviewDraftOf(purposeGoal, games) }
+            return overviewForServing({ goalId: purposeGoal, games, served })
         } catch (error) {
-            return { overviewDraft: failedOverviewDraft(error instanceof Error ? error.message : String(error)) }
+            const draft = failedOverviewDraft(error instanceof Error ? error.message : String(error))
+            return { overview: null, draft, evidence: overviewEvidenceOf(draft) }
         }
     }
+    const overviewKeys = (outcome: OverviewOutcome): Partial<ServedActivity> => ({
+        ...(outcome.overview ? { overview: outcome.overview } : {}),
+        ...(review.includeDrafts ? { overviewDraft: outcome.draft } : {}),
+    })
 
     /**
      * **A game played in role blocks is built twice: one complete game per block, then the blocks against each other** —
@@ -1180,8 +1202,8 @@ function build(
              * The admin-only review evidence of the composed activity (stage K8), for a goal whose record asks for one: read from the two
              * games as built, the cross-block checks and the composition. Never on a coach's answer.
              */
-            const evidenceOf = (outcome: string) =>
-                reviewEvidenceFor(review, goalSelection, account, roleIndex, session, outcome, composed, composition, checks, games.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, fixture: entry.fixture, contracts: entry.contracts, rendered: entry.rendered, ...entry.evidence })), layoutFallback)
+            const evidenceOf = (outcome: string, overview: OverviewEvidence | null = null) =>
+                reviewEvidenceFor(review, goalSelection, account, roleIndex, session, outcome, composed, composition, checks, games.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, fixture: entry.fixture, contracts: entry.contracts, rendered: entry.rendered, ...entry.evidence })), layoutFallback, overview)
             /** The admin-only draft of the composed activity (stage K7), attached to a refusal at communication where it was asked for. */
             const withDraft = (refusal: ReturnType<typeof refuse>) => {
                 if (review.includeDrafts) (refusal.activity as RefusedActivity).draft = reviewDraftOf(games.map(entry => entry.fixture), composed, [...games.flatMap(entry => entry.violations), ...violations])
@@ -1200,6 +1222,11 @@ function build(
                 )
             }
             const built = games.map(entry => ({ block: entry.block, built: blocks.find(b => b.block === entry.block)!.outcome as Extract<GameOutcome, { outcome: 'built' }> }))
+            // Stage 3D: the overview, read from each block's own game as served and checked against it and the composed Details.
+            const overview = overviewOf(
+                games.map(entry => ({ blockId: entry.block.blockId, fixture: entry.fixture, rendered: entry.rendered })),
+                composed.instructions,
+            )
             return serve(
                 {
                     ...built[0].built,
@@ -1228,9 +1255,9 @@ function build(
                         firstBlockBasis: FIRST_BLOCK_BASIS,
                     },
                     // Stage K8: the admin-only review evidence, where the goal's record asks for one; absent on every coach's answer.
-                    ...((evidence => (evidence ? { evidence } : {}))(evidenceOf('served'))),
-                    // Stage 3A: the overview's parts, read from each block's own game as served, for an administrator only.
-                    ...overviewDraftFor(games.map(entry => ({ blockId: entry.block.blockId, fixture: entry.fixture, rendered: entry.rendered }))),
+                    ...((evidence => (evidence ? { evidence } : {}))(evidenceOf('served', overview.evidence))),
+                    // Stage 3D: the overview where it agrees (every viewer); its draft and the check's findings for an administrator only.
+                    ...overviewKeys(overview),
                 },
             )
         }
@@ -1260,8 +1287,10 @@ function build(
         if (evidence) (refusal.activity as RefusedActivity).evidence = evidence
         return refusal
     }
-    const evidence = reviewEvidenceFor(review, goalSelection, account, roleIndex, session, 'served', one.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.contracts, rendered: one.rendered, ...one.evidence }])
-    return serve(one, { ...(evidence ? { evidence } : {}), ...overviewDraftFor([{ blockId: ONE_GAME, fixture: one.fixture, rendered: one.rendered }]) })
+    // Stage 3D: the overview of the one game, checked against its Details (which are what a coach is served).
+    const overview = overviewOf([{ blockId: ONE_GAME, fixture: one.fixture, rendered: one.rendered }], one.rendered.instructions)
+    const evidence = reviewEvidenceFor(review, goalSelection, account, roleIndex, session, 'served', one.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.contracts, rendered: one.rendered, ...one.evidence }], null, overview.evidence)
+    return serve(one, { ...(evidence ? { evidence } : {}), ...overviewKeys(overview) })
 }
 
 /** The block id the review evidence gives a game not played in role blocks. */
@@ -1285,6 +1314,8 @@ function reviewEvidenceFor(
     blocks: EvidenceBlock[],
     /** Hardening H1: where a recorded choice to set the markings out once does not apply, why (admin-only). Null everywhere else. */
     layoutFallback: LayoutFallback | null = null,
+    /** Stage 3D: the overview's verdict, findings, statuses and reading evidence (admin-only); null on a refusal, where there is none. */
+    overview: OverviewEvidence | null = null,
 ): ReviewEvidence | null {
     const record = goalSelection?.authorization
     if (!review.includeDrafts || !record?.reviewRequest) return null
@@ -1301,6 +1332,7 @@ function reviewEvidenceFor(
         relationships: contextManipulationRelationships(),
         selectedConstraints: (account.constraints ?? []).map(constraint => constraint.id),
         index,
+        overview,
     })
 }
 

@@ -37,6 +37,7 @@ import { learningGoalSelectionHolds } from '../test-library/learning-design-hold
 import { testLibraryRegistry } from '../test-library/library/registry'
 import { approvedEntriesSaid, detailsWordingOf, WordingSource, WordingStatus } from './derived-wording'
 import { FidelityFinding, OBLIGATIONS } from './fidelity'
+import type { OverviewEvidence } from './overview-fidelity'
 import { layoutNumbersAt } from './physical-layout'
 import { Instruction, RenderedActivity, UNBOUNDED_CREDIT, wordedFieldRows } from './render-concrete-game'
 import type { RoleBlockCheck } from './role-blocks'
@@ -82,6 +83,8 @@ export interface EvidenceInput {
     /** The goal's selected library constraints, as the account lists them (ids). */
     selectedConstraints: string[]
     index: RegisterIndex
+    /** Stage 3D: the overview's evidence as the build checked it (`overview-fidelity.ts`); absent or null on a refusal. */
+    overview?: OverviewEvidence | null
 }
 
 /** A recorded choice to set the markings out once that does not apply to this build: its code and why (admin-only, hardening H1). */
@@ -152,6 +155,12 @@ export interface ReviewEvidence {
     requests: { words: string; citedAs: string; sections: string[] }[]
     provenance: { elements: ElementProvenance[]; untraced: string[]; lists: { at: string; authorizedByExistingKnowledge: number; provisionalChoices: number; gaps: number; gapsStillNeeded: string[]; gapsSettled: string[] } | null; openForReview: Fact[] }
     rationale: { features: RationaleEntry[]; his: { words: string[]; citedAs: string }; judgement: string }
+    /**
+     * **Stage 3D, 21 October 2026: the Coach Overview's agreement check (Q7)** — whether the overview is served, the verdict and every
+     * finding (a VIOLATION withholds the overview, never the activity), the table it was built on, each presented sentence with its status
+     * and source, and its word count and reading seconds (evidence only, never a gate). Present only on a served activity.
+     */
+    overview?: OverviewEvidence
 }
 
 export interface ItemEvidence {
@@ -1291,5 +1300,7 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
             ],
         },
         rationale: { features: rationale, his: { words: [...request.judgement.words], citedAs: request.judgement.citedAs }, judgement: 'Every reason above is his, quoted from the record, or an approved statement of the context, read from the workbook. Whether the game produces the learning environment those reasons describe is his judgement as a coach.' },
+        // Stage 3D: the Coach Overview's agreement check, as the build ran it (copied, never recomputed here); only on a served activity.
+        ...(input.overview ? { overview: JSON.parse(JSON.stringify(input.overview)) as OverviewEvidence } : {}),
     }
 }

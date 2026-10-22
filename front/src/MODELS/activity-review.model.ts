@@ -274,6 +274,81 @@ export interface ServedActivity {
     roleBlocks?: ReviewRoleBlocks
     /** The administrator-only review evidence (stage K8), where the goal's record asks for one; see `RefusedActivity.evidence`. */
     evidence?: ReviewEvidence
+    /**
+     * The Coach Overview (stage 3D, 21 October 2026; `back/src/system/rendering/overview-fidelity.ts`), served to every viewer: words and
+     * "full rule" pointers only. Present only where the server's agreement check (Q7) found the overview agrees with the Coach Details in
+     * every block; absent otherwise, the activity shown exactly as without it. Not shown yet (stage 4 builds the page).
+     */
+    overview?: CoachOverview
+    /**
+     * The overview as an administrator reviews it (stage 3A-3D): only on an administrator's answer. Typed here only as far as the page will
+     * read it (stage 4: the Approved / Derived from approved / Draft tags); the rest is shown as sent.
+     */
+    overviewDraft?: ReviewOverviewDraft
+}
+
+/**
+ * A "full rule" pointer (stage 3D): its label (DRAFT coach wording) and the Coach Details sentence it leads to, by section and words. The
+ * page finds that sentence by section and words, never by position.
+ */
+export interface OverviewPointer {
+    label: string
+    section: string
+    text: string
+}
+
+/** The Coach Overview a coach is served (stage 3D): words and pointers only, no status, source or citation. */
+export interface CoachOverview {
+    /** The Learning Goal's Coach Definition, verbatim; null for a mechanism demonstration, which claims no goal. */
+    purpose: string | null
+    game: string
+    parameters: string
+    /** How each team scores: one group per team in the block's role order (one group where the game has no roles). */
+    scoring: { sentences: { text: string; fullRule: OverviewPointer | null }[]; fullRules: OverviewPointer[] }[]
+}
+
+/** One of the three wording statuses (his reply filed 22 October 2026, item 4). A `string`, not the closed union, as the header explains. */
+export type ReviewWordingStatus = 'APPROVED' | 'DERIVED_FROM_APPROVED' | 'DRAFT' | string
+
+/** The overview as presented, with each sentence's status and source, for an administrator only (stage 3D). */
+export interface ReviewPresentedOverview {
+    purpose: { text: string; wording: ReviewWordingStatus; source: Record<string, unknown> } | null
+    game: { text: string; wording: ReviewWordingStatus }
+    parameters: { text: string; wording: ReviewWordingStatus }
+    scoring: {
+        group: string
+        noun: string | null
+        sentences: { text: string; wording: ReviewWordingStatus; source: { kind: string; id?: string } | null; fullRule: (OverviewPointer & { labelStatus: string }) | null }[]
+        fullRules: (OverviewPointer & { labelStatus: string })[]
+    }[]
+}
+
+/** One finding of the overview's agreement check (stage 3D): a VIOLATION withholds the overview, never the activity. */
+export interface ReviewOverviewFinding {
+    question: string
+    severity: 'VIOLATION' | 'NOTE' | string
+    blockId: string | null
+    what: string
+}
+
+/** Word count and reading seconds of the overview: evidence, never a gate (stage 3D). */
+export interface ReviewOverviewReading {
+    words: number
+    byPart: { purpose: number; game: number; parameters: number; scoring: number }
+    secondsAt250Wpm: number
+    secondsAt200Wpm: number
+    detailsWords: number
+    basis: string
+}
+
+/** The administrator's overview draft, as far as the page reads it (stage 3D). Every other key is shown as sent. */
+export interface ReviewOverviewDraft {
+    served: boolean
+    check: { verdict: 'PASS' | 'FAIL' | string; findings: ReviewOverviewFinding[] } | null
+    reading: ReviewOverviewReading | null
+    presented: ReviewPresentedOverview | null
+    scoring: { table: { source: string; status: string; label: string | null; labelStatus: string; why: string | null } }
+    [key: string]: unknown
 }
 
 /** One cross-block check (RB-1 to RB-8, and RB-M since stage K4). */
@@ -415,6 +490,19 @@ export interface ReviewEvidence {
     requests: { words: string; citedAs: string; sections: string[] }[]
     provenance: { elements: { path: string; row: string | null; blocks: string[]; layers: string[]; standings: string[]; sources: ReviewEvidenceSource[] }[]; untraced: string[]; lists: Record<string, unknown> | null; openForReview: ReviewFact[] }
     rationale: { features: { feature: string; featureBasis: 'OURS'; words: { words: string; citedAs: string }[]; statements: { id: string; category: string | null; text: string | null; provenance: string | null }[] }[]; his: { words: string[]; citedAs: string }; judgement: string }
+    /**
+     * Stage 3D (21 October 2026): the Coach Overview's agreement check as the server ran it — served or withheld, the verdict, every
+     * finding, the table it was built on, each presented sentence with its status, and the reading evidence. Present only on a served
+     * activity. Not shown yet.
+     */
+    overview?: {
+        served: boolean
+        verdict: string
+        findings: ReviewOverviewFinding[]
+        table: { status: string; label: string | null }
+        sentences: { part: string; group: string | null; text: string; wording: ReviewWordingStatus; source: Record<string, unknown> | null; fullRule: string | null }[]
+        reading: ReviewOverviewReading | null
+    }
 }
 
 /** One sentence of the review draft: the instruction, whose wording it is, and the provisional choices it rests on. */

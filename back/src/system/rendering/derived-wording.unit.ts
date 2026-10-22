@@ -492,8 +492,13 @@ test('9. a block whose extracts cannot be generated lists none, with a gap; the 
     assert.deepEqual(failing.extracts, [whole.extracts[0], { blockId: games[1].blockId, extracts: [], withheld: [] }])
     assert.deepEqual(whole.gaps, [])
     assert.deepEqual(failing.gaps, [{ part: 'extracts', blockId: games[1].blockId, what: 'the extracts of approved wording could not be generated: TEST-ONLY extractor failure' }])
-    // The administrator's draft as built is the whole one.
-    assert.deepEqual(admin(a01At(12, 1)).overviewDraft, whole)
+    // The administrator's draft as built is the whole one (re-pointed 21 October 2026, stage 3D: plus the agreement check's verdict, the
+    // overview as presented and its reading evidence, which serving adds; the composed parts are unchanged).
+    const { served, check, reading, presented, ...built } = admin(a01At(12, 1)).overviewDraft!
+    const { served: _served, check: _check, reading: _reading, presented: _presented, ...composed } = whole
+    assert.deepEqual(built, composed)
+    assert.deepEqual([served, check!.verdict, !!reading, !!presented], [true, 'PASS', true, true])
+    assert.deepEqual([_served, _check, _reading, _presented], [false, null, null, null])
 })
 
 console.log(`derived-wording.unit.ts — ${passed} passed`)
