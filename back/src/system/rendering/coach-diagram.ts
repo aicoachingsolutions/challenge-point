@@ -200,8 +200,10 @@ export const DIAGRAM_COMPOSITION = {
         `${who}${counts.length ? `: ${counts.join(' and ')}` : ''}${start ? `; ${start}` : ''}${attack ? `; ${attack}` : ''}.`,
     teamNamed: (noun: string) => `The ${noun}`,
     teamLabelled: (label: string, noun: string | null) => (noun ? `${label}, the ${noun}` : label),
-    exchange: (moving: string, verb: string, from: string, to: string, noun: string) => `When you call this block, ${moving} ${verb} from ${from} to ${to}, which becomes the ${noun}.`,
-    exchangeUnlabelled: (moving: string, verb: string, noun: string) => `When you call this block, ${moving} ${verb} to the team that becomes the ${noun}.`,
+    // The first block is the one the activity starts in, where nothing moves at kick-off: its exchange happens only on coming back to it.
+    exchangeLead: (first: boolean) => (first ? 'When you return to this block' : 'When you call this block'),
+    exchange: (lead: string, moving: string, verb: string, from: string, to: string, noun: string) => `${lead}, ${moving} ${verb} from ${from} to ${to}, which becomes the ${noun}.`,
+    exchangeUnlabelled: (lead: string, moving: string, verb: string, noun: string) => `${lead}, ${moving} ${verb} to the team that becomes the ${noun}.`,
     moves: (total: number) => (total === 1 ? 'moves' : 'move'),
     startingArea: (word: string, near: string, far: string) => `${word} from ${near} to ${far}`,
     itsEndLine: 'its end line',
@@ -229,13 +231,14 @@ const labelOf = (team: DiagramTeam | undefined): string | null => team?.label?.t
 const whoOf = (team: DiagramTeam): string | null => (team.label ? DIAGRAM_COMPOSITION.teamLabelled(team.label.text, nounOf(team)) : nounOf(team) ? DIAGRAM_COMPOSITION.teamNamed(nounOf(team)!) : null)
 
 /** **The sentences saying what moves at the exchange into a block** (stage C2, DRAFT composition): one per role the performers join. */
-function exchangeSentencesOf(block: DiagramBlock): string[] {
+function exchangeSentencesOf(model: FieldDiagram, block: DiagramBlock): string[] {
     const C = DIAGRAM_COMPOSITION
+    const lead = C.exchangeLead(model.blocks.indexOf(block) === 0)
     return block.exchanges.map(exchange => {
         const from = labelOf(block.teams.find(team => team.handle === exchange.from))
         const to = labelOf(block.teams.find(team => team.handle === exchange.to))
         const verb = C.moves(exchange.total)
-        return from && to ? C.exchange(exchange.moving.text, verb, from, to, exchange.noun.text) : C.exchangeUnlabelled(exchange.moving.text, verb, exchange.noun.text)
+        return from && to ? C.exchange(lead, exchange.moving.text, verb, from, to, exchange.noun.text) : C.exchangeUnlabelled(lead, exchange.moving.text, verb, exchange.noun.text)
     })
 }
 const isObjectTarget = (block: DiagramBlock, region: string): boolean => block.objects.some(object => object.elementId === region)
@@ -387,7 +390,7 @@ function describeBlock(model: FieldDiagram, block: DiagramBlock): string {
         sentences.push(C.team(who, team.counts.map(count => count.word.text), start, attack))
     }
     // Stage C2: what moves at the exchange into this block.
-    sentences.push(...exchangeSentencesOf(block))
+    sentences.push(...exchangeSentencesOf(model, block))
     if (model.counts.length) sentences.push(C.together(model.counts.map(count => count.word.text)))
     return sentences.join(' ')
 }
@@ -427,7 +430,7 @@ export function coachDiagramOf(model: FieldDiagram, context: { title: string }):
             title: DIAGRAM_COMPOSITION.title(context.title, block.label?.text ?? null),
             desc: describeBlock(model, block),
             caption: relationOf(model, block),
-            exchange: exchangeSentencesOf(block),
+            exchange: exchangeSentencesOf(model, block),
             lines: block.markings.lines.map(line => ({ along: { ...line.along }, across: { ...line.across }, markedLine: line.markedLine, label: line.label?.text ?? null })),
             zones: block.markings.zones.map(zone => ({ along: { ...zone.along }, across: { ...zone.across }, state: block.markedZones.find(entry => entry.zone === zone.elementId)?.state ?? 'MARKED' })),
             targets: block.targets
@@ -535,7 +538,7 @@ export function checkCoachDiagram(coach: CoachDiagram, model: FieldDiagram, inpu
         if ((shown.caption ?? null) !== relationOf(model, block)) finding(blockId, `the caption ${JSON.stringify(shown.caption ?? null)} is not the model's sentence for how its teams attack`)
         // Stage C2: what moves at the exchange into this block is the model's, in the sentences composed from it (D10 holds the model's to the
         // reassignments, the served Role exchange sentence and both blocks' counts).
-        if (!Array.isArray(shown.exchange) || JSON.stringify(shown.exchange) !== JSON.stringify(exchangeSentencesOf(block))) finding(blockId, `the exchange sentences ${JSON.stringify(shown.exchange ?? null)} are not the model's for this block`)
+        if (!Array.isArray(shown.exchange) || JSON.stringify(shown.exchange) !== JSON.stringify(exchangeSentencesOf(model, block))) finding(blockId, `the exchange sentences ${JSON.stringify(shown.exchange ?? null)} are not the model's for this block`)
 
         // The markings, in order and in place.
         const lines = block.markings.lines

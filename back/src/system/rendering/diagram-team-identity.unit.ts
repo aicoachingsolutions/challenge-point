@@ -136,7 +136,9 @@ test('1. A01 at 12/1, 12/2 and 11/1: one look and label per realized team in bot
             const labelOf = (handle: string) => block.teams[model.blocks[i].teams.findIndex(team => team.handle === handle)].label
             const to = labelOf(holderOf(i, 'BUILDING'))
             const from = labelOf(holderOf(1 - i, 'BUILDING'))
-            const sentence = `When you call this block, ${moving} ${verb} from ${from} to ${to}, which becomes the building team.`
+            // The block the activity starts in says the move on coming back to it; nothing moves at kick-off.
+            const lead = i === 0 ? 'When you return to this block' : 'When you call this block'
+            const sentence = `${lead}, ${moving} ${verb} from ${from} to ${to}, which becomes the building team.`
             assert.deepEqual(block.exchange, [sentence], `${what} block ${i + 1}`)
             assert.ok(block.desc.endsWith(sentence), `${what} block ${i + 1}: the description says it last: ${block.desc}`)
             assert.notEqual(to, from)
@@ -188,7 +190,11 @@ test('2. the look follows the realized team whichever block is shown first (TEST
         assert.equal(lookOf(coach, 0, label).noun, lookOf(PROD_COACH, 1, label).noun)
         assert.deepEqual(lookOf(coach, 0, label).start, lookOf(PROD_COACH, 1, label).start)
     }
-    assert.deepEqual(coach.blocks.map(block => block.exchange), [PROD_COACH.blocks[1].exchange, PROD_COACH.blocks[0].exchange])
+    // What moves follows the block; the lead follows its place: the block shown first, where the activity starts, says it on returning.
+    const what = (sentence: string) => sentence.slice(sentence.indexOf(', ') + 2)
+    assert.deepEqual(coach.blocks.map(block => block.exchange.map(what)), [PROD_COACH.blocks[1].exchange.map(what), PROD_COACH.blocks[0].exchange.map(what)])
+    assert.ok(coach.blocks[0].exchange.every(sentence => sentence.startsWith('When you return to this block, ')))
+    assert.ok(coach.blocks[1].exchange.every(sentence => sentence.startsWith('When you call this block, ')))
 })
 
 test('3. the demonstrations under the same rules: unlabelled teams, no exchange, looks by place; the withheld one still withheld', () => {
