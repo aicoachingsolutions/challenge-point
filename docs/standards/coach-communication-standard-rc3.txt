@@ -1,0 +1,74 @@
+Challenge Point™ Coach Communication Standard
+Release Candidate 3
+Replaces RC2. Owner: Experience Architecture. Each numbered requirement is testable; sources: RC3 sources list.
+
+1. Scope
+1.1 This standard governs presentation to coaches only, never the activity or its learning design.
+1.2 Every presentation level and the diagram derive from the same authorized activity representation, with no contradictions or invented instructions, and misrepresent nothing.
+1.3 Knowledge authority, provenance, approved wording and structural validation remain intact.
+1.4 Missing knowledge (not a coach's choice) is reported as a gap, never filled.
+1.5 Every mechanism applies identically to every Learning Goal, without activity-specific exceptions.
+
+2. Every Coach-Facing Sentence
+2.1 It describes the game and environment in observable actions, never the learning process: no player decisions, perceptions, representative intentions, tactical reasoning or interpretive phrasing ("Players decide...", "Teams aim to...").
+2.2 It implies no prescribed solution and does not unnecessarily specify how players must move.
+2.3 Sentence Test: a sentence that does not help the coach run the activity is removed; one not needed to understand and begin goes to administer or adjust sections.
+2.4 Coach Translation Test: a sentence the coach must mentally translate into an action is rewritten.
+
+3. Two Levels
+3.1 The Coach Overview is presented first, with complete Coach Details accessible when needed.
+3.2 Challenge Point does not provide or prescribe a player-facing explanation or script; the coach explains the activity to players concisely in their own language.
+3.3 Information is classified by when the coach needs it (5.2), not simply by whether it is a rule. Classification is recorded per kind of information, never per activity, and remains proposed until the knowledge owner approves it.
+3.4 Non-redundancy applies within each level: each idea is stated once (approved wording excepted), and a structure repeated across role blocks is stated once, in role terms. The Overview may summarize Coach Details.
+3.5 Communication Hierarchy: when removing information, preserve Safety, Setup, Rules and Scoring, in that order; educational explanation is always sacrificed first.
+
+4. Coach Overview
+4.1 Learning Purpose: primarily the Learning Goal's coach-facing definition, informed by a selected Practice Situation or other authorized context only where it materially changes the learning emphasis; source and any translation traceable to approved knowledge.
+4.2 The Game: one sentence, before any procedural statement, conveying the teams' opposing objectives.
+4.3 Basic Parameters: area, players, duration.
+4.4 Essential Scoring: how each team scores, briefly, with only those qualifications, exceptions or restart conditions whose omission would materially misrepresent the game.
+4.5 The Diagram, unless 8.5 prevents it.
+
+5. Coach Details
+5.1 Coach Details hold the complete activity, organized by function.
+5.2 Sections, which may be split or relabeled, answer only their own question, in this order:
+To understand and begin:
+- Setup: How do I organize it?
+- Rules: How does play work?
+- Scoring: How do teams score?
+- Win Condition: When does the activity end?
+To administer:
+- Role Exchange (only with blocks): What changes between blocks?
+- Restarts and Ball Out: How is play restarted?
+To adjust:
+- Adjustments: How can I change the challenge?
+5.3 A condition deciding whether or when a team can score is needed to understand and begin, even when it concerns a restart; the restart's procedure belongs in Restarts and Ball Out.
+5.4 Adjustments are options, never requirements for initially running the activity.
+
+6. Wording Status and Completeness
+6.1 Every coach-facing statement records its citations and one status, hidden from coaches:
+- Approved canonical wording, word for word, including a Learning Goal's coach-facing definition.
+- An abbreviated presentation derived from approved wording.
+- Newly proposed language awaiting approval, shortened or not.
+6.2 Abbreviations appear only in the Overview; Coach Details give the approved wording they abbreviate in full, with provenance preserved. Shortening must not introduce new meanings, omit a condition that changes the essential understanding, or silently turn a qualified rule into an unrestricted one.
+6.3 An abbreviation is accepted only when the Overview as a whole preserves the material meaning of the full rule, including relevant initial conditions, scoring eligibility and exceptions, never judged by related words, conditions or citations appearing somewhere. For example, "saying that a new goalkeeper restart is required after possession loss does not, by itself, fully communicate that the original scoring opportunity must begin from the goalkeeper."
+
+7. Markings
+7.1 Whenever the system can establish that the physical markings occupy the same locations across all blocks, they are marked once, at the start.
+7.2 Where a marking changes location between blocks, including through an adjustment, the instructions identify what needs to be adjusted.
+7.3 Physical markings are stated apart from role-specific scoring relationships (which target zone each team attacks), a distinction the knowledge keeps even where markings stay unchanged.
+7.4 Coach-facing terms: "Marked line" and "Target zone" (a team's scoring area).
+
+8. Diagram
+8.1 It shows the viewed block's starting configuration: field dimensions and relevant markings, team numbers and starting relationships, attacking directions and target zones.
+8.2 Goals are drawn when, and only when, the representation includes them, never assumed, with their location, size where specified and relationship to the playing area.
+8.3 Target zones share one consistent, recognizable color (green, for example), distinct from team identity. Each block's view emphasizes its active scoring objectives over other marked zones, retains physical markings used later, and carries no label about another block.
+8.4 Hatching, overlapping labels and competing elements are minimized. Nothing depicts formations, passing patterns or movement solutions the activity does not authorize.
+8.5 Missing information prevents rendering only when a required visual relationship cannot be represented faithfully; an unspecified goalkeeper starting point, for example, does not. Spatial information is never invented.
+
+9. Usability Targets
+9.1 From the Overview, with Coach Details available, a coach should understand the game's essential structure and objectives in about 30-60 seconds, quickly identify the setup and scoring conditions, and explain it to players in about 15-30 seconds.
+9.2 These are usability targets, not hard validation gates.
+
+Closing Principle
+"We want the complexity to exist in the learning environment, not in the effort required to understand and communicate the activity."

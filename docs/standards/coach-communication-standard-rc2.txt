@@ -1,0 +1,191 @@
+Challenge Point™ Coach Communication Standard
+RC2
+Status: Release Candidate 2 Owner: Experience Architecture Purpose: Coach-Facing Activity Communication
+Purpose
+The Coach Communication Standard defines how Challenge Point communicates generated activities to coaches.
+Its purpose is not to explain the educational theory behind representative learning.
+Its purpose is to enable coaches to confidently organize, understand, and begin an activity with minimal cognitive effort.
+Challenge Point should communicate activities in the same way experienced coaches naturally exchange practice ideas—with clarity, brevity, and immediate usability.
+Design Philosophy
+The representative learning architecture performs the educational reasoning.
+The coach-facing activity should communicate only the information required to successfully organize and facilitate the activity.
+The activity should answer the coach's practical questions—not reveal the engine's reasoning.
+Communication Principles
+Principle 1 — Coach Workflow Over Engine Workflow
+Activity descriptions should follow the order in which a coach naturally prepares practice.
+What are we working on?
+How do I set it up?
+How do we play?
+How do teams score?
+When does it end?
+The communication structure should mirror the coach's workflow rather than the generation process.
+Principle 2 — Communicate How to Play
+Describe the game.
+Do not describe the learning process.
+Avoid explaining:
+decisions
+perceptions
+representative intentions
+tactical reasoning
+These should emerge naturally from the activity itself.
+Principle 3 — Minimize Coach Translation
+Every additional sentence increases cognitive effort.
+The objective is to minimize translation between reading and coaching.
+A coach should spend their attention organizing players rather than interpreting text.
+Principle 4 — Show the Environment
+Describe the environment.
+Avoid describing player cognition.
+Prefer:
+Play begins with the goalkeeper.
+Instead of:
+Players decide when to secure possession.
+Principle 5 — Simplicity Supports Confidence
+Activities should feel immediately runnable.
+If coaches hesitate because they are still interpreting the activity, communication should be simplified.
+The One Question Per Section Standard
+Each section owns one coaching question.
+Section
+Coach Question
+Objective
+What are we working on?
+Setup
+How do I organize it?
+Rules
+How does play work?
+Scoring
+How do teams score?
+Win Condition
+When does the activity end?
+No section should answer another section's question.
+The One Read Rule
+A coach unfamiliar with the activity should understand the activity after one reading.
+They should immediately understand:
+objective
+setup
+rules
+scoring
+without rereading.
+Target reading time:
+30 seconds or less
+The Sentence Test
+Every sentence should answer one question:
+Does this sentence help the coach run the activity?
+If the answer is No,
+remove it.
+The Coach Translation Test
+For every sentence ask:
+Does the coach have to mentally translate this into an action?
+If Yes,
+rewrite it.
+Examples:
+Instead of:
+Players decide when to switch play.
+Write:
+Play continues until possession changes.
+Language Standards
+Prefer
+Observable actions.
+Examples:
+Play starts with the goalkeeper.
+Restart with a goal kick.
+Attack the end zone.
+Play continues after every turnover.
+Avoid
+Interpretive language.
+Examples:
+Players decide...
+Teams aim to...
+Session focus...
+Immediate attacking advantage...
+Players recognize...
+Players choose...
+The environment should create these behaviors rather than the activity describing them.
+Scoring Standard
+Scoring should answer only one question:
+How are points earned?
+Scoring should not explain:
+tactical reasoning
+representative intention
+environmental consequences
+If those are important,
+they belong elsewhere.
+Communication Hierarchy
+When simplifying communication, preserve information in the following order.
+Safety
+Setup
+Rules
+Scoring
+Educational explanation
+Educational explanation should always be sacrificed first.
+Appendix A
+Coach Communication Transformation Framework
+Every activity should pass through the following editing process before presentation.
+Step 1
+Identify the section.
+Objective
+Setup
+Rules
+Scoring
+Win Condition
+Step 2
+Determine the coaching question.
+Example:
+Objective
+"What are we working on?"
+Step 3
+Remove everything that does not answer that question.
+Step 4
+Rewrite using observable coaching language.
+Step 5
+Read the section aloud.
+If it sounds like something an experienced coach would naturally say,
+it is probably appropriate.
+If it sounds like documentation,
+simplify it.
+Appendix B
+Before and After Examples
+Example 1 — Objective
+Current
+Secure possession and progress within the time constraint. Decide when to switch play or maintain possession based on time and space. Session focus: Maintain possession with forward intent.
+Improved
+Build out from the back against high pressure by maintaining possession and progressing into the opponent's end zone.
+Why
+Removes:
+duplicated concepts
+player cognition
+session explanation
+States only the coaching intention.
+Example 2 — Setup
+Current
+Play 9v9 in a 40x30 yard area with two 20-yard end zones. Teams aim to maintain possession and progress towards the opposing end zone within a set time limit. Start with a kickoff from the center. Play restarts from the center after a score or when the ball goes out.
+Improved
+9v9 + GKs. 40 × 30 m field with two end zones and a central channel. Play starts with the goalkeeper. Restart with a goal kick or from the end zone.
+Why
+Separates:
+field organization
+restart procedure
+Removes learning explanation.
+Example 3 — Rules
+Current
+Play stays live as possession is secured and progressed toward the target under pressure. A forced ball or turnover flips the immediate attacking advantage to the opponent with no reset.
+Improved
+Teams attack by progressing into the opponent's end zone. If possession changes, play continues immediately with no reset.
+Why
+Describes observable play.
+Removes internal terminology.
+Example 4 — Scoring
+Current
+Earn a point for passes or runs that break or bypass a defensive line; line-breaking attempts that are read and intercepted hand the advantage to the opponent on the regain. Earn an extra point for switching play across the field.
+Improved
+Attack: 1 point for reaching the opponent's end zone. Defend: 1 point for winning possession or forcing a turnover.
+Why
+Scoring should answer only one question:
+How do we get points?
+Everything else belongs in the activity design—not the coach-facing communication.
+Success Criteria
+Coach communication is successful when a coach can:
+understand the activity after one read
+organize the activity without interpretation
+explain the activity to players without rereading
+begin play within minutes
+The quality of coach-facing communication should be measured by how little translation it requires between reading the activity and running the activity.

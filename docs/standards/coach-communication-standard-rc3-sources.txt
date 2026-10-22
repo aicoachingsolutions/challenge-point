@@ -1,0 +1,73 @@
+Coach Communication Standard RC3: sources
+"22 Oct 3" is item 3 of your 22 October reply. Section 3 lists wording that is ours, new or carried from the amendment draft you reviewed; RC3's own words are marked RC3's; every other quote is yours.
+
+1. EACH CLAUSE
+Heading: 23 Oct 3, "testable standard".
+1.1 23 Oct opening: "without modifying the underlying activity-generation logic".
+1.2 22 Oct 1, nearly word for word.
+1.3 22 Oct 8, nearly word for word.
+1.4 22 Oct 3; 23 Oct 5; plus our drafting.
+1.5 22 Oct 4: "not as a special case"; 23 Oct 7.
+2.1 RC2 Principles 2 and 4, Language Standards, Scoring Standard.
+2.2 22 Oct 5: "unnecessarily specifies how players must move".
+2.3 RC2 The Sentence Test, plus our drafting.
+2.4 RC2 The Coach Translation Test.
+3.1 23 Oct 7, step 4: "complete details accessible when needed".
+3.2 22 Oct opening: "a separate player-facing explanation or script"; 23 Oct 1.
+3.3 22 Oct 2: "when the coach needs it"; plus our drafting.
+3.4 23 Oct 1: "within each presentation level"; RC2 One Question Per Section.
+3.5 RC2 Communication Hierarchy.
+4 22 Oct 1; 23 Oct 6: "I approve the proposed structure".
+4.1 22 Oct 3: "coach-facing definition", "materially changes the learning emphasis".
+4.2 23 Oct 6: "communicates the opposing objectives immediately".
+4.3 22 Oct 1: "basic parameters".
+4.4 22 Oct 6: "would materially misrepresent the game".
+4.5 22 Oct 1: "a simple diagram".
+5.1 22 Oct 1: "organized by function".
+5.2 RC2 One Question Per Section, Principle 1; 22 Oct 1.
+5.3 22 Oct 2, restart example generalized.
+5.4 22 Oct 2: "requirements for initially running the activity".
+6.1 22 Oct 4: the three status names.
+6.2 22 Oct 4, its shortening sentence word for word; 23 Oct 4.
+6.3 23 Oct 4: "the overview as a whole"; its example.
+7.1 23 Oct 2: "the same locations across all blocks".
+7.2 23 Oct 2: "identify what needs to be adjusted".
+7.3 23 Oct 2: "role-specific scoring relationships".
+7.4 22 Oct 7: "Marked line", "Target zone".
+8.1 22 Oct 7: "whichever block is being viewed"; 23 Oct 5.
+8.2 23 Oct 5: "only when the authorized activity representation includes them".
+8.3 23 Oct 5: "green, for example".
+8.4 23 Oct 5: "formations, passing patterns, or movement solutions".
+8.5 23 Oct 5: "a required visual relationship cannot be represented faithfully".
+9.1 23 Oct 8, questions 1-3.
+9.2 22 Oct acceptance criteria: "usability targets, not hard validation gates".
+Closing: 23 Oct 8, word for word.
+
+2. RC2 TEXT DROPPED OR CONDENSED, FOR YOUR CONFIRMATION
+- Header Status and Purpose: dropped.
+- Purpose, Design Philosophy: condensed into 1.1, 2.1, Closing Principle.
+- Principle 1: now 5.2's order. Principles 3 and 5: now 2.4 and 9.1.
+- Examples (Principle 4, Translation Test, Language Standards): dropped.
+- Avoid list: two of six phrases kept; RC3's "interpretive phrasing" covers the rest.
+- One Read Rule: "30 seconds or less" replaced by 9.1; understanding "after one reading" and "without rereading" dropped, with 9.1's time targets standing in.
+- Scoring Standard: now 5.2's Scoring row and 2.1.
+- Appendix A: now 5.2 and 2.1; Step 5 (read aloud) dropped.
+- Appendix B: dropped; its examples predate RC3 (Example 2 conflicts with 5.2).
+- Success Criteria: folded into 3.2, 9.1, 2.4; "begin play within minutes" dropped.
+
+3. OUR WORDING BEYOND YOUR DECISIONS, FOR YOUR CONFIRMATION
+- 1.2 "and the diagram"; "misrepresent nothing": your abbreviation test, applied to every level.
+- 1.4 "(not a coach's choice)": what you leave to the coach is not a gap.
+- 2.3 "goes to administer or adjust sections".
+- 3.3 "per kind of information"; "proposed until the knowledge owner approves it".
+- 3.4 "in role terms"; "(approved wording excepted)".
+- 3.5 "removing" for RC2's "simplifying": the Overview's omissions stay in Coach Details.
+- 4.2 "before any procedural statement" (stricter than yours).
+- 4.3 "area, players, duration"; 4.5 "unless 8.5 prevents it".
+- 5.2 new section names, questions and grouping; "may be split or relabeled".
+- 5.3 your restart example generalized to any condition on when a team can score.
+- 6.1 statuses and citations hidden from coaches; a Learning Goal's definition counted as approved; "shortened or not".
+- 6.2 "Abbreviations appear only in the Overview"; 6.3 "or citations".
+- 7.2 "including through an adjustment"; 7.4 "(a team's scoring area)".
+- 8.1 "starting configuration"; 8.3 "carries no label about another block", from your Block 2 remark.
+- 9.1 "From the Overview, with Coach Details available"; "setup" for your "physical setup".
