@@ -287,6 +287,62 @@ export interface ServedActivity {
      * withheld); the rest is shown as sent.
      */
     overviewDraft?: ReviewOverviewDraft
+    /**
+     * The field diagram (stage 5B, 22 October 2026; `back/src/system/rendering/coach-diagram.ts`), served to every viewer: geometry in
+     * metres and words only. Present only where the server's checks found it agrees with the Coach Details in every block (D0-D8) and with
+     * its own checked model (D9); absent otherwise, and the page then draws none. Drawn in the Coach Overview (`FieldDiagram.tsx`).
+     */
+    diagram?: CoachDiagram
+    /** The diagram as an administrator reviews it (stage 5A-5B): only on an administrator's answer. Typed only as far as the page reads it. */
+    diagramDraft?: ReviewDiagramDraft
+}
+
+/** A stretch in metres: along the area's length (0 at one end line) or across its width. */
+export interface DiagramInterval {
+    from: number
+    to: number
+}
+
+/**
+ * One block of the field diagram (stage 5B), as the server composed it: what is marked, what each marked zone is in this block, the
+ * block's active targets (one look, whichever team attacks them), objects, teams (each with its own look, `identity`, kept across the
+ * blocks) and the dimensions a sentence states; `title` and `desc` are the drawing's accessible name and description. Every word is
+ * the server's.
+ */
+export interface CoachDiagramBlock {
+    label: string | null
+    title: string
+    desc: string
+    lines: { along: DiagramInterval; across: DiagramInterval; markedLine: boolean; label: string | null }[]
+    zones: { along: DiagramInterval; across: DiagramInterval; state: 'TARGET' | 'INSIDE_TARGET' | 'MARKED' | string }[]
+    targets: { along: DiagramInterval; across: DiagramInterval; line: boolean; label: string | null }[]
+    objects: { along: DiagramInterval; across: DiagramInterval; label: string | null; target: boolean }[]
+    teams: { identity: number; noun: string | null; counts: string[]; start: { along: DiagramInterval; across: DiagramInterval } | null; attacks: number[] }[]
+    dimensions: { kind: 'AREA_LENGTH' | 'AREA_WIDTH' | 'ZONE_DEPTH' | 'LINE_OFFSET' | string; axis: 'along' | 'across' | string; from: number; to: number; label: string }[]
+}
+
+/** The field diagram a coach is served (stage 5B): no id, data key, path or citation. */
+export interface CoachDiagram {
+    area: { lengthM: number; widthM: number }
+    counts: string[]
+    legend: { kind: 'MARKED_LINE' | 'TARGET_ZONE' | 'STARTING_AREA' | string; text: string }[]
+    blocks: CoachDiagramBlock[]
+}
+
+/** One finding of the diagram's checks (D0-D9): any withholds the diagram, never the activity. */
+export interface ReviewDiagramFinding {
+    rule: string
+    blockId: string | null
+    what: string
+}
+
+/** The administrator's diagram draft, as far as the page reads it (stage 5B): served or not, why, and what is not drawn. */
+export interface ReviewDiagramDraft {
+    served: boolean
+    verdict: 'DRAWN' | 'WITHHELD' | string
+    findings: ReviewDiagramFinding[]
+    notes: string[]
+    [key: string]: unknown
 }
 
 /**

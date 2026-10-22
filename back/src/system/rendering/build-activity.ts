@@ -59,7 +59,8 @@ import { allocationPrinciple, authorizationLists, contextManipulationRelationshi
 import { applyRealizationDeferrals } from '../derivation/realization-deferral'
 import type { ConstraintAuthority, ConstraintPoolAccount } from '../test-library/types'
 import { CoachOverviewDraft, failedOverviewDraft } from './coach-overview'
-import { failedDiagramDraft, FieldDiagramDraft, fieldDiagramDraftOf } from './field-diagram'
+import { CoachDiagram, DiagramOutcome, diagramForServing } from './coach-diagram'
+import { failedDiagramDraft, FieldDiagramDraft } from './field-diagram'
 import { CoachOverview, OverviewEvidence, overviewEvidenceOf, overviewForServing, OverviewOutcome } from './overview-fidelity'
 import { contextScoringFindings, EPISODE_REACHABLE_CHECK } from './context-scoring-guard'
 import { checkFidelity, FidelityFinding } from './fidelity'
@@ -281,18 +282,28 @@ export interface ServedActivity {
      * parameters, essential scoring objectives, and a simple diagram."* Words and "full rule" pointers only (no status, source, citation or
      * binding: those are the administrator's, in `overviewDraft`). Present only where the overview agrees with Coach Details in every block
      * (Q7); withheld otherwise, the activity served exactly as without it. Every word is DRAFT except his purpose and his approved wording.
-     * The diagram is a later stage.
+     * The diagram is served beside it, as its own layer (`diagram`, stage 5B): either may be withheld without the other.
      */
     overview?: CoachOverview
     /**
      * **The field diagram as a model, and its agreement check, for an administrator only** — stage 5A, 22 October 2026
      * (`field-diagram.ts`). His reply filed 22 October 2026, item 1, puts *"a simple diagram"* in the Coach Overview; his reply filed 23
      * October 2026, item 5, says what it shows and when missing information may prevent it. Computed from the same games the activity was
-     * rendered from, only by the review build with drafts, for every served activity; checked against each block's Coach Details. DRAWN
-     * where it agrees, WITHHELD with every finding otherwise; it never decides whether an activity is served. Not served to a coach in this
-     * stage (stage 5B serves and draws it). Every word is DRAFT except his terms "marked line" and "target zone".
+     * rendered from, for every served activity; checked against each block's Coach Details. DRAWN where it agrees, WITHHELD with every
+     * finding otherwise; it never decides whether an activity is served. Only the review build with drafts carries it. Since stage 5B,
+     * `served` says whether every viewer was served the diagram (`diagram`), and a finding of D9 (the coach's diagram against this model)
+     * withholds it too. Every word is DRAFT except his terms "marked line" and "target zone".
      */
     diagramDraft?: FieldDiagramDraft
+    /**
+     * **The field diagram, served to every viewer** — stage 5B, 22 October 2026 (`coach-diagram.ts`). His reply filed 22 October 2026,
+     * item 1: the Coach Overview holds *"a simple diagram"*; his reply filed 23 October 2026, item 5, says what it shows. Geometry in
+     * metres and words only (no id, data key, path or citation: those are the administrator's, in `diagramDraft`), block by block. Present
+     * only where the model agrees with Coach Details in every block (D0-D8) and this diagram with the model (D9); withheld otherwise, the
+     * activity served exactly as without it. Every word is DRAFT except his terms "marked line" and "target zone" and the nouns and counts
+     * a served sentence carries.
+     */
+    diagram?: CoachDiagram
 }
 
 /** The role blocks of a served activity, for the technical account (stage K3). */
@@ -1097,17 +1108,20 @@ function build(
      */
     const roleIndex = indexRegister(input.register)
     /**
-     * Stage 5A: the field diagram's model and agreement check (`field-diagram.ts`), for an administrator's review only (`diagramDraft`), read
-     * from the games as served and held to each block's Details, the Details a coach is served and the served role-block account. Whatever
-     * fails, including the computation itself, withholds the diagram only: the activity is served or refused exactly as without it.
+     * Stage 5A: the field diagram's model and agreement check (`field-diagram.ts`), read from the games as served and held to each block's
+     * Details, the Details a coach is served and the served role-block account. Stage 5B (`coach-diagram.ts`): for EVERY build that serves
+     * (a coach's and an administrator's alike), the diagram a coach reads is composed from that model and held to it (D9), and served
+     * (`diagram`) only where everything agrees; the model, the findings and the notes go to an administrator only (`diagramDraft`). Whatever
+     * fails, including the computation itself, withholds the diagram only: the activity, and its overview, are served exactly as without it.
      */
     const diagramKeys = (games: { blockId: string; holders: Record<string, string>; fixture: any; rendered: Instruction[] }[], served: Instruction[], roleBlocks: { blockId: string; holders: Record<string, string> }[] | null): Partial<ServedActivity> => {
-        if (!review.includeDrafts) return {}
+        let outcome: DiagramOutcome
         try {
-            return { diagramDraft: fieldDiagramDraftOf({ session, games, served, roleBlocks, index: roleIndex }) }
+            outcome = diagramForServing({ session, games, served, roleBlocks, index: roleIndex }, { title })
         } catch (error) {
-            return { diagramDraft: failedDiagramDraft(error instanceof Error ? error.message : String(error)) }
+            outcome = { diagram: null, draft: failedDiagramDraft(error instanceof Error ? error.message : String(error)) }
         }
+        return { ...(outcome.diagram ? { diagram: outcome.diagram } : {}), ...(review.includeDrafts ? { diagramDraft: outcome.draft } : {}) }
     }
     const rolesRow = roleIndex.roleBlocks?.rolesRow
     if (rolesRow && (input.contracts as LoadedContract[]).some(contract => (contract.items ?? []).some(item => String(item.row) === rolesRow))) {
@@ -1282,7 +1296,7 @@ function build(
                     ...((evidence => (evidence ? { evidence } : {}))(evidenceOf('served', overview.evidence))),
                     // Stage 3D: the overview where it agrees (every viewer); its draft and the check's findings for an administrator only.
                     ...overviewKeys(overview),
-                    // Stage 5A: the diagram's model and agreement check, for an administrator only.
+                    // Stage 5A/5B: the diagram where it agrees (every viewer); its model and the checks' findings for an administrator only.
                     ...diagramKeys(
                         games.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, fixture: entry.fixture, rendered: entry.rendered.instructions })),
                         composed.instructions,

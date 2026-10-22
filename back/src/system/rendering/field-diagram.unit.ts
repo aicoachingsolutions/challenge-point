@@ -42,6 +42,7 @@ import { LoadedContract } from '../derivation/types'
 import { learningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
 import { reviewActivity } from './activity-review'
 import { buildActivity, buildActivityForReview, buildActivityUnderAuthorizationRecords, buildActivityWithFixture, RefusedActivity, ServedActivity } from './build-activity'
+import { diagramForServing } from './coach-diagram'
 import * as fieldDiagramModule from './field-diagram'
 import { checkFieldDiagram, DIAGRAM_WORDS, DiagramFinding, DiagramInput, FieldDiagram, fieldDiagramDraftOf } from './field-diagram'
 import { transitionsOf } from './game-reading'
@@ -97,8 +98,10 @@ test('1. A01 at 12/1, 12/2 and 11/1: drawn from each block\'s game, set out once
         assert.equal(activity.rendered.instructions.length, 28, `${what}: the activity is served with its 28 sentences`)
         const draft = activity.diagramDraft!
         assert.ok(draft, `${what}: the administrator's answer carries the diagram`)
-        assert.deepEqual(draft, fieldDiagramDraftOf(input), `${what}: the build hands the diagram exactly these games`)
-        assert.equal(draft.served, false)
+        // Re-pointed 22 October 2026 (stage 5B): the build's draft is the served one (`diagramForServing`), the model exactly these games'.
+        assert.deepEqual(draft, diagramForServing(input, { title: activity.title }).draft, `${what}: the build hands the diagram exactly these games`)
+        assert.deepEqual({ ...draft, served: false }, fieldDiagramDraftOf(input), `${what}: the model is fieldDiagramDraftOf's`)
+        assert.equal(draft.served, true, `${what}: since stage 5B every viewer is served the diagram`)
         assert.equal(draft.verdict, 'DRAWN', `${what}: ${JSON.stringify(draft.findings, null, 1)}`)
         assert.deepEqual(draft.findings, [])
         const model = draft.diagram!
@@ -179,7 +182,9 @@ test('1. A01 at 12/1, 12/2 and 11/1: drawn from each block\'s game, set out once
     }
 })
 
-test('2. only an administrator\'s review answer carries the diagram; a refused activity has none', () => {
+// Since stage 5B every viewer's answer also carries the diagram a coach reads (`diagram`, coach-diagram.unit.ts); the model, its
+// findings and notes (`diagramDraft`) stay the administrator's, as pinned here.
+test('2. only an administrator\'s review answer carries the diagram draft; a refused activity has none', () => {
     const stored: any = { _id: 'TEST-ONLY', createdBy: 'TEST-ONLY', playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: { ...none, [ROLE]: 1 } }
     const coach = reviewActivity(stored, { learningGoalId: 'A01', durationMin: 20 }) as ServedActivity
     const admin = reviewActivity(stored, { learningGoalId: 'A01', durationMin: 20 }, { includeDrafts: true }) as ServedActivity
@@ -364,6 +369,8 @@ test('6. on the real chain a diagram failure withholds the diagram only: the act
         assert.deepEqual(admin.rendered, coach.rendered)
         assert.deepEqual(admin.overview, coach.overview)
         assert.equal(admin.diagramDraft!.verdict, 'WITHHELD')
+        assert.equal(admin.diagramDraft!.served, false)
+        assert.ok(!('diagram' in admin), 'stage 5B: a withheld diagram is served to no one')
         refusedBy(admin.diagramDraft!.findings, 'D0', FAR, 'chain')
         module.fieldDiagramDraftOf = () => {
             throw new Error('TEST-ONLY failure')
@@ -372,10 +379,11 @@ test('6. on the real chain a diagram failure withholds the diagram only: the act
         assert.equal(thrown.outcome, 'served')
         assert.deepEqual(thrown.rendered, coach.rendered)
         assert.deepEqual(thrown.diagramDraft, { served: false, verdict: 'WITHHELD', diagram: null, findings: [{ rule: 'D0', blockId: null, what: 'the diagram could not be computed: TEST-ONLY failure' }], notes: [] })
+        assert.ok(!('diagram' in thrown))
     } finally {
         module.fieldDiagramDraftOf = original
     }
-    assert.deepEqual((buildActivityForReview(a01At(12, 1), { includeDrafts: true }) as ServedActivity).diagramDraft, PROD_DRAFT)
+    assert.deepEqual((buildActivityForReview(a01At(12, 1), { includeDrafts: true }) as ServedActivity).diagramDraft, { ...PROD_DRAFT, served: true })
 })
 
 test('7. physical objects: drawn only where the game positions them and a sentence says them; never placed by guess (TEST-ONLY)', () => {
@@ -479,7 +487,7 @@ test('8. markings presented block by block (TEST-ONLY 15 m line): each block\'s 
     }
     const { input, activity } = inputOf(a01At(12, 1), offsetFifteen)
     const draft = activity.diagramDraft!
-    assert.deepEqual(draft, fieldDiagramDraftOf(input))
+    assert.deepEqual(draft, { ...fieldDiagramDraftOf(input), served: true })
     assert.equal(draft.verdict, 'DRAWN', JSON.stringify(draft.findings, null, 1))
     const model = draft.diagram!
     assert.equal(model.markingsSetOutOnce, false)

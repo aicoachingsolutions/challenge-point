@@ -1,6 +1,7 @@
 /**
  * **The field diagram as a model, and the check that it agrees with Coach Details** — stage 5A of the communication work, 22 October 2026.
- * Server only and for an administrator only in this stage (`ServedActivity.diagramDraft`); stage 5B serves it and draws it.
+ * The model and its check are the administrator's (`ServedActivity.diagramDraft`); since stage 5B every viewer is served the diagram a
+ * coach reads, composed from this model and held to it (`coach-diagram.ts`, `ServedActivity.diagram`), and the page draws it.
  *
  * His reply filed 22 October 2026, item 1, puts *"a simple diagram"* in the Coach Overview; item 7: *"I appreciate that the prototype draws
  * from stored activity data and refuses to invent missing positions or geometry."*, *"For coach-facing terminology, I prefer: Marked line /
@@ -225,9 +226,10 @@ export interface FieldDiagram {
 /**
  * The rules a model is held to. D0: a required relationship that cannot be read whole (the model is not built). D1 the area; D2 every drawn
  * region cited; D3 the markings exactly what Set up says to mark, and each marked zone's state; D4 every number; D5 the roles each block's
- * teams hold; D6 every word; D7 every attacking direction; D8 nothing the standard leaves out.
+ * teams hold; D6 every word; D7 every attacking direction; D8 nothing the standard leaves out. D9 (stage 5B, `coach-diagram.ts`): the
+ * diagram a coach is served says only what the checked model says, in coach words, with no data key, id or path in any of them.
  */
-export type DiagramRule = 'D0' | 'D1' | 'D2' | 'D3' | 'D4' | 'D5' | 'D6' | 'D7' | 'D8'
+export type DiagramRule = 'D0' | 'D1' | 'D2' | 'D3' | 'D4' | 'D5' | 'D6' | 'D7' | 'D8' | 'D9'
 
 export interface DiagramFinding {
     rule: DiagramRule
@@ -236,12 +238,14 @@ export interface DiagramFinding {
 }
 
 /**
- * **The diagram as an administrator reviews it** (stage 5A). `served` is false in this stage. `verdict` DRAWN where the model was built and
- * agrees with Coach Details in every block; WITHHELD otherwise, with every finding. The model is kept where it was built, so a withheld
- * diagram shows what disagreed. `notes` say what is not drawn and why (an optional element the game does not place).
+ * **The diagram as an administrator reviews it** (stage 5A). `verdict` DRAWN where the model was built and agrees with Coach Details in
+ * every block; WITHHELD otherwise, with every finding. The model is kept where it was built, so a withheld diagram shows what disagreed.
+ * `notes` say what is not drawn and why (an optional element the game does not place). `served` (stage 5B, `coach-diagram.ts`
+ * `diagramForServing`): true where the coach's diagram was composed from the model and passed D9, and every viewer is served it; false
+ * otherwise (`fieldDiagramDraftOf` alone serves nothing, so it says false).
  */
 export interface FieldDiagramDraft {
-    served: false
+    served: boolean
     verdict: 'DRAWN' | 'WITHHELD'
     diagram: FieldDiagram | null
     findings: DiagramFinding[]
@@ -635,6 +639,32 @@ const MODEL_KEYS: Record<'diagram' | 'area' | 'block' | 'markings' | 'line' | 'z
 }
 
 /**
+ * **What is data in these games, never a coach word** (D6, and since stage 5B D9 on the coach's diagram): every role, designation and
+ * role-holder name, every designation a binding names, every restart's actor and awardee (`forbidden`, matched whole by D6); every element
+ * id of the games, every block id and every id of the markings set out once (`ids`, matched anywhere in a word). Stage 5B added the block
+ * ids and the layout's ids to `ids` (a tightening of D6: no word drawn so far contains one).
+ */
+export function dataWordsOf(input: Pick<DiagramInput, 'games' | 'index'>): { forbidden: Set<string>; ids: string[] } {
+    const forbidden = new Set<string>()
+    const ids: string[] = []
+    for (const game of input.games) {
+        for (const [role, holder] of Object.entries(game.holders)) forbidden.add(role).add(holder)
+        for (const name of Object.keys(game.fixture?.roleNouns?.holders ?? {})) forbidden.add(name)
+        for (const binding of asList(game.fixture?.record?.designationBindings)) forbidden.add(String(binding?.designation))
+        for (const row of transitionsOf(game, input.index)) {
+            if (typeof row.actor === 'string') forbidden.add(row.actor)
+            if (typeof row.awardedTo === 'string') forbidden.add(row.awardedTo)
+        }
+        for (const collection of [game.fixture?.game?.space?.regions, game.fixture?.game?.objectives, game.fixture?.game?.performers?.teams, game.fixture?.game?.performers?.startPlacement, game.fixture?.game?.objects, game.fixture?.game?.transitions]) {
+            for (const element of asList(collection)) if (element?.elementId) ids.push(String(element.elementId))
+        }
+        if (game.blockId) ids.push(String(game.blockId))
+        for (const entry of [...asList(game.fixture?.layout?.marks), ...asList(game.fixture?.layout?.zones)]) if (entry?.elementId) ids.push(String(entry.elementId))
+    }
+    return { forbidden, ids }
+}
+
+/**
  * **Does the model agree with Coach Details, block by block?** Every rule reads the game and the sentences again; none takes the builder's
  * word. Each finding withholds the diagram, never the activity.
  */
@@ -698,20 +728,7 @@ export function checkFieldDiagram(diagram: FieldDiagram, input: DiagramInput): D
     if (diagram.blocks.length !== games.length) finding('D5', null, `${diagram.blocks.length} blocks are drawn and the activity has ${games.length}`)
 
     // D6: words that are data, never a coach word.
-    const forbidden = new Set<string>()
-    const ids: string[] = []
-    for (const game of games) {
-        for (const [role, holder] of Object.entries(game.holders)) forbidden.add(role).add(holder)
-        for (const name of Object.keys(game.fixture?.roleNouns?.holders ?? {})) forbidden.add(name)
-        for (const binding of asList(game.fixture?.record?.designationBindings)) forbidden.add(String(binding?.designation))
-        for (const row of transitionsOf(game, index)) {
-            if (typeof row.actor === 'string') forbidden.add(row.actor)
-            if (typeof row.awardedTo === 'string') forbidden.add(row.awardedTo)
-        }
-        for (const collection of [game.fixture?.game?.space?.regions, game.fixture?.game?.objectives, game.fixture?.game?.performers?.teams, game.fixture?.game?.performers?.startPlacement, game.fixture?.game?.objects, game.fixture?.game?.transitions]) {
-            for (const element of asList(collection)) if (element?.elementId) ids.push(String(element.elementId))
-        }
-    }
+    const { forbidden, ids } = dataWordsOf(input)
     const blockOrdinals = diagram.blocks.map((_, n) => n + 1)
     const checkWord = (word: DiagramWord | null, expected: string | null, blockId: string | null, rendered: Instruction[] | null, ordinal: number | null) => {
         if (!word) return

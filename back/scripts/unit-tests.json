@@ -103,6 +103,7 @@
     "./src/system/rendering/overview-fidelity.unit.ts",
     "./src/system/rendering/approved-wording-readings.unit.ts",
     "./src/system/rendering/field-diagram.unit.ts",
+    "./src/system/rendering/coach-diagram.unit.ts",
     "./src/system/derivation/starts-and-restarts.unit.ts",
     "./src/system/derivation/credit-episode.unit.ts",
     "./src/system/derivation/also-counts.unit.ts",

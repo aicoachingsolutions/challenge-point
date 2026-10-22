@@ -21,8 +21,9 @@
  *     internal handles and belong to the account.
  *   * THE OVERVIEW COMES FIRST (stage 4, 22 October 2026). Christian, reply filed 23 October 2026, item 7.4:
  *     "Present the overview first, with complete details accessible when needed." Where the server serves a
- *     Coach Overview, the activity reads: title, Learning purpose, The game, the parameters line, the diagram
- *     (stage 5B; nothing until then), How each team scores (each team's line first, then the qualifications,
+ *     Coach Overview, the activity reads: title, Learning purpose, The game, the parameters line, the field
+ *     diagram where the server serves one (stage 5B, FieldDiagram.tsx; above the Coach Details where the
+ *     overview is withheld), How each team scores (each team's line first, then the qualifications,
  *     as served), then "Coach details" — one region, closed until opened, in section order, with no collapse
  *     inside it. A "full rule" link opens it and goes to the Details sentence its pointer names by section and
  *     words. Where the server withholds the overview, the activity is the Coach Details alone. Statuses are
@@ -53,6 +54,7 @@ import {
     OverviewLine,
     OverviewPointer,
     RefusedActivity,
+    ReviewDiagramDraft,
     ReviewDraft,
     ReviewDraftInstruction,
     ReviewEvidence,
@@ -70,6 +72,7 @@ import { useResource } from '@/services/resource.service'
 import Button from '@/components/Button'
 import Loading from '@/components/Loading'
 
+import FieldDiagram from './FieldDiagram'
 import { DURATION_OPTIONS } from './SessionPlanningConversation'
 
 /**
@@ -779,6 +782,43 @@ function FullRuleLink({ pointer, href, onFollow, withSection = false }: { pointe
 }
 
 /**
+ * The diagram, for an administrator only (stage 5B): where the server withheld it, every finding as given (D0-D9) and that coaches see
+ * none; where it is drawn, what it does not draw, as the server notes it. The notes and findings carry internal ids: never a coach's.
+ * Wording around them is DRAFT.
+ */
+function DiagramAdminNote({ draft }: { draft: ReviewDiagramDraft }) {
+    const findings = Array.isArray(draft.findings) ? draft.findings : []
+    const notes = Array.isArray(draft.notes) ? draft.notes : []
+    if (draft.served) {
+        if (!notes.length) return null
+        return (
+            <div role='note' className='p-3 mt-2 text-xs text-gray-600 border border-gray-200 rounded-lg bg-gray-50'>
+                <p className='font-medium'>Not drawn in the field diagram (Administrators only):</p>
+                <ul className='mt-1 space-y-0.5 list-disc list-inside [overflow-wrap:anywhere]'>
+                    {notes.map((note, index) => (
+                        <li key={index}>{note}</li>
+                    ))}
+                </ul>
+            </div>
+        )
+    }
+    return (
+        <div role='note' className='p-3 mt-2 text-xs border rounded-lg text-amber-900 bg-amber-50 border-amber-200'>
+            <p className='font-medium'>Field diagram withheld: coaches see no diagram. (Administrators only.)</p>
+            {findings.length > 0 ? (
+                <ul className='mt-1 space-y-0.5 list-disc list-inside [overflow-wrap:anywhere]'>
+                    {findings.map((finding, index) => (
+                        <li key={index}>{`${finding.rule}${finding.blockId ? ` (${finding.blockId})` : ''}: ${finding.what}`}</li>
+                    ))}
+                </ul>
+            ) : (
+                <p className='mt-1'>The server gave no reason.</p>
+            )}
+        </div>
+    )
+}
+
+/**
  * Why the overview is not shown, for an administrator only (stage 4): the server withheld it, so the activity is the Coach Details alone.
  * Every reason the server gave is listed as given: the agreement check's violations, what could not be composed, and why the essentials
  * table or the readings record could not be used. Wording around them is DRAFT.
@@ -825,7 +865,7 @@ function WithheldOverviewNote({ draft }: { draft: ReviewOverviewDraft }) {
  * "Coach Overview — The immediate understanding of the activity: learning purpose, one-sentence game description, basic
  * parameters, essential scoring objectives, and a simple diagram. Coach Details — The complete instructions organized by
  * function". Where the server serves an overview (`activity.overview`, every viewer's), it comes first: Learning purpose, The
- * game, the parameters line, the diagram's place (stage 5B; nothing is drawn until the server serves one), How each team
+ * game, the parameters line, the field diagram where the server serves one (stage 5B, `activity.diagram`), How each team
  * scores — each team's line first, then the qualifications, as served — and then "Coach details", one region closed until
  * opened, holding every section in order with no collapse inside it. A "full rule" link opens that region and goes to the
  * Details sentence its pointer names, found by section and words; a pointer two lines share is shown once. Where the server
@@ -1008,13 +1048,25 @@ function ActivityBlock({ activity }: { activity: ServedActivity }) {
                             </p>
                         </div>
                         {/*
-                          * The diagram's place (stage 5B), between the parameters and how each team scores, as he listed the overview. Nothing is
-                          * drawn here until the server serves a diagram, and nothing is ever drawn that it did not serve.
+                          * The diagram (stage 5B), between the parameters and how each team scores, as he listed the overview. Drawn only where
+                          * the server serves one, and only what it served; for an administrator, why it is withheld and what it does not draw.
                           */}
+                        {activity.diagram && <FieldDiagram diagram={activity.diagram} />}
+                        {activity.diagramDraft && <DiagramAdminNote draft={activity.diagramDraft} />}
                         <OverviewScoring overview={overview} tags={tags} tableLabel={draft ? tableLabel : null} heading={heading} hrefOf={hrefOf} onFollow={follow} />
                     </div>
                 )}
                 {!overview && draft && <WithheldOverviewNote draft={draft} />}
+                {/*
+                  * The diagram is its own layer (stage 5B): where the overview is withheld and the diagram is not, it is drawn above the
+                  * Coach details, which are then the whole activity.
+                  */}
+                {!overview && (activity.diagram || activity.diagramDraft) && (
+                    <div className='mt-5'>
+                        {activity.diagram && <FieldDiagram diagram={activity.diagram} />}
+                        {activity.diagramDraft && <DiagramAdminNote draft={activity.diagramDraft} />}
+                    </div>
+                )}
 
                 {/*
                   * "Coach details": one region. Closed until opened where an overview comes first; open, with no toggle, where the
