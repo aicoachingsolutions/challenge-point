@@ -1,7 +1,7 @@
 Coach Communication Standard RC3: sources
 "22 Oct 3" is item 3 of your 22 October reply. Section 3 lists wording that is ours, new or carried from the amendment draft you reviewed; RC3's own words are marked RC3's; every other quote is yours.
 
-APPROVED. Your reply filed 24 October 2026, item 5: "I approve the overall RC3 structure and the narrow alignment changes to the Knowledge Presentation Standard, incorporating the clarification to Section 2.1 above." Clause 2.1 is the one change since the RC3 you reviewed, made from your item 3 (its line below). RC3 is 1,029 words by wc -w without its approval line (1,060 with it); the RC3 you reviewed was 1,006.
+APPROVED. Your reply filed 24 October 2026, item 5: "I approve the overall RC3 structure and the narrow alignment changes to the Knowledge Presentation Standard, incorporating the clarification to Section 2.1 above." Clause 2.1 is the one change since the RC3 you reviewed, made from your item 3 (its line below). RC3 is 1,029 words without its approval line (1,060 with it); the RC3 you reviewed was 1,006.
 
 1. EACH CLAUSE
 Heading: 23 Oct 3, "testable standard".
