@@ -770,11 +770,23 @@ function FullRuleLink({ pointer, href, onFollow, bySection = false }: { pointer:
  * "More in Coach details:" and a link per pointer, named by the section it opens (polish pass P3, the Stage 4 review: the trailing "full
  * rule (How it works)" was cryptic). Under a team's group for that team's pointers; once after the groups for every team's.
  */
-function MoreInDetails({ pointers, hrefOf, onFollow }: { pointers: OverviewPointer[]; hrefOf: (pointer: OverviewPointer) => string; onFollow: (pointer: OverviewPointer) => void }) {
+function MoreInDetails({
+    pointers,
+    hrefOf,
+    onFollow,
+    forTeams,
+}: {
+    pointers: OverviewPointer[]
+    hrefOf: (pointer: OverviewPointer) => string
+    onFollow: (pointer: OverviewPointer) => void
+    /** Set for the pointers every team's group shares: says whom they are for, so they never read as the last team's (DRAFT words). */
+    forTeams?: number
+}) {
     if (!pointers.length) return null
+    const lead = forTeams ? `For ${forTeams === 2 ? 'both teams' : 'every team'}, more in ${OVERVIEW_HEADINGS.details}:` : MORE_IN_DETAILS
     return (
         <p className='mt-1.5 text-xs text-gray-600'>
-            {MORE_IN_DETAILS}{' '}
+            {lead}{' '}
             {pointers.map((pointer, index) => (
                 <span key={`${pointer.section}|${pointer.text}`}>
                     {index > 0 && ' · '}
@@ -1207,8 +1219,17 @@ function OverviewScoring({
             <div className='space-y-3'>
                 {overview.scoring.groups.map((group, index) => (
                     <div key={`${index}-${group.label}`}>
-                        {/* The team heading: the server's DRAFT words (the team's noun, or "Each team"); the list is named by it. */}
-                        <p id={`${groupId}group-${index}`} className='mb-1 text-sm font-semibold text-gray-800'>
+                        {/* The team heading: the server's DRAFT words (the team's noun, or "Each team"); the list is named by it. Where the
+                            group's first line already opens with those words ("Building team: Score by ..."), the heading is kept for
+                            screen readers only, so the eye does not read the team twice. */}
+                        <p
+                            id={`${groupId}group-${index}`}
+                            className={
+                                group.lines[0]?.text.toLowerCase().startsWith(`${group.label.toLowerCase()}:`)
+                                    ? 'sr-only'
+                                    : 'mb-1 text-sm font-semibold text-gray-800'
+                            }
+                        >
                             {group.label}
                         </p>
                         <ul aria-labelledby={`${groupId}group-${index}`} className='space-y-1.5'>
@@ -1221,7 +1242,12 @@ function OverviewScoring({
             {/* Every team's pointers, once, set apart from the last team's group by a rule so they do not read as that team's. */}
             {overview.scoring.fullRules.length > 0 && (
                 <div className='pt-1 mt-3 border-t border-gray-200'>
-                    <MoreInDetails pointers={overview.scoring.fullRules} hrefOf={hrefOf} onFollow={onFollow} />
+                    <MoreInDetails
+                        pointers={overview.scoring.fullRules}
+                        hrefOf={hrefOf}
+                        onFollow={onFollow}
+                        forTeams={overview.scoring.groups.length}
+                    />
                 </div>
             )}
         </div>

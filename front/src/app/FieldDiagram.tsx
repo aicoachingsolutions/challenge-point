@@ -62,7 +62,7 @@ const TARGET_EDGE = { width: 3, inset: 2.5 }
 
 /** Sizes in viewBox units, per orientation, so text lands near 11-13 px at the widths each orientation is drawn at. */
 const SIZES = {
-    landscape: { pitch: 400, label: 13, small: 11.5, tiny: 10.5, top: 46, left: 16, right: 40, rail: 20, arrow: 2.4, inset: 9, zoneOffset: 15, maxWidth: 560 },
+    landscape: { pitch: 400, label: 13, small: 11.5, tiny: 10.5, top: 46, left: 16, right: 40, rail: 20, arrow: 2.4, inset: 9, zoneOffset: 20, maxWidth: 560 },
     portrait: { pitch: 400, label: 18, small: 16, tiny: 15, top: 36, left: 32, right: 48, rail: 24, arrow: 2.8, inset: 9, zoneOffset: 24, maxWidth: 420 },
 }
 
