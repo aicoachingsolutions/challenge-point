@@ -23,8 +23,8 @@
  *     "Present the overview first, with complete details accessible when needed." Where the server serves a
  *     Coach Overview, the activity reads: title, Learning purpose, The game, the parameters line, the field
  *     diagram where the server serves one (stage 5B, FieldDiagram.tsx; above the Coach Details where the
- *     overview is withheld), How each team scores (each team's line first, then the qualifications,
- *     as served), then "Coach details" — one region, closed until opened, in section order, with no collapse
+ *     overview is withheld), How each team scores (each team's group under its heading, its line first,
+ *     then its own qualifications, as served), then "Coach details" — one region, closed until opened, in section order, with no collapse
  *     inside it. A "full rule" link opens it and goes to the Details sentence its pointer names by section and
  *     words. Where the server withholds the overview, the activity is the Coach Details alone. Statuses are
  *     for an administrator only, never for a coach.
@@ -133,6 +133,12 @@ const ADJUSTING_LEAD = 'The setup above is where the activity starts. To adjust 
  * wording, the same for every activity: no Learning Goal, role or value is named here.
  */
 const OVERVIEW_HEADINGS = { purpose: 'Learning purpose', game: 'The game', scoring: 'How each team scores', details: 'Coach details' }
+
+/**
+ * The lead-in to a team's (or every team's) "full rule" pointers that no line carries, each then shown as a link named by the Coach details
+ * section it opens (polish pass P3, 22 October 2026; was: "full rule (How it works) · full rule (How to score)"). DRAFT coach wording.
+ */
+const MORE_IN_DETAILS = `More in ${OVERVIEW_HEADINGS.details}:`
 
 /**
  * The three wording statuses, in Christian's names (reply filed 22 October 2026, item 4: "Please distinguish between: Approved canonical
@@ -683,8 +689,8 @@ interface OverviewTags {
     purpose?: OverviewTag
     game?: OverviewTag
     parameters?: OverviewTag
-    leads: (OverviewTag | undefined)[]
-    qualifications: (OverviewTag | undefined)[]
+    /** Polish pass P1: per served group, per line. */
+    groups: (OverviewTag | undefined)[][]
     unmatched: number
 }
 
@@ -700,9 +706,9 @@ function sourceLine(source: unknown): string | null {
 /**
  * Whose wording each overview sentence is, for an administrator (stage 4). Read from the overview as presented (`overviewDraft.presented`:
  * each sentence's status, source and reading label) and joined to what every viewer is served (`overview`) by part and words: the purpose,
- * the game and the parameters by their words; a scoring line by its words AND its place (a team's line, or a qualification), and only
- * where exactly one presented sentence matches. A line matching none, or several, gets no tag and is counted, as in `wordingBySentence`: a
- * wrong tag is worse than none. Null for a coach, whose answer carries no draft.
+ * the game and the parameters by their words; a scoring line (polish pass P1) within its team's group, the presented group under the same
+ * heading at the same place, by its words, and only where exactly one sentence of that group matches. A line matching none, or several,
+ * gets no tag and is counted, as in `wordingBySentence`: a wrong tag is worse than none. Null for a coach, whose answer carries no draft.
  */
 function overviewTags(overview: CoachOverview, draft: ReviewOverviewDraft | undefined): OverviewTags | null {
     const presented = draft?.presented
@@ -716,44 +722,21 @@ function overviewTags(overview: CoachOverview, draft: ReviewOverviewDraft | unde
         }
         return { wording: sentence.wording, source: sourceLine(sentence.source), reading: sentence.reading?.label ?? null }
     }
-    const scoring = (presented.scoring ?? []).flatMap((group) => group.sentences ?? [])
-    const lineTag = (place: string, text: string) => {
-        const candidates = scoring.filter((sentence) => sentence.place === place && sentence.text === text)
-        return tagOf(candidates.length === 1 ? candidates[0] : null, text)
-    }
+    const presentedGroups = presented.scoring ?? []
+    const groups = overview.scoring.groups.map((group, index) => {
+        const own = presentedGroups[index]?.label === group.label ? presentedGroups[index].sentences ?? [] : []
+        return group.lines.map((line) => {
+            const candidates = own.filter((sentence) => sentence.text === line.text)
+            return tagOf(candidates.length === 1 ? candidates[0] : null, line.text)
+        })
+    })
     return {
         purpose: overview.purpose === null ? undefined : tagOf(presented.purpose, overview.purpose),
         game: tagOf(presented.game, overview.game),
         parameters: tagOf(presented.parameters, overview.parameters),
-        leads: overview.scoring.leads.map((line) => lineTag('LEAD', line.text)),
-        qualifications: overview.scoring.qualifications.map((line) => lineTag('QUALIFICATION', line.text)),
+        groups,
         unmatched,
     }
-}
-
-/**
- * The overview's "full rule" pointers, each shown once (stage 4). Christian, reply filed 23 October 2026, item 6: "detailed qualifications
- * and restart procedures should remain accessible in Coach Details". A pointer is the same pointer when it names the same Details sentence
- * (section and words), whichever team's line carries it: it is shown where it first occurs, reading the team lines, then the
- * qualifications, then the pointers no line carries (the server already lists each of those once).
- */
-function pointersOnce(scoring: CoachOverview['scoring']): {
-    leads: { line: OverviewLine; pointer: OverviewPointer | null }[]
-    qualifications: { line: OverviewLine; pointer: OverviewPointer | null }[]
-    trailing: OverviewPointer[]
-} {
-    const seen = new Set<string>()
-    const once = (pointer: OverviewPointer | null): OverviewPointer | null => {
-        if (!pointer) return null
-        const key = JSON.stringify([pointer.section, pointer.text])
-        if (seen.has(key)) return null
-        seen.add(key)
-        return pointer
-    }
-    const leads = scoring.leads.map((line) => ({ line, pointer: once(line.fullRule) }))
-    const qualifications = scoring.qualifications.map((line) => ({ line, pointer: once(line.fullRule) }))
-    const trailing = scoring.fullRules.map(once).filter((pointer): pointer is OverviewPointer => pointer !== null)
-    return { leads, qualifications, trailing }
 }
 
 /**
@@ -764,8 +747,11 @@ function sentenceOfPointer(activity: ServedActivity, pointer: OverviewPointer): 
     return activity.rendered.instructions.findIndex((instruction) => instruction.section === pointer.section && instruction.text === pointer.text)
 }
 
-/** A "full rule" link: the pointer's own label (DRAFT, the server's), and, where no line carries it, the section it leads to. */
-function FullRuleLink({ pointer, href, onFollow, withSection = false }: { pointer: OverviewPointer; href: string; onFollow: (pointer: OverviewPointer) => void; withSection?: boolean }) {
+/**
+ * A link to the Details sentence a pointer names (stage 4): by default the pointer's own label (DRAFT, the server's: "full rule"), on the
+ * line it qualifies; with `bySection` (polish pass P3), the name of the Coach details section it opens, after `MORE_IN_DETAILS`.
+ */
+function FullRuleLink({ pointer, href, onFollow, bySection = false }: { pointer: OverviewPointer; href: string; onFollow: (pointer: OverviewPointer) => void; bySection?: boolean }) {
     return (
         <a
             href={href}
@@ -775,30 +761,79 @@ function FullRuleLink({ pointer, href, onFollow, withSection = false }: { pointe
             }}
             className='text-xs font-medium text-blue-700 underline whitespace-nowrap underline-offset-2 hover:text-blue-900'
         >
-            {pointer.label}
-            {withSection && ` (${pointer.section})`}
+            {bySection ? pointer.section : pointer.label}
         </a>
     )
 }
 
 /**
+ * "More in Coach details:" and a link per pointer, named by the section it opens (polish pass P3, the Stage 4 review: the trailing "full
+ * rule (How it works)" was cryptic). Under a team's group for that team's pointers; once after the groups for every team's.
+ */
+function MoreInDetails({ pointers, hrefOf, onFollow }: { pointers: OverviewPointer[]; hrefOf: (pointer: OverviewPointer) => string; onFollow: (pointer: OverviewPointer) => void }) {
+    if (!pointers.length) return null
+    return (
+        <p className='mt-1.5 text-xs text-gray-600'>
+            {MORE_IN_DETAILS}{' '}
+            {pointers.map((pointer, index) => (
+                <span key={`${pointer.section}|${pointer.text}`}>
+                    {index > 0 && ' · '}
+                    <FullRuleLink pointer={pointer} href={hrefOf(pointer)} onFollow={onFollow} bySection />
+                </span>
+            ))}
+        </p>
+    )
+}
+
+/**
+ * The approved terms among the field diagram's words (polish pass P5): every word of the administrator's model whose status is HIS_TERM,
+ * read from the model (never typed here), each once, in the order the model holds them.
+ */
+function approvedDiagramTerms(draft: ReviewDiagramDraft): string[] {
+    const found: string[] = []
+    const visit = (value: unknown) => {
+        if (Array.isArray(value)) value.forEach(visit)
+        else if (value && typeof value === 'object') {
+            const word = value as { text?: unknown; status?: unknown }
+            if (word.status === 'HIS_TERM' && typeof word.text === 'string') {
+                if (!found.includes(word.text)) found.push(word.text)
+                return
+            }
+            Object.values(value).forEach(visit)
+        }
+    }
+    visit(draft.diagram)
+    return found
+}
+
+/**
  * The diagram, for an administrator only (stage 5B): where the server withheld it, every finding as given (D0-D9) and that coaches see
- * none; where it is drawn, what it does not draw, as the server notes it. The notes and findings carry internal ids: never a coach's.
- * Wording around them is DRAFT.
+ * none; where it is drawn, that its words are proposed except the approved terms the model marks so (polish pass P5, the 5B review), and
+ * what it does not draw, as the server notes it. The notes and findings carry internal ids: never a coach's. Wording around them is DRAFT.
  */
 function DiagramAdminNote({ draft }: { draft: ReviewDiagramDraft }) {
     const findings = Array.isArray(draft.findings) ? draft.findings : []
     const notes = Array.isArray(draft.notes) ? draft.notes : []
     if (draft.served) {
-        if (!notes.length) return null
+        const terms = approvedDiagramTerms(draft)
         return (
             <div role='note' className='p-3 mt-2 text-xs text-gray-600 border border-gray-200 rounded-lg bg-gray-50'>
-                <p className='font-medium'>Not drawn in the field diagram (Administrators only):</p>
-                <ul className='mt-1 space-y-0.5 list-disc list-inside [overflow-wrap:anywhere]'>
-                    {notes.map((note, index) => (
-                        <li key={index}>{note}</li>
-                    ))}
-                </ul>
+                <p>
+                    {terms.length > 0
+                        ? `Field diagram words are proposed wording, except the approved terms ${terms.map((term) => `“${term}”`).join(' and ')}.`
+                        : 'Every field diagram word is proposed wording.'}{' '}
+                    (Administrators only.)
+                </p>
+                {notes.length > 0 && (
+                    <>
+                        <p className='mt-2 font-medium'>Not drawn in the field diagram:</p>
+                        <ul className='mt-1 space-y-0.5 list-disc list-inside [overflow-wrap:anywhere]'>
+                            {notes.map((note, index) => (
+                                <li key={index}>{note}</li>
+                            ))}
+                        </ul>
+                    </>
+                )}
             </div>
         )
     }
@@ -866,11 +901,13 @@ function WithheldOverviewNote({ draft }: { draft: ReviewOverviewDraft }) {
  * parameters, essential scoring objectives, and a simple diagram. Coach Details — The complete instructions organized by
  * function". Where the server serves an overview (`activity.overview`, every viewer's), it comes first: Learning purpose, The
  * game, the parameters line, the field diagram where the server serves one (stage 5B, `activity.diagram`), How each team
- * scores — each team's line first, then the qualifications, as served — and then "Coach details", one region closed until
- * opened, holding every section in order with no collapse inside it. A "full rule" link opens that region and goes to the
- * Details sentence its pointer names, found by section and words; a pointer two lines share is shown once. Where the server
- * withholds the overview, the activity is the Coach Details alone, open, and an administrator is told why. The page adds no
- * words of its own to the overview beyond its headings and puts nothing in it that the server did not serve.
+ * scores — since polish pass P1 each team's group under its heading, its line first, then its own qualifications, as served —
+ * and then "Coach details", one region closed until opened (always in the page, hidden while closed), holding every section in
+ * order with no collapse inside it. A "full rule" link, or a section link after "More in Coach details:" (P3), opens that
+ * region and goes to the Details sentence its pointer names, found by section and words; the sentence keeps a focus ring while
+ * it holds the focus (P6). Where the server withholds the overview, the activity is the Coach Details alone, open, and an
+ * administrator is told why. The page adds no words of its own to the overview beyond its headings and that lead-in, and puts
+ * nothing in it that the server did not serve.
  *
  * For an administrator only: each overview sentence's status (one of his three names), its reading label where an extract of
  * his wording stands by a PROPOSED reading, the PROPOSED essentials table's label, and a legend. A coach sees none of these.
@@ -899,6 +936,11 @@ function ActivityBlock({ activity }: { activity: ServedActivity }) {
     /** The Details sentence a "full rule" link is going to (-1: the region's top), until the region is open and it is shown. */
     const [goingTo, setGoingTo] = useState<number | null>(null)
     const [highlighted, setHighlighted] = useState<number | null>(null)
+    /**
+     * The Details sentence a link was followed to (-1: the region itself), for as long as it holds the focus: it keeps a visible focus ring
+     * after the short highlight ends (polish pass P6, the Stage 4 review), and loses it with the focus.
+     */
+    const [followed, setFollowed] = useState<number | null>(null)
 
     useEffect(() => {
         if (!detailsOpen || goingTo === null) return
@@ -907,6 +949,7 @@ function ActivityBlock({ activity }: { activity: ServedActivity }) {
         if (!target) return
         target.scrollIntoView({ behavior: 'smooth', block: 'center' })
         target.focus({ preventScroll: true })
+        setFollowed(goingTo)
         setHighlighted(goingTo >= 0 ? goingTo : null)
     }, [detailsOpen, goingTo, idBase])
 
@@ -933,8 +976,9 @@ function ActivityBlock({ activity }: { activity: ServedActivity }) {
                 key={at}
                 id={at >= 0 ? anchorOf(at) : undefined}
                 tabIndex={-1}
+                onBlur={() => setFollowed((current) => (current === at ? null : current))}
                 className={`flex items-start gap-2 text-sm rounded outline-none transition-colors ${adjust ? 'text-gray-500' : 'text-gray-700'} ${
-                    highlighted === at ? 'bg-amber-50 ring-2 ring-amber-300' : ''
+                    highlighted === at ? 'bg-amber-50 ring-2 ring-amber-300' : followed === at && at >= 0 ? 'ring-2 ring-blue-600 ring-offset-1' : ''
                 }`}
             >
                 <span aria-hidden className={adjust ? 'text-gray-300' : 'text-gray-400'}>
@@ -949,8 +993,17 @@ function ActivityBlock({ activity }: { activity: ServedActivity }) {
         )
     }
 
+    // The region is always in the page, hidden while closed, so the toggle's aria-controls always names an element (polish pass P6).
     const details = (
-        <div id={detailsId} tabIndex={-1} className='space-y-5 outline-none'>
+        <div
+            id={detailsId}
+            tabIndex={-1}
+            hidden={!detailsOpen}
+            onBlur={(event) => {
+                if (event.target === event.currentTarget) setFollowed((current) => (current === -1 ? null : current))
+            }}
+            className={`space-y-5 rounded outline-none ${followed === -1 ? 'ring-2 ring-blue-600 ring-offset-2' : ''}`}
+        >
             {sections.map((group) => (
                 <div key={group.section}>
                     <p className={heading}>
@@ -1004,7 +1057,15 @@ function ActivityBlock({ activity }: { activity: ServedActivity }) {
                             </li>
                         ))}
                     </ul>
-                    <p>Headings and &ldquo;full rule&rdquo; links are proposed wording. Coaches see no tags, labels or notes for administrators.</p>
+                    <p>
+                        Headings (team headings among them), &ldquo;full rule&rdquo; links and &ldquo;{MORE_IN_DETAILS}&rdquo; are proposed wording. Coaches see no tags, labels or notes
+                        for administrators.
+                    </p>
+                    {/*
+                      * The Coach details line, only where this answer carries the review evidence the Details tags are read from (polish pass P6,
+                      * the Stage 4 review: a demonstration's answer carries none, and its Details are untagged).
+                      */}
+                    {wording && <p>Coach details sentences and section headings are tagged too.</p>}
                     {wording && wording.unmatched > 0 && (
                         <p>
                             {wording.unmatched} Coach details sentence{wording.unmatched === 1 ? '' : 's'} could not be matched to the review evidence and{' '}
@@ -1091,7 +1152,7 @@ function ActivityBlock({ activity }: { activity: ServedActivity }) {
                             {OVERVIEW_HEADINGS.details}
                         </h3>
                     )}
-                    {detailsOpen && details}
+                    {details}
                 </section>
             </div>
         </article>
@@ -1099,9 +1160,11 @@ function ActivityBlock({ activity }: { activity: ServedActivity }) {
 }
 
 /**
- * How each team scores, as served (stage 4): each team's line first, then the qualifications, then the "full rule" pointers no line
- * carries, every pointer once (`pointersOnce`). The lines are the server's words, in its order; the page adds none. For an administrator,
- * each line's status and reading label, and the PROPOSED essentials table's label under the heading.
+ * How each team scores, as served (polish pass P1, 22 October 2026): each team's group under its heading (the server's DRAFT words), its
+ * line saying how it scores first, then its own qualifications, each "full rule" link on the line it qualifies; then that team's pointers no
+ * line carries, after "More in Coach details:" (P3); and after the groups, once, the pointers every team's group has. The words and their
+ * order are the server's; the page adds only the lead-in. For an administrator, each line's status and reading label, and the PROPOSED
+ * essentials table's label under the heading. Was (stage 4): every team's line, then all qualifications, then the trailing pointers.
  */
 function OverviewScoring({
     overview,
@@ -1118,18 +1181,18 @@ function OverviewScoring({
     hrefOf: (pointer: OverviewPointer) => string
     onFollow: (pointer: OverviewPointer) => void
 }) {
-    const { leads, qualifications, trailing } = pointersOnce(overview.scoring)
-    const item = (entry: { line: OverviewLine; pointer: OverviewPointer | null }, tag: OverviewTag | undefined, lead: boolean, key: string) => (
+    const groupId = useId()
+    const item = (line: OverviewLine, tag: OverviewTag | undefined, lead: boolean, key: string) => (
         <li key={key} className={`flex items-start gap-2 text-sm ${lead ? 'text-gray-900' : 'text-gray-700'}`}>
             <span aria-hidden className='text-gray-400'>
                 &bull;
             </span>
             <span className='min-w-0 leading-relaxed'>
-                {entry.line.text}
-                {entry.pointer && (
+                {line.text}
+                {line.fullRule && (
                     <>
                         {' '}
-                        <FullRuleLink pointer={entry.pointer} href={hrefOf(entry.pointer)} onFollow={onFollow} />
+                        <FullRuleLink pointer={line.fullRule} href={hrefOf(line.fullRule)} onFollow={onFollow} />
                     </>
                 )}
                 <WordingTag wording={tag?.wording} note={tag?.source} />
@@ -1141,19 +1204,25 @@ function OverviewScoring({
         <div>
             <p className={heading}>{OVERVIEW_HEADINGS.scoring}</p>
             {tableLabel && <p className='mb-2 text-xs text-amber-900'>{tableLabel}</p>}
-            <ul className='space-y-1.5'>{leads.map((entry, index) => item(entry, tags?.leads[index], true, `lead-${index}`))}</ul>
-            {qualifications.length > 0 && (
-                <ul className='mt-2 space-y-1.5'>{qualifications.map((entry, index) => item(entry, tags?.qualifications[index], false, `qualification-${index}`))}</ul>
-            )}
-            {trailing.length > 0 && (
-                <p className='mt-2 text-xs text-gray-600'>
-                    {trailing.map((pointer, index) => (
-                        <span key={index}>
-                            {index > 0 && ' · '}
-                            <FullRuleLink pointer={pointer} href={hrefOf(pointer)} onFollow={onFollow} withSection />
-                        </span>
-                    ))}
-                </p>
+            <div className='space-y-3'>
+                {overview.scoring.groups.map((group, index) => (
+                    <div key={`${index}-${group.label}`}>
+                        {/* The team heading: the server's DRAFT words (the team's noun, or "Each team"); the list is named by it. */}
+                        <p id={`${groupId}group-${index}`} className='mb-1 text-sm font-semibold text-gray-800'>
+                            {group.label}
+                        </p>
+                        <ul aria-labelledby={`${groupId}group-${index}`} className='space-y-1.5'>
+                            {group.lines.map((line, n) => item(line, tags?.groups[index]?.[n], n === 0, `line-${index}-${n}`))}
+                        </ul>
+                        <MoreInDetails pointers={group.fullRules} hrefOf={hrefOf} onFollow={onFollow} />
+                    </div>
+                ))}
+            </div>
+            {/* Every team's pointers, once, set apart from the last team's group by a rule so they do not read as that team's. */}
+            {overview.scoring.fullRules.length > 0 && (
+                <div className='pt-1 mt-3 border-t border-gray-200'>
+                    <MoreInDetails pointers={overview.scoring.fullRules} hrefOf={hrefOf} onFollow={onFollow} />
+                </div>
             )}
         </div>
     )

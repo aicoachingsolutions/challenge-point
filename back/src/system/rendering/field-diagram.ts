@@ -71,12 +71,24 @@ import type { ActivitySession } from './session-envelope'
  * **Every word the diagram may write that no served sentence carries.** His terms, reply filed 22 October 2026, item 7: *"For coach-facing
  * terminology, I prefer: Marked line / Target zone"*. Every other word is DRAFT, awaiting his approval: the block's name for the block
  * switcher (his reply filed 23 October 2026, item 5: *"A Block 1 / Block 2 view would be useful if it can be implemented simply."*), the
- * unit after a dimension, and the legend's name for a starting area.
+ * unit after a dimension, the legend's name for a starting area, and (polish pass P7, 22 October 2026) the word set before a target line's
+ * own noun, read from the game (`targetLineWords`: a line a team scores at, "target line" where the game calls it a line), so the legend
+ * can say what a green line is.
  */
 export const DIAGRAM_WORDS = {
     his: { markedLine: 'marked line', targetZone: 'target zone' },
-    draft: { block: 'Block', metres: 'm', startingArea: 'starting area' },
+    draft: { block: 'Block', metres: 'm', startingArea: 'starting area', target: 'target' },
 } as const
+
+/**
+ * **The words for a target that is a line** (polish pass P7, DRAFT): the line's own noun as the game holds it, with the DRAFT word "target"
+ * before it, said once ("target zone" is how Set up and his term say a zone; a noun that already begins with it is kept as it is). Null
+ * where the game holds no noun for it: nothing is composed in its place.
+ */
+export const targetLineWords = (noun: unknown): string | null => {
+    if (typeof noun !== 'string' || !noun.trim()) return null
+    return noun.toLowerCase().startsWith(DIAGRAM_WORDS.draft.target) ? noun : `${DIAGRAM_WORDS.draft.target} ${noun}`
+}
 
 const SET_UP = 'Set up'
 const PLAYERS = 'Players'
@@ -271,6 +283,8 @@ const intervalAt = (fixture: any, path: string): Interval | null => intervalOf(g
 const regionPaths = (id: string) => ({ noun: `space.regions[${id}].noun`, along: `space.regions[${id}].position.along`, across: `space.regions[${id}].position.across` })
 const objectPaths = (id: string) => ({ noun: `objects[${id}].kind`, along: `objects[${id}].position.along`, across: `objects[${id}].position.across` })
 const isObjectOf = (fixture: any, id: string): boolean => asList(fixture?.game?.objects).some(object => String(object?.elementId) === id)
+/** A region's noun as the game holds it (`space.regions[<id>].noun`), or undefined; an object is no region. */
+const regionNounOf = (fixture: any, id: string): unknown => (isObjectOf(fixture, id) ? undefined : asList(fixture?.game?.space?.regions).find(region => String(region?.elementId) === id)?.noun)
 /** Where a target's place is read: a physical object's paths where the objective references an object the game holds (O1-O5), else a region's. */
 const placePaths = (fixture: any, id: string) => (isObjectOf(fixture, id) ? objectPaths(id) : regionPaths(id))
 /** Whether a sentence path says a target's place: a region by its noun; an object by its kind or its position. */
@@ -484,6 +498,8 @@ export function buildFieldDiagram(input: DiagramInput): { diagram: FieldDiagram 
             }
             const line = isLine(shape.along, shape.across)
             const objectivePaths = [`objectives[${objective.elementId}].team`, `objectives[${objective.elementId}].reference`]
+            // Polish pass P7: a line target is named by its own noun, as the game holds it, after the DRAFT word "target"; none without one.
+            const lineWords = line ? targetLineWords(regionNounOf(fixture, regionId)) : null
             targets.push({
                 objective: objective.elementId,
                 region: regionId,
@@ -492,7 +508,7 @@ export function buildFieldDiagram(input: DiagramInput): { diagram: FieldDiagram 
                 across: shape.across,
                 line,
                 markedZone: markings.zones.find(zone => same(zone.along, shape.along) && same(zone.across, shape.across))?.elementId ?? null,
-                label: line ? null : his(DIAGRAM_WORDS.his.targetZone),
+                label: line ? (lineWords ? draft(lineWords) : null) : his(DIAGRAM_WORDS.his.targetZone),
                 cites: [...objectivePaths, paths.noun, paths.along, paths.across],
             })
             team.attacks.push({ end, target: regionId, objective: objective.elementId, cites: objectivePaths })
@@ -609,9 +625,12 @@ export function buildFieldDiagram(input: DiagramInput): { diagram: FieldDiagram 
     ]
 
     const uses = (predicate: (block: DiagramBlock) => boolean) => blocks.some(predicate)
+    // Polish pass P7: each target line's words once (the 5B review: green end lines had no legend word).
+    const lineTargetTexts = [...new Set(blocks.flatMap(block => block.targets.filter(target => target.line && target.label).map(target => target.label!.text)))]
     const legend: DiagramWord[] = [
         ...(uses(block => block.markings.lines.some(line => line.markedLine)) ? [his(DIAGRAM_WORDS.his.markedLine)] : []),
         ...(uses(block => block.targets.some(target => !target.line)) ? [his(DIAGRAM_WORDS.his.targetZone)] : []),
+        ...lineTargetTexts.map(text => draft(text)),
         ...(uses(block => block.teams.some(team => !!team.start)) ? [draft(DIAGRAM_WORDS.draft.startingArea)] : []),
     ]
     return { diagram: gaps.length ? null : { units: 'm', area, markingsSetOutOnce: setOutOnce, counts: together, blocks, legend }, gaps, notes }
@@ -743,7 +762,9 @@ export function checkFieldDiagram(diagram: FieldDiagram, input: DiagramInput): D
         // No word names another block (his reply filed 23 October 2026, item 5).
         for (const other of blockOrdinals) if (other !== ordinal && word.text.includes(`${DIAGRAM_WORDS.draft.block} ${other}`)) finding('D6', blockId, `"${word.text}" names another block`)
     }
-    for (const word of diagram.legend) checkWord(word, word.status === 'DRAFT' ? DIAGRAM_WORDS.draft.startingArea : null, null, null, null)
+    // A DRAFT legend word is the starting area's name, or (polish pass P7) a target line's words, which D6 holds to the game below.
+    const lineTargetTexts = new Set(diagram.blocks.flatMap(block => block.targets.filter(target => target.line && target.label).map(target => target.label!.text)))
+    for (const word of diagram.legend) checkWord(word, word.status === 'DRAFT' ? (lineTargetTexts.has(word.text) ? word.text : DIAGRAM_WORDS.draft.startingArea) : null, null, null, null)
 
     // D4 for the counts said for every team together: the first block's Players sentence carries each, and each number is the game's.
     const countValue = (fixture: any, binding: Binding, team: number | null): number | null => {
@@ -859,7 +880,9 @@ export function checkFieldDiagram(diagram: FieldDiagram, input: DiagramInput): D
             const along = intervalAt(fixture, paths.along)
             const across = intervalAt(fixture, paths.across)
             if (!along || !across || !same(along, target.along) || !same(across, target.across)) finding('D2', blockId, `the target ${target.region} is not drawn where this block's game puts it`)
-            checkWord(target.label, target.line ? null : DIAGRAM_WORDS.his.targetZone, blockId, rendered, ordinal)
+            // Polish pass P7: a line target's words are its own noun, read again from this block's game, after the DRAFT word "target".
+            checkWord(target.label, target.line ? targetLineWords(regionNounOf(fixture, target.region)) : DIAGRAM_WORDS.his.targetZone, blockId, rendered, ordinal)
+            if (target.line && target.label?.status === 'HIS_TERM') finding('D6', blockId, `the target line ${target.region} is named with his term "${target.label.text}", which names a zone`)
         }
         for (const objective of objectivesOf(game, index)) {
             const along = objective.regionId ? intervalAt(fixture, placePaths(fixture, objective.regionId).along) : null

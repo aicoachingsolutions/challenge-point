@@ -38,7 +38,11 @@
  * **Stage 3F (his reply filed 23 October 2026, items 4 and 6)**: what a sentence states is its meaning, never its citations (his wording
  * said whole by its recorded reading, `wholes`); an exception is material where the condition it follows from is absent (`followsFrom`);
  * the composer keeps the most concise set that states every material field; and each team's group opens with one line saying how the
- * team scores (`place`), which the served overview presents before any qualification.
+ * team scores (`place`), which the served overview presents first.
+ *
+ * **Polish pass P1 (22 October 2026)**: the coach is served one group per team, in the game sentence's team order, each under its heading
+ * (`teamHeadingOf`, DRAFT): the team's line first, then its own qualifications; a pointer every team's group has is shown once after the
+ * groups (`overview-fidelity.ts` `coachOverviewOf`, held by Q7).
  */
 import fs from 'node:fs'
 import path from 'node:path'
@@ -629,6 +633,15 @@ export const FULL_RULE_LABEL = 'full rule'
 export const PROPOSED_TABLE_LABEL = 'Built on a PROPOSED table of which scoring conditions the overview must state; he has not approved it'
 /** The one group of a game played without roles: what every team does. */
 export const EVERY_TEAM = 'EVERY_TEAM'
+/** The heading of the one group of a game played without roles (DRAFT words, polish pass P1). */
+export const EVERY_TEAM_HEADING = 'Each team'
+/**
+ * **The heading a team's scoring group is shown under** — polish pass P1, 22 October 2026 (the 3F and Stage 4 reviews: a qualification must
+ * be read as the team's it qualifies). DRAFT words: the role's noun as the game reads it, with a capital ("Building team"), or
+ * `EVERY_TEAM_HEADING` for the one group of a game played without roles. Never composed from anything else, so a heading names only a
+ * team the game names.
+ */
+export const teamHeadingOf = (noun: string | null): string => (noun ? `${noun.charAt(0).toUpperCase()}${noun.slice(1)}` : EVERY_TEAM_HEADING)
 
 /** A Details sentence, by its place in its own block's render, its section and its words (the served Details hold it by the last two). */
 export interface DetailsRef {
@@ -677,8 +690,8 @@ export interface ScoringSentence {
     /**
      * Stage 3F (his reply filed 23 October 2026, item 6: *"a concise explanation that communicates the opposing objectives immediately,
      * without requiring the coach to read several procedural statements first"*): `LEAD`, the one line stating how the team scores (the
-     * sentence stating most of the fields of its first way to score, one sentence where one does), presented with every other team's lead
-     * before any qualification; `QUALIFICATION`, everything after it.
+     * sentence stating most of the fields of its first way to score, one sentence where one does), presented first in its team's group
+     * (polish pass P1; was: with every other team's lead before any qualification); `QUALIFICATION`, everything after it.
      */
     place: 'LEAD' | 'QUALIFICATION'
 }
@@ -1107,7 +1120,8 @@ function droppedBy(sourceText: string, units: ExtractUnit[]): string[] {
  *     eligibility sentence stays only where nothing else states what it states);
  *   - one LEAD per group: the chosen sentence stating most of the fields of its first way to score (the way of the first CONSTITUTIVE field
  *     the Details cite), one sentence where one does; it comes first and is never joined with other extracts; everything else is a
- *     QUALIFICATION, in the order above. The served overview presents every team's lead before any qualification (`overview-fidelity.ts`).
+ *     QUALIFICATION, in the order above. Since polish pass P1 the served overview presents each team's group under its heading, its lead
+ *     first and then its own qualifications (`overview-fidelity.ts`); was (3F-5B): every team's lead before any qualification.
  */
 export function scoringGroupsOf(
     fixture: any,

@@ -27,9 +27,11 @@
  * draft (`diagramDraft`).
  *
  * **D9** reads the coach's diagram against the checked model block by block: every element there, in the same order, at the same place,
- * with the model's words; one identity per team across the blocks; and no word holding a data key or id of the games (`dataWordsOf`), a
- * character no coach word has, or another block's name. Any finding withholds the diagram only (the administrator's draft says why); the
- * activity, and its overview, are served exactly as without it.
+ * with the model's words; the title, and since polish pass P4 the description and the block switcher's name, the ones composed from the
+ * model (the description's attacking directions and starting areas are also pinned by the unit tests, independently of the composition);
+ * since P7 the caption and a target line's legend word; one identity per team across the blocks; and no word holding a data key or id of
+ * the games (`dataWordsOf`), a character no coach word has, or another block's name. Any finding withholds the diagram only (the
+ * administrator's draft says why); the activity, and its overview, are served exactly as without it.
  *
  * Nothing here names a goal, a role, a sport term or a value: every number comes from the model, every word from it or the table below.
  */
@@ -93,6 +95,12 @@ export interface CoachDiagramBlock {
     /** The accessible title and description of this block's drawing (DRAFT composition, `DIAGRAM_COMPOSITION`). */
     title: string
     desc: string
+    /**
+     * Polish pass P7 (the 5B review): where the teams have no noun, the one sentence saying how they attack ("Each team attacks the line at
+     * the other team's end.", as the game sentence says it), shown beside the drawing so its arrows are explained; null otherwise, and null
+     * where no such sentence can be said (the arrows of unnamed teams are then not drawn: nothing is shown that cannot be labelled).
+     */
+    caption: string | null
     lines: CoachDiagramLine[]
     zones: CoachDiagramZone[]
     targets: CoachDiagramTarget[]
@@ -101,7 +109,8 @@ export interface CoachDiagramBlock {
     dimensions: CoachDiagramDimension[]
 }
 
-export type CoachLegendKind = 'MARKED_LINE' | 'TARGET_ZONE' | 'STARTING_AREA'
+/** The kind of mark a legend word explains; `TARGET_LINE` (polish pass P7) a target that is a line, named by its own noun. */
+export type CoachLegendKind = 'MARKED_LINE' | 'TARGET_ZONE' | 'TARGET_LINE' | 'STARTING_AREA'
 
 /**
  * **The field diagram a coach is served**: geometry in metres along the area's length (`along`, 0 at one end line) and across its width,
@@ -114,6 +123,8 @@ export interface CoachDiagram {
     counts: string[]
     /** The words a legend shows, each with the kind of mark it explains. */
     legend: { kind: CoachLegendKind; text: string }[]
+    /** Polish pass P4 (the 5B review): the accessible name of the block switcher where there are blocks (DRAFT); null with one block. */
+    tablistLabel: string | null
     blocks: CoachDiagramBlock[]
 }
 
@@ -127,10 +138,13 @@ export interface CoachDiagram {
  *   - `title`: "<activity title>: <block name>", or the activity title for a game not played in blocks.
  *   - the description: one sentence each for the area, the marked line, each marked zone (and what it is in the block), each active target
  *     that is no marked zone, each object, each team (its counts, starting area and attacking direction), and the counts said together.
+ *   - `tablist` (polish pass P4): the block switcher's accessible name.
+ *   - the caption (polish pass P7): the description's own sentence for how teams with no noun attack (`eachAttacksOther`).
  */
 export const DIAGRAM_COMPOSITION = {
     targetLabel: (noun: string, term: string) => `${noun}'s ${term}`,
     title: (activity: string, block: string | null) => (block ? `${activity}: ${block}` : activity),
+    tablist: 'Field diagram blocks',
     area: (length: string, width: string) => `${length} by ${width} area.`,
     endLine: (noun: string) => `the ${noun}'s end line`,
     someEndLine: 'one end line',
@@ -184,6 +198,9 @@ function targetLabelOf(block: DiagramBlock, target: DiagramBlock['targets'][numb
     return noun ? DIAGRAM_COMPOSITION.targetLabel(noun, target.label.text) : target.label.text
 }
 
+/** The words of every target that is a line, as the model names them (polish pass P7): the legend's words for a green line. */
+const lineTargetWordsOf = (model: FieldDiagram): Set<string> => new Set(model.blocks.flatMap(block => block.targets.filter(target => target.line && target.label).map(target => target.label!.text)))
+
 /** Each team's look, by the key it follows, in the order the first block lists the teams (then any later block's new key). */
 function identitiesOf(model: FieldDiagram): Map<string, number> {
     const identities = new Map<string, number>()
@@ -192,6 +209,30 @@ function identitiesOf(model: FieldDiagram): Map<string, number> {
 }
 
 /* ------------------------------------------------------------------ the description ------------------------------------------------------------------ */
+
+/**
+ * **How teams with no noun attack, in one sentence**, or null: where no team of the block has a noun, there is more than one, each attacks
+ * one end, each the end the other starts from (every end attacked once), and every target is of one kind (an object by its noun, a line, or
+ * his term). Said in the description and, since polish pass P7, as the caption that explains the drawing's arrows; null elsewhere.
+ */
+function relationOf(model: FieldDiagram, block: DiagramBlock): string | null {
+    const C = DIAGRAM_COMPOSITION
+    const { lengthM } = model.area
+    if (block.teams.some(team => team.noun) || block.teams.length < 2) return null
+    const ownEnd = (team: DiagramTeam): number | null => (team.attacks.length === 1 ? otherEnd(team.attacks[0].end, lengthM) : null)
+    const ends = block.teams.map(ownEnd)
+    const eachOther = block.teams.every(team => team.attacks.length === 1 && block.teams.some(other => other !== team && ownEnd(other) === team.attacks[0].end)) && new Set(ends).size === ends.length
+    // What each attacks, named as the coach's diagram names it: an object by its noun, a line, or his term.
+    const kindOf = (team: DiagramTeam): string | null => {
+        const target = block.targets.find(entry => entry.attackedBy === team.key)
+        if (!target) return null
+        const object = block.objects.find(entry => entry.elementId === target.region)
+        return object ? object.label?.text ?? C.objectWord : target.line ? C.lineWord : DIAGRAM_WORDS.his.targetZone
+    }
+    const kinds = new Set(block.teams.map(kindOf))
+    const [kind] = [...kinds]
+    return eachOther && kinds.size === 1 && kind ? C.eachAttacksOther(kind) : null
+}
 
 /** **The accessible description of one block**, composed from the model only (DRAFT, `DIAGRAM_COMPOSITION`). */
 function describeBlock(model: FieldDiagram, block: DiagramBlock): string {
@@ -253,7 +294,6 @@ function describeBlock(model: FieldDiagram, block: DiagramBlock): string {
     }
 
     // The active targets that are no marked zone and no object: a zone by its depth and end, a line by its end.
-    const named = block.teams.some(team => team.noun)
     for (const target of block.targets) {
         if (target.markedZone || isObjectTarget(block, target.region)) continue
         const end = touched(target.along)
@@ -266,21 +306,9 @@ function describeBlock(model: FieldDiagram, block: DiagramBlock): string {
         const label = targetLabelOf(block, target)
         if (label) sentences.push(C.target(label, metres(target.along.to - target.along.from), endOf(end), fullWidth(target.across) ? null : C.wide(metres(target.across.to - target.across.from))))
     }
-    // Teams with no noun: one sentence where each attacks the other team's end with the same kind of target.
-    if (!named && block.teams.length > 1) {
-        const ends = block.teams.map(ownEnd)
-        const eachOther = block.teams.every(team => team.attacks.length === 1 && block.teams.some(other => other !== team && ownEnd(other) === team.attacks[0].end)) && new Set(ends).size === ends.length
-        // What each attacks, named as the coach's diagram names it: an object by its noun, a line, or his term.
-        const kindOf = (team: DiagramTeam): string | null => {
-            const target = block.targets.find(entry => entry.attackedBy === team.key)
-            if (!target) return null
-            const object = block.objects.find(entry => entry.elementId === target.region)
-            return object ? object.label?.text ?? C.objectWord : target.line ? C.lineWord : DIAGRAM_WORDS.his.targetZone
-        }
-        const kinds = new Set(block.teams.map(kindOf))
-        const [kind] = [...kinds]
-        if (eachOther && kinds.size === 1 && kind) sentences.push(C.eachAttacksOther(kind))
-    }
+    // Teams with no noun: one sentence where each attacks the other team's end with the same kind of target (`relationOf`).
+    const relation = relationOf(model, block)
+    if (relation) sentences.push(relation)
 
     // Objects, where the game positions them.
     for (const object of block.objects) {
@@ -314,8 +342,17 @@ function describeBlock(model: FieldDiagram, block: DiagramBlock): string {
 /** **The coach's diagram, composed from a model that agrees with Coach Details**: the model's elements and words, with no id or citation. */
 export function coachDiagramOf(model: FieldDiagram, context: { title: string }): CoachDiagram {
     const identities = identitiesOf(model)
+    const lineWords = lineTargetWordsOf(model)
     const legendKind = (text: string): CoachLegendKind | null =>
-        text === DIAGRAM_WORDS.his.markedLine ? 'MARKED_LINE' : text === DIAGRAM_WORDS.his.targetZone ? 'TARGET_ZONE' : text === DIAGRAM_WORDS.draft.startingArea ? 'STARTING_AREA' : null
+        text === DIAGRAM_WORDS.his.markedLine
+            ? 'MARKED_LINE'
+            : text === DIAGRAM_WORDS.his.targetZone
+              ? 'TARGET_ZONE'
+              : lineWords.has(text)
+                ? 'TARGET_LINE'
+                : text === DIAGRAM_WORDS.draft.startingArea
+                  ? 'STARTING_AREA'
+                  : null
     return {
         area: { lengthM: model.area.lengthM, widthM: model.area.widthM },
         counts: model.counts.map(count => count.word.text),
@@ -323,10 +360,12 @@ export function coachDiagramOf(model: FieldDiagram, context: { title: string }):
             const kind = legendKind(word.text)
             return kind ? [{ kind, text: word.text }] : []
         }),
+        tablistLabel: model.blocks.length > 1 ? DIAGRAM_COMPOSITION.tablist : null,
         blocks: model.blocks.map(block => ({
             label: block.label?.text ?? null,
             title: DIAGRAM_COMPOSITION.title(context.title, block.label?.text ?? null),
             desc: describeBlock(model, block),
+            caption: relationOf(model, block),
             lines: block.markings.lines.map(line => ({ along: { ...line.along }, across: { ...line.across }, markedLine: line.markedLine, label: line.label?.text ?? null })),
             zones: block.markings.zones.map(zone => ({ along: { ...zone.along }, across: { ...zone.across }, state: block.markedZones.find(entry => entry.zone === zone.elementId)?.state ?? 'MARKED' })),
             targets: block.targets
@@ -384,13 +423,22 @@ export function checkCoachDiagram(coach: CoachDiagram, model: FieldDiagram, inpu
         if (extra.length) finding(blockId, `${what} holds ${extra.join(', ')}, which the coach's diagram does not carry`)
     }
 
-    keysAre('the diagram', coach, ['area', 'counts', 'legend', 'blocks'], null)
+    keysAre('the diagram', coach, ['area', 'counts', 'legend', 'tablistLabel', 'blocks'], null)
     if (coach.area.lengthM !== model.area.lengthM || coach.area.widthM !== model.area.widthM) finding(null, 'the area is not the model\'s')
     if (JSON.stringify(coach.counts) !== JSON.stringify(model.counts.map(count => count.word.text))) finding(null, 'the counts said together are not the model\'s')
     if (JSON.stringify(coach.legend.map(entry => entry.text)) !== JSON.stringify(model.legend.map(word => word.text))) finding(null, 'the legend is not the model\'s')
-    const kinds: Record<CoachLegendKind, string> = { MARKED_LINE: DIAGRAM_WORDS.his.markedLine, TARGET_ZONE: DIAGRAM_WORDS.his.targetZone, STARTING_AREA: DIAGRAM_WORDS.draft.startingArea }
-    for (const entry of coach.legend) if (kinds[entry.kind] !== entry.text) finding(null, `the legend gives "${entry.text}" to ${entry.kind}`)
-    wordsOk([...coach.counts, ...coach.legend.map(entry => entry.text)], null, null)
+    // Each legend word explains its own kind of mark: his two terms, the starting area's name, or (polish pass P7) a target line's words.
+    const lineWords = lineTargetWordsOf(model)
+    const kindHolds: Record<CoachLegendKind, (text: string) => boolean> = {
+        MARKED_LINE: text => text === DIAGRAM_WORDS.his.markedLine,
+        TARGET_ZONE: text => text === DIAGRAM_WORDS.his.targetZone,
+        TARGET_LINE: text => lineWords.has(text),
+        STARTING_AREA: text => text === DIAGRAM_WORDS.draft.startingArea,
+    }
+    for (const entry of coach.legend) if (!kindHolds[entry.kind]?.(entry.text)) finding(null, `the legend gives "${entry.text}" to ${entry.kind}`)
+    // Polish pass P4: the block switcher's accessible name where there are blocks, and none with one block.
+    if ((coach.tablistLabel ?? null) !== (model.blocks.length > 1 ? DIAGRAM_COMPOSITION.tablist : null)) finding(null, `the block switcher is named ${JSON.stringify(coach.tablistLabel ?? null)}`)
+    wordsOk([...coach.counts, ...coach.legend.map(entry => entry.text), coach.tablistLabel ?? null], null, null)
     if (coach.blocks.length !== model.blocks.length) finding(null, `${coach.blocks.length} blocks are shown and the model has ${model.blocks.length}`)
 
     const looks = new Map<string, number>()
@@ -399,7 +447,7 @@ export function checkCoachDiagram(coach: CoachDiagram, model: FieldDiagram, inpu
         const blockId = block.blockId
         if (!shown) return
         const ordinal = i + 1
-        keysAre(`block ${ordinal}`, shown, ['label', 'title', 'desc', 'lines', 'zones', 'targets', 'objects', 'teams', 'dimensions'], blockId)
+        keysAre(`block ${ordinal}`, shown, ['label', 'title', 'desc', 'caption', 'lines', 'zones', 'targets', 'objects', 'teams', 'dimensions'], blockId)
         // As D8 holds the model: nothing beyond these keys, so no player, position inside an area, path or movement rides along.
         for (const line of shown.lines) keysAre('a line', line, ['along', 'across', 'markedLine', 'label'], blockId)
         for (const zone of shown.zones) keysAre('a zone', zone, ['along', 'across', 'state'], blockId)
@@ -413,6 +461,11 @@ export function checkCoachDiagram(coach: CoachDiagram, model: FieldDiagram, inpu
         if (shown.label !== (block.label?.text ?? null)) finding(blockId, `the block is named "${shown.label}" and the model names it "${block.label?.text ?? null}"`)
         if (shown.title !== DIAGRAM_COMPOSITION.title(context.title, block.label?.text ?? null)) finding(blockId, `the title "${shown.title}" is not the activity's with this block's name`)
         if (!shown.desc) finding(blockId, 'the drawing has no description')
+        // Polish pass P4 (the 5B review's should-fix 1): the description is the one composed from this block of the checked model, as the
+        // title is; the unit tests pin its attacking directions and starting areas independently of the composition.
+        else if (shown.desc !== describeBlock(model, block)) finding(blockId, 'the description is not the one composed from the model for this block')
+        // Polish pass P7: the caption is the model's own sentence for how teams with no noun attack, or none.
+        if ((shown.caption ?? null) !== relationOf(model, block)) finding(blockId, `the caption ${JSON.stringify(shown.caption ?? null)} is not the model's sentence for how its teams attack`)
 
         // The markings, in order and in place.
         const lines = block.markings.lines
@@ -456,6 +509,7 @@ export function checkCoachDiagram(coach: CoachDiagram, model: FieldDiagram, inpu
                 shown.label,
                 shown.title,
                 shown.desc,
+                shown.caption ?? null,
                 ...shown.lines.map(line => line.label),
                 ...shown.targets.map(target => target.label),
                 ...shown.objects.map(object => object.label),

@@ -5,8 +5,9 @@
  *
  * Christian, reply filed 23 October 2026, item 5, is what it follows:
  *   * "target zones use a consistent, visually recognizable color [...] The diagram should distinguish team identity from scoring-area
- *     identity." Every active target zone has ONE look, a light green fill, whichever team attacks it; a target that is a line is a green
- *     line. Team identity is a team colour on the team's words, counts, attacking arrow and dashed starting area only.
+ *     identity." Every active target zone has ONE look, a green fill with a green edge just inside it (polish pass P2), whichever team
+ *     attacks it; a target that is a line is a green line, named in the legend by its own noun (P7). Team identity is a team colour on the
+ *     team's words, counts, attacking arrow and dashed starting area only.
  *   * "the display still needs to distinguish physical target markings from whichever zones are active scoring objectives in the current
  *     block" and "each block's diagram emphasize its active objectives while retaining any physical markings that will be used later". The
  *     markings are grey lines in every block; only an active target is filled and labelled. A marked zone that is no target in the block
@@ -16,11 +17,16 @@
  *   * Goals: drawn only where the served diagram has objects. "The diagram should not prescribe formations, passing patterns, or movement
  *     solutions": no player, formation, passing line or restart spot is drawn; there is nothing in the served diagram to draw one from.
  *
- * Colours (contrast measured, WCAG relative luminance): markings #6b7280 measure 4.63:1 on the area (#f9fafb) and 4.40:1 on the target
- * fill (#dcfce7); the marked line #111827 16.98:1 and 16.15:1; a target line #15803d 4.80:1 and 4.57:1; the team colours #1d4ed8 6.41:1
- * and 6.10:1, #9a3412 6.99:1 and 6.65:1; zone labels #374151 9.86:1 and 9.39:1; dimensions #4b5563 7.23:1. The green fill itself is
- * 1.05:1 against the area: it is emphasis only, never the only carrier of meaning (each target zone is labelled, bounded by markings
- * and named in the description).
+ * Colours (contrast measured, WCAG relative luminance; polish pass P2, 22 October 2026, the 5B review: the old fill #dcfce7 measured
+ * 1.05:1 against the area). An ACTIVE target zone is a green fill #bbf7d0 (1.16:1 on the area, so never the only carrier) with a green edge
+ * #15803d drawn just inside its boundary, which measures 4.80:1 against the area (#f9fafb), 4.14:1 against the fill and 5.02:1 against
+ * white; a marked zone that is no target in the block has neither. The legend's swatch is drawn the same way, in the same colours. On the
+ * new fill: markings #6b7280 3.99:1 (4.63:1 on the area), the marked line #111827 14.64:1 (16.98:1), team colours #1d4ed8 5.53:1 (6.41:1)
+ * and #9a3412 6.03:1 (6.99:1), zone labels #374151 8.51:1 (9.86:1); dimensions and neutral arrows #4b5563 7.23:1 on the area, 6.24:1 on
+ * the fill. A target line is #15803d at 4.80:1 on the area.
+ *
+ * Teams (polish pass P7): a team colour is drawn only beside the team's words. A team with no noun gets a neutral arrow, and only where the
+ * server's caption says how the teams attack (shown under the drawing); with no caption, its arrow is not drawn. No team name is made up.
  *
  * Landscape at 520 px of container width and over, portrait below it (the area turned upright, its first end line at the bottom). Every
  * SVG id is prefixed by React's useId, so several diagrams on one page never share an arrowhead or a title. NO NUMBER, POSITION OR WORD OF
@@ -42,15 +48,22 @@ const STYLE = {
     marking: '#6b7280',
     dimension: '#4b5563',
     zoneText: '#374151',
-    targetFill: '#dcfce7',
+    targetFill: '#bbf7d0',
     targetLine: '#15803d',
+    neutral: '#4b5563',
     teams: ['#1d4ed8', '#9a3412', '#6d28d9', '#374151'],
 }
 
+/**
+ * An active target zone's green edge (polish pass P2), in viewBox units: its width, and how far inside the zone's boundary its middle runs
+ * (clear of the grey marking or outline on that boundary, which reaches 1 unit inside).
+ */
+const TARGET_EDGE = { width: 3, inset: 2.5 }
+
 /** Sizes in viewBox units, per orientation, so text lands near 11-13 px at the widths each orientation is drawn at. */
 const SIZES = {
-    landscape: { pitch: 400, label: 13, small: 11.5, tiny: 10.5, top: 46, left: 16, right: 40, rail: 20, arrow: 2.4, inset: 7, zoneOffset: 15, maxWidth: 560 },
-    portrait: { pitch: 400, label: 18, small: 16, tiny: 15, top: 36, left: 32, right: 48, rail: 24, arrow: 2.8, inset: 7, zoneOffset: 24, maxWidth: 420 },
+    landscape: { pitch: 400, label: 13, small: 11.5, tiny: 10.5, top: 46, left: 16, right: 40, rail: 20, arrow: 2.4, inset: 9, zoneOffset: 15, maxWidth: 560 },
+    portrait: { pitch: 400, label: 18, small: 16, tiny: 15, top: 36, left: 32, right: 48, rail: 24, arrow: 2.8, inset: 9, zoneOffset: 24, maxWidth: 420 },
 }
 
 type Orientation = keyof typeof SIZES
@@ -97,7 +110,7 @@ export default function FieldDiagram({ diagram }: { diagram: CoachDiagram }) {
     return (
         <div ref={container} className='min-w-0'>
             {several && (
-                <div role='tablist' className='flex flex-wrap gap-2 mb-2'>
+                <div role='tablist' aria-label={diagram.tablistLabel ?? undefined} className='flex flex-wrap gap-2 mb-2'>
                     {blocks.map((block, index) => (
                         <button
                             key={index}
@@ -119,8 +132,13 @@ export default function FieldDiagram({ diagram }: { diagram: CoachDiagram }) {
                     ))}
                 </div>
             )}
-            <div id={`${uid}-panel`} {...(several ? { role: 'tabpanel', 'aria-labelledby': `${uid}-tab-${at}` } : {})}>
+            <div
+                id={`${uid}-panel`}
+                {...(several ? { role: 'tabpanel', 'aria-labelledby': `${uid}-tab-${at}`, tabIndex: 0 } : {})}
+                className='rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600'
+            >
                 <BlockDrawing diagram={diagram} block={blocks[at]} orientation={orientation} uid={`${uid}-${at}`} />
+                {blocks[at].caption && <p className='mt-1 text-xs text-gray-700'>{blocks[at].caption}</p>}
                 <Legend diagram={diagram} />
             </div>
         </div>
@@ -190,7 +208,8 @@ function BlockDrawing({ diagram, block, orientation, uid }: { diagram: CoachDiag
             viewBox={`0 0 ${viewW} ${viewH}`}
             width='100%'
             role='img'
-            aria-labelledby={`${uid}-title ${uid}-desc`}
+            aria-labelledby={`${uid}-title`}
+            aria-describedby={`${uid}-desc`}
             fontFamily={STYLE.font}
             style={{ maxWidth: size.maxWidth, height: 'auto', display: 'block' }}
         >
@@ -202,14 +221,20 @@ function BlockDrawing({ diagram, block, orientation, uid }: { diagram: CoachDiag
                         <path d='M0,0 L10,5 L0,10 z' fill={teamColour(team.identity)} />
                     </marker>
                 ))}
+                <marker id={`${uid}-arrow-neutral`} viewBox='0 0 10 10' refX='8' refY='5' markerWidth='6' markerHeight='6' orient='auto'>
+                    <path d='M0,0 L10,5 L0,10 z' fill={STYLE.neutral} />
+                </marker>
             </defs>
 
-            {/* 1. The area. 2. The active target zones: one look, whichever team attacks them. */}
+            {/* 1. The area. 2. The active target zones: one look, whichever team attacks them: the green fill and a green edge just inside. */}
             <rect {...pitch} fill={STYLE.area} />
             {block.targets
                 .filter((target) => !target.line)
                 .map((target, index) => (
-                    <rect key={`target-${index}`} {...rect(target.along, target.across)} fill={STYLE.targetFill} />
+                    <g key={`target-${index}`}>
+                        <rect {...rect(target.along, target.across)} fill={STYLE.targetFill} />
+                        <rect {...rect(target.along, target.across, TARGET_EDGE.inset)} fill='none' stroke={STYLE.targetLine} strokeWidth={TARGET_EDGE.width} />
+                    </g>
                 ))}
 
             {/* 3. The markings, the same in every block where they are set out once: zone outlines and lines; the marked line bold. */}
@@ -284,14 +309,26 @@ function BlockDrawing({ diagram, block, orientation, uid }: { diagram: CoachDiag
                 const colour = teamColour(team.identity)
                 const marker = `url(#${uid}-arrow-${team.identity})`
                 if (!place) {
-                    // A team the coach cannot tell apart by name and with no starting area: its direction only, across the middle.
+                    // A team with no starting area: its direction only, across the middle. A team colour only beside the team's own words
+                    // (polish pass P7); a team with no noun gets a neutral arrow, and only where the caption says how the teams attack.
                     if (team.attacks.length !== 1) return null
+                    if (!team.noun && !block.caption) return null
                     const across = ((index + 1) / (block.teams.length + 1)) * W
                     const halfM = Math.min(L / 8, (size.zoneOffset * 3) / S)
                     const dir = team.attacks[0] > L / 2 ? 1 : -1
                     const [x1, y1] = P(L / 2 - dir * halfM, across)
                     const [x2, y2] = P(L / 2 + dir * halfM, across)
-                    return <line key={`arrow-${index}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke={colour} strokeWidth={size.arrow} markerEnd={marker} />
+                    const stroke = team.noun ? colour : STYLE.neutral
+                    return (
+                        <g key={`arrow-${index}`}>
+                            <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={stroke} strokeWidth={size.arrow} markerEnd={team.noun ? marker : `url(#${uid}-arrow-neutral)`} />
+                            {team.noun && (
+                                <text x={(x1 + x2) / 2} y={Math.min(y1, y2) - size.small * 0.6} fontSize={size.small} fontWeight={700} fill={colour} textAnchor='middle'>
+                                    {team.noun}
+                                </text>
+                            )}
+                        </g>
+                    )
                 }
                 const midA = (place.from + place.to) / 2
                 const [cx, cy] = P(midA, place.across)
@@ -409,9 +446,17 @@ function Rail({ p0, p1, label, size }: { p0: [number, number]; p1: [number, numb
 /** The legend: the server's words, each beside the mark it explains; then the counts said for every team together, where there are any. */
 function Legend({ diagram }: { diagram: CoachDiagram }) {
     if (!diagram.legend.length && !diagram.counts.length) return null
+    // Each swatch drawn as the mark it explains: an active target zone as on the field, its fill with the green edge just inside (P2).
     const swatch = (kind: string) => {
         if (kind === 'MARKED_LINE') return <line x1={1} y1={7} x2={25} y2={7} stroke={STYLE.markedLine} strokeWidth={2.5} />
-        if (kind === 'TARGET_ZONE') return <rect x={1} y={1} width={24} height={12} fill={STYLE.targetFill} stroke={STYLE.targetLine} strokeWidth={1.2} />
+        if (kind === 'TARGET_ZONE')
+            return (
+                <g>
+                    <rect x={1} y={1} width={24} height={12} fill={STYLE.targetFill} />
+                    <rect x={2.25} y={2.25} width={21.5} height={9.5} fill='none' stroke={STYLE.targetLine} strokeWidth={2.5} />
+                </g>
+            )
+        if (kind === 'TARGET_LINE') return <line x1={1} y1={7} x2={25} y2={7} stroke={STYLE.targetLine} strokeWidth={4} />
         if (kind === 'STARTING_AREA') return <rect x={1.5} y={1.5} width={23} height={11} rx={3} fill='none' stroke={STYLE.outline} strokeWidth={1.4} strokeDasharray='5 3' />
         return null
     }

@@ -19,6 +19,11 @@
  *   5. markings presented block by block (TEST-ONLY 15 m line): the description gives each block's own distance, never "halfway";
  *   6. an object a team scores at is shown once, as the object, marked as a target (TEST-ONLY objects);
  *   7. nothing activity-specific is written in coach-diagram.ts or in the page's FieldDiagram.tsx.
+ *
+ * Polish pass (22 October 2026): P4, each A01 team's sentence in the description (counts, starting area from its end line to the marked
+ * line, attacking toward the other team's end) pinned in both blocks independently of the composition, with the arrow toward the end the
+ * other team starts from; D9 refuses a description, caption or block-switcher name that is not the model's; P7, the demonstration's end
+ * lines named "target line" (DRAFT, from the game's noun) with that legend word, and the caption explaining its unnamed teams' arrows.
  */
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
@@ -140,8 +145,22 @@ test('1. A01 at 12/1, 12/2 and 11/1: every viewer is served the checked model in
                 assert.ok(block.desc.includes(part), `${what} block ${i + 1}: the description says "${part}": ${block.desc}`)
             }
             for (const team of block.teams) assert.ok(team.counts.every(count => block.desc.includes(count)))
+            // Polish pass P4 (the 5B review's should-fix 1): each team's sentence in the description, pinned here independently of the
+            // composition: its counts, its starting area from its own end line to the marked line, and the end it attacks, the other team's,
+            // which is where the other team's starting area touches an end line (its arrow) in this block.
+            const otherNoun: Record<string, string> = { 'building team': 'pressing team', 'pressing team': 'building team' }
+            for (const team of block.teams) {
+                const sentence = `The ${team.noun}: ${team.counts.join(' and ')}; starting area from its end line to the marked line; attacks toward the ${otherNoun[team.noun!]}'s end.`
+                assert.ok(block.desc.includes(sentence), `${what} block ${i + 1}: the description says "${sentence}": ${block.desc}`)
+                const other = block.teams.find(entry => entry !== team)!
+                assert.deepEqual(team.attacks.length, 1)
+                assert.ok([other.start!.along.from, other.start!.along.to].includes(team.attacks[0]), `${what} block ${i + 1}: the ${team.noun} attacks the end the ${other.noun} starts from`)
+                assert.ok(![team.start!.along.from, team.start!.along.to].includes(team.attacks[0]), `${what} block ${i + 1}: the ${team.noun} starts at the other end`)
+            }
+            assert.equal(block.caption, null, 'named teams need no caption')
             assert.ok(!JSON.stringify(block).includes(`Block ${2 - i}`), `${what} block ${i + 1}: no other block is named`)
         })
+        assert.equal(diagram.tablistLabel, 'Field diagram blocks', `${what}: the block switcher has an accessible name`)
         assert.deepEqual([...looks.values()].sort(), [0, 1], `${what}: two looks, one per team`)
         const served = JSON.stringify(diagram)
         for (const data of dataIn(input)) assert.ok(!served.includes(data), `${what}: "${data}" is in what a coach is served`)
@@ -159,11 +178,18 @@ test('2. demonstrations and refusals: line targets and counts together; a withhe
         const [block] = diagram.blocks
         assert.equal(block.label, null)
         assert.equal(block.title, neutral.title)
-        assert.deepEqual(block.targets.map(target => [target.along, target.line, target.label]), [[{ from: 40, to: 40 }, true, null], [{ from: 0, to: 0 }, true, null]])
+        // Re-pointed 22 October 2026 (polish pass P7, the 5B review): the end lines are named by their own noun after the DRAFT word
+        // "target", and the legend says what a green line is; the unnamed teams' arrows are explained by the caption, the relation the game
+        // sentence says. Was: no label, an empty legend, no caption.
+        assert.deepEqual(block.targets.map(target => [target.along, target.line, target.label]), [[{ from: 40, to: 40 }, true, 'target line'], [{ from: 0, to: 0 }, true, 'target line']])
         assert.deepEqual(block.teams.map(team => [team.identity, team.noun, team.start, team.attacks]), [[0, null, null, [40]], [1, null, null, [0]]])
         assert.deepEqual(diagram.counts, ['2 teams of 5', '2 neutral players'])
-        assert.deepEqual(diagram.legend, [])
+        assert.deepEqual(diagram.legend, [{ kind: 'TARGET_LINE', text: 'target line' }])
+        assert.equal(diagram.tablistLabel, null, 'one block: no block switcher')
+        assert.equal(block.caption, 'Each team attacks the line at the other team\'s end.')
+        assert.ok(neutral.overview!.game.includes('each team attacks the line at the other team\'s end'), 'the caption is the relation the game sentence says')
         assert.equal(block.desc, '40 m by 30 m area. Each team attacks the line at the other team\'s end. 2 teams of 5 and 2 neutral players.')
+        assert.equal(admin.diagramDraft!.diagram!.legend.map(word => [word.text, word.status].join(':')).join(), 'target line:DRAFT')
         // The demonstration whose channels Set up states as limits: withheld for everyone, the activity and its overview served unchanged.
         const coachModifier = buildActivity(demo('scoring-modifier', keepers)) as ServedActivity
         const adminModifier = buildActivityForReview(demo('scoring-modifier', keepers), { includeDrafts: true }) as ServedActivity
@@ -220,8 +246,31 @@ test('3. D9 refuses each mutation of the coach\'s diagram, and the production di
     refusedBy(mutate(d => ((d as any).cites = ['envelope.area.length_m'])), 'holds cites', 'citations')
     refusedBy(mutate(d => d.blocks.pop()), '1 blocks are shown and the model has 2', 'block dropped')
     refusedBy(mutate(d => (d.legend[1].kind = 'MARKED_LINE')), 'the legend gives "target zone" to MARKED_LINE', 'legend')
+    refusedBy(mutate(d => (d.legend[1].kind = 'TARGET_LINE')), 'the legend gives "target zone" to TARGET_LINE', 'a zone\'s term given to a line')
+    // Polish pass P4: the description is the model's, as the title is: a direction reversed, a starting area moved or a sentence dropped is
+    // refused; and the block switcher's name.
+    refusedBy(mutate(d => (d.blocks[0].desc = d.blocks[0].desc.replace('attacks toward the pressing team\'s end', 'attacks toward the building team\'s end'))), 'the description is not the one composed from the model', 'direction reversed')
+    refusedBy(mutate(d => (d.blocks[1].desc = d.blocks[1].desc.replace('starting area from its end line to the marked line', 'starting area from its end line to the other end line'))), 'the description is not the one composed from the model', 'starting area moved')
+    refusedBy(mutate(d => (d.blocks[1].desc = d.blocks[0].desc.split('. ').slice(0, -1).join('. '))), 'the description is not the one composed from the model', 'sentence dropped')
+    refusedBy(mutate(d => (d.tablistLabel = null)), 'the block switcher is named null', 'no switcher name')
+    // Polish pass P7: a caption where the teams are named (their arrows need none) is refused.
+    refusedBy(mutate(d => (d.blocks[0].caption = 'Each team attacks the target zone at the other team\'s end.')), 'is not the model\'s sentence for how its teams attack', 'caption')
     // The unchanged diagram passes.
     assert.deepEqual(mutate(() => undefined), [])
+    // The demonstration's: the target line's legend word, and the caption, held to the model.
+    const neutral = inputOf(demo('neutral-players'))
+    const neutralOutcome = diagramForServing(neutral.input, { title: neutral.activity.title })
+    const neutralContext = { title: neutral.activity.title }
+    const mutateNeutral = (change: (diagram: CoachDiagram) => void): DiagramFinding[] => {
+        const diagram = copy(neutralOutcome.diagram!)
+        change(diagram)
+        return checkCoachDiagram(diagram, neutralOutcome.draft.diagram!, neutral.input, neutralContext)
+    }
+    assert.deepEqual(mutateNeutral(() => undefined), [])
+    refusedBy(mutateNeutral(d => (d.legend[0].text = 'scoring line')), 'the legend is not the model\'s', 'a target line renamed')
+    refusedBy(mutateNeutral(d => (d.legend[0].kind = 'TARGET_ZONE')), 'the legend gives "target line" to TARGET_ZONE', 'a line given the zone\'s kind')
+    refusedBy(mutateNeutral(d => (d.blocks[0].caption = null)), 'is not the model\'s sentence for how its teams attack', 'caption dropped')
+    refusedBy(mutateNeutral(d => (d.blocks[0].targets[0].label = null)), 'not the model\'s active targets', 'line label dropped')
 })
 
 test('4. a D9 failure withholds the diagram only: the activity and its overview are the coach\'s (TEST-ONLY patch, restored)', () => {

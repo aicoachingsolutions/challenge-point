@@ -210,7 +210,13 @@ test('3. the demonstrations: end lines as the targets and the counts together; c
         const [block] = model.blocks
         assert.equal(block.label, null, 'a game not played in blocks names no block')
         assert.deepEqual(block.markings.lines.map(line => line.along), [{ from: 0, to: 0 }, { from: 40, to: 40 }])
-        assert.ok(block.targets.every(target => target.line && target.label === null))
+        // Re-pointed 22 October 2026 (polish pass P7): each end line a team scores at is named by its own noun, read from the game, after the
+        // DRAFT word "target", and the legend carries those words once. Was: no label, no legend word.
+        const fixture: any = buildActivityWithFixture({ kind: 'mechanism-demonstration', demonstrationId: 'neutral-players', session: sessionAt(12, keepers) }).fixture
+        const nouns = block.targets.map(target => fixture.game.space.regions.find((region: any) => String(region.elementId) === target.region)?.noun ?? null)
+        assert.deepEqual(nouns, ['line', 'line'], 'the game calls each end line a line')
+        assert.ok(block.targets.every(target => target.line && target.label?.text === 'target line' && target.label.status === 'DRAFT' && target.label.carriedBy === null))
+        assert.deepEqual(model.legend.map(word => [word.text, word.status]), [['target line', 'DRAFT']])
         assert.deepEqual(block.teams.map(team => team.attacks.map(attack => attack.end)).sort(), [[0], [40]])
         assert.ok(block.teams.every(team => team.noun === null && team.start === null && team.counts.length === 0))
         assert.deepEqual(model.counts.map(count => count.word.text), ['2 teams of 5', '2 neutral players'])
@@ -351,6 +357,19 @@ test('5. each rule of the check refuses its mutation of the model, and the produ
     refusedBy(mutate(m => ((m.blocks[0] as any).passingLines = [])), 'D8', 'holds passingLines', 'passing lines')
     // The unchanged model passes every rule.
     assert.deepEqual(rules(mutate(() => undefined)), [])
+    // D6 (polish pass P7): a target line's words are its own noun read from the game after the DRAFT word "target": another noun, his
+    // zone term on a line, or a legend word no target line has, is refused; the demonstration's model passes.
+    const neutral = inputOf({ kind: 'mechanism-demonstration', demonstrationId: 'neutral-players', session: sessionAt(12, 1) })
+    const neutralModel = fieldDiagramDraftOf(neutral.input).diagram!
+    assert.deepEqual(checkFieldDiagram(neutralModel, neutral.input), [])
+    const mutateNeutral = (change: (model: FieldDiagram) => void): DiagramFinding[] => {
+        const model = copy(neutralModel)
+        change(model)
+        return checkFieldDiagram(model, neutral.input)
+    }
+    refusedBy(mutateNeutral(m => (m.blocks[0].targets[0].label = { text: 'target goal', status: 'DRAFT', carriedBy: null })), 'D6', '"target goal" is no DRAFT diagram word in its place (expected "target line")', 'another noun')
+    refusedBy(mutateNeutral(m => (m.blocks[0].targets[0].label = { text: 'target zone', status: 'HIS_TERM', carriedBy: null })), 'D6', 'is named with his term "target zone", which names a zone', 'his zone term on a line')
+    refusedBy(mutateNeutral(m => (m.legend = [{ text: 'scoring line', status: 'DRAFT', carriedBy: null }])), 'D6', '"scoring line" is no DRAFT diagram word in its place', 'a legend word no target line has')
 })
 
 test('6. on the real chain a diagram failure withholds the diagram only: the activity is the coach\'s (TEST-ONLY patch, restored)', () => {

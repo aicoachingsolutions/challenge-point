@@ -9,7 +9,7 @@
  *
  *   T1  the A01 overview agrees with Details in both blocks (12/1, 12/2, 11/1) and is served to coach and administrator alike; since stage
  *       3F: each team's line saying how it scores first, then the qualifications the meaning test requires, the restart moments behind a
- *       pointer;
+ *       pointer; since polish pass P1, each team's group under its DRAFT heading, its own qualifications after its own line;
  *   T2  without his eligibility sentence the building team's eligibility is unstated, and refused, a pointer never excusing it;
  *   T3  his illustrative building line, not an extract, is DRAFT (marked derived it is refused); without his eligibility and origin
  *       sentences it is refused;
@@ -41,6 +41,10 @@
  *   team's field is refused (the 3E review's should-fix 2); each group opens with exactly one line saying how the team scores, served
  *   before any qualification; the administrator's evidence names, per team, the sentence stating each material element; the readings
  *   handed to serving are the ones the draft's account describes.
+ *
+ *   Polish pass P1 (22 October 2026, the 3F and Stage 4 reviews): a sentence under a team states something that team's group must account
+ *   for (Q7.4); a group's noun is the game's (Q7.5); what the coach is served, read back, holds each line, heading and pointer to its own
+ *   team, in the game sentence's order, and a pointer after the groups only where every team's group has it (Q7.5).
  */
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
@@ -53,11 +57,11 @@ import { reviewActivity } from './activity-review'
 import { ApprovedWording, approvedWording } from './approved-wording'
 import { readingsLoadOf, recordedReading, recordedReadings } from './approved-wording-readings'
 import { buildActivity, buildActivityForReview, buildActivityUnderAuthorizationRecords, buildActivityWithFixture, RefusedActivity, ServedActivity } from './build-activity'
-import { CoachOverviewDraft, coachOverviewDraftOf, DetailsPointer, essentialsLoadOf, essentialsTable, FULL_RULE_LABEL, ScoringGroup, ScoringSentence } from './coach-overview'
+import { CoachOverviewDraft, coachOverviewDraftOf, DetailsPointer, essentialsLoadOf, essentialsTable, FULL_RULE_LABEL, ScoringGroup, scoringRequirementsOf, ScoringSentence } from './coach-overview'
 import { CoverReading, NO_RECORDED_READING } from './derived-wording'
 import { OBLIGATIONS, ROLE_ORDERING } from './fidelity'
 import { MECHANISM_DEMONSTRATIONS } from './mechanism-demonstrations'
-import { checkOverview, OverviewCheck, OverviewCheckInput, overviewEvidenceOf, overviewForServing } from './overview-fidelity'
+import { checkOverview, CoachOverview, coachOverviewOf, OverviewCheck, OverviewCheckInput, overviewEvidenceOf, overviewForServing, presentedOf, servedGroupsHold } from './overview-fidelity'
 import { Instruction, renderConcreteGame } from './render-concrete-game'
 import { specializedRoleNames } from './session-envelope'
 
@@ -101,7 +105,10 @@ const everyBlock = (draft: CoachOverviewDraft, change: (groups: ScoringGroup[], 
     return changed
 }
 const texts = (group: ScoringGroup) => group.sentences.map(sentence => sentence.text)
-const lines = (overview: ServedActivity['overview']) => [...overview!.scoring.leads, ...overview!.scoring.qualifications]
+/** Every line the coach is served, group by group (polish pass P1; was: the leads, then the qualifications). */
+const lines = (overview: ServedActivity['overview']) => overview!.scoring.groups.flatMap(group => group.lines)
+/** Every pointer the coach is served: on a line, under a team, or once after the groups. */
+const pointersIn = (overview: ServedActivity['overview']) => [...lines(overview).flatMap(line => (line.fullRule ? [line.fullRule] : [])), ...overview!.scoring.groups.flatMap(group => group.fullRules), ...overview!.scoring.fullRules]
 
 const entryOf = (id: string): ApprovedWording => approvedWording().find(entry => entry.id === id)!
 const W1 = entryOf('A01-W1')
@@ -164,9 +171,21 @@ test('T1. the A01 overview agrees with Details in both blocks and is served to c
         // first; then his second building sentence (the origin, which his eligibility sentence does not state), his eligibility sentence and
         // the regain clause; the restart moments are left to Coach Details behind a pointer, and "Each score is worth 1 point" is pointed to
         // once. Was (stage 3E): per team, OVERVIEW_4, OVERVIEW_5, OVERVIEW_6_CUT; OVERVIEW_7, OVERVIEW_8.
-        assert.deepEqual(admin.overview!.scoring.leads.map(line => line.text), [OVERVIEW_4, OVERVIEW_7], what)
-        assert.deepEqual(admin.overview!.scoring.qualifications.map(line => line.text), [W1_S2, OVERVIEW_5, OVERVIEW_8], what)
-        assert.deepEqual(admin.overview!.scoring.fullRules.map(pointer => [pointer.section, pointer.text]), [['How it works', DETAILS_10], ['How to score', DETAILS_16]], what)
+        // Re-pointed 22 October 2026 (polish pass P1, the 3F and Stage 4 reviews): one group per team, in the game sentence's order, under
+        // its DRAFT heading; its line first, then its own qualifications ("The progression must begin..." and W3 under the building team,
+        // the regain clause's "that zone" right after the pressing team's line naming it); the restart moments behind the building team's
+        // own pointer; "Each score is worth 1 point", every team's, once after the groups. Was (stage 3F): both leads, then the three
+        // qualifications, then both pointers.
+        assert.deepEqual(
+            admin.overview!.scoring.groups.map(group => [group.label, group.lines.map(line => line.text), group.fullRules.map(pointer => [pointer.section, pointer.text])]),
+            [
+                ['Building team', [OVERVIEW_4, W1_S2, OVERVIEW_5], [['How it works', DETAILS_10]]],
+                ['Pressing team', [OVERVIEW_7, OVERVIEW_8], []],
+            ],
+            what,
+        )
+        assert.deepEqual(admin.overview!.scoring.fullRules.map(pointer => [pointer.section, pointer.text]), [['How to score', DETAILS_16]], what)
+        assert.ok(admin.overview!.game.indexOf('building team') < admin.overview!.game.indexOf('pressing team'), `${what}: the game sentence names the teams in the groups' order`)
         assert.deepEqual(first.groups.map(group => group.sentences.map(sentence => sentence.form)), [['EXTRACT', 'EXTRACT', 'WHOLE'], ['SHORTENING', 'EXTRACT']], what)
         assert.deepEqual(lines(admin.overview).map(line => line.text).sort(), first.groups.flatMap(g => g.sentences.map(s => s.text)).sort(), what)
     }
@@ -450,8 +469,11 @@ test('T15. the demonstrations pass with no bounded roles and no learning purpose
             const overview = (admin as ServedActivity).overview!
             assert.deepEqual((coach as ServedActivity).overview, overview)
             assert.equal(overview.purpose, null, 'a demonstration claims no goal, so it has no learning purpose')
-            // Re-pointed 22 October 2026 (stage 3F): one line saying how every team scores (was: one group).
-            assert.deepEqual(overview.scoring.leads.map(line => line.text), ['A team scores 1 point by getting the ball across the line it is attacking.'])
+            // Re-pointed 22 October 2026 (polish pass P1): one group, "Each team", whose line says how every team scores (stage 3F: one lead
+            // line; before it, one group).
+            assert.equal(overview.scoring.groups.length, 1)
+            assert.equal(overview.scoring.groups[0].label, 'Each team')
+            assert.deepEqual(overview.scoring.groups[0].lines[0].text, 'A team scores 1 point by getting the ball across the line it is attacking.')
             assert.equal(draft.scoring.blocks[0].groups[0].group, 'EVERY_TEAM')
             assert.equal(draft.presented!.purpose, null)
         }
@@ -640,11 +662,12 @@ test('the coach receives words and "full rule" pointers only; every pointer lead
     const overview = coach.overview!
     assert.deepEqual(Object.keys(overview).sort(), ['game', 'parameters', 'purpose', 'scoring'])
     const keysIn = (value: unknown): string[] => (Array.isArray(value) ? value.flatMap(keysIn) : value && typeof value === 'object' ? Object.entries(value).flatMap(([key, inner]) => [key, ...keysIn(inner)]) : [])
-    // Re-pointed 22 October 2026 (stage 3F): the scoring is its lead lines, its qualifications and its pointers. Was: groups of sentences.
-    assert.deepEqual([...new Set(keysIn(overview))].sort(), ['fullRule', 'fullRules', 'game', 'label', 'leads', 'parameters', 'purpose', 'qualifications', 'scoring', 'section', 'text'])
+    // Re-pointed 22 October 2026 (polish pass P1): the scoring is one group per team (its heading, its lines, its pointers) and the pointers
+    // every team's group has. Was (stage 3F): its lead lines, its qualifications and its pointers; before it, groups of sentences.
+    assert.deepEqual([...new Set(keysIn(overview))].sort(), ['fullRule', 'fullRules', 'game', 'groups', 'label', 'lines', 'parameters', 'purpose', 'scoring', 'section', 'text'])
     const json = JSON.stringify(overview)
-    for (const word of ['APPROVED', 'DRAFT', 'DERIVED', 'PROPOSED', 'from', 'binding', 'c:', 'LEAD', 'QUALIFICATION']) assert.ok(!json.includes(`"${word}`) && !json.includes(`${word}"`), word)
-    const pointers = [...lines(overview).flatMap(line => (line.fullRule ? [line.fullRule] : [])), ...overview.scoring.fullRules]
+    for (const word of ['APPROVED', 'DRAFT', 'DERIVED', 'PROPOSED', 'from', 'binding', 'c:', 'LEAD', 'QUALIFICATION', 'BUILDING', 'PRESSING', 'EVERY_TEAM']) assert.ok(!json.includes(`"${word}`) && !json.includes(`${word}"`), word)
+    const pointers = pointersIn(overview)
     assert.ok(pointers.length > 0)
     for (const pointer of pointers) {
         assert.equal(pointer.label, FULL_RULE_LABEL)
@@ -884,7 +907,12 @@ test("stage 3F (the 3E review's should-fix 2): a team's group states only how th
     const result = check(misplaced, PROD.games, PROD.served)
     assertRefused(result, '7.4', `the building team's sentence 4 "${OVERVIEW_8}" states value.primaryEvent.alsoCounts`, 'misplaced regain')
     assertRefused(result, '7.4', 'which is how the pressing team scores: a team\'s group says only how that team scores', 'whose it is')
-    assert.ok(violations(result).every(finding => finding.question === '7.4' && finding.what.includes('which is how the pressing team scores')), 'no other question sees it')
+    // Re-pointed 22 October 2026 (polish pass P1): the membership rule now sees it too (it states nothing the building team's group must
+    // account for); no other question does. Was: only the role check.
+    assert.ok(
+        violations(result).every(finding => finding.question === '7.4' && (finding.what.includes('which is how the pressing team scores') || finding.what.includes("states nothing the building team's group must account for"))),
+        'no other question sees it',
+    )
     // And the reverse: his first building sentence under the pressing team.
     const reverse = everyBlock(SERVED_DRAFT, groups => {
         groups[1].sentences.push({ ...copy(groups[0].sentences[0]), place: 'QUALIFICATION', fullRule: null })
@@ -893,7 +921,7 @@ test("stage 3F (the 3E review's should-fix 2): a team's group states only how th
     assertPasses(check(SERVED_DRAFT, PROD.games, PROD.served), 'as composed')
 })
 
-test('stage 3F: each group opens with exactly one line saying how the team scores; the coach is served every lead before any qualification', () => {
+test('stage 3F: each group opens with exactly one line saying how the team scores; the coach is served it first in its team\'s group (P1)', () => {
     // Not first, two leads, a lead stating no field of the team's first way to score, a place that is neither: refused (Q7.5).
     const reversed = everyBlock(SERVED_DRAFT, groups => groups[0].sentences.reverse())
     assertRefused(check(reversed, PROD.games, PROD.served), '7.5', "the building team's group opens with a qualification", 'lead not first')
@@ -917,12 +945,59 @@ test('stage 3F: each group opens with exactly one line saying how the team score
     const noted = check(whole, PROD.games, PROD.served, { essentials: load })
     assertPasses(noted, 'a lead of three sentences')
     assert.ok(noted.findings.some(f => f.severity === 'NOTE' && f.question === '7.5' && f.what.includes("the building team's first line is 3 sentences")), JSON.stringify(noted.findings))
-    // Served: every team's lead, then the qualifications, then each pointer no line carries, once.
+    // Served (re-pointed, polish pass P1): each team's group under its heading, its lead first, then its own qualifications; the restart
+    // pointer the building team's; the score's value, every team's, once after the groups. Was (stage 3F): every lead, then every
+    // qualification, then each pointer no line carries.
     const served = overviewForServing({ goalId: 'A01', games: PROD.games, served: PROD.served })
     const presented = served.draft.presented!
-    assert.deepEqual(served.overview!.scoring.leads.map(line => line.text), presented.scoring.map(group => group.sentences.find(s => s.place === 'LEAD')!.text))
-    assert.deepEqual(served.overview!.scoring.qualifications.map(line => line.text), presented.scoring.flatMap(group => group.sentences.filter(s => s.place === 'QUALIFICATION').map(s => s.text)))
-    assert.deepEqual(served.overview!.scoring.fullRules.map(p => p.text), [DETAILS_10, DETAILS_16])
+    assert.deepEqual(served.overview!.scoring.groups.map(group => group.label), presented.scoring.map(group => group.label))
+    assert.deepEqual(presented.scoring.map(group => [group.label, group.labelStatus]), [['Building team', 'DRAFT'], ['Pressing team', 'DRAFT']])
+    served.overview!.scoring.groups.forEach((group, n) => {
+        assert.deepEqual(group.lines.map(line => line.text), presented.scoring[n].sentences.map(s => s.text))
+        assert.equal(presented.scoring[n].sentences[0].place, 'LEAD', 'each group opens with its lead')
+    })
+    assert.deepEqual(served.overview!.scoring.groups.map(group => group.fullRules.map(p => p.text)), [[DETAILS_10], []])
+    assert.deepEqual(served.overview!.scoring.fullRules.map(p => p.text), [DETAILS_16])
+})
+
+test('polish pass P1: each sentence is held to its own team; the coach is served each team\'s group, under its heading, as checked', () => {
+    // Q7.4 membership: the pressing team's regain clause moved under the building team (both blocks, so Q7.8 agrees) is refused, by what it
+    // states (the pressing team's way to score) and because it states nothing the building team's group must account for.
+    const moved = everyBlock(SERVED_DRAFT, groups => {
+        const clause = groups[1].sentences.pop()!
+        groups[0].sentences.push(clause)
+    })
+    const movedResult = check(moved, PROD.games, PROD.served)
+    assertRefused(movedResult, '7.4', `the building team's sentence 4 "${OVERVIEW_8}" states nothing the building team's group must account for`, 'a sentence under the other team')
+    // Q7.5: a group named with a noun the game does not read for its role is refused (its heading would name another team).
+    const renamed = everyBlock(SERVED_DRAFT, groups => (groups[0].noun = 'pressing team'))
+    assertRefused(check(renamed, PROD.games, PROD.served), '7.5', 'the building team\'s group is named "pressing team"', 'a group under another team\'s noun')
+    // Q7.5, what the coach is served, read back against the checked groups (TEST-ONLY mutations of the served shape).
+    const presented = presentedOf(SERVED_DRAFT)!
+    const spec = scoringRequirementsOf(PROD.games[0].fixture, PROD.games[0].rendered.instructions, essentialsTable().table!)
+    const groups = SERVED_DRAFT.scoring.blocks[0].groups
+    const findingsFor = (change: (served: CoachOverview) => void, order: string[] = ['BUILDING', 'PRESSING']) => {
+        const served = coachOverviewOf(presented)
+        change(served)
+        const found: string[] = []
+        servedGroupsHold(served, groups, spec, order, what => found.push(what))
+        return found
+    }
+    const refusedHere = (found: string[], includes: string, what: string) => assert.ok(found.some(entry => entry.includes(includes)), `${what}: expected "${includes}" in ${JSON.stringify(found, null, 1)}`)
+    assert.deepEqual(findingsFor(() => undefined), [], 'the production overview holds')
+    refusedHere(findingsFor(served => served.scoring.groups[0].lines.push(served.scoring.groups[1].lines.pop()!)), 'are not the building team\'s group', 'a line moved to the other team')
+    refusedHere(findingsFor(served => served.scoring.groups.reverse()), 'is shown under "Pressing team"', 'groups swapped under their headings')
+    refusedHere(findingsFor(served => (served.scoring.groups[1].label = 'Building team')), 'where its heading is "Pressing team"', 'a heading changed')
+    refusedHere(findingsFor(served => served.scoring.groups[1].fullRules.push(served.scoring.groups[0].fullRules[0])), 'and it is not the pressing team\'s', 'a pointer under the other team')
+    refusedHere(findingsFor(served => served.scoring.fullRules.push(served.scoring.groups[0].fullRules.pop()!)), 'not every team\'s group has it', 'one team\'s pointer shown as every team\'s')
+    refusedHere(findingsFor(served => served.scoring.groups[0].fullRules.pop()), 'the building team\'s pointer to', 'a team\'s pointer dropped')
+    refusedHere(findingsFor(served => (served.scoring.groups[0].lines[0].fullRule = null)), 'carries a pointer that is not its own sentence\'s', 'a line\'s pointer dropped')
+    refusedHere(findingsFor(() => undefined, ['PRESSING', 'BUILDING']), 'the game sentence names the teams in the order', 'groups not in the game sentence\'s order')
+    // One group (a game without roles): its pointers stay with it; nothing is shown after the groups as every team's.
+    const single = { ...presented, scoring: [{ ...presented.scoring[0] }] }
+    const one = coachOverviewOf(single)
+    assert.deepEqual(one.scoring.fullRules, [])
+    assert.deepEqual(one.scoring.groups[0].fullRules.map(pointer => pointer.text), [DETAILS_10, DETAILS_16])
 })
 
 test('stage 3F: an exception is material where the condition it follows from is unstated; the evidence names what states each element', () => {

@@ -64,11 +64,23 @@
  *   - **Q7.4 roles** (the 3E review's should-fix 2): no sentence of a team's group states a field another role owns
  *     (`ScoringRequirements.owners`).
  *   - **Q7.5 lead**: each group opens with exactly one line (`place: 'LEAD'`) stating a field of the team's first way to score; every other
- *     sentence is a qualification. A lead of more than one sentence is a NOTE. The coach is served every team's lead before any
- *     qualification.
+ *     sentence is a qualification. A lead of more than one sentence is a NOTE. (Until polish pass P1 the coach was served every team's
+ *     lead before any qualification; since P1, each team's group with its lead first.)
  *   - **Evidence**: for each team, each material element of its full rule (the fields one rule classes on one element), the sentence(s)
  *     stating it, the pointer where it is left to Coach Details, each sentence citing it whose words are not read as stating it (with the
  *     reading's reason), and why it is or is not material (`MeaningElement`, in `read` and the administrator's evidence).
+ *
+ * **Polish pass P1, 22 October 2026: each team's group, under its own heading.** The 3F and Stage 4 reviews: with every team's line first, a
+ * qualification was read away from its team ("The progression must begin...", "that zone"), and a qualification naming no team would have
+ * read as the other team's. The coach is now served one group per team (`OverviewGroup`), in the game sentence's team order, under its
+ * DRAFT heading (`teamHeadingOf`): that team's line first, then its own qualifications in served order; a pointer that is one team's stays
+ * with that team, and one every team's group has is shown once after the groups. So, in addition:
+ *
+ *   - **Q7.4 membership**: every sentence of a team's group states a field that team's group must account for (and, as before, none another
+ *     role owns): a sentence stating nothing of its team is not shown under it.
+ *   - **Q7.5 served groups**: the group's noun is the one the game reads for that role; the game sentence names the teams in the groups'
+ *     order; and what the coach is served (`coachOverviewOf`, read back here) holds each line under its own team's heading, in its group's
+ *     order, with its own pointer; each team's pointers under it; and a pointer after the groups only where every team's group has it.
  *
  * Word counts and reading seconds are measured for the administrator as EVIDENCE and never read by the check (his acceptance criteria: *"The
  * reading and explanation times are usability targets, not hard validation gates."*). The coach is served the overview's words and its
@@ -97,10 +109,12 @@ import {
     OverviewClass,
     OverviewSentence,
     PURPOSE_SOURCE,
+    ScoringGroup,
     ScoringRequirement,
     ScoringRequirements,
     scoringRequirementsOf,
     ScoringSentence,
+    teamHeadingOf,
     withFullStop,
     wordsIn,
 } from './coach-overview'
@@ -191,19 +205,30 @@ export interface OverviewLine {
     fullRule: OverviewPointer | null
 }
 
+/**
+ * **How one team scores, as the coach receives it** (polish pass P1): the heading it is shown under (DRAFT words, `teamHeadingOf`), its
+ * lines (the line saying how the team scores first, then the team's own qualifications, in served order), and the "full rule" pointers of
+ * that team no line carries.
+ */
+export interface OverviewGroup {
+    label: string
+    lines: OverviewLine[]
+    fullRules: OverviewPointer[]
+}
+
 /** **The Coach Overview a coach is served**: words and pointers only. Present only where Q7 found no violation in any block. */
 export interface CoachOverview {
     purpose: string | null
     game: string
     parameters: string
     /**
-     * How each team scores. Since stage 3F (his reply filed 23 October 2026, item 6: *"a concise explanation that communicates the opposing
-     * objectives immediately, without requiring the coach to read several procedural statements first"*), in the order to present it: one
-     * line per team saying how it scores (`leads`, in the block's role order; one line where the game has no roles), then the
-     * qualifications (each team's, in role order), then the "full rule" pointers no line carries, each once. Was (stages 3D-3E): one group
-     * of sentences per team.
+     * How each team scores. Since polish pass P1 (22 October 2026): one group per team (`groups`), in the game sentence's team order (one
+     * group, "Each team", where the game has no roles), each the team's line first and then its own qualifications; then the pointers every
+     * team's group has, once (`fullRules`). The game sentence already says the opposing objectives first (his reply filed 23 October 2026,
+     * item 6). Was (stages 3F-5B): every team's line, then all qualifications, then the pointers (`leads`, `qualifications`, `fullRules`);
+     * before that (3D-3E), one group of sentences per team.
      */
-    scoring: { leads: OverviewLine[]; qualifications: OverviewLine[]; fullRules: OverviewPointer[] }
+    scoring: { groups: OverviewGroup[]; fullRules: OverviewPointer[] }
 }
 
 /** The overview as presented, with each sentence's status and source, for an administrator (the page's tags; never a coach's). */
@@ -214,6 +239,9 @@ export interface PresentedOverview {
     scoring: {
         group: string
         noun: string | null
+        /** Polish pass P1: the heading the group is shown under (`teamHeadingOf`), DRAFT words. */
+        label: string
+        labelStatus: 'DRAFT'
         /**
          * `reading` (stage 3E): for an extract kept by a recorded reading (since stage 3F also his wording said whole read by one), that
          * record and its label ("reading PROPOSED, awaiting confirmation"). `place` (stage 3F): the team's lead line, or a qualification.
@@ -318,14 +346,16 @@ const memberIdOf = (path: string, collection: string): string | null => {
  * cites an objective; every objective it cites is held by the clause's role (its team designates that role in this block); every region it
  * cites that an objective references (a target) is that role's objective's; and the region its own objective references is cited. A game
  * without role nouns has no role clause.
+ *
+ * Polish pass P1: returns the roles in the order the clauses name them (the game sentence's team order, which the coach's groups follow).
  */
-function roleClauses(sentence: OverviewSentence, fixture: any, refuse: (what: string) => void): void {
+function roleClauses(sentence: OverviewSentence, fixture: any, refuse: (what: string) => void): string[] {
     const game = fixture?.game ?? {}
     const reading = gameReadingOf(fixture)
     const roles = Object.keys(reading.holdersInBlock)
         .filter(role => reading.roleNounOf[role])
         .sort((a, b) => reading.roleNounOf[b].length - reading.roleNounOf[a].length)
-    if (!roles.length) return
+    if (!roles.length) return []
     const opener = (text: string): string | null => {
         let at = 0
         while (at < text.length && ';:, '.includes(text[at])) at++
@@ -368,6 +398,50 @@ function roleClauses(sentence: OverviewSentence, fixture: any, refuse: (what: st
             if (target && !citedRegions.has(String(target.elementId))) refuse(`${what} does not cite the region ${target.elementId} its objective ${objective.elementId} references: the target it names cannot be read as the ${noun}'s`)
         }
     }
+    return clauses.map(clause => clause.role)
+}
+
+/** A pointer's words (label, section, text), or null: how two pointers are told the same. */
+const pointerWordsOf = (pointer: { label: string; section: string; text: string } | null | undefined) => (pointer ? [pointer.label, pointer.section, pointer.text] : null)
+const samePointer = (a: { section: string; text: string }, b: { section: string; text: string }) => a.section === b.section && a.text === b.text
+
+/**
+ * **Q7.5, what the coach is served** — polish pass P1, 22 October 2026. The served scoring (`coachOverviewOf`, read back) against the
+ * first block's checked groups (every block says the same words, Q7.8) and that block's own reading of the teams (`spec`, and the order its
+ * game sentence names them in, `order`): one group per team, in that order; each under its own heading (`teamHeadingOf` of the noun the
+ * game reads for the role); each group's lines exactly its own sentences, in order, each with its own pointer; each pointer under a group
+ * that group's, every one of a group's pointers shown (under it, or after the groups); and a pointer after the groups only where every
+ * team's group has it.
+ */
+export function servedGroupsHold(served: CoachOverview, groups: ScoringGroup[], spec: ScoringRequirements, order: string[], refuse: (what: string) => void): void {
+    const ids = spec.groups
+    const nounOf = (id: string) => spec.nouns[id] ?? 'every team'
+    if (order.length && canonicalJson(order) !== canonicalJson(ids)) refuse(`the game sentence names the teams in the order ${JSON.stringify(order.map(nounOf))}, and their groups are in the order ${JSON.stringify(ids.map(nounOf))}`)
+    const shown = served.scoring?.groups ?? []
+    if (shown.length !== ids.length) refuse(`${shown.length} groups are shown and this block has ${ids.length} teams`)
+    ids.forEach((id, i) => {
+        const view = shown[i]
+        const group = groups.find(entry => entry.group === id)
+        if (!view || !group) return
+        const noun = nounOf(id)
+        const heading = teamHeadingOf(spec.nouns[id] ?? null)
+        if (view.label !== heading) refuse(`the ${noun}'s group is shown under ${quoted(view.label)}, where its heading is ${quoted(heading)}`)
+        if (canonicalJson(view.lines.map(line => line.text)) !== canonicalJson(group.sentences.map(sentence => sentence.text))) {
+            refuse(`the lines shown under ${quoted(view.label)} are not the ${noun}'s group, sentence for sentence and in order: ${JSON.stringify(view.lines.map(line => line.text))}`)
+        }
+        view.lines.forEach((line, n) => {
+            const own = group.sentences[n]?.fullRule ?? null
+            if (canonicalJson(pointerWordsOf(line.fullRule)) !== canonicalJson(pointerWordsOf(own))) refuse(`the line ${quoted(line.text)} under ${quoted(view.label)} carries a pointer that is not its own sentence's`)
+        })
+        for (const pointer of view.fullRules) if (!group.fullRules.some(own => samePointer(own, pointer) && own.label === pointer.label)) refuse(`a pointer to ${quoted(pointer.text)} is shown under ${quoted(view.label)}, and it is not the ${noun}'s`)
+        for (const own of group.fullRules) {
+            const carried = view.fullRules.some(pointer => samePointer(own, pointer)) || view.lines.some(line => line.fullRule && samePointer(own, line.fullRule)) || (served.scoring?.fullRules ?? []).some(pointer => samePointer(own, pointer))
+            if (!carried) refuse(`the ${noun}'s pointer to ${quoted(own.text)} is not shown`)
+        }
+    })
+    for (const pointer of served.scoring?.fullRules ?? []) {
+        if (!groups.every(group => group.fullRules.some(own => samePointer(own, pointer) && own.label === pointer.label))) refuse(`a pointer to ${quoted(pointer.text)} is shown after the groups, as every team's, and not every team's group has it`)
+    }
 }
 
 /**
@@ -384,6 +458,8 @@ export function checkOverview(input: OverviewCheckInput): OverviewCheck {
     const recorded = input.reading ?? recordedReading()
     const lookup = input.lookup ?? sessionPlanningModel.learningGoal
     const read: OverviewCheck['read'] = []
+    /** Polish pass P1: the first block's reading of its teams, the game sentence's team order and its groups, for what the coach is served. */
+    let firstBlock: { spec: ScoringRequirements; order: string[]; groups: ScoringGroup[] } | null = null
 
     // ── Q7.0 completeness, and the purpose (Q7.1 / Q7.3) ──
     if (!input.blocks.length) violation('7.0', null, 'the activity holds no game to read an overview from')
@@ -504,13 +580,14 @@ export function checkOverview(input: OverviewCheckInput): OverviewCheck {
         }
 
         // ── Q7.1 (stage 3E, the 3D review's should-fix): in each role clause, the objective and the target region it cites are its team's ──
-        if (own?.game) roleClauses(own.game, fixture, (what: string) => violation('7.1', blockId, what))
+        const order = own?.game ? roleClauses(own.game, fixture, (what: string) => violation('7.1', blockId, what)) : []
 
         // ── How each team scores (Q7.1-Q7.5, Q7.7), read here, sentence by sentence ──
         const spec: ScoringRequirements | null = load.table ? scoringRequirementsOf(fixture, rendered, load.table, wording) : null
         const blockRead: OverviewCheck['read'][number] = { blockId, groups: [] }
         read.push(blockRead)
         if (!spec) continue
+        if (block === input.blocks[0]) firstBlock = { spec, order, groups }
         const details = spec.details
         const detailsAt = (ref: { blockIndex: number; section: string; text: string } | undefined): DetailsSentence | null => {
             if (!ref) return null
@@ -647,6 +724,8 @@ export function checkOverview(input: OverviewCheckInput): OverviewCheck {
             }
             for (const problem of spec.problems[id] ?? []) violation('7.4', blockId, `the ${noun}'s group: ${problem}`)
             if (!group.sentences.length) violation('7.5', blockId, `the ${noun}'s group says nothing`)
+            // Polish pass P1: the group's heading is composed from its noun, so the noun is the one the game reads for the role.
+            if ((group.noun ?? null) !== (spec.nouns[id] ?? null)) violation('7.5', blockId, `the ${noun}'s group is named ${JSON.stringify(group.noun ?? null)}, and the game reads the role's noun as ${JSON.stringify(spec.nouns[id] ?? null)}`)
             const reads = group.sentences.map((sentence, n) => {
                 const what = `the ${noun}'s sentence ${n + 1} ${quoted(sentence.text)}`
                 const reading = readSentence(sentence, what)
@@ -681,6 +760,11 @@ export function checkOverview(input: OverviewCheckInput): OverviewCheck {
                 for (const path of reading.states) {
                     const own = spec.owners[path] ?? []
                     if (own.length && !own.includes(id)) violation('7.4', blockId, `the ${noun}'s sentence ${n + 1} ${quoted(group.sentences[n].text)} states ${path}, which is how the ${own.map(role => spec.nouns[role] ?? role).join(' and ')} scores: a team's group says only how that team scores`)
+                }
+                // Polish pass P1 (the 3F and Stage 4 reviews): the coach reads each sentence under its team's heading, so it states something
+                // that team's group must account for; a sentence stating nothing of its team does not belong under it.
+                if (!reading.states.some(path => requirements.some(requirement => requirement.path === path))) {
+                    violation('7.4', blockId, `the ${noun}'s sentence ${n + 1} ${quoted(group.sentences[n].text)} states nothing the ${noun}'s group must account for, so it is not shown under that team`)
                 }
             })
             // ── Stage 3F (his item 6): the group opens with exactly one line saying how the team scores (its first way to score); the rest qualify it ──
@@ -764,11 +848,18 @@ export function checkOverview(input: OverviewCheckInput): OverviewCheck {
         return canonicalJson({
             game: own?.game?.text ?? null,
             parameters: own?.parameters?.text ?? null,
-            scoring: groups.map(group => [group.group, group.withheld, group.sentences.map(sentence => [sentence.text, sentence.wording, sentence.source, pointerWords(sentence.fullRule), sentence.place ?? null]), group.fullRules.map(pointerWords)]),
+            scoring: groups.map(group => [group.group, group.noun ?? null, group.withheld, group.sentences.map(sentence => [sentence.text, sentence.wording, sentence.source, pointerWords(sentence.fullRule), sentence.place ?? null]), group.fullRules.map(pointerWords)]),
         })
     }
     const differing = ids.filter(id => wordsOf(id) !== wordsOf(ids[0]))
     if (differing.length) violation('7.8', null, `the overview says other words in block ${differing.join(', ')} than in block ${ids[0]}, and no sentence is told apart by block, so it is withheld rather than shown for one block`)
+
+    // ── Q7.5 (polish pass P1): what the coach is served holds each sentence under its own team, in the game sentence's team order ──
+    const presented = presentedOf(draft)
+    if (presented && firstBlock) {
+        const first = firstBlock
+        servedGroupsHold(coachOverviewOf(presented), first.groups, first.spec, first.order, (what: string) => violation('7.5', null, what))
+    }
 
     return { verdict: findings.some(finding => finding.severity === 'VIOLATION') ? 'FAIL' : 'PASS', findings, read }
 }
@@ -786,6 +877,8 @@ export function presentedOf(draft: CoachOverviewDraft): PresentedOverview | null
         scoring: scoring.groups.map(group => ({
             group: group.group,
             noun: group.noun,
+            label: teamHeadingOf(group.noun),
+            labelStatus: 'DRAFT' as const,
             sentences: group.sentences.map(sentence => ({
                 text: sentence.text,
                 wording: sentence.wording,
@@ -801,24 +894,32 @@ export function presentedOf(draft: CoachOverviewDraft): PresentedOverview | null
 
 /**
  * **What the coach is served**: the presented overview's words and pointers, nothing else (no status, source, citation or binding). Since
- * stage 3F in the order to present it: every team's lead line, then the qualifications, then each pointer no line carries, once.
+ * polish pass P1: one group per team, in the presented order (the game sentence's team order, Q7.5), under its heading; its sentences in
+ * order (its line saying how the team scores first, Q7.5, then its own qualifications); the pointers of that team no line of it carries,
+ * each once; and, after the groups, each pointer every team's group has (where there is more than one team), once. Was (stage 3F): every
+ * team's lead line, then all qualifications, then each pointer no line carries.
  */
 export function coachOverviewOf(presented: PresentedOverview): CoachOverview {
     const pointerOf = (pointer: OverviewPointer): OverviewPointer => ({ label: pointer.label, section: pointer.section, text: pointer.text })
     const lineOf = (sentence: PresentedOverview['scoring'][number]['sentences'][number]): OverviewLine => ({ text: sentence.text, fullRule: sentence.fullRule ? pointerOf(sentence.fullRule) : null })
-    const leads = presented.scoring.flatMap(group => group.sentences.filter(sentence => sentence.place === 'LEAD').map(lineOf))
-    const qualifications = presented.scoring.flatMap(group => group.sentences.filter(sentence => sentence.place !== 'LEAD').map(lineOf))
-    const same = (a: OverviewPointer, b: OverviewPointer) => a.section === b.section && a.text === b.text
-    const fullRules: OverviewPointer[] = []
-    for (const pointer of presented.scoring.flatMap(group => group.fullRules)) {
-        if ([...leads, ...qualifications].some(line => line.fullRule && same(line.fullRule, pointer)) || fullRules.some(held => same(held, pointer))) continue
-        fullRules.push(pointerOf(pointer))
-    }
+    const teams = presented.scoring
+    const everyTeams = (pointer: OverviewPointer) => teams.length > 1 && teams.every(group => group.fullRules.some(own => samePointer(own, pointer) && own.label === pointer.label))
+    const shared: OverviewPointer[] = []
+    for (const pointer of teams.flatMap(group => group.fullRules)) if (everyTeams(pointer) && !shared.some(held => samePointer(held, pointer))) shared.push(pointerOf(pointer))
+    const groups: OverviewGroup[] = teams.map(group => {
+        const lines = group.sentences.map(lineOf)
+        const fullRules: OverviewPointer[] = []
+        for (const pointer of group.fullRules) {
+            if (shared.some(held => samePointer(held, pointer)) || lines.some(line => line.fullRule && samePointer(line.fullRule, pointer)) || fullRules.some(held => samePointer(held, pointer))) continue
+            fullRules.push(pointerOf(pointer))
+        }
+        return { label: group.label, lines, fullRules }
+    })
     return {
         purpose: presented.purpose?.text ?? null,
         game: presented.game.text,
         parameters: presented.parameters.text,
-        scoring: { leads, qualifications, fullRules },
+        scoring: { groups, fullRules: shared },
     }
 }
 
@@ -840,7 +941,7 @@ export function readingOf(presented: PresentedOverview, details: Instruction[]):
         secondsAt250Wpm: Math.round((words / READING_WPM.fast) * 60),
         secondsAt200Wpm: Math.round((words / READING_WPM.slow) * 60),
         detailsWords: details.reduce((sum, instruction) => sum + wordsIn(instruction.text), 0),
-        basis: 'Evidence only: the words the overview says (section labels and pointers not counted) and the seconds they take at two reading speeds. His comprehension benchmark is a usability target, never a gate (reply filed 22 October 2026, item 6 and acceptance criteria); nothing reads this to serve or withhold the overview.',
+        basis: 'Evidence only: the words the overview says (section labels, team headings and pointers not counted) and the seconds they take at two reading speeds. His comprehension benchmark is a usability target, never a gate (reply filed 22 October 2026, item 6 and acceptance criteria); nothing reads this to serve or withhold the overview.',
     }
 }
 

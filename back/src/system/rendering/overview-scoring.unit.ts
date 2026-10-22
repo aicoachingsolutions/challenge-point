@@ -588,10 +588,11 @@ test("10. only an administrator's answer carries the draft; the module and the t
     assert.ok(!('overviewDraft' in coach))
     // Re-pointed 21 October 2026 (stage 3D): the coach is served the overview's words and its "full rule" pointers (DRAFT label), never the
     // table, its status or its label. Was: no "full rule" in the coach's answer at all. Re-pointed 22 October 2026 (stage 3F): the coach's
-    // scoring is its lead lines, its qualifications and the pointers no line carries.
+    // scoring is its lead lines, its qualifications and the pointers no line carries. Re-pointed 22 October 2026 (polish pass P1): one
+    // group per team (its lines and its pointers), then the pointers every team's group has.
     assert.ok(!JSON.stringify(coach).includes('PROPOSED') && !JSON.stringify(coach).includes('essentials'))
     const scoring = coach.overview!.scoring
-    const pointers = [...[...scoring.leads, ...scoring.qualifications].flatMap(line => (line.fullRule ? [line.fullRule] : [])), ...scoring.fullRules]
+    const pointers = [...scoring.groups.flatMap(group => [...group.lines.flatMap(line => (line.fullRule ? [line.fullRule] : [])), ...group.fullRules]), ...scoring.fullRules]
     assert.ok(pointers.length > 0 && pointers.every(pointer => pointer.label === FULL_RULE_LABEL))
     assert.equal(asAdmin.overviewDraft!.served, true)
     assert.equal(asAdmin.overviewDraft!.scoring.blocks.length, 2)

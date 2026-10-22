@@ -313,6 +313,11 @@ export interface CoachDiagramBlock {
     label: string | null
     title: string
     desc: string
+    /**
+     * Polish pass P7: where the teams have no noun, the server's one sentence for how they attack, shown beside the drawing to explain its
+     * neutral arrows; null otherwise (and where none can be said, the arrows of unnamed teams are not drawn).
+     */
+    caption: string | null
     lines: { along: DiagramInterval; across: DiagramInterval; markedLine: boolean; label: string | null }[]
     zones: { along: DiagramInterval; across: DiagramInterval; state: 'TARGET' | 'INSIDE_TARGET' | 'MARKED' | string }[]
     targets: { along: DiagramInterval; across: DiagramInterval; line: boolean; label: string | null }[]
@@ -325,7 +330,10 @@ export interface CoachDiagramBlock {
 export interface CoachDiagram {
     area: { lengthM: number; widthM: number }
     counts: string[]
-    legend: { kind: 'MARKED_LINE' | 'TARGET_ZONE' | 'STARTING_AREA' | string; text: string }[]
+    /** `TARGET_LINE` (polish pass P7): a target that is a line, named by its own noun (DRAFT). */
+    legend: { kind: 'MARKED_LINE' | 'TARGET_ZONE' | 'TARGET_LINE' | 'STARTING_AREA' | string; text: string }[]
+    /** Polish pass P4: the block switcher's accessible name (DRAFT, the server's); null with one block. */
+    tablistLabel: string | null
     blocks: CoachDiagramBlock[]
 }
 
@@ -361,6 +369,16 @@ export interface OverviewLine {
     fullRule: OverviewPointer | null
 }
 
+/**
+ * How one team scores (polish pass P1): the heading it is shown under (DRAFT, the server's: the team's noun, or "Each team"), its lines
+ * (the line saying how the team scores first, then its own qualifications) and the "full rule" pointers of that team no line carries.
+ */
+export interface OverviewGroup {
+    label: string
+    lines: OverviewLine[]
+    fullRules: OverviewPointer[]
+}
+
 /** The Coach Overview a coach is served (stage 3D): words and pointers only, no status, source or citation. */
 export interface CoachOverview {
     /** The Learning Goal's Coach Definition, verbatim; null for a mechanism demonstration, which claims no goal. */
@@ -368,11 +386,11 @@ export interface CoachOverview {
     game: string
     parameters: string
     /**
-     * How each team scores, in the order to present it (stage 3F, his reply filed 23 October 2026, item 6): one line per team saying how
-     * it scores (`leads`, in the block's role order; one line where the game has no roles), then the qualifications, then the "full rule"
-     * pointers no line carries, each once. Was (stages 3D-3E): one group of sentences per team.
+     * How each team scores (polish pass P1): one group per team in the game sentence's team order, then the "full rule" pointers every
+     * team's group has, once. Was (stage 3F): one line per team (`leads`), then the qualifications, then the pointers no line carries; before
+     * that (3D-3E), one group of sentences per team.
      */
-    scoring: { leads: OverviewLine[]; qualifications: OverviewLine[]; fullRules: OverviewPointer[] }
+    scoring: { groups: OverviewGroup[]; fullRules: OverviewPointer[] }
 }
 
 /** One of the three wording statuses (his reply filed 22 October 2026, item 4). A `string`, not the closed union, as the header explains. */
@@ -406,6 +424,9 @@ export interface ReviewPresentedOverview {
     scoring: {
         group: string
         noun: string | null
+        /** Polish pass P1: the heading the group is shown under, and its status (DRAFT). */
+        label: string
+        labelStatus: string
         /** `place` (stage 3F): the team's lead line ("LEAD") or a qualification. */
         sentences: {
             text: string
