@@ -1915,9 +1915,10 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
             // 2 -> 4 on 15 October 2026 (stage K7): his item 3 (the pressure reference either way) and his D4 (the starting
             // arrangement), recorded beside his D6 two, each in our DRAFT coach words with his own words cited (allocation.unit.ts).
             // Re-pointed 17 October 2026 (stage M4): his D6 two in our DRAFT coachWords accounting for every player (his reply filed
-            // 19 October 2026, item 4), his words cited beside them (allocation.unit.ts).
+            // 19 October 2026, item 4), his words cited beside them (allocation.unit.ts). Re-pointed 22 October 2026: his reply filed 25
+            // October 2026, item 1, removes "representing an opponent committing additional numbers forward" from the operational instruction.
             [
-                ['adjust', 'COACH_CHOICE', null, 'You may choose to add a pressing player, representing an opponent committing additional numbers forward; with every player already in a team, reallocate someone or introduce an additional player: adding a pressing player can increase pressure but may also expose space behind the press'],
+                ['adjust', 'COACH_CHOICE', null, 'You may choose to add a pressing player; with every player already in a team, reallocate someone or introduce an additional player: adding a pressing player can increase pressure but may also expose space behind the press'],
                 ['adjust', 'COACH_CHOICE', null, "You may choose to remove a build-out player, deciding where that player goes so every player is still accounted for, reducing the building team's available support options"],
                 ['adjust', 'COACH_CHOICE', null, 'You may choose to move the marked line nearer to either end line'],
                 ['adjust', 'COACH_CHOICE', null, 'You may choose to change where the teams start when the pressure you see is not creating an appropriate challenge'],
