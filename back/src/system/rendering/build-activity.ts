@@ -67,7 +67,7 @@ import { EvidenceBlock, LayoutFallback, ReviewEvidence, reviewEvidenceOf } from 
 import { mechanismDemonstration } from './mechanism-demonstrations'
 import { Instruction, RenderedActivity, renderConcreteGame } from './render-concrete-game'
 import { assembleRenderingFixture } from './rendering-fixture'
-import { layoutChoicesOf, layoutMoversOf, layoutOf, MARK_UNION_ONCE } from './physical-layout'
+import { layoutMoversOf, layoutOf, remarkingSummary } from './physical-layout'
 import { checkRoleBlockComposition, checkRoleBlockLayout, checkRoleBlocks, composeRoleBlockActivity, RoleBlockCheck, roleBlockFixture } from './role-blocks'
 import { ActivitySession, availabilityQuestion } from './session-envelope'
 
@@ -1146,27 +1146,29 @@ function build(
                 ])
             }
             /**
-             * **Every block's markings set out once, where his recorded choice applies and they can be** — stage 2D, 21 October 2026. His reply
-             * filed 22 October 2026, item 7: *"For this particular 40 × 30 m configuration, we can also simplify setup by marking the halfway
-             * line and both 5 m end zones at the beginning. Role exchanges should not require unnecessary physical re-marking."* Once the two
-             * blocks agree as the exchange of each other, the physical layout is read from both realized games and the goal's record
-             * (`layoutOf`: his recorded choice for this area, the adjustments that move a position's magnitude). Where it applies, each block
-             * is rendered and checked again with it (`recommunicate`), replacing its first render, findings and evidence, and the blocks are
-             * read again from there (a block the layout render refuses at communication is refused like any other). Then RB-L recomputes the
-             * layout from the blocks and holds every block's to it. Where it does not apply, nothing is re-rendered: the per-block text stays
-             * exactly as it was, and, where a choice was recorded, the admin-only review evidence says why (hardening H1, below).
+             * **Every block's markings set out once, wherever they occupy the same places** — stage 2D, 21 October 2026; a general
+             * presentation rule since stage 2G, his reply filed 23 October 2026, item 2: *"Please authorize marking once whenever the system
+             * can establish that the physical markings occupy the same locations across all blocks. This should be a general presentation
+             * rule, not something requiring my approval for each configuration."* Once the two blocks agree as the exchange of each other,
+             * the physical layout is read from both realized games (`layoutOf`, with the adjustments that move a position's magnitude; no
+             * record is read). Where it applies, each block is rendered and checked again with it (`recommunicate`), replacing its first
+             * render, findings and evidence, and the blocks are read again from there (a block the layout render refuses at communication
+             * is refused like any other). Where it does not, and some marking moves between the blocks, each block is rendered and checked
+             * again with what moves (`remarking`), so its exchange sentence says what to adjust: *"If markings change location between
+             * blocks, the instructions should identify what needs to be adjusted."* Then RB-L recomputes both from the blocks and holds
+             * every block's to them. Where neither applies, nothing is re-rendered, and where a reason is known the admin-only review
+             * evidence says why (hardening H1, below).
              */
-            const layoutChoices = layoutChoicesOf(goalSelection?.authorization)
             const layoutMovers = layoutMoversOf(goalSelection?.authorization)
             const layoutDecision = layoutOf(
                 games.map(entry => ({ blockId: entry.block.blockId, fixture: entry.fixture })),
-                layoutChoices,
                 layoutMovers,
             )
-            if (layoutDecision.applies) {
+            const addedForBlocks = layoutDecision.applies ? { layout: layoutDecision.layout } : layoutDecision.remarking ? { remarking: layoutDecision.remarking } : null
+            if (addedForBlocks) {
                 blocks = blocks.map(entry => {
                     const again = entry.outcome.recommunicate
-                    return { block: entry.block, outcome: again ? again({ layout: layoutDecision.layout }) : entry.outcome }
+                    return { block: entry.block, outcome: again ? again(addedForBlocks) : entry.outcome }
                 })
                 stopped = stoppedOf(blocks)
                 first = firstOf(stopped)
@@ -1175,7 +1177,6 @@ function build(
             }
             const layoutCheck = checkRoleBlockLayout(
                 games.map(entry => ({ blockId: entry.block.blockId, fixture: entry.fixture })),
-                layoutChoices,
                 layoutMovers,
             )
             checks.push(layoutCheck)
@@ -1189,13 +1190,13 @@ function build(
             const renders = games.map(entry => ({ blockId: entry.block.blockId, rendered: entry.rendered, fixture: entry.fixture }))
             const composed = composeRoleBlockActivity(renders, roleIndex)
             /**
-             * Stage 2D: where his choice is recorded and the markings stay block by block, why is said (DRAFT words) — to an administrator
-             * only. Hardening H1, 21 October 2026 (the 2D review's should-fix 1): it was pushed onto `coachingObservations`, which every
-             * viewer can expand under "How this was arrived at", and it carries internal ids (an element id, block ids, the choice's code).
-             * It now goes to the admin-only review evidence (`reviewEvidenceOf`, `layoutFallback`), and the composed activity a coach is
-             * served is exactly the composition of the block renders.
+             * Stage 2D: where the markings stay block by block, why is said (DRAFT words) — to an administrator only. Hardening H1, 21
+             * October 2026 (the 2D review's should-fix 1): it was pushed onto `coachingObservations`, which every viewer can expand under
+             * "How this was arrived at", and it carries internal ids (element ids, block ids). It goes to the admin-only review evidence
+             * (`reviewEvidenceOf`, `layoutFallback`), and the composed activity a coach is served is exactly the composition of the block
+             * renders. Stage 2G: said wherever a reason is known (no recorded choice is read any longer), with which markings move.
              */
-            const layoutFallback = !layoutDecision.applies && layoutDecision.recorded ? { choice: MARK_UNION_ONCE, why: [...layoutDecision.why] } : null
+            const layoutFallback = !layoutDecision.applies && layoutDecision.why.length ? { why: [...layoutDecision.why], moves: remarkingSummary(layoutDecision.remarking) } : null
             const composition = checkRoleBlockComposition(renders, composed, roleIndex)
             const violations = composition.filter(finding => finding.severity === 'VIOLATION')
             /**
@@ -1312,7 +1313,7 @@ function reviewEvidenceFor(
     compositionFindings: FidelityFinding[],
     crossBlock: RoleBlockCheck[],
     blocks: EvidenceBlock[],
-    /** Hardening H1: where a recorded choice to set the markings out once does not apply, why (admin-only). Null everywhere else. */
+    /** Hardening H1 (stage 2G): where the markings are presented block by block for a known reason, why and what moves (admin-only). Null everywhere else. */
     layoutFallback: LayoutFallback | null = null,
     /** Stage 3D: the overview's verdict, findings, statuses and reading evidence (admin-only); null on a refusal, where there is none. */
     overview: OverviewEvidence | null = null,
@@ -1377,7 +1378,7 @@ type GameOutcome =
           /** Every Gate A check as rerun on this game's concrete game (stage K4): read only into a role block's account. */
           concreteChecks: { checkId: string; verdict: string }[]
           evidence: GameEvidence
-          /** Stage 2D: the same game rendered and checked again with these fields added to its fixture (its physical layout). */
+          /** Stage 2D: the same game rendered and checked again with these fields added to its fixture (its physical layout, or since stage 2G what moves at the exchange). */
           recommunicate: (extra: Record<string, unknown>) => GameOutcome
       }
 
@@ -1606,10 +1607,11 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
     /**
      * **Rendering and fidelity, as one step that can be run again on the same game** — stage 2D, 21 October 2026. A game played in role
      * blocks may be given its physical layout once both blocks are built (`physical-layout.ts`: every block's markings set out once, his
-     * reply filed 22 October 2026, item 7), and then each block is rendered and checked again WITH it (`recommunicate`): the outcome,
-     * render, fidelity findings, integrity counts and evidence of the first render are replaced, never kept beside the new ones. Nothing
-     * before rendering is re-run: the layout is a reading of the realized games, not a change to them. Every game without a layout is
-     * rendered once, exactly as before.
+     * reply filed 22 October 2026, item 7, a general rule since his reply filed 23 October 2026, item 2), or, since stage 2G, what moves at
+     * the exchange where the markings do not occupy the same places, and then each block is rendered and checked again WITH it
+     * (`recommunicate`): the outcome, render, fidelity findings, integrity counts and evidence of the first render are replaced, never kept
+     * beside the new ones. Nothing before rendering is re-run: either is a reading of the realized games, not a change to them. Every game
+     * given neither is rendered once, exactly as before.
      */
     const communicate = (assembled: any): GameOutcome => {
         const rendered = renderConcreteGame(assembled)

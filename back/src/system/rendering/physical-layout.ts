@@ -1,28 +1,37 @@
 /**
- * **The markings of every role block, set out once where they can be** — stage 2D of the communication work, 21 October 2026, for
- * Christian's reply filed 22 October 2026, item 7:
+ * **The markings of every role block, set out once where they occupy the same places — a general presentation rule.** Stage 2G of the
+ * communication work, 21 October 2026. The authority is Christian's reply filed 23 October 2026, item 2:
  *
- *   > *"For this particular 40 × 30 m configuration, we can also simplify setup by marking the halfway line and both 5 m end zones at the
- *   > beginning. Role exchanges should not require unnecessary physical re-marking."*
- *   > *"The knowledge can continue to represent the distinct targets and relationships for each block, even where the physical markings
- *   > remain unchanged."*
+ *   > *"Please authorize marking once whenever the system can establish that the physical markings occupy the same locations across all
+ *   > blocks. This should be a general presentation rule, not something requiring my approval for each configuration. If markings change
+ *   > location between blocks, the instructions should identify what needs to be adjusted. The distinction between physical markings and
+ *   > role-specific scoring relationships must remain intact in the underlying knowledge."*
  *
- * The knowledge keeps each block's own targets (RB-8 still mirrors them, fidelity Q6 still reads them); what this adds is a reading of
- * the two blocks' REALIZED geometry: the physical marks a coach would set out for every block at once. It is general, keyed by element
- * kind and never by activity:
+ * It supersedes the per-configuration record stage 2D read here (the choice `MARK_UNION_ONCE` in the goal's authorization record, scoped
+ * to the area of his reply filed 22 October 2026, item 7: *"For this particular 40 × 30 m configuration, we can also simplify setup by
+ * marking the halfway line and both 5 m end zones at the beginning. Role exchanges should not require unnecessary physical re-marking."*).
+ * No record is read: the rule applies wherever its test holds, and nowhere else.
  *
- *   - the marks are the union of every block's region edges strictly inside the area, along its length;
- *   - it is ADMISSIBLE where every region runs across the full width (a mark across the area sets it out), every line element holds one
- *     position in every block (for a line measured from a role's end, RB-8's mirror makes that exactly half the length), and every mark
- *     is sayable: a line at half the length, or the inner edge of an end zone some block's region is exactly; with end zones at both
- *     ends, of one depth, or none;
- *   - and it is APPLIED only where a recorded choice says so for this area (`MARK_UNION_ONCE`, his item 7, read from the goal's
- *     authorization record, `appliesTo` exactly the session's area). Everywhere else nothing changes: each block's render reads as it
- *     did, and where a choice was recorded and does not apply, why is said.
+ * The knowledge keeps each block's own targets (RB-8 still mirrors them, fidelity Q6 still reads them): what this adds is a reading of
+ * the blocks' REALIZED geometry, the physical marks a coach would set out. It is general, keyed by element kind and never by activity:
  *
- * The narrow reading (a recorded choice per configuration) is ours, of his first sentence; whether his second may govern every
- * configuration whose blocks' marks coincide is put to him. Nothing here names a goal, a value or a sport: the area's numbers come from
- * the record and the session, every position from the realized geometry.
+ *   - the marks are the union of every block's region edges strictly inside the area, along its length (an edge on an end line is the
+ *     area's own edge, not a mark);
+ *   - the markings occupy the same places in every block (ADMISSIBLE) where every region runs across the full width (a mark across the
+ *     area sets it out), every line element inside the area holds one position in every block (for a line measured from a role's end,
+ *     RB-8's mirror makes that exactly half the length), and every mark is sayable: a line at half the length, or the inner edge of an end
+ *     zone some block's region is exactly; with end zones at both ends, of one depth, or none;
+ *   - where that holds and there is a mark to set out, the layout APPLIES: every block's markings are set out once (`MARK_UNION_ONCE`
+ *     names this policy in the layout; it is no longer a record's code).
+ *
+ * **Where the markings do not occupy the same places** (his third sentence), the markings are presented block by block, as each block's
+ * own render says them, and `remarkingOf` reads what moves at the exchange: every mark whose position differs between blocks, named by
+ * what it is in each block (the region it bounds, by the role whose objective references it, and which edge) and where it is in each
+ * block. The exchange sentence says each one and where it goes (`render-concrete-game.ts`), fidelity Q5-L holds it to naming every one,
+ * and RB-L recomputes it. The fourth sentence is what the layout and the moves never touch: each block's targets, objectives and their
+ * relationships stay the block's own game.
+ *
+ * Nothing here names a goal, a value or a sport: the area's numbers come from the session, every position from the realized geometry.
  *
  * **What else moves a mark set out once** (stage 2D, the general consequence rule): an authorized adjustment whose parameter is a
  * position's magnitude (the knowledge core's Position dimension, its Magnitude parameter: "How location or displacement is expressed")
@@ -34,16 +43,26 @@
 import { EM_CANONICAL_SCHEMA } from '../knowledge-core/em-canonical'
 import type { LearningGoalAuthorization } from '../test-library/learning-goal-authorizations'
 
-/** The choice code this module acts on (`PROVISIONAL_CHOICE_VALUES` in the authorization records' loader). */
+/** The name of the policy a layout carries: every block's markings set out once, as their union. A mechanism's name, read by no loader. */
 export const MARK_UNION_ONCE = 'MARK_UNION_ONCE'
+
+/**
+ * **The authority for the policy** (stage 2G): his general rule, verbatim, as the layout carries it so the admin evidence can cite it. Not
+ * knowledge and not a record: a presentation rule he authorized for every configuration whose markings coincide.
+ */
+export const MARK_ONCE_RULE = {
+    ruledOn: '2026-10-23',
+    by: 'Christian',
+    citedAs: 'his reply filed 23 October 2026, item 2',
+    words:
+        'Please authorize marking once whenever the system can establish that the physical markings occupy the same locations across all blocks. This should be a general presentation rule, not something requiring my approval for each configuration. If markings change location between blocks, the instructions should identify what needs to be adjusted. The distinction between physical markings and role-specific scoring relationships must remain intact in the underlying knowledge.',
+} as const
 
 /** The relative position RC-21 names for a line measured from the end a team defends (S5 version 2). */
 const OWN_END = 'own end (of team T)'
 
-/** His recorded choice, as the layout carries it. */
-export interface LayoutChoice {
-    value: string
-    appliesTo: { lengthM: number; widthM: number }
+/** The rule the layout rests on, as it carries it. */
+export interface LayoutAuthority {
     ruledOn: string
     by: string
     citedAs: string
@@ -102,7 +121,7 @@ export interface LayoutMove {
 
 export interface PhysicalLayout {
     policy: typeof MARK_UNION_ONCE
-    because: LayoutChoice
+    because: LayoutAuthority
     lengthM: number
     widthM: number
     marks: LayoutMark[]
@@ -112,21 +131,51 @@ export interface PhysicalLayout {
 }
 
 /**
- * Whether the markings are set out once: the layout where they are (`applies`, `layout`), or why not (`why`), and whether a choice was
- * recorded at all. One shape for both (the back end compiles without strict narrowing of boolean discriminants).
+ * One edge of a block's region strictly inside the area, and what it is in a way every block can share: the region by the role whose
+ * objective references it (where exactly one region of the block is referenced by that role's objectives), otherwise by its own id; and
+ * which edge (`at` a line, the `inner` edge of a region touching one end line, else `from` or `to`).
+ */
+export interface MarkingFeature {
+    regionId: string
+    path: string
+    edge: 'at' | 'from' | 'to'
+    /** True where the edge is the inner edge of a region touching one end line (an end zone's mark). */
+    inner: boolean
+    identity: string
+}
+
+/** Where one marking is in one block: its position (null where the block has no such edge) and the edges there that are it. */
+export interface MarkingPlace {
+    blockId: string
+    at: number | null
+    features: MarkingFeature[]
+    /** True where another marking that does NOT move sits at the same position in this block, so the mark there cannot simply be moved. */
+    shared: boolean
+}
+
+/** One marking whose position differs between the blocks: the identities that are it, and where it is in each block. */
+export interface MarkingChange {
+    elementId: string
+    identities: string[]
+    places: MarkingPlace[]
+}
+
+/** What moves at the exchange where the markings are presented block by block (stage 2G). */
+export interface Remarking {
+    lengthM: number
+    changes: MarkingChange[]
+}
+
+/**
+ * Whether the markings are set out once: the layout where they are (`applies`, `layout`); why not where a reason is known (`why`, empty
+ * where there is nothing to set out once); and, where they are presented block by block and some marking moves, what moves
+ * (`remarking`). One shape for every case (the back end compiles without strict narrowing of boolean discriminants).
  */
 export interface LayoutDecision {
     applies: boolean
     layout: PhysicalLayout | null
-    recorded: boolean
     why: string[]
-}
-
-/** His recorded choices to set the markings out once, from a goal's authorization record: authorized by his ruling, with their area. */
-export function layoutChoicesOf(record: LearningGoalAuthorization | null | undefined): LayoutChoice[] {
-    return (record?.provisionalChoices ?? [])
-        .filter(choice => choice.value === MARK_UNION_ONCE && choice.status === 'AUTHORIZED_BY_RULING' && !!choice.appliesTo)
-        .map(choice => ({ value: String(choice.value), appliesTo: { lengthM: Number(choice.appliesTo!.lengthM), widthM: Number(choice.appliesTo!.widthM) }, ruledOn: choice.ruledOn, by: choice.by, citedAs: choice.citedAs, words: choice.words }))
+    remarking: Remarking | null
 }
 
 /**
@@ -149,28 +198,36 @@ const intervalAt = (fixture: any, path: string): { from: number; to: number } | 
     return interval && Number.isFinite(interval.from) && Number.isFinite(interval.to) ? { from: Number(interval.from), to: Number(interval.to) } : null
 }
 
+/** A block's region as realized along and across. */
+interface ReadRegion {
+    blockId: string
+    regionId: string
+    path: string
+    from: number
+    to: number
+    line: boolean
+    region: any
+}
+
 /**
- * **The physical layout of these blocks, or why the markings stay block by block.** `choices` are his recorded choices for the goal
- * (`layoutChoicesOf`), `movers` the adjustments that change a position's magnitude for a role (`layoutMoversOf`). Pure: the same blocks
- * and record give the same layout, which is what RB-L recomputes.
+ * **The physical layout of these blocks, or why the markings stay block by block and what then moves.** `movers` are the adjustments
+ * that change a position's magnitude for a role (`layoutMoversOf`). Pure: the same blocks and adjustments give the same decision, which
+ * is what RB-L recomputes. No record is read (his reply filed 23 October 2026, item 2: a general presentation rule).
  */
-export function layoutOf(blocks: { blockId: string; fixture: any }[], choices: LayoutChoice[], movers: LayoutMover[] = []): LayoutDecision {
-    const chosen = choices.filter(choice => choice.value === MARK_UNION_ONCE)
-    if (!chosen.length) return { applies: false, layout: null, recorded: false, why: [] }
-    const no = (...why: string[]): LayoutDecision => ({ applies: false, layout: null, recorded: true, why })
-    if (blocks.length < 2) return no('the activity is not played in role blocks, so nothing is exchanged and nothing would be re-marked')
+export function layoutOf(blocks: { blockId: string; fixture: any }[], movers: LayoutMover[] = []): LayoutDecision {
+    // Not played in role blocks: nothing is exchanged, so nothing is set out once or moved.
+    if (blocks.length < 2) return { applies: false, layout: null, why: [], remarking: null }
     const envelope = blocks[0].fixture?.envelope ?? {}
     const lengthM = Number(envelope.lengthM)
     const widthM = Number(envelope.widthM)
-    if (!blocks.every(block => Number(block.fixture?.envelope?.lengthM) === lengthM && Number(block.fixture?.envelope?.widthM) === widthM)) return no('the blocks were built for different areas')
-    const choice = chosen.find(entry => entry.appliesTo.lengthM === lengthM && entry.appliesTo.widthM === widthM)
-    if (!choice) {
-        return no(...chosen.map(entry => `the recorded choice ${MARK_UNION_ONCE} (${entry.citedAs}) applies to an area ${entry.appliesTo.lengthM} m long by ${entry.appliesTo.widthM} m wide, and this session's area is ${lengthM} m long by ${widthM} m wide`))
+    if (!blocks.every(block => Number(block.fixture?.envelope?.lengthM) === lengthM && Number(block.fixture?.envelope?.widthM) === widthM)) {
+        return { applies: false, layout: null, why: ['the blocks were built for different areas'], remarking: null }
     }
 
     // Every region of every block, as realized: full width, inside the area.
     const why: string[] = []
-    const read: { blockId: string; regionId: string; path: string; from: number; to: number; line: boolean; region: any }[] = []
+    let readable = true
+    const read: ReadRegion[] = []
     for (const block of blocks) {
         for (const region of (block.fixture?.game?.space?.regions ?? []) as any[]) {
             const regionId = String(region?.elementId)
@@ -179,6 +236,7 @@ export function layoutOf(blocks: { blockId: string; fixture: any }[], choices: L
             const across = intervalAt(block.fixture, `space.regions[${regionId}].position.across`)
             if (!along || !across) {
                 why.push(`${regionId} holds no realized position along and across the area in block ${block.blockId}`)
+                readable = false
                 continue
             }
             if (across.from !== 0 || across.to !== widthM) why.push(`${regionId} does not run across the full width in block ${block.blockId}, so a mark across the area cannot set it out`)
@@ -186,8 +244,12 @@ export function layoutOf(blocks: { blockId: string; fixture: any }[], choices: L
             read.push({ blockId: block.blockId, regionId, path, from: along.from, to: along.to, line: along.from === along.to, region })
         }
     }
-    // Every line element holds one position in every block, and that position is one the activity has words for once: half the length.
-    const lineIds = [...new Set(read.filter(entry => entry.line).map(entry => entry.regionId))]
+    /** Not set out once, with why, and what moves where every region could be read. */
+    const no = (...reasons: string[]): LayoutDecision => ({ applies: false, layout: null, why: reasons, remarking: readable ? remarkingOf(blocks, read, lengthM) : null })
+    const inside = (x: number) => x > 0 && x < lengthM
+    // Every line element inside the area holds one position in every block, and that position is one the activity has words for once:
+    // half the length. A line on an end line is the area's own edge (stage 2G: it is no mark, so it is not held to half the length).
+    const lineIds = [...new Set(read.filter(entry => entry.line && inside(entry.from)).map(entry => entry.regionId))]
     const lineAt = new Map<string, number>()
     for (const id of lineIds) {
         const held = read.filter(entry => entry.regionId === id)
@@ -201,8 +263,9 @@ export function layoutOf(blocks: { blockId: string; fixture: any }[], choices: L
     }
     if (why.length) return no(...why)
 
-    // The marks: every region edge strictly inside the area, once.
-    const at = [...new Set(read.flatMap(entry => [entry.from, entry.to]).filter(x => x > 0 && x < lengthM))].sort((a, b) => a - b)
+    // The marks: every region edge strictly inside the area, once. With none, there is nothing to set out besides the area itself.
+    const at = [...new Set(read.flatMap(entry => [entry.from, entry.to]).filter(inside))].sort((a, b) => a - b)
+    if (!at.length) return { applies: false, layout: null, why: [], remarking: null }
     const marks: LayoutMark[] = at.map((x, i) => ({
         elementId: `mark-${i + 1}`,
         at: x,
@@ -250,7 +313,7 @@ export function layoutOf(blocks: { blockId: string; fixture: any }[], choices: L
         applies: true,
         layout: {
             policy: MARK_UNION_ONCE,
-            because: { ...choice, appliesTo: { ...choice.appliesTo } },
+            because: { ...MARK_ONCE_RULE },
             lengthM,
             widthM,
             marks,
@@ -258,16 +321,126 @@ export function layoutOf(blocks: { blockId: string; fixture: any }[], choices: L
             regions: read.map(entry => ({ blockId: entry.blockId, path: entry.path, from: entry.from, to: entry.to })),
             movedBy,
         },
-        recorded: true,
         why: [],
+        remarking: null,
     }
+}
+
+/**
+ * Each region of one block named as every block can name it: by the role whose objective references it, where that role's objectives
+ * reference exactly one region of the block; otherwise by its own id. Roles are read from the block's own binding (`record.roleBlock`)
+ * and the role-holder names (`roleNouns.holders`); nothing here names a role.
+ */
+function regionIdentities(fixture: any): (regionId: string) => string {
+    const holdersInBlock: Record<string, string> = fixture?.record?.roleBlock?.holders ?? {}
+    const roleOfHolderName: Record<string, string> = fixture?.roleNouns?.holders ?? {}
+    const roleOf = (team: unknown): string | null => {
+        const name = String(team)
+        return roleOfHolderName[name] ?? Object.entries(holdersInBlock).find(([, holder]) => holder === name)?.[0] ?? null
+    }
+    const referencing = new Map<string, Set<string>>()
+    for (const objective of (fixture?.game?.objectives ?? []) as any[]) {
+        const ref = objective?.reference?.structuralRef
+        const role = roleOf(objective?.team)
+        if (!ref || !role) continue
+        const regionId = `c:${ref.contractId}:${ref.itemId}`
+        referencing.set(regionId, new Set([...(referencing.get(regionId) ?? []), role]))
+    }
+    const regionsOfRole = new Map<string, string[]>()
+    for (const [regionId, roles] of referencing) for (const role of roles) regionsOfRole.set(role, [...(regionsOfRole.get(role) ?? []), regionId])
+    return (regionId: string) => {
+        const roles = [...(referencing.get(regionId) ?? [])]
+        return roles.length === 1 && (regionsOfRole.get(roles[0]) ?? []).length === 1 ? `the region the ${roles[0]} objective references` : `region ${regionId}`
+    }
+}
+
+/**
+ * **What moves at the exchange, where the markings are presented block by block** — stage 2G, 21 October 2026, his reply filed 23 October
+ * 2026, item 2: *"If markings change location between blocks, the instructions should identify what needs to be adjusted."* Read from the
+ * blocks' realized regions only:
+ *
+ *   - each block's marks are its regions' edges strictly inside the area, each edge named by its region's identity (`regionIdentities`)
+ *     and which edge it is;
+ *   - the edges that are at the same position in every block are one marking (a line and the inner edge of the region beyond it, say);
+ *   - a marking whose position differs between the blocks, or that one block does not have, is a change, with where it is in each block
+ *     (`shared` where a marking that does not move sits at the same place, so the mark there must stay).
+ *
+ * Changes are listed lines first, then by their position in the first block. Null where nothing moves. Nothing here names a goal, a value
+ * or a sport.
+ */
+function remarkingOf(blocks: { blockId: string; fixture: any }[], read: ReadRegion[], lengthM: number): Remarking | null {
+    const inside = (x: number) => x > 0 && x < lengthM
+    const byIdentity = new Map<string, Map<string, { at: number; feature: MarkingFeature }>>()
+    for (const block of blocks) {
+        const identityOf = regionIdentities(block.fixture)
+        for (const entry of read.filter(region => region.blockId === block.blockId)) {
+            const who = identityOf(entry.regionId)
+            const atStart = entry.from === 0
+            const atEnd = entry.to === lengthM
+            const edges: ['at' | 'from' | 'to', string, number][] = entry.line
+                ? [['at', 'at', entry.from]]
+                : atStart !== atEnd
+                  ? [[atStart ? 'to' : 'from', 'inner edge', atStart ? entry.to : entry.from]]
+                  : [
+                        ['from', 'from edge', entry.from],
+                        ['to', 'to edge', entry.to],
+                    ]
+            for (const [edge, kind, at] of edges) {
+                if (!inside(at)) continue
+                const identity = `${who}, ${kind}`
+                const held = byIdentity.get(identity) ?? new Map()
+                held.set(block.blockId, { at, feature: { regionId: entry.regionId, path: entry.path, edge, inner: kind === 'inner edge', identity } })
+                byIdentity.set(identity, held)
+            }
+        }
+    }
+    const vectorOf = (identity: string) => blocks.map(block => byIdentity.get(identity)!.get(block.blockId)?.at ?? null)
+    const groups = new Map<string, string[]>()
+    for (const identity of [...byIdentity.keys()].sort()) {
+        const key = JSON.stringify(vectorOf(identity))
+        groups.set(key, [...(groups.get(key) ?? []), identity])
+    }
+    const moves = (vector: (number | null)[]) => vector.some(x => x === null) || new Set(vector).size > 1
+    const kept = [...groups.keys()].map(key => JSON.parse(key) as (number | null)[]).filter(vector => !moves(vector))
+    const changing = [...groups.entries()]
+        .map(([key, identities]) => ({ vector: JSON.parse(key) as (number | null)[], identities }))
+        .filter(group => moves(group.vector))
+        .map(group => ({ ...group, line: group.identities.some(identity => [...byIdentity.get(identity)!.values()].some(held => held.feature.edge === 'at')) }))
+        .sort((a, b) => Number(b.line) - Number(a.line) || (a.vector[0] ?? Number.MAX_SAFE_INTEGER) - (b.vector[0] ?? Number.MAX_SAFE_INTEGER) || a.identities[0].localeCompare(b.identities[0]))
+    if (!changing.length) return null
+    return {
+        lengthM,
+        changes: changing.map((group, n) => ({
+            elementId: `change-${n + 1}`,
+            identities: [...group.identities],
+            places: blocks.map((block, i) => ({
+                blockId: block.blockId,
+                at: group.vector[i],
+                features: group.identities.map(identity => byIdentity.get(identity)!.get(block.blockId)?.feature).filter((feature): feature is MarkingFeature => !!feature),
+                shared: group.vector[i] !== null && kept.some(vector => vector[i] === group.vector[i]),
+            })),
+        })),
+    }
+}
+
+/**
+ * **What moves, in words for an administrator** (stage 2G, DRAFT admin-evidence wording): each change, where it is in each block and the
+ * region edges that are it there. Read by the admin-only fallback fact (`review-evidence.ts`); never coach text.
+ */
+export function remarkingSummary(remarking: Remarking | null): string[] {
+    return (remarking?.changes ?? []).map(
+        change =>
+            `${change.elementId} moves: ${change.places
+                .map(place => (place.at === null ? `no such mark in block ${place.blockId}` : `at ${place.at} m in block ${place.blockId} (${place.features.map(feature => `${feature.path}, ${feature.edge}`).join('; ')})${place.shared ? ', where a marking that does not move is too' : ''}`))
+                .join('; ')}`,
+    )
 }
 
 /**
  * **The leaves of the layout that hold a number a sentence may say** — hardening H3, 21 October 2026 (the 2D review's should-fix 4): a
  * mark's position, and a zone's two edges and its depth. Fidelity Q2 admits a number of the layout only through one of these, cited by its
- * own path (`layout.zones[zone-1].depthM`): a broader node (`layout.zones[zone-1]`, `layout.marks`, the recorded choice's area under
- * `layout.because`, the per-block `layout.regions`) holds numbers too, and citing it admitted any of them.
+ * own path (`layout.zones[zone-1].depthM`): a broader node (`layout.zones[zone-1]`, `layout.marks`, the rule's words under `layout.because`,
+ * the per-block `layout.regions`) holds numbers too, and citing it admitted any of them.
  */
 export const LAYOUT_NUMBER_LEAVES: Record<'marks' | 'zones', string[]> = { marks: ['at'], zones: ['from', 'to', 'depthM'] }
 
@@ -315,4 +488,15 @@ export function layoutNumbersAt(layout: unknown, path: string): number[] {
     }
     nodes.forEach(collect)
     return found
+}
+
+/**
+ * The positions a cited `remarking.changes[<id>]` path holds in this block (stage 2G), for the admin evidence: the change's place in the
+ * block whose id is given, as `at` metres, or nothing.
+ */
+export function remarkingPlaceAt(remarking: unknown, path: string, blockId: string): MarkingPlace | null {
+    if (!remarking || typeof remarking !== 'object' || !path.startsWith('remarking.changes[')) return null
+    const id = path.slice('remarking.changes['.length, path.indexOf(']'))
+    const change = ((remarking as Remarking).changes ?? []).find(entry => entry.elementId === id)
+    return change?.places.find(place => place.blockId === blockId) ?? null
 }

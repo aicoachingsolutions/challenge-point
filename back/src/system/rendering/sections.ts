@@ -291,10 +291,16 @@ export const KIND_OF_ROW: Record<string, Kind | 'TRANSITION' | 'NAME'> = {
  * nothing, the adjustment that moves a mark) and decide no section (`null`, as a noun does): a policy is no instruction of its own, and
  * what an adjustment moves must never pull the exchange into "Adjusting the activity", nor be owed to the first read. The two specific
  * roots are read before the general one.
+ *
+ * **And what moves at the exchange** (stage 2G, 21 October 2026: `physical-layout.ts` `remarkingOf`, his reply filed 23 October 2026,
+ * item 2, "If markings change location between blocks, the instructions should identify what needs to be adjusted."): cited by the
+ * exchange sentence beside the regions it names, it decides no section (`null`), like the layout's policy, and is not owed to the first
+ * read; the regions it names are cited by the Set up sentences that mark them.
  */
 export const KIND_OF_ROOT: { root: string; kind: Kind | null }[] = [
     { root: 'adjustments', kind: 'ADJUSTMENT' },
     { root: 'envelope.roles', kind: 'PLAYERS' },
+    { root: 'remarking', kind: null },
     { root: 'layout.policy', kind: null },
     { root: 'layout.movedBy', kind: null },
     { root: 'layout', kind: 'ORGANISATION' },

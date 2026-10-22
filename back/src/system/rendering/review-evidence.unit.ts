@@ -231,9 +231,14 @@ test('3. provenance: his three layers and the standings, every cited path traced
     // Re-pointed 21 October 2026 (stage 2D): with every block's markings set out once, the sentence names the end zone the target is
     // ("The pressing team's target zone is the 5 m end zone at the building team's end"; was "Mark the pressing team's target zone at the
     // building team's end, 5 m deep, across the full width"), and rests on his recorded choice too.
+    // Re-pointed 21 October 2026 (stage 2G): the layout rests on his general presentation rule (reply filed 23 October 2026, item 2), a
+    // general mechanism he authorized, no longer the goal's provisional record ('record MARK_UNION_ONCE', his reply filed 22 October 2026,
+    // item 7); the reading of the blocks' edges stays ours.
     const depth = said("The pressing team's target zone")
     assert.ok(depth.sources.some(s => s.ref === 'provisional:A01-R1::A01-R1-S5-3' && s.standing === 'PROVISIONAL'), JSON.stringify(depth.sources))
-    assert.ok(depth.sources.some(s => s.ref === 'record MARK_UNION_ONCE' && s.standing === 'PROVISIONAL' && s.detail === 'his reply filed 22 October 2026, item 7'), JSON.stringify(depth.sources))
+    assert.ok(depth.sources.some(s => s.ref === 'presentation rule MARK_UNION_ONCE' && s.layer === 'GENERAL_ENGINE_MECHANISM' && s.standing === 'APPROVED' && s.detail === 'his reply filed 23 October 2026, item 2'), JSON.stringify(depth.sources))
+    assert.ok(!depth.sources.some(s => s.ref.startsWith('record MARK_UNION_ONCE')), 'no record of a choice')
+    assert.ok(depth.sources.some(s => s.standing === 'OUR_READING' && s.ref === "physical layout (the union of every block's realized edges)"))
     // An adjustment: his provisional choice, through a relationship he CONFIRMED on 18 October.
     const moveLine = said('You may choose to move the marked line')
     assert.ok(moveLine.sources.some(s => s.ref === 'record A01-ADJ-3' && s.standing === 'PROVISIONAL'))

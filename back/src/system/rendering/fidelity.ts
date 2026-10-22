@@ -21,8 +21,8 @@ import { effectiveValue, scaleExactly } from '../derivation/rational'
 import { conditionScopeNotEvaluable } from '../derivation/resolved-game'
 import { ApprovedWording, approvedWording } from './approved-wording'
 import { CoachFacingExclusion, exclusionFor } from './coach-facing-exclusions'
-import { layoutLeafNumberAt, MARK_UNION_ONCE, PhysicalLayout } from './physical-layout'
-import { ADJUSTING, approvedSentences, Binding, combinedStatus, ENDS_ON_WORDING, Instruction, MOVED_MARK_QUALIFICATIONS, NOTHING_RE_MARKED, RenderedActivity, ROLE_EXCHANGE, roleKeyedPositions, sectionFactsOf, SourceStatus, UNBOUNDED_CREDIT } from './render-concrete-game'
+import { layoutLeafNumberAt, MARK_UNION_ONCE, PhysicalLayout, Remarking } from './physical-layout'
+import { ADJUSTING, approvedSentences, Binding, combinedStatus, ENDS_ON_WORDING, Instruction, MOVE_MARKINGS, MOVED_MARK_QUALIFICATIONS, NOTHING_RE_MARKED, RenderedActivity, ROLE_EXCHANGE, roleKeyedPositions, sectionFactsOf, SourceStatus, UNBOUNDED_CREDIT } from './render-concrete-game'
 import { firstReadUncarried } from './sections'
 
 export interface FidelityFinding {
@@ -764,6 +764,60 @@ function layoutFindings(fixture: any, rendered: RenderedActivity): FidelityFindi
     return findings
 }
 
+/**
+ * **Q5-L, the markings presented block by block: every marking that moves is named at the exchange** — stage 2G, 21 October 2026, a NEW
+ * check in the Q5-L family, for his reply filed 23 October 2026, item 2: *"If markings change location between blocks, the instructions
+ * should identify what needs to be adjusted."* Held only where the fixture carries what moves at the exchange (`fixture.remarking`,
+ * `physical-layout.ts`; RB-L recomputes it from the blocks and refuses a block that lacks it where something moves). A VIOLATION where:
+ *
+ *   - the fixture carries both a layout set out once and what moves (they exclude each other);
+ *   - a marking that moves is named by no part of a Role exchange sentence: the part must cite the move (`remarking.changes[<id>]`) and
+ *     every region edge that is the marking in this block, and say the noun of one of those regions; a marking this block cannot place
+ *     (no such mark here, or one that must stay because a marking that does not move shares its place) is never named, so it is refused;
+ *   - the sentence naming the moves does not say `MOVE_MARKINGS` (the renderer's constant, never typed here);
+ *   - a Role exchange sentence says `NOTHING_RE_MARKED` while markings move.
+ *
+ * Read from citations, the account of what moves and the game's region nouns, with the two lexicons above.
+ */
+function remarkingFindings(fixture: any, rendered: RenderedActivity): FidelityFinding[] {
+    const remarking: Remarking | null = Array.isArray(fixture?.remarking?.changes) ? fixture.remarking : null
+    if (!remarking) return []
+    const findings: FidelityFinding[] = []
+    const violation = (what: string) => findings.push({ question: 5, severity: 'VIOLATION', what })
+    if (fixture?.layout) violation('the fixture carries both the markings set out once and markings that move at the exchange')
+    const blockId = String(fixture.record?.roleBlock?.blockId ?? '')
+    const nounOf = (regionId: string): string | null => {
+        const region = ((fixture.game?.space?.regions ?? []) as any[]).find(entry => String(entry?.elementId) === regionId)
+        return typeof region?.noun === 'string' ? region.noun : null
+    }
+    const exchange = rendered.instructions.filter(i => i.section === ROLE_EXCHANGE)
+    const naming = new Set<Instruction>()
+    for (const change of remarking.changes ?? []) {
+        const path = `remarking.changes[${change.elementId}]`
+        const place = (change.places ?? []).find(entry => entry.blockId === blockId)
+        const features = place?.features ?? []
+        const named = exchange.filter(instruction =>
+            (instruction.parts ?? []).some(
+                part =>
+                    part.from.includes(path) &&
+                    features.length > 0 &&
+                    features.every(feature => part.from.includes(feature.path)) &&
+                    features.some(feature => {
+                        const noun = nounOf(feature.regionId)
+                        return !!noun && part.text.includes(noun)
+                    }),
+            ),
+        )
+        if (!named.length) {
+            violation(`the marking ${path} (${(change.places ?? []).map(entry => `${entry.at === null ? 'no such mark' : `${entry.at} m`} in block ${entry.blockId}`).join(', ')}) moves at the exchange, and no Role exchange sentence names it and where it goes in block ${blockId}`)
+        }
+        named.forEach(instruction => naming.add(instruction))
+    }
+    for (const instruction of naming) if (!instruction.text.includes(MOVE_MARKINGS)) violation(`"${instruction.text}" names markings that move at the exchange without telling the coach to move them`)
+    for (const instruction of exchange) if (instruction.text.toLowerCase().includes(NOTHING_RE_MARKED)) violation(`"${instruction.text}" says ${NOTHING_RE_MARKED}, and markings move at the exchange`)
+    return findings
+}
+
 export function checkFidelity(
     fixture: any,
     rendered: RenderedActivity,
@@ -1297,6 +1351,7 @@ export function checkFidelity(
         }
     }
     findings.push(...layoutFindings(fixture, rendered))
+    findings.push(...remarkingFindings(fixture, rendered))
     /**
      * **A scoring rule a coach cannot tell they have satisfied is operationally obscured.**
      *

@@ -38,7 +38,7 @@ import { testLibraryRegistry } from '../test-library/library/registry'
 import { approvedEntriesSaid, detailsWordingOf, WordingSource, WordingStatus } from './derived-wording'
 import { FidelityFinding, OBLIGATIONS } from './fidelity'
 import type { OverviewEvidence } from './overview-fidelity'
-import { layoutNumbersAt } from './physical-layout'
+import { layoutNumbersAt, MARK_ONCE_RULE, remarkingPlaceAt } from './physical-layout'
 import { Instruction, RenderedActivity, UNBOUNDED_CREDIT, wordedFieldRows } from './render-concrete-game'
 import type { RoleBlockCheck } from './role-blocks'
 import { SectionLabel, sectionLabelsOf } from './sections'
@@ -71,9 +71,9 @@ export interface EvidenceInput {
     compositionFindings: FidelityFinding[]
     crossBlock: RoleBlockCheck[]
     /**
-     * Hardening H1, 21 October 2026 (the 2D review's should-fix 1): where a choice to set every block's markings out once is recorded and
-     * does not apply (`physical-layout.ts` `layoutOf`), the choice's code and why, for the administrator only. Absent or null everywhere
-     * else, so every other evidence is unchanged.
+     * Hardening H1, 21 October 2026 (the 2D review's should-fix 1): where every block's markings are not set out once for a known reason
+     * (`physical-layout.ts` `layoutOf`), why and which markings move, for the administrator only. Absent or null everywhere else, so every
+     * other evidence is unchanged. Stage 2G: no recorded choice is read any longer (his reply filed 23 October 2026, item 2).
      */
     layoutFallback?: LayoutFallback | null
     record: LearningGoalAuthorization & { reviewRequest: ReviewRequest }
@@ -87,14 +87,17 @@ export interface EvidenceInput {
     overview?: OverviewEvidence | null
 }
 
-/** A recorded choice to set the markings out once that does not apply to this build: its code and why (admin-only, hardening H1). */
+/** Why the markings are not set out once for this build, and which move at the exchange (admin-only, hardening H1; stage 2G). */
 export interface LayoutFallback {
-    choice: string
     why: string[]
+    moves: string[]
 }
 
-/** The admin-only fact saying the markings stay block by block although a choice to set them out once is recorded (DRAFT words). */
-export const layoutFallbackFact = (fallback: LayoutFallback): Fact => ({ what: `The markings are presented block by block, and not set out once as the recorded choice ${fallback.choice} asks`, value: [...fallback.why] })
+/**
+ * The admin-only fact saying the markings stay block by block, why, and which markings move at the exchange (DRAFT words). Stage 2G: it
+ * names no recorded choice; his reply filed 23 October 2026, item 2 makes marking once a general rule, applied wherever its test holds.
+ */
+export const layoutFallbackFact = (fallback: LayoutFallback): Fact => ({ what: 'The markings are presented block by block, because they do not occupy the same places in every block', value: [...fallback.why, ...fallback.moves] })
 
 export type Layer = ReviewLayer | 'SESSION_INPUT'
 export type Standing = 'APPROVED' | 'PROVISIONAL' | 'GAP' | 'OUR_READING' | 'SESSION'
@@ -509,15 +512,27 @@ function sourcesOf(path: string, block: EvidenceBlock, items: Map<string, any>, 
         found.push({ ...item, detail: `bounds this line for the team holding a role (${index.targetOf?.attribute ?? 'targetOf'})` }, ...authorizing)
     }
     /**
-     * **A path of the physical layout** (stage 2D, 21 October 2026, `physical-layout.ts`): his recorded choice to set every block's markings
-     * out once (his reply filed 22 October 2026, item 7), and the reading of both blocks' realized geometry that set them out, our mechanism,
-     * with what it holds at that path in this block's fixture.
+     * **A path of the physical layout** (stage 2D, 21 October 2026, `physical-layout.ts`): the rule that sets every block's markings out
+     * once, and the reading of both blocks' realized geometry that set them out, our mechanism, with what it holds at that path in this
+     * block's fixture. Stage 2G: the rule is his general presentation rule (reply filed 23 October 2026, item 2), a general mechanism he
+     * authorized, no longer a provisional record of the goal's (it read `record MARK_UNION_ONCE`, his reply filed 22 October 2026, item 7).
      */
     if (path.startsWith('layout.')) {
         const layout = block.fixture?.layout
-        found.push({ layer: 'ACTIVITY_REALIZATION_CHOICE', standing: 'PROVISIONAL', ref: `record ${String(layout?.policy ?? 'layout')}`, detail: layout?.because?.citedAs ? String(layout.because.citedAs) : null })
+        found.push({ layer: 'GENERAL_ENGINE_MECHANISM', standing: 'APPROVED', ref: `presentation rule ${String(layout?.policy ?? 'layout')}`, detail: layout?.because?.citedAs ? String(layout.because.citedAs) : null })
         const held = layoutNumbersAt(layout, path)
         found.push({ layer: 'GENERAL_ENGINE_MECHANISM', standing: 'OUR_READING', ref: "physical layout (the union of every block's realized edges)", detail: `${inBlock(block)}${path}${held.length ? ` = ${JSON.stringify(held)}` : ''}` })
+    }
+    /**
+     * **A marking that moves at the exchange** (stage 2G, `physical-layout.ts` `remarkingOf`): the same rule's third sentence ("If markings
+     * change location between blocks, the instructions should identify what needs to be adjusted."), and our reading of every block's
+     * realized edges that found the move, with where it is in this block.
+     */
+    if (path.startsWith('remarking.')) {
+        const remarking = block.fixture?.remarking
+        const place = remarkingPlaceAt(remarking, path, String(block.blockId))
+        found.push({ layer: 'GENERAL_ENGINE_MECHANISM', standing: 'APPROVED', ref: 'presentation rule: what moves at the exchange is said', detail: MARK_ONCE_RULE.citedAs })
+        found.push({ layer: 'GENERAL_ENGINE_MECHANISM', standing: 'OUR_READING', ref: "markings that move at the exchange (every block's realized edges compared)", detail: `${inBlock(block)}${path}${place ? (place.at === null ? ' = no such mark here' : ` = ${place.at} m`) : ''}` })
     }
     if (path.startsWith('envelope.')) found.push({ layer: 'SESSION_INPUT', standing: 'SESSION', ref: 'session', detail: path })
     if (!found.length) {

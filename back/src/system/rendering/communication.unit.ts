@@ -144,7 +144,8 @@ test('1. the review draft of A01 (TEST-ONLY: the table as at stage M5): every se
         'Set up: Mark out an area 40 m long by 30 m wide',
         // Moved 21 October 2026 (stage 2D, his reply filed 22 October 2026, item 7: "For this particular 40 × 30 m configuration, we can
         // also simplify setup by marking the halfway line and both 5 m end zones at the beginning. Role exchanges should not require
-        // unnecessary physical re-marking."; recorded as the choice MARK_UNION_ONCE, physical-layout.unit.ts): every block's markings set
+        // unnecessary physical re-marking."; recorded as the choice MARK_UNION_ONCE until stage 2G made marking once a general rule, his
+        // reply filed 23 October 2026, item 2, physical-layout.unit.ts): every block's markings set
         // out once, and each role's target said by role (DRAFT). "Halfway" is read from the values (the line at 20 m of 40 m). Was:
         // "Mark a line across the area, 20 m from the building team's end line"; then (stage 2C, each said once for both blocks) "Mark the
         // pressing team's target zone at the building team's end, 5 m deep, across the full width" and "Mark the building team's target
@@ -234,8 +235,11 @@ test('1. the review draft of A01 (TEST-ONLY: the table as at stage M5): every se
     assert.deepEqual(draft.instructions[0].provisionalSources, [])
     assert.ok(draft.instructions.find(i => i.text.includes('restarts play from the feet'))!.provisionalSources.includes('provisional:A01-R1::A01-R1-T3-1'))
     assert.ok(draft.instructions.find(i => i.text.includes('nearer to either end line'))!.provisionalSources.includes('record A01-ADJ-3'))
-    // Stage 2D: the markings set out once rest on his recorded choice, named by its code.
-    assert.ok(draft.instructions.find(i => i.text.startsWith('Mark a 5 m end zone'))!.provisionalSources.includes('record MARK_UNION_ONCE'))
+    // Stage 2D: the markings set out once rested on his recorded choice, named by its code (`record MARK_UNION_ONCE`). Re-pointed 21
+    // October 2026 (stage 2G): they rest on his general presentation rule (reply filed 23 October 2026, item 2), which is no provisional
+    // choice, so no record is named; the end zones keep the provisional sources of the regions they set out.
+    const endZones = draft.instructions.find(i => i.text.startsWith('Mark a 5 m end zone'))!
+    assert.ok(!endZones.provisionalSources.some(source => source.startsWith('record ')), JSON.stringify(endZones.provisionalSources))
     // Withheld: the four build-out conditions in each block (type, referents, value where held, scope) and nothing else.
     // Moved 17 October 2026 (stage M1), 30 -> 32: and the building role's credit bound in each block (row B8, his reply filed 19
     // October 2026, item 1 and item 3 C), said only in approved words. The pressing role's WHOLE_GAME states no condition and is

@@ -51,7 +51,7 @@ import { NO_FURTHER_VALUE } from '../derivation/types'
 import { CONDITION_ROW, conditionScopeNotEvaluable } from '../derivation/resolved-game'
 import { ApprovedTemplateSentence, approvedTemplateSentences, approvedWording, ApprovedWording, canonicalJson, fillTemplate, POSSESSION_CONTINUES, WordingMatch } from './approved-wording'
 import { exclusionFor } from './coach-facing-exclusions'
-import { MARK_UNION_ONCE, PhysicalLayout } from './physical-layout'
+import { MARK_UNION_ONCE, MarkingChange, PhysicalLayout, Remarking } from './physical-layout'
 import { ADJUSTING, assignSection, inSectionOrder, PLAY_STATE_UNREADABLE, RESTARTS, ROLE_EXCHANGE, Section, SectionFacts, TransitionReading, When } from './sections'
 
 // The two section names every importer has read from here since stages S-C1 and K3; since stage 2A they are named, with the rest
@@ -111,6 +111,13 @@ export const COACH_CALLS = 'COACH_CALLS'
  */
 export const NOTHING_RE_MARKED = 'nothing is re-marked'
 export const MOVED_MARK_QUALIFICATIONS = { the: ' unless you have moved the marked line', a: ' unless you have moved a marked line' } as const
+/**
+ * **The exchange's words for what the coach moves, where the markings are presented block by block** — stage 2G, 21 October 2026, DRAFT
+ * wording, for his reply filed 23 October 2026, item 2: *"If markings change location between blocks, the instructions should identify
+ * what needs to be adjusted."* The renderer says it once, before the first marking that moves; fidelity Q5-L reads it. Never typed a
+ * second time.
+ */
+export const MOVE_MARKINGS = 'you move '
 
 /** One number a sentence says, and the concrete-game path whose number it is. */
 export interface Binding {
@@ -1277,14 +1284,19 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
     const capital = (text: string) => `${text.charAt(0).toUpperCase()}${text.slice(1)}`
     const listed = (items: string[]) => (items.length > 1 ? `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}` : items[0] ?? '')
     /**
-     * **Every block's markings set out once, where his recorded choice applies — stage 2D, 21 October 2026 (DRAFT wording).** His reply
+     * **Every block's markings set out once, where they occupy the same places — stage 2D, 21 October 2026 (DRAFT wording).** His reply
      * filed 22 October 2026, item 7: *"For this particular 40 × 30 m configuration, we can also simplify setup by marking the halfway line
      * and both 5 m end zones at the beginning. Role exchanges should not require unnecessary physical re-marking."* and *"The knowledge can
      * continue to represent the distinct targets and relationships for each block, even where the physical markings remain unchanged."*
-     * The layout is read from the fixture (`physical-layout.ts` computes it from both blocks' realized geometry and attaches it only where
-     * his recorded choice applies and the markings can coexist); without one, every sentence below is exactly what it was.
+     * Since stage 2G a general presentation rule, his reply filed 23 October 2026, item 2: *"Please authorize marking once whenever the
+     * system can establish that the physical markings occupy the same locations across all blocks."* The layout is read from the fixture
+     * (`physical-layout.ts` computes it from both blocks' realized geometry and attaches it wherever the markings coincide; no record is
+     * read); without one, every sentence below is what it was, except the exchange sentence where the fixture carries what moves at the
+     * exchange (`remarking`, below).
      */
     const layout: PhysicalLayout | null = fixture.layout?.policy === MARK_UNION_ONCE ? (fixture.layout as PhysicalLayout) : null
+    /** Stage 2G: what moves at the exchange, where the markings are presented block by block (never beside a layout). */
+    const remarking: Remarking | null = !layout && Array.isArray(fixture.remarking?.changes) ? (fixture.remarking as Remarking) : null
 
     // ── Set up ──────────────────────────────────────────────────────────────────────────────────
     const area = game.envelope?.area
@@ -2711,6 +2723,72 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
              */
             const movedLines = new Set((layout?.movedBy ?? []).map(move => move.line))
             const unless = !layout?.movedBy.length ? '' : movedLines.size === 1 && markedLines.has([...movedLines][0]) ? MOVED_MARK_QUALIFICATIONS.the : MOVED_MARK_QUALIFICATIONS.a
+            /**
+             * **Where the markings move at the exchange, the exchange says what the coach moves and where it goes — stage 2G, 21 October 2026
+             * (DRAFT wording).** His reply filed 23 October 2026, item 2: *"If markings change location between blocks, the instructions should
+             * identify what needs to be adjusted."* Read from what moves (`remarking`, computed in `physical-layout.ts` from every block's
+             * realized edges and attached to every block): for each marking whose position differs between the blocks, this block's own
+             * reading of what it is, said by role so both blocks say it in the same words (the composition then says it once, each block
+             * citing its own region, stage 2C):
+             *
+             *   - a line measured from a team's end (`fromTeamEnd`): "the marked line to the same distance from the new {team}'s end line";
+             *   - otherwise the inner edge of a team's target zone at an end (as `targetZone` reads it): "the {attacker}'s target {noun} to the
+             *     new {defender}'s end".
+             *
+             * Each is a part of its own, citing the move (`remarking.changes[...]`) and every region edge that is it in this block, of the
+             * status its Set up sentence has. A marking with no such reading (no line from a team's end and no target zone, a mark one block
+             * does not have, or a mark that must stay because a marking that does not move shares its place) is not said, so fidelity Q5-L
+             * refuses the activity rather than this renderer leaving the coach to work out what moves. No number is said: the distance is
+             * the Set up sentence's, and "the same distance" stays true where the coach has moved the line (Adjusting the activity).
+             */
+            const blockId = String(fixture.record?.roleBlock?.blockId ?? '')
+            const movedMarking = (change: MarkingChange): { text: string; status: SourceStatus; from: string[] } | null => {
+                const place = change.places.find(entry => entry.blockId === blockId)
+                if (!place || place.at === null || place.shared || !place.features.length) return null
+                const cited = [`remarking.changes[${change.elementId}]`, ...place.features.map(feature => feature.path)]
+                const regionOf = (id: string) => regions.find((region: any) => String(region.elementId) === id)
+                const lineFeature = place.features.find(feature => feature.edge === 'at' && markedLines.has(feature.regionId))
+                if (lineFeature) {
+                    const line = regionOf(lineFeature.regionId)
+                    const positioned = line ? fromTeamEnd(line) : null
+                    if (!positioned) return null
+                    const nounPath = `space.regions[${lineFeature.regionId}].noun`
+                    return { text: `the marked ${line.noun} to the same distance from the new ${positioned.team}'s end line`, status: statusOf.get(nounPath) ?? 'DERIVED', from: [...cited, nounPath] }
+                }
+                if (place.features.some(feature => feature.edge === 'at')) return null
+                for (const feature of place.features.filter(entry => entry.inner)) {
+                    const zone = regionOf(feature.regionId)
+                    const objective = zone ? referencedBy(zone) : null
+                    const attacker = objective ? teamNoun(objective.team) : null
+                    const defender = objective ? otherTeamNoun(objective.team) : null
+                    const along = zone ? geometryFor(zone.elementId, 'along') : null
+                    const wide = zone ? geometryFor(zone.elementId, 'across')?.geometry?.interval : null
+                    if (!zone || typeof zone.noun !== 'string' || zone.noun === 'line' || !objective || !attacker || !defender || along?.geometry?.term !== ATTACKING_END || !wide || wide.from !== 0 || wide.to !== areaWidth) continue
+                    const nounPath = `space.regions[${feature.regionId}].noun`
+                    return {
+                        text: `the ${attacker}'s target ${zone.noun} to the new ${defender}'s end`,
+                        status: statusOf.get(nounPath) ?? 'DERIVED',
+                        from: [...cited, nounPath, `objectives[${objective.elementId}].team`, `objectives[${objective.elementId}].reference`],
+                    }
+                }
+                return null
+            }
+            if (remarking) {
+                const exchangeStatus = statusAt([...exchangePaths, ...endPaths], 'DERIVED')
+                const moved = remarking.changes.map(movedMarking).filter((said): said is NonNullable<typeof said> => !!said)
+                instructions.push(
+                    joined(ROLE_EXCHANGE, [
+                        part(exchangeStatus, 'Each team keeps its end for the whole activity. When you call the next block the teams exchange roles, not ends', [
+                            ...exchangePaths,
+                            ...endPaths,
+                            ...keyedPaths,
+                            ...(keyedPaths.length ? targetNounPaths : []),
+                        ]),
+                        ...moved.map((said, i) => part(said.status, `${i === 0 ? `, and ${MOVE_MARKINGS}` : i === moved.length - 1 ? ' and ' : ', '}${said.text}`, said.from)),
+                        part(exchangeStatus, '; there is no set block length', exchangePaths),
+                    ]),
+                )
+            }
             const markings = layout
                 ? `: each team now attacks the target ${targetNoun ?? 'line'} of its new role, and ${NOTHING_RE_MARKED}${unless}`
                 : !keyedPaths.length
@@ -2718,7 +2796,7 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
                   : named.length
                     ? `, and ${named.join(' and ')} ${named.length > 1 || keyedTargets === 2 ? 'are' : 'is'} set out again for the new roles`
                     : ', and the markings that go with them are set out again for the new roles'
-            say(
+            if (!remarking) say(
                 ROLE_EXCHANGE,
                 statusAt([...exchangePaths, ...endPaths], 'DERIVED'),
                 `Each team keeps its end for the whole activity. When you call the next block the teams exchange roles, not ends${markings}; there is no set block length`,
