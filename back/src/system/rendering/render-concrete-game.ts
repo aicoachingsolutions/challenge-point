@@ -871,6 +871,28 @@ const beginArmTakers = (game: any, episode: unknown): string[] =>
 const episodeStarters = (transitions: any[], takers: string[]): any[] =>
     transitions.filter(t => t?.playState === 'STOP_RESUME' && String(t?.startsEpisode) === 'true' && takers.includes(t?.placement?.actor))
 
+/**
+ * **The transitions that begin the episode a bounded role's credit is confined to, each with that role element** — stage 3C, 21 October
+ * 2026, for the Coach Overview's composer (`coach-overview.ts`), which classes such a transition's when and who by the PROPOSED essentials
+ * table. Read exactly as placement and the start-placement sentence read them (`beginArmTakers`, `episodeStarters`), for every role
+ * element whose credit (row B8) is any bound but the whole game; a transition beginning the episode of more than one role element lists
+ * each. Reading only; nothing is said here.
+ */
+export function boundedEpisodeStartersOf(game: any): Map<string, string[]> {
+    const transitions: any[] = Array.isArray(game?.transitions) ? game.transitions : []
+    const roleElements: any[] = Array.isArray(game?.activityRoles) ? game.activityRoles : []
+    const starters = new Map<string, string[]>()
+    for (const element of roleElements) {
+        const episode = element?.creditedWithin
+        if (!present(episode) || canonicalJson(episode) === canonicalJson(UNBOUNDED_CREDIT)) continue
+        for (const transition of episodeStarters(transitions, beginArmTakers(game, episode))) {
+            const id = String(transition.elementId)
+            starters.set(id, [...new Set([...(starters.get(id) ?? []), String(element?.elementId)])])
+        }
+    }
+    return starters
+}
+
 /** A transition's trigger, where its selector fixes one. */
 const triggerOfTransition = (transition: any): string | null => {
     const term = (transition?.selector ?? []).find((t: any) => t?.attribute === 'trigger' && t?.op === '=')

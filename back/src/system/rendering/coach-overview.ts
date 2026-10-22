@@ -29,10 +29,38 @@
  * "Halfway" is a DERIVED TERM, never knowledge (BUILD PLAN; his item 7 speaks of it for one particular area only): it is said only
  * where the marked line is held at a single point and twice its distance from the end line is the area's length, and the sentence cites
  * both values. No goal, activity, value or sport term is written here; every noun is the game's or the role's DRAFT noun.
+ *
+ * **Stage 3C: how each team scores** (`scoringGroupsOf`, below). Which conditions the overview must state is read from the PROPOSED
+ * essentials table (`docs/audits/overview-essentials.json`, loaded here), keyed by register row and condition type and never by
+ * activity; per team, the composer chooses his approved wording said whole, then the shortest verbatim extract of it, then the Details
+ * sentence or a DRAFT shortening of it, and points every detail it leaves out to the Details sentence saying it in full.
  */
+import fs from 'node:fs'
+import path from 'node:path'
+
+import { loadRegister } from '../derivation/corpus'
+import { AUDITS_DIR } from '../derivation/knowledge-root'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
-import { DerivedExtract, extractsFor, WithheldExtract } from './derived-wording'
-import { ATTACKING_END, BEYOND, Binding, gameReadingOf, InstructionPart, SIDE_BY_POSSESSION, SourceStatus, statusesOf, strongest, teamCountPhrases } from './render-concrete-game'
+import { ApprovedWording, approvedWording, canonicalJson } from './approved-wording'
+import { approvedEntriesSaid, DerivedExtract, detailsWordingOf, extractStatusOf, extractsFor, ExtractUnit, sentencesOf, WithheldExtract, WordingSource, WordingStatus } from './derived-wording'
+import { MECHANISM_DEMONSTRATIONS } from './mechanism-demonstrations'
+import {
+    ATTACKING_END,
+    BEYOND,
+    Binding,
+    boundedEpisodeStartersOf,
+    gameReadingOf,
+    Instruction,
+    InstructionPart,
+    renderConcreteGame,
+    SIDE_BY_POSSESSION,
+    SourceStatus,
+    statusesOf,
+    strongest,
+    teamCountPhrases,
+    UNBOUNDED_CREDIT,
+} from './render-concrete-game'
+import { genericPath, KIND_OF_ROW, registerRowIndex, rowOfPath } from './sections'
 
 /** Where a learning purpose is read from: the planning model's Learning Goals sheet, its coach-facing definition (his item 3). */
 export const PURPOSE_SOURCE = { file: 'back/src/system/session-planning/session-planning-model.rc1.json', table: 'learning_goals', column: 'Coach Definition' } as const
@@ -68,8 +96,11 @@ export interface OverviewSentence {
 
 /** Something the overview could not say, for an administrator. Never a reason to refuse the activity. */
 export interface OverviewGap {
-    /** `extracts` (stage 3B review): a block's extracts of approved wording could not be generated; that block lists none. */
-    part: 'purpose' | 'game' | 'parameters' | 'extracts'
+    /**
+     * `extracts` (stage 3B review): a block's extracts of approved wording could not be generated; that block lists none. `scoring` (stage
+     * 3C): a block's scoring groups could not be composed; that block lists none.
+     */
+    part: 'purpose' | 'game' | 'parameters' | 'extracts' | 'scoring'
     blockId?: string
     what: string
 }
@@ -91,6 +122,12 @@ export interface CoachOverviewDraft {
      * withheld, with why (a source entry the game does not say). None is a sentence of the overview yet. One entry per block.
      */
     extracts: { blockId: string; extracts: DerivedExtract[]; withheld: WithheldExtract[] }[]
+    /**
+     * **Stage 3C: how each team scores, composed per block from that block's own Details** (`scoringGroupsOf`), with the essentials table
+     * it was built on and that table's status. Labelled for an administrator while the table is PROPOSED. Never served (stage 3D checks it
+     * against Details, Q7, before a coach sees it) and never deciding whether the activity is served.
+     */
+    scoring: OverviewScoring
 }
 
 const stated = (n: unknown): n is number => typeof n === 'number' && Number.isFinite(n)
@@ -290,16 +327,785 @@ export function parametersOf(fixture: any): { sentence: OverviewSentence | null;
     return parts.length ? { sentence: sentenceOf('parameters', parts), gap: null } : { sentence: null, gap: 'the game holds no area, player count or duration' }
 }
 
+// ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+// Stage 3C, 21 October 2026: the essentials table and the scoring-group composer.
+// ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+/**
+ * **What the overview must say of how a team scores, by class** — his reply filed 22 October 2026, item 6: *"the overview should not
+ * reproduce every qualification, exception, and restart condition. Those belong in Coach Details, with any essential qualification
+ * included in the overview when omitting it would materially misrepresent the game."* Which kinds qualify is a learning-design judgement,
+ * so it is DATA (`overview-essentials.json`), PROPOSED until he approves it:
+ *
+ *   - CONSTITUTIVE: a way to score; every group for a team that scores this way states it ("every way to score appears" is a rule of the
+ *     table, `ways`, not a branch of code);
+ *   - ESSENTIAL: stated by some sentence of the team's group (a pointer does not excuse it);
+ *   - DETAIL: may be left to Coach Details, only with a "full rule" pointer to the Details sentence saying it.
+ */
+export const OVERVIEW_CLASSES = ['CONSTITUTIVE', 'ESSENTIAL', 'DETAIL'] as const
+export type OverviewClass = (typeof OVERVIEW_CLASSES)[number]
+
+/** Where the table is read from (`build.js` copies it beside the bundle), and how it is named to an administrator. */
+export const ESSENTIALS_FILE = path.join(AUDITS_DIR, 'overview-essentials.json')
+export const ESSENTIALS_SOURCE = 'docs/audits/overview-essentials.json' as const
+
+/** A condition on the element a cited field belongs to: a field's value (a condition type, a credit bound), or a structural reading. */
+export type RuleWhere = { field: string; equals: unknown } | { field: string; notEquals: unknown } | { beginsBoundedEpisode: true }
+
+/** One rule of the table: a class for fields on register rows (`rows`, optionally `where`), or the way-level rule (`ways`). */
+export interface EssentialsRule {
+    id: string
+    class: OverviewClass
+    rows?: string[]
+    ways?: string[]
+    where?: RuleWhere
+    why: string
+}
+
+/** The table as read: its status (PROPOSED until it carries his approval), the approval, and its rules. */
+export interface EssentialsTable {
+    status: 'PROPOSED' | 'APPROVED'
+    approvedBy: { who: string; date: string; quote: string } | null
+    rules: EssentialsRule[]
+}
+
+/** The table, or why it cannot be used (every group is then withheld, with that reason). */
+export interface EssentialsLoad {
+    table: EssentialsTable | null
+    why: string | null
+}
+
+interface RegisterRow {
+    id: string
+    kind: string
+    path: string
+    ownerRow: string | null
+}
+let registerById: Map<string, RegisterRow> | null = null
+/** The live register's rows by id, with their kind and owner (read once; the register is versioned data). */
+function registerRowsById(): Map<string, RegisterRow> {
+    if (!registerById) {
+        registerById = new Map(
+            ((loadRegister().rows ?? []) as any[]).map(row => [String(row?.id), { id: String(row?.id), kind: String(row?.kind), path: String(row?.path), ownerRow: row?.ownerRow ? String(row.ownerRow) : null }] as const),
+        )
+    }
+    return registerById
+}
+
+/**
+ * **The names a rule may never be keyed by** (BUILD PLAN stage 3C: "the loader refuses ... activity-keyed rows"): every Learning Goal of
+ * the planning model, every mechanism demonstration and every approved entry. An element handle of a game (`c:...`) is refused too.
+ */
+export function activityNames(): Set<string> {
+    return new Set([
+        ...sessionPlanningModel
+            .learningGoals()
+            .map(row => String(row['ID'] ?? ''))
+            .filter(Boolean),
+        ...MECHANISM_DEMONSTRATIONS.map(demonstration => demonstration.id),
+        ...approvedWording().map(entry => entry.id),
+    ])
+}
+
+const nonEmpty = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0
+const TABLE_KEYS = new Set(['about', 'status', 'approvedBy', 'proposal', 'classes', 'ruleShape', 'rules'])
+const RULE_KEYS = new Set(['id', 'class', 'rows', 'ways', 'where', 'why'])
+const isClass = (value: unknown): value is OverviewClass => (OVERVIEW_CLASSES as readonly unknown[]).includes(value)
+
+/** Every string a value holds, at any depth. */
+const stringsIn = (value: unknown): string[] =>
+    typeof value === 'string' ? [value] : Array.isArray(value) ? value.flatMap(stringsIn) : value && typeof value === 'object' ? Object.values(value).flatMap(stringsIn) : []
+
+function whereUnusableBecause(where: any): string | null {
+    if (!where || typeof where !== 'object' || Array.isArray(where)) return 'its element condition is not an object'
+    const keys = Object.keys(where).sort().join(',')
+    if (keys === 'beginsBoundedEpisode') return where.beginsBoundedEpisode === true ? null : 'beginsBoundedEpisode is only ever true'
+    if (keys === 'equals,field' || keys === 'field,notEquals') return nonEmpty(where.field) ? null : 'its element condition names no field'
+    return `its element condition holds "${keys}": it is { field, equals }, { field, notEquals } or { beginsBoundedEpisode: true }`
+}
+
+function ruleUnusableBecause(rule: any, register: Map<string, RegisterRow>, activities: Set<string>): string | null {
+    if (!rule || typeof rule !== 'object' || Array.isArray(rule)) return 'not an object'
+    for (const key of Object.keys(rule)) if (!RULE_KEYS.has(key)) return `it is keyed by "${key}": a rule is keyed by register row and condition type, never by activity`
+    if (!nonEmpty(rule.id)) return 'it has no id'
+    if (!isClass(rule.class)) return `its class "${rule.class}" is not one the overview knows (${OVERVIEW_CLASSES.join(', ')})`
+    if (!nonEmpty(rule.why)) return 'it gives no reason'
+    if ((rule.rows === undefined) === (rule.ways === undefined)) return 'it names rows or ways: exactly one of them'
+    const listed: unknown = rule.rows ?? rule.ways
+    if (!Array.isArray(listed) || !listed.length || !listed.every(nonEmpty)) return 'its rows or ways are not register row ids'
+    for (const id of listed as string[]) {
+        const row = register.get(id)
+        if (!row) return `it names "${id}", which is no register row`
+        if (rule.ways !== undefined && row.kind !== 'COLLECTION') return `its way ${id} is not a collection, whose elements are ways to score`
+    }
+    if (rule.ways !== undefined && rule.where !== undefined) return 'the way-level rule takes no element condition'
+    if (rule.where !== undefined) {
+        const why = whereUnusableBecause(rule.where)
+        if (why) return why
+    }
+    const named = [rule.id, ...(listed as string[]), ...stringsIn(rule.where)].find(value => activities.has(value) || value.startsWith('c:'))
+    if (named !== undefined) return `it names "${named}", an activity, an approved entry or an element of a game: a rule is keyed by register row and condition type, never by activity`
+    return null
+}
+
+/**
+ * **Why the table cannot be used, or null** — its keys, its status and approval (APPROVED only with approvedBy carrying who, a date and
+ * his words; a PROPOSED table carries none), exactly the three classes, and every rule: a known class, register rows (or, for the
+ * way-level rule, collection rows), an element condition of a known form, a reason, nothing keyed by an activity, and no row classed twice
+ * on the same element condition.
+ */
+export function essentialsUnusableBecause(file: any, register: Map<string, RegisterRow> = registerRowsById(), activities: Set<string> = activityNames()): string | null {
+    if (!file || typeof file !== 'object' || Array.isArray(file)) return 'the table is not an object'
+    for (const key of Object.keys(file)) if (!TABLE_KEYS.has(key)) return `the table carries "${key}", which no table holds`
+    if (file.status !== 'PROPOSED' && file.status !== 'APPROVED') return `its status "${file.status}" is neither PROPOSED nor APPROVED`
+    const approval = file.approvedBy
+    if (approval !== undefined) {
+        if (file.status !== 'APPROVED') return 'it carries approvedBy and says it is PROPOSED'
+        if (!approval || !nonEmpty(approval.who) || !nonEmpty(approval.date) || !nonEmpty(approval.quote)) return 'its approval does not say who approved it, when, and in his words'
+    } else if (file.status === 'APPROVED') {
+        return 'it says APPROVED and carries no approvedBy: the table stays PROPOSED until he approves it'
+    }
+    if (file.classes !== undefined) {
+        const names = Object.keys(file.classes ?? {})
+        if (names.length !== OVERVIEW_CLASSES.length || !names.every(isClass)) return `its classes are ${JSON.stringify(names)}, and the overview knows exactly ${OVERVIEW_CLASSES.join(', ')}`
+    }
+    if (!Array.isArray(file.rules) || !file.rules.length) return 'it has no rules'
+    const ids = new Set<string>()
+    const classed = new Set<string>()
+    for (const rule of file.rules) {
+        const why = ruleUnusableBecause(rule, register, activities)
+        if (why) return `rule ${JSON.stringify(rule?.id ?? null)}: ${why}`
+        if (ids.has(rule.id)) return `rule "${rule.id}" is listed twice`
+        ids.add(rule.id)
+        for (const row of rule.rows ?? []) {
+            const key = canonicalJson([row, rule.where ?? null])
+            if (classed.has(key)) return `row ${row} is classed twice on the same element condition (rule "${rule.id}")`
+            classed.add(key)
+        }
+    }
+    return null
+}
+
+/** The table from its parsed file: copied, or null with why. */
+export function essentialsLoadOf(file: any): EssentialsLoad {
+    const why = essentialsUnusableBecause(file)
+    if (why) return { table: null, why }
+    return {
+        table: {
+            status: file.status,
+            approvedBy: file.approvedBy ? { who: String(file.approvedBy.who), date: String(file.approvedBy.date), quote: String(file.approvedBy.quote) } : null,
+            rules: JSON.parse(JSON.stringify(file.rules)),
+        },
+        why: null,
+    }
+}
+
+function readEssentials(): EssentialsLoad {
+    try {
+        const text = fs.readFileSync(ESSENTIALS_FILE, 'utf8')
+        return essentialsLoadOf(JSON.parse(text.charCodeAt(0) === 0xfeff ? text.slice(1) : text))
+    } catch (error) {
+        return { table: null, why: `${ESSENTIALS_SOURCE} could not be read: ${error instanceof Error ? error.message : String(error)}` }
+    }
+}
+const ESSENTIALS = readEssentials()
+/** The essentials table as loaded at module load, as a copy. */
+export const essentialsTable = (): EssentialsLoad => JSON.parse(JSON.stringify(ESSENTIALS))
+
+/** The coach-facing words of a pointer to the Details sentence saying a rule in full (DRAFT). */
+export const FULL_RULE_LABEL = 'full rule'
+/** What an administrator is told where an overview is built on a table he has not approved (DRAFT words). */
+export const PROPOSED_TABLE_LABEL = 'Built on a PROPOSED table of which scoring conditions the overview must state; he has not approved it'
+/** The one group of a game played without roles: what every team does. */
+export const EVERY_TEAM = 'EVERY_TEAM'
+
+/** A Details sentence, by its place in its own block's render, its section and its words (the served Details hold it by the last two). */
+export interface DetailsRef {
+    blockIndex: number
+    section: string
+    text: string
+}
+
+/** A pointer from the overview to the Details sentence saying a rule in full, and why it is there. */
+export interface DetailsPointer extends DetailsRef {
+    label: typeof FULL_RULE_LABEL
+    labelStatus: 'DRAFT'
+    /** `DETAIL_LEFT_OUT`: a DETAIL field the group does not state; `SHORTENED_WAY_TO_SCORE`: a way to score the group says shortened. */
+    because: ('DETAIL_LEFT_OUT' | 'SHORTENED_WAY_TO_SCORE')[]
+    paths: string[]
+}
+
+/** One sentence of a team's scoring group, with its status, where its words come from and what it states. */
+export interface ScoringSentence {
+    text: string
+    /** The three statuses (his item 4): his wording said whole, a verbatim extract of it, or newly proposed language. */
+    wording: WordingStatus
+    source: WordingSource | null
+    /** Which of the composer's choices gave it: his approved wording said whole, the shortest extract, or the Details sentence. */
+    chosenBy: 'APPROVED_ENTRY' | 'SHORTEST_EXTRACT' | 'DETAILS_SENTENCE'
+    form: 'WHOLE' | 'EXTRACT' | 'SHORTENING'
+    extractId: string | null
+    /** The Details sentence it says or shortens, and the words of it that it does not say. */
+    details: DetailsRef
+    drops: string[]
+    /** The group's required fields it states, each with its class and the rule classing it. */
+    states: { path: string; class: OverviewClass; rule: string }[]
+    fullRule: DetailsPointer | null
+}
+
+/** How one team scores, as the overview says it (or withheld, with why). */
+export interface ScoringGroup {
+    /** The role whose holder this is, in the block's role order, or EVERY_TEAM in a game played without roles. */
+    group: string
+    noun: string | null
+    withheld: boolean
+    why: string[]
+    sentences: ScoringSentence[]
+    /** Pointers no sentence of the group carries (a DETAIL whose Details sentence the group does not shorten). */
+    fullRules: DetailsPointer[]
+    /** Every field the group's Details sentences cite that the table classes, and the sentences stating it. */
+    requirements: { path: string; row: string; class: OverviewClass; rule: string; statedBy: number[]; pointedTo: boolean }[]
+    /** Each way to score the group speaks of, and the sentences showing it (by a stated CONSTITUTIVE field under it). */
+    ways: { way: string; shownBy: number[] }[]
+    /** Extracts of the group's approved sources that keep nothing, because no reading of what a part of his wording states is recorded. */
+    extractsKeepingNothing: string[]
+    notes: string[]
+}
+
+/** The overview's scoring, per block, with the table it was built on. */
+export interface OverviewScoring {
+    table: { source: typeof ESSENTIALS_SOURCE; status: 'PROPOSED' | 'APPROVED' | 'UNUSABLE'; label: string | null; labelStatus: 'DRAFT'; why: string | null }
+    blocks: { blockId: string; groups: ScoringGroup[] }[]
+    /** Whether every block's groups say the same words. */
+    sameTextInEveryBlock: boolean
+}
+
+/** A path's steps: a name and, where it names a member of a collection, the member's id (an id may hold dots: brackets are read whole). */
+function stepsOf(path: string): { name: string; id: string | null; end: number }[] {
+    const steps: { name: string; id: string | null; end: number }[] = []
+    let name = ''
+    let id: string | null = null
+    let inside = ''
+    let depth = 0
+    for (let at = 0; at < path.length; at++) {
+        const char = path[at]
+        if (depth > 0) {
+            if (char === '[') depth++
+            if (char === ']' && --depth === 0) {
+                id = inside
+                inside = ''
+                continue
+            }
+            inside += char
+            continue
+        }
+        if (char === '[') {
+            depth = 1
+            continue
+        }
+        if (char === '.') {
+            steps.push({ name, id, end: at })
+            name = ''
+            id = null
+            continue
+        }
+        name += char
+    }
+    steps.push({ name, id, end: path.length })
+    return steps
+}
+
+/** The value a path names in the game (a member of a collection found by its element id), or undefined. */
+function valueAt(game: any, steps: { name: string; id: string | null }[]): any {
+    let node = game
+    for (const step of steps) {
+        node = node == null ? undefined : node[step.name]
+        if (step.id !== null) node = Array.isArray(node) && step.id ? node.find(member => String(member?.elementId) === step.id) : undefined
+    }
+    return node
+}
+
+/** The prefix of a path whose generic form is `generic`, as its steps, or null. */
+function prefixAt(path: string, generic: string): { name: string; id: string | null; end: number }[] | null {
+    const steps = stepsOf(path)
+    for (let n = 0; n < steps.length; n++) if (genericPath(path.slice(0, steps[n].end)) === generic) return steps.slice(0, n + 1)
+    return null
+}
+
+/**
+ * **The element a cited field belongs to**: the member of its row's own collection (the row itself where it is a collection, else the
+ * row it is owned by) that the path names. Null where the row belongs to no collection or the game holds no such member.
+ */
+function elementOf(game: any, path: string, rowId: string | null, register: Map<string, RegisterRow>): any {
+    const row = rowId ? register.get(rowId) : undefined
+    const collection = row ? (row.kind === 'COLLECTION' ? row : row.ownerRow ? register.get(row.ownerRow) : undefined) : undefined
+    if (!collection || !collection.path.endsWith('[]')) return null
+    const steps = prefixAt(path, collection.path)
+    const element = steps ? valueAt(game, steps) : undefined
+    return element && typeof element === 'object' ? element : null
+}
+
+/** Whether a rule's element condition holds on an element. */
+function whereHolds(where: RuleWhere | undefined, element: any, starters: Map<string, string[]>): boolean {
+    if (!where) return true
+    if (!element) return false
+    if ('beginsBoundedEpisode' in where) return starters.has(String(element.elementId))
+    if (!(where.field in element)) return false
+    const same = canonicalJson(element[where.field]) === canonicalJson('equals' in where ? where.equals : where.notEquals)
+    return 'equals' in where ? same : !same
+}
+
+/** Which roles a game is played in, and how a field or a sentence is read as one role's. */
+function rolesOf(fixture: any) {
+    const game = fixture?.game ?? {}
+    const reading = gameReadingOf(fixture)
+    const list = Object.keys(reading.holdersInBlock).filter(role => reading.roleNounOf[role])
+    const elements: any[] = Array.isArray(game.activityRoles) ? game.activityRoles : []
+    const roleOfElement = new Map<string, string>(elements.filter(element => list.includes(element?.activityRole)).map(element => [String(element.elementId), String(element.activityRole)] as const))
+    const bounded = elements.filter(element => list.includes(element?.activityRole) && element?.creditedWithin != null && canonicalJson(element.creditedWithin) !== canonicalJson(UNBOUNDED_CREDIT))
+    const starters = boundedEpisodeStartersOf(game)
+    const designated = (value: unknown): string | null => (typeof value === 'string' ? reading.roleOfDesignation(value) : null)
+    /**
+     * A classed field's own roles: the role element it is on; the roles whose bounded episode a transition begins; the roles whose bounded
+     * credit a condition is scoped to; the role whose holder an element's team is. None: it is said for whichever roles its sentence names.
+     */
+    const ofField = (element: any): string[] => {
+        if (!element) return []
+        if (list.includes(element.activityRole)) return [String(element.activityRole)]
+        const starting = (starters.get(String(element.elementId)) ?? []).filter(id => roleOfElement.has(id)).map(id => roleOfElement.get(id)!)
+        if (starting.length) return [...new Set(starting)]
+        const scoped = element.scope != null ? bounded.filter(role => canonicalJson(role.creditedWithin) === canonicalJson(element.scope)).map(role => String(role.activityRole)) : []
+        if (scoped.length) return [...new Set(scoped)]
+        const team = designated(element.team)
+        return team ? [team] : []
+    }
+    return { game, list, nounOf: reading.roleNounOf, starters, designated, ofField }
+}
+
+const wordsIn = (text: string): number => text.split(' ').filter(Boolean).length
+const withFullStop = (text: string): string => ('.!?'.includes(text[text.length - 1] ?? '') ? text : `${text}.`)
+
+/** A shortening of a DRAFT Details sentence: its first words up to a cut, what it drops, what it still cites, and the kind of cut. */
+export interface DraftShortening {
+    text: string
+    drops: string
+    from: string[]
+    cut: 'ASIDE' | 'ELABORATION' | 'CLAUSE' | 'SENTENCE'
+}
+
+/**
+ * **The DRAFT shortenings of a DRAFT Details sentence** — each a proper prefix of its words, never a word added or changed (his item 4:
+ * a shortened form of proposed language stays proposed, so each is DRAFT). Cut before the bracketed aside that closes the sentence
+ * (ASIDE), before its last ": " (ELABORATION), before a "; " (CLAUSE), or after a sentence's end (SENTENCE). What it still cites is read
+ * from the renderer's parts: every part it keeps whole; and a part an ASIDE or ELABORATION cuts keeps its citations, because the words
+ * before an elaboration still say what it elaborates — OUR claim, reviewed with the DRAFT wording, never a reading of his. A part any
+ * other cut splits keeps none. None where the parts do not make up the sentence.
+ */
+export function draftShorteningsOf(instruction: { text: string; parts?: InstructionPart[] }): DraftShortening[] {
+    const text = instruction.text
+    const parts = instruction.parts ?? []
+    if (!parts.length || parts.map(p => p.text).join('') !== text) return []
+    const spans: { start: number; end: number; from: string[] }[] = []
+    let at = 0
+    for (const p of parts) {
+        spans.push({ start: at, end: at + p.text.length, from: p.from })
+        at += p.text.length
+    }
+    const cuts = new Map<number, DraftShortening['cut']>()
+    const open = text.lastIndexOf(' (')
+    if (open > 0 && text.endsWith(')') && text.indexOf(')', open) === text.length - 1) cuts.set(open, 'ASIDE')
+    const colon = text.lastIndexOf(': ')
+    if (colon > 0 && !cuts.has(colon)) cuts.set(colon, 'ELABORATION')
+    for (let k = text.indexOf('; '); k > 0; k = text.indexOf('; ', k + 1)) if (!cuts.has(k)) cuts.set(k, 'CLAUSE')
+    let start = 0
+    for (const sentence of sentencesOf(text).slice(0, -1)) {
+        const end = start + sentence.text.length
+        if (!cuts.has(end)) cuts.set(end, 'SENTENCE')
+        start = end + 1
+    }
+    return [...cuts.entries()]
+        .sort((a, b) => a[0] - b[0])
+        .map(([end, cut]) => {
+            const kept = text.slice(0, end).trimEnd()
+            const lenient = cut === 'ASIDE' || cut === 'ELABORATION'
+            const from = spans.filter(span => span.end <= end || (lenient && span.start < end)).flatMap(span => span.from)
+            return { text: withFullStop(kept), drops: text.slice(end).trim(), from: [...new Set(from)], cut }
+        })
+        .filter(shortening => wordsIn(shortening.text) > 0 && shortening.drops.length > 0)
+}
+
+/** A Details sentence as the composer reads it: its place in its block's render, and its wording status and source. */
+interface DetailsSentence {
+    instruction: Instruction
+    at: number
+    wording: 'APPROVED' | 'DRAFT'
+    source: WordingSource | null
+}
+
+interface Requirement {
+    path: string
+    row: string
+    class: OverviewClass
+    rule: string
+    /** The first Details sentence citing it (its canonical statement), and the order it was first cited in. */
+    at: number
+    order: number
+}
+
+interface Candidate {
+    chosenBy: ScoringSentence['chosenBy']
+    form: ScoringSentence['form']
+    at: number
+    text: string
+    wording: WordingStatus
+    source: WordingSource | null
+    extract: DerivedExtract | null
+    drops: string[]
+    states: string[]
+}
+
+const refOf = (sentence: DetailsSentence): DetailsRef => ({ blockIndex: sentence.at, section: sentence.instruction.section, text: sentence.instruction.text })
+
+/** Parts in reading order: by sentence, a whole sentence before its leading clause. */
+const byPlace = (a: ExtractUnit, b: ExtractUnit): number => a.sentence - b.sentence || (a.part === b.part ? 0 : a.part === 'WHOLE_SENTENCE' ? -1 : 1)
+
+/** The words of an approved sentence an extract of it does not say: each sentence it skips, and the rest of one it cuts to its clause. */
+function droppedBy(sourceText: string, units: ExtractUnit[]): string[] {
+    return sentencesOf(sourceText).flatMap((sentence, n) => {
+        const unit = units.find(u => u.sentence === n)
+        if (!unit) return [sentence.text]
+        if (unit.part !== 'LEADING_CLAUSE' || sentence.clause === null) return []
+        const rest = sentence.text.slice(sentence.clause.length)
+        return [rest.startsWith(';') ? rest.slice(1).trimStart() : rest]
+    })
+}
+
+/**
+ * **How each team scores, for one block** — stage 3C, 21 October 2026. His reply filed 22 October 2026, item 6: *"Yes. The overview should
+ * briefly communicate the scoring objectives. Understanding how each team scores is fundamental to understanding the game."* And item 4:
+ * *"Shortening must not introduce new meanings, omit a condition that changes the essential understanding, or silently turn a qualified
+ * rule into an unrestricted one."*
+ *
+ * **What a group must say** is read from the block's own Details, through the PROPOSED essentials table: every field a Details sentence
+ * cites that a rule classes is a requirement of the team it is said for — a classed field's own role (the role element it is on, a
+ * transition beginning that role's bounded episode, a condition scoped to its bounded credit, an element whose team is its holder), else
+ * the roles its sentence names (a role element it cites, or a field whose value is a role's holder), else every team. A How to score
+ * sentence citing a scoring row the table does not class withholds the groups it speaks for: nothing is left out by default.
+ *
+ * **What it says**, chosen in this order (BUILD PLAN stage 3C), field by field in the order the Details cite them:
+ *
+ *   1. APPROVED_ENTRY: his approved wording said whole (as Details say it), where it states a field not yet stated and holds no DETAIL;
+ *   2. SHORTEST_EXTRACT: the shortest verbatim extract of it (`derived-wording.ts`) whose recorded reading keeps the field — never one
+ *      that omits words between its parts (`omitsBetween`, the 3B review: a candidate dropping a sentence between two it keeps is not
+ *      chosen on length). With no reading recorded (production today) an extract keeps nothing, so it is never chosen;
+ *   3. DETAILS_SENTENCE: the first Details sentence citing the field — his approved wording whole, or, for a DRAFT sentence, its shortest
+ *      DRAFT shortening that still cites every required field it cites other than a DETAIL (`draftShorteningsOf`), else the sentence whole.
+ *
+ * Then: an extract of a sentence also said whole is dropped (it is inside it); extracts of one sentence become the one extract of all
+ * their parts, where it is listed and keeps what they keep. The group is withheld, with why, where a CONSTITUTIVE or ESSENTIAL field is
+ * stated by none of its sentences, or a way to score it speaks of is shown by no stated CONSTITUTIVE field under it (the table's `ways`).
+ * A "full rule" pointer goes to the Details sentence saying each DETAIL the group leaves out, and to each Details sentence stating a way to
+ * score that the group says shortened; it is carried by the sentence shortening that Details sentence, else by the group. Sentences read
+ * How to score sentences first, then the rest, each in Details order.
+ */
+export function scoringGroupsOf(fixture: any, rendered: Instruction[], extracts: DerivedExtract[], load: EssentialsLoad = ESSENTIALS, wording: ApprovedWording[] = approvedWording()): ScoringGroup[] {
+    const roles = rolesOf(fixture)
+    const game = roles.game
+    const groupIds = roles.list.length ? roles.list : [EVERY_TEAM]
+    const nounOf = (group: string): string | null => (group === EVERY_TEAM ? null : (roles.nounOf[group] ?? null))
+    const withheld = (group: string, why: string[], extra: Partial<ScoringGroup> = {}): ScoringGroup => ({
+        group,
+        noun: nounOf(group),
+        withheld: true,
+        why,
+        sentences: [],
+        fullRules: [],
+        requirements: [],
+        ways: [],
+        extractsKeepingNothing: [],
+        notes: [],
+        ...extra,
+    })
+    const table = load.table
+    if (!table) return groupIds.map(group => withheld(group, [`the essentials table cannot be used: ${load.why}`]))
+    const register = registerRowsById()
+    const rowIndex = registerRowIndex()
+    const said = approvedEntriesSaid(game, wording)
+    const details: DetailsSentence[] = rendered.map((instruction, at) => ({ instruction, at, ...detailsWordingOf(instruction.text, said) }))
+    const classRules = table.rules.filter(rule => rule.rows)
+    const wayRows = table.rules.flatMap(rule => rule.ways ?? []).map(id => register.get(id)!.path)
+
+    /** The rule classing a cited field, none, or the rules that disagree about it. */
+    const classify = (path: string, row: string | null): { rule: EssentialsRule | null; ambiguous: string[] } => {
+        if (!row) return { rule: null, ambiguous: [] }
+        const element = elementOf(game, path, row, register)
+        const hits = classRules.filter(rule => rule.rows!.includes(row) && whereHolds(rule.where, element, roles.starters))
+        return hits.length > 1 ? { rule: null, ambiguous: hits.map(rule => rule.id) } : { rule: hits[0] ?? null, ambiguous: [] }
+    }
+    /** The way to score a field is under: the longest way row its path lies under, as the concrete prefix naming that way. */
+    const wayOf = (path: string): string | null => {
+        const generic = genericPath(path)
+        const under = wayRows.filter(way => generic === way || generic.startsWith(`${way}.`) || generic.startsWith(`${way}[`)).sort((a, b) => b.length - a.length)[0]
+        if (!under) return null
+        const steps = prefixAt(path, under)
+        return steps ? path.slice(0, steps[steps.length - 1].end) : null
+    }
+
+    const requirements = new Map<string, Map<string, Requirement>>(groupIds.map(group => [group, new Map()]))
+    const problems = new Map<string, string[]>(groupIds.map(group => [group, []]))
+    let order = 0
+    for (const sentence of details) {
+        const { instruction } = sentence
+        const named = [
+            ...new Set(
+                instruction.from.flatMap(path => {
+                    const steps = stepsOf(path)
+                    const element = elementOf(game, path, rowOfPath(path, rowIndex), register)
+                    return [element && roles.list.includes(element.activityRole) ? String(element.activityRole) : null, roles.designated(valueAt(game, steps))].filter((role): role is string => !!role)
+                }),
+            ),
+        ].filter(role => requirements.has(role))
+        const speaksFor = new Set<string>()
+        const unclassed: string[] = []
+        for (const path of instruction.from) {
+            const row = rowOfPath(path, rowIndex)
+            const { rule, ambiguous } = classify(path, row)
+            if (ambiguous.length) {
+                unclassed.push(`${path} is classed by more than one rule (${ambiguous.join(', ')})`)
+                continue
+            }
+            if (!rule) {
+                if (instruction.section === 'How to score' && row && KIND_OF_ROW[row] === 'SCORING') unclassed.push(`${path} is on row ${row}, which the essentials table does not class`)
+                continue
+            }
+            const own = roles.ofField(elementOf(game, path, row, register))
+            const targets = own.length ? own : named.length ? named : groupIds
+            for (const group of targets.filter(target => requirements.has(target))) {
+                const held = requirements.get(group)!
+                if (!held.has(path)) held.set(path, { path, row: row!, class: rule.class, rule: rule.id, at: sentence.at, order: order++ })
+                speaksFor.add(group)
+            }
+        }
+        if (unclassed.length) {
+            const groups = speaksFor.size ? [...speaksFor] : named.length ? named : groupIds
+            for (const group of groups) problems.get(group)!.push(`"${instruction.text}": ${unclassed.join('; ')}; nothing is left out of the overview by default`)
+        }
+    }
+
+    return groupIds.map(group => {
+        const required = requirements.get(group)!
+        const listed = [...required.values()].sort((a, b) => a.order - b.order)
+        const requirementsOut = (chosen: Candidate[], pointed: Set<string>) =>
+            listed.map(r => ({ path: r.path, row: r.row, class: r.class, rule: r.rule, statedBy: chosen.flatMap((c, n) => (c.states.includes(r.path) ? [n] : [])), pointedTo: pointed.has(r.path) }))
+        if (problems.get(group)!.length) return withheld(group, problems.get(group)!, { requirements: requirementsOut([], new Set()) })
+        if (!listed.length) return withheld(group, ['no Details sentence of this block cites a field the essentials table classes for this team, so no scoring is said for it'])
+
+        const inGroup = (from: string[]) => from.filter(path => required.has(path))
+        const isDetail = (path: string) => required.get(path)!.class === 'DETAIL'
+        const sourceOf = (extract: DerivedExtract): DetailsSentence | null => {
+            const element = extract.id.includes('@') ? extract.id.slice(extract.id.indexOf('@') + 1) : null
+            return (
+                details.find(
+                    sentence =>
+                        sentence.wording === 'APPROVED' &&
+                        sentence.source?.kind === 'APPROVED_ENTRY' &&
+                        sentence.source.id === extract.source.id &&
+                        (element === null || sentence.instruction.from.some(path => path.startsWith(`${element}.`))),
+                ) ?? null
+            )
+        }
+        const usable = extracts.map(extract => ({ extract, source: sourceOf(extract) })).filter((entry): entry is { extract: DerivedExtract; source: DetailsSentence } => entry.source !== null)
+        const keptPaths = (extract: DerivedExtract) => inGroup(extract.keeps.map(ref => ref.path).filter((path): path is string => !!path))
+        const whole = (sentence: DetailsSentence, chosenBy: Candidate['chosenBy']): Candidate => ({
+            chosenBy,
+            form: 'WHOLE',
+            at: sentence.at,
+            text: withFullStop(sentence.instruction.text),
+            wording: sentence.wording,
+            source: sentence.source,
+            extract: null,
+            drops: [],
+            states: inGroup(sentence.instruction.from),
+        })
+        const ofExtract = (extract: DerivedExtract, source: DetailsSentence): Candidate => ({
+            chosenBy: 'SHORTEST_EXTRACT',
+            form: 'EXTRACT',
+            at: source.at,
+            text: extract.text,
+            wording: extract.wording,
+            source: { ...extract.source },
+            extract,
+            drops: droppedBy(source.instruction.text, extract.units),
+            states: keptPaths(extract),
+        })
+        const shorter = (a: { text: string; id?: string }, b: { text: string; id?: string }) => wordsIn(a.text) - wordsIn(b.text) || a.text.length - b.text.length || String(a.id ?? '').localeCompare(String(b.id ?? ''))
+
+        const needed = listed.filter(r => r.class !== 'DETAIL')
+        let chosen: Candidate[] = []
+        const stated = new Set<string>()
+        const take = (candidate: Candidate) => {
+            chosen.push(candidate)
+            candidate.states.forEach(path => stated.add(path))
+        }
+        // 1. His approved wording said whole, holding nothing the table leaves to Details.
+        for (const sentence of details) {
+            if (sentence.wording !== 'APPROVED') continue
+            const paths = inGroup(sentence.instruction.from)
+            if (!paths.length || paths.some(isDetail) || paths.every(path => stated.has(path))) continue
+            take(whole(sentence, 'APPROVED_ENTRY'))
+        }
+        // 2. The shortest verbatim extract of his wording whose recorded reading keeps the field.
+        for (const r of needed) {
+            if (stated.has(r.path)) continue
+            const options = usable.filter(({ extract }) => extract.omitsBetween.length === 0 && keptPaths(extract).includes(r.path)).sort((a, b) => shorter(a.extract, b.extract))
+            if (options.length) take(ofExtract(options[0].extract, options[0].source))
+        }
+        // 3. The first Details sentence citing it: his wording whole, or a DRAFT sentence's shortest shortening still citing what it must.
+        for (const r of needed) {
+            if (stated.has(r.path)) continue
+            const sentence = details.find(candidate => candidate.instruction.from.includes(r.path))!
+            if (sentence.wording === 'APPROVED') {
+                take(whole(sentence, 'DETAILS_SENTENCE'))
+                continue
+            }
+            const must = inGroup(sentence.instruction.from).filter(path => !isDetail(path))
+            const shortening = draftShorteningsOf(sentence.instruction)
+                .filter(candidate => must.every(path => candidate.from.includes(path)))
+                .sort(shorter)[0]
+            take(
+                shortening
+                    ? { chosenBy: 'DETAILS_SENTENCE', form: 'SHORTENING', at: sentence.at, text: shortening.text, wording: extractStatusOf('DRAFT'), source: null, extract: null, drops: [shortening.drops], states: inGroup(shortening.from) }
+                    : whole(sentence, 'DETAILS_SENTENCE'),
+            )
+        }
+        // An extract of a sentence also said whole is inside it; extracts of one sentence become the one extract of all their parts.
+        chosen = chosen.filter(c => !(c.form === 'EXTRACT' && chosen.some(other => other.form === 'WHOLE' && other.at === c.at)))
+        for (const at of [...new Set(chosen.filter(c => c.form === 'EXTRACT').map(c => c.at))]) {
+            const parts = chosen.filter(c => c.form === 'EXTRACT' && c.at === at)
+            if (parts.length < 2) continue
+            // Their parts together, a sentence said whole taking the place of its leading clause.
+            const bySentence = new Map<number, ExtractUnit>()
+            for (const unit of parts.flatMap(c => c.extract!.units)) {
+                const held = bySentence.get(unit.sentence)
+                if (!held || (held.part === 'LEADING_CLAUSE' && unit.part === 'WHOLE_SENTENCE')) bySentence.set(unit.sentence, { ...unit })
+            }
+            const units = [...bySentence.values()].sort(byPlace)
+            const union = new Set(parts.flatMap(c => c.states))
+            const source = details[at]
+            const everySentence = sentencesOf(source.instruction.text).every((_, n) => bySentence.get(n)?.part === 'WHOLE_SENTENCE')
+            if (everySentence) {
+                chosen = [...chosen.filter(c => !parts.includes(c)), whole(source, 'APPROVED_ENTRY')]
+                continue
+            }
+            const joined = usable.find(
+                ({ extract, source: from }) => from.at === at && extract.omitsBetween.length === 0 && canonicalJson(extract.units) === canonicalJson(units) && [...union].every(path => keptPaths(extract).includes(path)),
+            )
+            if (!joined) continue
+            chosen = [...chosen.filter(c => !parts.includes(c)), ofExtract(joined.extract, joined.source)]
+        }
+        stated.clear()
+        chosen.forEach(c => c.states.forEach(path => stated.add(path)))
+        chosen.sort((a, b) => {
+            const first = (c: Candidate) => (details[c.at].instruction.section === 'How to score' ? 0 : 1)
+            const unit = (c: Candidate) => c.extract?.units[0]?.sentence ?? -1
+            return first(a) - first(b) || a.at - b.at || unit(a) - unit(b)
+        })
+
+        const why: string[] = []
+        for (const r of needed) if (!stated.has(r.path)) why.push(`${r.path} (${r.class}, rule ${r.rule}) is stated by no sentence of the group`)
+        // Every way to score the group speaks of is shown by a stated CONSTITUTIVE field under it (the table's way-level rule).
+        const ways = [...new Set(listed.map(r => wayOf(r.path)).filter((way): way is string => !!way))].map(way => ({
+            way,
+            shownBy: chosen.flatMap((c, n) => (c.states.some(path => wayOf(path) === way && required.get(path)!.class === 'CONSTITUTIVE') ? [n] : [])),
+        }))
+        for (const way of ways) {
+            if (!listed.some(r => wayOf(r.path) === way.way && r.class === 'CONSTITUTIVE')) why.push(`the way to score ${way.way} has no field the essentials table classes CONSTITUTIVE, so it cannot be shown to appear`)
+            else if (!way.shownBy.length) why.push(`the way to score ${way.way} is shown by no sentence of the group`)
+        }
+
+        // "Full rule" pointers: each DETAIL left out, and each way to score said shortened, to the Details sentence saying it in full.
+        const pointers = new Map<number, DetailsPointer>()
+        const point = (at: number, because: DetailsPointer['because'][number], paths: string[]) => {
+            const pointer = pointers.get(at) ?? { ...refOf(details[at]), label: FULL_RULE_LABEL, labelStatus: 'DRAFT' as const, because: [], paths: [] }
+            if (!pointer.because.includes(because)) pointer.because.push(because)
+            for (const path of paths) if (!pointer.paths.includes(path)) pointer.paths.push(path)
+            pointers.set(at, pointer)
+        }
+        for (const r of listed) if (r.class === 'DETAIL' && !stated.has(r.path)) point(r.at, 'DETAIL_LEFT_OUT', [r.path])
+        for (const c of chosen) {
+            if (c.form === 'WHOLE' || chosen.some(other => other.form === 'WHOLE' && other.at === c.at)) continue
+            const ways = inGroup(details[c.at].instruction.from).filter(path => required.get(path)!.class === 'CONSTITUTIVE')
+            if (ways.length) point(c.at, 'SHORTENED_WAY_TO_SCORE', ways)
+        }
+        const carriedBy = new Map<number, number>()
+        chosen.forEach((c, n) => {
+            if (c.form !== 'WHOLE' && pointers.has(c.at) && !carriedBy.has(c.at)) carriedBy.set(c.at, n)
+        })
+        const pointed = new Set([...pointers.values()].flatMap(pointer => pointer.paths))
+
+        const keepingNothing = usable.filter(({ extract, source }) => extract.reading === 'NONE_RECORDED' && inGroup(source.instruction.from).length > 0).map(({ extract }) => extract.id)
+        const notes = chosen
+            .filter(c => c.form === 'WHOLE' && c.chosenBy === 'DETAILS_SENTENCE' && c.wording === 'APPROVED' && usable.some(({ extract, source }) => source.at === c.at && extract.reading === 'NONE_RECORDED'))
+            .map(
+                c =>
+                    `${c.source?.id ?? 'the approved sentence'} is said whole: it holds a field the table leaves to Coach Details, and none of its extracts keeps anything, because no reading of what a part of his wording states is recorded (his decision)`,
+            )
+        const sentences: ScoringSentence[] = chosen.map((c, n) => ({
+            text: c.text,
+            wording: c.wording,
+            source: c.source,
+            chosenBy: c.chosenBy,
+            form: c.form,
+            extractId: c.extract?.id ?? null,
+            details: refOf(details[c.at]),
+            drops: c.drops,
+            states: c.states.map(path => ({ path, class: required.get(path)!.class, rule: required.get(path)!.rule })),
+            fullRule: carriedBy.get(c.at) === n ? pointers.get(c.at)! : null,
+        }))
+        const fullRules = [...pointers.entries()].filter(([at]) => !carriedBy.has(at)).map(([, pointer]) => pointer)
+        const out = { requirements: requirementsOut(chosen, pointed), ways, extractsKeepingNothing: keepingNothing, notes }
+        if (why.length) return withheld(group, why, out)
+        return { group, noun: nounOf(group), withheld: false, why: [], sentences, fullRules, ...out }
+    })
+}
+
+/** The table as an administrator is told of it: where it is, its status, its label while PROPOSED, and why it cannot be used. */
+const tableAccountOf = (load: EssentialsLoad): OverviewScoring['table'] => ({
+    source: ESSENTIALS_SOURCE,
+    status: load.table ? load.table.status : 'UNUSABLE',
+    label: load.table?.status === 'PROPOSED' ? PROPOSED_TABLE_LABEL : null,
+    labelStatus: 'DRAFT',
+    why: load.why,
+})
+
+/** The draft where the overview could not be computed at all: one gap saying why, nothing else (the activity is unaffected). */
+export function failedOverviewDraft(what: string): CoachOverviewDraft {
+    return {
+        served: false,
+        purpose: null,
+        blocks: [],
+        sameTextInEveryBlock: false,
+        gaps: [{ part: 'game', what: `the overview could not be computed: ${what}` }],
+        extracts: [],
+        scoring: { table: tableAccountOf(ESSENTIALS), blocks: [], sameTextInEveryBlock: false },
+    }
+}
+
 /**
  * **The overview's purpose, game sentence and parameters for one activity** (stage 3A, for an administrator): the purpose once, the game
  * and parameters per game the activity was built from. Whatever goes wrong is a gap: the overview never refuses, or changes, the activity.
  * A block whose extracts cannot be generated lists none, with a gap naming why, and every other part stands (stage 3B review). `extractsOf`
  * is the generator; a test may hand one that fails.
+ *
+ * Stage 3C: and how each team scores, per block (`scoringGroupsOf`), from that block's own render (`rendered`, the build's; a caller that
+ * hands none has the block's fixture rendered here, by the same renderer) and that block's extracts. `options` hand another table or
+ * approved wording (tests). A block whose groups cannot be composed lists none, with a `scoring` gap; every other part stands.
  */
 export function coachOverviewDraftOf(
     goalId: string | null,
-    blocks: { blockId: string; fixture: any }[],
+    blocks: { blockId: string; fixture: any; rendered?: { instructions: Instruction[] } }[],
     extractsOf: (game: any) => { extracts: DerivedExtract[]; withheld: WithheldExtract[] } = game => extractsFor(game),
+    options: { essentials?: EssentialsLoad; wording?: ApprovedWording[] } = {},
 ): CoachOverviewDraft {
     const gaps: OverviewGap[] = []
     const { purpose, gap } = purposeOf(goalId)
@@ -321,5 +1127,23 @@ export function coachOverviewDraftOf(
             return { blockId, extracts: [], withheld: [] }
         }
     })
-    return { served: false, purpose, blocks: read, sameTextInEveryBlock: read.length > 0 && read.every(entry => textOf(entry) === textOf(read[0])), gaps, extracts }
+    // Stage 3C: each block's scoring groups, from its own Details and extracts. A failure is that block's gap.
+    const load = options.essentials ?? ESSENTIALS
+    const wording = options.wording ?? approvedWording()
+    const scoringBlocks = blocks.map(({ blockId, fixture, rendered }, n) => {
+        try {
+            const instructions = rendered?.instructions ?? renderConcreteGame(fixture, wording).instructions
+            return { blockId, groups: scoringGroupsOf(fixture, instructions, extracts[n].extracts, load, wording) }
+        } catch (error) {
+            gaps.push({ part: 'scoring' as const, blockId, what: `how each team scores could not be composed: ${error instanceof Error ? error.message : String(error)}` })
+            return { blockId, groups: [] as ScoringGroup[] }
+        }
+    })
+    const scoringText = (entry: { groups: ScoringGroup[] }) => JSON.stringify(entry.groups.map(group => [group.group, group.withheld, group.sentences.map(sentence => sentence.text), group.fullRules.map(pointer => pointer.text)]))
+    const scoring: OverviewScoring = {
+        table: tableAccountOf(load),
+        blocks: scoringBlocks,
+        sameTextInEveryBlock: scoringBlocks.length > 0 && scoringBlocks.every(entry => scoringText(entry) === scoringText(scoringBlocks[0])),
+    }
+    return { served: false, purpose, blocks: read, sameTextInEveryBlock: read.length > 0 && read.every(entry => textOf(entry) === textOf(read[0])), gaps, extracts, scoring }
 }

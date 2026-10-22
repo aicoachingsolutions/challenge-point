@@ -58,13 +58,13 @@ import type { AuthorizationExclusion, AuthorizationLists, AuthorizedAdjustment, 
 import { allocationPrinciple, authorizationLists, contextManipulationRelationships, learningGoalAuthorizations, libraryConstraintPrinciple, neededRecordGaps } from '../test-library/learning-goal-authorizations'
 import { applyRealizationDeferrals } from '../derivation/realization-deferral'
 import type { ConstraintAuthority, ConstraintPoolAccount } from '../test-library/types'
-import { CoachOverviewDraft, coachOverviewDraftOf } from './coach-overview'
+import { CoachOverviewDraft, coachOverviewDraftOf, failedOverviewDraft } from './coach-overview'
 import { contextScoringFindings, EPISODE_REACHABLE_CHECK } from './context-scoring-guard'
 import { checkFidelity, FidelityFinding } from './fidelity'
 import { ReviewDraft, reviewDraftOf } from './review-draft'
 import { EvidenceBlock, LayoutFallback, ReviewEvidence, reviewEvidenceOf } from './review-evidence'
 import { mechanismDemonstration } from './mechanism-demonstrations'
-import { RenderedActivity, renderConcreteGame } from './render-concrete-game'
+import { Instruction, RenderedActivity, renderConcreteGame } from './render-concrete-game'
 import { assembleRenderingFixture } from './rendering-fixture'
 import { layoutChoicesOf, layoutMoversOf, layoutOf, MARK_UNION_ONCE } from './physical-layout'
 import { checkRoleBlockComposition, checkRoleBlockLayout, checkRoleBlocks, composeRoleBlockActivity, RoleBlockCheck, roleBlockFixture } from './role-blocks'
@@ -267,7 +267,8 @@ export interface ServedActivity {
      * build makes. Not served to a coach: stage 3D serves the overview once its agreement check (Q7) is in place. It never decides
      * whether an activity is served; whatever it cannot say is a gap inside it. Since stage 3B it also lists, per block, the verbatim
      * extracts of the approved wording that block's game says (`derived-wording.ts`), each DERIVED_FROM_APPROVED with its source entry and
-     * cover accounting, and those withheld with why.
+     * cover accounting, and those withheld with why. Since stage 3C, how each team scores, per block (`scoring`), composed through the
+     * PROPOSED essentials table and labelled as built on it.
      */
     overviewDraft?: CoachOverviewDraft
 }
@@ -1030,15 +1031,16 @@ function build(
     /**
      * Stage 3A: the Coach Overview's purpose, game sentence and parameters, for an administrator's review only (`overviewDraft`). The
      * purpose is the goal's (a demonstration has none); the game and parameters are read from each game served. Whatever goes wrong is a
-     * gap inside it, never a refusal: the activity is served or refused exactly as it would be without it.
+     * gap inside it, never a refusal: the activity is served or refused exactly as it would be without it. Stage 3C: each game's own render
+     * is handed in, so how each team scores is composed from exactly the Details that game says.
      */
     const purposeGoal = kind === 'learning-goal' && request.kind === 'learning-goal' ? request.goalId : null
-    const overviewDraftFor = (games: { blockId: string; fixture: any }[]): Partial<ServedActivity> => {
+    const overviewDraftFor = (games: { blockId: string; fixture: any; rendered: { instructions: Instruction[] } }[]): Partial<ServedActivity> => {
         if (!review.includeDrafts) return {}
         try {
             return { overviewDraft: coachOverviewDraftOf(purposeGoal, games) }
         } catch (error) {
-            return { overviewDraft: { served: false, purpose: null, blocks: [], sameTextInEveryBlock: false, gaps: [{ part: 'game', what: `the overview could not be computed: ${error instanceof Error ? error.message : String(error)}` }], extracts: [] } }
+            return { overviewDraft: failedOverviewDraft(error instanceof Error ? error.message : String(error)) }
         }
     }
 
@@ -1228,7 +1230,7 @@ function build(
                     // Stage K8: the admin-only review evidence, where the goal's record asks for one; absent on every coach's answer.
                     ...((evidence => (evidence ? { evidence } : {}))(evidenceOf('served'))),
                     // Stage 3A: the overview's parts, read from each block's own game as served, for an administrator only.
-                    ...overviewDraftFor(games.map(entry => ({ blockId: entry.block.blockId, fixture: entry.fixture }))),
+                    ...overviewDraftFor(games.map(entry => ({ blockId: entry.block.blockId, fixture: entry.fixture, rendered: entry.rendered }))),
                 },
             )
         }
@@ -1259,7 +1261,7 @@ function build(
         return refusal
     }
     const evidence = reviewEvidenceFor(review, goalSelection, account, roleIndex, session, 'served', one.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.contracts, rendered: one.rendered, ...one.evidence }])
-    return serve(one, { ...(evidence ? { evidence } : {}), ...overviewDraftFor([{ blockId: ONE_GAME, fixture: one.fixture }]) })
+    return serve(one, { ...(evidence ? { evidence } : {}), ...overviewDraftFor([{ blockId: ONE_GAME, fixture: one.fixture, rendered: one.rendered }]) })
 }
 
 /** The block id the review evidence gives a game not played in role blocks. */

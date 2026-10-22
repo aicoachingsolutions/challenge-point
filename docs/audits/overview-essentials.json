@@ -1,0 +1,121 @@
+{
+    "about": "PROPOSED, NOT APPROVED. Which parts of how a team scores the Coach Overview must state, and which it may leave to Coach Details behind a 'full rule' pointer. His reply filed 22 October 2026, item 6: 'the overview should not reproduce every qualification, exception, and restart condition. Those belong in Coach Details, with any essential qualification included in the overview when omitting it would materially misrepresent the game.' Item 2: 'Please ensure that the completeness check verifies that all necessary information remains accessible and that abbreviated statements do not misrepresent the full rules.' Which kinds of condition qualify is a learning-design judgement, so it is recorded here once, by register row and condition type, never activity by activity, and read by the overview's composer (back/src/system/rendering/coach-overview.ts); nothing in code decides it. Every class below is OUR PROPOSAL for his decision (BUILD PLAN stage 3C, from design D3 build step 2 and the plan's reconciliations). The status stays PROPOSED until the file carries approvedBy with who, a date and his words verbatim, and every overview composed from it is labelled for an administrator as built on a PROPOSED table. Read through AUDITS_DIR, so the bundled server finds it in dist/knowledge; build.js copies it.",
+    "status": "PROPOSED",
+    "proposal": {
+        "by": "Claude, implementing stage 3C of the communication BUILD PLAN for his reply filed 22 October 2026",
+        "date": "2026-10-21",
+        "basis": "His reply filed 22 October 2026, items 2, 4 and 6; the BUILD PLAN's stage 3C classes (CONSTITUTIVE including 'every way to score appears'; ESSENTIAL: a role's credit bound other than the whole game, the origin condition, the transitions that begin a bounded role's episode; DETAIL: the exclusion condition and the also-counts exclusion); design D3 build step 2 for the rows the plan does not name. Points for his decision are marked FOR HIS DECISION in each rule's why."
+    },
+    "classes": {
+        "CONSTITUTIVE": "A way to score. Every overview group for a team that scores this way must state it; a pointer does not excuse it.",
+        "ESSENTIAL": "A qualification whose omission would materially misrepresent the game. It must be stated by some sentence of that team's overview group; a pointer does not excuse it.",
+        "DETAIL": "A qualification the overview may leave to Coach Details, only with a 'full rule' pointer to the Details sentence that states it."
+    },
+    "ruleShape": {
+        "id": "a stable name for the rule; never an activity, goal, entry or element id",
+        "class": "CONSTITUTIVE | ESSENTIAL | DETAIL",
+        "rows": "register row ids (docs/audits/conformance/register-2026-09-18.json) the rule classes, wherever a Details sentence cites a field on one of them",
+        "ways": "instead of rows, for the way-level rule only: COLLECTION rows each of whose elements is a way to score; every way a team's group speaks of must be shown by a stated CONSTITUTIVE field under it",
+        "where": "optional, on the element the cited field belongs to (the element of the row's own collection): { field, equals } or { field, notEquals } (a condition type, a credit bound), or { beginsBoundedEpisode: true } (a transition that begins the episode a bounded role's credit is confined to, read as the renderer reads it)",
+        "why": "the reason, in our words"
+    },
+    "rules": [
+        {
+            "id": "EVERY_WAY_TO_SCORE",
+            "class": "CONSTITUTIVE",
+            "ways": ["V0", "V27", "V7"],
+            "why": "Every way a team scores appears in its overview group (the BUILD PLAN reconciliation moved this from code into this table): the primary event as that team scores it, each element that also counts as the primary event for it, and each value modifier. Shown by a stated CONSTITUTIVE field under it, so a qualification of a way never stands in for the way itself."
+        },
+        {
+            "id": "SCORING_EVENT",
+            "class": "CONSTITUTIVE",
+            "rows": ["V1"],
+            "why": "What a score is: the event the scoring sentence names."
+        },
+        {
+            "id": "WHOLE_GAME_CREDIT",
+            "class": "CONSTITUTIVE",
+            "rows": ["B8"],
+            "where": { "field": "creditedWithin", "equals": "WHOLE_GAME" },
+            "why": "A role whose scores count across the whole game: part of that team's way to score, said where its scoring sentence names it. FOR HIS DECISION: the BUILD PLAN classes only a bound other than the whole game; this class is ours, so that every scoring row a Details sentence cites has a class and nothing is left out by default."
+        },
+        {
+            "id": "PROGRESSION_CONDITION",
+            "class": "CONSTITUTIVE",
+            "rows": ["V3", "V4", "V5", "V6"],
+            "where": { "field": "type", "equals": "progression" },
+            "why": "A primary-event condition of type progression is how the team it applies to scores: where it must get the ball. Its scope, type, referents and value together."
+        },
+        {
+            "id": "ALSO_COUNTS_TEAM_AND_TRIGGER",
+            "class": "CONSTITUTIVE",
+            "rows": ["V28", "V29"],
+            "why": "An occurrence that also counts as the primary event is a way to score for its team: whose it is and what happens."
+        },
+        {
+            "id": "MODIFIER_MAGNITUDE_AND_OPERATION",
+            "class": "CONSTITUTIVE",
+            "rows": ["V9", "V9a"],
+            "why": "A value modifier is a way a score is worth more: by how much and how."
+        },
+        {
+            "id": "BOUNDED_CREDIT",
+            "class": "ESSENTIAL",
+            "rows": ["B8"],
+            "where": { "field": "creditedWithin", "notEquals": "WHOLE_GAME" },
+            "why": "A role whose scores count only inside an episode: leaving it out turns a qualified rule into an unrestricted one (his item 4: 'silently turn a qualified rule into an unrestricted one'; his item 6 example, a new goalkeeper build-out after losing possession)."
+        },
+        {
+            "id": "ORIGIN_CONDITION",
+            "class": "ESSENTIAL",
+            "rows": ["V3", "V4", "V5", "V6"],
+            "where": { "field": "type", "equals": "origin" },
+            "why": "Where a scoring attempt must begin decides whether and when a team can score (his item 2: 'the basic goalkeeper restart condition is essential because it determines when the building team can score again')."
+        },
+        {
+            "id": "CONTROL_CONDITION",
+            "class": "ESSENTIAL",
+            "rows": ["V3", "V4", "V5", "V6"],
+            "where": { "field": "type", "equals": "control" },
+            "why": "That the ball must be under control when the team arrives changes what counts as a score. FOR HIS DECISION: design D3 classes it ESSENTIAL; the BUILD PLAN's stage 3C list does not name it."
+        },
+        {
+            "id": "ALSO_COUNTS_CONTROL",
+            "class": "ESSENTIAL",
+            "rows": ["V30"],
+            "why": "That the team must genuinely establish possession is what makes the regain a score rather than a touch. FOR HIS DECISION: design D3 proposed DETAIL; the BUILD PLAN avoided the judgement (its overview keeps these words through the leading clause of his approved sentence) and his approval of that sentence names 'the intended incentive for controlled high regains', so the stricter class is proposed."
+        },
+        {
+            "id": "BOUNDED_EPISODE_OPENER",
+            "class": "ESSENTIAL",
+            "rows": ["T1", "T1a", "T1b", "T1c", "T2", "T3", "T6", "T7"],
+            "where": { "beginsBoundedEpisode": true },
+            "why": "When a bounded role's episode begins, and who begins it: the restart moments that reopen that team's scoring (his item 2). Only when and who; where and how the restart is taken (T4, T5) is procedure for Coach Details and is not classed here."
+        },
+        {
+            "id": "MODIFIER_CONDITION_AND_END",
+            "class": "ESSENTIAL",
+            "rows": ["V8a", "V8b", "V8c", "V8d"],
+            "why": "When a bonus applies and when it ends: without them the bonus reads as unconditional."
+        },
+        {
+            "id": "EXCLUSION_CONDITION",
+            "class": "DETAIL",
+            "rows": ["V3", "V4", "V5", "V6"],
+            "where": { "field": "type", "equals": "exclusion" },
+            "why": "What does not score, where the conditions above already say what does (the BUILD PLAN's stage 3C DETAIL list). Left to Coach Details behind a pointer."
+        },
+        {
+            "id": "ALSO_COUNTS_EXCLUSION",
+            "class": "DETAIL",
+            "rows": ["V31"],
+            "why": "What does not count as the occurrence (the BUILD PLAN's stage 3C DETAIL list). Left to Coach Details behind a pointer."
+        },
+        {
+            "id": "SCORE_VALUE",
+            "class": "DETAIL",
+            "rows": ["V2"],
+            "why": "How much a score is worth, where no modifier changes it. FOR HIS DECISION: neither the BUILD PLAN nor design D3 classes it; neither puts it in the overview, so DETAIL is proposed and it is left to Coach Details behind a pointer."
+        }
+    ]
+}
