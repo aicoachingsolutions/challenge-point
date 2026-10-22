@@ -10,9 +10,11 @@
  *
  *   - Goals: *"The diagram should draw goals only when the authorized activity representation includes them. It should never assume their
  *     existence or invent their dimensions or placement."* The register holds physical objects (O1-O5: a kind, a count, a position along
- *     and across); an object the game positions is drawn where its realized position is held, at the size held, and an object a target
- *     references, or one the game positions without a realized position, withholds the diagram rather than being placed by guess. No kind
- *     of object is named here. (Realization places no object today, so a game that positions one is withheld until it does.)
+ *     and across); an object the game positions is drawn where its realized position is held, at the size held, once a served sentence
+ *     says it. An objective may score at an object rather than a region: that target is read from the object's realized position exactly
+ *     as a region's is (its place, the end it touches for the attacking direction, what each marked zone is), and Set up must say it. An
+ *     object a target references, or one the game positions, without a realized position withholds the diagram rather than being placed
+ *     by guess. No kind of object is named here. (Realization places no object today, so none is drawn yet.)
  *   - Target zones: *"I'd prefer that target zones use a consistent, visually recognizable color [...] rather than different colors based on
  *     which team attacks them. The diagram should distinguish team identity from scoring-area identity."* and *"the display still needs to
  *     distinguish physical target markings from whichever zones are active scoring objectives in the current block."* So the model keeps
@@ -26,9 +28,12 @@
  *     An unspecified [specialized-role] starting point, for example, should not prevent the system from drawing an otherwise valid field
  *     with authorized team starting areas. The system must never invent missing spatial information."* (his role noun bracketed, as the
  *     coupling ratchet keeps a sport's nouns out of this layer). REQUIRED: the area, the markings Set up says to mark, each block's active
- *     targets, each team's attacking direction, every starting area the game authorizes, and every object it positions. Anything else
- *     the game does not place (a restart location, individual positions, an unplaced object) is not drawn, with a note for the
- *     administrator. A required relationship that cannot be read whole withholds the diagram, never the activity.
+ *     targets, each team's attacking direction, every starting area the game authorizes for a team (a group that is a registered team
+ *     designation or a block role: one no team of the block holds cannot be drawn without inventing whose it is), and every object it
+ *     positions. Anything else is not drawn, with a note for the administrator: a restart location, individual positions, an unplaced
+ *     object, and where any group that is not a team starts (a role within a team, an individual, neutral players; register P9, *"team
+ *     designation or role"*), whether or not the game specifies it, since the model draws no individual's position (D8). A required
+ *     relationship that cannot be read whole withholds the diagram, never the activity.
  *   - *"The diagram should not prescribe formations, passing patterns, or movement solutions that the activity does not authorize."* The
  *     model has no field for a player, a position inside an area, a path or a movement; the check refuses one (D8).
  *
@@ -45,14 +50,16 @@
  *
  * **The agreement check** (`checkFieldDiagram`, D1-D8) holds the model to the served Coach Details, block by block, reading the game again
  * rather than taking the builder's word: the area; every drawn region cited (markings and targets by Set up, starting areas by the sentence
- * that says where the teams start); the markings exactly what Set up says to mark; every number the game's own value at its path and stated
- * by a sentence citing that path; each block's roles held as the served role-block account says; every word allowed; each arrow toward the
- * end its own target touches; nothing the standard leaves out. Any finding withholds the diagram only, with the reasons for the
- * administrator; the activity is served exactly as without it.
+ * that says where the teams start), and every team's authorized starting area drawn; the markings exactly what Set up says to mark; every
+ * number the game's own value at its path and stated by a sentence citing that path; each block's roles (D5: the served role-block account
+ * and the model's holders are both built from the same block holders, so of D5's comparisons only the one with the game's own record,
+ * `record.roleBlock.holders`, is independent of the builder); every word allowed; each arrow toward the end its own target touches;
+ * nothing the standard leaves out. Any finding withholds the diagram only, with the reasons for the administrator; the activity is served
+ * exactly as without it.
  *
  * Nothing here names a goal, a role, a sport term or a value: every number comes from the game, every word from the table or a served sentence.
  */
-import { roleOfHolder } from '../derivation/designation'
+import { isRegisteredDesignation, roleOfHolder } from '../derivation/designation'
 import { RegisterIndex } from '../derivation/register'
 import { asList, GameBlock, objectivesOf, readPath, teamsOf, transitionsOf } from './game-reading'
 import { layoutLeafNumberAt, MARK_UNION_ONCE, PhysicalLayout } from './physical-layout'
@@ -121,6 +128,7 @@ export interface DiagramObject {
 /** A target active in the block viewed: one kind of thing whichever team attacks it (`attackedBy` names the team, never its look). */
 export interface DiagramTarget {
     objective: string
+    /** The element the objective scores at: a region, or a physical object the game holds (then also drawn among the block's objects). */
     region: string
     attackedBy: string
     along: Interval
@@ -257,6 +265,20 @@ const intervalOf = (value: any): Interval | null => (value && finite(value.from)
 const geometryAt = (fixture: any, path: string): any => asList(fixture?.status?.geometry).find(entry => entry?.path === path)?.geometry ?? null
 const intervalAt = (fixture: any, path: string): Interval | null => intervalOf(geometryAt(fixture, path)?.interval)
 const regionPaths = (id: string) => ({ noun: `space.regions[${id}].noun`, along: `space.regions[${id}].position.along`, across: `space.regions[${id}].position.across` })
+const objectPaths = (id: string) => ({ noun: `objects[${id}].kind`, along: `objects[${id}].position.along`, across: `objects[${id}].position.across` })
+const isObjectOf = (fixture: any, id: string): boolean => asList(fixture?.game?.objects).some(object => String(object?.elementId) === id)
+/** Where a target's place is read: a physical object's paths where the objective references an object the game holds (O1-O5), else a region's. */
+const placePaths = (fixture: any, id: string) => (isObjectOf(fixture, id) ? objectPaths(id) : regionPaths(id))
+/** Whether a sentence path says a target's place: a region by its noun; an object by its kind or its position. */
+const saysPlaceOf = (fixture: any, id: string) => {
+    const paths = placePaths(fixture, id)
+    return (path: string): boolean => path === paths.noun || (isObjectOf(fixture, id) && (path === paths.along || path === paths.across))
+}
+/**
+ * Whether a start placement's group names a team (register P9, *"team designation or role"*): a registered team designation (RC-22's list)
+ * or a role of the register's block roles. Any other group (a role within a team, an individual, neutral players) is not a team.
+ */
+const namesTeam = (index: RegisterIndex, group: unknown): boolean => isRegisteredDesignation(index, group) || (index.roleBlocks?.roles ?? []).includes(String(group))
 const same = (a: Interval, b: Interval): boolean => a.from === b.from && a.to === b.to
 const within = (inner: Interval, outer: Interval): boolean => outer.from <= inner.from && inner.to <= outer.to
 const isLine = (along: Interval, across: Interval): boolean => along.from === along.to || across.from === across.to
@@ -338,12 +360,12 @@ export function buildFieldDiagram(input: DiagramInput): { diagram: FieldDiagram 
         const rendered = game.rendered
         const setUp = rendered.filter(instruction => instruction.section === SET_UP)
         const reading = gameReadingOf(fixture)
-        const rect = (id: string): { along: Interval; across: Interval } | null => {
-            const paths = regionPaths(id)
+        const rectAt = (paths: { along: string; across: string }): { along: Interval; across: Interval } | null => {
             const along = intervalAt(fixture, paths.along)
             const across = intervalAt(fixture, paths.across)
             return along && across ? { along, across } : null
         }
+        const rect = (id: string) => rectAt(regionPaths(id))
 
         // ── The markings ─────────────────────────────────────────────────────────────────────
         const markings: DiagramMarkings = { lines: [], zones: [] }
@@ -391,12 +413,12 @@ export function buildFieldDiagram(input: DiagramInput): { diagram: FieldDiagram 
         const unplaced: string[] = []
         for (const object of asList(fixture?.game?.objects)) {
             const id = String(object?.elementId)
-            const along = intervalAt(fixture, `objects[${id}].position.along`)
-            const across = intervalAt(fixture, `objects[${id}].position.across`)
+            const paths = objectPaths(id)
+            const along = intervalAt(fixture, paths.along)
+            const across = intervalAt(fixture, paths.across)
             if (along && across) {
-                const kindPath = `objects[${id}].kind`
-                const by = rendered.find(instruction => instruction.from.includes(kindPath) && typeof object?.kind === 'string' && instruction.text.includes(object.kind))
-                objects.push({ elementId: id, along, across, label: by ? carried(String(object.kind), by) : null, cites: [`objects[${id}].position.along`, `objects[${id}].position.across`] })
+                const by = rendered.find(instruction => instruction.from.includes(paths.noun) && typeof object?.kind === 'string' && instruction.text.includes(object.kind))
+                objects.push({ elementId: id, along, across, label: by ? carried(String(object.kind), by) : null, cites: [paths.along, paths.across] })
             } else if (object?.position !== undefined || objectiveRefs.has(id)) {
                 gap(blockId, `the object ${id} is ${objectiveRefs.has(id) ? 'a target' : 'positioned by the game'} and holds no realized position, so it cannot be drawn without inventing where it is`)
             } else unplaced.push(`${id}${typeof object?.kind === 'string' ? ` (${object.kind})` : ''}`)
@@ -443,9 +465,11 @@ export function buildFieldDiagram(input: DiagramInput): { diagram: FieldDiagram 
                 gap(blockId, `the objective ${objective.elementId} is attacked by ${objective.team}, which is no team of the game`)
                 continue
             }
+            // The target's place: a region's, or a physical object's where the objective references one (read the same way).
             const regionId = objective.regionId
-            const shape = regionId ? rect(regionId) : null
-            if (!regionId || !shape) {
+            const paths = regionId ? placePaths(fixture, regionId) : null
+            const shape = paths ? rectAt(paths) : null
+            if (!regionId || !paths || !shape) {
                 gap(blockId, `the target ${regionId ?? '(no region)'} of the objective ${objective.elementId} holds no realized position along and across the area, so the ${team.key} target cannot be drawn`)
                 continue
             }
@@ -454,7 +478,6 @@ export function buildFieldDiagram(input: DiagramInput): { diagram: FieldDiagram 
                 gap(blockId, `the ${team.key} target ${regionId} (${shape.along.from}-${shape.along.to} m) does not touch exactly one end line, so no attacking direction can be drawn without inventing one`)
                 continue
             }
-            const paths = regionPaths(regionId)
             const line = isLine(shape.along, shape.across)
             const objectivePaths = [`objectives[${objective.elementId}].team`, `objectives[${objective.elementId}].reference`]
             targets.push({
@@ -485,7 +508,12 @@ export function buildFieldDiagram(input: DiagramInput): { diagram: FieldDiagram 
             const team = teamFor(placement?.group)
             const regionPath = `performers.startPlacement[${id}].region`
             if (!team) {
-                gap(blockId, `the starting area ${id} is for ${placement?.group}, which is no team of the game`)
+                // A team's starting area that no team of this block holds cannot be drawn without inventing whose it is. Any other group
+                // (a role within a team, an individual, neutral players) is not drawn, specified or not (his reply filed 23 October 2026,
+                // item 5: an unspecified [specialized-role] starting point "should not prevent the system from drawing an otherwise valid
+                // field with authorized team starting areas"); the model draws no individual's position (D8).
+                if (namesTeam(index, placement?.group)) gap(blockId, `the starting area ${id} is for ${placement?.group}, a team designation no team of this block holds, so it cannot be drawn without inventing whose it is`)
+                else notes.push(`block ${blockId}: not drawn: where ${String(placement?.group)} starts (${id}); only team starting areas are drawn`)
                 continue
             }
             if (team.start) {
@@ -809,14 +837,15 @@ export function checkFieldDiagram(diagram: FieldDiagram, input: DiagramInput): D
 
         // D2 and D7: the targets, cited by Set up, and each team's arrow toward the end its own target touches.
         for (const target of block.targets) {
-            if (!citedBy(setUp, path => path === regionPaths(target.region).noun)) finding('D2', blockId, `the target ${target.region} is drawn and no Set up sentence marks it`)
-            const along = intervalAt(fixture, regionPaths(target.region).along)
-            const across = intervalAt(fixture, regionPaths(target.region).across)
+            if (!citedBy(setUp, saysPlaceOf(fixture, target.region))) finding('D2', blockId, `the target ${target.region} is drawn and no Set up sentence marks it`)
+            const paths = placePaths(fixture, target.region)
+            const along = intervalAt(fixture, paths.along)
+            const across = intervalAt(fixture, paths.across)
             if (!along || !across || !same(along, target.along) || !same(across, target.across)) finding('D2', blockId, `the target ${target.region} is not drawn where this block's game puts it`)
             checkWord(target.label, target.line ? null : DIAGRAM_WORDS.his.targetZone, blockId, rendered, ordinal)
         }
         for (const objective of objectivesOf(game, index)) {
-            const along = objective.regionId ? intervalAt(fixture, regionPaths(objective.regionId).along) : null
+            const along = objective.regionId ? intervalAt(fixture, placePaths(fixture, objective.regionId).along) : null
             const end = along ? touchedEnd(along, lengthM) : null
             const team = block.teams.find(entry => entry.attacks.some(attack => attack.objective === objective.elementId))
             const attack = team?.attacks.find(entry => entry.objective === objective.elementId)
@@ -841,6 +870,15 @@ export function checkFieldDiagram(diagram: FieldDiagram, input: DiagramInput): D
             const expected = realized ?? (direct ? intervalAt(fixture, regionPaths(direct).along) : null)
             if (!expected || !same(expected, team.start.along)) finding('D2', blockId, `the ${team.key} team's starting area is not drawn where this block's game puts it`)
             if (team.start.along.from < 0 || team.start.along.to > lengthM || team.start.across.from < 0 || team.start.across.to > widthM) finding('D2', blockId, `the ${team.key} team's starting area lies outside the area`)
+        }
+        // D2: every starting area the game authorizes for a team is drawn as that team's, read again from the game's placements; a team's
+        // placement no drawn team holds is refused. A placement for any other group is drawn by nothing (D8: no individual's position).
+        for (const placement of asList(fixture?.game?.performers?.startPlacement)) {
+            const id = String(placement?.elementId)
+            const group = String(placement?.group)
+            const holder = roleNamedBy(fixture, index, game.holders, group)
+            const team = block.teams.find(entry => entry.designation === group) ?? (holder ? block.teams.find(entry => entry.role === holder) : undefined)
+            if (team ? team.start?.placement !== id : namesTeam(index, group)) finding('D2', blockId, `the starting area ${id} the game authorizes for ${group} is not drawn as ${team ? `the ${team.key} team's` : 'any drawn team\'s'}`)
         }
 
         // D4: every dimension is the game's own value at its path, and a sentence of this block that cites the path says it.

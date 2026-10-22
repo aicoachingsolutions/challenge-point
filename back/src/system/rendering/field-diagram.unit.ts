@@ -18,11 +18,16 @@
  *   3. the demonstrations: one game drawn with its end lines as the targets and the counts said together; the one whose channels Set up
  *      states as limits is withheld, the activity served unchanged; the refused one has none;
  *   4. missing or inconsistent required data withholds the diagram (TEST-ONLY): a missing value, a target off the end lines, the marked
- *      line off its stated distance, an area that is not the session's, a starting area that cannot be read;
- *   5. every rule of the check refuses its mutation of the model (TEST-ONLY), D1 to D8, and the production model passes;
+ *      line off its stated distance, an area that is not the session's, a starting area that cannot be read, a team designation no team
+ *      holds, two starting areas for one team; and a start placement for a group that is not a team (a specialized role with no region or
+ *      an unrealized one, an individual with a realized region, neutral players) is a note only, the model unchanged (his reply filed 23
+ *      October 2026, item 5);
+ *   5. every rule of the check refuses its mutation of the model (TEST-ONLY), D1 to D8 (a team's starting area dropped or misattributed
+ *      among them), and the production model passes;
  *   6. on the real chain a failure withholds the diagram only: the activity is served exactly as the coach's (TEST-ONLY patch, restored);
  *   7. physical objects: drawn only where the game positions them and a served sentence says them; one positioned without a realized
- *      place, or a target object with no place, withholds; one with no position is a note (TEST-ONLY);
+ *      place, or a target object with no place, withholds; one with no position is a note; an objective scoring at a realized object Set
+ *      up says is drawn as a target read from the object's place (moved, refused; unsaid or unrealized, withheld) (TEST-ONLY);
  *   8. markings presented block by block (TEST-ONLY 15 m line): each block's own markings, the line where its block puts it, no "halfway";
  *   9. the readers are one: the evidence's transitions are `transitionsOf`'s, and review-evidence.ts no longer defines them;
  *  10. nothing activity-specific is written in the two modules.
@@ -249,8 +254,53 @@ test('4. missing or inconsistent required data withholds the diagram, never inve
     draft = fieldDiagramDraftOf(start)
     assert.equal(draft.verdict, 'WITHHELD')
     refusedBy(draft.findings, 'D0', 'starting area', 'start')
-    // An unspecified optional element is a note, never a refusal: the production game places no restart and no individual.
-    assert.equal(PROD_DRAFT.verdict, 'DRAWN')
+    // His reply filed 23 October 2026, item 5: "An unspecified goalkeeper starting point, for example, should not prevent the system from
+    // drawing an otherwise valid field with authorized team starting areas." A start placement for a group that is not a team (register
+    // P9, "team designation or role") is a note, never a refusal, specified or not; both team starting areas stay drawn.
+    const withPlacement = (input: DiagramInput, placement: (game: DiagramInput['games'][number]) => any): DiagramInput => {
+        const changed = copyInput(input)
+        for (const game of changed.games) {
+            game.fixture.game.performers.startPlacement = [...(game.fixture.game.performers.startPlacement ?? []), placement(game)]
+        }
+        return changed
+    }
+    const NOWHERE = { contractId: 'TEST-ONLY', itemId: 'NOWHERE' }
+    const NEAR_REF = { contractId: 'restated:GF2', itemId: 'GF2-03.e' }
+    const nonTeam: [string, (game: DiagramInput['games'][number]) => any][] = [
+        [`${ROLE}, no region`, () => ({ elementId: 'c:TEST-ONLY:ROLE-START', group: ROLE, timing: 'INITIAL' })],
+        [`${ROLE}, a region the game does not realize`, () => ({ elementId: 'c:TEST-ONLY:ROLE-START', group: ROLE, region: { structuralRef: NOWHERE }, timing: 'INITIAL' })],
+        ['an individual, a realized region', () => ({ elementId: 'c:TEST-ONLY:ROLE-START', group: 'target player', region: { structuralRef: NEAR_REF }, timing: 'INITIAL' })],
+    ]
+    for (const [what, placement] of nonTeam) {
+        draft = fieldDiagramDraftOf(withPlacement(PROD.input, placement))
+        assert.equal(draft.verdict, 'DRAWN', `${what}: ${JSON.stringify(draft.findings, null, 1)}`)
+        assert.deepEqual(draft.findings, [])
+        for (const block of draft.diagram!.blocks) {
+            assert.ok(draft.notes.some(note => note.startsWith(`block ${block.blockId}: not drawn: where `) && note.includes('(c:TEST-ONLY:ROLE-START); only team starting areas are drawn')), `${what}: ${JSON.stringify(draft.notes)}`)
+            const prod = PROD_MODEL.blocks.find(entry => entry.blockId === block.blockId)!
+            assert.deepEqual(block.teams.map(team => team.start), prod.teams.map(team => team.start), `${what}: both team starting areas stay drawn`)
+            assert.ok(block.teams.every(team => team.start !== null))
+        }
+        assert.deepEqual({ ...draft, notes: [] }, { ...PROD_DRAFT, notes: [] }, `${what}: the model is the production model`)
+        assert.ok(!JSON.stringify(draft.diagram).includes('ROLE-START'), `${what}: nothing of the placement is drawn`)
+    }
+    // A team's starting area still withholds wherever it cannot be drawn faithfully: a team designation no team of the block holds (one
+    // the register resolves against the possession relation, read from the register), and a second starting area for one team.
+    const unbound = [...index.designations.resolutions.entries()].find(([, resolution]) => resolution.kind === 'POSSESSION_RELATION')![0]
+    draft = fieldDiagramDraftOf(withPlacement(PROD.input, () => ({ elementId: 'c:TEST-ONLY:TEAM-START', group: unbound, region: { structuralRef: NEAR_REF }, timing: 'INITIAL' })))
+    assert.equal(draft.verdict, 'WITHHELD')
+    refusedBy(draft.findings, 'D0', `is for ${unbound}, a team designation no team of this block holds`, 'unbound team designation')
+    draft = fieldDiagramDraftOf(withPlacement(PROD.input, game => ({ ...copy(game.fixture.game.performers.startPlacement[0]), elementId: 'c:TEST-ONLY:SECOND-START' })))
+    assert.equal(draft.verdict, 'WITHHELD')
+    refusedBy(draft.findings, 'D0', 'team has more than one starting area', 'two starting areas')
+    // Neutral players with a realized starting region (neutral-players): a note, the diagram drawn as without it.
+    const neutral = inputOf({ kind: 'mechanism-demonstration', demonstrationId: 'neutral-players', session: sessionAt(12, 1) })
+    const neutralDraft = fieldDiagramDraftOf(neutral.input)
+    assert.equal(neutralDraft.verdict, 'DRAWN')
+    draft = fieldDiagramDraftOf(withPlacement(neutral.input, game => ({ elementId: 'c:TEST-ONLY:N-START', group: 'NEUTRALS', region: { structuralRef: copy(game.fixture.game.objectives[0].reference.structuralRef) }, timing: 'INITIAL' })))
+    assert.equal(draft.verdict, 'DRAWN', JSON.stringify(draft.findings, null, 1))
+    assert.ok(draft.notes.includes('block ONE_GAME: not drawn: where NEUTRALS starts (c:TEST-ONLY:N-START); only team starting areas are drawn'), JSON.stringify(draft.notes))
+    assert.deepEqual(draft.diagram, neutralDraft.diagram, 'neutral players: the model is unchanged')
 })
 
 test('5. each rule of the check refuses its mutation of the model, and the production model passes (TEST-ONLY)', () => {
@@ -266,6 +316,9 @@ test('5. each rule of the check refuses its mutation of the model, and the produ
     refusedBy(mutate(m => m.blocks[0].markings.lines.push({ ...m.blocks[0].markings.lines[0], elementId: 'mark-9' })), 'D2', 'mark-9 is drawn and no Set up sentence marks it', 'extra line')
     refusedBy(mutate(m => (m.blocks[0].teams[0].start!.along = { from: 0, to: 15 })), 'D2', 'starting area is not drawn where', 'start moved')
     refusedBy(mutate(m => (m.blocks[1].targets[0].along = { from: 30, to: 40 })), 'D2', 'is not drawn where this block\'s game puts it', 'target moved')
+    // D2: a team's authorized starting area left out, or drawn as another placement's (read again from the game's placements).
+    refusedBy(mutate(m => (m.blocks[0].teams[0].start = null)), 'D2', 'the game authorizes for ROLE_HOLDER_BUILDING is not drawn as the BUILDING team\'s', 'start dropped')
+    refusedBy(mutate(m => (m.blocks[1].teams[1].start!.placement = 'c:TEST-ONLY:OTHER')), 'D2', 'is not drawn as the PRESSING team\'s', 'start misattributed')
     // D3: a marking Set up marks left out; a zone state that hides a zone inside an active target.
     refusedBy(mutate(m => m.blocks[0].markings.zones.pop()), 'D3', 'Set up marks zone-2 and it is not drawn', 'zone dropped')
     refusedBy(mutate(m => (m.blocks[0].markedZones[1].state = 'MARKED')), 'D3', 'zone-2 is drawn as MARKED and is INSIDE_TARGET', 'zone state')
@@ -365,6 +418,58 @@ test('7. physical objects: drawn only where the game positions them and a senten
     assert.equal(draft.verdict, 'DRAWN', JSON.stringify(draft.findings))
     assert.ok(draft.notes.some(note => note.includes('c:TEST-ONLY:OBJECT-1 (TEST-ONLY object)')), JSON.stringify(draft.notes))
     assert.ok(PROD_DRAFT.notes.some(note => note.startsWith('not drawn: ') && note.includes('which the game holds with no position in the area')))
+
+    // An objective that scores at a physical object (his reply filed 23 October 2026, item 5: "When physical goals are part of an activity,
+    // they should appear in the diagram."): neutral-players' objectives pointed at TEST-ONLY objects realized on the end line each one's
+    // target touched, read exactly as a region target is: its place, the end it touches, the object drawn with the noun Set up carries.
+    const neutral = inputOf({ kind: 'mechanism-demonstration', demonstrationId: 'neutral-players', session: sessionAt(12, 1) })
+    const objectTargets = (realized: boolean, said: boolean): DiagramInput => {
+        const input = copyInput(neutral.input)
+        for (const game of input.games) {
+            game.fixture.game.objectives.forEach((objective: any, n: number) => {
+                const id = `c:TEST-ONLY:OBJECT-T${n + 1}`
+                const region = `c:${objective.reference.structuralRef.contractId}:${objective.reference.structuralRef.itemId}`
+                const along = game.fixture.status.geometry.find((g: any) => g.path === `space.regions[${region}].position.along`).geometry.interval
+                game.fixture.game.objects.push({ elementId: id, kind: 'TEST-ONLY object', position: { along: 'TEST-ONLY', across: 'TEST-ONLY' } })
+                if (realized) {
+                    game.fixture.status.geometry.push({ path: `objects[${id}].position.along`, geometry: { axis: 'along', interval: { ...along } } })
+                    game.fixture.status.geometry.push({ path: `objects[${id}].position.across`, geometry: { axis: 'across', interval: { from: 13, to: 17 } } })
+                }
+                objective.reference.structuralRef = { contractId: 'TEST-ONLY', itemId: `OBJECT-T${n + 1}` }
+                if (said) {
+                    const sentence = { section: 'Set up' as const, text: `Place a TEST-ONLY object on end line ${n + 1}`, status: 'DERIVED' as const, from: [`objects[${id}].kind`, `objects[${id}].position.along`, `objects[${id}].position.across`], quantities: [] }
+                    game.rendered.push(sentence)
+                    input.served.push(sentence)
+                }
+            })
+        }
+        return input
+    }
+    const plain = fieldDiagramDraftOf(neutral.input).diagram!.blocks[0]
+    draft = fieldDiagramDraftOf(objectTargets(true, true))
+    assert.equal(draft.verdict, 'DRAWN', JSON.stringify(draft.findings, null, 1))
+    const block = draft.diagram!.blocks[0]
+    assert.deepEqual(
+        block.targets.map(target => [target.region, target.along, target.across, target.line, target.label]),
+        plain.targets.map((target, n) => [`c:TEST-ONLY:OBJECT-T${n + 1}`, target.along, { from: 13, to: 17 }, true, null]),
+        'each target is its object, at its realized place',
+    )
+    assert.ok(block.targets.every(target => target.cites.includes(`objects[${target.region}].position.along`)))
+    assert.deepEqual(block.teams.map(team => team.attacks.map(attack => attack.end)), plain.teams.map(team => team.attacks.map(attack => attack.end)), 'the same attacking ends')
+    assert.deepEqual(block.objects.map(o => [o.elementId, o.label!.text, o.label!.carriedBy!.section]), [['c:TEST-ONLY:OBJECT-T1', 'TEST-ONLY object', 'Set up'], ['c:TEST-ONLY:OBJECT-T2', 'TEST-ONLY object', 'Set up']])
+    assert.deepEqual(block.markings, plain.markings, 'the markings Set up says to mark are still drawn')
+    // The check reads an object target again: moved, it is refused.
+    const moved = copy(draft.diagram!)
+    moved.blocks[0].targets[0].across = { from: 0, to: 30 }
+    refusedBy(checkFieldDiagram(moved, objectTargets(true, true)), 'D2', 'c:TEST-ONLY:OBJECT-T1 is not drawn where this block\'s game puts it', 'object target moved')
+    // Realized but said by no sentence: withheld (the object and the target alike).
+    draft = fieldDiagramDraftOf(objectTargets(true, false))
+    assert.equal(draft.verdict, 'WITHHELD')
+    refusedBy(draft.findings, 'D2', 'the target c:TEST-ONLY:OBJECT-T1 is drawn and no Set up sentence marks it', 'unsaid object target')
+    // Not realized: never placed by guess.
+    draft = fieldDiagramDraftOf(objectTargets(false, true))
+    assert.equal(draft.verdict, 'WITHHELD')
+    refusedBy(draft.findings, 'D0', 'the target c:TEST-ONLY:OBJECT-T1 of the objective', 'unrealized object target')
 })
 
 test('8. markings presented block by block (TEST-ONLY 15 m line): each block\'s own, the line where its block puts it, no "halfway"', () => {
