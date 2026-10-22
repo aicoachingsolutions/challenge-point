@@ -278,6 +278,9 @@ test('his 16 October provisional choices, each cited, with whether the activity 
         // Added 17 October 2026 (stage M2): his reply filed 19 October 2026, item 2 (a controlled regain inside the pressing team's own
         // target counts as a score), carried by A01-R1-V27-1; the six entries of his 16 October reply above are unchanged.
         ['his reply filed 19 October 2026, item 2', 'AUTHORIZED_BY_RULING', []],
+        // Added 21 October 2026 (stage 2D): his reply filed 22 October 2026, item 7 (the markings set out once, MARK_UNION_ONCE, for the
+        // area his words name); the seven entries above are unchanged.
+        ['his reply filed 22 October 2026, item 7', 'AUTHORIZED_BY_RULING', []],
     ])
     const regainScores = a01().provisionalChoices![6]
     assert.equal(regainScores.ruledOn, '2026-10-19')
@@ -475,8 +478,9 @@ test('authorizationLists: authorized by existing knowledge, his provisional choi
     ])
     // Re-pointed 17 October 2026 (stage M2): the record holds seven provisional choices (his reply filed 19 October 2026, item 2, joins
     // the six of his 16 October reply), and each still opens the list in order, whole.
-    assert.equal(record.provisionalChoices!.length, 7)
-    assert.deepEqual(lists.provisionalChoices.slice(0, 7).map(entry => [entry.words, entry.citedAs, entry.status, entry.gaps]), record.provisionalChoices!.map(choice => [choice.words, choice.citedAs, choice.status, choice.gaps]))
+    // Re-pointed 21 October 2026 (stage 2D): eight, his reply filed 22 October 2026, item 7, joining them last.
+    assert.equal(record.provisionalChoices!.length, 8)
+    assert.deepEqual(lists.provisionalChoices.slice(0, 8).map(entry => [entry.words, entry.citedAs, entry.status, entry.gaps]), record.provisionalChoices!.map(choice => [choice.words, choice.citedAs, choice.status, choice.gaps]))
     assert.deepEqual(lists.gaps.map(({ neededBy, ...gap }) => gap), record.gaps, 'each definition whole')
     // Re-pointed 15 October 2026 (stage K4): D6 is needed by no entry now (it was needed by 'defensive numbers', 'goalkeeper
     // positioning' and 'overloads'); M3 is needed by the goalkeeper entry among others.
@@ -519,6 +523,30 @@ test('(M4, L11) every record gap is settled by his cited words, and the gate ref
     assert.ok(damaged(r => void asBeforeK6(r)).some(e => e.includes('the gap D3 is marked settled, and') && e.includes('still waits on it')))
     // Without settledBy a gap stays unsettled, and nothing else is refused for it.
     assert.deepEqual(damaged(r => delete r.gaps![0].settledBy), [])
+})
+
+/**
+ * **Stage 2D, 21 October 2026: his reply filed 22 October 2026, item 7, recorded as the one choice a reader acts on.** Its words are his,
+ * verbatim (lines 75 and 76 of the filed reply); its code names what the reader does and its scope the area his words name, both as data.
+ */
+test('(2D) his item 7 is recorded with its code and scope; a code nobody reads, a code with no scope, or one not his ruling is refused', () => {
+    const choice = a01().provisionalChoices!.find(entry => entry.value !== undefined)!
+    assert.deepEqual([choice.value, choice.appliesTo, choice.ruledOn, choice.by, choice.citedAs, choice.status, choice.gaps], ['MARK_UNION_ONCE', { lengthM: 40, widthM: 30 }, '2026-10-22', 'Christian', 'his reply filed 22 October 2026, item 7', 'AUTHORIZED_BY_RULING', []])
+    assert.equal(
+        choice.words,
+        'For this particular 40 × 30 m configuration, we can also simplify setup by marking the halfway line and both 5 m end zones at the beginning. Role exchanges should not require unnecessary physical re-marking. The knowledge can continue to represent the distinct targets and relationships for each block, even where the physical markings remain unchanged.',
+    )
+    assert.equal(a01().provisionalChoices!.filter(entry => entry.value !== undefined).length, 1, 'the only choice a reader acts on')
+    const at = a01().provisionalChoices!.findIndex(entry => entry.value !== undefined) + 1
+    assert.equal(at, 8, 'recorded last')
+    assert.ok(damaged(r => ((r.provisionalChoices![at - 1] as any).value = 'TEST-ONLY')).some(e => e.includes(`provisional choice ${at} names the code "TEST-ONLY", which no reader acts on`)))
+    assert.ok(damaged(r => delete r.provisionalChoices![at - 1].appliesTo).some(e => e.includes(`provisional choice ${at} carries a code and no area it applies to`)))
+    assert.ok(damaged(r => ((r.provisionalChoices![at - 1] as any).appliesTo = { lengthM: 40, widthM: 30, depthM: 5 })).some(e => e.includes('carries a code and no area it applies to')))
+    assert.ok(damaged(r => ((r.provisionalChoices![at - 1] as any).appliesTo = { lengthM: 40, widthM: 0 })).some(e => e.includes('carries a code and no area it applies to')))
+    assert.ok(damaged(r => delete r.provisionalChoices![at - 1].value).some(e => e.includes(`provisional choice ${at} names the code null, which no reader acts on`)), 'a scope with no code')
+    assert.ok(
+        damaged(r => Object.assign(r.provisionalChoices![at - 1], { status: 'MISSING_CAPABILITY', gaps: ['M7'] })).some(e => e.includes(`provisional choice ${at} carries a code a reader acts on and is MISSING_CAPABILITY, not his ruling`)),
+    )
 })
 
 test('the record is handed out as copies, so no caller edits a ruling in place', () => {

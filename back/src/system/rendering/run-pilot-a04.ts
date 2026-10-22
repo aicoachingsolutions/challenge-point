@@ -17,6 +17,9 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import { buildPilotActivity, isPilotRefused } from './build-pilot-activity'
+// Every section an activity has, in reading order (stage 2A); the five-name list this replaced printed no Role exchange, When it ends,
+// Restarts and ball out or Adjusting sentence.
+import { SECTION_ORDER } from './sections'
 
 const OUT = path.resolve(__dirname, '../../../../docs/audits/a04-pilot-activity.txt')
 
@@ -41,7 +44,7 @@ say(`Coach definition   ${activity.goalName} — eliminate individual defenders.
 say(`Session            ${session.players} players, ${session.lengthM} m x ${session.widthM} m, ${session.durationMin} minutes`)
 say('')
 
-for (const section of ['Set up', 'Players', 'How it works', 'How to score', 'What to watch'] as const) {
+for (const section of SECTION_ORDER) {
     const group = rendered.instructions.filter(i => i.section === section)
     if (!group.length) continue
     say(section)

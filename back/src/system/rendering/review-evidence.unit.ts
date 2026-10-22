@@ -25,7 +25,9 @@
  *   8. (K8 review) the structural report FAILS on a broken copy of each part he named — player totals, spatial relationships, scoring
  *      conditions, restarts — with the post-realization gates rerun on the broken concrete game, never a verdict written by hand;
  *   9. (K8 review) the relationships he confirmed on 18 October reach every element and sentence whose item cites one, a relationship
- *      not CONFIRMED is not approved, and a withheld field keeps the row the renderer reported.
+ *      not CONFIRMED is not approved, and a withheld field keeps the row the renderer reported;
+ *  11. (review of stage 2A) every section label the served activity uses is in the evidence with when the coach needs it and its
+ *      status, and none is approved.
  */
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
@@ -51,6 +53,7 @@ import { buildPilotActivity } from './build-pilot-activity'
 import { MECHANISM_DEMONSTRATIONS } from './mechanism-demonstrations'
 import { renderConcreteGame } from './render-concrete-game'
 import { EvidenceBlock, readPath, reviewEvidenceOf } from './review-evidence'
+import { RESTARTS, SECTION_ORDER, WHEN_IT_ENDS, WHEN_OF_SECTION } from './sections'
 import { specializedRoleNames } from './session-envelope'
 
 let passed = 0
@@ -146,11 +149,20 @@ test('1. end to end on production data: SERVED (design step L14; was refused onl
     // Moved 18 October 2026 (design step L14), total 26 -> 28 and approved 2 -> 4: his two scoring statements (entries A01-W2 and
     // A01-W3, his reply filed 20 October 2026, items 1 and 2), each said once; the drafts are unchanged ("this approval applies
     // specifically to the two scoring statements, not yet to the entire activity").
+    // Moved 21 October 2026 (stage 2B), total 28 -> 29 and draft 24 -> 25: the opening restart is said as WHEN and HOW (both DRAFT; his
+    // reply filed 22 October 2026, item 2), and where it is taken names its own restart; nothing approved changes.
+    // Moved 21 October 2026 (stage 2C), total 29 -> 27 and draft 25 -> 23: the two target sentences each block said in the same words,
+    // each citing its own role's target, are each said once (his reply filed 22 October 2026, item 8: "Correct section assignment,
+    // repetition, and information classification in the checked pathway."; communication.unit.ts 9); nothing approved changes.
+    // Moved 21 October 2026 (stage 2D), total 27 -> 28 and draft 23 -> 24: every block's markings set out once (his reply filed 22
+    // October 2026, item 7): the line at halfway, the end zones once, each role's target said by role, and the coach's choice of ends on
+    // its own; "Each team attacks the zone at the other team's end ..." is no longer said (physical-layout.unit.ts); nothing approved changes.
     assert.deepEqual(fact(evidence.acceptance, 'sentences'), { total: 28, approved: 4, draft: 24 })
     assert.deepEqual(evidence.sections.instructions.filter(i => i.wording === 'APPROVED').map(i => i.text), ['When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone', HIS_ITEM_1, HIS_W3, HIS_W2])
     // Measured at this stage: 19 Gate A checks per block, all PASS; the 9 cross-block checks; 11 owed invariants per block.
+    // Re-pointed 21 October 2026 (stage 2D): 10 cross-block checks, RB-L joining.
     assert.deepEqual(evidence.structure.summary.gateChecks, { PASS: 38 })
-    assert.deepEqual(evidence.structure.summary.crossBlock, { PASS: 9 })
+    assert.deepEqual(evidence.structure.summary.crossBlock, { PASS: 10 })
     assert.deepEqual(evidence.structure.summary.owed, { PASS: 22 })
     assert.equal(evidence.structure.composition.length, 0)
     // Only production data: the record names the realization, and no TEST-ONLY value is anywhere in what was built.
@@ -190,7 +202,12 @@ test('2. the nine items: his words from the record, each resolved to elements, c
     assert.ok(byId.R5.blocks[0].elements.some(e => e.path === 'objectives[c:restated:GF2:GF2-08.e].reference'))
     // Moved 17 October 2026 (stage M3, design step L9), 24 -> 25 (test 1). Moved 18 October 2026 (stage M5), 25 -> 26: his sentence.
     // Moved 18 October 2026 (design step L14), 26 -> 28: his two scoring statements (A01-W2, A01-W3).
+    // Moved 21 October 2026 (stage 2B), 28 -> 29: the opening restart's WHEN and HOW are two sentences.
+    // Moved 21 October 2026 (stage 2C), 29 -> 27: the two mirrored target sentences are each said once (test 1).
+    // Moved 21 October 2026 (stage 2D), 27 -> 28: every block's markings set out once (test 1).
     assert.equal(byId.R8.sentences.length, 28)
+    // Stage 2D (21 October 2026): RB-L joins the cross-block checks (test 1), and an item's checks are the ones his review request lists for
+    // it (the record's data, unchanged), so R7 still reads the nine.
     assert.ok(byId.R7.checks.map(c => c.checkId).join() === 'RB-1,RB-2,RB-3,RB-4,RB-5,RB-6,RB-7,RB-8,RB-M')
 })
 
@@ -202,13 +219,21 @@ test('3. provenance: his three layers and the standings, every cited path traced
     const said = (start: string) => instructions.find(i => i.text.startsWith(start))!
     // The area is the session's and nothing else.
     assert.deepEqual(said('Mark out an area').layers, ['SESSION_INPUT'])
-    // The restart rests on his provisional choices (the taker among them), the ball on the sport profile.
-    const restart = said(`The building team's ${ROLE} restarts play`)
-    assert.ok(restart.sources.some(s => s.standing === 'PROVISIONAL' && s.ref === 'provisional:A01-R1::A01-R1-T3-1'))
-    assert.ok(restart.sources.some(s => s.layer === 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS' && s.standing === 'APPROVED'))
+    // The restart rests on his provisional choices (the taker among them), the ball on the sport profile. Re-pointed 21 October 2026
+    // (stage 2B): it is said as WHEN ("... restarts play: {triggers}") and HOW ("... restarts play from the feet, ..."); both name the
+    // taker and rest on it, and only HOW names the ball. Was one sentence resting on both.
+    const restartWhen = said(`The building team's ${ROLE} restarts play:`)
+    const restartHow = said(`The building team's ${ROLE} restarts play from the feet`)
+    for (const restart of [restartWhen, restartHow]) assert.ok(restart.sources.some(s => s.standing === 'PROVISIONAL' && s.ref === 'provisional:A01-R1::A01-R1-T3-1'), restart.text)
+    assert.ok(restartHow.sources.some(s => s.layer === 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS' && s.standing === 'APPROVED'))
+    assert.ok(!restartWhen.sources.some(s => s.layer === 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS'), 'the WHEN names no ball')
     // The post-regain area's depth: the item bounding it is found (the fixture carries the bound without it).
-    const depth = said("Mark the pressing team's target zone")
+    // Re-pointed 21 October 2026 (stage 2D): with every block's markings set out once, the sentence names the end zone the target is
+    // ("The pressing team's target zone is the 5 m end zone at the building team's end"; was "Mark the pressing team's target zone at the
+    // building team's end, 5 m deep, across the full width"), and rests on his recorded choice too.
+    const depth = said("The pressing team's target zone")
     assert.ok(depth.sources.some(s => s.ref === 'provisional:A01-R1::A01-R1-S5-3' && s.standing === 'PROVISIONAL'), JSON.stringify(depth.sources))
+    assert.ok(depth.sources.some(s => s.ref === 'record MARK_UNION_ONCE' && s.standing === 'PROVISIONAL' && s.detail === 'his reply filed 22 October 2026, item 7'), JSON.stringify(depth.sources))
     // An adjustment: his provisional choice, through a relationship he CONFIRMED on 18 October.
     const moveLine = said('You may choose to move the marked line')
     assert.ok(moveLine.sources.some(s => s.ref === 'record A01-ADJ-3' && s.standing === 'PROVISIONAL'))
@@ -298,7 +323,14 @@ test('5. the specialized role as a deep support option, and no prescription, as 
     // Moved 18 October 2026 (design step L14), 4 -> 5: his eligibility sentence (A01-W3, his reply filed 20 October 2026, item 2) names
     // the role ("the next goalkeeper restart") and carries "cannot" and "until". No prescription finding, for the same reason as his build-out
     // sentence: it covers the origin condition whose arm the role is, and approval exempts it from the lexicon only. Listed, so he sees it.
-    assert.equal(naming.length, 5)
+    // Moved 21 October 2026 (stage 2B), 5 -> 7: the opening restart is said as WHEN and HOW, both naming its taker, and where it is taken
+    // now names its own restart ("You choose where the building team's goalkeeper restarts play, ..."), so three DRAFT sentences name the
+    // role where one did; none carries a word of obligation or a prescription finding.
+    assert.equal(naming.length, 7)
+    assert.deepEqual(
+        naming.filter((s: any) => s.text.includes(`building team's ${ROLE} restarts play`)).map((s: any) => s.text.split(',')[0].split(':')[0]),
+        [`The building team's ${ROLE} restarts play`, `The building team's ${ROLE} restarts play from the feet`, `You choose where the building team's ${ROLE} restarts play`],
+    )
     assert.ok(naming.every((s: any) => s.q4.length === 0))
     assert.deepEqual(naming.filter((s: any) => s.obligationWords.length).map((s: any) => [s.text, s.obligationWords]), [[HIS_ITEM_1, [String(/\bmust\b/i)]], [HIS_W3, [String(/\bcan ?not\b/i), String(/\buntil\b/i)]]])
     // No prescription: nothing on the rows that would restrict play, no prescription finding, no lexicon word, no library constraint.
@@ -699,6 +731,23 @@ test('10. (M3) items 4 and 5 show each role\'s credit and the regain score; the 
     assert.ok(damaged(c => (c.limitations[0].kind = 'TEST-ONLY')).some(e => e.includes('unknown kind')))
     assert.ok(damaged(c => delete c.limitations[0].role).some(e => e.includes('names no specialized role')))
     assert.ok(damaged(c => (c.limitations[2].words = [])).some(e => e.includes('must quote him')))
+})
+
+test('11. (review of stage 2A) every section label the served activity uses has a recorded status: none approved, When it ends and Restarts and ball out DRAFT', () => {
+    // A section label is coach-facing wording; until the review of stage 2A its status was in code comments only, and the evidence said
+    // each sentence's status but no label's. Read by the section's name (sections.ts LABEL_STATUS), never by goal.
+    const labels = evidence.sections.labels
+    const used = SECTION_ORDER.filter(section => review.rendered.instructions.some(i => i.section === section))
+    assert.deepEqual(labels.map(l => l.section), used, 'one label per section the served activity uses, in reading order')
+    assert.deepEqual(used, [...SECTION_ORDER], 'A01 uses every section')
+    for (const label of labels) {
+        assert.equal(label.when, WHEN_OF_SECTION[label.section], label.section)
+        assert.equal(label.status, 'DRAFT', `${label.section}: no section label is approved`)
+        assert.ok(label.sentences.length > 0 && label.sentences.every(n => evidence.sections.instructions[n].section === label.section), label.section)
+    }
+    assert.deepEqual(labels.flatMap(l => l.sentences).sort((a, b) => a - b), evidence.sections.instructions.map(i => i.index), 'every sentence under exactly one label')
+    for (const name of [WHEN_IT_ENDS, RESTARTS]) assert.equal(labels.find(l => l.section === name)?.status, 'DRAFT', name)
+    assert.deepEqual(fact(evidence.acceptance, 'section labels'), { total: 8, approved: 0, draft: 8, draftLabels: [...SECTION_ORDER] })
 })
 
 console.log(`review-evidence.unit.ts — ${passed} passed`)

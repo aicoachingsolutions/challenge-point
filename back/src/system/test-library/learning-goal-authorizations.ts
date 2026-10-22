@@ -234,7 +234,26 @@ export interface ProvisionalChoice {
     status: ManipulationStatus
     gaps: string[]
     note: string | null
+    /**
+     * **A choice a reader acts on, by its code** — added 21 October 2026 (stage 2D of the communication work), for his reply filed 22
+     * October 2026, item 7: *"For this particular 40 × 30 m configuration, we can also simplify setup by marking the halfway line and both
+     * 5 m end zones at the beginning."* A member of `PROVISIONAL_CHOICE_VALUES`, read by the one reader that acts on it (MARK_UNION_ONCE:
+     * `rendering/physical-layout.ts`). Absent on every choice no reader acts on, which is every other choice.
+     */
+    value?: (typeof PROVISIONAL_CHOICE_VALUES)[number]
+    /**
+     * **Where his words scope the choice** (stage 2D): the area, in metres, exactly as he named it. Required with `value`, never without it;
+     * the only place such a value is written (no code names it).
+     */
+    appliesTo?: { lengthM: number; widthM: number }
 }
+
+/**
+ * **The choice codes a reader acts on** — stage 2D, 21 October 2026. One today: `MARK_UNION_ONCE`, his reply filed 22 October 2026, item 7
+ * (*"Role exchanges should not require unnecessary physical re-marking."*): every role block's markings set out once, at the start, where
+ * the general admissibility test (`rendering/physical-layout.ts`) finds they can be. A code no reader knows is refused at load.
+ */
+export const PROVISIONAL_CHOICE_VALUES = ['MARK_UNION_ONCE'] as const
 
 /**
  * **The evidence sections a review request may point at** — stage K8, 15 October 2026. Named by the review evidence
@@ -483,6 +502,19 @@ export function validateLearningGoalAuthorizations(
                 errors.push(`${goal}: provisional choice ${i + 1} must say what it is and cite who chose it, when, where and in his words`)
             }
             errors.push(...statusErrors(`${goal}: provisional choice ${i + 1}`, choice.category, choice.status, choice.gaps))
+            /**
+             * Stage 2D (21 October 2026): a choice a reader acts on names a code the reader knows and the area his words scope it to, both or
+             * neither; a code nobody reads, or a scope with no code, would be a value acted on by nobody's word, or a choice acted on beyond it.
+             */
+            if (choice.value !== undefined || choice.appliesTo !== undefined) {
+                const scope = choice.appliesTo as unknown as Record<string, unknown> | undefined
+                const positive = (n: unknown) => typeof n === 'number' && Number.isFinite(n) && n > 0
+                if (!(PROVISIONAL_CHOICE_VALUES as readonly string[]).includes(String(choice.value))) errors.push(`${goal}: provisional choice ${i + 1} names the code ${JSON.stringify(choice.value ?? null)}, which no reader acts on`)
+                if (!scope || typeof scope !== 'object' || Object.keys(scope).sort().join(',') !== 'lengthM,widthM' || !positive(scope.lengthM) || !positive(scope.widthM)) {
+                    errors.push(`${goal}: provisional choice ${i + 1} carries a code and no area it applies to (appliesTo: lengthM and widthM, in metres, and nothing else)`)
+                }
+                if (choice.status !== 'AUTHORIZED_BY_RULING') errors.push(`${goal}: provisional choice ${i + 1} carries a code a reader acts on and is ${choice.status}, not his ruling`)
+            }
         }
         const authorized = new Set((entry.authorizedConstraints ?? []).map(knowledgeKey))
         for (const id of entry.authorizedConstraints ?? []) {

@@ -98,7 +98,8 @@ test('1. production: SERVED at 12 players (1 and 2 goalkeepers) and 11 - every s
         assert.deepEqual(fact(evidence.acceptance, 'blocks built through validation'), BLOCKS, what)
         assert.equal(fact(evidence.acceptance, 'every structural check passes (Gate A rerun per block, post-realization owed invariants, cross-block checks, composition)'), true, what)
         assert.deepEqual(evidence.structure.summary.gateChecks, { PASS: 38 }, what)
-        assert.deepEqual(evidence.structure.summary.crossBlock, { PASS: 9 }, what)
+        // Re-pointed 21 October 2026 (stage 2D): ten, RB-L joining (the markings set out once are the blocks' own).
+        assert.deepEqual(evidence.structure.summary.crossBlock, { PASS: 10 }, what)
         assert.deepEqual(evidence.structure.summary.owed, { PASS: 22 }, what)
         assert.equal(evidence.structure.composition.length, 0, what)
         assert.deepEqual(fact(evidence.acceptance, 'fidelity violations in the text that is said'), [], what)
@@ -131,10 +132,15 @@ test('2. How to score in the order shown to him, and APPROVED exactly for his se
             [
                 HIS_ITEM_1,
                 HIS_W3,
-                'Pressing team: Score by getting the ball under control into the zone it is attacking: running it in, or passing to a teammate who receives it under control inside',
+                // Moved 21 October 2026 (hardening H5, DRAFT): "into its target zone", his term; was "into the zone it is attacking".
+                'Pressing team: Score by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside',
                 HIS_W2,
                 'Each score is worth 1 point',
-                "Each team attacks the zone at the other team's end. Decide which team starts at which end; the ends stay the same for the whole game",
+                // Moved 21 October 2026 (stage 2D, his reply filed 22 October 2026, item 7): with every block's markings set out once, "Each
+                // team attacks the zone at the other team's end. Decide which team starts at which end; the ends stay the same for the whole
+                // game" is no longer said: each target sentence (Set up) says which marked zone each role attacks, "Decide which team starts
+                // at which end" is said on its own in Set up, and the exchange sentence says each team keeps its end
+                // (physical-layout.unit.ts). The order shown to him is otherwise unchanged.
             ],
             what,
         )

@@ -31,11 +31,17 @@
  *     an absolute position written for a role, which cannot hold at both ends;
  *   - **RB-M** (stage K4, his RD-1 answer of 18 October 2026: *"role exchange and participant reassignment should remain
  *     separate capabilities"*) each team's counts change between the blocks exactly as a recorded reassignment states, and
- *     not at all where none is recorded — the exchange of roles moves nobody.
+ *     not at all where none is recorded — the exchange of roles moves nobody;
+ *   - **RB-L** (stage 2D, 21 October 2026, his reply filed 22 October 2026, item 7: *"Role exchanges should not require unnecessary
+ *     physical re-marking."*) the markings set out once that a block carries (`fixture.layout`) are exactly the union of every block's
+ *     realized edges, recomputed here from the blocks and his recorded choice (`physical-layout.ts`), and are carried only where that
+ *     choice applies and the markings can be (`checkRoleBlockLayout`, run once the layout is attached).
  *
- * Then the coach reads one activity: a sentence the two renders say alike is said once, a sentence only one block says is
- * said under that block, and fidelity Q6 checks that the composition lost nothing from either render, invented nothing,
- * keeps the ends-fixed and roles-exchange statements his D2 asks for, and never says the ends change.
+ * Then the coach reads one activity: a sentence the two renders say alike is said once, a sentence they say alike by role
+ * (stage 2C: the same words, each block citing its own role's target) is said once with each block's citations kept apart,
+ * a sentence only one block says is said under that block, and fidelity Q6 checks that the composition lost nothing from
+ * either render, invented nothing, keeps the ends-fixed and roles-exchange statements his D2 asks for, and never says the
+ * ends change.
  *
  * Sport-neutral: rows, roles and nouns are register data; every check reads the games and the register.
  */
@@ -47,11 +53,13 @@ import { parseSelector } from '../derivation/selector'
 import { splitPath } from '../derivation/resolved-game'
 import { LoadedContract, RoleBlock } from '../derivation/types'
 import { FidelityFinding } from './fidelity'
+import { LayoutChoice, LayoutMover, layoutOf } from './physical-layout'
 import { Instruction, RenderedActivity, ROLE_EXCHANGE, roleKeyedPositions } from './render-concrete-game'
+import { inSectionOrder } from './sections'
 
 /** One cross-block check, with what it found. */
 export interface RoleBlockCheck {
-    checkId: 'RB-1' | 'RB-2' | 'RB-3' | 'RB-4' | 'RB-5' | 'RB-6' | 'RB-7' | 'RB-8' | 'RB-M'
+    checkId: 'RB-1' | 'RB-2' | 'RB-3' | 'RB-4' | 'RB-5' | 'RB-6' | 'RB-7' | 'RB-8' | 'RB-M' | 'RB-L'
     what: string
     verdict: 'PASS' | 'FAIL'
     problems: string[]
@@ -390,6 +398,35 @@ export function checkRoleBlocks(blocks: BuiltBlock[], index: RegisterIndex, role
 }
 
 /**
+ * **RB-L — the markings set out once are the blocks' own, recomputed** — stage 2D, 21 October 2026, the compensating check for the two
+ * validation extensions that read the physical layout (fidelity Q2 admitting a number the layout holds, and Q5-L reading the layout's
+ * marks and zones). Christian, reply filed 22 October 2026, item 7: *"The knowledge can continue to represent the distinct targets and
+ * relationships for each block, even where the physical markings remain unchanged."* The layout is not knowledge and not a block's own
+ * game: it is a reading of every block's realized geometry together, so it is checked against that reading done again here, from the
+ * blocks with their layout taken away and the same recorded choice and adjustments (`layoutOf`). A FAIL where:
+ *
+ *   - the layout applies and a block carries none, or one that differs in any field from the recomputed union;
+ *   - the layout does not apply (no choice recorded for this area, or the markings cannot be set out once) and a block carries one.
+ *
+ * Every block is read; nothing here names a goal, a value or a sport.
+ */
+export function checkRoleBlockLayout(blocks: { blockId: string; fixture: any }[], choices: LayoutChoice[], movers: LayoutMover[]): RoleBlockCheck {
+    const problems: string[] = []
+    const decision = layoutOf(
+        blocks.map(entry => ({ blockId: entry.blockId, fixture: { ...entry.fixture, layout: undefined } })),
+        choices,
+        movers,
+    )
+    for (const entry of blocks) {
+        const carried = entry.fixture?.layout ?? null
+        if (decision.applies && !carried) problems.push(`block ${entry.blockId} carries no layout, and the recorded choice applies and every block's markings can be set out once`)
+        else if (decision.applies && !same(carried, decision.layout)) problems.push(`block ${entry.blockId} carries a layout that is not the union of every block's realized edges, recomputed from the blocks and the record`)
+        else if (!decision.applies && carried) problems.push(`block ${entry.blockId} carries a layout, and ${decision.recorded ? `the markings cannot be set out once here: ${decision.why.join('; ')}` : 'no choice to set the markings out once is recorded for this activity'}`)
+    }
+    return check('RB-L', "the markings set out once are exactly the union of every block's realized edges, recomputed, and are carried only where his recorded choice applies and they can be", problems)
+}
+
+/**
  * The two blocks as the composed fixture carries them (`build-activity.ts`): each block's own fixture WHOLE, with its
  * binding, beside the exchange, the roles with their DRAFT nouns, and the cross-block checks. Carried whole so a reader of
  * the composed fixture — the frozen-fixture guard, a later renderer — loses nothing either block held.
@@ -420,25 +457,145 @@ export interface RenderedBlock {
 const keyOf = (instruction: Instruction): string => JSON.stringify([instruction.section, instruction.text, instruction.status, [...instruction.from].sort()])
 
 /**
+ * **Each role's objective and target region in one block, paired with the same role's in another** — stage 2C, 21 October 2026. His
+ * reply filed 22 October 2026, item 7: *"The knowledge can continue to represent the distinct targets and relationships for each block,
+ * even where the physical markings remain unchanged."* So a sentence a block says of the building team's target cites that block's own
+ * target region, and the other block's same sentence cites the other region. This is the pairing RB-4 and RB-8 already read
+ * (`targetedFor`, `attackerOf`, `regionOf`): for every role, the objective of the register's scoring role (`targetOf.role`) whose team
+ * is that role's holder in the first block maps to the one whose team is the same role's holder in the second, and the region each
+ * references maps likewise. The map is keyed `container[elementId]` (`objectives[...]`, `space.regions[...]`, read from the register's
+ * targetOf rows), so a cited path maps by its element and keeps its leaf; every element the map does not name is its own counterpart.
+ *
+ * It is a pairing and never a merge: every element it names is the counterpart of exactly one, and the elements it maps from are the
+ * elements it maps to. Where that does not hold — a role with no objective, or more than one, in a block; a region two roles share —
+ * the map is empty, so no sentence pairs and each block's sentences are said under their block, as before this stage.
+ *
+ * **And the axis mirror for the markings set out once** (stage 2D, 21 October 2026; D2: "layout.marks map by x -> L - x"). Where both
+ * blocks carry the same physical layout (`physical-layout.ts`), a sentence naming the zone a role's target IS (or lies in) names the end
+ * zone at one end in one block and the one at the other end in the other block: the same zone by role, mirrored along the length. So
+ * each zone maps to the zone at its mirror position (from L - to, to L - from) and each mark to the mark at L - at; a zone or mark that
+ * is its own mirror (the line at half the length) is its own counterpart and is not listed. A layout carried by one block only, or
+ * different in the two, or a zone or mark with no single mirror, empties the map, as a broken role pairing does. A role-relative element
+ * (the marked line, a start placement) is cited by the same path in both blocks.
+ */
+export function counterpartMap(from: { fixture: any }, to: { fixture: any }, index: RegisterIndex): Map<string, string> {
+    const none = new Map<string, string>()
+    const spec = index.targetOf
+    const objectivesAt = spec ? containerOf(index, spec.objectivesRow) : null
+    const regionsAt = spec ? containerOf(index, spec.row) : null
+    if (!spec || !objectivesAt || !regionsAt) return none
+    const holders = [from, to].map(entry => (entry.fixture?.record?.roleBlock?.holders ?? {}) as Record<string, string>)
+    const roles = Object.keys(holders[0]).sort()
+    if (!roles.length || !same(roles, Object.keys(holders[1]).sort())) return none
+    const attacking = (fixture: any, team: string) => ((read(fixture?.game ?? {}, objectivesAt) ?? []) as any[]).filter(o => o?.[spec.roleLeaf] === spec.role && String(o?.[spec.teamLeaf]) === team)
+    const regionOf = (objective: any): string | null => {
+        const ref = objective?.[spec.referenceLeaf]?.structuralRef
+        return ref ? `c:${ref.contractId}:${ref.itemId}` : null
+    }
+    const map = new Map<string, string>()
+    const pair = (a: string, b: string): boolean => {
+        if (map.has(a) && map.get(a) !== b) return false
+        map.set(a, b)
+        return true
+    }
+    for (const role of roles) {
+        const [here, there] = [attacking(from.fixture, holders[0][role]), attacking(to.fixture, holders[1][role])]
+        if (here.length !== 1 || there.length !== 1) return none
+        const [a, b] = [regionOf(here[0]), regionOf(there[0])]
+        if (!a || !b) return none
+        if (!pair(`${objectivesAt}[${here[0].elementId}]`, `${objectivesAt}[${there[0].elementId}]`) || !pair(`${regionsAt}[${a}]`, `${regionsAt}[${b}]`)) return none
+    }
+    // Stage 2D: the markings set out once, mirrored along the length (see above).
+    const layouts = [from, to].map(entry => entry.fixture?.layout ?? null)
+    if (layouts[0] || layouts[1]) {
+        if (!same(layouts[0], layouts[1])) return none
+        const length = Number(layouts[0].lengthM)
+        for (const [collection, ends] of [
+            ['zones', (z: any) => [z.from, z.to]],
+            ['marks', (m: any) => [m.at, m.at]],
+        ] as [string, (element: any) => number[]][]) {
+            const members: any[] = Array.isArray(layouts[0][collection]) ? layouts[0][collection] : []
+            for (const member of members) {
+                const [low, high] = ends(member)
+                const mirrors = members.filter(other => ends(other)[0] === length - high && ends(other)[1] === length - low)
+                if (mirrors.length !== 1) return none
+                if (mirrors[0].elementId !== member.elementId && !pair(`layout.${collection}[${member.elementId}]`, `layout.${collection}[${mirrors[0].elementId}]`)) return none
+            }
+        }
+    }
+    const [keys, values] = [[...map.keys()].sort(), [...map.values()].sort()]
+    if (!same(keys, values) || new Set(values).size !== values.length) return none
+    return map
+}
+
+/** A cited path's counterpart under a pairing: its element's counterpart with the same leaf, or the path itself. */
+export function counterpartPath(path: string, map: Map<string, string>): string {
+    const close = path.indexOf(']')
+    if (close < 0) return path
+    const element = map.get(path.slice(0, close + 1))
+    return element ? `${element}${path.slice(close + 1)}` : path
+}
+
+/** The identity block 1's sentence has in a block it is paired with: the same section, words and status, its citations' counterparts. */
+const mirroredKeyOf = (instruction: Instruction, map: Map<string, string>): string => keyOf({ ...instruction, from: instruction.from.map(path => counterpartPath(path, map)) })
+
+/** A sentence's parts as Q6 compares a pair (stage 2D): each part's words, status, citations and bindings, paths read under a pairing. */
+const partsOf = (instruction: Instruction, map: Map<string, string> | null): string => {
+    const at = (path: string) => (map ? counterpartPath(path, map) : path)
+    return JSON.stringify((instruction.parts ?? []).map(part => [part.text, part.status, [...part.from].map(at).sort(), (part.bindings ?? []).map(binding => [binding.quantity, at(binding.path), binding.as ?? null])]))
+}
+
+/**
  * **One activity from two renders.** A sentence both renders say alike — same section, words, status and citations — is
  * said once; a sentence only one render says is said under its block (`block`). Nothing is reworded, merged or added: every
  * composed sentence is a sentence one of the renders produced, and fidelity Q6 checks exactly that.
+ *
+ * **And a sentence they say alike by role is said once too** (stage 2C, 21 October 2026): block 1's sentence is paired with the other
+ * block's sentence of the same section, words and status whose citations are its citations' counterparts (`counterpartMap`). Block 1's
+ * instruction is kept exactly as rendered, with no `block`; the other block's citations are recorded beside it (`counterparts`) and
+ * never added to its `from`. A sentence with no such partner is said under its block, as before.
  */
-export function composeRoleBlockActivity(blocks: RenderedBlock[], _index: RegisterIndex): RenderedActivity {
+export function composeRoleBlockActivity(blocks: RenderedBlock[], index: RegisterIndex): RenderedActivity {
     const keys = blocks.map(entry => new Set(entry.rendered.instructions.map(keyOf)))
+    const everywhere = (key: string) => keys.every(set => set.has(key))
+    const maps = blocks.map((entry, i) => (i === 0 ? null : counterpartMap(blocks[0], entry, index)))
+    // Stage 2C: block 1's sentences every other block says by role, each with its partners' citations; and, per block, what is said so.
+    const counterpartsOf = new Map<Instruction, { blockId: string; from: string[] }[]>()
+    const saidByPair = blocks.map(() => new Set<string>())
+    for (const instruction of blocks.length > 1 ? blocks[0].rendered.instructions : []) {
+        const key = keyOf(instruction)
+        if (everywhere(key) || saidByPair[0].has(key)) continue
+        const partners = blocks.slice(1).map((entry, n) => {
+            const wanted = mirroredKeyOf(instruction, maps[n + 1]!)
+            return wanted !== key && !everywhere(wanted) && !saidByPair[n + 1].has(wanted) ? entry.rendered.instructions.find(other => keyOf(other) === wanted) : undefined
+        })
+        if (partners.some(partner => !partner)) continue
+        saidByPair[0].add(key)
+        partners.forEach((partner, n) => saidByPair[n + 1].add(keyOf(partner!)))
+        counterpartsOf.set(instruction, partners.map((partner, n) => ({ blockId: blocks[n + 1].blockId, from: [...partner!.from] })))
+    }
     const composed: Instruction[] = []
     const seen = new Set<string>()
     blocks.forEach((entry, i) => {
         for (const instruction of entry.rendered.instructions) {
+            const counterparts = counterpartsOf.get(instruction)
+            if (counterparts) {
+                composed.push({ ...instruction, counterparts })
+                continue
+            }
             const key = keyOf(instruction)
-            const everywhere = keys.every(set => set.has(key))
-            const id = everywhere ? key : `${entry.blockId}|${key}`
+            // Said once already, by a pair (stage 2C).
+            if (saidByPair[i].has(key)) continue
+            const everywhereSaid = everywhere(key)
+            const id = everywhereSaid ? key : `${entry.blockId}|${key}`
             if (seen.has(id)) continue
             seen.add(id)
-            composed.push(everywhere ? { ...instruction } : { ...instruction, block: blocks[i].blockId })
+            composed.push(everywhereSaid ? { ...instruction } : { ...instruction, block: blocks[i].blockId })
         }
     })
-    const ordered = [...composed.filter(i => i.tier !== 'adjust'), ...composed.filter(i => i.tier === 'adjust')]
+    // Stage 2A (21 October 2026): in reading order, by section, keeping the order said within each (block 1's sentences, then those
+    // only block 2 says); what a coach may adjust stays last, as the tier ordering this replaces kept it.
+    const ordered = inSectionOrder(composed)
     return {
         instructions: ordered,
         coachingObservations: [...new Set(blocks.flatMap(entry => entry.rendered.coachingObservations))],
@@ -459,27 +616,81 @@ const ENDS_CHANGE = [/\b(swap|swaps|switch|switches|change|changes|exchange|exch
  *     explicit in the coach-facing instructions."* Read from what each sentence CITES: the ends-fixed statement cites every
  *     role's exchange and every objective's team and reference; the roles statement cites every role;
  *   - any sentence says the ends change.
+ *
+ * **Stage 2C, 21 October 2026: a sentence said once for blocks that say it alike by role** (`counterparts`, his reply filed 22 October
+ * 2026, item 8: *"Correct section assignment, repetition, and information classification in the checked pathway."*). An EXTENSION of
+ * what Q6 accepts, backed by its own check: such a sentence says block 1's sentence (its own section, words, status and citations must
+ * be in block 1's render) and, for every other block, exactly one counterpart, accepted only where that block's own render says the
+ * same section, words and status with exactly the counterpart's citations AND those citations are block 1's under the role pairing
+ * (`counterpartMap`). A counterpart that is not accepted says nothing, so that block's sentence is reported lost as well. A sentence
+ * said for every block or under one block is checked as before. And a TIGHTENING: a block's sentence said more than once by the
+ * activity (directly, under its block or as a counterpart) is a VIOLATION, so saying a sentence once cannot hide a repetition.
+ *
+ * **Stage 2D, 21 October 2026, a second TIGHTENING:** a counterpart is accepted only where that block's own sentence has block 1's
+ * parts — the same words, status, citations and numbers, each path the counterpart of block 1's under the pairing — so a number bound
+ * outside the pairing in one block cannot pair unnoticed behind block 1's served parts. The pairing itself now also mirrors the markings
+ * set out once along the length (`counterpartMap`).
  */
 export function checkRoleBlockComposition(blocks: RenderedBlock[], composed: RenderedActivity, index: RegisterIndex): FidelityFinding[] {
     const findings: FidelityFinding[] = []
     const keys = blocks.map(entry => new Set(entry.rendered.instructions.map(keyOf)))
-    const composedKeys = composed.instructions.map(instruction => ({ key: keyOf(instruction), block: instruction.block, text: instruction.text }))
+    const maps = blocks.map((entry, i) => (i === 0 ? null : counterpartMap(blocks[0], entry, index)))
+    // What the composed sentences claim is reported after what the blocks say and the activity does not, in the order Q6 always gave.
+    const claimed: FidelityFinding[] = []
+    const violation = (what: string) => claimed.push({ question: 6, severity: 'VIOLATION', what })
+    // What the activity says for each block, by the block sentence's identity, and how many times.
+    const saidFor = blocks.map(() => new Map<string, number>())
+    const say = (i: number, key: string) => saidFor[i].set(key, (saidFor[i].get(key) ?? 0) + 1)
 
-    blocks.forEach((entry, i) => {
-        for (const instruction of entry.rendered.instructions) {
-            const key = keyOf(instruction)
-            const said = composedKeys.some(c => c.key === key && (c.block === undefined || c.block === entry.blockId))
-            if (!said) findings.push({ question: 6, severity: 'VIOLATION', what: `block ${blocks[i].blockId} says "${instruction.text}" and the activity does not` })
-        }
-    })
-    for (const c of composedKeys) {
-        if (c.block === undefined) {
-            if (!keys.every(set => set.has(c.key))) findings.push({ question: 6, severity: 'VIOLATION', what: `"${c.text}" is said for every block, and not every block's game says it` })
+    for (const instruction of composed.instructions) {
+        const key = keyOf(instruction)
+        const counterparts = instruction.counterparts
+        if (counterparts !== undefined) {
+            if (instruction.block !== undefined) violation(`"${instruction.text}" is said once for every block and also under block ${instruction.block}`)
+            if (!keys[0]?.has(key)) violation(`"${instruction.text}" is said as block ${blocks[0]?.blockId}'s sentence, and that block's game does not say it with these citations`)
+            if (blocks.length) say(0, key)
+            for (const counterpart of counterparts) {
+                if (!blocks.slice(1).some(entry => entry.blockId === counterpart.blockId)) violation(`"${instruction.text}" carries a counterpart for block ${counterpart.blockId}, which is not another block of this activity`)
+            }
+            blocks.slice(1).forEach((entry, n) => {
+                const i = n + 1
+                const own = counterparts.filter(counterpart => counterpart.blockId === entry.blockId)
+                if (own.length !== 1) return violation(`"${instruction.text}" is said once for every block and carries ${own.length} counterparts for block ${entry.blockId}, not one`)
+                const counterpartKey = keyOf({ ...instruction, from: own[0].from })
+                if (!keys[i].has(counterpartKey)) return violation(`"${instruction.text}" is said for block ${entry.blockId} with citations that block's game does not say it with`)
+                if (counterpartKey !== mirroredKeyOf(instruction, maps[i]!)) return violation(`"${instruction.text}": its citations in block ${entry.blockId} are not block ${blocks[0].blockId}'s under the role pairing (each role's objective and target region), so the two are not the same sentence by role`)
+                /**
+                 * **And its numbers are bound alike** — stage 2D, 21 October 2026, a TIGHTENING (the 2C review: the identity above reads no
+                 * part, so a counterpart whose number is bound to a path outside the pairing would pair unnoticed, and only block 1's parts
+                 * are served). Block 2's own sentence must give each part block 1's words, status and bindings, each binding's path the
+                 * counterpart of block 1's (the end zone's depth in one block is the other end zone's in the other).
+                 */
+                const theirs = entry.rendered.instructions.find(other => keyOf(other) === counterpartKey)
+                if (!theirs || partsOf(instruction, maps[i]!) !== partsOf(theirs, null)) return violation(`"${instruction.text}": its parts in block ${entry.blockId} do not say block ${blocks[0].blockId}'s words and numbers bound to their counterparts under the role pairing`)
+                say(i, counterpartKey)
+            })
             continue
         }
-        const owner = blocks.findIndex(entry => entry.blockId === c.block)
-        if (owner < 0 || !keys[owner].has(c.key)) findings.push({ question: 6, severity: 'VIOLATION', what: `"${c.text}" is said for block ${c.block}, whose game does not say it` })
+        if (instruction.block === undefined) {
+            if (!keys.every(set => set.has(key))) violation(`"${instruction.text}" is said for every block, and not every block's game says it`)
+            blocks.forEach((_, i) => say(i, key))
+            continue
+        }
+        const owner = blocks.findIndex(entry => entry.blockId === instruction.block)
+        if (owner < 0 || !keys[owner].has(key)) violation(`"${instruction.text}" is said for block ${instruction.block}, whose game does not say it`)
+        if (owner >= 0) say(owner, key)
     }
+    blocks.forEach((entry, i) => {
+        const reported = new Set<string>()
+        for (const instruction of entry.rendered.instructions) {
+            const key = keyOf(instruction)
+            const times = saidFor[i].get(key) ?? 0
+            if (!times) findings.push({ question: 6, severity: 'VIOLATION', what: `block ${blocks[i].blockId} says "${instruction.text}" and the activity does not` })
+            else if (times > 1 && !reported.has(key)) findings.push({ question: 6, severity: 'VIOLATION', what: `block ${blocks[i].blockId}'s sentence "${instruction.text}" is said ${times} times by the activity` })
+            reported.add(key)
+        }
+    })
+    findings.push(...claimed)
 
     const spec = index.roleBlocks
     const target = index.targetOf
@@ -508,11 +719,15 @@ export function checkRoleBlockComposition(blocks: RenderedBlock[], composed: Ren
          * **And the other half of his distinction: what changes with the roles** (stage K7, 15 October 2026). His D2: *"Team ends can
          * remain fixed, while role-specific objectives and target configurations change when the teams exchange roles."* Wherever the
          * blocks hold positions written for a role holder (`roleKeyedPositions`), a role-exchange sentence must cite every one of them
-         * — the sentence that says they are set out again for the new roles. A game with no such position owes nothing here.
+         * — the sentence that says what changes with the roles: block by block, that they are set out again for the new roles; with every
+         * block's markings set out once (stage 2D, 21 October 2026, his reply filed 22 October 2026, item 7: "Role exchanges should not
+         * require unnecessary physical re-marking."), which marked zone each team now attacks, and that nothing is re-marked. The logic is
+         * unchanged by stage 2D (the same citations are required); only this comment and the finding's words are. A game with no such
+         * position owes nothing here.
          */
         const keyed = roleKeyedPositions(entry.fixture)
         if (keyed.length && !composed.instructions.some(i => i.section === ROLE_EXCHANGE && cites(i, keyed))) {
-            findings.push({ question: 6, severity: 'VIOLATION', what: `no sentence says that the markings written for the roles (${keyed.join(', ')}) change when the roles exchange (his D2: "role-specific objectives and target configurations change when the teams exchange roles")` })
+            findings.push({ question: 6, severity: 'VIOLATION', what: `no sentence says what the markings written for the roles (${keyed.join(', ')}) mean when the roles exchange (his D2: "role-specific objectives and target configurations change when the teams exchange roles")` })
         }
     }
     for (const instruction of composed.instructions) {

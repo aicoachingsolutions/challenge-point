@@ -61,11 +61,12 @@ import type { ConstraintAuthority, ConstraintPoolAccount } from '../test-library
 import { contextScoringFindings, EPISODE_REACHABLE_CHECK } from './context-scoring-guard'
 import { checkFidelity, FidelityFinding } from './fidelity'
 import { ReviewDraft, reviewDraftOf } from './review-draft'
-import { EvidenceBlock, ReviewEvidence, reviewEvidenceOf } from './review-evidence'
+import { EvidenceBlock, LayoutFallback, ReviewEvidence, reviewEvidenceOf } from './review-evidence'
 import { mechanismDemonstration } from './mechanism-demonstrations'
 import { RenderedActivity, renderConcreteGame } from './render-concrete-game'
 import { assembleRenderingFixture } from './rendering-fixture'
-import { checkRoleBlockComposition, checkRoleBlocks, composeRoleBlockActivity, RoleBlockCheck, roleBlockFixture } from './role-blocks'
+import { layoutChoicesOf, layoutMoversOf, layoutOf, MARK_UNION_ONCE } from './physical-layout'
+import { checkRoleBlockComposition, checkRoleBlockLayout, checkRoleBlocks, composeRoleBlockActivity, RoleBlockCheck, roleBlockFixture } from './role-blocks'
 import { ActivitySession, availabilityQuestion } from './session-envelope'
 
 export type { ActivitySession } from './session-envelope'
@@ -723,9 +724,18 @@ export function buildActivityUnderAuthorizationRecords(
      * 15 October 2026) a copy of the realization input, as `buildActivityOverAlteredKnowledge` does, for a proof that takes a
      * provisional realization's items out on a copy and must take the choices made for them out too.
      */
-    options: { alter?: (contracts: LoadedContract[]) => void; alterSelection?: (selection: BoundedSelection) => void; alterSupplied?: (supplied: SuppliedRealization) => void } = {},
+    options: {
+        alter?: (contracts: LoadedContract[]) => void
+        alterSelection?: (selection: BoundedSelection) => void
+        alterSupplied?: (supplied: SuppliedRealization) => void
+        /**
+         * Hardening H1, 21 October 2026, tests only: the same build as an administrator's review asks it (`buildActivityForReview`), so a
+         * test can read the admin-only evidence and the coach's answer of one altered build side by side. Absent: a coach's build.
+         */
+        review?: { includeDrafts: boolean }
+    } = {},
 ): { activity: ServedActivity | RefusedActivity; fixture: Record<string, unknown> | null } {
-    const { activity, fixture } = build(request, options.alter ?? null, null, options.alterSelection ?? null, JSON.parse(JSON.stringify(records)), options.alterSupplied ?? null)
+    const { activity, fixture } = build(request, options.alter ?? null, null, options.alterSelection ?? null, JSON.parse(JSON.stringify(records)), options.alterSupplied ?? null, { includeDrafts: options.review?.includeDrafts === true })
     return { activity, fixture }
 }
 
@@ -1038,11 +1048,14 @@ function build(
             ])
         }
         if (found?.kind === 'BLOCKS') {
-            const blocks = found.blocks.map(block => ({ block, outcome: buildOneGame({ ...input, roleBlock: block }, game) }))
-            const stopped = blocks.filter((entry): entry is { block: RoleBlock; outcome: Extract<GameOutcome, { outcome: 'refused' }> } => entry.outcome.outcome === 'refused')
+            let blocks = found.blocks.map(block => ({ block, outcome: buildOneGame({ ...input, roleBlock: block }, game) }))
+            const stoppedOf = (list: typeof blocks) => list.filter((entry): entry is { block: RoleBlock; outcome: Extract<GameOutcome, { outcome: 'refused' }> } => entry.outcome.outcome === 'refused')
+            let stopped = stoppedOf(blocks)
             // The earliest stage any block stopped at, in pathway order; every block that stopped is named.
-            const first = [...stopped].sort((a, b) => STAGE_ORDER.indexOf(a.outcome.stage) - STAGE_ORDER.indexOf(b.outcome.stage))[0]
-            const stoppedReasons = stopped.flatMap(entry => entry.outcome.reasons.map(reason => `block ${entry.block.blockId}: ${reason}`))
+            const firstOf = (list: typeof stopped) => [...list].sort((a, b) => STAGE_ORDER.indexOf(a.outcome.stage) - STAGE_ORDER.indexOf(b.outcome.stage))[0]
+            const reasonsOf = (list: typeof stopped) => list.flatMap(entry => entry.outcome.reasons.map(reason => `block ${entry.block.blockId}: ${reason}`))
+            let first = firstOf(stopped)
+            let stoppedReasons = reasonsOf(stopped)
             /**
              * **A block refused at communication passed validation, so the cross-block checks still run before the refusal** (stage K7, 15
              * October 2026). The cross-block checks are validation (a refusal there says "did not pass its own checks"), which comes
@@ -1055,11 +1068,13 @@ function build(
                 fixture = first.outcome.fixture
                 return refuse(first.outcome.stage, first.outcome.summary, stoppedReasons)
             }
-            const games = blocks.map(entry =>
-                entry.outcome.outcome === 'built'
-                    ? { block: entry.block, fixture: entry.outcome.fixture, contracts: entry.outcome.contracts, rendered: entry.outcome.rendered, violations: [] as FidelityFinding[], evidence: entry.outcome.evidence }
-                    : { block: entry.block, fixture: entry.outcome.fixture as Record<string, unknown>, contracts: entry.outcome.communication!.contracts, rendered: entry.outcome.communication!.rendered, violations: entry.outcome.communication!.violations, evidence: entry.outcome.communication!.evidence },
-            )
+            const gamesOf = (list: typeof blocks) =>
+                list.map(entry =>
+                    entry.outcome.outcome === 'built'
+                        ? { block: entry.block, fixture: entry.outcome.fixture, contracts: entry.outcome.contracts, rendered: entry.outcome.rendered, violations: [] as FidelityFinding[], evidence: entry.outcome.evidence }
+                        : { block: entry.block, fixture: entry.outcome.fixture as Record<string, unknown>, contracts: entry.outcome.communication!.contracts, rendered: entry.outcome.communication!.rendered, violations: entry.outcome.communication!.violations, evidence: entry.outcome.communication!.evidence },
+                )
+            let games = gamesOf(blocks)
             const checks = checkRoleBlocks(
                 games.map(entry => ({ block: entry.block, fixture: entry.fixture, contracts: entry.contracts })),
                 roleIndex,
@@ -1081,8 +1096,57 @@ function build(
                     ...failing.flatMap(check => check.problems.map(problem => `${check.checkId}: ${problem}`)),
                 ])
             }
+            /**
+             * **Every block's markings set out once, where his recorded choice applies and they can be** — stage 2D, 21 October 2026. His reply
+             * filed 22 October 2026, item 7: *"For this particular 40 × 30 m configuration, we can also simplify setup by marking the halfway
+             * line and both 5 m end zones at the beginning. Role exchanges should not require unnecessary physical re-marking."* Once the two
+             * blocks agree as the exchange of each other, the physical layout is read from both realized games and the goal's record
+             * (`layoutOf`: his recorded choice for this area, the adjustments that move a position's magnitude). Where it applies, each block
+             * is rendered and checked again with it (`recommunicate`), replacing its first render, findings and evidence, and the blocks are
+             * read again from there (a block the layout render refuses at communication is refused like any other). Then RB-L recomputes the
+             * layout from the blocks and holds every block's to it. Where it does not apply, nothing is re-rendered: the per-block text stays
+             * exactly as it was, and, where a choice was recorded, the admin-only review evidence says why (hardening H1, below).
+             */
+            const layoutChoices = layoutChoicesOf(goalSelection?.authorization)
+            const layoutMovers = layoutMoversOf(goalSelection?.authorization)
+            const layoutDecision = layoutOf(
+                games.map(entry => ({ blockId: entry.block.blockId, fixture: entry.fixture })),
+                layoutChoices,
+                layoutMovers,
+            )
+            if (layoutDecision.applies) {
+                blocks = blocks.map(entry => {
+                    const again = entry.outcome.recommunicate
+                    return { block: entry.block, outcome: again ? again({ layout: layoutDecision.layout }) : entry.outcome }
+                })
+                stopped = stoppedOf(blocks)
+                first = firstOf(stopped)
+                stoppedReasons = reasonsOf(stopped)
+                games = gamesOf(blocks)
+            }
+            const layoutCheck = checkRoleBlockLayout(
+                games.map(entry => ({ blockId: entry.block.blockId, fixture: entry.fixture })),
+                layoutChoices,
+                layoutMovers,
+            )
+            checks.push(layoutCheck)
+            fixture = { ...games[0].fixture, roleBlocks: roleBlockFixture(found, games.map(entry => ({ block: entry.block, fixture: entry.fixture })), checks, roleIndex) }
+            if (layoutCheck.verdict === 'FAIL') {
+                return refuse('validation', 'The game built for this activity did not pass its own checks, so it is not being shown.', [
+                    'the markings set out once are not the blocks\' own',
+                    ...layoutCheck.problems.map(problem => `${layoutCheck.checkId}: ${problem}`),
+                ])
+            }
             const renders = games.map(entry => ({ blockId: entry.block.blockId, rendered: entry.rendered, fixture: entry.fixture }))
             const composed = composeRoleBlockActivity(renders, roleIndex)
+            /**
+             * Stage 2D: where his choice is recorded and the markings stay block by block, why is said (DRAFT words) — to an administrator
+             * only. Hardening H1, 21 October 2026 (the 2D review's should-fix 1): it was pushed onto `coachingObservations`, which every
+             * viewer can expand under "How this was arrived at", and it carries internal ids (an element id, block ids, the choice's code).
+             * It now goes to the admin-only review evidence (`reviewEvidenceOf`, `layoutFallback`), and the composed activity a coach is
+             * served is exactly the composition of the block renders.
+             */
+            const layoutFallback = !layoutDecision.applies && layoutDecision.recorded ? { choice: MARK_UNION_ONCE, why: [...layoutDecision.why] } : null
             const composition = checkRoleBlockComposition(renders, composed, roleIndex)
             const violations = composition.filter(finding => finding.severity === 'VIOLATION')
             /**
@@ -1090,7 +1154,7 @@ function build(
              * games as built, the cross-block checks and the composition. Never on a coach's answer.
              */
             const evidenceOf = (outcome: string) =>
-                reviewEvidenceFor(review, goalSelection, account, roleIndex, session, outcome, composed, composition, checks, games.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, fixture: entry.fixture, contracts: entry.contracts, rendered: entry.rendered, ...entry.evidence })))
+                reviewEvidenceFor(review, goalSelection, account, roleIndex, session, outcome, composed, composition, checks, games.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, fixture: entry.fixture, contracts: entry.contracts, rendered: entry.rendered, ...entry.evidence })), layoutFallback)
             /** The admin-only draft of the composed activity (stage K7), attached to a refusal at communication where it was asked for. */
             const withDraft = (refusal: ReturnType<typeof refuse>) => {
                 if (review.includeDrafts) (refusal.activity as RefusedActivity).draft = reviewDraftOf(games.map(entry => entry.fixture), composed, [...games.flatMap(entry => entry.violations), ...violations])
@@ -1190,6 +1254,8 @@ function reviewEvidenceFor(
     compositionFindings: FidelityFinding[],
     crossBlock: RoleBlockCheck[],
     blocks: EvidenceBlock[],
+    /** Hardening H1: where a recorded choice to set the markings out once does not apply, why (admin-only). Null everywhere else. */
+    layoutFallback: LayoutFallback | null = null,
 ): ReviewEvidence | null {
     const record = goalSelection?.authorization
     if (!review.includeDrafts || !record?.reviewRequest) return null
@@ -1200,6 +1266,7 @@ function reviewEvidenceFor(
         composed,
         compositionFindings,
         crossBlock,
+        layoutFallback,
         record: record as LearningGoalAuthorization & { reviewRequest: NonNullable<LearningGoalAuthorization['reviewRequest']> },
         lists: account.authorizationLists ?? null,
         relationships: contextManipulationRelationships(),
@@ -1237,6 +1304,8 @@ type GameOutcome =
            * checks, which belong to validation and so still run before the activity is refused at communication. Never served.
            */
           communication?: { rendered: RenderedActivity; violations: FidelityFinding[]; contracts: LoadedContract[]; evidence: GameEvidence }
+          /** Only beside `communication` (stage 2D): the same game rendered and checked again with these fields added to its fixture. */
+          recommunicate?: (extra: Record<string, unknown>) => GameOutcome
       }
     | {
           outcome: 'built'
@@ -1247,6 +1316,8 @@ type GameOutcome =
           /** Every Gate A check as rerun on this game's concrete game (stage K4): read only into a role block's account. */
           concreteChecks: { checkId: string; verdict: string }[]
           evidence: GameEvidence
+          /** Stage 2D: the same game rendered and checked again with these fields added to its fixture (its physical layout). */
+          recommunicate: (extra: Record<string, unknown>) => GameOutcome
       }
 
 /**
@@ -1471,51 +1542,64 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
         ...(methodNouns.length ? { methodNouns } : {}),
     })
 
-    const rendered = renderConcreteGame(fixture)
-    const report = checkFidelity(fixture, rendered)
-    const violations = report.findings.filter((f: any) => f.severity === 'VIOLATION')
-    // Stage K8: what the admin-only review evidence reads of this game (the gate rerun clause by clause, the owed invariants, every finding).
-    const evidence: GameEvidence = {
-        gateChecks: post.gateA.checks.map(check => ({ checkId: check.checkId, verdict: String(check.verdict), clauses: check.clauses.map(clause => ({ clause: clause.clause, verdict: String(clause.verdict), ...(clause.basis ? { basis: String(clause.basis) } : {}), ...(typeof clause.instances === 'number' ? { instances: clause.instances } : {}) })) })),
-        owed: post.owed.map(entry => ({ checkId: entry.checkId, clause: entry.clause, verdict: entry.verdict })),
-        findings: report.findings.map((finding: FidelityFinding) => ({ ...finding })),
-    }
-    // Stage K7: a refusal at communication carries what was rendered, for the admin-only review draft and the cross-block checks.
-    const atCommunication = (summary: string, reasons: string[]): GameOutcome => ({ outcome: 'refused', stage: 'communication', summary, reasons, fixture, communication: { rendered, violations, contracts: input.contracts, evidence } })
     /**
-     * **Part of the game has no approved wording yet, so the activity is not shown** — chosen from the
-     * renderer's typed `withheld` list, never from the fidelity text (which reports the same fields as
-     * uncarried, and travels in the reasons beside them). Christian, 14 October 2026: *"Enable accurate
-     * coach-facing communication of scoring conditions and information rules, using approved language."* A
-     * rule of the game said in words nobody approved would be a rule on the renderer's authority.
+     * **Rendering and fidelity, as one step that can be run again on the same game** — stage 2D, 21 October 2026. A game played in role
+     * blocks may be given its physical layout once both blocks are built (`physical-layout.ts`: every block's markings set out once, his
+     * reply filed 22 October 2026, item 7), and then each block is rendered and checked again WITH it (`recommunicate`): the outcome,
+     * render, fidelity findings, integrity counts and evidence of the first render are replaced, never kept beside the new ones. Nothing
+     * before rendering is re-run: the layout is a reading of the realized games, not a change to them. Every game without a layout is
+     * rendered once, exactly as before.
      */
-    if (rendered.withheld.length) {
-        return atCommunication('Part of this activity is still waiting for approved coach wording, so it is not being shown.', [
-            ...rendered.withheld.map(field => `awaiting approved wording: ${field.path} (${field.row})`),
-            ...violations.map((v: any) => `fidelity Q${v.question}: ${v.what}`),
-        ])
-    }
-    if (violations.length) {
-        return atCommunication(
-            'Part of this activity cannot be explained to a coach yet, so it is not being shown.',
-            violations.map((v: any) => `fidelity Q${v.question}: ${v.what}`),
-        )
-    }
+    const communicate = (assembled: any): GameOutcome => {
+        const rendered = renderConcreteGame(assembled)
+        const report = checkFidelity(assembled, rendered)
+        const violations = report.findings.filter((f: any) => f.severity === 'VIOLATION')
+        const recommunicate = (extra: Record<string, unknown>): GameOutcome => communicate({ ...assembled, ...extra })
+        // Stage K8: what the admin-only review evidence reads of this game (the gate rerun clause by clause, the owed invariants, every finding).
+        const evidence: GameEvidence = {
+            gateChecks: post.gateA.checks.map(check => ({ checkId: check.checkId, verdict: String(check.verdict), clauses: check.clauses.map(clause => ({ clause: clause.clause, verdict: String(clause.verdict), ...(clause.basis ? { basis: String(clause.basis) } : {}), ...(typeof clause.instances === 'number' ? { instances: clause.instances } : {}) })) })),
+            owed: post.owed.map(entry => ({ checkId: entry.checkId, clause: entry.clause, verdict: entry.verdict })),
+            findings: report.findings.map((finding: FidelityFinding) => ({ ...finding })),
+        }
+        // Stage K7: a refusal at communication carries what was rendered, for the admin-only review draft and the cross-block checks.
+        const atCommunication = (summary: string, reasons: string[]): GameOutcome => ({ outcome: 'refused', stage: 'communication', summary, reasons, fixture: assembled, communication: { rendered, violations, contracts: input.contracts, evidence }, recommunicate })
+        /**
+         * **Part of the game has no approved wording yet, so the activity is not shown** — chosen from the
+         * renderer's typed `withheld` list, never from the fidelity text (which reports the same fields as
+         * uncarried, and travels in the reasons beside them). Christian, 14 October 2026: *"Enable accurate
+         * coach-facing communication of scoring conditions and information rules, using approved language."* A
+         * rule of the game said in words nobody approved would be a rule on the renderer's authority.
+         */
+        if (rendered.withheld.length) {
+            return atCommunication('Part of this activity is still waiting for approved coach wording, so it is not being shown.', [
+                ...rendered.withheld.map(field => `awaiting approved wording: ${field.path} (${field.row})`),
+                ...violations.map((v: any) => `fidelity Q${v.question}: ${v.what}`),
+            ])
+        }
+        if (violations.length) {
+            return atCommunication(
+                'Part of this activity cannot be explained to a coach yet, so it is not being shown.',
+                violations.map((v: any) => `fidelity Q${v.question}: ${v.what}`),
+            )
+        }
 
-    return {
-        outcome: 'built',
-        fixture,
-        rendered,
-        integrity: {
-            gateA: String(resolved.coherence.gateA),
-            realizationAuthorized: Boolean(resolved.coherence.realizationAuthorized),
-            acceptance,
-            postRealizationValidated: Boolean(post.validated),
-            instructions: rendered.instructions.length,
-            fidelityViolations: violations.length,
-        },
-        contracts: input.contracts,
-        concreteChecks: post.gateA.checks.map(check => ({ checkId: check.checkId, verdict: String(check.verdict) })),
-        evidence,
+        return {
+            outcome: 'built',
+            fixture: assembled,
+            rendered,
+            integrity: {
+                gateA: String(resolved.coherence.gateA),
+                realizationAuthorized: Boolean(resolved.coherence.realizationAuthorized),
+                acceptance,
+                postRealizationValidated: Boolean(post.validated),
+                instructions: rendered.instructions.length,
+                fidelityViolations: violations.length,
+            },
+            contracts: input.contracts,
+            concreteChecks: post.gateA.checks.map(check => ({ checkId: check.checkId, verdict: String(check.verdict) })),
+            evidence,
+            recommunicate,
+        }
     }
+    return communicate(fixture)
 }

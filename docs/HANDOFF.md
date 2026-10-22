@@ -8553,3 +8553,48 @@ sentence stays DRAFT.
 
 NEXT: his evaluation of the activity as a coach. Not before it: new variations, the live app's mandatory
 library-constraint requirement (his systemic item), a spatial-eligibility rule (only if his evaluation calls for it).
+
+## 21–22 OCTOBER — HIS COMMUNICATION RULINGS; RC3 DRAFT SENT; STAGE 2 (COACH DETAILS REORGANISED) BUILT
+
+His 21 Oct reply (`scratchpad/christian-2026-10-21.txt`): A01 is sound but too hard to absorb → communication audit
+(`scratchpad/cc-synthesis.txt`) + proposal email. His 22 Oct reply (`scratchpad/christian-2026-10-22.txt`, memory
+`christian-rulings-2026-10-22.md`): NO player script; TWO levels (Coach Overview: purpose, one-sentence game,
+parameters, essential scoring, diagram / Coach Details by function); classify by WHEN the coach needs it; purpose = the
+Learning Goal's coach definition; abbreviated approved wording allowed in the overview with three statuses; "marked
+line" / "target zone"; at 40 x 30 mark halfway + both 5 m end zones once; sequence RC3 → reorganise → overview →
+overview-first page → diagram.
+
+- Design: `scratchpad/cd-synthesis.txt` (RC3 DRAFT, BUILD PLAN 0/2A-2D/3A-3D/4/5A-5B, EXPECTED PRESENTATION, DO NOT
+  DO); verified designs in `scratchpad/cd/designs/`. RC3 draft sent (via Joe) after three fact-check rounds:
+  `scratchpad/send-oct22/`. Three clauses marked (PROPOSAL). Stage 0 (lodge RC2/RC3/KPS in docs/standards/) waits for
+  his approval of RC3.
+- Stage 2 (workflow `oct22-stage2-details`, each step implemented + adversarially reviewed; snapshots in
+  `scratchpad/cd/build/`):
+  - `7887a68` + `86f736e` 2A: one section assigner (`rendering/sections.ts`), keyed by register row (KIND_OF_ROW covers
+    all 108 rows; unmapped row throws), sections Set up / Players / How it works / How to score / When it ends / Role
+    exchange / Restarts and ball out / Adjusting; `when` on every Instruction, tier derived; every label DRAFT as data
+    (LABEL_STATUS, evidence.sections.labels); fidelity Q4 refuses approved wording outside its entry's section.
+  - `fdcec10` 2B: the opening restart's WHEN (How it works, before the start-placement sentence) split from its HOW and
+    WHERE (Restarts and ball out); fidelity Q3 first-read guard (firstReadUncarried).
+  - `3e62bc5` 2C: mirrored role-block sentences said once with `counterparts` (block 2's citations kept); Q6 counterpart
+    check; review-evidence dedupe defect fixed (both blocks' sources kept).
+  - `79bf5ae` 2D: `rendering/physical-layout.ts` layoutOf (union of marks, admissible only when every mark holds one
+    position in every block), applied only where his recorded choice MARK_UNION_ONCE (appliesTo 40 x 30, his item-7
+    words verbatim) is in learning-goal-authorizations.json; RB-L cross-block check; Q2 layout bindings; Q5-L; the
+    exchange sentence says "nothing is re-marked unless you have moved the marked line".
+  - `f4f061d` + `75dac98` hardening: fallback note admin-only; the moved-line words checked lexically; layout numbers
+    admitted only at leaf paths; pressing team "into its target zone" (expected Details 14).
+  - Served A01 goalkeeper-1 = 28 sentences, byte-identical to the EXPECTED PRESENTATION Details; 4 approved, 24 draft.
+    Suite FILES 103 FAILED 0.
+
+OPEN (for his evaluation package / decisions):
+- H4: nothing in the knowledge says WHICH element an adjustment moves; whether ADJ-3 moves the line is read from its EM
+  parameter. A changed parameter would serve "nothing is re-marked" unqualified. Needs an adjustment field (his decision).
+- The precedence table (D2 decision 1) incl. ROLES-last and OPENER_TAKER, all 8 section labels, every new sentence:
+  DRAFT. learning-goal-authorizations.json "about" text says "nothing here is a value" — appliesTo is now one (his text,
+  not amended).
+- Coach responses still carry internal paths (`from`, `counterparts`); Stage 3D revisits the coach projection.
+- Worktree node_modules are links to the stale checkout's; CI (npm ci) is the authoritative dependency check.
+
+NEXT: Stage 3 (3A purpose/game/parameters, 3B derived extracts, 3C essentials table PROPOSED, 3D Q7 + serve overview),
+then Stage 4 (overview-first page) and 5A/5B (diagram; see `scratchpad/cd/stage5-notes.txt` for the far-zone label rule).

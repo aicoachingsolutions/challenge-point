@@ -73,17 +73,33 @@ const ADJUSTING_SECTION = 'Adjusting the activity'
  */
 const ROLE_EXCHANGE_SECTION = 'Role exchange'
 
-/** The order a coach reads an activity in. Organisation only — the section name comes from the server. */
-const SECTION_ORDER = ['Set up', 'Players', 'How it works', 'How to score', ROLE_EXCHANGE_SECTION, 'What to watch', ADJUSTING_SECTION]
+/**
+ * The order a coach reads an activity in. Organisation only — the section name comes from the server, which assigns it
+ * (back/src/system/rendering/sections.ts, SECTION_ORDER, stage 2A of 21 October 2026: "When it ends" and "Restarts and
+ * ball out" added, both DRAFT names). Kept equal to the server's order; a section this list lacks is still shown, after it.
+ */
+const SECTION_ORDER = ['Set up', 'Players', 'How it works', 'How to score', 'When it ends', ROLE_EXCHANGE_SECTION, 'Restarts and ball out', ADJUSTING_SECTION]
 
 /**
  * "Block 1 only" for a sentence that holds in one role block (15 October 2026): the block's number in the order the
  * server lists the blocks, never its technical id. A DRAFT label; which block is played first is the coach's.
+ *
+ * Stage 2C (21 October 2026): a sentence the blocks say in the same words, each citing its own role's target, is said once
+ * (`counterparts`) and holds in every block, so it carries no block label, even if a block were also named on it.
  */
 function blockLabel(activity: ServedActivity, instruction: ReviewInstruction): string | null {
-    if (!instruction.block) return null
+    if (!instruction.block || instruction.counterparts) return null
     const at = (activity.roleBlocks?.blocks ?? []).findIndex((block) => block.blockId === instruction.block)
     return `Block ${at >= 0 ? at + 1 : '?'} only: `
+}
+
+/**
+ * "Block 2" for a block named in the account (stage 2C, 21 October 2026): its number in the order the server lists the blocks, never its
+ * technical id, as `blockLabel`. A DRAFT account label.
+ */
+function blockNumberLabel(activity: ServedActivity, blockId: string | undefined): string {
+    const at = (activity.roleBlocks?.blocks ?? []).findIndex((block) => block.blockId === blockId)
+    return `Block ${at >= 0 ? at + 1 : '?'}`
 }
 
 /**
@@ -122,7 +138,7 @@ const isReviewResult = (data: unknown): data is ActivityReviewResult => {
 }
 
 /**
- * The instructions under their sections: the five known sections in reading order, then any section the
+ * The instructions under their sections: the known sections in reading order, then any section the
  * server sent that this page has not heard of, in the order it first appears.
  *
  * The second half is the point. A fixed list of five would silently drop every instruction filed under a
@@ -559,6 +575,38 @@ function wordingBySentence(activity: ServedActivity): { tags: Map<ReviewInstruct
     return { tags, unmatched }
 }
 
+/**
+ * Whose wording each section label is, for an administrator: the review of stage 2A, 21 October 2026. A section label is
+ * coach-facing wording like a sentence, and the server records its status beside the sentences' (`evidence.sections.labels`;
+ * none is approved yet). Joined by the section's name AND by the sentences under it: a label whose evidence does not list
+ * exactly the sentences the page shows under it gets no tag, as in `wordingBySentence`. Null for a coach, who receives no evidence.
+ */
+function wordingByLabel(activity: ServedActivity): Map<string, Wording> | null {
+    const labels = activity.evidence?.sections?.labels
+    if (!Array.isArray(labels)) return null
+    const tags = new Map<string, Wording>()
+    for (const label of labels) {
+        const shown = activity.rendered.instructions.flatMap((instruction, at) => (instruction.section === label.section ? [at] : []))
+        const matches =
+            Array.isArray(label.sentences) &&
+            label.sentences.length === shown.length &&
+            label.sentences.every((index, n) => index === shown[n]) &&
+            (label.status === 'APPROVED' || label.status === 'DRAFT')
+        if (matches) tags.set(label.section, label.status)
+    }
+    return tags
+}
+
+/** The tag beside a section heading in the administrator's view; the heading's capitals are not applied to it. */
+function LabelTag({ wording }: { wording: Wording | undefined }) {
+    if (!wording) return null
+    return (
+        <span className='tracking-normal normal-case'>
+            <WordingTag wording={wording} />
+        </span>
+    )
+}
+
 /** The quiet tag beside a sentence in the administrator's view. Labels are DRAFT wording. */
 function WordingTag({ wording }: { wording: Wording | undefined }) {
     if (!wording) return null
@@ -580,8 +628,9 @@ function WordingTag({ wording }: { wording: Wording | undefined }) {
  * shown in the account below, never here.
  *
  * The one addition is for an administrator only: where the response carries the review evidence, each sentence is
- * tagged with whose wording it is (see `wordingBySentence`). The tag says Approved or Draft and nothing more — no
- * register row, source or other internal handle. A coach's response has no evidence, and the block renders without tags.
+ * tagged with whose wording it is (see `wordingBySentence`), and so is each section label since the review of stage 2A
+ * (see `wordingByLabel`). The tag says Approved or Draft and nothing more — no register row, source or other internal
+ * handle. A coach's response has no evidence, and the block renders without tags.
  */
 function ActivityBlock({ activity }: { activity: ServedActivity }) {
     // The starting setup and playing instructions first; what a coach may adjust below a divider (14 October 2026).
@@ -589,6 +638,7 @@ function ActivityBlock({ activity }: { activity: ServedActivity }) {
     const sections = grouped.filter((group) => group.section !== ADJUSTING_SECTION)
     const adjusting = grouped.find((group) => group.section === ADJUSTING_SECTION)
     const wording = wordingBySentence(activity)
+    const labels = wordingByLabel(activity)
 
     return (
         <article className='bg-white border rounded-lg shadow-sm'>
@@ -618,7 +668,10 @@ function ActivityBlock({ activity }: { activity: ServedActivity }) {
                 <div className='mt-5 space-y-5'>
                     {sections.map((group) => (
                         <div key={group.section}>
-                            <p className='mb-1 text-xs font-semibold tracking-wide text-gray-400 uppercase'>{group.section}</p>
+                            <p className='mb-1 text-xs font-semibold tracking-wide text-gray-400 uppercase'>
+                                {group.section}
+                                <LabelTag wording={labels?.get(group.section)} />
+                            </p>
                             <ul className='space-y-1'>
                                 {group.lines.map((instruction, index) => (
                                     <li key={index} className='flex items-start gap-2 text-sm text-gray-700'>
@@ -643,7 +696,10 @@ function ActivityBlock({ activity }: { activity: ServedActivity }) {
                   */}
                 {adjusting && (
                     <div className='pt-4 mt-6 border-t border-gray-200'>
-                        <p className='mb-1 text-xs font-semibold tracking-wide text-gray-400 uppercase'>{adjusting.section}</p>
+                        <p className='mb-1 text-xs font-semibold tracking-wide text-gray-400 uppercase'>
+                            {adjusting.section}
+                            <LabelTag wording={labels?.get(adjusting.section)} />
+                        </p>
                         <p className='mb-2 text-sm text-gray-500'>{ADJUSTING_LEAD}</p>
                         <ul className='space-y-1'>
                             {adjusting.lines.map((instruction, index) => (
@@ -1573,6 +1629,8 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                                             <p className='text-[11px] font-semibold tracking-wide text-gray-500 uppercase'>
                                                 {instruction.section} · {instruction.status}
                                                 {instruction.block && <span className='font-normal normal-case'> · block {instruction.block}</span>}
+                                                {/* Stage 2C (21 October 2026): said once for blocks that say it alike by role. A DRAFT account label. */}
+                                                {instruction.counterparts && <span className='font-normal normal-case'> · said once for every block, each citing its own</span>}
                                                 {STATUS_MEANING[instruction.status] && (
                                                     <span className='font-normal normal-case'> — {STATUS_MEANING[instruction.status]}</span>
                                                 )}
@@ -1589,6 +1647,10 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                                                     ))}
                                                 </ul>
                                             )}
+                                            {/* A sentence said once for every block (stage 2C): its `from` is block 1's citations, labelled so. */}
+                                            {instruction.counterparts && (instruction.from ?? []).length > 0 && (
+                                                <p className='mt-1 text-[11px] text-gray-500'>{blockNumberLabel(served, (served.roleBlocks?.blocks ?? []).find((block) => !instruction.counterparts!.some((c) => c.blockId === block.blockId))?.blockId)}:</p>
+                                            )}
                                             {(instruction.from ?? []).length > 0 ? (
                                                 <ul className='mt-1'>
                                                     {instruction.from.map((path, pathIndex) => (
@@ -1600,6 +1662,19 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                                             ) : (
                                                 <p className='mt-1 text-[11px] font-semibold text-amber-600'>No source path was given for this sentence.</p>
                                             )}
+                                            {/* And each other block's own citations, kept apart, never pooled into `from` (stage 2C). */}
+                                            {(instruction.counterparts ?? []).map((counterpart) => (
+                                                <div key={counterpart.blockId}>
+                                                    <p className='mt-1 text-[11px] text-gray-500'>{blockNumberLabel(served, counterpart.blockId)}:</p>
+                                                    <ul className='mt-1'>
+                                                        {counterpart.from.map((path, pathIndex) => (
+                                                            <li key={pathIndex} className='font-mono text-[11px] leading-snug text-gray-500 break-all'>
+                                                                {path}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            ))}
                                         </li>
                                     ))}
                                 </ol>

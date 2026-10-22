@@ -63,6 +63,8 @@ function provisionalSourcesOf(fixture: any, paths: string[]): string[] {
             for (const ref of entailed.supportedBy ?? []) if (String(ref?.contractId).startsWith('provisional:')) found.add(`${ref.contractId}::${ref.itemId}`)
         }
         if (path.startsWith('adjustments[')) found.add(`record ${path.slice('adjustments['.length, path.indexOf(']'))}`)
+        // Stage 2D: the markings set out once rest on his recorded choice (reply filed 22 October 2026, item 7), named by its code.
+        if (path.startsWith('layout.') && fixture?.layout?.policy) found.add(`record ${String(fixture.layout.policy)}`)
     }
     return [...found].sort()
 }
@@ -84,7 +86,8 @@ export function reviewDraftOf(fixtures: any[], rendered: RenderedActivity, viola
         instructions: rendered.instructions.map(instruction => ({
             ...JSON.parse(JSON.stringify(instruction)),
             wording: isApproved(instruction) ? 'APPROVED' : 'DRAFT',
-            provisionalSources: [...new Set(fixtures.flatMap(fixture => provisionalSourcesOf(fixture, instruction.from)))].sort(),
+            // Stage 2C (21 October 2026): a sentence said once for blocks that say it alike by role rests on each block's own citations too.
+            provisionalSources: [...new Set(fixtures.flatMap(fixture => provisionalSourcesOf(fixture, [...instruction.from, ...(instruction.counterparts ?? []).flatMap(entry => entry.from)])))].sort(),
         })),
         withheld: rendered.withheld.map(field => ({ ...field })),
         fidelity: { passed: !violations.some(v => v.severity === 'VIOLATION'), violations: violations.filter(v => v.severity === 'VIOLATION').map(v => `fidelity Q${v.question}: ${v.what}`) },

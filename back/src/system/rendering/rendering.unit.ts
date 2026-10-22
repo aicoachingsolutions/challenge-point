@@ -1227,8 +1227,11 @@ for (const observation of rendered.coachingObservations) {
      */
     const thirteenLost = (which: (p: Part) => boolean) => violations(checkFidelity(thirteen.game, dropParts(which, thirteen.said)), 3).map(f => f.what)
     assert.deepEqual(thirteenLost(p => p.text.startsWith('Keep at least')), [`${COUNT} has a required minimum of 1 (required: at least 1), and no instruction that cites it states that minimum`])
+    // Moved 21 October 2026 (stage 2B): with the roster's starting part gone, the count is cited only by its floor in "Adjusting the
+    // activity", so the first-read test (fidelity Q3, sections.ts firstReadUncarried) also finds it carried only where a coach adjusts.
     assert.deepEqual(thirteenLost(p => p.status === 'STARTING' && p.from.includes(COUNT)), [
         `${COUNT} starts at 1 in this activity, inside an authored range, and no instruction that cites it states that value as the choice it is`,
+        `${COUNT} is needed to understand and begin the activity, and only a section consulted when needed carries it`,
     ])
 
     /**

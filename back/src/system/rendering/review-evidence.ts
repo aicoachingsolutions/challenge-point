@@ -37,8 +37,10 @@ import { learningGoalSelectionHolds } from '../test-library/learning-design-hold
 import { testLibraryRegistry } from '../test-library/library/registry'
 import { FidelityFinding, OBLIGATIONS } from './fidelity'
 import { approvedTemplateSentences } from './approved-wording'
+import { layoutNumbersAt } from './physical-layout'
 import { approvedSentences, Instruction, RenderedActivity, UNBOUNDED_CREDIT, wordedFieldRows } from './render-concrete-game'
 import type { RoleBlockCheck } from './role-blocks'
+import { SectionLabel, sectionLabelsOf } from './sections'
 import type { ActivitySession } from './session-envelope'
 
 /** One block's game as the builder left it (a game not played in blocks is one block with no holders). */
@@ -67,6 +69,12 @@ export interface EvidenceInput {
     /** The composition's own fidelity findings (Q6); empty for one game. */
     compositionFindings: FidelityFinding[]
     crossBlock: RoleBlockCheck[]
+    /**
+     * Hardening H1, 21 October 2026 (the 2D review's should-fix 1): where a choice to set every block's markings out once is recorded and
+     * does not apply (`physical-layout.ts` `layoutOf`), the choice's code and why, for the administrator only. Absent or null everywhere
+     * else, so every other evidence is unchanged.
+     */
+    layoutFallback?: LayoutFallback | null
     record: LearningGoalAuthorization & { reviewRequest: ReviewRequest }
     lists: AuthorizationLists | null
     /** The knowledge-authorized relationships the record's adjustments cite (the record file's own list). */
@@ -75,6 +83,15 @@ export interface EvidenceInput {
     selectedConstraints: string[]
     index: RegisterIndex
 }
+
+/** A recorded choice to set the markings out once that does not apply to this build: its code and why (admin-only, hardening H1). */
+export interface LayoutFallback {
+    choice: string
+    why: string[]
+}
+
+/** The admin-only fact saying the markings stay block by block although a choice to set them out once is recorded (DRAFT words). */
+export const layoutFallbackFact = (fallback: LayoutFallback): Fact => ({ what: `The markings are presented block by block, and not set out once as the recorded choice ${fallback.choice} asks`, value: [...fallback.why] })
 
 export type Layer = ReviewLayer | 'SESSION_INPUT'
 export type Standing = 'APPROVED' | 'PROVISIONAL' | 'GAP' | 'OUR_READING' | 'SESSION'
@@ -120,6 +137,13 @@ export interface ReviewEvidence {
         roleExchange: Fact[]
         noPrescription: Fact[]
         instructions: InstructionEvidence[]
+        /**
+         * The review of stage 2A (21 October 2026): every section label the activity uses, in reading order, with when the coach needs
+         * what is under it, whose wording the label is (`sections.ts` `LABEL_STATUS`: none approved, every one DRAFT) and the indexes into
+         * `instructions` of the sentences under it. A label is coach-facing wording; his reply filed 22 October 2026, item 5, asks to see
+         * every draft in the final presentation.
+         */
+        labels: SectionLabel[]
     }
     flags: FlagEvidence[]
     /** What he asked to keep visible as limitations (stage M3), each in his words with the facts the game holds for it. */
@@ -198,6 +222,11 @@ export interface InstructionEvidence {
     index: number
     section: string
     block: string | null
+    /**
+     * Stage 2C (21 October 2026): for a sentence said once for blocks that say it alike by role, each other block and its own citations
+     * (`Instruction.counterparts`); `sources` are read from each block's own. Absent on every other sentence.
+     */
+    counterparts?: { blockId: string; from: string[] }[]
     text: string
     wording: 'APPROVED' | 'DRAFT'
     obligationWords: string[]
@@ -402,6 +431,12 @@ function boundingItemsOf(path: string, block: EvidenceBlock, index: RegisterInde
     )
 }
 
+/**
+ * Where a per-block fact is said beside its value (stage 2C, 21 October 2026): "block <id>: " in a game played in role blocks, whose blocks
+ * are realized and entailed each on its own; nothing for a game not played in blocks.
+ */
+const inBlock = (block: EvidenceBlock): string => (Object.keys(block.holders ?? {}).length ? `block ${block.blockId}: ` : '')
+
 function sourcesOf(path: string, block: EvidenceBlock, items: Map<string, any>, adjustments: Map<string, any>, relationships: Map<string, any>, index: RegisterIndex): EvidenceSource[] {
     const status = block.fixture?.status ?? {}
     const generic = genericOf(path)
@@ -424,13 +459,23 @@ function sourcesOf(path: string, block: EvidenceBlock, items: Map<string, any>, 
         for (const bound of choice.within?.bounds ?? []) if (bound?.assumed) found.push({ layer: 'GENERAL_ENGINE_MECHANISM', standing: 'OUR_READING', ref: `bound of ${choice.lineId}`, detail: 'the bound is assumed' })
     }
     for (const entailed of status.entailed ?? []) {
-        if (entailed?.path !== path && `${entailed?.collection}[].${entailed?.leaf}` !== generic) continue
-        found.push({ layer: 'GENERAL_ENGINE_MECHANISM', standing: 'APPROVED', ref: 'entailment at assembly', detail: `${entailed.collection}[${entailed.handle}].${entailed.leaf} = ${JSON.stringify(entailed.value)}` })
+        /**
+         * A path through every member (`collection[].leaf`) rests on every member's entailment; a path naming one member rests on that
+         * member's own. Stage 2C (21 October 2026): this read every member's entailment for one member's path too, which the old dedupe hid
+         * by keeping only the last one found — for one team's count, another team's (measured on the first served activity in role blocks:
+         * the first team's specialized-role count showed the second team's block-2 entailment). With each source kept (`dedupe`), one
+         * member's path is read alone.
+         */
+        const member = `${entailed?.collection}[${entailed?.handle}].${entailed?.leaf}`
+        if (entailed?.path !== path && member !== path && (generic !== path || `${entailed?.collection}[].${entailed?.leaf}` !== generic)) continue
+        // Stage 2C: in role blocks each block entails its own counts, so the block is named beside the value (as for realized geometry).
+        found.push({ layer: 'GENERAL_ENGINE_MECHANISM', standing: 'APPROVED', ref: 'entailment at assembly', detail: `${inBlock(block)}${member} = ${JSON.stringify(entailed.value)}` })
         for (const ref of entailed.supportedBy ?? []) found.push(...itemSources(ref, items, null, relationships))
     }
     for (const geometry of status.geometry ?? []) {
         if (geometry?.path !== path) continue
-        found.push({ layer: 'GENERAL_ENGINE_MECHANISM', standing: 'APPROVED', ref: 'realization (realized geometry)', detail: `${geometry.geometry?.term ?? ''} ${JSON.stringify(geometry.geometry?.interval ?? null)}`.trim() })
+        // Stage 2C (21 October 2026): a game played in role blocks is realized once per block, so the block is named beside its position.
+        found.push({ layer: 'GENERAL_ENGINE_MECHANISM', standing: 'APPROVED', ref: 'realization (realized geometry)', detail: `${inBlock(block)}${`${geometry.geometry?.term ?? ''} ${JSON.stringify(geometry.geometry?.interval ?? null)}`.trim()}` })
     }
     for (const instantiation of status.instantiations ?? []) {
         const handle = String(instantiation?.handle ?? instantiation?.elementId ?? '')
@@ -446,6 +491,17 @@ function sourcesOf(path: string, block: EvidenceBlock, items: Map<string, any>, 
     for (const ref of boundingItemsOf(path, block, index)) {
         const [item, ...authorizing] = itemSources(ref, items, null, relationships)
         found.push({ ...item, detail: `bounds this line for the team holding a role (${index.targetOf?.attribute ?? 'targetOf'})` }, ...authorizing)
+    }
+    /**
+     * **A path of the physical layout** (stage 2D, 21 October 2026, `physical-layout.ts`): his recorded choice to set every block's markings
+     * out once (his reply filed 22 October 2026, item 7), and the reading of both blocks' realized geometry that set them out, our mechanism,
+     * with what it holds at that path in this block's fixture.
+     */
+    if (path.startsWith('layout.')) {
+        const layout = block.fixture?.layout
+        found.push({ layer: 'ACTIVITY_REALIZATION_CHOICE', standing: 'PROVISIONAL', ref: `record ${String(layout?.policy ?? 'layout')}`, detail: layout?.because?.citedAs ? String(layout.because.citedAs) : null })
+        const held = layoutNumbersAt(layout, path)
+        found.push({ layer: 'GENERAL_ENGINE_MECHANISM', standing: 'OUR_READING', ref: "physical layout (the union of every block's realized edges)", detail: `${inBlock(block)}${path}${held.length ? ` = ${JSON.stringify(held)}` : ''}` })
     }
     if (path.startsWith('envelope.')) found.push({ layer: 'SESSION_INPUT', standing: 'SESSION', ref: 'session', detail: path })
     if (!found.length) {
@@ -465,9 +521,19 @@ function sourcesOf(path: string, block: EvidenceBlock, items: Map<string, any>, 
     return found
 }
 
+/**
+ * The sources of an element or a sentence, each said once. **A source is the same only where its detail is the same too** — stage 2C, 21
+ * October 2026, the defect the D2 verification found here: keyed on layer, standing and ref alone, a later source overwrote an earlier
+ * one with the same ref, so the realized geometry of block 2 replaced block 1's for every path both blocks hold (the review evidence showed
+ * one block's position as the element's), and inside one sentence an along position was replaced by the across position cited after it.
+ * Keyed with the detail as well, both are kept, in the order found; a source repeated whole is still said once.
+ */
 const dedupe = (sources: EvidenceSource[]): EvidenceSource[] => {
     const seen = new Map<string, EvidenceSource>()
-    for (const source of sources) seen.set(JSON.stringify([source.layer, source.standing, source.ref]), source)
+    for (const source of sources) {
+        const key = JSON.stringify([source.layer, source.standing, source.ref, source.detail])
+        if (!seen.has(key)) seen.set(key, source)
+    }
     return [...seen.values()]
 }
 const LAYER_ORDER: Layer[] = ['GENERAL_ENGINE_MECHANISM', 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS', 'ACTIVITY_REALIZATION_CHOICE', 'SESSION_INPUT']
@@ -693,13 +759,25 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
     // is approved wording too; the same template filled with any other value is a generalization of his words, DRAFT.
     const approvedTemplates = approvedTemplateSentences().map(template => template.sentence.replace(/\.$/, ''))
     const allFindings = [...blocks.flatMap(block => block.findings), ...input.compositionFindings]
+    /**
+     * What a sentence cites in each block that says it (stage 2C, 21 October 2026): a sentence under one block cites its `from` there; a
+     * sentence said once for blocks that say it alike by role cites its `from` in block 1 and, in every block it has a counterpart for,
+     * that counterpart's own citations (never block 1's paths read in the other block's game, where they are the other role's); any other
+     * sentence cites its `from` in every block.
+     */
+    const citedIn = (instruction: Instruction): { block: EvidenceBlock; from: string[] }[] =>
+        blocks.flatMap(block => {
+            if (instruction.block) return instruction.block === block.blockId ? [{ block, from: instruction.from }] : []
+            const counterpart = (instruction.counterparts ?? []).find(entry => entry.blockId === block.blockId)
+            return [{ block, from: counterpart ? counterpart.from : instruction.from }]
+        })
     const instructions: InstructionEvidence[] = composed.instructions.map((instruction: Instruction, i) => {
-        const owners = instruction.block ? blocks.filter(block => block.blockId === instruction.block) : blocks
-        const sources = dedupe(owners.flatMap(block => instruction.from.flatMap(path => sourcesOf(path, block, blockItems[blocks.indexOf(block)], adjustments, relationships, index))))
+        const sources = dedupe(citedIn(instruction).flatMap(({ block, from }) => from.flatMap(path => sourcesOf(path, block, blockItems[blocks.indexOf(block)], adjustments, relationships, index))))
         return {
             index: i,
             section: instruction.section,
             block: instruction.block ?? null,
+            ...(instruction.counterparts ? { counterparts: instruction.counterparts.map(entry => ({ blockId: entry.blockId, from: [...entry.from] })) } : {}),
             text: instruction.text,
             wording: approved.some(sentence => sentence.text === instruction.text) || approvedTemplates.includes(instruction.text) ? 'APPROVED' : 'DRAFT',
             obligationWords: OBLIGATIONS.filter(word => word.test(instruction.text)).map(word => String(word)),
@@ -709,6 +787,8 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
             sources,
         }
     })
+    /* The review of stage 2A: each section label the activity uses, with its status as data, read by the section's name (never by goal). */
+    const labels = sectionLabelsOf(composed.instructions)
 
     /* Withheld fields: the parts awaiting approved wording, and which fidelity findings are about them rather than the text said. */
     const withheld = composed.withheld.map(field => field.path)
@@ -738,7 +818,7 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
         for (const entry of [...(status.derived ?? []), ...(status.choices ?? []), ...(status.geometry ?? [])]) if (entry?.path) note(String(entry.path), block.blockId)
         for (const entry of status.entailed ?? []) note(String(entry.path ?? `${entry.collection}[${entry.handle}].${entry.leaf}`), block.blockId)
     }
-    for (const instruction of composed.instructions) for (const path of instruction.from) for (const block of blocks) if (!instruction.block || instruction.block === block.blockId) note(path, block.blockId)
+    for (const instruction of composed.instructions) for (const { block, from } of citedIn(instruction)) for (const path of from) note(path, block.blockId)
     for (const path of withheld) for (const block of blocks) note(path, block.blockId)
     const untraced: string[] = []
     const elements: ElementProvenance[] = [...paths.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([path, where]) => {
@@ -915,6 +995,8 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
         ...blocks.map(block => ({ what: `block ${block.blockId}: holders`, value: { ...block.holders } })),
         { what: 'cross-block checks', value: input.crossBlock.map(c => `${c.checkId} ${c.verdict}`) },
         { what: 'a block length, time expiry or window written for a role (RB-7)', value: input.crossBlock.find(c => c.checkId === 'RB-7')?.problems ?? null },
+        // Hardening H1: why the markings stay block by block where his recorded choice does not apply (admin-only; never coach text).
+        ...(input.layoutFallback ? [layoutFallbackFact(input.layoutFallback)] : []),
     ]
 
     const holds = learningGoalSelectionHolds()
@@ -1102,7 +1184,9 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
     const items: ItemEvidence[] = request.items.map(item => {
         const perBlock = blocks.map(block => ({ blockId: block.blockId, elements: item.kind === 'GAME' ? itemPaths(item, block).map(path => ({ path, row: rowAt(path) ?? '', value: readPath(block.fixture?.game ?? {}, path.replace(/#realized$/, '')) })) : [] }))
         const carried = new Set(perBlock.flatMap(b => b.elements.map(e => e.path)))
-        const sentences = item.kind === 'INSTRUCTIONS' ? instructions.map(i => i.index) : item.kind === 'GAME' ? instructions.filter(i => composed.instructions[i.index].from.some(path => carried.has(path) || (genericOf(path) !== path && [...carried].some(c => genericOf(c) === genericOf(path))))).map(i => i.index) : []
+        // A sentence carries an item where what it cites in any block does (stage 2C: a sentence said once by role cites in each block).
+        const cites = (at: number) => citedIn(composed.instructions[at]).flatMap(entry => entry.from)
+        const sentences = item.kind === 'INSTRUCTIONS' ? instructions.map(i => i.index) : item.kind === 'GAME' ? instructions.filter(i => cites(i.index).some(path => carried.has(path) || (genericOf(path) !== path && [...carried].some(c => genericOf(c) === genericOf(path))))).map(i => i.index) : []
         const checks = item.checks.flatMap((checkId): ItemEvidence['checks'] =>
             checkId.startsWith('RB-')
                 ? input.crossBlock.filter(c => c.checkId === checkId).map(c => ({ checkId, blockId: null, verdict: c.verdict }))
@@ -1160,11 +1244,12 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
             { what: 'fidelity violations about fields awaiting approved wording', value: violations.length - inSaidText.length },
             { what: 'fields awaiting approved wording', value: withheld.length },
             { what: 'sentences', value: { total: instructions.length, approved: instructions.filter(i => i.wording === 'APPROVED').length, draft: instructions.filter(i => i.wording === 'DRAFT').length } },
+            { what: 'section labels', value: { total: labels.length, approved: labels.filter(l => l.status === 'APPROVED').length, draft: labels.filter(l => l.status === 'DRAFT').length, draftLabels: labels.filter(l => l.status === 'DRAFT').map(l => l.section) } },
         ],
         layers: request.layers.entries.map(entry => ({ ...entry })),
         items,
         structure,
-        sections: { allocation, specializedRoles, pressure, scoring, restarts: transitions, roleExchange, noPrescription, instructions },
+        sections: { allocation, specializedRoles, pressure, scoring, restarts: transitions, roleExchange, noPrescription, instructions, labels },
         flags,
         limitations,
         evaluation: {
