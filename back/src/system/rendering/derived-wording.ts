@@ -21,8 +21,10 @@
  *
  * **What an extract keeps is not computed here.** Which of an entry's covers one of its sentences states is a reading of his words: no
  * field of the approved table records it, and no mechanism can compute it from the words (BUILD PLAN stage 3B assumed one could). So an
- * extract keeps exactly the covers a recorded reading gives it (`CoverReading`), and none where no reading is recorded — the production
- * case today: it then keeps nothing and leaves every cover to its source entry, which Coach Details say whole for the same game. That
+ * extract keeps exactly the covers a recorded reading gives it (`CoverReading`), and none where no reading is recorded — every part
+ * of his wording but the two the PROPOSED record reads (stage 3E, `approved-wording-readings.ts`, which the serving path hands in; each
+ * extract built on it names that record, `readingRecord`): it then keeps nothing and leaves every cover to its source entry, which Coach
+ * Details say whole for the same game. That
  * never claims more than the extract's words are known to say; the overview's agreement check (stage 3D) reads `keeps`, so no extract
  * can stand for a condition until a reading is recorded. The slots of an entry are different: a slot inside the extract's own words IS
  * said there, so its field is cited and its number bound, mechanically. And what is structural is recorded: the source sentences whose
@@ -219,10 +221,22 @@ export interface CoverRef {
 }
 
 /**
- * **A reading of what a part of an approved entry states**: the indexes of the entry's covers these parts state, or null where no reading
- * is recorded. None is recorded today (module comment); a test may hand one.
+ * **Where a reading is recorded, and its standing** — stage 3E, 22 October 2026: the PROPOSED record of what parts of his entries state
+ * (`approved-wording-readings.ts`), named for an administrator with its label (DRAFT words); never a coach's.
  */
-export type CoverReading = (entry: ApprovedWording, units: ExtractUnit[]) => number[] | null
+export interface ReadingRecord {
+    source: string
+    status: 'PROPOSED'
+    label: string
+    labelStatus: 'DRAFT'
+}
+
+/**
+ * **A reading of what a part of an approved entry states**: the indexes of the entry's covers these parts state, or null where no reading
+ * is recorded. This module records none (module comment); since stage 3E the serving path hands the PROPOSED record
+ * (`approved-wording-readings.ts`), which carries `record` (where it is recorded and its standing), and a test may hand one of its own.
+ */
+export type CoverReading = ((entry: ApprovedWording, units: ExtractUnit[]) => number[] | null) & { record?: ReadingRecord }
 export const NO_RECORDED_READING: CoverReading = () => null
 
 /** A verbatim extract of an approved entry said for this game: DERIVED_FROM_APPROVED, with its source and its cover accounting. */
@@ -239,6 +253,11 @@ export interface DerivedExtract {
     leaves: CoverRef[]
     /** Whether `keeps` comes from a recorded reading; `NONE_RECORDED`: none is, so it keeps nothing. */
     reading: 'NONE_RECORDED' | 'RECORDED'
+    /**
+     * Stage 3E: where the reading it keeps by is recorded, and its standing (the PROPOSED record: "reading PROPOSED, awaiting
+     * confirmation"), for an administrator. Null where it keeps nothing, or where the reading handed in names no record (a test's).
+     */
+    readingRecord: ReadingRecord | null
     /** What it cites in this game: the kept covers' fields, then the fields of the slots inside its words. */
     from: string[]
     /** Each number it says (a numeric slot inside its words), bound to its field, in the order said. */
@@ -363,6 +382,10 @@ export function extractUnusableBecause(extract: any, options: { wording?: Approv
     if (recorded === null && extract.reading === 'RECORDED') return 'it says what it keeps comes from a recorded reading, and none is recorded for its parts: what a part of an entry states is never taken from the extract itself'
     const kept = (extract.keeps as CoverRef[]).map(ref => ref.index).sort((a, b) => a - b)
     if ((recorded === null) !== (extract.reading === 'NONE_RECORDED') || canonicalJson([...(recorded ?? [])].sort((a, b) => a - b)) !== canonicalJson(kept)) return 'what it keeps is not what the recorded reading gives it'
+    // Stage 3E: where its reading is recorded, and its standing, are the reading's own (the one handed in), never the extract's word.
+    if (!('readingRecord' in extract)) return 'it does not say where the reading it keeps by is recorded'
+    const record = recorded === null ? null : ((options.reading ?? NO_RECORDED_READING).record ?? null)
+    if (canonicalJson(extract.readingRecord) !== canonicalJson(record)) return `it says its reading is recorded at ${JSON.stringify(extract.readingRecord)}, and the reading it is held to is recorded at ${JSON.stringify(record)}`
     const hasSlots = slotsIn(entry.sentence).length > 0
     if (options.game === undefined) {
         if (hasSlots) return 'an extract of an entry with slots is checked only against the game that fills them'
@@ -373,7 +396,7 @@ export function extractUnusableBecause(extract: any, options: { wording?: Approv
     if (!instances.length) return `its source entry ${entry.id} is not said for this game`
     let misnamed: string | null = null
     for (const instance of instances) {
-        const built = buildExtract(options.game, entry, instance, extract.units, extract.keeps.map((ref: CoverRef) => ref.index), extract.reading === 'RECORDED' ? 'RECORDED' : 'NONE_RECORDED')
+        const built = buildExtract(options.game, entry, instance, extract.units, extract.keeps.map((ref: CoverRef) => ref.index), extract.reading === 'RECORDED' ? 'RECORDED' : 'NONE_RECORDED', record)
         if (typeof built === 'string') continue
         if (built.text !== extract.text) continue
         // The same words said for another element of an entry said element by element are another extract: look on before refusing.
@@ -408,7 +431,7 @@ function instancesOf(game: any, entry: ApprovedWording): Instance[] {
 }
 
 /** An extract of one saying of an entry, or why it cannot be built. */
-function buildExtract(game: any, entry: ApprovedWording, instance: Instance, units: ExtractUnit[], kept: number[], reading: DerivedExtract['reading']): DerivedExtract | string {
+function buildExtract(game: any, entry: ApprovedWording, instance: Instance, units: ExtractUnit[], kept: number[], reading: DerivedExtract['reading'], record: ReadingRecord | null): DerivedExtract | string {
     const template = sentencesOf(entry.sentence)
     const names = slotsIn(entry.sentence)
     const values = names.length ? slotValuesOf(entry.sentence, instance.said.text) : {}
@@ -441,6 +464,7 @@ function buildExtract(game: any, entry: ApprovedWording, instance: Instance, uni
         keeps: refsOf(entry, keptSorted, paths),
         leaves: refsOf(entry, left, paths),
         reading,
+        readingRecord: reading === 'RECORDED' && record ? { ...record } : null,
         from: [...new Set([...keptSorted.map(index => paths[index]!), ...keptSlots.map(slotPath)])],
         bindings: keptSlots.map(slotPath).filter(path => numeric.has(path)).map(path => ({ ...numeric.get(path)! })),
     }
@@ -485,7 +509,7 @@ export function extractsFor(game: any, options: { wording?: ApprovedWording[]; r
         for (const instance of instances) {
             for (const units of selections) {
                 const recorded = reading(entry, units)
-                const built = buildExtract(game, entry, instance, units, recorded ?? [], recorded === null ? 'NONE_RECORDED' : 'RECORDED')
+                const built = buildExtract(game, entry, instance, units, recorded ?? [], recorded === null ? 'NONE_RECORDED' : 'RECORDED', recorded === null ? null : (reading.record ?? null))
                 if (typeof built === 'string') {
                     withheld.push({ id: extractId(entry.id, units, instance.prefix), text: null, source, units, why: built })
                     continue

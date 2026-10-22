@@ -310,6 +310,26 @@ export interface CoachOverview {
 /** One of the three wording statuses (his reply filed 22 October 2026, item 4). A `string`, not the closed union, as the header explains. */
 export type ReviewWordingStatus = 'APPROVED' | 'DERIVED_FROM_APPROVED' | 'DRAFT' | string
 
+/**
+ * Where the reading an extract of his wording keeps by is recorded, and its standing (stage 3E): the PROPOSED record, labelled "reading
+ * PROPOSED, awaiting confirmation" (DRAFT words). For an administrator only; a coach's answer carries none.
+ */
+export interface ReviewReadingRecord {
+    source: string
+    status: string
+    label: string
+    labelStatus: string
+}
+
+/** The PROPOSED readings record as the server names it (stage 3E): its standing, its label, and why it cannot be used. */
+export interface ReviewReadingsAccount {
+    source: string
+    status: string
+    label: string | null
+    labelStatus: string
+    why: string | null
+}
+
 /** The overview as presented, with each sentence's status and source, for an administrator only (stage 3D). */
 export interface ReviewPresentedOverview {
     purpose: { text: string; wording: ReviewWordingStatus; source: Record<string, unknown> } | null
@@ -318,7 +338,7 @@ export interface ReviewPresentedOverview {
     scoring: {
         group: string
         noun: string | null
-        sentences: { text: string; wording: ReviewWordingStatus; source: { kind: string; id?: string } | null; fullRule: (OverviewPointer & { labelStatus: string }) | null }[]
+        sentences: { text: string; wording: ReviewWordingStatus; source: { kind: string; id?: string } | null; fullRule: (OverviewPointer & { labelStatus: string }) | null; reading: ReviewReadingRecord | null }[]
         fullRules: (OverviewPointer & { labelStatus: string })[]
     }[]
 }
@@ -347,7 +367,7 @@ export interface ReviewOverviewDraft {
     check: { verdict: 'PASS' | 'FAIL' | string; findings: ReviewOverviewFinding[] } | null
     reading: ReviewOverviewReading | null
     presented: ReviewPresentedOverview | null
-    scoring: { table: { source: string; status: string; label: string | null; labelStatus: string; why: string | null } }
+    scoring: { table: { source: string; status: string; label: string | null; labelStatus: string; why: string | null }; readings: ReviewReadingsAccount }
     [key: string]: unknown
 }
 
@@ -493,14 +513,25 @@ export interface ReviewEvidence {
     /**
      * Stage 3D (21 October 2026): the Coach Overview's agreement check as the server ran it — served or withheld, the verdict, every
      * finding, the table it was built on, each presented sentence with its status, and the reading evidence. Present only on a served
-     * activity. Not shown yet.
+     * activity. Not shown yet. Stage 3E: aligned with the draft — the table's source and label status, the PROPOSED readings record, each
+     * "full rule" pointer with its label and label status (a sentence's, and each group's own in `fullRules`), each extract's reading label.
      */
     overview?: {
         served: boolean
         verdict: string
         findings: ReviewOverviewFinding[]
-        table: { status: string; label: string | null }
-        sentences: { part: string; group: string | null; text: string; wording: ReviewWordingStatus; source: Record<string, unknown> | null; fullRule: string | null }[]
+        table: { source: string; status: string; label: string | null; labelStatus: string }
+        readings: ReviewReadingsAccount
+        sentences: {
+            part: string
+            group: string | null
+            text: string
+            wording: ReviewWordingStatus
+            source: Record<string, unknown> | null
+            fullRule: (OverviewPointer & { labelStatus: string }) | null
+            reading: ReviewReadingRecord | null
+        }[]
+        fullRules: (OverviewPointer & { labelStatus: string; group: string })[]
         reading: ReviewOverviewReading | null
     }
 }

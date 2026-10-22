@@ -42,7 +42,8 @@ import { loadRegister } from '../derivation/corpus'
 import { AUDITS_DIR } from '../derivation/knowledge-root'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { ApprovedWording, approvedWording, canonicalJson } from './approved-wording'
-import { approvedEntriesSaid, DerivedExtract, detailsWordingOf, extractStatusOf, extractsFor, ExtractUnit, sentencesOf, WithheldExtract, WordingSource, WordingStatus } from './derived-wording'
+import { ReadingsAccount, readingsAccountOf, ReadingsLoad, recordedReading, recordedReadings } from './approved-wording-readings'
+import { approvedEntriesSaid, DerivedExtract, detailsWordingOf, extractStatusOf, extractsFor, ExtractUnit, ReadingRecord, sentencesOf, WithheldExtract, WordingSource, WordingStatus } from './derived-wording'
 import { MECHANISM_DEMONSTRATIONS } from './mechanism-demonstrations'
 import {
     ATTACKING_END,
@@ -622,6 +623,11 @@ export interface ScoringSentence {
     /** The group's required fields it states, each with its class and the rule classing it. */
     states: { path: string; class: OverviewClass; rule: string }[]
     fullRule: DetailsPointer | null
+    /**
+     * Stage 3E: for an extract kept by a recorded reading, where that reading is recorded and its standing (the PROPOSED record:
+     * "reading PROPOSED, awaiting confirmation", for an administrator only); null for every other sentence.
+     */
+    reading: ReadingRecord | null
 }
 
 /** How one team scores, as the overview says it (or withheld, with why). */
@@ -646,6 +652,8 @@ export interface ScoringGroup {
 /** The overview's scoring, per block, with the table it was built on. */
 export interface OverviewScoring {
     table: { source: typeof ESSENTIALS_SOURCE; status: 'PROPOSED' | 'APPROVED' | 'UNUSABLE'; label: string | null; labelStatus: 'DRAFT'; why: string | null }
+    /** Stage 3E: the PROPOSED record of what parts of his wording state, which the extracts keep by (`approved-wording-readings.ts`). */
+    readings: ReadingsAccount
     blocks: { blockId: string; groups: ScoringGroup[] }[]
     /** Whether every block's groups say the same words. */
     sameTextInEveryBlock: boolean
@@ -952,8 +960,8 @@ interface Candidate {
     bindings: Binding[]
 }
 
-/** The numbers an instruction binds, in the order it says them (its parts'), each copied. */
-const bindingsOfInstruction = (instruction: Instruction): Binding[] => (instruction.parts ?? []).flatMap(p => (p.bindings ?? []).map(b => ({ ...b })))
+/** The numbers an instruction binds, in the order it says them (its parts'), each copied. Exported for the agreement check (Q7.2). */
+export const bindingsOfInstruction = (instruction: Instruction): Binding[] => (instruction.parts ?? []).flatMap(p => (p.bindings ?? []).map(b => ({ ...b })))
 
 const refOf = (sentence: DetailsSentence): DetailsRef => ({ blockIndex: sentence.at, section: sentence.instruction.section, text: sentence.instruction.text })
 
@@ -989,7 +997,8 @@ function droppedBy(sourceText: string, units: ExtractUnit[]): string[] {
  *   1. APPROVED_ENTRY: his approved wording said whole (as Details say it), where it states a field not yet stated and holds no DETAIL;
  *   2. SHORTEST_EXTRACT: the shortest verbatim extract of it (`derived-wording.ts`) whose recorded reading keeps the field — never one
  *      that omits words between its parts (`omitsBetween`, the 3B review: a candidate dropping a sentence between two it keeps is not
- *      chosen on length). With no reading recorded (production today) an extract keeps nothing, so it is never chosen;
+ *      chosen on length). An extract keeps only what a recorded reading of its parts gives it (since stage 3E the PROPOSED record,
+ *      `approved-wording-readings.ts`), so one with no reading keeps nothing and is never chosen;
  *   3. DETAILS_SENTENCE: the first Details sentence citing the field — his approved wording whole, or, for a DRAFT sentence, its shortest
  *      DRAFT shortening that still cites every required field it cites other than a DETAIL (`draftShorteningsOf`), else the sentence whole.
  *
@@ -1196,12 +1205,16 @@ export function scoringGroupsOf(fixture: any, rendered: Instruction[], extracts:
         const pointed = new Set([...pointers.values()].flatMap(pointer => pointer.paths))
 
         const keepingNothing = usable.filter(({ extract, source }) => extract.reading === 'NONE_RECORDED' && inGroup(source.instruction.from).length > 0).map(({ extract }) => extract.id)
+        // Stage 3E: since a reading of some parts is recorded (PROPOSED), the note says how many of the sentence's extracts have one.
         const notes = chosen
             .filter(c => c.form === 'WHOLE' && c.chosenBy === 'DETAILS_SENTENCE' && c.wording === 'APPROVED' && usable.some(({ extract, source }) => source.at === c.at && extract.reading === 'NONE_RECORDED'))
-            .map(
-                c =>
-                    `${c.source?.id ?? 'the approved sentence'} is said whole: it holds a field the table leaves to Coach Details, and none of its extracts keeps anything, because no reading of what a part of his wording states is recorded (his decision)`,
-            )
+            .map(c => {
+                const own = usable.filter(({ source }) => source.at === c.at)
+                const read = own.filter(({ extract }) => extract.reading === 'RECORDED').length
+                return read === 0
+                    ? `${c.source?.id ?? 'the approved sentence'} is said whole: it holds a field the table leaves to Coach Details, and none of its extracts keeps anything, because no reading of what a part of his wording states is recorded (his decision)`
+                    : `${c.source?.id ?? 'the approved sentence'} is said whole: it holds a field the table leaves to Coach Details, and no extract of it keeps what this group needs from it (${read} of its ${own.length} extracts are kept by a recorded reading; the others keep nothing)`
+            })
         const sentences: ScoringSentence[] = chosen.map((c, n) => ({
             text: c.text,
             wording: c.wording,
@@ -1215,6 +1228,7 @@ export function scoringGroupsOf(fixture: any, rendered: Instruction[], extracts:
             bindings: c.bindings,
             states: c.states.map(path => ({ path, class: required.get(path)!.class, rule: required.get(path)!.rule })),
             fullRule: carriedBy.get(c.at) === n ? pointers.get(c.at)! : null,
+            reading: c.extract?.readingRecord ? { ...c.extract.readingRecord } : null,
         }))
         const fullRules = [...pointers.entries()].filter(([at]) => !carriedBy.has(at)).map(([, pointer]) => pointer)
         const out = { requirements: requirementsOut(chosen, pointed), ways, extractsKeepingNothing: keepingNothing, notes }
@@ -1244,7 +1258,7 @@ export function failedOverviewDraft(what: string): CoachOverviewDraft {
         sameTextInEveryBlock: false,
         gaps: [{ part: 'game', what: `the overview could not be computed: ${what}` }],
         extracts: [],
-        scoring: { table: tableAccountOf(ESSENTIALS), blocks: [], sameTextInEveryBlock: false },
+        scoring: { table: tableAccountOf(ESSENTIALS), readings: readingsAccountOf(recordedReadings()), blocks: [], sameTextInEveryBlock: false },
     }
 }
 
@@ -1257,12 +1271,16 @@ export function failedOverviewDraft(what: string): CoachOverviewDraft {
  * Stage 3C: and how each team scores, per block (`scoringGroupsOf`), from that block's own render (`rendered`, the build's; a caller that
  * hands none has the block's fixture rendered here, by the same renderer) and that block's extracts. `options` hand another table or
  * approved wording (tests). A block whose groups cannot be composed lists none, with a `scoring` gap; every other part stands.
+ *
+ * Stage 3E: the extracts are generated with the PROPOSED record of what parts of his wording state (`recordedReading`, the serving path's
+ * reading) unless a generator is handed in; the draft names that record (`scoring.readings`, from `options.readings`, the loaded record
+ * by default).
  */
 export function coachOverviewDraftOf(
     goalId: string | null,
     blocks: { blockId: string; fixture: any; rendered?: { instructions: Instruction[] } }[],
-    extractsOf: (game: any) => { extracts: DerivedExtract[]; withheld: WithheldExtract[] } = game => extractsFor(game),
-    options: { essentials?: EssentialsLoad; wording?: ApprovedWording[] } = {},
+    extractsOf: (game: any) => { extracts: DerivedExtract[]; withheld: WithheldExtract[] } = game => extractsFor(game, { reading: recordedReading() }),
+    options: { essentials?: EssentialsLoad; wording?: ApprovedWording[]; readings?: ReadingsLoad } = {},
 ): CoachOverviewDraft {
     const gaps: OverviewGap[] = []
     const { purpose, gap } = purposeOf(goalId)
@@ -1299,6 +1317,7 @@ export function coachOverviewDraftOf(
     const scoringText = (entry: { groups: ScoringGroup[] }) => JSON.stringify(entry.groups.map(group => [group.group, group.withheld, group.sentences.map(sentence => sentence.text), group.fullRules.map(pointer => pointer.text)]))
     const scoring: OverviewScoring = {
         table: tableAccountOf(load),
+        readings: readingsAccountOf(options.readings ?? recordedReadings()),
         blocks: scoringBlocks,
         sameTextInEveryBlock: scoringBlocks.length > 0 && scoringBlocks.every(entry => scoringText(entry) === scoringText(scoringBlocks[0])),
     }

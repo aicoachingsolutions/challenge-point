@@ -11,8 +11,9 @@
  *   1. Coach Details: every sentence's status is the rule's as before (decided by text), now with the entry or template it is; approved
  *      wording is said whole, so no Details sentence is DERIVED_FROM_APPROVED;
  *   2. the extracts generated for A01 in each block: whole sentences, or a leading clause ending at ";", in order, each DERIVED_FROM_APPROVED
- *      with its source entry and a cover accounting that exactly partitions the entry's covers; no reading is recorded, so each keeps
- *      nothing and leaves every cover, at the field the Details sentence cites; the administrator's overview draft carries them;
+ *      with its source entry and a cover accounting that exactly partitions the entry's covers; since stage 3E the two parts the PROPOSED
+ *      readings record reads keep what it gives them, named with that record, and every other keeps nothing and leaves every cover, at the
+ *      field the Details sentence cites; the administrator's overview draft carries them;
  *   3. an extract with one changed word (or any other departure from its source's parts) is refused; so is one relabelled, or one hiding
  *      the sentence it skips between its parts (`omitsBetween`, structural only);
  *   4. a cover accounting that does not partition the source's covers, or (against the game) leaves a cover at another field, is refused;
@@ -33,6 +34,7 @@ import path from 'node:path'
 
 import { reviewActivity } from './activity-review'
 import { APPROVED_WORDING_FILE, approvedTemplateSentences, ApprovedWording, approvedWording } from './approved-wording'
+import { PROPOSED_READING_RECORD, recordedReading } from './approved-wording-readings'
 import { buildActivity, buildActivityForReview, buildActivityWithFixture, RefusedActivity, ServedActivity } from './build-activity'
 import { coachOverviewDraftOf } from './coach-overview'
 import {
@@ -82,6 +84,12 @@ const OVERVIEW_4 = 'Building team: Score by carrying the ball beyond the marked 
 const OVERVIEW_8 = 'The pressing team also scores by winning the ball inside that zone, provided it genuinely establishes possession.'
 const W1_S2 = "The progression must begin with the goalkeeper's build-out and occur before the building team loses possession."
 const W1_S3 = 'Uncontrolled clearances do not score.'
+/**
+ * Stage 3E: the covers the PROPOSED record (docs/audits/approved-wording-readings.json, not his reading) says these two parts state — his
+ * first sentence of the building rule the progression and control covers (4-11), the regain sentence's leading clause its team, trigger
+ * and control (0-2). approved-wording-readings.unit.ts pins the record itself.
+ */
+const PROPOSED_KEEPS: Record<string, number[]> = { 'A01-W1:s1': [4, 5, 6, 7, 8, 9, 10, 11], 'A01-W2:c1': [0, 1, 2] }
 
 test('1. Coach Details: each sentence\'s status is the rule\'s as before, now naming the entry or template it is; none is derived', () => {
     for (const [players, keepers] of [[12, 1], [12, 2], [11, 1]] as const) {
@@ -146,8 +154,10 @@ test('2. the A01 extracts, per block: whole sentences or a leading clause, in or
         assert.deepEqual(served.overviewDraft!.extracts.map(block => block.blockId), blocks.map(block => block.blockId), what)
         for (const { blockId, fixture } of blocks) {
             const listed = served.overviewDraft!.extracts.find(block => block.blockId === blockId)!
-            // The administrator's draft carries exactly what the generator gives for this block's own game.
-            assert.deepEqual(listed, { blockId, ...extractsFor(fixture.game) }, `${what} ${blockId}`)
+            // The administrator's draft carries exactly what the generator gives for this block's own game. Re-pointed 22 October 2026
+            // (stage 3E): generated with the PROPOSED record of what parts of his wording state (`recordedReading`), as the serving path
+            // generates them. Was: `extractsFor(fixture.game)`, with no reading.
+            assert.deepEqual(listed, { blockId, ...extractsFor(fixture.game, { reading: recordedReading() }) }, `${what} ${blockId}`)
             assert.deepEqual(listed.withheld, [], `${what} ${blockId}`)
             assert.deepEqual(listed.extracts.map(e => [e.id, e.text]), expected, `${what} ${blockId}`)
             // What each omits between its parts, structurally: only sentences 1 and 3 together skip one (the build-out sentence, 2).
@@ -157,15 +167,24 @@ test('2. the A01 extracts, per block: whole sentences or a leading clause, in or
             for (const extract of listed.extracts) {
                 const entry = entryOf(extract.source.id)
                 assert.equal(extract.wording, 'DERIVED_FROM_APPROVED')
-                assert.equal(extractUnusableBecause(extract, { game: fixture.game }), null, extract.id)
+                assert.equal(extractUnusableBecause(extract, { game: fixture.game, reading: recordedReading() }), null, extract.id)
                 assert.deepEqual([...extract.keeps, ...extract.leaves].map(ref => ref.index).sort((a, b) => a - b), entry.covers.map((_, n) => n), `${extract.id}: a partition`)
-                // No reading is recorded: it keeps nothing, cites nothing, and leaves every cover to his entry said whole in Details.
-                assert.equal(extract.reading, 'NONE_RECORDED')
-                assert.deepEqual([extract.keeps, extract.from, extract.bindings], [[], [], []], extract.id)
+                // Re-pointed 22 October 2026 (stage 3E): the two parts the PROPOSED record reads are kept by it, named with its record and
+                // label, citing exactly their kept covers' fields; every other extract has no reading: it keeps nothing, cites nothing, and
+                // leaves every cover to his entry said whole in Details. Was: every extract NONE_RECORDED.
+                const kept = PROPOSED_KEEPS[extract.id]
+                if (kept) {
+                    assert.deepEqual([extract.reading, extract.readingRecord, extract.keeps.map(ref => ref.index)], ['RECORDED', PROPOSED_READING_RECORD, kept], extract.id)
+                    assert.deepEqual(extract.from, extract.keeps.map(ref => ref.path), extract.id)
+                    assert.equal(extract.readingRecord!.label, 'reading PROPOSED, awaiting confirmation')
+                } else {
+                    assert.equal(extract.reading, 'NONE_RECORDED')
+                    assert.deepEqual([extract.keeps, extract.from, extract.bindings, extract.readingRecord], [[], [], [], null], extract.id)
+                }
                 const whole = details.find(i => i.text === entry.sentence)!
                 assert.ok(whole, `${extract.id}: its source is said whole in Details`)
-                assert.deepEqual(new Set(extract.leaves.map(ref => ref.path)), new Set(whole.from), `${extract.id}: each cover left at the field Details cite`)
-                extract.leaves.forEach(ref => assert.deepEqual([ref.row, ref.element], [entry.covers[ref.index].row, entry.covers[ref.index].element ?? null], extract.id))
+                assert.deepEqual(new Set([...extract.keeps, ...extract.leaves].map(ref => ref.path)), new Set(whole.from), `${extract.id}: each cover kept or left at the field Details cite`)
+                ;[...extract.keeps, ...extract.leaves].forEach(ref => assert.deepEqual([ref.row, ref.element], [entry.covers[ref.index].row, entry.covers[ref.index].element ?? null], extract.id))
             }
         }
     }
@@ -267,6 +286,21 @@ test('4. a cover accounting that does not partition the source\'s covers is refu
     assert.ok(extractUnusableBecause(read)!.startsWith(NO_READING))
     assert.equal(extractUnusableBecause(read, { game: BLOCK_1.fixture.game, reading }), null)
     assert.equal(extractUnusableBecause(read, { reading }), null)
+    // Stage 3E: where its reading is recorded (and its standing) is the reading's own, never the extract's word. A TEST-ONLY reading names
+    // no record, so an extract claiming the PROPOSED record under it is refused; the PROPOSED record's own extract passes under that record
+    // and is refused under the TEST-ONLY reading, though its covers are the same; an extract not saying where its reading is recorded is
+    // refused.
+    assert.equal(read.readingRecord, null)
+    const claimsRecord: any = copy(read)
+    claimsRecord.readingRecord = { ...PROPOSED_READING_RECORD }
+    assert.ok(extractUnusableBecause(claimsRecord, { game: BLOCK_1.fixture.game, reading })!.startsWith('it says its reading is recorded at'))
+    const proposed = extractsFor(BLOCK_1.fixture.game, { reading: recordedReading() }).extracts.find(e => e.id === 'A01-W2:c1')!
+    assert.deepEqual(proposed.keeps.map(ref => ref.index), read.keeps.map(ref => ref.index))
+    assert.equal(extractUnusableBecause(proposed, { game: BLOCK_1.fixture.game, reading: recordedReading() }), null)
+    assert.ok(extractUnusableBecause(proposed, { game: BLOCK_1.fixture.game, reading })!.startsWith('it says its reading is recorded at'))
+    const unnamed: any = copy(read)
+    delete unnamed.readingRecord
+    assert.equal(extractUnusableBecause(unnamed, { reading }), 'it does not say where the reading it keeps by is recorded')
     // Held to the reading it claims: against no reading, or another one, what it keeps is refused.
     assert.ok(extractUnusableBecause(read, { reading: () => null })!.startsWith(NO_READING))
     assert.equal(extractUnusableBecause(read, { reading: () => [0, 1] }), 'what it keeps is not what the recorded reading gives it')
@@ -484,9 +518,11 @@ test('9. a block whose extracts cannot be generated lists none, with a gap; the 
     const games = blocksOf(buildActivityWithFixture(a01At(12, 1)).fixture)
     assert.equal(games.length, 2)
     const whole = coachOverviewDraftOf('A01', games)
+    // Re-pointed 22 October 2026 (stage 3E): the failing generator's working block uses the reading the default generator uses (the PROPOSED
+    // record), so that block's extracts equal the whole draft's. Was: `extractsFor(game)`, with no reading, the default before 3E.
     const failing = coachOverviewDraftOf('A01', games, game => {
         if (game === games[1].fixture.game) throw new Error('TEST-ONLY extractor failure')
-        return extractsFor(game)
+        return extractsFor(game, { reading: recordedReading() })
     })
     assert.deepEqual([failing.purpose, failing.blocks, failing.sameTextInEveryBlock], [whole.purpose, whole.blocks, whole.sameTextInEveryBlock])
     assert.deepEqual(failing.extracts, [whole.extracts[0], { blockId: games[1].blockId, extracts: [], withheld: [] }])

@@ -629,6 +629,18 @@ const TRIGGER_PHRASE: Record<string, string> = {
     SCORE: 'after either team scores',
     COACH_JUDGED_EPISODE_CONCLUSION: 'whenever you decide that an attack has run its course (at a stoppage or while play is on)',
 }
+
+/**
+ * **A phrase and the bracketed aside it closes on, as two clauses** — stage 3E, 22 October 2026 (fix (a) of the 3C review, the
+ * coordinator's choice): a sentence's parts are split at its clauses, so each citation sits on the words that state it and a cut that
+ * keeps a part keeps exactly what that part's words say. Where a phrase ends on one bracketed aside (" (...)"), the aside is a clause of
+ * its own: `[the words it qualifies, the aside]`; otherwise `[the phrase, null]`. Read by clause structure, never by which words they are,
+ * and as the overview's cuts read an aside (`coach-overview.ts` draftShorteningsOf, ASIDE).
+ */
+export function asideOf(phrase: string): [string, string | null] {
+    const open = phrase.lastIndexOf(' (')
+    return open > 0 && phrase.endsWith(')') && phrase.indexOf(')', open) === phrase.length - 1 ? [phrase.slice(0, open), phrase.slice(open)] : [phrase, null]
+}
 const METHOD_PHRASE: Record<string, (object: string) => string> = {
     FROM_THE_FEET: object => `from the feet, with the ${object} still or moving`,
     IN_HAND: object => `with the ${object} in hand`,
@@ -2283,6 +2295,12 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
      * procedure (`OPENER_TAKER`), so HOW and WHERE go to Restarts and ball out. Every other path the one sentence cited is cited by
      * exactly one of WHEN and HOW. The words are the one sentence's, cut at the colon, with the taker said again at the start of HOW;
      * WHERE's "{taker} restarts play" replaces "each of these restarts is taken" (DRAFT).
+     *
+     * **Stage 3E, 22 October 2026: each restart moment its own part** (the words unchanged). Until 3E the moments were one part citing every
+     * trigger's selector, so no cut could keep some of its words and know what they still say. Now each trigger's phrase, with the joiner
+     * the list gives it (": ", ", ", " and "), is a part citing that trigger's selector, and a phrase's closing bracketed aside (`asideOf`)
+     * is a part of its own citing the same selector: it says more of the same trigger (when the coach may judge it), so the words it
+     * qualifies still say that trigger without it. The sentence's text, status and citations are exactly as before.
      */
     for (const group of restartGroups.values()) {
         const [first] = group
@@ -2291,12 +2309,13 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
         const stops = group.map(t => pathAt(t, 'playState'))
         const methods = group.map(t => pathAt(t, 'placement.method'))
         const locations = group.map(t => pathAt(t, 'placement.region'))
-        instructions.push(
-            joined('How it works', [
-                part(partStatus([...who, ...stops]), `${capital(taker)} restarts play`, [...who, ...stops]),
-                part(partStatus([]), `: ${listed(group.map(t => TRIGGER_PHRASE[triggerOf(t)!]))}`, group.map(t => pathAt(t, 'selector'))),
-            ]),
-        )
+        const moments = group.flatMap((t, k) => {
+            const [words, aside] = asideOf(TRIGGER_PHRASE[triggerOf(t)!])
+            const selector = [pathAt(t, 'selector')]
+            const joiner = k === 0 ? ': ' : k === group.length - 1 ? ' and ' : ', '
+            return [part(partStatus([]), `${joiner}${words}`, selector), ...(aside === null ? [] : [part(partStatus([]), aside, selector)])]
+        })
+        instructions.push(joined('How it works', [part(partStatus([...who, ...stops]), `${capital(taker)} restarts play`, [...who, ...stops]), ...moments]))
         if (placementResetsAt(group)) sayPlacement(group)
         instructions.push(joined(RESTARTS, [part(partStatus([...who, ...methods]), `${capital(taker)} restarts play ${METHOD_PHRASE[first.placement.method](objectNoun!)}`, [...who, ...methods, ...objectPath])]))
         const bound = coachDecides(first.placement.region)
@@ -2391,18 +2410,36 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
          */
         // A region noun that already says "target" is not prefixed again ("its target target zone").
         const targetPhrase = targetNoun && targetNoun.toLowerCase().startsWith('target') ? targetNoun : `target ${targetNoun}`
-        const how = zoneEntry
-            ? `by getting the ${carrier.kind} under control into its ${targetPhrase}: running it in, or passing to a teammate who receives it under control inside`
-            : // "the marked line" is only unambiguous while there is one; with a target per team the objective each team
-              // attacks is named relationally.
-              carrier
-              ? objectives.length > 1
-                  ? `by getting the ${carrier.kind} across the line it is attacking`
-                  : `by getting the ${carrier.kind} across the marked line`
-              : objectives.length > 1
-                ? 'when the line it is attacking is crossed'
-                : 'when the marked line is crossed'
+        /**
+         * **Stage 3E, 22 October 2026: the zone-entry wording is two clauses, each its own part** (the words unchanged). How a team scores
+         * ("by getting the {object} under control into its target {noun}") and, after its colon, the two ways that entry is made (": running
+         * it in, or passing to a teammate who receives it under control inside"): the elaboration of the same event, in his D3's terms quoted
+         * above. The first part cites everything the sentence cited (the event, its bound or value, the object, each target's noun, the
+         * objective); the elaboration cites the event it elaborates. So a cut before the elaboration keeps exactly what the words it keeps
+         * say, and the sentence's text, status and citations are as before. Every other wording is one clause, said as before.
+         */
+        const how: { lead: string; elaboration: string | null } = zoneEntry
+            ? { lead: `by getting the ${carrier.kind} under control into its ${targetPhrase}`, elaboration: ': running it in, or passing to a teammate who receives it under control inside' }
+            : {
+                  // "the marked line" is only unambiguous while there is one; with a target per team the objective each team
+                  // attacks is named relationally.
+                  lead: carrier
+                      ? objectives.length > 1
+                          ? `by getting the ${carrier.kind} across the line it is attacking`
+                          : `by getting the ${carrier.kind} across the marked line`
+                      : objectives.length > 1
+                        ? 'when the line it is attacking is crossed'
+                        : 'when the marked line is crossed',
+                  elaboration: null,
+              }
         const howPaths = [...(carrier ? [`objects[${carrier.elementId}].kind`] : []), ...(zoneEntry ? targetNounPaths : []), ...(objective ? [`objectives[${objective.elementId}].role`] : [])]
+        /** A scoring sentence: one part, or (stage 3E) its lead and the elaboration of the event, each a part, at the sentence's status. */
+        const sayScoring = (status: SourceStatus, core: string, from: string[], bindings: Binding[] = []) =>
+            instructions.push(
+                how.elaboration === null
+                    ? instruction('How to score', status, core, from, bindings)
+                    : joined('How to score', [part(status, phrase(status, core), from, bindings), part(status, how.elaboration, [kindPath])]),
+            )
         /**
          * **Where a role's scoring credit is confined to an episode, no sentence speaks for every team** — stage M3, 17 October 2026
          * (design step L9). Christian, reply filed 19 October 2026, item 1: *"The important distinction is that the building team's
@@ -2429,17 +2466,11 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
                 const noun = typeof element?.activityRole === 'string' ? roleNounOf[element.activityRole] : undefined
                 if (!noun) continue
                 const creditPath = `activityRoles[${element.elementId}].creditedWithin`
-                say('How to score', statusAt([kindPath, creditPath], 'DERIVED'), `${capital(noun)}: Score ${how}`, [kindPath, creditPath, ...howPaths])
+                sayScoring(statusAt([kindPath, creditPath], 'DERIVED'), `${capital(noun)}: Score ${how.lead}`, [kindPath, creditPath, ...howPaths])
             }
             say('How to score', statusOf.get('value.primaryEvent.value') ?? statusOf.get(kindPath) ?? 'DERIVED', `Each score is worth ${primary.value} point`, ['value.primaryEvent.value'], [{ quantity: primary.value, path: 'value.primaryEvent.value' }])
         } else
-            say(
-                'How to score',
-                statusOf.get(kindPath) ?? 'DERIVED',
-                `A team scores ${primary.value} point ${how}`,
-                [kindPath, 'value.primaryEvent.value', ...howPaths],
-                [{ quantity: primary.value, path: 'value.primaryEvent.value' }],
-            )
+            sayScoring(statusOf.get(kindPath) ?? 'DERIVED', `A team scores ${primary.value} point ${how.lead}`, [kindPath, 'value.primaryEvent.value', ...howPaths], [{ quantity: primary.value, path: 'value.primaryEvent.value' }])
         if (!carrier) {
             observations.push(
                 `The scoring event is established and what crosses the line is not: the game holds no object, so the ` +

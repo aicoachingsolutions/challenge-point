@@ -101,6 +101,7 @@
     "./src/system/rendering/derived-wording.unit.ts",
     "./src/system/rendering/overview-scoring.unit.ts",
     "./src/system/rendering/overview-fidelity.unit.ts",
+    "./src/system/rendering/approved-wording-readings.unit.ts",
     "./src/system/derivation/starts-and-restarts.unit.ts",
     "./src/system/derivation/credit-episode.unit.ts",
     "./src/system/derivation/also-counts.unit.ts",

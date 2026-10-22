@@ -7,9 +7,9 @@
  *
  * Pinned here, on the real chain (design D3's T1-T17, as the BUILD PLAN restates T3, and the plan's additions):
  *
- *   T1  the A01 overview agrees with Details in both blocks (12/1, 12/2, 11/1) and is served to coach and administrator alike; with a
- *       TEST-ONLY reading the EXPECTED PRESENTATION's sentences 4, 5 and 8 pass word for word; its hand-written 6 and its cut 7 are refused
- *       (their words cannot be shown to state the restart moments or the way to score);
+ *   T1  the A01 overview agrees with Details in both blocks (12/1, 12/2, 11/1) and is served to coach and administrator alike; since stage
+ *       3E it is the EXPECTED PRESENTATION's sentences 4, 5, 7 and 8 word for word and its 6 as Details 10 cut before the aside; its
+ *       hand-written 6 is refused (a rewording, whose words cannot be shown to state the restart moments);
  *   T2  the extract of his first sentence without his eligibility sentence is refused (bound and origin unstated), a pointer never excusing it;
  *   T3  his illustrative building line, not an extract, is DRAFT (marked derived it is refused); without his eligibility sentence it is refused;
  *   T4  a pressing group omitting the regain inside the zone is refused (a way to score missing);
@@ -28,6 +28,12 @@
  *   both blocks (Q7.8); a refused activity has no overview; an overview failure withholds only the overview; the restart sentence rendered as
  *   ONE part (TEST-ONLY, the 3C review's probe) is never cut and a forged cut is refused; the coach receives words and pointers only; word
  *   counts are evidence, never a gate; the module names nothing of the first activity.
+ *
+ *   Stage 3E (22 October 2026): production now serves the EXPECTED PRESENTATION's sentences 4-8 (6 as Details 10 cut before its aside),
+ *   the extracts kept by the PROPOSED readings record and labelled so for an administrator only; a game sentence whose role clauses cite
+ *   the other team's objective or target is refused (Q7.1); a scoring sentence said whole binding other than its Details sentence's own
+ *   bindings is refused (Q7.2); the evidence carries the draft's pointers, labels and readings record; a reading label on anything but an
+ *   extract, or other than its extract's, is refused (Q7.3).
  */
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
@@ -39,8 +45,8 @@ import { learningGoalAuthorizations } from '../test-library/learning-goal-author
 import { reviewActivity } from './activity-review'
 import { ApprovedWording, approvedWording } from './approved-wording'
 import { buildActivity, buildActivityForReview, buildActivityUnderAuthorizationRecords, buildActivityWithFixture, RefusedActivity, ServedActivity } from './build-activity'
-import { CoachOverviewDraft, coachOverviewDraftOf, DetailsPointer, essentialsLoadOf, FULL_RULE_LABEL, ScoringGroup, ScoringSentence } from './coach-overview'
-import { CoverReading, extractsFor } from './derived-wording'
+import { CoachOverviewDraft, coachOverviewDraftOf, DetailsPointer, essentialsLoadOf, essentialsTable, FULL_RULE_LABEL, ScoringGroup, ScoringSentence } from './coach-overview'
+import { CoverReading, extractsFor, NO_RECORDED_READING } from './derived-wording'
 import { MECHANISM_DEMONSTRATIONS } from './mechanism-demonstrations'
 import { checkOverview, OverviewCheck, OverviewCheckInput, overviewEvidenceOf, overviewForServing } from './overview-fidelity'
 import { Instruction, renderConcreteGame } from './render-concrete-game'
@@ -98,6 +104,8 @@ const OVERVIEW_5 = W3.sentence
 const OVERVIEW_6 = "The building team's goalkeeper restarts play at the start, after either team scores and whenever you decide an attack has run its course."
 const OVERVIEW_7 = 'Pressing team: Score by getting the ball under control into its target zone.'
 const OVERVIEW_8 = 'The pressing team also scores by winning the ball inside that zone, provided it genuinely establishes possession.'
+/** Sentence 6 as the composer cuts it from Details 10 (stage 3E): Details 10's own words up to the bracketed aside, no word added or changed. */
+const OVERVIEW_6_CUT = "The building team's goalkeeper restarts play: at the start, after either team scores and whenever you decide that an attack has run its course."
 /** His illustrative building line (reply filed 22 October 2026, item 5): "illustrative wording for evaluation, not a new canonical knowledge entry". */
 const HIS_BUILDING_LINE = 'The building team scores by progressing beyond the line under control.'
 /** A TEST-ONLY reading of what parts of his entries state (as in overview-scoring.unit.ts): NOT his reading, and not ours to record. */
@@ -108,7 +116,13 @@ const READING: CoverReading = (entry, units) => {
 }
 
 const PROD = gamesOf(12, 1)
+/**
+ * The 12/1 games composed with NO reading (since stage 3E not the production draft, which the PROPOSED record reads: `SERVED_DRAFT`); the
+ * mutations below that need his sentences said whole start from it.
+ */
 const PROD_DRAFT = compose(PROD.games)
+/** Stage 3E: the 12/1 games composed as the build composes them, with the PROPOSED readings record. */
+const SERVED_DRAFT = coachOverviewDraftOf('A01', PROD.games)
 const READ_DRAFT = compose(PROD.games, { reading: READING })
 const readCheck = (draft: CoachOverviewDraft) => check(draft, PROD.games, PROD.served, { reading: READING })
 /** The paths the building team's group requires under a rule (read from the composed draft's own requirement list). */
@@ -124,6 +138,8 @@ test('T1. the A01 overview agrees with Details in both blocks and is served to c
         assertPasses(draft.check!, what)
         assert.deepEqual(violations(draft.check!), [], what)
         assert.ok(draft.check!.findings.some(f => f.severity === 'NOTE' && f.what.includes('PROPOSED essentials table')), what)
+        // Stage 3E: and a NOTE that its extracts are said by the PROPOSED readings record, awaiting his confirmation.
+        assert.ok(draft.check!.findings.some(f => f.severity === 'NOTE' && f.question === '7.3' && f.what.includes('by a PROPOSED reading of his wording (docs/audits/approved-wording-readings.json)')), what)
         assert.equal(draft.served, true, what)
         assert.ok(admin.overview && coach.overview, `${what}: served`)
         assert.deepEqual(coach.overview, admin.overview, `${what}: the coach and the administrator are served the same overview`)
@@ -132,32 +148,32 @@ test('T1. the A01 overview agrees with Details in both blocks and is served to c
         const [first, second] = draft.check!.read
         assert.deepEqual(first.groups.map(g => g.sentences.map(s => s.text)), second.groups.map(g => g.sentences.map(s => s.text)), what)
         assert.deepEqual(admin.overview!.scoring.map(group => group.sentences.map(s => s.text)), first.groups.map(g => g.sentences.map(s => s.text)), what)
-        // Production: no reading of his wording is recorded, so his entries are said whole, and (strict cuts, stage 3D) so are the DRAFT
-        // Details sentences whose cuts would split the part citing what they must state.
+        // Re-pointed 22 October 2026 (stage 3E). Production: the EXPECTED PRESENTATION's sentences 4, 5, 7 and 8 word for word, and its
+        // sentence 6 as Details 10's own words cut before the aside — the extracts kept by the PROPOSED readings record, the cuts keeping
+        // whole every part (fix (a)) that cites what they must state. Was (stage 3D): A01-W1, A01-W3, Details 10; Details 14, A01-W2, whole.
         assert.deepEqual(admin.overview!.scoring.map(group => group.sentences.map(s => s.text)), [
-            [W1.sentence, W3.sentence, `${DETAILS_10}.`],
-            [`${DETAILS_14}.`, W2.sentence],
+            [OVERVIEW_4, OVERVIEW_5, OVERVIEW_6_CUT],
+            [OVERVIEW_7, OVERVIEW_8],
         ])
-        assert.ok(first.groups.every(group => group.sentences.every(sentence => sentence.form === 'WHOLE')), what)
+        assert.deepEqual(first.groups.map(group => group.sentences.map(sentence => sentence.form)), [['EXTRACT', 'WHOLE', 'SHORTENING'], ['SHORTENING', 'EXTRACT']], what)
     }
-    // With a TEST-ONLY reading: the EXPECTED PRESENTATION's sentences 4, 5 and 8, word for word, with their statuses; it agrees.
+    // With a TEST-ONLY reading of the same covers: the same words, with their statuses; it agrees under that reading.
     assertPasses(readCheck(READ_DRAFT), 'TEST-ONLY reading')
     for (const block of READ_DRAFT.scoring.blocks) {
         const [building, pressing] = block.groups
-        assert.deepEqual(texts(building), [OVERVIEW_4, OVERVIEW_5, `${DETAILS_10}.`])
-        assert.deepEqual(texts(pressing), [`${DETAILS_14}.`, OVERVIEW_8])
+        assert.deepEqual(texts(building), [OVERVIEW_4, OVERVIEW_5, OVERVIEW_6_CUT])
+        assert.deepEqual(texts(pressing), [OVERVIEW_7, OVERVIEW_8])
         assert.deepEqual([...building.sentences, ...pressing.sentences].map(s => s.wording), ['DERIVED_FROM_APPROVED', 'APPROVED', 'DRAFT', 'DRAFT', 'DERIVED_FROM_APPROVED'])
     }
-    // The EXPECTED PRESENTATION's own sentence 6 (a rewording of Details 10) and 7 (a cut inside the one part citing the way to score)
-    // are refused: their words cannot be shown to state the restart moments or how the pressing team scores.
+    // The EXPECTED PRESENTATION's own sentence 6 (a rewording of Details 10, dropping the colon and "that") is refused: its words cannot be
+    // shown to state the restart moments. Its sentence 7 is now the composer's own cut, kept whole by the part that cites the way to score.
     const asExpected = everyBlock(READ_DRAFT, groups => {
         Object.assign(groups[0].sentences[2], { text: OVERVIEW_6, form: 'SHORTENING', bindings: [] })
-        Object.assign(groups[1].sentences[0], { text: OVERVIEW_7, form: 'SHORTENING', bindings: [] })
     })
     const refused = readCheck(asExpected)
     assertRefused(refused, '7.4', 'rule BOUNDED_EPISODE_OPENER) is stated by no sentence of the building team', 'EXPECTED sentence 6')
-    assertRefused(refused, '7.4', 'rule SCORING_EVENT) is stated by no sentence of the pressing team', 'EXPECTED sentence 7')
     assert.ok(refused.findings.some(f => f.severity === 'NOTE' && f.what.includes(OVERVIEW_6)), 'sentence 6 is read as stating nothing')
+    assert.equal(READ_DRAFT.scoring.blocks[0].groups[1].sentences[0].text, OVERVIEW_7)
 })
 
 test('T2. the extract of his first sentence without his eligibility sentence is refused, even with a pointer to it', () => {
@@ -304,8 +320,12 @@ test('T7 and T8. an extract with one changed word, or whose keeps and leaves do 
         'do not partition',
         'T8 not a partition',
     )
-    // And an extract claiming a reading the check is not given: production has none, so it is refused there.
-    assertRefused(check(READ_DRAFT, PROD.games, PROD.served), '7.3', 'is not usable', 'no reading recorded')
+    // And an extract claiming a reading the check is not given is refused. Re-pointed 22 October 2026 (stage 3E): the check's own default is
+    // now the PROPOSED record, so "no reading" is handed explicitly; and under the record, the TEST-ONLY extracts (same covers, naming no
+    // record) are refused too: where a reading is recorded is the reading's own. Was: refused under the default, which recorded none.
+    assertRefused(check(READ_DRAFT, PROD.games, PROD.served, { reading: NO_RECORDED_READING }), '7.3', 'is not usable', 'no reading recorded')
+    assertRefused(check(READ_DRAFT, PROD.games, PROD.served), '7.3', 'it says its reading is recorded at null', 'the record is the reading\'s own')
+    assertPasses(check(SERVED_DRAFT, PROD.games, PROD.served), 'the production draft under the PROPOSED record')
 })
 
 test('T9. a pointer to a Details sentence the block does not say is refused', () => {
@@ -355,7 +375,7 @@ test('T12. APPROVED with paraphrased words is refused, and DERIVED from a draft 
     })
     assertRefused(check(paraphrased, PROD.games, PROD.served), '7.3', 'is marked APPROVED and is not his approved wording said whole', 'paraphrase')
     const fromDraft = everyBlock(PROD_DRAFT, groups => {
-        const restarts = groups[0].sentences.find(sentence => sentence.text === `${DETAILS_10}.`)!
+        const restarts = groups[0].sentences.find(sentence => sentence.text === OVERVIEW_6_CUT)!
         Object.assign(restarts, { wording: 'DERIVED_FROM_APPROVED', source: { kind: 'APPROVED_ENTRY', id: W1.id }, extractId: null })
     })
     assertRefused(check(fromDraft, PROD.games, PROD.served), '7.3', 'is marked DERIVED_FROM_APPROVED and it names no extract generated for this block', 'derived from a draft')
@@ -434,7 +454,7 @@ test('T16. an obligation word in a draft is refused (Q7.7); the Coach Communicat
 test('T17. omitting the restart moments for a bounded role is refused', () => {
     const result = check(
         everyBlock(PROD_DRAFT, groups => {
-            groups[0].sentences = groups[0].sentences.filter(sentence => sentence.text !== `${DETAILS_10}.`)
+            groups[0].sentences = groups[0].sentences.filter(sentence => sentence.text !== OVERVIEW_6_CUT)
         }),
         PROD.games,
         PROD.served,
@@ -455,7 +475,8 @@ test('the pressing group keeps V30 through the W2 extract; an extract read as no
     // A TEST-ONLY reading in which the clause keeps only the team and trigger: the composer says his regain sentence whole instead ...
     const narrow: CoverReading = (entry, units) => (entry.id === W2.id && units.length === 1 && units[0].part === 'LEADING_CLAUSE' ? [0, 1] : READING(entry, units))
     const composed = compose(PROD.games, { reading: narrow })
-    assert.deepEqual(texts(composed.scoring.blocks[0].groups[1]), [`${DETAILS_14}.`, W2.sentence])
+    // (Re-pointed 22 October 2026, stage 3E: Details 14 is cut before its elaboration, fix (a). Was: said whole.)
+    assert.deepEqual(texts(composed.scoring.blocks[0].groups[1]), [OVERVIEW_7, W2.sentence])
     assertPasses(check(composed, PROD.games, PROD.served, { reading: narrow }), 'narrow reading')
     // ... and the clause standing alone under it (forged, TEST-ONLY) is refused: V30 (ESSENTIAL in the PROPOSED table) unstated.
     const alone = everyBlock(composed, (groups, n) => {
@@ -565,7 +586,7 @@ test("the restart sentence rendered as ONE part (TEST-ONLY, the 3C review's prob
     const result = check(forged, games, PROD.served)
     assertRefused(result, '7.4', 'rule BOUNDED_EPISODE_OPENER) is stated by no sentence', 'forged cut')
     assertRefused(result, '7.1', 'is a cut of a Details sentence and cites', 'its citations')
-    // In production (two parts) the same cut keeps the taker, never the moments: refused as well.
+    // In production (since stage 3E each moment its own part, the aside another) the same cut keeps the taker, never the moments: refused.
     assertRefused(check(everyBlock(PROD_DRAFT, groups => Object.assign(groups[0].sentences[2], { text: "The building team's goalkeeper restarts play.", form: 'SHORTENING' })), PROD.games, PROD.served), '7.4', 'BOUNDED_EPISODE_OPENER', 'production cut')
 })
 
@@ -586,12 +607,21 @@ test('the coach receives words and "full rule" pointers only; every pointer lead
         assert.equal(pointer.label, FULL_RULE_LABEL)
         assert.equal(coach.rendered.instructions.filter(instruction => instruction.section === pointer.section && instruction.text === pointer.text).length, 1, pointer.text)
     }
-    // The administrator sees the same overview, with each sentence's status in the draft (never on the coach's).
+    // The administrator sees the same overview, with each sentence's status in the draft (never on the coach's). Re-pointed 22 October
+    // 2026 (stage 3E): his first sentence and the regain clause are extracts kept by the PROPOSED readings record, each labelled "reading
+    // PROPOSED, awaiting confirmation" for the administrator; the coach's answer names no reading. Was: A01-W1 and A01-W2 APPROVED, whole.
     assert.deepEqual(admin.overview, overview)
     assert.deepEqual(
-        admin.overviewDraft!.presented!.scoring.flatMap(group => group.sentences.map(s => [s.wording, (s.source as any)?.id ?? null])),
-        [['APPROVED', 'A01-W1'], ['APPROVED', 'A01-W3'], ['DRAFT', null], ['DRAFT', null], ['APPROVED', 'A01-W2']],
+        admin.overviewDraft!.presented!.scoring.flatMap(group => group.sentences.map(s => [s.wording, (s.source as any)?.id ?? null, s.reading?.label ?? null])),
+        [
+            ['DERIVED_FROM_APPROVED', 'A01-W1', 'reading PROPOSED, awaiting confirmation'],
+            ['APPROVED', 'A01-W3', null],
+            ['DRAFT', null, null],
+            ['DRAFT', null, null],
+            ['DERIVED_FROM_APPROVED', 'A01-W2', 'reading PROPOSED, awaiting confirmation'],
+        ],
     )
+    assert.ok(!json.includes('reading') && !json.includes('awaiting'), 'no reading label in the coach overview')
     assert.deepEqual([admin.overviewDraft!.presented!.purpose!.wording, admin.overviewDraft!.presented!.game.wording, admin.overviewDraft!.presented!.parameters.wording], ['APPROVED', 'DRAFT', 'DRAFT'])
 })
 
@@ -615,6 +645,112 @@ test('word counts and reading seconds are evidence, never a gate', () => {
     assert.deepEqual(admin.evidence!.overview, overviewEvidenceOf(admin.overviewDraft!))
     assert.equal(admin.evidence!.overview!.verdict, 'PASS')
     assert.deepEqual(admin.evidence!.overview!.reading, reading)
+})
+
+test("stage 3E: in each role clause of the game sentence the objective and target region it cites are its team's; a swapped pair is refused", () => {
+    // The 3D review's probe: the two target clauses swapped, each keeping its own citations and bindings. Every word and number is still
+    // one Details say, and each team's counts are still its own, so only the clause's citations can show that it contradicts Details.
+    const swapped = copy(SERVED_DRAFT)
+    for (const block of swapped.blocks) {
+        const game = block.game!
+        const targets = game.parts.map((p, n) => (p.text.startsWith(') attacks ') ? n : -1)).filter(n => n >= 0)
+        assert.equal(targets.length, 2, game.text)
+        const [a, b] = targets.map(n => game.parts[n])
+        const open = (text: string) => (text.endsWith('.') ? text.slice(0, -1) : text)
+        game.parts[targets[0]] = { ...b, text: open(b.text) }
+        game.parts[targets[1]] = { ...a, text: `${open(a.text)}.` }
+        game.text = game.parts.map(p => p.text).join('')
+        game.from = [...new Set(game.parts.flatMap(p => p.from))]
+        game.quantities = game.parts.flatMap(p => p.quantities)
+    }
+    assert.ok(swapped.blocks[0].game!.text.startsWith('The building team (6 outfield players and 1 goalkeeper) attacks the 5 m target zone'), swapped.blocks[0].game!.text)
+    const result = check(swapped, PROD.games, PROD.served)
+    assertRefused(result, '7.1', "the game sentence's clause for the building team cites objective", 'swapped: the building clause')
+    assertRefused(result, '7.1', 'which the pressing team attacks, not the building team', 'swapped: whose objective it is')
+    assertRefused(result, '7.1', "the game sentence's clause for the pressing team cites the region", 'swapped: the pressing clause names the other target')
+    assert.deepEqual(questions(result), ['7.1'], 'no other question sees it')
+    // A clause citing no objective cannot be read as any team's: refused.
+    const unowned = copy(SERVED_DRAFT)
+    for (const block of unowned.blocks) {
+        const game = block.game!
+        game.parts = game.parts.map(p => ({ ...p, from: p.from.filter(path => !path.startsWith('objectives[')) }))
+        game.from = [...new Set(game.parts.flatMap(p => p.from))]
+    }
+    assertRefused(check(unowned, PROD.games, PROD.served), '7.1', 'cites no objective', 'no objective')
+    // A role that opens no clause (TEST-ONLY words before its noun): its target cannot be read as its own, so it is refused.
+    const unopened = copy(SERVED_DRAFT)
+    for (const block of unopened.blocks) {
+        const game = block.game!
+        const at = game.parts.findIndex(p => p.text.startsWith('; the pressing team'))
+        assert.ok(at > 0, game.text)
+        game.parts[at] = { ...game.parts[at], text: game.parts[at].text.replace('; the pressing team', '; TEST-ONLY the pressing team') }
+        game.text = game.parts.map(p => p.text).join('')
+    }
+    assertRefused(check(unopened, PROD.games, PROD.served), '7.1', 'the game sentence opens 0 clauses with the pressing team', 'a role opening no clause')
+    assertPasses(check(SERVED_DRAFT, PROD.games, PROD.served), 'as composed')
+})
+
+test('stage 3E: a scoring sentence said whole binds exactly what its Details sentence binds (Q7.2)', () => {
+    // TEST-ONLY table: the score's value made ESSENTIAL, so "Each score is worth 1 point." is said whole in each group, bound as Details bind it.
+    const load = essentialsTable()
+    load.table!.rules.find(rule => rule.id === 'SCORE_VALUE')!.class = 'ESSENTIAL'
+    const VALUE = 'Each score is worth 1 point.'
+    const draft = coachOverviewDraftOf('A01', PROD.games, undefined, { essentials: load })
+    for (const block of draft.scoring.blocks) for (const group of block.groups) assert.deepEqual(group.sentences.find(s => s.text === VALUE)!.bindings, [{ quantity: 1, path: 'value.primaryEvent.value' }])
+    assertPasses(check(draft, PROD.games, PROD.served, { essentials: load }), 'the value said whole')
+    // Bound instead to another field the block's Details bind with the same number: every binding still is one Details make, so before
+    // stage 3E it passed; the sentence's own bindings show that its number is not the one its Details sentence says.
+    const rebound = everyBlock(draft, (groups, n) => {
+        const other = PROD.games[n].rendered.instructions.flatMap(i => (i.parts ?? []).flatMap(p => p.bindings ?? [])).find(b => b.quantity === 1 && b.path !== 'value.primaryEvent.value')!
+        assert.ok(other, 'another field bound to 1 in this block')
+        for (const group of groups) for (const sentence of group.sentences) if (sentence.text === VALUE) sentence.bindings = [{ ...other }]
+    })
+    const result = check(rebound, PROD.games, PROD.served, { essentials: load })
+    assertRefused(result, '7.2', 'is a Details sentence said whole and binds', 'rebound')
+    assert.deepEqual(questions(result), ['7.2'])
+    // A cut binds exactly what the parts it keeps whole bind. TEST-ONLY table on the scoring-modifier demonstration: the bonus's condition
+    // and end made DETAIL, so its sentence is cut after its first sentence, keeping "2 instead of 1" bound to the operation and the value.
+    // Its 2 bound instead to the number of teams (which the Players sentence binds to 2): every binding still is one Details make.
+    const modifier = essentialsTable()
+    modifier.table!.rules.find(rule => rule.id === 'MODIFIER_CONDITION_AND_END')!.class = 'DETAIL'
+    const built = buildActivityWithFixture({ kind: 'mechanism-demonstration', demonstrationId: 'scoring-modifier', session: sessionAt(12, 1) })
+    const games = [{ blockId: 'ONE_GAME', fixture: built.fixture, rendered: renderConcreteGame(built.fixture) }]
+    const served = (built.activity as ServedActivity).rendered.instructions
+    const demonstration = coachOverviewDraftOf(null, games, undefined, { essentials: modifier })
+    const checkDemonstration = (draft: CoachOverviewDraft) =>
+        checkOverview({ goalId: null, draft, blocks: games.map(game => ({ blockId: game.blockId, fixture: game.fixture, rendered: game.rendered.instructions })), served, essentials: modifier })
+    const cut = demonstration.scoring.blocks[0].groups[0].sentences.find(sentence => sentence.form === 'SHORTENING')!
+    assert.equal(cut.text, 'A score is worth 2 instead of 1 once the attacking team has touched the ball inside either channel and kept it after that touch.')
+    assert.deepEqual(cut.bindings.map(b => b.quantity), [2, 1])
+    assertPasses(checkDemonstration(demonstration), 'the bonus cut, bound as its parts bind')
+    const reboundCut = copy(demonstration)
+    reboundCut.scoring.blocks[0].groups[0].sentences.find(sentence => sentence.form === 'SHORTENING')!.bindings[0].path = 'performers.teams'
+    const cutResult = checkDemonstration(reboundCut)
+    assertRefused(cutResult, '7.2', 'is a cut of a Details sentence and binds', 'the cut rebound')
+    assert.deepEqual(questions(cutResult), ['7.2'])
+})
+
+test("stage 3E: the evidence is the draft's, pointers and labels included; a reading label only on an extract, and only its own (Q7.3)", () => {
+    const admin = buildActivityForReview(a01At(12, 1), { includeDrafts: true }) as ServedActivity
+    const evidence = admin.evidence!.overview!
+    const draft = admin.overviewDraft!
+    // The 3D review's should-fix 3: the table with its source and label status, each pointer with its label and label status.
+    assert.deepEqual(evidence.table, { source: draft.scoring.table.source, status: 'PROPOSED', label: draft.scoring.table.label, labelStatus: 'DRAFT' })
+    assert.deepEqual(evidence.readings, draft.scoring.readings)
+    const presented = draft.presented!.scoring.flatMap(group => group.sentences)
+    assert.deepEqual(evidence.sentences.filter(s => s.part === 'scoring').map(s => [s.text, s.fullRule, s.reading]), presented.map(s => [s.text, s.fullRule, s.reading]))
+    const pointed = evidence.sentences.filter(s => s.fullRule)
+    assert.deepEqual(pointed.map(s => s.fullRule!.text), [W1.sentence, DETAILS_14, W2.sentence])
+    assert.ok(pointed.every(s => s.fullRule!.label === FULL_RULE_LABEL && s.fullRule!.labelStatus === 'DRAFT'))
+    assert.deepEqual(evidence.fullRules, draft.presented!.scoring.flatMap(group => group.fullRules.map(pointer => ({ group: group.group, ...pointer }))))
+    assert.deepEqual(evidence.fullRules.map(p => [p.group, p.text, p.label, p.labelStatus]), [['BUILDING', 'Each score is worth 1 point', FULL_RULE_LABEL, 'DRAFT'], ['PRESSING', 'Each score is worth 1 point', FULL_RULE_LABEL, 'DRAFT']])
+    // Each extract built on the PROPOSED record is labelled so; nothing else is.
+    assert.deepEqual(evidence.sentences.filter(s => s.reading).map(s => [s.text, s.reading!.label, s.reading!.status]), [[OVERVIEW_4, 'reading PROPOSED, awaiting confirmation', 'PROPOSED'], [OVERVIEW_8, 'reading PROPOSED, awaiting confirmation', 'PROPOSED']])
+    // Q7.3: his eligibility sentence (said whole) naming a reading is refused; an extract naming none, though its extract is kept by one, too.
+    const labelled = everyBlock(SERVED_DRAFT, groups => (groups[0].sentences[1].reading = { ...groups[0].sentences[0].reading! }))
+    assertRefused(check(labelled, PROD.games, PROD.served), '7.3', 'names a reading of his wording', 'his whole sentence labelled')
+    const unlabelled = everyBlock(SERVED_DRAFT, groups => (groups[1].sentences[1].reading = null))
+    assertRefused(check(unlabelled, PROD.games, PROD.served), '7.3', 'it names the reading null, and its extract is kept by', 'an extract unlabelled')
 })
 
 test('the module names nothing of the first activity', () => {
