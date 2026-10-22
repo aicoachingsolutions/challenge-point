@@ -277,12 +277,14 @@ export interface ServedActivity {
     /**
      * The Coach Overview (stage 3D, 21 October 2026; `back/src/system/rendering/overview-fidelity.ts`), served to every viewer: words and
      * "full rule" pointers only. Present only where the server's agreement check (Q7) found the overview agrees with the Coach Details in
-     * every block; absent otherwise, the activity shown exactly as without it. Not shown yet (stage 4 builds the page).
+     * every block; absent otherwise, and the page then shows the Coach Details alone. Shown first since stage 4 (his reply filed 23 October
+     * 2026, item 7.4: "Present the overview first, with complete details accessible when needed.").
      */
     overview?: CoachOverview
     /**
-     * The overview as an administrator reviews it (stage 3A-3D): only on an administrator's answer. Typed here only as far as the page will
-     * read it (stage 4: the Approved / Derived from approved / Draft tags); the rest is shown as sent.
+     * The overview as an administrator reviews it (stage 3A-3D): only on an administrator's answer. Typed here only as far as the page
+     * reads it (stage 4: each sentence's status tag and reading label, the essentials table's label, and why a withheld overview was
+     * withheld); the rest is shown as sent.
      */
     overviewDraft?: ReviewOverviewDraft
 }
@@ -405,6 +407,8 @@ export interface ReviewOverviewDraft {
     reading: ReviewOverviewReading | null
     presented: ReviewPresentedOverview | null
     scoring: { table: { source: string; status: string; label: string | null; labelStatus: string; why: string | null }; readings: ReviewReadingsAccount }
+    /** What could not be composed, part by part (stage 3A): one of the reasons a withheld overview gives an administrator (stage 4). */
+    gaps?: { part: string; what: string }[]
     [key: string]: unknown
 }
 
@@ -550,7 +554,7 @@ export interface ReviewEvidence {
     /**
      * Stage 3D (21 October 2026): the Coach Overview's agreement check as the server ran it — served or withheld, the verdict, every
      * finding, the table it was built on, each presented sentence with its status, and the reading evidence. Present only on a served
-     * activity. Not shown yet. Stage 3E: aligned with the draft — the table's source and label status, the PROPOSED readings record, each
+     * activity. Shown in the evidence panel since stage 4. Stage 3E: aligned with the draft — the table's source and label status, the PROPOSED readings record, each
      * "full rule" pointer with its label and label status (a sentence's, and each group's own in `fullRules`), each extract's reading label.
      */
     overview?: {

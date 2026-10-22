@@ -19,6 +19,14 @@
  *   * THE ACTIVITY IS PRIMARY. Title, the one-line definition, then the instruction text under its
  *     sections — nothing else. Only `text` is shown there: an instruction's status and source paths carry
  *     internal handles and belong to the account.
+ *   * THE OVERVIEW COMES FIRST (stage 4, 22 October 2026). Christian, reply filed 23 October 2026, item 7.4:
+ *     "Present the overview first, with complete details accessible when needed." Where the server serves a
+ *     Coach Overview, the activity reads: title, Learning purpose, The game, the parameters line, the diagram
+ *     (stage 5B; nothing until then), How each team scores (each team's line first, then the qualifications,
+ *     as served), then "Coach details" — one region, closed until opened, in section order, with no collapse
+ *     inside it. A "full rule" link opens it and goes to the Details sentence its pointer names by section and
+ *     words. Where the server withholds the overview, the activity is the Coach Details alone. Statuses are
+ *     for an administrator only, never for a coach.
  *   * A REFUSAL IS AN ANSWER. It arrives in a 2xx body (the service layer strips non-2xx bodies) and is
  *     shown as the server's one plain sentence. No stage name, no id and no check name in that block.
  *   * EVERYTHING TECHNICAL IS SECONDARY, in one panel that is closed until the reader opens it.
@@ -31,7 +39,7 @@
  * already carries and prints them in the order the server sent them.
  */
 import { ArrowLeftCircleIcon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { NumberField } from '@/form-control/fields'
 import ROUTES from '@/ROUTES'
@@ -41,12 +49,17 @@ import {
     ActivityReviewOptions,
     ActivityReviewRequest,
     ActivityReviewResult,
+    CoachOverview,
+    OverviewLine,
+    OverviewPointer,
     RefusedActivity,
     ReviewDraft,
     ReviewDraftInstruction,
     ReviewEvidence,
     ReviewFact,
     ReviewInstruction,
+    ReviewOverviewDraft,
+    ReviewWordingStatus,
     ServedActivity,
 } from '@/MODELS/activity-review.model'
 import { ISession } from '@/MODELS/session.model'
@@ -108,6 +121,28 @@ function blockNumberLabel(activity: ServedActivity, blockId: string | undefined)
  * so the line names both.)
  */
 const ADJUSTING_LEAD = 'The setup above is where the activity starts. To adjust it, use these limits and guidance:'
+
+/**
+ * The headings of the two levels (stage 4, 22 October 2026). Christian, reply filed 22 October 2026, item 1: "Coach Overview — The
+ * immediate understanding of the activity: learning purpose, one-sentence game description, basic parameters, essential scoring
+ * objectives, and a simple diagram. Coach Details — The complete instructions organized by function". "Learning purpose" and "The game"
+ * follow his illustration in item 5 ("Learning Purpose: ...", "The Game: ..."); "How each team scores" is ours. All are DRAFT coach
+ * wording, the same for every activity: no Learning Goal, role or value is named here.
+ */
+const OVERVIEW_HEADINGS = { purpose: 'Learning purpose', game: 'The game', scoring: 'How each team scores', details: 'Coach details' }
+
+/**
+ * The three wording statuses, in Christian's names (reply filed 22 October 2026, item 4: "Please distinguish between: Approved canonical
+ * wording. An abbreviated presentation derived from approved wording. Newly proposed language awaiting approval."). `meaning` is his
+ * words, for the legend; `tag` is a short form of each (DRAFT, stage 4). For an administrator only: a status serves review and provenance,
+ * never coaching, so a coach's page shows none. A status this map does not know is tagged as the server sent it, never hidden.
+ */
+const WORDING_STATUS: Record<string, { tag: string; meaning: string; className: string }> = {
+    APPROVED: { tag: 'Approved', meaning: 'Approved canonical wording', className: 'text-emerald-800 bg-emerald-50' },
+    DERIVED_FROM_APPROVED: { tag: 'Abbreviated from approved', meaning: 'An abbreviated presentation derived from approved wording', className: 'text-sky-800 bg-sky-50' },
+    DRAFT: { tag: 'Proposed', meaning: 'Newly proposed language awaiting approval', className: 'text-gray-700 bg-gray-100' },
+}
+const isKnownWording = (wording: unknown): wording is string => typeof wording === 'string' && Object.prototype.hasOwnProperty.call(WORDING_STATUS, wording)
 
 /**
  * What each instruction status means, for the account. Wording follows the renderer's own definitions.
@@ -306,8 +341,8 @@ export default function ActivityReviewPage() {
 
     if (!session || !options || !optionsReadable) {
         return (
-            <div className='flex flex-col max-w-4xl gap-4 px-2 py-6 mx-auto sm:py-8 sm:px-6'>
-                <div className='p-6 border border-red-200 rounded-lg bg-red-50'>
+            <div className='flex flex-col w-full max-w-4xl gap-4 px-4 py-6 mx-auto sm:py-8 sm:px-6'>
+                <div className='p-4 border border-red-200 rounded-lg sm:p-6 bg-red-50'>
                     <p className='text-red-800'>
                         {!session
                             ? 'We could not load this session. Please refresh to try again.'
@@ -330,7 +365,8 @@ export default function ActivityReviewPage() {
     }
 
     return (
-        <div className='flex flex-col max-w-4xl gap-6 px-2 py-6 mx-auto sm:py-8 sm:px-6'>
+        // Mobile first (stage 4): a 16 px gutter at phone width, and nothing wider than the screen.
+        <div className='flex flex-col w-full max-w-4xl min-w-0 gap-6 px-4 py-6 mx-auto sm:py-8 sm:px-6'>
             <header>
                 <h1 className='pb-2 mb-2 text-xl font-semibold text-gray-800 border-b border-gray-200'>Activity review</h1>
                 <p className='text-sm text-gray-600'>
@@ -340,7 +376,7 @@ export default function ActivityReviewPage() {
 
             {/* 1. The session, as the coach entered it. */}
             <section className='bg-white border rounded-lg shadow-sm'>
-                <div className='p-6'>
+                <div className='p-4 sm:p-6'>
                     <h3 className='mb-4 text-lg font-semibold text-gray-800'>Your session</h3>
                     <div className='grid grid-cols-1 gap-3 sm:grid-cols-2'>
                         <SessionFact label='Players' value={isStatedCount(session.playerCount) ? `${session.playerCount}` : 'Not set'} />
@@ -406,7 +442,7 @@ export default function ActivityReviewPage() {
 
             {/* 2. What to build: a Learning Goal, or — kept visibly apart — a mechanism demonstration. */}
             <section className='bg-white border rounded-lg shadow-sm'>
-                <div className='p-6'>
+                <div className='p-4 sm:p-6'>
                     {/* The planning conversation's own question, verbatim from the Experience Specification. */}
                     <h3 className='mb-4 text-lg font-semibold text-gray-800'>
                         What are your players trying to handle better during the game?
@@ -477,7 +513,7 @@ export default function ActivityReviewPage() {
                   * never borrows the refusal's "cannot be built" sentence.
                   */}
                 {requestError && (
-                    <div role='alert' className='p-6 border border-red-200 rounded-lg bg-red-50'>
+                    <div role='alert' className='p-4 border border-red-200 rounded-lg sm:p-6 bg-red-50'>
                         <p className='font-medium text-red-800'>The activity could not be requested, so nothing is shown.</p>
                         <p className='mt-1 text-sm text-red-800'>{requestError}</p>
                     </div>
@@ -544,16 +580,19 @@ function DemonstrationLabel() {
     )
 }
 
-type Wording = ReviewEvidence['sections']['instructions'][number]['wording']
+type Wording = ReviewWordingStatus
 
 /**
- * Whose wording each served sentence is, for an administrator: APPROVED or DRAFT, as the review evidence says.
+ * Whose wording each served sentence is, for an administrator: one of his three statuses, as the review evidence says.
  *
  * Christian's reply filed 20 October 2026: "this approval applies specifically to the two scoring statements, not yet to
  * the entire activity" — and we told him every other sentence is marked as a draft. The mark exists only in the evidence,
  * so it is joined back to the rendered sentence here. The join is by index (the evidence's `index` is the sentence's place
  * in `rendered.instructions`) AND by section, block and text: a sentence whose evidence does not match on all four gets no
  * tag at all, because a wrong "Approved" is worse than none. Null for a coach, who receives no evidence.
+ *
+ * Stage 4: the status must be one of his three (`WORDING_STATUS`); the Coach Details hold no abbreviation today (approved
+ * wording stays word for word there), so in practice a Details sentence is Approved or Proposed.
  */
 function wordingBySentence(activity: ServedActivity): { tags: Map<ReviewInstruction, Wording>; unmatched: number } | null {
     const sentences = activity.evidence?.sections?.instructions
@@ -568,7 +607,7 @@ function wordingBySentence(activity: ServedActivity): { tags: Map<ReviewInstruct
             sentence.text === instruction.text &&
             sentence.section === instruction.section &&
             (sentence.block ?? null) === (instruction.block ?? null) &&
-            (sentence.wording === 'APPROVED' || sentence.wording === 'DRAFT')
+            isKnownWording(sentence.wording)
         if (matches) tags.set(instruction, sentence.wording)
         else unmatched += 1
     })
@@ -591,7 +630,7 @@ function wordingByLabel(activity: ServedActivity): Map<string, Wording> | null {
             Array.isArray(label.sentences) &&
             label.sentences.length === shown.length &&
             label.sentences.every((index, n) => index === shown[n]) &&
-            (label.status === 'APPROVED' || label.status === 'DRAFT')
+            isKnownWording(label.status)
         if (matches) tags.set(label.section, label.status)
     }
     return tags
@@ -607,13 +646,163 @@ function LabelTag({ wording }: { wording: Wording | undefined }) {
     )
 }
 
-/** The quiet tag beside a sentence in the administrator's view. Labels are DRAFT wording. */
-function WordingTag({ wording }: { wording: Wording | undefined }) {
+/**
+ * The quiet tag beside a sentence in the administrator's view: the short form of his status name (stage 4; the short forms are DRAFT).
+ * `note` is a tooltip saying where the sentence is from, for an administrator.
+ */
+function WordingTag({ wording, note, flush = false }: { wording: Wording | undefined; note?: string | null; flush?: boolean }) {
     if (!wording) return null
-    return wording === 'APPROVED' ? (
-        <span className='ml-2 inline-block px-1.5 py-0.5 text-[10px] font-medium text-emerald-800 bg-emerald-50 rounded'>Approved</span>
-    ) : (
-        <span className='ml-2 inline-block px-1.5 py-0.5 text-[10px] font-medium text-gray-500 bg-gray-100 rounded'>Draft</span>
+    const known = isKnownWording(wording) ? WORDING_STATUS[wording] : null
+    return (
+        <span title={note ?? undefined} className={`${flush ? '' : 'ml-2 '}inline-block px-1.5 py-0.5 text-[10px] font-medium rounded ${known?.className ?? 'text-amber-900 bg-amber-50'}`}>
+            {known?.tag ?? wording}
+        </span>
+    )
+}
+
+/**
+ * The reading label beside an extract of his wording that stands for what it states by a PROPOSED reading (stage 3E: "reading PROPOSED,
+ * awaiting confirmation", the server's DRAFT words), for an administrator only.
+ */
+function ReadingTag({ label }: { label: string | null | undefined }) {
+    if (!label) return null
+    return <span className='ml-1 inline-block px-1.5 py-0.5 text-[10px] font-medium text-amber-900 bg-amber-50 rounded'>{label}</span>
+}
+
+/** One overview sentence's tag, for an administrator: its status, where it is from (a tooltip) and its reading label. */
+interface OverviewTag {
+    wording: Wording
+    source: string | null
+    reading: string | null
+}
+
+interface OverviewTags {
+    purpose?: OverviewTag
+    game?: OverviewTag
+    parameters?: OverviewTag
+    leads: (OverviewTag | undefined)[]
+    qualifications: (OverviewTag | undefined)[]
+    unmatched: number
+}
+
+/** Where a presented sentence is from, on one line for a tooltip: the source's own fields as sent. Null where it names none. */
+function sourceLine(source: unknown): string | null {
+    if (!source || typeof source !== 'object') return null
+    const fields = ['kind', 'table', 'id', 'column']
+        .map((key) => (source as Record<string, unknown>)[key])
+        .filter((value): value is string => typeof value === 'string' && value.length > 0)
+    return fields.length > 0 ? fields.join(' ') : null
+}
+
+/**
+ * Whose wording each overview sentence is, for an administrator (stage 4). Read from the overview as presented (`overviewDraft.presented`:
+ * each sentence's status, source and reading label) and joined to what every viewer is served (`overview`) by part and words: the purpose,
+ * the game and the parameters by their words; a scoring line by its words AND its place (a team's line, or a qualification), and only
+ * where exactly one presented sentence matches. A line matching none, or several, gets no tag and is counted, as in `wordingBySentence`: a
+ * wrong tag is worse than none. Null for a coach, whose answer carries no draft.
+ */
+function overviewTags(overview: CoachOverview, draft: ReviewOverviewDraft | undefined): OverviewTags | null {
+    const presented = draft?.presented
+    if (!presented) return null
+    let unmatched = 0
+    type Presented = { text: string; wording: Wording; source?: unknown; reading?: { label: string } | null }
+    const tagOf = (sentence: Presented | null | undefined, text: string): OverviewTag | undefined => {
+        if (!sentence || sentence.text !== text || !isKnownWording(sentence.wording)) {
+            unmatched += 1
+            return undefined
+        }
+        return { wording: sentence.wording, source: sourceLine(sentence.source), reading: sentence.reading?.label ?? null }
+    }
+    const scoring = (presented.scoring ?? []).flatMap((group) => group.sentences ?? [])
+    const lineTag = (place: string, text: string) => {
+        const candidates = scoring.filter((sentence) => sentence.place === place && sentence.text === text)
+        return tagOf(candidates.length === 1 ? candidates[0] : null, text)
+    }
+    return {
+        purpose: overview.purpose === null ? undefined : tagOf(presented.purpose, overview.purpose),
+        game: tagOf(presented.game, overview.game),
+        parameters: tagOf(presented.parameters, overview.parameters),
+        leads: overview.scoring.leads.map((line) => lineTag('LEAD', line.text)),
+        qualifications: overview.scoring.qualifications.map((line) => lineTag('QUALIFICATION', line.text)),
+        unmatched,
+    }
+}
+
+/**
+ * The overview's "full rule" pointers, each shown once (stage 4). Christian, reply filed 23 October 2026, item 6: "detailed qualifications
+ * and restart procedures should remain accessible in Coach Details". A pointer is the same pointer when it names the same Details sentence
+ * (section and words), whichever team's line carries it: it is shown where it first occurs, reading the team lines, then the
+ * qualifications, then the pointers no line carries (the server already lists each of those once).
+ */
+function pointersOnce(scoring: CoachOverview['scoring']): {
+    leads: { line: OverviewLine; pointer: OverviewPointer | null }[]
+    qualifications: { line: OverviewLine; pointer: OverviewPointer | null }[]
+    trailing: OverviewPointer[]
+} {
+    const seen = new Set<string>()
+    const once = (pointer: OverviewPointer | null): OverviewPointer | null => {
+        if (!pointer) return null
+        const key = JSON.stringify([pointer.section, pointer.text])
+        if (seen.has(key)) return null
+        seen.add(key)
+        return pointer
+    }
+    const leads = scoring.leads.map((line) => ({ line, pointer: once(line.fullRule) }))
+    const qualifications = scoring.qualifications.map((line) => ({ line, pointer: once(line.fullRule) }))
+    const trailing = scoring.fullRules.map(once).filter((pointer): pointer is OverviewPointer => pointer !== null)
+    return { leads, qualifications, trailing }
+}
+
+/**
+ * The Coach Details sentence a pointer leads to: the served instruction with the pointer's section and words, resolved here by both and
+ * never by position (stage 3D). -1 where none has them; the link then opens Coach details at its top.
+ */
+function sentenceOfPointer(activity: ServedActivity, pointer: OverviewPointer): number {
+    return activity.rendered.instructions.findIndex((instruction) => instruction.section === pointer.section && instruction.text === pointer.text)
+}
+
+/** A "full rule" link: the pointer's own label (DRAFT, the server's), and, where no line carries it, the section it leads to. */
+function FullRuleLink({ pointer, href, onFollow, withSection = false }: { pointer: OverviewPointer; href: string; onFollow: (pointer: OverviewPointer) => void; withSection?: boolean }) {
+    return (
+        <a
+            href={href}
+            onClick={(event) => {
+                event.preventDefault()
+                onFollow(pointer)
+            }}
+            className='text-xs font-medium text-blue-700 underline whitespace-nowrap underline-offset-2 hover:text-blue-900'
+        >
+            {pointer.label}
+            {withSection && ` (${pointer.section})`}
+        </a>
+    )
+}
+
+/**
+ * Why the overview is not shown, for an administrator only (stage 4): the server withheld it, so the activity is the Coach Details alone.
+ * Every reason the server gave is listed as given: the agreement check's violations, what could not be composed, and why the essentials
+ * table or the readings record could not be used. Wording around them is DRAFT.
+ */
+function WithheldOverviewNote({ draft }: { draft: ReviewOverviewDraft }) {
+    const reasons = [
+        ...(draft.check?.findings ?? []).filter((finding) => finding.severity === 'VIOLATION').map((finding) => `Q${finding.question}${finding.blockId ? ` (${finding.blockId})` : ''}: ${finding.what}`),
+        ...(draft.gaps ?? []).map((gap) => `${gap.part}: ${gap.what}`),
+        ...(draft.scoring?.table?.why ? [`Essentials table: ${draft.scoring.table.why}`] : []),
+        ...(draft.scoring?.readings?.why ? [`Readings record: ${draft.scoring.readings.why}`] : []),
+    ]
+    return (
+        <div role='note' className='p-3 mt-4 text-xs border rounded-lg text-amber-900 bg-amber-50 border-amber-200'>
+            <p className='font-medium'>Coach Overview withheld: coaches see the Coach details below on their own. (Administrators only.)</p>
+            {reasons.length > 0 ? (
+                <ul className='mt-1 space-y-0.5 list-disc list-inside [overflow-wrap:anywhere]'>
+                    {reasons.map((reason, index) => (
+                        <li key={index}>{reason}</li>
+                    ))}
+                </ul>
+            ) : (
+                <p className='mt-1'>The server gave no reason.</p>
+            )}
+        </div>
     )
 }
 
@@ -629,96 +818,292 @@ function WordingTag({ wording }: { wording: Wording | undefined }) {
  *
  * The one addition is for an administrator only: where the response carries the review evidence, each sentence is
  * tagged with whose wording it is (see `wordingBySentence`), and so is each section label since the review of stage 2A
- * (see `wordingByLabel`). The tag says Approved or Draft and nothing more — no register row, source or other internal
+ * (see `wordingByLabel`). The tag says one of his three status names and nothing more — no register row or other internal
  * handle. A coach's response has no evidence, and the block renders without tags.
+ *
+ * STAGE 4 (22 October 2026): THE OVERVIEW FIRST, THE DETAILS WHEN NEEDED. Christian, reply filed 22 October 2026, item 1:
+ * "Coach Overview — The immediate understanding of the activity: learning purpose, one-sentence game description, basic
+ * parameters, essential scoring objectives, and a simple diagram. Coach Details — The complete instructions organized by
+ * function". Where the server serves an overview (`activity.overview`, every viewer's), it comes first: Learning purpose, The
+ * game, the parameters line, the diagram's place (stage 5B; nothing is drawn until the server serves one), How each team
+ * scores — each team's line first, then the qualifications, as served — and then "Coach details", one region closed until
+ * opened, holding every section in order with no collapse inside it. A "full rule" link opens that region and goes to the
+ * Details sentence its pointer names, found by section and words; a pointer two lines share is shown once. Where the server
+ * withholds the overview, the activity is the Coach Details alone, open, and an administrator is told why. The page adds no
+ * words of its own to the overview beyond its headings and puts nothing in it that the server did not serve.
+ *
+ * For an administrator only: each overview sentence's status (one of his three names), its reading label where an extract of
+ * his wording stands by a PROPOSED reading, the PROPOSED essentials table's label, and a legend. A coach sees none of these.
  */
 function ActivityBlock({ activity }: { activity: ServedActivity }) {
+    const instructions = activity.rendered.instructions
     // The starting setup and playing instructions first; what a coach may adjust below a divider (14 October 2026).
-    const grouped = groupBySection(activity.rendered.instructions)
+    const grouped = groupBySection(instructions)
     const sections = grouped.filter((group) => group.section !== ADJUSTING_SECTION)
     const adjusting = grouped.find((group) => group.section === ADJUSTING_SECTION)
     const wording = wordingBySentence(activity)
     const labels = wordingByLabel(activity)
+    const overview = activity.overview ?? null
+    const draft = activity.overviewDraft
+    const tags = overview ? overviewTags(overview, draft) : null
+    const administrator = !!draft || !!wording
+    /** The PROPOSED essentials table's label (stage 3C), the server's DRAFT words; null once the table is approved. */
+    const tableLabel = draft?.scoring?.table?.label ?? null
+    const placeOf = new Map(instructions.map((instruction, at) => [instruction, at]))
+
+    /** Each Details sentence's anchor, by its place in `rendered.instructions`; the region's own for a pointer resolving to none. */
+    const idBase = useId()
+    const anchorOf = (at: number) => `${idBase}details-${at}`
+    const detailsId = `${idBase}details`
+    const [detailsOpen, setDetailsOpen] = useState(overview === null)
+    /** The Details sentence a "full rule" link is going to (-1: the region's top), until the region is open and it is shown. */
+    const [goingTo, setGoingTo] = useState<number | null>(null)
+    const [highlighted, setHighlighted] = useState<number | null>(null)
+
+    useEffect(() => {
+        if (!detailsOpen || goingTo === null) return
+        const target = document.getElementById(goingTo >= 0 ? `${idBase}details-${goingTo}` : `${idBase}details`)
+        setGoingTo(null)
+        if (!target) return
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        target.focus({ preventScroll: true })
+        setHighlighted(goingTo >= 0 ? goingTo : null)
+    }, [detailsOpen, goingTo, idBase])
+
+    useEffect(() => {
+        if (highlighted === null) return
+        const timer = window.setTimeout(() => setHighlighted(null), 2500)
+        return () => window.clearTimeout(timer)
+    }, [highlighted])
+
+    const follow = (pointer: OverviewPointer) => {
+        setDetailsOpen(true)
+        setGoingTo(sentenceOfPointer(activity, pointer))
+    }
+    const hrefOf = (pointer: OverviewPointer) => {
+        const at = sentenceOfPointer(activity, pointer)
+        return `#${at >= 0 ? anchorOf(at) : detailsId}`
+    }
+
+    const heading = 'mb-1 text-xs font-semibold tracking-wide text-gray-500 uppercase'
+    const detailsLine = (instruction: ReviewInstruction, adjust: boolean) => {
+        const at = placeOf.get(instruction) ?? -1
+        return (
+            <li
+                key={at}
+                id={at >= 0 ? anchorOf(at) : undefined}
+                tabIndex={-1}
+                className={`flex items-start gap-2 text-sm rounded outline-none transition-colors ${adjust ? 'text-gray-500' : 'text-gray-700'} ${
+                    highlighted === at ? 'bg-amber-50 ring-2 ring-amber-300' : ''
+                }`}
+            >
+                <span aria-hidden className={adjust ? 'text-gray-300' : 'text-gray-400'}>
+                    &bull;
+                </span>
+                <span className='min-w-0 leading-relaxed'>
+                    {blockLabel(activity, instruction)}
+                    {instruction.text}
+                    <WordingTag wording={wording?.tags.get(instruction)} />
+                </span>
+            </li>
+        )
+    }
+
+    const details = (
+        <div id={detailsId} tabIndex={-1} className='space-y-5 outline-none'>
+            {sections.map((group) => (
+                <div key={group.section}>
+                    <p className={heading}>
+                        {group.section}
+                        <LabelTag wording={labels?.get(group.section)} />
+                    </p>
+                    <ul className='space-y-1'>{group.lines.map((instruction) => detailsLine(instruction, false))}</ul>
+                </div>
+            ))}
+
+            {/*
+              * What a coach may change from the starting setup, kept apart from it (his §7). Its heading is the
+              * server's section name and its lead line is static coach wording — both DRAFTS for his approval.
+              * A divider, not a collapse: Coach details hold no collapse inside them (stage 4).
+              */}
+            {adjusting && (
+                <div className='pt-4 border-t border-gray-200'>
+                    <p className={heading}>
+                        {adjusting.section}
+                        <LabelTag wording={labels?.get(adjusting.section)} />
+                    </p>
+                    <p className='mb-2 text-sm text-gray-500'>{ADJUSTING_LEAD}</p>
+                    <ul className='space-y-1'>{adjusting.lines.map((instruction) => detailsLine(instruction, true))}</ul>
+                </div>
+            )}
+        </div>
+    )
 
     return (
-        <article className='bg-white border rounded-lg shadow-sm'>
+        <article className='min-w-0 bg-white border rounded-lg shadow-sm'>
             {/*
               * Christian, 14 October: unresolved goals "should not be presented as completed learning-design
               * examples … If a provisional output is useful for internal review, please label it explicitly as
               * provisional." Above the activity, so it is read before the activity is. Wording is a DRAFT.
               */}
             {activity.account?.provisional && (
-                <div role='note' className='px-6 py-3 text-sm font-medium border-b rounded-t-lg text-amber-900 bg-amber-100 border-amber-200'>
+                <div role='note' className='px-4 py-3 text-sm font-medium border-b rounded-t-lg sm:px-6 text-amber-900 bg-amber-100 border-amber-200'>
                     Provisional — the Game Problem for this goal has not been decided, so this is not a completed learning-design example.
                 </div>
             )}
-            {/* Administrator view only: what the tags mean, read before the sentences they mark. Wording is a DRAFT. */}
-            {wording && (
-                <div role='note' className='px-6 py-2 text-xs text-gray-500 border-b border-gray-100'>
-                    Approved: wording you have approved. Draft: wording awaiting your approval.
-                    {wording.unmatched > 0 &&
-                        ` ${wording.unmatched} sentence${wording.unmatched === 1 ? '' : 's'} could not be matched to the review evidence and ${wording.unmatched === 1 ? 'carries' : 'carry'} no tag.`}
+            {/*
+              * Administrator view only: what the tags mean, read before the sentences they mark. The three meanings are his words (22 October
+              * 2026, item 4); everything else here is a DRAFT.
+              */}
+            {administrator && (
+                <div role='note' className='px-4 py-2 space-y-1 text-xs text-gray-600 border-b border-gray-100 sm:px-6'>
+                    <ul className='flex flex-wrap gap-x-4 gap-y-1'>
+                        {Object.entries(WORDING_STATUS).map(([status, { meaning }]) => (
+                            <li key={status}>
+                                <WordingTag wording={status} flush /> {meaning}
+                            </li>
+                        ))}
+                    </ul>
+                    <p>Headings and &ldquo;full rule&rdquo; links are proposed wording. Coaches see no tags, labels or notes for administrators.</p>
+                    {wording && wording.unmatched > 0 && (
+                        <p>
+                            {wording.unmatched} Coach details sentence{wording.unmatched === 1 ? '' : 's'} could not be matched to the review evidence and{' '}
+                            {wording.unmatched === 1 ? 'carries' : 'carry'} no tag.
+                        </p>
+                    )}
+                    {tags && tags.unmatched > 0 && (
+                        <p>
+                            {tags.unmatched} overview sentence{tags.unmatched === 1 ? '' : 's'} could not be matched to the overview as presented and{' '}
+                            {tags.unmatched === 1 ? 'carries' : 'carry'} no tag.
+                        </p>
+                    )}
                 </div>
             )}
-            <div className='p-6'>
+            <div className='p-4 sm:p-6'>
                 {activity.kind === 'mechanism-demonstration' && <DemonstrationLabel />}
                 <h2 className='text-xl font-bold leading-tight text-gray-800'>{activity.title}</h2>
-                {activity.subtitle && <p className='mt-2 leading-relaxed text-gray-700'>{activity.subtitle}</p>}
+                {/* The Coach Definition is the learning purpose where an overview is shown: said once, under its heading. */}
+                {activity.subtitle && activity.subtitle !== overview?.purpose && <p className='mt-2 leading-relaxed text-gray-700'>{activity.subtitle}</p>}
 
-                <div className='mt-5 space-y-5'>
-                    {sections.map((group) => (
-                        <div key={group.section}>
-                            <p className='mb-1 text-xs font-semibold tracking-wide text-gray-400 uppercase'>
-                                {group.section}
-                                <LabelTag wording={labels?.get(group.section)} />
+                {overview && (
+                    <div className='mt-5 space-y-5'>
+                        {overview.purpose !== null && (
+                            <div>
+                                <p className={heading}>{OVERVIEW_HEADINGS.purpose}</p>
+                                <p className='leading-relaxed text-gray-800'>
+                                    {overview.purpose}
+                                    <WordingTag wording={tags?.purpose?.wording} note={tags?.purpose?.source} />
+                                </p>
+                            </div>
+                        )}
+                        <div>
+                            <p className={heading}>{OVERVIEW_HEADINGS.game}</p>
+                            <p className='leading-relaxed text-gray-800'>
+                                {overview.game}
+                                <WordingTag wording={tags?.game?.wording} note={tags?.game?.source} />
                             </p>
-                            <ul className='space-y-1'>
-                                {group.lines.map((instruction, index) => (
-                                    <li key={index} className='flex items-start gap-2 text-sm text-gray-700'>
-                                        <span aria-hidden className='text-gray-400'>
-                                            &bull;
-                                        </span>
-                                        <span className='leading-relaxed'>
-                                            {blockLabel(activity, instruction)}
-                                            {instruction.text}
-                                            <WordingTag wording={wording?.tags.get(instruction)} />
-                                        </span>
-                                    </li>
-                                ))}
-                            </ul>
+                            <p className='mt-2 text-sm font-medium text-gray-700'>
+                                {overview.parameters}
+                                <WordingTag wording={tags?.parameters?.wording} note={tags?.parameters?.source} />
+                            </p>
                         </div>
-                    ))}
-                </div>
-
-                {/*
-                  * What a coach may change from the starting setup, kept apart from it (his §7). Its heading is the
-                  * server's section name and its lead line is static coach wording — both DRAFTS for his approval.
-                  */}
-                {adjusting && (
-                    <div className='pt-4 mt-6 border-t border-gray-200'>
-                        <p className='mb-1 text-xs font-semibold tracking-wide text-gray-400 uppercase'>
-                            {adjusting.section}
-                            <LabelTag wording={labels?.get(adjusting.section)} />
-                        </p>
-                        <p className='mb-2 text-sm text-gray-500'>{ADJUSTING_LEAD}</p>
-                        <ul className='space-y-1'>
-                            {adjusting.lines.map((instruction, index) => (
-                                <li key={index} className='flex items-start gap-2 text-sm text-gray-500'>
-                                    <span aria-hidden className='text-gray-300'>
-                                        &bull;
-                                    </span>
-                                    <span className='leading-relaxed'>
-                                        {blockLabel(activity, instruction)}
-                                        {instruction.text}
-                                        <WordingTag wording={wording?.tags.get(instruction)} />
-                                    </span>
-                                </li>
-                            ))}
-                        </ul>
+                        {/*
+                          * The diagram's place (stage 5B), between the parameters and how each team scores, as he listed the overview. Nothing is
+                          * drawn here until the server serves a diagram, and nothing is ever drawn that it did not serve.
+                          */}
+                        <OverviewScoring overview={overview} tags={tags} tableLabel={draft ? tableLabel : null} heading={heading} hrefOf={hrefOf} onFollow={follow} />
                     </div>
                 )}
+                {!overview && draft && <WithheldOverviewNote draft={draft} />}
+
+                {/*
+                  * "Coach details": one region. Closed until opened where an overview comes first; open, with no toggle, where the
+                  * overview is withheld and the details are the whole activity.
+                  */}
+                <section className={`mt-6 border-t border-gray-200 ${overview ? '' : 'pt-3'}`} aria-labelledby={`${idBase}details-heading`}>
+                    {overview ? (
+                        <h3 id={`${idBase}details-heading`} className='text-base font-semibold text-gray-800'>
+                            <button
+                                type='button'
+                                aria-expanded={detailsOpen}
+                                aria-controls={detailsId}
+                                onClick={() => setDetailsOpen((open) => !open)}
+                                className='flex items-center justify-between w-full gap-2 py-3 text-left min-h-[44px]'
+                            >
+                                <span>{OVERVIEW_HEADINGS.details}</span>
+                                {detailsOpen ? <ChevronUpIcon aria-hidden className='w-5 h-5 text-gray-500' /> : <ChevronDownIcon aria-hidden className='w-5 h-5 text-gray-500' />}
+                            </button>
+                        </h3>
+                    ) : (
+                        <h3 id={`${idBase}details-heading`} className='mb-3 text-base font-semibold text-gray-800'>
+                            {OVERVIEW_HEADINGS.details}
+                        </h3>
+                    )}
+                    {detailsOpen && details}
+                </section>
             </div>
         </article>
+    )
+}
+
+/**
+ * How each team scores, as served (stage 4): each team's line first, then the qualifications, then the "full rule" pointers no line
+ * carries, every pointer once (`pointersOnce`). The lines are the server's words, in its order; the page adds none. For an administrator,
+ * each line's status and reading label, and the PROPOSED essentials table's label under the heading.
+ */
+function OverviewScoring({
+    overview,
+    tags,
+    tableLabel,
+    heading,
+    hrefOf,
+    onFollow,
+}: {
+    overview: CoachOverview
+    tags: OverviewTags | null
+    tableLabel: string | null
+    heading: string
+    hrefOf: (pointer: OverviewPointer) => string
+    onFollow: (pointer: OverviewPointer) => void
+}) {
+    const { leads, qualifications, trailing } = pointersOnce(overview.scoring)
+    const item = (entry: { line: OverviewLine; pointer: OverviewPointer | null }, tag: OverviewTag | undefined, lead: boolean, key: string) => (
+        <li key={key} className={`flex items-start gap-2 text-sm ${lead ? 'text-gray-900' : 'text-gray-700'}`}>
+            <span aria-hidden className='text-gray-400'>
+                &bull;
+            </span>
+            <span className='min-w-0 leading-relaxed'>
+                {entry.line.text}
+                {entry.pointer && (
+                    <>
+                        {' '}
+                        <FullRuleLink pointer={entry.pointer} href={hrefOf(entry.pointer)} onFollow={onFollow} />
+                    </>
+                )}
+                <WordingTag wording={tag?.wording} note={tag?.source} />
+                <ReadingTag label={tag?.reading} />
+            </span>
+        </li>
+    )
+    return (
+        <div>
+            <p className={heading}>{OVERVIEW_HEADINGS.scoring}</p>
+            {tableLabel && <p className='mb-2 text-xs text-amber-900'>{tableLabel}</p>}
+            <ul className='space-y-1.5'>{leads.map((entry, index) => item(entry, tags?.leads[index], true, `lead-${index}`))}</ul>
+            {qualifications.length > 0 && (
+                <ul className='mt-2 space-y-1.5'>{qualifications.map((entry, index) => item(entry, tags?.qualifications[index], false, `qualification-${index}`))}</ul>
+            )}
+            {trailing.length > 0 && (
+                <p className='mt-2 text-xs text-gray-600'>
+                    {trailing.map((pointer, index) => (
+                        <span key={index}>
+                            {index > 0 && ' · '}
+                            <FullRuleLink pointer={pointer} href={hrefOf(pointer)} onFollow={onFollow} withSection />
+                        </span>
+                    ))}
+                </p>
+            )}
+        </div>
     )
 }
 
@@ -844,7 +1229,7 @@ function DraftBlock({ refusal, draft }: { refusal: RefusedActivity; draft: Revie
 function FactLine({ fact }: { fact: ReviewFact }) {
     const value = typeof fact.value === 'string' || typeof fact.value === 'number' || typeof fact.value === 'boolean' ? String(fact.value) : JSON.stringify(fact.value)
     return (
-        <li className='text-xs text-gray-600 break-words'>
+        <li className='text-xs text-gray-600 [overflow-wrap:anywhere]'>
             <span className='text-gray-800'>{fact.what}</span>: <span className='font-mono'>{value}</span>
         </li>
     )
@@ -874,9 +1259,9 @@ function EvidencePart({ title, children }: { title: string; children: React.Reac
     const [open, setOpen] = useState(false)
     return (
         <div className='border-t border-gray-200'>
-            <button type='button' className='flex items-center justify-between w-full py-2 text-sm font-medium text-left text-gray-700' aria-expanded={open} onClick={() => setOpen(!open)}>
+            <button type='button' className='flex items-center justify-between w-full gap-2 py-2 text-sm font-medium text-left text-gray-700' aria-expanded={open} onClick={() => setOpen(!open)}>
                 {title}
-                {open ? <ChevronUpIcon className='w-4 h-4' /> : <ChevronDownIcon className='w-4 h-4' />}
+                {open ? <ChevronUpIcon className='w-4 h-4 shrink-0' /> : <ChevronDownIcon className='w-4 h-4 shrink-0' />}
             </button>
             {open && <div className='pb-3 space-y-3'>{children}</div>}
         </div>
@@ -894,13 +1279,15 @@ function ReviewEvidencePanel({ evidence }: { evidence: ReviewEvidence }) {
         const at = evidence.measured.blocks.findIndex((block) => block.blockId === blockId)
         return at >= 0 ? `Block ${at + 1}` : blockId
     }
+    // Stage 4: ids, paths and JSON here are long unbroken runs; every line may break anywhere, so a phone shows the panel without
+    // horizontal scrolling (overflow-wrap is inherited by everything inside).
     return (
-        <section className='bg-white border rounded-lg shadow-sm'>
-            <div className='px-6 pt-4'>
+        <section className='bg-white border rounded-lg shadow-sm [overflow-wrap:anywhere]'>
+            <div className='px-4 pt-4 sm:px-6'>
                 <p className='text-sm font-medium text-gray-800'>Review evidence (technical, administrators only)</p>
                 <p className='mt-1 text-xs text-gray-500'>{evidence.about}</p>
             </div>
-            <div className='px-6 pb-4 mt-3'>
+            <div className='px-4 pb-4 mt-3 sm:px-6'>
                 <EvidencePart title='Acceptance and the checked pathway'>
                     <Facts facts={evidence.acceptance} />
                     <Facts facts={evidence.pathway.facts} />
@@ -1018,6 +1405,58 @@ function ReviewEvidencePanel({ evidence }: { evidence: ReviewEvidence }) {
                         </div>
                     ))}
                 </EvidencePart>
+                {/*
+                  * Stage 4: the Coach Overview's agreement check as the server ran it (stage 3D-3F), shown as sent: served or withheld, the
+                  * verdict and every finding, the PROPOSED table and readings record it rests on, the reading evidence (never a gate), and each
+                  * team's material elements with the overview sentence(s) stating each. Labels are DRAFTS.
+                  */}
+                {evidence.overview && (
+                    <EvidencePart title='The Coach Overview: agreement check and what it states'>
+                        <p className='text-xs text-gray-600 [overflow-wrap:anywhere]'>
+                            Served: {evidence.overview.served ? 'yes' : 'no (withheld; Coach details served on their own)'} · verdict {evidence.overview.verdict} · essentials table{' '}
+                            {evidence.overview.table.status} ({evidence.overview.table.source}) · readings {evidence.overview.readings?.status ?? 'none'} (
+                            {evidence.overview.readings?.source ?? 'none'})
+                        </p>
+                        {evidence.overview.reading && (
+                            <p className='text-xs text-gray-600'>
+                                Reading evidence, never a gate: {evidence.overview.reading.words} words, about {evidence.overview.reading.secondsAt250Wpm}-
+                                {evidence.overview.reading.secondsAt200Wpm} s at 250-200 words a minute; Coach details {evidence.overview.reading.detailsWords} words.
+                            </p>
+                        )}
+                        <ul className='space-y-0.5'>
+                            {evidence.overview.findings.map((finding, index) => (
+                                <li key={index} className='text-xs text-gray-600 [overflow-wrap:anywhere]'>
+                                    [{finding.severity} Q{finding.question}
+                                    {finding.blockId ? ` ${blockLabel(finding.blockId)}` : ''}] {finding.what}
+                                </li>
+                            ))}
+                        </ul>
+                        {(evidence.overview.meaning ?? []).map((group) => (
+                            <div key={group.group} className='space-y-0.5'>
+                                <p className='text-xs font-semibold text-gray-700'>{group.noun ?? group.group}</p>
+                                <ul className='space-y-1'>
+                                    {group.elements.map((element, index) => (
+                                        <li key={index} className='text-xs text-gray-600 [overflow-wrap:anywhere]'>
+                                            {element.rule} ({element.class}
+                                            {element.material ? ', material' : ''}):{' '}
+                                            {element.statedBy.length > 0
+                                                ? `stated by ${element.statedBy.map((text) => `"${text}"`).join(' + ')}`
+                                                : element.pointer
+                                                  ? `left to Coach details: "${element.pointer.text}"`
+                                                  : 'not stated'}
+                                            {element.notStatedBy.map((cited, at) => (
+                                                <span key={at} className='block pl-3 text-gray-500'>
+                                                    Cited but not stated by &ldquo;{cited.text}&rdquo;: {cited.why}
+                                                </span>
+                                            ))}
+                                            <span className='block pl-3 text-gray-500'>{element.because}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ))}
+                    </EvidencePart>
+                )}
                 <EvidencePart title='Sentences: wording, layers and provenance'>
                     <p className='text-xs text-gray-500'>Layers: {evidence.layers.map((layer) => `${layer.code} = "${layer.words}"`).join('; ')}; the session is none of them.</p>
                     <ol className='space-y-1 list-decimal list-inside'>
@@ -1025,8 +1464,14 @@ function ReviewEvidencePanel({ evidence }: { evidence: ReviewEvidence }) {
                             <li key={sentence.index} className='text-xs text-gray-700'>
                                 {sentence.block && `${blockLabel(sentence.block)} only: `}
                                 {sentence.text} <span className='text-violet-700'>[{sentence.wording}]</span>
-                                <span className='block pl-4 text-gray-500'>
-                                    {sentence.layers.join(' + ')} · {sentence.standings.join(' + ')} · {sentence.sources.map((source) => `${source.standing} ${source.ref}`).join('; ')}
+                                {/*
+                                  * Stage 4: each source's `detail` (the stage 2C review: the both-blocks geometry shows only there). Its paths
+                                  * and the layer codes are long unbroken runs, so the line may break anywhere: at phone width the page must not
+                                  * be held wider than the screen.
+                                  */}
+                                <span className='block pl-4 text-gray-500 break-all'>
+                                    {sentence.layers.join(' + ')} · {sentence.standings.join(' + ')} ·{' '}
+                                    {sentence.sources.map((source) => `${source.standing} ${source.ref}${source.detail ? ` (${source.detail})` : ''}`).join('; ')}
                                 </span>
                             </li>
                         ))}
@@ -1166,9 +1611,10 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
     const knownIntegrityKeys = ['gateA', 'realizationAuthorized', 'acceptance', 'postRealizationValidated', 'instructions', 'fidelityViolations']
     const yesNo = (value: unknown) => (value === true ? 'Yes' : value === false ? 'No' : String(value))
 
+    // Stage 4: as the evidence panel, every line may break anywhere, so the account's ids and paths never widen the page on a phone.
     return (
-        <section className='bg-white border rounded-lg shadow-sm'>
-            <div className='p-6'>
+        <section className='bg-white border rounded-lg shadow-sm [overflow-wrap:anywhere]'>
+            <div className='p-4 sm:p-6'>
                 <div className='flex items-center justify-between gap-4'>
                     <h3 className='text-lg font-semibold text-gray-800'>How this was arrived at</h3>
                     <button
@@ -1200,7 +1646,7 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                                     {(refused.reasons ?? []).length > 0 ? (
                                         <ul className='space-y-1'>
                                             {refused.reasons.map((reason, index) => (
-                                                <li key={index} className='font-mono text-xs break-words whitespace-pre-wrap text-gray-700'>
+                                                <li key={index} className='font-mono text-xs [overflow-wrap:anywhere] whitespace-pre-wrap text-gray-700'>
                                                     {asSentence(reason)}
                                                 </li>
                                             ))}
@@ -1572,7 +2018,7 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                                     {Object.entries(integrity)
                                         .filter(([name]) => !knownIntegrityKeys.includes(name))
                                         .map(([name, value]) => (
-                                            <li key={name} className='break-words'>
+                                            <li key={name} className='[overflow-wrap:anywhere]'>
                                                 {name}: <span className='font-mono text-xs'>{typeof value === 'object' ? JSON.stringify(value) : String(value)}</span>
                                             </li>
                                         ))}
@@ -1597,7 +2043,7 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                                         {served.roleBlocks.firstBlockBasis})
                                     </li>
                                     {served.roleBlocks.blocks.map((block, index) => (
-                                        <li key={block.blockId} className='break-words'>
+                                        <li key={block.blockId} className='[overflow-wrap:anywhere]'>
                                             Block {index + 1}:{' '}
                                             {Object.entries(block.holders)
                                                 .map(([role, holder]) => `${role} held by ${holder}`)
@@ -1612,7 +2058,7 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                                         </li>
                                     ))}
                                     {served.roleBlocks.checks.map((check) => (
-                                        <li key={check.checkId} className='break-words'>
+                                        <li key={check.checkId} className='[overflow-wrap:anywhere]'>
                                             {check.checkId} {check.verdict}: {check.what}
                                             {check.problems.length > 0 && <span className='text-amber-700'> — {check.problems.join('; ')}</span>}
                                         </li>
@@ -1686,7 +2132,7 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                                 {observations.length > 0 ? (
                                     <ul className='space-y-1'>
                                         {observations.map((observation, index) => (
-                                            <li key={index} className='text-sm break-words text-gray-700'>
+                                            <li key={index} className='text-sm [overflow-wrap:anywhere] text-gray-700'>
                                                 {asSentence(observation)}
                                             </li>
                                         ))}
