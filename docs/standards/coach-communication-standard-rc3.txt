@@ -1,5 +1,6 @@
 Challenge Point™ Coach Communication Standard
 Release Candidate 3
+APPROVED, filed 24 October 2026 (Christian, item 5): "I approve the overall RC3 structure and the narrow alignment changes to the Knowledge Presentation Standard, incorporating the clarification to Section 2.1 above."
 Replaces RC2. Owner: Experience Architecture. Each numbered requirement is testable; sources: RC3 sources list.
 
 1. Scope
@@ -10,7 +11,7 @@ Replaces RC2. Owner: Experience Architecture. Each numbered requirement is testa
 1.5 Every mechanism applies identically to every Learning Goal, without activity-specific exceptions.
 
 2. Every Coach-Facing Sentence
-2.1 It describes the game and environment in observable actions, never the learning process: no player decisions, perceptions, representative intentions, tactical reasoning or interpretive phrasing ("Players decide...", "Teams aim to...").
+2.1 Operational instructions (setup, rules, scoring, restarts, adjustments) describe the game and environment in observable actions: no player decisions, perceptions, representative intentions, tactical reasoning, interpretive phrasing ("Players decide...", "Teams aim to...") or unnecessary theoretical explanation. Learning purposes, coaching observations and concise explanations of potential environmental consequences remain permissible when grounded in authorized knowledge.
 2.2 It implies no prescribed solution and does not unnecessarily specify how players must move.
 2.3 Sentence Test: a sentence that does not help the coach run the activity is removed; one not needed to understand and begin goes to administer or adjust sections.
 2.4 Coach Translation Test: a sentence the coach must mentally translate into an action is rewritten.

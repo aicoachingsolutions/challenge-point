@@ -397,8 +397,9 @@ export interface CoachOverview {
 export type ReviewWordingStatus = 'APPROVED' | 'DERIVED_FROM_APPROVED' | 'DRAFT' | string
 
 /**
- * Where the reading an extract of his wording keeps by is recorded, and its standing (stage 3E): the PROPOSED record, labelled "reading
- * PROPOSED, awaiting confirmation" (DRAFT words). For an administrator only; a coach's answer carries none.
+ * Where the reading an extract of his wording keeps by is recorded, and its standing (stage 3E): labelled "reading PROPOSED, awaiting
+ * confirmation", or (C1, his reply filed 24 October 2026, item 1) "reading approved" where he approved every reading it stands by (DRAFT
+ * words; `status` PROPOSED or APPROVED). For an administrator only; a coach's answer carries none.
  */
 export interface ReviewReadingRecord {
     source: string
@@ -407,13 +408,29 @@ export interface ReviewReadingRecord {
     labelStatus: string
 }
 
-/** The PROPOSED readings record as the server names it (stage 3E): its standing, its label, and why it cannot be used. */
+/**
+ * The readings record as the server names it (stage 3E): its standing (C1: PROPOSED, PARTLY_APPROVED or APPROVED, from its readings'
+ * own), its label, why it cannot be used, and which readings he approved and which remain PROPOSED.
+ */
 export interface ReviewReadingsAccount {
     source: string
     status: string
     label: string | null
     labelStatus: string
     why: string | null
+    approved?: string[]
+    proposed?: string[]
+}
+
+/** C1: the essentials table as the server names it: its standing, its label, why it cannot be used, and its rules approved and PROPOSED. */
+export interface ReviewEssentialsAccount {
+    source: string
+    status: string
+    label: string | null
+    labelStatus: string
+    why: string | null
+    approved?: string[]
+    proposed?: string[]
 }
 
 /** The overview as presented, with each sentence's status and source, for an administrator only (stage 3D). */
@@ -483,7 +500,7 @@ export interface ReviewOverviewDraft {
     check: { verdict: 'PASS' | 'FAIL' | string; findings: ReviewOverviewFinding[] } | null
     reading: ReviewOverviewReading | null
     presented: ReviewPresentedOverview | null
-    scoring: { table: { source: string; status: string; label: string | null; labelStatus: string; why: string | null }; readings: ReviewReadingsAccount }
+    scoring: { table: ReviewEssentialsAccount; readings: ReviewReadingsAccount }
     /** What could not be composed, part by part (stage 3A): one of the reasons a withheld overview gives an administrator (stage 4). */
     gaps?: { part: string; what: string }[]
     [key: string]: unknown
@@ -638,8 +655,8 @@ export interface ReviewEvidence {
         served: boolean
         verdict: string
         findings: ReviewOverviewFinding[]
-        /** Stage 3F: with `why` (why the table cannot be used, or null). */
-        table: { source: string; status: string; label: string | null; labelStatus: string; why: string | null }
+        /** Stage 3F: with `why` (why the table cannot be used, or null). C1: and its rules approved and PROPOSED. */
+        table: ReviewEssentialsAccount
         readings: ReviewReadingsAccount
         sentences: {
             part: string

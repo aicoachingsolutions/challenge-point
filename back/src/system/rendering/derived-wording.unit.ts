@@ -38,7 +38,7 @@ import path from 'node:path'
 
 import { reviewActivity } from './activity-review'
 import { APPROVED_WORDING_FILE, approvedTemplateSentences, ApprovedWording, approvedWording } from './approved-wording'
-import { PROPOSED_READING_RECORD, recordedReading } from './approved-wording-readings'
+import { APPROVED_READING_RECORD, PROPOSED_READING_RECORD, recordedReading } from './approved-wording-readings'
 import { buildActivity, buildActivityForReview, buildActivityWithFixture, RefusedActivity, ServedActivity } from './build-activity'
 import { coachOverviewDraftOf } from './coach-overview'
 import {
@@ -110,6 +110,8 @@ const PROPOSED_KEEPS: Record<string, number[]> = {
     'A01-W1:s2+s3': [1, 2, 3, 4, 12, 13, 14, 15],
     'A01-W2:c1': [0, 1, 2],
 }
+/** C1: the extracts read only by readings he approved (his reply filed 24 October 2026, item 1); every other one in the list above is PROPOSED. */
+const APPROVED_EXTRACTS = ['A01-W1:s1', 'A01-W1:s2', 'A01-W1:s1+s2', 'A01-W2:c1']
 
 test('1. Coach Details: each sentence\'s status is the rule\'s as before, now naming the entry or template it is; none is derived', () => {
     for (const [players, keepers] of [[12, 1], [12, 2], [11, 1]] as const) {
@@ -194,9 +196,13 @@ test('2. the A01 extracts, per block: whole sentences or a leading clause, in or
                 // leaves every cover to his entry said whole in Details. Was: every extract NONE_RECORDED.
                 const kept = PROPOSED_KEEPS[extract.id]
                 if (kept) {
-                    assert.deepEqual([extract.reading, extract.readingRecord, extract.keeps.map(ref => ref.index)], ['RECORDED', PROPOSED_READING_RECORD, kept], extract.id)
+                    // C1 (his reply filed 24 October 2026, item 1): an extract read only by approved readings names the approved record;
+                    // one any of whose readings is PROPOSED (his third building sentence) names the PROPOSED record. Re-pointed 24 October
+                    // 2026; was the PROPOSED record for every one.
+                    const record = APPROVED_EXTRACTS.includes(extract.id) ? APPROVED_READING_RECORD : PROPOSED_READING_RECORD
+                    assert.deepEqual([extract.reading, extract.readingRecord, extract.keeps.map(ref => ref.index)], ['RECORDED', record, kept], extract.id)
                     assert.deepEqual(extract.from, extract.keeps.map(ref => ref.path), extract.id)
-                    assert.equal(extract.readingRecord!.label, 'reading PROPOSED, awaiting confirmation')
+                    assert.equal(extract.readingRecord!.label, APPROVED_EXTRACTS.includes(extract.id) ? 'reading approved' : 'reading PROPOSED, awaiting confirmation')
                 } else {
                     assert.equal(extract.reading, 'NONE_RECORDED')
                     assert.deepEqual([extract.keeps, extract.from, extract.bindings, extract.readingRecord], [[], [], [], null], extract.id)
@@ -574,10 +580,15 @@ test('10. stage 3F: his wording said whole states only what its recorded reading
     assert.ok(w3.states[0].endsWith('.creditedWithin'), w3.states[0])
     assert.ok(w3.leaves.every(ref => said.from.includes(ref.path!)), 'every cover it does not state is a field it cites')
     assert.ok(w3.doesNotState.every(left => left.why.includes('his reply filed 23 October 2026, item 4') || left.why.includes('His reply filed 23 October 2026, item 4')), JSON.stringify(w3.doesNotState))
-    assert.deepEqual(w3.readingRecord, PROPOSED_READING_RECORD)
+    // C1: his eligibility sentence's reading is approved (re-pointed 24 October 2026; was the PROPOSED record).
+    assert.deepEqual(w3.readingRecord, APPROVED_READING_RECORD)
     // His building rule said whole: what its three sentences state together; not the eligibility (his second sentence's reading leaves it).
     const w1 = wholes.find(whole => whole.source.id === 'A01-W1')!
     assert.ok(!w1.states.some(path => path.endsWith('.creditedWithin')))
+    // C1: his building rule said whole is read by his three sentences' readings, one of them PROPOSED (sentence 3), so it names the
+    // PROPOSED record; his regain sentence said whole has its own PROPOSED reading.
+    assert.deepEqual(w1.readingRecord, PROPOSED_READING_RECORD)
+    assert.deepEqual(wholes.find(whole => whole.source.id === 'A01-W2')!.readingRecord, PROPOSED_READING_RECORD)
     assert.deepEqual(wholeUnitsOf(W1.sentence), [0, 1, 2].map(sentence => ({ sentence, part: 'WHOLE_SENTENCE' })))
     // No reading: his wording said whole states nothing. A changed copy of his entry (TEST-ONLY) is not the entry the record was checked on.
     assert.ok(wholeReadingsFor(game, { reading: NO_RECORDED_READING }).every(whole => whole.reading === 'NONE_RECORDED' && whole.states.length === 0 && whole.readingRecord === null))

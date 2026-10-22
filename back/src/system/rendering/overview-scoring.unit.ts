@@ -11,9 +11,10 @@
  *
  * Pinned here, on the real chain:
  *
- *   1. the table: the production file loads as PROPOSED (no approvedBy), keyed by register rows, copied beside the bundle, and every
- *      overview built on it is labelled for an administrator; since stage 3F the restart moments are DETAIL and the two exclusions follow
- *      from the conditions they exclude by (`followsFrom`);
+ *   1. the table: the production file loads as PARTLY_APPROVED (C1, his reply filed 24 October 2026, item 2: exactly the two exclusion
+ *      rules APPROVED, each with his words; every other rule PROPOSED, with none; was: PROPOSED, no approvedBy), keyed by register rows,
+ *      copied beside the bundle, and every overview built on it is labelled for an administrator, naming the rules still PROPOSED; since
+ *      stage 3F the restart moments are DETAIL and the two exclusions follow from the conditions they exclude by (`followsFrom`);
  *   2. the loader refuses unknown classes, rules keyed by an activity (a key, a goal, an approved entry, a demonstration, an element), rows
  *      that are no register row, ways that are no collection, an APPROVED status without his approval, a row classed twice, and (stage 3F)
  *      a `followsFrom` anywhere but on a DETAIL rule, or naming no other rule the overview must state; an unusable table withholds every
@@ -40,7 +41,7 @@ import path from 'node:path'
 
 import { reviewActivity } from './activity-review'
 import { APPROVED_WORDING_FILE, ApprovedWording, approvedWording } from './approved-wording'
-import { PROPOSED_READING_RECORD, READINGS_SOURCE, recordedReading } from './approved-wording-readings'
+import { APPROVED_READING_RECORD, READINGS_SOURCE, recordedReading } from './approved-wording-readings'
 import { buildActivity, buildActivityForReview, buildActivityWithFixture, RefusedActivity, ServedActivity } from './build-activity'
 import {
     activityNames,
@@ -52,6 +53,7 @@ import {
     essentialsUnusableBecause,
     EVERY_TEAM,
     FULL_RULE_LABEL,
+    partlyApprovedTableLabel,
     PROPOSED_TABLE_LABEL,
     ScoringGroup,
     scoringGroupsOf,
@@ -137,14 +139,37 @@ function assertComplete(group: ScoringGroup, what: string): void {
     assert.equal(group.sentences[0].place, 'LEAD', what)
 }
 
-test('1. the table: PROPOSED (no approvedBy), keyed by register rows, copied beside the bundle; an overview built on it is labelled', () => {
-    assert.equal(TABLE.status, 'PROPOSED')
-    assert.ok(!('approvedBy' in TABLE), 'the PROPOSED table carries no approval')
+/** His words, verbatim, filed 24 October 2026, item 2 (C1), as each approved exclusion rule records them. */
+const HIS_EXCLUSIONS_LEAD = 'Yes, the two exclusions may remain in Coach Details:'
+const HIS_EXCLUSIONS_PROVISO =
+    "The overview already communicates controlled progression and genuinely established possession. [...] This seems like an appropriate application of progressive disclosure, provided the complete rules remain immediately accessible and the abbreviated overview doesn't misrepresent the scoring conditions."
+const exclusionApproval = (exclusion: string) => ({
+    who: 'Christian',
+    date: '2026-10-24',
+    filed: "his reply filed 24 October 2026, item 2, answering item b of our email of 23 October 2026 ('may these two stay in Coach details?')",
+    quote: `${HIS_EXCLUSIONS_LEAD} [...] ${exclusion} [...] ${HIS_EXCLUSIONS_PROVISO}`,
+})
+
+test('1. the table: PARTLY_APPROVED (C1: his two exclusions), keyed by register rows, copied beside the bundle; an overview built on it is labelled', () => {
+    // Re-pointed 24 October 2026 (C1, his reply filed 24 October 2026, item 2). Was: PROPOSED, with no approvedBy.
+    assert.equal(TABLE.status, 'PARTLY_APPROVED')
+    assert.ok(!('approvedBy' in TABLE), 'the table carries no approval of its own: his approval is of a rule')
+    // Exactly the two exclusion rules are APPROVED, each with his words verbatim; every other rule stays PROPOSED with no approval.
+    assert.deepEqual(
+        TABLE.rules.filter((rule: any) => rule.status === 'APPROVED').map((rule: any) => [rule.id, rule.approvedBy]),
+        [
+            ['EXCLUSION_CONDITION', exclusionApproval('Uncontrolled clearances do not score.')],
+            ['ALSO_COUNTS_EXCLUSION', exclusionApproval('Contested touches, deflections, and loose balls do not count as controlled regains.')],
+        ],
+    )
+    assert.ok(TABLE.rules.every((rule: any) => (rule.status === 'APPROVED') === ('approvedBy' in rule) && (rule.status === 'APPROVED' || rule.status === 'PROPOSED')))
+    assert.deepEqual(TABLE.rules.filter((rule: any) => rule.status === 'PROPOSED').length, TABLE.rules.length - 2)
+    // He did not rule on the restart timing or the score value: both stay PROPOSED.
+    assert.deepEqual(['BOUNDED_EPISODE_OPENER', 'SCORE_VALUE'].map(id => ruleOf(TABLE, id).status), ['PROPOSED', 'PROPOSED'])
     const load = essentialsTable()
     assert.equal(load.why, null)
-    assert.equal(load.table!.status, 'PROPOSED')
-    assert.equal(load.table!.approvedBy, null)
-    assert.deepEqual(load.table!.rules, TABLE.rules)
+    assert.equal(load.table!.status, 'PARTLY_APPROVED')
+    assert.deepEqual(load.table!.rules, TABLE.rules.map((rule: any) => ({ ...rule, approvedBy: rule.approvedBy ?? null })))
     // The BUILD PLAN's classes are each carried by a rule (stage 3C): every way to score; a bound other than the whole game and the origin;
     // the exclusion and the also-counts exclusion. Re-pointed 22 October 2026 (stage 3F, his reply filed 23 October 2026, item 6: "restart
     // procedures should remain accessible in Coach Details"): the transitions beginning a bounded role's episode are DETAIL. Was: ESSENTIAL.
@@ -163,11 +188,24 @@ test('1. the table: PROPOSED (no approvedBy), keyed by register rows, copied bes
     assert.ok(TABLE.about.includes('AMENDED 22 October 2026 (stage 3F'))
     // build.js copies it into dist/knowledge, where the bundled server reads it.
     assert.ok(fs.readFileSync(path.resolve(__dirname, '../../../build.js'), 'utf8').includes("'overview-essentials.json'"))
-    // The administrator's draft names the table and labels it while PROPOSED (DRAFT words).
+    // The administrator's draft names the table and labels it (DRAFT words). Re-pointed 24 October 2026 (C1): partly approved, the label
+    // naming the rules he approved and those still PROPOSED. Was: PROPOSED, with PROPOSED_TABLE_LABEL.
     const draft = admin(a01At(12, 1)).overviewDraft!
-    assert.deepEqual(draft.scoring.table, { source: 'docs/audits/overview-essentials.json', status: 'PROPOSED', label: PROPOSED_TABLE_LABEL, labelStatus: 'DRAFT', why: null })
-    // Stage 3E: and the PROPOSED readings record the extracts keep by, named and labelled the same way.
-    assert.deepEqual(draft.scoring.readings, { source: READINGS_SOURCE, status: 'PROPOSED', label: 'reading PROPOSED, awaiting confirmation', labelStatus: 'DRAFT', why: null })
+    const proposedIds = TABLE.rules.filter((rule: any) => rule.status === 'PROPOSED').map((rule: any) => rule.id)
+    assert.deepEqual(draft.scoring.table, {
+        source: 'docs/audits/overview-essentials.json',
+        status: 'PARTLY_APPROVED',
+        label: partlyApprovedTableLabel(['EXCLUSION_CONDITION', 'ALSO_COUNTS_EXCLUSION'], proposedIds),
+        labelStatus: 'DRAFT',
+        why: null,
+        approved: ['EXCLUSION_CONDITION', 'ALSO_COUNTS_EXCLUSION'],
+        proposed: proposedIds,
+    })
+    assert.ok(draft.scoring.table.label!.startsWith('Built on a partly approved table') && draft.scoring.table.label!.includes('Still PROPOSED: EVERY_WAY_TO_SCORE'))
+    assert.ok(!draft.scoring.table.label!.includes(PROPOSED_TABLE_LABEL))
+    // Stage 3E: and the readings record the extracts keep by, named and labelled the same way. Re-pointed 24 October 2026 (C1): partly
+    // approved. Was: PROPOSED.
+    assert.deepEqual([draft.scoring.readings.source, draft.scoring.readings.status], [READINGS_SOURCE, 'PARTLY_APPROVED'])
 })
 
 test('2. the loader refuses unknown classes, activity-keyed rules, rows that are not register rows, and an approval it does not carry', () => {
@@ -218,14 +256,35 @@ test('2. the loader refuses unknown classes, activity-keyed rules, rows that are
     refused(file => (ruleOf(file, 'EXCLUSION_CONDITION').followsFrom = ['EXCLUSION_CONDITION']), 'which is no other rule of the table')
     refused(file => (ruleOf(file, 'EXCLUSION_CONDITION').followsFrom = ['SCORE_VALUE']), 'a DETAIL: an exception is left to Coach Details only where')
     refused(file => (ruleOf(file, 'EXCLUSION_CONDITION').followsFrom = ['A01']), 'it names "A01", an activity')
-    // The status: APPROVED only with his approval; a PROPOSED table carries none.
-    refused(file => (file.status = 'APPROVED'), 'it says APPROVED and carries no approvedBy')
-    refused(file => (file.approvedBy = { who: 'TEST-ONLY', date: '2026-10-21', quote: 'TEST-ONLY' }), 'it carries approvedBy and says it is PROPOSED')
-    refused(file => Object.assign(file, { status: 'APPROVED', approvedBy: { who: 'TEST-ONLY' } }), 'its approval does not say who approved it, when, and in his words')
-    refused(file => (file.status = 'DRAFT'), 'neither PROPOSED nor APPROVED')
+    // The status. Re-pointed 24 October 2026 (C1, his reply filed 24 October 2026, item 2, approving two rules): approval is per rule. A
+    // rule is APPROVED only with his approval (who, a calendar date, the reply it is filed in by that date, his words), PROPOSED with none;
+    // the table carries none of its own, and its status is what its rules make it. Was: one status and one approval for the whole table.
+    refused(file => (file.status = 'APPROVED'), 'and its rules make it PARTLY_APPROVED')
+    refused(file => (file.status = 'PROPOSED'), 'and its rules make it PARTLY_APPROVED')
+    refused(file => (file.approvedBy = { who: 'TEST-ONLY', date: '2026-10-21', quote: 'TEST-ONLY' }), 'it carries approvedBy: his approval is of a rule, never of the table')
+    refused(file => (file.status = 'DRAFT'), 'none of PROPOSED, PARTLY_APPROVED and APPROVED')
     refused(file => (file.extra = true), 'the table carries "extra"')
-    const approved = tableWith(file => Object.assign(file, { status: 'APPROVED', approvedBy: { who: 'TEST-ONLY', date: '2026-10-21', quote: 'TEST-ONLY' } }))
-    assert.equal(approved.table!.status, 'APPROVED')
+    refused(file => delete ruleOf(file, 'SCORE_VALUE').status, 'its status undefined is neither PROPOSED nor APPROVED')
+    refused(file => (ruleOf(file, 'SCORE_VALUE').status = 'APPROVED'), 'it says APPROVED and carries no approvedBy')
+    refused(file => (ruleOf(file, 'SCORE_VALUE').approvedBy = exclusionApproval('TEST-ONLY')), 'it is PROPOSED and carries approvedBy')
+    refused(file => delete ruleOf(file, 'EXCLUSION_CONDITION').approvedBy, 'it says APPROVED and carries no approvedBy')
+    refused(file => (ruleOf(file, 'EXCLUSION_CONDITION').approvedBy.quote = ' '), 'its approval does not give his words')
+    refused(file => (ruleOf(file, 'EXCLUSION_CONDITION').approvedBy.date = '2026-10-21'), 'its approval does not name the reply it is filed in, by the date 21 October 2026')
+    refused(file => (ruleOf(file, 'EXCLUSION_CONDITION').approvedBy.who = ''), 'its approval does not say who approved it')
+    refused(file => Object.assign(ruleOf(file, 'EXCLUSION_CONDITION'), { approvedBy: { who: 'TEST-ONLY' } }), 'is not a calendar date')
+    const allApproved = tableWith(file => {
+        for (const rule of file.rules) if (rule.status === 'PROPOSED') Object.assign(rule, { status: 'APPROVED', approvedBy: { ...exclusionApproval('TEST-ONLY'), who: 'TEST-ONLY' } })
+        file.status = 'APPROVED'
+    })
+    assert.equal(allApproved.table!.status, 'APPROVED')
+    const allProposed = tableWith(file => {
+        for (const rule of file.rules) {
+            rule.status = 'PROPOSED'
+            delete rule.approvedBy
+        }
+        file.status = 'PROPOSED'
+    })
+    assert.equal(allProposed.table!.status, 'PROPOSED')
     // An unusable table withholds every group, with why; the purpose, game and parameters stand, and the activity is served as before.
     const blocks = blocksOf(buildActivityWithFixture(a01At(12, 1)).fixture)
     const broken = tableWith(file => (file.status = 'APPROVED'))
@@ -234,7 +293,7 @@ test('2. the loader refuses unknown classes, activity-keyed rules, rows that are
     assert.equal(draft.scoring.table.label, null)
     for (const block of draft.scoring.blocks) {
         assert.deepEqual(block.groups.map(group => [group.group, group.withheld, group.sentences.length]), [['BUILDING', true, 0], ['PRESSING', true, 0]])
-        for (const group of block.groups) assert.ok(group.why[0].startsWith('the essentials table cannot be used: it says APPROVED and carries no approvedBy'), group.why[0])
+        for (const group of block.groups) assert.ok(group.why[0].startsWith('the essentials table cannot be used: its status is "APPROVED", and its rules make it PARTLY_APPROVED'), group.why[0])
     }
     const whole = coachOverviewDraftOf('A01', blocks)
     assert.deepEqual([draft.purpose, draft.blocks, draft.extracts, draft.gaps], [whole.purpose, whole.blocks, whole.extracts, whole.gaps])
@@ -280,9 +339,10 @@ test("3. production A01: each team's line saying how it scores first, then what 
             assert.deepEqual(pressing.sentences[0].drops, [': running it in, or passing to a teammate who receives it under control inside'], at)
             // The cut of Details 14 cites everything that sentence cites (its lead part is all of it but the elaboration of the event).
             assert.deepEqual(pressing.sentences[0].from, served.rendered.instructions[pressing.sentences[0].details.blockIndex].from, at)
-            // Every sentence of his read by the PROPOSED record names it ("reading PROPOSED, awaiting confirmation"), his eligibility sentence
-            // said whole included (stage 3F); the DRAFT cut names none.
-            assert.deepEqual([...building.sentences, ...pressing.sentences].map(s => s.reading), [PROPOSED_READING_RECORD, PROPOSED_READING_RECORD, PROPOSED_READING_RECORD, null, PROPOSED_READING_RECORD], at)
+            // Every sentence of his read by the record names it, his eligibility sentence said whole included (stage 3F); the DRAFT cut names
+            // none. Re-pointed 24 October 2026 (C1, his reply filed 24 October 2026, item 1): the four readings these sentences are read by are
+            // approved, so each names the approved record ("reading approved"). Was: the PROPOSED record, each.
+            assert.deepEqual([...building.sentences, ...pressing.sentences].map(s => s.reading), [APPROVED_READING_RECORD, APPROVED_READING_RECORD, APPROVED_READING_RECORD, null, APPROVED_READING_RECORD], at)
             // Left to Details behind a pointer each: the restart moments (stage 3F: DETAIL) in the building team's group, the value of a score
             // in both.
             const opener = building.requirements.filter(r => r.rule === 'BOUNDED_EPISODE_OPENER')
@@ -321,7 +381,7 @@ test('4. the readings decide the words, never the composer: a TEST-ONLY copy of 
         const unread = coachOverviewDraftOf('A01', blocks, undefined, { reading: NO_RECORDED_READING })
         assert.equal(testOnly.scoring.sameTextInEveryBlock, true, what)
         // The account describes the reading the overview was built with (the 3E review's bookkeeping item): one naming no record is not the record.
-        assert.deepEqual([testOnly.scoring.readings.status, unread.scoring.readings.status, production.scoring.readings.status], ['UNUSABLE', 'UNUSABLE', 'PROPOSED'], what)
+        assert.deepEqual([testOnly.scoring.readings.status, unread.scoring.readings.status, production.scoring.readings.status], ['UNUSABLE', 'UNUSABLE', 'PARTLY_APPROVED'], what)
         for (const [n, block] of testOnly.scoring.blocks.entries()) {
             const at = `${what} block ${n + 1}`
             const [building, pressing] = block.groups
@@ -441,7 +501,7 @@ test('7. nothing is left out by default: an unclassed scoring row withholds its 
     // A field two rules class (conditions that overlap on one element) is ambiguous, never resolved by the rules' order.
     // (Re-pointed 21 October 2026, stage 3D: an element condition compares with a value of a closed register vocabulary, so the overlapping
     // TEST-ONLY rule compares with one the game does not hold, where it compared with "TEST-ONLY".)
-    const overlapping = tableWith(file => file.rules.push({ id: 'TEST_ONLY_ORIGIN', class: 'DETAIL', rows: ['V4'], where: { field: 'type', notEquals: 'eligibility' }, why: 'TEST-ONLY' }))
+    const overlapping = tableWith(file => file.rules.push({ id: 'TEST_ONLY_ORIGIN', class: 'DETAIL', rows: ['V4'], where: { field: 'type', notEquals: 'eligibility' }, why: 'TEST-ONLY', status: 'PROPOSED' }))
     assert.equal(overlapping.why, null)
     const [ambiguous] = groupsOf(coachOverviewDraftOf('A01', blocks, undefined, { essentials: overlapping }))
     assert.equal(ambiguous.withheld, true)

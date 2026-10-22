@@ -1,6 +1,8 @@
 Coach Communication Standard RC3: sources
 "22 Oct 3" is item 3 of your 22 October reply. Section 3 lists wording that is ours, new or carried from the amendment draft you reviewed; RC3's own words are marked RC3's; every other quote is yours.
 
+APPROVED. Your reply filed 24 October 2026, item 5: "I approve the overall RC3 structure and the narrow alignment changes to the Knowledge Presentation Standard, incorporating the clarification to Section 2.1 above." Clause 2.1 is the one change since the RC3 you reviewed, made from your item 3 (its line below). RC3 is 1,029 words by wc -w without its approval line (1,060 with it); the RC3 you reviewed was 1,006.
+
 1. EACH CLAUSE
 Heading: 23 Oct 3, "testable standard".
 1.1 23 Oct opening: "without modifying the underlying activity-generation logic".
@@ -8,7 +10,7 @@ Heading: 23 Oct 3, "testable standard".
 1.3 22 Oct 8, nearly word for word.
 1.4 22 Oct 3; 23 Oct 5; plus our drafting.
 1.5 22 Oct 4: "not as a special case"; 23 Oct 7.
-2.1 RC2 Principles 2 and 4, Language Standards, Scoring Standard.
+2.1 24 Oct 3: "The prohibition against describing player decisions, perceptions, or tactical reasoning seems too broad if applied to all coach-facing communication. I agree that operational instructions should avoid prescribed solutions and unnecessary theoretical explanations. However, learning purposes, coaching observations, and concise explanations of potential environmental consequences should remain permissible when grounded in authorized knowledge." The prohibition is now limited to operational instructions, with your "unnecessary theoretical explanation" added to it; your three permitted kinds are named in your words; the list prohibited is RC2's (Principles 2 and 4, Language Standards, Scoring Standard), as before. "never the learning process" is dropped, since learning purposes are now permitted.
 2.2 22 Oct 5: "unnecessarily specifies how players must move".
 2.3 RC2 The Sentence Test, plus our drafting.
 2.4 RC2 The Coach Translation Test.
@@ -58,6 +60,7 @@ Closing: 23 Oct 8, word for word.
 3. OUR WORDING BEYOND YOUR DECISIONS, FOR YOUR CONFIRMATION
 - 1.2 "and the diagram"; "misrepresent nothing": your abbreviation test, applied to every level.
 - 1.4 "(not a coach's choice)": what you leave to the coach is not a gap.
+- 2.1 "(setup, rules, scoring, restarts, adjustments)": which instructions are operational, named so the clause can be tested; "remain permissible" for your "should remain permissible".
 - 2.3 "goes to administer or adjust sections".
 - 3.3 "per kind of information"; "proposed until the knowledge owner approves it".
 - 3.4 "in role terms"; "(approved wording excepted)".

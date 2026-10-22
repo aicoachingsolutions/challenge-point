@@ -51,7 +51,17 @@ import { loadRegister } from '../derivation/corpus'
 import { AUDITS_DIR } from '../derivation/knowledge-root'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { ApprovedWording, approvedWording, canonicalJson } from './approved-wording'
-import { coverReadingOf, ReadingsAccount, readingsAccountOf, readingsAccountOfReading, ReadingsLoad, recordedReading, recordedReadings } from './approved-wording-readings'
+import {
+    approvalUnusableBecause,
+    coverReadingOf,
+    ReadingApproval,
+    ReadingsAccount,
+    readingsAccountOf,
+    readingsAccountOfReading,
+    ReadingsLoad,
+    recordedReading,
+    recordedReadings,
+} from './approved-wording-readings'
 import {
     approvedEntriesSaid,
     CoverReading,
@@ -423,12 +433,20 @@ export interface EssentialsRule {
      */
     followsFrom?: string[]
     why: string
+    /**
+     * C1 (his reply filed 24 October 2026, item 2): the rule's own standing, PROPOSED until he approves it; APPROVED only with his approval
+     * (`approvedBy`: who, the date, the reply it is filed in and his words verbatim), which a PROPOSED rule never carries.
+     */
+    status: 'PROPOSED' | 'APPROVED'
+    approvedBy: ReadingApproval | null
 }
 
-/** The table as read: its status (PROPOSED until it carries his approval), the approval, and its rules. */
+/** C1: the table's standing, read from its rules' own: APPROVED where every rule is, PROPOSED where none is, PARTLY_APPROVED otherwise. */
+export type EssentialsStatus = 'PROPOSED' | 'PARTLY_APPROVED' | 'APPROVED'
+
+/** The table as read: its standing (C1: what its rules make it; was: one status and one approval for the whole table) and its rules. */
 export interface EssentialsTable {
-    status: 'PROPOSED' | 'APPROVED'
-    approvedBy: { who: string; date: string; quote: string } | null
+    status: EssentialsStatus
     rules: EssentialsRule[]
 }
 
@@ -471,8 +489,8 @@ export function activityNames(): Set<string> {
 }
 
 const nonEmpty = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0
-const TABLE_KEYS = new Set(['about', 'status', 'approvedBy', 'proposal', 'classes', 'ruleShape', 'rules'])
-const RULE_KEYS = new Set(['id', 'class', 'rows', 'ways', 'where', 'followsFrom', 'why'])
+const TABLE_KEYS = new Set(['about', 'status', 'proposal', 'classes', 'ruleShape', 'rules'])
+const RULE_KEYS = new Set(['id', 'class', 'rows', 'ways', 'where', 'followsFrom', 'why', 'status', 'approvedBy'])
 const isClass = (value: unknown): value is OverviewClass => (OVERVIEW_CLASSES as readonly unknown[]).includes(value)
 
 /** Every string a value holds, at any depth. */
@@ -523,6 +541,14 @@ function ruleUnusableBecause(rule: any, register: Map<string, RegisterRow>, acti
     if (!nonEmpty(rule.id)) return 'it has no id'
     if (!isClass(rule.class)) return `its class "${rule.class}" is not one the overview knows (${OVERVIEW_CLASSES.join(', ')})`
     if (!nonEmpty(rule.why)) return 'it gives no reason'
+    // C1: its own standing: PROPOSED with no approval, or APPROVED with his, in his words.
+    if (rule.status !== 'PROPOSED' && rule.status !== 'APPROVED') return `its status ${JSON.stringify(rule.status)} is neither PROPOSED nor APPROVED`
+    if (rule.status === 'PROPOSED' && 'approvedBy' in rule) return 'it is PROPOSED and carries approvedBy: a PROPOSED rule has no approval'
+    if (rule.status === 'APPROVED') {
+        if (!('approvedBy' in rule)) return 'it says APPROVED and carries no approvedBy: a rule stays PROPOSED until he approves it, in his words'
+        const approval = approvalUnusableBecause(rule.approvedBy)
+        if (approval) return approval
+    }
     if ((rule.rows === undefined) === (rule.ways === undefined)) return 'it names rows or ways: exactly one of them'
     const listed: unknown = rule.rows ?? rule.ways
     if (!Array.isArray(listed) || !listed.length || !listed.every(nonEmpty)) return 'its rows or ways are not register row ids'
@@ -555,23 +581,21 @@ function ruleUnusableBecause(rule: any, register: Map<string, RegisterRow>, acti
 }
 
 /**
- * **Why the table cannot be used, or null** — its keys, its status and approval (APPROVED only with approvedBy carrying who, a date and
- * his words; a PROPOSED table carries none), exactly the three classes, and every rule: a known class, register rows (or, for the
- * way-level rule, collection rows), an element condition of a known form, a reason, nothing keyed by an activity, and no row classed twice
- * on the same element condition. Since stage 3D an element condition compares only with a value of a closed register vocabulary, and no
- * rule id holds an activity's name among its words.
+ * **Why the table cannot be used, or null** — its keys, its standing, exactly the three classes, and every rule: a known class, register
+ * rows (or, for the way-level rule, collection rows), an element condition of a known form, a reason, nothing keyed by an activity, and
+ * no row classed twice on the same element condition. Since stage 3D an element condition compares only with a value of a closed register
+ * vocabulary, and no rule id holds an activity's name among its words.
+ *
+ * C1 (his reply filed 24 October 2026, item 2, approving two rules and no others): approval is per rule. Each rule is PROPOSED (no
+ * approvedBy) or APPROVED (approvedBy with who, a calendar date, the reply it is filed in by that date, and his words verbatim); the table
+ * carries no approval of its own, and its `status` must be what its rules make it (PROPOSED, PARTLY_APPROVED or APPROVED). Was: one status
+ * and one approval for the whole table.
  */
 export function essentialsUnusableBecause(file: any, register: Map<string, RegisterRow> = registerRowsById(), activities: Set<string> = activityNames()): string | null {
     if (!file || typeof file !== 'object' || Array.isArray(file)) return 'the table is not an object'
+    if ('approvedBy' in file) return 'it carries approvedBy: his approval is of a rule, never of the table'
     for (const key of Object.keys(file)) if (!TABLE_KEYS.has(key)) return `the table carries "${key}", which no table holds`
-    if (file.status !== 'PROPOSED' && file.status !== 'APPROVED') return `its status "${file.status}" is neither PROPOSED nor APPROVED`
-    const approval = file.approvedBy
-    if (approval !== undefined) {
-        if (file.status !== 'APPROVED') return 'it carries approvedBy and says it is PROPOSED'
-        if (!approval || !nonEmpty(approval.who) || !nonEmpty(approval.date) || !nonEmpty(approval.quote)) return 'its approval does not say who approved it, when, and in his words'
-    } else if (file.status === 'APPROVED') {
-        return 'it says APPROVED and carries no approvedBy: the table stays PROPOSED until he approves it'
-    }
+    if (file.status !== 'PROPOSED' && file.status !== 'PARTLY_APPROVED' && file.status !== 'APPROVED') return `its status "${file.status}" is none of PROPOSED, PARTLY_APPROVED and APPROVED`
     if (file.classes !== undefined) {
         const names = Object.keys(file.classes ?? {})
         if (names.length !== OVERVIEW_CLASSES.length || !names.every(isClass)) return `its classes are ${JSON.stringify(names)}, and the overview knows exactly ${OVERVIEW_CLASSES.join(', ')}`
@@ -598,21 +622,22 @@ export function essentialsUnusableBecause(file: any, register: Map<string, Regis
             if (governing.class === 'DETAIL') return `rule "${rule.id}" follows from "${id}", a DETAIL: an exception is left to Coach Details only where the overview states a condition it must state`
         }
     }
+    // C1: the table's standing is what its rules make it, never more.
+    const standing = essentialsStatusOf(file.rules)
+    if (file.status !== standing) return `its status is "${file.status}", and its rules make it ${standing}: the table says what its rules are, never more`
     return null
 }
 
-/** The table from its parsed file: copied, or null with why. */
+/** C1: the table's standing from its rules' own. */
+export const essentialsStatusOf = (rules: { status: unknown }[]): EssentialsStatus =>
+    rules.length && rules.every(rule => rule.status === 'APPROVED') ? 'APPROVED' : rules.some(rule => rule.status === 'APPROVED') ? 'PARTLY_APPROVED' : 'PROPOSED'
+
+/** The table from its parsed file: copied, each rule with its standing and approval (null where PROPOSED), or null with why. */
 export function essentialsLoadOf(file: any): EssentialsLoad {
     const why = essentialsUnusableBecause(file)
     if (why) return { table: null, why }
-    return {
-        table: {
-            status: file.status,
-            approvedBy: file.approvedBy ? { who: String(file.approvedBy.who), date: String(file.approvedBy.date), quote: String(file.approvedBy.quote) } : null,
-            rules: JSON.parse(JSON.stringify(file.rules)),
-        },
-        why: null,
-    }
+    const rules: EssentialsRule[] = (JSON.parse(JSON.stringify(file.rules)) as any[]).map(rule => ({ ...rule, approvedBy: rule.status === 'APPROVED' ? rule.approvedBy : null }))
+    return { table: { status: essentialsStatusOf(rules), rules }, why: null }
 }
 
 function readEssentials(): EssentialsLoad {
@@ -631,6 +656,14 @@ export const essentialsTable = (): EssentialsLoad => JSON.parse(JSON.stringify(E
 export const FULL_RULE_LABEL = 'full rule'
 /** What an administrator is told where an overview is built on a table he has not approved (DRAFT words). */
 export const PROPOSED_TABLE_LABEL = 'Built on a PROPOSED table of which scoring conditions the overview must state; he has not approved it'
+/**
+ * C1: what an administrator is told where he has approved some of the table's rules and not the others (DRAFT words): which rules he
+ * approved, and which remain PROPOSED, by their ids.
+ */
+export const partlyApprovedTableLabel = (approved: string[], proposed: string[]): string =>
+    `Built on a partly approved table of which scoring conditions the overview must state. Approved: ${approved.join(', ')}. Still PROPOSED: ${proposed.join(', ')}`
+/** C1: where he has approved every rule (DRAFT words). */
+export const APPROVED_TABLE_LABEL = 'Built on the table of which scoring conditions the overview must state, which he has approved'
 /** The one group of a game played without roles: what every team does. */
 export const EVERY_TEAM = 'EVERY_TEAM'
 /** The heading of the one group of a game played without roles (DRAFT words, polish pass P1). */
@@ -715,9 +748,23 @@ export interface ScoringGroup {
     notes: string[]
 }
 
+/**
+ * The essentials table as an administrator is told of it: where it is, its standing, its label (C1: naming which rules he approved and
+ * which remain PROPOSED where it is partly approved), why it cannot be used, and its rules by standing.
+ */
+export interface EssentialsAccount {
+    source: typeof ESSENTIALS_SOURCE
+    status: EssentialsStatus | 'UNUSABLE'
+    label: string | null
+    labelStatus: 'DRAFT'
+    why: string | null
+    approved: string[]
+    proposed: string[]
+}
+
 /** The overview's scoring, per block, with the table it was built on. */
 export interface OverviewScoring {
-    table: { source: typeof ESSENTIALS_SOURCE; status: 'PROPOSED' | 'APPROVED' | 'UNUSABLE'; label: string | null; labelStatus: 'DRAFT'; why: string | null }
+    table: EssentialsAccount
     /** Stage 3E: the PROPOSED record of what parts of his wording state, which the extracts keep by (`approved-wording-readings.ts`). */
     readings: ReadingsAccount
     blocks: { blockId: string; groups: ScoringGroup[] }[]
@@ -1404,14 +1451,22 @@ export function scoringGroupsOf(
     })
 }
 
-/** The table as an administrator is told of it: where it is, its status, its label while PROPOSED, and why it cannot be used. */
-const tableAccountOf = (load: EssentialsLoad): OverviewScoring['table'] => ({
-    source: ESSENTIALS_SOURCE,
-    status: load.table ? load.table.status : 'UNUSABLE',
-    label: load.table?.status === 'PROPOSED' ? PROPOSED_TABLE_LABEL : null,
-    labelStatus: 'DRAFT',
-    why: load.why,
-})
+/** The table as an administrator is told of it: where it is, its standing, its label (C1: by rule where partly approved), and why it cannot be used. */
+export const tableAccountOf = (load: EssentialsLoad): EssentialsAccount => {
+    const rules = load.table?.rules ?? []
+    const approved = rules.filter(rule => rule.status === 'APPROVED').map(rule => rule.id)
+    const proposed = rules.filter(rule => rule.status !== 'APPROVED').map(rule => rule.id)
+    const status = load.table ? load.table.status : 'UNUSABLE'
+    return {
+        source: ESSENTIALS_SOURCE,
+        status,
+        label: status === 'PROPOSED' ? PROPOSED_TABLE_LABEL : status === 'PARTLY_APPROVED' ? partlyApprovedTableLabel(approved, proposed) : status === 'APPROVED' ? APPROVED_TABLE_LABEL : null,
+        labelStatus: 'DRAFT',
+        why: load.why,
+        approved,
+        proposed,
+    }
+}
 
 /** The draft where the overview could not be computed at all: one gap saying why, nothing else (the activity is unaffected). */
 export function failedOverviewDraft(what: string): CoachOverviewDraft {

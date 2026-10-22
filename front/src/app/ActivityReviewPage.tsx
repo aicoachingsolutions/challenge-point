@@ -670,19 +670,23 @@ function WordingTag({ wording, note, flush = false }: { wording: Wording | undef
 }
 
 /**
- * The reading label beside an extract of his wording that stands for what it states by a PROPOSED reading (stage 3E: "reading PROPOSED,
- * awaiting confirmation", the server's DRAFT words), for an administrator only.
+ * The reading label beside his wording that stands for what it states by a recorded reading (stage 3E), for an administrator only: the
+ * server's DRAFT words, "reading approved" where he approved every reading it stands by (C1, his reply filed 24 October 2026, item 1),
+ * else "reading PROPOSED, awaiting confirmation". Approved in the approved tag's green, PROPOSED in amber; a status the page does not know
+ * is shown as amber, never as approved.
  */
-function ReadingTag({ label }: { label: string | null | undefined }) {
+function ReadingTag({ label, status }: { label: string | null | undefined; status?: string | null }) {
     if (!label) return null
-    return <span className='ml-1 inline-block px-1.5 py-0.5 text-[10px] font-medium text-amber-900 bg-amber-50 rounded'>{label}</span>
+    const className = status === 'APPROVED' ? 'text-emerald-800 bg-emerald-50' : 'text-amber-900 bg-amber-50'
+    return <span className={`ml-1 inline-block px-1.5 py-0.5 text-[10px] font-medium rounded ${className}`}>{label}</span>
 }
 
-/** One overview sentence's tag, for an administrator: its status, where it is from (a tooltip) and its reading label. */
+/** One overview sentence's tag, for an administrator: its status, where it is from (a tooltip) and its reading label and standing. */
 interface OverviewTag {
     wording: Wording
     source: string | null
     reading: string | null
+    readingStatus: string | null
 }
 
 interface OverviewTags {
@@ -714,13 +718,13 @@ function overviewTags(overview: CoachOverview, draft: ReviewOverviewDraft | unde
     const presented = draft?.presented
     if (!presented) return null
     let unmatched = 0
-    type Presented = { text: string; wording: Wording; source?: unknown; reading?: { label: string } | null }
+    type Presented = { text: string; wording: Wording; source?: unknown; reading?: { label: string; status?: string } | null }
     const tagOf = (sentence: Presented | null | undefined, text: string): OverviewTag | undefined => {
         if (!sentence || sentence.text !== text || !isKnownWording(sentence.wording)) {
             unmatched += 1
             return undefined
         }
-        return { wording: sentence.wording, source: sourceLine(sentence.source), reading: sentence.reading?.label ?? null }
+        return { wording: sentence.wording, source: sourceLine(sentence.source), reading: sentence.reading?.label ?? null, readingStatus: sentence.reading?.status ?? null }
     }
     const presentedGroups = presented.scoring ?? []
     const groups = overview.scoring.groups.map((group, index) => {
@@ -922,7 +926,8 @@ function WithheldOverviewNote({ draft }: { draft: ReviewOverviewDraft }) {
  * nothing in it that the server did not serve.
  *
  * For an administrator only: each overview sentence's status (one of his three names), its reading label where an extract of
- * his wording stands by a PROPOSED reading, the PROPOSED essentials table's label, and a legend. A coach sees none of these.
+ * his wording stands by a recorded reading (C1: approved or PROPOSED), the essentials table's label (C1: which of its rules he approved
+ * and which remain PROPOSED), and a legend. A coach sees none of these.
  */
 function ActivityBlock({ activity }: { activity: ServedActivity }) {
     const instructions = activity.rendered.instructions
@@ -936,7 +941,10 @@ function ActivityBlock({ activity }: { activity: ServedActivity }) {
     const draft = activity.overviewDraft
     const tags = overview ? overviewTags(overview, draft) : null
     const administrator = !!draft || !!wording
-    /** The PROPOSED essentials table's label (stage 3C), the server's DRAFT words; null once the table is approved. */
+    /**
+     * The essentials table's label (stage 3C), the server's DRAFT words: built on a PROPOSED table, or (C1, his reply filed 24 October 2026,
+     * item 2) on a partly approved one, naming the rules he approved and those still PROPOSED. Shown as sent.
+     */
     const tableLabel = draft?.scoring?.table?.label ?? null
     const placeOf = new Map(instructions.map((instruction, at) => [instruction, at]))
 
@@ -1208,14 +1216,14 @@ function OverviewScoring({
                     </>
                 )}
                 <WordingTag wording={tag?.wording} note={tag?.source} />
-                <ReadingTag label={tag?.reading} />
+                <ReadingTag label={tag?.reading} status={tag?.readingStatus} />
             </span>
         </li>
     )
     return (
         <div>
             <p className={heading}>{OVERVIEW_HEADINGS.scoring}</p>
-            {tableLabel && <p className='mb-2 text-xs text-amber-900'>{tableLabel}</p>}
+            {tableLabel && <p className='mb-2 text-xs text-amber-900 [overflow-wrap:anywhere]'>{tableLabel}</p>}
             <div className='space-y-3'>
                 {overview.scoring.groups.map((group, index) => (
                     <div key={`${index}-${group.label}`}>
@@ -1554,8 +1562,9 @@ function ReviewEvidencePanel({ evidence }: { evidence: ReviewEvidence }) {
                 </EvidencePart>
                 {/*
                   * Stage 4: the Coach Overview's agreement check as the server ran it (stage 3D-3F), shown as sent: served or withheld, the
-                  * verdict and every finding, the PROPOSED table and readings record it rests on, the reading evidence (never a gate), and each
-                  * team's material elements with the overview sentence(s) stating each. Labels are DRAFTS.
+                  * verdict and every finding, the table and readings record it rests on (C1: each with which of its rules or readings he
+                  * approved and which remain PROPOSED, as the server names them), the reading evidence (never a gate), and each team's material
+                  * elements with the overview sentence(s) stating each. Labels are DRAFTS.
                   */}
                 {evidence.overview && (
                     <EvidencePart title='The Coach Overview: agreement check and what it states'>
@@ -1564,6 +1573,17 @@ function ReviewEvidencePanel({ evidence }: { evidence: ReviewEvidence }) {
                             {evidence.overview.table.status} ({evidence.overview.table.source}) · readings {evidence.overview.readings?.status ?? 'none'} (
                             {evidence.overview.readings?.source ?? 'none'})
                         </p>
+                        {(evidence.overview.table.approved?.length ?? 0) > 0 && (
+                            <p className='text-xs text-gray-600 [overflow-wrap:anywhere]'>
+                                Essentials rules approved: {evidence.overview.table.approved!.join(', ')}; still PROPOSED:{' '}
+                                {(evidence.overview.table.proposed ?? []).join(', ') || 'none'}.
+                            </p>
+                        )}
+                        {(evidence.overview.readings?.approved?.length ?? 0) > 0 && (
+                            <p className='text-xs text-gray-600 [overflow-wrap:anywhere]'>
+                                Readings approved: {evidence.overview.readings!.approved!.join('; ')}; still PROPOSED: {(evidence.overview.readings!.proposed ?? []).join('; ') || 'none'}.
+                            </p>
+                        )}
                         {evidence.overview.reading && (
                             <p className='text-xs text-gray-600'>
                                 Reading evidence, never a gate: {evidence.overview.reading.words} words, about {evidence.overview.reading.secondsAt250Wpm}-

@@ -82,6 +82,12 @@
  *     order; and what the coach is served (`coachOverviewOf`, read back here) holds each line under its own team's heading, in its group's
  *     order, with its own pointer; each team's pointers under it; and a pointer after the groups only where every team's group has it.
  *
+ * **C1, 24 October 2026 (his reply filed 24 October 2026).** Item 3: *"I would retain brief, knowledge-grounded explanations of the
+ * potential consequences of adjustments, but place them in Coach Details rather than the initial overview."* So **Q7.4 adjustments**: no
+ * overview sentence (game, parameters or scoring) is said from a Details sentence the coach needs only to adjust, cites a field only such
+ * sentences cite, or carries the words of a clause of one. Items 1 and 2: the table's and the readings' standing is per rule and per reading
+ * (approved or PROPOSED), named in the NOTEs and the evidence; nothing the check refuses or passes depends on it.
+ *
  * Word counts and reading seconds are measured for the administrator as EVIDENCE and never read by the check (his acceptance criteria: *"The
  * reading and explanation times are usability targets, not hard validation gates."*). The coach is served the overview's words and its
  * "full rule" pointers only; statuses, sources, citations and bindings stay in the administrator's draft and evidence.
@@ -114,6 +120,7 @@ import {
     ScoringRequirements,
     scoringRequirementsOf,
     ScoringSentence,
+    tableAccountOf,
     teamHeadingOf,
     withFullStop,
     wordsIn,
@@ -132,6 +139,7 @@ import {
 } from './derived-wording'
 import { namesRole, numbersIn, OBLIGATION_ALLOWLIST, OBLIGATIONS, ROLE_ORDERING, stringsAt } from './fidelity'
 import { Binding, gameReadingOf, Instruction, teamCountPhrases } from './render-concrete-game'
+import { Section, WHEN_OF_SECTION } from './sections'
 
 /** Which Q7 question a finding answers (7.0 is this stage's completeness addition). */
 export type OverviewQuestion = '7.0' | '7.1' | '7.2' | '7.3' | '7.4' | '7.5' | '7.6' | '7.7' | '7.8'
@@ -267,8 +275,11 @@ export interface OverviewEvidence {
     served: boolean
     verdict: 'PASS' | 'FAIL' | 'NOT_CHECKED'
     findings: OverviewFinding[]
-    /** Stage 3F (the 3E review's bookkeeping item): with the draft table's `why` (why it cannot be used, or null). */
-    table: { source: string; status: string; label: string | null; labelStatus: 'DRAFT'; why: string | null }
+    /**
+     * Stage 3F (the 3E review's bookkeeping item): with the draft table's `why` (why it cannot be used, or null). C1: and its rules by
+     * standing, approved and PROPOSED, by id.
+     */
+    table: { source: string; status: string; label: string | null; labelStatus: 'DRAFT'; why: string | null; approved: string[]; proposed: string[] }
     readings: ReadingsAccount
     sentences: {
         part: 'purpose' | 'game' | 'parameters' | 'scoring'
@@ -310,6 +321,18 @@ export interface OverviewCheckInput {
     lookup?: (id: string) => Record<string, unknown> | undefined
 }
 
+/** When the coach needs a Details sentence (its own `when`, else its section's). */
+const whenOf = (instruction: Instruction): string | undefined => instruction.when ?? WHEN_OF_SECTION[instruction.section as Section]
+/** A text's words, lower case, split wherever a character is neither a letter nor a digit. */
+const tokensOf = (text: string): string[] => text.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean)
+/** C1: the fewest words a clause of an adjustment sentence has for the overview to be held to never carrying it. */
+export const ADJUSTMENT_CLAUSE_WORDS = 4
+/** C1: a sentence's clauses (split at ": " and "; "), each as its words, keeping those of at least `ADJUSTMENT_CLAUSE_WORDS` words. */
+const clausesOf = (text: string): string[][] =>
+    text
+        .split(/: |; /)
+        .map(tokensOf)
+        .filter(tokens => tokens.length >= ADJUSTMENT_CLAUSE_WORDS)
 const sameSet = (a: string[], b: string[]): boolean => new Set(a).size === new Set(b).size && a.every(path => b.includes(path))
 const bindingKey = (binding: Binding): string => canonicalJson([binding.path, binding.quantity, binding.as ?? null])
 const sameName = (a: string, b: string) => a.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean).join(' ') === b.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean).join(' ')
@@ -469,6 +492,11 @@ export function checkOverview(input: OverviewCheckInput): OverviewCheck {
     for (const gap of draft.gaps) if (gap.part !== 'purpose') violation('7.0', gap.blockId ?? null, `the overview has a gap (${gap.part}): ${gap.what}`)
     if (!load.table) violation('7.0', null, `the essentials table cannot be used: ${load.why}`)
     else if (load.table.status === 'PROPOSED') note('7.0', null, 'the overview is built on the PROPOSED essentials table, which he has not approved')
+    else if (load.table.status === 'PARTLY_APPROVED') {
+        // C1 (his reply filed 24 October 2026, item 2): approval is per rule; say which rules he approved and which remain PROPOSED.
+        const account = tableAccountOf(load)
+        note('7.0', null, `the overview is built on the partly approved essentials table: he approved ${account.approved.join(', ')}; these rules remain PROPOSED: ${account.proposed.join(', ')}`)
+    }
     if (goalId === null) {
         if (draft.purpose !== null) violation('7.1', null, 'a mechanism demonstration claims no Learning Goal, and the overview gives it a learning purpose')
     } else if (!draft.purpose) {
@@ -541,6 +569,29 @@ export function checkOverview(input: OverviewCheckInput): OverviewCheck {
             }
         }
 
+        /**
+         * **Q7.4, adjustments stay in Coach Details** — C1, his reply filed 24 October 2026, item 3: *"I would retain brief,
+         * knowledge-grounded explanations of the potential consequences of adjustments, but place them in Coach Details rather than the
+         * initial overview."* So no overview sentence is said from a Details sentence the coach needs only to adjust (`when` ADJUST), cites
+         * a field only such sentences cite, or carries the words of a clause of one (split at ": " and "; ", at least
+         * `ADJUSTMENT_CLAUSE_WORDS` words, word for word, case aside): the way a consequence would arrive inside other words.
+         */
+        const adjusting = rendered.filter(instruction => whenOf(instruction) === 'ADJUST')
+        const citedElsewhere = new Set(rendered.filter(instruction => whenOf(instruction) !== 'ADJUST').flatMap(instruction => instruction.from))
+        const adjustOnly = new Set(adjusting.flatMap(instruction => instruction.from).filter(path => !citedElsewhere.has(path)))
+        const adjustmentClauses = adjusting.flatMap(instruction => clausesOf(instruction.text).map(clause => ({ clause, instruction })))
+        const adjustments = (what: string, text: string, from: string[], ref: { blockIndex: number; section: string; text: string } | null) => {
+            const exact = ref ? rendered[ref.blockIndex] : undefined
+            const source = ref ? (exact && exact.section === ref.section && exact.text === ref.text ? exact : rendered.find(instruction => instruction.section === ref.section && instruction.text === ref.text)) : undefined
+            if (source && whenOf(source) === 'ADJUST') violation('7.4', blockId, `${what} is said from ${quoted(source.text)}, a sentence for adjusting the activity: adjustments and their consequences stay in Coach Details`)
+            const cited = from.filter(path => adjustOnly.has(path))
+            if (cited.length) violation('7.4', blockId, `${what} cites ${cited.join(', ')}, which only sentences for adjusting the activity cite: adjustments and their consequences stay in Coach Details`)
+            const words = ` ${tokensOf(text).join(' ')} `
+            for (const { clause, instruction } of adjustmentClauses) {
+                if (words.includes(` ${clause.join(' ')} `)) violation('7.4', blockId, `${what} carries the words "${clause.join(' ')}" of ${quoted(instruction.text)}, a sentence for adjusting the activity: adjustments and their consequences stay in Coach Details`)
+            }
+        }
+
         // ── The game sentence and the parameters ──
         for (const [slot, sentence] of [
             ['game', own?.game ?? null],
@@ -558,6 +609,7 @@ export function checkOverview(input: OverviewCheckInput): OverviewCheck {
             numbers(what, sentence.text, sentence.parts.flatMap(p => p.bindings))
             derivedTerms(what, sentence)
             lexicon(what, sentence.text, sentence.parts, 'DRAFT', sentence.from)
+            adjustments(what, sentence.text, sentence.from, null)
         }
 
         // ── Q7.6: the counts, exactly as the Players sentence's builder says them, under the role holding them ──
@@ -732,6 +784,7 @@ export function checkOverview(input: OverviewCheckInput): OverviewCheck {
                 citations(what, sentence.from)
                 numbers(what, sentence.text, sentence.bindings)
                 lexicon(what, sentence.text, reading.statements, reading.words, sentence.from)
+                adjustments(what, sentence.text, sentence.from, sentence.details ?? null)
                 return reading
             })
             const stated = new Set(reads.flatMap(reading => reading.states))
@@ -801,16 +854,18 @@ export function checkOverview(input: OverviewCheckInput): OverviewCheck {
                     return [{ sentence: n, why: omission?.why ?? 'its words are not read as stating it' }]
                 })
                 const governing = followsFromOf(first, requirements, load.table!)
+                // C1: each rule's own standing (his reply filed 24 October 2026, item 2, approved two rules and no others).
+                const standing = load.table!.rules.find(rule => rule.id === first.rule)?.status === 'APPROVED' ? 'rule approved' : 'rule PROPOSED'
                 const because =
                     first.class === 'CONSTITUTIVE'
-                        ? 'a way the team scores, or part of one: the overview states it'
+                        ? `a way the team scores, or part of one: the overview states it (${standing})`
                         : first.class === 'ESSENTIAL'
-                          ? 'a qualification the PROPOSED table holds material: the overview states it, and a pointer never excuses it'
+                          ? `a qualification the table holds material (${standing}): the overview states it, and a pointer never excuses it`
                           : material
-                            ? `an exception the PROPOSED table leaves to Coach Details only where the overview states the condition it follows from (${unstated!.join(' and ')}); this group does not, so it is material`
+                            ? `an exception the table (${standing}) leaves to Coach Details only where the overview states the condition it follows from (${unstated!.join(' and ')}); this group does not, so it is material`
                             : governing
-                              ? `an exception that follows from ${governing.map(entry => entry.rule).join(' and ')}, which this group states: left to Coach Details behind a "${FULL_RULE_LABEL}" pointer`
-                              : `left to Coach Details behind a "${FULL_RULE_LABEL}" pointer (PROPOSED table)`
+                              ? `an exception that follows from ${governing.map(entry => entry.rule).join(' and ')}, which this group states: left to Coach Details behind a "${FULL_RULE_LABEL}" pointer (${standing})`
+                              : `left to Coach Details behind a "${FULL_RULE_LABEL}" pointer (${standing})`
                 elements.push({
                     rule: first.rule,
                     class: first.class,
@@ -837,8 +892,11 @@ export function checkOverview(input: OverviewCheckInput): OverviewCheck {
     }
 
     // Stage 3E: an overview saying an extract kept by the PROPOSED readings record is labelled so for an administrator, as the table is.
+    // C1: and, by itself, what it says by readings he approved (his reply filed 24 October 2026, item 1).
     const labelled = draft.scoring.blocks.flatMap(block => block.groups.flatMap(group => group.sentences.filter(sentence => sentence.reading?.status === 'PROPOSED')))
     if (labelled.length) note('7.3', null, `the overview says ${[...new Set(labelled.map(sentence => quoted(sentence.text)))].join(' and ')} by a PROPOSED reading of his wording (${labelled[0].reading!.source}), awaiting his confirmation`)
+    const approvedReadings = draft.scoring.blocks.flatMap(block => block.groups.flatMap(group => group.sentences.filter(sentence => sentence.reading?.status === 'APPROVED')))
+    if (approvedReadings.length) note('7.3', null, `the overview says ${[...new Set(approvedReadings.map(sentence => quoted(sentence.text)))].join(' and ')} by readings of his wording he approved (${approvedReadings[0].reading!.source})`)
 
     // ── Q7.8: the same words in every block (nothing is told apart by block) ──
     const pointerWords = (pointer: DetailsPointer | null) => (pointer ? [pointer.label, pointer.section, pointer.text] : null)
@@ -993,7 +1051,7 @@ export function overviewEvidenceOf(draft: CoachOverviewDraft): OverviewEvidence 
         served: draft.served,
         verdict: draft.check ? draft.check.verdict : 'NOT_CHECKED',
         findings: draft.check ? draft.check.findings.map(finding => ({ ...finding })) : [],
-        table: { source: table.source, status: table.status, label: table.label, labelStatus: table.labelStatus, why: table.why },
+        table: { source: table.source, status: table.status, label: table.label, labelStatus: table.labelStatus, why: table.why, approved: [...(table.approved ?? [])], proposed: [...(table.proposed ?? [])] },
         readings: copy(draft.scoring.readings),
         sentences,
         fullRules: presented ? presented.scoring.flatMap(group => group.fullRules.map(pointer => ({ group: group.group, ...copy(pointer) }))) : [],
