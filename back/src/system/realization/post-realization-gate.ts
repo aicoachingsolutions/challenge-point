@@ -20,7 +20,7 @@
 import { ClassifiedLine } from '../derivation/classify'
 import { DerivedLine, resolvedValue } from '../derivation/derive'
 import { authoritativeViolations, ComparisonResult, evaluateComparisons } from '../derivation/comparison'
-import { GateContext, GateReport, runGates } from '../derivation/gates'
+import { GateContext, GateReport, MissingParticipant, missingParticipantsIn, runGates } from '../derivation/gates'
 import { splitPath } from '../derivation/resolved-game'
 import { memberDesignations } from '../derivation/designation'
 import { ElementClass, ResolutionLine } from '../derivation/types'
@@ -52,6 +52,12 @@ export interface PostRealizationResult {
      * render-eligibility; an assumed one may not (SD-27).
      */
     comparisons: ComparisonResult[]
+    /**
+     * **The participants the concrete game requires and its configuration lacks** — GA-PARTICIPANTS-PRESENT's FAILs, typed (22 October
+     * 2026, his reply filed 25 October 2026, item 6), read from the same folded context the rerun checked, so a caller can tell a coach
+     * which participant is missing without reading the check's prose. Empty where nothing is established missing.
+     */
+    missingParticipants: MissingParticipant[]
 }
 
 /**
@@ -202,7 +208,8 @@ function concreteContext(ctx: GateContext, realized: Realized): GateContext {
 
 
 export function runPostRealizationGates(ctx: GateContext, resolvedOwed: { checkId: string; clause: string }[], realized: Realized): PostRealizationResult {
-    const gateA = runGates(concreteContext(ctx, realized)).gateA
+    const concrete = concreteContext(ctx, realized)
+    const gateA = runGates(concrete).gateA
 
     const owed = resolvedOwed.map(entry => {
         const check = gateA.checks.find(c => c.checkId === entry.checkId)
@@ -263,5 +270,5 @@ export function runPostRealizationGates(ctx: GateContext, resolvedOwed: { checkI
         )
     }
 
-    return { gateA, owed, validated: outstanding.length === 0, outstanding, entailed: realized.record.entailed, comparisons }
+    return { gateA, owed, validated: outstanding.length === 0, outstanding, entailed: realized.record.entailed, comparisons, missingParticipants: missingParticipantsIn(concrete) }
 }

@@ -40,6 +40,7 @@ import { resolveRelativeCounts } from '../derivation/reassignment'
 import { indexRegister } from '../derivation/register'
 import { assembleResolvedGame, splitPath } from '../derivation/resolved-game'
 import { roleHolderNames, roleOfHolder } from '../derivation/designation'
+import type { MissingParticipant } from '../derivation/gates'
 import { roleBlocksOf } from '../derivation/role-blocks'
 import { BoundedSelection, CONTEXT_ROLE, contractCoverage, derivationInputFor, GoalSelectionGap, knowledgeKey, KnowledgeSelection, selectFor } from '../derivation/run-bounded-selection'
 import { LoadedContract, RoleBlock } from '../derivation/types'
@@ -632,6 +633,42 @@ function strandedCountSummary(stranded: StrandedCount): { stage: ActivityStage; 
         stage: 'session',
         summary: `${players} player${players === 1 ? '' : 's'} cannot be split into equal teams with ${counts} neutral player${many ? 's' : ''}.`,
     }
+}
+
+/**
+ * **A participant the game requires and its team set-up lacks, as one sentence a coach can read** — 22 October 2026, his reply filed
+ * 25 October 2026, item 6: *"Any participant or role required by an activity must actually be present in the authorized
+ * configuration."* Chosen from GA-PARTICIPANTS-PRESENT's typed records (`MissingParticipant`), never from the check's prose: the
+ * participant by the name the register gives it (a specialized role's own name, a form's DRAFT coachNoun, the outfield noun), the
+ * team by the DRAFT role noun of the role it holds in the block. The first record in clause order is said; every record stays in the
+ * technical reasons. Not a session refusal: the game's own description names a participant its own set-up does not hold, which no
+ * change of the coach's numbers cures (a session that cannot staff a role the game DOES involve is the roster's AVAILABILITY_SHORT,
+ * said before this). DRAFT wording.
+ */
+function participantSummary(missing: MissingParticipant[], index: ReturnType<typeof indexRegister>): { stage: ActivityStage; summary: string } | null {
+    const [first] = missing
+    if (!first) return null
+    const noun = first.missing.name ?? 'participant'
+    const a = `${/^[aeiou]/i.test(noun) ? 'an' : 'a'} ${noun}`
+    const nounsOf = (designations: string[]) =>
+        designations.map(name => roleOfHolder(index, name)).filter((role): role is string => !!role && !!index.roleBlocks?.coachNouns[role]).map(role => index.roleBlocks!.coachNouns[role])
+    let team: string | null = null
+    let gives = 'has none'
+    if (first.teams.length === 1) {
+        const nouns = nounsOf(first.teams[0].designations)
+        team = nouns.length === 1 ? `the ${nouns[0]}` : 'one of the teams'
+        gives = nouns.length === 1 ? `gives the ${nouns[0]} none` : 'gives that team none'
+    } else if (first.teams.length > 1) {
+        team = first.teams.length === 2 ? 'either team' : 'any team'
+        gives = first.teams.length === 2 ? 'gives neither team one' : 'gives no team one'
+    }
+    const summary =
+        first.requirement === 'TAKER' || first.requirement === 'BEGIN_ARM'
+            ? `This game needs ${a} to restart play for ${team ?? 'a team'}, and the team set-up ${gives}.`
+            : first.requirement === 'MOVED'
+              ? `This game moves ${a} from ${team ?? 'a team'} when the roles exchange, and the team set-up ${gives}.`
+              : `This game needs ${a}${team ? ` for ${team}` : ''}, and the team set-up ${gives}.`
+    return { stage: 'validation', summary }
 }
 
 /** A build, with the goal's selection beside it for a caller that has to account for it in its own shape. */
@@ -1565,6 +1602,9 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
         const said = roster ? rosterSummary(roster) : null
         if (roster) invalid.push(`roster (${roster.cause}): ${roster.why}`)
         if (said) return refuse(said.stage, said.summary, invalid)
+        // A participant the game requires and its configuration lacks (GA-PARTICIPANTS-PRESENT, 22 October 2026): said by name.
+        const lacking = participantSummary(post.missingParticipants, index)
+        if (lacking) return refuse(lacking.stage, lacking.summary, invalid)
     }
     /**
      * **A relative reassignment count is resolved from this block's own game** (register B7 version 2, stage M4, 17 October 2026;

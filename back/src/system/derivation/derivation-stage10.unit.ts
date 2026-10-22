@@ -1197,7 +1197,7 @@ test('FIRST_FORWARD_PASS is registered, and it is the only trigger the 29 Septem
     )
 })
 
-test('the nineteen Gate A checks are all present, and GA-RESIDUAL-SPACE is gone (SD-45)', () => {
+test('the twenty Gate A checks are all present, and GA-RESIDUAL-SPACE is gone (SD-45)', () => {
     const result: any = runStages0to10(corpusInput())
     const ids = gateA(result).checks.map((c: any) => c.checkId).sort()
     // Seventeen since 14 October 2026: GA-AFFILIATION reads register row P6c, added that day on his ruling
@@ -1210,7 +1210,11 @@ test('the nineteen Gate A checks are all present, and GA-RESIDUAL-SPACE is gone 
     // Nineteen since 15 October 2026 (stage K6): GA-RELATIVE-PLACEMENT checks every position stated relative to another element or
     // to a team (RC-21's "beyond X (for team T)", made machine-readable for his M7, reply filed 17 October 2026: "M7 — Target
     // relative to pressure reference: Approved if required."). See target-placement.unit.ts.
-    assert.equal(ids.length, 19)
+    // Twenty since 22 October 2026: GA-PARTICIPANTS-PRESENT checks that every participant an element requires is held by the
+    // configuration (his reply filed 25 October 2026, item 6: "Any participant or role required by an activity must actually be
+    // present in the authorized configuration."). See participants-present.unit.ts.
+    assert.equal(ids.length, 20)
+    assert.ok(ids.includes('GA-PARTICIPANTS-PRESENT'))
     assert.ok(ids.includes('GA-RELATIVE-PLACEMENT'))
     assert.ok(ids.includes('GA-EPISODE-REACHABLE'))
     assert.ok(ids.includes('GA-AFFILIATION'))

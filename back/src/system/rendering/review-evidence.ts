@@ -507,7 +507,8 @@ const standingsOf = (sources: EvidenceSource[]): Standing[] => STANDING_ORDER.fi
 
 /** Which gate check reports on which part of his request ("player totals, spatial relationships, scoring conditions, and restarts"). */
 const STRUCTURE_CHECKS: Record<'playerTotals' | 'spatial' | 'scoring' | 'restarts', string[]> = {
-    playerTotals: ['GA-ROSTER-SUM', 'GA-AFFILIATION'],
+    // GA-PARTICIPANTS-PRESENT (22 October 2026, his reply filed 25 October 2026, item 6): who the configuration holds, beside how many.
+    playerTotals: ['GA-ROSTER-SUM', 'GA-AFFILIATION', 'GA-PARTICIPANTS-PRESENT'],
     spatial: ['GA-ENVELOPE-FIT', 'GA-LAYOUT-FEASIBLE', 'GA-DIRECTION', 'GA-RELATIVE-PLACEMENT', 'GA-REGION-FUNCTION'],
     scoring: ['GA-ONE-PRIMARY-EVENT', 'GA-OBJECTIVE-SETS', 'GA-REFERENCE-INTEGRITY', 'GA-EPISODE-REACHABLE', 'GA-MODIFIER-OVERLAP', 'GA-EFFECT-TYPED', 'GA-INFORMATION', 'GA-TIME-WINDOWS'],
     restarts: ['GA-TRANSITION-COHERENCE', 'GA-TRIGGER-REACHABLE', 'GA-TRIGGER-UNIQUE', 'GA-EPISODE-REACHABLE'],

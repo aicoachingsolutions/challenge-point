@@ -237,14 +237,16 @@ test('the realization moves exactly what its items establish — the role lines 
     // coach's restart locations are owed to realization. A third since stage K6 (15 October 2026): the positions stated relative
     // to the pressure reference and to the teams are owed to realization (GA-RELATIVE-PLACEMENT, which passes with no applicable
     // instance where the realization is not named).
+    // A fourth since 22 October 2026 (GA-PARTICIPANTS-PRESENT, his reply filed 25 October 2026, item 6): the realization's takers, start
+    // placements, roles and reassignment name participants, whose presence is owed to the instantiated teams.
     const moved = (result: any) => result.gates.gateA.checks.map((c: any) => `${c.checkId}|${c.verdict}`)
     assert.deepEqual(
         moved(named).filter((x: string, i: number) => x !== moved(unnamed)[i]),
-        ['GA-EPISODE-REACHABLE|PASS', 'GA-RELATIVE-PLACEMENT|DEFERRED_TO_REALIZATION', 'GA-TRANSITION-COHERENCE|DEFERRED_TO_REALIZATION'],
+        ['GA-EPISODE-REACHABLE|PASS', 'GA-PARTICIPANTS-PRESENT|DEFERRED_TO_REALIZATION', 'GA-RELATIVE-PLACEMENT|DEFERRED_TO_REALIZATION', 'GA-TRANSITION-COHERENCE|DEFERRED_TO_REALIZATION'],
     )
     assert.deepEqual(
         moved(unnamed).filter((x: string, i: number) => x !== moved(named)[i]),
-        ['GA-EPISODE-REACHABLE|FAIL', 'GA-RELATIVE-PLACEMENT|PASS', 'GA-TRANSITION-COHERENCE|PASS'],
+        ['GA-EPISODE-REACHABLE|FAIL', 'GA-PARTICIPANTS-PRESENT|PASS', 'GA-RELATIVE-PLACEMENT|PASS', 'GA-TRANSITION-COHERENCE|PASS'],
     )
     assert.deepEqual(
         named.versions.objects.map((o: any) => o.id).filter((id: string) => !unnamed.versions.objects.some((u: any) => u.id === id)),
