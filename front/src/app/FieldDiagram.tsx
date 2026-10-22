@@ -28,6 +28,18 @@
  * Teams (polish pass P7): a team colour is drawn only beside the team's words. A team with no noun gets a neutral arrow, and only where the
  * server's caption says how the teams attack (shown under the drawing); with no caption, its arrow is not drawn. No team name is made up.
  *
+ * Team identity and roles (stage C2; his reply filed 24 October 2026, item 4: "For colors, I would generally prefer stable team
+ * identities, with building and pressing roles identified separately. If Team A is blue in Block 1, it should ordinarily remain blue in
+ * Block 2, even though its responsibilities change." and "My priority is that a coach can distinguish team identity, assigned role, and
+ * attacking direction without confusion."). A team's colour is its `identity`, which the server keeps with the realized team in every block.
+ * Where the server labels the teams, the label ("Team A", the server's DRAFT word) is the team's word in its colour, and its role in the
+ * block (its noun) is drawn apart, in a neutral badge (#374151 text on white, 10.31:1; a #6b7280 edge, 4.83:1 on white, 4.63:1 on the
+ * area, 3.99:1 on the target fill), so colour says the team, the badge the role and the arrow the direction. The two first team colours
+ * differ by hue (blue and a dark orange, the pair that stays apart in the common colour-vision deficiencies), not by lightness (1.09:1
+ * between them), so colour is never the only carrier: the label says the team in words. What moves at the exchange into the block is the
+ * server's sentences (#1f2937, 14.68:1 on white), shown under the drawing; nothing moves on the drawing. The legend's three words for these
+ * are the server's; its arrow swatch is #4b5563 (7.56:1 on white).
+ *
  * Landscape at 520 px of container width and over, portrait below it (the area turned upright, its first end line at the bottom). Every
  * SVG id is prefixed by React's useId, so several diagrams on one page never share an arrowhead or a title. NO NUMBER, POSITION OR WORD OF
  * THE ACTIVITY IS TYPED HERE: every one is the server's. What is typed is presentation: colours, sizes, offsets and the orientation's
@@ -52,6 +64,10 @@ const STYLE = {
     targetLine: '#15803d',
     neutral: '#4b5563',
     teams: ['#1d4ed8', '#9a3412', '#6d28d9', '#374151'],
+    /** Stage C2: the role badge, neutral so that colour stays the team's. */
+    badgeFill: '#ffffff',
+    badgeEdge: '#6b7280',
+    badgeText: '#374151',
 }
 
 /**
@@ -139,6 +155,12 @@ export default function FieldDiagram({ diagram }: { diagram: CoachDiagram }) {
             >
                 <BlockDrawing diagram={diagram} block={blocks[at]} orientation={orientation} uid={`${uid}-${at}`} />
                 {blocks[at].caption && <p className='mt-1 text-xs text-gray-700'>{blocks[at].caption}</p>}
+                {/* Stage C2: what moves at the exchange into this block, in the server's words. */}
+                {(blocks[at].exchange ?? []).map((sentence, index) => (
+                    <p key={index} className='mt-1 text-sm leading-snug text-gray-800'>
+                        {sentence}
+                    </p>
+                ))}
                 <Legend diagram={diagram} />
             </div>
         </div>
@@ -185,7 +207,7 @@ function BlockDrawing({ diagram, block, orientation, uid }: { diagram: CoachDiag
 
     // Each team's words, centred in the part of its starting area that no marked zone and no zone label takes.
     const teamPlaces = block.teams.map((team, index) => {
-        if (!team.start || !team.noun) return { team, index, place: null }
+        if (!team.start || !(team.noun || team.label)) return { team, index, place: null }
         let { from, to } = team.start.along
         const takers = [...block.zones.map((zone) => zone.along), ...zoneLabels.map((label) => label.strip)]
         for (const span of takers) {
@@ -304,29 +326,46 @@ function BlockDrawing({ diagram, block, orientation, uid }: { diagram: CoachDiag
                 )
             })}
 
-            {/* 6. Each team: its noun, its counts and one arrow toward the end it attacks, in its colour. */}
+            {/*
+              * 6. Each team: its word, its counts and one arrow toward the end it attacks, in its colour. Since stage C2, where the server
+              *    labels the teams, the word is the team's label and its role in this block (its noun) is a neutral badge under it.
+              */}
             {teamPlaces.map(({ team, index, place }) => {
                 const colour = teamColour(team.identity)
                 const marker = `url(#${uid}-arrow-${team.identity})`
+                const word = team.label ?? team.noun
+                const role = team.label && team.noun ? team.noun : null
+                const badgeH = size.small + 7
+                const badgeW = role ? textWidth(role, size.small) + 14 : 0
+                const badge = (x: number, top: number) =>
+                    role ? (
+                        <g>
+                            <rect x={x - badgeW / 2} y={top} width={badgeW} height={badgeH} rx={badgeH / 2} fill={STYLE.badgeFill} stroke={STYLE.badgeEdge} strokeWidth={1} />
+                            <text x={x} y={top + badgeH / 2} fontSize={size.small} fontWeight={600} fill={STYLE.badgeText} textAnchor='middle' dominantBaseline='central'>
+                                {role}
+                            </text>
+                        </g>
+                    ) : null
                 if (!place) {
                     // A team with no starting area: its direction only, across the middle. A team colour only beside the team's own words
                     // (polish pass P7); a team with no noun gets a neutral arrow, and only where the caption says how the teams attack.
                     if (team.attacks.length !== 1) return null
-                    if (!team.noun && !block.caption) return null
+                    if (!word && !block.caption) return null
                     const across = ((index + 1) / (block.teams.length + 1)) * W
                     const halfM = Math.min(L / 8, (size.zoneOffset * 3) / S)
                     const dir = team.attacks[0] > L / 2 ? 1 : -1
                     const [x1, y1] = P(L / 2 - dir * halfM, across)
                     const [x2, y2] = P(L / 2 + dir * halfM, across)
-                    const stroke = team.noun ? colour : STYLE.neutral
+                    const stroke = word ? colour : STYLE.neutral
                     return (
                         <g key={`arrow-${index}`}>
-                            <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={stroke} strokeWidth={size.arrow} markerEnd={team.noun ? marker : `url(#${uid}-arrow-neutral)`} />
-                            {team.noun && (
+                            <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={stroke} strokeWidth={size.arrow} markerEnd={word ? marker : `url(#${uid}-arrow-neutral)`} />
+                            {word && (
                                 <text x={(x1 + x2) / 2} y={Math.min(y1, y2) - size.small * 0.6} fontSize={size.small} fontWeight={700} fill={colour} textAnchor='middle'>
-                                    {team.noun}
+                                    {word}
                                 </text>
                             )}
+                            {badge((x1 + x2) / 2, Math.max(y1, y2) + 6)}
                         </g>
                     )
                 }
@@ -334,20 +373,22 @@ function BlockDrawing({ diagram, block, orientation, uid }: { diagram: CoachDiag
                 const [cx, cy] = P(midA, place.across)
                 const lines = team.counts
                 const lineGap = size.small + 4
+                const roleRow = role ? badgeH + 6 : 0
                 // The words (and, lying down, the arrow's row beneath them) centred on the free part's middle.
-                const total = size.label + 4 + lines.length * lineGap + (landscape ? lineGap : 0)
+                const total = size.label + 4 + roleRow + lines.length * lineGap + (landscape ? lineGap : 0)
                 const firstY = cy - total / 2 + size.label * 0.85
+                const countsTop = firstY + 4 + roleRow
                 const arrow = (() => {
                     if (team.attacks.length !== 1) return null
                     const dir = team.attacks[0] > midA ? 1 : -1
                     const halfM = Math.min((place.to - place.from) * 0.28, (size.zoneOffset * 3) / S)
                     if (landscape) {
-                        const y = firstY + 4 + lines.length * lineGap + lineGap * 0.7
+                        const y = countsTop + lines.length * lineGap + lineGap * 0.7
                         const [x1] = P(midA - dir * halfM, 0)
                         const [x2] = P(midA + dir * halfM, 0)
                         return <line x1={x1} y1={y} x2={x2} y2={y} stroke={colour} strokeWidth={size.arrow} markerEnd={marker} />
                     }
-                    const widest = Math.max(textWidth(team.noun ?? '', size.label), ...lines.map((line) => textWidth(line, size.small)))
+                    const widest = Math.max(textWidth(word ?? '', size.label), badgeW, ...lines.map((line) => textWidth(line, size.small)))
                     const x = cx + widest / 2 + 14
                     const [, y1] = P(midA - dir * halfM, 0)
                     const [, y2] = P(midA + dir * halfM, 0)
@@ -356,10 +397,11 @@ function BlockDrawing({ diagram, block, orientation, uid }: { diagram: CoachDiag
                 return (
                     <g key={`team-${index}`} fill={colour}>
                         <text x={cx} y={firstY} fontSize={size.label} fontWeight={700} textAnchor='middle'>
-                            {team.noun}
+                            {word}
                         </text>
+                        {badge(cx, firstY + 6)}
                         {lines.map((line, n) => (
-                            <text key={n} x={cx} y={firstY + 4 + (n + 1) * lineGap} fontSize={size.small} textAnchor='middle'>
+                            <text key={n} x={cx} y={countsTop + (n + 1) * lineGap} fontSize={size.small} textAnchor='middle'>
                                 {line}
                             </text>
                         ))}
@@ -446,8 +488,27 @@ function Rail({ p0, p1, label, size }: { p0: [number, number]; p1: [number, numb
 /** The legend: the server's words, each beside the mark it explains; then the counts said for every team together, where there are any. */
 function Legend({ diagram }: { diagram: CoachDiagram }) {
     if (!diagram.legend.length && !diagram.counts.length) return null
+    // Stage C2: the teams' colours, one square each, in the order of their places.
+    const identities = [...new Set(diagram.blocks.flatMap((block) => block.teams.map((team) => team.identity)))].sort((a, b) => a - b)
+    const widthOf = (kind: string) => (kind === 'TEAM_COLOUR' ? Math.max(26, identities.length * 12 + 2) : 26)
     // Each swatch drawn as the mark it explains: an active target zone as on the field, its fill with the green edge just inside (P2).
     const swatch = (kind: string) => {
+        if (kind === 'TEAM_COLOUR')
+            return (
+                <g>
+                    {identities.map((identity, n) => (
+                        <rect key={identity} x={1 + n * 12} y={2} width={10} height={10} rx={2} fill={teamColour(identity)} />
+                    ))}
+                </g>
+            )
+        if (kind === 'ROLE') return <rect x={1.5} y={2} width={23} height={10} rx={5} fill={STYLE.badgeFill} stroke={STYLE.badgeEdge} strokeWidth={1} />
+        if (kind === 'ATTACK')
+            return (
+                <g>
+                    <line x1={1} y1={7} x2={19} y2={7} stroke={STYLE.neutral} strokeWidth={2} />
+                    <path d='M18,2.5 L25,7 L18,11.5 z' fill={STYLE.neutral} />
+                </g>
+            )
         if (kind === 'MARKED_LINE') return <line x1={1} y1={7} x2={25} y2={7} stroke={STYLE.markedLine} strokeWidth={2.5} />
         if (kind === 'TARGET_ZONE')
             return (
@@ -466,7 +527,7 @@ function Legend({ diagram }: { diagram: CoachDiagram }) {
                 <ul className='flex flex-wrap gap-x-4 gap-y-1'>
                     {diagram.legend.map((entry) => (
                         <li key={entry.kind} className='flex items-center gap-1.5'>
-                            <svg aria-hidden width={26} height={14} viewBox='0 0 26 14'>
+                            <svg aria-hidden width={widthOf(entry.kind)} height={14} viewBox={`0 0 ${widthOf(entry.kind)} 14`} className='shrink-0'>
                                 {swatch(entry.kind)}
                             </svg>
                             {entry.text}

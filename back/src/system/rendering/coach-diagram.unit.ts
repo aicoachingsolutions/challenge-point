@@ -108,10 +108,15 @@ test('1. A01 at 12/1, 12/2 and 11/1: every viewer is served the checked model in
         assert.deepEqual(diagram, coachDiagramOf(model, { title: activity.title }), `${what}: composed from the administrator's checked model`)
         assert.deepEqual(checkCoachDiagram(diagram, model, input, { title: activity.title }), [])
         assert.deepEqual(diagram.area, { lengthM: 40, widthM: 30 })
+        // Re-pointed (stage C2, his reply filed 24 October 2026, item 4): the labelled teams' three legend words follow (DRAFT). Was: the first
+        // three only. The rest of C2 is pinned in diagram-team-identity.unit.ts.
         assert.deepEqual(diagram.legend, [
             { kind: 'MARKED_LINE', text: 'marked line' },
             { kind: 'TARGET_ZONE', text: 'target zone' },
             { kind: 'STARTING_AREA', text: 'starting area' },
+            { kind: 'TEAM_COLOUR', text: 'team colour, kept in every block' },
+            { kind: 'ROLE', text: 'role in this block' },
+            { kind: 'ATTACK', text: 'attacking direction' },
         ])
         assert.equal(diagram.blocks.length, 2)
         const setUp = coach.rendered.instructions.filter(instruction => instruction.section === 'Set up').map(instruction => instruction.text.toLowerCase())
@@ -130,14 +135,17 @@ test('1. A01 at 12/1, 12/2 and 11/1: every viewer is served the checked model in
             assert.deepEqual(block.targets.map(target => [target.along, target.label]), at.targets.map(target => [target.along, `${target.attackedBy === 'BUILDING' ? 'building' : 'pressing'} team's target zone`]))
             for (const target of block.targets) assert.ok(setUp.some(text => text.includes(target.label!)), `${what}: "${target.label}" is said by Set up`)
             // Teams: their nouns, counts as the Players sentence says them, starting areas and attacking ends; one look each, kept.
+            // Re-pointed (stage C2, his reply filed 24 October 2026, item 4): the look is kept by the realized team (its label), not by the
+            // role, which changes team between the blocks. Was: keyed by the role.
             for (const team of block.teams) {
                 const role = team.noun === 'building team' ? 'BUILDING' : 'PRESSING'
                 const modelTeam = at.teams.find(entry => entry.role === role)!
                 assert.deepEqual(team.counts, modelTeam.counts.map(count => count.word.text))
                 assert.deepEqual(team.start, { along: modelTeam.start!.along, across: modelTeam.start!.across })
                 assert.deepEqual(team.attacks, modelTeam.attacks.map(attack => attack.end))
-                if (looks.has(role)) assert.equal(team.identity, looks.get(role), `${what}: ${role} keeps its look`)
-                looks.set(role, team.identity)
+                assert.ok(team.label, `${what}: the teams are labelled`)
+                if (looks.has(team.label!)) assert.equal(team.identity, looks.get(team.label!), `${what}: ${team.label} keeps its look`)
+                looks.set(team.label!, team.identity)
             }
             if (keepers === 2) assert.deepEqual(block.teams.map(team => team.counts), [['1 goalkeeper', '6 other players'], ['5 other players']], `${what}: the roster's own words`)
             // The description: the area, the marked line's distance from its end line, each zone and what it is, each team.
@@ -148,9 +156,10 @@ test('1. A01 at 12/1, 12/2 and 11/1: every viewer is served the checked model in
             // Polish pass P4 (the 5B review's should-fix 1): each team's sentence in the description, pinned here independently of the
             // composition: its counts, its starting area from its own end line to the marked line, and the end it attacks, the other team's,
             // which is where the other team's starting area touches an end line (its arrow) in this block.
+            // Re-pointed (stage C2): each labelled team's sentence opens with its label and its role. Was: "The <noun>: ...".
             const otherNoun: Record<string, string> = { 'building team': 'pressing team', 'pressing team': 'building team' }
             for (const team of block.teams) {
-                const sentence = `The ${team.noun}: ${team.counts.join(' and ')}; starting area from its end line to the marked line; attacks toward the ${otherNoun[team.noun!]}'s end.`
+                const sentence = `${team.label}, the ${team.noun}: ${team.counts.join(' and ')}; starting area from its end line to the marked line; attacks toward the ${otherNoun[team.noun!]}'s end.`
                 assert.ok(block.desc.includes(sentence), `${what} block ${i + 1}: the description says "${sentence}": ${block.desc}`)
                 const other = block.teams.find(entry => entry !== team)!
                 assert.deepEqual(team.attacks.length, 1)
@@ -229,10 +238,13 @@ test('3. D9 refuses each mutation of the coach\'s diagram, and the production di
     refusedBy(mutate(d => (d.blocks[0].targets[1].label = 'target zone')), 'not the model\'s active targets', 'label restated')
     refusedBy(mutate(d => (d.blocks[0].zones[1].state = 'MARKED')), 'each as it is in this block', 'zone state')
     refusedBy(mutate(d => (d.blocks[0].lines[1].along = { from: 22, to: 22 })), 'not the model\'s markings', 'line moved')
+    // Re-pointed (stage C2): the looks of the second block set by role, as before C2 (the building team's look in both blocks), are now a
+    // swap of the realized teams' looks, and refused. Was: the mutation set them as C2 now serves them.
+    assert.deepEqual(PROD_COACH.blocks[1].teams.map(team => team.identity), [1, 0], 'in the second block the first team listed is the second realized team')
     refusedBy(
         mutate(d => {
-            d.blocks[1].teams[0].identity = 1
-            d.blocks[1].teams[1].identity = 0
+            d.blocks[1].teams[0].identity = 0
+            d.blocks[1].teams[1].identity = 1
         }),
         'does not keep one look of its own',
         'looks swapped',

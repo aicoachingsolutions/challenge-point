@@ -9,8 +9,15 @@
  *   - *"I'd prefer that target zones use a consistent, visually recognizable color [...] The diagram should distinguish team identity from
  *     scoring-area identity."* — a target carries no team look here: it says only where it is, and its label names whose it is in words
  *     (his term after the attacking team's noun). Team identity is `identity` on each team (one colour per team for its words, counts,
- *     arrow and starting area), assigned by the noun the coach reads (the role, where the game has roles; else the team), so a team's words
- *     have the same look in every block.
+ *     arrow and starting area). Since stage C2 it follows the realized team, its place among the game's teams, never the role it holds:
+ *     his reply filed 24 October 2026, item 4, *"For colors, I would generally prefer stable team identities, with building and pressing
+ *     roles identified separately. If Team A is blue in Block 1, it should ordinarily remain blue in Block 2, even though its
+ *     responsibilities change."* Where a team's noun (its role) does not stay with it across the blocks, each team carries the model's DRAFT
+ *     neutral label ("Team A") and its noun is its role in the block, shown apart; each block says once what moves at the exchange into it
+ *     (`exchange`, his *"the current activity also reassigns a [specialized role] and one outfield player between teams, so please check how
+ *     best to represent that clearly"*; his role noun bracketed, as the coupling ratchet keeps a sport's nouns out of this layer), from the
+ *     served Role exchange sentence's words, the teams named by their labels. Was (5B to C1): one look per noun, so a role's colour
+ *     stayed with the role and the teams' colours swapped between the blocks.
  *   - *"the display still needs to distinguish physical target markings from whichever zones are active scoring objectives in the current
  *     block"* and *"each block's diagram emphasize its active objectives while retaining any physical markings that will be used later"* —
  *     every marked zone is carried with what it is in the block (`state`), the active targets apart; no word names another block (D9).
@@ -29,9 +36,10 @@
  * **D9** reads the coach's diagram against the checked model block by block: every element there, in the same order, at the same place,
  * with the model's words; the title, and since polish pass P4 the description and the block switcher's name, the ones composed from the
  * model (the description's attacking directions and starting areas are also pinned by the unit tests, independently of the composition);
- * since P7 the caption and a target line's legend word; one identity per team across the blocks; and no word holding a data key or id of
- * the games (`dataWordsOf`), a character no coach word has, or another block's name. Any finding withholds the diagram only (the
- * administrator's draft says why); the activity, and its overview, are served exactly as without it.
+ * since P7 the caption and a target line's legend word; one identity per team across the blocks (since C2 its place among the realized
+ * teams, kept by the realized team); since C2 each team's label and each block's exchange sentences, the ones composed from the model; and
+ * no word holding a data key or id of the games (`dataWordsOf`), a character no coach word has, or another block's name. Any finding
+ * withholds the diagram only (the administrator's draft says why); the activity, and its overview, are served exactly as without it.
  *
  * Nothing here names a goal, a role, a sport term or a value: every number comes from the model, every word from it or the table below.
  */
@@ -71,8 +79,13 @@ export interface CoachDiagramObject {
 }
 
 export interface CoachDiagramTeam {
-    /** The team's look, the same in every block: 0 for the first team of the first block, and so on (see the module doc). */
+    /**
+     * The team's look, the same in every block: since stage C2 its place among the realized teams (0 for the first), kept by the realized
+     * team whatever role it holds (see the module doc). Was: 0 for the first team of the first block, by its noun.
+     */
     identity: number
+    /** Stage C2: the team's DRAFT neutral label ("Team A") where teams are labelled (its noun then says its role in this block); else null. */
+    label: string | null
     noun: string | null
     /** Its counts as the Players sentence says them. */
     counts: string[]
@@ -101,6 +114,12 @@ export interface CoachDiagramBlock {
      * where no such sentence can be said (the arrows of unnamed teams are then not drawn: nothing is shown that cannot be labelled).
      */
     caption: string | null
+    /**
+     * Stage C2: what moves at the exchange into this block, one sentence per role the performers join (DRAFT composition from the served
+     * Role exchange sentence's words and the teams' labels), shown beside the drawing; empty for a game not played in blocks or one whose
+     * teams keep their performers.
+     */
+    exchange: string[]
     lines: CoachDiagramLine[]
     zones: CoachDiagramZone[]
     targets: CoachDiagramTarget[]
@@ -109,8 +128,12 @@ export interface CoachDiagramBlock {
     dimensions: CoachDiagramDimension[]
 }
 
-/** The kind of mark a legend word explains; `TARGET_LINE` (polish pass P7) a target that is a line, named by its own noun. */
-export type CoachLegendKind = 'MARKED_LINE' | 'TARGET_ZONE' | 'TARGET_LINE' | 'STARTING_AREA'
+/**
+ * The kind of mark a legend word explains; `TARGET_LINE` (polish pass P7) a target that is a line, named by its own noun; since stage C2,
+ * where teams are labelled, `TEAM_COLOUR` (a team's look, kept in every block), `ROLE` (the badge naming its role in the block) and `ATTACK`
+ * (its arrow).
+ */
+export type CoachLegendKind = 'MARKED_LINE' | 'TARGET_ZONE' | 'TARGET_LINE' | 'STARTING_AREA' | 'TEAM_COLOUR' | 'ROLE' | 'ATTACK'
 
 /**
  * **The field diagram a coach is served**: geometry in metres along the area's length (`along`, 0 at one end line) and across its width,
@@ -140,6 +163,10 @@ export interface CoachDiagram {
  *     that is no marked zone, each object, each team (its counts, starting area and attacking direction), and the counts said together.
  *   - `tablist` (polish pass P4): the block switcher's accessible name.
  *   - the caption (polish pass P7): the description's own sentence for how teams with no noun attack (`eachAttacksOther`).
+ *   - stage C2: a labelled team's sentence opens "<label>, the <noun>" (`teamLabelled`); and the exchange into a block, "When you call this
+ *     block, <performers> move from <label> to <label>, which becomes the <role noun>." (`exchange`), the performers and the role noun in the
+ *     served Role exchange sentence's words ("When you call the next block, <performers> move to the team that becomes the <role noun>"),
+ *     the teams by their labels; where a team has no label, that sentence's own form (`exchangeUnlabelled`).
  */
 export const DIAGRAM_COMPOSITION = {
     targetLabel: (noun: string, term: string) => `${noun}'s ${term}`,
@@ -169,8 +196,13 @@ export const DIAGRAM_COMPOSITION = {
     anObject: 'An object',
     objectWord: 'object',
     objectOn: (place: string) => `on ${place}`,
-    team: (noun: string, counts: string[], start: string | null, attack: string | null) =>
-        `The ${noun}${counts.length ? `: ${counts.join(' and ')}` : ''}${start ? `; ${start}` : ''}${attack ? `; ${attack}` : ''}.`,
+    team: (who: string, counts: string[], start: string | null, attack: string | null) =>
+        `${who}${counts.length ? `: ${counts.join(' and ')}` : ''}${start ? `; ${start}` : ''}${attack ? `; ${attack}` : ''}.`,
+    teamNamed: (noun: string) => `The ${noun}`,
+    teamLabelled: (label: string, noun: string | null) => (noun ? `${label}, the ${noun}` : label),
+    exchange: (moving: string, verb: string, from: string, to: string, noun: string) => `When you call this block, ${moving} ${verb} from ${from} to ${to}, which becomes the ${noun}.`,
+    exchangeUnlabelled: (moving: string, verb: string, noun: string) => `When you call this block, ${moving} ${verb} to the team that becomes the ${noun}.`,
+    moves: (total: number) => (total === 1 ? 'moves' : 'move'),
     startingArea: (word: string, near: string, far: string) => `${word} from ${near} to ${far}`,
     itsEndLine: 'its end line',
     theMarkedLine: (name: string) => `the ${name}`,
@@ -186,9 +218,26 @@ const same = (a: Interval, b: Interval): boolean => a.from === b.from && a.to ==
 const capital = (text: string): string => text.charAt(0).toUpperCase() + text.slice(1)
 const metres = (quantity: number): string => `${quantity} ${DIAGRAM_WORDS.draft.metres}`
 const otherEnd = (end: number, lengthM: number): number => (end === 0 ? lengthM : 0)
-/** The key a team's look follows: its role where it holds one, else its designation. */
-const lookKey = (team: DiagramTeam): string => team.role ?? team.designation ?? team.key
+/**
+ * The key a team's look follows: since stage C2 the realized team it is (his reply filed 24 October 2026, item 4, "stable team
+ * identities"), whatever role it holds in the block. Was: its role where it held one, else its designation.
+ */
+const lookKey = (team: DiagramTeam): string => team.handle
 const nounOf = (team: DiagramTeam | undefined): string | null => team?.noun?.text ?? null
+const labelOf = (team: DiagramTeam | undefined): string | null => team?.label?.text ?? null
+/** How a team is named in its sentence of the description: by its label and role where it has a label, else by its noun. */
+const whoOf = (team: DiagramTeam): string | null => (team.label ? DIAGRAM_COMPOSITION.teamLabelled(team.label.text, nounOf(team)) : nounOf(team) ? DIAGRAM_COMPOSITION.teamNamed(nounOf(team)!) : null)
+
+/** **The sentences saying what moves at the exchange into a block** (stage C2, DRAFT composition): one per role the performers join. */
+function exchangeSentencesOf(block: DiagramBlock): string[] {
+    const C = DIAGRAM_COMPOSITION
+    return block.exchanges.map(exchange => {
+        const from = labelOf(block.teams.find(team => team.handle === exchange.from))
+        const to = labelOf(block.teams.find(team => team.handle === exchange.to))
+        const verb = C.moves(exchange.total)
+        return from && to ? C.exchange(exchange.moving.text, verb, from, to, exchange.noun.text) : C.exchangeUnlabelled(exchange.moving.text, verb, exchange.noun.text)
+    })
+}
 const isObjectTarget = (block: DiagramBlock, region: string): boolean => block.objects.some(object => object.elementId === region)
 
 /** The label a target zone carries for a coach: his term after the attacking team's noun, or his term alone; a line target has none. */
@@ -201,10 +250,13 @@ function targetLabelOf(block: DiagramBlock, target: DiagramBlock['targets'][numb
 /** The words of every target that is a line, as the model names them (polish pass P7): the legend's words for a green line. */
 const lineTargetWordsOf = (model: FieldDiagram): Set<string> => new Set(model.blocks.flatMap(block => block.targets.filter(target => target.line && target.label).map(target => target.label!.text)))
 
-/** Each team's look, by the key it follows, in the order the first block lists the teams (then any later block's new key). */
+/**
+ * Each team's look, by the key it follows: since stage C2 its place among the realized teams (the model's `position`, held to the game by
+ * D10, the same in every block). Was: in the order the first block listed the teams.
+ */
 function identitiesOf(model: FieldDiagram): Map<string, number> {
     const identities = new Map<string, number>()
-    for (const block of model.blocks) for (const team of block.teams) if (!identities.has(lookKey(team))) identities.set(lookKey(team), identities.size)
+    for (const block of model.blocks) for (const team of block.teams) if (!identities.has(lookKey(team))) identities.set(lookKey(team), team.position)
     return identities
 }
 
@@ -318,10 +370,11 @@ function describeBlock(model: FieldDiagram, block: DiagramBlock): string {
         sentences.push(C.object(object.label ? capital(object.label.text) : C.anObject, where, scorer ? nounOf(block.teams.find(team => team.key === scorer.attackedBy)) : null))
     }
 
-    // Each team the coach can tell apart: its counts, its starting area and the end it attacks.
+    // Each team the coach can tell apart: (since stage C2, its label and role where it has a label) its counts, its starting area and the
+    // end it attacks.
     for (const team of block.teams) {
-        const noun = nounOf(team)
-        if (!noun) continue
+        const who = whoOf(team)
+        if (!who) continue
         const home = ownEnd(team)
         let start: string | null = null
         if (team.start && home !== null) {
@@ -331,8 +384,10 @@ function describeBlock(model: FieldDiagram, block: DiagramBlock): string {
             start = C.startingArea(DIAGRAM_WORDS.draft.startingArea, place(near), place(far))
         }
         const attack = team.attacks.length === 1 ? C.attacksToward(endOf(team.attacks[0].end)) : null
-        sentences.push(C.team(noun, team.counts.map(count => count.word.text), start, attack))
+        sentences.push(C.team(who, team.counts.map(count => count.word.text), start, attack))
     }
+    // Stage C2: what moves at the exchange into this block.
+    sentences.push(...exchangeSentencesOf(block))
     if (model.counts.length) sentences.push(C.together(model.counts.map(count => count.word.text)))
     return sentences.join(' ')
 }
@@ -352,7 +407,13 @@ export function coachDiagramOf(model: FieldDiagram, context: { title: string }):
                 ? 'TARGET_LINE'
                 : text === DIAGRAM_WORDS.draft.startingArea
                   ? 'STARTING_AREA'
-                  : null
+                  : text === DIAGRAM_WORDS.draft.teamColour
+                    ? 'TEAM_COLOUR'
+                    : text === DIAGRAM_WORDS.draft.role
+                      ? 'ROLE'
+                      : text === DIAGRAM_WORDS.draft.attack
+                        ? 'ATTACK'
+                        : null
     return {
         area: { lengthM: model.area.lengthM, widthM: model.area.widthM },
         counts: model.counts.map(count => count.word.text),
@@ -366,6 +427,7 @@ export function coachDiagramOf(model: FieldDiagram, context: { title: string }):
             title: DIAGRAM_COMPOSITION.title(context.title, block.label?.text ?? null),
             desc: describeBlock(model, block),
             caption: relationOf(model, block),
+            exchange: exchangeSentencesOf(block),
             lines: block.markings.lines.map(line => ({ along: { ...line.along }, across: { ...line.across }, markedLine: line.markedLine, label: line.label?.text ?? null })),
             zones: block.markings.zones.map(zone => ({ along: { ...zone.along }, across: { ...zone.across }, state: block.markedZones.find(entry => entry.zone === zone.elementId)?.state ?? 'MARKED' })),
             targets: block.targets
@@ -374,6 +436,7 @@ export function coachDiagramOf(model: FieldDiagram, context: { title: string }):
             objects: block.objects.map(object => ({ along: { ...object.along }, across: { ...object.across }, label: object.label?.text ?? null, target: block.targets.some(target => target.region === object.elementId) })),
             teams: block.teams.map(team => ({
                 identity: identities.get(lookKey(team))!,
+                label: labelOf(team),
                 noun: nounOf(team),
                 counts: team.counts.map(count => count.word.text),
                 start: team.start ? { along: { ...team.start.along }, across: { ...team.start.across } } : null,
@@ -434,6 +497,10 @@ export function checkCoachDiagram(coach: CoachDiagram, model: FieldDiagram, inpu
         TARGET_ZONE: text => text === DIAGRAM_WORDS.his.targetZone,
         TARGET_LINE: text => lineWords.has(text),
         STARTING_AREA: text => text === DIAGRAM_WORDS.draft.startingArea,
+        // Stage C2: the three words for labelled teams, each explaining its own mark.
+        TEAM_COLOUR: text => text === DIAGRAM_WORDS.draft.teamColour,
+        ROLE: text => text === DIAGRAM_WORDS.draft.role,
+        ATTACK: text => text === DIAGRAM_WORDS.draft.attack,
     }
     for (const entry of coach.legend) if (!kindHolds[entry.kind]?.(entry.text)) finding(null, `the legend gives "${entry.text}" to ${entry.kind}`)
     // Polish pass P4: the block switcher's accessible name where there are blocks, and none with one block.
@@ -447,14 +514,14 @@ export function checkCoachDiagram(coach: CoachDiagram, model: FieldDiagram, inpu
         const blockId = block.blockId
         if (!shown) return
         const ordinal = i + 1
-        keysAre(`block ${ordinal}`, shown, ['label', 'title', 'desc', 'caption', 'lines', 'zones', 'targets', 'objects', 'teams', 'dimensions'], blockId)
+        keysAre(`block ${ordinal}`, shown, ['label', 'title', 'desc', 'caption', 'exchange', 'lines', 'zones', 'targets', 'objects', 'teams', 'dimensions'], blockId)
         // As D8 holds the model: nothing beyond these keys, so no player, position inside an area, path or movement rides along.
         for (const line of shown.lines) keysAre('a line', line, ['along', 'across', 'markedLine', 'label'], blockId)
         for (const zone of shown.zones) keysAre('a zone', zone, ['along', 'across', 'state'], blockId)
         for (const target of shown.targets) keysAre('a target', target, ['along', 'across', 'line', 'label'], blockId)
         for (const object of shown.objects) keysAre('an object', object, ['along', 'across', 'label', 'target'], blockId)
         for (const team of shown.teams) {
-            keysAre('a team', team, ['identity', 'noun', 'counts', 'start', 'attacks'], blockId)
+            keysAre('a team', team, ['identity', 'label', 'noun', 'counts', 'start', 'attacks'], blockId)
             if (team.start) keysAre('a starting area', team.start, ['along', 'across'], blockId)
         }
         for (const dimension of shown.dimensions) keysAre('a dimension', dimension, ['kind', 'axis', 'from', 'to', 'label'], blockId)
@@ -466,6 +533,9 @@ export function checkCoachDiagram(coach: CoachDiagram, model: FieldDiagram, inpu
         else if (shown.desc !== describeBlock(model, block)) finding(blockId, 'the description is not the one composed from the model for this block')
         // Polish pass P7: the caption is the model's own sentence for how teams with no noun attack, or none.
         if ((shown.caption ?? null) !== relationOf(model, block)) finding(blockId, `the caption ${JSON.stringify(shown.caption ?? null)} is not the model's sentence for how its teams attack`)
+        // Stage C2: what moves at the exchange into this block is the model's, in the sentences composed from it (D10 holds the model's to the
+        // reassignments, the served Role exchange sentence and both blocks' counts).
+        if (!Array.isArray(shown.exchange) || JSON.stringify(shown.exchange) !== JSON.stringify(exchangeSentencesOf(block))) finding(blockId, `the exchange sentences ${JSON.stringify(shown.exchange ?? null)} are not the model's for this block`)
 
         // The markings, in order and in place.
         const lines = block.markings.lines
@@ -491,7 +561,9 @@ export function checkCoachDiagram(coach: CoachDiagram, model: FieldDiagram, inpu
         block.teams.forEach((team, n) => {
             const view = shown.teams[n]
             if (!view) return
-            if (view.noun !== nounOf(team) || JSON.stringify(view.counts) !== JSON.stringify(team.counts.map(count => count.word.text))) finding(blockId, `the ${n + 1}. team's words are not the model's`)
+            if (view.noun !== nounOf(team) || (view.label ?? null) !== labelOf(team) || JSON.stringify(view.counts) !== JSON.stringify(team.counts.map(count => count.word.text))) finding(blockId, `the ${n + 1}. team's words are not the model's`)
+            // Stage C2: its look is its place among the realized teams, so a team keeps its colour whatever role it holds.
+            if (view.identity !== team.position) finding(blockId, `the ${n + 1}. team's look is ${view.identity} and its place among the realized teams is ${team.position}`)
             const start = team.start
             if (start ? !view.start || !same(view.start.along, start.along) || !same(view.start.across, start.across) : view.start !== null) finding(blockId, `the ${n + 1}. team's starting area is not the model's`)
             if (JSON.stringify(view.attacks) !== JSON.stringify(team.attacks.map(attack => attack.end))) finding(blockId, `the ${n + 1}. team's attacking direction is not the model's`)
@@ -510,10 +582,11 @@ export function checkCoachDiagram(coach: CoachDiagram, model: FieldDiagram, inpu
                 shown.title,
                 shown.desc,
                 shown.caption ?? null,
+                ...(Array.isArray(shown.exchange) ? shown.exchange : []),
                 ...shown.lines.map(line => line.label),
                 ...shown.targets.map(target => target.label),
                 ...shown.objects.map(object => object.label),
-                ...shown.teams.flatMap(team => [team.noun, ...team.counts]),
+                ...shown.teams.flatMap(team => [team.label ?? null, team.noun, ...team.counts]),
                 ...shown.dimensions.map(dimension => dimension.label),
             ],
             blockId,

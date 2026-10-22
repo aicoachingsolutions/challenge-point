@@ -176,7 +176,16 @@ test('1. A01 at 12/1, 12/2 and 11/1: drawn from each block\'s game, set out once
             assert.ok(!words.includes(`Block ${2 - i}`), `${what} block ${i + 1}: no other block named`)
         })
         assert.deepEqual(model.counts, [], `${what}: the teams are told apart, so no count is said for every team together`)
-        assert.deepEqual(model.legend.map(word => [word.text, word.status]), [['marked line', 'HIS_TERM'], ['target zone', 'HIS_TERM'], ['starting area', 'DRAFT']])
+        // Re-pointed (stage C2, his reply filed 24 October 2026, item 4): the teams are labelled, so the legend also says what a team colour,
+        // the role badge and an arrow are (DRAFT). Was: the first three only. The rest of C2 is pinned in diagram-team-identity.unit.ts.
+        assert.deepEqual(model.legend.map(word => [word.text, word.status]), [
+            ['marked line', 'HIS_TERM'],
+            ['target zone', 'HIS_TERM'],
+            ['starting area', 'DRAFT'],
+            ['team colour, kept in every block', 'DRAFT'],
+            ['role in this block', 'DRAFT'],
+            ['attacking direction', 'DRAFT'],
+        ])
         assert.ok(draft.notes.some(note => note.startsWith('not drawn: where play restarts')), JSON.stringify(draft.notes))
         assert.ok(draft.notes.some(note => note.startsWith('not drawn: the authorized adjustments')), JSON.stringify(draft.notes))
     }

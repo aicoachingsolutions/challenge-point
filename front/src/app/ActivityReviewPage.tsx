@@ -1131,6 +1131,8 @@ function ActivityBlock({ activity }: { activity: ServedActivity }) {
                         {/*
                           * The diagram (stage 5B), between the parameters and how each team scores, as he listed the overview. Drawn only where
                           * the server serves one, and only what it served; for an administrator, why it is withheld and what it does not draw.
+                          * Its place before the scoring is his: reply filed 24 October 2026, item 4, "I approve placing the diagram before the
+                          * detailed scoring explanation."
                           */}
                         {activity.diagram && <FieldDiagram diagram={activity.diagram} />}
                         {activity.diagramDraft && <DiagramAdminNote draft={activity.diagramDraft} />}

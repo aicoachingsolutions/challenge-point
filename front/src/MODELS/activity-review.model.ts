@@ -318,11 +318,20 @@ export interface CoachDiagramBlock {
      * neutral arrows; null otherwise (and where none can be said, the arrows of unnamed teams are not drawn).
      */
     caption: string | null
+    /**
+     * Stage C2 (his reply filed 24 October 2026, item 4): what moves at the exchange into this block, the server's sentences (DRAFT), shown
+     * beside the drawing; empty where nothing moves or the game is not played in blocks. Optional for an answer served before C2.
+     */
+    exchange?: string[]
     lines: { along: DiagramInterval; across: DiagramInterval; markedLine: boolean; label: string | null }[]
     zones: { along: DiagramInterval; across: DiagramInterval; state: 'TARGET' | 'INSIDE_TARGET' | 'MARKED' | string }[]
     targets: { along: DiagramInterval; across: DiagramInterval; line: boolean; label: string | null }[]
     objects: { along: DiagramInterval; across: DiagramInterval; label: string | null; target: boolean }[]
-    teams: { identity: number; noun: string | null; counts: string[]; start: { along: DiagramInterval; across: DiagramInterval } | null; attacks: number[] }[]
+    /**
+     * `identity`: the team's look, its place among the realized teams, kept in every block whatever role it holds (since stage C2). `label`
+     * (stage C2): its DRAFT neutral label ("Team A") where teams are labelled, its `noun` then the role it holds in this block; else null.
+     */
+    teams: { identity: number; label?: string | null; noun: string | null; counts: string[]; start: { along: DiagramInterval; across: DiagramInterval } | null; attacks: number[] }[]
     dimensions: { kind: 'AREA_LENGTH' | 'AREA_WIDTH' | 'ZONE_DEPTH' | 'LINE_OFFSET' | string; axis: 'along' | 'across' | string; from: number; to: number; label: string }[]
 }
 
@@ -330,8 +339,11 @@ export interface CoachDiagramBlock {
 export interface CoachDiagram {
     area: { lengthM: number; widthM: number }
     counts: string[]
-    /** `TARGET_LINE` (polish pass P7): a target that is a line, named by its own noun (DRAFT). */
-    legend: { kind: 'MARKED_LINE' | 'TARGET_ZONE' | 'TARGET_LINE' | 'STARTING_AREA' | string; text: string }[]
+    /**
+     * `TARGET_LINE` (polish pass P7): a target that is a line, named by its own noun (DRAFT). Stage C2, where teams are labelled:
+     * `TEAM_COLOUR`, `ROLE` and `ATTACK` (DRAFT words for a team's colour, its role badge and its arrow).
+     */
+    legend: { kind: 'MARKED_LINE' | 'TARGET_ZONE' | 'TARGET_LINE' | 'STARTING_AREA' | 'TEAM_COLOUR' | 'ROLE' | 'ATTACK' | string; text: string }[]
     /** Polish pass P4: the block switcher's accessible name (DRAFT, the server's); null with one block. */
     tablistLabel: string | null
     blocks: CoachDiagramBlock[]
