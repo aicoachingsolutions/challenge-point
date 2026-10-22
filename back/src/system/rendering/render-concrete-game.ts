@@ -51,7 +51,7 @@ import { NO_FURTHER_VALUE } from '../derivation/types'
 import { CONDITION_ROW, conditionScopeNotEvaluable } from '../derivation/resolved-game'
 import { ApprovedTemplateSentence, approvedTemplateSentences, approvedWording, ApprovedWording, canonicalJson, fillTemplate, POSSESSION_CONTINUES, WordingMatch } from './approved-wording'
 import { exclusionFor } from './coach-facing-exclusions'
-import { MARK_UNION_ONCE, PhysicalLayout } from './physical-layout'
+import { MARK_UNION_ONCE, MarkingChange, PhysicalLayout, Remarking } from './physical-layout'
 import { ADJUSTING, assignSection, inSectionOrder, PLAY_STATE_UNREADABLE, RESTARTS, ROLE_EXCHANGE, Section, SectionFacts, TransitionReading, When } from './sections'
 
 // The two section names every importer has read from here since stages S-C1 and K3; since stage 2A they are named, with the rest
@@ -111,6 +111,13 @@ export const COACH_CALLS = 'COACH_CALLS'
  */
 export const NOTHING_RE_MARKED = 'nothing is re-marked'
 export const MOVED_MARK_QUALIFICATIONS = { the: ' unless you have moved the marked line', a: ' unless you have moved a marked line' } as const
+/**
+ * **The exchange's words for what the coach moves, where the markings are presented block by block** — stage 2G, 21 October 2026, DRAFT
+ * wording, for his reply filed 23 October 2026, item 2: *"If markings change location between blocks, the instructions should identify
+ * what needs to be adjusted."* The renderer says it once, before the first marking that moves; fidelity Q5-L reads it. Never typed a
+ * second time.
+ */
+export const MOVE_MARKINGS = 'you move '
 
 /** One number a sentence says, and the concrete-game path whose number it is. */
 export interface Binding {
@@ -294,7 +301,7 @@ const STATUS_OF_STRENGTH: Record<string, SourceStatus> = { REQUIRED: 'DERIVED', 
  * requirement wins). A sentence that cites a required value and a default states a requirement.
  */
 const STRENGTH_ORDER: SourceStatus[] = ['DERIVED', 'INSTANTIATED', 'SESSION', 'STARTING', 'COACH_CHOICE', 'ADVISORY', 'PREFERENCE']
-const strongest = (statuses: SourceStatus[], fallback: SourceStatus): SourceStatus =>
+export const strongest = (statuses: SourceStatus[], fallback: SourceStatus): SourceStatus =>
     statuses.length ? statuses.reduce((a, b) => (STRENGTH_ORDER.indexOf(a) <= STRENGTH_ORDER.indexOf(b) ? a : b)) : fallback
 
 // ── One way of saying a range ───────────────────────────────────────────────────────────────────
@@ -479,7 +486,7 @@ function countRange(fixture: Fixture, path: string): BoundedLine | null {
  * ball"*), read from `objects[].kind`; "possession" is the relation the designation is decided by
  * (`possession.team`, the sentence's precondition), so no object noun is needed and none is said.
  */
-const SIDE_BY_POSSESSION: Record<string, string> = {
+export const SIDE_BY_POSSESSION: Record<string, string> = {
     ATTACKING_TEAM: 'whichever team has possession',
     DEFENDING_TEAM: 'whichever team does not have possession',
 }
@@ -629,6 +636,18 @@ const TRIGGER_PHRASE: Record<string, string> = {
     SCORE: 'after either team scores',
     COACH_JUDGED_EPISODE_CONCLUSION: 'whenever you decide that an attack has run its course (at a stoppage or while play is on)',
 }
+
+/**
+ * **A phrase and the bracketed aside it closes on, as two clauses** — stage 3E, 22 October 2026 (fix (a) of the 3C review, the
+ * coordinator's choice): a sentence's parts are split at its clauses, so each citation sits on the words that state it and a cut that
+ * keeps a part keeps exactly what that part's words say. Where a phrase ends on one bracketed aside (" (...)"), the aside is a clause of
+ * its own: `[the words it qualifies, the aside]`; otherwise `[the phrase, null]`. Read by clause structure, never by which words they are,
+ * and as the overview's cuts read an aside (`coach-overview.ts` draftShorteningsOf, ASIDE).
+ */
+export function asideOf(phrase: string): [string, string | null] {
+    const open = phrase.lastIndexOf(' (')
+    return open > 0 && phrase.endsWith(')') && phrase.indexOf(')', open) === phrase.length - 1 ? [phrase.slice(0, open), phrase.slice(open)] : [phrase, null]
+}
 const METHOD_PHRASE: Record<string, (object: string) => string> = {
     FROM_THE_FEET: object => `from the feet, with the ${object} still or moving`,
     IN_HAND: object => `with the ${object} in hand`,
@@ -644,9 +663,9 @@ const PLAYER_OF_AWARDEE = "a player of the team in this element's T2"
 /** The scoring event that is ENTRY into a target region, worded for that value only (its other kinds keep the line wording). */
 const ZONE_ENTRY_EVENT = 'target_zone_entered'
 /** The relative position RC-21 names (register `relativeTerms`, version 13), read where a start placement is stated by it. */
-const BEYOND = 'beyond X (for team T)'
+export const BEYOND = 'beyond X (for team T)'
 /** The end a target touches, as RC-21 names it: the end its attacking team attacks, which is the other team's end (C42). */
-const ATTACKING_END = 'attacking end (of team T)'
+export const ATTACKING_END = 'attacking end (of team T)'
 
 const fieldOf = (element: any, field: string): unknown => field.split('.').reduce<any>((node, key) => (node == null ? undefined : node[key]), element)
 const present = (value: unknown): boolean => value !== undefined && value !== null
@@ -871,6 +890,28 @@ const beginArmTakers = (game: any, episode: unknown): string[] =>
 const episodeStarters = (transitions: any[], takers: string[]): any[] =>
     transitions.filter(t => t?.playState === 'STOP_RESUME' && String(t?.startsEpisode) === 'true' && takers.includes(t?.placement?.actor))
 
+/**
+ * **The transitions that begin the episode a bounded role's credit is confined to, each with that role element** — stage 3C, 21 October
+ * 2026, for the Coach Overview's composer (`coach-overview.ts`), which classes such a transition's when and who by the PROPOSED essentials
+ * table. Read exactly as placement and the start-placement sentence read them (`beginArmTakers`, `episodeStarters`), for every role
+ * element whose credit (row B8) is any bound but the whole game; a transition beginning the episode of more than one role element lists
+ * each. Reading only; nothing is said here.
+ */
+export function boundedEpisodeStartersOf(game: any): Map<string, string[]> {
+    const transitions: any[] = Array.isArray(game?.transitions) ? game.transitions : []
+    const roleElements: any[] = Array.isArray(game?.activityRoles) ? game.activityRoles : []
+    const starters = new Map<string, string[]>()
+    for (const element of roleElements) {
+        const episode = element?.creditedWithin
+        if (!present(episode) || canonicalJson(episode) === canonicalJson(UNBOUNDED_CREDIT)) continue
+        for (const transition of episodeStarters(transitions, beginArmTakers(game, episode))) {
+            const id = String(transition.elementId)
+            starters.set(id, [...new Set([...(starters.get(id) ?? []), String(element?.elementId)])])
+        }
+    }
+    return starters
+}
+
 /** A transition's trigger, where its selector fixes one. */
 const triggerOfTransition = (transition: any): string | null => {
     const term = (transition?.selector ?? []).find((t: any) => t?.attribute === 'trigger' && t?.op === '=')
@@ -943,49 +984,38 @@ export function producersProposals(fixture: Fixture, wording: ApprovedWording[] 
     return produceRendering(fixture, wording, templates).instructions
 }
 
-function produceRendering(fixture: Fixture, wording: ApprovedWording[], templates: ApprovedTemplateSentence[]): { instructions: Instruction[]; observations: string[]; withheld: WithheldField[]; approved: Set<Instruction> } {
-    const instructions: Instruction[] = []
-    const observations: string[] = []
-    const withheld: WithheldField[] = []
-    const game = fixture.game
-    /**
-     * **Each property's status, read from what crossed the boundary with it** — 14 October 2026. A derived value
-     * carries its `strength` (REQUIRED, DEFAULT or ADVISORY, computed once from its supporting items in
-     * `derivation/strength.ts`); a choice carries its `closure`. Every derived path read DERIVED and every choice
-     * REALIZATION_CHOICE before this, so a preferred default was stated as a rule of the game.
-     *
-     *   - a choice left to the coach (`COACH_DECIDES`) is a COACH_CHOICE;
-     *   - every other choice is where this activity STARTS — a starting value inside a range, an alternative
-     *     realization took (a line rather than a zone), or the only value an authored bound admits;
-     *   - a derived value is DERIVED, STARTING or ADVISORY by its strength. One carrying no strength (a fixture
-     *     frozen before it was carried) reads DERIVED, exactly as it always did: nothing is softened on a guess.
-     */
+/**
+ * **Each property's status, read from what crossed the boundary with it** — 14 October 2026. A derived value
+ * carries its `strength` (REQUIRED, DEFAULT or ADVISORY, computed once from its supporting items in
+ * `derivation/strength.ts`); a choice carries its `closure`. Every derived path read DERIVED and every choice
+ * REALIZATION_CHOICE before this, so a preferred default was stated as a rule of the game.
+ *
+ *   - a choice left to the coach (`COACH_DECIDES`) is a COACH_CHOICE;
+ *   - every other choice is where this activity STARTS — a starting value inside a range, an alternative
+ *     realization took (a line rather than a zone), or the only value an authored bound admits;
+ *   - a derived value is DERIVED, STARTING or ADVISORY by its strength. One carrying no strength (a fixture
+ *     frozen before it was carried) reads DERIVED, exactly as it always did: nothing is softened on a guess.
+ *
+ * Exported in stage 3A (21 October 2026) so the Coach Overview (`coach-overview.ts`) reads each property's status exactly as the
+ * Details sentences do; moved out of `produceRendering` unchanged.
+ */
+export function statusesOf(fixture: Fixture): Map<string, SourceStatus> {
     const statusOf = new Map<string, SourceStatus>()
     for (const d of fixture.status.derived) statusOf.set(d.path, STATUS_OF_STRENGTH[String(d.strength)] ?? 'DERIVED')
     for (const c of fixture.status.choices) statusOf.set(c.path, c.closure === 'COACH_DECIDES' ? 'COACH_CHOICE' : 'STARTING')
-    /** The status of a sentence resting on these paths: the strongest any of them carries. */
-    const statusAt = (paths: string[], fallback: SourceStatus): SourceStatus => strongest(paths.map(p => statusOf.get(p)).filter((s): s is SourceStatus => !!s), fallback)
+    return statusOf
+}
 
-    /** A plain sentence, one part, each number it says bound to the path it is of (stage S-C2). */
-    const say = (section: Instruction['section'], status: SourceStatus, core: string, from: string[], bindings: Binding[] = []) =>
-        instructions.push(instruction(section, status, core, from, bindings))
-
-    /**
-     * The status of a property is whatever the fixture records, never what the renderer assumes. Envelope
-     * facts in particular arrive from the session but are recorded as DERIVED once folded into the game,
-     * and labelling them SESSION would misstate the provenance trace even though both phrase identically.
-     */
-    const recorded = (path: string, fallback: SourceStatus): SourceStatus => statusOf.get(path) ?? fallback
-
+/**
+ * **How one game is read for the sentences that name a team, a target or the marked line** — exported in stage 3A, 21 October 2026,
+ * moved out of `produceRendering` unchanged, so the Coach Overview (`coach-overview.ts`) names each team, target and marked line by
+ * exactly the reading the Details sentences use and never by a second copy of it (his reply filed 22 October 2026, item 1: *"Both
+ * levels must derive from the same authorized activity representation, with no contradictions or invented instructions."*).
+ */
+export function gameReadingOf(fixture: Fixture) {
+    const game = fixture.game
     const geometryFor = (elementId: string, axis: 'along' | 'across') =>
         fixture.status.geometry.find((g: any) => g.path.includes(`[${elementId}]`) && g.path.endsWith(`.${axis}`))
-
-    /**
-     * The object the game establishes, read once for every sentence that names it. Its `kind` is the only
-     * source of the noun (SD-103, below at the scoring instruction, where the rule was first applied), and a
-     * sentence that uses it cites `objects[…].kind`.
-     */
-    const carrier = (game.objects ?? []).find((object: any) => typeof object?.kind === 'string')
 
     /**
      * **A team named by the role it holds in this block — stage K7, 15 October 2026 (DRAFT nouns).** His D7, reply filed 17 October
@@ -1013,8 +1043,6 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
         const others = Object.keys(holdersInBlock).filter(other => other !== role && roleNounOf[other])
         return role && others.length === 1 ? roleNounOf[others[0]] : null
     }
-    const capital = (text: string) => `${text.charAt(0).toUpperCase()}${text.slice(1)}`
-    const listed = (items: string[]) => (items.length > 1 ? `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}` : items[0] ?? '')
     const areaLength = Number(game.envelope?.area?.length_m)
     const areaWidth = Number(game.envelope?.area?.width_m)
 
@@ -1038,15 +1066,237 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
         return { team: teamNoun(along.forTeam)!, offset: offset.from }
     }
     const markedLines = new Set<string>((game.space?.regions ?? []).filter((region: any) => fromTeamEnd(region)).map((region: any) => String(region.elementId)))
+    const referencedBy = (region: any) =>
+        (game.objectives ?? []).find((o: any) => {
+            const ref = o?.reference?.structuralRef
+            return ref && `c:${ref.contractId}:${ref.itemId}` === String(region.elementId)
+        })
+    return { geometryFor, roleNounOf, holdersInBlock, roleOfDesignation, teamNoun, otherTeamNoun, areaLength, areaWidth, fromTeamEnd, markedLines, referencedBy }
+}
+
+/** One count a team holds, as the Players sentence says it ("6 outfield players", "1 <role>", "6 other players"). */
+export interface CountSegment {
+    /** What joins it to the segment before it in the team's phrase: nothing for the first, else ", " or " and ". */
+    joiner: '' | ', ' | ' and '
+    text: string
+    status: SourceStatus
+    /** The PROPERTY paths it is of (never a member's handle, `identity.unit.ts`). */
+    from: string[]
+    /** Its one number, bound to the property path, exactly as the Players sentence binds it. */
+    bindings: Binding[]
+}
+
+/** One team's counts, said by the role it holds in this block. */
+export interface TeamCountPhrase {
+    /** Which team: its position in `performers.teams` (the team is never named by its handle). */
+    team: number
+    /** The role the team holds in this block, and that role's DRAFT noun. */
+    role: string
+    noun: string
+    /** "6 outfield players" + " and 1 <role>"; "1 <role>" + " and 6 other players"; "5 other players". */
+    segments: CountSegment[]
+}
+
+/**
+ * **The teams' counts, by team** — the Players sentence's own builder, exported in stage 3A (21 October 2026). The BUILD PLAN's
+ * reconciliation: *"one shared team-indexed count builder serves the Players sentence, the overview and the diagram"* (the D4 verifier
+ * showed the roster sentence's parts are split by quantity, not by team, so nothing may read the counts back out of the sentence).
+ * Moved out of `produceRendering` with every rule unchanged (K4, M4, S-C2, below), so the Players sentence is byte-identical:
+ *
+ *   - `BY_ROLE`: each team said by the role it holds in this block, its own counts ("the building team has 6 outfield players and
+ *     1 <role>; the pressing team has 5 outfield players");
+ *   - `BY_ROLE_COUNTED`: the same where the session has more of a specialized role than the teams involve, everyone else counted as
+ *     "other players" ("1 <role> and 6 other players"; "5 other players");
+ *   - `EQUAL`: no team told apart, the teams said together ("2 teams of 6", or "2 teams" where they hold no one size);
+ *   - `NONE`: the game has no teams.
+ *
+ * `teams` holds one entry per team, in the block's role order, in the two by-role modes, and is empty otherwise. `neutrals` is the
+ * neutral count the roster says ("2 neutral players"), where the game states one.
+ */
+export interface TeamCountPhrases {
+    mode: 'BY_ROLE' | 'BY_ROLE_COUNTED' | 'EQUAL' | 'NONE'
+    /** "2 teams" in the by-role modes; "2 teams of 6" or "2 teams" where EQUAL; null with no teams. */
+    teamsCount: { text: string; status: SourceStatus; from: string[]; bindings: Binding[] } | null
+    teams: TeamCountPhrase[]
+    /** The one size every team holds, or null. */
+    size: number | null
+    /** Whether the teams are told apart by the roles they hold (both by-role modes). */
+    byRole: boolean
+    /** The specialized roles the session has more of than the teams involve (`BY_ROLE_COUNTED`). */
+    countedOnly: { role: string; available: number }[]
+    neutrals: { count: number; text: string; status: SourceStatus; from: string[]; bindings: Binding[] } | null
+}
+
+export function teamCountPhrases(fixture: Fixture): TeamCountPhrases {
+    const game = fixture.game
+    const statusOf = statusesOf(fixture)
+    const teams: any[] = game.performers?.teams ?? []
+    const sizes = [...new Set(teams.map((t: any) => t.outfieldCount).filter((n: any) => Number.isFinite(n)))]
+    const size = sizes.length === 1 ? Number(sizes[0]) : null
+
     /**
-     * **Every block's markings set out once, where his recorded choice applies — stage 2D, 21 October 2026 (DRAFT wording).** His reply
+     * **Teams told apart by the role each holds in this block — DRAFT, 15 October 2026 (stage K4).** For his starting
+     * configurations of 17 October 2026 (D6, unequal counts by role) and his D7: *"Please use the assigned team roles rather
+     * than referring generically to "the defending team,""*. Where the teams hold different counts, nothing told them apart before, so the counts were
+     * withheld. In a game derived for a role block the record says which end-assigned team holds each role
+     * (`record.roleBlock`) and which team holds each end (`record.designationBindings`), and the role's DRAFT noun crossed
+     * with the game (`roleNouns`): so each team is named by its role, and its counts are said as its own. Read only from the
+     * fixture; a team no role names leaves the old withholding in place.
+     */
+    const block: { holders?: Record<string, string> } | undefined = fixture.record?.roleBlock
+    const teamNouns: Record<string, string> = fixture.roleNouns?.nouns ?? {}
+    const bound: { designation: string; handle: string }[] = fixture.record?.designationBindings ?? []
+    const roleOfTeam = (team: any): string | null => {
+        for (const [role, holder] of Object.entries(block?.holders ?? {})) {
+            if (bound.some(binding => binding.designation === holder && binding.handle === team?.elementId)) return role
+        }
+        return null
+    }
+    const roleOrder = Object.keys(block?.holders ?? {})
+    const namedByRole = teams.length > 0 && teams.every(team => !!roleOfTeam(team) && !!teamNouns[roleOfTeam(team)!]) && new Set(teams.map(roleOfTeam)).size === teams.length
+    const specializedHeld = Object.keys(fixture.envelope?.roles ?? {})
+    const countsDiffer = size === null || specializedHeld.some(role => new Set(teams.map((t: any) => t[role])).size > 1)
+    const byRole = namedByRole && countsDiffer && teams.every((t: any) => Number.isInteger(t.outfieldCount) && specializedHeld.every(role => Number.isInteger(t[role])))
+
+    /**
+     * **More of a specialized role than the teams involve: counted, never given an outfield role — stage M4, 17 October 2026 (design
+     * step L11, DRAFT).** His reply filed 19 October 2026, item 5: *"The second-[specialized role] case and optional rotation can remain
+     * visible as limitations for now. I don't want to prescribe an outfield role for a [specialized role] universally."* (his role noun
+     * bracketed, as the coupling ratchet keeps a sport's nouns out of this layer). In a game played by role, where the teams involve
+     * some of a role and the session has more, the roster says what each team holds, counting everyone else as "other players"
+     * ("Divide 12 players into 2 teams: the building team has 1 <role> and 6 other players; the pressing team has 5 other players").
+     * Was (stage K4, DRAFT): "...; the other <role> plays as an outfield player". The design put the session's count in the sentence
+     * too ("12 players, 2 of them <role>s"); measured, fidelity refuses that number, which the game does not hold, so it is not said. The counting rule beneath is unchanged (assemble-concrete-game.ts rosterFor counts a performer available and
+     * not involved in the outfield places, his 30 September "availability is not involvement"); which team that player joins, and
+     * whether the role rotates, are not carried, and the review page shows them as a limitation. The universal sentence for a game
+     * that involves none of the role is not this branch and is unchanged.
+     */
+    const countedOnly: { role: string; available: number }[] = []
+    if (teams.length && byRole) {
+        for (const [role, available] of Object.entries(fixture.envelope?.roles ?? {}).map(([r, c]) => [r, Number(c)] as const)) {
+            const held = teams.map((t: any) => t[role])
+            if (!held.every((n: unknown) => Number.isInteger(n) && Number(n) >= 0)) continue
+            const used = held.reduce((sum: number, n: unknown) => sum + Number(n), 0)
+            if (used > 0 && available > used) countedOnly.push({ role, available })
+        }
+    }
+
+    const segment = (joiner: CountSegment['joiner'], text: string, from: string[], bindings: Binding[]): CountSegment => ({ joiner, text, status: 'DERIVED', from: [...new Set(from)], bindings })
+    // Each team in the block's role order, keeping its position in `performers.teams`.
+    const inRoleOrder = teams.map((team, index) => ({ team, index })).sort((a, b) => roleOrder.indexOf(roleOfTeam(a.team)!) - roleOrder.indexOf(roleOfTeam(b.team)!))
+    const phrases: TeamCountPhrase[] = []
+    let mode: TeamCountPhrases['mode'] = 'NONE'
+    let teamsCount: TeamCountPhrases['teamsCount'] = null
+    if (teams.length && byRole && countedOnly.length) {
+        // The session's count of the role is not said: the game holds only each team's (measured 17 October 2026, stage M4 - a
+        // binding of the session's 2 to `envelope.roles` is refused by fidelity Q2, the game holding no such number). "Other
+        // players" counts everyone else, the unused performers of the role among them, and names no part they play.
+        mode = 'BY_ROLE_COUNTED'
+        teamsCount = { text: `${teams.length} teams`, status: 'INSTANTIATED', from: ['performers.teams'], bindings: [{ quantity: teams.length, path: 'performers.teams' }] }
+        for (const { team, index } of inRoleOrder) {
+            const outfield = Number(team.outfieldCount)
+            const roles = specializedHeld.filter(role => Number(team[role]) > 0)
+            const segments: CountSegment[] = roles.map((role, j) => {
+                const held = Number(team[role])
+                return segment(j === 0 ? '' : ', ', `${held} ${role}${held === 1 ? '' : 's'}`, ['envelope.roles', `performers.teams[].${role}`], [{ quantity: held, path: `performers.teams[].${role}` }])
+            })
+            segments.push(segment(roles.length ? ' and ' : '', `${outfield} other player${outfield === 1 ? '' : 's'}`, ['performers.teams[].outfieldCount'], [{ quantity: outfield, path: 'performers.teams[].outfieldCount' }]))
+            phrases.push({ team: index, role: roleOfTeam(team)!, noun: teamNouns[roleOfTeam(team)!], segments })
+        }
+    } else if (teams.length && byRole) {
+        /**
+         * **Each team's counts, by the role it holds** (stage K4, DRAFT): "Divide 12 players into 2 teams: the building team has
+         * 6 outfield players and 1 <role>; the pressing team has 5 outfield players". Each count is cited by its PROPERTY
+         * path (never a member's handle, `identity.unit.ts`) and bound to it, so fidelity checks the number against what the
+         * teams hold; a specialized role is said only for a team that involves it, by the role's own name.
+         */
+        mode = 'BY_ROLE'
+        teamsCount = { text: `${teams.length} teams`, status: 'INSTANTIATED', from: ['performers.teams'], bindings: [{ quantity: teams.length, path: 'performers.teams' }] }
+        for (const { team, index } of inRoleOrder) {
+            const outfield = Number(team.outfieldCount)
+            const segments: CountSegment[] = [segment('', `${outfield} outfield player${outfield === 1 ? '' : 's'}`, ['performers.teams[].outfieldCount'], [{ quantity: outfield, path: 'performers.teams[].outfieldCount' }])]
+            for (const role of specializedHeld) {
+                const held = Number(team[role])
+                if (held > 0) segments.push(segment(' and ', `${held} ${role}${held === 1 ? '' : 's'}`, [`performers.teams[].${role}`], [{ quantity: held, path: `performers.teams[].${role}` }]))
+            }
+            phrases.push({ team: index, role: roleOfTeam(team)!, noun: teamNouns[roleOfTeam(team)!], segments })
+        }
+    } else if (teams.length) {
+        /**
+         * **A per-team property is cited by its PROPERTY path, never by a member's address.** The size is entailed
+         * onto each team at that member's own address, which carries its handle, and a handle is identity, not a
+         * property: `identity.unit.ts` pins that none may reach coach-facing output, citations included. So the part
+         * that speaks for every team cites the register's own path for the property, with the member left open —
+         * which is also exactly what it claims, since it is only said where every team holds the same number.
+         */
+        mode = 'EQUAL'
+        teamsCount = {
+            text: size === null ? `${teams.length} teams` : `${teams.length} teams of ${size}`,
+            status: 'INSTANTIATED',
+            from: size === null ? ['performers.teams'] : ['performers.teams', 'performers.teams[].outfieldCount'],
+            bindings: [{ quantity: teams.length, path: 'performers.teams' }, ...(size === null ? [] : [{ quantity: size, path: 'performers.teams[].outfieldCount' }])],
+        }
+    }
+
+    // The neutral count, as the roster says it, where the game states one (the roster's own condition; its observations stay there).
+    const neutralsHeld = game.performers?.neutrals
+    const count = neutralsHeld && typeof neutralsHeld === 'object' ? neutralsHeld.count : undefined
+    const countPath = 'performers.neutrals.count'
+    const neutrals = stated(count)
+        ? { count, text: `${count} ${count === 1 ? 'neutral player' : 'neutral players'}`, status: statusOf.get(countPath) ?? ('DERIVED' as SourceStatus), from: [countPath], bindings: [{ quantity: count, path: countPath }] }
+        : null
+    return { mode, teamsCount, teams: phrases, size, byRole, countedOnly, neutrals }
+}
+
+function produceRendering(fixture: Fixture, wording: ApprovedWording[], templates: ApprovedTemplateSentence[]): { instructions: Instruction[]; observations: string[]; withheld: WithheldField[]; approved: Set<Instruction> } {
+    const instructions: Instruction[] = []
+    const observations: string[] = []
+    const withheld: WithheldField[] = []
+    const game = fixture.game
+    // Each property's status (`statusesOf`, above; moved out unchanged in stage 3A).
+    const statusOf = statusesOf(fixture)
+    /** The status of a sentence resting on these paths: the strongest any of them carries. */
+    const statusAt = (paths: string[], fallback: SourceStatus): SourceStatus => strongest(paths.map(p => statusOf.get(p)).filter((s): s is SourceStatus => !!s), fallback)
+
+    /** A plain sentence, one part, each number it says bound to the path it is of (stage S-C2). */
+    const say = (section: Instruction['section'], status: SourceStatus, core: string, from: string[], bindings: Binding[] = []) =>
+        instructions.push(instruction(section, status, core, from, bindings))
+
+    /**
+     * The status of a property is whatever the fixture records, never what the renderer assumes. Envelope
+     * facts in particular arrive from the session but are recorded as DERIVED once folded into the game,
+     * and labelling them SESSION would misstate the provenance trace even though both phrase identically.
+     */
+    const recorded = (path: string, fallback: SourceStatus): SourceStatus => statusOf.get(path) ?? fallback
+
+    /**
+     * The object the game establishes, read once for every sentence that names it. Its `kind` is the only
+     * source of the noun (SD-103, below at the scoring instruction, where the rule was first applied), and a
+     * sentence that uses it cites `objects[…].kind`.
+     */
+    const carrier = (game.objects ?? []).find((object: any) => typeof object?.kind === 'string')
+
+    /**
+     * Each team named by the role it holds in this block (stage K7, DRAFT nouns), the marked line (stage K7), and the objective that
+     * references a region: read by `gameReadingOf` (above), moved out of here unchanged in stage 3A so the Coach Overview reads them alike.
+     */
+    const { geometryFor, roleNounOf, holdersInBlock, roleOfDesignation, teamNoun, otherTeamNoun, areaLength, areaWidth, fromTeamEnd, markedLines, referencedBy } = gameReadingOf(fixture)
+    const capital = (text: string) => `${text.charAt(0).toUpperCase()}${text.slice(1)}`
+    const listed = (items: string[]) => (items.length > 1 ? `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}` : items[0] ?? '')
+    /**
+     * **Every block's markings set out once, where they occupy the same places — stage 2D, 21 October 2026 (DRAFT wording).** His reply
      * filed 22 October 2026, item 7: *"For this particular 40 × 30 m configuration, we can also simplify setup by marking the halfway line
      * and both 5 m end zones at the beginning. Role exchanges should not require unnecessary physical re-marking."* and *"The knowledge can
      * continue to represent the distinct targets and relationships for each block, even where the physical markings remain unchanged."*
-     * The layout is read from the fixture (`physical-layout.ts` computes it from both blocks' realized geometry and attaches it only where
-     * his recorded choice applies and the markings can coexist); without one, every sentence below is exactly what it was.
+     * Since stage 2G a general presentation rule, his reply filed 23 October 2026, item 2: *"Please authorize marking once whenever the
+     * system can establish that the physical markings occupy the same locations across all blocks."* The layout is read from the fixture
+     * (`physical-layout.ts` computes it from both blocks' realized geometry and attaches it wherever the markings coincide; no record is
+     * read); without one, every sentence below is what it was, except the exchange sentence where the fixture carries what moves at the
+     * exchange (`remarking`, below).
      */
     const layout: PhysicalLayout | null = fixture.layout?.policy === MARK_UNION_ONCE ? (fixture.layout as PhysicalLayout) : null
+    /** Stage 2G: what moves at the exchange, where the markings are presented block by block (never beside a layout). */
+    const remarking: Remarking | null = !layout && Array.isArray(fixture.remarking?.changes) ? (fixture.remarking as Remarking) : null
 
     // ── Set up ──────────────────────────────────────────────────────────────────────────────────
     const area = game.envelope?.area
@@ -1100,12 +1350,8 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
      * "end lines" (they ARE the end lines) and still observed. The length is not said: it is the width of the area,
      * stated in the sentence before.
      */
+    // The objective that references a region: `referencedBy`, read by `gameReadingOf` (stage 3A, moved out unchanged).
     const lines = regions.filter(r => r.noun === 'line' && !markedLines.has(String(r.elementId)))
-    const referencedBy = (region: any) =>
-        (game.objectives ?? []).find((o: any) => {
-            const ref = o?.reference?.structuralRef
-            return ref && `c:${ref.contractId}:${ref.itemId}` === String(region.elementId)
-        })
 
     /**
      * **A team's target zone, said by the role that attacks it and where it lies — stage K7, 15 October 2026 (DRAFT).** His reply filed
@@ -1441,32 +1687,13 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
     // ── Players ─────────────────────────────────────────────────────────────────────────────────
     const teams: any[] = game.performers?.teams ?? []
     const players = game.envelope?.players
-    const sizes = [...new Set(teams.map((t: any) => t.outfieldCount).filter((n: any) => Number.isFinite(n)))]
-    const size = sizes.length === 1 ? Number(sizes[0]) : null
-
     /**
-     * **Teams told apart by the role each holds in this block — DRAFT, 15 October 2026 (stage K4).** For his starting
-     * configurations of 17 October 2026 (D6, unequal counts by role) and his D7: *"Please use the assigned team roles rather
-     * than referring generically to "the defending team,""*. Where the teams hold different counts, nothing told them apart before, so the counts were
-     * withheld. In a game derived for a role block the record says which end-assigned team holds each role
-     * (`record.roleBlock`) and which team holds each end (`record.designationBindings`), and the role's DRAFT noun crossed
-     * with the game (`roleNouns`): so each team is named by its role, and its counts are said as its own. Read only from the
-     * fixture; a team no role names leaves the old withholding in place.
+     * Each team's counts, by team (stage 3A): `teamCountPhrases`, above, the one builder the Players sentence, the Coach Overview and the
+     * diagram share. Teams told apart by the role each holds in this block (stage K4), everyone else counted as "other players" where the
+     * session has more of a specialized role than the teams involve (stage M4), or the teams said together: every rule there, unchanged.
      */
-    const block: { holders?: Record<string, string> } | undefined = fixture.record?.roleBlock
-    const teamNouns: Record<string, string> = fixture.roleNouns?.nouns ?? {}
-    const bound: { designation: string; handle: string }[] = fixture.record?.designationBindings ?? []
-    const roleOfTeam = (team: any): string | null => {
-        for (const [role, holder] of Object.entries(block?.holders ?? {})) {
-            if (bound.some(binding => binding.designation === holder && binding.handle === team?.elementId)) return role
-        }
-        return null
-    }
-    const roleOrder = Object.keys(block?.holders ?? {})
-    const namedByRole = teams.length > 0 && teams.every(team => !!roleOfTeam(team) && !!teamNouns[roleOfTeam(team)!]) && new Set(teams.map(roleOfTeam)).size === teams.length
-    const specializedHeld = Object.keys(fixture.envelope?.roles ?? {})
-    const countsDiffer = size === null || specializedHeld.some(role => new Set(teams.map((t: any) => t[role])).size > 1)
-    const byRole = namedByRole && countsDiffer && teams.every((t: any) => Number.isInteger(t.outfieldCount) && specializedHeld.every(role => Number.isInteger(t[role])))
+    const counts = teamCountPhrases(fixture)
+    const { size, byRole, countedOnly } = counts
 
     /**
      * **NEUTRAL PLAYERS, AND A GROUP'S PARTICIPATION STATE — added 13 October 2026, consolidated 14 October.**
@@ -1517,83 +1744,18 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
         roster.push(part(recorded('envelope.players', 'SESSION'), teams.length ? `Divide ${players} players` : `${players} players in total`, ['envelope.players'], [{ quantity: players, path: 'envelope.players' }]))
     }
     /**
-     * **More of a specialized role than the teams involve: counted, never given an outfield role — stage M4, 17 October 2026 (design
-     * step L11, DRAFT).** His reply filed 19 October 2026, item 5: *"The second-[specialized role] case and optional rotation can remain
-     * visible as limitations for now. I don't want to prescribe an outfield role for a [specialized role] universally."* (his role noun
-     * bracketed, as the coupling ratchet keeps a sport's nouns out of this layer). In a game played by role, where the teams involve
-     * some of a role and the session has more, the roster says what each team holds, counting everyone else as "other players"
-     * ("Divide 12 players into 2 teams: the building team has 1 <role> and 6 other players; the pressing team has 5 other players").
-     * Was (stage K4, DRAFT): "...; the other <role> plays as an outfield player". The design put the session's count in the sentence
-     * too ("12 players, 2 of them <role>s"); measured, fidelity refuses that number, which the game does not hold, so it is not said. The counting rule beneath is unchanged (assemble-concrete-game.ts rosterFor counts a performer available and
-     * not involved in the outfield places, his 30 September "availability is not involvement"); which team that player joins, and
-     * whether the role rotates, are not carried, and the review page shows them as a limitation. The universal sentence for a game
-     * that involves none of the role is not this branch and is unchanged.
+     * The teams, then each team's own counts by the role it holds where the teams are told apart by role ("into 2 teams: the building
+     * team has 6 outfield players and 1 <role>; the pressing team has 5 outfield players"; "...: the building team has 1 <role> and 6
+     * other players; ..."), else the teams said together ("into 2 teams of 6"). Every word, part, status, citation and binding is the
+     * shared builder's (`teamCountPhrases`, stage 3A); only the joining words of this sentence are said here.
      */
-    const countedOnly: { role: string; available: number }[] = []
-    if (teams.length && byRole) {
-        for (const [role, available] of Object.entries(fixture.envelope?.roles ?? {}).map(([r, c]) => [r, Number(c)] as const)) {
-            const held = teams.map((t: any) => t[role])
-            if (!held.every((n: unknown) => Number.isInteger(n) && Number(n) >= 0)) continue
-            const used = held.reduce((sum: number, n: unknown) => sum + Number(n), 0)
-            if (used > 0 && available > used) countedOnly.push({ role, available })
-        }
-    }
-    if (teams.length && byRole && countedOnly.length) {
-        // The session's count of the role is not said: the game holds only each team's (measured 17 October 2026, stage M4 - a
-        // binding of the session's 2 to `envelope.roles` is refused by fidelity Q2, the game holding no such number). "Other
-        // players" counts everyone else, the unused performers of the role among them, and names no part they play.
-        roster.push(part('INSTANTIATED', roster.length ? ` into ${teams.length} teams` : `${teams.length} teams`, ['performers.teams'], [{ quantity: teams.length, path: 'performers.teams' }]))
-        const ordered = [...teams].sort((a, b) => roleOrder.indexOf(roleOfTeam(a)!) - roleOrder.indexOf(roleOfTeam(b)!))
-        ordered.forEach((team, i) => {
-            const outfield = Number(team.outfieldCount)
-            const lead = `${i === 0 ? ': ' : '; '}the ${teamNouns[roleOfTeam(team)!]} has `
-            const roles = specializedHeld.filter(role => Number(team[role]) > 0)
-            roles.forEach((role, j) => {
-                const held = Number(team[role])
-                roster.push(part('DERIVED', `${j === 0 ? lead : ', '}${held} ${role}${held === 1 ? '' : 's'}`, ['envelope.roles', `performers.teams[].${role}`], [{ quantity: held, path: `performers.teams[].${role}` }]))
-            })
-            roster.push(
-                part('DERIVED', `${roles.length ? ' and ' : lead}${outfield} other player${outfield === 1 ? '' : 's'}`, ['performers.teams[].outfieldCount'], [
-                    { quantity: outfield, path: 'performers.teams[].outfieldCount' },
-                ]),
-            )
+    if (counts.teamsCount) {
+        const { text, status, from, bindings } = counts.teamsCount
+        roster.push(part(status, roster.length ? ` into ${text}` : text, from, bindings))
+        counts.teams.forEach((team, i) => {
+            const lead = `${i === 0 ? ': ' : '; '}the ${team.noun} has `
+            team.segments.forEach((segment, j) => roster.push(part(segment.status, `${j === 0 ? lead : segment.joiner}${segment.text}`, segment.from, segment.bindings)))
         })
-    } else if (teams.length && byRole) {
-        /**
-         * **Each team's counts, by the role it holds** (stage K4, DRAFT): "Divide 12 players into 2 teams: the building team has
-         * 6 outfield players and 1 <role>; the pressing team has 5 outfield players". Each count is cited by its PROPERTY
-         * path (never a member's handle, `identity.unit.ts`) and bound to it, so fidelity checks the number against what the
-         * teams hold; a specialized role is said only for a team that involves it, by the role's own name.
-         */
-        roster.push(part('INSTANTIATED', roster.length ? ` into ${teams.length} teams` : `${teams.length} teams`, ['performers.teams'], [{ quantity: teams.length, path: 'performers.teams' }]))
-        const ordered = [...teams].sort((a, b) => roleOrder.indexOf(roleOfTeam(a)!) - roleOrder.indexOf(roleOfTeam(b)!))
-        ordered.forEach((team, i) => {
-            const outfield = Number(team.outfieldCount)
-            roster.push(
-                part('DERIVED', `${i === 0 ? ': ' : '; '}the ${teamNouns[roleOfTeam(team)!]} has ${outfield} outfield player${outfield === 1 ? '' : 's'}`, ['performers.teams[].outfieldCount'], [
-                    { quantity: outfield, path: 'performers.teams[].outfieldCount' },
-                ]),
-            )
-            for (const role of specializedHeld) {
-                const held = Number(team[role])
-                if (held > 0) roster.push(part('DERIVED', ` and ${held} ${role}${held === 1 ? '' : 's'}`, [`performers.teams[].${role}`], [{ quantity: held, path: `performers.teams[].${role}` }]))
-            }
-        })
-    } else if (teams.length) {
-        /**
-         * **A per-team property is cited by its PROPERTY path, never by a member's address.** The size is entailed
-         * onto each team at that member's own address, which carries its handle, and a handle is identity, not a
-         * property: `identity.unit.ts` pins that none may reach coach-facing output, citations included. So the part
-         * that speaks for every team cites the register's own path for the property, with the member left open —
-         * which is also exactly what it claims, since it is only said where every team holds the same number.
-         */
-        const said = size === null ? `${teams.length} teams` : `${teams.length} teams of ${size}`
-        roster.push(
-            part('INSTANTIATED', roster.length ? ` into ${said}` : said, size === null ? ['performers.teams'] : ['performers.teams', 'performers.teams[].outfieldCount'], [
-                { quantity: teams.length, path: 'performers.teams' },
-                ...(size === null ? [] : [{ quantity: size, path: 'performers.teams[].outfieldCount' }]),
-            ]),
-        )
     }
 
     /**
@@ -1665,7 +1827,9 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
     const neutralAdjusting: Instruction[] = []
     if (hasNeutrals) {
         if (stated(count) && Number.isFinite(players)) {
-            neutralPart = part(recorded(countPath, 'DERIVED'), `, with ${count} ${neutralNoun(count)}`, [countPath], [{ quantity: count, path: countPath }])
+            // The count as the shared builder says it (`teamCountPhrases`, stage 3A): its words, status, citation and binding.
+            const said = counts.neutrals!
+            neutralPart = part(said.status, `, with ${said.text}`, said.from, said.bindings)
             const range = countRange(fixture, countPath)
             if (range?.required) {
                 // Where the count is only where this activity STARTS, its required limit is what a coach may adjust
@@ -2143,6 +2307,12 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
      * procedure (`OPENER_TAKER`), so HOW and WHERE go to Restarts and ball out. Every other path the one sentence cited is cited by
      * exactly one of WHEN and HOW. The words are the one sentence's, cut at the colon, with the taker said again at the start of HOW;
      * WHERE's "{taker} restarts play" replaces "each of these restarts is taken" (DRAFT).
+     *
+     * **Stage 3E, 22 October 2026: each restart moment its own part** (the words unchanged). Until 3E the moments were one part citing every
+     * trigger's selector, so no cut could keep some of its words and know what they still say. Now each trigger's phrase, with the joiner
+     * the list gives it (": ", ", ", " and "), is a part citing that trigger's selector, and a phrase's closing bracketed aside (`asideOf`)
+     * is a part of its own citing the same selector: it says more of the same trigger (when the coach may judge it), so the words it
+     * qualifies still say that trigger without it. The sentence's text, status and citations are exactly as before.
      */
     for (const group of restartGroups.values()) {
         const [first] = group
@@ -2151,12 +2321,13 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
         const stops = group.map(t => pathAt(t, 'playState'))
         const methods = group.map(t => pathAt(t, 'placement.method'))
         const locations = group.map(t => pathAt(t, 'placement.region'))
-        instructions.push(
-            joined('How it works', [
-                part(partStatus([...who, ...stops]), `${capital(taker)} restarts play`, [...who, ...stops]),
-                part(partStatus([]), `: ${listed(group.map(t => TRIGGER_PHRASE[triggerOf(t)!]))}`, group.map(t => pathAt(t, 'selector'))),
-            ]),
-        )
+        const moments = group.flatMap((t, k) => {
+            const [words, aside] = asideOf(TRIGGER_PHRASE[triggerOf(t)!])
+            const selector = [pathAt(t, 'selector')]
+            const joiner = k === 0 ? ': ' : k === group.length - 1 ? ' and ' : ', '
+            return [part(partStatus([]), `${joiner}${words}`, selector), ...(aside === null ? [] : [part(partStatus([]), aside, selector)])]
+        })
+        instructions.push(joined('How it works', [part(partStatus([...who, ...stops]), `${capital(taker)} restarts play`, [...who, ...stops]), ...moments]))
         if (placementResetsAt(group)) sayPlacement(group)
         instructions.push(joined(RESTARTS, [part(partStatus([...who, ...methods]), `${capital(taker)} restarts play ${METHOD_PHRASE[first.placement.method](objectNoun!)}`, [...who, ...methods, ...objectPath])]))
         const bound = coachDecides(first.placement.region)
@@ -2251,18 +2422,36 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
          */
         // A region noun that already says "target" is not prefixed again ("its target target zone").
         const targetPhrase = targetNoun && targetNoun.toLowerCase().startsWith('target') ? targetNoun : `target ${targetNoun}`
-        const how = zoneEntry
-            ? `by getting the ${carrier.kind} under control into its ${targetPhrase}: running it in, or passing to a teammate who receives it under control inside`
-            : // "the marked line" is only unambiguous while there is one; with a target per team the objective each team
-              // attacks is named relationally.
-              carrier
-              ? objectives.length > 1
-                  ? `by getting the ${carrier.kind} across the line it is attacking`
-                  : `by getting the ${carrier.kind} across the marked line`
-              : objectives.length > 1
-                ? 'when the line it is attacking is crossed'
-                : 'when the marked line is crossed'
+        /**
+         * **Stage 3E, 22 October 2026: the zone-entry wording is two clauses, each its own part** (the words unchanged). How a team scores
+         * ("by getting the {object} under control into its target {noun}") and, after its colon, the two ways that entry is made (": running
+         * it in, or passing to a teammate who receives it under control inside"): the elaboration of the same event, in his D3's terms quoted
+         * above. The first part cites everything the sentence cited (the event, its bound or value, the object, each target's noun, the
+         * objective); the elaboration cites the event it elaborates. So a cut before the elaboration keeps exactly what the words it keeps
+         * say, and the sentence's text, status and citations are as before. Every other wording is one clause, said as before.
+         */
+        const how: { lead: string; elaboration: string | null } = zoneEntry
+            ? { lead: `by getting the ${carrier.kind} under control into its ${targetPhrase}`, elaboration: ': running it in, or passing to a teammate who receives it under control inside' }
+            : {
+                  // "the marked line" is only unambiguous while there is one; with a target per team the objective each team
+                  // attacks is named relationally.
+                  lead: carrier
+                      ? objectives.length > 1
+                          ? `by getting the ${carrier.kind} across the line it is attacking`
+                          : `by getting the ${carrier.kind} across the marked line`
+                      : objectives.length > 1
+                        ? 'when the line it is attacking is crossed'
+                        : 'when the marked line is crossed',
+                  elaboration: null,
+              }
         const howPaths = [...(carrier ? [`objects[${carrier.elementId}].kind`] : []), ...(zoneEntry ? targetNounPaths : []), ...(objective ? [`objectives[${objective.elementId}].role`] : [])]
+        /** A scoring sentence: one part, or (stage 3E) its lead and the elaboration of the event, each a part, at the sentence's status. */
+        const sayScoring = (status: SourceStatus, core: string, from: string[], bindings: Binding[] = []) =>
+            instructions.push(
+                how.elaboration === null
+                    ? instruction('How to score', status, core, from, bindings)
+                    : joined('How to score', [part(status, phrase(status, core), from, bindings), part(status, how.elaboration, [kindPath])]),
+            )
         /**
          * **Where a role's scoring credit is confined to an episode, no sentence speaks for every team** — stage M3, 17 October 2026
          * (design step L9). Christian, reply filed 19 October 2026, item 1: *"The important distinction is that the building team's
@@ -2289,17 +2478,11 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
                 const noun = typeof element?.activityRole === 'string' ? roleNounOf[element.activityRole] : undefined
                 if (!noun) continue
                 const creditPath = `activityRoles[${element.elementId}].creditedWithin`
-                say('How to score', statusAt([kindPath, creditPath], 'DERIVED'), `${capital(noun)}: Score ${how}`, [kindPath, creditPath, ...howPaths])
+                sayScoring(statusAt([kindPath, creditPath], 'DERIVED'), `${capital(noun)}: Score ${how.lead}`, [kindPath, creditPath, ...howPaths])
             }
             say('How to score', statusOf.get('value.primaryEvent.value') ?? statusOf.get(kindPath) ?? 'DERIVED', `Each score is worth ${primary.value} point`, ['value.primaryEvent.value'], [{ quantity: primary.value, path: 'value.primaryEvent.value' }])
         } else
-            say(
-                'How to score',
-                statusOf.get(kindPath) ?? 'DERIVED',
-                `A team scores ${primary.value} point ${how}`,
-                [kindPath, 'value.primaryEvent.value', ...howPaths],
-                [{ quantity: primary.value, path: 'value.primaryEvent.value' }],
-            )
+            sayScoring(statusOf.get(kindPath) ?? 'DERIVED', `A team scores ${primary.value} point ${how.lead}`, [kindPath, 'value.primaryEvent.value', ...howPaths], [{ quantity: primary.value, path: 'value.primaryEvent.value' }])
         if (!carrier) {
             observations.push(
                 `The scoring event is established and what crosses the line is not: the game holds no object, so the ` +
@@ -2540,6 +2723,72 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
              */
             const movedLines = new Set((layout?.movedBy ?? []).map(move => move.line))
             const unless = !layout?.movedBy.length ? '' : movedLines.size === 1 && markedLines.has([...movedLines][0]) ? MOVED_MARK_QUALIFICATIONS.the : MOVED_MARK_QUALIFICATIONS.a
+            /**
+             * **Where the markings move at the exchange, the exchange says what the coach moves and where it goes — stage 2G, 21 October 2026
+             * (DRAFT wording).** His reply filed 23 October 2026, item 2: *"If markings change location between blocks, the instructions should
+             * identify what needs to be adjusted."* Read from what moves (`remarking`, computed in `physical-layout.ts` from every block's
+             * realized edges and attached to every block): for each marking whose position differs between the blocks, this block's own
+             * reading of what it is, said by role so both blocks say it in the same words (the composition then says it once, each block
+             * citing its own region, stage 2C):
+             *
+             *   - a line measured from a team's end (`fromTeamEnd`): "the marked line to the same distance from the new {team}'s end line";
+             *   - otherwise the inner edge of a team's target zone at an end (as `targetZone` reads it): "the {attacker}'s target {noun} to the
+             *     new {defender}'s end".
+             *
+             * Each is a part of its own, citing the move (`remarking.changes[...]`) and every region edge that is it in this block, of the
+             * status its Set up sentence has. A marking with no such reading (no line from a team's end and no target zone, a mark one block
+             * does not have, or a mark that must stay because a marking that does not move shares its place) is not said, so fidelity Q5-L
+             * refuses the activity rather than this renderer leaving the coach to work out what moves. No number is said: the distance is
+             * the Set up sentence's, and "the same distance" stays true where the coach has moved the line (Adjusting the activity).
+             */
+            const blockId = String(fixture.record?.roleBlock?.blockId ?? '')
+            const movedMarking = (change: MarkingChange): { text: string; status: SourceStatus; from: string[] } | null => {
+                const place = change.places.find(entry => entry.blockId === blockId)
+                if (!place || place.at === null || place.shared || !place.features.length) return null
+                const cited = [`remarking.changes[${change.elementId}]`, ...place.features.map(feature => feature.path)]
+                const regionOf = (id: string) => regions.find((region: any) => String(region.elementId) === id)
+                const lineFeature = place.features.find(feature => feature.edge === 'at' && markedLines.has(feature.regionId))
+                if (lineFeature) {
+                    const line = regionOf(lineFeature.regionId)
+                    const positioned = line ? fromTeamEnd(line) : null
+                    if (!positioned) return null
+                    const nounPath = `space.regions[${lineFeature.regionId}].noun`
+                    return { text: `the marked ${line.noun} to the same distance from the new ${positioned.team}'s end line`, status: statusOf.get(nounPath) ?? 'DERIVED', from: [...cited, nounPath] }
+                }
+                if (place.features.some(feature => feature.edge === 'at')) return null
+                for (const feature of place.features.filter(entry => entry.inner)) {
+                    const zone = regionOf(feature.regionId)
+                    const objective = zone ? referencedBy(zone) : null
+                    const attacker = objective ? teamNoun(objective.team) : null
+                    const defender = objective ? otherTeamNoun(objective.team) : null
+                    const along = zone ? geometryFor(zone.elementId, 'along') : null
+                    const wide = zone ? geometryFor(zone.elementId, 'across')?.geometry?.interval : null
+                    if (!zone || typeof zone.noun !== 'string' || zone.noun === 'line' || !objective || !attacker || !defender || along?.geometry?.term !== ATTACKING_END || !wide || wide.from !== 0 || wide.to !== areaWidth) continue
+                    const nounPath = `space.regions[${feature.regionId}].noun`
+                    return {
+                        text: `the ${attacker}'s target ${zone.noun} to the new ${defender}'s end`,
+                        status: statusOf.get(nounPath) ?? 'DERIVED',
+                        from: [...cited, nounPath, `objectives[${objective.elementId}].team`, `objectives[${objective.elementId}].reference`],
+                    }
+                }
+                return null
+            }
+            if (remarking) {
+                const exchangeStatus = statusAt([...exchangePaths, ...endPaths], 'DERIVED')
+                const moved = remarking.changes.map(movedMarking).filter((said): said is NonNullable<typeof said> => !!said)
+                instructions.push(
+                    joined(ROLE_EXCHANGE, [
+                        part(exchangeStatus, 'Each team keeps its end for the whole activity. When you call the next block the teams exchange roles, not ends', [
+                            ...exchangePaths,
+                            ...endPaths,
+                            ...keyedPaths,
+                            ...(keyedPaths.length ? targetNounPaths : []),
+                        ]),
+                        ...moved.map((said, i) => part(said.status, `${i === 0 ? `, and ${MOVE_MARKINGS}` : i === moved.length - 1 ? ' and ' : ', '}${said.text}`, said.from)),
+                        part(exchangeStatus, '; there is no set block length', exchangePaths),
+                    ]),
+                )
+            }
             const markings = layout
                 ? `: each team now attacks the target ${targetNoun ?? 'line'} of its new role, and ${NOTHING_RE_MARKED}${unless}`
                 : !keyedPaths.length
@@ -2547,7 +2796,7 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
                   : named.length
                     ? `, and ${named.join(' and ')} ${named.length > 1 || keyedTargets === 2 ? 'are' : 'is'} set out again for the new roles`
                     : ', and the markings that go with them are set out again for the new roles'
-            say(
+            if (!remarking) say(
                 ROLE_EXCHANGE,
                 statusAt([...exchangePaths, ...endPaths], 'DERIVED'),
                 `Each team keeps its end for the whole activity. When you call the next block the teams exchange roles, not ends${markings}; there is no set block length`,

@@ -33,9 +33,11 @@
  *     separate capabilities"*) each team's counts change between the blocks exactly as a recorded reassignment states, and
  *     not at all where none is recorded — the exchange of roles moves nobody;
  *   - **RB-L** (stage 2D, 21 October 2026, his reply filed 22 October 2026, item 7: *"Role exchanges should not require unnecessary
- *     physical re-marking."*) the markings set out once that a block carries (`fixture.layout`) are exactly the union of every block's
- *     realized edges, recomputed here from the blocks and his recorded choice (`physical-layout.ts`), and are carried only where that
- *     choice applies and the markings can be (`checkRoleBlockLayout`, run once the layout is attached).
+ *     physical re-marking."*; since stage 2G his general rule, reply filed 23 October 2026, item 2) the markings set out once that a block
+ *     carries (`fixture.layout`) are exactly the union of every block's realized edges, recomputed here from the blocks
+ *     (`physical-layout.ts`), and are carried only where the markings occupy the same places in every block; where they do not, what
+ *     moves at the exchange that a block carries (`fixture.remarking`) is exactly what the blocks' realized edges give, recomputed too
+ *     (`checkRoleBlockLayout`, run once either is attached).
  *
  * Then the coach reads one activity: a sentence the two renders say alike is said once, a sentence they say alike by role
  * (stage 2C: the same words, each block citing its own role's target) is said once with each block's citations kept apart,
@@ -53,7 +55,7 @@ import { parseSelector } from '../derivation/selector'
 import { splitPath } from '../derivation/resolved-game'
 import { LoadedContract, RoleBlock } from '../derivation/types'
 import { FidelityFinding } from './fidelity'
-import { LayoutChoice, LayoutMover, layoutOf } from './physical-layout'
+import { LayoutMover, layoutOf } from './physical-layout'
 import { Instruction, RenderedActivity, ROLE_EXCHANGE, roleKeyedPositions } from './render-concrete-game'
 import { inSectionOrder } from './sections'
 
@@ -403,27 +405,37 @@ export function checkRoleBlocks(blocks: BuiltBlock[], index: RegisterIndex, role
  * marks and zones). Christian, reply filed 22 October 2026, item 7: *"The knowledge can continue to represent the distinct targets and
  * relationships for each block, even where the physical markings remain unchanged."* The layout is not knowledge and not a block's own
  * game: it is a reading of every block's realized geometry together, so it is checked against that reading done again here, from the
- * blocks with their layout taken away and the same recorded choice and adjustments (`layoutOf`). A FAIL where:
+ * blocks with their layout taken away and the same adjustments (`layoutOf`). A FAIL where:
  *
  *   - the layout applies and a block carries none, or one that differs in any field from the recomputed union;
- *   - the layout does not apply (no choice recorded for this area, or the markings cannot be set out once) and a block carries one.
+ *   - the layout does not apply (the markings do not occupy the same places in every block, or there is nothing to set out) and a block
+ *     carries one.
+ *
+ * **Stage 2G, 21 October 2026** (his reply filed 23 October 2026, item 2: *"This should be a general presentation rule, not something
+ * requiring my approval for each configuration. If markings change location between blocks, the instructions should identify what needs
+ * to be adjusted."*): no recorded choice is read, the rule's own test decides; and what moves at the exchange (`fixture.remarking`) is
+ * held the same way, since the exchange sentence and fidelity Q5-L read it: a FAIL where something moves and a block carries no such
+ * account, or one that differs from the recomputed one, or where nothing moves (or the layout applies) and a block carries one.
  *
  * Every block is read; nothing here names a goal, a value or a sport.
  */
-export function checkRoleBlockLayout(blocks: { blockId: string; fixture: any }[], choices: LayoutChoice[], movers: LayoutMover[]): RoleBlockCheck {
+export function checkRoleBlockLayout(blocks: { blockId: string; fixture: any }[], movers: LayoutMover[]): RoleBlockCheck {
     const problems: string[] = []
     const decision = layoutOf(
-        blocks.map(entry => ({ blockId: entry.blockId, fixture: { ...entry.fixture, layout: undefined } })),
-        choices,
+        blocks.map(entry => ({ blockId: entry.blockId, fixture: { ...entry.fixture, layout: undefined, remarking: undefined } })),
         movers,
     )
     for (const entry of blocks) {
         const carried = entry.fixture?.layout ?? null
-        if (decision.applies && !carried) problems.push(`block ${entry.blockId} carries no layout, and the recorded choice applies and every block's markings can be set out once`)
-        else if (decision.applies && !same(carried, decision.layout)) problems.push(`block ${entry.blockId} carries a layout that is not the union of every block's realized edges, recomputed from the blocks and the record`)
-        else if (!decision.applies && carried) problems.push(`block ${entry.blockId} carries a layout, and ${decision.recorded ? `the markings cannot be set out once here: ${decision.why.join('; ')}` : 'no choice to set the markings out once is recorded for this activity'}`)
+        if (decision.applies && !carried) problems.push(`block ${entry.blockId} carries no layout, and every block's markings occupy the same places, so they are set out once`)
+        else if (decision.applies && !same(carried, decision.layout)) problems.push(`block ${entry.blockId} carries a layout that is not the union of every block's realized edges, recomputed from the blocks`)
+        else if (!decision.applies && carried) problems.push(`block ${entry.blockId} carries a layout, and the markings cannot be set out once here${decision.why.length ? `: ${decision.why.join('; ')}` : ': there is nothing to set out besides the area'}`)
+        const moving = entry.fixture?.remarking ?? null
+        if (decision.remarking && !moving) problems.push(`block ${entry.blockId} carries no account of what moves at the exchange, and the markings move between the blocks`)
+        else if (decision.remarking && !same(moving, decision.remarking)) problems.push(`block ${entry.blockId} carries an account of what moves at the exchange that is not the one every block's realized edges give, recomputed from the blocks`)
+        else if (!decision.remarking && moving) problems.push(`block ${entry.blockId} carries an account of what moves at the exchange, and ${decision.applies ? 'the markings are set out once' : 'nothing moves between the blocks'}`)
     }
-    return check('RB-L', "the markings set out once are exactly the union of every block's realized edges, recomputed, and are carried only where his recorded choice applies and they can be", problems)
+    return check('RB-L', "the markings set out once are exactly the union of every block's realized edges, recomputed, carried only where they occupy the same places in every block; where they do not, what moves at the exchange is exactly what the blocks' realized edges give", problems)
 }
 
 /**

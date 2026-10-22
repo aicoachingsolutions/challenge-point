@@ -274,6 +274,219 @@ export interface ServedActivity {
     roleBlocks?: ReviewRoleBlocks
     /** The administrator-only review evidence (stage K8), where the goal's record asks for one; see `RefusedActivity.evidence`. */
     evidence?: ReviewEvidence
+    /**
+     * The Coach Overview (stage 3D, 21 October 2026; `back/src/system/rendering/overview-fidelity.ts`), served to every viewer: words and
+     * "full rule" pointers only. Present only where the server's agreement check (Q7) found the overview agrees with the Coach Details in
+     * every block; absent otherwise, and the page then shows the Coach Details alone. Shown first since stage 4 (his reply filed 23 October
+     * 2026, item 7.4: "Present the overview first, with complete details accessible when needed.").
+     */
+    overview?: CoachOverview
+    /**
+     * The overview as an administrator reviews it (stage 3A-3D): only on an administrator's answer. Typed here only as far as the page
+     * reads it (stage 4: each sentence's status tag and reading label, the essentials table's label, and why a withheld overview was
+     * withheld); the rest is shown as sent.
+     */
+    overviewDraft?: ReviewOverviewDraft
+    /**
+     * The field diagram (stage 5B, 22 October 2026; `back/src/system/rendering/coach-diagram.ts`), served to every viewer: geometry in
+     * metres and words only. Present only where the server's checks found it agrees with the Coach Details in every block (D0-D8) and with
+     * its own checked model (D9); absent otherwise, and the page then draws none. Drawn in the Coach Overview (`FieldDiagram.tsx`).
+     */
+    diagram?: CoachDiagram
+    /** The diagram as an administrator reviews it (stage 5A-5B): only on an administrator's answer. Typed only as far as the page reads it. */
+    diagramDraft?: ReviewDiagramDraft
+}
+
+/** A stretch in metres: along the area's length (0 at one end line) or across its width. */
+export interface DiagramInterval {
+    from: number
+    to: number
+}
+
+/**
+ * One block of the field diagram (stage 5B), as the server composed it: what is marked, what each marked zone is in this block, the
+ * block's active targets (one look, whichever team attacks them), objects, teams (each with its own look, `identity`, kept across the
+ * blocks) and the dimensions a sentence states; `title` and `desc` are the drawing's accessible name and description. Every word is
+ * the server's.
+ */
+export interface CoachDiagramBlock {
+    label: string | null
+    title: string
+    desc: string
+    /**
+     * Polish pass P7: where the teams have no noun, the server's one sentence for how they attack, shown beside the drawing to explain its
+     * neutral arrows; null otherwise (and where none can be said, the arrows of unnamed teams are not drawn).
+     */
+    caption: string | null
+    lines: { along: DiagramInterval; across: DiagramInterval; markedLine: boolean; label: string | null }[]
+    zones: { along: DiagramInterval; across: DiagramInterval; state: 'TARGET' | 'INSIDE_TARGET' | 'MARKED' | string }[]
+    targets: { along: DiagramInterval; across: DiagramInterval; line: boolean; label: string | null }[]
+    objects: { along: DiagramInterval; across: DiagramInterval; label: string | null; target: boolean }[]
+    teams: { identity: number; noun: string | null; counts: string[]; start: { along: DiagramInterval; across: DiagramInterval } | null; attacks: number[] }[]
+    dimensions: { kind: 'AREA_LENGTH' | 'AREA_WIDTH' | 'ZONE_DEPTH' | 'LINE_OFFSET' | string; axis: 'along' | 'across' | string; from: number; to: number; label: string }[]
+}
+
+/** The field diagram a coach is served (stage 5B): no id, data key, path or citation. */
+export interface CoachDiagram {
+    area: { lengthM: number; widthM: number }
+    counts: string[]
+    /** `TARGET_LINE` (polish pass P7): a target that is a line, named by its own noun (DRAFT). */
+    legend: { kind: 'MARKED_LINE' | 'TARGET_ZONE' | 'TARGET_LINE' | 'STARTING_AREA' | string; text: string }[]
+    /** Polish pass P4: the block switcher's accessible name (DRAFT, the server's); null with one block. */
+    tablistLabel: string | null
+    blocks: CoachDiagramBlock[]
+}
+
+/** One finding of the diagram's checks (D0-D9): any withholds the diagram, never the activity. */
+export interface ReviewDiagramFinding {
+    rule: string
+    blockId: string | null
+    what: string
+}
+
+/** The administrator's diagram draft, as far as the page reads it (stage 5B): served or not, why, and what is not drawn. */
+export interface ReviewDiagramDraft {
+    served: boolean
+    verdict: 'DRAWN' | 'WITHHELD' | string
+    findings: ReviewDiagramFinding[]
+    notes: string[]
+    [key: string]: unknown
+}
+
+/**
+ * A "full rule" pointer (stage 3D): its label (DRAFT coach wording) and the Coach Details sentence it leads to, by section and words. The
+ * page finds that sentence by section and words, never by position.
+ */
+export interface OverviewPointer {
+    label: string
+    section: string
+    text: string
+}
+
+/** One line of how the teams score (stage 3F): its words and the "full rule" pointer it carries. */
+export interface OverviewLine {
+    text: string
+    fullRule: OverviewPointer | null
+}
+
+/**
+ * How one team scores (polish pass P1): the heading it is shown under (DRAFT, the server's: the team's noun, or "Each team"), its lines
+ * (the line saying how the team scores first, then its own qualifications) and the "full rule" pointers of that team no line carries.
+ */
+export interface OverviewGroup {
+    label: string
+    lines: OverviewLine[]
+    fullRules: OverviewPointer[]
+}
+
+/** The Coach Overview a coach is served (stage 3D): words and pointers only, no status, source or citation. */
+export interface CoachOverview {
+    /** The Learning Goal's Coach Definition, verbatim; null for a mechanism demonstration, which claims no goal. */
+    purpose: string | null
+    game: string
+    parameters: string
+    /**
+     * How each team scores (polish pass P1): one group per team in the game sentence's team order, then the "full rule" pointers every
+     * team's group has, once. Was (stage 3F): one line per team (`leads`), then the qualifications, then the pointers no line carries; before
+     * that (3D-3E), one group of sentences per team.
+     */
+    scoring: { groups: OverviewGroup[]; fullRules: OverviewPointer[] }
+}
+
+/** One of the three wording statuses (his reply filed 22 October 2026, item 4). A `string`, not the closed union, as the header explains. */
+export type ReviewWordingStatus = 'APPROVED' | 'DERIVED_FROM_APPROVED' | 'DRAFT' | string
+
+/**
+ * Where the reading an extract of his wording keeps by is recorded, and its standing (stage 3E): the PROPOSED record, labelled "reading
+ * PROPOSED, awaiting confirmation" (DRAFT words). For an administrator only; a coach's answer carries none.
+ */
+export interface ReviewReadingRecord {
+    source: string
+    status: string
+    label: string
+    labelStatus: string
+}
+
+/** The PROPOSED readings record as the server names it (stage 3E): its standing, its label, and why it cannot be used. */
+export interface ReviewReadingsAccount {
+    source: string
+    status: string
+    label: string | null
+    labelStatus: string
+    why: string | null
+}
+
+/** The overview as presented, with each sentence's status and source, for an administrator only (stage 3D). */
+export interface ReviewPresentedOverview {
+    purpose: { text: string; wording: ReviewWordingStatus; source: Record<string, unknown> } | null
+    game: { text: string; wording: ReviewWordingStatus }
+    parameters: { text: string; wording: ReviewWordingStatus }
+    scoring: {
+        group: string
+        noun: string | null
+        /** Polish pass P1: the heading the group is shown under, and its status (DRAFT). */
+        label: string
+        labelStatus: string
+        /** `place` (stage 3F): the team's lead line ("LEAD") or a qualification. */
+        sentences: {
+            text: string
+            wording: ReviewWordingStatus
+            source: { kind: string; id?: string } | null
+            fullRule: (OverviewPointer & { labelStatus: string }) | null
+            reading: ReviewReadingRecord | null
+            place: 'LEAD' | 'QUALIFICATION' | string
+        }[]
+        fullRules: (OverviewPointer & { labelStatus: string })[]
+    }[]
+}
+
+/**
+ * One material element of a team's full rule, as the overview's agreement check read it (stage 3F): the rule classing it, whether the
+ * overview must state it and why, the overview sentences stating it (by their words), the Details sentence a pointer leads to where it is
+ * left to Coach Details, and each sentence citing it whose words are not read as stating it, with the reason. For an administrator only.
+ */
+export interface ReviewMeaningElement {
+    rule: string
+    class: string
+    material: boolean
+    element: string
+    way: string | null
+    fields: string[]
+    statedBy: string[]
+    complete: boolean
+    pointer: { section: string; text: string } | null
+    notStatedBy: { text: string; why: string }[]
+    because: string
+}
+
+/** One finding of the overview's agreement check (stage 3D): a VIOLATION withholds the overview, never the activity. */
+export interface ReviewOverviewFinding {
+    question: string
+    severity: 'VIOLATION' | 'NOTE' | string
+    blockId: string | null
+    what: string
+}
+
+/** Word count and reading seconds of the overview: evidence, never a gate (stage 3D). */
+export interface ReviewOverviewReading {
+    words: number
+    byPart: { purpose: number; game: number; parameters: number; scoring: number }
+    secondsAt250Wpm: number
+    secondsAt200Wpm: number
+    detailsWords: number
+    basis: string
+}
+
+/** The administrator's overview draft, as far as the page reads it (stage 3D). Every other key is shown as sent. */
+export interface ReviewOverviewDraft {
+    served: boolean
+    check: { verdict: 'PASS' | 'FAIL' | string; findings: ReviewOverviewFinding[] } | null
+    reading: ReviewOverviewReading | null
+    presented: ReviewPresentedOverview | null
+    scoring: { table: { source: string; status: string; label: string | null; labelStatus: string; why: string | null }; readings: ReviewReadingsAccount }
+    /** What could not be composed, part by part (stage 3A): one of the reasons a withheld overview gives an administrator (stage 4). */
+    gaps?: { part: string; what: string }[]
+    [key: string]: unknown
 }
 
 /** One cross-block check (RB-1 to RB-8, and RB-M since stage K4). */
@@ -415,6 +628,35 @@ export interface ReviewEvidence {
     requests: { words: string; citedAs: string; sections: string[] }[]
     provenance: { elements: { path: string; row: string | null; blocks: string[]; layers: string[]; standings: string[]; sources: ReviewEvidenceSource[] }[]; untraced: string[]; lists: Record<string, unknown> | null; openForReview: ReviewFact[] }
     rationale: { features: { feature: string; featureBasis: 'OURS'; words: { words: string; citedAs: string }[]; statements: { id: string; category: string | null; text: string | null; provenance: string | null }[] }[]; his: { words: string[]; citedAs: string }; judgement: string }
+    /**
+     * Stage 3D (21 October 2026): the Coach Overview's agreement check as the server ran it — served or withheld, the verdict, every
+     * finding, the table it was built on, each presented sentence with its status, and the reading evidence. Present only on a served
+     * activity. Shown in the evidence panel since stage 4. Stage 3E: aligned with the draft — the table's source and label status, the PROPOSED readings record, each
+     * "full rule" pointer with its label and label status (a sentence's, and each group's own in `fullRules`), each extract's reading label.
+     */
+    overview?: {
+        served: boolean
+        verdict: string
+        findings: ReviewOverviewFinding[]
+        /** Stage 3F: with `why` (why the table cannot be used, or null). */
+        table: { source: string; status: string; label: string | null; labelStatus: string; why: string | null }
+        readings: ReviewReadingsAccount
+        sentences: {
+            part: string
+            group: string | null
+            text: string
+            wording: ReviewWordingStatus
+            source: Record<string, unknown> | null
+            fullRule: (OverviewPointer & { labelStatus: string }) | null
+            reading: ReviewReadingRecord | null
+            /** Stage 3F: a scoring sentence's place (the team's lead line, or a qualification); null for the other parts. */
+            place: string | null
+        }[]
+        fullRules: (OverviewPointer & { labelStatus: string; group: string })[]
+        reading: ReviewOverviewReading | null
+        /** Stage 3F: each team's material elements, and the overview sentence(s) stating each. */
+        meaning: { group: string; noun: string | null; elements: ReviewMeaningElement[] }[]
+    }
 }
 
 /** One sentence of the review draft: the instruction, whose wording it is, and the provisional choices it rests on. */

@@ -64,6 +64,11 @@ async function preBuildOperations() {
             choicesIndex,
             // Step 4 component 3 (14 October 2026): the coach wording he has approved, read at runtime by the renderer.
             'approved-coach-wording.json',
+            // Stage 3C (21 October 2026): the PROPOSED table of what the Coach Overview must state, read at module load by coach-overview.ts.
+            'overview-essentials.json',
+            // Stage 3E (22 October 2026): the PROPOSED record of what parts of his approved wording state, read at module load by
+            // approved-wording-readings.ts.
+            'approved-wording-readings.json',
             // Rounding at establishment (14 October 2026): the practical grain, read at module load by derivation/practical.ts.
             'practical-rounding.json',
             ...new Set(['a04-realization-choices.json', ...choicesFiles, ...provisionalChoices]),

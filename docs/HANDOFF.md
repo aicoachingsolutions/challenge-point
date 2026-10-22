@@ -8598,3 +8598,42 @@ OPEN (for his evaluation package / decisions):
 
 NEXT: Stage 3 (3A purpose/game/parameters, 3B derived extracts, 3C essentials table PROPOSED, 3D Q7 + serve overview),
 then Stage 4 (overview-first page) and 5A/5B (diagram; see `scratchpad/cd/stage5-notes.txt` for the far-zone label rule).
+
+## 22–23 OCTOBER — THE COACH OVERVIEW, HIS 23 OCTOBER RULINGS, THE OVERVIEW-FIRST PAGE AND THE DIAGRAM
+
+PR #132 (Stage 2) merged to main as `66718b1` (checks green). His 23 Oct reply (`scratchpad/christian-2026-10-23.txt`,
+memory `christian-rulings-2026-10-23.md`): KPS narrow alignment; mark-once GENERAL; RC3 as ONE concise integrated
+standard; completeness judged on the MEANING of the whole overview (W3 alone does not convey the goalkeeper origin);
+diagram: goals only when represented, one target-zone colour, no other-block labels, missing data blocks only a
+required relationship; proceed; next review = the coach experience.
+
+- Stage 3 (`649d7c5`..`bf46233`): `rendering/coach-overview.ts` (purpose = Learning Goal Coach Definition verbatim;
+  one game template; parameters), `derived-wording.ts` (three statuses; verbatim extracts only, each partitioning its
+  entry's covers), `docs/audits/overview-essentials.json` (PROPOSED, keyed by register row + condition type),
+  `overview-fidelity.ts` Q7.0-Q7.8 (a failure withholds ONLY the overview). 3E (`e13ad37`, `c4d426a`): clause-level part
+  attribution in Details; `docs/audits/approved-wording-readings.json` (PROPOSED; every stated condition justified by
+  a verbatim substring) — what a part of his wording states is never inferred from citations.
+- 2G (`61c832d`): mark once wherever every marking occupies the same place in every block (his general rule, quoted in
+  `physical-layout.ts`); the per-configuration MARK_UNION_ONCE record is REMOVED from learning-goal-authorizations.json
+  (AMENDED note in its `about`); where markings move, the exchange names each marking and where it goes (Q5-L, RB-L).
+- 3F (`eb090a6`): completeness by meaning — an approved sentence counts only for what its recorded reading states; his
+  item-4 example (W1:s1 + W3, no origin) is refused; restart triggers are DETAIL behind a pointer.
+- 4 (`b5ced24`): overview-first page; "full rule" links open Details at the sentence (section + words); his three
+  status names for administrators only; Details alone where the overview is withheld.
+- 5A (`1695dde`, `b1f69f6`): `field-diagram.ts` model in metres held to Details block by block; `game-reading.ts`.
+  5B (`649ba6a`): `FieldDiagram.tsx`, served to every viewer; one green for active target zones, team colours for team
+  identity, markings grey in every block, Block 1 / Block 2 tablist, accessible title/desc (D9 holds them to the model).
+- Polish (`087ccc3` + the page review commit): scoring grouped per team (line first, then that team's qualifications;
+  Q7 holds membership and the served shape); stronger green with a 4.80:1 edge; "More in Coach details:" links.
+- Served A01 overview: 147 words (35-44 s, evidence only): purpose (approved), game + parameters (draft), diagram,
+  Building team: W1 s1 extract, W1 s2 extract, W3; Pressing team: draft line, W2 leading-clause extract; pointers to
+  the restart sentence and the score value. Details: 28 sentences, unchanged. Suite FILES 110 FAILED 0.
+- Standards: integrated RC3 (1,006 words) + traceability + KPS RC1.1 (two lines) drafted in `scratchpad/std/`; to be
+  lodged in docs/standards/ after the final fact-check, with the coach-experience email.
+
+OPEN (his, via the coach-experience package): the PROPOSED readings and essentials table; his approved adjustment
+wording states intent ("may also expose space behind the press") which RC3 2.1 would remove; diagram placement (before
+the scoring list) and colour by role; every DRAFT sentence/label/diagram word. Ours: A01-W3's own note in
+approved-coach-wording.json (ours, 18 Oct) still says W3 covers the origin (not edited: his file); H4 (which element an
+adjustment moves) unchanged; "How this was arrived at" shows technical paths to every viewer; the front has no test
+runner (page verified by tsc, build and the TEST-ONLY harness in `scratchpad/cd/build/harness/`).

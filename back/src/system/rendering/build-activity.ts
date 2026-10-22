@@ -58,14 +58,18 @@ import type { AuthorizationExclusion, AuthorizationLists, AuthorizedAdjustment, 
 import { allocationPrinciple, authorizationLists, contextManipulationRelationships, learningGoalAuthorizations, libraryConstraintPrinciple, neededRecordGaps } from '../test-library/learning-goal-authorizations'
 import { applyRealizationDeferrals } from '../derivation/realization-deferral'
 import type { ConstraintAuthority, ConstraintPoolAccount } from '../test-library/types'
+import { CoachOverviewDraft, failedOverviewDraft } from './coach-overview'
+import { CoachDiagram, DiagramOutcome, diagramForServing } from './coach-diagram'
+import { failedDiagramDraft, FieldDiagramDraft } from './field-diagram'
+import { CoachOverview, OverviewEvidence, overviewEvidenceOf, overviewForServing, OverviewOutcome } from './overview-fidelity'
 import { contextScoringFindings, EPISODE_REACHABLE_CHECK } from './context-scoring-guard'
 import { checkFidelity, FidelityFinding } from './fidelity'
 import { ReviewDraft, reviewDraftOf } from './review-draft'
 import { EvidenceBlock, LayoutFallback, ReviewEvidence, reviewEvidenceOf } from './review-evidence'
 import { mechanismDemonstration } from './mechanism-demonstrations'
-import { RenderedActivity, renderConcreteGame } from './render-concrete-game'
+import { Instruction, RenderedActivity, renderConcreteGame } from './render-concrete-game'
 import { assembleRenderingFixture } from './rendering-fixture'
-import { layoutChoicesOf, layoutMoversOf, layoutOf, MARK_UNION_ONCE } from './physical-layout'
+import { layoutMoversOf, layoutOf, remarkingSummary } from './physical-layout'
 import { checkRoleBlockComposition, checkRoleBlockLayout, checkRoleBlocks, composeRoleBlockActivity, RoleBlockCheck, roleBlockFixture } from './role-blocks'
 import { ActivitySession, availabilityQuestion } from './session-envelope'
 
@@ -259,6 +263,47 @@ export interface ServedActivity {
     roleBlocks?: RoleBlockAccount
     /** The admin-only review evidence (stage K8), where the goal's record asks for one; see `RefusedActivity.evidence`. */
     evidence?: ReviewEvidence
+    /**
+     * **The Coach Overview's learning purpose, game sentence and basic parameters, for an administrator only** (stage 3A, 21 October
+     * 2026; `coach-overview.ts`). Computed from the same games the served activity was rendered from (each role block, or the one game),
+     * only by the review build with drafts (`buildActivityForReview`, the route's administrator check), for every served activity that
+     * build makes. Not served to a coach: stage 3D serves the overview once its agreement check (Q7) is in place. It never decides
+     * whether an activity is served; whatever it cannot say is a gap inside it. Since stage 3B it also lists, per block, the verbatim
+     * extracts of the approved wording that block's game says (`derived-wording.ts`), each DERIVED_FROM_APPROVED with its source entry and
+     * cover accounting, and those withheld with why. Since stage 3C, how each team scores, per block (`scoring`), composed through the
+     * PROPOSED essentials table and labelled as built on it. Since stage 3D, the agreement check's verdict and findings (`check`), whether
+     * the overview is served (`served`), the overview as presented with each sentence's status (`presented`) and its word count and reading
+     * seconds (`reading`, evidence only).
+     */
+    overviewDraft?: CoachOverviewDraft
+    /**
+     * **The Coach Overview, served to every viewer** — stage 3D, 21 October 2026 (`overview-fidelity.ts`). His reply filed 22 October 2026,
+     * item 1: *"Coach Overview — The immediate understanding of the activity: learning purpose, one-sentence game description, basic
+     * parameters, essential scoring objectives, and a simple diagram."* Words and "full rule" pointers only (no status, source, citation or
+     * binding: those are the administrator's, in `overviewDraft`). Present only where the overview agrees with Coach Details in every block
+     * (Q7); withheld otherwise, the activity served exactly as without it. Every word is DRAFT except his purpose and his approved wording.
+     * The diagram is served beside it, as its own layer (`diagram`, stage 5B): either may be withheld without the other.
+     */
+    overview?: CoachOverview
+    /**
+     * **The field diagram as a model, and its agreement check, for an administrator only** — stage 5A, 22 October 2026
+     * (`field-diagram.ts`). His reply filed 22 October 2026, item 1, puts *"a simple diagram"* in the Coach Overview; his reply filed 23
+     * October 2026, item 5, says what it shows and when missing information may prevent it. Computed from the same games the activity was
+     * rendered from, for every served activity; checked against each block's Coach Details. DRAWN where it agrees, WITHHELD with every
+     * finding otherwise; it never decides whether an activity is served. Only the review build with drafts carries it. Since stage 5B,
+     * `served` says whether every viewer was served the diagram (`diagram`), and a finding of D9 (the coach's diagram against this model)
+     * withholds it too. Every word is DRAFT except his terms "marked line" and "target zone".
+     */
+    diagramDraft?: FieldDiagramDraft
+    /**
+     * **The field diagram, served to every viewer** — stage 5B, 22 October 2026 (`coach-diagram.ts`). His reply filed 22 October 2026,
+     * item 1: the Coach Overview holds *"a simple diagram"*; his reply filed 23 October 2026, item 5, says what it shows. Geometry in
+     * metres and words only (no id, data key, path or citation: those are the administrator's, in `diagramDraft`), block by block. Present
+     * only where the model agrees with Coach Details in every block (D0-D8) and this diagram with the model (D9); withheld otherwise, the
+     * activity served exactly as without it. Every word is DRAFT except his terms "marked line" and "target zone" and the nouns and counts
+     * a served sentence carries.
+     */
+    diagram?: CoachDiagram
 }
 
 /** The role blocks of a served activity, for the technical account (stage K3). */
@@ -1016,6 +1061,31 @@ function build(
         selection: goalSelection,
         fixture: built.fixture,
     })
+    /**
+     * Stage 3A: the Coach Overview's purpose, game sentence and parameters, for an administrator's review only (`overviewDraft`). The
+     * purpose is the goal's (a demonstration has none); the game and parameters are read from each game served. Whatever goes wrong is a
+     * gap inside it, never a refusal: the activity is served or refused exactly as it would be without it. Stage 3C: each game's own render
+     * is handed in, so how each team scores is composed from exactly the Details that game says.
+     */
+    const purposeGoal = kind === 'learning-goal' && request.kind === 'learning-goal' ? request.goalId : null
+    /**
+     * Stage 3D: the overview, composed from the games as served, checked against each game's own Details (Q7) and against the Details a
+     * coach is served, for EVERY build that serves (a coach's and an administrator's alike). Served (`overview`) only where it agrees; the
+     * draft with the check's findings goes to an administrator only (`overviewDraft`, and the review evidence where the record asks for
+     * one). Whatever fails withholds the overview only.
+     */
+    const overviewOf = (games: { blockId: string; fixture: any; rendered: { instructions: Instruction[] } }[], served: Instruction[]): OverviewOutcome => {
+        try {
+            return overviewForServing({ goalId: purposeGoal, games, served })
+        } catch (error) {
+            const draft = failedOverviewDraft(error instanceof Error ? error.message : String(error))
+            return { overview: null, draft, evidence: overviewEvidenceOf(draft) }
+        }
+    }
+    const overviewKeys = (outcome: OverviewOutcome): Partial<ServedActivity> => ({
+        ...(outcome.overview ? { overview: outcome.overview } : {}),
+        ...(review.includeDrafts ? { overviewDraft: outcome.draft } : {}),
+    })
 
     /**
      * **A game played in role blocks is built twice: one complete game per block, then the blocks against each other** —
@@ -1037,6 +1107,22 @@ function build(
      * on the register's roles row is even asked. A game establishing part of a role exchange is refused here.
      */
     const roleIndex = indexRegister(input.register)
+    /**
+     * Stage 5A: the field diagram's model and agreement check (`field-diagram.ts`), read from the games as served and held to each block's
+     * Details, the Details a coach is served and the served role-block account. Stage 5B (`coach-diagram.ts`): for EVERY build that serves
+     * (a coach's and an administrator's alike), the diagram a coach reads is composed from that model and held to it (D9), and served
+     * (`diagram`) only where everything agrees; the model, the findings and the notes go to an administrator only (`diagramDraft`). Whatever
+     * fails, including the computation itself, withholds the diagram only: the activity, and its overview, are served exactly as without it.
+     */
+    const diagramKeys = (games: { blockId: string; holders: Record<string, string>; fixture: any; rendered: Instruction[] }[], served: Instruction[], roleBlocks: { blockId: string; holders: Record<string, string> }[] | null): Partial<ServedActivity> => {
+        let outcome: DiagramOutcome
+        try {
+            outcome = diagramForServing({ session, games, served, roleBlocks, index: roleIndex }, { title })
+        } catch (error) {
+            outcome = { diagram: null, draft: failedDiagramDraft(error instanceof Error ? error.message : String(error)) }
+        }
+        return { ...(outcome.diagram ? { diagram: outcome.diagram } : {}), ...(review.includeDrafts ? { diagramDraft: outcome.draft } : {}) }
+    }
     const rolesRow = roleIndex.roleBlocks?.rolesRow
     if (rolesRow && (input.contracts as LoadedContract[]).some(contract => (contract.items ?? []).some(item => String(item.row) === rolesRow))) {
         const base: any = runStages0to5(input)
@@ -1097,27 +1183,29 @@ function build(
                 ])
             }
             /**
-             * **Every block's markings set out once, where his recorded choice applies and they can be** — stage 2D, 21 October 2026. His reply
-             * filed 22 October 2026, item 7: *"For this particular 40 × 30 m configuration, we can also simplify setup by marking the halfway
-             * line and both 5 m end zones at the beginning. Role exchanges should not require unnecessary physical re-marking."* Once the two
-             * blocks agree as the exchange of each other, the physical layout is read from both realized games and the goal's record
-             * (`layoutOf`: his recorded choice for this area, the adjustments that move a position's magnitude). Where it applies, each block
-             * is rendered and checked again with it (`recommunicate`), replacing its first render, findings and evidence, and the blocks are
-             * read again from there (a block the layout render refuses at communication is refused like any other). Then RB-L recomputes the
-             * layout from the blocks and holds every block's to it. Where it does not apply, nothing is re-rendered: the per-block text stays
-             * exactly as it was, and, where a choice was recorded, the admin-only review evidence says why (hardening H1, below).
+             * **Every block's markings set out once, wherever they occupy the same places** — stage 2D, 21 October 2026; a general
+             * presentation rule since stage 2G, his reply filed 23 October 2026, item 2: *"Please authorize marking once whenever the system
+             * can establish that the physical markings occupy the same locations across all blocks. This should be a general presentation
+             * rule, not something requiring my approval for each configuration."* Once the two blocks agree as the exchange of each other,
+             * the physical layout is read from both realized games (`layoutOf`, with the adjustments that move a position's magnitude; no
+             * record is read). Where it applies, each block is rendered and checked again with it (`recommunicate`), replacing its first
+             * render, findings and evidence, and the blocks are read again from there (a block the layout render refuses at communication
+             * is refused like any other). Where it does not, and some marking moves between the blocks, each block is rendered and checked
+             * again with what moves (`remarking`), so its exchange sentence says what to adjust: *"If markings change location between
+             * blocks, the instructions should identify what needs to be adjusted."* Then RB-L recomputes both from the blocks and holds
+             * every block's to them. Where neither applies, nothing is re-rendered, and where a reason is known the admin-only review
+             * evidence says why (hardening H1, below).
              */
-            const layoutChoices = layoutChoicesOf(goalSelection?.authorization)
             const layoutMovers = layoutMoversOf(goalSelection?.authorization)
             const layoutDecision = layoutOf(
                 games.map(entry => ({ blockId: entry.block.blockId, fixture: entry.fixture })),
-                layoutChoices,
                 layoutMovers,
             )
-            if (layoutDecision.applies) {
+            const addedForBlocks = layoutDecision.applies ? { layout: layoutDecision.layout } : layoutDecision.remarking ? { remarking: layoutDecision.remarking } : null
+            if (addedForBlocks) {
                 blocks = blocks.map(entry => {
                     const again = entry.outcome.recommunicate
-                    return { block: entry.block, outcome: again ? again({ layout: layoutDecision.layout }) : entry.outcome }
+                    return { block: entry.block, outcome: again ? again(addedForBlocks) : entry.outcome }
                 })
                 stopped = stoppedOf(blocks)
                 first = firstOf(stopped)
@@ -1126,7 +1214,6 @@ function build(
             }
             const layoutCheck = checkRoleBlockLayout(
                 games.map(entry => ({ blockId: entry.block.blockId, fixture: entry.fixture })),
-                layoutChoices,
                 layoutMovers,
             )
             checks.push(layoutCheck)
@@ -1140,21 +1227,21 @@ function build(
             const renders = games.map(entry => ({ blockId: entry.block.blockId, rendered: entry.rendered, fixture: entry.fixture }))
             const composed = composeRoleBlockActivity(renders, roleIndex)
             /**
-             * Stage 2D: where his choice is recorded and the markings stay block by block, why is said (DRAFT words) — to an administrator
-             * only. Hardening H1, 21 October 2026 (the 2D review's should-fix 1): it was pushed onto `coachingObservations`, which every
-             * viewer can expand under "How this was arrived at", and it carries internal ids (an element id, block ids, the choice's code).
-             * It now goes to the admin-only review evidence (`reviewEvidenceOf`, `layoutFallback`), and the composed activity a coach is
-             * served is exactly the composition of the block renders.
+             * Stage 2D: where the markings stay block by block, why is said (DRAFT words) — to an administrator only. Hardening H1, 21
+             * October 2026 (the 2D review's should-fix 1): it was pushed onto `coachingObservations`, which every viewer can expand under
+             * "How this was arrived at", and it carries internal ids (element ids, block ids). It goes to the admin-only review evidence
+             * (`reviewEvidenceOf`, `layoutFallback`), and the composed activity a coach is served is exactly the composition of the block
+             * renders. Stage 2G: said wherever a reason is known (no recorded choice is read any longer), with which markings move.
              */
-            const layoutFallback = !layoutDecision.applies && layoutDecision.recorded ? { choice: MARK_UNION_ONCE, why: [...layoutDecision.why] } : null
+            const layoutFallback = !layoutDecision.applies && layoutDecision.why.length ? { why: [...layoutDecision.why], moves: remarkingSummary(layoutDecision.remarking) } : null
             const composition = checkRoleBlockComposition(renders, composed, roleIndex)
             const violations = composition.filter(finding => finding.severity === 'VIOLATION')
             /**
              * The admin-only review evidence of the composed activity (stage K8), for a goal whose record asks for one: read from the two
              * games as built, the cross-block checks and the composition. Never on a coach's answer.
              */
-            const evidenceOf = (outcome: string) =>
-                reviewEvidenceFor(review, goalSelection, account, roleIndex, session, outcome, composed, composition, checks, games.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, fixture: entry.fixture, contracts: entry.contracts, rendered: entry.rendered, ...entry.evidence })), layoutFallback)
+            const evidenceOf = (outcome: string, overview: OverviewEvidence | null = null) =>
+                reviewEvidenceFor(review, goalSelection, account, roleIndex, session, outcome, composed, composition, checks, games.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, fixture: entry.fixture, contracts: entry.contracts, rendered: entry.rendered, ...entry.evidence })), layoutFallback, overview)
             /** The admin-only draft of the composed activity (stage K7), attached to a refusal at communication where it was asked for. */
             const withDraft = (refusal: ReturnType<typeof refuse>) => {
                 if (review.includeDrafts) (refusal.activity as RefusedActivity).draft = reviewDraftOf(games.map(entry => entry.fixture), composed, [...games.flatMap(entry => entry.violations), ...violations])
@@ -1173,6 +1260,11 @@ function build(
                 )
             }
             const built = games.map(entry => ({ block: entry.block, built: blocks.find(b => b.block === entry.block)!.outcome as Extract<GameOutcome, { outcome: 'built' }> }))
+            // Stage 3D: the overview, read from each block's own game as served and checked against it and the composed Details.
+            const overview = overviewOf(
+                games.map(entry => ({ blockId: entry.block.blockId, fixture: entry.fixture, rendered: entry.rendered })),
+                composed.instructions,
+            )
             return serve(
                 {
                     ...built[0].built,
@@ -1201,7 +1293,15 @@ function build(
                         firstBlockBasis: FIRST_BLOCK_BASIS,
                     },
                     // Stage K8: the admin-only review evidence, where the goal's record asks for one; absent on every coach's answer.
-                    ...((evidence => (evidence ? { evidence } : {}))(evidenceOf('served'))),
+                    ...((evidence => (evidence ? { evidence } : {}))(evidenceOf('served', overview.evidence))),
+                    // Stage 3D: the overview where it agrees (every viewer); its draft and the check's findings for an administrator only.
+                    ...overviewKeys(overview),
+                    // Stage 5A/5B: the diagram where it agrees (every viewer); its model and the checks' findings for an administrator only.
+                    ...diagramKeys(
+                        games.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, fixture: entry.fixture, rendered: entry.rendered.instructions })),
+                        composed.instructions,
+                        built.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders } })),
+                    ),
                 },
             )
         }
@@ -1231,8 +1331,10 @@ function build(
         if (evidence) (refusal.activity as RefusedActivity).evidence = evidence
         return refusal
     }
-    const evidence = reviewEvidenceFor(review, goalSelection, account, roleIndex, session, 'served', one.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.contracts, rendered: one.rendered, ...one.evidence }])
-    return serve(one, evidence ? { evidence } : {})
+    // Stage 3D: the overview of the one game, checked against its Details (which are what a coach is served).
+    const overview = overviewOf([{ blockId: ONE_GAME, fixture: one.fixture, rendered: one.rendered }], one.rendered.instructions)
+    const evidence = reviewEvidenceFor(review, goalSelection, account, roleIndex, session, 'served', one.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.contracts, rendered: one.rendered, ...one.evidence }], null, overview.evidence)
+    return serve(one, { ...(evidence ? { evidence } : {}), ...overviewKeys(overview), ...diagramKeys([{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, rendered: one.rendered.instructions }], one.rendered.instructions, null) })
 }
 
 /** The block id the review evidence gives a game not played in role blocks. */
@@ -1254,8 +1356,10 @@ function reviewEvidenceFor(
     compositionFindings: FidelityFinding[],
     crossBlock: RoleBlockCheck[],
     blocks: EvidenceBlock[],
-    /** Hardening H1: where a recorded choice to set the markings out once does not apply, why (admin-only). Null everywhere else. */
+    /** Hardening H1 (stage 2G): where the markings are presented block by block for a known reason, why and what moves (admin-only). Null everywhere else. */
     layoutFallback: LayoutFallback | null = null,
+    /** Stage 3D: the overview's verdict, findings, statuses and reading evidence (admin-only); null on a refusal, where there is none. */
+    overview: OverviewEvidence | null = null,
 ): ReviewEvidence | null {
     const record = goalSelection?.authorization
     if (!review.includeDrafts || !record?.reviewRequest) return null
@@ -1272,6 +1376,7 @@ function reviewEvidenceFor(
         relationships: contextManipulationRelationships(),
         selectedConstraints: (account.constraints ?? []).map(constraint => constraint.id),
         index,
+        overview,
     })
 }
 
@@ -1316,7 +1421,7 @@ type GameOutcome =
           /** Every Gate A check as rerun on this game's concrete game (stage K4): read only into a role block's account. */
           concreteChecks: { checkId: string; verdict: string }[]
           evidence: GameEvidence
-          /** Stage 2D: the same game rendered and checked again with these fields added to its fixture (its physical layout). */
+          /** Stage 2D: the same game rendered and checked again with these fields added to its fixture (its physical layout, or since stage 2G what moves at the exchange). */
           recommunicate: (extra: Record<string, unknown>) => GameOutcome
       }
 
@@ -1545,10 +1650,11 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
     /**
      * **Rendering and fidelity, as one step that can be run again on the same game** — stage 2D, 21 October 2026. A game played in role
      * blocks may be given its physical layout once both blocks are built (`physical-layout.ts`: every block's markings set out once, his
-     * reply filed 22 October 2026, item 7), and then each block is rendered and checked again WITH it (`recommunicate`): the outcome,
-     * render, fidelity findings, integrity counts and evidence of the first render are replaced, never kept beside the new ones. Nothing
-     * before rendering is re-run: the layout is a reading of the realized games, not a change to them. Every game without a layout is
-     * rendered once, exactly as before.
+     * reply filed 22 October 2026, item 7, a general rule since his reply filed 23 October 2026, item 2), or, since stage 2G, what moves at
+     * the exchange where the markings do not occupy the same places, and then each block is rendered and checked again WITH it
+     * (`recommunicate`): the outcome, render, fidelity findings, integrity counts and evidence of the first render are replaced, never kept
+     * beside the new ones. Nothing before rendering is re-run: either is a reading of the realized games, not a change to them. Every game
+     * given neither is rendered once, exactly as before.
      */
     const communicate = (assembled: any): GameOutcome => {
         const rendered = renderConcreteGame(assembled)

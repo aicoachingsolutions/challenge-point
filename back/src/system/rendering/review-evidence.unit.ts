@@ -231,9 +231,14 @@ test('3. provenance: his three layers and the standings, every cited path traced
     // Re-pointed 21 October 2026 (stage 2D): with every block's markings set out once, the sentence names the end zone the target is
     // ("The pressing team's target zone is the 5 m end zone at the building team's end"; was "Mark the pressing team's target zone at the
     // building team's end, 5 m deep, across the full width"), and rests on his recorded choice too.
+    // Re-pointed 21 October 2026 (stage 2G): the layout rests on his general presentation rule (reply filed 23 October 2026, item 2), a
+    // general mechanism he authorized, no longer the goal's provisional record ('record MARK_UNION_ONCE', his reply filed 22 October 2026,
+    // item 7); the reading of the blocks' edges stays ours.
     const depth = said("The pressing team's target zone")
     assert.ok(depth.sources.some(s => s.ref === 'provisional:A01-R1::A01-R1-S5-3' && s.standing === 'PROVISIONAL'), JSON.stringify(depth.sources))
-    assert.ok(depth.sources.some(s => s.ref === 'record MARK_UNION_ONCE' && s.standing === 'PROVISIONAL' && s.detail === 'his reply filed 22 October 2026, item 7'), JSON.stringify(depth.sources))
+    assert.ok(depth.sources.some(s => s.ref === 'presentation rule MARK_UNION_ONCE' && s.layer === 'GENERAL_ENGINE_MECHANISM' && s.standing === 'APPROVED' && s.detail === 'his reply filed 23 October 2026, item 2'), JSON.stringify(depth.sources))
+    assert.ok(!depth.sources.some(s => s.ref.startsWith('record MARK_UNION_ONCE')), 'no record of a choice')
+    assert.ok(depth.sources.some(s => s.standing === 'OUR_READING' && s.ref === "physical layout (the union of every block's realized edges)"))
     // An adjustment: his provisional choice, through a relationship he CONFIRMED on 18 October.
     const moveLine = said('You may choose to move the marked line')
     assert.ok(moveLine.sources.some(s => s.ref === 'record A01-ADJ-3' && s.standing === 'PROVISIONAL'))
@@ -262,10 +267,13 @@ test('4. key identity: the evidence reaches the administrator\'s review of a goa
     // evidence (a draft belongs to a refusal at communication only); everything else is what the coach receives. Was: draft and evidence.
     const plain = buildActivity(a01) as ServedActivity
     assert.equal(plain.outcome, 'served')
-    const { evidence: carried, ...rest } = review
-    assert.ok(carried && !('draft' in review))
-    assert.deepEqual(rest, plain, 'apart from the admin-only evidence, the administrator receives what the coach receives')
-    assert.ok(!('evidence' in plain))
+    // Re-pointed 21 October 2026 (stage 3A): beside the evidence, the administrator's answer carries the Coach Overview's parts as computed
+    // for review (`overviewDraft`, admin-only until stage 3D); the coach's carries neither.
+    // Re-pointed 22 October 2026 (stage 5A): and the field diagram's model and agreement check (`diagramDraft`, admin-only until stage 5B).
+    const { evidence: carried, overviewDraft, diagramDraft, ...rest } = review
+    assert.ok(carried && overviewDraft && diagramDraft && !('draft' in review))
+    assert.deepEqual(rest, plain, 'apart from the admin-only evidence, overview draft and diagram draft, the administrator receives what the coach receives')
+    assert.ok(!('evidence' in plain) && !('overviewDraft' in plain) && !('diagramDraft' in plain))
     assert.ok(!('reviewRequest' in (plain.account.authorization as object)), "the coach's account no longer copies the request")
     const stored: any = { _id: 'TEST-ONLY', createdBy: 'TEST-ONLY', playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: { ...none, [ROLE]: 1 } }
     assert.ok(!('evidence' in reviewActivity(stored, { learningGoalId: 'A01', durationMin: 20 })))

@@ -234,26 +234,14 @@ export interface ProvisionalChoice {
     status: ManipulationStatus
     gaps: string[]
     note: string | null
-    /**
-     * **A choice a reader acts on, by its code** — added 21 October 2026 (stage 2D of the communication work), for his reply filed 22
-     * October 2026, item 7: *"For this particular 40 × 30 m configuration, we can also simplify setup by marking the halfway line and both
-     * 5 m end zones at the beginning."* A member of `PROVISIONAL_CHOICE_VALUES`, read by the one reader that acts on it (MARK_UNION_ONCE:
-     * `rendering/physical-layout.ts`). Absent on every choice no reader acts on, which is every other choice.
+    /*
+     * Stage 2D (21 October 2026) added `value` (a code a reader acts on, `PROVISIONAL_CHOICE_VALUES`, one member: MARK_UNION_ONCE) and
+     * `appliesTo` (the area his reply filed 22 October 2026, item 7, scoped it to). Stage 2G removed both, with the one entry that carried
+     * them: his reply filed 23 October 2026, item 2, *"This should be a general presentation rule, not something requiring my approval for
+     * each configuration."* Marking once is decided by `rendering/physical-layout.ts` from the blocks themselves; the loader refuses either
+     * field (below), so a per-configuration record cannot come back unread.
      */
-    value?: (typeof PROVISIONAL_CHOICE_VALUES)[number]
-    /**
-     * **Where his words scope the choice** (stage 2D): the area, in metres, exactly as he named it. Required with `value`, never without it;
-     * the only place such a value is written (no code names it).
-     */
-    appliesTo?: { lengthM: number; widthM: number }
 }
-
-/**
- * **The choice codes a reader acts on** — stage 2D, 21 October 2026. One today: `MARK_UNION_ONCE`, his reply filed 22 October 2026, item 7
- * (*"Role exchanges should not require unnecessary physical re-marking."*): every role block's markings set out once, at the start, where
- * the general admissibility test (`rendering/physical-layout.ts`) finds they can be. A code no reader knows is refused at load.
- */
-export const PROVISIONAL_CHOICE_VALUES = ['MARK_UNION_ONCE'] as const
 
 /**
  * **The evidence sections a review request may point at** — stage K8, 15 October 2026. Named by the review evidence
@@ -503,17 +491,13 @@ export function validateLearningGoalAuthorizations(
             }
             errors.push(...statusErrors(`${goal}: provisional choice ${i + 1}`, choice.category, choice.status, choice.gaps))
             /**
-             * Stage 2D (21 October 2026): a choice a reader acts on names a code the reader knows and the area his words scope it to, both or
-             * neither; a code nobody reads, or a scope with no code, would be a value acted on by nobody's word, or a choice acted on beyond it.
+             * Stage 2G (21 October 2026), his reply filed 23 October 2026, item 2: *"This should be a general presentation rule, not something
+             * requiring my approval for each configuration."* Stage 2D's code and area (`value`, `appliesTo`) are read by nothing any longer,
+             * so a choice carrying either is refused: it would be a value acted on by nobody, or a per-configuration record his general rule
+             * replaced. (Until stage 2G one code, MARK_UNION_ONCE, with exactly lengthM and widthM, was admitted for his ruling.)
              */
-            if (choice.value !== undefined || choice.appliesTo !== undefined) {
-                const scope = choice.appliesTo as unknown as Record<string, unknown> | undefined
-                const positive = (n: unknown) => typeof n === 'number' && Number.isFinite(n) && n > 0
-                if (!(PROVISIONAL_CHOICE_VALUES as readonly string[]).includes(String(choice.value))) errors.push(`${goal}: provisional choice ${i + 1} names the code ${JSON.stringify(choice.value ?? null)}, which no reader acts on`)
-                if (!scope || typeof scope !== 'object' || Object.keys(scope).sort().join(',') !== 'lengthM,widthM' || !positive(scope.lengthM) || !positive(scope.widthM)) {
-                    errors.push(`${goal}: provisional choice ${i + 1} carries a code and no area it applies to (appliesTo: lengthM and widthM, in metres, and nothing else)`)
-                }
-                if (choice.status !== 'AUTHORIZED_BY_RULING') errors.push(`${goal}: provisional choice ${i + 1} carries a code a reader acts on and is ${choice.status}, not his ruling`)
+            if ('value' in choice || 'appliesTo' in choice) {
+                errors.push(`${goal}: provisional choice ${i + 1} carries a code or an area a reader would act on (value, appliesTo); marking once is a general presentation rule since his reply filed 23 October 2026, item 2, and no reader acts on a choice per configuration`)
             }
         }
         const authorized = new Set((entry.authorizedConstraints ?? []).map(knowledgeKey))

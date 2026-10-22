@@ -265,7 +265,8 @@ test('12 players, one keeper: 6 + keeper against 5 in both blocks, every cross-b
         assert.deepEqual(block.concreteChecks.filter(c => c.checkId === 'GA-ROSTER-SUM').map(c => c.verdict), ['PASS'], `block ${block.blockId}`)
         assert.ok(!block.concreteChecks.some(c => c.verdict === 'FAIL'), `block ${block.blockId}: ${JSON.stringify(block.concreteChecks)}`)
     }
-    // RB-L joined 21 October 2026 (stage 2D): the markings set out once (his recorded choice for 40 x 30 m) are the blocks' own.
+    // RB-L joined 21 October 2026 (stage 2D): the markings set out once are the blocks' own (since stage 2G by his general rule, reply
+    // filed 23 October 2026, item 2, not a recorded choice for 40 x 30 m).
     assert.deepEqual(twelveServed.roleBlocks!.checks.map(c => [c.checkId, c.verdict]), ['RB-1', 'RB-2', 'RB-3', 'RB-4', 'RB-5', 'RB-6', 'RB-7', 'RB-8', 'RB-M', 'RB-L'].map(id => [id, 'PASS']))
     // The deferred item travels into each block's fixture as the alternative, with what it defers to.
     for (const block of blocks) {

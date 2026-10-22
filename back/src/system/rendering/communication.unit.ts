@@ -33,7 +33,10 @@
  *      re-establish it;
  *   9. (stage 2C, 21 October 2026) a sentence the two blocks say alike by role is said once, block 1's citations exactly and block
  *      2's beside them; Q6 refuses a counterpart one word different, missing or not mapping, and a repetition; the review evidence
- *      shows both blocks' realized positions.
+ *      shows both blocks' realized positions;
+ *  10. (stage 3E, 22 October 2026, fix (a) of the 3C review) each clause its own part, by clause structure: each restart moment citing its
+ *      own trigger, a closing bracketed aside citing what the phrase it qualifies cites, the zone-entry way to score as its lead and the
+ *      elaboration of the event; the words, status and citations of every sentence unchanged, and fidelity holding them as before.
  */
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
@@ -49,7 +52,7 @@ import { buildPilotActivity } from './build-pilot-activity'
 import { checkFidelity, OBLIGATION_ALLOWLIST, OBLIGATIONS } from './fidelity'
 import { OUT as A04_FIXTURE } from './freeze-a04-fixture'
 import { MECHANISM_DEMONSTRATIONS } from './mechanism-demonstrations'
-import { ADJUSTING, Instruction, renderConcreteGame, ROLE_EXCHANGE, roleKeyedPositions } from './render-concrete-game'
+import { ADJUSTING, asideOf, Instruction, renderConcreteGame, ROLE_EXCHANGE, roleKeyedPositions } from './render-concrete-game'
 import { checkRoleBlockComposition, composeRoleBlockActivity, counterpartMap, counterpartPath } from './role-blocks'
 import { specializedRoleNames } from './session-envelope'
 
@@ -141,7 +144,8 @@ test('1. the review draft of A01 (TEST-ONLY: the table as at stage M5): every se
         'Set up: Mark out an area 40 m long by 30 m wide',
         // Moved 21 October 2026 (stage 2D, his reply filed 22 October 2026, item 7: "For this particular 40 × 30 m configuration, we can
         // also simplify setup by marking the halfway line and both 5 m end zones at the beginning. Role exchanges should not require
-        // unnecessary physical re-marking."; recorded as the choice MARK_UNION_ONCE, physical-layout.unit.ts): every block's markings set
+        // unnecessary physical re-marking."; recorded as the choice MARK_UNION_ONCE until stage 2G made marking once a general rule, his
+        // reply filed 23 October 2026, item 2, physical-layout.unit.ts): every block's markings set
         // out once, and each role's target said by role (DRAFT). "Halfway" is read from the values (the line at 20 m of 40 m). Was:
         // "Mark a line across the area, 20 m from the building team's end line"; then (stage 2C, each said once for both blocks) "Mark the
         // pressing team's target zone at the building team's end, 5 m deep, across the full width" and "Mark the building team's target
@@ -231,8 +235,11 @@ test('1. the review draft of A01 (TEST-ONLY: the table as at stage M5): every se
     assert.deepEqual(draft.instructions[0].provisionalSources, [])
     assert.ok(draft.instructions.find(i => i.text.includes('restarts play from the feet'))!.provisionalSources.includes('provisional:A01-R1::A01-R1-T3-1'))
     assert.ok(draft.instructions.find(i => i.text.includes('nearer to either end line'))!.provisionalSources.includes('record A01-ADJ-3'))
-    // Stage 2D: the markings set out once rest on his recorded choice, named by its code.
-    assert.ok(draft.instructions.find(i => i.text.startsWith('Mark a 5 m end zone'))!.provisionalSources.includes('record MARK_UNION_ONCE'))
+    // Stage 2D: the markings set out once rested on his recorded choice, named by its code (`record MARK_UNION_ONCE`). Re-pointed 21
+    // October 2026 (stage 2G): they rest on his general presentation rule (reply filed 23 October 2026, item 2), which is no provisional
+    // choice, so no record is named; the end zones keep the provisional sources of the regions they set out.
+    const endZones = draft.instructions.find(i => i.text.startsWith('Mark a 5 m end zone'))!
+    assert.ok(!endZones.provisionalSources.some(source => source.startsWith('record ')), JSON.stringify(endZones.provisionalSources))
     // Withheld: the four build-out conditions in each block (type, referents, value where held, scope) and nothing else.
     // Moved 17 October 2026 (stage M1), 30 -> 32: and the building role's credit bound in each block (row B8, his reply filed 19
     // October 2026, item 1 and item 3 C), said only in approved words. The pressing role's WHOLE_GAME states no condition and is
@@ -297,9 +304,16 @@ test('2. key identity: the draft reaches the administrator\'s review answer and 
     assert.deepEqual([coachServed.outcome, adminServed.outcome], ['served', 'served'])
     assert.ok(!('draft' in coachServed) && !('draft' in adminServed))
     assert.ok(!('evidence' in coachServed) && !!adminServed.evidence, 'the evidence is the administrator\'s')
-    const { evidence: servedEvidence, ...servedRest } = served
-    assert.ok(servedEvidence)
-    assert.deepEqual(servedRest, servedPlain, 'the served review answer is the coach\'s answer plus the evidence')
+    // Re-pointed 21 October 2026 (stage 3A): the administrator's served answer also carries the Coach Overview's parts as computed for
+    // review (`overviewDraft`, admin-only until stage 3D serves the overview); the coach's carries neither, and nothing else differs.
+    assert.ok(!('overviewDraft' in coachServed) && !!adminServed.overviewDraft, 'the overview draft is the administrator\'s')
+    // Re-pointed 22 October 2026 (stage 5A): the administrator's served answer also carries the field diagram's model and agreement check
+    // (`diagramDraft`, admin-only until stage 5B serves the diagram); the coach's does not, and nothing else differs.
+    assert.ok(!('diagramDraft' in coachServed) && !!adminServed.diagramDraft, 'the diagram draft is the administrator\'s')
+    const { evidence: servedEvidence, overviewDraft: servedOverview, diagramDraft: servedDiagram, ...servedRest } = served
+    assert.ok(servedEvidence && servedOverview && servedDiagram)
+    assert.ok(!('diagramDraft' in servedPlain))
+    assert.deepEqual(servedRest, servedPlain, 'the served review answer is the coach\'s answer plus the evidence, the overview draft and the diagram draft')
     assert.deepEqual(adminServed.rendered, coachServed.rendered)
     // A served activity never carries a draft, even when asked: a draft belongs to a refusal at communication only.
     for (const demonstration of MECHANISM_DEMONSTRATIONS) {
@@ -773,6 +787,48 @@ test('9. (stage 2C) a sentence the role blocks say alike by role is said once: b
     }
     const players = evidence.sections.instructions.find(i => i.section === 'Players')!
     assert.equal(new Set(entailments(players.sources).map(detail => unblocked(detail).split(' = ')[0])).size, members.length, 'the roster sentence, citing every member, rests on every member\'s entailment')
+})
+
+test('10. (stage 3E) each clause its own part: every citation sits on the words that state it; the words, status and citations unchanged', () => {
+    // The rule, by clause structure: a phrase closing on one bracketed aside is two clauses; any other phrase is one.
+    assert.deepEqual(asideOf('TEST-ONLY words (an aside)'), ['TEST-ONLY words', ' (an aside)'])
+    assert.deepEqual(asideOf('TEST-ONLY words (an aside) and more'), ['TEST-ONLY words (an aside) and more', null])
+    assert.deepEqual(asideOf('TEST-ONLY words'), ['TEST-ONLY words', null])
+    assert.deepEqual(asideOf('(TEST-ONLY)'), ['(TEST-ONLY)', null])
+    const said = served.rendered.instructions
+    // The restart moments (the WHEN sentence): the taker, then each trigger's phrase citing its own selector, then the aside closing the
+    // last phrase, citing what that phrase cites.
+    const restarts = said.find(i => i.section === 'How it works' && / restarts play: /.test(i.text))!
+    const parts = restarts.parts!
+    assert.equal(parts.map(p => p.text).join(''), restarts.text)
+    assert.deepEqual(parts.slice(1).map(p => p.text), [': at the start', ', after either team scores', ' and whenever you decide that an attack has run its course', ' (at a stoppage or while play is on)'])
+    const selectors = parts.slice(1).map(p => p.from)
+    assert.ok(selectors.every(from => from.length === 1 && from[0].endsWith('.selector')), JSON.stringify(selectors))
+    assert.equal(new Set(selectors.slice(0, 3).map(from => from[0])).size, 3, 'each moment its own trigger')
+    assert.deepEqual(selectors[3], selectors[2], 'the aside cites the trigger it qualifies')
+    assert.ok(parts[0].from.every(path => !path.endsWith('.selector')))
+    assert.deepEqual([...new Set(parts.flatMap(p => p.from))], restarts.from)
+    // The pressing team's way to score: its lead, citing everything the sentence cites, and the elaboration of the event, citing the event.
+    const pressing = said.find(i => i.section === 'How to score' && i.text.startsWith('Pressing team: Score'))!
+    assert.deepEqual(pressing.parts!.map(p => p.text), ['Pressing team: Score by getting the ball under control into its target zone', ': running it in, or passing to a teammate who receives it under control inside'])
+    assert.deepEqual(pressing.parts![0].from, pressing.from)
+    assert.deepEqual(pressing.parts![1].from, ['value.primaryEvent.kind'])
+    assert.equal(new Set(pressing.parts!.map(p => p.status)).size, 1, 'one status, the sentence\'s')
+    // Fidelity Q1-Q6 hold the split sentences as before: the served activity is served, and the parts are the instruction.
+    assert.equal(served.outcome, 'served')
+    for (const fixture of blockFixtures) {
+        const rendered = renderConcreteGame(fixture)
+        assert.deepEqual(checkFidelity(fixture, rendered).findings.filter(f => f.severity === 'VIOLATION'), [])
+    }
+    // Generality (TEST-ONLY copy): a game whose roles all score across the whole game says the team-neutral sentence, split the same way,
+    // the number bound in its lead.
+    const unbounded = JSON.parse(JSON.stringify(blockFixtures[0]))
+    for (const element of unbounded.game.activityRoles) element.creditedWithin = 'WHOLE_GAME'
+    const neutral = renderConcreteGame(unbounded).instructions.find(i => i.text.startsWith('A team scores'))!
+    assert.deepEqual(neutral.parts!.map(p => [p.text, p.bindings.map(b => b.path)]), [
+        ['A team scores 1 point by getting the ball under control into its target zone', ['value.primaryEvent.value']],
+        [': running it in, or passing to a teammate who receives it under control inside', []],
+    ])
 })
 
 console.log(`communication.unit.ts — ${passed} passed`)
