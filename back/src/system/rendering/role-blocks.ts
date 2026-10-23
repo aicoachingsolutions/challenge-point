@@ -172,8 +172,9 @@ export function checkRoleBlocks(blocks: BuiltBlock[], index: RegisterIndex, role
         // (B9), is the same in both blocks, so each role's event is (RB-4 holds its value to the blocks alike: GA-ROLE-EVENTS clause 12).
         // O1 added 23 October 2026 (stage C, finding T19): the physical objects, so an object one block holds and the other does not (a goal,
         // say) is refused here; where an object is placed in each block is the physical layout's (`physical-layout.ts`, RB-L). The
-        // description is unchanged, as when V27 and the roles row joined, so no reader's text moves.
-        for (const rowId of ['S2', 'J1', 'T1', 'V0', 'V3', 'V27', 'P1', 'O1', ...(index.roleBlocks ? [index.roleBlocks.rolesRow] : [])]) {
+        // description is unchanged, as when V27 and the roles row joined, so no reader's text moves. Since the integration review (23 October
+        // 2026) the objects row is read from the register's objectGeometry block (`row`), beside the roles row, so this code names no new row.
+        for (const rowId of ['S2', 'J1', 'T1', 'V0', 'V3', 'V27', 'P1', ...(index.objectGeometry ? [index.objectGeometry.row] : []), ...(index.roleBlocks ? [index.roleBlocks.rolesRow] : [])]) {
             const container = containerOf(index, rowId)
             if (!container || !pair) continue
             const [a, b] = games.map(game => idsAt(game, container))
@@ -604,7 +605,9 @@ export function roleBlockFixture(
         exchange: found.exchange,
         roles: [...found.roles],
         roleNouns: { status: 'DRAFT', nouns: { ...(index.roleBlocks?.coachNouns ?? {}) } },
-        blocks: blocks.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, fixture: entry.fixture })),
+        // Since the integration review (23 October 2026): the block's end-to-team assignment (`RoleBlock.ends`) where it records one (the
+        // end exchange, row B10), beside the role-to-end holders, so a reader sees end and role kept apart; absent, as before, where it does not.
+        blocks: blocks.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, ...(entry.block.ends ? { ends: { ...entry.block.ends } } : {}), fixture: entry.fixture })),
         checks: checks.map(c => ({ ...c, problems: [...c.problems] })),
     }
 }
@@ -781,8 +784,27 @@ export function composeRoleBlockActivity(blocks: RenderedBlock[], index: Registe
  */
 export const ENDS_CHANGE = [/\b(swap|swaps|switch|switches|change|changes|exchange|exchanges|trade|trades)\s+ends\b/i, /\bends\s+(change|swap|switch)\b/i, /\bchange\s+of\s+ends\b/i]
 
-/** Wording that says each team keeps its end — refused where the teams change ends (stage D, 23 October 2026, row B10). */
-export const ENDS_KEPT = [/\bkeeps?\s+(its|their)\s+ends?\b/i, /\bnot\s+ends\b/i, /\bends\s+(stay|stays|remain|remains)\s+(fixed|the\s+same)\b/i]
+/**
+ * Wording that says each team keeps its end — refused where the teams change ends (stage D, 23 October 2026, row B10). Widened by the
+ * integration review (23 October 2026, a TIGHTENING under the end exchange only): "stays at its end" and "remains at their ends" join.
+ */
+export const ENDS_KEPT = [/\bkeeps?\s+(its|their)\s+ends?\b/i, /\bnot\s+ends\b/i, /\bends\s+(stay|stays|remain|remains)\s+(fixed|the\s+same)\b/i, /\b(stay|stays|remain|remains)\s+at\s+(its|their)\s+(own\s+)?ends?\b/i]
+
+/**
+ * **A change of ends denied** — the integration review fix, 23 October 2026 (a TIGHTENING under the end exchange only). "The teams do not
+ * change ends", "without changing ends" and "no change of ends" say the ends stay, yet the first two matched `ENDS_CHANGE`, so a sentence
+ * denying the change satisfied the requirement that the exchange say it. Where the teams change ends, a sentence matching any of these is
+ * refused like `ENDS_KEPT`, and never counts as saying the change. Under KEPT nothing moves: such a sentence is still refused there wherever
+ * it matches `ENDS_CHANGE`, as before.
+ */
+export const ENDS_CHANGE_DENIED = [
+    /\b(not|never|no\s+longer)\s+(\w+\s+)?(swap|swaps|switch|switches|change|changes|exchange|exchanges|trade|trades)\s+ends\b/i,
+    /\b\w+n['’]t\s+(\w+\s+)?(swap|swaps|switch|switches|change|changes|exchange|exchanges|trade|trades)\s+ends\b/i,
+    /\bwithout\s+(swapping|switching|changing|exchanging|trading)\s+ends\b/i,
+    /\bno\s+change\s+of\s+ends\b/i,
+    /\bends\s+(do|does|will|did)\s+not\s+(change|swap|switch)\b/i,
+    /\bends\s+never\s+(change|swap|switch)\b/i,
+]
 
 /**
  * **Fidelity Q6 — the composition lost nothing and invented nothing** (stage K3). A VIOLATION where:
@@ -899,8 +921,11 @@ export function checkRoleBlockComposition(blocks: RenderedBlock[], composed: Ren
          */
         if (exchanged) {
             const changeAndEnds = [...exchangeAndEnds, endSpec!.path]
-            if (!composed.instructions.some(i => i.section === ROLE_EXCHANGE && cites(i, changeAndEnds) && ENDS_CHANGE.some(pattern => pattern.test(i.text)))) {
-                findings.push({ question: 6, severity: 'VIOLATION', what: `no sentence says that the teams change ends with the roles when the coach calls the next block (${endSpec!.path} is ${endSpec!.exchanged}; his reply filed 25 October 2026, item 5: "The outfield groups exchange ends and building/pressing responsibilities when the coach calls for the next block.")` })
+            // Since the integration review (23 October 2026): a sentence denying the change never counts as saying it (`ENDS_CHANGE_DENIED`).
+            if (!composed.instructions.some(i => i.section === ROLE_EXCHANGE && cites(i, changeAndEnds) && ENDS_CHANGE.some(pattern => pattern.test(i.text)) && !ENDS_CHANGE_DENIED.some(pattern => pattern.test(i.text)))) {
+                // The integration review fix, 23 October 2026: cited without quoting his activity-specific nouns, so this engine text stays
+                // sport-neutral for any game played with the ends exchanged (his words are quoted in the comment above).
+                findings.push({ question: 6, severity: 'VIOLATION', what: `no sentence says that the teams change ends with the roles when the coach calls the next block (${endSpec!.path} is ${endSpec!.exchanged}; his reply filed 25 October 2026, item 5)` })
             }
         } else if (!composed.instructions.some(i => i.section === ROLE_EXCHANGE && cites(i, exchangeAndEnds))) {
             findings.push({ question: 6, severity: 'VIOLATION', what: 'no sentence says that each team keeps its end while the roles exchange (his D2: "Please make that distinction explicit in the coach-facing instructions.")' })
@@ -926,7 +951,7 @@ export function checkRoleBlockComposition(blocks: RenderedBlock[], composed: Ren
     // Stage D (row B10): the ends-change refusal applies only where each team keeps its end; where they change, "keeps its end" is refused.
     for (const instruction of composed.instructions) {
         if (!exchanged && ENDS_CHANGE.some(pattern => pattern.test(instruction.text))) findings.push({ question: 6, severity: 'VIOLATION', what: `"${instruction.text}" says the ends change; each team keeps its end in both blocks (RB-2)` })
-        if (exchanged && ENDS_KEPT.some(pattern => pattern.test(instruction.text))) findings.push({ question: 6, severity: 'VIOLATION', what: `"${instruction.text}" says each team keeps its end; the teams change ends with the roles in this activity (${endSpec!.path} is ${endSpec!.exchanged}, RB-2)` })
+        if (exchanged && [...ENDS_KEPT, ...ENDS_CHANGE_DENIED].some(pattern => pattern.test(instruction.text))) findings.push({ question: 6, severity: 'VIOLATION', what: `"${instruction.text}" says each team keeps its end; the teams change ends with the roles in this activity (${endSpec!.path} is ${endSpec!.exchanged}, RB-2)` })
     }
     /**
      * **No team named by who has the ball, in an activity played in role blocks** — K7 review, 15 October 2026, a TIGHTENING. His D7,

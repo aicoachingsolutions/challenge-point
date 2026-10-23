@@ -530,8 +530,12 @@ export interface ReviewRoleBlockCheck {
 export interface ReviewRoleBlocks {
     exchange: string
     roles: { role: string; coachNoun: string; nounStatus: string }[]
-    /** `concreteChecks` (stage K4): each block's Gate A rerun on its concrete game, check by check. Optional for older accounts. */
-    blocks: { blockId: string; holders: Record<string, string>; integrity: ActivityIntegrity; concreteChecks?: { checkId: string; verdict: string }[] }[]
+    /**
+     * `concreteChecks` (stage K4): each block's Gate A rerun on its concrete game, check by check. Optional for older accounts.
+     * `ends` (integration review, 23 October 2026): for each end, the end whose first-block team stands there in this block; sent only where
+     * the teams change ends at the coach-called block (row B10).
+     */
+    blocks: { blockId: string; holders: Record<string, string>; ends?: Record<string, string>; integrity: ActivityIntegrity; concreteChecks?: { checkId: string; verdict: string }[] }[]
     checks: ReviewRoleBlockCheck[]
     firstBlock: string
     /** Why the coach picks the first block: OUR inference from his D2, labelled so (K3 review, 15 October 2026). */
@@ -631,7 +635,7 @@ export interface ReviewEvidence {
         facts: { blockId: string; facts: ReviewFact[] }[]
     }[]
     structure: {
-        blocks: { blockId: string; holders: Record<string, string>; sections: Record<string, { checks: ReviewCheckRow[]; facts: ReviewFact[] }>; owed: { checkId: string; clause: string; verdict: string }[] }[]
+        blocks: { blockId: string; holders: Record<string, string>; ends?: Record<string, string>; sections: Record<string, { checks: ReviewCheckRow[]; facts: ReviewFact[] }>; owed: { checkId: string; clause: string; verdict: string }[] }[]
         crossBlock: { checkId: string; what: string; verdict: string; problems: string[] }[]
         composition: string[]
         summary: { gateChecks: Record<string, number>; crossBlock: Record<string, number>; owed: Record<string, number>; everyCheckPasses: boolean; vacuousClauses: string[] }

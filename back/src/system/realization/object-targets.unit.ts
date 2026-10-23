@@ -42,7 +42,8 @@ import { applyRealizationDeferrals, AuthorizingRelationship } from '../derivatio
 import { HaltError, indexRegister } from '../derivation/register'
 import { derivationInputFor, selectFor } from '../derivation/run-bounded-selection'
 import { ContractItem, DEFERS_TO_AUTHORIZED_REALIZATION, LoadedContract, RoleBlock } from '../derivation/types'
-import { buildActivityForReview, buildActivityUnderAuthorizationRecords, buildActivityWithFixture, RefusedActivity, ServedActivity } from '../rendering/build-activity'
+import { buildActivityForReview, buildActivityFromKnowledge, buildActivityUnderAuthorizationRecords, buildActivityWithFixture, RefusedActivity, ServedActivity } from '../rendering/build-activity'
+import { checkFidelity, TARGET_AS_LINE } from '../rendering/fidelity'
 import { checkFieldDiagram, DiagramInput, fieldDiagramDraftOf } from '../rendering/field-diagram'
 import { objectivesOf } from '../rendering/game-reading'
 import { renderConcreteGame } from '../rendering/render-concrete-game'
@@ -329,7 +330,9 @@ interface GoalOptions {
  * design's Stage B J2) and the pressing role scoring by a goal, both citing one TEST-ONLY confirmed scoring relationship. Fixed ends (KEPT):
  * the end exchange is stage D's.
  */
-const goalBuild = (options: GoalOptions = {}): RefusedActivity => {
+const goalBuild = (options: GoalOptions = {}): RefusedActivity => goalBuildWhole(options).activity as RefusedActivity
+/** The same build, with the composed fixture it was realized into (the integration review fix's fidelity pin reads a block's fixture). */
+const goalBuildWhole = (options: GoalOptions = {}): { activity: ServedActivity | RefusedActivity; fixture: any } => {
     const read = authorizationRecords.contextRelationships
     ;(authorizationRecords as any).contextRelationships = () => [...read(), copy(TEST_RELATIONSHIP)]
     try {
@@ -359,7 +362,7 @@ const goalBuild = (options: GoalOptions = {}): RefusedActivity => {
                 supplied.choices.push(...((options.choices ?? []) as any[]))
             },
             review: { includeDrafts: true },
-        }).activity as RefusedActivity
+        })
     } finally {
         ;(authorizationRecords as any).contextRelationships = read
     }
@@ -450,6 +453,68 @@ test('THE GOAL VERSION UNDER EXCHANGED (TEST-ONLY, stage D): both blocks pass ev
     assert.ok(!activity.reasons.some(reason => /^RB-|the two role blocks do not agree/.test(reason)), activity.reasons.join(' | '))
     // The goal is set out once (the layout reads it at the building team's end line in both blocks), so nothing moves at the exchange.
     assert.ok(activity.reasons.some(reason => reason.endsWith(`fidelity Q5: the object c:${P}:TEST-GOAL (layout.objects[object-1]) is set out once and no Set up sentence tells the coach to place it`)), activity.reasons.join(' | '))
+})
+
+/**
+ * **No target is called a line where it is not one, and the target is not what the teams play with** — the integration review fix, 23
+ * October 2026 (TEST-ONLY goal version, under EXCHANGED and KEPT). Measured before the fix (cd/build/b3/ir-goal-e2e.out, X-12-1, 11/1, 12/2):
+ * the draft said "each team keeps attacking the same line" (How it works), "Each team defends one line and attacks the other. Decide which
+ * team starts at which end" (How to score) and "each team now attacks the target line of its new role, and nothing is re-marked" (Role
+ * exchange), each false for the pressing team, whose target is the goal; and, with the goal the first object holding a kind, "The building
+ * team starts with the goal", "If the goal goes out over a touchline ..." and "... with the goal still or moving". No check refused any of
+ * them. Now: none is said; the pressing objective's reference is withheld (awaiting wording for an object target, Stage G), so the build is
+ * still refused at communication; the played object is the one no objective references; and fidelity Q2 refuses any such sentence,
+ * whatever renders it, while a line-target game's own "defends one line" stands.
+ */
+test('integration review fix (TEST-ONLY goal version): no draft calls a target a line, the target object is not the played object, and the build is still refused at communication', () => {
+    const PRESSING_OBJECTIVE = 'objectives[c:restated:GF2:GF2-08.e]'
+    const BUILDING_OBJECTIVE = 'objectives[c:restated:GF2:GF2-08.c]'
+    const LINE_WORDS = [/\bsame line\b/i, /\bdefends one line\b/i, /\btarget line\b/i]
+    {
+        const ends = 'EXCHANGED'
+        const whole = goalBuildWhole({ extra: [testItem('TEST-B10', 'B10', '*', 'EQUALS', ends)] })
+        const activity = whole.activity as RefusedActivity
+        assert.equal(activity.outcome, 'refused')
+        assert.equal(activity.stage, 'communication', activity.reasons.join(' | '))
+        const draft = activity.draft!
+        assert.ok(draft && draft.instructions.length > 0, `${ends}: a draft is carried`)
+        for (const instruction of draft.instructions) {
+            for (const pattern of [...LINE_WORDS, ...TARGET_AS_LINE]) assert.ok(!pattern.test(instruction.text), `${ends}: "${instruction.text}" calls a target a line`)
+            // The carrier: the target object is never what the teams start with, put out of play or restart with.
+            assert.ok(!/\bstarts with the goal\b|\bthe goal goes out\b|\bthe goal still or moving\b|\btouch the goal last\b/.test(instruction.text), `${ends}: "${instruction.text}" plays with the target object`)
+        }
+        // The pressing objective's target is an object: its reference is withheld, never given the line wording; the zone's is not.
+        assert.ok(draft.withheld.some(field => field.path === `${PRESSING_OBJECTIVE}.reference` && field.row === 'J2' && field.reason === 'AWAITING_APPROVED_WORDING'), `${ends}: ${JSON.stringify(draft.withheld)}`)
+        assert.ok(!draft.withheld.some(field => field.path === `${BUILDING_OBJECTIVE}.reference`), `${ends}: the zone target is not withheld`)
+        assert.ok(activity.reasons.some(reason => reason.endsWith(`awaiting approved wording: ${PRESSING_OBJECTIVE}.reference (J2)`)), activity.reasons.join(' | '))
+        // The played object (the one no objective references) is now carried: the sentences that name it name it, and its kind is said.
+        const blockFixture: any = whole.fixture?.roleBlocks?.blocks?.[0]?.fixture
+        const referenced = new Set(((blockFixture?.game?.objectives ?? []) as any[]).map(o => o?.reference?.structuralRef).filter(Boolean).map((ref: any) => `c:${ref.contractId}:${ref.itemId}`))
+        const played = ((blockFixture?.game?.objects ?? []) as any[]).find(object => typeof object?.kind === 'string' && !referenced.has(String(object.elementId)))
+        assert.ok(played && played.kind !== 'goal', `${ends}: the played object is read`)
+        assert.ok(draft.instructions.some(instruction => instruction.text.includes(`starts with the ${played.kind}`)), `${ends}: ${draft.instructions.map(i => i.text).join(' | ')}`)
+        assert.ok(!activity.reasons.some(reason => reason.includes(`fidelity Q3: objects[${played.elementId}].kind is established`)), `${ends}: the played object's kind is carried`)
+    }
+    // Under KEPT (no draft: block 2 is refused before realization) block 1 still withholds the object target's reference.
+    const kept = reasonsOf(goalBuild(), BLOCK_1)
+    assert.ok(kept.includes(`awaiting approved wording: ${PRESSING_OBJECTIVE}.reference (J2)`), kept.join(' | '))
+
+    // Fidelity Q2's clause, independent of the renderer: a DRAFT sentence calling the targets lines, citing the objectives, is refused in a block
+    // of the goal version (each objective's target is a zone or the goal) and stands in a line-target game.
+    const block: any = goalBuildWhole({ extra: [testItem('TEST-B10', 'B10', '*', 'EQUALS', 'EXCHANGED')] }).fixture.roleBlocks.blocks[0].fixture
+    const lineSentence = (fixture: any) => {
+        const rendered = renderConcreteGame(fixture)
+        const objectives = (fixture.game.objectives as any[]).flatMap(o => [`objectives[${o.elementId}].team`, `objectives[${o.elementId}].reference`, `objectives[${o.elementId}].role`])
+        const text = 'Each team defends one line and attacks the other. Decide which team starts at which end'
+        const instructions = [...rendered.instructions, { section: 'How to score', status: 'DERIVED', text, from: objectives, quantities: [], bindings: [], parts: [{ status: 'DERIVED', text, from: objectives, quantities: [], bindings: [] }] }] as any[]
+        return checkFidelity(fixture, { ...rendered, instructions }).findings.filter(finding => finding.severity === 'VIOLATION' && finding.what.includes('calls a team\'s target a line')).map(finding => finding.what)
+    }
+    const refused = lineSentence(block)
+    assert.ok(refused.some(what => what.includes(`it cites ${PRESSING_OBJECTIVE}, whose target is c:${P}:TEST-GOAL, which is no region of the game: no line`)), refused.join(' | '))
+    assert.ok(refused.some(what => what.includes(`it cites ${BUILDING_OBJECTIVE}, whose target is the region `)), refused.join(' | '))
+    const lineGame: any = buildActivityFromKnowledge(['GF2'], { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: Object.fromEntries(specializedRoleNames().map(r => [r, 0])) } as any).fixture
+    assert.ok(renderConcreteGame(lineGame).instructions.some(i => i.text.startsWith('Each team defends one line and attacks the other')), 'a line-target game still says "defends one line"')
+    assert.deepEqual(lineSentence(lineGame), [], 'a line-target game is never refused for calling its lines lines')
 })
 
 test('no width is a refusal: the goal is centred only on a width the session states', () => {

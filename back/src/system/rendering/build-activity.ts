@@ -350,7 +350,13 @@ export interface RoleBlockAccount {
      * "verify the configuration's structural consistency, including player totals") is read as the gate's verdict in each
      * block, not inferred from `postRealizationValidated`.
      */
-    blocks: { blockId: string; holders: Record<string, string>; integrity: ServedActivity['integrity']; concreteChecks: { checkId: string; verdict: string }[] }[]
+    /**
+     * `ends` (the integration review, 23 October 2026): for each end, the end whose first-block team stands there in this block
+     * (`RoleBlock.ends`: the identity in the first block, the two ends exchanged in the second), carried only where the block records one (the
+     * end exchange, register row B10), so the account shows the end and the role apart (his reply filed 25 October 2026, item 5: "Please keep the following concepts separate in the general representation");
+     * absent wherever each team keeps its end, as before.
+     */
+    blocks: { blockId: string; holders: Record<string, string>; ends?: Record<string, string>; integrity: ServedActivity['integrity']; concreteChecks: { checkId: string; verdict: string }[] }[]
     checks: RoleBlockCheck[]
     /**
      * Which block is played first is the coach's. INFERRED from his D2 (*"The coach determines when the teams exchange
@@ -1362,7 +1368,7 @@ function build(
              * games as built, the cross-block checks and the composition. Never on a coach's answer.
              */
             const evidenceOf = (outcome: string, overview: OverviewEvidence | null = null) =>
-                reviewEvidenceFor(review, goalSelection, account, roleIndex, session, outcome, composed, composition, checks, games.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, fixture: entry.fixture, contracts: entry.contracts, rendered: entry.rendered, ...entry.evidence })), layoutFallback, overview)
+                reviewEvidenceFor(review, goalSelection, account, roleIndex, session, outcome, composed, composition, checks, games.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, ...(entry.block.ends ? { ends: { ...entry.block.ends } } : {}), fixture: entry.fixture, contracts: entry.contracts, rendered: entry.rendered, ...entry.evidence })), layoutFallback, overview)
             /** The admin-only draft of the composed activity (stage K7), attached to a refusal at communication where it was asked for. */
             const withDraft = (refusal: ReturnType<typeof refuse>) => {
                 if (review.includeDrafts) (refusal.activity as RefusedActivity).draft = reviewDraftOf(games.map(entry => entry.fixture), composed, [...games.flatMap(entry => entry.violations), ...violations])
@@ -1408,7 +1414,7 @@ function build(
                     roleBlocks: {
                         exchange: found.exchange,
                         roles: found.roles.map(role => ({ role, coachNoun: roleIndex.roleBlocks!.coachNouns[role], nounStatus: 'DRAFT' as const })),
-                        blocks: built.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, integrity: entry.built.integrity, concreteChecks: entry.built.concreteChecks.map(check => ({ ...check })) })),
+                        blocks: built.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, ...(entry.block.ends ? { ends: { ...entry.block.ends } } : {}), integrity: entry.built.integrity, concreteChecks: entry.built.concreteChecks.map(check => ({ ...check })) })),
                         checks: checks.map(check => ({ ...check, problems: [...check.problems] })),
                         firstBlock: 'COACH_CHOICE',
                         firstBlockBasis: FIRST_BLOCK_BASIS,

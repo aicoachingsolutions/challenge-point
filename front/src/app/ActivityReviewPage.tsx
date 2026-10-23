@@ -696,6 +696,7 @@ function ReviewEvidencePanel({ evidence }: { evidence: ReviewEvidence }) {
                         <div key={block.blockId} className='space-y-1'>
                             <p className='text-xs font-semibold text-gray-700'>
                                 {blockLabel(block.blockId)}: {Object.entries(block.holders).map(([role, team]) => `${role} = ${team}`).join(', ')}
+                                {block.ends && ` · ends: ${Object.entries(block.ends).map(([end, from]) => `${end} held by the team at ${from} in the first block`).join(', ')}`}
                             </p>
                             {Object.entries(block.sections).map(([name, section]) => (
                                 <div key={name} className='pl-3'>
@@ -1443,6 +1444,15 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                                             {Object.entries(block.holders)
                                                 .map(([role, holder]) => `${role} held by ${holder}`)
                                                 .join(', ')}{' '}
+                                            {block.ends && (
+                                                <>
+                                                    (ends:{' '}
+                                                    {Object.entries(block.ends)
+                                                        .map(([end, from]) => `${end} held by the team at ${from} in the first block`)
+                                                        .join(', ')}
+                                                    ){' '}
+                                                </>
+                                            )}
                                             — Gate A {String(block.integrity?.gateA)}, post-realization gates validated{' '}
                                             {yesNo(block.integrity?.postRealizationValidated)}, fidelity violations {String(block.integrity?.fidelityViolations)}
                                             {block.concreteChecks && block.concreteChecks.length > 0 && (

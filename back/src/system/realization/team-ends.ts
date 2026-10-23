@@ -80,7 +80,9 @@ export function attackingEndOf(game: unknown, index: RegisterIndex, roleBlock: R
     if (!spec) return none('the register names no targetOf rows')
     const team = setupAssignmentOf(index, designation, roleBlock)
     if (!team) return none(`${designation} stands for no setup assignment in this game, so it holds no end`)
-    if (through.includes(team)) return { ...none(`the end ${team} attacks would be read from a position stated by ${team}'s own end: a cycle, so no end is answered`), refuses: true }
+    // The integration review fix, 23 October 2026 (admin text only): the position may be stated from either of the team's end lines (RC-21's
+    // "own end" or "attacking end"), so the reason names neither; until this it said "own end" for both.
+    if (through.includes(team)) return { ...none(`the end ${team} attacks would be read from a position stated from an end line of ${team} itself (the end it defends or the end it attacks): a cycle, so no end is answered`), refuses: true }
     const objectivesAt = splitPath(String(index.rows.get(spec.objectivesRow)?.path ?? '')).container
     const regionsAt = splitPath(String(index.rows.get(spec.row)?.path ?? '')).container
     if (!objectivesAt || !regionsAt) return none('the register names no objectives or regions collection')

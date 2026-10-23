@@ -47,7 +47,7 @@ import { learningGoalAuthorizations } from '../test-library/learning-goal-author
 import { approvedWording } from './approved-wording'
 import { buildActivityFromKnowledge, buildActivityUnderAuthorizationRecords, buildActivityWithFixture, RefusedActivity, ServedActivity } from './build-activity'
 import { renderConcreteGame, ROLE_EXCHANGE } from './render-concrete-game'
-import { checkRoleBlockComposition, checkRoleBlocks, composeRoleBlockActivity, counterpartMap, ENDS_CHANGE, ENDS_KEPT, endsExchangedIn, RenderedBlock } from './role-blocks'
+import { checkRoleBlockComposition, checkRoleBlocks, composeRoleBlockActivity, counterpartMap, ENDS_CHANGE, ENDS_CHANGE_DENIED, ENDS_KEPT, endsExchangedIn, RenderedBlock } from './role-blocks'
 import { specializedRoleNames } from './session-envelope'
 
 let passed = 0
@@ -480,6 +480,67 @@ test('Q6 under EXCHANGED: a sentence must say the teams change ends (citing B10)
     assert.deepEqual(keptQ6(keptComposed), [])
     const changed = { ...keptComposed, instructions: [...keptComposed.instructions, { ...keptComposed.instructions[0], text: 'The teams change ends at the next block' }] }
     assert.ok(keptQ6(changed).some(what => what === '"The teams change ends at the next block" says the ends change; each team keeps its end in both blocks (RB-2)'))
+})
+
+/**
+ * The integration review fix, 23 October 2026 (a TIGHTENING under the end exchange only): a sentence denying the change of ends matched
+ * ENDS_CHANGE, so it satisfied the requirement that the exchange say the teams change ends, and "stays at its end" passed as not keeping it.
+ * Now a denial never counts as saying the change and is refused like ENDS_KEPT; "stays at its end" joins ENDS_KEPT. The renderer's own
+ * sentence matches none of them, and under KEPT nothing moves.
+ */
+test('Q6 under EXCHANGED: a denied change of ends never says the change, and is refused; "stays at its end" is refused too', () => {
+    const renders: RenderedBlock[] = equalBuilt().map(entry => ({ blockId: entry.block.blockId, fixture: entry.fixture, rendered: renderConcreteGame(entry.fixture) }))
+    const composed = composeRoleBlockActivity(renders, index)
+    const q6 = (activity: typeof composed) => checkRoleBlockComposition(renders, activity, index).filter(finding => finding.severity === 'VIOLATION').map(finding => finding.what)
+    const sentence = composed.instructions.find(i => i.section === ROLE_EXCHANGE && i.from.includes(spec.path))!
+    for (const pattern of [...ENDS_KEPT, ...ENDS_CHANGE_DENIED]) assert.ok(!pattern.test(sentence.text), `the renderer's sentence matches ${pattern}`)
+    for (const text of [
+        'When you call the next block the teams do not change ends and exchange roles; there is no set block length',
+        "When you call the next block the teams don't change ends; there is no set block length",
+        'When you call the next block the teams exchange roles without changing ends; there is no set block length',
+        'There is no change of ends: when you call the next block the teams exchange roles',
+    ]) {
+        // In place of the renderer's sentence, every citation kept: the change is not said, and the denial is refused.
+        const denied = { ...composed, instructions: composed.instructions.map(i => (i === sentence ? { ...i, text } : i)) }
+        const found = q6(denied)
+        assert.ok(found.some(what => what.startsWith('no sentence says that the teams change ends with the roles')), `${text}: ${found.join(' | ')}`)
+        assert.ok(found.some(what => what === `"${text}" says each team keeps its end; the teams change ends with the roles in this activity (${spec.path} is ${spec.exchanged}, RB-2)`), `${text}: ${found.join(' | ')}`)
+    }
+    const stays = { ...composed, instructions: [...composed.instructions, { ...sentence, text: 'Each team stays at its end', from: [...sentence.from] }] }
+    assert.ok(q6(stays).some(what => what.startsWith('"Each team stays at its end" says each team keeps its end')))
+    // The finding cites his item without quoting activity-specific nouns (engine text stays sport-neutral).
+    const uncited = { ...composed, instructions: composed.instructions.map(i => (i === sentence ? { ...i, from: i.from.filter(path => path !== spec.path) } : i)) }
+    assert.ok(q6(uncited).some(what => what.endsWith(`(${spec.path} is ${spec.exchanged}; his reply filed 25 October 2026, item 5)`)))
+})
+
+/**
+ * The integration review fix, 23 October 2026: `RoleBlock.ends` reaches the composed fixture, the served account and the review evidence
+ * (its consumers: the review page's role blocks and structural report, front/src/app/ActivityReviewPage.tsx), so a reader sees the end and
+ * the role kept apart. Under KEPT nothing is added: production A01's account carries no `ends` key.
+ */
+test('the end-to-team assignment reaches the composed fixture, the served account and the review evidence under EXCHANGED, and nothing is added under KEPT', () => {
+    const activity = served(equal.activity, 'GF2 with TEST-ONLY roles and the end exchange')
+    const recorded = equalBuilt().map(entry => entry.fixture.record.roleBlock.ends)
+    assert.deepEqual(recorded, [{ [START]: START, [END]: END }, { [START]: END, [END]: START }])
+    assert.deepEqual(activity.roleBlocks!.blocks.map(block => block.ends), recorded, 'the served account')
+    assert.deepEqual(((equal.fixture as any).roleBlocks.blocks as any[]).map(block => block.ends), recorded, 'the composed fixture')
+    // The holders alone are identical in both blocks; the ends are what tell them apart.
+    assert.deepEqual(activity.roleBlocks!.blocks[0].holders, activity.roleBlocks!.blocks[1].holders)
+    // The review evidence: A01's zone version with a TEST-ONLY exchange, built for review (an administrator's request).
+    const reviewed = buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: a01Session() } as any, learningGoalAuthorizations(), {
+        alter: contracts => void contracts.find(c => c.contractId === P)!.items.push(endItem(spec.exchanged)),
+        review: { includeDrafts: true },
+    }).activity as ServedActivity
+    const evidence = served(reviewed, 'A01 zone version with a TEST-ONLY exchange, for review').evidence!
+    assert.deepEqual(evidence.structure.blocks.map(block => block.ends), [{ [START]: START, [END]: END }, { [START]: END, [END]: START }])
+    assert.deepEqual(
+        evidence.sections.roleExchange.filter(fact => fact.what.endsWith(': ends (each end, and the end whose first-block team stands there)')).map(fact => fact.value),
+        [{ [START]: START, [END]: END }, { [START]: END, [END]: START }],
+    )
+    // Under KEPT: no key anywhere.
+    const kept = served(production.activity, 'production A01')
+    assert.ok(kept.roleBlocks!.blocks.every(block => !('ends' in block)))
+    assert.ok(((production.fixture as any).roleBlocks.blocks as any[]).every(block => !('ends' in block)))
 })
 
 console.log(`\n${passed} passed`)

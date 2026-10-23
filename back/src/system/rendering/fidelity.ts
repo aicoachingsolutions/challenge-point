@@ -54,6 +54,12 @@ const IMPERATIVES = [/\bmust\b/i, /\balways\b/i, /\bexactly\b/i, /\brequired\b/i
 const NECESSITY = [/\bmust\b/i, /\bthe rules require\b/i, /\bby definition\b/i, /\balways\b/i, /\bnecessarily\b/i]
 /** Wording that puts a choice to the coach. A COACH_CHOICE sentence that carries none states a fact it does not hold. */
 const CHOICE_WORDS = [/\bpick\b/i, /\bchoose\b/i, /\bdecide\b/i]
+/**
+ * **Wording that calls a team's target a line** — the integration review fix, 23 October 2026. The renderer's own target-noun phrases
+ * ("the same line", "defends one line", "the target line", "its own line", "the line it is attacking") with "line" as the target's noun;
+ * "the marked line" and "end line" name lines that are not a team's target, and are not here. Exported for its unit test.
+ */
+export const TARGET_AS_LINE = [/\b(same|one|target|own)\s+lines?\b/i, /\blines?\s+(it|they)\s+(is|are|was|were)\s+(already\s+)?attacking\b/i]
 
 /**
  * **Wording that obliges a player or orders their actions — the prescription rule, stage K7, 15 October 2026 (design step B1, as the
@@ -767,7 +773,15 @@ function layoutFindings(fixture: any, rendered: RenderedActivity): FidelityFindi
     }
     const keyed = roleKeyedPositions(fixture)
     const exchange = rendered.instructions.filter(i => i.section === ROLE_EXCHANGE && keyed.length > 0 && keyed.every(path => i.from.includes(path)))
-    if (keyed.length && !exchange.some(i => i.from.includes('layout.policy'))) violation('the markings are set out once, and the exchange sentence citing the positions written for a role is the block-by-block one (it does not cite the layout)')
+    // The integration review fix (23 October 2026, admin text only): where no Role exchange sentence cites the positions at all (the renderer
+    // withholds the layout's exchange words for a target no one noun names), the finding says that, not that a block-by-block sentence does.
+    if (keyed.length && !exchange.some(i => i.from.includes('layout.policy'))) {
+        violation(
+            exchange.length
+                ? 'the markings are set out once, and the exchange sentence citing the positions written for a role is the block-by-block one (it does not cite the layout)'
+                : 'the markings are set out once, and no Role exchange sentence cites the positions written for a role and the layout',
+        )
+    }
     for (const instruction of rendered.instructions) {
         if (instruction.section === ROLE_EXCHANGE && RE_MARKING_AT_EXCHANGE.some(pattern => pattern.test(instruction.text))) violation(`"${instruction.text}" tells the coach to set the markings out again at the exchange, and they are set out once`)
     }
@@ -1542,6 +1556,35 @@ export function checkFidelity(
                 const kind = readPath(fixture.game, at)
                 if (scoringWordingOf(kind) !== null) continue
                 findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" says how a team scores by ${JSON.stringify(kind)} (${at}), for which no wording is written: it may be said only in approved words` })
+            }
+        }
+    }
+
+    /**
+     * **No target is called a line where it is not one** — the integration review fix, 23 October 2026, a NEW clause (a TIGHTENING). The
+     * renderer fell back to "line" wherever the targets' noun was not read, so once a target could be an object (stage B; his reply filed
+     * 25 October 2026, item 3) the TEST-ONLY goal version said "each team keeps attacking the same line", "Each team defends one line and
+     * attacks the other" and "each team now attacks the target line of its new role", and no clause compared a target noun with the target:
+     * with wording for the goal supplied elsewhere they would have passed every check. The renderer now says "line" only where every target
+     * is a line (render-concrete-game.ts); this is the independent check, whatever renders it. For each objective whose reference is not a
+     * region whose noun is "line" (an object, a region of another noun, or nothing the game holds), a sentence citing anything of that
+     * objective that is not approved wording for this game may not call a target a line (`TARGET_AS_LINE`). Read from citations, the game's
+     * objectives and regions, and that one lexicon. Every line-target game owes nothing here.
+     */
+    {
+        const regionsHeld: any[] = fixture.game?.space?.regions ?? []
+        for (const objective of (fixture.game?.objectives ?? []) as any[]) {
+            const ref = objective?.reference?.structuralRef
+            const id = ref ? `c:${ref.contractId}:${ref.itemId}` : null
+            const region = id ? regionsHeld.find(entry => String(entry?.elementId) === id) : undefined
+            if (region?.noun === 'line') continue
+            const at = `objectives[${objective?.elementId}]`
+            const target = region ? `the region ${id}, whose noun is ${JSON.stringify(region.noun ?? null)}` : id ? `${id}, which is no region of the game` : 'no element'
+            for (const instruction of rendered.instructions) {
+                if (isApproved(instruction) || !instruction.from.some(path => path.startsWith(`${at}.`))) continue
+                if (TARGET_AS_LINE.some(pattern => pattern.test(instruction.text))) {
+                    findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" calls a team's target a line, and it cites ${at}, whose target is ${target}: no line` })
+                }
             }
         }
     }

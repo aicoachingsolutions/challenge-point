@@ -1317,8 +1317,20 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
      * The object the game establishes, read once for every sentence that names it. Its `kind` is the only
      * source of the noun (SD-103, below at the scoring instruction, where the rule was first applied), and a
      * sentence that uses it cites `objects[…].kind`.
+     *
+     * **The played object is the object no objective references** — the integration review fix, 23 October 2026 (the design's Stage G
+     * carrier fix, taken early because it now produced false sentences). Since stage B an objective may reference an object (register J2,
+     * "object or region reference"; his reply filed 25 October 2026, item 3), and the first object with a kind was then the target: on the
+     * TEST-ONLY goal version the draft said the building team "starts with the goal" and that the goal goes out over a touchline. A target
+     * is not what the teams play with, so an object some objective references is never the carrier. In a game whose objectives reference
+     * regions only (every served game) the carrier is exactly what it was.
      */
-    const carrier = (game.objects ?? []).find((object: any) => typeof object?.kind === 'string')
+    const referencedObject = (object: any) =>
+        (game.objectives ?? []).some((o: any) => {
+            const ref = o?.reference?.structuralRef
+            return !!ref && `c:${ref.contractId}:${ref.itemId}` === String(object?.elementId)
+        })
+    const carrier = (game.objects ?? []).find((object: any) => typeof object?.kind === 'string' && !referencedObject(object))
 
     /**
      * Each team named by the role it holds in this block (stage K7, DRAFT nouns), the marked line (stage K7), and the objective that
@@ -2201,9 +2213,38 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
             ? String(targetRegions[0].noun)
             : null
     const targetNounPaths = targetNoun ? targetRegions.map((r: any) => `space.regions[${r.elementId}].noun`) : []
+    /**
+     * **"Line" only for line targets — the integration review fix, 23 October 2026 (a TIGHTENING).** Where the targets' noun is not read
+     * (above), the sentences below fell back to "line" for every target. That was true of every game until a target could be an object
+     * (stage B; his reply filed 25 October 2026, item 3, a physical goal as an authorized alternative target): on the TEST-ONLY goal version
+     * they said "each team keeps attacking the same line", "Each team defends one line and attacks the other" and "each team now attacks
+     * the target line of its new role", each false for the team attacking the object (the third for both teams). The design's Stage A rule:
+     * a target with no wording "is never given the line wording". So "line" is said only where every objective references a region whose
+     * noun is a line (every line-target game, exactly as before). Anywhere else none of these sentences is said with "line", and each
+     * objective whose target cannot take it has its reference withheld (AWAITING_APPROVED_WORDING), so the activity is refused at
+     * communication, naming why, until wording for such a target comes from data (Stage G): an object target where one is referenced,
+     * otherwise every target that is not a line. Fidelity Q2's clause on a target called a line is the independent check.
+     */
+    const targetOfObjective = (o: any) => regions.find((r: any) => referencedBy(r) === o)
+    const lineTargets = objectives.length > 0 && objectives.every(o => targetOfObjective(o)?.noun === 'line')
+    const sayableNoun: string | null = targetNoun ?? (lineTargets ? 'line' : null)
+    const withholdTargetNouns = (sentence: string) => {
+        const notLines = objectives.filter(o => targetOfObjective(o)?.noun !== 'line')
+        const objectTargets = notLines.filter(o => !targetOfObjective(o))
+        const withholding = objectTargets.length ? objectTargets : notLines
+        for (const o of withholding) {
+            const at = `objectives[${o.elementId}].reference`
+            if (!withheld.some(field => field.path === at)) withheld.push({ path: at, row: rowOfKindPath(at), reason: 'AWAITING_APPROVED_WORDING' })
+        }
+        observations.push(
+            `${sentence} is not said: it names every target with one noun, and ${withholding.map(o => `objectives[${o.elementId}]`).join(', ')} ` +
+                `${withholding.length === 1 ? 'references a target' : 'reference targets'} that ${objectTargets.length ? (withholding.length === 1 ? 'is no region' : 'are no regions') : 'no one noun names'}, so the line wording ` +
+                `cannot stand for ${withholding.length === 1 ? 'it' : 'them'}. Withheld until wording for such a target comes from data.`,
+        )
+    }
     // That the team winning possession keeps attacking the same line: the objectives' teams are fixed designations.
-    const sameLine = (lead: string) =>
-        part(statusAt([`objectives[${objectives[0].elementId}].team`], 'DERIVED'), `${lead}the team that wins possession attacks the same ${targetNoun ?? 'line'} it was already attacking`, [
+    const sameLine = (lead: string, noun: string) =>
+        part(statusAt([`objectives[${objectives[0].elementId}].team`], 'DERIVED'), `${lead}the team that wins possession attacks the same ${noun} it was already attacking`, [
             `objectives[${objectives[0].elementId}].team`,
             'transitions',
             ...targetNounPaths,
@@ -2223,7 +2264,9 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
     const possessionTemplate = templates.find(template => template.id === POSSESSION_CONTINUES && template.parts.length === 2)
     if (continuingOnPossessionChange.length && possessionTemplate) {
         const [playsOn, keepsAttacking] = possessionTemplate.parts
-        const keeps = fillTemplate([keepsAttacking], { targetNoun: targetNoun ?? 'line' })
+        // The integration review fix (above): the second part only with a noun every target takes; otherwise withheld, never "line".
+        const keeps = sayableNoun ? fillTemplate([keepsAttacking], { targetNoun: sayableNoun }) : null
+        if (!sayableNoun && directional && game.value?.primaryEvent) withholdTargetNouns(`The second part of the possession sentence ("${keepsAttacking}")`)
         instructions.push(
             joined('How it works', [
                 part(
@@ -2637,17 +2680,25 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
                  */
                 const stay = endsChange ? '' : '; the ends stay the same for the whole game'
                 if (targetNoun) say('How to score', statusAt(provenance, 'DERIVED'), `Each team attacks the ${targetNoun} at the other team's end. Decide which team starts at which end${stay}`, [...provenance, ...targetNounPaths])
-                else say('How to score', statusAt(provenance, 'DERIVED'), `Each team defends one line and attacks the other. Decide which team starts at which end${stay}`, provenance)
+                // The integration review fix (above): "defends one line" only where every target is a line.
+                else if (lineTargets) say('How to score', statusAt(provenance, 'DERIVED'), `Each team defends one line and attacks the other. Decide which team starts at which end${stay}`, provenance)
+                else withholdTargetNouns('"Each team defends one line and attacks the other. Decide which team starts at which end"')
             }
             // Said with the possession-change sentence where there is one; on its own otherwise.
-            if (!continuingOnPossessionChange.length) instructions.push(joined('How to score', [sameLine('When possession changes, ')]))
+            if (!continuingOnPossessionChange.length) {
+                if (sayableNoun) instructions.push(joined('How to score', [sameLine('When possession changes, ', sayableNoun)]))
+                else withholdTargetNouns('"When possession changes, the team that wins possession attacks the same line it was already attacking"')
+            }
         } else if (objective) {
-            say(
-                'How to score',
-                statusAt([`objectives[${objective.elementId}].team`, `objectives[${objective.elementId}].reference`], 'DERIVED'),
-                shared ? `Both teams attack the same line — the one you marked at the end of the area` : `Each team attacks its own line`,
-                [`objectives[${objective.elementId}].team`, `objectives[${objective.elementId}].reference`],
-            )
+            // The integration review fix (above): a single objective's target is called a line only where it is one.
+            if (lineTargets) {
+                say(
+                    'How to score',
+                    statusAt([`objectives[${objective.elementId}].team`, `objectives[${objective.elementId}].reference`], 'DERIVED'),
+                    shared ? `Both teams attack the same line — the one you marked at the end of the area` : `Each team attacks its own line`,
+                    [`objectives[${objective.elementId}].team`, `objectives[${objective.elementId}].reference`],
+                )
+            } else withholdTargetNouns(shared ? '"Both teams attack the same line — the one you marked at the end of the area"' : '"Each team attacks its own line"')
             if (shared) {
                 observations.push(
                     `Both teams score at the SAME line (objectives[${objective.elementId}].team = EACH_TEAM). That is the canonical ` +
@@ -2948,8 +2999,19 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
             // Stage D (DRAFT): where the teams change ends, the positions written for a role stay where they are (RB-8 holds them to the same
             // place in both blocks), so the block-by-block words say that, never "set out again".
             const verb = named.length > 1 || keyedTargets === 2 ? 'are' : 'is'
+            /**
+             * The integration review fix, 23 October 2026 (above): with the markings set out once, the meaning is said only with a noun every
+             * target takes ("line" only where every target is a line). Where none does, the lead is said alone with its own citations (it is
+             * the sentence a game without role-keyed positions says), the markings' meaning and "nothing is re-marked" are not said, and the
+             * targets are withheld, so fidelity (Q6 and Q5-L, which read the positions written for a role and the layout from what this
+             * sentence would cite) and the withheld field refuse the activity rather than it telling either team it attacks a target line.
+             */
+            const layoutUnsaid = !!layout && !sayableNoun
+            if (layoutUnsaid) withholdTargetNouns(`The exchange's "each team now attacks the target line of its new role, and ${NOTHING_RE_MARKED}"`)
             const markings = layout
-                ? `${joinMeaning}each team now attacks the target ${targetNoun ?? 'line'} of its new role, and ${NOTHING_RE_MARKED}${unless}`
+                ? layoutUnsaid
+                    ? ''
+                    : `${joinMeaning}each team now attacks the target ${sayableNoun} of its new role, and ${NOTHING_RE_MARKED}${unless}`
                 : !keyedPaths.length
                   ? ''
                   : endsChange
@@ -2961,14 +3023,16 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
                 ROLE_EXCHANGE,
                 statusAt([...exchangePaths, ...endPaths, ...assignmentPaths], 'DERIVED'),
                 `${lead}${markings}; there is no set block length`,
-                [
-                    ...exchangePaths,
-                    ...endPaths,
-                    ...assignmentPaths,
-                    ...keyedPaths,
-                    ...(keyedPaths.length || layout ? targetNounPaths : []),
-                    ...(layout ? ['layout.policy', ...layout.movedBy.map(move => `layout.movedBy[${move.elementId}]`)] : []),
-                ],
+                layoutUnsaid
+                    ? [...exchangePaths, ...endPaths, ...assignmentPaths]
+                    : [
+                          ...exchangePaths,
+                          ...endPaths,
+                          ...assignmentPaths,
+                          ...keyedPaths,
+                          ...(keyedPaths.length || layout ? targetNounPaths : []),
+                          ...(layout ? ['layout.policy', ...layout.movedBy.map(move => `layout.movedBy[${move.elementId}]`)] : []),
+                      ],
             )
         }
 

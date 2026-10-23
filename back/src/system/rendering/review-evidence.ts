@@ -57,6 +57,8 @@ export interface EvidenceBlock {
     blockId: string
     /** Role → the end-assigned team designation holding it in this block. Empty for a game with no roles. */
     holders: Record<string, string>
+    /** For each end, the end whose first-block team stands there in this block (`RoleBlock.ends`), where the block records one (the end exchange, row B10). */
+    ends?: Record<string, string>
     fixture: any
     contracts: LoadedContract[]
     rendered: RenderedActivity
@@ -211,7 +213,7 @@ export interface LimitationEvidence {
 }
 
 export interface StructuralReport {
-    blocks: { blockId: string; holders: Record<string, string>; sections: Record<'playerTotals' | 'spatial' | 'scoring' | 'restarts' | 'other', { checks: CheckRow[]; facts: Fact[] }>; owed: { checkId: string; clause: string; verdict: string }[] }[]
+    blocks: { blockId: string; holders: Record<string, string>; ends?: Record<string, string>; sections: Record<'playerTotals' | 'spatial' | 'scoring' | 'restarts' | 'other', { checks: CheckRow[]; facts: Fact[] }>; owed: { checkId: string; clause: string; verdict: string }[] }[]
     crossBlock: { checkId: string; what: string; verdict: string; problems: string[] }[]
     composition: string[]
     summary: { gateChecks: Record<string, number>; crossBlock: Record<string, number>; owed: Record<string, number>; everyCheckPasses: boolean; vacuousClauses: string[] }
@@ -686,6 +688,8 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
             return {
                 blockId: block.blockId,
                 holders: { ...block.holders },
+                // The integration review (23 October 2026): the end-to-team assignment beside the holders, only where the block records one.
+                ...(block.ends ? { ends: { ...block.ends } } : {}),
                 owed: block.owed.map(o => ({ ...o })),
                 sections: {
                     playerTotals: {
@@ -845,6 +849,9 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
     const roleExchange: Fact[] = [
         ...membersAt(blocks[0]?.fixture?.game ?? {}, index, 'B1').map(element => ({ what: `role ${element?.activityRole} (${element?.elementId}), exchanged by`, value: element?.exchange ?? null })),
         ...blocks.map(block => ({ what: `block ${block.blockId}: holders`, value: { ...block.holders } })),
+        // The integration review (23 October 2026): where the teams change ends (row B10), for each end the end whose first-block team stands
+        // there in each block, so the review shows the end and the role apart; nothing is listed where each team keeps its end.
+        ...blocks.filter(block => !!block.ends).map(block => ({ what: `block ${block.blockId}: ends (each end, and the end whose first-block team stands there)`, value: { ...block.ends } })),
         { what: 'cross-block checks', value: input.crossBlock.map(c => `${c.checkId} ${c.verdict}`) },
         { what: 'a block length, time expiry or window written for a role (RB-7)', value: input.crossBlock.find(c => c.checkId === 'RB-7')?.problems ?? null },
         // Hardening H1: why the markings stay block by block where his recorded choice does not apply (admin-only; never coach text).
