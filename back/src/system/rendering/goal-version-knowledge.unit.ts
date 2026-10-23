@@ -20,7 +20,8 @@
  *   5. with goals stated or not, the served activity is the zone version exactly as before, and the account and the review evidence name
  *      the goal version and why it was not tried; it never reaches the realizer;
  *   6. a TEST-ONLY completion of the two open decisions (in memory only) builds A01-R2 through every structural, realization and cross-block
- *      check in both blocks at 12/1, 12/2 and 11/1, stopping only at communication (Stage G): 6+GK v 5 by role, the pressing role scoring
+ *      check in both blocks at 12/1, 12/2 and 11/1 (stopping only at communication until Stage G, 23 October 2026; served in DRAFT words
+ *      since, goal-version-communication.unit.ts pinning every sentence): 6+GK v 5 by role, the pressing role scoring
  *      by the goal, the ends exchanged, the goal set out once at the building team's end; and the protection link refuses a goal its
  *      goalkeeper's team attacks, after realization, in both blocks, and a defended-by row that is no specialized performer, before it.
  *
@@ -286,22 +287,25 @@ const buildCompleted = (players: number, keepers: number, alter?: (variant: any)
     const { records, realizations } = completed(alter)
     return buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(players, keepers, GOAL) } as any, records, { realizations, review: { includeDrafts: true } })
 }
-/** A reason that is not a communication-stage one: anything structural, from realization, from validation or from the cross-block checks. */
-const STRUCTURAL = /Gate A|GA-[A-Z-]+|realization refused|post-realization|RB-[0-9ML]|cross-block|does not list this line as open/
 
-test('completed in memory, A01-R2 passes every structural, realization and cross-block check in both blocks at 12/1, 12/2 and 11/1, stopping only at communication', () => {
+test('completed in memory, A01-R2 passes every structural, realization and cross-block check in both blocks at 12/1, 12/2 and 11/1 (since Stage G, served in DRAFT words)', () => {
     for (const [players, keepers] of [[12, 1], [12, 2], [11, 1]]) {
         const label = `${players}/${keepers}`
         const built = buildCompleted(players, keepers)
-        const refused = built.activity as RefusedActivity
-        assert.deepEqual([refused.outcome, refused.stage], ['refused', 'communication'], `${label}: ${refused.reasons?.join(' | ')}`)
-        assert.deepEqual(outcomesOf(refused), [[R2, 'REFUSED', null, []], ['A01-R1', 'NOT_TRIED', null, []]], label)
-        assert.deepEqual(refused.reasons.filter(reason => STRUCTURAL.test(reason)), [], `${label}: nothing structural`)
-        assert.ok(refused.reasons.every(reason => /awaiting approved wording|fidelity Q[0-9]/.test(reason)), `${label}: ${refused.reasons.filter(reason => !/awaiting approved wording|fidelity Q[0-9]/.test(reason)).join(' | ')}`)
-        // Both blocks were built and checked: each says only what it still cannot say.
+        /**
+         * Re-pointed 23 October 2026 (Stage G): until the goal version had words this stopped only at communication (each block saying only
+         * what it could not yet say). With the DRAFT wording (goal-version-communication.unit.ts pins every sentence) it is served, which
+         * means every gate before, at and after realization and every cross-block check passed in both blocks, as before. Still TEST-ONLY:
+         * the record's two open decisions are completed only in memory, here.
+         */
+        const served = built.activity as ServedActivity
+        assert.equal(served.outcome, 'served', `${label}: ${(built.activity as RefusedActivity).reasons?.join(' | ')}`)
+        assert.deepEqual(outcomesOf(served), [[R2, 'SELECTED', null, []], ['A01-R1', 'NOT_TRIED', null, []]], label)
+        assert.deepEqual(served.rendered.withheld, [], `${label}: nothing withheld`)
+        // Both blocks were built and checked.
         const blocks = (built.fixture as any).roleBlocks.blocks as any[]
         assert.equal(blocks.length, 2, label)
-        for (const block of blocks) assert.ok(refused.reasons.some(reason => reason.startsWith(`block ${block.blockId}: `)), `${label}: ${block.blockId}`)
+        assert.ok((built.fixture as any).roleBlocks.checks.every((check: any) => check.verdict === 'PASS'), `${label}: every cross-block check passes`)
         // In each block: the building team holds the goalkeeper (6 + GK v 5 at 12 players, 5 + GK v 5 at 11), the pressing role scores by
         // the goal, the goal stands at the axis-start end line - the building team's - centred, defended by the goalkeeper's row.
         const ownEnds: string[] = []

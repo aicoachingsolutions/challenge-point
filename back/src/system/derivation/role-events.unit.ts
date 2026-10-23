@@ -707,12 +707,15 @@ test('THE CONSUMER: a building role at a line and a pressing role scoring by its
     const production = productionBuild()
     const consumer = consumerBuild()
     const activity = consumer.activity as RefusedActivity
-    // It is coherent: every check before and after realization, and across the blocks, holds; it stops only at communication, on a sentence
-    // he has not yet approved for the primary event the building team now scores by (the approved building sentence does not cite it).
+    // It is coherent: every check before and after realization, and across the blocks, holds; it stops only at communication. Until Stage G
+    // (23 October 2026) it stopped on the primary event's kind, which the approved building sentence does not cite; since Stage G fidelity
+    // reads the kind per role (fidelity.ts Q3: every role scoring by it is bounded and spoken for by his approved words about where it
+    // scores), so that reason is gone, and what still stops it is the targets' two nouns (a line and a zone), which no one word names.
     assert.equal(activity.outcome, 'refused')
     assert.equal(activity.stage, 'communication', activity.reasons.join(' | '))
     assert.ok(!activity.reasons.some(reason => reason.includes(ROLE_EVENTS_CHECK)), activity.reasons.join(' | '))
-    assert.ok(activity.reasons.some(reason => reason.includes('fidelity Q3: value.primaryEvent.kind is established by the game and no instruction carries it')))
+    assert.ok(!activity.reasons.some(reason => reason.includes('fidelity Q3: value.primaryEvent.kind')), activity.reasons.join(' | '))
+    assert.ok(activity.reasons.some(reason => reason.includes('awaiting approved wording: objectives[')), activity.reasons.join(' | '))
     // The fixture: the pressing role holds its own event and the game's primary event is the building team's.
     const game: any = (consumer.fixture as any).game
     const productionGame: any = (production.fixture as any).game
@@ -745,9 +748,11 @@ test('THE CONSUMER: a building role at a line and a pressing role scoring by its
 
 // ── 8. No wording, no sentence; the guard ───────────────────────────────────────────────────────────────
 test('a kind with no wording is withheld and fidelity refuses it, never said with the line wording; the two wordings by kind', () => {
+    // Stage G (23 October 2026): the goal has DRAFT wording from data (docs/audits/draft-coach-wording.json), written for scoring at an object
+    // of its kind only: below, a goal event at a zone is still withheld, and a sentence in another kind's words is still refused.
     assert.deepEqual(
         index.vocabularies.get('V1.kind')!.map(kind => [kind, scoringWordingOf(kind)]),
-        [['goal', null], ['target_player', null], ['line_crossed', 'LINE_CROSSING'], ['target_zone_entered', 'ZONE_ENTRY'], ['gate', null], ['regain', null], ['denial', null]],
+        [['goal', 'AT_OBJECT'], ['target_player', null], ['line_crossed', 'LINE_CROSSING'], ['target_zone_entered', 'ZONE_ENTRY'], ['gate', null], ['regain', null], ['denial', null]],
     )
     const consumer = consumerBuild()
     const fixture: any = copy(consumer.fixture)
@@ -758,8 +763,9 @@ test('a kind with no wording is withheld and fidelity refuses it, never said wit
     assert.ok(!rendered.instructions.some(i => i.from.includes(PRESSING_EVENT)), 'no sentence says it')
     assert.ok(!rendered.instructions.some(i => /^Pressing team: Score/.test(i.text)), 'and it is never said with the line wording')
     assert.ok(checkFidelity(fixture, rendered).findings.some(f => f.severity === 'VIOLATION' && f.question === 3 && f.what.includes(PRESSING_EVENT)), 'fidelity: carried by nothing')
-    // A sentence written for another kind's event, read against a game where the event is a goal: refused as unworded.
-    const refused = checkFidelity(fixture, zoneRender).findings.filter(f => f.severity === 'VIOLATION' && f.question === 2 && f.what.includes('for which no wording is written'))
+    // A sentence written for another kind's event, read against a game where the event is a goal: refused, its only wording being written
+    // for scoring at an object of its kind (Stage G; was: refused as unworded, before the goal had any wording).
+    const refused = checkFidelity(fixture, zoneRender).findings.filter(f => f.severity === 'VIOLATION' && f.question === 2 && f.what.includes('whose only wording is written for scoring at an object of the kind it names, and it names no such target object'))
     assert.equal(refused.length, 1)
     assert.ok(refused[0].what.includes(`"goal" (${PRESSING_EVENT})`))
     // Every path a sentence may cite to say how a team scores.

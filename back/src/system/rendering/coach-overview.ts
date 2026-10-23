@@ -88,6 +88,7 @@ import {
     gameReadingOf,
     Instruction,
     InstructionPart,
+    OWN_END,
     renderConcreteGame,
     SIDE_BY_POSSESSION,
     SourceStatus,
@@ -249,6 +250,27 @@ export function gameSentenceOf(fixture: any): { sentence: OverviewSentence | nul
     const { areaLength, areaWidth } = reading
     const objectivePaths = (objective: any) => [`objectives[${objective.elementId}].team`, `objectives[${objective.elementId}].reference`, `objectives[${objective.elementId}].role`]
     const regionOf = (objective: any) => regions.find(region => reading.referencedBy(region) === objective)
+    /**
+     * **A role's target that is an object — Stage G, 23 October 2026 (DRAFT; the design's Stage G: "coach-overview.ts: an object target
+     * phrase").** His reply filed 26 October 2026, item 2: *"two corresponding targets, not three"*; item 5 places the object on the building
+     * team's end line. Where the objective references an object the game holds, the phrase is the Details sentences' own reading of it: "the
+     * {kind} at the {team}'s end", said only where the game places the object on the end line a team named by its role defends (RC-21 "own end
+     * (of team T)", no offset, realized at one point on an end line), citing the objective, the object's kind and its along position, each of
+     * which the Details placing and target sentences cite (Q7.1). Anything else has no words here, and the game sentence is withheld.
+     */
+    const objectsHeld: any[] = Array.isArray(game.objects) ? game.objects : []
+    const objectOf = (objective: any) => {
+        const ref = objective?.reference?.structuralRef
+        return ref ? (objectsHeld.find(object => String(object?.elementId) === `c:${ref.contractId}:${ref.itemId}`) ?? null) : null
+    }
+    const objectTarget = (objective: any, object: any): { text: string; from: string[]; bindings: Binding[]; derivedTerms: DerivedTerm[] } | null => {
+        const along = reading.geometryFor(object?.elementId, 'along')
+        const point = along?.geometry?.interval
+        const value = object?.position?.along
+        const team = value && typeof value === 'object' && value.term === OWN_END && value.offsetM?.from === 0 && value.offsetM?.to === 0 ? reading.teamNoun(value.forTeam) : null
+        if (typeof object?.kind !== 'string' || !team || !along?.path || !point || point.from !== point.to || !(point.from === 0 || point.from === areaLength)) return null
+        return { text: `the ${object.kind} at the ${team}'s end`, from: [...objectivePaths(objective), `objects[${object.elementId}].kind`, along.path], bindings: [], derivedTerms: [] }
+    }
 
     /**
      * "At halfway": a DERIVED term. Said only where the marked line is held at one point (the line `fromTeamEnd` reads: one offset from a
@@ -281,6 +303,8 @@ export function gameSentenceOf(fixture: any): { sentence: OverviewSentence | nul
      * halfway]"). Anything else has no words here.
      */
     const roleTarget = (objective: any): { text: string; from: string[]; bindings: Binding[]; derivedTerms: DerivedTerm[] } | null => {
+        const object = objectOf(objective)
+        if (object) return objectTarget(objective, object)
         const region = regionOf(objective)
         if (typeof region?.noun !== 'string' || region.noun === 'line') return null
         const defender = reading.otherTeamNoun(objective.team)
@@ -461,13 +485,21 @@ interface RegisterRow {
     kind: string
     path: string
     ownerRow: string | null
+    /** Stage G: the row whose value the event this row names earns (register `earnsValueOf`, version 16: a role's own event earns V2). */
+    earnsValueOf: string | null
 }
 let registerById: Map<string, RegisterRow> | null = null
-/** The live register's rows by id, with their kind and owner (read once; the register is versioned data). */
+/** The live register's rows by id, with their kind, owner and the value they earn (read once; the register is versioned data). */
 function registerRowsById(): Map<string, RegisterRow> {
     if (!registerById) {
         registerById = new Map(
-            ((loadRegister().rows ?? []) as any[]).map(row => [String(row?.id), { id: String(row?.id), kind: String(row?.kind), path: String(row?.path), ownerRow: row?.ownerRow ? String(row.ownerRow) : null }] as const),
+            ((loadRegister().rows ?? []) as any[]).map(
+                row =>
+                    [
+                        String(row?.id),
+                        { id: String(row?.id), kind: String(row?.kind), path: String(row?.path), ownerRow: row?.ownerRow ? String(row.ownerRow) : null, earnsValueOf: row?.earnsValueOf ? String(row.earnsValueOf) : null },
+                    ] as const,
+            ),
         )
     }
     return registerById
@@ -1025,11 +1057,25 @@ export function scoringRequirementsOf(fixture: any, rendered: Instruction[], tab
         const hits = classRules.filter(rule => rule.rows!.includes(row) && whereHolds(rule.where, element, roles.starters))
         return hits.length > 1 ? { rule: null, ambiguous: hits.map(rule => rule.id) } : { rule: hits[0] ?? null, ambiguous: [] }
     }
-    /** The way to score a field is under: the longest way row its path lies under, as the concrete prefix naming that way. */
+    /**
+     * The way to score a field is under: the longest way row its path lies under, as the concrete prefix naming that way.
+     *
+     * **Stage G, 23 October 2026: a role's own event lies under the way whose value it earns** (OUR READING, for his decision with the PROPOSED
+     * table). A field on a row lying under no way row, whose register row names the value its event earns (`earnsValueOf`: a role's own
+     * primary scoring event, row B9, earns the primary event's value, V2), lies under that value's way, where the value's path names no member
+     * (so the way is one concrete prefix). His reply filed 26 October 2026, item 1, read as restatement S1 recorded it (the context's count of
+     * one primary scoring event, read per role): a team's own event is that team's primary scoring event, so its group shows the primary
+     * event's way by stating it. Every field that lies under a way row, and every row earning no value, is read exactly as before.
+     */
     const wayOf = (path: string): string | null => {
         const generic = genericPath(path)
         const under = wayRows.filter(way => generic === way || generic.startsWith(`${way}.`) || generic.startsWith(`${way}[`)).sort((a, b) => b.length - a.length)[0]
-        if (!under) return null
+        if (!under) {
+            const row = rowOfPath(path, rowIndex)
+            const earned = row ? register.get(row)?.earnsValueOf : null
+            const earnedPath = earned ? register.get(earned)?.path : undefined
+            return earnedPath && !earnedPath.includes('[') ? wayOf(earnedPath) : null
+        }
         const steps = prefixAt(path, under)
         return steps ? path.slice(0, steps[steps.length - 1].end) : null
     }

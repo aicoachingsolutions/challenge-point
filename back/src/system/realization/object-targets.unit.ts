@@ -110,7 +110,9 @@ test('register version 17 holds the rows as data, in one versions entry quoting 
     assert.ok(bound.values.INTO_THE_AREA.startsWith('Facing Reference = Playing direction'))
     const geometry = index.objectGeometry!
     assert.deepEqual([geometry.row, geometry.kindRow, geometry.alongRow, geometry.acrossRow, geometry.kindLeaf, geometry.alongLeaf], ['O1', 'O2', 'O4', 'O5', 'kind', 'position.along'])
-    assert.equal(register.objectGeometry.facingRow, 'O6', 'the facing row is named (validated at load, read by nothing until its wording exists)')
+    assert.equal(register.objectGeometry.facingRow, 'O6', 'the facing row is named')
+    // Stage G (23 October 2026): the across leaf and the facing row with its leaf are indexed, read by the renderer's placing sentence.
+    assert.deepEqual([geometry.acrossLeaf, geometry.facingRow, geometry.facingLeaf], ['position.across', 'O6', 'facing'])
     assert.deepEqual([...geometry.extentDimensions], [['goal', 1]])
     assert.equal(register.objectGeometry.extentDimensions.basis, 'OUR_INTERPRETATION', 'the map is our reading, labelled so')
     const central = register.relativeTerms.machineReadable.terms.central
@@ -404,7 +406,9 @@ test('THE END-KEYED GOAL VERSION (TEST-ONLY): block 1 passes every check before,
     for (const reason of block1) assert.ok(atCommunication(reason), reason)
     assert.equal(block1.filter(reason => unreadMove(reason)).length, 1, block1.join(' | '))
     for (const path of [`${GOAL}.position.along`, `${GOAL}.position.across`]) assert.ok(block1.includes(`fidelity Q3: ${path} is established by the game and no instruction carries it`), path)
-    assert.ok(block1.includes('awaiting approved wording: activityRoles[c:provisional:A01-R1:A01-R1-B1-2].scoresBy (B9)'))
+    // Re-pointed 23 October 2026 (Stage G): the pressing role's goal has DRAFT wording from data (draft-coach-wording.json), so it is said, and
+    // no longer awaits wording; the goal's position still is unsaid in block 1 (no layout: block 2 is refused before realization).
+    assert.ok(!block1.some(reason => reason.includes('scoresBy (B9)')), block1.join(' | '))
     assert.ok(!block1.some(reason => /GA-|realization refused|Gate A/.test(reason)), 'no gate, realization or post-realization refusal in block 1')
     // The consumer of team-ends' object reading in the realizer: a TEST-ONLY object measured from the PRESSING team's own end line is placed
     // only because the pressing team's end is read from the goal it attacks (none of A01-R1's remaining items is stated for that team's end).
@@ -452,22 +456,24 @@ test('the goal version under KEPT is refused: in block 2 the pressing role holds
  * blocks now pass every gate before, at and after realization, every cross-block check passes, and the build stops only at communication:
  * the goal and the pressing role's goal have no words yet (Stage G).
  */
-test('THE GOAL VERSION UNDER EXCHANGED (TEST-ONLY, stage D): both blocks pass every gate and every cross-block check, and stop only at communication', () => {
-    const activity = goalBuild({ extra: [testItem('TEST-B10', 'B10', '*', 'EQUALS', 'EXCHANGED')] })
-    assert.equal(activity.outcome, 'refused')
-    assert.equal(activity.stage, 'communication', activity.reasons.join(' | '))
-    const ids = [`${BLOCK_1}|TEAM_AT_AXIS_START<TEAM_AT_AXIS_START,TEAM_AT_AXIS_END<TEAM_AT_AXIS_END`, `${BLOCK_1}|TEAM_AT_AXIS_START<TEAM_AT_AXIS_END,TEAM_AT_AXIS_END<TEAM_AT_AXIS_START`]
-    for (const id of ids) {
-        const reasons = reasonsOf(activity, id)
-        assert.ok(reasons.length > 0, `${id}: ${activity.reasons.join(' | ')}`)
-        assert.ok(!reasons.some(reason => /GA-|realization refused|Gate A|post-realization/.test(reason)), reasons.join(' | '))
-        for (const path of [`${GOAL}.position.along`, `${GOAL}.position.across`]) assert.ok(reasons.includes(`fidelity Q3: ${path} is established by the game and no instruction carries it`), `${id} ${path}: ${reasons.join(' | ')}`)
-        assert.ok(reasons.includes('awaiting approved wording: activityRoles[c:provisional:A01-R1:A01-R1-B1-2].scoresBy (B9)'), reasons.join(' | '))
-    }
-    // Refused at communication, so the cross-block checks (validation, run before it) all passed: a failing one refuses at validation.
-    assert.ok(!activity.reasons.some(reason => /^RB-|the two role blocks do not agree/.test(reason)), activity.reasons.join(' | '))
-    // The goal is set out once (the layout reads it at the building team's end line in both blocks), so nothing moves at the exchange.
-    assert.ok(activity.reasons.some(reason => reason.endsWith(`fidelity Q5: the object c:${P}:TEST-GOAL (layout.objects[object-1]) is set out once and no Set up sentence tells the coach to place it`)), activity.reasons.join(' | '))
+test('THE GOAL VERSION UNDER EXCHANGED (TEST-ONLY, stage D): both blocks pass every gate and every cross-block check; since Stage G it is said in DRAFT words', () => {
+    const whole = goalBuildWhole({ extra: [testItem('TEST-B10', 'B10', '*', 'EQUALS', 'EXCHANGED')] })
+    /**
+     * Re-pointed 23 October 2026 (Stage G): until the goal had words this build stopped only at communication, block by block (the goal's
+     * position unsaid, the pressing role's goal awaiting wording, the goal set out once with no Set up sentence placing it). With the DRAFT
+     * wording data and the placing sentence, it is served: so every gate before, at and after realization and every cross-block check (all
+     * run before communication) passed, as before. This TEST-ONLY copy states no facing and no defending team for its goal (A01-R2 does), so
+     * its placing sentence says neither.
+     */
+    const activity = whole.activity as ServedActivity
+    assert.equal(activity.outcome, 'served', JSON.stringify((whole.activity as RefusedActivity).reasons ?? null))
+    const texts = activity.rendered.instructions.map(instruction => instruction.text)
+    assert.ok(texts.includes("Place a goal centred on the building team's end line, with its frame outside the area"), texts.join(' | '))
+    assert.ok(texts.includes('Pressing team: Score by getting the ball into the goal; an own goal also counts, but winning the ball back does not earn a point on its own'), texts.join(' | '))
+    assert.equal(texts.filter(text => text.startsWith('Place a goal')).length, 1, 'the goal is placed once, from the layout: it is set out once and nothing moves at the exchange')
+    assert.ok(activity.rendered.instructions.every(instruction => instruction.block === undefined), 'the blocks say the same words')
+    // The goal is set out once at the building team's end line in both blocks (the layout reads it there).
+    for (const block of (whole.fixture as any).roleBlocks.blocks as any[]) assert.deepEqual(block.fixture.layout.objects.map((object: any) => [object.objectId, object.along, object.across]), [[`c:${P}:TEST-GOAL`, { from: 0, to: 0 }, { from: 12.5, to: 17.5 }]])
 })
 
 /**
@@ -481,34 +487,36 @@ test('THE GOAL VERSION UNDER EXCHANGED (TEST-ONLY, stage D): both blocks pass ev
  * still refused at communication; the played object is the one no objective references; and fidelity Q2 refuses any such sentence,
  * whatever renders it, while a line-target game's own "defends one line" stands.
  */
-test('integration review fix (TEST-ONLY goal version): no draft calls a target a line, the target object is not the played object, and the build is still refused at communication', () => {
+test('integration review fix (TEST-ONLY goal version): no sentence calls a target a line, the target object is not the played object, and under KEPT the object target is still withheld', () => {
     const PRESSING_OBJECTIVE = 'objectives[c:restated:GF2:GF2-08.e]'
     const BUILDING_OBJECTIVE = 'objectives[c:restated:GF2:GF2-08.c]'
     const LINE_WORDS = [/\bsame line\b/i, /\bdefends one line\b/i, /\btarget line\b/i]
     {
+        /**
+         * Re-pointed 23 October 2026 (Stage G): under EXCHANGED the build is now served in DRAFT words (the goal has wording from data), so the
+         * served sentences are read where the draft was: none calls a target a line, none plays with the target object, and the pressing
+         * objective's reference is said by name ("The pressing team's target is the goal"), no longer withheld; where every team's target is
+         * named at once the word is "target" (targets of two kinds), never "line".
+         */
         const ends = 'EXCHANGED'
         const whole = goalBuildWhole({ extra: [testItem('TEST-B10', 'B10', '*', 'EQUALS', ends)] })
-        const activity = whole.activity as RefusedActivity
-        assert.equal(activity.outcome, 'refused')
-        assert.equal(activity.stage, 'communication', activity.reasons.join(' | '))
-        const draft = activity.draft!
-        assert.ok(draft && draft.instructions.length > 0, `${ends}: a draft is carried`)
-        for (const instruction of draft.instructions) {
+        const activity = whole.activity as ServedActivity
+        assert.equal(activity.outcome, 'served', JSON.stringify((whole.activity as RefusedActivity).reasons ?? null))
+        for (const instruction of activity.rendered.instructions) {
             for (const pattern of [...LINE_WORDS, ...TARGET_AS_LINE]) assert.ok(!pattern.test(instruction.text), `${ends}: "${instruction.text}" calls a target a line`)
             // The carrier: the target object is never what the teams start with, put out of play or restart with.
             assert.ok(!/\bstarts with the goal\b|\bthe goal goes out\b|\bthe goal still or moving\b|\btouch the goal last\b/.test(instruction.text), `${ends}: "${instruction.text}" plays with the target object`)
         }
-        // The pressing objective's target is an object: its reference is withheld, never given the line wording; the zone's is not.
-        assert.ok(draft.withheld.some(field => field.path === `${PRESSING_OBJECTIVE}.reference` && field.row === 'J2' && field.reason === 'AWAITING_APPROVED_WORDING'), `${ends}: ${JSON.stringify(draft.withheld)}`)
-        assert.ok(!draft.withheld.some(field => field.path === `${BUILDING_OBJECTIVE}.reference`), `${ends}: the zone target is not withheld`)
-        assert.ok(activity.reasons.some(reason => reason.endsWith(`awaiting approved wording: ${PRESSING_OBJECTIVE}.reference (J2)`)), activity.reasons.join(' | '))
-        // The played object (the one no objective references) is now carried: the sentences that name it name it, and its kind is said.
+        assert.deepEqual(activity.rendered.withheld, [], `${ends}: nothing is withheld`)
+        const target = activity.rendered.instructions.find(instruction => instruction.text === "The pressing team's target is the goal")
+        assert.ok(target && target.from.includes(`${PRESSING_OBJECTIVE}.reference`) && !target.from.includes(`${BUILDING_OBJECTIVE}.reference`), `${ends}: the pressing objective's reference is said by its own sentence`)
+        assert.ok(activity.rendered.instructions.some(instruction => instruction.text.endsWith('each team keeps attacking the same target') && instruction.from.includes(`${PRESSING_OBJECTIVE}.reference`) && instruction.from.includes(`${BUILDING_OBJECTIVE}.reference`)))
+        // The played object (the one no objective references) is carried: the sentences that name it name it, and its kind is said.
         const blockFixture: any = whole.fixture?.roleBlocks?.blocks?.[0]?.fixture
         const referenced = new Set(((blockFixture?.game?.objectives ?? []) as any[]).map(o => o?.reference?.structuralRef).filter(Boolean).map((ref: any) => `c:${ref.contractId}:${ref.itemId}`))
         const played = ((blockFixture?.game?.objects ?? []) as any[]).find(object => typeof object?.kind === 'string' && !referenced.has(String(object.elementId)))
         assert.ok(played && played.kind !== 'goal', `${ends}: the played object is read`)
-        assert.ok(draft.instructions.some(instruction => instruction.text.includes(`starts with the ${played.kind}`)), `${ends}: ${draft.instructions.map(i => i.text).join(' | ')}`)
-        assert.ok(!activity.reasons.some(reason => reason.includes(`fidelity Q3: objects[${played.elementId}].kind is established`)), `${ends}: the played object's kind is carried`)
+        assert.ok(activity.rendered.instructions.some(instruction => instruction.text.includes(`starts with the ${played.kind}`)), `${ends}: ${activity.rendered.instructions.map(i => i.text).join(' | ')}`)
     }
     // Under KEPT (no draft: block 2 is refused before realization) block 1 still withholds the object target's reference.
     const kept = reasonsOf(goalBuild(), BLOCK_1)

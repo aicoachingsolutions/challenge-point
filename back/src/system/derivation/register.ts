@@ -180,8 +180,8 @@ function indexRoleScoring(block: any, rows: Map<string, RegisterRow>, vocabulari
 export interface ObjectGeometryRegister {
     /**
      * The objects collection (O1), its kind (O2) and its along and across positions (O4, O5), each read by the consumers named above. The
-     * block's facing row (O6) is validated at load and not indexed: nothing reads it until its wording exists (Stage G), and a projection
-     * no consumer reads is not kept.
+     * block's facing row (O6) was validated at load and not indexed until its wording existed; since Stage G (23 October 2026) the renderer
+     * reads it, below.
      */
     row: string
     kindRow: string
@@ -190,6 +190,14 @@ export interface ObjectGeometryRegister {
     /** The leaves the kind and the along position sit at on an object element (`kind`, `position.along`), as realize.ts and team-ends.ts read them. */
     kindLeaf: string
     alongLeaf: string
+    /**
+     * **The across position's leaf, and the facing row with its leaf** — Stage G, 23 October 2026: the renderer's Set up sentence placing an
+     * object set out once reads where it stands across the area and which way it faces (`render-concrete-game.ts`), and cites each by the
+     * register's path, so no leaf is written there. The facing row (O6) was validated and not indexed until a consumer read it.
+     */
+    acrossLeaf: string
+    facingRow: string
+    facingLeaf: string
     /** OUR_INTERPRETATION: how many dimensions an object of a kind gives extent in (1: extent on exactly one axis). */
     extentDimensions: Map<string, number>
 }
@@ -219,7 +227,7 @@ function indexObjectGeometry(block: any, rows: Map<string, RegisterRow>, vocabul
     const kindRow = owned('kindRow', '')
     const alongRow = owned('alongRow', '.along')
     const acrossRow = owned('acrossRow', '.across')
-    owned('facingRow', '')
+    const facingRow = owned('facingRow', '')
     const attribute = rows.get(kindRow)?.selectorAttribute
     const kinds = attribute ? vocabularies.get(`${kindRow}.${attribute}`) : undefined
     if (!kinds || !kinds.length) throw new HaltError('H1', `objectGeometry.kindRow ${kindRow} carries no selector attribute with a vocabulary`)
@@ -231,7 +239,7 @@ function indexObjectGeometry(block: any, rows: Map<string, RegisterRow>, vocabul
         if (value !== 1 && value !== 2) throw new HaltError('H1', `objectGeometry.extentDimensions: ${kind} gives extent in ${JSON.stringify(value)} dimensions, which is neither 1 nor 2`)
         extentDimensions.set(kind, value)
     }
-    return { row, kindRow, alongRow, acrossRow, kindLeaf: leafOf(kindRow), alongLeaf: leafOf(alongRow), extentDimensions }
+    return { row, kindRow, alongRow, acrossRow, kindLeaf: leafOf(kindRow), alongLeaf: leafOf(alongRow), acrossLeaf: leafOf(acrossRow), facingRow, facingLeaf: leafOf(facingRow), extentDimensions }
 }
 
 /**

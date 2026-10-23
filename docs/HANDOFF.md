@@ -8884,3 +8884,41 @@ Stage F. Every record quotes him verbatim (byte-checked by `scratchpad/cd/build/
 
 NEXT: Stage G (goal wording, overview, diagram) after his decisions on goal suitability and the penalty area (the read-only options
 investigation), and any law needing an explicit adaptation (his item 10).
+
+### 23 October — Stage G: the goal version said to a coach, in DRAFT words, TEST-ONLY (replies filed 25 and 26 October)
+
+Governing: `scratchpad/christian-2026-10-26.txt` (items 1, 3, 5, 6, 10-13) and `-25.txt` (items 3, 5); design `scratchpad/d25/design-final.md`
+Stage G. Nothing is served for real: production A01 is still A01-R1 (A01-R2 waits on D-GOAL-SUITABILITY and D-PENALTY-AREA, his). Every new
+coach word is DRAFT; `approved-coach-wording.json` is untouched.
+- Wording data: `docs/audits/draft-coach-wording.json` (DRAFT, keyed by register vocabulary values, each clause with his words; loader
+  `rendering/draft-coach-wording.ts` refuses an approval, a kind or event outside the register, an event the target-type map does not score at
+  that kind, wrong slots; unusable = no wording, fail-closed). build.js copies it. Register index: `objectGeometry.acrossLeaf/facingRow/facingLeaf`
+  (no register change, no version bump).
+- Renderer: `scoringWordingOf` gains AT_OBJECT (from data); the pressing team's line "Pressing team: Score by getting the ball into the goal; an own
+  goal also counts, but winning the ball back does not earn a point on its own" (own goal = MEANING clause, his items 10/11; regain = NO_OTHER_SCORE,
+  only for a role scoring by B9 with no also-counts, his 25 Oct item 3); Set up "Place a goal centred on the building team's end line, facing into
+  the area, with its frame outside the area; the team with the goalkeeper defends it" (only for an object set out once on a role holder's end line,
+  no size said) and "The pressing team's target is the goal"; "Decide which team starts at which end"; targets of two kinds said "target" ("each team
+  keeps attacking the same target", "each team now attacks the target of its new role"); the EXCHANGED exchange adds "the goal stays where it is";
+  the reassignment adds ", the goalkeeper staying with the goal" (", staying with the goal" at 11/1; his item 6 "remaining associated").
+- Fidelity: Q3 reads the primary event's kind per role (carried only where every role scoring by it is bounded and spoken for by an approved
+  sentence citing its bound and a condition about where it scores; W3 alone does not; a NOTE says so); Q2 refuses a sentence citing an AT_OBJECT
+  kind that names no target object of its kind. Overview: object target phrase "the goal at the building team's end"; Q7.1 role clauses hold object
+  targets too; SCORING_EVENT (PROPOSED) also classes B9 (why amended); a B9 field lies under the way whose value it earns (OUR READING).
+- Diagram: "The goal is placed on ..." (desc); front draws a zero-depth object on an end line as its mouth plus a frame outside the area
+  (presentation depth only), label inside. Team colours stay with the team across the end exchange (C2). Review page: `RealizationNote` says which
+  version was built (his words) and why each other was not (gap descriptions from the record).
+- Tests: `rendering/goal-version-communication.unit.ts` (11: data and loader refusals; TEST-ONLY completion served at 12/1, 12/2, 11/1, every
+  sentence pinned; citations; Q7 meaning pins - building group = the zone version's, pressing scores into the goal only, no regain line; Q7.1 object
+  clause mutation; diagram; a kind with no data withheld; per-role Q3 and its two refusals; a pressing sentence naming the building team refused;
+  the zone version unchanged). Re-pointed (the TEST-ONLY goal builds that stopped at communication for want of words are now served, with a new
+  communication refusal kept where a test needed one): goal-version-knowledge, object-targets, objects-across-blocks, session-resources,
+  role-events (the consumer's Q3 kind reason is gone; still refused for its two target nouns).
+- Snapshot `snap-G.json` is byte-identical to `snap-F.json`; vs `snap-E.json` the same 22 keys / 652 leaves as Stage F. 11/1 on the built bundle
+  identical to Stage F. The TEST-ONLY goal version on the built bundle reads the bundled wording and says the same words.
+- TEST-ONLY screenshots: `scratchpad/cd/build/g-shots/` (g-goal-coach-375/1280-block1/block2, -overview, -details; g-goal11; g-zone note), harness
+  `scratchpad/cd/build/harness/g-*` (data from `fg/g-data.ts`).
+
+OPEN: D-GOAL-SUITABILITY and D-PENALTY-AREA (his); offside and any law needing an adaptation (item 10); T4-5's words "within the authorized deep starting
+environment" reach the coach as written in Stage F (DRAFT, his item 8, binding PROPOSED); every new sentence, the "target" generalization of his
+possession sentence, the essentials amendment and the way reading await his review; Stage F reviewer should-fix items unchanged.
