@@ -36,7 +36,7 @@
  * Sport-neutral: no designation name is written here. Kinds, scopes and names are register data.
  */
 import { designationName, DesignationResolution, RegisterIndex } from './register'
-import type { RoleBlock } from './types'
+import type { RoleBlock, SelectorTerm } from './types'
 
 /** A designation's resolution with the entry it resolved to. */
 export interface ResolvedDesignation extends DesignationResolution {
@@ -200,28 +200,67 @@ export function awardeeRelation(index: RegisterIndex, awardee: unknown, qualifie
 const DECIDED_AT_TRANSITION_SCOPES: readonly string[] = ['TRIGGER', 'DYNAMIC']
 
 /**
+ * **The terms a transition's selector carries, as `decidedAtTransition` reads them:** the row the transition is a class of, so the
+ * register can say which of its attributes are designation-valued, and every term whatever its operator (`=`, `IN`, `CONTAINS`).
+ */
+export interface CarriedTerms {
+    row: string
+    terms: readonly SelectorTerm[]
+}
+
+/**
+ * **Does a term a transition carries name, or may it name, a particular team?** True where one of its values names a registered
+ * designation other than every team, or where the register declares its attribute designation-valued on the transition's row
+ * (`designationAttributes`) and its values are not all every team — a value there that names no registered designation may still
+ * name a team, in words the resolver cannot read. Such a term may fix which team the transition is awarded to in a way the register
+ * does not record.
+ */
+function mayNameATeam(index: RegisterIndex, row: string | null, attribute: string, values: readonly unknown[]): boolean {
+    const everyTeam = (value: unknown) => resolutionOf(index, value)?.kind === 'ALL'
+    if (values.some(value => resolutionOf(index, value) !== null && !everyTeam(value))) return true
+    return row !== null && isDesignationAttribute(index, row, attribute) && !values.every(everyTeam)
+}
+
+/**
  * **Is the team a transition's award designation picks out decided only when play reaches the transition?** — 22 October 2026
  * (P1b, after the P1 review), for GA-PARTICIPANTS-PRESENT. Christian, reply filed 25 October 2026, item 6: *"Any participant or
  * role required by an activity must actually be present in the authorized configuration."* A transition so awarded can be awarded
  * to each team its designation does not exclude, so it is not a designation that cannot be resolved: what it requires of a team is
- * required of each of them. True only where all three hold:
+ * required of each of them. True only where all four hold:
  *
  *   - the resolution's scope is one decided at the transition (`DECIDED_AT_TRANSITION_SCOPES`) — never a standing scope (one team,
  *     which a recorded binding names) and never EPISODE;
  *   - the resolution is not only our reading: it restates the entry's gloss, or the entry carries a relation in his words
  *     (`relativeTo`). A reading of ours never decides a gate clause (the register's relativeToNote; `followsPossessionRelation`);
  *   - no relation the register records ties it to a qualifier this transition carries: where the transition carries that qualifier,
- *     `awardeeRelation` answers, and where it cannot, the team is unresolved, not decided at the trigger.
+ *     `awardeeRelation` answers, and where it cannot, the team is unresolved, not decided at the trigger;
+ *   - the transition carries no term that names, or may name, a particular team (`mayNameATeam`; P1b review, 22 October 2026). The
+ *     register relating an award to no qualifier is silence, not independence: a restart selected for "last touched by the team
+ *     at the start end" and awarded to the team that touched it last goes, in plain meaning, to that one team, and reading
+ *     it as able to fall on either would FAIL a clause on information that establishes no violation (SD-52: *"FAIL = sufficient
+ *     authoritative information establishes violation"*). Such an award is unresolved — MAY, so the clause withholds — never decided
+ *     at the trigger.
  *
- * False for everything else, a value no registered designation names included. Read from the resolution's data; no designation is
- * named here.
+ * `carried` is the transition's whole selector; without it the equality `qualifiers` are read as its terms and no attribute is
+ * known to be designation-valued. False for everything else, a value no registered designation names included. Read from the
+ * resolution's and the register's data; no designation, qualifier or row is named here.
+ *
+ * **Known limit.** A limit the trigger itself puts on which team can be awarded the transition — a trigger only one role or team
+ * can cause — is not read: no register data describes triggers that way, and no production transition reaches this with a team
+ * lacking what it requires. Where the register comes to say it, such a trigger should make the award unresolved here, as a
+ * team-naming term does.
  */
-export function decidedAtTransition(index: RegisterIndex, awardee: unknown, qualifiers: Record<string, unknown>): boolean {
+export function decidedAtTransition(index: RegisterIndex, awardee: unknown, qualifiers: Record<string, unknown>, carried: CarriedTerms | null = null): boolean {
     const resolved = resolutionOf(index, awardee)
     if (!resolved || !DECIDED_AT_TRANSITION_SCOPES.includes(resolved.scope) || index.designations.standingScopes.includes(resolved.scope)) return false
     const relative = resolved.relativeTo
     if (resolved.basis !== 'GLOSS' && !relative) return false
-    return !relative || !(relative.qualifier in qualifiers)
+    const terms = carried
+        ? carried.terms.map(term => ({ attribute: term.attribute, values: term.op === 'IN' ? term.values : [term.value] }))
+        : Object.entries(qualifiers).map(([attribute, value]) => ({ attribute, values: [value] }))
+    // The related qualifier carried by any operator: `awardeeRelation` answers an equality, and anything else leaves the team unresolved.
+    if (relative && (relative.qualifier in qualifiers || terms.some(term => term.attribute === relative.qualifier))) return false
+    return !terms.some(term => mayNameATeam(index, carried?.row ?? null, term.attribute, term.values))
 }
 
 /** Equal as designations (RC-22), or null where either value is no registered designation. */

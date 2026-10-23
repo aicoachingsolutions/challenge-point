@@ -28,7 +28,8 @@
  *      STRUCTURE with its own sentence from the typed records read from the staged context, the reasons naming the element — it was the
  *      generic structure sentence; and a restart whose award is decided at the trigger, taken by a role only one of the teams it can be
  *      awarded to holds, FAILS (it was NOT_EVALUABLE) and is refused at validation naming the role, whether the clause was owed or not,
- *      while an award that genuinely cannot be resolved still withholds.
+ *      while an award that genuinely cannot be resolved still withholds — including one on a restart carrying a term that names, or may
+ *      name, a team the register does not relate the award to (P1b review: silence is not independence, so no FAIL and no team named).
  *
  * TEST-ONLY copies are labelled; production files are never written.
  *
@@ -435,7 +436,14 @@ test('P1b TEST-ONLY: the neutral demonstration with its neutral count forced to 
 
 test('P1b: which awards are decided at the trigger, read from the register\'s resolutions (scope, basis, relation)', () => {
     const lastTouch = { 'qualifier.lastTouch': 'ROLE_HOLDER_PRESSING' }
+    const startTouched = { 'qualifier.lastTouch': 'TEAM_AT_AXIS_START' }
     const table: [unknown, Record<string, unknown>, boolean, string][] = [
+        // P1b review: a term naming a team the register does not relate the award to may fix the team — unresolved, never decided at the trigger.
+        ['LAST_TOUCH', startTouched, false, 'the transition carries a qualifier naming a team: the register\'s silence on the relation is not independence'],
+        ['WON_BALL', startTouched, false, 'the same for any award the register relates to no qualifier'],
+        ['ATTACKING_TEAM', { 'qualifier.endLine': 'ROLE_HOLDER_BUILDING' }, false, 'any team-naming qualifier, not only the last touch'],
+        ['LAST_TOUCH', { 'qualifier.lastTouch': 'EACH_TEAM' }, true, 'a qualifier naming every team fixes no team'],
+        ['LAST_TOUCH', { trigger: 'OUT_TOUCHLINE' }, true, 'a term naming no team leaves it decided at the trigger'],
         ['NOT_LAST_TOUCH', {}, true, 'his words relate it to a last-touch qualifier the transition does not carry: decided by who touches it last'],
         ['NOT_LAST_TOUCH', lastTouch, false, 'the transition carries the qualifier: awardeeRelation answers, never this'],
         ['WON_BALL', {}, true, 'TRIGGER, on the entry\'s gloss'],
@@ -453,23 +461,43 @@ test('P1b: which awards are decided at the trigger, read from the register\'s re
         [undefined, {}, false, 'no award'],
     ]
     for (const [award, qualifiers, expected, why] of table) assert.equal(decidedAtTransition(index, award, qualifiers), expected, `${String(award)}: ${why}`)
+    // With the transition's whole selector: a term of any operator, and an attribute the register declares designation-valued on the
+    // transition's row whatever words it holds, may name a team. The row and attribute are read from the register, never written in code.
+    const row = 'T1'
+    const designationValued = index.designations.attributes.filter(entry => entry.row === row).map(entry => entry.attribute)
+    assert.ok(designationValued.includes('qualifier.lastTouch'), 'the register declares the last-touch qualifier designation-valued on T1')
+    const carried: [unknown, any[], boolean, string, string?][] = [
+        ['NOT_LAST_TOUCH', [{ attribute: 'qualifier.lastTouch', op: 'IN', values: ['words no designation names'] }], false, 'his related qualifier carried by another operator, on a TEST-ONLY row declaring nothing designation-valued: still unresolved', 'TEST-ONLY-ROW'],
+        ['LAST_TOUCH', [{ attribute: 'qualifier.lastTouch', op: 'IN', values: ['words no designation names'] }], true, 'the same term on that row, for an award related to no qualifier: nothing in it names a team the register can read', 'TEST-ONLY-ROW'],
+        ['LAST_TOUCH', [{ attribute: 'trigger', op: '=', value: 'OUT_TOUCHLINE' }], true, 'the trigger alone names no team'],
+        ['LAST_TOUCH', [{ attribute: 'qualifier.lastTouch', op: 'IN', values: ['TEAM_AT_AXIS_START'] }], false, 'an IN term naming a team'],
+        ['LAST_TOUCH', [{ attribute: 'qualifier.lastTouch', op: '=', value: 'the side that kicked it' }], false, 'a designation-valued attribute in words the resolver cannot read may still name a team'],
+        ['LAST_TOUCH', [{ attribute: 'qualifier.lastTouch', op: '=', value: 'EACH_TEAM' }], true, 'every team fixes no team'],
+        ['NOT_LAST_TOUCH', [{ attribute: 'trigger', op: '=', value: 'OUT_TOUCHLINE' }], true, 'his relation to a qualifier the transition does not carry: decided by who touches it last'],
+        ['NOT_LAST_TOUCH', [{ attribute: 'qualifier.lastTouch', op: 'IN', values: ['TEAM_AT_AXIS_START', 'TEAM_AT_AXIS_END'] }], false, 'the related qualifier carried as a set: awardeeRelation cannot answer, and the team is unresolved'],
+    ]
+    for (const [award, terms, expected, why, onRow] of carried) {
+        const qualifiers = Object.fromEntries(terms.filter(term => term.op === '=').map(term => [term.attribute, term.value]))
+        assert.equal(decidedAtTransition(index, award, qualifiers, { row: onRow ?? row, terms }), expected, `${String(award)} carrying ${JSON.stringify(terms)} on ${onRow ?? row}: ${why}`)
+    }
 })
 
 /**
  * A TEST-ONLY touchline restart on a copy of the possession game form: no last-touch qualifier, so the form's own item awards it to the
  * team that did not touch it last (GF2-16.a, his words relate that to a qualifier this transition does not carry) and stops play
  * (GF2-16.b); taken by the register's specialized role, which only the named setup assignments hold. `award` replaces GF2-16.a's value on
- * the copy.
+ * the copy; `lastTouch` (P1b review) selects the restart for a last-touch qualifier naming that team instead.
  */
-const touchlineRestart = (holders: string[], award?: string) => (contracts: LoadedContract[]) => {
+const touchlineRestart = (holders: string[], award?: string, lastTouch?: string) => (contracts: LoadedContract[]) => {
     const form = contracts.find(contract => contract.contractId === 'restated:GF2')!
     const base = form.items.find(item => item.itemId === 'GF2-16.a')!
     const item = (itemId: string, row: string, selector: string, requirement: string, value: unknown) =>
         form.items.push({ ...copy(base), itemId, ...('id' in base ? { id: itemId } : {}), row, selector, requirement, value, strictness: 'REQUIRED', valueStatus: requirement === 'EXISTS' ? 'N/A' : 'REQUIRED_RANGE', basis: 'OWNER_RULING' } as any)
-    item('TEST-ONLY-T1', 'T1', 'trigger=OUT_TOUCHLINE', 'EXISTS', 'N/A')
-    item('TEST-ONLY-T3', 'T3', 'trigger=OUT_TOUCHLINE', 'EQUALS', KEEPER)
-    item('TEST-ONLY-T4', 'T4', 'trigger=OUT_TOUCHLINE', 'EQUALS', { dynamic: 'where the ball went out' })
-    item('TEST-ONLY-T5', 'T5', 'trigger=OUT_TOUCHLINE', 'EQUALS', 'IN_HAND')
+    const selector = lastTouch ? `trigger=OUT_TOUCHLINE AND qualifier.lastTouch=${lastTouch}` : 'trigger=OUT_TOUCHLINE'
+    item('TEST-ONLY-T1', 'T1', selector, 'EXISTS', 'N/A')
+    item('TEST-ONLY-T3', 'T3', selector, 'EQUALS', KEEPER)
+    item('TEST-ONLY-T4', 'T4', selector, 'EQUALS', { dynamic: 'where the ball went out' })
+    item('TEST-ONLY-T5', 'T5', selector, 'EQUALS', 'IN_HAND')
     for (const team of holders) item(`TEST-ONLY-${KEEPER_ROW}-${team}`, KEEPER_ROW, `team=${team}`, 'EQUALS', '1')
     if (award) (base as any).value = award
 }
@@ -520,6 +548,33 @@ test('P1b TEST-ONLY: decided at the trigger on the entry\'s gloss FAILS; an awar
         assert.deepEqual(game.post!.missingParticipants, [], `${award}: nothing is called missing that cannot be placed on a team`)
         assert.equal(game.post!.validated, false, `${award}: owed, so still refused`)
     }
+})
+
+test('P1b review TEST-ONLY: an award the register relates to no qualifier, on a restart selected for a last touch naming a team, is unresolved — it withholds and is still refused, never a FAIL naming the other team', () => {
+    // X4: awarded to the team that touched it last, selected for the start-end team touching it last; only that team holds the taker. In
+    // plain meaning the restart goes to the start-end team, which holds it — the register's silence on the relation establishes no violation.
+    const x4 = touchlineRestart(['TEAM_AT_AXIS_START'], 'LAST_TOUCH', 'TEAM_AT_AXIS_START')
+    const [game] = chain(demoSelection('scoring-modifier'), sessionOf(13, 1), { alter: x4 })
+    assert.equal(game.stoppedAt, null, String(game.stoppedAt))
+    const check = postCheck(game.post)
+    assert.equal(clauseOf(check, 'TAKER').verdict, 'NOT_EVALUABLE', `was FAIL after 157ceda: ${check.why}`)
+    assert.ok(String(check.why).includes(`${RESTART} [OUT_TOUCHLINE] (T3) requires 1 ${KEEPER} (${KEEPER_ROW}) of LAST_TOUCH: which team it falls on cannot be resolved, and only some of the teams it may fall on hold it`), check.why)
+    assert.ok(!String(check.why).includes('decided at the trigger'), check.why)
+    assert.deepEqual(game.post!.missingParticipants, [], 'no team is called lacking on information that does not establish it')
+    assert.ok(game.post!.owed.some(o => o.checkId === PARTICIPANTS_CHECK && o.verdict === 'NOT_EVALUABLE'), 'owed, and not paid')
+    assert.equal(game.post!.validated, false, 'owed, so still refused')
+    const activity = buildActivityOverAlteredKnowledge({ kind: 'mechanism-demonstration', demonstrationId: 'scoring-modifier', session: sessionOf(13, 1) }, x4) as RefusedActivity
+    assert.equal(activity.outcome, 'refused')
+    assert.equal(activity.stage, 'validation')
+    assert.ok(!activity.summary.includes(KEEPER), `no participant named as missing: ${activity.summary}`)
+    // Beside it, unchanged: the same qualifier with his related award is answered by the resolver — the restart goes to the end team,
+    // which certainly lacks the taker (a FAIL on a team it falls on, not one decided at the trigger); and LAST_TOUCH with no qualifier
+    // still FAILs as decided at the trigger (the previous test).
+    const [related] = chain(demoSelection('scoring-modifier'), sessionOf(13, 1), { alter: touchlineRestart(['TEAM_AT_AXIS_START'], undefined, 'TEAM_AT_AXIS_START') })
+    const relatedCheck = postCheck(related.post)
+    assert.equal(clauseOf(relatedCheck, 'TAKER').verdict, 'FAIL', relatedCheck.why)
+    assert.ok(String(relatedCheck.why).includes(`of NOT_LAST_TOUCH, and a team it falls on holds fewer: realized:c:restated:GF2:GF2-14.a#2 (TEAM_AT_AXIS_END) holds 0`), relatedCheck.why)
+    assert.deepEqual(recordsOf(related.post!.missingParticipants), [['TAKER', RESTART, 'SPECIALIZED_ROLE', KEEPER, [[['TEAM_AT_AXIS_END'], 0]]]])
 })
 
 console.log(`participants-present.unit.ts — ${passed} passed`)

@@ -1552,6 +1552,12 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
          * is described completely and names a participant it cannot hold, so the coach is told which one, from the check's typed
          * records read from the staged context (`missingParticipantsIn`), at structure; every reason stays, and each missing
          * participant is added as one naming its element. It is said even where another check also fails, as at validation.
+         *
+         * Why the order differs from validation's (P1b review): there the roster's sentence is said first, because it names what the
+         * session must change, and the participant sentence second. Before realization there is no roster sentence to put first — a
+         * failing GA-ROSTER-SUM, or any other failing check, is said here only in the generic sentence below, which names nothing —
+         * so the participant sentence is the one specific sentence available and is said, with every other failing check kept in the
+         * reasons. Both stages put the most specific sentence they have first.
          */
         const lacking = failing.includes(PARTICIPANTS_CHECK) ? missingParticipantsIn({ ...staged.gateContext, contracts: input.contracts }) : []
         const lackingSaid = participantSummary(lacking, index, 'structure')

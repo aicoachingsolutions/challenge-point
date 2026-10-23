@@ -29,7 +29,7 @@
  * instances or found none, and the report carries that split so a summary cannot flatten it.
  */
 
-import { AwardeeRelation, awardeeRelation, decidedAtTransition, designationKey, followsPossessionRelation, holderInBlock, isAllTeams, isListedDesignation, resolutionOf, roleHolderNames, roleOfHolder } from './designation'
+import { AwardeeRelation, awardeeRelation, CarriedTerms, decidedAtTransition, designationKey, followsPossessionRelation, holderInBlock, isAllTeams, isListedDesignation, resolutionOf, roleHolderNames, roleOfHolder } from './designation'
 import { ClassifiedLine, nonClaimState } from './classify'
 import { DerivedLine, resolvedValue } from './derive'
 import { ItemOutcome } from './forward'
@@ -3404,8 +3404,9 @@ function gaAffiliation(ctx: GateContext): CheckOutcome {
  *   - NOT_EVALUABLE where a value names no participant the register types (open text establishes no identity, SD-63 — the block
  *     is NOT_REPRESENTABLE, and it is a knowledge verdict, so such a game is never realized), where a count it needs is a gap (an
  *     unresolved roster: the roster refusal is the cause and is said), or where which team the award falls on cannot be resolved
- *     (no award established, a designation the resolver cannot tie to a team, or one resolved only on our reading) and only some of
- *     the teams it may fall on hold it;
+ *     (no award established, a designation the resolver cannot tie to a team, one resolved only on our reading, or one on a
+ *     transition carrying a term that may name a team in a way the register does not relate to the award) and only some of the
+ *     teams it may fall on hold it;
  *   - DEFERRED where the teams are not yet instantiated, or a taker, award or count is still open: realization supplies them, and the
  *     clause is asked again over the concrete game, where nothing is open;
  *   - PASS otherwise, vacuously where no element requires a participant.
@@ -3441,7 +3442,7 @@ type ParticipantNeed =
     | { of: 'GROUP_COUNT'; row: string; name: string | null }
     | { of: 'NONE' }
 /** EACH: every team the designation falls on must hold it. SOME: one team holding it is enough (a group no team is named for). */
-type TeamScope = { mode: 'EACH'; designation: unknown; qualifiers: Record<string, unknown>; known: boolean } | { mode: 'SOME' }
+type TeamScope = { mode: 'EACH'; designation: unknown; qualifiers: Record<string, unknown>; known: boolean; carried?: CarriedTerms } | { mode: 'SOME' }
 
 type RequirementOutcome = 'PASS' | 'FAIL' | 'BLOCKED' | 'DEFERRED'
 
@@ -3499,7 +3500,9 @@ function participantsPresent(ctx: GateContext, probe: Probe): { clauses: ClauseR
      *     it requires of a team is required of each team it can fall on);
      *   - MAY where which team it picks out cannot be resolved at all: no award established, a value no registered designation names,
      *     a standing designation whose binding is not recorded, a qualifier the register relates it to that names no team it can
-     *     read, a designation decided by another transition's award, or one resolved only on our reading.
+     *     read, a designation decided by another transition's award, one resolved only on our reading, or one on a transition
+     *     carrying a term that names, or may name, a particular team the register does not relate it to (P1b review: silence is
+     *     not independence, and such a term may fix the team).
      */
     const fallsOn = (team: ElementClass, scope: Extract<TeamScope, { mode: 'EACH' }>): 'IS' | 'NOT' | 'AT_TRIGGER' | 'MAY' => {
         if (!scope.known || !resolutionOf(index, scope.designation)) return 'MAY'
@@ -3511,7 +3514,7 @@ function participantsPresent(ctx: GateContext, probe: Probe): { clauses: ClauseR
             if (relation === 'HOLDER') return 'IS'
             if (relation === 'OTHER') return 'NOT'
         }
-        return decidedAtTransition(index, scope.designation, scope.qualifiers) ? 'AT_TRIGGER' : 'MAY'
+        return decidedAtTransition(index, scope.designation, scope.qualifiers, scope.carried ?? null) ? 'AT_TRIGGER' : 'MAY'
     }
     const missingOf = (need: ParticipantNeed): MissingParticipant['missing'] =>
         need.of === 'ROW'
@@ -3602,12 +3605,17 @@ function participantsPresent(ctx: GateContext, probe: Probe): { clauses: ClauseR
         if (participant.kind === 'SPECIALIZED_ROLE') return { of: 'ROW', row: participant.row, count: 1, participant: { kind: 'SPECIALIZED_ROLE', row: participant.row, name: participant.name }, teams: scope ?? { mode: 'SOME' } }
         return scope && scope.mode === 'EACH' ? { of: 'ANY_PERFORMER', count: 1, teams: scope } : null
     }
-    /** The team scope of a transition's award: its T2 where established, else every team (an award nobody established falls on any). */
+    /**
+     * The team scope of a transition's award: its T2 where established, else every team (an award nobody established falls on any).
+     * The transition's whole selector is carried beside its equality qualifiers, so a term that may name a team, whatever its
+     * operator, keeps the award from being read as decided at the trigger (P1b review).
+     */
     const awardScope = (transition: ElementClass): TeamScope | 'OPEN' => {
         const award = probe.peek(lineOf(transition.classId, 'T2'))
         if (award.state === 'OPEN') return 'OPEN'
         const value = award.state === 'DERIVED' ? award.value : undefined
-        return { mode: 'EACH', designation: value, qualifiers: equalityTermsOf(transition), known: value !== undefined && value !== null }
+        const carried: CarriedTerms = { row: transition.row, terms: transition.constraints?.terms ?? [] }
+        return { mode: 'EACH', designation: value, qualifiers: equalityTermsOf(transition), known: value !== undefined && value !== null, carried }
     }
     const triggerSaid = (transition: ElementClass) => String(equalityTermsOf(transition).trigger ?? 'trigger not fixed')
 
