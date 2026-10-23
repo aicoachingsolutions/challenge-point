@@ -439,8 +439,11 @@ export default function ActivityReviewPage() {
 
                 {/* Which pathway built it, and whether the live app serves it (stage K7, his 18 October item 7). */}
                 {result && <PathwayNote result={result} />}
-                {/* Stage G: which of the goal's alternative versions was built, and why the others were not. */}
-                {result && <RealizationNote result={result} />}
+                {/*
+                  * Which of the goal's alternative versions was built, and why the others were not, is in the closed account panel below
+                  * (RealizationVersions), never here: it quotes his citations and the record's gap descriptions, and his 13 October rule
+                  * keeps the activity primary and everything technical secondary (Stage G review fix, 23 October 2026).
+                  */}
 
                 {/* 3 and 4. The answer, primary: the activity, or the sentence saying why there is none. */}
                 {result?.outcome === 'served' && <ActivityBlock activity={result} />}
@@ -629,8 +632,15 @@ function PathwayNote({ result }: { result: ActivityReviewResult }) {
  * with his words for its place in the order, its outcome and why) and the record's own gap descriptions (`authorization.gaps`): the built
  * version in his words, then each other version and why it was not built. Nothing here chooses or names a version: every word of a
  * version is his, every reason the server's.
+ *
+ * **Where it is shown — the Stage G review fix, 23 October 2026.** It was first a note above the activity, for every reader. It quotes his
+ * citations and the record's internal gap descriptions, so it broke his 13 October rule this page is built on ("Please keep the actual
+ * coach-facing activity primary, with its selection rationale and technical evidence available separately.") and the page's own contract
+ * that everything technical stays in one panel closed until the reader opens it; it also changed what a coach saw above the zone version
+ * where no snapshot could see it. It is now one field of that closed panel (`ArrivedAt`), beside the technical list of the same entries,
+ * and nothing about versions is said above the activity.
  */
-function RealizationNote({ result }: { result: ActivityReviewResult }) {
+function RealizationVersions({ result }: { result: ActivityReviewResult }) {
     const entries = result.account?.realizationSelection ?? []
     if (entries.length < 2) return null
     const gapWords = (id: string) => result.account?.authorization?.gaps?.find((gap) => gap.id === id)?.description ?? id
@@ -645,7 +655,7 @@ function RealizationNote({ result }: { result: ActivityReviewResult }) {
     }
     const built = entries.find((entry) => entry.outcome === 'SELECTED')
     return (
-        <div role='note' className='p-4 text-sm border rounded-lg text-slate-700 bg-slate-50 border-slate-200 [overflow-wrap:anywhere]'>
+        <AccountField label='Which version was built, and why'>
             <p className='font-medium'>{built ? 'Version built' : 'No version of this activity was built'}</p>
             {built && <p className='mt-1'>{quoted(built)}</p>}
             <ul className='mt-2 space-y-1'>
@@ -657,7 +667,7 @@ function RealizationNote({ result }: { result: ActivityReviewResult }) {
                         </li>
                     ))}
             </ul>
-        </div>
+        </AccountField>
     )
 }
 
@@ -1217,6 +1227,9 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                                 </Mark>
                             </AccountField>
                         )}
+
+                        {/* Stage G (moved here by its review fix): which version was built in his words, and why each other was not. */}
+                        <RealizationVersions result={result} />
 
                         {/*
                           * Stage E (23 October 2026), technical account only, DRAFT labels: every realization the goal's record names, in

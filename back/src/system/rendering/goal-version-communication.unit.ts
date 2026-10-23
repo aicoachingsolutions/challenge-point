@@ -15,7 +15,7 @@
  *   2. the TEST-ONLY completion of the two open decisions (in memory, as in goal-version-knowledge.unit.ts) is now SERVED at 12/1, 12/2 and
  *      11/1, every sentence DRAFT except his three approved scoring sentences, which are byte-identical to the zone version's;
  *   3. the placing sentence (the goal centred on the building team's end line, facing in, its frame outside, defended by the team with the
- *      goalkeeper), the target sentence, How to score for the pressing team (the goal; an own goal counts; a regain alone earns nothing), the
+ *      active goalkeeper, his item 6 words, since the Stage G review fix), the target sentence, How to score for the pressing team (the goal; an own goal counts; a regain alone earns nothing), the
  *      exchange (the teams change ends and roles; the goal stays; nothing is re-marked) and the goalkeeper who changes team without moving;
  *   4. the overview holds the meaning (Q7): the building team's group is the zone version's, the pressing team's lead says it scores into
  *      the goal and nothing else, no line says a regain scores, and the full rule says it does not;
@@ -36,7 +36,7 @@ import { indexRegister } from '../derivation/register'
 import { learningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
 import { buildActivityForReview, buildActivityUnderAuthorizationRecords, RefusedActivity, ServedActivity } from './build-activity'
 import { coachOverviewDraftOf } from './coach-overview'
-import { DRAFT_COACH_WORDING_FILE, draftCoachWordingLoad, draftCoachWordingLoadOf, draftCoachWordingUnusableBecause, scoringAtObjectWording } from './draft-coach-wording'
+import { DRAFT_COACH_WORDING_FILE, draftCoachWordingLoad, draftCoachWordingLoadOf, draftCoachWordingUnusableBecause, facingWording, scoringAtObjectWording } from './draft-coach-wording'
 import { checkFidelity } from './fidelity'
 import { checkOverview } from './overview-fidelity'
 import { renderConcreteGame } from './render-concrete-game'
@@ -97,6 +97,10 @@ test('the DRAFT wording data loads, keyed by register vocabulary values, each cl
     assert.ok(entry.clauses[0].basis.words.includes('I agree that an own goal against the building team counts for the pressing team in the goal-based realization.'))
     assert.ok(entry.clauses[1].basis.words.includes('A defensive regain alone does not earn a point.'))
     assert.deepEqual(load.wording.objectKinds.map(kind => [kind.kind, kind.standsOutsideArea]), [['goal', ', with its frame outside the area']])
+    // The Stage G review fix: the words for a facing are data too, keyed by the register's facing vocabulary, with his item 5 words.
+    assert.deepEqual(load.wording.facings.map(facing => [facing.facing, facing.words, facing.basis.citedAs]), [['INTO_THE_AREA', 'facing into the area', 'his reply filed 26 October 2026, item 5']])
+    assert.equal(facingWording('INTO_THE_AREA')!.words, 'facing into the area')
+    assert.equal(facingWording('TEST-ONLY'), null, 'a facing with no entry has no words')
     const file = JSON.parse(fs.readFileSync(DRAFT_COACH_WORDING_FILE, 'utf8'))
     assert.equal(draftCoachWordingUnusableBecause(file, index), null)
     const refused = (alter: (f: any) => void, pattern: RegExp, what: string) => {
@@ -104,7 +108,7 @@ test('the DRAFT wording data loads, keyed by register vocabulary values, each cl
         alter(damaged)
         const why = draftCoachWordingUnusableBecause(damaged, index)
         assert.ok(why && pattern.test(why), `${what}: ${why}`)
-        assert.deepEqual(draftCoachWordingLoadOf(damaged, index).wording, { objectKinds: [], scoringAtObjects: [] }, `${what}: an unusable file loads as no wording at all`)
+        assert.deepEqual(draftCoachWordingLoadOf(damaged, index).wording, { objectKinds: [], facings: [], scoringAtObjects: [] }, `${what}: an unusable file loads as no wording at all`)
     }
     refused(f => (f.status = 'APPROVED'), /every word here is DRAFT/, 'a file claiming approval')
     refused(f => (f.approvedBy = { who: 'TEST-ONLY' }), /approvedBy/, 'an approval key')
@@ -115,10 +119,14 @@ test('the DRAFT wording data loads, keyed by register vocabulary values, each cl
     refused(f => (f.scoringAtObjects[0].clauses[1].states = 'ALWAYS'), /none of MEANING, NO_OTHER_SCORE/, 'an unknown clause reading')
     refused(f => (f.scoringAtObjects[0].clauses[0].basis = { words: [], citedAs: 'his reply filed 26 October 2026, item 10' }), /quotes none of his words/, 'a clause with no words of his')
     refused(f => (f.objectKinds[0].kind = 'TEST-ONLY'), /no object kind of the register's vocabulary/, 'an object kind outside the vocabulary')
+    refused(f => (f.facings[0].facing = 'TEST-ONLY'), /no member of the register's facing vocabulary/, 'a facing outside the vocabulary')
+    refused(f => f.facings.push(copy(f.facings[0])), /facing 2 lists INTO_THE_AREA again/, 'a facing listed twice')
+    refused(f => (f.facings[0].words = 'facing the {target}'), /its words are missing or hold a slot/, 'facing words holding a slot')
+    refused(f => delete f.facings, /holds no objectKinds, facings and scoringAtObjects lists/, 'a file without its facings list')
 })
 
 // ── 2 and 3. Served, every sentence ──────────────────────────────────────────────────────────────────────
-const SET_UP_PLACING = "Place a goal centred on the building team's end line, facing into the area, with its frame outside the area; the team with the goalkeeper defends it"
+const SET_UP_PLACING = "Place a goal centred on the building team's end line, facing into the area, with its frame outside the area; the team with the active goalkeeper defends it"
 const PRESSING_LINE = 'Pressing team: Score by getting the ball into the goal; an own goal also counts, but winning the ball back does not earn a point on its own'
 const EXCHANGE =
     'When you call the next block the teams change ends and exchange roles: each role is played from the same end in every block, so each team now attacks the target of its new role, the goal stays where it is, and nothing is re-marked; there is no set block length'
@@ -188,7 +196,7 @@ test('each new sentence cites what it says: the placing sentence its kind, layou
             [" centred on the building team's end line", [`${base}.${geometry.acrossLeaf}`, `${base}.${geometry.alongLeaf}`]],
             [', facing into the area', [`${base}.${geometry.facingLeaf}`]],
             [', with its frame outside the area', [`${base}.${geometry.alongLeaf}`, `${base}.${geometry.kindLeaf}`]],
-            ['; the team with the goalkeeper defends it', [`${base}.defendedBy`]],
+            ['; the team with the active goalkeeper defends it', [`${base}.defendedBy`]],
         ],
     )
     assert.ok(placing.parts!.every(part => part.status === 'DERIVED' && part.quantities.length === 0), 'no size is said: the width is the session\'s own goal')
@@ -286,6 +294,18 @@ test('a kind with no wording data is withheld: the pressing team scoring by a TE
     const rendered = renderConcreteGame(block)
     assert.ok(rendered.withheld.some(field => field.path === `activityRoles[${role.elementId}].scoresBy` && field.row === 'B9'), JSON.stringify(rendered.withheld))
     assert.ok(!rendered.instructions.some(instruction => instruction.text.startsWith('Pressing team:')))
+})
+
+test('a facing with no wording data is not worded: the goal facing a TEST-ONLY way is not placed, and fidelity refuses the game (the Stage G review fix)', () => {
+    const { fixture } = goalVersion(12, 1)
+    const block = copy(fixture.roleBlocks.blocks[0].fixture)
+    const goal = (block.game.objects as any[]).find(object => object.kind === 'goal')
+    const before = renderConcreteGame(block)
+    assert.ok(before.instructions.some(instruction => instruction.text === SET_UP_PLACING), 'the real build is placed, from the data file\'s words')
+    goal[index.objectGeometry!.facingLeaf] = 'TEST-ONLY'
+    const rendered = renderConcreteGame(block)
+    assert.ok(!rendered.instructions.some(instruction => instruction.text.startsWith('Place a goal')), 'no words for the facing, so the goal is not placed')
+    assert.ok(checkFidelity(block, rendered).findings.some(f => f.severity === 'VIOLATION'), 'and the game is refused rather than said without its goal')
 })
 
 test('the primary event\'s kind is carried per role only where his approved words speak for a bounded role; otherwise it stays owed (Q3)', () => {

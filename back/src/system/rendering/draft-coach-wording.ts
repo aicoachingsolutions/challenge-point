@@ -42,6 +42,19 @@ export interface ObjectKindWording {
 }
 
 /**
+ * **The words for an object placed facing one way** — the Stage G review fix, 23 October 2026: keyed by a member of the register's facing
+ * vocabulary (the facing row the objectGeometry block names, O6), said after ', ' in the placing sentence. They were a table in the
+ * renderer; they are coach words, so they live here with the rest of the placing sentence's words. His reply filed 26 October 2026, item 5:
+ * *"[The object] should be centered on the building team's end line, facing into the playing area, with its structure outside the playing
+ * area."*
+ */
+export interface FacingWording {
+    facing: string
+    words: string
+    basis: WordingBasis
+}
+
+/**
  * What a clause after a scoring lead states: `MEANING`, what the event itself counts (said wherever the lead is said); `NO_OTHER_SCORE`,
  * that nothing else scores for the team (said only where the team scores by an event of its own and no occurrence also counts for it).
  */
@@ -65,6 +78,7 @@ export interface ScoringAtObjectWording {
 
 export interface DraftCoachWording {
     objectKinds: ObjectKindWording[]
+    facings: FacingWording[]
     scoringAtObjects: ScoringAtObjectWording[]
 }
 
@@ -75,8 +89,9 @@ export interface DraftCoachWordingLoad {
 }
 
 const filled = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0
-const FILE_KEYS = new Set(['about', 'status', 'entryShape', 'objectKinds', 'scoringAtObjects'])
+const FILE_KEYS = new Set(['about', 'status', 'entryShape', 'objectKinds', 'facings', 'scoringAtObjects'])
 const OBJECT_KEYS = new Set(['kind', 'standsOutsideArea', 'basis'])
+const FACING_KEYS = new Set(['facing', 'words', 'basis'])
 const SCORING_KEYS = new Set(['event', 'targetKind', 'lead', 'basis', 'clauses'])
 const CLAUSE_KEYS = new Set(['text', 'states', 'basis'])
 const SLOT = /\{([^{}]*)\}/g
@@ -94,7 +109,8 @@ function basisUnusableBecause(basis: any): string | null {
  * **Why the file cannot be used, or null** — its keys and DRAFT status (it never carries an approval: his approved words are
  * approved-coach-wording.json's), and every entry: its keys, its kind or event a member of the register's vocabulary, a scoring event whose
  * target the register's target-type map says is an object of the entry's kind, the lead's slots exactly {carrier} and {target}, a clause's
- * only {carrier}, a known `states`, his words for each, and no kind or event listed twice.
+ * only {carrier}, a known `states`, his words for each, and no kind or event listed twice. A facing entry (the Stage G review fix) names a
+ * member of the register's facing vocabulary, once, with words holding no slot and his words for them.
  */
 export function draftCoachWordingUnusableBecause(file: any, index: RegisterIndex): string | null {
     if (!file || typeof file !== 'object' || Array.isArray(file)) return 'the file is not an object'
@@ -105,7 +121,8 @@ export function draftCoachWordingUnusableBecause(file: any, index: RegisterIndex
     const objectKinds = geometry && kindAttribute ? (index.vocabularies.get(`${geometry.kindRow}.${kindAttribute}`) ?? []) : []
     const scoring = index.roleScoring
     const events = scoring ? (index.vocabularies.get(scoring.kindVocabulary) ?? []) : []
-    if (!Array.isArray(file.objectKinds) || !Array.isArray(file.scoringAtObjects)) return 'it holds no objectKinds and scoringAtObjects lists'
+    const facingVocabulary = geometry && geometry.facingRow && geometry.facingLeaf ? (index.vocabularies.get(`${geometry.facingRow}.${geometry.facingLeaf}`) ?? []) : []
+    if (!Array.isArray(file.objectKinds) || !Array.isArray(file.facings) || !Array.isArray(file.scoringAtObjects)) return 'it holds no objectKinds, facings and scoringAtObjects lists'
     const kinds = new Set<string>()
     for (const [n, entry] of (file.objectKinds as any[]).entries()) {
         const which = `object kind ${n + 1}`
@@ -115,6 +132,18 @@ export function draftCoachWordingUnusableBecause(file: any, index: RegisterIndex
         if (kinds.has(entry.kind)) return `${which} lists ${entry.kind} again`
         kinds.add(entry.kind)
         if (!filled(entry.standsOutsideArea) || slotsIn(entry.standsOutsideArea).length || strayBrace(entry.standsOutsideArea)) return `${which}: its words where its structure stands are missing or hold a slot`
+        const basis = basisUnusableBecause(entry.basis)
+        if (basis) return `${which}: ${basis}`
+    }
+    const facings = new Set<string>()
+    for (const [n, entry] of (file.facings as any[]).entries()) {
+        const which = `facing ${n + 1}`
+        if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return `${which} is not an object`
+        for (const key of Object.keys(entry)) if (!FACING_KEYS.has(key)) return `${which} carries "${key}"`
+        if (!filled(entry.facing) || !facingVocabulary.includes(entry.facing)) return `${which} names ${JSON.stringify(entry.facing)}, which is no member of the register's facing vocabulary`
+        if (facings.has(entry.facing)) return `${which} lists ${entry.facing} again`
+        facings.add(entry.facing)
+        if (!filled(entry.words) || slotsIn(entry.words).length || strayBrace(entry.words)) return `${which}: its words are missing or hold a slot`
         const basis = basisUnusableBecause(entry.basis)
         if (basis) return `${which}: ${basis}`
     }
@@ -146,13 +175,16 @@ export function draftCoachWordingUnusableBecause(file: any, index: RegisterIndex
     return null
 }
 
-const EMPTY: DraftCoachWording = { objectKinds: [], scoringAtObjects: [] }
+const EMPTY: DraftCoachWording = { objectKinds: [], facings: [], scoringAtObjects: [] }
 
 /** The wording from a parsed file, copied, or none with why. */
 export function draftCoachWordingLoadOf(file: any, index: RegisterIndex): DraftCoachWordingLoad {
     const why = draftCoachWordingUnusableBecause(file, index)
     if (why) return { wording: JSON.parse(JSON.stringify(EMPTY)), why: `${DRAFT_COACH_WORDING_SOURCE} cannot be used: ${why}` }
-    return { wording: { objectKinds: JSON.parse(JSON.stringify(file.objectKinds)), scoringAtObjects: JSON.parse(JSON.stringify(file.scoringAtObjects)) }, why: null }
+    return {
+        wording: { objectKinds: JSON.parse(JSON.stringify(file.objectKinds)), facings: JSON.parse(JSON.stringify(file.facings)), scoringAtObjects: JSON.parse(JSON.stringify(file.scoringAtObjects)) },
+        why: null,
+    }
 }
 
 function readWording(): DraftCoachWordingLoad {
@@ -182,6 +214,11 @@ export const scoresAtAnObject = (event: unknown, wording: DraftCoachWording = dr
 /** The words for an object of this kind placed on an end line, or null where none are written. */
 export function objectKindWording(kind: unknown, wording: DraftCoachWording = draftCoachWordingLoad().wording): ObjectKindWording | null {
     return wording.objectKinds.find(entry => entry.kind === kind) ?? null
+}
+
+/** The words for an object placed facing this way, or null where none are written (the Stage G review fix). */
+export function facingWording(facing: unknown, wording: DraftCoachWording = draftCoachWordingLoad().wording): FacingWording | null {
+    return wording.facings.find(entry => entry.facing === facing) ?? null
 }
 
 /** A DRAFT template with its slots filled, or null where a slot it holds has no value. */

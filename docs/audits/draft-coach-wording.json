@@ -3,12 +3,23 @@
   "status": "DRAFT",
   "entryShape": {
     "objectKinds": "[{ kind: a member of the register's O2.kind vocabulary, standsOutsideArea: the words said after an object of this kind is placed on an end line, saying where its structure stands (a clause, starting ', '), basis: { words: [his words verbatim], citedAs } }] - said only for an object the game places on an end line with no depth inside the area (its realized along interval one point on an end line)",
+    "facings": "[{ facing: a member of the register's O6.facing vocabulary (the facing row objectGeometry names), words: the words said, after ', ', for an object placed facing that way (no slot), basis }] - added by the Stage G review fix, 23 October 2026, so the words for a facing come from data as every other word of the placing sentence does; a facing with no entry has no words, so the placing sentence is not said and fidelity refuses the game",
     "scoringAtObjects": "[{ event: a member of the register's V1.kind vocabulary whose target, by the register's roleScoring.targetTypes map, is an object of targetKind, targetKind: a member of the O2.kind vocabulary, lead: how a team scores by the event, with the slots {carrier} (the kind of the object played with) and {target} (the kind of the object scored at), basis, clauses: [{ text: the words said after the lead, with the slot {carrier} only, starting with their own joining punctuation, states: MEANING (what the event itself counts, said wherever the lead is said) | NO_OTHER_SCORE (that nothing else scores for the team, said only where the team scores by an event of its own, register row B9, and no occurrence that also counts, row V27, names its team), basis }] }]"
   },
   "objectKinds": [
     {
       "kind": "goal",
       "standsOutsideArea": ", with its frame outside the area",
+      "basis": {
+        "words": ["The goal should be centered on the building team's end line, facing into the playing area, with its structure outside the playing area."],
+        "citedAs": "his reply filed 26 October 2026, item 5"
+      }
+    }
+  ],
+  "facings": [
+    {
+      "facing": "INTO_THE_AREA",
+      "words": "facing into the area",
       "basis": {
         "words": ["The goal should be centered on the building team's end line, facing into the playing area, with its structure outside the playing area."],
         "citedAs": "his reply filed 26 October 2026, item 5"

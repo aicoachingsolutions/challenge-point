@@ -54,7 +54,7 @@ import { NO_FURTHER_VALUE } from '../derivation/types'
 import { CONDITION_ROW, conditionScopeNotEvaluable } from '../derivation/resolved-game'
 import { ApprovedTemplateSentence, approvedTemplateSentences, approvedWording, ApprovedWording, canonicalJson, fillTemplate, POSSESSION_CONTINUES, WordingMatch } from './approved-wording'
 import { exclusionFor } from './coach-facing-exclusions'
-import { fillSlots, objectKindWording, scoresAtAnObject, scoringAtObjectWording } from './draft-coach-wording'
+import { facingWording, fillSlots, objectKindWording, scoresAtAnObject, scoringAtObjectWording } from './draft-coach-wording'
 import { eventKindOf, genericOf } from './game-reading'
 import { MARK_UNION_ONCE, MarkingChange, PhysicalLayout, Remarking, somethingMoves } from './physical-layout'
 import { ADJUSTING, assignSection, inSectionOrder, PLAY_STATE_UNREADABLE, RESTARTS, ROLE_EXCHANGE, Section, SectionFacts, TransitionReading, When } from './sections'
@@ -716,14 +716,6 @@ export const ATTACKING_END = 'attacking end (of team T)'
  */
 export const OWN_END = 'own end (of team T)'
 export const CENTRAL = 'central'
-/**
- * **Which way an object faces, worded for the exact value only — DRAFT, Stage G, 23 October 2026.** Keyed by the register's O6.facing
- * vocabulary (version 17), whose one value's gloss reads "the object faces into the playing area, along the direction of play, away from the
- * end line it stands at". Any other value has no words, so the object's placing sentence is not said and fidelity refuses the game.
- */
-const FACING_PHRASE: Record<string, string> = {
-    INTO_THE_AREA: 'facing into the area',
-}
 /**
  * **The word for whatever each team attacks, where the targets are of different kinds — DRAFT, Stage G, 23 October 2026.** A region of one
  * noun keeps that noun ("the same zone", "the target zone of its new role"); where one team attacks a region and the other an object (his
@@ -1762,14 +1754,20 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
          * outside the playing area."* and *"It remains physically stationary when the teams exchange ends."*; item 6: *"Record that the
          * physical [object] is defended by the team with the active [specialized performer] during that block"* (his nouns bracketed: the
          * coupling ratchet keeps a sport's nouns out of this layer). The layout holds the object at one place in every block
-         * (`layout.objects`, `physical-layout.ts`), so it is placed once, from the layout: "Place a {kind} centred on the {team}'s end line,
-         * facing into the area{, where its structure stands}{; the team with the {performer} defends it}". Said only where the game holds
+         * (`layout.objects`, `physical-layout.ts`), so it is placed once, from the layout: "Place a {kind} centred on the {team}'s end line{,
+         * the words for its facing}{, where its structure stands}{; the team with the active {performer} defends it}". Said only where the game holds
          * exactly that: on the end line the holder of a role defends (RC-21 "own end (of team T)" for a role holder, no offset, realized at one
          * point on an end line, so the words are the same in every block), centred across the area (RC-21 "central", realized), facing a way the words above translate, and defended by a
          * specialized performer row the register names. Each part cites what it says: the kind and the layout entry; the along and across
          * positions; the facing; the along position and the kind for where its structure stands (the DRAFT wording data's words for the kind,
          * said only for an object with no depth inside the area); the defending row. No size is said: the width is the session's own goal's.
          * An object with anything else is not placed here, so fidelity Q5-L and Q3 refuse the activity rather than this renderer guessing.
+         *
+         * **The Stage G review fix, 23 October 2026.** The words for a facing come from the DRAFT wording data (`facingWording`, keyed by the
+         * register's O6.facing vocabulary), as the words for where the structure stands do; a facing with no entry has no words, so the object
+         * is not placed. The defending clause says "the team with the active {performer}", his own words in item 6 (*"the team with the
+         * active [specialized performer] during that block"*): with two such performers in the roster, the second plays as one of the other
+         * players, and "the team with the {performer}" read as either team.
          */
         for (const entry of layout.objects ?? []) {
             const object = objectById(entry.objectId)
@@ -1788,7 +1786,7 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
             const onEndLine = alongValue?.term === OWN_END && offset && offset.from === 0 && offset.to === 0 && !!team && !!at && at.from === at.to && (at.from === 0 || at.from === areaLength)
             if (!onEndLine || acrossValue?.term !== CENTRAL || !across) continue
             const facing = fieldOf(object, objectSpec.facingLeaf)
-            const facingWords = facing === undefined ? null : FACING_PHRASE[String(facing)] ?? null
+            const facingWords = facing === undefined ? null : facingWording(facing)?.words ?? null
             if (facing !== undefined && !facingWords) continue
             const defendedBy = defendedByLeaf ? object[defendedByLeaf] : undefined
             const defender = defendedBy === undefined ? null : participants().specializedRoleRows.get(String(defendedBy)) ?? null
@@ -1801,7 +1799,7 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
                     part(statusAt([alongAt, acrossAt], 'DERIVED'), ` centred on the ${team}'s end line`, [acrossAt, alongAt]),
                     ...(facingWords ? [part(statusAt([facingAt], 'DERIVED'), `, ${facingWords}`, [facingAt])] : []),
                     ...(standing ? [part(statusAt([alongAt, kindAt], 'DERIVED'), standing.standsOutsideArea, [alongAt, kindAt])] : []),
-                    ...(defender ? [part(statusAt([defendedAt], 'DERIVED'), `; the team with the ${defender} defends it`, [defendedAt])] : []),
+                    ...(defender ? [part(statusAt([defendedAt], 'DERIVED'), `; the team with the active ${defender} defends it`, [defendedAt])] : []),
                 ]),
             )
         }
