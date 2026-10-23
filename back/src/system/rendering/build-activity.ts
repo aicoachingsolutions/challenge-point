@@ -204,10 +204,40 @@ export interface AllocationAccount {
      */
     relationships: (Pick<ContextManipulationRelationship, 'id' | 'contextId' | 'rows' | 'status' | 'confirmedOn' | 'citedAs' | 'words' | 'identified'> & { manipulationId: string | null; manipulationName: string | null; manipulationStatus: string | null })[]
     /** What defers in this composition (ruling C56): the alternative, with what it defers to. */
-    alternatives: { contractId: string; itemId: string; row: string; value: unknown; defersTo: string; deferredTo: { contractId: string; itemId: string }[]; relationship: string }[]
+    alternatives: Alternative[]
     adjustments: AuthorizedAdjustment[]
     testingBoundaries: TestingBoundaries | null
 }
+
+/**
+ * **One item moved aside as the alternative, as every reader of the composition sees it** (ruling C56; the account, the fixture, the review
+ * evidence). `defersWith` (stage B review fix, 23 October 2026) is carried where the item yields TOGETHER WITH the item it names rather than in
+ * its own right (realization-deferral.ts, the design's K2): `defersTo`, `deferredTo` and `relationship` are then its partner's, and a reader
+ * must say so - until this fix both projections below dropped it, so a paired item was listed as deferring, by its partner's relationship,
+ * to items that write another row. Absent on every unpaired entry, so they are exactly what they were.
+ */
+export interface Alternative {
+    contractId: string
+    itemId: string
+    row: string
+    value: unknown
+    defersTo: string
+    deferredTo: { contractId: string; itemId: string }[]
+    relationship: string
+    defersWith?: string
+}
+
+/** The one projection of a deferral entry onto an `Alternative` (both the account and the fixture read it). */
+const alternativeOf = (entry: ReturnType<typeof applyRealizationDeferrals>['deferred'][number]): Alternative => ({
+    contractId: entry.contractId,
+    itemId: entry.item.itemId,
+    row: String(entry.item.row),
+    value: entry.item.value,
+    defersTo: entry.defersTo,
+    deferredTo: entry.deferredTo.map(ref => ({ ...ref })),
+    relationship: entry.relationship,
+    ...(typeof entry.defersWith === 'string' ? { defersWith: entry.defersWith } : {}),
+})
 
 /**
  * The allocation account of a goal whose record names a provisional realization, or null where its items cite no
@@ -231,15 +261,7 @@ function allocationAccountOf(record: LearningGoalAuthorization, realization: Pro
                 const manipulation = 'manipulationId' in entry ? entry : null
                 return { id, contextId, manipulationId: manipulation?.manipulationId ?? null, manipulationName: manipulation?.manipulationName ?? null, manipulationStatus: manipulation?.manipulationStatus ?? null, rows: [...rows], status, confirmedOn, citedAs: where, words: [...words], identified }
             }),
-        alternatives: deferred.map(entry => ({
-            contractId: entry.contractId,
-            itemId: entry.item.itemId,
-            row: String(entry.item.row),
-            value: entry.item.value,
-            defersTo: entry.defersTo,
-            deferredTo: entry.deferredTo.map(ref => ({ ...ref })),
-            relationship: entry.relationship,
-        })),
+        alternatives: deferred.map(alternativeOf),
         adjustments: JSON.parse(JSON.stringify(adjustments)),
         testingBoundaries: realization?.testingBoundaries ? JSON.parse(JSON.stringify(realization.testingBoundaries)) : null,
     }
@@ -1142,15 +1164,7 @@ function build(
         citedAs: entry.citedAs,
         ...(typeof entry.coachWords === 'string' ? { coachWords: entry.coachWords } : {}),
     }))
-    const alternatives = deferral.deferred.map(entry => ({
-        contractId: entry.contractId,
-        itemId: entry.item.itemId,
-        row: String(entry.item.row),
-        value: entry.item.value,
-        defersTo: entry.defersTo,
-        deferredTo: entry.deferredTo.map(ref => ({ ...ref })),
-        relationship: entry.relationship,
-    }))
+    const alternatives = deferral.deferred.map(alternativeOf)
     const game: GameContext = { subject, session, selection, context, alterSupplied, adjustments, alternatives }
     /**
      * A game built through to communication becomes the served activity; one refused on the way says where. `games` are the games it was
@@ -1497,7 +1511,7 @@ interface GameContext {
     /** The record's authorized adjustments, in his words, for the fixture (stage K4). Empty for every other activity. */
     adjustments: { id: string; words: string; consequence: string | null; citedAs: string; coachWords?: string }[]
     /** What defers in this composition (ruling C56), for the fixture. Empty wherever nothing defers. */
-    alternatives: { contractId: string; itemId: string; row: string; value: unknown; defersTo: string; deferredTo: { contractId: string; itemId: string }[]; relationship: string }[]
+    alternatives: Alternative[]
 }
 
 /** One game built from its derivation input to communication, or the stage it stopped at. */

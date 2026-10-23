@@ -555,7 +555,8 @@ export interface ReviewAllocation {
         words: string[]
         identified: string
     }[]
-    alternatives: { contractId: string; itemId: string; row: string; value: unknown; defersTo: string; deferredTo: { contractId: string; itemId: string }[]; relationship: string }[]
+    /** `defersWith`: the item this one yields together with, where it yields only with it (its deferral fields are then that item's). */
+    alternatives: { contractId: string; itemId: string; row: string; value: unknown; defersTo: string; deferredTo: { contractId: string; itemId: string }[]; relationship: string; defersWith?: string }[]
     adjustments: { id: string; words: string; consequence: string | null; citedAs: string; parameter: string; role: string; relationship: string }[]
     testingBoundaries: { players: number[]; words: string; citedAs: string; note: string | null } | null
 }

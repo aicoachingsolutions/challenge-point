@@ -163,6 +163,12 @@ export interface SpatialContext {
      * own objectives (team-ends.ts) and this file only reads the answer. Null where it is not established: nothing is placed.
      */
     teamAttackingEnd?: (designation: string) => 0 | 1 | null
+    /**
+     * **Why a team's end can never be established in this game, where that is so** (stage B review fix, 23 October 2026): team-ends.ts's
+     * reason for a cycle or a second level of objects positioned by a team (`AttackingEnd.refuses`), or null. Read only where
+     * `teamAttackingEnd` answers null for a position measured from that team's end line, which then refuses the game naming it.
+     */
+    teamEndRefusal?: (designation: string) => string | null
     /** The realized along interval of an element a relative position names, or null while it has none. */
     referentInterval?: (ref: { contractId: string; itemId: string }) => { from: number; to: number } | null
     /** A RELATIVE bound authored on this line ("beyond X (for team T)"), composed only where no metric extent is required. */
@@ -231,7 +237,15 @@ function realizeTypedPosition(value: Record<string, unknown>, index: RegisterInd
         if (!definition || definition.kind !== 'anchor' || definition.axis !== 'along' || (definition.at !== 0 && definition.at !== 1)) return null
         const attacks = ctx.teamAttackingEnd ? ctx.teamAttackingEnd(fromEnd.forTeam) : null
         const base = { asAuthored, term: fromEnd.term, axis: 'along' as const }
-        if (attacks === null) return { ...base, extentUnresolved: true, why: `${definition.why ?? ''} Not placed: ${fromEnd.forTeam} attacks no end this game establishes.` }
+        if (attacks === null) {
+            // Stage B review fix: where the end can never be established (a cycle, a second level of objects), the game is refused naming why.
+            const never = ctx.teamEndRefusal ? ctx.teamEndRefusal(fromEnd.forTeam) : null
+            if (never) {
+                const why = `the end line ${fromEnd.forTeam} ${definition.at === 1 ? 'attacks' : 'defends'} can never be established in this game: ${never}`
+                return { ...base, extentUnresolved: true, refusal: why, why: `${definition.why ?? ''} Not placed: ${why}.` }
+            }
+            return { ...base, extentUnresolved: true, why: `${definition.why ?? ''} Not placed: ${fromEnd.forTeam} attacks no end this game establishes.` }
+        }
         // "own end" (at 0) is the end the team does NOT attack; "attacking end" (at 1) the one it does.
         const end: 0 | 1 = definition.at === 1 ? attacks : attacks === 1 ? 0 : 1
         const L = axes.along
@@ -267,9 +281,19 @@ function realizeTypedPosition(value: Record<string, unknown>, index: RegisterInd
  * Where neither is stated, or the extent reaches a touchline, the term REFUSES (`refusal`): nothing is placed, and no width is assumed.
  * Christian, reply filed 25 October 2026, item 3: *"Please identify any missing knowledge decisions needed here rather than inventing
  * dimensions or treating every goal as interchangeable."*
+ *
+ * **The term is placed only on its own axis** (stage B review fix, 23 October 2026). The definition names the axis it centres on; written on
+ * a position row of the OTHER axis (an object's along position, say), it would compose an interval on its own axis and the realizer would
+ * set that interval on the row's line - a depth taken from a stated width, which every gate then accepted (measured in the review: 12.5-17.5
+ * m into the area, from a width of 5). So a row whose axis is not the term's refuses, naming both axes, as an axis-bound phrase on the wrong
+ * row is never placed.
  */
 function realizeCentred(term: string, asAuthored: string, definition: any, ctx: SpatialContext, axes: { along: number; across: number }): RealizedGeometry {
     const axis: 'along' | 'across' = definition.axis === 'along' ? 'along' : 'across'
+    if (ctx.axis !== axis) {
+        const why = `"${term}" centres an element on the ${axis} axis, and it is written on the element's ${ctx.axis} position, so nothing is placed by it`
+        return { asAuthored, term, axis: ctx.axis, extentUnresolved: true, refusal: why, why: `${definition.why ?? ''} Not placed: ${why}.` }
+    }
     const length = axes[axis]
     const base = { asAuthored, term, axis }
     const sources: string[] = Array.isArray(definition.extentFrom) ? definition.extentFrom : []

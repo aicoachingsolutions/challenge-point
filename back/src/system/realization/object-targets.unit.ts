@@ -21,6 +21,11 @@
  *   7. the provisional loader refuses a placeholder extent, a supersession and a pairing;
  *   8. the diagram reads an object target typed (D7), and production's targets are unchanged.
  *
+ * And the stage B review fixes (23 October 2026): `central` only on its own axis; one allowlist for an object's position rows in a provisional
+ * realization and a realization choice; an object whose kind has extent in one dimension refused with extent on both axes; a team end that
+ * can never be established (a cycle, a second level) refusing the position stated from it; the Sport Profile refusing a supersession or a
+ * pairing; and a paired alternative reaching the account, the fixture and the review evidence as a pairing.
+ *
  * Every goal value here (the width, the pose, the end key, the markers, the relationship) is TEST-ONLY and in-memory: no production file is
  * written, nothing here is served, and nothing is knowledge for the goal version (his decisions D1-D5 of the note sent to him).
  *
@@ -143,6 +148,8 @@ test("team-ends: an object target's end is read from its typed position, with on
     const cycle = attackingEndOf(game, index, ROLE_BLOCK_2, 'ROLE_HOLDER_BUILDING')
     assert.equal(cycle.end, null)
     assert.match(cycle.why, /a cycle, so no end is answered/)
+    assert.equal(cycle.refuses, true, 'review fix: a cycle can never be answered, so a position stated from that end refuses')
+    assert.equal(attackingEndOf(game, index, ROLE_BLOCK_1, 'ROLE_HOLDER_PRESSING').refuses, undefined, 'an answered end carries no refusal')
     assert.equal(attackingEndIn(game, index, ROLE_BLOCK_2, 'ROLE_HOLDER_PRESSING'), 1, 'the other team still answers from its region')
     // A second level is not followed: the team the object's position names attacks an object positioned by a team itself.
     const twoObjects = {
@@ -156,11 +163,15 @@ test("team-ends: an object target's end is read from its typed position, with on
     const second = attackingEndOf(twoObjects, index, ROLE_BLOCK_1, 'TEAM_AT_AXIS_END')
     assert.equal(second.end, null)
     assert.match(second.why, /second level of objects positioned by a team; only one is followed/)
-    // A phrase, or a position measured from nothing, names no end: nothing is answered (never a fixed anchor).
+    // The limit, recorded: each team attacking an object placed by the OTHER team's own end establishes neither end, and both refuse.
+    assert.deepEqual([second.refuses, attackingEndOf(twoObjects, index, ROLE_BLOCK_1, 'TEAM_AT_AXIS_START').refuses], [true, true])
+    // A phrase, or a position measured from nothing, names no end: nothing is answered (never a fixed anchor), and nothing refuses here - a
+    // position read from it stays unplaced, as before, for the gates to name.
     for (const along of ['attacking end (of the team J3 names for the objective referencing it; EACH_TEAM if shared): touches an end line, not the interior', { from: 0, to: 1 }, undefined]) {
         const answer = attackingEndOf(endsGame(along), index, ROLE_BLOCK_1, 'ROLE_HOLDER_PRESSING')
         assert.equal(answer.end, null, JSON.stringify(along))
         assert.match(answer.why, /whose along position is not stated from a team's end line, so it fixes no end/)
+        assert.equal(answer.refuses, undefined)
     }
     // A register without the object rows reads no object target.
     const without = copy(register)
@@ -216,10 +227,30 @@ test("central: centred on the midline from the session's stated width or a requi
     assert.match(central({ extentBound: required, statedExtentM: 10 }).refusal ?? '', /lies outside the required extent \(4\.5-7\.5 m\)/)
     // A PREFERRED extent never closes it.
     assert.ok(central({ extentBound: { ...required, preferred: true } }).refusal)
+    // Review fix: only on its own axis. Written on an along position it refused nothing and gave the across interval, which the realizer set
+    // on the along line (12.5-17.5 m deep, from a width of 5); now it refuses, naming both axes, with or without a width or a required extent.
+    for (const ctx of [{ statedExtentM: 5 }, { extentBound: required }, {}]) {
+        const along = central({ axis: 'along', ...ctx })
+        assert.deepEqual([along.interval, along.anchor, along.axis], [undefined, undefined, 'along'], JSON.stringify(ctx))
+        assert.equal(along.refusal, `"central" centres an element on the across axis, and it is written on the element's along position, so nothing is placed by it`)
+    }
     // A register without the term does not recognise it: nothing is placed, and nothing is guessed.
     const without = copy(register)
     delete without.relativeTerms.machineReadable.terms.central
     assert.equal(realizeSpatialRelation({ term: 'central', asAuthored: 'TEST-ONLY' }, indexRegister(without), { envelope: AREA, axis: 'across', statedExtentM: 5 }), null)
+})
+
+test("a position from a team's end line that can never be established refuses, naming why; one merely unestablished stays unplaced", () => {
+    const position = { ...ownEndOf('ROLE_HOLDER_PRESSING'), asAuthored: 'TEST-ONLY' }
+    const at = (attacks: 0 | 1 | null, never: string | null) => realizeSpatialRelation(position, index, { envelope: AREA, axis: 'along', teamAttackingEnd: () => attacks, teamEndRefusal: () => never })!
+    const refused = at(null, 'TEST-ONLY a cycle')
+    assert.deepEqual([refused.refusal, refused.interval, refused.extentUnresolved], ['the end line ROLE_HOLDER_PRESSING defends can never be established in this game: TEST-ONLY a cycle', undefined, true])
+    // Not established, and not known never to be (a region whose selector fixes no end, say): unplaced as before, no refusal.
+    const open = at(null, null)
+    assert.deepEqual([open.refusal, open.interval, open.extentUnresolved], [undefined, undefined, true])
+    assert.match(open.why, /ROLE_HOLDER_PRESSING attacks no end this game establishes/)
+    // Established: placed, and the refusal reader is not what places it.
+    assert.deepEqual(at(1, 'TEST-ONLY never read').interval, { from: 0, to: 0 })
 })
 
 // ── 5. The end-keyed goal version (TEST-ONLY) ───────────────────────────────────────────────────────────
@@ -276,10 +307,14 @@ interface GoalOptions {
     widths?: Record<string, number>
     /** The goal's along position (TEST-ONLY): on the building team's end line by default. */
     along?: unknown
+    /** The goal's across position (TEST-ONLY): centred by default; null writes none, leaving the line open. */
+    across?: unknown
     /** GF2-03.e paired with GF2-08.f (the design's K2); false leaves it standing. */
     pair?: boolean
     /** Extra TEST-ONLY items for the realization. */
     extra?: ContractItem[]
+    /** Extra TEST-ONLY realization choices. */
+    choices?: { lineId: string; path: string; value: unknown; why?: string }[]
 }
 /**
  * The goal version as the design's F2 describes it, built whole on TEST-ONLY copies: GF2-08.f deferring to an authorized realization and
@@ -306,7 +341,7 @@ const goalBuild = (options: GoalOptions = {}): RefusedActivity => {
                 p.items.push(
                     testItem('TEST-GOAL', 'O1', 'kind=goal', 'EXISTS', 'N/A'),
                     testItem('TEST-GOAL-ALONG', 'O4', 'kind=goal', 'POSITIONED', options.along ?? { ...ownEndOf('ROLE_HOLDER_BUILDING'), asAuthored: 'TEST-ONLY on the building team end line' }),
-                    testItem('TEST-GOAL-ACROSS', 'O5', 'kind=goal', 'POSITIONED', { term: 'central', asAuthored: 'TEST-ONLY centred' }),
+                    ...(options.across === null ? [] : [testItem('TEST-GOAL-ACROSS', 'O5', 'kind=goal', 'POSITIONED', options.across ?? { term: 'central', asAuthored: 'TEST-ONLY centred' })]),
                     testItem('TEST-J2-END', 'J2', 'role=PRIMARY_SCORING & team=TEAM_AT_AXIS_END', 'EQUALS', { structuralRef: { contractId: P, itemId: 'TEST-GOAL' }, asAuthored: 'TEST-ONLY the goal' }, { authorizedBy: TEST_RELATIONSHIP.id }),
                     testItem('TEST-B9-PRESSING', 'B9', 'activityRole=PRESSING', 'EQUALS', 'goal', { authorizedBy: TEST_RELATIONSHIP.id }),
                     ...(options.extra ?? []),
@@ -315,6 +350,7 @@ const goalBuild = (options: GoalOptions = {}): RefusedActivity => {
             // The realization choice for the region that yields with the pressing objective goes with it (the design's F2).
             alterSupplied: supplied => {
                 supplied.choices = supplied.choices.filter(choice => !choice.lineId.includes('GF2-03.e'))
+                supplied.choices.push(...((options.choices ?? []) as any[]))
             },
             review: { includeDrafts: true },
         }).activity as RefusedActivity
@@ -381,6 +417,36 @@ test('no width is a refusal: the goal is centred only on a width the session sta
     ])
     // A width reaching both touchlines is refused too, never clipped.
     assert.ok(reasonsOf(goalBuild({ width: 30 }), BLOCK_1).some(reason => reason.includes('reaches both touchlines')))
+})
+
+test('review fix (TEST-ONLY full build): central on the along row, a goal with depth, a goal placed by its attacker, a choice in metres - each refused at realization, named', () => {
+    // Measured in the review, each passed every gate or stopped only at an unevaluable one. Now realization refuses the game, naming the line.
+    const LINE = `c:${P}:TEST-GOAL`
+    // `central` on the goal's along position: before the fix, the across interval (12.5-17.5 m) set on the along line, 5 m deep from a width.
+    assert.deepEqual(reasonsOf(goalBuild({ along: { term: 'central', asAuthored: 'TEST-ONLY centred along' } }), BLOCK_1), [
+        'realization refused',
+        `${LINE}::O4: "central" centres an element on the across axis, and it is written on the element's along position, so nothing is placed by it`,
+    ])
+    // A goal 2 m deep and 5 m wide: a kind with extent in one dimension, realized with extent on both axes.
+    assert.deepEqual(reasonsOf(goalBuild({ along: { ...ownEndOf('ROLE_HOLDER_BUILDING'), offsetM: { from: 0, to: 2 } } }), BLOCK_1), [
+        'realization refused',
+        `${LINE}: an object of kind goal has extent in one dimension (the register's objectGeometry.extentDimensions, our interpretation), and it is realized with extent on both axes (along 0-2 m, across 12.5-17.5 m)`,
+    ])
+    // The goal placed by the own end of the team that attacks it: a cycle, which team-ends refuses and realization now names (before the fix the
+    // goal was left unplaced and the gates said only STILL_NOT_EVALUABLE).
+    const cycle = reasonsOf(goalBuild({ along: ownEndOf('ROLE_HOLDER_PRESSING') }), BLOCK_1)
+    assert.equal(cycle[0], 'realization refused', cycle.join(' | '))
+    assert.ok(
+        cycle.some(reason => reason.startsWith(`${LINE}::O4: the end line ROLE_HOLDER_PRESSING defends can never be established in this game: `) && /a cycle, so no end is answered/.test(reason)),
+        cycle.join(' | '),
+    )
+    assert.ok(!cycle.some(reason => /STILL_NOT_EVALUABLE|GA-/.test(reason)), cycle.join(' | '))
+    // The goal's across position left open and CHOSEN in metres: the choice is refused as it closes the line (the review: carried into the game).
+    const chosen = reasonsOf(goalBuild({ across: null, choices: [{ lineId: `${LINE}::O5`, path: `${GOAL}.position.across`, value: { from: 12.5, to: 17.5 }, why: 'TEST-ONLY' }] }), BLOCK_1)
+    assert.deepEqual(chosen, [
+        'realization refused',
+        `${LINE}::O5: the choice writes an object's extent on O5 in metres ({"from":12.5,"to":17.5}) with no stated source: an object's dimensions come from the session or from approved knowledge, never a placeholder`,
+    ])
 })
 
 test('the zero-depth goal stands only with the register extent row (objectGeometry.extentDimensions goal 1)', () => {
@@ -450,6 +516,36 @@ test('defersWith: the region yields with the objective reference it is paired wi
     assert.deepEqual(applyRealizationDeferrals(copy(derivationInputFor(selectFor('A01', null)).contracts as LoadedContract[]), contextRelationships(), index).deferred.map(e => e.item.itemId), ['GF2-14.b'])
 })
 
+test('a paired alternative reaches the account, the fixture and the review evidence AS a pairing (review fix: the projections dropped it)', () => {
+    // TEST-ONLY: production A01 with one item paired with C56's deferring item (the review's probe; the loader would admit this pairing, since
+    // its partner carries the deferral in the same contract). Served, so every reader of the alternatives can be read.
+    const built = buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: sessionOf() } as any, learningGoalAuthorizations(), {
+        alter: contracts => {
+            ;(contracts.find(c => c.contractId === GF2)!.items.find(i => i.itemId === 'GF2-24.a') as any).defersWith = 'GF2-14.b'
+        },
+        review: { includeDrafts: true },
+    })
+    const activity = built.activity as any
+    assert.equal(activity.outcome, 'served')
+    const blocks: any[] = (built.fixture as any).roleBlocks.blocks
+    const P2 = [`${P}::A01-R1-P2-1`, `${P}::A01-R1-P2-2`]
+    for (const [where, alternatives] of [['account', activity.account.allocation.alternatives], ...blocks.map(block => [`fixture ${block.blockId}`, block.fixture.alternatives])] as [string, any[]][]) {
+        const paired = alternatives.find(alt => alt.itemId === 'GF2-24.a')
+        const own = alternatives.find(alt => alt.itemId === 'GF2-14.b')
+        assert.equal(paired?.defersWith, 'GF2-14.b', where)
+        assert.deepEqual([paired.row, paired.deferredTo.map((ref: any) => `${ref.contractId}::${ref.itemId}`), paired.relationship], ['E2', P2, own.relationship], where)
+        assert.ok(!('defersWith' in own), `${where}: the item deferring in its own right carries no pairing key`)
+    }
+    const allocation: string[] = activity.evidence.sections.allocation.map((fact: any) => fact.what)
+    assert.ok(allocation.includes(`yielding as the alternative with GF2-14.b, which defers (AUTHORIZED_REALIZATION, relationship RPC-001~EM-0006) to ${P2.join(', ')}; it carries no deferral of its own: ${GF2}::GF2-24.a E2`), allocation.join(' | '))
+    assert.ok(!allocation.some(what => what.startsWith('deferring as the alternative') && what.includes('GF2-24.a')), 'never as deferring in its own right')
+    assert.ok(allocation.includes(`deferring as the alternative (AUTHORIZED_REALIZATION, relationship RPC-001~EM-0006): ${GF2}::GF2-14.b P2`), 'the unpaired entry reads as before')
+    // Production: no entry carries the key, so the account, the fixture and the evidence are what they were.
+    const production = buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: sessionOf() } as any, learningGoalAuthorizations(), { review: { includeDrafts: true } })
+    const productionBlocks: any[] = (production.fixture as any).roleBlocks.blocks
+    assert.ok([(production.activity as any).account.allocation.alternatives, ...productionBlocks.map(block => block.fixture.alternatives)].every((list: any[]) => list.length === 1 && !('defersWith' in list[0])))
+})
+
 test('the restatement loader writes a pairing only beside the deferral it names, in the same contract', () => {
     const contract = (extra: Partial<Record<'a' | 'b', Record<string, unknown>>> = {}): LoadedContract[] => [
         {
@@ -512,6 +608,39 @@ test('the provisional loader refuses a placeholder extent for an object, a super
     assert.deepEqual(withItem({ row: 'O5', selector: 'kind=goal', value: { term: 'central', asAuthored: 'TEST-ONLY' } }), [], "the session's width is a stated source")
     assert.deepEqual(withItem({ row: 'S5', selector: 'noun=line', value: { from: 0, to: 1 } }), [], 'a region is not an object')
     for (const key of ['defersTo', 'defersWith']) assert.match(withItem({ [key]: 'TEST-ONLY' })[0] ?? '', /carries a supersession or a pairing \(defersTo, defersWith\), which only a ruled restatement writes/, key)
+    // Review fix: an ALLOWLIST. Measured in the review, "full extent" placed an object across the whole width, on the along row 40 m deep, and
+    // "bounded minority" 6-10 m deep; a centred term on the along row took its depth from a width. Each is refused, named.
+    const refusedOn = (row: string, value: unknown) => withItem({ row, selector: 'kind=goal', value })[0] ?? ''
+    assert.match(refusedOn('O4', { term: 'central', asAuthored: 'TEST-ONLY' }), /centres an object on O4 \(its along position\) by "central", which centres on the across axis, so its extent would be taken from the other axis/)
+    for (const [row, value] of [
+        ['O5', { term: 'full extent (of an axis)', asAuthored: 'TEST-ONLY' }],
+        ['O4', { term: 'full extent (of an axis)', asAuthored: 'TEST-ONLY' }],
+        ['O4', { term: 'bounded minority (of an axis)', asAuthored: 'TEST-ONLY' }],
+        ['O5', 'extends across the axis: the target lies across the direction of progression'],
+        ['O4', PHRASE],
+        ['O4', { term: 'beyond X (for team T)', of: { structuralRef: { contractId: P, itemId: 'A01-R1-S5-1' } }, forTeam: 'ROLE_HOLDER_BUILDING', asAuthored: 'TEST-ONLY' }],
+        ['O4', { term: 'central', asAuthored: 'TEST-ONLY', forTeam: 'ROLE_HOLDER_BUILDING' }],
+    ] as [string, unknown][]) {
+        assert.match(refusedOn(row, value), new RegExp(`places an object on ${row} by .*, which is neither a position on a team's end line with no depth nor a centred term on its (along|across) axis, so its extent would come from no stated source`), JSON.stringify(value))
+    }
+    // An end-line anchor names a place on the along axis only; on the across row it states nothing.
+    assert.match(refusedOn('O5', ownEndOf('ROLE_HOLDER_BUILDING')), /places an object on O5 \(its across position\) by "own end \(of team T\)", an end-line anchor on the along axis/)
+    assert.match(refusedOn('O4', { term: 'touchline-adjacent', forTeam: 'ROLE_HOLDER_BUILDING', offsetM: { from: 0, to: 0 } }), /is no end-line anchor of the register/)
+    // Admitted: a position with no depth (on the end line, or a measured distance from it, which is a place, not an extent), and central across.
+    assert.deepEqual(withItem({ row: 'O4', selector: 'kind=goal', value: { ...ownEndOf('ROLE_HOLDER_BUILDING'), offsetM: { from: 3, to: 3 } } }), [], 'a position, not an extent')
+    assert.deepEqual(withItem({ row: 'O4', selector: 'kind=goal', value: { ...ownEndOf('ROLE_HOLDER_BUILDING'), term: 'attacking end (of team T)' } }), [])
+})
+
+test('the Sport Profile loader refuses a supersession or a pairing, which only a ruled restatement writes (review fix)', () => {
+    assert.ok(corpus.loadSportProfile().length === 1 && !corpus.loadSportProfile()[0].items.some(item => 'defersTo' in item || 'defersWith' in item), 'production carries neither')
+    for (const key of ['defersTo', 'defersWith']) {
+        const read = (file: string) => {
+            const damaged = readJson(file)
+            damaged.result.items[0][key] = 'TEST-ONLY'
+            return damaged
+        }
+        assert.throws(() => corpus.loadSportProfile(read), /the Sport Profile .* item .* carries a supersession or a pairing \(defersTo, defersWith\), which only a ruled restatement writes/, key)
+    }
 })
 
 // ── 8. The diagram: D7 with an object target ────────────────────────────────────────────────────────────

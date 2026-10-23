@@ -742,7 +742,16 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
     const allocation: Fact[] = [
         ...blocks.flatMap(block => teamsOf(block, index).map(team => ({ what: `block ${block.blockId}: team ${team.handle}${team.role ? ` (${team.role})` : ''}`, value: { ...team.counts, total: team.total } }))),
         ...blocks.slice(0, 1).flatMap(block => membersAt(block.fixture?.game ?? {}, index, 'B4').map(r => ({ what: `at an exchange of roles, ${r.count} of ${r.performerRow} move to the team taking the ${r.toRole} role (${r.elementId})`, value: r.count }))),
-        ...asList(blocks[0]?.fixture?.alternatives).map(alt => ({ what: `deferring as the alternative (${alt.defersTo}, relationship ${alt.relationship}): ${alt.contractId}::${alt.itemId} ${alt.row}`, value: alt.value })),
+        // Stage B review fix (23 October 2026): an item paired with a deferring item (`defersWith`) yields with it, by ITS deferral, and is
+        // said so - never as deferring in its own right by a relationship that does not authorize its row.
+        ...asList(blocks[0]?.fixture?.alternatives).map(alt =>
+            typeof alt.defersWith === 'string'
+                ? {
+                      what: `yielding as the alternative with ${alt.defersWith}, which defers (${alt.defersTo}, relationship ${alt.relationship}) to ${asList(alt.deferredTo).map(ref => `${ref.contractId}::${ref.itemId}`).join(', ')}; it carries no deferral of its own: ${alt.contractId}::${alt.itemId} ${alt.row}`,
+                      value: alt.value,
+                  }
+                : { what: `deferring as the alternative (${alt.defersTo}, relationship ${alt.relationship}): ${alt.contractId}::${alt.itemId} ${alt.row}`, value: alt.value },
+        ),
         { what: 'session', value: { players: input.session.players, roles: { ...input.session.roles } } },
     ]
 

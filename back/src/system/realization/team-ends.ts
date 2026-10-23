@@ -54,6 +54,14 @@ export interface AttackingEnd {
     /** The target the end was read from (`c:<contract>:<item>`), where one was found. */
     target: string | null
     why: string
+    /**
+     * **True where no end is answered because the objects a team's end is read through cannot answer it** (stage B review fix, 23 October
+     * 2026): a cycle, or a second level of objects positioned by a team (one level is followed). Such a game is not merely unfinished - no
+     * later choice can establish the end - so a position stated from that team's end refuses the game, naming `why` (spatial.ts), rather than
+     * staying unplaced for the gates to find unevaluable (measured in the review: a goal placed by the end of the team attacking it gave
+     * only STILL_NOT_EVALUABLE). Absent wherever the end is answered, or unanswered for any other reason; never set for a region target.
+     */
+    refuses?: true
 }
 
 /** The end line (0 or 1, a fraction of the along axis) the team a designation stands for attacks, or null. */
@@ -72,7 +80,7 @@ export function attackingEndOf(game: unknown, index: RegisterIndex, roleBlock: R
     if (!spec) return none('the register names no targetOf rows')
     const team = setupAssignmentOf(index, designation, roleBlock)
     if (!team) return none(`${designation} stands for no setup assignment in this game, so it holds no end`)
-    if (through.includes(team)) return none(`the end ${team} attacks would be read from a position stated by ${team}'s own end: a cycle, so no end is answered`)
+    if (through.includes(team)) return { ...none(`the end ${team} attacks would be read from a position stated by ${team}'s own end: a cycle, so no end is answered`), refuses: true }
     const objectivesAt = splitPath(String(index.rows.get(spec.objectivesRow)?.path ?? '')).container
     const regionsAt = splitPath(String(index.rows.get(spec.row)?.path ?? '')).container
     if (!objectivesAt || !regionsAt) return none('the register names no objectives or regions collection')
@@ -115,9 +123,14 @@ function objectTargetEnd(game: unknown, index: RegisterIndex, roleBlock: RoleBlo
         return none(`${team} attacks the object ${id}, whose position names ${JSON.stringify(position.term)}, which is no end-line anchor of the register`)
     }
     // One level of recursion: the team the object's position names is resolved once, and may not itself answer through another object.
-    if (through.length > 1) return none(`the object ${id} is positioned by the end of ${position.forTeam}, which is a second level of objects positioned by a team; only one is followed`)
+    // A limit, recorded for the stages that build on it (C, D, F): a game where each team attacks an object placed by the OTHER team's own end
+    // never establishes either end, and is refused (the second level below), never placed.
+    if (through.length > 1) return { ...none(`the object ${id} is positioned by the end of ${position.forTeam}, which is a second level of objects positioned by a team; only one is followed`), refuses: true }
     const of = attackingEndOf(game, index, roleBlock, position.forTeam, through)
-    if (of.end === null) return none(`${team} attacks the object ${id}, positioned at the end line ${position.forTeam} ${definition.at === 1 ? 'attacks' : 'defends'}, and that end is not established: ${of.why}`)
+    if (of.end === null) {
+        const unanswered = none(`${team} attacks the object ${id}, positioned at the end line ${position.forTeam} ${definition.at === 1 ? 'attacks' : 'defends'}, and that end is not established: ${of.why}`)
+        return of.refuses ? { ...unanswered, refuses: true } : unanswered
+    }
     const end: 0 | 1 = definition.at === 1 ? of.end : of.end === 1 ? 0 : 1
     return { end, target: id, why: `${team} attacks the object ${id}, at the end line ${position.forTeam} ${definition.at === 1 ? 'attacks' : 'defends'} (${of.why})` }
 }

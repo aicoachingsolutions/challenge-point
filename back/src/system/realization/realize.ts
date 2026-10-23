@@ -31,9 +31,10 @@ import { practical, practicalRequirement } from '../derivation/practical'
 import { scaleExactly } from '../derivation/rational'
 import { RegisterIndex } from '../derivation/register'
 import { DesignationBinding, designationKey, resolutionOf } from '../derivation/designation'
+import { objectPositionRefusal } from '../derivation/object-extent'
 import { Bounds, relativePositionOf, RoleBlock } from '../derivation/types'
 import { realizeSpatialRelation, RealizedGeometry } from './spatial'
-import { attackingEndIn } from './team-ends'
+import { attackingEndIn, attackingEndOf } from './team-ends'
 
 /** A value the realizer chooses for one open line. */
 export interface Choice {
@@ -752,6 +753,17 @@ export function realize(
             because.push(unearned)
             return
         }
+        /**
+         * **No placeholder extent for an object, from a choice either** (stage B review fix, 23 October 2026). A realization choice is ours, as
+         * a provisional realization is, so on an object's along or across position it may write only what object-extent.ts admits (a position
+         * on a team's end line with no depth, or a centred term on its own axis); the provisional loader applies the same rule to its items.
+         * Measured in the review: an object's across position chosen in metres was carried into the game. No production choice is on such a row.
+         */
+        const placeholder = index ? objectPositionRefusal(String(open.lineId).split('::').pop() ?? '', choice.value, index.objectGeometry, ((index.relativeTerms ?? {}) as any).machineReadable?.terms ?? {}) : null
+        if (placeholder) {
+            because.push(`${choice.lineId}: the ${defaultedBy ? 'default' : 'choice'} ${placeholder}`)
+            return
+        }
         recorded.push({
             ...choice,
             path: open.path,
@@ -1274,6 +1286,11 @@ export function realize(
          * realizes is left unplaced (never defaulted), so the post-realization gates refuse it by name.
          */
         const teamAttackingEnd = (designation: string) => attackingEndIn(game, index, roleBlock, designation)
+        // Stage B review fix: why a team's end can NEVER be established here (a cycle, a second level of objects), so a position stated from it refuses.
+        const teamEndRefusal = (designation: string): string | null => {
+            const answer = attackingEndOf(game, index, roleBlock, designation)
+            return answer.end === null && answer.refuses ? answer.why : null
+        }
         const relativeOf = (lineId: string): Bounds | undefined =>
             ([...(resolved.open.find(o => o.lineId === lineId)?.bounds ?? []), ...(resolved.extentBounds?.[lineId] ?? [])] as Bounds[]).find(b => b && b.kind === 'RELATIVE' && !b.forbidden && b.of && b.forTeam)
         const placed = new Map<string, RealizedGeometry>()
@@ -1358,6 +1375,7 @@ export function realize(
                 lateral: typeof lateral === 'string' ? lateral : undefined,
                 longitudinal: typeof longitudinal === 'string' ? longitudinal : undefined,
                 teamAttackingEnd,
+                teamEndRefusal,
                 referentInterval,
                 relativeBound: relativeOf(entry.lineId),
                 ...(statedExtent !== undefined ? { statedExtentM: statedExtent } : {}),
@@ -1371,6 +1389,37 @@ export function realize(
             const bucket = readAt(game, parts.container)
             const element = Array.isArray(bucket) ? (bucket as any[]).find(e => e?.elementId === parts.elementId) : null
             if (element && parts.leaf) place(element, `realizedGeometry.${parts.leaf}`, realizedGeometry)
+        }
+
+        /**
+         * **An object whose kind gives it extent in one dimension is realized with extent on one axis only** (stage B review fix, 23 October
+         * 2026; the register's `objectGeometry.extentDimensions`, OUR_INTERPRETATION, whose note says *"extent on exactly one axis and none on
+         * the other"*). The zero-depth reading only PERMITTED a zero extent (gates.ts `degenerateIsLegitimate`) and never required one, so an
+         * object of such a kind placed with depth AND width passed every gate (measured in the review: 2 m deep, and 5 m by 5 m). Where both its
+         * axes are realized as intervals with extent, the game is refused naming it; an axis not yet placed is left to the gates, as before.
+         */
+        const dimensionRows = index.objectGeometry
+        const dimensionObjectsAt = dimensionRows ? collectionPath(String(index.rows.get(dimensionRows.row)?.path ?? '')) : null
+        if (dimensionRows && dimensionObjectsAt && dimensionRows.extentDimensions.size) {
+            const extentOn = new Map<string, { along?: { from: number; to: number }; across?: { from: number; to: number } }>()
+            for (const entry of geometry) {
+                const row = entry.lineId.split('::').pop()
+                const parts = splitElementPath(entry.path)
+                if (!parts || parts.container !== dimensionObjectsAt || !entry.geometry.interval || (row !== dimensionRows.alongRow && row !== dimensionRows.acrossRow)) continue
+                const held = extentOn.get(parts.elementId) ?? {}
+                held[row === dimensionRows.alongRow ? 'along' : 'across'] = entry.geometry.interval
+                extentOn.set(parts.elementId, held)
+            }
+            const objects = readAt(game, dimensionObjectsAt)
+            for (const [elementId, { along, across }] of extentOn) {
+                if (!along || !across || !(along.to > along.from) || !(across.to > across.from)) continue
+                const element = Array.isArray(objects) ? (objects as any[]).find(e => e?.elementId === elementId) : null
+                const kind = element ? readAt(element, dimensionRows.kindLeaf) : undefined
+                if (typeof kind !== 'string' || dimensionRows.extentDimensions.get(kind) !== 1) continue
+                geometryRefusals.push(
+                    `${elementId}: an object of kind ${kind} has extent in one dimension (the register's objectGeometry.extentDimensions, our interpretation), and it is realized with extent on both axes (along ${along.from}-${along.to} m, across ${across.from}-${across.to} m)`,
+                )
+            }
         }
     }
     if (geometryRefusals.length) return { outcome: 'REFUSED', because: geometryRefusals }

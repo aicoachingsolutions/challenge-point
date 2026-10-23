@@ -1285,12 +1285,20 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                                         </li>
                                     ))}
                                 </ul>
-                                {account.allocation.alternatives.map((alternative) => (
-                                    <p key={`${alternative.contractId}::${alternative.itemId}`} className='mb-1 text-xs text-gray-600'>
-                                        Alternative (defers, ruling C56): {alternative.contractId}::{alternative.itemId} ({alternative.row}: {String(alternative.value)}) — defers to{' '}
-                                        {alternative.deferredTo.map((ref) => `${ref.contractId}::${ref.itemId}`).join(', ')} under {alternative.relationship}
-                                    </p>
-                                ))}
+                                {account.allocation.alternatives.map((alternative) =>
+                                    alternative.defersWith !== undefined ? (
+                                        <p key={`${alternative.contractId}::${alternative.itemId}`} className='mb-1 text-xs text-gray-600'>
+                                            Alternative (yields with {alternative.defersWith}; no deferral of its own): {alternative.contractId}::{alternative.itemId} ({alternative.row}:{' '}
+                                            {String(alternative.value)}) — {alternative.defersWith} defers to {alternative.deferredTo.map((ref) => `${ref.contractId}::${ref.itemId}`).join(', ')} under{' '}
+                                            {alternative.relationship}
+                                        </p>
+                                    ) : (
+                                        <p key={`${alternative.contractId}::${alternative.itemId}`} className='mb-1 text-xs text-gray-600'>
+                                            Alternative (defers, ruling C56): {alternative.contractId}::{alternative.itemId} ({alternative.row}: {String(alternative.value)}) — defers to{' '}
+                                            {alternative.deferredTo.map((ref) => `${ref.contractId}::${ref.itemId}`).join(', ')} under {alternative.relationship}
+                                        </p>
+                                    ),
+                                )}
                                 {account.allocation.adjustments.length > 0 && (
                                     <ul className='mb-2 space-y-1'>
                                         {account.allocation.adjustments.map((adjustment) => (
