@@ -8836,3 +8836,18 @@ NEXT: Stage D (end exchange: Q6's ends statement and counterpartMap's axis mirro
   blocks under EXCHANGED (the block's `ends` is in each fixture's record only).
 
 NEXT: Stage E (resource-aware selection) plumbing; F/G after his answers.
+
+### 25-26 October — integration review and Stage E
+- `cf98c06` integration fix: "line" only for line targets (an object target's reference is withheld, never called a line;
+  new fidelity Q2 clause); the played object is the one no objective references (carrier fix); Q6 refuses denied end
+  changes under EXCHANGED; `RoleBlock.ends` reaches the fixture, account and evidence. Generality review PASS.
+- `588888b` + `4cb9572` Stage E: register v19 `sessionResources` (goal by kind, count + width, no default, never inferred
+  from goalkeepers); availability rule with typed causes (NOT_STATED asks; SHORT / NOT_SUITABLE fall back; none suitable
+  until his decision 4); variant realizations (`basedOn` + `withdraws` + additions, integrity gate); a record's ordered
+  `realizations` list; the build tries alternatives in order, falling back only on typed applicability refusals; the review
+  page's answer reaches the build. A01 still names only A01-R1. Suite FILES 119 FAILED 0.
+- A TEST-ONLY goal version (goal at the building end, pressing scores a goal, ends EXCHANGED, GK + 1 transfer) passes
+  every structural, realization and cross-block check at 12/1, 11/1, 12/2 and stops only at communication (wording and
+  knowledge awaiting his nine answers).
+
+NEXT: his answers → Stage F2 (restatements, values, A01-R2 basedOn A01-R1) and Stage G (goal wording, overview, diagram).
