@@ -14,9 +14,9 @@ import { awardeeRelation, roleHolderNames, roleOfHolder } from '../derivation/de
 import { indexRegister, RegisterIndex } from '../derivation/register'
 import { UNBOUNDED_CREDIT } from './render-concrete-game'
 
-/** The register, read once for a reader not handed an index (it is versioned data). */
+/** The register, read once for a reader not handed an index (it is versioned data). Exported for the context-scoring guard (stage A re-review fix). */
 let cachedIndex: RegisterIndex | null = null
-const registerIndex = (): RegisterIndex => {
+export const registerIndex = (): RegisterIndex => {
     if (!cachedIndex) cachedIndex = indexRegister(loadRegister())
     return cachedIndex
 }

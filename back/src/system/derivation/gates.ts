@@ -2832,6 +2832,14 @@ function gaRoleEvents(ctx: GateContext): CheckOutcome {
      * read, so a single required event would never have been compared with a role's own event. None stands on the event row in any
      * composition on that day. (The target rows keep reading lists only: a target item's other selector terms are not compared here, so a
      * single value written for one team's target would be read against every team's.)
+     *
+     * OUR READING, awaiting his correction, and its consequence (recorded for Stage F, stage A re-review, 23 October 2026): with two other rules
+     * it means a provisional realization that fixes the primary event's kind by one REQUIRED value can never host a role's own event. Its
+     * item is then a permitted set of one that the role's own event departs from; only the role-yield marker lets it yield; a provisional
+     * realization's items cannot carry the marker (its loader refuses them, corpus.ts); and an item never yields to a citation from its own
+     * contract (`applyRoleYields`). So such a realization would have to leave the kind to another contribution, or his ruling would have to
+     * change one of the three. The clause 6 test keeps its single required event (TEST-V1) in a COPY of the possession game's contract for
+     * exactly this reason.
      */
     const eventSetOf = (item: ContractItem): string[] | null =>
         permittedSet(item) ?? (item.strictness === 'REQUIRED' && item.requirement === 'EQUALS' && typeof item.value === 'string' ? [item.value] : null)
@@ -3042,9 +3050,18 @@ function gaRoleEvents(ctx: GateContext): CheckOutcome {
      * vocabulary was SERVED with How to score unchanged, its authored scoring knowledge silently ignored. Every item on the event row in the
      * composition is examined: one naming a role the game holds no element of FAILS here, named, and so does one whose selector names no
      * one role alone and reached no role's line (one that reached a line is named by the loop above).
+     *
+     * **Only an item that writes an event** (stage A re-review fix, 23 October 2026): an EXCLUSION on the event row writes no event for any
+     * role (it says which event a role may NOT score by), so neither claim of this clause is about it. The sweep examined it anyway and an
+     * exclusion written for every role (selector `*`) FAILED here as "writes a scoring event by a selector that names no one role alone":
+     * measured in the re-review on a full TEST-ONLY A01 build, served at 31373be and refused at structure at d4602c7. An exclusion keeps
+     * being read where it governs: forward.ts compares its typed forbidden values with the lines of its own row (on the event row, each
+     * role's own event; a prose-only one stays NOT_EVALUABLE there), and clause 6 here compares an exclusion on the primary event's kind row
+     * with a role's own event.
      */
     for (const { contract, item } of items.values()) {
         if (String(item.row) !== spec.eventRow) continue
+        if (item.strictness === 'EXCLUSION') continue
         const key = `${contract.contractId}::${item.itemId}`
         const role = roleAloneOf(item)
         if (role === null && notAlone.has(key)) continue

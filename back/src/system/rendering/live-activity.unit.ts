@@ -15,7 +15,9 @@
  *     own stage, with no fallback; a record authorizing one constraint serves only what it authorizes; a record not yet evaluated stays the
  *     knowledge gap the route already answers;
  *   - the unconsumed-inputs sentence (decision 9(b)) is DRAFT and not served;
- *   - L3, the save: the server's own build is kept only where every input digest is the one the coach saw.
+ *   - L3, the save: the server's own build is kept only where every input digest is the one the coach saw;
+ *   - L3 hardening (stage A re-review): an edit writes none of the stored-build fields, by a top-level key, a dotted path or an update
+ *     operator, and an unexpected failure of the checked pathway is recorded under its own stage.
  *
  * The bundle the route serves is measured separately (npm run snapshot: every live/<goal> entry).
  *
@@ -38,8 +40,10 @@ import { reviewActivity, reviewActivityBuild } from './activity-review'
 import { ActivityBuild, buildActivityUnderAuthorizationRecords, RefusedActivity, ServedActivity } from './build-activity'
 import {
     CHECKED_CHAIN,
+    CHECKED_PATHWAY_FAILURE_STAGE,
     checkedSave,
     CheckedSaveRequestError,
+    editableUpdateOf,
     liveCheckedActivity,
     livePathwayOf,
     liveSelectionFor,
@@ -331,6 +335,45 @@ const refusedWith = (outcome: ReturnType<typeof liveCheckedActivity>, cause: str
     assert.throws(() => checkedSave(stored(1), body({ checkedInputs: { practiceSituationId: null } })), CheckedSaveRequestError)
     // The sentence is one plain sentence with no identifier in it (DRAFT).
     assert.equal(SAVE_NOT_AS_SHOWN.split(/[.!?](\s|$)/).filter(part => part && part.trim()).length, 2, 'two short sentences')
+}
+
+/* ── L3 hardening (stage A re-review, 23 October 2026): no edit replaces the stored build, under any spelling Mongo applies ─────────── */
+{
+    const body = {
+        _id: 'TEST-ONLY-ID',
+        title: 'TEST-ONLY edited title',
+        coachComments: 'TEST-ONLY',
+        'session.note': 'TEST-ONLY',
+        checkedActivityNote: 'TEST-ONLY another field',
+        // The four fields, at the top level (removed before this fix too) ...
+        checkedActivity: { title: 'TEST-ONLY' },
+        checkedInputs: { learningGoalId: 'TEST-ONLY' },
+        inputDigests: [],
+        pathway: 'GENERATION',
+        // ... by a dotted path and by an update operator (each reached Mongo before this fix).
+        'checkedActivity.rendered': 'TEST-ONLY',
+        'inputDigests.0': 'TEST-ONLY',
+        'pathway.x': 'TEST-ONLY',
+        $set: { checkedActivity: { title: 'TEST-ONLY' } },
+        $unset: { pathway: 1 },
+        $rename: { title: 'pathway' },
+    }
+    assert.deepEqual(editableUpdateOf(body), {
+        _id: 'TEST-ONLY-ID',
+        title: 'TEST-ONLY edited title',
+        coachComments: 'TEST-ONLY',
+        'session.note': 'TEST-ONLY',
+        checkedActivityNote: 'TEST-ONLY another field',
+    })
+    const plainEdit = { _id: 'TEST-ONLY-ID', title: 'TEST-ONLY', rules: ['TEST-ONLY'], scoringSystem: 'TEST-ONLY' }
+    assert.deepEqual(editableUpdateOf(plainEdit), plainEdit, 'an edit naming none of them passes exactly as before')
+    // The edit route updates a stored activity through it, and nowhere else; an unexpected failure of the checked pathway has its own stage.
+    const routes = fs.readFileSync(path.join(__dirname, '../../routes/app.routes.ts'), 'utf8')
+    assert.ok(routes.includes('await Activity.findByIdAndUpdate(body._id, editableUpdateOf(body))'))
+    assert.equal(routes.split('Activity.findByIdAndUpdate(').length - 1, 1, 'the one update of a stored activity')
+    assert.ok(routes.includes("const failureStage = error instanceof SystemPipelineError ? error.stage : checkedBuild ? CHECKED_PATHWAY_FAILURE_STAGE : 'ai-assembly'"))
+    assert.equal(routes.split('checkedBuild = true').length - 1, 1, 'set only where the checked pathway is entered')
+    assert.equal(CHECKED_PATHWAY_FAILURE_STAGE, 'checked-pathway')
 }
 
 /* ── No goal, form, context, role or sport noun in the live pathway's code ───────────────────────────────────────────────────────── */

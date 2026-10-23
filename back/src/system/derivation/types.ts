@@ -148,6 +148,43 @@ export const ROLE_YIELD_KEY = 'yieldsForRole'
 export const ROLE_YIELD_MARKERS = ['AUTHORIZED_ROLE_SCORING'] as const
 
 /**
+ * Every field of `ContractItem`, one entry each: the compiler refuses this record when a field is added to the record type and not here, or
+ * named here and not there, so `ENGINE_ITEM_KEYS` cannot fall behind the type.
+ */
+const CONTRACT_ITEM_FIELDS: Record<keyof ContractItem, true> = {
+    itemId: true,
+    row: true,
+    selector: true,
+    requirement: true,
+    value: true,
+    strictness: true,
+    valueStatus: true,
+    scope: true,
+    basis: true,
+    basisEvidence: true,
+    checkability: true,
+    structuralClause: true,
+    comparison: true,
+    category: true,
+    defersTo: true,
+    authorizedBy: true,
+    [ROLE_YIELD_KEY]: true,
+}
+
+/**
+ * **Every item field the engine reads by name** — stage A re-review fix, 23 October 2026. Every field of the item record (`ContractItem`,
+ * kept complete by the compiler above: among them `itemId`, the item's identity, which supersessions, no-row sets and deferrals match on;
+ * `authorizedBy`, the relationship citation the deferral, the role yields and the context-scoring guard read; `category`, the provisional
+ * realization's authority), plus the fields engine code reads off an item that the record type does not declare: the authored spelling of the
+ * identity (`id`, renamed to `itemId` at load), the contract an item is filed under once read (`contractId`), and a provisional item's own
+ * choice, words and citation (`choice`, `words`, `citedAs`, read by realization and the review evidence). Read by the restatement ledger's
+ * integrity gate (corpus-restatement.ts `provenanceNoteKeysOf`), which refuses a provenance-note key naming any of them, so a declared note can
+ * never stand for a field anything reads. Which keys the knowledge files put on items that engine source names is measured against this list
+ * in the stage A unit test, so a new read cannot slip past it.
+ */
+export const ENGINE_ITEM_KEYS: readonly string[] = [...Object.keys(CONTRACT_ITEM_FIELDS), 'id', 'contractId', 'choice', 'words', 'citedAs']
+
+/**
  * **Where a marked item yields, in this composition** (stage A, 22 October 2026): the items of other selected contributions that write
  * a role's own event (row B9) or an objective's reference (row J2) and cite a CONFIRMED relationship of the context their contribution
  * realizes, which authorizes their row and names this item among those it supersedes (`realization-deferral.ts` `applyRoleYields`).

@@ -163,6 +163,35 @@ export function unconsumedInputsNote(planning: { practiceSituationId?: unknown; 
 /** A save request that names nothing that could be built. Answered as a malformed request, never as a refusal of an activity. */
 export class CheckedSaveRequestError extends Error {}
 
+/** The fields of a stored activity that hold the server's checked build: what it is, what it was built from, its digests, its pathway. */
+export const STORED_BUILD_FIELDS: readonly string[] = ['checkedActivity', 'checkedInputs', 'inputDigests', 'pathway']
+
+/**
+ * **What a coach's edit of a stored activity may write** (L3 hardening, stage A re-review, 23 October 2026). A stored checked build is the
+ * server's: no update replaces it, what it was built from, or its pathway. Until this the edit route removed only the four top-level keys
+ * and handed the rest of the body to Mongo, so the same fields could still be written under a spelling Mongo applies: an update operator
+ * (`$set: { checkedActivity: ... }`) or a dotted path (`checkedActivity.rendered`, the build being a Mixed path). Now the update keeps every
+ * key except an update operator (any key beginning `$`: the edit route writes a document, never an operator, and no client sends one) and
+ * any key whose first path segment is a stored-build field. Every other key passes exactly as before. Ownership is still not checked on this
+ * route, as recorded.
+ */
+export function editableUpdateOf(body: Record<string, unknown>): Record<string, unknown> {
+    const update: Record<string, unknown> = {}
+    for (const [key, value] of Object.entries(body)) {
+        if (key.startsWith('$')) continue
+        if (STORED_BUILD_FIELDS.includes(key.split('.')[0])) continue
+        update[key] = value
+    }
+    return update
+}
+
+/**
+ * The stage an unexpected failure of the checked pathway is recorded at (stage A re-review, 23 October 2026). The live route's outer handler
+ * recorded every exception it caught as `ai-assembly`, a stage of the generation route; the checked pathway calls no model, so a failure
+ * there is recorded under its own stage, with its pathway. It still never falls back to generation.
+ */
+export const CHECKED_PATHWAY_FAILURE_STAGE = 'checked-pathway'
+
 /**
  * The coach's sentence when the activity cannot be saved as it was shown — DRAFT. Said when building it again now refuses, and when any
  * input digest differs from the one the coach saw (the session's availability changed in between, say, or the knowledge did).

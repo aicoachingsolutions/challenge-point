@@ -1759,7 +1759,17 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
                               const cited = (input.contracts as LoadedContract[]).find(x => x.contractId === ref.contractId)?.items.find(i => i.itemId === ref.itemId)?.authorizedBy
                               return typeof cited === 'string' ? cited : null
                           }
-                          return { elementId: String(c.classId), role: String(term?.value ?? ''), items: unique.map(ref => ({ contractId: ref.contractId, itemId: ref.itemId, basis: basisOf(ref), authorizedBy: authorizedByOf(ref) })) }
+                          // Stage A re-review fix (23 October 2026): with the context the item's contribution realizes, so a citation counts only
+                          // from a contribution realizing the context, as the role yields require (`applyRoleYields`).
+                          const realizesOf = (ref: { contractId: string; itemId: string }) => {
+                              const realizes = ((input.contracts as LoadedContract[]).find(x => x.contractId === ref.contractId) as { realizes?: unknown } | undefined)?.realizes
+                              return typeof realizes === 'string' ? realizes : null
+                          }
+                          return {
+                              elementId: String(c.classId),
+                              role: String(term?.value ?? ''),
+                              items: unique.map(ref => ({ contractId: ref.contractId, itemId: ref.itemId, basis: basisOf(ref), authorizedBy: authorizedByOf(ref), realizes: realizesOf(ref) })),
+                          }
                       })
                 : []
         invalid.push(...contextScoringFindings(context.id, contract, realized.game, rpcLibrary.scoringEventsForContext(context.id), episodeCheck, alsoCountsSupport, roleEventSupport, index, contextRelationships()))

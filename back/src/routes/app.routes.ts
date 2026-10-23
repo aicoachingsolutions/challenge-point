@@ -30,7 +30,7 @@ import Logger from '../logger'
 import LoggingService from '../services/logging.service'
 import { deriveInputConstraints } from '../system/input-constraints/deriveInputConstraints'
 import { ActivityReviewRequestError, activityReviewOptions, reviewActivity } from '../system/rendering/activity-review'
-import { CHECKED_CHAIN, CheckedSaveRequestError, checkedSave, liveCheckedActivity, livePathwayOf, unconsumedInputsNote } from '../system/rendering/live-activity'
+import { CHECKED_CHAIN, CHECKED_PATHWAY_FAILURE_STAGE, CheckedSaveRequestError, checkedSave, editableUpdateOf, liveCheckedActivity, livePathwayOf, unconsumedInputsNote } from '../system/rendering/live-activity'
 import { UnknownActivityRequest } from '../system/rendering/build-activity'
 import { buildPilotActivity, isPilotRefused } from '../system/rendering/build-pilot-activity'
 import { describeUnsupportedGoal, isKnownUnsupportedGoal } from '../system/session-planning/goal-support'
@@ -788,6 +788,8 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
     // no-AI /debug page cannot show). Non-debug requests are completely unchanged (array response).
     const debug = req.body?.debug === true
     let debugTrace: Record<string, unknown> | null = null
+    // Set where the checked pathway is entered, so an unexpected failure there is recorded under its own stage (stage A re-review).
+    let checkedBuild = false
     try {
         const { challengeLevel, duration, learningGoals } = req.body as ActivityAssemblyRequest
         // Structured planning selections from the guided Session Creation conversation. Present only
@@ -1058,6 +1060,7 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
          * Refused 400 { error, resolutionStatus: 'refused' }, the error the checked chain's own sentence; its stage and reasons under debug.
          */
         if (checkedPathway) {
+            checkedBuild = true
             const learningGoalId = selection.selectionTrace.planning?.learningGoalId
             // Unreachable: only a guided goal's hints carry a record's authority, and generateSelection traces the goal it was asked for.
             if (!learningGoalId) throw new Error('a record-backed selection reached the live route without the Learning Goal it was made for')
@@ -1363,12 +1366,15 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
             ...(resolutionNotice ? { notice: resolutionNotice } : {}),
         })
     } catch (error) {
+        // An unexpected failure of the checked pathway is its own, never the generation route's model stage (stage A re-review).
+        const failureStage = error instanceof SystemPipelineError ? error.stage : checkedBuild ? CHECKED_PATHWAY_FAILURE_STAGE : 'ai-assembly'
         recordUsageEvent({
             eventType: 'generation_failed',
             sessionId: req.params.id,
             payload: {
-                stage: error instanceof SystemPipelineError ? error.stage : 'ai-assembly',
+                stage: failureStage,
                 reason: (error instanceof Error ? error.message : String(error)).slice(0, 300),
+                ...(checkedBuild ? { pathway: CHECKED_CHAIN } : {}),
             },
         })
         console.error('=== CREATE ACTIVITY ERROR ===')
@@ -1384,7 +1390,7 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
         if (debug && debugTrace) {
             debugTrace.validation = {
                 aiStagePass: false,
-                failureStage: error instanceof SystemPipelineError ? error.stage : 'ai-assembly',
+                failureStage,
                 failureReason: error instanceof Error ? error.message : String(error),
             }
         }
@@ -1724,9 +1730,9 @@ router.post(ROUTES.activity, async (req: Request, res: Response) => {
             }
         }
 
-        // A stored checked build is the server's (22 October 2026): no update replaces it, or what it was built from, or its pathway.
-        const { checkedActivity: _checkedActivity, checkedInputs: _checkedInputs, inputDigests: _inputDigests, pathway: _pathway, ...update } = body
-        await Activity.findByIdAndUpdate(body._id, update)
+        // A stored checked build is the server's (22 October 2026): no update replaces it, or what it was built from, or its pathway — under
+        // any spelling Mongo applies, an update operator or a dotted path included (`editableUpdateOf`, stage A re-review hardening).
+        await Activity.findByIdAndUpdate(body._id, editableUpdateOf(body))
         return res.status(200).json({ message: 'successfully updated' })
     } catch (error) {
         const message = error instanceof Error ? error.message : String(error)

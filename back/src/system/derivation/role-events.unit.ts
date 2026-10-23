@@ -48,6 +48,8 @@ import { checkFidelity } from '../rendering/fidelity'
 import { eventKindOf, eventKindPathsOf } from '../rendering/game-reading'
 import { renderConcreteGame, scoringWordingOf } from '../rendering/render-concrete-game'
 import { specializedRoleNames } from '../rendering/session-envelope'
+import { rpcLibrary } from '../sport-module/rpc-library'
+import * as authorizationRecords from '../test-library/learning-goal-authorizations'
 import { ContextScoringRelationship, contextManipulationRelationships, contextRelationships, contextScoringRelationships, learningGoalAuthorizations, validateContextManipulationRelationships } from '../test-library/learning-goal-authorizations'
 import { loadProvisionalRealizations, loadRegister, loadSportProfile, PROVISIONAL_REALIZATIONS_FILE, readJson, restatementTally } from './corpus'
 import { applyNoRowRestatement, ItemRestatement, itemRestatementRefusal, ITEM_RESTATEMENTS, ITEM_RESTATEMENT_KEYS, PROVENANCE_NOTE_KEYS, provenanceNoteKeysOf, restateDeclaration, RestatementTally } from './corpus-restatement'
@@ -57,7 +59,7 @@ import { applyRealizationDeferrals, applyRoleYields, AuthorizingRelationship } f
 import { HaltError, indexRegister } from './register'
 import { roleBlocksOf } from './role-blocks'
 import { derivationInputFor, selectFor } from './run-bounded-selection'
-import { DerivationInput, LoadedContract, ROLE_YIELD_KEY, ROLE_YIELD_MARKERS, RoleBlock } from './types'
+import { DerivationInput, ENGINE_ITEM_KEYS, LoadedContract, ROLE_YIELD_KEY, ROLE_YIELD_MARKERS, RoleBlock } from './types'
 
 let passed = 0
 function test(name: string, body: () => void): void {
@@ -251,6 +253,63 @@ test('the restatement loader writes only keys it knows, and the role-yield marke
     ] as [string, unknown][]) {
         assert.throws(() => provenanceNoteKeysOf({ provenanceNoteKeys: damaged }), /corpus-restatements\.json failed its integrity gate/, label)
     }
+    // Re-review fix (23 October 2026): a key the engine READS is refused too, not only a key a ruling may write. itemId (the item's identity,
+    // which supersessions, no-row sets and deferrals match on), authorizedBy (the citation the context-scoring guard counts) and category (a
+    // provisional realization's authority) each loaded as a "provenance note" before this fix, measured in the re-review.
+    for (const key of ['itemId', 'authorizedBy', 'category', ...ENGINE_ITEM_KEYS, ...ITEM_RESTATEMENT_KEYS]) {
+        assert.throws(() => provenanceNoteKeysOf({ provenanceNoteKeys: { keys: [key], note: 'TEST-ONLY' } }), new RegExp(`provenanceNoteKeys holds ${key}, a field the engine knows by name`), key)
+    }
+    assert.deepEqual(provenanceNoteKeysOf({ provenanceNoteKeys: { keys: ['TEST-ONLY-NOTE'], note: 'TEST-ONLY' } }), ['TEST-ONLY-NOTE'], 'a key nothing reads is still declarable')
+    assert.ok(!PROVENANCE_NOTE_KEYS.some(key => ENGINE_ITEM_KEYS.includes(key)), 'the two declared keys are neither list')
+    // And with the production declaration, a ruling writing one of them is refused whole, never applied.
+    for (const key of ['itemId', 'authorizedBy', 'category']) {
+        const written = apply(ruling({ [key]: 'TEST-ONLY', fitNote: 'TEST-ONLY note' }))
+        assert.match(written.refusals[0] ?? '', new RegExp(`"${key}" is not a field an item restatement may write, so the ruling is not applied`), key)
+        assert.deepEqual([written.item.itemId, written.item.authorizedBy, written.item.category, written.item.fitNote], ['T-1', undefined, undefined, undefined], key)
+    }
+    // The list cannot fall behind a read: every key the knowledge files put on an item (the corpus as authored, the provisional realizations,
+    // the ledger's rulings and added items, the Sport Profile) that engine source names (`.key`, or the key quoted) is refused as a note, and
+    // each declared note is named by no engine source at all (it is "read by no engine code", measured rather than asserted).
+    const sourceRoot = path.join(__dirname, '..', '..')
+    const engineSources: { file: string; text: string }[] = []
+    const walk = (dir: string): void => {
+        for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+            const at = path.join(dir, entry.name)
+            if (entry.isDirectory()) walk(at)
+            else if (entry.name.endsWith('.ts') && !entry.name.endsWith('.unit.ts')) engineSources.push({ file: path.relative(sourceRoot, at), text: fs.readFileSync(at, 'utf8') })
+        }
+    }
+    walk(sourceRoot)
+    assert.ok(engineSources.length > 100, `engine sources read: ${engineSources.length}`)
+    const namedBy = (key: string): string[] => {
+        const dotted = new RegExp(`\\.${key}\\b`)
+        const quoted = new RegExp(`['"\`]${key}['"\`]`)
+        return engineSources.filter(source => dotted.test(source.text) || quoted.test(source.text)).map(source => source.file)
+    }
+    const itemKeys = new Set<string>()
+    const keysOf = (items: unknown) => {
+        for (const entry of Array.isArray(items) ? items : []) if (entry && typeof entry === 'object') for (const key of Object.keys(entry)) itemKeys.add(key)
+    }
+    const visit = (node: unknown, depth: number): void => {
+        if (!node || typeof node !== 'object' || depth > 6) return
+        keysOf((node as { items?: unknown }).items)
+        for (const value of Object.values(node)) visit(value, depth + 1)
+    }
+    visit(readJson('stage-b/contracts.json'), 0)
+    for (const realization of readJson(PROVISIONAL_REALIZATIONS_FILE).realizations) keysOf(realization.items)
+    const ledger = readJson('stage-b/corpus-restatements.json')
+    for (const entry of ledger.items) for (const key of Object.keys(entry.set ?? {})) itemKeys.add(key)
+    keysOf(ledger.added.map((entry: { item: unknown }) => entry.item))
+    keysOf(loadSportProfile().flatMap(contract => contract.items))
+    assert.ok(['itemId', 'id', 'authorizedBy', 'category', 'row', ...PROVENANCE_NOTE_KEYS].every(key => itemKeys.has(key)), `the survey reads every source: ${[...itemKeys].join(', ')}`)
+    for (const key of itemKeys) {
+        if (PROVENANCE_NOTE_KEYS.includes(key)) {
+            assert.deepEqual(namedBy(key), [], `the provenance note ${key} is named by no engine source`)
+            continue
+        }
+        const readers = namedBy(key)
+        if (readers.length) assert.ok(ENGINE_ITEM_KEYS.includes(key) || ITEM_RESTATEMENT_KEYS.includes(key), `${key} is on items and named by ${readers.slice(0, 3).join(', ')}, so it must be refused as a provenance note`)
+    }
 
     // Review fix: the marker reaches an item ONLY through a ruled item restatement. An item a ruling ADDS carrying it is refused whole and
     // named, never inserted; an item carrying it as authored keeps everything else it says, and the marker is named and not honoured.
@@ -372,6 +431,19 @@ test('each clause refuses its own violation on a TEST-ONLY copy (block X before 
         assert.equal(verdictOf(ghost, C.SAME), 'FAIL', kind)
         assert.match(checkOf(ghost).why, /provisional:A01-R1::TEST-B9-GHOST writes a scoring event for the role GHOST, which the game holds no element of/)
     }
+    // ... but an EXCLUSION on the event row writes no event (re-review fix, 23 October 2026): one written for every role is not refused by
+    // this clause (it FAILED here at d4602c7 as "writes a scoring event by a selector that names no one role alone", measured on a full
+    // TEST-ONLY build in the re-review), and a typed one is still compared with each role's own event where its row is read (forward.ts).
+    const exclusion = (forbidden?: string[]) => testItem('TEST-B9-EXCL', 'B9', '*', 'EQUALS', 'TEST-ONLY prose: no role scores by this event', { strictness: 'EXCLUSION', ...(forbidden ? { forbiddenValues: forbidden } : {}) })
+    const excludedForAll = blockX(a01Input(push(exclusion())))
+    assert.deepEqual([checkOf(excludedForAll).verdict, verdictOf(excludedForAll, C.SAME)], ['DEFERRED_TO_REALIZATION', 'PASS'], checkOf(excludedForAll).why)
+    assert.ok(!checkOf(excludedForAll).why.includes('TEST-B9-EXCL'), checkOf(excludedForAll).why)
+    const forwardOf = (staged: any) => (staged.forward as any[]).find(outcome => outcome.item.itemId === 'TEST-B9-EXCL')
+    assert.equal(forwardOf(excludedForAll)?.result === 'UNMET', false, 'nothing scores by an event of its own, so nothing breaches it')
+    const breached = blockX(a01Input(contracts => (withoutAlsoCounts(contracts), push(b9('PRESSING', 'target_zone_entered'), exclusion(['target_zone_entered']))(contracts))))
+    assert.equal(verdictOf(breached, C.SAME), 'PASS')
+    assert.equal(forwardOf(breached)?.result, 'UNMET', JSON.stringify(forwardOf(breached)))
+    assert.match(String(forwardOf(breached)?.why), /carry a value this item forbids \(target_zone_entered\)/)
     // 10: a value modifier beside a role's own event.
     const modifier = blockX(a01Input(contracts => (withoutAlsoCounts(contracts), push(b9('PRESSING', 'target_zone_entered'), testItem('TEST-V7', 'V7', '*', 'EXISTS', 'N/A'))(contracts))))
     assert.deepEqual([verdictOf(modifier, C.MODIFIER), verdictOf(modifier, C.VALUE)], ['FAIL', 'PASS'])
@@ -586,15 +658,16 @@ test('the relationship feed passes every recorded kind, and the validator holds 
  * needed. The targets' nouns are written for the role holders, so the building team's target is a line and the pressing team's a zone in
  * each block; the occurrence that also counts is taken out (it is for a team scoring by the primary event, clause 11).
  */
-const consumerBuild = () =>
+/** `b9` adds fields to the pressing role's TEST-ONLY event item, and `b9In` names the contract it is filed under (the re-review's full-build guard cases). */
+const consumerBuild = (b9: Record<string, unknown> = {}, b9In: string = PROVISIONAL) =>
     buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: sessionOf() }, learningGoalAuthorizations(), {
         alter: contracts => {
             withoutAlsoCounts(contracts)
             contractOf(contracts, PROVISIONAL).items.push(
                 testItem('TEST-S3-B', 'S3', 'targetOf=ROLE_HOLDER_BUILDING', 'EQUALS', 'line') as any,
                 testItem('TEST-S3-P', 'S3', 'targetOf=ROLE_HOLDER_PRESSING', 'EQUALS', 'zone') as any,
-                testItem('TEST-B9-P', 'B9', 'activityRole=PRESSING', 'EQUALS', 'target_zone_entered') as any,
             )
+            contractOf(contracts, b9In).items.push(testItem('TEST-B9-P', 'B9', 'activityRole=PRESSING', 'EQUALS', 'target_zone_entered', b9) as any)
         },
         alterSupplied: supplied => {
             supplied.choices = supplied.choices.filter(choice => !['c:restated:GF2:GF2-03.e::S3', 'c:restated:GF2:GF2-03.f::S3'].includes(choice.lineId))
@@ -671,7 +744,7 @@ test('a kind with no wording is withheld and fidelity refuses it, never said wit
 
 test('the guard: a role\'s own event stands only on his ruling (OWNER_RULING), named otherwise; a game whose roles score by the primary event owes nothing', () => {
     const game: any = (consumerBuild().fixture as any).game
-    const support = (basis: string, authorizedBy: string | null = null) => [{ elementId: PRESSING_ROLE, role: 'PRESSING', items: [{ contractId: PROVISIONAL, itemId: 'TEST-B9-P', basis, authorizedBy }] }]
+    const support = (basis: string, authorizedBy: string | null = null, realizes: string | null = 'RPC-001') => [{ elementId: PRESSING_ROLE, role: 'PRESSING', items: [{ contractId: PROVISIONAL, itemId: 'TEST-B9-P', basis, authorizedBy, realizes }] }]
     const approved = ['line_crossed', 'target_zone_entered']
     assert.deepEqual(roleEventFindings('RPC-001', game, approved, support('OWNER_RULING')), [])
     const assumed = roleEventFindings('RPC-001', game, approved, support('ASSUMED'))
@@ -684,17 +757,72 @@ test('the guard: a role\'s own event stands only on his ruling (OWNER_RULING), n
     const unapproved = roleEventFindings('RPC-001', game, ['line_crossed'], support('OWNER_RULING'))
     assert.equal(unapproved.length, 1)
     assert.match(unapproved[0], /scores by its own event "target_zone_entered", which the Representative Performance Context RPC-001 does not approve \(it approves: line_crossed\), and no item writing it cites a confirmed scoring relationship of RPC-001 authorizing "target_zone_entered" for PRESSING/)
-    const relationship = { id: 'TEST-ONLY-SCORING', contextId: 'RPC-001', status: 'CONFIRMED', scoringEvent: 'target_zone_entered', role: 'PRESSING' }
-    assert.deepEqual(roleEventFindings('RPC-001', game, ['line_crossed'], support('OWNER_RULING', relationship.id), undefined, [relationship]), [])
+    const relationship = { id: 'TEST-ONLY-SCORING', contextId: 'RPC-001', status: 'CONFIRMED', scoringEvent: 'target_zone_entered', role: 'PRESSING', rows: ['B9', 'J2'] }
+    assert.deepEqual(roleEventFindings('RPC-001', game, ['line_crossed'], support('OWNER_RULING', relationship.id), index, [relationship]), [])
+    assert.deepEqual(roleEventFindings('RPC-001', game, ['line_crossed'], support('OWNER_RULING', relationship.id), undefined, [relationship]), [], 'the register read by default names the same event row')
     for (const [label, over] of [
         ['identified only', { status: 'IDENTIFIED' }],
         ['of another context', { contextId: 'TEST-ONLY-CONTEXT' }],
         ['for another event', { scoringEvent: 'goal' }],
         ['for the other role', { role: 'BUILDING' }],
+        // Re-review fix (23 October 2026): as the role yields require, the relationship authorizes the event row ...
+        ['authorizing the objective reference only', { rows: ['J2'] }],
+        ['naming no rows', { rows: undefined }],
     ] as [string, object][]) {
-        assert.equal(roleEventFindings('RPC-001', game, ['line_crossed'], support('OWNER_RULING', relationship.id), undefined, [{ ...relationship, ...over }]).length, 1, label)
+        assert.equal(roleEventFindings('RPC-001', game, ['line_crossed'], support('OWNER_RULING', relationship.id), index, [{ ...relationship, ...over }]).length, 1, label)
     }
-    assert.equal(roleEventFindings('RPC-001', game, ['line_crossed'], support('OWNER_RULING'), undefined, [relationship]).length, 1, 'held but not cited')
+    // ... and the citing item's own contribution realizes the context.
+    for (const realizes of [null, 'TEST-ONLY-CONTEXT']) {
+        const other = roleEventFindings('RPC-001', game, ['line_crossed'], support('OWNER_RULING', relationship.id, realizes), index, [relationship])
+        assert.equal(other.length, 1, String(realizes))
+        assert.match(other[0], /authorizing "target_zone_entered" for PRESSING on its row \(B9\) from a contribution realizing RPC-001/)
+    }
+    assert.equal(roleEventFindings('RPC-001', game, ['line_crossed'], support('OWNER_RULING'), index, [relationship]).length, 1, 'held but not cited')
+})
+
+/**
+ * Re-review fix (23 October 2026): the guard on a FULL build. build-activity projects each event-row item's citation (`authorizedBy`, review
+ * fix) and its contribution's context (`realizes`, re-review fix) into the guard's support; the test above hands the guard synthetic support,
+ * so neither projection was proved by a consumer. Here the consumer game is built whole with RPC-001's approved events narrowed to the line
+ * crossing and one TEST-ONLY scoring relationship added, both in this process only (the library read patched as activity-review.unit.ts
+ * patches it, and restored): cited as required, it stands at the guard and stops at communication as the consumer does; otherwise the guard
+ * refuses it at validation, in both blocks.
+ */
+test('the guard on a full build: the citation and the contribution each item writes from reach it (TEST-ONLY relationship and approved events)', () => {
+    const approvedRead = rpcLibrary.scoringEventsForContext
+    const relationshipsRead = authorizationRecords.contextRelationships
+    const relationship = { id: 'TEST-ONLY-SCORING', category: 'CONTEXT_SCORING_RELATIONSHIP', contextId: 'RPC-001', contextName: 'TEST-ONLY', scoringEvent: 'target_zone_entered', role: 'PRESSING', rows: ['B9', 'J2'], via: ['TEST-ONLY'], identified: 'TEST-ONLY', status: 'CONFIRMED', confirmedOn: 'TEST-ONLY', confirmedBy: 'TEST-ONLY', citedAs: 'TEST-ONLY', words: ['TEST-ONLY'], note: null }
+    const guardOf = (activity: RefusedActivity) => activity.reasons.filter(reason => reason.includes('which the Representative Performance Context RPC-001 does not approve') && reason.includes('confirmed scoring relationship'))
+    const build = (over: Record<string, unknown>, b9: Record<string, unknown> = { authorizedBy: relationship.id }, b9In = PROVISIONAL): RefusedActivity => {
+        ;(authorizationRecords as any).contextRelationships = () => [...relationshipsRead(), { ...copy(relationship), ...over }]
+        return consumerBuild(b9, b9In).activity as RefusedActivity
+    }
+    try {
+        ;(rpcLibrary as any).scoringEventsForContext = (id: string) => (id === 'RPC-001' ? ['line_crossed'] : approvedRead(id))
+        const cited = build({})
+        assert.deepEqual([cited.outcome, cited.stage], ['refused', 'communication'], cited.reasons.join(' | '))
+        assert.deepEqual(guardOf(cited), [], 'cited as required, the guard passes it')
+        for (const [label, over, b9, b9In] of [
+            ['uncited', {}, {}, PROVISIONAL],
+            ['for the other role', { role: 'BUILDING' }, undefined, PROVISIONAL],
+            ['for another event', { scoringEvent: 'gate' }, undefined, PROVISIONAL],
+            ['identified only', { status: 'IDENTIFIED' }, undefined, PROVISIONAL],
+            ['of another context', { contextId: 'TEST-ONLY-CONTEXT' }, undefined, PROVISIONAL],
+            ['authorizing the objective reference only', { rows: ['J2'] }, undefined, PROVISIONAL],
+            ['cited from a contribution that realizes no context', {}, undefined, GF2],
+        ] as [string, Record<string, unknown>, Record<string, unknown> | undefined, string][]) {
+            const refused = build(over, b9, b9In)
+            assert.deepEqual([refused.outcome, refused.stage], ['refused', 'validation'], `${label}: ${refused.reasons.join(' | ')}`)
+            const found = guardOf(refused)
+            assert.deepEqual(found.map(reason => reason.split(':')[0]).sort(), ['block BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START', 'block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END'], label)
+        }
+    } finally {
+        ;(rpcLibrary as any).scoringEventsForContext = approvedRead
+        ;(authorizationRecords as any).contextRelationships = relationshipsRead
+    }
+    assert.deepEqual(rpcLibrary.scoringEventsForContext('RPC-001'), approvedRead('RPC-001'), 'the library read is restored')
+    assert.equal(authorizationRecords.contextRelationships, relationshipsRead, 'the records read is restored')
+    assert.ok(!contextRelationships().some(entry => entry.id === relationship.id), 'and holds no TEST-ONLY relationship')
 })
 
 // ── 9. The ratchets ─────────────────────────────────────────────────────────────────────────────────────

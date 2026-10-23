@@ -8712,6 +8712,23 @@ decision note sent to him (decisions 1 and 9(a)); design `scratchpad/d25/design-
   the context for that role and event is cited; an adjustment resolves to a manipulation relationship only; the two
   provenance-note keys moved from corpus-restatement.ts to the ledger (`provenanceNoteKeys`), so no sport noun is spelled
   in the engine. Production A01 (zone version) and every other subject unchanged apart from Stage A's recorded delta.
+- Re-review fixes (the commit after the review fixes): the ledger's provenance-note keys may name no item field the engine
+  reads (`ENGINE_ITEM_KEYS`, types.ts, kept complete by the compiler and measured against the knowledge files in the
+  unit test), not only none a ruling may write: `itemId`, `authorizedBy` and `category` each loaded as a "note" before;
+  clause 12's sweep skips event-row EXCLUSIONs (one written for every role was refused at structure as an event "by a
+  selector that names no one role alone"); the guard's relationship branch also requires the relationship to authorize
+  the event row and the citing item's contribution to realize the context, as `applyRoleYields` does, and the full build
+  pins both projections (`authorizedBy`, `realizes`); the activity edit route writes no stored-build field by a dotted
+  path or an update operator (`editableUpdateOf`); an unexpected checked-pathway failure is recorded as `checked-pathway`,
+  not `ai-assembly`. Nothing served or recorded changes (snapshot byte-identical).
+- Measured in the re-review and explained: one extra B9 item written with strictness `ASSUMED` stopped role blocks because
+  `ASSUMED` is a basis, not a registered strictness, so the load refuses the WHOLE provisional realization (its B1 roles
+  with it); written with basis `ASSUMED` and strictness REQUIRED or SUPPORTING on the same in-process TEST-ONLY copy it is
+  served unchanged (SD-27: never entails; the realizations file's own gate would refuse a non-OWNER_RULING item). The
+  refusal's reasons then name the missing role blocks, not the load refusal (fail-closed; noted, not changed).
+- FOR STAGE F, beside OUR READING "a single REQUIRED value on the event row is a permitted set of one": with the
+  provisional loader refusing the marker and an item never yielding to a citation from its own contract, a provisional
+  realization that fixes V1's kind by one REQUIRED value can never host a role's own event (recorded in gates.ts).
 - OPEN, his: restatement S1 (the four markers) and the K3 scoring relationship (Stage F); the consumer game's two gaps
   (the primary event carried by no sentence when the building team is told only in W1's words; nouns differing between
   blocks have no Set up sentence); the target-type map, C6's reading of object-target sets and the relationship's role

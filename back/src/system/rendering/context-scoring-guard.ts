@@ -28,7 +28,7 @@ import { RELATIONSHIP_CONFIRMED } from '../derivation/realization-deferral'
 import { RegisterIndex } from '../derivation/register'
 import { conditionScopeNotEvaluable, EVALUABLE_CONDITION_SCOPE } from '../derivation/resolved-game'
 import { LoadedContract } from '../derivation/types'
-import { eventKindOf, roleElementsOf } from './game-reading'
+import { eventKindOf, registerIndex, roleElementsOf } from './game-reading'
 
 /** The Gate A check that decides whether an episode a condition is authored for can begin in the game (gates.ts). */
 export const EPISODE_REACHABLE_CHECK = 'GA-EPISODE-REACHABLE'
@@ -89,8 +89,12 @@ export interface RoleEventSupport {
     /** The role element (its elementId) and the role it is. */
     elementId: string
     role: string
-    /** Every item that writes the role's own event, with its basis and (stage A review fix) the relationship it cites, where it cites one. */
-    items: { contractId: string; itemId: string; basis: string; authorizedBy?: string | null }[]
+    /**
+     * Every item that writes the role's own event, with its basis and (stage A review fix) the relationship it cites, where it cites one, and
+     * (stage A re-review fix, 23 October 2026) the context its contribution realizes, where it realizes one (a provisional realization's
+     * `realizes`; null on canonical knowledge).
+     */
+    items: { contractId: string; itemId: string; basis: string; authorizedBy?: string | null; realizes?: string | null }[]
 }
 
 /** What the guard reads of a context relationship (the authorization records hold the whole entry; `contextRelationships`). */
@@ -100,6 +104,8 @@ export interface ScoringAuthority {
     status: string
     scoringEvent?: string
     role?: string
+    /** The register rows the relationship authorizes a realization to author (stage A re-review fix: the event row must be among them). */
+    rows?: string[]
 }
 
 /**
@@ -110,9 +116,16 @@ export interface ScoringAuthority {
  * authorized relationship". So such an event is confirmed only where an item writing it cites (`authorizedBy`) a CONFIRMED relationship of
  * this context naming exactly this event and this role (`relationships`, the records' context relationships of every kind); otherwise it
  * is named here and refuses the game. An event the context approves needs none (his OWNER_RULING basis is still required, above).
+ *
+ * **What a citation must also be, as the role yields require it** (stage A re-review fix, 23 October 2026): the relationship authorizes the
+ * event row (`roleScoring.eventRow` among its `rows`), and the citing item's own contribution realizes this context (`realizes`) — the two
+ * conditions `applyRoleYields` (realization-deferral.ts `authorizingRelationship`) already holds a citation to. Until this fix the guard
+ * checked status, context, event and role only: measured in the re-review on a full TEST-ONLY build, a confirmed scoring relationship
+ * authorizing only the objective-reference row let an event-row item stand here, the build stopping only at communication.
  */
 export function roleEventFindings(contextId: string, game: any, approvedEvents: string[], support: RoleEventSupport[] | undefined, index?: RegisterIndex, relationships: ScoringAuthority[] = []): string[] {
     const findings: string[] = []
+    const eventRow = (index ?? registerIndex()).roleScoring?.eventRow
     for (const { elementId: id, role } of roleElementsOf(game, index)) {
         const own = eventKindOf(game, role, index)
         if (!own.byRole) continue
@@ -130,11 +143,22 @@ export function roleEventFindings(contextId: string, game: any, approvedEvents: 
         if (approvedEvents.includes(String(own.kind))) continue
         const authorized = found.items.some(item => {
             const relationship = relationships.find(entry => entry.id === item.authorizedBy)
-            return !!relationship && relationship.status === RELATIONSHIP_CONFIRMED && relationship.contextId === contextId && relationship.scoringEvent === String(own.kind) && relationship.role === role
+            return (
+                !!relationship &&
+                relationship.status === RELATIONSHIP_CONFIRMED &&
+                relationship.contextId === contextId &&
+                relationship.scoringEvent === String(own.kind) &&
+                relationship.role === role &&
+                // Re-review fix: the relationship authorizes the event row, and the citing item's contribution realizes this context.
+                typeof eventRow === 'string' &&
+                Array.isArray(relationship.rows) &&
+                relationship.rows.includes(eventRow) &&
+                item.realizes === contextId
+            )
         })
         if (!authorized) {
             findings.push(
-                `the role ${role} (${id}) scores by its own event "${String(own.kind)}", which the Representative Performance Context ${contextId} does not approve (it approves: ${approvedEvents.join(', ') || 'nothing'}), and no item writing it cites a confirmed scoring relationship of ${contextId} authorizing "${String(own.kind)}" for ${role}`,
+                `the role ${role} (${id}) scores by its own event "${String(own.kind)}", which the Representative Performance Context ${contextId} does not approve (it approves: ${approvedEvents.join(', ') || 'nothing'}), and no item writing it cites a confirmed scoring relationship of ${contextId} authorizing "${String(own.kind)}" for ${role} on its row (${eventRow ?? 'no event row registered'}) from a contribution realizing ${contextId}`,
             )
         }
     }

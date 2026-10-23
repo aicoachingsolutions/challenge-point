@@ -38,7 +38,7 @@ import { AUDITS_DIR } from './knowledge-root'
 
 import { provablyDisjoint } from './reach'
 import { parsePredicate } from './selector'
-import { ContractItem, DEFERS_TO_AUTHORIZED_REALIZATION, DEFERS_TO_ESTABLISHING_OBJECT, LoadedContract, ROLE_YIELD_KEY, ROLE_YIELD_MARKERS } from './types'
+import { ContractItem, DEFERS_TO_AUTHORIZED_REALIZATION, DEFERS_TO_ESTABLISHING_OBJECT, ENGINE_ITEM_KEYS, LoadedContract, ROLE_YIELD_KEY, ROLE_YIELD_MARKERS } from './types'
 
 /** The spellings the corpus used for "no row holds this", neither of them registered. */
 const UNREGISTERED_SPELLINGS = ['NONE', '—']
@@ -67,6 +67,10 @@ export interface ItemRestatement {
  * nothing — or read by something that never learned what it means — so the ruling carrying it is refused and named, never applied.
  * Beside these, a ruling may write the provenance-note keys its ledger declares (`PROVENANCE_NOTE_KEYS`, data: stage A review fix, so no
  * key named for the sport is spelled in this sport-neutral module), each only as text.
+ *
+ * This is the list of what a ruling may WRITE, not of what the engine reads: the engine also reads item fields no ruling writes (the item's
+ * identity, its relationship citation, its category, among others: `ENGINE_ITEM_KEYS`, types.ts). A provenance-note key may name none of
+ * either list (`provenanceNoteKeysOf`; stage A re-review fix, 23 October 2026).
  */
 export const ITEM_RESTATEMENT_KEYS: readonly string[] = [
     'row',
@@ -301,9 +305,15 @@ const DATA: RestatementData = JSON.parse(
  * **The provenance-note keys the ledger declares** — stage A review fix, 22 October 2026. Two keys a ruling writes to say where its
  * value came from, read by no engine code, were spelled in this module's list of fields, and one of them is named for the sport (the
  * design's no-exception ratchet: no engine file gains a sport noun). They are the ledger's own vocabulary, so the ledger declares them
- * (`provenanceNoteKeys`), and this module reads them as data. Validated at load, or nothing loads: unique, non-empty, and none a key this
- * module knows by name (`ITEM_RESTATEMENT_KEYS`, which holds every key the engine reads and the marker), so a declared note can never widen
- * what a ruling may write into a field anything reads. `itemRestatementRefusal` admits them only as text.
+ * (`provenanceNoteKeys`), and this module reads them as data. Validated at load, or nothing loads: unique, non-empty, and none a key the
+ * engine knows by name, so a declared note can never widen what a ruling may write into a field anything reads. `itemRestatementRefusal`
+ * admits them only as text.
+ *
+ * **A key the engine knows by name is either list** (stage A re-review fix, 23 October 2026): a field a ruling may write
+ * (`ITEM_RESTATEMENT_KEYS`, the marker among them) OR any item field the engine reads (`ENGINE_ITEM_KEYS`, types.ts). Until this fix only
+ * the first was refused, and that list is what a ruling writes, not what the engine reads: a declaration naming `itemId`, `authorizedBy` or
+ * `category` loaded, and a ruling could then have renamed an item, written a relationship citation the context-scoring guard counts, or
+ * written a provisional realization's authority onto a corpus item — measured in the re-review; no ledger entry did.
  */
 export function provenanceNoteKeysOf(data: { provenanceNoteKeys?: unknown }): string[] {
     const declared = data.provenanceNoteKeys as { keys?: unknown; note?: unknown } | undefined
@@ -314,7 +324,7 @@ export function provenanceNoteKeysOf(data: { provenanceNoteKeys?: unknown }): st
     if (typeof declared?.note !== 'string' || !declared.note.trim()) errors.push('provenanceNoteKeys must say what the keys are (note)')
     for (const key of keys ?? []) {
         if (typeof key !== 'string' || !key.trim()) errors.push(`provenanceNoteKeys holds ${JSON.stringify(key)}, which is not a key`)
-        else if (ITEM_RESTATEMENT_KEYS.includes(key)) errors.push(`provenanceNoteKeys holds ${key}, a field the engine knows by name, which no note may stand for`)
+        else if (ITEM_RESTATEMENT_KEYS.includes(key) || ENGINE_ITEM_KEYS.includes(key)) errors.push(`provenanceNoteKeys holds ${key}, a field the engine knows by name, which no note may stand for`)
         else if (keys!.indexOf(key) !== keys!.lastIndexOf(key)) errors.push(`provenanceNoteKeys holds ${key} twice`)
     }
     if (errors.length) throw new Error(`corpus-restatements.json failed its integrity gate: ${[...new Set(errors)].join(' | ')}`)
