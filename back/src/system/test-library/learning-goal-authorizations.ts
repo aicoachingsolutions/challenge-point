@@ -42,8 +42,9 @@
  * by category: what existing knowledge authorizes, his provisional choices, and the gaps.
  */
 import type { ProvisionalRealization } from '../derivation/corpus'
-import { loadProvisionalRealizations, PROVISIONAL_REALIZATION_CHOICE } from '../derivation/corpus'
+import { loadProvisionalRealizations, loadRegister, PROVISIONAL_REALIZATION_CHOICE } from '../derivation/corpus'
 import { knowledgeKey } from '../derivation/knowledge-key'
+import { indexRegister } from '../derivation/register'
 import type { LearningDesignHold } from './learning-design-holds'
 import { learningGoalSelectionHolds } from './learning-design-holds'
 import record from './library/learning-goal-authorizations.json'
@@ -179,11 +180,6 @@ export interface ContextManipulationRelationship {
     /** His words, verbatim: the confirmation. */
     words: string[]
     note: string | null
-    /**
-     * The items (`contractId::itemId`) a CONFIRMED relationship names as superseded for one role (stage A, 22 October 2026; read by
-     * `realization-deferral.ts` `applyRoleYields`). Absent on every relationship recorded on 22 October 2026.
-     */
-    supersedes?: string[]
 }
 
 /**
@@ -200,8 +196,18 @@ export interface ContextScoringRelationship {
     category: 'CONTEXT_SCORING_RELATIONSHIP'
     contextId: string
     contextName: string
-    /** The scoring event the relationship authorizes (a member of the register's V1.kind vocabulary). */
+    /**
+     * The one scoring event the relationship authorizes: a member of the register's scoring-event vocabulary (`roleScoring.kindVocabulary`),
+     * checked at load (stage A review fix). `applyRoleYields` counts an item writing a role's own event as citing it only where the item
+     * writes exactly this event.
+     */
     scoringEvent: string
+    /**
+     * The one role it is confirmed for: a member of the register's role vocabulary (`roleBlocks.roles`), checked at load (stage A review
+     * fix; the design's K3: *"authorizing rows B9 and J2 for the pressing role only"*). GA-ROLE-EVENTS clause 6 lets it stand only for
+     * that role's event and objective reference. OUR READING of K3's scope, recorded as a field so it is never inferred.
+     */
+    role: string
     rows: string[]
     via: string[]
     identified: string
@@ -211,6 +217,11 @@ export interface ContextScoringRelationship {
     citedAs: string
     words: string[]
     note: string | null
+    /**
+     * The items (`contractId::itemId`) a CONFIRMED relationship names as superseded for its one role (stage A, 22 October 2026; read by
+     * `realization-deferral.ts` `applyRoleYields`). Only a scoring relationship may name them (a manipulation relationship names no event or
+     * role it authorizes, so what it superseded could never stand, and the validator refuses it there).
+     */
     supersedes?: string[]
 }
 
@@ -605,6 +616,11 @@ export function validateContextManipulationRelationships(
      * so a realization item may cite a relationship of either kind and every citation resolves against both (`contextRelationships`).
      */
     scoring: ContextScoringRelationship[] | undefined = [],
+    /**
+     * Stage A review fix: the register a scoring relationship's event and role are checked against (its scoring-event and role
+     * vocabularies). Read only where a scoring relationship is given; a parameter only so a test can hand a damaged copy.
+     */
+    register?: unknown,
 ): string[] {
     const errors: string[] = []
     const list = relationships ?? []
@@ -621,10 +637,6 @@ export function validateContextManipulationRelationships(
         if (entry.status === 'CONFIRMED' && (!filled(entry.confirmedOn) || !filled(entry.confirmedBy) || !filled(entry.citedAs) || !Array.isArray(entry.words) || !entry.words.length || !entry.words.every(filled))) {
             errors.push(`${which} is CONFIRMED and does not say who confirmed it, when, where and in his words`)
         }
-        // Stage A: what a relationship supersedes for one role names items, each as contractId::itemId (applyRoleYields matches them whole).
-        if (entry.supersedes !== undefined && (!Array.isArray(entry.supersedes) || !entry.supersedes.length || !entry.supersedes.every(key => filled(key) && String(key).split('::').length === 2 && String(key).split('::').every(filled)))) {
-            errors.push(`${which} names what it supersedes as something other than a list of items (contractId::itemId)`)
-        }
     }
     for (const [i, entry] of list.entries()) {
         const which = `relationship ${entry?.id || i + 1}`
@@ -633,8 +645,12 @@ export function validateContextManipulationRelationships(
         byId.set(entry.id, entry)
         if (entry.category !== 'EXISTING_KNOWLEDGE_RELATIONSHIP') errors.push(`${which} is not labelled EXISTING_KNOWLEDGE_RELATIONSHIP`)
         if (!filled(entry.contextId) || !filled(entry.manipulationId) || !filled(entry.manipulationStatus)) errors.push(`${which} must name its context, its manipulation and the manipulation's status`)
+        // Stage A review fix: only a scoring relationship, which names the event and the role it authorizes, may supersede items for one role.
+        if ((entry as { supersedes?: unknown }).supersedes !== undefined) errors.push(`${which} names items it supersedes for one role, which only a context scoring relationship (naming the event and the role it authorizes) may`)
         common(entry, which)
     }
+    // The register's vocabularies, read once and only where a scoring relationship is given (none is recorded on 22 October 2026).
+    const vocabularies = scoringList.length ? indexRegister(register ?? loadRegister()) : null
     for (const [i, entry] of scoringList.entries()) {
         const which = `scoring relationship ${entry?.id || i + 1}`
         if (!filled(entry?.id)) errors.push(`scoring relationship ${i + 1} has no id`)
@@ -642,6 +658,19 @@ export function validateContextManipulationRelationships(
         byId.set(entry.id, entry)
         if (entry.category !== 'CONTEXT_SCORING_RELATIONSHIP') errors.push(`${which} is not labelled CONTEXT_SCORING_RELATIONSHIP`)
         if (!filled(entry.contextId) || !filled(entry.scoringEvent)) errors.push(`${which} must name its context and the scoring event it authorizes`)
+        /**
+         * Stage A review fix: the event is one member of the register's scoring-event vocabulary, and the role one member of its role
+         * vocabulary, so the relationship authorizes exactly one event for exactly one role (`applyRoleYields`, GA-ROLE-EVENTS clause 6).
+         */
+        const roleScoring = vocabularies?.roleScoring
+        if (!roleScoring) errors.push(`${which} authorizes a scoring event, and the register holds no role-scoring block to read it by`)
+        else if (filled(entry.scoringEvent) && !roleScoring.kinds.includes(entry.scoringEvent)) errors.push(`${which} authorizes the scoring event ${JSON.stringify(entry.scoringEvent)}, which is not a member of ${roleScoring.kindVocabulary}`)
+        const roles = vocabularies?.roleBlocks?.roles ?? []
+        if (!filled(entry.role) || !roles.includes(entry.role)) errors.push(`${which} must name the one role it is confirmed for, a member of the register's roles (${roles.join(', ') || 'none'}); it names ${JSON.stringify(entry.role)}`)
+        // Stage A: what a relationship supersedes for its role names items, each as contractId::itemId (applyRoleYields matches them whole).
+        if (entry.supersedes !== undefined && (!Array.isArray(entry.supersedes) || !entry.supersedes.length || !entry.supersedes.every(key => filled(key) && String(key).split('::').length === 2 && String(key).split('::').every(filled)))) {
+            errors.push(`${which} names what it supersedes as something other than a list of items (contractId::itemId)`)
+        }
         common(entry, which)
     }
     for (const realization of provisional) {
@@ -671,7 +700,9 @@ export function validateContextManipulationRelationships(
             if (!filled(adjustment.words) || !filled(adjustment.citedAs) || !filled(adjustment.ruledOn) || !filled(adjustment.by)) errors.push(`${which} must quote him and say who ruled it, when and where`)
             if (adjustment.consequence !== null && !filled(adjustment.consequence)) errors.push(`${which} gives a consequence that is not his sentence`)
             if (adjustment.coachWords !== undefined && !filled(adjustment.coachWords)) errors.push(`${which} gives coach wording that says nothing`)
-            if (!byId.has(adjustment.relationship)) errors.push(`${which} names the relationship ${adjustment.relationship}, which contextManipulationRelationships does not hold`)
+            // A manipulation relationship only (stage A review fix): the shared lookup above also holds scoring relationships, which no
+            // adjustment of a team's numbers or space may rest on; until this fix an adjustment could have resolved to one.
+            if (!list.some(relationship => relationship.id === adjustment.relationship)) errors.push(`${which} names the relationship ${adjustment.relationship}, which contextManipulationRelationships does not hold`)
             if (!filled(adjustment.role) || !filled(adjustment.parameter)) errors.push(`${which} must name the role whose team it changes and the parameter it moves`)
         }
         if (!Array.isArray(adjustments.entries) || !adjustments.entries.length) errors.push(`${goal}: authorizedAdjustments lists no adjustment`)

@@ -8688,3 +8688,33 @@ variation deferred; required-participant validation now; confirm the possession 
   section 4. Decision note with nine numbered decisions sent via Joe (`scratchpad/send-oct25/`).
 
 NEXT: `scratchpad/d25/wf-build-1.js` (live fix + Stage A), then B, C, D on TEST-ONLY copies; F2/G after his answers.
+
+## 22-23 OCTOBER — LIVE FIX AND STAGE A (ROLE-SPECIFIC SCORING) BUILT, REVIEWED AND FIXED; NOTHING NEW SERVED
+
+Branch `claude/serene-dewdney-c78e18` (not pushed or merged). Governing: his reply filed 25 October (items 2 and 8) and the
+decision note sent to him (decisions 1 and 9(a)); design `scratchpad/d25/design-final.md` sections 3 (Stage A) and 4.
+
+- `b8ba95e` Live (decision 9(a)): a selection whose constraints carry its authorization record's authority is built on the live
+  route through the review page's checked pathway (no library constraint inserted, no model, no fallback to generation);
+  Start Activity stores the server's own build only where every input digest matches. Every other selection unchanged.
+- `31373be` Stage A (item 2, decision 1): register v16 (row B9 `activityRoles[].scoresBy`, the `roleScoring` block, target-type
+  map OUR_INTERPRETATION, role-yield marker); GA-ROLE-EVENTS (Gate A #21, 13 clauses, before and after realization); one kind
+  reader `eventKindOf`; How to score per role with the zone and line wordings only (a kind with neither, e.g. goal, withheld
+  and refused by fidelity); guard clause, RB-1 roles row, relationship feed of every kind, deferral tightened.
+- Review fixes (the commit after `31373be`): the event a scoring relationship confirms is now the one a role may score by,
+  for the one role it is confirmed for (`scoringEvent` and a new required `role` on context scoring relationships, carried
+  by `applyRoleYields`, compared per team in clause 6; both checked against the register's vocabularies at load); the
+  role-yield marker reaches an item only through a ruled item restatement (added items refused, an authored marker named
+  and not honoured, provisional realizations and the Sport Profile refuse it at load); clause 12 refuses an event written
+  for a role the game does not hold (it was served, ignored) or for a set of roles; an unsettled objective in a game
+  without roles is owed; a single required event is a permitted set of one and a typed event-row exclusion reaches a
+  role's own event; the guard refuses an event the context does not approve unless a confirmed scoring relationship of
+  the context for that role and event is cited; an adjustment resolves to a manipulation relationship only; the two
+  provenance-note keys moved from corpus-restatement.ts to the ledger (`provenanceNoteKeys`), so no sport noun is spelled
+  in the engine. Production A01 (zone version) and every other subject unchanged apart from Stage A's recorded delta.
+- OPEN, his: restatement S1 (the four markers) and the K3 scoring relationship (Stage F); the consumer game's two gaps
+  (the primary event carried by no sentence when the building team is told only in W1's words; nouns differing between
+  blocks have no Set up sentence); the target-type map, C6's reading of object-target sets and the relationship's role
+  scope are OUR READING.
+
+NEXT: Stages B, C, D on TEST-ONLY copies; F/G after his answers.

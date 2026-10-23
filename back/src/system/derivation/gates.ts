@@ -2588,7 +2588,9 @@ function scoringKindLineOf(ctx: GateContext, roleClassId: string | null): string
  *   6. **yield** — an event, or a target's type, outside a REQUIRED permitted set on the event row (V1) or the target rows (a region
  *      item naming the target function; an object item restricting the object's kind) stands only where that item carries the role-yield
  *      marker (written by a ruled restatement alone) AND the role's own event and its objective reference are each written by an item
- *      citing a CONFIRMED relationship of the context its realization realizes that names the item (`applyRoleYields`). Otherwise FAIL.
+ *      citing ONE CONFIRMED relationship of the context its realization realizes that names the item (`applyRoleYields`), confirmed for
+ *      THIS role and for exactly the event it scores by (stage A review fix). Otherwise FAIL. The same holds of a role's own event that an
+ *      exclusion on the event row forbids by its typed values, and a REQUIRED single value on the event row is a permitted set of one.
  *      The silent-compliance hazard this closes: an item that selects regions never evaluates an object target.
  *   7. **distinct** — no single occurrence credits both roles: no target is attacked by two roles.
  *   8. **bounded** — a role whose credit is confined to an episode (B8) scores by the primary event, so it cannot escape the episode's
@@ -2599,8 +2601,9 @@ function scoringKindLineOf(ctx: GateContext, roleClassId: string | null): string
  *      modifier stands beside an event of a role's own until he rules.
  *  11. **also counts** — an occurrence that also counts as the primary event (V27) is for a team scoring by the primary event; and, a
  *      clause of its own, it lies inside a region that team attacks.
- *  12. **same** — a role's own event is written for the role (its items select by the role alone), so it is the same in every block
- *      (the cross-block RB-1 compares the role elements, and RB-4 their properties).
+ *  12. **same** — a role's own event is written for the role (its items select by one role alone), so it is the same in every block
+ *      (the cross-block RB-1 compares the role elements, and RB-4 their properties); and no item on the event row is written for a role
+ *      the game does not hold, or for no one role (stage A review fix: such an item reached no line and refused nothing).
  *
  * Runs before realization and again on the concrete game. Where no role scores by an event of its own, clauses 1-3 and 6-12 range over
  * their instances and pass (vacuously where they have none), and clause 4 is decided for every game. Names no row, kind, role, team or
@@ -2723,7 +2726,11 @@ function gaRoleEvents(ctx: GateContext): CheckOutcome {
             scorers.push({ label: `${entry.role} (${team})`, roleEvent: entry, team, objective: found.length === 1 ? found[0] : null, state: found.length === 1 ? 'READY' : unsettled ? 'OPEN' : 'BLOCKED' })
         }
     } else {
-        for (const objective of scoringObjectives(null).found) scorers.push({ label: objective.classId, roleEvent: null, team: null, objective, state: 'READY' })
+        const { found, unsettled } = scoringObjectives(null)
+        for (const objective of found) scorers.push({ label: objective.classId, roleEvent: null, team: null, objective, state: 'READY' })
+        // An objective whose role or team is not yet settled is owed, never passed over (stage A review fix): dropping it would let clauses 4
+        // and 6 pass vacuously before realization, where a check that passes is not owed and so is never decided again.
+        if (unsettled) scorers.push({ label: 'an objective not yet settled', roleEvent: null, team: null, objective: null, state: 'OPEN' })
     }
 
     const kindRow = spec.kindRow
@@ -2820,20 +2827,55 @@ function gaRoleEvents(ctx: GateContext): CheckOutcome {
             if (term && term.op === 'IN' && term.values.some(value => objectTargetTypes.has(value))) targetSets.push({ key: `${contract.contractId}::${item.itemId}`, item, contract, set: [...term.values], applies: 'object' })
         }
     }
+    /**
+     * On the event row a REQUIRED scalar EQUALS is a permitted set of one (stage A review fix, 22 October 2026): until then only a list was
+     * read, so a single required event would never have been compared with a role's own event. None stands on the event row in any
+     * composition on that day. (The target rows keep reading lists only: a target item's other selector terms are not compared here, so a
+     * single value written for one team's target would be read against every team's.)
+     */
+    const eventSetOf = (item: ContractItem): string[] | null =>
+        permittedSet(item) ?? (item.strictness === 'REQUIRED' && item.requirement === 'EQUALS' && typeof item.value === 'string' ? [item.value] : null)
     const eventSets = [...items.values()]
-        .filter(({ item }) => String(item.row) === kindRow && permittedSet(item))
-        .map(({ contract, item }) => ({ key: `${contract.contractId}::${item.itemId}`, item, contract, set: permittedSet(item)! }))
-    /** Does the marked item yield for this role: its contract records citing items that write this role's own event AND its objective's reference? */
+        .filter(({ item }) => String(item.row) === kindRow && eventSetOf(item))
+        .map(({ contract, item }) => ({ key: `${contract.contractId}::${item.itemId}`, item, contract, set: eventSetOf(item)! }))
+    /**
+     * **An exclusion on the event row reaches a role's own event too** (stage A review fix): its typed forbidden values (`forbiddenValues`)
+     * are compared with the event a role scores by of its own, exactly as forward.ts compares them with the primary event's line, which a
+     * role's own event (row B9) never is. Prose-only exclusions stay unevaluated here as there (none on the event row is typed on that day).
+     */
+    const eventExclusions = [...items.values()]
+        .filter(({ item }) => String(item.row) === kindRow && item.strictness === 'EXCLUSION' && String(item.requirement) !== 'NOT_EXISTS')
+        .map(({ contract, item }) => ({ key: `${contract.contractId}::${item.itemId}`, item, contract, forbidden: (Array.isArray((item as { forbiddenValues?: unknown }).forbiddenValues) ? ((item as { forbiddenValues?: unknown[] }).forbiddenValues as unknown[]) : []).map(String) }))
+        .filter(entry => entry.forbidden.length > 0)
+    /**
+     * Does the marked item yield for this role? Its contract records (`applyRoleYields`) items citing ONE confirmed relationship naming it,
+     * which write this role's own event AND its objective's reference, and that relationship is confirmed for THIS role and for exactly
+     * the event this role scores by (stage A review fix, 22 October 2026: until then the event a relationship authorizes was read by nothing,
+     * so a relationship confirming one event let a role depart to any other, and one confirmed for one role would have served the other).
+     */
     const yieldsFor = (departure: { key: string; item: ContractItem; contract: LoadedContract }, scorer: Scorer): string | null => {
         const marker = (departure.item as unknown as Record<string, unknown>)[ROLE_YIELD_KEY]
         if (!(ROLE_YIELD_MARKERS as readonly unknown[]).includes(marker)) return `${departure.key} carries no role-yield marker`
         if (!scorer.roleEvent || scorer.roleEvent.state !== 'OWN') return `${scorer.label} scores by the primary event, and only a role's own event, cited, may depart from ${departure.key}`
         const recorded = (departure.contract.roleYields ?? []).find(entry => entry.itemId === departure.item.itemId)
-        const citing = new Set((recorded?.citedBy ?? []).map(entry => `${entry.contractId}::${entry.itemId}`))
-        const eventCited = entailingOf(scorer.roleEvent.line).some(ref => citing.has(keyOf(ref)))
-        const referenceCited = !!scorer.objective && entailingOf(lineOf(scorer.objective.classId, targetSpec.referenceRow)).some(ref => citing.has(keyOf(ref)))
-        if (!eventCited || !referenceCited) return `${scorer.label}'s ${!eventCited ? 'own event' : 'objective reference'} is written by no item citing a confirmed relationship of its context that names ${departure.key}`
-        return null
+        const eventWriters = new Set(entailingOf(scorer.roleEvent.line).map(keyOf))
+        const referenceWriters = new Set(scorer.objective ? entailingOf(lineOf(scorer.objective.classId, targetSpec.referenceRow)).map(keyOf) : [])
+        const writes = (entry: { contractId: string; itemId: string }, writers: Set<string>) => writers.has(`${entry.contractId}::${entry.itemId}`)
+        const own = String(scorer.roleEvent.own)
+        const role = scorer.roleEvent.role
+        const eventBy = (recorded?.citedBy ?? []).filter(entry => writes(entry, eventWriters))
+        const referenceBy = (recorded?.citedBy ?? []).filter(entry => writes(entry, referenceWriters))
+        const standing = eventBy.find(entry => entry.scoringEvent === own && entry.role === role && referenceBy.some(other => other.relationship === entry.relationship))
+        if (standing) return null
+        // Why not, most specific first: a citation refused as recorded, an event or role the relationship is not confirmed for, a row uncited.
+        const refused = (recorded?.refused ?? []).filter(entry => writes(entry, eventWriters) || writes(entry, referenceWriters))
+        if (refused.length) return `${scorer.label}'s ${refused.map(entry => `${entry.contractId}::${entry.itemId} cites ${entry.relationship}, which does not count: ${entry.why}`).join('; ')}`
+        const otherEvent = eventBy.find(entry => entry.scoringEvent !== own)
+        if (otherEvent) return `${scorer.label} scores by ${JSON.stringify(own)}, and ${otherEvent.relationship} confirms only ${JSON.stringify(otherEvent.scoringEvent)}`
+        const otherRole = [...eventBy, ...referenceBy].find(entry => entry.role !== role)
+        if (otherRole) return `${otherRole.relationship} is confirmed for the role ${otherRole.role}, not ${role}`
+        if (!eventBy.length || !referenceBy.length) return `${scorer.label}'s ${!eventBy.length ? 'own event' : 'objective reference'} is written by no item citing a confirmed relationship of its context that names ${departure.key}`
+        return `${scorer.label}'s own event and objective reference cite no one confirmed relationship naming ${departure.key}`
     }
     // Instances are the teams' events and targets examined against every permitted set (each one examined is evidence the clause holds
     // of it, SD-54), not only the departures found, so a concrete game with none passes on what it examined.
@@ -2848,8 +2890,9 @@ function gaRoleEvents(ctx: GateContext): CheckOutcome {
             continue
         }
         const ready = target as Extract<TargetRead, { state: 'READY' }>
-        const departures: { key: string; item: ContractItem; contract: LoadedContract }[] = [
+        const departures: { key: string; item: ContractItem; contract: LoadedContract; what?: string }[] = [
             ...eventSets.filter(entry => !entry.set.includes(kind.value)),
+            ...(scorer.roleEvent?.state === 'OWN' ? eventExclusions.filter(entry => entry.forbidden.includes(kind.value)).map(entry => ({ ...entry, what: 'the exclusion' })) : []),
             ...(ready.typeState === 'DERIVED' ? targetSets.filter(entry => (entry.applies === 'both' || entry.applies === ready.target) && !entry.set.includes(String(ready.type))) : []),
         ]
         if (ready.typeState === 'OPEN' && targetSets.some(entry => entry.applies === 'both' || entry.applies === ready.target)) yieldClause.open = true
@@ -2860,7 +2903,7 @@ function gaRoleEvents(ctx: GateContext): CheckOutcome {
                 continue
             }
             yieldClause.fail = true
-            said.push(`${scorer.label} departs from the required permitted set of ${departure.key} (${kind.value}${ready.type ? `, at a ${ready.type}` : ''}): ${why}`)
+            said.push(`${scorer.label} departs from ${departure.what ?? 'the required permitted set of'} ${departure.key} (${kind.value}${ready.type ? `, at a ${ready.type}` : ''}): ${why}`)
         }
     }
 
@@ -2972,16 +3015,46 @@ function gaRoleEvents(ctx: GateContext): CheckOutcome {
     // ── Clause 12: a role's own event is written for the role. ───────────────────────────────────────────────────────────────────────
     const same = tally()
     same.instances = ownRoles.length
+    /** The one role a selector names, where it names one role and nothing else (a single `=` term on the role attribute); otherwise null. */
+    const roleAloneOf = (item: ContractItem): string | null => {
+        const parsed = parseSelector(item.selector, String(item.row), ctx.index)
+        if (!parsed.predicate || parsed.predicate.any || parsed.predicate.terms.length !== 1) return null
+        const [term] = parsed.predicate.terms
+        return term.attribute === rolesSpec.roleAttribute && term.op === '=' ? String(term.value) : null
+    }
+    const notAlone = new Set<string>()
     for (const entry of ownRoles) {
         for (const ref of entailingOf(entry.line)) {
             const found = items.get(keyOf(ref))
             if (!found) continue
-            const parsed = parseSelector(found.item.selector, String(found.item.row), ctx.index)
-            const byRoleOnly = !!parsed.predicate && !parsed.predicate.any && parsed.predicate.terms.every(term => term.attribute === rolesSpec.roleAttribute)
-            if (!byRoleOnly) {
+            // One role, alone (stage A review fix): a selector naming a SET of roles (IN) passed the earlier check, which asked only that every
+            // term be on the role attribute, so the clause's own claim did not hold of it (clauses 3 and 8 caught that case, for their reasons).
+            if (roleAloneOf(found.item) === null) {
                 same.fail = true
+                notAlone.add(keyOf(ref))
                 said.push(`${keyOf(ref)} writes the event of ${entry.role} by a selector that is not the role's alone`)
             }
+        }
+    }
+    /**
+     * **An event written for a role the game does not hold** (stage A review fix, 22 October 2026). Such an item reaches no line (SD-46
+     * records it UNMET in the forward result) and refused nothing: measured in the review, an item writing a goal for a role outside the
+     * vocabulary was SERVED with How to score unchanged, its authored scoring knowledge silently ignored. Every item on the event row in the
+     * composition is examined: one naming a role the game holds no element of FAILS here, named, and so does one whose selector names no
+     * one role alone and reached no role's line (one that reached a line is named by the loop above).
+     */
+    for (const { contract, item } of items.values()) {
+        if (String(item.row) !== spec.eventRow) continue
+        const key = `${contract.contractId}::${item.itemId}`
+        const role = roleAloneOf(item)
+        if (role === null && notAlone.has(key)) continue
+        same.instances++
+        if (role === null) {
+            same.fail = true
+            said.push(`${key} writes a scoring event by a selector that names no one role alone`)
+        } else if (!heldRoles.has(role)) {
+            same.fail = true
+            said.push(`${key} writes a scoring event for the role ${role}, which the game holds no element of`)
         }
     }
 

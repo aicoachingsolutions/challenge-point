@@ -44,6 +44,19 @@ export interface AuthorizingRelationship {
      * `applyRoleYields`). Absent on every relationship recorded on 22 October 2026.
      */
     supersedes?: string[]
+    /**
+     * **The one scoring event a context SCORING relationship authorizes** (stage A review fix, 22 October 2026; a member of the register's
+     * scoring-event vocabulary, checked where the records load). Read by `applyRoleYields`: an item writing a role's own event counts as
+     * citing the relationship only where the event it writes IS this one, and a relationship naming none authorizes no role yield at all.
+     * Christian, reply filed 25 October 2026, item 2: *"preserving structural validation and knowledge authorization."*
+     */
+    scoringEvent?: string
+    /**
+     * **The one role a context SCORING relationship is confirmed for** (stage A review fix; the design's K3: *"authorizing rows B9 and J2
+     * for the pressing role only"*; a member of the register's role vocabulary, checked where the records load). Carried onto each citation
+     * and compared, per role, by GA-ROLE-EVENTS clause 6; a relationship naming none authorizes no role yield.
+     */
+    role?: string
 }
 
 /** The one status under which a relationship authorizes anything: he has confirmed it. */
@@ -154,12 +167,18 @@ export function applyRealizationDeferrals(
  *
  *   - writes a role's own scoring event (the register's `roleScoring.eventRow`) or an objective's reference (`targetOf.referenceRow`);
  *   - cites, in `authorizedBy`, a relationship whose status is CONFIRMED, which authorizes that row, whose context is the one the
- *     contribution realizes, and which names the marked item (`contractId::itemId`) among those it supersedes.
+ *     contribution realizes, and which names the marked item (`contractId::itemId`) among those it supersedes;
+ *   - **and that relationship names the one scoring event and the one role it authorizes** (stage A review fix, 22 October 2026), and, on
+ *     the event row, the item writes exactly that event (an EQUALS of that one value). Until this fix a relationship confirming one event
+ *     let a role depart to ANY event: the event it authorizes was validated as present and read by nothing (measured in the review, a
+ *     relationship confirming one event cited by an item writing another stood). A citation failing this is recorded under `refused`,
+ *     with why, so clause 6 can name it; it is never counted.
  *
- * Each cited marked item is recorded, with its citing items, in `roleYields` on a COPY of its contract. NOTHING IS MOVED: the item stays in
- * `items` and keeps governing every line it governs; what it permits for a role's event or target is decided by GA-ROLE-EVENTS clause 6,
- * which reads this record. Anywhere nothing is cited (every composition on 22 October 2026) the input is returned unchanged, object for
- * object. Names no row, kind, role or item: the rows come from the register, the items and relationships from the data.
+ * Each cited marked item is recorded, with its citing items (and what each relationship authorizes), in `roleYields` on a COPY of its
+ * contract. NOTHING IS MOVED: the item stays in `items` and keeps governing every line it governs; what it permits for a role's event or
+ * target is decided by GA-ROLE-EVENTS clause 6, which reads this record (and compares the role and the event per team). Anywhere nothing is
+ * cited (every composition on 22 October 2026) the input is returned unchanged, object for object. Names no row, kind, role or item: the
+ * rows come from the register, the items and relationships from the data.
  */
 export function applyRoleYields(contracts: LoadedContract[], relationships: AuthorizingRelationship[], index: RegisterIndex): LoadedContract[] {
     const scoring = index.roleScoring
@@ -173,6 +192,7 @@ export function applyRoleYields(contracts: LoadedContract[], relationships: Auth
             if (!(ROLE_YIELD_MARKERS as readonly unknown[]).includes(marker)) continue
             const key = `${contract.contractId}::${item.itemId}`
             const citedBy: RoleYield['citedBy'] = []
+            const refused: NonNullable<RoleYield['refused']> = []
             for (const other of contracts) {
                 if (other.contractId === contract.contractId) continue
                 const realizes = (other as { realizes?: unknown }).realizes
@@ -183,10 +203,25 @@ export function applyRoleYields(contracts: LoadedContract[], relationships: Auth
                     if (!relationship || relationship.status !== RELATIONSHIP_CONFIRMED || !relationship.rows.includes(row)) continue
                     if (typeof realizes !== 'string' || realizes !== relationship.contextId) continue
                     if (!Array.isArray(relationship.supersedes) || !relationship.supersedes.includes(key)) continue
-                    citedBy.push({ contractId: other.contractId, itemId: candidate.itemId, row, relationship: relationship.id })
+                    const citation = { contractId: other.contractId, itemId: candidate.itemId, row, relationship: relationship.id }
+                    const named = (value: unknown): string | null => (typeof value === 'string' && value.trim().length > 0 ? value : null)
+                    const event = named(relationship.scoringEvent)
+                    const role = named(relationship.role)
+                    if (!event || !role) {
+                        refused.push({ ...citation, why: `${relationship.id} names no ${!event ? 'scoring event' : 'role'} it authorizes, so it authorizes no role yield` })
+                        continue
+                    }
+                    if (row === scoring.eventRow) {
+                        const writes = String(candidate.requirement) === 'EQUALS' && typeof candidate.value === 'string' ? candidate.value : null
+                        if (writes !== event) {
+                            refused.push({ ...citation, why: `it writes the event ${JSON.stringify(candidate.value)}, and ${relationship.id} confirms only ${JSON.stringify(event)}` })
+                            continue
+                        }
+                    }
+                    citedBy.push({ ...citation, scoringEvent: event, role })
                 }
             }
-            if (citedBy.length) yields.push({ itemId: item.itemId, marker: String(marker), citedBy })
+            if (citedBy.length || refused.length) yields.push({ itemId: item.itemId, marker: String(marker), citedBy, ...(refused.length ? { refused } : {}) })
         }
         if (!yields.length) return contract
         const copy: LoadedContract = JSON.parse(JSON.stringify(contract))

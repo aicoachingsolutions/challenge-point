@@ -65,6 +65,8 @@ export interface ItemRestatement {
  * other new key. A test proves an unknown key is refused, not applied."*). Every key a ruled restatement writes today, read from the
  * data on that day, plus the role-yield marker (`ROLE_YIELD_KEY`). A key outside this list would be written onto an item and read by
  * nothing — or read by something that never learned what it means — so the ruling carrying it is refused and named, never applied.
+ * Beside these, a ruling may write the provenance-note keys its ledger declares (`PROVENANCE_NOTE_KEYS`, data: stage A review fix, so no
+ * key named for the sport is spelled in this sport-neutral module), each only as text.
  */
 export const ITEM_RESTATEMENT_KEYS: readonly string[] = [
     'row',
@@ -77,10 +79,8 @@ export const ITEM_RESTATEMENT_KEYS: readonly string[] = [
     'asAuthored',
     'authoredOrder',
     'forbiddenCardinality',
-    'goalKickTriggerSource',
     'basis',
     'basisEvidence',
-    'restartOwnershipSource',
     'fitNote',
     'gloss',
     'relational',
@@ -110,8 +110,11 @@ export const ITEM_RESTATEMENT_KEYS: readonly string[] = [
  */
 export function itemRestatementRefusal(key: string, ruling: ItemRestatement): string | null {
     const set = ruling.set ?? {}
-    const unknown = Object.keys(set).filter(field => !ITEM_RESTATEMENT_KEYS.includes(field))
+    const unknown = Object.keys(set).filter(field => !ITEM_RESTATEMENT_KEYS.includes(field) && !PROVENANCE_NOTE_KEYS.includes(field))
     if (unknown.length) return `${key} (${ruling.ruling}): ${unknown.map(field => JSON.stringify(field)).join(', ')} ${unknown.length === 1 ? 'is not a field' : 'are not fields'} an item restatement may write, so the ruling is not applied`
+    // A provenance note is text (stage A review fix): one carrying anything else would be structure the engine reads under no name it knows.
+    const notText = Object.keys(set).filter(field => PROVENANCE_NOTE_KEYS.includes(field) && !(typeof set[field] === 'string' && String(set[field]).trim().length > 0))
+    if (notText.length) return `${key} (${ruling.ruling}): ${notText.map(field => JSON.stringify(field)).join(', ')} ${notText.length === 1 ? 'is a provenance note' : 'are provenance notes'} and must be written as text, so the ruling is not applied`
     if (!(ROLE_YIELD_KEY in set)) return null
     const marker = set[ROLE_YIELD_KEY]
     if (!(ROLE_YIELD_MARKERS as readonly unknown[]).includes(marker)) return `${key} (${ruling.ruling}): ${JSON.stringify(marker)} is not a role-yield marker (only ${ROLE_YIELD_MARKERS.join(', ')}), so the ruling is not applied`
@@ -286,11 +289,39 @@ interface RestatementData {
     declarationScope: { contractId: string; ruling: string; onlyDeclaration: string; from: string; to: string; why: string }
     declarations?: DeclarationRestatement[]
     declarationsAdded?: DeclarationAddition[]
+    /** The keys a ruling writes as its own provenance note, read by no engine code (stage A review fix; `PROVENANCE_NOTE_KEYS`). */
+    provenanceNoteKeys?: { keys: string[]; note: string }
 }
 
 const DATA: RestatementData = JSON.parse(
     fs.readFileSync(path.join(AUDITS_DIR, 'conformance/stage-b/corpus-restatements.json'), 'utf8').replace(/^﻿/, ''),
 )
+
+/**
+ * **The provenance-note keys the ledger declares** — stage A review fix, 22 October 2026. Two keys a ruling writes to say where its
+ * value came from, read by no engine code, were spelled in this module's list of fields, and one of them is named for the sport (the
+ * design's no-exception ratchet: no engine file gains a sport noun). They are the ledger's own vocabulary, so the ledger declares them
+ * (`provenanceNoteKeys`), and this module reads them as data. Validated at load, or nothing loads: unique, non-empty, and none a key this
+ * module knows by name (`ITEM_RESTATEMENT_KEYS`, which holds every key the engine reads and the marker), so a declared note can never widen
+ * what a ruling may write into a field anything reads. `itemRestatementRefusal` admits them only as text.
+ */
+export function provenanceNoteKeysOf(data: { provenanceNoteKeys?: unknown }): string[] {
+    const declared = data.provenanceNoteKeys as { keys?: unknown; note?: unknown } | undefined
+    if (declared === undefined) return []
+    const keys = Array.isArray(declared?.keys) ? (declared.keys as unknown[]) : null
+    const errors: string[] = []
+    if (!keys || !keys.length) errors.push('provenanceNoteKeys.keys must list at least one key')
+    if (typeof declared?.note !== 'string' || !declared.note.trim()) errors.push('provenanceNoteKeys must say what the keys are (note)')
+    for (const key of keys ?? []) {
+        if (typeof key !== 'string' || !key.trim()) errors.push(`provenanceNoteKeys holds ${JSON.stringify(key)}, which is not a key`)
+        else if (ITEM_RESTATEMENT_KEYS.includes(key)) errors.push(`provenanceNoteKeys holds ${key}, a field the engine knows by name, which no note may stand for`)
+        else if (keys!.indexOf(key) !== keys!.lastIndexOf(key)) errors.push(`provenanceNoteKeys holds ${key} twice`)
+    }
+    if (errors.length) throw new Error(`corpus-restatements.json failed its integrity gate: ${[...new Set(errors)].join(' | ')}`)
+    return (keys as string[]).slice()
+}
+
+export const PROVENANCE_NOTE_KEYS: readonly string[] = provenanceNoteKeysOf(DATA)
 
 export const NO_ROW_RESTATEMENTS: ReadonlySet<string> = new Set(DATA.noRow)
 export const ITEM_RESTATEMENTS: ItemRestatement[] = DATA.items
@@ -341,10 +372,25 @@ function disqualifies(item: ContractItem): string | null {
 }
 
 /**
- * Apply every ruled restatement to a loaded corpus, on a copy. Nothing else is touched. `rulings` is the ledger's item restatements;
- * a test may hand a COPY with a TEST-ONLY ruling added (stage A, 22 October 2026), to prove a refused ruling is not applied.
+ * **The role-yield marker reaches an item only through a ruled item restatement** — stage A review fix, 22 October 2026. GA-ROLE-EVENTS
+ * clause 6 trusts the marker wherever it finds it, so every other way in is closed where the knowledge enters: an item of the corpus as
+ * authored, or an item a ruling ADDS whole, carrying the marker is named here (null where it carries none). The added item is then not
+ * inserted (its ruling is refused whole, as a refused item restatement is); the authored item keeps everything it says and only the marker
+ * is not honoured, since dropping authored knowledge would be the silent loss this project guards against. The provisional realizations
+ * and the Sport Profile are refused by their own loaders (corpus.ts). Christian, reply filed 25 October 2026, item 2: *"preserving
+ * structural validation and knowledge authorization."*
  */
-export function applyNoRowRestatement(contracts: LoadedContract[], tally: RestatementTally, rulings: ItemRestatement[] = ITEM_RESTATEMENTS): LoadedContract[] {
+export function unruledRoleYieldRefusal(key: string, item: Record<string, unknown>, how: string): string | null {
+    if (!(ROLE_YIELD_KEY in item)) return null
+    return `${key} (${how}): carries the role-yield marker ${JSON.stringify(item[ROLE_YIELD_KEY])}, which only a ruled item restatement quoting his words writes`
+}
+
+/**
+ * Apply every ruled restatement to a loaded corpus, on a copy. Nothing else is touched. `rulings` is the ledger's item restatements;
+ * a test may hand a COPY with a TEST-ONLY ruling added (stage A, 22 October 2026), to prove a refused ruling is not applied. `added` is
+ * the ledger's added items, a parameter for the same reason (stage A review fix: an added item carrying the role-yield marker is refused).
+ */
+export function applyNoRowRestatement(contracts: LoadedContract[], tally: RestatementTally, rulings: ItemRestatement[] = ITEM_RESTATEMENTS, added: typeof ADDED_ITEMS = ADDED_ITEMS): LoadedContract[] {
     tally.applied = 0
     tally.withheld = []
     tally.itemsRestated = 0
@@ -370,8 +416,17 @@ export function applyNoRowRestatement(contracts: LoadedContract[], tally: Restat
     const seen = new Set<string>()
 
     const result = contracts.map(contract => {
-        let items = (contract.items || []).flatMap(item => {
-            const key = `${contract.contractId}::${item.itemId}`
+        let items = (contract.items || []).flatMap(authored => {
+            const key = `${contract.contractId}::${authored.itemId}`
+            // Stage A review fix: a marker the corpus carries as authored is named and not honoured; the item keeps everything else it says.
+            const unruled = unruledRoleYieldRefusal(key, authored as unknown as Record<string, unknown>, 'as authored')
+            let item = authored
+            if (unruled) {
+                tally.notFound.push(`${unruled}, so the marker is not honoured`)
+                const stripped = { ...(authored as unknown as Record<string, unknown>) }
+                delete stripped[ROLE_YIELD_KEY]
+                item = stripped as unknown as ContractItem
+            }
 
             if (NO_ROW_RESTATEMENTS.has(key)) {
                 seen.add(key)
@@ -411,8 +466,14 @@ export function applyNoRowRestatement(contracts: LoadedContract[], tally: Restat
         })
 
         // Items a ruling adds, placed beside the item they belong to so order stays meaningful.
-        for (const addition of ADDED_ITEMS) {
+        for (const addition of added) {
             if (addition.contractId !== contract.contractId) continue
+            // Stage A review fix: an added item carrying the role-yield marker is refused whole and named, never inserted.
+            const unruled = unruledRoleYieldRefusal(`${addition.contractId}::${String(addition.item.itemId)}`, addition.item, `added by ${addition.ruling}`)
+            if (unruled) {
+                tally.notFound.push(`${unruled}, so the item is not added`)
+                continue
+            }
             const at = items.findIndex(i => i.itemId === addition.after)
             if (at === -1) {
                 tally.notFound.push(`${addition.contractId}::${addition.after} (anchor for ${addition.item.itemId})`)

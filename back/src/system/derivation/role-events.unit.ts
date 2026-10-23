@@ -25,6 +25,14 @@
  *   9. the grep ratchet (only `eventKindOf` reads the primary event's kind) and the no-exception ratchet (no engine file gains a scoring kind,
  *      a role, a sport noun or a knowledge id).
  *
+ * The stage A review fixes (22-23 October 2026), each pinned beside the part it fixes: the event a relationship confirms is the one a role
+ * may score by, for the one role it is confirmed for (clause 6, `applyRoleYields`, and the records' validator); the marker reaches an item
+ * only through a ruled item restatement (added, authored, provisional and Sport Profile items refused); an event written for a role the
+ * game does not hold, or for a set of roles, is refused (clause 12); an unsettled objective in a game without roles is owed (clauses 4 and
+ * 6); a single required event is a permitted set of one, and a typed exclusion on the event row reaches a role's own event (clause 6); an
+ * event the context does not approve stands only on a confirmed scoring relationship (the guard); an adjustment rests on a manipulation
+ * relationship only; the provenance-note keys are the ledger's.
+ *
  * TEST-ONLY copies are labelled; production files are never written. Nothing here is served, and nothing is knowledge for the goal version.
  *
  * Run: npx ts-node --files -r tsconfig-paths/register ./src/system/derivation/role-events.unit.ts
@@ -41,8 +49,8 @@ import { eventKindOf, eventKindPathsOf } from '../rendering/game-reading'
 import { renderConcreteGame, scoringWordingOf } from '../rendering/render-concrete-game'
 import { specializedRoleNames } from '../rendering/session-envelope'
 import { ContextScoringRelationship, contextManipulationRelationships, contextRelationships, contextScoringRelationships, learningGoalAuthorizations, validateContextManipulationRelationships } from '../test-library/learning-goal-authorizations'
-import { loadRegister, restatementTally } from './corpus'
-import { applyNoRowRestatement, ItemRestatement, itemRestatementRefusal, ITEM_RESTATEMENTS, restateDeclaration, RestatementTally } from './corpus-restatement'
+import { loadProvisionalRealizations, loadRegister, loadSportProfile, PROVISIONAL_REALIZATIONS_FILE, readJson, restatementTally } from './corpus'
+import { applyNoRowRestatement, ItemRestatement, itemRestatementRefusal, ITEM_RESTATEMENTS, ITEM_RESTATEMENT_KEYS, PROVENANCE_NOTE_KEYS, provenanceNoteKeysOf, restateDeclaration, RestatementTally } from './corpus-restatement'
 import { runStages0to10, runStages0to5 } from './engine'
 import { ROLE_EVENTS_CHECK, ROLE_EVENTS_CLAUSES } from './gates'
 import { applyRealizationDeferrals, applyRoleYields, AuthorizingRelationship } from './realization-deferral'
@@ -227,8 +235,51 @@ test('the restatement loader writes only keys it knows, and the role-yield marke
     const declared = restateDeclaration({ row: 'V1', declaration: 'CLAIMED' }, { contractId: 'restated:TEST-ONLY', row: 'V1', from: 'CLAIMED', to: 'CLAIMED', ruling: 'TEST-ONLY', why: 'TEST-ONLY', [ROLE_YIELD_KEY]: 'AUTHORIZED_ROLE_SCORING' } as any)
     assert.ok('refused' in declared && /never on a declaration/.test(String((declared as any).refused)))
     // Every production ruling writes only known keys, and none carries the marker (restatement S1 is his to rule).
-    assert.ok(!restatementTally.notFound.some(entry => /may write|role-yield/.test(entry)), restatementTally.notFound.join(' | '))
+    assert.ok(!restatementTally.notFound.some(entry => /may write|role-yield|provenance note/.test(entry)), restatementTally.notFound.join(' | '))
     assert.ok(!ITEM_RESTATEMENTS.some(r => r.set && ROLE_YIELD_KEY in r.set), 'no production item carries the marker')
+
+    // Review fix: the provenance-note keys are the ledger's (data), never spelled in the engine's list, admitted only as text.
+    assert.equal(PROVENANCE_NOTE_KEYS.length, 2)
+    assert.ok(!PROVENANCE_NOTE_KEYS.some(key => ITEM_RESTATEMENT_KEYS.includes(key)))
+    assert.match(apply(ruling({ [PROVENANCE_NOTE_KEYS[0]]: { 'TEST-ONLY': true } })).refusals[0] ?? '', /is a provenance note and must be written as text, so the ruling is not applied/)
+    assert.equal(apply(ruling({ [PROVENANCE_NOTE_KEYS[0]]: 'TEST-ONLY note' })).item[PROVENANCE_NOTE_KEYS[0]], 'TEST-ONLY note')
+    for (const [label, damaged] of [
+        ['a key the engine knows', { keys: ['row'], note: 'TEST-ONLY' }],
+        ['a key twice', { keys: ['TEST-ONLY', 'TEST-ONLY'], note: 'TEST-ONLY' }],
+        ['no keys', { keys: [], note: 'TEST-ONLY' }],
+        ['no note', { keys: ['TEST-ONLY'] }],
+    ] as [string, unknown][]) {
+        assert.throws(() => provenanceNoteKeysOf({ provenanceNoteKeys: damaged }), /corpus-restatements\.json failed its integrity gate/, label)
+    }
+
+    // Review fix: the marker reaches an item ONLY through a ruled item restatement. An item a ruling ADDS carrying it is refused whole and
+    // named, never inserted; an item carrying it as authored keeps everything else it says, and the marker is named and not honoured.
+    const fresh = (): RestatementTally => ({ applied: 0, withheld: [], itemsRestated: 0, itemsRemoved: 0, itemsAdded: 0, declarationScopes: 0, declarationsRestated: 0, declarationsAdded: 0, declarationsAddedOnDeclaredRows: 0, notFound: [] })
+    const addition = (marked: boolean) => ({ contractId: 'restated:TEST-ONLY', after: 'T-1', ruling: 'TEST-ONLY', why: 'TEST-ONLY', item: { itemId: 'T-2', row: 'V1', selector: '*', requirement: 'EQUALS', value: ['TEST-ONLY'], strictness: 'REQUIRED', ...(marked ? { [ROLE_YIELD_KEY]: 'AUTHORIZED_ROLE_SCORING' } : {}) } })
+    const addedTally = fresh()
+    assert.deepEqual(applyNoRowRestatement(contract(), addedTally, [], [addition(true)])[0].items.map(i => i.itemId), ['T-1'])
+    assert.ok(addedTally.notFound.some(entry => entry.startsWith('restated:TEST-ONLY::T-2 (added by TEST-ONLY): carries the role-yield marker') && entry.endsWith('so the item is not added')), addedTally.notFound.join(' | '))
+    assert.deepEqual(applyNoRowRestatement(contract(), fresh(), [], [addition(false)])[0].items.map(i => i.itemId), ['T-1', 'T-2'], 'the same addition without the marker is inserted')
+    const markedAsAuthored = contract()
+    ;(markedAsAuthored[0].items[0] as any)[ROLE_YIELD_KEY] = 'AUTHORIZED_ROLE_SCORING'
+    const authoredTally = fresh()
+    const authored = applyNoRowRestatement(markedAsAuthored, authoredTally, [], [])[0].items[0] as any
+    assert.equal(authored[ROLE_YIELD_KEY], undefined)
+    assert.deepEqual([authored.itemId, authored.value, authored.strictness], ['T-1', ['TEST-ONLY'], 'REQUIRED'], 'the authored item keeps everything else it says')
+    assert.ok(authoredTally.notFound.some(entry => entry.startsWith('restated:TEST-ONLY::T-1 (as authored): carries the role-yield marker') && entry.endsWith('so the marker is not honoured')))
+    const reRuled = applyNoRowRestatement(markedAsAuthored, fresh(), [ruling({ [ROLE_YIELD_KEY]: 'AUTHORIZED_ROLE_SCORING' }, { words: 'TEST-ONLY words', citedAs: 'TEST-ONLY place' })], [])[0].items[0] as any
+    assert.equal(reRuled[ROLE_YIELD_KEY], 'AUTHORIZED_ROLE_SCORING', 'a ruled item restatement still writes it')
+    // A provisional realization carrying it fails its integrity gate; the Sport Profile carrying it fails its loader.
+    const provisionalFile = copy(readJson(PROVISIONAL_REALIZATIONS_FILE))
+    provisionalFile.realizations[0].items[0][ROLE_YIELD_KEY] = 'AUTHORIZED_ROLE_SCORING'
+    assert.throws(() => loadProvisionalRealizations(provisionalFile), /failed its integrity gate: .*carries the role-yield marker, which only a ruled item restatement quoting his words writes/)
+    assert.doesNotThrow(() => loadProvisionalRealizations(copy(readJson(PROVISIONAL_REALIZATIONS_FILE))))
+    assert.throws(() => loadSportProfile(file => {
+        const raw = copy(readJson(file))
+        raw.result.items[0][ROLE_YIELD_KEY] = 'AUTHORIZED_ROLE_SCORING'
+        return raw
+    }), /the Sport Profile .* carries the role-yield marker/)
+    assert.deepEqual(loadSportProfile(file => copy(readJson(file))), loadSportProfile(), 'the loader reads the same profile through its parameter')
 })
 
 // ── 3. GA-ROLE-EVENTS on production, and each clause on its own violation ───────────────────────────────
@@ -310,6 +361,17 @@ test('each clause refuses its own violation on a TEST-ONLY copy (block X before 
     // 12: an event written for every role (selector *), not for the role.
     const every = blockX(a01Input(contracts => (withoutAlsoCounts(contracts), push(b9('EVERY', 'target_zone_entered', '*'))(contracts))))
     assert.deepEqual([verdictOf(every, C.SAME), verdictOf(every, C.PRIMARY)], ['FAIL', 'FAIL'])
+    // 12 (review fix): a set of roles is not one role alone (the clause's own claim, not left to clauses 3 and 8) ...
+    const roleSet = blockX(a01Input(contracts => (withoutAlsoCounts(contracts), push(b9('BOTH', 'target_zone_entered', 'activityRole ∈ {BUILDING, PRESSING}'))(contracts))))
+    assert.equal(verdictOf(roleSet, C.SAME), 'FAIL')
+    assert.match(checkOf(roleSet).why, /TEST-B9-BOTH writes the event of (BUILDING|PRESSING) by a selector that is not the role's alone/)
+    // ... and an event written for a role the game does not hold reached no line and was SERVED, its scoring knowledge ignored: now named
+    // and refused, whatever its kind, before realization (the production game otherwise; the occurrence that also counts stays).
+    for (const kind of ['goal', 'target_zone_entered']) {
+        const ghost = blockX(a01Input(push(b9('GHOST', kind))))
+        assert.equal(verdictOf(ghost, C.SAME), 'FAIL', kind)
+        assert.match(checkOf(ghost).why, /provisional:A01-R1::TEST-B9-GHOST writes a scoring event for the role GHOST, which the game holds no element of/)
+    }
     // 10: a value modifier beside a role's own event.
     const modifier = blockX(a01Input(contracts => (withoutAlsoCounts(contracts), push(b9('PRESSING', 'target_zone_entered'), testItem('TEST-V7', 'V7', '*', 'EXISTS', 'N/A'))(contracts))))
     assert.deepEqual([verdictOf(modifier, C.MODIFIER), verdictOf(modifier, C.VALUE)], ['FAIL', 'PASS'])
@@ -333,24 +395,50 @@ test('each clause refuses its own violation on a TEST-ONLY copy (block X before 
         p.items.push(b9('PRESSING', 'target_zone_entered') as any)
     })
     assert.equal(verdictOf(runStages0to10(input) as any, C.BLOCKS), 'FAIL')
+    // 4 and 6 (review fix): in a game without roles, an objective whose team is not yet settled is owed, never dropped. TEST-ONLY: the role
+    // elements taken out, the primary event and both target nouns fixed, so every settled objective is decided before realization (PASS on
+    // two); one more objective written with no team was dropped, and the clauses passed on the two they examined.
+    const noRoles = (extra: any[]) =>
+        runStages0to10(
+            a01Input(contracts => {
+                const p = contractOf(contracts, PROVISIONAL)
+                p.items = p.items.filter(i => !/^A01-R1-(B1|B8)-/.test(i.itemId))
+                p.items.push(
+                    testItem('TEST-V1', 'V1', '*', 'EQUALS', 'target_zone_entered') as any,
+                    testItem('TEST-S3-S', 'S3', 'targetOf=TEAM_AT_AXIS_START', 'EQUALS', 'zone') as any,
+                    testItem('TEST-S3-E', 'S3', 'targetOf=TEAM_AT_AXIS_END', 'EQUALS', 'zone') as any,
+                    ...extra,
+                )
+            }),
+        ) as any
+    const settled = noRoles([])
+    assert.deepEqual([verdictOf(settled, C.TARGET), verdictOf(settled, C.YIELD)], ['PASS', 'PASS'])
+    const unsettled = noRoles([testItem('TEST-J1', 'J1', 'role=PRIMARY_SCORING', 'EXISTS', 'N/A')])
+    assert.deepEqual([verdictOf(unsettled, C.TARGET), verdictOf(unsettled, C.YIELD)], ['DEFERRED_TO_REALIZATION', 'DEFERRED_TO_REALIZATION'])
 })
 
 // ── 4. Clause 6: a departure stands only on a ruled yield and a confirmed relationship naming it ────────
-/** TEST-ONLY: the pressing role scores by a goal at a goal object, its end-keyed objective's reference written by the realization. */
-const SUPERSEDED = [`${GF2}::GF2-19`, `${GF2}::GF2-03.b`, `${GF2}::GF2-06.a`, `${RPC}::RPC-001-08.a`]
-const TEST_RELATIONSHIP = (over: Partial<AuthorizingRelationship> = {}): AuthorizingRelationship => ({ id: 'TEST-ONLY-REL', contextId: 'RPC-001', rows: ['B9', 'J2'], status: 'CONFIRMED', supersedes: [...SUPERSEDED], ...over })
-const goalGame = (options: { marked?: string[]; cite?: { event: boolean; reference: boolean } } = {}) => (contracts: LoadedContract[]) => {
+/**
+ * TEST-ONLY: the pressing role scores by a goal at a goal object, its end-keyed objective's reference written by the realization. The
+ * primary event is fixed on this copy by a REQUIRED single value on the event row (TEST-V1), so the building role's event is read before
+ * realization; since the review fix a single required value is a permitted set of one, so it is placed in the game form's copy and yields
+ * as the four items do (an item never yields to a citation from its own contract).
+ */
+const SUPERSEDED = [`${GF2}::GF2-19`, `${GF2}::GF2-03.b`, `${GF2}::GF2-06.a`, `${RPC}::RPC-001-08.a`, `${GF2}::TEST-V1`]
+const TEST_RELATIONSHIP = (over: Partial<AuthorizingRelationship> = {}): AuthorizingRelationship => ({ id: 'TEST-ONLY-REL', contextId: 'RPC-001', rows: ['B9', 'J2'], status: 'CONFIRMED', supersedes: [...SUPERSEDED], scoringEvent: 'goal', role: 'PRESSING', ...over })
+const goalGame = (options: { marked?: string[]; cite?: { event: boolean; reference: boolean }; kind?: string; extra?: any[] } = {}) => (contracts: LoadedContract[]) => {
     withoutAlsoCounts(contracts)
+    const kind = options.kind ?? 'goal'
     const gf2 = contractOf(contracts, GF2)
     gf2.items = gf2.items.filter(i => i.itemId !== 'GF2-08.f')
+    gf2.items.push(testItem('TEST-V1', 'V1', '*', 'EQUALS', 'target_zone_entered') as any)
     const cite = options.cite ?? { event: true, reference: true }
     const p = contractOf(contracts, PROVISIONAL)
     p.items.push(
-        testItem('TEST-O1-GOAL', 'O1', 'kind=goal', 'EXISTS', 'N/A') as any,
+        testItem('TEST-O1-GOAL', 'O1', `kind=${kind}`, 'EXISTS', 'N/A') as any,
         testItem('TEST-J2-END', 'J2', 'role=PRIMARY_SCORING & team=TEAM_AT_AXIS_END', 'EQUALS', { structuralRef: { contractId: PROVISIONAL, itemId: 'TEST-O1-GOAL' }, asAuthored: 'TEST-ONLY goal' }, cite.reference ? { authorizedBy: 'TEST-ONLY-REL' } : {}) as any,
-        testItem('TEST-B9-PRESSING', 'B9', 'activityRole=PRESSING', 'EQUALS', 'goal', cite.event ? { authorizedBy: 'TEST-ONLY-REL' } : {}) as any,
-        // The primary event fixed on this copy, so the building role's event is read before realization.
-        testItem('TEST-V1', 'V1', '*', 'EQUALS', 'target_zone_entered') as any,
+        testItem('TEST-B9-PRESSING', 'B9', 'activityRole=PRESSING', 'EQUALS', kind, cite.event ? { authorizedBy: 'TEST-ONLY-REL' } : {}) as any,
+        ...(options.extra ?? []),
     )
     for (const key of options.marked ?? []) {
         const [contractId, itemId] = key.split('::')
@@ -385,12 +473,31 @@ test('clause 6: a goal for the pressing role at a goal object is refused without
         ['another context', TEST_RELATIONSHIP({ contextId: 'TEST-ONLY-CONTEXT' })],
         ['naming none of them', TEST_RELATIONSHIP({ supersedes: undefined })],
         ['not authorizing the event row', TEST_RELATIONSHIP({ rows: ['J2'] })],
+        // Review fix: a relationship naming no event or no role authorizes no yield, and one confirmed for the other role serves not this one.
+        ['naming no scoring event', TEST_RELATIONSHIP({ scoringEvent: undefined })],
+        ['naming no role', TEST_RELATIONSHIP({ role: undefined })],
+        ['confirmed for the other role', TEST_RELATIONSHIP({ role: 'BUILDING' })],
     ] as [string, AuthorizingRelationship][]) {
         assert.equal(yieldOf(goalGame({ marked: SUPERSEDED }), [relationship]).verdict, 'FAIL', label)
     }
+    assert.match(yieldOf(goalGame({ marked: SUPERSEDED }), [TEST_RELATIONSHIP({ scoringEvent: undefined })]).why, /TEST-ONLY-REL names no scoring event it authorizes, so it authorizes no role yield/)
+    assert.match(yieldOf(goalGame({ marked: SUPERSEDED }), [TEST_RELATIONSHIP({ role: 'BUILDING' })]).why, /TEST-ONLY-REL is confirmed for the role BUILDING, not PRESSING/)
     assert.match(yieldOf(goalGame({ marked: SUPERSEDED, cite: { event: false, reference: true } })).why, /own event is written by no item citing a confirmed relationship/)
     assert.match(yieldOf(goalGame({ marked: SUPERSEDED, cite: { event: true, reference: false } })).why, /objective reference is written by no item citing a confirmed relationship/)
-    // Nothing is moved: the marked items stay in their contracts, and the record lists the citing items.
+    // Review fix: THE EVENT A RELATIONSHIP CONFIRMS IS THE ONE THE ROLE MAY SCORE BY. Measured in the review, a relationship confirming a goal,
+    // cited by an item writing a gate at a gate object, stood exactly as the goal did. Now it is refused, naming the mismatch; the same game
+    // stands on a relationship confirming the gate, and the goal still stands on the one confirming the goal (above).
+    const gate = yieldOf(goalGame({ marked: SUPERSEDED, kind: 'gate' }))
+    assert.equal(gate.target, 'PASS', 'a gate scores at a gate object')
+    assert.equal(gate.verdict, 'FAIL')
+    assert.ok(gate.why.includes('provisional:A01-R1::TEST-B9-PRESSING cites TEST-ONLY-REL, which does not count: it writes the event "gate", and TEST-ONLY-REL confirms only "goal"'), gate.why)
+    assert.equal(yieldOf(goalGame({ marked: SUPERSEDED, kind: 'gate' }), [TEST_RELATIONSHIP({ scoringEvent: 'gate' })]).verdict, 'DEFERRED_TO_REALIZATION')
+    // Review fix: an exclusion on the event row reaches a role's own event by its typed values (forward.ts reads only the primary event's line).
+    const excluding = { ...testItem('TEST-V1-EXCLUSION', 'V1', '*', 'EQUALS', 'TEST-ONLY prose'), strictness: 'EXCLUSION', forbiddenValues: ['goal'] }
+    const excluded = yieldOf(goalGame({ marked: SUPERSEDED, extra: [excluding] }))
+    assert.equal(excluded.verdict, 'FAIL')
+    assert.ok(excluded.why.includes('departs from the exclusion provisional:A01-R1::TEST-V1-EXCLUSION (goal, at a goal): provisional:A01-R1::TEST-V1-EXCLUSION carries no role-yield marker'), excluded.why)
+    // Nothing is moved: the marked items stay in their contracts, and the record lists the citing items with what their relationship authorizes.
     const input = a01Input(goalGame({ marked: SUPERSEDED }), [...contextRelationships(), TEST_RELATIONSHIP()])
     const gf2 = contractOf(input.contracts, GF2)
     assert.ok(gf2.items.some(i => i.itemId === 'GF2-19') && gf2.items.some(i => i.itemId === 'GF2-03.b'))
@@ -398,7 +505,12 @@ test('clause 6: a goal for the pressing role at a goal object is refused without
         ['GF2-03.b', ['TEST-B9-PRESSING', 'TEST-J2-END']],
         ['GF2-06.a', ['TEST-B9-PRESSING', 'TEST-J2-END']],
         ['GF2-19', ['TEST-B9-PRESSING', 'TEST-J2-END']],
+        ['TEST-V1', ['TEST-B9-PRESSING', 'TEST-J2-END']],
     ].sort())
+    assert.ok(gf2.roleYields!.every(entry => entry.citedBy.every(c => c.scoringEvent === 'goal' && c.role === 'PRESSING') && entry.refused === undefined))
+    // The mismatch is recorded, never counted.
+    const mismatched = contractOf(a01Input(goalGame({ marked: SUPERSEDED, kind: 'gate' }), [...contextRelationships(), TEST_RELATIONSHIP()]).contracts, GF2)
+    assert.ok(mismatched.roleYields!.every(entry => entry.citedBy.every(c => c.itemId !== 'TEST-B9-PRESSING') && entry.refused!.some(r => r.itemId === 'TEST-B9-PRESSING')))
 })
 
 // ── 5. The deferral: C56 unchanged, and the same teams required ─────────────────────────────────────────
@@ -431,6 +543,7 @@ test('the relationship feed passes every recorded kind, and the validator holds 
         contextId: 'RPC-001',
         contextName: 'TEST-ONLY',
         scoringEvent: 'goal',
+        role: 'PRESSING',
         rows: ['B9', 'J2'],
         via: ['TEST-ONLY'],
         identified: 'TEST-ONLY',
@@ -448,6 +561,22 @@ test('the relationship feed passes every recorded kind, and the validator holds 
     assert.ok(validateContextManipulationRelationships(contextManipulationRelationships(), records, undefined, [{ ...scoring, supersedes: ['TEST-ONLY'] }]).some(e => e.includes('supersedes')))
     assert.ok(validateContextManipulationRelationships(contextManipulationRelationships(), records, undefined, [{ ...scoring, id: contextManipulationRelationships()[0].id }]).some(e => e.includes('defined twice')))
     assert.ok(validateContextManipulationRelationships(contextManipulationRelationships(), records, undefined, [{ ...scoring, status: 'CONFIRMED', words: [] }]).some(e => e.includes('in his words')))
+    // Review fix: the event is one member of the register's scoring-event vocabulary and the role one member of its roles, or nothing loads.
+    const refusedFor = (over: Partial<ContextScoringRelationship>, register?: unknown) => validateContextManipulationRelationships(contextManipulationRelationships(), records, undefined, [{ ...scoring, ...over }], register)
+    assert.ok(refusedFor({ scoringEvent: 'TEST-ONLY-EVENT' }).some(e => e.includes('authorizes the scoring event "TEST-ONLY-EVENT", which is not a member of V1.kind')), refusedFor({ scoringEvent: 'TEST-ONLY-EVENT' }).join(' | '))
+    assert.ok(refusedFor({ role: 'TEST-ONLY-ROLE' }).some(e => e.includes('must name the one role it is confirmed for')))
+    assert.ok(refusedFor({ role: undefined as any }).some(e => e.includes('must name the one role it is confirmed for')))
+    const noRoleScoring = copy(register)
+    delete noRoleScoring.roleScoring
+    assert.ok(refusedFor({}, noRoleScoring).some(e => e.includes('the register holds no role-scoring block')))
+    for (const kind of index.roleScoring!.kinds) assert.deepEqual(refusedFor({ scoringEvent: kind }), [], kind)
+    // Only a scoring relationship may supersede items for one role (a manipulation relationship names no event or role it authorizes).
+    const manipulation = contextManipulationRelationships()
+    assert.ok(validateContextManipulationRelationships([{ ...manipulation[0], supersedes: [...SUPERSEDED] } as any, ...manipulation.slice(1)], records).some(e => e.includes('only a context scoring relationship')))
+    // An authorized adjustment rests on a manipulation relationship only: the shared lookup no longer lets it resolve to a scoring one.
+    const adjusted = records.find(entry => entry.authorizedAdjustments?.entries?.length)!
+    const resting = copy(records).map(entry => (entry.learningGoalId === adjusted.learningGoalId ? { ...entry, authorizedAdjustments: { ...entry.authorizedAdjustments!, entries: entry.authorizedAdjustments!.entries.map(a => ({ ...a, relationship: scoring.id })) } } : entry))
+    assert.ok(validateContextManipulationRelationships(manipulation, resting, undefined, [scoring]).some(e => e.includes(`names the relationship ${scoring.id}, which contextManipulationRelationships does not hold`)))
 })
 
 // ── 7. THE CONSUMER ─────────────────────────────────────────────────────────────────────────────────────
@@ -542,13 +671,30 @@ test('a kind with no wording is withheld and fidelity refuses it, never said wit
 
 test('the guard: a role\'s own event stands only on his ruling (OWNER_RULING), named otherwise; a game whose roles score by the primary event owes nothing', () => {
     const game: any = (consumerBuild().fixture as any).game
-    const support = (basis: string) => [{ elementId: PRESSING_ROLE, role: 'PRESSING', items: [{ contractId: PROVISIONAL, itemId: 'TEST-B9-P', basis }] }]
-    assert.deepEqual(roleEventFindings('RPC-001', game, ['line_crossed'], support('OWNER_RULING')), [])
-    const assumed = roleEventFindings('RPC-001', game, ['line_crossed'], support('ASSUMED'))
+    const support = (basis: string, authorizedBy: string | null = null) => [{ elementId: PRESSING_ROLE, role: 'PRESSING', items: [{ contractId: PROVISIONAL, itemId: 'TEST-B9-P', basis, authorizedBy }] }]
+    const approved = ['line_crossed', 'target_zone_entered']
+    assert.deepEqual(roleEventFindings('RPC-001', game, approved, support('OWNER_RULING')), [])
+    const assumed = roleEventFindings('RPC-001', game, approved, support('ASSUMED'))
     assert.equal(assumed.length, 1)
     assert.match(assumed[0], /scores by its own event "target_zone_entered" on provisional:A01-R1::TEST-B9-P, whose basis is ASSUMED/)
-    assert.match(roleEventFindings('RPC-001', game, ['line_crossed'], undefined)[0], /what writes it was not given/)
+    assert.match(roleEventFindings('RPC-001', game, approved, undefined)[0], /what writes it was not given/)
     assert.deepEqual(roleEventFindings('RPC-001', (productionBuild().fixture as any).game, ['target_zone_entered'], undefined), [])
+    // Review fix: an event the context does NOT approve stands only where an item writing it cites a CONFIRMED scoring relationship of the
+    // context, confirmed for this role and this event (until then the approved events were read only into the message).
+    const unapproved = roleEventFindings('RPC-001', game, ['line_crossed'], support('OWNER_RULING'))
+    assert.equal(unapproved.length, 1)
+    assert.match(unapproved[0], /scores by its own event "target_zone_entered", which the Representative Performance Context RPC-001 does not approve \(it approves: line_crossed\), and no item writing it cites a confirmed scoring relationship of RPC-001 authorizing "target_zone_entered" for PRESSING/)
+    const relationship = { id: 'TEST-ONLY-SCORING', contextId: 'RPC-001', status: 'CONFIRMED', scoringEvent: 'target_zone_entered', role: 'PRESSING' }
+    assert.deepEqual(roleEventFindings('RPC-001', game, ['line_crossed'], support('OWNER_RULING', relationship.id), undefined, [relationship]), [])
+    for (const [label, over] of [
+        ['identified only', { status: 'IDENTIFIED' }],
+        ['of another context', { contextId: 'TEST-ONLY-CONTEXT' }],
+        ['for another event', { scoringEvent: 'goal' }],
+        ['for the other role', { role: 'BUILDING' }],
+    ] as [string, object][]) {
+        assert.equal(roleEventFindings('RPC-001', game, ['line_crossed'], support('OWNER_RULING', relationship.id), undefined, [{ ...relationship, ...over }]).length, 1, label)
+    }
+    assert.equal(roleEventFindings('RPC-001', game, ['line_crossed'], support('OWNER_RULING'), undefined, [relationship]).length, 1, 'held but not cited')
 })
 
 // ── 9. The ratchets ─────────────────────────────────────────────────────────────────────────────────────

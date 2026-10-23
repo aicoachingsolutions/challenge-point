@@ -1753,10 +1753,16 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
                           const term = (c.constraints?.terms ?? []).find((t: any) => t.attribute === rolesSpec.roleAttribute && t.op === '=')
                           const refs: { contractId: string; itemId: string }[] = (ctx.derived.get(`${c.classId}::${scoringSpec.eventRow}`)?.entailing ?? []).map((e: any) => e.item)
                           const unique = refs.filter((ref, i) => refs.findIndex(other => other.contractId === ref.contractId && other.itemId === ref.itemId) === i)
-                          return { elementId: String(c.classId), role: String(term?.value ?? ''), items: unique.map(ref => ({ contractId: ref.contractId, itemId: ref.itemId, basis: basisOf(ref) })) }
+                          // Stage A review fix: with the relationship each item cites, so an event the context does not approve is confirmed only
+                          // on a confirmed scoring relationship of the context for that role and event (`roleEventFindings`).
+                          const authorizedByOf = (ref: { contractId: string; itemId: string }) => {
+                              const cited = (input.contracts as LoadedContract[]).find(x => x.contractId === ref.contractId)?.items.find(i => i.itemId === ref.itemId)?.authorizedBy
+                              return typeof cited === 'string' ? cited : null
+                          }
+                          return { elementId: String(c.classId), role: String(term?.value ?? ''), items: unique.map(ref => ({ contractId: ref.contractId, itemId: ref.itemId, basis: basisOf(ref), authorizedBy: authorizedByOf(ref) })) }
                       })
                 : []
-        invalid.push(...contextScoringFindings(context.id, contract, realized.game, rpcLibrary.scoringEventsForContext(context.id), episodeCheck, alsoCountsSupport, roleEventSupport, index))
+        invalid.push(...contextScoringFindings(context.id, contract, realized.game, rpcLibrary.scoringEventsForContext(context.id), episodeCheck, alsoCountsSupport, roleEventSupport, index, contextRelationships()))
     }
     if (invalid.length) return refuse('validation', 'The game built for this activity did not pass its own checks, so it is not being shown.', invalid)
 

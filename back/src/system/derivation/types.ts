@@ -126,8 +126,10 @@ export interface ContractItem {
      */
     authorizedBy?: unknown
     /**
-     * **The role-yield marker** (stage A, 22 October 2026, register version 16; `ROLE_YIELD_KEY`): written only by a ruled
-     * restatement (corpus-restatement.ts, only on an owner ruling quoting his words, only from `ROLE_YIELD_MARKERS`). It says that a
+     * **The role-yield marker** (stage A, 22 October 2026, register version 16; `ROLE_YIELD_KEY`): written only by a ruled ITEM
+     * restatement (corpus-restatement.ts, only on an owner ruling quoting his words, only from `ROLE_YIELD_MARKERS`). Every other way in is
+     * refused (stage A review fix): an added item carrying it is not inserted and a corpus item's is not honoured (both named in the
+     * restatement tally), and a provisional realization or the Sport Profile carrying it fails its loader. It says that a
      * REQUIRED permitted set on the event or target rows may be departed from for ONE role, where that role's own event (row B9) and
      * objective reference cite a confirmed relationship naming this item (GA-ROLE-EVENTS, clause 6). It removes nothing: the item
      * keeps governing every other role and every game without such a citation.
@@ -154,7 +156,16 @@ export const ROLE_YIELD_MARKERS = ['AUTHORIZED_ROLE_SCORING'] as const
 export interface RoleYield {
     itemId: string
     marker: string
-    citedBy: { contractId: string; itemId: string; row: string; relationship: string }[]
+    /**
+     * Each citing item counted, with what its relationship authorizes (stage A review fix, 22 October 2026): the one scoring event and the
+     * one role it is confirmed for. An item on the event row is counted only where the event it writes IS that event.
+     */
+    citedBy: { contractId: string; itemId: string; row: string; relationship: string; scoringEvent: string; role: string }[]
+    /**
+     * Citing items NOT counted, each with why (stage A review fix): an event-row item writing an event its relationship does not confirm,
+     * or a relationship naming no scoring event or no role (which authorizes no role yield). Absent where there is none.
+     */
+    refused?: { contractId: string; itemId: string; row: string; relationship: string; why: string }[]
 }
 
 export interface Declaration {

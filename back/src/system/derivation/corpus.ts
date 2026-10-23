@@ -16,7 +16,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
-import { ContractItem, DerivationInput, LoadedContract } from './types'
+import { ContractItem, DerivationInput, LoadedContract, ROLE_YIELD_KEY } from './types'
 import { repairCorpusEncoding, RepairTally } from './corpus-repair'
 import { applyNoRowRestatement, RestatementTally } from './corpus-restatement'
 import { AUDITS_DIR } from './knowledge-root'
@@ -147,9 +147,25 @@ function sportProfileFiles(): string[] {
     return found.map(name => `stage-b/${name}`)
 }
 
-export function loadSportProfile(): LoadedContract[] {
+/**
+ * **The role-yield marker is a ruled item restatement's alone** — stage A review fix, 22 October 2026. GA-ROLE-EVENTS clause 6 trusts
+ * the marker wherever it finds it, so a loader of anything a ruling does not restate (the Sport Profile, a provisional realization)
+ * refuses an item carrying it, named, rather than let a REQUIRED item yield on nobody's ruling. Christian, reply filed 25 October 2026,
+ * item 2: *"preserving structural validation and knowledge authorization."* The corpus's own items and the items a ruling adds are
+ * refused in the restatement loader (`unruledRoleYieldRefusal`). Empty where no item carries it.
+ */
+export function roleYieldMarkerRefusals(items: unknown, where: string): string[] {
+    return (Array.isArray(items) ? items : [])
+        .filter(item => !!item && typeof item === 'object' && ROLE_YIELD_KEY in item)
+        .map(item => `${where} item ${String(item.id ?? item.itemId ?? '(no id)')} carries the role-yield marker, which only a ruled item restatement quoting his words writes`)
+}
+
+/** The Sport Profile, as contracts. `read` is a parameter ONLY so a test can hand a copy through the same refusal; production passes none. */
+export function loadSportProfile(read: (file: string) => any = readJson): LoadedContract[] {
     return sportProfileFiles().map(file => {
-        const result = readJson(file).result || {}
+        const result = read(file).result || {}
+        const refused = roleYieldMarkerRefusals(result.items, `the Sport Profile ${file}`)
+        if (refused.length) throw new Error(refused.join(' | '))
         return {
             contractId: String(result.object),
             objectId: String(result.object),
@@ -388,6 +404,8 @@ export function validateProvisionalRealizations(
             const named = [...tokensOf(item?.selector), ...tokensOf(item?.value)].filter(token => refusedList.includes(token))
             if (named.length) errors.push(`${at} names ${[...new Set(named)].join(', ')}, which a provisional realization may not use (his D7)`)
         }
+        // Stage A review fix: a provisional realization holds his choices, never the role-yield marker (a ruled item restatement's alone).
+        errors.push(...roleYieldMarkerRefusals(items, which))
     }
     return errors
 }
