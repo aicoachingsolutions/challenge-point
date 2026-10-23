@@ -23,7 +23,11 @@
  *      back on a structural break or any other refusal; goalkeepers = 0 gives the roster refusal naming each alternative's need; the testing
  *      area and the practice situation are typed; an alternative waiting on a gap is listed and never tried; the account and the review
  *      evidence name every alternative and why it was or was not used;
- *   8. the live route's refusal carries the question.
+ *   8. the live route's refusal carries the question;
+ *   9. (the stage E fix, after the stage E review) the review page's answer reaches the build through the review route - the body's objects
+ *      are read, laid over the stored statement and validated, through `reviewActivity` as the route calls it, and the request the route
+ *      builds from an answer turns the loop's question into a selection; a staffing shortfall beside a real break, and suitability nobody
+ *      has decided, refuse the activity instead of falling back.
  *
  * Every goal value, suitability, variant and alternative list here is TEST-ONLY and in memory: no production file is written, and no
  * production record or realization changes (A01-R2 is the design's Stage F, after his rulings; his decision 4 decides suitability).
@@ -42,7 +46,8 @@ import { objectAvailabilityRefusal, objectInvolvementOf } from '../realization/a
 import { isNoSuppliedRealization, suppliedRealizationFor, SuppliedRealization } from '../realization/supplied-realization'
 import * as authorizationRecords from '../test-library/learning-goal-authorizations'
 import { learningGoalAuthorizations, LearningGoalAuthorization, realizationAlternativesOf, validateLearningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
-import { buildActivityForReview, buildActivityUnderAuthorizationRecords, RefusedActivity, ServedActivity } from './build-activity'
+import { reviewActivity, reviewRequestOf } from './activity-review'
+import { buildActivityForReview, buildActivityUnderAuthorizationRecords, onlyTheRosterStopped, RefusedActivity, ServedActivity } from './build-activity'
 import { liveRefusalBody } from './live-activity'
 import { objectAvailabilityQuestion, sessionEnvelopeFrom, sessionResourceKinds, specializedRoleNames } from './session-envelope'
 
@@ -363,6 +368,8 @@ interface LoopOptions extends VariantOptions {
     alternatives?: Record<string, unknown>[]
     situationId?: string
     seen?: string[]
+    /** A TEST-ONLY authored comparison attached in memory to one of the variant's items: a real post-realization break of the variant alone. */
+    comparison?: Record<string, unknown>
 }
 /** The goal version tried first and the zone version second, each built whole; the GF2 markers and the scoring relationship TEST-ONLY. */
 const loopBuild = (session: any, options: LoopOptions = {}) => {
@@ -378,6 +385,8 @@ const loopBuild = (session: any, options: LoopOptions = {}) => {
                 of('GF2-08.f').defersTo = DEFERS_TO_AUTHORIZED_REALIZATION
                 of('GF2-03.e').defersWith = 'GF2-08.f'
                 for (const key of SUPERSEDED) of(key.split('::')[1], contracts.find(c => c.contractId === key.split('::')[0])!).yieldsForRole = 'AUTHORIZED_ROLE_SCORING'
+                const variant = contracts.find(c => c.contractId === `provisional:${V}`)
+                if (options.comparison && variant) of(`${V}-B9-PRESSING`, variant).comparison = copy(options.comparison)
             },
             // The variant's own choices file is the design's F2: here A01-R1's, re-pointed to the variant and without the yielding region's.
             alterSupplied: (supplied, realization) => {
@@ -436,9 +445,24 @@ test('the TEST-ONLY preferred alternative needing a goal falls back to A01-R1 wh
     // The evidence names both, in order.
     const fact = served.evidence!.pathway.facts[served.evidence!.pathway.facts.length - 1]
     assert.deepEqual(fact.value, [`${V}: NOT_APPLICABLE (OBJECT_AVAILABILITY_SHORT) at session: This game needs 1 ${KIND} and the session has 0.; its place in the order: TEST-ONLY`, 'A01-R1: SELECTED; its place in the order: TEST-ONLY'])
-    // No suitability for the kind (his decision 4 open) is the same fallback, typed NOT_SUITABLE.
-    assert.deepEqual(outcomesOf(loopBuild(sessionOf(1, GOAL_STATED), { suitability: null }).activity), [[V, 'NOT_APPLICABLE', 'OBJECT_NOT_SUITABLE'], ['A01-R1', 'SELECTED', null]])
+    // A goal his words for the realization do not admit (decided) is the same fallback, typed NOT_SUITABLE.
     assert.deepEqual(outcomesOf(loopBuild(sessionOf(1, { [KIND]: { count: 1, widthM: 12 } })).activity), [[V, 'NOT_APPLICABLE', 'OBJECT_NOT_SUITABLE'], ['A01-R1', 'SELECTED', null]])
+    // With no suitability recorded, too few goals is still a shortfall, said before suitability is read: the fallback, typed SHORT.
+    assert.deepEqual(outcomesOf(loopBuild(sessionOf(1, { [KIND]: { count: 0 } }), { suitability: null }).activity), [[V, 'NOT_APPLICABLE', 'OBJECT_AVAILABILITY_SHORT'], ['A01-R1', 'SELECTED', null]])
+})
+
+test('suitability nobody has decided is a knowledge gap, not a shortfall: it refuses the activity instead of falling back (the stage E fix)', () => {
+    // His decision 4 is open: a selectable alternative whose objects nobody has said suit it is refused at knowledge, typed as nothing, and
+    // nothing behind it is tried. (Before the fix it was typed NOT_SUITABLE and fell back quietly to A01-R1, visible only in the account.)
+    const undecided = loopBuild(sessionOf(1, GOAL_STATED), { suitability: null }).activity as RefusedActivity
+    assert.deepEqual([undecided.outcome, undecided.stage, undecided.summary], ['refused', 'knowledge', `Which ${KIND}s suit this game has not been decided yet.`], undecided.reasons?.join(' | '))
+    assert.ok(!undecided.question, 'nothing is asked of the coach: the session cannot cure it')
+    assert.deepEqual(outcomesOf(undecided), [[V, 'REFUSED', null], ['A01-R1', 'NOT_TRIED', null]])
+    assert.ok(undecided.reasons.some(reason => reason.includes('(OBJECT_NOT_SUITABLE)') && reason.includes('decision 4')), undecided.reasons.join(' | '))
+    // The way to list such an alternative until he decides: waiting on its gap, never tried, and the zone version served.
+    const waiting = loopBuild(sessionOf(1, GOAL_STATED), { suitability: null, alternatives: [{ ...PREFERRED, status: 'MISSING_KNOWLEDGE', gaps: ['D1'] }, SECOND] }).activity as ServedActivity
+    assert.equal(waiting.outcome, 'served')
+    assert.deepEqual(outcomesOf(waiting), [[V, 'NOT_SELECTABLE', 'MISSING_KNOWLEDGE'], ['A01-R1', 'SELECTED', null]])
 })
 
 test('availability not stated: the build asks, and nothing behind the preferred alternative is tried', () => {
@@ -513,6 +537,86 @@ test('the testing area and the practice situation are typed applicability refusa
     assert.deepEqual(outcomesOf(gap), [[V, 'NOT_SELECTABLE', 'MISSING_KNOWLEDGE'], ['A01-R1', 'SELECTED', null]])
     assert.deepEqual((gap.account.realizationSelection as any[])[0].gaps, ['D1'])
     assert.ok(!seen.includes(V), 'never tried')
+})
+
+// ── 9. The stage E fix ───────────────────────────────────────────────────────────────────────────────────
+const rowAt = (path: string): string => String(register.rows.find((row: any) => row.path === path)!.id)
+/** A TEST-ONLY authored comparison the concrete game violates (its length is not less than its width): a real break, after realization. */
+const VIOLATED = { left: { row: rowAt('envelope.area.length_m') }, operator: '<', right: { row: rowAt('envelope.area.width_m') } }
+
+test('a staffing shortfall beside a real break refuses the activity instead of falling back (the stage E fix)', () => {
+    // The break alone: the variant is refused at validation, nothing behind it tried.
+    const alone = loopBuild(sessionOf(1, GOAL_STATED), { comparison: VIOLATED }).activity as RefusedActivity
+    assert.deepEqual([alone.outcome, alone.stage], ['refused', 'validation'], alone.reasons.join(' | '))
+    assert.ok(alone.reasons.some(reason => reason.includes(`an authored comparison does not hold of the concrete game: provisional:${V}::${V}-B9-PRESSING`)), alone.reasons.join(' | '))
+    assert.deepEqual(outcomesOf(alone), [[V, 'REFUSED', null], ['A01-R1', 'NOT_TRIED', null]])
+    // The break beside a goalkeeper shortfall: still refused, never typed AVAILABILITY_SHORT, so the build does not move on with it hidden.
+    const both = loopBuild(sessionOf(0, GOAL_STATED), { comparison: VIOLATED }).activity as RefusedActivity
+    assert.equal(both.outcome, 'refused')
+    assert.deepEqual(outcomesOf(both), [[V, 'REFUSED', null], ['A01-R1', 'NOT_TRIED', null]])
+    assert.ok(both.reasons.some(reason => reason.includes('an authored comparison does not hold of the concrete game')), both.reasons.join(' | '))
+    assert.ok(both.reasons.some(reason => reason.includes(`roster (AVAILABILITY_SHORT): the game involves 1 ${KEEPER}`)), both.reasons.join(' | '))
+    assert.ok(!both.reasons.some(reason => reason.startsWith('none of the')), 'not the exhausted-alternatives refusal: A01-R1 was never tried')
+    // The shortfall alone stays typed (every gate reason is a check the refused roster left unevaluable), as production at 0 does.
+    assert.deepEqual(outcomesOf(loopBuild(sessionOf(0, GOAL_STATED)).activity), [[V, 'NOT_APPLICABLE', 'AVAILABILITY_SHORT'], ['A01-R1', 'NOT_APPLICABLE', 'AVAILABILITY_SHORT']])
+    // The rule itself, on the gates' typed record: typed only where acceptance is clean and every reason is an owed check left unevaluable.
+    const owed = (...verdicts: string[]) => verdicts.map((verdict, i) => ({ checkId: `TEST-ONLY-${i}`, clause: 'TEST-ONLY', verdict, why: '' }))
+    const post = (verdicts: string[], extra = 0) => {
+        const entries = owed(...verdicts)
+        return { owed: entries, outstanding: [...entries.filter(e => e.verdict !== 'PASS').map(e => e.checkId), ...Array.from({ length: extra }, (_, i) => `TEST-ONLY extra ${i}`)] }
+    }
+    assert.equal(onlyTheRosterStopped(false, post(['NOT_EVALUABLE', 'PASS', 'STILL_NOT_EVALUABLE'])), true, 'checks left unevaluable')
+    assert.equal(onlyTheRosterStopped(true, post(['NOT_EVALUABLE'])), false, 'realization acceptance found something')
+    for (const verdict of ['FAIL', 'PASS_VACUOUS', 'NOT_FOUND']) assert.equal(onlyTheRosterStopped(false, post(['NOT_EVALUABLE', verdict])), false, `an owed check ${verdict}`)
+    assert.equal(onlyTheRosterStopped(false, post(['NOT_EVALUABLE'], 1)), false, 'a reason beyond the owed checks')
+})
+
+test("the review page's answer reaches the build through the review route: read, laid over the stored statement, validated (the stage E fix)", () => {
+    const stored = { playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: { ...none, [KEEPER]: 1 } }
+    const storedWith = (objects: unknown) => ({ ...stored, objects })
+    const body = (objects?: unknown) => ({ learningGoalId: 'A01', durationMin: 20, ...(objects === undefined ? {} : { objects }) })
+    const coachProduction = reviewActivity(stored, body()) as ServedActivity
+    for (const includeDrafts of [false, true]) {
+        const review = (session: Record<string, unknown>, request: Record<string, unknown>) => reviewActivity(session as any, request as any, { includeDrafts })
+        const label = includeDrafts ? 'administrator' : 'coach'
+        // Stored none, answered in the body: the answer is the session's statement for this review, exactly as if it were stored.
+        const answered = review(stored, body({ [KIND]: { count: 0 } })) as ServedActivity
+        assert.equal(answered.outcome, 'served', `${label}: ${(answered as any).summary}`)
+        assert.deepEqual(answered.session.objects, { [KIND]: { count: 0 } }, `${label}: the body's answer reaches the session`)
+        assert.deepEqual(answered, review(storedWith({ [KIND]: { count: 0 } }), body()), `${label}: answered = stored, key for key`)
+        if (!includeDrafts) for (const key of ['rendered', 'overview', 'diagram', 'roleBlocks', 'account'] as const) assert.deepEqual(answered[key], coachProduction[key], `${label}: ${key}`)
+        // Laid over a stored statement kind by kind: the answer replaces the stored statement of its kind; a kind named with null keeps it.
+        assert.deepEqual((review(storedWith({ [KIND]: { count: 2, widthM: 3 } }), body({ [KIND]: { count: 1, widthM: 5 } })) as ServedActivity).session.objects, { [KIND]: { count: 1, widthM: 5 } })
+        assert.deepEqual((review(storedWith({ [KIND]: { count: 2, widthM: 3 } }), body({ [KIND]: null })) as ServedActivity).session.objects, { [KIND]: { count: 2, widthM: 3 } })
+        assert.deepEqual((review(storedWith({ [KIND]: { count: 2, widthM: 3 } }), body({})) as ServedActivity).session.objects, { [KIND]: { count: 2, widthM: 3 } })
+        // Validated as the stored statement is, and refused at session - over a stored statement that is fine.
+        const refusedFor = (answer: unknown, why: RegExp) => {
+            const refused = review(storedWith({ [KIND]: { count: 0 } }), body(answer)) as RefusedActivity
+            assert.deepEqual([refused.outcome, refused.stage], ['refused', 'session'], `${label} ${JSON.stringify(answer)}`)
+            assert.ok(refused.reasons.some(reason => why.test(reason)), `${label} ${JSON.stringify(answer)}: ${refused.reasons.join(' | ')}`)
+        }
+        refusedFor({ 'TEST-ONLY-KIND': { count: 1 } }, /names a kind of equipment the activity engine does not know: TEST-ONLY-KIND/)
+        refusedFor(JSON.parse('{"__proto__": {"count": 1}}'), /does not know: __proto__/)
+        refusedFor({ [KIND]: { count: -1 } }, new RegExp(`The number of ${KIND}s must be a whole number, 0 or more`))
+        refusedFor({ [KIND]: { count: 1, widthM: 0 } }, new RegExp(`The width of the ${KIND}s must be a number of metres, more than zero`))
+        refusedFor([1], /The review's list of equipment could not be read/)
+    }
+    // The question and its answer, end to end over TEST-ONLY records: the request the route builds from the body reaches the loop.
+    const requestFor = (objects?: unknown) => {
+        const request = reviewRequestOf(stored, body(objects))
+        assert.ok(!('refusal' in request), JSON.stringify(request))
+        return (request as any).session
+    }
+    const asked = loopBuild(requestFor()).activity as RefusedActivity
+    assert.deepEqual(asked.question, { kind: 'OBJECT_AVAILABILITY', objectKind: KIND, asks: 'AVAILABILITY', words: asked.summary, status: 'DRAFT' })
+    // Answered "none": the preferred alternative does not apply, and the zone version is served - the question does not come back.
+    const none0 = loopBuild(requestFor({ [KIND]: { count: 0 } })).activity as ServedActivity
+    assert.equal(none0.outcome, 'served')
+    assert.deepEqual(outcomesOf(none0), [[V, 'NOT_APPLICABLE', 'OBJECT_AVAILABILITY_SHORT'], ['A01-R1', 'SELECTED', null]])
+    // Answered with a count and no width: asked again, for the width only.
+    assert.equal((loopBuild(requestFor({ [KIND]: { count: 1 } })).activity as RefusedActivity).question?.asks, 'WIDTH')
+    // Answered with one suitable goal: the variant is tried with it (and refused at communication until his wording, Stage G).
+    assert.deepEqual(outcomesOf(loopBuild(requestFor(GOAL_STATED)).activity), [[V, 'REFUSED', null], ['A01-R1', 'NOT_TRIED', null]])
 })
 
 console.log(`session-resources.unit.ts — ${passed} passed`)

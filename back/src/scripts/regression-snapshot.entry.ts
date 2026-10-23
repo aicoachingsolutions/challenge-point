@@ -185,6 +185,35 @@ const server = app.listen(0, '127.0.0.1', async () => {
                     snapshot[`live/${id}/${withRoles.id}/${objectCase.id}`] = await capture(port, 'POST', `/api/app/generate-activities/${SESSION_ID}`, { challengeLevel: 'medium', duration: 20, learningGoals: [String(goal['Learning Goal'])], planning: { learningGoalId: id } })
                 }
             }
+            /**
+             * The stage E fix (23 October 2026): the review page's ANSWER to a build's question, sent in the review body over a session that
+             * stores no object - none of each kind, for every goal and demonstration as the coach and as an administrator, each to compare
+             * with its `objects-none` twin above (the answer is read exactly as a stored statement); and a kind the register does not list,
+             * as the coach, refused at session (the answer is validated as a stored statement is).
+             */
+            stored = { _id: SESSION_ID, createdBy: USER_ID, playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: withRoles.roles }
+            const [none] = objectCases
+            for (const admin of [false, true]) {
+                asAdmin = admin
+                try {
+                    for (const goal of goals) {
+                        const id = String(goal.ID)
+                        snapshot[`${admin ? 'review-admin' : 'review'}/${id}/${withRoles.id}/answered-none`] = await capture(port, 'POST', `/api/app/checked-activity/${SESSION_ID}`, { learningGoalId: id, durationMin: 20, objects: none.objects })
+                    }
+                    for (const demonstration of MECHANISM_DEMONSTRATIONS) {
+                        snapshot[`${admin ? 'review-admin' : 'review'}/${demonstration.id}/${withRoles.id}/answered-none`] = await capture(port, 'POST', `/api/app/checked-activity/${SESSION_ID}`, { demonstrationId: demonstration.id, durationMin: 20, objects: none.objects })
+                    }
+                } finally {
+                    asAdmin = false
+                }
+            }
+            for (const goal of goals) {
+                const id = String(goal.ID)
+                snapshot[`review/${id}/${withRoles.id}/answered-unknown`] = await capture(port, 'POST', `/api/app/checked-activity/${SESSION_ID}`, { learningGoalId: id, durationMin: 20, objects: { 'TEST-ONLY-KIND': { count: 1 } } })
+            }
+            for (const demonstration of MECHANISM_DEMONSTRATIONS) {
+                snapshot[`review/${demonstration.id}/${withRoles.id}/answered-unknown`] = await capture(port, 'POST', `/api/app/checked-activity/${SESSION_ID}`, { demonstrationId: demonstration.id, durationMin: 20, objects: { 'TEST-ONLY-KIND': { count: 1 } } })
+            }
         }
         stored = { _id: SESSION_ID, createdBy: USER_ID, playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: Object.fromEntries(roles.map(role => [role, 0])) }
         for (const goal of guided) {

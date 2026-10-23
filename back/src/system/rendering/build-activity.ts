@@ -221,8 +221,9 @@ export interface RealizationSelectionEntry {
 /**
  * **Why an alternative realization does not apply to this session, typed** (stage E, 23 October 2026; the design's Stage E: *"Fall back to
  * the next alternative ONLY on a typed applicability refusal: a resource shortfall, the testing area, or the practice situation"*). The
- * build moves to the next alternative on these causes alone: a specialized role the session cannot staff (the roster's AVAILABILITY_SHORT),
- * objects the session has too few of or none suitable (OBJECT_AVAILABILITY_SHORT, OBJECT_NOT_SUITABLE), an area the realization's starting
+ * build moves to the next alternative on these causes alone: a specialized role the session cannot staff (the roster's AVAILABILITY_SHORT,
+ * where nothing else is wrong with the game: `onlyTheRosterStopped`), objects the session has too few of or none that suit what his words for
+ * the realization admit (OBJECT_AVAILABILITY_SHORT, OBJECT_NOT_SUITABLE where suitability is decided; undecided, it refuses), an area the realization's starting
  * values were not given for (TESTING_AREA), and a practice situation it was not designed for (PRACTICE_SITUATION). It stops to ask on the
  * two the session has not stated (AVAILABILITY_NOT_STATED, OBJECT_AVAILABILITY_NOT_STATED). Any refusal without a cause refuses the
  * activity, so a broken alternative is never hidden behind the next one (the design's risk 7).
@@ -716,8 +717,9 @@ function rosterSummary(roster: RosterRefusal): { stage: ActivityStage; summary: 
  * **The availability rule's cause for the session's objects, as the sentence a coach can act on** — stage E, 23 October 2026 (DRAFT words,
  * built from the kind's name as the register gives it; none is written for a particular kind). Beside the roster's sentences, and typed for
  * the build's loop (`Applicability`): a kind the session has not stated is ASKED (the question channel, `SessionQuestion`), never assumed;
- * too few objects, or none that suit, means this alternative does not apply to the session, so the build may try the next one; a count the
- * game itself leaves unsettled is the game's, said as an incomplete description and typed as nothing, so it refuses the activity.
+ * too few objects, or none that suit what his words for the realization admit, means this alternative does not apply to the session, so the
+ * build may try the next one; suitability nobody has decided, and a count the game itself leaves unsettled, are the knowledge's and the game's,
+ * typed as nothing, so they refuse the activity.
  */
 function objectSummary(refusal: ObjectAvailabilityRefusal, subject: string): { stage: ActivityStage; summary: string; applicability: Applicability | null; question?: SessionQuestion } {
     switch (refusal.cause) {
@@ -732,10 +734,16 @@ function objectSummary(refusal: ObjectAvailabilityRefusal, subject: string): { s
                 applicability: { verdict: 'NOT_APPLICABLE', cause: 'OBJECT_AVAILABILITY_SHORT' },
             }
         case 'OBJECT_NOT_SUITABLE':
-            // Undecided suitability is no fact about the session the coach could change, so it is the knowledge's to say.
+            /**
+             * Undecided suitability is no fact about the session the coach could change, so it is the knowledge's to say - and, since the
+             * stage E fix (23 October 2026, after the stage E review), typed as nothing: it is a gap in the knowledge (his decision 4), not a
+             * resource the session lacks, and the design falls back ONLY on a resource shortfall, the testing area or the practice situation.
+             * Typed, an alternative nobody has decided the objects of would fall back to the next one quietly, visible only in the account. An
+             * alternative waiting on that decision is listed with a gap status instead, and never tried (`realizationAlternativesOf`).
+             */
             return refusal.decided
                 ? { stage: 'session', summary: `The ${refusal.kind}s this session has do not suit this game.`, applicability: { verdict: 'NOT_APPLICABLE', cause: 'OBJECT_NOT_SUITABLE' } }
-                : { stage: 'knowledge', summary: `Which ${refusal.kind}s suit this game has not been decided yet.`, applicability: { verdict: 'NOT_APPLICABLE', cause: 'OBJECT_NOT_SUITABLE' } }
+                : { stage: 'knowledge', summary: `Which ${refusal.kind}s suit this game has not been decided yet.`, applicability: null }
         case 'OBJECT_INVOLVEMENT_NOT_SETTLED':
             return { stage: 'structure', summary: `The game this ${subject} selects is not yet described completely enough to be set up.`, applicability: null }
     }
@@ -1729,6 +1737,30 @@ function typedStopOf<T extends { outcome: { applicability?: Applicability } }>(s
     return stopped.find(entry => entry.outcome.applicability!.verdict === 'NOT_APPLICABLE') ?? stopped[0]
 }
 
+/**
+ * The verdicts an owed check takes when the values it reads were never written: a roster that refuses writes nothing at all (`deriveRoster`),
+ * so every check reading a team's size or its specialized-role count is left NOT_EVALUABLE, and a clause deferred to realization is
+ * relabelled STILL_NOT_EVALUABLE (`post-realization-gate.ts`). A FAIL, a vacuous pass and a clause not found are none of these.
+ */
+const UNWRITTEN_VERDICTS = new Set(['NOT_EVALUABLE', 'STILL_NOT_EVALUABLE'])
+
+/**
+ * **Is the roster's refusal the one thing wrong with this game?** (stage E fix, 23 October 2026, after the stage E review.) The roster's
+ * AVAILABILITY_SHORT is typed for the realization loop, which then tries the next alternative; typed whatever else was wrong, an alternative
+ * with a real break beside a staffing shortfall would fall back and hide the break (the design's risk 7, measured with a TEST-ONLY authored
+ * comparison violated beside it: the variant was NOT_APPLICABLE and the build moved on). So it is typed only where realization's acceptance
+ * found nothing, and every reason the gates give is an owed check left unevaluable by what the refused roster did not write: nothing else was
+ * added (a check that FAILS though it was not owed, a value entailed at assembly that did not land, an authoritative comparison violated).
+ * Read from the gates' typed record (`owed`, `outstanding`), never from their prose. A served game asked of a session with none of a
+ * specialized role it involves is exactly this case (measured on the snapshot), so it stays typed and its answer does not move. Exported for
+ * its unit test only.
+ */
+export function onlyTheRosterStopped(acceptanceBroken: boolean, post: Pick<ReturnType<typeof runPostRealizationGates>, 'owed' | 'outstanding'>): boolean {
+    if (acceptanceBroken) return false
+    const unpaid = post.owed.filter(entry => entry.verdict !== 'PASS')
+    return unpaid.length === post.outstanding.length && unpaid.every(entry => UNWRITTEN_VERDICTS.has(entry.verdict))
+}
+
 /** One build as the realization loop sees it (stage E): the build, and its typed applicability where it was refused for one. */
 type Attempt = ActivityBuild & { fixture: Record<string, unknown> | null; applicability?: Applicability }
 
@@ -2006,6 +2038,7 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
 
     const invalid: string[] = []
     for (const [name, entries] of Object.entries(acceptance)) if ((entries as unknown[]).length) invalid.push(`${name}: ${JSON.stringify(entries)}`)
+    const acceptanceBroken = invalid.length > 0
     if (!post.validated) {
         /**
          * **What the gates reported is carried, not summarised away.** This used to push one fixed sentence —
@@ -2017,9 +2050,17 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
         const said = roster ? rosterSummary(roster) : null
         if (roster) invalid.push(`roster (${roster.cause}): ${roster.why}`)
         // Stage E: a specialized role the session cannot staff is a resource shortfall (the build may try the next alternative); one it has not
-        // stated is asked. Every other roster cause is typed as nothing, as before.
-        const rosterApplicability: Applicability | null =
-            roster?.cause === 'AVAILABILITY_SHORT' ? { verdict: 'NOT_APPLICABLE', cause: 'AVAILABILITY_SHORT' } : roster?.cause === 'AVAILABILITY_NOT_STATED' ? { verdict: 'ASK', cause: 'AVAILABILITY_NOT_STATED' } : null
+        // stated is asked. Every other roster cause is typed as nothing, as before. Typed ONLY where the roster is the one thing wrong with
+        // this game (`onlyTheRosterStopped`, the stage E fix): beside a broken realization or a check that fails, it is typed as nothing, so
+        // the alternative refuses the activity rather than falling back with the break behind it.
+        const typedRoster = onlyTheRosterStopped(acceptanceBroken, post)
+        const rosterApplicability: Applicability | null = !typedRoster
+            ? null
+            : roster?.cause === 'AVAILABILITY_SHORT'
+              ? { verdict: 'NOT_APPLICABLE', cause: 'AVAILABILITY_SHORT' }
+              : roster?.cause === 'AVAILABILITY_NOT_STATED'
+                ? { verdict: 'ASK', cause: 'AVAILABILITY_NOT_STATED' }
+                : null
         if (said) return refuse(said.stage, said.summary, invalid, { applicability: rosterApplicability })
         // A participant the game requires and its configuration lacks (GA-PARTICIPANTS-PRESENT, 22 October 2026): said by name.
         const lacking = participantSummary(post.missingParticipants, index, 'validation')

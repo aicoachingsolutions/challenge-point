@@ -35,6 +35,15 @@ export interface ActivityReviewBody {
     /** The coach's statement of specialized-role availability for this review. Overrides the stored one. */
     roles?: unknown
     /**
+     * **The coach's answer to a build's question about the session's objects, for this review only** (stage E fix, 23 October 2026, after
+     * the stage E review): kind -> `{ count, widthM? }`, laid over the stored statement kind by kind exactly as `roles` is, validated by the
+     * same envelope rule as the stored one (an unknown kind, a bad count or width, an unreadable list is refused at session), and changing
+     * nothing that is stored. What the review page sends once a build has asked (`ActivityReviewPage.tsx`, the object question). Stage E
+     * added the channel at both ends and this body never read it, so the answer was dropped and the same question came back; the live
+     * route builds its own body without it and reads only the stored session (`live-activity.ts` `liveCheckedActivity`).
+     */
+    objects?: unknown
+    /**
      * The practice situation the coach chose, for a Learning Goal only — added 22 October 2026 for the live route (the live-app fix,
      * design section 4.3 L1), which builds a goal whose authorization record supplies an evaluated design through this function and
      * passes the situation the planning conversation sent. The review page sends none, so its builds are unchanged (null, as before).
@@ -73,8 +82,11 @@ export function reviewActivityBuild(stored: StoredSession, body: ActivityReviewB
     return 'refusal' in request ? { activity: request.refusal, selection: null, inputDigests: [] } : buildActivityWithSelection(request)
 }
 
-/** The request a review body asks for, or the session's refusal. Throws for a body that names nothing (see the class above). */
-function reviewRequestOf(stored: StoredSession, body: ActivityReviewBody): ActivityRequest | { refusal: RefusedActivity } {
+/**
+ * The request a review body asks for, or the session's refusal. Throws for a body that names nothing (see the class above). Exported (stage E
+ * fix) only so a test can hand the request the route builds to a build over TEST-ONLY records and prove the object answer reaches the loop.
+ */
+export function reviewRequestOf(stored: StoredSession, body: ActivityReviewBody): ActivityRequest | { refusal: RefusedActivity } {
     if (!body || typeof body !== 'object' || Array.isArray(body)) throw new ActivityReviewRequestError('the request has no body to read')
     const goal = named(body.learningGoalId)
     const demonstration = named(body.demonstrationId)
@@ -92,7 +104,7 @@ function reviewRequestOf(stored: StoredSession, body: ActivityReviewBody): Activ
     // unknown goal is never reported as a problem with the coach's session.
     const { kind, title } = describeRequest(subject)
 
-    const envelope = sessionEnvelopeFrom(stored, { durationMin: body.durationMin, roles: body.roles })
+    const envelope = sessionEnvelopeFrom(stored, { durationMin: body.durationMin, roles: body.roles, objects: body.objects })
     if (envelope.outcome === 'not-stated') {
         return { refusal: { outcome: 'refused', kind, title, stage: 'session', summary: envelope.summary, reasons: envelope.reasons, account: {} } }
     }
