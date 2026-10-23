@@ -992,7 +992,13 @@ test('the corpus run reproduces the reported figures exactly', () => {
      * whether the teams change ends at a coach-called block. One game-level row, one line (game::B10), as P6c added one; no item writes it,
      * so it is unauthored and unspoken and the game keeps its ends (absent means KEPT). Nothing resolves and nothing blocks.
      */
-    assert.equal(result.run.counts.lines, 140)
+    /**
+     * **143 since 26 October 2026 (Stage F)**: register version 20 (his reply filed 26 October 2026, item 6) adds row O7, the specialized
+     * performer whose team defends an object, owned by the objects row - as O6 did, three lines: the transition game's object (c:blind:GF4:I02,
+     * unauthored and unspoken: no corpus item writes it, so it claims no defence) and the two balls, each WITHDRAWN as their O4-O6 lines are.
+     * Nothing resolves and nothing blocks; the one item writing it is the provisional realization A01-R2's, outside the corpus.
+     */
+    assert.equal(result.run.counts.lines, 143)
     /**
      * **61, up from 59.** The same restatement establishes `perceptual-reference` on BOTH channels rather
      * than on a third region of its own, so two S4 lines now resolve where none did. The functions rows
@@ -1059,9 +1065,12 @@ test('the corpus run reproduces the reported figures exactly', () => {
     // object (c:blind:GF4:I02): no item writes a facing, so the line is unauthored and unspoken ('no coverage'); it blocks nothing.
     // **29 since stage D, 23 October 2026 (register version 18).** The game-level row B10 (whether the teams change ends): no item writes
     // it, so game::B10 is unauthored and unspoken ('no coverage'), and the game keeps its ends; it blocks nothing.
-    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 29)
+    // **30 since Stage F, 26 October 2026 (register version 20).** Row O7 (the specialized performer whose team defends an object) on the
+    // transition game's object (c:blind:GF4:I02): no item writes it, so the line is unauthored and unspoken ('no coverage') and the object
+    // claims no defence; it blocks nothing (GA-ROLE-EVENTS clause 13 reads a silent line as no instance).
+    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 30)
     assert.equal(result.failures.filter((f: any) => f.kind === 'REFERENCE_DEFECT').length, 0, 'cluster 3 cleared the whole population')
-    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 29, 'one GAP per unauthored line, and none for a withdrawn one -- 29 since stage D (B10), tracking the NOT_AUTHORED count above')
+    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 30, 'one GAP per unauthored line, and none for a withdrawn one -- 30 since Stage F (O7), tracking the NOT_AUTHORED count above')
     // 17 since C33: the removed third region took its one open S5 line (a channel along-extent) with it.
     // **18 since ruling C42.** The two new target regions each bring an open across-extent and an open noun,
     // and the retired shared target took its two with it, so the balance is one more than before.
@@ -1087,7 +1096,9 @@ test('the corpus run reproduces the reported figures exactly', () => {
     const withdrawn = result.lines.filter((l: any) => (result.classified.get(l.lineId)?.lineState ?? l.lineState) === 'WITHDRAWN')
     // **28 since stage B, 23 October 2026 (register version 17):** row O6, the way a set-out object faces, is withdrawn for a ball exactly
     // as O4 and O5 are, so the two authored balls each add one.
-    assert.equal(withdrawn.length, 28)
+    // **30 since Stage F, 26 October 2026 (register version 20):** row O7, the specialized performer whose team defends an object, is
+    // withdrawn for a ball as O4-O6 are, so the two authored balls each add one more.
+    assert.equal(withdrawn.length, 30)
     // And the four new ones are the balls' positions specifically, not an accidental widening.
     const ballPositions = withdrawn.filter((l: any) => /::O[45]$/.test(l.lineId))
     assert.equal(ballPositions.length, 4, 'two authored balls, two position rows each')

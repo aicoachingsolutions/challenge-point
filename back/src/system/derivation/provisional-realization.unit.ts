@@ -29,7 +29,7 @@ import path from 'node:path'
 import { suppliedRealizationFor } from '../realization/supplied-realization'
 import { buildActivity, buildActivityFromKnowledge, buildActivityUnderAuthorizationRecords } from '../rendering/build-activity'
 import { specializedRoleNames } from '../rendering/session-envelope'
-import { authorizationLists, learningGoalAuthorizations, validateLearningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
+import { authorizationLists, learningGoalAuthorizations, realizationAlternativesOf, validateLearningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
 import { CONFORMANCE_DIR, loadProvisionalRealizations, PROVISIONAL_REALIZATION_CHOICE, PROVISIONAL_REALIZATIONS_FILE, provisionalRealizationNamed, readJson, validateProvisionalRealizations } from './corpus'
 import { isStampedHalt } from './emit'
 import { runDerivation } from './engine'
@@ -46,7 +46,16 @@ function test(name: string, body: () => void): void {
 console.log('the provisional carrier (A01-R1)')
 
 const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: Object.fromEntries(specializedRoleNames().map(name => [name, 0])) }
-const file = (): any => readJson(PROVISIONAL_REALIZATIONS_FILE)
+/**
+ * A copy of the provisional realizations file holding the carrier A01-R1 alone. Since Stage F (26 October 2026) the file also holds A01-R2,
+ * a variant composed from A01-R1 (pinned in goal-version-knowledge.unit.ts); these tests damage or replace A01-R1's items to pin the carrier,
+ * and a variant withdrawing items a damaged base no longer holds would be refused for that reason instead, so it is set aside here.
+ */
+const file = (): any => {
+    const read = readJson(PROVISIONAL_REALIZATIONS_FILE)
+    read.realizations = read.realizations.filter((realization: any) => realization.basedOn === undefined)
+    return read
+}
 /** A TEST-ONLY item of his shape: re-asserts the role of the objective attacked by one end's team, which GF2 already carries. */
 const testItem = (over: Record<string, unknown> = {}) => ({
     id: 'A01-R1-TEST-ONLY-1',
@@ -82,7 +91,9 @@ const recordsBehindGaps = () =>
 
 test('one home: the file loads, A01-R1 is labelled his provisional choice, and only A01\'s record names it', () => {
     const [realization, ...others] = loadProvisionalRealizations()
-    assert.equal(others.length, 0)
+    // Re-pointed 26 October 2026 (Stage F): one other realization, A01-R2 (the goal version), a VARIANT composed from A01-R1 (pinned in
+    // goal-version-knowledge.unit.ts); A01-R1 stays the first entry and is exactly what it was.
+    assert.deepEqual(others.map(other => [other.provisionalId, other.basedOn]), [['A01-R2', 'A01-R1']])
     // Empty at landing (stage K2). 0 -> 3 items on 15 October 2026 (stage K3): his D2(a)/M1 role blocks — the two roles and
     // how they pass between the teams — pinned item by item in role-blocks.unit.ts. Still no declaration. 3 -> 10 on 15
     // October 2026 (stage K4): his D6 counts by role (P2 x2), the building role's keeper (P3) and his 18 October RD-1
@@ -99,8 +110,11 @@ test('one home: the file loads, A01-R1 is labelled his provisional choice, and o
     assert.deepEqual([realization.provisionalId, realization.contractId, realization.category, realization.realizes, realization.items.length, realization.declarations.length], ['A01-R1', 'provisional:A01-R1', PROVISIONAL_REALIZATION_CHOICE, 'RPC-001', 53, 0])
     assert.equal(realization.realizationChoices, 'realization-choices-a01-r1.json')
     assert.ok(realization.words.includes('The priority remains producing one complete, representative Play Out from the Back activity through the normal generation pathway, without introducing unnecessary architecture or treating this first realization as the canonical version of the Learning Goal.'))
-    const naming = learningGoalAuthorizations().filter(record => record.provisionalRealization).map(record => [record.learningGoalId, record.provisionalRealization])
-    assert.deepEqual(naming, [['A01', 'A01-R1']])
+    // Re-pointed 26 October 2026 (Stage F): A01's record names its realizations as an ordered list - the goal version first, waiting on two
+    // decisions of his and never tried, then A01-R1, the first that can be tried - and no record names one the single way any longer.
+    const naming = learningGoalAuthorizations().filter(record => realizationAlternativesOf(record).length).map(record => [record.learningGoalId, realizationAlternativesOf(record).map(a => [a.realization, a.selectable])])
+    assert.deepEqual(naming, [['A01', [['A01-R2', false], ['A01-R1', true]]]])
+    assert.ok(learningGoalAuthorizations().every(record => record.provisionalRealization === undefined))
     assert.ok(validateLearningGoalAuthorizations(learningGoalAuthorizations().map(r => (r.learningGoalId === 'A01' ? { ...r, provisionalRealization: 'A01-R9' } : r))).some(e => e.includes('A01-R9')), 'a record naming nothing is refused')
     assert.throws(() => provisionalRealizationNamed('A01-R9'), /does not hold/)
 })
@@ -159,7 +173,8 @@ test('one route in: derivation receives the realization only where the selected 
     const demo = derivationInputFor({ selected: [{ id: 'GF2', role: 'game form' }, { id: 'tl-v0-constraint-wide-zone-advantage', role: 'constraint' }] })
     assert.ok(!demo.contracts.some(c => c.contractId.startsWith('provisional:')))
     const record = learningGoalAuthorizations().find(r => r.learningGoalId === 'A01')!
-    const without = derivationInputFor({ selected: selectFor('A01', null).selected, authorization: { ...record, provisionalRealization: undefined } })
+    // Re-pointed 26 October 2026 (Stage F): A01's record names its realizations as an ordered list, so naming nothing clears that list.
+    const without = derivationInputFor({ selected: selectFor('A01', null).selected, authorization: { ...record, provisionalRealization: undefined, realizations: undefined } })
     assert.ok(!without.contracts.some(c => c.contractId.startsWith('provisional:')))
     // Symmetry: another goal's selection carrying a record that names A01-R1 receives it the same way.
     const other = derivationInputFor({ selected: [{ id: 'GF2', role: 'game form' }], authorization: { ...record, learningGoalId: 'A04' } })
@@ -177,7 +192,7 @@ test('the realization moves exactly what its items establish — the role lines 
     const selected = selectFor('A01', null).selected
     const run = (authorization: any) => runDerivation(derivationInputFor({ selected, authorization })) as any
     const named = run(record)
-    const unnamed = run({ ...record, provisionalRealization: undefined })
+    const unnamed = run({ ...record, provisionalRealization: undefined, realizations: undefined })
     assert.ok(!isStampedHalt(named) && !isStampedHalt(unnamed))
     const lines = (result: any) => result.resolution.map((e: any) => `${e.lineId}|${e.state}|${e.verdict ?? ''}|${e.reason ?? ''}|${JSON.stringify(e.value ?? null)}`)
     const own = (line: string) => line.startsWith('c:provisional:A01-R1:')

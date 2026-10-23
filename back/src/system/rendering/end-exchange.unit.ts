@@ -148,14 +148,27 @@ test('the register carries the end exchange as data (version 18): a game-level r
     assert.match(String(index.vocabularyVersions['B10.endAssignment']), /^1 \(2026-10-23, register version 18, draft\)/)
     assert.equal(index.fillable.has(spec.row), false, 'not a realization choice: an authorized realization writes it, nothing chooses it')
     // Re-pointed 23 October 2026 (stage E): version 19 (an object's availability as a session resource, his item 4) supersedes 18, once.
-    assert.match(String(register.version), /^19, adds an object's availability as a session resource, .*Supersedes version 18, which adds the coach-controlled end exchange, .*Supersedes version 17, which adds object targets and the geometry a goal needs, .*Supersedes version 16, which adds one primary scoring event per role, /)
+    // Re-pointed 26 October 2026 (Stage F): version 20 (his rulings filed 26 October 2026 for the goal version) supersedes 19, once.
+    assert.match(String(register.version), /^20, records his rulings filed 26 October 2026 for the goal version of the build-out activity .*Supersedes version 19, which adds an object's availability as a session resource, .*Supersedes version 18, which adds the coach-controlled end exchange, .*Supersedes version 17, which adds object targets and the geometry a goal needs, .*Supersedes version 16, which adds one primary scoring event per role, /)
     assert.ok(String(register.version).includes('"Team-end assignments may change between coach-controlled blocks when the authorized activity configuration requires it."'), 'the version entry quotes item 5')
     assert.equal(String(register.version).split('Supersedes version 17, ').length - 1, 1)
     assert.equal(String(register.version).split('Supersedes version 18, ').length - 1, 1)
-    assert.ok(!String(register.version).includes('Supersedes version 19'), 'version 19 is the current entry')
-    // The glosses S3 restates are untouched: C42's fixed ends stay the reading of every game that states no exchange.
-    assert.ok(String(register.teamDesignations.resolutions.TEAM_AT_AXIS_START.from).includes('fixed for the activity'))
-    assert.ok(String(index.rows.get('B3')!.valueType).includes('change of ends can be stated here'))
+    assert.equal(String(register.version).split('Supersedes version 19, ').length - 1, 1)
+    assert.ok(!String(register.version).includes('Supersedes version 20'), 'version 20 is the current entry')
+    /**
+     * Re-pointed 26 October 2026 (Stage F): the glosses S3 restates WERE untouched until his reply filed 26 October 2026, item 3 approved S3
+     * word for word ("I approve both statements:"); ruling C62 restates them. The ends stay kept in every game that states no exchange - only
+     * the words change: the setup assignment is kept within each block and changes at a coach-called block only where an authorized
+     * realization records the end exchange, and a change of ends is the end assignment's (B10), never the role exchange's (B3).
+     */
+    const restated = String(register.teamDesignations.resolutions.TEAM_AT_AXIS_START.from)
+    assert.ok(!restated.includes('fixed for the activity') && restated.includes('as restated by ruling C62') && restated.includes('kept within each block'), restated)
+    assert.deepEqual([index.designations.resolutions.get('TEAM_AT_AXIS_START')?.scope, index.designations.resolutions.get('TEAM_AT_AXIS_END')?.scope], ['ACTIVITY', 'ACTIVITY'], 'no scope changes')
+    const b3 = String(index.rows.get('B3')!.valueType)
+    assert.ok(!b3.includes('change of ends can be stated here') && b3.includes('a change of ends is not stated here either, but by the end assignment (row B10)'), b3)
+    for (const words of ['Team-end assignments may change between coach-controlled blocks when the authorized activity configuration requires it.', 'Within a block, each team keeps its end and direction, regardless of possession changes.']) {
+        assert.ok(register.teamDesignations.list.find((entry: string) => entry.startsWith('TEAM_AT_AXIS_START ')).includes(`"${words}"`), words)
+    }
 })
 
 test('a damaged end-assignment block halts the index (H1)', () => {

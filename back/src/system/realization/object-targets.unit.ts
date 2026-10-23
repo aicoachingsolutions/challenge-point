@@ -89,10 +89,12 @@ test('register version 17 holds the rows as data, in one versions entry quoting 
     // Re-pointed 23 October 2026 (stage E): version 19 (an object's availability as a session resource, his reply filed 25 October 2026,
     // item 4) supersedes 18, which supersedes 17.
     const latest = String(register.version)
-    assert.ok(latest.startsWith("19, adds an object's availability as a session resource"))
+    // Re-pointed 26 October 2026 (Stage F): version 20 (his rulings filed 26 October 2026 for the goal version) supersedes 19.
+    assert.ok(latest.startsWith('20, records his rulings filed 26 October 2026 for the goal version of the build-out activity'))
+    assert.ok(latest.includes("Supersedes version 19, which adds an object's availability as a session resource"))
     assert.ok(latest.includes('Supersedes version 18, which adds the coach-controlled end exchange'))
     assert.equal(latest.split('Supersedes version 17, which ').length - 1, 1, 'version 17 superseded once')
-    assert.ok(!latest.includes('Supersedes version 19'), 'version 19 is the current entry')
+    assert.ok(!latest.includes('Supersedes version 20'), 'version 20 is the current entry')
     const full = `17, ${latest.split('Supersedes version 17, which ')[1]}`
     assert.ok(full.startsWith('17, adds object targets and the geometry a goal needs, for his reply filed 25 October 2026, item 3'))
     for (const quote of HIS_ITEM_3) assert.ok(full.split('Supersedes version 16, ')[0].includes(`"${quote}"`), quote)
@@ -627,8 +629,13 @@ test('defersWith: the region yields with the objective reference it is paired wi
     const deferWith = (team: string, pair: boolean, partnerDefers = true) => {
         const contracts = copy(derivationInputFor(selectFor('A01', null)).contracts as LoadedContract[])
         const gf2 = contracts.find(c => c.contractId === GF2)!
-        if (partnerDefers) (gf2.items.find(i => i.itemId === 'GF2-08.f') as any).defersTo = DEFERS_TO_AUTHORIZED_REALIZATION
-        if (pair) (gf2.items.find(i => i.itemId === 'GF2-03.e') as any).defersWith = 'GF2-08.f'
+        // Since Stage F (26 October 2026, ruling C63) production carries both; a case without one removes it on this copy.
+        const reference = gf2.items.find(i => i.itemId === 'GF2-08.f') as any
+        const region = gf2.items.find(i => i.itemId === 'GF2-03.e') as any
+        if (partnerDefers) reference.defersTo = DEFERS_TO_AUTHORIZED_REALIZATION
+        else delete reference.defersTo
+        if (pair) region.defersWith = 'GF2-08.f'
+        else delete region.defersWith
         contracts.find(c => c.contractId === P)!.items.push(testItem('TEST-J2', 'J2', `role=PRIMARY_SCORING & team=${team}`, 'EQUALS', { structuralRef: { contractId: P, itemId: 'TEST-GOAL' } }, { authorizedBy: relationship.id }))
         return applyRealizationDeferrals(contracts, [...contextRelationships(), relationship], index)
     }
@@ -647,8 +654,12 @@ test('defersWith: the region yields with the objective reference it is paired wi
     assert.deepEqual(deferWith('TEAM_AT_AXIS_END', false).deferred.map(entry => entry.item.itemId).sort(), ['GF2-08.f', 'GF2-14.b'])
     // A pairing whose partner carries no deferral yields with nothing.
     assert.deepEqual(deferWith('TEAM_AT_AXIS_END', true, false).deferred.map(entry => entry.item.itemId), ['GF2-14.b'])
-    // Production: nothing carries a pairing, and C56 alone defers.
-    assert.deepEqual(applyRealizationDeferrals(copy(derivationInputFor(selectFor('A01', null)).contracts as LoadedContract[]), contextRelationships(), index).deferred.map(e => e.item.itemId), ['GF2-14.b'])
+    // Production: since Stage F the pairing is carried (ruling C63), and in the zone version A01-R1 - no item of which writes an objective's
+    // reference - C56 alone defers.
+    const production = copy(derivationInputFor(selectFor('A01', null)).contracts as LoadedContract[])
+    const gf2Production = production.find(c => c.contractId === GF2)!
+    assert.deepEqual([(gf2Production.items.find(i => i.itemId === 'GF2-08.f') as any).defersTo, (gf2Production.items.find(i => i.itemId === 'GF2-03.e') as any).defersWith], [DEFERS_TO_AUTHORIZED_REALIZATION, 'GF2-08.f'])
+    assert.deepEqual(applyRealizationDeferrals(production, contextRelationships(), index).deferred.map(e => e.item.itemId), ['GF2-14.b'])
 })
 
 test('a paired alternative reaches the account, the fixture and the review evidence AS a pairing (review fix: the projections dropped it)', () => {

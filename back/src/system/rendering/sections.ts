@@ -201,6 +201,10 @@ export const KIND_OF_ROW: Record<string, Kind | 'TRANSITION' | 'NAME'> = {
     // The way a set-out object faces (register version 17, stage B, 23 October 2026): part of setting it out, as its position. No sentence
     // says it yet (its wording is Stage G's), so fidelity refuses a game that establishes it.
     O6: 'ORGANISATION',
+    // The team whose specialized performer defends a set-out object (register version 20, Stage F, 26 October 2026): which team defends a
+    // target belongs with which team attacks it, so with the objectives. No sentence says it yet (its wording is Stage G's), so fidelity
+    // refuses a game that establishes it.
+    O7: 'OBJECTIVE',
     // Objectives: which target each team attacks (stage 2A keeps them in How to score; a marking sentence naming one stays in Set up).
     J1: 'OBJECTIVE',
     J2: 'OBJECTIVE',

@@ -287,15 +287,23 @@ test('registering the member changed no verdict in any of the thirteen goals', (
      * in every game (game::B10), as P6c's was on 14 October; no item writes it, so it is unauthored and nobody spoke for it ('no coverage'),
      * GA-NO-FAILED-LINE does not block on it, and every game keeps its ends (absent means KEPT).
      */
+    /**
+     * **17 · 26 October, Stage F — TA01 17 → 18, TD01, D02 and TD02 16 → 17 failed lines, measured; no verdict moves.** Register version
+     * 20 (his reply filed 26 October 2026, item 6) adds row O7, the specialized performer whose team defends an object, owned by the objects
+     * row and WITHDRAWN for a ball as O4-O6 are. As for O6 at stage B, the transition game's own object (c:blind:GF4:I02) gains one unauthored
+     * line nobody spoke for (c:blind:GF4:I02::O7, 'no coverage'): it claims no defence, GA-NO-FAILED-LINE does not block on it, and
+     * GA-ROLE-EVENTS clause 13 reads it as no instance. A01 is derived here with its record's first alternative that can be tried, the zone
+     * version A01-R1 (the goal version, A01-R2, is listed waiting on two decisions of his), so it is unchanged; so is every other composition.
+     */
     const A01_COMPOSITION = { failed: 12, gateA: 'FAIL', reachable: true }
     const expected: Record<string, { failed: number; gateA: string; reachable: boolean }> = {
         A01: { failed: 14, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
         D01: { failed: 9, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
-        TA01: { failed: 17, gateA: 'FAIL', reachable: false },
-        TD01: { failed: 16, gateA: 'FAIL', reachable: false },
-        D02: { failed: 16, gateA: 'FAIL', reachable: false },
+        TA01: { failed: 18, gateA: 'FAIL', reachable: false },
+        TD01: { failed: 17, gateA: 'FAIL', reachable: false },
+        D02: { failed: 17, gateA: 'FAIL', reachable: false },
         TA02: { failed: 10, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
-        TD02: { failed: 16, gateA: 'FAIL', reachable: false },
+        TD02: { failed: 17, gateA: 'FAIL', reachable: false },
         A03: { failed: 9, gateA: 'FAIL', reachable: true },
         A04: { failed: 9, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
         A05: { failed: 10, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },

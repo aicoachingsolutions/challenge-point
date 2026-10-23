@@ -307,7 +307,8 @@ test('the decisions and capabilities the activity waits on: D1-D7 and M1-M5 and 
     // provably cannot contradict existing knowledge") and M8 ("Apply the qualifying conditions to the target and scoring
     // episode actually being evaluated") — and rulings C55 and C57 record them; the three context lines they named are
     // no longer stops (activity-review.unit.ts). Their entries in existingKnowledge cite the rulings and the items.
-    assert.deepEqual(gaps.map(gap => gap.id), ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'M1', 'M2', 'M3', 'M4', 'M5', 'M7'])
+    // Stage F (26 October 2026): the two decisions the goal version waits on join last, open (his replies filed 26 October 2026, items 4 and 7).
+    assert.deepEqual(gaps.map(gap => gap.id), ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'M1', 'M2', 'M3', 'M4', 'M5', 'M7', 'D-GOAL-SUITABILITY', 'D-PENALTY-AREA'])
     assert.ok(gaps.every(gap => gap.kind === (gap.id.startsWith('D') ? 'DECISION' : 'CAPABILITY') && gap.description.trim()), 'each a decision or a capability, with a line saying what it is')
     // D8 (the gate's place) was recorded as not yet authored rather than put to him, and affects no Learning Goal.
     assert.ok(!gaps.some(gap => gap.id === 'D8'))
@@ -490,7 +491,8 @@ test('authorizationLists: authorized by existing knowledge, his provisional choi
     // episodes-and-restarts choice), and neither are D1, D5 or M4.
     for (const id of ['M3', 'M4', 'D1', 'D5']) assert.deepEqual(lists.gaps.find(gap => gap.id === id)!.neededBy, [], id)
     // Re-pointed 15 October 2026 (stage K6): no decision or capability is needed by any entry now.
-    for (const gap of lists.gaps) assert.deepEqual(gap.neededBy, [], gap.id)
+    // Stage F (26 October 2026): except the two the goal version is listed waiting on, which name it (and no entry).
+    for (const gap of lists.gaps) assert.deepEqual(gap.neededBy, gap.id.startsWith('D-') ? ['the alternative realization A01-R2'] : [], gap.id)
     // Re-pointed 15 October 2026 (stage K1) from M8, which left the gaps when it was built (C57).
     assert.deepEqual(lists.gaps.find(gap => gap.id === 'M7')!.neededBy, [], 'the conditional capability waits on no entry here')
     const accounted = new Set([...lists.authorizedByExistingKnowledge, ...lists.provisionalChoices].map(entry => entry.label).concat(lists.gaps.flatMap(gap => gap.neededBy)))
@@ -510,8 +512,14 @@ test('authorizationLists: authorized by existing knowledge, his provisional choi
  */
 test('(M4, L11) every record gap is settled by his cited words, and the gate refuses settled words that are uncited or premature', () => {
     const record = a01()
-    assert.deepEqual(record.gaps!.map(gap => gap.id), ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'M1', 'M2', 'M3', 'M4', 'M5', 'M7'])
-    for (const gap of record.gaps!) {
+    assert.deepEqual(record.gaps!.map(gap => gap.id), ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'M1', 'M2', 'M3', 'M4', 'M5', 'M7', 'D-GOAL-SUITABILITY', 'D-PENALTY-AREA'])
+    // Stage F (26 October 2026): the two decisions the goal version waits on are OPEN - his, and settled by no words of his.
+    const open = record.gaps!.filter(gap => gap.id.startsWith('D-'))
+    assert.deepEqual(open.map(gap => [gap.id, gap.kind, gap.settledBy]), [['D-GOAL-SUITABILITY', 'DECISION', undefined], ['D-PENALTY-AREA', 'DECISION', undefined]])
+    for (const gap of open) assert.ok(gap.note!.startsWith('OPEN, his (added 26 October 2026, Stage F).'), gap.id)
+    // A gap an alternative realization still waits on may not be marked settled, as for an entry.
+    assert.ok(damaged(r => (r.gaps!.find(gap => gap.id === 'D-PENALTY-AREA')!.settledBy = [{ words: 'TEST-ONLY', citedAs: 'TEST-ONLY' }])).some(e => e.includes('the gap D-PENALTY-AREA is marked settled, and the alternative realization A01-R2 still waits on it')))
+    for (const gap of record.gaps!.filter(gap => !gap.id.startsWith('D-'))) {
         assert.ok((gap.settledBy ?? []).length > 0, `${gap.id} is settled`)
         for (const said of gap.settledBy!) assert.match(said.citedAs, /^his reply filed 1[789] October 2026, /, `${gap.id}: ${said.citedAs}`)
     }

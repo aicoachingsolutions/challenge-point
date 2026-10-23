@@ -2591,7 +2591,7 @@ function scoringKindLineOf(ctx: GateContext, roleClassId: string | null): string
  *
  * The clauses are OUR READING of "coherent and compatible" (the design of 22 October 2026, K4; reported to him in plain words), each over
  * every applicable element and reported apart (SD-53). Clause 5 (two distinct targets at opposite ends) is GA-DIRECTION's, extended to
- * object targets in stage B; clause 13 (a protected target held by the other team's specialized role) is stage F's.
+ * object targets in stage B; clause 13 (a defended target held by the other team's specialized role) is stage F's (below).
  *
  *   1. **one each** — a role's own event (B9) is a member of the scoring-event vocabulary; a role with none scores by the primary event (V1).
  *   2. **blocks** — a role scores by an event of its own only in a game played in role blocks (every role of the vocabulary held).
@@ -2618,6 +2618,14 @@ function scoringKindLineOf(ctx: GateContext, roleClassId: string | null): string
  *  12. **same** — a role's own event is written for the role (its items select by one role alone), so it is the same in every block
  *      (the cross-block RB-1 compares the role elements, and RB-4 their properties); and no item on the event row is written for a role
  *      the game does not hold, or for no one role (stage A review fix: such an item reached no line and refused nothing).
+ *  13. **defended** (stage F, 26 October 2026, register version 20: row O7 and `roleScoring.defendedByRow`) — an object whose defended-by
+ *      line names a specialized performer row is defended by exactly one team, the one team holding such a performer in this game; that
+ *      team attacks no objective referencing the object, and another team does. Christian, reply filed 26 October 2026, item 6: *"Record
+ *      that the physical [object] is defended by the team with the active [specialized performer] during that block, and validate this
+ *      relationship in both blocks."* Each block of a role-block activity is its own game, so the clause holds in both. It reads where the
+ *      performer is never (*"not being confined to a particular position"*): it is a relationship between the object and a team, not a
+ *      placement. A row named that is no specialized performer row FAILS; a count still open is owed to realization. An object whose
+ *      defended-by line is silent claims no defence and is not an instance, so no game without such a line reads anything new.
  *
  * Runs before realization and again on the concrete game. Where no role scores by an event of its own, clauses 1-3 and 6-12 range over
  * their instances and pass (vacuously where they have none), and clause 4 is decided for every game. Names no row, kind, role, team or
@@ -2638,6 +2646,7 @@ export const ROLE_EVENTS_CLAUSES = {
     ALSO: 'an occurrence that also counts as the primary event is for a team scoring by the primary event',
     ALSO_REGION: 'an occurrence that also counts as the primary event lies inside a region its team attacks',
     SAME: "each role's own event is written for the role, so it is the same in every block",
+    DEFENDED: "an object a team's specialized performer defends is defended by exactly the one team holding that performer, which does not attack it, and another team attacks it",
 } as const
 
 function gaRoleEvents(ctx: GateContext): CheckOutcome {
@@ -3089,6 +3098,109 @@ function gaRoleEvents(ctx: GateContext): CheckOutcome {
         }
     }
 
+    // ── Clause 13: an object a specialized performer's team defends (stage F, register version 20). ─────────────────────────────────
+    const defended = tally()
+    if (spec.defendedByRow) {
+        const defendedRow = spec.defendedByRow
+        const teamsRow = ctx.index.designations.teamsRow ?? 'P1'
+        const teams = classesOn(ctx, teamsRow)
+        const keysOf = (team: ElementClass): Set<string> => new Set((team.designations?.met ?? []).map(name => designationKey(ctx.index, name)))
+        const labelOf = (team: ElementClass): string => `${team.classId}${(team.designations?.met ?? []).length ? ` (${(team.designations?.met ?? []).join(', ')})` : ''}`
+        for (const object of classesOn(ctx, spec.targets.object.row)) {
+            const lineId = lineOf(object.classId, defendedRow)
+            const line = ctx.classified.get(lineId)
+            // Silence claims no defence: no line (withdrawn for the object's kind) or one no knowledge writes is not an instance, and is never
+            // read through the probe, so a game holding no such claim reads exactly what it did.
+            if (!line || line.lineState === 'WITHDRAWN' || (line.verdict === 'NOT_AUTHORED' && line.reason !== 'declared gap' && line.reason !== 'claimed but unresolved')) continue
+            defended.instances++
+            const cell = probe.cell(lineId)
+            if (cell.state === 'OPEN') {
+                defended.open = true
+                continue
+            }
+            if (cell.state !== 'DERIVED') {
+                defended.blocked = true
+                continue
+            }
+            const row = String(cell.value)
+            if (!ctx.index.specializedRoleRows.has(row) || ctx.index.rows.get(row)?.ownerRow !== teamsRow) {
+                defended.fail = true
+                said.push(`${object.classId} is defended by ${JSON.stringify(cell.value)}, which is no specialized performer row of the teams`)
+                continue
+            }
+            // Who holds the performer in this game: a whole count per team, an answer still open, or a gap that blocks (named by the probe).
+            // Teams asserted and not yet instantiated (before the roster) are owed to realization, as GA-PARTICIPANTS-PRESENT owes them.
+            if (!teams.length) {
+                if (allClassesOn(ctx, teamsRow).length) defended.open = true
+                else {
+                    probe.missing.push(`${teamsRow} (no team class is instantiated, so no team can defend ${object.classId})`)
+                    defended.blocked = true
+                }
+                continue
+            }
+            let open = false
+            let gap = false
+            const holders: ElementClass[] = []
+            for (const team of teams) {
+                const held = probe.cell(lineOf(team.classId, row))
+                if (held.state === 'ABSENT' && held.established) continue
+                if (held.state === 'OPEN') open = true
+                else if (held.state !== 'DERIVED') gap = true
+                else {
+                    const exact = toRational(held.value)
+                    if (!exact || exact.d !== 1n || exact.n < 0n) gap = true
+                    else if (exact.n >= 1n) holders.push(team)
+                }
+            }
+            // Who attacks it: every scoring objective whose reference names this object, by the team it is attacked by.
+            const attackers: { objective: string; team: string }[] = []
+            for (const objective of objectives) {
+                const role = probe.peek(lineOf(objective.classId, targetSpec.roleRow))
+                const by = probe.peek(lineOf(objective.classId, targetSpec.teamRow))
+                const reference = probe.peek(lineOf(objective.classId, targetSpec.referenceRow))
+                if (role.state !== 'DERIVED' || reference.state !== 'DERIVED') {
+                    if (role.state === 'OPEN' || reference.state === 'OPEN') open = true
+                    continue
+                }
+                if (String(role.value) !== targetSpec.role || referentClass(ctx, reference.value)?.classId !== object.classId) continue
+                if (by.state !== 'DERIVED') {
+                    if (by.state === 'OPEN') open = true
+                    else gap = true
+                    continue
+                }
+                attackers.push({ objective: objective.classId, team: designationKey(ctx.index, by.value) })
+            }
+            if (gap) {
+                defended.blocked = true
+                continue
+            }
+            if (open) {
+                defended.open = true
+                continue
+            }
+            const role = ctx.index.specializedRoleRows.get(row)
+            if (holders.length !== 1) {
+                defended.fail = true
+                said.push(`${object.classId} is defended by the team holding ${role} (${row}), and ${holders.length} team(s) hold one${holders.length ? `: ${holders.map(labelOf).join('; ')}` : ''}`)
+                continue
+            }
+            const [holder] = holders
+            if (!attackers.length) {
+                defended.fail = true
+                said.push(`${object.classId} is defended by ${labelOf(holder)}, and no team attacks it`)
+                continue
+            }
+            const own = keysOf(holder)
+            const selfAttack = attackers.filter(entry => own.has(entry.team))
+            if (selfAttack.length) {
+                defended.fail = true
+                said.push(`${object.classId} is defended by ${labelOf(holder)}, which holds ${role} (${row}) and attacks it (${selfAttack.map(entry => entry.objective).join(', ')})`)
+                continue
+            }
+            said.push(`${object.classId} is defended by ${labelOf(holder)}, the one team holding ${role} (${row}), and attacked by ${[...new Set(attackers.map(entry => entry.team))].join(', ')}`)
+        }
+    }
+
     return result(
         ROLE_EVENTS_CHECK,
         probe,
@@ -3106,6 +3218,7 @@ function gaRoleEvents(ctx: GateContext): CheckOutcome {
             verdictOf(also, C.ALSO, 'the team each occurrence is for'),
             verdictOf(alsoRegion, C.ALSO_REGION, 'the team each occurrence is for, and the target it attacks'),
             verdictOf(same, C.SAME, 'the items writing each role\'s own event'),
+            verdictOf(defended, C.DEFENDED, 'which team holds each specialized performer, and the objectives referencing each defended object'),
         ],
         `${roleEvents.length} role(s); ${scorers.length} team(s) or objective(s) scoring` + (said.length ? `; ${said.join('; ')}` : ''),
     )

@@ -8851,3 +8851,36 @@ NEXT: Stage E (resource-aware selection) plumbing; F/G after his answers.
   knowledge awaiting his nine answers).
 
 NEXT: his answers → Stage F2 (restatements, values, A01-R2 basedOn A01-R1) and Stage G (goal wording, overview, diagram).
+
+### 26 October — Stage F: the goal version's knowledge from his rulings (replies filed 25 and 26 October)
+
+Governing: `scratchpad/christian-2026-10-26.txt` (all nine decisions, items 10-13) and `-25.txt`; design `scratchpad/d25/design-final.md`
+Stage F. Every record quotes him verbatim (byte-checked by `scratchpad/cd/build/fg/verbatim.js`: 31 `words` leaves, 236 quoted spans).
+- Restatements (corpus-restatements.json): S1 = ruling C60 (role-yield marker on GF2-19, GF2-03.b, GF2-06.a, RPC-001-08.a, each on his
+  item 1 words; RPC-001-08.b's note read as one primary scoring event per role); S2 = C61 (C42 "two corresponding targets, not three",
+  GF2-03.a's why and the register's S2 gloss); S3 = C62 (the two end statements he approved word for word, in the TEAM_AT_AXIS_*, B1, B3,
+  B10 and endAssignment glosses; no scope or check changes); C63 = GF2-08.f `defersTo` AUTHORIZED_REALIZATION with GF2-03.e `defersWith`
+  (edited in place on the C42 added items, the SD-102 precedent).
+- Register v20: row O7 `objects[].defendedBy` (a specialized performer row; withdrawn for a ball), `roleScoring.defendedByRow`, and
+  GA-ROLE-EVENTS clause 13 DEFENDED (exactly one team holds that performer, it does not attack the object, another team does; before and
+  after realization, so in each block). PROVISIONAL with that status stated (his item 6); no library relationship authorizes it.
+- Records: `contextScoringRelationships` gains RPC-001~SCORING-goal (CONFIRMED, PRESSING, goal, rows B9/J2, supersedes the four marked
+  items). A01's record names `realizations` [A01-R2 MISSING_KNOWLEDGE waiting on D-GOAL-SUITABILITY and D-PENALTY-AREA (open, his; no
+  settledBy), A01-R1]; `provisionalRealization` removed. Gaps an alternative waits on are listed with it (`neededBy`) and may not be marked
+  settled. provisionalChoices[3] superseded for the goal version, [6] scoped to A01-R1.
+- A01-R2 (provisional-realizations.json, `basedOn` A01-R1): withdraws S5-3, S5-4, V27-1, V29-1, V30-1, V31-1, T4-4, B8-2; adds the goal
+  (O1, O4 on the building team's end line offset 0, O5 central, O6 INTO_THE_AREA, O7 P3), J2 (team=TEAM_AT_AXIS_END, the departure from
+  our D7 reading reported in its note) and B9 goal citing the relationship, B10 EXCHANGED, B8-2 re-cited, T4-5 (his item 8 words; binding
+  PROPOSED). Own goals and shots out recorded in notes (no row). No suitability, no penalty area, no offside adaptation (all open).
+  `realization-choices-a01-r2.json`: A01-R1's re-pointed, the game form's GF2-03.e noun withdrawn, item 8 as the restart bound.
+- Proofs (`rendering/goal-version-knowledge.unit.ts`, 11): served A01 is A01-R1 with only recorded deltas at 12/1, 12/2, 11/1, goals
+  stated or not, A01-R2 never reaching the realizer; a TEST-ONLY completion (selectable + in-memory suitability) builds A01-R2 through
+  every structural, realization and cross-block check in both blocks at 12/1, 12/2, 11/1 and stops at communication only; the goalkeeper
+  on the pressing team fails clause 13 after realization in both blocks; KEPT refused at structure.
+- Snapshot `snap-F.json` vs `snap-E.json`: 22 keys, A01 only (account/evidence: realizationSelection, record copy, the two gaps,
+  notes, clause 13 vacuous, digests, register 20). No coach-facing leaf moves; the 39 demo keys and all 72 non-A01 live keys (the 56 plus
+  stage E's 16 objects keys) unchanged; live A01
+  equals review A01; roles-none refused. 11/1 on the built bundle: the same delta. A04 fixture refreshed (digests only).
+
+NEXT: Stage G (goal wording, overview, diagram) after his decisions on goal suitability and the penalty area (the read-only options
+investigation), and any law needing an explicit adaptation (his item 10).

@@ -260,7 +260,9 @@ test('3. provenance: his three layers and the standings, every cited path traced
     // Our readings are named, not hidden: the assumed bound beside the across-the-axis default.
     assert.ok(instructions.some(i => i.standings.includes('OUR_READING')))
     assert.equal(evidence.provenance.lists!.at, 'account.authorizationLists')
-    assert.deepEqual(evidence.provenance.lists!.gapsStillNeeded, [])
+    // Re-pointed 26 October 2026 (Stage F): the two decisions the goal version (A01-R2) is listed waiting on are still needed - his, open,
+    // and settled by no words of his - while the zone version served here waits on neither.
+    assert.deepEqual(evidence.provenance.lists!.gapsStillNeeded, ['D-GOAL-SUITABILITY', 'D-PENALTY-AREA'])
     // 17 October 2026 (stage M4, design step L11): still needed is now "no words of his settle it, or an entry waits on it" (it was
     // only the latter, which cannot tell a settled gap from one waiting on the context's own lines); all thirteen are settled.
     assert.deepEqual(evidence.provenance.lists!.gapsSettled, ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'M1', 'M2', 'M3', 'M4', 'M5', 'M7'])

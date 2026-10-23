@@ -187,9 +187,9 @@ export interface ContextManipulationRelationship {
  * reference (J2): a context SCORING relationship."*). Christian, reply filed 25 October 2026, item 2: *"preserving structural validation
  * and knowledge authorization."* Context-level, like a manipulation relationship: it names no goal; `rows` are the register rows a
  * realization citing it may author; it authorizes something only once `status` is CONFIRMED. Held in the records' optional
- * `contextScoringRelationships` list, which holds no entry on 22 October 2026 (his item 3 is recorded only after the note sent to him:
- * Stage F of the design). Validated with the manipulation relationships, and passed with them wherever relationships are read
- * (`contextRelationships`).
+ * `contextScoringRelationships` list, which held no entry on 22 October 2026 and holds one since Stage F (26 October 2026: one role of one
+ * context scoring by an event of its own, his reply filed 26 October 2026, item 1, and his reply filed 25 October 2026, item 3).
+ * Validated with the manipulation relationships, and passed with them wherever relationships are read (`contextRelationships`).
  */
 export interface ContextScoringRelationship {
     id: string
@@ -449,8 +449,9 @@ export interface LearningGoalAuthorization {
      * Each entry names a realization of `provisional-realizations.json`, with his words for its place in the order. The build tries them in
      * that order and moves to the next ONLY where the one tried does not apply to the session (a typed applicability refusal); an entry whose
      * status is a gap (MISSING_KNOWLEDGE, MISSING_CAPABILITY) is listed, with what it waits on, and never tried. A record names its
-     * realizations one way: `provisionalRealization` (one, read as a list of one) or this list, never both. No production record carries the
-     * list on 23 October 2026 (the second realization is the design's Stage F, after his rulings), so every record reads as before.
+     * realizations one way: `provisionalRealization` (one, read as a list of one) or this list, never both. No production record carried the
+     * list on 23 October 2026. Since Stage F (his replies filed 25 and 26 October 2026) one record does: an alternative waiting on two
+     * decisions of his first, so listed and never tried, then the realization that record named before, which is built exactly as it was.
      */
     realizations?: RealizationAlternativeRecord[]
     /** The adjustments he authorized for this goal's activity (15 October 2026, stage K4), or absent. */
@@ -502,6 +503,9 @@ export function realizationAlternativesOf(record: Pick<LearningGoalAuthorization
 }
 
 const filled = (value: unknown): boolean => typeof value === 'string' && value.trim().length > 0
+
+/** How an alternative realization waiting on a gap is named where the gap is listed (stage F): engine wording, never his. */
+const alternativeLabel = (realization: unknown): string => `the alternative realization ${String(realization)}`
 
 /**
  * Everything wrong with a set of authorization records, as sentences. Empty means it may be loaded.
@@ -558,6 +562,10 @@ export function validateLearningGoalAuthorizations(
                 const waiting = [
                     ...(entry.manipulations ?? []).filter(m => isGapStatus(m.status) && Array.isArray(m.gaps) && m.gaps.includes(gap.id)).map(m => m.phrase),
                     ...(entry.provisionalChoices ?? []).filter(c => isGapStatus(c.status) && Array.isArray(c.gaps) && c.gaps.includes(gap.id)).map(c => c.choice),
+                    // Stage F (26 October 2026): an alternative realization listed waiting on the gap waits on it as an entry does.
+                    ...(Array.isArray(entry.realizations) ? entry.realizations : [])
+                        .filter(alternative => isGapStatus(String(alternative?.status)) && Array.isArray(alternative?.gaps) && alternative.gaps.includes(gap.id))
+                        .map(alternative => alternativeLabel(alternative.realization)),
                 ]
                 if (waiting.length) errors.push(`${goal}: the gap ${gap.id} is marked settled, and ${waiting.join('; ')} still waits on it`)
             }
@@ -970,6 +978,20 @@ export function authorizationLists(record: LearningGoalAuthorization, provisiona
                     }
                 }),
         ],
-        gaps: (record.gaps ?? []).map(gap => ({ ...copy(gap), neededBy: needing.filter(entry => entry.gaps.some(named => named.id === gap.id)).map(entry => entry.label) })),
+        /**
+         * Stage F (26 October 2026): a gap an alternative realization is listed waiting on names that alternative among what needs it, so the
+         * review page says what the decision would supply (the record's ordered realizations; his reply filed 25 October 2026, item 4). It
+         * refuses nothing: an alternative waiting on a gap is never tried (`realizationAlternativesOf`), and `neededRecordGaps` - what refuses
+         * the build - still reads the record's entries alone.
+         */
+        gaps: (record.gaps ?? []).map(gap => ({
+            ...copy(gap),
+            neededBy: [
+                ...needing.filter(entry => entry.gaps.some(named => named.id === gap.id)).map(entry => entry.label),
+                ...realizationAlternativesOf(record)
+                    .filter(alternative => !alternative.selectable && alternative.gaps.includes(gap.id))
+                    .map(alternative => alternativeLabel(alternative.realization)),
+            ],
+        })),
     }
 }

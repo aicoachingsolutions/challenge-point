@@ -33,7 +33,7 @@ import { guidedGoalText, guidedSelectionHints } from '../sport-module/guided-sel
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { generateSelection, isSelectionKnowledgeGap } from '../test-library/generateSelection'
 import { learningGoalSelectionHolds } from '../test-library/learning-design-holds'
-import { learningGoalAuthorizations, LearningGoalAuthorization } from '../test-library/learning-goal-authorizations'
+import { learningGoalAuthorizations, LearningGoalAuthorization, realizationAlternativesOf } from '../test-library/learning-goal-authorizations'
 import { testLibraryRegistry } from '../test-library/library/registry'
 import type { TestLibrarySelectionResult } from '../test-library/types'
 import { reviewActivity, reviewActivityBuild } from './activity-review'
@@ -140,7 +140,8 @@ const refusedWith = (outcome: ReturnType<typeof liveCheckedActivity>, cause: str
     // Practice situations: the one its realization was not designed for is refused as the checked chain refuses it; the others serve the
     // review page's text (the situation is recorded in the account only, having no contract).
     const record = learningGoalAuthorizations().find(entry => entry.learningGoalId === GOAL)!
-    const notFor = provisionalRealizationNamed(record.provisionalRealization)!.notWithPracticeSituations.map(situation => situation.id)
+    // Re-pointed 26 October 2026 (Stage F): the record names its realizations as an ordered list; the one built is the first that can be tried.
+    const notFor = provisionalRealizationNamed(realizationAlternativesOf(record).find(alternative => alternative.selectable)!.realization)!.notWithPracticeSituations.map(situation => situation.id)
     const review = reviewActivity(stored(1), { learningGoalId: GOAL, durationMin: 20 }) as ServedActivity
     for (const situation of sessionPlanningModel.practiceSituationsFor(GOAL) as any[]) {
         const id = String(situation.ID)
