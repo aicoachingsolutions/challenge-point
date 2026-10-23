@@ -61,7 +61,8 @@ const GOAL = { goal: { count: 1, widthM: 5 } }
 const SUPERSEDED = ['restated:GF2::GF2-19', 'restated:GF2::GF2-03.b', 'restated:GF2::GF2-06.a', 'restated:RPC-001::RPC-001-08.a']
 const HIS_ITEM_1 = 'The opposing team may have a different primary scoring event where authorized by the selected context.'
 const R2 = 'A01-R2'
-const OPEN = ['D-GOAL-SUITABILITY', 'D-PENALTY-AREA']
+// H2 (23 October 2026): the goal version waits on a third decision of his, the adaptations its default-laws account names as owed.
+const OPEN = ['D-GOAL-SUITABILITY', 'D-PENALTY-AREA', 'D-DEFAULT-LAWS']
 const itemOf = (contractId: string, itemId: string) => loadCorpusContracts().find(c => c.contractId === contractId)!.items.find(i => i.itemId === itemId)! as any
 const a01 = (records: LearningGoalAuthorization[] = learningGoalAuthorizations()) => records.find(r => r.learningGoalId === 'A01')!
 
@@ -165,7 +166,7 @@ test("A01's record: the goal version first, listed waiting on the two open decis
     for (const gap of gaps) {
         assert.equal(gap.kind, 'DECISION')
         assert.equal(gap.settledBy, undefined, `${gap.id} is open: no words of his settle it`)
-        assert.ok(gap.note!.startsWith('OPEN, his (added 26 October 2026, Stage F).'), gap.id)
+        assert.ok(gap.note!.startsWith(gap.id === 'D-DEFAULT-LAWS' ? "OPEN, his (added 23 October 2026, H2, the d26 design's build step 2)." : 'OPEN, his (added 26 October 2026, Stage F).'), gap.id)
     }
     assert.ok(gaps[0].note!.includes('"However, the presence of a full-size goal should not automatically establish its suitability for every playing area."'))
     assert.ok(gaps[1].note!.includes('"Please investigate the smallest reusable method for representing an authorized penalty area, including its geometry and relationship to the goal and playing space. Do not assume a scaled dimension without knowledge support."'))
@@ -272,7 +273,13 @@ test('with goals stated or not, the zone version is served exactly as before, an
 })
 
 // ── 6. The TEST-ONLY completion of the two open decisions ────────────────────────────────────────────────
-/** TEST-ONLY, in memory: the record lists the goal version as one that can be tried, and its goal a suitability; nothing else changes. */
+/**
+ * TEST-ONLY, in memory: the record lists the goal version as one that can be tried, and its goal a suitability; nothing else changes.
+ * H2 (23 October 2026): the goal version now also waits on D-DEFAULT-LAWS and declares ENFORCE, so completing the record in memory completes
+ * that decision too: the copy's default-laws check is REPORT (TEST-ONLY), standing in for his rulings on the owed laws - the account is still
+ * computed and every game, item and sentence is what it was. With ENFORCE as recorded, the same completion is refused at validation
+ * (default-laws.unit.ts).
+ */
 const completed = (alter: (variant: any) => void = () => undefined) => {
     const records = learningGoalAuthorizations()
     const record = a01(records) as any
@@ -280,6 +287,7 @@ const completed = (alter: (variant: any) => void = () => undefined) => {
     const file = readJson(PROVISIONAL_REALIZATIONS_FILE)
     const variant = file.realizations.find((r: any) => r.id === R2)
     variant.objectSuitability = [{ kind: 'goal', widthM: { min: 1, max: 10 }, ruledOn: 'TEST-ONLY', by: 'TEST-ONLY', citedAs: 'TEST-ONLY', words: ['TEST-ONLY'] }]
+    variant.defaultLawsCheck = { mode: 'REPORT', because: 'TEST-ONLY: D-DEFAULT-LAWS completed in memory', basis: { words: ['TEST-ONLY'], citedAs: 'TEST-ONLY' } }
     alter(variant)
     return { records, realizations: loadProvisionalRealizations(file) }
 }

@@ -76,10 +76,26 @@ export interface ScoringAtObjectWording {
     clauses: ScoringClause[]
 }
 
+/**
+ * **The one sentence the d26 design holds for the sport's normal laws, HELD and never served** — H2, 23 October 2026 (the d26 design's
+ * section 3.2, Communication: *"One DRAFT Coach Details sentence, "Otherwise, normal [sport] rules apply", with the sport noun from
+ * data."* *"The served zone text is unchanged until he approves."*). His reply filed 26 October 2026, item 10: *"The normal Laws of the Game
+ * should apply by default wherever they are applicable, unless an activity introduces an explicit, knowledge-authorized modification."*
+ * Whole in the data file (so the sport's noun is data, never this layer's), with his words for it; read only by the default-laws account
+ * of the review evidence (`realization/default-laws-check.ts`, `build-activity.ts`), which shows it held. No renderer reads it.
+ */
+export interface NormalLawsWording {
+    words: string
+    held: string
+    basis: WordingBasis
+}
+
 export interface DraftCoachWording {
     objectKinds: ObjectKindWording[]
     facings: FacingWording[]
     scoringAtObjects: ScoringAtObjectWording[]
+    /** H2: the held sentence for the sport's normal laws, or null where the file carries none. */
+    normalLaws: NormalLawsWording | null
 }
 
 /** The wording as loaded, and why it could not be used (then it is empty). */
@@ -89,7 +105,8 @@ export interface DraftCoachWordingLoad {
 }
 
 const filled = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0
-const FILE_KEYS = new Set(['about', 'status', 'entryShape', 'objectKinds', 'facings', 'scoringAtObjects'])
+const FILE_KEYS = new Set(['about', 'status', 'entryShape', 'objectKinds', 'facings', 'scoringAtObjects', 'normalLaws'])
+const NORMAL_LAWS_KEYS = new Set(['words', 'held', 'basis'])
 const OBJECT_KEYS = new Set(['kind', 'standsOutsideArea', 'basis'])
 const FACING_KEYS = new Set(['facing', 'words', 'basis'])
 const SCORING_KEYS = new Set(['event', 'targetKind', 'lead', 'basis', 'clauses'])
@@ -172,17 +189,33 @@ export function draftCoachWordingUnusableBecause(file: any, index: RegisterIndex
             if (own) return `${at}: ${own}`
         }
     }
+    // H2 (23 October 2026): the held sentence for the sport's normal laws, where the file carries it - whole words with no slot, why it is
+    // held, and his words for it.
+    if (file.normalLaws !== undefined) {
+        const entry = file.normalLaws
+        if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return 'its normalLaws entry is not an object'
+        for (const key of Object.keys(entry)) if (!NORMAL_LAWS_KEYS.has(key)) return `its normalLaws entry carries "${key}"`
+        if (!filled(entry.words) || slotsIn(entry.words).length || strayBrace(entry.words)) return 'its normalLaws words are missing or hold a slot'
+        if (!filled(entry.held)) return 'its normalLaws entry does not say why it is held (held)'
+        const basis = basisUnusableBecause(entry.basis)
+        if (basis) return `its normalLaws entry: ${basis}`
+    }
     return null
 }
 
-const EMPTY: DraftCoachWording = { objectKinds: [], facings: [], scoringAtObjects: [] }
+const EMPTY: DraftCoachWording = { objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null }
 
 /** The wording from a parsed file, copied, or none with why. */
 export function draftCoachWordingLoadOf(file: any, index: RegisterIndex): DraftCoachWordingLoad {
     const why = draftCoachWordingUnusableBecause(file, index)
     if (why) return { wording: JSON.parse(JSON.stringify(EMPTY)), why: `${DRAFT_COACH_WORDING_SOURCE} cannot be used: ${why}` }
     return {
-        wording: { objectKinds: JSON.parse(JSON.stringify(file.objectKinds)), facings: JSON.parse(JSON.stringify(file.facings)), scoringAtObjects: JSON.parse(JSON.stringify(file.scoringAtObjects)) },
+        wording: {
+            objectKinds: JSON.parse(JSON.stringify(file.objectKinds)),
+            facings: JSON.parse(JSON.stringify(file.facings)),
+            scoringAtObjects: JSON.parse(JSON.stringify(file.scoringAtObjects)),
+            normalLaws: file.normalLaws === undefined ? null : JSON.parse(JSON.stringify(file.normalLaws)),
+        },
         why: null,
     }
 }

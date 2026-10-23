@@ -33,7 +33,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import { buildActivityFromKnowledge, buildActivityWithFixture } from '../rendering/build-activity'
-import { CONFORMANCE_DIR, loadSportCoachVocabulary, loadSportProfile, readJson, validateSportCoachVocabulary } from './corpus'
+import { CONFORMANCE_DIR, loadSportCoachVocabulary, loadSportDefaultLaws, loadSportProfile, readJson, validateSportCoachVocabulary } from './corpus'
 import { runDerivation, runStages0to10 } from './engine'
 import { indexRegister } from './register'
 import { assembleResolvedGame } from './resolved-game'
@@ -86,11 +86,18 @@ test('exactly one Sport Profile is discovered, and it names itself', () => {
     const [profile] = profiles
     assert.equal(profile.contractId, profile.objectId, 'the contract is identified by the object it contributes to')
     assert.ok(/^sport-profile:/.test(profile.contractId), `a Sport Profile object id, got ${profile.contractId}`)
+    // Restated 23 October 2026 (H2, the d26 design's build step 2): still exactly these two items. His reply filed 26 October 2026, item 10,
+    // names the Laws of the Game as the default - "The normal Laws of the Game should apply by default wherever they are applicable, unless an
+    // activity introduces an explicit, knowledge-authorized modification." - and the profile carries that as a declaration block beside its
+    // contribution (defaultLaws, default-laws.unit.ts), never as items: no law is authored as a line of the game.
     assert.deepEqual(
         profile.items.map(i => (i as any).itemId).sort(),
         [BALL_ITEM, RELATION_ITEM],
-        'the profile is minimal: his ruling authorized exactly these two structural facts and no Laws of the Game',
+        'the profile is minimal: his ruling authorized exactly these two structural facts; the Laws are named as the default (defaultLaws), never authored as items',
     )
+    const defaultLaws = loadSportDefaultLaws()
+    assert.ok(defaultLaws && defaultLaws.laws.length > 0, 'the default-laws block loads beside the contribution')
+    assert.ok(!profile.items.some(item => 'departsFrom' in (item as any)) && !JSON.stringify(profile).includes('LAW-'), 'and nothing of it is a contribution item')
 })
 
 /**

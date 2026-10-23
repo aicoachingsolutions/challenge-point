@@ -163,6 +163,13 @@ test('withdrawing, or withdrawing and restating, every value in metres admits th
         assert.ok(!variant.items.some(item => METRIC.includes(item.itemId)))
     }
     assert.ok(loadedVariant(restating).items.some(item => item.itemId === `${V}-S5-1` && carriesMetres(item, ENVELOPE_ROWS)), 'the restated value is the variant\'s own')
+    // The H1 review's should-fix (carried into H2, 23 October 2026): an explicit null is a statement of none, never "inherits". A variant
+    // stating null that withdraws every value in metres is admitted, loads with none (not its base's) and is refused on no area.
+    const stated = probeFile({ boundaries: null, withdraw: METRIC })
+    assert.deepEqual(errorsOf(stated), [])
+    const none = loadedVariant(stated)
+    assert.equal(none.testingBoundaries, null, 'null is its own statement: no boundaries, never its base\'s')
+    assert.equal(testingAreaRefusal(none, at(60, 40)), null)
 })
 
 // ── 4. The same areas ────────────────────────────────────────────────────────────────────────────────────

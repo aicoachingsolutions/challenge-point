@@ -33,7 +33,7 @@
  *
  * It does not touch generation. Nothing here calls the frozen activity-generation path.
  */
-import { loadSportCoachVocabulary, ProvisionalRealization, provisionalRealizationNamed, TestingBoundaries } from '../derivation/corpus'
+import { loadSportCoachVocabulary, loadSportDefaultLaws, ProvisionalRealization, provisionalRealizationNamed, TestingBoundaries } from '../derivation/corpus'
 import { isStampedHalt } from '../derivation/emit'
 import { runDerivation, runStages0to10, runStages0to5 } from '../derivation/engine'
 import { resolveRelativeCounts } from '../derivation/reassignment'
@@ -46,6 +46,7 @@ import { BoundedSelection, CONTEXT_ROLE, contractCoverage, derivationInputFor, G
 import { LoadedContract, RoleBlock } from '../derivation/types'
 import { gpLibrary } from '../knowledge-core/gp-library'
 import { completeConcreteGame, ObjectAvailabilityRefusal, objectAvailabilityRefusal, rosterRefusal, RosterRefusal } from '../realization/assemble-concrete-game'
+import { DefaultLawsAccount, defaultLawsAccountOf } from '../realization/default-laws-check'
 import { runPostRealizationGates } from '../realization/post-realization-gate'
 import { realizeWithJustifiedDefaults, StrandedCount } from '../realization/justified-defaults'
 import { checkRealization, isRefused, Realized } from '../realization/realize'
@@ -64,6 +65,7 @@ import { CoachDiagram, DiagramOutcome, diagramForServing } from './coach-diagram
 import { failedDiagramDraft, FieldDiagramDraft } from './field-diagram'
 import { CoachOverview, OverviewEvidence, overviewEvidenceOf, overviewForServing, OverviewOutcome } from './overview-fidelity'
 import { contextScoringFindings, EPISODE_REACHABLE_CHECK } from './context-scoring-guard'
+import { draftCoachWordingLoad } from './draft-coach-wording'
 import { checkFidelity, FidelityFinding } from './fidelity'
 import { ReviewDraft, reviewDraftOf } from './review-draft'
 import { EvidenceBlock, LayoutFallback, ReviewEvidence, reviewEvidenceOf, withRealizationSelection } from './review-evidence'
@@ -1400,6 +1402,37 @@ function build(
             }
             return { ...(outcome.diagram ? { diagram: outcome.diagram } : {}), ...(review.includeDrafts ? { diagramDraft: outcome.draft } : {}) }
         }
+        /**
+         * **The default-laws account, and its strictness** — H2, 23 October 2026 (the d26 design's build step 2, its section 3.2). Christian,
+         * reply filed 26 October 2026, item 10: *"Where a normal law cannot apply directly because of the modified field, scoring structure, or
+         * game format, the system should identify the relevant adaptation rather than silently assume conventional conditions exist."* Only
+         * for a game derived through the realization being tried where it declares `defaultLawsCheck`, read from the realization derivation
+         * received (its composed items carry the departures) and from each game as built - after realization and every cross-block check, so
+         * the account reads the games a coach would be served. Null for every other game, which gains no account and is not checked. Under
+         * ENFORCE a game owing an adaptation is refused at validation, naming each law owed, and never falls back (a law owed waits on his
+         * decision, not on the session); under REPORT nothing is refused and the account goes to the administrator's review evidence only.
+         * The design's DRAFT sentence for the coach is shown there as held, and nothing a coach reads changes.
+         */
+        const receivedRealization = provisionalRealization ? (((input.contracts as LoadedContract[]).find(contract => contract.contractId === provisionalRealization.contractId) as ProvisionalRealization | undefined) ?? null) : null
+        const lawAccountOf = (games: { blockId: string; game: unknown; roleBlock: RoleBlock | null }[]): DefaultLawsAccount | null => {
+            if (!receivedRealization?.defaultLawsCheck) return null
+            const held = draftCoachWordingLoad().wording.normalLaws
+            return defaultLawsAccountOf({
+                realization: receivedRealization,
+                laws: loadSportDefaultLaws(),
+                blocks: games,
+                index: roleIndex,
+                session,
+                heldSentence: held ? { text: held.words, status: 'DRAFT_HELD_NOT_SERVED', basis: { words: [...held.basis.words], citedAs: held.basis.citedAs } } : null,
+            })
+        }
+        const lawRefusalOf = (lawAccount: DefaultLawsAccount | null): ReturnType<typeof refuse> | null =>
+            lawAccount && lawAccount.mode === 'ENFORCE' && lawAccount.owed.length
+                ? refuse('validation', `Where this activity departs from the sport's normal rules has not all been decided yet, so it is not being shown.`, [
+                      `the provisional realization ${lawAccount.realization} holds its activity to the normal laws (ENFORCE), and ${lawAccount.owed.length} adaptation${lawAccount.owed.length === 1 ? ' is' : 's are'} owed`,
+                      ...lawAccount.owed,
+                  ])
+                : null
         const rolesRow = roleIndex.roleBlocks?.rolesRow
         /**
          * Stage D (23 October 2026, register version 18): a selection carrying an item on the end-assignment row (B10) is asked too, so an
@@ -1517,6 +1550,8 @@ function build(
                         ...layoutCheck.problems.map(problem => `${layoutCheck.checkId}: ${problem}`),
                     ])
                 }
+                // H2: the default-laws account of the games as built, one per block, where the realization being tried declares the check.
+                const lawAccount = lawAccountOf(games.map(entry => ({ blockId: entry.block.blockId, game: (entry.fixture as any)?.game, roleBlock: entry.block })))
                 const renders = games.map(entry => ({ blockId: entry.block.blockId, rendered: entry.rendered, fixture: entry.fixture }))
                 const composed = composeRoleBlockActivity(renders, roleIndex)
                 /**
@@ -1534,7 +1569,7 @@ function build(
                  * games as built, the cross-block checks and the composition. Never on a coach's answer.
                  */
                 const evidenceOf = (outcome: string, overview: OverviewEvidence | null = null) =>
-                    reviewEvidenceFor(review, goalSelection, account, roleIndex, session, outcome, composed, composition, checks, games.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, ...(entry.block.ends ? { ends: { ...entry.block.ends } } : {}), fixture: entry.fixture, contracts: entry.contracts, rendered: entry.rendered, ...entry.evidence })), layoutFallback, overview)
+                    reviewEvidenceFor(review, goalSelection, account, roleIndex, session, outcome, composed, composition, checks, games.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, ...(entry.block.ends ? { ends: { ...entry.block.ends } } : {}), fixture: entry.fixture, contracts: entry.contracts, rendered: entry.rendered, ...entry.evidence })), layoutFallback, overview, lawAccount)
                 /** The admin-only draft of the composed activity (stage K7), attached to a refusal at communication where it was asked for. */
                 const withDraft = (refusal: ReturnType<typeof refuse>) => {
                     if (review.includeDrafts) (refusal.activity as RefusedActivity).draft = reviewDraftOf(games.map(entry => entry.fixture), composed, [...games.flatMap(entry => entry.violations), ...violations])
@@ -1542,6 +1577,9 @@ function build(
                     if (evidence) (refusal.activity as RefusedActivity).evidence = evidence
                     return refusal
                 }
+                // H2: under ENFORCE a game owing an adaptation is refused at validation, before any refusal at communication.
+                const lawRefusal = lawRefusalOf(lawAccount)
+                if (lawRefusal) return withDraft(lawRefusal)
                 if (stopped.length) return withDraft(refuse(first.outcome.stage, first.outcome.summary, [...stoppedReasons, ...violations.map(v => `fidelity Q${v.question}: ${v.what}`)]))
                 if (violations.length) {
                     return withDraft(
@@ -1617,18 +1655,31 @@ function build(
         const one = buildOneGame(input, game)
         if (one.outcome === 'refused') {
             fixture = one.fixture
+            // H2: a game refused only at communication passed validation, so its default-laws account is read (and, under ENFORCE, refuses
+            // first, at validation), as in role blocks; every other refusal stopped before the game was complete, and gains none.
+            const lawAccount = one.communication && one.fixture ? lawAccountOf([{ blockId: ONE_GAME, game: (one.fixture as any).game, roleBlock: null }]) : null
+            const lawRefusal = lawRefusalOf(lawAccount)
             // Stage E: a typed applicability refusal keeps its type (and an ASK its question), exactly as a role block's does.
-            const refusal = refuse(one.stage, one.summary, one.reasons, one.applicability ?? null, one.question ?? null)
+            const refusal = lawRefusal ?? refuse(one.stage, one.summary, one.reasons, one.applicability ?? null, one.question ?? null)
             // The admin-only draft (stage K7): only on a refusal at communication, only where the review asked for it.
             if (review.includeDrafts && one.communication) (refusal.activity as RefusedActivity).draft = reviewDraftOf([one.fixture], one.communication.rendered, one.communication.violations)
             // And the admin-only review evidence (stage K8), where the goal's record asks for one.
-            const evidence = one.communication && one.fixture ? reviewEvidenceFor(review, goalSelection, account, roleIndex, session, one.stage, one.communication.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.communication.contracts, rendered: one.communication.rendered, ...one.communication.evidence }]) : null
+            const evidence = one.communication && one.fixture ? reviewEvidenceFor(review, goalSelection, account, roleIndex, session, lawRefusal ? 'validation' : one.stage, one.communication.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.communication.contracts, rendered: one.communication.rendered, ...one.communication.evidence }], null, null, lawAccount) : null
             if (evidence) (refusal.activity as RefusedActivity).evidence = evidence
             return refusal
         }
+        // H2: the default-laws account of the one game, where the realization being tried declares the check; under ENFORCE, owed refuses.
+        const oneLawAccount = lawAccountOf([{ blockId: ONE_GAME, game: (one.fixture as any).game, roleBlock: null }])
+        const oneLawRefusal = lawRefusalOf(oneLawAccount)
+        if (oneLawRefusal) {
+            fixture = one.fixture
+            const evidence = reviewEvidenceFor(review, goalSelection, account, roleIndex, session, 'validation', one.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.contracts, rendered: one.rendered, ...one.evidence }], null, null, oneLawAccount)
+            if (evidence) (oneLawRefusal.activity as RefusedActivity).evidence = evidence
+            return oneLawRefusal
+        }
         // Stage 3D: the overview of the one game, checked against its Details (which are what a coach is served).
         const overview = overviewOf([{ blockId: ONE_GAME, fixture: one.fixture, rendered: one.rendered }], one.rendered.instructions)
-        const evidence = reviewEvidenceFor(review, goalSelection, account, roleIndex, session, 'served', one.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.contracts, rendered: one.rendered, ...one.evidence }], null, overview.evidence)
+        const evidence = reviewEvidenceFor(review, goalSelection, account, roleIndex, session, 'served', one.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.contracts, rendered: one.rendered, ...one.evidence }], null, overview.evidence, oneLawAccount)
         return serve(one, { ...(evidence ? { evidence } : {}), ...overviewKeys(overview), ...diagramKeys([{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, rendered: one.rendered.instructions }], one.rendered.instructions, null) }, [{ blockId: ONE_GAME, fixture: one.fixture }])
     }
 
@@ -1784,6 +1835,8 @@ function reviewEvidenceFor(
     layoutFallback: LayoutFallback | null = null,
     /** Stage 3D: the overview's verdict, findings, statuses and reading evidence (admin-only); null on a refusal, where there is none. */
     overview: OverviewEvidence | null = null,
+    /** H2: the default-laws account, where the realization the games were derived through declares the check (admin-only); null elsewhere. */
+    defaultLaws: DefaultLawsAccount | null = null,
 ): ReviewEvidence | null {
     const record = goalSelection?.authorization
     if (!review.includeDrafts || !record?.reviewRequest) return null
@@ -1804,6 +1857,7 @@ function reviewEvidenceFor(
         constraintAuthority: account.constraintSource?.constraintAuthority ?? null,
         index,
         overview,
+        defaultLaws,
     })
 }
 

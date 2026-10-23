@@ -927,6 +927,46 @@ function ReviewEvidencePanel({ evidence }: { evidence: ReviewEvidence }) {
                     ))}
                 </EvidencePart>
                 {/*
+                  * H2 (23 October 2026): the default-laws account as the server computed it, shown as sent - the strictness the realization
+                  * declares, his words for the principle, each law per block and place with its status and why, the items that depart from it
+                  * (with his words), and the DRAFT sentence held for the coach (never served). Labels are DRAFTS.
+                  */}
+                {evidence.defaultLaws && (
+                    <EvidencePart title='Normal rules: default and adaptations'>
+                        <p className='text-xs text-gray-600 [overflow-wrap:anywhere]'>
+                            {evidence.defaultLaws.realization}: {evidence.defaultLaws.mode} · {evidence.defaultLaws.source.source} (edition {evidence.defaultLaws.source.edition ?? 'not named'}) · {evidence.defaultLaws.owed.length} adaptation
+                            {evidence.defaultLaws.owed.length === 1 ? '' : 's'} owed
+                        </p>
+                        <p className='text-xs text-gray-600'>{evidence.defaultLaws.check.because}</p>
+                        {evidence.defaultLaws.source.authority.words.map((words, index) => (
+                            <His key={index} words={words} citedAs={evidence.defaultLaws!.source.authority.citedAs} />
+                        ))}
+                        {evidence.defaultLaws.heldSentence && (
+                            <p className='text-xs text-gray-500'>
+                                Held, not served (DRAFT): &ldquo;{evidence.defaultLaws.heldSentence.text}&rdquo;
+                            </p>
+                        )}
+                        {evidence.defaultLaws.blocks.map((block) => (
+                            <div key={block.blockId} className='space-y-1'>
+                                <p className='text-xs text-gray-500'>{blockLabel(block.blockId)}</p>
+                                <ul className='space-y-0.5'>
+                                    {block.laws.map((law, index) => (
+                                        <li key={index} className='text-xs text-gray-600 [overflow-wrap:anywhere]'>
+                                            <span className='text-gray-800'>
+                                                {law.law} ({law.cites}) at {law.at}: {law.status}
+                                            </span>{' '}
+                                            — {law.why}
+                                            {[...law.departedBy, ...law.departedInPart, ...law.noLongerHolds, ...law.recordedBy].map((departure, at) => (
+                                                <His key={at} words={departure.basis.words.join(' ')} citedAs={`${departure.item}, ${departure.extent}${departure.part ? ` (${departure.part})` : ''}; ${departure.basis.citedAs}`} />
+                                            ))}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ))}
+                    </EvidencePart>
+                )}
+                {/*
                   * Stage 4: the Coach Overview's agreement check as the server ran it (stage 3D-3F), shown as sent: served or withheld, the
                   * verdict and every finding, the table and readings record it rests on (C1: each with which of its rules or readings he
                   * approved and which remain PROPOSED, as the server names them), the reading evidence (never a gate), and each team's material

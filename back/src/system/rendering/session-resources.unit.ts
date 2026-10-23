@@ -359,7 +359,7 @@ test("a record's alternatives are read whole or refused; its single realization 
     // version, each with his words for its place; no other record lists alternatives.
     const a01 = learningGoalAuthorizations().find(r => r.learningGoalId === 'A01')!
     assert.deepEqual(realizationAlternativesOf(a01), [
-        { realization: 'A01-R2', words: 'My preference is to use the physical-goal version when an appropriate goal and goalkeeper are available and the selected realization supports that relationship.', citedAs: 'his reply filed 25 October 2026, item 3', selectable: false, status: 'MISSING_KNOWLEDGE', gaps: ['D-GOAL-SUITABILITY', 'D-PENALTY-AREA'] },
+        { realization: 'A01-R2', words: 'My preference is to use the physical-goal version when an appropriate goal and goalkeeper are available and the selected realization supports that relationship.', citedAs: 'his reply filed 25 October 2026, item 3', selectable: false, status: 'MISSING_KNOWLEDGE', gaps: ['D-GOAL-SUITABILITY', 'D-PENALTY-AREA', 'D-DEFAULT-LAWS'] },
         { realization: 'A01-R1', words: 'Goalkeeper available, but no appropriate physical goal: The pressing team may attack an authorized target zone.', citedAs: 'his reply filed 25 October 2026, item 4', selectable: true, status: null, gaps: [] },
     ])
     assert.deepEqual(learningGoalAuthorizations().filter(r => r.realizations !== undefined).map(r => r.learningGoalId), ['A01'], 'no other record lists alternatives')
@@ -452,7 +452,8 @@ test('goals = 0 serves A01-R1 with only the recorded delta: the session it echoe
     assert.deepEqual(production.evidence!.pathway.facts[production.evidence!.pathway.facts.length - 1], {
         what: 'the realizations the record authorizes, in its order, and whether each was used (account.realizationSelection)',
         value: [
-            'A01-R2: NOT_SELECTABLE (MISSING_KNOWLEDGE); waits on D-GOAL-SUITABILITY, D-PENALTY-AREA; its place in the order: his reply filed 25 October 2026, item 3',
+            // H2 (23 October 2026): and on D-DEFAULT-LAWS, the adaptations its default-laws account names as owed.
+            'A01-R2: NOT_SELECTABLE (MISSING_KNOWLEDGE); waits on D-GOAL-SUITABILITY, D-PENALTY-AREA, D-DEFAULT-LAWS; its place in the order: his reply filed 25 October 2026, item 3',
             'A01-R1: SELECTED; its place in the order: his reply filed 25 October 2026, item 4',
         ],
     })

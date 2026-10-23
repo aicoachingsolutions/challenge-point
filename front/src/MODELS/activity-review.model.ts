@@ -735,6 +735,51 @@ export interface ReviewEvidence {
         /** Stage 3F: each team's material elements, and the overview sentence(s) stating each. */
         meaning: { group: string; noun: string | null; elements: ReviewMeaningElement[] }[]
     }
+    /**
+     * H2 (23 October 2026): the default-laws account — for each law the Sport Profile names, per block and per place, whether it applies,
+     * is departed from, does not apply or is owed an adaptation, with the realization's strictness (ENFORCE or REPORT) and the DRAFT
+     * sentence held for the coach. Present only where the realization declares the check; shown as sent, in the technical panel.
+     */
+    defaultLaws?: ReviewDefaultLawsAccount
+}
+
+/** One departure the default-laws account cites: the item, what it covers, why, and Christian's words for it. */
+export interface ReviewLawDeparture {
+    item: string
+    extent: 'WHOLE' | 'PART'
+    part: string | null
+    because: string
+    basis: { words: string[]; citedAs: string }
+    whilePreconditionAbsent: Record<string, unknown> | null
+}
+
+/** The default-laws account (H2), as the server sends it. */
+export interface ReviewDefaultLawsAccount {
+    status: 'ACCOUNT_FOR_REVIEW'
+    realization: string
+    mode: 'ENFORCE' | 'REPORT'
+    check: { mode: string; because: string; basis: { words: string[]; citedAs: string } }
+    source: { file: string; source: string; edition: string | null; editionNote: string; authority: { words: string[]; citedAs: string; by: string; ruledOn: string } }
+    blocks: {
+        blockId: string
+        ends: { end: 0 | 1; atM: number | null; defendedBy: string[] }[]
+        laws: {
+            law: string
+            cites: string
+            name: string
+            end: 0 | 1 | null
+            at: string
+            status: 'APPLIES' | 'DEPARTED' | 'NOT_APPLICABLE' | 'ADAPTATION_OWED'
+            why: string
+            preconditions: { list: string; predicate: Record<string, unknown>; reading: string; why: string }[]
+            departedBy: ReviewLawDeparture[]
+            departedInPart: ReviewLawDeparture[]
+            noLongerHolds: ReviewLawDeparture[]
+            recordedBy: ReviewLawDeparture[]
+        }[]
+    }[]
+    owed: string[]
+    heldSentence: { text: string; status: 'DRAFT_HELD_NOT_SERVED'; basis: { words: string[]; citedAs: string } } | null
 }
 
 /** One sentence of the review draft: the instruction, whose wording it is, and the provisional choices it rests on. */

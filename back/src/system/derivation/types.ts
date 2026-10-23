@@ -143,6 +143,13 @@ export interface ContractItem {
      * keeps governing every other role and every game without such a citation.
      */
     yieldsForRole?: unknown
+    /**
+     * **The departures from the sport's normal laws an item records** (H2, 23 October 2026; `default-laws.ts`): which law, why, his words,
+     * the whole of it or a part, and optionally the precondition whose absence it rests on. Written only on a provisional realization's
+     * items and validated by its loader against the Sport Profile's default-laws block; read only by the default-laws account
+     * (`realization/default-laws-check.ts`) after realization. Derivation reads nothing of it.
+     */
+    departsFrom?: unknown
 }
 
 /**
@@ -178,6 +185,7 @@ const CONTRACT_ITEM_FIELDS: Record<keyof ContractItem, true> = {
     defersWith: true,
     authorizedBy: true,
     [ROLE_YIELD_KEY]: true,
+    departsFrom: true,
 }
 
 /**

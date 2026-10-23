@@ -19,9 +19,10 @@ import path from 'node:path'
 import { ContractItem, DerivationInput, LoadedContract, ROLE_YIELD_KEY } from './types'
 import { repairCorpusEncoding, RepairTally } from './corpus-repair'
 import { applyNoRowRestatement, RestatementTally } from './corpus-restatement'
+import { DefaultLaws, DefaultLawsCheck, defaultLawsCheckRefusal, defaultLawsRefusals, departureRefusals, DEFAULT_LAWS_CHECK_KEY, DEPARTS_FROM_KEY } from './default-laws'
 import { AUDITS_DIR } from './knowledge-root'
 import { objectPositionRefusal, ObjectPositionRows } from './object-extent'
-import { designationName, indexRegister } from './register'
+import { designationName, indexRegister, RegisterIndex } from './register'
 
 export const CONFORMANCE_DIR = path.join(AUDITS_DIR, 'conformance')
 
@@ -197,6 +198,11 @@ export function loadSportProfile(read: (file: string) => any = readJson): Loaded
             ...(Array.isArray(result.items) ? result.items : [])
                 .filter((item: any) => !!item && typeof item === 'object' && ('defersTo' in item || 'defersWith' in item))
                 .map((item: any) => `the Sport Profile ${file} item ${String(item.id ?? item.itemId ?? '(no id)')} carries a supersession or a pairing (defersTo, defersWith), which only a ruled restatement writes`),
+            // H2 (23 October 2026): nor a departure from the normal laws, which only an activity's provisional realization records (the
+            // profile NAMES the laws as the default, in its defaultLaws block); one here would be read by nothing.
+            ...(Array.isArray(result.items) ? result.items : [])
+                .filter((item: any) => !!item && typeof item === 'object' && DEPARTS_FROM_KEY in item)
+                .map((item: any) => `the Sport Profile ${file} item ${String(item.id ?? item.itemId ?? '(no id)')} records a departure from the normal laws, which only an activity's provisional realization records`),
         ]
         if (refused.length) throw new Error(refused.join(' | '))
         return {
@@ -211,6 +217,43 @@ export function loadSportProfile(read: (file: string) => any = readJson): Loaded
             relationshipRules: result.relationshipRules || [],
         }
     })
+}
+
+/**
+ * **The sport's normal laws, named as the default** — H2, 23 October 2026 (the d26 design's build step 2, its section 3.2). Christian, reply
+ * filed 26 October 2026, item 10: *"The normal Laws of the Game should apply by default wherever they are applicable, unless an activity
+ * introduces an explicit, knowledge-authorized modification."* The Sport Profile carries a declaration block beside its contribution
+ * (`defaultLaws`, never items: his item 10 excludes reconstructing the laws as representation), restating its first "deliberately not
+ * contributed" entry with his authority: no law is authored; the laws are named as the default, with the few that can fail to apply in a
+ * modified environment listed with what each needs (`default-laws.ts`). Validated beside the profile's own loader - the closed list of law
+ * ids, his words required, unknown keys refused - and ANY defect refuses it whole (a block that slipped through would decide what every
+ * activity of the sport is held to). Null where the profile carries no block. `read` is a parameter ONLY so a test can hand a copy through
+ * the same refusal; production passes none.
+ */
+export function loadSportDefaultLaws(read: (file: string) => any = readJson, index = indexRegister(loadRegister())): DefaultLaws | null {
+    const [file] = sportProfileFiles()
+    const raw = read(file)
+    if (raw?.defaultLaws === undefined) return null
+    const errors = defaultLawsRefusals(raw.defaultLaws, index)
+    if (errors.length) throw new Error(`the Sport Profile ${file} default-laws block is refused: ${errors.join('; ')}`)
+    const block = JSON.parse(JSON.stringify(raw.defaultLaws))
+    return {
+        file,
+        sportId: String(raw.sportId),
+        source: String(block.source),
+        edition: block.edition === null ? null : String(block.edition),
+        editionNote: String(block.editionNote),
+        authority: { words: (block.authority.words as unknown[]).map(String), citedAs: String(block.authority.citedAs), by: String(block.authority.by), ruledOn: String(block.authority.ruledOn) },
+        laws: (block.laws as any[]).map(law => ({
+            id: String(law.id),
+            cites: String(law.cites),
+            name: String(law.name),
+            scope: law.scope,
+            applicableWhen: law.applicableWhen,
+            requires: law.requires,
+            note: law.note ? String(law.note) : null,
+        })),
+    }
 }
 
 /**
@@ -359,6 +402,14 @@ export interface ProvisionalRealization extends LoadedContract {
      * size) is his: no production realization carries one on 23 October 2026, and only TEST-ONLY copies do.
      */
     objectSuitability?: ObjectSuitability[]
+    /**
+     * **How strictly this realization's activity is held to the default-laws account** (H2, 23 October 2026; the d26 design's section 3.2:
+     * *"Strictness is data. Each record that declares the check states `defaultLawsCheck: ENFORCE | REPORT`, with a reason and authority.
+     * There is no default."*). Absent: the activity gains no account and is not checked (every realization but the build-out ones). A variant
+     * inherits its base's unless it states its own, as it inherits its items and testing boundaries; the departures its items record
+     * (`departsFrom`) are read from its composed items, never projected apart from them.
+     */
+    defaultLawsCheck?: DefaultLawsCheck
 }
 
 /** What a realization's authorized knowledge says suits its objects of one kind (stage E): a width range in metres, in his cited words. */
@@ -412,8 +463,13 @@ export function validateProvisionalRealizations(
     objectKinds: string[] = indexRegister(loadRegister()).sessionResources?.kinds ?? [],
     // H1 (23 October 2026): the rows the register bounds by the session envelope, whose values are in metres or relative (`carriesMetres`).
     envelopeRows: ReadonlySet<string> = envelopeBoundedRows(indexRegister(loadRegister()).outerBound),
+    // H2 (23 October 2026): the Sport Profile's default-laws block, which every departure an item records must name a law of; null without one.
+    defaultLaws: DefaultLaws | null = loadSportDefaultLaws(),
 ): string[] {
     const errors: string[] = []
+    // H2: the register indexed once, and only where a departure is read against it.
+    let registerIndex: RegisterIndex | null = null
+    const indexOnce = (): RegisterIndex => (registerIndex ??= indexRegister(loadRegister()))
     if (!file || typeof file !== 'object' || !filledText(file.about)) errors.push('the file says nothing about what it is (about)')
     const refused = file?.refusedDesignations
     const refusedList: string[] = Array.isArray(refused?.designations) ? refused.designations.map(String) : []
@@ -485,6 +541,41 @@ export function validateProvisionalRealizations(
         // Stage E (23 October 2026): a variant's composition, and what its authorized knowledge says suits its objects.
         errors.push(...variantRefusals(realization, realizations, which, envelopeRows))
         errors.push(...suitabilityRefusals(realization?.objectSuitability, which, objectKinds))
+        // H2 (23 October 2026): the departures its items record and the strictness it declares for the default-laws account.
+        errors.push(...defaultLawsDeclarationRefusals(realization, realizations, which, items, defaultLaws, indexOnce))
+    }
+    return errors
+}
+
+/**
+ * **What a realization says about the sport's normal laws** — H2, 23 October 2026 (the d26 design's section 3.2). Its strictness, where it
+ * declares one (`defaultLawsCheck`: a mode of the closed list, why, his words; a variant that declares none inherits its base's); each
+ * departure its own items record (`departsFrom`, `default-laws.ts` departureRefusals: a law the Sport Profile names, his words, the whole or
+ * a named part, a precondition of that law's own); and no departure recorded where nothing reads it - a realization recording departures
+ * (its own, or kept from its base) while declaring no check, own or inherited, is refused, because an account no build computes would hold
+ * his words that nothing says. A declaration or a departure without the profile's block is refused likewise. Empty where nothing is refused.
+ */
+function defaultLawsDeclarationRefusals(realization: any, realizations: any[], which: string, items: any[], defaultLaws: DefaultLaws | null, indexOnce: () => RegisterIndex): string[] {
+    const errors: string[] = []
+    const check = realization?.[DEFAULT_LAWS_CHECK_KEY]
+    if (check !== undefined) {
+        const refused = defaultLawsCheckRefusal(check)
+        if (refused) errors.push(`${which} ${refused}`)
+        if (!defaultLaws) errors.push(`${which} declares a default-laws check, and the Sport Profile names no default laws`)
+    }
+    for (const item of items) {
+        if (!item || typeof item !== 'object' || !(DEPARTS_FROM_KEY in item)) continue
+        const at = `${which} item ${String(item.id ?? '(no id)')}`
+        if (!defaultLaws) errors.push(`${at} records a departure from the normal laws, and the Sport Profile names no default laws`)
+        else errors.push(...departureRefusals(item[DEPARTS_FROM_KEY], defaultLaws.laws, at, indexOnce()))
+    }
+    const base = realization?.basedOn !== undefined ? realizations.find(candidate => candidate?.id === realization.basedOn) : undefined
+    const declared = check !== undefined || (base !== undefined && base?.[DEFAULT_LAWS_CHECK_KEY] !== undefined)
+    const withdrawn = new Set(((Array.isArray(realization?.withdraws) ? realization.withdraws : []) as any[]).map(entry => String(entry?.item ?? '')))
+    const kept = base && Array.isArray(base.items) ? base.items.filter((item: any) => !withdrawn.has(String(item?.id ?? ''))) : []
+    const recording = [...items, ...kept].filter((item: any) => !!item && typeof item === 'object' && DEPARTS_FROM_KEY in item)
+    if (recording.length && !declared) {
+        errors.push(`${which} records departures from the normal laws (${recording.map((item: any) => String(item.id)).join(', ')}) and declares no default-laws check, so nothing would read them`)
     }
     return errors
 }
@@ -554,12 +645,13 @@ function variantRefusals(realization: any, realizations: any[], which: string, e
         }
     }
     if (realization.testingBoundaries !== undefined) {
-        const own = areasStated(realization.testingBoundaries)
-        const inherited = areasStated(base.testingBoundaries)
-        if (JSON.stringify(own) !== JSON.stringify(inherited)) {
+        // Named apart from `own` above (the variant's own item ids): the H1 review's readability should-fix, carried into H2.
+        const ownAreas = areasStated(realization.testingBoundaries)
+        const inheritedAreas = areasStated(base.testingBoundaries)
+        if (JSON.stringify(ownAreas) !== JSON.stringify(inheritedAreas)) {
             for (const item of kept.filter((candidate: any) => carriesMetres(candidate, envelopeRows))) {
                 errors.push(
-                    `${which} states testing boundaries for ${areasText(own)} and keeps ${String(item?.id)}, whose value in metres ${baseId} gives for ${areasText(inherited)}: a variant stating another area withdraws every value in metres it would inherit, or withdraws it and restates it among its own items`,
+                    `${which} states testing boundaries for ${areasText(ownAreas)} and keeps ${String(item?.id)}, whose value in metres ${baseId} gives for ${areasText(inheritedAreas)}: a variant stating another area withdraws every value in metres it would inherit, or withdraws it and restates it among its own items`,
                 )
             }
         }
@@ -685,6 +777,13 @@ export function loadProvisionalRealizations(file: any = readJson(PROVISIONAL_REA
      */
     const testingBoundariesOf = (realization: any): any =>
         realization.basedOn !== undefined && realization.testingBoundaries === undefined ? rawById.get(String(realization.basedOn)).testingBoundaries : realization.testingBoundaries
+    /**
+     * Its default-laws check (H2, 23 October 2026): its own where it declares one, else its base's for a variant (read once, like its items),
+     * else none - and then its activity gains no account. The gate above has refused a mode outside the closed list and a departure recorded
+     * where no check, own or inherited, reads it.
+     */
+    const defaultLawsCheckOf = (realization: any): any =>
+        realization[DEFAULT_LAWS_CHECK_KEY] ?? (realization.basedOn !== undefined ? rawById.get(String(realization.basedOn))[DEFAULT_LAWS_CHECK_KEY] : undefined)
     return (copy.realizations as any[]).map(realization => ({
         contractId: String(realization.contractId),
         objectId: String(realization.contractId),
@@ -697,6 +796,7 @@ export function loadProvisionalRealizations(file: any = readJson(PROVISIONAL_REA
             ? { basedOn: String(realization.basedOn), withdrawn: ((realization.withdraws ?? []) as any[]).map(entry => ({ itemId: String(entry.item), because: String(entry.because) })) }
             : {}),
         ...(Array.isArray(realization.objectSuitability) ? { objectSuitability: JSON.parse(JSON.stringify(realization.objectSuitability)) as ObjectSuitability[] } : {}),
+        ...(defaultLawsCheckOf(realization) !== undefined ? { defaultLawsCheck: JSON.parse(JSON.stringify(defaultLawsCheckOf(realization))) as DefaultLawsCheck } : {}),
         declarations: [],
         relationshipRules: [],
         provisionalId: String(realization.id),

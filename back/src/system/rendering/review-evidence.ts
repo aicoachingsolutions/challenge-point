@@ -26,6 +26,7 @@
  */
 import { RegisterIndex } from '../derivation/register'
 import { roleHolderNames } from '../derivation/designation'
+import type { DefaultLawsAccount } from '../realization/default-laws-check'
 import { CREDIT_BEGINS_CLAUSE, CREDIT_ENDS_CLAUSE } from '../derivation/gates'
 import { LoadedContract } from '../derivation/types'
 import { contractCoverage } from '../derivation/run-bounded-selection'
@@ -101,6 +102,8 @@ export interface EvidenceInput {
     index: RegisterIndex
     /** Stage 3D: the overview's evidence as the build checked it (`overview-fidelity.ts`); absent or null on a refusal. */
     overview?: OverviewEvidence | null
+    /** H2: the default-laws account the build computed (`realization/default-laws-check.ts`); absent or null where no realization declares the check. */
+    defaultLaws?: DefaultLawsAccount | null
 }
 
 /** Why the markings are not set out once for this build, and which move at the exchange (admin-only, hardening H1; stage 2G). */
@@ -208,6 +211,13 @@ export interface ReviewEvidence {
      * and source, and its word count and reading seconds (evidence only, never a gate). Present only on a served activity.
      */
     overview?: OverviewEvidence
+    /**
+     * **H2, 23 October 2026: the default-laws account** (the d26 design's section 3.2: *"The account reaches the review evidence."*) — for
+     * each law the Sport Profile names, per block and per place, whether it applies, is departed from (the items and his words), does not
+     * apply (why), or is owed an adaptation (why), with the realization's strictness and the DRAFT sentence the design holds for the coach,
+     * shown as held. Present only where the realization the games were derived through declares `defaultLawsCheck`; for an administrator.
+     */
+    defaultLaws?: DefaultLawsAccount
 }
 
 export interface ItemEvidence {
@@ -1166,5 +1176,7 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
         rationale: { features: rationale, his: { words: [...request.judgement.words], citedAs: request.judgement.citedAs }, judgement: 'Every reason above is his, quoted from the record, or an approved statement of the context, read from the workbook. Whether the game produces the learning environment those reasons describe is his judgement as a coach.' },
         // Stage 3D: the Coach Overview's agreement check, as the build ran it (copied, never recomputed here); only on a served activity.
         ...(input.overview ? { overview: JSON.parse(JSON.stringify(input.overview)) as OverviewEvidence } : {}),
+        // H2: the default-laws account, as the build computed it (copied, never recomputed here); only where the realization declares the check.
+        ...(input.defaultLaws ? { defaultLaws: JSON.parse(JSON.stringify(input.defaultLaws)) as DefaultLawsAccount } : {}),
     }
 }
