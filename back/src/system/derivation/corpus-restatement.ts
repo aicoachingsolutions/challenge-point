@@ -38,7 +38,7 @@ import { AUDITS_DIR } from './knowledge-root'
 
 import { provablyDisjoint } from './reach'
 import { parsePredicate } from './selector'
-import { ContractItem, DEFERS_TO_AUTHORIZED_REALIZATION, DEFERS_TO_ESTABLISHING_OBJECT, LoadedContract } from './types'
+import { ContractItem, DEFERS_TO_AUTHORIZED_REALIZATION, DEFERS_TO_ESTABLISHING_OBJECT, LoadedContract, ROLE_YIELD_KEY, ROLE_YIELD_MARKERS } from './types'
 
 /** The spellings the corpus used for "no row holds this", neither of them registered. */
 const UNREGISTERED_SPELLINGS = ['NONE', '—']
@@ -52,6 +52,72 @@ export interface ItemRestatement {
     /** Remove the item from its contract entirely (its source is preserved on the task register). */
     remove?: true
     why: string
+    /**
+     * **His words, and where he said them** (stage A, 22 October 2026): what makes a ruling an OWNER ruling for the one key that
+     * requires it, the role-yield marker (`itemRestatementRefusal`). Read nowhere else.
+     */
+    words?: string
+    citedAs?: string
+}
+
+/**
+ * **The fields an item restatement may write** — stage A, 22 October 2026, for the design's rule on the restatement loader (*"refuse any
+ * other new key. A test proves an unknown key is refused, not applied."*). Every key a ruled restatement writes today, read from the
+ * data on that day, plus the role-yield marker (`ROLE_YIELD_KEY`). A key outside this list would be written onto an item and read by
+ * nothing — or read by something that never learned what it means — so the ruling carrying it is refused and named, never applied.
+ */
+export const ITEM_RESTATEMENT_KEYS: readonly string[] = [
+    'row',
+    'satisfiedBy',
+    'structuralClause',
+    'checkability',
+    'value',
+    'selector',
+    'offListMembers',
+    'asAuthored',
+    'authoredOrder',
+    'forbiddenCardinality',
+    'goalKickTriggerSource',
+    'basis',
+    'basisEvidence',
+    'restartOwnershipSource',
+    'fitNote',
+    'gloss',
+    'relational',
+    'distinctOn',
+    'typedBound',
+    'comparison',
+    'requirement',
+    'strictness',
+    'scope',
+    'valueStatus',
+    'forbiddenValues',
+    'defersTo',
+    'defersToNote',
+    ROLE_YIELD_KEY,
+]
+
+/**
+ * **An item restatement writes only keys the engine knows, and the role-yield marker only as ruled** — stage A, 22 October 2026
+ * (register version 16, `roleScoring.roleYield`). Christian, reply filed 25 October 2026, item 2: *"Please implement this as a general
+ * role-specific scoring capability, preserving structural validation and knowledge authorization."* Null where the ruling may be
+ * applied; otherwise why not, and the ruling is refused whole and named (as `itemDeferralRefusal` refuses an unknown supersession):
+ *
+ *   - a key outside `ITEM_RESTATEMENT_KEYS`;
+ *   - the marker (`ROLE_YIELD_KEY`) with a value outside `ROLE_YIELD_MARKERS`;
+ *   - the marker on a ruling that does not quote his words and say where (`words`, `citedAs`): a marker that lets an item yield may
+ *     not rest on a reading of ours, as a relation that decides a gate clause may not (the `relativeTo` precedent, register.ts).
+ */
+export function itemRestatementRefusal(key: string, ruling: ItemRestatement): string | null {
+    const set = ruling.set ?? {}
+    const unknown = Object.keys(set).filter(field => !ITEM_RESTATEMENT_KEYS.includes(field))
+    if (unknown.length) return `${key} (${ruling.ruling}): ${unknown.map(field => JSON.stringify(field)).join(', ')} ${unknown.length === 1 ? 'is not a field' : 'are not fields'} an item restatement may write, so the ruling is not applied`
+    if (!(ROLE_YIELD_KEY in set)) return null
+    const marker = set[ROLE_YIELD_KEY]
+    if (!(ROLE_YIELD_MARKERS as readonly unknown[]).includes(marker)) return `${key} (${ruling.ruling}): ${JSON.stringify(marker)} is not a role-yield marker (only ${ROLE_YIELD_MARKERS.join(', ')}), so the ruling is not applied`
+    const quoted = (value: unknown) => typeof value === 'string' && value.trim().length > 0
+    if (!quoted(ruling.words) || !quoted(ruling.citedAs)) return `${key} (${ruling.ruling}): the role-yield marker is written only on an owner ruling that quotes his words and says where (words, citedAs), so the ruling is not applied`
+    return null
 }
 
 /**
@@ -94,6 +160,10 @@ export interface DeclarationRestatement {
  * one. Returns the reason it cannot be applied instead, so the caller reports it rather than guessing.
  */
 export function restateDeclaration(declaration: Record<string, unknown>, restatement: DeclarationRestatement): Record<string, unknown> | { refused: string } {
+    // Stage A (22 October 2026): the role-yield marker is an item's, written by an item restatement only; on a declaration it is refused and named.
+    if (ROLE_YIELD_KEY in (restatement as unknown as Record<string, unknown>)) {
+        return { refused: `${restatement.contractId} declaration on ${restatement.row} (${restatement.ruling}): the role-yield marker is written on an item only, never on a declaration` }
+    }
     if (restatement.defersTo !== undefined && restatement.defersTo !== DEFERS_TO_ESTABLISHING_OBJECT) {
         return { refused: `${restatement.contractId} declaration on ${restatement.row} (${restatement.ruling}): ${JSON.stringify(restatement.defersTo)} is not a supersession the engine knows` }
     }
@@ -270,8 +340,11 @@ function disqualifies(item: ContractItem): string | null {
     return null
 }
 
-/** Apply every ruled restatement to a loaded corpus, on a copy. Nothing else is touched. */
-export function applyNoRowRestatement(contracts: LoadedContract[], tally: RestatementTally): LoadedContract[] {
+/**
+ * Apply every ruled restatement to a loaded corpus, on a copy. Nothing else is touched. `rulings` is the ledger's item restatements;
+ * a test may hand a COPY with a TEST-ONLY ruling added (stage A, 22 October 2026), to prove a refused ruling is not applied.
+ */
+export function applyNoRowRestatement(contracts: LoadedContract[], tally: RestatementTally, rulings: ItemRestatement[] = ITEM_RESTATEMENTS): LoadedContract[] {
     tally.applied = 0
     tally.withheld = []
     tally.itemsRestated = 0
@@ -291,7 +364,7 @@ export function applyNoRowRestatement(contracts: LoadedContract[], tally: Restat
     // ruling per item would have let the later entry silently replace the earlier one, which is this
     // project's costliest recurring failure in a new place.
     const byKey = new Map<string, ItemRestatement[]>()
-    for (const restatement of ITEM_RESTATEMENTS) {
+    for (const restatement of rulings) {
         byKey.set(restatement.item, [...(byKey.get(restatement.item) || []), restatement])
     }
     const seen = new Set<string>()
@@ -324,7 +397,8 @@ export function applyNoRowRestatement(contracts: LoadedContract[], tally: Restat
             for (const ruling of rulings) {
                 // An item's supersession is a ruled one and has one value (15 October 2026, stage K4, C56); any other is
                 // refused and named, never applied — the declaration's rule (`restateDeclaration`), for an item.
-                const refusal = itemDeferralRefusal(key, ruling)
+                // Stage A (22 October 2026): only keys the engine knows, and the role-yield marker only as ruled (`itemRestatementRefusal`).
+                const refusal = itemRestatementRefusal(key, ruling) ?? itemDeferralRefusal(key, ruling)
                 if (refusal) {
                     tally.notFound.push(refusal)
                     continue

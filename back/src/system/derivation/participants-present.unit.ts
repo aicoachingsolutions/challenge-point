@@ -145,7 +145,12 @@ const builtWith = (session: any, alter: (contracts: LoadedContract[]) => void) =
 
 // ── 1. The register ─────────────────────────────────────────────────────────────────────────────────────
 test('register version 15 types the participant forms as data, in one versions entry quoting him', () => {
-    const version = String(register.version)
+    // Re-pointed 22 October 2026 (stage A): version 16 (one primary scoring event per role) supersedes 15, so version 15's entry is read
+    // where it now stands, after "Supersedes version 15, which ", once.
+    const full = String(register.version)
+    assert.ok(full.startsWith('16, adds one primary scoring event per role'))
+    assert.equal(full.split('Supersedes version 15, which ').length - 1, 1, 'version 15 superseded once')
+    const version = `15, ${full.split('Supersedes version 15, which ')[1]}`
     assert.ok(version.startsWith('15, adds which participant a value names, for his reply filed 25 October 2026, item 6'))
     for (const quote of [
         'Any participant or role required by an activity must actually be present in the authorized configuration.',

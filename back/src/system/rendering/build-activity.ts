@@ -56,8 +56,8 @@ import { TEST_LIBRARY_V0_AFFORDANCE_LENSES, TEST_LIBRARY_V0_ARCHETYPES, TEST_LIB
 import type { SelectionKnowledgeGapReason } from '../test-library/generateSelection'
 import { learningGoalSelectionHolds } from '../test-library/learning-design-holds'
 import type { AuthorizationExclusion, AuthorizationLists, AuthorizedAdjustment, ContextManipulationRelationship, LearningGoalAuthorization } from '../test-library/learning-goal-authorizations'
-import { allocationPrinciple, authorizationLists, contextManipulationRelationships, learningGoalAuthorizations, libraryConstraintPrinciple, neededRecordGaps } from '../test-library/learning-goal-authorizations'
-import { applyRealizationDeferrals } from '../derivation/realization-deferral'
+import { allocationPrinciple, authorizationLists, contextRelationships, learningGoalAuthorizations, libraryConstraintPrinciple, neededRecordGaps } from '../test-library/learning-goal-authorizations'
+import { applyRealizationDeferrals, applyRoleYields } from '../derivation/realization-deferral'
 import type { ConstraintAuthority, ConstraintPoolAccount } from '../test-library/types'
 import { CoachOverviewDraft, failedOverviewDraft } from './coach-overview'
 import { CoachDiagram, DiagramOutcome, diagramForServing } from './coach-diagram'
@@ -198,7 +198,11 @@ export interface ActivityAccount {
  */
 export interface AllocationAccount {
     principle: { ruledOn: string; by: string; citedAs: string; principle: string }
-    relationships: Pick<ContextManipulationRelationship, 'id' | 'contextId' | 'manipulationId' | 'manipulationName' | 'manipulationStatus' | 'rows' | 'status' | 'confirmedOn' | 'citedAs' | 'words' | 'identified'>[]
+    /**
+     * The relationships the realization's items and the adjustments cite, of every recorded kind (stage A, 22 October 2026). A relationship
+     * that is no manipulation (a context scoring relationship; none recorded today) carries null in the three manipulation fields.
+     */
+    relationships: (Pick<ContextManipulationRelationship, 'id' | 'contextId' | 'rows' | 'status' | 'confirmedOn' | 'citedAs' | 'words' | 'identified'> & { manipulationId: string | null; manipulationName: string | null; manipulationStatus: string | null })[]
     /** What defers in this composition (ruling C56): the alternative, with what it defers to. */
     alternatives: { contractId: string; itemId: string; row: string; value: unknown; defersTo: string; deferredTo: { contractId: string; itemId: string }[]; relationship: string }[]
     adjustments: AuthorizedAdjustment[]
@@ -218,9 +222,15 @@ function allocationAccountOf(record: LearningGoalAuthorization, realization: Pro
     const { ruledOn, by, citedAs, principle } = allocationPrinciple()
     return {
         principle: { ruledOn, by, citedAs, principle },
-        relationships: contextManipulationRelationships()
+        // Stage A (22 October 2026): read from every recorded kind (`contextRelationships`); a relationship that is no manipulation (a
+        // context scoring relationship, none recorded today) names no manipulation, and says so (null) rather than borrowing a field.
+        relationships: contextRelationships()
             .filter(entry => cited.has(entry.id))
-            .map(({ id, contextId, manipulationId, manipulationName, manipulationStatus, rows, status, confirmedOn, citedAs: where, words, identified }) => ({ id, contextId, manipulationId, manipulationName, manipulationStatus, rows: [...rows], status, confirmedOn, citedAs: where, words: [...words], identified })),
+            .map(entry => {
+                const { id, contextId, rows, status, confirmedOn, citedAs: where, words, identified } = entry
+                const manipulation = 'manipulationId' in entry ? entry : null
+                return { id, contextId, manipulationId: manipulation?.manipulationId ?? null, manipulationName: manipulation?.manipulationName ?? null, manipulationStatus: manipulation?.manipulationStatus ?? null, rows: [...rows], status, confirmedOn, citedAs: where, words: [...words], identified }
+            }),
         alternatives: deferred.map(entry => ({
             contractId: entry.contractId,
             itemId: entry.item.itemId,
@@ -1069,8 +1079,15 @@ function build(
      * the same composition; the deferred item travels beside its contract and into the fixture as the alternative. Where no
      * selected contribution cites a confirmed relationship nothing moves, and the input is the same objects as before.
      */
-    const deferral = applyRealizationDeferrals(input.contracts as LoadedContract[], contextManipulationRelationships(), indexRegister(input.register))
-    input.contracts = deferral.contracts
+    /**
+     * Stage A (22 October 2026): read with the context relationships of every kind the records hold (`contextRelationships`, the design's
+     * X3: the deferral's input is kind-neutral), and the items a ruled restatement marked as yielding for one role recorded beside their
+     * contracts in the same pass (`applyRoleYields`, which moves nothing; GA-ROLE-EVENTS clause 6 reads it). Neither changes anything in a
+     * composition that cites no such relationship, so every activity's input is the same objects as before.
+     */
+    const relationships = contextRelationships()
+    const deferral = applyRealizationDeferrals(input.contracts as LoadedContract[], relationships, indexRegister(input.register))
+    input.contracts = applyRoleYields(deferral.contracts, relationships, indexRegister(input.register))
     /**
      * **The record's lists read the provisional realization derivation actually received** (15 October 2026, stage K2), so
      * the review page and the game can never disagree about which provisional choices shaped it. Production passes the
@@ -1458,7 +1475,8 @@ function reviewEvidenceFor(
         layoutFallback,
         record: record as LearningGoalAuthorization & { reviewRequest: NonNullable<LearningGoalAuthorization['reviewRequest']> },
         lists: account.authorizationLists ?? null,
-        relationships: contextManipulationRelationships(),
+        // Stage A (22 October 2026): every recorded kind of context relationship (`contextRelationships`), equal to the manipulation list today.
+        relationships: contextRelationships(),
         selectedConstraints: (account.constraints ?? []).map(constraint => constraint.id),
         // 22 October 2026 (the live-app fix): the authority the live route decides its pathway by, read from the account selection made.
         constraintAuthority: account.constraintSource?.constraintAuthority ?? null,
@@ -1708,7 +1726,8 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
         const episodeCheck = post.gateA.checks.find(check => check.checkId === EPISODE_REACHABLE_CHECK)
         // Stage M2: what establishes and fills each occurrence that also counts as the primary event (a collection whose elements earn
         // another row's value, register `earnsValueOf`), read from the derived lines, so the guard can require his ruling behind it.
-        const earning = [...index.rows.values()].filter(row => row.earnsValueOf !== undefined).map(row => row.id)
+        // A collection whose elements earn a value (V27); a member field earning one (B9, stage A) is a role's own event, read just below.
+        const earning = [...index.rows.values()].filter(row => row.earnsValueOf !== undefined && row.kind === 'COLLECTION').map(row => row.id)
         const basisOf = (ref: { contractId: string; itemId: string }) =>
             String((input.contracts as LoadedContract[]).find(c => c.contractId === ref.contractId)?.items.find(i => i.itemId === ref.itemId)?.basis ?? 'not found')
         const alsoCountsSupport = ctx.classes
@@ -1719,7 +1738,25 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
                 const unique = refs.filter((ref, i) => refs.findIndex(other => other.contractId === ref.contractId && other.itemId === ref.itemId) === i)
                 return { elementId: String(c.classId), items: unique.map(ref => ({ contractId: ref.contractId, itemId: ref.itemId, basis: basisOf(ref) })) }
             })
-        invalid.push(...contextScoringFindings(context.id, contract, realized.game, rpcLibrary.scoringEventsForContext(context.id), episodeCheck, alsoCountsSupport))
+        /**
+         * Stage A (22 October 2026, register version 16): what writes each role's own scoring event (the register's `roleScoring.eventRow`
+         * on each role element), read from the derived lines exactly as the occurrences above are, so the guard can require his ruling
+         * behind it (`roleEventFindings`). Empty for every game whose roles score by the game's primary event.
+         */
+        const scoringSpec = index.roleScoring
+        const rolesSpec = index.roleBlocks
+        const roleEventSupport =
+            scoringSpec && rolesSpec
+                ? ctx.classes
+                      .filter((c: any) => c.row === rolesSpec.rolesRow)
+                      .map((c: any) => {
+                          const term = (c.constraints?.terms ?? []).find((t: any) => t.attribute === rolesSpec.roleAttribute && t.op === '=')
+                          const refs: { contractId: string; itemId: string }[] = (ctx.derived.get(`${c.classId}::${scoringSpec.eventRow}`)?.entailing ?? []).map((e: any) => e.item)
+                          const unique = refs.filter((ref, i) => refs.findIndex(other => other.contractId === ref.contractId && other.itemId === ref.itemId) === i)
+                          return { elementId: String(c.classId), role: String(term?.value ?? ''), items: unique.map(ref => ({ contractId: ref.contractId, itemId: ref.itemId, basis: basisOf(ref) })) }
+                      })
+                : []
+        invalid.push(...contextScoringFindings(context.id, contract, realized.game, rpcLibrary.scoringEventsForContext(context.id), episodeCheck, alsoCountsSupport, roleEventSupport, index))
     }
     if (invalid.length) return refuse('validation', 'The game built for this activity did not pass its own checks, so it is not being shown.', invalid)
 

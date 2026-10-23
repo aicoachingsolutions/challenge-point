@@ -1197,7 +1197,7 @@ test('FIRST_FORWARD_PASS is registered, and it is the only trigger the 29 Septem
     )
 })
 
-test('the twenty Gate A checks are all present, and GA-RESIDUAL-SPACE is gone (SD-45)', () => {
+test('the twenty-one Gate A checks are all present, and GA-RESIDUAL-SPACE is gone (SD-45)', () => {
     const result: any = runStages0to10(corpusInput())
     const ids = gateA(result).checks.map((c: any) => c.checkId).sort()
     // Seventeen since 14 October 2026: GA-AFFILIATION reads register row P6c, added that day on his ruling
@@ -1213,7 +1213,11 @@ test('the twenty Gate A checks are all present, and GA-RESIDUAL-SPACE is gone (S
     // Twenty since 22 October 2026: GA-PARTICIPANTS-PRESENT checks that every participant an element requires is held by the
     // configuration (his reply filed 25 October 2026, item 6: "Any participant or role required by an activity must actually be
     // present in the authorized configuration."). See participants-present.unit.ts.
-    assert.equal(ids.length, 20)
+    // Twenty-one since 22 October 2026 (stage A, register version 16): GA-ROLE-EVENTS checks that one primary scoring event per role is
+    // coherent and compatible (his reply filed 25 October 2026, item 2: "The engine should verify that the objectives are coherent and
+    // compatible rather than simply allow any combination of scoring events."). See role-events.unit.ts.
+    assert.equal(ids.length, 21)
+    assert.ok(ids.includes('GA-ROLE-EVENTS'))
     assert.ok(ids.includes('GA-PARTICIPANTS-PRESENT'))
     assert.ok(ids.includes('GA-RELATIVE-PLACEMENT'))
     assert.ok(ids.includes('GA-EPISODE-REACHABLE'))

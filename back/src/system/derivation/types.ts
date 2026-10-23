@@ -121,9 +121,40 @@ export interface ContractItem {
     /**
      * The context-manipulation relationship a provisional realization's item cites as its authority (15 October 2026, stage
      * K4): the id of an entry of the authorization records' `contextManipulationRelationships`, checked at load
-     * (`learning-goal-authorizations.ts`) and read by the deferral (`realization-deferral.ts`).
+     * (`learning-goal-authorizations.ts`) and read by the deferral (`realization-deferral.ts`). Since stage A (22 October 2026,
+     * register version 16) the id of a relationship of ANY kind the records hold (`contextRelationships`).
      */
     authorizedBy?: unknown
+    /**
+     * **The role-yield marker** (stage A, 22 October 2026, register version 16; `ROLE_YIELD_KEY`): written only by a ruled
+     * restatement (corpus-restatement.ts, only on an owner ruling quoting his words, only from `ROLE_YIELD_MARKERS`). It says that a
+     * REQUIRED permitted set on the event or target rows may be departed from for ONE role, where that role's own event (row B9) and
+     * objective reference cite a confirmed relationship naming this item (GA-ROLE-EVENTS, clause 6). It removes nothing: the item
+     * keeps governing every other role and every game without such a citation.
+     */
+    yieldsForRole?: unknown
+}
+
+/**
+ * **The role-yield marker, as the engine implements it** — stage A, 22 October 2026 (register version 16). Christian, reply filed 25
+ * October 2026, item 2: *"Please implement this as a general role-specific scoring capability, preserving structural validation and
+ * knowledge authorization."* The key an item restatement may write and its closed list of values; the register's `roleScoring.roleYield`
+ * must name exactly these (halt H1 in `register.ts`), so the loader (which reads no register) and the gate read one list. No item
+ * carries it on 22 October 2026: whether any item yields is his ruling (restatement S1 of the note sent to him).
+ */
+export const ROLE_YIELD_KEY = 'yieldsForRole'
+export const ROLE_YIELD_MARKERS = ['AUTHORIZED_ROLE_SCORING'] as const
+
+/**
+ * **Where a marked item yields, in this composition** (stage A, 22 October 2026): the items of other selected contributions that write
+ * a role's own event (row B9) or an objective's reference (row J2) and cite a CONFIRMED relationship of the context their contribution
+ * realizes, which authorizes their row and names this item among those it supersedes (`realization-deferral.ts` `applyRoleYields`).
+ * Recorded on a COPY of the marked item's contract; nothing is removed. Read by GA-ROLE-EVENTS clause 6 only.
+ */
+export interface RoleYield {
+    itemId: string
+    marker: string
+    citedBy: { contractId: string; itemId: string; row: string; relationship: string }[]
 }
 
 export interface Declaration {
@@ -198,6 +229,11 @@ export interface LoadedContract {
      * alternative stays visible. Absent wherever nothing defers.
      */
     deferredItems?: DeferredItem[]
+    /**
+     * Items of this contract carrying the role-yield marker, each with the citing items that may depart from it for one role in this
+     * composition (stage A, 22 October 2026; `RoleYield`). Absent wherever no marked item is cited.
+     */
+    roleYields?: RoleYield[]
 }
 
 /** An item that defers in this composition, with what it defers to (stage K4, ruling C56). */

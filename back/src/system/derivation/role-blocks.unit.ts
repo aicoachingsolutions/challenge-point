@@ -92,7 +92,8 @@ test('the register carries the role-block capability as data (version 10), each 
     // his M7/M5) supersedes 12, the chain kept whole. And again 17 October 2026 (stage M1): version 14 (a role's credit confined to
     // an episode, alsoCounts, the relative count; his reply filed 19 October 2026) supersedes 13, the chain kept whole.
     // Re-pointed 22 October 2026: version 15 (which participant a value names, his reply filed 25 October 2026, item 6) supersedes 14.
-    assert.match(String(register.version), /^15, adds which participant a value names, .*Supersedes version 14, which adds a role's scoring credit .*Supersedes version 13, which adds positions stated relative .*Supersedes version 12, which adds starts and restarts .*Supersedes version 11, which adds participant reassignment .*Supersedes version 10, which adds role blocks for his M1/)
+    // Re-pointed 22 October 2026 (stage A): version 16 (one primary scoring event per role, his reply filed 25 October 2026, item 2) supersedes 15.
+    assert.match(String(register.version), /^16, adds one primary scoring event per role, .*Supersedes version 15, which adds which participant a value names, .*Supersedes version 14, which adds a role's scoring credit.*Supersedes version 13, which adds positions stated relative .*Supersedes version 12, which adds starts and restarts .*Supersedes version 11, which adds participant reassignment .*Supersedes version 10, which adds role blocks for his M1/)
     assert.ok(String(register.version).includes('Keep role assignments separate from fixed ends.'), 'the version entry quotes M1')
     assert.ok(String(register.version).includes('Supersedes version 9'), 'and keeps the history')
     assert.ok(index.rows.get('S2')!.selectorAttributes!.includes('targetOf'))
@@ -141,6 +142,9 @@ test('the index refuses a damaged role-block or targetOf block (halt H1)', () =>
     // 15 October 2026 (stage K4): nor version 11's reassignment block, which needs role blocks (a register keeping it without
     // them halts H1, allocation.unit.ts) — so the "before version 10" copy drops it too.
     delete before.reassignment
+    // 22 October 2026 (stage A): nor version 16's role-scoring block, which needs role blocks too (a register keeping it without them
+    // halts H1, role-events.unit.ts) — so the copy drops it as well.
+    delete before.roleScoring
     assert.equal(indexRegister(before).roleBlocks, null)
     assert.equal(indexRegister(before).targetOf, null)
 })

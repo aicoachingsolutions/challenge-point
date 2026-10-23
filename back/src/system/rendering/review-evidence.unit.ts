@@ -163,9 +163,11 @@ test('1. end to end on production data: SERVED (design step L14; was refused onl
     // Re-pointed 21 October 2026 (stage 2D): 10 cross-block checks, RB-L joining.
     // Re-pointed 22 October 2026: 20 Gate A checks per block (40), GA-PARTICIPANTS-PRESENT joining (his reply filed 25 October 2026,
     // item 6), and its five clauses owed per block (22 -> 32), every one passing on applicable instances (participants-present.unit.ts).
-    assert.deepEqual(evidence.structure.summary.gateChecks, { PASS: 40 })
+    // Re-pointed 22 October 2026 (stage A): 21 Gate A checks per block (42), GA-ROLE-EVENTS joining (his reply filed 25 October 2026, item
+    // 2), its target and yield clauses owed per block (32 -> 36), each passing on the two teams it examined (role-events.unit.ts).
+    assert.deepEqual(evidence.structure.summary.gateChecks, { PASS: 42 })
     assert.deepEqual(evidence.structure.summary.crossBlock, { PASS: 10 })
-    assert.deepEqual(evidence.structure.summary.owed, { PASS: 32 })
+    assert.deepEqual(evidence.structure.summary.owed, { PASS: 36 })
     assert.equal(evidence.structure.composition.length, 0)
     // Only production data: the record names the realization, and no TEST-ONLY value is anywhere in what was built.
     assert.ok(!JSON.stringify(review).includes('TEST-ONLY'))

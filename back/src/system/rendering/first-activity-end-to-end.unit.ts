@@ -99,10 +99,12 @@ test('1. production: SERVED at 12 players (1 and 2 goalkeepers) and 11 - every s
         assert.equal(fact(evidence.acceptance, 'every structural check passes (Gate A rerun per block, post-realization owed invariants, cross-block checks, composition)'), true, what)
         // Re-pointed 22 October 2026: GA-PARTICIPANTS-PRESENT joins each block (38 -> 40) with its five clauses owed (22 -> 32), his reply
         // filed 25 October 2026, item 6 (participants-present.unit.ts).
-        assert.deepEqual(evidence.structure.summary.gateChecks, { PASS: 40 }, what)
+        // Re-pointed 22 October 2026 (stage A): GA-ROLE-EVENTS joins each block (40 -> 42) with its target and yield clauses owed (32 -> 36),
+        // his reply filed 25 October 2026, item 2 (role-events.unit.ts).
+        assert.deepEqual(evidence.structure.summary.gateChecks, { PASS: 42 }, what)
         // Re-pointed 21 October 2026 (stage 2D): ten, RB-L joining (the markings set out once are the blocks' own).
         assert.deepEqual(evidence.structure.summary.crossBlock, { PASS: 10 }, what)
-        assert.deepEqual(evidence.structure.summary.owed, { PASS: 32 }, what)
+        assert.deepEqual(evidence.structure.summary.owed, { PASS: 36 }, what)
         assert.equal(evidence.structure.composition.length, 0, what)
         assert.deepEqual(fact(evidence.acceptance, 'fidelity violations in the text that is said'), [], what)
         assert.equal(fact(evidence.acceptance, 'fields awaiting approved wording'), 0, what)

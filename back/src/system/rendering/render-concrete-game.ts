@@ -54,6 +54,7 @@ import { NO_FURTHER_VALUE } from '../derivation/types'
 import { CONDITION_ROW, conditionScopeNotEvaluable } from '../derivation/resolved-game'
 import { ApprovedTemplateSentence, approvedTemplateSentences, approvedWording, ApprovedWording, canonicalJson, fillTemplate, POSSESSION_CONTINUES, WordingMatch } from './approved-wording'
 import { exclusionFor } from './coach-facing-exclusions'
+import { eventKindOf, genericOf } from './game-reading'
 import { MARK_UNION_ONCE, MarkingChange, PhysicalLayout, Remarking } from './physical-layout'
 import { ADJUSTING, assignSection, inSectionOrder, PLAY_STATE_UNREADABLE, RESTARTS, ROLE_EXCHANGE, Section, SectionFacts, TransitionReading, When } from './sections'
 
@@ -675,6 +676,24 @@ const participants = (): RegisterIndex => {
 }
 /** The scoring event that is ENTRY into a target region, worded for that value only (its other kinds keep the line wording). */
 const ZONE_ENTRY_EVENT = 'target_zone_entered'
+
+/**
+ * **Which of the two existing scoring wordings says how a team scores by a kind, or none** — stage A, 22 October 2026 (register version
+ * 16). Until this every kind but the zone entry was said with the line wording ("across the line it is attacking"), so a game scored by a
+ * goal or a gate would have been told it scores across a line. Now: the zone entry keeps its wording (and, where its conditions do not
+ * hold, the line wording it had); a kind the register's target-type map says scores at a line (`roleScoring.targetTypes`, OUR
+ * INTERPRETATION) has the line wording; ANY OTHER KIND HAS NONE — its way to score is withheld (AWAITING_APPROVED_WORDING) and fidelity
+ * refuses a sentence that says it (Q2). New wording for a kind comes from data, never from a branch beside ZONE_ENTRY_EVENT (the design's
+ * no-exception ratchet). A register without the map (before version 16) reads as before: the line wording for every other kind.
+ */
+export function scoringWordingOf(kind: unknown, index: RegisterIndex = participants()): 'ZONE_ENTRY' | 'LINE_CROSSING' | null {
+    if (kind === ZONE_ENTRY_EVENT) return 'ZONE_ENTRY'
+    if (!index.roleScoring) return 'LINE_CROSSING'
+    return (index.roleScoring.targetTypes.get(String(kind)) ?? []).some(target => target.type === 'line') ? 'LINE_CROSSING' : null
+}
+
+/** The register row a game path is of (its path with member ids taken out), as a withheld field names it (stage A). */
+const rowOfKindPath = (path: string, index: RegisterIndex = participants()): string => [...index.rows.values()].find(row => genericOf(String(row.path)) === genericOf(path))?.id ?? 'not a register row'
 /** The relative position RC-21 names (register `relativeTerms`, version 13), read where a start placement is stated by it. */
 export const BEYOND = 'beyond X (for team T)'
 /** The end a target touches, as RC-21 names it: the end its attacking team attacks, which is the other team's end (C42). */
@@ -2410,7 +2429,9 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
     // ── How to score ────────────────────────────────────────────────────────────────────────────
     const primary = game.value?.primaryEvent
     if (primary) {
-        const kindPath = 'value.primaryEvent.kind'
+        // Stage A (22 October 2026): the game's primary event read through the one kind reader (game-reading.ts `eventKindOf`).
+        const gameEvent = eventKindOf(game, null, participants())
+        const kindPath = gameEvent.path
         /**
          * **The thing that crosses the line is named only when the game establishes one, and the noun comes from the
          * game.** His ruling of 7 October: *"A rendered scoring instruction may mention the ball only when the
@@ -2426,46 +2447,73 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
          * with zone targets and an object, the sentence says entry under control, carried or received, citing the event, its
          * value, the object and each target's noun. Every other game reads exactly as before.
          */
-        // How a score is made, and what the sentence saying it cites beyond the event and its value.
-        const zoneEntry = primary.kind === ZONE_ENTRY_EVENT && carrier && objectives.length > 1 && targetNoun
         /**
-         * Hardening H5, 21 October 2026 (DRAFT): the zone a team enters to score is its objective's region, its target, so it is named as
-         * "its target {noun}" — his term "target zone" (reply filed 22 October 2026, item 7, as the build plan's expected Details 14 records
-         * it), as the Set up sentences name each role's target — not "the {noun} it is attacking". Only the zone-entry wording changes, and
-         * only for zone targets: a game that scores across a line keeps "across the line it is attacking". The citations are unchanged
-         * (each target's noun).
+         * **How a score is made, for one team's scoring event — stage A, 22 October 2026 (register version 16).** Until this one `how` was
+         * built from the game's primary event and said for every role. Christian, reply filed 25 October 2026, item 2: *"I approve extending
+         * the September 15 decision to support one primary scoring event per role in an asymmetric activity"*. So `how` is made per event,
+         * read through `eventKindOf`, with the two existing wordings only (`scoringWordingOf`): a kind with neither is withheld, never said
+         * with another kind's words. Where every target shares one noun the zone entry cites each target's noun exactly as before; where the
+         * targets differ (a role's own event), it names and cites the role's OWN target's noun. Null where the kind has no wording.
          */
-        // A region noun that already says "target" is not prefixed again ("its target target zone").
-        const targetPhrase = targetNoun && targetNoun.toLowerCase().startsWith('target') ? targetNoun : `target ${targetNoun}`
-        /**
-         * **Stage 3E, 22 October 2026: the zone-entry wording is two clauses, each its own part** (the words unchanged). How a team scores
-         * ("by getting the {object} under control into its target {noun}") and, after its colon, the two ways that entry is made (": running
-         * it in, or passing to a teammate who receives it under control inside"): the elaboration of the same event, in his D3's terms quoted
-         * above. The first part cites everything the sentence cited (the event, its bound or value, the object, each target's noun, the
-         * objective); the elaboration cites the event it elaborates. So a cut before the elaboration keeps exactly what the words it keeps
-         * say, and the sentence's text, status and citations are as before. Every other wording is one clause, said as before.
-         */
-        const how: { lead: string; elaboration: string | null } = zoneEntry
-            ? { lead: `by getting the ${carrier.kind} under control into its ${targetPhrase}`, elaboration: ': running it in, or passing to a teammate who receives it under control inside' }
-            : {
-                  // "the marked line" is only unambiguous while there is one; with a target per team the objective each team
-                  // attacks is named relationally.
-                  lead: carrier
-                      ? objectives.length > 1
-                          ? `by getting the ${carrier.kind} across the line it is attacking`
-                          : `by getting the ${carrier.kind} across the marked line`
-                      : objectives.length > 1
-                        ? 'when the line it is attacking is crossed'
-                        : 'when the marked line is crossed',
-                  elaboration: null,
-              }
-        const howPaths = [...(carrier ? [`objects[${carrier.elementId}].kind`] : []), ...(zoneEntry ? targetNounPaths : []), ...(objective ? [`objectives[${objective.elementId}].role`] : [])]
+        const howOf = (kind: unknown, kindAt: string, ownTarget: any | null): { lead: string; elaboration: string | null; paths: string[]; kindAt: string } | null => {
+            const wording = scoringWordingOf(kind, participants())
+            if (!wording) return null
+            const ownNoun = ownTarget && typeof ownTarget.noun === 'string' && ownTarget.noun !== 'line' ? String(ownTarget.noun) : null
+            const noun = targetNoun ?? ownNoun
+            const nounPaths = targetNoun ? targetNounPaths : ownNoun ? [`space.regions[${ownTarget.elementId}].noun`] : []
+            const zoneEntry = wording === 'ZONE_ENTRY' && carrier && objectives.length > 1 && noun
+            /**
+             * Hardening H5, 21 October 2026 (DRAFT): the zone a team enters to score is its objective's region, its target, so it is named as
+             * "its target {noun}" — his term "target zone" (reply filed 22 October 2026, item 7, as the build plan's expected Details 14 records
+             * it), as the Set up sentences name each role's target — not "the {noun} it is attacking". Only the zone-entry wording changes, and
+             * only for zone targets: a game that scores across a line keeps "across the line it is attacking". The citations are unchanged
+             * (each target's noun).
+             */
+            // A region noun that already says "target" is not prefixed again ("its target target zone").
+            const targetPhrase = noun && noun.toLowerCase().startsWith('target') ? noun : `target ${noun}`
+            /**
+             * **Stage 3E, 22 October 2026: the zone-entry wording is two clauses, each its own part** (the words unchanged). How a team scores
+             * ("by getting the {object} under control into its target {noun}") and, after its colon, the two ways that entry is made (": running
+             * it in, or passing to a teammate who receives it under control inside"): the elaboration of the same event, in his D3's terms quoted
+             * above. The first part cites everything the sentence cited (the event, its bound or value, the object, each target's noun, the
+             * objective); the elaboration cites the event it elaborates. So a cut before the elaboration keeps exactly what the words it keeps
+             * say, and the sentence's text, status and citations are as before. Every other wording is one clause, said as before.
+             */
+            const how: { lead: string; elaboration: string | null } = zoneEntry
+                ? { lead: `by getting the ${carrier.kind} under control into its ${targetPhrase}`, elaboration: ': running it in, or passing to a teammate who receives it under control inside' }
+                : {
+                      // "the marked line" is only unambiguous while there is one; with a target per team the objective each team
+                      // attacks is named relationally.
+                      lead: carrier
+                          ? objectives.length > 1
+                              ? `by getting the ${carrier.kind} across the line it is attacking`
+                              : `by getting the ${carrier.kind} across the marked line`
+                          : objectives.length > 1
+                            ? 'when the line it is attacking is crossed'
+                            : 'when the marked line is crossed',
+                      elaboration: null,
+                  }
+            const paths = [...(carrier ? [`objects[${carrier.elementId}].kind`] : []), ...(zoneEntry ? nounPaths : []), ...(objective ? [`objectives[${objective.elementId}].role`] : [])]
+            return { ...how, paths, kindAt }
+        }
+        /** The game's own `how` (the event every role without one of its own scores by), as before. */
+        const how = howOf(gameEvent.kind, kindPath, null)
+        const howPaths = how?.paths ?? []
+        /** A role's own target region in this block: the region the objective attacked by the team holding it references (stage A). */
+        const ownTargetOf = (role: string): any | null => {
+            const own = objectives.find(o => roleOfDesignation(o?.team) === role)
+            return own ? regions.find((r: any) => referencedBy(r) === own) ?? null : null
+        }
+        /** A kind with no wording: its path is withheld (stage A), so the activity is refused at communication rather than said wrongly. */
+        const withholdKind = (at: string) => {
+            if (!withheld.some(field => field.path === at)) withheld.push({ path: at, row: rowOfKindPath(at), reason: 'AWAITING_APPROVED_WORDING' })
+        }
         /** A scoring sentence: one part, or (stage 3E) its lead and the elaboration of the event, each a part, at the sentence's status. */
-        const sayScoring = (status: SourceStatus, core: string, from: string[], bindings: Binding[] = []) =>
+        const sayScoring = (said: NonNullable<ReturnType<typeof howOf>>, status: SourceStatus, core: string, from: string[], bindings: Binding[] = []) =>
             instructions.push(
-                how.elaboration === null
+                said.elaboration === null
                     ? instruction('How to score', status, core, from, bindings)
-                    : joined('How to score', [part(status, phrase(status, core), from, bindings), part(status, how.elaboration, [kindPath])]),
+                    : joined('How to score', [part(status, phrase(status, core), from, bindings), part(status, said.elaboration, [said.kindAt])]),
             )
         /**
          * **Where a role's scoring credit is confined to an episode, no sentence speaks for every team** — stage M3, 17 October 2026
@@ -2487,17 +2535,46 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
          */
         const roleElements: any[] = Array.isArray(game.activityRoles) ? game.activityRoles : []
         const boundedCredit = roleElements.some(element => present(element?.creditedWithin) && canonicalJson(element.creditedWithin) !== canonicalJson(UNBOUNDED_CREDIT))
+        /** Each role's event (its own, or the game's) and how it is said; null `said` where the kind has no wording (stage A). */
+        const roleScoringOf = (element: any) => {
+            const role = typeof element?.activityRole === 'string' ? element.activityRole : null
+            const event = role ? eventKindOf(game, role, participants()) : gameEvent
+            return { event, said: howOf(event.kind, event.path, role ? ownTargetOf(role) : null) }
+        }
+        /**
+         * Stage A (22 October 2026): whether some role scores by an event of its own (row B9). Where none does, and no credit is bounded,
+         * the one team-neutral sentence is said exactly as before; where one does, no sentence may speak for every team, so each role is
+         * told how it scores in a sentence of its own ("{Role noun}: Score {how}", DRAFT, the bounded branch's form) and then the value.
+         */
+        const ownEvents = roleElements.some(element => roleScoringOf(element).event.byRole)
         if (boundedCredit) {
             for (const element of roleElements) {
                 if (canonicalJson(element?.creditedWithin) !== canonicalJson(UNBOUNDED_CREDIT)) continue
                 const noun = typeof element?.activityRole === 'string' ? roleNounOf[element.activityRole] : undefined
                 if (!noun) continue
                 const creditPath = `activityRoles[${element.elementId}].creditedWithin`
-                sayScoring(statusAt([kindPath, creditPath], 'DERIVED'), `${capital(noun)}: Score ${how.lead}`, [kindPath, creditPath, ...howPaths])
+                const { event, said } = roleScoringOf(element)
+                if (!said) {
+                    withholdKind(event.path)
+                    continue
+                }
+                sayScoring(said, statusAt([event.path, creditPath], 'DERIVED'), `${capital(noun)}: Score ${said.lead}`, [event.path, creditPath, ...said.paths])
             }
             say('How to score', statusOf.get('value.primaryEvent.value') ?? statusOf.get(kindPath) ?? 'DERIVED', `Each score is worth ${primary.value} point`, ['value.primaryEvent.value'], [{ quantity: primary.value, path: 'value.primaryEvent.value' }])
-        } else
-            sayScoring(statusOf.get(kindPath) ?? 'DERIVED', `A team scores ${primary.value} point ${how.lead}`, [kindPath, 'value.primaryEvent.value', ...howPaths], [{ quantity: primary.value, path: 'value.primaryEvent.value' }])
+        } else if (ownEvents) {
+            for (const element of roleElements) {
+                const noun = typeof element?.activityRole === 'string' ? roleNounOf[element.activityRole] : undefined
+                if (!noun) continue
+                const { event, said } = roleScoringOf(element)
+                if (!said) {
+                    withholdKind(event.path)
+                    continue
+                }
+                sayScoring(said, statusAt([event.path], 'DERIVED'), `${capital(noun)}: Score ${said.lead}`, [event.path, ...said.paths])
+            }
+            say('How to score', statusOf.get('value.primaryEvent.value') ?? statusOf.get(kindPath) ?? 'DERIVED', `Each score is worth ${primary.value} point`, ['value.primaryEvent.value'], [{ quantity: primary.value, path: 'value.primaryEvent.value' }])
+        } else if (!how) withholdKind(kindPath)
+        else sayScoring(how, statusOf.get(kindPath) ?? 'DERIVED', `A team scores ${primary.value} point ${how.lead}`, [kindPath, 'value.primaryEvent.value', ...howPaths], [{ quantity: primary.value, path: 'value.primaryEvent.value' }])
         if (!carrier) {
             observations.push(
                 `The scoring event is established and what crosses the line is not: the game holds no object, so the ` +

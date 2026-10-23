@@ -179,6 +179,39 @@ export interface ContextManipulationRelationship {
     /** His words, verbatim: the confirmation. */
     words: string[]
     note: string | null
+    /**
+     * The items (`contractId::itemId`) a CONFIRMED relationship names as superseded for one role (stage A, 22 October 2026; read by
+     * `realization-deferral.ts` `applyRoleYields`). Absent on every relationship recorded on 22 October 2026.
+     */
+    supersedes?: string[]
+}
+
+/**
+ * **A context's scoring relationship** — stage A, 22 October 2026 (the design's X3: *"The pressing role's event (B9) and its objective
+ * reference (J2): a context SCORING relationship."*). Christian, reply filed 25 October 2026, item 2: *"preserving structural validation
+ * and knowledge authorization."* Context-level, like a manipulation relationship: it names no goal; `rows` are the register rows a
+ * realization citing it may author; it authorizes something only once `status` is CONFIRMED. Held in the records' optional
+ * `contextScoringRelationships` list, which holds no entry on 22 October 2026 (his item 3 is recorded only after the note sent to him:
+ * Stage F of the design). Validated with the manipulation relationships, and passed with them wherever relationships are read
+ * (`contextRelationships`).
+ */
+export interface ContextScoringRelationship {
+    id: string
+    category: 'CONTEXT_SCORING_RELATIONSHIP'
+    contextId: string
+    contextName: string
+    /** The scoring event the relationship authorizes (a member of the register's V1.kind vocabulary). */
+    scoringEvent: string
+    rows: string[]
+    via: string[]
+    identified: string
+    status: 'IDENTIFIED' | 'CONFIRMED'
+    confirmedOn: string | null
+    confirmedBy: string | null
+    citedAs: string
+    words: string[]
+    note: string | null
+    supersedes?: string[]
 }
 
 /**
@@ -567,18 +600,20 @@ export function validateContextManipulationRelationships(
     relationships: ContextManipulationRelationship[] | undefined,
     records: LearningGoalAuthorization[],
     provisional: ProvisionalRealization[] = loadProvisionalRealizations(),
+    /**
+     * Stage A, 22 October 2026: the records' context SCORING relationships, validated by the same rules beside the manipulation ones,
+     * so a realization item may cite a relationship of either kind and every citation resolves against both (`contextRelationships`).
+     */
+    scoring: ContextScoringRelationship[] | undefined = [],
 ): string[] {
     const errors: string[] = []
     const list = relationships ?? []
     if (!Array.isArray(list)) return ['contextManipulationRelationships must be a list']
-    const byId = new Map<string, ContextManipulationRelationship>()
-    for (const [i, entry] of list.entries()) {
-        const which = `relationship ${entry?.id || i + 1}`
-        if (!filled(entry?.id)) errors.push(`relationship ${i + 1} has no id`)
-        if (byId.has(entry.id)) errors.push(`${which} is defined twice`)
-        byId.set(entry.id, entry)
-        if (entry.category !== 'EXISTING_KNOWLEDGE_RELATIONSHIP') errors.push(`${which} is not labelled EXISTING_KNOWLEDGE_RELATIONSHIP`)
-        if (!filled(entry.contextId) || !filled(entry.manipulationId) || !filled(entry.manipulationStatus)) errors.push(`${which} must name its context, its manipulation and the manipulation's status`)
+    const scoringList = scoring ?? []
+    if (!Array.isArray(scoringList)) return ['contextScoringRelationships must be a list']
+    const byId = new Map<string, ContextManipulationRelationship | ContextScoringRelationship>()
+    /** What every relationship must say, whatever its kind (the manipulation rules since stage K4, shared since stage A). */
+    const common = (entry: ContextManipulationRelationship | ContextScoringRelationship, which: string) => {
         if (!Array.isArray(entry.rows) || !entry.rows.length || !entry.rows.every(filled)) errors.push(`${which} authorizes no register row`)
         if (!Array.isArray(entry.via) || !entry.via.length || !entry.via.every(filled)) errors.push(`${which} names nothing the relationship runs through (via)`)
         if (!filled(entry.identified)) errors.push(`${which} does not say who identified it`)
@@ -586,6 +621,28 @@ export function validateContextManipulationRelationships(
         if (entry.status === 'CONFIRMED' && (!filled(entry.confirmedOn) || !filled(entry.confirmedBy) || !filled(entry.citedAs) || !Array.isArray(entry.words) || !entry.words.length || !entry.words.every(filled))) {
             errors.push(`${which} is CONFIRMED and does not say who confirmed it, when, where and in his words`)
         }
+        // Stage A: what a relationship supersedes for one role names items, each as contractId::itemId (applyRoleYields matches them whole).
+        if (entry.supersedes !== undefined && (!Array.isArray(entry.supersedes) || !entry.supersedes.length || !entry.supersedes.every(key => filled(key) && String(key).split('::').length === 2 && String(key).split('::').every(filled)))) {
+            errors.push(`${which} names what it supersedes as something other than a list of items (contractId::itemId)`)
+        }
+    }
+    for (const [i, entry] of list.entries()) {
+        const which = `relationship ${entry?.id || i + 1}`
+        if (!filled(entry?.id)) errors.push(`relationship ${i + 1} has no id`)
+        if (byId.has(entry.id)) errors.push(`${which} is defined twice`)
+        byId.set(entry.id, entry)
+        if (entry.category !== 'EXISTING_KNOWLEDGE_RELATIONSHIP') errors.push(`${which} is not labelled EXISTING_KNOWLEDGE_RELATIONSHIP`)
+        if (!filled(entry.contextId) || !filled(entry.manipulationId) || !filled(entry.manipulationStatus)) errors.push(`${which} must name its context, its manipulation and the manipulation's status`)
+        common(entry, which)
+    }
+    for (const [i, entry] of scoringList.entries()) {
+        const which = `scoring relationship ${entry?.id || i + 1}`
+        if (!filled(entry?.id)) errors.push(`scoring relationship ${i + 1} has no id`)
+        if (byId.has(entry.id)) errors.push(`${which} is defined twice`)
+        byId.set(entry.id, entry)
+        if (entry.category !== 'CONTEXT_SCORING_RELATIONSHIP') errors.push(`${which} is not labelled CONTEXT_SCORING_RELATIONSHIP`)
+        if (!filled(entry.contextId) || !filled(entry.scoringEvent)) errors.push(`${which} must name its context and the scoring event it authorizes`)
+        common(entry, which)
     }
     for (const realization of provisional) {
         for (const item of realization.items) {
@@ -626,12 +683,14 @@ const RECORDS = record.authorizations as LearningGoalAuthorization[]
 const PRINCIPLE = (record as { libraryConstraintPrinciple?: LibraryConstraintPrinciple }).libraryConstraintPrinciple ?? null
 const ALLOCATION_PRINCIPLE = (record as { allocationPrinciple?: LibraryConstraintPrinciple }).allocationPrinciple ?? null
 const RELATIONSHIPS = ((record as { contextManipulationRelationships?: ContextManipulationRelationship[] }).contextManipulationRelationships ?? []) as ContextManipulationRelationship[]
+// Stage A (22 October 2026): the optional list of context scoring relationships; the records hold none on that day.
+const SCORING_RELATIONSHIPS = ((record as { contextScoringRelationships?: ContextScoringRelationship[] }).contextScoringRelationships ?? []) as ContextScoringRelationship[]
 {
     const errors = [
         ...validateLibraryConstraintPrinciple(PRINCIPLE),
         ...validateAllocationPrinciple(ALLOCATION_PRINCIPLE),
         ...validateLearningGoalAuthorizations(RECORDS),
-        ...validateContextManipulationRelationships(RELATIONSHIPS, RECORDS),
+        ...validateContextManipulationRelationships(RELATIONSHIPS, RECORDS, undefined, SCORING_RELATIONSHIPS),
     ]
     if (errors.length) throw new Error(`learning-goal-authorizations.json failed its integrity gate: ${errors.join(' | ')}`)
 }
@@ -644,6 +703,22 @@ export function allocationPrinciple(): LibraryConstraintPrinciple {
 /** The context-manipulation relationships, as copies: what a realization may cite (`realization-deferral.ts`). */
 export function contextManipulationRelationships(): ContextManipulationRelationship[] {
     return JSON.parse(JSON.stringify(RELATIONSHIPS)) as ContextManipulationRelationship[]
+}
+
+/** The context scoring relationships, as copies (stage A; none recorded on 22 October 2026). */
+export function contextScoringRelationships(): ContextScoringRelationship[] {
+    return JSON.parse(JSON.stringify(SCORING_RELATIONSHIPS)) as ContextScoringRelationship[]
+}
+
+/**
+ * **Every context relationship the records hold, of every kind, as copies** — stage A, 22 October 2026 (the design's X3: *"The deferral's
+ * input is kind-neutral ... Today it is fed only contextManipulationRelationships(). Feeding it every recorded kind is a general change."*).
+ * What a realization item may cite (`authorizedBy`), read by the deferral and the role yields (`realization-deferral.ts`) and by the
+ * allocation account. On 22 October 2026 this equals `contextManipulationRelationships()` entry for entry: no scoring relationship is
+ * recorded.
+ */
+export function contextRelationships(): (ContextManipulationRelationship | ContextScoringRelationship)[] {
+    return [...contextManipulationRelationships(), ...contextScoringRelationships()]
 }
 
 /** His general principle on library constraints, as a copy: what an evaluated, empty authorized set is read under. */

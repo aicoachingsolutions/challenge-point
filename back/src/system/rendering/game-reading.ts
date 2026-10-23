@@ -9,9 +9,65 @@
  * Reading only: nothing here decides, says or checks anything, and nothing names a goal, a sport term, a value or a knowledge id. Role
  * names, nouns and rows are data.
  */
+import { loadRegister } from '../derivation/corpus'
 import { awardeeRelation, roleHolderNames, roleOfHolder } from '../derivation/designation'
-import { RegisterIndex } from '../derivation/register'
+import { indexRegister, RegisterIndex } from '../derivation/register'
 import { UNBOUNDED_CREDIT } from './render-concrete-game'
+
+/** The register, read once for a reader not handed an index (it is versioned data). */
+let cachedIndex: RegisterIndex | null = null
+const registerIndex = (): RegisterIndex => {
+    if (!cachedIndex) cachedIndex = indexRegister(loadRegister())
+    return cachedIndex
+}
+
+/**
+ * **The one reader of how a team scores: the scoring event of a role, or of the game** — stage A, 22 October 2026 (register version 16,
+ * row B9 and the `roleScoring` block). Christian, reply filed 25 October 2026, item 2: *"I approve extending the September 15 decision to
+ * support one primary scoring event per role in an asymmetric activity, rather than requiring both teams to use the same scoring event
+ * type."* Every reader of a scoring event's KIND asks here (the grep ratchet in `role-events.unit.ts`: no other file reads the primary
+ * event's kind), so no reader can go on reading the game's primary event for a role that scores by its own.
+ *
+ *   - `role` null: the game's primary event (V1), at its path;
+ *   - a role of the register's role vocabulary: that role element's own event (B9) where the game holds one, else the game's primary
+ *     event — a role with no event of its own scores by V1.
+ *
+ * Returns the kind as the game holds it, the path a sentence saying it cites, and whether it is the role's own. The value (V2) and the
+ * conditions (V3) are not read here: every role's event earns V2, and V3 qualifies V1's event only (GA-ROLE-EVENTS clauses 9 and 10).
+ * Names no row, kind or role: the paths are the register's.
+ */
+export function eventKindOf(game: any, role: string | null, index: RegisterIndex = registerIndex()): { kind: unknown; path: string; byRole: boolean } {
+    const scoring = index.roleScoring
+    const kindRow = scoring ? index.rows.get(scoring.kindRow) : null
+    const primaryPath = kindRow ? genericOf(String(kindRow.path)) : PRIMARY_KIND_PATH
+    const primary = { kind: readPath(game, primaryPath), path: primaryPath, byRole: false }
+    const spec = index.roleBlocks
+    if (role === null || !scoring || !spec) return primary
+    const element = membersAt(game, index, spec.rolesRow).find(member => member?.[spec.roleAttribute] === role)
+    const own = element?.[scoring.eventLeaf]
+    if (!element || own === undefined || own === null) return primary
+    return { kind: own, path: `${container(index, spec.rolesRow)}[${element.elementId}].${scoring.eventLeaf}`, byRole: true }
+}
+
+/** The game's primary event's kind, where a register written before version 16 names no row for it. */
+const PRIMARY_KIND_PATH = 'value.primaryEvent.kind'
+
+/** The game's role elements, each with the role it is (the register's roles row and role attribute); empty for a game with no roles. */
+export function roleElementsOf(game: any, index: RegisterIndex = registerIndex()): { elementId: string; role: string; element: any }[] {
+    const spec = index.roleBlocks
+    if (!spec) return []
+    return membersAt(game, index, spec.rolesRow)
+        .filter(member => typeof member?.[spec.roleAttribute] === 'string')
+        .map(member => ({ elementId: String(member.elementId), role: String(member[spec.roleAttribute]), element: member }))
+}
+
+/**
+ * **Every path a sentence may cite to say how a team scores** (stage A): the game's primary event's kind, and each role's own event where
+ * the game holds one. Read through `eventKindOf`, for the checks that ask whether a sentence is a scoring sentence (fidelity Q2).
+ */
+export function eventKindPathsOf(game: any, index: RegisterIndex = registerIndex()): string[] {
+    return [...new Set([eventKindOf(game, null, index).path, ...roleElementsOf(game, index).map(({ role }) => eventKindOf(game, role, index).path)])]
+}
 
 /** One block's game, as the readers need it (a game not played in blocks is one block with no holders). */
 export interface GameBlock {

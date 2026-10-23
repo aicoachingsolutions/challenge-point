@@ -1273,7 +1273,8 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                                     {account.allocation.relationships.map((relationship) => (
                                         <li key={relationship.id} className='text-xs'>
                                             <span className='mr-2 font-mono'>{relationship.id}</span>
-                                            {relationship.contextId} with {relationship.manipulationId} {relationship.manipulationName} ({relationship.manipulationStatus}) — rows{' '}
+                                            {relationship.contextId}
+                                            {relationship.manipulationId !== null && ` with ${relationship.manipulationId} ${relationship.manipulationName} (${relationship.manipulationStatus})`} — rows{' '}
                                             {relationship.rows.join(', ')}
                                             <Mark positive={relationship.status === 'CONFIRMED'}>{relationship.status}</Mark>
                                             {relationship.words.length > 0 && (

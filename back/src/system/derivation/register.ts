@@ -6,7 +6,7 @@
  * contract.
  */
 
-import { Versions } from './types'
+import { ROLE_YIELD_KEY, ROLE_YIELD_MARKERS, Versions } from './types'
 
 export interface RegisterRow {
     /**
@@ -44,8 +44,111 @@ export interface RegisterRow {
      * **On a COLLECTION row: its elements earn the value another row holds, and hold none of their own** — register version 14,
      * 17 October 2026 (V27, an occurrence that also counts as the primary event and earns its value, V2). Refused at load (H1)
      * where a FIELD row the collection owns sits at the same leaf as the named row, so no element can carry a value of its own.
+     *
+     * **On a FIELD row owned by a collection: the event it names earns the value another row holds** — register version 16, 22
+     * October 2026 (B9, a role's own primary scoring event, earning V2). Refused at load (H1) where the row is a game-level field, or
+     * where a FIELD row its owning collection holds sits at the earned row's leaf, so no role can carry a value of its own.
      */
     earnsValueOf?: string
+}
+
+/**
+ * **Where the role-scoring capability finds its rows** — register version 16, 22 October 2026. Christian, reply filed 25 October 2026,
+ * item 2: *"I approve extending the September 15 decision to support one primary scoring event per role in an asymmetric activity,
+ * rather than requiring both teams to use the same scoring event type."* *"The engine should verify that the objectives are coherent and
+ * compatible rather than simply allow any combination of scoring events."* Read by GA-ROLE-EVENTS (gates.ts) and the one reader of a
+ * team's scoring event (rendering/game-reading.ts `eventKindOf`); no row, kind or role is written in either.
+ */
+export interface RoleScoringRegister {
+    /** The FIELD row, owned by the roles row, holding a role's own primary scoring event (B9). */
+    eventRow: string
+    /** The game's primary event's kind and value (V1, V2), its conditions (V3), value modifiers (V7) and also-counts (V27). */
+    kindRow: string
+    valueRow: string
+    conditionsRow: string
+    valueModifiersRow: string
+    alsoCountsRow: string
+    /** The role's credit bound (B8). */
+    creditRow: string
+    /** The closed list a scoring event is a member of (V1's vocabulary). */
+    kindVocabulary: string
+    kinds: string[]
+    /** The two kinds of target an objective may reference, each with its row and the row holding its type (noun or kind). */
+    targets: { region: { row: string; typeRow: string }; object: { row: string; typeRow: string } }
+    /** The region selector term that says a region item describes a target (an objective-area region). */
+    targetFunction: { attribute: string; value: string }
+    /** OUR_INTERPRETATION: the kind of target each listed scoring event scores at. A kind not listed is not evaluable. */
+    targetTypes: Map<string, { target: 'region' | 'object'; type: string | null }[]>
+    /** The role-yield marker as the register names it (must equal `ROLE_YIELD_KEY` / `ROLE_YIELD_MARKERS`). */
+    roleYield: { key: string; values: string[] }
+    /** The leaves the event and the credit sit at on a role element (`scoresBy`, `creditedWithin`). */
+    eventLeaf: string
+    creditLeaf: string
+}
+
+/**
+ * The role-scoring block, validated as the rest of the register is (halt H1): every name must be a row, a vocabulary or a designation
+ * the register defines, with the shape the capability needs, and the marker must be the one the engine implements. A register without
+ * the block (one written before version 16) has no role scoring: no role scores by an event of its own, and every game reads as before.
+ */
+function indexRoleScoring(block: any, rows: Map<string, RegisterRow>, vocabularies: Map<string, string[]>, roleBlocks: RoleBlockRegister | null): RoleScoringRegister | null {
+    if (!block || typeof block !== 'object') return null
+    if (!roleBlocks) throw new HaltError('H1', 'roleScoring: a role scores by an event of its own only in a game played in role blocks, and the register has no roleBlocks block')
+    const name = (key: string) => String(block[key] ?? '')
+    const field = (id: string) => rows.get(id)?.kind === 'FIELD'
+    const collection = (id: string) => rows.get(id)?.kind === 'COLLECTION'
+    const eventRow = name('eventRow')
+    const creditRow = name('creditRow')
+    for (const id of [eventRow, creditRow]) if (!field(id) || rows.get(id)?.ownerRow !== roleBlocks.rolesRow) throw new HaltError('H1', `roleScoring: ${id} is not a FIELD row owned by the roles row ${roleBlocks.rolesRow}`)
+    const [kindRow, valueRow] = [name('kindRow'), name('valueRow')]
+    for (const id of [kindRow, valueRow]) if (!field(id) || rows.get(id)?.ownerRow) throw new HaltError('H1', `roleScoring: ${id} is not a game-level FIELD row`)
+    if (rows.get(eventRow)?.earnsValueOf !== valueRow) throw new HaltError('H1', `roleScoring: ${eventRow} does not earn ${valueRow} (earnsValueOf), so a role's own event would hold a value of its own or none`)
+    const [conditionsRow, valueModifiersRow, alsoCountsRow] = [name('conditionsRow'), name('valueModifiersRow'), name('alsoCountsRow')]
+    for (const id of [conditionsRow, valueModifiersRow, alsoCountsRow]) if (!collection(id)) throw new HaltError('H1', `roleScoring: ${id} is not a COLLECTION row`)
+    const kindVocabulary = name('kindVocabulary')
+    const kinds = vocabularies.get(kindVocabulary)
+    if (!kinds || !kinds.length) throw new HaltError('H1', `roleScoring.kindVocabulary ${kindVocabulary} is not a vocabulary`)
+    const typeVocabulary = (typeRow: string): string[] | undefined => {
+        const attribute = rows.get(typeRow)?.selectorAttribute
+        return attribute ? vocabularies.get(`${typeRow}.${attribute}`) : undefined
+    }
+    const targets: RoleScoringRegister['targets'] = { region: { row: '', typeRow: '' }, object: { row: '', typeRow: '' } }
+    for (const key of ['region', 'object'] as const) {
+        const row = String(block.targets?.[key]?.row ?? '')
+        const typeRow = String(block.targets?.[key]?.typeRow ?? '')
+        if (!collection(row) || !field(typeRow) || rows.get(typeRow)?.ownerRow !== row) throw new HaltError('H1', `roleScoring.targets.${key}: ${typeRow} is not a FIELD row owned by the COLLECTION row ${row}`)
+        if (!typeVocabulary(typeRow)) throw new HaltError('H1', `roleScoring.targets.${key}: ${typeRow} carries no selector attribute with a vocabulary`)
+        targets[key] = { row, typeRow }
+    }
+    const fn = block.targetFunction ?? {}
+    const fnAttribute = String(fn.attribute ?? '')
+    const fnValue = String(fn.value ?? '')
+    if (!(rows.get(targets.region.row)?.selectorAttributes ?? []).includes(fnAttribute)) throw new HaltError('H1', `roleScoring.targetFunction: ${fnAttribute} is not a selector attribute of ${targets.region.row}`)
+    const fnRow = [...rows.values()].find(row => row.ownerRow === targets.region.row && row.selectorAttribute === fnAttribute)
+    if (!fnRow || !(vocabularies.get(`${fnRow.id}.${fnAttribute}`) ?? []).includes(fnValue)) throw new HaltError('H1', `roleScoring.targetFunction: ${fnValue} is not a member of the ${fnAttribute} vocabulary`)
+    const map = block.targetTypes?.map
+    if (block.targetTypes?.basis !== 'OUR_INTERPRETATION' || typeof block.targetTypes?.from !== 'string' || !block.targetTypes.from.trim()) throw new HaltError('H1', 'roleScoring.targetTypes must say it is OUR_INTERPRETATION and where it comes from')
+    if (!map || typeof map !== 'object') throw new HaltError('H1', 'roleScoring.targetTypes.map is not a map')
+    const targetTypes = new Map<string, { target: 'region' | 'object'; type: string | null }[]>()
+    for (const [kind, entries] of Object.entries(map as Record<string, any>)) {
+        if (!kinds.includes(kind)) throw new HaltError('H1', `roleScoring.targetTypes: ${kind} is not a member of ${kindVocabulary}`)
+        if (!Array.isArray(entries) || !entries.length) throw new HaltError('H1', `roleScoring.targetTypes: ${kind} names no target`)
+        targetTypes.set(
+            kind,
+            entries.map((entry: any) => {
+                const target = entry?.target
+                if (target !== 'region' && target !== 'object') throw new HaltError('H1', `roleScoring.targetTypes: ${kind} names the target ${JSON.stringify(target)}, neither region nor object`)
+                const type = entry?.type === undefined ? null : String(entry.type)
+                if (type !== null && !(typeVocabulary(targets[target as 'region' | 'object'].typeRow) ?? []).includes(type)) throw new HaltError('H1', `roleScoring.targetTypes: ${kind} names the ${target} type ${type}, which is not a member of its vocabulary`)
+                return { target, type }
+            }),
+        )
+    }
+    const key = String(block.roleYield?.key ?? '')
+    const values = Array.isArray(block.roleYield?.values) ? block.roleYield.values.map(String) : []
+    if (key !== ROLE_YIELD_KEY || JSON.stringify(values) !== JSON.stringify([...ROLE_YIELD_MARKERS])) throw new HaltError('H1', `roleScoring.roleYield names ${key} ${JSON.stringify(values)}, which is not the marker the engine implements (${ROLE_YIELD_KEY} ${JSON.stringify(ROLE_YIELD_MARKERS)})`)
+    const leaf = (id: string) => String(rows.get(id)?.path ?? '').split('[].').pop() ?? ''
+    return { eventRow, kindRow, valueRow, conditionsRow, valueModifiersRow, alsoCountsRow, creditRow, kindVocabulary, kinds: [...kinds], targets, targetFunction: { attribute: fnAttribute, value: fnValue }, targetTypes, roleYield: { key, values }, eventLeaf: leaf(eventRow), creditLeaf: leaf(creditRow) }
 }
 
 /**
@@ -462,6 +565,8 @@ export interface RegisterIndex {
     reassignment: ReassignmentRegister | null
     /** The participant forms beside the specialized roles (register version 15, his reply filed 25 October 2026, item 6), or null without them. */
     participants: ParticipantRegister | null
+    /** The role-scoring capability's rows (register version 16, his reply filed 25 October 2026, item 2), or null without them. */
+    roleScoring: RoleScoringRegister | null
     registerVersion: string
 }
 
@@ -564,10 +669,25 @@ export function indexRegister(register: any): RegisterIndex {
     for (const row of rows.values()) {
         if (row.earnsValueOf === undefined) continue
         const earned = rows.get(String(row.earnsValueOf))
-        if (row.kind !== 'COLLECTION') throw new HaltError('H1', `earnsValueOf on ${row.id}, which is not a COLLECTION row`)
         if (!earned || earned.kind !== 'FIELD') throw new HaltError('H1', `earnsValueOf on ${row.id} names ${row.earnsValueOf}, which is not a FIELD row`)
+        if (row.kind === 'COLLECTION') {
+            for (const [rowId, owner] of ownerRow) {
+                if (owner === row.id && leafOf(rows.get(rowId)!.path) === leafOf(earned.path)) throw new HaltError('H1', `${rowId} gives ${row.id} a value of its own, and its elements earn ${earned.id}'s (earnsValueOf)`)
+            }
+            continue
+        }
+        /**
+         * **A FIELD row owned by a collection may earn another row's value** (register version 16, 22 October 2026: B9, a role's own
+         * scoring event, earns V2). The compensating checks: the row must be a member property (a game-level field earns nothing for
+         * anyone in particular), the earned row a game-level field, and no field its owning collection holds may sit at the earned row's
+         * leaf, so the element can never carry a value of its own beside the one it earns. A VIEW is refused as before.
+         */
+        if (row.kind !== 'FIELD' || !row.ownerRow) throw new HaltError('H1', `earnsValueOf on ${row.id}, which is neither a COLLECTION row nor a FIELD row owned by one`)
+        if (earned.ownerRow) throw new HaltError('H1', `earnsValueOf on ${row.id} names ${earned.id}, which is not a game-level FIELD row`)
+        // An element that itself earns a value (V27) holds no field earning one too: one occurrence would earn twice.
+        if (rows.get(row.ownerRow)?.earnsValueOf !== undefined) throw new HaltError('H1', `earnsValueOf on ${row.id}, a field of ${row.ownerRow}, whose elements already earn ${rows.get(row.ownerRow)!.earnsValueOf}'s value`)
         for (const [rowId, owner] of ownerRow) {
-            if (owner === row.id && leafOf(rows.get(rowId)!.path) === leafOf(earned.path)) throw new HaltError('H1', `${rowId} gives ${row.id} a value of its own, and its elements earn ${earned.id}'s (earnsValueOf)`)
+            if (owner === row.ownerRow && leafOf(rows.get(rowId)!.path) === leafOf(earned.path)) throw new HaltError('H1', `${rowId} gives the elements of ${row.ownerRow} a value of their own, and ${row.id} earns ${earned.id}'s (earnsValueOf)`)
         }
     }
 
@@ -706,6 +826,7 @@ export function indexRegister(register: any): RegisterIndex {
         targetOf: indexTargetOf(register.targetOf, rows, vocabularies, designations),
         reassignment: indexReassignment(register.reassignment, rows, roleBlocks, designations),
         participants: indexParticipants(register.participants, rows, designations),
+        roleScoring: indexRoleScoring(register.roleScoring, rows, vocabularies, roleBlocks),
         registerVersion: register.version,
     }
 }

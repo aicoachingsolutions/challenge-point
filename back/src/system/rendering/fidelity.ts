@@ -22,7 +22,8 @@ import { conditionScopeNotEvaluable } from '../derivation/resolved-game'
 import { ApprovedWording, approvedWording } from './approved-wording'
 import { CoachFacingExclusion, exclusionFor } from './coach-facing-exclusions'
 import { layoutLeafNumberAt, MARK_UNION_ONCE, PhysicalLayout, Remarking } from './physical-layout'
-import { ADJUSTING, approvedSentences, Binding, combinedStatus, ENDS_ON_WORDING, Instruction, MOVE_MARKINGS, MOVED_MARK_QUALIFICATIONS, NOTHING_RE_MARKED, RenderedActivity, ROLE_EXCHANGE, roleKeyedPositions, sectionFactsOf, SourceStatus, UNBOUNDED_CREDIT } from './render-concrete-game'
+import { ADJUSTING, approvedSentences, Binding, combinedStatus, ENDS_ON_WORDING, Instruction, MOVE_MARKINGS, MOVED_MARK_QUALIFICATIONS, NOTHING_RE_MARKED, RenderedActivity, ROLE_EXCHANGE, roleKeyedPositions, scoringWordingOf, sectionFactsOf, SourceStatus, UNBOUNDED_CREDIT } from './render-concrete-game'
+import { eventKindPathsOf, readPath } from './game-reading'
 import { firstReadUncarried } from './sections'
 
 export interface FidelityFinding {
@@ -1419,16 +1420,38 @@ export function checkFidelity(
      *   - it speaks for a bounded role it names in its text, as for one whose bound it cites or (scoring) anything of which it cites;
      *     and a How to score sentence naming a bounded role speaks for it whatever it cites.
      */
+    /**
+     * **No team's way to score is said in words written for another kind** — stage A, 22 October 2026 (register version 16). Christian,
+     * reply filed 25 October 2026, item 2: *"one primary scoring event per role"*. Until this the renderer said every kind but the zone entry
+     * with the line wording; it now withholds a kind neither existing wording is written for (`scoringWordingOf`). This is the independent
+     * check that no sentence says one: a sentence citing a team's scoring event (the game's primary event's kind, or a role's own) whose
+     * kind has no wording must be approved wording for this game, whatever renders it. A kind that is withheld and said by nothing is
+     * caught by the path test of Q3 (established, and no instruction carries it).
+     */
+    {
+        const kindPaths = eventKindPathsOf(fixture.game)
+        for (const instruction of rendered.instructions) {
+            if (isApproved(instruction)) continue
+            for (const at of instruction.from.filter(path => kindPaths.includes(path))) {
+                const kind = readPath(fixture.game, at)
+                if (scoringWordingOf(kind) !== null) continue
+                findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" says how a team scores by ${JSON.stringify(kind)} (${at}), for which no wording is written: it may be said only in approved words` })
+            }
+        }
+    }
+
     const roleElements: any[] = Array.isArray(fixture.game.activityRoles) ? fixture.game.activityRoles : []
     const boundedRoles = roleElements.filter(element => element?.creditedWithin !== undefined && element?.creditedWithin !== null && element.creditedWithin !== UNBOUNDED_CREDIT).map(element => `activityRoles[${element.elementId}]`)
     if (boundedRoles.length) {
-        const KIND = 'value.primaryEvent.kind'
+        // Stage A (22 October 2026): a sentence is a scoring sentence where it cites ANY team's scoring event — the game's primary event's
+        // kind or a role's own (row B9) — read through the one kind reader (game-reading.ts `eventKindPathsOf`).
+        const KINDS = eventKindPathsOf(fixture.game)
         const VALUE = 'value.primaryEvent.value'
         const nounOf: Record<string, string> = fixture.roleNouns?.nouns ?? {}
         const nounsOf = (element: any): string | null => (typeof element?.activityRole === 'string' && typeof nounOf[element.activityRole] === 'string' ? nounOf[element.activityRole] : null)
         const namedIn = (text: string) => roleElements.filter(element => !!nounsOf(element) && namesRole(text, nounsOf(element)!)).map(element => `activityRoles[${element.elementId}]`)
         for (const instruction of rendered.instructions) {
-            const scoring = instruction.from.includes(KIND) || (instruction.from.includes(VALUE) && instruction.from.some(path => path !== VALUE))
+            const scoring = instruction.from.some(path => KINDS.includes(path)) || (instruction.from.includes(VALUE) && instruction.from.some(path => path !== VALUE))
             const roleCited = instruction.from.some(path => path.startsWith('activityRoles['))
             const named = namedIn(instruction.text)
             if (scoring && (!roleCited || !named.length)) {

@@ -544,9 +544,10 @@ export interface ReviewAllocation {
     relationships: {
         id: string
         contextId: string
-        manipulationId: string
-        manipulationName: string
-        manipulationStatus: string
+        /** Null for a relationship that is no manipulation (a context scoring relationship, stage A; none recorded on 22 October 2026). */
+        manipulationId: string | null
+        manipulationName: string | null
+        manipulationStatus: string | null
         rows: string[]
         status: string
         confirmedOn: string | null

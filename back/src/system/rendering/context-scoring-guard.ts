@@ -24,8 +24,10 @@
  * input. The event kinds and condition types are data; this file names none of them.
  */
 import { CheckResult, EPISODE_SCOPES } from '../derivation/gates'
+import { RegisterIndex } from '../derivation/register'
 import { conditionScopeNotEvaluable, EVALUABLE_CONDITION_SCOPE } from '../derivation/resolved-game'
 import { LoadedContract } from '../derivation/types'
+import { eventKindOf, roleElementsOf } from './game-reading'
 
 /** The Gate A check that decides whether an episode a condition is authored for can begin in the game (gates.ts). */
 export const EPISODE_REACHABLE_CHECK = 'GA-EPISODE-REACHABLE'
@@ -72,6 +74,44 @@ export interface AlsoCountsSupport {
     items: { contractId: string; itemId: string; basis: string }[]
 }
 
+/**
+ * **A role's own scoring event stands only on his explicit ruling** — stage A, 22 October 2026 (register version 16, row B9), on the
+ * pattern of `alsoCountsFindings` below. Christian, reply filed 25 October 2026, item 2: *"Please implement this as a general role-specific
+ * scoring capability, preserving structural validation and knowledge authorization."* The context's approved scoring governs (his 14
+ * October words above), and a role scoring by an event of its own is a way to score the context's own scoring events may not approve
+ * (his item 3 approves such an event for one role of one context, and is not yet recorded among that context's events). So every item
+ * that writes a role's own event must be an OWNER_RULING item; any other basis is named and refuses the
+ * game, and a game holding such an event with no support given cannot be confirmed, and says so. Whether the event departs from a
+ * permitted set is GA-ROLE-EVENTS clause 6's; this guard only refuses. Read through `eventKindOf`; names no kind, role or sport term.
+ */
+export interface RoleEventSupport {
+    /** The role element (its elementId) and the role it is. */
+    elementId: string
+    role: string
+    /** Every item that writes the role's own event, with its basis. */
+    items: { contractId: string; itemId: string; basis: string }[]
+}
+
+export function roleEventFindings(contextId: string, game: any, approvedEvents: string[], support: RoleEventSupport[] | undefined, index?: RegisterIndex): string[] {
+    const findings: string[] = []
+    for (const { elementId: id, role } of roleElementsOf(game, index)) {
+        const own = eventKindOf(game, role, index)
+        if (!own.byRole) continue
+        const found = (support ?? []).find(entry => entry.elementId === id)
+        if (!found || !found.items.length) {
+            findings.push(`the role ${role} (${id}) scores by its own event "${String(own.kind)}", and what writes it was not given, so it cannot be confirmed to stand on his ruling`)
+            continue
+        }
+        for (const item of found.items) {
+            if (item.basis === 'OWNER_RULING') continue
+            findings.push(
+                `the role ${role} (${id}) scores by its own event "${String(own.kind)}" on ${item.contractId}::${item.itemId}, whose basis is ${item.basis}: the Representative Performance Context ${contextId} approves ${approvedEvents.join(', ') || 'nothing'}, so a role's own way to score stands only on his explicit ruling (OWNER_RULING)`,
+            )
+        }
+    }
+    return findings
+}
+
 export function alsoCountsFindings(contextId: string, game: any, approvedEvents: string[], support: AlsoCountsSupport[] | undefined): string[] {
     const elements: any[] = Array.isArray(game?.value?.primaryEvent?.alsoCounts) ? game.value.primaryEvent.alsoCounts : []
     const findings: string[] = []
@@ -114,11 +154,15 @@ export function contextScoringFindings(
     episodeCheck?: CheckResult,
     /** Stage M2: the items that establish and fill each occurrence the game counts as its primary event (`AlsoCountsSupport`). */
     alsoCountsSupport?: AlsoCountsSupport[],
+    /** Stage A: the items that write each role's own scoring event (`RoleEventSupport`), and the register the game is read by. */
+    roleEventSupport?: RoleEventSupport[],
+    index?: RegisterIndex,
 ): string[] {
     if (!contract) return [`the contract of the Representative Performance Context ${contextId} did not reach the build, so its scoring cannot be checked`]
-    const findings: string[] = [...alsoCountsFindings(contextId, game, approvedEvents, alsoCountsSupport)]
+    const findings: string[] = [...roleEventFindings(contextId, game, approvedEvents, roleEventSupport, index), ...alsoCountsFindings(contextId, game, approvedEvents, alsoCountsSupport)]
     const event = game?.value?.primaryEvent
-    const kind = event?.kind
+    // Stage A: the game's primary event read through the one kind reader (a role's own event is the per-role clause's, above).
+    const kind = eventKindOf(game, null, index).kind
     if (!approvedEvents.includes(String(kind))) {
         findings.push(
             `the realized primary event is ${kind === undefined ? 'absent' : `"${kind}"`}, which the Representative Performance Context ${contextId} does not approve (it approves: ${approvedEvents.join(', ') || 'nothing'})`,

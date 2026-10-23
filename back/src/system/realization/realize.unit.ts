@@ -733,11 +733,13 @@ test('A04 is authorized again, the reason is stated, and the three states stay d
     assert.ok(resolved.coherence.postRealizationRequired.length > 0)
     assert.deepEqual(
         [...new Set(resolved.coherence.postRealizationRequired.map(d => d.checkId))].sort(),
-        ['GA-DIRECTION', 'GA-ENVELOPE-FIT', 'GA-LAYOUT-FEASIBLE', 'GA-ONE-PRIMARY-EVENT', 'GA-ROSTER-SUM'],
+        ['GA-DIRECTION', 'GA-ENVELOPE-FIT', 'GA-LAYOUT-FEASIBLE', 'GA-ONE-PRIMARY-EVENT', 'GA-ROLE-EVENTS', 'GA-ROSTER-SUM'],
         'the four he ruled post-realization, and since ruling C42 the direction check as well: with a target per team its ' +
             'opposite-ends clause compares where each target actually sits, and a target position is an authored relative term ' +
             'that becomes an interval only when realization composes it against the envelope. It is owed here and checked there, ' +
-            'which is what keeps two targets on the same end a failure rather than something nobody looked at',
+            'which is what keeps two targets on the same end a failure rather than something nobody looked at. Since stage A (22 ' +
+            'October 2026, register version 16) the role-events check too: whether each objective\'s target is the kind of target the ' +
+            'scoring event scores at waits on the realized event kind and target nouns',
     )
     for (const owed of resolved.coherence.postRealizationRequired) assert.ok(owed.owes.length > 0, `${owed.checkId} owes nothing stated`)
 })

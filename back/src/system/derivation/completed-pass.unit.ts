@@ -267,9 +267,16 @@ test('registering the member changed no verdict in any of the thirteen goals', (
      * two targets' S4 lines are - an established absence, which GA-NO-FAILED-LINE does not block on. The old composition is
      * unchanged.
      */
+    /**
+     * **14 · 22 October, stage A — A01 11 → 13 failed lines, measured; no verdict moves.** Register version 16 (his reply filed 25
+     * October 2026, item 2: one primary scoring event per role) adds row B9, a role's own scoring event, owned by the roles row; A01-R1
+     * establishes two role elements and no item writes either one's event, so each gains one unauthored line nobody spoke for
+     * (c:provisional:A01-R1:A01-R1-B1-1::B9 and A01-R1-B1-2::B9, 'no coverage'), which GA-NO-FAILED-LINE does not block on and
+     * GA-ROLE-EVENTS reads as "scores by the primary event". The old composition holds no role and is unchanged.
+     */
     const A01_COMPOSITION = { failed: 11, gateA: 'FAIL', reachable: true }
     const expected: Record<string, { failed: number; gateA: string; reachable: boolean }> = {
-        A01: { failed: 11, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
+        A01: { failed: 13, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
         D01: { failed: 8, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
         TA01: { failed: 15, gateA: 'FAIL', reachable: false },
         TD01: { failed: 14, gateA: 'FAIL', reachable: false },

@@ -32,12 +32,12 @@ import { contractCoverage } from '../derivation/run-bounded-selection'
 import { loadCorpusContracts } from '../derivation/corpus'
 import { parseSelector } from '../derivation/selector'
 import { rpcLibrary } from '../sport-module/rpc-library'
-import type { AuthorizationLists, CitedWords, ContextManipulationRelationship, LearningGoalAuthorization, ReviewLayer, ReviewRequest } from '../test-library/learning-goal-authorizations'
+import type { AuthorizationLists, CitedWords, ContextManipulationRelationship, ContextScoringRelationship, LearningGoalAuthorization, ReviewLayer, ReviewRequest } from '../test-library/learning-goal-authorizations'
 import { learningGoalSelectionHolds } from '../test-library/learning-design-holds'
 import { testLibraryRegistry } from '../test-library/library/registry'
 import { approvedEntriesSaid, detailsWordingOf, WordingSource, WordingStatus } from './derived-wording'
 import { FidelityFinding, OBLIGATIONS } from './fidelity'
-import { along, asList, container, creditOf, genericOf, holderOf, membersAt, objectivesOf, readPath, restrictionsOf, segmentsOf, supportOf, teamsOf, TransitionRow, transitionsOf } from './game-reading'
+import { along, asList, container, creditOf, eventKindOf, genericOf, holderOf, membersAt, objectivesOf, readPath, restrictionsOf, segmentsOf, supportOf, teamsOf, TransitionRow, transitionsOf } from './game-reading'
 import type { OverviewEvidence } from './overview-fidelity'
 import { layoutNumbersAt, MARK_ONCE_RULE, remarkingPlaceAt } from './physical-layout'
 import { Instruction, RenderedActivity, wordedFieldRows } from './render-concrete-game'
@@ -86,8 +86,8 @@ export interface EvidenceInput {
     layoutFallback?: LayoutFallback | null
     record: LearningGoalAuthorization & { reviewRequest: ReviewRequest }
     lists: AuthorizationLists | null
-    /** The knowledge-authorized relationships the record's adjustments cite (the record file's own list). */
-    relationships: ContextManipulationRelationship[]
+    /** The knowledge-authorized relationships the record's adjustments cite (the record file's own lists, of every kind since stage A). */
+    relationships: (ContextManipulationRelationship | ContextScoringRelationship)[]
     /** The goal's selected library constraints, as the account lists them (ids). */
     selectedConstraints: string[]
     /**
@@ -516,7 +516,8 @@ const STRUCTURE_CHECKS: Record<'playerTotals' | 'spatial' | 'scoring' | 'restart
     // GA-PARTICIPANTS-PRESENT (22 October 2026, his reply filed 25 October 2026, item 6): who the configuration holds, beside how many.
     playerTotals: ['GA-ROSTER-SUM', 'GA-AFFILIATION', 'GA-PARTICIPANTS-PRESENT'],
     spatial: ['GA-ENVELOPE-FIT', 'GA-LAYOUT-FEASIBLE', 'GA-DIRECTION', 'GA-RELATIVE-PLACEMENT', 'GA-REGION-FUNCTION'],
-    scoring: ['GA-ONE-PRIMARY-EVENT', 'GA-OBJECTIVE-SETS', 'GA-REFERENCE-INTEGRITY', 'GA-EPISODE-REACHABLE', 'GA-MODIFIER-OVERLAP', 'GA-EFFECT-TYPED', 'GA-INFORMATION', 'GA-TIME-WINDOWS'],
+    // GA-ROLE-EVENTS (22 October 2026, stage A, his reply filed 25 October 2026, item 2): how each team scores, so scoring.
+    scoring: ['GA-ONE-PRIMARY-EVENT', 'GA-ROLE-EVENTS', 'GA-OBJECTIVE-SETS', 'GA-REFERENCE-INTEGRITY', 'GA-EPISODE-REACHABLE', 'GA-MODIFIER-OVERLAP', 'GA-EFFECT-TYPED', 'GA-INFORMATION', 'GA-TIME-WINDOWS'],
     restarts: ['GA-TRANSITION-COHERENCE', 'GA-TRIGGER-REACHABLE', 'GA-TRIGGER-UNIQUE', 'GA-EPISODE-REACHABLE'],
 }
 
@@ -712,7 +713,7 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
                     scoring: {
                         checks: pick(STRUCTURE_CHECKS.scoring),
                         facts: [
-                            { what: 'primary event (V1 kind, V2 value)', value: { kind: readPath(game, 'value.primaryEvent.kind'), value: readPath(game, 'value.primaryEvent.value') } },
+                            { what: 'primary event (V1 kind, V2 value)', value: { kind: eventKindOf(game, null, index).kind, value: readPath(game, 'value.primaryEvent.value') } },
                             ...objectives.map(o => ({ what: `objective ${o.elementId}: ${o.team}${o.role ? ` (${o.role})` : ''} scores in ${o.regionId}`, value: along(o.region) })),
                             ...membersAt(game, index, 'V3').map(condition => ({ what: `condition ${condition?.elementId} (${condition?.type}), scope ${condition?.scope ?? 'WHOLE_GAME'}`, value: condition?.referents?.asAuthored ?? condition?.value ?? null })),
                         ],
@@ -824,7 +825,7 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
         const game = block.fixture?.game ?? {}
         const rows = transitionsOf(block, index)
         return [
-            ...objectivesOf(block, index).map(o => ({ what: `block ${block.blockId}: ${o.role ?? o.team} scores by ${readPath(game, 'value.primaryEvent.kind')} in ${o.regionId}`, value: { along: along(o.region), noun: o.region?.noun ?? null } })),
+            ...objectivesOf(block, index).map(o => ({ what: `block ${block.blockId}: ${o.role ?? o.team} scores by ${o.role ? eventKindOf(game, o.role, index).kind : eventKindOf(game, null, index).kind} in ${o.regionId}`, value: { along: along(o.region), noun: o.region?.noun ?? null } })),
             ...membersAt(game, index, 'V3').map(c => ({ what: `block ${block.blockId}: condition ${c?.elementId} (${c?.type}) applies within ${c?.scope ?? 'WHOLE_GAME'}`, value: c?.referents ?? c?.value ?? null })),
             { what: `block ${block.blockId}: the items each condition rests on, and the notes the knowledge records on them`, value: conditionsOf(block).map(({ elementId, items, notes }) => ({ elementId, items, notes })) },
             { what: `block ${block.blockId}: after a score`, value: rows.filter(t => t.trigger === 'SCORE').map(t => ({ playState: t.playState, awardedToRole: t.awardedToRole, actor: t.actor, startsEpisode: t.startsEpisode })) },
@@ -888,7 +889,7 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
                 facts.push({ what: 'restarts whose location the coach chooses, with the recorded description of it', value: rows.filter(t => t.location && typeof t.location === 'object' && 'coachDecides' in (t.location as object)).map(t => ({ elementId: t.elementId, awardedToRole: t.awardedToRole, location: (t.location as any).coachDecides })) })
                 facts.push({ what: 'a change of possession', value: rows.filter(t => t.trigger === 'POSSESSION_CHANGE').map(t => ({ playState: t.playState, beginsConditionedEpisode: t.beginsConditionedEpisode })) })
                 facts.push({ what: 'conditions on the primary event, with the episode each applies within', value: membersAt(game, index, 'V3').map(c => ({ elementId: c?.elementId, type: c?.type, scope: c?.scope ?? 'WHOLE_GAME' })) })
-                facts.push({ what: 'the primary event', value: readPath(game, 'value.primaryEvent.kind') })
+                facts.push({ what: 'the primary event', value: eventKindOf(game, null, index).kind })
                 // Stage M3 (design step L7): his 19 October item 2 makes a controlled regain inside this target count as a score; it is
                 // carried by an occurrence that also counts as the primary event (V27), not by a new meaning of entering the target.
                 facts.push({ what: 'elements deciding whether gaining possession inside the target scores', value: alsoCountsFor(block, index, flag.role, blockItems[blocks.indexOf(block)]) })
@@ -908,7 +909,7 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
                     ? `Yes. Once play starts, nothing in the generated game prevents a player of the ${flag.role} role from moving beyond the element its target begins at and staying there: its start placement applies only at the transitions that (re)start an episode, and the game holds no action restriction, access rule, eligibility condition, consequence or time window. Whether the defensive interaction there is meaningful is not a fact the game holds; it is for his evaluation.`
                     : `The game holds a rule or a standing placement that bears on where a player of the ${flag.role} role may be; see the facts. Whether it settles his concern is for his evaluation.`
                 : status === 'SETTLED_BY_RULING'
-                  ? `Settled by his ruling, provisionally (${[...new Set(settledBy.map(w => w.citedAs))].join('; ')}): in every block the game holds an occurrence that also counts as the primary event (${readPath(blocks[0]?.fixture?.game ?? {}, 'value.primaryEvent.kind')}) for the team holding the ${flag.role} role, inside the target that team attacks, on ${[...new Set(regains.flat().map(e => String(e.trigger)))].join(', ')}, with its control ("${[...new Set(regains.flat().map(e => String(e.control)))].join('", "')}") and exclusion ("${[...new Set(regains.flat().map(e => String(e.exclusion)))].join('", "')}") recorded in his words; it earns the primary event's own value, and every item it rests on is his ruling. Entering the target keeps its meaning: no element makes gaining possession inside it an entry into it. Whether this creates the intended consequences is for his evaluation.`
+                  ? `Settled by his ruling, provisionally (${[...new Set(settledBy.map(w => w.citedAs))].join('; ')}): in every block the game holds an occurrence that also counts as the primary event (${eventKindOf(blocks[0]?.fixture?.game ?? {}, null, index).kind}) for the team holding the ${flag.role} role, inside the target that team attacks, on ${[...new Set(regains.flat().map(e => String(e.trigger)))].join(', ')}, with its control ("${[...new Set(regains.flat().map(e => String(e.control)))].join('", "')}") and exclusion ("${[...new Set(regains.flat().map(e => String(e.exclusion)))].join('", "')}") recorded in his words; it earns the primary event's own value, and every item it rests on is his ruling. Entering the target keeps its meaning: no element makes gaining possession inside it an entry into it. Whether this creates the intended consequences is for his evaluation.`
                   : status === 'RULED_NOT_IN_GAME'
                     ? `Ruled and not in the game: the record carries his ruling settling this case, and not every block holds an occurrence that also counts as the primary event for the team holding the ${flag.role} role inside its target, resting only on his ruling. See the facts.`
                     : regains.some(list => list.length)
