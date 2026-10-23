@@ -99,7 +99,12 @@ const refusedAtStructure = (activity: RefusedActivity, label: string) => {
 
 // ── 1. The register ─────────────────────────────────────────────────────────────────────────────────────
 test('register version 14 holds the rows as data, in one versions entry quoting him', () => {
-    const version = String(register.version)
+    // Re-pointed 22 October 2026: version 15 (which participant a value names, his reply filed 25 October 2026, item 6) supersedes 14,
+    // so version 14's entry is read where it now stands, after "Supersedes version 14, which ", whole and once.
+    const full = String(register.version)
+    assert.ok(full.startsWith('15, adds which participant a value names'))
+    assert.equal(full.split('Supersedes version 14, which ').length - 1, 1, 'version 14 superseded once')
+    const version = `14, ${full.split('Supersedes version 14, which ')[1]}`
     assert.ok(version.startsWith("14, adds a role's scoring credit confined to an episode"))
     for (const quote of [
         'Please ensure the underlying scoring eligibility reflects this distinction, rather than relying solely on the coach-facing wording.',
@@ -112,6 +117,7 @@ test('register version 14 holds the rows as data, in one versions entry quoting 
     assert.ok(version.includes('Supersedes version 13, which adds positions stated relative to another element or to a team'), 'version 13 kept in the history')
     assert.equal(version.split('Supersedes version ').length - 1, 7, 'one new entry: versions 13 back to 7 are superseded, each once')
     assert.ok(!version.includes('Supersedes version 14'), 'no second bump for these rows')
+    assert.ok(!full.includes('Supersedes version 15'), 'version 15 is the current entry')
     const row = (id: string) => index.rows.get(id)!
     assert.deepEqual([row('B8').path, row('B8').ownerRow, row('B8').kind], ['activityRoles[].creditedWithin', 'B1', 'FIELD'])
     assert.deepEqual([row('V27').path, row('V27').kind, row('V27').selectorAttributes, row('V27').earnsValueOf], ['value.primaryEvent.alsoCounts[]', 'COLLECTION', ['team'], 'V2'])

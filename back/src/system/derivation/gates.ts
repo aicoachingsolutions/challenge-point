@@ -29,12 +29,13 @@
  * instances or found none, and the report carries that split so a summary cannot flatten it.
  */
 
-import { AwardeeRelation, awardeeRelation, designationKey, followsPossessionRelation, holderInBlock, isAllTeams, isListedDesignation, resolutionOf, roleHolderNames, roleOfHolder } from './designation'
+import { AwardeeRelation, awardeeRelation, CarriedTerms, decidedAtTransition, designationKey, followsPossessionRelation, holderInBlock, isAllTeams, isListedDesignation, resolutionOf, roleHolderNames, roleOfHolder } from './designation'
 import { ClassifiedLine, nonClaimState } from './classify'
 import { DerivedLine, resolvedValue } from './derive'
 import { ItemOutcome } from './forward'
 import { RegisterIndex } from './register'
 import { add, compare, Interval, lt, lte, Rational, toInterval, toRational, ZERO } from './rational'
+import { Participant, participantOf, performerRows, sameParticipant } from './participants'
 import { BeginConditionReferent, beginConditionReferentOf, ElementClass, Envelope, FailureRecord, ItemRef, LoadedContract, NO_FURTHER_VALUE, RefusalRecord, ResolutionLine, RoleBlock, SpecClause, relationalReferentOf, relativePositionOf, structuralRefOf, teamEndPositionOf } from './types'
 
 /**
@@ -1328,7 +1329,11 @@ function buildOutStarters(
         }
         // An arm naming a restart kind is met by no transition: no row carries a restart kind (register V5 version 3), so
         // nothing marks a restart as one, and an ordinary restart is never read as a deliberate one (his item 2).
-        const meets = referent.arms.some(arm => 'takenBy' in arm && arm.takenBy === String(taker.value))
+        // An arm naming a taker is met where the transition's taker names THE SAME PARTICIPANT, read through the register's
+        // specialized roles and participant forms (`participants.ts`, register version 15) — 22 October 2026, his reply filed 25
+        // October 2026, item 6: "This safeguard should not depend on particular wording". Until then the two were compared as raw
+        // text, so the match turned on a literal role word; two texts naming no registered participant now identify nobody (SD-63).
+        const meets = referent.arms.some(arm => 'takenBy' in arm && sameParticipant(ctx.index, arm.takenBy, taker.value))
         if (meets) starters.push({ classId: transition.classId, trigger })
         else ruledOut.push(`${transition.classId} (taken by "${String(taker.value)}": it meets no arm of the begin condition)`)
     }
@@ -1433,6 +1438,31 @@ function placementResets(
  * POSSESSION_CHANGE, already read here.
  */
 const CREDIT_ROW = 'B8'
+
+/**
+ * How many teams the game holds, where its team classes fix it (OTHER is decided only between exactly two). One count per
+ * establishing item: the members realization instantiates from a claim (post-realization-gate.ts) carry the claim's item and
+ * no cardinality of their own, so they are the claim's members, never more teams. An item no class gives a fixed count fixes none.
+ * Read by the credit clauses and, since 22 October 2026, by GA-PARTICIPANTS-PRESENT (moved here unchanged, so both read it once).
+ */
+function teamCountOf(ctx: GateContext): number | null {
+    const teamGroups = new Map<string, ElementClass[]>()
+    for (const c of ctx.index.designations.teamsRow ? allClassesOn(ctx, ctx.index.designations.teamsRow) : []) {
+        const key = `${c.fromItem.contractId}::${c.fromItem.itemId}`
+        teamGroups.set(key, [...(teamGroups.get(key) ?? []), c])
+    }
+    const fixedCount = (group: ElementClass[]): number | null => {
+        const fixed = group.find(c => c.cardinality.min !== null && c.cardinality.min === c.cardinality.max)
+        return fixed ? Number(fixed.cardinality.min) : null
+    }
+    const counts = [...teamGroups.values()].map(fixedCount)
+    return counts.length && counts.every(n => n !== null) ? counts.reduce<number>((sum, n) => sum + (n as number), 0) : null
+}
+
+/** An element's selector terms that fix an attribute to one value, as a record (a transition's trigger and qualifiers, say). */
+const equalityTermsOf = (element: ElementClass): Record<string, unknown> =>
+    Object.fromEntries((element.constraints?.terms || []).filter(t => t.op === '=').map(t => [t.attribute, (t as { value: unknown }).value]))
+
 /** The two clauses by name, exported (stage M3) so the review evidence reads their verdicts by name, never by position. */
 export const CREDIT_BEGINS_CLAUSE = 'every role whose scoring credit is confined to an episode holds the award of every transition that begins that episode'
 export const CREDIT_ENDS_CLAUSE = 'every transition that can take possession from such a role begins another episode'
@@ -1485,22 +1515,8 @@ function creditClauses(ctx: GateContext, probe: Probe, typedFor: (scope: string)
     }
     if (!bounded.length) return { clauses: [pass(BEGINS, 0), pass(ENDS, 0)], why: '' }
 
-    // How many teams the game holds, where its team classes fix it (OTHER is decided only between exactly two). One count per
-    // establishing item: the members realization instantiates from a claim (post-realization-gate.ts) carry the claim's item and
-    // no cardinality of their own, so they are the claim's members, never more teams. An item no class gives a fixed count fixes none.
-    const teamGroups = new Map<string, ElementClass[]>()
-    for (const c of ctx.index.designations.teamsRow ? allClassesOn(ctx, ctx.index.designations.teamsRow) : []) {
-        const key = `${c.fromItem.contractId}::${c.fromItem.itemId}`
-        teamGroups.set(key, [...(teamGroups.get(key) ?? []), c])
-    }
-    const fixedCount = (group: ElementClass[]): number | null => {
-        const fixed = group.find(c => c.cardinality.min !== null && c.cardinality.min === c.cardinality.max)
-        return fixed ? Number(fixed.cardinality.min) : null
-    }
-    const counts = [...teamGroups.values()].map(fixedCount)
-    const teamCount = counts.length && counts.every(n => n !== null) ? counts.reduce<number>((sum, n) => sum + (n as number), 0) : null
-    const termsOf = (transition: ElementClass): Record<string, unknown> =>
-        Object.fromEntries((transition.constraints?.terms || []).filter(t => t.op === '=').map(t => [t.attribute, (t as { value: unknown }).value]))
+    const teamCount = teamCountOf(ctx)
+    const termsOf = equalityTermsOf
     const triggerOf = (transition: ElementClass): string => String(termsOf(transition).trigger ?? 'not fixed')
     const relationOf = (transition: ElementClass, holder: string): AwardeeRelation | 'OPEN' | 'GAP' => {
         const award = probe.cell(lineOf(transition.classId, 'T2'))
@@ -3349,6 +3365,432 @@ function gaAffiliation(ctx: GateContext): CheckOutcome {
     return result('GA-AFFILIATION', probe, [memberClause, immediateClause, restartClause], notes.join('; '))
 }
 
+/**
+ * `GA-PARTICIPANTS-PRESENT` — every participant an element of the game requires is held by the configuration. Added 22 October
+ * 2026 (register version 15), twentieth, for his reply filed 25 October 2026, item 6:
+ *
+ *   *"You identified a case in which the engine could name a [specialized-role] as the restart taker without independently verifying
+ *   that a [specialized-role] was present."* *"Please correct that as a general structural validation requirement."* *"Any
+ *   participant or role required by an activity must actually be present in the authorized configuration."* *"This safeguard should
+ *   not depend on particular wording or on the current realization's existing [specialized-role]-count restriction."* *"The same
+ *   principle should apply to other required participants or specialized roles."* (His role noun is bracketed: the coupling ratchet
+ *   keeps a sport's nouns out of this layer.)
+ *
+ * **What was missing.** A transition's taker (T3) was read only for whether it carried a value (GA-TRANSITION-COHERENCE) and, for a
+ * build-out's beginning, whether its text equalled an arm's. Nothing compared it with the teams. Measured on a TEST-ONLY copy of
+ * Play Out from the Back without its one-[specialized-role] choice, at 11 players and none of that role: served, saying the building
+ * team's [specialized-role] restarts play over two teams of outfield players. The only reason production never showed it was
+ * A01-R1-P3-1.
+ *
+ * **What it reads.** Every element that requires a participant, found by its row, never by its words; the participant through the
+ * register (`participants.ts`: a specialized role by its row, or a typed form); and what the configuration holds from each team's
+ * own counts on the performer rows — in the concrete game, the counts assembly wrote, so the teams of THIS block:
+ *
+ *   1. TAKER — a transition's taker (T3) is held by each team the transition can be awarded to (T2, read through the one designation
+ *      resolver: the teams it designates in this block, or relative to a qualifier as the register says, `awardeeRelation`);
+ *   2. BEGIN_ARM — the taker a typed begin condition names (V5, ruling C58) is held by each team awarded a transition that meets it;
+ *   3. GROUP — the group a start placement (P8) or a participation state (P11) names is held: a team designation by each team it
+ *      designates (at least one performer), a specialized role by some team, a counted group by its count row;
+ *   4. ROLE — each role a role block assigns (B1) is held by a team with at least one performer;
+ *   5. MOVED — the performers a reassignment moves at an exchange (B4: B6 of them, B7 many) are held by the team holding its role
+ *      (B5) in this block, which is the team they leave at the next exchange. A count stated relative to a team's count (B7 version
+ *      2) is resolved only after these gates, so it is not an instance here; the cross-block membership check RB-M holds it.
+ *
+ * **Verdicts** (SD-52, SD-53, SD-54), per clause:
+ *   - FAIL where a team the requirement certainly falls on holds fewer than it needs; where the award is decided at the trigger
+ *     (`decidedAtTransition`: the transition can be awarded to each team its designation does not exclude) and one of those teams
+ *     holds fewer (P1b, 22 October 2026, after the P1 review: this was NOT_EVALUABLE, though the clause's own words — "held by each
+ *     team the transition can be awarded to" — are plainly broken); or where every team it may fall on holds fewer;
+ *   - NOT_EVALUABLE where a value names no participant the register types (open text establishes no identity, SD-63 — the block
+ *     is NOT_REPRESENTABLE, and it is a knowledge verdict, so such a game is never realized), where a count it needs is a gap (an
+ *     unresolved roster: the roster refusal is the cause and is said), or where which team the award falls on cannot be resolved
+ *     (no award established, a designation the resolver cannot tie to a team, one resolved only on our reading, or one on a
+ *     transition carrying a term that may name a team in a way the register does not relate to the award) and only some of the
+ *     teams it may fall on hold it;
+ *   - DEFERRED where the teams are not yet instantiated, or a taker, award or count is still open: realization supplies them, and the
+ *     clause is asked again over the concrete game, where nothing is open;
+ *   - PASS otherwise, vacuously where no element requires a participant.
+ * No participant, role, team or designation is named here.
+ */
+export const PARTICIPANTS_CHECK = 'GA-PARTICIPANTS-PRESENT'
+export type ParticipantRequirement = 'TAKER' | 'BEGIN_ARM' | 'GROUP' | 'ROLE' | 'MOVED'
+export const PARTICIPANT_CLAUSES: Record<ParticipantRequirement, string> = {
+    TAKER: 'every participant a transition names as its taker is held by each team the transition can be awarded to',
+    BEGIN_ARM: 'every participant a typed begin condition names as its taker is held by each team awarded a transition that meets it',
+    GROUP: 'every performer group a start placement or participation state names is held by the configuration',
+    ROLE: 'every role a role block assigns is held by a team with at least one performer',
+    MOVED: 'every performer a reassignment moves at an exchange is held by the team holding its role',
+}
+
+/** One participant the configuration lacks, established (a FAIL), typed for a caller that has to tell a coach. */
+export interface MissingParticipant {
+    requirement: ParticipantRequirement
+    /** The requiring element and the row its requirement is read from. */
+    element: string
+    row: string
+    /** What is lacking: a specialized role or another performer row (by its row), any performer, or a counted group. */
+    missing: { kind: 'SPECIALIZED_ROLE' | 'PERFORMER_ROW' | 'ANY_PERFORMER' | 'COUNTED_GROUP'; row: string | null; name: string | null }
+    needed: number
+    /** Each team that must hold it and holds fewer, with the role holders and setup assignments it meets; none for a counted group. */
+    teams: { classId: string; holds: number; designations: string[] }[]
+}
+
+/** What one requirement needs, and of whom. */
+type ParticipantNeed =
+    | { of: 'ROW'; row: string; count: number; participant: MissingParticipant['missing']; teams: TeamScope }
+    | { of: 'ANY_PERFORMER'; count: number; teams: TeamScope }
+    | { of: 'GROUP_COUNT'; row: string; name: string | null }
+    | { of: 'NONE' }
+/** EACH: every team the designation falls on must hold it. SOME: one team holding it is enough (a group no team is named for). */
+type TeamScope = { mode: 'EACH'; designation: unknown; qualifiers: Record<string, unknown>; known: boolean; carried?: CarriedTerms } | { mode: 'SOME' }
+
+type RequirementOutcome = 'PASS' | 'FAIL' | 'BLOCKED' | 'DEFERRED'
+
+function participantsPresent(ctx: GateContext, probe: Probe): { clauses: ClauseResult[]; why: string; missing: MissingParticipant[] } {
+    const index = ctx.index
+    const teamsRow = index.designations.teamsRow ?? 'P1'
+    const teams = classesOn(ctx, teamsRow)
+    const teamsAsserted = allClassesOn(ctx, teamsRow).length > 0
+    const teamCount = teamCountOf(ctx)
+    const rowsCounted = performerRows(index)
+    const missing: MissingParticipant[] = []
+    const said: Record<ParticipantRequirement, string[]> = { TAKER: [], BEGIN_ARM: [], GROUP: [], ROLE: [], MOVED: [] }
+    const passing: Record<ParticipantRequirement, string[]> = { TAKER: [], BEGIN_ARM: [], GROUP: [], ROLE: [], MOVED: [] }
+    const tally: Record<ParticipantRequirement, { outcomes: RequirementOutcome[]; unrepresentable: boolean }> = {
+        TAKER: { outcomes: [], unrepresentable: false },
+        BEGIN_ARM: { outcomes: [], unrepresentable: false },
+        GROUP: { outcomes: [], unrepresentable: false },
+        ROLE: { outcomes: [], unrepresentable: false },
+        MOVED: { outcomes: [], unrepresentable: false },
+    }
+
+    /** How many of a row's performers a team holds: a whole count, still open, or a gap that blocks (named through the probe). */
+    const heldOn = (team: ElementClass, row: string): number | 'OPEN' | 'GAP' => {
+        const cell = probe.cell(lineOf(team.classId, row))
+        if (cell.state === 'ABSENT' && cell.established) return 0
+        if (cell.state === 'OPEN') return 'OPEN'
+        if (cell.state !== 'DERIVED') return 'GAP'
+        const exact = toRational(cell.value)
+        return exact && exact.d === 1n && exact.n >= 0n ? Number(exact.n) : 'GAP'
+    }
+    const heldOf = (team: ElementClass, need: Extract<ParticipantNeed, { teams: TeamScope }>): number | 'OPEN' | 'GAP' => {
+        const rows = need.of === 'ROW' ? [need.row] : rowsCounted
+        let total = 0
+        let open = false
+        for (const row of rows) {
+            const held = heldOn(team, row)
+            if (held === 'GAP') return 'GAP'
+            if (held === 'OPEN') open = true
+            else total += held
+        }
+        return open ? 'OPEN' : total
+    }
+    /** The role holders and setup assignments a team meets in this block — what a refusal names it by. */
+    const designationsOf = (team: ElementClass): string[] =>
+        (team.designations?.met ?? []).filter(name => {
+            const kind = resolutionOf(index, name)?.kind
+            return kind === 'BLOCK_ROLE' || kind === 'SETUP_ASSIGNMENT'
+        })
+    /**
+     * Whether a designation falls on this team — the member's own resolved designations first, then relative to a qualifier where the
+     * register relates the designation to one:
+     *   - IS or NOT;
+     *   - AT_TRIGGER where the team it picks out is decided only when play reaches the transition, so the transition can be awarded to
+     *     this team (`decidedAtTransition`; P1b, 22 October 2026: such an award is not a designation that cannot be resolved, and what
+     *     it requires of a team is required of each team it can fall on);
+     *   - MAY where which team it picks out cannot be resolved at all: no award established, a value no registered designation names,
+     *     a standing designation whose binding is not recorded, a qualifier the register relates it to that names no team it can
+     *     read, a designation decided by another transition's award, one resolved only on our reading, or one on a transition
+     *     carrying a term that names, or may name, a particular team the register does not relate it to (P1b review: silence is
+     *     not independence, and such a term may fix the team).
+     */
+    const fallsOn = (team: ElementClass, scope: Extract<TeamScope, { mode: 'EACH' }>): 'IS' | 'NOT' | 'AT_TRIGGER' | 'MAY' => {
+        if (!scope.known || !resolutionOf(index, scope.designation)) return 'MAY'
+        const key = designationKey(index, scope.designation)
+        if ((team.designations?.met ?? []).some(name => designationKey(index, name) === key)) return 'IS'
+        if ((team.designations?.notMet ?? []).some(name => designationKey(index, name) === key)) return 'NOT'
+        for (const holder of designationsOf(team)) {
+            const relation = awardeeRelation(index, scope.designation, scope.qualifiers, holder, teamCount)
+            if (relation === 'HOLDER') return 'IS'
+            if (relation === 'OTHER') return 'NOT'
+        }
+        return decidedAtTransition(index, scope.designation, scope.qualifiers, scope.carried ?? null) ? 'AT_TRIGGER' : 'MAY'
+    }
+    const missingOf = (need: ParticipantNeed): MissingParticipant['missing'] =>
+        need.of === 'ROW'
+            ? need.participant
+            : need.of === 'GROUP_COUNT'
+              ? { kind: 'COUNTED_GROUP', row: need.row, name: need.name }
+              : { kind: 'ANY_PERFORMER', row: null, name: index.participants?.forms.find(form => form.kind === 'PERFORMER_OF_AWARDED_TEAM')?.coachNoun ?? null }
+    const describe = (need: ParticipantNeed): string =>
+        need.of === 'ROW'
+            ? `${need.count} ${need.participant.name ?? need.row} (${need.row})`
+            : need.of === 'ANY_PERFORMER'
+              ? `${need.count} performer of any kind (${rowsCounted.join(', ')})`
+              : need.of === 'GROUP_COUNT'
+                ? `at least 1 counted by ${need.row}`
+                : 'no performer'
+
+    /** An outcome reached before any need could be judged: tallied under its clause, and said in the check's account. */
+    const settle = (requirement: ParticipantRequirement, element: string, row: string, outcome: RequirementOutcome, text: string): void => {
+        tally[requirement].outcomes.push(outcome)
+        said[requirement].push(`${element} (${row}): ${text}`)
+    }
+    /**
+     * One requirement, judged; its outcome is tallied under its clause and said in the check's account — in full where it does not hold,
+     * and as the element and what it requires where it does, so the account names every element it ranged over without repeating
+     * the counts of every team that holds what it needs.
+     */
+    const judge = (requirement: ParticipantRequirement, element: string, row: string, need: ParticipantNeed): void => {
+        const record = (outcome: RequirementOutcome, text: string) => {
+            tally[requirement].outcomes.push(outcome)
+            if (outcome === 'PASS') passing[requirement].push(`${element} (${row}): ${describe(need)}`)
+            else said[requirement].push(`${element} (${row}) requires ${describe(need)}${text}`)
+        }
+        if (need.of === 'NONE') return record('PASS', '')
+        if (need.of === 'GROUP_COUNT') {
+            const cell = probe.cell(`game::${need.row}`)
+            if (cell.state === 'OPEN') return record('DEFERRED', `: game::${need.row} is still open`)
+            const count = cell.state === 'ABSENT' && cell.established ? 0 : cell.state === 'DERIVED' ? toRational(cell.value) : null
+            const whole = typeof count === 'number' ? count : count && count.d === 1n && count.n >= 0n ? Number(count.n) : null
+            if (whole === null) return record('BLOCKED', `: game::${need.row} holds no whole count`)
+            if (whole >= 1) return record('PASS', `: game::${need.row} holds ${whole}`)
+            missing.push({ requirement, element, row, missing: missingOf(need), needed: 1, teams: [] })
+            return record('FAIL', `: game::${need.row} holds ${whole}`)
+        }
+        if (!teams.length) {
+            if (teamsAsserted) return record('DEFERRED', ': the teams are asserted and none is instantiated yet')
+            probe.missing.push(`${teamsRow} (no team class is instantiated, so no team can hold what ${element} requires)`)
+            return record('BLOCKED', ': the game holds no team')
+        }
+        const scope = need.teams
+        const candidates = scope.mode === 'EACH' ? teams.map(team => ({ team, falls: fallsOn(team, scope) })).filter(entry => entry.falls !== 'NOT') : teams.map(team => ({ team, falls: 'MAY' as const }))
+        if (!candidates.length) return record('BLOCKED', `: ${describeReferent(scope.mode === 'EACH' ? scope.designation : '')} falls on no team of the configuration`)
+        const holding = candidates.map(entry => ({ ...entry, held: heldOf(entry.team, need) }))
+        const known = holding.filter((entry): entry is typeof entry & { held: number } => typeof entry.held === 'number')
+        const lacking = known.filter(entry => entry.held < need.count)
+        const named = (entries: typeof known) => entries.map(entry => `${entry.team.classId}${designationsOf(entry.team).length ? ` (${designationsOf(entry.team).join(', ')})` : ''} holds ${entry.held}`).join('; ')
+        const failWith = (entries: typeof known, text: string) => {
+            missing.push({ requirement, element, row, missing: missingOf(need), needed: need.count, teams: entries.map(entry => ({ classId: entry.team.classId, holds: entry.held, designations: designationsOf(entry.team) })) })
+            record('FAIL', `${text}: ${named(entries)}`)
+        }
+        const scopeSaid = scope.mode === 'EACH' ? ` of ${describeReferent(scope.designation)}` : ' of some team'
+        if (scope.mode === 'EACH') {
+            const certain = lacking.filter(entry => entry.falls === 'IS')
+            if (certain.length) return failWith(certain, `${scopeSaid}, and a team it falls on holds fewer`)
+            // An award decided at the trigger can fall on each team its designation does not exclude, so one of them holding fewer
+            // breaks "held by each team the transition can be awarded to" as surely as a team it certainly falls on (P1b).
+            const atTrigger = lacking.filter(entry => entry.falls === 'AT_TRIGGER')
+            if (atTrigger.length) return failWith(atTrigger, `${scopeSaid}, which is decided at the trigger, and a team it can be awarded to holds fewer`)
+            if (known.length === holding.length && lacking.length === holding.length) return failWith(lacking, `${scopeSaid}, and every team it may fall on holds fewer`)
+            if (known.length === holding.length && !lacking.length) return record('PASS', `${scopeSaid}: ${named(known)}`)
+        } else {
+            if (known.some(entry => entry.held >= need.count)) return record('PASS', `${scopeSaid}: ${named(known.filter(entry => entry.held >= need.count))}`)
+            if (known.length === holding.length) return failWith(known, `${scopeSaid}, and no team holds it`)
+        }
+        if (holding.some(entry => entry.held === 'GAP')) return record('BLOCKED', `${scopeSaid}: a team's count is not established (${holding.filter(entry => entry.held === 'GAP').map(entry => entry.team.classId).join(', ')})`)
+        if (holding.some(entry => entry.held === 'OPEN')) return record('DEFERRED', `${scopeSaid}: a team's count is still open`)
+        return record('BLOCKED', `${scopeSaid}: which team it falls on cannot be resolved, and only some of the teams it may fall on hold it (${named(known)})`)
+    }
+    /** A value naming no participant the register types: nothing is checked, and the clause withholds (SD-63). */
+    const unrepresentable = (requirement: ParticipantRequirement, element: string, row: string, lineId: string, value: unknown) => {
+        probe.unestablished(lineId)
+        tally[requirement].unrepresentable = true
+        said[requirement].push(`${element} (${row}) names ${JSON.stringify(value)}, which is no participant the register types, so whether it is present cannot be established`)
+    }
+    /** What a participant needs of a team scope, or null where it needs a team scope it has none of (a form tied to an award). */
+    const needFor = (participant: Participant, scope: TeamScope | null): ParticipantNeed | null => {
+        if (participant.kind === 'NOT_A_PERFORMER') return { of: 'NONE' }
+        if (participant.kind === 'COUNTED_GROUP') return { of: 'GROUP_COUNT', row: String(participant.row), name: participant.name }
+        if (participant.kind === 'SPECIALIZED_ROLE') return { of: 'ROW', row: participant.row, count: 1, participant: { kind: 'SPECIALIZED_ROLE', row: participant.row, name: participant.name }, teams: scope ?? { mode: 'SOME' } }
+        return scope && scope.mode === 'EACH' ? { of: 'ANY_PERFORMER', count: 1, teams: scope } : null
+    }
+    /**
+     * The team scope of a transition's award: its T2 where established, else every team (an award nobody established falls on any).
+     * The transition's whole selector is carried beside its equality qualifiers, so a term that may name a team, whatever its
+     * operator, keeps the award from being read as decided at the trigger (P1b review).
+     */
+    const awardScope = (transition: ElementClass): TeamScope | 'OPEN' => {
+        const award = probe.peek(lineOf(transition.classId, 'T2'))
+        if (award.state === 'OPEN') return 'OPEN'
+        const value = award.state === 'DERIVED' ? award.value : undefined
+        const carried: CarriedTerms = { row: transition.row, terms: transition.constraints?.terms ?? [] }
+        return { mode: 'EACH', designation: value, qualifiers: equalityTermsOf(transition), known: value !== undefined && value !== null, carried }
+    }
+    const triggerSaid = (transition: ElementClass) => String(equalityTermsOf(transition).trigger ?? 'trigger not fixed')
+
+    // 1. TAKER — every transition carrying a taker.
+    for (const transition of classesOn(ctx, 'T1')) {
+        const lineId = lineOf(transition.classId, 'T3')
+        const actor = probe.peek(lineId)
+        // No taker line, or one the knowledge settles as absent (a transition in which play continues): no participant is named.
+        if (actor.state === 'ABSENT') continue
+        const element = `${transition.classId} [${triggerSaid(transition)}]`
+        if (actor.state === 'OPEN') {
+            settle('TAKER', element, 'T3', 'DEFERRED', 'its taker is still open')
+            continue
+        }
+        if (actor.state !== 'DERIVED') {
+            probe.cell(lineId)
+            settle('TAKER', element, 'T3', 'BLOCKED', 'its taker is not established')
+            continue
+        }
+        for (const value of referentsOf(actor)) {
+            const participant = participantOf(index, value)
+            if (!participant) {
+                unrepresentable('TAKER', element, 'T3', lineId, value)
+                continue
+            }
+            const scope = awardScope(transition)
+            if (scope === 'OPEN') {
+                settle('TAKER', element, 'T3', 'DEFERRED', 'the team it is awarded to (T2) is still open')
+                continue
+            }
+            const need = needFor(participant, scope)
+            if (need) judge('TAKER', element, 'T3', need)
+        }
+    }
+
+    // 2. BEGIN_ARM — each typed begin condition's taker arm, against the transitions that meet it.
+    const takerOf = (transition: ElementClass): unknown => {
+        const cell = probe.peek(lineOf(transition.classId, 'T3'))
+        return cell.state === 'DERIVED' ? cell.value : undefined
+    }
+    for (const condition of classesOn(ctx, 'V3')) {
+        const lineId = lineOf(condition.classId, 'V5')
+        const cell = probe.peek(lineId)
+        if (cell.state !== 'DERIVED') continue
+        for (const referent of referentsOf(cell).map(beginConditionReferentOf).filter((r): r is BeginConditionReferent => r !== null)) {
+            for (const arm of referent.arms) {
+                if (!('takenBy' in arm)) continue
+                const element = `${condition.classId} [begins ${referent.beginsEpisodeOf}]`
+                const participant = participantOf(index, arm.takenBy)
+                if (!participant) {
+                    unrepresentable('BEGIN_ARM', element, 'V5', lineId, arm.takenBy)
+                    continue
+                }
+                const found = buildOutStarters(ctx, probe, referent)
+                if (found.undecided.length) settle('BEGIN_ARM', element, 'V5', 'DEFERRED', `whether ${found.undecided.join(', ')} begin${found.undecided.length === 1 ? 's' : ''} it is still open`)
+                if (found.blocked.length) settle('BEGIN_ARM', element, 'V5', 'BLOCKED', `whether ${found.blocked.join(', ')} begin${found.blocked.length === 1 ? 's' : ''} it is not established`)
+                for (const starter of found.starters) {
+                    const transition = classesOn(ctx, 'T1').find(c => c.classId === starter.classId)!
+                    // Met by THIS arm: its taker names the arm's participant (a starter may meet another arm).
+                    if (!sameParticipant(index, arm.takenBy, takerOf(transition))) continue
+                    const scope = awardScope(transition)
+                    const atStarter = `${element}, met by ${transition.classId} [${starter.trigger}]`
+                    if (scope === 'OPEN') {
+                        settle('BEGIN_ARM', atStarter, 'V5', 'DEFERRED', 'the team it is awarded to (T2) is still open')
+                        continue
+                    }
+                    const need = needFor(participant, scope)
+                    if (need) judge('BEGIN_ARM', atStarter, 'V5', need)
+                }
+            }
+        }
+    }
+
+    // 3. GROUP — the group a start placement or a participation state names.
+    for (const row of ['P8', 'P11']) {
+        const attribute = index.rows.get(row)?.selectorAttributes?.[0]
+        if (!attribute) continue
+        for (const element of classesOn(ctx, row)) {
+            const term = (element.constraints?.terms || []).find(t => t.attribute === attribute && t.op === '=')
+            if (!term || term.op !== '=') continue
+            const value = term.value
+            const participant = participantOf(index, value)
+            if (participant) {
+                const need = needFor(participant, null)
+                if (need) judge('GROUP', element.classId, row, need)
+                else unrepresentable('GROUP', element.classId, row, lineOf(element.classId, row), value)
+                continue
+            }
+            if (resolutionOf(index, value)) {
+                judge('GROUP', element.classId, row, { of: 'ANY_PERFORMER', count: 1, teams: { mode: 'EACH', designation: value, qualifiers: {}, known: true } })
+                continue
+            }
+            unrepresentable('GROUP', element.classId, row, lineOf(element.classId, row), value)
+        }
+    }
+
+    // 4. ROLE — each role a role block assigns.
+    const roles = index.roleBlocks
+    if (roles) {
+        for (const element of classesOn(ctx, roles.rolesRow)) {
+            const term = (element.constraints?.terms || []).find(t => t.attribute === roles.roleAttribute && t.op === '=')
+            const role = term && term.op === '=' ? String(term.value) : null
+            const holder = role ? roleHolderNames(index).find(name => roleOfHolder(index, name) === role) : undefined
+            if (!holder) {
+                settle('ROLE', element.classId, roles.rolesRow, 'BLOCKED', `it assigns ${JSON.stringify(role)}, which no role holder of the register names`)
+                continue
+            }
+            judge('ROLE', element.classId, roles.rolesRow, { of: 'ANY_PERFORMER', count: 1, teams: { mode: 'EACH', designation: holder, qualifiers: {}, known: true } })
+        }
+    }
+
+    // 5. MOVED — the performers a reassignment moves, held by the team holding its role in this block.
+    const moves = index.reassignment
+    if (moves && roles) {
+        const attributeOf = (row: string) => index.rows.get(row)?.selectorAttribute
+        for (const element of classesOn(ctx, moves.row)) {
+            const terms = equalityTermsOf(element)
+            const toRole = terms[attributeOf(moves.toRoleRow) ?? ''] ?? (probe.peek(lineOf(element.classId, moves.toRoleRow)) as { value?: unknown }).value
+            const performerRow = String(terms[attributeOf(moves.performerRowRow) ?? ''] ?? (probe.peek(lineOf(element.classId, moves.performerRowRow)) as { value?: unknown }).value ?? '')
+            const holder = roleHolderNames(index).find(name => roleOfHolder(index, name) === String(toRole))
+            const countLine = lineOf(element.classId, moves.countRow)
+            const count = probe.peek(countLine)
+            if (count.state === 'OPEN') {
+                settle('MOVED', element.classId, moves.row, 'DEFERRED', `how many it moves (${moves.countRow}) is still open`)
+                continue
+            }
+            if (count.state === 'DERIVED' && count.value && typeof count.value === 'object') {
+                // A count relative to a team's count (B7 version 2), resolved after these gates (`resolveRelativeCounts`): RB-M holds it.
+                said.MOVED.push(`${element.classId} (${moves.row}) moves a count stated relative to a team's count, resolved after the gates and held by RB-M, so it is not an instance here`)
+                continue
+            }
+            const exact = count.state === 'DERIVED' ? toRational(count.value) : null
+            if (!holder || !rowsCounted.includes(performerRow) || !exact || exact.d !== 1n || exact.n < 1n) {
+                probe.cell(countLine)
+                settle('MOVED', element.classId, moves.row, 'BLOCKED', 'which performers it moves, how many, or to which role is not established')
+                continue
+            }
+            const role = index.specializedRoleRows.get(performerRow)
+            const participant: MissingParticipant['missing'] = role ? { kind: 'SPECIALIZED_ROLE', row: performerRow, name: role } : { kind: 'PERFORMER_ROW', row: performerRow, name: performerRow === moves.outfieldRow ? moves.outfieldNoun.singular : null }
+            judge('MOVED', element.classId, moves.row, { of: 'ROW', row: performerRow, count: Number(exact.n), participant, teams: { mode: 'EACH', designation: holder, qualifiers: {}, known: true } })
+        }
+    }
+
+    const order: ParticipantRequirement[] = ['TAKER', 'BEGIN_ARM', 'GROUP', 'ROLE', 'MOVED']
+    const clauses = order.map(requirement => {
+        const { outcomes, unrepresentable: withheld } = tally[requirement]
+        const clause = PARTICIPANT_CLAUSES[requirement]
+        if (outcomes.includes('FAIL')) return fail(clause, outcomes.length)
+        if (withheld || outcomes.includes('BLOCKED')) return notEvaluable(clause)
+        if (outcomes.includes('DEFERRED')) return deferred(clause, 'the instantiated teams and what each holds, and every taker, award and count still open, which fix whether each required participant is present')
+        return pass(clause, outcomes.length)
+    })
+    const why = order
+        .filter(requirement => said[requirement].length || passing[requirement].length)
+        .map(requirement => `${requirement}: ${[...said[requirement], ...(passing[requirement].length ? [`held (${passing[requirement].length}): ${passing[requirement].join(', ')}`] : [])].join('; ')}`)
+        .join(' | ')
+    return { clauses, why: why || 'no element of the game requires a participant', missing }
+}
+
+function gaParticipantsPresent(ctx: GateContext): CheckOutcome {
+    const probe = new Probe(ctx, PARTICIPANTS_CHECK)
+    const { clauses, why } = participantsPresent(ctx, probe)
+    return result(PARTICIPANTS_CHECK, probe, clauses, why)
+}
+
+/**
+ * **The participants the configuration lacks, typed** — for a caller that has to tell a coach which one (build-activity.ts chooses
+ * its sentence from these records, never from the check's prose). The same reading the check makes, asked again; empty where every
+ * requirement holds or none could be established as failing. Asked of the concrete game after realization (post-realization-gate.ts)
+ * and, since P1b (22 October 2026), of the staged context before it, where a count already known to be 0 fails the check at structure.
+ */
+export function missingParticipantsIn(ctx: GateContext): MissingParticipant[] {
+    return participantsPresent(ctx, new Probe(ctx, PARTICIPANTS_CHECK)).missing
+}
+
 // =================================================================================================
 // The gates.
 // =================================================================================================
@@ -3376,6 +3818,8 @@ const GATE_A_CHECKS: ((ctx: GateContext) => CheckOutcome)[] = [
     gaEpisodeReachable,
     // Nineteenth, added 15 October 2026 (stage K6, register version 13) for his M7 and his 18 October item 3.
     gaRelativePlacement,
+    // Twentieth, added 22 October 2026 (register version 15) for his reply filed 25 October 2026, item 6.
+    gaParticipantsPresent,
 ]
 
 export interface GateOutcome {

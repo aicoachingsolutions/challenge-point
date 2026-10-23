@@ -8663,3 +8663,28 @@ PR #133 (Stages 3-5) merged as `c1ae0a8` before this.
   one-goalkeeper choice served "The building team's goalkeeper restarts play" with 0 goalkeepers (no staffed-taker check).
 
 NEXT: one email with communication and learning design kept DISTINCT (his item 9).
+
+## 25 OCTOBER — HIS RULINGS ON THE GOAL VERSION; PRIORITY 1 (REQUIRED PARTICIPANTS) BUILT
+
+His reply (`scratchpad/christian-2026-10-25.txt`, memory `christian-rulings-2026-10-25.md`): one primary scoring event
+PER ROLE (with a coherence check); a goalkeeper-protected goal authorized as the pressing alternative; goal vs zone as
+alternative realizations chosen by session resources (goal availability a session item, never inferred from a
+goalkeeper); coach-controlled end exchange approved (team identity / role / end / membership separate); no-goalkeeper
+variation deferred; required-participant validation now; confirm the possession game form BEFORE implementing; priorities
+1-6; the live app's library-constraint blocker to be corrected systemically. PR #134 merged as `59ece54`.
+
+- `996c126` + `157ceda` + `1ee3016` priority 1: GA-PARTICIPANTS-PRESENT (Gate A #20) — every taker (T3, per team T2 can
+  award), begin-arm taker (V5), placement/participation group (P8, P11), block role (B1) and moved performers (B4) must be
+  present; read by row, never by words; register v15 `participants` block; the exact-string matches in gates.ts and the
+  renderer removed; typed MissingParticipant records give a DRAFT coach sentence at structure and at validation; an award
+  decided at the trigger FAILs only when no carried term may name a team (SD-52), else withholds. A TEST copy without the
+  one-goalkeeper choice (served before) is now refused. Production unchanged.
+- `33ea569` A01-ADJ-1: "representing an opponent committing additional numbers forward" removed from the operational
+  instruction; consequence kept in Coach details; his words in the entry's note.
+- Design (read-only, verified): `scratchpad/d25/design-final.md` — GF2 can hold the goal version given his rulings (the
+  limit is GF2's role-agnostic scoring/target items + our one-event representation, not GF2's identity); build stages A
+  (role scoring), B (object targets, goal geometry), C (objects across blocks), D (end exchange, B10 KEPT/EXCHANGED), E
+  (resource selection, ordered realizations, A01-R2 basedOn A01-R1), F (knowledge), G (wording), H (verification); live fix
+  section 4. Decision note with nine numbered decisions sent via Joe (`scratchpad/send-oct25/`).
+
+NEXT: `scratchpad/d25/wf-build-1.js` (live fix + Stage A), then B, C, D on TEST-ONLY copies; F2/G after his answers.

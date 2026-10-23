@@ -316,6 +316,67 @@ function indexReassignment(block: any, rows: Map<string, RegisterRow>, roleBlock
     }
 }
 
+/**
+ * **Which participant a value names, where it is not a specialized role — register version 15, 22 October 2026.** Christian,
+ * reply filed 25 October 2026, item 6: *"Any participant or role required by an activity must actually be present in the
+ * authorized configuration."* *"This safeguard should not depend on particular wording or on the current realization's existing
+ * [specialized-role]-count restriction."* *"The same principle should apply to other required participants or specialized roles."*
+ * (His role noun is bracketed: the coupling ratchet keeps a sport's nouns out of this layer.)
+ *
+ * A form types one value the knowledge already writes, matched whole. The kinds are the closed list the engine implements
+ * (`PARTICIPANT_FORM_KINDS`): no performer at all, any performer of the team a transition is awarded to, or the performers a
+ * game-level count row counts. Read by `derivation/participants.ts` alone; no participant is named in code.
+ */
+export const PARTICIPANT_FORM_KINDS = ['NOT_A_PERFORMER', 'PERFORMER_OF_AWARDED_TEAM', 'COUNTED_GROUP'] as const
+export type ParticipantFormKind = (typeof PARTICIPANT_FORM_KINDS)[number]
+
+export interface ParticipantForm {
+    value: string
+    kind: ParticipantFormKind
+    /** COUNTED_GROUP only: the game-level FIELD row counting the group's performers. */
+    countRow: string | null
+    /** DRAFT coach noun, or null where the form names nobody a coach places (COACH). */
+    coachNoun: string | null
+}
+
+export interface ParticipantRegister {
+    forms: ParticipantForm[]
+}
+
+/**
+ * The participants block, validated as the rest of the register is (halt H1): a form whose value is empty or repeated, whose kind
+ * the engine does not implement, whose count row is not a game-level field, or whose value is also a specialized role's name or a
+ * registered designation would let one value name two participants, or a participant the engine cannot check. A register without
+ * the block (one written before version 15) types no form, and only the specialized roles resolve.
+ */
+function indexParticipants(block: any, rows: Map<string, RegisterRow>, designations: DesignationRegister): ParticipantRegister | null {
+    if (!block || typeof block !== 'object') return null
+    if (!Array.isArray(block.forms)) throw new HaltError('H1', 'participants.forms is not a list')
+    const roleNames = new Set([...rows.values()].filter(row => (row as { specializedRole?: boolean }).specializedRole).map(row => String(row.path).split('.').pop()))
+    const forms: ParticipantForm[] = []
+    for (const raw of block.forms) {
+        const value = typeof raw?.value === 'string' ? raw.value : ''
+        if (!value.trim() || value !== value.trim()) throw new HaltError('H1', `participants: a form has no value, or one with surrounding spaces (${JSON.stringify(raw?.value)})`)
+        if (forms.some(form => form.value === value)) throw new HaltError('H1', `participants: the form ${value} is listed twice`)
+        if (!(PARTICIPANT_FORM_KINDS as readonly string[]).includes(String(raw?.kind))) throw new HaltError('H1', `participants: the form ${value} has the kind ${raw?.kind}, which the engine does not implement`)
+        if (roleNames.has(value)) throw new HaltError('H1', `participants: the form ${value} is also the name of a specialized role`)
+        if (designations.resolutions.has(value) || designations.resolutions.has(designationName(value))) throw new HaltError('H1', `participants: the form ${value} is also a registered team designation`)
+        const kind = raw.kind as ParticipantFormKind
+        let countRow: string | null = null
+        if (kind === 'COUNTED_GROUP') {
+            countRow = String(raw?.countRow ?? '')
+            const row = rows.get(countRow)
+            if (!row || row.kind !== 'FIELD' || row.ownerRow) throw new HaltError('H1', `participants: the form ${value} counts by ${raw?.countRow}, which is not a game-level FIELD row`)
+        } else if (raw?.countRow !== undefined) {
+            throw new HaltError('H1', `participants: the form ${value} is ${kind} and names a count row, which only a COUNTED_GROUP has`)
+        }
+        if (typeof raw?.gloss !== 'string' || !raw.gloss.trim() || typeof raw?.from !== 'string' || !raw.from.trim()) throw new HaltError('H1', `participants: the form ${value} does not say what it is and where it comes from (gloss, from)`)
+        if (raw.coachNoun !== null && (typeof raw.coachNoun !== 'string' || !raw.coachNoun.trim())) throw new HaltError('H1', `participants: the form ${value} has a coachNoun that is neither a noun nor null`)
+        forms.push({ value, kind, countRow, coachNoun: raw.coachNoun === null ? null : String(raw.coachNoun) })
+    }
+    return { forms }
+}
+
 export interface RegisterIndex {
     rows: Map<string, RegisterRow>
     /** Position in `register.rows`, the canonical row order (package §8). */
@@ -399,6 +460,8 @@ export interface RegisterIndex {
     targetOf: TargetOfRegister | null
     /** The participant-reassignment capability's rows (register version 11, his RD-1 answer), or null without it. */
     reassignment: ReassignmentRegister | null
+    /** The participant forms beside the specialized roles (register version 15, his reply filed 25 October 2026, item 6), or null without them. */
+    participants: ParticipantRegister | null
     registerVersion: string
 }
 
@@ -642,6 +705,7 @@ export function indexRegister(register: any): RegisterIndex {
         roleBlocks,
         targetOf: indexTargetOf(register.targetOf, rows, vocabularies, designations),
         reassignment: indexReassignment(register.reassignment, rows, roleBlocks, designations),
+        participants: indexParticipants(register.participants, rows, designations),
         registerVersion: register.version,
     }
 }

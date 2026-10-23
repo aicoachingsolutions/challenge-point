@@ -167,8 +167,11 @@ test('the record: his allocation principle once, the relationship he confirmed, 
     // "The coach-facing suggestions should not imply those changes can occur without accounting for every player." His words stay
     // whole beside them (above). Adding a player uses his "reallocating someone or introducing an additional player"; removing one picks
     // no option he did not choose (his words for it were only "a practical adjustment to the roster").
+    // Re-pointed 22 October 2026: his reply filed 25 October 2026, item 1, "please remove the phrase "representing an opponent committing
+    // additional numbers forward" from the operational instruction." ADJ-1's coachWords drop exactly that phrase; his 17 October words
+    // (above) stay whole as the cited authority, and the consequence is unchanged.
     assert.deepEqual(adjustments.entries.map(e => e.coachWords ?? null), [
-        'add a pressing player, representing an opponent committing additional numbers forward; with every player already in a team, reallocate someone or introduce an additional player',
+        'add a pressing player; with every player already in a team, reallocate someone or introduce an additional player',
         "remove a build-out player, deciding where that player goes so every player is still accounted for, reducing the building team's available support options",
         'move the marked line nearer to either end line',
         'change where the teams start when the pressure you see is not creating an appropriate challenge',
@@ -487,8 +490,10 @@ test('the adjustments are said only under "Adjusting the activity", in his words
     // DRAFT coach words with his words cited beside them (`coachWords`), still the coach's choice and still no challenge level.
     // Re-pointed 17 October 2026 (stage M4): his D6 two say our DRAFT coachWords, accounting for every player (his reply filed 19 October
     // 2026, item 4), with his words cited beside them; his consequence's first sentence still follows the first.
+    // Re-pointed 22 October 2026 (his reply filed 25 October 2026, item 1): the operational instruction no longer says the opponent behaviour
+    // it represents; the consequence after it is unchanged.
     assert.deepEqual(said.map(i => [i.tier, i.status, i.text]), [
-        ['adjust', 'COACH_CHOICE', 'You may choose to add a pressing player, representing an opponent committing additional numbers forward; with every player already in a team, reallocate someone or introduce an additional player: adding a pressing player can increase pressure but may also expose space behind the press'],
+        ['adjust', 'COACH_CHOICE', 'You may choose to add a pressing player; with every player already in a team, reallocate someone or introduce an additional player: adding a pressing player can increase pressure but may also expose space behind the press'],
         ['adjust', 'COACH_CHOICE', "You may choose to remove a build-out player, deciding where that player goes so every player is still accounted for, reducing the building team's available support options"],
         ['adjust', 'COACH_CHOICE', 'You may choose to move the marked line nearer to either end line'],
         ['adjust', 'COACH_CHOICE', 'You may choose to change where the teams start when the pressure you see is not creating an appropriate challenge'],

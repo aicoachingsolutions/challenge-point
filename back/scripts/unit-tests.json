@@ -110,5 +110,6 @@
     "./src/system/derivation/credit-episode.unit.ts",
     "./src/system/derivation/also-counts.unit.ts",
     "./src/system/rendering/first-activity-end-to-end.unit.ts",
-    "./src/system/derivation/run-contract-coverage.unit.ts"
+    "./src/system/derivation/run-contract-coverage.unit.ts",
+    "./src/system/derivation/participants-present.unit.ts"
 ]

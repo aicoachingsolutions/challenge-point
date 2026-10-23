@@ -322,14 +322,14 @@
                         "citedAs": "his reply filed 17 October 2026, D6 (Adjusting the challenge)",
                         "words": "Add a pressing player, representing an opponent committing additional numbers forward.",
                         "consequence": "Adding a pressing player can increase pressure but may also expose space behind the press. That relationship is itself something players should learn to recognize and exploit.",
-                        "coachWords": "add a pressing player, representing an opponent committing additional numbers forward; with every player already in a team, reallocate someone or introduce an additional player",
+                        "coachWords": "add a pressing player; with every player already in a team, reallocate someone or introduce an additional player",
                         "relationship": "RPC-001~EM-0006",
                         "parameter": "EMP-0036 Direction: Increase",
                         "role": "PRESSING",
                         "sources": [
                             "RPC-PROP-017 (BEHAVIOR_ADJUSTMENT): 'Manipulate numerical relationships without prescribing a single solution.'"
                         ],
-                        "note": null
+                        "note": "Amended 22 October 2026 on his reply filed 25 October 2026, item 1: \"Regarding the adjustment language, please remove the phrase \"representing an opponent committing additional numbers forward\" from the operational instruction.\" \"I would retain the concise explanation of potential consequences in Coach Details.\" \"That gives the coach useful information about what the manipulation might change without prescribing a particular tactical intention.\" So coachWords, the operational instruction a coach is given (OUR DRAFT wording), drops exactly that phrase and nothing else: it was \"add a pressing player, representing an opponent committing additional numbers forward; with every player already in a team, reallocate someone or introduce an additional player\". consequence is unchanged and is still said after it in 'Adjusting the activity' (Coach Details). His example (\"Add a pressing player to increase defensive pressure. This may also create more space behind the press.\") is illustrative and is not substituted for either field. words stays his 17 October D6 sentence as he wrote it, cited as the authority beside our wording and never said to the coach while coachWords is present."
                     },
                     {
                         "id": "A01-ADJ-2",

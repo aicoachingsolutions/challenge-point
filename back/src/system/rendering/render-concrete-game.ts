@@ -46,6 +46,9 @@
  * comes from the game and the path is cited.** "Obvious in the sport" is not a source.
  */
 import { nonClaimState } from '../derivation/classify'
+import { loadRegister } from '../derivation/corpus'
+import { participantOf, sameParticipant } from '../derivation/participants'
+import { indexRegister, RegisterIndex } from '../derivation/register'
 import { effectiveValue } from '../derivation/rational'
 import { NO_FURTHER_VALUE } from '../derivation/types'
 import { CONDITION_ROW, conditionScopeNotEvaluable } from '../derivation/resolved-game'
@@ -658,8 +661,18 @@ const LAST_TOUCH_PHRASE: Record<string, (object: string) => string> = {
 }
 /** Where the object leaves play, by trigger: the end line is told apart by its qualifier (T1b), read below. */
 const OUT_OF_PLAY_TRIGGERS = ['OUT_TOUCHLINE', 'OUT_END_LINE']
-/** The one authored taker that is not a role: a player of the team the restart is awarded to (A01-R1's T3 for ordinary restarts). */
-const PLAYER_OF_AWARDEE = "a player of the team in this element's T2"
+/**
+ * **Who a taker is, read through the register** (`participants.ts`, register version 15) — 22 October 2026, his reply filed 25 October
+ * 2026, item 6: *"This safeguard should not depend on particular wording"*. The one authored taker that is not a role was recognised
+ * here by a literal copy of its wording, and a begin condition's taker by raw text; both are now the register's participant forms and
+ * specialized roles, the reading GA-PARTICIPANTS-PRESENT and the begin condition's match in `gates.ts` make, so the renderer and the
+ * gates cannot disagree about who a value names. Read once: the register is versioned data.
+ */
+let participantRegister: RegisterIndex | null = null
+const participants = (): RegisterIndex => {
+    if (!participantRegister) participantRegister = indexRegister(loadRegister())
+    return participantRegister
+}
 /** The scoring event that is ENTRY into a target region, worded for that value only (its other kinds keep the line wording). */
 const ZONE_ENTRY_EVENT = 'target_zone_entered'
 /** The relative position RC-21 names (register `relativeTerms`, version 13), read where a start placement is stated by it. */
@@ -886,9 +899,9 @@ const beginArmTakers = (game: any, episode: unknown): string[] =>
         .filter((referent: any) => referent && referent.beginsEpisodeOf === episode && Array.isArray(referent.arms))
         .flatMap((referent: any) => referent.arms.map((arm: any) => arm?.takenBy).filter((taker: unknown) => typeof taker === 'string'))
 
-/** The transitions that stop and restart play, begin an episode, and are taken by one of these takers. */
+/** The transitions that stop and restart play, begin an episode, and are taken by one of these takers (the same participant, read as `gates.ts` reads it). */
 const episodeStarters = (transitions: any[], takers: string[]): any[] =>
-    transitions.filter(t => t?.playState === 'STOP_RESUME' && String(t?.startsEpisode) === 'true' && takers.includes(t?.placement?.actor))
+    transitions.filter(t => t?.playState === 'STOP_RESUME' && String(t?.startsEpisode) === 'true' && takers.some(taker => sameParticipant(participants(), taker, t?.placement?.actor)))
 
 /**
  * **The transitions that begin the episode a bounded role's credit is confined to, each with that role element** — stage 3C, 21 October
@@ -2223,8 +2236,10 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
         const actor = transition?.placement?.actor
         const awardee = teamNoun(transition?.awardedTo) ? `the ${teamNoun(transition.awardedTo)}` : objectNoun && LAST_TOUCH_PHRASE[transition?.awardedTo] ? LAST_TOUCH_PHRASE[transition.awardedTo](objectNoun) : null
         if (!awardee || typeof actor !== 'string') return null
-        if (Object.keys(fixture.envelope?.roles ?? {}).includes(actor)) return `${awardee}'s ${actor}`
-        if (actor === PLAYER_OF_AWARDEE) return `a player of ${awardee}`
+        const participant = participantOf(participants(), actor)
+        if (participant?.kind === 'SPECIALIZED_ROLE') return `${awardee}'s ${participant.name}`
+        // A player of the team the restart is awarded to (A01-R1's T3 for ordinary restarts), by the form's DRAFT coach noun.
+        if (participant?.kind === 'PERFORMER_OF_AWARDED_TEAM' && participant.name) return `a ${participant.name} of ${awardee}`
         return null
     }
     /** The status of a part resting on these paths, read as a sentence's status is (`combinedStatus`): never firmer than its weakest firm part. */

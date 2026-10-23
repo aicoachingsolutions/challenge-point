@@ -395,6 +395,10 @@ test('the corpus-wide Gate A, check by check', () => {
         'GA-NO-FAILED-LINE': 'FAIL',
         'GA-OBJECTIVE-SETS': 'PASS',
         'GA-ONE-PRIMARY-EVENT': 'NOT_EVALUABLE',
+        // Added 22 October 2026 (the twentieth check, his reply filed 25 October 2026, item 6). Corpus-wide the goal-kick situation's
+        // end-line restart (A01-02-01.a) has an unestablished taker, so whose presence it requires cannot be told and both taker clauses
+        // withhold (the same line GA-TRANSITION-COHERENCE and GA-EPISODE-REACHABLE withhold on); the neutral group defers to its count.
+        'GA-PARTICIPANTS-PRESENT': 'NOT_EVALUABLE',
         'GA-REFERENCE-INTEGRITY': 'NOT_EVALUABLE',
         'GA-REGION-FUNCTION': 'PASS',
         // Added 15 October 2026 (stage K6, the nineteenth check, his M7). The corpus holds no position stated relative to another
