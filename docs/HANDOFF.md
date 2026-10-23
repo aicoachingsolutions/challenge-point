@@ -8757,3 +8757,26 @@ item 2; design `scratchpad/d25/design-final.md` section 3, Stage B. Every goal v
 - Snapshot vs snap-A2: only A01's registerVersion 16 -> 17 and input digests (and the save refusals quoting them).
 
 NEXT: Stage C (objects across blocks, layout), Stage D (end exchange); F/G after his answers.
+
+## 23 OCTOBER — STAGE C (OBJECTS ACROSS BLOCKS, LAYOUT, EXCHANGE SENTENCE) BUILT; NOTHING NEW SERVED
+
+Governing: his reply filed 25 October, item 3 ("The goal should be positioned at the building team's end.") and item 5 ("The
+coach should not have to move the goal or reconstruct the playing area to exchange roles."); his 23 October item 2 (mark once);
+design `scratchpad/d25/design-final.md` section 3, Stage C; findings T19, T34. No register change; every goal value TEST-ONLY.
+
+- RB-1 compares the objects (O1); RB-3 requires each scoring objective's reference to name a region OR an object of the
+  block's game (its description says "two targets (a region or an object)" only where a target is an object).
+- `physical-layout.ts`: objects a block positions are read; one at one place in every block is set out once
+  (`layout.objects`, present only then), one that moves stops the layout and is listed (`remarking.objects`). A line held
+  off half the length is admitted where it is measured from the same end line in every block (its realized anchor), and
+  the move-the-line adjustment then moves nothing at the exchange (`movedBy` leaves it out) - T34. The account of what
+  moves is now given EMPTY where the blocks were read and nothing moves (it was null).
+- Renderer: such a line's own sentence cites its layout mark; with an empty account the exchange names nothing moved and no
+  longer says the markings are "set out again" (said now only where what moves could not be read).
+- Fidelity Q5-L: a layout object must be cited by a Set up sentence and be where the layout records it; a moving object must
+  be named by an exchange part citing its move and position; "set out again" refused where nothing moves.
+- TEST-ONLY (`rendering/objects-across-blocks.unit.ts`): an unreferenced goal moving between the blocks (T19) is listed and
+  refused at Q5-L (before: every check passed and "nothing is re-marked"); a goal fixed at one end is set out once.
+- Snapshot vs snap-B: 0 changes; A01 11/1 on the built bundle identical to stage B.
+
+NEXT: Stage D (end exchange: Q6's ends statement and counterpartMap's axis mirror under EXCHANGED); F/G after his answers.

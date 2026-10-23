@@ -1495,6 +1495,19 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
             ])
             continue
         }
+        /**
+         * Stage C, 23 October 2026 (the words are the line's own sentence below, unchanged): a line the layout holds at one place in every
+         * block because it is measured from the same end line in every block (`physical-layout.ts`), wherever it is. Said only where its
+         * offset is its distance from the end line its realization is measured from in this block, and it cites the mark it is, so the
+         * layout's mark is told (Q5-L). Until this stage such a line could not be set out once at all (T34).
+         */
+        const anchor = along?.geometry?.anchor
+        if (positioned && once && along?.path && typeof anchor === 'number' && Math.abs(once.at - anchor) === positioned.offset) {
+            say('Set up', status, `Mark a ${noun} across the area, ${metres(positioned.offset)} from the ${positioned.team}'s end line`, [nounPath, along.path, across?.path, `layout.marks[${once.elementId}].at`].filter(Boolean) as string[], [
+                { quantity: positioned.offset, path: along.path },
+            ])
+            continue
+        }
         if (positioned) {
             say('Set up', status, `Mark a ${noun} across the area, ${metres(positioned.offset)} from the ${positioned.team}'s end line`, [nounPath, along?.path, across?.path].filter(Boolean) as string[], along?.path ? [{ quantity: positioned.offset, path: along.path }] : [])
             continue
@@ -2832,6 +2845,12 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
              * does not have, or a mark that must stay because a marking that does not move shares its place) is not said, so fidelity Q5-L
              * refuses the activity rather than this renderer leaving the coach to work out what moves. No number is said: the distance is
              * the Set up sentence's, and "the same distance" stays true where the coach has moved the line (Adjusting the activity).
+             *
+             * **Stage C, 23 October 2026: only what actually moves.** The account of what moves is now carried wherever the blocks were read
+             * and the markings are not set out once, EMPTY where nothing moves; then this sentence names nothing moved and says nothing is
+             * set out again (until this stage the block-by-block sentence below said the markings written for the roles "are set out again"
+             * wherever no account was carried, whether or not anything moved). An object that moves (`remarking.objects`) has no words here
+             * yet (Stage G), so it is not said and fidelity Q5-L refuses the activity rather than leave the coach to find it moved.
              */
             const blockId = String(fixture.record?.roleBlock?.blockId ?? '')
             const movedMarking = (change: MarkingChange): { text: string; status: SourceStatus; from: string[] } | null => {
@@ -2881,6 +2900,8 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
                     ]),
                 )
             }
+            // Without a layout or an account of what moves (stage C: what moves could not be read from the blocks), the markings written for
+            // the roles are said to be set out again for the new roles, as since stage K7.
             const markings = layout
                 ? `: each team now attacks the target ${targetNoun ?? 'line'} of its new role, and ${NOTHING_RE_MARKED}${unless}`
                 : !keyedPaths.length

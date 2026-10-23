@@ -39,6 +39,25 @@
  * so the exchange must not say "nothing is re-marked" without saying so, and the adjustment must say what that means at the exchange.
  * Recorded as `movedBy`. That an adjustment of a role's position magnitude moves a line measured from that role's end is our reading of
  * the record (its parameter and role are themselves our reading, as its note says), DRAFT.
+ *
+ * **Stage C, 23 October 2026: objects, and a line measured from an end that does not change** (his reply filed 25 October 2026, item 3:
+ * *"The goal should be positioned at the building team's end."*; item 5: *"The marked halfway reference remains in place."* and *"The coach
+ * should not have to move the goal or reconstruct the playing area to exchange roles."*; the design's Stage C, which findings T19 and T34
+ * motivate). Until this stage the layout read regions only, so a physical object the game positions (a goal, say) could move from one end
+ * line to the other between the blocks while the exchange said nothing is re-marked (T19, measured: every cross-block check and every gate
+ * passed). Now, in the same general terms:
+ *
+ *   - every object a block's game positions (a realized position along AND across; an object placed by nothing, the one in play, is no
+ *     marking) is read: one held at one place in every block is set out once (`layout.objects`), and one whose place differs between the
+ *     blocks, or that one block does not place, stops the layout and is listed in what moves (`remarking.objects`), so the exchange must
+ *     name it and where it goes or fidelity Q5-L refuses the activity. No object is said here; the words for one are Stage G's;
+ *   - a line held at one position in every block is sayable at half the length, as before, OR where it is measured from the same end line
+ *     in every block (its realized anchor): such a line does not move when the roles exchange, wherever it is (T34: with the move-the-line
+ *     adjustment used, a line measured from an end that does not change was refused, although nothing moves). And an adjustment moves
+ *     such a line in every block alike, so it moves nothing at the exchange (`movedBy` leaves it out);
+ *   - where the markings are presented block by block, what moves is read whenever every block could be read, and is an EMPTY account
+ *     where nothing moves, so the exchange says only what actually moves (until this stage it said the markings written for the roles are
+ *     "set out again" wherever no account was carried, whether or not anything moved).
  */
 import { EM_CANONICAL_SCHEMA } from '../knowledge-core/em-canonical'
 import type { LearningGoalAuthorization } from '../test-library/learning-goal-authorizations'
@@ -119,6 +138,25 @@ export interface LayoutMove {
     forTeam: string
 }
 
+/** An interval along or across the area, in metres. */
+export interface LayoutInterval {
+    from: number
+    to: number
+}
+
+/**
+ * **An object set out once** (stage C): a physical object a block's game positions, at one place in every block. `objectId` is the object's
+ * own element id, `kind` its kind as the game holds it (data, never a word of this module), and `sources` each block's path to it.
+ */
+export interface LayoutObject {
+    elementId: string
+    objectId: string
+    kind: string | null
+    along: LayoutInterval
+    across: LayoutInterval
+    sources: { blockId: string; path: string }[]
+}
+
 export interface PhysicalLayout {
     policy: typeof MARK_UNION_ONCE
     because: LayoutAuthority
@@ -128,6 +166,8 @@ export interface PhysicalLayout {
     zones: LayoutZone[]
     regions: LayoutRegion[]
     movedBy: LayoutMove[]
+    /** Stage C: the objects set out once. Present only where a block's game positions an object, so a layout of regions only is unchanged. */
+    objects?: LayoutObject[]
 }
 
 /**
@@ -160,16 +200,42 @@ export interface MarkingChange {
     places: MarkingPlace[]
 }
 
-/** What moves at the exchange where the markings are presented block by block (stage 2G). */
-export interface Remarking {
-    lengthM: number
-    changes: MarkingChange[]
+/** Where one object is in one block (stage C): its realized place, or null on both axes where the block does not place it. */
+export interface ObjectPlace {
+    blockId: string
+    along: LayoutInterval | null
+    across: LayoutInterval | null
+}
+
+/** One object whose place differs between the blocks, or that some block does not place (stage C), with where it is in each block. */
+export interface ObjectChange {
+    elementId: string
+    objectId: string
+    kind: string | null
+    /** The object's position in a block's game (`objects[<id>].position`), the path a sentence naming the move cites beneath. */
+    path: string
+    places: ObjectPlace[]
 }
 
 /**
+ * What moves at the exchange where the markings are presented block by block (stage 2G). Since stage C an empty `changes` (and no
+ * `objects`) says that nothing moves, and `objects` lists the objects that move, present only where one does.
+ */
+export interface Remarking {
+    lengthM: number
+    changes: MarkingChange[]
+    objects?: ObjectChange[]
+}
+
+/** Stage C: whether anything moves at the exchange, by an account of what moves: a marking or an object. */
+export const somethingMoves = (remarking: Remarking | null | undefined): boolean => !!remarking && ((remarking.changes ?? []).length > 0 || (remarking.objects ?? []).length > 0)
+
+/**
  * Whether the markings are set out once: the layout where they are (`applies`, `layout`); why not where a reason is known (`why`, empty
- * where there is nothing to set out once); and, where they are presented block by block and some marking moves, what moves
- * (`remarking`). One shape for every case (the back end compiles without strict narrowing of boolean discriminants).
+ * where there is nothing to set out once); and, where they are presented block by block, what moves (`remarking`). Since stage C the
+ * account of what moves is given wherever every block could be read and the layout does not apply, EMPTY where nothing moves; it is null
+ * where the game is not played in blocks, where a region or an object could not be read, and where the layout applies. One shape for
+ * every case (the back end compiles without strict narrowing of boolean discriminants).
  */
 export interface LayoutDecision {
     applies: boolean
@@ -198,6 +264,12 @@ const intervalAt = (fixture: any, path: string): { from: number; to: number } | 
     return interval && Number.isFinite(interval.from) && Number.isFinite(interval.to) ? { from: Number(interval.from), to: Number(interval.to) } : null
 }
 
+/** The end line a realized position is measured from (its `anchor`), or null where it records none (stage C). */
+const anchorAt = (fixture: any, path: string): number | null => {
+    const anchor = ((fixture?.status?.geometry ?? []) as any[]).find(g => g?.path === path)?.geometry?.anchor
+    return typeof anchor === 'number' && Number.isFinite(anchor) ? anchor : null
+}
+
 /** A block's region as realized along and across. */
 interface ReadRegion {
     blockId: string
@@ -207,7 +279,21 @@ interface ReadRegion {
     to: number
     line: boolean
     region: any
+    /** Stage C: the end line its along position is measured from in this block, where its realization records one. */
+    anchor: number | null
 }
+
+/** A block's object as realized along and across (stage C). */
+interface ReadObject {
+    blockId: string
+    objectId: string
+    kind: string | null
+    path: string
+    along: LayoutInterval
+    across: LayoutInterval
+}
+
+const placeWords = (along: LayoutInterval | null, across: LayoutInterval | null): string => (along && across ? `${along.from}-${along.to} m along and ${across.from}-${across.to} m across` : 'not placed')
 
 /**
  * **The physical layout of these blocks, or why the markings stay block by block and what then moves.** `movers` are the adjustments
@@ -241,16 +327,45 @@ export function layoutOf(blocks: { blockId: string; fixture: any }[], movers: La
             }
             if (across.from !== 0 || across.to !== widthM) why.push(`${regionId} does not run across the full width in block ${block.blockId}, so a mark across the area cannot set it out`)
             if (along.from < 0 || along.to > lengthM || along.from > along.to) why.push(`${regionId} is not inside the area along its length in block ${block.blockId}`)
-            read.push({ blockId: block.blockId, regionId, path, from: along.from, to: along.to, line: along.from === along.to, region })
+            read.push({ blockId: block.blockId, regionId, path, from: along.from, to: along.to, line: along.from === along.to, region, anchor: anchorAt(block.fixture, path) })
         }
     }
-    /** Not set out once, with why, and what moves where every region could be read. */
-    const no = (...reasons: string[]): LayoutDecision => ({ applies: false, layout: null, why: reasons, remarking: readable ? remarkingOf(blocks, read, lengthM) : null })
+    /**
+     * Stage C: every object a block's game positions, as realized. An object placed on neither axis (the one in play) is no marking; one
+     * placed on one axis only cannot be set out, so nothing is said of what moves either.
+     */
+    const objectsRead: ReadObject[] = []
+    for (const block of blocks) {
+        for (const object of (block.fixture?.game?.objects ?? []) as any[]) {
+            const objectId = String(object?.elementId)
+            const path = `objects[${objectId}].position`
+            const along = intervalAt(block.fixture, `${path}.along`)
+            const across = intervalAt(block.fixture, `${path}.across`)
+            if (!along && !across) continue
+            if (!along || !across) {
+                why.push(`the object ${objectId} holds a realized position on one axis only in block ${block.blockId}, so where it stands cannot be set out`)
+                readable = false
+                continue
+            }
+            if (along.from < 0 || along.to > lengthM || along.from > along.to || across.from < 0 || across.to > widthM || across.from > across.to) why.push(`the object ${objectId} is not inside the area in block ${block.blockId}`)
+            objectsRead.push({ blockId: block.blockId, objectId, kind: typeof object?.kind === 'string' ? object.kind : null, path, along, across })
+        }
+    }
+    /** Not set out once, with why, and what moves (empty where nothing does, stage C) where every region and object could be read. */
+    const no = (...reasons: string[]): LayoutDecision => ({ applies: false, layout: null, why: reasons, remarking: readable ? remarkingOf(blocks, read, objectsRead, lengthM) : null })
     const inside = (x: number) => x > 0 && x < lengthM
-    // Every line element inside the area holds one position in every block, and that position is one the activity has words for once:
-    // half the length. A line on an end line is the area's own edge (stage 2G: it is no mark, so it is not held to half the length).
+    /**
+     * Every line element inside the area holds one position in every block, and that position is one the activity has words for once:
+     * half the length, or (stage C) a distance from an end line that is the same end line in every block (the line's realized anchor), so
+     * the line does not move when the roles exchange. A line on an end line is the area's own edge (stage 2G: it is no mark, so it is not
+     * held to either).
+     */
     const lineIds = [...new Set(read.filter(entry => entry.line && inside(entry.from)).map(entry => entry.regionId))]
     const lineAt = new Map<string, number>()
+    const fromOneEnd = (held: ReadRegion[]): boolean => {
+        const anchors = [...new Set(held.map(entry => entry.anchor))]
+        return held.length === blocks.length && anchors.length === 1 && (anchors[0] === 0 || anchors[0] === lengthM)
+    }
     for (const id of lineIds) {
         const held = read.filter(entry => entry.regionId === id)
         const positions = [...new Set(held.map(entry => entry.from))]
@@ -258,14 +373,37 @@ export function layoutOf(blocks: { blockId: string; fixture: any }[], movers: La
             why.push(`the line ${id} is not held at one position in every block (${held.map(entry => `${entry.from}-${entry.to} m in block ${entry.blockId}`).join('; ')}), so it would be re-marked at the exchange`)
             continue
         }
-        if (positions[0] * 2 !== lengthM) why.push(`the line ${id} is at ${positions[0]} m along a ${lengthM} m length, not at half of it: no sentence says a line held at one place in every block anywhere else`)
+        if (positions[0] * 2 !== lengthM && !fromOneEnd(held)) {
+            why.push(
+                `the line ${id} is at ${positions[0]} m along a ${lengthM} m length, not at half of it, and not measured from the same end line in every block (${held.map(entry => `${entry.anchor === null ? 'from no end line' : `from the end line at ${entry.anchor} m`} in block ${entry.blockId}`).join('; ')}): no sentence says a line held at one place in every block anywhere else`,
+            )
+        }
         lineAt.set(id, positions[0])
+    }
+    // Stage C: every object positioned in some block is at one place in every block, or it moves at the exchange.
+    const fixedObjects: LayoutObject[] = []
+    for (const objectId of [...new Set(objectsRead.map(entry => entry.objectId))]) {
+        const held = objectsRead.filter(entry => entry.objectId === objectId)
+        const kind = held[0].kind
+        const places = new Set(held.map(entry => JSON.stringify([entry.along, entry.across])))
+        if (held.length !== blocks.length || places.size !== 1) {
+            const where = blocks.map(block => {
+                const here = held.find(entry => entry.blockId === block.blockId)
+                return `${placeWords(here?.along ?? null, here?.across ?? null)} in block ${block.blockId}`
+            })
+            why.push(`the object ${objectId}${kind ? ` (${kind})` : ''} is not at one place in every block (${where.join('; ')}), so it would be moved at the exchange`)
+            continue
+        }
+        fixedObjects.push({ elementId: `object-${fixedObjects.length + 1}`, objectId, kind, along: held[0].along, across: held[0].across, sources: held.map(entry => ({ blockId: entry.blockId, path: entry.path })) })
     }
     if (why.length) return no(...why)
 
-    // The marks: every region edge strictly inside the area, once. With none, there is nothing to set out besides the area itself.
+    /**
+     * The marks: every region edge strictly inside the area, once. With none, there is nothing to set out besides the area itself (and any
+     * object held at one place, which each block's own Set up then places); nothing moves, so the account of what moves is empty (stage C).
+     */
     const at = [...new Set(read.flatMap(entry => [entry.from, entry.to]).filter(inside))].sort((a, b) => a - b)
-    if (!at.length) return { applies: false, layout: null, why: [], remarking: null }
+    if (!at.length) return { applies: false, layout: null, why: [], remarking: remarkingOf(blocks, read, objectsRead, lengthM) }
     const marks: LayoutMark[] = at.map((x, i) => ({
         elementId: `mark-${i + 1}`,
         at: x,
@@ -297,11 +435,16 @@ export function layoutOf(blocks: { blockId: string; fixture: any }[], movers: La
     }
     if (why.length) return no(...why)
 
-    // What an authorized adjustment moves: a line placed at a distance from the end the holder of its role defends.
+    /**
+     * What an authorized adjustment moves: a line placed at a distance from the end the holder of its role defends. Stage C: not a line
+     * measured from the same end line in every block, which the adjustment moves in every block alike, so nothing is re-marked at the
+     * exchange (T34: the move-the-line adjustment with an end that does not change).
+     */
     const movedBy: LayoutMove[] = []
     const holderRoles: Record<string, string> = blocks[0].fixture?.roleNouns?.holders ?? {}
     for (const mover of movers) {
         for (const mark of marks.filter(entry => entry.line)) {
+            if (fromOneEnd(read.filter(entry => entry.regionId === mark.line))) continue
             const region = read.find(entry => entry.regionId === mark.line)?.region
             const along = region?.position?.along
             const forTeam = along && typeof along === 'object' ? String(along.forTeam ?? '') : ''
@@ -320,6 +463,8 @@ export function layoutOf(blocks: { blockId: string; fixture: any }[], movers: La
             zones,
             regions: read.map(entry => ({ blockId: entry.blockId, path: entry.path, from: entry.from, to: entry.to })),
             movedBy,
+            // Stage C: only where an object is positioned, so a layout of regions only is exactly what it was.
+            ...(fixedObjects.length ? { objects: fixedObjects } : {}),
         },
         why: [],
         remarking: null,
@@ -365,10 +510,13 @@ function regionIdentities(fixture: any): (regionId: string) => string {
  *   - a marking whose position differs between the blocks, or that one block does not have, is a change, with where it is in each block
  *     (`shared` where a marking that does not move sits at the same place, so the mark there must stay).
  *
- * Changes are listed lines first, then by their position in the first block. Null where nothing moves. Nothing here names a goal, a value
- * or a sport.
+ * Changes are listed lines first, then by their position in the first block. Nothing here names a goal, a value or a sport.
+ *
+ * **Stage C, 23 October 2026:** an object a block's game positions whose place differs between the blocks, or that some block does not
+ * place, is listed too (`objects`, by its own id: an object is one element in every block, which RB-1 holds), with where it is in each
+ * block. And where nothing moves, the account is given EMPTY (until this stage: null), so a reader can tell "nothing moves" from "not read".
  */
-function remarkingOf(blocks: { blockId: string; fixture: any }[], read: ReadRegion[], lengthM: number): Remarking | null {
+function remarkingOf(blocks: { blockId: string; fixture: any }[], read: ReadRegion[], objectsRead: ReadObject[], lengthM: number): Remarking {
     const inside = (x: number) => x > 0 && x < lengthM
     const byIdentity = new Map<string, Map<string, { at: number; feature: MarkingFeature }>>()
     for (const block of blocks) {
@@ -407,7 +555,17 @@ function remarkingOf(blocks: { blockId: string; fixture: any }[], read: ReadRegi
         .filter(group => moves(group.vector))
         .map(group => ({ ...group, line: group.identities.some(identity => [...byIdentity.get(identity)!.values()].some(held => held.feature.edge === 'at')) }))
         .sort((a, b) => Number(b.line) - Number(a.line) || (a.vector[0] ?? Number.MAX_SAFE_INTEGER) - (b.vector[0] ?? Number.MAX_SAFE_INTEGER) || a.identities[0].localeCompare(b.identities[0]))
-    if (!changing.length) return null
+    // Stage C: the objects whose place differs between the blocks, in the order the first block holding each lists them.
+    const objectChanges: ObjectChange[] = []
+    for (const objectId of [...new Set(objectsRead.map(entry => entry.objectId))]) {
+        const held = objectsRead.filter(entry => entry.objectId === objectId)
+        const places = blocks.map((block): ObjectPlace => {
+            const here = held.find(entry => entry.blockId === block.blockId)
+            return { blockId: block.blockId, along: here ? { ...here.along } : null, across: here ? { ...here.across } : null }
+        })
+        if (new Set(places.map(place => JSON.stringify([place.along, place.across]))).size === 1) continue
+        objectChanges.push({ elementId: `object-change-${objectChanges.length + 1}`, objectId, kind: held[0].kind, path: held[0].path, places })
+    }
     return {
         lengthM,
         changes: changing.map((group, n) => ({
@@ -420,14 +578,20 @@ function remarkingOf(blocks: { blockId: string; fixture: any }[], read: ReadRegi
                 shared: group.vector[i] !== null && kept.some(vector => vector[i] === group.vector[i]),
             })),
         })),
+        ...(objectChanges.length ? { objects: objectChanges } : {}),
     }
 }
 
 /**
  * **What moves, in words for an administrator** (stage 2G, DRAFT admin-evidence wording): each change, where it is in each block and the
- * region edges that are it there. Read by the admin-only fallback fact (`review-evidence.ts`); never coach text.
+ * region edges that are it there. Read by the admin-only fallback fact (`review-evidence.ts`); never coach text. Stage C: and each object
+ * that moves, where it is in each block (DRAFT admin wording; its kind is the game's).
  */
 export function remarkingSummary(remarking: Remarking | null): string[] {
+    return [...remarkingChangeSummary(remarking), ...(remarking?.objects ?? []).map(change => `${change.elementId} moves: the object ${change.objectId}${change.kind ? ` (${change.kind})` : ''} ${change.places.map(place => `${placeWords(place.along, place.across)} in block ${place.blockId}`).join('; ')}`)]
+}
+
+function remarkingChangeSummary(remarking: Remarking | null): string[] {
     return (remarking?.changes ?? []).map(
         change =>
             `${change.elementId} moves: ${change.places

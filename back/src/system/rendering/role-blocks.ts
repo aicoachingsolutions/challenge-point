@@ -37,7 +37,8 @@
  *     carries (`fixture.layout`) are exactly the union of every block's realized edges, recomputed here from the blocks
  *     (`physical-layout.ts`), and are carried only where the markings occupy the same places in every block; where they do not, what
  *     moves at the exchange that a block carries (`fixture.remarking`) is exactly what the blocks' realized edges give, recomputed too
- *     (`checkRoleBlockLayout`, run once either is attached).
+ *     (`checkRoleBlockLayout`, run once either is attached). Since stage C (23 October 2026) both read the physical objects each block
+ *     positions as well, and the account of what moves is carried, empty, where nothing moves.
  *
  * Then the coach reads one activity: a sentence the two renders say alike is said once, a sentence they say alike by role
  * (stage 2C: the same words, each block citing its own role's target) is said once with each block's citations kept apart,
@@ -55,7 +56,7 @@ import { parseSelector } from '../derivation/selector'
 import { splitPath } from '../derivation/resolved-game'
 import { LoadedContract, RoleBlock } from '../derivation/types'
 import { FidelityFinding } from './fidelity'
-import { LayoutMover, layoutOf } from './physical-layout'
+import { LayoutMover, layoutOf, somethingMoves } from './physical-layout'
 import { Instruction, RenderedActivity, ROLE_EXCHANGE, roleKeyedPositions } from './render-concrete-game'
 import { inSectionOrder } from './sections'
 
@@ -142,7 +143,10 @@ export function checkRoleBlocks(blocks: BuiltBlock[], index: RegisterIndex, role
         // V27 added 17 October 2026 (stage M2): an occurrence that also counts as the primary event, compared like every other element.
         // The roles row added 22 October 2026 (stage A, register version 16): each role element, which holds the role's own scoring event
         // (B9), is the same in both blocks, so each role's event is (RB-4 holds its value to the blocks alike: GA-ROLE-EVENTS clause 12).
-        for (const rowId of ['S2', 'J1', 'T1', 'V0', 'V3', 'V27', 'P1', ...(index.roleBlocks ? [index.roleBlocks.rolesRow] : [])]) {
+        // O1 added 23 October 2026 (stage C, finding T19): the physical objects, so an object one block holds and the other does not (a goal,
+        // say) is refused here; where an object is placed in each block is the physical layout's (`physical-layout.ts`, RB-L). The
+        // description is unchanged, as when V27 and the roles row joined, so no reader's text moves.
+        for (const rowId of ['S2', 'J1', 'T1', 'V0', 'V3', 'V27', 'P1', 'O1', ...(index.roleBlocks ? [index.roleBlocks.rolesRow] : [])]) {
             const container = containerOf(index, rowId)
             if (!container || !pair) continue
             const [a, b] = games.map(game => idsAt(game, container))
@@ -172,21 +176,49 @@ export function checkRoleBlocks(blocks: BuiltBlock[], index: RegisterIndex, role
         results.push(check('RB-2', 'each team keeps its end: objectives, references, direction and the end-to-team binding identical', problems))
     }
 
-    // RB-3 — two objectives of the scoring role, two target regions, no third region.
+    /**
+     * RB-3 — two objectives of the scoring role, two targets, no third region. **Stage C, 23 October 2026** (his reply filed 25 October
+     * 2026, item 3, a physical object as an authorized alternative to a target region; register J2, "object or region reference"): a
+     * target is a region OR an object, and each scoring objective's reference must name one
+     * the block's game holds (a TIGHTENING: until this stage the references were only counted, so one naming nothing was a target). The
+     * description says "targets (a region or an object)" only where a block's target is an object, so every reader of a game of region
+     * targets reads exactly what it did.
+     */
     {
         const problems: string[] = []
         const regionsAt = containerOf(index, spec?.row ?? 'S2') ?? 'space.regions'
+        const objectsAt = index.objectGeometry ? containerOf(index, index.objectGeometry.row) : null
+        let objectTargets = false
         blocks.forEach((entry, i) => {
             const game = games[i]
             const scoring = ((read(game, objectivesAt) ?? []) as any[]).filter(o => spec && o?.[spec.roleLeaf] === spec.role)
             const references = new Set(scoring.map(o => JSON.stringify(o?.[spec?.referenceLeaf ?? 'reference'])))
             if (scoring.length !== 2) problems.push(`block ${entry.block.blockId}: ${scoring.length} objectives of the role ${spec?.role}, not two`)
             if (references.size !== 2) problems.push(`block ${entry.block.blockId}: the scoring objectives reference ${references.size} target(s), not two`)
+            const regionIds = new Set(idsAt(game, regionsAt))
+            const objectIds = new Set(objectsAt ? idsAt(game, objectsAt) : [])
+            for (const objective of scoring) {
+                const reference = objective?.[spec?.referenceLeaf ?? 'reference']
+                const ref = reference?.structuralRef
+                const id = ref ? `c:${ref.contractId}:${ref.itemId}` : null
+                if (id && !regionIds.has(id) && objectIds.has(id)) objectTargets = true
+                if (!id || (!regionIds.has(id) && !objectIds.has(id))) {
+                    problems.push(`block ${entry.block.blockId}: ${objectivesAt}[${objective?.elementId}] references ${id ?? JSON.stringify(reference ?? null)}, which is no region or object of the block's game`)
+                }
+            }
             for (const region of (read(game, regionsAt) ?? []) as any[]) {
                 if ((region?.selector ?? []).some((term: any) => term?.attribute === spec?.attribute)) problems.push(`block ${entry.block.blockId}: ${regionsAt}[${region.elementId}] was created by a selector on ${spec?.attribute}, a third region`)
             }
         })
-        results.push(check('RB-3', 'two objectives of the scoring role and two target regions in each block, and no region a role-keyed selector created', problems))
+        results.push(
+            check(
+                'RB-3',
+                objectTargets
+                    ? 'two objectives of the scoring role and two targets (a region or an object) in each block, and no region a role-keyed selector created'
+                    : 'two objectives of the scoring role and two target regions in each block, and no region a role-keyed selector created',
+                problems,
+            ),
+        )
     }
 
     // RB-4 — every difference is supported by something written for a role holder.
@@ -419,6 +451,10 @@ export function checkRoleBlocks(blocks: BuiltBlock[], index: RegisterIndex, role
  * held the same way, since the exchange sentence and fidelity Q5-L read it: a FAIL where something moves and a block carries no such
  * account, or one that differs from the recomputed one, or where nothing moves (or the layout applies) and a block carries one.
  *
+ * **Stage C, 23 October 2026:** the recomputation reads the objects each block positions too (an object held at one place is in the
+ * layout, one that moves is in the account of what moves), and the account is given empty where every block was read and nothing moves,
+ * so a block carrying none there, or one where what moves cannot be read, is refused alike.
+ *
  * Every block is read; nothing here names a goal, a value or a sport.
  */
 export function checkRoleBlockLayout(blocks: { blockId: string; fixture: any }[], movers: LayoutMover[]): RoleBlockCheck {
@@ -432,10 +468,11 @@ export function checkRoleBlockLayout(blocks: { blockId: string; fixture: any }[]
         if (decision.applies && !carried) problems.push(`block ${entry.blockId} carries no layout, and every block's markings occupy the same places, so they are set out once`)
         else if (decision.applies && !same(carried, decision.layout)) problems.push(`block ${entry.blockId} carries a layout that is not the union of every block's realized edges, recomputed from the blocks`)
         else if (!decision.applies && carried) problems.push(`block ${entry.blockId} carries a layout, and the markings cannot be set out once here${decision.why.length ? `: ${decision.why.join('; ')}` : ': there is nothing to set out besides the area'}`)
+        // Stage C: the account is given (empty where nothing moves) wherever every block could be read and the layout does not apply.
         const moving = entry.fixture?.remarking ?? null
-        if (decision.remarking && !moving) problems.push(`block ${entry.blockId} carries no account of what moves at the exchange, and the markings move between the blocks`)
+        if (decision.remarking && !moving) problems.push(`block ${entry.blockId} carries no account of what moves at the exchange, and ${somethingMoves(decision.remarking) ? 'the markings move between the blocks' : 'the blocks were read and nothing moves between them'}`)
         else if (decision.remarking && !same(moving, decision.remarking)) problems.push(`block ${entry.blockId} carries an account of what moves at the exchange that is not the one every block's realized edges give, recomputed from the blocks`)
-        else if (!decision.remarking && moving) problems.push(`block ${entry.blockId} carries an account of what moves at the exchange, and ${decision.applies ? 'the markings are set out once' : 'nothing moves between the blocks'}`)
+        else if (!decision.remarking && moving) problems.push(`block ${entry.blockId} carries an account of what moves at the exchange, and ${decision.applies ? 'the markings are set out once' : 'what moves cannot be read from the blocks'}`)
     }
     return check('RB-L', "the markings set out once are exactly the union of every block's realized edges, recomputed, carried only where they occupy the same places in every block; where they do not, what moves at the exchange is exactly what the blocks' realized edges give", problems)
 }

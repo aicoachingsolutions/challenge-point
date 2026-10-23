@@ -21,7 +21,7 @@ import { effectiveValue, scaleExactly } from '../derivation/rational'
 import { conditionScopeNotEvaluable } from '../derivation/resolved-game'
 import { ApprovedWording, approvedWording } from './approved-wording'
 import { CoachFacingExclusion, exclusionFor } from './coach-facing-exclusions'
-import { layoutLeafNumberAt, MARK_UNION_ONCE, PhysicalLayout, Remarking } from './physical-layout'
+import { layoutLeafNumberAt, MARK_UNION_ONCE, PhysicalLayout, Remarking, somethingMoves } from './physical-layout'
 import { ADJUSTING, approvedSentences, Binding, combinedStatus, ENDS_ON_WORDING, Instruction, MOVE_MARKINGS, MOVED_MARK_QUALIFICATIONS, NOTHING_RE_MARKED, RenderedActivity, ROLE_EXCHANGE, roleKeyedPositions, scoringWordingOf, sectionFactsOf, SourceStatus, UNBOUNDED_CREDIT } from './render-concrete-game'
 import { eventKindPathsOf, readPath } from './game-reading'
 import { firstReadUncarried } from './sections'
@@ -733,6 +733,26 @@ function layoutFindings(fixture: any, rendered: RenderedActivity): FidelityFindi
         const here = intervals.some(interval => interval.from === zone.from && interval.to === zone.to)
         if (!here && !(zone.sources ?? []).some(source => source.blockId !== blockId)) violation(`the zone from ${zone.from} m to ${zone.to} m is no region of block ${blockId}, and the layout records no other block it is marked for`)
     }
+    /**
+     * **Stage C, 23 October 2026: the objects set out once** (`layout.objects`, `physical-layout.ts`), two NEW clauses (tightenings) that
+     * read the projection, as the marks and zones are read: every object the layout sets out once is placed by a Set up sentence citing it
+     * (an object the coach is not told to place), and every object this block's game positions is where the layout records it for this
+     * block (the words, written from the layout, would otherwise contradict the game). No object has words yet (Stage G), so a layout
+     * holding one refuses the activity here as well as at Q3.
+     */
+    for (const object of layout.objects ?? []) {
+        if (!setUp.some(i => citesUnder(i, `layout.objects[${object.elementId}]`))) violation(`the object ${object.objectId} (layout.objects[${object.elementId}]) is set out once and no Set up sentence tells the coach to place it`)
+    }
+    for (const object of fixture.game?.objects ?? []) {
+        const id = String(object?.elementId)
+        const placed = ['along', 'across'].map(axis => (fixture.status?.geometry ?? []).find((g: any) => g.path === `objects[${id}].position.${axis}`)?.geometry?.interval ?? null)
+        if (!placed[0] && !placed[1]) continue
+        const recorded = (layout.objects ?? []).find(entry => entry.objectId === id && (entry.sources ?? []).some(source => source.blockId === blockId))
+        const where = (along: any, across: any) => (along && across ? `${along.from}-${along.to} m along and ${across.from}-${across.to} m across` : 'nothing')
+        if (!recorded || JSON.stringify([recorded.along, recorded.across]) !== JSON.stringify(placed.map(interval => (interval ? { from: interval.from, to: interval.to } : null)))) {
+            violation(`objects[${id}].position is realized at ${where(placed[0], placed[1])} in block ${blockId}, and the layout set out once records ${recorded ? where(recorded.along, recorded.across) : 'nothing'} for it there`)
+        }
+    }
     const keyed = roleKeyedPositions(fixture)
     const exchange = rendered.instructions.filter(i => i.section === ROLE_EXCHANGE && keyed.length > 0 && keyed.every(path => i.from.includes(path)))
     if (keyed.length && !exchange.some(i => i.from.includes('layout.policy'))) violation('the markings are set out once, and the exchange sentence citing the positions written for a role is the block-by-block one (it does not cite the layout)')
@@ -776,7 +796,9 @@ function layoutFindings(fixture: any, rendered: RenderedActivity): FidelityFindi
  *     every region edge that is the marking in this block, and say the noun of one of those regions; a marking this block cannot place
  *     (no such mark here, or one that must stay because a marking that does not move shares its place) is never named, so it is refused;
  *   - the sentence naming the moves does not say `MOVE_MARKINGS` (the renderer's constant, never typed here);
- *   - a Role exchange sentence says `NOTHING_RE_MARKED` while markings move.
+ *   - a Role exchange sentence says `NOTHING_RE_MARKED` while markings move;
+ *   - (stage C) an object that moves (`remarking.objects`) is named by no part of a Role exchange sentence citing its move and its position;
+ *   - (stage C) nothing moves (an empty account) and a Role exchange sentence says the markings are set out again.
  *
  * Read from citations, the account of what moves and the game's region nouns, with the two lexicons above.
  */
@@ -814,8 +836,34 @@ function remarkingFindings(fixture: any, rendered: RenderedActivity): FidelityFi
         }
         named.forEach(instruction => naming.add(instruction))
     }
+    /**
+     * **Stage C, 23 October 2026: an object that moves is named too** (`remarking.objects`, `physical-layout.ts`; finding T19), a NEW clause:
+     * a part of a Role exchange sentence must cite the move (`remarking.objects[<id>]`) and the object's position in this block, and say its
+     * noun (its kind, as a region's part says the region's noun). No object has words yet (Stage G), so an object that moves between the
+     * blocks refuses the activity here.
+     */
+    for (const change of remarking.objects ?? []) {
+        const path = `remarking.objects[${change.elementId}]`
+        const named = exchange.filter(instruction =>
+            (instruction.parts ?? []).some(part => part.from.includes(path) && part.from.some(cited => cited.startsWith(`${change.path}.`)) && !!change.kind && part.text.includes(change.kind)),
+        )
+        if (!named.length) {
+            const where = (change.places ?? []).map(place => `${place.along && place.across ? `${place.along.from}-${place.along.to} m along and ${place.across.from}-${place.across.to} m across` : 'not placed'} in block ${place.blockId}`)
+            violation(`the object ${change.objectId}${change.kind ? ` (${change.kind})` : ''} (${where.join(', ')}) moves at the exchange, and no Role exchange sentence names it and where it goes in block ${blockId}`)
+        }
+        named.forEach(instruction => naming.add(instruction))
+    }
     for (const instruction of naming) if (!instruction.text.includes(MOVE_MARKINGS)) violation(`"${instruction.text}" names markings that move at the exchange without telling the coach to move them`)
-    for (const instruction of exchange) if (instruction.text.toLowerCase().includes(NOTHING_RE_MARKED)) violation(`"${instruction.text}" says ${NOTHING_RE_MARKED}, and markings move at the exchange`)
+    /**
+     * Stage C: the account is carried EMPTY where nothing moves, so "nothing is re-marked" is refused only where something does; and where
+     * nothing moves, a Role exchange sentence telling the coach to set the markings out again is refused (a lexicon TIGHTENING, the
+     * compensating check for the exchange sentence saying only what actually moves).
+     */
+    if (somethingMoves(remarking)) {
+        for (const instruction of exchange) if (instruction.text.toLowerCase().includes(NOTHING_RE_MARKED)) violation(`"${instruction.text}" says ${NOTHING_RE_MARKED}, and markings move at the exchange`)
+    } else {
+        for (const instruction of exchange) if (RE_MARKING_AT_EXCHANGE.some(pattern => pattern.test(instruction.text))) violation(`"${instruction.text}" tells the coach to set the markings out again at the exchange, and nothing moves between the blocks`)
+    }
     return findings
 }
 
