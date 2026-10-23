@@ -360,14 +360,25 @@ const goalBuild = (options: GoalOptions = {}): RefusedActivity => {
 }
 const reasonsOf = (activity: RefusedActivity, blockId: string) => activity.reasons.filter(reason => reason.startsWith(`block ${blockId}: `)).map(reason => reason.slice(`block ${blockId}: `.length))
 const GOAL = `objects[c:${P}:TEST-GOAL]`
+/**
+ * Re-pointed 23 October 2026 (the stage C review fix, fidelity's `unaccountedObjectFindings`): block 2 of the goal version under KEPT is
+ * refused before realization, so no cross-block reading (neither the markings set out once nor an account of what moves) is attached to
+ * block 1, and an object block 1 positions is now refused at communication by fidelity Q5 too, since whether it moves at the exchange is
+ * not said. Still the communication stage's: block 1 passes every gate, the realization and post-realization validation.
+ */
+const unreadMove = (reason: string, object = GOAL) =>
+    reason.startsWith(`fidelity Q5: ${object}.position is realized (along and across) in block `) && reason.endsWith('and the fixture carries neither the markings set out once nor an account of what moves, so whether it moves at the exchange is not said')
+const atCommunication = (reason: string) => /^fidelity Q3: |^awaiting approved wording: /.test(reason) || unreadMove(reason) || unreadMove(reason, `objects[c:${P}:TEST-MARKER]`)
 
 test('THE END-KEYED GOAL VERSION (TEST-ONLY): block 1 passes every check before, at and after realization and stops only at communication (fidelity Q3)', () => {
     const activity = goalBuild()
     assert.equal(activity.outcome, 'refused')
     const block1 = reasonsOf(activity, BLOCK_1)
     assert.ok(block1.length > 0)
-    // Every reason block 1 gives is the communication stage's: the goal and the pressing role's goal have no approved wording yet (Stage G).
-    for (const reason of block1) assert.ok(/^fidelity Q3: |^awaiting approved wording: /.test(reason), reason)
+    // Every reason block 1 gives is the communication stage's: the goal and the pressing role's goal have no approved wording yet (Stage G),
+    // and (since the stage C review) whether the goal moves at the exchange is unread, block 2 being refused before realization.
+    for (const reason of block1) assert.ok(atCommunication(reason), reason)
+    assert.equal(block1.filter(reason => unreadMove(reason)).length, 1, block1.join(' | '))
     for (const path of [`${GOAL}.position.along`, `${GOAL}.position.across`]) assert.ok(block1.includes(`fidelity Q3: ${path} is established by the game and no instruction carries it`), path)
     assert.ok(block1.includes('awaiting approved wording: activityRoles[c:provisional:A01-R1:A01-R1-B1-2].scoresBy (B9)'))
     assert.ok(!block1.some(reason => /GA-|realization refused|Gate A/.test(reason)), 'no gate, realization or post-realization refusal in block 1')
@@ -387,7 +398,7 @@ test('THE END-KEYED GOAL VERSION (TEST-ONLY): block 1 passes every check before,
         }),
         BLOCK_1,
     )
-    for (const reason of marked) assert.ok(/^fidelity Q3: |^awaiting approved wording: /.test(reason), reason)
+    for (const reason of marked) assert.ok(atCommunication(reason), reason)
     assert.ok(marked.includes(`fidelity Q3: ${GATE}.position.along is established by the game and no instruction carries it`), marked.join(' | '))
 })
 
@@ -405,7 +416,7 @@ test('the goal version under KEPT is refused: in block 2 the pressing role holds
     const keptBlock2 = attackingEndOf(endsGame(ownEndOf('ROLE_HOLDER_BUILDING')), index, ROLE_BLOCK_2, 'ROLE_HOLDER_BUILDING')
     assert.deepEqual([keptBlock2.end, /a cycle/.test(keptBlock2.why)], [null, true])
     // Block 1 of the same build is untouched by block 2's refusal: it reaches communication (above).
-    assert.ok(reasonsOf(activity, BLOCK_1).every(reason => /^fidelity Q3: |^awaiting approved wording: /.test(reason)))
+    assert.ok(reasonsOf(activity, BLOCK_1).every(reason => atCommunication(reason)))
 })
 
 test('no width is a refusal: the goal is centred only on a width the session states', () => {

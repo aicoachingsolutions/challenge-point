@@ -686,7 +686,7 @@ export const RE_MARKING_AT_EXCHANGE = [/\bset out again\b/i]
  *   - a region of this block is realized at an interval the layout does not record for this block, or whose edges are not marks or the
  *     area's end lines (the words, written from the layout, would then contradict the game);
  *   - a region's position is denoted by no Set up sentence, or by more than one (each block's realized region interval is denoted exactly
- *     once);
+ *     once); since the stage C review, an object's position likewise, and that one sentence cites the object's entry in the layout;
  *   - a mark or a zone bounds nothing in this block and the layout records no other block it is marked for. This is how a mark set out
  *     once for another block is reconciled with Q5's "marked, therefore it must do something": it does something in the block it is
  *     recorded from, which RB-L recomputes from that block's own geometry, so it is never silently exempt;
@@ -752,6 +752,18 @@ function layoutFindings(fixture: any, rendered: RenderedActivity): FidelityFindi
         if (!recorded || JSON.stringify([recorded.along, recorded.across]) !== JSON.stringify(placed.map(interval => (interval ? { from: interval.from, to: interval.to } : null)))) {
             violation(`objects[${id}].position is realized at ${where(placed[0], placed[1])} in block ${blockId}, and the layout set out once records ${recorded ? where(recorded.along, recorded.across) : 'nothing'} for it there`)
         }
+        /**
+         * **Stage C review fix, 23 October 2026: an object set out once is told once, from the layout** — a NEW clause (a tightening) that
+         * mirrors the region rule above (each realized region position denoted by exactly one Set up sentence). The design's Stage C test is
+         * that an object fixed at one end is set out once; without this, once Stage G writes words, a layout sentence placing the object and a second,
+         * per-block sentence citing its position again both passed (the review's probe, rvC/probe-fixed-twice). So the object's position, or
+         * any path under it, is cited by exactly one Set up sentence of this block, and that sentence cites the object's entry in the layout.
+         */
+        const denoting = setUp.filter(i => citesUnder(i, `objects[${id}].position`))
+        if (denoting.length !== 1) violation(`objects[${id}].position is denoted by ${denoting.length} Set up sentences in a layout set out once, not exactly one`)
+        else if (recorded && !citesUnder(denoting[0], `layout.objects[${recorded.elementId}]`)) {
+            violation(`objects[${id}].position is denoted by a Set up sentence that does not cite layout.objects[${recorded.elementId}], so it is told for this block and not from the object set out once`)
+        }
     }
     const keyed = roleKeyedPositions(fixture)
     const exchange = rendered.instructions.filter(i => i.section === ROLE_EXCHANGE && keyed.length > 0 && keyed.every(path => i.from.includes(path)))
@@ -793,15 +805,33 @@ function layoutFindings(fixture: any, rendered: RenderedActivity): FidelityFindi
  *
  *   - the fixture carries both a layout set out once and what moves (they exclude each other);
  *   - a marking that moves is named by no part of a Role exchange sentence: the part must cite the move (`remarking.changes[<id>]`) and
- *     every region edge that is the marking in this block, and say the noun of one of those regions; a marking this block cannot place
+ *     every region edge that is the marking in this block, and say the noun of one of those regions (as a whole word, `saysWord`, since
+ *     the stage C review); a marking this block cannot place
  *     (no such mark here, or one that must stay because a marking that does not move shares its place) is never named, so it is refused;
  *   - the sentence naming the moves does not say `MOVE_MARKINGS` (the renderer's constant, never typed here);
  *   - a Role exchange sentence says `NOTHING_RE_MARKED` while markings move;
- *   - (stage C) an object that moves (`remarking.objects`) is named by no part of a Role exchange sentence citing its move and its position;
+ *   - (stage C) an object that moves (`remarking.objects`) is named by no part of a Role exchange sentence citing its move and its position
+ *     and saying its kind as a whole word;
  *   - (stage C) nothing moves (an empty account) and a Role exchange sentence says the markings are set out again.
  *
  * Read from citations, the account of what moves and the game's region nouns, with the two lexicons above.
  */
+/** A character that continues a word: a letter of any script, a digit, a hyphen or an underscore (so a compound is its own word). */
+const continuesWord = (ch: string | undefined): boolean => !!ch && (ch.toLowerCase() !== ch.toUpperCase() || (ch >= '0' && ch <= '9') || ch === '-' || ch === '_')
+
+/**
+ * **Whether a text says a word as a whole word** — the stage C review fix, 23 October 2026 (a TIGHTENING of the two noun clauses below,
+ * which found a noun or a kind anywhere in a part's text, so a kind was found inside a longer word that names something else). An
+ * occurrence counts only where no character continuing a word stands on either side of it. Exported for its unit test.
+ */
+export function saysWord(text: string, word: string): boolean {
+    if (!word) return false
+    for (let at = text.indexOf(word); at !== -1; at = text.indexOf(word, at + 1)) {
+        if (!continuesWord(text[at - 1]) && !continuesWord(text[at + word.length])) return true
+    }
+    return false
+}
+
 function remarkingFindings(fixture: any, rendered: RenderedActivity): FidelityFinding[] {
     const remarking: Remarking | null = Array.isArray(fixture?.remarking?.changes) ? fixture.remarking : null
     if (!remarking) return []
@@ -827,7 +857,7 @@ function remarkingFindings(fixture: any, rendered: RenderedActivity): FidelityFi
                     features.every(feature => part.from.includes(feature.path)) &&
                     features.some(feature => {
                         const noun = nounOf(feature.regionId)
-                        return !!noun && part.text.includes(noun)
+                        return !!noun && saysWord(part.text, noun)
                     }),
             ),
         )
@@ -845,7 +875,7 @@ function remarkingFindings(fixture: any, rendered: RenderedActivity): FidelityFi
     for (const change of remarking.objects ?? []) {
         const path = `remarking.objects[${change.elementId}]`
         const named = exchange.filter(instruction =>
-            (instruction.parts ?? []).some(part => part.from.includes(path) && part.from.some(cited => cited.startsWith(`${change.path}.`)) && !!change.kind && part.text.includes(change.kind)),
+            (instruction.parts ?? []).some(part => part.from.includes(path) && part.from.some(cited => cited.startsWith(`${change.path}.`)) && !!change.kind && saysWord(part.text, change.kind)),
         )
         if (!named.length) {
             const where = (change.places ?? []).map(place => `${place.along && place.across ? `${place.along.from}-${place.along.to} m along and ${place.across.from}-${place.across.to} m across` : 'not placed'} in block ${place.blockId}`)
@@ -863,6 +893,33 @@ function remarkingFindings(fixture: any, rendered: RenderedActivity): FidelityFi
         for (const instruction of exchange) if (instruction.text.toLowerCase().includes(NOTHING_RE_MARKED)) violation(`"${instruction.text}" says ${NOTHING_RE_MARKED}, and markings move at the exchange`)
     } else {
         for (const instruction of exchange) if (RE_MARKING_AT_EXCHANGE.some(pattern => pattern.test(instruction.text))) violation(`"${instruction.text}" tells the coach to set the markings out again at the exchange, and nothing moves between the blocks`)
+    }
+    return findings
+}
+
+/**
+ * **Q5-L, an object of a role block that neither the layout nor the account of what moves reads** — the stage C review fix, 23 October
+ * 2026, a NEW clause (a defensive tightening). Where what moves cannot be read from the blocks (`physical-layout.ts` gives neither a layout
+ * nor an account), the exchange falls back to the sentence saying the markings written for the roles are set out again, and that sentence
+ * names regions only: an object the block positions would then be moved, or not, without a word. So in a block of a game played in role
+ * blocks (`record.roleBlock`), an object holding a realized position on either axis while the fixture carries neither the markings set out
+ * once nor an account of what moves is a VIOLATION. Unreachable today (realization refuses an object open on either axis, and every
+ * served block carries a layout or an account); held so it stays refused, not silent.
+ */
+function unaccountedObjectFindings(fixture: any): FidelityFinding[] {
+    const blockId = fixture?.record?.roleBlock?.blockId
+    if (typeof blockId !== 'string' || !blockId) return []
+    if (fixture?.layout?.policy === MARK_UNION_ONCE || Array.isArray(fixture?.remarking?.changes)) return []
+    const findings: FidelityFinding[] = []
+    for (const object of (fixture.game?.objects ?? []) as any[]) {
+        const id = String(object?.elementId)
+        const placed = ['along', 'across'].filter(axis => !!(fixture.status?.geometry ?? []).find((g: any) => g.path === `objects[${id}].position.${axis}`)?.geometry?.interval)
+        if (!placed.length) continue
+        findings.push({
+            question: 5,
+            severity: 'VIOLATION',
+            what: `objects[${id}].position is realized (${placed.join(' and ')}) in block ${blockId}, and the fixture carries neither the markings set out once nor an account of what moves, so whether it moves at the exchange is not said`,
+        })
     }
     return findings
 }
@@ -1401,6 +1458,7 @@ export function checkFidelity(
     }
     findings.push(...layoutFindings(fixture, rendered))
     findings.push(...remarkingFindings(fixture, rendered))
+    findings.push(...unaccountedObjectFindings(fixture))
     /**
      * **A scoring rule a coach cannot tell they have satisfied is operationally obscured.**
      *

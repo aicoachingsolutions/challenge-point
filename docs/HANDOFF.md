@@ -8780,3 +8780,26 @@ design `scratchpad/d25/design-final.md` section 3, Stage C; findings T19, T34. N
 - Snapshot vs snap-B: 0 changes; A01 11/1 on the built bundle identical to stage B.
 
 NEXT: Stage D (end exchange: Q6's ends statement and counterpartMap's axis mirror under EXCHANGED); F/G after his answers.
+
+### 23 October — Stage C review fix
+
+- MUST-FIX: an object set out once is told ONCE, from the layout. Fidelity Q5-L now holds an object's position (or any
+  path under it) to exactly one non-preference Set up sentence, and that sentence must cite the object's
+  `layout.objects[...]` entry. Before this, a layout sentence plus a second per-block sentence for the same object passed
+  (review probe rvC/probe-fixed-twice; now refused "denoted by 2"). Mirrors the region rule.
+- RB-3 refuses an object a role-keyed selector created (a third target), as for a region. Defensive only: O1 has no such
+  selector attribute. The description names objects only where a target is an object, so production's text is unchanged.
+- Fidelity Q5-L, defensive: in a role block, an object realized on either axis while the fixture carries neither the
+  layout nor an account of what moves is refused ("whether it moves at the exchange is not said"). This is reachable in
+  the TEST-ONLY goal version under KEPT: block 2 is refused before realization, so block 1 gets no cross-block reading.
+  The object-targets.unit.ts pins were re-pointed to accept this communication-stage reason.
+- Noun and kind words at the exchange are matched as whole words (`saysWord`), not substrings. For example, the kind is
+  no longer found inside a longer word.
+- With an empty account (nothing moves, and positions are written for a role), the exchange sentence now says what those
+  markings mean, in the layout sentence's DRAFT words: ": each team now attacks the target {noun} of its new role". It
+  does NOT add "nothing is re-marked", because no movedBy is recorded there to qualify it (H2). It is said only where the
+  targets' noun is read.
+- 21 mutations killed (M1-M15 and M16-M21). Snapshot vs snap-B: 0 changes. A01 11/1 on the built bundle is identical to
+  stage B.
+- Left open: RB-1's description still omits objects and roles (admin text, so snapshot leaves stay stable); update it at
+  the next recorded delta.

@@ -182,7 +182,8 @@ export function checkRoleBlocks(blocks: BuiltBlock[], index: RegisterIndex, role
      * target is a region OR an object, and each scoring objective's reference must name one
      * the block's game holds (a TIGHTENING: until this stage the references were only counted, so one naming nothing was a target). The
      * description says "targets (a region or an object)" only where a block's target is an object, so every reader of a game of region
-     * targets reads exactly what it did.
+     * targets reads exactly what it did. Since the stage C review an object a role-keyed selector created is refused as a third target
+     * too; the description names objects there only where a target is an object, for the same reason.
      */
     {
         const problems: string[] = []
@@ -209,12 +210,20 @@ export function checkRoleBlocks(blocks: BuiltBlock[], index: RegisterIndex, role
             for (const region of (read(game, regionsAt) ?? []) as any[]) {
                 if ((region?.selector ?? []).some((term: any) => term?.attribute === spec?.attribute)) problems.push(`block ${entry.block.blockId}: ${regionsAt}[${region.elementId}] was created by a selector on ${spec?.attribute}, a third region`)
             }
+            /**
+             * Stage C review fix, 23 October 2026 (a TIGHTENING): a target may now be an object, so an object a role-keyed selector created
+             * is a third target as a region would be, and is refused alike. Defensive today: the objects row lists no selector attribute of
+             * that name, so a selector naming it is a reference defect (`selector.ts`) before any game holds it.
+             */
+            for (const object of (objectsAt ? read(game, objectsAt) ?? [] : []) as any[]) {
+                if ((object?.selector ?? []).some((term: any) => term?.attribute === spec?.attribute)) problems.push(`block ${entry.block.blockId}: ${objectsAt}[${object.elementId}] was created by a selector on ${spec?.attribute}, a third target`)
+            }
         })
         results.push(
             check(
                 'RB-3',
                 objectTargets
-                    ? 'two objectives of the scoring role and two targets (a region or an object) in each block, and no region a role-keyed selector created'
+                    ? 'two objectives of the scoring role and two targets (a region or an object) in each block, and no region or object a role-keyed selector created'
                     : 'two objectives of the scoring role and two target regions in each block, and no region a role-keyed selector created',
                 problems,
             ),

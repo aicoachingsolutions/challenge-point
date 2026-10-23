@@ -55,7 +55,7 @@ import { CONDITION_ROW, conditionScopeNotEvaluable } from '../derivation/resolve
 import { ApprovedTemplateSentence, approvedTemplateSentences, approvedWording, ApprovedWording, canonicalJson, fillTemplate, POSSESSION_CONTINUES, WordingMatch } from './approved-wording'
 import { exclusionFor } from './coach-facing-exclusions'
 import { eventKindOf, genericOf } from './game-reading'
-import { MARK_UNION_ONCE, MarkingChange, PhysicalLayout, Remarking } from './physical-layout'
+import { MARK_UNION_ONCE, MarkingChange, PhysicalLayout, Remarking, somethingMoves } from './physical-layout'
 import { ADJUSTING, assignSection, inSectionOrder, PLAY_STATE_UNREADABLE, RESTARTS, ROLE_EXCHANGE, Section, SectionFacts, TransitionReading, When } from './sections'
 
 // The two section names every importer has read from here since stages S-C1 and K3; since stage 2A they are named, with the rest
@@ -2887,9 +2887,17 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
             if (remarking) {
                 const exchangeStatus = statusAt([...exchangePaths, ...endPaths], 'DERIVED')
                 const moved = remarking.changes.map(movedMarking).filter((said): said is NonNullable<typeof said> => !!said)
+                /**
+                 * Stage C review fix, 23 October 2026 (DRAFT, the layout sentence's own words): where nothing moves and positions are written
+                 * for a role, the sentence still says what those markings mean, the half of his D2 the citations alone carried: each team now
+                 * attacks the target of its new role. Only where the targets' noun is read (a line target's sentence is unchanged), and
+                 * without "nothing is re-marked": no layout records what an authorized adjustment would move here (`layout.movedBy`), so that
+                 * claim could not carry the qualification hardening H2 requires.
+                 */
+                const meaning = !somethingMoves(remarking) && keyedPaths.length && targetNoun ? `: each team now attacks the target ${targetNoun} of its new role` : ''
                 instructions.push(
                     joined(ROLE_EXCHANGE, [
-                        part(exchangeStatus, 'Each team keeps its end for the whole activity. When you call the next block the teams exchange roles, not ends', [
+                        part(exchangeStatus, `Each team keeps its end for the whole activity. When you call the next block the teams exchange roles, not ends${meaning}`, [
                             ...exchangePaths,
                             ...endPaths,
                             ...keyedPaths,

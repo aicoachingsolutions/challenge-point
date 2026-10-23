@@ -454,6 +454,8 @@ test('8. Q5-L where markings move (stage 2G): each is named at the exchange; TES
     assert.deepEqual(q5({ ...fixture, remarking: undefined }, replaced(rebuilt([opening, line, closing]))), [])
     // (b) Its words lose the noun of what moves (citations kept).
     assert.ok(q5(fixture, replaced(rebuilt([opening, line, { ...zone, text: " and the pressing team's target to the new building team's end" }, closing]))).some(what => what.startsWith(unnamed('change-2'))))
+    // (b2) Stage C review fix: its noun said only inside a longer word (TEST-ONLY) is not said: the noun is read as a whole word (`saysWord`).
+    assert.ok(q5(fixture, replaced(rebuilt([opening, line, { ...zone, text: " and the pressing team's target zones to the new building team's end" }, closing]))).some(what => what.startsWith(unnamed('change-2'))))
     // (c) Its citation of the move dropped (words kept), or of the region edge that is it in this block.
     assert.ok(q5(fixture, replaced(rebuilt([opening, line, { ...zone, from: zone.from.filter(p => !p.startsWith('remarking.')) }, closing]))).some(what => what.startsWith(unnamed('change-2'))))
     assert.ok(q5(fixture, replaced(rebuilt([opening, { ...line, from: line.from.filter(p => p !== along(FAR)) }, zone, closing]))).some(what => what.startsWith(unnamed('change-1'))))

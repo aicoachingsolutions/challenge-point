@@ -23,6 +23,10 @@
  *      moves nothing at the exchange;
  *   6. the exchange says only what actually moves: with nothing moving the account is given empty, the sentence names nothing and says
  *      nothing is set out again, and fidelity refuses "set out again" there; a moving object is accepted only where a part names it.
+ *   7. (the stage C review fixes, 23 October 2026) words are read whole (`saysWord`), and a role block positioning an object while carrying
+ *      neither the layout nor an account of what moves is refused. Also from that review: in 4, the object set out once is told by exactly
+ *      one Set up sentence, citing the layout's object (a second, per-block sentence is refused); in 2, an object a role-keyed selector
+ *      created is a third target; in 6, the empty-account sentence says what the markings written for the roles mean.
  *
  * Every goal value here (the goal, its width, its placement) is TEST-ONLY and in memory: no production file is written, nothing here is served,
  * and nothing is knowledge for the goal version (his decisions D1-D5 of the note sent to him).
@@ -36,7 +40,7 @@ import { indexRegister } from '../derivation/register'
 import { ContractItem } from '../derivation/types'
 import { learningGoalAuthorization, learningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
 import { buildActivityUnderAuthorizationRecords, buildActivityWithFixture, RefusedActivity, ServedActivity } from './build-activity'
-import { checkFidelity } from './fidelity'
+import { checkFidelity, saysWord } from './fidelity'
 import { layoutMoversOf, layoutOf, Remarking, remarkingSummary } from './physical-layout'
 import { Instruction, MOVE_MARKINGS, NOTHING_RE_MARKED, renderConcreteGame, ROLE_EXCHANGE, roleKeyedPositions } from './render-concrete-game'
 import { checkRoleBlockLayout, checkRoleBlocks } from './role-blocks'
@@ -170,7 +174,15 @@ test('RB-1 compares the objects (O1); RB-3 reads two targets, a region or an obj
     }
     const rb3 = check(objectTarget, 'RB-3')
     assert.deepEqual([rb3.verdict, rb3.problems], ['PASS', []])
-    assert.equal(rb3.what, 'two objectives of the scoring role and two targets (a region or an object) in each block, and no region a role-keyed selector created')
+    assert.equal(rb3.what, 'two objectives of the scoring role and two targets (a region or an object) in each block, and no region or object a role-keyed selector created')
+    // Stage C review fix: an object a role-keyed selector created is a third target, refused as a region is (TEST-ONLY: no such selector can
+    // be authored on the objects row today, so the copy carries it directly).
+    const roleKeyedObject = fresh()
+    const attribute = index.targetOf!.attribute
+    for (const entry of roleKeyedObject) entry.fixture.game.objects.push({ elementId: GOAL, kind: 'goal', selector: [{ attribute, op: '=', value: 'TEST-ONLY' }] })
+    const third = check(roleKeyedObject, 'RB-3')
+    assert.equal(third.verdict, 'FAIL')
+    assert.deepEqual(third.problems, roleKeyedObject.map(entry => `block ${entry.blockId}: objects[${GOAL}] was created by a selector on ${attribute}, a third target`))
     // A reference naming neither a region nor an object of the game (TEST-ONLY): until this stage the references were only counted.
     const nothing = fresh()
     const objective = nothing[0].fixture.game.objectives[0]
@@ -269,12 +281,15 @@ test('a TEST-ONLY goal fixed at one end is set out once: in the layout once, rec
     // The exchange says nothing is re-marked (true: the goal stays), with production's qualification for the line.
     const draft = (activity as any).draft.instructions as Instruction[]
     assert.ok(draft.some(i => i.section === ROLE_EXCHANGE && i.text === PRODUCTION_EXCHANGE), JSON.stringify(draft.filter(i => i.section === ROLE_EXCHANGE).map(i => i.text)))
-    // Refused at communication only for want of the goal's words (Stage G): Q3 for its position, and Q5-L for the object set out once.
+    // Refused at communication only for want of the goal's words (Stage G): Q3 for its position, and Q5-L for the object set out once (no
+    // Set up sentence places it, and, since the stage C review, its position is denoted by no Set up sentence).
+    const denotedBy = (n: number) => `objects[${GOAL}].position is denoted by ${n} Set up sentences in a layout set out once, not exactly one`
     for (const block of blocks) {
         const reasons = reasonsOf(activity, block.blockId)
         assert.ok(reasons.includes(`fidelity Q5: the object ${GOAL} (layout.objects[object-1]) is set out once and no Set up sentence tells the coach to place it`), reasons.join(' | '))
+        assert.ok(reasons.includes(`fidelity Q5: ${denotedBy(0)}`), reasons.join(' | '))
         assert.ok(reasons.includes(`fidelity Q3: objects[${GOAL}].position.along is established by the game and no instruction carries it`))
-        assert.ok(reasons.every(reason => reason.startsWith('fidelity Q3: ') || reason.startsWith('fidelity Q5: the object ')), reasons.join(' | '))
+        assert.ok(reasons.every(reason => reason.startsWith('fidelity Q3: ') || reason.startsWith('fidelity Q5: the object ') || reason === `fidelity Q5: ${denotedBy(0)}`), reasons.join(' | '))
     }
     // Q5-L holds the projection to the game: a layout recording the goal elsewhere for this block is refused (TEST-ONLY).
     const fixture = blocks[0].fixture
@@ -288,8 +303,28 @@ test('a TEST-ONLY goal fixed at one end is set out once: in the layout once, rec
     // And a TEST-ONLY Set up sentence citing the layout's object is what the second clause asks for.
     const rendered = renderConcreteGame(fixture)
     const area = rendered.instructions.find(i => i.text.startsWith('Mark out an area'))!
-    const placing: Instruction = { ...area, text: 'TEST-ONLY: place the object', from: ['layout.objects[object-1]'], quantities: [], parts: [{ ...area.parts![0], text: 'TEST-ONLY: place the object', from: ['layout.objects[object-1]'], quantities: [], bindings: [] }] }
+    const sentence = (text: string, from: string[]): Instruction => ({ ...area, text, from, quantities: [], parts: [{ ...area.parts![0], text, from, quantities: [], bindings: [] }] })
+    const placing = sentence('TEST-ONLY: place the object', ['layout.objects[object-1]'])
     assert.ok(!q5(fixture, { ...rendered, instructions: [...rendered.instructions, placing] }).some(what => what.includes('layout.objects[object-1]')))
+    /**
+     * Stage C review fix: the object is told ONCE, from the layout (the review's probe, rvC/probe-fixed-twice). (a) One Set up sentence citing
+     * the layout's object and the object's position: nothing of the object is refused. (b) (a) and a second, per-block sentence citing its
+     * position again: refused, denoted twice (before the fix it passed). (c) One sentence citing the position but not the layout's object:
+     * refused, told for the block and not from the layout. (d) The sentence citing the layout's object only: the position denoted by none.
+     */
+    const positionPaths = [`objects[${GOAL}].position.along`, `objects[${GOAL}].position.across`]
+    const once = sentence('TEST-ONLY: place the object once', ['layout.objects[object-1]', ...positionPaths])
+    const again = sentence('TEST-ONLY: place the object on the end line', positionPaths)
+    const ofObject = (instructions: Instruction[]) => q5(fixture, { ...rendered, instructions: [...rendered.instructions, ...instructions] }).filter(what => what.includes(GOAL) || what.includes('layout.objects['))
+    assert.deepEqual(ofObject([once]), [], '(a) told once, from the layout')
+    assert.deepEqual(ofObject([once, again]), [denotedBy(2)], '(b) told twice')
+    assert.deepEqual(ofObject([again]), [
+        `the object ${GOAL} (layout.objects[object-1]) is set out once and no Set up sentence tells the coach to place it`,
+        `objects[${GOAL}].position is denoted by a Set up sentence that does not cite layout.objects[object-1], so it is told for this block and not from the object set out once`,
+    ], '(c) told per block')
+    assert.deepEqual(ofObject([placing]), [denotedBy(0)], '(d) placed without its position')
+    // A PREFERENCE sentence is no denotation (as for a region): (a) with the second sentence a preference is accepted.
+    assert.deepEqual(ofObject([once, { ...again, status: 'PREFERENCE', parts: again.parts!.map(p => ({ ...p, status: 'PREFERENCE' })) } as Instruction]), [], 'a preference does not denote')
 })
 
 // ── 5. layoutOf on copies; T34 ──────────────────────────────────────────────────────────────────────────
@@ -371,11 +406,17 @@ test('the exchange says only what actually moves: an empty account names nothing
     }
     assert.deepEqual(layoutOf(endLines, movers), { applies: false, layout: null, why: [], remarking: { lengthM: 40, changes: [] } })
     // The renderer: production's block 1 with that account names nothing moved and says nothing is set out again, while still citing the
-    // positions written for the roles (fidelity Q6's half of his D2). Without any account (what moves not read) it says what it said.
+    // positions written for the roles (fidelity Q6's half of his D2) and, since the stage C review, saying what they mean in the layout
+    // sentence's own words (without "nothing is re-marked", which no layout's movedBy qualifies here). Without any account (what moves not
+    // read) it says what it said.
     const fixture = { ...productionBlocks[0].fixture, layout: undefined, remarking: still.remarking as Remarking }
     const rendered = renderConcreteGame(fixture)
     const exchange = rendered.instructions.filter(i => i.section === ROLE_EXCHANGE && i.text.startsWith('Each team keeps its end'))
-    assert.deepEqual(exchange.map(i => i.text), ['Each team keeps its end for the whole activity. When you call the next block the teams exchange roles, not ends; there is no set block length'])
+    assert.deepEqual(exchange.map(i => i.text), [
+        'Each team keeps its end for the whole activity. When you call the next block the teams exchange roles, not ends: each team now attacks the target zone of its new role; there is no set block length',
+    ])
+    assert.ok(!exchange[0].text.includes(NOTHING_RE_MARKED))
+    assert.ok(fixture.game.space.regions.filter((region: any) => region.noun === 'zone').every((region: any) => exchange[0].from.includes(`space.regions[${region.elementId}].noun`)), 'the target noun is cited')
     assert.ok(roleKeyedPositions(fixture).every(path => exchange[0].from.includes(path)) && roleKeyedPositions(fixture).length > 0)
     assert.deepEqual(q5(fixture, rendered), [])
     const unread = renderConcreteGame({ ...fixture, remarking: undefined }).instructions.find(i => i.section === ROLE_EXCHANGE && i.text.includes('set out again'))!
@@ -406,6 +447,52 @@ test('the exchange says only what actually moves: an empty account names nothing
     assert.ok(q5(moving, withPart(naming(`, and the TEST-ONLY ${KIND} goes to the other end line`))).some(what => what.endsWith('names markings that move at the exchange without telling the coach to move them')))
     // Its noun not said (citations kept): not named, as a region's part must say the region's noun.
     assert.deepEqual(q5(moving, withPart(naming(`, and ${MOVE_MARKINGS}the TEST-ONLY object to the other end line`))), [unnamed])
+    // Stage C review fix: the kind said only inside a longer word is not said (until the fix a substring match accepted it).
+    assert.deepEqual(q5(moving, withPart(naming(`, and ${MOVE_MARKINGS}the TEST-ONLY ${KIND}keeper to the other end line`))), [unnamed])
+    assert.deepEqual(q5(moving, withPart(naming(`, and ${MOVE_MARKINGS}the TEST-ONLY ${KIND}'s frame to the other end line`))), [], 'an apostrophe ends the word')
+})
+
+// ── 7. The stage C review fixes: whole words, and an object neither the layout nor the account reads ────────────────────────────────
+test('saysWord finds whole words only; a role block positioning an object with neither a layout nor an account of what moves is refused', () => {
+    // Whole words: bounded by no letter, digit, hyphen or underscore on either side.
+    const cases: [string, string, boolean][] = [
+        ['move the zone', 'zone', true],
+        ['move the zones', 'zone', false],
+        ['the end-zone', 'zone', false],
+        ['the zone, then', 'zone', true],
+        ["the zone's edge", 'zone', true],
+        ['ozone', 'zone', false],
+        ['a zone2', 'zone', false],
+        ['zone', 'zone', true],
+        ['the zones and the zone', 'zone', true],
+        ['anything', '', false],
+    ]
+    for (const [text, word, expected] of cases) assert.equal(saysWord(text, word), expected, `${JSON.stringify(text)} says ${JSON.stringify(word)}`)
+    // (The region-noun clause reads whole words too: physical-layout.unit.ts test 8 (b2).)
+    // (TEST-ONLY) An object realized on both axes in a block that carries neither the markings set out once nor an account of what moves:
+    // the exchange would fall back to the sentence naming regions only, so the object is refused rather than moved without a word.
+    const block = productionBlocks[0]
+    const positioned = { ...copy(block.fixture), layout: undefined, remarking: undefined }
+    positioned.game.objects.push({ elementId: GOAL, kind: 'goal' })
+    positioned.status.geometry.push(
+        { path: `objects[${GOAL}].position.along`, geometry: { axis: 'along', interval: { from: 0, to: 0 } } },
+        { path: `objects[${GOAL}].position.across`, geometry: { axis: 'across', interval: { from: 12.5, to: 17.5 } } },
+    )
+    const unaccounted = `objects[${GOAL}].position is realized (along and across) in block ${block.blockId}, and the fixture carries neither the markings set out once nor an account of what moves, so whether it moves at the exchange is not said`
+    assert.ok(q5(positioned, renderConcreteGame(positioned)).includes(unaccounted), JSON.stringify(q5(positioned, renderConcreteGame(positioned))))
+    // Placed on one axis only, it is refused too, naming the axis.
+    const halfPlaced = { ...positioned, status: { ...positioned.status, geometry: positioned.status.geometry.filter((g: any) => g.path !== `objects[${GOAL}].position.across`) } }
+    assert.ok(q5(halfPlaced, renderConcreteGame(halfPlaced)).some(what => what.startsWith(`objects[${GOAL}].position is realized (along) in block`)))
+    // Carrying an account (here empty) or the layout, the object is read there instead, so this clause says nothing.
+    const accounted = { ...positioned, remarking: { lengthM: 40, changes: [] } }
+    assert.ok(!q5(accounted, renderConcreteGame(accounted)).includes(unaccounted))
+    const laidOut = { ...positioned, layout: block.fixture.layout }
+    assert.ok(!q5(laidOut, renderConcreteGame(laidOut)).some(what => what.includes('carries neither the markings set out once')))
+    // Not a block of a game played in role blocks: nothing is exchanged, so nothing is owed here.
+    const single = { ...positioned, record: { ...positioned.record, roleBlock: undefined } }
+    assert.ok(!q5(single, renderConcreteGame(single)).some(what => what.includes('carries neither the markings set out once')))
+    // Production's blocks carry the layout, and their one object is placed on neither axis: nothing here.
+    for (const entry of productionBlocks) assert.ok(!q5(entry.fixture, renderConcreteGame(entry.fixture)).some(what => what.includes('carries neither the markings set out once')))
 })
 
 console.log(`objects-across-blocks.unit.ts — ${passed} passed`)
