@@ -30,6 +30,7 @@ import Logger from '../logger'
 import LoggingService from '../services/logging.service'
 import { deriveInputConstraints } from '../system/input-constraints/deriveInputConstraints'
 import { ActivityReviewRequestError, activityReviewOptions, reviewActivity } from '../system/rendering/activity-review'
+import { CHECKED_CHAIN, CheckedSaveRequestError, checkedSave, liveCheckedActivity, livePathwayOf, unconsumedInputsNote } from '../system/rendering/live-activity'
 import { UnknownActivityRequest } from '../system/rendering/build-activity'
 import { buildPilotActivity, isPilotRefused } from '../system/rendering/build-pilot-activity'
 import { describeUnsupportedGoal, isKnownUnsupportedGoal } from '../system/session-planning/goal-support'
@@ -130,6 +131,62 @@ function arrayOfStrings(value: unknown): string[] {
 
 function isSessionEmphasis(value: unknown): value is SessionEmphasis {
     return typeof value === 'string' && Object.values(SessionEmphasis).includes(value as SessionEmphasis)
+}
+
+type LiveSelection = ReturnType<typeof generateSelection>
+
+/**
+ * The `selection_resolved` usage payload, read from the selection. One function for both live pathways since 22 October 2026 (the live-app
+ * fix), so the checked build records what the generation route records; the generation route's payload is exactly what it was.
+ */
+function selectionResolvedPayload(
+    selection: LiveSelection,
+    routedRpcId: string | null,
+    primaryScoring: PrimaryScoringDirective[] | null,
+    gameProblemAuthority: { gameProblem: unknown } | null
+): Record<string, unknown> {
+    const atp = selection.selectionTrace.affordanceTargetProfile as { primaryGameProblem?: string | null; matrixVersion?: string } | undefined
+    return {
+        archetype: selection.archetype.game_form_name,
+        affordanceLenses: selection.affordanceLenses.map((l) => l.title),
+        constraints: selection.constraints.map((c) => c.title),
+        learningGoalId: selection.selectionTrace.planning?.learningGoalId ?? null,
+        routedRpcId: selection.selectionTrace.planning?.routedRpcId ?? null,
+        gatedToContext: routedRpcId,
+        primaryScoringEvents: primaryScoring ? primaryScoring.map((directive) => directive.eventKey) : null,
+        shadowAtpPrimary: atp?.primaryGameProblem ?? null,
+        gameProblemAuthority: gameProblemAuthority?.gameProblem ?? null,
+        // What selection could draw from (14 October): the roles no designated candidate fills,
+        // and the candidates his rulings hold. Read from the trace, not recomputed.
+        constraintGaps: selection.selectionTrace.constraintPool?.unfilledRoles ?? [],
+        heldByRuling: (selection.selectionTrace.constraintPool?.heldByRuling ?? []).map((hold) => hold.id),
+        // 15 October 2026: AUTHORIZATION_RECORD or VOCABULARY_POOL, read from the trace.
+        constraintAuthority: selection.selectionTrace.constraintPool?.constraintAuthority ?? null,
+        versions: selection.selectionTrace.versions ?? null,
+    }
+}
+
+/** The developer debug trace's resolution and selection, for both live pathways (22 October 2026); unchanged for the generation route. */
+function debugTraceOf(inputConstraints: ReturnType<typeof deriveInputConstraints>, selection: LiveSelection): Record<string, unknown> {
+    const sg = inputConstraints.matchedSignals.filter((s) => s.startsWith('signalGroup:')).map((s) => s.replace('signalGroup:', ''))
+    const dsig = sg.find((s) => s.startsWith('I_defensive'))
+    return {
+        resolution: {
+            resolvedGameProblem: sg,
+            roleContextDetected: dsig ? `defensive (${dsig.replace('I_defensive_', '') || 'unspecified'})` : sg.length > 0 ? 'attacking / neutral' : 'unresolved',
+            candidateArchetypeIds: inputConstraints.candidateArchetypeIds,
+            candidateAffordanceLensIds: inputConstraints.candidateAffordanceLensIds,
+            candidateConstraintIds: inputConstraints.candidateConstraintIds,
+        },
+        selection: {
+            selectedArchetype: {
+                id: selection.archetype.game_form_id,
+                name: selection.archetype.game_form_name,
+            },
+            selectedAffordances: selection.affordanceLenses.map((l) => l.title),
+            selectedConstraints: selection.constraints.map((c) => c.title),
+        },
+    }
 }
 
 router.post(ROUTES.testSelection, async (req: Request, res: Response) => {
@@ -877,6 +934,35 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
         const usageSignalGroups = inputConstraints.matchedSignals
             .filter((s) => s.startsWith('signalGroup:'))
             .map((s) => s.replace('signalGroup:', ''))
+
+        // A guided goal's hints are already gated to its context by `guidedSelectionHints`, as the checked pathway's are.
+        const selectionHints = guided ? guided.hints : routedRpcId ? gateCandidateGameFormsToContext(inputConstraints, routedRpcId) : inputConstraints
+
+        /**
+         * **Selection runs before the goal is recorded, and its error is answered after** (the live-app fix, 22 October 2026), so the record
+         * can say which pathway builds the activity: a checked build consumes no learning stage, and `learningStageInfluencesGeneration`
+         * must not claim it does. Selection records no usage event, so every event is recorded in the order it always was; for a selection
+         * the generation route builds, every payload is what it was.
+         */
+        let selection: ReturnType<typeof generateSelection> | undefined
+        let selectionError: unknown = null
+        try {
+            Logger.info(`[Activity Generation] coach learning goals (original): ${JSON.stringify(learningGoals)}`)
+            selection = generateSelection(
+                {
+                    // The text lenses and constraints are scored against: the goal's own words for a guided goal (the
+                    // checked pathway's `selectFor` passes the same), the coach's words for free text.
+                    learningGoals: guidedGoalId ? [selectionText] : learningGoals,
+                    challengeLevel,
+                    learningGoalId: planning?.learningGoalId,
+                },
+                selectionHints
+            )
+        } catch (selErr) {
+            selectionError = selErr
+        }
+        const checkedPathway = selection !== undefined && livePathwayOf(selection) === CHECKED_CHAIN
+
         recordUsageEvent({
             eventType: 'goal_submitted',
             sessionId: req.params.id,
@@ -892,35 +978,22 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                 // assembly prompt. Until then this flag said false, and it was true to the live path:
                 // the directive existed, but it was wired into a prompt builder the route no longer
                 // called. How the stage combines with Challenge is still Christian's judgement.
+                // A checked build (22 October 2026) consumes no learning stage, so for one the flag is false and the pathway is said.
                 ...(planning
                     ? {
                           learningGoalId: planning.learningGoalId,
                           practiceSituationId: planning.practiceSituationId ?? null,
                           learningStage: planning.learningStage,
-                          learningStageInfluencesGeneration: Boolean(planning.learningStage),
+                          learningStageInfluencesGeneration: checkedPathway ? false : Boolean(planning.learningStage),
                           planningEntryPoint: 'guided',
+                          ...(checkedPathway ? { pathway: CHECKED_CHAIN } : {}),
                       }
                     : { planningEntryPoint: 'free_text' }),
             },
         })
 
-        // A guided goal's hints are already gated to its context by `guidedSelectionHints`, as the checked pathway's are.
-        const selectionHints = guided ? guided.hints : routedRpcId ? gateCandidateGameFormsToContext(inputConstraints, routedRpcId) : inputConstraints
-
-        let selection
-        try {
-            Logger.info(`[Activity Generation] coach learning goals (original): ${JSON.stringify(learningGoals)}`)
-            selection = generateSelection(
-                {
-                    // The text lenses and constraints are scored against: the goal's own words for a guided goal (the
-                    // checked pathway's `selectFor` passes the same), the coach's words for free text.
-                    learningGoals: guidedGoalId ? [selectionText] : learningGoals,
-                    challengeLevel,
-                    learningGoalId: planning?.learningGoalId,
-                },
-                selectionHints
-            )
-        } catch (selErr) {
+        if (selectionError !== null || selection === undefined) {
+            const selErr = selectionError
             const message = selErr instanceof Error ? selErr.message : String(selErr)
             /**
              * **A knowledge gap is answered in a coach's words and recorded as what it is.** Christian, 14
@@ -946,7 +1019,7 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                         // 15 October 2026: whose authority the candidates carried. A goal whose record has not yet
                         // evaluated its constraints reaches this branch as NO_AUTHORIZED_CONSTRAINTS, and no model is
                         // called, as for every other gap. (Play Out from the Back did until his general principle of
-                        // that day; its evaluated, empty set now meets the zero-constraint refusal below.)
+                        // that day; since 22 October 2026 its evaluated, empty set is built by the checked pathway below.)
                         constraintAuthority: selErr.pool.constraintAuthority,
                     },
                 })
@@ -966,32 +1039,68 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
         }
 
         /**
-         * **A selection with NO library constraint is not served here** (15 October 2026). It exists only for a goal
-         * whose authorization record has evaluated its authorized set as empty, under his general principle of that
-         * day (16 October reply, item 1 — Play Out from the Back since then), and its environment is the game form
-         * and the context's contract. This route consumes no contracts: it would
-         * hand the model a constraint-free package and prose, which cannot carry the context's start, target or
-         * restart knowledge. So it answers with the same gap sentence and calls no model; the checked pathway is
-         * where such an activity is built.
+         * **A selection whose constraints carry an authorization record's authority is built by the checked pathway** — the live-app fix,
+         * 22 October 2026 (decision 9(a) of the note sent to Christian; `rendering/live-activity.ts`). Christian, reply filed 25 October
+         * 2026, item 8: *"The live application's requirement for at least one library constraint remains a pilot blocker and should be
+         * corrected systemically, without inserting an unjustified constraint into this activity."*
+         *
+         * Until this, a selection with no library constraint was refused here with the knowledge-gap sentence (15 October 2026), because
+         * this route consumes no contracts and would have handed the model a constraint-free package. Now the decision is read from data
+         * and never from a goal (G1, `livePathwayOf`): such a selection is built by the SAME function the review page calls, for the coach
+         * whose session it is, from the stored session, the situation the coach chose and the activity's length. No library constraint is
+         * inserted, no model is called, and a refusal of the checked chain is the answer (G4) — nothing falls back to generation. Before it
+         * is served the live route holds it to its own selection (G3) and to the goal's record (G2). Every other selection goes on below,
+         * exactly as before.
+         *
+         * Served 200 { checkedActivity, inputDigests, resolutionStatus, pathway }: `checkedActivity` is the checked chain's served activity
+         * whole, exactly what the review page receives for the same inputs; `inputDigests` (each block's input digest) is what Start
+         * Activity sends back, so the save can build it again and store the server's own build only where it is the one the coach saw (L3).
+         * Refused 400 { error, resolutionStatus: 'refused' }, the error the checked chain's own sentence; its stage and reasons under debug.
          */
-        if (!selection.constraints.length) {
-            recordUsageEvent({
-                eventType: 'generation_failed',
-                sessionId: req.params.id,
-                payload: {
-                    stage: 'knowledge-gap',
-                    reason: 'ZERO_CONSTRAINT_SELECTION_NOT_SERVED_LIVE',
-                    learningGoalId: selection.selectionTrace.planning?.learningGoalId ?? null,
-                    gameForm: selection.archetype.game_form_id,
-                    constraintAuthority: selection.selectionTrace.constraintPool?.constraintAuthority ?? null,
-                },
-            })
-            return res.status(400).json({
-                error: "This goal's designated constraints cannot yet be combined into a game, so no activity can be built for it.",
-                resolutionStatus: 'knowledge-gap',
-                ...(debug ? { stage: 'knowledge-gap', details: ['a zero-constraint selection is built only by the checked pathway'] } : {}),
+        if (checkedPathway) {
+            const learningGoalId = selection.selectionTrace.planning?.learningGoalId
+            // Unreachable: only a guided goal's hints carry a record's authority, and generateSelection traces the goal it was asked for.
+            if (!learningGoalId) throw new Error('a record-backed selection reached the live route without the Learning Goal it was made for')
+            const stored = typeof (session as any).toObject === 'function' ? (session as any).toObject() : session
+            let outcome: ReturnType<typeof liveCheckedActivity>
+            try {
+                outcome = liveCheckedActivity(stored, { learningGoalId, practiceSituationId: planning?.practiceSituationId ?? null, durationMin: duration }, selection)
+            } catch (requestError) {
+                // A practice situation this goal does not offer names nothing that could be built: a bad request, as on the review route.
+                if (requestError instanceof UnknownActivityRequest || requestError instanceof ActivityReviewRequestError) {
+                    recordUsageEvent({ eventType: 'generation_failed', sessionId: req.params.id, payload: { stage: 'request', reason: requestError.message.slice(0, 300), pathway: CHECKED_CHAIN } })
+                    return res.status(400).json({ error: requestError.message })
+                }
+                throw requestError
+            }
+            recordUsageEvent({ eventType: 'selection_resolved', sessionId: req.params.id, payload: { ...selectionResolvedPayload(selection, routedRpcId, null, gameProblemAuthority), pathway: CHECKED_CHAIN } })
+            if (outcome.outcome === 'refused') {
+                recordUsageEvent({
+                    eventType: 'generation_failed',
+                    sessionId: req.params.id,
+                    payload: { stage: outcome.activity.stage, reason: outcome.activity.summary.slice(0, 300), cause: outcome.cause, pathway: CHECKED_CHAIN },
+                })
+                return res.status(400).json({
+                    error: outcome.activity.summary,
+                    resolutionStatus: 'refused',
+                    ...(debug ? { stage: outcome.activity.stage, details: outcome.activity.reasons, debugTrace: debugTraceOf(inputConstraints, selection) } : {}),
+                })
+            }
+            // No duration is recorded for a checked build: the regression snapshot records every event whole and byte for byte.
+            recordUsageEvent({ eventType: 'generation_succeeded', sessionId: req.params.id, payload: { activityCount: 1, pathway: CHECKED_CHAIN } })
+            // DRAFT, decision 9(b): null until he approves it, so nothing beyond what the review page shows is served.
+            const note = unconsumedInputsNote(planning)
+            return res.status(200).json({
+                checkedActivity: outcome.activity,
+                inputDigests: outcome.inputDigests,
+                resolutionStatus: selection.resolution.status,
+                pathway: CHECKED_CHAIN,
+                ...(note ? { note } : {}),
+                ...(debug ? { debugTrace: debugTraceOf(inputConstraints, selection) } : {}),
             })
         }
+        // Unreachable: a record-backed selection never enters generation, whatever its constraints (G1).
+        if (livePathwayOf(selection) === CHECKED_CHAIN) throw new Error('a record-backed selection reached the generation pathway')
 
         // The primary scoring event is resolved BEFORE any activity text exists. An empty intersection
         // is refused rather than guessed: "Validation should fail rather than infer if the selected
@@ -1015,60 +1124,14 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
             }
         }
 
-        {
-            const atp = selection.selectionTrace.affordanceTargetProfile as
-                | { primaryGameProblem?: string | null; matrixVersion?: string }
-                | undefined
-            recordUsageEvent({
-                eventType: 'selection_resolved',
-                sessionId: req.params.id,
-                payload: {
-                    archetype: selection.archetype.game_form_name,
-                    affordanceLenses: selection.affordanceLenses.map((l) => l.title),
-                    constraints: selection.constraints.map((c) => c.title),
-                    learningGoalId: selection.selectionTrace.planning?.learningGoalId ?? null,
-                    routedRpcId: selection.selectionTrace.planning?.routedRpcId ?? null,
-                    gatedToContext: routedRpcId,
-                    primaryScoringEvents: primaryScoring ? primaryScoring.map((directive) => directive.eventKey) : null,
-                    shadowAtpPrimary: atp?.primaryGameProblem ?? null,
-                    gameProblemAuthority: gameProblemAuthority?.gameProblem ?? null,
-                    // What selection could draw from (14 October): the roles no designated candidate fills,
-                    // and the candidates his rulings hold. Read from the trace, not recomputed.
-                    constraintGaps: selection.selectionTrace.constraintPool?.unfilledRoles ?? [],
-                    heldByRuling: (selection.selectionTrace.constraintPool?.heldByRuling ?? []).map((hold) => hold.id),
-                    // 15 October 2026: AUTHORIZATION_RECORD or VOCABULARY_POOL, read from the trace.
-                    constraintAuthority: selection.selectionTrace.constraintPool?.constraintAuthority ?? null,
-                    versions: selection.selectionTrace.versions ?? null,
-                },
-            })
-        }
+        recordUsageEvent({
+            eventType: 'selection_resolved',
+            sessionId: req.params.id,
+            payload: selectionResolvedPayload(selection, routedRpcId, primaryScoring ?? null, gameProblemAuthority),
+        })
 
         if (debug) {
-            const sg = inputConstraints.matchedSignals
-                .filter((s) => s.startsWith('signalGroup:'))
-                .map((s) => s.replace('signalGroup:', ''))
-            const dsig = sg.find((s) => s.startsWith('I_defensive'))
-            debugTrace = {
-                resolution: {
-                    resolvedGameProblem: sg,
-                    roleContextDetected: dsig
-                        ? `defensive (${dsig.replace('I_defensive_', '') || 'unspecified'})`
-                        : sg.length > 0
-                          ? 'attacking / neutral'
-                          : 'unresolved',
-                    candidateArchetypeIds: inputConstraints.candidateArchetypeIds,
-                    candidateAffordanceLensIds: inputConstraints.candidateAffordanceLensIds,
-                    candidateConstraintIds: inputConstraints.candidateConstraintIds,
-                },
-                selection: {
-                    selectedArchetype: {
-                        id: selection.archetype.game_form_id,
-                        name: selection.archetype.game_form_name,
-                    },
-                    selectedAffordances: selection.affordanceLenses.map((l) => l.title),
-                    selectedConstraints: selection.constraints.map((c) => c.title),
-                },
-            }
+            debugTrace = debugTraceOf(inputConstraints, selection)
         }
 
         const assemblyInput: SystemAssemblyInput = systemAssemblyInputFromTestLibrarySelection({
@@ -1550,6 +1613,48 @@ router.post(ROUTES.activity, async (req: Request, res: Response) => {
     try {
         const body = req.body as Record<string, unknown>
 
+        /**
+         * **Starting a checked activity stores the server's own build** — the live-app fix, 22 October 2026 (design section 4.3 L3). The
+         * request carries what the activity was built from and each block's input digest as the coach was shown it, never the activity:
+         * `checkedSave` builds it again through the live route's own checked pathway and keeps that build only where every digest is the
+         * one the coach saw, refusing otherwise with one DRAFT sentence asking the coach to build it again (409). `constraint` and `intent`
+         * are not required: a checked activity has no generation constraint, and its words are the stored build's. The session's
+         * ownership is not checked, as on the live route and the rest of this route (recorded, not changed).
+         */
+        if ((!body._id || body._id === 'new') && body.pathway === CHECKED_CHAIN) {
+            if (!Types.ObjectId.isValid(String(body.session))) {
+                return res.status(400).json({ error: 'Missing required activity fields', missing: ['session'] })
+            }
+            const session = await Session.findById(String(body.session)).lean()
+            if (!session) return res.status(404).json({ error: 'Session not found' })
+            let saved: ReturnType<typeof checkedSave>
+            try {
+                saved = checkedSave(session, body)
+            } catch (requestError) {
+                if (requestError instanceof CheckedSaveRequestError || requestError instanceof UnknownActivityRequest || requestError instanceof ActivityReviewRequestError) {
+                    return res.status(400).json({ error: requestError.message })
+                }
+                throw requestError
+            }
+            if (saved.outcome === 'refused') {
+                recordUsageEvent({ eventType: 'feature_used', sessionId: String(body.session), payload: { name: 'checked_save_refused', reasons: saved.reasons.map((reason) => reason.slice(0, 300)) } })
+                return res.status(409).json({ error: saved.summary })
+            }
+            const created = await new Activity({
+                activityStatus: body.activityStatus,
+                session: body.session,
+                title: saved.activity.title,
+                challengeLevel: body.challengeLevel,
+                duration: saved.inputs.durationMin,
+                learningPriorities: Array.isArray(body.learningPriorities) ? body.learningPriorities : [],
+                pathway: CHECKED_CHAIN,
+                checkedActivity: saved.activity,
+                checkedInputs: saved.inputs,
+                inputDigests: saved.inputDigests,
+            }).save()
+            return res.status(201).json({ message: 'successfully created', data: created })
+        }
+
         if (!body._id || body._id === 'new') {
             const missing = missingActivityCreateFields(body)
             if (missing.length > 0) {
@@ -1619,7 +1724,9 @@ router.post(ROUTES.activity, async (req: Request, res: Response) => {
             }
         }
 
-        await Activity.findByIdAndUpdate(body._id, body)
+        // A stored checked build is the server's (22 October 2026): no update replaces it, or what it was built from, or its pathway.
+        const { checkedActivity: _checkedActivity, checkedInputs: _checkedInputs, inputDigests: _inputDigests, pathway: _pathway, ...update } = body
+        await Activity.findByIdAndUpdate(body._id, update)
         return res.status(200).json({ message: 'successfully updated' })
     } catch (error) {
         const message = error instanceof Error ? error.message : String(error)

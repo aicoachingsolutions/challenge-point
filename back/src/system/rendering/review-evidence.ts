@@ -90,6 +90,12 @@ export interface EvidenceInput {
     relationships: ContextManipulationRelationship[]
     /** The goal's selected library constraints, as the account lists them (ids). */
     selectedConstraints: string[]
+    /**
+     * Whose authority the selected constraints carry, as the account reads it from selection (`constraintSource.constraintAuthority`) — added
+     * 22 October 2026 with the live-app fix: it is what decides which pathway the live route builds the activity by (`live-activity.ts`
+     * `livePathwayOf`), so the pathway fact reads it. Absent (a constructed evidence input) is not measured.
+     */
+    constraintAuthority?: string | null
     index: RegisterIndex
     /** Stage 3D: the overview's evidence as the build checked it (`overview-fidelity.ts`); absent or null on a refusal. */
     overview?: OverviewEvidence | null
@@ -560,7 +566,17 @@ const dedupeSupport = <T extends { item: string }>(list: T[]): T[] => [...new Ma
 
 /* ------------------------------------------------------------------ the evidence ------------------------------------------------------------------ */
 
-const LIVE_ROUTE_REFUSES = 'does not serve this activity: it builds only from a selection with at least one library constraint, and this selection has none, so it refuses with no model call'
+/**
+ * **What the live route does with this activity** — restated 22 October 2026 with the live-app fix (design section 4.3; his reply filed 25
+ * October 2026, item 8). Until then it refused a selection with no library constraint, with no model call, and this fact said so for every
+ * such selection. The live route now decides by the selection's constraint authority alone (`live-activity.ts livePathwayOf`): a selection
+ * whose constraints carry its authorization record's authority is built by this same checked pathway, for the coach whose session it is,
+ * and served only where it agrees with the live route's own selection and the record; any other selection is generated as before, which
+ * is not measured here. His words of 18 and 19 October (the pathway and limitation L3) stay as he wrote them, as provenance.
+ */
+const LIVE_ROUTE_CHECKED =
+    'builds this activity through this same checked pathway, for the coach whose session it is: its selection draws its constraints from its authorization record, so the live route adds no library constraint, calls no model and falls back to nothing (since 22 October 2026)'
+const liveRouteFact = (constraintAuthority: string | null | undefined): string => (constraintAuthority === 'AUTHORIZATION_RECORD' ? LIVE_ROUTE_CHECKED : 'not measured here')
 
 const PLAIN_ABOUT =
     'Facts read from the games the checked pathway built, for an administrator\'s review; never served. Every verdict is a gate\'s or a cross-block check\'s (each refuses the build where it fails); every fact is read from the game; every quotation is read from the goal\'s authorization record. Nothing here claims how the activity plays.'
@@ -974,7 +990,7 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
             facts.push({ what: `flag ${limitation.flag}`, value: flag ? { kind: flag.kind, status: flag.status, answer: flag.answer } : null })
         } else if (limitation.kind === 'CHECKED_PATHWAY_ONLY') {
             facts.push({ what: 'library constraints selected', value: [...input.selectedConstraints] })
-            facts.push({ what: 'the live generation route', value: input.selectedConstraints.length === 0 ? LIVE_ROUTE_REFUSES : 'not measured here' })
+            facts.push({ what: 'the live generation route', value: liveRouteFact(input.constraintAuthority) })
         }
         return { id: limitation.id, kind: limitation.kind, his: limitation.words.map(w => ({ ...w })), facts }
     })
@@ -1037,7 +1053,6 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
         }),
     }))
 
-    const constraintsNone = input.selectedConstraints.length === 0
     return {
         status: 'EVIDENCE_FOR_REVIEW_NOT_SERVED',
         about: PLAIN_ABOUT,
@@ -1055,10 +1070,7 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
             facts: [
                 { what: 'built through', value: 'the checked review pathway (the one chain every review build runs: selection, derivation, Gate A, realization, assembly, post-realization gates, context scoring, rendering, fidelity)' },
                 { what: 'library constraints selected', value: [...input.selectedConstraints] },
-                {
-                    what: 'the live generation route',
-                    value: constraintsNone ? LIVE_ROUTE_REFUSES : 'not measured here',
-                },
+                { what: 'the live generation route', value: liveRouteFact(input.constraintAuthority) },
             ],
             his: { ...request.pathway },
         },

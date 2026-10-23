@@ -21,7 +21,7 @@
  * front end's service layer keeps only five fields of a non-2xx body and the sentence would not survive.
  * The two errors thrown here are for a request that names nothing: there is no activity it could have been.
  */
-import { ActivitySubject, buildActivity, buildActivityForReview, describeRequest, RefusedActivity, ServedActivity } from './build-activity'
+import { ActivityBuild, ActivityRequest, ActivitySubject, buildActivityForReview, buildActivityWithSelection, describeRequest, RefusedActivity, ServedActivity } from './build-activity'
 import { MECHANISM_DEMONSTRATIONS } from './mechanism-demonstrations'
 import { sessionEnvelopeFrom, specializedRoleNames, StoredSession } from './session-envelope'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
@@ -34,6 +34,13 @@ export interface ActivityReviewBody {
     durationMin?: unknown
     /** The coach's statement of specialized-role availability for this review. Overrides the stored one. */
     roles?: unknown
+    /**
+     * The practice situation the coach chose, for a Learning Goal only — added 22 October 2026 for the live route (the live-app fix,
+     * design section 4.3 L1), which builds a goal whose authorization record supplies an evaluated design through this function and
+     * passes the situation the planning conversation sent. The review page sends none, so its builds are unchanged (null, as before).
+     * Checked against the goal's situations by `describeRequest`, which refuses one the planning model does not offer.
+     */
+    practiceSituationId?: unknown
 }
 
 /** The body does not say what to build. A malformed request, answered as one. */
@@ -47,6 +54,27 @@ const named = (value: unknown): value is string => typeof value === 'string' && 
  * keys, nothing drafted — which is what the coach whose session it is receives.
  */
 export function reviewActivity(stored: StoredSession, body: ActivityReviewBody, options: { includeDrafts?: boolean } = {}): ServedActivity | RefusedActivity {
+    if (options.includeDrafts === true) {
+        const request = reviewRequestOf(stored, body)
+        return 'refusal' in request ? request.refusal : buildActivityForReview(request, { includeDrafts: true })
+    }
+    return reviewActivityBuild(stored, body).activity
+}
+
+/**
+ * **The coach's review build with the goal's selection and the input digests beside it** — added 22 October 2026 for the live route (the
+ * live-app fix, design section 4.3). The SAME request as `reviewActivity` without drafts, built by the same chain (`buildActivityWithSelection`
+ * is `buildActivity` with its selection and digests returned), so `activity` is exactly what the review page receives for the same inputs.
+ * The live route reads the selection to hold it against its own (G3) and the record behind it (G2), and keeps the digests for the save
+ * (L3). A session refusal carries no selection and no digests.
+ */
+export function reviewActivityBuild(stored: StoredSession, body: ActivityReviewBody): ActivityBuild {
+    const request = reviewRequestOf(stored, body)
+    return 'refusal' in request ? { activity: request.refusal, selection: null, inputDigests: [] } : buildActivityWithSelection(request)
+}
+
+/** The request a review body asks for, or the session's refusal. Throws for a body that names nothing (see the class above). */
+function reviewRequestOf(stored: StoredSession, body: ActivityReviewBody): ActivityRequest | { refusal: RefusedActivity } {
     if (!body || typeof body !== 'object' || Array.isArray(body)) throw new ActivityReviewRequestError('the request has no body to read')
     const goal = named(body.learningGoalId)
     const demonstration = named(body.demonstrationId)
@@ -54,8 +82,10 @@ export function reviewActivity(stored: StoredSession, body: ActivityReviewBody, 
         // Both or neither. Choosing one for the caller would build something they did not ask for.
         throw new ActivityReviewRequestError('name exactly one of learningGoalId or demonstrationId')
     }
+    // A practice situation belongs to a Learning Goal: named beside a demonstration it names nothing that could be built.
+    if (!goal && named(body.practiceSituationId)) throw new ActivityReviewRequestError('a practice situation is chosen for a Learning Goal, not for a demonstration')
     const subject: ActivitySubject = goal
-        ? { kind: 'learning-goal', goalId: String(body.learningGoalId).trim(), situationId: null }
+        ? { kind: 'learning-goal', goalId: String(body.learningGoalId).trim(), situationId: named(body.practiceSituationId) ? String(body.practiceSituationId).trim() : null }
         : { kind: 'mechanism-demonstration', demonstrationId: String(body.demonstrationId).trim() }
 
     // Throws `UnknownActivityRequest` for an id that names nothing — before the session is looked at, so an
@@ -64,10 +94,9 @@ export function reviewActivity(stored: StoredSession, body: ActivityReviewBody, 
 
     const envelope = sessionEnvelopeFrom(stored, { durationMin: body.durationMin, roles: body.roles })
     if (envelope.outcome === 'not-stated') {
-        return { outcome: 'refused', kind, title, stage: 'session', summary: envelope.summary, reasons: envelope.reasons, account: {} }
+        return { refusal: { outcome: 'refused', kind, title, stage: 'session', summary: envelope.summary, reasons: envelope.reasons, account: {} } }
     }
-    const request = { ...subject, session: envelope.session }
-    return options.includeDrafts === true ? buildActivityForReview(request, { includeDrafts: true }) : buildActivity(request)
+    return { ...subject, session: envelope.session }
 }
 
 export interface ActivityReviewOptions {

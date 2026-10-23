@@ -91,6 +91,7 @@
     "./src/system/rendering/rendering.unit.ts",
     "./src/system/rendering/approved-wording.unit.ts",
     "./src/system/rendering/activity-review.unit.ts",
+    "./src/system/rendering/live-activity.unit.ts",
     "./src/system/rendering/role-blocks.unit.ts",
     "./src/system/rendering/allocation.unit.ts",
     "./src/system/rendering/communication.unit.ts",

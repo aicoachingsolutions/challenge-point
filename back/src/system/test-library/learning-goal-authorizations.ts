@@ -272,7 +272,9 @@ export const SETTLEABLE_FLAG_KINDS: readonly ReviewFlagKind[] = ['REGAIN_INSIDE_
  *   - `SPECIALIZED_PERFORMERS_BEYOND_ROLE`: performers of a specialized role the session has beyond those the teams' counts of that
  *     role hold (read per block from the game), and who moves at an exchange;
  *   - `FLAGGED_CASE`: a case one of the request's flags analyses (the flag's own status and answer);
- *   - `CHECKED_PATHWAY_ONLY`: the activity is built only through the checked review pathway (the pathway facts).
+ *   - `CHECKED_PATHWAY_ONLY`: the activity is built through the checked review pathway, with what the live route does with it (the pathway
+ *     facts). Since 22 October 2026 (the live-app fix) the live route builds a record-backed selection through that same pathway, so the fact
+ *     read for it says so; his words, which describe the state before, are kept as provenance. The kind's name is unchanged.
  */
 export const REVIEW_LIMITATION_KINDS = ['SPECIALIZED_PERFORMERS_BEYOND_ROLE', 'FLAGGED_CASE', 'CHECKED_PATHWAY_ONLY'] as const
 export type ReviewLimitationKind = (typeof REVIEW_LIMITATION_KINDS)[number]

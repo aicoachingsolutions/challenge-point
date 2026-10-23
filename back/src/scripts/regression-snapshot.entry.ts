@@ -1,5 +1,6 @@
 // The regression snapshot's probe: every Learning Goal and demonstration through the review endpoint, as the session's coach and as an administrator, for each
-// specialized-role case, and every guided goal through the live route, all through the REAL router. Bundled and run by
+// specialized-role case, and every guided goal through the live route (since 22 October 2026 for each role case and practice situation, and
+// with the save of any activity the live route built through the checked pathway), all through the REAL router. Bundled and run by
 // scripts/regression-snapshot.js, which reads the one line this prints after PROBE-JSON.
 // Stood in: the session read (Mongo), the signed-in user, the usage and log writes (captured) and the generation client
 // (captured, then answered empty - nothing generates). Every response is recorded WHOLE: status, the full body (or the
@@ -48,6 +49,13 @@ const connect = net.Socket.prototype.connect
     return query
 }
 ;(Activity as any).find = async () => []
+// Starting a checked activity (the live-app fix, 22 October 2026) creates one: the write is captured instead, and answered with the document
+// as Mongo would be handed it (`toObject`, so the schema's own handling of what is stored applies) without its generated id, which would
+// make two runs differ.
+;(Activity as any).prototype.save = async function (this: any) {
+    const { _id, ...stored } = this.toObject()
+    return stored
+}
 ;(UsageEvent as any).create = async (event: any) => {
     usage.push(JSON.parse(JSON.stringify(event)))
     return event
@@ -147,6 +155,55 @@ const server = app.listen(0, '127.0.0.1', async () => {
             const id = String(goal.ID)
             snapshot[`live/${id}`] = await capture(port, 'POST', `/api/app/generate-activities/${SESSION_ID}`, { challengeLevel: 'medium', duration: 20, learningGoals: [String(goal['Learning Goal'])], planning: { learningGoalId: id } })
         }
+        /**
+         * The live route over the rest of the specialized-role matrix, each practice situation, and two sessions that leave something
+         * unstated (the live-app fix, design section 4.4, 22 October 2026). `live/<goal>` above stays the no-roles case under its old key,
+         * so every earlier snapshot still compares to it. Each practice situation is asked as the planning conversation asks it: the
+         * goal's name, the situation's name and a note as the goal text, with a learning stage, at the matrix's second case (the first
+         * role available once). Nothing here names a goal, a situation or a role: all three come from the registries.
+         */
+        const live = (id: string, goalText: string, planning: Record<string, unknown>) =>
+            capture(port, 'POST', `/api/app/generate-activities/${SESSION_ID}`, { challengeLevel: 'medium', duration: 20, learningGoals: [goalText], planning: { learningGoalId: id, ...planning } })
+        const [, firstAvailable] = matrix()
+        for (const matrixCase of matrix().slice(1)) {
+            stored = { _id: SESSION_ID, createdBy: USER_ID, playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: matrixCase.roles }
+            for (const goal of guided) {
+                const id = String(goal.ID)
+                snapshot[`live/${id}/${matrixCase.id}`] = await live(id, String(goal['Learning Goal']), {})
+            }
+        }
+        stored = { _id: SESSION_ID, createdBy: USER_ID, playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: firstAvailable.roles }
+        for (const goal of guided) {
+            const id = String(goal.ID)
+            for (const situation of sessionPlanningModel.practiceSituationsFor(id) as any[]) {
+                const goalText = [String(goal['Learning Goal']), String(situation['Practice Situation']), 'Our players rush the first pass.'].join('. ')
+                snapshot[`live/${id}/${firstAvailable.id}/${String(situation.ID)}`] = await live(id, goalText, { practiceSituationId: String(situation.ID), learningStage: 'building_understanding' })
+            }
+        }
+        /**
+         * Starting a checked activity (the live-app fix, L3): for every guided goal the live route served through the checked pathway at the
+         * matrix's second case, the save as the live app sends it (what it was built from and the input digests it was shown), the same
+         * save with one digest changed, and the same save after the session's availability changed to the matrix's third case. Only a goal
+         * whose live answer carried input digests is asked, so nothing here names one.
+         */
+        const [, , otherAvailable] = matrix()
+        for (const goal of guided) {
+            const id = String(goal.ID)
+            const shown = snapshot[`live/${id}/${firstAvailable.id}`]
+            if (!(shown?.status === 200 && Array.isArray(shown.body?.inputDigests))) continue
+            const save = (inputDigests: unknown) =>
+                capture(port, 'POST', '/api/app/activity', { _id: 'new', activityStatus: 'inProgress', session: SESSION_ID, pathway: shown.body.pathway, checkedInputs: { learningGoalId: id, practiceSituationId: null, durationMin: 20 }, inputDigests, challengeLevel: 'medium', learningPriorities: [{ description: String(goal['Learning Goal']), achieved: false }] })
+            stored = { _id: SESSION_ID, createdBy: USER_ID, playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: firstAvailable.roles }
+            snapshot[`save/${id}/${firstAvailable.id}`] = await save(shown.body.inputDigests)
+            snapshot[`save/${id}/${firstAvailable.id}/digest-changed`] = await save(shown.body.inputDigests.map((entry: any, i: number) => (i === 0 ? { ...entry, inputDigest: '00000000' } : entry)))
+            stored = { _id: SESSION_ID, createdBy: USER_ID, playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: otherAvailable.roles }
+            snapshot[`save/${id}/${firstAvailable.id}/session-changed`] = await save(shown.body.inputDigests)
+        }
+        // A session that states no specialized-role availability, and one with no playing area (its roles stated).
+        stored = { _id: SESSION_ID, createdBy: USER_ID, playerCount: 12, fieldLength: '40', fieldWidth: '30' }
+        for (const goal of guided) snapshot[`live/${String(goal.ID)}/roles-not-stated`] = await live(String(goal.ID), String(goal['Learning Goal']), {})
+        stored = { _id: SESSION_ID, createdBy: USER_ID, playerCount: 12, specializedRoles: firstAvailable.roles }
+        for (const goal of guided) snapshot[`live/${String(goal.ID)}/no-area`] = await live(String(goal.ID), String(goal['Learning Goal']), {})
     } catch (error) {
         snapshot.error = error instanceof Error ? error.stack : String(error)
     }

@@ -703,6 +703,20 @@ export interface ActivityBuild {
     activity: ServedActivity | RefusedActivity
     /** The Learning Goal's selection. Null for a demonstration, and where selection did not resolve. */
     selection: BoundedSelection | null
+    /**
+     * **Each served game's input digest, block by block** (the live-app fix, design section 4.3 L3, 22 October 2026): the digest derivation
+     * stamps on each block's game (`derivation/engine.ts canonicalInput`: the selection, the contracts, the coach's session, the register's
+     * version, the rules and the role block), read from the fixture each block was rendered from. Empty for a refusal. Never part of the
+     * served activity, so what a coach is served is unchanged; read only by the live save (`live-activity.ts`), which rebuilds the activity
+     * and stores it only where every digest is the one the coach was shown.
+     */
+    inputDigests: InputDigest[]
+}
+
+/** One served game's input digest (L3): the block (ONE_GAME for a game not played in role blocks) and the digest, null where none was stamped. */
+export interface InputDigest {
+    blockId: string
+    inputDigest: string | null
 }
 
 export function buildActivity(request: ActivityRequest): ServedActivity | RefusedActivity {
@@ -710,8 +724,8 @@ export function buildActivity(request: ActivityRequest): ServedActivity | Refuse
 }
 
 export function buildActivityWithSelection(request: ActivityRequest): ActivityBuild {
-    const { activity, selection } = build(request, null)
-    return { activity, selection }
+    const { activity, selection, inputDigests } = build(request, null)
+    return { activity, selection, inputDigests }
 }
 
 /**
@@ -843,9 +857,10 @@ export function buildActivityUnderAuthorizationRecords(
          */
         review?: { includeDrafts: boolean }
     } = {},
-): { activity: ServedActivity | RefusedActivity; fixture: Record<string, unknown> | null } {
-    const { activity, fixture } = build(request, options.alter ?? null, null, options.alterSelection ?? null, JSON.parse(JSON.stringify(records)), options.alterSupplied ?? null, { includeDrafts: options.review?.includeDrafts === true })
-    return { activity, fixture }
+): ActivityBuild & { fixture: Record<string, unknown> | null } {
+    // The selection and the digests (live-app fix, 22 October 2026) are returned too, so a test of the live pathway can run it over COPIES of the
+    // records exactly as the live route runs it over the file's (`live-activity.ts`); nothing that serves a coach calls this.
+    return build(request, options.alter ?? null, null, options.alterSelection ?? null, JSON.parse(JSON.stringify(records)), options.alterSupplied ?? null, { includeDrafts: options.review?.includeDrafts === true })
 }
 
 function build(
@@ -873,6 +888,7 @@ function build(
     const refuse = (stage: ActivityStage, summary: string, reasons: string[]): ActivityBuild & { fixture: Record<string, unknown> | null } => ({
         activity: { outcome: 'refused', kind, title, stage, summary, reasons, account },
         selection: goalSelection,
+        inputDigests: [],
         fixture,
     })
 
@@ -1119,10 +1135,14 @@ function build(
         relationship: entry.relationship,
     }))
     const game: GameContext = { subject, session, selection, context, alterSupplied, adjustments, alternatives }
-    /** A game built through to communication becomes the served activity; one refused on the way says where. */
-    const serve = (built: Extract<GameOutcome, { outcome: 'built' }>, extra: Partial<ServedActivity> = {}): ActivityBuild & { fixture: Record<string, unknown> | null } => ({
+    /**
+     * A game built through to communication becomes the served activity; one refused on the way says where. `games` are the games it was
+     * rendered from, each with its block id, for the input digests the live save compares (L3, 22 October 2026); nothing served carries them.
+     */
+    const serve = (built: Extract<GameOutcome, { outcome: 'built' }>, extra: Partial<ServedActivity>, games: { blockId: string; fixture: any }[]): ActivityBuild & { fixture: Record<string, unknown> | null } => ({
         activity: { outcome: 'served', kind, title, subtitle, session, rendered: built.rendered, account: account as ActivityAccount, integrity: built.integrity, ...extra },
         selection: goalSelection,
+        inputDigests: games.map(game => ({ blockId: game.blockId, inputDigest: typeof game.fixture?.provenance?.inputDigest === 'string' ? game.fixture.provenance.inputDigest : null })),
         fixture: built.fixture,
     })
     /**
@@ -1367,6 +1387,7 @@ function build(
                         built.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders } })),
                     ),
                 },
+                games.map(entry => ({ blockId: entry.block.blockId, fixture: entry.fixture })),
             )
         }
     }
@@ -1398,7 +1419,7 @@ function build(
     // Stage 3D: the overview of the one game, checked against its Details (which are what a coach is served).
     const overview = overviewOf([{ blockId: ONE_GAME, fixture: one.fixture, rendered: one.rendered }], one.rendered.instructions)
     const evidence = reviewEvidenceFor(review, goalSelection, account, roleIndex, session, 'served', one.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.contracts, rendered: one.rendered, ...one.evidence }], null, overview.evidence)
-    return serve(one, { ...(evidence ? { evidence } : {}), ...overviewKeys(overview), ...diagramKeys([{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, rendered: one.rendered.instructions }], one.rendered.instructions, null) })
+    return serve(one, { ...(evidence ? { evidence } : {}), ...overviewKeys(overview), ...diagramKeys([{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, rendered: one.rendered.instructions }], one.rendered.instructions, null) }, [{ blockId: ONE_GAME, fixture: one.fixture }])
 }
 
 /** The block id the review evidence gives a game not played in role blocks. */
@@ -1439,6 +1460,8 @@ function reviewEvidenceFor(
         lists: account.authorizationLists ?? null,
         relationships: contextManipulationRelationships(),
         selectedConstraints: (account.constraints ?? []).map(constraint => constraint.id),
+        // 22 October 2026 (the live-app fix): the authority the live route decides its pathway by, read from the account selection made.
+        constraintAuthority: account.constraintSource?.constraintAuthority ?? null,
         index,
         overview,
     })
