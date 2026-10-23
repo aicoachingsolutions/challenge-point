@@ -119,6 +119,14 @@ export interface ContractItem {
      */
     defersTo?: unknown
     /**
+     * **A ruled pairing** (23 October 2026, stage B): the id of an item IN THE SAME CONTRACT that carries `defersTo`; this item yields
+     * together with it, wherever it defers, and never on its own. Written only by a ruled restatement, which the restatement loader
+     * admits only where the item it names carries `defersTo` in that contract (corpus-restatement.ts); honoured in
+     * `realization-deferral.ts`. The design's K2: the region a deferring objective reference points to (GF2-03.e) yields with that
+     * reference (GF2-08.f). No item carries it on 23 October 2026: whether any does is his restatement (F2 of the design).
+     */
+    defersWith?: unknown
+    /**
      * The context-manipulation relationship a provisional realization's item cites as its authority (15 October 2026, stage
      * K4): the id of an entry of the authorization records' `contextManipulationRelationships`, checked at load
      * (`learning-goal-authorizations.ts`) and read by the deferral (`realization-deferral.ts`). Since stage A (22 October 2026,
@@ -167,6 +175,7 @@ const CONTRACT_ITEM_FIELDS: Record<keyof ContractItem, true> = {
     comparison: true,
     category: true,
     defersTo: true,
+    defersWith: true,
     authorizedBy: true,
     [ROLE_YIELD_KEY]: true,
 }
@@ -292,6 +301,11 @@ export interface DeferredItem {
     deferredTo: { contractId: string; itemId: string }[]
     /** The relationship they cite. */
     relationship: string
+    /**
+     * Where this item yields only because the item it is paired with does (stage B, 23 October 2026; `ContractItem.defersWith`): that
+     * item's id, in the same contract. `deferredTo` and `relationship` are then that item's. Absent on an item that defers in its own right.
+     */
+    defersWith?: string
 }
 
 export interface SelectionEntry {
@@ -324,6 +338,13 @@ export interface Envelope {
      * absent entry means *not stated*, never *none available*.
      */
     roles?: Record<string, number>
+    /**
+     * **The width the session states for the objects of a kind, in metres** — 23 October 2026 (stage B, register version 17), object kind
+     * (the register's objects kind row) to width. A realization input: read only by a term whose extent the session may state (RC-21's
+     * `central`, `extentFrom` SESSION_STATED_WIDTH), used as stated and never a default; an absent kind means not stated, and the term then
+     * refuses. The session field that feeds it, and which stated objects are suitable, are stage E's (decision D1 of the note sent to him).
+     */
+    statedObjectWidthsM?: Record<string, number>
 }
 
 export interface DerivationInput {

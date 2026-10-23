@@ -23,6 +23,9 @@
  * the alternative stays visible to every reader of the input. Anywhere else nothing changes, and the input is returned
  * unchanged object for object. Nothing here names a row, a goal, a designation or a manipulation: the rows come from the
  * deferring item, the designations from the register, the relationships from the records.
+ *
+ * **A paired item** (stage B, 23 October 2026, the design's K2): an item carrying `defersWith`, naming an item of its own
+ * contract that carries the deferral, moves out with that item wherever it defers, and never on its own (below).
  */
 import { designationKey, isDesignationAttribute, resolutionOf } from './designation'
 import { RegisterIndex } from './register'
@@ -144,6 +147,21 @@ export function applyRealizationDeferrals(
                 deferredTo: citing.map(({ contractId, itemId }) => ({ contractId, itemId })),
                 relationship: named.join(', '),
             })
+        }
+        /**
+         * **A paired item yields with the item it names** — 23 October 2026 (stage B, the design's K2). An item carrying `defersWith` (written
+         * only by a ruled restatement, which admits it only where it names an item of the same contract carrying `defersTo`) is moved out
+         * together with that item wherever that item defers here, whole, listing the item it is paired with and what that item defers to; it
+         * never defers on its own, and where its partner stays, it stays. Only one level: the partner must defer in its own right (the
+         * loader refuses a pairing naming an item without `defersTo`, so a chain cannot be written). For K2: the region the deferring objective
+         * reference points to yields with that reference, so two targets remain, not three; the original stays visible in `deferredItems`.
+         */
+        for (const item of contract.items ?? []) {
+            const partner = typeof item.defersWith === 'string' ? item.defersWith : null
+            if (!partner || item.defersTo !== undefined) continue
+            const deferring = moving.find(entry => entry.item.itemId === partner && entry.defersWith === undefined)
+            if (!deferring) continue
+            moving.push({ item: JSON.parse(JSON.stringify(item)) as ContractItem, defersTo: DEFERS_TO_AUTHORIZED_REALIZATION, deferredTo: deferring.deferredTo.map(ref => ({ ...ref })), relationship: deferring.relationship, defersWith: partner })
         }
         if (!moving.length) return contract
         const ids = new Set(moving.map(entry => entry.item.itemId))

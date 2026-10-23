@@ -674,7 +674,11 @@ export function realize(
     choices: Choice[],
     instantiations: Instantiation[] = [],
     index?: RegisterIndex,
-    envelope?: { lengthM?: number; widthM?: number },
+    /**
+     * The session's area, and (stage B, 23 October 2026, register version 17) the width it states for the objects of each kind it states one
+     * for (`statedObjectWidthsM`, the realization input stage E's session field will feed; absent means not stated, never none).
+     */
+    envelope?: { lengthM?: number; widthM?: number; statedObjectWidthsM?: Record<string, number> },
     /**
      * **Justified defaults — a SEPARATE input, consulted only for a line that is open and was not chosen.**
      *
@@ -1195,6 +1199,8 @@ export function realize(
     // alike, against the envelope. The prose stays as the value; the metres sit beside it as
     // `realizedGeometry`, carrying the phrase as their own authority.
     const geometry: RealizationRecord['geometry'] = []
+    /** Placements a term itself refuses (`RealizedGeometry.refusal`, stage B, 23 October 2026): the game is refused naming each. */
+    const geometryRefusals: string[] = []
     if (index) {
         // A COUNT bound on the same line is an authored EXTENT, and an anchor composed with one is an
         // interval. The bound is read from wherever the resolved game carries it — a derived line's own
@@ -1332,6 +1338,16 @@ export function realize(
             ) as { selector?: { attribute: string; value?: unknown }[] } | undefined
             const lateral = selectorTerms?.selector?.find(t => t.attribute === 'lateral')?.value
             const longitudinal = selectorTerms?.selector?.find(t => t.attribute === 'longitudinal')?.value
+            /**
+             * **The width the session states for objects of this element's kind** (stage B, 23 October 2026, register version 17): a
+             * realization input, read only for an element of the register's objects collection, by its kind as the game holds it, and only
+             * by a term whose extent the session may state. Absent means not stated, and such a term then refuses.
+             */
+            const objectRows = index.objectGeometry
+            const objectsAt = objectRows ? collectionPath(String(index.rows.get(objectRows.row)?.path ?? '')) : null
+            const objectKind = objectRows && objectsAt && selectorTerms && splitElementPath(entry.path)?.container === objectsAt ? readAt(selectorTerms as Record<string, unknown>, objectRows.kindLeaf) : undefined
+            const statedWidths = envelope?.statedObjectWidthsM as Record<string, unknown> | undefined
+            const statedExtent = typeof objectKind === 'string' && statedWidths && typeof statedWidths[objectKind] === 'number' ? (statedWidths[objectKind] as number) : undefined
 
             const realizedGeometry = realizeSpatialRelation(entry.value, index, {
                 envelope: envelope ?? {},
@@ -1344,8 +1360,10 @@ export function realize(
                 teamAttackingEnd,
                 referentInterval,
                 relativeBound: relativeOf(entry.lineId),
+                ...(statedExtent !== undefined ? { statedExtentM: statedExtent } : {}),
             })
             if (!realizedGeometry) continue
+            if (realizedGeometry.refusal) geometryRefusals.push(`${entry.lineId}: ${realizedGeometry.refusal}`)
             placed.set(entry.lineId, realizedGeometry)
             geometry.push({ lineId: entry.lineId, path: entry.path, geometry: realizedGeometry })
             const parts = splitElementPath(entry.path)
@@ -1355,6 +1373,7 @@ export function realize(
             if (element && parts.leaf) place(element, `realizedGeometry.${parts.leaf}`, realizedGeometry)
         }
     }
+    if (geometryRefusals.length) return { outcome: 'REFUSED', because: geometryRefusals }
 
     return {
         outcome: 'REALIZED',

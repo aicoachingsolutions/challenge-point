@@ -96,6 +96,21 @@ export function scaleExactly(fraction: number, length: number): number {
     return decimalOf(rational(a.n * b.n, a.d * b.d)) ?? fraction * length
 }
 
+/**
+ * **An extent centred on the midline of an axis, computed exactly** — 23 October 2026 (stage B, register version 17, RC-21's `central`).
+ * The interval `[(length - extent) / 2, (length + extent) / 2]` over exact rationals, as the decimals those spell, so a 7.32 m width on a
+ * 30 m axis is `[11.34, 18.66]` and not a float product. Null where either operand has no exact decimal spelling or the extent is not
+ * strictly inside the axis (an extent that reaches a touchline touches it, which the term's own test forbids).
+ */
+export function centredExactly(length: number, extent: number): { from: number; to: number } | null {
+    const l = toRational(length)
+    const e = toRational(extent)
+    if (!l || !e || compare(e, ZERO) <= 0 || compare(e, l) >= 0) return null
+    const from = decimalOf(rational(l.n * e.d - e.n * l.d, 2n * l.d * e.d))
+    const to = decimalOf(rational(l.n * e.d + e.n * l.d, 2n * l.d * e.d))
+    return from === null || to === null ? null : { from, to }
+}
+
 /** The number an exact decimal rational spells, or null where its denominator divides no power of ten. */
 function decimalOf(value: Rational): number | null {
     // The denominator divides a power of ten; find the smallest and write the digits out.

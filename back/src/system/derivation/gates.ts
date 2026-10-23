@@ -644,13 +644,27 @@ function intervalOf(probe: Probe, lineId: string): { interval: Interval | null; 
  * Read from the register's `nounSemantics`, which names no axis: the element is degenerate on this axis
  * only where its OTHER axis carries a real extent, so a line with no extent anywhere is still empty and
  * still fails. That is what keeps this from becoming a way for any region to be zero-sized.
+ *
+ * **An object's kind, read the same way** — 23 October 2026 (stage B, register version 17, `objectGeometry.extentDimensions`, OUR
+ * READING, K6 of the note sent to him). An object has no noun; its kind row is what says how many dimensions it gives extent in. Until
+ * this no row was found for an object, so a goal standing on an end line with no depth into the area would have been called empty.
+ * Only a kind the map lists with 1 is read so, and the other axis must still carry a real extent, exactly as for a line.
  */
 function degenerateIsLegitimate(ctx: GateContext, classId: string, axis: 'along' | 'across'): boolean {
-    const nounRow = [...ctx.index.rows.values()].find(r => String(r.path).endsWith('.noun') && ctx.index.ownerRow.get(r.id) === ctx.classes.find(c => c.classId === classId)?.row)
-    if (!nounRow) return false
-    const noun = resolvedValue(ctx.derived.get(`${classId}::${nounRow.id}`))?.value
-    if (typeof noun !== 'string') return false
-    if (Number((ctx.index.nounSemantics as any)?.extentDimensions?.[noun]) !== 1) return false
+    const classRow = ctx.classes.find(c => c.classId === classId)?.row
+    const nounRow = [...ctx.index.rows.values()].find(r => String(r.path).endsWith('.noun') && ctx.index.ownerRow.get(r.id) === classRow)
+    const objects = ctx.index.objectGeometry
+    let dimensions: number | undefined
+    if (nounRow) {
+        const noun = resolvedValue(ctx.derived.get(`${classId}::${nounRow.id}`))?.value
+        if (typeof noun !== 'string') return false
+        dimensions = Number((ctx.index.nounSemantics as any)?.extentDimensions?.[noun])
+    } else if (objects && classRow === objects.row) {
+        const kind = resolvedValue(ctx.derived.get(`${classId}::${objects.kindRow}`))?.value
+        if (typeof kind !== 'string') return false
+        dimensions = objects.extentDimensions.get(kind)
+    }
+    if (dimensions !== 1) return false
 
     // The other axis must carry a real extent, or nothing establishes which axis is the length.
     const otherRow = [...ctx.index.rows.values()].find(

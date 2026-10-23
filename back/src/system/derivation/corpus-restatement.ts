@@ -98,8 +98,25 @@ export const ITEM_RESTATEMENT_KEYS: readonly string[] = [
     'forbiddenValues',
     'defersTo',
     'defersToNote',
+    'defersWith',
     ROLE_YIELD_KEY,
 ]
+
+/**
+ * **A pairing is written only beside the deferral it names** — 23 October 2026 (stage B, the design's K2: *"corpus-restatement.ts accepts
+ * `defersWith` only when it names an item in the same contract that carries `defersTo`"*). Null where the item's pairing may stand, as the
+ * contract now holds it; otherwise why not. An item may name only another item of its own contract, which carries
+ * `DEFERS_TO_AUTHORIZED_REALIZATION` itself (so a pairing never chains), and an item deferring in its own right pairs with nothing.
+ */
+export function pairingRefusal(key: string, item: ContractItem, items: ContractItem[]): string | null {
+    if (item.defersWith === undefined) return null
+    const partner = typeof item.defersWith === 'string' ? items.find(other => other.itemId === item.defersWith && other !== item) : undefined
+    if (typeof item.defersWith !== 'string' || !item.defersWith.trim()) return `${key}: defersWith ${JSON.stringify(item.defersWith)} names no item`
+    if (item.defersTo !== undefined) return `${key}: it defers in its own right (defersTo), so it pairs with no other item`
+    if (!partner) return `${key}: defersWith names ${item.defersWith}, which is no other item of its own contract`
+    if (partner.defersTo !== DEFERS_TO_AUTHORIZED_REALIZATION) return `${key}: defersWith names ${item.defersWith}, which carries no ${DEFERS_TO_AUTHORIZED_REALIZATION} deferral`
+    return null
+}
 
 /**
  * **An item restatement writes only keys the engine knows, and the role-yield marker only as ruled** — stage A, 22 October 2026
@@ -390,6 +407,13 @@ function disqualifies(item: ContractItem): string | null {
  * and the Sport Profile are refused by their own loaders (corpus.ts). Christian, reply filed 25 October 2026, item 2: *"preserving
  * structural validation and knowledge authorization."*
  */
+/** One ruling's fields written onto an item, a field set to undefined removed — the one way a ruling writes (stage B: also re-run to refuse a pairing). */
+function applySet(item: any, ruling: ItemRestatement): any {
+    const restated = { ...item, ...(ruling.set || {}) }
+    for (const [field, value] of Object.entries(ruling.set || {})) if (value === undefined) delete restated[field]
+    return restated
+}
+
 export function unruledRoleYieldRefusal(key: string, item: Record<string, unknown>, how: string): string | null {
     if (!(ROLE_YIELD_KEY in item)) return null
     return `${key} (${how}): carries the role-yield marker ${JSON.stringify(item[ROLE_YIELD_KEY])}, which only a ruled item restatement quoting his words writes`
@@ -426,6 +450,10 @@ export function applyNoRowRestatement(contracts: LoadedContract[], tally: Restat
     const seen = new Set<string>()
 
     const result = contracts.map(contract => {
+        // Stage B (23 October 2026): each restated item's starting point and the rulings applied to it, so a ruling whose pairing does not
+        // stand (`pairingRefusal`) can be refused whole once every item of the contract is restated.
+        const appliedTo = new Map<string, { start: ContractItem; rulings: ItemRestatement[] }>()
+        const addedIds = new Set<string>()
         let items = (contract.items || []).flatMap(authored => {
             const key = `${contract.contractId}::${authored.itemId}`
             // Stage A review fix: a marker the corpus carries as authored is named and not honoured; the item keeps everything else it says.
@@ -459,6 +487,7 @@ export function applyNoRowRestatement(contracts: LoadedContract[], tally: Restat
             }
 
             let restated: any = { ...item }
+            const applied: ItemRestatement[] = []
             for (const ruling of rulings) {
                 // An item's supersession is a ruled one and has one value (15 October 2026, stage K4, C56); any other is
                 // refused and named, never applied — the declaration's rule (`restateDeclaration`), for an item.
@@ -469,9 +498,10 @@ export function applyNoRowRestatement(contracts: LoadedContract[], tally: Restat
                     continue
                 }
                 tally.itemsRestated++
-                restated = { ...restated, ...(ruling.set || {}) }
-                for (const [field, value] of Object.entries(ruling.set || {})) if (value === undefined) delete restated[field]
+                applied.push(ruling)
+                restated = applySet(restated, ruling)
             }
+            appliedTo.set(String(item.itemId), { start: item, rulings: applied })
             return [restated as ContractItem]
         })
 
@@ -490,7 +520,40 @@ export function applyNoRowRestatement(contracts: LoadedContract[], tally: Restat
                 continue
             }
             items = [...items.slice(0, at + 1), addition.item as unknown as ContractItem, ...items.slice(at + 1)]
+            addedIds.add(String(addition.item.itemId))
             tally.itemsAdded++
+        }
+
+        /**
+         * **A pairing stands only beside the deferral it names** (stage B, 23 October 2026; `pairingRefusal`), checked once every item of the
+         * contract is restated and added, so a ruling's deferral and another ruling's pairing are read together. Where it does not stand: a
+         * ruling that wrote the pairing is refused whole and named (the item is restated without it), an authored pairing is named and not
+         * honoured (the item keeps everything else it says, as an authored role-yield marker), and an added item carrying it is not added.
+         * No item carries a pairing on 23 October 2026.
+         */
+        for (let pass = 0; pass < 2; pass++) {
+            items = items.flatMap(item => {
+                const key = `${contract.contractId}::${item.itemId}`
+                const refusal = pairingRefusal(key, item, items)
+                if (!refusal) return [item]
+                if (addedIds.has(String(item.itemId))) {
+                    tally.notFound.push(`${refusal}, so the item is not added`)
+                    tally.itemsAdded--
+                    return []
+                }
+                const record = appliedTo.get(String(item.itemId))
+                const pairing = record ? record.rulings.filter(ruling => ruling.set && 'defersWith' in ruling.set) : []
+                if (record && pairing.length) {
+                    for (const ruling of pairing) tally.notFound.push(`${refusal} (${ruling.ruling}), so the ruling is not applied`)
+                    tally.itemsRestated -= pairing.length
+                    record.rulings = record.rulings.filter(ruling => !pairing.includes(ruling))
+                    return [record.rulings.reduce<any>((restated, ruling) => applySet(restated, ruling), { ...record.start }) as ContractItem]
+                }
+                tally.notFound.push(`${refusal} (as authored), so the pairing is not honoured`)
+                const stripped = { ...(item as unknown as Record<string, unknown>) }
+                delete stripped.defersWith
+                return [stripped as unknown as ContractItem]
+            })
         }
 
         // The declaration-scope restatement, applied only to the declaration kind he named.

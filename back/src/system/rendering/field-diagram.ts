@@ -579,12 +579,14 @@ export function buildFieldDiagram(input: DiagramInput): { diagram: FieldDiagram 
                 gap(blockId, `the objective ${objective.elementId} is attacked by ${objective.team}, which is no team of the game`)
                 continue
             }
-            // The target's place: a region's, or a physical object's where the objective references one (read the same way).
-            const regionId = objective.regionId
-            const paths = regionId ? placePaths(fixture, regionId) : null
+            // The target's place: a region's, or a physical object's where the objective references one (read the same way). Since stage B
+            // (23 October 2026) which of the two it is comes typed from the one reader (`objectivesOf(...).target`), not from where an id is found.
+            const target = objective.target
+            const regionId = target?.id ?? null
+            const paths = target ? (target.kind === 'object' ? objectPaths(target.id) : regionPaths(target.id)) : null
             const shape = paths ? rectAt(paths) : null
-            if (!regionId || !paths || !shape) {
-                gap(blockId, `the target ${regionId ?? '(no region)'} of the objective ${objective.elementId} holds no realized position along and across the area, so the ${team.key} target cannot be drawn`)
+            if (!target || !regionId || !paths || !shape) {
+                gap(blockId, `the target ${objective.regionId ?? '(no region or object)'} of the objective ${objective.elementId} holds no realized position along and across the area, so the ${team.key} target cannot be drawn`)
                 continue
             }
             const end = touchedEnd(shape.along, lengthM)
@@ -592,7 +594,9 @@ export function buildFieldDiagram(input: DiagramInput): { diagram: FieldDiagram 
                 gap(blockId, `the ${team.key} target ${regionId} (${shape.along.from}-${shape.along.to} m) does not touch exactly one end line, so no attacking direction can be drawn without inventing one`)
                 continue
             }
-            const line = isLine(shape.along, shape.across)
+            // An object target is no marked line even with no depth (a goal standing on an end line): what it is, the object's own kind says, and
+            // it is drawn once, as the object (its word is the object's, Stage G's to write). Only a region target can be a line or a target zone.
+            const line = target.kind === 'region' && isLine(shape.along, shape.across)
             const objectivePaths = [`objectives[${objective.elementId}].team`, `objectives[${objective.elementId}].reference`]
             // Polish pass P7: a line target is named by its own noun, as the game holds it, after the DRAFT word "target"; none without one.
             const lineWords = line ? targetLineWords(regionNounOf(fixture, regionId)) : null
@@ -603,8 +607,8 @@ export function buildFieldDiagram(input: DiagramInput): { diagram: FieldDiagram 
                 along: shape.along,
                 across: shape.across,
                 line,
-                markedZone: markings.zones.find(zone => same(zone.along, shape.along) && same(zone.across, shape.across))?.elementId ?? null,
-                label: line ? (lineWords ? draft(lineWords) : null) : his(DIAGRAM_WORDS.his.targetZone),
+                markedZone: target.kind === 'region' ? (markings.zones.find(zone => same(zone.along, shape.along) && same(zone.across, shape.across))?.elementId ?? null) : null,
+                label: target.kind === 'object' ? null : line ? (lineWords ? draft(lineWords) : null) : his(DIAGRAM_WORDS.his.targetZone),
                 cites: [...objectivePaths, paths.noun, paths.along, paths.across],
             })
             team.attacks.push({ end, target: regionId, objective: objective.elementId, cites: objectivePaths })
@@ -1072,7 +1076,9 @@ export function checkFieldDiagram(diagram: FieldDiagram, input: DiagramInput): D
             if (target.line && target.label?.status === 'HIS_TERM') finding('D6', blockId, `the target line ${target.region} is named with his term "${target.label.text}", which names a zone`)
         }
         for (const objective of objectivesOf(game, index)) {
-            const along = objective.regionId ? intervalAt(fixture, placePaths(fixture, objective.regionId).along) : null
+            // Stage B (23 October 2026): the target's end from its own along interval, a region's or an object's, read typed from the one reader.
+            const target = objective.target
+            const along = target ? intervalAt(fixture, (target.kind === 'object' ? objectPaths(target.id) : regionPaths(target.id)).along) : null
             const end = along ? touchedEnd(along, lengthM) : null
             const team = block.teams.find(entry => entry.attacks.some(attack => attack.objective === objective.elementId))
             const attack = team?.attacks.find(entry => entry.objective === objective.elementId)

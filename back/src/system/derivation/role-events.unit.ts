@@ -137,14 +137,18 @@ const blockX = (input: DerivationInput) => a01Blocks(input).find(entry => entry.
 
 // ── 1. The register ─────────────────────────────────────────────────────────────────────────────────────
 test('register version 16 holds the rows as data, in one versions entry quoting him', () => {
-    const full = String(register.version)
+    // Re-pointed 23 October 2026 (stage B): version 17 (object targets and the geometry a goal needs) supersedes 16, so version 16's entry is
+    // read where it now stands, after "Supersedes version 16, which ", whole and once.
+    const latest = String(register.version)
+    assert.ok(latest.startsWith('17, adds object targets and the geometry a goal needs'))
+    assert.equal(latest.split('Supersedes version 16, which ').length - 1, 1, 'version 16 superseded once')
+    const full = `16, ${latest.split('Supersedes version 16, which ')[1]}`
     assert.ok(full.startsWith('16, adds one primary scoring event per role, for his reply filed 25 October 2026, item 2'))
     for (const quote of HIS_ITEM_2) {
         assert.ok(full.split('Supersedes version 15, ')[0].includes(`"${quote}"`), quote)
         assert.ok(String(register.roleScoring.note).includes(`"${quote}"`), `the block's note quotes it too: ${quote}`)
     }
     assert.equal(full.split('Supersedes version 15, which adds which participant a value names').length - 1, 1, 'version 15 superseded once')
-    assert.ok(!full.includes('Supersedes version 16'), 'version 16 is the current entry')
     const b9 = index.rows.get('B9')!
     assert.deepEqual([b9.path, b9.ownerRow, b9.kind, b9.earnsValueOf], ['activityRoles[].scoresBy', 'B1', 'FIELD', 'V2'])
     const spec = index.roleScoring!

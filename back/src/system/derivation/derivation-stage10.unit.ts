@@ -981,7 +981,13 @@ test('the corpus run reproduces the reported figures exactly', () => {
      * remains represented"* — and it takes its three J-family lines with it (J2, its unresolved target reference; J3
      * and J4, entailed). The twelve engine-only items retired with it reached no line (SD-21), so nothing else moves.
      */
-    assert.equal(result.run.counts.lines, 136)
+    /**
+     * **139 since 23 October 2026 (stage B)**: register version 17 (his reply filed 25 October 2026, item 3) adds row O6, the way a
+     * set-out object faces, owned by the objects row. The corpus holds three object classes, so three lines: the transition game's object
+     * (c:blind:GF4:I02, unauthored and unspoken: no item writes a facing) and two balls (A01-02-08.a, RPC-001-10.a), each WITHDRAWN exactly
+     * as their O4 and O5 lines are. Nothing resolves and nothing blocks.
+     */
+    assert.equal(result.run.counts.lines, 139)
     /**
      * **61, up from 59.** The same restatement establishes `perceptual-reference` on BOTH channels rather
      * than on a third region of its own, so two S4 lines now resolve where none did. The functions rows
@@ -1044,9 +1050,11 @@ test('the corpus run reproduces the reported figures exactly', () => {
     // (RPC-001-11.a::J2, 'excluded' on this mixed load) goes with it.
     // **27 since stage K1, 15 October 2026 (C57).** The same two lines leave the unauthored count. (C55 moves the origin's
     // value line from 'declared gap' to 'excluded' on this mixed load — still unauthored, so it stays counted here.)
-    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 27)
+    // **28 since stage B, 23 October 2026 (register version 17).** Row O6 (the way a set-out object faces) on the transition game's
+    // object (c:blind:GF4:I02): no item writes a facing, so the line is unauthored and unspoken ('no coverage'); it blocks nothing.
+    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 28)
     assert.equal(result.failures.filter((f: any) => f.kind === 'REFERENCE_DEFECT').length, 0, 'cluster 3 cleared the whole population')
-    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 27, 'one GAP per unauthored line, and none for a withdrawn one -- 27 since stage K1 (C57), tracking the NOT_AUTHORED count above')
+    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 28, 'one GAP per unauthored line, and none for a withdrawn one -- 28 since stage B (O6), tracking the NOT_AUTHORED count above')
     // 17 since C33: the removed third region took its one open S5 line (a channel along-extent) with it.
     // **18 since ruling C42.** The two new target regions each bring an open across-extent and an open noun,
     // and the retired shared target took its two with it, so the balance is one more than before.
@@ -1070,10 +1078,13 @@ test('the corpus run reproduces the reported figures exactly', () => {
         'no line is left unjudged behind a governing value that has resolved',
     )
     const withdrawn = result.lines.filter((l: any) => (result.classified.get(l.lineId)?.lineState ?? l.lineState) === 'WITHDRAWN')
-    assert.equal(withdrawn.length, 26)
+    // **28 since stage B, 23 October 2026 (register version 17):** row O6, the way a set-out object faces, is withdrawn for a ball exactly
+    // as O4 and O5 are, so the two authored balls each add one.
+    assert.equal(withdrawn.length, 28)
     // And the four new ones are the balls' positions specifically, not an accidental widening.
     const ballPositions = withdrawn.filter((l: any) => /::O[45]$/.test(l.lineId))
     assert.equal(ballPositions.length, 4, 'two authored balls, two position rows each')
+    assert.deepEqual(withdrawn.filter((l: any) => /::O6$/.test(l.lineId)).map((l: any) => l.lineId).sort(), ['c:restated:A01-02:A01-02-08.a::O6', 'c:restated:RPC-001:RPC-001-10.a::O6'], 'and the two new ones are the balls\' facing (stage B)')
     for (const line of withdrawn) {
         assert.equal(result.classified.get(line.lineId)?.verdict ?? null, null, `${line.lineId} is withdrawn and must carry no verdict`)
     }

@@ -181,15 +181,33 @@ export function teamsOf(block: GameBlock, index: RegisterIndex): { handle: strin
 }
 
 /** The objectives that score (the register's targetOf role), each with its team, the role the team holds, and its region. */
-export function objectivesOf(block: GameBlock, index: RegisterIndex): { elementId: string; team: string; role: string | null; regionId: string | null; region: any }[] {
+/**
+ * **The element an objective scores at, typed** — 23 October 2026 (stage B, register version 17). Register J2 is *"object or region
+ * reference"*: a region of the regions collection (S2) or an object of the objects collection (the register's `objectGeometry.row`), by
+ * the id the game holds it under. Null where the reference names neither. Read by the field diagram (its targets and D7).
+ */
+export interface ObjectiveTarget {
+    kind: 'region' | 'object'
+    id: string
+}
+
+/**
+ * Each objective of a block's game: its team, the role that team holds, and what it scores at. `regionId` is the referenced element's id
+ * (a region's or an object's, as it always was) and `region` the region it names, or null; `target` (stage B) says which of the two it is.
+ */
+export function objectivesOf(block: GameBlock, index: RegisterIndex): { elementId: string; team: string; role: string | null; regionId: string | null; region: any; target: ObjectiveTarget | null }[] {
     const game = block.fixture?.game ?? {}
     const spec = index.targetOf
     const regions = membersAt(game, index, 'S2')
+    const objects = index.objectGeometry ? membersAt(game, index, index.objectGeometry.row) : []
     return membersAt(game, index, spec?.objectivesRow ?? 'J1').map(objective => {
         const team = String(objective?.[spec?.teamLeaf ?? 'team'])
         const ref = objective?.[spec?.referenceLeaf ?? 'reference']?.structuralRef
         const regionId = ref ? `c:${ref.contractId}:${ref.itemId}` : null
-        return { elementId: String(objective?.elementId), team, role: Object.entries(block.holders).find(([, holder]) => holder === team)?.[0] ?? null, regionId, region: regions.find(r => r?.elementId === regionId) ?? null }
+        const region = regions.find(r => r?.elementId === regionId) ?? null
+        const object = region ? null : (objects.find(o => o?.elementId === regionId) ?? null)
+        const target: ObjectiveTarget | null = region ? { kind: 'region', id: regionId! } : object ? { kind: 'object', id: regionId! } : null
+        return { elementId: String(objective?.elementId), team, role: Object.entries(block.holders).find(([, holder]) => holder === team)?.[0] ?? null, regionId, region, target }
     })
 }
 

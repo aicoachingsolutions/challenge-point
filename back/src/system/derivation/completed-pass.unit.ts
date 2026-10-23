@@ -274,15 +274,22 @@ test('registering the member changed no verdict in any of the thirteen goals', (
      * (c:provisional:A01-R1:A01-R1-B1-1::B9 and A01-R1-B1-2::B9, 'no coverage'), which GA-NO-FAILED-LINE does not block on and
      * GA-ROLE-EVENTS reads as "scores by the primary event". The old composition holds no role and is unchanged.
      */
+    /**
+     * **15 · 23 October, stage B — TA01 15 → 16, TD01, D02 and TD02 14 → 15 failed lines, measured; no verdict moves.** Register version
+     * 17 (his reply filed 25 October 2026, item 3) adds row O6, the way a set-out object faces, owned by the objects row and WITHDRAWN for a
+     * ball exactly as O4 and O5 are. The transition game's own object (c:blind:GF4:I02, the one object of a kind other than ball in these
+     * four compositions) gains one unauthored line nobody spoke for (c:blind:GF4:I02::O6, 'no coverage'), which GA-NO-FAILED-LINE does not
+     * block on. Every ball's O6 line is withdrawn and counts nowhere; every other composition is unchanged.
+     */
     const A01_COMPOSITION = { failed: 11, gateA: 'FAIL', reachable: true }
     const expected: Record<string, { failed: number; gateA: string; reachable: boolean }> = {
         A01: { failed: 13, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
         D01: { failed: 8, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
-        TA01: { failed: 15, gateA: 'FAIL', reachable: false },
-        TD01: { failed: 14, gateA: 'FAIL', reachable: false },
-        D02: { failed: 14, gateA: 'FAIL', reachable: false },
+        TA01: { failed: 16, gateA: 'FAIL', reachable: false },
+        TD01: { failed: 15, gateA: 'FAIL', reachable: false },
+        D02: { failed: 15, gateA: 'FAIL', reachable: false },
         TA02: { failed: 9, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
-        TD02: { failed: 14, gateA: 'FAIL', reachable: false },
+        TD02: { failed: 15, gateA: 'FAIL', reachable: false },
         A03: { failed: 8, gateA: 'FAIL', reachable: true },
         A04: { failed: 8, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
         A05: { failed: 9, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },

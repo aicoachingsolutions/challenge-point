@@ -113,5 +113,6 @@
     "./src/system/rendering/first-activity-end-to-end.unit.ts",
     "./src/system/derivation/run-contract-coverage.unit.ts",
     "./src/system/derivation/participants-present.unit.ts",
-    "./src/system/derivation/role-events.unit.ts"
+    "./src/system/derivation/role-events.unit.ts",
+    "./src/system/realization/object-targets.unit.ts"
 ]

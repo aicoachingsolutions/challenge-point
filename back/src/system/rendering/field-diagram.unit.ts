@@ -485,9 +485,11 @@ test('7. physical objects: drawn only where the game positions them and a senten
     draft = fieldDiagramDraftOf(objectTargets(true, true))
     assert.equal(draft.verdict, 'DRAWN', JSON.stringify(draft.findings, null, 1))
     const block = draft.diagram!.blocks[0]
+    // Re-pointed 23 October 2026 (stage B): an object target is no marked line even where it has no depth (it stood on the end line here, so
+    // it was reported `line: true`); what it is, its object says, and its label stays null (an object target's words are Stage G's).
     assert.deepEqual(
         block.targets.map(target => [target.region, target.along, target.across, target.line, target.label]),
-        plain.targets.map((target, n) => [`c:TEST-ONLY:OBJECT-T${n + 1}`, target.along, { from: 13, to: 17 }, true, null]),
+        plain.targets.map((target, n) => [`c:TEST-ONLY:OBJECT-T${n + 1}`, target.along, { from: 13, to: 17 }, false, null]),
         'each target is its object, at its realized place',
     )
     assert.ok(block.targets.every(target => target.cites.includes(`objects[${target.region}].position.along`)))

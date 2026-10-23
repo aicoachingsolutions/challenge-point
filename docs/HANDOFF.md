@@ -8735,3 +8735,25 @@ decision note sent to him (decisions 1 and 9(a)); design `scratchpad/d25/design-
   scope are OUR READING.
 
 NEXT: Stages B, C, D on TEST-ONLY copies; F/G after his answers.
+
+## 23 OCTOBER — STAGE B (OBJECT TARGETS AND GOAL GEOMETRY, ENGINE ONLY) BUILT; NOTHING NEW SERVED
+
+Governing: his reply filed 25 October, item 3 (the goal, "positioned at the building team's end", no invented dimensions) and
+item 2; design `scratchpad/d25/design-final.md` section 3, Stage B. Every goal value is TEST-ONLY (his decisions D1-D5 pending).
+
+- Register v17: row O6 `objects[].facing` (closed list INTO_THE_AREA, bound to EMD-0007/EMD-0009 via EMP-0029/EMP-0031 Facing
+  Reference "Playing direction"; WITHDRAWN for a ball as O4/O5, unspoken on GF4's object); RC-21 `central` machine-readable
+  (kind `centred`: extent from a REQUIRED extent or the session-stated width, refused without one); the `objectGeometry` block
+  (O1/O2/O4/O5/O6 and `extentDimensions` goal 1, OUR_INTERPRETATION, used only for a goal on the line, D2(a)).
+- team-ends reads an object target's end from its typed along position (one level of recursion; a cycle refuses);
+  `objectivesOf` returns a typed `target` {region | object}, consumed by the diagram's target building and D7; T15: an
+  end-line anchor naming a team in prose is refused where the element's own selector fixes no end (never a fixed anchor);
+  `degenerateIsLegitimate` reads an object's kind row; `envelope.statedObjectWidthsM` is the realization input for the
+  width (stage E feeds it); `defersWith` pairs an item with a same-contract deferral (deferral and restatement loader);
+  the provisional loader refuses an object extent in metres, a depth, `defersTo` and `defersWith`.
+- TEST-ONLY end-keyed goal version (`realization/object-targets.unit.ts`): block 1 passes every gate and stops at fidelity
+  Q3 / awaiting wording; under KEPT block 2 is refused at structure by GA-ROLE-EVENTS clause 4 (the pressing role holds a
+  region with a goal event), earlier than the d25 probe's GA-DIRECTION STILL_NOT_EVALUABLE (measured before stage A).
+- Snapshot vs snap-A2: only A01's registerVersion 16 -> 17 and input digests (and the save refusals quoting them).
+
+NEXT: Stage C (objects across blocks, layout), Stage D (end exchange); F/G after his answers.

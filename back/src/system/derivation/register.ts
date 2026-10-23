@@ -152,6 +152,91 @@ function indexRoleScoring(block: any, rows: Map<string, RegisterRow>, vocabulari
 }
 
 /**
+ * **Where the object-geometry capability finds its rows** — register version 17, 23 October 2026. Christian, reply filed 25 October 2026,
+ * item 3: *"The goal should be positioned at the building team's end."* *"Goal dimensions and suitability should be determined through
+ * approved [sport] knowledge and available equipment. Please identify any missing knowledge decisions needed here rather than inventing
+ * dimensions or treating every goal as interchangeable."* Read by team-ends.ts (which end an object target is at), gates.ts
+ * `degenerateIsLegitimate` (a zero extent an object's kind makes legitimate), realize.ts (the width the session states for an object of a
+ * kind) and corpus.ts (the provisional realizations' placeholder refusal); no row or kind is written in any of them.
+ */
+export interface ObjectGeometryRegister {
+    /**
+     * The objects collection (O1), its kind (O2) and its along and across positions (O4, O5), each read by the consumers named above. The
+     * block's facing row (O6) is validated at load and not indexed: nothing reads it until its wording exists (Stage G), and a projection
+     * no consumer reads is not kept.
+     */
+    row: string
+    kindRow: string
+    alongRow: string
+    acrossRow: string
+    /** The leaves the kind and the along position sit at on an object element (`kind`, `position.along`), as realize.ts and team-ends.ts read them. */
+    kindLeaf: string
+    alongLeaf: string
+    /** OUR_INTERPRETATION: how many dimensions an object of a kind gives extent in (1: extent on exactly one axis). */
+    extentDimensions: Map<string, number>
+}
+
+/**
+ * The object-geometry block, validated as the rest of the register is (halt H1): every row must be the register's, owned by the objects
+ * collection, at the path its role needs; each kind in the dimensions map a member of the kind row's vocabulary, with 1 or 2 dimensions, and
+ * the map labelled OUR_INTERPRETATION with a note. A register without the block (one written before version 17) has none: no object kind
+ * makes a zero extent legitimate, and no object target's end is read.
+ */
+function indexObjectGeometry(block: any, rows: Map<string, RegisterRow>, vocabularies: Map<string, string[]>): ObjectGeometryRegister | null {
+    if (!block || typeof block !== 'object') return null
+    const name = (key: string) => String(block[key] ?? '')
+    const row = name('row')
+    if (rows.get(row)?.kind !== 'COLLECTION') throw new HaltError('H1', `objectGeometry.row ${row} is not a COLLECTION row`)
+    const leafOf = (id: string) => {
+        const path = String(rows.get(id)?.path ?? '')
+        const container = String(rows.get(row)?.path ?? '')
+        return path.startsWith(`${container}.`) ? path.slice(container.length + 1) : ''
+    }
+    const owned = (key: string, ending: string): string => {
+        const id = name(key)
+        if (rows.get(id)?.kind !== 'FIELD' || rows.get(id)?.ownerRow !== row) throw new HaltError('H1', `objectGeometry.${key} ${id} is not a FIELD row owned by ${row}`)
+        if (!leafOf(id) || !leafOf(id).endsWith(ending)) throw new HaltError('H1', `objectGeometry.${key} ${id} does not sit at a leaf ending ${JSON.stringify(ending)}`)
+        return id
+    }
+    const kindRow = owned('kindRow', '')
+    const alongRow = owned('alongRow', '.along')
+    const acrossRow = owned('acrossRow', '.across')
+    owned('facingRow', '')
+    const attribute = rows.get(kindRow)?.selectorAttribute
+    const kinds = attribute ? vocabularies.get(`${kindRow}.${attribute}`) : undefined
+    if (!kinds || !kinds.length) throw new HaltError('H1', `objectGeometry.kindRow ${kindRow} carries no selector attribute with a vocabulary`)
+    const dims = block.extentDimensions
+    if (!dims || dims.basis !== 'OUR_INTERPRETATION' || typeof dims.note !== 'string' || !dims.note.trim()) throw new HaltError('H1', 'objectGeometry.extentDimensions must say it is OUR_INTERPRETATION and why (note)')
+    const extentDimensions = new Map<string, number>()
+    for (const [kind, value] of Object.entries((dims.kinds ?? {}) as Record<string, unknown>)) {
+        if (!kinds.includes(kind)) throw new HaltError('H1', `objectGeometry.extentDimensions: ${kind} is not a member of the ${kindRow} vocabulary`)
+        if (value !== 1 && value !== 2) throw new HaltError('H1', `objectGeometry.extentDimensions: ${kind} gives extent in ${JSON.stringify(value)} dimensions, which is neither 1 nor 2`)
+        extentDimensions.set(kind, value)
+    }
+    return { row, kindRow, alongRow, acrossRow, kindLeaf: leafOf(kindRow), alongLeaf: leafOf(alongRow), extentDimensions }
+}
+
+/**
+ * **A machine-readable relative term the engine composes, validated at load (halt H1)** — register version 17, 23 October 2026, for RC-21's
+ * `central` (kind `centred`). A centred term fixes the element's centre on one axis (`at` 0.5 of it) and states no extent; where its extent may
+ * come from is a closed list the realizer implements (`CENTRED_EXTENT_SOURCES`). Any other kind is read as it always was.
+ */
+export const CENTRED_EXTENT_SOURCES = ['REQUIRED_EXTENT', 'SESSION_STATED_WIDTH'] as const
+
+function validateRelativeTerms(block: any): void {
+    const terms = block?.machineReadable?.terms
+    if (!terms || typeof terms !== 'object') return
+    for (const [name, term] of Object.entries(terms as Record<string, any>)) {
+        if (term?.kind !== 'centred') continue
+        if (term.axis !== 'across' && term.axis !== 'along') throw new HaltError('H1', `relativeTerms ${name}: a centred term names its axis (along or across)`)
+        if (term.at !== 0.5) throw new HaltError('H1', `relativeTerms ${name}: a centred term is at the midline of its axis (at 0.5)`)
+        const from = Array.isArray(term.extentFrom) ? term.extentFrom : []
+        if (!from.length || from.some((source: unknown) => !(CENTRED_EXTENT_SOURCES as readonly unknown[]).includes(source))) throw new HaltError('H1', `relativeTerms ${name}: a centred term says where its extent comes from, from ${CENTRED_EXTENT_SOURCES.join(', ')}`)
+        if (typeof term.why !== 'string' || !term.why.trim()) throw new HaltError('H1', `relativeTerms ${name}: a centred term says why (its prose test)`)
+    }
+}
+
+/**
  * **What may open a coach's choice on a row — register version 12, 15 October 2026.** Christian, reply filed 17 October
  * 2026, M3 (quoted whole in the register's T4 `fillableAuthority`): *"coach-selected restart locations, and activity-specific
  * restart methods. These choices must remain distinguishable from universal requirements."*
@@ -567,6 +652,8 @@ export interface RegisterIndex {
     participants: ParticipantRegister | null
     /** The role-scoring capability's rows (register version 16, his reply filed 25 October 2026, item 2), or null without them. */
     roleScoring: RoleScoringRegister | null
+    /** The object-geometry capability's rows (register version 17, his reply filed 25 October 2026, item 3), or null without them. */
+    objectGeometry: ObjectGeometryRegister | null
     registerVersion: string
 }
 
@@ -790,6 +877,7 @@ export function indexRegister(register: any): RegisterIndex {
         singletonRows.set(row.id, decision.id)
     }
 
+    validateRelativeTerms(register.relativeTerms)
     const citable = new Set<string>((register.citableStandingDecisions || []).map((d: any) => d.id).filter(Boolean))
     const designations = indexDesignations(register.teamDesignations, rows)
     const roleBlocks = indexRoleBlocks(register.roleBlocks, rows, vocabularies, designations)
@@ -827,6 +915,7 @@ export function indexRegister(register: any): RegisterIndex {
         reassignment: indexReassignment(register.reassignment, rows, roleBlocks, designations),
         participants: indexParticipants(register.participants, rows, designations),
         roleScoring: indexRoleScoring(register.roleScoring, rows, vocabularies, roleBlocks),
+        objectGeometry: indexObjectGeometry(register.objectGeometry, rows, vocabularies),
         registerVersion: register.version,
     }
 }

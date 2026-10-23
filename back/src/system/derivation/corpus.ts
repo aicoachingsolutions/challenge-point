@@ -20,7 +20,7 @@ import { ContractItem, DerivationInput, LoadedContract, ROLE_YIELD_KEY } from '.
 import { repairCorpusEncoding, RepairTally } from './corpus-repair'
 import { applyNoRowRestatement, RestatementTally } from './corpus-restatement'
 import { AUDITS_DIR } from './knowledge-root'
-import { designationName } from './register'
+import { designationName, indexRegister } from './register'
 
 export const CONFORMANCE_DIR = path.join(AUDITS_DIR, 'conformance')
 
@@ -158,6 +158,35 @@ export function roleYieldMarkerRefusals(items: unknown, where: string): string[]
     return (Array.isArray(items) ? items : [])
         .filter(item => !!item && typeof item === 'object' && ROLE_YIELD_KEY in item)
         .map(item => `${where} item ${String(item.id ?? item.itemId ?? '(no id)')} carries the role-yield marker, which only a ruled item restatement quoting his words writes`)
+}
+
+/**
+ * **No placeholder extent for an object, and no supersession, in a provisional realization** — stage B, 23 October 2026 (register version
+ * 17, `objectGeometry`). Christian, reply filed 25 October 2026, item 3: *"Goal dimensions and suitability should be determined through
+ * approved [sport] knowledge and available equipment. Please identify any missing knowledge decisions needed here rather than inventing
+ * dimensions or treating every goal as interchangeable."* So an object's extent in metres has no stated source when a realization writes it:
+ * on an object's along or across position, a bare number or interval in metres, or a position measured from a team's end line with a depth
+ * (`offsetM` from below to), is refused, named. An object's extent comes from the width the session states (RC-21's `central`), from a
+ * REQUIRED extent the register's terms carry, or is zero where its kind makes zero legitimate; a position (an offset with no depth) is not an
+ * extent. And a provisional realization holds his choices, never a supersession or a pairing (`defersTo`, `defersWith`), which only a ruled
+ * restatement writes (the deferral honours both wherever it finds them). Empty where nothing is refused; no production item is.
+ */
+export function placeholderExtentRefusals(items: unknown, where: string, objectRows: { alongRow: string; acrossRow: string } | null): string[] {
+    const errors: string[] = []
+    const finite = (n: unknown) => typeof n === 'number' && Number.isFinite(n)
+    for (const item of Array.isArray(items) ? items : []) {
+        if (!item || typeof item !== 'object') continue
+        const at = `${where} item ${String(item.id ?? item.itemId ?? '(no id)')}`
+        if ('defersTo' in item || 'defersWith' in item) errors.push(`${at} carries a supersession or a pairing (defersTo, defersWith), which only a ruled restatement writes`)
+        if (!objectRows || (item.row !== objectRows.alongRow && item.row !== objectRows.acrossRow)) continue
+        const value = item.value
+        const bareInterval = value && typeof value === 'object' && !Array.isArray(value) && finite(value.from) && finite(value.to) && value.term === undefined
+        const offset = value && typeof value === 'object' && !Array.isArray(value) ? value.offsetM : undefined
+        const deep = offset && finite(offset.from) && finite(offset.to) && offset.to > offset.from
+        if (finite(value) || bareInterval) errors.push(`${at} writes an object's extent on ${item.row} in metres (${JSON.stringify(value)}) with no stated source: an object's dimensions come from the session or from approved knowledge, never a placeholder`)
+        else if (deep) errors.push(`${at} gives an object on ${item.row} a depth of ${offset.to - offset.from} m from a team's end line with no stated source: an object's dimensions come from the session or from approved knowledge, never a placeholder`)
+    }
+    return errors
 }
 
 /** The Sport Profile, as contracts. `read` is a parameter ONLY so a test can hand a copy through the same refusal; production passes none. */
@@ -338,6 +367,8 @@ export function validateProvisionalRealizations(
     // The list's entry names as the register module spells them (K2 review: one reading of the list, not a second copy).
     designationNames: Set<string> = new Set(((loadRegister().teamDesignations?.list ?? []) as string[]).map(designationName)),
     choicesFileExists: (name: string) => boolean = name => fs.existsSync(path.join(AUDITS_DIR, name)),
+    // Stage B (23 October 2026): the object rows whose extents a placeholder may not fill (the register's objectGeometry), or null without them.
+    objectRows: { alongRow: string; acrossRow: string } | null = indexRegister(loadRegister()).objectGeometry,
 ): string[] {
     const errors: string[] = []
     if (!file || typeof file !== 'object' || !filledText(file.about)) errors.push('the file says nothing about what it is (about)')
@@ -406,6 +437,8 @@ export function validateProvisionalRealizations(
         }
         // Stage A review fix: a provisional realization holds his choices, never the role-yield marker (a ruled item restatement's alone).
         errors.push(...roleYieldMarkerRefusals(items, which))
+        // Stage B (23 October 2026): no placeholder extent for an object, and no supersession or pairing.
+        errors.push(...placeholderExtentRefusals(items, which, objectRows))
     }
     return errors
 }

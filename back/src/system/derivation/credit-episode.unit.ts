@@ -104,7 +104,10 @@ test('register version 14 holds the rows as data, in one versions entry quoting 
     const full = String(register.version)
     // Re-pointed 22 October 2026 (stage A): version 16 (one primary scoring event per role, his reply filed 25 October 2026, item 2)
     // supersedes 15; version 14's entry is read where it stands, exactly as before.
-    assert.ok(full.startsWith('16, adds one primary scoring event per role'))
+    // Re-pointed 23 October 2026 (stage B): version 17 (object targets and the geometry a goal needs, his reply filed 25 October 2026, item 3)
+    // supersedes 16; version 14's entry is read where it stands, exactly as before.
+    assert.ok(full.startsWith('17, adds object targets and the geometry a goal needs'))
+    assert.ok(full.includes('Supersedes version 16, which adds one primary scoring event per role'))
     assert.ok(full.includes('Supersedes version 15, which adds which participant a value names'))
     assert.equal(full.split('Supersedes version 14, which ').length - 1, 1, 'version 14 superseded once')
     const version = `14, ${full.split('Supersedes version 14, which ')[1]}`
@@ -121,7 +124,8 @@ test('register version 14 holds the rows as data, in one versions entry quoting 
     assert.equal(version.split('Supersedes version ').length - 1, 7, 'one new entry: versions 13 back to 7 are superseded, each once')
     assert.ok(!version.includes('Supersedes version 14'), 'no second bump for these rows')
     assert.equal(full.split('Supersedes version 15, ').length - 1, 1, 'version 15 superseded once, by version 16')
-    assert.ok(!full.includes('Supersedes version 16'), 'version 16 is the current entry')
+    assert.equal(full.split('Supersedes version 16, ').length - 1, 1, 'version 16 superseded once, by version 17 (stage B)')
+    assert.ok(!full.includes('Supersedes version 17'), 'version 17 is the current entry')
     const row = (id: string) => index.rows.get(id)!
     assert.deepEqual([row('B8').path, row('B8').ownerRow, row('B8').kind], ['activityRoles[].creditedWithin', 'B1', 'FIELD'])
     assert.deepEqual([row('V27').path, row('V27').kind, row('V27').selectorAttributes, row('V27').earnsValueOf], ['value.primaryEvent.alsoCounts[]', 'COLLECTION', ['team'], 'V2'])
