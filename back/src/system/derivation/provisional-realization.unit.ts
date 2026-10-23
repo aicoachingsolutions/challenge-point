@@ -232,6 +232,10 @@ test('the realization moves exactly what its items establish — the role lines 
         // and item 3 C - the building role's confined to the build-out episode, the pressing role's stated as the whole game.
         'c:provisional:A01-R1:A01-R1-B1-1::B8|derived|RESOLVED:ENTAILED||"BUILD_OUT_EPISODE"',
         'c:provisional:A01-R1:A01-R1-B1-2::B8|derived|RESOLVED:ENTAILED||"WHOLE_GAME"',
+        // 22 October 2026 (stage A, register version 16): a role's own scoring event (row B9, his reply filed 25 October 2026, item 2).
+        // No A01-R1 item writes either role's, so each is an unauthored line nobody spoke for: both roles score by the primary event.
+        'c:provisional:A01-R1:A01-R1-B1-1::B9|failed|NOT_AUTHORED|no coverage|null',
+        'c:provisional:A01-R1:A01-R1-B1-2::B9|failed|NOT_AUTHORED|no coverage|null',
     ])
     // Two checks move since stage K5, both by what the transitions establish: the build-out episode can begin (C58), and the
     // coach's restart locations are owed to realization. A third since stage K6 (15 October 2026): the positions stated relative

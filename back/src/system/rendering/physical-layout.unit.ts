@@ -187,6 +187,8 @@ test('2. TEST-ONLY 50 x 30 m: inadmissible, why is said, and what moves is read 
     // Not played in role blocks: nothing to set out once and nothing moves, and no reason is owed.
     assert.deepEqual(layoutOf(blocks.slice(0, 1).map(bare), movers), { applies: false, layout: null, why: [], remarking: null })
     // Lines only on the end lines (TEST-ONLY: every region degenerate at an end): the area's own edges, so nothing is set out and none is owed a reason.
+    // Re-pointed 23 October 2026 (stage C): the blocks were read and nothing moves, so the account of what moves is given, empty (it was null,
+    // which could not be told from "not read"; the exchange then said the markings are set out again whether or not anything moved).
     const endLines = blocks.map(bare).map(entry => {
         const fixture = copy(entry.fixture)
         for (const g of fixture.status.geometry) {
@@ -195,7 +197,7 @@ test('2. TEST-ONLY 50 x 30 m: inadmissible, why is said, and what moves is read 
         }
         return { blockId: entry.blockId, fixture }
     })
-    assert.deepEqual(layoutOf(endLines, movers), { applies: false, layout: null, why: [], remarking: null })
+    assert.deepEqual(layoutOf(endLines, movers), { applies: false, layout: null, why: [], remarking: { lengthM: 40, changes: [] } })
 })
 
 test('3. the stage 2D record cannot come back: put back on a TEST-ONLY copy, the records\' gate refuses it; production needs none', () => {
@@ -452,6 +454,8 @@ test('8. Q5-L where markings move (stage 2G): each is named at the exchange; TES
     assert.deepEqual(q5({ ...fixture, remarking: undefined }, replaced(rebuilt([opening, line, closing]))), [])
     // (b) Its words lose the noun of what moves (citations kept).
     assert.ok(q5(fixture, replaced(rebuilt([opening, line, { ...zone, text: " and the pressing team's target to the new building team's end" }, closing]))).some(what => what.startsWith(unnamed('change-2'))))
+    // (b2) Stage C review fix: its noun said only inside a longer word (TEST-ONLY) is not said: the noun is read as a whole word (`saysWord`).
+    assert.ok(q5(fixture, replaced(rebuilt([opening, line, { ...zone, text: " and the pressing team's target zones to the new building team's end" }, closing]))).some(what => what.startsWith(unnamed('change-2'))))
     // (c) Its citation of the move dropped (words kept), or of the region edge that is it in this block.
     assert.ok(q5(fixture, replaced(rebuilt([opening, line, { ...zone, from: zone.from.filter(p => !p.startsWith('remarking.')) }, closing]))).some(what => what.startsWith(unnamed('change-2'))))
     assert.ok(q5(fixture, replaced(rebuilt([opening, { ...line, from: line.from.filter(p => p !== along(FAR)) }, zone, closing]))).some(what => what.startsWith(unnamed('change-1'))))

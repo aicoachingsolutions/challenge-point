@@ -24,8 +24,11 @@
  * input. The event kinds and condition types are data; this file names none of them.
  */
 import { CheckResult, EPISODE_SCOPES } from '../derivation/gates'
+import { RELATIONSHIP_CONFIRMED } from '../derivation/realization-deferral'
+import { RegisterIndex } from '../derivation/register'
 import { conditionScopeNotEvaluable, EVALUABLE_CONDITION_SCOPE } from '../derivation/resolved-game'
 import { LoadedContract } from '../derivation/types'
+import { eventKindOf, registerIndex, roleElementsOf } from './game-reading'
 
 /** The Gate A check that decides whether an episode a condition is authored for can begin in the game (gates.ts). */
 export const EPISODE_REACHABLE_CHECK = 'GA-EPISODE-REACHABLE'
@@ -72,6 +75,96 @@ export interface AlsoCountsSupport {
     items: { contractId: string; itemId: string; basis: string }[]
 }
 
+/**
+ * **A role's own scoring event stands only on his explicit ruling** — stage A, 22 October 2026 (register version 16, row B9), on the
+ * pattern of `alsoCountsFindings` below. Christian, reply filed 25 October 2026, item 2: *"Please implement this as a general role-specific
+ * scoring capability, preserving structural validation and knowledge authorization."* The context's approved scoring governs (his 14
+ * October words above), and a role scoring by an event of its own is a way to score the context's own scoring events may not approve
+ * (his item 3 approves such an event for one role of one context, and is not yet recorded among that context's events). So every item
+ * that writes a role's own event must be an OWNER_RULING item; any other basis is named and refuses the
+ * game, and a game holding such an event with no support given cannot be confirmed, and says so. Whether the event departs from a
+ * permitted set is GA-ROLE-EVENTS clause 6's; this guard only refuses. Read through `eventKindOf`; names no kind, role or sport term.
+ */
+export interface RoleEventSupport {
+    /** The role element (its elementId) and the role it is. */
+    elementId: string
+    role: string
+    /**
+     * Every item that writes the role's own event, with its basis and (stage A review fix) the relationship it cites, where it cites one, and
+     * (stage A re-review fix, 23 October 2026) the context its contribution realizes, where it realizes one (a provisional realization's
+     * `realizes`; null on canonical knowledge).
+     */
+    items: { contractId: string; itemId: string; basis: string; authorizedBy?: string | null; realizes?: string | null }[]
+}
+
+/** What the guard reads of a context relationship (the authorization records hold the whole entry; `contextRelationships`). */
+export interface ScoringAuthority {
+    id: string
+    contextId: string
+    status: string
+    scoringEvent?: string
+    role?: string
+    /** The register rows the relationship authorizes a realization to author (stage A re-review fix: the event row must be among them). */
+    rows?: string[]
+}
+
+/**
+ * **An event the context does not approve stands only on a confirmed scoring relationship of that context, for that role and that event**
+ * (stage A review fix, 22 October 2026). Until this fix the context's approved events were read only into the message, so a role's own
+ * event outside them rested entirely on GA-ROLE-EVENTS clause 6 finding a REQUIRED list on the event row in some contract. His 14 October
+ * words (above) make the context's approved scoring govern; his 15 October answer 9 lets specific knowledge depart only "through an
+ * authorized relationship". So such an event is confirmed only where an item writing it cites (`authorizedBy`) a CONFIRMED relationship of
+ * this context naming exactly this event and this role (`relationships`, the records' context relationships of every kind); otherwise it
+ * is named here and refuses the game. An event the context approves needs none (his OWNER_RULING basis is still required, above).
+ *
+ * **What a citation must also be, as the role yields require it** (stage A re-review fix, 23 October 2026): the relationship authorizes the
+ * event row (`roleScoring.eventRow` among its `rows`), and the citing item's own contribution realizes this context (`realizes`) — the two
+ * conditions `applyRoleYields` (realization-deferral.ts `authorizingRelationship`) already holds a citation to. Until this fix the guard
+ * checked status, context, event and role only: measured in the re-review on a full TEST-ONLY build, a confirmed scoring relationship
+ * authorizing only the objective-reference row let an event-row item stand here, the build stopping only at communication.
+ */
+export function roleEventFindings(contextId: string, game: any, approvedEvents: string[], support: RoleEventSupport[] | undefined, index?: RegisterIndex, relationships: ScoringAuthority[] = []): string[] {
+    const findings: string[] = []
+    const eventRow = (index ?? registerIndex()).roleScoring?.eventRow
+    for (const { elementId: id, role } of roleElementsOf(game, index)) {
+        const own = eventKindOf(game, role, index)
+        if (!own.byRole) continue
+        const found = (support ?? []).find(entry => entry.elementId === id)
+        if (!found || !found.items.length) {
+            findings.push(`the role ${role} (${id}) scores by its own event "${String(own.kind)}", and what writes it was not given, so it cannot be confirmed to stand on his ruling`)
+            continue
+        }
+        for (const item of found.items) {
+            if (item.basis === 'OWNER_RULING') continue
+            findings.push(
+                `the role ${role} (${id}) scores by its own event "${String(own.kind)}" on ${item.contractId}::${item.itemId}, whose basis is ${item.basis}: the Representative Performance Context ${contextId} approves ${approvedEvents.join(', ') || 'nothing'}, so a role's own way to score stands only on his explicit ruling (OWNER_RULING)`,
+            )
+        }
+        if (approvedEvents.includes(String(own.kind))) continue
+        const authorized = found.items.some(item => {
+            const relationship = relationships.find(entry => entry.id === item.authorizedBy)
+            return (
+                !!relationship &&
+                relationship.status === RELATIONSHIP_CONFIRMED &&
+                relationship.contextId === contextId &&
+                relationship.scoringEvent === String(own.kind) &&
+                relationship.role === role &&
+                // Re-review fix: the relationship authorizes the event row, and the citing item's contribution realizes this context.
+                typeof eventRow === 'string' &&
+                Array.isArray(relationship.rows) &&
+                relationship.rows.includes(eventRow) &&
+                item.realizes === contextId
+            )
+        })
+        if (!authorized) {
+            findings.push(
+                `the role ${role} (${id}) scores by its own event "${String(own.kind)}", which the Representative Performance Context ${contextId} does not approve (it approves: ${approvedEvents.join(', ') || 'nothing'}), and no item writing it cites a confirmed scoring relationship of ${contextId} authorizing "${String(own.kind)}" for ${role} on its row (${eventRow ?? 'no event row registered'}) from a contribution realizing ${contextId}`,
+            )
+        }
+    }
+    return findings
+}
+
 export function alsoCountsFindings(contextId: string, game: any, approvedEvents: string[], support: AlsoCountsSupport[] | undefined): string[] {
     const elements: any[] = Array.isArray(game?.value?.primaryEvent?.alsoCounts) ? game.value.primaryEvent.alsoCounts : []
     const findings: string[] = []
@@ -114,11 +207,17 @@ export function contextScoringFindings(
     episodeCheck?: CheckResult,
     /** Stage M2: the items that establish and fill each occurrence the game counts as its primary event (`AlsoCountsSupport`). */
     alsoCountsSupport?: AlsoCountsSupport[],
+    /** Stage A: the items that write each role's own scoring event (`RoleEventSupport`), and the register the game is read by. */
+    roleEventSupport?: RoleEventSupport[],
+    index?: RegisterIndex,
+    /** Stage A review fix: the context relationships a role's own event outside the approved events may rest on (`roleEventFindings`). */
+    relationships?: ScoringAuthority[],
 ): string[] {
     if (!contract) return [`the contract of the Representative Performance Context ${contextId} did not reach the build, so its scoring cannot be checked`]
-    const findings: string[] = [...alsoCountsFindings(contextId, game, approvedEvents, alsoCountsSupport)]
+    const findings: string[] = [...roleEventFindings(contextId, game, approvedEvents, roleEventSupport, index, relationships), ...alsoCountsFindings(contextId, game, approvedEvents, alsoCountsSupport)]
     const event = game?.value?.primaryEvent
-    const kind = event?.kind
+    // Stage A: the game's primary event read through the one kind reader (a role's own event is the per-role clause's, above).
+    const kind = eventKindOf(game, null, index).kind
     if (!approvedEvents.includes(String(kind))) {
         findings.push(
             `the realized primary event is ${kind === undefined ? 'absent' : `"${kind}"`}, which the Representative Performance Context ${contextId} does not approve (it approves: ${approvedEvents.join(', ') || 'nothing'})`,

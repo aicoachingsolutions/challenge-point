@@ -21,6 +21,42 @@ export interface ActivitySession {
     widthM: number
     durationMin: number
     roles: Record<string, number>
+    /**
+     * The objects the session states it has, by kind: how many and how wide (metres). Present only where the session states one (stage E,
+     * 23 October 2026); a kind absent from it is NOT STATED, never none.
+     */
+    objects?: Record<string, StatedObjects>
+}
+
+/** What a session states of one kind of object (stage E): how many, and how wide they are in metres, where it says. */
+export interface StatedObjects {
+    count: number
+    widthM?: number
+}
+
+/**
+ * What a refusal asks the coach, where the build stopped to ask (stage E, 23 October 2026): today, the session's objects of a kind the
+ * activity needs and the session has not stated - whether it has any and how wide (`AVAILABILITY`), or only how wide (`WIDTH`). `words` is
+ * the server's DRAFT question, the refusal's summary.
+ */
+export interface ReviewSessionQuestion {
+    kind: 'OBJECT_AVAILABILITY' | string
+    objectKind: string
+    asks: 'AVAILABILITY' | 'WIDTH' | string
+    words: string
+    status: string
+}
+
+/** One alternative realization as the build used it (stage E): technical account only. */
+export interface ReviewRealizationSelection {
+    realization: string
+    words: string | null
+    citedAs: string | null
+    outcome: string
+    cause: string | null
+    stage: string | null
+    summary: string | null
+    gaps: string[]
 }
 
 export type ActivityKind = 'learning-goal' | 'mechanism-demonstration'
@@ -234,6 +270,11 @@ export interface ActivityAccount {
      * activity.
      */
     allocation?: ReviewAllocation
+    /**
+     * Every realization the goal's record names, in its order, with whether it was used and why (stage E, 23 October 2026) — technical
+     * account only. Optional: absent for every activity whose record names no realization.
+     */
+    realizationSelection?: ReviewRealizationSelection[]
     selectedWithoutContract: string[]
     /**
      * True where the goal's Game Problem is unresolved: the activity is provisional and not a completed
@@ -530,8 +571,12 @@ export interface ReviewRoleBlockCheck {
 export interface ReviewRoleBlocks {
     exchange: string
     roles: { role: string; coachNoun: string; nounStatus: string }[]
-    /** `concreteChecks` (stage K4): each block's Gate A rerun on its concrete game, check by check. Optional for older accounts. */
-    blocks: { blockId: string; holders: Record<string, string>; integrity: ActivityIntegrity; concreteChecks?: { checkId: string; verdict: string }[] }[]
+    /**
+     * `concreteChecks` (stage K4): each block's Gate A rerun on its concrete game, check by check. Optional for older accounts.
+     * `ends` (integration review, 23 October 2026): for each end, the end whose first-block team stands there in this block; sent only where
+     * the teams change ends at the coach-called block (row B10).
+     */
+    blocks: { blockId: string; holders: Record<string, string>; ends?: Record<string, string>; integrity: ActivityIntegrity; concreteChecks?: { checkId: string; verdict: string }[] }[]
     checks: ReviewRoleBlockCheck[]
     firstBlock: string
     /** Why the coach picks the first block: OUR inference from his D2, labelled so (K3 review, 15 October 2026). */
@@ -544,9 +589,10 @@ export interface ReviewAllocation {
     relationships: {
         id: string
         contextId: string
-        manipulationId: string
-        manipulationName: string
-        manipulationStatus: string
+        /** Null for a relationship that is no manipulation (a context scoring relationship, stage A; none recorded on 22 October 2026). */
+        manipulationId: string | null
+        manipulationName: string | null
+        manipulationStatus: string | null
         rows: string[]
         status: string
         confirmedOn: string | null
@@ -554,7 +600,8 @@ export interface ReviewAllocation {
         words: string[]
         identified: string
     }[]
-    alternatives: { contractId: string; itemId: string; row: string; value: unknown; defersTo: string; deferredTo: { contractId: string; itemId: string }[]; relationship: string }[]
+    /** `defersWith`: the item this one yields together with, where it yields only with it (its deferral fields are then that item's). */
+    alternatives: { contractId: string; itemId: string; row: string; value: unknown; defersTo: string; deferredTo: { contractId: string; itemId: string }[]; relationship: string; defersWith?: string }[]
     adjustments: { id: string; words: string; consequence: string | null; citedAs: string; parameter: string; role: string; relationship: string }[]
     testingBoundaries: { players: number[]; words: string; citedAs: string; note: string | null } | null
 }
@@ -570,6 +617,8 @@ export interface RefusedActivity {
     reasons: string[]
     /** Whatever was established before the refusal. */
     account: Partial<ActivityAccount>
+    /** What the coach is asked, where the build stopped to ask (stage E). Absent on every other refusal. */
+    question?: ReviewSessionQuestion
     /**
      * Only for an administrator, only on a refusal at communication (15 October 2026, stage K7): the rendering the server made before
      * refusing — every sentence it could say, marked APPROVED or DRAFT — the fields it withheld, and its fidelity verdict. Never
@@ -629,7 +678,7 @@ export interface ReviewEvidence {
         facts: { blockId: string; facts: ReviewFact[] }[]
     }[]
     structure: {
-        blocks: { blockId: string; holders: Record<string, string>; sections: Record<string, { checks: ReviewCheckRow[]; facts: ReviewFact[] }>; owed: { checkId: string; clause: string; verdict: string }[] }[]
+        blocks: { blockId: string; holders: Record<string, string>; ends?: Record<string, string>; sections: Record<string, { checks: ReviewCheckRow[]; facts: ReviewFact[] }>; owed: { checkId: string; clause: string; verdict: string }[] }[]
         crossBlock: { checkId: string; what: string; verdict: string; problems: string[] }[]
         composition: string[]
         summary: { gateChecks: Record<string, number>; crossBlock: Record<string, number>; owed: Record<string, number>; everyCheckPasses: boolean; vacuousClauses: string[] }
@@ -734,4 +783,9 @@ export interface ActivityReviewRequest {
     durationMin: number
     /** The coach's statement of availability FOR THIS REVIEW. It overrides the stored value. */
     roles: Record<string, number>
+    /**
+     * The coach's statement of the session's objects FOR THIS REVIEW, by kind (stage E): sent only once a build asked for it, laid over the
+     * stored statement kind by kind, and changing nothing stored.
+     */
+    objects?: Record<string, StatedObjects>
 }

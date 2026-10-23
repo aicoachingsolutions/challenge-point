@@ -8688,3 +8688,166 @@ variation deferred; required-participant validation now; confirm the possession 
   section 4. Decision note with nine numbered decisions sent via Joe (`scratchpad/send-oct25/`).
 
 NEXT: `scratchpad/d25/wf-build-1.js` (live fix + Stage A), then B, C, D on TEST-ONLY copies; F2/G after his answers.
+
+## 22-23 OCTOBER — LIVE FIX AND STAGE A (ROLE-SPECIFIC SCORING) BUILT, REVIEWED AND FIXED; NOTHING NEW SERVED
+
+Branch `claude/serene-dewdney-c78e18` (not pushed or merged). Governing: his reply filed 25 October (items 2 and 8) and the
+decision note sent to him (decisions 1 and 9(a)); design `scratchpad/d25/design-final.md` sections 3 (Stage A) and 4.
+
+- `b8ba95e` Live (decision 9(a)): a selection whose constraints carry its authorization record's authority is built on the live
+  route through the review page's checked pathway (no library constraint inserted, no model, no fallback to generation);
+  Start Activity stores the server's own build only where every input digest matches. Every other selection unchanged.
+- `31373be` Stage A (item 2, decision 1): register v16 (row B9 `activityRoles[].scoresBy`, the `roleScoring` block, target-type
+  map OUR_INTERPRETATION, role-yield marker); GA-ROLE-EVENTS (Gate A #21, 13 clauses, before and after realization); one kind
+  reader `eventKindOf`; How to score per role with the zone and line wordings only (a kind with neither, e.g. goal, withheld
+  and refused by fidelity); guard clause, RB-1 roles row, relationship feed of every kind, deferral tightened.
+- Review fixes (the commit after `31373be`): the event a scoring relationship confirms is now the one a role may score by,
+  for the one role it is confirmed for (`scoringEvent` and a new required `role` on context scoring relationships, carried
+  by `applyRoleYields`, compared per team in clause 6; both checked against the register's vocabularies at load); the
+  role-yield marker reaches an item only through a ruled item restatement (added items refused, an authored marker named
+  and not honoured, provisional realizations and the Sport Profile refuse it at load); clause 12 refuses an event written
+  for a role the game does not hold (it was served, ignored) or for a set of roles; an unsettled objective in a game
+  without roles is owed; a single required event is a permitted set of one and a typed event-row exclusion reaches a
+  role's own event; the guard refuses an event the context does not approve unless a confirmed scoring relationship of
+  the context for that role and event is cited; an adjustment resolves to a manipulation relationship only; the two
+  provenance-note keys moved from corpus-restatement.ts to the ledger (`provenanceNoteKeys`), so no sport noun is spelled
+  in the engine. Production A01 (zone version) and every other subject unchanged apart from Stage A's recorded delta.
+- Re-review fixes (the commit after the review fixes): the ledger's provenance-note keys may name no item field the engine
+  reads (`ENGINE_ITEM_KEYS`, types.ts, kept complete by the compiler and measured against the knowledge files in the
+  unit test), not only none a ruling may write: `itemId`, `authorizedBy` and `category` each loaded as a "note" before;
+  clause 12's sweep skips event-row EXCLUSIONs (one written for every role was refused at structure as an event "by a
+  selector that names no one role alone"); the guard's relationship branch also requires the relationship to authorize
+  the event row and the citing item's contribution to realize the context, as `applyRoleYields` does, and the full build
+  pins both projections (`authorizedBy`, `realizes`); the activity edit route writes no stored-build field by a dotted
+  path or an update operator (`editableUpdateOf`); an unexpected checked-pathway failure is recorded as `checked-pathway`,
+  not `ai-assembly`. Nothing served or recorded changes (snapshot byte-identical).
+- Measured in the re-review and explained: one extra B9 item written with strictness `ASSUMED` stopped role blocks because
+  `ASSUMED` is a basis, not a registered strictness, so the load refuses the WHOLE provisional realization (its B1 roles
+  with it); written with basis `ASSUMED` and strictness REQUIRED or SUPPORTING on the same in-process TEST-ONLY copy it is
+  served unchanged (SD-27: never entails; the realizations file's own gate would refuse a non-OWNER_RULING item). The
+  refusal's reasons then name the missing role blocks, not the load refusal (fail-closed; noted, not changed).
+- FOR STAGE F, beside OUR READING "a single REQUIRED value on the event row is a permitted set of one": with the
+  provisional loader refusing the marker and an item never yielding to a citation from its own contract, a provisional
+  realization that fixes V1's kind by one REQUIRED value can never host a role's own event (recorded in gates.ts).
+- OPEN, his: restatement S1 (the four markers) and the K3 scoring relationship (Stage F); the consumer game's two gaps
+  (the primary event carried by no sentence when the building team is told only in W1's words; nouns differing between
+  blocks have no Set up sentence); the target-type map, C6's reading of object-target sets and the relationship's role
+  scope are OUR READING.
+
+NEXT: Stages B, C, D on TEST-ONLY copies; F/G after his answers.
+
+## 23 OCTOBER — STAGE B (OBJECT TARGETS AND GOAL GEOMETRY, ENGINE ONLY) BUILT; NOTHING NEW SERVED
+
+Governing: his reply filed 25 October, item 3 (the goal, "positioned at the building team's end", no invented dimensions) and
+item 2; design `scratchpad/d25/design-final.md` section 3, Stage B. Every goal value is TEST-ONLY (his decisions D1-D5 pending).
+
+- Register v17: row O6 `objects[].facing` (closed list INTO_THE_AREA, bound to EMD-0007/EMD-0009 via EMP-0029/EMP-0031 Facing
+  Reference "Playing direction"; WITHDRAWN for a ball as O4/O5, unspoken on GF4's object); RC-21 `central` machine-readable
+  (kind `centred`: extent from a REQUIRED extent or the session-stated width, refused without one); the `objectGeometry` block
+  (O1/O2/O4/O5/O6 and `extentDimensions` goal 1, OUR_INTERPRETATION, used only for a goal on the line, D2(a)).
+- team-ends reads an object target's end from its typed along position (one level of recursion; a cycle refuses);
+  `objectivesOf` returns a typed `target` {region | object}, consumed by the diagram's target building and D7; T15: an
+  end-line anchor naming a team in prose is refused where the element's own selector fixes no end (never a fixed anchor);
+  `degenerateIsLegitimate` reads an object's kind row; `envelope.statedObjectWidthsM` is the realization input for the
+  width (stage E feeds it); `defersWith` pairs an item with a same-contract deferral (deferral and restatement loader);
+  the provisional loader refuses an object extent in metres, a depth, `defersTo` and `defersWith`.
+- TEST-ONLY end-keyed goal version (`realization/object-targets.unit.ts`): block 1 passes every gate and stops at fidelity
+  Q3 / awaiting wording; under KEPT block 2 is refused at structure by GA-ROLE-EVENTS clause 4 (the pressing role holds a
+  region with a goal event), earlier than the d25 probe's GA-DIRECTION STILL_NOT_EVALUABLE (measured before stage A).
+- Snapshot vs snap-A2: only A01's registerVersion 16 -> 17 and input digests (and the save refusals quoting them).
+
+NEXT: Stage C (objects across blocks, layout), Stage D (end exchange); F/G after his answers.
+
+## 23 OCTOBER — STAGE C (OBJECTS ACROSS BLOCKS, LAYOUT, EXCHANGE SENTENCE) BUILT; NOTHING NEW SERVED
+
+Governing: his reply filed 25 October, item 3 ("The goal should be positioned at the building team's end.") and item 5 ("The
+coach should not have to move the goal or reconstruct the playing area to exchange roles."); his 23 October item 2 (mark once);
+design `scratchpad/d25/design-final.md` section 3, Stage C; findings T19, T34. No register change; every goal value TEST-ONLY.
+
+- RB-1 compares the objects (O1); RB-3 requires each scoring objective's reference to name a region OR an object of the
+  block's game (its description says "two targets (a region or an object)" only where a target is an object).
+- `physical-layout.ts`: objects a block positions are read; one at one place in every block is set out once
+  (`layout.objects`, present only then), one that moves stops the layout and is listed (`remarking.objects`). A line held
+  off half the length is admitted where it is measured from the same end line in every block (its realized anchor), and
+  the move-the-line adjustment then moves nothing at the exchange (`movedBy` leaves it out) - T34. The account of what
+  moves is now given EMPTY where the blocks were read and nothing moves (it was null).
+- Renderer: such a line's own sentence cites its layout mark; with an empty account the exchange names nothing moved and no
+  longer says the markings are "set out again" (said now only where what moves could not be read).
+- Fidelity Q5-L: a layout object must be cited by a Set up sentence and be where the layout records it; a moving object must
+  be named by an exchange part citing its move and position; "set out again" refused where nothing moves.
+- TEST-ONLY (`rendering/objects-across-blocks.unit.ts`): an unreferenced goal moving between the blocks (T19) is listed and
+  refused at Q5-L (before: every check passed and "nothing is re-marked"); a goal fixed at one end is set out once.
+- Snapshot vs snap-B: 0 changes; A01 11/1 on the built bundle identical to stage B.
+
+NEXT: Stage D (end exchange: Q6's ends statement and counterpartMap's axis mirror under EXCHANGED); F/G after his answers.
+
+### 23 October — Stage C review fix
+
+- MUST-FIX: an object set out once is told ONCE, from the layout. Fidelity Q5-L now holds an object's position (or any
+  path under it) to exactly one non-preference Set up sentence, and that sentence must cite the object's
+  `layout.objects[...]` entry. Before this, a layout sentence plus a second per-block sentence for the same object passed
+  (review probe rvC/probe-fixed-twice; now refused "denoted by 2"). Mirrors the region rule.
+- RB-3 refuses an object a role-keyed selector created (a third target), as for a region. Defensive only: O1 has no such
+  selector attribute. The description names objects only where a target is an object, so production's text is unchanged.
+- Fidelity Q5-L, defensive: in a role block, an object realized on either axis while the fixture carries neither the
+  layout nor an account of what moves is refused ("whether it moves at the exchange is not said"). This is reachable in
+  the TEST-ONLY goal version under KEPT: block 2 is refused before realization, so block 1 gets no cross-block reading.
+  The object-targets.unit.ts pins were re-pointed to accept this communication-stage reason.
+- Noun and kind words at the exchange are matched as whole words (`saysWord`), not substrings. For example, the kind is
+  no longer found inside a longer word.
+- With an empty account (nothing moves, and positions are written for a role), the exchange sentence now says what those
+  markings mean, in the layout sentence's DRAFT words: ": each team now attacks the target {noun} of its new role". It
+  does NOT add "nothing is re-marked", because no movedBy is recorded there to qualify it (H2). It is said only where the
+  targets' noun is read.
+- 21 mutations killed (M1-M15 and M16-M21). Snapshot vs snap-B: 0 changes. A01 11/1 on the built bundle is identical to
+  stage B.
+- Left open: RB-1's description still omits objects and roles (admin text, so snapshot leaves stay stable); update it at
+  the next recorded delta.
+
+### 23 October — Stage D: the coach-controlled end exchange (his reply filed 25 October, item 5)
+
+- Register version 18: game-level row B10 `blocks.endAssignment` (closed list KEPT / EXCHANGED, versioned; never a field of
+  the role collection) and the `endAssignment` block (row, kept, exchanged, the two ends TEAM_AT_AXIS_START / END), apart
+  from roleBlocks and reassignment, validated at load (H1). ABSENT MEANS KEPT: no item writes B10, so every game gains one
+  unauthored game-level line (game::B10, like P6c) and keeps its ends. C42 / B1 / B3 / TEAM_AT_AXIS_* glosses untouched
+  until his restatement S3.
+- Semantics under EXCHANGED: both blocks keep block 1's role-to-end holders; the second block's `RoleBlock.ends` swaps which
+  block-1 team stands at each end, and realize.ts applies it to the supplied binding (because cites B10; entailed, checked:
+  a block and a game that disagree, a malformed block, or an exchange with no binding are refused). NOT exchangeOf plus a
+  swap. blockId gains `|START<..,END<..` only under EXCHANGED: every KEPT id, fixture and key is unchanged.
+- EXCHANGED without role blocks is refused at structure (roleBlocksOf; build-activity asks a selection with a B10 item).
+- Cross-block (rendering/role-blocks.ts), unchanged under KEPT: RB-2 holders identical + binding exchanged; RB-5 the entailed
+  second block (secondBlockOf) + role to TEAM (never the same team for a role in both blocks); RB-8 same place, not mirror;
+  counterpartMap mirrors nothing (blocks disagreeing on ends pair nothing); RB-M and expectedChange read each block's own
+  binding. Q6 under EXCHANGED requires a Role exchange sentence citing exchange + objectives + B10 AND saying the ends
+  change; ENDS_KEPT words refused there; ENDS_CHANGE refused only under KEPT.
+- Renderer (DRAFT, only where the game states EXCHANGED): "When you call the next block the teams change ends and exchange
+  roles: each role is played from the same end in every block" + the existing continuations joined by "so"; "the ends stay
+  the same for the whole game" is not said.
+- TEST-ONLY proofs (`rendering/end-exchange.unit.ts`, 12): equal counts move nobody (possession game with roles, served);
+  A01-R1 + a TEST-ONLY B10 served at 12/1 and 11/1 with GK (+1) moving to the team at the building end (the old reading
+  refused "the BUILDING role stays with one team"); an unrecorded change refused. object-targets.unit.ts: the TEST-ONLY
+  goal version under EXCHANGED passes every gate in both blocks and every cross-block check, stopping only at communication
+  (Stage G words; the goal is set out once). 27 mutations killed.
+- Snapshot vs snap-C: only A01 registerVersion 17 -> 18, input digests and the two save refusals quoting them. A01 11/1 on
+  the built bundle: the same delta.
+- Open for Stage G: the layout exchange sentence says "target line" where a target is an object (targetNoun fallback); the
+  goalkeeper-changes-team-without-moving sentence; the served account and the review page show the same holders for both
+  blocks under EXCHANGED (the block's `ends` is in each fixture's record only).
+
+NEXT: Stage E (resource-aware selection) plumbing; F/G after his answers.
+
+### 25-26 October — integration review and Stage E
+- `cf98c06` integration fix: "line" only for line targets (an object target's reference is withheld, never called a line;
+  new fidelity Q2 clause); the played object is the one no objective references (carrier fix); Q6 refuses denied end
+  changes under EXCHANGED; `RoleBlock.ends` reaches the fixture, account and evidence. Generality review PASS.
+- `588888b` + `4cb9572` Stage E: register v19 `sessionResources` (goal by kind, count + width, no default, never inferred
+  from goalkeepers); availability rule with typed causes (NOT_STATED asks; SHORT / NOT_SUITABLE fall back; none suitable
+  until his decision 4); variant realizations (`basedOn` + `withdraws` + additions, integrity gate); a record's ordered
+  `realizations` list; the build tries alternatives in order, falling back only on typed applicability refusals; the review
+  page's answer reaches the build. A01 still names only A01-R1. Suite FILES 119 FAILED 0.
+- A TEST-ONLY goal version (goal at the building end, pressing scores a goal, ends EXCHANGED, GK + 1 transfer) passes
+  every structural, realization and cross-block check at 12/1, 11/1, 12/2 and stops only at communication (wording and
+  knowledge awaiting his nine answers).
+
+NEXT: his answers → Stage F2 (restatements, values, A01-R2 basedOn A01-R1) and Stage G (goal wording, overview, diagram).

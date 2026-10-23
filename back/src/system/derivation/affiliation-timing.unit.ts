@@ -73,8 +73,12 @@ test('the register holds P6c as a closed, versioned vocabulary, and not as a tri
     // sentence keeps the whole chain. And again (stage K6): version 13 (relative positions and start placements, his M7/M5)
     // supersedes 12, the chain kept whole. And again 17 October 2026 (stage M1): version 14 (his reply filed 19 October 2026)
     // supersedes 13, the chain kept whole. And again 22 October 2026: version 15 (which participant a value names, his reply filed
-    // 25 October 2026, item 6) supersedes 14, the chain kept whole.
-    assert.match(String(register.version), /^15, adds .*Supersedes version 14, .*Supersedes version 13, .*Supersedes version 12,.*Supersedes version 11,.*Supersedes version 10, .*Supersedes version 9, .*Supersedes version 8, .*Supersedes version 7, which added P6c/)
+    // 25 October 2026, item 6) supersedes 14, the chain kept whole. And again 22 October 2026 (stage A): version 16 (one primary scoring
+    // event per role, his reply filed 25 October 2026, item 2) supersedes 15, the chain kept whole. And again 23 October 2026 (stage B):
+    // version 17 (object targets and the geometry a goal needs, his reply filed 25 October 2026, item 3) supersedes 16, the chain kept whole.
+    // And again 23 October 2026 (stage D): version 18 (the coach-controlled end exchange, his item 5) supersedes 17, the chain kept whole.
+    // And again 23 October 2026 (stage E): version 19 (an object's availability as a session resource, his item 4) supersedes 18, the chain kept whole.
+    assert.match(String(register.version), /^19, adds .*Supersedes version 18, .*Supersedes version 17,.*Supersedes version 16,.*Supersedes version 15, .*Supersedes version 14,.*Supersedes version 13, .*Supersedes version 12,.*Supersedes version 11,.*Supersedes version 10, .*Supersedes version 9, .*Supersedes version 8, .*Supersedes version 7, which added P6c/)
     // The H2 guard, measured: a vocabulary with no version halts every derivation. Every array carries one.
     const index = indexRegister(register)
     for (const name of index.vocabularies.keys()) assert.ok(index.vocabularyVersions[name], `${name} carries a version`)

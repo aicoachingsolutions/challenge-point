@@ -89,6 +89,15 @@ export interface ISession {
      * a particular activity involves the role is decided by the game's own knowledge, on the server.
      */
     specializedRoles?: Record<string, number>
+    /**
+     * The session's OBJECTS, by kind: how many and how wide in metres (e.g. `{ goal: { count: 1, widthM: 5 } }`). Added 23 October 2026
+     * (stage E).
+     *
+     * ABSENT MEANS NOT STATED, never none, exactly as for goalkeepers: a goal is never assumed because a goalkeeper is available, and an
+     * empty answer is never stored as zero. Availability is not involvement: an activity uses a goal only where its own knowledge says so,
+     * and the activity review asks for this only when the activity it would build needs one.
+     */
+    objects?: Record<string, { count: number; widthM?: number }>
     fieldType?: string
     coachComments?: string
     createdAt: Date

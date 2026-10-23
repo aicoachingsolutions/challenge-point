@@ -267,19 +267,39 @@ test('registering the member changed no verdict in any of the thirteen goals', (
      * two targets' S4 lines are - an established absence, which GA-NO-FAILED-LINE does not block on. The old composition is
      * unchanged.
      */
-    const A01_COMPOSITION = { failed: 11, gateA: 'FAIL', reachable: true }
+    /**
+     * **14 · 22 October, stage A — A01 11 → 13 failed lines, measured; no verdict moves.** Register version 16 (his reply filed 25
+     * October 2026, item 2: one primary scoring event per role) adds row B9, a role's own scoring event, owned by the roles row; A01-R1
+     * establishes two role elements and no item writes either one's event, so each gains one unauthored line nobody spoke for
+     * (c:provisional:A01-R1:A01-R1-B1-1::B9 and A01-R1-B1-2::B9, 'no coverage'), which GA-NO-FAILED-LINE does not block on and
+     * GA-ROLE-EVENTS reads as "scores by the primary event". The old composition holds no role and is unchanged.
+     */
+    /**
+     * **15 · 23 October, stage B — TA01 15 → 16, TD01, D02 and TD02 14 → 15 failed lines, measured; no verdict moves.** Register version
+     * 17 (his reply filed 25 October 2026, item 3) adds row O6, the way a set-out object faces, owned by the objects row and WITHDRAWN for a
+     * ball exactly as O4 and O5 are. The transition game's own object (c:blind:GF4:I02, the one object of a kind other than ball in these
+     * four compositions) gains one unauthored line nobody spoke for (c:blind:GF4:I02::O6, 'no coverage'), which GA-NO-FAILED-LINE does not
+     * block on. Every ball's O6 line is withdrawn and counts nowhere; every other composition is unchanged.
+     */
+    /**
+     * **16 · 23 October, stage D — every composition +1 failed line, measured; no verdict moves.** Register version 18 (his reply filed 25
+     * October 2026, item 5) adds the game-level row B10, whether the teams change ends at a coach-called block. One game-level row is one line
+     * in every game (game::B10), as P6c's was on 14 October; no item writes it, so it is unauthored and nobody spoke for it ('no coverage'),
+     * GA-NO-FAILED-LINE does not block on it, and every game keeps its ends (absent means KEPT).
+     */
+    const A01_COMPOSITION = { failed: 12, gateA: 'FAIL', reachable: true }
     const expected: Record<string, { failed: number; gateA: string; reachable: boolean }> = {
-        A01: { failed: 11, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
-        D01: { failed: 8, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
-        TA01: { failed: 15, gateA: 'FAIL', reachable: false },
-        TD01: { failed: 14, gateA: 'FAIL', reachable: false },
-        D02: { failed: 14, gateA: 'FAIL', reachable: false },
-        TA02: { failed: 9, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
-        TD02: { failed: 14, gateA: 'FAIL', reachable: false },
-        A03: { failed: 8, gateA: 'FAIL', reachable: true },
-        A04: { failed: 8, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
-        A05: { failed: 9, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
-        A06: { failed: 8, gateA: 'FAIL', reachable: true },
+        A01: { failed: 14, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
+        D01: { failed: 9, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
+        TA01: { failed: 17, gateA: 'FAIL', reachable: false },
+        TD01: { failed: 16, gateA: 'FAIL', reachable: false },
+        D02: { failed: 16, gateA: 'FAIL', reachable: false },
+        TA02: { failed: 10, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
+        TD02: { failed: 16, gateA: 'FAIL', reachable: false },
+        A03: { failed: 9, gateA: 'FAIL', reachable: true },
+        A04: { failed: 9, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
+        A05: { failed: 10, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
+        A06: { failed: 9, gateA: 'FAIL', reachable: true },
     }
     const gaps: string[] = []
     for (const goal of [...goals, 'A01 composition until 15 October']) {
@@ -306,6 +326,7 @@ test('registering the member changed no verdict in any of the thirteen goals', (
         // The two halves of the exchange, by name, because the count conceals it.
         assert.ok(!failedLines.includes('game::PS1'), `${goal}: the possession relation is bounded now, so it must not be a failed line`)
         assert.ok(failedLines.includes('game::P6c'), `${goal}: the neutral timing is spoken of by no contract this goal selects (row added 14 October 2026)`)
+        assert.ok(failedLines.includes('game::B10'), `${goal}: the end assignment is spoken of by no contract this goal selects, so the game keeps its ends (row added 23 October 2026, stage D)`)
         assert.ok(
             failedLines.includes('c:sport-profile:soccer:SPORT-SOCCER-01::O3'),
             `${goal}: the ball's count is deliberately unconstrained, so it stays a declared non-requirement and keeps the total steady`,

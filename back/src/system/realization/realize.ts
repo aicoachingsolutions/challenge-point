@@ -31,9 +31,10 @@ import { practical, practicalRequirement } from '../derivation/practical'
 import { scaleExactly } from '../derivation/rational'
 import { RegisterIndex } from '../derivation/register'
 import { DesignationBinding, designationKey, resolutionOf } from '../derivation/designation'
-import { Bounds, relativePositionOf, RoleBlock } from '../derivation/types'
+import { objectPositionRefusal } from '../derivation/object-extent'
+import { Bounds, relativePositionOf, RoleBlock, StatedObjects } from '../derivation/types'
 import { realizeSpatialRelation, RealizedGeometry } from './spatial'
-import { attackingEndIn } from './team-ends'
+import { attackingEndIn, attackingEndOf } from './team-ends'
 
 /** A value the realizer chooses for one open line. */
 export interface Choice {
@@ -674,7 +675,12 @@ export function realize(
     choices: Choice[],
     instantiations: Instantiation[] = [],
     index?: RegisterIndex,
-    envelope?: { lengthM?: number; widthM?: number },
+    /**
+     * The session's area, and (stage B, 23 October 2026, register version 17) the width it states for the objects of each kind it states one
+     * for: since stage E (register version 19) read from the session's statement of its objects (`objects`, kind to count and width), the one
+     * source of an object's width; absent means not stated, never none.
+     */
+    envelope?: { lengthM?: number; widthM?: number; objects?: Record<string, StatedObjects> },
     /**
      * **Justified defaults — a SEPARATE input, consulted only for a line that is open and was not chosen.**
      *
@@ -746,6 +752,17 @@ export function realize(
         const unearned = defaultedBy ? unearnedDefault(open, choice.value, defaultedBy) : null
         if (unearned) {
             because.push(unearned)
+            return
+        }
+        /**
+         * **No placeholder extent for an object, from a choice either** (stage B review fix, 23 October 2026). A realization choice is ours, as
+         * a provisional realization is, so on an object's along or across position it may write only what object-extent.ts admits (a position
+         * on a team's end line with no depth, or a centred term on its own axis); the provisional loader applies the same rule to its items.
+         * Measured in the review: an object's across position chosen in metres was carried into the game. No production choice is on such a row.
+         */
+        const placeholder = index ? objectPositionRefusal(String(open.lineId).split('::').pop() ?? '', choice.value, index.objectGeometry, ((index.relativeTerms ?? {}) as any).machineReadable?.terms ?? {}) : null
+        if (placeholder) {
+            because.push(`${choice.lineId}: the ${defaultedBy ? 'default' : 'choice'} ${placeholder}`)
             return
         }
         recorded.push({
@@ -1191,10 +1208,66 @@ export function realize(
         appliedBindings.push(...bindings.map(binding => ({ ...binding })))
     }
 
+    /**
+     * **Where the teams change ends at the coach-called block, the second block's binding is the first's exchanged** — stage D, 23 October
+     * 2026 (register version 18, row B10), his reply filed 25 October 2026, item 5: *"Team-end assignments may change between
+     * coach-controlled blocks when the authorized activity configuration requires it."* and *"Please keep the following concepts separate in
+     * the general representation: Team identity. Assigned game role. Assigned field end."* The supplied binding is the first block's (which
+     * team takes which end at setup, SD-39); the block says which first-block end's team stands at each end in it (`RoleBlock.ends`), so
+     * here each end is bound to the team the supplied binding gives the end it names, with a reason citing the end assignment. Entailed,
+     * never chosen, and checked before it is applied:
+     *
+     *   - a block that sets the teams' ends is derived only for a game whose end assignment is the exchange, and a game whose end assignment
+     *     is the exchange only for a block that sets them (so the value in the game and the block it was derived for cannot disagree);
+     *   - the block stands one team at each of the register's two ends;
+     *   - where a team changes end in the block, a binding was supplied for it to change (team identity is the binding's, never an ordinal).
+     *
+     * The realization digest is still taken from the binding as supplied, above. A game whose end assignment addresses nothing, or keeps the
+     * ends, is realized exactly as before.
+     */
+    const endSpec = index?.endAssignment ?? null
+    const endValue = endSpec ? readAt(resolved.game, endSpec.path) : undefined
+    const endsExchanged = !!endSpec && endValue === endSpec.exchanged
+    if (endSpec && (roleBlock?.ends || endsExchanged)) {
+        const refusals: string[] = []
+        const ends = roleBlock?.ends ?? null
+        if (ends && !endsExchanged) refusals.push(`the role block ${roleBlock!.blockId} sets which team stands at each end, and this game's ${endSpec.path} is ${JSON.stringify(endValue ?? null)}, not ${endSpec.exchanged}`)
+        if (endsExchanged && !roleBlock) refusals.push(`this game's ${endSpec.path} is ${endSpec.exchanged}, and it is derived for no role block: the teams change ends only at a coach-called block`)
+        else if (endsExchanged && !ends) refusals.push(`this game's ${endSpec.path} is ${endSpec.exchanged}, and the role block ${roleBlock!.blockId} does not say which team stands at each end`)
+        const named = ends ? Object.keys(ends) : []
+        if (ends && (named.length !== endSpec.ends.length || endSpec.ends.some(end => !named.includes(end) || !endSpec.ends.includes(ends[end])) || new Set(Object.values(ends)).size !== named.length)) {
+            refusals.push(`the role block ${roleBlock!.blockId} does not stand one team at each of ${endSpec.ends.join(' and ')}`)
+        }
+        const changed = named.filter(end => ends![end] !== end)
+        if (!refusals.length && changed.length) {
+            if (!appliedBindings.length) refusals.push(`the teams change ends in the role block ${roleBlock!.blockId}, and no end-to-team binding was supplied for them to change: which team holds each end is the binding's`)
+            else {
+                const suppliedAt = new Map(appliedBindings.map(binding => [designationKey(index!, binding.designation), binding] as const))
+                const exchangedBindings = appliedBindings.map(binding => {
+                    const end = designationKey(index!, binding.designation)
+                    const from = ends![end] ? suppliedAt.get(ends![end]) : undefined
+                    if (!from) {
+                        refusals.push(`the role block ${roleBlock!.blockId} stands at ${end} the team bound to ${ends![end] ?? 'no end'}, and no binding names it`)
+                        return binding
+                    }
+                    return {
+                        designation: binding.designation,
+                        handle: from.handle,
+                        because: `${endSpec.path} is ${endSpec.exchanged} (register row ${endSpec.row}): at the coach-called block the teams change ends with the roles, so in the role block ${roleBlock!.blockId} ${end} is held by the team the supplied binding gives ${ends![end]} (${from.handle}); entailed from that binding, never chosen`,
+                    }
+                })
+                if (!refusals.length) appliedBindings.splice(0, appliedBindings.length, ...exchangedBindings)
+            }
+        }
+        if (refusals.length) return { outcome: 'REFUSED', because: refusals }
+    }
+
     // Instantiate every authored spatial relation the concrete game now holds, derived AND chosen
     // alike, against the envelope. The prose stays as the value; the metres sit beside it as
     // `realizedGeometry`, carrying the phrase as their own authority.
     const geometry: RealizationRecord['geometry'] = []
+    /** Placements a term itself refuses (`RealizedGeometry.refusal`, stage B, 23 October 2026): the game is refused naming each. */
+    const geometryRefusals: string[] = []
     if (index) {
         // A COUNT bound on the same line is an authored EXTENT, and an anchor composed with one is an
         // interval. The bound is read from wherever the resolved game carries it — a derived line's own
@@ -1268,6 +1341,11 @@ export function realize(
          * realizes is left unplaced (never defaulted), so the post-realization gates refuse it by name.
          */
         const teamAttackingEnd = (designation: string) => attackingEndIn(game, index, roleBlock, designation)
+        // Stage B review fix: why a team's end can NEVER be established here (a cycle, a second level of objects), so a position stated from it refuses.
+        const teamEndRefusal = (designation: string): string | null => {
+            const answer = attackingEndOf(game, index, roleBlock, designation)
+            return answer.end === null && answer.refuses ? answer.why : null
+        }
         const relativeOf = (lineId: string): Bounds | undefined =>
             ([...(resolved.open.find(o => o.lineId === lineId)?.bounds ?? []), ...(resolved.extentBounds?.[lineId] ?? [])] as Bounds[]).find(b => b && b.kind === 'RELATIVE' && !b.forbidden && b.of && b.forTeam)
         const placed = new Map<string, RealizedGeometry>()
@@ -1332,6 +1410,17 @@ export function realize(
             ) as { selector?: { attribute: string; value?: unknown }[] } | undefined
             const lateral = selectorTerms?.selector?.find(t => t.attribute === 'lateral')?.value
             const longitudinal = selectorTerms?.selector?.find(t => t.attribute === 'longitudinal')?.value
+            /**
+             * **The width the session states for objects of this element's kind** (stage B, 23 October 2026, register version 17): a
+             * realization input, read only for an element of the register's objects collection, by its kind as the game holds it, and only
+             * by a term whose extent the session may state. Absent means not stated, and such a term then refuses. Since stage E (register
+             * version 19) it is the width of the session's statement of its objects of that kind (`envelope.objects`), its one source.
+             */
+            const objectRows = index.objectGeometry
+            const objectsAt = objectRows ? collectionPath(String(index.rows.get(objectRows.row)?.path ?? '')) : null
+            const objectKind = objectRows && objectsAt && selectorTerms && splitElementPath(entry.path)?.container === objectsAt ? readAt(selectorTerms as Record<string, unknown>, objectRows.kindLeaf) : undefined
+            const stated = typeof objectKind === 'string' && envelope?.objects && Object.prototype.hasOwnProperty.call(envelope.objects, objectKind) ? envelope.objects[objectKind] : undefined
+            const statedExtent = stated && typeof stated.widthM === 'number' ? stated.widthM : undefined
 
             const realizedGeometry = realizeSpatialRelation(entry.value, index, {
                 envelope: envelope ?? {},
@@ -1342,10 +1431,13 @@ export function realize(
                 lateral: typeof lateral === 'string' ? lateral : undefined,
                 longitudinal: typeof longitudinal === 'string' ? longitudinal : undefined,
                 teamAttackingEnd,
+                teamEndRefusal,
                 referentInterval,
                 relativeBound: relativeOf(entry.lineId),
+                ...(statedExtent !== undefined ? { statedExtentM: statedExtent } : {}),
             })
             if (!realizedGeometry) continue
+            if (realizedGeometry.refusal) geometryRefusals.push(`${entry.lineId}: ${realizedGeometry.refusal}`)
             placed.set(entry.lineId, realizedGeometry)
             geometry.push({ lineId: entry.lineId, path: entry.path, geometry: realizedGeometry })
             const parts = splitElementPath(entry.path)
@@ -1354,7 +1446,39 @@ export function realize(
             const element = Array.isArray(bucket) ? (bucket as any[]).find(e => e?.elementId === parts.elementId) : null
             if (element && parts.leaf) place(element, `realizedGeometry.${parts.leaf}`, realizedGeometry)
         }
+
+        /**
+         * **An object whose kind gives it extent in one dimension is realized with extent on one axis only** (stage B review fix, 23 October
+         * 2026; the register's `objectGeometry.extentDimensions`, OUR_INTERPRETATION, whose note says *"extent on exactly one axis and none on
+         * the other"*). The zero-depth reading only PERMITTED a zero extent (gates.ts `degenerateIsLegitimate`) and never required one, so an
+         * object of such a kind placed with depth AND width passed every gate (measured in the review: 2 m deep, and 5 m by 5 m). Where both its
+         * axes are realized as intervals with extent, the game is refused naming it; an axis not yet placed is left to the gates, as before.
+         */
+        const dimensionRows = index.objectGeometry
+        const dimensionObjectsAt = dimensionRows ? collectionPath(String(index.rows.get(dimensionRows.row)?.path ?? '')) : null
+        if (dimensionRows && dimensionObjectsAt && dimensionRows.extentDimensions.size) {
+            const extentOn = new Map<string, { along?: { from: number; to: number }; across?: { from: number; to: number } }>()
+            for (const entry of geometry) {
+                const row = entry.lineId.split('::').pop()
+                const parts = splitElementPath(entry.path)
+                if (!parts || parts.container !== dimensionObjectsAt || !entry.geometry.interval || (row !== dimensionRows.alongRow && row !== dimensionRows.acrossRow)) continue
+                const held = extentOn.get(parts.elementId) ?? {}
+                held[row === dimensionRows.alongRow ? 'along' : 'across'] = entry.geometry.interval
+                extentOn.set(parts.elementId, held)
+            }
+            const objects = readAt(game, dimensionObjectsAt)
+            for (const [elementId, { along, across }] of extentOn) {
+                if (!along || !across || !(along.to > along.from) || !(across.to > across.from)) continue
+                const element = Array.isArray(objects) ? (objects as any[]).find(e => e?.elementId === elementId) : null
+                const kind = element ? readAt(element, dimensionRows.kindLeaf) : undefined
+                if (typeof kind !== 'string' || dimensionRows.extentDimensions.get(kind) !== 1) continue
+                geometryRefusals.push(
+                    `${elementId}: an object of kind ${kind} has extent in one dimension (the register's objectGeometry.extentDimensions, our interpretation), and it is realized with extent on both axes (along ${along.from}-${along.to} m, across ${across.from}-${across.to} m)`,
+                )
+            }
+        }
     }
+    if (geometryRefusals.length) return { outcome: 'REFUSED', because: geometryRefusals }
 
     return {
         outcome: 'REALIZED',
@@ -1373,7 +1497,8 @@ export function realize(
             jointConditionsNotEvaluated: jointNotEvaluable,
             ...(appliedSatisfactions.length ? { satisfiedByEstablished: appliedSatisfactions } : {}),
             ...(appliedBindings.length ? { designationBindings: appliedBindings } : {}),
-            ...(roleBlock ? { roleBlock: { blockId: roleBlock.blockId, holders: { ...roleBlock.holders } } } : {}),
+            // Stage D: with which team stands at each end where the ends are exchanged (RB-5 holds the record to the block derived for).
+            ...(roleBlock ? { roleBlock: { blockId: roleBlock.blockId, holders: { ...roleBlock.holders }, ...(roleBlock.ends ? { ends: { ...roleBlock.ends } } : {}) } } : {}),
         },
     }
 }

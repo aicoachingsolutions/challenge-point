@@ -102,7 +102,19 @@ test('register version 14 holds the rows as data, in one versions entry quoting 
     // Re-pointed 22 October 2026: version 15 (which participant a value names, his reply filed 25 October 2026, item 6) supersedes 14,
     // so version 14's entry is read where it now stands, after "Supersedes version 14, which ", whole and once.
     const full = String(register.version)
-    assert.ok(full.startsWith('15, adds which participant a value names'))
+    // Re-pointed 22 October 2026 (stage A): version 16 (one primary scoring event per role, his reply filed 25 October 2026, item 2)
+    // supersedes 15; version 14's entry is read where it stands, exactly as before.
+    // Re-pointed 23 October 2026 (stage B): version 17 (object targets and the geometry a goal needs, his reply filed 25 October 2026, item 3)
+    // supersedes 16; version 14's entry is read where it stands, exactly as before.
+    // Re-pointed 23 October 2026 (stage D): version 18 (the coach-controlled end exchange, his reply filed 25 October 2026, item 5)
+    // supersedes 17; version 14's entry is read where it stands, exactly as before.
+    // Re-pointed 23 October 2026 (stage E): version 19 (an object's availability as a session resource, his reply filed 25 October 2026,
+    // item 4) supersedes 18; version 14's entry is read where it stands, exactly as before.
+    assert.ok(full.startsWith("19, adds an object's availability as a session resource"))
+    assert.ok(full.includes('Supersedes version 18, which adds the coach-controlled end exchange'))
+    assert.ok(full.includes('Supersedes version 17, which adds object targets and the geometry a goal needs'))
+    assert.ok(full.includes('Supersedes version 16, which adds one primary scoring event per role'))
+    assert.ok(full.includes('Supersedes version 15, which adds which participant a value names'))
     assert.equal(full.split('Supersedes version 14, which ').length - 1, 1, 'version 14 superseded once')
     const version = `14, ${full.split('Supersedes version 14, which ')[1]}`
     assert.ok(version.startsWith("14, adds a role's scoring credit confined to an episode"))
@@ -117,7 +129,11 @@ test('register version 14 holds the rows as data, in one versions entry quoting 
     assert.ok(version.includes('Supersedes version 13, which adds positions stated relative to another element or to a team'), 'version 13 kept in the history')
     assert.equal(version.split('Supersedes version ').length - 1, 7, 'one new entry: versions 13 back to 7 are superseded, each once')
     assert.ok(!version.includes('Supersedes version 14'), 'no second bump for these rows')
-    assert.ok(!full.includes('Supersedes version 15'), 'version 15 is the current entry')
+    assert.equal(full.split('Supersedes version 15, ').length - 1, 1, 'version 15 superseded once, by version 16')
+    assert.equal(full.split('Supersedes version 16, ').length - 1, 1, 'version 16 superseded once, by version 17 (stage B)')
+    assert.equal(full.split('Supersedes version 17, ').length - 1, 1, 'version 17 superseded once, by version 18 (stage D)')
+    assert.equal(full.split('Supersedes version 18, ').length - 1, 1, 'version 18 superseded once, by version 19 (stage E)')
+    assert.ok(!full.includes('Supersedes version 19'), 'version 19 is the current entry')
     const row = (id: string) => index.rows.get(id)!
     assert.deepEqual([row('B8').path, row('B8').ownerRow, row('B8').kind], ['activityRoles[].creditedWithin', 'B1', 'FIELD'])
     assert.deepEqual([row('V27').path, row('V27').kind, row('V27').selectorAttributes, row('V27').earnsValueOf], ['value.primaryEvent.alsoCounts[]', 'COLLECTION', ['team'], 'V2'])
@@ -150,7 +166,11 @@ test('a damaged copy halts H1: a value of its own on V27, or earnsValueOf naming
     assert.equal(damaged(() => undefined), 'admitted')
     assert.match(damaged(r => r.rows.push({ id: 'TEST-ONLY-V', path: 'value.primaryEvent.alsoCounts[].value', ownerRow: 'V27', kind: 'FIELD', valueType: 'TEST-ONLY' })), /gives V27 a value of its own/)
     assert.match(damaged(r => (r.rows.find((x: any) => x.id === 'V27').earnsValueOf = 'V0')), /not a FIELD row/)
-    assert.match(damaged(r => (r.rows.find((x: any) => x.id === 'V28').earnsValueOf = 'V2')), /not a COLLECTION row/)
+    // Re-pointed 22 October 2026 (stage A, register version 16): a FIELD row owned by a collection may now earn a value (B9, a role's own
+    // scoring event), so a field of V27 earning V2 is refused by the compensating check instead - V27's elements already earn V2's value,
+    // and one occurrence would earn twice - still halt H1. A game-level field earning a value is refused as before.
+    assert.match(damaged(r => (r.rows.find((x: any) => x.id === 'V28').earnsValueOf = 'V2')), /whose elements already earn V2's value/)
+    assert.match(damaged(r => (r.rows.find((x: any) => x.id === 'V1').earnsValueOf = 'V2')), /neither a COLLECTION row nor a FIELD row owned by one/)
 })
 
 // ── 2. His choice, recorded on the role elements ────────────────────────────────────────────────────────

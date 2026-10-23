@@ -37,7 +37,16 @@
  *     carries (`fixture.layout`) are exactly the union of every block's realized edges, recomputed here from the blocks
  *     (`physical-layout.ts`), and are carried only where the markings occupy the same places in every block; where they do not, what
  *     moves at the exchange that a block carries (`fixture.remarking`) is exactly what the blocks' realized edges give, recomputed too
- *     (`checkRoleBlockLayout`, run once either is attached).
+ *     (`checkRoleBlockLayout`, run once either is attached). Since stage C (23 October 2026) both read the physical objects each block
+ *     positions as well, and the account of what moves is carried, empty, where nothing moves.
+ *
+ * **Stage D, 23 October 2026 (register version 18, row B10; his reply filed 25 October 2026, item 5: "Team-end assignments may change
+ * between coach-controlled blocks when the authorized activity configuration requires it.")**: where every block's game holds the end
+ * assignment's exchange (`endsExchangedIn`), RB-2 holds the role-to-end holders identical and the end-to-team binding exchanged, RB-5 the
+ * second block to the first with the ends exchanged and every role to a different team (role to team, never role to end), RB-8 a
+ * position written for a role to the same place in both blocks, never its mirror, RB-M each block to its own binding, the role pairing
+ * (`counterpartMap`) mirrors nothing, and Q6 requires a sentence saying the teams change ends and refuses one saying each keeps its end.
+ * Where the ends are kept, every check, description and finding is exactly what it was.
  *
  * Then the coach reads one activity: a sentence the two renders say alike is said once, a sentence they say alike by role
  * (stage 2C: the same words, each block citing its own role's target) is said once with each block's citations kept apart,
@@ -48,14 +57,14 @@
  * Sport-neutral: rows, roles and nouns are register data; every check reads the games and the register.
  */
 import { expectedChange, reassignmentsIn } from '../derivation/reassignment'
-import { exchangeOf } from '../derivation/role-blocks'
-import { roleHolderNames, roleOfHolder } from '../derivation/designation'
+import { secondBlockOf } from '../derivation/role-blocks'
+import { designationKey, roleHolderNames, roleOfHolder } from '../derivation/designation'
 import { RegisterIndex } from '../derivation/register'
 import { parseSelector } from '../derivation/selector'
 import { splitPath } from '../derivation/resolved-game'
 import { LoadedContract, RoleBlock } from '../derivation/types'
 import { FidelityFinding } from './fidelity'
-import { LayoutMover, layoutOf } from './physical-layout'
+import { LayoutMover, layoutOf, somethingMoves } from './physical-layout'
 import { Instruction, RenderedActivity, ROLE_EXCHANGE, roleKeyedPositions } from './render-concrete-game'
 import { inSectionOrder } from './sections'
 
@@ -126,6 +135,22 @@ function propertiesOf(fixture: any): Map<string, { value: unknown; support: any[
 const check = (checkId: RoleBlockCheck['checkId'], what: string, problems: string[]): RoleBlockCheck => ({ checkId, what, verdict: problems.length ? 'FAIL' : 'PASS', problems })
 
 /**
+ * **Whether these blocks are played with the ends exchanged** — stage D, 23 October 2026 (register version 18, row B10), his reply filed 25
+ * October 2026, item 5: *"Team-end assignments may change between coach-controlled blocks when the authorized activity configuration
+ * requires it."* Read from the games themselves: every block's game holds the end assignment's exchange value at the register's path. A
+ * game no item writes the row for holds nothing there and keeps its ends, so every pair built before stage D is checked exactly as before.
+ * Where the blocks disagree it is not the exchange, and RB-4 refuses the difference (nothing written for a role holder supports it).
+ */
+export function endsExchangedIn(games: any[], index: RegisterIndex): boolean {
+    const spec = index.endAssignment
+    return !!spec && games.length > 0 && games.every(game => read(game ?? {}, spec.path) === spec.exchanged)
+}
+
+/** The team a block's recorded binding stands at an end (a setup assignment), or undefined. */
+const teamAt = (index: RegisterIndex, bindings: { designation: string; handle: string }[], end: string | undefined): string | undefined =>
+    end ? bindings.find(binding => designationKey(index, binding.designation) === designationKey(index, end))?.handle : undefined
+
+/**
  * The cross-block checks, RB-1 to RB-8 and RB-M, over two blocks built as complete games. Every check runs and reports, so a refusal
  * names every disagreement at once.
  */
@@ -134,13 +159,22 @@ export function checkRoleBlocks(blocks: BuiltBlock[], index: RegisterIndex, role
     const games = blocks.map(entry => entry.fixture?.game ?? {})
     const pair = blocks.length === 2
     const results: RoleBlockCheck[] = []
+    /** Stage D: the pair is checked as an exchange of ends where every block's game says so (row B10); otherwise each team keeps its end. */
+    const exchanged = pair && endsExchangedIn(games, index)
+    const bindingsOf = (i: number) => (blocks[i]?.fixture?.record?.designationBindings ?? []) as { designation: string; handle: string }[]
 
     // RB-1 — the same elements.
     {
         const problems: string[] = []
         if (!pair) problems.push(`role blocks come in two; ${blocks.length} were built`)
         // V27 added 17 October 2026 (stage M2): an occurrence that also counts as the primary event, compared like every other element.
-        for (const rowId of ['S2', 'J1', 'T1', 'V0', 'V3', 'V27', 'P1']) {
+        // The roles row added 22 October 2026 (stage A, register version 16): each role element, which holds the role's own scoring event
+        // (B9), is the same in both blocks, so each role's event is (RB-4 holds its value to the blocks alike: GA-ROLE-EVENTS clause 12).
+        // O1 added 23 October 2026 (stage C, finding T19): the physical objects, so an object one block holds and the other does not (a goal,
+        // say) is refused here; where an object is placed in each block is the physical layout's (`physical-layout.ts`, RB-L). The
+        // description is unchanged, as when V27 and the roles row joined, so no reader's text moves. Since the integration review (23 October
+        // 2026) the objects row is read from the register's objectGeometry block (`row`), beside the roles row, so this code names no new row.
+        for (const rowId of ['S2', 'J1', 'T1', 'V0', 'V3', 'V27', 'P1', ...(index.objectGeometry ? [index.objectGeometry.row] : []), ...(index.roleBlocks ? [index.roleBlocks.rolesRow] : [])]) {
             const container = containerOf(index, rowId)
             if (!container || !pair) continue
             const [a, b] = games.map(game => idsAt(game, container))
@@ -165,26 +199,96 @@ export function checkRoleBlocks(blocks: BuiltBlock[], index: RegisterIndex, role
             const direction = index.rows.get('DV1')?.path
             if (direction && !same(read(games[0], String(direction)), read(games[1], String(direction)))) problems.push(`${direction} differs between the blocks`)
             const bindings = blocks.map(entry => entry.fixture?.record?.designationBindings ?? [])
-            if (!same(bindings[0], bindings[1])) problems.push(`the end-to-team binding differs between the blocks: ${JSON.stringify(bindings[0])} and ${JSON.stringify(bindings[1])}`)
+            if (!exchanged) {
+                if (!same(bindings[0], bindings[1])) problems.push(`the end-to-team binding differs between the blocks: ${JSON.stringify(bindings[0])} and ${JSON.stringify(bindings[1])}`)
+            } else {
+                /**
+                 * **Under the end exchange: the holders identical and the binding exchanged** (stage D, 23 October 2026, row B10; his reply filed
+                 * 25 October 2026, item 5: *"One physical goal remains at the same end."* and *"The outfield groups exchange ends and
+                 * building/pressing responsibilities when the coach calls for the next block."*). Each role is played from the same end in both
+                 * blocks (the role-to-end holders identical), and each end of the second block is held by the team the first block bound to
+                 * the end the second block's own record names (`RoleBlock.ends`); a binding missing from either block, a designation one block
+                 * binds and the other does not, or a team standing at the same end in both blocks is a problem.
+                 */
+                const [first, second] = [bindingsOf(0), bindingsOf(1)]
+                if (!same(blocks[0].block.holders, blocks[1].block.holders)) problems.push(`the teams change ends with the roles, and the role-to-end holders differ between the blocks: ${JSON.stringify(blocks[0].block.holders)} and ${JSON.stringify(blocks[1].block.holders)}`)
+                const ends = blocks[1].block.ends ?? {}
+                const keys = (list: { designation: string }[]) => list.map(binding => designationKey(index, binding.designation)).sort()
+                if (!first.length || !second.length) problems.push('the teams change ends with the roles, and a block records no end-to-team binding, so which team stands at which end cannot be told')
+                else if (!same(keys(first), keys(second))) problems.push(`the two blocks bind different ends to a team: ${JSON.stringify(keys(first))} and ${JSON.stringify(keys(second))}`)
+                else {
+                    for (const binding of second) {
+                        const end = designationKey(index, binding.designation)
+                        const expected = teamAt(index, first, ends[end])
+                        if (!ends[end] || ends[end] === end) problems.push(`the second block stands at ${end} the team that held ${ends[end] ?? 'no end'} in the first: the ends are not exchanged`)
+                        else if (binding.handle !== expected) problems.push(`${end} is held by ${binding.handle} in the second block, and the first block bound ${ends[end]} to ${expected ?? 'no team'}: the end-to-team binding is not the first block's exchanged`)
+                    }
+                }
+            }
         }
-        results.push(check('RB-2', 'each team keeps its end: objectives, references, direction and the end-to-team binding identical', problems))
+        results.push(
+            check(
+                'RB-2',
+                exchanged
+                    ? 'each role keeps its end and the teams change ends: objectives, references and direction identical, the role-to-end holders identical, and the end-to-team binding exchanged'
+                    : 'each team keeps its end: objectives, references, direction and the end-to-team binding identical',
+                problems,
+            ),
+        )
     }
 
-    // RB-3 — two objectives of the scoring role, two target regions, no third region.
+    /**
+     * RB-3 — two objectives of the scoring role, two targets, no third region. **Stage C, 23 October 2026** (his reply filed 25 October
+     * 2026, item 3, a physical object as an authorized alternative to a target region; register J2, "object or region reference"): a
+     * target is a region OR an object, and each scoring objective's reference must name one
+     * the block's game holds (a TIGHTENING: until this stage the references were only counted, so one naming nothing was a target). The
+     * description says "targets (a region or an object)" only where a block's target is an object, so every reader of a game of region
+     * targets reads exactly what it did. Since the stage C review an object a role-keyed selector created is refused as a third target
+     * too; the description names objects there only where a target is an object, for the same reason.
+     */
     {
         const problems: string[] = []
         const regionsAt = containerOf(index, spec?.row ?? 'S2') ?? 'space.regions'
+        const objectsAt = index.objectGeometry ? containerOf(index, index.objectGeometry.row) : null
+        let objectTargets = false
         blocks.forEach((entry, i) => {
             const game = games[i]
             const scoring = ((read(game, objectivesAt) ?? []) as any[]).filter(o => spec && o?.[spec.roleLeaf] === spec.role)
             const references = new Set(scoring.map(o => JSON.stringify(o?.[spec?.referenceLeaf ?? 'reference'])))
             if (scoring.length !== 2) problems.push(`block ${entry.block.blockId}: ${scoring.length} objectives of the role ${spec?.role}, not two`)
             if (references.size !== 2) problems.push(`block ${entry.block.blockId}: the scoring objectives reference ${references.size} target(s), not two`)
+            const regionIds = new Set(idsAt(game, regionsAt))
+            const objectIds = new Set(objectsAt ? idsAt(game, objectsAt) : [])
+            for (const objective of scoring) {
+                const reference = objective?.[spec?.referenceLeaf ?? 'reference']
+                const ref = reference?.structuralRef
+                const id = ref ? `c:${ref.contractId}:${ref.itemId}` : null
+                if (id && !regionIds.has(id) && objectIds.has(id)) objectTargets = true
+                if (!id || (!regionIds.has(id) && !objectIds.has(id))) {
+                    problems.push(`block ${entry.block.blockId}: ${objectivesAt}[${objective?.elementId}] references ${id ?? JSON.stringify(reference ?? null)}, which is no region or object of the block's game`)
+                }
+            }
             for (const region of (read(game, regionsAt) ?? []) as any[]) {
                 if ((region?.selector ?? []).some((term: any) => term?.attribute === spec?.attribute)) problems.push(`block ${entry.block.blockId}: ${regionsAt}[${region.elementId}] was created by a selector on ${spec?.attribute}, a third region`)
             }
+            /**
+             * Stage C review fix, 23 October 2026 (a TIGHTENING): a target may now be an object, so an object a role-keyed selector created
+             * is a third target as a region would be, and is refused alike. Defensive today: the objects row lists no selector attribute of
+             * that name, so a selector naming it is a reference defect (`selector.ts`) before any game holds it.
+             */
+            for (const object of (objectsAt ? read(game, objectsAt) ?? [] : []) as any[]) {
+                if ((object?.selector ?? []).some((term: any) => term?.attribute === spec?.attribute)) problems.push(`block ${entry.block.blockId}: ${objectsAt}[${object.elementId}] was created by a selector on ${spec?.attribute}, a third target`)
+            }
         })
-        results.push(check('RB-3', 'two objectives of the scoring role and two target regions in each block, and no region a role-keyed selector created', problems))
+        results.push(
+            check(
+                'RB-3',
+                objectTargets
+                    ? 'two objectives of the scoring role and two targets (a region or an object) in each block, and no region or object a role-keyed selector created'
+                    : 'two objectives of the scoring role and two target regions in each block, and no region a role-keyed selector created',
+                problems,
+            ),
+        )
     }
 
     // RB-4 — every difference is supported by something written for a role holder.
@@ -250,8 +354,32 @@ export function checkRoleBlocks(blocks: BuiltBlock[], index: RegisterIndex, role
             if (held.some(holder => !ends.includes(holder)) || new Set(held).size !== roles.length) problems.push(`block ${entry.block.blockId} does not bind each role to its own end-assigned team`)
             if (!same(entry.fixture?.record?.roleBlock, entry.block)) problems.push(`the game built for block ${entry.block.blockId} records ${JSON.stringify(entry.fixture?.record?.roleBlock ?? null)} as the block it was derived for`)
         })
-        if (pair && !same(exchangeOf(blocks[0].block, roles), blocks[1].block)) problems.push(`block ${blocks[1].block.blockId} is not the exchange of block ${blocks[0].block.blockId}`)
-        results.push(check('RB-5', 'each block binds every role to one end-assigned team, the second is the exchange of the first, and each game records its block', problems))
+        /**
+         * Stage D, 23 October 2026 (row B10): the second block is the one the first and the game's end assignment entail (`secondBlockOf`):
+         * the role exchange where each team keeps its end, the holders kept with the ends exchanged where the teams change ends. And the
+         * comparison is ROLE TO TEAM, not role to end (his reply filed 25 October 2026, item 5: "keep the following concepts separate ...
+         * Team identity. Assigned game role. Assigned field end."): through each block's own recorded binding, every role is held in the
+         * second block by a team that did not hold it in the first. A pair without bindings is compared by its blocks alone, as before; RB-2
+         * refuses an exchange of ends that records none.
+         */
+        if (pair && !same(secondBlockOf(blocks[0].block, roles, index), blocks[1].block)) {
+            problems.push(exchanged || blocks[0].block.ends ? `block ${blocks[1].block.blockId} is not block ${blocks[0].block.blockId} with the ends exchanged` : `block ${blocks[1].block.blockId} is not the exchange of block ${blocks[0].block.blockId}`)
+        }
+        if (pair) {
+            for (const role of roles) {
+                const [a, b] = [0, 1].map(i => teamAt(index, bindingsOf(i), blocks[i].block.holders[role]))
+                if (a && b && a === b) problems.push(`the ${role} role is held by ${a} in both blocks: the role does not pass to the other team`)
+            }
+        }
+        results.push(
+            check(
+                'RB-5',
+                exchanged
+                    ? 'each block binds every role to one end-assigned team, the second keeps the first block\'s holders with the ends exchanged, each role passes to the other team, and each game records its block'
+                    : 'each block binds every role to one end-assigned team, the second is the exchange of the first, and each game records its block',
+                problems,
+            ),
+        )
     }
 
     // RB-6 — the same session and the same number of players.
@@ -305,6 +433,14 @@ export function checkRoleBlocks(blocks: BuiltBlock[], index: RegisterIndex, role
             }
             const intervalAt = (fixture: any, regionId: string, axisLeaf: string) =>
                 (fixture.status?.geometry ?? []).find((g: any) => g.path.includes(`[${regionId}]`) && g.path.endsWith(axisLeaf))?.geometry?.interval ?? null
+            /**
+             * Stage D, 23 October 2026 (row B10): where the teams change ends with the roles, each role is played from the same end in both
+             * blocks, so a position written for a role is at the SAME place in both, never mirrored; where each team keeps its end it is the
+             * mirror along the axis, as since stage K6.
+             */
+            const holds = (here: { from: number; to: number }, there: { from: number; to: number }) =>
+                exchanged ? here.from === there.from && here.to === there.to : here.from === length - there.to && here.to === length - there.from
+            const relation = exchanged ? 'the same place' : `its mirror along a ${length} m axis`
             for (const { path, kind } of differing) {
                 if (kind !== 'geometry' && kind !== 'derived') continue
                 const open = path.indexOf('[')
@@ -324,8 +460,8 @@ export function checkRoleBlocks(blocks: BuiltBlock[], index: RegisterIndex, role
                 if (own) {
                     const [here, there] = [geometryAt(blocks[0].fixture)?.interval, geometryAt(blocks[1].fixture)?.interval]
                     if (!here || !there || !Number.isFinite(length)) problems.push(`${path} differs between the blocks and one of them holds no interval for it`)
-                    else if (here.from !== length - there.to || here.to !== length - there.from) {
-                        problems.push(`${path} is [${here.from}, ${here.to}] in one block and [${there.from}, ${there.to}] in the other, which is not its mirror along a ${length} m axis`)
+                    else if (!holds(here, there)) {
+                        problems.push(`${path} is [${here.from}, ${here.to}] in one block and [${there.from}, ${there.to}] in the other, which is not ${relation}`)
                     }
                     continue
                 }
@@ -339,12 +475,18 @@ export function checkRoleBlocks(blocks: BuiltBlock[], index: RegisterIndex, role
                     problems.push(`${path} differs between the blocks and is not the target of a role holder whose counterpart can be compared: a position written for a role must be relative to the team holding it`)
                     continue
                 }
-                if (here.from !== length - there.to || here.to !== length - there.from) {
-                    problems.push(`${path} is [${here.from}, ${here.to}] for the ${role} role in one block, and its counterpart is [${there.from}, ${there.to}] in the other, which is not its mirror along a ${length} m axis`)
+                if (!holds(here, there)) {
+                    problems.push(`${path} is [${here.from}, ${here.to}] for the ${role} role in one block, and its counterpart is [${there.from}, ${there.to}] in the other, which is not ${relation}`)
                 }
             }
         }
-        results.push(check('RB-8', 'a position written for a role is the same by role and mirrored along the axis', problems))
+        results.push(
+            check(
+                'RB-8',
+                exchanged ? 'a position written for a role is the same by role and, with the teams changing ends, at the same place in both blocks' : 'a position written for a role is the same by role and mirrored along the axis',
+                problems,
+            ),
+        )
     }
 
     /**
@@ -355,6 +497,10 @@ export function checkRoleBlocks(blocks: BuiltBlock[], index: RegisterIndex, role
      * of performer the register counts per team; the change from the first block to the second must be exactly what the
      * reassignments both blocks hold state (`derivation/reassignment.ts`). With none recorded, every count must be the same in
      * both blocks — his Option 1(c), membership kept, is that case.
+     *
+     * Stage D, 23 October 2026 (row B10): where the teams change ends a team is still counted by its handle, which stands at the other end
+     * in the second block (RB-2), and an exchange of ends moves nobody by itself either — his reply filed 25 October 2026, item 5:
+     * *"exchanging ends should not inherently require transferring participants."*
      */
     {
         const problems: string[] = []
@@ -365,8 +511,9 @@ export function checkRoleBlocks(blocks: BuiltBlock[], index: RegisterIndex, role
             const found = blocks.map(entry => reassignmentsIn(entry.fixture?.game ?? {}, index))
             for (const [i, entry] of found.entries()) for (const problem of entry.problems) problems.push(`block ${blocks[i].block.blockId}: ${problem}`)
             if (!same(found[0].found, found[1].found)) problems.push(`the two blocks hold different reassignments: ${JSON.stringify(found[0].found)} and ${JSON.stringify(found[1].found)}`)
-            const bindings = (blocks[0].fixture?.record?.designationBindings ?? []) as { designation: string; handle: string }[]
-            const expected = expectedChange(found[0].found, blocks[0].block, blocks[1].block, bindings, index)
+            // Stage D (23 October 2026, row B10): each block's own binding, so where the teams change ends the team newly holding a role is
+            // read in the block it holds it in. Where each team keeps its end the two are identical (RB-2), and the change is what it was.
+            const expected = expectedChange(found[0].found, blocks[0].block, blocks[1].block, bindingsOf(0), bindingsOf(1), index)
             problems.push(...expected.problems)
             const teamsOf = (game: any) => new Map(((read(game, teamsAt) ?? []) as any[]).map(team => [String(team?.elementId), team]))
             const [first, second] = games.map(teamsOf)
@@ -417,6 +564,10 @@ export function checkRoleBlocks(blocks: BuiltBlock[], index: RegisterIndex, role
  * held the same way, since the exchange sentence and fidelity Q5-L read it: a FAIL where something moves and a block carries no such
  * account, or one that differs from the recomputed one, or where nothing moves (or the layout applies) and a block carries one.
  *
+ * **Stage C, 23 October 2026:** the recomputation reads the objects each block positions too (an object held at one place is in the
+ * layout, one that moves is in the account of what moves), and the account is given empty where every block was read and nothing moves,
+ * so a block carrying none there, or one where what moves cannot be read, is refused alike.
+ *
  * Every block is read; nothing here names a goal, a value or a sport.
  */
 export function checkRoleBlockLayout(blocks: { blockId: string; fixture: any }[], movers: LayoutMover[]): RoleBlockCheck {
@@ -430,10 +581,11 @@ export function checkRoleBlockLayout(blocks: { blockId: string; fixture: any }[]
         if (decision.applies && !carried) problems.push(`block ${entry.blockId} carries no layout, and every block's markings occupy the same places, so they are set out once`)
         else if (decision.applies && !same(carried, decision.layout)) problems.push(`block ${entry.blockId} carries a layout that is not the union of every block's realized edges, recomputed from the blocks`)
         else if (!decision.applies && carried) problems.push(`block ${entry.blockId} carries a layout, and the markings cannot be set out once here${decision.why.length ? `: ${decision.why.join('; ')}` : ': there is nothing to set out besides the area'}`)
+        // Stage C: the account is given (empty where nothing moves) wherever every block could be read and the layout does not apply.
         const moving = entry.fixture?.remarking ?? null
-        if (decision.remarking && !moving) problems.push(`block ${entry.blockId} carries no account of what moves at the exchange, and the markings move between the blocks`)
+        if (decision.remarking && !moving) problems.push(`block ${entry.blockId} carries no account of what moves at the exchange, and ${somethingMoves(decision.remarking) ? 'the markings move between the blocks' : 'the blocks were read and nothing moves between them'}`)
         else if (decision.remarking && !same(moving, decision.remarking)) problems.push(`block ${entry.blockId} carries an account of what moves at the exchange that is not the one every block's realized edges give, recomputed from the blocks`)
-        else if (!decision.remarking && moving) problems.push(`block ${entry.blockId} carries an account of what moves at the exchange, and ${decision.applies ? 'the markings are set out once' : 'nothing moves between the blocks'}`)
+        else if (!decision.remarking && moving) problems.push(`block ${entry.blockId} carries an account of what moves at the exchange, and ${decision.applies ? 'the markings are set out once' : 'what moves cannot be read from the blocks'}`)
     }
     return check('RB-L', "the markings set out once are exactly the union of every block's realized edges, recomputed, carried only where they occupy the same places in every block; where they do not, what moves at the exchange is exactly what the blocks' realized edges give", problems)
 }
@@ -453,7 +605,9 @@ export function roleBlockFixture(
         exchange: found.exchange,
         roles: [...found.roles],
         roleNouns: { status: 'DRAFT', nouns: { ...(index.roleBlocks?.coachNouns ?? {}) } },
-        blocks: blocks.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, fixture: entry.fixture })),
+        // Since the integration review (23 October 2026): the block's end-to-team assignment (`RoleBlock.ends`) where it records one (the
+        // end exchange, row B10), beside the role-to-end holders, so a reader sees end and role kept apart; absent, as before, where it does not.
+        blocks: blocks.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, ...(entry.block.ends ? { ends: { ...entry.block.ends } } : {}), fixture: entry.fixture })),
         checks: checks.map(c => ({ ...c, problems: [...c.problems] })),
     }
 }
@@ -519,7 +673,16 @@ export function counterpartMap(from: { fixture: any }, to: { fixture: any }, ind
     }
     // Stage 2D: the markings set out once, mirrored along the length (see above).
     const layouts = [from, to].map(entry => entry.fixture?.layout ?? null)
-    if (layouts[0] || layouts[1]) {
+    /**
+     * Stage D, 23 October 2026 (row B10): where the teams change ends with the roles, each role is played from the same end in both blocks,
+     * so the zone a role's target is (or lies in) is the SAME zone in both and every zone and mark is its own counterpart: nothing is
+     * mirrored. Read from what each block was derived for (`record.roleBlock.ends`); blocks that disagree on it pair nothing.
+     */
+    const endsSet = [from, to].map(entry => !!entry.fixture?.record?.roleBlock?.ends)
+    if (endsSet[0] !== endsSet[1]) return none
+    if ((layouts[0] || layouts[1]) && endsSet[0]) {
+        if (!same(layouts[0], layouts[1])) return none
+    } else if (layouts[0] || layouts[1]) {
         if (!same(layouts[0], layouts[1])) return none
         const length = Number(layouts[0].lengthM)
         for (const [collection, ends] of [
@@ -615,8 +778,33 @@ export function composeRoleBlockActivity(blocks: RenderedBlock[], index: Registe
     }
 }
 
-/** Wording that says the ends change — refused wherever it appears, because RB-2 proves they do not. */
-const ENDS_CHANGE = [/\b(swap|swaps|switch|switches|change|changes|exchange|exchanges|trade|trades)\s+ends\b/i, /\bends\s+(change|swap|switch)\b/i, /\bchange\s+of\s+ends\b/i]
+/**
+ * Wording that says the ends change — refused wherever each team keeps its end, because RB-2 proves they do not. Since stage D (23 October
+ * 2026, row B10) it is what the exchange must say where the teams change ends, and is refused only where they keep them.
+ */
+export const ENDS_CHANGE = [/\b(swap|swaps|switch|switches|change|changes|exchange|exchanges|trade|trades)\s+ends\b/i, /\bends\s+(change|swap|switch)\b/i, /\bchange\s+of\s+ends\b/i]
+
+/**
+ * Wording that says each team keeps its end — refused where the teams change ends (stage D, 23 October 2026, row B10). Widened by the
+ * integration review (23 October 2026, a TIGHTENING under the end exchange only): "stays at its end" and "remains at their ends" join.
+ */
+export const ENDS_KEPT = [/\bkeeps?\s+(its|their)\s+ends?\b/i, /\bnot\s+ends\b/i, /\bends\s+(stay|stays|remain|remains)\s+(fixed|the\s+same)\b/i, /\b(stay|stays|remain|remains)\s+at\s+(its|their)\s+(own\s+)?ends?\b/i]
+
+/**
+ * **A change of ends denied** — the integration review fix, 23 October 2026 (a TIGHTENING under the end exchange only). "The teams do not
+ * change ends", "without changing ends" and "no change of ends" say the ends stay, yet the first two matched `ENDS_CHANGE`, so a sentence
+ * denying the change satisfied the requirement that the exchange say it. Where the teams change ends, a sentence matching any of these is
+ * refused like `ENDS_KEPT`, and never counts as saying the change. Under KEPT nothing moves: such a sentence is still refused there wherever
+ * it matches `ENDS_CHANGE`, as before.
+ */
+export const ENDS_CHANGE_DENIED = [
+    /\b(not|never|no\s+longer)\s+(\w+\s+)?(swap|swaps|switch|switches|change|changes|exchange|exchanges|trade|trades)\s+ends\b/i,
+    /\b\w+n['’]t\s+(\w+\s+)?(swap|swaps|switch|switches|change|changes|exchange|exchanges|trade|trades)\s+ends\b/i,
+    /\bwithout\s+(swapping|switching|changing|exchanging|trading)\s+ends\b/i,
+    /\bno\s+change\s+of\s+ends\b/i,
+    /\bends\s+(do|does|will|did)\s+not\s+(change|swap|switch)\b/i,
+    /\bends\s+never\s+(change|swap|switch)\b/i,
+]
 
 /**
  * **Fidelity Q6 — the composition lost nothing and invented nothing** (stage K3). A VIOLATION where:
@@ -706,6 +894,9 @@ export function checkRoleBlockComposition(blocks: RenderedBlock[], composed: Ren
 
     const spec = index.roleBlocks
     const target = index.targetOf
+    // Stage D (row B10): the activity is played with the ends exchanged where every block's game says so.
+    const endSpec = index.endAssignment
+    const exchanged = endsExchangedIn(blocks.map(entry => entry.fixture?.game ?? {}), index)
     const rolesAt = spec ? containerOf(index, spec.rolesRow) : null
     const objectivesAt = target ? containerOf(index, target.objectivesRow) : null
     const exchangeLeaf = spec ? String(index.rows.get(spec.exchangeRow)?.path ?? '').split('[].').pop() : null
@@ -721,7 +912,22 @@ export function checkRoleBlockComposition(blocks: RenderedBlock[], composed: Ren
             ...objectives.flatMap(o => [`${objectivesAt}[${o.elementId}].${target!.teamLeaf}`, `${objectivesAt}[${o.elementId}].${target!.referenceLeaf}`]),
         ]
         const rolesStated = roleElements.map(element => `${rolesAt}[${element.elementId}].${roleLeaf}`)
-        if (!composed.instructions.some(i => i.section === ROLE_EXCHANGE && cites(i, exchangeAndEnds))) {
+        /**
+         * **Where the teams change ends, the sentence says so** — stage D, 23 October 2026 (row B10), his reply filed 25 October 2026, item 5:
+         * *"The outfield groups exchange ends and building/pressing responsibilities when the coach calls for the next block."* The KEPT
+         * requirement inverted: a role-exchange sentence must cite every role's exchange, every objective's team and reference AND the end
+         * assignment (the game's own value, read from the register's path), and its words must say that the ends change. Where each team
+         * keeps its end, the requirement is exactly what it was.
+         */
+        if (exchanged) {
+            const changeAndEnds = [...exchangeAndEnds, endSpec!.path]
+            // Since the integration review (23 October 2026): a sentence denying the change never counts as saying it (`ENDS_CHANGE_DENIED`).
+            if (!composed.instructions.some(i => i.section === ROLE_EXCHANGE && cites(i, changeAndEnds) && ENDS_CHANGE.some(pattern => pattern.test(i.text)) && !ENDS_CHANGE_DENIED.some(pattern => pattern.test(i.text)))) {
+                // The integration review fix, 23 October 2026: cited without quoting his activity-specific nouns, so this engine text stays
+                // sport-neutral for any game played with the ends exchanged (his words are quoted in the comment above).
+                findings.push({ question: 6, severity: 'VIOLATION', what: `no sentence says that the teams change ends with the roles when the coach calls the next block (${endSpec!.path} is ${endSpec!.exchanged}; his reply filed 25 October 2026, item 5)` })
+            }
+        } else if (!composed.instructions.some(i => i.section === ROLE_EXCHANGE && cites(i, exchangeAndEnds))) {
             findings.push({ question: 6, severity: 'VIOLATION', what: 'no sentence says that each team keeps its end while the roles exchange (his D2: "Please make that distinction explicit in the coach-facing instructions.")' })
         }
         if (!composed.instructions.some(i => i.section === ROLE_EXCHANGE && cites(i, rolesStated))) {
@@ -742,8 +948,10 @@ export function checkRoleBlockComposition(blocks: RenderedBlock[], composed: Ren
             findings.push({ question: 6, severity: 'VIOLATION', what: `no sentence says what the markings written for the roles (${keyed.join(', ')}) mean when the roles exchange (his D2: "role-specific objectives and target configurations change when the teams exchange roles")` })
         }
     }
+    // Stage D (row B10): the ends-change refusal applies only where each team keeps its end; where they change, "keeps its end" is refused.
     for (const instruction of composed.instructions) {
-        if (ENDS_CHANGE.some(pattern => pattern.test(instruction.text))) findings.push({ question: 6, severity: 'VIOLATION', what: `"${instruction.text}" says the ends change; each team keeps its end in both blocks (RB-2)` })
+        if (!exchanged && ENDS_CHANGE.some(pattern => pattern.test(instruction.text))) findings.push({ question: 6, severity: 'VIOLATION', what: `"${instruction.text}" says the ends change; each team keeps its end in both blocks (RB-2)` })
+        if (exchanged && [...ENDS_KEPT, ...ENDS_CHANGE_DENIED].some(pattern => pattern.test(instruction.text))) findings.push({ question: 6, severity: 'VIOLATION', what: `"${instruction.text}" says each team keeps its end; the teams change ends with the roles in this activity (${endSpec!.path} is ${endSpec!.exchanged}, RB-2)` })
     }
     /**
      * **No team named by who has the ball, in an activity played in role blocks** — K7 review, 15 October 2026, a TIGHTENING. His D7,

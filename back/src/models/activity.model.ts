@@ -110,6 +110,16 @@ export interface IActivity {
     winCondition?: string
     pointsTracking?: IPointsScored[]
     systemTrace?: ISystemTrace
+    /**
+     * **An activity built by the checked pathway on the live route** — the live-app fix, 22 October 2026 (design section 4.3 L3). Absent on
+     * every activity the generation route made. `checkedActivity` is the server's own build, stored whole (the checked chain's served
+     * activity, exactly what the coach was shown, rebuilt and digest-checked at save); `checkedInputs` is what it was built from and
+     * `inputDigests` each block's input digest. Read-only for the pilot: no update replaces them (`app.routes.ts`).
+     */
+    pathway?: 'CHECKED_CHAIN'
+    checkedActivity?: Record<string, unknown>
+    checkedInputs?: { learningGoalId: string; practiceSituationId: string | null; durationMin: number }
+    inputDigests?: { blockId: string; inputDigest: string | null }[]
     createdAt: Date
     updatedAt: Date
 }
@@ -140,7 +150,12 @@ const activitySchema = new Schema<IActivity>(
         scoringSystem: {type: String},
         winCondition: {type: String},
         pointsTracking: {type: [Object]},
-        systemTrace: {type: Object}
+        systemTrace: {type: Object},
+        // The live-app fix (22 October 2026): a checked build, stored whole beside what it was built from. Optional, no default.
+        pathway: { type: String },
+        checkedActivity: { type: Object },
+        checkedInputs: { type: Object },
+        inputDigests: { type: [Object], default: undefined },
     },
     {
         timestamps: true,

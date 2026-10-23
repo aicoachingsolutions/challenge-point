@@ -21,8 +21,9 @@ import { effectiveValue, scaleExactly } from '../derivation/rational'
 import { conditionScopeNotEvaluable } from '../derivation/resolved-game'
 import { ApprovedWording, approvedWording } from './approved-wording'
 import { CoachFacingExclusion, exclusionFor } from './coach-facing-exclusions'
-import { layoutLeafNumberAt, MARK_UNION_ONCE, PhysicalLayout, Remarking } from './physical-layout'
-import { ADJUSTING, approvedSentences, Binding, combinedStatus, ENDS_ON_WORDING, Instruction, MOVE_MARKINGS, MOVED_MARK_QUALIFICATIONS, NOTHING_RE_MARKED, RenderedActivity, ROLE_EXCHANGE, roleKeyedPositions, sectionFactsOf, SourceStatus, UNBOUNDED_CREDIT } from './render-concrete-game'
+import { layoutLeafNumberAt, MARK_UNION_ONCE, PhysicalLayout, Remarking, somethingMoves } from './physical-layout'
+import { ADJUSTING, approvedSentences, Binding, combinedStatus, ENDS_ON_WORDING, Instruction, MOVE_MARKINGS, MOVED_MARK_QUALIFICATIONS, NOTHING_RE_MARKED, RenderedActivity, ROLE_EXCHANGE, roleKeyedPositions, scoringWordingOf, sectionFactsOf, SourceStatus, UNBOUNDED_CREDIT } from './render-concrete-game'
+import { eventKindPathsOf, readPath } from './game-reading'
 import { firstReadUncarried } from './sections'
 
 export interface FidelityFinding {
@@ -53,6 +54,12 @@ const IMPERATIVES = [/\bmust\b/i, /\balways\b/i, /\bexactly\b/i, /\brequired\b/i
 const NECESSITY = [/\bmust\b/i, /\bthe rules require\b/i, /\bby definition\b/i, /\balways\b/i, /\bnecessarily\b/i]
 /** Wording that puts a choice to the coach. A COACH_CHOICE sentence that carries none states a fact it does not hold. */
 const CHOICE_WORDS = [/\bpick\b/i, /\bchoose\b/i, /\bdecide\b/i]
+/**
+ * **Wording that calls a team's target a line** — the integration review fix, 23 October 2026. The renderer's own target-noun phrases
+ * ("the same line", "defends one line", "the target line", "its own line", "the line it is attacking") with "line" as the target's noun;
+ * "the marked line" and "end line" name lines that are not a team's target, and are not here. Exported for its unit test.
+ */
+export const TARGET_AS_LINE = [/\b(same|one|target|own)\s+lines?\b/i, /\blines?\s+(it|they)\s+(is|are|was|were)\s+(already\s+)?attacking\b/i]
 
 /**
  * **Wording that obliges a player or orders their actions — the prescription rule, stage K7, 15 October 2026 (design step B1, as the
@@ -685,7 +692,7 @@ export const RE_MARKING_AT_EXCHANGE = [/\bset out again\b/i]
  *   - a region of this block is realized at an interval the layout does not record for this block, or whose edges are not marks or the
  *     area's end lines (the words, written from the layout, would then contradict the game);
  *   - a region's position is denoted by no Set up sentence, or by more than one (each block's realized region interval is denoted exactly
- *     once);
+ *     once); since the stage C review, an object's position likewise, and that one sentence cites the object's entry in the layout;
  *   - a mark or a zone bounds nothing in this block and the layout records no other block it is marked for. This is how a mark set out
  *     once for another block is reconciled with Q5's "marked, therefore it must do something": it does something in the block it is
  *     recorded from, which RB-L recomputes from that block's own geometry, so it is never silently exempt;
@@ -732,9 +739,49 @@ function layoutFindings(fixture: any, rendered: RenderedActivity): FidelityFindi
         const here = intervals.some(interval => interval.from === zone.from && interval.to === zone.to)
         if (!here && !(zone.sources ?? []).some(source => source.blockId !== blockId)) violation(`the zone from ${zone.from} m to ${zone.to} m is no region of block ${blockId}, and the layout records no other block it is marked for`)
     }
+    /**
+     * **Stage C, 23 October 2026: the objects set out once** (`layout.objects`, `physical-layout.ts`), two NEW clauses (tightenings) that
+     * read the projection, as the marks and zones are read: every object the layout sets out once is placed by a Set up sentence citing it
+     * (an object the coach is not told to place), and every object this block's game positions is where the layout records it for this
+     * block (the words, written from the layout, would otherwise contradict the game). No object has words yet (Stage G), so a layout
+     * holding one refuses the activity here as well as at Q3.
+     */
+    for (const object of layout.objects ?? []) {
+        if (!setUp.some(i => citesUnder(i, `layout.objects[${object.elementId}]`))) violation(`the object ${object.objectId} (layout.objects[${object.elementId}]) is set out once and no Set up sentence tells the coach to place it`)
+    }
+    for (const object of fixture.game?.objects ?? []) {
+        const id = String(object?.elementId)
+        const placed = ['along', 'across'].map(axis => (fixture.status?.geometry ?? []).find((g: any) => g.path === `objects[${id}].position.${axis}`)?.geometry?.interval ?? null)
+        if (!placed[0] && !placed[1]) continue
+        const recorded = (layout.objects ?? []).find(entry => entry.objectId === id && (entry.sources ?? []).some(source => source.blockId === blockId))
+        const where = (along: any, across: any) => (along && across ? `${along.from}-${along.to} m along and ${across.from}-${across.to} m across` : 'nothing')
+        if (!recorded || JSON.stringify([recorded.along, recorded.across]) !== JSON.stringify(placed.map(interval => (interval ? { from: interval.from, to: interval.to } : null)))) {
+            violation(`objects[${id}].position is realized at ${where(placed[0], placed[1])} in block ${blockId}, and the layout set out once records ${recorded ? where(recorded.along, recorded.across) : 'nothing'} for it there`)
+        }
+        /**
+         * **Stage C review fix, 23 October 2026: an object set out once is told once, from the layout** — a NEW clause (a tightening) that
+         * mirrors the region rule above (each realized region position denoted by exactly one Set up sentence). The design's Stage C test is
+         * that an object fixed at one end is set out once; without this, once Stage G writes words, a layout sentence placing the object and a second,
+         * per-block sentence citing its position again both passed (the review's probe, rvC/probe-fixed-twice). So the object's position, or
+         * any path under it, is cited by exactly one Set up sentence of this block, and that sentence cites the object's entry in the layout.
+         */
+        const denoting = setUp.filter(i => citesUnder(i, `objects[${id}].position`))
+        if (denoting.length !== 1) violation(`objects[${id}].position is denoted by ${denoting.length} Set up sentences in a layout set out once, not exactly one`)
+        else if (recorded && !citesUnder(denoting[0], `layout.objects[${recorded.elementId}]`)) {
+            violation(`objects[${id}].position is denoted by a Set up sentence that does not cite layout.objects[${recorded.elementId}], so it is told for this block and not from the object set out once`)
+        }
+    }
     const keyed = roleKeyedPositions(fixture)
     const exchange = rendered.instructions.filter(i => i.section === ROLE_EXCHANGE && keyed.length > 0 && keyed.every(path => i.from.includes(path)))
-    if (keyed.length && !exchange.some(i => i.from.includes('layout.policy'))) violation('the markings are set out once, and the exchange sentence citing the positions written for a role is the block-by-block one (it does not cite the layout)')
+    // The integration review fix (23 October 2026, admin text only): where no Role exchange sentence cites the positions at all (the renderer
+    // withholds the layout's exchange words for a target no one noun names), the finding says that, not that a block-by-block sentence does.
+    if (keyed.length && !exchange.some(i => i.from.includes('layout.policy'))) {
+        violation(
+            exchange.length
+                ? 'the markings are set out once, and the exchange sentence citing the positions written for a role is the block-by-block one (it does not cite the layout)'
+                : 'the markings are set out once, and no Role exchange sentence cites the positions written for a role and the layout',
+        )
+    }
     for (const instruction of rendered.instructions) {
         if (instruction.section === ROLE_EXCHANGE && RE_MARKING_AT_EXCHANGE.some(pattern => pattern.test(instruction.text))) violation(`"${instruction.text}" tells the coach to set the markings out again at the exchange, and they are set out once`)
     }
@@ -772,13 +819,33 @@ function layoutFindings(fixture: any, rendered: RenderedActivity): FidelityFindi
  *
  *   - the fixture carries both a layout set out once and what moves (they exclude each other);
  *   - a marking that moves is named by no part of a Role exchange sentence: the part must cite the move (`remarking.changes[<id>]`) and
- *     every region edge that is the marking in this block, and say the noun of one of those regions; a marking this block cannot place
+ *     every region edge that is the marking in this block, and say the noun of one of those regions (as a whole word, `saysWord`, since
+ *     the stage C review); a marking this block cannot place
  *     (no such mark here, or one that must stay because a marking that does not move shares its place) is never named, so it is refused;
  *   - the sentence naming the moves does not say `MOVE_MARKINGS` (the renderer's constant, never typed here);
- *   - a Role exchange sentence says `NOTHING_RE_MARKED` while markings move.
+ *   - a Role exchange sentence says `NOTHING_RE_MARKED` while markings move;
+ *   - (stage C) an object that moves (`remarking.objects`) is named by no part of a Role exchange sentence citing its move and its position
+ *     and saying its kind as a whole word;
+ *   - (stage C) nothing moves (an empty account) and a Role exchange sentence says the markings are set out again.
  *
  * Read from citations, the account of what moves and the game's region nouns, with the two lexicons above.
  */
+/** A character that continues a word: a letter of any script, a digit, a hyphen or an underscore (so a compound is its own word). */
+const continuesWord = (ch: string | undefined): boolean => !!ch && (ch.toLowerCase() !== ch.toUpperCase() || (ch >= '0' && ch <= '9') || ch === '-' || ch === '_')
+
+/**
+ * **Whether a text says a word as a whole word** — the stage C review fix, 23 October 2026 (a TIGHTENING of the two noun clauses below,
+ * which found a noun or a kind anywhere in a part's text, so a kind was found inside a longer word that names something else). An
+ * occurrence counts only where no character continuing a word stands on either side of it. Exported for its unit test.
+ */
+export function saysWord(text: string, word: string): boolean {
+    if (!word) return false
+    for (let at = text.indexOf(word); at !== -1; at = text.indexOf(word, at + 1)) {
+        if (!continuesWord(text[at - 1]) && !continuesWord(text[at + word.length])) return true
+    }
+    return false
+}
+
 function remarkingFindings(fixture: any, rendered: RenderedActivity): FidelityFinding[] {
     const remarking: Remarking | null = Array.isArray(fixture?.remarking?.changes) ? fixture.remarking : null
     if (!remarking) return []
@@ -804,7 +871,7 @@ function remarkingFindings(fixture: any, rendered: RenderedActivity): FidelityFi
                     features.every(feature => part.from.includes(feature.path)) &&
                     features.some(feature => {
                         const noun = nounOf(feature.regionId)
-                        return !!noun && part.text.includes(noun)
+                        return !!noun && saysWord(part.text, noun)
                     }),
             ),
         )
@@ -813,8 +880,61 @@ function remarkingFindings(fixture: any, rendered: RenderedActivity): FidelityFi
         }
         named.forEach(instruction => naming.add(instruction))
     }
+    /**
+     * **Stage C, 23 October 2026: an object that moves is named too** (`remarking.objects`, `physical-layout.ts`; finding T19), a NEW clause:
+     * a part of a Role exchange sentence must cite the move (`remarking.objects[<id>]`) and the object's position in this block, and say its
+     * noun (its kind, as a region's part says the region's noun). No object has words yet (Stage G), so an object that moves between the
+     * blocks refuses the activity here.
+     */
+    for (const change of remarking.objects ?? []) {
+        const path = `remarking.objects[${change.elementId}]`
+        const named = exchange.filter(instruction =>
+            (instruction.parts ?? []).some(part => part.from.includes(path) && part.from.some(cited => cited.startsWith(`${change.path}.`)) && !!change.kind && saysWord(part.text, change.kind)),
+        )
+        if (!named.length) {
+            const where = (change.places ?? []).map(place => `${place.along && place.across ? `${place.along.from}-${place.along.to} m along and ${place.across.from}-${place.across.to} m across` : 'not placed'} in block ${place.blockId}`)
+            violation(`the object ${change.objectId}${change.kind ? ` (${change.kind})` : ''} (${where.join(', ')}) moves at the exchange, and no Role exchange sentence names it and where it goes in block ${blockId}`)
+        }
+        named.forEach(instruction => naming.add(instruction))
+    }
     for (const instruction of naming) if (!instruction.text.includes(MOVE_MARKINGS)) violation(`"${instruction.text}" names markings that move at the exchange without telling the coach to move them`)
-    for (const instruction of exchange) if (instruction.text.toLowerCase().includes(NOTHING_RE_MARKED)) violation(`"${instruction.text}" says ${NOTHING_RE_MARKED}, and markings move at the exchange`)
+    /**
+     * Stage C: the account is carried EMPTY where nothing moves, so "nothing is re-marked" is refused only where something does; and where
+     * nothing moves, a Role exchange sentence telling the coach to set the markings out again is refused (a lexicon TIGHTENING, the
+     * compensating check for the exchange sentence saying only what actually moves).
+     */
+    if (somethingMoves(remarking)) {
+        for (const instruction of exchange) if (instruction.text.toLowerCase().includes(NOTHING_RE_MARKED)) violation(`"${instruction.text}" says ${NOTHING_RE_MARKED}, and markings move at the exchange`)
+    } else {
+        for (const instruction of exchange) if (RE_MARKING_AT_EXCHANGE.some(pattern => pattern.test(instruction.text))) violation(`"${instruction.text}" tells the coach to set the markings out again at the exchange, and nothing moves between the blocks`)
+    }
+    return findings
+}
+
+/**
+ * **Q5-L, an object of a role block that neither the layout nor the account of what moves reads** — the stage C review fix, 23 October
+ * 2026, a NEW clause (a defensive tightening). Where what moves cannot be read from the blocks (`physical-layout.ts` gives neither a layout
+ * nor an account), the exchange falls back to the sentence saying the markings written for the roles are set out again, and that sentence
+ * names regions only: an object the block positions would then be moved, or not, without a word. So in a block of a game played in role
+ * blocks (`record.roleBlock`), an object holding a realized position on either axis while the fixture carries neither the markings set out
+ * once nor an account of what moves is a VIOLATION. Unreachable today (realization refuses an object open on either axis, and every
+ * served block carries a layout or an account); held so it stays refused, not silent.
+ */
+function unaccountedObjectFindings(fixture: any): FidelityFinding[] {
+    const blockId = fixture?.record?.roleBlock?.blockId
+    if (typeof blockId !== 'string' || !blockId) return []
+    if (fixture?.layout?.policy === MARK_UNION_ONCE || Array.isArray(fixture?.remarking?.changes)) return []
+    const findings: FidelityFinding[] = []
+    for (const object of (fixture.game?.objects ?? []) as any[]) {
+        const id = String(object?.elementId)
+        const placed = ['along', 'across'].filter(axis => !!(fixture.status?.geometry ?? []).find((g: any) => g.path === `objects[${id}].position.${axis}`)?.geometry?.interval)
+        if (!placed.length) continue
+        findings.push({
+            question: 5,
+            severity: 'VIOLATION',
+            what: `objects[${id}].position is realized (${placed.join(' and ')}) in block ${blockId}, and the fixture carries neither the markings set out once nor an account of what moves, so whether it moves at the exchange is not said`,
+        })
+    }
     return findings
 }
 
@@ -1352,6 +1472,7 @@ export function checkFidelity(
     }
     findings.push(...layoutFindings(fixture, rendered))
     findings.push(...remarkingFindings(fixture, rendered))
+    findings.push(...unaccountedObjectFindings(fixture))
     /**
      * **A scoring rule a coach cannot tell they have satisfied is operationally obscured.**
      *
@@ -1419,16 +1540,67 @@ export function checkFidelity(
      *   - it speaks for a bounded role it names in its text, as for one whose bound it cites or (scoring) anything of which it cites;
      *     and a How to score sentence naming a bounded role speaks for it whatever it cites.
      */
+    /**
+     * **No team's way to score is said in words written for another kind** — stage A, 22 October 2026 (register version 16). Christian,
+     * reply filed 25 October 2026, item 2: *"one primary scoring event per role"*. Until this the renderer said every kind but the zone entry
+     * with the line wording; it now withholds a kind neither existing wording is written for (`scoringWordingOf`). This is the independent
+     * check that no sentence says one: a sentence citing a team's scoring event (the game's primary event's kind, or a role's own) whose
+     * kind has no wording must be approved wording for this game, whatever renders it. A kind that is withheld and said by nothing is
+     * caught by the path test of Q3 (established, and no instruction carries it).
+     */
+    {
+        const kindPaths = eventKindPathsOf(fixture.game)
+        for (const instruction of rendered.instructions) {
+            if (isApproved(instruction)) continue
+            for (const at of instruction.from.filter(path => kindPaths.includes(path))) {
+                const kind = readPath(fixture.game, at)
+                if (scoringWordingOf(kind) !== null) continue
+                findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" says how a team scores by ${JSON.stringify(kind)} (${at}), for which no wording is written: it may be said only in approved words` })
+            }
+        }
+    }
+
+    /**
+     * **No target is called a line where it is not one** — the integration review fix, 23 October 2026, a NEW clause (a TIGHTENING). The
+     * renderer fell back to "line" wherever the targets' noun was not read, so once a target could be an object (stage B; his reply filed
+     * 25 October 2026, item 3) the TEST-ONLY goal version said "each team keeps attacking the same line", "Each team defends one line and
+     * attacks the other" and "each team now attacks the target line of its new role", and no clause compared a target noun with the target:
+     * with wording for the goal supplied elsewhere they would have passed every check. The renderer now says "line" only where every target
+     * is a line (render-concrete-game.ts); this is the independent check, whatever renders it. For each objective whose reference is not a
+     * region whose noun is "line" (an object, a region of another noun, or nothing the game holds), a sentence citing anything of that
+     * objective that is not approved wording for this game may not call a target a line (`TARGET_AS_LINE`). Read from citations, the game's
+     * objectives and regions, and that one lexicon. Every line-target game owes nothing here.
+     */
+    {
+        const regionsHeld: any[] = fixture.game?.space?.regions ?? []
+        for (const objective of (fixture.game?.objectives ?? []) as any[]) {
+            const ref = objective?.reference?.structuralRef
+            const id = ref ? `c:${ref.contractId}:${ref.itemId}` : null
+            const region = id ? regionsHeld.find(entry => String(entry?.elementId) === id) : undefined
+            if (region?.noun === 'line') continue
+            const at = `objectives[${objective?.elementId}]`
+            const target = region ? `the region ${id}, whose noun is ${JSON.stringify(region.noun ?? null)}` : id ? `${id}, which is no region of the game` : 'no element'
+            for (const instruction of rendered.instructions) {
+                if (isApproved(instruction) || !instruction.from.some(path => path.startsWith(`${at}.`))) continue
+                if (TARGET_AS_LINE.some(pattern => pattern.test(instruction.text))) {
+                    findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" calls a team's target a line, and it cites ${at}, whose target is ${target}: no line` })
+                }
+            }
+        }
+    }
+
     const roleElements: any[] = Array.isArray(fixture.game.activityRoles) ? fixture.game.activityRoles : []
     const boundedRoles = roleElements.filter(element => element?.creditedWithin !== undefined && element?.creditedWithin !== null && element.creditedWithin !== UNBOUNDED_CREDIT).map(element => `activityRoles[${element.elementId}]`)
     if (boundedRoles.length) {
-        const KIND = 'value.primaryEvent.kind'
+        // Stage A (22 October 2026): a sentence is a scoring sentence where it cites ANY team's scoring event — the game's primary event's
+        // kind or a role's own (row B9) — read through the one kind reader (game-reading.ts `eventKindPathsOf`).
+        const KINDS = eventKindPathsOf(fixture.game)
         const VALUE = 'value.primaryEvent.value'
         const nounOf: Record<string, string> = fixture.roleNouns?.nouns ?? {}
         const nounsOf = (element: any): string | null => (typeof element?.activityRole === 'string' && typeof nounOf[element.activityRole] === 'string' ? nounOf[element.activityRole] : null)
         const namedIn = (text: string) => roleElements.filter(element => !!nounsOf(element) && namesRole(text, nounsOf(element)!)).map(element => `activityRoles[${element.elementId}]`)
         for (const instruction of rendered.instructions) {
-            const scoring = instruction.from.includes(KIND) || (instruction.from.includes(VALUE) && instruction.from.some(path => path !== VALUE))
+            const scoring = instruction.from.some(path => KINDS.includes(path)) || (instruction.from.includes(VALUE) && instruction.from.some(path => path !== VALUE))
             const roleCited = instruction.from.some(path => path.startsWith('activityRoles['))
             const named = namedIn(instruction.text)
             if (scoring && (!roleCited || !named.length)) {

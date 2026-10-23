@@ -151,7 +151,10 @@ test('the possession game without roles is served exactly as before: no role sec
 test('key identity: each block fixture crosses whole, with the block it was derived for; the account carries the same blocks', () => {
     const single: any = buildActivityFromKnowledge(['GF2'], session).fixture
     for (const [i, block] of blocks.entries()) {
-        assert.deepEqual(Object.keys(block.fixture).sort(), [...Object.keys(single), 'roleNouns'].sort(), 'a block fixture has every key a single fixture has, plus the role nouns')
+        // Re-pointed 23 October 2026 (stage C, physical-layout.ts): and the account of what moves at the exchange, given wherever the blocks
+        // were read and the markings are not set out once: here the only regions are the end lines, so nothing moves and it is empty.
+        assert.deepEqual(Object.keys(block.fixture).sort(), [...Object.keys(single), 'remarking', 'roleNouns'].sort(), 'a block fixture has every key a single fixture has, plus the role nouns and what moves')
+        assert.deepEqual(block.fixture.remarking, { lengthM: 40, changes: [] }, 'nothing moves at the exchange')
         assert.deepEqual(block.fixture.record.roleBlock, { blockId: block.blockId, holders: block.holders }, 'the game records the block it was derived for')
         // Moved 15 October 2026 (stage K7): the role nouns cross with which role each block-scoped holder names (`holders`), so a value
         // written for a role holder (a restart's awardee, a start placement's group) is said by that role's noun. Its consumer is the

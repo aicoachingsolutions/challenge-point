@@ -209,9 +209,13 @@ test('A04 is unaffected: its only transition is a POSSESSION_CHANGE', () => {
     // until C48, later the same day, extended GF2's P6a NON_CLAIMED declaration to P6c (a row added after GF2 was
     // written): it is `not constrained` now, which is what GF2 says of every other neutral property. Still failed,
     // still eight.
+    // **9 since 23 October 2026 (stage D)**: register version 18 adds the game-level row B10 (whether the teams change ends at a
+    // coach-called block, his reply filed 25 October 2026, item 5). No contract A04 selects writes it, so game::B10 is NOT_AUTHORED
+    // ('no coverage'), moves no gate verdict, and the game keeps its ends.
     const failed = (result.resolution ?? []).filter((e: any) => e.state === 'failed')
     assert.ok(failed.some((e: any) => e.lineId === 'game::P6c' && e.reason === 'not constrained'))
-    assert.equal(failed.length, 8, 'eight failed lines: 6 after Wide Zone left on 8 October, 7 since the directional arrangement of 9 October added a second target and a second objective, and 8 since P6c (14 October)')
+    assert.ok(failed.some((e: any) => e.lineId === 'game::B10'))
+    assert.equal(failed.length, 9, 'nine failed lines: 6 after Wide Zone left on 8 October, 7 since the directional arrangement of 9 October added a second target and a second objective, 8 since P6c (14 October), and 9 since B10 (23 October)')
     const t7 = result.resolution.find((e: any) => /GF2-07\.a::T7$/.test(String(e.lineId)))
     assert.equal(t7?.value, true, 'and it still begins an episode, legitimately')
 })

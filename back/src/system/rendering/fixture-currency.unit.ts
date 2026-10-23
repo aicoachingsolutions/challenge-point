@@ -313,9 +313,13 @@ if (liveDigest !== frozenDigest) {
     const roles = { contractId: 'TEST-ONLY:roles', objectId: 'TEST-ONLY:roles', knowledgeVersion: 'stage-b', declarations: [], relationshipRules: [], items: [item('T-1', 'B1', 'activityRole=BUILDING', 'EXISTS', 'N/A'), item('T-2', 'B1', 'activityRole=PRESSING', 'EXISTS', 'N/A'), item('T-3', 'B3', '*', 'EQUALS', 'COACH_CALLS')] }
     const composed: any = buildActivityFromKnowledge(['GF2'], session, { alter: contracts => void contracts.push(JSON.parse(JSON.stringify(roles))) }).fixture
     const single: any = buildActivityFromKnowledge(['GF2'], session).fixture
-    assert.deepEqual(Object.keys(composed).sort(), [...Object.keys(single), 'roleBlocks', 'roleNouns'].sort(), 'the composed fixture adds the blocks and the role nouns, and drops nothing')
+    // Re-pointed 23 October 2026 (stage C, physical-layout.ts): each block also carries the account of what moves at the exchange, given
+    // wherever the blocks were read and the markings are not set out once (here the only regions are the end lines, so it is empty), and
+    // the composed fixture, block one's, carries it with it.
+    assert.deepEqual(Object.keys(composed).sort(), [...Object.keys(single), 'remarking', 'roleBlocks', 'roleNouns'].sort(), 'the composed fixture adds the blocks, the role nouns and what moves, and drops nothing')
     for (const block of composed.roleBlocks.blocks) {
-        assert.deepEqual(Object.keys(block.fixture).sort(), [...Object.keys(single), 'roleNouns'].sort(), `block ${block.blockId}: every key of a single fixture crosses`)
+        assert.deepEqual(Object.keys(block.fixture).sort(), [...Object.keys(single), 'remarking', 'roleNouns'].sort(), `block ${block.blockId}: every key of a single fixture crosses`)
+        assert.deepEqual(block.fixture.remarking, { lengthM: 40, changes: [] }, `block ${block.blockId}: nothing moves at the exchange`)
         assert.deepEqual(Object.keys(block.fixture.record).sort(), [...Object.keys(single.record), 'roleBlock'].sort(), `block ${block.blockId}: its record names the block it was derived for`)
     }
     const moved = JSON.parse(JSON.stringify(composed))

@@ -42,8 +42,9 @@
  * by category: what existing knowledge authorizes, his provisional choices, and the gaps.
  */
 import type { ProvisionalRealization } from '../derivation/corpus'
-import { loadProvisionalRealizations, PROVISIONAL_REALIZATION_CHOICE } from '../derivation/corpus'
+import { loadProvisionalRealizations, loadRegister, PROVISIONAL_REALIZATION_CHOICE } from '../derivation/corpus'
 import { knowledgeKey } from '../derivation/knowledge-key'
+import { indexRegister } from '../derivation/register'
 import type { LearningDesignHold } from './learning-design-holds'
 import { learningGoalSelectionHolds } from './learning-design-holds'
 import record from './library/learning-goal-authorizations.json'
@@ -182,6 +183,49 @@ export interface ContextManipulationRelationship {
 }
 
 /**
+ * **A context's scoring relationship** — stage A, 22 October 2026 (the design's X3: *"The pressing role's event (B9) and its objective
+ * reference (J2): a context SCORING relationship."*). Christian, reply filed 25 October 2026, item 2: *"preserving structural validation
+ * and knowledge authorization."* Context-level, like a manipulation relationship: it names no goal; `rows` are the register rows a
+ * realization citing it may author; it authorizes something only once `status` is CONFIRMED. Held in the records' optional
+ * `contextScoringRelationships` list, which holds no entry on 22 October 2026 (his item 3 is recorded only after the note sent to him:
+ * Stage F of the design). Validated with the manipulation relationships, and passed with them wherever relationships are read
+ * (`contextRelationships`).
+ */
+export interface ContextScoringRelationship {
+    id: string
+    category: 'CONTEXT_SCORING_RELATIONSHIP'
+    contextId: string
+    contextName: string
+    /**
+     * The one scoring event the relationship authorizes: a member of the register's scoring-event vocabulary (`roleScoring.kindVocabulary`),
+     * checked at load (stage A review fix). `applyRoleYields` counts an item writing a role's own event as citing it only where the item
+     * writes exactly this event.
+     */
+    scoringEvent: string
+    /**
+     * The one role it is confirmed for: a member of the register's role vocabulary (`roleBlocks.roles`), checked at load (stage A review
+     * fix; the design's K3: *"authorizing rows B9 and J2 for the pressing role only"*). GA-ROLE-EVENTS clause 6 lets it stand only for
+     * that role's event and objective reference. OUR READING of K3's scope, recorded as a field so it is never inferred.
+     */
+    role: string
+    rows: string[]
+    via: string[]
+    identified: string
+    status: 'IDENTIFIED' | 'CONFIRMED'
+    confirmedOn: string | null
+    confirmedBy: string | null
+    citedAs: string
+    words: string[]
+    note: string | null
+    /**
+     * The items (`contractId::itemId`) a CONFIRMED relationship names as superseded for its one role (stage A, 22 October 2026; read by
+     * `realization-deferral.ts` `applyRoleYields`). Only a scoring relationship may name them (a manipulation relationship names no event or
+     * role it authorizes, so what it superseded could never stand, and the validator refuses it there).
+     */
+    supersedes?: string[]
+}
+
+/**
  * **The adjustments he authorized for one goal's activity, in his words** — added 15 October 2026 (stage K4). His reply filed
  * 17 October 2026, D6: *"For now, I am asking that these remain possible, authorized adjustments—not that we implement a live
  * challenge-regulation system."* Read only to say them in "Adjusting the activity" (DRAFT); no state, trigger or count.
@@ -272,7 +316,9 @@ export const SETTLEABLE_FLAG_KINDS: readonly ReviewFlagKind[] = ['REGAIN_INSIDE_
  *   - `SPECIALIZED_PERFORMERS_BEYOND_ROLE`: performers of a specialized role the session has beyond those the teams' counts of that
  *     role hold (read per block from the game), and who moves at an exchange;
  *   - `FLAGGED_CASE`: a case one of the request's flags analyses (the flag's own status and answer);
- *   - `CHECKED_PATHWAY_ONLY`: the activity is built only through the checked review pathway (the pathway facts).
+ *   - `CHECKED_PATHWAY_ONLY`: the activity is built through the checked review pathway, with what the live route does with it (the pathway
+ *     facts). Since 22 October 2026 (the live-app fix) the live route builds a record-backed selection through that same pathway, so the fact
+ *     read for it says so; his words, which describe the state before, are kept as provenance. The kind's name is unchanged.
  */
 export const REVIEW_LIMITATION_KINDS = ['SPECIALIZED_PERFORMERS_BEYOND_ROLE', 'FLAGGED_CASE', 'CHECKED_PATHWAY_ONLY'] as const
 export type ReviewLimitationKind = (typeof REVIEW_LIMITATION_KINDS)[number]
@@ -393,10 +439,66 @@ export interface LearningGoalAuthorization {
      * a goal whose record names it (`derivationInputFor`), and the record itself still holds no value.
      */
     provisionalRealization?: string
+    /**
+     * **The alternative realizations of this goal's activity, in the order he authorized them** (stage E, 23 October 2026), or absent. His
+     * reply filed 25 October 2026, item 4: *"I approve retaining both alternatives."* *"These should be alternative knowledge-authorized
+     * realizations, not separate hardcoded implementations of the same Learning Goal."* Item 3: *"My preference is to use the
+     * physical-[object] version when an appropriate [object] and [specialized performer] are available and the selected realization supports
+     * that relationship."* (His nouns bracketed for the coupling ratchet; the record quotes him whole.)
+     *
+     * Each entry names a realization of `provisional-realizations.json`, with his words for its place in the order. The build tries them in
+     * that order and moves to the next ONLY where the one tried does not apply to the session (a typed applicability refusal); an entry whose
+     * status is a gap (MISSING_KNOWLEDGE, MISSING_CAPABILITY) is listed, with what it waits on, and never tried. A record names its
+     * realizations one way: `provisionalRealization` (one, read as a list of one) or this list, never both. No production record carries the
+     * list on 23 October 2026 (the second realization is the design's Stage F, after his rulings), so every record reads as before.
+     */
+    realizations?: RealizationAlternativeRecord[]
     /** The adjustments he authorized for this goal's activity (15 October 2026, stage K4), or absent. */
     authorizedAdjustments?: AuthorizedAdjustments
     /** What he asked the next review of this goal's activity to show (stage K8, 15 October 2026), or absent. */
     reviewRequest?: ReviewRequest
+}
+
+/** One alternative realization as a record lists it (stage E): the realization, his words for its place, and whether it can be tried now. */
+export interface RealizationAlternativeRecord {
+    realization: string
+    words: string
+    citedAs: string
+    /** Absent: the realization can be tried. A gap status: listed with what it waits on (`gaps`, defined in the record), never tried. */
+    status?: ManipulationStatus
+    gaps?: string[]
+}
+
+/** One alternative as the build reads it: from the list, or the record's single realization read as a list of one (stage E). */
+export interface RealizationAlternative {
+    realization: string
+    /** His words and where he said them, from the list; null for a record's single realization, which names no order. */
+    words: string | null
+    citedAs: string | null
+    /** False for an entry whose status is a gap: listed, never tried. */
+    selectable: boolean
+    status: string | null
+    gaps: string[]
+}
+
+/**
+ * **A record's realizations in the order the build tries them** (stage E, 23 October 2026), copied from the record: its ordered list, or its
+ * single `provisionalRealization` read as a list of one (every production record on that day), or none. The one reader of which realization
+ * a record names: derivation's default (`run-bounded-selection.ts` realizationOf), the build's loop and the account all read this.
+ */
+export function realizationAlternativesOf(record: Pick<LearningGoalAuthorization, 'provisionalRealization' | 'realizations'> | null | undefined): RealizationAlternative[] {
+    if (!record) return []
+    if (Array.isArray(record.realizations)) {
+        return record.realizations.map(entry => ({
+            realization: entry.realization,
+            words: entry.words,
+            citedAs: entry.citedAs,
+            selectable: !(typeof entry.status === 'string' && isGapStatus(entry.status)),
+            status: entry.status ?? null,
+            gaps: [...(entry.gaps ?? [])],
+        }))
+    }
+    return record.provisionalRealization ? [{ realization: record.provisionalRealization, words: null, citedAs: null, selectable: true, status: null, gaps: [] }] : []
 }
 
 const filled = (value: unknown): boolean => typeof value === 'string' && value.trim().length > 0
@@ -500,6 +602,33 @@ export function validateLearningGoalAuthorizations(
                 errors.push(`${goal}: provisional choice ${i + 1} carries a code or an area a reader would act on (value, appliesTo); marking once is a general presentation rule since his reply filed 23 October 2026, item 2, and no reader acts on a choice per configuration`)
             }
         }
+        /**
+         * **The alternative realizations, read whole or refused** (stage E, 23 October 2026). A record names its realizations one way; the
+         * list names each realization once, each one the provisional realizations hold, each with his words for its place in the order; an
+         * entry's status, where given, follows the record's own rule (a gap status names what would supply it, any other names nothing), and
+         * a list in which no entry can be tried is refused, because a goal whose record lists realizations and can build none of them is a gap
+         * the record must say as an entry, not leave the build to discover.
+         */
+        if (entry.realizations !== undefined) {
+            if (entry.provisionalRealization !== undefined) errors.push(`${goal}: names its realizations twice (provisionalRealization and realizations); a record names them one way`)
+            const list = Array.isArray(entry.realizations) ? entry.realizations : []
+            if (!list.length) errors.push(`${goal}: lists no realization in realizations (absent says it names none)`)
+            const named = new Set<string>()
+            for (const [i, alternative] of list.entries()) {
+                const which = `${goal}: alternative realization ${i + 1}`
+                if (!filled(alternative?.realization) || !provisionalIds.includes(String(alternative.realization))) errors.push(`${which} names the provisional realization ${alternative?.realization}, which provisional-realizations.json does not hold`)
+                if (named.has(String(alternative?.realization))) errors.push(`${which} names ${alternative.realization} a second time`)
+                named.add(String(alternative?.realization))
+                if (!filled(alternative?.words) || !filled(alternative?.citedAs)) errors.push(`${which} does not quote him for its place in the order (words and citedAs are required)`)
+                if (alternative?.status !== undefined || alternative?.gaps !== undefined) {
+                    // Tried (his ruling) or waiting on a gap: no other status says whether a realization can be tried.
+                    if (alternative.status !== 'AUTHORIZED_BY_RULING' && !isGapStatus(String(alternative.status))) errors.push(`${which} has the status ${alternative.status}; an alternative is AUTHORIZED_BY_RULING or waits on a gap (${GAP_STATUSES.join(', ')})`)
+                    errors.push(...statusErrors(which, 'PROVISIONAL_REALIZATION_CHOICE', String(alternative.status), alternative.gaps ?? []))
+                }
+            }
+            if (list.length && !realizationAlternativesOf(entry).some(alternative => alternative.selectable)) errors.push(`${goal}: no alternative realization it lists can be tried (each waits on a gap)`)
+        }
+
         const authorized = new Set((entry.authorizedConstraints ?? []).map(knowledgeKey))
         for (const id of entry.authorizedConstraints ?? []) {
             if (!selectable.has(knowledgeKey(id))) errors.push(`${goal}: authorizes ${id}, which the selectable library does not hold`)
@@ -565,18 +694,25 @@ export function validateContextManipulationRelationships(
     relationships: ContextManipulationRelationship[] | undefined,
     records: LearningGoalAuthorization[],
     provisional: ProvisionalRealization[] = loadProvisionalRealizations(),
+    /**
+     * Stage A, 22 October 2026: the records' context SCORING relationships, validated by the same rules beside the manipulation ones,
+     * so a realization item may cite a relationship of either kind and every citation resolves against both (`contextRelationships`).
+     */
+    scoring: ContextScoringRelationship[] | undefined = [],
+    /**
+     * Stage A review fix: the register a scoring relationship's event and role are checked against (its scoring-event and role
+     * vocabularies). Read only where a scoring relationship is given; a parameter only so a test can hand a damaged copy.
+     */
+    register?: unknown,
 ): string[] {
     const errors: string[] = []
     const list = relationships ?? []
     if (!Array.isArray(list)) return ['contextManipulationRelationships must be a list']
-    const byId = new Map<string, ContextManipulationRelationship>()
-    for (const [i, entry] of list.entries()) {
-        const which = `relationship ${entry?.id || i + 1}`
-        if (!filled(entry?.id)) errors.push(`relationship ${i + 1} has no id`)
-        if (byId.has(entry.id)) errors.push(`${which} is defined twice`)
-        byId.set(entry.id, entry)
-        if (entry.category !== 'EXISTING_KNOWLEDGE_RELATIONSHIP') errors.push(`${which} is not labelled EXISTING_KNOWLEDGE_RELATIONSHIP`)
-        if (!filled(entry.contextId) || !filled(entry.manipulationId) || !filled(entry.manipulationStatus)) errors.push(`${which} must name its context, its manipulation and the manipulation's status`)
+    const scoringList = scoring ?? []
+    if (!Array.isArray(scoringList)) return ['contextScoringRelationships must be a list']
+    const byId = new Map<string, ContextManipulationRelationship | ContextScoringRelationship>()
+    /** What every relationship must say, whatever its kind (the manipulation rules since stage K4, shared since stage A). */
+    const common = (entry: ContextManipulationRelationship | ContextScoringRelationship, which: string) => {
         if (!Array.isArray(entry.rows) || !entry.rows.length || !entry.rows.every(filled)) errors.push(`${which} authorizes no register row`)
         if (!Array.isArray(entry.via) || !entry.via.length || !entry.via.every(filled)) errors.push(`${which} names nothing the relationship runs through (via)`)
         if (!filled(entry.identified)) errors.push(`${which} does not say who identified it`)
@@ -584,6 +720,41 @@ export function validateContextManipulationRelationships(
         if (entry.status === 'CONFIRMED' && (!filled(entry.confirmedOn) || !filled(entry.confirmedBy) || !filled(entry.citedAs) || !Array.isArray(entry.words) || !entry.words.length || !entry.words.every(filled))) {
             errors.push(`${which} is CONFIRMED and does not say who confirmed it, when, where and in his words`)
         }
+    }
+    for (const [i, entry] of list.entries()) {
+        const which = `relationship ${entry?.id || i + 1}`
+        if (!filled(entry?.id)) errors.push(`relationship ${i + 1} has no id`)
+        if (byId.has(entry.id)) errors.push(`${which} is defined twice`)
+        byId.set(entry.id, entry)
+        if (entry.category !== 'EXISTING_KNOWLEDGE_RELATIONSHIP') errors.push(`${which} is not labelled EXISTING_KNOWLEDGE_RELATIONSHIP`)
+        if (!filled(entry.contextId) || !filled(entry.manipulationId) || !filled(entry.manipulationStatus)) errors.push(`${which} must name its context, its manipulation and the manipulation's status`)
+        // Stage A review fix: only a scoring relationship, which names the event and the role it authorizes, may supersede items for one role.
+        if ((entry as { supersedes?: unknown }).supersedes !== undefined) errors.push(`${which} names items it supersedes for one role, which only a context scoring relationship (naming the event and the role it authorizes) may`)
+        common(entry, which)
+    }
+    // The register's vocabularies, read once and only where a scoring relationship is given (none is recorded on 22 October 2026).
+    const vocabularies = scoringList.length ? indexRegister(register ?? loadRegister()) : null
+    for (const [i, entry] of scoringList.entries()) {
+        const which = `scoring relationship ${entry?.id || i + 1}`
+        if (!filled(entry?.id)) errors.push(`scoring relationship ${i + 1} has no id`)
+        if (byId.has(entry.id)) errors.push(`${which} is defined twice`)
+        byId.set(entry.id, entry)
+        if (entry.category !== 'CONTEXT_SCORING_RELATIONSHIP') errors.push(`${which} is not labelled CONTEXT_SCORING_RELATIONSHIP`)
+        if (!filled(entry.contextId) || !filled(entry.scoringEvent)) errors.push(`${which} must name its context and the scoring event it authorizes`)
+        /**
+         * Stage A review fix: the event is one member of the register's scoring-event vocabulary, and the role one member of its role
+         * vocabulary, so the relationship authorizes exactly one event for exactly one role (`applyRoleYields`, GA-ROLE-EVENTS clause 6).
+         */
+        const roleScoring = vocabularies?.roleScoring
+        if (!roleScoring) errors.push(`${which} authorizes a scoring event, and the register holds no role-scoring block to read it by`)
+        else if (filled(entry.scoringEvent) && !roleScoring.kinds.includes(entry.scoringEvent)) errors.push(`${which} authorizes the scoring event ${JSON.stringify(entry.scoringEvent)}, which is not a member of ${roleScoring.kindVocabulary}`)
+        const roles = vocabularies?.roleBlocks?.roles ?? []
+        if (!filled(entry.role) || !roles.includes(entry.role)) errors.push(`${which} must name the one role it is confirmed for, a member of the register's roles (${roles.join(', ') || 'none'}); it names ${JSON.stringify(entry.role)}`)
+        // Stage A: what a relationship supersedes for its role names items, each as contractId::itemId (applyRoleYields matches them whole).
+        if (entry.supersedes !== undefined && (!Array.isArray(entry.supersedes) || !entry.supersedes.length || !entry.supersedes.every(key => filled(key) && String(key).split('::').length === 2 && String(key).split('::').every(filled)))) {
+            errors.push(`${which} names what it supersedes as something other than a list of items (contractId::itemId)`)
+        }
+        common(entry, which)
     }
     for (const realization of provisional) {
         for (const item of realization.items) {
@@ -612,7 +783,9 @@ export function validateContextManipulationRelationships(
             if (!filled(adjustment.words) || !filled(adjustment.citedAs) || !filled(adjustment.ruledOn) || !filled(adjustment.by)) errors.push(`${which} must quote him and say who ruled it, when and where`)
             if (adjustment.consequence !== null && !filled(adjustment.consequence)) errors.push(`${which} gives a consequence that is not his sentence`)
             if (adjustment.coachWords !== undefined && !filled(adjustment.coachWords)) errors.push(`${which} gives coach wording that says nothing`)
-            if (!byId.has(adjustment.relationship)) errors.push(`${which} names the relationship ${adjustment.relationship}, which contextManipulationRelationships does not hold`)
+            // A manipulation relationship only (stage A review fix): the shared lookup above also holds scoring relationships, which no
+            // adjustment of a team's numbers or space may rest on; until this fix an adjustment could have resolved to one.
+            if (!list.some(relationship => relationship.id === adjustment.relationship)) errors.push(`${which} names the relationship ${adjustment.relationship}, which contextManipulationRelationships does not hold`)
             if (!filled(adjustment.role) || !filled(adjustment.parameter)) errors.push(`${which} must name the role whose team it changes and the parameter it moves`)
         }
         if (!Array.isArray(adjustments.entries) || !adjustments.entries.length) errors.push(`${goal}: authorizedAdjustments lists no adjustment`)
@@ -624,12 +797,14 @@ const RECORDS = record.authorizations as LearningGoalAuthorization[]
 const PRINCIPLE = (record as { libraryConstraintPrinciple?: LibraryConstraintPrinciple }).libraryConstraintPrinciple ?? null
 const ALLOCATION_PRINCIPLE = (record as { allocationPrinciple?: LibraryConstraintPrinciple }).allocationPrinciple ?? null
 const RELATIONSHIPS = ((record as { contextManipulationRelationships?: ContextManipulationRelationship[] }).contextManipulationRelationships ?? []) as ContextManipulationRelationship[]
+// Stage A (22 October 2026): the optional list of context scoring relationships; the records hold none on that day.
+const SCORING_RELATIONSHIPS = ((record as { contextScoringRelationships?: ContextScoringRelationship[] }).contextScoringRelationships ?? []) as ContextScoringRelationship[]
 {
     const errors = [
         ...validateLibraryConstraintPrinciple(PRINCIPLE),
         ...validateAllocationPrinciple(ALLOCATION_PRINCIPLE),
         ...validateLearningGoalAuthorizations(RECORDS),
-        ...validateContextManipulationRelationships(RELATIONSHIPS, RECORDS),
+        ...validateContextManipulationRelationships(RELATIONSHIPS, RECORDS, undefined, SCORING_RELATIONSHIPS),
     ]
     if (errors.length) throw new Error(`learning-goal-authorizations.json failed its integrity gate: ${errors.join(' | ')}`)
 }
@@ -642,6 +817,22 @@ export function allocationPrinciple(): LibraryConstraintPrinciple {
 /** The context-manipulation relationships, as copies: what a realization may cite (`realization-deferral.ts`). */
 export function contextManipulationRelationships(): ContextManipulationRelationship[] {
     return JSON.parse(JSON.stringify(RELATIONSHIPS)) as ContextManipulationRelationship[]
+}
+
+/** The context scoring relationships, as copies (stage A; none recorded on 22 October 2026). */
+export function contextScoringRelationships(): ContextScoringRelationship[] {
+    return JSON.parse(JSON.stringify(SCORING_RELATIONSHIPS)) as ContextScoringRelationship[]
+}
+
+/**
+ * **Every context relationship the records hold, of every kind, as copies** — stage A, 22 October 2026 (the design's X3: *"The deferral's
+ * input is kind-neutral ... Today it is fed only contextManipulationRelationships(). Feeding it every recorded kind is a general change."*).
+ * What a realization item may cite (`authorizedBy`), read by the deferral and the role yields (`realization-deferral.ts`) and by the
+ * allocation account. On 22 October 2026 this equals `contextManipulationRelationships()` entry for entry: no scoring relationship is
+ * recorded.
+ */
+export function contextRelationships(): (ContextManipulationRelationship | ContextScoringRelationship)[] {
+    return [...contextManipulationRelationships(), ...contextScoringRelationships()]
 }
 
 /** His general principle on library constraints, as a copy: what an evaluated, empty authorized set is read under. */

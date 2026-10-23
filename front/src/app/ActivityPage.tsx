@@ -28,6 +28,7 @@ import Button from '@/components/Button'
 import Loading from '@/components/Loading'
 import Modal from '@/components/Modal'
 import ActivityReviewForm from '@/forms/ActivityReviewForm'
+import { ActivityBlock } from './CheckedActivityBlock'
 
 // Create options array from EngagementLevels enum
 export const engagementLevelOptions = Object.entries(EngagementLevels).map(([text, value]) => ({
@@ -517,7 +518,8 @@ function ActivityScreen({
                           visible — a coach adapting an activity to their group is normal practice,
                           not an exception, and making them hunt for it would say otherwise.
                         */}
-                        {activityDetailsExpanded && !isEditingContent && (
+                        {/* A checked activity is the server's stored build, read-only for the pilot (22 October 2026): no editing. */}
+                        {activityDetailsExpanded && !isEditingContent && !activity.checkedActivity && (
                             <button
                                 type='button'
                                 onClick={() => setIsEditingContent(true)}
@@ -535,7 +537,12 @@ function ActivityScreen({
                         />
                     )}
 
-                    {activityDetailsExpanded && !isEditingContent && <ActivitySections activity={activity} />}
+                    {/*
+                      * A checked activity (22 October 2026, the live-app fix) is rendered as stored, through the review page's own component:
+                      * the Coach Overview, the diagram and the Coach details the coach saw before starting it. Every other activity as before.
+                      */}
+                    {activityDetailsExpanded && !isEditingContent && activity.checkedActivity && <ActivityBlock activity={activity.checkedActivity} />}
+                    {activityDetailsExpanded && !isEditingContent && !activity.checkedActivity && <ActivitySections activity={activity} />}
                 </div>
             </div>
 

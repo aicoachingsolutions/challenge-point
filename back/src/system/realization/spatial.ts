@@ -29,7 +29,7 @@
  */
 
 import { practicalRequirement } from '../derivation/practical'
-import { scaleExactly } from '../derivation/rational'
+import { centredExactly, scaleExactly } from '../derivation/rational'
 import { RegisterIndex } from '../derivation/register'
 import { relativePositionOf, teamEndPositionOf } from '../derivation/types'
 
@@ -64,6 +64,13 @@ export interface RealizedGeometry {
      * GA-RELATIVE-PLACEMENT has what it re-checks.
      */
     relation?: { term: string; of: { contractId: string; itemId: string }; forTeam: string; direction: 1 | -1; referentFarEdge: number }
+    /**
+     * **Why realization must refuse this placement**, where the term itself cannot be placed without inventing something — 23 October 2026
+     * (stage B, register version 17): RC-21's `central` with no extent stated for the element (the width the session states, or a REQUIRED
+     * extent), or an extent that reaches a touchline; and an end-line anchor naming a team whose end nothing fixes for the element (T15).
+     * The realizer refuses the game naming it (realize.ts), so no default is placed and nothing is left for a later gate to discover.
+     */
+    refusal?: string
     why: string
 }
 
@@ -156,10 +163,22 @@ export interface SpatialContext {
      * own objectives (team-ends.ts) and this file only reads the answer. Null where it is not established: nothing is placed.
      */
     teamAttackingEnd?: (designation: string) => 0 | 1 | null
+    /**
+     * **Why a team's end can never be established in this game, where that is so** (stage B review fix, 23 October 2026): team-ends.ts's
+     * reason for a cycle or a second level of objects positioned by a team (`AttackingEnd.refuses`), or null. Read only where
+     * `teamAttackingEnd` answers null for a position measured from that team's end line, which then refuses the game naming it.
+     */
+    teamEndRefusal?: (designation: string) => string | null
     /** The realized along interval of an element a relative position names, or null while it has none. */
     referentInterval?: (ref: { contractId: string; itemId: string }) => { from: number; to: number } | null
     /** A RELATIVE bound authored on this line ("beyond X (for team T)"), composed only where no metric extent is required. */
     relativeBound?: { term?: string; relation?: string; of?: { contractId: string; itemId: string }; forTeam?: string }
+    /**
+     * **The width the session states for objects of this element's kind, in metres** — 23 October 2026 (stage B, register version 17), a
+     * realization input (the session field is stage E's). Read only by a term whose extent the session may state (RC-21's `central`,
+     * `extentFrom` SESSION_STATED_WIDTH); never a default, and absent means not stated.
+     */
+    statedExtentM?: number
 }
 
 /**
@@ -218,7 +237,15 @@ function realizeTypedPosition(value: Record<string, unknown>, index: RegisterInd
         if (!definition || definition.kind !== 'anchor' || definition.axis !== 'along' || (definition.at !== 0 && definition.at !== 1)) return null
         const attacks = ctx.teamAttackingEnd ? ctx.teamAttackingEnd(fromEnd.forTeam) : null
         const base = { asAuthored, term: fromEnd.term, axis: 'along' as const }
-        if (attacks === null) return { ...base, extentUnresolved: true, why: `${definition.why ?? ''} Not placed: ${fromEnd.forTeam} attacks no end this game establishes.` }
+        if (attacks === null) {
+            // Stage B review fix: where the end can never be established (a cycle, a second level of objects), the game is refused naming why.
+            const never = ctx.teamEndRefusal ? ctx.teamEndRefusal(fromEnd.forTeam) : null
+            if (never) {
+                const why = `the end line ${fromEnd.forTeam} ${definition.at === 1 ? 'attacks' : 'defends'} can never be established in this game: ${never}`
+                return { ...base, extentUnresolved: true, refusal: why, why: `${definition.why ?? ''} Not placed: ${why}.` }
+            }
+            return { ...base, extentUnresolved: true, why: `${definition.why ?? ''} Not placed: ${fromEnd.forTeam} attacks no end this game establishes.` }
+        }
         // "own end" (at 0) is the end the team does NOT attack; "attacking end" (at 1) the one it does.
         const end: 0 | 1 = definition.at === 1 ? attacks : attacks === 1 ? 0 : 1
         const L = axes.along
@@ -237,9 +264,64 @@ function realizeTypedPosition(value: Record<string, unknown>, index: RegisterInd
             const axis = definition.axis ?? ctx.axis
             return { asAuthored, term: value.term, axis, interval: { from: definition.from * axes[axis as 'along' | 'across'], to: definition.to * axes[axis as 'along' | 'across'] }, extentUnresolved: false, why: definition.why ?? '' }
         }
+        if (definition && definition.kind === 'centred') return realizeCentred(value.term, asAuthored, definition, ctx, axes)
     }
     return null
 }
+
+/**
+ * **RC-21's `central`, composed against the envelope** — 23 October 2026 (stage B, register version 17). The prose test is *"contains the
+ * axis midline across the width, and touches neither touchline"*: the term fixes the element's centre and states no width, so the interval
+ * needs the element's extent on the term's axis, from a source its definition lists (`extentFrom`, validated at load):
+ *
+ *   - REQUIRED_EXTENT — a REQUIRED extent authored on the line (a preferred one never closes it, as everywhere else); where the session
+ *     also states a width, that width must lie inside the requirement or the term refuses;
+ *   - SESSION_STATED_WIDTH — the width the session states for objects of the element's kind (`statedExtentM`), used as stated.
+ *
+ * Where neither is stated, or the extent reaches a touchline, the term REFUSES (`refusal`): nothing is placed, and no width is assumed.
+ * Christian, reply filed 25 October 2026, item 3: *"Please identify any missing knowledge decisions needed here rather than inventing
+ * dimensions or treating every goal as interchangeable."*
+ *
+ * **The term is placed only on its own axis** (stage B review fix, 23 October 2026). The definition names the axis it centres on; written on
+ * a position row of the OTHER axis (an object's along position, say), it would compose an interval on its own axis and the realizer would
+ * set that interval on the row's line - a depth taken from a stated width, which every gate then accepted (measured in the review: 12.5-17.5
+ * m into the area, from a width of 5). So a row whose axis is not the term's refuses, naming both axes, as an axis-bound phrase on the wrong
+ * row is never placed.
+ */
+function realizeCentred(term: string, asAuthored: string, definition: any, ctx: SpatialContext, axes: { along: number; across: number }): RealizedGeometry {
+    const axis: 'along' | 'across' = definition.axis === 'along' ? 'along' : 'across'
+    if (ctx.axis !== axis) {
+        const why = `"${term}" centres an element on the ${axis} axis, and it is written on the element's ${ctx.axis} position, so nothing is placed by it`
+        return { asAuthored, term, axis: ctx.axis, extentUnresolved: true, refusal: why, why: `${definition.why ?? ''} Not placed: ${why}.` }
+    }
+    const length = axes[axis]
+    const base = { asAuthored, term, axis }
+    const sources: string[] = Array.isArray(definition.extentFrom) ? definition.extentFrom : []
+    const bound = ctx.extentBound && !ctx.extentBound.preferred && Number.isFinite(ctx.extentBound.max) ? ctx.extentBound : undefined
+    const metres = (raw: unknown): number | null => (typeof raw === 'number' && Number.isFinite(raw) ? (bound?.fractionOfAxis ? scaleExactly(raw, length) : raw) : null)
+    const required = sources.includes('REQUIRED_EXTENT') && bound ? { min: metres(bound.min), max: metres(bound.max) as number } : null
+    const stated = sources.includes('SESSION_STATED_WIDTH') && typeof ctx.statedExtentM === 'number' && Number.isFinite(ctx.statedExtentM) && ctx.statedExtentM > 0 ? ctx.statedExtentM : null
+    const refuse = (why: string): RealizedGeometry => ({ ...base, extentUnresolved: true, refusal: why, why: `${definition.why ?? ''} Not placed: ${why}.` })
+    if (stated !== null && required && ((required.min !== null && stated < required.min) || stated > required.max)) {
+        return refuse(`the width the session states (${stated} m) lies outside the required extent (${required.min ?? 0}-${required.max} m)`)
+    }
+    const extent = stated ?? required?.max ?? null
+    if (extent === null) return refuse(`"${term}" needs the element's extent ${axis === 'across' ? 'across' : 'along'} the axis, and neither a required extent nor a width the session states is given for it`)
+    const interval = centredExactly(length, extent)
+    if (!interval) return refuse(`an extent of ${extent} m centred on a ${length} m axis ${extent >= length ? 'reaches both touchlines' : 'cannot be stated exactly'}, which "${term}" does not admit`)
+    return {
+        ...base,
+        interval,
+        extentUnresolved: false,
+        why: `${definition.why ?? ''} Centred on the midline of the ${length} m axis, ${extent} m ${stated !== null ? 'wide as the session states it' : 'wide, the widest the required extent admits'}.`,
+    }
+}
+
+/**
+ * **An end-line anchor that names a team (RC-21's "own end (of team T)" or "attacking end (of team T)")** — the same reading the typed
+ * position makes (an along anchor at an end line, 0 or 1).
+ */
+const namesTeamEnd = (definition: TermDefinition): boolean => definition.kind === 'anchor' && definition.axis === 'along' && (definition.at === 0 || definition.at === 1)
 
 export function realizeSpatialRelation(value: unknown, index: RegisterIndex, ctx: SpatialContext): RealizedGeometry | null {
     if (value && typeof value === 'object' && !Array.isArray(value)) {
@@ -277,6 +359,18 @@ export function realizeSpatialRelation(value: unknown, index: RegisterIndex, ctx
      */
     const lateralAt = axis === 'across' && ctx.lateral ? LATERAL_ANCHORS[ctx.lateral] : undefined
     const longitudinalAt = axis === 'along' && ctx.longitudinal ? LONGITUDINAL_ANCHORS[ctx.longitudinal] : undefined
+    /**
+     * **T15 — an end-line anchor naming a team is placed at that team's end, or not at all** (23 October 2026, stage B). The term's `at` is
+     * the end line T defends (0) or attacks (1) for SOME team T, not a fixed end of the axis; until this an element whose own authored
+     * selector fixed no end took `at` as it stood, whatever team the phrase named (measured: a goal placed by "attacking end" sat at the far
+     * end line in both blocks, and no gate refused it). A phrase names its team only in prose, which is not read (SD-32), so where the
+     * element's own authored `longitudinal` value (his 9 October ruling) does not fix the end, nothing is placed and realization refuses: a
+     * position stated for a team the game resolves is written typed ({term, forTeam, offsetM}) and placed above, from that team's end.
+     */
+    if (axis === 'along' && longitudinalAt === undefined && namesTeamEnd(definition)) {
+        const why = `"${value}" places the element at an end line of a team the phrase names in prose only, and the element's own selector fixes no end, so no end is assumed`
+        return { ...base, extentUnresolved: true, refusal: why, why: `${definition.why ?? ''} Not placed: ${why}.` }
+    }
     const at = lateralAt ?? longitudinalAt ?? definition.at
     const anchor = at * extent
     const lateralWhy =

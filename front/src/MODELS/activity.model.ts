@@ -1,3 +1,4 @@
+import type { ServedActivity } from './activity-review.model'
 import type { IAffordance } from './affordance.model'
 import type { ICategory } from './category.model'
 import type { IConstraint } from './constraint.model'
@@ -76,6 +77,12 @@ export interface IActivity {
     winCondition?: string
     pointsTracking?: IPointsScored[]
     systemTrace?: ISystemTrace
+    /**
+     * An activity built by the checked pathway on the live route (22 October 2026, the live-app fix): the server's own build, stored whole and
+     * rendered as stored. Absent on every generated activity. Read-only for the pilot.
+     */
+    pathway?: 'CHECKED_CHAIN'
+    checkedActivity?: ServedActivity
     createdAt: Date
     updatedAt: Date
 }

@@ -1402,7 +1402,12 @@ test('C51: GA-DIRECTION is the only check that moves, and only as pinned here; G
         // itself moved is unchanged.
         const alsoMoved = [...(name === 'GF2 + RPC-001' || name === 'RPC-001' ? ['GA-NO-FAILED-LINE'] : []), ...(name.startsWith('GF2 + RPC-001') ? ['GA-ONE-PRIMARY-EVENT', 'GA-REFERENCE-INTEGRITY'] : [])]
         const sinceC59 = name === 'GF2 + RPC-001 + A01-02' ? ['GA-ONE-PRIMARY-EVENT'] : alsoMoved
-        assert.deepEqual(moved, ['GA-DIRECTION', ...sinceC59], `${name}: only the ends clause moves (and, since K1 and K6, the checks where 11.a's target would be the only blocker)`)
+        // **Re-pointed 22 October 2026 (stage A).** GA-ROLE-EVENTS (register version 16) reads the target of every objective a team scores
+        // at (its clause 4, the kind of target), so the retired objective's open-text target put back withholds it in every composition
+        // (SD-63), exactly as it withholds GA-DIRECTION's ends; without it the check is owed to realization where the possession game is
+        // composed and passes with no objective to read elsewhere. Measured. What C51 itself moved is unchanged.
+        assert.deepEqual(moved, ['GA-DIRECTION', ...sinceC59, 'GA-ROLE-EVENTS'], `${name}: only the ends clause moves (and, since K1 and K6, the checks where 11.a's target would be the only blocker; since stage A, the role-events check that reads every target)`)
+        assert.deepEqual([was['GA-ROLE-EVENTS'], is['GA-ROLE-EVENTS']], ['NOT_EVALUABLE', name.startsWith('GF2') ? 'DEFERRED_TO_REALIZATION' : 'PASS'], `${name}: GA-ROLE-EVENTS`)
         if (sinceC59.includes('GA-NO-FAILED-LINE')) assert.deepEqual([was['GA-NO-FAILED-LINE'], is['GA-NO-FAILED-LINE']], ['FAIL', 'PASS'], name)
         if (sinceC59.includes('GA-ONE-PRIMARY-EVENT')) assert.deepEqual([was['GA-ONE-PRIMARY-EVENT'], is['GA-ONE-PRIMARY-EVENT']], ['NOT_EVALUABLE', 'DEFERRED_TO_REALIZATION'], name)
         if (sinceC59.includes('GA-REFERENCE-INTEGRITY')) assert.deepEqual([was['GA-REFERENCE-INTEGRITY'], is['GA-REFERENCE-INTEGRITY']], ['NOT_EVALUABLE', 'PASS'], name)

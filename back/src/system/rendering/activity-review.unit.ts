@@ -598,7 +598,8 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
  * those ids must be defined in A01's authorization record, which is where their descriptions live. A stop that moves
  * is the work succeeding: re-pin it with the reason. (The roster stop — two goalkeepers available, 6 + 0 against 6 + 0,
  * moved by D6 and M2 — moved on 15 October 2026, stage K4: the C53 block below pins what replaced it. The live route's refusal of a zero-constraint selection, with
- * no model call, has no unit test: it is measured on the built bundle at each stage's review.)
+ * no model call, moved on 22 October 2026 (the live-app fix): the live route now builds a record-backed selection through this same checked pathway,
+ * pinned in live-activity.unit.ts and measured on the built bundle.)
  */
 {
     const record = learningGoalAuthorization('A01')!

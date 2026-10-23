@@ -142,8 +142,9 @@ function testSystemTextAloneMeetsEveryConstraintRequirement(): void {
                 continue
             }
             // A selection with NO library constraint (his general principle, 15 October 2026) has no constraint
-            // requirement to check, and the live route refuses it before any package or text exists
-            // (ZERO_CONSTRAINT_SELECTION_NOT_SERVED_LIVE), so nothing here would ever be generated for it.
+            // requirement to check. Since 22 October 2026 (the live-app fix) the live route builds a record-backed
+            // selection through the checked pathway (`rendering/live-activity.ts`), never through a constraint package
+            // or generated text, so nothing here would ever be generated for it.
             if (!selection.constraints.length) {
                 noConstraint.push(id)
                 continue

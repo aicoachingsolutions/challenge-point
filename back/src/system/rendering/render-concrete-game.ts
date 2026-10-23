@@ -54,7 +54,8 @@ import { NO_FURTHER_VALUE } from '../derivation/types'
 import { CONDITION_ROW, conditionScopeNotEvaluable } from '../derivation/resolved-game'
 import { ApprovedTemplateSentence, approvedTemplateSentences, approvedWording, ApprovedWording, canonicalJson, fillTemplate, POSSESSION_CONTINUES, WordingMatch } from './approved-wording'
 import { exclusionFor } from './coach-facing-exclusions'
-import { MARK_UNION_ONCE, MarkingChange, PhysicalLayout, Remarking } from './physical-layout'
+import { eventKindOf, genericOf } from './game-reading'
+import { MARK_UNION_ONCE, MarkingChange, PhysicalLayout, Remarking, somethingMoves } from './physical-layout'
 import { ADJUSTING, assignSection, inSectionOrder, PLAY_STATE_UNREADABLE, RESTARTS, ROLE_EXCHANGE, Section, SectionFacts, TransitionReading, When } from './sections'
 
 // The two section names every importer has read from here since stages S-C1 and K3; since stage 2A they are named, with the rest
@@ -673,8 +674,28 @@ const participants = (): RegisterIndex => {
     if (!participantRegister) participantRegister = indexRegister(loadRegister())
     return participantRegister
 }
+/** The end-exchange capability (register version 18, row B10; stage D, 23 October 2026), read through the same register, once. */
+const endAssignmentSpec = () => participants().endAssignment
 /** The scoring event that is ENTRY into a target region, worded for that value only (its other kinds keep the line wording). */
 const ZONE_ENTRY_EVENT = 'target_zone_entered'
+
+/**
+ * **Which of the two existing scoring wordings says how a team scores by a kind, or none** — stage A, 22 October 2026 (register version
+ * 16). Until this every kind but the zone entry was said with the line wording ("across the line it is attacking"), so a game scored by a
+ * goal or a gate would have been told it scores across a line. Now: the zone entry keeps its wording (and, where its conditions do not
+ * hold, the line wording it had); a kind the register's target-type map says scores at a line (`roleScoring.targetTypes`, OUR
+ * INTERPRETATION) has the line wording; ANY OTHER KIND HAS NONE — its way to score is withheld (AWAITING_APPROVED_WORDING) and fidelity
+ * refuses a sentence that says it (Q2). New wording for a kind comes from data, never from a branch beside ZONE_ENTRY_EVENT (the design's
+ * no-exception ratchet). A register without the map (before version 16) reads as before: the line wording for every other kind.
+ */
+export function scoringWordingOf(kind: unknown, index: RegisterIndex = participants()): 'ZONE_ENTRY' | 'LINE_CROSSING' | null {
+    if (kind === ZONE_ENTRY_EVENT) return 'ZONE_ENTRY'
+    if (!index.roleScoring) return 'LINE_CROSSING'
+    return (index.roleScoring.targetTypes.get(String(kind)) ?? []).some(target => target.type === 'line') ? 'LINE_CROSSING' : null
+}
+
+/** The register row a game path is of (its path with member ids taken out), as a withheld field names it (stage A). */
+const rowOfKindPath = (path: string, index: RegisterIndex = participants()): string => [...index.rows.values()].find(row => genericOf(String(row.path)) === genericOf(path))?.id ?? 'not a register row'
 /** The relative position RC-21 names (register `relativeTerms`, version 13), read where a start placement is stated by it. */
 export const BEYOND = 'beyond X (for team T)'
 /** The end a target touches, as RC-21 names it: the end its attacking team attacks, which is the other team's end (C42). */
@@ -1270,6 +1291,16 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
     const statusOf = statusesOf(fixture)
     /** The status of a sentence resting on these paths: the strongest any of them carries. */
     const statusAt = (paths: string[], fallback: SourceStatus): SourceStatus => strongest(paths.map(p => statusOf.get(p)).filter((s): s is SourceStatus => !!s), fallback)
+    /**
+     * **The game's end assignment** — stage D, 23 October 2026 (register version 18, row B10, the endAssignment block; his reply filed 25
+     * October 2026, item 5). Read from the game at the register's path, never a value written here: `endsChange` where the teams change ends
+     * at the coach-called block, so no sentence says the ends stay the same; `assignmentPaths` cites the value wherever the game states one
+     * (either value), so it is carried. A game that states none (every game before stage D) is said exactly as before.
+     */
+    const endSpec = endAssignmentSpec()
+    const endValue = endSpec ? fieldOf(game, endSpec.path) : undefined
+    const endsChange = !!endSpec && endValue === endSpec.exchanged
+    const assignmentPaths = endSpec && endValue !== undefined && endValue !== null ? [endSpec.path] : []
 
     /** A plain sentence, one part, each number it says bound to the path it is of (stage S-C2). */
     const say = (section: Instruction['section'], status: SourceStatus, core: string, from: string[], bindings: Binding[] = []) =>
@@ -1286,8 +1317,20 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
      * The object the game establishes, read once for every sentence that names it. Its `kind` is the only
      * source of the noun (SD-103, below at the scoring instruction, where the rule was first applied), and a
      * sentence that uses it cites `objects[…].kind`.
+     *
+     * **The played object is the object no objective references** — the integration review fix, 23 October 2026 (the design's Stage G
+     * carrier fix, taken early because it now produced false sentences). Since stage B an objective may reference an object (register J2,
+     * "object or region reference"; his reply filed 25 October 2026, item 3), and the first object with a kind was then the target: on the
+     * TEST-ONLY goal version the draft said the building team "starts with the goal" and that the goal goes out over a touchline. A target
+     * is not what the teams play with, so an object some objective references is never the carrier. In a game whose objectives reference
+     * regions only (every served game) the carrier is exactly what it was.
      */
-    const carrier = (game.objects ?? []).find((object: any) => typeof object?.kind === 'string')
+    const referencedObject = (object: any) =>
+        (game.objectives ?? []).some((o: any) => {
+            const ref = o?.reference?.structuralRef
+            return !!ref && `c:${ref.contractId}:${ref.itemId}` === String(object?.elementId)
+        })
+    const carrier = (game.objects ?? []).find((object: any) => typeof object?.kind === 'string' && !referencedObject(object))
 
     /**
      * Each team named by the role it holds in this block (stage K7, DRAFT nouns), the marked line (stage K7), and the objective that
@@ -1472,6 +1515,19 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
         const once = positioned && layout ? layout.marks.find(mark => mark.line === String(region.elementId)) : undefined
         if (positioned && once && along?.path && once.at * 2 === areaLength && positioned.offset === once.at) {
             say('Set up', status, `Mark a ${noun} across the area at halfway, ${metres(positioned.offset)} from each end line`, [nounPath, along.path, across?.path, 'envelope.area.length_m', `layout.marks[${once.elementId}].at`].filter(Boolean) as string[], [
+                { quantity: positioned.offset, path: along.path },
+            ])
+            continue
+        }
+        /**
+         * Stage C, 23 October 2026 (the words are the line's own sentence below, unchanged): a line the layout holds at one place in every
+         * block because it is measured from the same end line in every block (`physical-layout.ts`), wherever it is. Said only where its
+         * offset is its distance from the end line its realization is measured from in this block, and it cites the mark it is, so the
+         * layout's mark is told (Q5-L). Until this stage such a line could not be set out once at all (T34).
+         */
+        const anchor = along?.geometry?.anchor
+        if (positioned && once && along?.path && typeof anchor === 'number' && Math.abs(once.at - anchor) === positioned.offset) {
+            say('Set up', status, `Mark a ${noun} across the area, ${metres(positioned.offset)} from the ${positioned.team}'s end line`, [nounPath, along.path, across?.path, `layout.marks[${once.elementId}].at`].filter(Boolean) as string[], [
                 { quantity: positioned.offset, path: along.path },
             ])
             continue
@@ -2157,9 +2213,38 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
             ? String(targetRegions[0].noun)
             : null
     const targetNounPaths = targetNoun ? targetRegions.map((r: any) => `space.regions[${r.elementId}].noun`) : []
+    /**
+     * **"Line" only for line targets — the integration review fix, 23 October 2026 (a TIGHTENING).** Where the targets' noun is not read
+     * (above), the sentences below fell back to "line" for every target. That was true of every game until a target could be an object
+     * (stage B; his reply filed 25 October 2026, item 3, a physical goal as an authorized alternative target): on the TEST-ONLY goal version
+     * they said "each team keeps attacking the same line", "Each team defends one line and attacks the other" and "each team now attacks
+     * the target line of its new role", each false for the team attacking the object (the third for both teams). The design's Stage A rule:
+     * a target with no wording "is never given the line wording". So "line" is said only where every objective references a region whose
+     * noun is a line (every line-target game, exactly as before). Anywhere else none of these sentences is said with "line", and each
+     * objective whose target cannot take it has its reference withheld (AWAITING_APPROVED_WORDING), so the activity is refused at
+     * communication, naming why, until wording for such a target comes from data (Stage G): an object target where one is referenced,
+     * otherwise every target that is not a line. Fidelity Q2's clause on a target called a line is the independent check.
+     */
+    const targetOfObjective = (o: any) => regions.find((r: any) => referencedBy(r) === o)
+    const lineTargets = objectives.length > 0 && objectives.every(o => targetOfObjective(o)?.noun === 'line')
+    const sayableNoun: string | null = targetNoun ?? (lineTargets ? 'line' : null)
+    const withholdTargetNouns = (sentence: string) => {
+        const notLines = objectives.filter(o => targetOfObjective(o)?.noun !== 'line')
+        const objectTargets = notLines.filter(o => !targetOfObjective(o))
+        const withholding = objectTargets.length ? objectTargets : notLines
+        for (const o of withholding) {
+            const at = `objectives[${o.elementId}].reference`
+            if (!withheld.some(field => field.path === at)) withheld.push({ path: at, row: rowOfKindPath(at), reason: 'AWAITING_APPROVED_WORDING' })
+        }
+        observations.push(
+            `${sentence} is not said: it names every target with one noun, and ${withholding.map(o => `objectives[${o.elementId}]`).join(', ')} ` +
+                `${withholding.length === 1 ? 'references a target' : 'reference targets'} that ${objectTargets.length ? (withholding.length === 1 ? 'is no region' : 'are no regions') : 'no one noun names'}, so the line wording ` +
+                `cannot stand for ${withholding.length === 1 ? 'it' : 'them'}. Withheld until wording for such a target comes from data.`,
+        )
+    }
     // That the team winning possession keeps attacking the same line: the objectives' teams are fixed designations.
-    const sameLine = (lead: string) =>
-        part(statusAt([`objectives[${objectives[0].elementId}].team`], 'DERIVED'), `${lead}the team that wins possession attacks the same ${targetNoun ?? 'line'} it was already attacking`, [
+    const sameLine = (lead: string, noun: string) =>
+        part(statusAt([`objectives[${objectives[0].elementId}].team`], 'DERIVED'), `${lead}the team that wins possession attacks the same ${noun} it was already attacking`, [
             `objectives[${objectives[0].elementId}].team`,
             'transitions',
             ...targetNounPaths,
@@ -2179,7 +2264,9 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
     const possessionTemplate = templates.find(template => template.id === POSSESSION_CONTINUES && template.parts.length === 2)
     if (continuingOnPossessionChange.length && possessionTemplate) {
         const [playsOn, keepsAttacking] = possessionTemplate.parts
-        const keeps = fillTemplate([keepsAttacking], { targetNoun: targetNoun ?? 'line' })
+        // The integration review fix (above): the second part only with a noun every target takes; otherwise withheld, never "line".
+        const keeps = sayableNoun ? fillTemplate([keepsAttacking], { targetNoun: sayableNoun }) : null
+        if (!sayableNoun && directional && game.value?.primaryEvent) withholdTargetNouns(`The second part of the possession sentence ("${keepsAttacking}")`)
         instructions.push(
             joined('How it works', [
                 part(
@@ -2410,7 +2497,9 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
     // ── How to score ────────────────────────────────────────────────────────────────────────────
     const primary = game.value?.primaryEvent
     if (primary) {
-        const kindPath = 'value.primaryEvent.kind'
+        // Stage A (22 October 2026): the game's primary event read through the one kind reader (game-reading.ts `eventKindOf`).
+        const gameEvent = eventKindOf(game, null, participants())
+        const kindPath = gameEvent.path
         /**
          * **The thing that crosses the line is named only when the game establishes one, and the noun comes from the
          * game.** His ruling of 7 October: *"A rendered scoring instruction may mention the ball only when the
@@ -2426,46 +2515,73 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
          * with zone targets and an object, the sentence says entry under control, carried or received, citing the event, its
          * value, the object and each target's noun. Every other game reads exactly as before.
          */
-        // How a score is made, and what the sentence saying it cites beyond the event and its value.
-        const zoneEntry = primary.kind === ZONE_ENTRY_EVENT && carrier && objectives.length > 1 && targetNoun
         /**
-         * Hardening H5, 21 October 2026 (DRAFT): the zone a team enters to score is its objective's region, its target, so it is named as
-         * "its target {noun}" — his term "target zone" (reply filed 22 October 2026, item 7, as the build plan's expected Details 14 records
-         * it), as the Set up sentences name each role's target — not "the {noun} it is attacking". Only the zone-entry wording changes, and
-         * only for zone targets: a game that scores across a line keeps "across the line it is attacking". The citations are unchanged
-         * (each target's noun).
+         * **How a score is made, for one team's scoring event — stage A, 22 October 2026 (register version 16).** Until this one `how` was
+         * built from the game's primary event and said for every role. Christian, reply filed 25 October 2026, item 2: *"I approve extending
+         * the September 15 decision to support one primary scoring event per role in an asymmetric activity"*. So `how` is made per event,
+         * read through `eventKindOf`, with the two existing wordings only (`scoringWordingOf`): a kind with neither is withheld, never said
+         * with another kind's words. Where every target shares one noun the zone entry cites each target's noun exactly as before; where the
+         * targets differ (a role's own event), it names and cites the role's OWN target's noun. Null where the kind has no wording.
          */
-        // A region noun that already says "target" is not prefixed again ("its target target zone").
-        const targetPhrase = targetNoun && targetNoun.toLowerCase().startsWith('target') ? targetNoun : `target ${targetNoun}`
-        /**
-         * **Stage 3E, 22 October 2026: the zone-entry wording is two clauses, each its own part** (the words unchanged). How a team scores
-         * ("by getting the {object} under control into its target {noun}") and, after its colon, the two ways that entry is made (": running
-         * it in, or passing to a teammate who receives it under control inside"): the elaboration of the same event, in his D3's terms quoted
-         * above. The first part cites everything the sentence cited (the event, its bound or value, the object, each target's noun, the
-         * objective); the elaboration cites the event it elaborates. So a cut before the elaboration keeps exactly what the words it keeps
-         * say, and the sentence's text, status and citations are as before. Every other wording is one clause, said as before.
-         */
-        const how: { lead: string; elaboration: string | null } = zoneEntry
-            ? { lead: `by getting the ${carrier.kind} under control into its ${targetPhrase}`, elaboration: ': running it in, or passing to a teammate who receives it under control inside' }
-            : {
-                  // "the marked line" is only unambiguous while there is one; with a target per team the objective each team
-                  // attacks is named relationally.
-                  lead: carrier
-                      ? objectives.length > 1
-                          ? `by getting the ${carrier.kind} across the line it is attacking`
-                          : `by getting the ${carrier.kind} across the marked line`
-                      : objectives.length > 1
-                        ? 'when the line it is attacking is crossed'
-                        : 'when the marked line is crossed',
-                  elaboration: null,
-              }
-        const howPaths = [...(carrier ? [`objects[${carrier.elementId}].kind`] : []), ...(zoneEntry ? targetNounPaths : []), ...(objective ? [`objectives[${objective.elementId}].role`] : [])]
+        const howOf = (kind: unknown, kindAt: string, ownTarget: any | null): { lead: string; elaboration: string | null; paths: string[]; kindAt: string } | null => {
+            const wording = scoringWordingOf(kind, participants())
+            if (!wording) return null
+            const ownNoun = ownTarget && typeof ownTarget.noun === 'string' && ownTarget.noun !== 'line' ? String(ownTarget.noun) : null
+            const noun = targetNoun ?? ownNoun
+            const nounPaths = targetNoun ? targetNounPaths : ownNoun ? [`space.regions[${ownTarget.elementId}].noun`] : []
+            const zoneEntry = wording === 'ZONE_ENTRY' && carrier && objectives.length > 1 && noun
+            /**
+             * Hardening H5, 21 October 2026 (DRAFT): the zone a team enters to score is its objective's region, its target, so it is named as
+             * "its target {noun}" — his term "target zone" (reply filed 22 October 2026, item 7, as the build plan's expected Details 14 records
+             * it), as the Set up sentences name each role's target — not "the {noun} it is attacking". Only the zone-entry wording changes, and
+             * only for zone targets: a game that scores across a line keeps "across the line it is attacking". The citations are unchanged
+             * (each target's noun).
+             */
+            // A region noun that already says "target" is not prefixed again ("its target target zone").
+            const targetPhrase = noun && noun.toLowerCase().startsWith('target') ? noun : `target ${noun}`
+            /**
+             * **Stage 3E, 22 October 2026: the zone-entry wording is two clauses, each its own part** (the words unchanged). How a team scores
+             * ("by getting the {object} under control into its target {noun}") and, after its colon, the two ways that entry is made (": running
+             * it in, or passing to a teammate who receives it under control inside"): the elaboration of the same event, in his D3's terms quoted
+             * above. The first part cites everything the sentence cited (the event, its bound or value, the object, each target's noun, the
+             * objective); the elaboration cites the event it elaborates. So a cut before the elaboration keeps exactly what the words it keeps
+             * say, and the sentence's text, status and citations are as before. Every other wording is one clause, said as before.
+             */
+            const how: { lead: string; elaboration: string | null } = zoneEntry
+                ? { lead: `by getting the ${carrier.kind} under control into its ${targetPhrase}`, elaboration: ': running it in, or passing to a teammate who receives it under control inside' }
+                : {
+                      // "the marked line" is only unambiguous while there is one; with a target per team the objective each team
+                      // attacks is named relationally.
+                      lead: carrier
+                          ? objectives.length > 1
+                              ? `by getting the ${carrier.kind} across the line it is attacking`
+                              : `by getting the ${carrier.kind} across the marked line`
+                          : objectives.length > 1
+                            ? 'when the line it is attacking is crossed'
+                            : 'when the marked line is crossed',
+                      elaboration: null,
+                  }
+            const paths = [...(carrier ? [`objects[${carrier.elementId}].kind`] : []), ...(zoneEntry ? nounPaths : []), ...(objective ? [`objectives[${objective.elementId}].role`] : [])]
+            return { ...how, paths, kindAt }
+        }
+        /** The game's own `how` (the event every role without one of its own scores by), as before. */
+        const how = howOf(gameEvent.kind, kindPath, null)
+        const howPaths = how?.paths ?? []
+        /** A role's own target region in this block: the region the objective attacked by the team holding it references (stage A). */
+        const ownTargetOf = (role: string): any | null => {
+            const own = objectives.find(o => roleOfDesignation(o?.team) === role)
+            return own ? regions.find((r: any) => referencedBy(r) === own) ?? null : null
+        }
+        /** A kind with no wording: its path is withheld (stage A), so the activity is refused at communication rather than said wrongly. */
+        const withholdKind = (at: string) => {
+            if (!withheld.some(field => field.path === at)) withheld.push({ path: at, row: rowOfKindPath(at), reason: 'AWAITING_APPROVED_WORDING' })
+        }
         /** A scoring sentence: one part, or (stage 3E) its lead and the elaboration of the event, each a part, at the sentence's status. */
-        const sayScoring = (status: SourceStatus, core: string, from: string[], bindings: Binding[] = []) =>
+        const sayScoring = (said: NonNullable<ReturnType<typeof howOf>>, status: SourceStatus, core: string, from: string[], bindings: Binding[] = []) =>
             instructions.push(
-                how.elaboration === null
+                said.elaboration === null
                     ? instruction('How to score', status, core, from, bindings)
-                    : joined('How to score', [part(status, phrase(status, core), from, bindings), part(status, how.elaboration, [kindPath])]),
+                    : joined('How to score', [part(status, phrase(status, core), from, bindings), part(status, said.elaboration, [said.kindAt])]),
             )
         /**
          * **Where a role's scoring credit is confined to an episode, no sentence speaks for every team** — stage M3, 17 October 2026
@@ -2487,17 +2603,46 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
          */
         const roleElements: any[] = Array.isArray(game.activityRoles) ? game.activityRoles : []
         const boundedCredit = roleElements.some(element => present(element?.creditedWithin) && canonicalJson(element.creditedWithin) !== canonicalJson(UNBOUNDED_CREDIT))
+        /** Each role's event (its own, or the game's) and how it is said; null `said` where the kind has no wording (stage A). */
+        const roleScoringOf = (element: any) => {
+            const role = typeof element?.activityRole === 'string' ? element.activityRole : null
+            const event = role ? eventKindOf(game, role, participants()) : gameEvent
+            return { event, said: howOf(event.kind, event.path, role ? ownTargetOf(role) : null) }
+        }
+        /**
+         * Stage A (22 October 2026): whether some role scores by an event of its own (row B9). Where none does, and no credit is bounded,
+         * the one team-neutral sentence is said exactly as before; where one does, no sentence may speak for every team, so each role is
+         * told how it scores in a sentence of its own ("{Role noun}: Score {how}", DRAFT, the bounded branch's form) and then the value.
+         */
+        const ownEvents = roleElements.some(element => roleScoringOf(element).event.byRole)
         if (boundedCredit) {
             for (const element of roleElements) {
                 if (canonicalJson(element?.creditedWithin) !== canonicalJson(UNBOUNDED_CREDIT)) continue
                 const noun = typeof element?.activityRole === 'string' ? roleNounOf[element.activityRole] : undefined
                 if (!noun) continue
                 const creditPath = `activityRoles[${element.elementId}].creditedWithin`
-                sayScoring(statusAt([kindPath, creditPath], 'DERIVED'), `${capital(noun)}: Score ${how.lead}`, [kindPath, creditPath, ...howPaths])
+                const { event, said } = roleScoringOf(element)
+                if (!said) {
+                    withholdKind(event.path)
+                    continue
+                }
+                sayScoring(said, statusAt([event.path, creditPath], 'DERIVED'), `${capital(noun)}: Score ${said.lead}`, [event.path, creditPath, ...said.paths])
             }
             say('How to score', statusOf.get('value.primaryEvent.value') ?? statusOf.get(kindPath) ?? 'DERIVED', `Each score is worth ${primary.value} point`, ['value.primaryEvent.value'], [{ quantity: primary.value, path: 'value.primaryEvent.value' }])
-        } else
-            sayScoring(statusOf.get(kindPath) ?? 'DERIVED', `A team scores ${primary.value} point ${how.lead}`, [kindPath, 'value.primaryEvent.value', ...howPaths], [{ quantity: primary.value, path: 'value.primaryEvent.value' }])
+        } else if (ownEvents) {
+            for (const element of roleElements) {
+                const noun = typeof element?.activityRole === 'string' ? roleNounOf[element.activityRole] : undefined
+                if (!noun) continue
+                const { event, said } = roleScoringOf(element)
+                if (!said) {
+                    withholdKind(event.path)
+                    continue
+                }
+                sayScoring(said, statusAt([event.path], 'DERIVED'), `${capital(noun)}: Score ${said.lead}`, [event.path, ...said.paths])
+            }
+            say('How to score', statusOf.get('value.primaryEvent.value') ?? statusOf.get(kindPath) ?? 'DERIVED', `Each score is worth ${primary.value} point`, ['value.primaryEvent.value'], [{ quantity: primary.value, path: 'value.primaryEvent.value' }])
+        } else if (!how) withholdKind(kindPath)
+        else sayScoring(how, statusOf.get(kindPath) ?? 'DERIVED', `A team scores ${primary.value} point ${how.lead}`, [kindPath, 'value.primaryEvent.value', ...howPaths], [{ quantity: primary.value, path: 'value.primaryEvent.value' }])
         if (!carrier) {
             observations.push(
                 `The scoring event is established and what crosses the line is not: the game holds no object, so the ` +
@@ -2527,18 +2672,33 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
             if (layout && targetNoun) {
                 const teamPaths = objectives.map(o => `objectives[${o.elementId}].team`)
                 say('Set up', statusAt(teamPaths, 'DERIVED'), 'Decide which team starts at which end', [...teamPaths, 'envelope.area.length_m'])
-            } else if (targetNoun) {
-                say('How to score', statusAt(provenance, 'DERIVED'), `Each team attacks the ${targetNoun} at the other team's end. Decide which team starts at which end; the ends stay the same for the whole game`, [...provenance, ...targetNounPaths])
-            } else say('How to score', statusAt(provenance, 'DERIVED'), `Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game`, provenance)
+            } else {
+                /**
+                 * Stage D, 23 October 2026 (DRAFT): where the teams change ends at the coach-called block (row B10), "the ends stay the same for
+                 * the whole game" is false, so it is not said; the exchange sentence says the teams change ends. Every other game says exactly
+                 * what it did.
+                 */
+                const stay = endsChange ? '' : '; the ends stay the same for the whole game'
+                if (targetNoun) say('How to score', statusAt(provenance, 'DERIVED'), `Each team attacks the ${targetNoun} at the other team's end. Decide which team starts at which end${stay}`, [...provenance, ...targetNounPaths])
+                // The integration review fix (above): "defends one line" only where every target is a line.
+                else if (lineTargets) say('How to score', statusAt(provenance, 'DERIVED'), `Each team defends one line and attacks the other. Decide which team starts at which end${stay}`, provenance)
+                else withholdTargetNouns('"Each team defends one line and attacks the other. Decide which team starts at which end"')
+            }
             // Said with the possession-change sentence where there is one; on its own otherwise.
-            if (!continuingOnPossessionChange.length) instructions.push(joined('How to score', [sameLine('When possession changes, ')]))
+            if (!continuingOnPossessionChange.length) {
+                if (sayableNoun) instructions.push(joined('How to score', [sameLine('When possession changes, ', sayableNoun)]))
+                else withholdTargetNouns('"When possession changes, the team that wins possession attacks the same line it was already attacking"')
+            }
         } else if (objective) {
-            say(
-                'How to score',
-                statusAt([`objectives[${objective.elementId}].team`, `objectives[${objective.elementId}].reference`], 'DERIVED'),
-                shared ? `Both teams attack the same line — the one you marked at the end of the area` : `Each team attacks its own line`,
-                [`objectives[${objective.elementId}].team`, `objectives[${objective.elementId}].reference`],
-            )
+            // The integration review fix (above): a single objective's target is called a line only where it is one.
+            if (lineTargets) {
+                say(
+                    'How to score',
+                    statusAt([`objectives[${objective.elementId}].team`, `objectives[${objective.elementId}].reference`], 'DERIVED'),
+                    shared ? `Both teams attack the same line — the one you marked at the end of the area` : `Each team attacks its own line`,
+                    [`objectives[${objective.elementId}].team`, `objectives[${objective.elementId}].reference`],
+                )
+            } else withholdTargetNouns(shared ? '"Both teams attack the same line — the one you marked at the end of the area"' : '"Each team attacks its own line"')
             if (shared) {
                 observations.push(
                     `Both teams score at the SAME line (objectives[${objective.elementId}].team = EACH_TEAM). That is the canonical ` +
@@ -2755,6 +2915,12 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
              * does not have, or a mark that must stay because a marking that does not move shares its place) is not said, so fidelity Q5-L
              * refuses the activity rather than this renderer leaving the coach to work out what moves. No number is said: the distance is
              * the Set up sentence's, and "the same distance" stays true where the coach has moved the line (Adjusting the activity).
+             *
+             * **Stage C, 23 October 2026: only what actually moves.** The account of what moves is now carried wherever the blocks were read
+             * and the markings are not set out once, EMPTY where nothing moves; then this sentence names nothing moved and says nothing is
+             * set out again (until this stage the block-by-block sentence below said the markings written for the roles "are set out again"
+             * wherever no account was carried, whether or not anything moved). An object that moves (`remarking.objects`) has no words here
+             * yet (Stage G), so it is not said and fidelity Q5-L refuses the activity rather than leave the coach to find it moved.
              */
             const blockId = String(fixture.record?.roleBlock?.blockId ?? '')
             const movedMarking = (change: MarkingChange): { text: string; status: SourceStatus; from: string[] } | null => {
@@ -2788,14 +2954,38 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
                 }
                 return null
             }
+            /**
+             * **Where the teams change ends with the roles, the exchange says so — stage D, 23 October 2026 (DRAFT wording).** His reply filed
+             * 25 October 2026, item 5: *"The outfield groups exchange ends and building/pressing responsibilities when the coach calls for the
+             * next block."* and *"The coach should not have to move the goal or reconstruct the playing area to exchange roles."* Read from the
+             * game's own end assignment (register row B10, the endAssignment block; never a value written here): where it is the exchange, the
+             * sentence opens by saying the teams change ends and exchange roles and that each role is played from the same end in every block
+             * (the role-to-end holders are the same in both blocks, RB-2), and never that a team keeps its end (fidelity Q6 refuses that there).
+             * Its continuations say the same things the kept-ends sentence says, joined with "so" (the positions written for a role are at the
+             * same place in both blocks, RB-8). Wherever the game states its end assignment, either value, the sentence cites it, so it is
+             * carried; a game that states none (every game before stage D) says and cites exactly what it did.
+             */
+            const lead = endsChange
+                ? 'When you call the next block the teams change ends and exchange roles: each role is played from the same end in every block'
+                : 'Each team keeps its end for the whole activity. When you call the next block the teams exchange roles, not ends'
+            const joinMeaning = endsChange ? ', so ' : ': '
             if (remarking) {
-                const exchangeStatus = statusAt([...exchangePaths, ...endPaths], 'DERIVED')
+                const exchangeStatus = statusAt([...exchangePaths, ...endPaths, ...assignmentPaths], 'DERIVED')
                 const moved = remarking.changes.map(movedMarking).filter((said): said is NonNullable<typeof said> => !!said)
+                /**
+                 * Stage C review fix, 23 October 2026 (DRAFT, the layout sentence's own words): where nothing moves and positions are written
+                 * for a role, the sentence still says what those markings mean, the half of his D2 the citations alone carried: each team now
+                 * attacks the target of its new role. Only where the targets' noun is read (a line target's sentence is unchanged), and
+                 * without "nothing is re-marked": no layout records what an authorized adjustment would move here (`layout.movedBy`), so that
+                 * claim could not carry the qualification hardening H2 requires.
+                 */
+                const meaning = !somethingMoves(remarking) && keyedPaths.length && targetNoun ? `${joinMeaning}each team now attacks the target ${targetNoun} of its new role` : ''
                 instructions.push(
                     joined(ROLE_EXCHANGE, [
-                        part(exchangeStatus, 'Each team keeps its end for the whole activity. When you call the next block the teams exchange roles, not ends', [
+                        part(exchangeStatus, `${lead}${meaning}`, [
                             ...exchangePaths,
                             ...endPaths,
+                            ...assignmentPaths,
                             ...keyedPaths,
                             ...(keyedPaths.length ? targetNounPaths : []),
                         ]),
@@ -2804,24 +2994,45 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
                     ]),
                 )
             }
+            // Without a layout or an account of what moves (stage C: what moves could not be read from the blocks), the markings written for
+            // the roles are said to be set out again for the new roles, as since stage K7.
+            // Stage D (DRAFT): where the teams change ends, the positions written for a role stay where they are (RB-8 holds them to the same
+            // place in both blocks), so the block-by-block words say that, never "set out again".
+            const verb = named.length > 1 || keyedTargets === 2 ? 'are' : 'is'
+            /**
+             * The integration review fix, 23 October 2026 (above): with the markings set out once, the meaning is said only with a noun every
+             * target takes ("line" only where every target is a line). Where none does, the lead is said alone with its own citations (it is
+             * the sentence a game without role-keyed positions says), the markings' meaning and "nothing is re-marked" are not said, and the
+             * targets are withheld, so fidelity (Q6 and Q5-L, which read the positions written for a role and the layout from what this
+             * sentence would cite) and the withheld field refuse the activity rather than it telling either team it attacks a target line.
+             */
+            const layoutUnsaid = !!layout && !sayableNoun
+            if (layoutUnsaid) withholdTargetNouns(`The exchange's "each team now attacks the target line of its new role, and ${NOTHING_RE_MARKED}"`)
             const markings = layout
-                ? `: each team now attacks the target ${targetNoun ?? 'line'} of its new role, and ${NOTHING_RE_MARKED}${unless}`
+                ? layoutUnsaid
+                    ? ''
+                    : `${joinMeaning}each team now attacks the target ${sayableNoun} of its new role, and ${NOTHING_RE_MARKED}${unless}`
                 : !keyedPaths.length
                   ? ''
-                  : named.length
-                    ? `, and ${named.join(' and ')} ${named.length > 1 || keyedTargets === 2 ? 'are' : 'is'} set out again for the new roles`
-                    : ', and the markings that go with them are set out again for the new roles'
+                  : endsChange
+                    ? `, so ${named.length ? `${named.join(' and ')} ${verb}` : 'the markings that go with them are'} at the same place in every block`
+                    : named.length
+                      ? `, and ${named.join(' and ')} ${verb} set out again for the new roles`
+                      : ', and the markings that go with them are set out again for the new roles'
             if (!remarking) say(
                 ROLE_EXCHANGE,
-                statusAt([...exchangePaths, ...endPaths], 'DERIVED'),
-                `Each team keeps its end for the whole activity. When you call the next block the teams exchange roles, not ends${markings}; there is no set block length`,
-                [
-                    ...exchangePaths,
-                    ...endPaths,
-                    ...keyedPaths,
-                    ...(keyedPaths.length || layout ? targetNounPaths : []),
-                    ...(layout ? ['layout.policy', ...layout.movedBy.map(move => `layout.movedBy[${move.elementId}]`)] : []),
-                ],
+                statusAt([...exchangePaths, ...endPaths, ...assignmentPaths], 'DERIVED'),
+                `${lead}${markings}; there is no set block length`,
+                layoutUnsaid
+                    ? [...exchangePaths, ...endPaths, ...assignmentPaths]
+                    : [
+                          ...exchangePaths,
+                          ...endPaths,
+                          ...assignmentPaths,
+                          ...keyedPaths,
+                          ...(keyedPaths.length || layout ? targetNounPaths : []),
+                          ...(layout ? ['layout.policy', ...layout.movedBy.map(move => `layout.movedBy[${move.elementId}]`)] : []),
+                      ],
             )
         }
 

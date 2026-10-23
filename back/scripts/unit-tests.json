@@ -91,6 +91,7 @@
     "./src/system/rendering/rendering.unit.ts",
     "./src/system/rendering/approved-wording.unit.ts",
     "./src/system/rendering/activity-review.unit.ts",
+    "./src/system/rendering/live-activity.unit.ts",
     "./src/system/rendering/role-blocks.unit.ts",
     "./src/system/rendering/allocation.unit.ts",
     "./src/system/rendering/communication.unit.ts",
@@ -111,5 +112,10 @@
     "./src/system/derivation/also-counts.unit.ts",
     "./src/system/rendering/first-activity-end-to-end.unit.ts",
     "./src/system/derivation/run-contract-coverage.unit.ts",
-    "./src/system/derivation/participants-present.unit.ts"
+    "./src/system/derivation/participants-present.unit.ts",
+    "./src/system/derivation/role-events.unit.ts",
+    "./src/system/realization/object-targets.unit.ts",
+    "./src/system/rendering/objects-across-blocks.unit.ts",
+    "./src/system/rendering/end-exchange.unit.ts",
+    "./src/system/rendering/session-resources.unit.ts"
 ]

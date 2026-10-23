@@ -84,12 +84,26 @@ test('a predicate fixing one edge yields an anchor, and NO extent is invented', 
 // What closes an anchor — and what must not.
 // ---------------------------------------------------------------------------------------------
 
+/**
+ * Re-pointed 23 October 2026 (stage B, T15): an end-line anchor naming a team in prose is placed only where the element's own authored
+ * selector fixes the end (`longitudinal`, his 9 October ruling) — as every production target region does (GF2-03.e end-near, GF2-03.f
+ * end-far). These three cases relied on the term's own `at` (the far end line) standing in for an end no selector fixed, which stage B
+ * refuses (realization/object-targets.unit.ts); they now state the end, and test what they always said.
+ */
+const FAR_END = { longitudinal: 'end-far' }
+
 test('a ONE-DIMENSIONAL noun closes the anchor to zero on its thickness axis', () => {
     // A line has extent on one axis. Where the other axis carries that extent, this one is its
     // thickness and its extent here is zero. Entailment, not assumption.
-    const line = realizeSpatialRelation(ATTACKING_END, index, ctx({ axis: 'along', nounExtentDimensions: 1, otherAxisHasExtent: true }))!
+    const line = realizeSpatialRelation(ATTACKING_END, index, ctx({ axis: 'along', nounExtentDimensions: 1, otherAxisHasExtent: true, ...FAR_END }))!
     assert.deepEqual(line.interval, { from: 40, to: 40 }, 'degenerate at the end line it touches')
     assert.equal(line.extentUnresolved, false)
+})
+
+test('T15: with no end its own selector fixes, the same anchor is refused, never placed at a fixed end (stage B)', () => {
+    const refused = realizeSpatialRelation(ATTACKING_END, index, ctx({ axis: 'along', nounExtentDimensions: 1, otherAxisHasExtent: true }))!
+    assert.equal(refused.interval, undefined)
+    assert.ok(refused.refusal, 'realization refuses it')
 })
 
 test('and it does NOT encode "line = end line": the same rule works in the other orientation', () => {
@@ -101,15 +115,17 @@ test('and it does NOT encode "line = end line": the same rule works in the other
 
 test('a one-dimensional noun whose other axis has NO extent closes nothing', () => {
     // Without an extent somewhere, nothing says which axis is the length — so the anchor stands.
-    const unresolved = realizeSpatialRelation(ATTACKING_END, index, ctx({ axis: 'along', nounExtentDimensions: 1, otherAxisHasExtent: false }))!
+    const unresolved = realizeSpatialRelation(ATTACKING_END, index, ctx({ axis: 'along', nounExtentDimensions: 1, otherAxisHasExtent: false, ...FAR_END }))!
     assert.equal(unresolved.interval, undefined)
     assert.equal(unresolved.extentUnresolved, true)
+    assert.equal(unresolved.refusal, undefined, 'unresolved, not refused: the end is fixed and the extent is what nothing states')
 })
 
 test('a TWO-dimensional noun never closes an anchor', () => {
-    const zone = realizeSpatialRelation(ATTACKING_END, index, ctx({ axis: 'along', nounExtentDimensions: 2, otherAxisHasExtent: true }))!
+    const zone = realizeSpatialRelation(ATTACKING_END, index, ctx({ axis: 'along', nounExtentDimensions: 2, otherAxisHasExtent: true, ...FAR_END }))!
     assert.equal(zone.interval, undefined, 'a zone has depth, and nobody authored it')
     assert.equal(zone.extentUnresolved, true)
+    assert.equal(zone.refusal, undefined)
 })
 
 test('a PREFERRED extent is offered and never composed into a requirement', () => {

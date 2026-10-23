@@ -405,6 +405,10 @@ test('the corpus-wide Gate A, check by check', () => {
         // element or to a team (a provisional realization joins only the goal its record names), so it passes with no applicable
         // instance.
         'GA-RELATIVE-PLACEMENT': 'PASS',
+        // Added 22 October 2026 (stage A, the twenty-first check, his reply filed 25 October 2026, item 2). The corpus holds no role, so
+        // each objective a team scores at is attacked by the primary event; whether its target's kind matches waits on the realized
+        // event kind and target nouns, owed to realization.
+        'GA-ROLE-EVENTS': 'DEFERRED_TO_REALIZATION',
         'GA-ROSTER-SUM': 'DEFERRED_TO_REALIZATION',
         'GA-TIME-WINDOWS': 'PASS',
         'GA-TRANSITION-COHERENCE': 'NOT_EVALUABLE',

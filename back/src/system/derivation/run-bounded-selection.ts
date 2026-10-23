@@ -20,8 +20,9 @@ import { sessionPlanningModel } from '../session-planning/session-planning-model
 import { GameProblemAuthority, guidedGoalText, guidedSelectionHints } from '../sport-module/guided-selection'
 import { constraintBalanceBucket, generateSelection, isSelectionKnowledgeGap, SelectionKnowledgeGap } from '../test-library'
 import type { LearningGoalAuthorization } from '../test-library/learning-goal-authorizations'
-import { learningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
+import { learningGoalAuthorizations, realizationAlternativesOf } from '../test-library/learning-goal-authorizations'
 import type { ConstraintAuthority, ConstraintPoolAccount } from '../test-library/types'
+import type { ProvisionalRealization } from './corpus'
 import { CORPUS_ENVELOPE, loadCorpusContracts, loadRegister, loadSportProfile, provisionalRealizationNamed } from './corpus'
 import { isStampedHalt } from './emit'
 import { runDerivation, runStages0to10 } from './engine'
@@ -60,6 +61,25 @@ export interface KnowledgeSelection {
      * `derivationInputFor` adds and `suppliedRealizationFor` reads the realization choices of.
      */
     authorization?: LearningGoalAuthorization | null
+    /**
+     * **The provisional realization this selection is built with** (stage E, 23 October 2026), or null for none. Set by the build for the
+     * alternative it is trying (`build-activity.ts`), so every reader of the realization - derivation's input (`derivationInputFor`) and the
+     * realization choices (`suppliedRealizationFor`) - reads the one being tried and never re-reads the record: the design's Stage E, *"or the
+     * loop would derive A01-R1's items and choices under an A01-R2 label"*. Absent: the record's preferred alternative (`realizationOf`),
+     * which is what every caller outside the build's loop means and exactly what each read before stage E.
+     */
+    realization?: ProvisionalRealization | null
+}
+
+/**
+ * **The provisional realization a selection is built with** (stage E): the one the build threaded through it where it did (`realization`,
+ * null included), otherwise the first alternative of the goal's record that can be tried, resolved once. The one place a reader of the
+ * realization asks; null for a demonstration and for a record naming none.
+ */
+export function realizationOf(selection: Pick<KnowledgeSelection, 'authorization' | 'realization'>): ProvisionalRealization | null {
+    if (selection.realization !== undefined) return selection.realization
+    const preferred = realizationAlternativesOf(selection.authorization).find(alternative => alternative.selectable)
+    return provisionalRealizationNamed(preferred?.realization)
 }
 
 /** Split selected knowledge into what is contracted and what is not. One rule, for a goal and for a demonstration. */
@@ -160,7 +180,13 @@ export class GoalSelectionGap extends Error {
  * `records` — the authorization records in force — is a parameter ONLY so a test can run this identical selection
  * over a copy carrying a test-only ruling (15 October 2026). Nothing that serves a coach passes it.
  */
-export function selectFor(goalId: string, situationId: string | null = null, records: LearningGoalAuthorization[] = learningGoalAuthorizations()): BoundedSelection {
+export function selectFor(
+    goalId: string,
+    situationId: string | null = null,
+    records: LearningGoalAuthorization[] = learningGoalAuthorizations(),
+    /** Stage E, tests only: the provisional realization ids a TEST-ONLY set holds, which the records are checked against (`guidedSelectionHints`). */
+    provisionalIds?: string[],
+): BoundedSelection {
     const goal: any = sessionPlanningModel.learningGoal(goalId)
     if (!goal) throw new Error(`no such learning goal: ${goalId}`)
     // The one canonical text, from the same function the application route uses (stage S-C2, 14 October 2026).
@@ -173,7 +199,7 @@ export function selectFor(goalId: string, situationId: string | null = null, rec
      * coach could reach. An approved rule carried by one caller and not the other is the same loss as
      * an authored field dropped by a projection; it is closed the same way, by having one source.
      */
-    const guided = guidedSelectionHints(goalId, text, records)
+    const guided = guidedSelectionHints(goalId, text, records, provisionalIds)
     let result: any
     try {
         result = generateSelection({ learningGoals: [text], learningGoalId: goalId } as any, guided.hints)
@@ -267,7 +293,7 @@ export function selectFor(goalId: string, situationId: string | null = null, rec
  * It reads only WHICH objects were selected, so it takes exactly that — a goal's selection and a mechanism
  * demonstration's are the same thing to derivation, which has never known what a goal is.
  */
-export function derivationInputFor(selection: Pick<KnowledgeSelection, 'selected' | 'authorization'>): DerivationInput {
+export function derivationInputFor(selection: Pick<KnowledgeSelection, 'selected' | 'authorization' | 'realization'>): DerivationInput {
     const wanted = new Set(selection.selected.map(s => key(s.id)))
     /**
      * **His provisional realization joins only where the goal's record names it** — 15 October 2026 (stage K2). Christian,
@@ -275,9 +301,10 @@ export function derivationInputFor(selection: Pick<KnowledgeSelection, 'selected
      * canonical version of the Learning Goal."* The record is the only route in: no goal is named here, a demonstration
      * (which has no record) never receives one, and a record that names none derives exactly as before. The realization is
      * a contract like the others, so it also enters the provenance stamp (`versions.objects`) — a stored game knows it was
-     * built with his provisional choices.
+     * built with his provisional choices. Since stage E (23 October 2026) it is the alternative the build is trying where it
+     * threaded one, and the record's preferred one otherwise (`realizationOf`).
      */
-    const provisional = provisionalRealizationNamed(selection.authorization?.provisionalRealization)
+    const provisional = realizationOf(selection)
     const selected: LoadedContract[] = [...loadCorpusContracts().filter(c => wanted.has(key(c.contractId))), ...(provisional ? [provisional] : [])]
 
     /**

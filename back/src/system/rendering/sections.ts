@@ -198,6 +198,9 @@ export const KIND_OF_ROW: Record<string, Kind | 'TRANSITION' | 'NAME'> = {
     O3: 'ORGANISATION',
     O4: 'ORGANISATION',
     O5: 'ORGANISATION',
+    // The way a set-out object faces (register version 17, stage B, 23 October 2026): part of setting it out, as its position. No sentence
+    // says it yet (its wording is Stage G's), so fidelity refuses a game that establishes it.
+    O6: 'ORGANISATION',
     // Objectives: which target each team attacks (stage 2A keeps them in How to score; a marking sentence naming one stays in Set up).
     J1: 'OBJECTIVE',
     J2: 'OBJECTIVE',
@@ -279,6 +282,10 @@ export const KIND_OF_ROW: Record<string, Kind | 'TRANSITION' | 'NAME'> = {
     B6: 'ROLE_EXCHANGE',
     B7: 'ROLE_EXCHANGE',
     B8: 'SCORING',
+    // A role's own primary scoring event (register version 16, stage A, 22 October 2026): how that team scores, so How to score, as V1.
+    B9: 'SCORING',
+    // Whether the teams change ends at a coach-called block (register version 18, stage D, 23 October 2026): said with the exchange, as B3.
+    B10: 'ROLE_EXCHANGE',
 }
 
 /**

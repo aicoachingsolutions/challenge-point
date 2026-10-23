@@ -1,5 +1,12 @@
 {
   "note": "The corpus restatements Christian has ruled, as data. The application logic — and the conditions each restatement must satisfy before it is applied — stay in corpus-restatement.ts. Authored member text lives here because it is knowledge, not engine logic: the derivation engine is sport-neutral.",
+  "provenanceNoteKeys": {
+    "keys": [
+      "goalKickTriggerSource",
+      "restartOwnershipSource"
+    ],
+    "note": "Added 22 October 2026 (stage A review fix). The keys rulings below write to say where a value came from, as text; no engine code reads them. Declared here, beside the rulings that write them, rather than spelled in corpus-restatement.ts, because their names are this ledger's own vocabulary and one names the sport (the derivation engine is sport-neutral). corpus-restatement.ts admits them only as text, and refuses at load any key here that the engine knows by name. Nothing a ruling says is changed: every ruling writes exactly what it wrote."
+  },
   "noRow": [
     "restated:GF2::GF2-13",
     "restated:GF2::GF2-18",

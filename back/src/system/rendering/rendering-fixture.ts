@@ -78,9 +78,10 @@ export interface RenderingFixtureParts {
     adjustments?: { id: string; words: string; consequence: string | null; citedAs: string; coachWords?: string }[]
     /**
      * What defers in this composition (ruling C56), listed as the alternative with its provenance — stage K4. Absent wherever
-     * nothing defers.
+     * nothing defers. `defersWith` (stage B review fix, 23 October 2026) names the item an entry yields together with, where it yields only
+     * with it; its `defersTo`, `deferredTo` and `relationship` are then that item's. Absent on every unpaired entry.
      */
-    alternatives?: { contractId: string; itemId: string; row: string; value: unknown; defersTo: string; deferredTo: { contractId: string; itemId: string }[]; relationship: string }[]
+    alternatives?: { contractId: string; itemId: string; row: string; value: unknown; defersTo: string; deferredTo: { contractId: string; itemId: string }[]; relationship: string; defersWith?: string }[]
     /**
      * The game-form choices a record-named provisional realization withdrew by declaration, with why — stage K5, 15 October
      * 2026 (supplied-realization.ts `withdrawn`): the line is settled by the realization's own knowledge (the initial holder of

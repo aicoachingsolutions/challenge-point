@@ -14,6 +14,7 @@ import { NumberField, SelectField, TextAreaField } from '@/form-control/fields'
 import ROUTES from '@/ROUTES'
 
 import { ActivityStatus, ChallengeLevels, IActivity } from '@/MODELS/activity.model'
+import type { ServedActivity } from '@/MODELS/activity-review.model'
 import { SessionStatus } from '@/MODELS/session.model'
 
 import { api } from '@/services/api.service'
@@ -21,6 +22,21 @@ import { api } from '@/services/api.service'
 import Button from '@/components/Button'
 import SessionPlanningConversation, { type PlanningSelection } from './SessionPlanningConversation'
 import ActivitySections from '@/components/ActivitySections'
+import { ActivityBlock } from './CheckedActivityBlock'
+
+/**
+ * **An activity the live route built through the checked pathway** (22 October 2026, the live-app fix, design section 4.3 L2): the checked
+ * chain's served activity, whole — exactly what the review page shows for the same inputs — with what it was built from and each block's
+ * input digest, which Start Activity sends back so the server can build it again and store its own build (L3). The activity itself is
+ * never sent back.
+ */
+interface CheckedResult {
+    activity: ServedActivity
+    inputDigests: { blockId: string; inputDigest: string }[]
+    inputs: { learningGoalId: string; practiceSituationId: string | null; durationMin: number }
+    challengeLevel: ChallengeLevels
+    learningGoals: string[]
+}
 
 // "Environmental Fit" (coach-facing rename of Challenge Level — Christian's MVP2 wording).
 // The enum values (low/medium/high) are unchanged so nothing downstream breaks; only the
@@ -67,8 +83,10 @@ const RUNTIME_CHALLENGE_DEFAULT = ChallengeLevels['Growth Zone']
 
 export default function ActivityGenerator() {
     const { id } = useParams()
-    type GenerationStatus = 'creation' | 'generation' | 'selection'
+    type GenerationStatus = 'creation' | 'generation' | 'selection' | 'checked'
     const [generationStatus, setGenerationStatus] = useState<GenerationStatus>('creation')
+    /** The checked activity on screen (status 'checked'); null otherwise. */
+    const [checkedResult, setCheckedResult] = useState<CheckedResult | null>(null)
     const [generationError, setGenerationError] = useState<string | null>(null)
     /** Concrete goals offered alongside a rejection, so the coach has a next step rather than a wall. */
     const [generationSuggestions, setGenerationSuggestions] = useState<string[]>([])
@@ -110,6 +128,7 @@ export default function ActivityGenerator() {
 
     const resetGenerationState = (message?: string, nextSuggestions: string[] = []) => {
         setGeneratedActivities([])
+        setCheckedResult(null)
         setCurrentActivityIndex(0)
         setGenerationStatus('creation')
         setGenerationError(message ?? 'Unable to generate activities right now. Please review your inputs and try again.')
@@ -242,6 +261,28 @@ export default function ActivityGenerator() {
                 setDebugTrace(wrapped && payload.debugTrace ? payload.debugTrace : null)
             }
 
+            /**
+             * A checked activity (22 October 2026, the live-app fix): one activity, built by the checked pathway, shown through the review
+             * page's own component — no three slots, no other variation. Only a guided goal reaches it (its authorization record decides),
+             * so the planning choices it was built from are in hand for Start Activity.
+             */
+            if (!res.error && wrapped && payload.pathway === 'CHECKED_CHAIN' && payload.checkedActivity?.outcome === 'served' && override?.planning) {
+                setGeneratedActivities([])
+                setCheckedResult({
+                    activity: payload.checkedActivity as ServedActivity,
+                    inputDigests: Array.isArray(payload.inputDigests) ? payload.inputDigests : [],
+                    inputs: {
+                        learningGoalId: override.planning.learningGoalId,
+                        practiceSituationId: override.planning.practiceSituationId ?? null,
+                        durationMin: duration,
+                    },
+                    challengeLevel,
+                    learningGoals,
+                })
+                setGenerationStatus('checked')
+                return
+            }
+
             if (res.error || !Array.isArray(activities)) {
                 const errorPayload = wrapped ? payload : res
                 resetGenerationState(buildGenerationErrorMessage(errorPayload), suggestionsFrom(errorPayload))
@@ -361,6 +402,36 @@ export default function ActivityGenerator() {
                 status: sessionRes.status,
                 error: sessionRes.error,
             })
+        }
+    }
+
+    /**
+     * Start a checked activity (L3, 22 October 2026). Sends what it was built from and the input digests of what the coach was shown — never
+     * the activity — so the server builds it again and stores its own build, or refuses with its sentence (the session changed in between,
+     * say), which is shown where the activity is.
+     */
+    const selectCheckedActivity = async () => {
+        if (!id || !checkedResult) return
+        setGenerationError(null)
+        const res = await api<{ data: IActivity }>(`${ROUTES.app.activity}`, {
+            _id: 'new',
+            activityStatus: ActivityStatus['In Progress'],
+            session: id,
+            pathway: 'CHECKED_CHAIN',
+            checkedInputs: checkedResult.inputs,
+            inputDigests: checkedResult.inputDigests,
+            challengeLevel: checkedResult.challengeLevel,
+            learningPriorities: checkedResult.learningGoals.map((lg) => ({ description: lg, achieved: false })),
+        })
+        const createdActivity = res.data?.data
+        if (res.error || !createdActivity?._id) {
+            setGenerationError(res.error ?? 'Unable to start activity. Please try again.')
+            return
+        }
+        navigate(`/activity/${createdActivity._id}`)
+        const sessionRes = await api(ROUTES.app.session, { _id: id, sessionStatus: SessionStatus['In Progress'] })
+        if (sessionRes.error) {
+            console.error('Failed to update session status after starting activity', { status: sessionRes.status, error: sessionRes.error })
         }
     }
 
@@ -493,6 +564,15 @@ export default function ActivityGenerator() {
               */}
             {generationStatus === 'creation' && useGuidedPlanning && (
                 <div className='w-full p-4 mx-auto sm:p-6 lg:p-8'>
+                    {/*
+                      * The server's one sentence when nothing could be built (22 October 2026, the live-app fix). The guided flow showed no
+                      * message at all, so a refusal — the checked pathway's included — returned the coach to the conversation unexplained.
+                      */}
+                    {generationError && (
+                        <div role='alert' className='max-w-2xl px-4 py-3 mx-auto mb-4 text-sm border rounded-xl border-amber-200 bg-amber-50 text-amber-800'>
+                            <p>{generationError}</p>
+                        </div>
+                    )}
                     <SessionPlanningConversation onComplete={generateFromPlanning} />
                     <div className='max-w-2xl mx-auto mt-8 text-center'>
                         <button
@@ -670,6 +750,28 @@ export default function ActivityGenerator() {
                         >
                             Generate Activities
                         </Button>
+                    </div>
+                </div>
+            )}
+            {/*
+              * A checked activity (22 October 2026, the live-app fix): the review page's own component, coach view — the Coach Overview,
+              * the diagram and the Coach details exactly as the server built them — and one button to start it. Its two lines are the ones
+              * the generated activity's button already carries.
+              */}
+            {generationStatus === 'checked' && checkedResult && (
+                <div className='flex flex-col w-full max-w-4xl min-w-0 gap-4 px-4 pt-6 mx-auto sm:px-6'>
+                    {generationError && (
+                        <div role='alert' className='px-4 py-3 text-sm border rounded-xl border-amber-200 bg-amber-50 text-amber-800'>
+                            {generationError}
+                        </div>
+                    )}
+                    <ActivityBlock activity={checkedResult.activity} />
+                    <div className='flex flex-col gap-1 py-2'>
+                        <Button onClickAsync={selectCheckedActivity} className='w-full max-w-sm rounded-full sm:self-center'>
+                            <CheckIcon className='w-5 h-5 mr-2' />
+                            Select This Activity
+                        </Button>
+                        <p className='text-xs text-center text-gray-600'>Click to start this activity in your session</p>
                     </div>
                 </div>
             )}

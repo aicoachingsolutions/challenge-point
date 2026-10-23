@@ -32,12 +32,12 @@ import { contractCoverage } from '../derivation/run-bounded-selection'
 import { loadCorpusContracts } from '../derivation/corpus'
 import { parseSelector } from '../derivation/selector'
 import { rpcLibrary } from '../sport-module/rpc-library'
-import type { AuthorizationLists, CitedWords, ContextManipulationRelationship, LearningGoalAuthorization, ReviewLayer, ReviewRequest } from '../test-library/learning-goal-authorizations'
+import type { AuthorizationLists, CitedWords, ContextManipulationRelationship, ContextScoringRelationship, LearningGoalAuthorization, ReviewLayer, ReviewRequest } from '../test-library/learning-goal-authorizations'
 import { learningGoalSelectionHolds } from '../test-library/learning-design-holds'
 import { testLibraryRegistry } from '../test-library/library/registry'
 import { approvedEntriesSaid, detailsWordingOf, WordingSource, WordingStatus } from './derived-wording'
 import { FidelityFinding, OBLIGATIONS } from './fidelity'
-import { along, asList, container, creditOf, genericOf, holderOf, membersAt, objectivesOf, readPath, restrictionsOf, segmentsOf, supportOf, teamsOf, TransitionRow, transitionsOf } from './game-reading'
+import { along, asList, container, creditOf, eventKindOf, genericOf, holderOf, membersAt, objectivesOf, readPath, restrictionsOf, segmentsOf, supportOf, teamsOf, TransitionRow, transitionsOf } from './game-reading'
 import type { OverviewEvidence } from './overview-fidelity'
 import { layoutNumbersAt, MARK_ONCE_RULE, remarkingPlaceAt } from './physical-layout'
 import { Instruction, RenderedActivity, wordedFieldRows } from './render-concrete-game'
@@ -57,6 +57,8 @@ export interface EvidenceBlock {
     blockId: string
     /** Role → the end-assigned team designation holding it in this block. Empty for a game with no roles. */
     holders: Record<string, string>
+    /** For each end, the end whose first-block team stands there in this block (`RoleBlock.ends`), where the block records one (the end exchange, row B10). */
+    ends?: Record<string, string>
     fixture: any
     contracts: LoadedContract[]
     rendered: RenderedActivity
@@ -86,10 +88,16 @@ export interface EvidenceInput {
     layoutFallback?: LayoutFallback | null
     record: LearningGoalAuthorization & { reviewRequest: ReviewRequest }
     lists: AuthorizationLists | null
-    /** The knowledge-authorized relationships the record's adjustments cite (the record file's own list). */
-    relationships: ContextManipulationRelationship[]
+    /** The knowledge-authorized relationships the record's adjustments cite (the record file's own lists, of every kind since stage A). */
+    relationships: (ContextManipulationRelationship | ContextScoringRelationship)[]
     /** The goal's selected library constraints, as the account lists them (ids). */
     selectedConstraints: string[]
+    /**
+     * Whose authority the selected constraints carry, as the account reads it from selection (`constraintSource.constraintAuthority`) — added
+     * 22 October 2026 with the live-app fix: it is what decides which pathway the live route builds the activity by (`live-activity.ts`
+     * `livePathwayOf`), so the pathway fact reads it. Absent (a constructed evidence input) is not measured.
+     */
+    constraintAuthority?: string | null
     index: RegisterIndex
     /** Stage 3D: the overview's evidence as the build checked it (`overview-fidelity.ts`); absent or null on a refusal. */
     overview?: OverviewEvidence | null
@@ -106,6 +114,34 @@ export interface LayoutFallback {
  * names no recorded choice; his reply filed 23 October 2026, item 2 makes marking once a general rule, applied wherever its test holds.
  */
 export const layoutFallbackFact = (fallback: LayoutFallback): Fact => ({ what: 'The markings are presented block by block, because they do not occupy the same places in every block', value: [...fallback.why, ...fallback.moves] })
+
+/**
+ * **The realizations the goal's record authorizes, and whether each was used — the administrator's pathway fact** (stage E, 23 October
+ * 2026). His reply filed 25 October 2026, item 4: *"These should be alternative knowledge-authorized realizations, not separate hardcoded
+ * implementations of the same Learning Goal."*; the note sent to him: *"Chosen automatically; the review shows which version was used and
+ * why."* Read from the build's loop, the same entries the account carries (`account.realizationSelection`), never recomputed here: one line
+ * per alternative, in the record's order, with its outcome, its typed cause, its stage and summary where it was refused, and what it waits on
+ * where it is never tried. Added as the last pathway fact of an evidence the build has already made; every other fact is unchanged.
+ */
+export function withRealizationSelection(
+    evidence: ReviewEvidence,
+    entries: { realization: string; outcome: string; cause: string | null; stage: string | null; summary: string | null; gaps: string[]; citedAs: string | null }[],
+): ReviewEvidence {
+    const line = (entry: (typeof entries)[number]): string =>
+        `${entry.realization}: ${entry.outcome}` +
+        `${entry.cause ? ` (${entry.cause})` : ''}` +
+        `${entry.stage ? ` at ${entry.stage}` : ''}` +
+        `${entry.summary ? `: ${entry.summary}` : ''}` +
+        `${entry.gaps.length ? `; waits on ${entry.gaps.join(', ')}` : ''}` +
+        `${entry.citedAs ? `; its place in the order: ${entry.citedAs}` : ''}`
+    return {
+        ...evidence,
+        pathway: {
+            ...evidence.pathway,
+            facts: [...evidence.pathway.facts, { what: 'the realizations the record authorizes, in its order, and whether each was used (account.realizationSelection)', value: entries.map(line) }],
+        },
+    }
+}
 
 export type Layer = ReviewLayer | 'SESSION_INPUT'
 export type Standing = 'APPROVED' | 'PROVISIONAL' | 'GAP' | 'OUR_READING' | 'SESSION'
@@ -205,7 +241,7 @@ export interface LimitationEvidence {
 }
 
 export interface StructuralReport {
-    blocks: { blockId: string; holders: Record<string, string>; sections: Record<'playerTotals' | 'spatial' | 'scoring' | 'restarts' | 'other', { checks: CheckRow[]; facts: Fact[] }>; owed: { checkId: string; clause: string; verdict: string }[] }[]
+    blocks: { blockId: string; holders: Record<string, string>; ends?: Record<string, string>; sections: Record<'playerTotals' | 'spatial' | 'scoring' | 'restarts' | 'other', { checks: CheckRow[]; facts: Fact[] }>; owed: { checkId: string; clause: string; verdict: string }[] }[]
     crossBlock: { checkId: string; what: string; verdict: string; problems: string[] }[]
     composition: string[]
     summary: { gateChecks: Record<string, number>; crossBlock: Record<string, number>; owed: Record<string, number>; everyCheckPasses: boolean; vacuousClauses: string[] }
@@ -510,7 +546,8 @@ const STRUCTURE_CHECKS: Record<'playerTotals' | 'spatial' | 'scoring' | 'restart
     // GA-PARTICIPANTS-PRESENT (22 October 2026, his reply filed 25 October 2026, item 6): who the configuration holds, beside how many.
     playerTotals: ['GA-ROSTER-SUM', 'GA-AFFILIATION', 'GA-PARTICIPANTS-PRESENT'],
     spatial: ['GA-ENVELOPE-FIT', 'GA-LAYOUT-FEASIBLE', 'GA-DIRECTION', 'GA-RELATIVE-PLACEMENT', 'GA-REGION-FUNCTION'],
-    scoring: ['GA-ONE-PRIMARY-EVENT', 'GA-OBJECTIVE-SETS', 'GA-REFERENCE-INTEGRITY', 'GA-EPISODE-REACHABLE', 'GA-MODIFIER-OVERLAP', 'GA-EFFECT-TYPED', 'GA-INFORMATION', 'GA-TIME-WINDOWS'],
+    // GA-ROLE-EVENTS (22 October 2026, stage A, his reply filed 25 October 2026, item 2): how each team scores, so scoring.
+    scoring: ['GA-ONE-PRIMARY-EVENT', 'GA-ROLE-EVENTS', 'GA-OBJECTIVE-SETS', 'GA-REFERENCE-INTEGRITY', 'GA-EPISODE-REACHABLE', 'GA-MODIFIER-OVERLAP', 'GA-EFFECT-TYPED', 'GA-INFORMATION', 'GA-TIME-WINDOWS'],
     restarts: ['GA-TRANSITION-COHERENCE', 'GA-TRIGGER-REACHABLE', 'GA-TRIGGER-UNIQUE', 'GA-EPISODE-REACHABLE'],
 }
 
@@ -560,7 +597,17 @@ const dedupeSupport = <T extends { item: string }>(list: T[]): T[] => [...new Ma
 
 /* ------------------------------------------------------------------ the evidence ------------------------------------------------------------------ */
 
-const LIVE_ROUTE_REFUSES = 'does not serve this activity: it builds only from a selection with at least one library constraint, and this selection has none, so it refuses with no model call'
+/**
+ * **What the live route does with this activity** — restated 22 October 2026 with the live-app fix (design section 4.3; his reply filed 25
+ * October 2026, item 8). Until then it refused a selection with no library constraint, with no model call, and this fact said so for every
+ * such selection. The live route now decides by the selection's constraint authority alone (`live-activity.ts livePathwayOf`): a selection
+ * whose constraints carry its authorization record's authority is built by this same checked pathway, for the coach whose session it is,
+ * and served only where it agrees with the live route's own selection and the record; any other selection is generated as before, which
+ * is not measured here. His words of 18 and 19 October (the pathway and limitation L3) stay as he wrote them, as provenance.
+ */
+const LIVE_ROUTE_CHECKED =
+    'builds this activity through this same checked pathway, for the coach whose session it is: its selection draws its constraints from its authorization record, so the live route adds no library constraint, calls no model and falls back to nothing (since 22 October 2026)'
+const liveRouteFact = (constraintAuthority: string | null | undefined): string => (constraintAuthority === 'AUTHORIZATION_RECORD' ? LIVE_ROUTE_CHECKED : 'not measured here')
 
 const PLAIN_ABOUT =
     'Facts read from the games the checked pathway built, for an administrator\'s review; never served. Every verdict is a gate\'s or a cross-block check\'s (each refuses the build where it fails); every fact is read from the game; every quotation is read from the goal\'s authorization record. Nothing here claims how the activity plays.'
@@ -669,6 +716,8 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
             return {
                 blockId: block.blockId,
                 holders: { ...block.holders },
+                // The integration review (23 October 2026): the end-to-team assignment beside the holders, only where the block records one.
+                ...(block.ends ? { ends: { ...block.ends } } : {}),
                 owed: block.owed.map(o => ({ ...o })),
                 sections: {
                     playerTotals: {
@@ -696,7 +745,7 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
                     scoring: {
                         checks: pick(STRUCTURE_CHECKS.scoring),
                         facts: [
-                            { what: 'primary event (V1 kind, V2 value)', value: { kind: readPath(game, 'value.primaryEvent.kind'), value: readPath(game, 'value.primaryEvent.value') } },
+                            { what: 'primary event (V1 kind, V2 value)', value: { kind: eventKindOf(game, null, index).kind, value: readPath(game, 'value.primaryEvent.value') } },
                             ...objectives.map(o => ({ what: `objective ${o.elementId}: ${o.team}${o.role ? ` (${o.role})` : ''} scores in ${o.regionId}`, value: along(o.region) })),
                             ...membersAt(game, index, 'V3').map(condition => ({ what: `condition ${condition?.elementId} (${condition?.type}), scope ${condition?.scope ?? 'WHOLE_GAME'}`, value: condition?.referents?.asAuthored ?? condition?.value ?? null })),
                         ],
@@ -725,7 +774,16 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
     const allocation: Fact[] = [
         ...blocks.flatMap(block => teamsOf(block, index).map(team => ({ what: `block ${block.blockId}: team ${team.handle}${team.role ? ` (${team.role})` : ''}`, value: { ...team.counts, total: team.total } }))),
         ...blocks.slice(0, 1).flatMap(block => membersAt(block.fixture?.game ?? {}, index, 'B4').map(r => ({ what: `at an exchange of roles, ${r.count} of ${r.performerRow} move to the team taking the ${r.toRole} role (${r.elementId})`, value: r.count }))),
-        ...asList(blocks[0]?.fixture?.alternatives).map(alt => ({ what: `deferring as the alternative (${alt.defersTo}, relationship ${alt.relationship}): ${alt.contractId}::${alt.itemId} ${alt.row}`, value: alt.value })),
+        // Stage B review fix (23 October 2026): an item paired with a deferring item (`defersWith`) yields with it, by ITS deferral, and is
+        // said so - never as deferring in its own right by a relationship that does not authorize its row.
+        ...asList(blocks[0]?.fixture?.alternatives).map(alt =>
+            typeof alt.defersWith === 'string'
+                ? {
+                      what: `yielding as the alternative with ${alt.defersWith}, which defers (${alt.defersTo}, relationship ${alt.relationship}) to ${asList(alt.deferredTo).map(ref => `${ref.contractId}::${ref.itemId}`).join(', ')}; it carries no deferral of its own: ${alt.contractId}::${alt.itemId} ${alt.row}`,
+                      value: alt.value,
+                  }
+                : { what: `deferring as the alternative (${alt.defersTo}, relationship ${alt.relationship}): ${alt.contractId}::${alt.itemId} ${alt.row}`, value: alt.value },
+        ),
         { what: 'session', value: { players: input.session.players, roles: { ...input.session.roles } } },
     ]
 
@@ -808,7 +866,7 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
         const game = block.fixture?.game ?? {}
         const rows = transitionsOf(block, index)
         return [
-            ...objectivesOf(block, index).map(o => ({ what: `block ${block.blockId}: ${o.role ?? o.team} scores by ${readPath(game, 'value.primaryEvent.kind')} in ${o.regionId}`, value: { along: along(o.region), noun: o.region?.noun ?? null } })),
+            ...objectivesOf(block, index).map(o => ({ what: `block ${block.blockId}: ${o.role ?? o.team} scores by ${o.role ? eventKindOf(game, o.role, index).kind : eventKindOf(game, null, index).kind} in ${o.regionId}`, value: { along: along(o.region), noun: o.region?.noun ?? null } })),
             ...membersAt(game, index, 'V3').map(c => ({ what: `block ${block.blockId}: condition ${c?.elementId} (${c?.type}) applies within ${c?.scope ?? 'WHOLE_GAME'}`, value: c?.referents ?? c?.value ?? null })),
             { what: `block ${block.blockId}: the items each condition rests on, and the notes the knowledge records on them`, value: conditionsOf(block).map(({ elementId, items, notes }) => ({ elementId, items, notes })) },
             { what: `block ${block.blockId}: after a score`, value: rows.filter(t => t.trigger === 'SCORE').map(t => ({ playState: t.playState, awardedToRole: t.awardedToRole, actor: t.actor, startsEpisode: t.startsEpisode })) },
@@ -819,6 +877,9 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
     const roleExchange: Fact[] = [
         ...membersAt(blocks[0]?.fixture?.game ?? {}, index, 'B1').map(element => ({ what: `role ${element?.activityRole} (${element?.elementId}), exchanged by`, value: element?.exchange ?? null })),
         ...blocks.map(block => ({ what: `block ${block.blockId}: holders`, value: { ...block.holders } })),
+        // The integration review (23 October 2026): where the teams change ends (row B10), for each end the end whose first-block team stands
+        // there in each block, so the review shows the end and the role apart; nothing is listed where each team keeps its end.
+        ...blocks.filter(block => !!block.ends).map(block => ({ what: `block ${block.blockId}: ends (each end, and the end whose first-block team stands there)`, value: { ...block.ends } })),
         { what: 'cross-block checks', value: input.crossBlock.map(c => `${c.checkId} ${c.verdict}`) },
         { what: 'a block length, time expiry or window written for a role (RB-7)', value: input.crossBlock.find(c => c.checkId === 'RB-7')?.problems ?? null },
         // Hardening H1: why the markings stay block by block where his recorded choice does not apply (admin-only; never coach text).
@@ -872,7 +933,7 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
                 facts.push({ what: 'restarts whose location the coach chooses, with the recorded description of it', value: rows.filter(t => t.location && typeof t.location === 'object' && 'coachDecides' in (t.location as object)).map(t => ({ elementId: t.elementId, awardedToRole: t.awardedToRole, location: (t.location as any).coachDecides })) })
                 facts.push({ what: 'a change of possession', value: rows.filter(t => t.trigger === 'POSSESSION_CHANGE').map(t => ({ playState: t.playState, beginsConditionedEpisode: t.beginsConditionedEpisode })) })
                 facts.push({ what: 'conditions on the primary event, with the episode each applies within', value: membersAt(game, index, 'V3').map(c => ({ elementId: c?.elementId, type: c?.type, scope: c?.scope ?? 'WHOLE_GAME' })) })
-                facts.push({ what: 'the primary event', value: readPath(game, 'value.primaryEvent.kind') })
+                facts.push({ what: 'the primary event', value: eventKindOf(game, null, index).kind })
                 // Stage M3 (design step L7): his 19 October item 2 makes a controlled regain inside this target count as a score; it is
                 // carried by an occurrence that also counts as the primary event (V27), not by a new meaning of entering the target.
                 facts.push({ what: 'elements deciding whether gaining possession inside the target scores', value: alsoCountsFor(block, index, flag.role, blockItems[blocks.indexOf(block)]) })
@@ -892,7 +953,7 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
                     ? `Yes. Once play starts, nothing in the generated game prevents a player of the ${flag.role} role from moving beyond the element its target begins at and staying there: its start placement applies only at the transitions that (re)start an episode, and the game holds no action restriction, access rule, eligibility condition, consequence or time window. Whether the defensive interaction there is meaningful is not a fact the game holds; it is for his evaluation.`
                     : `The game holds a rule or a standing placement that bears on where a player of the ${flag.role} role may be; see the facts. Whether it settles his concern is for his evaluation.`
                 : status === 'SETTLED_BY_RULING'
-                  ? `Settled by his ruling, provisionally (${[...new Set(settledBy.map(w => w.citedAs))].join('; ')}): in every block the game holds an occurrence that also counts as the primary event (${readPath(blocks[0]?.fixture?.game ?? {}, 'value.primaryEvent.kind')}) for the team holding the ${flag.role} role, inside the target that team attacks, on ${[...new Set(regains.flat().map(e => String(e.trigger)))].join(', ')}, with its control ("${[...new Set(regains.flat().map(e => String(e.control)))].join('", "')}") and exclusion ("${[...new Set(regains.flat().map(e => String(e.exclusion)))].join('", "')}") recorded in his words; it earns the primary event's own value, and every item it rests on is his ruling. Entering the target keeps its meaning: no element makes gaining possession inside it an entry into it. Whether this creates the intended consequences is for his evaluation.`
+                  ? `Settled by his ruling, provisionally (${[...new Set(settledBy.map(w => w.citedAs))].join('; ')}): in every block the game holds an occurrence that also counts as the primary event (${eventKindOf(blocks[0]?.fixture?.game ?? {}, null, index).kind}) for the team holding the ${flag.role} role, inside the target that team attacks, on ${[...new Set(regains.flat().map(e => String(e.trigger)))].join(', ')}, with its control ("${[...new Set(regains.flat().map(e => String(e.control)))].join('", "')}") and exclusion ("${[...new Set(regains.flat().map(e => String(e.exclusion)))].join('", "')}") recorded in his words; it earns the primary event's own value, and every item it rests on is his ruling. Entering the target keeps its meaning: no element makes gaining possession inside it an entry into it. Whether this creates the intended consequences is for his evaluation.`
                   : status === 'RULED_NOT_IN_GAME'
                     ? `Ruled and not in the game: the record carries his ruling settling this case, and not every block holds an occurrence that also counts as the primary event for the team holding the ${flag.role} role inside its target, resting only on his ruling. See the facts.`
                     : regains.some(list => list.length)
@@ -974,7 +1035,7 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
             facts.push({ what: `flag ${limitation.flag}`, value: flag ? { kind: flag.kind, status: flag.status, answer: flag.answer } : null })
         } else if (limitation.kind === 'CHECKED_PATHWAY_ONLY') {
             facts.push({ what: 'library constraints selected', value: [...input.selectedConstraints] })
-            facts.push({ what: 'the live generation route', value: input.selectedConstraints.length === 0 ? LIVE_ROUTE_REFUSES : 'not measured here' })
+            facts.push({ what: 'the live generation route', value: liveRouteFact(input.constraintAuthority) })
         }
         return { id: limitation.id, kind: limitation.kind, his: limitation.words.map(w => ({ ...w })), facts }
     })
@@ -1037,7 +1098,6 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
         }),
     }))
 
-    const constraintsNone = input.selectedConstraints.length === 0
     return {
         status: 'EVIDENCE_FOR_REVIEW_NOT_SERVED',
         about: PLAIN_ABOUT,
@@ -1055,10 +1115,7 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
             facts: [
                 { what: 'built through', value: 'the checked review pathway (the one chain every review build runs: selection, derivation, Gate A, realization, assembly, post-realization gates, context scoring, rendering, fidelity)' },
                 { what: 'library constraints selected', value: [...input.selectedConstraints] },
-                {
-                    what: 'the live generation route',
-                    value: constraintsNone ? LIVE_ROUTE_REFUSES : 'not measured here',
-                },
+                { what: 'the live generation route', value: liveRouteFact(input.constraintAuthority) },
             ],
             his: { ...request.pathway },
         },

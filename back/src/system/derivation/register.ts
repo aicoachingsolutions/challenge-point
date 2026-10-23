@@ -6,7 +6,7 @@
  * contract.
  */
 
-import { Versions } from './types'
+import { ROLE_YIELD_KEY, ROLE_YIELD_MARKERS, Versions } from './types'
 
 export interface RegisterRow {
     /**
@@ -44,8 +44,249 @@ export interface RegisterRow {
      * **On a COLLECTION row: its elements earn the value another row holds, and hold none of their own** — register version 14,
      * 17 October 2026 (V27, an occurrence that also counts as the primary event and earns its value, V2). Refused at load (H1)
      * where a FIELD row the collection owns sits at the same leaf as the named row, so no element can carry a value of its own.
+     *
+     * **On a FIELD row owned by a collection: the event it names earns the value another row holds** — register version 16, 22
+     * October 2026 (B9, a role's own primary scoring event, earning V2). Refused at load (H1) where the row is a game-level field, or
+     * where a FIELD row its owning collection holds sits at the earned row's leaf, so no role can carry a value of its own.
      */
     earnsValueOf?: string
+}
+
+/**
+ * **Where the role-scoring capability finds its rows** — register version 16, 22 October 2026. Christian, reply filed 25 October 2026,
+ * item 2: *"I approve extending the September 15 decision to support one primary scoring event per role in an asymmetric activity,
+ * rather than requiring both teams to use the same scoring event type."* *"The engine should verify that the objectives are coherent and
+ * compatible rather than simply allow any combination of scoring events."* Read by GA-ROLE-EVENTS (gates.ts) and the one reader of a
+ * team's scoring event (rendering/game-reading.ts `eventKindOf`); no row, kind or role is written in either.
+ */
+export interface RoleScoringRegister {
+    /** The FIELD row, owned by the roles row, holding a role's own primary scoring event (B9). */
+    eventRow: string
+    /** The game's primary event's kind and value (V1, V2), its conditions (V3), value modifiers (V7) and also-counts (V27). */
+    kindRow: string
+    valueRow: string
+    conditionsRow: string
+    valueModifiersRow: string
+    alsoCountsRow: string
+    /** The role's credit bound (B8). */
+    creditRow: string
+    /** The closed list a scoring event is a member of (V1's vocabulary). */
+    kindVocabulary: string
+    kinds: string[]
+    /** The two kinds of target an objective may reference, each with its row and the row holding its type (noun or kind). */
+    targets: { region: { row: string; typeRow: string }; object: { row: string; typeRow: string } }
+    /** The region selector term that says a region item describes a target (an objective-area region). */
+    targetFunction: { attribute: string; value: string }
+    /** OUR_INTERPRETATION: the kind of target each listed scoring event scores at. A kind not listed is not evaluable. */
+    targetTypes: Map<string, { target: 'region' | 'object'; type: string | null }[]>
+    /** The role-yield marker as the register names it (must equal `ROLE_YIELD_KEY` / `ROLE_YIELD_MARKERS`). */
+    roleYield: { key: string; values: string[] }
+    /** The leaves the event and the credit sit at on a role element (`scoresBy`, `creditedWithin`). */
+    eventLeaf: string
+    creditLeaf: string
+}
+
+/**
+ * The role-scoring block, validated as the rest of the register is (halt H1): every name must be a row, a vocabulary or a designation
+ * the register defines, with the shape the capability needs, and the marker must be the one the engine implements. A register without
+ * the block (one written before version 16) has no role scoring: no role scores by an event of its own, and every game reads as before.
+ */
+function indexRoleScoring(block: any, rows: Map<string, RegisterRow>, vocabularies: Map<string, string[]>, roleBlocks: RoleBlockRegister | null): RoleScoringRegister | null {
+    if (!block || typeof block !== 'object') return null
+    if (!roleBlocks) throw new HaltError('H1', 'roleScoring: a role scores by an event of its own only in a game played in role blocks, and the register has no roleBlocks block')
+    const name = (key: string) => String(block[key] ?? '')
+    const field = (id: string) => rows.get(id)?.kind === 'FIELD'
+    const collection = (id: string) => rows.get(id)?.kind === 'COLLECTION'
+    const eventRow = name('eventRow')
+    const creditRow = name('creditRow')
+    for (const id of [eventRow, creditRow]) if (!field(id) || rows.get(id)?.ownerRow !== roleBlocks.rolesRow) throw new HaltError('H1', `roleScoring: ${id} is not a FIELD row owned by the roles row ${roleBlocks.rolesRow}`)
+    const [kindRow, valueRow] = [name('kindRow'), name('valueRow')]
+    for (const id of [kindRow, valueRow]) if (!field(id) || rows.get(id)?.ownerRow) throw new HaltError('H1', `roleScoring: ${id} is not a game-level FIELD row`)
+    if (rows.get(eventRow)?.earnsValueOf !== valueRow) throw new HaltError('H1', `roleScoring: ${eventRow} does not earn ${valueRow} (earnsValueOf), so a role's own event would hold a value of its own or none`)
+    const [conditionsRow, valueModifiersRow, alsoCountsRow] = [name('conditionsRow'), name('valueModifiersRow'), name('alsoCountsRow')]
+    for (const id of [conditionsRow, valueModifiersRow, alsoCountsRow]) if (!collection(id)) throw new HaltError('H1', `roleScoring: ${id} is not a COLLECTION row`)
+    const kindVocabulary = name('kindVocabulary')
+    const kinds = vocabularies.get(kindVocabulary)
+    if (!kinds || !kinds.length) throw new HaltError('H1', `roleScoring.kindVocabulary ${kindVocabulary} is not a vocabulary`)
+    const typeVocabulary = (typeRow: string): string[] | undefined => {
+        const attribute = rows.get(typeRow)?.selectorAttribute
+        return attribute ? vocabularies.get(`${typeRow}.${attribute}`) : undefined
+    }
+    const targets: RoleScoringRegister['targets'] = { region: { row: '', typeRow: '' }, object: { row: '', typeRow: '' } }
+    for (const key of ['region', 'object'] as const) {
+        const row = String(block.targets?.[key]?.row ?? '')
+        const typeRow = String(block.targets?.[key]?.typeRow ?? '')
+        if (!collection(row) || !field(typeRow) || rows.get(typeRow)?.ownerRow !== row) throw new HaltError('H1', `roleScoring.targets.${key}: ${typeRow} is not a FIELD row owned by the COLLECTION row ${row}`)
+        if (!typeVocabulary(typeRow)) throw new HaltError('H1', `roleScoring.targets.${key}: ${typeRow} carries no selector attribute with a vocabulary`)
+        targets[key] = { row, typeRow }
+    }
+    const fn = block.targetFunction ?? {}
+    const fnAttribute = String(fn.attribute ?? '')
+    const fnValue = String(fn.value ?? '')
+    if (!(rows.get(targets.region.row)?.selectorAttributes ?? []).includes(fnAttribute)) throw new HaltError('H1', `roleScoring.targetFunction: ${fnAttribute} is not a selector attribute of ${targets.region.row}`)
+    const fnRow = [...rows.values()].find(row => row.ownerRow === targets.region.row && row.selectorAttribute === fnAttribute)
+    if (!fnRow || !(vocabularies.get(`${fnRow.id}.${fnAttribute}`) ?? []).includes(fnValue)) throw new HaltError('H1', `roleScoring.targetFunction: ${fnValue} is not a member of the ${fnAttribute} vocabulary`)
+    const map = block.targetTypes?.map
+    if (block.targetTypes?.basis !== 'OUR_INTERPRETATION' || typeof block.targetTypes?.from !== 'string' || !block.targetTypes.from.trim()) throw new HaltError('H1', 'roleScoring.targetTypes must say it is OUR_INTERPRETATION and where it comes from')
+    if (!map || typeof map !== 'object') throw new HaltError('H1', 'roleScoring.targetTypes.map is not a map')
+    const targetTypes = new Map<string, { target: 'region' | 'object'; type: string | null }[]>()
+    for (const [kind, entries] of Object.entries(map as Record<string, any>)) {
+        if (!kinds.includes(kind)) throw new HaltError('H1', `roleScoring.targetTypes: ${kind} is not a member of ${kindVocabulary}`)
+        if (!Array.isArray(entries) || !entries.length) throw new HaltError('H1', `roleScoring.targetTypes: ${kind} names no target`)
+        targetTypes.set(
+            kind,
+            entries.map((entry: any) => {
+                const target = entry?.target
+                if (target !== 'region' && target !== 'object') throw new HaltError('H1', `roleScoring.targetTypes: ${kind} names the target ${JSON.stringify(target)}, neither region nor object`)
+                const type = entry?.type === undefined ? null : String(entry.type)
+                if (type !== null && !(typeVocabulary(targets[target as 'region' | 'object'].typeRow) ?? []).includes(type)) throw new HaltError('H1', `roleScoring.targetTypes: ${kind} names the ${target} type ${type}, which is not a member of its vocabulary`)
+                return { target, type }
+            }),
+        )
+    }
+    const key = String(block.roleYield?.key ?? '')
+    const values = Array.isArray(block.roleYield?.values) ? block.roleYield.values.map(String) : []
+    if (key !== ROLE_YIELD_KEY || JSON.stringify(values) !== JSON.stringify([...ROLE_YIELD_MARKERS])) throw new HaltError('H1', `roleScoring.roleYield names ${key} ${JSON.stringify(values)}, which is not the marker the engine implements (${ROLE_YIELD_KEY} ${JSON.stringify(ROLE_YIELD_MARKERS)})`)
+    const leaf = (id: string) => String(rows.get(id)?.path ?? '').split('[].').pop() ?? ''
+    return { eventRow, kindRow, valueRow, conditionsRow, valueModifiersRow, alsoCountsRow, creditRow, kindVocabulary, kinds: [...kinds], targets, targetFunction: { attribute: fnAttribute, value: fnValue }, targetTypes, roleYield: { key, values }, eventLeaf: leaf(eventRow), creditLeaf: leaf(creditRow) }
+}
+
+/**
+ * **Where the object-geometry capability finds its rows** — register version 17, 23 October 2026. Christian, reply filed 25 October 2026,
+ * item 3: *"The goal should be positioned at the building team's end."* *"Goal dimensions and suitability should be determined through
+ * approved [sport] knowledge and available equipment. Please identify any missing knowledge decisions needed here rather than inventing
+ * dimensions or treating every goal as interchangeable."* Read by team-ends.ts (which end an object target is at), gates.ts
+ * `degenerateIsLegitimate` (a zero extent an object's kind makes legitimate), realize.ts (the width the session states for an object of a
+ * kind) and corpus.ts (the provisional realizations' placeholder refusal); no row or kind is written in any of them.
+ */
+export interface ObjectGeometryRegister {
+    /**
+     * The objects collection (O1), its kind (O2) and its along and across positions (O4, O5), each read by the consumers named above. The
+     * block's facing row (O6) is validated at load and not indexed: nothing reads it until its wording exists (Stage G), and a projection
+     * no consumer reads is not kept.
+     */
+    row: string
+    kindRow: string
+    alongRow: string
+    acrossRow: string
+    /** The leaves the kind and the along position sit at on an object element (`kind`, `position.along`), as realize.ts and team-ends.ts read them. */
+    kindLeaf: string
+    alongLeaf: string
+    /** OUR_INTERPRETATION: how many dimensions an object of a kind gives extent in (1: extent on exactly one axis). */
+    extentDimensions: Map<string, number>
+}
+
+/**
+ * The object-geometry block, validated as the rest of the register is (halt H1): every row must be the register's, owned by the objects
+ * collection, at the path its role needs; each kind in the dimensions map a member of the kind row's vocabulary, with 1 or 2 dimensions, and
+ * the map labelled OUR_INTERPRETATION with a note. A register without the block (one written before version 17) has none: no object kind
+ * makes a zero extent legitimate, and no object target's end is read.
+ */
+function indexObjectGeometry(block: any, rows: Map<string, RegisterRow>, vocabularies: Map<string, string[]>): ObjectGeometryRegister | null {
+    if (!block || typeof block !== 'object') return null
+    const name = (key: string) => String(block[key] ?? '')
+    const row = name('row')
+    if (rows.get(row)?.kind !== 'COLLECTION') throw new HaltError('H1', `objectGeometry.row ${row} is not a COLLECTION row`)
+    const leafOf = (id: string) => {
+        const path = String(rows.get(id)?.path ?? '')
+        const container = String(rows.get(row)?.path ?? '')
+        return path.startsWith(`${container}.`) ? path.slice(container.length + 1) : ''
+    }
+    const owned = (key: string, ending: string): string => {
+        const id = name(key)
+        if (rows.get(id)?.kind !== 'FIELD' || rows.get(id)?.ownerRow !== row) throw new HaltError('H1', `objectGeometry.${key} ${id} is not a FIELD row owned by ${row}`)
+        if (!leafOf(id) || !leafOf(id).endsWith(ending)) throw new HaltError('H1', `objectGeometry.${key} ${id} does not sit at a leaf ending ${JSON.stringify(ending)}`)
+        return id
+    }
+    const kindRow = owned('kindRow', '')
+    const alongRow = owned('alongRow', '.along')
+    const acrossRow = owned('acrossRow', '.across')
+    owned('facingRow', '')
+    const attribute = rows.get(kindRow)?.selectorAttribute
+    const kinds = attribute ? vocabularies.get(`${kindRow}.${attribute}`) : undefined
+    if (!kinds || !kinds.length) throw new HaltError('H1', `objectGeometry.kindRow ${kindRow} carries no selector attribute with a vocabulary`)
+    const dims = block.extentDimensions
+    if (!dims || dims.basis !== 'OUR_INTERPRETATION' || typeof dims.note !== 'string' || !dims.note.trim()) throw new HaltError('H1', 'objectGeometry.extentDimensions must say it is OUR_INTERPRETATION and why (note)')
+    const extentDimensions = new Map<string, number>()
+    for (const [kind, value] of Object.entries((dims.kinds ?? {}) as Record<string, unknown>)) {
+        if (!kinds.includes(kind)) throw new HaltError('H1', `objectGeometry.extentDimensions: ${kind} is not a member of the ${kindRow} vocabulary`)
+        if (value !== 1 && value !== 2) throw new HaltError('H1', `objectGeometry.extentDimensions: ${kind} gives extent in ${JSON.stringify(value)} dimensions, which is neither 1 nor 2`)
+        extentDimensions.set(kind, value)
+    }
+    return { row, kindRow, alongRow, acrossRow, kindLeaf: leafOf(kindRow), alongLeaf: leafOf(alongRow), extentDimensions }
+}
+
+/**
+ * **Which objects a session states its availability of** — register version 19, 23 October 2026 (stage E). Christian, reply filed 25 October
+ * 2026, item 4: *"Please add the general ability to represent goal availability as a session resource and use authorized knowledge
+ * relationships when determining which scoring configuration can be selected."* *"A [specialized performer] being available must not
+ * automatically force a [specialized performer] or [object] into an activity that does not require one."* (His nouns are bracketed: the
+ * coupling ratchet keeps a sport's nouns out of this layer; the register quotes him whole.) Read by the session envelope (which kinds a
+ * statement may name), the availability rule (`realization/assemble-concrete-game.ts` objectAvailabilityRefusal: which objects of the game a
+ * statement must cover) and the realizer (an object's width as the session states it); no kind, row or leaf is written in any of them.
+ */
+export interface SessionResourcesRegister {
+    /** The objects collection (O1), where the game holds its objects, and its path. */
+    row: string
+    path: string
+    /** The selector attribute an object element is told apart by (its kind), and the leaf it sits at on an element. */
+    attribute: string
+    kindLeaf: string
+    /** The field counting an element's objects (O3), and its leaf: an element holds as many objects as it says, one where it says none. */
+    countRow: string
+    countLeaf: string
+    /** The object kinds a session states its availability of, in the register's order; each a member of the kind vocabulary. */
+    kinds: string[]
+}
+
+/**
+ * The session-resources block, validated as the rest of the register is (halt H1): its row must be a COLLECTION carrying the attribute as a
+ * selector attribute, the attribute read by a FIELD row of that collection with a vocabulary, every kind a member of that vocabulary (listed
+ * once), and the count row a FIELD of the collection. A register without the block (one written before version 19) has no session resource:
+ * no statement of objects is read, and no game is asked to be covered.
+ */
+function indexSessionResources(block: any, rows: Map<string, RegisterRow>, vocabularies: Map<string, string[]>): SessionResourcesRegister | null {
+    if (!block || typeof block !== 'object') return null
+    if (typeof block.note !== 'string' || !block.note.trim()) throw new HaltError('H1', 'sessionResources must say what it is and why (note)')
+    const row = String(block.row ?? '')
+    const collection = rows.get(row)
+    if (collection?.kind !== 'COLLECTION') throw new HaltError('H1', `sessionResources.row ${row} is not a COLLECTION row`)
+    const attribute = String(block.attribute ?? '')
+    if (!(collection.selectorAttributes ?? []).includes(attribute)) throw new HaltError('H1', `sessionResources.attribute ${attribute} is not a selector attribute of ${row}`)
+    const container = String(collection.path)
+    const leafOf = (id: string) => {
+        const path = String(rows.get(id)?.path ?? '')
+        return path.startsWith(`${container}.`) ? path.slice(container.length + 1) : ''
+    }
+    const attributeRow = [...rows.values()].find(candidate => candidate.kind === 'FIELD' && candidate.ownerRow === row && candidate.selectorAttribute === attribute)
+    const vocabulary = attributeRow ? vocabularies.get(`${attributeRow.id}.${attribute}`) : undefined
+    if (!attributeRow || !vocabulary || !vocabulary.length || !leafOf(attributeRow.id)) throw new HaltError('H1', `sessionResources.attribute ${attribute} is read by no FIELD row of ${row} with a vocabulary`)
+    const countRow = String(block.countRow ?? '')
+    if (rows.get(countRow)?.kind !== 'FIELD' || rows.get(countRow)?.ownerRow !== row || !leafOf(countRow)) throw new HaltError('H1', `sessionResources.countRow ${countRow} is not a FIELD row owned by ${row}`)
+    const kinds: string[] = Array.isArray(block.kinds) ? block.kinds.map(String) : []
+    if (!kinds.length || new Set(kinds).size !== kinds.length) throw new HaltError('H1', 'sessionResources.kinds must list at least one kind, each once')
+    for (const kind of kinds) if (!vocabulary.includes(kind)) throw new HaltError('H1', `sessionResources.kinds: ${kind} is not a member of the ${attributeRow.id}.${attribute} vocabulary`)
+    return { row, path: container, attribute, kindLeaf: leafOf(attributeRow.id), countRow, countLeaf: leafOf(countRow), kinds }
+}
+
+/**
+ * **A machine-readable relative term the engine composes, validated at load (halt H1)** — register version 17, 23 October 2026, for RC-21's
+ * `central` (kind `centred`). A centred term fixes the element's centre on one axis (`at` 0.5 of it) and states no extent; where its extent may
+ * come from is a closed list the realizer implements (`CENTRED_EXTENT_SOURCES`). Any other kind is read as it always was.
+ */
+export const CENTRED_EXTENT_SOURCES = ['REQUIRED_EXTENT', 'SESSION_STATED_WIDTH'] as const
+
+function validateRelativeTerms(block: any): void {
+    const terms = block?.machineReadable?.terms
+    if (!terms || typeof terms !== 'object') return
+    for (const [name, term] of Object.entries(terms as Record<string, any>)) {
+        if (term?.kind !== 'centred') continue
+        if (term.axis !== 'across' && term.axis !== 'along') throw new HaltError('H1', `relativeTerms ${name}: a centred term names its axis (along or across)`)
+        if (term.at !== 0.5) throw new HaltError('H1', `relativeTerms ${name}: a centred term is at the midline of its axis (at 0.5)`)
+        const from = Array.isArray(term.extentFrom) ? term.extentFrom : []
+        if (!from.length || from.some((source: unknown) => !(CENTRED_EXTENT_SOURCES as readonly unknown[]).includes(source))) throw new HaltError('H1', `relativeTerms ${name}: a centred term says where its extent comes from, from ${CENTRED_EXTENT_SOURCES.join(', ')}`)
+        if (typeof term.why !== 'string' || !term.why.trim()) throw new HaltError('H1', `relativeTerms ${name}: a centred term says why (its prose test)`)
+    }
 }
 
 /**
@@ -317,6 +558,53 @@ function indexReassignment(block: any, rows: Map<string, RegisterRow>, roleBlock
 }
 
 /**
+ * **Where the end-exchange capability finds its row** — register version 18, 23 October 2026 (stage D), for his reply filed 25 October
+ * 2026, item 5: *"Team-end assignments may change between coach-controlled blocks when the authorized activity configuration requires
+ * it."* *"Please keep the following concepts separate in the general representation: Team identity. Assigned game role. Assigned field
+ * end. Participant membership and reassignment."* Read by `derivation/role-blocks.ts` (`endAssignmentOf`), `realization/realize.ts`, the
+ * cross-block checks and fidelity Q6 (`rendering/role-blocks.ts`) and the renderer; no row, value or designation is written there.
+ */
+export interface EndAssignmentRegister {
+    /** The game-level FIELD row saying whether the teams change ends at a coach-called block (`blocks.endAssignment`). */
+    row: string
+    /** Its path in a game. */
+    path: string
+    /** The closed list, in the register's order. */
+    values: string[]
+    /** The value a game no item writes the row for is played as: each team keeps its end. */
+    kept: string
+    /** The value under which the second block keeps the first block's holders and exchanges which team holds each end. */
+    exchanged: string
+    /** The two end-assigned designations (SETUP_ASSIGNMENT) whose teams change ends, as the list spells them. */
+    ends: string[]
+}
+
+/**
+ * The end-assignment block, validated as the rest of the register is (halt H1): its row must be a game-level FIELD row (never a field of
+ * the role collection: his item 5 keeps role and end apart), its vocabulary exactly its two values, and its ends exactly two
+ * SETUP_ASSIGNMENT designations of the list. A register without the block (one written before version 18) has no end exchange, and every
+ * game keeps its ends. It needs the role-block capability: the ends change only at a coach-called block, and blocks exist only where the
+ * roles exchange.
+ */
+function indexEndAssignment(block: any, rows: Map<string, RegisterRow>, vocabularies: Map<string, string[]>, roleBlocks: RoleBlockRegister | null, designations: DesignationRegister): EndAssignmentRegister | null {
+    if (!block || typeof block !== 'object') return null
+    if (!roleBlocks) throw new HaltError('H1', 'endAssignment: the ends change only at a coach-called block, and the register has no roleBlocks block')
+    const row = String(block.row ?? '')
+    const entry = rows.get(row)
+    if (entry?.kind !== 'FIELD' || entry.ownerRow) throw new HaltError('H1', `endAssignment.row ${row} is not a game-level FIELD row (the end assignment is never a field of a collection)`)
+    if (row === roleBlocks.exchangeRow || entry.ownerRow === roleBlocks.rolesRow) throw new HaltError('H1', `endAssignment.row ${row} is a field of the role collection`)
+    const values = vocabularies.get(String(block.vocabulary ?? ''))
+    if (!values || values.length !== 2) throw new HaltError('H1', `endAssignment.vocabulary ${block.vocabulary} must be a vocabulary of exactly two values`)
+    const [kept, exchanged] = [String(block.kept ?? ''), String(block.exchanged ?? '')]
+    if (!values.includes(kept) || !values.includes(exchanged) || kept === exchanged) throw new HaltError('H1', `endAssignment: kept (${kept}) and exchanged (${exchanged}) must be the two different members of ${block.vocabulary}`)
+    const ends: string[] = Array.isArray(block.ends) ? block.ends.map(String) : []
+    if (ends.length !== 2 || new Set(ends).size !== 2 || ends.some(end => designations.resolutions.get(end)?.kind !== 'SETUP_ASSIGNMENT')) {
+        throw new HaltError('H1', `endAssignment.ends ${JSON.stringify(block.ends ?? null)} must be two different SETUP_ASSIGNMENT designations of the list`)
+    }
+    return { row, path: String(entry.path), values: [...values], kept, exchanged, ends }
+}
+
+/**
  * **Which participant a value names, where it is not a specialized role — register version 15, 22 October 2026.** Christian,
  * reply filed 25 October 2026, item 6: *"Any participant or role required by an activity must actually be present in the
  * authorized configuration."* *"This safeguard should not depend on particular wording or on the current realization's existing
@@ -460,8 +748,16 @@ export interface RegisterIndex {
     targetOf: TargetOfRegister | null
     /** The participant-reassignment capability's rows (register version 11, his RD-1 answer), or null without it. */
     reassignment: ReassignmentRegister | null
+    /** The end-exchange capability's row (register version 18, his reply filed 25 October 2026, item 5), or null without it. */
+    endAssignment: EndAssignmentRegister | null
     /** The participant forms beside the specialized roles (register version 15, his reply filed 25 October 2026, item 6), or null without them. */
     participants: ParticipantRegister | null
+    /** The role-scoring capability's rows (register version 16, his reply filed 25 October 2026, item 2), or null without them. */
+    roleScoring: RoleScoringRegister | null
+    /** The object-geometry capability's rows (register version 17, his reply filed 25 October 2026, item 3), or null without them. */
+    objectGeometry: ObjectGeometryRegister | null
+    /** The objects a session states its availability of (register version 19, his reply filed 25 October 2026, item 4), or null without them. */
+    sessionResources: SessionResourcesRegister | null
     registerVersion: string
 }
 
@@ -564,10 +860,25 @@ export function indexRegister(register: any): RegisterIndex {
     for (const row of rows.values()) {
         if (row.earnsValueOf === undefined) continue
         const earned = rows.get(String(row.earnsValueOf))
-        if (row.kind !== 'COLLECTION') throw new HaltError('H1', `earnsValueOf on ${row.id}, which is not a COLLECTION row`)
         if (!earned || earned.kind !== 'FIELD') throw new HaltError('H1', `earnsValueOf on ${row.id} names ${row.earnsValueOf}, which is not a FIELD row`)
+        if (row.kind === 'COLLECTION') {
+            for (const [rowId, owner] of ownerRow) {
+                if (owner === row.id && leafOf(rows.get(rowId)!.path) === leafOf(earned.path)) throw new HaltError('H1', `${rowId} gives ${row.id} a value of its own, and its elements earn ${earned.id}'s (earnsValueOf)`)
+            }
+            continue
+        }
+        /**
+         * **A FIELD row owned by a collection may earn another row's value** (register version 16, 22 October 2026: B9, a role's own
+         * scoring event, earns V2). The compensating checks: the row must be a member property (a game-level field earns nothing for
+         * anyone in particular), the earned row a game-level field, and no field its owning collection holds may sit at the earned row's
+         * leaf, so the element can never carry a value of its own beside the one it earns. A VIEW is refused as before.
+         */
+        if (row.kind !== 'FIELD' || !row.ownerRow) throw new HaltError('H1', `earnsValueOf on ${row.id}, which is neither a COLLECTION row nor a FIELD row owned by one`)
+        if (earned.ownerRow) throw new HaltError('H1', `earnsValueOf on ${row.id} names ${earned.id}, which is not a game-level FIELD row`)
+        // An element that itself earns a value (V27) holds no field earning one too: one occurrence would earn twice.
+        if (rows.get(row.ownerRow)?.earnsValueOf !== undefined) throw new HaltError('H1', `earnsValueOf on ${row.id}, a field of ${row.ownerRow}, whose elements already earn ${rows.get(row.ownerRow)!.earnsValueOf}'s value`)
         for (const [rowId, owner] of ownerRow) {
-            if (owner === row.id && leafOf(rows.get(rowId)!.path) === leafOf(earned.path)) throw new HaltError('H1', `${rowId} gives ${row.id} a value of its own, and its elements earn ${earned.id}'s (earnsValueOf)`)
+            if (owner === row.ownerRow && leafOf(rows.get(rowId)!.path) === leafOf(earned.path)) throw new HaltError('H1', `${rowId} gives the elements of ${row.ownerRow} a value of their own, and ${row.id} earns ${earned.id}'s (earnsValueOf)`)
         }
     }
 
@@ -670,6 +981,7 @@ export function indexRegister(register: any): RegisterIndex {
         singletonRows.set(row.id, decision.id)
     }
 
+    validateRelativeTerms(register.relativeTerms)
     const citable = new Set<string>((register.citableStandingDecisions || []).map((d: any) => d.id).filter(Boolean))
     const designations = indexDesignations(register.teamDesignations, rows)
     const roleBlocks = indexRoleBlocks(register.roleBlocks, rows, vocabularies, designations)
@@ -705,7 +1017,11 @@ export function indexRegister(register: any): RegisterIndex {
         roleBlocks,
         targetOf: indexTargetOf(register.targetOf, rows, vocabularies, designations),
         reassignment: indexReassignment(register.reassignment, rows, roleBlocks, designations),
+        endAssignment: indexEndAssignment(register.endAssignment, rows, vocabularies, roleBlocks, designations),
         participants: indexParticipants(register.participants, rows, designations),
+        roleScoring: indexRoleScoring(register.roleScoring, rows, vocabularies, roleBlocks),
+        objectGeometry: indexObjectGeometry(register.objectGeometry, rows, vocabularies),
+        sessionResources: indexSessionResources(register.sessionResources, rows, vocabularies),
         registerVersion: register.version,
     }
 }

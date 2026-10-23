@@ -163,9 +163,11 @@ test('1. end to end on production data: SERVED (design step L14; was refused onl
     // Re-pointed 21 October 2026 (stage 2D): 10 cross-block checks, RB-L joining.
     // Re-pointed 22 October 2026: 20 Gate A checks per block (40), GA-PARTICIPANTS-PRESENT joining (his reply filed 25 October 2026,
     // item 6), and its five clauses owed per block (22 -> 32), every one passing on applicable instances (participants-present.unit.ts).
-    assert.deepEqual(evidence.structure.summary.gateChecks, { PASS: 40 })
+    // Re-pointed 22 October 2026 (stage A): 21 Gate A checks per block (42), GA-ROLE-EVENTS joining (his reply filed 25 October 2026, item
+    // 2), its target and yield clauses owed per block (32 -> 36), each passing on the two teams it examined (role-events.unit.ts).
+    assert.deepEqual(evidence.structure.summary.gateChecks, { PASS: 42 })
     assert.deepEqual(evidence.structure.summary.crossBlock, { PASS: 10 })
-    assert.deepEqual(evidence.structure.summary.owed, { PASS: 32 })
+    assert.deepEqual(evidence.structure.summary.owed, { PASS: 36 })
     assert.equal(evidence.structure.composition.length, 0)
     // Only production data: the record names the realization, and no TEST-ONLY value is anywhere in what was built.
     assert.ok(!JSON.stringify(review).includes('TEST-ONLY'))
@@ -427,9 +429,10 @@ test('7. the structural report reads the gates\' own verdicts; the checked pathw
     }
     // A vacuous pass is named as such, never counted as evidence: GA-TIME-WINDOWS has no window to range over.
     assert.ok(evidence.structure.summary.vacuousClauses.some(c => c.includes('GA-TIME-WINDOWS')))
-    // His item 7: the checked pathway is not the live one, and why, beside his words.
+    // His item 7: which pathway built it, and what the live route does with it, beside his words. Restated 22 October 2026 (the live-app
+    // fix): the live route builds a record-backed selection through this same checked pathway, so the fact says so, read from the authority.
     assert.equal(evidence.pathway.route, 'CHECKED_REVIEW')
-    assert.ok(String(fact(evidence.pathway.facts, 'the live generation route')).startsWith('does not serve this activity'))
+    assert.ok(String(fact(evidence.pathway.facts, 'the live generation route')).startsWith('builds this activity through this same checked pathway'))
     // The loader: a damaged copy of the request is refused, naming what is wrong (TEST-ONLY copies).
     const damaged = (alter: (copy: any) => void) => {
         const copy = JSON.parse(JSON.stringify(request))
@@ -723,7 +726,9 @@ test('10. (M3) items 4 and 5 show each role\'s credit and the regain score; the 
     assert.equal(fact(second.facts, `block ${BLOCKS[0]}: ${ROLE}s the session has beyond the teams' counts (counted among the other players)`), 0)
     assert.deepEqual(fact(second.facts, `at an exchange of roles, ${ROLE}s that move`).map((r: any) => r.count), [1])
     assert.deepEqual(fact(advanced.facts, 'flag F1'), { kind: 'ADVANCED_POSITIONING', status: 'FLAGGED_FOR_REVIEW', answer: evidence.flags[0].answer })
-    assert.ok(String(fact(live.facts, 'the live generation route')).startsWith('does not serve this activity'))
+    // Restated 22 October 2026 (the live-app fix): limitation L3's measured fact; his words stay as provenance.
+    assert.ok(String(fact(live.facts, 'the live generation route')).startsWith('builds this activity through this same checked pathway'))
+    assert.ok(live.his.some(w => w.words.includes('checked review pathway')), 'his L3 words are kept as he wrote them')
     assert.deepEqual(fact(evidence.provenance.openForReview, 'limitations kept visible, as he asked'), ['L1', 'L2', 'L3'])
     // At two goalkeepers the second is counted among the other players, in each block (a fact, no prescription).
     const twoKeepers = (buildActivityForReview({ ...a01, session: { ...session, roles: { ...session.roles, [ROLE]: 2 } } }, { includeDrafts: true }) as ServedActivity).evidence!

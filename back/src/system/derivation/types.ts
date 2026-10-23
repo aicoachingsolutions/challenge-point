@@ -119,11 +119,99 @@ export interface ContractItem {
      */
     defersTo?: unknown
     /**
+     * **A ruled pairing** (23 October 2026, stage B): the id of an item IN THE SAME CONTRACT that carries `defersTo`; this item yields
+     * together with it, wherever it defers, and never on its own. Written only by a ruled restatement, which the restatement loader
+     * admits only where the item it names carries `defersTo` in that contract (corpus-restatement.ts); honoured in
+     * `realization-deferral.ts`. The design's K2: the region a deferring objective reference points to (GF2-03.e) yields with that
+     * reference (GF2-08.f). No item carries it on 23 October 2026: whether any does is his restatement (F2 of the design).
+     */
+    defersWith?: unknown
+    /**
      * The context-manipulation relationship a provisional realization's item cites as its authority (15 October 2026, stage
      * K4): the id of an entry of the authorization records' `contextManipulationRelationships`, checked at load
-     * (`learning-goal-authorizations.ts`) and read by the deferral (`realization-deferral.ts`).
+     * (`learning-goal-authorizations.ts`) and read by the deferral (`realization-deferral.ts`). Since stage A (22 October 2026,
+     * register version 16) the id of a relationship of ANY kind the records hold (`contextRelationships`).
      */
     authorizedBy?: unknown
+    /**
+     * **The role-yield marker** (stage A, 22 October 2026, register version 16; `ROLE_YIELD_KEY`): written only by a ruled ITEM
+     * restatement (corpus-restatement.ts, only on an owner ruling quoting his words, only from `ROLE_YIELD_MARKERS`). Every other way in is
+     * refused (stage A review fix): an added item carrying it is not inserted and a corpus item's is not honoured (both named in the
+     * restatement tally), and a provisional realization or the Sport Profile carrying it fails its loader. It says that a
+     * REQUIRED permitted set on the event or target rows may be departed from for ONE role, where that role's own event (row B9) and
+     * objective reference cite a confirmed relationship naming this item (GA-ROLE-EVENTS, clause 6). It removes nothing: the item
+     * keeps governing every other role and every game without such a citation.
+     */
+    yieldsForRole?: unknown
+}
+
+/**
+ * **The role-yield marker, as the engine implements it** — stage A, 22 October 2026 (register version 16). Christian, reply filed 25
+ * October 2026, item 2: *"Please implement this as a general role-specific scoring capability, preserving structural validation and
+ * knowledge authorization."* The key an item restatement may write and its closed list of values; the register's `roleScoring.roleYield`
+ * must name exactly these (halt H1 in `register.ts`), so the loader (which reads no register) and the gate read one list. No item
+ * carries it on 22 October 2026: whether any item yields is his ruling (restatement S1 of the note sent to him).
+ */
+export const ROLE_YIELD_KEY = 'yieldsForRole'
+export const ROLE_YIELD_MARKERS = ['AUTHORIZED_ROLE_SCORING'] as const
+
+/**
+ * Every field of `ContractItem`, one entry each: the compiler refuses this record when a field is added to the record type and not here, or
+ * named here and not there, so `ENGINE_ITEM_KEYS` cannot fall behind the type.
+ */
+const CONTRACT_ITEM_FIELDS: Record<keyof ContractItem, true> = {
+    itemId: true,
+    row: true,
+    selector: true,
+    requirement: true,
+    value: true,
+    strictness: true,
+    valueStatus: true,
+    scope: true,
+    basis: true,
+    basisEvidence: true,
+    checkability: true,
+    structuralClause: true,
+    comparison: true,
+    category: true,
+    defersTo: true,
+    defersWith: true,
+    authorizedBy: true,
+    [ROLE_YIELD_KEY]: true,
+}
+
+/**
+ * **Every item field the engine reads by name** — stage A re-review fix, 23 October 2026. Every field of the item record (`ContractItem`,
+ * kept complete by the compiler above: among them `itemId`, the item's identity, which supersessions, no-row sets and deferrals match on;
+ * `authorizedBy`, the relationship citation the deferral, the role yields and the context-scoring guard read; `category`, the provisional
+ * realization's authority), plus the fields engine code reads off an item that the record type does not declare: the authored spelling of the
+ * identity (`id`, renamed to `itemId` at load), the contract an item is filed under once read (`contractId`), and a provisional item's own
+ * choice, words and citation (`choice`, `words`, `citedAs`, read by realization and the review evidence). Read by the restatement ledger's
+ * integrity gate (corpus-restatement.ts `provenanceNoteKeysOf`), which refuses a provenance-note key naming any of them, so a declared note can
+ * never stand for a field anything reads. Which keys the knowledge files put on items that engine source names is measured against this list
+ * in the stage A unit test, so a new read cannot slip past it.
+ */
+export const ENGINE_ITEM_KEYS: readonly string[] = [...Object.keys(CONTRACT_ITEM_FIELDS), 'id', 'contractId', 'choice', 'words', 'citedAs']
+
+/**
+ * **Where a marked item yields, in this composition** (stage A, 22 October 2026): the items of other selected contributions that write
+ * a role's own event (row B9) or an objective's reference (row J2) and cite a CONFIRMED relationship of the context their contribution
+ * realizes, which authorizes their row and names this item among those it supersedes (`realization-deferral.ts` `applyRoleYields`).
+ * Recorded on a COPY of the marked item's contract; nothing is removed. Read by GA-ROLE-EVENTS clause 6 only.
+ */
+export interface RoleYield {
+    itemId: string
+    marker: string
+    /**
+     * Each citing item counted, with what its relationship authorizes (stage A review fix, 22 October 2026): the one scoring event and the
+     * one role it is confirmed for. An item on the event row is counted only where the event it writes IS that event.
+     */
+    citedBy: { contractId: string; itemId: string; row: string; relationship: string; scoringEvent: string; role: string }[]
+    /**
+     * Citing items NOT counted, each with why (stage A review fix): an event-row item writing an event its relationship does not confirm,
+     * or a relationship naming no scoring event or no role (which authorizes no role yield). Absent where there is none.
+     */
+    refused?: { contractId: string; itemId: string; row: string; relationship: string; why: string }[]
 }
 
 export interface Declaration {
@@ -198,6 +286,11 @@ export interface LoadedContract {
      * alternative stays visible. Absent wherever nothing defers.
      */
     deferredItems?: DeferredItem[]
+    /**
+     * Items of this contract carrying the role-yield marker, each with the citing items that may depart from it for one role in this
+     * composition (stage A, 22 October 2026; `RoleYield`). Absent wherever no marked item is cited.
+     */
+    roleYields?: RoleYield[]
 }
 
 /** An item that defers in this composition, with what it defers to (stage K4, ruling C56). */
@@ -208,6 +301,11 @@ export interface DeferredItem {
     deferredTo: { contractId: string; itemId: string }[]
     /** The relationship they cite. */
     relationship: string
+    /**
+     * Where this item yields only because the item it is paired with does (stage B, 23 October 2026; `ContractItem.defersWith`): that
+     * item's id, in the same contract. `deferredTo` and `relationship` are then that item's. Absent on an item that defers in its own right.
+     */
+    defersWith?: string
 }
 
 export interface SelectionEntry {
@@ -240,6 +338,25 @@ export interface Envelope {
      * absent entry means *not stated*, never *none available*.
      */
     roles?: Record<string, number>
+    /**
+     * **The objects the session states it has, by kind** — 23 October 2026 (stage E, register version 19, `sessionResources`); his reply
+     * filed 25 October 2026, item 4: *"Please add the general ability to represent goal availability as a session resource"*. Object kind
+     * (a kind the register's `sessionResources` lists) to how many the session has and how wide they are, in metres. Absent, or a kind
+     * absent from it, means NOT STATED, never none, exactly as for `roles`; a count of 0 is a statement that there are none.
+     *
+     * Availability, never involvement: an object is in a game only where the game's knowledge establishes it, and the availability rule
+     * (`realization/assemble-concrete-game.ts` objectAvailabilityRefusal) only asks this statement to cover the objects of a listed kind the
+     * game holds. The width is a realization input too: read by a term whose extent the session may state (RC-21's `central`, `extentFrom`
+     * SESSION_STATED_WIDTH), used as stated and never a default (it replaced stage B's `statedObjectWidthsM`, so the width has one source).
+     * Which stated objects SUIT an activity is decision 4 of the note sent to him: the statement says nothing about it.
+     */
+    objects?: Record<string, StatedObjects>
+}
+
+/** What a session states of the objects of one kind (stage E): how many it has, and how wide they are, in metres, where it says. */
+export interface StatedObjects {
+    count: number
+    widthM?: number
 }
 
 export interface DerivationInput {
@@ -332,6 +449,16 @@ export interface RoleBlock {
     blockId: string
     /** Role -> the setup assignment holding it in this block. */
     holders: Record<string, string>
+    /**
+     * **Which team stands at each end in this block, where the ends are exchanged** — stage D, 23 October 2026, register version 18 (row
+     * B10, the endAssignment block), his reply filed 25 October 2026, item 5: *"Team-end assignments may change between coach-controlled
+     * blocks when the authorized activity configuration requires it."* Each end (a setup assignment) -> the setup assignment whose team, as
+     * realization binds it for the first block, holds that end in this block: the identity in the first block, the two ends exchanged in the
+     * second. Present only where the game's end assignment is the exchange, so every block of a game that keeps its ends is exactly what it
+     * was (its id, its fixture and every key read from it). Entailed, never chosen (`role-blocks.ts`); applied by realization to the binding
+     * it was given (`realize.ts`), so team identity stays the binding's and the end stays the designation's.
+     */
+    ends?: Record<string, string>
 }
 
 export interface ResolutionLine {

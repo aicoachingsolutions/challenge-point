@@ -35,7 +35,7 @@ import path from 'node:path'
 import { AUDITS_DIR } from '../derivation/knowledge-root'
 import { provisionalRealizationNamed } from '../derivation/corpus'
 import { DesignationBinding } from '../derivation/designation'
-import { KnowledgeSelection, knowledgeKey } from '../derivation/run-bounded-selection'
+import { KnowledgeSelection, knowledgeKey, realizationOf } from '../derivation/run-bounded-selection'
 import { Choice, Instantiation, SatisfiedByEstablished } from './realize'
 
 const INDEX = 'realization-choices-index.json'
@@ -116,7 +116,9 @@ export function suppliedRealizationFor(selection: KnowledgeSelection, read: (nam
         supplied.from.push(file)
     }
 
-    const provisional = provisionalRealizationNamed(selection.authorization?.provisionalRealization)
+    // Stage E (23 October 2026): the realization the build is trying where it threaded one, the record's preferred one otherwise
+    // (`realizationOf`), so the choices read are always those of the realization derivation received.
+    const provisional = realizationOf(selection)
     if (provisional?.realizationChoices) conflicts.push(...applyProvisionalChoices(supplied, provisional.realizationChoices, read, closedBy))
     return conflicts.length ? { missingFor: null, conflicts } : supplied
 }
