@@ -118,6 +118,22 @@ export function selectionDisagreements(live: TestLibrarySelectionResult, checked
         .map(([what, a, b]) => `${what}: live [${a.join(', ')}], checked [${b.join(', ')}]`)
 }
 
+/**
+ * **The live route's answer to a refused checked build** — `{ error, resolutionStatus: 'refused' }` with the checked chain's own sentence, as
+ * since the live-app fix, and (stage E, 23 October 2026) the build's question beside it where the build stopped to ask one
+ * (`RefusedActivity.question`: the session's objects of a kind the activity needs and the session has not stated). The design's Stage E:
+ * *"NOT_STATED reaches the coach as a question through both the review route and the live route."* `debug` adds the stage and reasons as
+ * before. Every refusal without a question answers exactly what it did.
+ */
+export function liveRefusalBody(activity: RefusedActivity, debug: Record<string, unknown> | null): Record<string, unknown> {
+    return {
+        error: activity.summary,
+        resolutionStatus: 'refused',
+        ...(activity.question ? { question: { ...activity.question } } : {}),
+        ...(debug ?? {}),
+    }
+}
+
 /** **G2: each constraint the checked build serves that its goal's record does not authorize**, as a reason; empty where all are authorized. */
 export function unauthorizedConstraints(served: ServedActivity, checked: BoundedSelection): string[] {
     const record = checked.authorization

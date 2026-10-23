@@ -32,7 +32,7 @@ import { scaleExactly } from '../derivation/rational'
 import { RegisterIndex } from '../derivation/register'
 import { DesignationBinding, designationKey, resolutionOf } from '../derivation/designation'
 import { objectPositionRefusal } from '../derivation/object-extent'
-import { Bounds, relativePositionOf, RoleBlock } from '../derivation/types'
+import { Bounds, relativePositionOf, RoleBlock, StatedObjects } from '../derivation/types'
 import { realizeSpatialRelation, RealizedGeometry } from './spatial'
 import { attackingEndIn, attackingEndOf } from './team-ends'
 
@@ -677,9 +677,10 @@ export function realize(
     index?: RegisterIndex,
     /**
      * The session's area, and (stage B, 23 October 2026, register version 17) the width it states for the objects of each kind it states one
-     * for (`statedObjectWidthsM`, the realization input stage E's session field will feed; absent means not stated, never none).
+     * for: since stage E (register version 19) read from the session's statement of its objects (`objects`, kind to count and width), the one
+     * source of an object's width; absent means not stated, never none.
      */
-    envelope?: { lengthM?: number; widthM?: number; statedObjectWidthsM?: Record<string, number> },
+    envelope?: { lengthM?: number; widthM?: number; objects?: Record<string, StatedObjects> },
     /**
      * **Justified defaults — a SEPARATE input, consulted only for a line that is open and was not chosen.**
      *
@@ -1412,13 +1413,14 @@ export function realize(
             /**
              * **The width the session states for objects of this element's kind** (stage B, 23 October 2026, register version 17): a
              * realization input, read only for an element of the register's objects collection, by its kind as the game holds it, and only
-             * by a term whose extent the session may state. Absent means not stated, and such a term then refuses.
+             * by a term whose extent the session may state. Absent means not stated, and such a term then refuses. Since stage E (register
+             * version 19) it is the width of the session's statement of its objects of that kind (`envelope.objects`), its one source.
              */
             const objectRows = index.objectGeometry
             const objectsAt = objectRows ? collectionPath(String(index.rows.get(objectRows.row)?.path ?? '')) : null
             const objectKind = objectRows && objectsAt && selectorTerms && splitElementPath(entry.path)?.container === objectsAt ? readAt(selectorTerms as Record<string, unknown>, objectRows.kindLeaf) : undefined
-            const statedWidths = envelope?.statedObjectWidthsM as Record<string, unknown> | undefined
-            const statedExtent = typeof objectKind === 'string' && statedWidths && typeof statedWidths[objectKind] === 'number' ? (statedWidths[objectKind] as number) : undefined
+            const stated = typeof objectKind === 'string' && envelope?.objects && Object.prototype.hasOwnProperty.call(envelope.objects, objectKind) ? envelope.objects[objectKind] : undefined
+            const statedExtent = stated && typeof stated.widthM === 'number' ? stated.widthM : undefined
 
             const realizedGeometry = realizeSpatialRelation(entry.value, index, {
                 envelope: envelope ?? {},

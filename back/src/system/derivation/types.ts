@@ -339,12 +339,24 @@ export interface Envelope {
      */
     roles?: Record<string, number>
     /**
-     * **The width the session states for the objects of a kind, in metres** — 23 October 2026 (stage B, register version 17), object kind
-     * (the register's objects kind row) to width. A realization input: read only by a term whose extent the session may state (RC-21's
-     * `central`, `extentFrom` SESSION_STATED_WIDTH), used as stated and never a default; an absent kind means not stated, and the term then
-     * refuses. The session field that feeds it, and which stated objects are suitable, are stage E's (decision D1 of the note sent to him).
+     * **The objects the session states it has, by kind** — 23 October 2026 (stage E, register version 19, `sessionResources`); his reply
+     * filed 25 October 2026, item 4: *"Please add the general ability to represent goal availability as a session resource"*. Object kind
+     * (a kind the register's `sessionResources` lists) to how many the session has and how wide they are, in metres. Absent, or a kind
+     * absent from it, means NOT STATED, never none, exactly as for `roles`; a count of 0 is a statement that there are none.
+     *
+     * Availability, never involvement: an object is in a game only where the game's knowledge establishes it, and the availability rule
+     * (`realization/assemble-concrete-game.ts` objectAvailabilityRefusal) only asks this statement to cover the objects of a listed kind the
+     * game holds. The width is a realization input too: read by a term whose extent the session may state (RC-21's `central`, `extentFrom`
+     * SESSION_STATED_WIDTH), used as stated and never a default (it replaced stage B's `statedObjectWidthsM`, so the width has one source).
+     * Which stated objects SUIT an activity is decision 4 of the note sent to him: the statement says nothing about it.
      */
-    statedObjectWidthsM?: Record<string, number>
+    objects?: Record<string, StatedObjects>
+}
+
+/** What a session states of the objects of one kind (stage E): how many it has, and how wide they are, in metres, where it says. */
+export interface StatedObjects {
+    count: number
+    widthM?: number
 }
 
 export interface DerivationInput {

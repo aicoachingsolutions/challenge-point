@@ -42,10 +42,10 @@ import { assembleResolvedGame, splitPath } from '../derivation/resolved-game'
 import { roleHolderNames, roleOfHolder } from '../derivation/designation'
 import { MissingParticipant, missingParticipantsIn, PARTICIPANTS_CHECK } from '../derivation/gates'
 import { roleBlocksOf } from '../derivation/role-blocks'
-import { BoundedSelection, CONTEXT_ROLE, contractCoverage, derivationInputFor, GoalSelectionGap, knowledgeKey, KnowledgeSelection, selectFor } from '../derivation/run-bounded-selection'
+import { BoundedSelection, CONTEXT_ROLE, contractCoverage, derivationInputFor, GoalSelectionGap, knowledgeKey, KnowledgeSelection, realizationOf, selectFor } from '../derivation/run-bounded-selection'
 import { LoadedContract, RoleBlock } from '../derivation/types'
 import { gpLibrary } from '../knowledge-core/gp-library'
-import { completeConcreteGame, rosterRefusal, RosterRefusal } from '../realization/assemble-concrete-game'
+import { completeConcreteGame, ObjectAvailabilityRefusal, objectAvailabilityRefusal, rosterRefusal, RosterRefusal } from '../realization/assemble-concrete-game'
 import { runPostRealizationGates } from '../realization/post-realization-gate'
 import { realizeWithJustifiedDefaults, StrandedCount } from '../realization/justified-defaults'
 import { checkRealization, isRefused, Realized } from '../realization/realize'
@@ -56,7 +56,7 @@ import { TEST_LIBRARY_V0_AFFORDANCE_LENSES, TEST_LIBRARY_V0_ARCHETYPES, TEST_LIB
 import type { SelectionKnowledgeGapReason } from '../test-library/generateSelection'
 import { learningGoalSelectionHolds } from '../test-library/learning-design-holds'
 import type { AuthorizationExclusion, AuthorizationLists, AuthorizedAdjustment, ContextManipulationRelationship, LearningGoalAuthorization } from '../test-library/learning-goal-authorizations'
-import { allocationPrinciple, authorizationLists, contextRelationships, learningGoalAuthorizations, libraryConstraintPrinciple, neededRecordGaps } from '../test-library/learning-goal-authorizations'
+import { allocationPrinciple, authorizationLists, contextRelationships, learningGoalAuthorizations, libraryConstraintPrinciple, neededRecordGaps, realizationAlternativesOf } from '../test-library/learning-goal-authorizations'
 import { applyRealizationDeferrals, applyRoleYields } from '../derivation/realization-deferral'
 import type { ConstraintAuthority, ConstraintPoolAccount } from '../test-library/types'
 import { CoachOverviewDraft, failedOverviewDraft } from './coach-overview'
@@ -66,13 +66,13 @@ import { CoachOverview, OverviewEvidence, overviewEvidenceOf, overviewForServing
 import { contextScoringFindings, EPISODE_REACHABLE_CHECK } from './context-scoring-guard'
 import { checkFidelity, FidelityFinding } from './fidelity'
 import { ReviewDraft, reviewDraftOf } from './review-draft'
-import { EvidenceBlock, LayoutFallback, ReviewEvidence, reviewEvidenceOf } from './review-evidence'
+import { EvidenceBlock, LayoutFallback, ReviewEvidence, reviewEvidenceOf, withRealizationSelection } from './review-evidence'
 import { mechanismDemonstration } from './mechanism-demonstrations'
 import { Instruction, RenderedActivity, renderConcreteGame } from './render-concrete-game'
 import { assembleRenderingFixture } from './rendering-fixture'
 import { layoutMoversOf, layoutOf, remarkingSummary } from './physical-layout'
 import { checkRoleBlockComposition, checkRoleBlockLayout, checkRoleBlocks, composeRoleBlockActivity, RoleBlockCheck, roleBlockFixture } from './role-blocks'
-import { ActivitySession, availabilityQuestion } from './session-envelope'
+import { ActivitySession, availabilityQuestion, objectAvailabilityQuestion, ObjectQuestionAsks } from './session-envelope'
 
 export type { ActivitySession } from './session-envelope'
 
@@ -189,6 +189,61 @@ export interface ActivityAccount {
      * preserving equal numbers as an alternative."* Absent for every other activity, so what they serve is unchanged.
      */
     allocation?: AllocationAccount
+    /**
+     * **Every realization the goal's record names, in the order it authorizes them, with whether each was used and why** — TECHNICAL account
+     * only, present only for a goal whose record names a realization (stage E, 23 October 2026). His reply filed 25 October 2026, item 4:
+     * *"These should be alternative knowledge-authorized realizations, not separate hardcoded implementations of the same Learning Goal."*;
+     * and the note sent to him: *"Chosen automatically; the review shows which version was used and why."* Read from the build's own loop
+     * (`realizationOutcomes`), never restated; the review evidence names the same entries. Absent for every other activity.
+     */
+    realizationSelection?: RealizationSelectionEntry[]
+}
+
+/**
+ * **One alternative realization as the build used it** (stage E). `outcome`: SELECTED (the activity is built with it); NOT_APPLICABLE (it
+ * does not apply to this session: a typed applicability refusal, `cause`, and the build moved to the next); ASKED (the session must say
+ * something first, so the build stopped to ask); REFUSED (any other refusal, which refuses the activity: nothing behind it is tried);
+ * NOT_SELECTABLE (the record lists it waiting on a gap, `gaps`, so it is never tried); NOT_TRIED (an alternative behind the one that decided).
+ * `stage` and `summary` are its refusal's, where it was refused. `words` and `citedAs` are his, for its place in the order; null for a record
+ * naming one realization.
+ */
+export interface RealizationSelectionEntry {
+    realization: string
+    words: string | null
+    citedAs: string | null
+    outcome: 'SELECTED' | 'NOT_APPLICABLE' | 'ASKED' | 'REFUSED' | 'NOT_SELECTABLE' | 'NOT_TRIED'
+    cause: string | null
+    stage: ActivityStage | null
+    summary: string | null
+    gaps: string[]
+}
+
+/**
+ * **Why an alternative realization does not apply to this session, typed** (stage E, 23 October 2026; the design's Stage E: *"Fall back to
+ * the next alternative ONLY on a typed applicability refusal: a resource shortfall, the testing area, or the practice situation"*). The
+ * build moves to the next alternative on these causes alone: a specialized role the session cannot staff (the roster's AVAILABILITY_SHORT),
+ * objects the session has too few of or none suitable (OBJECT_AVAILABILITY_SHORT, OBJECT_NOT_SUITABLE), an area the realization's starting
+ * values were not given for (TESTING_AREA), and a practice situation it was not designed for (PRACTICE_SITUATION). It stops to ask on the
+ * two the session has not stated (AVAILABILITY_NOT_STATED, OBJECT_AVAILABILITY_NOT_STATED). Any refusal without a cause refuses the
+ * activity, so a broken alternative is never hidden behind the next one (the design's risk 7).
+ */
+export type NotApplicableCause = 'AVAILABILITY_SHORT' | 'OBJECT_AVAILABILITY_SHORT' | 'OBJECT_NOT_SUITABLE' | 'TESTING_AREA' | 'PRACTICE_SITUATION'
+export type AskCause = 'AVAILABILITY_NOT_STATED' | 'OBJECT_AVAILABILITY_NOT_STATED'
+export type Applicability = { verdict: 'NOT_APPLICABLE'; cause: NotApplicableCause } | { verdict: 'ASK'; cause: AskCause }
+
+/**
+ * **What a refusal asks the coach, where the build stopped to ask** (stage E, 23 October 2026): the new question channel from a build, read
+ * by the review page and passed on by the live route (the design's Stage E, *"NOT_STATED reaches the coach as a question through both the
+ * review route and the live route"*). Today one kind: the session's objects of a kind the activity's game holds and the session has not
+ * stated (`asks`: whether it has any and how wide, or only how wide). `words` is the summary sentence itself, DRAFT. Absent on every other
+ * refusal.
+ */
+export interface SessionQuestion {
+    kind: 'OBJECT_AVAILABILITY'
+    objectKind: string
+    asks: ObjectQuestionAsks
+    words: string
+    status: 'DRAFT'
 }
 
 /**
@@ -386,6 +441,11 @@ export interface RefusedActivity {
     /** Whatever was established before the refusal. */
     account: Partial<ActivityAccount>
     /**
+     * **What the coach is asked, where the build stopped to ask** (stage E, 23 October 2026; `SessionQuestion`): present only on a refusal
+     * whose game holds an object of a kind the session has not stated. Its words are `summary`'s. Absent on every other refusal.
+     */
+    question?: SessionQuestion
+    /**
      * **Only for an administrator's review, only on a refusal at communication** (stage K7, 15 October 2026): the rendering the
      * builder made before refusing — every sentence it could say, marked APPROVED or DRAFT, with the provisional choices behind it —
      * the withheld fields, and the fidelity verdict (`review-draft.ts`). Produced only by `buildActivityForReview` with
@@ -513,8 +573,11 @@ function gameFormOf(id: string, contracted: boolean): ActivityAccount['gameForm'
     return { id, name: library?.game_form_name ? String(library.game_form_name) : null, contracted }
 }
 
-/** The selection account, as far as the selection alone establishes it. */
-function accountOf(selection: KnowledgeSelection, goal: BoundedSelection | null): Partial<ActivityAccount> {
+/**
+ * The selection account, as far as the selection alone establishes it. `preferred` (stage E): the record's preferred realization, as the
+ * build resolved it, for the record's lists before any alternative is tried; each alternative tried lists its own.
+ */
+function accountOf(selection: KnowledgeSelection, goal: BoundedSelection | null, preferred: ProvisionalRealization | null): Partial<ActivityAccount> {
     const contracted = new Set(selection.contracted)
     const form = selection.selected.find(entry => entry.role === 'game form')
     const constraints = selection.selected.filter(entry => entry.role.includes('constraint'))
@@ -535,7 +598,8 @@ function accountOf(selection: KnowledgeSelection, goal: BoundedSelection | null)
         })),
         constraintSource: goal ? constraintSourceOf(goal.constraintPool, null) : null,
         authorization: goal ? authorizationOf(goal.authorization) : null,
-        authorizationLists: goal?.authorization ? authorizationLists(goal.authorization, provisionalRealizationNamed(goal.authorization.provisionalRealization)) : null,
+        // Stage E: the record's preferred realization; each alternative the build tries lists its own (below).
+        authorizationLists: goal?.authorization ? authorizationLists(goal.authorization, preferred) : null,
         selectedWithoutContract: selection.missing.filter(id => !contexts.has(id)),
         ...provisionalOf(goal ? goal.gameProblem : null),
     }
@@ -548,7 +612,7 @@ function accountOf(selection: KnowledgeSelection, goal: BoundedSelection | null)
  * — the game form it had committed to, the Game Problem, the context, the roles no candidate fills, what is
  * held — and no constraints, because none was selected.
  */
-function gapAccountOf(gap: GoalSelectionGap): Partial<ActivityAccount> {
+function gapAccountOf(gap: GoalSelectionGap, preferred: ProvisionalRealization | null): Partial<ActivityAccount> {
     const empty: KnowledgeSelection = { selected: [], contracted: [], missing: [] }
     const contracted = new Set(contractCoverage(gap.gap.archetypeId ? [{ id: gap.gap.archetypeId, role: 'game form' }] : []).contracted)
     return {
@@ -559,7 +623,7 @@ function gapAccountOf(gap: GoalSelectionGap): Partial<ActivityAccount> {
         constraints: [],
         constraintSource: constraintSourceOf(gap.gap.pool, gap.gap.reason),
         authorization: authorizationOf(gap.authorization),
-        authorizationLists: gap.authorization ? authorizationLists(gap.authorization, provisionalRealizationNamed(gap.authorization.provisionalRealization)) : null,
+        authorizationLists: gap.authorization ? authorizationLists(gap.authorization, preferred) : null,
         selectedWithoutContract: [],
         ...provisionalOf(gap.gameProblem),
         ...(gap.gap.archetypeId ? { gameForm: gameFormOf(gap.gap.archetypeId, contracted.has(gap.gap.archetypeId)) } : {}),
@@ -645,6 +709,35 @@ function rosterSummary(roster: RosterRefusal): { stage: ActivityStage; summary: 
             return { stage: 'session', summary: 'This session has no player count yet — add the number of players.' }
         default:
             return null
+    }
+}
+
+/**
+ * **The availability rule's cause for the session's objects, as the sentence a coach can act on** — stage E, 23 October 2026 (DRAFT words,
+ * built from the kind's name as the register gives it; none is written for a particular kind). Beside the roster's sentences, and typed for
+ * the build's loop (`Applicability`): a kind the session has not stated is ASKED (the question channel, `SessionQuestion`), never assumed;
+ * too few objects, or none that suit, means this alternative does not apply to the session, so the build may try the next one; a count the
+ * game itself leaves unsettled is the game's, said as an incomplete description and typed as nothing, so it refuses the activity.
+ */
+function objectSummary(refusal: ObjectAvailabilityRefusal, subject: string): { stage: ActivityStage; summary: string; applicability: Applicability | null; question?: SessionQuestion } {
+    switch (refusal.cause) {
+        case 'OBJECT_AVAILABILITY_NOT_STATED': {
+            const words = objectAvailabilityQuestion(refusal.kind, refusal.asks)
+            return { stage: 'session', summary: words, applicability: { verdict: 'ASK', cause: 'OBJECT_AVAILABILITY_NOT_STATED' }, question: { kind: 'OBJECT_AVAILABILITY', objectKind: refusal.kind, asks: refusal.asks, words, status: 'DRAFT' } }
+        }
+        case 'OBJECT_AVAILABILITY_SHORT':
+            return {
+                stage: 'session',
+                summary: `This game needs ${refusal.needed} ${refusal.kind}${refusal.needed === 1 ? '' : 's'} and the session has ${refusal.available}.`,
+                applicability: { verdict: 'NOT_APPLICABLE', cause: 'OBJECT_AVAILABILITY_SHORT' },
+            }
+        case 'OBJECT_NOT_SUITABLE':
+            // Undecided suitability is no fact about the session the coach could change, so it is the knowledge's to say.
+            return refusal.decided
+                ? { stage: 'session', summary: `The ${refusal.kind}s this session has do not suit this game.`, applicability: { verdict: 'NOT_APPLICABLE', cause: 'OBJECT_NOT_SUITABLE' } }
+                : { stage: 'knowledge', summary: `Which ${refusal.kind}s suit this game has not been decided yet.`, applicability: { verdict: 'NOT_APPLICABLE', cause: 'OBJECT_NOT_SUITABLE' } }
+        case 'OBJECT_INVOLVEMENT_NOT_SETTLED':
+            return { stage: 'structure', summary: `The game this ${subject} selects is not yet described completely enough to be set up.`, applicability: null }
     }
 }
 
@@ -888,17 +981,24 @@ export function buildActivityUnderAuthorizationRecords(
     options: {
         alter?: (contracts: LoadedContract[]) => void
         alterSelection?: (selection: BoundedSelection) => void
-        alterSupplied?: (supplied: SuppliedRealization) => void
+        /** Since stage E (23 October 2026) handed the realization being tried too, so an alteration can be one alternative's alone. */
+        alterSupplied?: (supplied: SuppliedRealization, realization: ProvisionalRealization | null) => void
         /**
          * Hardening H1, 21 October 2026, tests only: the same build as an administrator's review asks it (`buildActivityForReview`), so a
          * test can read the admin-only evidence and the coach's answer of one altered build side by side. Absent: a coach's build.
          */
         review?: { includeDrafts: boolean }
+        /**
+         * Stage E (23 October 2026), tests only: the provisional realizations the records' alternatives are resolved in, in place of the
+         * file's - loaded by the same gate (`loadProvisionalRealizations` over a TEST-ONLY copy of the file), so a TEST-ONLY variant is
+         * composed exactly as a real one would be. Absent: the file's.
+         */
+        realizations?: ProvisionalRealization[]
     } = {},
 ): ActivityBuild & { fixture: Record<string, unknown> | null } {
     // The selection and the digests (live-app fix, 22 October 2026) are returned too, so a test of the live pathway can run it over COPIES of the
     // records exactly as the live route runs it over the file's (`live-activity.ts`); nothing that serves a coach calls this.
-    return build(request, options.alter ?? null, null, options.alterSelection ?? null, JSON.parse(JSON.stringify(records)), options.alterSupplied ?? null, { includeDrafts: options.review?.includeDrafts === true })
+    return build(request, options.alter ?? null, null, options.alterSelection ?? null, JSON.parse(JSON.stringify(records)), options.alterSupplied ?? null, { includeDrafts: options.review?.includeDrafts === true }, options.realizations ? JSON.parse(JSON.stringify(options.realizations)) : null)
 }
 
 function build(
@@ -910,10 +1010,15 @@ function build(
     alterSelection: ((selection: BoundedSelection) => void) | null = null,
     /** Tests only (`buildActivityUnderAuthorizationRecords`): the authorization records selection consults. */
     records: LearningGoalAuthorization[] = learningGoalAuthorizations(),
-    /** Tests only (`buildActivityOverAlteredKnowledge`): alters a copy of the realization choices. */
-    alterSupplied: ((supplied: SuppliedRealization) => void) | null = null,
+    /** Tests only (`buildActivityOverAlteredKnowledge`): alters a copy of the realization choices (since stage E, given the realization tried). */
+    alterSupplied: ((supplied: SuppliedRealization, realization: ProvisionalRealization | null) => void) | null = null,
     /** The admin-only review (`buildActivityForReview`, stage K7): attach the draft to a refusal at communication. */
     review: { includeDrafts: boolean } = { includeDrafts: false },
+    /**
+     * Tests only (`buildActivityUnderAuthorizationRecords`, stage E): the provisional realizations a record's alternatives are resolved in, in
+     * place of the file's (a TEST-ONLY variant, say). Null: the file's (`provisionalRealizationNamed`).
+     */
+    realizations: ProvisionalRealization[] | null = null,
 ): ActivityBuild & { fixture: Record<string, unknown> | null } {
     const { kind, title, subtitle } = composed ? { kind: 'mechanism-demonstration' as const, title: composed.join(' + '), subtitle: null } : describeRequest(request)
     // "This goal …" for a Learning Goal and "This demonstration …" for a demonstration: a demonstration is
@@ -923,11 +1028,27 @@ function build(
     let goalSelection: BoundedSelection | null = null
     // Set once the game is closed and assembled; null for every refusal before that.
     let fixture: any = null
-    const refuse = (stage: ActivityStage, summary: string, reasons: string[]): ActivityBuild & { fixture: Record<string, unknown> | null } => ({
-        activity: { outcome: 'refused', kind, title, stage, summary, reasons, account },
+    /**
+     * Stage E: where a record's realization is found - the file's (`provisionalRealizationNamed`), or a test's TEST-ONLY set - read once
+     * here for every reader in this build (the account below, and each alternative the loop tries), so none re-reads the file.
+     */
+    const resolveRealization = (id: string): ProvisionalRealization => {
+        if (!realizations) return provisionalRealizationNamed(id)!
+        const found = realizations.find(candidate => candidate.provisionalId === id)
+        if (!found) throw new Error(`a record names the provisional realization ${id}, which the realizations given do not hold`)
+        return JSON.parse(JSON.stringify(found)) as ProvisionalRealization
+    }
+    const preferredRealizationOf = (record: LearningGoalAuthorization | null): ProvisionalRealization | null => {
+        const preferred = realizationAlternativesOf(record).find(alternative => alternative.selectable)
+        return preferred ? resolveRealization(preferred.realization) : null
+    }
+    // Stage E: a typed applicability refusal carries its type for the realization loop, and an ASK its question for the coach.
+    const refuse = (stage: ActivityStage, summary: string, reasons: string[], applicability: Applicability | null = null, question: SessionQuestion | null = null): Attempt => ({
+        activity: { outcome: 'refused', kind, title, stage, summary, reasons, account, ...(question ? { question } : {}) },
         selection: goalSelection,
         inputDigests: [],
         fixture,
+        ...(applicability ? { applicability } : {}),
     })
 
     /**
@@ -941,7 +1062,7 @@ function build(
         selection = demonstrationSelection(composed)
     } else if (request.kind === 'learning-goal') {
         try {
-            goalSelection = selectFor(request.goalId, request.situationId ?? null, records)
+            goalSelection = selectFor(request.goalId, request.situationId ?? null, records, realizations ? realizations.map(realization => realization.provisionalId) : undefined)
         } catch (error) {
             /**
              * **A knowledge gap is told apart from a selection that did not resolve.** Christian, 14 October
@@ -952,7 +1073,7 @@ function build(
              * with an empty account, that said the goal connects to no game knowledge.
              */
             if (error instanceof GoalSelectionGap) {
-                account = gapAccountOf(error)
+                account = gapAccountOf(error, preferredRealizationOf(error.authorization))
                 return refuse('selection', "This goal's designated constraints cannot yet be combined into a game, so no activity can be built for it.", [
                     `selection: ${error.message}`,
                 ])
@@ -970,7 +1091,7 @@ function build(
     } else {
         selection = demonstrationSelection(mechanismDemonstration(request.demonstrationId)!.selected)
     }
-    account = accountOf(selection, goalSelection)
+    account = accountOf(selection, goalSelection, preferredRealizationOf(goalSelection?.authorization ?? null))
 
     /**
      * **A game form with no contract is refused HERE, before derivation, and in its own words.** Derivation
@@ -1058,415 +1179,558 @@ function build(
     }
 
     /**
-     * **A goal whose authorization record names something the activity needs and does not have is refused HERE,
-     * naming each one** — added 15 October 2026 (stage H3). Christian, 16 October reply, item 10: *"if the existing
-     * game form cannot represent the intended learning environment, I would rather see a clear refusal and a narrowly
-     * described gap than an activity that is technically valid but solves a different problem."* A record entry whose
-     * status is MISSING_KNOWLEDGE or MISSING_CAPABILITY is exactly such a gap, with the decisions and capabilities that
-     * would close it; `neededRecordGaps` reads them, for whichever goal the record belongs to (no goal is named here).
-     *
-     * **Why before derivation, not after `structure`.** The record speaks about the activity his rulings ask for (for
-     * the first such goal, an asymmetric game with its roles, targets, starts and restarts). Derivation can only check the game
-     * the knowledge holds today, and a game that passed every structural check would still be the "technically valid"
-     * game that "solves a different problem". So the record's gaps come first, at `knowledge` beside the other
-     * knowledge refusals (which they follow, so a game form or context that is not built at all still says that first).
-     * Nothing is hidden: the structural stops behind them are measured and pinned on copies whose record has no gap
-     * entry (activity-review.unit.ts). A tightening: a record with no such entry, and every goal without a record,
-     * goes on exactly as before.
+     * **One alternative realization, built through to communication or to the stage it stopped at** — stage E, 23 October 2026. Everything
+     * from here on is what this function always did for the one realization a goal's record named (unchanged, and measured so: every goal
+     * and demonstration answers as before), now run once per alternative the build tries, with the realization being tried threaded through
+     * the selection (`KnowledgeSelection.realization`) so that derivation's input, the realization choices, the practice situations it was
+     * designed for, its testing area, the record's lists and the allocation account all read the SAME realization: the design's Stage E,
+     * *"Thread the alternative being tried through every reader of the single id, or the loop would derive A01-R1's items and choices under
+     * an A01-R2 label"*. `undefined` threads nothing (a demonstration, or a goal whose record names no realization), exactly as before.
      */
-    /**
-     * **A provisional realization is built only for the practice situations it was designed for** — 15 October 2026 (stage
-     * K2). His decisions of 17 October describe one activity; where the coach chooses a practice situation the realization
-     * his record names lists as not designed for, the combination is refused, naming it, rather than built from choices made
-     * for another situation. Read from the realization's own data (`notWithPracticeSituations`), so no goal and no
-     * situation is named here. Before the record's gaps: it says what this request asks for that the activity does not
-     * cover, which no answer to those gaps would change.
-     */
-    const provisionalRealization = provisionalRealizationNamed(goalSelection?.authorization?.provisionalRealization)
-    const notFor = provisionalRealization && goalSelection?.chosenSituation ? provisionalRealization.notWithPracticeSituations.find(situation => situation.id === goalSelection!.chosenSituation!.id) : null
-    if (provisionalRealization && notFor) {
-        return refuse('knowledge', "This goal's first activity was not designed for the chosen practice situation, so no activity can be built for it.", [
-            `the provisional realization ${provisionalRealization.provisionalId} named by the authorization record of ${goalSelection!.goalId} was not designed for the practice situation ${notFor.id} (${notFor.basis}): ${notFor.because}`,
-        ])
-    }
-
-    // The coach's envelope, whole. It used to be spread over the corpus envelope, which is how the pilot
-    // came to inherit a statement about specialized roles that nobody had made for it.
-    const session = request.session
-    const input: any = { ...derivationInputFor(selection), envelope: { ...session, roles: { ...session.roles } } }
-    if (alter) {
-        // The loader returns SHARED contract objects, so the alteration is made to a copy and to nothing else.
-        input.contracts = JSON.parse(JSON.stringify(input.contracts))
-        alter(input.contracts)
-    }
-    /**
-     * **What defers to a knowledge-authorized realization is set aside HERE, once, for every reader** — 15 October 2026 (stage
-     * K4, ruling C56). Christian, reply filed 17 October 2026, D6: *"please document it as a knowledge-authorized realization,
-     * preserving equal numbers as an alternative."* After any alteration (so a test's copy is judged as it stands) and before
-     * anything reads the contracts, so derivation, the role blocks, the roster and the post-realization comparisons all see
-     * the same composition; the deferred item travels beside its contract and into the fixture as the alternative. Where no
-     * selected contribution cites a confirmed relationship nothing moves, and the input is the same objects as before.
-     */
-    /**
-     * Stage A (22 October 2026): read with the context relationships of every kind the records hold (`contextRelationships`, the design's
-     * X3: the deferral's input is kind-neutral), and the items a ruled restatement marked as yielding for one role recorded beside their
-     * contracts in the same pass (`applyRoleYields`, which moves nothing; GA-ROLE-EVENTS clause 6 reads it). Neither changes anything in a
-     * composition that cites no such relationship, so every activity's input is the same objects as before.
-     */
-    const relationships = contextRelationships()
-    const deferral = applyRealizationDeferrals(input.contracts as LoadedContract[], relationships, indexRegister(input.register))
-    input.contracts = applyRoleYields(deferral.contracts, relationships, indexRegister(input.register))
-    /**
-     * **The record's lists read the provisional realization derivation actually received** (15 October 2026, stage K2), so
-     * the review page and the game can never disagree about which provisional choices shaped it. Production passes the
-     * file's own copy; a test that altered a copy of the contracts sees its copy listed.
-     */
-    if (goalSelection?.authorization?.provisionalRealization) {
-        const received = (input.contracts as LoadedContract[]).find(contract => contract.contractId === `provisional:${goalSelection!.authorization!.provisionalRealization}`) as ProvisionalRealization | undefined
-        account.authorizationLists = authorizationLists(goalSelection.authorization, received ?? null)
-        const allocation = allocationAccountOf(goalSelection.authorization, received ?? null, deferral.deferred)
-        if (allocation) account.allocation = allocation
-    }
-
-    /**
-     * The record's gaps refuse here — after the input is assembled (stage K4 moved this below it, so the technical account of
-     * a refusal carries the allocation's authority too; assembling the input refuses nothing, so the order of refusals a
-     * coach can meet is unchanged).
-     */
-    const recordGaps = goalSelection?.authorization ? neededRecordGaps(goalSelection.authorization) : []
-    if (recordGaps.length) {
-        return refuse('knowledge', "This goal's activity depends on set-up decisions and engine capabilities that are not in place yet, so no activity can be built for it.", [
-            `${recordGaps.length} part${recordGaps.length === 1 ? '' : 's'} of the activity the authorization record of ${goalSelection!.goalId} asks for ${recordGaps.length === 1 ? 'is' : 'are'} not in place yet`,
-            ...recordGaps.map(gap => `${gap.from} "${gap.label}" is ${gap.status} (${gap.category}), waiting on ${gap.gaps.map(named => named.id).join(', ')}`),
-        ])
-    }
-
-    /**
-     * **Starting values given for one area are built for that area only** — 15 October 2026 (stage K6); the coach's sentence is a
-     * DRAFT. Christian, reply filed 18 October 2026, item 3: *"The pressure reference should be adjustable in either direction. Twenty
-     * meters is our initial hypothesis, not a canonical distance or a requirement for other field sizes."* Item 7: *"The 11–12-player
-     * support and 40 × 30 m prototype values are acceptable current testing boundaries, but they should not become permanent
-     * architectural limitations."* His values are metres for the prototype area, so a realization whose testing boundaries list the
-     * areas they were given for is built only for those areas, as recorded; any other area is told the starting positions have
-     * not been decided for it, never that it is wrong. Read from the realization derivation received, so no area, goal or value is
-     * named here; a realization listing no areas is untouched. A session refusal: the coach can change the area.
-     */
-    {
-        const received = (input.contracts as LoadedContract[]).find(contract => contract.contractId === `provisional:${goalSelection?.authorization?.provisionalRealization}`) as ProvisionalRealization | undefined
-        const refusal = received ? testingAreaRefusal(received, session) : null
-        if (refusal) return refuse('session', refusal.summary, refusal.reasons)
-    }
-
-    /**
-     * What crosses with every game of this build into its fixture (stage K4): the adjustments the goal's record authorizes, in
-     * his words, and what defers in this composition, listed as the alternative. Both absent for every other activity.
-     */
-    // `coachWords` (stage K7): our DRAFT coach wording beside his words, carried only where an entry has it (his words are not always
-    // a sentence a coach can be given as a choice: "The pressure reference should be adjustable in either direction.").
-    const adjustments = (goalSelection?.authorization?.authorizedAdjustments?.entries ?? []).map(entry => ({
-        id: entry.id,
-        words: entry.words,
-        consequence: entry.consequence,
-        citedAs: entry.citedAs,
-        ...(typeof entry.coachWords === 'string' ? { coachWords: entry.coachWords } : {}),
-    }))
-    const alternatives = deferral.deferred.map(alternativeOf)
-    const game: GameContext = { subject, session, selection, context, alterSupplied, adjustments, alternatives }
-    /**
-     * A game built through to communication becomes the served activity; one refused on the way says where. `games` are the games it was
-     * rendered from, each with its block id, for the input digests the live save compares (L3, 22 October 2026); nothing served carries them.
-     */
-    const serve = (built: Extract<GameOutcome, { outcome: 'built' }>, extra: Partial<ServedActivity>, games: { blockId: string; fixture: any }[]): ActivityBuild & { fixture: Record<string, unknown> | null } => ({
-        activity: { outcome: 'served', kind, title, subtitle, session, rendered: built.rendered, account: account as ActivityAccount, integrity: built.integrity, ...extra },
-        selection: goalSelection,
-        inputDigests: games.map(game => ({ blockId: game.blockId, inputDigest: typeof game.fixture?.provenance?.inputDigest === 'string' ? game.fixture.provenance.inputDigest : null })),
-        fixture: built.fixture,
-    })
-    /**
-     * Stage 3A: the Coach Overview's purpose, game sentence and parameters, for an administrator's review only (`overviewDraft`). The
-     * purpose is the goal's (a demonstration has none); the game and parameters are read from each game served. Whatever goes wrong is a
-     * gap inside it, never a refusal: the activity is served or refused exactly as it would be without it. Stage 3C: each game's own render
-     * is handed in, so how each team scores is composed from exactly the Details that game says.
-     */
-    const purposeGoal = kind === 'learning-goal' && request.kind === 'learning-goal' ? request.goalId : null
-    /**
-     * Stage 3D: the overview, composed from the games as served, checked against each game's own Details (Q7) and against the Details a
-     * coach is served, for EVERY build that serves (a coach's and an administrator's alike). Served (`overview`) only where it agrees; the
-     * draft with the check's findings goes to an administrator only (`overviewDraft`, and the review evidence where the record asks for
-     * one). Whatever fails withholds the overview only.
-     */
-    const overviewOf = (games: { blockId: string; fixture: any; rendered: { instructions: Instruction[] } }[], served: Instruction[]): OverviewOutcome => {
-        try {
-            return overviewForServing({ goalId: purposeGoal, games, served })
-        } catch (error) {
-            const draft = failedOverviewDraft(error instanceof Error ? error.message : String(error))
-            return { overview: null, draft, evidence: overviewEvidenceOf(draft) }
+    const chosenSelection = selection
+    const attempt = (realization: ProvisionalRealization | null | undefined): Attempt => {
+        const selection: KnowledgeSelection = realization === undefined ? chosenSelection : { ...chosenSelection, realization }
+        /**
+         * **A goal whose authorization record names something the activity needs and does not have is refused HERE,
+         * naming each one** — added 15 October 2026 (stage H3). Christian, 16 October reply, item 10: *"if the existing
+         * game form cannot represent the intended learning environment, I would rather see a clear refusal and a narrowly
+         * described gap than an activity that is technically valid but solves a different problem."* A record entry whose
+         * status is MISSING_KNOWLEDGE or MISSING_CAPABILITY is exactly such a gap, with the decisions and capabilities that
+         * would close it; `neededRecordGaps` reads them, for whichever goal the record belongs to (no goal is named here).
+         *
+         * **Why before derivation, not after `structure`.** The record speaks about the activity his rulings ask for (for
+         * the first such goal, an asymmetric game with its roles, targets, starts and restarts). Derivation can only check the game
+         * the knowledge holds today, and a game that passed every structural check would still be the "technically valid"
+         * game that "solves a different problem". So the record's gaps come first, at `knowledge` beside the other
+         * knowledge refusals (which they follow, so a game form or context that is not built at all still says that first).
+         * Nothing is hidden: the structural stops behind them are measured and pinned on copies whose record has no gap
+         * entry (activity-review.unit.ts). A tightening: a record with no such entry, and every goal without a record,
+         * goes on exactly as before.
+         */
+        /**
+         * **A provisional realization is built only for the practice situations it was designed for** — 15 October 2026 (stage
+         * K2). His decisions of 17 October describe one activity; where the coach chooses a practice situation the realization
+         * his record names lists as not designed for, the combination is refused, naming it, rather than built from choices made
+         * for another situation. Read from the realization's own data (`notWithPracticeSituations`), so no goal and no
+         * situation is named here. Before the record's gaps: it says what this request asks for that the activity does not
+         * cover, which no answer to those gaps would change.
+         *
+         * Stage E (23 October 2026): of the realization being tried (`realizationOf`, the alternative threaded through the selection), and
+         * typed PRACTICE_SITUATION, so the build may try the next alternative the record authorizes.
+         */
+        const provisionalRealization = realizationOf(selection)
+        // Stage E: an alternative's refusal before derivation (its practice situation) carries that alternative's lists, never those of the
+        // record's preferred one; the lists are read again below from the realization derivation received. Untouched where none is threaded.
+        if (realization !== undefined && goalSelection?.authorization) account.authorizationLists = authorizationLists(goalSelection.authorization, provisionalRealization)
+        const notFor = provisionalRealization && goalSelection?.chosenSituation ? provisionalRealization.notWithPracticeSituations.find(situation => situation.id === goalSelection!.chosenSituation!.id) : null
+        if (provisionalRealization && notFor) {
+            return refuse(
+                'knowledge',
+                "This goal's first activity was not designed for the chosen practice situation, so no activity can be built for it.",
+                [`the provisional realization ${provisionalRealization.provisionalId} named by the authorization record of ${goalSelection!.goalId} was not designed for the practice situation ${notFor.id} (${notFor.basis}): ${notFor.because}`],
+                { verdict: 'NOT_APPLICABLE', cause: 'PRACTICE_SITUATION' },
+            )
         }
-    }
-    const overviewKeys = (outcome: OverviewOutcome): Partial<ServedActivity> => ({
-        ...(outcome.overview ? { overview: outcome.overview } : {}),
-        ...(review.includeDrafts ? { overviewDraft: outcome.draft } : {}),
-    })
 
-    /**
-     * **A game played in role blocks is built twice: one complete game per block, then the blocks against each other** —
-     * added 15 October 2026 (stage K3). Christian, reply filed 17 October 2026, M1: *"Keep role assignments separate from
-     * fixed ends. Allow target configurations to reflect each team's role during the block. The coach controls the
-     * exchange. No new block-duration system is needed."*
-     *
-     * Whether a game is one is read from its own base derivation (`roleBlocksOf`): the roles its contributions establish
-     * and how they pass between the teams. Two roles and two end-assigned teams admit exactly two bindings, so the two
-     * blocks are entailed and neither is chosen. Each block is then built by the SAME chain as every other game —
-     * derivation, Gate A, realization, assembly, the acceptance conditions, the post-realization gates, the context's
-     * scoring, rendering and fidelity — so "both blocks valid" holds by construction and nothing downstream has had to
-     * learn an overlay. A block that stops refuses the activity at that stage, its reasons named by block; both blocks are
-     * built first, so a refusal shows every block that stopped. Then the cross-block checks (`checkRoleBlocks`, RB-1 to
-     * RB-8) prove what the two share and that they differ only by the role, and the coach reads ONE activity composed from
-     * the two renders (`composeRoleBlockActivity`), checked to have lost and invented nothing (fidelity Q6).
-     *
-     * A game establishing no role skips this whole branch without a second derivation: only a selection carrying an item
-     * on the register's roles row is even asked. A game establishing part of a role exchange is refused here.
-     */
-    const roleIndex = indexRegister(input.register)
-    /**
-     * Stage 5A: the field diagram's model and agreement check (`field-diagram.ts`), read from the games as served and held to each block's
-     * Details, the Details a coach is served and the served role-block account. Stage 5B (`coach-diagram.ts`): for EVERY build that serves
-     * (a coach's and an administrator's alike), the diagram a coach reads is composed from that model and held to it (D9), and served
-     * (`diagram`) only where everything agrees; the model, the findings and the notes go to an administrator only (`diagramDraft`). Whatever
-     * fails, including the computation itself, withholds the diagram only: the activity, and its overview, are served exactly as without it.
-     */
-    const diagramKeys = (games: { blockId: string; holders: Record<string, string>; fixture: any; rendered: Instruction[] }[], served: Instruction[], roleBlocks: { blockId: string; holders: Record<string, string> }[] | null): Partial<ServedActivity> => {
-        let outcome: DiagramOutcome
-        try {
-            outcome = diagramForServing({ session, games, served, roleBlocks, index: roleIndex }, { title })
-        } catch (error) {
-            outcome = { diagram: null, draft: failedDiagramDraft(error instanceof Error ? error.message : String(error)) }
+        // The coach's envelope, whole. It used to be spread over the corpus envelope, which is how the pilot
+        // came to inherit a statement about specialized roles that nobody had made for it. The session's objects (stage E) are copied
+        // with it where it states them, so a session stating none hands derivation exactly the envelope it did.
+        const session = request.session
+        const input: any = {
+            ...derivationInputFor(selection),
+            envelope: { ...session, roles: { ...session.roles }, ...(session.objects ? { objects: JSON.parse(JSON.stringify(session.objects)) } : {}) },
         }
-        return { ...(outcome.diagram ? { diagram: outcome.diagram } : {}), ...(review.includeDrafts ? { diagramDraft: outcome.draft } : {}) }
-    }
-    const rolesRow = roleIndex.roleBlocks?.rolesRow
-    /**
-     * Stage D (23 October 2026, register version 18): a selection carrying an item on the end-assignment row (B10) is asked too, so an
-     * exchange of ends in a game establishing no role is refused here (`roleBlocksOf`: blocks exist only where the roles exchange), never
-     * built as a single game with the exchange left unread. Every other selection is asked exactly as before.
-     */
-    const endRow = roleIndex.endAssignment?.row
-    if (rolesRow && (input.contracts as LoadedContract[]).some(contract => (contract.items ?? []).some(item => String(item.row) === rolesRow || (!!endRow && String(item.row) === endRow)))) {
-        const base: any = runStages0to5(input)
-        const found = base.run.halted || !base.derived ? null : roleBlocksOf(base.classes, base.derived.lines, roleIndex)
-        if (found?.kind === 'REFUSED') {
-            return refuse('structure', `The game this ${subject} selects is not yet described completely enough to be set up.`, [
-                'the game establishes part of a role exchange, so it cannot be played in role blocks',
-                ...found.why,
+        if (alter) {
+            // The loader returns SHARED contract objects, so the alteration is made to a copy and to nothing else.
+            input.contracts = JSON.parse(JSON.stringify(input.contracts))
+            alter(input.contracts)
+        }
+        /**
+         * **What defers to a knowledge-authorized realization is set aside HERE, once, for every reader** — 15 October 2026 (stage
+         * K4, ruling C56). Christian, reply filed 17 October 2026, D6: *"please document it as a knowledge-authorized realization,
+         * preserving equal numbers as an alternative."* After any alteration (so a test's copy is judged as it stands) and before
+         * anything reads the contracts, so derivation, the role blocks, the roster and the post-realization comparisons all see
+         * the same composition; the deferred item travels beside its contract and into the fixture as the alternative. Where no
+         * selected contribution cites a confirmed relationship nothing moves, and the input is the same objects as before.
+         */
+        /**
+         * Stage A (22 October 2026): read with the context relationships of every kind the records hold (`contextRelationships`, the design's
+         * X3: the deferral's input is kind-neutral), and the items a ruled restatement marked as yielding for one role recorded beside their
+         * contracts in the same pass (`applyRoleYields`, which moves nothing; GA-ROLE-EVENTS clause 6 reads it). Neither changes anything in a
+         * composition that cites no such relationship, so every activity's input is the same objects as before.
+         */
+        const relationships = contextRelationships()
+        const deferral = applyRealizationDeferrals(input.contracts as LoadedContract[], relationships, indexRegister(input.register))
+        input.contracts = applyRoleYields(deferral.contracts, relationships, indexRegister(input.register))
+        /**
+         * **The record's lists read the provisional realization derivation actually received** (15 October 2026, stage K2), so
+         * the review page and the game can never disagree about which provisional choices shaped it. Production passes the
+         * file's own copy; a test that altered a copy of the contracts sees its copy listed. Stage E: the realization being tried.
+         */
+        if (goalSelection?.authorization && provisionalRealization) {
+            const received = (input.contracts as LoadedContract[]).find(contract => contract.contractId === provisionalRealization.contractId) as ProvisionalRealization | undefined
+            account.authorizationLists = authorizationLists(goalSelection.authorization, received ?? null)
+            const allocation = allocationAccountOf(goalSelection.authorization, received ?? null, deferral.deferred)
+            if (allocation) account.allocation = allocation
+        }
+
+        /**
+         * The record's gaps refuse here — after the input is assembled (stage K4 moved this below it, so the technical account of
+         * a refusal carries the allocation's authority too; assembling the input refuses nothing, so the order of refusals a
+         * coach can meet is unchanged).
+         */
+        const recordGaps = goalSelection?.authorization ? neededRecordGaps(goalSelection.authorization) : []
+        if (recordGaps.length) {
+            return refuse('knowledge', "This goal's activity depends on set-up decisions and engine capabilities that are not in place yet, so no activity can be built for it.", [
+                `${recordGaps.length} part${recordGaps.length === 1 ? '' : 's'} of the activity the authorization record of ${goalSelection!.goalId} asks for ${recordGaps.length === 1 ? 'is' : 'are'} not in place yet`,
+                ...recordGaps.map(gap => `${gap.from} "${gap.label}" is ${gap.status} (${gap.category}), waiting on ${gap.gaps.map(named => named.id).join(', ')}`),
             ])
         }
-        if (found?.kind === 'BLOCKS') {
-            let blocks = found.blocks.map(block => ({ block, outcome: buildOneGame({ ...input, roleBlock: block }, game) }))
-            const stoppedOf = (list: typeof blocks) => list.filter((entry): entry is { block: RoleBlock; outcome: Extract<GameOutcome, { outcome: 'refused' }> } => entry.outcome.outcome === 'refused')
-            let stopped = stoppedOf(blocks)
-            // The earliest stage any block stopped at, in pathway order; every block that stopped is named.
-            const firstOf = (list: typeof stopped) => [...list].sort((a, b) => STAGE_ORDER.indexOf(a.outcome.stage) - STAGE_ORDER.indexOf(b.outcome.stage))[0]
-            const reasonsOf = (list: typeof stopped) => list.flatMap(entry => entry.outcome.reasons.map(reason => `block ${entry.block.blockId}: ${reason}`))
-            let first = firstOf(stopped)
-            let stoppedReasons = reasonsOf(stopped)
-            /**
-             * **A block refused at communication passed validation, so the cross-block checks still run before the refusal** (stage K7, 15
-             * October 2026). The cross-block checks are validation (a refusal there says "did not pass its own checks"), which comes
-             * before communication in the pathway; until this stage a block stopping at communication skipped them, so a disagreement
-             * between the blocks could hide behind a wording refusal. Where every block was built or refused only at communication, both
-             * games are complete through validation and are checked against each other first; any earlier stop refuses as before.
-             */
-            const throughValidation = blocks.every(entry => entry.outcome.outcome === 'built' || !!entry.outcome.communication)
-            if (stopped.length && !throughValidation) {
-                fixture = first.outcome.fixture
-                return refuse(first.outcome.stage, first.outcome.summary, stoppedReasons)
-            }
-            const gamesOf = (list: typeof blocks) =>
-                list.map(entry =>
-                    entry.outcome.outcome === 'built'
-                        ? { block: entry.block, fixture: entry.outcome.fixture, contracts: entry.outcome.contracts, rendered: entry.outcome.rendered, violations: [] as FidelityFinding[], evidence: entry.outcome.evidence }
-                        : { block: entry.block, fixture: entry.outcome.fixture as Record<string, unknown>, contracts: entry.outcome.communication!.contracts, rendered: entry.outcome.communication!.rendered, violations: entry.outcome.communication!.violations, evidence: entry.outcome.communication!.evidence },
-                )
-            let games = gamesOf(blocks)
-            const checks = checkRoleBlocks(
-                games.map(entry => ({ block: entry.block, fixture: entry.fixture, contracts: entry.contracts })),
-                roleIndex,
-                found.roles,
-            )
-            fixture = { ...games[0].fixture, roleBlocks: roleBlockFixture(found, games.map(entry => ({ block: entry.block, fixture: entry.fixture })), checks, roleIndex) }
-            const failing = checks.filter(check => check.verdict === 'FAIL')
-            /**
-             * **Where only the membership check fails, the coach is told what has not been decided** (15 October 2026, stage K4,
-             * DRAFT). Both blocks were built and every other cross-block check holds, so what is missing is who changes team at
-             * the exchange for this session's numbers — measured: at 11 players the A01 realization's teams are 5 + 1 against 5
-             * in both blocks, and his 1(a) moves an outfield player too ("This preserves the 6 + GK versus 5 relationship in both
-             * blocks."), which that configuration does not keep. Never resolved here.
-             */
-            const membershipOnly = failing.length > 0 && failing.every(check => check.checkId === 'RB-M')
-            if (failing.length) {
-                return refuse('validation', membershipOnly ? `Who changes team when the roles exchange has not been decided for ${session.players} players, so this activity is not being shown.` : 'The game built for this activity did not pass its own checks, so it is not being shown.', [
-                    'the two role blocks do not agree as the exchange of each other',
-                    ...failing.flatMap(check => check.problems.map(problem => `${check.checkId}: ${problem}`)),
-                ])
-            }
-            /**
-             * **Every block's markings set out once, wherever they occupy the same places** — stage 2D, 21 October 2026; a general
-             * presentation rule since stage 2G, his reply filed 23 October 2026, item 2: *"Please authorize marking once whenever the system
-             * can establish that the physical markings occupy the same locations across all blocks. This should be a general presentation
-             * rule, not something requiring my approval for each configuration."* Once the two blocks agree as the exchange of each other,
-             * the physical layout is read from both realized games (`layoutOf`, with the adjustments that move a position's magnitude; no
-             * record is read). Where it applies, each block is rendered and checked again with it (`recommunicate`), replacing its first
-             * render, findings and evidence, and the blocks are read again from there (a block the layout render refuses at communication
-             * is refused like any other). Where it does not, and some marking moves between the blocks, each block is rendered and checked
-             * again with what moves (`remarking`), so its exchange sentence says what to adjust: *"If markings change location between
-             * blocks, the instructions should identify what needs to be adjusted."* Then RB-L recomputes both from the blocks and holds
-             * every block's to them. Where neither applies, nothing is re-rendered, and where a reason is known the admin-only review
-             * evidence says why (hardening H1, below).
-             */
-            const layoutMovers = layoutMoversOf(goalSelection?.authorization)
-            const layoutDecision = layoutOf(
-                games.map(entry => ({ blockId: entry.block.blockId, fixture: entry.fixture })),
-                layoutMovers,
-            )
-            const addedForBlocks = layoutDecision.applies ? { layout: layoutDecision.layout } : layoutDecision.remarking ? { remarking: layoutDecision.remarking } : null
-            if (addedForBlocks) {
-                blocks = blocks.map(entry => {
-                    const again = entry.outcome.recommunicate
-                    return { block: entry.block, outcome: again ? again(addedForBlocks) : entry.outcome }
-                })
-                stopped = stoppedOf(blocks)
-                first = firstOf(stopped)
-                stoppedReasons = reasonsOf(stopped)
-                games = gamesOf(blocks)
-            }
-            const layoutCheck = checkRoleBlockLayout(
-                games.map(entry => ({ blockId: entry.block.blockId, fixture: entry.fixture })),
-                layoutMovers,
-            )
-            checks.push(layoutCheck)
-            fixture = { ...games[0].fixture, roleBlocks: roleBlockFixture(found, games.map(entry => ({ block: entry.block, fixture: entry.fixture })), checks, roleIndex) }
-            if (layoutCheck.verdict === 'FAIL') {
-                return refuse('validation', 'The game built for this activity did not pass its own checks, so it is not being shown.', [
-                    'the markings set out once are not the blocks\' own',
-                    ...layoutCheck.problems.map(problem => `${layoutCheck.checkId}: ${problem}`),
-                ])
-            }
-            const renders = games.map(entry => ({ blockId: entry.block.blockId, rendered: entry.rendered, fixture: entry.fixture }))
-            const composed = composeRoleBlockActivity(renders, roleIndex)
-            /**
-             * Stage 2D: where the markings stay block by block, why is said (DRAFT words) — to an administrator only. Hardening H1, 21
-             * October 2026 (the 2D review's should-fix 1): it was pushed onto `coachingObservations`, which every viewer can expand under
-             * "How this was arrived at", and it carries internal ids (element ids, block ids). It goes to the admin-only review evidence
-             * (`reviewEvidenceOf`, `layoutFallback`), and the composed activity a coach is served is exactly the composition of the block
-             * renders. Stage 2G: said wherever a reason is known (no recorded choice is read any longer), with which markings move.
-             */
-            const layoutFallback = !layoutDecision.applies && layoutDecision.why.length ? { why: [...layoutDecision.why], moves: remarkingSummary(layoutDecision.remarking) } : null
-            const composition = checkRoleBlockComposition(renders, composed, roleIndex)
-            const violations = composition.filter(finding => finding.severity === 'VIOLATION')
-            /**
-             * The admin-only review evidence of the composed activity (stage K8), for a goal whose record asks for one: read from the two
-             * games as built, the cross-block checks and the composition. Never on a coach's answer.
-             */
-            const evidenceOf = (outcome: string, overview: OverviewEvidence | null = null) =>
-                reviewEvidenceFor(review, goalSelection, account, roleIndex, session, outcome, composed, composition, checks, games.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, ...(entry.block.ends ? { ends: { ...entry.block.ends } } : {}), fixture: entry.fixture, contracts: entry.contracts, rendered: entry.rendered, ...entry.evidence })), layoutFallback, overview)
-            /** The admin-only draft of the composed activity (stage K7), attached to a refusal at communication where it was asked for. */
-            const withDraft = (refusal: ReturnType<typeof refuse>) => {
-                if (review.includeDrafts) (refusal.activity as RefusedActivity).draft = reviewDraftOf(games.map(entry => entry.fixture), composed, [...games.flatMap(entry => entry.violations), ...violations])
-                const evidence = evidenceOf(refusal.activity.outcome === 'refused' ? refusal.activity.stage : 'served')
-                if (evidence) (refusal.activity as RefusedActivity).evidence = evidence
-                return refusal
-            }
-            if (stopped.length) return withDraft(refuse(first.outcome.stage, first.outcome.summary, [...stoppedReasons, ...violations.map(v => `fidelity Q${v.question}: ${v.what}`)]))
-            if (violations.length) {
-                return withDraft(
-                    refuse(
-                        'communication',
-                        'Part of this activity cannot be explained to a coach yet, so it is not being shown.',
-                        violations.map(v => `fidelity Q${v.question}: ${v.what}`),
-                    ),
-                )
-            }
-            const built = games.map(entry => ({ block: entry.block, built: blocks.find(b => b.block === entry.block)!.outcome as Extract<GameOutcome, { outcome: 'built' }> }))
-            // Stage 3D: the overview, read from each block's own game as served and checked against it and the composed Details.
-            const overview = overviewOf(
-                games.map(entry => ({ blockId: entry.block.blockId, fixture: entry.fixture, rendered: entry.rendered })),
-                composed.instructions,
-            )
-            return serve(
-                {
-                    ...built[0].built,
-                    fixture,
-                    rendered: composed,
-                    integrity: {
-                        gateA: [...new Set(built.map(entry => entry.built.integrity.gateA))].join(' / '),
-                        realizationAuthorized: built.every(entry => entry.built.integrity.realizationAuthorized),
-                        acceptance: {
-                            nothingClosedWithoutAuthority: built.flatMap(entry => entry.built.integrity.acceptance.nothingClosedWithoutAuthority),
-                            nothingLost: built.flatMap(entry => entry.built.integrity.acceptance.nothingLost),
-                            nothingInvented: built.flatMap(entry => entry.built.integrity.acceptance.nothingInvented),
-                        },
-                        postRealizationValidated: built.every(entry => entry.built.integrity.postRealizationValidated),
-                        instructions: composed.instructions.length,
-                        fidelityViolations: built.reduce((n, entry) => n + entry.built.integrity.fidelityViolations, 0) + violations.length,
-                    },
-                },
-                {
-                    roleBlocks: {
-                        exchange: found.exchange,
-                        roles: found.roles.map(role => ({ role, coachNoun: roleIndex.roleBlocks!.coachNouns[role], nounStatus: 'DRAFT' as const })),
-                        blocks: built.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, ...(entry.block.ends ? { ends: { ...entry.block.ends } } : {}), integrity: entry.built.integrity, concreteChecks: entry.built.concreteChecks.map(check => ({ ...check })) })),
-                        checks: checks.map(check => ({ ...check, problems: [...check.problems] })),
-                        firstBlock: 'COACH_CHOICE',
-                        firstBlockBasis: FIRST_BLOCK_BASIS,
-                    },
-                    // Stage K8: the admin-only review evidence, where the goal's record asks for one; absent on every coach's answer.
-                    ...((evidence => (evidence ? { evidence } : {}))(evidenceOf('served', overview.evidence))),
-                    // Stage 3D: the overview where it agrees (every viewer); its draft and the check's findings for an administrator only.
-                    ...overviewKeys(overview),
-                    // Stage 5A/5B: the diagram where it agrees (every viewer); its model and the checks' findings for an administrator only.
-                    ...diagramKeys(
-                        games.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, fixture: entry.fixture, rendered: entry.rendered.instructions })),
-                        composed.instructions,
-                        built.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders } })),
-                    ),
-                },
-                games.map(entry => ({ blockId: entry.block.blockId, fixture: entry.fixture })),
-            )
+
+        /**
+         * **Starting values given for one area are built for that area only** — 15 October 2026 (stage K6); the coach's sentence is a
+         * DRAFT. Christian, reply filed 18 October 2026, item 3: *"The pressure reference should be adjustable in either direction. Twenty
+         * meters is our initial hypothesis, not a canonical distance or a requirement for other field sizes."* Item 7: *"The 11–12-player
+         * support and 40 × 30 m prototype values are acceptable current testing boundaries, but they should not become permanent
+         * architectural limitations."* His values are metres for the prototype area, so a realization whose testing boundaries list the
+         * areas they were given for is built only for those areas, as recorded; any other area is told the starting positions have
+         * not been decided for it, never that it is wrong. Read from the realization derivation received, so no area, goal or value is
+         * named here; a realization listing no areas is untouched. A session refusal: the coach can change the area.
+         *
+         * Stage E (23 October 2026): of the realization being tried, and typed TESTING_AREA, so the build may try the next alternative.
+         */
+        {
+            const received = provisionalRealization ? ((input.contracts as LoadedContract[]).find(contract => contract.contractId === provisionalRealization.contractId) as ProvisionalRealization | undefined) : undefined
+            const refusal = received ? testingAreaRefusal(received, session) : null
+            if (refusal) return refuse('session', refusal.summary, refusal.reasons, { verdict: 'NOT_APPLICABLE', cause: 'TESTING_AREA' })
         }
+
+        /**
+         * What crosses with every game of this build into its fixture (stage K4): the adjustments the goal's record authorizes, in
+         * his words, and what defers in this composition, listed as the alternative. Both absent for every other activity.
+         */
+        // `coachWords` (stage K7): our DRAFT coach wording beside his words, carried only where an entry has it (his words are not always
+        // a sentence a coach can be given as a choice: "The pressure reference should be adjustable in either direction.").
+        const adjustments = (goalSelection?.authorization?.authorizedAdjustments?.entries ?? []).map(entry => ({
+            id: entry.id,
+            words: entry.words,
+            consequence: entry.consequence,
+            citedAs: entry.citedAs,
+            ...(typeof entry.coachWords === 'string' ? { coachWords: entry.coachWords } : {}),
+        }))
+        const alternatives = deferral.deferred.map(alternativeOf)
+        const game: GameContext = { subject, session, selection, context, alterSupplied, adjustments, alternatives }
+        /**
+         * A game built through to communication becomes the served activity; one refused on the way says where. `games` are the games it was
+         * rendered from, each with its block id, for the input digests the live save compares (L3, 22 October 2026); nothing served carries them.
+         */
+        const serve = (built: Extract<GameOutcome, { outcome: 'built' }>, extra: Partial<ServedActivity>, games: { blockId: string; fixture: any }[]): ActivityBuild & { fixture: Record<string, unknown> | null } => ({
+            activity: { outcome: 'served', kind, title, subtitle, session, rendered: built.rendered, account: account as ActivityAccount, integrity: built.integrity, ...extra },
+            selection: goalSelection,
+            inputDigests: games.map(game => ({ blockId: game.blockId, inputDigest: typeof game.fixture?.provenance?.inputDigest === 'string' ? game.fixture.provenance.inputDigest : null })),
+            fixture: built.fixture,
+        })
+        /**
+         * Stage 3A: the Coach Overview's purpose, game sentence and parameters, for an administrator's review only (`overviewDraft`). The
+         * purpose is the goal's (a demonstration has none); the game and parameters are read from each game served. Whatever goes wrong is a
+         * gap inside it, never a refusal: the activity is served or refused exactly as it would be without it. Stage 3C: each game's own render
+         * is handed in, so how each team scores is composed from exactly the Details that game says.
+         */
+        const purposeGoal = kind === 'learning-goal' && request.kind === 'learning-goal' ? request.goalId : null
+        /**
+         * Stage 3D: the overview, composed from the games as served, checked against each game's own Details (Q7) and against the Details a
+         * coach is served, for EVERY build that serves (a coach's and an administrator's alike). Served (`overview`) only where it agrees; the
+         * draft with the check's findings goes to an administrator only (`overviewDraft`, and the review evidence where the record asks for
+         * one). Whatever fails withholds the overview only.
+         */
+        const overviewOf = (games: { blockId: string; fixture: any; rendered: { instructions: Instruction[] } }[], served: Instruction[]): OverviewOutcome => {
+            try {
+                return overviewForServing({ goalId: purposeGoal, games, served })
+            } catch (error) {
+                const draft = failedOverviewDraft(error instanceof Error ? error.message : String(error))
+                return { overview: null, draft, evidence: overviewEvidenceOf(draft) }
+            }
+        }
+        const overviewKeys = (outcome: OverviewOutcome): Partial<ServedActivity> => ({
+            ...(outcome.overview ? { overview: outcome.overview } : {}),
+            ...(review.includeDrafts ? { overviewDraft: outcome.draft } : {}),
+        })
+
+        /**
+         * **A game played in role blocks is built twice: one complete game per block, then the blocks against each other** —
+         * added 15 October 2026 (stage K3). Christian, reply filed 17 October 2026, M1: *"Keep role assignments separate from
+         * fixed ends. Allow target configurations to reflect each team's role during the block. The coach controls the
+         * exchange. No new block-duration system is needed."*
+         *
+         * Whether a game is one is read from its own base derivation (`roleBlocksOf`): the roles its contributions establish
+         * and how they pass between the teams. Two roles and two end-assigned teams admit exactly two bindings, so the two
+         * blocks are entailed and neither is chosen. Each block is then built by the SAME chain as every other game —
+         * derivation, Gate A, realization, assembly, the acceptance conditions, the post-realization gates, the context's
+         * scoring, rendering and fidelity — so "both blocks valid" holds by construction and nothing downstream has had to
+         * learn an overlay. A block that stops refuses the activity at that stage, its reasons named by block; both blocks are
+         * built first, so a refusal shows every block that stopped. Then the cross-block checks (`checkRoleBlocks`, RB-1 to
+         * RB-8) prove what the two share and that they differ only by the role, and the coach reads ONE activity composed from
+         * the two renders (`composeRoleBlockActivity`), checked to have lost and invented nothing (fidelity Q6).
+         *
+         * A game establishing no role skips this whole branch without a second derivation: only a selection carrying an item
+         * on the register's roles row is even asked. A game establishing part of a role exchange is refused here.
+         */
+        const roleIndex = indexRegister(input.register)
+        /**
+         * Stage 5A: the field diagram's model and agreement check (`field-diagram.ts`), read from the games as served and held to each block's
+         * Details, the Details a coach is served and the served role-block account. Stage 5B (`coach-diagram.ts`): for EVERY build that serves
+         * (a coach's and an administrator's alike), the diagram a coach reads is composed from that model and held to it (D9), and served
+         * (`diagram`) only where everything agrees; the model, the findings and the notes go to an administrator only (`diagramDraft`). Whatever
+         * fails, including the computation itself, withholds the diagram only: the activity, and its overview, are served exactly as without it.
+         */
+        const diagramKeys = (games: { blockId: string; holders: Record<string, string>; fixture: any; rendered: Instruction[] }[], served: Instruction[], roleBlocks: { blockId: string; holders: Record<string, string> }[] | null): Partial<ServedActivity> => {
+            let outcome: DiagramOutcome
+            try {
+                outcome = diagramForServing({ session, games, served, roleBlocks, index: roleIndex }, { title })
+            } catch (error) {
+                outcome = { diagram: null, draft: failedDiagramDraft(error instanceof Error ? error.message : String(error)) }
+            }
+            return { ...(outcome.diagram ? { diagram: outcome.diagram } : {}), ...(review.includeDrafts ? { diagramDraft: outcome.draft } : {}) }
+        }
+        const rolesRow = roleIndex.roleBlocks?.rolesRow
+        /**
+         * Stage D (23 October 2026, register version 18): a selection carrying an item on the end-assignment row (B10) is asked too, so an
+         * exchange of ends in a game establishing no role is refused here (`roleBlocksOf`: blocks exist only where the roles exchange), never
+         * built as a single game with the exchange left unread. Every other selection is asked exactly as before.
+         */
+        const endRow = roleIndex.endAssignment?.row
+        if (rolesRow && (input.contracts as LoadedContract[]).some(contract => (contract.items ?? []).some(item => String(item.row) === rolesRow || (!!endRow && String(item.row) === endRow)))) {
+            const base: any = runStages0to5(input)
+            const found = base.run.halted || !base.derived ? null : roleBlocksOf(base.classes, base.derived.lines, roleIndex)
+            if (found?.kind === 'REFUSED') {
+                return refuse('structure', `The game this ${subject} selects is not yet described completely enough to be set up.`, [
+                    'the game establishes part of a role exchange, so it cannot be played in role blocks',
+                    ...found.why,
+                ])
+            }
+            if (found?.kind === 'BLOCKS') {
+                let blocks = found.blocks.map(block => ({ block, outcome: buildOneGame({ ...input, roleBlock: block }, game) }))
+                const stoppedOf = (list: typeof blocks) => list.filter((entry): entry is { block: RoleBlock; outcome: Extract<GameOutcome, { outcome: 'refused' }> } => entry.outcome.outcome === 'refused')
+                let stopped = stoppedOf(blocks)
+                // The earliest stage any block stopped at, in pathway order; every block that stopped is named.
+                const firstOf = (list: typeof stopped) => [...list].sort((a, b) => STAGE_ORDER.indexOf(a.outcome.stage) - STAGE_ORDER.indexOf(b.outcome.stage))[0]
+                const reasonsOf = (list: typeof stopped) => list.flatMap(entry => entry.outcome.reasons.map(reason => `block ${entry.block.blockId}: ${reason}`))
+                let first = firstOf(stopped)
+                let stoppedReasons = reasonsOf(stopped)
+                /**
+                 * **A block refused at communication passed validation, so the cross-block checks still run before the refusal** (stage K7, 15
+                 * October 2026). The cross-block checks are validation (a refusal there says "did not pass its own checks"), which comes
+                 * before communication in the pathway; until this stage a block stopping at communication skipped them, so a disagreement
+                 * between the blocks could hide behind a wording refusal. Where every block was built or refused only at communication, both
+                 * games are complete through validation and are checked against each other first; any earlier stop refuses as before.
+                 */
+                const throughValidation = blocks.every(entry => entry.outcome.outcome === 'built' || !!entry.outcome.communication)
+                if (stopped.length && !throughValidation) {
+                    /**
+                     * Stage E (23 October 2026): where EVERY block that stopped stopped on a typed applicability refusal, the activity's refusal is
+                     * typed too (`typedStopOf`), said in the words of the block it is typed by; one block stopping on anything else leaves it
+                     * untyped, so a broken block is never hidden behind the next alternative. Every reason of every block is kept, as before.
+                     */
+                    const typed = typedStopOf(stopped)
+                    if (typed) {
+                        fixture = typed.outcome.fixture
+                        return refuse(typed.outcome.stage, typed.outcome.summary, stoppedReasons, typed.outcome.applicability, typed.outcome.question)
+                    }
+                    fixture = first.outcome.fixture
+                    return refuse(first.outcome.stage, first.outcome.summary, stoppedReasons)
+                }
+                const gamesOf = (list: typeof blocks) =>
+                    list.map(entry =>
+                        entry.outcome.outcome === 'built'
+                            ? { block: entry.block, fixture: entry.outcome.fixture, contracts: entry.outcome.contracts, rendered: entry.outcome.rendered, violations: [] as FidelityFinding[], evidence: entry.outcome.evidence }
+                            : { block: entry.block, fixture: entry.outcome.fixture as Record<string, unknown>, contracts: entry.outcome.communication!.contracts, rendered: entry.outcome.communication!.rendered, violations: entry.outcome.communication!.violations, evidence: entry.outcome.communication!.evidence },
+                    )
+                let games = gamesOf(blocks)
+                const checks = checkRoleBlocks(
+                    games.map(entry => ({ block: entry.block, fixture: entry.fixture, contracts: entry.contracts })),
+                    roleIndex,
+                    found.roles,
+                )
+                fixture = { ...games[0].fixture, roleBlocks: roleBlockFixture(found, games.map(entry => ({ block: entry.block, fixture: entry.fixture })), checks, roleIndex) }
+                const failing = checks.filter(check => check.verdict === 'FAIL')
+                /**
+                 * **Where only the membership check fails, the coach is told what has not been decided** (15 October 2026, stage K4,
+                 * DRAFT). Both blocks were built and every other cross-block check holds, so what is missing is who changes team at
+                 * the exchange for this session's numbers — measured: at 11 players the A01 realization's teams are 5 + 1 against 5
+                 * in both blocks, and his 1(a) moves an outfield player too ("This preserves the 6 + GK versus 5 relationship in both
+                 * blocks."), which that configuration does not keep. Never resolved here.
+                 */
+                const membershipOnly = failing.length > 0 && failing.every(check => check.checkId === 'RB-M')
+                if (failing.length) {
+                    return refuse('validation', membershipOnly ? `Who changes team when the roles exchange has not been decided for ${session.players} players, so this activity is not being shown.` : 'The game built for this activity did not pass its own checks, so it is not being shown.', [
+                        'the two role blocks do not agree as the exchange of each other',
+                        ...failing.flatMap(check => check.problems.map(problem => `${check.checkId}: ${problem}`)),
+                    ])
+                }
+                /**
+                 * **Every block's markings set out once, wherever they occupy the same places** — stage 2D, 21 October 2026; a general
+                 * presentation rule since stage 2G, his reply filed 23 October 2026, item 2: *"Please authorize marking once whenever the system
+                 * can establish that the physical markings occupy the same locations across all blocks. This should be a general presentation
+                 * rule, not something requiring my approval for each configuration."* Once the two blocks agree as the exchange of each other,
+                 * the physical layout is read from both realized games (`layoutOf`, with the adjustments that move a position's magnitude; no
+                 * record is read). Where it applies, each block is rendered and checked again with it (`recommunicate`), replacing its first
+                 * render, findings and evidence, and the blocks are read again from there (a block the layout render refuses at communication
+                 * is refused like any other). Where it does not, and some marking moves between the blocks, each block is rendered and checked
+                 * again with what moves (`remarking`), so its exchange sentence says what to adjust: *"If markings change location between
+                 * blocks, the instructions should identify what needs to be adjusted."* Then RB-L recomputes both from the blocks and holds
+                 * every block's to them. Where neither applies, nothing is re-rendered, and where a reason is known the admin-only review
+                 * evidence says why (hardening H1, below).
+                 */
+                const layoutMovers = layoutMoversOf(goalSelection?.authorization)
+                const layoutDecision = layoutOf(
+                    games.map(entry => ({ blockId: entry.block.blockId, fixture: entry.fixture })),
+                    layoutMovers,
+                )
+                const addedForBlocks = layoutDecision.applies ? { layout: layoutDecision.layout } : layoutDecision.remarking ? { remarking: layoutDecision.remarking } : null
+                if (addedForBlocks) {
+                    blocks = blocks.map(entry => {
+                        const again = entry.outcome.recommunicate
+                        return { block: entry.block, outcome: again ? again(addedForBlocks) : entry.outcome }
+                    })
+                    stopped = stoppedOf(blocks)
+                    first = firstOf(stopped)
+                    stoppedReasons = reasonsOf(stopped)
+                    games = gamesOf(blocks)
+                }
+                const layoutCheck = checkRoleBlockLayout(
+                    games.map(entry => ({ blockId: entry.block.blockId, fixture: entry.fixture })),
+                    layoutMovers,
+                )
+                checks.push(layoutCheck)
+                fixture = { ...games[0].fixture, roleBlocks: roleBlockFixture(found, games.map(entry => ({ block: entry.block, fixture: entry.fixture })), checks, roleIndex) }
+                if (layoutCheck.verdict === 'FAIL') {
+                    return refuse('validation', 'The game built for this activity did not pass its own checks, so it is not being shown.', [
+                        'the markings set out once are not the blocks\' own',
+                        ...layoutCheck.problems.map(problem => `${layoutCheck.checkId}: ${problem}`),
+                    ])
+                }
+                const renders = games.map(entry => ({ blockId: entry.block.blockId, rendered: entry.rendered, fixture: entry.fixture }))
+                const composed = composeRoleBlockActivity(renders, roleIndex)
+                /**
+                 * Stage 2D: where the markings stay block by block, why is said (DRAFT words) — to an administrator only. Hardening H1, 21
+                 * October 2026 (the 2D review's should-fix 1): it was pushed onto `coachingObservations`, which every viewer can expand under
+                 * "How this was arrived at", and it carries internal ids (element ids, block ids). It goes to the admin-only review evidence
+                 * (`reviewEvidenceOf`, `layoutFallback`), and the composed activity a coach is served is exactly the composition of the block
+                 * renders. Stage 2G: said wherever a reason is known (no recorded choice is read any longer), with which markings move.
+                 */
+                const layoutFallback = !layoutDecision.applies && layoutDecision.why.length ? { why: [...layoutDecision.why], moves: remarkingSummary(layoutDecision.remarking) } : null
+                const composition = checkRoleBlockComposition(renders, composed, roleIndex)
+                const violations = composition.filter(finding => finding.severity === 'VIOLATION')
+                /**
+                 * The admin-only review evidence of the composed activity (stage K8), for a goal whose record asks for one: read from the two
+                 * games as built, the cross-block checks and the composition. Never on a coach's answer.
+                 */
+                const evidenceOf = (outcome: string, overview: OverviewEvidence | null = null) =>
+                    reviewEvidenceFor(review, goalSelection, account, roleIndex, session, outcome, composed, composition, checks, games.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, ...(entry.block.ends ? { ends: { ...entry.block.ends } } : {}), fixture: entry.fixture, contracts: entry.contracts, rendered: entry.rendered, ...entry.evidence })), layoutFallback, overview)
+                /** The admin-only draft of the composed activity (stage K7), attached to a refusal at communication where it was asked for. */
+                const withDraft = (refusal: ReturnType<typeof refuse>) => {
+                    if (review.includeDrafts) (refusal.activity as RefusedActivity).draft = reviewDraftOf(games.map(entry => entry.fixture), composed, [...games.flatMap(entry => entry.violations), ...violations])
+                    const evidence = evidenceOf(refusal.activity.outcome === 'refused' ? refusal.activity.stage : 'served')
+                    if (evidence) (refusal.activity as RefusedActivity).evidence = evidence
+                    return refusal
+                }
+                if (stopped.length) return withDraft(refuse(first.outcome.stage, first.outcome.summary, [...stoppedReasons, ...violations.map(v => `fidelity Q${v.question}: ${v.what}`)]))
+                if (violations.length) {
+                    return withDraft(
+                        refuse(
+                            'communication',
+                            'Part of this activity cannot be explained to a coach yet, so it is not being shown.',
+                            violations.map(v => `fidelity Q${v.question}: ${v.what}`),
+                        ),
+                    )
+                }
+                const built = games.map(entry => ({ block: entry.block, built: blocks.find(b => b.block === entry.block)!.outcome as Extract<GameOutcome, { outcome: 'built' }> }))
+                // Stage 3D: the overview, read from each block's own game as served and checked against it and the composed Details.
+                const overview = overviewOf(
+                    games.map(entry => ({ blockId: entry.block.blockId, fixture: entry.fixture, rendered: entry.rendered })),
+                    composed.instructions,
+                )
+                return serve(
+                    {
+                        ...built[0].built,
+                        fixture,
+                        rendered: composed,
+                        integrity: {
+                            gateA: [...new Set(built.map(entry => entry.built.integrity.gateA))].join(' / '),
+                            realizationAuthorized: built.every(entry => entry.built.integrity.realizationAuthorized),
+                            acceptance: {
+                                nothingClosedWithoutAuthority: built.flatMap(entry => entry.built.integrity.acceptance.nothingClosedWithoutAuthority),
+                                nothingLost: built.flatMap(entry => entry.built.integrity.acceptance.nothingLost),
+                                nothingInvented: built.flatMap(entry => entry.built.integrity.acceptance.nothingInvented),
+                            },
+                            postRealizationValidated: built.every(entry => entry.built.integrity.postRealizationValidated),
+                            instructions: composed.instructions.length,
+                            fidelityViolations: built.reduce((n, entry) => n + entry.built.integrity.fidelityViolations, 0) + violations.length,
+                        },
+                    },
+                    {
+                        roleBlocks: {
+                            exchange: found.exchange,
+                            roles: found.roles.map(role => ({ role, coachNoun: roleIndex.roleBlocks!.coachNouns[role], nounStatus: 'DRAFT' as const })),
+                            blocks: built.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, ...(entry.block.ends ? { ends: { ...entry.block.ends } } : {}), integrity: entry.built.integrity, concreteChecks: entry.built.concreteChecks.map(check => ({ ...check })) })),
+                            checks: checks.map(check => ({ ...check, problems: [...check.problems] })),
+                            firstBlock: 'COACH_CHOICE',
+                            firstBlockBasis: FIRST_BLOCK_BASIS,
+                        },
+                        // Stage K8: the admin-only review evidence, where the goal's record asks for one; absent on every coach's answer.
+                        ...((evidence => (evidence ? { evidence } : {}))(evidenceOf('served', overview.evidence))),
+                        // Stage 3D: the overview where it agrees (every viewer); its draft and the check's findings for an administrator only.
+                        ...overviewKeys(overview),
+                        // Stage 5A/5B: the diagram where it agrees (every viewer); its model and the checks' findings for an administrator only.
+                        ...diagramKeys(
+                            games.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, fixture: entry.fixture, rendered: entry.rendered.instructions })),
+                            composed.instructions,
+                            built.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders } })),
+                        ),
+                    },
+                    games.map(entry => ({ blockId: entry.block.blockId, fixture: entry.fixture })),
+                )
+            }
+        }
+
+        /**
+         * **A reassignment happens at an exchange of roles and nowhere else** (15 October 2026, stage K4, his RD-1 answer: *"This
+         * particular realization uses both mechanisms"*). A game that establishes who changes team at an exchange and is not
+         * played in role blocks has no exchange for it to happen at, so it is refused as part of a description, never built as
+         * though the reassignment were not there. DRAFT refusal reason.
+         */
+        const reassignmentRow = roleIndex.reassignment?.row
+        if (reassignmentRow && (input.contracts as LoadedContract[]).some(contract => (contract.items ?? []).some(item => String(item.row) === reassignmentRow))) {
+            return refuse('structure', `The game this ${subject} selects is not yet described completely enough to be set up.`, [
+                'the game establishes players changing team at an exchange of roles, and it is not played in role blocks, so there is no exchange for them to change at',
+            ])
+        }
+
+        const one = buildOneGame(input, game)
+        if (one.outcome === 'refused') {
+            fixture = one.fixture
+            // Stage E: a typed applicability refusal keeps its type (and an ASK its question), exactly as a role block's does.
+            const refusal = refuse(one.stage, one.summary, one.reasons, one.applicability ?? null, one.question ?? null)
+            // The admin-only draft (stage K7): only on a refusal at communication, only where the review asked for it.
+            if (review.includeDrafts && one.communication) (refusal.activity as RefusedActivity).draft = reviewDraftOf([one.fixture], one.communication.rendered, one.communication.violations)
+            // And the admin-only review evidence (stage K8), where the goal's record asks for one.
+            const evidence = one.communication && one.fixture ? reviewEvidenceFor(review, goalSelection, account, roleIndex, session, one.stage, one.communication.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.communication.contracts, rendered: one.communication.rendered, ...one.communication.evidence }]) : null
+            if (evidence) (refusal.activity as RefusedActivity).evidence = evidence
+            return refusal
+        }
+        // Stage 3D: the overview of the one game, checked against its Details (which are what a coach is served).
+        const overview = overviewOf([{ blockId: ONE_GAME, fixture: one.fixture, rendered: one.rendered }], one.rendered.instructions)
+        const evidence = reviewEvidenceFor(review, goalSelection, account, roleIndex, session, 'served', one.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.contracts, rendered: one.rendered, ...one.evidence }], null, overview.evidence)
+        return serve(one, { ...(evidence ? { evidence } : {}), ...overviewKeys(overview), ...diagramKeys([{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, rendered: one.rendered.instructions }], one.rendered.instructions, null) }, [{ blockId: ONE_GAME, fixture: one.fixture }])
     }
 
     /**
-     * **A reassignment happens at an exchange of roles and nowhere else** (15 October 2026, stage K4, his RD-1 answer: *"This
-     * particular realization uses both mechanisms"*). A game that establishes who changes team at an exchange and is not
-     * played in role blocks has no exchange for it to happen at, so it is refused as part of a description, never built as
-     * though the reassignment were not there. DRAFT refusal reason.
+     * **The realizations a goal's record authorizes, tried in its order** — stage E, 23 October 2026 (the design's Stage E). Christian, reply
+     * filed 25 October 2026, item 4: *"I approve retaining both alternatives."* *"These should be alternative knowledge-authorized
+     * realizations, not separate hardcoded implementations of the same Learning Goal."* *"Please add the general ability to represent [object]
+     * availability as a session resource and use authorized knowledge relationships when determining which scoring configuration can be
+     * selected."* (His nouns bracketed for the coupling ratchet.)
+     *
+     * Read from the record (`realizationAlternativesOf`), so no goal and no realization is named here. Each alternative that can be tried is
+     * built whole by `attempt`, in the order the record gives:
+     *   - served: the activity, and nothing behind it is tried;
+     *   - refused on a typed applicability refusal (`Applicability` NOT_APPLICABLE: a resource the session lacks, its testing area, a
+     *     practice situation it was not designed for): the next alternative is tried;
+     *   - refused because the session must say something first (ASK): the coach is asked (`RefusedActivity.question`), and nothing behind it
+     *     is tried, because an alternative behind it would be chosen on a fact nobody stated ("never silently none");
+     *   - refused for any other reason: the activity is refused, and nothing behind it is tried, so a broken alternative is never hidden
+     *     behind the next one (the design's risk 7, "Silent fallback masking a broken goal version").
+     * An alternative waiting on a gap is listed and never tried. Where every alternative tried did not apply, the activity is refused in the
+     * words of the last one tried (the one a session change would most directly reach), with each alternative's reasons named by it. Every
+     * alternative and why it was or was not used is recorded on the account (`realizationSelection`) and, for an administrator's review, in
+     * the evidence. A record naming one realization is tried exactly as before: its refusal is its own, and the account says it was used.
      */
-    const reassignmentRow = roleIndex.reassignment?.row
-    if (reassignmentRow && (input.contracts as LoadedContract[]).some(contract => (contract.items ?? []).some(item => String(item.row) === reassignmentRow))) {
-        return refuse('structure', `The game this ${subject} selects is not yet described completely enough to be set up.`, [
-            'the game establishes players changing team at an exchange of roles, and it is not played in role blocks, so there is no exchange for them to change at',
-        ])
+    const alternatives = goalSelection ? realizationAlternativesOf(goalSelection.authorization) : []
+    const untyped = ({ applicability: _typed, ...built }: Attempt): ActivityBuild & { fixture: Record<string, unknown> | null } => built
+    if (!alternatives.length) return untyped(attempt(undefined))
+    const baseAccount: Partial<ActivityAccount> = JSON.parse(JSON.stringify(account))
+    const outcomes: RealizationSelectionEntry[] = alternatives.map(alternative => ({
+        realization: alternative.realization,
+        words: alternative.words,
+        citedAs: alternative.citedAs,
+        outcome: alternative.selectable ? 'NOT_TRIED' : 'NOT_SELECTABLE',
+        cause: alternative.selectable ? null : alternative.status,
+        stage: null,
+        summary: null,
+        gaps: [...alternative.gaps],
+    }))
+    const tried: { at: number; built: Attempt }[] = []
+    let decided: Attempt | null = null
+    for (const [at, alternative] of alternatives.entries()) {
+        if (!alternative.selectable) continue
+        account = JSON.parse(JSON.stringify(baseAccount))
+        fixture = null
+        const built = attempt(resolveRealization(alternative.realization))
+        tried.push({ at, built })
+        const entry = outcomes[at]
+        if (built.activity.outcome === 'served') {
+            entry.outcome = 'SELECTED'
+            decided = built
+            break
+        }
+        entry.stage = built.activity.stage
+        entry.summary = built.activity.summary
+        entry.cause = built.applicability?.cause ?? null
+        if (built.applicability?.verdict === 'NOT_APPLICABLE') {
+            entry.outcome = 'NOT_APPLICABLE'
+            continue
+        }
+        entry.outcome = built.applicability?.verdict === 'ASK' ? 'ASKED' : 'REFUSED'
+        decided = built
+        break
     }
-
-    const one = buildOneGame(input, game)
-    if (one.outcome === 'refused') {
-        fixture = one.fixture
-        const refusal = refuse(one.stage, one.summary, one.reasons)
-        // The admin-only draft (stage K7): only on a refusal at communication, only where the review asked for it.
-        if (review.includeDrafts && one.communication) (refusal.activity as RefusedActivity).draft = reviewDraftOf([one.fixture], one.communication.rendered, one.communication.violations)
-        // And the admin-only review evidence (stage K8), where the goal's record asks for one.
-        const evidence = one.communication && one.fixture ? reviewEvidenceFor(review, goalSelection, account, roleIndex, session, one.stage, one.communication.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.communication.contracts, rendered: one.communication.rendered, ...one.communication.evidence }]) : null
-        if (evidence) (refusal.activity as RefusedActivity).evidence = evidence
-        return refusal
+    if (!decided) {
+        if (!tried.length) {
+            // Unreachable on a record the loader admits (it refuses a list none of whose entries can be tried); refused, never built.
+            account = JSON.parse(JSON.stringify(baseAccount))
+            fixture = null
+            decided = refuse(
+                'knowledge',
+                "This goal's activity depends on set-up decisions and engine capabilities that are not in place yet, so no activity can be built for it.",
+                outcomes.map(entry => `the realization ${entry.realization} the authorization record of ${goalSelection!.goalId} lists is ${entry.cause}, waiting on ${entry.gaps.join(', ') || 'nothing named'}`),
+            )
+        } else if (tried.length === 1) {
+            decided = tried[0].built
+        } else {
+            const last = tried[tried.length - 1].built
+            const refused = last.activity as RefusedActivity
+            decided = {
+                ...last,
+                activity: {
+                    ...refused,
+                    reasons: [
+                        `none of the ${tried.length} realizations the authorization record of ${goalSelection!.goalId} authorizes applies to this session; each was tried in its order`,
+                        ...tried.flatMap(({ at, built }) => (built.activity as RefusedActivity).reasons.map(reason => `${alternatives[at].realization}: ${reason}`)),
+                    ],
+                },
+            }
+        }
     }
-    // Stage 3D: the overview of the one game, checked against its Details (which are what a coach is served).
-    const overview = overviewOf([{ blockId: ONE_GAME, fixture: one.fixture, rendered: one.rendered }], one.rendered.instructions)
-    const evidence = reviewEvidenceFor(review, goalSelection, account, roleIndex, session, 'served', one.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.contracts, rendered: one.rendered, ...one.evidence }], null, overview.evidence)
-    return serve(one, { ...(evidence ? { evidence } : {}), ...overviewKeys(overview), ...diagramKeys([{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, rendered: one.rendered.instructions }], one.rendered.instructions, null) }, [{ blockId: ONE_GAME, fixture: one.fixture }])
+    decided.activity.account.realizationSelection = outcomes.map(entry => ({ ...entry, gaps: [...entry.gaps] }))
+    if (decided.activity.evidence) decided.activity.evidence = withRealizationSelection(decided.activity.evidence, outcomes)
+    return untyped(decided)
 }
 
 /** The block id the review evidence gives a game not played in role blocks. */
 const ONE_GAME = 'ONE_GAME'
+
+/**
+ * **The block a role-block activity's typed refusal is said by, or null** (stage E, 23 October 2026): only where every block that stopped
+ * stopped on a typed applicability refusal. A block on which the alternative does not apply decides it (it cannot be played whatever else
+ * the session says); otherwise the first block, which asks. Null where any block stopped on anything else.
+ */
+function typedStopOf<T extends { outcome: { applicability?: Applicability } }>(stopped: T[]): T | null {
+    if (!stopped.length || !stopped.every(entry => !!entry.outcome.applicability)) return null
+    return stopped.find(entry => entry.outcome.applicability!.verdict === 'NOT_APPLICABLE') ?? stopped[0]
+}
+
+/** One build as the realization loop sees it (stage E): the build, and its typed applicability where it was refused for one. */
+type Attempt = ActivityBuild & { fixture: Record<string, unknown> | null; applicability?: Applicability }
 
 /**
  * **The admin-only review evidence of a build, or null** (stage K8, 15 October 2026). Only for the review build asked with drafts (the
@@ -1519,7 +1783,8 @@ interface GameContext {
     selection: KnowledgeSelection
     /** The selected context, where there is one. */
     context: { id: string; role: string } | undefined
-    alterSupplied: ((supplied: SuppliedRealization) => void) | null
+    /** Tests only. Since stage E it is handed the realization being tried as well, so an alteration can be one alternative's alone. */
+    alterSupplied: ((supplied: SuppliedRealization, realization: ProvisionalRealization | null) => void) | null
     /** The record's authorized adjustments, in his words, for the fixture (stage K4). Empty for every other activity. */
     adjustments: { id: string; words: string; consequence: string | null; citedAs: string; coachWords?: string }[]
     /** What defers in this composition (ruling C56), for the fixture. Empty wherever nothing defers. */
@@ -1542,6 +1807,13 @@ type GameOutcome =
           communication?: { rendered: RenderedActivity; violations: FidelityFinding[]; contracts: LoadedContract[]; evidence: GameEvidence }
           /** Only beside `communication` (stage 2D): the same game rendered and checked again with these fields added to its fixture. */
           recommunicate?: (extra: Record<string, unknown>) => GameOutcome
+          /**
+           * Stage E (23 October 2026): where the refusal is a typed applicability refusal - the alternative does not apply to this session, or
+           * the session must say something first - so the build's loop can tell it from every other refusal. Absent on every other refusal.
+           */
+          applicability?: Applicability
+          /** Stage E: what the coach is asked, beside an ASK. */
+          question?: SessionQuestion
       }
     | {
           outcome: 'built'
@@ -1592,7 +1864,26 @@ const STAGE_ORDER: ActivityStage[] = ['session', 'selection', 'knowledge', 'stru
  */
 function buildOneGame(input: any, { subject, session, selection, context, alterSupplied, adjustments, alternatives }: GameContext): GameOutcome {
     let fixture: any = null
-    const refuse = (stage: ActivityStage, summary: string, reasons: string[]): GameOutcome => ({ outcome: 'refused', stage, summary, reasons, fixture })
+    // Stage E: a typed applicability refusal carries its type (and an ASK its question) for the build's loop; every other refusal is as before.
+    const refuse = (stage: ActivityStage, summary: string, reasons: string[], typed: { applicability?: Applicability | null; question?: SessionQuestion } = {}): GameOutcome => ({
+        outcome: 'refused',
+        stage,
+        summary,
+        reasons,
+        fixture,
+        ...(typed.applicability ? { applicability: typed.applicability } : {}),
+        ...(typed.question ? { question: typed.question } : {}),
+    })
+    /**
+     * **The session's objects must cover the objects the game holds** (stage E, 23 October 2026; `objectAvailabilityRefusal`). Read twice: on
+     * the resolved game before realization, because an object's width is a realization input and a kind nobody stated is asked, never left
+     * for realization to refuse for want of a width; and on the concrete game after assembly, so an object realization instantiated is held
+     * to the same statement. A game holding no object of a listed kind passes both without reading the session.
+     */
+    const objectsRefused = (refusal: ObjectAvailabilityRefusal, when: string): GameOutcome => {
+        const said = objectSummary(refusal, subject)
+        return refuse(said.stage, said.summary, [`the session's objects do not cover the game's ${when} (${refusal.cause}): ${refusal.why}`], { applicability: said.applicability, question: said.question })
+    }
 
     const result: any = runDerivation(input)
     if (isStampedHalt(result)) {
@@ -1642,6 +1933,12 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
         )
     }
 
+    // Stage E: before realization, the objects the resolved game holds (see `objectsRefused`).
+    {
+        const refusal = objectAvailabilityRefusal(index, resolved.game, input.envelope, input.contracts)
+        if (refusal) return objectsRefused(refusal, 'before realization')
+    }
+
     /**
      * **Realization input, by the selected game form.** See `supplied-realization`: the choices close what a
      * knowledge object leaves open, so they are found by the object and not by the goal that selected it.
@@ -1649,7 +1946,8 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
     let supplied = suppliedRealizationFor(selection)
     if (alterSupplied && !isNoSuppliedRealization(supplied)) {
         supplied = JSON.parse(JSON.stringify(supplied)) as SuppliedRealization
-        alterSupplied(supplied)
+        // Stage E: with the realization being tried, so a test's alteration can be one alternative's alone.
+        alterSupplied(supplied, realizationOf(selection))
     }
     if (isNoSuppliedRealization(supplied)) {
         // Two answers to one line, or a replacement nobody can trace (15 October 2026): set-up decisions that were made
@@ -1694,6 +1992,11 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
 
     // Same order as the closure run: entail over the concrete game, THEN check it, THEN gate it.
     const entailed = completeConcreteGame(ctx, realized)
+    // Stage E: after assembly, the objects the concrete game holds (see `objectsRefused`).
+    {
+        const refusal = objectAvailabilityRefusal(index, realized.game, input.envelope, input.contracts)
+        if (refusal) return objectsRefused(refusal, 'after realization')
+    }
     const acceptance = checkRealization(resolved, realized)
     const post = runPostRealizationGates(
         ctx,
@@ -1713,7 +2016,11 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
         const roster = rosterRefusal(ctx, realized)
         const said = roster ? rosterSummary(roster) : null
         if (roster) invalid.push(`roster (${roster.cause}): ${roster.why}`)
-        if (said) return refuse(said.stage, said.summary, invalid)
+        // Stage E: a specialized role the session cannot staff is a resource shortfall (the build may try the next alternative); one it has not
+        // stated is asked. Every other roster cause is typed as nothing, as before.
+        const rosterApplicability: Applicability | null =
+            roster?.cause === 'AVAILABILITY_SHORT' ? { verdict: 'NOT_APPLICABLE', cause: 'AVAILABILITY_SHORT' } : roster?.cause === 'AVAILABILITY_NOT_STATED' ? { verdict: 'ASK', cause: 'AVAILABILITY_NOT_STATED' } : null
+        if (said) return refuse(said.stage, said.summary, invalid, { applicability: rosterApplicability })
         // A participant the game requires and its configuration lacks (GA-PARTICIPANTS-PRESENT, 22 October 2026): said by name.
         const lacking = participantSummary(post.missingParticipants, index, 'validation')
         if (lacking) return refuse(lacking.stage, lacking.summary, invalid)

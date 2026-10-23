@@ -14,7 +14,7 @@ import Activity from '../models/activity.model'
 import UsageEvent from '../models/usage-event.model'
 import LoggingService from '../services/logging.service'
 import appRouter from '../routes/app.routes'
-import { specializedRoleNames } from '../system/rendering/session-envelope'
+import { sessionResourceKinds, specializedRoleNames } from '../system/rendering/session-envelope'
 import { MECHANISM_DEMONSTRATIONS } from '../system/rendering/mechanism-demonstrations'
 import { sessionPlanningModel } from '../system/session-planning/session-planning-model'
 
@@ -148,6 +148,42 @@ const server = app.listen(0, '127.0.0.1', async () => {
                 }
             } finally {
                 asAdmin = false
+            }
+        }
+        /**
+         * Stage E (23 October 2026, register version 19): sessions that STATE their objects - none of each kind the register lists, and one,
+         * 5 m wide - for every goal and demonstration through the review (as the coach and as an administrator) and every guided goal through
+         * the live route, at the matrix's second case. Every key above and below stays a session that states no object, so each compares to
+         * what it was; these show what a statement changes (the session it echoes, and the digests that hash it) and that a game holding no
+         * such object is built exactly as without one. The kinds come from the register, so nothing here names one.
+         */
+        {
+            const [, withRoles] = matrix()
+            const kinds = sessionResourceKinds()
+            const objectCases = [
+                { id: 'objects-none', objects: Object.fromEntries(kinds.map(kind => [kind, { count: 0 }])) },
+                { id: 'objects-one', objects: Object.fromEntries(kinds.map(kind => [kind, { count: 1, widthM: 5 }])) },
+            ]
+            for (const objectCase of objectCases) {
+                stored = { _id: SESSION_ID, createdBy: USER_ID, playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: withRoles.roles, objects: objectCase.objects }
+                for (const admin of [false, true]) {
+                    asAdmin = admin
+                    try {
+                        for (const goal of goals) {
+                            const id = String(goal.ID)
+                            snapshot[`${admin ? 'review-admin' : 'review'}/${id}/${withRoles.id}/${objectCase.id}`] = await capture(port, 'POST', `/api/app/checked-activity/${SESSION_ID}`, { learningGoalId: id, durationMin: 20 })
+                        }
+                        for (const demonstration of MECHANISM_DEMONSTRATIONS) {
+                            snapshot[`${admin ? 'review-admin' : 'review'}/${demonstration.id}/${withRoles.id}/${objectCase.id}`] = await capture(port, 'POST', `/api/app/checked-activity/${SESSION_ID}`, { demonstrationId: demonstration.id, durationMin: 20 })
+                        }
+                    } finally {
+                        asAdmin = false
+                    }
+                }
+                for (const goal of guided) {
+                    const id = String(goal.ID)
+                    snapshot[`live/${id}/${withRoles.id}/${objectCase.id}`] = await capture(port, 'POST', `/api/app/generate-activities/${SESSION_ID}`, { challengeLevel: 'medium', duration: 20, learningGoals: [String(goal['Learning Goal'])], planning: { learningGoalId: id } })
+                }
             }
         }
         stored = { _id: SESSION_ID, createdBy: USER_ID, playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: Object.fromEntries(roles.map(role => [role, 0])) }

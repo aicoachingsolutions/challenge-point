@@ -30,7 +30,7 @@ import Logger from '../logger'
 import LoggingService from '../services/logging.service'
 import { deriveInputConstraints } from '../system/input-constraints/deriveInputConstraints'
 import { ActivityReviewRequestError, activityReviewOptions, reviewActivity } from '../system/rendering/activity-review'
-import { CHECKED_CHAIN, CHECKED_PATHWAY_FAILURE_STAGE, CheckedSaveRequestError, checkedSave, editableUpdateOf, liveCheckedActivity, livePathwayOf, unconsumedInputsNote } from '../system/rendering/live-activity'
+import { CHECKED_CHAIN, CHECKED_PATHWAY_FAILURE_STAGE, CheckedSaveRequestError, checkedSave, editableUpdateOf, liveCheckedActivity, livePathwayOf, liveRefusalBody, unconsumedInputsNote } from '../system/rendering/live-activity'
 import { UnknownActivityRequest } from '../system/rendering/build-activity'
 import { buildPilotActivity, isPilotRefused } from '../system/rendering/build-pilot-activity'
 import { describeUnsupportedGoal, isKnownUnsupportedGoal } from '../system/session-planning/goal-support'
@@ -1083,11 +1083,7 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                     sessionId: req.params.id,
                     payload: { stage: outcome.activity.stage, reason: outcome.activity.summary.slice(0, 300), cause: outcome.cause, pathway: CHECKED_CHAIN },
                 })
-                return res.status(400).json({
-                    error: outcome.activity.summary,
-                    resolutionStatus: 'refused',
-                    ...(debug ? { stage: outcome.activity.stage, details: outcome.activity.reasons, debugTrace: debugTraceOf(inputConstraints, selection) } : {}),
-                })
+                return res.status(400).json(liveRefusalBody(outcome.activity, debug ? { stage: outcome.activity.stage, details: outcome.activity.reasons, debugTrace: debugTraceOf(inputConstraints, selection) } : null))
             }
             // No duration is recorded for a checked build: the regression snapshot records every event whole and byte for byte.
             recordUsageEvent({ eventType: 'generation_succeeded', sessionId: req.params.id, payload: { activityCount: 1, pathway: CHECKED_CHAIN } })

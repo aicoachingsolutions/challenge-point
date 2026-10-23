@@ -105,9 +105,17 @@ const testItem = (itemId: string, row: string, selector: string, requirement: st
  * session states, TEST-ONLY). The building role's holder changes ends between the blocks under fixed ends, so the goal moves with it; the
  * team at the axis start does not, so the goal stays.
  */
+/**
+ * Re-pointed 23 October 2026 (stage E, register version 19): the width the session states is now its statement of its goals (`objects`, one
+ * 5 m goal, TEST-ONLY), the one source of an object's width, and the availability rule holds the game's goal to it - so the realization
+ * carries a TEST-ONLY suitability for the kind (his decision 4 is open: without one no goal suits, and the build is refused before
+ * realization, as `session-resources.unit.ts` shows).
+ */
+const TEST_SUITABILITY = [{ kind: 'goal', widthM: { min: 1, max: 10 }, ruledOn: 'TEST-ONLY', by: 'TEST-ONLY', citedAs: 'TEST-ONLY', words: ['TEST-ONLY'] }]
 const withGoal = (team: string) =>
-    buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: sessionOf({ statedObjectWidthsM: { goal: 5 } }) } as any, learningGoalAuthorizations(), {
+    buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: sessionOf({ objects: { goal: { count: 1, widthM: 5 } } }) } as any, learningGoalAuthorizations(), {
         alter: contracts => {
+            ;(contracts.find(contract => contract.contractId === P)! as any).objectSuitability = TEST_SUITABILITY
             contracts
                 .find(contract => contract.contractId === P)!
                 .items.push(

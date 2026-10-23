@@ -115,6 +115,34 @@ export interface LayoutFallback {
  */
 export const layoutFallbackFact = (fallback: LayoutFallback): Fact => ({ what: 'The markings are presented block by block, because they do not occupy the same places in every block', value: [...fallback.why, ...fallback.moves] })
 
+/**
+ * **The realizations the goal's record authorizes, and whether each was used — the administrator's pathway fact** (stage E, 23 October
+ * 2026). His reply filed 25 October 2026, item 4: *"These should be alternative knowledge-authorized realizations, not separate hardcoded
+ * implementations of the same Learning Goal."*; the note sent to him: *"Chosen automatically; the review shows which version was used and
+ * why."* Read from the build's loop, the same entries the account carries (`account.realizationSelection`), never recomputed here: one line
+ * per alternative, in the record's order, with its outcome, its typed cause, its stage and summary where it was refused, and what it waits on
+ * where it is never tried. Added as the last pathway fact of an evidence the build has already made; every other fact is unchanged.
+ */
+export function withRealizationSelection(
+    evidence: ReviewEvidence,
+    entries: { realization: string; outcome: string; cause: string | null; stage: string | null; summary: string | null; gaps: string[]; citedAs: string | null }[],
+): ReviewEvidence {
+    const line = (entry: (typeof entries)[number]): string =>
+        `${entry.realization}: ${entry.outcome}` +
+        `${entry.cause ? ` (${entry.cause})` : ''}` +
+        `${entry.stage ? ` at ${entry.stage}` : ''}` +
+        `${entry.summary ? `: ${entry.summary}` : ''}` +
+        `${entry.gaps.length ? `; waits on ${entry.gaps.join(', ')}` : ''}` +
+        `${entry.citedAs ? `; its place in the order: ${entry.citedAs}` : ''}`
+    return {
+        ...evidence,
+        pathway: {
+            ...evidence.pathway,
+            facts: [...evidence.pathway.facts, { what: 'the realizations the record authorizes, in its order, and whether each was used (account.realizationSelection)', value: entries.map(line) }],
+        },
+    }
+}
+
 export type Layer = ReviewLayer | 'SESSION_INPUT'
 export type Standing = 'APPROVED' | 'PROVISIONAL' | 'GAP' | 'OUR_READING' | 'SESSION'
 

@@ -150,7 +150,9 @@ test('register version 15 types the participant forms as data, in one versions e
     const full = String(register.version)
     // Re-pointed 23 October 2026 (stage B): version 17 (object targets and the geometry a goal needs) supersedes 16, which supersedes 15.
     // Re-pointed 23 October 2026 (stage D): version 18 (the coach-controlled end exchange) supersedes 17, which supersedes 16.
-    assert.ok(full.startsWith('18, adds the coach-controlled end exchange'))
+    // Re-pointed 23 October 2026 (stage E): version 19 (an object's availability as a session resource) supersedes 18.
+    assert.ok(full.startsWith("19, adds an object's availability as a session resource"))
+    assert.ok(full.includes('Supersedes version 18, which adds the coach-controlled end exchange'))
     assert.ok(full.includes('Supersedes version 17, which adds object targets and the geometry a goal needs'))
     assert.ok(full.includes('Supersedes version 16, which adds one primary scoring event per role'))
     assert.equal(full.split('Supersedes version 15, which ').length - 1, 1, 'version 15 superseded once')

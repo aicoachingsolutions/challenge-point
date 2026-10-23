@@ -80,6 +80,41 @@ const SessionForm: React.FC<{}> = () => {
                         return { ...values, specializedRoles }
                     })
 
+                /**
+                 * Record how many goals the session has, and how wide they are — or record nothing (stage E, 23 October 2026).
+                 *
+                 * Written by hand for the reason the goalkeeper field is: a cleared box reports NaN, and the session must hold only
+                 * "not stated" (no entry) or a statement. A whole number of zero or more is stored as the count; anything else REMOVES
+                 * the kind's entry, width and all. A width is kept only beside a count of one or more, as a number of metres above
+                 * zero; a count of zero carries none. The key is the kind's name as the knowledge register lists it (its
+                 * sessionResources block), which is what the activity review reads.
+                 */
+                const goalsStated = formValues?.objects?.goal
+                const setObjects = (kind: string, change: { count?: number; widthM?: number }) =>
+                    setFormValues((values) => {
+                        const objects = { ...(values?.objects ?? {}) }
+                        // A stored entry always holds a count (an entry without one is never written here), so it is read as one.
+                        let next: { count: number; widthM?: number } | undefined = objects[kind] ? { ...(objects[kind] as { count: number; widthM?: number }) } : undefined
+                        if ('count' in change) {
+                            const count = change.count
+                            next = typeof count === 'number' && Number.isInteger(count) && count >= 0 ? { ...(next ?? { count }), count } : undefined
+                            if (next && next.count === 0) delete next.widthM
+                        }
+                        if ('widthM' in change && next) {
+                            const width = change.widthM
+                            if (typeof width === 'number' && Number.isFinite(width) && width > 0 && next.count > 0) next.widthM = width
+                            else delete next.widthM
+                        }
+                        if (next) objects[kind] = next
+                        else delete objects[kind]
+
+                        if (!values?._id && Object.keys(objects).length === 0) {
+                            const { objects: _nothingStated, ...rest } = values ?? {}
+                            return rest
+                        }
+                        return { ...values, objects }
+                    })
+
                 return (
                     <div className='min-h-screen px-2 py-6 sm:px-4 lg:px-0'>
                         <div className='max-w-sm mx-auto sm:max-w-3xl'>
@@ -186,6 +221,51 @@ const SessionForm: React.FC<{}> = () => {
                                                 />
                                                 <p className='mt-2 text-sm text-gray-500'>
                                                     How many of your players are goalkeepers today. Leave it blank if you are not sure yet.
+                                                </p>
+                                            </div>
+
+                                            {/*
+                                              * GOALS AVAILABLE — asked, never assumed (stage E, 23 October 2026). DRAFT wording.
+                                              *
+                                              * Christian, reply filed 25 October 2026, item 4: "I agree with your finding that
+                                              * goalkeeper availability and physical-goal availability must be represented
+                                              * separately." So it is its own question, never inferred from the goalkeepers above,
+                                              * and blank means not stated, exactly as there. The width is asked beside it because
+                                              * a goal's size is the coach's equipment: nothing here or on the server assumes one.
+                                              * Whether a particular activity uses a goal is decided by that activity.
+                                              */}
+                                            <div>
+                                                <NumberField
+                                                    label='Goals available'
+                                                    value={goalsStated?.count}
+                                                    onChange={(count) => setObjects('goal', { count })}
+                                                    labelClass='text-gray-700 font-medium mb-2 block'
+                                                    inputClass='text-base'
+                                                    placeholder='e.g., 1 — enter 0 if none'
+                                                    min={0}
+                                                    step={1}
+                                                    className='w-full transition-colors border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500'
+                                                />
+                                                <p className='mt-2 text-sm text-gray-500'>
+                                                    How many goals you can use today. Leave it blank if you are not sure yet.
+                                                </p>
+                                            </div>
+
+                                            <div>
+                                                <NumberField
+                                                    label='Goal width (metres)'
+                                                    value={goalsStated?.widthM}
+                                                    onChange={(widthM) => setObjects('goal', { widthM })}
+                                                    disabled={!goalsStated || goalsStated.count < 1}
+                                                    labelClass='text-gray-700 font-medium mb-2 block'
+                                                    inputClass='text-base'
+                                                    placeholder='e.g., 5'
+                                                    min={0}
+                                                    step={0.1}
+                                                    className='w-full transition-colors border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500'
+                                                />
+                                                <p className='mt-2 text-sm text-gray-500'>
+                                                    How wide your goals are, post to post. Asked once you say you have a goal.
                                                 </p>
                                             </div>
                                         </div>

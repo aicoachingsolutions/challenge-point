@@ -212,11 +212,16 @@ export function hintsUnderAuthorization(
 export function guidedSelectionHints(
     learningGoalId: string,
     goalText: string,
-    records: LearningGoalAuthorization[] = learningGoalAuthorizations()
+    records: LearningGoalAuthorization[] = learningGoalAuthorizations(),
+    /**
+     * Stage E (23 October 2026), tests only: the provisional realization ids the records' realizations are checked against, where a test
+     * builds over a TEST-ONLY set of realizations (`buildActivityUnderAuthorizationRecords` with `realizations`). Absent: the file's.
+     */
+    provisionalIds?: string[],
 ): GuidedSelectionHints {
     // Records handed in are held to the loader's own gate (G1 review, 15 October 2026): a test copy that authorized
     // a held or excluded constraint, or cited no ruling, used to be read unchecked — the gate guarded only the file.
-    const damaged = validateLearningGoalAuthorizations(records)
+    const damaged = validateLearningGoalAuthorizations(records, undefined, undefined, provisionalIds)
     if (damaged.length) throw new Error(`the authorization records failed their integrity gate: ${damaged.join(' | ')}`)
     const governed = governByApprovedGameProblem(learningGoalId, deriveInputConstraints(goalText))
     const authorization = learningGoalAuthorization(learningGoalId, records)

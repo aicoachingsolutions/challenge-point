@@ -29,6 +29,7 @@
  */
 
 import { ClassifiedLine, reasonFor } from '../derivation/classify'
+import type { ObjectSuitability } from '../derivation/corpus'
 import { Comparison, comparisonOf } from '../derivation/comparison'
 import { countBounds, DerivedLine, entails, resolvedValue } from '../derivation/derive'
 import { namesParticularTeams } from '../derivation/realization-deferral'
@@ -756,6 +757,124 @@ export function countsTheRosterAdmits(ctx: GateContext, realized: Realized, line
 export function rosterRefusal(ctx: GateContext, realized: Realized): RosterRefusal | null {
     const outcome = rosterFor(ctx, realized)
     return isRosterRefusal(outcome) ? outcome : null
+}
+
+/**
+ * **Why the session's objects do not cover the game's — one named cause each** (stage E, 23 October 2026, register version 19). Christian,
+ * reply filed 25 October 2026, item 4: *"Please add the general ability to represent goal availability as a session resource and use
+ * authorized knowledge relationships when determining which scoring configuration can be selected."* *"A [specialized performer] being
+ * available must not automatically force a [specialized performer] or [object] into an activity that does not require one."* *"Likewise,
+ * the system should not assume a physical [object] exists simply because a [specialized performer] was selected."* (His nouns bracketed:
+ * the coupling ratchet keeps a sport's nouns out of this layer.)
+ *
+ * Beside the roster's AVAILABILITY_NOT_STATED and AVAILABILITY_SHORT, and read the same way: availability has to COVER involvement, and that
+ * is the only thing it does. The cause is a closed code and the facts travel beside it, so the builder makes its own sentence from them and
+ * never reads `why`.
+ *
+ *   - OBJECT_AVAILABILITY_NOT_STATED: the game holds an object of a kind the session has not stated (`asks: AVAILABILITY`), or the session
+ *     states enough of them and not how wide they are (`asks: WIDTH`). Absent means NOT STATED, never none, so it is asked, never assumed.
+ *   - OBJECT_AVAILABILITY_SHORT: the game holds more objects of the kind than the session states it has.
+ *   - OBJECT_NOT_SUITABLE: the session has enough of them and they are not ones the realization's authorized knowledge says suit it
+ *     (`decided: true`), or nothing authorized says which suit it (`decided: false`). Which objects suit an activity is decision 4 of the note
+ *     sent to him; until a realization carries his words for it, no object of the kind counts as suitable, so none is treated as
+ *     interchangeable (his item 3: *"rather than inventing dimensions or treating every [object] as interchangeable"*).
+ *   - OBJECT_INVOLVEMENT_NOT_SETTLED: the game holds an object of the kind whose count is not a whole number, so how many it needs is unknown.
+ */
+export type ObjectAvailabilityRefusal =
+    | { cause: 'OBJECT_AVAILABILITY_NOT_STATED'; kind: string; asks: 'AVAILABILITY' | 'WIDTH'; needed: number; why: string }
+    | { cause: 'OBJECT_AVAILABILITY_SHORT'; kind: string; needed: number; available: number; why: string }
+    | { cause: 'OBJECT_NOT_SUITABLE'; kind: string; needed: number; available: number; widthM: number; decided: boolean; why: string }
+    | { cause: 'OBJECT_INVOLVEMENT_NOT_SETTLED'; kind: string; why: string }
+
+/** What authorized knowledge says suits a realization's objects of one kind (`ProvisionalRealization.objectSuitability`), as the rule reads it. */
+interface SuitabilityRead {
+    from: string
+    min: number | null
+    max: number | null
+}
+
+/**
+ * **How many objects of each listed kind the game holds** (stage E): each element of the register's objects collection whose kind the
+ * register's `sessionResources` lists counts as many objects as its count field says, one where the field holds nothing (an element
+ * established by the knowledge is one object unless its count says otherwise; OUR READING, reported). Read from the game, never from the
+ * session, so a game holding none of a kind needs none of it whatever the session has. Null for a register without the block.
+ */
+export function objectInvolvementOf(game: unknown, index: GateContext['index']): { kind: string; needed: number; elements: string[]; unsettled: string | null }[] | null {
+    const spec = index.sessionResources
+    if (!spec) return null
+    const bucket = readAt(game as Record<string, unknown>, collectionPath(spec.path))
+    const elements = Array.isArray(bucket) ? (bucket as unknown[]).filter((entry): entry is Record<string, unknown> => !!entry && typeof entry === 'object') : []
+    return spec.kinds.map(kind => {
+        const ofKind = elements.filter(element => readAt(element, spec.kindLeaf) === kind)
+        let needed = 0
+        let unsettled: string | null = null
+        for (const element of ofKind) {
+            const count = readAt(element, spec.countLeaf)
+            if (count === undefined || count === null) needed += 1
+            else if (Number.isInteger(count) && Number(count) >= 0) needed += Number(count)
+            else unsettled = unsettled ?? `${String(element.elementId)} holds ${JSON.stringify(count)} on ${spec.countRow}, which is not a whole number of objects`
+        }
+        return { kind, needed, elements: ofKind.map(element => String(element.elementId)), unsettled }
+    })
+}
+
+/**
+ * **Does the session's statement of its objects cover the objects the game holds?** Null where it does, or where the game holds no object of
+ * a kind the register lists (then the statement is never read: a session that states nothing is asked nothing). The rule never adds an
+ * object, a performer or a value: it reads the game, the envelope and the knowledge, and writes nothing (asserted in its unit test).
+ *
+ * `contracts` are the game's: the suitability a realization's authorized knowledge states for a kind is read from the provisional
+ * realization the game was derived with (`objectSuitability`, his words required by its loader). None is recorded on 23 October 2026, so on
+ * production data every stated object of a listed kind is OBJECT_NOT_SUITABLE with `decided: false`; no served game holds one.
+ */
+export function objectAvailabilityRefusal(index: GateContext['index'], game: unknown, envelope: unknown, contracts: LoadedContract[]): ObjectAvailabilityRefusal | null {
+    const involvement = objectInvolvementOf(game, index)
+    if (!involvement) return null
+    const stated = (envelope as { objects?: Record<string, { count?: unknown; widthM?: unknown }> } | undefined)?.objects
+    for (const { kind, needed, elements, unsettled } of involvement) {
+        if (unsettled) return { cause: 'OBJECT_INVOLVEMENT_NOT_SETTLED', kind, why: unsettled }
+        if (needed === 0) continue
+        const held = `the game holds ${needed} object${needed === 1 ? '' : 's'} of the kind ${kind} (${elements.join(', ')})`
+        const statement = stated && Object.prototype.hasOwnProperty.call(stated, kind) ? stated[kind] : undefined
+        const count = statement?.count
+        if (!statement || typeof count !== 'number' || !Number.isInteger(count) || count < 0) {
+            return { cause: 'OBJECT_AVAILABILITY_NOT_STATED', kind, asks: 'AVAILABILITY', needed, why: `${held}, and the session states no availability of ${kind}: absent means NOT STATED, never none` }
+        }
+        if (count < needed) return { cause: 'OBJECT_AVAILABILITY_SHORT', kind, needed, available: count, why: `${held}, and the session states ${count}` }
+        const width = statement.widthM
+        if (typeof width !== 'number' || !Number.isFinite(width) || width <= 0) {
+            return { cause: 'OBJECT_AVAILABILITY_NOT_STATED', kind, asks: 'WIDTH', needed, why: `${held}, and the session states ${count} without saying how wide they are` }
+        }
+        const rules: SuitabilityRead[] = contracts.flatMap(contract =>
+            ((contract as { objectSuitability?: ObjectSuitability[] }).objectSuitability ?? [])
+                .filter(rule => rule.kind === kind)
+                .map(rule => ({ from: `${contract.contractId} (${rule.citedAs})`, min: rule.widthM.min, max: rule.widthM.max })),
+        )
+        if (!rules.length) {
+            return {
+                cause: 'OBJECT_NOT_SUITABLE',
+                kind,
+                needed,
+                available: count,
+                widthM: width,
+                decided: false,
+                why: `${held}; the session states ${count}, ${width} m wide, and no authorized knowledge of this realization says which objects of the kind suit it (decision 4 of the note sent to him), so none is counted as suitable`,
+            }
+        }
+        const failing = rules.filter(rule => (rule.min !== null && width < rule.min) || (rule.max !== null && width > rule.max))
+        if (failing.length) {
+            return {
+                cause: 'OBJECT_NOT_SUITABLE',
+                kind,
+                needed,
+                available: count,
+                widthM: width,
+                decided: true,
+                why: `${held}; the session states ${count}, ${width} m wide, outside what ${failing.map(rule => `${rule.from} admits (${rule.min ?? 'no minimum'} to ${rule.max ?? 'no maximum'} m)`).join(' and ')}`,
+            }
+        }
+    }
+    return null
 }
 
 /**

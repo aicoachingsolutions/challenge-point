@@ -86,10 +86,13 @@ const halts = (damage: (r: any) => void, message: RegExp, label: string) => {
 test('register version 17 holds the rows as data, in one versions entry quoting him', () => {
     // Re-pointed 23 October 2026 (stage D): version 18 (the coach-controlled end exchange, his reply filed 25 October 2026, item 5) supersedes
     // 17, so version 17's entry is read where it now stands, after "Supersedes version 17, which ", whole and once.
+    // Re-pointed 23 October 2026 (stage E): version 19 (an object's availability as a session resource, his reply filed 25 October 2026,
+    // item 4) supersedes 18, which supersedes 17.
     const latest = String(register.version)
-    assert.ok(latest.startsWith('18, adds the coach-controlled end exchange'))
+    assert.ok(latest.startsWith("19, adds an object's availability as a session resource"))
+    assert.ok(latest.includes('Supersedes version 18, which adds the coach-controlled end exchange'))
     assert.equal(latest.split('Supersedes version 17, which ').length - 1, 1, 'version 17 superseded once')
-    assert.ok(!latest.includes('Supersedes version 18'), 'version 18 is the current entry')
+    assert.ok(!latest.includes('Supersedes version 19'), 'version 19 is the current entry')
     const full = `17, ${latest.split('Supersedes version 17, which ')[1]}`
     assert.ok(full.startsWith('17, adds object targets and the geometry a goal needs, for his reply filed 25 October 2026, item 3'))
     for (const quote of HIS_ITEM_3) assert.ok(full.split('Supersedes version 16, ')[0].includes(`"${quote}"`), quote)
@@ -336,9 +339,18 @@ const goalBuildWhole = (options: GoalOptions = {}): { activity: ServedActivity |
     const read = authorizationRecords.contextRelationships
     ;(authorizationRecords as any).contextRelationships = () => [...read(), copy(TEST_RELATIONSHIP)]
     try {
+        /**
+         * Re-pointed 23 October 2026 (stage E, register version 19): the width the session states is its statement of its objects (`objects`:
+         * one goal, as wide as `width`; `null` states the goal without a width), the one source of an object's width (stage B's
+         * `statedObjectWidthsM` is retired), and the availability rule holds the game's goal to it, so the realization carries a TEST-ONLY
+         * suitability for the kind (his decision 4 is open; without one no goal suits and the build is refused before realization).
+         */
         const width = options.width === undefined ? 5 : options.width
-        const widths = { ...(width === null ? {} : { goal: width }), ...(options.widths ?? {}) }
-        return buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: sessionOf(Object.keys(widths).length ? { statedObjectWidthsM: widths } : {}) } as any, learningGoalAuthorizations(), {
+        const objects: Record<string, { count: number; widthM?: number }> = {
+            goal: { count: 1, ...(width === null ? {} : { widthM: width }) },
+            ...Object.fromEntries(Object.entries(options.widths ?? {}).map(([kind, widthM]) => [kind, { count: 1, widthM }])),
+        }
+        return buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: sessionOf({ objects }) } as any, learningGoalAuthorizations(), {
             alter: contracts => {
                 const contract = (id: string) => contracts.find(c => c.contractId === id)!
                 const item = (key: string) => contract(key.split('::')[0]).items.find(i => i.itemId === key.split('::')[1])! as any
@@ -346,6 +358,7 @@ const goalBuildWhole = (options: GoalOptions = {}): { activity: ServedActivity |
                 if (options.pair !== false) item(`${GF2}::GF2-03.e`).defersWith = 'GF2-08.f'
                 for (const key of SUPERSEDED) item(key).yieldsForRole = 'AUTHORIZED_ROLE_SCORING'
                 const p = contract(P)
+                ;(p as any).objectSuitability = [{ kind: 'goal', widthM: { min: 1, max: 30 }, ruledOn: 'TEST-ONLY', by: 'TEST-ONLY', citedAs: 'TEST-ONLY', words: ['TEST-ONLY'] }]
                 p.items = p.items.filter(i => !WITHDRAW.includes(i.itemId))
                 p.items.push(
                     testItem('TEST-GOAL', 'O1', 'kind=goal', 'EXISTS', 'N/A'),
@@ -518,12 +531,25 @@ test('integration review fix (TEST-ONLY goal version): no draft calls a target a
 })
 
 test('no width is a refusal: the goal is centred only on a width the session states', () => {
+    /**
+     * Re-pointed 23 October 2026 (stage E): a session stating its goal without a width is now ASKED how wide it is, before realization, by the
+     * availability rule (the question channel), never left for realization to refuse; the realizer's own refusal of a centred object with no
+     * width stands for any kind the session does not state its availability of (here a TEST-ONLY gate, which no availability rule reads).
+     */
     const activity = goalBuild({ width: null })
     const block1 = reasonsOf(activity, BLOCK_1)
-    assert.deepEqual(block1, [
-        'realization refused',
-        `c:${P}:TEST-GOAL::O5: "central" needs the element's extent across the axis, and neither a required extent nor a width the session states is given for it`,
-    ])
+    assert.equal(activity.stage, 'session', activity.reasons.join(' | '))
+    assert.ok(block1.length === 1 && block1[0].startsWith("the session's objects do not cover the game's before realization (OBJECT_AVAILABILITY_NOT_STATED)"), block1.join(' | '))
+    // Under fixed ends block 2 breaks structurally (GA-ROLE-EVENTS), so the activity carries no question: one block's question never hides
+    // another block's break. Under the end exchange both blocks ask, and the activity asks how wide the goal is.
+    assert.equal(activity.question, undefined)
+    const exchanged = goalBuild({ width: null, extra: [testItem('TEST-B10', 'B10', '*', 'EQUALS', 'EXCHANGED')] })
+    assert.deepEqual([exchanged.stage, exchanged.question?.asks], ['session', 'WIDTH'], exchanged.reasons.join(' | '))
+    const gate = reasonsOf(
+        goalBuild({ extra: [testItem('TEST-MARKER', 'O1', 'kind=gate', 'EXISTS', 'N/A'), testItem('TEST-MARKER-ACROSS', 'O5', 'kind=gate', 'POSITIONED', { term: 'central', asAuthored: 'TEST-ONLY centred' }), testItem('TEST-MARKER-ALONG', 'O4', 'kind=gate', 'POSITIONED', { ...ownEndOf('ROLE_HOLDER_BUILDING'), offsetM: { from: 3, to: 3 }, asAuthored: 'TEST-ONLY' })] }),
+        BLOCK_1,
+    )
+    assert.deepEqual(gate, ['realization refused', `c:${P}:TEST-MARKER::O5: "central" needs the element's extent across the axis, and neither a required extent nor a width the session states is given for it`])
     // A width reaching both touchlines is refused too, never clipped.
     assert.ok(reasonsOf(goalBuild({ width: 30 }), BLOCK_1).some(reason => reason.includes('reaches both touchlines')))
 })

@@ -96,6 +96,17 @@ export interface ISession {
      * put into a particular game only where that game's knowledge establishes it.
      */
     specializedRoles?: Record<string, number>
+    /**
+     * The session's OBJECTS, by kind: kind -> how many it has and how wide they are, in metres (`{ count, widthM }`). The kinds are the
+     * register's (its `sessionResources` block), so this model names none. Added 23 October 2026 (stage E).
+     *
+     * Christian, reply filed 25 October 2026, item 4: *"Please add the general ability to represent goal availability as a session resource
+     * and use authorized knowledge relationships when determining which scoring configuration can be selected."* *"Likewise, the system
+     * should not assume a physical goal exists simply because a goalkeeper was selected."* So it is its own field, never inferred from
+     * `specializedRoles`, and an absent kind means NOT STATED — never none. It is availability, not involvement: an activity is asked to be
+     * covered by it only where its game holds an object of the kind, and a build asks for it only then.
+     */
+    objects?: Record<string, { count: number; widthM?: number }>
     coachComments?: string
     createdAt: Date
     updatedAt: Date
@@ -127,6 +138,12 @@ const sessionSchema = new Schema<ISession>(
             // a zero for each role — would be the schema stating on every session that the coach has no
             // specialized players, which is exactly the silent assumption the field exists to remove. An
             // untouched session stores nothing, and the review reads nothing as "not stated".
+        },
+        objects: {
+            type: Schema.Types.Mixed,
+            // NO DEFAULT (stage E, 23 October 2026), for the reason `specializedRoles` above has none: a default — `{}`, or a count of 0
+            // for a kind — would be the schema stating on every session that the coach has none of that equipment. An untouched session
+            // stores nothing, and a build that needs the statement asks for it. Pinned by session-resources.unit.ts.
         },
         coachComments: { type: String },
     },

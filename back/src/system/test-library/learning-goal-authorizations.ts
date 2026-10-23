@@ -439,10 +439,66 @@ export interface LearningGoalAuthorization {
      * a goal whose record names it (`derivationInputFor`), and the record itself still holds no value.
      */
     provisionalRealization?: string
+    /**
+     * **The alternative realizations of this goal's activity, in the order he authorized them** (stage E, 23 October 2026), or absent. His
+     * reply filed 25 October 2026, item 4: *"I approve retaining both alternatives."* *"These should be alternative knowledge-authorized
+     * realizations, not separate hardcoded implementations of the same Learning Goal."* Item 3: *"My preference is to use the
+     * physical-[object] version when an appropriate [object] and [specialized performer] are available and the selected realization supports
+     * that relationship."* (His nouns bracketed for the coupling ratchet; the record quotes him whole.)
+     *
+     * Each entry names a realization of `provisional-realizations.json`, with his words for its place in the order. The build tries them in
+     * that order and moves to the next ONLY where the one tried does not apply to the session (a typed applicability refusal); an entry whose
+     * status is a gap (MISSING_KNOWLEDGE, MISSING_CAPABILITY) is listed, with what it waits on, and never tried. A record names its
+     * realizations one way: `provisionalRealization` (one, read as a list of one) or this list, never both. No production record carries the
+     * list on 23 October 2026 (the second realization is the design's Stage F, after his rulings), so every record reads as before.
+     */
+    realizations?: RealizationAlternativeRecord[]
     /** The adjustments he authorized for this goal's activity (15 October 2026, stage K4), or absent. */
     authorizedAdjustments?: AuthorizedAdjustments
     /** What he asked the next review of this goal's activity to show (stage K8, 15 October 2026), or absent. */
     reviewRequest?: ReviewRequest
+}
+
+/** One alternative realization as a record lists it (stage E): the realization, his words for its place, and whether it can be tried now. */
+export interface RealizationAlternativeRecord {
+    realization: string
+    words: string
+    citedAs: string
+    /** Absent: the realization can be tried. A gap status: listed with what it waits on (`gaps`, defined in the record), never tried. */
+    status?: ManipulationStatus
+    gaps?: string[]
+}
+
+/** One alternative as the build reads it: from the list, or the record's single realization read as a list of one (stage E). */
+export interface RealizationAlternative {
+    realization: string
+    /** His words and where he said them, from the list; null for a record's single realization, which names no order. */
+    words: string | null
+    citedAs: string | null
+    /** False for an entry whose status is a gap: listed, never tried. */
+    selectable: boolean
+    status: string | null
+    gaps: string[]
+}
+
+/**
+ * **A record's realizations in the order the build tries them** (stage E, 23 October 2026), copied from the record: its ordered list, or its
+ * single `provisionalRealization` read as a list of one (every production record on that day), or none. The one reader of which realization
+ * a record names: derivation's default (`run-bounded-selection.ts` realizationOf), the build's loop and the account all read this.
+ */
+export function realizationAlternativesOf(record: Pick<LearningGoalAuthorization, 'provisionalRealization' | 'realizations'> | null | undefined): RealizationAlternative[] {
+    if (!record) return []
+    if (Array.isArray(record.realizations)) {
+        return record.realizations.map(entry => ({
+            realization: entry.realization,
+            words: entry.words,
+            citedAs: entry.citedAs,
+            selectable: !(typeof entry.status === 'string' && isGapStatus(entry.status)),
+            status: entry.status ?? null,
+            gaps: [...(entry.gaps ?? [])],
+        }))
+    }
+    return record.provisionalRealization ? [{ realization: record.provisionalRealization, words: null, citedAs: null, selectable: true, status: null, gaps: [] }] : []
 }
 
 const filled = (value: unknown): boolean => typeof value === 'string' && value.trim().length > 0
@@ -546,6 +602,33 @@ export function validateLearningGoalAuthorizations(
                 errors.push(`${goal}: provisional choice ${i + 1} carries a code or an area a reader would act on (value, appliesTo); marking once is a general presentation rule since his reply filed 23 October 2026, item 2, and no reader acts on a choice per configuration`)
             }
         }
+        /**
+         * **The alternative realizations, read whole or refused** (stage E, 23 October 2026). A record names its realizations one way; the
+         * list names each realization once, each one the provisional realizations hold, each with his words for its place in the order; an
+         * entry's status, where given, follows the record's own rule (a gap status names what would supply it, any other names nothing), and
+         * a list in which no entry can be tried is refused, because a goal whose record lists realizations and can build none of them is a gap
+         * the record must say as an entry, not leave the build to discover.
+         */
+        if (entry.realizations !== undefined) {
+            if (entry.provisionalRealization !== undefined) errors.push(`${goal}: names its realizations twice (provisionalRealization and realizations); a record names them one way`)
+            const list = Array.isArray(entry.realizations) ? entry.realizations : []
+            if (!list.length) errors.push(`${goal}: lists no realization in realizations (absent says it names none)`)
+            const named = new Set<string>()
+            for (const [i, alternative] of list.entries()) {
+                const which = `${goal}: alternative realization ${i + 1}`
+                if (!filled(alternative?.realization) || !provisionalIds.includes(String(alternative.realization))) errors.push(`${which} names the provisional realization ${alternative?.realization}, which provisional-realizations.json does not hold`)
+                if (named.has(String(alternative?.realization))) errors.push(`${which} names ${alternative.realization} a second time`)
+                named.add(String(alternative?.realization))
+                if (!filled(alternative?.words) || !filled(alternative?.citedAs)) errors.push(`${which} does not quote him for its place in the order (words and citedAs are required)`)
+                if (alternative?.status !== undefined || alternative?.gaps !== undefined) {
+                    // Tried (his ruling) or waiting on a gap: no other status says whether a realization can be tried.
+                    if (alternative.status !== 'AUTHORIZED_BY_RULING' && !isGapStatus(String(alternative.status))) errors.push(`${which} has the status ${alternative.status}; an alternative is AUTHORIZED_BY_RULING or waits on a gap (${GAP_STATUSES.join(', ')})`)
+                    errors.push(...statusErrors(which, 'PROVISIONAL_REALIZATION_CHOICE', String(alternative.status), alternative.gaps ?? []))
+                }
+            }
+            if (list.length && !realizationAlternativesOf(entry).some(alternative => alternative.selectable)) errors.push(`${goal}: no alternative realization it lists can be tried (each waits on a gap)`)
+        }
+
         const authorized = new Set((entry.authorizedConstraints ?? []).map(knowledgeKey))
         for (const id of entry.authorizedConstraints ?? []) {
             if (!selectable.has(knowledgeKey(id))) errors.push(`${goal}: authorizes ${id}, which the selectable library does not hold`)

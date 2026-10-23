@@ -55,6 +55,8 @@ import {
     ReviewDraftInstruction,
     ReviewEvidence,
     ReviewFact,
+    ReviewSessionQuestion,
+    StatedObjects,
 } from '@/MODELS/activity-review.model'
 import { ISession } from '@/MODELS/session.model'
 
@@ -107,6 +109,12 @@ export default function ActivityReviewPage() {
     /** Role name -> stated availability. `undefined` is "not stated" and is never sent as a number. */
     const [availability, setAvailability] = useState<Record<string, number | undefined>>({})
     const [choice, setChoice] = useState<ReviewChoice | null>(null)
+    /**
+     * The coach's answer to a build's question about the session's objects, FOR THIS REVIEW (stage E, 23 October 2026): kind -> what they
+     * said. Nothing is asked up front - the server asks only when the activity it would build needs an object of a kind the session has
+     * not stated - and nothing is sent until the coach answers. The session is not changed.
+     */
+    const [objectAnswers, setObjectAnswers] = useState<Record<string, StatedObjects>>({})
     const [result, setResult] = useState<ActivityReviewResult | null>(null)
     const [requestError, setRequestError] = useState<string | null>(null)
     const resultRef = useRef<HTMLDivElement>(null)
@@ -192,7 +200,7 @@ export default function ActivityReviewPage() {
     ]
     const canBuild = stillNeeded.length === 0
 
-    const build = async () => {
+    const build = async (answers: Record<string, StatedObjects> = objectAnswers) => {
         if (!choice || duration === null || unstatedRoles.length > 0) return
         invalidate()
         const askedAt = asked.current
@@ -201,6 +209,8 @@ export default function ActivityReviewPage() {
             ...(choice.kind === 'learning-goal' ? { learningGoalId: choice.id } : { demonstrationId: choice.id }),
             durationMin: duration,
             roles: Object.fromEntries(roleNames.map((role) => [role, availability[role] as number])),
+            // Stage E: only what the coach answered on this page, never a guess.
+            ...(Object.keys(answers).length > 0 ? { objects: answers } : {}),
         }
         const response = await api<ActivityReviewResult>(`${ROUTES.app.checkedActivity}/${id}`, request)
 
@@ -405,7 +415,7 @@ export default function ActivityReviewPage() {
             </section>
 
             <div className='flex flex-col gap-2'>
-                <Button onClickAsync={build} disabled={!canBuild} className='w-full max-w-sm rounded-full sm:self-center'>
+                <Button onClickAsync={() => build()} disabled={!canBuild} className='w-full max-w-sm rounded-full sm:self-center'>
                     Build the activity
                 </Button>
                 {!canBuild && (
@@ -433,6 +443,19 @@ export default function ActivityReviewPage() {
                 {/* 3 and 4. The answer, primary: the activity, or the sentence saying why there is none. */}
                 {result?.outcome === 'served' && <ActivityBlock activity={result} />}
                 {result?.outcome === 'refused' && <RefusalBlock refusal={result} />}
+                {/* Stage E: the build's question, where it stopped to ask one, answered for this review only. */}
+                {result?.outcome === 'refused' && result.question && (
+                    <ObjectQuestionBlock
+                        question={result.question}
+                        stored={session.objects?.[result.question.objectKind]}
+                        answered={objectAnswers[result.question.objectKind]}
+                        onAnswer={async (answer) => {
+                            const answers = { ...objectAnswers, [result.question!.objectKind]: answer }
+                            setObjectAnswers(answers)
+                            await build(answers)
+                        }}
+                    />
+                )}
                 {result?.outcome === 'refused' && result.draft && <DraftBlock refusal={result} draft={result.draft} />}
                 {result?.evidence && <ReviewEvidencePanel evidence={result.evidence} />}
 
@@ -488,6 +511,76 @@ function RefusalBlock({ refusal }: { refusal: RefusedActivity }) {
             {refusal.kind === 'mechanism-demonstration' && <DemonstrationLabel />}
             <h2 className='text-lg font-semibold text-amber-900'>{refusal.title} cannot be built as an activity yet.</h2>
             {refusal.summary && <p className='mt-2 leading-relaxed text-amber-800'>{refusal.summary}</p>}
+        </article>
+    )
+}
+
+/**
+ * **The build's question about the session's objects, answered for this review only** — stage E, 23 October 2026 (wording DRAFT).
+ *
+ * Christian, reply filed 25 October 2026, item 4: goal availability is its own session resource, never inferred from the goalkeepers, and
+ * (the note sent to him) asked only when the activity it would build needs one. So nothing about objects is asked above: this appears only
+ * when the server stopped to ask (`question`), with the server's own sentence, and the kind is the server's (no kind is named in this file).
+ * Blank means not answered: nothing is sent until the coach gives a whole number (and, where there is at least one, a width in metres
+ * above zero). The session itself is not changed.
+ */
+function ObjectQuestionBlock({
+    question,
+    stored,
+    answered,
+    onAnswer,
+}: {
+    question: ReviewSessionQuestion
+    stored?: StatedObjects
+    answered?: StatedObjects
+    onAnswer: (answer: StatedObjects) => Promise<void>
+}) {
+    const start = answered ?? stored
+    const [count, setCount] = useState<number | undefined>(isStatedCount(start?.count) ? start!.count : undefined)
+    const [width, setWidth] = useState<number | undefined>(typeof start?.widthM === 'number' ? start.widthM : undefined)
+    const asksCount = question.asks !== 'WIDTH'
+    const countGiven = isStatedCount(count)
+    const widthGiven = typeof width === 'number' && Number.isFinite(width) && width > 0
+    const ready = countGiven && (count === 0 || widthGiven)
+    const kind = question.objectKind
+    return (
+        <article className='p-6 bg-white border rounded-lg border-amber-200'>
+            <p className='font-medium text-gray-800'>{question.words}</p>
+            <div className='grid grid-cols-1 gap-4 mt-4 md:grid-cols-2'>
+                {asksCount && (
+                    <NumberField
+                        label={`How many ${kind}s can you use today?`}
+                        value={count}
+                        onChange={(value) => setCount(isStatedCount(value) ? value : undefined)}
+                        min={0}
+                        step={1}
+                        placeholder='Enter a number — 0 if none'
+                        labelClass='text-gray-700 font-medium mb-2 block'
+                        inputClass='text-base'
+                        className='w-full transition-colors border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500'
+                    />
+                )}
+                <NumberField
+                    label={`How wide are they, in metres?`}
+                    value={width}
+                    onChange={(value) => setWidth(typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : undefined)}
+                    disabled={countGiven && count === 0}
+                    min={0}
+                    step={0.1}
+                    placeholder='e.g. post to post'
+                    labelClass='text-gray-700 font-medium mb-2 block'
+                    inputClass='text-base'
+                    className='w-full transition-colors border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500'
+                />
+            </div>
+            <p className='mt-2 text-sm text-gray-500'>For this review only — your session is not changed.</p>
+            <Button
+                onClickAsync={() => onAnswer({ count: count as number, ...(count !== 0 && widthGiven ? { widthM: width } : {}) })}
+                disabled={!ready}
+                className='mt-4 rounded-full'
+            >
+                Build the activity with this answer
+            </Button>
         </article>
     )
 }
@@ -1079,6 +1172,25 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                                 <Mark positive={account.gameForm.contracted}>
                                     {account.gameForm.contracted ? 'Built into the engine' : 'Not yet built into the engine'}
                                 </Mark>
+                            </AccountField>
+                        )}
+
+                        {/*
+                          * Stage E (23 October 2026), technical account only, DRAFT labels: every realization the goal's record names, in
+                          * its order, and whether it was used and why - the server's own entries, shown as sent.
+                          */}
+                        {Array.isArray(account.realizationSelection) && account.realizationSelection.length > 0 && (
+                            <AccountField label='Realizations, in the order the record authorizes them'>
+                                <ul className='space-y-1'>
+                                    {account.realizationSelection.map((entry) => (
+                                        <li key={entry.realization} className='text-sm text-gray-700'>
+                                            <span className='font-mono text-xs'>{entry.realization}</span>: {entry.outcome}
+                                            {entry.cause ? ` (${entry.cause})` : ''}
+                                            {entry.summary ? ` — ${entry.summary}` : ''}
+                                            {entry.gaps.length > 0 ? ` — waits on ${entry.gaps.join(', ')}` : ''}
+                                        </li>
+                                    ))}
+                                </ul>
                             </AccountField>
                         )}
 

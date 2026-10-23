@@ -217,6 +217,59 @@ function indexObjectGeometry(block: any, rows: Map<string, RegisterRow>, vocabul
 }
 
 /**
+ * **Which objects a session states its availability of** — register version 19, 23 October 2026 (stage E). Christian, reply filed 25 October
+ * 2026, item 4: *"Please add the general ability to represent goal availability as a session resource and use authorized knowledge
+ * relationships when determining which scoring configuration can be selected."* *"A [specialized performer] being available must not
+ * automatically force a [specialized performer] or [object] into an activity that does not require one."* (His nouns are bracketed: the
+ * coupling ratchet keeps a sport's nouns out of this layer; the register quotes him whole.) Read by the session envelope (which kinds a
+ * statement may name), the availability rule (`realization/assemble-concrete-game.ts` objectAvailabilityRefusal: which objects of the game a
+ * statement must cover) and the realizer (an object's width as the session states it); no kind, row or leaf is written in any of them.
+ */
+export interface SessionResourcesRegister {
+    /** The objects collection (O1), where the game holds its objects, and its path. */
+    row: string
+    path: string
+    /** The selector attribute an object element is told apart by (its kind), and the leaf it sits at on an element. */
+    attribute: string
+    kindLeaf: string
+    /** The field counting an element's objects (O3), and its leaf: an element holds as many objects as it says, one where it says none. */
+    countRow: string
+    countLeaf: string
+    /** The object kinds a session states its availability of, in the register's order; each a member of the kind vocabulary. */
+    kinds: string[]
+}
+
+/**
+ * The session-resources block, validated as the rest of the register is (halt H1): its row must be a COLLECTION carrying the attribute as a
+ * selector attribute, the attribute read by a FIELD row of that collection with a vocabulary, every kind a member of that vocabulary (listed
+ * once), and the count row a FIELD of the collection. A register without the block (one written before version 19) has no session resource:
+ * no statement of objects is read, and no game is asked to be covered.
+ */
+function indexSessionResources(block: any, rows: Map<string, RegisterRow>, vocabularies: Map<string, string[]>): SessionResourcesRegister | null {
+    if (!block || typeof block !== 'object') return null
+    if (typeof block.note !== 'string' || !block.note.trim()) throw new HaltError('H1', 'sessionResources must say what it is and why (note)')
+    const row = String(block.row ?? '')
+    const collection = rows.get(row)
+    if (collection?.kind !== 'COLLECTION') throw new HaltError('H1', `sessionResources.row ${row} is not a COLLECTION row`)
+    const attribute = String(block.attribute ?? '')
+    if (!(collection.selectorAttributes ?? []).includes(attribute)) throw new HaltError('H1', `sessionResources.attribute ${attribute} is not a selector attribute of ${row}`)
+    const container = String(collection.path)
+    const leafOf = (id: string) => {
+        const path = String(rows.get(id)?.path ?? '')
+        return path.startsWith(`${container}.`) ? path.slice(container.length + 1) : ''
+    }
+    const attributeRow = [...rows.values()].find(candidate => candidate.kind === 'FIELD' && candidate.ownerRow === row && candidate.selectorAttribute === attribute)
+    const vocabulary = attributeRow ? vocabularies.get(`${attributeRow.id}.${attribute}`) : undefined
+    if (!attributeRow || !vocabulary || !vocabulary.length || !leafOf(attributeRow.id)) throw new HaltError('H1', `sessionResources.attribute ${attribute} is read by no FIELD row of ${row} with a vocabulary`)
+    const countRow = String(block.countRow ?? '')
+    if (rows.get(countRow)?.kind !== 'FIELD' || rows.get(countRow)?.ownerRow !== row || !leafOf(countRow)) throw new HaltError('H1', `sessionResources.countRow ${countRow} is not a FIELD row owned by ${row}`)
+    const kinds: string[] = Array.isArray(block.kinds) ? block.kinds.map(String) : []
+    if (!kinds.length || new Set(kinds).size !== kinds.length) throw new HaltError('H1', 'sessionResources.kinds must list at least one kind, each once')
+    for (const kind of kinds) if (!vocabulary.includes(kind)) throw new HaltError('H1', `sessionResources.kinds: ${kind} is not a member of the ${attributeRow.id}.${attribute} vocabulary`)
+    return { row, path: container, attribute, kindLeaf: leafOf(attributeRow.id), countRow, countLeaf: leafOf(countRow), kinds }
+}
+
+/**
  * **A machine-readable relative term the engine composes, validated at load (halt H1)** — register version 17, 23 October 2026, for RC-21's
  * `central` (kind `centred`). A centred term fixes the element's centre on one axis (`at` 0.5 of it) and states no extent; where its extent may
  * come from is a closed list the realizer implements (`CENTRED_EXTENT_SOURCES`). Any other kind is read as it always was.
@@ -703,6 +756,8 @@ export interface RegisterIndex {
     roleScoring: RoleScoringRegister | null
     /** The object-geometry capability's rows (register version 17, his reply filed 25 October 2026, item 3), or null without them. */
     objectGeometry: ObjectGeometryRegister | null
+    /** The objects a session states its availability of (register version 19, his reply filed 25 October 2026, item 4), or null without them. */
+    sessionResources: SessionResourcesRegister | null
     registerVersion: string
 }
 
@@ -966,6 +1021,7 @@ export function indexRegister(register: any): RegisterIndex {
         participants: indexParticipants(register.participants, rows, designations),
         roleScoring: indexRoleScoring(register.roleScoring, rows, vocabularies, roleBlocks),
         objectGeometry: indexObjectGeometry(register.objectGeometry, rows, vocabularies),
+        sessionResources: indexSessionResources(register.sessionResources, rows, vocabularies),
         registerVersion: register.version,
     }
 }

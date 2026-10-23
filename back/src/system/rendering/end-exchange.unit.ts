@@ -147,10 +147,12 @@ test('the register carries the end exchange as data (version 18): a game-level r
     for (const end of spec.ends) assert.equal(index.designations.resolutions.get(end)?.kind, 'SETUP_ASSIGNMENT')
     assert.match(String(index.vocabularyVersions['B10.endAssignment']), /^1 \(2026-10-23, register version 18, draft\)/)
     assert.equal(index.fillable.has(spec.row), false, 'not a realization choice: an authorized realization writes it, nothing chooses it')
-    assert.match(String(register.version), /^18, adds the coach-controlled end exchange, .*Supersedes version 17, which adds object targets and the geometry a goal needs, .*Supersedes version 16, which adds one primary scoring event per role, /)
+    // Re-pointed 23 October 2026 (stage E): version 19 (an object's availability as a session resource, his item 4) supersedes 18, once.
+    assert.match(String(register.version), /^19, adds an object's availability as a session resource, .*Supersedes version 18, which adds the coach-controlled end exchange, .*Supersedes version 17, which adds object targets and the geometry a goal needs, .*Supersedes version 16, which adds one primary scoring event per role, /)
     assert.ok(String(register.version).includes('"Team-end assignments may change between coach-controlled blocks when the authorized activity configuration requires it."'), 'the version entry quotes item 5')
     assert.equal(String(register.version).split('Supersedes version 17, ').length - 1, 1)
-    assert.ok(!String(register.version).includes('Supersedes version 18'), 'version 18 is the current entry')
+    assert.equal(String(register.version).split('Supersedes version 18, ').length - 1, 1)
+    assert.ok(!String(register.version).includes('Supersedes version 19'), 'version 19 is the current entry')
     // The glosses S3 restates are untouched: C42's fixed ends stay the reading of every game that states no exchange.
     assert.ok(String(register.teamDesignations.resolutions.TEAM_AT_AXIS_START.from).includes('fixed for the activity'))
     assert.ok(String(index.rows.get('B3')!.valueType).includes('change of ends can be stated here'))

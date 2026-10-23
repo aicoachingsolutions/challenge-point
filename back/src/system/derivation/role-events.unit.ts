@@ -141,7 +141,9 @@ test('register version 16 holds the rows as data, in one versions entry quoting 
     // read where it now stands, after "Supersedes version 16, which ", whole and once.
     const latest = String(register.version)
     // Re-pointed 23 October 2026 (stage D): version 18 (the coach-controlled end exchange) supersedes 17, which supersedes 16.
-    assert.ok(latest.startsWith('18, adds the coach-controlled end exchange'))
+    // Re-pointed 23 October 2026 (stage E): version 19 (an object's availability as a session resource) supersedes 18.
+    assert.ok(latest.startsWith("19, adds an object's availability as a session resource"))
+    assert.ok(latest.includes('Supersedes version 18, which adds the coach-controlled end exchange'))
     assert.ok(latest.includes('Supersedes version 17, which adds object targets and the geometry a goal needs'))
     assert.equal(latest.split('Supersedes version 16, which ').length - 1, 1, 'version 16 superseded once')
     const full = `16, ${latest.split('Supersedes version 16, which ')[1]}`

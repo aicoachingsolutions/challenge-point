@@ -337,6 +337,32 @@ export interface ProvisionalRealization extends LoadedContract {
      * so a test can hold the roster's answer to them; nothing in code limits a count. Null where none is recorded.
      */
     testingBoundaries: TestingBoundaries | null
+    /**
+     * **The realization this one is composed from, where it is a variant** (stage E, 23 October 2026, the design's Stage E; his reply filed 25
+     * October 2026, item 4: *"These should be alternative knowledge-authorized realizations, not separate hardcoded implementations of the
+     * same Learning Goal."*). A variant states the realization it is `basedOn`, the base's items it `withdraws` (each with why) and its own
+     * items; its items are the base's in their order without the withdrawn ones, then its own, composed once at load and held to an integrity
+     * gate (`validateProvisionalRealizations`). Absent on a realization that is no variant, which holds exactly its own items, as before.
+     */
+    basedOn?: string
+    withdrawn?: { itemId: string; because: string }[]
+    /**
+     * **What this realization's authorized knowledge says suits its objects of a kind** (stage E): a width range in metres per kind, each in
+     * his cited words. Read only by the availability rule (`realization/assemble-concrete-game.ts` objectAvailabilityRefusal); where a
+     * realization states none for a kind, no stated object of that kind suits it. Decision 4 of the note sent to him (goal suitability and
+     * size) is his: no production realization carries one on 23 October 2026, and only TEST-ONLY copies do.
+     */
+    objectSuitability?: ObjectSuitability[]
+}
+
+/** What a realization's authorized knowledge says suits its objects of one kind (stage E): a width range in metres, in his cited words. */
+export interface ObjectSuitability {
+    kind: string
+    widthM: { min: number | null; max: number | null }
+    ruledOn: string
+    by: string
+    citedAs: string
+    words: string[]
 }
 
 /** A realization's testing boundaries (stage K4): what its items should admit, in his words. */
@@ -375,6 +401,9 @@ export function validateProvisionalRealizations(
     objectRows: ObjectPositionRows | null = indexRegister(loadRegister()).objectGeometry,
     // Stage B review fix: the register's machine-readable relative terms, which say which centred term is on which axis.
     relativeTerms: Record<string, any> = loadRegister().relativeTerms?.machineReadable?.terms ?? {},
+    // Stage E (23 October 2026): the object kinds a session states its availability of (the register's sessionResources), the only kinds a
+    // realization's suitability may speak of.
+    objectKinds: string[] = indexRegister(loadRegister()).sessionResources?.kinds ?? [],
 ): string[] {
     const errors: string[] = []
     if (!file || typeof file !== 'object' || !filledText(file.about)) errors.push('the file says nothing about what it is (about)')
@@ -445,6 +474,125 @@ export function validateProvisionalRealizations(
         errors.push(...roleYieldMarkerRefusals(items, which))
         // Stage B (23 October 2026): no placeholder extent for an object, and no supersession or pairing.
         errors.push(...placeholderExtentRefusals(items, which, objectRows, relativeTerms))
+        // Stage E (23 October 2026): a variant's composition, and what its authorized knowledge says suits its objects.
+        errors.push(...variantRefusals(realization, realizations, which))
+        errors.push(...suitabilityRefusals(realization?.objectSuitability, which, objectKinds))
+    }
+    return errors
+}
+
+/**
+ * **The integrity gate of a variant** — stage E, 23 October 2026 (the design's Stage E: *"`basedOn` plus `withdraws` (each with a reason)
+ * plus added items, composed once and passed through an integrity gate"*; its risk 8, *"Variant composition dropping or duplicating
+ * items"*). A variant names a realization of the same file, which is itself no variant (composed once, never a chain), and realizes the same
+ * context; every item it withdraws is an item of that realization, named once, with why; it withdraws or adds something (a variant equal to
+ * its base would be a second name for one realization); and its composed items - the base's without the withdrawn ones, then its own - carry
+ * each id once. Its own items are held to every rule above like any realization's; the base's were held to them under the base. A
+ * realization that is no variant may withdraw nothing. Empty where nothing is refused.
+ */
+function variantRefusals(realization: any, realizations: any[], which: string): string[] {
+    const errors: string[] = []
+    const withdraws = realization?.withdraws
+    if (realization?.basedOn === undefined) {
+        if (withdraws !== undefined) errors.push(`${which} withdraws items and is based on no realization; only a variant (basedOn) withdraws`)
+        return errors
+    }
+    const baseId = String(realization.basedOn ?? '')
+    const base = realizations.find(candidate => candidate?.id === baseId)
+    if (!filledText(realization.basedOn) || baseId === String(realization?.id ?? '') || !base) {
+        errors.push(`${which} is based on ${JSON.stringify(realization.basedOn)}, which is no other realization of the file`)
+        return errors
+    }
+    if (base.basedOn !== undefined) errors.push(`${which} is based on ${baseId}, which is itself a variant: a variant is composed once, from a realization that is none`)
+    if (base.realizes !== realization.realizes) errors.push(`${which} realizes ${JSON.stringify(realization.realizes)} and its base ${baseId} realizes ${JSON.stringify(base.realizes)}`)
+    const baseIds: string[] = (Array.isArray(base.items) ? base.items : []).map((item: any) => String(item?.id ?? ''))
+    const list: any[] = Array.isArray(withdraws) ? withdraws : []
+    if (withdraws !== undefined && !Array.isArray(withdraws)) errors.push(`${which} lists its withdrawals as something other than a list`)
+    const withdrawn = new Set<string>()
+    for (const [i, entry] of list.entries()) {
+        const itemId = String(entry?.item ?? '')
+        if (!filledText(entry?.item) || !filledText(entry?.because)) errors.push(`${which}: withdrawal ${i + 1} must name the item and say why (item, because)`)
+        else if (!baseIds.includes(itemId)) errors.push(`${which} withdraws ${itemId}, which is no item of ${baseId}`)
+        if (withdrawn.has(itemId)) errors.push(`${which} withdraws ${itemId} twice`)
+        withdrawn.add(itemId)
+    }
+    const own: string[] = (Array.isArray(realization.items) ? realization.items : []).map((item: any) => String(item?.id ?? ''))
+    if (!withdrawn.size && !own.length) errors.push(`${which} withdraws nothing from ${baseId} and adds nothing to it, so it is ${baseId} under a second name`)
+    const composed = [...baseIds.filter(id => !withdrawn.has(id)), ...own]
+    const seen = new Set<string>()
+    for (const id of composed) {
+        if (seen.has(id)) errors.push(`${which}: its composed items carry ${id} twice`)
+        seen.add(id)
+    }
+    /**
+     * A reference inside the composed items to an item of the base or of the variant is a reference to an item of the variant once composed
+     * (`repointedTo`): it must name an item the composition keeps. A kept item that refers to a withdrawn one would leave the variant with a
+     * reference to nothing, so it is refused, named, and so is a reference to an item neither holds.
+     */
+    const kept = (Array.isArray(base.items) ? base.items : []).filter((item: any) => !withdrawn.has(String(item?.id ?? '')))
+    for (const item of [...kept, ...(Array.isArray(realization.items) ? realization.items : [])]) {
+        for (const ref of structuralRefsIn(item)) {
+            if (ref.contractId !== base.contractId && ref.contractId !== realization.contractId) continue
+            if (withdrawn.has(ref.itemId)) errors.push(`${which}: the item ${String(item?.id)} refers to ${ref.itemId}, which it withdraws`)
+            else if (!seen.has(ref.itemId)) errors.push(`${which}: the item ${String(item?.id)} refers to ${ref.itemId}, which its composed items do not hold`)
+        }
+    }
+    return errors
+}
+
+/** Every typed structural reference inside a value (`{ structuralRef: { contractId, itemId } }`, at any depth). */
+function structuralRefsIn(value: unknown): { contractId: string; itemId: string }[] {
+    if (!value || typeof value !== 'object') return []
+    if (Array.isArray(value)) return value.flatMap(structuralRefsIn)
+    const ref = (value as { structuralRef?: { contractId?: unknown; itemId?: unknown } }).structuralRef
+    const own = ref && typeof ref === 'object' && typeof ref.contractId === 'string' && typeof ref.itemId === 'string' ? [{ contractId: ref.contractId, itemId: ref.itemId }] : []
+    return [...own, ...Object.entries(value as Record<string, unknown>).filter(([key]) => key !== 'structuralRef').flatMap(([, inner]) => structuralRefsIn(inner))]
+}
+
+/**
+ * A copy of a value with every typed structural reference to the contract `from` re-pointed to the contract `to` (stage E): a variant's
+ * composed items are ONE contract, so a kept item's reference to another item of its base reads as a reference to that item in the variant.
+ * Nothing else is touched (prose that mentions an id stays as written).
+ */
+function repointedTo(value: unknown, from: string, to: string): unknown {
+    if (!value || typeof value !== 'object') return value
+    if (Array.isArray(value)) return value.map(inner => repointedTo(inner, from, to))
+    const out: Record<string, unknown> = {}
+    for (const [key, inner] of Object.entries(value as Record<string, unknown>)) {
+        if (key === 'structuralRef' && inner && typeof inner === 'object' && (inner as { contractId?: unknown }).contractId === from) out[key] = { ...(inner as Record<string, unknown>), contractId: to }
+        else out[key] = repointedTo(inner, from, to)
+    }
+    return out
+}
+
+/**
+ * **What a realization's authorized knowledge says suits its objects** — stage E, 23 October 2026. Christian, reply filed 25 October 2026,
+ * item 3: *"[Object] dimensions and suitability should be determined through approved [sport] knowledge and available equipment."* (His
+ * nouns bracketed for the coupling ratchet.) Each entry
+ * speaks of one kind the register's sessionResources lists, once, as a width range in metres (at least one bound, each more than zero, the
+ * lower not above the upper), in his cited words with who ruled it and when. His decision 4 of the note sent to him is still open: no
+ * production realization carries an entry, and a realization carrying one without his words is refused whole.
+ */
+function suitabilityRefusals(entries: unknown, which: string, objectKinds: string[]): string[] {
+    if (entries === undefined) return []
+    if (!Array.isArray(entries)) return [`${which} states its object suitability as something other than a list`]
+    const errors: string[] = []
+    const kinds = new Set<string>()
+    const bound = (value: unknown) => value === null || (typeof value === 'number' && Number.isFinite(value) && value > 0)
+    for (const [i, entry] of entries.entries()) {
+        const at = `${which}: object suitability ${i + 1}`
+        const kind = String(entry?.kind ?? '')
+        if (!objectKinds.includes(kind)) errors.push(`${at} speaks of ${JSON.stringify(entry?.kind)}, which is no kind a session states its availability of (${objectKinds.join(', ') || 'none'})`)
+        if (kinds.has(kind)) errors.push(`${at} speaks of ${kind} a second time`)
+        kinds.add(kind)
+        const min = entry?.widthM?.min
+        const max = entry?.widthM?.max
+        if (!bound(min) || !bound(max) || (min === null && max === null) || (typeof min === 'number' && typeof max === 'number' && min > max)) {
+            errors.push(`${at} must state a width range in metres (widthM.min and widthM.max, each null or more than zero, at least one stated, the lower not above the upper)`)
+        }
+        if (!filledText(entry?.ruledOn) || !filledText(entry?.by) || !filledText(entry?.citedAs) || !Array.isArray(entry?.words) || !entry.words.length || !entry.words.every(filledText)) {
+            errors.push(`${at} does not quote him (ruledOn, by, citedAs and his words are all required)`)
+        }
     }
     return errors
 }
@@ -457,14 +605,32 @@ export function loadProvisionalRealizations(file: any = readJson(PROVISIONAL_REA
     const errors = validateProvisionalRealizations(file)
     if (errors.length) throw new Error(`${PROVISIONAL_REALIZATIONS_FILE} failed its integrity gate: ${errors.join(' | ')}`)
     const copy = JSON.parse(JSON.stringify(file))
+    /**
+     * A variant's items composed once (stage E): its base's, in their order, without the ones it withdraws, then its own, every typed reference
+     * to an item of the base re-pointed to the variant (`repointedTo`: one contract). The gate above has already refused a variant whose base
+     * is missing or itself a variant, a withdrawal naming no item of the base, a composition carrying an id twice and a reference to an item
+     * the composition does not keep, so this reads the file and decides nothing. A realization that is no variant holds exactly its own items.
+     */
+    const rawById = new Map((copy.realizations as any[]).map(realization => [String(realization.id), realization]))
+    const composedItems = (realization: any): any[] => {
+        if (realization.basedOn === undefined) return realization.items as any[]
+        const withdrawn = new Set(((realization.withdraws ?? []) as any[]).map(entry => String(entry.item)))
+        const base = rawById.get(String(realization.basedOn))
+        const items = [...(base.items as any[]).filter(item => !withdrawn.has(String(item.id))), ...(realization.items as any[])]
+        return items.map(item => repointedTo(item, String(base.contractId), String(realization.contractId)))
+    }
     return (copy.realizations as any[]).map(realization => ({
         contractId: String(realization.contractId),
         objectId: String(realization.contractId),
         knowledgeVersion: 'stage-b',
-        items: (realization.items as any[]).map(item => {
+        items: composedItems(realization).map(item => {
             const { id, ...rest } = item
             return { itemId: String(id), ...rest } as ContractItem
         }),
+        ...(realization.basedOn !== undefined
+            ? { basedOn: String(realization.basedOn), withdrawn: ((realization.withdraws ?? []) as any[]).map(entry => ({ itemId: String(entry.item), because: String(entry.because) })) }
+            : {}),
+        ...(Array.isArray(realization.objectSuitability) ? { objectSuitability: JSON.parse(JSON.stringify(realization.objectSuitability)) as ObjectSuitability[] } : {}),
         declarations: [],
         relationshipRules: [],
         provisionalId: String(realization.id),
