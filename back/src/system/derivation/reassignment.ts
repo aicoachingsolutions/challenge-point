@@ -156,27 +156,32 @@ export function resolveRelativeCounts(
 /**
  * **The change in each team's counts from one block to the next, as the reassignments state it** — keyed by the team's
  * handle, then by the row that counts the performers. The team newly holding `toRole` gains `count`, the team that held it
- * loses `count`; every other change is zero. `bindings` are the end-to-team bindings realization recorded (identical in
- * both blocks, RB-2). Problems where a role is not held by a bound team in either block, or does not pass at the exchange.
+ * loses `count`; every other change is zero. `fromBindings` and `toBindings` are the end-to-team bindings realization recorded
+ * in each block: identical where each team keeps its end (RB-2), and the first block's exchanged where the teams change ends
+ * (stage D, 23 October 2026, register row B10, his reply filed 25 October 2026, item 5), so the team newly holding a role is read
+ * through the block it holds it in. Problems where a role is not held by a bound team in either block, or does not pass at the
+ * exchange.
  */
 export function expectedChange(
     reassignments: Reassignment[],
     from: RoleBlock,
     to: RoleBlock,
-    bindings: { designation: string; handle: string }[],
+    fromBindings: { designation: string; handle: string }[],
+    toBindings: { designation: string; handle: string }[],
     index: RegisterIndex,
 ): { change: Map<string, Map<string, number>>; problems: string[] } {
     const change = new Map<string, Map<string, number>>()
     const problems: string[] = []
-    const handleOf = (setup: string | undefined) => (setup ? bindings.find(binding => designationKey(index, binding.designation) === designationKey(index, setup))?.handle : undefined)
+    const handleIn = (bindings: { designation: string; handle: string }[], setup: string | undefined) =>
+        setup ? bindings.find(binding => designationKey(index, binding.designation) === designationKey(index, setup))?.handle : undefined
     const add = (handle: string, row: string, n: number) => {
         const rows = change.get(handle) ?? new Map<string, number>()
         rows.set(row, (rows.get(row) ?? 0) + n)
         change.set(handle, rows)
     }
     for (const reassignment of reassignments) {
-        const gaining = handleOf(to.holders[reassignment.toRole])
-        const losing = handleOf(from.holders[reassignment.toRole])
+        const gaining = handleIn(toBindings, to.holders[reassignment.toRole])
+        const losing = handleIn(fromBindings, from.holders[reassignment.toRole])
         if (!gaining || !losing) {
             problems.push(`the ${reassignment.toRole} role is not held by a team realization bound to an end in both blocks, so where ${reassignment.elementId}'s performers go cannot be told`)
             continue

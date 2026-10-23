@@ -15,7 +15,8 @@
  *   3. T15: an end-line anchor naming a team in prose, on an element whose own selector fixes no end, is refused, never a fixed anchor;
  *   4. `central` composes from a required extent or the width the session states, and refuses without one (no placeholder);
  *   5. THE END-KEYED GOAL VERSION (TEST-ONLY): block 1 passes every structural, realization and post-realization check and stops only at
- *      communication (fidelity Q3); the goal version under KEPT is refused (block 2); no width is a refusal; the zero-depth goal stands only
+ *      communication (fidelity Q3); the goal version under KEPT is refused (block 2), and since stage D (23 October 2026, row B10) under
+ *      EXCHANGED both blocks and every cross-block check pass and it stops only at communication; no width is a refusal; the zero-depth goal stands only
  *      with the register's extent row; GA-DIRECTION reads the object target; the facing row reaches the game;
  *   6. the `defersWith` pairing in the deferral and in the restatement loader;
  *   7. the provisional loader refuses a placeholder extent, a supersession and a pairing;
@@ -82,11 +83,16 @@ const halts = (damage: (r: any) => void, message: RegExp, label: string) => {
 
 // ── 1. The register ─────────────────────────────────────────────────────────────────────────────────────
 test('register version 17 holds the rows as data, in one versions entry quoting him', () => {
-    const full = String(register.version)
+    // Re-pointed 23 October 2026 (stage D): version 18 (the coach-controlled end exchange, his reply filed 25 October 2026, item 5) supersedes
+    // 17, so version 17's entry is read where it now stands, after "Supersedes version 17, which ", whole and once.
+    const latest = String(register.version)
+    assert.ok(latest.startsWith('18, adds the coach-controlled end exchange'))
+    assert.equal(latest.split('Supersedes version 17, which ').length - 1, 1, 'version 17 superseded once')
+    assert.ok(!latest.includes('Supersedes version 18'), 'version 18 is the current entry')
+    const full = `17, ${latest.split('Supersedes version 17, which ')[1]}`
     assert.ok(full.startsWith('17, adds object targets and the geometry a goal needs, for his reply filed 25 October 2026, item 3'))
     for (const quote of HIS_ITEM_3) assert.ok(full.split('Supersedes version 16, ')[0].includes(`"${quote}"`), quote)
     assert.equal(full.split('Supersedes version 16, which adds one primary scoring event per role').length - 1, 1, 'version 16 superseded once')
-    assert.ok(!full.includes('Supersedes version 17'), 'version 17 is the current entry')
     const o6 = index.rows.get('O6')!
     assert.deepEqual([o6.path, o6.ownerRow, o6.kind], ['objects[].facing', 'O1', 'FIELD'])
     assert.deepEqual(index.vocabularies.get('O6.facing'), ['INTO_THE_AREA'])
@@ -417,6 +423,33 @@ test('the goal version under KEPT is refused: in block 2 the pressing role holds
     assert.deepEqual([keptBlock2.end, /a cycle/.test(keptBlock2.why)], [null, true])
     // Block 1 of the same build is untouched by block 2's refusal: it reaches communication (above).
     assert.ok(reasonsOf(activity, BLOCK_1).every(reason => atCommunication(reason)))
+})
+
+/**
+ * **THE GOAL VERSION UNDER EXCHANGED** — stage D, 23 October 2026 (register version 18, row B10; his reply filed 25 October 2026, item 5:
+ * "The outfield groups exchange ends and building/pressing responsibilities when the coach calls for the next block." and "The coach should
+ * not have to move the goal or reconstruct the playing area to exchange roles."). The same TEST-ONLY build with a TEST-ONLY end assignment
+ * EXCHANGED: both blocks keep the first block's holders, so the pressing role stays at the end its objective's key names and the goal stays
+ * at the building team's end, and the second block's teams stand at the other ends. Where KEPT refused block 2 before realization, both
+ * blocks now pass every gate before, at and after realization, every cross-block check passes, and the build stops only at communication:
+ * the goal and the pressing role's goal have no words yet (Stage G).
+ */
+test('THE GOAL VERSION UNDER EXCHANGED (TEST-ONLY, stage D): both blocks pass every gate and every cross-block check, and stop only at communication', () => {
+    const activity = goalBuild({ extra: [testItem('TEST-B10', 'B10', '*', 'EQUALS', 'EXCHANGED')] })
+    assert.equal(activity.outcome, 'refused')
+    assert.equal(activity.stage, 'communication', activity.reasons.join(' | '))
+    const ids = [`${BLOCK_1}|TEAM_AT_AXIS_START<TEAM_AT_AXIS_START,TEAM_AT_AXIS_END<TEAM_AT_AXIS_END`, `${BLOCK_1}|TEAM_AT_AXIS_START<TEAM_AT_AXIS_END,TEAM_AT_AXIS_END<TEAM_AT_AXIS_START`]
+    for (const id of ids) {
+        const reasons = reasonsOf(activity, id)
+        assert.ok(reasons.length > 0, `${id}: ${activity.reasons.join(' | ')}`)
+        assert.ok(!reasons.some(reason => /GA-|realization refused|Gate A|post-realization/.test(reason)), reasons.join(' | '))
+        for (const path of [`${GOAL}.position.along`, `${GOAL}.position.across`]) assert.ok(reasons.includes(`fidelity Q3: ${path} is established by the game and no instruction carries it`), `${id} ${path}: ${reasons.join(' | ')}`)
+        assert.ok(reasons.includes('awaiting approved wording: activityRoles[c:provisional:A01-R1:A01-R1-B1-2].scoresBy (B9)'), reasons.join(' | '))
+    }
+    // Refused at communication, so the cross-block checks (validation, run before it) all passed: a failing one refuses at validation.
+    assert.ok(!activity.reasons.some(reason => /^RB-|the two role blocks do not agree/.test(reason)), activity.reasons.join(' | '))
+    // The goal is set out once (the layout reads it at the building team's end line in both blocks), so nothing moves at the exchange.
+    assert.ok(activity.reasons.some(reason => reason.endsWith(`fidelity Q5: the object c:${P}:TEST-GOAL (layout.objects[object-1]) is set out once and no Set up sentence tells the coach to place it`)), activity.reasons.join(' | '))
 })
 
 test('no width is a refusal: the goal is centred only on a width the session states', () => {

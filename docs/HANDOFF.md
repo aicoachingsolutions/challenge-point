@@ -8803,3 +8803,36 @@ NEXT: Stage D (end exchange: Q6's ends statement and counterpartMap's axis mirro
   stage B.
 - Left open: RB-1's description still omits objects and roles (admin text, so snapshot leaves stay stable); update it at
   the next recorded delta.
+
+### 23 October — Stage D: the coach-controlled end exchange (his reply filed 25 October, item 5)
+
+- Register version 18: game-level row B10 `blocks.endAssignment` (closed list KEPT / EXCHANGED, versioned; never a field of
+  the role collection) and the `endAssignment` block (row, kept, exchanged, the two ends TEAM_AT_AXIS_START / END), apart
+  from roleBlocks and reassignment, validated at load (H1). ABSENT MEANS KEPT: no item writes B10, so every game gains one
+  unauthored game-level line (game::B10, like P6c) and keeps its ends. C42 / B1 / B3 / TEAM_AT_AXIS_* glosses untouched
+  until his restatement S3.
+- Semantics under EXCHANGED: both blocks keep block 1's role-to-end holders; the second block's `RoleBlock.ends` swaps which
+  block-1 team stands at each end, and realize.ts applies it to the supplied binding (because cites B10; entailed, checked:
+  a block and a game that disagree, a malformed block, or an exchange with no binding are refused). NOT exchangeOf plus a
+  swap. blockId gains `|START<..,END<..` only under EXCHANGED: every KEPT id, fixture and key is unchanged.
+- EXCHANGED without role blocks is refused at structure (roleBlocksOf; build-activity asks a selection with a B10 item).
+- Cross-block (rendering/role-blocks.ts), unchanged under KEPT: RB-2 holders identical + binding exchanged; RB-5 the entailed
+  second block (secondBlockOf) + role to TEAM (never the same team for a role in both blocks); RB-8 same place, not mirror;
+  counterpartMap mirrors nothing (blocks disagreeing on ends pair nothing); RB-M and expectedChange read each block's own
+  binding. Q6 under EXCHANGED requires a Role exchange sentence citing exchange + objectives + B10 AND saying the ends
+  change; ENDS_KEPT words refused there; ENDS_CHANGE refused only under KEPT.
+- Renderer (DRAFT, only where the game states EXCHANGED): "When you call the next block the teams change ends and exchange
+  roles: each role is played from the same end in every block" + the existing continuations joined by "so"; "the ends stay
+  the same for the whole game" is not said.
+- TEST-ONLY proofs (`rendering/end-exchange.unit.ts`, 12): equal counts move nobody (possession game with roles, served);
+  A01-R1 + a TEST-ONLY B10 served at 12/1 and 11/1 with GK (+1) moving to the team at the building end (the old reading
+  refused "the BUILDING role stays with one team"); an unrecorded change refused. object-targets.unit.ts: the TEST-ONLY
+  goal version under EXCHANGED passes every gate in both blocks and every cross-block check, stopping only at communication
+  (Stage G words; the goal is set out once). 27 mutations killed.
+- Snapshot vs snap-C: only A01 registerVersion 17 -> 18, input digests and the two save refusals quoting them. A01 11/1 on
+  the built bundle: the same delta.
+- Open for Stage G: the layout exchange sentence says "target line" where a target is an object (targetNoun fallback); the
+  goalkeeper-changes-team-without-moving sentence; the served account and the review page show the same holders for both
+  blocks under EXCHANGED (the block's `ends` is in each fixture's record only).
+
+NEXT: Stage E (resource-aware selection) plumbing; F/G after his answers.

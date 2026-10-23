@@ -284,6 +284,8 @@ export const KIND_OF_ROW: Record<string, Kind | 'TRANSITION' | 'NAME'> = {
     B8: 'SCORING',
     // A role's own primary scoring event (register version 16, stage A, 22 October 2026): how that team scores, so How to score, as V1.
     B9: 'SCORING',
+    // Whether the teams change ends at a coach-called block (register version 18, stage D, 23 October 2026): said with the exchange, as B3.
+    B10: 'ROLE_EXCHANGE',
 }
 
 /**

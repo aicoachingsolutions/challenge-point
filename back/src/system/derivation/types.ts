@@ -437,6 +437,16 @@ export interface RoleBlock {
     blockId: string
     /** Role -> the setup assignment holding it in this block. */
     holders: Record<string, string>
+    /**
+     * **Which team stands at each end in this block, where the ends are exchanged** — stage D, 23 October 2026, register version 18 (row
+     * B10, the endAssignment block), his reply filed 25 October 2026, item 5: *"Team-end assignments may change between coach-controlled
+     * blocks when the authorized activity configuration requires it."* Each end (a setup assignment) -> the setup assignment whose team, as
+     * realization binds it for the first block, holds that end in this block: the identity in the first block, the two ends exchanged in the
+     * second. Present only where the game's end assignment is the exchange, so every block of a game that keeps its ends is exactly what it
+     * was (its id, its fixture and every key read from it). Entailed, never chosen (`role-blocks.ts`); applied by realization to the binding
+     * it was given (`realize.ts`), so team identity stays the binding's and the end stays the designation's.
+     */
+    ends?: Record<string, string>
 }
 
 export interface ResolutionLine {

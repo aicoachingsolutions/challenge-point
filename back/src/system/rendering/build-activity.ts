@@ -1239,7 +1239,13 @@ function build(
         return { ...(outcome.diagram ? { diagram: outcome.diagram } : {}), ...(review.includeDrafts ? { diagramDraft: outcome.draft } : {}) }
     }
     const rolesRow = roleIndex.roleBlocks?.rolesRow
-    if (rolesRow && (input.contracts as LoadedContract[]).some(contract => (contract.items ?? []).some(item => String(item.row) === rolesRow))) {
+    /**
+     * Stage D (23 October 2026, register version 18): a selection carrying an item on the end-assignment row (B10) is asked too, so an
+     * exchange of ends in a game establishing no role is refused here (`roleBlocksOf`: blocks exist only where the roles exchange), never
+     * built as a single game with the exchange left unread. Every other selection is asked exactly as before.
+     */
+    const endRow = roleIndex.endAssignment?.row
+    if (rolesRow && (input.contracts as LoadedContract[]).some(contract => (contract.items ?? []).some(item => String(item.row) === rolesRow || (!!endRow && String(item.row) === endRow)))) {
         const base: any = runStages0to5(input)
         const found = base.run.halted || !base.derived ? null : roleBlocksOf(base.classes, base.derived.lines, roleIndex)
         if (found?.kind === 'REFUSED') {

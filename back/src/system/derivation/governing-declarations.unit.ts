@@ -135,8 +135,10 @@ test('corpus-wide, exactly five lines move, each as the design analysis predicte
     // the objective reference of the scoring team, so both lines are derived. Pinned in typed-referent.unit.ts.
     // 27 -> 28 on 23 October 2026 (stage B): register version 17 adds row O6 (the way a set-out object faces); the transition game's
     // object (c:blind:GF4:I02) gains one line no item speaks for, decided from declarations as 'no coverage'. It never moves here.
+    // 28 -> 29 on 23 October 2026 (stage D): register version 18 adds the game-level row B10 (whether the teams change ends); game::B10
+    // is a line no item speaks for, decided from declarations as 'no coverage'. It never moves here.
     const corpus = run('corpus')
-    assert.equal(corpus.reasons.size, 28)
+    assert.equal(corpus.reasons.size, 29)
     assert.deepEqual(moves(corpus), [
         // An exclusion scoped to Wide Zone's OWN involvement had been relabelling regions it never addressed.
         'c:blind:GF4:I03::S4: excluded -> not constrained',

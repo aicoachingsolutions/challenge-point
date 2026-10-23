@@ -94,7 +94,8 @@ test('the register carries the role-block capability as data (version 10), each 
     // Re-pointed 22 October 2026: version 15 (which participant a value names, his reply filed 25 October 2026, item 6) supersedes 14.
     // Re-pointed 22 October 2026 (stage A): version 16 (one primary scoring event per role, his reply filed 25 October 2026, item 2) supersedes 15.
     // Re-pointed 23 October 2026 (stage B): version 17 (object targets and the geometry a goal needs, his reply filed 25 October 2026, item 3) supersedes 16.
-    assert.match(String(register.version), /^17, adds object targets and the geometry a goal needs, .*Supersedes version 16, which adds one primary scoring event per role, .*Supersedes version 15, which adds which participant a value names, .*Supersedes version 14, which adds a role's scoring credit.*Supersedes version 13, which adds positions stated relative .*Supersedes version 12, which adds starts and restarts .*Supersedes version 11, which adds participant reassignment .*Supersedes version 10, which adds role blocks for his M1/)
+    // Re-pointed 23 October 2026 (stage D): version 18 (the coach-controlled end exchange, his reply filed 25 October 2026, item 5) supersedes 17.
+    assert.match(String(register.version), /^18, adds the coach-controlled end exchange, .*Supersedes version 17, which adds object targets and the geometry a goal needs, .*Supersedes version 16, which adds one primary scoring event per role, .*Supersedes version 15, which adds which participant a value names, .*Supersedes version 14, which adds a role's scoring credit.*Supersedes version 13, which adds positions stated relative .*Supersedes version 12, which adds starts and restarts .*Supersedes version 11, which adds participant reassignment .*Supersedes version 10, which adds role blocks for his M1/)
     assert.ok(String(register.version).includes('Keep role assignments separate from fixed ends.'), 'the version entry quotes M1')
     assert.ok(String(register.version).includes('Supersedes version 9'), 'and keeps the history')
     assert.ok(index.rows.get('S2')!.selectorAttributes!.includes('targetOf'))
@@ -146,6 +147,9 @@ test('the index refuses a damaged role-block or targetOf block (halt H1)', () =>
     // 22 October 2026 (stage A): nor version 16's role-scoring block, which needs role blocks too (a register keeping it without them
     // halts H1, role-events.unit.ts) — so the copy drops it as well.
     delete before.roleScoring
+    // 23 October 2026 (stage D): nor version 18's end-assignment block, which needs role blocks too (a register keeping it without them
+    // halts H1, end-exchange.unit.ts) — so the copy drops it as well.
+    delete before.endAssignment
     assert.equal(indexRegister(before).roleBlocks, null)
     assert.equal(indexRegister(before).targetOf, null)
 })

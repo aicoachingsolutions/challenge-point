@@ -505,6 +505,53 @@ function indexReassignment(block: any, rows: Map<string, RegisterRow>, roleBlock
 }
 
 /**
+ * **Where the end-exchange capability finds its row** — register version 18, 23 October 2026 (stage D), for his reply filed 25 October
+ * 2026, item 5: *"Team-end assignments may change between coach-controlled blocks when the authorized activity configuration requires
+ * it."* *"Please keep the following concepts separate in the general representation: Team identity. Assigned game role. Assigned field
+ * end. Participant membership and reassignment."* Read by `derivation/role-blocks.ts` (`endAssignmentOf`), `realization/realize.ts`, the
+ * cross-block checks and fidelity Q6 (`rendering/role-blocks.ts`) and the renderer; no row, value or designation is written there.
+ */
+export interface EndAssignmentRegister {
+    /** The game-level FIELD row saying whether the teams change ends at a coach-called block (`blocks.endAssignment`). */
+    row: string
+    /** Its path in a game. */
+    path: string
+    /** The closed list, in the register's order. */
+    values: string[]
+    /** The value a game no item writes the row for is played as: each team keeps its end. */
+    kept: string
+    /** The value under which the second block keeps the first block's holders and exchanges which team holds each end. */
+    exchanged: string
+    /** The two end-assigned designations (SETUP_ASSIGNMENT) whose teams change ends, as the list spells them. */
+    ends: string[]
+}
+
+/**
+ * The end-assignment block, validated as the rest of the register is (halt H1): its row must be a game-level FIELD row (never a field of
+ * the role collection: his item 5 keeps role and end apart), its vocabulary exactly its two values, and its ends exactly two
+ * SETUP_ASSIGNMENT designations of the list. A register without the block (one written before version 18) has no end exchange, and every
+ * game keeps its ends. It needs the role-block capability: the ends change only at a coach-called block, and blocks exist only where the
+ * roles exchange.
+ */
+function indexEndAssignment(block: any, rows: Map<string, RegisterRow>, vocabularies: Map<string, string[]>, roleBlocks: RoleBlockRegister | null, designations: DesignationRegister): EndAssignmentRegister | null {
+    if (!block || typeof block !== 'object') return null
+    if (!roleBlocks) throw new HaltError('H1', 'endAssignment: the ends change only at a coach-called block, and the register has no roleBlocks block')
+    const row = String(block.row ?? '')
+    const entry = rows.get(row)
+    if (entry?.kind !== 'FIELD' || entry.ownerRow) throw new HaltError('H1', `endAssignment.row ${row} is not a game-level FIELD row (the end assignment is never a field of a collection)`)
+    if (row === roleBlocks.exchangeRow || entry.ownerRow === roleBlocks.rolesRow) throw new HaltError('H1', `endAssignment.row ${row} is a field of the role collection`)
+    const values = vocabularies.get(String(block.vocabulary ?? ''))
+    if (!values || values.length !== 2) throw new HaltError('H1', `endAssignment.vocabulary ${block.vocabulary} must be a vocabulary of exactly two values`)
+    const [kept, exchanged] = [String(block.kept ?? ''), String(block.exchanged ?? '')]
+    if (!values.includes(kept) || !values.includes(exchanged) || kept === exchanged) throw new HaltError('H1', `endAssignment: kept (${kept}) and exchanged (${exchanged}) must be the two different members of ${block.vocabulary}`)
+    const ends: string[] = Array.isArray(block.ends) ? block.ends.map(String) : []
+    if (ends.length !== 2 || new Set(ends).size !== 2 || ends.some(end => designations.resolutions.get(end)?.kind !== 'SETUP_ASSIGNMENT')) {
+        throw new HaltError('H1', `endAssignment.ends ${JSON.stringify(block.ends ?? null)} must be two different SETUP_ASSIGNMENT designations of the list`)
+    }
+    return { row, path: String(entry.path), values: [...values], kept, exchanged, ends }
+}
+
+/**
  * **Which participant a value names, where it is not a specialized role — register version 15, 22 October 2026.** Christian,
  * reply filed 25 October 2026, item 6: *"Any participant or role required by an activity must actually be present in the
  * authorized configuration."* *"This safeguard should not depend on particular wording or on the current realization's existing
@@ -648,6 +695,8 @@ export interface RegisterIndex {
     targetOf: TargetOfRegister | null
     /** The participant-reassignment capability's rows (register version 11, his RD-1 answer), or null without it. */
     reassignment: ReassignmentRegister | null
+    /** The end-exchange capability's row (register version 18, his reply filed 25 October 2026, item 5), or null without it. */
+    endAssignment: EndAssignmentRegister | null
     /** The participant forms beside the specialized roles (register version 15, his reply filed 25 October 2026, item 6), or null without them. */
     participants: ParticipantRegister | null
     /** The role-scoring capability's rows (register version 16, his reply filed 25 October 2026, item 2), or null without them. */
@@ -913,6 +962,7 @@ export function indexRegister(register: any): RegisterIndex {
         roleBlocks,
         targetOf: indexTargetOf(register.targetOf, rows, vocabularies, designations),
         reassignment: indexReassignment(register.reassignment, rows, roleBlocks, designations),
+        endAssignment: indexEndAssignment(register.endAssignment, rows, vocabularies, roleBlocks, designations),
         participants: indexParticipants(register.participants, rows, designations),
         roleScoring: indexRoleScoring(register.roleScoring, rows, vocabularies, roleBlocks),
         objectGeometry: indexObjectGeometry(register.objectGeometry, rows, vocabularies),

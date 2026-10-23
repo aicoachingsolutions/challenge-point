@@ -115,5 +115,6 @@
     "./src/system/derivation/participants-present.unit.ts",
     "./src/system/derivation/role-events.unit.ts",
     "./src/system/realization/object-targets.unit.ts",
-    "./src/system/rendering/objects-across-blocks.unit.ts"
+    "./src/system/rendering/objects-across-blocks.unit.ts",
+    "./src/system/rendering/end-exchange.unit.ts"
 ]

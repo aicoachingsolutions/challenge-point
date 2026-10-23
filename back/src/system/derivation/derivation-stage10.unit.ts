@@ -987,7 +987,12 @@ test('the corpus run reproduces the reported figures exactly', () => {
      * (c:blind:GF4:I02, unauthored and unspoken: no item writes a facing) and two balls (A01-02-08.a, RPC-001-10.a), each WITHDRAWN exactly
      * as their O4 and O5 lines are. Nothing resolves and nothing blocks.
      */
-    assert.equal(result.run.counts.lines, 139)
+    /**
+     * **140 since 23 October 2026 (stage D)**: register version 18 (his reply filed 25 October 2026, item 5) adds the game-level row B10,
+     * whether the teams change ends at a coach-called block. One game-level row, one line (game::B10), as P6c added one; no item writes it,
+     * so it is unauthored and unspoken and the game keeps its ends (absent means KEPT). Nothing resolves and nothing blocks.
+     */
+    assert.equal(result.run.counts.lines, 140)
     /**
      * **61, up from 59.** The same restatement establishes `perceptual-reference` on BOTH channels rather
      * than on a third region of its own, so two S4 lines now resolve where none did. The functions rows
@@ -1052,9 +1057,11 @@ test('the corpus run reproduces the reported figures exactly', () => {
     // value line from 'declared gap' to 'excluded' on this mixed load — still unauthored, so it stays counted here.)
     // **28 since stage B, 23 October 2026 (register version 17).** Row O6 (the way a set-out object faces) on the transition game's
     // object (c:blind:GF4:I02): no item writes a facing, so the line is unauthored and unspoken ('no coverage'); it blocks nothing.
-    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 28)
+    // **29 since stage D, 23 October 2026 (register version 18).** The game-level row B10 (whether the teams change ends): no item writes
+    // it, so game::B10 is unauthored and unspoken ('no coverage'), and the game keeps its ends; it blocks nothing.
+    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 29)
     assert.equal(result.failures.filter((f: any) => f.kind === 'REFERENCE_DEFECT').length, 0, 'cluster 3 cleared the whole population')
-    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 28, 'one GAP per unauthored line, and none for a withdrawn one -- 28 since stage B (O6), tracking the NOT_AUTHORED count above')
+    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 29, 'one GAP per unauthored line, and none for a withdrawn one -- 29 since stage D (B10), tracking the NOT_AUTHORED count above')
     // 17 since C33: the removed third region took its one open S5 line (a channel along-extent) with it.
     // **18 since ruling C42.** The two new target regions each bring an open across-extent and an open noun,
     // and the retired shared target took its two with it, so the balance is one more than before.

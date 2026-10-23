@@ -1207,6 +1207,60 @@ export function realize(
         appliedBindings.push(...bindings.map(binding => ({ ...binding })))
     }
 
+    /**
+     * **Where the teams change ends at the coach-called block, the second block's binding is the first's exchanged** — stage D, 23 October
+     * 2026 (register version 18, row B10), his reply filed 25 October 2026, item 5: *"Team-end assignments may change between
+     * coach-controlled blocks when the authorized activity configuration requires it."* and *"Please keep the following concepts separate in
+     * the general representation: Team identity. Assigned game role. Assigned field end."* The supplied binding is the first block's (which
+     * team takes which end at setup, SD-39); the block says which first-block end's team stands at each end in it (`RoleBlock.ends`), so
+     * here each end is bound to the team the supplied binding gives the end it names, with a reason citing the end assignment. Entailed,
+     * never chosen, and checked before it is applied:
+     *
+     *   - a block that sets the teams' ends is derived only for a game whose end assignment is the exchange, and a game whose end assignment
+     *     is the exchange only for a block that sets them (so the value in the game and the block it was derived for cannot disagree);
+     *   - the block stands one team at each of the register's two ends;
+     *   - where a team changes end in the block, a binding was supplied for it to change (team identity is the binding's, never an ordinal).
+     *
+     * The realization digest is still taken from the binding as supplied, above. A game whose end assignment addresses nothing, or keeps the
+     * ends, is realized exactly as before.
+     */
+    const endSpec = index?.endAssignment ?? null
+    const endValue = endSpec ? readAt(resolved.game, endSpec.path) : undefined
+    const endsExchanged = !!endSpec && endValue === endSpec.exchanged
+    if (endSpec && (roleBlock?.ends || endsExchanged)) {
+        const refusals: string[] = []
+        const ends = roleBlock?.ends ?? null
+        if (ends && !endsExchanged) refusals.push(`the role block ${roleBlock!.blockId} sets which team stands at each end, and this game's ${endSpec.path} is ${JSON.stringify(endValue ?? null)}, not ${endSpec.exchanged}`)
+        if (endsExchanged && !roleBlock) refusals.push(`this game's ${endSpec.path} is ${endSpec.exchanged}, and it is derived for no role block: the teams change ends only at a coach-called block`)
+        else if (endsExchanged && !ends) refusals.push(`this game's ${endSpec.path} is ${endSpec.exchanged}, and the role block ${roleBlock!.blockId} does not say which team stands at each end`)
+        const named = ends ? Object.keys(ends) : []
+        if (ends && (named.length !== endSpec.ends.length || endSpec.ends.some(end => !named.includes(end) || !endSpec.ends.includes(ends[end])) || new Set(Object.values(ends)).size !== named.length)) {
+            refusals.push(`the role block ${roleBlock!.blockId} does not stand one team at each of ${endSpec.ends.join(' and ')}`)
+        }
+        const changed = named.filter(end => ends![end] !== end)
+        if (!refusals.length && changed.length) {
+            if (!appliedBindings.length) refusals.push(`the teams change ends in the role block ${roleBlock!.blockId}, and no end-to-team binding was supplied for them to change: which team holds each end is the binding's`)
+            else {
+                const suppliedAt = new Map(appliedBindings.map(binding => [designationKey(index!, binding.designation), binding] as const))
+                const exchangedBindings = appliedBindings.map(binding => {
+                    const end = designationKey(index!, binding.designation)
+                    const from = ends![end] ? suppliedAt.get(ends![end]) : undefined
+                    if (!from) {
+                        refusals.push(`the role block ${roleBlock!.blockId} stands at ${end} the team bound to ${ends![end] ?? 'no end'}, and no binding names it`)
+                        return binding
+                    }
+                    return {
+                        designation: binding.designation,
+                        handle: from.handle,
+                        because: `${endSpec.path} is ${endSpec.exchanged} (register row ${endSpec.row}): at the coach-called block the teams change ends with the roles, so in the role block ${roleBlock!.blockId} ${end} is held by the team the supplied binding gives ${ends![end]} (${from.handle}); entailed from that binding, never chosen`,
+                    }
+                })
+                if (!refusals.length) appliedBindings.splice(0, appliedBindings.length, ...exchangedBindings)
+            }
+        }
+        if (refusals.length) return { outcome: 'REFUSED', because: refusals }
+    }
+
     // Instantiate every authored spatial relation the concrete game now holds, derived AND chosen
     // alike, against the envelope. The prose stays as the value; the metres sit beside it as
     // `realizedGeometry`, carrying the phrase as their own authority.
@@ -1441,7 +1495,8 @@ export function realize(
             jointConditionsNotEvaluated: jointNotEvaluable,
             ...(appliedSatisfactions.length ? { satisfiedByEstablished: appliedSatisfactions } : {}),
             ...(appliedBindings.length ? { designationBindings: appliedBindings } : {}),
-            ...(roleBlock ? { roleBlock: { blockId: roleBlock.blockId, holders: { ...roleBlock.holders } } } : {}),
+            // Stage D: with which team stands at each end where the ends are exchanged (RB-5 holds the record to the block derived for).
+            ...(roleBlock ? { roleBlock: { blockId: roleBlock.blockId, holders: { ...roleBlock.holders }, ...(roleBlock.ends ? { ends: { ...roleBlock.ends } } : {}) } } : {}),
         },
     }
 }

@@ -674,6 +674,8 @@ const participants = (): RegisterIndex => {
     if (!participantRegister) participantRegister = indexRegister(loadRegister())
     return participantRegister
 }
+/** The end-exchange capability (register version 18, row B10; stage D, 23 October 2026), read through the same register, once. */
+const endAssignmentSpec = () => participants().endAssignment
 /** The scoring event that is ENTRY into a target region, worded for that value only (its other kinds keep the line wording). */
 const ZONE_ENTRY_EVENT = 'target_zone_entered'
 
@@ -1289,6 +1291,16 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
     const statusOf = statusesOf(fixture)
     /** The status of a sentence resting on these paths: the strongest any of them carries. */
     const statusAt = (paths: string[], fallback: SourceStatus): SourceStatus => strongest(paths.map(p => statusOf.get(p)).filter((s): s is SourceStatus => !!s), fallback)
+    /**
+     * **The game's end assignment** — stage D, 23 October 2026 (register version 18, row B10, the endAssignment block; his reply filed 25
+     * October 2026, item 5). Read from the game at the register's path, never a value written here: `endsChange` where the teams change ends
+     * at the coach-called block, so no sentence says the ends stay the same; `assignmentPaths` cites the value wherever the game states one
+     * (either value), so it is carried. A game that states none (every game before stage D) is said exactly as before.
+     */
+    const endSpec = endAssignmentSpec()
+    const endValue = endSpec ? fieldOf(game, endSpec.path) : undefined
+    const endsChange = !!endSpec && endValue === endSpec.exchanged
+    const assignmentPaths = endSpec && endValue !== undefined && endValue !== null ? [endSpec.path] : []
 
     /** A plain sentence, one part, each number it says bound to the path it is of (stage S-C2). */
     const say = (section: Instruction['section'], status: SourceStatus, core: string, from: string[], bindings: Binding[] = []) =>
@@ -2617,9 +2629,16 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
             if (layout && targetNoun) {
                 const teamPaths = objectives.map(o => `objectives[${o.elementId}].team`)
                 say('Set up', statusAt(teamPaths, 'DERIVED'), 'Decide which team starts at which end', [...teamPaths, 'envelope.area.length_m'])
-            } else if (targetNoun) {
-                say('How to score', statusAt(provenance, 'DERIVED'), `Each team attacks the ${targetNoun} at the other team's end. Decide which team starts at which end; the ends stay the same for the whole game`, [...provenance, ...targetNounPaths])
-            } else say('How to score', statusAt(provenance, 'DERIVED'), `Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game`, provenance)
+            } else {
+                /**
+                 * Stage D, 23 October 2026 (DRAFT): where the teams change ends at the coach-called block (row B10), "the ends stay the same for
+                 * the whole game" is false, so it is not said; the exchange sentence says the teams change ends. Every other game says exactly
+                 * what it did.
+                 */
+                const stay = endsChange ? '' : '; the ends stay the same for the whole game'
+                if (targetNoun) say('How to score', statusAt(provenance, 'DERIVED'), `Each team attacks the ${targetNoun} at the other team's end. Decide which team starts at which end${stay}`, [...provenance, ...targetNounPaths])
+                else say('How to score', statusAt(provenance, 'DERIVED'), `Each team defends one line and attacks the other. Decide which team starts at which end${stay}`, provenance)
+            }
             // Said with the possession-change sentence where there is one; on its own otherwise.
             if (!continuingOnPossessionChange.length) instructions.push(joined('How to score', [sameLine('When possession changes, ')]))
         } else if (objective) {
@@ -2884,8 +2903,23 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
                 }
                 return null
             }
+            /**
+             * **Where the teams change ends with the roles, the exchange says so — stage D, 23 October 2026 (DRAFT wording).** His reply filed
+             * 25 October 2026, item 5: *"The outfield groups exchange ends and building/pressing responsibilities when the coach calls for the
+             * next block."* and *"The coach should not have to move the goal or reconstruct the playing area to exchange roles."* Read from the
+             * game's own end assignment (register row B10, the endAssignment block; never a value written here): where it is the exchange, the
+             * sentence opens by saying the teams change ends and exchange roles and that each role is played from the same end in every block
+             * (the role-to-end holders are the same in both blocks, RB-2), and never that a team keeps its end (fidelity Q6 refuses that there).
+             * Its continuations say the same things the kept-ends sentence says, joined with "so" (the positions written for a role are at the
+             * same place in both blocks, RB-8). Wherever the game states its end assignment, either value, the sentence cites it, so it is
+             * carried; a game that states none (every game before stage D) says and cites exactly what it did.
+             */
+            const lead = endsChange
+                ? 'When you call the next block the teams change ends and exchange roles: each role is played from the same end in every block'
+                : 'Each team keeps its end for the whole activity. When you call the next block the teams exchange roles, not ends'
+            const joinMeaning = endsChange ? ', so ' : ': '
             if (remarking) {
-                const exchangeStatus = statusAt([...exchangePaths, ...endPaths], 'DERIVED')
+                const exchangeStatus = statusAt([...exchangePaths, ...endPaths, ...assignmentPaths], 'DERIVED')
                 const moved = remarking.changes.map(movedMarking).filter((said): said is NonNullable<typeof said> => !!said)
                 /**
                  * Stage C review fix, 23 October 2026 (DRAFT, the layout sentence's own words): where nothing moves and positions are written
@@ -2894,12 +2928,13 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
                  * without "nothing is re-marked": no layout records what an authorized adjustment would move here (`layout.movedBy`), so that
                  * claim could not carry the qualification hardening H2 requires.
                  */
-                const meaning = !somethingMoves(remarking) && keyedPaths.length && targetNoun ? `: each team now attacks the target ${targetNoun} of its new role` : ''
+                const meaning = !somethingMoves(remarking) && keyedPaths.length && targetNoun ? `${joinMeaning}each team now attacks the target ${targetNoun} of its new role` : ''
                 instructions.push(
                     joined(ROLE_EXCHANGE, [
-                        part(exchangeStatus, `Each team keeps its end for the whole activity. When you call the next block the teams exchange roles, not ends${meaning}`, [
+                        part(exchangeStatus, `${lead}${meaning}`, [
                             ...exchangePaths,
                             ...endPaths,
+                            ...assignmentPaths,
                             ...keyedPaths,
                             ...(keyedPaths.length ? targetNounPaths : []),
                         ]),
@@ -2910,20 +2945,26 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
             }
             // Without a layout or an account of what moves (stage C: what moves could not be read from the blocks), the markings written for
             // the roles are said to be set out again for the new roles, as since stage K7.
+            // Stage D (DRAFT): where the teams change ends, the positions written for a role stay where they are (RB-8 holds them to the same
+            // place in both blocks), so the block-by-block words say that, never "set out again".
+            const verb = named.length > 1 || keyedTargets === 2 ? 'are' : 'is'
             const markings = layout
-                ? `: each team now attacks the target ${targetNoun ?? 'line'} of its new role, and ${NOTHING_RE_MARKED}${unless}`
+                ? `${joinMeaning}each team now attacks the target ${targetNoun ?? 'line'} of its new role, and ${NOTHING_RE_MARKED}${unless}`
                 : !keyedPaths.length
                   ? ''
-                  : named.length
-                    ? `, and ${named.join(' and ')} ${named.length > 1 || keyedTargets === 2 ? 'are' : 'is'} set out again for the new roles`
-                    : ', and the markings that go with them are set out again for the new roles'
+                  : endsChange
+                    ? `, so ${named.length ? `${named.join(' and ')} ${verb}` : 'the markings that go with them are'} at the same place in every block`
+                    : named.length
+                      ? `, and ${named.join(' and ')} ${verb} set out again for the new roles`
+                      : ', and the markings that go with them are set out again for the new roles'
             if (!remarking) say(
                 ROLE_EXCHANGE,
-                statusAt([...exchangePaths, ...endPaths], 'DERIVED'),
-                `Each team keeps its end for the whole activity. When you call the next block the teams exchange roles, not ends${markings}; there is no set block length`,
+                statusAt([...exchangePaths, ...endPaths, ...assignmentPaths], 'DERIVED'),
+                `${lead}${markings}; there is no set block length`,
                 [
                     ...exchangePaths,
                     ...endPaths,
+                    ...assignmentPaths,
                     ...keyedPaths,
                     ...(keyedPaths.length || layout ? targetNounPaths : []),
                     ...(layout ? ['layout.policy', ...layout.movedBy.map(move => `layout.movedBy[${move.elementId}]`)] : []),
