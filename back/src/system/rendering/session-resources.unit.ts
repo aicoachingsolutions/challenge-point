@@ -256,6 +256,16 @@ const variantFile = (options: VariantOptions = {}) => {
         const range = options.suitability ?? { min: 1, max: 10 }
         variant.objectSuitability = [{ kind: KIND, widthM: range, ruledOn: 'TEST-ONLY', by: 'TEST-ONLY', citedAs: 'TEST-ONLY', words: ['TEST-ONLY'] }]
     }
+    /**
+     * H1 (23 October 2026, the d26 design's finding X4): a variant stating another area keeps no value in metres from its base, so this copy
+     * withdraws A01-R1's pressure reference distance (A01-R1-S5-1, his 20 m for the 40 x 30 m area) and restates it among its own items for its
+     * own area (TEST-ONLY). Until H1 the gate admitted it kept; the outcome it is built for (refused at the testing area) is unchanged.
+     */
+    if (options.areas) {
+        const pressureReference = base.items.find((i: any) => i.id === 'A01-R1-S5-1')
+        variant.withdraws.push({ item: pressureReference.id, because: 'TEST-ONLY' })
+        variant.items.push(item('S5-1', pressureReference.row, pressureReference.selector, pressureReference.requirement, copy(pressureReference.value)))
+    }
     file.realizations.push(variant)
     return file
 }

@@ -335,6 +335,12 @@ export interface ProvisionalRealization extends LoadedContract {
      * item 7: *"The 11–12-player support and 40 × 30 m prototype values are acceptable current testing boundaries, but they
      * should not become permanent architectural limitations."* The player counts the realization's own items admit, recorded
      * so a test can hold the roster's answer to them; nothing in code limits a count. Null where none is recorded.
+     *
+     * **A variant inherits its base's** (H1, 23 October 2026; the d26 design's build step 1, its finding X4) unless it states its own: until
+     * this the loader read only the realization's own field, so a variant that did not restate the boundaries loaded with none, kept its
+     * base's values in metres and was admitted on every area (measured: a variant of the zone version accepted at 60 x 40 m, its base
+     * refused). Absent on a variant means inherited; stated (an object, or null for none), it is the variant's own, and the integrity gate
+     * holds a variant stating another area to withdraw every inherited value in metres (`variantRefusals`, `carriesMetres`).
      */
     testingBoundaries: TestingBoundaries | null
     /**
@@ -404,6 +410,8 @@ export function validateProvisionalRealizations(
     // Stage E (23 October 2026): the object kinds a session states its availability of (the register's sessionResources), the only kinds a
     // realization's suitability may speak of.
     objectKinds: string[] = indexRegister(loadRegister()).sessionResources?.kinds ?? [],
+    // H1 (23 October 2026): the rows the register bounds by the session envelope, whose values are in metres or relative (`carriesMetres`).
+    envelopeRows: ReadonlySet<string> = envelopeBoundedRows(indexRegister(loadRegister()).outerBound),
 ): string[] {
     const errors: string[] = []
     if (!file || typeof file !== 'object' || !filledText(file.about)) errors.push('the file says nothing about what it is (about)')
@@ -475,7 +483,7 @@ export function validateProvisionalRealizations(
         // Stage B (23 October 2026): no placeholder extent for an object, and no supersession or pairing.
         errors.push(...placeholderExtentRefusals(items, which, objectRows, relativeTerms))
         // Stage E (23 October 2026): a variant's composition, and what its authorized knowledge says suits its objects.
-        errors.push(...variantRefusals(realization, realizations, which))
+        errors.push(...variantRefusals(realization, realizations, which, envelopeRows))
         errors.push(...suitabilityRefusals(realization?.objectSuitability, which, objectKinds))
     }
     return errors
@@ -489,8 +497,16 @@ export function validateProvisionalRealizations(
  * its base would be a second name for one realization); and its composed items - the base's without the withdrawn ones, then its own - carry
  * each id once. Its own items are held to every rule above like any realization's; the base's were held to them under the base. A
  * realization that is no variant may withdraw nothing. Empty where nothing is refused.
+ *
+ * **A variant stating another testing area** (H1, 23 October 2026; the d26 design's build step 1, its finding X4). A variant that does not
+ * state testing boundaries inherits its base's (`loadProvisionalRealizations`). One that states its own, for areas other than its base's (a
+ * different set of areas, or none where the base names some), keeps no value in metres from its base: his starting values were given for
+ * the base's area - reply filed 18 October 2026, item 3: *"Twenty meters is our initial hypothesis, not a canonical distance or a requirement
+ * for other field sizes."* - so each kept item that carries one (`carriesMetres`: read from the register's rows and the item's numbers,
+ * never from prose) is refused, named, until the variant withdraws it, or withdraws it and restates it among its own items for its own area.
+ * Only the areas are compared: the player counts are data a test holds the roster to, and no code limits a count (his item 7).
  */
-function variantRefusals(realization: any, realizations: any[], which: string): string[] {
+function variantRefusals(realization: any, realizations: any[], which: string, envelopeRows: ReadonlySet<string>): string[] {
     const errors: string[] = []
     const withdraws = realization?.withdraws
     if (realization?.basedOn === undefined) {
@@ -537,7 +553,50 @@ function variantRefusals(realization: any, realizations: any[], which: string): 
             else if (!seen.has(ref.itemId)) errors.push(`${which}: the item ${String(item?.id)} refers to ${ref.itemId}, which its composed items do not hold`)
         }
     }
+    if (realization.testingBoundaries !== undefined) {
+        const own = areasStated(realization.testingBoundaries)
+        const inherited = areasStated(base.testingBoundaries)
+        if (JSON.stringify(own) !== JSON.stringify(inherited)) {
+            for (const item of kept.filter((candidate: any) => carriesMetres(candidate, envelopeRows))) {
+                errors.push(
+                    `${which} states testing boundaries for ${areasText(own)} and keeps ${String(item?.id)}, whose value in metres ${baseId} gives for ${areasText(inherited)}: a variant stating another area withdraws every value in metres it would inherit, or withdraws it and restates it among its own items`,
+                )
+            }
+        }
+    }
     return errors
+}
+
+/** The areas a testing-boundaries statement names, each as "length x width", sorted, so two statements compare as sets; none where it names none. */
+function areasStated(boundaries: any): string[] {
+    const areas: any[] = boundaries && typeof boundaries === 'object' && Array.isArray(boundaries.areas) ? boundaries.areas : []
+    return [...new Set(areas.map(area => `${Number(area?.lengthM)} x ${Number(area?.widthM)} m`))].sort()
+}
+
+const areasText = (areas: string[]): string => (areas.length ? areas.join(', ') : 'no area')
+
+/** The rows an index says the session envelope bounds (`outerBound: SESSION_ENVELOPE`): the rows whose values are in metres or relative. */
+export function envelopeBoundedRows(outerBound: ReadonlyMap<string, string>): ReadonlySet<string> {
+    return new Set([...outerBound].filter(([, bound]) => bound === 'SESSION_ENVELOPE').map(([row]) => row))
+}
+
+/**
+ * **Whether an item carries a value in metres** — H1, 23 October 2026 (the d26 design's build step 1: *"Such items are detectable
+ * structurally (offsetM or a numeric extent), with no text parsing."*). An item on a row the session envelope bounds (`envelopeRows`; the
+ * register's valueType for each: "in metres or relative") whose value or typed bound holds a finite number at any depth - an offset from an
+ * end line (`offsetM`), an interval or a bound. A relative position (a register term's name, a typed reference) and a fraction of the axis
+ * (a term's name) hold no number, so they are not; a count on any other row is not either. Nothing is read from prose (`asAuthored`, words).
+ */
+export function carriesMetres(item: unknown, envelopeRows: ReadonlySet<string>): boolean {
+    if (!item || typeof item !== 'object') return false
+    const { row, value, typedBound } = item as { row?: unknown; value?: unknown; typedBound?: unknown }
+    return envelopeRows.has(String(row)) && (holdsNumber(value) || holdsNumber(typedBound))
+}
+
+function holdsNumber(value: unknown): boolean {
+    if (typeof value === 'number') return Number.isFinite(value)
+    if (!value || typeof value !== 'object') return false
+    return Object.values(value as Record<string, unknown>).some(holdsNumber)
 }
 
 /** Every typed structural reference inside a value (`{ structuralRef: { contractId, itemId } }`, at any depth). */
@@ -619,6 +678,13 @@ export function loadProvisionalRealizations(file: any = readJson(PROVISIONAL_REA
         const items = [...(base.items as any[]).filter(item => !withdrawn.has(String(item.id))), ...(realization.items as any[])]
         return items.map(item => repointedTo(item, String(base.contractId), String(realization.contractId)))
     }
+    /**
+     * A variant's testing boundaries (H1, 23 October 2026, the d26 design's finding X4): its own where it states them (an object, or null for
+     * none), else its base's, read once like its items - the gate above has refused a variant stating another area that keeps a value in
+     * metres from its base. A realization that is no variant has exactly its own, as before.
+     */
+    const testingBoundariesOf = (realization: any): any =>
+        realization.basedOn !== undefined && realization.testingBoundaries === undefined ? rawById.get(String(realization.basedOn)).testingBoundaries : realization.testingBoundaries
     return (copy.realizations as any[]).map(realization => ({
         contractId: String(realization.contractId),
         objectId: String(realization.contractId),
@@ -642,16 +708,20 @@ export function loadProvisionalRealizations(file: any = readJson(PROVISIONAL_REA
         words: (realization.words as unknown[]).map(String),
         realizationChoices: realization.realizationChoices ? String(realization.realizationChoices) : null,
         notWithPracticeSituations: (realization.notWithPracticeSituations as any[]).map(s => ({ id: String(s.id), basis: String(s.basis), because: String(s.because) })),
-        testingBoundaries: realization.testingBoundaries
-            ? {
-                  players: (realization.testingBoundaries.players as number[]).map(Number),
-                  ...(Array.isArray(realization.testingBoundaries.areas) ? { areas: (realization.testingBoundaries.areas as any[]).map(area => ({ lengthM: Number(area.lengthM), widthM: Number(area.widthM) })) } : {}),
-                  words: String(realization.testingBoundaries.words),
-                  citedAs: String(realization.testingBoundaries.citedAs),
-                  note: realization.testingBoundaries.note ? String(realization.testingBoundaries.note) : null,
-              }
-            : null,
+        testingBoundaries: testingBoundariesFrom(testingBoundariesOf(realization)),
     }))
+}
+
+/** One testing-boundaries statement as derivation receives it, or null where none is recorded. */
+function testingBoundariesFrom(boundaries: any): TestingBoundaries | null {
+    if (!boundaries) return null
+    return {
+        players: (boundaries.players as number[]).map(Number),
+        ...(Array.isArray(boundaries.areas) ? { areas: (boundaries.areas as any[]).map(area => ({ lengthM: Number(area.lengthM), widthM: Number(area.widthM) })) } : {}),
+        words: String(boundaries.words),
+        citedAs: String(boundaries.citedAs),
+        note: boundaries.note ? String(boundaries.note) : null,
+    }
 }
 
 /** The provisional realization a record names, as a copy, or null where it names none. A name that resolves to nothing throws. */
