@@ -22,7 +22,13 @@
  *   5. on a TEST-ONLY register copy with a second specialized role, a taker naming THAT role with none present FAILS over the concrete
  *      game, and passes where every team holds one — the check reads the vocabulary, never one role;
  *   6. production 12 players with no goalkeeper is still refused by the roster's sentence, the new check saying truthfully that the counts
- *      are not established; the neutral demonstration's participation group is checked on its count and passes.
+ *      are not established; the neutral demonstration's participation group is checked on its count and passes;
+ *   7. P1b (22 October 2026, after the P1 review), on TEST-ONLY copies: a participant the configuration is already known to lack before
+ *      realization (a counted group at 0, as a start placement's group, as a taker, or as the neutral demonstration's group) is refused at
+ *      STRUCTURE with its own sentence from the typed records read from the staged context, the reasons naming the element — it was the
+ *      generic structure sentence; and a restart whose award is decided at the trigger, taken by a role only one of the teams it can be
+ *      awarded to holds, FAILS (it was NOT_EVALUABLE) and is refused at validation naming the role, whether the clause was owed or not,
+ *      while an award that genuinely cannot be resolved still withholds.
  *
  * TEST-ONLY copies are labelled; production files are never written.
  *
@@ -30,7 +36,7 @@
  */
 import assert from 'node:assert/strict'
 
-import { buildActivityForReview, buildActivityUnderAuthorizationRecords, RefusedActivity, ServedActivity } from '../rendering/build-activity'
+import { buildActivityForReview, buildActivityOverAlteredKnowledge, buildActivityUnderAuthorizationRecords, RefusedActivity, ServedActivity } from '../rendering/build-activity'
 import { mechanismDemonstration } from '../rendering/mechanism-demonstrations'
 import { specializedRoleNames } from '../rendering/session-envelope'
 import { completeConcreteGame } from '../realization/assemble-concrete-game'
@@ -42,7 +48,8 @@ import { contextManipulationRelationships, learningGoalAuthorizations } from '..
 import { loadRegister } from './corpus'
 import { isStampedHalt } from './emit'
 import { runDerivation, runStages0to10, runStages0to5 } from './engine'
-import { PARTICIPANT_CLAUSES, PARTICIPANTS_CHECK } from './gates'
+import { decidedAtTransition } from './designation'
+import { MissingParticipant, missingParticipantsIn, PARTICIPANT_CLAUSES, PARTICIPANTS_CHECK } from './gates'
 import { participantOf, sameParticipant } from './participants'
 import { applyRealizationDeferrals } from './realization-deferral'
 import { HaltError, indexRegister } from './register'
@@ -87,8 +94,17 @@ const CHECK_CLAUSES = Object.values(PARTICIPANT_CLAUSES)
 function chain(
     selection: any,
     session: any,
-    options: { alter?: (contracts: LoadedContract[]) => void; register?: any } = {},
-): { block: RoleBlock | null; pre: any; post: ReturnType<typeof runPostRealizationGates> | null; stoppedAt: string | null }[] {
+    /** `notOwed` (P1b): also gate the concrete game as though no clause of the check were owed — a clause that passed before realization. */
+    options: { alter?: (contracts: LoadedContract[]) => void; register?: any; notOwed?: boolean } = {},
+): {
+    block: RoleBlock | null
+    pre: any
+    /** The typed records read from the staged context before realization (P1b), as build-activity reads them for a structure refusal. */
+    preMissing: MissingParticipant[]
+    post: ReturnType<typeof runPostRealizationGates> | null
+    notOwed: ReturnType<typeof runPostRealizationGates> | null
+    stoppedAt: string | null
+}[] {
     const input: any = { ...derivationInputFor(selection), envelope: copy(session) }
     if (options.register) input.register = options.register
     input.contracts = copy(input.contracts)
@@ -101,19 +117,22 @@ function chain(
     return blocks.map(block => {
         const blockInput = block ? { ...input, roleBlock: block } : input
         const result: any = runDerivation(blockInput)
-        if (isStampedHalt(result)) return { block, pre: null, post: null, stoppedAt: 'halt' }
+        if (isStampedHalt(result)) return { block, pre: null, preMissing: [], post: null, notOwed: null, stoppedAt: 'halt' }
         const staged: any = runStages0to10(blockInput)
         const pre = staged.gates.gateA.checks.find((c: any) => c.checkId === PARTICIPANTS_CHECK)
+        const preMissing = missingParticipantsIn({ ...staged.gateContext, contracts: blockInput.contracts })
         const resolved: any = assembleResolvedGame(result, staged.classes, regIndex, blockInput.contracts)
-        if (!resolved.coherence.realizationAuthorized) return { block, pre, post: null, stoppedAt: `structure: ${resolved.coherence.notAuthorizedBecause.join('; ')}` }
+        if (!resolved.coherence.realizationAuthorized) return { block, pre, preMissing, post: null, notOwed: null, stoppedAt: `structure: ${resolved.coherence.notAuthorizedBecause.join('; ')}` }
         const supplied = suppliedRealizationFor(selection)
         assert.ok(!isNoSuppliedRealization(supplied), 'the realization input is there')
         const ctx = { ...staged.gateContext, contracts: blockInput.contracts }
         const { realization } = realizeWithJustifiedDefaults(resolved, supplied as any, regIndex, blockInput.envelope, ctx)
-        if (isRefused(realization)) return { block, pre, post: null, stoppedAt: `realization: ${(realization as any).because.join('; ')}` }
+        if (isRefused(realization)) return { block, pre, preMissing, post: null, notOwed: null, stoppedAt: `realization: ${(realization as any).because.join('; ')}` }
         completeConcreteGame(ctx, realization as Realized)
-        const post = runPostRealizationGates(ctx, resolved.coherence.postRealizationRequired.map((o: any) => ({ checkId: o.checkId, clause: o.clause })), realization as Realized)
-        return { block, pre, post, stoppedAt: null }
+        const owed: { checkId: string; clause: string }[] = resolved.coherence.postRealizationRequired.map((o: any) => ({ checkId: o.checkId, clause: o.clause }))
+        const post = runPostRealizationGates(ctx, owed, realization as Realized)
+        const notOwed = options.notOwed ? runPostRealizationGates(ctx, owed.filter(o => o.checkId !== PARTICIPANTS_CHECK), realization as Realized) : null
+        return { block, pre, preMissing, post, notOwed, stoppedAt: null }
     })
 }
 const a01 = () => selectFor('A01', null)
@@ -346,6 +365,160 @@ test('the neutral demonstration: its participation group is checked on its count
     for (const id of ['neutral-players', 'scoring-modifier']) {
         const served = buildActivityForReview({ kind: 'mechanism-demonstration', demonstrationId: id, session: sessionOf(12, 0) }, { includeDrafts: false })
         assert.equal(served.outcome, 'served', id)
+    }
+})
+
+// ── 7. P1b: a participant known missing before realization, and an award decided at the trigger ─────────────
+const GROUP_FORM = index.participants!.forms.find(form => form.kind === 'COUNTED_GROUP')!
+const GROUP_NOUN = GROUP_FORM.coachNoun!
+const GROUP_ROW = GROUP_FORM.countRow!
+const demoSelection = (id: string) => {
+    const entries = mechanismDemonstration(id)!.selected.map((entry, i) => ({ id: entry, role: i === 0 ? 'game form' : 'constraint' }))
+    return { selected: entries, ...contractCoverage(entries) }
+}
+const recordsOf = (missing: MissingParticipant[]) => missing.map(entry => [entry.requirement, entry.element.split(' ')[0], entry.missing.kind, entry.missing.name, entry.teams.map(team => [team.designations, team.holds])])
+const addCopyOf = (contracts: LoadedContract[], fromId: string, patch: Record<string, unknown>) => {
+    realizationOf(contracts).items.push({ ...copy(itemOf(contracts, fromId)), ...patch } as any)
+}
+
+test('P1b TEST-ONLY: a start placement for a counted group the game holds none of is refused at STRUCTURE naming the group (was the generic structure sentence)', () => {
+    const alter = (contracts: LoadedContract[]) => {
+        addCopyOf(contracts, 'A01-R1-P8-1', { itemId: 'TEST-ONLY-P8-N', selector: `group=${GROUP_FORM.value}` })
+        addCopyOf(contracts, 'A01-R1-P10-1', { itemId: 'TEST-ONLY-P10-N', selector: `group=${GROUP_FORM.value}` })
+    }
+    for (const { block, pre, preMissing, stoppedAt } of chain(a01(), sessionOf(12, 1), { alter })) {
+        assert.equal(clauseOf(pre, 'GROUP').verdict, 'FAIL', `${block?.blockId}: the count is known before realization`)
+        assert.ok(String(stoppedAt).includes(`a pre-realization Gate A invariant fails: ${PARTICIPANTS_CHECK}`), String(stoppedAt))
+        assert.deepEqual(recordsOf(preMissing), [['GROUP', 'c:provisional:A01-R1:TEST-ONLY-P8-N', 'COUNTED_GROUP', GROUP_NOUN, []]], 'typed, from the staged context')
+    }
+    const activity = builtWith(sessionOf(12, 1), alter) as RefusedActivity
+    assert.equal(activity.outcome, 'refused')
+    assert.equal(activity.stage, 'structure')
+    assert.equal(activity.summary, `This game needs a ${GROUP_NOUN}, and the team set-up has none.`)
+    assert.ok(!/GA-|c:|P5|P8/.test(activity.summary), 'no check, element or row in the coach sentence')
+    const named = activity.reasons.filter(reason => reason.includes(`a participant the game requires is missing (${PARTICIPANTS_CHECK}, GROUP): c:provisional:A01-R1:TEST-ONLY-P8-N (P8) requires 1 ${GROUP_NOUN} counted by ${GROUP_ROW}; game::${GROUP_ROW} holds 0`))
+    assert.equal(named.length, 2, 'the element named in each block\'s reasons')
+    assert.equal(activity.reasons.filter(reason => reason.includes(`a pre-realization Gate A invariant fails: ${PARTICIPANTS_CHECK}`)).length, 2, 'the failing check is still named')
+})
+
+test('P1b TEST-ONLY: a restart taken by a counted group the game holds none of is refused at STRUCTURE naming the group, for no particular team', () => {
+    const alter = (contracts: LoadedContract[]) => {
+        itemOf(contracts, 'A01-R1-T3-2').value = GROUP_FORM.value
+    }
+    for (const { pre, preMissing } of chain(a01(), sessionOf(12, 1), { alter })) {
+        assert.equal(clauseOf(pre, 'TAKER').verdict, 'FAIL')
+        assert.deepEqual(recordsOf(preMissing), [R('T1-4'), R('T1-5')].map(id => ['TAKER', id, 'COUNTED_GROUP', GROUP_NOUN, []]), 'the two touchline restarts')
+    }
+    const activity = builtWith(sessionOf(12, 1), alter) as RefusedActivity
+    assert.equal(activity.stage, 'structure')
+    assert.equal(activity.summary, `This game needs a ${GROUP_NOUN} to restart play, and the team set-up has none.`)
+    for (const id of ['T1-4', 'T1-5']) {
+        assert.equal(activity.reasons.filter(reason => reason.includes(`(${PARTICIPANTS_CHECK}, TAKER): ${R(id)} [OUT_TOUCHLINE] (T3) requires 1 ${GROUP_NOUN} counted by ${GROUP_ROW}; game::${GROUP_ROW} holds 0`)).length, 2, id)
+    }
+})
+
+test('P1b TEST-ONLY: the neutral demonstration with its neutral count forced to 0 is refused at STRUCTURE naming the group', () => {
+    const alter = (contracts: LoadedContract[]) => {
+        for (const contract of contracts) for (const item of contract.items) if (item.row === GROUP_ROW) Object.assign(item, { value: '0', requirement: 'EQUALS' })
+    }
+    const [game] = chain(demoSelection('neutral-players'), sessionOf(12, 0), { alter })
+    assert.equal(clauseOf(game.pre, 'GROUP').verdict, 'FAIL')
+    assert.deepEqual(recordsOf(game.preMissing), [['GROUP', 'c:restated:NEUTRAL-PLAYER-CONDITION:NEUTRAL-01.b', 'COUNTED_GROUP', GROUP_NOUN, []]])
+    const activity = buildActivityOverAlteredKnowledge({ kind: 'mechanism-demonstration', demonstrationId: 'neutral-players', session: sessionOf(12, 0) }, alter) as RefusedActivity
+    assert.equal(activity.outcome, 'refused')
+    assert.equal(activity.stage, 'structure')
+    assert.equal(activity.summary, `This game needs a ${GROUP_NOUN}, and the team set-up has none.`)
+    assert.ok(activity.reasons.includes(`a participant the game requires is missing (${PARTICIPANTS_CHECK}, GROUP): c:restated:NEUTRAL-PLAYER-CONDITION:NEUTRAL-01.b (P11) requires 1 ${GROUP_NOUN} counted by ${GROUP_ROW}; game::${GROUP_ROW} holds 0`), activity.reasons.join(' | '))
+    // The production demonstration, untouched, is still served.
+    assert.equal(buildActivityForReview({ kind: 'mechanism-demonstration', demonstrationId: 'neutral-players', session: sessionOf(12, 0) }, { includeDrafts: false }).outcome, 'served')
+})
+
+test('P1b: which awards are decided at the trigger, read from the register\'s resolutions (scope, basis, relation)', () => {
+    const lastTouch = { 'qualifier.lastTouch': 'ROLE_HOLDER_PRESSING' }
+    const table: [unknown, Record<string, unknown>, boolean, string][] = [
+        ['NOT_LAST_TOUCH', {}, true, 'his words relate it to a last-touch qualifier the transition does not carry: decided by who touches it last'],
+        ['NOT_LAST_TOUCH', lastTouch, false, 'the transition carries the qualifier: awardeeRelation answers, never this'],
+        ['WON_BALL', {}, true, 'TRIGGER, on the entry\'s gloss'],
+        ['LAST_TOUCH', {}, true, 'TRIGGER, on the entry\'s gloss; the register relates it to no qualifier'],
+        ['ATTACKING_TEAM', {}, true, 'DYNAMIC, on the entry\'s gloss'],
+        ['LOST_BALL', {}, false, 'our reading only'],
+        ['SCORING_TEAM', {}, false, 'our reading only'],
+        ['DEFENDING_TEAM', {}, false, 'our reading only'],
+        ['BUILD_OUT_TEAM', {}, false, 'EPISODE: fixed when the episode began, at another transition\'s award'],
+        ['STARTING_TEAM', {}, false, 'standing: one team, which a binding names'],
+        ['TEAM_AT_AXIS_START', {}, false, 'standing'],
+        ['ROLE_HOLDER_BUILDING', {}, false, 'standing'],
+        ['EACH_TEAM', {}, false, 'standing'],
+        ['the team that did not touch it last', {}, false, 'open text names no designation'],
+        [undefined, {}, false, 'no award'],
+    ]
+    for (const [award, qualifiers, expected, why] of table) assert.equal(decidedAtTransition(index, award, qualifiers), expected, `${String(award)}: ${why}`)
+})
+
+/**
+ * A TEST-ONLY touchline restart on a copy of the possession game form: no last-touch qualifier, so the form's own item awards it to the
+ * team that did not touch it last (GF2-16.a, his words relate that to a qualifier this transition does not carry) and stops play
+ * (GF2-16.b); taken by the register's specialized role, which only the named setup assignments hold. `award` replaces GF2-16.a's value on
+ * the copy.
+ */
+const touchlineRestart = (holders: string[], award?: string) => (contracts: LoadedContract[]) => {
+    const form = contracts.find(contract => contract.contractId === 'restated:GF2')!
+    const base = form.items.find(item => item.itemId === 'GF2-16.a')!
+    const item = (itemId: string, row: string, selector: string, requirement: string, value: unknown) =>
+        form.items.push({ ...copy(base), itemId, ...('id' in base ? { id: itemId } : {}), row, selector, requirement, value, strictness: 'REQUIRED', valueStatus: requirement === 'EXISTS' ? 'N/A' : 'REQUIRED_RANGE', basis: 'OWNER_RULING' } as any)
+    item('TEST-ONLY-T1', 'T1', 'trigger=OUT_TOUCHLINE', 'EXISTS', 'N/A')
+    item('TEST-ONLY-T3', 'T3', 'trigger=OUT_TOUCHLINE', 'EQUALS', KEEPER)
+    item('TEST-ONLY-T4', 'T4', 'trigger=OUT_TOUCHLINE', 'EQUALS', { dynamic: 'where the ball went out' })
+    item('TEST-ONLY-T5', 'T5', 'trigger=OUT_TOUCHLINE', 'EQUALS', 'IN_HAND')
+    for (const team of holders) item(`TEST-ONLY-${KEEPER_ROW}-${team}`, KEEPER_ROW, `team=${team}`, 'EQUALS', '1')
+    if (award) (base as any).value = award
+}
+const RESTART = 'c:restated:GF2:TEST-ONLY-T1'
+
+test('P1b TEST-ONLY: a restart awarded at the trigger FAILS where a team it can be awarded to lacks its taker, refused at validation naming the role, owed or not (was NOT_EVALUABLE)', () => {
+    for (const players of [13, 11]) {
+        const alter = touchlineRestart(['TEAM_AT_AXIS_START'])
+        const [game] = chain(demoSelection('scoring-modifier'), sessionOf(players, 1), { alter, notOwed: true })
+        assert.equal(game.stoppedAt, null, String(game.stoppedAt))
+        assert.equal(clauseOf(game.pre, 'TAKER').verdict, 'DEFERRED_TO_REALIZATION', 'the teams are instantiated by realization')
+        const check = postCheck(game.post)
+        assert.equal(clauseOf(check, 'TAKER').verdict, 'FAIL', check.why)
+        assert.ok(
+            String(check.why).includes(`${RESTART} [OUT_TOUCHLINE] (T3) requires 1 ${KEEPER} (${KEEPER_ROW}) of NOT_LAST_TOUCH, which is decided at the trigger, and a team it can be awarded to holds fewer: realized:c:restated:GF2:GF2-14.a#2 (TEAM_AT_AXIS_END) holds 0`),
+            check.why,
+        )
+        assert.deepEqual(recordsOf(game.post!.missingParticipants), [['TAKER', RESTART, 'SPECIALIZED_ROLE', KEEPER, [[['TEAM_AT_AXIS_END'], 0]]]], 'the team lacking it, typed')
+        assert.ok(game.post!.owed.some(o => o.checkId === PARTICIPANTS_CHECK && o.verdict === 'FAIL'), 'owed, and not paid')
+        assert.equal(game.post!.validated, false)
+        // A clause that was not owed (it passed before realization) is still refused: the gate blocks every FAIL on the concrete game.
+        assert.equal(game.notOwed!.validated, false, `${players}/1 not owed`)
+        assert.ok(game.notOwed!.outstanding.some(o => o.startsWith(`${PARTICIPANTS_CHECK} FAILS on the concrete game though it did not on the resolved game: TAKER: ${RESTART}`)))
+        const activity = buildActivityOverAlteredKnowledge({ kind: 'mechanism-demonstration', demonstrationId: 'scoring-modifier', session: sessionOf(players, 1) }, alter) as RefusedActivity
+        assert.equal(activity.outcome, 'refused', `${players}/1`)
+        assert.equal(activity.stage, 'validation')
+        assert.equal(activity.summary, `This game needs a ${KEEPER} to restart play for one of the teams, and the team set-up gives that team none.`)
+    }
+    // Control: the role on both teams. The clause is evaluated and passes, and the game is served.
+    const both = touchlineRestart(['TEAM_AT_AXIS_START', 'TEAM_AT_AXIS_END'])
+    const [held] = chain(demoSelection('scoring-modifier'), sessionOf(12, 2), { alter: both })
+    const taker = clauseOf(postCheck(held.post), 'TAKER')
+    assert.deepEqual([taker.verdict, taker.basis, taker.instances], ['PASS', 'EVALUATED', 1], postCheck(held.post).why)
+    assert.equal(buildActivityOverAlteredKnowledge({ kind: 'mechanism-demonstration', demonstrationId: 'scoring-modifier', session: sessionOf(12, 2) }, both).outcome, 'served')
+})
+
+test('P1b TEST-ONLY: decided at the trigger on the entry\'s gloss FAILS; an award that cannot be resolved still withholds, and is still refused', () => {
+    for (const award of ['WON_BALL', 'LAST_TOUCH', 'ATTACKING_TEAM']) {
+        const [game] = chain(demoSelection('scoring-modifier'), sessionOf(13, 1), { alter: touchlineRestart(['TEAM_AT_AXIS_START'], award) })
+        assert.equal(clauseOf(postCheck(game.post), 'TAKER').verdict, 'FAIL', award)
+        assert.deepEqual(recordsOf(game.post!.missingParticipants), [['TAKER', RESTART, 'SPECIALIZED_ROLE', KEEPER, [[['TEAM_AT_AXIS_END'], 0]]]], award)
+    }
+    for (const award of ['LOST_BALL', 'BUILD_OUT_TEAM', 'STARTING_TEAM']) {
+        const [game] = chain(demoSelection('scoring-modifier'), sessionOf(13, 1), { alter: touchlineRestart(['TEAM_AT_AXIS_START'], award) })
+        const check = postCheck(game.post)
+        assert.equal(clauseOf(check, 'TAKER').verdict, 'NOT_EVALUABLE', award)
+        assert.ok(String(check.why).includes(`of ${award}: which team it falls on cannot be resolved, and only some of the teams it may fall on hold it`), check.why)
+        assert.deepEqual(game.post!.missingParticipants, [], `${award}: nothing is called missing that cannot be placed on a team`)
+        assert.equal(game.post!.validated, false, `${award}: owed, so still refused`)
     }
 })
 

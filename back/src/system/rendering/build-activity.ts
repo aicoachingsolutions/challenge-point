@@ -40,7 +40,7 @@ import { resolveRelativeCounts } from '../derivation/reassignment'
 import { indexRegister } from '../derivation/register'
 import { assembleResolvedGame, splitPath } from '../derivation/resolved-game'
 import { roleHolderNames, roleOfHolder } from '../derivation/designation'
-import type { MissingParticipant } from '../derivation/gates'
+import { MissingParticipant, missingParticipantsIn, PARTICIPANTS_CHECK } from '../derivation/gates'
 import { roleBlocksOf } from '../derivation/role-blocks'
 import { BoundedSelection, CONTEXT_ROLE, contractCoverage, derivationInputFor, GoalSelectionGap, knowledgeKey, KnowledgeSelection, selectFor } from '../derivation/run-bounded-selection'
 import { LoadedContract, RoleBlock } from '../derivation/types'
@@ -644,8 +644,14 @@ function strandedCountSummary(stranded: StrandedCount): { stage: ActivityStage; 
  * technical reasons. Not a session refusal: the game's own description names a participant its own set-up does not hold, which no
  * change of the coach's numbers cures (a session that cannot staff a role the game DOES involve is the roster's AVAILABILITY_SHORT,
  * said before this). DRAFT wording.
+ *
+ * Said at the stage the check decided it (P1b, 22 October 2026, after the P1 review): `validation` over the concrete game, and
+ * `structure` where the configuration is already known to lack the participant before realization (a counted group whose count is
+ * 0, say) — which used to be told the generic structure sentence, that the game was not described completely enough, though its
+ * description was complete and named a participant the game cannot hold. A restart for no particular team (a counted group as
+ * taker) is said without one.
  */
-function participantSummary(missing: MissingParticipant[], index: ReturnType<typeof indexRegister>): { stage: ActivityStage; summary: string } | null {
+function participantSummary(missing: MissingParticipant[], index: ReturnType<typeof indexRegister>, stage: ActivityStage): { stage: ActivityStage; summary: string } | null {
     const [first] = missing
     if (!first) return null
     const noun = first.missing.name ?? 'participant'
@@ -664,11 +670,32 @@ function participantSummary(missing: MissingParticipant[], index: ReturnType<typ
     }
     const summary =
         first.requirement === 'TAKER' || first.requirement === 'BEGIN_ARM'
-            ? `This game needs ${a} to restart play for ${team ?? 'a team'}, and the team set-up ${gives}.`
+            ? `This game needs ${a} to restart play${team ? ` for ${team}` : ''}, and the team set-up ${gives}.`
             : first.requirement === 'MOVED'
               ? `This game moves ${a} from ${team ?? 'a team'} when the roles exchange, and the team set-up ${gives}.`
               : `This game needs ${a}${team ? ` for ${team}` : ''}, and the team set-up ${gives}.`
-    return { stage: 'validation', summary }
+    return { stage, summary }
+}
+
+/**
+ * **Each missing participant as an administrator's reason** (P1b, 22 October 2026): the requiring element, the row its requirement is
+ * read from, what it requires, and what each team (or the game's count row) holds — from the same typed records the coach's sentence is
+ * chosen from. Added to a structure refusal, whose reasons otherwise name only the failing check; a validation refusal already carries
+ * the check's account in the gates' outstanding entries.
+ */
+function participantReasons(missing: MissingParticipant[]): string[] {
+    return missing.map(entry => {
+        const what =
+            entry.missing.kind === 'ANY_PERFORMER'
+                ? 'performer of any kind'
+                : entry.missing.kind === 'COUNTED_GROUP'
+                  ? `${entry.missing.name ?? 'member'} counted by ${entry.missing.row}`
+                  : `${entry.missing.name ?? entry.missing.row} (${entry.missing.row})`
+        const holds = entry.teams.length
+            ? entry.teams.map(team => `${team.classId}${team.designations.length ? ` (${team.designations.join(', ')})` : ''} holds ${team.holds}`).join('; ')
+            : `game::${entry.missing.row} holds 0`
+        return `a participant the game requires is missing (${PARTICIPANTS_CHECK}, ${entry.requirement}): ${entry.element} (${entry.row}) requires ${entry.needed} ${what}; ${holds}`
+    })
 }
 
 /** A build, with the goal's selection beside it for a caller that has to account for it in its own shape. */
@@ -1519,6 +1546,18 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
          * different states of the knowledge and a coach is told which.
          */
         const failing: string[] = resolved.coherence.failingChecks ?? []
+        /**
+         * A third, told apart the same way (P1b, 22 October 2026, after the P1 review): GA-PARTICIPANTS-PRESENT FAILS before realization
+         * where the configuration is already known to lack a participant the game requires (a counted group whose count is 0). The game
+         * is described completely and names a participant it cannot hold, so the coach is told which one, from the check's typed
+         * records read from the staged context (`missingParticipantsIn`), at structure; every reason stays, and each missing
+         * participant is added as one naming its element. It is said even where another check also fails, as at validation.
+         */
+        const lacking = failing.includes(PARTICIPANTS_CHECK) ? missingParticipantsIn({ ...staged.gateContext, contracts: input.contracts }) : []
+        const lackingSaid = participantSummary(lacking, index, 'structure')
+        if (lackingSaid) {
+            return refuse(lackingSaid.stage, lackingSaid.summary, [`Gate A is ${resolved.coherence.gateA}`, ...(resolved.coherence.notAuthorizedBecause ?? []), ...participantReasons(lacking)])
+        }
         const notEvaluable = ((result.gates?.gateA?.checks ?? []) as { verdict: string }[]).some(check => check.verdict === 'NOT_EVALUABLE')
         const refusedAtLoad = ((result.failures ?? []) as { kind: string }[]).some(failure => failure.kind === 'LOAD_REFUSAL')
         return refuse(
@@ -1603,7 +1642,7 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
         if (roster) invalid.push(`roster (${roster.cause}): ${roster.why}`)
         if (said) return refuse(said.stage, said.summary, invalid)
         // A participant the game requires and its configuration lacks (GA-PARTICIPANTS-PRESENT, 22 October 2026): said by name.
-        const lacking = participantSummary(post.missingParticipants, index)
+        const lacking = participantSummary(post.missingParticipants, index, 'validation')
         if (lacking) return refuse(lacking.stage, lacking.summary, invalid)
     }
     /**

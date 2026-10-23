@@ -29,7 +29,7 @@
  * instances or found none, and the report carries that split so a summary cannot flatten it.
  */
 
-import { AwardeeRelation, awardeeRelation, designationKey, followsPossessionRelation, holderInBlock, isAllTeams, isListedDesignation, resolutionOf, roleHolderNames, roleOfHolder } from './designation'
+import { AwardeeRelation, awardeeRelation, decidedAtTransition, designationKey, followsPossessionRelation, holderInBlock, isAllTeams, isListedDesignation, resolutionOf, roleHolderNames, roleOfHolder } from './designation'
 import { ClassifiedLine, nonClaimState } from './classify'
 import { DerivedLine, resolvedValue } from './derive'
 import { ItemOutcome } from './forward'
@@ -3397,10 +3397,14 @@ function gaAffiliation(ctx: GateContext): CheckOutcome {
  *      2) is resolved only after these gates, so it is not an instance here; the cross-block membership check RB-M holds it.
  *
  * **Verdicts** (SD-52, SD-53, SD-54), per clause:
- *   - FAIL where a team the requirement certainly falls on holds fewer than it needs, or where every team it may fall on does;
+ *   - FAIL where a team the requirement certainly falls on holds fewer than it needs; where the award is decided at the trigger
+ *     (`decidedAtTransition`: the transition can be awarded to each team its designation does not exclude) and one of those teams
+ *     holds fewer (P1b, 22 October 2026, after the P1 review: this was NOT_EVALUABLE, though the clause's own words — "held by each
+ *     team the transition can be awarded to" — are plainly broken); or where every team it may fall on holds fewer;
  *   - NOT_EVALUABLE where a value names no participant the register types (open text establishes no identity, SD-63 — the block
  *     is NOT_REPRESENTABLE, and it is a knowledge verdict, so such a game is never realized), where a count it needs is a gap (an
- *     unresolved roster: the roster refusal is the cause and is said), or where the award is decided at the trigger and only some of
+ *     unresolved roster: the roster refusal is the cause and is said), or where which team the award falls on cannot be resolved
+ *     (no award established, a designation the resolver cannot tie to a team, or one resolved only on our reading) and only some of
  *     the teams it may fall on hold it;
  *   - DEFERRED where the teams are not yet instantiated, or a taker, award or count is still open: realization supplies them, and the
  *     clause is asked again over the concrete game, where nothing is open;
@@ -3487,10 +3491,17 @@ function participantsPresent(ctx: GateContext, probe: Probe): { clauses: ClauseR
             return kind === 'BLOCK_ROLE' || kind === 'SETUP_ASSIGNMENT'
         })
     /**
-     * Whether a designation falls on this team: IS, NOT, or MAY (decided at the trigger, or not resolvable to a team) — the member's
-     * own resolved designations first, then relative to a qualifier where the register relates the designation to one.
+     * Whether a designation falls on this team — the member's own resolved designations first, then relative to a qualifier where the
+     * register relates the designation to one:
+     *   - IS or NOT;
+     *   - AT_TRIGGER where the team it picks out is decided only when play reaches the transition, so the transition can be awarded to
+     *     this team (`decidedAtTransition`; P1b, 22 October 2026: such an award is not a designation that cannot be resolved, and what
+     *     it requires of a team is required of each team it can fall on);
+     *   - MAY where which team it picks out cannot be resolved at all: no award established, a value no registered designation names,
+     *     a standing designation whose binding is not recorded, a qualifier the register relates it to that names no team it can
+     *     read, a designation decided by another transition's award, or one resolved only on our reading.
      */
-    const fallsOn = (team: ElementClass, scope: Extract<TeamScope, { mode: 'EACH' }>): 'IS' | 'NOT' | 'MAY' => {
+    const fallsOn = (team: ElementClass, scope: Extract<TeamScope, { mode: 'EACH' }>): 'IS' | 'NOT' | 'AT_TRIGGER' | 'MAY' => {
         if (!scope.known || !resolutionOf(index, scope.designation)) return 'MAY'
         const key = designationKey(index, scope.designation)
         if ((team.designations?.met ?? []).some(name => designationKey(index, name) === key)) return 'IS'
@@ -3500,7 +3511,7 @@ function participantsPresent(ctx: GateContext, probe: Probe): { clauses: ClauseR
             if (relation === 'HOLDER') return 'IS'
             if (relation === 'OTHER') return 'NOT'
         }
-        return 'MAY'
+        return decidedAtTransition(index, scope.designation, scope.qualifiers) ? 'AT_TRIGGER' : 'MAY'
     }
     const missingOf = (need: ParticipantNeed): MissingParticipant['missing'] =>
         need.of === 'ROW'
@@ -3564,6 +3575,10 @@ function participantsPresent(ctx: GateContext, probe: Probe): { clauses: ClauseR
         if (scope.mode === 'EACH') {
             const certain = lacking.filter(entry => entry.falls === 'IS')
             if (certain.length) return failWith(certain, `${scopeSaid}, and a team it falls on holds fewer`)
+            // An award decided at the trigger can fall on each team its designation does not exclude, so one of them holding fewer
+            // breaks "held by each team the transition can be awarded to" as surely as a team it certainly falls on (P1b).
+            const atTrigger = lacking.filter(entry => entry.falls === 'AT_TRIGGER')
+            if (atTrigger.length) return failWith(atTrigger, `${scopeSaid}, which is decided at the trigger, and a team it can be awarded to holds fewer`)
             if (known.length === holding.length && lacking.length === holding.length) return failWith(lacking, `${scopeSaid}, and every team it may fall on holds fewer`)
             if (known.length === holding.length && !lacking.length) return record('PASS', `${scopeSaid}: ${named(known)}`)
         } else {
@@ -3572,7 +3587,7 @@ function participantsPresent(ctx: GateContext, probe: Probe): { clauses: ClauseR
         }
         if (holding.some(entry => entry.held === 'GAP')) return record('BLOCKED', `${scopeSaid}: a team's count is not established (${holding.filter(entry => entry.held === 'GAP').map(entry => entry.team.classId).join(', ')})`)
         if (holding.some(entry => entry.held === 'OPEN')) return record('DEFERRED', `${scopeSaid}: a team's count is still open`)
-        return record('BLOCKED', `${scopeSaid}: which team it falls on is decided at the trigger, and only some of the teams it may fall on hold it (${named(known)})`)
+        return record('BLOCKED', `${scopeSaid}: which team it falls on cannot be resolved, and only some of the teams it may fall on hold it (${named(known)})`)
     }
     /** A value naming no participant the register types: nothing is checked, and the clause withholds (SD-63). */
     const unrepresentable = (requirement: ParticipantRequirement, element: string, row: string, lineId: string, value: unknown) => {
@@ -3761,7 +3776,8 @@ function gaParticipantsPresent(ctx: GateContext): CheckOutcome {
 /**
  * **The participants the configuration lacks, typed** — for a caller that has to tell a coach which one (build-activity.ts chooses
  * its sentence from these records, never from the check's prose). The same reading the check makes, asked again; empty where every
- * requirement holds or none could be established as failing.
+ * requirement holds or none could be established as failing. Asked of the concrete game after realization (post-realization-gate.ts)
+ * and, since P1b (22 October 2026), of the staged context before it, where a count already known to be 0 fails the check at structure.
  */
 export function missingParticipantsIn(ctx: GateContext): MissingParticipant[] {
     return participantsPresent(ctx, new Probe(ctx, PARTICIPANTS_CHECK)).missing

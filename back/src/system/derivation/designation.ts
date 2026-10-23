@@ -191,6 +191,39 @@ export function awardeeRelation(index: RegisterIndex, awardee: unknown, qualifie
     return named === 'HOLDER' ? 'OTHER' : 'HOLDER'
 }
 
+/**
+ * The resolution scopes whose answer is fixed only when play reaches the transition itself: TRIGGER, decided at the trigger, and
+ * DYNAMIC, whichever team holds the relation when the transition occurs (the register's resolution note: an EPISODE, DYNAMIC or
+ * TRIGGER designation picks out a team that changes during play). EPISODE is not among them: its answer was fixed when the episode
+ * began, at another transition's award, which this resolver does not follow.
+ */
+const DECIDED_AT_TRANSITION_SCOPES: readonly string[] = ['TRIGGER', 'DYNAMIC']
+
+/**
+ * **Is the team a transition's award designation picks out decided only when play reaches the transition?** — 22 October 2026
+ * (P1b, after the P1 review), for GA-PARTICIPANTS-PRESENT. Christian, reply filed 25 October 2026, item 6: *"Any participant or
+ * role required by an activity must actually be present in the authorized configuration."* A transition so awarded can be awarded
+ * to each team its designation does not exclude, so it is not a designation that cannot be resolved: what it requires of a team is
+ * required of each of them. True only where all three hold:
+ *
+ *   - the resolution's scope is one decided at the transition (`DECIDED_AT_TRANSITION_SCOPES`) — never a standing scope (one team,
+ *     which a recorded binding names) and never EPISODE;
+ *   - the resolution is not only our reading: it restates the entry's gloss, or the entry carries a relation in his words
+ *     (`relativeTo`). A reading of ours never decides a gate clause (the register's relativeToNote; `followsPossessionRelation`);
+ *   - no relation the register records ties it to a qualifier this transition carries: where the transition carries that qualifier,
+ *     `awardeeRelation` answers, and where it cannot, the team is unresolved, not decided at the trigger.
+ *
+ * False for everything else, a value no registered designation names included. Read from the resolution's data; no designation is
+ * named here.
+ */
+export function decidedAtTransition(index: RegisterIndex, awardee: unknown, qualifiers: Record<string, unknown>): boolean {
+    const resolved = resolutionOf(index, awardee)
+    if (!resolved || !DECIDED_AT_TRANSITION_SCOPES.includes(resolved.scope) || index.designations.standingScopes.includes(resolved.scope)) return false
+    const relative = resolved.relativeTo
+    if (resolved.basis !== 'GLOSS' && !relative) return false
+    return !relative || !(relative.qualifier in qualifiers)
+}
+
 /** Equal as designations (RC-22), or null where either value is no registered designation. */
 export function sameDesignation(index: RegisterIndex, a: unknown, b: unknown): boolean | null {
     if (!isRegisteredDesignation(index, a) || !isRegisteredDesignation(index, b)) return null
