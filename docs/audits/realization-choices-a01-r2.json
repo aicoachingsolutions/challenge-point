@@ -1,0 +1,86 @@
+{
+    "note": "The realization choices of the provisional realization A01-R2, the goal version (docs/audits/conformance/stage-b/provisional-realizations.json), named by it and read ONLY where A01's authorization record has that realization tried. Added 26 October 2026 (Stage F). A REALIZER's input, not knowledge, and his choice for this one activity, never the possession game form's. The same EXPLICIT REPLACEMENT rule as A01-R1's file (supplied-realization.ts): an entry here closes a line the game form's file also closes only by declaring `replaces`. A01-R2 is a variant of A01-R1, so its kept items keep A01-R1's item ids under its own contract, and their lines are named c:provisional:A01-R2:A01-R1-...; these entries are A01-R1's file's, re-pointed to A01-R2, with three differences: (1) no noun for the possession game's target at the axis-start end (c:restated:GF2:GF2-03.e::S3) - the game form's entry for it is WITHDRAWN instead - because in the goal version that region yields with the reference pointing to it (ruling C63) and the goal stands in its place, so the line is not open; (2) the three build-out restart stand-ins name the bound of his reply filed 26 October 2026, item 8 (\"This flexibility should operate within the authorized deep starting environment, rather than permit arbitrary locations anywhere on the field.\") in place of the post-regain area, which the goal version does not hold (A01-R1-T4-4 withdrawn, A01-R2-T4-5 added); (3) nothing else. Every stand-in's words are DRAFT coach wording; A01-R2 is listed and not tried until his open decisions (D-GOAL-SUITABILITY, D-PENALTY-AREA), so none of them is said to a coach yet.",
+    "choices": [
+        {
+            "lineId": "c:restated:GF2:GF2-03.e::S3",
+            "withdraws": "a04-realization-choices.json",
+            "because": "Not the possession game's to choose in this activity: in the goal version the region at the axis-start end (GF2-03.e) yields together with the objective reference pointing to it (GF2-08.f, ruling C63), and the goal (A01-R2-O1-1) is the pressing team's target in its place - his reply filed 25 October 2026, item 3, \"I approve a goalkeeper-protected physical goal as an authorized alternative to the pressing team's 5 m target zone within the Goalkeeper Build-Out context.\" Left in, the game form's choice of a noun for that region would be a choice for a line that is not open, and realization would refuse it."
+        },
+        {
+            "lineId": "c:restated:GF2:GF2-03.f::S3",
+            "value": "zone",
+            "replaces": "a04-realization-choices.json",
+            "because": "The building team's target is a zone, as in A01-R1: in the goal version the building role holds the same end in both blocks (the end exchange, A01-R2-B10-1), so its target is the region at the axis-end end in both, beginning at the pressure reference (A01-R1-S5-2, kept) - his reply filed 26 October 2026, item 1: \"Building team: Controlled progression beyond the marked line during an active goalkeeper-initiated build-out.\" and \"The game form's existing line-or-zone progression structure, together with Goalkeeper Build-Out's approved scoring knowledge, should continue to govern the building team.\" Zone is one of the two nouns the possession game permits (GF2-03.b). Replaces the possession game's entry (a line), for this activity only.",
+            "category": "PROVISIONAL_REALIZATION_CHOICE"
+        },
+        {
+            "lineId": "game::V1",
+            "value": "target_zone_entered",
+            "replaces": "a04-realization-choices.json",
+            "because": "The primary event is the building team's, as in A01-R1: entry into its target zone beyond the marked line, one of the kinds Goalkeeper Build-Out approves (RPC-001-08.a), his reply filed 26 October 2026, item 1: \"Building team: Controlled progression beyond the marked line during an active goalkeeper-initiated build-out.\" The pressing team scores by its own event, a goal (A01-R2-B9-1, row B9), not by this one. Replaces the possession game's line_crossed, which a zone would contradict, for this activity only.",
+            "category": "PROVISIONAL_REALIZATION_CHOICE"
+        },
+        {
+            "lineId": "c:provisional:A01-R2:A01-R1-T1-1::T4",
+            "value": {
+                "coachDecides": "consistent with the intended build-out situation, within the authorized deep starting environment"
+            },
+            "because": "COACH_DECIDES, a stand-in for the coach's decision, never a location: where the start restarts is the coach's (A01-R1-T4-1, kept), bounded by his reply filed 26 October 2026, item 8 (A01-R2-T4-5): \"The coach may select the goalkeeper's restart location, consistent with the intended build-out situation.\" \"This flexibility should operate within the authorized deep starting environment, rather than permit arbitrary locations anywhere on the field.\" The value names no region and no distance, and no check compares it geometrically; which element the deep starting environment is stays PROPOSED (A01-R2-T4-5). DRAFT wording, in his words.",
+            "category": "PROVISIONAL_REALIZATION_CHOICE"
+        },
+        {
+            "lineId": "c:provisional:A01-R2:A01-R1-T1-2::T4",
+            "value": {
+                "coachDecides": "consistent with the intended build-out situation, within the authorized deep starting environment"
+            },
+            "because": "COACH_DECIDES, a stand-in for the coach's decision, never a location: where the build-out after a score restarts is the coach's (A01-R1-T4-1, kept), bounded by his reply filed 26 October 2026, item 8 (A01-R2-T4-5): \"This flexibility should operate within the authorized deep starting environment, rather than permit arbitrary locations anywhere on the field.\" The value names no region and no distance, and no check compares it geometrically. DRAFT wording, in his words.",
+            "category": "PROVISIONAL_REALIZATION_CHOICE"
+        },
+        {
+            "lineId": "c:provisional:A01-R2:A01-R1-T1-3::T4",
+            "value": {
+                "coachDecides": "consistent with the intended build-out situation, within the authorized deep starting environment"
+            },
+            "because": "COACH_DECIDES, a stand-in for the coach's decision, never a location: where the build-out after the coach concludes an episode restarts is the coach's (A01-R1-T4-1, kept), bounded by his reply filed 26 October 2026, item 8 (A01-R2-T4-5): \"This flexibility should operate within the authorized deep starting environment, rather than permit arbitrary locations anywhere on the field.\" His item 11 brings shots going out under the same restart: \"Shots going out: The coach may conclude the episode and restart the goalkeeper's build-out under the already authorized activity structure.\" The value names no region and no distance. DRAFT wording, in his words.",
+            "category": "PROVISIONAL_REALIZATION_CHOICE"
+        },
+        {
+            "lineId": "c:provisional:A01-R2:A01-R1-T1-6::T4",
+            "value": {
+                "coachDecides": "preserving meaningful game relationships rather than creating an automatic scoring shortcut"
+            },
+            "because": "As A01-R1's entry for its end-line restart after the pressing team plays the ball out (A01-R1-T4-3, kept; his reply filed 19 October 2026, item 3 A, \"Yes. The coach determines both, with the understanding that ordinary restarts should preserve meaningful game relationships rather than create an automatic scoring shortcut.\"), re-pointed to A01-R2. OUR gerund form of his words (DRAFT).",
+            "category": "PROVISIONAL_REALIZATION_CHOICE"
+        },
+        {
+            "lineId": "c:provisional:A01-R2:A01-R1-T1-7::T4",
+            "value": {
+                "coachDecides": "preserving meaningful game relationships rather than creating an automatic scoring shortcut"
+            },
+            "because": "As A01-R1's entry for its end-line restart after the building team plays the ball out (A01-R1-T4-3, kept; his reply filed 19 October 2026, item 3 A), re-pointed to A01-R2. OUR gerund form of his words (DRAFT).",
+            "category": "PROVISIONAL_REALIZATION_CHOICE"
+        },
+        {
+            "lineId": "c:provisional:A01-R2:A01-R1-T1-6::T5",
+            "value": {
+                "coachDecides": "preserving meaningful game relationships rather than creating an automatic scoring shortcut"
+            },
+            "because": "As A01-R1's entry for how an end-line restart is taken after the pressing team plays the ball out (A01-R1-T5-3, kept; his reply filed 19 October 2026, item 3 A), re-pointed to A01-R2. No method from the register's list is chosen for him. OUR gerund form of his words (DRAFT).",
+            "category": "PROVISIONAL_REALIZATION_CHOICE"
+        },
+        {
+            "lineId": "c:provisional:A01-R2:A01-R1-T1-7::T5",
+            "value": {
+                "coachDecides": "preserving meaningful game relationships rather than creating an automatic scoring shortcut"
+            },
+            "because": "As A01-R1's entry for how an end-line restart is taken after the building team plays the ball out (A01-R1-T5-3, kept; his reply filed 19 October 2026, item 3 A), re-pointed to A01-R2. OUR gerund form of his words (DRAFT).",
+            "category": "PROVISIONAL_REALIZATION_CHOICE"
+        },
+        {
+            "lineId": "game::PS1",
+            "withdraws": "a04-realization-choices.json",
+            "because": "As A01-R1's entry: the start's awardee entails the opening holder of possession (register version 12, PS1 entailedBy), and the start is awarded to the team holding the building role in each block (A01-R1-T2-1, kept; his D5, \"The designated building team restarts.\"), so the possession game's choice is withdrawn."
+        }
+    ],
+    "instantiations": []
+}

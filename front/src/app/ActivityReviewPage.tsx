@@ -439,6 +439,11 @@ export default function ActivityReviewPage() {
 
                 {/* Which pathway built it, and whether the live app serves it (stage K7, his 18 October item 7). */}
                 {result && <PathwayNote result={result} />}
+                {/*
+                  * Which of the goal's alternative versions was built, and why the others were not, is in the closed account panel below
+                  * (RealizationVersions), never here: it quotes his citations and the record's gap descriptions, and his 13 October rule
+                  * keeps the activity primary and everything technical secondary (Stage G review fix, 23 October 2026).
+                  */}
 
                 {/* 3 and 4. The answer, primary: the activity, or the sentence saying why there is none. */}
                 {result?.outcome === 'served' && <ActivityBlock activity={result} />}
@@ -615,6 +620,54 @@ function PathwayNote({ result }: { result: ActivityReviewResult }) {
                 <p className='font-medium'>Built through the checked review pathway, not the live app.</p>
             )}
         </div>
+    )
+}
+
+/**
+ * **Which version of the activity was built, and why the others were not — Stage G, 23 October 2026 (wording DRAFT).** Christian, reply
+ * filed 25 October 2026, item 4: "These should be alternative knowledge-authorized realizations, not separate hardcoded implementations of
+ * the same Learning Goal."; his reply filed 26 October 2026, item 11: "Automatic selection between appropriately authorized goal and zone
+ * versions is acceptable for this first implementation." The note sent to him said the review "shows which version was used and why". Shown
+ * only where the goal's record authorizes more than one version, read from the server's own account (`realizationSelection`, each entry
+ * with his words for its place in the order, its outcome and why) and the record's own gap descriptions (`authorization.gaps`): the built
+ * version in his words, then each other version and why it was not built. Nothing here chooses or names a version: every word of a
+ * version is his, every reason the server's.
+ *
+ * **Where it is shown — the Stage G review fix, 23 October 2026.** It was first a note above the activity, for every reader. It quotes his
+ * citations and the record's internal gap descriptions, so it broke his 13 October rule this page is built on ("Please keep the actual
+ * coach-facing activity primary, with its selection rationale and technical evidence available separately.") and the page's own contract
+ * that everything technical stays in one panel closed until the reader opens it; it also changed what a coach saw above the zone version
+ * where no snapshot could see it. It is now one field of that closed panel (`ArrivedAt`), beside the technical list of the same entries,
+ * and nothing about versions is said above the activity.
+ */
+function RealizationVersions({ result }: { result: ActivityReviewResult }) {
+    const entries = result.account?.realizationSelection ?? []
+    if (entries.length < 2) return null
+    const gapWords = (id: string) => result.account?.authorization?.gaps?.find((gap) => gap.id === id)?.description ?? id
+    const quoted = (entry: (typeof entries)[number]) => (entry.words ? <>&ldquo;{entry.words}&rdquo;{entry.citedAs ? ` (${entry.citedAs})` : ''}</> : <span className='font-mono text-xs'>{entry.realization}</span>)
+    const why = (entry: (typeof entries)[number]): string => {
+        if (entry.outcome === 'NOT_SELECTABLE') return `not built: it waits on decisions that are still open: ${entry.gaps.map(gapWords).join(' ')}`
+        if (entry.outcome === 'NOT_TRIED') return 'not needed: a version earlier in the order was built'
+        if (entry.outcome === 'NOT_APPLICABLE') return `not built: it does not apply to this session${entry.summary ? ` (${entry.summary})` : ''}`
+        if (entry.outcome === 'ASKED') return `not built yet: the session must say something first${entry.summary ? ` (${entry.summary})` : ''}`
+        if (entry.outcome === 'REFUSED') return `not built${entry.summary ? `: ${entry.summary}` : ''}`
+        return entry.outcome
+    }
+    const built = entries.find((entry) => entry.outcome === 'SELECTED')
+    return (
+        <AccountField label='Which version was built, and why'>
+            <p className='font-medium'>{built ? 'Version built' : 'No version of this activity was built'}</p>
+            {built && <p className='mt-1'>{quoted(built)}</p>}
+            <ul className='mt-2 space-y-1'>
+                {entries
+                    .filter((entry) => entry !== built)
+                    .map((entry) => (
+                        <li key={entry.realization}>
+                            {quoted(entry)}: {why(entry)}
+                        </li>
+                    ))}
+            </ul>
+        </AccountField>
     )
 }
 
@@ -1174,6 +1227,9 @@ function ArrivedAt({ result }: { result: ActivityReviewResult }) {
                                 </Mark>
                             </AccountField>
                         )}
+
+                        {/* Stage G (moved here by its review fix): which version was built in his words, and why each other was not. */}
+                        <RealizationVersions result={result} />
 
                         {/*
                           * Stage E (23 October 2026), technical account only, DRAFT labels: every realization the goal's record names, in

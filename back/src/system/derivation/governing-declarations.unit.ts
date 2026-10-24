@@ -137,8 +137,10 @@ test('corpus-wide, exactly five lines move, each as the design analysis predicte
     // object (c:blind:GF4:I02) gains one line no item speaks for, decided from declarations as 'no coverage'. It never moves here.
     // 28 -> 29 on 23 October 2026 (stage D): register version 18 adds the game-level row B10 (whether the teams change ends); game::B10
     // is a line no item speaks for, decided from declarations as 'no coverage'. It never moves here.
+    // 29 -> 30 on 26 October 2026 (Stage F): register version 20 adds row O7 (the specialized performer whose team defends an object); the
+    // transition game's object (c:blind:GF4:I02) gains one line no item speaks for, decided from declarations as 'no coverage'. It never moves here.
     const corpus = run('corpus')
-    assert.equal(corpus.reasons.size, 29)
+    assert.equal(corpus.reasons.size, 30)
     assert.deepEqual(moves(corpus), [
         // An exclusion scoped to Wide Zone's OWN involvement had been relabelling regions it never addressed.
         'c:blind:GF4:I03::S4: excluded -> not constrained',

@@ -76,6 +76,13 @@ const STYLE = {
  */
 const TARGET_EDGE = { width: 3, inset: 2.5 }
 
+/**
+ * Stage G (23 October 2026): how far behind its end line the frame of an object standing on that line is drawn, in viewBox units. Presentation
+ * only: the server serves the object's width across the area and no depth (its structure stands outside the area), and nothing here is a size
+ * of the activity. Inside the left (lying down) or bottom (upright) margin, which leaves room for it.
+ */
+const OBJECT_FRAME = 8
+
 /** Sizes in viewBox units, per orientation, so text lands near 11-13 px at the widths each orientation is drawn at. */
 const SIZES = {
     landscape: { pitch: 400, label: 13, small: 11.5, tiny: 10.5, top: 46, left: 16, right: 40, rail: 20, arrow: 2.4, inset: 9, zoneOffset: 20, maxWidth: 560 },
@@ -192,6 +199,8 @@ function BlockDrawing({ diagram, block, orientation, uid }: { diagram: CoachDiag
         return { x, y, width: Math.max(0, Math.abs(x2 - x1) - 2 * inset), height: Math.max(0, Math.abs(y2 - y1) - 2 * inset) }
     }
     const pitch = rect({ from: 0, to: L }, { from: 0, to: W })
+    /** Stage G: the end line an object with no depth stands on (0 or the length), or null for any other object. */
+    const endLineOf = (along: DiagramInterval): number | null => (along.from === along.to && (along.from === 0 || along.from === L) ? along.from : null)
 
     // Each active target zone's label: inside the zone, beside the edge its attackers enter by (the edge on no end line).
     const zoneLabels = block.targets
@@ -277,10 +286,28 @@ function BlockDrawing({ diagram, block, orientation, uid }: { diagram: CoachDiag
                     const [x2, y2] = P(target.along.to, target.across.to)
                     return <line key={`target-line-${index}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke={STYLE.targetLine} strokeWidth={5} />
                 })}
-            {/* Objects, only where the served diagram holds them (goals among them); outlined green where a team scores at one. */}
-            {block.objects.map((object, index) => (
-                <rect key={`object-${index}`} {...rect(object.along, object.across)} fill='#ffffff' stroke={object.target ? STYLE.targetLine : STYLE.markedLine} strokeWidth={object.target ? 3 : 1.5} />
-            ))}
+            {/*
+              * Objects, only where the served diagram holds them (goals among them); outlined green where a team scores at one. Stage G (23
+              * October 2026): an object with no depth that stands on an end line (the server places it there, its structure outside the area)
+              * is drawn as its mouth along the end line, at the width served, with a frame behind it outside the area. The frame's depth is
+              * presentation only (OBJECT_FRAME, viewBox units, never a size of the activity); no size is typed here.
+              */}
+            {block.objects.map((object, index) => {
+                const stroke = object.target ? STYLE.targetLine : STYLE.markedLine
+                const end = endLineOf(object.along)
+                if (end === null) return <rect key={`object-${index}`} {...rect(object.along, object.across)} fill='#ffffff' stroke={stroke} strokeWidth={object.target ? 3 : 1.5} />
+                const outward = end === 0 ? -1 : 1
+                const depthM = OBJECT_FRAME / S
+                const frame = rect({ from: Math.min(end, end + outward * depthM), to: Math.max(end, end + outward * depthM) }, object.across)
+                const [x1, y1] = P(end, object.across.from)
+                const [x2, y2] = P(end, object.across.to)
+                return (
+                    <g key={`object-${index}`}>
+                        <rect {...frame} fill='#ffffff' stroke={stroke} strokeWidth={1.5} />
+                        <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={stroke} strokeWidth={object.target ? 5 : 3} />
+                    </g>
+                )
+            })}
 
             {/* 4. Starting areas: a dashed boundary in the team's colour, inset so it never sits on a marking. */}
             {block.teams.map((team) =>
@@ -318,6 +345,27 @@ function BlockDrawing({ diagram, block, orientation, uid }: { diagram: CoachDiag
             })}
             {block.objects.map((object, index) => {
                 if (!object.label) return null
+                // Stage G: an object on an end line is named just inside the area in front of its mouth (along the end line when lying down).
+                const end = endLineOf(object.along)
+                if (end !== null) {
+                    const inward = end === 0 ? 1 : -1
+                    const [x, y] = P(end + (inward * (size.tiny + 4)) / S, (object.across.from + object.across.to) / 2)
+                    return (
+                        <text
+                            key={`object-label-${index}`}
+                            x={x}
+                            y={y}
+                            fontSize={size.tiny}
+                            fontWeight={600}
+                            fill={STYLE.zoneText}
+                            textAnchor='middle'
+                            dominantBaseline='central'
+                            transform={landscape ? `rotate(-90 ${x} ${y})` : undefined}
+                        >
+                            {object.label}
+                        </text>
+                    )
+                }
                 const [x, y] = P((object.along.from + object.along.to) / 2, object.across.to)
                 return (
                     <text key={`object-label-${index}`} x={x} y={y + size.tiny + 2} fontSize={size.tiny} fill={STYLE.zoneText} textAnchor='middle'>

@@ -142,7 +142,9 @@ test('register version 16 holds the rows as data, in one versions entry quoting 
     const latest = String(register.version)
     // Re-pointed 23 October 2026 (stage D): version 18 (the coach-controlled end exchange) supersedes 17, which supersedes 16.
     // Re-pointed 23 October 2026 (stage E): version 19 (an object's availability as a session resource) supersedes 18.
-    assert.ok(latest.startsWith("19, adds an object's availability as a session resource"))
+    // Re-pointed 26 October 2026 (Stage F): version 20 (his rulings filed 26 October 2026 for the goal version) supersedes 19.
+    assert.ok(latest.startsWith('20, records his rulings filed 26 October 2026 for the goal version of the build-out activity'))
+    assert.ok(latest.includes("Supersedes version 19, which adds an object's availability as a session resource"))
     assert.ok(latest.includes('Supersedes version 18, which adds the coach-controlled end exchange'))
     assert.ok(latest.includes('Supersedes version 17, which adds object targets and the geometry a goal needs'))
     assert.equal(latest.split('Supersedes version 16, which ').length - 1, 1, 'version 16 superseded once')
@@ -244,9 +246,12 @@ test('the restatement loader writes only keys it knows, and the role-yield marke
     // A declaration never carries it.
     const declared = restateDeclaration({ row: 'V1', declaration: 'CLAIMED' }, { contractId: 'restated:TEST-ONLY', row: 'V1', from: 'CLAIMED', to: 'CLAIMED', ruling: 'TEST-ONLY', why: 'TEST-ONLY', [ROLE_YIELD_KEY]: 'AUTHORIZED_ROLE_SCORING' } as any)
     assert.ok('refused' in declared && /never on a declaration/.test(String((declared as any).refused)))
-    // Every production ruling writes only known keys, and none carries the marker (restatement S1 is his to rule).
+    // Every production ruling writes only known keys. Re-pointed 26 October 2026 (Stage F): restatement S1 is ruled (his reply filed 26
+    // October 2026, item 1), so exactly four production rulings carry the marker - ruling C60, each quoting him and saying where.
     assert.ok(!restatementTally.notFound.some(entry => /may write|role-yield|provenance note/.test(entry)), restatementTally.notFound.join(' | '))
-    assert.ok(!ITEM_RESTATEMENTS.some(r => r.set && ROLE_YIELD_KEY in r.set), 'no production item carries the marker')
+    const marked = ITEM_RESTATEMENTS.filter(r => r.set && ROLE_YIELD_KEY in r.set)
+    assert.deepEqual(marked.map(r => [r.item, r.ruling, r.set![ROLE_YIELD_KEY], r.citedAs]), ['restated:GF2::GF2-19', 'restated:GF2::GF2-03.b', 'restated:GF2::GF2-06.a', 'restated:RPC-001::RPC-001-08.a'].map(item => [item, 'C60', 'AUTHORIZED_ROLE_SCORING', 'his reply filed 26 October 2026, item 1']))
+    assert.ok(marked.every(r => r.words === 'The opposing team may have a different primary scoring event where authorized by the selected context.'))
 
     // Review fix: the provenance-note keys are the ledger's (data), never spelled in the engine's list, admitted only as text.
     assert.equal(PROVENANCE_NOTE_KEYS.length, 2)
@@ -371,6 +376,8 @@ test('production A01, both blocks before realization: both roles score by the pr
                 [C.ALSO, 'PASS', 1],
                 [C.ALSO_REGION, 'PASS', 1],
                 [C.SAME, 'PASS', 0],
+                // Stage F (26 October 2026): clause 13, no instance - A01-R1 holds no object whose defended-by line is written.
+                [C.DEFENDED, 'PASS', 0],
             ],
             block.blockId,
         )
@@ -508,6 +515,9 @@ const SUPERSEDED = [`${GF2}::GF2-19`, `${GF2}::GF2-03.b`, `${GF2}::GF2-06.a`, `$
 const TEST_RELATIONSHIP = (over: Partial<AuthorizingRelationship> = {}): AuthorizingRelationship => ({ id: 'TEST-ONLY-REL', contextId: 'RPC-001', rows: ['B9', 'J2'], status: 'CONFIRMED', supersedes: [...SUPERSEDED], scoringEvent: 'goal', role: 'PRESSING', ...over })
 const goalGame = (options: { marked?: string[]; cite?: { event: boolean; reference: boolean }; kind?: string; extra?: any[] } = {}) => (contracts: LoadedContract[]) => {
     withoutAlsoCounts(contracts)
+    // Since Stage F (26 October 2026) four production items carry the marker (ruling C60, restatement S1 approved in his reply filed 26 October
+    // 2026, item 1). This copy sets every marker aside first, so each one this test measures is the one `marked` writes, as before.
+    for (const contract of contracts) for (const item of contract.items ?? []) delete (item as any)[ROLE_YIELD_KEY]
     const kind = options.kind ?? 'goal'
     const gf2 = contractOf(contracts, GF2)
     gf2.items = gf2.items.filter(i => i.itemId !== 'GF2-08.f')
@@ -610,9 +620,12 @@ test('C56 still defers on production; an end-keyed item defers only to a referen
 
 // ── 6. The relationship feed ────────────────────────────────────────────────────────────────────────────
 test('the relationship feed passes every recorded kind, and the validator holds them all', () => {
-    assert.deepEqual(contextScoringRelationships(), [], 'no scoring relationship is recorded on 22 October 2026')
-    assert.deepEqual(contextRelationships(), contextManipulationRelationships(), 'so the feed equals the manipulation list, entry for entry')
-    // Production compositions are unchanged by the role yields, object for object.
+    // Re-pointed 26 October 2026 (Stage F): ONE scoring relationship is recorded since his reply filed 26 October 2026, item 1 (pinned in
+    // goal-version-knowledge.unit.ts), and the feed is the manipulation list followed by it, entry for entry.
+    assert.deepEqual(contextScoringRelationships().map(r => [r.id, r.contextId, r.scoringEvent, r.role, r.status]), [['RPC-001~SCORING-goal', 'RPC-001', 'goal', 'PRESSING', 'CONFIRMED']])
+    assert.deepEqual(contextRelationships(), [...contextManipulationRelationships(), ...contextScoringRelationships()], 'so the feed is the manipulation list and the scoring one, entry for entry')
+    // Production compositions of the zone version are unchanged by the role yields, object for object: no item of A01-R1 cites the
+    // scoring relationship, so no marked item is cited.
     const contracts = derivationInputFor(selectFor('A01', null)).contracts as LoadedContract[]
     const yielded = applyRoleYields(contracts, contextRelationships(), index)
     assert.ok(yielded.every((contract, i) => contract === contracts[i]))
@@ -635,14 +648,17 @@ test('the relationship feed passes every recorded kind, and the validator holds 
         note: null,
         supersedes: [...SUPERSEDED],
     }
-    assert.deepEqual(validateContextManipulationRelationships(contextManipulationRelationships(), records, undefined, [scoring]), [])
+    // Since Stage F (26 October 2026) the production provisional realizations cite the recorded scoring relationship (A01-R2), so it is
+    // validated beside the TEST-ONLY one wherever the production realizations are read.
+    const recorded = contextScoringRelationships()
+    assert.deepEqual(validateContextManipulationRelationships(contextManipulationRelationships(), records, undefined, [...recorded, scoring]), [])
     assert.ok(validateContextManipulationRelationships(contextManipulationRelationships(), records, undefined, [{ ...scoring, category: 'EXISTING_KNOWLEDGE_RELATIONSHIP' as any }]).some(e => e.includes('CONTEXT_SCORING_RELATIONSHIP')))
     assert.ok(validateContextManipulationRelationships(contextManipulationRelationships(), records, undefined, [{ ...scoring, scoringEvent: '' }]).some(e => e.includes('scoring event')))
     assert.ok(validateContextManipulationRelationships(contextManipulationRelationships(), records, undefined, [{ ...scoring, supersedes: ['TEST-ONLY'] }]).some(e => e.includes('supersedes')))
     assert.ok(validateContextManipulationRelationships(contextManipulationRelationships(), records, undefined, [{ ...scoring, id: contextManipulationRelationships()[0].id }]).some(e => e.includes('defined twice')))
     assert.ok(validateContextManipulationRelationships(contextManipulationRelationships(), records, undefined, [{ ...scoring, status: 'CONFIRMED', words: [] }]).some(e => e.includes('in his words')))
     // Review fix: the event is one member of the register's scoring-event vocabulary and the role one member of its roles, or nothing loads.
-    const refusedFor = (over: Partial<ContextScoringRelationship>, register?: unknown) => validateContextManipulationRelationships(contextManipulationRelationships(), records, undefined, [{ ...scoring, ...over }], register)
+    const refusedFor = (over: Partial<ContextScoringRelationship>, register?: unknown) => validateContextManipulationRelationships(contextManipulationRelationships(), records, undefined, [...recorded, { ...scoring, ...over }], register)
     assert.ok(refusedFor({ scoringEvent: 'TEST-ONLY-EVENT' }).some(e => e.includes('authorizes the scoring event "TEST-ONLY-EVENT", which is not a member of V1.kind')), refusedFor({ scoringEvent: 'TEST-ONLY-EVENT' }).join(' | '))
     assert.ok(refusedFor({ role: 'TEST-ONLY-ROLE' }).some(e => e.includes('must name the one role it is confirmed for')))
     assert.ok(refusedFor({ role: undefined as any }).some(e => e.includes('must name the one role it is confirmed for')))
@@ -691,12 +707,15 @@ test('THE CONSUMER: a building role at a line and a pressing role scoring by its
     const production = productionBuild()
     const consumer = consumerBuild()
     const activity = consumer.activity as RefusedActivity
-    // It is coherent: every check before and after realization, and across the blocks, holds; it stops only at communication, on a sentence
-    // he has not yet approved for the primary event the building team now scores by (the approved building sentence does not cite it).
+    // It is coherent: every check before and after realization, and across the blocks, holds; it stops only at communication. Until Stage G
+    // (23 October 2026) it stopped on the primary event's kind, which the approved building sentence does not cite; since Stage G fidelity
+    // reads the kind per role (fidelity.ts Q3: every role scoring by it is bounded and spoken for by his approved words about where it
+    // scores), so that reason is gone, and what still stops it is the targets' two nouns (a line and a zone), which no one word names.
     assert.equal(activity.outcome, 'refused')
     assert.equal(activity.stage, 'communication', activity.reasons.join(' | '))
     assert.ok(!activity.reasons.some(reason => reason.includes(ROLE_EVENTS_CHECK)), activity.reasons.join(' | '))
-    assert.ok(activity.reasons.some(reason => reason.includes('fidelity Q3: value.primaryEvent.kind is established by the game and no instruction carries it')))
+    assert.ok(!activity.reasons.some(reason => reason.includes('fidelity Q3: value.primaryEvent.kind')), activity.reasons.join(' | '))
+    assert.ok(activity.reasons.some(reason => reason.includes('awaiting approved wording: objectives[')), activity.reasons.join(' | '))
     // The fixture: the pressing role holds its own event and the game's primary event is the building team's.
     const game: any = (consumer.fixture as any).game
     const productionGame: any = (production.fixture as any).game
@@ -729,9 +748,11 @@ test('THE CONSUMER: a building role at a line and a pressing role scoring by its
 
 // ── 8. No wording, no sentence; the guard ───────────────────────────────────────────────────────────────
 test('a kind with no wording is withheld and fidelity refuses it, never said with the line wording; the two wordings by kind', () => {
+    // Stage G (23 October 2026): the goal has DRAFT wording from data (docs/audits/draft-coach-wording.json), written for scoring at an object
+    // of its kind only: below, a goal event at a zone is still withheld, and a sentence in another kind's words is still refused.
     assert.deepEqual(
         index.vocabularies.get('V1.kind')!.map(kind => [kind, scoringWordingOf(kind)]),
-        [['goal', null], ['target_player', null], ['line_crossed', 'LINE_CROSSING'], ['target_zone_entered', 'ZONE_ENTRY'], ['gate', null], ['regain', null], ['denial', null]],
+        [['goal', 'AT_OBJECT'], ['target_player', null], ['line_crossed', 'LINE_CROSSING'], ['target_zone_entered', 'ZONE_ENTRY'], ['gate', null], ['regain', null], ['denial', null]],
     )
     const consumer = consumerBuild()
     const fixture: any = copy(consumer.fixture)
@@ -742,8 +763,9 @@ test('a kind with no wording is withheld and fidelity refuses it, never said wit
     assert.ok(!rendered.instructions.some(i => i.from.includes(PRESSING_EVENT)), 'no sentence says it')
     assert.ok(!rendered.instructions.some(i => /^Pressing team: Score/.test(i.text)), 'and it is never said with the line wording')
     assert.ok(checkFidelity(fixture, rendered).findings.some(f => f.severity === 'VIOLATION' && f.question === 3 && f.what.includes(PRESSING_EVENT)), 'fidelity: carried by nothing')
-    // A sentence written for another kind's event, read against a game where the event is a goal: refused as unworded.
-    const refused = checkFidelity(fixture, zoneRender).findings.filter(f => f.severity === 'VIOLATION' && f.question === 2 && f.what.includes('for which no wording is written'))
+    // A sentence written for another kind's event, read against a game where the event is a goal: refused, its only wording being written
+    // for scoring at an object of its kind (Stage G; was: refused as unworded, before the goal had any wording).
+    const refused = checkFidelity(fixture, zoneRender).findings.filter(f => f.severity === 'VIOLATION' && f.question === 2 && f.what.includes('whose only wording is written for scoring at an object of the kind it names, and it names no such target object'))
     assert.equal(refused.length, 1)
     assert.ok(refused[0].what.includes(`"goal" (${PRESSING_EVENT})`))
     // Every path a sentence may cite to say how a team scores.

@@ -21,9 +21,10 @@ import { effectiveValue, scaleExactly } from '../derivation/rational'
 import { conditionScopeNotEvaluable } from '../derivation/resolved-game'
 import { ApprovedWording, approvedWording } from './approved-wording'
 import { CoachFacingExclusion, exclusionFor } from './coach-facing-exclusions'
+import { scoringAtObjectWording } from './draft-coach-wording'
 import { layoutLeafNumberAt, MARK_UNION_ONCE, PhysicalLayout, Remarking, somethingMoves } from './physical-layout'
 import { ADJUSTING, approvedSentences, Binding, combinedStatus, ENDS_ON_WORDING, Instruction, MOVE_MARKINGS, MOVED_MARK_QUALIFICATIONS, NOTHING_RE_MARKED, RenderedActivity, ROLE_EXCHANGE, roleKeyedPositions, scoringWordingOf, sectionFactsOf, SourceStatus, UNBOUNDED_CREDIT } from './render-concrete-game'
-import { eventKindPathsOf, readPath } from './game-reading'
+import { eventKindOf, eventKindPathsOf, readPath, roleElementsOf } from './game-reading'
 import { firstReadUncarried } from './sections'
 
 export interface FidelityFinding {
@@ -1228,8 +1229,56 @@ export function checkFidelity(
     for (const what of unreadable) findings.push({ question: 3, severity: 'NOTE', what })
 
     const { coachFacing, excluded } = loadBearingPaths(fixture)
+    /**
+     * **The game's primary event's kind, read per role — Stage G, 23 October 2026 (the design's Stage G: "fidelity.ts: reads KIND per role").**
+     * Christian, reply filed 26 October 2026, item 1: *"The game form's existing line-or-zone progression structure, together with [the
+     * context's] approved scoring knowledge, should continue to govern the building team."* (the context's name bracketed: it names a sport's
+     * performer, which the coupling ratchet keeps out of this layer) and *"The opposing team may have a different primary scoring event where
+     * authorized by the selected context."* Since stage A a role may score by an event of its own (row B9); the
+     * game's primary event's kind (V1) is then the event of the roles that have none. Until a role scored by its own event, the kind was
+     * carried by the one team-neutral or per-role DRAFT sentence citing it. Where every role scoring by V1 has its credit confined to an
+     * episode (row B8), Q2 below lets only his approved wording speak for it, and his approved sentence states that role's way to score (its
+     * bound and the primary event's conditions) without citing the kind (his entries cover the rows said only in approved words): no
+     * sentence may then cite the kind for it at all, and the path test refused every such game whatever was said.
+     *
+     * So the kind's path is carried PER ROLE, and only this way: every role the game holds that scores by V1 is spoken for by an approved
+     * sentence for this game (`isApproved`, exactly its citations) that cites that role's credit bound and a condition of the primary event
+     * about where the score is made (its typed referents name the objective reference of the scoring team, register V5: the target that team
+     * attacks), so the approved words say how that role scores at its target and not only when it may (an eligibility sentence, citing only
+     * the episode's origin, never carries it). A role scoring by V1 whose credit is the whole game, or that no such approved sentence speaks
+     * for, leaves the kind owed to the path test, exactly as before; a game in which no role scores by V1, or that holds no roles, owes it
+     * exactly as before. Every game in which a sentence cites the kind is untouched (the path test passes first). Reported as a NOTE, so the
+     * reading is visible to an administrator.
+     */
+    const conditionsAtTarget = new Set(
+        ((fixture.game?.value?.primaryEvent?.conditions ?? []) as any[]).filter(condition => typeof condition?.referents?.objectiveReferenceOf === 'string').map(condition => `value.primaryEvent.conditions[${condition.elementId}]`),
+    )
+    const kindCarriedPerRole = (path: string): string[] | null => {
+        if (path !== eventKindOf(fixture.game, null).path) return null
+        const roles = roleElementsOf(fixture.game).filter(({ role }) => !eventKindOf(fixture.game, role).byRole)
+        if (!roles.length) return null
+        const by: string[] = []
+        for (const { elementId, element } of roles) {
+            const bound = element?.creditedWithin
+            if (bound === undefined || bound === null || bound === UNBOUNDED_CREDIT) return null
+            const speaker = rendered.instructions.find(
+                instruction =>
+                    isApproved(instruction) &&
+                    instruction.from.includes(`activityRoles[${elementId}].creditedWithin`) &&
+                    instruction.from.some(cite => [...conditionsAtTarget].some(condition => cite.startsWith(`${condition}.`))),
+            )
+            if (!speaker) return null
+            by.push(`activityRoles[${elementId}] by "${speaker.text}"`)
+        }
+        return by
+    }
     for (const path of coachFacing) {
         if (![...cited].some(c => c === path)) {
+            const perRole = kindCarriedPerRole(path)
+            if (perRole) {
+                findings.push({ question: 3, severity: 'NOTE', what: `${path} is cited by no instruction and is carried per role: every role scoring by it has its credit confined to an episode and is spoken for in approved words (${perRole.join('; ')})` })
+                continue
+            }
             findings.push({ question: 3, severity: 'VIOLATION', what: `${path} is established by the game and no instruction carries it` })
         }
     }
@@ -1550,11 +1599,30 @@ export function checkFidelity(
      */
     {
         const kindPaths = eventKindPathsOf(fixture.game)
+        /**
+         * Stage G, 23 October 2026 (a TIGHTENING beside the DRAFT wording data for scoring at an object): a kind whose only wording is written
+         * for scoring at an object (`AT_OBJECT`, `draft-coach-wording.ts`) may be said by a sentence that cites the kind of an object some
+         * objective references, of a kind the wording's entry for that event names; any other sentence citing that event (zone or line words,
+         * say) is refused as if the kind had no wording, because the words it has are written for that object only.
+         */
+        const objectsHeld: any[] = Array.isArray(fixture.game?.objects) ? fixture.game.objects : []
+        const targetObjects = objectsHeld.filter(object =>
+            ((fixture.game?.objectives ?? []) as any[]).some(objective => {
+                const ref = objective?.reference?.structuralRef
+                return !!ref && `c:${ref.contractId}:${ref.itemId}` === String(object?.elementId)
+            }),
+        )
+        const namesItsObject = (instruction: Instruction, kind: unknown) => targetObjects.some(object => scoringAtObjectWording(kind, object?.kind) !== null && instruction.from.includes(`objects[${object.elementId}].kind`))
         for (const instruction of rendered.instructions) {
             if (isApproved(instruction)) continue
             for (const at of instruction.from.filter(path => kindPaths.includes(path))) {
                 const kind = readPath(fixture.game, at)
-                if (scoringWordingOf(kind) !== null) continue
+                const wording = scoringWordingOf(kind)
+                if (wording === 'AT_OBJECT' && !namesItsObject(instruction, kind)) {
+                    findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" says how a team scores by ${JSON.stringify(kind)} (${at}), whose only wording is written for scoring at an object of the kind it names, and it names no such target object: it may be said only in those words or in approved words` })
+                    continue
+                }
+                if (wording !== null) continue
                 findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" says how a team scores by ${JSON.stringify(kind)} (${at}), for which no wording is written: it may be said only in approved words` })
             }
         }

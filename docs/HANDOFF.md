@@ -8851,3 +8851,74 @@ NEXT: Stage E (resource-aware selection) plumbing; F/G after his answers.
   knowledge awaiting his nine answers).
 
 NEXT: his answers → Stage F2 (restatements, values, A01-R2 basedOn A01-R1) and Stage G (goal wording, overview, diagram).
+
+### 26 October — Stage F: the goal version's knowledge from his rulings (replies filed 25 and 26 October)
+
+Governing: `scratchpad/christian-2026-10-26.txt` (all nine decisions, items 10-13) and `-25.txt`; design `scratchpad/d25/design-final.md`
+Stage F. Every record quotes him verbatim (byte-checked by `scratchpad/cd/build/fg/verbatim.js`: 31 `words` leaves, 236 quoted spans).
+- Restatements (corpus-restatements.json): S1 = ruling C60 (role-yield marker on GF2-19, GF2-03.b, GF2-06.a, RPC-001-08.a, each on his
+  item 1 words; RPC-001-08.b's note read as one primary scoring event per role); S2 = C61 (C42 "two corresponding targets, not three",
+  GF2-03.a's why and the register's S2 gloss); S3 = C62 (the two end statements he approved word for word, in the TEAM_AT_AXIS_*, B1, B3,
+  B10 and endAssignment glosses; no scope or check changes); C63 = GF2-08.f `defersTo` AUTHORIZED_REALIZATION with GF2-03.e `defersWith`
+  (edited in place on the C42 added items, the SD-102 precedent).
+- Register v20: row O7 `objects[].defendedBy` (a specialized performer row; withdrawn for a ball), `roleScoring.defendedByRow`, and
+  GA-ROLE-EVENTS clause 13 DEFENDED (exactly one team holds that performer, it does not attack the object, another team does; before and
+  after realization, so in each block). PROVISIONAL with that status stated (his item 6); no library relationship authorizes it.
+- Records: `contextScoringRelationships` gains RPC-001~SCORING-goal (CONFIRMED, PRESSING, goal, rows B9/J2, supersedes the four marked
+  items). A01's record names `realizations` [A01-R2 MISSING_KNOWLEDGE waiting on D-GOAL-SUITABILITY and D-PENALTY-AREA (open, his; no
+  settledBy), A01-R1]; `provisionalRealization` removed. Gaps an alternative waits on are listed with it (`neededBy`) and may not be marked
+  settled. provisionalChoices[3] superseded for the goal version, [6] scoped to A01-R1.
+- A01-R2 (provisional-realizations.json, `basedOn` A01-R1): withdraws S5-3, S5-4, V27-1, V29-1, V30-1, V31-1, T4-4, B8-2; adds the goal
+  (O1, O4 on the building team's end line offset 0, O5 central, O6 INTO_THE_AREA, O7 P3), J2 (team=TEAM_AT_AXIS_END, the departure from
+  our D7 reading reported in its note) and B9 goal citing the relationship, B10 EXCHANGED, B8-2 re-cited, T4-5 (his item 8 words; binding
+  PROPOSED). Own goals and shots out recorded in notes (no row). No suitability, no penalty area, no offside adaptation (all open).
+  `realization-choices-a01-r2.json`: A01-R1's re-pointed, the game form's GF2-03.e noun withdrawn, item 8 as the restart bound.
+- Proofs (`rendering/goal-version-knowledge.unit.ts`, 11): served A01 is A01-R1 with only recorded deltas at 12/1, 12/2, 11/1, goals
+  stated or not, A01-R2 never reaching the realizer; a TEST-ONLY completion (selectable + in-memory suitability) builds A01-R2 through
+  every structural, realization and cross-block check in both blocks at 12/1, 12/2, 11/1 and stops at communication only; the goalkeeper
+  on the pressing team fails clause 13 after realization in both blocks; KEPT refused at structure.
+- Snapshot `snap-F.json` vs `snap-E.json`: 22 keys, A01 only (account/evidence: realizationSelection, record copy, the two gaps,
+  notes, clause 13 vacuous, digests, register 20). No coach-facing leaf moves; the 39 demo keys and all 72 non-A01 live keys (the 56 plus
+  stage E's 16 objects keys) unchanged; live A01
+  equals review A01; roles-none refused. 11/1 on the built bundle: the same delta. A04 fixture refreshed (digests only).
+
+NEXT: Stage G (goal wording, overview, diagram) after his decisions on goal suitability and the penalty area (the read-only options
+investigation), and any law needing an explicit adaptation (his item 10).
+
+### 23 October — Stage G: the goal version said to a coach, in DRAFT words, TEST-ONLY (replies filed 25 and 26 October)
+
+Governing: `scratchpad/christian-2026-10-26.txt` (items 1, 3, 5, 6, 10-13) and `-25.txt` (items 3, 5); design `scratchpad/d25/design-final.md`
+Stage G. Nothing is served for real: production A01 is still A01-R1 (A01-R2 waits on D-GOAL-SUITABILITY and D-PENALTY-AREA, his). Every new
+coach word is DRAFT; `approved-coach-wording.json` is untouched.
+- Wording data: `docs/audits/draft-coach-wording.json` (DRAFT, keyed by register vocabulary values, each clause with his words; loader
+  `rendering/draft-coach-wording.ts` refuses an approval, a kind or event outside the register, an event the target-type map does not score at
+  that kind, wrong slots; unusable = no wording, fail-closed). build.js copies it. Register index: `objectGeometry.acrossLeaf/facingRow/facingLeaf`
+  (no register change, no version bump).
+- Renderer: `scoringWordingOf` gains AT_OBJECT (from data); the pressing team's line "Pressing team: Score by getting the ball into the goal; an own
+  goal also counts, but winning the ball back does not earn a point on its own" (own goal = MEANING clause, his items 10/11; regain = NO_OTHER_SCORE,
+  only for a role scoring by B9 with no also-counts, his 25 Oct item 3); Set up "Place a goal centred on the building team's end line, facing into
+  the area, with its frame outside the area; the team with the goalkeeper defends it" (only for an object set out once on a role holder's end line,
+  no size said) and "The pressing team's target is the goal"; "Decide which team starts at which end"; targets of two kinds said "target" ("each team
+  keeps attacking the same target", "each team now attacks the target of its new role"); the EXCHANGED exchange adds "the goal stays where it is";
+  the reassignment adds ", the goalkeeper staying with the goal" (", staying with the goal" at 11/1; his item 6 "remaining associated").
+- Fidelity: Q3 reads the primary event's kind per role (carried only where every role scoring by it is bounded and spoken for by an approved
+  sentence citing its bound and a condition about where it scores; W3 alone does not; a NOTE says so); Q2 refuses a sentence citing an AT_OBJECT
+  kind that names no target object of its kind. Overview: object target phrase "the goal at the building team's end"; Q7.1 role clauses hold object
+  targets too; SCORING_EVENT (PROPOSED) also classes B9 (why amended); a B9 field lies under the way whose value it earns (OUR READING).
+- Diagram: "The goal is placed on ..." (desc); front draws a zero-depth object on an end line as its mouth plus a frame outside the area
+  (presentation depth only), label inside. Team colours stay with the team across the end exchange (C2). Review page: `RealizationNote` says which
+  version was built (his words) and why each other was not (gap descriptions from the record).
+- Tests: `rendering/goal-version-communication.unit.ts` (11: data and loader refusals; TEST-ONLY completion served at 12/1, 12/2, 11/1, every
+  sentence pinned; citations; Q7 meaning pins - building group = the zone version's, pressing scores into the goal only, no regain line; Q7.1 object
+  clause mutation; diagram; a kind with no data withheld; per-role Q3 and its two refusals; a pressing sentence naming the building team refused;
+  the zone version unchanged). Re-pointed (the TEST-ONLY goal builds that stopped at communication for want of words are now served, with a new
+  communication refusal kept where a test needed one): goal-version-knowledge, object-targets, objects-across-blocks, session-resources,
+  role-events (the consumer's Q3 kind reason is gone; still refused for its two target nouns).
+- Snapshot `snap-G.json` is byte-identical to `snap-F.json`; vs `snap-E.json` the same 22 keys / 652 leaves as Stage F. 11/1 on the built bundle
+  identical to Stage F. The TEST-ONLY goal version on the built bundle reads the bundled wording and says the same words.
+- TEST-ONLY screenshots: `scratchpad/cd/build/g-shots/` (g-goal-coach-375/1280-block1/block2, -overview, -details; g-goal11; g-zone note), harness
+  `scratchpad/cd/build/harness/g-*` (data from `fg/g-data.ts`).
+
+OPEN: D-GOAL-SUITABILITY and D-PENALTY-AREA (his); offside and any law needing an adaptation (item 10); T4-5's words "within the authorized deep starting
+environment" reach the coach as written in Stage F (DRAFT, his item 8, binding PROPOSED); every new sentence, the "target" generalization of his
+possession sentence, the essentials amendment and the way reading await his review; Stage F reviewer should-fix items unchanged.

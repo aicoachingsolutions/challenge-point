@@ -39,7 +39,7 @@ import { MECHANISM_DEMONSTRATIONS } from './mechanism-demonstrations'
 import { sessionEnvelopeFrom, specializedRoleNames } from './session-envelope'
 import { rpcLibrary } from '../sport-module/rpc-library'
 import { learningGoalSelectionHolds } from '../test-library/learning-design-holds'
-import { authorizationLists, learningGoalAuthorization, learningGoalAuthorizations, LearningGoalAuthorization, libraryConstraintPrinciple } from '../test-library/learning-goal-authorizations'
+import { authorizationLists, learningGoalAuthorization, learningGoalAuthorizations, LearningGoalAuthorization, libraryConstraintPrinciple, realizationAlternativesOf } from '../test-library/learning-goal-authorizations'
 
 const ROLES = specializedRoleNames()
 assert.ok(ROLES.length > 0, 'the register must name a specialized role, or the availability question has no subject')
@@ -357,7 +357,11 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
         // Re-pointed 15 October 2026 (stage K3): the lists read the provisional realization derivation received (stage K2),
         // and A01-R1 is no longer empty — its three role-block items are listed among his provisional choices. So the
         // expectation is the record together with that realization, exactly as the builder reads it.
-        assert.deepEqual(a01.account.authorizationLists, authorizationLists(record, provisionalRealizationNamed(record.provisionalRealization)), 'the three lists, exactly as the record and its realization give them')
+        // Re-pointed 26 October 2026 (Stage F): the record names its realizations as an ordered list, and the realization the activity is
+        // built with is the first that can be tried, A01-R1 (the goal version, A01-R2, is listed waiting on two decisions of his).
+        const used = realizationAlternativesOf(record).find(alternative => alternative.selectable)!.realization
+        assert.equal(used, 'A01-R1')
+        assert.deepEqual(a01.account.authorizationLists, authorizationLists(record, provisionalRealizationNamed(used)), 'the three lists, exactly as the record and its realization give them')
         // 3 -> 10 on 15 October 2026 (stage K4): with his D6 counts by role, the building role's keeper and his RD-1 answer as
         // two reassignments with their counts (pinned in allocation.unit.ts), each one of his provisional choices.
         // 10 -> 34 on 15 October 2026 (stage K5): his D1/D5/M3/M4 start, after-score and coach-conclusion transitions and his 18
@@ -375,7 +379,10 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
         assert.deepEqual(a01.account.allocation!.relationships.map(r => r.id), ['RPC-001~EM-0006', 'RPC-001~EM-0002'])
         // 15 -> 13 on 15 October 2026 (stage K1): capabilities M6 and M8 built (C55, C57); the record lists them as what
         // existing knowledge authorizes now, not as gaps.
-        assert.equal(a01.account.authorizationLists!.gaps.length, 13)
+        // 13 -> 15 on 26 October 2026 (Stage F): the two decisions the goal version waits on (goal suitability, the penalty area), open and
+        // his, each needed by that alternative realization alone and refusing nothing here.
+        assert.equal(a01.account.authorizationLists!.gaps.length, 15)
+        assert.deepEqual(a01.account.authorizationLists!.gaps.slice(13).map(gap => [gap.id, gap.neededBy]), [['D-GOAL-SUITABILITY', ['the alternative realization A01-R2']], ['D-PENALTY-AREA', ['the alternative realization A01-R2']]])
         assert.equal(a01.account.gameProblem?.gameProblemId, 'GP-005')
         assert.equal(a01.account.gameProblem?.status, 'APPROVED')
         assert.equal(a01.account.provisional, false)

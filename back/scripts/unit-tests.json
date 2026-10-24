@@ -117,5 +117,7 @@
     "./src/system/realization/object-targets.unit.ts",
     "./src/system/rendering/objects-across-blocks.unit.ts",
     "./src/system/rendering/end-exchange.unit.ts",
-    "./src/system/rendering/session-resources.unit.ts"
+    "./src/system/rendering/session-resources.unit.ts",
+    "./src/system/rendering/goal-version-knowledge.unit.ts",
+    "./src/system/rendering/goal-version-communication.unit.ts"
 ]

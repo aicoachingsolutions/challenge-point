@@ -193,6 +193,8 @@ export const DIAGRAM_COMPOSITION = {
     eachAttacksOther: (kind: string) => `Each team attacks the ${kind} at the other team's end.`,
     lineWord: 'line',
     object: (name: string, where: string, target: string | null) => `${name} is placed ${where}${target ? `: the ${target}'s target` : ''}.`,
+    // Stage G, 23 October 2026 (DRAFT): an object named by its label takes "The" ("The <kind> is placed on ..."); was the label alone, capitalised.
+    theObject: (label: string) => `The ${label}`,
     anObject: 'An object',
     objectWord: 'object',
     objectOn: (place: string) => `on ${place}`,
@@ -217,7 +219,6 @@ export const DIAGRAM_COMPOSITION = {
 const NOT_IN_A_COACH_WORD = ['[', ']', '{', '}', '=', '_', '<', '>', '|']
 
 const same = (a: Interval, b: Interval): boolean => a.from === b.from && a.to === b.to
-const capital = (text: string): string => text.charAt(0).toUpperCase() + text.slice(1)
 const metres = (quantity: number): string => `${quantity} ${DIAGRAM_WORDS.draft.metres}`
 const otherEnd = (end: number, lengthM: number): number => (end === 0 ? lengthM : 0)
 /**
@@ -370,7 +371,7 @@ function describeBlock(model: FieldDiagram, block: DiagramBlock): string {
         const end = touched(object.along)
         const scorer = block.targets.find(target => target.region === object.elementId)
         const where = end !== null ? C.objectOn(endLineOf(end)) : C.from(metres(object.along.from), endLineOf(0))
-        sentences.push(C.object(object.label ? capital(object.label.text) : C.anObject, where, scorer ? nounOf(block.teams.find(team => team.key === scorer.attackedBy)) : null))
+        sentences.push(C.object(object.label ? C.theObject(object.label.text) : C.anObject, where, scorer ? nounOf(block.teams.find(team => team.key === scorer.attackedBy)) : null))
     }
 
     // Each team the coach can tell apart: (since stage C2, its label and role where it has a label) its counts, its starting area and the

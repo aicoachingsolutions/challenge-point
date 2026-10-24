@@ -44,7 +44,8 @@ export interface AuthorizingRelationship {
     status: string
     /**
      * The items (`contractId::itemId`) a CONFIRMED relationship names as those it supersedes, for one role (stage A; read only by
-     * `applyRoleYields`). Absent on every relationship recorded on 22 October 2026.
+     * `applyRoleYields`). Absent on every relationship recorded on 22 October 2026; since Stage F (26 October 2026) the one context
+     * scoring relationship recorded names four.
      */
     supersedes?: string[]
     /**

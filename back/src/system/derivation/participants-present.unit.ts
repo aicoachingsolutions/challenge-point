@@ -151,7 +151,9 @@ test('register version 15 types the participant forms as data, in one versions e
     // Re-pointed 23 October 2026 (stage B): version 17 (object targets and the geometry a goal needs) supersedes 16, which supersedes 15.
     // Re-pointed 23 October 2026 (stage D): version 18 (the coach-controlled end exchange) supersedes 17, which supersedes 16.
     // Re-pointed 23 October 2026 (stage E): version 19 (an object's availability as a session resource) supersedes 18.
-    assert.ok(full.startsWith("19, adds an object's availability as a session resource"))
+    // Re-pointed 26 October 2026 (Stage F): version 20 (his rulings filed 26 October 2026 for the goal version) supersedes 19.
+    assert.ok(full.startsWith('20, records his rulings filed 26 October 2026 for the goal version of the build-out activity'))
+    assert.ok(full.includes("Supersedes version 19, which adds an object's availability as a session resource"))
     assert.ok(full.includes('Supersedes version 18, which adds the coach-controlled end exchange'))
     assert.ok(full.includes('Supersedes version 17, which adds object targets and the geometry a goal needs'))
     assert.ok(full.includes('Supersedes version 16, which adds one primary scoring event per role'))

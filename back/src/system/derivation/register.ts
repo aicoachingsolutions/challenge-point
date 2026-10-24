@@ -84,6 +84,14 @@ export interface RoleScoringRegister {
     /** The leaves the event and the credit sit at on a role element (`scoresBy`, `creditedWithin`). */
     eventLeaf: string
     creditLeaf: string
+    /**
+     * **The FIELD row of an object target naming the specialized performer whose team defends it** (O7; register version 20, 26 October
+     * 2026), or null in a register without it. Christian, reply filed 26 October 2026, item 6: *"Record that the physical [object] is defended
+     * by the team with the active [specialized performer] during that block, and validate this relationship in both blocks."* (His nouns
+     * bracketed for the coupling ratchet.) Its value is a specialized performer row of the teams collection; read only by GA-ROLE-EVENTS
+     * clause 13, which holds the relationship in every game, so in each block of a role-block activity.
+     */
+    defendedByRow: string | null
 }
 
 /**
@@ -148,7 +156,17 @@ function indexRoleScoring(block: any, rows: Map<string, RegisterRow>, vocabulari
     const values = Array.isArray(block.roleYield?.values) ? block.roleYield.values.map(String) : []
     if (key !== ROLE_YIELD_KEY || JSON.stringify(values) !== JSON.stringify([...ROLE_YIELD_MARKERS])) throw new HaltError('H1', `roleScoring.roleYield names ${key} ${JSON.stringify(values)}, which is not the marker the engine implements (${ROLE_YIELD_KEY} ${JSON.stringify(ROLE_YIELD_MARKERS)})`)
     const leaf = (id: string) => String(rows.get(id)?.path ?? '').split('[].').pop() ?? ''
-    return { eventRow, kindRow, valueRow, conditionsRow, valueModifiersRow, alsoCountsRow, creditRow, kindVocabulary, kinds: [...kinds], targets, targetFunction: { attribute: fnAttribute, value: fnValue }, targetTypes, roleYield: { key, values }, eventLeaf: leaf(eventRow), creditLeaf: leaf(creditRow) }
+    /**
+     * The defended-by row (register version 20), where the block names one: a FIELD row owned by the object target row, never a game-level
+     * row or another collection's, so the relationship it states is an object's. Absent: null, and clause 13 has no instance.
+     */
+    let defendedByRow: string | null = null
+    if (block.defendedByRow !== undefined) {
+        const id = String(block.defendedByRow ?? '')
+        if (!field(id) || rows.get(id)?.ownerRow !== targets.object.row) throw new HaltError('H1', `roleScoring.defendedByRow ${id} is not a FIELD row owned by the object target row ${targets.object.row}`)
+        defendedByRow = id
+    }
+    return { eventRow, kindRow, valueRow, conditionsRow, valueModifiersRow, alsoCountsRow, creditRow, kindVocabulary, kinds: [...kinds], targets, targetFunction: { attribute: fnAttribute, value: fnValue }, targetTypes, roleYield: { key, values }, eventLeaf: leaf(eventRow), creditLeaf: leaf(creditRow), defendedByRow }
 }
 
 /**
@@ -162,8 +180,8 @@ function indexRoleScoring(block: any, rows: Map<string, RegisterRow>, vocabulari
 export interface ObjectGeometryRegister {
     /**
      * The objects collection (O1), its kind (O2) and its along and across positions (O4, O5), each read by the consumers named above. The
-     * block's facing row (O6) is validated at load and not indexed: nothing reads it until its wording exists (Stage G), and a projection
-     * no consumer reads is not kept.
+     * block's facing row (O6) was validated at load and not indexed until its wording existed; since Stage G (23 October 2026) the renderer
+     * reads it, below.
      */
     row: string
     kindRow: string
@@ -172,6 +190,14 @@ export interface ObjectGeometryRegister {
     /** The leaves the kind and the along position sit at on an object element (`kind`, `position.along`), as realize.ts and team-ends.ts read them. */
     kindLeaf: string
     alongLeaf: string
+    /**
+     * **The across position's leaf, and the facing row with its leaf** — Stage G, 23 October 2026: the renderer's Set up sentence placing an
+     * object set out once reads where it stands across the area and which way it faces (`render-concrete-game.ts`), and cites each by the
+     * register's path, so no leaf is written there. The facing row (O6) was validated and not indexed until a consumer read it.
+     */
+    acrossLeaf: string
+    facingRow: string
+    facingLeaf: string
     /** OUR_INTERPRETATION: how many dimensions an object of a kind gives extent in (1: extent on exactly one axis). */
     extentDimensions: Map<string, number>
 }
@@ -201,7 +227,7 @@ function indexObjectGeometry(block: any, rows: Map<string, RegisterRow>, vocabul
     const kindRow = owned('kindRow', '')
     const alongRow = owned('alongRow', '.along')
     const acrossRow = owned('acrossRow', '.across')
-    owned('facingRow', '')
+    const facingRow = owned('facingRow', '')
     const attribute = rows.get(kindRow)?.selectorAttribute
     const kinds = attribute ? vocabularies.get(`${kindRow}.${attribute}`) : undefined
     if (!kinds || !kinds.length) throw new HaltError('H1', `objectGeometry.kindRow ${kindRow} carries no selector attribute with a vocabulary`)
@@ -213,7 +239,7 @@ function indexObjectGeometry(block: any, rows: Map<string, RegisterRow>, vocabul
         if (value !== 1 && value !== 2) throw new HaltError('H1', `objectGeometry.extentDimensions: ${kind} gives extent in ${JSON.stringify(value)} dimensions, which is neither 1 nor 2`)
         extentDimensions.set(kind, value)
     }
-    return { row, kindRow, alongRow, acrossRow, kindLeaf: leafOf(kindRow), alongLeaf: leafOf(alongRow), extentDimensions }
+    return { row, kindRow, alongRow, acrossRow, kindLeaf: leafOf(kindRow), alongLeaf: leafOf(alongRow), acrossLeaf: leafOf(acrossRow), facingRow, facingLeaf: leafOf(facingRow), extentDimensions }
 }
 
 /**

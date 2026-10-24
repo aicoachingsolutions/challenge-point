@@ -286,11 +286,16 @@ test('a TEST-ONLY goal fixed at one end is set out once: in the layout once, rec
     // RB-L refuses a layout that drops the object (the recomputation holds it).
     const dropped = blocks.map(block => ({ blockId: block.blockId, fixture: { ...block.fixture, layout: { ...copy(block.fixture.layout), objects: undefined } } }))
     assert.equal(checkRoleBlockLayout(dropped, movers).verdict, 'FAIL')
-    // The exchange says nothing is re-marked (true: the goal stays), with production's qualification for the line.
+    // The exchange says nothing is re-marked (true: the goal stays), with production's qualification for the line. Since Stage G (23 October
+    // 2026) it also says, for the object set out once, that it stays where it is (DRAFT), citing its layout entry and its kind.
     const draft = (activity as any).draft.instructions as Instruction[]
-    assert.ok(draft.some(i => i.section === ROLE_EXCHANGE && i.text === PRODUCTION_EXCHANGE), JSON.stringify(draft.filter(i => i.section === ROLE_EXCHANGE).map(i => i.text)))
-    // Refused at communication only for want of the goal's words (Stage G): Q3 for its position, and Q5-L for the object set out once (no
-    // Set up sentence places it, and, since the stage C review, its position is denoted by no Set up sentence).
+    const exchangeWithGoal = PRODUCTION_EXCHANGE.replace('of its new role, and nothing', 'of its new role, the goal stays where it is, and nothing')
+    const exchange = draft.find(i => i.section === ROLE_EXCHANGE && i.text === exchangeWithGoal)
+    assert.ok(exchange && exchange.from.includes('layout.objects[object-1]') && exchange.from.includes(`objects[${GOAL}].kind`), JSON.stringify(draft.filter(i => i.section === ROLE_EXCHANGE).map(i => i.text)))
+    // Refused at communication only for want of the goal's placing words: Q3 for its position, and Q5-L for the object set out once (no Set
+    // up sentence places it, and, since the stage C review, its position is denoted by no Set up sentence). Since Stage G an object set out
+    // once is placed in DRAFT words only where its position is written for a role's holder (so the words are the same in every block); this
+    // TEST-ONLY goal is placed at an end-assigned team's end line, whose role changes between the blocks, so it is still not placed.
     const denotedBy = (n: number) => `objects[${GOAL}].position is denoted by ${n} Set up sentences in a layout set out once, not exactly one`
     for (const block of blocks) {
         const reasons = reasonsOf(activity, block.blockId)

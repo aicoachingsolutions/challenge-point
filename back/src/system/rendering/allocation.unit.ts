@@ -31,6 +31,7 @@ import { DEFERS_TO_AUTHORIZED_REALIZATION, DEFERS_TO_ESTABLISHING_OBJECT, Loaded
 import {
     allocationPrinciple,
     contextManipulationRelationships,
+    contextScoringRelationships,
     learningGoalAuthorization,
     learningGoalAuthorizations,
     validateAllocationPrinciple,
@@ -183,7 +184,8 @@ test('the record: his allocation principle once, the relationship he confirmed, 
 test('the record gate refuses an uncited, mis-scoped or unconfirmed relationship and an adjustment naming none', () => {
     const records = learningGoalAuthorizations()
     const realizations = loadProvisionalRealizations()
-    assert.deepEqual(validateContextManipulationRelationships(contextManipulationRelationships(), records, realizations), [])
+    // Since Stage F (26 October 2026) the goal version's items (A01-R2) cite the context scoring relationship, validated beside these.
+    assert.deepEqual(validateContextManipulationRelationships(contextManipulationRelationships(), records, realizations, contextScoringRelationships()), [])
     const cite = (id: string, row = 'P2') => realizations.map(r => ({ ...r, items: [...r.items, { itemId: 'A01-R1-TEST', row, authorizedBy: id } as any] }))
     assert.ok(validateContextManipulationRelationships(contextManipulationRelationships(), records, cite('TEST-ONLY')).some(e => e.includes('does not hold')))
     assert.ok(validateContextManipulationRelationships(contextManipulationRelationships(), records, cite('RPC-001~EM-0006', 'P5')).some(e => e.includes('does not authorize')))
@@ -225,7 +227,10 @@ test('the realization: his counts by role, one keeper for the building role, his
 test('C56: exactly one item carries the new supersession; an item may carry no other; the deferral needs a confirmed citation of its row', () => {
     const corpus = loadCorpusContracts()
     const carrying = corpus.flatMap(c => c.items.filter(i => i.defersTo !== undefined).map(i => `${c.contractId}::${i.itemId}=${String(i.defersTo)}`))
-    assert.deepEqual(carrying, [`restated:GF2::GF2-14.b=${DEFERS_TO_AUTHORIZED_REALIZATION}`])
+    // Re-pointed 26 October 2026 (Stage F): ruling C63 gives the same supersession to the possession game's reference for the axis-end
+    // team's target (GF2-08.f, with its region GF2-03.e paired to it), on his reply filed 25 October 2026, item 3 (pinned in
+    // goal-version-knowledge.unit.ts). C56's item is unchanged.
+    assert.deepEqual(carrying, [`restated:GF2::GF2-08.f=${DEFERS_TO_AUTHORIZED_REALIZATION}`, `restated:GF2::GF2-14.b=${DEFERS_TO_AUTHORIZED_REALIZATION}`])
     assert.equal(itemDeferralRefusal('X::Y', { item: 'X::Y', ruling: 'TEST-ONLY', set: { defersTo: DEFERS_TO_AUTHORIZED_REALIZATION }, why: '' }), null)
     assert.ok(itemDeferralRefusal('X::Y', { item: 'X::Y', ruling: 'TEST-ONLY', set: { defersTo: DEFERS_TO_ESTABLISHING_OBJECT }, why: '' })!.includes('not a supersession an item may carry'))
     assert.ok(itemDeferralRefusal('X::Y', { item: 'X::Y', ruling: 'TEST-ONLY', set: { defersTo: 'TEST-ONLY' }, why: '' })!.includes('not a supersession'))

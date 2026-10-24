@@ -324,9 +324,13 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
     // 59 -> 60 on 15 October 2026 (stage K6, C59): RPC-001-18.d's referent - the progression reference C54 recorded - typed as the
     // objective reference of SCORING_TEAM, the M8 form C54 named ("a machine-readable referent for the progression reference is
     // capability M8"). 18.d also carries C52's scope and C54's value: one item, three rulings. Pinned in target-placement.unit.ts.
+    // 60 -> 65 on 26 October 2026 (Stage F, C60): restatement S1, approved in his reply filed 26 October 2026, item 1 ("The opposing team may
+    // have a different primary scoring event where authorized by the selected context."): the role-yield marker on GF2-19, GF2-03.b, GF2-06.a
+    // and RPC-001-08.a, and RPC-001-08.b's note restated as one primary scoring event per role. Pinned in goal-version-knowledge.unit.ts. C63's
+    // deferral and pairing (GF2-08.f, GF2-03.e) are edits of added items, not restatements, so they move itemsAdded by nothing.
     assert.equal(
         restatementTally.itemsRestated,
-        60,
+        65,
         'six Phase A rulings, six sets (SD-79), two exclusion bounds (SD-86), eight goal-kick selectors (SD-87), one restart ownership (SD-89), ' +
             'one typed reference (SD-98), one Wide Zone gloss (C29a), one DISTINCT_ON mark (C29b/C29e), two typed neutral bounds (C29c), ' +
             'one typed channel width (C30b), one equal-outfield promotion (C31b), three Wide Zone lateral restatements (C33), ' +
@@ -346,7 +350,8 @@ test('the ruled restatements each land, and nothing named in a ruling goes missi
             'and, from 56, RPC-001-18.d recorded as the progression reference, distinct from the pressure reference (C54, his 9.1) — ' +
             'and, from 57, his M8 safeguard beside the long-clearance exclusion, RPC-001-19.b (C57) — ' +
             'and, from 58, GF2-14.b deferring to a knowledge-authorized realization (C56, his D6) — ' +
-            'and, from 59, the build-out origin typed as the restarts that begin a build-out episode (C58, his 18 October item 4)',
+            'and, from 59, the build-out origin typed as the restarts that begin a build-out episode (C58, his 18 October item 4) — ' +
+            'and, from 60 to 65, restatement S1 (C60, his reply filed 26 October 2026, item 1): four role-yield markers and RPC-001-08.b read per role',
     )
     // **4 since ruling C42.** GF2-08.a and GF2-03.a are retired — the shared objective's existence and the
     // target it referenced — so the game holds exactly two objectives and two targets rather than three of each.

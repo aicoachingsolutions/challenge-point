@@ -5,7 +5,8 @@
  *
  * **Why it is derived and not authored.** A role-keyed target configuration (the building team's progression target, the
  * pressing team's post-regain area) has to land on a region that already exists — the possession game's two objective
- * regions, one per end (ruling C42: *"exactly two active objectives and two corresponding target regions, not three"*).
+ * regions, one per end (ruling C42: *"exactly two active objectives and two corresponding target regions, not three"*; restated by
+ * ruling C61 on his reply filed 26 October 2026, item 2, as "two corresponding targets, not three", a target being a region or an object).
  * The only thing that tells those regions apart by team is the objective that references each: GF2's own region phrase
  * reads "of the team J3 names for the objective referencing it". So `targetOf` is that relation made selectable, computed
  * here from the objectives' own selectors (their team and role are selector attributes, SD-92) and from the reference

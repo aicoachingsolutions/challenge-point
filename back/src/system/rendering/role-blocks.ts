@@ -16,9 +16,12 @@
  *   - **RB-1** the same elements in both (regions, objectives, transitions, the primary event and its conditions, teams);
  *   - **RB-2** the ends do not move: every objective's team and reference, the direction view where the game holds one,
  *     and the binding of each end to a team, identical (ruling C42: *"distinct teams assigned to opposite ends at setup,
- *     with their assignments remaining fixed throughout the activity"*);
+ *     with their assignments remaining fixed throughout the activity"*; restated by ruling C62 on his reply filed 26 October 2026, item 3:
+ *     *"Team-end assignments may change between coach-controlled blocks when the authorized activity configuration requires it."* - the
+ *     exchange, where recorded, is stage D's, below);
  *   - **RB-3** two objectives of the scoring role, two target regions, and no region a role-keyed selector created (C42:
- *     *"exactly two active objectives and two corresponding target regions, not three"*);
+ *     *"exactly two active objectives and two corresponding target regions, not three"*; restated by ruling C61 on his reply filed 26
+ *     October 2026, item 2, as *"two corresponding targets, not three."* - since stage C a target is a region or an object);
  *   - **RB-4** every property the two games hold the same, except where the knowledge that supports it is written for a
  *     role holder — a difference nothing role-keyed explains is a difference nobody authored;
  *   - **RB-5** each block binds every role to one end-assigned team, the second block is the exchange of the first, and

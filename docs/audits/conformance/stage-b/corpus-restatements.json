@@ -520,7 +520,7 @@
       "item": "restated:GF2::GF2-03.a",
       "ruling": "C42",
       "remove": true,
-      "why": "Retired with the shared objective it was the target of, and for the same reason: once the two per-team targets exist, this region is an objective-area no objective references, so a game would hold three targets and a coach would mark three lines. His ruling of 2026-10-09 asks for \"exactly two active objectives and two corresponding target regions, not three\". The item and its evidence remain in contracts.json exactly as authored, together with GF2-08.a, which referenced it, and the 28 September decision that fixed its shared team value, so the whole shared-target arrangement stays readable as one piece. The positional and noun items that selected on objective-area are untouched and now reach the two new targets instead, which is why no position or noun had to be re-authored."
+      "why": "Retired with the shared objective it was the target of, and for the same reason: once the two per-team targets exist, this region is an objective-area no objective references, so a game would hold three targets and a coach would mark three lines. His ruling of 2026-10-09 asks for \"exactly two active objectives and two corresponding target regions, not three\". The item and its evidence remain in contracts.json exactly as authored, together with GF2-08.a, which referenced it, and the 28 September decision that fixed its shared team value, so the whole shared-target arrangement stays readable as one piece. The positional and noun items that selected on objective-area are untouched and now reach the two new targets instead, which is why no position or noun had to be re-authored. || RESTATED 26 October 2026 by ruling C61 (restatement S2 of the note sent to him), his reply filed 26 October 2026, item 2: \"Change \"two corresponding target regions, not three\" to \"two corresponding targets, not three.\"\" \"This better accommodates different types of scoring objectives without requiring both to be spatial regions.\" So the rule this removal serves now reads: exactly two active objectives and two corresponding targets, not three, a target being a region or an object (RB-3 since stage C; the register's S2 targetOfValues gloss). The removal itself is unchanged."
     },
     {
       "item": "blind:PASS-COMBINATION-GATE::PCG-11",
@@ -810,6 +810,56 @@
         "fitNote": "RESTATED 15 October 2026 (C58): the origin's referent typed as a begin-condition referent (register V5 version 3) - the restarts of the game that begin a build-out episode: a transition that stops and restarts play (T6 STOP_RESUME) and begins an episode (T7 true), taken by the goalkeeper (T3) or as a controlled defensive restart. GA-EPISODE-REACHABLE decides which transitions meet it, so an ordinary restart is never read as a deliberate build-out start (his 18 October item 2: \"I agree that these ordinary restarts are distinct from deliberately initiating a new build-out episode.\"). Both arms stay: the referent is one condition with two ways to meet it, never a choice between them. No row yet carries a restart kind, so the second arm is met by no transition until one does - a controlled defensive restart is not built, and nothing is read as one. The origin's value line is untouched: it needs no further value (C55, his 9.9), a separate determination, as he said. The original value (two placement texts) and fitNote stay in contracts.json; the original fitNote read: \"The referents are placements, which V5 allows. Which placement applies is undecided (15.b).\""
       },
       "why": "His acknowledgement, reply filed 18 October 2026, item 4, of the wording our email of 17 October put to him: \"I acknowledge and approve your proposed wording: \"A restart, taken by the goalkeeper or as a controlled defensive restart, that begins a build-out episode.\" This provides the checkable event distinction needed to separate deliberate build-out starts from ordinary restarts.\" Typing only (SD-98): the two arms of RPC-PROP-132 (\"Initiated from the goalkeeper or a controlled defensive restart\") are kept as authored, no arm is selected, inferred or substituted, and nothing is said about a location, a method or a team. What it moves: the origin's referent line (RPC-001-18.a::V5) was an open choice between two placement texts, which establish no structural identity (SD-63), so GA-EPISODE-REACHABLE could only withhold (NOT_EVALUABLE) wherever a taker was settled; with the begin condition typed it asks which transitions meet it and passes only where at least one does and every one that does has one awardee (his D7: \"Only the building team initiates new build-out episodes.\"). Value, basis, evidence and fitNote move; row, selector, requirement, strictness, scope (C52) and checkability are unchanged, and contracts.json is untouched. ACTIVE on his acknowledgement; the proposals file the 17 October brief named was never needed."
+    },
+    {
+      "item": "restated:GF2::GF2-19",
+      "ruling": "C60",
+      "set": {
+        "yieldsForRole": "AUTHORIZED_ROLE_SCORING"
+      },
+      "words": "The opposing team may have a different primary scoring event where authorized by the selected context.",
+      "citedAs": "his reply filed 26 October 2026, item 1",
+      "why": "RESTATEMENT S1 of the note sent to him (decision 1), approved in his reply filed 26 October 2026, item 1 (\"1. Primary scoring event per role — Approved\"): \"The game form's existing line-or-zone progression structure, together with Goalkeeper Build-Out's approved scoring knowledge, should continue to govern the building team.\" \"The opposing team may have a different primary scoring event where authorized by the selected context.\" \"This authorization applies generally to asymmetric activities, not as an exception for Play Out from the Back.\" \"Please retain the requirement that scoring events be knowledge-authorized, compatible, and structurally validated.\" So the possession game's scoring set (line crossed, target zone entered) keeps governing the role whose event carries the context's Primary Scoring Identity, and every role in every game in which no such authorization stands; for ONE role it may be departed from only where that role's own event (B9) and its objective reference (J2) each cite a CONFIRMED context scoring relationship naming this item (GA-ROLE-EVENTS clause 6; the register's roleScoring.roleYield). Nothing is removed and the value is untouched. The marker and this reading of it are ours (DRAFT); the authority is his."
+    },
+    {
+      "item": "restated:GF2::GF2-03.b",
+      "ruling": "C60",
+      "set": {
+        "yieldsForRole": "AUTHORIZED_ROLE_SCORING"
+      },
+      "words": "The opposing team may have a different primary scoring event where authorized by the selected context.",
+      "citedAs": "his reply filed 26 October 2026, item 1",
+      "why": "RESTATEMENT S1 (as GF2-19, ruling C60), for the possession game's target description (the target line or zone of its setup guidance), which, in his words of the same item, \"should continue to govern the building team\": the target nouns (zone, line) stay the default for every role and govern every role in every game in which no authorization stands; the opposing role's target may be of another kind only where its objective reference and its own event cite a CONFIRMED context scoring relationship naming this item (GA-ROLE-EVENTS clause 6). His reply filed 26 October 2026, item 2 is the same direction for the targets: \"This better accommodates different types of scoring objectives without requiring both to be spatial regions.\" Nothing is removed and the value is untouched."
+    },
+    {
+      "item": "restated:GF2::GF2-06.a",
+      "ruling": "C60",
+      "set": {
+        "yieldsForRole": "AUTHORIZED_ROLE_SCORING"
+      },
+      "words": "The opposing team may have a different primary scoring event where authorized by the selected context.",
+      "citedAs": "his reply filed 26 October 2026, item 1",
+      "why": "RESTATEMENT S1 (as GF2-19, ruling C60), for the object kinds the possession game's target is held as (line, zone; ASSUMED, so it entails nothing): the kinds stay the default for every role and govern every role in every game in which no authorization stands; an object target of another kind stands for one role only where its objective reference and its own event cite a CONFIRMED context scoring relationship naming this item (GA-ROLE-EVENTS clause 6). Nothing is removed and the value is untouched."
+    },
+    {
+      "item": "restated:RPC-001::RPC-001-08.a",
+      "ruling": "C60",
+      "set": {
+        "yieldsForRole": "AUTHORIZED_ROLE_SCORING"
+      },
+      "words": "The opposing team may have a different primary scoring event where authorized by the selected context.",
+      "citedAs": "his reply filed 26 October 2026, item 1",
+      "why": "RESTATEMENT S1 (as GF2-19, ruling C60), for Goalkeeper Build-Out's approved scoring events (line crossed, target zone entered, gate, target player; RPC-REL-071..074, his approval of 13 September 2026), which in his words \"should continue to govern the building team\": they keep governing the role whose event carries the context's Primary Scoring Identity, and every role in every game in which no authorization stands. The opposing role's own event may differ only where it and its objective reference cite a CONFIRMED context scoring relationship of Goalkeeper Build-Out naming this item; such an event does not carry the Primary Scoring Identity (RPC-VAL-002) and stands on that authorization alone. Nothing is removed and the value is untouched."
+    },
+    {
+      "item": "restated:RPC-001::RPC-001-08.b",
+      "ruling": "C60",
+      "set": {
+        "fitNote": "RESTATED 26 October 2026 (ruling C60, restatement S1, his reply filed 26 October 2026, item 1: \"The opposing team may have a different primary scoring event where authorized by the selected context.\"; and his reply filed 25 October 2026, item 2: \"I approve extending the September 15 decision to support one primary scoring event per role in an asymmetric activity, rather than requiring both teams to use the same scoring event type.\"): one primary scoring event PER ROLE. The count of one on V0 is the game's primary event, scored by the role whose credit carries the context's Primary Scoring Identity (and by every team of a game without role blocks); every other role's one primary scoring event is its own event, row B9 (GA-ROLE-EVENTS clauses 1 and 3), never a second element of V0. Restated so the count is not left literally satisfied with a changed meaning. Until this ruling the note read: \"Recorded only as a bound. SD-06 enters derivation through the register's citable items.\""
+      },
+      "words": "The opposing team may have a different primary scoring event where authorized by the selected context.",
+      "citedAs": "his reply filed 26 October 2026, item 1",
+      "why": "RESTATEMENT S1's second part (the design of 25 October 2026, K1): the count of one on V0 is read as one primary scoring event per role, the role carrying the Primary Scoring Identity's in V0 and every other role's in B9. Only the note changes: the requirement, value, strictness, basis and evidence are untouched, and no check reads the note."
     }
   ],
   "added": [
@@ -1171,9 +1221,10 @@
         "checkability": "STRUCTURAL",
         "structuralClause": "whole item",
         "basisEvidence": "Christian, 2026-10-09: \"allow the per-team directional arrangement to replace the shared-target arrangement as GF2 active objective structure\", with the designation pair approved the same day as \"distinct teams assigned to opposite ends at setup, with their assignments remaining fixed throughout the activity\" and \"each team attacks the target opposite its own assigned end, regardless of possession changes\". New owner-authored canonical knowledge, not a reading of the GF2 source, whose ambiguity on the shared-or-per-team question GF2-12.a still records.",
-        "fitNote": "The target at the near end. Individuated by longitudinal=end-near, the along-axis attribute added to S2 on his ruling of the same day: the mirror of the lateral attribute that already tells the two wide channels apart across the axis (AM-17). Without it, two region items carrying the same selector collapse into one class, which is what made a second target unreachable. The selector identifies the region and anchors its position to the 0 end line; it never creates one (AM-13). The CONTAINS operator is written in its ASCII form, which the selector parser registers alongside the set-membership symbol, so the selector carries no character that depends on the file encoding."
+        "fitNote": "The target at the near end. Individuated by longitudinal=end-near, the along-axis attribute added to S2 on his ruling of the same day: the mirror of the lateral attribute that already tells the two wide channels apart across the axis (AM-17). Without it, two region items carrying the same selector collapse into one class, which is what made a second target unreachable. The selector identifies the region and anchors its position to the 0 end line; it never creates one (AM-13). The CONTAINS operator is written in its ASCII form, which the selector parser registers alongside the set-membership symbol, so the selector carries no character that depends on the file encoding.\n\nPAIRED WITH GF2-08.f BY RULING C63 (26 October 2026): this region yields together with the objective reference that points to it, wherever that reference defers to an authorized realization (defersWith; back/src/system/derivation/realization-deferral.ts), so where an authorized realization's object takes its place as the target at this end the game holds two targets, not three. Nowhere else does anything change, and this item is listed as the alternative where it yields. Edited here rather than restated because the restatement pass runs over the contract items before additions are spliced in, so an items entry cannot reach an added item (the SD-102 precedent).",
+        "defersWith": "GF2-08.f"
       },
-      "why": "A directional arrangement needs a target per team, and the two must be distinguishable at authoring time."
+      "why": "A directional arrangement needs a target per team, and the two must be distinguishable at authoring time. || PAIRED 26 October 2026 by ruling C63 with GF2-08.f, his reply filed 25 October 2026, item 3 (\"I approve a goalkeeper-protected physical goal as an authorized alternative to the pressing team's 5 m target zone within the Goalkeeper Build-Out context.\") and his reply filed 26 October 2026, item 2 (\"Change \"two corresponding target regions, not three\" to \"two corresponding targets, not three.\"\"): the goal replaces the zone at this end, it is not added beside it."
     },
     {
       "contractId": "restated:GF2",
@@ -1288,9 +1339,11 @@
         "checkability": "STRUCTURAL",
         "structuralClause": "whole item",
         "basisEvidence": "Christian, 2026-10-09: \"allow the per-team directional arrangement to replace the shared-target arrangement as GF2 active objective structure\", with the designation pair approved the same day as \"distinct teams assigned to opposite ends at setup, with their assignments remaining fixed throughout the activity\" and \"each team attacks the target opposite its own assigned end, regardless of possession changes\". New owner-authored canonical knowledge, not a reading of the GF2 source, whose ambiguity on the shared-or-per-team question GF2-12.a still records.",
-        "fitNote": "The team whose own end is the FAR end attacks the target at the NEAR end."
+        "fitNote": "The team whose own end is the FAR end attacks the target at the NEAR end.\n\nDEFERS TO AN AUTHORIZED REALIZATION BY RULING C63 (26 October 2026). Edited here rather than restated because the restatement pass runs over the contract items before additions are spliced in, so an items entry cannot reach an added item (the SD-102 precedent).",
+        "defersTo": "AUTHORIZED_REALIZATION",
+        "defersToNote": "RULED 26 October 2026 (C63) on his reply filed 25 October 2026, item 3: \"I approve a goalkeeper-protected physical goal as an authorized alternative to the pressing team's 5 m target zone within the Goalkeeper Build-Out context.\" and item 4: \"These should be alternative knowledge-authorized realizations, not separate hardcoded implementations of the same Learning Goal.\"; and his reply filed 26 October 2026, item 1: \"Pressing team: Scoring in the goalkeeper-protected physical goal.\" This item DEFERS - is listed as the alternative and not evaluated - in a composition where another selected contribution authors the objective reference of the SAME end's team (team=TEAM_AT_AXIS_END) and cites a CONFIRMED context relationship authorizing that row (back/src/system/derivation/realization-deferral.ts; the relationships are learning-goal-authorizations.json contextScoringRelationships), and the region it points to (GF2-03.e) yields with it (defersWith), so two targets remain, not three. Everywhere else it is in force exactly as before. The C56 pattern, for the target reference."
       },
-      "why": "The mirror reference, so the two objectives name different targets."
+      "why": "The mirror reference, so the two objectives name different targets. || DEFERS since 26 October 2026 by ruling C63 to an authorized realization authoring the same end team's objective reference (his reply filed 25 October 2026, item 3; his reply filed 26 October 2026, item 1), with GF2-03.e paired to it: the knowledge-authorized realization replaces this target, and this reference stays visible as the alternative."
     },
     {
       "contractId": "restated:NEUTRAL-PLAYER-CONDITION",

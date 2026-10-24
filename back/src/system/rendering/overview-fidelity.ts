@@ -398,6 +398,11 @@ function roleClauses(sentence: OverviewSentence, fixture: any, refuse: (what: st
     }
     const objectives: any[] = Array.isArray(game.objectives) ? game.objectives : []
     const regions: any[] = Array.isArray(game.space?.regions) ? game.space.regions : []
+    const objects: any[] = Array.isArray(game.objects) ? game.objects : []
+    const refIdOf = (objective: any): string | null => {
+        const ref = objective?.reference?.structuralRef
+        return ref ? `c:${ref.contractId}:${ref.itemId}` : null
+    }
     for (const clause of clauses) {
         const noun = reading.roleNounOf[clause.role]
         const what = `the game sentence's clause for the ${noun}`
@@ -419,6 +424,22 @@ function roleClauses(sentence: OverviewSentence, fixture: any, refuse: (what: st
         for (const objective of own) {
             const target = regions.find(region => reading.referencedBy(region) === objective)
             if (target && !citedRegions.has(String(target.elementId))) refuse(`${what} does not cite the region ${target.elementId} its objective ${objective.elementId} references: the target it names cannot be read as the ${noun}'s`)
+        }
+        /**
+         * Stage G, 23 October 2026 (a TIGHTENING, for the object target phrase): the same holds for a target that is an object. Every object
+         * the clause cites that an objective references is that role's objective's, and the object its own objective references is cited.
+         * Every game whose objectives reference regions only reads exactly as before.
+         */
+        const citedObjects = new Set(clause.from.map(path => memberIdOf(path, 'objects')).filter((id): id is string => id !== null))
+        const referencing = (id: string) => objectives.find(objective => refIdOf(objective) === id)
+        for (const id of citedObjects) {
+            const target = referencing(id)
+            const holder = target ? reading.roleOfDesignation(target.team) : null
+            if (target && holder !== clause.role) refuse(`${what} cites the object ${id}, the target ${holder ? `the ${reading.roleNounOf[holder]} attacks` : 'of no role of this block'}, not the ${noun}'s`)
+        }
+        for (const objective of own) {
+            const id = refIdOf(objective)
+            if (id && objects.some(object => String(object?.elementId) === id) && !citedObjects.has(id)) refuse(`${what} does not cite the object ${id} its objective ${objective.elementId} references: the target it names cannot be read as the ${noun}'s`)
         }
     }
     return clauses.map(clause => clause.role)
