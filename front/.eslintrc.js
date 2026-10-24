@@ -13,7 +13,7 @@ module.exports = {
         ecmaVersion: 'latest',
         sourceType: 'module',
         tsconfigRootDir: __dirname,
-        project: ['./tsconfig.json', './tsconfig.node.json'],
+        project: ['./tsconfig.json', './tsconfig.node.json', './tsconfig.test.json'],
     },
     plugins: ['@typescript-eslint', 'react-refresh'],
     rules: {

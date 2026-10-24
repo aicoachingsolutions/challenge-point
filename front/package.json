@@ -7,6 +7,7 @@
         "dev": "vite --host",
         "ula": "vite -m production",
         "build": "tsc && vite build",
+        "test": "vitest run",
         "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
         "preview": "vite preview"
     },
@@ -34,6 +35,7 @@
     "devDependencies": {
         "@tailwindcss/aspect-ratio": "^0.4.2",
         "@tailwindcss/forms": "^0.5.3",
+        "@testing-library/react": "14.3.1",
         "@types/node": "^16.18.58",
         "@types/react": "^18.2.15",
         "@types/react-dom": "^18.2.7",
@@ -45,9 +47,11 @@
         "eslint": "^8.45.0",
         "eslint-plugin-react-hooks": "^4.6.0",
         "eslint-plugin-react-refresh": "^0.4.3",
+        "jsdom": "22.1.0",
         "tailwindcss": "^3.2.2",
         "tailwindcss-animated": "^1.0.1",
         "typescript": "^5.0.2",
-        "vite": "^4.4.5"
+        "vite": "^4.4.5",
+        "vitest": "0.34.6"
     }
 }
