@@ -133,6 +133,17 @@ const server = app.listen(0, '127.0.0.1', async () => {
         // Stage I (24 October 2026): the choices the session form states a session's equipment by (GET /session/object-choices, the d27
         // design's stage I(a)), whole. A new key: every earlier one compares as it was.
         snapshot['session/object-choices'] = await capture(port, 'GET', '/api/app/session/object-choices')
+        /**
+         * K3 (24 October 2026, the d27 design's stage K3): one object of each choice the session form offers from an authorized pairing (a
+         * choice whose `from` names one), stated exactly as the form states it - one, with the choice's own statement (its type and width) -
+         * read from the choices route captured above, so nothing here names a kind, a pairing or a width. Since K3 one of them is the goal a
+         * goal version is built for. Read once here (the K3 review's should-fix, 24 October 2026) because three blocks below state them: the
+         * object cases, the practice situations a live build asked an object for, and the saves of the live builds that state one.
+         */
+        const pairingCases = ((snapshot['session/object-choices']?.body?.kinds ?? []) as any[]).flatMap(entry =>
+            ((entry.choices ?? []) as any[]).filter(choice => Array.isArray(choice.from) && choice.from.length).map(choice => ({ id: `objects-${choice.id}`, kind: String(entry.kind), objects: { [entry.kind]: { count: 1, ...choice.states } } })),
+        )
+        const noneOfEach = Object.fromEntries(sessionResourceKinds().map(kind => [kind, { count: 0 }]))
         for (const matrixCase of matrix()) {
             stored = { _id: SESSION_ID, createdBy: USER_ID, playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: matrixCase.roles }
             for (const goal of goals) {
@@ -167,18 +178,15 @@ const server = app.listen(0, '127.0.0.1', async () => {
             const [, withRoles] = matrix()
             const kinds = sessionResourceKinds()
             const objectCases = [
-                { id: 'objects-none', objects: Object.fromEntries(kinds.map(kind => [kind, { count: 0 }])) },
+                { id: 'objects-none', objects: noneOfEach },
                 { id: 'objects-one', objects: Object.fromEntries(kinds.map(kind => [kind, { count: 1, widthM: 5 }])) },
                 /**
-                 * K3 (24 October 2026, the d27 design's stage K3): one object of each choice the session form offers from an authorized pairing
-                 * (a choice whose `from` names one), stated exactly as the form states it - one, with the choice's own statement (its type and
-                 * width) - read from the choices route captured above, so nothing here names a kind, a pairing or a width. Since K3 one of them
-                 * is the goal a goal version is built for, so these keys show it served through the review route and the live route; the
-                 * others show what a statement that suits nothing changes. New keys: every earlier one compares as it was.
+                 * K3 (24 October 2026, the d27 design's stage K3): one object of each choice from an authorized pairing (`pairingCases`, read
+                 * from the choices route above). Since K3 one of them is the goal a goal version is built for, so these keys show it served
+                 * through the review route and the live route; the others show what a statement that suits nothing changes. New keys: every
+                 * earlier one compares as it was.
                  */
-                ...((snapshot['session/object-choices']?.body?.kinds ?? []) as any[]).flatMap(entry =>
-                    ((entry.choices ?? []) as any[]).filter(choice => Array.isArray(choice.from) && choice.from.length).map(choice => ({ id: `objects-${choice.id}`, objects: { [entry.kind]: { count: 1, ...choice.states } } })),
-                ),
+                ...pairingCases.map(({ id, objects }) => ({ id, objects })),
             ]
             for (const objectCase of objectCases) {
                 stored = { _id: SESSION_ID, createdBy: USER_ID, playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: withRoles.roles, objects: objectCase.objects }
@@ -262,6 +270,26 @@ const server = app.listen(0, '127.0.0.1', async () => {
             }
         }
         /**
+         * The K3 review's should-fix (24 October 2026): a practice situation the live route ASKED a session's object for (since K3 a session
+         * that has not said what goals it has is asked, his reply filed 26 October 2026, item 11) is asked again at the same case with each
+         * choice from an authorized pairing of the kind it asked (`pairingCases`), as the coach answers the form - so the activity served for
+         * each practice situation with an object stated is captured, as it was before K3 with none stated. Read from the answers and the
+         * choices route, so nothing here names a goal, a situation, a kind, a pairing or a width. New keys: every earlier one compares as it was.
+         */
+        for (const goal of guided) {
+            const id = String(goal.ID)
+            for (const situation of sessionPlanningModel.practiceSituationsFor(id) as any[]) {
+                const key = `live/${id}/${firstAvailable.id}/${String(situation.ID)}`
+                const asked = snapshot[key]?.body?.question?.objectKind
+                if (typeof asked !== 'string') continue
+                const goalText = [String(goal['Learning Goal']), String(situation['Practice Situation']), 'Our players rush the first pass.'].join('. ')
+                for (const objectCase of pairingCases.filter(entry => entry.kind === asked)) {
+                    stored = { _id: SESSION_ID, createdBy: USER_ID, playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: firstAvailable.roles, objects: objectCase.objects }
+                    snapshot[`${key}/${objectCase.id}`] = await live(id, goalText, { practiceSituationId: String(situation.ID), learningStage: 'building_understanding' })
+                }
+            }
+        }
+        /**
          * Starting a checked activity (the live-app fix, L3): for every guided goal the live route served through the checked pathway at the
          * matrix's second case, the save as the live app sends it (what it was built from and the input digests it was shown), the same
          * save with one digest changed, and the same save after the session's availability changed to the matrix's third case. Only a goal
@@ -279,6 +307,33 @@ const server = app.listen(0, '127.0.0.1', async () => {
             snapshot[`save/${id}/${firstAvailable.id}/digest-changed`] = await save(shown.body.inputDigests.map((entry: any, i: number) => (i === 0 ? { ...entry, inputDigest: '00000000' } : entry)))
             stored = { _id: SESSION_ID, createdBy: USER_ID, playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: otherAvailable.roles }
             snapshot[`save/${id}/${firstAvailable.id}/session-changed`] = await save(shown.body.inputDigests)
+        }
+        /**
+         * The K3 review's should-fix (24 October 2026): the same saves for every live build served with one choice from an authorized pairing
+         * stated (the `objects-<choice>` keys above, at the matrix's second case). Since K3 a session that does not say what goals it has is
+         * asked, and the sessions the loop above saves from say nothing of them, so it finds no live build to save; these keep the save
+         * measured through the real router - the goal version where the choice is the
+         * goal it is built for, the zone version where it suits nothing. Each: the save as the live app sends it, one digest changed, the
+         * availability changed (as above), and the statement changed to none of each kind (`objects-changed`). Only a build whose live answer
+         * carried input digests is saved, so nothing here names a goal, a kind or a choice. New keys: every earlier one compares as it was.
+         */
+        for (const goal of guided) {
+            const id = String(goal.ID)
+            for (const objectCase of pairingCases) {
+                const shown = snapshot[`live/${id}/${firstAvailable.id}/${objectCase.id}`]
+                if (!(shown?.status === 200 && Array.isArray(shown.body?.inputDigests))) continue
+                const save = (inputDigests: unknown) =>
+                    capture(port, 'POST', '/api/app/activity', { _id: 'new', activityStatus: 'inProgress', session: SESSION_ID, pathway: shown.body.pathway, checkedInputs: { learningGoalId: id, practiceSituationId: null, durationMin: 20 }, inputDigests, challengeLevel: 'medium', learningPriorities: [{ description: String(goal['Learning Goal']), achieved: false }] })
+                const session = (specializedRoles: unknown, objects: unknown) => ({ _id: SESSION_ID, createdBy: USER_ID, playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles, objects })
+                const at = `save/${id}/${firstAvailable.id}/${objectCase.id}`
+                stored = session(firstAvailable.roles, objectCase.objects)
+                snapshot[at] = await save(shown.body.inputDigests)
+                snapshot[`${at}/digest-changed`] = await save(shown.body.inputDigests.map((entry: any, i: number) => (i === 0 ? { ...entry, inputDigest: '00000000' } : entry)))
+                stored = session(otherAvailable.roles, objectCase.objects)
+                snapshot[`${at}/session-changed`] = await save(shown.body.inputDigests)
+                stored = session(firstAvailable.roles, noneOfEach)
+                snapshot[`${at}/objects-changed`] = await save(shown.body.inputDigests)
+            }
         }
         // A session that states no specialized-role availability, and one with no playing area (its roles stated).
         stored = { _id: SESSION_ID, createdBy: USER_ID, playerCount: 12, fieldLength: '40', fieldWidth: '30' }

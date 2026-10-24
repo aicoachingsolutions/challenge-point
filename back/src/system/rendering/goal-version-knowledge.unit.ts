@@ -177,7 +177,10 @@ test("A01's record: the goal version first, tried, its three decisions settled b
     const gaps = OPEN.map(id => record.gaps!.find(gap => gap.id === id)!)
     for (const gap of gaps) {
         assert.equal(gap.kind, 'DECISION')
-        assert.ok((gap.settledBy ?? []).length > 0 && gap.settledBy!.every(said => said.citedAs.startsWith('his reply filed 27 October 2026, item ')), `${gap.id} is settled by his words`)
+        // The K3 review's should-fix (24 October 2026): D-DEFAULT-LAWS also cites his reply filed 26 October 2026, item 7 for the goalkeeper's
+        // handling (pinned whole in learning-goal-authorizations.unit.ts); every other entry is his reply filed 27 October 2026.
+        const cited = (gap.settledBy ?? []).map(said => said.citedAs)
+        assert.ok(cited.length > 0 && cited.every(citedAs => citedAs.startsWith('his reply filed 27 October 2026, item ') || (gap.id === 'D-DEFAULT-LAWS' && citedAs === 'his reply filed 26 October 2026, item 7')), `${gap.id} is settled by his words`)
         // The old words are kept, the K3 line after them.
         assert.ok(gap.note!.startsWith(gap.id === 'D-DEFAULT-LAWS' ? "OPEN, his (added 23 October 2026, H2, the d26 design's build step 2)." : 'OPEN, his (added 26 October 2026, Stage F).'), gap.id)
         assert.ok(gap.note!.includes('AMENDED 24 October 2026 (K3'), gap.id)

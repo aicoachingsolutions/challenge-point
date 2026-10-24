@@ -455,6 +455,19 @@ const refusedWith = (outcome: ReturnType<typeof liveCheckedActivity>, cause: str
     assert.throws(() => checkedSave(stored(1), body({ checkedInputs: { practiceSituationId: null } })), CheckedSaveRequestError)
     // The sentence is one plain sentence with no identifier in it (DRAFT).
     assert.equal(SAVE_NOT_AS_SHOWN.split(/[.!?](\s|$)/).filter(part => part && part.trim()).length, 2, 'two short sentences')
+
+    // The K3 review's should-fix (24 October 2026): the goal version, served where the session states the FA 5v5 goal, saves as shown, and
+    // a save after the session changed - its goal statement now none, or its availability - is refused, never stored.
+    const goalShown = served(liveCheckedActivity(stored(1, { objects: FA_GOAL }), inputs(), live), 'the goal version shown')
+    assert.notDeepEqual(goalShown.inputDigests, shown.inputDigests, 'a different activity from the zone version')
+    const goalBody = body({ inputDigests: goalShown.inputDigests })
+    const goalSaved = checkedSave(stored(1, { objects: FA_GOAL }), goalBody)
+    assert.equal(goalSaved.outcome, 'saved', JSON.stringify(goalSaved))
+    if (goalSaved.outcome === 'saved') assert.deepEqual([goalSaved.activity, goalSaved.inputDigests], [goalShown.activity, goalShown.inputDigests], "the goal version's own build is stored, whole")
+    for (const [session, what] of [[stored(1), 'the goal statement changed to none'], [stored(2, { objects: FA_GOAL }), 'availability changed']] as const) {
+        const refused = checkedSave(session, goalBody)
+        assert.ok(refused.outcome === 'refused' && refused.summary === SAVE_NOT_AS_SHOWN, `${what}: ${JSON.stringify(refused)}`)
+    }
 }
 
 /* ── L3 hardening (stage A re-review, 23 October 2026): no edit replaces the stored build, under any spelling Mongo applies ─────────── */

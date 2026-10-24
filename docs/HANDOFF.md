@@ -8922,3 +8922,54 @@ coach word is DRAFT; `approved-coach-wording.json` is untouched.
 OPEN: D-GOAL-SUITABILITY and D-PENALTY-AREA (his); offside and any law needing an adaptation (item 10); T4-5's words "within the authorized deep starting
 environment" reach the coach as written in Stage F (DRAFT, his item 8, binding PROPOSED); every new sentence, the "target" generalization of his
 possession sentence, the essentials amendment and the way reading await his review; Stage F reviewer should-fix items unchanged.
+
+### 24 October — K1-K3: the goal version recorded and switched on (his replies filed 26 and 27 October)
+
+Governing: `C:/Users/Administrator/Downloads/codex-input/christian-2026-10-27.txt` (items 1-6) and `-26.txt` (items 4, 7, 11, 12); design
+`C:/Users/Administrator/Downloads/codex-input/design-field-test-2026-10-27.md` (sections 1.1-1.8, 2.5-2.8, 4.1-4.5). Commits 6354168 and
+ba2fdcd (K1 and its review fix), f70e637 (K2), 3efbe72 (K3) and the K3 review fix after it. Stages H1-H4, R1-R3, L and I (23-24 October)
+come between Stage G above and K1; they are recorded in their commit messages (`git log`), not in this file.
+
+AMENDED 24 October 2026 (K3 review fix): the Stage F and Stage G entries above say A01-R2 waits on D-GOAL-SUITABILITY and D-PENALTY-AREA
+("A01-R2 MISSING_KNOWLEDGE waiting on D-GOAL-SUITABILITY and D-PENALTY-AREA", "production A01 is still A01-R1", "OPEN: D-GOAL-SUITABILITY
+and D-PENALTY-AREA (his)"). That is no longer true: since K3 every decision the goal version waited on is settled by his words, and A01-R2 is
+tried first. Those entries are kept as written, as history.
+
+What was recorded (his words copy-pasted, each byte-checked against the dated reply file within the cited item):
+- K1: the Sport Profile's FA 5v5 pairing `FA-MINI-SOCCER-5V5-2026` (the goal 12 ft x 6 ft = 3.6576 m x 1.8288 m, type scaled; its penalty
+  area 15 m wide x 9 m deep; the mark kept as data, never marked). Suitability reads the registered attributes before the width, so a goal
+  the session states as a mini-goal, full-size or another width does not suit the goal version and falls back (OBJECT_NOT_SUITABLE, decided);
+  a 3.6576 m goal with no type is asked its type. A01-R2's objectSuitability is the FA goal (27 Oct items 1 and 6).
+- K2: A01-R2's penalty area, five items (A01-R2-S2-1, S5-1, S6-1, S6-2, S7-1): one zone of the function penalty-area bound to its goal,
+  15 m wide, centred on the goal, 9 m deep from its end line, the pairing's geometry (27 Oct items 1 and 3). No spot, no goal area.
+- K3: A01's three gaps settled - D-GOAL-SUITABILITY (27 Oct items 1 and 6), D-PENALTY-AREA (27 Oct item 1, the 1b principle he approves
+  inside it), D-DEFAULT-LAWS (27 Oct items 2, 3, 4 and 6; since the K3 review fix also 26 Oct item 7 for the goalkeeper's handling). They
+  left A01-R2's entry before they were marked settled (the Stage F rule). Every note they made untrue keeps its old words and gains a dated
+  AMENDED line.
+
+What is served now (the review route and the live route agree; 40 x 30 m; the d27 design's 4.2 matrix):
+- The FA 5v5 goal (the list choice: scaled, 3.6576 m) with a goalkeeper, at 12/1, 12/2 and 11/1: the GOAL version (A01-R2). The teams
+  change ends at the block exchange; the goalkeeper and one outfield player move (the goalkeeper alone at 11); the penalty area is set out
+  once; the goalkeeper wears a colour neither team wears; ENFORCE owes nothing and the normal-rules sentence is said; one restart rule; no
+  offside, said once; no 5 m zone, spot or goal area.
+- No goal, a mini-goal (any width), a full-size goal, or another width (3.66 m and 5 m included): the ZONE version (A01-R1), unchanged by K3.
+- Goals not stated: ASKED, every choice offered (26 Oct item 11: never inferred from a goalkeeper). No goalkeeper: refused (both versions).
+  Any area other than 40 x 30 m: refused (TESTING_AREA, both versions).
+- The developer runners (`npm run realize -- A01`, `npm run first:game -- A01`) derive the record's first alternative, A01-R2, with no role
+  block, and print Gate A FAIL (GA-NO-FAILED-LINE). That is not a regression: the served build derives it once per block. Since the K3
+  review fix both runners say so before their result, and `--realization A01-R1` derives the zone version.
+- The regression snapshot measures the save again (since K3 it had found no live build to save: a session that does not say what goals it
+  has is asked, and the save keys were built from such sessions): `save/<goal>/
+  goalkeeper-1/objects-<choice>` with `digest-changed`, `session-changed` and `objects-changed` for each live build served with a choice
+  from an authorized pairing stated. It also measures the practice situations the live route asked a goal for, answered with each such
+  choice (`live/<goal>/goalkeeper-1/<situation>/objects-<choice>`).
+
+What stays open:
+- Goalkeeper handling in the ZONE version: his decision (design section 6, stage Z). Until then it still owes LAW-12-GK and gets no
+  normal-rules sentence (27 Oct item 5: "For now, preserve the validated target-zone version without silently adding new handling restrictions.").
+- His review of the DRAFT wording: every new coach sentence of H-K is DRAFT; `approved-coach-wording.json` is untouched. This does not block
+  serving.
+- The 9 m depth, a soft default (design 1.3 (a)): the current FA handbook prints 9 m; The FA's 2012 metric guide gave 8 m, the 2025 edition
+  9 yd (8.2296 m). We use 9 m as printed, under his same-source rule. If he asks for The FA to be checked first, the goal version waits on that
+  answer; a correction is a one-entry data change.
+- Next: V (the verification matrix, the simplicity pins and the field-test observation sheet), then M (merge under the auto-merge rule).
