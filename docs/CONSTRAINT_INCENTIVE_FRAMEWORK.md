@@ -111,6 +111,14 @@ behavior**. Every row's `contextualAudit` enforces "invite, not force," and the 
 validators back it. This is the same principle as Christian's GF11 finding — *compactness emergent,
 not prescribed*: an incentive makes a solution worth considering; it never makes it the only solution.
 
+### Engagement value (added 24 October 2026)
+The five influence dimensions above are about how an incentive shapes the affordance landscape. Christian names a second,
+equally important function for opposition incentives:
+*"motivating players to engage with energy, intensity, and purpose."*
+He wants both recognized when opposition incentives are selected and evaluated: learning value and engagement
+value. His principle is preserved, in his words and not implemented, in [ENGAGE_WITH_PURPOSE.md](ENGAGE_WITH_PURPOSE.md)
+(his second message filed 26 October 2026, and his reply filed 27 October 2026, item 8).
+
 ---
 
 ## Open input — GF11 attacking-exploitation visibility

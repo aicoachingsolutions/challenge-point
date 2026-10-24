@@ -4,6 +4,12 @@
 this document; it governs how we decide, and a decision made under it is recorded in the authored item's own
 `fitNote` / `basisEvidence`.
 
+> **Read beside it (added 24 October 2026): [Engage with Purpose](ENGAGE_WITH_PURPOSE.md).** Christian, his second
+> message filed 26 October 2026: "I want Challenge Point to recognize both dimensions when selecting and evaluating opposition incentives:"
+> learning value and engagement value. His principle is preserved there in his words; it is not one of the seven criteria
+> below, which are unchanged, and how it bears on them is his to decide. See the section "Beside the criteria: Engage with
+> Purpose" at the end.
+
 ---
 
 ## What this is
@@ -525,3 +531,25 @@ procedure rather than a note.
 
 The question I raised about a missing criterion is answered by (1). Nothing else is outstanding on the
 criteria themselves; what is outstanding is the Wide Zone condition, listed in the application above.
+
+---
+
+## Beside the criteria: Engage with Purpose (added 24 October 2026)
+
+Christian, his second message filed 26 October 2026 (9:56 AM), names two values an opposition incentive is selected and
+evaluated on. His words:
+
+- "Learning value: How does the incentive shape the affordances, interactions, and consequences relevant to the Learning Goal?"
+- "Engagement value: Does the incentive create a compelling competitive problem that motivates players to participate actively and purposefully?"
+
+"Both are important. Engagement isn't merely an added benefit of a well-designed learning environment; it's part of what makes that environment effective."
+
+The seven criteria above are unchanged, and this section adds none. Criterion 6, Learning-Relevant, is the nearest to
+his learning value; none of the seven asks his engagement question. Whether engagement value becomes a criterion, and how
+it is weighed beside the seven, is his to decide. Until then (ours), an opposition incentive decision answers both of his
+questions in prose beside the criteria, in the same record. He asked for no implementation:
+
+"This isn't a request for additional implementation work right now, but I do want the principle preserved as we continue developing the knowledge architecture."
+
+His whole message, and his reply filed 27 October 2026, item 8, which reinforces it, are in
+[ENGAGE_WITH_PURPOSE.md](ENGAGE_WITH_PURPOSE.md).

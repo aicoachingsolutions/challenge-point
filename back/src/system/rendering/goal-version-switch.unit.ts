@@ -26,6 +26,12 @@
  *   3. a session that has not said what goals it has is ASKED (every choice offered), and 3.6576 m with no type is asked its type; with no
  *      goalkeeper the roster refuses both versions; any area other than 40 x 30 m is refused for both (TESTING_AREA).
  *
+ * Re-pointed 24 October 2026 (the completeness audit of the field-test build, item 1; his reply filed 27 October 2026, item 6: "Goalkeeper
+ * identification: The goalkeeper should be visually distinguishable from the outfield players. Stable team identities and clear role labels
+ * remain important in the diagram."): the colour clause is written for LAW-4-GK (IFAB Law 4.3), so in 1 the account records that law applying
+ * in each block too, and in 2 the zone version closes its roster with the colour (once, citing LAW-4-GK) and says none of the goal version's
+ * other sentences (no penalty area, no handling, no normal rules); its diagram draws no goalkeeper marker, there being no goal to place one at.
+ *
  * Run: npx ts-node --files -r tsconfig-paths/register ./src/system/rendering/goal-version-switch.unit.ts
  */
 import assert from 'node:assert/strict'
@@ -127,6 +133,9 @@ test('the FA 5v5 goal at 12/1, 12/2 and 11/1: the goal version served, as the de
         const laws = admin.evidence!.defaultLaws!
         assert.deepEqual([laws.realization, laws.mode, laws.owed, laws.heldSentence!.status], [R2, 'ENFORCE', [], 'DRAFT_SAID_NOTHING_OWED'], label)
         assert.deepEqual(laws.blocks.map(block => block.laws.filter(entry => entry.law === 'LAW-12-GK').map(entry => entry.status)), [['APPLIES'], ['APPLIES']], label)
+        // The completeness audit, item 1: the goalkeeper's colours apply in each block, and the colour clause cites that law.
+        assert.deepEqual(laws.blocks.map(block => block.laws.filter(entry => entry.law === 'LAW-4-GK').map(entry => entry.status)), [['APPLIES'], ['APPLIES']], label)
+        assert.deepEqual(roster[0].parts!.filter(part => part.text === COLOUR).map(part => part.from[0]), ['defaultLaws.applied[LAW-4-GK]'], label)
         assert.deepEqual(admin.evidence!.provenance.lists!.gapsStillNeeded, [], `${label}: no decision is still needed`)
         // The live pathway: the review page's activity, whole.
         const outcome = viaLive(session)
@@ -150,7 +159,13 @@ test('none, and every goal that does not suit: the zone version served exactly a
         const zone = review(stored(players, keepers, NO_GOAL)) as ServedActivity
         assert.equal(zone.outcome, 'served', label)
         assert.deepEqual(selectionOf(zone), [[R2, 'NOT_APPLICABLE', 'OBJECT_AVAILABILITY_SHORT'], ['A01-R1', 'SELECTED', null]], label)
-        assert.ok(!texts(zone).some(text => /penalty area|colour|normal soccer rules/.test(text)), `${label}: the zone version says none of the goal version's sentences`)
+        // Re-pointed 24 October 2026 (the completeness audit, item 1): the zone version closes its roster with the goalkeeper's colour, once,
+        // citing LAW-4-GK, and says none of the goal version's other sentences; its diagram draws no goalkeeper marker. Was: no colour either.
+        assert.ok(!texts(zone).some(text => /penalty area|handle|normal soccer rules/.test(text)), `${label}: the zone version says none of the goal version's other sentences`)
+        const zoneRoster = zone.rendered.instructions.filter(instruction => instruction.text.includes('colour'))
+        assert.deepEqual(zoneRoster.map(instruction => [instruction.section, instruction.text.endsWith(COLOUR), instruction.text.split('colour').length - 1]), [['Players', true, 1]], `${label}: the colour, once, closing the roster`)
+        assert.deepEqual(zoneRoster[0].parts!.filter(part => part.text === COLOUR).map(part => part.from), [['defaultLaws.applied[LAW-4-GK]', `performers.teams[].${KEEPER}`]], label)
+        assert.ok(zone.diagram!.blocks.every(block => !('keepers' in block)), `${label}: no goalkeeper marker in the zone version's diagram`)
         assert.deepEqual((viaLive(stored(players, keepers, NO_GOAL)) as { activity: ServedActivity }).activity, zone, `${label}: live equals review`)
         for (const [what, goal] of unsuitable) {
             const activity = review(stored(players, keepers, { goal })) as ServedActivity

@@ -170,6 +170,10 @@ Remove residual Recovery-lens activation when not supported by selection logic. 
 ### Incentive Architecture Review
 **Purpose:** clarify how incentives influence exploration, exploitation, attention, risk, and tactical priorities. **Deliverable:** an incentive *framework* — not necessarily incentive expansion.
 
+> Added 24 October 2026: an opposition incentive also has an engagement function beside shaping affordances. Christian's
+> principle, preserved in his words and not implemented: [ENGAGE_WITH_PURPOSE.md](ENGAGE_WITH_PURPOSE.md) (his second
+> message filed 26 October 2026: "It connects directly to our broader philosophy: Engage with Purpose.").
+
 ---
 
 ## Game Problem Library V1

@@ -1148,7 +1148,9 @@ function boundRegionFindings(fixture: any, rendered: RenderedActivity): Fidelity
  *     the performer the law requires and the object played with) is refused (Q2);
  *   - where the account records the law as applying, a clause written for it is lost where the sentence it belongs to does not cite the law
  *     (Q3): the roster sentence for `distinguished`; the Set up sentence marking each region the law's preconditions bind (its function and
- *     the kind of the object it is bound to) for `inRegion`.
+ *     the kind of the object it is bound to) for `inRegion`;
+ *   - (AMENDED 24 October 2026, the completeness audit's item 1, a tightening) the clause telling the performer apart said in more than one
+ *     statement is refused (Q2).
  *
  * Every game whose account records no such law as applying, and citing none, owes nothing here.
  */
@@ -1168,6 +1170,17 @@ function appliedLawFindings(fixture: any, rendered: RenderedActivity): FidelityF
         const inRegion = entry.inRegion ? fillSlots(entry.inRegion.words, values) : null
         const distinguished = entry.distinguished ? fillSlots(entry.distinguished.words, values) : null
         const clauses = [inRegion, distinguished].filter((clause): clause is string => !!clause)
+        /**
+         * AMENDED 24 October 2026 (the completeness audit of the field-test build, item 1), a NEW clause (a TIGHTENING): the clause telling the
+         * performer apart is said once. Since the DRAFT data writes it for the law of the performer's colours, which the Sport Profile lists
+         * with the one precondition that a team holds the performer, it is said in every version holding one (his reply filed 27 October
+         * 2026, item 6: *"The [performer] should be visually distinguishable from the outfield players."*, his noun bracketed); a rendering
+         * saying it in more than one statement is refused (Q2), wherever the game's account stands.
+         */
+        if (distinguished) {
+            const saying = rendered.instructions.flatMap(i => (i.parts?.length ? i.parts : [{ text: i.text, from: i.from }])).filter(statement => statement.text.includes(distinguished))
+            if (saying.length > 1) findings.push({ question: 2, severity: 'VIOLATION', what: `${saying.length} statements tell the coach "${distinguished}" (${saying.map(statement => `"${statement.text}"`).join('; ')}): it is said once` })
+        }
         for (const instruction of rendered.instructions.filter(i => i.from.includes(at))) {
             if (!applies) {
                 findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" says what ${entry.law} gives the coach, and ${account ? `the game's default-laws account does not record ${entry.law} as applying at every place it is accounted for` : 'the game carries no default-laws account'}` })

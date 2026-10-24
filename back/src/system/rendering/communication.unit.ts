@@ -164,7 +164,10 @@ test('1. the review draft of A01 (TEST-ONLY: the table as at stage M5): every se
         "Set up: The building team's target zone is everything beyond the marked line, up to the pressing team's end line, including the end zone there",
         "Set up: The pressing team's target zone is the 5 m end zone at the building team's end",
         'Set up: Decide which team starts at which end',
-        `Players: Divide 12 players into 2 teams: the building team has 6 outfield players and 1 ${ROLE}; the pressing team has 5 outfield players`,
+        // Re-pointed 24 October 2026 (the completeness audit of the field-test build, item 1; his reply filed 27 October 2026, item 6, "The
+        // [specialized role] should be visually distinguishable from the outfield players."): the roster closes with the colour clause
+        // (DRAFT), written for the law of the role's colours, which applies wherever a team holds the role. Was the sentence without it.
+        `Players: Divide 12 players into 2 teams: the building team has 6 outfield players and 1 ${ROLE}; the pressing team has 5 outfield players; give the ${ROLE} a colour neither team wears`,
         'How it works: The building team starts with the ball',
         // Moved 17 October 2026 (stage M4, design step L10): his approved words, reply filed 19 October 2026, item 4 (read from
         // approved-coach-wording.json approvedTemplateSentences). Was: "When possession changes, play carries on with no stoppage, and

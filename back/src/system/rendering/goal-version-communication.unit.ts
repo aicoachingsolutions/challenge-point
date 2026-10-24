@@ -178,7 +178,9 @@ test('the real goal version is served at 12/1: every sentence, in reading order,
         "[Set up] The building team's target zone is everything beyond the marked line, up to the pressing team's end line",
         "[Set up] The pressing team's target is the goal",
         '[Set up] Decide which team starts at which end',
-        // Re-pointed 24 October 2026 (K3): the roster closes with the goalkeeper's colour (LAW-12-GK applies at every place).
+        // Re-pointed 24 October 2026 (K3): the roster closes with the goalkeeper's colour (LAW-12-GK applies at every place). AMENDED 24
+        // October 2026 (the completeness audit, item 1): the colour rests on LAW-4-GK (the goalkeeper's colours) since, not on LAW-12-GK; the
+        // words are the same.
         `[Players] Divide 12 players into 2 teams: the building team has 6 outfield players and 1 goalkeeper; the pressing team has 5 outfield players${COLOUR}`,
         '[How it works] The building team starts with the ball',
         '[How it works] When possession changes, play carries on without a stoppage, and each team keeps attacking the same target',

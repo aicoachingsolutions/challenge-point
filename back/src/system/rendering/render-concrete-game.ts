@@ -2215,6 +2215,13 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
      * the name of the specialized performer the law requires; citing the law's entries as applied and that performer's count in the teams. So it
      * is said where the performer's handling law applies (the goal version) and not in the served zone version, which owes that law: its
      * handling is his to decide (his reply filed 27 October 2026, item 5), and the colour shows who may handle (OUR READING, disclosed).
+     *
+     * AMENDED 24 October 2026 (the completeness audit of the field-test build, item 1): the last two sentences above are no longer true. His
+     * item 6 names no version (*"[Performer] identification: The [performer] should be visually distinguishable from the outfield players."*,
+     * his noun bracketed), so the DRAFT data writes the clause for the law of the sport that requires the colour (the Sport Profile lists it
+     * with the one precondition that the performer plays), not for the handling law. Nothing in this code changed: the clause is still said
+     * wherever the account records the law it is written for as applying, which is now wherever a team holds that performer in a game the
+     * account is computed for, the zone version included. Fidelity requires it there and refuses it said twice (`appliedLawFindings`).
      */
     if (rosterParts.length && lawAccount) {
         for (const entry of appliedLawWordings()) {

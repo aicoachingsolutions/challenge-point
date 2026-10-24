@@ -1954,7 +1954,10 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
         // Re-pointed 17 October 2026 (stage M4, design step L11): his reply filed 19 October 2026, item 5, "I don't want to prescribe
         // an outfield role for a [specialized role] universally." The second one is counted among the other players and given no part
         // (DRAFT); was "...; the pressing team has 5 outfield players; the other <role> plays as an outfield player".
-        assert.equal(roster!.text, `Divide 12 players into 2 teams: the building team has 1 ${ROLE} and 6 other players; the pressing team has 5 other players`)
+        // Re-pointed 24 October 2026 (the completeness audit of the field-test build, item 1; his reply filed 27 October 2026, item 6, "The
+        // [specialized role] should be visually distinguishable from the outfield players."): the roster closes with the colour clause, written
+        // for the law of the role's colours, which applies wherever a team holds the role (DRAFT). Was the same sentence without it.
+        assert.equal(roster!.text, `Divide 12 players into 2 teams: the building team has 1 ${ROLE} and 6 other players; the pressing team has 5 other players; give the ${ROLE} a colour neither team wears`)
         /**
          * Through the GOAL pathway (the record crosses into each block's fixture) the two adjustments he authorized reach the
          * composed activity — K4 review, 15 October 2026: allocation.unit.ts proves them on a constructed fixture only, so

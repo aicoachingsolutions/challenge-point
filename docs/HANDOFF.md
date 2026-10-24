@@ -8525,6 +8525,9 @@ a GitHub Actions check `.github/workflows/checks.yml` (`90e803d`, `a4d21f5`, har
 time limits) — back tsc / npm test / build / snapshot artifact, front build. The test speed-up (7407dc6) was NOT merged:
 it saved ~1.6 ms; the suite is bound by total work, not its slowest files. Front lint is broken repo-wide (the root
 .eslintrc needs @typescript-eslint/parser, not installed).
+AMENDED 24 October 2026 (the completeness audit of the field-test build, item 5): no longer true. Since Codex task 06 (6c48b8a) `front/.eslintrc.js` is self-contained
+(the root configuration's rules carried over unchanged) and `npm run lint` in front/ runs. It exits 1 on a backlog of 901 problems
+(526 errors, 375 warnings) that it exposed; fixing them is deferred (see the 24 October completeness-audit entry at the end).
 
 Suite **FILES 101 FAILED 0**; pushed `c5c1632` (14 ahead of main; main = PR #129 deployed on Render).
 
@@ -8953,6 +8956,9 @@ What is served now (the review route and the live route agree; 40 x 30 m; the d2
   once; the goalkeeper wears a colour neither team wears; ENFORCE owes nothing and the normal-rules sentence is said; one restart rule; no
   offside, said once; no 5 m zone, spot or goal area.
 - No goal, a mini-goal (any width), a full-size goal, or another width (3.66 m and 5 m included): the ZONE version (A01-R1), unchanged by K3.
+  AMENDED 24 October 2026 (the completeness audit of the field-test build, item 1): the zone version now also closes its Players sentence with "give the goalkeeper a
+  colour neither team wears" (DRAFT), at 12/1, 12/2 and 11/1: the clause is written for LAW-4-GK (IFAB Law 4.3) since, not for the
+  handling law. In the goal version the same clause rests on LAW-4-GK too; its words are unchanged.
 - Goals not stated: ASKED, every choice offered (26 Oct item 11: never inferred from a goalkeeper). No goalkeeper: refused (both versions).
   Any area other than 40 x 30 m: refused (TESTING_AREA, both versions).
 - The developer runners (`npm run realize -- A01`, `npm run first:game -- A01`) derive the record's first alternative, A01-R2, with no role
@@ -8973,6 +8979,7 @@ What stays open:
   9 yd (8.2296 m). We use 9 m as printed, under his same-source rule. If he asks for The FA to be checked first, the goal version waits on that
   answer; a correction is a one-entry data change.
 - Next: V (the verification matrix, the simplicity pins and the field-test observation sheet), then M (merge under the auto-merge rule).
+  AMENDED 24 October 2026 (the completeness audit of the field-test build, item 5): both done. V is the next entry; M: pull request #139 merged as 6e38590 and #140 as de7e938.
 
 ### 24 October — V: the goal version verified, and the field-test observation sheet (the d27 design's 4.2-4.4)
 
@@ -9000,18 +9007,104 @@ bundles a probe beside a copy of `back/dist/knowledge` and drives the real revie
   need coach words that are Christian's to review, so no failing test was added. "Organize": the coach sheet never names the goal's size
   or the equipment. "No fact said twice": "own side of the marked line" is in the set-up sentence, and "on the building team's side of
   the marked line" in the restart-location sentence.
+  AMENDED 24 October 2026 (the completeness audit of the field-test build, item 5): both are now put to him as decisions in the 28 October email
+  (`scratchpad/send-oct28/Email to Christian - goal version ready to field-test.txt`): decision 3, equipment (neither the overview nor
+  the Coach details says what to bring, or the goal's size), and decision 6, two overlapping sentence pairs - "The building team starts
+  with the ball" / "The building team's goalkeeper starts play", and "own side of the marked line" / "on the building team's side of the
+  marked line". Still no failing test: the words are his to choose.
 - The field-test observation sheet (4.4): `C:/Users/Administrator/Downloads/codex-output/Field-test observation sheet.txt`, DRAFT,
   for Christian, not coach-facing. Review fix: question 8 asked only whether players wait "near the goal". His 27 Oct item 2 speaks of
   players near "a scoring target", and the earlier discussion it refers to (his 18 Oct item 6) was about players staying beyond the
   progression line. So question 8 now names both targets (beyond the marked line, or near the goal) and asks his question, whether
   it "actually undermines the activity". Questions 1, 3, 4 and 6 are back in his words (26 Oct item 13; 27 Oct item 8). Questions 10-12
   are our analysis of the one-restart rule (design 2.11), not his points, and sit under their own heading. Design 4.4 is amended (dated).
+  AMENDED 24 October 2026 (the completeness audit of the field-test build, item 4): the sheet is under version control at
+  `docs/field-test/play-out-from-the-back-observation-sheet.txt` (DRAFT; `docs/field-test/README.md` says where each question comes
+  from). The copy sent with the 28 October email (`scratchpad/send-oct28/Field-test observation sheet.txt`) received the same edit and is
+  byte-identical; the `Downloads/codex-output` copy named above is an earlier draft. Three questions were added for his 27 Oct item 7
+  relationships (now 1, 5 and 6), so the numbers above are the old ones: old 1, 2, 3 are now 2, 3, 4; old 4-9 are 7-12 (the offside
+  question, old 8, is 11); old 10-12 are 13-15.
 
 What stays open:
 - 4.1 I(d), above (a design decision).
 - For a 3.6576 m goal of unstated type, the ATTRIBUTE question offers a choice labelled with the raw value "full-size"
   (`attribute:type=full-size`), with no DRAFT wording entry. It falls back to the zone version correctly. This dates from stages I/K1.
+  AMENDED 24 October 2026 (the completeness audit of the field-test build, item 5): not so. It has a DRAFT entry since K1: `docs/audits/draft-coach-wording.json`,
+  objectChoices (kind goal), attributeValues, value 'full-size', label "full-size" - the label is the same word as the value, which is
+  why it read as raw.
 - The two unmet pins, above.
 - A harness that writes beside itself, or runs build.js (which empties back/dist), overwrites evidence when re-run in place. The Codex
   rules now say to re-run a copy.
 - Next: M (merge under the auto-merge rule).
+  AMENDED 24 October 2026 (the completeness audit of the field-test build, item 5): done - #139 merged as 6e38590, #140 as de7e938 (see the entry below).
+
+### 24 October — the completeness audit of the field-test build: the goalkeeper's colour in every version, stale notes, Engage with Purpose, the observation sheet; Codex tasks 06 and 07; the merges
+
+A completeness audit of the field-test build found five things owed; this entry records them as done, and brings this file current.
+Commits 7f3ef9f (items 1 and 2) and the one after it (items 3-5). Claude's evidence: `scratchpad/cd/build/review/C/` (the snapshot
+`snap-impl.json`, its delta read back by `verify-delta.cjs`, and the built-bundle probe `probe.entry.ts` read by `read-probe.cjs`).
+
+1. **The goalkeeper's colour in every version.** His reply filed 27 October 2026, item 6, agreeing with a reading our 26 October email
+   put to him for no one version: "Goalkeeper identification: The goalkeeper should be visually distinguishable from the outfield players.
+   Stable team identities and clear role labels remain important in the diagram." Until now the clause "give the goalkeeper a colour
+   neither team wears" was written for LAW-12-GK (handling), so the zone version, whose goalkeeper also changes team at every exchange,
+   never said it. The Sport Profile's defaultLaws block now lists LAW-4-GK (IFAB Law 4.3, as stage L cited it: "Each goalkeeper must wear
+   colours that are distinguishable from the other players and the match officials"), applicable wherever a team holds a goalkeeper and
+   requiring nothing, so never owed; the DRAFT clause moved to it whole. No renderer code changed. Fidelity still requires the clause
+   wherever its law applies (now both versions) and newly refuses it said twice (a tightening).
+   - Served: the zone version's Players sentence gains "; give the goalkeeper a colour neither team wears" in every A01-R1 build (built
+     bundle: 12/1, 12/2, 11/1, with no goal and with a full-size goal; coach, admin and live; once, citing LAW-4-GK). The goal version's
+     words are unchanged; its clause cites LAW-4-GK instead of LAW-12-GK. Both accounts gain LAW-4-GK APPLIES in each block (the zone
+     version still owes only the handling). Mutations on the bundle: the clause dropped is refused (Q3), said twice refused (Q2).
+   - No other goal or demonstration moves: no other goal is served, and both served demonstrations hold no goalkeeper in their roster
+     ("goalkeepers play as outfield players" / "no goalkeepers"), so they say nothing of colours.
+   - Snapshot against `snap-04.json`: 391 keys, 22 changed (all A01: the zone and goal keys of review, review-admin, live and save),
+     3807 leaves (most are the admin evidence's provenance list shifting by one inserted element); read back as only the stated delta.
+     Live A01 equals review A01 for every twin.
+2. **Stale knowledge notes**, each with a dated AMENDED line, the old words kept: in the Sport Profile, LAW-12-GK's note (the regulation
+   pairing "alone authorized", decision 1) and the boundRegions note ("BUILT WITH THE REGULATION ENTRY ONLY", "No scaled entry is
+   recorded"); in the register, the sessionResources note and its goal-type attribute note ("no suitability reads the type", decision 4).
+   The register's version is not changed: it is hashed into every game's input digest, and the K6 review amended a note the same way.
+3. **Engage with Purpose**, his second message filed 26 October 2026 (9:56 AM), preserved in his words in
+   `docs/ENGAGE_WITH_PURPOSE.md` ("This isn't a request for additional implementation work right now, but I do want the principle
+   preserved as we continue developing the knowledge architecture."), with his reply filed 27 October 2026, item 8. Linked from
+   `INCENTIVE_ASSURANCE_CRITERIA.md` (a dated section beside the seven approved criteria, which are unchanged),
+   `CONSTRAINT_INCENTIVE_FRAMEWORK.md` (Part 2) and `ARCHITECTURE_ROADMAP.md`. No engine change.
+4. **The field-test observation sheet** under version control: `docs/field-test/play-out-from-the-back-observation-sheet.txt` (DRAFT),
+   with three questions added to its first part for his 27 Oct item 7 relationships it lacked, and renumbered; the same edit to the copy
+   sent with the 28 October email.
+5. **Codex tasks 06 and 07, and the merges.**
+   - Task 06 (6c48b8a): front lint runs. `front/.eslintrc.js` is self-contained; no rule, severity or threshold changed. It exposed
+     901 problems (526 errors, 375 warnings: max-len 254, no-unused-vars 128, no-explicit-any 104, ...); the cleanup is deferred to a
+     separately authorized task (report `Downloads/codex-output/report-06.md`).
+   - Task 07 (997ad9f, review fix 6c64ed1): the first front-end tests - vitest 0.34.6, @testing-library/react 14.3.1, jsdom 22.1.0, 14
+     tests over the diagram, the coach view and the goal question, fixtures copied from `snap-06.json` (`front/tests/fixtures/a01.json`,
+     provenance recorded). The Checks workflow runs them. One `it.fails` pins an existing accessibility bug: NumberField's sibling
+     `<label>` has no `htmlFor`, so the session width input has no accessible name (remove `fails` when fixed). The real SessionForm
+     logs a React warning that NumberField gets both `value` and `defaultValue` (left as is). The install moved three shared transitive
+     packages forward in the lockfile (@jridgewell/sourcemap-codec 1.4.15 to 1.6.0, acorn 8.10.0 to 8.19.0, punycode 2.3.0 to 2.3.1).
+   - Merged to main: #139 (one restart rule, no offside, the penalty-area display, the goal question) as 6e38590, and #140 (the goal
+     version switched on) as de7e938. #141 ("Front end: lint runs, and the first automated front-end tests (run in CI)") is open with the
+     front work, and this audit's commits are on the same branch. The back end needs a manual Render deploy ("Deploy latest commit")
+     before the live app serves what is merged; the front end (Vercel) deploys itself.
+
+Known limitations (recorded, not fixed):
+- The SD-90 displaced records are pinned only in `back/src/system/derivation/dead-ball-restart.unit.ts`, not in the regression snapshot.
+- The live coach page does not show why the goal version fell back to the zone version: design I(b) put the reason in the review page's
+  closed panel only.
+- The zone version's diagram has no goalkeeper marker. A marker is placed with the goal its performer defends (O7); the zone version has
+  no goal, and no other placement is invented. The coach is told the colour in words only there.
+- The colour clause is said, and required, only where a game carries a default-laws account (a game derived through a realization that
+  declares defaultLawsCheck: on 24 October 2026 the two A01 versions). A game with a goalkeeper and no account says nothing of it (the
+  TEST-ONLY "plus 1 goalkeeper each" demonstration in `activity-review.unit.ts` is one); no such game is served today.
+- `front/tests/fixtures/a01.json` (copied from `snap-06.json`) keeps the goal version's roster citation of LAW-12-GK; the served body
+  now cites LAW-4-GK. The visible words are the same, and no front test reads the citation; re-copy it from a later snapshot when the
+  front tests are next touched.
+- Design 4.1 I(d) is not built (a 3.6576 m goal of unstated type with no goalkeeper is asked its type before being refused).
+- Stage Z (goalkeeper handling in the zone version) waits on his answer (27 Oct item 5).
+
+What stays open:
+- His review of every DRAFT coach sentence (the colour clause in the zone version is new to it), and his answers to the 28 October
+  email's six decisions.
+- The front lint backlog (901), and the NumberField label bug.
+- A manual Render deploy of the back end once #141 and this audit are merged.
