@@ -25,6 +25,20 @@ const ageGroupOptions = Object.entries(AgeGroups).map(([text, value]) => ({
     text,
 }))
 
+/**
+ * THE GOAL TYPES A COACH MAY STATE — H4, 23 October 2026 (DRAFT labels). The values are the knowledge register's closed list for goals
+ * (`sessionResources.attributes`, register version 22), each a word already in use: "full-size" and "scaled" from the Goalkeeper Included
+ * Condition ("Use full-size or scaled goals depending on field dimensions."), which Christian approved in his reply filed 26 October 2026,
+ * item 4, and "mini-goal" from that item ("This is different from substituting an unattended mini-goal."). Kept equal to the register by
+ * a back-end test (session-resources.unit.ts reads this file). "Not sure yet" stores nothing: blank means not stated.
+ */
+export const GOAL_TYPE_OPTIONS = [
+    { value: 'full-size', text: 'Full-size' },
+    { value: 'scaled', text: 'Scaled' },
+    { value: 'mini-goal', text: 'Mini-goal' },
+]
+const NOT_STATED = ''
+
 // Surface Type removed for pilot (Path to Pilot Checklist RC4, section 1).
 //
 // It asked the coach for a planning decision nothing on the live path acted on. Its only two
@@ -90,20 +104,29 @@ const SessionForm: React.FC<{}> = () => {
                  * sessionResources block), which is what the activity review reads.
                  */
                 const goalsStated = formValues?.objects?.goal
-                const setObjects = (kind: string, change: { count?: number; widthM?: number }) =>
+                type ObjectStatement = { count: number; widthM?: number; type?: string }
+                const setObjects = (kind: string, change: { count?: number; widthM?: number; type?: string }) =>
                     setFormValues((values) => {
                         const objects = { ...(values?.objects ?? {}) }
                         // A stored entry always holds a count (an entry without one is never written here), so it is read as one.
-                        let next: { count: number; widthM?: number } | undefined = objects[kind] ? { ...(objects[kind] as { count: number; widthM?: number }) } : undefined
+                        let next: ObjectStatement | undefined = objects[kind] ? { ...(objects[kind] as ObjectStatement) } : undefined
                         if ('count' in change) {
                             const count = change.count
                             next = typeof count === 'number' && Number.isInteger(count) && count >= 0 ? { ...(next ?? { count }), count } : undefined
-                            if (next && next.count === 0) delete next.widthM
+                            if (next && next.count === 0) {
+                                delete next.widthM
+                                delete next.type
+                            }
                         }
                         if ('widthM' in change && next) {
                             const width = change.widthM
                             if (typeof width === 'number' && Number.isFinite(width) && width > 0 && next.count > 0) next.widthM = width
                             else delete next.widthM
+                        }
+                        // H4: a type is kept only beside a count of one or more, and only as one of the listed values; "Not sure yet" removes it.
+                        if ('type' in change && next) {
+                            if (next.count > 0 && GOAL_TYPE_OPTIONS.some((option) => option.value === change.type)) next.type = change.type
+                            else delete next.type
                         }
                         if (next) objects[kind] = next
                         else delete objects[kind]
@@ -266,6 +289,39 @@ const SessionForm: React.FC<{}> = () => {
                                                 />
                                                 <p className='mt-2 text-sm text-gray-500'>
                                                     How wide your goals are, post to post. Asked once you say you have a goal.
+                                                </p>
+                                            </div>
+
+                                            {/*
+                                              * GOAL TYPE — asked, never inferred (H4, 23 October 2026). DRAFT wording.
+                                              *
+                                              * Christian, reply filed 26 October 2026, item 4: "I agree that the coach should
+                                              * identify the available goal type and dimensions, without the engine inventing them."
+                                              * Blank ("Not sure yet") means not stated, as for the count and width: nothing on the
+                                              * server infers a type from the width or from a goalkeeper. The height is not asked:
+                                              * nothing the activity engine is authorized to use reads it yet.
+                                              */}
+                                            <div>
+                                                {/* A native select: the shared SelectField cannot be disabled, and this is asked only once a goal is stated. */}
+                                                <label htmlFor='session-goal-type' className='block mb-2 font-medium text-gray-700'>
+                                                    Goal type
+                                                </label>
+                                                <select
+                                                    id='session-goal-type'
+                                                    value={typeof goalsStated?.type === 'string' ? goalsStated.type : NOT_STATED}
+                                                    onChange={(event) => setObjects('goal', { type: event.target.value })}
+                                                    disabled={!goalsStated || goalsStated.count < 1}
+                                                    className='w-full h-10 px-3 text-base transition-colors border border-gray-300 field-input rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 disabled:opacity-50'
+                                                >
+                                                    <option value={NOT_STATED}>Not sure yet</option>
+                                                    {GOAL_TYPE_OPTIONS.map((option) => (
+                                                        <option key={option.value} value={option.value}>
+                                                            {option.text}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                <p className='mt-2 text-sm text-gray-500'>
+                                                    Full-size, scaled, or a mini-goal. Leave it as not sure if you do not know.
                                                 </p>
                                             </div>
                                         </div>

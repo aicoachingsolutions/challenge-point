@@ -295,19 +295,27 @@ test('registering the member changed no verdict in any of the thirteen goals', (
      * GA-ROLE-EVENTS clause 13 reads it as no instance. A01 is derived here with its record's first alternative that can be tried, the zone
      * version A01-R1 (the goal version, A01-R2, is listed waiting on two decisions of his), so it is unchanged; so is every other composition.
      */
-    const A01_COMPOSITION = { failed: 12, gateA: 'FAIL', reachable: true }
+    /**
+     * **18 · 23 October, H3 — every composition + one failed line per region it holds, measured; no verdict moves.** Register version 21
+     * (his reply filed 26 October 2026, item 7) adds row S7, the object a region is bound to, owned by the regions row. No item in any of
+     * these compositions binds a region, so each region gains one unauthored line nobody spoke for ('no coverage'): A01 +3 (the pressure
+     * reference and the two targets), D01 and A04 +2 (the two targets), TA01 +3 (the transition game's region and the two channels), TD01,
+     * D02 and TD02 +1, TA02 and A05 +4 (the targets and the channels), A03 and A06 +2 (the channels), the old A01 composition +4.
+     * GA-NO-FAILED-LINE does not block on them, and GA-BOUND-REGION reads a silent line as no binding.
+     */
+    const A01_COMPOSITION = { failed: 16, gateA: 'FAIL', reachable: true }
     const expected: Record<string, { failed: number; gateA: string; reachable: boolean }> = {
-        A01: { failed: 14, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
-        D01: { failed: 9, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
-        TA01: { failed: 18, gateA: 'FAIL', reachable: false },
-        TD01: { failed: 17, gateA: 'FAIL', reachable: false },
-        D02: { failed: 17, gateA: 'FAIL', reachable: false },
-        TA02: { failed: 10, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
-        TD02: { failed: 17, gateA: 'FAIL', reachable: false },
-        A03: { failed: 9, gateA: 'FAIL', reachable: true },
-        A04: { failed: 9, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
-        A05: { failed: 10, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
-        A06: { failed: 9, gateA: 'FAIL', reachable: true },
+        A01: { failed: 17, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
+        D01: { failed: 11, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
+        TA01: { failed: 21, gateA: 'FAIL', reachable: false },
+        TD01: { failed: 18, gateA: 'FAIL', reachable: false },
+        D02: { failed: 18, gateA: 'FAIL', reachable: false },
+        TA02: { failed: 14, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
+        TD02: { failed: 18, gateA: 'FAIL', reachable: false },
+        A03: { failed: 11, gateA: 'FAIL', reachable: true },
+        A04: { failed: 11, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
+        A05: { failed: 14, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
+        A06: { failed: 11, gateA: 'FAIL', reachable: true },
     }
     const gaps: string[] = []
     for (const goal of [...goals, 'A01 composition until 15 October']) {

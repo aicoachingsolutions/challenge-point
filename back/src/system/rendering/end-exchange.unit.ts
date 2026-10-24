@@ -149,12 +149,16 @@ test('the register carries the end exchange as data (version 18): a game-level r
     assert.equal(index.fillable.has(spec.row), false, 'not a realization choice: an authorized realization writes it, nothing chooses it')
     // Re-pointed 23 October 2026 (stage E): version 19 (an object's availability as a session resource, his item 4) supersedes 18, once.
     // Re-pointed 26 October 2026 (Stage F): version 20 (his rulings filed 26 October 2026 for the goal version) supersedes 19, once.
-    assert.match(String(register.version), /^20, records his rulings filed 26 October 2026 for the goal version of the build-out activity .*Supersedes version 19, which adds an object's availability as a session resource, .*Supersedes version 18, which adds the coach-controlled end exchange, .*Supersedes version 17, which adds object targets and the geometry a goal needs, .*Supersedes version 16, which adds one primary scoring event per role, /)
+    // Re-pointed 23 October 2026 (H3): version 21 (a region bound to an object, his reply filed 26 October 2026, item 7) supersedes 20, once.
+    // Re-pointed 23 October 2026 (H4): version 22 (the type a session states for its objects, his reply filed 26 October 2026, item 4) supersedes 21.
+    assert.match(String(register.version), /^22, adds the type a session states for its objects of a kind, .*Supersedes version 21, which adds a region bound to an object, .*Supersedes version 20, which records his rulings filed 26 October 2026 for the goal version of the build-out activity .*Supersedes version 19, which adds an object's availability as a session resource, .*Supersedes version 18, which adds the coach-controlled end exchange, .*Supersedes version 17, which adds object targets and the geometry a goal needs, .*Supersedes version 16, which adds one primary scoring event per role, /)
     assert.ok(String(register.version).includes('"Team-end assignments may change between coach-controlled blocks when the authorized activity configuration requires it."'), 'the version entry quotes item 5')
     assert.equal(String(register.version).split('Supersedes version 17, ').length - 1, 1)
     assert.equal(String(register.version).split('Supersedes version 18, ').length - 1, 1)
     assert.equal(String(register.version).split('Supersedes version 19, ').length - 1, 1)
-    assert.ok(!String(register.version).includes('Supersedes version 20'), 'version 20 is the current entry')
+    assert.equal(String(register.version).split('Supersedes version 20, ').length - 1, 1)
+    assert.equal(String(register.version).split('Supersedes version 21, ').length - 1, 1, 'version 21 superseded once, by version 22 (H4)')
+    assert.ok(!String(register.version).includes('Supersedes version 22'), 'version 22 is the current entry')
     /**
      * Re-pointed 26 October 2026 (Stage F): the glosses S3 restates WERE untouched until his reply filed 26 October 2026, item 3 approved S3
      * word for word ("I approve both statements:"); ruling C62 restates them. The ends stay kept in every game that states no exchange - only

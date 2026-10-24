@@ -36,6 +36,8 @@
  * Run: npx ts-node --files -r tsconfig-paths/register ./src/system/rendering/session-resources.unit.ts
  */
 import assert from 'node:assert/strict'
+import fs from 'node:fs'
+import path from 'node:path'
 
 import Session from '../../models/session.model'
 import * as corpus from '../derivation/corpus'
@@ -50,7 +52,7 @@ import { learningGoalAuthorizations, LearningGoalAuthorization, realizationAlter
 import { reviewActivity, reviewRequestOf } from './activity-review'
 import { buildActivityForReview, buildActivityUnderAuthorizationRecords, onlyTheRosterStopped, RefusedActivity, ServedActivity } from './build-activity'
 import { liveRefusalBody } from './live-activity'
-import { objectAvailabilityQuestion, sessionEnvelopeFrom, sessionResourceKinds, specializedRoleNames } from './session-envelope'
+import { objectAvailabilityQuestion, sessionEnvelopeFrom, sessionResourceAttributes, sessionResourceKinds, specializedRoleNames } from './session-envelope'
 
 let passed = 0
 function test(name: string, body: () => void): void {
@@ -77,11 +79,15 @@ const halts = (damage: (r: any) => void, message: RegExp, label: string) => {
 // ── 1. The register ──────────────────────────────────────────────────────────────────────────────────────
 test('register version 19 holds the session resources as data, in one versions entry quoting him, chained after 18', () => {
     // Re-pointed 26 October 2026 (Stage F): version 20 (his rulings filed 26 October 2026 for the goal version) supersedes 19, once.
-    assert.match(String(register.version), /^20, records his rulings filed 26 October 2026 for the goal version of the build-out activity .*Supersedes version 19, which adds an object's availability as a session resource, for his reply filed 25 October 2026, item 4 /)
+    // Re-pointed 23 October 2026 (H3): version 21 (a region bound to an object, his reply filed 26 October 2026, item 7) supersedes 20, once.
+    // Re-pointed 23 October 2026 (H4): version 22 (the type a session states for its objects, his reply filed 26 October 2026, item 4) supersedes 21.
+    assert.match(String(register.version), /^22, adds the type a session states for its objects of a kind, .*Supersedes version 21, which adds a region bound to an object, .*Supersedes version 20, which records his rulings filed 26 October 2026 for the goal version of the build-out activity .*Supersedes version 19, which adds an object's availability as a session resource, for his reply filed 25 October 2026, item 4 /)
     assert.ok(String(register.version).includes('"Please add the general ability to represent goal availability as a session resource and use authorized knowledge relationships when determining which scoring configuration can be selected."'))
     assert.equal(String(register.version).split('Supersedes version 18, which adds the coach-controlled end exchange, ').length - 1, 1, 'version 18 superseded once')
     assert.equal(String(register.version).split('Supersedes version 19, ').length - 1, 1, 'version 19 superseded once')
-    assert.ok(!String(register.version).includes('Supersedes version 20'), 'version 20 is the current entry')
+    assert.equal(String(register.version).split('Supersedes version 20, ').length - 1, 1, 'version 20 superseded once')
+    assert.equal(String(register.version).split('Supersedes version 21, ').length - 1, 1, 'version 21 superseded once, by version 22 (H4)')
+    assert.ok(!String(register.version).includes('Supersedes version 22'), 'version 22 is the current entry')
     assert.deepEqual([spec.row, spec.attribute, spec.countRow, spec.kinds], ['O1', 'kind', 'O3', ['goal']])
     assert.deepEqual([spec.path, spec.kindLeaf, spec.countLeaf], ['objects[]', 'kind', 'count'])
     assert.deepEqual(sessionResourceKinds(), spec.kinds, 'the envelope reads the kinds from the register')
@@ -142,6 +148,74 @@ test('the envelope carries what is stated and nothing else, never asks for objec
     const quiet = sessionEnvelopeFrom(stored, { durationMin: 20 })
     assert.equal(quiet.outcome, 'stated')
     assert.equal(objectAvailabilityQuestion(KIND, 'AVAILABILITY'), `Say how many ${KIND}s this session has, and how wide they are, before building this activity.`)
+})
+
+// ── 2b. The type a session states (H4, register version 22; the d26 design's build step 4, its S1) ─────────
+test('H4: register version 22 lists one attribute for the kind, type, a closed list in existing words, each quoted; a damaged copy halts H1', () => {
+    assert.deepEqual(spec.attributes, [{ kind: KIND, attribute: 'type', values: ['full-size', 'scaled', 'mini-goal'] }])
+    assert.deepEqual(sessionResourceAttributes(), spec.attributes, 'the envelope reads the attributes from the register')
+    const entry = register.sessionResources.attributes[0]
+    // Each value is a word already in use, quoted with where: his item 4 approves the Goalkeeper Included Condition's sentence, and uses "mini-goal".
+    assert.deepEqual(entry.valueSources['full-size'].words, 'Use full-size or scaled goals depending on field dimensions.')
+    assert.deepEqual(entry.valueSources.scaled.words, 'Use full-size or scaled goals depending on field dimensions.')
+    assert.deepEqual(entry.valueSources['mini-goal'], { words: 'This is different from substituting an unattended mini-goal.', citedAs: 'his reply filed 26 October 2026, item 4' })
+    assert.ok(String(register.version).startsWith('22, adds the type a session states for its objects of a kind, for his reply filed 26 October 2026, item 4 ("I approve using the relevant Goalkeeper Included Condition:" "Use full-size or scaled goals depending on field dimensions."'))
+    assert.ok(String(register.version).split('Supersedes version 21, ')[0].includes('"I agree that the coach should identify the available goal type and dimensions, without the engine inventing them."'))
+    // The height is not an attribute: no authorized entry reads it, so nothing asks for it.
+    assert.ok(!spec.attributes.some(attribute => /height/i.test(attribute.attribute)))
+    halts(r => (r.sessionResources.attributes = {}), /attributes must be a list/, 'not a list')
+    halts(r => (r.sessionResources.attributes[0].kind = 'TEST-ONLY'), /names the kind "TEST-ONLY", which sessionResources\.kinds does not list/, 'a kind not listed')
+    halts(r => (r.sessionResources.attributes[0].attribute = 'widthM'), /must name an attribute other than count and widthM/, 'an attribute a statement already carries')
+    halts(r => r.sessionResources.attributes.push(copy(r.sessionResources.attributes[0])), /the attribute type of goal is listed twice/, 'an attribute twice')
+    halts(r => (r.sessionResources.attributes[0].values = []), /must list at least one value, each once/, 'no value')
+    halts(r => r.sessionResources.attributes[0].values.push('scaled'), /must list at least one value, each once/, 'a value twice')
+    halts(r => delete r.sessionResources.attributes[0].valueSources.scaled, /the value scaled must quote the words it is taken from/, 'a value with no source')
+    halts(r => (r.sessionResources.attributes[0].valueSources['mini-goal'].words = 'TEST-ONLY'), /the value mini-goal is not in the words it quotes/, 'a value its words do not hold')
+    halts(r => (r.sessionResources.attributes[0].valueSources.portable = { words: 'portable', citedAs: 'TEST-ONLY' }), /valueSources names portable, which the list does not hold/, 'a source for no value')
+    halts(r => (r.sessionResources.attributes[0].note = ''), /must say what it is and why \(note\)/, 'no note')
+    const without = copy(register)
+    delete without.sessionResources.attributes
+    assert.deepEqual(indexRegister(without).sessionResources!.attributes, [], 'a register before version 22 lists none, and none is read')
+})
+
+test('H4: the envelope carries a stated type and nothing else, never infers one, and refuses a value off the list; the model stores it with no default', () => {
+    const stored = { playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: { ...none, [KEEPER]: 1 } }
+    const ok = (objects: unknown, review: Record<string, unknown> = {}) => {
+        const envelope = sessionEnvelopeFrom({ ...stored, objects }, { durationMin: 20, ...review })
+        assert.equal(envelope.outcome, 'stated', JSON.stringify(envelope))
+        return (envelope as any).session.objects
+    }
+    assert.deepEqual(ok({ [KIND]: { count: 1, widthM: 7.32, type: 'full-size' } }), { [KIND]: { count: 1, widthM: 7.32, type: 'full-size' } })
+    // Absent, blank or null: not stated, carried as nothing - never inferred from the width (7.32 m is not thereby full-size).
+    for (const type of [undefined, '', null]) assert.deepEqual(ok({ [KIND]: { count: 1, widthM: 7.32, ...(type === undefined ? {} : { type }) } }), { [KIND]: { count: 1, widthM: 7.32 } }, String(type))
+    // The review's answer replaces the kind's statement whole, as it always has: a type is carried only where the answer states it.
+    assert.deepEqual(ok({ [KIND]: { count: 1, widthM: 7.32, type: 'full-size' } }, { objects: { [KIND]: { count: 1, widthM: 5, type: 'scaled' } } }), { [KIND]: { count: 1, widthM: 5, type: 'scaled' } })
+    assert.deepEqual(ok({ [KIND]: { count: 1, widthM: 7.32 } }, { objects: { [KIND]: { count: 1, widthM: 7.32, type: 'mini-goal' } } }), { [KIND]: { count: 1, widthM: 7.32, type: 'mini-goal' } })
+    const refused = (objects: unknown) => {
+        const envelope = sessionEnvelopeFrom({ ...stored, objects }, { durationMin: 20 })
+        assert.equal(envelope.outcome, 'not-stated', JSON.stringify(objects))
+        assert.ok((envelope as any).reasons.includes(`The type of the ${KIND}s must be one of: full-size, scaled, mini-goal.`), (envelope as any).reasons.join(' | '))
+    }
+    refused({ [KIND]: { count: 1, widthM: 7.32, type: 'small' } })
+    refused({ [KIND]: { count: 1, widthM: 7.32, type: 'FULL-SIZE' } })
+    refused({ [KIND]: { count: 1, widthM: 7.32, type: 3 } })
+    // A key the register lists for no kind is not read, exactly as before H4 (only the listed attributes are carried).
+    assert.deepEqual(ok({ [KIND]: { count: 1, widthM: 5, heightM: 2 } }), { [KIND]: { count: 1, widthM: 5 } })
+    const created: any = new Session({ name: 'TEST-ONLY', createdBy: '64b7f0c2a1b2c3d4e5f60719', objects: { [KIND]: { count: 1, widthM: 7.32, type: 'full-size' } } })
+    assert.deepEqual(copy(created.toObject().objects), { [KIND]: { count: 1, widthM: 7.32, type: 'full-size' } })
+    assert.equal(objectAvailabilityQuestion(KIND, 'ATTRIBUTE', 'type'), `Say what type of ${KIND} this session has before building this activity.`)
+})
+
+test("H4: the session form offers exactly the register's values, and leaves the type unstated unless one is chosen", () => {
+    const form = fs.readFileSync(path.join(__dirname, '../../../../front/src/forms/SessionForm.tsx'), 'utf8')
+    const block = form.slice(form.indexOf('export const GOAL_TYPE_OPTIONS = ['), form.indexOf(']', form.indexOf('export const GOAL_TYPE_OPTIONS = [')))
+    const offered = [...block.matchAll(/value: '([^']+)'/g)].map(match => match[1])
+    assert.deepEqual(offered, spec.attributes.find(attribute => attribute.kind === KIND && attribute.attribute === 'type')!.values)
+    assert.ok(form.includes("<option value={NOT_STATED}>Not sure yet</option>") && form.includes("const NOT_STATED = ''"), 'blank is offered and stores nothing')
+    // The review page names no value: it offers the question's own list.
+    const page = fs.readFileSync(path.join(__dirname, '../../../../front/src/app/ActivityReviewPage.tsx'), 'utf8')
+    assert.ok(page.includes('asked.values.map((option) =>'))
+    for (const value of offered) assert.ok(!page.includes(`'${value}'`), `the review page names no value (${value})`)
 })
 
 // ── 3. The availability rule ─────────────────────────────────────────────────────────────────────────────
@@ -256,6 +330,16 @@ const variantFile = (options: VariantOptions = {}) => {
         const range = options.suitability ?? { min: 1, max: 10 }
         variant.objectSuitability = [{ kind: KIND, widthM: range, ruledOn: 'TEST-ONLY', by: 'TEST-ONLY', citedAs: 'TEST-ONLY', words: ['TEST-ONLY'] }]
     }
+    /**
+     * H1 (23 October 2026, the d26 design's finding X4): a variant stating another area keeps no value in metres from its base, so this copy
+     * withdraws A01-R1's pressure reference distance (A01-R1-S5-1, his 20 m for the 40 x 30 m area) and restates it among its own items for its
+     * own area (TEST-ONLY). Until H1 the gate admitted it kept; the outcome it is built for (refused at the testing area) is unchanged.
+     */
+    if (options.areas) {
+        const pressureReference = base.items.find((i: any) => i.id === 'A01-R1-S5-1')
+        variant.withdraws.push({ item: pressureReference.id, because: 'TEST-ONLY' })
+        variant.items.push(item('S5-1', pressureReference.row, pressureReference.selector, pressureReference.requirement, copy(pressureReference.value)))
+    }
     file.realizations.push(variant)
     return file
 }
@@ -349,7 +433,7 @@ test("a record's alternatives are read whole or refused; its single realization 
     // version, each with his words for its place; no other record lists alternatives.
     const a01 = learningGoalAuthorizations().find(r => r.learningGoalId === 'A01')!
     assert.deepEqual(realizationAlternativesOf(a01), [
-        { realization: 'A01-R2', words: 'My preference is to use the physical-goal version when an appropriate goal and goalkeeper are available and the selected realization supports that relationship.', citedAs: 'his reply filed 25 October 2026, item 3', selectable: false, status: 'MISSING_KNOWLEDGE', gaps: ['D-GOAL-SUITABILITY', 'D-PENALTY-AREA'] },
+        { realization: 'A01-R2', words: 'My preference is to use the physical-goal version when an appropriate goal and goalkeeper are available and the selected realization supports that relationship.', citedAs: 'his reply filed 25 October 2026, item 3', selectable: false, status: 'MISSING_KNOWLEDGE', gaps: ['D-GOAL-SUITABILITY', 'D-PENALTY-AREA', 'D-DEFAULT-LAWS'] },
         { realization: 'A01-R1', words: 'Goalkeeper available, but no appropriate physical goal: The pressing team may attack an authorized target zone.', citedAs: 'his reply filed 25 October 2026, item 4', selectable: true, status: null, gaps: [] },
     ])
     assert.deepEqual(learningGoalAuthorizations().filter(r => r.realizations !== undefined).map(r => r.learningGoalId), ['A01'], 'no other record lists alternatives')
@@ -442,7 +526,8 @@ test('goals = 0 serves A01-R1 with only the recorded delta: the session it echoe
     assert.deepEqual(production.evidence!.pathway.facts[production.evidence!.pathway.facts.length - 1], {
         what: 'the realizations the record authorizes, in its order, and whether each was used (account.realizationSelection)',
         value: [
-            'A01-R2: NOT_SELECTABLE (MISSING_KNOWLEDGE); waits on D-GOAL-SUITABILITY, D-PENALTY-AREA; its place in the order: his reply filed 25 October 2026, item 3',
+            // H2 (23 October 2026): and on D-DEFAULT-LAWS, the adaptations its default-laws account names as owed.
+            'A01-R2: NOT_SELECTABLE (MISSING_KNOWLEDGE); waits on D-GOAL-SUITABILITY, D-PENALTY-AREA, D-DEFAULT-LAWS; its place in the order: his reply filed 25 October 2026, item 3',
             'A01-R1: SELECTED; its place in the order: his reply filed 25 October 2026, item 4',
         ],
     })

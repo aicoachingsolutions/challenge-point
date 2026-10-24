@@ -1,5 +1,5 @@
 {
-    "about": "PROVISIONAL REALIZATIONS: his provisional realization choices for one Learning Goal's activity, held as contract-shaped contributions so the engine builds them exactly as it builds any other knowledge, while every item stays marked as his choice for that activity and never as canonical knowledge. Added 15 October 2026 (stage K2) for his reply filed 17 October 2026: 'The priority remains producing one complete, representative Play Out from the Back activity through the normal generation pathway, without introducing unnecessary architecture or treating this first realization as the canonical version of the Learning Goal.' and, of the post-regain area, 'I also agree that the post-regain area is a provisional realization choice, not canonical Goalkeeper Build-Out knowledge.' HOW IT IS READ (back/src/system/derivation/corpus.ts, loadProvisionalRealizations): a realization joins a derivation ONLY where the selected goal's authorization record names it (learning-goal-authorizations.json, provisionalRealization); nothing selects it otherwise, and no goal is named in code. It is never written into contracts.json, never keyed to the context it realizes, and never applied as a restatement. Its shape is the Sport Profile's precedent (SD-17: a source outside the representation enters as items under its own contract), with three differences the loader enforces and refuses the whole file on: every item has basis OWNER_RULING, quotes him (words, citedAs) and carries category PROVISIONAL_REALIZATION_CHOICE, which reaches every support entry and the rendering fixture; a realization holds NO declaration (a provisional choice says what this activity does, never what knowledge does not constrain, so no qualified or unqualified non-claim can enter through this file, and his M6 disjointness proof is never needed here); and an item may not name a designation refused below. realizationChoices names the realization-choices file whose entries REPLACE the game form's for the lines they list, each replacement declared (supplied-realization.ts). notWithPracticeSituations lists the practice situations the realization was not designed for: that combination is refused, not built. ADDED 26 October 2026 (Stage F): A01-R2, the goal version, a VARIANT of A01-R1 (basedOn, withdraws, its own items; composed once at load, corpus.ts), recording his replies filed 25 and 26 October 2026 in his words; A01's record lists it before A01-R1, waiting on two decisions of his (goal suitability; the penalty area), so it is never tried until he makes them.",
+    "about": "PROVISIONAL REALIZATIONS: his provisional realization choices for one Learning Goal's activity, held as contract-shaped contributions so the engine builds them exactly as it builds any other knowledge, while every item stays marked as his choice for that activity and never as canonical knowledge. Added 15 October 2026 (stage K2) for his reply filed 17 October 2026: 'The priority remains producing one complete, representative Play Out from the Back activity through the normal generation pathway, without introducing unnecessary architecture or treating this first realization as the canonical version of the Learning Goal.' and, of the post-regain area, 'I also agree that the post-regain area is a provisional realization choice, not canonical Goalkeeper Build-Out knowledge.' HOW IT IS READ (back/src/system/derivation/corpus.ts, loadProvisionalRealizations): a realization joins a derivation ONLY where the selected goal's authorization record names it (learning-goal-authorizations.json, provisionalRealization); nothing selects it otherwise, and no goal is named in code. It is never written into contracts.json, never keyed to the context it realizes, and never applied as a restatement. Its shape is the Sport Profile's precedent (SD-17: a source outside the representation enters as items under its own contract), with three differences the loader enforces and refuses the whole file on: every item has basis OWNER_RULING, quotes him (words, citedAs) and carries category PROVISIONAL_REALIZATION_CHOICE, which reaches every support entry and the rendering fixture; a realization holds NO declaration (a provisional choice says what this activity does, never what knowledge does not constrain, so no qualified or unqualified non-claim can enter through this file, and his M6 disjointness proof is never needed here); and an item may not name a designation refused below. realizationChoices names the realization-choices file whose entries REPLACE the game form's for the lines they list, each replacement declared (supplied-realization.ts). notWithPracticeSituations lists the practice situations the realization was not designed for: that combination is refused, not built. ADDED 26 October 2026 (Stage F): A01-R2, the goal version, a VARIANT of A01-R1 (basedOn, withdraws, its own items; composed once at load, corpus.ts), recording his replies filed 25 and 26 October 2026 in his words; A01's record lists it before A01-R1, waiting on two decisions of his (goal suitability; the penalty area), so it is never tried until he makes them. ADDED 23 October 2026 (H2, the d26 design's build step 2, for his reply filed 26 October 2026, item 10: 'The normal Laws of the Game should apply by default wherever they are applicable, unless an activity introduces an explicit, knowledge-authorized modification.'): an item may record its departures from the sport's normal laws (departsFrom: the law, why, his words, the whole of it or a named part, and optionally the precondition whose absence it rests on), and a realization declares how strictly its activity is held to the default-laws account (defaultLawsCheck: ENFORCE or REPORT, why, his words; a variant inherits its base's unless it states its own). Both are validated against the Sport Profile's defaultLaws block and read only by that account (corpus.ts; realization/default-laws-check.ts); no value of any item changes. A01-R2 now waits on a third decision of his as well (D-DEFAULT-LAWS: the adaptations its account names as owed).",
     "refusedDesignations": {
         "designations": ["ATTACKING_TEAM", "DEFENDING_TEAM", "BUILD_OUT_TEAM", "CONCEDING_TEAM"],
         "words": "Please use the assigned team roles rather than referring generically to \"the defending team,\" since possession and defensive responsibilities change during play.",
@@ -21,6 +21,17 @@
                 "This is the initial activity configuration, not a universal requirement for Play Out from the Back."
             ],
             "realizationChoices": "realization-choices-a01-r1.json",
+            "defaultLawsCheck": {
+                "mode": "REPORT",
+                "because": "ADDED 23 October 2026 (H2, the d26 design's build step 2, section 3.2; ours). The zone version was validated and served before his principle of 26 October, and the laws its account names as owed (offside; the goalkeeper's handling where no penalty area exists) are put to him in the note sent to him (decisions 2 and 5). So its account is reported to an administrator and the served activity does not stop while he answers; it moves to ENFORCE once he has ruled on them.",
+                "basis": {
+                    "words": [
+                        "The normal Laws of the Game should apply by default wherever they are applicable, unless an activity introduces an explicit, knowledge-authorized modification.",
+                        "Please keep the existing zone-based activity as the validated alternative."
+                    ],
+                    "citedAs": "his reply filed 26 October 2026, items 10 and 12"
+                }
+            },
             "notWithPracticeSituations": [
                 {
                     "id": "A01-02",
@@ -277,6 +288,21 @@
                     "structuralClause": "whole item",
                     "category": "PROVISIONAL_REALIZATION_CHOICE",
                     "choice": "The coach may judge that the episode has concluded, during play or at a stoppage, and the activity restarts.",
+                    "departsFrom": [
+                        {
+                            "law": "LAW-16",
+                            "because": "ADDED 23 October 2026 (H2; ours, recording his rulings, no value changed). Where a shot goes over the end line a goal stands on, the coach may conclude the episode and restart the goalkeeper's build-out instead of a goal kick. His \"may\" covers only that: where the coach does not conclude, and for every other ball over that line, the law is not departed from here.",
+                            "basis": {
+                                "words": [
+                                    "Shots going out: The coach may conclude the episode and restart the goalkeeper's build-out under the already authorized activity structure. We do not need an additional scoring mechanism.",
+                                    "At any stoppage, the coach may instead conclude the current episode and initiate another build-out."
+                                ],
+                                "citedAs": "his reply filed 26 October 2026, item 11; his reply filed 18 October 2026, item 2"
+                            },
+                            "extent": "PART",
+                            "part": "a shot that goes over the end line a goal stands on, when the coach concludes the episode"
+                        }
+                    ],
                     "words": "An episode concludes when either team scores or when the coach judges that the meaningful attacking opportunity has ended. The coach may make that judgment at a stoppage or during play.",
                     "citedAs": "his reply filed 17 October 2026, D5",
                     "basisEvidence": "Christian, reply filed 17 October 2026, D5: \"An episode concludes when either team scores or when the coach judges that the meaningful attacking opportunity has ended.\" \"The coach may make that judgment at a stoppage or during play.\" M4: \"M4 — Coach-judged episode conclusion: Approved.\" \"Support one explicit coach-judged event representing the conclusion of a meaningful episode.\" \"Do not substitute a timer, possession change, or arbitrary pass count.\" reply filed 18 October 2026, item 2: \"At any stoppage, the coach may instead conclude the current episode and initiate another build-out.\"",
@@ -334,6 +360,22 @@
                     "structuralClause": "whole item",
                     "category": "PROVISIONAL_REALIZATION_CHOICE",
                     "choice": "The team holding the building role in the block takes the start and every build-out restart, whichever team scored.",
+                    "departsFrom": [
+                        {
+                            "law": "LAW-8",
+                            "because": "ADDED 23 October 2026 (H2; ours, recording his rulings, no value changed). The team holding the building role starts play, and restarts it after every score whichever team scored, by its goalkeeper's build-out from where the coach chooses (with A01-R1-T3-1, T4-1 and T5-1), instead of a kick-off from the centre mark taken by the team scored against.",
+                            "basis": {
+                                "words": [
+                                    "The coach initiating a new goalkeeper build-out after a completed episode.",
+                                    "When a new build-out episode begins:",
+                                    "The designated building team restarts.",
+                                    "Only the building team initiates new build-out episodes."
+                                ],
+                                "citedAs": "his reply filed 26 October 2026, item 10; his reply filed 17 October 2026, D5 and D7"
+                            },
+                            "extent": "WHOLE"
+                        }
+                    ],
                     "words": "The designated building team restarts. … Only the building team initiates new build-out episodes.",
                     "citedAs": "his reply filed 17 October 2026, D5 and D7",
                     "basisEvidence": "Christian, reply filed 17 October 2026, D5: \"When a new build-out episode begins:\" \"The designated building team restarts.\" D7: \"Only the building team initiates new build-out episodes.\" \"Please use the assigned team roles rather than referring generically to \"the defending team,\" since possession and defensive responsibilities change during play.\"",
@@ -661,6 +703,34 @@
                     "structuralClause": "whole item",
                     "category": "PROVISIONAL_REALIZATION_CHOICE",
                     "choice": "The coach selects where the end-line restart is taken.",
+                    "departsFrom": [
+                        {
+                            "law": "LAW-16",
+                            "because": "ADDED 23 October 2026 (H2; ours, recording his rulings, no value changed). The coach selects where the end-line restart is taken, instead of a goal kick from the goal area. OUR READING of when it holds: his approval answered our email of 17 October, which proposed the coach's choice because the game's missing goals leave the Laws silent on an end line (A01-R1-T5-3's fitNote), so the departure holds while no goal stands on that end line, and an adaptation is owed again where one does (the d26 design's finding X5).",
+                            "basis": {
+                                "words": [
+                                    "End line: coach-selected restart method, using the approved M3 capability.",
+                                    "A. End-line restart location and method: Yes. The coach determines both, with the understanding that ordinary restarts should preserve meaningful game relationships rather than create an automatic scoring shortcut."
+                                ],
+                                "citedAs": "his reply filed 18 October 2026, item 2; his reply filed 19 October 2026, item 3 A"
+                            },
+                            "extent": "WHOLE",
+                            "whilePreconditionAbsent": { "predicate": "OBJECT_OF_KIND_AT_END", "kind": "goal" }
+                        },
+                        {
+                            "law": "LAW-17",
+                            "because": "ADDED 23 October 2026 (H2; ours, recording his rulings, no value changed). The coach selects where the end-line restart is taken, instead of a corner kick from the corner. OUR READING of when it holds, as for LAW-16: while no goal stands on that end line (the d26 design's finding X5).",
+                            "basis": {
+                                "words": [
+                                    "End line: coach-selected restart method, using the approved M3 capability.",
+                                    "A. End-line restart location and method: Yes. The coach determines both, with the understanding that ordinary restarts should preserve meaningful game relationships rather than create an automatic scoring shortcut."
+                                ],
+                                "citedAs": "his reply filed 18 October 2026, item 2; his reply filed 19 October 2026, item 3 A"
+                            },
+                            "extent": "WHOLE",
+                            "whilePreconditionAbsent": { "predicate": "OBJECT_OF_KIND_AT_END", "kind": "goal" }
+                        }
+                    ],
                     "words": "End line: coach-selected restart method, using the approved M3 capability. … Yes. The coach determines both, with the understanding that ordinary restarts should preserve meaningful game relationships rather than create an automatic scoring shortcut.",
                     "citedAs": "his reply filed 18 October 2026, item 2; his reply filed 19 October 2026, item 3 A",
                     "basisEvidence": "Christian, reply filed 18 October 2026, item 2: \"End line: coach-selected restart method, using the approved M3 capability.\" reply filed 17 October 2026, M3: \"Support goalkeeper or controlled defensive starts, coach-selected restart locations, and activity-specific restart methods.\" \"These choices must remain distinguishable from universal requirements.\" CONFIRMED in his reply filed 19 October 2026, item 3 A (added 17 October 2026, stage M4): \"A. End-line restart location and method: Yes. The coach determines both, with the understanding that ordinary restarts should preserve meaningful game relationships rather than create an automatic scoring shortcut.\" \"These are approved for the current activity configuration.\"",
@@ -680,6 +750,34 @@
                     "structuralClause": "whole item",
                     "category": "PROVISIONAL_REALIZATION_CHOICE",
                     "choice": "The coach selects how the end-line restart is taken.",
+                    "departsFrom": [
+                        {
+                            "law": "LAW-16",
+                            "because": "ADDED 23 October 2026 (H2; ours, recording his rulings, no value changed). The coach selects how the end-line restart is taken, instead of a goal kick. OUR READING of when it holds: this item's own fitNote says the game's missing goals leave the Laws silent on it (our email of 17 October, which his approval answered), so the departure holds while no goal stands on that end line, and an adaptation is owed again where one does (the d26 design's finding X5).",
+                            "basis": {
+                                "words": [
+                                    "End line: coach-selected restart method, using the approved M3 capability.",
+                                    "A. End-line restart location and method: Yes. The coach determines both, with the understanding that ordinary restarts should preserve meaningful game relationships rather than create an automatic scoring shortcut."
+                                ],
+                                "citedAs": "his reply filed 18 October 2026, item 2; his reply filed 19 October 2026, item 3 A"
+                            },
+                            "extent": "WHOLE",
+                            "whilePreconditionAbsent": { "predicate": "OBJECT_OF_KIND_AT_END", "kind": "goal" }
+                        },
+                        {
+                            "law": "LAW-17",
+                            "because": "ADDED 23 October 2026 (H2; ours, recording his rulings, no value changed). The coach selects how the end-line restart is taken, instead of a corner kick. OUR READING of when it holds, as for LAW-16: while no goal stands on that end line (the d26 design's finding X5).",
+                            "basis": {
+                                "words": [
+                                    "End line: coach-selected restart method, using the approved M3 capability.",
+                                    "A. End-line restart location and method: Yes. The coach determines both, with the understanding that ordinary restarts should preserve meaningful game relationships rather than create an automatic scoring shortcut."
+                                ],
+                                "citedAs": "his reply filed 18 October 2026, item 2; his reply filed 19 October 2026, item 3 A"
+                            },
+                            "extent": "WHOLE",
+                            "whilePreconditionAbsent": { "predicate": "OBJECT_OF_KIND_AT_END", "kind": "goal" }
+                        }
+                    ],
                     "words": "End line: coach-selected restart method, using the approved M3 capability. … Yes. The coach determines both, with the understanding that ordinary restarts should preserve meaningful game relationships rather than create an automatic scoring shortcut.",
                     "citedAs": "his reply filed 18 October 2026, item 2; his reply filed 19 October 2026, item 3 A",
                     "basisEvidence": "Christian, reply filed 18 October 2026, item 2: \"Approve your recommendation:\" \"End line: coach-selected restart method, using the approved M3 capability.\" reply filed 17 October 2026, M3: \"Support goalkeeper or controlled defensive starts, coach-selected restart locations, and activity-specific restart methods.\" CONFIRMED in his reply filed 19 October 2026, item 3 A (added 17 October 2026, stage M4): \"A. End-line restart location and method: Yes. The coach determines both, with the understanding that ordinary restarts should preserve meaningful game relationships rather than create an automatic scoring shortcut.\"",
@@ -1138,6 +1236,17 @@
                 "Please keep the existing zone-based activity as the validated alternative."
             ],
             "realizationChoices": "realization-choices-a01-r2.json",
+            "defaultLawsCheck": {
+                "mode": "ENFORCE",
+                "because": "ADDED 23 October 2026 (H2, the d26 design's build step 2, section 3.2; ours). The goal version is built under his principle of 26 October, so it is never served owing an adaptation: until every law its account names as owed is departed from in his words or can apply, a build of it is refused at validation, naming each one, and never falls back to the zone version. It is listed and never tried while A01's record says it waits on D-GOAL-SUITABILITY, D-PENALTY-AREA and D-DEFAULT-LAWS. It inherits the departures A01-R1's kept items record; the end-line restarts among them rest on the absence of a goal on that end line, which the goal end does not have.",
+                "basis": {
+                    "words": [
+                        "Where a normal law cannot apply directly because of the modified field, scoring structure, or game format, the system should identify the relevant adaptation rather than silently assume conventional conditions exist.",
+                        "The governing principle is to inherit established sport rules and explicitly define only the necessary departures."
+                    ],
+                    "citedAs": "his reply filed 26 October 2026, item 10"
+                }
+            },
             "notWithPracticeSituations": [
                 {
                     "id": "A01-02",

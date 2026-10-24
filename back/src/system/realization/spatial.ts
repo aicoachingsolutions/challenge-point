@@ -118,8 +118,8 @@ interface TermDefinition {
     why?: string
 }
 
-/** The axis lengths a session envelope supplies. `along` is the longer dimension (S1). */
-function axisLengths(envelope: { lengthM?: number; widthM?: number }): { along: number; across: number } | null {
+/** The axis lengths a session envelope supplies. `along` is the longer dimension (S1). Exported for the default-laws account (H2), which reads where an end line lies. */
+export function axisLengths(envelope: { lengthM?: number; widthM?: number }): { along: number; across: number } | null {
     const length = Number(envelope.lengthM)
     const width = Number(envelope.widthM)
     if (!Number.isFinite(length) || !Number.isFinite(width)) return null

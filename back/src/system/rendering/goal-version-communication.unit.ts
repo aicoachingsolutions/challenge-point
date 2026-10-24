@@ -58,13 +58,22 @@ const sessionOf = (players: number, keepers: number, objects?: Record<string, un
 const GOAL = { goal: { count: 1, widthM: 5 } }
 const R2 = 'A01-R2'
 
-/** TEST-ONLY, in memory: the record lists the goal version as one that can be tried, and its goal a suitability (as in Stage F's test). */
+/**
+ * TEST-ONLY, in memory: the record lists the goal version as one that can be tried, and its goal a suitability (as in Stage F's test). H2 (23
+ * October 2026): and D-DEFAULT-LAWS completed too - the copy's default-laws check is REPORT (TEST-ONLY) in place of the ENFORCE it records,
+ * standing in for his rulings on the owed laws; every sentence is what it was (goal-version-knowledge.unit.ts says why). H3 (23 October
+ * 2026): and D-PENALTY-AREA completed by a stand-in too - the build is handed no bound-region block (`boundRegions: null`, TEST-ONLY), so
+ * no region is required of the goal; with the Sport Profile's block in force this 5 m goal is refused as a knowledge gap (no authorized
+ * pairing gives it a penalty area, bound-regions.unit.ts), and a region it held could not yet be said (its words are Stage G's).
+ */
 const completed = () => {
     const records = learningGoalAuthorizations()
     const record = records.find(r => r.learningGoalId === 'A01') as any
     record.realizations = record.realizations.map((entry: any) => (entry.realization === R2 ? { realization: entry.realization, words: entry.words, citedAs: entry.citedAs } : entry))
     const file = readJson(PROVISIONAL_REALIZATIONS_FILE)
-    file.realizations.find((r: any) => r.id === R2).objectSuitability = [{ kind: 'goal', widthM: { min: 1, max: 10 }, ruledOn: 'TEST-ONLY', by: 'TEST-ONLY', citedAs: 'TEST-ONLY', words: ['TEST-ONLY'] }]
+    const variant = file.realizations.find((r: any) => r.id === R2)
+    variant.objectSuitability = [{ kind: 'goal', widthM: { min: 1, max: 10 }, ruledOn: 'TEST-ONLY', by: 'TEST-ONLY', citedAs: 'TEST-ONLY', words: ['TEST-ONLY'] }]
+    variant.defaultLawsCheck = { mode: 'REPORT', because: 'TEST-ONLY: D-DEFAULT-LAWS completed in memory', basis: { words: ['TEST-ONLY'], citedAs: 'TEST-ONLY' } }
     return { records, realizations: loadProvisionalRealizations(file) }
 }
 const built = new Map<string, { activity: ServedActivity; fixture: any }>()
@@ -72,7 +81,7 @@ const goalVersion = (players: number, keepers: number) => {
     const key = `${players}/${keepers}`
     if (!built.has(key)) {
         const { records, realizations } = completed()
-        const result = buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(players, keepers, GOAL) } as any, records, { realizations, review: { includeDrafts: true } })
+        const result = buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(players, keepers, GOAL) } as any, records, { realizations, review: { includeDrafts: true }, boundRegions: null })
         assert.equal(result.activity.outcome, 'served', `${key}: ${JSON.stringify((result.activity as RefusedActivity).reasons ?? null)}`)
         built.set(key, { activity: result.activity as ServedActivity, fixture: result.fixture })
     }
@@ -108,7 +117,8 @@ test('the DRAFT wording data loads, keyed by register vocabulary values, each cl
         alter(damaged)
         const why = draftCoachWordingUnusableBecause(damaged, index)
         assert.ok(why && pattern.test(why), `${what}: ${why}`)
-        assert.deepEqual(draftCoachWordingLoadOf(damaged, index).wording, { objectKinds: [], facings: [], scoringAtObjects: [] }, `${what}: an unusable file loads as no wording at all`)
+        // H2 (23 October 2026): with no held sentence for the normal laws either.
+        assert.deepEqual(draftCoachWordingLoadOf(damaged, index).wording, { objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null }, `${what}: an unusable file loads as no wording at all`)
     }
     refused(f => (f.status = 'APPROVED'), /every word here is DRAFT/, 'a file claiming approval')
     refused(f => (f.approvedBy = { who: 'TEST-ONLY' }), /approvedBy/, 'an approval key')
@@ -123,6 +133,11 @@ test('the DRAFT wording data loads, keyed by register vocabulary values, each cl
     refused(f => f.facings.push(copy(f.facings[0])), /facing 2 lists INTO_THE_AREA again/, 'a facing listed twice')
     refused(f => (f.facings[0].words = 'facing the {target}'), /its words are missing or hold a slot/, 'facing words holding a slot')
     refused(f => delete f.facings, /holds no objectKinds, facings and scoringAtObjects lists/, 'a file without its facings list')
+    // H2 (23 October 2026): the held sentence for the normal laws - whole words, why it is held, his words - refused otherwise.
+    refused(f => (f.normalLaws.words = 'Otherwise, normal {sport} rules apply.'), /normalLaws words are missing or hold a slot/, 'held words holding a slot')
+    refused(f => delete f.normalLaws.held, /does not say why it is held/, 'a held sentence not saying why')
+    refused(f => (f.normalLaws.basis = { words: [], citedAs: 'his reply filed 26 October 2026, item 10' }), /quotes none of his words/, 'a held sentence with no words of his')
+    refused(f => (f.normalLaws.servedAs = 'TEST-ONLY'), /normalLaws entry carries "servedAs"/, 'a held sentence with an unknown key')
 })
 
 // ── 2 and 3. Served, every sentence ──────────────────────────────────────────────────────────────────────

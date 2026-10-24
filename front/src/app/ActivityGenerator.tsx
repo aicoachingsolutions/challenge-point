@@ -212,7 +212,9 @@ export default function ActivityGenerator() {
             planning: {
                 learningGoalId: selection.learningGoalId,
                 practiceSituationId: selection.practiceSituationId,
-                learningStage: selection.learningStage,
+                // H4: absent where the coach continued without choosing (offered only where the goal's activity does not read it);
+                // the server already accepts it absent.
+                ...(selection.learningStage ? { learningStage: selection.learningStage } : {}),
             },
         })
     }
@@ -224,7 +226,7 @@ export default function ActivityGenerator() {
         planning?: {
             learningGoalId: string
             practiceSituationId: string | null
-            learningStage: string
+            learningStage?: string
         }
     }) => {
         const challengeLevel = override?.challengeLevel ?? selectedChallengeLevel

@@ -111,7 +111,11 @@ test('register version 14 holds the rows as data, in one versions entry quoting 
     // Re-pointed 23 October 2026 (stage E): version 19 (an object's availability as a session resource, his reply filed 25 October 2026,
     // item 4) supersedes 18; version 14's entry is read where it stands, exactly as before.
     // Re-pointed 26 October 2026 (Stage F): version 20 (his rulings filed 26 October 2026 for the goal version) supersedes 19.
-    assert.ok(full.startsWith('20, records his rulings filed 26 October 2026 for the goal version of the build-out activity'))
+    // Re-pointed 23 October 2026 (H3): version 21 (a region bound to an object, his reply filed 26 October 2026, item 7) supersedes 20.
+    // Re-pointed 23 October 2026 (H4): version 22 (the type a session states for its objects, his reply filed 26 October 2026, item 4) supersedes 21.
+    assert.ok(full.startsWith('22, adds the type a session states for its objects of a kind, for his reply filed 26 October 2026, item 4'))
+    assert.ok(full.includes('Supersedes version 21, which adds a region bound to an object, for his reply filed 26 October 2026, item 7'))
+    assert.ok(full.includes('Supersedes version 20, which records his rulings filed 26 October 2026 for the goal version of the build-out activity'))
     assert.ok(full.includes("Supersedes version 19, which adds an object's availability as a session resource"))
     assert.ok(full.includes('Supersedes version 18, which adds the coach-controlled end exchange'))
     assert.ok(full.includes('Supersedes version 17, which adds object targets and the geometry a goal needs'))
@@ -136,7 +140,9 @@ test('register version 14 holds the rows as data, in one versions entry quoting 
     assert.equal(full.split('Supersedes version 17, ').length - 1, 1, 'version 17 superseded once, by version 18 (stage D)')
     assert.equal(full.split('Supersedes version 18, ').length - 1, 1, 'version 18 superseded once, by version 19 (stage E)')
     assert.equal(full.split('Supersedes version 19, ').length - 1, 1, 'version 19 superseded once, by version 20 (Stage F)')
-    assert.ok(!full.includes('Supersedes version 20'), 'version 20 is the current entry')
+    assert.equal(full.split('Supersedes version 20, ').length - 1, 1, 'version 20 superseded once, by version 21 (H3)')
+    assert.equal(full.split('Supersedes version 21, ').length - 1, 1, 'version 21 superseded once, by version 22 (H4)')
+    assert.ok(!full.includes('Supersedes version 22'), 'version 22 is the current entry')
     const row = (id: string) => index.rows.get(id)!
     assert.deepEqual([row('B8').path, row('B8').ownerRow, row('B8').kind], ['activityRoles[].creditedWithin', 'B1', 'FIELD'])
     assert.deepEqual([row('V27').path, row('V27').kind, row('V27').selectorAttributes, row('V27').earnsValueOf], ['value.primaryEvent.alsoCounts[]', 'COLLECTION', ['team'], 'V2'])

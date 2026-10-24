@@ -79,7 +79,9 @@ test('the register holds P6c as a closed, versioned vocabulary, and not as a tri
     // And again 23 October 2026 (stage D): version 18 (the coach-controlled end exchange, his item 5) supersedes 17, the chain kept whole.
     // And again 23 October 2026 (stage E): version 19 (an object's availability as a session resource, his item 4) supersedes 18, the chain kept whole.
     // And again 26 October 2026 (Stage F): version 20 (his rulings filed 26 October 2026 for the goal version) supersedes 19, the chain kept whole.
-    assert.match(String(register.version), /^20, records .*Supersedes version 19, which adds .*Supersedes version 18,.*Supersedes version 17,.*Supersedes version 16,.*Supersedes version 15, .*Supersedes version 14,.*Supersedes version 13, .*Supersedes version 12,.*Supersedes version 11,.*Supersedes version 10, .*Supersedes version 9, .*Supersedes version 8, .*Supersedes version 7, which added P6c/)
+    // And again 23 October 2026 (H3): version 21 (a region bound to an object, his reply filed 26 October 2026, item 7) supersedes 20, the chain kept whole.
+    // Re-pointed 23 October 2026 (H4): version 22 (the type a session states for its objects, his reply filed 26 October 2026, item 4) supersedes 21.
+    assert.match(String(register.version), /^22, adds .*Supersedes version 21, which adds .*Supersedes version 20, which records .*Supersedes version 19, which adds .*Supersedes version 18,.*Supersedes version 17,.*Supersedes version 16,.*Supersedes version 15, .*Supersedes version 14,.*Supersedes version 13, .*Supersedes version 12,.*Supersedes version 11,.*Supersedes version 10, .*Supersedes version 9, .*Supersedes version 8, .*Supersedes version 7, which added P6c/)
     // The H2 guard, measured: a vocabulary with no version halts every derivation. Every array carries one.
     const index = indexRegister(register)
     for (const name of index.vocabularies.keys()) assert.ok(index.vocabularyVersions[name], `${name} carries a version`)

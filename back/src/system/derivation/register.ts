@@ -263,6 +263,60 @@ export interface SessionResourcesRegister {
     countLeaf: string
     /** The object kinds a session states its availability of, in the register's order; each a member of the kind vocabulary. */
     kinds: string[]
+    /**
+     * **What else a session may state of its objects of a kind** — register version 22, 23 October 2026 (H4, the d26 design's build step 4,
+     * its S1). Christian, reply filed 26 October 2026, item 4: *"I agree that the coach should identify the available [object] type and
+     * dimensions, without the engine inventing them."* (His noun bracketed for the coupling ratchet; the register quotes him whole.) Each
+     * entry: a listed kind, the attribute's name (the key a statement carries it under, beside `count` and `widthM`) and its closed list of
+     * values, each quoting the words it is taken from (validated here, never read by a consumer). Empty for a register without them (one
+     * written before version 22): no attribute is read or asked for. Read by the session envelope (a stated value must be on the list) and by
+     * the bound-region check (a pairing recording an attribute matches only an object the session states with that value, and the build asks
+     * for it where it does and the session states none); nothing names an attribute or a value.
+     */
+    attributes: SessionResourceAttribute[]
+}
+
+/** One attribute a session may state of its objects of a kind (register version 22): its name and its closed list of values. */
+export interface SessionResourceAttribute {
+    kind: string
+    attribute: string
+    values: string[]
+}
+
+/** The keys a statement of objects already carries (`StatedObjects`): no attribute may take one of them. */
+const STATED_OBJECT_KEYS = ['count', 'widthM']
+
+/**
+ * The attributes a session may state of its objects (register version 22), validated as the rest of the block is (halt H1): each names a kind
+ * the block lists and an attribute name no statement already carries, each kind and attribute once, and a closed list of values, each once,
+ * each quoting words that contain it (`valueSources`: the words and where they are from), and no source for a value the list does not hold.
+ */
+function indexSessionResourceAttributes(entries: unknown, kinds: string[]): SessionResourceAttribute[] {
+    if (entries === undefined) return []
+    if (!Array.isArray(entries)) throw new HaltError('H1', 'sessionResources.attributes must be a list')
+    const seen = new Set<string>()
+    return entries.map((entry: any, i: number) => {
+        const which = `sessionResources.attributes[${i}]`
+        if (!entry || typeof entry !== 'object') throw new HaltError('H1', `${which} is not an object`)
+        const kind = String(entry.kind ?? '')
+        const attribute = String(entry.attribute ?? '')
+        if (!kinds.includes(kind)) throw new HaltError('H1', `${which} names the kind ${JSON.stringify(entry.kind)}, which sessionResources.kinds does not list`)
+        if (!attribute.trim() || STATED_OBJECT_KEYS.includes(attribute)) throw new HaltError('H1', `${which} must name an attribute other than ${STATED_OBJECT_KEYS.join(' and ')}`)
+        if (seen.has(`${kind}|${attribute}`)) throw new HaltError('H1', `${which}: the attribute ${attribute} of ${kind} is listed twice`)
+        seen.add(`${kind}|${attribute}`)
+        if (typeof entry.note !== 'string' || !entry.note.trim()) throw new HaltError('H1', `${which} must say what it is and why (note)`)
+        const values: string[] = Array.isArray(entry.values) ? entry.values.map(String) : []
+        if (!values.length || new Set(values).size !== values.length || values.some(value => !value.trim())) throw new HaltError('H1', `${which} must list at least one value, each once`)
+        const sources = entry.valueSources && typeof entry.valueSources === 'object' && !Array.isArray(entry.valueSources) ? (entry.valueSources as Record<string, any>) : {}
+        for (const value of values) {
+            const source = Object.prototype.hasOwnProperty.call(sources, value) ? sources[value] : undefined
+            const words = typeof source?.words === 'string' ? source.words : ''
+            if (!words.trim() || typeof source?.citedAs !== 'string' || !source.citedAs.trim()) throw new HaltError('H1', `${which}: the value ${value} must quote the words it is taken from and say where (valueSources.${value}: words, citedAs)`)
+            if (!words.toLowerCase().includes(value.toLowerCase())) throw new HaltError('H1', `${which}: the value ${value} is not in the words it quotes`)
+        }
+        for (const value of Object.keys(sources)) if (!values.includes(value)) throw new HaltError('H1', `${which}: valueSources names ${value}, which the list does not hold`)
+        return { kind, attribute, values }
+    })
 }
 
 /**
@@ -292,7 +346,104 @@ function indexSessionResources(block: any, rows: Map<string, RegisterRow>, vocab
     const kinds: string[] = Array.isArray(block.kinds) ? block.kinds.map(String) : []
     if (!kinds.length || new Set(kinds).size !== kinds.length) throw new HaltError('H1', 'sessionResources.kinds must list at least one kind, each once')
     for (const kind of kinds) if (!vocabulary.includes(kind)) throw new HaltError('H1', `sessionResources.kinds: ${kind} is not a member of the ${attributeRow.id}.${attribute} vocabulary`)
-    return { row, path: container, attribute, kindLeaf: leafOf(attributeRow.id), countRow, countLeaf: leafOf(countRow), kinds }
+    return { row, path: container, attribute, kindLeaf: leafOf(attributeRow.id), countRow, countLeaf: leafOf(countRow), kinds, attributes: indexSessionResourceAttributes(block.attributes, kinds) }
+}
+
+/**
+ * **Where the bound-region capability finds its rows** — register version 21, 23 October 2026 (H3, the d26 design's build step 3, its N1,
+ * N2 and N5). Christian, reply filed 26 October 2026, item 7: *"Please investigate the smallest reusable method for representing an
+ * authorized [handling area], including its geometry and relationship to the [object] and playing space. Do not assume a scaled dimension
+ * without knowledge support."* *"This should be a general [sport] environment capability rather than a [Learning Goal] exception."* (His
+ * nouns bracketed: the coupling ratchet keeps a sport's nouns out of this layer; the register quotes him whole.) Read by the bound-region
+ * check (`realization/bound-region-check.ts`, GA-BOUND-REGION), the default-laws account (`realization/default-laws-check.ts`), the Sport
+ * Profile's loader (`corpus.ts` loadSportBoundRegions) and the renderer (which says no sentence for a bound region yet); no row, leaf,
+ * function or kind is written in any of them.
+ */
+export interface BoundRegionRegister {
+    /** The regions collection (S2) and its path; the noun (S3), function (S4), along (S5), across (S6) and bound-object (S7) rows. */
+    row: string
+    path: string
+    nounRow: string
+    functionRow: string
+    alongRow: string
+    acrossRow: string
+    ofObjectRow: string
+    /** The objects collection a region is bound to (O1), and its path. */
+    objectRow: string
+    objectPath: string
+    /** The leaves on a region element: its noun, functions, along and across positions, and binding; the selector attribute naming its functions. */
+    nounLeaf: string
+    functionLeaf: string
+    alongLeaf: string
+    acrossLeaf: string
+    ofObjectLeaf: string
+    functionAttribute: string
+    /** The closed lists a bound region's noun and function are members of (S3's and S4's vocabularies), in the register's order. */
+    nouns: string[]
+    functions: string[]
+}
+
+/**
+ * The bound-region block, validated as the rest of the register is (halt H1): its row a COLLECTION; the noun, function, along, across and
+ * bound-object rows FIELD rows it owns, at the leaves their roles need (the along and across positions ending .along and .across); the noun
+ * and function rows carrying a selector attribute with a vocabulary; the object row a COLLECTION, the objects collection the object-geometry
+ * block names where the register has one. A register without the block (one written before version 21) has none: no region is bound to an
+ * object, the check has nothing to read, and the default-laws predicates naming a bound region read it absent.
+ */
+function indexBoundRegions(block: any, rows: Map<string, RegisterRow>, vocabularies: Map<string, string[]>, objectGeometry: ObjectGeometryRegister | null): BoundRegionRegister | null {
+    if (!block || typeof block !== 'object') return null
+    if (typeof block.note !== 'string' || !block.note.trim()) throw new HaltError('H1', 'boundRegions must say what it is and why (note)')
+    const name = (key: string) => String(block[key] ?? '')
+    const row = name('row')
+    const collection = rows.get(row)
+    if (collection?.kind !== 'COLLECTION') throw new HaltError('H1', `boundRegions.row ${row} is not a COLLECTION row`)
+    const container = String(collection.path)
+    const leafOf = (id: string) => {
+        const path = String(rows.get(id)?.path ?? '')
+        return path.startsWith(`${container}.`) ? path.slice(container.length + 1) : ''
+    }
+    const owned = (key: string, ending: string): string => {
+        const id = name(key)
+        if (rows.get(id)?.kind !== 'FIELD' || rows.get(id)?.ownerRow !== row) throw new HaltError('H1', `boundRegions.${key} ${id} is not a FIELD row owned by ${row}`)
+        if (!leafOf(id) || !leafOf(id).endsWith(ending)) throw new HaltError('H1', `boundRegions.${key} ${id} does not sit at a leaf ending ${JSON.stringify(ending)}`)
+        return id
+    }
+    const nounRow = owned('nounRow', '')
+    const functionRow = owned('functionRow', '')
+    const alongRow = owned('alongRow', '.along')
+    const acrossRow = owned('acrossRow', '.across')
+    const ofObjectRow = owned('ofObjectRow', '')
+    const vocabularyOf = (id: string): { attribute: string; members: string[] } => {
+        const attribute = rows.get(id)?.selectorAttribute
+        const members = attribute ? vocabularies.get(`${id}.${attribute}`) : undefined
+        if (!attribute || !members || !members.length) throw new HaltError('H1', `boundRegions: ${id} carries no selector attribute with a vocabulary`)
+        return { attribute, members: [...members] }
+    }
+    const nouns = vocabularyOf(nounRow)
+    const functions = vocabularyOf(functionRow)
+    const objectRow = name('objectRow')
+    const objects = rows.get(objectRow)
+    if (objects?.kind !== 'COLLECTION') throw new HaltError('H1', `boundRegions.objectRow ${objectRow} is not a COLLECTION row`)
+    if (objectGeometry && objectGeometry.row !== objectRow) throw new HaltError('H1', `boundRegions.objectRow ${objectRow} is not the objects collection the object-geometry block names (${objectGeometry.row})`)
+    return {
+        row,
+        path: container,
+        nounRow,
+        functionRow,
+        alongRow,
+        acrossRow,
+        ofObjectRow,
+        objectRow,
+        objectPath: String(objects.path),
+        nounLeaf: leafOf(nounRow),
+        functionLeaf: leafOf(functionRow),
+        alongLeaf: leafOf(alongRow),
+        acrossLeaf: leafOf(acrossRow),
+        ofObjectLeaf: leafOf(ofObjectRow),
+        functionAttribute: functions.attribute,
+        nouns: nouns.members,
+        functions: functions.members,
+    }
 }
 
 /**
@@ -784,6 +935,8 @@ export interface RegisterIndex {
     objectGeometry: ObjectGeometryRegister | null
     /** The objects a session states its availability of (register version 19, his reply filed 25 October 2026, item 4), or null without them. */
     sessionResources: SessionResourcesRegister | null
+    /** The bound-region capability's rows (register version 21, his reply filed 26 October 2026, item 7), or null without them. */
+    boundRegions: BoundRegionRegister | null
     registerVersion: string
 }
 
@@ -1011,6 +1164,7 @@ export function indexRegister(register: any): RegisterIndex {
     const citable = new Set<string>((register.citableStandingDecisions || []).map((d: any) => d.id).filter(Boolean))
     const designations = indexDesignations(register.teamDesignations, rows)
     const roleBlocks = indexRoleBlocks(register.roleBlocks, rows, vocabularies, designations)
+    const objectGeometry = indexObjectGeometry(register.objectGeometry, rows, vocabularies)
 
     return {
         rows,
@@ -1046,8 +1200,9 @@ export function indexRegister(register: any): RegisterIndex {
         endAssignment: indexEndAssignment(register.endAssignment, rows, vocabularies, roleBlocks, designations),
         participants: indexParticipants(register.participants, rows, designations),
         roleScoring: indexRoleScoring(register.roleScoring, rows, vocabularies, roleBlocks),
-        objectGeometry: indexObjectGeometry(register.objectGeometry, rows, vocabularies),
+        objectGeometry,
         sessionResources: indexSessionResources(register.sessionResources, rows, vocabularies),
+        boundRegions: indexBoundRegions(register.boundRegions, rows, vocabularies, objectGeometry),
         registerVersion: register.version,
     }
 }

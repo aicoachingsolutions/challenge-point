@@ -308,7 +308,8 @@ test('the decisions and capabilities the activity waits on: D1-D7 and M1-M5 and 
     // episode actually being evaluated") — and rulings C55 and C57 record them; the three context lines they named are
     // no longer stops (activity-review.unit.ts). Their entries in existingKnowledge cite the rulings and the items.
     // Stage F (26 October 2026): the two decisions the goal version waits on join last, open (his replies filed 26 October 2026, items 4 and 7).
-    assert.deepEqual(gaps.map(gap => gap.id), ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'M1', 'M2', 'M3', 'M4', 'M5', 'M7', 'D-GOAL-SUITABILITY', 'D-PENALTY-AREA'])
+    // H2 (23 October 2026): and a third, the adaptations its default-laws account names as owed (his reply filed 26 October 2026, item 10).
+    assert.deepEqual(gaps.map(gap => gap.id), ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'M1', 'M2', 'M3', 'M4', 'M5', 'M7', 'D-GOAL-SUITABILITY', 'D-PENALTY-AREA', 'D-DEFAULT-LAWS'])
     assert.ok(gaps.every(gap => gap.kind === (gap.id.startsWith('D') ? 'DECISION' : 'CAPABILITY') && gap.description.trim()), 'each a decision or a capability, with a line saying what it is')
     // D8 (the gate's place) was recorded as not yet authored rather than put to him, and affects no Learning Goal.
     assert.ok(!gaps.some(gap => gap.id === 'D8'))
@@ -512,13 +513,17 @@ test('authorizationLists: authorized by existing knowledge, his provisional choi
  */
 test('(M4, L11) every record gap is settled by his cited words, and the gate refuses settled words that are uncited or premature', () => {
     const record = a01()
-    assert.deepEqual(record.gaps!.map(gap => gap.id), ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'M1', 'M2', 'M3', 'M4', 'M5', 'M7', 'D-GOAL-SUITABILITY', 'D-PENALTY-AREA'])
-    // Stage F (26 October 2026): the two decisions the goal version waits on are OPEN - his, and settled by no words of his.
+    assert.deepEqual(record.gaps!.map(gap => gap.id), ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'M1', 'M2', 'M3', 'M4', 'M5', 'M7', 'D-GOAL-SUITABILITY', 'D-PENALTY-AREA', 'D-DEFAULT-LAWS'])
+    // Stage F (26 October 2026): the two decisions the goal version waits on are OPEN - his, and settled by no words of his. H2 (23 October
+    // 2026): the third, D-DEFAULT-LAWS, likewise.
     const open = record.gaps!.filter(gap => gap.id.startsWith('D-'))
-    assert.deepEqual(open.map(gap => [gap.id, gap.kind, gap.settledBy]), [['D-GOAL-SUITABILITY', 'DECISION', undefined], ['D-PENALTY-AREA', 'DECISION', undefined]])
-    for (const gap of open) assert.ok(gap.note!.startsWith('OPEN, his (added 26 October 2026, Stage F).'), gap.id)
+    assert.deepEqual(open.map(gap => [gap.id, gap.kind, gap.settledBy]), [['D-GOAL-SUITABILITY', 'DECISION', undefined], ['D-PENALTY-AREA', 'DECISION', undefined], ['D-DEFAULT-LAWS', 'DECISION', undefined]])
+    for (const gap of open.slice(0, 2)) assert.ok(gap.note!.startsWith('OPEN, his (added 26 October 2026, Stage F).'), gap.id)
+    assert.ok(open[2].note!.startsWith('OPEN, his (added 23 October 2026, H2, the d26 design\'s build step 2).'))
     // A gap an alternative realization still waits on may not be marked settled, as for an entry.
-    assert.ok(damaged(r => (r.gaps!.find(gap => gap.id === 'D-PENALTY-AREA')!.settledBy = [{ words: 'TEST-ONLY', citedAs: 'TEST-ONLY' }])).some(e => e.includes('the gap D-PENALTY-AREA is marked settled, and the alternative realization A01-R2 still waits on it')))
+    for (const id of ['D-PENALTY-AREA', 'D-DEFAULT-LAWS']) {
+        assert.ok(damaged(r => (r.gaps!.find(gap => gap.id === id)!.settledBy = [{ words: 'TEST-ONLY', citedAs: 'TEST-ONLY' }])).some(e => e.includes(`the gap ${id} is marked settled, and the alternative realization A01-R2 still waits on it`)), id)
+    }
     for (const gap of record.gaps!.filter(gap => !gap.id.startsWith('D-'))) {
         assert.ok((gap.settledBy ?? []).length > 0, `${gap.id} is settled`)
         for (const said of gap.settledBy!) assert.match(said.citedAs, /^his reply filed 1[789] October 2026, /, `${gap.id}: ${said.citedAs}`)

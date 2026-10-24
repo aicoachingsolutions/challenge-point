@@ -998,7 +998,12 @@ test('the corpus run reproduces the reported figures exactly', () => {
      * unauthored and unspoken: no corpus item writes it, so it claims no defence) and the two balls, each WITHDRAWN as their O4-O6 lines are.
      * Nothing resolves and nothing blocks; the one item writing it is the provisional realization A01-R2's, outside the corpus.
      */
-    assert.equal(result.run.counts.lines, 143)
+    /**
+     * **149 since 23 October 2026 (H3)**: register version 21 (his reply filed 26 October 2026, item 7) adds row S7, the object a region is
+     * bound to, owned by the regions row. The corpus holds six region classes, so six lines, each unauthored and unspoken: no corpus item
+     * binds a region to an object, so no region is bound. Nothing resolves and nothing blocks.
+     */
+    assert.equal(result.run.counts.lines, 149)
     /**
      * **61, up from 59.** The same restatement establishes `perceptual-reference` on BOTH channels rather
      * than on a third region of its own, so two S4 lines now resolve where none did. The functions rows
@@ -1068,9 +1073,12 @@ test('the corpus run reproduces the reported figures exactly', () => {
     // **30 since Stage F, 26 October 2026 (register version 20).** Row O7 (the specialized performer whose team defends an object) on the
     // transition game's object (c:blind:GF4:I02): no item writes it, so the line is unauthored and unspoken ('no coverage') and the object
     // claims no defence; it blocks nothing (GA-ROLE-EVENTS clause 13 reads a silent line as no instance).
-    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 30)
+    // **36 since H3, 23 October 2026 (register version 21).** Row S7 (the object a region is bound to) on each of the corpus's six region
+    // classes: no item binds one, so each line is unauthored and unspoken ('no coverage') and the region is bound to nothing; it blocks
+    // nothing (GA-BOUND-REGION reads a silent line as no binding).
+    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 36)
     assert.equal(result.failures.filter((f: any) => f.kind === 'REFERENCE_DEFECT').length, 0, 'cluster 3 cleared the whole population')
-    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 30, 'one GAP per unauthored line, and none for a withdrawn one -- 30 since Stage F (O7), tracking the NOT_AUTHORED count above')
+    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 36, 'one GAP per unauthored line, and none for a withdrawn one -- 36 since H3 (S7), tracking the NOT_AUTHORED count above')
     // 17 since C33: the removed third region took its one open S5 line (a channel along-extent) with it.
     // **18 since ruling C42.** The two new target regions each bring an open across-extent and an open noun,
     // and the retired shared target took its two with it, so the balance is one more than before.

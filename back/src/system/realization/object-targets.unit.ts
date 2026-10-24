@@ -90,11 +90,17 @@ test('register version 17 holds the rows as data, in one versions entry quoting 
     // item 4) supersedes 18, which supersedes 17.
     const latest = String(register.version)
     // Re-pointed 26 October 2026 (Stage F): version 20 (his rulings filed 26 October 2026 for the goal version) supersedes 19.
-    assert.ok(latest.startsWith('20, records his rulings filed 26 October 2026 for the goal version of the build-out activity'))
+    // Re-pointed 23 October 2026 (H3): version 21 (a region bound to an object, his reply filed 26 October 2026, item 7) supersedes 20.
+    // Re-pointed 23 October 2026 (H4): version 22 (the type a session states for its objects, his reply filed 26 October 2026, item 4) supersedes 21.
+    assert.ok(latest.startsWith('22, adds the type a session states for its objects of a kind, for his reply filed 26 October 2026, item 4'))
+    assert.ok(latest.includes('Supersedes version 21, which adds a region bound to an object, for his reply filed 26 October 2026, item 7'))
+    assert.ok(latest.includes('Supersedes version 20, which records his rulings filed 26 October 2026 for the goal version of the build-out activity'))
     assert.ok(latest.includes("Supersedes version 19, which adds an object's availability as a session resource"))
     assert.ok(latest.includes('Supersedes version 18, which adds the coach-controlled end exchange'))
     assert.equal(latest.split('Supersedes version 17, which ').length - 1, 1, 'version 17 superseded once')
-    assert.ok(!latest.includes('Supersedes version 20'), 'version 20 is the current entry')
+    assert.equal(latest.split('Supersedes version 20, ').length - 1, 1, 'version 20 superseded once, by version 21 (H3)')
+    assert.equal(latest.split('Supersedes version 21, ').length - 1, 1, 'version 21 superseded once, by version 22 (H4)')
+    assert.ok(!latest.includes('Supersedes version 22'), 'version 22 is the current entry')
     const full = `17, ${latest.split('Supersedes version 17, which ')[1]}`
     assert.ok(full.startsWith('17, adds object targets and the geometry a goal needs, for his reply filed 25 October 2026, item 3'))
     for (const quote of HIS_ITEM_3) assert.ok(full.split('Supersedes version 16, ')[0].includes(`"${quote}"`), quote)

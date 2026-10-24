@@ -143,6 +143,13 @@ export interface ContractItem {
      * keeps governing every other role and every game without such a citation.
      */
     yieldsForRole?: unknown
+    /**
+     * **The departures from the sport's normal laws an item records** (H2, 23 October 2026; `default-laws.ts`): which law, why, his words,
+     * the whole of it or a part, and optionally the precondition whose absence it rests on. Written only on a provisional realization's
+     * items and validated by its loader against the Sport Profile's default-laws block; read only by the default-laws account
+     * (`realization/default-laws-check.ts`) after realization. Derivation reads nothing of it.
+     */
+    departsFrom?: unknown
 }
 
 /**
@@ -178,6 +185,7 @@ const CONTRACT_ITEM_FIELDS: Record<keyof ContractItem, true> = {
     defersWith: true,
     authorizedBy: true,
     [ROLE_YIELD_KEY]: true,
+    departsFrom: true,
 }
 
 /**
@@ -353,10 +361,22 @@ export interface Envelope {
     objects?: Record<string, StatedObjects>
 }
 
-/** What a session states of the objects of one kind (stage E): how many it has, and how wide they are, in metres, where it says. */
+/**
+ * What a session states of the objects of one kind (stage E): how many it has, and how wide they are, in metres, where it says - and (H4,
+ * register version 22) the value it states for each attribute the register lists for the kind (`sessionResources.attributes`), under the
+ * attribute's name, present only where stated. The stored session, the review's answer and the envelope carry this one shape.
+ */
 export interface StatedObjects {
     count: number
     widthM?: number
+    [attribute: string]: number | string | undefined
+}
+
+/** The value a session states for one attribute of its objects of a kind (H4), or null where it states none. */
+export function statedAttributeOf(objects: unknown, kind: string, attribute: string): string | null {
+    const stated = objects && typeof objects === 'object' && Object.prototype.hasOwnProperty.call(objects, kind) ? (objects as Record<string, unknown>)[kind] : undefined
+    const value = stated && typeof stated === 'object' ? (stated as Record<string, unknown>)[attribute] : undefined
+    return typeof value === 'string' && value.trim().length > 0 ? value : null
 }
 
 export interface DerivationInput {

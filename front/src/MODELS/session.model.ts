@@ -96,8 +96,12 @@ export interface ISession {
      * ABSENT MEANS NOT STATED, never none, exactly as for goalkeepers: a goal is never assumed because a goalkeeper is available, and an
      * empty answer is never stored as zero. Availability is not involvement: an activity uses a goal only where its own knowledge says so,
      * and the activity review asks for this only when the activity it would build needs one.
+     *
+     * H4 (23 October 2026): beside the count and the width, an attribute the knowledge register lists for the kind, under its name - for
+     * goals, `type` (e.g. `{ goal: { count: 1, widthM: 7.32, type: 'full-size' } }`), one of the register's closed list. Absent means not
+     * stated. The goal's height is not asked.
      */
-    objects?: Record<string, { count: number; widthM?: number }>
+    objects?: Record<string, { count: number; widthM?: number; [attribute: string]: number | string | undefined }>
     fieldType?: string
     coachComments?: string
     createdAt: Date

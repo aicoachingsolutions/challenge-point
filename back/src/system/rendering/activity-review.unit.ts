@@ -381,8 +381,14 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
         // existing knowledge authorizes now, not as gaps.
         // 13 -> 15 on 26 October 2026 (Stage F): the two decisions the goal version waits on (goal suitability, the penalty area), open and
         // his, each needed by that alternative realization alone and refusing nothing here.
-        assert.equal(a01.account.authorizationLists!.gaps.length, 15)
-        assert.deepEqual(a01.account.authorizationLists!.gaps.slice(13).map(gap => [gap.id, gap.neededBy]), [['D-GOAL-SUITABILITY', ['the alternative realization A01-R2']], ['D-PENALTY-AREA', ['the alternative realization A01-R2']]])
+        // 15 -> 16 on 23 October 2026 (H2): the adaptations the goal version's default-laws account names as owed (D-DEFAULT-LAWS), open and
+        // his (his reply filed 26 October 2026, item 10), needed by that alternative realization alone and refusing nothing here.
+        assert.equal(a01.account.authorizationLists!.gaps.length, 16)
+        assert.deepEqual(a01.account.authorizationLists!.gaps.slice(13).map(gap => [gap.id, gap.neededBy]), [
+            ['D-GOAL-SUITABILITY', ['the alternative realization A01-R2']],
+            ['D-PENALTY-AREA', ['the alternative realization A01-R2']],
+            ['D-DEFAULT-LAWS', ['the alternative realization A01-R2']],
+        ])
         assert.equal(a01.account.gameProblem?.gameProblemId, 'GP-005')
         assert.equal(a01.account.gameProblem?.status, 'APPROVED')
         assert.equal(a01.account.provisional, false)

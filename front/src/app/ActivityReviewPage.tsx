@@ -451,6 +451,7 @@ export default function ActivityReviewPage() {
                 {/* Stage E: the build's question, where it stopped to ask one, answered for this review only. */}
                 {result?.outcome === 'refused' && result.question && (
                     <ObjectQuestionBlock
+                        key={`${result.question.objectKind}:${result.question.asks}:${result.question.attribute?.name ?? ''}`}
                         question={result.question}
                         stored={session.objects?.[result.question.objectKind]}
                         answered={objectAnswers[result.question.objectKind]}
@@ -543,11 +544,50 @@ function ObjectQuestionBlock({
     const start = answered ?? stored
     const [count, setCount] = useState<number | undefined>(isStatedCount(start?.count) ? start!.count : undefined)
     const [width, setWidth] = useState<number | undefined>(typeof start?.widthM === 'number' ? start.widthM : undefined)
+    /**
+     * H4 (23 October 2026): the server asks for one attribute of the objects (`asks: ATTRIBUTE`, e.g. their type), with its name and closed
+     * list; the coach picks one of exactly those values (none is named here), and the count and width already stated are sent with it, since
+     * an answer replaces the kind's statement whole. Any attribute already stated is kept when the count or width is answered.
+     */
+    const asked = question.asks === 'ATTRIBUTE' ? question.attribute : undefined
+    const [value, setValue] = useState<string | undefined>(asked && typeof start?.[asked.name] === 'string' && asked.values.includes(String(start[asked.name])) ? String(start[asked.name]) : undefined)
+    const kept: Record<string, number | string> = Object.fromEntries(Object.entries(start ?? {}).filter(([key, entry]) => key !== 'count' && key !== 'widthM' && typeof entry === 'string')) as Record<string, string>
     const asksCount = question.asks !== 'WIDTH'
     const countGiven = isStatedCount(count)
     const widthGiven = typeof width === 'number' && Number.isFinite(width) && width > 0
-    const ready = countGiven && (count === 0 || widthGiven)
+    const ready = asked ? !!value && isStatedCount(start?.count) : countGiven && (count === 0 || widthGiven)
     const kind = question.objectKind
+    if (asked) {
+        return (
+            <article className='p-6 bg-white border rounded-lg border-amber-200'>
+                <p className='font-medium text-gray-800'>{question.words}</p>
+                <fieldset className='mt-4'>
+                    <legend className='block mb-2 font-medium text-gray-700'>{`What ${asked.name} are your ${kind}s?`}</legend>
+                    <div className='flex flex-wrap gap-2'>
+                        {asked.values.map((option) => (
+                            <button
+                                key={option}
+                                type='button'
+                                aria-pressed={value === option}
+                                onClick={() => setValue(option)}
+                                className={`px-4 py-2 border rounded-lg transition hover:border-brand-500 ${value === option ? 'border-brand-600 bg-brand-50' : 'border-gray-300'}`}
+                            >
+                                {option}
+                            </button>
+                        ))}
+                    </div>
+                </fieldset>
+                <p className='mt-2 text-sm text-gray-500'>For this review only — your session is not changed.</p>
+                <Button
+                    onClickAsync={() => onAnswer({ ...(start as StatedObjects), [asked.name]: value as string })}
+                    disabled={!ready}
+                    className='mt-4 rounded-full'
+                >
+                    Build the activity with this answer
+                </Button>
+            </article>
+        )
+    }
     return (
         <article className='p-6 bg-white border rounded-lg border-amber-200'>
             <p className='font-medium text-gray-800'>{question.words}</p>
@@ -580,7 +620,7 @@ function ObjectQuestionBlock({
             </div>
             <p className='mt-2 text-sm text-gray-500'>For this review only — your session is not changed.</p>
             <Button
-                onClickAsync={() => onAnswer({ count: count as number, ...(count !== 0 && widthGiven ? { widthM: width } : {}) })}
+                onClickAsync={() => onAnswer({ count: count as number, ...(count !== 0 && widthGiven ? { widthM: width } : {}), ...(count !== 0 ? kept : {}) })}
                 disabled={!ready}
                 className='mt-4 rounded-full'
             >
@@ -926,6 +966,102 @@ function ReviewEvidencePanel({ evidence }: { evidence: ReviewEvidence }) {
                         </div>
                     ))}
                 </EvidencePart>
+                {/*
+                  * H2 (23 October 2026): the default-laws account as the server computed it, shown as sent - the strictness the realization
+                  * declares, his words for the principle, each law per block and place with its status and why, the items that depart from it
+                  * (with his words), and the DRAFT sentence held for the coach (never served). Labels are DRAFTS.
+                  */}
+                {evidence.defaultLaws && (
+                    <EvidencePart title='Normal rules: default and adaptations'>
+                        <p className='text-xs text-gray-600 [overflow-wrap:anywhere]'>
+                            {evidence.defaultLaws.realization}: {evidence.defaultLaws.mode} · {evidence.defaultLaws.source.source} (edition {evidence.defaultLaws.source.edition ?? 'not named'}) · {evidence.defaultLaws.owed.length} adaptation
+                            {evidence.defaultLaws.owed.length === 1 ? '' : 's'} owed
+                        </p>
+                        <p className='text-xs text-gray-600'>{evidence.defaultLaws.check.because}</p>
+                        {evidence.defaultLaws.source.authority.words.map((words, index) => (
+                            <His key={index} words={words} citedAs={evidence.defaultLaws!.source.authority.citedAs} />
+                        ))}
+                        {evidence.defaultLaws.heldSentence && (
+                            <p className='text-xs text-gray-500'>
+                                Held, not served (DRAFT): &ldquo;{evidence.defaultLaws.heldSentence.text}&rdquo;
+                            </p>
+                        )}
+                        {evidence.defaultLaws.blocks.map((block) => (
+                            <div key={block.blockId} className='space-y-1'>
+                                <p className='text-xs text-gray-500'>{blockLabel(block.blockId)}</p>
+                                <ul className='space-y-0.5'>
+                                    {block.laws.map((law, index) => (
+                                        <li key={index} className='text-xs text-gray-600 [overflow-wrap:anywhere]'>
+                                            <span className='text-gray-800'>
+                                                {law.law} ({law.cites}) at {law.at}: {law.status}
+                                            </span>{' '}
+                                            — {law.why}
+                                            {/* H3: the profile's note on the law, so an owed adaptation says which decision settles it. */}
+                                            {law.note && <span className='block text-gray-500'>Note: {law.note}</span>}
+                                            {[...law.departedBy, ...law.departedInPart, ...law.noLongerHolds, ...law.recordedBy].map((departure, at) => (
+                                                <His key={at} words={departure.basis.words.join(' ')} citedAs={`${departure.item}, ${departure.extent}${departure.part ? ` (${departure.part})` : ''}; ${departure.basis.citedAs}`} />
+                                            ))}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ))}
+                    </EvidencePart>
+                )}
+                {/*
+                  * H3 (23 October 2026): the regions bound to the games' objects, shown as sent - each region, the object it is bound to and
+                  * who defends it, where it lies, and the authorized pairing it cites whole: its document and citation, its format conditions
+                  * (shown, never matched), the object's type and size, the region's size, its mark, what it borrows, and his words. Present only
+                  * where a game holds one (no production activity does). Labels are DRAFTS.
+                  */}
+                {evidence.boundRegions && (
+                    <EvidencePart title='Regions bound to objects'>
+                        {evidence.boundRegions.source.authority.words.map((words, index) => (
+                            <His key={index} words={words} citedAs={evidence.boundRegions!.source.authority.citedAs} />
+                        ))}
+                        {evidence.boundRegions.requirements.map((requirement) => (
+                            <p key={requirement.id} className='text-xs text-gray-600 [overflow-wrap:anywhere]'>
+                                {requirement.id}: a {requirement.object.kind}
+                                {requirement.object.whenDefended ? ' that is defended' : ''} needs one {requirement.region.noun} of the function {requirement.region.function} bound to it ({requirement.cites})
+                            </p>
+                        ))}
+                        {evidence.boundRegions.blocks.map((block) => (
+                            <div key={block.blockId} className='space-y-1'>
+                                <p className='text-xs text-gray-500'>{blockLabel(block.blockId)}</p>
+                                <ul className='space-y-1'>
+                                    {block.bindings.map((binding, index) => (
+                                        <li key={index} className='text-xs text-gray-600 [overflow-wrap:anywhere]'>
+                                            <span className='text-gray-800'>
+                                                {binding.region} ({binding.noun ?? 'no noun'}; {binding.functions.join(', ')}) bound to {binding.object}
+                                                {binding.kind ? ` (${binding.kind})` : ''}
+                                                {binding.defendedBy ? `, defended by the team holding ${binding.defendedBy}` : ''}
+                                            </span>
+                                            {binding.along && binding.across && (
+                                                <span className='block'>
+                                                    Lies {binding.along.from}-{binding.along.to} m along and {binding.across.from}-{binding.across.to} m across the area
+                                                </span>
+                                            )}
+                                            {binding.pairing ? (
+                                                <span className='block'>
+                                                    Pairing {binding.pairing.id}: {binding.pairing.document}
+                                                    {binding.pairing.edition ? ` (${binding.pairing.edition})` : ' (edition not named)'}, {binding.pairing.citedAs}; {binding.pairing.object.type} {binding.pairing.object.kind}{' '}
+                                                    {binding.pairing.object.widthM} m wide{binding.pairing.object.heightM !== null ? ` and ${binding.pairing.object.heightM} m high` : ''}; region {binding.pairing.region.widthM} m wide and{' '}
+                                                    {binding.pairing.region.depthM} m deep; mark {binding.pairing.markM !== null ? `at ${binding.pairing.markM} m` : 'none'}; borrows {binding.pairing.borrows.join(', ')}; format: players{' '}
+                                                    {binding.pairing.formatConditions.players ?? 'not stated'}, age band {binding.pairing.formatConditions.ageBand ?? 'not stated'}, pitch {binding.pairing.formatConditions.pitch ?? 'not stated'}
+                                                    {binding.pairing.authority.words.map((words, at) => (
+                                                        <His key={at} words={words} citedAs={binding.pairing!.authority.citedAs} />
+                                                    ))}
+                                                </span>
+                                            ) : (
+                                                <span className='block'>It cites no pairing the Sport Profile holds.</span>
+                                            )}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ))}
+                    </EvidencePart>
+                )}
                 {/*
                   * Stage 4: the Coach Overview's agreement check as the server ran it (stage 3D-3F), shown as sent: served or withheld, the
                   * verdict and every finding, the table and readings record it rests on (C1: each with which of its rules or readings he

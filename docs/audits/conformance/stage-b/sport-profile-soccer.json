@@ -8,11 +8,144 @@
  "whyItIsNotSelected": "A Sport Profile is constitutive rather than selected: it is the environment every activity of this sport operates in, so it reaches every derivation rather than being chosen per goal. It enters through the ordinary contribution-contract pathway (SD-17's shape: a source outside the representation that needs a structural property inside it enters as an item under its own contract, with no separate route), and it carries no new mechanism.",
  "boundaryObserved": "The Game Representation contains what a coach lays out and what the rules key on. It represents the rules governing game state, not the evolving state of the game itself. — Christian, 6 October 2026. Accordingly this profile establishes that the ball EXISTS and that the possession relationship is a valid team-valued relationship over the participating opposing teams. It establishes neither the ball's live position nor the current holder of possession; both are game state.",
  "deliberatelyNotContributed": [
-  "Ordinary Laws of the Game: out-of-play behaviour, restarts, offside, legal actions. Out-of-play triggers already reach a resolved game from the session envelope, and the corpus declines to author them citing by-construction; nothing is blocked on them.",
+  "Ordinary Laws of the Game are not authored here: no law becomes an item or a line of the game. RESTATED 23 October 2026 (H2, the d26 design's build step 2) with his authority, his reply filed 26 October 2026, item 10: \"The normal Laws of the Game should apply by default wherever they are applicable, unless an activity introduces an explicit, knowledge-authorized modification.\" The profile now NAMES the Laws as the default (defaultLaws, below) and lists the few that can fail to apply in a modified environment, each with what it needs; an activity's realization records its own departures. Out-of-play triggers still reach a resolved game from the session envelope, and the corpus declines to author them citing by-construction; nothing is blocked on them. Until this restatement the entry read: \"Ordinary Laws of the Game: out-of-play behaviour, restarts, offside, legal actions.\"",
   "Field dimensions and player counts, which the session envelope owns (rows E1-E4).",
   "A starting holder of possession. PS1's initial value is a governed realization choice; this profile bounds the choice space and does not pick a team.",
   "A static layout position for the ball, which the applicability entry on O4/O5 withdraws because a ball's location is game state."
  ],
+ "defaultLaws": {
+  "source": "IFAB Laws of the Game",
+  "edition": null,
+  "editionNote": "He names no edition. The laws are cited by IFAB law number only, and nothing here depends on an edition's wording; the d26 design read Laws 1 and 12 from theifab.com, which showed the 2026/27 edition as current. Which edition governs is his to name.",
+  "authority": {
+   "words": [
+    "The normal Laws of the Game should apply by default wherever they are applicable, unless an activity introduces an explicit, knowledge-authorized modification.",
+    "We should not need to redefine ordinary soccer rules separately for every Learning Goal, game form, or activity.",
+    "Where a normal law cannot apply directly because of the modified field, scoring structure, or game format, the system should identify the relevant adaptation rather than silently assume conventional conditions exist.",
+    "The offside question, for example, may need an explicit ruling for this small-sided environment, but we should not expand the current work into a comprehensive reconstruction of soccer's laws.",
+    "The governing principle is to inherit established sport rules and explicitly define only the necessary departures."
+   ],
+   "citedAs": "his reply filed 26 October 2026, item 10",
+   "by": "Christian",
+   "ruledOn": "2026-10-26"
+  },
+  "restates": "deliberatelyNotContributed[0], with his authority (item 10): no law is authored as an item or a line of the game; the Laws are named as the default, and the laws below are listed only because each can fail to apply in a modified environment.",
+  "note": "Added 23 October 2026 (H2, the d26 design's build step 2, its section 3.2). A declaration, never items: his item 10 excludes reconstructing the laws as representation. Only the laws that can fail to apply in a modified environment and matter for the two build-out realizations are listed; every other law applies by default and is not listed. Each law's preconditions are written in the engine's closed, sport-neutral predicate vocabulary (back/src/system/derivation/default-laws.ts): applicableWhen says when the law can apply at all, requires what it needs to apply directly. The law ids, the names and the 'penalty-area' token are ours (DRAFT); the facts are cited by IFAB law number. An activity's provisional realization records its departures on its own items (departsFrom) and declares how strictly its activity is held (defaultLawsCheck); the account is computed after realization and shown to an administrator (back/src/system/realization/default-laws-check.ts). The five decisions of the note sent to him (the goal and the penalty area, the same-source pairing rule, offside, penalty kicks, the goal line, handling in the zone version) are his and are not filled here.",
+  "laws": [
+   {
+    "id": "LAW-8",
+    "cites": "Law 8 (The Start and Restart of Play), the kick-off",
+    "name": "the kick-off at the start and after a score",
+    "scope": "GAME",
+    "applicableWhen": [],
+    "requires": [{ "predicate": "UNREPRESENTED", "what": "the centre mark a kick-off is taken from: no register row holds it" }],
+    "note": "Only the kick-off is listed (the d26 design's section 3.2); the dropped ball of Law 8.2 is not."
+   },
+   {
+    "id": "LAW-11",
+    "cites": "Law 11 (Offside)",
+    "name": "offside",
+    "scope": "GAME",
+    "applicableWhen": [],
+    "requires": [{ "predicate": "UNREPRESENTED", "what": "a fixed halfway line: no register row holds the halfway line of Law 1, and the build-out activities' only halfway marking is the marked line the coach may move" }],
+    "note": "Decision 2 of the note sent to him (offside, both versions) answers it; until he decides, nothing departs from it."
+   },
+   {
+    "id": "LAW-12-GK",
+    "cites": "Law 12 (Fouls and Misconduct), the goalkeeper's handling within its own penalty area",
+    "name": "the goalkeeper's handling",
+    "scope": "GAME",
+    "applicableWhen": [{ "predicate": "SPECIALIZED_PERFORMER_PRESENT", "row": "P3" }],
+    "requires": [{ "predicate": "REGION_BOUND_TO_OBJECT", "function": "penalty-area", "kind": "goal" }],
+    "note": "His reply filed 26 October 2026, item 7: \"The goalkeeper's handling permissions and restrictions should follow the normal Laws of the Game within that area unless an authorized activity rule explicitly changes them.\" The region-function token 'penalty-area' is ours (DRAFT); since 23 October 2026 (H3, register version 21) it is a member of the register's region-function list, and the boundRegions block below binds it to a defended goal, with the regulation pairing alone authorized. The penalty area's geometry for any other goal is decision 1 of the note sent to him, and handling in the zone version is decision 5. Where a goalkeeper plays and no penalty area exists, the law's purpose remains, so an adaptation is owed."
+   },
+   {
+    "id": "LAW-14",
+    "cites": "Law 14 (The Penalty Kick)",
+    "name": "the penalty kick",
+    "scope": "PER_END",
+    "applicableWhen": [{ "predicate": "OBJECT_OF_KIND_AT_END", "kind": "goal" }],
+    "requires": [
+     { "predicate": "REGION_BOUND_TO_OBJECT", "function": "penalty-area", "kind": "goal" },
+     { "predicate": "BOUND_REGION_MARK", "function": "penalty-area" }
+    ],
+    "note": "Decision 3 of the note sent to him (penalty kicks) answers it at an end where a goal stands."
+   },
+   {
+    "id": "LAW-16",
+    "cites": "Law 16 (The Goal Kick)",
+    "name": "the goal kick",
+    "scope": "PER_END",
+    "applicableWhen": [{ "predicate": "OBJECT_OF_KIND_AT_END", "kind": "goal" }],
+    "requires": [{ "predicate": "UNREPRESENTED", "what": "the goal area a goal kick is taken from (Law 1.5): his reply filed 26 October 2026, item 12, lists only the physical goal, the marked progression reference and whatever penalty-area marking handling needs" }],
+    "note": "Decision 4 of the note sent to him (the ball over the building team's goal line) answers it at an end where a goal stands."
+   },
+   {
+    "id": "LAW-17",
+    "cites": "Law 17 (The Corner Kick)",
+    "name": "the corner kick",
+    "scope": "PER_END",
+    "applicableWhen": [{ "predicate": "OBJECT_OF_KIND_AT_END", "kind": "goal" }],
+    "requires": [],
+    "note": "Decision 4 of the note sent to him answers it at an end where a goal stands."
+   }
+  ]
+ },
+ "boundRegions": {
+  "authority": {
+   "words": [
+    "My preference is for standard soccer goalkeeper handling rules to apply, using a regulation penalty area whenever the playing environment can accommodate it appropriately.",
+    "The penalty area is an existing, meaningful part of the sport. We should avoid inventing a new handling region when an established one can serve the activity.",
+    "Use an existing regulation penalty area when the activity dimensions and setup permit it.",
+    "When a smaller field is necessary, use an explicitly defined and knowledge-authorized scaled penalty area.",
+    "I would not approve an undefined area that the coach simply points out, nor a feet-only goalkeeper restriction as the default for this realization.",
+    "Please investigate the smallest reusable method for representing an authorized penalty area, including its geometry and relationship to the goal and playing space. Do not assume a scaled dimension without knowledge support.",
+    "This should be a general soccer environment capability rather than a Goalkeeper Build-Out exception."
+   ],
+   "citedAs": "his reply filed 26 October 2026, item 7",
+   "by": "Christian",
+   "ruledOn": "2026-10-26"
+  },
+  "note": "Added 23 October 2026 (H3, the d26 design's build step 3, its N3 and N5; register version 21). A declaration beside the profile's contribution, never items, like defaultLaws: which object kinds need a region bound to them (requirements), and the pairings authorized so far, each one named document giving an object, its region and its mark together - only that geometry comes with an entry (borrows), never the document's other provisions. That this table lives in the Sport Profile is OUR READING (the d26 design's N3): the profile admits constitutive sport structure when the selected game rules require it and no existing authoritative source supplies it (the ownership rule above), his item 10 selects the normal Laws, which key the goalkeeper's handling on a penalty area, and no knowledge source in the repository supplies one. BUILT WITH THE REGULATION ENTRY ONLY. A pairing is matched by the width the session states for its object, and nothing else: whether a smaller goal on a field wide enough for the regulation area takes that area or its own format's (the same-source pairing rule, decision 1b of the note sent to him) is his, so such a goal matches no entry and is a knowledge gap - never given the regulation area, never a scaled one. No scaled entry is recorded and no scaled size is assumed: a scaled entry is added only when he authorizes one named document (decision 1 of the note sent to him), with its values confirmed against that document's current edition. The goal type, height and format conditions are shown with the entry on the review page and are matched by nothing until a session can state them (the d26 design's build step 4). AMENDED 23 October 2026 (H4, register version 22): a session can now state its goals' type, from the register's closed list (full-size, scaled, mini-goal), so an entry is matched by the width AND the type the session states - an entry's type is one of that list's values - and where an entry of the stated width records a type the session does not state, the build asks for it, never assuming the entry's goal; a goal of another type is a knowledge gap, exactly as a goal of another width is. The height and the format conditions are still matched by nothing: no session is asked for a goal's height until an authorized entry reads it (his reply filed 26 October 2026, item 9(b)). Which goals suit a realization stays his decision 1. The requirement's id, the region noun and the 'penalty-area' token are ours (DRAFT).",
+  "requirements": [
+   {
+    "id": "BOUND-REGION-GOAL",
+    "object": { "kind": "goal", "whenDefended": true },
+    "region": { "noun": "zone", "function": "penalty-area" },
+    "cites": "IFAB Laws of the Game, Law 1.6 (The Penalty Area: an area set out from the goal line in front of each goal) and Law 12 (Fouls and Misconduct: the goalkeeper's handling within its own penalty area)",
+    "because": "OUR READING of his item 7 with item 10 (ours). A goal a team's goalkeeper defends (register row O7) has its penalty area: the normal Laws key the goalkeeper's handling on it, he refuses an undefined area the coach points out and a feet-only default, and he asks for a defined, knowledge-authorized area. So such a goal holds exactly one zone of the function penalty-area bound to it (register row S7), whose geometry is the one authorized pairing for that goal; where no pairing is authorized the activity is refused as a knowledge gap, and where the paired area does not fit the session's area the realization does not apply to that session. A goal no goalkeeper defends needs none here (whenDefended).",
+    "basis": {
+     "words": [
+      "The goalkeeper's handling permissions and restrictions should follow the normal Laws of the Game within that area unless an authorized activity rule explicitly changes them.",
+      "I would not approve an undefined area that the coach simply points out, nor a feet-only goalkeeper restriction as the default for this realization."
+     ],
+     "citedAs": "his reply filed 26 October 2026, item 7"
+    }
+   }
+  ],
+  "pairings": [
+   {
+    "id": "IFAB-LAW-1",
+    "document": "IFAB Laws of the Game",
+    "edition": null,
+    "citedAs": "Law 1.6 (The Penalty Area) and Law 1.10 (Goals)",
+    "formatConditions": {
+     "players": null,
+     "ageBand": null,
+     "pitch": "Law 1.3 (Dimensions): touchline 90-120 m and goal line 45-90 m, the touchline longer than the goal line - far larger than any practice area here, so it is shown and never read as a condition on this geometry"
+    },
+    "object": { "kind": "goal", "type": "full-size", "widthM": 7.32, "heightM": 2.44 },
+    "region": { "function": "penalty-area", "widthM": 40.32, "depthM": 16.5 },
+    "markM": 11,
+    "borrows": ["object", "region", "mark"],
+    "authority": {
+     "words": ["Use an existing regulation penalty area when the activity dimensions and setup permit it."],
+     "citedAs": "his reply filed 26 October 2026, item 7"
+    },
+    "note": "The regulation geometry, cited by IFAB law number (the d26 design read Laws 1 and 12 from theifab.com, which showed the 2026/27 edition as current; he names no edition, as in defaultLaws). Law 1.10: the goal is 7.32 m between the posts and 2.44 m to the crossbar. Law 1.6: the penalty area is set out 16.5 m from the inside of each goalpost, 16.5 m into the field of play, so 40.32 m wide with this goal; the penalty mark is 11 m from the midpoint between the goalposts. The type 'full-size' is the Goalkeeper Included Condition's own word (\"Use full-size or scaled goals depending on field dimensions.\", which he approved in his reply filed 26 October 2026, item 4). The mark is shown here; whether a spot is marked or paced, and whether penalty kicks apply at all, is decision 3 of the note sent to him, so no row records a spot. The players and age band are null: the Laws state neither as a condition on this geometry."
+   }
+  ]
+ },
  "result": {
   "object": "sport-profile:soccer",
   "items": [

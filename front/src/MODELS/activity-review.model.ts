@@ -28,21 +28,27 @@ export interface ActivitySession {
     objects?: Record<string, StatedObjects>
 }
 
-/** What a session states of one kind of object (stage E): how many, and how wide they are in metres, where it says. */
+/**
+ * What a session states of one kind of object (stage E): how many, and how wide they are in metres, where it says - and (H4, 23 October
+ * 2026) the value of each attribute the knowledge register lists for the kind, under the attribute's name (for goals, `type`).
+ */
 export interface StatedObjects {
     count: number
     widthM?: number
+    [attribute: string]: number | string | undefined
 }
 
 /**
  * What a refusal asks the coach, where the build stopped to ask (stage E, 23 October 2026): today, the session's objects of a kind the
- * activity needs and the session has not stated - whether it has any and how wide (`AVAILABILITY`), or only how wide (`WIDTH`). `words` is
- * the server's DRAFT question, the refusal's summary.
+ * activity needs and the session has not stated - whether it has any and how wide (`AVAILABILITY`), or only how wide (`WIDTH`), or (H4)
+ * the value of one attribute (`ATTRIBUTE`), with its name and closed list of values from the server. `words` is the server's DRAFT
+ * question, the refusal's summary.
  */
 export interface ReviewSessionQuestion {
     kind: 'OBJECT_AVAILABILITY' | string
     objectKind: string
-    asks: 'AVAILABILITY' | 'WIDTH' | string
+    asks: 'AVAILABILITY' | 'WIDTH' | 'ATTRIBUTE' | string
+    attribute?: { name: string; values: string[] }
     words: string
     status: string
 }
@@ -735,6 +741,96 @@ export interface ReviewEvidence {
         /** Stage 3F: each team's material elements, and the overview sentence(s) stating each. */
         meaning: { group: string; noun: string | null; elements: ReviewMeaningElement[] }[]
     }
+    /**
+     * H2 (23 October 2026): the default-laws account — for each law the Sport Profile names, per block and per place, whether it applies,
+     * is departed from, does not apply or is owed an adaptation, with the realization's strictness (ENFORCE or REPORT) and the DRAFT
+     * sentence held for the coach. Present only where the realization declares the check; shown as sent, in the technical panel.
+     */
+    defaultLaws?: ReviewDefaultLawsAccount
+    /**
+     * H3 (23 October 2026): the regions bound to the games' objects — per block, each region, the object it is bound to and who defends it,
+     * where it lies, and the authorized pairing it cites whole (document, citation, format conditions, the object's type and size, the
+     * region's size, its mark, what it borrows, Christian's words). Present only where some game holds a bound region; shown as sent.
+     */
+    boundRegions?: ReviewBoundRegionAccount
+}
+
+/** One authorized pairing (H3), as the server sends it: one named document's object, region and mark together. */
+export interface ReviewBoundRegionPairing {
+    id: string
+    document: string
+    edition: string | null
+    citedAs: string
+    formatConditions: { players: string | null; ageBand: string | null; pitch: string | null }
+    object: { kind: string; type: string; widthM: number; heightM: number | null }
+    region: { function: string; widthM: number; depthM: number }
+    markM: number | null
+    borrows: string[]
+    authority: { words: string[]; citedAs: string }
+    note: string | null
+}
+
+/** The regions bound to the games' objects (H3), as the server sends them. */
+export interface ReviewBoundRegionAccount {
+    status: 'ACCOUNT_FOR_REVIEW'
+    check: string
+    source: { file: string; authority: { words: string[]; citedAs: string; by: string; ruledOn: string } }
+    requirements: { id: string; object: { kind: string; whenDefended: boolean }; region: { noun: string; function: string }; cites: string; because: string; basis: { words: string[]; citedAs: string } }[]
+    blocks: {
+        blockId: string
+        bindings: {
+            region: string
+            noun: string | null
+            functions: string[]
+            object: string
+            kind: string | null
+            defendedBy: string | null
+            pairing: ReviewBoundRegionPairing | null
+            along: { from: number; to: number } | null
+            across: { from: number; to: number } | null
+        }[]
+    }[]
+}
+
+/** One departure the default-laws account cites: the item, what it covers, why, and Christian's words for it. */
+export interface ReviewLawDeparture {
+    item: string
+    extent: 'WHOLE' | 'PART'
+    part: string | null
+    because: string
+    basis: { words: string[]; citedAs: string }
+    whilePreconditionAbsent: Record<string, unknown> | null
+}
+
+/** The default-laws account (H2), as the server sends it. */
+export interface ReviewDefaultLawsAccount {
+    status: 'ACCOUNT_FOR_REVIEW'
+    realization: string
+    mode: 'ENFORCE' | 'REPORT'
+    check: { mode: string; because: string; basis: { words: string[]; citedAs: string } }
+    source: { file: string; source: string; edition: string | null; editionNote: string; authority: { words: string[]; citedAs: string; by: string; ruledOn: string } }
+    blocks: {
+        blockId: string
+        ends: { end: 0 | 1; atM: number | null; defendedBy: string[] }[]
+        laws: {
+            law: string
+            cites: string
+            name: string
+            /** H3: the Sport Profile's note on the law (which decision answers it), or null; absent from an account sent before H3. */
+            note?: string | null
+            end: 0 | 1 | null
+            at: string
+            status: 'APPLIES' | 'DEPARTED' | 'NOT_APPLICABLE' | 'ADAPTATION_OWED'
+            why: string
+            preconditions: { list: string; predicate: Record<string, unknown>; reading: string; why: string }[]
+            departedBy: ReviewLawDeparture[]
+            departedInPart: ReviewLawDeparture[]
+            noLongerHolds: ReviewLawDeparture[]
+            recordedBy: ReviewLawDeparture[]
+        }[]
+    }[]
+    owed: string[]
+    heldSentence: { text: string; status: 'DRAFT_HELD_NOT_SERVED'; basis: { words: string[]; citedAs: string } } | null
 }
 
 /** One sentence of the review draft: the instruction, whose wording it is, and the provisional choices it rests on. */
