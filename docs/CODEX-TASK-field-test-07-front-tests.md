@@ -33,17 +33,27 @@ A small automated suite would catch regressions without screenshots.
 4. **If a test exposes a real bug, do not fix it in this task.** Mark it `it.fails` (or `it.skip`) with a comment naming the bug,
    and report it.
 
+## Lint: what "passes" means here
+
+Task 06 made lint run (`front/.eslintrc.js` is now self-contained). Lint then exposed an existing backlog of 901 problems
+across `front/src`, which is deferred as a separate clean-up. So `npm run lint` will still exit 1. For this task:
+
+- the files you **add or change** must have no lint errors: run `npx eslint <your files>`;
+- the total count must not go up. Compare `npx eslint . --ext ts,tsx` before and after your change, and report both counts.
+
+Do not fix or suppress the existing backlog.
+
 ## Verify
 
 ```bash
 cd front
 npm test
-npm run lint
+npx eslint <the files you added or changed>
 npx tsc --noEmit
 npm run build
 ```
 
-All must pass. Commit as `Front tests: ...`.
+All must pass, and the backlog total must not go up (see "Lint: what passes means here"). Commit as `Front tests: ...`.
 
 ## Report back with
 
