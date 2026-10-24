@@ -282,7 +282,8 @@ test("the build's question carries the choices: all of them where it asks how ma
     const attribute = goalBuild(sessionWith({ [KIND]: { count: 1, widthM: FA_WIDTH } })) as RefusedActivity
     assert.deepEqual([attribute.stage, attribute.question?.asks, attribute.question?.attribute?.name], ['session', 'ATTRIBUTE', 'type'], attribute.reasons.join(' | '))
     assert.deepEqual(attribute.question!.choices, choicesAnswering(all, 'type', FA_WIDTH, KIND))
-    assert.deepEqual(attribute.question!.choices.map(choice => choice.id), [`pairing:${FA_ID}`, 'attribute:type=full-size', 'attribute:type=scaled', 'attribute:type=mini-goal', 'none'])
+    // Re-pointed 24 October 2026 (K1 review): 'scaled' at this width states exactly what the FA choice states, so it is not offered again.
+    assert.deepEqual(attribute.question!.choices.map(choice => choice.id), [`pairing:${FA_ID}`, 'attribute:type=full-size', 'attribute:type=mini-goal', 'none'])
     // Answered by the FA choice, through the review route's own request builder: served, the goal version.
     const storedSession = { playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: { ...none, [KEEPER]: 1 } }
     for (const asked of [undefined, { [KIND]: { count: 1, widthM: FA_WIDTH } }]) {
@@ -346,6 +347,27 @@ test('K1 data: suitability equals exactly the FA object and the production choic
     assert.deepEqual(choice.states, { type: object.type, widthM: object.widthM })
     assert.ok(choice.label.endsWith('12 ft x 6 ft (3.6576 m x 1.8288 m)'))
     assert.equal(faProduction().markM, 6)
+    // K1 review: in his words, including the item 1 sentence that approves this goal and its area for the 40 x 30 m activity.
+    assert.deepEqual([rule.ruledOn, rule.by, rule.citedAs, rule.words], ['2026-10-27', 'Christian', 'his reply filed 27 October 2026, item 1; his reply filed 27 October 2026, item 6', [
+        'I agree with using an established small-sided goal and its corresponding penalty area as the starting configuration for the 40 × 30 m activity.',
+        'Please verify the applicable FA specification and keep the goal, penalty area, and penalty spot dimensions from the same authorized source rather than combining unrelated formats.',
+        'Let’s treat the proposed configuration as an initial field-test candidate rather than assuming it is optimal.',
+        'A mini-goal is not automatically equivalent to an appropriate goalkeeper-defended goal.',
+    ]])
+    // K1 review: each record that said no suitability is stated now says, in a dated AMENDED line after its old words (kept), that one is.
+    const variant = readJson(PROVISIONAL_REALIZATIONS_FILE).realizations.find((r: any) => r.id === R2)
+    const fitNote: string = variant.items.find((item: any) => item.id === `${R2}-O1-1`).fitNote
+    const gap = learningGoalAuthorizations().find(r => r.learningGoalId === 'A01')!.gaps!.find(g => g.id === 'D-GOAL-SUITABILITY')!
+    for (const [text, old] of [
+        [variant.note as string, 'a suitability for its goal (D-GOAL-SUITABILITY open)'],
+        [fitNote, 'Which stated goals suit the version is his open decision D-GOAL-SUITABILITY, so none does yet and the version is not tried.'],
+        [gap.note!, 'Until he decides, no realization states which goals suit it (objectSuitability)'],
+    ]) {
+        const amended = text.indexOf('AMENDED 24 October 2026 (K1)')
+        assert.ok(text.includes(old) && amended > text.indexOf(old) && text.slice(amended).includes('his reply filed 27 October 2026, items 1 and 6'), old)
+    }
+    // The gap itself stays open until K3 lifts it.
+    assert.equal(gap.settledBy, undefined)
 })
 test('K1 validation refuses an unlisted attribute, an unlisted value, an empty value list and malformed attributes', () => {
     for (const attributes of [{ colour: ['scaled'] }, { type: ['portable'] }, { type: [] }, []]) {
@@ -377,7 +399,8 @@ test('K1 ATTRIBUTE choices preserve a stated width, even where no authorized ent
     for (const widthM of [FA_WIDTH, 4.125]) {
         const choices = choicesAnswering(objectChoicesOf(KIND), 'type', widthM, KIND)
         assert.deepEqual(choices.filter(c => c.from).map(c => c.id), widthM === FA_WIDTH ? ['pairing:' + faProduction().id] : [])
-        assert.deepEqual(choices.filter(c => c.id.startsWith('attribute:')).map(c => c.states.type), ['full-size','scaled','mini-goal'])
+        // Re-pointed 24 October 2026 (K1 review): a value an authorized choice of that width already states is not offered again.
+        assert.deepEqual(choices.filter(c => c.id.startsWith('attribute:')).map(c => c.states.type), widthM === FA_WIDTH ? ['full-size', 'mini-goal'] : ['full-size', 'scaled', 'mini-goal'])
         for (const choice of choices.filter(c => c.id !== 'none')) {
             assert.equal(choice.states.widthM, widthM)
             const answer = reviewRequestOf({playerCount:12,fieldLength:'40',fieldWidth:'30',specializedRoles:{...none,[KEEPER]:1}}, { learningGoalId:'A01', durationMin:20, objects:{[KIND]:{...choice.states,count:1}} })
@@ -389,6 +412,72 @@ test('K1 ATTRIBUTE choices preserve a stated width, even where no authorized ent
     assert.deepEqual(choicesSuitedTo(KIND, [{min:FA_WIDTH,max:FA_WIDTH,attributes:{type:['mini-goal']}}], {lengthM:40,widthM:30}), [])
     assert.deepEqual(choicesSuitedTo(KIND, [{min:FA_WIDTH,max:FA_WIDTH,attributes}], {lengthM:40,widthM:30}).map(c=>c.id), ['pairing:' + faProduction().id])
 })
+// K1 review (24 October 2026): the suppression objectChoicesOf applies to the session list, applied to the ATTRIBUTE question too.
+test('K1 review: an ATTRIBUTE question never offers two choices that state the same thing', () => {
+    const offered = (widthM: number, block: SportBoundRegions | null = loadSportBoundRegions()) => choicesAnswering(objectChoicesOf(KIND, index, block), 'type', widthM, KIND)
+    const listed = (widthM: number, block?: SportBoundRegions | null) => offered(widthM, block).map(choice => [choice.id, choice.states])
+    // 3.6576 m: the FA choice states {scaled, 3.6576}, so 'scaled' at that width is not offered beside it.
+    assert.deepEqual(listed(FA_WIDTH), [
+        ['pairing:' + faProduction().id, { type: 'scaled', widthM: FA_WIDTH }],
+        ['attribute:type=full-size', { type: 'full-size', widthM: FA_WIDTH }],
+        ['attribute:type=mini-goal', { type: 'mini-goal', widthM: FA_WIDTH }],
+        ['none', { count: 0 }],
+    ])
+    // 7.32 m: the IFAB choice states {full-size, 7.32}, so 'full-size' at that width is not offered beside it.
+    assert.deepEqual(listed(7.32), [
+        ['pairing:IFAB-LAW-1', { type: 'full-size', widthM: 7.32 }],
+        ['attribute:type=scaled', { type: 'scaled', widthM: 7.32 }],
+        ['attribute:type=mini-goal', { type: 'mini-goal', widthM: 7.32 }],
+        ['none', { count: 0 }],
+    ])
+    // A width no authorized object has: nothing is suppressed.
+    assert.deepEqual(listed(4.125).map(([id]) => id), ['attribute:type=full-size', 'attribute:type=scaled', 'attribute:type=mini-goal', 'none'])
+    // Generic, not a value's special case: TEST-ONLY, two authorized objects of one width and different types suppress both values they state.
+    const two = copy(loadSportBoundRegions()!)
+    two.pairings.push({ ...copy(faProduction()), id: 'TEST-ONLY-FULL-SIZE', document: 'TEST-ONLY', object: { ...faProduction().object, type: 'full-size' } })
+    assert.deepEqual(listed(FA_WIDTH, two).map(([id]) => id), ['pairing:' + faProduction().id, 'pairing:TEST-ONLY-FULL-SIZE', 'attribute:type=mini-goal', 'none'])
+    for (const [widthM, block] of [[FA_WIDTH, undefined], [7.32, undefined], [4.125, undefined], [FA_WIDTH, two]] as const) {
+        const statements = offered(widthM, block).map(choice => JSON.stringify(choice.states))
+        assert.equal(new Set(statements).size, statements.length, `${widthM}: ${statements.join(' | ')}`)
+    }
+})
+
+// K1 review (24 October 2026): the availability rule's own ask, pinned so neutralizing it cannot pass unnoticed.
+test('K1 review: OBJECT_ATTRIBUTE_NOT_STATED - a fitting width with the type the suitability reads left unstated is asked by the availability rule, before the bound-region check', () => {
+    const contracts = [{ contractId: 'provisional:' + R2, objectSuitability: suitabilityProduction() }] as any
+    const game = { objects: [{ elementId: 'TEST-ONLY', kind: KIND }] }
+    const values = index.sessionResources!.attributes!.find(entry => entry.kind === KIND && entry.attribute === 'type')!.values
+    assert.deepEqual(values, ['full-size', 'scaled', 'mini-goal'])
+    assert.deepEqual(objectAvailabilityRefusal(index, game, { objects: { [KIND]: { count: 1, widthM: FA_WIDTH } } }, contracts), {
+        cause: 'OBJECT_ATTRIBUTE_NOT_STATED',
+        kind: KIND,
+        attribute: 'type',
+        values: [...values],
+        widthM: FA_WIDTH,
+        why: `the game holds 1 object of the kind ${KIND} (TEST-ONLY); the suitability reads type, which the session does not state`,
+    })
+    // Not asked where the width already settles it, nor where the suitability reads no attribute.
+    assert.equal(objectAvailabilityRefusal(index, game, { objects: { [KIND]: { count: 1, widthM: 3.66 } } }, contracts)?.cause, 'OBJECT_NOT_SUITABLE')
+    const widthOnly = [{ contractId: 'provisional:' + R2, objectSuitability: [{ ...suitabilityProduction()[0], attributes: undefined }] }] as any
+    assert.equal(objectAvailabilityRefusal(index, game, { objects: { [KIND]: { count: 1, widthM: FA_WIDTH } } }, widthOnly), null)
+    // The build says it in its reasons and asks it, before realization, ahead of the bound-region check's own ask.
+    const values3 = { name: 'type', values: [...values] }
+    const asked = k1Build({ count: 1, widthM: FA_WIDTH }) as RefusedActivity
+    assert.deepEqual([asked.outcome, asked.stage, asked.question?.asks, asked.question?.attribute], ['refused', 'session', 'ATTRIBUTE', values3], asked.reasons.join(' | '))
+    assert.ok(asked.reasons.some(reason => reason.includes("do not cover the game's before realization (OBJECT_ATTRIBUTE_NOT_STATED)")), asked.reasons.join(' | '))
+    assert.ok(!asked.reasons.some(reason => reason.includes('BOUND_REGION_OBJECT_NOT_STATED')), asked.reasons.join(' | '))
+    assert.deepEqual(asked.question!.choices, choicesAnswering(objectChoicesOf(KIND), 'type', FA_WIDTH, KIND))
+    assert.deepEqual(selectionOf(asked)[0], [R2, 'ASKED', 'OBJECT_AVAILABILITY_NOT_STATED'])
+    // Not redundant: with no bound-region block (so no pairing can ask), the same session is still asked, never silently admitted.
+    const noBlock = buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionWith({ [KIND]: { count: 1, widthM: FA_WIDTH } }) } as any, recordsOf(), {
+        realizations: loadProvisionalRealizations(),
+        boundRegions: null,
+        review: { includeDrafts: true },
+    }).activity as RefusedActivity
+    assert.deepEqual([noBlock.outcome, noBlock.stage, noBlock.question?.asks, noBlock.question?.attribute], ['refused', 'session', 'ATTRIBUTE', values3], (noBlock as any).reasons?.join(' | '))
+    assert.ok(noBlock.reasons.some(reason => reason.includes('(OBJECT_ATTRIBUTE_NOT_STATED)')), noBlock.reasons.join(' | '))
+})
+
 test('K1 mutation: dropping suitability attributes exposes GA-BOUND-REGION authorization refusal', () => {
     const activity = k1Build({count:1,type:'mini-goal',widthM:FA_WIDTH}, true) as RefusedActivity
     assert.equal(activity.outcome, 'refused')

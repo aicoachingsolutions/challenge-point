@@ -777,7 +777,14 @@ export function rosterRefusal(ctx: GateContext, realized: Realized): RosterRefus
  *   - OBJECT_NOT_SUITABLE: the session has enough of them and they are not ones the realization's authorized knowledge says suit it
  *     (`decided: true`), or nothing authorized says which suit it (`decided: false`). Which objects suit an activity is decision 4 of the note
  *     sent to him; until a realization carries his words for it, no object of the kind counts as suitable, so none is treated as
- *     interchangeable (his item 3: *"rather than inventing dimensions or treating every [object] as interchangeable"*).
+ *     interchangeable (his item 3: *"rather than inventing dimensions or treating every [object] as interchangeable"*). K1 (24 October 2026):
+ *     a stated attribute value the suitability does not admit is decided unsuitability before the width is read (`widthM` null where none
+ *     is stated).
+ *   - OBJECT_ATTRIBUTE_NOT_STATED (K1, 24 October 2026): the session has enough of them, their width is one the suitability admits, and the
+ *     suitability admits only some values of an attribute the register lists for the kind (`ObjectSuitability.attributes`) that the session
+ *     does not state, so it is asked (the attribute, its registered values and the stated width travel beside the cause), never assumed. Not
+ *     redundant with the bound-region check's own ask (BOUND_REGION_OBJECT_NOT_STATED): that one is reached only after this rule, and only for
+ *     a defended object of a width some pairing records with the attribute; a suitability can read an attribute where no pairing does.
  *   - OBJECT_INVOLVEMENT_NOT_SETTLED: the game holds an object of the kind whose count is not a whole number, so how many it needs is unknown.
  */
 export type ObjectAvailabilityRefusal =
@@ -831,7 +838,10 @@ export function objectInvolvementOf(game: unknown, index: GateContext['index']):
  *
  * `contracts` are the game's: the suitability a realization's authorized knowledge states for a kind is read from the provisional
  * realization the game was derived with (`objectSuitability`, his words required by its loader). None is recorded on 23 October 2026, so on
- * production data every stated object of a listed kind is OBJECT_NOT_SUITABLE with `decided: false`; no served game holds one.
+ * production data every stated object of a listed kind is OBJECT_NOT_SUITABLE with `decided: false`; no served game holds one. AMENDED 24
+ * October 2026 (K1): production now records one, on A01-R2 (one object of type scaled, exactly 3.6576 m wide; his reply filed 27 October
+ * 2026, items 1 and 6), read by its attributes before its width; A01-R2 is still listed and never tried until K3, so no served game holds
+ * an object yet.
  */
 export function objectAvailabilityRefusal(index: GateContext['index'], game: unknown, envelope: unknown, contracts: LoadedContract[]): ObjectAvailabilityRefusal | null {
     const involvement = objectInvolvementOf(game, index)

@@ -138,13 +138,22 @@ export function objectChoicesOf(
 /**
  * **The choices that answer an ATTRIBUTE question.** K1: with a stated width, only authorized objects of exactly that width, each
  * DRAFT attribute value preserving that width, and none. Another object states no attribute and cannot answer the question.
+ *
+ * An attribute value's choice is dropped where an authorized choice already offered states everything it would state (the same rule
+ * `objectChoicesOf` applies to the session list, here with the width the value's choice keeps): two choices stating the same thing
+ * would make the coach choose between identical statements under different names.
  */
 export function choicesAnswering(choices: ObjectChoice[], attribute: string, widthM?: number, kind?: string): ObjectChoice[] {
     if (widthM === undefined) return choices.filter(choice => choice.id === 'none' || typeof choice.states[attribute] === 'string')
     const values = objectChoiceWordingFor(kind)?.attributeValues.filter(entry => entry.attribute === attribute) ?? []
+    const authorized = choices.filter(choice => choice.from && choice.states.widthM === widthM && typeof choice.states[attribute] === 'string')
+    const statesNothingNew = (states: Record<string, string | number>) =>
+        authorized.some(offered => Object.entries(states).every(([name, value]) => offered.states[name] === value))
     return [
-        ...choices.filter(choice => choice.from && choice.states.widthM === widthM && typeof choice.states[attribute] === 'string'),
-        ...values.map(entry => ({ id: `attribute:${attribute}=${entry.value}`, label: entry.label, states: { [attribute]: entry.value, widthM }, enters: ['count'] as ObjectChoiceEntry[], from: null, status: 'DRAFT' as const })),
+        ...authorized,
+        ...values
+            .map(entry => ({ id: `attribute:${attribute}=${entry.value}`, label: entry.label, states: { [attribute]: entry.value, widthM }, enters: ['count'] as ObjectChoiceEntry[], from: null, status: 'DRAFT' as const }))
+            .filter(choice => !statesNothingNew(choice.states)),
         ...choices.filter(choice => choice.id === 'none'),
     ]
 }

@@ -452,7 +452,9 @@ export interface ProvisionalRealization extends LoadedContract {
      * **What this realization's authorized knowledge says suits its objects of a kind** (stage E): a width range in metres per kind, each in
      * his cited words. Read only by the availability rule (`realization/assemble-concrete-game.ts` objectAvailabilityRefusal); where a
      * realization states none for a kind, no stated object of that kind suits it. Decision 4 of the note sent to him (goal suitability and
-     * size) is his: no production realization carries one on 23 October 2026, and only TEST-ONLY copies do.
+     * size) is his: no production realization carries one on 23 October 2026, and only TEST-ONLY copies do. AMENDED 24 October 2026 (K1):
+     * one production realization carries one, A01-R2 (type scaled, exactly 3.6576 m wide, in his reply filed 27 October 2026, items 1 and
+     * 6); an entry may also restrict the values of an attribute the register lists for its kind (`attributes`).
      */
     objectSuitability?: ObjectSuitability[]
     /**
@@ -475,7 +477,10 @@ export interface ProvisionalRealization extends LoadedContract {
     realizationDepartures?: RealizationDepartures
 }
 
-/** What a realization's authorized knowledge says suits its objects of one kind (stage E): a width range in metres, in his cited words. */
+/**
+ * What a realization's authorized knowledge says suits its objects of one kind (stage E): a width range in metres, in his cited words; since
+ * K1 (24 October 2026), also the values it admits of an attribute the register lists for the kind (`attributes`).
+ */
 export interface ObjectSuitability {
     kind: string
     /** Allowed values of attributes listed for this kind by sessionResources. Absent imposes no attribute restriction. */
@@ -828,7 +833,11 @@ function repointedTo(value: unknown, from: string, to: string): unknown {
  * nouns bracketed for the coupling ratchet.) Each entry
  * speaks of one kind the register's sessionResources lists, once, as a width range in metres (at least one bound, each more than zero, the
  * lower not above the upper), in his cited words with who ruled it and when. His decision 4 of the note sent to him is still open: no
- * production realization carries an entry, and a realization carrying one without his words is refused whole.
+ * production realization carries an entry, and a realization carrying one without his words is refused whole. AMENDED 24 October 2026
+ * (K1): his reply filed 27 October 2026, items 1 and 6 gives A01-R2 one entry (type scaled, exactly 3.6576 m wide), the only production
+ * entry; the gap that recorded the decision (D-GOAL-SUITABILITY) is lifted at K3. An entry's optional `attributes` names, for each attribute
+ * the register's sessionResources lists for the kind, a non-empty list of that attribute's registered values: an unlisted attribute or
+ * value, an empty list and anything but an object of lists are refused.
  */
 function suitabilityRefusals(entries: unknown, which: string, objectKinds: string[], index: RegisterIndex): string[] {
     if (entries === undefined) return []

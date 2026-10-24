@@ -87,6 +87,16 @@ const sessionOf = (players: number, keepers: number, area: [number, number], goa
     }
 }
 const ITEM_7_PAIRING = 'Use an existing regulation penalty area when the activity dimensions and setup permit it.'
+/** His reply filed 26 October 2026, item 7: the words BOUND-REGION-GOAL's basis cited before K1, and still cites. */
+const ITEM_7_HANDLING = "The goalkeeper's handling permissions and restrictions should follow the normal Laws of the Game within that area unless an authorized activity rule explicitly changes them."
+const ITEM_7_REFUSED = 'I would not approve an undefined area that the coach simply points out, nor a feet-only goalkeeper restriction as the default for this realization.'
+/** His reply filed 27 October 2026, item 1: the 1b principle he approved, and the sentence approving the goal and area for this activity. */
+const ITEM_1B = 'a goal’s penalty-area geometry should ordinarily come from the same authorized format. Any exception should be explicit and supported by the intended learning design.'
+const ITEM_1_APPROVAL = 'I agree with using an established small-sided goal and its corresponding penalty area as the starting configuration for the 40 × 30 m activity.'
+const ITEM_1_VERIFY = 'Please verify the applicable FA specification and keep the goal, penalty area, and penalty spot dimensions from the same authorized source rather than combining unrelated formats.'
+const ITEM_1_CANDIDATE = 'Let’s treat the proposed configuration as an initial field-test candidate rather than assuming it is optimal.'
+/** BOUND-REGION-GOAL's because before K1 restated it (git show 22da115), recorded verbatim in the block's note. */
+const REPLACED_BECAUSE = "OUR READING of his item 7 with item 10 (ours). A goal a team's goalkeeper defends (register row O7) has its penalty area: the normal Laws key the goalkeeper's handling on it, he refuses an undefined area the coach points out and a feet-only default, and he asks for a defined, knowledge-authorized area. So such a goal holds exactly one zone of the function penalty-area bound to it (register row S7), whose geometry is the one authorized pairing for that goal; where no pairing is authorized the activity is refused as a knowledge gap, and where the paired area does not fit the session's area the realization does not apply to that session. A goal no goalkeeper defends needs none here (whenDefended)."
 const blocks = loadSportBoundRegions()!
 const profileFile = (): any => readJson(blocks.file)
 
@@ -206,9 +216,18 @@ test("the profile's boundRegions block: one requirement, his explicit same-forma
     }
     assert.deepEqual(
         blocks.requirements.map(r => [r.id, r.object.kind, r.object.whenDefended, r.region.noun, r.region.function, r.basis.citedAs]),
-        // K1 replaces our reading with his explicit same-format principle in the later reply's item 1 (1b).
-        [['BOUND-REGION-GOAL', 'goal', true, 'zone', 'penalty-area', 'his reply filed 27 October 2026, item 1']],
+        // K1 replaces our reading with his explicit same-format principle in the later reply's item 1 (1b); re-pointed 24 October 2026 (K1
+        // review): the basis keeps the item 7 words it cited before, beside the 1b words, so both replies are cited.
+        [['BOUND-REGION-GOAL', 'goal', true, 'zone', 'penalty-area', 'his reply filed 27 October 2026, item 1; his reply filed 26 October 2026, item 7']],
     )
+    // K1 review: only 'because' is restated (the d27 design's 1.6); the basis is never replaced, and the reading it replaced is recorded.
+    const [requirement] = blocks.requirements
+    assert.equal(requirement.because, ITEM_1B)
+    assert.deepEqual(requirement.basis.words, [ITEM_1B, ITEM_7_HANDLING, ITEM_7_REFUSED])
+    const note = profileFile().boundRegions.note as string
+    const amended = note.indexOf('AMENDED 24 October 2026 (K1, from its review)')
+    assert.ok(amended > note.indexOf('AMENDED 24 October 2026 (K1, the d27 design sections 1.1-1.7)'), 'a dated AMENDED line after the K1 amendment')
+    assert.ok(note.slice(amended).includes(`The because it replaces read, verbatim: "${REPLACED_BECAUSE}"`), 'the replaced OUR READING kept verbatim')
     assert.deepEqual(blocks.pairings.map(p => p.id), ['IFAB-LAW-1', 'FA-MINI-SOCCER-5V5-2026'], 'K1 records exactly the regulation and FA 5v5 entries')
     const [ifab] = blocks.pairings
     assert.deepEqual(
@@ -225,6 +244,48 @@ test("the profile's boundRegions block: one requirement, his explicit same-forma
     assert.deepEqual(loadSportProfile()[0].items.map(item => item.itemId), ['SPORT-SOCCER-01', 'SPORT-SOCCER-02'])
     // The default laws now read the member the register holds.
     assert.ok(loadSportDefaultLaws()!.laws.find(law => law.id === 'LAW-12-GK')!.note!.includes('register version 21'))
+})
+
+// K1 review (24 October 2026): the production FA 5v5 entry pinned whole, as the IFAB entry is above, so drift in it cannot go unnoticed.
+test('the FA 5v5 entry (K1, the d27 design section 1.6), whole: one document, its goal, its area and its mark, his item 1 words', () => {
+    const fa = blocks.pairings.find(p => p.id === 'FA-MINI-SOCCER-5V5-2026')!
+    const raw = profileFile().boundRegions.pairings.find((p: any) => p.id === 'FA-MINI-SOCCER-5V5-2026')
+    assert.deepEqual(Object.keys(raw), ['id', 'document', 'edition', 'citedAs', 'formatConditions', 'object', 'region', 'markM', 'borrows', 'authority', 'note'], 'no field beyond the type the loader accepts')
+    const { note, ...rest } = raw
+    assert.deepEqual(rest, {
+        id: 'FA-MINI-SOCCER-5V5-2026',
+        document: 'The Mini-Soccer and Youth Futsal Handbook (England Football / The FA)',
+        edition: 'Version updated August 2026 (2026/2027 season)',
+        citedAs: 'Mini-Soccer Law 1, Playing Area: goal size in the text; the 5v5 area and mark as labelled on the Law 1 diagram; https://cdn.englandfootball.com/-/media/EnglandFootball/Files/play-and-participate/youth-football/Mini-Soccer-Handbook-2026-27.pdf',
+        formatConditions: {
+            players: '5v5: the maximum number of players is 5, subject to the power-play rules (Law 3, U8s-U9s)',
+            ageBand: 'U8/U9 (Law 1)',
+            pitch: '37 m x 27 m (Law 1 diagram; a maximum, p.16)',
+        },
+        // 12 ft x 6 ft at exactly 0.3048 m per foot, never The FA's rounded 3.66 x 1.83 m.
+        object: { kind: 'goal', type: 'scaled', widthM: 3.6576, heightM: 1.8288 },
+        region: { function: 'penalty-area', widthM: 15, depthM: 9 },
+        markM: 6,
+        borrows: ['object', 'region', 'mark'],
+        authority: { words: [ITEM_1_APPROVAL, ITEM_1_VERIFY, ITEM_1_CANDIDATE, ITEM_1B], citedAs: 'his reply filed 27 October 2026, item 1' },
+    })
+    assert.deepEqual([fa.object, fa.region, fa.markM], [rest.object, rest.region, rest.markM], 'the loader carries the entry as the file records it')
+    // The note's key facts, self-contained: the feet, the conversion, the rounding not used, the printed depth and what the earlier documents
+    // gave, the naming read, the type read, what does not come with it, where it is used, and his item 3 on the mark.
+    for (const fact of [
+        '(12ft x 6ft)',
+        'exact conversion at 0.3048 m per foot',
+        'rounds to 3.66 x 1.83 m, not used',
+        'The depth is printed 9 m and may be a misprint: the 2025 edition gave 9 yd (= 8.2296 m) and The FA\'s 2012 metric guide 8 m; we use 9 m as printed.',
+        "'penalty area' and 'mark' are our reading from Laws 8, 12 and 14 of the same handbook",
+        "type 'scaled' is our reading of the Goalkeeper Included Condition's 'full-size or scaled goals'",
+        'Its other provisions (retreat line, pass or dribble-in, distances, heading law) do not come with it.',
+        'Used at 40 x 30 m, larger than its pitch, chosen by space per player.',
+        'his reply filed 27 October 2026, item 3: "The penalty-area specification may include a penalty spot, but this activity does not need to mark or use it."',
+    ]) assert.ok(note.includes(fact), fact)
+    assert.ok(!note.includes('1.3 (a)') && !/\(\d\.\d/.test(note), 'no pointer to a design document outside the repository')
+    // One entry for a 12 ft goal: the 7v7 entry of the same handbook (the same goal with a 16 x 9 m box) is not recorded.
+    assert.equal(blocks.pairings.filter(p => p.object.kind === fa.object.kind && p.object.widthM === fa.object.widthM).length, 1)
 })
 
 test('the loader refuses the block whole on any defect', () => {
@@ -575,8 +636,8 @@ test('H4: a pairing that records a type matches only a goal the session states o
         assert.deepEqual(rest, { kind: 'OBJECT_AVAILABILITY', objectKind: 'goal', asks: 'ATTRIBUTE', attribute: { name: 'type', values: ['full-size', 'scaled', 'mini-goal'] }, words: asked.summary, status: 'DRAFT' })
         assert.deepEqual(choices.map(choice => [choice.id, choice.label, choice.states]), [
             ['pairing:IFAB-LAW-1', 'the goal in IFAB Laws of the Game, 7.32 m x 2.44 m', { type: 'full-size', widthM: 7.32 }],
-            // K1 ATTRIBUTE answers keep the already stated width, for every type.
-            ['attribute:type=full-size', 'full-size', { type: 'full-size', widthM: 7.32 }],
+            // K1 ATTRIBUTE answers keep the already stated width, for every type. Re-pointed 24 October 2026 (K1 review): 'full-size' at
+            // 7.32 m states exactly what the IFAB choice states, so it is not offered again (the suppression objectChoicesOf applies).
             ['attribute:type=scaled', 'scaled', { type: 'scaled', widthM: 7.32 }],
             ['attribute:type=mini-goal', 'a mini-goal or pop-up goal', { type: 'mini-goal', widthM: 7.32 }],
             ['none', 'none', { count: 0 }],
