@@ -1,7 +1,29 @@
 # Codex — field-test build: rules for every task (read first)
 
-These rules apply to tasks 01–07 (`docs/CODEX-TASK-field-test-0N-*.md`). Do the tasks **in order, one per run**. Stop after each
-one and report.
+These rules apply to tasks 01–07 (`docs/CODEX-TASK-field-test-0N-*.md`). Each run does **one task**.
+
+## Unattended mode
+
+The runner script (`codex-input/run-all-codex-tasks.ps1`) runs the tasks one after another while nobody is at the machine.
+
+- **Never wait for a human.** Nobody will answer a question; decide within these rules, or end the task as BLOCKED.
+- **End every run with two files:**
+  - `C:/Users/Administrator/Downloads/codex-output/report-NN.md`: the full report (see "Report back with" below).
+  - `C:/Users/Administrator/Downloads/codex-output/status-NN.txt`, whose **first line is exactly one word**:
+    - `DONE`: the task is complete, the gate is green, and it is committed (or task 01 / 05 found nothing to fix).
+    - `BLOCKED`: Christian's words do not cover something, or the design is contradicted by the code in a way you cannot
+      settle within these rules. Nothing half-done is committed.
+    - `FAILED`: you could not make the gate green.
+
+  On the following lines, give the reason in one or two sentences.
+- **Skipping a step is not BLOCKED.** If a step cannot run in this environment (for example, a browser or a database is not
+  available), skip it, say so in the report, and carry on.
+- **If BLOCKED or FAILED, commit nothing.** Leave your changes uncommitted; the runner saves them to a side branch.
+- **Long commands** (`npm test`, `npm run snapshot`, `npm run build`): redirect their output to a log file in `codex-output/`. If
+  a command times out in your shell tool, re-run it in the background and poll its log until it finishes. Never report a gate
+  result you did not see finish.
+- **Stop every server or background process you started** before you end the run.
+- **Never run `git checkout`, `git switch`, `git reset --hard`, `git clean` or `git rebase`.** The runner manages branches.
 
 ## Where to work
 
@@ -64,7 +86,7 @@ npx tsc --noEmit
 npm run build
 ```
 
-## Report back with
+## Report back with (written to `codex-output/report-NN.md`)
 
 - the commit hash(es);
 - the `npm test` summary line;
