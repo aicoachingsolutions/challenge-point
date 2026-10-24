@@ -65,6 +65,7 @@ import { useResource } from '@/services/resource.service'
 
 import Button from '@/components/Button'
 import Loading from '@/components/Loading'
+import ObjectChoiceField from '@/components/ObjectChoiceField'
 
 // The activity itself, as a coach reads it (moved to its own module on 22 October 2026 so the live app renders it through the same component).
 import { ActivityBlock, blockNumberLabel, DemonstrationLabel, groupBySection } from './CheckedActivityBlock'
@@ -557,6 +558,26 @@ function ObjectQuestionBlock({
     const widthGiven = typeof width === 'number' && Number.isFinite(width) && width > 0
     const ready = asked ? !!value && isStatedCount(start?.count) : countGiven && (count === 0 || widthGiven)
     const kind = question.objectKind
+    /**
+     * Stage I (24 October 2026; the d27 design's stage I(a) and (c)): where the server sends the question's choices, it is answered by them -
+     * the same choices as the session's own question, so an authorized object is stated exactly as its source records it. The statement the
+     * coach makes replaces the kind's for this review, as every answer here does.
+     */
+    const [chosen, setChosen] = useState<StatedObjects | undefined>(undefined)
+    if (question.choices?.length) {
+        return (
+            <article className='p-6 bg-white border rounded-lg border-amber-200'>
+                <p className='font-medium text-gray-800'>{question.words}</p>
+                <div className='mt-4'>
+                    <ObjectChoiceField kind={kind} choices={question.choices} value={start} onChange={setChosen} name={`review-objects-${kind}`} />
+                </div>
+                <p className='mt-2 text-sm text-gray-500'>For this review only — your session is not changed.</p>
+                <Button onClickAsync={() => onAnswer(chosen as StatedObjects)} disabled={!chosen} className='mt-4 rounded-full'>
+                    Build the activity with this answer
+                </Button>
+            </article>
+        )
+    }
     if (asked) {
         return (
             <article className='p-6 bg-white border rounded-lg border-amber-200'>

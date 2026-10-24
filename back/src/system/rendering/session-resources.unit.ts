@@ -53,6 +53,7 @@ import { reviewActivity, reviewRequestOf } from './activity-review'
 import { buildActivityForReview, buildActivityUnderAuthorizationRecords, onlyTheRosterStopped, RefusedActivity, ServedActivity } from './build-activity'
 import { liveRefusalBody } from './live-activity'
 import { objectAvailabilityQuestion, sessionEnvelopeFrom, sessionResourceAttributes, sessionResourceKinds, specializedRoleNames } from './session-envelope'
+import { objectChoicesOf } from './session-object-choices'
 
 let passed = 0
 function test(name: string, body: () => void): void {
@@ -209,16 +210,24 @@ test('H4: the envelope carries a stated type and nothing else, never infers one,
     assert.equal(objectAvailabilityQuestion(KIND, 'ATTRIBUTE', 'type'), `Say what type of ${KIND} this session has before building this activity.`)
 })
 
-test("H4: the session form offers exactly the register's values, and leaves the type unstated unless one is chosen", () => {
+/**
+ * Re-pointed 24 October 2026 (stage I, the d27 design's stage I(a)): the session form no longer lists the register's type values itself (H4's
+ * GOAL_TYPE_OPTIONS, kept equal to the register by this test); it offers the server's choices (GET /session/object-choices,
+ * session-object-choices.ts), which state the register's values from the knowledge, beside "Not sure yet", which stores nothing. So the
+ * test now holds that neither the form nor the review page names any value, and that both read the server's choices.
+ */
+test("H4 / stage I: the session form and the review page offer the server's choices and name no value; \"Not sure yet\" stores nothing", () => {
     const form = fs.readFileSync(path.join(__dirname, '../../../../front/src/forms/SessionForm.tsx'), 'utf8')
-    const block = form.slice(form.indexOf('export const GOAL_TYPE_OPTIONS = ['), form.indexOf(']', form.indexOf('export const GOAL_TYPE_OPTIONS = [')))
-    const offered = [...block.matchAll(/value: '([^']+)'/g)].map(match => match[1])
-    assert.deepEqual(offered, spec.attributes.find(attribute => attribute.kind === KIND && attribute.attribute === 'type')!.values)
-    assert.ok(form.includes("<option value={NOT_STATED}>Not sure yet</option>") && form.includes("const NOT_STATED = ''"), 'blank is offered and stores nothing')
-    // The review page names no value: it offers the question's own list.
+    const values = spec.attributes.find(attribute => attribute.kind === KIND && attribute.attribute === 'type')!.values
+    assert.ok(form.includes('`${ROUTES.app.session}/object-choices`') && form.includes('<ObjectChoiceField'), 'the form reads the server\'s choices')
+    assert.ok(form.includes("const NOT_SURE_YET = 'Not sure yet'") && form.includes('notSureLabel={NOT_SURE_YET}'), '"Not sure yet" is offered')
+    assert.ok(form.includes('if (statement) objects[kind] = statement') && form.includes('else delete objects[kind]'), 'nothing chosen stores nothing')
+    assert.ok(!form.includes('GOAL_TYPE_OPTIONS') && !form.includes('step={0.1}'), 'no list of its own, and no width stepping by 0.1 m')
+    const field = fs.readFileSync(path.join(__dirname, '../../../../front/src/components/ObjectChoiceField.tsx'), 'utf8')
+    // The review page names no value: it offers the question's own choices, and its own list where the server sends no choices.
     const page = fs.readFileSync(path.join(__dirname, '../../../../front/src/app/ActivityReviewPage.tsx'), 'utf8')
-    assert.ok(page.includes('asked.values.map((option) =>'))
-    for (const value of offered) assert.ok(!page.includes(`'${value}'`), `the review page names no value (${value})`)
+    assert.ok(page.includes('asked.values.map((option) =>') && page.includes('choices={question.choices}'))
+    for (const value of values) for (const [name, text] of [['form', form], ['field', field], ['page', page]]) assert.ok(!text.includes(`'${value}'`), `the ${name} names no value (${value})`)
 })
 
 // ── 3. The availability rule ─────────────────────────────────────────────────────────────────────────────
@@ -236,9 +245,11 @@ test('the availability rule covers involvement with typed causes, and a game hol
     assert.deepEqual(pick(rule(one, { cones: { count: 3 } })), { cause: 'OBJECT_AVAILABILITY_NOT_STATED', asks: 'AVAILABILITY', needed: 1 }, 'another kind says nothing of this one')
     assert.deepEqual(pick(rule(one, { [KIND]: { count: 0 } })), { cause: 'OBJECT_AVAILABILITY_SHORT', needed: 1, available: 0 })
     assert.deepEqual(pick(rule(one, { [KIND]: { count: 1 } })), { cause: 'OBJECT_AVAILABILITY_NOT_STATED', asks: 'WIDTH', needed: 1 })
-    assert.deepEqual(pick(rule(one, { [KIND]: { count: 1, widthM: 5 } })), { cause: 'OBJECT_NOT_SUITABLE', needed: 1, available: 1, widthM: 5, decided: false }, 'no authorized suitability: none suits')
-    assert.deepEqual(pick(rule(one, { [KIND]: { count: 1, widthM: 12 } }, suitable(1, 10))), { cause: 'OBJECT_NOT_SUITABLE', needed: 1, available: 1, widthM: 12, decided: true })
-    assert.deepEqual(pick(rule(one, { [KIND]: { count: 1, widthM: 0.5 } }, suitable(1, null))), { cause: 'OBJECT_NOT_SUITABLE', needed: 1, available: 1, widthM: 0.5, decided: true })
+    // Re-pointed 24 October 2026 (stage I): the not-suitable cause carries the suitability it read (`rules`, empty where nothing is decided),
+    // so the builder can say which authorized objects the realization is built for without reading `why`.
+    assert.deepEqual(pick(rule(one, { [KIND]: { count: 1, widthM: 5 } })), { cause: 'OBJECT_NOT_SUITABLE', needed: 1, available: 1, widthM: 5, decided: false, rules: [] }, 'no authorized suitability: none suits')
+    assert.deepEqual(pick(rule(one, { [KIND]: { count: 1, widthM: 12 } }, suitable(1, 10))), { cause: 'OBJECT_NOT_SUITABLE', needed: 1, available: 1, widthM: 12, decided: true, rules: [{ min: 1, max: 10 }] })
+    assert.deepEqual(pick(rule(one, { [KIND]: { count: 1, widthM: 0.5 } }, suitable(1, null))), { cause: 'OBJECT_NOT_SUITABLE', needed: 1, available: 1, widthM: 0.5, decided: true, rules: [{ min: 1, max: null }] })
     assert.equal(rule(one, { [KIND]: { count: 1, widthM: 5 } }, suitable(1, 10)), null)
     assert.equal(rule(one, { [KIND]: { count: 3, widthM: 5 } }, suitable(null, 5)), null, 'more available than needed covers it')
     // An element counts as many objects as its count row says; a count that is no whole number leaves the need unsettled.
@@ -585,7 +596,8 @@ test('availability not stated: the build asks, and nothing behind the preferred 
         assert.equal(refused.outcome, 'refused')
         assert.equal(refused.stage, 'session')
         assert.equal(refused.summary, objectAvailabilityQuestion(KIND, asks))
-        assert.deepEqual(refused.question, { kind: 'OBJECT_AVAILABILITY', objectKind: KIND, asks, words: refused.summary, status: 'DRAFT' })
+        // Re-pointed 24 October 2026 (stage I): the question carries the session's own choices for the kind (session-object-choices.ts).
+        assert.deepEqual(refused.question, { kind: 'OBJECT_AVAILABILITY', objectKind: KIND, asks, words: refused.summary, status: 'DRAFT', choices: objectChoicesOf(KIND) })
         assert.deepEqual(outcomesOf(refused), [[V, 'ASKED', 'OBJECT_AVAILABILITY_NOT_STATED'], ['A01-R1', 'NOT_TRIED', null]])
         assert.ok(!seen.length, 'asked before realization: no realization input was read')
         // The live route passes the question on beside its sentence.
@@ -737,7 +749,8 @@ test("the review page's answer reaches the build through the review route: read,
         return (request as any).session
     }
     const asked = loopBuild(requestFor()).activity as RefusedActivity
-    assert.deepEqual(asked.question, { kind: 'OBJECT_AVAILABILITY', objectKind: KIND, asks: 'AVAILABILITY', words: asked.summary, status: 'DRAFT' })
+    // Re-pointed 24 October 2026 (stage I): with the session's own choices for the kind.
+    assert.deepEqual(asked.question, { kind: 'OBJECT_AVAILABILITY', objectKind: KIND, asks: 'AVAILABILITY', words: asked.summary, status: 'DRAFT', choices: objectChoicesOf(KIND) })
     // Answered "none": the preferred alternative does not apply, and the zone version is served - the question does not come back.
     const none0 = loopBuild(requestFor({ [KIND]: { count: 0 } })).activity as ServedActivity
     assert.equal(none0.outcome, 'served')

@@ -14,6 +14,12 @@ export type ApiResponse<DataType> = {
     error?: string
     stage?: string
     details?: string[]
+    /**
+     * Stage I (24 October 2026): the question a refused build asks the coach, passed on from a non-2xx body where the server sends one (the
+     * live route's checked refusal, `liveRefusalBody`). Until this only `error`, `message`, `stage` and `details` survived, so the question
+     * never reached the live page and the coach saw only the refusal's sentence.
+     */
+    question?: unknown
 }
 
 function normalizeApiError(error: unknown): ApiResponse<null> {
@@ -33,6 +39,7 @@ function normalizeApiError(error: unknown): ApiResponse<null> {
             message: typeof candidate.message === 'string' ? candidate.message : undefined,
             stage: typeof candidate.stage === 'string' ? candidate.stage : undefined,
             details,
+            ...(candidate.question && typeof candidate.question === 'object' ? { question: candidate.question } : {}),
         }
     }
 
@@ -155,6 +162,8 @@ export async function wrappedFetch(
             message: errorBody?.message,
             stage: errorBody?.stage,
             details: Array.isArray(errorBody?.details) ? errorBody.details : undefined,
+            // Stage I: a refused build's question, where the body carries one (see `ApiResponse.question`).
+            ...(errorBody?.question && typeof errorBody.question === 'object' ? { question: errorBody.question } : {}),
         }
     }
 

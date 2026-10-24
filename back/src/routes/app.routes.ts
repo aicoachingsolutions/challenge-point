@@ -33,6 +33,7 @@ import { ActivityReviewRequestError, activityReviewOptions, reviewActivity } fro
 import { CHECKED_CHAIN, CHECKED_PATHWAY_FAILURE_STAGE, CheckedSaveRequestError, checkedSave, editableUpdateOf, liveCheckedActivity, livePathwayOf, liveRefusalBody, planningInputUse, unconsumedInputsNote } from '../system/rendering/live-activity'
 import { UnknownActivityRequest } from '../system/rendering/build-activity'
 import { buildPilotActivity, isPilotRefused } from '../system/rendering/build-pilot-activity'
+import { sessionObjectChoices } from '../system/rendering/session-object-choices'
 import { describeUnsupportedGoal, isKnownUnsupportedGoal } from '../system/session-planning/goal-support'
 import {
     buildMultipleIntentionGuidance,
@@ -1551,6 +1552,21 @@ router.get(`${ROUTES.session}/my-sessions`, async (req: Request, res: Response) 
         return res.status(200).send(sessions)
     } catch (error) {
         return res.status(500).send({ error })
+    }
+})
+/**
+ * **The choices a coach states a session's objects by** — stage I, 24 October 2026 (the d27 design's stage I(a); `session-object-choices.ts`).
+ * Christian, reply filed 26 October 2026, item 4: "I agree that the coach should identify the available goal type and dimensions, without
+ * the engine inventing them." For each kind the register lists: each authorized object a Sport Profile pairing gives a region for, named with
+ * its document and size, stating its width and type exactly as the pairing records them; each attribute value the wording lists; another
+ * object whose width the coach enters; none (DRAFT labels). Read by the session form. Registered before the session routes' `/:id`, so the
+ * path is never read as a session id. Reads no session and stores nothing.
+ */
+router.get(`${ROUTES.session}/object-choices`, (_req: Request, res: Response) => {
+    try {
+        return res.status(200).json(sessionObjectChoices())
+    } catch (error) {
+        return res.status(500).json({ error: 'The equipment choices could not be prepared.', detail: error instanceof Error ? error.message : String(error) })
     }
 })
 // Session routes

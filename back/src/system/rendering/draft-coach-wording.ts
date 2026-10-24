@@ -26,6 +26,10 @@
  * R3, 24 October 2026 (the d27 design's stage R3), for his reply filed 27 October 2026, item 2: the one sentence for a law an activity
  * departs from without replacing it (`departedLaws`, keyed by a Sport Profile law that is no restart law), read by the renderer's How it
  * works and by fidelity (V9).
+ *
+ * Stage I, 24 October 2026 (the d27 design's stage I(a)), for his reply filed 26 October 2026, item 4: the labels of the choices a coach
+ * states a session's objects by (`objectChoices`, keyed by a kind the register's sessionResources block lists), read only by
+ * `session-object-choices.ts` (the session's question on the session form, the review page and the live page); no activity text says them.
  */
 import fs from 'node:fs'
 import path from 'node:path'
@@ -211,6 +215,31 @@ export interface AppliedLawWording {
     distinguished?: AppliedLawClause
 }
 
+/** One label of a choice a coach states a session's objects by, and his words for it (stage I). */
+export interface ObjectChoiceLabel {
+    label: string
+    basis: WordingBasis
+}
+
+/**
+ * **The labels of the choices a coach states a session's objects of one kind by** — stage I, 24 October 2026 (the d27 design's stage I(a):
+ * *"The goal question offers the Sport Profile's authorized goals as choices, generated from `boundRegions.pairings` objects of kind goal,
+ * each named with its document and size in ft and m. Also offered: "a mini-goal or pop-up goal", "another goal (enter its width)" and
+ * "none"."*; its nouns are the data's). Christian, reply filed 26 October 2026, item 4: *"I agree that the coach should identify the
+ * available [object] type and dimensions, without the engine inventing them."* (his noun bracketed: the coupling ratchet keeps a sport's
+ * nouns out of this layer; the data file quotes him whole). Keyed by a kind the register's sessionResources block lists, never by an
+ * activity: `authorized` labels each object a Sport Profile pairing gives a region for (exactly the slots {kind}, {document} and {size});
+ * `attributeValues` label a choice stating one value of an attribute the register lists for the kind; `other` labels the choice whose
+ * width the coach enters; `none` the choice stating none. Read only by `session-object-choices.ts`; no activity text says them.
+ */
+export interface ObjectChoiceWording {
+    kind: string
+    authorized: ObjectChoiceLabel
+    attributeValues: (ObjectChoiceLabel & { attribute: string; value: string })[]
+    other: ObjectChoiceLabel
+    none: ObjectChoiceLabel
+}
+
 export interface DraftCoachWording {
     objectKinds: ObjectKindWording[]
     facings: FacingWording[]
@@ -229,6 +258,8 @@ export interface DraftCoachWording {
     boundRegions: BoundRegionWording[]
     /** Stage L: the clauses for what a law the account records as applying gives the coach (empty where the file carries none). */
     appliedLaws: AppliedLawWording[]
+    /** Stage I: the labels of the choices a coach states a session's objects by, by kind (empty where the file carries none). */
+    objectChoices: ObjectChoiceWording[]
 }
 
 /** The wording as loaded, and why it could not be used (then it is empty). */
@@ -238,7 +269,10 @@ export interface DraftCoachWordingLoad {
 }
 
 const filled = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0
-const FILE_KEYS = new Set(['about', 'status', 'entryShape', 'objectKinds', 'facings', 'scoringAtObjects', 'normalLaws', 'triggers', 'deadBallRestart', 'restartLawNouns', 'departedLaws', 'boundRegions', 'appliedLaws'])
+const FILE_KEYS = new Set(['about', 'status', 'entryShape', 'objectKinds', 'facings', 'scoringAtObjects', 'normalLaws', 'triggers', 'deadBallRestart', 'restartLawNouns', 'departedLaws', 'boundRegions', 'appliedLaws', 'objectChoices'])
+const OBJECT_CHOICE_KEYS = new Set(['kind', 'authorized', 'attributeValues', 'other', 'none'])
+const CHOICE_LABEL_KEYS = new Set(['label', 'basis'])
+const ATTRIBUTE_CHOICE_KEYS = new Set(['attribute', 'value', 'label', 'basis'])
 const DEPARTED_LAW_KEYS = new Set(['law', 'words', 'basis'])
 const BOUND_REGION_KEYS = new Set(['function', 'objectKind', 'noun', 'sentence', 'basis'])
 const APPLIED_LAW_KEYS = new Set(['law', 'inRegion', 'distinguished'])
@@ -497,10 +531,56 @@ export function draftCoachWordingUnusableBecause(file: any, index: RegisterIndex
             }
         }
     }
+    /**
+     * Stage I (24 October 2026; the d27 design's stage I(a)): the labels of the choices a coach states a session's objects by - a kind the
+     * register's sessionResources block lists, once; the authorized label with exactly the slots {kind}, {document} and {size}; each
+     * attribute value one the register lists for the kind, once; every other label whole with no slot; his words for each.
+     */
+    if (file.objectChoices !== undefined) {
+        if (!Array.isArray(file.objectChoices)) return 'its objectChoices entry is not a list'
+        const sessionKinds = index.sessionResources?.kinds ?? []
+        const seen = new Set<string>()
+        const labelUnusable = (entry: any, at: string, slots: string[], keys: Set<string> = CHOICE_LABEL_KEYS): string | null => {
+            if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return `${at} is not an object`
+            for (const key of Object.keys(entry)) if (!keys.has(key)) return `${at} carries "${key}"`
+            if (slots.length ? !slotsExactly(entry.label, slots) : !filled(entry.label) || slotsIn(entry.label).length > 0 || strayBrace(entry.label)) {
+                return `${at}: its label is missing or ${slots.length ? `does not hold exactly the slots ${slots.map(slot => `{${slot}}`).join(', ')}` : 'holds a slot'}`
+            }
+            const basis = basisUnusableBecause(entry.basis)
+            return basis ? `${at}: ${basis}` : null
+        }
+        for (const [n, entry] of (file.objectChoices as any[]).entries()) {
+            const which = `object choices ${n + 1}`
+            if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return `${which} is not an object`
+            for (const key of Object.keys(entry)) if (!OBJECT_CHOICE_KEYS.has(key)) return `${which} carries "${key}"`
+            if (!filled(entry.kind) || !sessionKinds.includes(entry.kind)) return `${which} names ${JSON.stringify(entry.kind)}, which is no kind the register's sessionResources block lists`
+            if (seen.has(entry.kind)) return `${which} lists ${entry.kind} again`
+            seen.add(entry.kind)
+            const authorized = labelUnusable(entry.authorized, `${which}, its authorized label`, ['kind', 'document', 'size'])
+            if (authorized) return authorized
+            for (const [name, label] of [['other', entry.other], ['none', entry.none]] as [string, any][]) {
+                const why = labelUnusable(label, `${which}, its ${name} label`, [])
+                if (why) return why
+            }
+            if (!Array.isArray(entry.attributeValues)) return `${which} holds no attributeValues list (an empty list says none)`
+            const listed = (index.sessionResources?.attributes ?? []).filter(attribute => attribute.kind === entry.kind)
+            const values = new Set<string>()
+            for (const [k, choice] of (entry.attributeValues as any[]).entries()) {
+                const at = `${which}, attribute value ${k + 1}`
+                const why = labelUnusable(choice, at, [], ATTRIBUTE_CHOICE_KEYS)
+                if (why) return why
+                const attribute = listed.find(candidate => candidate.attribute === choice.attribute)
+                if (!attribute) return `${at} names the attribute ${JSON.stringify(choice.attribute)}, which the register lists for no ${entry.kind}`
+                if (!attribute.values.includes(choice.value)) return `${at} names the value ${JSON.stringify(choice.value)}, which is none of the ${choice.attribute} values the register lists (${attribute.values.join(', ')})`
+                if (values.has(`${choice.attribute}=${choice.value}`)) return `${at} lists ${choice.attribute} ${choice.value} again`
+                values.add(`${choice.attribute}=${choice.value}`)
+            }
+        }
+    }
     return null
 }
 
-const EMPTY: DraftCoachWording = { objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [], boundRegions: [], appliedLaws: [] }
+const EMPTY: DraftCoachWording = { objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [], boundRegions: [], appliedLaws: [], objectChoices: [] }
 
 /** The wording from a parsed file, copied, or none with why. */
 export function draftCoachWordingLoadOf(file: any, index: RegisterIndex, laws: DefaultLaws | null = loadSportDefaultLaws()): DraftCoachWordingLoad {
@@ -518,9 +598,16 @@ export function draftCoachWordingLoadOf(file: any, index: RegisterIndex, laws: D
             departedLaws: file.departedLaws === undefined ? [] : JSON.parse(JSON.stringify(file.departedLaws)),
             boundRegions: file.boundRegions === undefined ? [] : JSON.parse(JSON.stringify(file.boundRegions)),
             appliedLaws: file.appliedLaws === undefined ? [] : JSON.parse(JSON.stringify(file.appliedLaws)),
+            objectChoices: file.objectChoices === undefined ? [] : JSON.parse(JSON.stringify(file.objectChoices)),
         },
         why: null,
     }
+}
+
+/** The DRAFT labels of the choices a coach states a session's objects of this kind by, or null where none are written (stage I). */
+export function objectChoiceWording(kind: unknown, wording: DraftCoachWording = draftCoachWordingLoad().wording): ObjectChoiceWording | null {
+    const found = wording.objectChoices.find(entry => entry.kind === kind)
+    return found ? (JSON.parse(JSON.stringify(found)) as ObjectChoiceWording) : null
 }
 
 /** The DRAFT Set up sentence for a region of this function bound to an object of this kind, or null where none is written (stage L). */

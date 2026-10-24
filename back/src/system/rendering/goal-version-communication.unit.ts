@@ -122,7 +122,8 @@ test('the DRAFT wording data loads, keyed by register vocabulary values, each cl
         // R2 (24 October 2026): nor the common restart's words, nor the restart nouns (dead-ball-wording.unit.ts pins their refusals).
         // Re-pointed 24 October 2026 (R3): the wording gains departedLaws, empty like every other list where the file cannot be used.
         // Re-pointed 24 October 2026 (stage L): and boundRegions and appliedLaws, empty likewise.
-        assert.deepEqual(draftCoachWordingLoadOf(damaged, index).wording, { objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [], boundRegions: [], appliedLaws: [] }, `${what}: an unusable file loads as no wording at all`)
+        // Re-pointed 24 October 2026 (stage I): the empty wording gains objectChoices.
+        assert.deepEqual(draftCoachWordingLoadOf(damaged, index).wording, { objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [], boundRegions: [], appliedLaws: [], objectChoices: [] }, `${what}: an unusable file loads as no wording at all`)
     }
     refused(f => (f.status = 'APPROVED'), /every word here is DRAFT/, 'a file claiming approval')
     refused(f => (f.approvedBy = { who: 'TEST-ONLY' }), /approvedBy/, 'an approval key')

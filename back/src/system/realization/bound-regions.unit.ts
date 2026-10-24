@@ -568,7 +568,15 @@ test('H4: a pairing that records a type matches only a goal the session states o
         // Not stated: asked, never assumed to be Law 1.10's goal - at 45 x 42 m and at 40 x 30 m alike (the type decides a gap from a fallback).
         const asked = build(12, 1, area, FULL_SIZE, fileWith(area === REGULATION_AREA ? { area } : {}), { goalType: null }).activity as RefusedActivity
         assert.deepEqual([asked.outcome, asked.stage, asked.summary], ['refused', 'session', 'Say what type of goal this session has before building this activity.'], asked.reasons.join(' | '))
-        assert.deepEqual(asked.question, { kind: 'OBJECT_AVAILABILITY', objectKind: 'goal', asks: 'ATTRIBUTE', attribute: { name: 'type', values: ['full-size', 'scaled', 'mini-goal'] }, words: asked.summary, status: 'DRAFT' })
+        // Re-pointed 24 October 2026 (stage I): the question carries the choices it is answered by - those stating a type (Law 1.10's goal,
+        // the mini-goal), and none - each label DRAFT; another goal states no type, so it is not offered for this question.
+        const { choices, ...rest } = asked.question!
+        assert.deepEqual(rest, { kind: 'OBJECT_AVAILABILITY', objectKind: 'goal', asks: 'ATTRIBUTE', attribute: { name: 'type', values: ['full-size', 'scaled', 'mini-goal'] }, words: asked.summary, status: 'DRAFT' })
+        assert.deepEqual(choices.map(choice => [choice.id, choice.label, choice.states]), [
+            ['pairing:IFAB-LAW-1', 'the goal in IFAB Laws of the Game, 7.32 m x 2.44 m', { type: 'full-size', widthM: 7.32 }],
+            ['attribute:type=mini-goal', 'a mini-goal or pop-up goal', { type: 'mini-goal' }],
+            ['none', 'none', { count: 0 }],
+        ])
         assert.ok(asked.reasons.some(reason => reason.includes('BOUND_REGION_OBJECT_NOT_STATED') && reason.includes('IFAB-LAW-1: type full-size')), asked.reasons.join(' | '))
         assert.deepEqual(selectionOf(asked), [[R2, 'ASKED', 'OBJECT_AVAILABILITY_NOT_STATED', 'session'], ['A01-R1', 'NOT_TRIED', null, null]])
         // The live route passes the question on, whole.

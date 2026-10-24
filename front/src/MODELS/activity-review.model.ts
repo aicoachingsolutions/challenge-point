@@ -51,6 +51,23 @@ export interface ReviewSessionQuestion {
     attribute?: { name: string; values: string[] }
     words: string
     status: string
+    /** Stage I (24 October 2026): the choices the question is answered by, the server's (DRAFT labels); see `ObjectChoice`. */
+    choices?: ObjectChoice[]
+}
+
+/**
+ * **One choice a coach states a session's objects of a kind by** — stage I, 24 October 2026 (the d27 design's stage I(a)), as the server
+ * sends it (back/src/system/rendering/session-object-choices.ts). `states` is what choosing it stores beside what the coach enters (an
+ * authorized object's width and type exactly as its source records them; an attribute value; a count of none); `enters` is what the coach
+ * still enters (how many, and a width where the choice states none). No choice is named on this side: every label and value is the server's.
+ */
+export interface ObjectChoice {
+    id: string
+    label: string
+    states: Record<string, string | number>
+    enters: ('count' | 'widthM')[]
+    from: { pairing: string; document: string; citedAs: string }[] | null
+    status: string
 }
 
 /** One alternative realization as the build used it (stage E): technical account only. */
