@@ -8973,3 +8973,45 @@ What stays open:
   9 yd (8.2296 m). We use 9 m as printed, under his same-source rule. If he asks for The FA to be checked first, the goal version waits on that
   answer; a correction is a one-entry data change.
 - Next: V (the verification matrix, the simplicity pins and the field-test observation sheet), then M (merge under the auto-merge rule).
+
+### 24 October — V: the goal version verified, and the field-test observation sheet (the d27 design's 4.2-4.4)
+
+Codex task 05 (report `C:/Users/Administrator/Downloads/codex-output/report-05.md`, table `V-matrix.md`, harness `V-harness-05.cjs`),
+Claude's review of it, and the review fix (round 1). V changed no code and no knowledge: the snapshot is byte-identical to
+`snap-04.json` (391 keys, 0 changed), and every live A01 key equals its review twin. Claude's own harness, written apart from Codex's,
+is in `scratchpad/cd/build/review/05/fix1/` (`run.cjs <mutation> matrix|mutation`, then `check-matrix.cjs` / `check-mut.cjs`). It
+bundles a probe beside a copy of `back/dist/knowledge` and drives the real review and live routes; nothing under back/ is written.
+
+- Matrix (design 4.2), the built bundle, both routes, both blocks of every served case: 41 cases, 40 as the table says. All ten goal
+  statements are crossed with 0, 1 and 2 goalkeepers. The extra cases are 11/1 (FA goal and none) and three other areas. Two routes
+  agree in every case; no model call is made. The one exception is a known deviation: design 4.1 I(d) is not built. A 3.6576 m goal of
+  unstated type with no goalkeeper is asked its type (ATTRIBUTE) before being refused for the goalkeeper; 4.2 says refused. Fixing it
+  needs a design decision. His 26 Oct 9(b) bears on it:
+  "We should ultimately avoid requesting information that the active generation pathway cannot meaningfully interpret."
+- Mutations (each on a knowledge copy, through both routes): offside departure removed, LAW-11 owed and refused under ENFORCE; SCORE set
+  to CONTINUE, refused at structure by GA-DEAD-BALL-RESTART; box 8 m deep, 14 m wide or off-centre, refused by GA-BOUND-REGION; a second
+  (7v7) pairing for the same goal, BOUND_REGION_NOT_AUTHORIZED; suitability attributes dropped, a 3.6576 m mini-goal refused as
+  BOUND_REGION_NOT_AUTHORIZED instead of falling back; one dead-ball trigger given a different restart location, refused by
+  GA-DEAD-BALL-RESTART in both blocks. The design's "re-add T4-3: ONE_RESTART fails" did not isolate that clause. The historical item
+  re-added as it was is refused earlier, under ENFORCE (LAW-16/LAW-17 owed: its departures hold only while no goal stands on that end
+  line). Re-added without them it is served, because its realized location equals the common one. Design 4.2 is amended (dated).
+- Simplicity pins (4.3): the goal version's Details hold 28 instructions, the zone version's 28 (PASS); metres throughout, the goal also
+  in feet where the coach chooses it (PASS); the overview fits one read (PASS, an editorial judgement). Two pins are not met, and both
+  need coach words that are Christian's to review, so no failing test was added. "Organize": the coach sheet never names the goal's size
+  or the equipment. "No fact said twice": "own side of the marked line" is in the set-up sentence, and "on the building team's side of
+  the marked line" in the restart-location sentence.
+- The field-test observation sheet (4.4): `C:/Users/Administrator/Downloads/codex-output/Field-test observation sheet.txt`, DRAFT,
+  for Christian, not coach-facing. Review fix: question 8 asked only whether players wait "near the goal". His 27 Oct item 2 speaks of
+  players near "a scoring target", and the earlier discussion it refers to (his 18 Oct item 6) was about players staying beyond the
+  progression line. So question 8 now names both targets (beyond the marked line, or near the goal) and asks his question, whether
+  it "actually undermines the activity". Questions 1, 3, 4 and 6 are back in his words (26 Oct item 13; 27 Oct item 8). Questions 10-12
+  are our analysis of the one-restart rule (design 2.11), not his points, and sit under their own heading. Design 4.4 is amended (dated).
+
+What stays open:
+- 4.1 I(d), above (a design decision).
+- For a 3.6576 m goal of unstated type, the ATTRIBUTE question offers a choice labelled with the raw value "full-size"
+  (`attribute:type=full-size`), with no DRAFT wording entry. It falls back to the zone version correctly. This dates from stages I/K1.
+- The two unmet pins, above.
+- A harness that writes beside itself, or runs build.js (which empties back/dist), overwrites evidence when re-run in place. The Codex
+  rules now say to re-run a copy.
+- Next: M (merge under the auto-merge rule).

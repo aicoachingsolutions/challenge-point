@@ -39,6 +39,9 @@ The runner script (`codex-input/run-all-codex-tasks.ps1`) runs the tasks one aft
   - `stage-I-report.txt` — what stage I built, its deviations and its open issues.
 - **Your own output** (snapshots, logs, scratch scripts): `C:\Users\Administrator\Downloads\codex-output\`. Never put probes or
   scratch files in `back/src` or `front/src`.
+- **Re-running a harness** (added after the task 05 review): a harness that writes its results next to itself, or runs
+  `build.js` (which empties `back/dist`), overwrites evidence when it is re-run in place. Copy it into a new folder (for example
+  `codex-output/rerun-NN/`) and run the copy there. Never overwrite an earlier task's evidence files.
 
 ## Hard rules
 
