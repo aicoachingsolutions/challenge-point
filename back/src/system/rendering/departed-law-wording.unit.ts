@@ -92,7 +92,8 @@ test('the DRAFT wording data: one sentence for LAW-11, with his item 2 words; LA
 test('the loader refuses: a law the profile does not name or marks a restart law, a law twice, a slot, a final full stop, no words of his, a claim of approval, no profile laws', () => {
     const file = JSON.parse(fs.readFileSync(DRAFT_COACH_WORDING_FILE, 'utf8'))
     assert.equal(draftCoachWordingUnusableBecause(file, index), null)
-    const empty = { objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [] }
+    // Re-pointed 24 October 2026 (stage L): the wording gains boundRegions and appliedLaws, empty like every other list where the file cannot be used.
+    const empty = { objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [], boundRegions: [], appliedLaws: [] }
     const refused = (alter: (f: any) => void, pattern: RegExp, what: string, laws = loadSportDefaultLaws()) => {
         const damaged = copy(file)
         alter(damaged)
@@ -176,7 +177,10 @@ test('each block\'s fixture account records LAW-11 as departed from; the block\'
         const what = `A01 ${players}/${keepers}`
         for (const block of blocksOf(zone(players, keepers).fixture)) {
             const entries = block.fixture.defaultLaws.laws.filter((entry: any) => entry.law === LAW)
-            assert.deepEqual(entries, [{ law: LAW, end: null, status: 'DEPARTED' }], `${what}: ${block.blockId}`)
+            // Re-pointed 24 October 2026 (stage L, the R3 review's should-fix): the entry says it is departed from only by the departure the
+            // realization records on itself (removedByRealization), so fidelity holds its sentence to the departure, not the data alone.
+            assert.deepEqual(entries, [{ law: LAW, end: null, status: 'DEPARTED', removedByRealization: true }], `${what}: ${block.blockId}`)
+            assert.deepEqual(block.fixture.defaultLaws.laws.filter((entry: any) => entry.removedByRealization).map((entry: any) => entry.law), [LAW], `${what}: only the law removed on the realization is marked`)
             assert.equal(departedThroughout(block.fixture.defaultLaws.laws, LAW), true)
             const rendered = renderConcreteGame(block.fixture)
             assert.equal(said(rendered.instructions, OFFSIDE).length, 1, `${what}: ${block.blockId}`)
@@ -225,6 +229,16 @@ test('fidelity refuses the sentence said twice, not said, said where the account
     assert.ok(about(withInstructions(list => [...list, sentence('Play on', [AT])]), 'cites defaultLaws.laws[LAW-11] and does not say "There is no offside"').length, 'cited by another sentence')
     // A law of the account cited that no sentence is written for (Q2).
     assert.ok(about(withInstructions(list => [...list, sentence('Handle as you like', [defaultLawPath('LAW-12-GK')])]), 'cites defaultLaws.laws[LAW-12-GK], a part of the game\'s default-laws account for which no sentence is written').length, 'an unworded law cited')
+    // Stage L (the R3 review's should-fix, NEW, a tightening): a law the account records as removed by the realization itself that the data
+    // writes no sentence for is a loss (Q3), whatever the data holds. TEST-ONLY: the account records LAW-12-GK so (no departedLaws entry).
+    const removedUnworded = copy(block)
+    removedUnworded.defaultLaws.laws = removedUnworded.defaultLaws.laws.map((entry: any) => (entry.law === 'LAW-12-GK' ? { ...entry, status: 'DEPARTED', removedByRealization: true } : entry))
+    const unworded = about(checkFidelity(removedUnworded, renderConcreteGame(removedUnworded)).findings, 'records LAW-12-GK as removed by its realization without being replaced, and no sentence is written to tell the coach so')
+    assert.deepEqual(unworded.map(f => f.question), [3], 'a law removed on the realization with no sentence written')
+    // Departed from by an item (no mark), the same law owes no sentence of its own here (an item's replacement says it).
+    const byItem = copy(block)
+    byItem.defaultLaws.laws = byItem.defaultLaws.laws.map((entry: any) => (entry.law === 'LAW-12-GK' ? { ...entry, status: 'DEPARTED' } : entry))
+    assert.equal(about(checkFidelity(byItem, renderConcreteGame(byItem)).findings, 'removed by its realization').length, 0)
 })
 
 // ── 5. The TEST-ONLY goal completion ────────────────────────────────────────────────────────────────────────────

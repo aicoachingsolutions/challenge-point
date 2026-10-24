@@ -74,12 +74,15 @@
  *
  * Nothing here names a goal, a role, a sport term or a value: every number comes from the game, every word from the table or a served sentence.
  */
+import { bindingOf, regionFunctionsOf } from '../derivation/bound-regions'
 import { isRegisteredDesignation, roleOfHolder } from '../derivation/designation'
 import { Reassignment, reassignmentsIn } from '../derivation/reassignment'
 import { RegisterIndex } from '../derivation/register'
 import { splitPath } from '../derivation/resolved-game'
+import { boundRegionWording } from './draft-coach-wording'
 import { asList, GameBlock, objectivesOf, readPath, teamsOf, transitionsOf } from './game-reading'
 import { layoutLeafNumberAt, MARK_UNION_ONCE, PhysicalLayout } from './physical-layout'
+import { APPLIED_LAWS_ROOT } from './rendering-fixture'
 import { Binding, gameReadingOf, Instruction, ROLE_EXCHANGE, teamCountPhrases } from './render-concrete-game'
 import type { ActivitySession } from './session-envelope'
 
@@ -104,8 +107,16 @@ export const DIAGRAM_WORDS = {
         teamColour: 'team colour, kept in every block',
         role: 'role in this block',
         attack: 'attacking direction',
+        // Stage L (24 October 2026, DRAFT): what the specialized performer's marker colour is, said after its name in the legend.
+        ownColour: 'own colour',
     },
 } as const
+
+/**
+ * **The legend's words for a specialized performer's marker** (stage L, DRAFT; the d27 design's risk 10: *"drawn by association with the goal,
+ * with the legend words '[performer]: own colour'"*): the performer's name, as the served roster sentence carries it, and the DRAFT word.
+ */
+export const keeperLegendText = (name: string): string => `${name}: ${DIAGRAM_WORDS.draft.ownColour}`
 
 /** The letters a team's neutral label takes, in the realized team order (DRAFT); a team beyond them has none. */
 const TEAM_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -158,9 +169,41 @@ export interface DiagramZone {
     cites: string[]
 }
 
+/**
+ * **A marked area that is no zone across the width: a region bound to an object** — stage L, 24 October 2026 (the d27 design's stage L(e):
+ * *"The diagram draws the box as a grey marked zone with a DRAFT label '[handling area]' and a legend entry: never the target green, no spot,
+ * no [object] area"*; its nouns bracketed for the coupling ratchet). Its outline is marked on the ground; it is never a target (no state), and its label is the noun the served Set up
+ * sentence marking it carries (the DRAFT wording data's, never a word of this module).
+ */
+export interface DiagramArea {
+    elementId: string
+    along: Interval
+    across: Interval
+    label: DiagramWord | null
+    cites: string[]
+}
+
 export interface DiagramMarkings {
     lines: DiagramLine[]
     zones: DiagramZone[]
+    /** Stage L: the marked areas that are regions bound to an object; present only where there is one, so every other model is unchanged. */
+    areas?: DiagramArea[]
+}
+
+/**
+ * **A specialized performer's marker, drawn with the object it defends** — stage L, 24 October 2026 (the d27 design's stage L(f): *"A
+ * [performer] marker in a third colour, checked for contrast and colour-vision deficiency, labelled by role and drawn by its association with
+ * the [object] it defends (O7) in every block, not as a fixed position."*; its nouns bracketed for the coupling ratchet). Drawn at the defended object's realized
+ * place (never a position of a player), labelled by the performer's name as the served roster sentence carries it, and only where that
+ * sentence tells the coach to give the performer a colour of its own (the clause a law applying writes, `defaultLaws.applied[...]`), so the
+ * marker's colour is the one the Details say.
+ */
+export interface DiagramKeeper {
+    object: string
+    along: Interval
+    across: Interval
+    label: DiagramWord
+    cites: string[]
 }
 
 /** A physical object the game positions, at its realized position and size. */
@@ -285,6 +328,8 @@ export interface DiagramBlock {
     dimensions: DiagramDimension[]
     /** Stage C2: what moves at the exchange into this block, one per role the performers join; none for a game not played in blocks. */
     exchanges: DiagramExchange[]
+    /** Stage L: each specialized performer's marker, with the object it defends; present only where there is one. */
+    keepers?: DiagramKeeper[]
 }
 
 export interface FieldDiagram {
@@ -393,6 +438,30 @@ const regionsCitedBy = (instructions: Instruction[]): string[] => {
     return found
 }
 /**
+ * **The noun a region bound to an object is called by** (stage L): the DRAFT wording data's noun for the first of its functions it has a
+ * sentence for with the kind of the object it is bound to (`boundRegionWording`), or null where the region is bound to nothing or no entry
+ * names it. Read for the diagram's label, which the served Set up sentence marking the region must carry (D6).
+ */
+const boundRegionNounOf = (fixture: any, index: RegisterIndex, regionId: string): string | null => {
+    const region = asList(fixture?.game?.space?.regions).find(entry => String(entry?.elementId) === regionId)
+    const binding = region ? bindingOf(region, index) : null
+    const object = binding ? asList(fixture?.game?.objects).find(entry => String(entry?.elementId) === binding.objectId) : null
+    if (!object || typeof object.kind !== 'string') return null
+    return regionFunctionsOf(region, index).map(member => boundRegionWording(member, object.kind)).find(Boolean)?.noun ?? null
+}
+/** Whether this game binds the region to an object (register row S7), so it is drawn as a marked area, never as a zone (stage L). */
+const isBoundRegion = (fixture: any, index: RegisterIndex, regionId: string): boolean => {
+    const region = asList(fixture?.game?.space?.regions).find(entry => String(entry?.elementId) === regionId)
+    return !!region && !!bindingOf(region, index)
+}
+/**
+ * **The roster's clause telling a specialized performer apart** (stage L): the part of the Players sentence citing a law as applied
+ * (`defaultLaws.applied[...]`) and that performer's count in the teams, and saying its name; or undefined.
+ */
+const colourClauseOf = (players: Instruction | undefined, leaf: string, name: string) =>
+    players?.parts?.find(part => part.from.some(path => path.startsWith(`${APPLIED_LAWS_ROOT}[`)) && part.from.includes(`performers.teams[].${leaf}`) && part.text.includes(name))
+
+/**
  * Where a Set up sentence states a region's extent as limits the coach chooses within, not a value: it cites the region's position and
  * binds a limit (REQUIRED_LIMIT) to a position (a sentence saying several regions at once binds the limits to the first one's path).
  */
@@ -496,11 +565,36 @@ export function buildFieldDiagram(input: DiagramInput): { diagram: FieldDiagram 
             for (const zone of layout.zones) {
                 markings.zones.push({ elementId: zone.elementId, along: { from: zone.from, to: zone.to }, across: { from: 0, to: widthM }, cites: [`layout.zones[${zone.elementId}].depthM`, `layout.marks[${zone.inner}].at`, 'envelope.area.width_m'] })
             }
+            /**
+             * Stage L: each region set out as itself (`layout.rectangles`), a marked area: labelled by the noun the Set up sentence marking it in
+             * this block carries, where it is bound to an object (a rectangle the block's Set up does not mark has no label, and D2 refuses it).
+             */
+            for (const rectangle of layout.rectangles ?? []) {
+                const own = rectangle.sources.find(source => source.blockId === blockId)
+                const sentence = setUp.find(instruction => instruction.from.some(path => path === `layout.rectangles[${rectangle.elementId}]` || path.startsWith(`layout.rectangles[${rectangle.elementId}].`)))
+                const noun = own ? boundRegionNounOf(fixture, index, own.regionId) : null
+                const area: DiagramArea = {
+                    elementId: rectangle.elementId,
+                    along: { ...rectangle.along },
+                    across: { ...rectangle.across },
+                    label: noun && sentence && sentence.text.includes(noun) ? carried(noun, sentence) : null,
+                    cites: [`layout.rectangles[${rectangle.elementId}]`],
+                }
+                markings.areas = [...(markings.areas ?? []), area]
+            }
         } else {
             for (const id of regionsCitedBy(setUp)) {
                 const shape = rect(id)
                 if (!shape) {
                     gap(blockId, `${id}, which Set up says to mark, holds no realized position along and across the area`)
+                    continue
+                }
+                // Stage L: a region bound to an object is a marked area, labelled by the noun the sentence marking it carries; never a zone.
+                if (isBoundRegion(fixture, index, id)) {
+                    const sentence = setUp.find(instruction => instruction.from.includes(regionPaths(id).noun))
+                    const noun = boundRegionNounOf(fixture, index, id)
+                    const paths = regionPaths(id)
+                    markings.areas = [...(markings.areas ?? []), { elementId: id, along: shape.along, across: shape.across, label: noun && sentence && sentence.text.includes(noun) ? carried(noun, sentence) : null, cites: [paths.noun, paths.along, paths.across] }]
                     continue
                 }
                 if (statedAsLimit(setUp, id)) {
@@ -514,7 +608,7 @@ export function buildFieldDiagram(input: DiagramInput): { diagram: FieldDiagram 
                 } else markings.zones.push({ elementId: id, along: shape.along, across: shape.across, cites: [paths.noun, paths.along, paths.across] })
             }
         }
-        for (const entry of [...markings.lines, ...markings.zones]) {
+        for (const entry of [...markings.lines, ...markings.zones, ...(markings.areas ?? [])]) {
             if (entry.along.from < 0 || entry.along.to > lengthM || entry.across.from < 0 || entry.across.to > widthM) gap(blockId, `${entry.elementId} lies outside the area`)
         }
 
@@ -755,7 +849,26 @@ export function buildFieldDiagram(input: DiagramInput): { diagram: FieldDiagram 
             }
         }
 
-        blocks.push({ blockId, label: games.length > 1 ? blockWord(i + 1) : null, holders: { ...game.holders }, markings, objects, targets, markedZones, teams, dimensions, exchanges })
+        /**
+         * ── Stage L: each specialized performer's marker, with the object it defends ──────────────────────────────────────────
+         * For every object drawn whose defending row (the register's roleScoring.defendedByRow, O7) names a specialized performer, where the
+         * served roster sentence tells the coach to give that performer a colour of its own (`colourClauseOf`): at the object's place,
+         * labelled by the performer's name as that sentence carries it. Never a position of a player.
+         */
+        const keepers: DiagramKeeper[] = []
+        const defendedRow = index.roleScoring?.defendedByRow ?? null
+        const defendedLeaf = defendedRow ? String(index.rows.get(defendedRow)?.path ?? '').split('[].').pop() || null : null
+        for (const object of objects) {
+            const held = asList(fixture?.game?.objects).find(entry => String(entry?.elementId) === object.elementId)
+            const row = defendedLeaf ? held?.[defendedLeaf] : undefined
+            const name = row === undefined ? undefined : index.specializedRoleRows.get(String(row))
+            if (typeof name !== 'string') continue
+            const clause = colourClauseOf(players, performerLeafOf(index, String(row)), name)
+            if (!clause || !players) continue
+            keepers.push({ object: object.elementId, along: { ...object.along }, across: { ...object.across }, label: carried(name, players), cites: [`objects[${object.elementId}].${defendedLeaf}`, ...clause.from] })
+        }
+
+        blocks.push({ blockId, label: games.length > 1 ? blockWord(i + 1) : null, holders: { ...game.holders }, markings, objects, targets, markedZones, teams, dimensions, exchanges, ...(keepers.length ? { keepers } : {}) })
     })
 
     // ── Team identity across the blocks (stage C2): each realized team at one place in every block; labelled where its noun moves ─────
@@ -803,18 +916,29 @@ export function buildFieldDiagram(input: DiagramInput): { diagram: FieldDiagram 
         ...(uses(block => block.teams.some(team => !!team.start)) ? [draft(DIAGRAM_WORDS.draft.startingArea)] : []),
         // Stage C2: where teams are labelled, colour, role and arrow are three carriers, and each is said once.
         ...(labelled ? [draft(DIAGRAM_WORDS.draft.teamColour), draft(DIAGRAM_WORDS.draft.role), draft(DIAGRAM_WORDS.draft.attack)] : []),
+        // Stage L: each marked area's label once (the served Set up sentence's noun), and each specialized performer's marker once.
+        ...areaLegendTexts(blocks).map(text => draft(text)),
+        ...keeperLegendTexts(blocks).map(text => draft(text)),
     ]
     return { diagram: gaps.length ? null : { units: 'm', area, markingsSetOutOnce: setOutOnce, counts: together, blocks, legend }, gaps, notes }
 }
 
+/** Stage L: the labels of the marked areas drawn, each once, in the order drawn (the legend's words for a grey marked area). */
+export const areaLegendTexts = (blocks: DiagramBlock[]): string[] => [...new Set(blocks.flatMap(block => (block.markings.areas ?? []).filter(area => area.label).map(area => area.label!.text)))]
+/** Stage L: the legend's words for each specialized performer's marker drawn, each once (`keeperLegendText`). */
+export const keeperLegendTexts = (blocks: DiagramBlock[]): string[] => [...new Set(blocks.flatMap(block => (block.keepers ?? []).map(keeper => keeperLegendText(keeper.label.text))))]
+
 /* ------------------------------------------------------------------ the agreement check ------------------------------------------------------------------ */
 
 /** The keys each part of the model may hold (D8): no player, position inside an area, path or movement. */
-const MODEL_KEYS: Record<'diagram' | 'area' | 'block' | 'markings' | 'line' | 'zone' | 'object' | 'target' | 'zoneState' | 'team' | 'count' | 'start' | 'attack' | 'dimension' | 'word' | 'exchange' | 'binding', string[]> = {
+const MODEL_KEYS: Record<'diagram' | 'area' | 'block' | 'markings' | 'line' | 'zone' | 'markedArea' | 'keeper' | 'object' | 'target' | 'zoneState' | 'team' | 'count' | 'start' | 'attack' | 'dimension' | 'word' | 'exchange' | 'binding', string[]> = {
     diagram: ['units', 'area', 'markingsSetOutOnce', 'counts', 'blocks', 'legend'],
     area: ['lengthM', 'widthM', 'cites'],
-    block: ['blockId', 'label', 'holders', 'markings', 'objects', 'targets', 'markedZones', 'teams', 'dimensions', 'exchanges'],
-    markings: ['lines', 'zones'],
+    // Stage L: a block's specialized performers' markers, and the marked areas among the markings.
+    block: ['blockId', 'label', 'holders', 'markings', 'objects', 'targets', 'markedZones', 'teams', 'dimensions', 'exchanges', 'keepers'],
+    markings: ['lines', 'zones', 'areas'],
+    markedArea: ['elementId', 'along', 'across', 'label', 'cites'],
+    keeper: ['object', 'along', 'across', 'label', 'cites'],
     line: ['elementId', 'along', 'across', 'markedLine', 'label', 'cites'],
     zone: ['elementId', 'along', 'across', 'cites'],
     object: ['elementId', 'along', 'across', 'label', 'cites'],
@@ -852,7 +976,8 @@ export function dataWordsOf(input: Pick<DiagramInput, 'games' | 'index'>): { for
             for (const element of asList(collection)) if (element?.elementId) ids.push(String(element.elementId))
         }
         if (game.blockId) ids.push(String(game.blockId))
-        for (const entry of [...asList(game.fixture?.layout?.marks), ...asList(game.fixture?.layout?.zones)]) if (entry?.elementId) ids.push(String(entry.elementId))
+        // Stage L: and the layout's rectangles (no word drawn holds one).
+        for (const entry of [...asList(game.fixture?.layout?.marks), ...asList(game.fixture?.layout?.zones), ...asList(game.fixture?.layout?.rectangles)]) if (entry?.elementId) ids.push(String(entry.elementId))
     }
     return { forbidden, ids }
 }
@@ -894,6 +1019,14 @@ export function checkFieldDiagram(diagram: FieldDiagram, input: DiagramInput): D
             wordKeys('a line\'s label', line.label, at)
         }
         for (const zone of block.markings.zones) keysAre(`the zone ${zone.elementId}`, zone, MODEL_KEYS.zone, at)
+        for (const area of block.markings.areas ?? []) {
+            keysAre(`the marked area ${area.elementId}`, area, MODEL_KEYS.markedArea, at)
+            wordKeys('a marked area\'s label', area.label, at)
+        }
+        for (const keeper of block.keepers ?? []) {
+            keysAre(`the marker with ${keeper.object}`, keeper, MODEL_KEYS.keeper, at)
+            wordKeys('a marker\'s label', keeper.label, at)
+        }
         for (const object of block.objects) {
             keysAre(`the object ${object.elementId}`, object, MODEL_KEYS.object, at)
             wordKeys('an object\'s label', object.label, at)
@@ -930,9 +1063,15 @@ export function checkFieldDiagram(diagram: FieldDiagram, input: DiagramInput): D
     // D6: words that are data, never a coach word.
     const { forbidden, ids } = dataWordsOf(input)
     const blockOrdinals = diagram.blocks.map((_, n) => n + 1)
-    const checkWord = (word: DiagramWord | null, expected: string | null, blockId: string | null, rendered: Instruction[] | null, ordinal: number | null) => {
+    /**
+     * `performer` (stage L, a narrow RELAXATION of D6): the name of the specialized performer a marker is for, which is also a value of the
+     * games (a restart's taker) and so whole in `forbidden`. It is allowed as that marker's label only, and only where it is that name: D2
+     * holds the label to the object's defending row and to the served roster sentence that tells the coach the performer's colour, which
+     * carries it (the compensating checks). Every other word is held exactly as before.
+     */
+    const checkWord = (word: DiagramWord | null, expected: string | null, blockId: string | null, rendered: Instruction[] | null, ordinal: number | null, performer: string | null = null) => {
         if (!word) return
-        if (forbidden.has(word.text) || ids.some(id => word.text.includes(id))) finding('D6', blockId, `"${word.text}" is a data key or value, not a coach word`)
+        if ((forbidden.has(word.text) && word.text !== performer) || ids.some(id => word.text.includes(id))) finding('D6', blockId, `"${word.text}" is a data key or value, not a coach word`)
         if (word.status === 'HIS_TERM') {
             if (word.carriedBy || !Object.values(DIAGRAM_WORDS.his).includes(word.text as never)) finding('D6', blockId, `"${word.text}" is marked as his term and is not one`)
         } else if (word.carriedBy) {
@@ -954,8 +1093,12 @@ export function checkFieldDiagram(diagram: FieldDiagram, input: DiagramInput): D
     // A DRAFT legend word is the starting area's name, (polish pass P7) a target line's words, which D6 holds to the game below, or (stage
     // C2) one of the three words for labelled teams.
     const lineTargetTexts = new Set(diagram.blocks.flatMap(block => block.targets.filter(target => target.line && target.label).map(target => target.label!.text)))
-    const draftLegendWord = (text: string): string => (lineTargetTexts.has(text) || (labelled && teamLegend.includes(text)) ? text : DIAGRAM_WORDS.draft.startingArea)
+    // Stage L: a marked area's label and a specialized performer's marker words, each read again from the model (D6 holds each to a served
+    // sentence of its block below).
+    const markTexts = new Set([...areaLegendTexts(diagram.blocks), ...keeperLegendTexts(diagram.blocks)])
+    const draftLegendWord = (text: string): string => (lineTargetTexts.has(text) || markTexts.has(text) || (labelled && teamLegend.includes(text)) ? text : DIAGRAM_WORDS.draft.startingArea)
     for (const word of diagram.legend) checkWord(word, word.status === 'DRAFT' ? draftLegendWord(word.text) : null, null, null, null)
+    for (const text of markTexts) if (!diagram.legend.some(word => word.text === text)) finding('D6', null, `the legend does not say "${text}", which the diagram draws`)
 
     // D4 for the counts said for every team together: the first block's Players sentence carries each, and each number is the game's.
     const countValue = (fixture: any, binding: Binding, team: number | null): number | null => {
@@ -1025,21 +1168,75 @@ export function checkFieldDiagram(diagram: FieldDiagram, input: DiagramInput): D
             const cited = layout ? citedBy(setUp, path => path.startsWith(`layout.zones[${zone.elementId}]`)) : citedBy(setUp, path => path === regionPaths(zone.elementId).noun)
             if (!cited) finding('D2', blockId, `the zone ${zone.elementId} is drawn and no Set up sentence marks it`)
         }
+        /**
+         * Stage L: each marked area (a region bound to an object), marked by a served Set up sentence (its rectangle in the layout, or its noun
+         * block by block), drawn where the layout sets it out or this block's game realizes it, and labelled by the noun that sentence carries
+         * for it (D6 holds the word to the sentence); never a target, so it has no state.
+         */
+        const drawnAreas = new Set((block.markings.areas ?? []).map(area => area.elementId))
+        for (const area of block.markings.areas ?? []) {
+            const rectanglePath = `layout.rectangles[${area.elementId}]`
+            const marking = setUp.find(instruction => instruction.from.some(path => (layout ? path === rectanglePath || path.startsWith(`${rectanglePath}.`) : path === regionPaths(area.elementId).noun)))
+            if (!marking) finding('D2', blockId, `the marked area ${area.elementId} is drawn and no Set up sentence marks it`)
+            const rectangle = layout ? (layout.rectangles ?? []).find(entry => entry.elementId === area.elementId) : null
+            const along = layout ? rectangle?.along : intervalAt(fixture, regionPaths(area.elementId).along)
+            const across = layout ? rectangle?.across : intervalAt(fixture, regionPaths(area.elementId).across)
+            if (!along || !across || !same(along, area.along) || !same(across, area.across)) finding('D2', blockId, `the marked area ${area.elementId} is not drawn where ${layout ? 'the layout sets it out' : "this block's game puts it"}`)
+            const own = layout ? rectangle?.sources.find(source => source.blockId === blockId)?.regionId : area.elementId
+            const noun = own ? boundRegionNounOf(fixture, index, own) : null
+            if (!area.label || area.label.text !== noun) finding('D6', blockId, `the marked area ${area.elementId} is labelled ${area.label ? `"${area.label.text}"` : 'by nothing'}, and the region it is is called ${noun ? `"${noun}"` : 'by no noun'}`)
+            checkWord(area.label, null, blockId, rendered, ordinal)
+        }
         if (layout) {
             for (const instruction of setUp) {
                 for (const path of instruction.from) {
                     const mark = path.startsWith('layout.marks[') ? path.slice('layout.marks['.length, path.indexOf(']')) : null
                     const zone = path.startsWith('layout.zones[') ? path.slice('layout.zones['.length, path.indexOf(']')) : null
+                    const rectangle = path.startsWith('layout.rectangles[') ? path.slice('layout.rectangles['.length, path.indexOf(']')) : null
                     if (mark && !drawnLines.has(mark)) finding('D3', blockId, `Set up marks ${mark} and it is not drawn`)
                     if (zone && !drawnZones.has(zone)) finding('D3', blockId, `Set up marks ${zone} and it is not drawn`)
+                    if (rectangle && !drawnAreas.has(rectangle)) finding('D3', blockId, `Set up marks ${rectangle} and it is not drawn`)
                 }
             }
-            const sources = new Set([...layout.marks.map(mark => mark.line), ...layout.marks.flatMap(mark => mark.sources.map(source => source.regionId)), ...layout.zones.flatMap(zone => zone.sources.map(source => source.regionId))])
+            const sources = new Set([
+                ...layout.marks.map(mark => mark.line),
+                ...layout.marks.flatMap(mark => mark.sources.map(source => source.regionId)),
+                ...layout.zones.flatMap(zone => zone.sources.map(source => source.regionId)),
+                ...(layout.rectangles ?? []).flatMap(rectangle => rectangle.sources.map(source => source.regionId)),
+            ])
             for (const id of regionsCitedBy(setUp)) if (!sources.has(id) && !targetRegions.has(id)) finding('D3', blockId, `Set up marks ${id} and it is neither a marking drawn nor a target`)
             const first = diagram.blocks[0]
             if (JSON.stringify(first.markings) !== JSON.stringify(block.markings)) finding('D3', blockId, 'the markings set out once differ from the first block\'s')
         } else {
-            for (const id of regionsCitedBy(setUp)) if (!drawnLines.has(id) && !drawnZones.has(id)) finding('D3', blockId, `Set up marks ${id} and it is not drawn`)
+            for (const id of regionsCitedBy(setUp)) if (!drawnLines.has(id) && !drawnZones.has(id) && !drawnAreas.has(id)) finding('D3', blockId, `Set up marks ${id} and it is not drawn`)
+        }
+        /**
+         * Stage L: each specialized performer's marker, with an object drawn in this block, at the object's place; the object's defending row
+         * names that performer; the served roster sentence tells the coach to give it a colour of its own (`colourClauseOf`), and carries its
+         * label. And every object drawn whose defending performer the served roster tells apart so has its marker.
+         */
+        const servedPlayers = playersSentenceOf(rendered.filter(servedSays))
+        const defendedRow = index.roleScoring?.defendedByRow ?? null
+        const defendedLeaf = defendedRow ? String(index.rows.get(defendedRow)?.path ?? '').split('[].').pop() || null : null
+        const performerOf = (objectId: string): { name: string; leaf: string } | null => {
+            const held = asList(fixture?.game?.objects).find(entry => String(entry?.elementId) === objectId)
+            const row = defendedLeaf ? held?.[defendedLeaf] : undefined
+            const name = row === undefined ? undefined : index.specializedRoleRows.get(String(row))
+            return typeof name === 'string' ? { name, leaf: performerLeafOf(index, String(row)) } : null
+        }
+        for (const keeper of block.keepers ?? []) {
+            const object = block.objects.find(entry => entry.elementId === keeper.object)
+            if (!object || !same(object.along, keeper.along) || !same(object.across, keeper.across)) finding('D2', blockId, `the marker with ${keeper.object} is not drawn with the object it defends, where this block draws it`)
+            const performer = performerOf(keeper.object)
+            if (!performer || keeper.label.text !== performer.name) finding('D2', blockId, `the marker with ${keeper.object} is labelled "${keeper.label.text}", and the object is defended by ${performer ? `the ${performer.name}` : 'no specialized performer'}`)
+            else if (!colourClauseOf(servedPlayers, performer.leaf, performer.name)) finding('D2', blockId, `the marker with ${keeper.object} is drawn in a colour of its own, and no served roster sentence tells the coach to give the ${performer.name} one`)
+            checkWord(keeper.label, null, blockId, rendered, ordinal, performer?.name ?? null)
+        }
+        for (const object of block.objects) {
+            const performer = performerOf(object.elementId)
+            if (performer && colourClauseOf(servedPlayers, performer.leaf, performer.name) && !(block.keepers ?? []).some(keeper => keeper.object === object.elementId)) {
+                finding('D2', blockId, `the served roster sentence gives the ${performer.name} defending ${object.elementId} a colour of its own, and no marker is drawn with it`)
+            }
         }
         // Each marked zone's state, read again from the targets' geometry.
         for (const state of block.markedZones) {

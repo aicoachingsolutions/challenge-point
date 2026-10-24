@@ -43,7 +43,8 @@ import { along, asList, container, creditOf, eventKindOf, genericOf, holderOf, m
 import type { OverviewEvidence } from './overview-fidelity'
 import { layoutNumbersAt, MARK_ONCE_RULE, remarkingPlaceAt } from './physical-layout'
 import { Instruction, RenderedActivity, wordedFieldRows } from './render-concrete-game'
-import { DEFAULT_LAWS_ROOT, fixtureLawAccount } from './rendering-fixture'
+import { appliedLawWordings, draftCoachWordingLoad } from './draft-coach-wording'
+import { APPLIED_LAWS_ROOT, BOUND_REGIONS_ROOT, DEFAULT_LAWS_OWED, DEFAULT_LAWS_ROOT, fixtureBoundRegion, fixtureLawAccount } from './rendering-fixture'
 import type { RoleBlockCheck } from './role-blocks'
 import { SectionLabel, sectionLabelsOf } from './sections'
 import type { ActivitySession } from './session-envelope'
@@ -530,6 +531,33 @@ function sourcesOf(path: string, block: EvidenceBlock, items: Map<string, any>, 
      * where his words for it are filed. Read from the account the build computed, the block found by its id (or the one block of a game not
      * played in blocks).
      */
+    /**
+     * **The account as owing nothing** (stage L, 24 October 2026; `rendering-fixture.ts` `DEFAULT_LAWS_OWED`): the sentence telling the coach
+     * the sport's normal rules apply otherwise rests on the account owing nothing in this block, on the Sport Profile's authority, and on the
+     * DRAFT wording data's words for it (his words, where they are filed).
+     */
+    if (path === DEFAULT_LAWS_OWED) {
+        const here = fixtureLawAccount(block.fixture) ?? []
+        const owed = here.filter(entry => entry.status === 'ADAPTATION_OWED').map(entry => entry.law)
+        if (account) found.push({ layer: 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS', standing: 'APPROVED', ref: `the sport's normal laws as the default (${account.source.authority.citedAs})`, detail: `${inBlock(block)}${owed.length ? `owes ${[...new Set(owed)].join(', ')}` : `owes nothing (${here.length} entries)`}` })
+        const normal = draftCoachWordingLoad().wording.normalLaws
+        if (normal) found.push({ layer: 'ACTIVITY_REALIZATION_CHOICE', standing: 'PROVISIONAL', ref: 'DRAFT normal-rules sentence', detail: normal.basis.citedAs })
+        return found
+    }
+    /**
+     * **The pairing a bound region's figures come from** (stage L; `rendering-fixture.ts` `boundRegionPath`): the entry of the Sport Profile's
+     * bound-region block the build checked the region against, named with its document, citation and authority, and what the cited leaf
+     * holds in this block.
+     */
+    if (path.startsWith(`${BOUND_REGIONS_ROOT}.`)) {
+        const head = `${BOUND_REGIONS_ROOT}.regions[`
+        const id = path.startsWith(head) ? path.slice(head.length, path.indexOf(']', head.length)) : ''
+        const pairing = fixtureBoundRegion(block.fixture, id)?.pairing ?? null
+        if (pairing) {
+            found.push({ layer: 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS', standing: 'APPROVED', ref: `pairing ${pairing.id} (${pairing.document}, ${pairing.citedAs})`, detail: `${inBlock(block)}${pairing.region.function} ${pairing.region.widthM} m wide by ${pairing.region.depthM} m deep, with a ${pairing.object.kind} ${pairing.object.widthM} m wide; authority: ${pairing.authority.citedAs}` })
+        }
+        return found
+    }
     if (path.startsWith(`${DEFAULT_LAWS_ROOT}.`)) {
         const law = path.slice(path.indexOf('[') + 1, path.indexOf(']'))
         const here = (fixtureLawAccount(block.fixture) ?? []).filter(entry => entry.law === law)
@@ -537,6 +565,11 @@ function sourcesOf(path: string, block: EvidenceBlock, items: Map<string, any>, 
         const entries = (accountBlock?.laws ?? []).filter(entry => entry.law === law)
         if (account) found.push({ layer: 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS', standing: 'APPROVED', ref: `the sport's normal laws as the default (${account.source.authority.citedAs})`, detail: `${inBlock(block)}${law}${entries[0] ? ` (${entries[0].cites})` : ''}: ${here.map(entry => `${entry.end === null ? 'the game' : `end ${entry.end}`} ${entry.status}`).join(', ') || 'not in this block\'s account'}` })
         for (const citation of entries.flatMap(entry => entry.departedBy)) found.push({ layer: 'ACTIVITY_REALIZATION_CHOICE', standing: 'PROVISIONAL', ref: `departure recorded by ${citation.item} (${citation.extent})`, detail: citation.basis.citedAs })
+        // Stage L: a law cited as applied, with the DRAFT clauses written for what it gives the coach (his words, where they are filed).
+        if (path.startsWith(`${APPLIED_LAWS_ROOT}[`)) {
+            const clauses = appliedLawWordings().find(entry => entry.law === law)
+            for (const clause of [clauses?.inRegion, clauses?.distinguished].filter(Boolean)) found.push({ layer: 'ACTIVITY_REALIZATION_CHOICE', standing: 'PROVISIONAL', ref: `DRAFT clause for ${law}`, detail: `${clause!.basis.citedAs}${clause!.also ? `; also ${clause!.also}` : ''}` })
+        }
     }
     if (!found.length) {
         // The element's own establishing item: every element id names the item that established it.

@@ -380,6 +380,16 @@ export interface CoachDiagramBlock {
      */
     teams: { identity: number; label?: string | null; noun: string | null; counts: string[]; start: { along: DiagramInterval; across: DiagramInterval } | null; attacks: number[] }[]
     dimensions: { kind: 'AREA_LENGTH' | 'AREA_WIDTH' | 'ZONE_DEPTH' | 'LINE_OFFSET' | string; axis: 'along' | 'across' | string; from: number; to: number; label: string }[]
+    /**
+     * Stage L (24 October 2026): the marked areas that are no zone across the width (a region bound to an object, the goal version's penalty
+     * area), drawn grey and never in the target colour, each labelled by the server's word; absent where there is none.
+     */
+    areas?: { along: DiagramInterval; across: DiagramInterval; label: string | null }[]
+    /**
+     * Stage L: each specialized performer's marker, at the place of the object it defends (never a player's position), in a colour neither
+     * team has, labelled by the server's word; absent where there is none.
+     */
+    keepers?: { along: DiagramInterval; across: DiagramInterval; label: string }[]
 }
 
 /** The field diagram a coach is served (stage 5B): no id, data key, path or citation. */
@@ -388,9 +398,10 @@ export interface CoachDiagram {
     counts: string[]
     /**
      * `TARGET_LINE` (polish pass P7): a target that is a line, named by its own noun (DRAFT). Stage C2, where teams are labelled:
-     * `TEAM_COLOUR`, `ROLE` and `ATTACK` (DRAFT words for a team's colour, its role badge and its arrow).
+     * `TEAM_COLOUR`, `ROLE` and `ATTACK` (DRAFT words for a team's colour, its role badge and its arrow). Stage L: `MARKED_AREA` (a grey
+     * marked area, by its label) and `KEEPER` (a specialized performer's marker colour).
      */
-    legend: { kind: 'MARKED_LINE' | 'TARGET_ZONE' | 'TARGET_LINE' | 'STARTING_AREA' | 'TEAM_COLOUR' | 'ROLE' | 'ATTACK' | string; text: string }[]
+    legend: { kind: 'MARKED_LINE' | 'TARGET_ZONE' | 'TARGET_LINE' | 'STARTING_AREA' | 'TEAM_COLOUR' | 'ROLE' | 'ATTACK' | 'MARKED_AREA' | 'KEEPER' | string; text: string }[]
     /** Polish pass P4: the block switcher's accessible name (DRAFT, the server's); null with one block. */
     tablistLabel: string | null
     blocks: CoachDiagramBlock[]
@@ -830,7 +841,8 @@ export interface ReviewDefaultLawsAccount {
         }[]
     }[]
     owed: string[]
-    heldSentence: { text: string; status: 'DRAFT_HELD_NOT_SERVED'; basis: { words: string[]; citedAs: string } } | null
+    /** Stage L: `DRAFT_SAID_NOTHING_OWED` where the account owes nothing, so the coach is told it; `DRAFT_HELD_NOT_SERVED` wherever anything is owed. */
+    heldSentence: { text: string; status: 'DRAFT_HELD_NOT_SERVED' | 'DRAFT_SAID_NOTHING_OWED'; basis: { words: string[]; citedAs: string } } | null
 }
 
 /** One sentence of the review draft: the instruction, whose wording it is, and the provisional choices it rests on. */

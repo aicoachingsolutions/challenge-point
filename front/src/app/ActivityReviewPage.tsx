@@ -983,7 +983,9 @@ function ReviewEvidencePanel({ evidence }: { evidence: ReviewEvidence }) {
                         ))}
                         {evidence.defaultLaws.heldSentence && (
                             <p className='text-xs text-gray-500'>
-                                Held, not served (DRAFT): &ldquo;{evidence.defaultLaws.heldSentence.text}&rdquo;
+                                {/* Stage L: said where nothing is owed, held wherever anything is. */}
+                                {evidence.defaultLaws.heldSentence.status === 'DRAFT_SAID_NOTHING_OWED' ? 'Said to the coach, nothing being owed (DRAFT)' : 'Held, not served (DRAFT)'}: &ldquo;
+                                {evidence.defaultLaws.heldSentence.text}&rdquo;
                             </p>
                         )}
                         {evidence.defaultLaws.blocks.map((block) => (

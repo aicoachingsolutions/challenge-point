@@ -93,6 +93,11 @@ export interface ScoringAtObjectWording {
  * should apply by default wherever they are applicable, unless an activity introduces an explicit, knowledge-authorized modification."*
  * Whole in the data file (so the sport's noun is data, never this layer's), with his words for it; read only by the default-laws account
  * of the review evidence (`realization/default-laws-check.ts`, `build-activity.ts`), which shows it held. No renderer reads it.
+ *
+ * **Stage L, 24 October 2026 (the d27 design's section 2.8: *"It is served only where the default-laws account owes nothing."*):** said, as the
+ * last clause of How it works, wherever the game's default-laws account owes nothing at any place (after the sentence for a law the activity
+ * departs from, where one is said: "...; otherwise, ..."), and held everywhere else (the zone version, while it owes the handling law: his
+ * reply filed 27 October 2026, item 5, forbids adding a restriction silently). Its words carry no final full stop, as no instruction does.
  */
 export interface NormalLawsWording {
     words: string
@@ -165,6 +170,47 @@ export interface DepartedLawWording {
     basis: WordingBasis
 }
 
+/**
+ * **The Set up sentence for a region bound to an object** — stage L, 24 October 2026 (the d27 design's stage L(b): *"The Set up sentence for
+ * the box, figures read from the cited pairing (DRAFT): 'Mark the [object]'s [handling area]: {w} m wide, centred on the [object], and {d} m
+ * deep into the area; ...'"*; its nouns bracketed). Christian, reply filed 26 October 2026, item 7: *"Use an existing regulation [handling area] when the activity
+ * dimensions and setup permit it."* (his noun bracketed: the coupling ratchet keeps a sport's nouns out of this layer; the data file quotes
+ * him whole). Keyed by a member of the register's region-function vocabulary (the function row the boundRegions block names) and an object
+ * kind of the register's vocabulary, never by an activity: `noun` is what the coach calls such a region (no slot), `sentence` the whole
+ * Set up sentence with exactly the slots {object} (the kind of the object it is bound to), {region} (the noun), {width} and {depth} (the
+ * cited pairing's figures, in metres), and no final full stop. Read by the renderer (`render-concrete-game.ts`) and the diagram's label.
+ */
+export interface BoundRegionWording {
+    function: string
+    objectKind: string
+    noun: string
+    sentence: string
+    basis: WordingBasis
+}
+
+/** A clause of an applied law: its words and his words for it (stage L). `also` names a law of the sport the clause also rests on. */
+export interface AppliedLawClause {
+    words: string
+    basis: WordingBasis
+    also?: string
+}
+
+/**
+ * **What a law the account records as applying gives the coach to apply, in clauses** — stage L, 24 October 2026 (the d27 design's stage
+ * L(b) and (c): the bound region's sentence closes on what the law gives inside it, *"inside it the [performer] may handle the [carrier] as
+ * in a normal game"*, and the Players sentence gains *"give the [performer] a colour neither team wears"*). Christian, reply filed 27 October
+ * 2026, item 6: *"The [performer] should be visually distinguishable from the outfield players."* (his noun bracketed, as above). Keyed by
+ * a law the Sport Profile names that is no restart law: `inRegion` (slots {performer} and {carrier} only) is said after the Set up sentence
+ * of a region whose function that law's REGION_BOUND_TO_OBJECT precondition names; `distinguished` (exactly {performer}) is said in the
+ * Players sentence; each only where the game's default-laws account records the law as applying at every place, and {performer} is the
+ * name of the specialized performer the law's SPECIALIZED_PERFORMER_PRESENT precondition names. Read by the renderer and fidelity.
+ */
+export interface AppliedLawWording {
+    law: string
+    inRegion?: AppliedLawClause
+    distinguished?: AppliedLawClause
+}
+
 export interface DraftCoachWording {
     objectKinds: ObjectKindWording[]
     facings: FacingWording[]
@@ -179,6 +225,10 @@ export interface DraftCoachWording {
     restartLawNouns: RestartLawNoun[]
     /** R3: the one sentence for each law an activity departs from without replacing it (empty where the file carries none). */
     departedLaws: DepartedLawWording[]
+    /** Stage L: the Set up sentence for a region bound to an object, by function and object kind (empty where the file carries none). */
+    boundRegions: BoundRegionWording[]
+    /** Stage L: the clauses for what a law the account records as applying gives the coach (empty where the file carries none). */
+    appliedLaws: AppliedLawWording[]
 }
 
 /** The wording as loaded, and why it could not be used (then it is empty). */
@@ -188,8 +238,11 @@ export interface DraftCoachWordingLoad {
 }
 
 const filled = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0
-const FILE_KEYS = new Set(['about', 'status', 'entryShape', 'objectKinds', 'facings', 'scoringAtObjects', 'normalLaws', 'triggers', 'deadBallRestart', 'restartLawNouns', 'departedLaws'])
+const FILE_KEYS = new Set(['about', 'status', 'entryShape', 'objectKinds', 'facings', 'scoringAtObjects', 'normalLaws', 'triggers', 'deadBallRestart', 'restartLawNouns', 'departedLaws', 'boundRegions', 'appliedLaws'])
 const DEPARTED_LAW_KEYS = new Set(['law', 'words', 'basis'])
+const BOUND_REGION_KEYS = new Set(['function', 'objectKind', 'noun', 'sentence', 'basis'])
+const APPLIED_LAW_KEYS = new Set(['law', 'inRegion', 'distinguished'])
+const APPLIED_CLAUSE_KEYS = new Set(['words', 'basis', 'also'])
 const NORMAL_LAWS_KEYS = new Set(['words', 'held', 'basis'])
 const TRIGGER_KEYS = new Set(['trigger', 'phrase', 'basis'])
 const DEAD_BALL_KEYS = new Set(['starts', 'restarts', 'noOtherRestarts', 'basis'])
@@ -286,6 +339,8 @@ export function draftCoachWordingUnusableBecause(file: any, index: RegisterIndex
         if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return 'its normalLaws entry is not an object'
         for (const key of Object.keys(entry)) if (!NORMAL_LAWS_KEYS.has(key)) return `its normalLaws entry carries "${key}"`
         if (!filled(entry.words) || slotsIn(entry.words).length || strayBrace(entry.words)) return 'its normalLaws words are missing or hold a slot'
+        // Stage L (24 October 2026): the words are said now, where nothing is owed, so they carry no final full stop, as no instruction does.
+        if (entry.words.trim().endsWith('.')) return 'its normalLaws words end with a full stop, which no instruction carries'
         if (!filled(entry.held)) return 'its normalLaws entry does not say why it is held (held)'
         const basis = basisUnusableBecause(entry.basis)
         if (basis) return `its normalLaws entry: ${basis}`
@@ -374,10 +429,78 @@ export function draftCoachWordingUnusableBecause(file: any, index: RegisterIndex
             if (basis) return `${which}: ${basis}`
         }
     }
+    /**
+     * Stage L (24 October 2026; the d27 design's stage L(b) and (c)): the Set up sentence for a region bound to an object - a function of the
+     * register's region-function vocabulary and an object kind of its object vocabulary, the pair once, a noun with no slot, the sentence with
+     * exactly its four slots and no final full stop, his words for it.
+     */
+    if (file.boundRegions !== undefined) {
+        if (!Array.isArray(file.boundRegions)) return 'its boundRegions entry is not a list'
+        const spec = index.boundRegions
+        const functions = spec ? (index.vocabularies.get(`${spec.functionRow}.${spec.functionAttribute}`) ?? []) : []
+        const seen = new Set<string>()
+        for (const [n, entry] of (file.boundRegions as any[]).entries()) {
+            const which = `bound region ${n + 1}`
+            if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return `${which} is not an object`
+            for (const key of Object.keys(entry)) if (!BOUND_REGION_KEYS.has(key)) return `${which} carries "${key}"`
+            if (!filled(entry.function) || !functions.includes(entry.function)) return `${which} names the function ${JSON.stringify(entry.function)}, which is no member of the register's region-function vocabulary`
+            if (!filled(entry.objectKind) || !objectKinds.includes(entry.objectKind)) return `${which} names the object kind ${JSON.stringify(entry.objectKind)}, which is no object kind of the register's vocabulary`
+            if (seen.has(`${entry.function}|${entry.objectKind}`)) return `${which} lists ${entry.function} bound to ${entry.objectKind} again`
+            seen.add(`${entry.function}|${entry.objectKind}`)
+            if (!filled(entry.noun) || slotsIn(entry.noun).length || strayBrace(entry.noun)) return `${which}: its noun is missing or holds a slot`
+            if (!slotsExactly(entry.sentence, ['object', 'region', 'width', 'depth'])) return `${which}: its sentence must hold exactly the slots {object}, {region}, {width} and {depth}`
+            if (entry.sentence.trim().endsWith('.')) return `${which}: its sentence ends with a full stop, which no instruction carries`
+            const basis = basisUnusableBecause(entry.basis)
+            if (basis) return `${which}: ${basis}`
+        }
+    }
+    /**
+     * Stage L: what a law the account records as applying gives the coach - a law the Sport Profile names that is no restart law (a restart law
+     * is replaced or named, never applied as written here), once, with at least one clause; a clause in a region (`inRegion`) only for a law
+     * whose required preconditions hold a region bound to an object, its slots {performer} and {carrier} only; the clause that tells the
+     * performer apart (`distinguished`) exactly {performer}; {performer} only for a law whose required preconditions name a specialized
+     * performer; no final full stop; his words for each.
+     */
+    if (file.appliedLaws !== undefined) {
+        if (!Array.isArray(file.appliedLaws)) return 'its appliedLaws entry is not a list'
+        if (file.appliedLaws.length && !laws) return 'it lists appliedLaws, and the Sport Profile names no default laws'
+        const named = new Set<string>()
+        for (const [n, entry] of (file.appliedLaws as any[]).entries()) {
+            const which = `applied law ${n + 1}`
+            if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return `${which} is not an object`
+            for (const key of Object.keys(entry)) if (!APPLIED_LAW_KEYS.has(key)) return `${which} carries "${key}"`
+            const law = (laws?.laws ?? []).find(candidate => candidate.id === entry.law)
+            if (!filled(entry.law) || !law) return `${which} names ${JSON.stringify(entry.law)}, which is no law the Sport Profile's defaultLaws block names`
+            if (law.restart) return `${which} names ${entry.law}, which the Sport Profile marks as a restart law: a restart law is never said as applying as written`
+            if (named.has(entry.law)) return `${which} lists ${entry.law} again`
+            named.add(entry.law)
+            if (entry.inRegion === undefined && entry.distinguished === undefined) return `${which} holds no clause`
+            const regionPredicate = [...law.applicableWhen, ...law.requires].some(predicate => predicate.predicate === 'REGION_BOUND_TO_OBJECT')
+            const performerPredicate = [...law.applicableWhen, ...law.requires].some(predicate => predicate.predicate === 'SPECIALIZED_PERFORMER_PRESENT')
+            for (const [name, clause, slots, exact] of [
+                ['inRegion', entry.inRegion, ['performer', 'carrier'], false],
+                ['distinguished', entry.distinguished, ['performer'], true],
+            ] as [string, any, string[], boolean][]) {
+                if (clause === undefined) continue
+                const at = `${which}, its ${name} clause`
+                if (!clause || typeof clause !== 'object' || Array.isArray(clause)) return `${at} is not an object`
+                for (const key of Object.keys(clause)) if (!APPLIED_CLAUSE_KEYS.has(key)) return `${at} carries "${key}"`
+                if (exact ? !slotsExactly(clause.words, slots) : !filled(clause.words) || strayBrace(clause.words) || slotsIn(clause.words).some(slot => !slots.includes(slot))) {
+                    return `${at}: its words are missing or hold a slot other than ${slots.map(slot => `{${slot}}`).join(' and ')}${exact ? ', each once at least' : ''}`
+                }
+                if (clause.words.trim().endsWith('.')) return `${at}: its words end with a full stop, which no instruction carries`
+                if (slotsIn(clause.words).includes('performer') && !performerPredicate) return `${at} names the performer, and no precondition of ${entry.law} names a specialized performer, so none is named by it`
+                if (name === 'inRegion' && !regionPredicate) return `${at} is said inside a region, and no precondition of ${entry.law} is a region bound to an object`
+                if (clause.also !== undefined && !filled(clause.also)) return `${at}: its also is empty`
+                const basis = basisUnusableBecause(clause.basis)
+                if (basis) return `${at}: ${basis}`
+            }
+        }
+    }
     return null
 }
 
-const EMPTY: DraftCoachWording = { objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [] }
+const EMPTY: DraftCoachWording = { objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [], boundRegions: [], appliedLaws: [] }
 
 /** The wording from a parsed file, copied, or none with why. */
 export function draftCoachWordingLoadOf(file: any, index: RegisterIndex, laws: DefaultLaws | null = loadSportDefaultLaws()): DraftCoachWordingLoad {
@@ -393,9 +516,40 @@ export function draftCoachWordingLoadOf(file: any, index: RegisterIndex, laws: D
             deadBallRestart: file.deadBallRestart === undefined ? {} : JSON.parse(JSON.stringify(file.deadBallRestart)),
             restartLawNouns: file.restartLawNouns === undefined ? [] : JSON.parse(JSON.stringify(file.restartLawNouns)),
             departedLaws: file.departedLaws === undefined ? [] : JSON.parse(JSON.stringify(file.departedLaws)),
+            boundRegions: file.boundRegions === undefined ? [] : JSON.parse(JSON.stringify(file.boundRegions)),
+            appliedLaws: file.appliedLaws === undefined ? [] : JSON.parse(JSON.stringify(file.appliedLaws)),
         },
         why: null,
     }
+}
+
+/** The DRAFT Set up sentence for a region of this function bound to an object of this kind, or null where none is written (stage L). */
+export function boundRegionWording(regionFunction: unknown, objectKind: unknown, wording: DraftCoachWording = draftCoachWordingLoad().wording): BoundRegionWording | null {
+    return wording.boundRegions.find(entry => entry.function === regionFunction && entry.objectKind === objectKind) ?? null
+}
+
+/** The DRAFT clauses for what each law applying gives the coach, in the order listed (stage L). */
+export function appliedLawWordings(wording: DraftCoachWording = draftCoachWordingLoad().wording): AppliedLawWording[] {
+    return JSON.parse(JSON.stringify(wording.appliedLaws))
+}
+
+/**
+ * **What a law's required preconditions read, for the clauses of an applied law** (stage L): the region functions and object kinds of its
+ * REGION_BOUND_TO_OBJECT preconditions (where its `inRegion` clause is said) and the performer rows of its SPECIALIZED_PERFORMER_PRESENT ones
+ * (whose performer's name fills {performer}), from the Sport Profile's defaultLaws block; empty for a law it does not name.
+ */
+export function appliedLawReading(law: string, laws: DefaultLaws | null = loadSportDefaultLaws()): { regions: { function: string; kind: string }[]; performerRows: string[] } {
+    const found = (laws?.laws ?? []).find(candidate => candidate.id === law)
+    const requires = [...(found?.applicableWhen ?? []), ...(found?.requires ?? [])]
+    return {
+        regions: requires.filter(predicate => predicate.predicate === 'REGION_BOUND_TO_OBJECT').map(predicate => ({ function: String(predicate.function), kind: String(predicate.kind) })),
+        performerRows: requires.filter(predicate => predicate.predicate === 'SPECIALIZED_PERFORMER_PRESENT').map(predicate => String(predicate.row)),
+    }
+}
+
+/** The DRAFT normal-rules sentence, or null where the file carries none (stage L: said where the account owes nothing). */
+export function normalLawsWording(wording: DraftCoachWording = draftCoachWordingLoad().wording): NormalLawsWording | null {
+    return wording.normalLaws ? JSON.parse(JSON.stringify(wording.normalLaws)) : null
 }
 
 /** The DRAFT phrase for when a restart on this trigger happens, or null where none is written (R1). */

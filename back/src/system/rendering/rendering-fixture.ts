@@ -30,6 +30,7 @@
  *     marked — and none is filtered by kind here, because a reader that needs a kind can ask for it and a
  *     kind dropped at this boundary cannot be asked for by anybody.
  */
+import { BoundRegionPairing } from '../derivation/bound-regions'
 import { ResolvedGame } from '../derivation/resolved-game'
 import { Bounds } from '../derivation/types'
 import { Entailment } from '../realization/assemble-concrete-game'
@@ -106,8 +107,66 @@ export interface RenderingFixtureParts {
      * R3, 24 October 2026: a sentence telling the coach the activity departs from a law it removes without replacing it cites that law's
      * entries here (`defaultLawPath`), as a sentence setting out a mark cites the physical layout.
      */
-    defaultLaws?: { realization: string; laws: { law: string; end: 0 | 1 | null; status: string }[] }
+    defaultLaws?: { realization: string; laws: { law: string; end: 0 | 1 | null; status: string; removedByRealization?: boolean }[] }
+    /**
+     * **The pairing each region bound to an object cites, whole** — stage L, 24 October 2026 (the d27 design's stage L(b): *"The Set up
+     * sentence for the box, figures read from the cited pairing"*). Christian, reply filed 26 October 2026, item 7: *"Use an existing
+     * regulation [handling area] when the activity dimensions and setup permit it."* (his noun bracketed for the coupling ratchet). For every
+     * region the game binds to an object (register row S7), the entry of the Sport Profile's bound-region block the build checked the game
+     * against (GA-BOUND-REGION, which holds the realized region to it after realization), or null where that block holds no entry of the id
+     * the region cites. Read by the renderer for the figures the region's sentence says, by fidelity (which refuses that sentence where the
+     * pairing's figures are not the region's realized size) and by the review evidence. Given only where the game holds a bound region; absent,
+     * the fixture is exactly what it was.
+     */
+    boundRegions?: { region: string; objectId: string; pairing: BoundRegionPairing | null }[]
 }
+
+/**
+ * **Where a sentence cites the pairing a bound region's geometry comes from** — stage L (above): the fixture carries it beside the game, as
+ * it carries the physical layout and the default-laws account, at `boundRegions.regions[<region element id>]`.
+ */
+export const BOUND_REGIONS_ROOT = 'boundRegions'
+export const boundRegionPath = (region: string): string => `${BOUND_REGIONS_ROOT}.regions[${region}]`
+
+/** One bound region as the fixture carries it: the region, the object it is bound to and the pairing it cites (stage L). */
+export interface FixtureBoundRegion {
+    elementId: string
+    objectId: string
+    pairing: BoundRegionPairing | null
+}
+
+/** The bound region of that id the fixture carries, or null (stage L). */
+export function fixtureBoundRegion(fixture: unknown, region: string): FixtureBoundRegion | null {
+    const regions = (fixture as { boundRegions?: { regions?: unknown } } | null | undefined)?.boundRegions?.regions
+    return Array.isArray(regions) ? ((regions as FixtureBoundRegion[]).find(entry => entry?.elementId === region) ?? null) : null
+}
+
+/**
+ * **The account's laws owed an adaptation, as a citation** — stage L, 24 October 2026 (the d27 design's section 2.8: *"It is served only where
+ * the default-laws account owes nothing."*). The sentence telling the coach the sport's normal rules apply otherwise cites the account as a
+ * whole at this path: what it says rests on nothing being owed at any place. Read by fidelity and the review evidence.
+ */
+export const DEFAULT_LAWS_OWED = 'defaultLaws.owed'
+
+/**
+ * **Where a clause says what a law the account records as applying gives the coach** — stage L, 24 October 2026 (the d27 design's stage L(b)
+ * and (c): the handling a region bound to an object carries, and the colour that tells the performer it is for apart). Christian, reply
+ * filed 27 October 2026, item 6: *"Where normal [sport] rules remain relevant during live play, they should continue to apply unless
+ * explicitly modified."* (his noun bracketed). Cited at `defaultLaws.applied[<law id>]`: a clause qualifying a marking or the roster, so it
+ * decides no section (`sections.ts`), while a law departed from is cited at `defaultLawPath` and is said with how play runs.
+ */
+export const appliedLawPath = (law: string): string => `${APPLIED_LAWS_ROOT}[${law}]`
+/** The root every `appliedLawPath` is under (stage L), read by placement and the diagram. */
+export const APPLIED_LAWS_ROOT = 'defaultLaws.applied'
+
+/** Whether the account records the law as applying at every place it is accounted for (stage L): only then may a coach be told what it gives. */
+export function appliesThroughout(account: FixtureLawEntry[], law: string): boolean {
+    const entries = account.filter(entry => entry.law === law)
+    return entries.length > 0 && entries.every(entry => entry.status === 'APPLIES')
+}
+
+/** Whether the account owes nothing at any place (stage L): only then may a coach be told the normal rules apply otherwise. */
+export const owesNothing = (account: FixtureLawEntry[]): boolean => !account.some(entry => entry.status === 'ADAPTATION_OWED')
 
 /**
  * **Where a sentence cites one law of the game's default-laws account** — R3, 24 October 2026 (the d27 design's stage R3: *"fidelity: a law
@@ -120,11 +179,15 @@ export interface RenderingFixtureParts {
 export const DEFAULT_LAWS_ROOT = 'defaultLaws'
 export const defaultLawPath = (law: string): string => `${DEFAULT_LAWS_ROOT}.laws[${law}]`
 
-/** One law at one place, as the fixture carries the account. */
+/**
+ * One law at one place, as the fixture carries the account. Stage L (the R3 review's should-fix): `removedByRealization` where it is departed
+ * from there only by the departures the realization records on itself (a law its activity removes without replacing it); absent elsewhere.
+ */
 export interface FixtureLawEntry {
     law: string
     end: 0 | 1 | null
     status: string
+    removedByRealization?: boolean
 }
 
 /** The account a fixture carries, law by law and place by place, or null where it carries none (R3). */
@@ -143,7 +206,7 @@ export function departedThroughout(account: FixtureLawEntry[], law: string): boo
     return entries.some(entry => entry.status === 'DEPARTED') && entries.every(entry => entry.status === 'DEPARTED' || entry.status === 'NOT_APPLICABLE')
 }
 
-export function assembleRenderingFixture({ resolved, realized, entailed, envelope, accepted, postRealizationValidated, roleNouns, roleHolders, reassignmentNouns, adjustments, alternatives, withdrawnChoices, methodNouns, defaultLaws }: RenderingFixtureParts): Record<string, unknown> {
+export function assembleRenderingFixture({ resolved, realized, entailed, envelope, accepted, postRealizationValidated, roleNouns, roleHolders, reassignmentNouns, adjustments, alternatives, withdrawnChoices, methodNouns, defaultLaws, boundRegions }: RenderingFixtureParts): Record<string, unknown> {
     const pathOf = new Map(resolved.derived.map(entry => [entry.lineId, entry.path]))
     return {
         provenance: resolved.provenance,
@@ -185,6 +248,10 @@ export function assembleRenderingFixture({ resolved, realized, entailed, envelop
         ...(alternatives?.length ? { alternatives: JSON.parse(JSON.stringify(alternatives)) } : {}),
         ...(withdrawnChoices?.length ? { withdrawnChoices: JSON.parse(JSON.stringify(withdrawnChoices)) } : {}),
         ...(methodNouns?.length ? { methodNouns: { status: 'APPROVED', entries: JSON.parse(JSON.stringify(methodNouns)) } } : {}),
-        ...(defaultLaws ? { defaultLaws: { status: 'ACCOUNT_OF_THIS_GAME', realization: defaultLaws.realization, laws: defaultLaws.laws.map(entry => ({ law: entry.law, end: entry.end, status: entry.status })) } } : {}),
+        ...(defaultLaws
+            ? { defaultLaws: { status: 'ACCOUNT_OF_THIS_GAME', realization: defaultLaws.realization, laws: defaultLaws.laws.map(entry => ({ law: entry.law, end: entry.end, status: entry.status, ...(entry.removedByRealization ? { removedByRealization: true } : {}) })) } }
+            : {}),
+        // Stage L: only where the game holds a region bound to an object, so every other fixture is exactly what it was.
+        ...(boundRegions?.length ? { boundRegions: { status: 'CITED_PAIRINGS', regions: boundRegions.map(entry => ({ elementId: entry.region, objectId: entry.objectId, pairing: entry.pairing ? JSON.parse(JSON.stringify(entry.pairing)) : null })) } } : {}),
     }
 }

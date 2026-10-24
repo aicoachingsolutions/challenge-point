@@ -16,14 +16,16 @@
  * every sentence must match the status of what produced it.
  */
 
+import { bindingOf, regionFunctionsOf } from '../derivation/bound-regions'
+import { loadSportDefaultLaws } from '../derivation/corpus'
 import { practical, PracticalKind, practicalRequirement } from '../derivation/practical'
 import { effectiveValue, scaleExactly } from '../derivation/rational'
 import { conditionScopeNotEvaluable } from '../derivation/resolved-game'
 import { ApprovedWording, approvedWording } from './approved-wording'
 import { CoachFacingExclusion, exclusionFor } from './coach-facing-exclusions'
-import { departedLawWordings, draftCoachWordingLoad, restartLawNouns, scoringAtObjectWording } from './draft-coach-wording'
+import { appliedLawReading, appliedLawWordings, departedLawWordings, draftCoachWordingLoad, fillSlots, restartLawNouns, scoringAtObjectWording } from './draft-coach-wording'
 import { layoutLeafNumberAt, MARK_UNION_ONCE, PhysicalLayout, Remarking, somethingMoves } from './physical-layout'
-import { DEFAULT_LAWS_ROOT, defaultLawPath, departedThroughout, fixtureLawAccount } from './rendering-fixture'
+import { appliedLawPath, appliesThroughout, BOUND_REGIONS_ROOT, boundRegionPath, DEFAULT_LAWS_OWED, DEFAULT_LAWS_ROOT, defaultLawPath, departedThroughout, fixtureBoundRegion, fixtureLawAccount, owesNothing } from './rendering-fixture'
 import {
     ADJUSTING,
     approvedSentences,
@@ -571,6 +573,30 @@ function loadBearingPaths(fixture: any): {
 }
 
 /**
+ * **The leaves of a carried pairing that hold a figure a sentence may say** — stage L, 24 October 2026, a validation EXTENSION (the d27
+ * design's stage L(b): *"The Set up sentence for the box, figures read from the cited pairing"*). The pairing a region bound to an object
+ * cites sits beside the game in the fixture (`rendering-fixture.ts` `boundRegions`), so its width and depth are no value of the game Q2 walks
+ * (and the region's realized width can differ from it in the last bit of a float, 41.16 - 0.84). Admitted only at these two leaves of the
+ * region's own entry, cited by the sentence: `boundRegions.regions[<region>].pairing.region.widthM` and `.depthM`. The compensating check
+ * (`boundRegionFindings`, a NEW clause) refuses a sentence citing them where the pairing is not the one the region cites or its figures are
+ * not the region's realized width and depth.
+ */
+export const BOUND_REGION_NUMBER_LEAVES = ['pairing.region.widthM', 'pairing.region.depthM'] as const
+
+/** The figure a leaf path of a carried pairing holds (`BOUND_REGION_NUMBER_LEAVES`), as a list of one; empty for every other path. */
+export function boundRegionLeafNumberAt(fixture: unknown, path: string): number[] {
+    const head = `${BOUND_REGIONS_ROOT}.regions[`
+    if (!path.startsWith(head)) return []
+    const close = path.indexOf(']', head.length)
+    if (close < 0 || path.charAt(close + 1) !== '.') return []
+    const leaf = path.slice(close + 2)
+    if (!(BOUND_REGION_NUMBER_LEAVES as readonly string[]).includes(leaf)) return []
+    const pairing = fixtureBoundRegion(fixture, path.slice(head.length, close))?.pairing
+    const value = leaf === 'pairing.region.widthM' ? pairing?.region?.widthM : pairing?.region?.depthM
+    return typeof value === 'number' && Number.isFinite(value) ? [value] : []
+}
+
+/**
  * A quantity is supported if the game contains it as a value, OR if it is the size of a collection the
  * instruction cites. "2 teams" is not an invention — the game contains two team members — but the 2 is a
  * cardinality rather than a stored value, so it needs its own narrow justification. Counting the members
@@ -587,6 +613,8 @@ function supportedQuantity(fixture: any, instruction: Pick<Instruction, 'from'>,
      * number (`layoutLeafNumberAt`: a mark's `at`, a zone's `from`, `to` or `depthM`), never a broader node holding many numbers.
      */
     if (instruction.from.some(path => layoutLeafNumberAt(fixture.layout, path).includes(quantity))) return true
+    // Stage L: and a figure of the pairing a bound region cites, for a sentence citing that leaf of it (`boundRegionLeafNumberAt`).
+    if (instruction.from.some(path => boundRegionLeafNumberAt(fixture, path).includes(quantity))) return true
     for (const path of instruction.from) {
         const collection = path.split('.').reduce<any>((node, key) => (node == null ? node : node[key]), fixture.game)
         if (Array.isArray(collection) && collection.length === quantity) return true
@@ -736,6 +764,16 @@ function layoutFindings(fixture: any, rendered: RenderedActivity): FidelityFindi
     const citesUnder = (instruction: Instruction, at: string) => instruction.from.some(path => path === at || path.startsWith(`${at}.`))
     for (const mark of layout.marks ?? []) if (!setUp.some(i => citesUnder(i, `layout.marks[${mark.elementId}]`))) violation(`the mark at ${mark.at} m (layout.marks[${mark.elementId}]) is set out once and no Set up sentence tells the coach to make it`)
     for (const zone of layout.zones ?? []) if (!setUp.some(i => citesUnder(i, `layout.zones[${zone.elementId}]`))) violation(`the zone from ${zone.from} m to ${zone.to} m (layout.zones[${zone.elementId}]) is set out once and no Set up sentence tells the coach to mark it`)
+    /**
+     * **Stage L, 24 October 2026: the regions set out as themselves** (`layout.rectangles`, `physical-layout.ts`; the d27 design's stage L(a)),
+     * NEW clauses (tightenings) read as the marks and zones are: every rectangle is marked by a Set up sentence citing it; a region the layout
+     * records as a rectangle for this block is realized exactly where the rectangle is, along and across (its edges are its own outline, so
+     * they are not held to the marks); and a rectangle no region of this block is must be recorded for another block.
+     */
+    for (const rectangle of layout.rectangles ?? []) {
+        if (!setUp.some(i => citesUnder(i, `layout.rectangles[${rectangle.elementId}]`))) violation(`the region ${rectangle.along.from}-${rectangle.along.to} m along and ${rectangle.across.from}-${rectangle.across.to} m across (layout.rectangles[${rectangle.elementId}]) is set out once and no Set up sentence tells the coach to mark it`)
+        if (!(rectangle.sources ?? []).length) violation(`the region set out once as layout.rectangles[${rectangle.elementId}] is no block's region`)
+    }
     const edges = new Set<number>([0, Number(layout.lengthM), ...(layout.marks ?? []).map(mark => mark.at)])
     const intervals: { from: number; to: number }[] = []
     for (const region of fixture.game?.space?.regions ?? []) {
@@ -745,7 +783,13 @@ function layoutFindings(fixture: any, rendered: RenderedActivity): FidelityFindi
         if (!interval || !recorded || recorded.from !== interval.from || recorded.to !== interval.to) {
             violation(`${path} is realized at ${interval ? `${interval.from}-${interval.to} m` : 'no interval'} in block ${blockId}, and the layout set out once records ${recorded ? `${recorded.from}-${recorded.to} m` : 'nothing'} for it there`)
         }
-        if (interval) {
+        const rectangle = (layout.rectangles ?? []).find(entry => (entry.sources ?? []).some(source => source.blockId === blockId && source.path === path))
+        if (interval && rectangle) {
+            const across = (fixture.status?.geometry ?? []).find((g: any) => g.path === `space.regions[${region.elementId}].position.across`)?.geometry?.interval
+            if (rectangle.along.from !== interval.from || rectangle.along.to !== interval.to || !across || rectangle.across.from !== across.from || rectangle.across.to !== across.to) {
+                violation(`${path} is realized at ${interval.from}-${interval.to} m along and ${across ? `${across.from}-${across.to} m` : 'nowhere'} across in block ${blockId}, and the region set out once as layout.rectangles[${rectangle.elementId}] is ${rectangle.along.from}-${rectangle.along.to} m along and ${rectangle.across.from}-${rectangle.across.to} m across`)
+            }
+        } else if (interval) {
             intervals.push(interval)
             if (!edges.has(interval.from) || !edges.has(interval.to)) violation(`${path} runs from ${interval.from} m to ${interval.to} m, and its edges are not marks set out once or the area's end lines`)
         }
@@ -942,10 +986,25 @@ function deadBallFindings(fixture: any, rendered: RenderedActivity): FidelityFin
     const normalWords = normal ? normal.words.replace(/\.$/, '') : null
     if (normalWords) {
         const owed = account === null ? null : account.filter(entry => entry.status === 'ADAPTATION_OWED').map(entry => entry.law)
-        for (const instruction of rendered.instructions.filter(i => i.text.includes(normalWords))) {
+        /**
+         * Stage L, 24 October 2026 (the d27 design's section 2.8: *"It is served only where the default-laws account owes nothing."*): the words
+         * are said now, as a clause after a departed law's sentence ("; otherwise, ..."), so they are found whatever the case of their first
+         * letter; and three NEW clauses (tightenings): the sentence saying them cites the account as owing nothing (`DEFAULT_LAWS_OWED`), and
+         * no other sentence cites that, and it is said once (Q2); where the account owes nothing, no sentence saying them is a loss (Q3: his
+         * reply filed 27 October 2026, item 6, "Where normal [sport] rules remain relevant during live play, they should continue to apply
+         * unless explicitly modified.", his noun bracketed).
+         */
+        const saying = rendered.instructions.filter(i => i.text.toLowerCase().includes(normalWords.toLowerCase()))
+        for (const instruction of saying) {
+            if (!instruction.from.includes(DEFAULT_LAWS_OWED)) findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" says the normal rules apply and does not cite ${DEFAULT_LAWS_OWED}` })
             if (owed !== null && !owed.length) continue
             findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" says the normal rules apply, and ${owed === null ? 'the game carries no default-laws account' : `the game's default-laws account owes an adaptation of ${[...new Set(owed)].join(', ')}`}: it is said only where nothing is owed` })
         }
+        for (const instruction of rendered.instructions.filter(i => i.from.includes(DEFAULT_LAWS_OWED) && !saying.includes(i))) {
+            findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" cites ${DEFAULT_LAWS_OWED} and does not say "${normalWords}"` })
+        }
+        if (saying.length > 1) findings.push({ question: 2, severity: 'VIOLATION', what: `${saying.length} sentences say the normal rules apply (${saying.map(i => `"${i.text}"`).join('; ')}): it is said once` })
+        if (account !== null && owesNothing(account as { law: string; end: 0 | 1 | null; status: string }[]) && !saying.length) findings.push({ question: 3, severity: 'VIOLATION', what: `the game's default-laws account owes nothing, and no sentence tells the coach "${normalWords}"` })
     }
     return findings
 }
@@ -992,13 +1051,170 @@ function departedLawFindings(fixture: any, rendered: RenderedActivity): Fidelity
         if (said.length > 1) findings.push({ question: 2, severity: 'VIOLATION', what: `${said.length} sentences tell the coach the activity departs from ${entry.law} (${said.map(i => `"${i.text}"`).join('; ')}): it is said once` })
         if (removed && !said.length) findings.push({ question: 3, severity: 'VIOLATION', what: `the game's default-laws account records ${entry.law} as departed from, and no sentence tells the coach "${entry.words}"` })
     }
-    const worded = new Set(entries.map(entry => defaultLawPath(entry.law)))
+    /**
+     * Stage L, 24 October 2026 (the R3 review's should-fix, a NEW clause, a tightening): the guard above loops over the laws the wording data
+     * has a sentence for, so a law the account records as removed by the realization itself (`removedByRealization`: departed from, throughout,
+     * only by the departures the realization records on itself) that the data writes nothing for was served with nothing said. His reply filed
+     * 27 October 2026, item 2: "I approve no [restriction on position] for this initial realization, with that modification communicated once to
+     * the coach." (his noun bracketed). Such a law with no sentence written for it is a loss (Q3), whatever the data holds.
+     */
+    if (account) {
+        const written = new Set(entries.map(entry => entry.law))
+        for (const law of [...new Set(account.filter(entry => entry.removedByRealization).map(entry => entry.law))]) {
+            if (written.has(law) || !departedThroughout(account, law)) continue
+            findings.push({ question: 3, severity: 'VIOLATION', what: `the game's default-laws account records ${law} as removed by its realization without being replaced, and no sentence is written to tell the coach so: a law removed is communicated to the coach once` })
+        }
+    }
+    /**
+     * Stage L, 24 October 2026: the account may also be cited, as a whole, by the normal-rules sentence (`DEFAULT_LAWS_OWED`), and, as
+     * applied, by a clause the DRAFT data writes for a law it records as applying (`appliedLawPath`); each is held by its own clauses
+     * (`deadBallFindings`, `appliedLawFindings`). Nothing else may cite it.
+     */
+    const worded = new Set([...entries.map(entry => defaultLawPath(entry.law)), DEFAULT_LAWS_OWED, ...appliedLawWordings().map(entry => appliedLawPath(entry.law))])
     for (const instruction of rendered.instructions) {
         for (const path of instruction.from.filter(p => p === DEFAULT_LAWS_ROOT || p.startsWith(`${DEFAULT_LAWS_ROOT}.`) || p.startsWith(`${DEFAULT_LAWS_ROOT}[`))) {
             if (!worded.has(path)) findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" cites ${path}, a part of the game's default-laws account for which no sentence is written` })
         }
     }
     return findings
+}
+
+/**
+ * **A region bound to an object is set out with its cited pairing's figures, and they are its realized size** — stage L, 24 October 2026,
+ * NEW clauses (TIGHTENINGS), the compensating check for admitting a carried pairing's width and depth into a sentence (`boundRegionLeafNumberAt`).
+ * Christian, reply filed 26 October 2026, item 7: *"Do not assume a scaled dimension without knowledge support."* Independent of the renderer,
+ * read from the game (the region's binding, register row S7, and its realized geometry) and the fixture's carried pairings (`boundRegions`):
+ *
+ *   - a sentence citing a bound region's carried pairing is refused where the fixture carries none for it, where the carried entry is not the
+ *     pairing the region cites, or where the pairing's width and depth are not the region's realized width across and depth along (Q2);
+ *   - a Set up sentence marking a bound region (citing its noun) that does not cite both figures of its pairing is refused (Q2): its figures
+ *     come from the pairing, never from anywhere else;
+ *   - a citation of a carried pairing for a region the fixture carries none for is refused (Q2).
+ *
+ * Every game binding no region owes nothing here.
+ */
+function boundRegionFindings(fixture: any, rendered: RenderedActivity): FidelityFinding[] {
+    const findings: FidelityFinding[] = []
+    const index = rendererRegister()
+    const intervalOf = (path: string) => (fixture?.status?.geometry ?? []).find((g: any) => g?.path === path)?.geometry?.interval ?? null
+    for (const region of (fixture?.game?.space?.regions ?? []) as any[]) {
+        const binding = bindingOf(region, index)
+        if (!binding) continue
+        const id = String(region?.elementId)
+        const at = boundRegionPath(id)
+        const carried = fixtureBoundRegion(fixture, id)
+        const along = intervalOf(`space.regions[${id}].position.along`)
+        const across = intervalOf(`space.regions[${id}].position.across`)
+        const pairing = carried?.pairing ?? null
+        const problem = !carried
+            ? 'the fixture carries no pairing for it'
+            : !pairing
+              ? `the pairing it cites (${binding.pairing}) is carried as none`
+              : pairing.id !== binding.pairing
+                ? `the carried pairing is ${pairing.id} and the region cites ${binding.pairing}`
+                : !along || !across
+                  ? 'the region holds no realized size'
+                  : Math.abs(along.to - along.from - pairing.region.depthM) >= 1e-9 || Math.abs(across.to - across.from - pairing.region.widthM) >= 1e-9
+                    ? `${pairing.id} gives ${pairing.region.widthM} m by ${pairing.region.depthM} m, and the region is realized ${across.to - across.from} m wide and ${along.to - along.from} m deep`
+                    : null
+        const citing = rendered.instructions.filter(i => i.from.some(path => path === at || path.startsWith(`${at}.`)))
+        if (problem) for (const instruction of citing) findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" says the figures of the pairing ${id} cites (${at}), and ${problem}` })
+        const marking = rendered.instructions.filter(i => i.section === 'Set up' && i.status !== 'PREFERENCE' && i.from.includes(`space.regions[${id}].noun`))
+        for (const instruction of marking) {
+            if (!instruction.from.includes(`${at}.pairing.region.widthM`) || !instruction.from.includes(`${at}.pairing.region.depthM`)) {
+                findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" marks ${id}, which is bound to ${binding.objectId}, and does not take its width and depth from the pairing it cites (${at})` })
+            }
+        }
+    }
+    for (const instruction of rendered.instructions) {
+        for (const path of instruction.from.filter(p => p.startsWith(`${BOUND_REGIONS_ROOT}.`))) {
+            const head = `${BOUND_REGIONS_ROOT}.regions[`
+            const id = path.startsWith(head) ? path.slice(head.length, path.indexOf(']', head.length)) : ''
+            if (!id || !fixtureBoundRegion(fixture, id)) findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" cites ${path}, where the fixture carries no pairing` })
+        }
+    }
+    return findings
+}
+
+/**
+ * **What a law applying gives the coach, said only where it applies, and said where it does** — stage L, 24 October 2026, NEW clauses
+ * (TIGHTENINGS), the d27 design's stage L(b) and (c). Christian, reply filed 27 October 2026, item 5: *"For now, preserve the validated
+ * target-zone version without silently adding new handling restrictions."*; item 6: *"The [performer] should be visually distinguishable from
+ * the outfield players."* (his noun bracketed). Independent of the renderer, read from the fixture's default-laws account, the DRAFT data's
+ * clauses (`appliedLawWordings`), the Sport Profile's preconditions of each law (`appliedLawReading`) and the game:
+ *
+ *   - a sentence citing a law as applied (`appliedLawPath`) is refused where the game carries no account or the account does not record the
+ *     law as applying at every place it is accounted for (Q2), and a part citing it that says none of the clauses written for it (filled with
+ *     the performer the law requires and the object played with) is refused (Q2);
+ *   - where the account records the law as applying, a clause written for it is lost where the sentence it belongs to does not cite the law
+ *     (Q3): the roster sentence for `distinguished`; the Set up sentence marking each region the law's preconditions bind (its function and
+ *     the kind of the object it is bound to) for `inRegion`.
+ *
+ * Every game whose account records no such law as applying, and citing none, owes nothing here.
+ */
+function appliedLawFindings(fixture: any, rendered: RenderedActivity): FidelityFinding[] {
+    const findings: FidelityFinding[] = []
+    const account = fixtureLawAccount(fixture)
+    const index = rendererRegister()
+    const objects: any[] = Array.isArray(fixture?.game?.objects) ? fixture.game.objects : []
+    const referenced = new Set(((fixture?.game?.objectives ?? []) as any[]).map(o => o?.reference?.structuralRef).filter(Boolean).map((ref: any) => `c:${ref.contractId}:${ref.itemId}`))
+    const carrier = objects.find(object => typeof object?.kind === 'string' && !referenced.has(String(object?.elementId)))
+    for (const entry of appliedLawWordings()) {
+        const at = appliedLawPath(entry.law)
+        const applies = !!account && appliesThroughout(account, entry.law)
+        const reading = appliedLawReading(entry.law)
+        const performer = reading.performerRows.map(row => index.specializedRoleRows.get(row)).find((name): name is string => typeof name === 'string')
+        const values: Record<string, string> = { ...(performer ? { performer } : {}), ...(carrier ? { carrier: String(carrier.kind) } : {}) }
+        const inRegion = entry.inRegion ? fillSlots(entry.inRegion.words, values) : null
+        const distinguished = entry.distinguished ? fillSlots(entry.distinguished.words, values) : null
+        const clauses = [inRegion, distinguished].filter((clause): clause is string => !!clause)
+        for (const instruction of rendered.instructions.filter(i => i.from.includes(at))) {
+            if (!applies) {
+                findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" says what ${entry.law} gives the coach, and ${account ? `the game's default-laws account does not record ${entry.law} as applying at every place it is accounted for` : 'the game carries no default-laws account'}` })
+            }
+            for (const statement of instruction.parts?.length ? instruction.parts : [{ text: instruction.text, from: instruction.from }]) {
+                if (statement.from.includes(at) && !clauses.some(clause => statement.text.includes(clause))) findings.push({ question: 2, severity: 'VIOLATION', what: `"${statement.text}" cites ${at} and says none of the words written for ${entry.law}` })
+            }
+        }
+        if (!applies) continue
+        if (distinguished) {
+            const roster = rendered.instructions.find(i => i.section === 'Players' && i.from.includes('envelope.players'))
+            if (!roster || !roster.from.includes(at)) findings.push({ question: 3, severity: 'VIOLATION', what: `the game's default-laws account records ${entry.law} as applying, and the roster sentence does not tell the coach "${distinguished}"` })
+        }
+        if (inRegion) {
+            for (const region of (fixture?.game?.space?.regions ?? []) as any[]) {
+                const binding = bindingOf(region, index)
+                const object = binding ? objects.find(candidate => String(candidate?.elementId) === binding.objectId) : null
+                const functions = regionFunctionsOf(region, index)
+                if (!object || !reading.regions.some(found => functions.includes(found.function) && found.kind === object.kind)) continue
+                const marking = rendered.instructions.filter(i => i.section === 'Set up' && i.status !== 'PREFERENCE' && i.from.includes(`space.regions[${region.elementId}].noun`))
+                if (!marking.some(i => i.from.includes(at))) findings.push({ question: 3, severity: 'VIOLATION', what: `the game's default-laws account records ${entry.law} as applying, and no sentence marking ${region.elementId} tells the coach "${inRegion}"` })
+            }
+        }
+    }
+    return findings
+}
+
+/**
+ * **A region whose meaning is a law of the sport the account records as applying inside it** — stage L, 24 October 2026, a validation
+ * EXTENSION of Q5's operational test (the d27 design's 3.6 E5: *"Q5 accepts a region whose meaning is a default law the profile names"*).
+ * His ruling of 1 October: a marked feature must take part in *"at least one established operational relationship in the game. That could be
+ * scoring, eligibility/access, value modification, transition behavior, information, or another represented game relationship."* A region
+ * bound to an object (register row S7) whose function and object a law of the Sport Profile's defaultLaws requires (a REGION_BOUND_TO_OBJECT
+ * precondition), where the game's default-laws account records that law as applying at every place, takes part in that law (the handling
+ * inside it), a represented relationship read from the account, not the game; the compensating check is the account's own reading of the
+ * region (`default-laws-check.ts`) and appliedLawFindings, which holds the clause saying it. Every other region is read exactly as before.
+ */
+function defaultLawRelationshipsOf(fixture: any, region: any): string[] {
+    const index = rendererRegister()
+    const binding = bindingOf(region, index)
+    const account = fixtureLawAccount(fixture)
+    if (!binding || !account) return []
+    const object = ((fixture?.game?.objects ?? []) as any[]).find(candidate => String(candidate?.elementId) === binding.objectId)
+    const functions = regionFunctionsOf(region, index)
+    return (loadSportDefaultLaws()?.laws ?? [])
+        .filter(law => law.requires.some(predicate => predicate.predicate === 'REGION_BOUND_TO_OBJECT' && functions.includes(String(predicate.function)) && object?.kind === predicate.kind) && appliesThroughout(account, law.id))
+        .map(law => `${appliedLawPath(law.id)} (${law.id} applies inside it, as the game's default-laws account records)`)
 }
 
 function remarkingFindings(fixture: any, rendered: RenderedActivity): FidelityFinding[] {
@@ -1208,6 +1424,8 @@ export function checkFidelity(
                       (asStarting && stated(begun) && begun === quantity) ||
                       // Stage 2D: a number bound to the physical layout is admitted only where the layout holds it at that path (RB-L, Q5-L), a leaf (H3).
                       layoutLeafNumberAt(fixture.layout, path).includes(quantity) ||
+                      // Stage L: a figure of a bound region's cited pairing, at its leaf (held to the region's realized size by boundRegionFindings).
+                      boundRegionLeafNumberAt(fixture, path).includes(quantity) ||
                       (fixture.game?.value?.valueModifiers ?? []).some((modifier: any) => {
                           const at = `value.valueModifiers[${modifier.elementId}]`
                           return (
@@ -1281,7 +1499,7 @@ export function checkFidelity(
             instruction.from.flatMap(path => {
                 const begun = rangeAt.get(path)?.starting
                 // Stage 2D: and a number the physical layout holds at a leaf path the sentence cites (RB-L, Q5-L; leaf only since H3).
-                return [...heldAt(fixture, path).filter(n => asChoice || !stated(begun) || n !== begun), ...layoutLeafNumberAt(fixture.layout, path)]
+                return [...heldAt(fixture, path).filter(n => asChoice || !stated(begun) || n !== begun), ...layoutLeafNumberAt(fixture.layout, path), ...boundRegionLeafNumberAt(fixture, path)]
             }),
         )
         for (const range of about) {
@@ -1636,6 +1854,9 @@ export function checkFidelity(
 
     findings.push(...deadBallFindings(fixture, rendered))
     findings.push(...departedLawFindings(fixture, rendered))
+    // Stage L: a bound region's figures, and what a law applying gives the coach.
+    findings.push(...boundRegionFindings(fixture, rendered))
+    findings.push(...appliedLawFindings(fixture, rendered))
 
     // ── Q5 — a coach could lay it out and play it ───────────────────────────────────────────────
     const sections = new Set(rendered.instructions.map(i => i.section))
@@ -1656,8 +1877,10 @@ export function checkFidelity(
             findings.push({ question: 5, severity: 'VIOLATION', what: `region ${region.elementId} exists in the game and has no marking instruction` })
             continue
         }
-        // Marked, therefore a physical feature the coach is instructed to create — so it must do something.
-        const relationships = operationalRelationships(fixture, region.elementId)
+        // Marked, therefore a physical feature the coach is instructed to create — so it must do something. Stage L: or a law of the sport the
+        // account records as applying inside it (`defaultLawRelationshipsOf`), read only where the game itself holds none.
+        const inGame = operationalRelationships(fixture, region.elementId)
+        const relationships = inGame.length ? inGame : defaultLawRelationshipsOf(fixture, region)
         if (!relationships.length) {
             findings.push({
                 question: 5,

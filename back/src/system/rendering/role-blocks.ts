@@ -691,6 +691,8 @@ export function counterpartMap(from: { fixture: any }, to: { fixture: any }, ind
         for (const [collection, ends] of [
             ['zones', (z: any) => [z.from, z.to]],
             ['marks', (m: any) => [m.at, m.at]],
+            // Stage L (24 October 2026): a region set out as itself, at both ends where it alternates, mirrored along the length as a zone is.
+            ['rectangles', (r: any) => [r.along.from, r.along.to]],
         ] as [string, (element: any) => number[]][]) {
             const members: any[] = Array.isArray(layouts[0][collection]) ? layouts[0][collection] : []
             for (const member of members) {

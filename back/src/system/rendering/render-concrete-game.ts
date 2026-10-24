@@ -45,7 +45,7 @@
  * The standing rule that follows from that: **if a sentence here names something in the game, the name
  * comes from the game and the path is cited.** "Obvious in the sport" is not a source.
  */
-import { bindingOf } from '../derivation/bound-regions'
+import { bindingOf, regionFunctionsOf } from '../derivation/bound-regions'
 import { nonClaimState } from '../derivation/classify'
 import { loadRegister } from '../derivation/corpus'
 import { participantOf, sameParticipant } from '../derivation/participants'
@@ -55,10 +55,10 @@ import { NO_FURTHER_VALUE } from '../derivation/types'
 import { CONDITION_ROW, conditionScopeNotEvaluable } from '../derivation/resolved-game'
 import { ApprovedTemplateSentence, approvedTemplateSentences, approvedWording, ApprovedWording, canonicalJson, fillTemplate, POSSESSION_CONTINUES, WordingMatch } from './approved-wording'
 import { exclusionFor } from './coach-facing-exclusions'
-import { deadBallRestartWording, departedLawWordings, facingWording, fillSlots, objectKindWording, restartLawNouns, scoresAtAnObject, scoringAtObjectWording, slotsOf, triggerWording, triggerWordingOrder } from './draft-coach-wording'
+import { appliedLawReading, appliedLawWordings, boundRegionWording, deadBallRestartWording, departedLawWordings, facingWording, fillSlots, normalLawsWording, objectKindWording, restartLawNouns, scoresAtAnObject, scoringAtObjectWording, slotsOf, triggerWording, triggerWordingOrder } from './draft-coach-wording'
 import { eventKindOf, genericOf } from './game-reading'
-import { MARK_UNION_ONCE, MarkingChange, PhysicalLayout, Remarking, somethingMoves } from './physical-layout'
-import { defaultLawPath, departedThroughout, fixtureLawAccount } from './rendering-fixture'
+import { LayoutRectangle, MARK_UNION_ONCE, MarkingChange, PhysicalLayout, Remarking, somethingMoves } from './physical-layout'
+import { appliedLawPath, appliesThroughout, boundRegionPath, DEFAULT_LAWS_OWED, defaultLawPath, departedThroughout, fixtureBoundRegion, fixtureLawAccount, owesNothing } from './rendering-fixture'
 import { ADJUSTING, assignSection, inSectionOrder, PLAY_STATE_UNREADABLE, RESTARTS, ROLE_EXCHANGE, Section, SectionFacts, TransitionReading, When } from './sections'
 
 // The two section names every importer has read from here since stages S-C1 and K3; since stage 2A they are named, with the rest
@@ -1446,13 +1446,91 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
         return { lengthAxis, atAxis, length: (length?.to ?? 0) - (length?.from ?? 0), at: atAxis?.geometry.interval }
     }
     /**
-     * **A region bound to an object is said by no sentence yet** (H3, 23 October 2026; register version 21, row S7). Its words are Stage G's
-     * (the d26 design's N6, DRAFT, after his approval), so it is not handed to the sentences below: read as an ordinary region it would be
-     * told as a strip "along the touchline", which it is not. Unsaid, fidelity names it (Q5: a region with no marking instruction; Q3: its
-     * lines carried by nothing), so a game holding one is refused at communication, honestly, until its words exist. No production game
-     * holds one.
+     * **A region bound to an object is not handed to the sentences below** (H3, 23 October 2026; register version 21, row S7): read as an
+     * ordinary region it would be told as a strip "along the touchline", which it is not. Since stage L it has a sentence of its own
+     * (`boundRegionSentenceOf`, below); a bound region that sentence cannot say stays unsaid, and fidelity names it (Q5: a region with no
+     * marking instruction; Q3: its lines carried by nothing), so the game is refused at communication rather than mis-said. No production
+     * game holds one.
      */
     const regions: any[] = (game.space?.regions ?? []).filter((region: any) => !bindingOf(region, participants()))
+    const boundRegionsHeld: any[] = (game.space?.regions ?? []).filter((region: any) => !!bindingOf(region, participants()))
+    /** The game's default-laws account (the fixture's, R2), read by the bound region's clause, the roster's clause and the normal rules (stage L). */
+    const lawAccount = fixtureLawAccount(fixture)
+    /**
+     * **The Set up sentence for a region bound to an object** — stage L, 24 October 2026 (the d27 design's stage L(b), DRAFT): *"Mark the
+     * [object]'s [handling area]: {w} m wide, centred on the [object], and {d} m deep into the area; inside it the [performer] may handle the
+     * [carrier] as in a normal game."* (its nouns bracketed for the coupling ratchet; the DRAFT wording data holds them). Christian, reply filed 26 October 2026, item 7: *"Use an existing regulation [handling area] when the activity dimensions
+     * and setup permit it."* and *"The [performer]'s handling permissions and restrictions should follow the normal Laws of the Game within that
+     * area unless an authorized activity rule explicitly changes them."* (his nouns bracketed: the coupling ratchet keeps a sport's nouns out of
+     * this layer; the DRAFT wording data quotes him whole).
+     *
+     * Said only where the game holds exactly that: the region bound (row S7) to an object of a kind the DRAFT wording data has a sentence for
+     * with one of the region's functions (`boundRegionWording`: the noun and the sentence are data), the cited pairing carried in the fixture
+     * (`boundRegions`, the entry GA-BOUND-REGION held the region to) for that function, the region's realized depth along and width across
+     * exactly the pairing's, set out from the end line the object stands on and centred on it across. The figures are the pairing's, each bound
+     * to its leaf of the carried pairing (fidelity admits it there and holds it to the realized size). It cites the region's noun, functions,
+     * positions and binding, the object's kind, the pairing, and where the markings are set out once the region's rectangle in the layout.
+     *
+     * Then, where the DRAFT data has words for what a law gives inside such a region (`appliedLawWordings`, `inRegion`), the law's required
+     * preconditions bind that function to that kind (`appliedLawReading`) and the game's default-laws account records the law as applying at
+     * every place (`appliesThroughout`), the clause after "; ", {performer} the name of the specialized performer the law requires, citing the
+     * law's entries as applied (`appliedLawPath`) and the object played with. Anywhere else nothing is said, so fidelity refuses the game.
+     */
+    const boundRegionSentenceOf = (region: any, rectangle: LayoutRectangle | null): Instruction | null => {
+        const spec = participants().boundRegions
+        const binding = bindingOf(region, participants())
+        const object = binding ? objectById(binding.objectId) : null
+        if (!spec || !binding || !object || typeof object.kind !== 'string' || !objectSpec) return null
+        const id = String(region.elementId)
+        const functions = regionFunctionsOf(region, participants())
+        const wording = functions.map(member => boundRegionWording(member, object.kind)).find(Boolean) ?? null
+        const pairing = fixtureBoundRegion(fixture, id)?.pairing ?? null
+        const along = geometryFor(id, 'along')
+        const across = geometryFor(id, 'across')
+        const span = along?.geometry?.interval
+        const wide = across?.geometry?.interval
+        const at = geometryFor(object.elementId, 'along')?.geometry?.interval
+        const objectAcross = geometryFor(object.elementId, 'across')?.geometry?.interval
+        if (!wording || !pairing || pairing.region.function !== wording.function || !along?.path || !across?.path || !span || !wide || !at || !objectAcross) return null
+        const same = (a: number, b: number) => Math.abs(a - b) < 1e-9
+        const fromObjectEnd = at.from === at.to && ((at.from === 0 && same(span.from, 0)) || (at.from === areaLength && same(span.to, areaLength)))
+        const centred = same((wide.from + wide.to) / 2, (objectAcross.from + objectAcross.to) / 2)
+        if (!fromObjectEnd || !centred || !same(span.to - span.from, pairing.region.depthM) || !same(wide.to - wide.from, pairing.region.widthM)) return null
+        const text = fillSlots(wording.sentence, { object: object.kind, region: wording.noun, width: metres(pairing.region.widthM), depth: metres(pairing.region.depthM) })
+        if (text === null) return null
+        const widthAt = `${boundRegionPath(id)}.pairing.region.widthM`
+        const depthAt = `${boundRegionPath(id)}.pairing.region.depthM`
+        const bindings: Binding[] = [
+            { slot: wording.sentence.indexOf('{width}'), binding: { quantity: pairing.region.widthM, path: widthAt } },
+            { slot: wording.sentence.indexOf('{depth}'), binding: { quantity: pairing.region.depthM, path: depthAt } },
+        ]
+            .sort((a, b) => a.slot - b.slot)
+            .map(entry => entry.binding)
+        const base = `space.regions[${id}]`
+        const leadFrom = [
+            `${base}.noun`,
+            `${base}.${spec.functionLeaf}`,
+            `${base}.${spec.functionLeaf}[${wording.function}]`,
+            along.path,
+            across.path,
+            `${base}.${spec.ofObjectLeaf}`,
+            `objects[${object.elementId}].${objectSpec.kindLeaf}`,
+            widthAt,
+            depthAt,
+            ...(rectangle ? [`layout.rectangles[${rectangle.elementId}]`] : []),
+        ]
+        const parts = [part(statusAt([`${base}.noun`, along.path, across.path, `${base}.${spec.ofObjectLeaf}`], 'DERIVED'), text, leadFrom, bindings)]
+        for (const entry of appliedLawWordings()) {
+            const reading = appliedLawReading(entry.law)
+            if (!entry.inRegion || !lawAccount || !appliesThroughout(lawAccount, entry.law)) continue
+            if (!reading.regions.some(found => found.function === wording.function && found.kind === object.kind)) continue
+            const performer = reading.performerRows.map(row => participants().specializedRoleRows.get(row)).find((name): name is string => typeof name === 'string') ?? null
+            const clause = fillSlots(entry.inRegion.words, { ...(performer ? { performer } : {}), ...(carrier ? { carrier: String(carrier.kind) } : {}) })
+            if (clause === null) continue
+            parts.push(part('DERIVED', `; ${clause}`, [appliedLawPath(entry.law), ...(slotsOf(entry.inRegion.words).includes('carrier') && carrier ? [`objects[${carrier.elementId}].kind`] : [])]))
+        }
+        return joined('Set up', parts)
+    }
 
     /**
      * **Both end lines in one sentence — stage S-C2, 14 October 2026 (DRAFT).** His §7 asked for *"a clear starting
@@ -1732,6 +1810,13 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
             if (ranged?.preferred) instructions.push(ranged.preferred)
         }
     }
+    // Stage L: a region bound to an object, block by block where the markings are not set out once (with a layout, after the objects, below).
+    if (!layout) {
+        for (const region of boundRegionsHeld) {
+            const said = boundRegionSentenceOf(region, null)
+            if (said) instructions.push(said)
+        }
+    }
 
     /**
      * **The end zones set out once, and each role's target said by role — stage 2D, 21 October 2026 (DRAFT wording).** His item 7 above,
@@ -1822,6 +1907,16 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
                     ...(defender ? [part(statusAt([defendedAt], 'DERIVED'), `; the team with the active ${defender} defends it`, [defendedAt])] : []),
                 ]),
             )
+        }
+        /**
+         * Stage L (the d27 design's stage L(a) and (b)): each region bound to an object, set out once where the layout holds it as a rectangle for
+         * this block, said after the objects (an object it is bound to is placed first), citing its rectangle.
+         */
+        const thisBlock = String((fixture as any).record?.roleBlock?.blockId ?? '')
+        for (const region of boundRegionsHeld) {
+            const rectangle = (layout.rectangles ?? []).find(entry => entry.sources.some(source => source.regionId === String(region.elementId) && source.blockId === thisBlock)) ?? null
+            const said = rectangle ? boundRegionSentenceOf(region, rectangle) : null
+            if (said) instructions.push(said)
         }
         const layoutTarget = (region: any): { text: string; from: string[]; bindings: Binding[] } | null => {
             if (typeof region?.noun !== 'string' || region.noun === 'line') return null
@@ -2111,6 +2206,27 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
     const rosterParts = [...roster, ...rolesEach, ...(neutralPart ? [neutralPart] : [])]
     rolesNone.forEach(({ role, from }, i) => rosterParts.push(part('SESSION', `${neutralPart || i > 0 ? ' and' : ', with'} no ${role}s`, from)))
     rosterParts.push(...rolesUnused)
+    /**
+     * **The colour that tells a specialized performer apart** — stage L, 24 October 2026 (the d27 design's stage L(c), DRAFT: *"The Players
+     * sentence gains 'give the [performer] a colour neither team wears'"*). Christian, reply filed 27 October 2026, item 6: *"The [performer]
+     * should be visually distinguishable from the outfield players."* (his noun bracketed for the coupling ratchet; the data file quotes him
+     * whole, and names the law of the sport it also rests on). Said after "; " at the end of the roster sentence, where the DRAFT data has words
+     * for it (`appliedLawWordings`, `distinguished`) and the game's default-laws account records that law as applying at every place, {performer}
+     * the name of the specialized performer the law requires; citing the law's entries as applied and that performer's count in the teams. So it
+     * is said where the performer's handling law applies (the goal version) and not in the served zone version, which owes that law: its
+     * handling is his to decide (his reply filed 27 October 2026, item 5), and the colour shows who may handle (OUR READING, disclosed).
+     */
+    if (rosterParts.length && lawAccount) {
+        for (const entry of appliedLawWordings()) {
+            if (!entry.distinguished || !appliesThroughout(lawAccount, entry.law)) continue
+            const row = appliedLawReading(entry.law).performerRows.find(candidate => typeof participants().specializedRoleRows.get(candidate) === 'string')
+            const performer = row ? participants().specializedRoleRows.get(row)! : null
+            const leaf = row ? String(participants().rows.get(row)?.path ?? '').split('[].').pop() : null
+            const clause = performer ? fillSlots(entry.distinguished.words, { performer }) : null
+            if (!clause || !leaf) continue
+            rosterParts.push(part('DERIVED', `; ${clause}`, [appliedLawPath(entry.law), `performers.teams[].${leaf}`]))
+        }
+    }
     if (rosterParts.length) instructions.push(joined('Players', rosterParts))
     for (const adjusting of neutralAdjusting.filter(i => i.section === 'Players')) instructions.push(adjusting)
 
@@ -2812,10 +2928,26 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
      * the account (`defaultLawPath`). A game with no account, or whose account records the law otherwise, has no such sentence; every game
      * without an account is said exactly as before.
      */
-    const lawAccount = fixtureLawAccount(fixture)
+    const departedSentences: InstructionPart[][] = []
     for (const entry of departedLawWordings()) {
-        if (lawAccount && departedThroughout(lawAccount, entry.law)) say('How it works', 'DERIVED', entry.words, [defaultLawPath(entry.law)])
+        if (lawAccount && departedThroughout(lawAccount, entry.law)) departedSentences.push([part('DERIVED', entry.words, [defaultLawPath(entry.law)])])
     }
+    /**
+     * **The sport's normal rules otherwise, said only where nothing is owed** — stage L, 24 October 2026 (the d27 design's section 2.8: *"It is
+     * served only where the default-laws account owes nothing."*). Christian, reply filed 27 October 2026, item 6: *"Where normal [sport] rules
+     * remain relevant during live play, they should continue to apply unless explicitly modified."* (his noun bracketed; the data file holds the
+     * sentence whole, so the sport's noun is data). Where the game's default-laws account (the fixture's) owes nothing at any place, the DRAFT
+     * words (`normalLawsWording`) close How it works, citing the account as owing nothing (`DEFAULT_LAWS_OWED`): after "; " at the end of the
+     * last sentence for a law the activity departs from, where one is said ("There is no [restriction]; otherwise, ..."), so the departures and
+     * what holds otherwise are read together and the goal version stays within the zone version's count of sentences (the design's 4.3); else
+     * as a sentence of its own. Never where anything is owed: in the served zone version, which owes the handling law, saying it would add a
+     * restriction silently (his reply filed 27 October 2026, item 5). A game with no account says nothing of it, exactly as before.
+     */
+    const normal = normalLawsWording()
+    const normalSaid = !!normal && !!lawAccount && owesNothing(lawAccount)
+    if (normal && normalSaid && departedSentences.length) departedSentences[departedSentences.length - 1].push(part('DERIVED', `; ${normal.words.charAt(0).toLowerCase()}${normal.words.slice(1)}`, [DEFAULT_LAWS_OWED]))
+    for (const parts of departedSentences) instructions.push(joined('How it works', parts))
+    if (normal && normalSaid && !departedSentences.length) say('How it works', 'DERIVED', normal.words, [DEFAULT_LAWS_OWED])
 
     // ── How to score ────────────────────────────────────────────────────────────────────────────
     const primary = game.value?.primaryEvent

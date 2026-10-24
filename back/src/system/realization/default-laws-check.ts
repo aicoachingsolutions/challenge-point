@@ -103,8 +103,12 @@ export interface DefaultLawsAccount {
     blocks: BlockLawAccount[]
     /** Every law owed an adaptation, one sentence per block and place: the refusal's reasons under ENFORCE; reported only under REPORT. */
     owed: string[]
-    /** The DRAFT sentence the design holds for the coach, never served by this account (null where no DRAFT wording carries it). */
-    heldSentence: { text: string; status: 'DRAFT_HELD_NOT_SERVED'; basis: CitedWords } | null
+    /**
+     * The DRAFT sentence the design holds for the coach (null where no DRAFT wording carries it). Stage L, 24 October 2026 (the d27 design's
+     * section 2.8: *"It is served only where the default-laws account owes nothing."*): `DRAFT_SAID_NOTHING_OWED` where this account owes
+     * nothing, so the renderer says it (fidelity holds the two together); `DRAFT_HELD_NOT_SERVED` wherever anything is owed.
+     */
+    heldSentence: { text: string; status: 'DRAFT_HELD_NOT_SERVED' | 'DRAFT_SAID_NOTHING_OWED'; basis: CitedWords } | null
 }
 
 const readAt = (root: unknown, path: string): unknown => path.split('.').reduce<any>((node, key) => (node === null || node === undefined ? undefined : node[key]), root)
@@ -437,6 +441,7 @@ export function defaultLawsAccountOf(input: {
         source: { file: laws.file, source: laws.source, edition: laws.edition, editionNote: laws.editionNote, authority: JSON.parse(JSON.stringify(laws.authority)) },
         blocks,
         owed,
-        heldSentence: input.heldSentence ? JSON.parse(JSON.stringify(input.heldSentence)) : null,
+        // Stage L: said where nothing is owed, held wherever anything is.
+        heldSentence: input.heldSentence ? { ...JSON.parse(JSON.stringify(input.heldSentence)), status: owed.length ? 'DRAFT_HELD_NOT_SERVED' : 'DRAFT_SAID_NOTHING_OWED' } : null,
     }
 }

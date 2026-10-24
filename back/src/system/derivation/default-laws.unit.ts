@@ -245,6 +245,15 @@ test('the gate refuses a departure it cannot read, a strictness outside the list
     refused(f => onItself(f).push({ ...copy(departure(f, 'A01-R1-T2-1')[0]) }), /realization A01-R1 departs from LAW-8 on itself and on its item A01-R1-T2-1: a law the activity removes without replacing it is recorded on the realization, a law an item replaces on that item, never both/, 'one law on the realization and an item')
     refused(f => (f.realizations.find((r: any) => r.id === R2).items[0].departsFrom = copy(onItself(f))), /realization A01-R2 departs from LAW-11 on its base A01-R1 and on its item A01-R2-O1-1/, 'a variant\'s item departing from a law its base records on itself')
     refused(f => (f.realizations.find((r: any) => r.id === R2).departsFrom = [{ ...copy(onItself(f)[0]), law: 'LAW-77' }]), /realization A01-R2 \(on itself\) departure 1 departs from "LAW-77"/, 'a variant\'s own departure on itself, held to the same rules')
+    // Stage L (the R3 review's should-fix, NEW, a tightening): a variant's own list replaces its base's whole, so it restates every law of it.
+    // TEST-ONLY: A01-R2 stating on itself a departure from LAW-12-GK alone, leaving out the LAW-11 its base records - refused, naming it.
+    refused(f => (f.realizations.find((r: any) => r.id === R2).departsFrom = [{ ...copy(onItself(f)[0]), law: 'LAW-12-GK' }]), /realization A01-R2 states departures on itself and leaves out LAW-11, which its base A01-R1 departs from on itself: a variant's own list replaces its base's whole/, 'a variant\'s own list leaving out a law of its base\'s')
+    // Restating it beside its own is accepted (the list is read whole).
+    {
+        const file = copy(raw)
+        file.realizations.find((r: any) => r.id === R2).departsFrom = [copy(onItself(file)[0]), { ...copy(onItself(file)[0]), law: 'LAW-12-GK' }]
+        assert.ok(!validateProvisionalRealizations(file).some(error => error.includes('leaves out')), 'a variant restating its base\'s list is not refused for it')
+    }
     refused(f => {
         delete f.realizations.find((r: any) => r.id === R1).defaultLawsCheck
         delete f.realizations.find((r: any) => r.id === R2).defaultLawsCheck
@@ -276,7 +285,10 @@ test('A01-R1 at 12/1, 12/2 and 11/1, REPORT: LAW-8, the common restart and offsi
             // Re-pointed 24 October 2026 (R3): offside is departed from, the whole of it, cited by the realization that records it on itself,
             // in his reply filed 27 October 2026, item 2 words. Was ADAPTATION_OWED.
             const offside = statusOf(account, at, 'LAW-11').game
-            assert.deepEqual([offside.status, items(offside.departedBy), offside.departedBy[0].extent, offside.departedBy[0].basis.citedAs, offside.why], ['DEPARTED', [R1], 'WHOLE', 'his reply filed 27 October 2026, item 2', `departed from by ${R1}`], label)
+            // Stage L (the R3 review's test-clarity should-fix): the status and who departs are asserted first, so a mutation removing the
+            // departure fails on a named assertion, not on a TypeError indexing an empty list.
+            assert.deepEqual([offside.status, items(offside.departedBy)], ['DEPARTED', [R1]], `${label}: LAW-11 is departed from by ${R1} on itself`)
+            assert.deepEqual([offside.departedBy[0].extent, offside.departedBy[0].basis.citedAs, offside.why], ['WHOLE', 'his reply filed 27 October 2026, item 2', `departed from by ${R1}`], label)
             const handling = statusOf(account, at, 'LAW-12-GK').game
             assert.equal(handling.status, 'ADAPTATION_OWED', label)
             assert.deepEqual(handling.preconditions.map(p => [p.list, p.predicate.predicate, p.reading]), [['applicableWhen', 'SPECIALIZED_PERFORMER_PRESENT', 'PRESENT'], ['requires', 'REGION_BOUND_TO_OBJECT', 'ABSENT']])
@@ -300,8 +312,11 @@ test('A01-R1 at 12/1, 12/2 and 11/1, REPORT: LAW-8, the common restart and offsi
         assert.deepEqual(account.blocks.map(block => block.ends.map(end => end.defendedBy[0])), [['ROLE_HOLDER_BUILDING', 'ROLE_HOLDER_PRESSING'], ['ROLE_HOLDER_PRESSING', 'ROLE_HOLDER_BUILDING']], label)
         // Re-pointed 24 October 2026 (R3): only the goalkeeper's handling is owed, in each block (his item 5 keeps it open). Was four.
         assert.deepEqual(account.owed.map(line => line.split(': ')[1].split(' ')[0]), ['LAW-12-GK', 'LAW-12-GK'], label)
-        // The held sentence: DRAFT, from the wording data, and said nowhere a coach reads.
-        assert.deepEqual(account.heldSentence, { text: 'Otherwise, normal soccer rules apply.', status: 'DRAFT_HELD_NOT_SERVED', basis: { words: draftCoachWordingLoad().wording.normalLaws!.basis.words, citedAs: 'his reply filed 26 October 2026, item 10' } })
+        // The held sentence: DRAFT, from the wording data, and said nowhere a coach reads (the zone version owes LAW-12-GK).
+        // Re-pointed 24 October 2026 (stage L, the d27 design's section 2.8): the words are the design's ('during play', no final full stop,
+        // since a renderer says them where nothing is owed) and rest on his reply filed 27 October 2026, item 6 too. Was: 'Otherwise, normal
+        // soccer rules apply.', item 10 alone. The status stays held here, since this account owes LAW-12-GK.
+        assert.deepEqual(account.heldSentence, { text: 'Otherwise, normal soccer rules apply during play', status: 'DRAFT_HELD_NOT_SERVED', basis: { words: draftCoachWordingLoad().wording.normalLaws!.basis.words, citedAs: 'his reply filed 26 October 2026, item 10; his reply filed 27 October 2026, item 6' } })
         // Re-pointed 24 October 2026 (R3): read on the words a coach reads - the sentences, the overview and the diagram - since the one
         // sentence telling the coach there is no offside cites that law's entries in the account (its provenance names the law's id, as every
         // sentence's provenance names the elements it says). Was the whole rendering, provenance included.

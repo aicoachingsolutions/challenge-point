@@ -43,7 +43,7 @@
  *
  * Nothing here names a goal, a role, a sport term or a value: every number comes from the model, every word from it or the table below.
  */
-import { DIAGRAM_WORDS, DiagramBlock, DiagramFinding, DiagramInput, DiagramTeam, DimensionKind, FieldDiagram, FieldDiagramDraft, fieldDiagramDraftOf, dataWordsOf, Interval } from './field-diagram'
+import { areaLegendTexts, DIAGRAM_WORDS, DiagramBlock, DiagramFinding, DiagramInput, DiagramTeam, DimensionKind, FieldDiagram, FieldDiagramDraft, fieldDiagramDraftOf, dataWordsOf, Interval, keeperLegendText, keeperLegendTexts } from './field-diagram'
 
 /* ------------------------------------------------------------------ what a coach is served ------------------------------------------------------------------ */
 
@@ -76,6 +76,26 @@ export interface CoachDiagramObject {
     across: Interval
     label: string | null
     target: boolean
+}
+
+/**
+ * Stage L (24 October 2026): a marked area that is no zone across the width (a region bound to an object), drawn grey, never in the target
+ * colour, labelled by the noun the Set up sentence marking it carries.
+ */
+export interface CoachDiagramArea {
+    along: Interval
+    across: Interval
+    label: string | null
+}
+
+/**
+ * Stage L: a specialized performer's marker, drawn with the object it defends (at the object's place, never a player's position), in a
+ * colour neither team has, labelled by the performer's name as the roster sentence carries it.
+ */
+export interface CoachDiagramKeeper {
+    along: Interval
+    across: Interval
+    label: string
 }
 
 export interface CoachDiagramTeam {
@@ -126,14 +146,18 @@ export interface CoachDiagramBlock {
     objects: CoachDiagramObject[]
     teams: CoachDiagramTeam[]
     dimensions: CoachDiagramDimension[]
+    /** Stage L: the marked areas (regions bound to an object); present only where there is one. */
+    areas?: CoachDiagramArea[]
+    /** Stage L: each specialized performer's marker; present only where there is one. */
+    keepers?: CoachDiagramKeeper[]
 }
 
 /**
  * The kind of mark a legend word explains; `TARGET_LINE` (polish pass P7) a target that is a line, named by its own noun; since stage C2,
  * where teams are labelled, `TEAM_COLOUR` (a team's look, kept in every block), `ROLE` (the badge naming its role in the block) and `ATTACK`
- * (its arrow).
+ * (its arrow); since stage L, `MARKED_AREA` (a grey marked area, by its label) and `KEEPER` (a specialized performer's marker colour).
  */
-export type CoachLegendKind = 'MARKED_LINE' | 'TARGET_ZONE' | 'TARGET_LINE' | 'STARTING_AREA' | 'TEAM_COLOUR' | 'ROLE' | 'ATTACK'
+export type CoachLegendKind = 'MARKED_LINE' | 'TARGET_ZONE' | 'TARGET_LINE' | 'STARTING_AREA' | 'TEAM_COLOUR' | 'ROLE' | 'ATTACK' | 'MARKED_AREA' | 'KEEPER'
 
 /**
  * **The field diagram a coach is served**: geometry in metres along the area's length (`along`, 0 at one end line) and across its width,
@@ -213,6 +237,9 @@ export const DIAGRAM_COMPOSITION = {
     fromItsEndLine: (distance: string) => `${distance} from its end line`,
     attacksToward: (place: string) => `attacks toward ${place}`,
     together: (counts: string[]) => `${counts.join(' and ')}.`,
+    // Stage L (24 October 2026, DRAFT): a marked area by its label, size and end line; a specialized performer's marker, with what it defends.
+    markedArea: (label: string, width: string, depth: string, where: string | null) => `A ${label} ${width} wide and ${depth} deep is marked${where ? ` ${where}` : ''}.`,
+    keeper: (label: string, object: string | null) => `The ${label} wears a colour of its own${object ? ` and defends the ${object}` : ''}.`,
 } as const
 
 /** Characters no coach word holds: those of paths, keys and markup (D9). */
@@ -348,6 +375,12 @@ function describeBlock(model: FieldDiagram, block: DiagramBlock): string {
         const what = label && state?.state === 'TARGET' ? C.zoneIsTarget(label) : label && state?.state === 'INSIDE_TARGET' ? C.zoneInsideTarget(label) : ''
         sentences.push(C.zone(metres(zone.along.to - zone.along.from), fullWidth(zone.across) ? C.across : C.wide(metres(zone.across.to - zone.across.from)), where, what))
     }
+    // Stage L: each marked area, by its label, its size and the end line it is marked at.
+    for (const area of block.markings.areas ?? []) {
+        if (!area.label) continue
+        const end = touched(area.along)
+        sentences.push(C.markedArea(area.label.text, metres(area.across.to - area.across.from), metres(area.along.to - area.along.from), end !== null ? C.zoneAt(endLineOf(end)) : null))
+    }
 
     // The active targets that are no marked zone and no object: a zone by its depth and end, a line by its end.
     for (const target of block.targets) {
@@ -372,6 +405,11 @@ function describeBlock(model: FieldDiagram, block: DiagramBlock): string {
         const scorer = block.targets.find(target => target.region === object.elementId)
         const where = end !== null ? C.objectOn(endLineOf(end)) : C.from(metres(object.along.from), endLineOf(0))
         sentences.push(C.object(object.label ? C.theObject(object.label.text) : C.anObject, where, scorer ? nounOf(block.teams.find(team => team.key === scorer.attackedBy)) : null))
+    }
+    // Stage L: each specialized performer's marker, with the object it defends.
+    for (const keeper of block.keepers ?? []) {
+        const object = block.objects.find(entry => entry.elementId === keeper.object)
+        sentences.push(C.keeper(keeper.label.text, object?.label?.text ?? null))
     }
 
     // Each team the coach can tell apart: (since stage C2, its label and role where it has a label) its counts, its starting area and the
@@ -402,8 +440,14 @@ function describeBlock(model: FieldDiagram, block: DiagramBlock): string {
 export function coachDiagramOf(model: FieldDiagram, context: { title: string }): CoachDiagram {
     const identities = identitiesOf(model)
     const lineWords = lineTargetWordsOf(model)
+    const areaWords = new Set(areaLegendTexts(model.blocks))
+    const keeperWords = new Set(keeperLegendTexts(model.blocks))
     const legendKind = (text: string): CoachLegendKind | null =>
-        text === DIAGRAM_WORDS.his.markedLine
+        areaWords.has(text)
+            ? 'MARKED_AREA'
+            : keeperWords.has(text)
+              ? 'KEEPER'
+              : text === DIAGRAM_WORDS.his.markedLine
             ? 'MARKED_LINE'
             : text === DIAGRAM_WORDS.his.targetZone
               ? 'TARGET_ZONE'
@@ -447,6 +491,9 @@ export function coachDiagramOf(model: FieldDiagram, context: { title: string }):
                 attacks: team.attacks.map(attack => attack.end),
             })),
             dimensions: block.dimensions.map(dimension => ({ kind: dimension.kind, axis: dimension.axis, from: dimension.from, to: dimension.to, label: dimension.label.text })),
+            // Stage L: only where the model holds a marked area or a marker, so every other coach's diagram is exactly what it was.
+            ...(block.markings.areas?.length ? { areas: block.markings.areas.map(area => ({ along: { ...area.along }, across: { ...area.across }, label: area.label?.text ?? null })) } : {}),
+            ...(block.keepers?.length ? { keepers: block.keepers.map(keeper => ({ along: { ...keeper.along }, across: { ...keeper.across }, label: keeper.label.text })) } : {}),
         })),
     }
 }
@@ -467,14 +514,19 @@ export function checkCoachDiagram(coach: CoachDiagram, model: FieldDiagram, inpu
     // written as a noun, say) is refused as a whole word, as D6 refuses it, since the same noun may stand in a served count.
     const keyLike = [...forbidden].filter(entry => /^[A-Z][A-Z0-9_]{2,}$/.test(entry))
     const ordinals = model.blocks.map((_, n) => n + 1)
-    const wordsOk = (words: (string | null)[], blockId: string | null, ordinal: number | null) => {
+    /**
+     * `performers` (stage L, a narrow RELAXATION, as D6's): a specialized performer's name, whole in `forbidden` as a value of the games, is
+     * allowed as the label of that performer's marker only, where the checked model labels the marker so (D2 and D6 hold the model's label
+     * to the defending row and the served roster sentence); every other word is held exactly as before.
+     */
+    const wordsOk = (words: (string | null)[], blockId: string | null, ordinal: number | null, performers: Set<string> = new Set()) => {
         for (const word of words) {
             if (word === null) continue
             if (typeof word !== 'string' || !word.trim()) {
                 finding(blockId, `an empty or non-text word: ${JSON.stringify(word)}`)
                 continue
             }
-            if (forbidden.has(word)) finding(blockId, `"${word}" is a data key or value, not a coach word`)
+            if (forbidden.has(word) && !performers.has(word)) finding(blockId, `"${word}" is a data key or value, not a coach word`)
             const tokens = word.split(/[^A-Za-z0-9_]+/)
             const key = keyLike.find(entry => tokens.includes(entry))
             if (key) finding(blockId, `"${word}" holds the data key ${key}`)
@@ -496,7 +548,12 @@ export function checkCoachDiagram(coach: CoachDiagram, model: FieldDiagram, inpu
     if (JSON.stringify(coach.legend.map(entry => entry.text)) !== JSON.stringify(model.legend.map(word => word.text))) finding(null, 'the legend is not the model\'s')
     // Each legend word explains its own kind of mark: his two terms, the starting area's name, or (polish pass P7) a target line's words.
     const lineWords = lineTargetWordsOf(model)
+    const areaWords = new Set(areaLegendTexts(model.blocks))
+    const keeperWords = new Set(keeperLegendTexts(model.blocks))
     const kindHolds: Record<CoachLegendKind, (text: string) => boolean> = {
+        // Stage L: a marked area's label, and a specialized performer's marker words, each read again from the model.
+        MARKED_AREA: text => areaWords.has(text),
+        KEEPER: text => keeperWords.has(text),
         MARKED_LINE: text => text === DIAGRAM_WORDS.his.markedLine,
         TARGET_ZONE: text => text === DIAGRAM_WORDS.his.targetZone,
         TARGET_LINE: text => lineWords.has(text),
@@ -518,7 +575,23 @@ export function checkCoachDiagram(coach: CoachDiagram, model: FieldDiagram, inpu
         const blockId = block.blockId
         if (!shown) return
         const ordinal = i + 1
-        keysAre(`block ${ordinal}`, shown, ['label', 'title', 'desc', 'caption', 'exchange', 'lines', 'zones', 'targets', 'objects', 'teams', 'dimensions'], blockId)
+        keysAre(`block ${ordinal}`, shown, ['label', 'title', 'desc', 'caption', 'exchange', 'lines', 'zones', 'targets', 'objects', 'teams', 'dimensions', 'areas', 'keepers'], blockId)
+        for (const area of shown.areas ?? []) keysAre('a marked area', area, ['along', 'across', 'label'], blockId)
+        for (const keeper of shown.keepers ?? []) keysAre('a marker', keeper, ['along', 'across', 'label'], blockId)
+        // Stage L: the marked areas and the markers, in order, in place, with the model's words; none where the model has none.
+        const areas = block.markings.areas ?? []
+        const shownAreas = shown.areas ?? []
+        if (shownAreas.length !== areas.length || shownAreas.some((area, n) => !same(area.along, areas[n].along) || !same(area.across, areas[n].across) || area.label !== (areas[n].label?.text ?? null))) {
+            finding(blockId, 'the marked areas shown are not the model\'s')
+        }
+        if (shown.areas !== undefined && !areas.length) finding(blockId, 'the coach\'s diagram carries marked areas the model does not hold')
+        const keepers = block.keepers ?? []
+        const shownKeepers = shown.keepers ?? []
+        if (shownKeepers.length !== keepers.length || shownKeepers.some((keeper, n) => !same(keeper.along, keepers[n].along) || !same(keeper.across, keepers[n].across) || keeper.label !== keepers[n].label.text)) {
+            finding(blockId, 'the markers shown are not the model\'s')
+        }
+        if (shown.keepers !== undefined && !keepers.length) finding(blockId, 'the coach\'s diagram carries markers the model does not hold')
+        for (const keeper of shownKeepers) if (keeperLegendText(keeper.label) && !coach.legend.some(entry => entry.kind === 'KEEPER' && entry.text === keeperLegendText(keeper.label))) finding(blockId, `the legend does not say what the ${keeper.label}'s marker is`)
         // As D8 holds the model: nothing beyond these keys, so no player, position inside an area, path or movement rides along.
         for (const line of shown.lines) keysAre('a line', line, ['along', 'across', 'markedLine', 'label'], blockId)
         for (const zone of shown.zones) keysAre('a zone', zone, ['along', 'across', 'state'], blockId)
@@ -590,11 +663,19 @@ export function checkCoachDiagram(coach: CoachDiagram, model: FieldDiagram, inpu
                 ...shown.lines.map(line => line.label),
                 ...shown.targets.map(target => target.label),
                 ...shown.objects.map(object => object.label),
+                ...(shown.areas ?? []).map(area => area.label),
                 ...shown.teams.flatMap(team => [team.label ?? null, team.noun, ...team.counts]),
                 ...shown.dimensions.map(dimension => dimension.label),
             ],
             blockId,
             model.blocks.length > 1 ? ordinal : null,
+        )
+        // Stage L: each marker's label, its performer's name allowed where the checked model labels that marker so.
+        wordsOk(
+            shownKeepers.map(keeper => keeper.label),
+            blockId,
+            model.blocks.length > 1 ? ordinal : null,
+            new Set(keepers.map(keeper => keeper.label.text)),
         )
     })
     return findings

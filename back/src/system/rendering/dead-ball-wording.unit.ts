@@ -44,6 +44,7 @@ import { checkOverview } from './overview-fidelity'
 import { DRAFT_COACH_WORDING_FILE, draftCoachWordingLoad, draftCoachWordingLoadOf, draftCoachWordingUnusableBecause } from './draft-coach-wording'
 import { checkFidelity, FidelityFinding } from './fidelity'
 import { Instruction, renderConcreteGame } from './render-concrete-game'
+import { DEFAULT_LAWS_OWED } from './rendering-fixture'
 import { RESTARTS } from './sections'
 import { specializedRoleNames } from './session-envelope'
 
@@ -139,7 +140,8 @@ test('the loader refuses (V9): a key other than the common value, wrong slots, n
         const why = draftCoachWordingUnusableBecause(damaged, index, laws)
         assert.ok(why && pattern.test(why), `${what}: ${why}`)
         // Re-pointed 24 October 2026 (R3): the wording gains departedLaws, empty like every other list where the file cannot be used.
-        assert.deepEqual(draftCoachWordingLoadOf(damaged, index, laws).wording, { objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [] }, `${what}: an unusable file loads as no wording at all`)
+        // Re-pointed 24 October 2026 (stage L): and boundRegions and appliedLaws, empty likewise.
+        assert.deepEqual(draftCoachWordingLoadOf(damaged, index, laws).wording, { objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [], boundRegions: [], appliedLaws: [] }, `${what}: an unusable file loads as no wording at all`)
     }
     refused(f => (f.deadBallRestart[SPEC.perTrigger] = copy(f.deadBallRestart[SPEC.common])), /only the common restart has words of its own/, 'words for the per-trigger value')
     refused(f => (f.deadBallRestart.TEST_ONLY = copy(f.deadBallRestart[SPEC.common])), /keyed by no common value/, 'a key off the register')
@@ -202,7 +204,17 @@ test('the projection is proved by its consumers: each block\'s fixture carries t
         for (const block of blocks) {
             const evidence = account.blocks.find(entry => entry.blockId === block.blockId)!
             assert.ok(evidence, `${what}: ${block.blockId}`)
-            assert.deepEqual(block.fixture.defaultLaws, { status: 'ACCOUNT_OF_THIS_GAME', realization: 'A01-R1', laws: evidence.laws.map(entry => ({ law: entry.law, end: entry.end, status: entry.status })) }, `${what}: ${block.blockId}`)
+            // Re-pointed 24 October 2026 (stage L, the R3 review's should-fix): an entry departed from only by what the realization records on
+            // itself is marked so, read from the same evidence (each citation is the realization A01-R1).
+            assert.deepEqual(
+                block.fixture.defaultLaws,
+                {
+                    status: 'ACCOUNT_OF_THIS_GAME',
+                    realization: 'A01-R1',
+                    laws: evidence.laws.map(entry => ({ law: entry.law, end: entry.end, status: entry.status, ...(entry.status === 'DEPARTED' && entry.departedBy.length && entry.departedBy.every(citation => citation.item === 'A01-R1') ? { removedByRealization: true } : {}) })),
+                },
+                `${what}: ${block.blockId}`,
+            )
             const departed = block.fixture.defaultLaws.laws.filter((entry: any) => entry.status === 'DEPARTED').map((entry: any) => entry.law)
             // Re-pointed 24 October 2026 (R3): and from offside (LAW-11), which A01-R1 records on itself.
             assert.deepEqual([...new Set(departed)].sort(), ['LAW-11', 'LAW-13', 'LAW-15', 'LAW-8', 'LAW-8-DB'], `${what}: the zone version departs from the throw-in and free kicks, and no goal-end restart can arise`)
@@ -295,7 +307,9 @@ test('fidelity (V9) refuses the held normal-rules sentence wherever anything is 
     const block = copy(blocksOf(fixture)[0].fixture)
     const rendered = renderConcreteGame(block)
     const words = draftCoachWordingLoad().wording.normalLaws!.words.replace(/\.$/, '')
-    const normal = { section: 'How it works', text: words, status: 'DERIVED', from: [POLICY], quantities: [], parts: [{ text: words, status: 'DERIVED', from: [POLICY], quantities: [], bindings: [] }] } as Instruction
+    // Re-pointed 24 October 2026 (stage L): the sentence cites the account as owing nothing, as the renderer's now does (a sentence saying the
+    // words without that citation is refused too: departed-law-wording.unit.ts and bound-region-communication.unit.ts pin it). Was: the policy.
+    const normal = { section: 'How it works', text: words, status: 'DERIVED', from: [DEFAULT_LAWS_OWED], quantities: [], parts: [{ text: words, status: 'DERIVED', from: [DEFAULT_LAWS_OWED], quantities: [], bindings: [] }] } as Instruction
     const withNormal = (game: any) => checkFidelity(game, { ...rendered, instructions: [...rendered.instructions, normal] }).findings
     const owed = v9(withNormal(block), 'says the normal rules apply')
     assert.equal(owed.length, 1)

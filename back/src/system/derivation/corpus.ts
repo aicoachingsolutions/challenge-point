@@ -665,6 +665,18 @@ function defaultLawsDeclarationRefusals(realization: any, realizations: any[], w
             }
         }
     }
+    /**
+     * Stage L, 24 October 2026 (the R3 review's should-fix, a NEW refusal, a tightening): a variant's own departures on itself replace its
+     * base's list whole (`loadProvisionalRealizations` reads its own, else its base's), unlike its items, which it keeps unless it withdraws
+     * them. So a variant stating a list on itself restates every law its base departs from on itself: a law left out would silently fall back
+     * to being owed (under ENFORCE, a refusal nobody chose).
+     */
+    if (Array.isArray(own) && base && typeof base === 'object' && Array.isArray(base[DEPARTS_FROM_KEY])) {
+        const stated = new Set(own.map((departure: any) => String(departure?.law ?? '')))
+        for (const law of [...new Set((base[DEPARTS_FROM_KEY] as any[]).map(departure => String(departure?.law ?? '')))]) {
+            if (!stated.has(law)) errors.push(`${which} states departures on itself and leaves out ${law}, which its base ${String(base.id ?? '')} departs from on itself: a variant's own list replaces its base's whole, so it restates every law of it (a law left out would silently be owed again)`)
+        }
+    }
     if ((recording.length || onItself !== undefined) && !declared) {
         const named = [...recording.map((item: any) => String(item.id)), ...(onItself !== undefined ? [own !== undefined ? 'the realization itself' : `${recorder} itself`] : [])]
         errors.push(`${which} records departures from the normal laws (${named.join(', ')}) and declares no default-laws check, so nothing would read them`)

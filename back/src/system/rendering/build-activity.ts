@@ -33,7 +33,7 @@
  *
  * It does not touch generation. Nothing here calls the frozen activity-generation path.
  */
-import { boundRegionsRefusals, SportBoundRegions } from '../derivation/bound-regions'
+import { bindingOf, boundRegionsRefusals, SportBoundRegions } from '../derivation/bound-regions'
 import { loadRegister, loadSportBoundRegions, loadSportCoachVocabulary, loadSportDefaultLaws, ProvisionalRealization, provisionalRealizationNamed, TestingBoundaries } from '../derivation/corpus'
 import { isStampedHalt } from '../derivation/emit'
 import { runDerivation, runStages0to10, runStages0to5 } from '../derivation/engine'
@@ -2375,6 +2375,19 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
                   realizationDepartures: triedReceived.realizationDepartures ?? null,
               })
             : null
+    /**
+     * **The pairing each bound region cites, for the renderer and fidelity** — stage L, 24 October 2026 (the d27 design's stage L(b): *"The Set
+     * up sentence for the box, figures read from the cited pairing"*). Christian, reply filed 26 October 2026, item 7: *"Use an existing
+     * regulation [handling area] when the activity dimensions and setup permit it."* (his noun bracketed for the coupling ratchet). For every
+     * region this realized game binds to an object (register row S7, read by `bindingOf`), the entry of the bound-region block this build
+     * checked it against (GA-BOUND-REGION held the realized region to that entry above), whole; null where the block holds no entry of the id
+     * cited (GA-BOUND-REGION refuses that before here). Every game binding no region assembles exactly as before.
+     */
+    const boundForFixture = ((((realized.game as any).space?.regions ?? []) as any[]) ?? []).flatMap(region => {
+        const binding = bindingOf(region, index)
+        if (!binding) return []
+        return [{ region: String(region?.elementId), objectId: binding.objectId, pairing: (boundRegions?.pairings ?? []).find(entry => entry.id === binding.pairing) ?? null }]
+    })
     fixture = assembleRenderingFixture({
         resolved,
         realized,
@@ -2389,7 +2402,25 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
         // What a provisional realization withdrew from the game form's choices, with why (stage K5); absent elsewhere.
         ...(supplied.withdrawn.length ? { withdrawnChoices: supplied.withdrawn } : {}),
         ...(methodNouns.length ? { methodNouns } : {}),
-        ...(gameLaws ? { defaultLaws: { realization: tried!.provisionalId, laws: gameLaws.laws.map(entry => ({ law: entry.law, end: entry.end, status: entry.status })) } } : {}),
+        /**
+         * Stage L (the R3 review's should-fix): a law departed from at a place only by the departures the realization records on itself (a
+         * law its activity removes without replacing it) is marked so, so fidelity can hold its one sentence to the departure rather than to
+         * the wording data alone (his reply filed 27 October 2026, item 2: "communicated once to the coach").
+         */
+        ...(gameLaws
+            ? {
+                  defaultLaws: {
+                      realization: tried!.provisionalId,
+                      laws: gameLaws.laws.map(entry => ({
+                          law: entry.law,
+                          end: entry.end,
+                          status: entry.status,
+                          ...(entry.status === 'DEPARTED' && entry.departedBy.length > 0 && triedReceived?.realizationDepartures && entry.departedBy.every(citation => citation.item === triedReceived.realizationDepartures!.recordedBy) ? { removedByRealization: true } : {}),
+                      })),
+                  },
+              }
+            : {}),
+        ...(boundForFixture.length ? { boundRegions: boundForFixture } : {}),
     })
 
     /**
