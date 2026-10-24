@@ -61,7 +61,14 @@ const register = loadRegister()
 const index = indexRegister(register)
 const TOKEN = 'COACH_JUDGED_EPISODE_CONCLUSION'
 const KEEPER = specializedRoleNames()[0]
-const sessionOf = (players: number, keepers: number) => ({ players, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...Object.fromEntries(specializedRoleNames().map(r => [r, 0])), [KEEPER]: keepers } })
+/**
+ * Re-pointed 24 October 2026 (K3, the d27 design's stage K3): the session states that it has no goal, and the derivation harness threads
+ * A01-R1, so what this file pins of the zone version is read exactly as before. Since K3 A01's record lists the goal version (A01-R2) as
+ * tried, first: where no realization is threaded derivation reads it, and a session that has not said what goals it has is asked first
+ * (his reply filed 26 October 2026, item 11: "Do not infer a goal from the presence of a goalkeeper or silently treat missing information as
+ * confirmation that no goal exists.").
+ */
+const sessionOf = (players: number, keepers: number) => ({ players, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...Object.fromEntries(specializedRoleNames().map(r => [r, 0])), [KEEPER]: keepers }, objects: { goal: { count: 0 } } })
 
 /** A TEST-ONLY contribution: never production data. */
 const testContract = (items: any[]): LoadedContract => ({
@@ -94,7 +101,8 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
         provisionalChoices: (record.provisionalChoices ?? []).map(c => (c.status === 'MISSING_KNOWLEDGE' || c.status === 'MISSING_CAPABILITY' ? { ...c, status: 'AUTHORIZED_BY_RULING' as const, gaps: [], note: 'TEST-ONLY' } : c)),
     }))
 const a01Input = (alter: (contracts: LoadedContract[]) => void = () => undefined): DerivationInput => {
-    const selection = selectFor('A01', null, withoutGapEntries())
+    // Re-pointed 24 October 2026 (K3): A01-R1 threaded (see sessionOf above).
+    const selection = { ...selectFor('A01', null, withoutGapEntries()), realization: provisionalRealizationNamed('A01-R1') }
     const input: any = { ...derivationInputFor(selection), envelope: sessionOf(12, 1) }
     input.contracts = JSON.parse(JSON.stringify(input.contracts))
     alter(input.contracts)
@@ -217,7 +225,8 @@ test('T4 and T5 open only where every bound is an OWNER_RULING or AUTHORED range
 
     // The hazard the design verification measured: with the From Goal Kicks situation, the goal-kick element's location was
     // opened to its ASSUMED "own end" by the bare word "authored". It stays a declared gap — with A01-R1 or without it.
-    const kick = selectFor('A01', 'A01-02', withoutGapEntries())
+    // Re-pointed 24 October 2026 (K3): A01-R1 threaded (see sessionOf above).
+    const kick = { ...selectFor('A01', 'A01-02', withoutGapEntries()), realization: provisionalRealizationNamed('A01-R1') }
     for (const withRealization of [false, true]) {
         const input: any = { ...derivationInputFor(kick), envelope: sessionOf(12, 1) }
         if (!withRealization) input.contracts = input.contracts.filter((c: LoadedContract) => !c.contractId.startsWith('provisional:'))

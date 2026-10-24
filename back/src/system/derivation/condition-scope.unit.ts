@@ -197,7 +197,10 @@ test('C52, EXPECTED AND PINNED: Play Out from the Back is refused at Gate A nami
     const check = episodeCheck(staged.gates.gateA)
     assert.equal(check.verdict, 'FAIL')
     assert.ok(check.why.includes('BUILD_OUT_EPISODE') && check.why.includes('possession change begins an attacking episode, never a build-out one'), check.why)
-    assert.ok(selection.contracts.some(c => c.contractId === 'provisional:A01-R1'), "A01's own selection carries the realization")
+    // Re-pointed 24 October 2026 (K3, the d27 design's stage K3): his reply filed 27 October 2026 settles the goal version's three decisions,
+    // so A01's record lists A01-R2 as tried, first, and the selection carries the record's preferred realization, A01-R2 (a variant
+    // composed on A01-R1). Was: provisional:A01-R1. The check above filters every provisional contract out, so it is unchanged.
+    assert.ok(selection.contracts.some(c => c.contractId === 'provisional:A01-R2'), "A01's own selection carries the realization")
     const result = runDerivation(input)
     assert.ok(!isStampedHalt(result))
     const game: any = assembleResolvedGame(result as any, staged.classes, indexRegister(input.register), input.contracts)

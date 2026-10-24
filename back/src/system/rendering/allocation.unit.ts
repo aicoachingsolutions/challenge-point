@@ -532,7 +532,11 @@ test('the adjustments are said only under "Adjusting the activity", in his words
 // 18 October 2026 (design step L14): communication -> SERVED. His reply filed 20 October 2026 approved the regain sentence (item 1,
 // entry A01-W2) and gave his own eligibility sentence (item 2, entry A01-W3), so nothing stops it; the account below is the served one.
 test('production A01: past its record (every entry carried) and served, with the allocation authority and both relationships in the account', () => {
-    const activity = served(buildActivity({ kind: 'learning-goal', goalId: 'A01', session: sessionOf(12, 1) }), 'production A01')
+    // Re-pointed 24 October 2026 (K3, the d27 design's stage K3): the session states no goal, so the zone version (A01-R1) is built as before.
+    // Since K3 A01's record tries the goal version first, and a session that has not said what goals it has is asked first (his reply filed
+    // 26 October 2026, item 11: "Do not infer a goal from the presence of a goalkeeper or silently treat missing information as confirmation
+    // that no goal exists."). The account below is the zone version's, as it was.
+    const activity = served(buildActivity({ kind: 'learning-goal', goalId: 'A01', session: { ...sessionOf(12, 1), objects: { goal: { count: 0 } } } }), 'production A01')
     assert.deepEqual(activity.rendered.withheld, [], 'no record entry, and nothing else, stops it')
     const allocation = activity.account.allocation!
     assert.equal(allocation.principle.principle, allocationPrinciple().principle)

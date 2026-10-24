@@ -17,8 +17,15 @@
  * serves, on the very file the builder reads. A justified default is not a choice the runner invents: it is
  * the one value the knowledge leaves, produced by the same call the builder and the freezer make.
  *
+ * **What it derives is not necessarily what is served** (24 October 2026, the K3 review's should-fix). For a goal it derives the
+ * realization the selection is built with - the record's first alternative that can be tried, unless `--realization` threads another of
+ * the record's alternatives - and NO role block. The served build tries the record's alternatives in order and builds a game played in
+ * role blocks once per block, so a Gate A FAIL here for such a game says nothing about it. It prints which, before anything else
+ * (`runner-derivation-note.ts`), so nobody reads that as a regression; `npm run snapshot` records what is served.
+ *
  * Run: npm run realize            · the conformance corpus
  *      npm run realize -- A01 A01-02 --choices path/to/choices.json
+ *      npm run realize -- A01 --realization A01-R1     · another of the record's alternatives, threaded as the build threads it
  */
 import fs from 'node:fs'
 
@@ -31,9 +38,12 @@ import { derivationInputFor, selectFor } from '../derivation/run-bounded-selecti
 import { completeConcreteGame } from './assemble-concrete-game'
 import { realizeWithJustifiedDefaults } from './justified-defaults'
 import { Choice, checkRealization, Instantiation, isRefused, Realized } from './realize'
+import { runnerDerivationNote, threadRunnerRealization } from './runner-derivation-note'
 
-function resolvedGameFor(goalId: string | null, situationId: string | null) {
-    const input = goalId ? derivationInputFor(selectFor(goalId, situationId)) : corpusInput()
+function resolvedGameFor(goalId: string | null, situationId: string | null, realizationId: string | null) {
+    if (realizationId && !goalId) throw new Error('--realization names one of a goal\'s alternatives: give the goal too')
+    const selection = goalId ? threadRunnerRealization(selectFor(goalId, situationId), realizationId) : null
+    const input = selection ? derivationInputFor(selection) : corpusInput()
     const result = runDerivation(input)
     if (isStampedHalt(result)) throw new Error('the run halted; there is no game to realize')
     const staged: any = runStages0to10(input)
@@ -46,6 +56,8 @@ function resolvedGameFor(goalId: string | null, situationId: string | null) {
         // Carried so this runner can entail over the concrete game too. Without it this runner printed a
         // DIFFERENT game from `first:game` on identical inputs — teams with no size, and nothing owed.
         gateContext: { ...staged.gateContext, contracts: input.contracts },
+        // Which realization was derived and whether the game has role blocks (the K3 review's should-fix); none for the corpus.
+        note: selection ? runnerDerivationNote(selection, input) : [],
     }
 }
 
@@ -54,11 +66,17 @@ const situationId = process.argv.find(a => /^[A-Z]+[0-9]+-[0-9]+$/.test(a)) ?? n
 const choicesArg = process.argv[process.argv.indexOf('--choices') + 1]
 const supplied: { choices: Choice[]; instantiations: Instantiation[] } =
     process.argv.includes('--choices') && choicesArg ? JSON.parse(fs.readFileSync(choicesArg, 'utf8')) : { choices: [], instantiations: [] }
+const realizationArg = process.argv.includes('--realization') ? (process.argv[process.argv.indexOf('--realization') + 1] ?? null) : null
 
-const { label, game: resolved, index: derivationIndex, envelope: derivationEnvelope, gateContext } = resolvedGameFor(goalId, situationId)
+const { label, game: resolved, index: derivationIndex, envelope: derivationEnvelope, gateContext, note } = resolvedGameFor(goalId, situationId, realizationArg)
 
 console.log(`REALIZATION — ${label}`)
 console.log('='.repeat(72))
+if (note.length) {
+    console.log('  WHAT THIS RUNNER DERIVES — not necessarily what is served')
+    for (const line of note) console.log(`  ${line}`)
+    console.log('-'.repeat(72))
+}
 console.log(`  Gate A                       ${resolved.coherence.gateA}${resolved.coherence.failingChecks.length ? `  (${resolved.coherence.failingChecks.join(', ')})` : ''}`)
 console.log(`  eligible for realization     ${resolved.coherence.mayRealize ? 'yes' : 'no'}`)
 console.log(`  derived / open / existential ${resolved.counts.derived} / ${resolved.counts.open} / ${resolved.counts.existential}`)

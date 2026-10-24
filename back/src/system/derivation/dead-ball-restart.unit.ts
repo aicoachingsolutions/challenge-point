@@ -36,7 +36,7 @@ import path from 'node:path'
 import { buildActivityForReview, buildActivityUnderAuthorizationRecords, RefusedActivity, ServedActivity } from '../rendering/build-activity'
 import { specializedRoleNames } from '../rendering/session-envelope'
 import { contextManipulationRelationships, LearningGoalAuthorization, learningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
-import { loadProvisionalRealizations, loadRegister, PROVISIONAL_REALIZATIONS_FILE, readJson } from './corpus'
+import { loadProvisionalRealizations, loadRegister, PROVISIONAL_REALIZATIONS_FILE, provisionalRealizationNamed, readJson } from './corpus'
 import { resolvedValue } from './derive'
 import { runStages0to10, runStages0to5 } from './engine'
 import { DEAD_BALL_CHECK, DEAD_BALL_COVERED_CLAUSE, DEAD_BALL_LIVE_CLAUSE, DEAD_BALL_ONE_RESTART_CLAUSE, DEAD_BALL_STOPS_CLAUSE } from './gates'
@@ -60,7 +60,13 @@ const register = loadRegister()
 const index = indexRegister(register)
 const KEEPER = specializedRoleNames()[0]
 const none = Object.fromEntries(specializedRoleNames().map(role => [role, 0]))
-const sessionOf = (players: number, keepers: number) => ({ players, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [KEEPER]: keepers } })
+/**
+ * Re-pointed 24 October 2026 (K3, the d27 design's stage K3): the session states that it has no goal, so A01's build serves the zone version
+ * (A01-R1) this file pins, exactly as before. Since K3 A01's record tries the goal version (A01-R2) first, and a session that has not said
+ * what goals it has is asked first (his reply filed 26 October 2026, item 11: "Do not infer a goal from the presence of a goalkeeper or
+ * silently treat missing information as confirmation that no goal exists."). The derivation harness below threads A01-R1 likewise.
+ */
+const sessionOf = (players: number, keepers: number) => ({ players, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [KEEPER]: keepers }, objects: { goal: { count: 0 } } })
 const R1 = 'A01-R1'
 const R2 = 'A01-R2'
 const CLAUSES = [DEAD_BALL_COVERED_CLAUSE, DEAD_BALL_STOPS_CLAUSE, DEAD_BALL_ONE_RESTART_CLAUSE, DEAD_BALL_LIVE_CLAUSE]
@@ -77,7 +83,9 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
         provisionalChoices: (record.provisionalChoices ?? []).map(c => (c.status === 'MISSING_KNOWLEDGE' || c.status === 'MISSING_CAPABILITY' ? { ...c, status: 'AUTHORIZED_BY_RULING' as const, gaps: [], note: 'TEST-ONLY' } : c)),
     }))
 const a01Input = (alter: (contracts: LoadedContract[]) => void = () => undefined): DerivationInput => {
-    const input: any = { ...derivationInputFor(selectFor('A01', null, withoutGapEntries())), envelope: sessionOf(12, 1) }
+    // Re-pointed 24 October 2026 (K3): A01-R1 threaded, as the build threads the alternative it tries; since K3 the record's preferred one
+    // (what derivation reads where none is threaded) is A01-R2.
+    const input: any = { ...derivationInputFor({ ...selectFor('A01', null, withoutGapEntries()), realization: provisionalRealizationNamed(R1) }), envelope: sessionOf(12, 1) }
     input.contracts = copy(input.contracts)
     alter(input.contracts)
     input.contracts = applyRealizationDeferrals(input.contracts, contextManipulationRelationships(), index).contracts

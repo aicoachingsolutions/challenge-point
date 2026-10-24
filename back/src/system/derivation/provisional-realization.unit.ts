@@ -47,6 +47,16 @@ console.log('the provisional carrier (A01-R1)')
 
 const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: Object.fromEntries(specializedRoleNames().map(name => [name, 0])) }
 /**
+ * Re-pointed 24 October 2026 (K3, the d27 design's stage K3): this file is about the carrier A01-R1. His reply filed 27 October 2026 settles
+ * the goal version's three decisions, so A01's record lists A01-R2 as tried, first, and where no realization is threaded derivation reads
+ * A01-R2 (a variant composed on A01-R1). A01-R1 is threaded wherever a test reads the carrier, as the build threads the alternative it tries;
+ * what each test pins of A01-R1 is unchanged. A01's builds state that the session has no goal, so the build tries the goal version, finds it
+ * does not apply and moves on to A01-R1 (a session that has not said what goals it has is asked first: his reply filed 26 October 2026,
+ * item 11).
+ */
+const a01R1Selection = (situation: string | null = null) => ({ ...selectFor('A01', situation), realization: provisionalRealizationNamed('A01-R1') })
+const NO_GOAL = { goal: { count: 0 } }
+/**
  * A copy of the provisional realizations file holding the carrier A01-R1 alone. Since Stage F (26 October 2026) the file also holds A01-R2,
  * a variant composed from A01-R1 (pinned in goal-version-knowledge.unit.ts); these tests damage or replace A01-R1's items to pin the carrier,
  * and a variant withdrawing items a damaged base no longer holds would be refused for that reason instead, so it is set aside here.
@@ -115,8 +125,9 @@ test('one home: the file loads, A01-R1 is labelled his provisional choice, and o
     assert.ok(realization.words.includes('The priority remains producing one complete, representative Play Out from the Back activity through the normal generation pathway, without introducing unnecessary architecture or treating this first realization as the canonical version of the Learning Goal.'))
     // Re-pointed 26 October 2026 (Stage F): A01's record names its realizations as an ordered list - the goal version first, waiting on two
     // decisions of his and never tried, then A01-R1, the first that can be tried - and no record names one the single way any longer.
+    // Re-pointed 24 October 2026 (K3): the goal version is tried now, first (his reply filed 27 October 2026 settles its three decisions).
     const naming = learningGoalAuthorizations().filter(record => realizationAlternativesOf(record).length).map(record => [record.learningGoalId, realizationAlternativesOf(record).map(a => [a.realization, a.selectable])])
-    assert.deepEqual(naming, [['A01', [['A01-R2', false], ['A01-R1', true]]]])
+    assert.deepEqual(naming, [['A01', [['A01-R2', true], ['A01-R1', true]]]])
     assert.ok(learningGoalAuthorizations().every(record => record.provisionalRealization === undefined))
     assert.ok(validateLearningGoalAuthorizations(learningGoalAuthorizations().map(r => (r.learningGoalId === 'A01' ? { ...r, provisionalRealization: 'A01-R9' } : r))).some(e => e.includes('A01-R9')), 'a record naming nothing is refused')
     assert.throws(() => provisionalRealizationNamed('A01-R9'), /does not hold/)
@@ -169,9 +180,14 @@ test('no canonical leak: neither contracts.json nor the restatements carry the r
 })
 
 test('one route in: derivation receives the realization only where the selected goal\'s record names it — for any goal alike', () => {
+    // Re-pointed 24 October 2026 (K3): the record's first alternative that can be tried is the goal version now, so A01's own selection
+    // receives A01-R2 (and with it no second realization); A01-R1 arrives where it is threaded, as the build threads the one it tries.
     const a01 = derivationInputFor(selectFor('A01', null))
-    assert.ok(a01.contracts.some(c => c.contractId === 'provisional:A01-R1'))
-    assert.ok(a01.selection.some(s => s.objectId === 'provisional:A01-R1'), 'it enters the provenance stamp too')
+    assert.deepEqual(a01.contracts.filter(c => c.contractId.startsWith('provisional:')).map(c => c.contractId), ['provisional:A01-R2'])
+    assert.ok(a01.selection.some(s => s.objectId === 'provisional:A01-R2'), 'it enters the provenance stamp too')
+    const threaded = derivationInputFor(a01R1Selection())
+    assert.deepEqual(threaded.contracts.filter(c => c.contractId.startsWith('provisional:')).map(c => c.contractId), ['provisional:A01-R1'])
+    assert.ok(threaded.selection.some(s => s.objectId === 'provisional:A01-R1'), 'it enters the provenance stamp too')
     // A demonstration has no record, so never; and a selection whose record names nothing derives exactly as before.
     const demo = derivationInputFor({ selected: [{ id: 'GF2', role: 'game form' }, { id: 'tl-v0-constraint-wide-zone-advantage', role: 'constraint' }] })
     assert.ok(!demo.contracts.some(c => c.contractId.startsWith('provisional:')))
@@ -179,9 +195,10 @@ test('one route in: derivation receives the realization only where the selected 
     // Re-pointed 26 October 2026 (Stage F): A01's record names its realizations as an ordered list, so naming nothing clears that list.
     const without = derivationInputFor({ selected: selectFor('A01', null).selected, authorization: { ...record, provisionalRealization: undefined, realizations: undefined } })
     assert.ok(!without.contracts.some(c => c.contractId.startsWith('provisional:')))
-    // Symmetry: another goal's selection carrying a record that names A01-R1 receives it the same way.
+    // Symmetry: another goal's selection carrying a record that names A01-R1 receives it the same way. Re-pointed 24 October 2026 (K3): the
+    // record's first alternative that can be tried, A01-R2, as for A01.
     const other = derivationInputFor({ selected: [{ id: 'GF2', role: 'game form' }], authorization: { ...record, learningGoalId: 'A04' } })
-    assert.ok(other.contracts.some(c => c.contractId === 'provisional:A01-R1'))
+    assert.ok(other.contracts.some(c => c.contractId === 'provisional:A01-R2'))
 })
 
 /**
@@ -193,8 +210,9 @@ test('one route in: derivation receives the realization only where the selected 
 test('the realization moves exactly what its items establish — the role lines — and no other line, no check; the stamp names it', () => {
     const record = learningGoalAuthorizations().find(r => r.learningGoalId === 'A01')!
     const selected = selectFor('A01', null).selected
-    const run = (authorization: any) => runDerivation(derivationInputFor({ selected, authorization })) as any
-    const named = run(record)
+    // Re-pointed 24 October 2026 (K3): the carrier A01-R1 is threaded where the record names it (see a01R1Selection above).
+    const run = (authorization: any, realization?: any) => runDerivation(derivationInputFor({ selected, authorization, ...(realization ? { realization } : {}) })) as any
+    const named = run(record, provisionalRealizationNamed('A01-R1'))
     const unnamed = run({ ...record, provisionalRealization: undefined, realizations: undefined })
     assert.ok(!isStampedHalt(named) && !isStampedHalt(unnamed))
     const lines = (result: any) => result.resolution.map((e: any) => `${e.lineId}|${e.state}|${e.verdict ?? ''}|${e.reason ?? ''}|${JSON.stringify(e.value ?? null)}`)
@@ -321,9 +339,12 @@ test('the review page\'s provisional list reads the category from the items deri
     const uncategorized = { ...realization, items: realization.items.map(item => ({ ...item, category: undefined })) }
     assert.ok(!authorizationLists(record, uncategorized as any).provisionalChoices.some(e => e.from === 'provisional realization'))
     // And on the real chain: A01 behind its record, with a copy of the realization carrying the item, lists it.
-    const built = buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session } as any, recordsBehindGaps() as any, {
+    // Re-pointed 24 October 2026 (K3): the session states no goal, so the build moves past the goal version to A01-R1, whose copy alone is
+    // altered (the goal version's attempt is left as it is).
+    const built = buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: { ...session, objects: NO_GOAL } } as any, recordsBehindGaps() as any, {
         alter: contracts => {
             const copy: any = contracts.find(c => c.contractId === 'provisional:A01-R1')
+            if (!copy) return
             // By its id since stage K3 (15 October 2026): the copy's first item is now A01-R1's own, not the TEST-ONLY one.
             copy.items.push({ ...realization.items.find(item => item.itemId === 'A01-R1-TEST-ONLY-1')! })
         },
@@ -345,8 +366,10 @@ const reading = (alter: (name: string, contents: any) => void) => (name: string)
 const asFiled = (_name: string, _contents: any) => undefined
 
 test('production: A01 reads the game form\'s file, the context\'s and its realization\'s, which replaces the targets\' noun and the scoring kind', () => {
-    const supplied: any = suppliedRealizationFor(selectFor('A01', null))
+    // Re-pointed 24 October 2026 (K3): A01-R1 threaded (a01R1Selection); the goal version reads its own file, realization-choices-a01-r2.json.
+    const supplied: any = suppliedRealizationFor(a01R1Selection())
     assert.deepEqual(supplied.from, ['a04-realization-choices.json', 'realization-choices-rpc-001.json', OURS])
+    assert.deepEqual((suppliedRealizationFor(selectFor('A01', null)) as any).from, ['a04-realization-choices.json', 'realization-choices-rpc-001.json', 'realization-choices-a01-r2.json'])
     // Re-pointed 15 October 2026 (stage K6): the three replacements the file was for, by declaration (pinned in the next test).
     assert.deepEqual(supplied.replaced.map((r: any) => r.lineId), ['c:restated:GF2:GF2-03.e::S3', 'c:restated:GF2:GF2-03.f::S3', 'game::V1'])
     // Re-pointed 15 October 2026 (stage K5): the file is no longer empty — it holds the seven COACH_DECIDES stand-ins of the
@@ -362,7 +385,8 @@ test('production: A01 reads the game form\'s file, the context\'s and its realiz
 })
 
 test('the realization\'s choices replace the game form\'s only by declaration; the replacements are recorded and the rest is carried', () => {
-    const selection = selectFor('A01', null)
+    // Re-pointed 24 October 2026 (K3): A01-R1 threaded (a01R1Selection).
+    const selection = a01R1Selection()
     const supplied: any = suppliedRealizationFor(selection, reading(asFiled))
     assert.deepEqual(supplied.from, ['a04-realization-choices.json', 'realization-choices-rpc-001.json', OURS])
     assert.deepEqual(
@@ -390,7 +414,8 @@ test('the realization\'s choices replace the game form\'s only by declaration; t
 })
 
 test('a second answer to one line, or a replacement nobody can trace, refuses the input — order never decides', () => {
-    const selection = selectFor('A01', null)
+    // Re-pointed 24 October 2026 (K3): A01-R1 threaded (a01R1Selection).
+    const selection = a01R1Selection()
     const conflicts = (alter: (name: string, contents: any) => void): string[] => {
         const supplied: any = suppliedRealizationFor(
             selection,
@@ -420,7 +445,12 @@ test('A01 with the From Goal Kicks practice situation is refused at knowledge wi
     assert.deepEqual([refused.outcome, refused.stage], ['refused', 'knowledge'])
     // DRAFT coach sentence (approved-coach-wording.json is empty), 15 October 2026.
     assert.equal(refused.summary, "This goal's first activity was not designed for the chosen practice situation, so no activity can be built for it.")
-    assert.ok(refused.reasons[0].startsWith('the provisional realization A01-R1 named by the authorization record of A01 was not designed for the practice situation A01-02 (OUR_READING)'))
+    // Re-pointed 24 October 2026 (K3): both realizations are tried now, in the record's order, and neither was designed for the situation
+    // (each records it in notWithPracticeSituations), so the reasons open with the exhausted alternatives and name each, A01-R2 first.
+    // Was: reasons[0] the A01-R1 sentence alone (the goal version was never tried). The situation is refused before the goals are asked.
+    assert.equal(refused.reasons[0], 'none of the 2 realizations the authorization record of A01 authorizes applies to this session; each was tried in its order')
+    assert.ok(refused.reasons[1].startsWith('A01-R2: the provisional realization A01-R2 named by the authorization record of A01 was not designed for the practice situation A01-02 (OUR_READING)'))
+    assert.ok(refused.reasons[2].startsWith('A01-R1: the provisional realization A01-R1 named by the authorization record of A01 was not designed for the practice situation A01-02 (OUR_READING)'))
     // Without the situation A01 is not refused for it. Re-pointed 15 October 2026 (stage K6): the record names no gap now, so it
     // gets past knowledge (its next stop is pinned in target-placement.unit.ts).
     const plain: any = buildActivity({ kind: 'learning-goal', goalId: 'A01', session } as any)

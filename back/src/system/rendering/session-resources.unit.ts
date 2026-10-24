@@ -377,10 +377,10 @@ test('a variant equals its base minus its withdrawals plus its additions, elemen
     assert.ok(!JSON.stringify(variant.items).includes('"contractId":"provisional:A01-R1"'))
     assert.ok(JSON.stringify(variant.items).includes(`"contractId":"provisional:${V}"`))
     assert.deepEqual(variant.objectSuitability![0].widthM, { min: 1, max: 10 })
-    // Production holds no suitability. Re-pointed 26 October 2026 (Stage F): it holds one variant, A01-R2, the goal version (pinned in
-    // goal-version-knowledge.unit.ts), and still no suitability: which goals suit it is his open decision.
+    // K1: production keeps one variant, A01-R2, whose suitability is now authorized; the other gaps still prevent selection.
     assert.deepEqual(loadProvisionalRealizations().filter(r => r.basedOn !== undefined).map(r => [r.provisionalId, r.basedOn]), [['A01-R2', 'A01-R1']])
-    assert.ok(loadProvisionalRealizations().every(r => r.objectSuitability === undefined))
+    // K1 now records suitability only for the goal variant; the base still states none.
+    assert.deepEqual(loadProvisionalRealizations().filter(r => r.objectSuitability !== undefined).map(r => r.provisionalId), ['A01-R2'])
 })
 
 test('the integrity gate refuses a variant that would drop, duplicate or dangle, and a suitability without his words', () => {
@@ -445,9 +445,10 @@ test("a record's alternatives are read whole or refused; its single realization 
     assert.deepEqual(realizationAlternativesOf({ provisionalRealization: 'A01-R1' }), [{ realization: 'A01-R1', words: null, citedAs: null, selectable: true, status: null, gaps: [] }])
     // Re-pointed 26 October 2026 (Stage F): production A01 lists the goal version first, waiting on two decisions of his, then the zone
     // version, each with his words for its place; no other record lists alternatives.
+    // Re-pointed 24 October 2026 (K3): the goal version is tried now (his reply filed 27 October 2026 settles its three decisions).
     const a01 = learningGoalAuthorizations().find(r => r.learningGoalId === 'A01')!
     assert.deepEqual(realizationAlternativesOf(a01), [
-        { realization: 'A01-R2', words: 'My preference is to use the physical-goal version when an appropriate goal and goalkeeper are available and the selected realization supports that relationship.', citedAs: 'his reply filed 25 October 2026, item 3', selectable: false, status: 'MISSING_KNOWLEDGE', gaps: ['D-GOAL-SUITABILITY', 'D-PENALTY-AREA', 'D-DEFAULT-LAWS'] },
+        { realization: 'A01-R2', words: 'My preference is to use the physical-goal version when an appropriate goal and goalkeeper are available and the selected realization supports that relationship.', citedAs: 'his reply filed 25 October 2026, item 3', selectable: true, status: null, gaps: [] },
         { realization: 'A01-R1', words: 'Goalkeeper available, but no appropriate physical goal: The pressing team may attack an authorized target zone.', citedAs: 'his reply filed 25 October 2026, item 4', selectable: true, status: null, gaps: [] },
     ])
     assert.deepEqual(learningGoalAuthorizations().filter(r => r.realizations !== undefined).map(r => r.learningGoalId), ['A01'], 'no other record lists alternatives')
@@ -462,8 +463,10 @@ test('the alternative being tried reaches derivation and the realization choices
     const selection = selectFor('A01', null)
     const [variant] = loadProvisionalRealizations(variantFile()).filter(r => r.provisionalId === V)
     const contractIds = (s: any) => derivationInputFor(s).contracts.map((c: any) => c.contractId).filter((id: string) => id.startsWith('provisional:'))
-    assert.deepEqual(contractIds(selection), ['provisional:A01-R1'], 'absent: the preferred (and only) realization of the record')
-    assert.equal(realizationOf(selection)!.provisionalId, 'A01-R1')
+    // Re-pointed 24 October 2026 (K3): the record's preferred realization is its first that can be tried, the goal version, since his reply
+    // filed 27 October 2026 settles its decisions (was: A01-R1, the goal version listed and never tried).
+    assert.deepEqual(contractIds(selection), ['provisional:A01-R2'], 'absent: the preferred (and only) realization of the record')
+    assert.equal(realizationOf(selection)!.provisionalId, 'A01-R2')
     assert.deepEqual(contractIds({ ...selection, realization: variant }), [`provisional:${V}`], 'threaded: the variant, and not its base')
     assert.deepEqual(contractIds({ ...selection, realization: null }), [], 'threaded null: none')
     const fromOf = (s: any) => {
@@ -471,9 +474,10 @@ test('the alternative being tried reaches derivation and the realization choices
         assert.ok(!isNoSuppliedRealization(supplied))
         return (supplied as SuppliedRealization).from
     }
-    assert.ok(fromOf(selection).includes('realization-choices-a01-r1.json'))
-    assert.ok(!fromOf({ ...selection, realization: { ...variant, realizationChoices: null } }).includes('realization-choices-a01-r1.json'), 'the threaded realization\'s choices, not the record\'s')
-    assert.ok(!fromOf({ ...selection, realization: null }).includes('realization-choices-a01-r1.json'))
+    // Re-pointed 24 October 2026 (K3): the preferred realization's own choices, the goal version's file.
+    assert.ok(fromOf(selection).includes('realization-choices-a01-r2.json'))
+    assert.ok(!fromOf({ ...selection, realization: { ...variant, realizationChoices: null } }).includes('realization-choices-a01-r2.json'), 'the threaded realization\'s choices, not the record\'s')
+    assert.ok(!fromOf({ ...selection, realization: null }).includes('realization-choices-a01-r2.json'))
 })
 
 // ── 7. The build's loop (TEST-ONLY records and realizations) ─────────────────────────────────────────────
@@ -483,13 +487,23 @@ interface LoopOptions extends VariantOptions {
     seen?: string[]
     /** A TEST-ONLY authored comparison attached in memory to one of the variant's items: a real post-realization break of the variant alone. */
     comparison?: Record<string, unknown>
+    /**
+     * Added 24 October 2026 (K3): the records copy also defines a TEST-ONLY open decision (TEST_OPEN_GAP), for an alternative to wait on.
+     * Since K3 every gap A01's record defines is settled by his words, and the record gate refuses an alternative waiting on a settled one.
+     */
+    openGap?: boolean
+}
+const TEST_OPEN_GAP = { id: 'TEST-ONLY-OPEN', kind: 'DECISION' as const, description: 'TEST-ONLY: a decision nobody has made', note: null }
+const withOpenGap = (records: LearningGoalAuthorization[], open = true): LearningGoalAuthorization[] => {
+    if (open) records.find(r => r.learningGoalId === 'A01')!.gaps!.push(copy(TEST_OPEN_GAP))
+    return records
 }
 /** The goal version tried first and the zone version second, each built whole; the GF2 markers and the scoring relationship TEST-ONLY. */
 const loopBuild = (session: any, options: LoopOptions = {}) => {
     const read = authorizationRecords.contextRelationships
     ;(authorizationRecords as any).contextRelationships = () => [...read(), copy(REL)]
     try {
-        return buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', situationId: options.situationId ?? null, session }, recordsWith(options.alternatives ?? [PREFERRED, SECOND]), {
+        return buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', situationId: options.situationId ?? null, session }, withOpenGap(recordsWith(options.alternatives ?? [PREFERRED, SECOND]), options.openGap === true), {
             realizations: loadProvisionalRealizations(variantFile(options)),
             // The GF2 markers stay inert for A01-R1, whose items cite no scoring relationship (asserted below: it is served as production).
             alter: contracts => {
@@ -516,18 +530,31 @@ const loopBuild = (session: any, options: LoopOptions = {}) => {
 }
 const outcomesOf = (activity: any) => (activity.account.realizationSelection as any[]).map(entry => [entry.realization, entry.outcome, entry.cause])
 const GOAL_STATED = { [KIND]: { count: 1, widthM: 5 } }
-const production = buildActivityForReview({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(1) } as any, { includeDrafts: true }) as ServedActivity
+/**
+ * Re-pointed 24 October 2026 (K3, the d27 design's stage K3): "production" is A01 for a session stating no goal. Since K3 the goal version is
+ * tried first, and a session that has not said what goals it has is asked (his reply filed 26 October 2026, item 11: "Do not infer a goal
+ * from the presence of a goalkeeper or silently treat missing information as confirmation that no goal exists."); with none stated the zone
+ * version is served exactly as an unstated session was before K3.
+ */
+const production = buildActivityForReview({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(1, { [KIND]: { count: 0 } }) } as any, { includeDrafts: true }) as ServedActivity
 const ACCOUNT_KEYS_BEFORE_E = Object.keys(production.account).filter(key => key !== 'realizationSelection').sort()
 
 test('goals = 0 serves A01-R1 with only the recorded delta: the session it echoes, and the account and evidence naming the realization used', () => {
     const kindsOf = (fixture: any) => (fixture.roleBlocks.blocks as any[]).map(block => (block.fixture.game.objects as any[]).map(object => object.kind))
-    const productionKinds = kindsOf(buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: sessionOf(1) }, learningGoalAuthorizations()).fixture)
+    // Re-pointed 24 October 2026 (K3): production states no goal (see `production`), so its game is the one compared against.
+    const productionKinds = kindsOf(buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: sessionOf(1, { [KIND]: { count: 0 } }) }, learningGoalAuthorizations()).fixture)
     for (const objects of [{ [KIND]: { count: 0 } }, GOAL_STATED]) {
         const stated = buildActivityForReview({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(1, objects) } as any, { includeDrafts: true }) as ServedActivity
         assert.equal(stated.outcome, 'served', JSON.stringify(objects))
         assert.deepEqual(stated.session.objects, objects)
         for (const key of ['rendered', 'overview', 'diagram', 'roleBlocks', 'integrity', 'title', 'subtitle'] as const) assert.deepEqual(stated[key], production[key], `${JSON.stringify(objects)}: ${key}`)
-        assert.deepEqual(stated.account, production.account, `${JSON.stringify(objects)}: the account`)
+        // Re-pointed 24 October 2026 (K3): the goal version is tried first now, so the account's realization selection says why it did not
+        // apply - no goal (OBJECT_AVAILABILITY_SHORT) or a 5 m goal its suitability does not admit (OBJECT_NOT_SUITABLE); every other field
+        // of the account is production's.
+        const { realizationSelection, ...rest } = stated.account
+        const { realizationSelection: _productionSelection, ...productionRest } = production.account
+        assert.deepEqual(rest, productionRest, `${JSON.stringify(objects)}: the account`)
+        assert.deepEqual(realizationSelection!.map(entry => [entry.realization, entry.outcome, entry.cause]), [['A01-R2', 'NOT_APPLICABLE', objects === GOAL_STATED ? 'OBJECT_NOT_SUITABLE' : 'OBJECT_AVAILABILITY_SHORT'], ['A01-R1', 'SELECTED', null]], JSON.stringify(objects))
         // The rule never adds a goal: each block's game holds only the object it held (the one no objective references), none of the kind.
         const kinds = kindsOf(buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: sessionOf(1, objects) }, learningGoalAuthorizations()).fixture)
         assert.deepEqual(kinds, productionKinds)
@@ -536,15 +563,13 @@ test('goals = 0 serves A01-R1 with only the recorded delta: the session it echoe
     // The recorded delta on production itself: the account and the evidence name each realization in the record's order and whether it was
     // used. Re-pointed 26 October 2026 (Stage F): the goal version first, listed and never tried (waiting on two decisions of his), then the
     // zone version, used.
-    assert.deepEqual(outcomesOf(production), [['A01-R2', 'NOT_SELECTABLE', 'MISSING_KNOWLEDGE'], ['A01-R1', 'SELECTED', null]])
-    assert.deepEqual(production.evidence!.pathway.facts[production.evidence!.pathway.facts.length - 1], {
-        what: 'the realizations the record authorizes, in its order, and whether each was used (account.realizationSelection)',
-        value: [
-            // H2 (23 October 2026): and on D-DEFAULT-LAWS, the adaptations its default-laws account names as owed.
-            'A01-R2: NOT_SELECTABLE (MISSING_KNOWLEDGE); waits on D-GOAL-SUITABILITY, D-PENALTY-AREA, D-DEFAULT-LAWS; its place in the order: his reply filed 25 October 2026, item 3',
-            'A01-R1: SELECTED; its place in the order: his reply filed 25 October 2026, item 4',
-        ],
-    })
+    // Re-pointed 24 October 2026 (K3): the goal version is tried first, and with no goal stated it does not apply (it waits on nothing now).
+    assert.deepEqual(outcomesOf(production), [['A01-R2', 'NOT_APPLICABLE', 'OBJECT_AVAILABILITY_SHORT'], ['A01-R1', 'SELECTED', null]])
+    const fact = production.evidence!.pathway.facts[production.evidence!.pathway.facts.length - 1] as { what: string; value: string[] }
+    assert.equal(fact.what, 'the realizations the record authorizes, in its order, and whether each was used (account.realizationSelection)')
+    assert.equal(fact.value.length, 2)
+    assert.ok(fact.value[0].startsWith('A01-R2: NOT_APPLICABLE (OBJECT_AVAILABILITY_SHORT)') && fact.value[0].endsWith('; its place in the order: his reply filed 25 October 2026, item 3') && !fact.value[0].includes('waits on'), fact.value[0])
+    assert.equal(fact.value[1], 'A01-R1: SELECTED; its place in the order: his reply filed 25 October 2026, item 4')
     assert.ok(ACCOUNT_KEYS_BEFORE_E.length > 0 && !ACCOUNT_KEYS_BEFORE_E.includes('realizationSelection'))
 })
 
@@ -584,8 +609,10 @@ test('suitability nobody has decided is a knowledge gap, not a shortfall: it ref
     // The way to list such an alternative until he decides: waiting on its gap, never tried, and the zone version served.
     // Re-pointed 26 October 2026 (Stage F): waiting on the record's open decision of goal suitability (a settled gap such as D1 may no longer
     // be waited on by an alternative: the record gate refuses it, as it refuses an entry waiting on a settled gap).
-    const waiting = loopBuild(sessionOf(1, GOAL_STATED), { suitability: null, alternatives: [{ ...PREFERRED, status: 'MISSING_KNOWLEDGE', gaps: ['D-GOAL-SUITABILITY'] }, SECOND] }).activity as ServedActivity
-    assert.equal(waiting.outcome, 'served')
+    // Re-pointed 24 October 2026 (K3): D-GOAL-SUITABILITY is settled by his reply filed 27 October 2026 (items 1 and 6), so the alternative
+    // waits on a TEST-ONLY open decision of the records copy instead (openGap).
+    const waiting = loopBuild(sessionOf(1, GOAL_STATED), { suitability: null, openGap: true, alternatives: [{ ...PREFERRED, status: 'MISSING_KNOWLEDGE', gaps: [TEST_OPEN_GAP.id] }, SECOND] }).activity as ServedActivity
+    assert.equal(waiting.outcome, 'served', JSON.stringify((waiting as any).reasons ?? null))
     assert.deepEqual(outcomesOf(waiting), [[V, 'NOT_SELECTABLE', 'MISSING_KNOWLEDGE'], ['A01-R1', 'SELECTED', null]])
 })
 
@@ -648,10 +675,17 @@ test('goalkeepers = 0: the existing roster refusal, naming each alternative\'s n
     }
     // Production A01 (one realization that can be tried, since Stage F beside the goal version waiting on his decisions): the refusal is
     // exactly its own, and the account says why each was not used.
-    const zero = buildActivityForReview({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(0) } as any, { includeDrafts: false }) as RefusedActivity
-    assert.equal(zero.summary, `This game needs 1 ${KEEPER} in all and the session has 0.`)
-    assert.ok(!zero.reasons.some(reason => reason.startsWith('none of the')))
-    assert.deepEqual(outcomesOf(zero), [['A01-R2', 'NOT_SELECTABLE', 'MISSING_KNOWLEDGE'], ['A01-R1', 'NOT_APPLICABLE', 'AVAILABILITY_SHORT']])
+    // Re-pointed 24 October 2026 (K3): both realizations are tried now, so production refuses exactly as the TEST-ONLY loop above does - the
+    // roster's sentence, the exhausted alternatives named first - for the FA 5v5 goal and for none; with no goal stated the goals are asked
+    // first (the d27 design's 4.2: the required-participants check before the goals, its I(d), is not built).
+    for (const [objects, first] of [[{ [KIND]: { count: 1, type: 'scaled', widthM: 3.6576 } }, 'AVAILABILITY_SHORT'], [{ [KIND]: { count: 0 } }, 'OBJECT_AVAILABILITY_SHORT']] as const) {
+        const zero = buildActivityForReview({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(0, objects as any) } as any, { includeDrafts: false }) as RefusedActivity
+        assert.equal(zero.summary, `This game needs 1 ${KEEPER} in all and the session has 0.`)
+        assert.equal(zero.reasons[0], 'none of the 2 realizations the authorization record of A01 authorizes applies to this session; each was tried in its order')
+        assert.deepEqual(outcomesOf(zero), [['A01-R2', 'NOT_APPLICABLE', first], ['A01-R1', 'NOT_APPLICABLE', 'AVAILABILITY_SHORT']])
+    }
+    const unstated = buildActivityForReview({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(0) } as any, { includeDrafts: false }) as RefusedActivity
+    assert.deepEqual([unstated.stage, unstated.question?.asks, outcomesOf(unstated)], ['session', 'AVAILABILITY', [['A01-R2', 'ASKED', 'OBJECT_AVAILABILITY_NOT_STATED'], ['A01-R1', 'NOT_TRIED', null]]])
 })
 
 test('the testing area and the practice situation are typed applicability refusals; an alternative waiting on a gap is listed and never tried', () => {
@@ -673,10 +707,14 @@ test('the testing area and the practice situation are typed applicability refusa
     // Waiting on a gap: listed, never tried.
     const seen: string[] = []
     // Re-pointed 26 October 2026 (Stage F): on an open gap of the record (a settled one may not be waited on).
-    const gap = loopBuild(sessionOf(1, GOAL_STATED), { alternatives: [{ ...PREFERRED, status: 'MISSING_KNOWLEDGE', gaps: ['D-PENALTY-AREA'] }, SECOND], seen }).activity as ServedActivity
+    // Re-pointed 24 October 2026 (K3): D-PENALTY-AREA is settled by his reply filed 27 October 2026 (item 1), so on a TEST-ONLY open decision.
+    const gap = loopBuild(sessionOf(1, GOAL_STATED), { openGap: true, alternatives: [{ ...PREFERRED, status: 'MISSING_KNOWLEDGE', gaps: [TEST_OPEN_GAP.id] }, SECOND], seen }).activity as ServedActivity
     assert.equal(gap.outcome, 'served')
     assert.deepEqual(outcomesOf(gap), [[V, 'NOT_SELECTABLE', 'MISSING_KNOWLEDGE'], ['A01-R1', 'SELECTED', null]])
-    assert.deepEqual((gap.account.realizationSelection as any[])[0].gaps, ['D-PENALTY-AREA'])
+    assert.deepEqual((gap.account.realizationSelection as any[])[0].gaps, [TEST_OPEN_GAP.id])
+    // A settled gap cannot be waited on: the record gate refuses the copy, naming it.
+    const settled = loopBuild(sessionOf(1, GOAL_STATED), { alternatives: [{ ...PREFERRED, status: 'MISSING_KNOWLEDGE', gaps: ['D-PENALTY-AREA'] }, SECOND] }).activity as RefusedActivity
+    assert.ok(settled.outcome === 'refused' && settled.reasons.some(reason => reason.includes('the gap D-PENALTY-AREA is marked settled, and the alternative realization')), JSON.stringify(settled.reasons))
     assert.ok(!seen.includes(V), 'never tried')
 })
 
@@ -716,7 +754,9 @@ test("the review page's answer reaches the build through the review route: read,
     const stored = { playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: { ...none, [KEEPER]: 1 } }
     const storedWith = (objects: unknown) => ({ ...stored, objects })
     const body = (objects?: unknown) => ({ learningGoalId: 'A01', durationMin: 20, ...(objects === undefined ? {} : { objects }) })
-    const coachProduction = reviewActivity(stored, body()) as ServedActivity
+    // Re-pointed 24 October 2026 (K3): the coach's production answer for a session that states no goal (one that states nothing about its
+    // goals is asked since K3, his reply filed 26 October 2026, item 11); every comparison below is against it, as before.
+    const coachProduction = reviewActivity(storedWith({ [KIND]: { count: 0 } }), body()) as ServedActivity
     for (const includeDrafts of [false, true]) {
         const review = (session: Record<string, unknown>, request: Record<string, unknown>) => reviewActivity(session as any, request as any, { includeDrafts })
         const label = includeDrafts ? 'administrator' : 'coach'

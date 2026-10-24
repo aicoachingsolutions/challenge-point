@@ -9,11 +9,15 @@
  * reply filed 25 October 2026, item 3: "A defensive regain alone does not earn a point." Item 12 (26 October): "Produce the updated Coach
  * Overview, diagram, and Coach Details under the approved communication standards."
  *
- * What is pinned here (every word below is DRAFT; nothing is approved wording, and nothing is served for real: the goal version waits on
- * goal suitability and the penalty area, both his):
+ * What is pinned here (every word below is DRAFT except his three approved scoring sentences; nothing is approved wording). Re-pointed 24
+ * October 2026 (K3, the d27 design's stage K3): his reply filed 27 October 2026 settles the goal version's three decisions, so it is served
+ * for real, and this file builds the REAL records (no TEST-ONLY stand-in: no completed record, no 1-10 m suitability, no REPORT check, no
+ * build without the bound-region block, no items left out) with the goal a coach states from the list, the FA 5v5 goal. Until K3 it read
+ * "nothing is served for real: the goal version waits on goal suitability and the penalty area, both his", and item 2 below read "the
+ * TEST-ONLY completion of the two open decisions (in memory, as in goal-version-knowledge.unit.ts) is now SERVED":
  *   1. the DRAFT wording data loads, keyed by register vocabulary values, and its loader refuses what it must;
- *   2. the TEST-ONLY completion of the two open decisions (in memory, as in goal-version-knowledge.unit.ts) is now SERVED at 12/1, 12/2 and
- *      11/1, every sentence DRAFT except his three approved scoring sentences, which are byte-identical to the zone version's;
+ *   2. the real goal version is SERVED at 12/1, 12/2 and 11/1 (through the review route's own builder too), every sentence DRAFT except his
+ *      three approved scoring sentences, which are byte-identical to the zone version's;
  *   3. the placing sentence (the goal centred on the building team's end line, facing in, its frame outside, defended by the team with the
  *      active goalkeeper, his item 6 words, since the Stage G review fix), the target sentence, How to score for the pressing team (the goal; an own goal counts; a regain alone earns nothing), the
  *      exchange (the teams change ends and roles; the goal stays; nothing is re-marked) and the goalkeeper who changes team without moving;
@@ -31,7 +35,7 @@
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
 
-import { loadProvisionalRealizations, loadRegister, PROVISIONAL_REALIZATIONS_FILE, readJson } from '../derivation/corpus'
+import { loadRegister, loadSportBoundRegions } from '../derivation/corpus'
 import { indexRegister } from '../derivation/register'
 import { learningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
 import { buildActivityForReview, buildActivityUnderAuthorizationRecords, RefusedActivity, ServedActivity } from './build-activity'
@@ -55,39 +59,37 @@ const index = indexRegister(loadRegister())
 const KEEPER = specializedRoleNames()[0]
 const none = Object.fromEntries(specializedRoleNames().map(role => [role, 0]))
 const sessionOf = (players: number, keepers: number, objects?: Record<string, unknown>) => ({ players, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [KEEPER]: keepers }, ...(objects ? { objects } : {}) })
-const GOAL = { goal: { count: 1, widthM: 5 } }
 const R2 = 'A01-R2'
-
 /**
- * TEST-ONLY, in memory: the record lists the goal version as one that can be tried, and its goal a suitability (as in Stage F's test). H2 (23
- * October 2026): and D-DEFAULT-LAWS completed too - the copy's default-laws check is REPORT (TEST-ONLY) in place of the ENFORCE it records,
- * standing in for his rulings on the owed laws; every sentence is what it was (goal-version-knowledge.unit.ts says why). H3 (23 October
- * 2026): and D-PENALTY-AREA completed by a stand-in too - the build is handed no bound-region block (`boundRegions: null`, TEST-ONLY), so
- * no region is required of the goal; with the Sport Profile's block in force this 5 m goal is refused as a knowledge gap (no authorized
- * pairing gives it a penalty area, bound-regions.unit.ts), and a region it held could not yet be said (its words are Stage G's).
+ * Re-pointed 24 October 2026 (K3, the d27 design's stage K3; the goal-version tests' TEST-ONLY stand-ins re-pointed to the real records). The
+ * goal is the one a coach states from the list (stage I): the FA 5v5 pairing's object, its type and width copied from the Sport Profile, so
+ * the exact width match needs no tolerance. Until K3 this was a TEST-ONLY 5 m goal ({ count: 1, widthM: 5 }) built over a completed copy of
+ * the record (the goal version listed as tried), a 1-10 m suitability, a REPORT default-laws check, no bound-region block and the five
+ * penalty-area items left out - stand-ins for D-GOAL-SUITABILITY, D-DEFAULT-LAWS and D-PENALTY-AREA, which his reply filed 27 October 2026
+ * now settles (A01's record, settledBy).
  */
-const completed = () => {
-    const records = learningGoalAuthorizations()
-    const record = records.find(r => r.learningGoalId === 'A01') as any
-    record.realizations = record.realizations.map((entry: any) => (entry.realization === R2 ? { realization: entry.realization, words: entry.words, citedAs: entry.citedAs } : entry))
-    const file = readJson(PROVISIONAL_REALIZATIONS_FILE)
-    const variant = file.realizations.find((r: any) => r.id === R2)
-    variant.objectSuitability = [{ kind: 'goal', widthM: { min: 1, max: 10 }, ruledOn: 'TEST-ONLY', by: 'TEST-ONLY', citedAs: 'TEST-ONLY', words: ['TEST-ONLY'] }]
-    variant.defaultLawsCheck = { mode: 'REPORT', because: 'TEST-ONLY: D-DEFAULT-LAWS completed in memory', basis: { words: ['TEST-ONLY'], citedAs: 'TEST-ONLY' } }
-    return { records, realizations: loadProvisionalRealizations(file) }
-}
+const FA = loadSportBoundRegions()!.pairings.find(pairing => pairing.id === 'FA-MINI-SOCCER-5V5-2026')!
+const GOAL = { goal: { count: 1, widthM: FA.object.widthM, type: FA.object.type! } }
 const built = new Map<string, { activity: ServedActivity; fixture: any }>()
 const goalVersion = (players: number, keepers: number) => {
     const key = `${players}/${keepers}`
     if (!built.has(key)) {
-        const { records, realizations } = completed()
-        const result = buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(players, keepers, GOAL) } as any, records, { realizations, review: { includeDrafts: true }, boundRegions: null })
+        const request = { kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(players, keepers, GOAL) } as any
+        // The production records, realizations, Sport Profile and default-laws check, exactly as the review route builds them.
+        const result = buildActivityUnderAuthorizationRecords(request, learningGoalAuthorizations(), { review: { includeDrafts: true } })
         assert.equal(result.activity.outcome, 'served', `${key}: ${JSON.stringify((result.activity as RefusedActivity).reasons ?? null)}`)
+        assert.deepEqual(result.activity, buildActivityForReview(request, { includeDrafts: true }), `${key}: the review route's own builder gives the same activity`)
         built.set(key, { activity: result.activity as ServedActivity, fixture: result.fixture })
     }
     return built.get(key)!
 }
-const zoneVersion = (players: number, keepers: number) => buildActivityForReview({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(players, keepers) } as any, { includeDrafts: true }) as ServedActivity
+/**
+ * Re-pointed 24 October 2026 (K3): the zone version is built for a session that states it has no goal. Since K3 the goal version is tried
+ * first, so a session that has not said what goals it has is asked before anything is built (his reply filed 26 October 2026, item 11: "Do not
+ * infer a goal from the presence of a goalkeeper or silently treat missing information as confirmation that no goal exists."); with none
+ * stated the zone version is served exactly as it was for an unstated session before K3 (goal-version-switch.unit.ts pins that identity).
+ */
+const zoneVersion = (players: number, keepers: number) => buildActivityForReview({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(players, keepers, { goal: { count: 0 } }) } as any, { includeDrafts: true }) as ServedActivity
 const textsOf = (activity: ServedActivity) => activity.rendered.instructions.map(instruction => `[${instruction.section}] ${instruction.text}`)
 const sentenceOf = (activity: ServedActivity, starts: string) => activity.rendered.instructions.find(instruction => instruction.text.startsWith(starts))!
 
@@ -159,17 +161,25 @@ const SET_UP_PLACING = "Place a goal centred on the building team's end line, fa
 const PRESSING_LINE = 'Pressing team: Score by getting the ball into the goal; an own goal also counts, but winning the ball back does not earn a point on its own'
 const EXCHANGE =
     'When you call the next block the teams change ends and exchange roles: each role is played from the same end in every block, so each team now attacks the target of its new role, the goal stays where it is, and nothing is re-marked; there is no set block length'
+// Added 24 October 2026 (K3): the real records bind the goal's penalty area (A01-R2-S2-1 to S7-1, the FA 5v5 pairing) and owe nothing, so the
+// area's Set up sentence, the goalkeeper's colour and the normal rules are said (stage L's DRAFT words, bound-region-communication.unit.ts).
+const BOX = "Mark the goal's penalty area: 15 m wide, centred on the goal, and 9 m deep into the area; inside it the goalkeeper can handle the ball as in a normal game"
+const COLOUR = '; give the goalkeeper a colour neither team wears'
+const OFFSIDE_AND_NORMAL = 'There is no offside; otherwise, normal soccer rules apply during play'
 
-test('completed in memory, the goal version is served at 12/1: every sentence, in reading order, his three scoring sentences unchanged', () => {
+test('the real goal version is served at 12/1: every sentence, in reading order, his three scoring sentences unchanged', () => {
     const { activity } = goalVersion(12, 1)
     assert.deepEqual(textsOf(activity), [
         '[Set up] Mark out an area 40 m long by 30 m wide',
         '[Set up] Mark a line across the area at halfway, 20 m from each end line',
         `[Set up] ${SET_UP_PLACING}`,
+        // Added 24 October 2026 (K3): the goal's penalty area, set out once, from the FA 5v5 pairing's figures.
+        `[Set up] ${BOX}`,
         "[Set up] The building team's target zone is everything beyond the marked line, up to the pressing team's end line",
         "[Set up] The pressing team's target is the goal",
         '[Set up] Decide which team starts at which end',
-        '[Players] Divide 12 players into 2 teams: the building team has 6 outfield players and 1 goalkeeper; the pressing team has 5 outfield players',
+        // Re-pointed 24 October 2026 (K3): the roster closes with the goalkeeper's colour (LAW-12-GK applies at every place).
+        `[Players] Divide 12 players into 2 teams: the building team has 6 outfield players and 1 goalkeeper; the pressing team has 5 outfield players${COLOUR}`,
         '[How it works] The building team starts with the ball',
         '[How it works] When possession changes, play carries on without a stoppage, and each team keeps attacking the same target',
         // Re-pointed 24 October 2026 (R1): one restart for every dead ball (his reply filed 27 October 2026, item 4), so the moments widen
@@ -178,8 +188,9 @@ test('completed in memory, the goal version is served at 12/1: every sentence, i
         "[How it works] The building team's goalkeeper starts play, and restarts it whenever the ball is dead: after either team scores, whenever the ball goes out of play, whenever you stop play for a foul, when you judge that an attack has run its course, and whenever you stop play for any other reason",
         '[How it works] Before each of these restarts, the building team and the pressing team each set up on their own side of the marked line; once play restarts, every player is free to move anywhere',
         // Added 24 October 2026 (R3, DRAFT): his reply filed 27 October 2026, item 2, said once - the goal version inherits A01-R1's
-        // departure from LAW-11 (departed-law-wording.unit.ts).
-        '[How it works] There is no offside',
+        // departure from LAW-11 (departed-law-wording.unit.ts). Re-pointed 24 October 2026 (K3): the real account owes nothing, so the normal
+        // rules are folded after it (his reply filed 27 October 2026, item 6); the stand-in's REPORT account owed LAW-12-GK and said no more.
+        `[How it works] ${OFFSIDE_AND_NORMAL}`,
         "[How to score] Building team: Score by carrying the ball beyond the marked line or passing to a teammate who receives it under control beyond the line. The progression must begin with the goalkeeper's build-out and occur before the building team loses possession. Uncontrolled clearances do not score.",
         '[How to score] If the building team loses possession or plays the ball out, it cannot score again until the next goalkeeper restart.',
         `[How to score] ${PRESSING_LINE}`,
@@ -201,20 +212,25 @@ test('completed in memory, the goal version is served at 12/1: every sentence, i
     // Nothing withheld, nothing said for one block only: the blocks say the same words (the ends exchanged, every role at the same end).
     assert.deepEqual(activity.rendered.withheld, [])
     assert.ok(activity.rendered.instructions.every(instruction => instruction.block === undefined))
+    // Added 24 October 2026 (K3): no more Details than the zone version (the d27 design's 4.3), and fidelity finds nothing.
+    assert.equal(activity.rendered.instructions.length, 28)
+    assert.ok(activity.rendered.instructions.length <= zoneVersion(12, 1).rendered.instructions.length)
+    assert.equal(activity.integrity.fidelityViolations, 0)
     // His three approved scoring sentences are the zone version's, byte for byte.
     const zone = zoneVersion(12, 1)
     for (const starts of ['Building team: Score', 'If the building team loses possession']) assert.equal(sentenceOf(activity, starts).text, sentenceOf(zone, starts).text, starts)
 })
 
 test('at 12/2 and 11/1 the same words, the counts as the roster has them, and the goalkeeper alone at 11 staying with the goal', () => {
+    // Re-pointed 24 October 2026 (K3): each roster closes with the goalkeeper's colour, and the area and the normal rules are said too.
     const at12by2 = goalVersion(12, 2).activity
-    assert.equal(sentenceOf(at12by2, 'Divide').text, 'Divide 12 players into 2 teams: the building team has 1 goalkeeper and 6 other players; the pressing team has 5 other players')
+    assert.equal(sentenceOf(at12by2, 'Divide').text, `Divide 12 players into 2 teams: the building team has 1 goalkeeper and 6 other players; the pressing team has 5 other players${COLOUR}`)
     assert.equal(sentenceOf(at12by2, 'When you call the next block, 1').text, 'When you call the next block, 1 goalkeeper and 1 outfield player move to the team that becomes the building team, the goalkeeper staying with the goal')
     const at11 = goalVersion(11, 1).activity
-    assert.equal(sentenceOf(at11, 'Divide').text, 'Divide 11 players into 2 teams: the building team has 5 outfield players and 1 goalkeeper; the pressing team has 5 outfield players')
+    assert.equal(sentenceOf(at11, 'Divide').text, `Divide 11 players into 2 teams: the building team has 5 outfield players and 1 goalkeeper; the pressing team has 5 outfield players${COLOUR}`)
     assert.equal(sentenceOf(at11, 'When you call the next block, 1').text, 'When you call the next block, 1 goalkeeper moves to the team that becomes the building team, staying with the goal')
     for (const activity of [at12by2, at11]) {
-        for (const text of [SET_UP_PLACING, PRESSING_LINE, EXCHANGE, "The pressing team's target is the goal"]) assert.ok(activity.rendered.instructions.some(instruction => instruction.text === text), text)
+        for (const text of [SET_UP_PLACING, BOX, OFFSIDE_AND_NORMAL, PRESSING_LINE, EXCHANGE, "The pressing team's target is the goal"]) assert.ok(activity.rendered.instructions.some(instruction => instruction.text === text), text)
         assert.deepEqual(activity.rendered.withheld, [])
     }
 })
@@ -310,9 +326,13 @@ test('the diagram draws the goal where the game puts it, at the session\'s width
     assert.ok(diagram, 'the diagram is served')
     const [first, second] = diagram.blocks
     for (const block of [first, second]) {
-        assert.deepEqual(block.objects, [{ along: { from: 0, to: 0 }, across: { from: 12.5, to: 17.5 }, label: 'goal', target: true }])
+        // Re-pointed 24 October 2026 (K3): the session's goal is the FA 5v5 goal, 3.6576 m wide, centred (13.1712-16.8288 m across); the
+        // stand-in's 5 m goal was drawn at 12.5-17.5 m. The penalty area and the goalkeeper's marker are drawn too, in both blocks.
+        assert.deepEqual(block.objects, [{ along: { from: 0, to: 0 }, across: { from: 13.1712, to: 16.8288 }, label: 'goal', target: true }])
         assert.ok(block.desc.includes("The goal is placed on the building team's end line: the pressing team's target."), block.desc)
         assert.deepEqual(block.zones, [], 'no 5 m zone is marked: the former target-zone lines do not carry into the goal version (his item 12)')
+        assert.deepEqual(block.areas, [{ along: { from: 0, to: 9 }, across: { from: 7.5, to: 22.5 }, label: 'penalty area' }])
+        assert.deepEqual(block.keepers, [{ along: { from: 0, to: 0 }, across: { from: 13.1712, to: 16.8288 }, label: KEEPER }])
     }
     // Team A builds from the goal end in block 1 and presses from the other end in block 2, in its own colour in both.
     const teamA = (block: any) => block.teams.find((team: any) => team.label === 'Team A')

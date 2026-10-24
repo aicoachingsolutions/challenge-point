@@ -13,7 +13,7 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 
-import { corpusInput, loadCorpusContracts, loadRegister } from '../derivation/corpus'
+import { corpusInput, loadCorpusContracts, loadRegister, provisionalRealizationNamed } from '../derivation/corpus'
 import { isStampedHalt } from '../derivation/emit'
 import { runDerivation, runStages0to10 } from '../derivation/engine'
 import { indexRegister } from '../derivation/register'
@@ -23,6 +23,7 @@ import { derivationInputFor, GoalSelectionGap, selectFor } from '../derivation/r
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { justifiedDefaults } from './justified-defaults'
 import { checkRealization, Choice, isRefused, realize, Realized } from './realize'
+import { runnerDerivationNote, threadRunnerRealization } from './runner-derivation-note'
 
 const DOCS = path.resolve(__dirname, '../../../../docs/audits/conformance')
 
@@ -993,6 +994,11 @@ test('five goals are realization-authorized, they are three games, and the other
         let selection
         try {
             selection = selectFor(goal, null)
+            // Re-pointed 24 October 2026 (K3, the d27 design's stage K3): A01's record lists the goal version (A01-R2) as tried, first, and
+            // where no realization is threaded derivation reads it; the goal version is built only per role block (its teams change ends),
+            // and derived here with none, as this table derives, it is not authorized (GA-NO-FAILED-LINE, measured). So A01 keeps its zone
+            // version, A01-R1, threaded as the build threads the alternative it tries; its row is unchanged.
+            if (goal === 'A01') selection = { ...selection, realization: provisionalRealizationNamed('A01-R1') }
         } catch (error) {
             if (!(error instanceof GoalSelectionGap)) throw error
             gaps.push(goal)
@@ -1070,6 +1076,46 @@ test('five goals are realization-authorized, they are three games, and the other
     // The four that selected the Pass Combination Gate were the unevaluable ones. No goal selects it now.
     // Since 15 October 2026 (stage K5) one was: A01, as said above - until stage K6 the same day typed its progression reference.
     assert.deepEqual(notEvaluable.sort(), [], 'no goal is unevaluable: A01 is authorized since stage K6')
+})
+
+/**
+ * **The developer runners say what they derive — 24 October 2026 (the K3 review's should-fix).** Since K3 `npm run realize -- A01` and
+ * `npm run first:game -- A01` derive the record's first alternative, A01-R2, with no role block: Gate A FAIL (GA-NO-FAILED-LINE; first:game
+ * counts 18 lines not established), which says
+ * nothing about the served per-block build (the census above threads A01-R1 for the same reason). Both runners now print, before their
+ * result, which realization they derived, the record's alternatives in the order the build tries them, and the game's role blocks with what
+ * deriving it with none means; `--realization` threads another of the record's alternatives, as the build threads the one it tries, and
+ * refuses one the record does not list. What is derived is unchanged: the note is printed beside it.
+ */
+test('the developer runners say which realization they derive and that a role-block game is served per block', () => {
+    const noteOf = (selection: any) => runnerDerivationNote(selection, derivationInputFor(selection))
+    const preferred = noteOf(selectFor('A01', null))
+    assert.equal(preferred[0], "realization derived   A01-R2 (the record's first alternative that can be tried)")
+    assert.equal(preferred[1], "record's alternatives A01-R2, then A01-R1")
+    const blocks = preferred.find(line => line.startsWith('role blocks '))!
+    assert.match(blocks, /^role blocks {11}2 \(.+\), and this runner derives with NO role block$/)
+    assert.ok(preferred.some(line => line.includes('a Gate A FAIL, failed lines or a refusal below say nothing about the served per-block build')))
+    // The FAIL the note explains is the one measured since K3: A01-R2 with no role block fails GA-NO-FAILED-LINE.
+    const input = derivationInputFor(selectFor('A01', null))
+    const result = runDerivation(input)
+    if (isStampedHalt(result)) return assert.fail('unexpected halt on A01')
+    const resolved = assembleResolvedGame(result, (runStages0to10(input) as any).classes, indexRegister(input.register), input.contracts)
+    assert.deepEqual([resolved.coherence.gateA, resolved.coherence.failingChecks], ['FAIL', ['GA-NO-FAILED-LINE']])
+    // Threaded: the zone version, named as threaded; the record's order is still said.
+    const threaded = threadRunnerRealization(selectFor('A01', null), 'A01-R1')
+    assert.equal(threaded.realization!.provisionalId, 'A01-R1')
+    const zone = noteOf(threaded)
+    assert.equal(zone[0], 'realization derived   A01-R1 (threaded with --realization)')
+    assert.equal(zone[1], preferred[1])
+    assert.throws(() => threadRunnerRealization(selectFor('A01', null), 'A01-R9'), /--realization A01-R9: the selection's record lists A01-R2, A01-R1/)
+    assert.equal(threadRunnerRealization(selectFor('A04', null), null).realization, undefined, 'no id: the selection unchanged')
+    // A goal whose record names no realization, played as one game: said so, and nothing about alternatives.
+    assert.deepEqual(noteOf(selectFor('A04', null)), ['realization derived   none (no record names one)', 'role blocks           none: derived as one game, as the served build derives it'])
+    // Both runners print it, and both read --realization.
+    for (const file of ['run-realization.ts', 'run-first-game.ts']) {
+        const source = fs.readFileSync(path.join(__dirname, file), 'utf8')
+        assert.ok(source.includes('runnerDerivationNote(selection, input)') && source.includes("process.argv.indexOf('--realization')") && source.includes('threadRunnerRealization('), file)
+    }
 })
 
 /**

@@ -452,6 +452,10 @@ export interface LearningGoalAuthorization {
      * realizations one way: `provisionalRealization` (one, read as a list of one) or this list, never both. No production record carried the
      * list on 23 October 2026. Since Stage F (his replies filed 25 and 26 October 2026) one record does: an alternative waiting on two
      * decisions of his first, so listed and never tried, then the realization that record named before, which is built exactly as it was.
+     * AMENDED 24 October 2026 (K3): 'an alternative waiting on two decisions of his first, so listed and never tried' is no longer true. His
+     * words settle every decision that alternative waited on (the record's `settledBy`, from his replies filed 26 and 27 October 2026), so it
+     * waits on none and is tried first; the realization the record named before is tried second, only where the first does not apply to the
+     * session (a typed applicability refusal).
      */
     realizations?: RealizationAlternativeRecord[]
     /** The adjustments he authorized for this goal's activity (15 October 2026, stage K4), or absent. */

@@ -67,7 +67,16 @@ const KEEPER = specializedRoleNames()[0]
 const none = Object.fromEntries(specializedRoleNames().map(role => [role, 0]))
 const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value))
 const session12 = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: none }
-const a01Session = (players = 12, keepers = 1) => ({ players, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [KEEPER]: keepers } })
+/**
+ * Re-pointed 24 October 2026 (K3, the d27 design's stage K3): A01's session states that it has no goal, so the build serves the zone version
+ * (A01-R1) this file pins, exactly as before. Since K3 A01's record tries the goal version (A01-R2) first, and a session that has not said
+ * what goals it has is asked first (his reply filed 26 October 2026, item 11: "Do not infer a goal from the presence of a goalkeeper or
+ * silently treat missing information as confirmation that no goal exists."). The TEST-ONLY alterations of A01-R1 below are built over a copy
+ * of the records listing the zone version alone (zoneAloneRecords), so the goal version's attempt never meets them; the real goal version,
+ * whose teams change ends, is pinned in goal-version-switch.unit.ts.
+ */
+const a01Session = (players = 12, keepers = 1) => ({ players, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [KEEPER]: keepers }, objects: { goal: { count: 0 } } })
+const zoneAloneRecords = () => learningGoalAuthorizations().map(record => (record.learningGoalId === 'A01' ? { ...record, realizations: (record.realizations ?? []).filter(entry => entry.realization === 'A01-R1') } : record))
 const P = 'provisional:A01-R1'
 /** The teams row's outfield leaf, read from the register (row P2). */
 const OUTFIELD = String(index.rows.get('P2')!.path).split('[].').pop()!
@@ -112,7 +121,7 @@ const captured: LoadedContract[][] = []
 const gf2 = (items: any[], alterSupplied?: (supplied: any) => void) =>
     buildActivityFromKnowledge(['GF2'], session12 as any, { alter: contracts => void (contracts.push(testContract(items)), captured.push(contracts)), ...(alterSupplied ? { alterSupplied } : {}) })
 const a01 = (extra: any[], drop: string[] = [], session = a01Session()) =>
-    buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session } as any, learningGoalAuthorizations(), {
+    buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session } as any, zoneAloneRecords(), {
         alter: contracts => {
             const contract = contracts.find(c => c.contractId === P)!
             contract.items = contract.items.filter(item => !drop.includes(item.itemId))
@@ -548,7 +557,7 @@ test('the end-to-team assignment reaches the composed fixture, the served accoun
     // The holders alone are identical in both blocks; the ends are what tell them apart.
     assert.deepEqual(activity.roleBlocks!.blocks[0].holders, activity.roleBlocks!.blocks[1].holders)
     // The review evidence: A01's zone version with a TEST-ONLY exchange, built for review (an administrator's request).
-    const reviewed = buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: a01Session() } as any, learningGoalAuthorizations(), {
+    const reviewed = buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: a01Session() } as any, zoneAloneRecords(), {
         alter: contracts => void contracts.find(c => c.contractId === P)!.items.push(endItem(spec.exchanged)),
         review: { includeDrafts: true },
     }).activity as ServedActivity

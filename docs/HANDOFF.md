@@ -8922,3 +8922,96 @@ coach word is DRAFT; `approved-coach-wording.json` is untouched.
 OPEN: D-GOAL-SUITABILITY and D-PENALTY-AREA (his); offside and any law needing an adaptation (item 10); T4-5's words "within the authorized deep starting
 environment" reach the coach as written in Stage F (DRAFT, his item 8, binding PROPOSED); every new sentence, the "target" generalization of his
 possession sentence, the essentials amendment and the way reading await his review; Stage F reviewer should-fix items unchanged.
+
+### 24 October — K1-K3: the goal version recorded and switched on (his replies filed 26 and 27 October)
+
+Governing: `C:/Users/Administrator/Downloads/codex-input/christian-2026-10-27.txt` (items 1-6) and `-26.txt` (items 4, 7, 11, 12); design
+`C:/Users/Administrator/Downloads/codex-input/design-field-test-2026-10-27.md` (sections 1.1-1.8, 2.5-2.8, 4.1-4.5). Commits 6354168 and
+ba2fdcd (K1 and its review fix), f70e637 (K2), 3efbe72 (K3) and the K3 review fix after it. Stages H1-H4, R1-R3, L and I (23-24 October)
+come between Stage G above and K1; they are recorded in their commit messages (`git log`), not in this file.
+
+AMENDED 24 October 2026 (K3 review fix): the Stage F and Stage G entries above say A01-R2 waits on D-GOAL-SUITABILITY and D-PENALTY-AREA
+("A01-R2 MISSING_KNOWLEDGE waiting on D-GOAL-SUITABILITY and D-PENALTY-AREA", "production A01 is still A01-R1", "OPEN: D-GOAL-SUITABILITY
+and D-PENALTY-AREA (his)"). That is no longer true: since K3 every decision the goal version waited on is settled by his words, and A01-R2 is
+tried first. Those entries are kept as written, as history.
+
+What was recorded (his words copy-pasted, each byte-checked against the dated reply file within the cited item):
+- K1: the Sport Profile's FA 5v5 pairing `FA-MINI-SOCCER-5V5-2026` (the goal 12 ft x 6 ft = 3.6576 m x 1.8288 m, type scaled; its penalty
+  area 15 m wide x 9 m deep; the mark kept as data, never marked). Suitability reads the registered attributes before the width, so a goal
+  the session states as a mini-goal, full-size or another width does not suit the goal version and falls back (OBJECT_NOT_SUITABLE, decided);
+  a 3.6576 m goal with no type is asked its type. A01-R2's objectSuitability is the FA goal (27 Oct items 1 and 6).
+- K2: A01-R2's penalty area, five items (A01-R2-S2-1, S5-1, S6-1, S6-2, S7-1): one zone of the function penalty-area bound to its goal,
+  15 m wide, centred on the goal, 9 m deep from its end line, the pairing's geometry (27 Oct items 1 and 3). No spot, no goal area.
+- K3: A01's three gaps settled - D-GOAL-SUITABILITY (27 Oct items 1 and 6), D-PENALTY-AREA (27 Oct item 1, the 1b principle he approves
+  inside it), D-DEFAULT-LAWS (27 Oct items 2, 3, 4 and 6; since the K3 review fix also 26 Oct item 7 for the goalkeeper's handling). They
+  left A01-R2's entry before they were marked settled (the Stage F rule). Every note they made untrue keeps its old words and gains a dated
+  AMENDED line.
+
+What is served now (the review route and the live route agree; 40 x 30 m; the d27 design's 4.2 matrix):
+- The FA 5v5 goal (the list choice: scaled, 3.6576 m) with a goalkeeper, at 12/1, 12/2 and 11/1: the GOAL version (A01-R2). The teams
+  change ends at the block exchange; the goalkeeper and one outfield player move (the goalkeeper alone at 11); the penalty area is set out
+  once; the goalkeeper wears a colour neither team wears; ENFORCE owes nothing and the normal-rules sentence is said; one restart rule; no
+  offside, said once; no 5 m zone, spot or goal area.
+- No goal, a mini-goal (any width), a full-size goal, or another width (3.66 m and 5 m included): the ZONE version (A01-R1), unchanged by K3.
+- Goals not stated: ASKED, every choice offered (26 Oct item 11: never inferred from a goalkeeper). No goalkeeper: refused (both versions).
+  Any area other than 40 x 30 m: refused (TESTING_AREA, both versions).
+- The developer runners (`npm run realize -- A01`, `npm run first:game -- A01`) derive the record's first alternative, A01-R2, with no role
+  block, and print Gate A FAIL (GA-NO-FAILED-LINE). That is not a regression: the served build derives it once per block. Since the K3
+  review fix both runners say so before their result, and `--realization A01-R1` derives the zone version.
+- The regression snapshot measures the save again (since K3 it had found no live build to save: a session that does not say what goals it
+  has is asked, and the save keys were built from such sessions): `save/<goal>/
+  goalkeeper-1/objects-<choice>` with `digest-changed`, `session-changed` and `objects-changed` for each live build served with a choice
+  from an authorized pairing stated. It also measures the practice situations the live route asked a goal for, answered with each such
+  choice (`live/<goal>/goalkeeper-1/<situation>/objects-<choice>`).
+
+What stays open:
+- Goalkeeper handling in the ZONE version: his decision (design section 6, stage Z). Until then it still owes LAW-12-GK and gets no
+  normal-rules sentence (27 Oct item 5: "For now, preserve the validated target-zone version without silently adding new handling restrictions.").
+- His review of the DRAFT wording: every new coach sentence of H-K is DRAFT; `approved-coach-wording.json` is untouched. This does not block
+  serving.
+- The 9 m depth, a soft default (design 1.3 (a)): the current FA handbook prints 9 m; The FA's 2012 metric guide gave 8 m, the 2025 edition
+  9 yd (8.2296 m). We use 9 m as printed, under his same-source rule. If he asks for The FA to be checked first, the goal version waits on that
+  answer; a correction is a one-entry data change.
+- Next: V (the verification matrix, the simplicity pins and the field-test observation sheet), then M (merge under the auto-merge rule).
+
+### 24 October — V: the goal version verified, and the field-test observation sheet (the d27 design's 4.2-4.4)
+
+Codex task 05 (report `C:/Users/Administrator/Downloads/codex-output/report-05.md`, table `V-matrix.md`, harness `V-harness-05.cjs`),
+Claude's review of it, and the review fix (round 1). V changed no code and no knowledge: the snapshot is byte-identical to
+`snap-04.json` (391 keys, 0 changed), and every live A01 key equals its review twin. Claude's own harness, written apart from Codex's,
+is in `scratchpad/cd/build/review/05/fix1/` (`run.cjs <mutation> matrix|mutation`, then `check-matrix.cjs` / `check-mut.cjs`). It
+bundles a probe beside a copy of `back/dist/knowledge` and drives the real review and live routes; nothing under back/ is written.
+
+- Matrix (design 4.2), the built bundle, both routes, both blocks of every served case: 41 cases, 40 as the table says. All ten goal
+  statements are crossed with 0, 1 and 2 goalkeepers. The extra cases are 11/1 (FA goal and none) and three other areas. Two routes
+  agree in every case; no model call is made. The one exception is a known deviation: design 4.1 I(d) is not built. A 3.6576 m goal of
+  unstated type with no goalkeeper is asked its type (ATTRIBUTE) before being refused for the goalkeeper; 4.2 says refused. Fixing it
+  needs a design decision. His 26 Oct 9(b) bears on it:
+  "We should ultimately avoid requesting information that the active generation pathway cannot meaningfully interpret."
+- Mutations (each on a knowledge copy, through both routes): offside departure removed, LAW-11 owed and refused under ENFORCE; SCORE set
+  to CONTINUE, refused at structure by GA-DEAD-BALL-RESTART; box 8 m deep, 14 m wide or off-centre, refused by GA-BOUND-REGION; a second
+  (7v7) pairing for the same goal, BOUND_REGION_NOT_AUTHORIZED; suitability attributes dropped, a 3.6576 m mini-goal refused as
+  BOUND_REGION_NOT_AUTHORIZED instead of falling back; one dead-ball trigger given a different restart location, refused by
+  GA-DEAD-BALL-RESTART in both blocks. The design's "re-add T4-3: ONE_RESTART fails" did not isolate that clause. The historical item
+  re-added as it was is refused earlier, under ENFORCE (LAW-16/LAW-17 owed: its departures hold only while no goal stands on that end
+  line). Re-added without them it is served, because its realized location equals the common one. Design 4.2 is amended (dated).
+- Simplicity pins (4.3): the goal version's Details hold 28 instructions, the zone version's 28 (PASS); metres throughout, the goal also
+  in feet where the coach chooses it (PASS); the overview fits one read (PASS, an editorial judgement). Two pins are not met, and both
+  need coach words that are Christian's to review, so no failing test was added. "Organize": the coach sheet never names the goal's size
+  or the equipment. "No fact said twice": "own side of the marked line" is in the set-up sentence, and "on the building team's side of
+  the marked line" in the restart-location sentence.
+- The field-test observation sheet (4.4): `C:/Users/Administrator/Downloads/codex-output/Field-test observation sheet.txt`, DRAFT,
+  for Christian, not coach-facing. Review fix: question 8 asked only whether players wait "near the goal". His 27 Oct item 2 speaks of
+  players near "a scoring target", and the earlier discussion it refers to (his 18 Oct item 6) was about players staying beyond the
+  progression line. So question 8 now names both targets (beyond the marked line, or near the goal) and asks his question, whether
+  it "actually undermines the activity". Questions 1, 3, 4 and 6 are back in his words (26 Oct item 13; 27 Oct item 8). Questions 10-12
+  are our analysis of the one-restart rule (design 2.11), not his points, and sit under their own heading. Design 4.4 is amended (dated).
+
+What stays open:
+- 4.1 I(d), above (a design decision).
+- For a 3.6576 m goal of unstated type, the ATTRIBUTE question offers a choice labelled with the raw value "full-size"
+  (`attribute:type=full-size`), with no DRAFT wording entry. It falls back to the zone version correctly. This dates from stages I/K1.
+- The two unmet pins, above.
+- A harness that writes beside itself, or runs build.js (which empties back/dist), overwrites evidence when re-run in place. The Codex
+  rules now say to re-run a copy.
+- Next: M (merge under the auto-merge rule).

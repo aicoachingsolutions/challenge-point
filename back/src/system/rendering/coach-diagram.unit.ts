@@ -53,7 +53,12 @@ console.log('the field diagram a coach is served, and D9 (stage 5B)')
 const ROLE = specializedRoleNames()[0]
 const none = Object.fromEntries(specializedRoleNames().map(role => [role, 0]))
 const sessionAt = (players: number, keepers: number) => ({ players, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [ROLE]: keepers } })
-const a01At = (players: number, keepers: number) => ({ kind: 'learning-goal' as const, goalId: 'A01', situationId: null, session: sessionAt(players, keepers) })
+// Re-pointed 24 October 2026 (K3, the d27 design's stage K3): A01's session states that it has no goal, so the zone version (A01-R1) is built
+// exactly as before. Since K3 A01's record tries the goal version first, and a session that has not said what goals it has is asked first
+// (his reply filed 26 October 2026, item 11: "Do not infer a goal from the presence of a goalkeeper or silently treat missing information as
+// confirmation that no goal exists."). The demonstrations keep the session as it was.
+const NO_GOAL = { goal: { count: 0 } }
+const a01At = (players: number, keepers: number) => ({ kind: 'learning-goal' as const, goalId: 'A01', situationId: null, session: { ...sessionAt(players, keepers), objects: NO_GOAL } })
 const demo = (id: string, keepers = 1) => ({ kind: 'mechanism-demonstration' as const, demonstrationId: id, session: sessionAt(12, keepers) })
 const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value))
 const index = indexRegister(loadRegister())
@@ -91,7 +96,8 @@ const PROD_COACH = PROD_OUTCOME.diagram!
 const PROD_MODEL = PROD_OUTCOME.draft.diagram!
 
 test('1. A01 at 12/1, 12/2 and 11/1: every viewer is served the checked model in coach words, block by block, with nothing of the data', () => {
-    const stored: any = { _id: 'TEST-ONLY', createdBy: 'TEST-ONLY', playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: { ...none, [ROLE]: 1 } }
+    // Re-pointed 24 October 2026 (K3): the stored session states no goal, as a01At's does.
+    const stored: any = { _id: 'TEST-ONLY', createdBy: 'TEST-ONLY', playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: { ...none, [ROLE]: 1 }, objects: NO_GOAL }
     const viaRoute = reviewActivity(stored, { learningGoalId: 'A01', durationMin: 20 }) as ServedActivity
     assert.deepEqual(viaRoute.diagram, PROD_COACH, 'the coach\'s review answer carries it')
     assert.ok(!('diagramDraft' in viaRoute), 'and no model, findings or notes')
@@ -334,7 +340,11 @@ test('4. a D9 failure withholds the diagram only: the activity and its overview 
 
 test('5. markings presented block by block (TEST-ONLY 15 m line): each block\'s own distance in the description, never "halfway"', () => {
     const offsetFifteen = (contracts: LoadedContract[]) => {
-        const item: any = contracts.find(contract => contract.contractId === 'provisional:A01-R1')!.items.find(entry => entry.itemId === 'A01-R1-S5-1')
+        // Re-pointed 24 October 2026 (K3): the build tries the goal version (A01-R2) first and, the session stating no goal, moves on to the
+        // zone version; the alteration is the zone version's alone, so the goal version's attempt is left as it is.
+        const zone = contracts.find(contract => contract.contractId === 'provisional:A01-R1')
+        if (!zone) return
+        const item: any = zone.items.find(entry => entry.itemId === 'A01-R1-S5-1')
         item.value = { ...item.value, offsetM: { from: 15, to: 15 }, asAuthored: "TEST-ONLY 15 m from the building team's end line" }
     }
     const { activity } = inputOf(a01At(12, 1), offsetFifteen)

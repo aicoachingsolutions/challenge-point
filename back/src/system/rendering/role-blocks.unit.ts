@@ -322,10 +322,15 @@ test('A01 behind its record: two blocks built and SERVED since design step L14; 
         manipulations: record.manipulations.map((m: any) => (m.status === 'MISSING_KNOWLEDGE' || m.status === 'MISSING_CAPABILITY' ? { ...m, category: 'EXISTING_KNOWLEDGE_TO_VERIFY', status: 'NOT_SELECTED_FOR_FIRST_DEMO', gaps: [], note: 'TEST-ONLY' } : m)),
         provisionalChoices: (record.provisionalChoices ?? []).map((c: any) => (c.status === 'MISSING_KNOWLEDGE' || c.status === 'MISSING_CAPABILITY' ? { ...c, status: 'AUTHORIZED_BY_RULING', gaps: [], note: 'TEST-ONLY' } : c)),
     }))
-    const keeperless = refused(buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, behind as any).activity, 'A01 behind its record, no goalkeeper')
+    // Re-pointed 24 October 2026 (K3, the d27 design's stage K3): A01's sessions state that they have no goal, so the zone version (A01-R1) is
+    // built exactly as before. Since K3 A01's record tries the goal version first, and a session that has not said what goals it has is asked
+    // first (his reply filed 26 October 2026, item 11: "Do not infer a goal from the presence of a goalkeeper or silently treat missing
+    // information as confirmation that no goal exists."); with none stated the goal version does not apply and the zone version decides.
+    const noGoal = { ...session, objects: { goal: { count: 0 } } }
+    const keeperless = refused(buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: noGoal }, behind as any).activity, 'A01 behind its record, no goalkeeper')
     assert.equal(keeperless.stage, 'session')
     assert.equal(keeperless.summary, `This game needs 1 ${specializedRoleNames()[0]} in all and the session has 0.`)
-    const withKeeper = { ...session, roles: { ...none, [specializedRoleNames()[0]]: 1 } }
+    const withKeeper = { ...noGoal, roles: { ...none, [specializedRoleNames()[0]]: 1 } }
     /**
      * **Moved 18 October 2026 (design step L14): communication -> SERVED, the work succeeding.** His reply filed 20 October 2026, item 1:
      * "Pressing team's regain score — Approved as written." (entry A01-W2, which says the four fields that were the whole stop pinned

@@ -85,6 +85,8 @@ const IFAB: Spec = { id: 'IFAB-LAW-1', area: [45, 42], goal: 7.32, type: 'full-s
 /** TEST-ONLY: the profile's bound-region block with the FA 5v5 entry beside the IFAB one (a stand-in for K1, never knowledge). */
 const blockWithFa = (): SportBoundRegions => {
     const block = copy(loadSportBoundRegions()!)
+    // K1: replace the production FA entry with this test's deliberately labelled copy.
+    block.pairings = block.pairings.filter(entry => entry.id !== "FA-MINI-SOCCER-5V5-2026")
     block.pairings.push({
         id: FA.id,
         document: 'TEST-ONLY: The Mini-Soccer and Youth Futsal Handbook (England Football / The FA), the d27 design section 1.6',
@@ -117,6 +119,11 @@ const recordsOf = () => {
 const fileFor = (spec: Spec, options: { mode?: 'REPORT' | 'ENFORCE'; ends?: string } = {}) => {
     const file = readJson(PROVISIONAL_REALIZATIONS_FILE)
     const variant = file.realizations.find((r: any) => r.id === R2)
+    // Re-pointed 24 October 2026 (K2): A01-R2 now records its goal's penalty area (A01-R2-S2-1 to S7-1, the production FA 5v5 pairing,
+    // pinned in goal-version-penalty-area.unit.ts). This copy sets out its own TEST-ONLY area items below (each spec's pairing and size), and
+    // a defended goal holds exactly one penalty-area zone (BOUND-REGION-GOAL), so the production five are left out of the copy, in memory;
+    // everything else is as before.
+    variant.items = variant.items.filter((i: any) => i.selector !== 'noun=zone & functions ∋ penalty-area')
     variant.objectSuitability = [{ kind: 'goal', widthM: { min: 1, max: 10 }, ruledOn: 'TEST-ONLY', by: 'TEST-ONLY', citedAs: 'TEST-ONLY', words: ['TEST-ONLY'] }]
     variant.defaultLawsCheck = { mode: options.mode ?? 'REPORT', because: 'TEST-ONLY: D-DEFAULT-LAWS completed in memory', basis: { words: ['TEST-ONLY'], citedAs: 'TEST-ONLY' } }
     if (options.ends) variant.items.find((i: any) => i.id === `${R2}-B10-1`).value = options.ends
@@ -170,8 +177,15 @@ const served = (spec: Spec, players: number, keepers: number, options: { mode?: 
     assert.equal(built.activity.outcome, 'served', `${spec.id} ${players}/${keepers}: ${JSON.stringify((built.activity as RefusedActivity).reasons?.slice(0, 4) ?? null)}`)
     return { activity: built.activity as ServedActivity, fixture: built.fixture }
 }
+/**
+ * Re-pointed 24 October 2026 (K3, the d27 design's stage K3): the zone version is built for a session that states it has no goal. Since K3
+ * A01's record tries the goal version (A01-R2) first, and a session that has not said what goals it has is asked first (his reply filed 26
+ * October 2026, item 11: "Do not infer a goal from the presence of a goalkeeper or silently treat missing information as confirmation that no
+ * goal exists."); with none stated the zone version is served exactly as before.
+ */
+const NO_GOAL = { goal: { count: 0 } }
 const zoneVersion = (players: number, keepers: number) => {
-    const activity = buildActivityForReview({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: { players, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [KEEPER]: keepers } } } as any, { includeDrafts: true })
+    const activity = buildActivityForReview({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: { players, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [KEEPER]: keepers }, objects: NO_GOAL } } as any, { includeDrafts: true })
     assert.equal(activity.outcome, 'served', `the zone version ${players}/${keepers}: ${JSON.stringify((activity as RefusedActivity).reasons?.slice(0, 4) ?? null)}`)
     return activity as ServedActivity
 }
@@ -252,7 +266,8 @@ test('layoutOf: a region not across the full width is set out once where it stay
 
     // TEST-ONLY under KEPT: production A01's blocks (the teams keep their ends), with a 9 m by 15 m area at the building team's end in each
     // block - at 0-9 m in block 1 and 31-40 m in block 2: one at each end, of one size, mirrored.
-    const zone = buildActivityWithFixture({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [KEEPER]: 1 } } } as any)
+    // Re-pointed 24 October 2026 (K3): the session states no goal (see zoneVersion).
+    const zone = buildActivityWithFixture({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [KEEPER]: 1 }, objects: NO_GOAL } } as any)
     const kept = blocksOf(zone.fixture).map(bare)
     const BOX = 'c:TEST-ONLY:BOX'
     const alternating = [withRegion(kept[0], BOX, { from: 0, to: 9 }, { from: 7.5, to: 22.5 }), withRegion(kept[1], BOX, { from: 31, to: 40 }, { from: 7.5, to: 22.5 })]
@@ -578,9 +593,11 @@ test('the goal version under KEPT (TEST-ONLY) is refused at structure before any
 })
 
 // ── 9. Production ────────────────────────────────────────────────────────────────────────────────────────
+// Re-pointed 24 October 2026 (K3): the zone version, built for a session stating no goal (see zoneVersion); the real goal version, served
+// since K3 with the FA 5v5 goal, binds its penalty area (goal-version-switch.unit.ts, goal-version-communication.unit.ts).
 test('production is unchanged: A01 at 12/1, 12/2 and 11/1 binds no region, its layout holds no rectangle, its fixtures carry no pairing, and its account holds the sentence', () => {
     for (const [players, keepers] of [[12, 1], [12, 2], [11, 1]]) {
-        const zone = buildActivityWithFixture({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: { players, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [KEEPER]: keepers } } } as any)
+        const zone = buildActivityWithFixture({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: { players, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [KEEPER]: keepers }, objects: NO_GOAL } } as any)
         assert.equal(zone.activity.outcome, 'served')
         for (const block of blocksOf(zone.fixture)) {
             assert.equal('rectangles' in (block.fixture.layout ?? {}), false)

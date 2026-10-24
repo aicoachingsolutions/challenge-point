@@ -777,22 +777,31 @@ export function rosterRefusal(ctx: GateContext, realized: Realized): RosterRefus
  *   - OBJECT_NOT_SUITABLE: the session has enough of them and they are not ones the realization's authorized knowledge says suit it
  *     (`decided: true`), or nothing authorized says which suit it (`decided: false`). Which objects suit an activity is decision 4 of the note
  *     sent to him; until a realization carries his words for it, no object of the kind counts as suitable, so none is treated as
- *     interchangeable (his item 3: *"rather than inventing dimensions or treating every [object] as interchangeable"*).
+ *     interchangeable (his item 3: *"rather than inventing dimensions or treating every [object] as interchangeable"*). K1 (24 October 2026):
+ *     a stated attribute value the suitability does not admit is decided unsuitability before the width is read (`widthM` null where none
+ *     is stated).
+ *   - OBJECT_ATTRIBUTE_NOT_STATED (K1, 24 October 2026): the session has enough of them, their width is one the suitability admits, and the
+ *     suitability admits only some values of an attribute the register lists for the kind (`ObjectSuitability.attributes`) that the session
+ *     does not state, so it is asked (the attribute, its registered values and the stated width travel beside the cause), never assumed. Not
+ *     redundant with the bound-region check's own ask (BOUND_REGION_OBJECT_NOT_STATED): that one is reached only after this rule, and only for
+ *     a defended object of a width some pairing records with the attribute; a suitability can read an attribute where no pairing does.
  *   - OBJECT_INVOLVEMENT_NOT_SETTLED: the game holds an object of the kind whose count is not a whole number, so how many it needs is unknown.
  */
 export type ObjectAvailabilityRefusal =
+    | { cause: 'OBJECT_ATTRIBUTE_NOT_STATED'; kind: string; attribute: string; values: string[]; widthM: number; why: string }
     | { cause: 'OBJECT_AVAILABILITY_NOT_STATED'; kind: string; asks: 'AVAILABILITY' | 'WIDTH'; needed: number; why: string }
     | { cause: 'OBJECT_AVAILABILITY_SHORT'; kind: string; needed: number; available: number; why: string }
     /**
      * `rules` (stage I, 24 October 2026): the suitability the realization's authorized knowledge states for the kind, as read (empty where
      * nothing is decided), so the builder can say which objects it is built for (the d27 design's stage I(b)) without reading `why`.
      */
-    | { cause: 'OBJECT_NOT_SUITABLE'; kind: string; needed: number; available: number; widthM: number; decided: boolean; rules: { min: number | null; max: number | null }[]; why: string }
+    | { cause: 'OBJECT_NOT_SUITABLE'; kind: string; needed: number; available: number; widthM: number | null; decided: boolean; rules: { min: number | null; max: number | null; attributes?: Record<string, string[]> }[]; why: string }
     | { cause: 'OBJECT_INVOLVEMENT_NOT_SETTLED'; kind: string; why: string }
 
 /** What authorized knowledge says suits a realization's objects of one kind (`ProvisionalRealization.objectSuitability`), as the rule reads it. */
 interface SuitabilityRead {
     from: string
+    attributes?: Record<string, string[]>
     min: number | null
     max: number | null
 }
@@ -829,12 +838,16 @@ export function objectInvolvementOf(game: unknown, index: GateContext['index']):
  *
  * `contracts` are the game's: the suitability a realization's authorized knowledge states for a kind is read from the provisional
  * realization the game was derived with (`objectSuitability`, his words required by its loader). None is recorded on 23 October 2026, so on
- * production data every stated object of a listed kind is OBJECT_NOT_SUITABLE with `decided: false`; no served game holds one.
+ * production data every stated object of a listed kind is OBJECT_NOT_SUITABLE with `decided: false`; no served game holds one. AMENDED 24
+ * October 2026 (K1): production now records one, on A01-R2 (one object of type scaled, exactly 3.6576 m wide; his reply filed 27 October
+ * 2026, items 1 and 6), read by its attributes before its width; A01-R2 is still listed and never tried until K3, so no served game holds
+ * an object yet. AMENDED 24 October 2026 (K3): that realization is tried first now (its decisions settled by his words in the authorization
+ * record), so a served game holds the object where the session states one this rule admits.
  */
 export function objectAvailabilityRefusal(index: GateContext['index'], game: unknown, envelope: unknown, contracts: LoadedContract[]): ObjectAvailabilityRefusal | null {
     const involvement = objectInvolvementOf(game, index)
     if (!involvement) return null
-    const stated = (envelope as { objects?: Record<string, { count?: unknown; widthM?: unknown }> } | undefined)?.objects
+    const stated = (envelope as { objects?: Record<string, Record<string, unknown>> } | undefined)?.objects
     for (const { kind, needed, elements, unsettled } of involvement) {
         if (unsettled) return { cause: 'OBJECT_INVOLVEMENT_NOT_SETTLED', kind, why: unsettled }
         if (needed === 0) continue
@@ -846,14 +859,23 @@ export function objectAvailabilityRefusal(index: GateContext['index'], game: unk
         }
         if (count < needed) return { cause: 'OBJECT_AVAILABILITY_SHORT', kind, needed, available: count, why: `${held}, and the session states ${count}` }
         const width = statement.widthM
-        if (typeof width !== 'number' || !Number.isFinite(width) || width <= 0) {
-            return { cause: 'OBJECT_AVAILABILITY_NOT_STATED', kind, asks: 'WIDTH', needed, why: `${held}, and the session states ${count} without saying how wide they are` }
-        }
         const rules: SuitabilityRead[] = contracts.flatMap(contract =>
             ((contract as { objectSuitability?: ObjectSuitability[] }).objectSuitability ?? [])
                 .filter(rule => rule.kind === kind)
-                .map(rule => ({ from: `${contract.contractId} (${rule.citedAs})`, min: rule.widthM.min, max: rule.widthM.max })),
+                .map(rule => ({ from: `${contract.contractId} (${rule.citedAs})`, min: rule.widthM.min, max: rule.widthM.max, ...(rule.attributes ? { attributes: rule.attributes } : {}) })),
         )
+        // A stated attribute can settle unsuitability even before a width is known. Missing attributes are asked only after width fits.
+        const offList = rules.filter(rule => Object.entries(rule.attributes ?? {}).some(([attribute, allowed]) =>
+            typeof statement[attribute] === 'string' && !allowed.includes(statement[attribute] as string)))
+        if (offList.length) return {
+            cause: 'OBJECT_NOT_SUITABLE', kind, needed, available: count,
+            widthM: typeof width === 'number' ? width : null, decided: true,
+            rules: rules.map(({ min, max, attributes }) => ({ min, max, ...(attributes ? { attributes } : {}) })),
+            why: `${held}; the stated attributes are outside what ${offList.map(rule => rule.from).join(' and ')} admits`,
+        }
+        if (typeof width !== 'number' || !Number.isFinite(width) || width <= 0) {
+            return { cause: 'OBJECT_AVAILABILITY_NOT_STATED', kind, asks: 'WIDTH', needed, why: `${held}, and the session states ${count} without saying how wide they are` }
+        }
         if (!rules.length) {
             return {
                 cause: 'OBJECT_NOT_SUITABLE',
@@ -875,9 +897,14 @@ export function objectAvailabilityRefusal(index: GateContext['index'], game: unk
                 available: count,
                 widthM: width,
                 decided: true,
-                rules: rules.map(rule => ({ min: rule.min, max: rule.max })),
+                rules: rules.map(({ min, max, attributes }) => ({ min, max, ...(attributes ? { attributes } : {}) })),
                 why: `${held}; the session states ${count}, ${width} m wide, outside what ${failing.map(rule => `${rule.from} admits (${rule.min ?? 'no minimum'} to ${rule.max ?? 'no maximum'} m)`).join(' and ')}`,
             }
+        }
+        for (const rule of rules) for (const attribute of Object.keys(rule.attributes ?? {})) {
+            if (typeof statement[attribute] === 'string' && (statement[attribute] as string).length) continue
+            const values = index.sessionResources?.attributes?.find(entry => entry.kind === kind && entry.attribute === attribute)?.values ?? []
+            return { cause: 'OBJECT_ATTRIBUTE_NOT_STATED', kind, attribute, values: [...values], widthM: width, why: `${held}; the suitability reads ${attribute}, which the session does not state` }
         }
     }
     return null

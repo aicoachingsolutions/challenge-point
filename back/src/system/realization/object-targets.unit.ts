@@ -35,7 +35,7 @@
 import assert from 'node:assert/strict'
 
 import * as corpus from '../derivation/corpus'
-import { loadRegister, PROVISIONAL_REALIZATIONS_FILE, readJson, restatementTally, validateProvisionalRealizations } from '../derivation/corpus'
+import { loadRegister, PROVISIONAL_REALIZATIONS_FILE, provisionalRealizationNamed, readJson, restatementTally, validateProvisionalRealizations } from '../derivation/corpus'
 import { applyNoRowRestatement, ItemRestatement, pairingRefusal, RestatementTally } from '../derivation/corpus-restatement'
 import { runStages0to5 } from '../derivation/engine'
 import { applyRealizationDeferrals, AuthorizingRelationship } from '../derivation/realization-deferral'
@@ -66,7 +66,14 @@ const register = loadRegister()
 const index = indexRegister(register)
 const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T
 const KEEPER = specializedRoleNames()[0]
-const sessionOf = (extra: Record<string, unknown> = {}) => ({ players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...Object.fromEntries(specializedRoleNames().map(r => [r, 0])), [KEEPER]: 1 }, ...extra })
+/**
+ * Re-pointed 24 October 2026 (K3, the d27 design's stage K3): a session states that it has no goal unless a test states its own, and the
+ * production derivations below thread A01-R1, so what this file pins of the zone version is read exactly as before. Since K3 A01's record
+ * lists the goal version (A01-R2) as tried, first: where no realization is threaded derivation reads it, and a session that has not said what
+ * goals it has is asked first (his reply filed 26 October 2026, item 11).
+ */
+const sessionOf = (extra: Record<string, unknown> = {}) => ({ players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...Object.fromEntries(specializedRoleNames().map(r => [r, 0])), [KEEPER]: 1 }, objects: { goal: { count: 0 } }, ...extra })
+const zoneSelection = () => ({ ...selectFor('A01', null), realization: provisionalRealizationNamed('A01-R1') })
 const BLOCK_1 = 'BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END'
 const BLOCK_2 = 'BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START'
 const ROLE_BLOCK_1: RoleBlock = { blockId: BLOCK_1, holders: { BUILDING: 'TEAM_AT_AXIS_START', PRESSING: 'TEAM_AT_AXIS_END' } }
@@ -363,7 +370,14 @@ const goalBuildWhole = (options: GoalOptions = {}): { activity: ServedActivity |
             goal: { count: 1, ...(width === null ? {} : { widthM: width }) },
             ...Object.fromEntries(Object.entries(options.widths ?? {}).map(([kind, widthM]) => [kind, { count: 1, widthM }])),
         }
-        return buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: sessionOf({ objects }) } as any, learningGoalAuthorizations(), {
+        /**
+         * Re-pointed 24 October 2026 (K3, the d27 design's stage K3): TEST-ONLY, a copy of the records in which A01's lists its zone version
+         * alone, so this TEST-ONLY goal written onto A01-R1 is built exactly as before. Since K3 the real goal version (A01-R2) is tried first,
+         * and for this goal (5 m, or stated without a width or type) it would decide first - not suiting, or asking - so the stand-in could not
+         * be reached. The real goal version is pinned in goal-version-switch.unit.ts.
+         */
+        const records = learningGoalAuthorizations().map(record => (record.learningGoalId === 'A01' ? { ...record, realizations: (record.realizations ?? []).filter(entry => entry.realization === 'A01-R1') } : record))
+        return buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: sessionOf({ objects }) } as any, records, {
             alter: contracts => {
                 const contract = (id: string) => contracts.find(c => c.contractId === id)!
                 const item = (key: string) => contract(key.split('::')[0]).items.find(i => i.itemId === key.split('::')[1])! as any
@@ -635,7 +649,7 @@ test('T15 on the full build, GA-DIRECTION reading the object target, and the fac
     const facing = reasonsOf(goalBuild({ extra: [testItem('TEST-GOAL-FACING', 'O6', 'kind=goal', 'EQUALS', 'INTO_THE_AREA')] }), BLOCK_1)
     assert.ok(facing.includes(`fidelity Q3: ${GOAL}.facing is established by the game and no instruction carries it`), facing.join(' | '))
     // And on a ball it is withdrawn, never a gap: production A01's played object holds an O6 line only as WITHDRAWN.
-    const base: any = runStages0to5(derivationInputFor(selectFor('A01', null)) as any)
+    const base: any = runStages0to5(derivationInputFor(zoneSelection()) as any)
     const o6 = (base.lines as any[]).filter(line => line.row === 'O6')
     assert.ok(o6.length > 0 && o6.every(line => line.lineState === 'WITHDRAWN'), JSON.stringify(o6))
 })
@@ -644,7 +658,7 @@ test('T15 on the full build, GA-DIRECTION reading the object target, and the fac
 test('defersWith: the region yields with the objective reference it is paired with, and only with it', () => {
     const relationship: AuthorizingRelationship = { id: 'TEST-ONLY-REL-J2', contextId: 'RPC-001', rows: ['J2'], status: 'CONFIRMED' }
     const deferWith = (team: string, pair: boolean, partnerDefers = true) => {
-        const contracts = copy(derivationInputFor(selectFor('A01', null)).contracts as LoadedContract[])
+        const contracts = copy(derivationInputFor(zoneSelection()).contracts as LoadedContract[])
         const gf2 = contracts.find(c => c.contractId === GF2)!
         // Since Stage F (26 October 2026, ruling C63) production carries both; a case without one removes it on this copy.
         const reference = gf2.items.find(i => i.itemId === 'GF2-08.f') as any
@@ -673,7 +687,7 @@ test('defersWith: the region yields with the objective reference it is paired wi
     assert.deepEqual(deferWith('TEAM_AT_AXIS_END', true, false).deferred.map(entry => entry.item.itemId), ['GF2-14.b'])
     // Production: since Stage F the pairing is carried (ruling C63), and in the zone version A01-R1 - no item of which writes an objective's
     // reference - C56 alone defers.
-    const production = copy(derivationInputFor(selectFor('A01', null)).contracts as LoadedContract[])
+    const production = copy(derivationInputFor(zoneSelection()).contracts as LoadedContract[])
     const gf2Production = production.find(c => c.contractId === GF2)!
     assert.deepEqual([(gf2Production.items.find(i => i.itemId === 'GF2-08.f') as any).defersTo, (gf2Production.items.find(i => i.itemId === 'GF2-03.e') as any).defersWith], [DEFERS_TO_AUTHORIZED_REALIZATION, 'GF2-08.f'])
     assert.deepEqual(applyRealizationDeferrals(production, contextRelationships(), index).deferred.map(e => e.item.itemId), ['GF2-14.b'])

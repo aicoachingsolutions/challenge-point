@@ -68,7 +68,14 @@ const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T
 const index = indexRegister(loadRegister())
 const KEEPER = specializedRoleNames()[0]
 const none = Object.fromEntries(specializedRoleNames().map(role => [role, 0]))
-const sessionOf = (players: number, keepers: number, objects?: Record<string, unknown>) => ({ players, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [KEEPER]: keepers }, ...(objects ? { objects } : {}) })
+/**
+ * Re-pointed 24 October 2026 (K3, the d27 design's stage K3): a session given no objects here states that it has no goal, so A01's build
+ * serves the zone version (A01-R1) these tests read, exactly as before. Since K3 A01's record tries the goal version (A01-R2) first, and a
+ * session that has not said what goals it has is asked first (his reply filed 26 October 2026, item 11: "Do not infer a goal from the
+ * presence of a goalkeeper or silently treat missing information as confirmation that no goal exists."). The real goal version's account
+ * (ENFORCE, owing nothing) is pinned in goal-version-switch.unit.ts and goal-version-penalty-area.unit.ts.
+ */
+const sessionOf = (players: number, keepers: number, objects?: Record<string, unknown>) => ({ players, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [KEEPER]: keepers }, objects: objects ?? { goal: { count: 0 } } })
 const GOAL = { goal: { count: 1, widthM: 5 } }
 const R1 = 'A01-R1'
 const R2 = 'A01-R2'
@@ -467,6 +474,13 @@ const goalBuild = (players: number, keepers: number, alter: (file: any) => void 
     const record = records.find(r => r.learningGoalId === 'A01') as any
     record.realizations = record.realizations.map((entry: any) => (entry.realization === R2 ? { realization: entry.realization, words: entry.words, citedAs: entry.citedAs } : entry))
     const file = readJson(PROVISIONAL_REALIZATIONS_FILE)
+    // Re-pointed 24 October 2026 (K2): A01-R2 now records its goal's penalty area (A01-R2-S2-1 to S7-1, pinned in
+    // goal-version-penalty-area.unit.ts, where its account owes nothing). This stand-in hands the build no bound-region block for its
+    // TEST-ONLY 5 m goal, so those items would be realized with no pairing to word them, and the build is refused at communication (fidelity
+    // Q3, measured); they are left out of the copy, in memory, so the stand-in is the no-region goal it was before K2 and LAW-12-GK stays
+    // owed, as the tests below measure.
+    const variant = file.realizations.find((r: any) => r.id === R2)
+    variant.items = variant.items.filter((i: any) => i.selector !== 'noun=zone & functions ∋ penalty-area')
     file.realizations.find((r: any) => r.id === R2).objectSuitability = [{ kind: 'goal', widthM: { min: 1, max: 10 }, ruledOn: 'TEST-ONLY', by: 'TEST-ONLY', citedAs: 'TEST-ONLY', words: ['TEST-ONLY'] }]
     alter(file)
     return buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(players, keepers, GOAL) } as any, records, { realizations: loadProvisionalRealizations(file), review: { includeDrafts: true }, boundRegions: null })

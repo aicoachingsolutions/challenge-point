@@ -754,6 +754,11 @@ function objectSummary(
     index: ReturnType<typeof indexRegister>,
 ): { stage: ActivityStage; summary: string; applicability: Applicability | null; question?: SessionQuestion } {
     switch (refusal.cause) {
+        case 'OBJECT_ATTRIBUTE_NOT_STATED': {
+            const words = objectAvailabilityQuestion(refusal.kind, 'ATTRIBUTE', refusal.attribute)
+            const choices = choicesAnswering(objectChoicesOf(refusal.kind, index, boundRegions), refusal.attribute, refusal.widthM, refusal.kind)
+            return { stage: 'session', summary: words, applicability: { verdict: 'ASK', cause: 'OBJECT_AVAILABILITY_NOT_STATED' }, question: { kind: 'OBJECT_AVAILABILITY', objectKind: refusal.kind, asks: 'ATTRIBUTE', attribute: { name: refusal.attribute, values: [...refusal.values] }, words, status: 'DRAFT', choices } }
+        }
         case 'OBJECT_AVAILABILITY_NOT_STATED': {
             const words = objectAvailabilityQuestion(refusal.kind, refusal.asks)
             // Stage I: the session's own choices for the kind, so the coach can state an authorized object exactly (`SessionQuestion.choices`).
@@ -826,7 +831,8 @@ function boundRegionSummary(
         case 'BOUND_REGION_OBJECT_NOT_STATED': {
             const asked = objectAvailabilityQuestion(refusal.kind, 'ATTRIBUTE', refusal.attribute)
             // Stage I: the session's own choices that state a value of the attribute, and none (`choicesAnswering`).
-            const choices = choicesAnswering(objectChoicesOf(refusal.kind, index, boundRegions), refusal.attribute)
+            const width = session.objects?.[refusal.kind]?.widthM
+            const choices = choicesAnswering(objectChoicesOf(refusal.kind, index, boundRegions), refusal.attribute, width, refusal.kind)
             return {
                 stage: 'session',
                 summary: asked,

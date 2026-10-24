@@ -74,13 +74,20 @@ const register = loadRegister()
 const index = indexRegister(register)
 const KEEPER = specializedRoleNames()[0]
 const none = Object.fromEntries(specializedRoleNames().map(role => [role, 0]))
-const sessionOf = (lengthM = 40, widthM = 30, players = 12, keepers = 1) => ({ players, lengthM, widthM, durationMin: 20, roles: { ...none, [KEEPER]: keepers } })
+/**
+ * Re-pointed 24 October 2026 (K3, the d27 design's stage K3): the session states that it has no goal and the harness threads A01-R1, so what
+ * this file pins of the zone version is read exactly as before. Since K3 A01's record lists the goal version (A01-R2) as tried, first: where
+ * no realization is threaded derivation reads it, and a session that has not said what goals it has is asked first (his reply filed 26
+ * October 2026, item 11: "Do not infer a goal from the presence of a goalkeeper or silently treat missing information as confirmation that
+ * no goal exists.").
+ */
+const sessionOf = (lengthM = 40, widthM = 30, players = 12, keepers = 1) => ({ players, lengthM, widthM, durationMin: 20, roles: { ...none, [KEEPER]: keepers }, objects: { goal: { count: 0 } } })
 const R = 'provisional:A01-R1'
 const item = (contracts: LoadedContract[], id: string) => contracts.find(c => c.contractId === R)!.items.find(i => i.itemId === id)! as any
 
 /** A01's real selection, built through the same steps as the checked pathway, one complete game per role block. */
 function a01Blocks(alter: (contracts: LoadedContract[]) => void = () => undefined, alterSupplied: (supplied: SuppliedRealization) => void = () => undefined) {
-    const selection = selectFor('A01', null)
+    const selection = { ...selectFor('A01', null), realization: provisionalRealizationNamed('A01-R1') }
     const input: any = { ...derivationInputFor(selection), envelope: sessionOf() }
     input.contracts = JSON.parse(JSON.stringify(input.contracts))
     alter(input.contracts)
@@ -313,12 +320,18 @@ test('the 40 x 30 m testing boundary lives in data: another area is told the sta
         const refused = buildActivity({ kind: 'learning-goal', goalId: 'A01', session: sessionOf(lengthM, widthM) }) as RefusedActivity
         assert.equal(refused.stage, 'session', `${lengthM} x ${widthM}`)
         assert.equal(refused.summary, `The starting positions for this activity have not been decided for a ${lengthM} x ${widthM} m area.`)
-        assert.deepEqual(refused.reasons, [`the provisional realization A01-R1 gives its starting values for 40 x 30 m only (its testing boundaries, his reply filed 18 October 2026, item 7): ${lengthM} x ${widthM} m is not one of them`])
+        // Re-pointed 24 October 2026 (K3): both realizations are tried now, in the record's order, and each gives its starting values for 40 x 30
+        // m only (A01-R2 carries A01-R1's boundaries), so each is named; the summary is unchanged. Was: the A01-R1 sentence alone.
+        assert.deepEqual(refused.reasons, [
+            'none of the 2 realizations the authorization record of A01 authorizes applies to this session; each was tried in its order',
+            ...['A01-R2', 'A01-R1'].map(id => `${id}: the provisional realization ${id} gives its starting values for 40 x 30 m only (its testing boundaries, his reply filed 18 October 2026, item 7): ${lengthM} x ${widthM} m is not one of them`),
+        ])
     }
     assert.equal(testingAreaRefusal(realization, sessionOf(40, 30)), null)
     assert.notEqual((buildActivity({ kind: 'learning-goal', goalId: 'A01', session: sessionOf() }) as RefusedActivity).stage, 'session', 'the recorded area is not refused by it')
     // A TEST-ONLY copy whose data lists another area admits that area: the limit is the data's, not the code's.
-    const elsewhere = buildActivityOverAlteredKnowledge({ kind: 'learning-goal', goalId: 'A01', session: sessionOf(50, 35) }, contracts => void ((contracts.find(c => c.contractId === R) as any).testingBoundaries.areas = [{ lengthM: 50, widthM: 35 }])) as RefusedActivity
+    // Re-pointed 24 October 2026 (K3): A01-R1's copy alone (the goal version, tried first, keeps its own boundaries and does not apply here).
+    const elsewhere = buildActivityOverAlteredKnowledge({ kind: 'learning-goal', goalId: 'A01', session: sessionOf(50, 35) }, contracts => void (contracts.some(c => c.contractId === R) && ((contracts.find(c => c.contractId === R) as any).testingBoundaries.areas = [{ lengthM: 50, widthM: 35 }]))) as RefusedActivity
     assert.notEqual(elsewhere.stage, 'session', JSON.stringify(elsewhere.reasons))
     // The universal code names no metre value of his: the four numbers live in the realization's items and boundary.
     for (const file of ['spatial.ts', 'team-ends.ts', 'start-placement-freedom.ts', 'realize.ts', '../derivation/gates.ts']) {
@@ -329,9 +342,11 @@ test('the 40 x 30 m testing boundary lives in data: another area is told the sta
     // Re-pointed 26 October 2026 (Stage F): the goal version A01-R2 keeps A01-R1's pressure reference (A01-R1-S5-1) and writes its goal on
     // the building team's end line with an offset of 0 m (A01-R2-O4-1); it withdraws the 5 m area (A01-R1-S5-3) and carries A01-R1's
     // testing boundaries, so every metric value it holds is in a realization naming its area too.
+    // Re-pointed 24 October 2026 (K2): its goal's penalty area adds two, the FA 5v5 pairing's depth (A01-R2-S5-1, 0-9 m from the goal's end
+    // line) and width (A01-R2-S6-2, 15 m), in the same realization, which names its area.
     assert.deepEqual(
         metric,
-        [['A01-R1', 'A01-R1-S5-1', true], ['A01-R1', 'A01-R1-S5-3', true], ['A01-R2', 'A01-R1-S5-1', true], ['A01-R2', 'A01-R2-O4-1', true]],
+        [['A01-R1', 'A01-R1-S5-1', true], ['A01-R1', 'A01-R1-S5-3', true], ['A01-R2', 'A01-R1-S5-1', true], ['A01-R2', 'A01-R2-O4-1', true], ['A01-R2', 'A01-R2-S5-1', true], ['A01-R2', 'A01-R2-S6-2', true]],
         'every metric starting value sits in a realization whose testing boundaries name its area',
     )
 })

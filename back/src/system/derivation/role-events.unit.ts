@@ -51,7 +51,7 @@ import { specializedRoleNames } from '../rendering/session-envelope'
 import { rpcLibrary } from '../sport-module/rpc-library'
 import * as authorizationRecords from '../test-library/learning-goal-authorizations'
 import { ContextScoringRelationship, contextManipulationRelationships, contextRelationships, contextScoringRelationships, learningGoalAuthorizations, validateContextManipulationRelationships } from '../test-library/learning-goal-authorizations'
-import { loadProvisionalRealizations, loadRegister, loadSportProfile, PROVISIONAL_REALIZATIONS_FILE, readJson, restatementTally } from './corpus'
+import { loadProvisionalRealizations, loadRegister, loadSportProfile, PROVISIONAL_REALIZATIONS_FILE, provisionalRealizationNamed, readJson, restatementTally } from './corpus'
 import { applyNoRowRestatement, ItemRestatement, itemRestatementRefusal, ITEM_RESTATEMENTS, ITEM_RESTATEMENT_KEYS, PROVENANCE_NOTE_KEYS, provenanceNoteKeysOf, restateDeclaration, RestatementTally } from './corpus-restatement'
 import { runStages0to10, runStages0to5 } from './engine'
 import { ROLE_EVENTS_CHECK, ROLE_EVENTS_CLAUSES } from './gates'
@@ -75,7 +75,15 @@ const index = indexRegister(register)
 const C = ROLE_EVENTS_CLAUSES
 const BLOCK_X = 'BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END'
 const KEEPER = specializedRoleNames()[0]
-const sessionOf = (players = 12, keepers = 1) => ({ players, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...Object.fromEntries(specializedRoleNames().map(r => [r, 0])), [KEEPER]: keepers } })
+/**
+ * Re-pointed 24 October 2026 (K3, the d27 design's stage K3): the session states that it has no goal, the derivation harness threads A01-R1
+ * (a01R1Selection), and a TEST-ONLY alteration of the whole pathway alters A01-R1's copy alone, so what this file pins of the zone version is
+ * read exactly as before. Since K3 A01's record lists the goal version (A01-R2) as tried, first: where no realization is threaded derivation
+ * reads it, the build tries it first, and a session that has not said what goals it has is asked first (his reply filed 26 October 2026, item
+ * 11). The goal version's own scoring is pinned in goal-version-knowledge.unit.ts and goal-version-switch.unit.ts.
+ */
+const sessionOf = (players = 12, keepers = 1) => ({ players, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...Object.fromEntries(specializedRoleNames().map(r => [r, 0])), [KEEPER]: keepers }, objects: { goal: { count: 0 } } })
+const a01R1Selection = () => ({ ...selectFor('A01', null), realization: provisionalRealizationNamed('A01-R1') })
 const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T
 const HIS_ITEM_2 = [
     'I approve extending the September 15 decision to support one primary scoring event per role in an asymmetric activity, rather than requiring both teams to use the same scoring event type.',
@@ -117,7 +125,7 @@ const withoutAlsoCounts = (contracts: LoadedContract[]) => {
 
 /** A01 as derivation receives it: a TEST-ONLY alteration of a copy, then the deferral and the role yields with the given relationships. */
 const a01Input = (alter: (contracts: LoadedContract[]) => void = () => undefined, relationships: AuthorizingRelationship[] = contextRelationships(), registerCopy?: any): DerivationInput => {
-    const input: any = { ...derivationInputFor(selectFor('A01', null)), envelope: sessionOf() }
+    const input: any = { ...derivationInputFor(a01R1Selection()), envelope: sessionOf() }
     if (registerCopy) input.register = registerCopy
     input.contracts = copy(input.contracts)
     alter(input.contracts)
@@ -393,15 +401,20 @@ test('production A01, both blocks before realization: both roles score by the pr
 })
 
 test('clause 4 measured on every served subject: A01 at 12/1, 12/2 and 11/1 in both blocks, and the two served demonstrations', () => {
-    for (const [players, keepers] of [[12, 1], [12, 2], [11, 1]]) {
-        const what = `A01 ${players}/${keepers}`
-        const served = reviewActivity({ playerCount: players, fieldLength: '40', fieldWidth: '30', specializedRoles: { [KEEPER]: keepers } } as any, { learningGoalId: 'A01', durationMin: 20 } as any, { includeDrafts: true }) as ServedActivity
+    // Re-pointed 24 October 2026 (K3): both served versions of A01 are measured - the session stating no goal (the zone version, as before) and
+    // the FA 5v5 goal (the goal version, served since K3, in which each role scores by its own event).
+    for (const [players, keepers, goal] of [[12, 1, 'none'], [12, 2, 'none'], [11, 1, 'none'], [12, 1, 'fa'], [12, 2, 'fa'], [11, 1, 'fa']] as const) {
+        const what = `A01 ${players}/${keepers} (${goal === 'fa' ? 'the goal version' : 'the zone version'})`
+        const objects = { goal: goal === 'fa' ? { count: 1, type: 'scaled', widthM: 3.6576 } : { count: 0 } }
+        const served = reviewActivity({ playerCount: players, fieldLength: '40', fieldWidth: '30', specializedRoles: { [KEEPER]: keepers }, objects } as any, { learningGoalId: 'A01', durationMin: 20 } as any, { includeDrafts: true }) as ServedActivity
         assert.equal(served.outcome, 'served', `${what}: ${JSON.stringify((served as unknown as RefusedActivity).reasons)}`)
         for (const block of served.roleBlocks!.blocks) assert.deepEqual(block.concreteChecks.find(c => c.checkId === ROLE_EVENTS_CHECK), { checkId: ROLE_EVENTS_CHECK, verdict: 'PASS' }, `${what} ${block.blockId}`)
         for (const block of (served.evidence as any).structure.blocks) {
             const owed = block.owed.filter((o: any) => o.checkId === ROLE_EVENTS_CHECK).map((o: any) => [o.clause, o.verdict])
-            // Owed before realization and passing on the teams it examined after it (a vacuous pass would read PASS_VACUOUS).
-            assert.deepEqual(owed.sort(), [[C.YIELD, 'PASS'], [C.TARGET, 'PASS']].sort(), `${what}: the owed clauses`)
+            // Owed before realization and passing on the teams it examined after it (a vacuous pass would read PASS_VACUOUS). K3: the goal
+            // version also owes the protection link (the goal defended by the team with the active goalkeeper), passing in each block.
+            const expected = goal === 'fa' ? [[C.YIELD, 'PASS'], [C.TARGET, 'PASS'], [C.DEFENDED, 'PASS']] : [[C.YIELD, 'PASS'], [C.TARGET, 'PASS']]
+            assert.deepEqual(owed.sort(), expected.sort(), `${what}: the owed clauses`)
         }
     }
     // Measured on the served games themselves, through the one kind reader and the register's map: each team's event scores at its target.
@@ -611,11 +624,11 @@ test('clause 6: a goal for the pressing role at a goal object is refused without
 
 // ── 5. The deferral: C56 unchanged, and the same teams required ─────────────────────────────────────────
 test('C56 still defers on production; an end-keyed item defers only to a reference naming the same end', () => {
-    const production = applyRealizationDeferrals(copy(derivationInputFor(selectFor('A01', null)).contracts as LoadedContract[]), contextRelationships(), index)
+    const production = applyRealizationDeferrals(copy(derivationInputFor(a01R1Selection()).contracts as LoadedContract[]), contextRelationships(), index)
     assert.deepEqual(production.deferred.map(entry => `${entry.contractId}::${entry.item.itemId}`), [`${GF2}::GF2-14.b`], 'the equal-numbers item defers, as before')
     const relationship: AuthorizingRelationship = { id: 'TEST-ONLY-REL-J2', contextId: 'RPC-001', rows: ['J2'], status: 'CONFIRMED' }
     const deferredWith = (team: string) => {
-        const contracts = copy(derivationInputFor(selectFor('A01', null)).contracts as LoadedContract[])
+        const contracts = copy(derivationInputFor(a01R1Selection()).contracts as LoadedContract[])
         ;(itemOf(contracts, GF2, 'GF2-08.f') as any).defersTo = 'AUTHORIZED_REALIZATION'
         contractOf(contracts, PROVISIONAL).items.push(testItem('TEST-J2', 'J2', `role=PRIMARY_SCORING & team=${team}`, 'EQUALS', { structuralRef: { contractId: GF2, itemId: 'GF2-03.e' } }, { authorizedBy: relationship.id }) as any)
         return applyRealizationDeferrals(contracts, [...contextRelationships(), relationship], index).deferred.map(entry => entry.item.itemId)
@@ -632,7 +645,7 @@ test('the relationship feed passes every recorded kind, and the validator holds 
     assert.deepEqual(contextRelationships(), [...contextManipulationRelationships(), ...contextScoringRelationships()], 'so the feed is the manipulation list and the scoring one, entry for entry')
     // Production compositions of the zone version are unchanged by the role yields, object for object: no item of A01-R1 cites the
     // scoring relationship, so no marked item is cited.
-    const contracts = derivationInputFor(selectFor('A01', null)).contracts as LoadedContract[]
+    const contracts = derivationInputFor(a01R1Selection()).contracts as LoadedContract[]
     const yielded = applyRoleYields(contracts, contextRelationships(), index)
     assert.ok(yielded.every((contract, i) => contract === contracts[i]))
     const records = learningGoalAuthorizations()
@@ -692,6 +705,8 @@ test('the relationship feed passes every recorded kind, and the validator holds 
 const consumerBuild = (b9: Record<string, unknown> = {}, b9In: string = PROVISIONAL) =>
     buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: sessionOf() }, learningGoalAuthorizations(), {
         alter: contracts => {
+            // Re-pointed 24 October 2026 (K3): A01-R1's copy alone (the goal version, tried first, does not apply to a session with no goal).
+            if (!contracts.some(c => c.contractId === PROVISIONAL)) return
             withoutAlsoCounts(contracts)
             contractOf(contracts, PROVISIONAL).items.push(
                 testItem('TEST-S3-B', 'S3', 'targetOf=ROLE_HOLDER_BUILDING', 'EQUALS', 'line') as any,

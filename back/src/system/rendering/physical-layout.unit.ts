@@ -61,7 +61,12 @@ console.log('the markings set out once wherever they occupy the same places (sta
 const ROLE = specializedRoleNames()[0]
 const none = Object.fromEntries(specializedRoleNames().map(role => [role, 0]))
 const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [ROLE]: 1 } }
-const a01 = { kind: 'learning-goal' as const, goalId: 'A01', situationId: null, session }
+// Re-pointed 24 October 2026 (K3, the d27 design's stage K3): A01's session states that it has no goal, so the zone version (A01-R1) is built
+// exactly as before. Since K3 A01's record tries the goal version first, and a session that has not said what goals it has is asked first
+// (his reply filed 26 October 2026, item 11: "Do not infer a goal from the presence of a goalkeeper or silently treat missing information as
+// confirmation that no goal exists."). The demonstrations keep the session as it was.
+const NO_GOAL = { goal: { count: 0 } }
+const a01 = { kind: 'learning-goal' as const, goalId: 'A01', situationId: null, session: { ...session, objects: NO_GOAL } }
 const index = indexRegister(loadRegister())
 const record = learningGoalAuthorization('A01')!
 const movers = layoutMoversOf(record)
@@ -91,7 +96,11 @@ const MOVED_EXCHANGE =
 
 /** TEST-ONLY: the marked line 15 m from the building team's end line (off half the length), on a copy of the contracts. */
 const offsetFifteen = (contracts: LoadedContract[]) => {
-    const item: any = contracts.find(contract => contract.contractId === 'provisional:A01-R1')!.items.find(entry => entry.itemId === 'A01-R1-S5-1')
+    // Re-pointed 24 October 2026 (K3): the build tries the goal version (A01-R2) first and, the session stating no goal, moves on to the zone
+    // version; the alteration is the zone version's alone, so the goal version's attempt is left as it is.
+    const zone = contracts.find(contract => contract.contractId === 'provisional:A01-R1')
+    if (!zone) return
+    const item: any = zone.items.find(entry => entry.itemId === 'A01-R1-S5-1')
     item.value = { ...item.value, offsetM: { from: 15, to: 15 }, asAuthored: 'TEST-ONLY 15 m from the building team\'s end line' }
 }
 const fifteen = buildActivityUnderAuthorizationRecords(a01, learningGoalAuthorizations(), { alter: offsetFifteen })
@@ -131,7 +140,8 @@ test('1. A01 at 40 x 30 m, no record of any choice: the union of both blocks\' e
     assert.deepEqual(checkRoleBlockLayout(blocks, movers), { checkId: 'RB-L', what: checkRoleBlockLayout(blocks, movers).what, verdict: 'PASS', problems: [] })
     assert.deepEqual(served.roleBlocks!.checks.map(check => [check.checkId, check.verdict]).slice(-1), [['RB-L', 'PASS']])
     // The same layout at 2 goalkeepers and at 11 players.
-    for (const other of [{ ...session, roles: { ...none, [ROLE]: 2 } }, { ...session, players: 11 }]) {
+    // Re-pointed 24 October 2026 (K3): each states no goal, as a01's session does.
+    for (const other of [{ ...session, objects: NO_GOAL, roles: { ...none, [ROLE]: 2 } }, { ...session, objects: NO_GOAL, players: 11 }]) {
         const again = buildActivityWithFixture({ ...a01, session: other })
         assert.equal(again.activity.outcome, 'served', JSON.stringify(other))
         const otherBlocks: any[] = (again.fixture as any).roleBlocks.blocks

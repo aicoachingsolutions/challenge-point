@@ -493,7 +493,9 @@ test('authorizationLists: authorized by existing knowledge, his provisional choi
     for (const id of ['M3', 'M4', 'D1', 'D5']) assert.deepEqual(lists.gaps.find(gap => gap.id === id)!.neededBy, [], id)
     // Re-pointed 15 October 2026 (stage K6): no decision or capability is needed by any entry now.
     // Stage F (26 October 2026): except the two the goal version is listed waiting on, which name it (and no entry).
-    for (const gap of lists.gaps) assert.deepEqual(gap.neededBy, gap.id.startsWith('D-') ? ['the alternative realization A01-R2'] : [], gap.id)
+    // Re-pointed 24 October 2026 (K3): the goal version waits on none of them now (A01's record lists it as tried; his reply filed 27 October
+    // 2026 settles the three), so no gap is needed by anything. Was: the D- gaps needed by 'the alternative realization A01-R2'.
+    for (const gap of lists.gaps) assert.deepEqual(gap.neededBy, [], gap.id)
     // Re-pointed 15 October 2026 (stage K1) from M8, which left the gaps when it was built (C57).
     assert.deepEqual(lists.gaps.find(gap => gap.id === 'M7')!.neededBy, [], 'the conditional capability waits on no entry here')
     const accounted = new Set([...lists.authorizedByExistingKnowledge, ...lists.provisionalChoices].map(entry => entry.label).concat(lists.gaps.flatMap(gap => gap.neededBy)))
@@ -516,13 +518,55 @@ test('(M4, L11) every record gap is settled by his cited words, and the gate ref
     assert.deepEqual(record.gaps!.map(gap => gap.id), ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'M1', 'M2', 'M3', 'M4', 'M5', 'M7', 'D-GOAL-SUITABILITY', 'D-PENALTY-AREA', 'D-DEFAULT-LAWS'])
     // Stage F (26 October 2026): the two decisions the goal version waits on are OPEN - his, and settled by no words of his. H2 (23 October
     // 2026): the third, D-DEFAULT-LAWS, likewise.
-    const open = record.gaps!.filter(gap => gap.id.startsWith('D-'))
-    assert.deepEqual(open.map(gap => [gap.id, gap.kind, gap.settledBy]), [['D-GOAL-SUITABILITY', 'DECISION', undefined], ['D-PENALTY-AREA', 'DECISION', undefined], ['D-DEFAULT-LAWS', 'DECISION', undefined]])
-    for (const gap of open.slice(0, 2)) assert.ok(gap.note!.startsWith('OPEN, his (added 26 October 2026, Stage F).'), gap.id)
-    assert.ok(open[2].note!.startsWith('OPEN, his (added 23 October 2026, H2, the d26 design\'s build step 2).'))
-    // A gap an alternative realization still waits on may not be marked settled, as for an entry.
-    for (const id of ['D-PENALTY-AREA', 'D-DEFAULT-LAWS']) {
-        assert.ok(damaged(r => (r.gaps!.find(gap => gap.id === id)!.settledBy = [{ words: 'TEST-ONLY', citedAs: 'TEST-ONLY' }])).some(e => e.includes(`the gap ${id} is marked settled, and the alternative realization A01-R2 still waits on it`)), id)
+    // Re-pointed 24 October 2026 (K3, the d27 design's stage K3): his reply filed 27 October 2026 settles all three - D-GOAL-SUITABILITY by
+    // items 1 and 6, D-PENALTY-AREA by item 1 (the 1b principle he approves in it), D-DEFAULT-LAWS by items 2, 3, 4 and 6 - each entry one
+    // sentence of his (byte-checked against the reply file when recorded). The notes keep their opening "OPEN, his" and every old word, a
+    // dated AMENDED (K3) line saying what is no longer true. The Stage F rule held: the gaps left A01-R2's entry before they were settled.
+    // The K3 review's should-fix (24 October 2026): D-DEFAULT-LAWS's goalkeeper's-handling part is settled by the penalty area his reply
+    // filed 27 October 2026, item 1 gives the goal together with his reply filed 26 October 2026, item 7, so that sentence is cited too
+    // (last; byte-checked against the reply file).
+    const settledByK3 = record.gaps!.filter(gap => gap.id.startsWith('D-'))
+    assert.deepEqual(settledByK3.map(gap => [gap.id, gap.kind, (gap.settledBy ?? []).map(said => said.citedAs.replace('his reply filed 27 October 2026, item ', ''))]), [
+        ['D-GOAL-SUITABILITY', 'DECISION', ['1', '1', '1', '6']],
+        ['D-PENALTY-AREA', 'DECISION', ['1', '1', '1']],
+        ['D-DEFAULT-LAWS', 'DECISION', ['2', '3', '4', '4', '4', '6', 'his reply filed 26 October 2026, item 7']],
+    ])
+    const handlingWords = settledByK3[2].settledBy![settledByK3[2].settledBy!.length - 1]
+    assert.deepEqual(handlingWords, {
+        words: 'My preference is for standard soccer goalkeeper handling rules to apply, using a regulation penalty area whenever the playing environment can accommodate it appropriately.',
+        citedAs: 'his reply filed 26 October 2026, item 7',
+    })
+    assert.ok(settledByK3[1].settledBy!.some(said => said.words.startsWith('I also approve your proposed general principle in 1b: ')), 'the 1b principle, quoted inside item 1 (there is no item 1b)')
+    for (const gap of settledByK3.slice(0, 2)) assert.ok(gap.note!.startsWith('OPEN, his (added 26 October 2026, Stage F).'), gap.id)
+    assert.ok(settledByK3[2].note!.startsWith('OPEN, his (added 23 October 2026, H2, the d26 design\'s build step 2).'))
+    for (const gap of settledByK3) {
+        const at = gap.note!.indexOf('AMENDED 24 October 2026 (K3, the d27 design\'s stage K3)')
+        assert.ok(at > gap.note!.indexOf('This gap stays open, and the goal version stays listed and never tried, until K3 lifts it.'), `${gap.id}: the old words kept, then the K3 line`)
+        assert.ok(gap.note!.slice(at).includes('The gap left the goal version\'s entry in the record (realizations) before it was marked settled'), gap.id)
+    }
+    // The K2 review's should-fix: D-DEFAULT-LAWS's description keeps its words and says, dated, what is no longer true of them.
+    const description = settledByK3[2].description
+    assert.ok(description.startsWith("The adaptation the goal version still owes where a normal Law of the Game cannot apply directly: the goalkeeper's handling until a penalty area exists (LAW-12-GK)."))
+    assert.ok(description.indexOf("AMENDED 24 October 2026 (K3, the K2 review's should-fix): 'The adaptation the goal version still owes' is no longer true.") > description.indexOf("Was: '"))
+    // The K3 review's should-fix: its 'until a penalty area exists' words, kept, and a dated line after the K2 review's one saying they are no
+    // longer true of the goal version, with what settles the handling; the note says, dated, that its citation of the handling was incomplete.
+    const handlingLine = "AMENDED 24 October 2026 (K3, the K3 review's should-fix): 'the goalkeeper's handling until a penalty area exists (LAW-12-GK)' is no longer true of the goal version."
+    assert.ok(description.indexOf(handlingLine) > description.indexOf("AMENDED 24 October 2026 (K3, the K2 review's should-fix)"))
+    assert.ok(description.slice(description.indexOf(handlingLine)).includes('his reply filed 26 October 2026, item 7 (settledBy)'))
+    const note = settledByK3[2].note!
+    const noteLine = note.indexOf("AMENDED 24 October 2026 (K3, the K3 review's should-fix): 'and the goalkeeper's handling by item 6, inside the penalty area item 1 gives the goal (D-PENALTY-AREA)' did not cite the words that settle the handling.")
+    assert.ok(noteLine > note.indexOf("The decision is settled by his reply filed 27 October 2026, items 2, 3, 4 and 6 (settledBy): offside by item 2; penalty kicks and every other restart by items 3 and 4, one goalkeeper restart at every dead ball, the goal line included, the same in both versions; and the goalkeeper's handling by item 6, inside the penalty area item 1 gives the goal (D-PENALTY-AREA)."), 'the old words kept, then the line')
+    assert.ok(note.slice(noteLine).includes(`"${handlingWords.words}"`))
+    // A gap an alternative realization still waits on may not be marked settled, as for an entry. Re-pointed 24 October 2026 (K3): the order
+    // the Stage F rule asks is pinned the other way round now - on a copy, A01-R2 listed waiting again on any of the three settled gaps
+    // is refused, naming the gap and the alternative (was: a TEST-ONLY settledBy on the open gaps, refused the same way).
+    for (const id of ['D-GOAL-SUITABILITY', 'D-PENALTY-AREA', 'D-DEFAULT-LAWS']) {
+        const waitingAgain = (r: LearningGoalAuthorization) => {
+            const alternative = (r.realizations as any[]).find(entry => entry.realization === 'A01-R2')
+            alternative.status = 'MISSING_KNOWLEDGE'
+            alternative.gaps = [id]
+        }
+        assert.ok(damaged(waitingAgain).some(e => e.includes(`the gap ${id} is marked settled, and the alternative realization A01-R2 still waits on it`)), id)
     }
     for (const gap of record.gaps!.filter(gap => !gap.id.startsWith('D-'))) {
         assert.ok((gap.settledBy ?? []).length > 0, `${gap.id} is settled`)

@@ -209,11 +209,16 @@ test('which items carry metres is read from the register\'s rows and the item\'s
     assert.equal(carriesMetres(null, ENVELOPE_ROWS), false)
     // On production it finds exactly the items the testing-boundary test lists (target-placement.unit.ts), each in a realization naming its area.
     const metric = loadProvisionalRealizations().flatMap(r => r.items.filter(item => carriesMetres(item, ENVELOPE_ROWS)).map(item => [r.provisionalId, item.itemId, !!r.testingBoundaries?.areas]))
+    // Re-pointed 24 October 2026 (K2): the goal version's penalty area adds two values in metres, its depth from the goal's end line
+    // (A01-R2-S5-1, an offset of 0-9 m) and its width (A01-R2-S6-2, a typed bound of 15 m), the FA 5v5 pairing's figures; both sit in A01-R2,
+    // whose testing boundaries name its area (40 x 30 m), so a variant stating another area would have to withdraw or restate them too (H1).
     assert.deepEqual(metric, [
         ['A01-R1', 'A01-R1-S5-1', true],
         ['A01-R1', 'A01-R1-S5-3', true],
         ['A01-R2', 'A01-R1-S5-1', true],
         ['A01-R2', 'A01-R2-O4-1', true],
+        ['A01-R2', 'A01-R2-S5-1', true],
+        ['A01-R2', 'A01-R2-S6-2', true],
     ])
 })
 

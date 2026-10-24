@@ -126,6 +126,8 @@ export function objectChoicesOf(
         })
     }
     for (const choice of words.attributeValues) {
+        // A named authorized object already offers this value in the session form. ATTRIBUTE asks offer it separately below.
+        if (authorized.some(entry => entry.states[choice.attribute] === choice.value)) continue
         choices.push({ id: `attribute:${choice.attribute}=${choice.value}`, label: choice.label, states: { [choice.attribute]: choice.value }, enters: ['count'], from: null, status: 'DRAFT' })
     }
     choices.push({ id: 'other', label: words.other.label, states: {}, enters: ['count', 'widthM'], from: null, status: 'DRAFT' })
@@ -134,11 +136,30 @@ export function objectChoicesOf(
 }
 
 /**
- * **The choices that answer a question for one attribute** (the bound-region check's ATTRIBUTE ask): those stating a value of it, and none.
- * Another object states no value of it, so offering it again would ask the same question again.
+ * **The choices that answer an ATTRIBUTE question.** K1: with a stated width, only authorized objects of exactly that width, each
+ * DRAFT attribute value preserving that width, and none. Another object states no attribute and cannot answer the question.
+ *
+ * An attribute value's choice is dropped where an authorized choice already offered states everything it would state (the same rule
+ * `objectChoicesOf` applies to the session list, here with the width the value's choice keeps): two choices stating the same thing
+ * would make the coach choose between identical statements under different names.
  */
-export function choicesAnswering(choices: ObjectChoice[], attribute: string): ObjectChoice[] {
-    return choices.filter(choice => choice.id === 'none' || typeof choice.states[attribute] === 'string')
+export function choicesAnswering(choices: ObjectChoice[], attribute: string, widthM?: number, kind?: string): ObjectChoice[] {
+    if (widthM === undefined) return choices.filter(choice => choice.id === 'none' || typeof choice.states[attribute] === 'string')
+    const values = objectChoiceWordingFor(kind)?.attributeValues.filter(entry => entry.attribute === attribute) ?? []
+    const authorized = choices.filter(choice => choice.from && choice.states.widthM === widthM && typeof choice.states[attribute] === 'string')
+    const statesNothingNew = (states: Record<string, string | number>) =>
+        authorized.some(offered => Object.entries(states).every(([name, value]) => offered.states[name] === value))
+    return [
+        ...authorized,
+        ...values
+            .map(entry => ({ id: `attribute:${attribute}=${entry.value}`, label: entry.label, states: { [attribute]: entry.value, widthM }, enters: ['count'] as ObjectChoiceEntry[], from: null, status: 'DRAFT' as const }))
+            .filter(choice => !statesNothingNew(choice.states)),
+        ...choices.filter(choice => choice.id === 'none'),
+    ]
+}
+
+function objectChoiceWordingFor(kind?: string) {
+    return draftCoachWordingLoad().wording.objectChoices.find(entry => entry.kind === kind)
 }
 
 /**
@@ -150,7 +171,7 @@ export function choicesAnswering(choices: ObjectChoice[], attribute: string): Ob
  */
 export function choicesSuitedTo(
     kind: string,
-    rules: { min: number | null; max: number | null }[],
+    rules: { min: number | null; max: number | null; attributes?: Record<string, string[]> }[],
     area: { lengthM: number; widthM: number },
     index: RegisterIndex = indexRegister(loadRegister()),
     block: SportBoundRegions | null = loadSportBoundRegions(),
@@ -162,6 +183,7 @@ export function choicesSuitedTo(
         if (!choice.from) return false
         const width = Number(choice.states.widthM)
         if (!rules.every(rule => (rule.min === null || width >= rule.min) && (rule.max === null || width <= rule.max))) return false
+        if (!rules.every(rule => Object.entries(rule.attributes ?? {}).every(([attribute, allowed]) => allowed.includes(String(choice.states[attribute]))))) return false
         return choice.from.some(source => {
             const pairing = block?.pairings.find(entry => entry.id === source.pairing)
             return !!pairing && pairing.region.widthM < axes.across && pairing.region.depthM < axes.along

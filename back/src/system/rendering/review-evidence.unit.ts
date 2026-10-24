@@ -33,7 +33,7 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 
-import { loadRegister } from '../derivation/corpus'
+import { loadRegister, provisionalRealizationNamed } from '../derivation/corpus'
 import { runDerivation, runStages0to10, runStages0to5 } from '../derivation/engine'
 import { applyRealizationDeferrals } from '../derivation/realization-deferral'
 import { indexRegister } from '../derivation/register'
@@ -67,7 +67,14 @@ console.log('review evidence of the first complete activity (stage K8)')
 const ROLE = specializedRoleNames()[0]
 const none = Object.fromEntries(specializedRoleNames().map(role => [role, 0]))
 const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [ROLE]: 1 } }
-const a01 = { kind: 'learning-goal' as const, goalId: 'A01', situationId: null, session }
+/**
+ * Re-pointed 24 October 2026 (K3, the d27 design's stage K3): A01's session states that it has no goal, so the zone version (A01-R1) whose
+ * evidence this file pins is built exactly as before. Since K3 A01's record tries the goal version first, and a session that has not said what
+ * goals it has is asked before anything is built (his reply filed 26 October 2026, item 11: "Do not infer a goal from the presence of a
+ * goalkeeper or silently treat missing information as confirmation that no goal exists."). Every other goal and demonstration keeps `session`.
+ */
+const NO_GOAL = { goal: { count: 0 } }
+const a01 = { kind: 'learning-goal' as const, goalId: 'A01', situationId: null, session: { ...session, objects: NO_GOAL } }
 const index = indexRegister(loadRegister())
 const record = learningGoalAuthorization('A01')!
 const request = record.reviewRequest!
@@ -281,10 +288,12 @@ test('3. provenance: his three layers and the standings, every cited path traced
     // Re-pointed 26 October 2026 (Stage F): the two decisions the goal version (A01-R2) is listed waiting on are still needed - his, open,
     // and settled by no words of his - while the zone version served here waits on neither.
     // H2 (23 October 2026): and the third it waits on, the adaptations its default-laws account names as owed.
-    assert.deepEqual(evidence.provenance.lists!.gapsStillNeeded, ['D-GOAL-SUITABILITY', 'D-PENALTY-AREA', 'D-DEFAULT-LAWS'])
+    // Re-pointed 24 October 2026 (K3): his reply filed 27 October 2026 settles all three and nothing waits on them, so none is still needed.
+    assert.deepEqual(evidence.provenance.lists!.gapsStillNeeded, [])
     // 17 October 2026 (stage M4, design step L11): still needed is now "no words of his settle it, or an entry waits on it" (it was
     // only the latter, which cannot tell a settled gap from one waiting on the context's own lines); all thirteen are settled.
-    assert.deepEqual(evidence.provenance.lists!.gapsSettled, ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'M1', 'M2', 'M3', 'M4', 'M5', 'M7'])
+    // Re-pointed 24 October 2026 (K3): and the goal version's three join them, settled by his reply filed 27 October 2026.
+    assert.deepEqual(evidence.provenance.lists!.gapsSettled, ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'M1', 'M2', 'M3', 'M4', 'M5', 'M7', 'D-GOAL-SUITABILITY', 'D-PENALTY-AREA', 'D-DEFAULT-LAWS'])
 })
 
 test('4. key identity: the evidence reaches the administrator\'s review of a goal that asks for it, and nothing else', () => {
@@ -300,7 +309,8 @@ test('4. key identity: the evidence reaches the administrator\'s review of a goa
     assert.deepEqual(rest, plain, 'apart from the admin-only evidence, overview draft and diagram draft, the administrator receives what the coach receives')
     assert.ok(!('evidence' in plain) && !('overviewDraft' in plain) && !('diagramDraft' in plain))
     assert.ok(!('reviewRequest' in (plain.account.authorization as object)), "the coach's account no longer copies the request")
-    const stored: any = { _id: 'TEST-ONLY', createdBy: 'TEST-ONLY', playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: { ...none, [ROLE]: 1 } }
+    // Re-pointed 24 October 2026 (K3): the stored session states no goal, as a01's does.
+    const stored: any = { _id: 'TEST-ONLY', createdBy: 'TEST-ONLY', playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: { ...none, [ROLE]: 1 }, objects: NO_GOAL }
     assert.ok(!('evidence' in reviewActivity(stored, { learningGoalId: 'A01', durationMin: 20 })))
     assert.deepEqual((reviewActivity(stored, { learningGoalId: 'A01', durationMin: 20 }, { includeDrafts: true }) as ServedActivity).evidence, evidence)
     for (const demonstration of MECHANISM_DEMONSTRATIONS) {
@@ -491,8 +501,10 @@ test('7. the structural report reads the gates\' own verdicts; the checked pathw
 const productionFixture: any = buildActivityWithFixture(a01).fixture
 const productionBlocks: any[] = productionFixture.roleBlocks.blocks
 function a01Games() {
-    const selection = selectFor('A01', null)
-    const input: any = { ...derivationInputFor(selection), envelope: session }
+    // Re-pointed 24 October 2026 (K3): the zone version's realization is threaded, as the build threads the alternative it tries; since K3 the
+    // record's preferred one (what derivation reads where none is threaded) is the goal version, A01-R2. The envelope is a01's (no goal).
+    const selection = { ...selectFor('A01', null), realization: provisionalRealizationNamed('A01-R1') }
+    const input: any = { ...derivationInputFor(selection), envelope: a01.session }
     input.contracts = applyRealizationDeferrals(JSON.parse(JSON.stringify(input.contracts)), contextManipulationRelationships(), index).contracts
     const base: any = runStages0to5(input)
     const found: any = roleBlocksOf(base.classes, base.derived.lines, index)
@@ -761,7 +773,8 @@ test('10. (M3) items 4 and 5 show each role\'s credit and the regain score; the 
     assert.ok(live.his.some(w => w.words.includes('checked review pathway')), 'his L3 words are kept as he wrote them')
     assert.deepEqual(fact(evidence.provenance.openForReview, 'limitations kept visible, as he asked'), ['L1', 'L2', 'L3'])
     // At two goalkeepers the second is counted among the other players, in each block (a fact, no prescription).
-    const twoKeepers = (buildActivityForReview({ ...a01, session: { ...session, roles: { ...session.roles, [ROLE]: 2 } } }, { includeDrafts: true }) as ServedActivity).evidence!
+    // Re-pointed 24 October 2026 (K3): from a01's session, which states no goal (the zone version).
+    const twoKeepers = (buildActivityForReview({ ...a01, session: { ...a01.session, roles: { ...session.roles, [ROLE]: 2 } } }, { includeDrafts: true }) as ServedActivity).evidence!
     assert.equal(fact(twoKeepers.limitations[0].facts, `block ${BLOCKS[1]}: ${ROLE}s the session has beyond the teams' counts (counted among the other players)`), 1)
 
     // The loader refuses a ruling on a flag no ruling settles, a settledBy without his cited words, and a limitation it cannot read.

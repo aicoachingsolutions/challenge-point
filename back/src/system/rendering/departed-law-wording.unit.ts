@@ -54,7 +54,14 @@ const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T
 const index = indexRegister(loadRegister())
 const KEEPER = specializedRoleNames()[0]
 const none = Object.fromEntries(specializedRoleNames().map(role => [role, 0]))
-const sessionOf = (players: number, keepers: number, objects?: Record<string, unknown>) => ({ players, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [KEEPER]: keepers }, ...(objects ? { objects } : {}) })
+/**
+ * Re-pointed 24 October 2026 (K3, the d27 design's stage K3): a session given no objects here states that it has no goal, so A01's build
+ * serves the zone version (A01-R1) these tests read, exactly as before. Since K3 A01's record tries the goal version (A01-R2) first, and a
+ * session that has not said what goals it has is asked first (his reply filed 26 October 2026, item 11: "Do not infer a goal from the
+ * presence of a goalkeeper or silently treat missing information as confirmation that no goal exists."). The real goal version says the
+ * sentence folded with the normal rules (goal-version-communication.unit.ts).
+ */
+const sessionOf = (players: number, keepers: number, objects?: Record<string, unknown>) => ({ players, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [KEEPER]: keepers }, objects: objects ?? { goal: { count: 0 } } })
 const request = (players: number, keepers: number, objects?: Record<string, unknown>) => ({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(players, keepers, objects) }) as any
 
 const OFFSIDE = 'There is no offside'
@@ -249,6 +256,11 @@ test('the TEST-ONLY goal completion: "There is no offside" said once too (inheri
     record.realizations = record.realizations.map((entry: any) => (entry.realization === 'A01-R2' ? { realization: entry.realization, words: entry.words, citedAs: entry.citedAs } : entry))
     const file = readJson(PROVISIONAL_REALIZATIONS_FILE)
     const variant = file.realizations.find((r: any) => r.id === 'A01-R2')
+    // Re-pointed 24 October 2026 (K2): A01-R2 now records its goal's penalty area (A01-R2-S2-1 to S7-1, pinned in
+    // goal-version-penalty-area.unit.ts). This completion hands the build no bound-region block for its TEST-ONLY 5 m goal, so those items
+    // would be realized with no pairing to word them, and the build is refused at communication (fidelity Q3, measured); they are left out
+    // of the copy, in memory, so the completion is the no-region goal it was before K2.
+    variant.items = variant.items.filter((i: any) => i.selector !== 'noun=zone & functions ∋ penalty-area')
     variant.objectSuitability = [{ kind: 'goal', widthM: { min: 1, max: 10 }, ruledOn: 'TEST-ONLY', by: 'TEST-ONLY', citedAs: 'TEST-ONLY', words: ['TEST-ONLY'] }]
     variant.defaultLawsCheck = { mode: 'REPORT', because: 'TEST-ONLY: D-DEFAULT-LAWS completed in memory', basis: { words: ['TEST-ONLY'], citedAs: 'TEST-ONLY' } }
     for (const [players, keepers] of [[12, 1], [11, 1]] as const) {

@@ -9,8 +9,15 @@
  * authority, what realization decided and why, the game that resulted, and what the invariants make of
  * it once their subjects exist.
  *
+ * **What it derives is not necessarily what is served** (24 October 2026, the K3 review's should-fix). It derives the realization the
+ * selection is built with - the record's first alternative that can be tried, unless `--realization` threads another of the record's
+ * alternatives - and NO role block. The served build tries the record's alternatives in order and builds a game played in role blocks
+ * once per block, so a Gate A FAIL or failed lines here for such a game say nothing about it. Section 1b says which
+ * (`runner-derivation-note.ts`), so nobody reads that as a regression; `npm run snapshot` records what is served.
+ *
  * Run: npm run first:game            · A04, the authorized game
  *      npm run first:game -- A05     · any other goal, to see why it is not
+ *      npm run first:game -- A01 --realization A01-R1     · another of the record's alternatives, threaded as the build threads it
  */
 import fs from 'node:fs'
 import path from 'node:path'
@@ -24,22 +31,28 @@ import { completeConcreteGame } from './assemble-concrete-game'
 import { realizeWithJustifiedDefaults } from './justified-defaults'
 import { runPostRealizationGates } from './post-realization-gate'
 import { checkRealization, isRefused, Realized } from './realize'
+import { runnerDerivationNote, threadRunnerRealization } from './runner-derivation-note'
 
 const goalId = process.argv.find(a => /^[A-Z]+[0-9]+$/.test(a)) ?? 'A04'
+const realizationArg = process.argv.includes('--realization') ? (process.argv[process.argv.indexOf('--realization') + 1] ?? null) : null
 const CHOICES = path.resolve(__dirname, '../../../../docs/audits/a04-realization-choices.json')
 
 const rule = (title: string) => console.log(`\n${title}\n${'='.repeat(title.length)}`)
 
 // ---------------------------------------------------------------------------------------------
 rule(`1 · SELECTION — ${goalId}`)
-const selection = selectFor(goalId, null)
+const selection = threadRunnerRealization(selectFor(goalId, null), realizationArg)
 console.log(`  ${selection.goalName}`)
 for (const s of selection.selected) console.log(`    ${s.role.padEnd(24)} ${s.id}`)
 console.log(`  contracted ${selection.contracted.length}/${selection.selected.length}; missing ${selection.missing.length}: ${selection.missing.join(', ') || 'none'}`)
+const input = derivationInputFor(selection)
+
+// ---------------------------------------------------------------------------------------------
+rule('1b · WHAT THIS RUNNER DERIVES — not necessarily what is served')
+for (const line of runnerDerivationNote(selection, input)) console.log(`  ${line}`)
 
 // ---------------------------------------------------------------------------------------------
 rule('2 · RESOLVED GAME')
-const input = derivationInputFor(selection)
 const result = runDerivation(input)
 if (isStampedHalt(result)) {
     console.error('the run halted')

@@ -127,5 +127,7 @@
     "./src/system/rendering/dead-ball-wording.unit.ts",
     "./src/system/rendering/departed-law-wording.unit.ts",
     "./src/system/rendering/bound-region-communication.unit.ts",
-    "./src/system/rendering/object-choices.unit.ts"
+    "./src/system/rendering/object-choices.unit.ts",
+    "./src/system/rendering/goal-version-penalty-area.unit.ts",
+    "./src/system/rendering/goal-version-switch.unit.ts"
 ]

@@ -74,7 +74,12 @@ console.log('how each team scores in the Coach Overview: the PROPOSED essentials
 const ROLE = specializedRoleNames()[0]
 const none = Object.fromEntries(specializedRoleNames().map(role => [role, 0]))
 const sessionAt = (players: number, keepers: number) => ({ players, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [ROLE]: keepers } })
-const a01At = (players: number, keepers: number) => ({ kind: 'learning-goal' as const, goalId: 'A01', situationId: null, session: sessionAt(players, keepers) })
+// Re-pointed 24 October 2026 (K3, the d27 design's stage K3): A01's session states that it has no goal, so the zone version (A01-R1) is built
+// exactly as before. Since K3 A01's record tries the goal version first, and a session that has not said what goals it has is asked first
+// (his reply filed 26 October 2026, item 11: "Do not infer a goal from the presence of a goalkeeper or silently treat missing information as
+// confirmation that no goal exists."). The demonstrations keep the session as it was.
+const NO_GOAL = { goal: { count: 0 } }
+const a01At = (players: number, keepers: number) => ({ kind: 'learning-goal' as const, goalId: 'A01', situationId: null, session: { ...sessionAt(players, keepers), objects: NO_GOAL } })
 const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value))
 const blocksOf = (fixture: any): { blockId: string; fixture: any }[] => ((fixture?.roleBlocks?.blocks ?? []) as any[]).map(block => ({ blockId: block.blockId, fixture: block.fixture }))
 const admin = (request: any): ServedActivity => {
@@ -687,7 +692,8 @@ test('9. the demonstrations at every role case, and a second synthetic Learning 
 })
 
 test("10. only an administrator's answer carries the draft; the module and the table name nothing of the first activity", () => {
-    const stored: any = { _id: 'TEST-ONLY', createdBy: 'TEST-ONLY', playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: { ...none, [ROLE]: 1 } }
+    // Re-pointed 24 October 2026 (K3): the stored session states no goal, as a01At's does.
+    const stored: any = { _id: 'TEST-ONLY', createdBy: 'TEST-ONLY', playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: { ...none, [ROLE]: 1 }, objects: NO_GOAL }
     const coach = reviewActivity(stored, { learningGoalId: 'A01', durationMin: 20 }) as ServedActivity
     const asAdmin = reviewActivity(stored, { learningGoalId: 'A01', durationMin: 20 }, { includeDrafts: true }) as ServedActivity
     assert.ok(!('overviewDraft' in coach))
