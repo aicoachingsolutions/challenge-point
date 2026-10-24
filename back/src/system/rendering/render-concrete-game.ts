@@ -55,9 +55,10 @@ import { NO_FURTHER_VALUE } from '../derivation/types'
 import { CONDITION_ROW, conditionScopeNotEvaluable } from '../derivation/resolved-game'
 import { ApprovedTemplateSentence, approvedTemplateSentences, approvedWording, ApprovedWording, canonicalJson, fillTemplate, POSSESSION_CONTINUES, WordingMatch } from './approved-wording'
 import { exclusionFor } from './coach-facing-exclusions'
-import { deadBallRestartWording, facingWording, fillSlots, objectKindWording, restartLawNouns, scoresAtAnObject, scoringAtObjectWording, slotsOf, triggerWording, triggerWordingOrder } from './draft-coach-wording'
+import { deadBallRestartWording, departedLawWordings, facingWording, fillSlots, objectKindWording, restartLawNouns, scoresAtAnObject, scoringAtObjectWording, slotsOf, triggerWording, triggerWordingOrder } from './draft-coach-wording'
 import { eventKindOf, genericOf } from './game-reading'
 import { MARK_UNION_ONCE, MarkingChange, PhysicalLayout, Remarking, somethingMoves } from './physical-layout'
+import { defaultLawPath, departedThroughout, fixtureLawAccount } from './rendering-fixture'
 import { ADJUSTING, assignSection, inSectionOrder, PLAY_STATE_UNREADABLE, RESTARTS, ROLE_EXCHANGE, Section, SectionFacts, TransitionReading, When } from './sections'
 
 // The two section names every importer has read from here since stages S-C1 and K3; since stage 2A they are named, with the rest
@@ -2799,6 +2800,21 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
                       : []),
             ]),
         )
+    }
+
+    /**
+     * **A law the activity removes without replacing it, told once** — R3, 24 October 2026 (the d27 design's stage R3, its section 2.8:
+     * *"[No restriction on position], said once, in both versions"*). Christian, reply filed 27 October 2026, item 2: *"I approve no
+     * [restriction on position] for this initial realization, with that modification communicated once to the coach."* (his noun bracketed
+     * for the coupling ratchet; the data file quotes him whole). For each law the DRAFT wording data has a sentence for (`departedLaws`, keyed
+     * by a law that is no restart law), said once, in How it works, where the game's default-laws account (the fixture's) records it as
+     * departed from at some place and as nothing a coach could still meet at any other (`departedThroughout`), citing that law's entries in
+     * the account (`defaultLawPath`). A game with no account, or whose account records the law otherwise, has no such sentence; every game
+     * without an account is said exactly as before.
+     */
+    const lawAccount = fixtureLawAccount(fixture)
+    for (const entry of departedLawWordings()) {
+        if (lawAccount && departedThroughout(lawAccount, entry.law)) say('How it works', 'DERIVED', entry.words, [defaultLawPath(entry.law)])
     }
 
     // ── How to score ────────────────────────────────────────────────────────────────────────────

@@ -120,7 +120,8 @@ test('the DRAFT wording data loads, keyed by register vocabulary values, each cl
         // H2 (23 October 2026): with no held sentence for the normal laws either.
         // R1 (24 October 2026): and with no trigger phrases either (the triggers entry, his reply filed 27 October 2026, item 4).
         // R2 (24 October 2026): nor the common restart's words, nor the restart nouns (dead-ball-wording.unit.ts pins their refusals).
-        assert.deepEqual(draftCoachWordingLoadOf(damaged, index).wording, { objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [] }, `${what}: an unusable file loads as no wording at all`)
+        // Re-pointed 24 October 2026 (R3): the wording gains departedLaws, empty like every other list where the file cannot be used.
+        assert.deepEqual(draftCoachWordingLoadOf(damaged, index).wording, { objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [] }, `${what}: an unusable file loads as no wording at all`)
     }
     refused(f => (f.status = 'APPROVED'), /every word here is DRAFT/, 'a file claiming approval')
     refused(f => (f.approvedBy = { who: 'TEST-ONLY' }), /approvedBy/, 'an approval key')
@@ -174,6 +175,9 @@ test('completed in memory, the goal version is served at 12/1: every sentence, i
         // Re-pointed 24 October 2026 (R2, DRAFT, the d27 design's section 2.8): the common restart said as one rule, as in the zone version.
         "[How it works] The building team's goalkeeper starts play, and restarts it whenever the ball is dead: after either team scores, whenever the ball goes out of play, whenever you stop play for a foul, when you judge that an attack has run its course, and whenever you stop play for any other reason",
         '[How it works] Before each of these restarts, the building team and the pressing team each set up on their own side of the marked line; once play restarts, every player is free to move anywhere',
+        // Added 24 October 2026 (R3, DRAFT): his reply filed 27 October 2026, item 2, said once - the goal version inherits A01-R1's
+        // departure from LAW-11 (departed-law-wording.unit.ts).
+        '[How it works] There is no offside',
         "[How to score] Building team: Score by carrying the ball beyond the marked line or passing to a teammate who receives it under control beyond the line. The progression must begin with the goalkeeper's build-out and occur before the building team loses possession. Uncontrolled clearances do not score.",
         '[How to score] If the building team loses possession or plays the ball out, it cannot score again until the next goalkeeper restart.',
         `[How to score] ${PRESSING_LINE}`,

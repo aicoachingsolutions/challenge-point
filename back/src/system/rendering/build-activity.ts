@@ -2362,7 +2362,18 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
     const lawsForAccount = triedReceived?.defaultLawsCheck ? loadSportDefaultLaws() : null
     const gameLaws =
         tried && triedReceived && lawsForAccount
-            ? blockLawAccountOf({ blockId: input.roleBlock?.blockId ?? 'game', game: realized.game, roleBlock: input.roleBlock ?? null, index, session, laws: lawsForAccount, items: triedReceived.items, boundRegions })
+            ? blockLawAccountOf({
+                  blockId: input.roleBlock?.blockId ?? 'game',
+                  game: realized.game,
+                  roleBlock: input.roleBlock ?? null,
+                  index,
+                  session,
+                  laws: lawsForAccount,
+                  items: triedReceived.items,
+                  boundRegions,
+                  // R3 (24 October 2026): the departures the realization records on itself, read as the administrator's account reads them.
+                  realizationDepartures: triedReceived.realizationDepartures ?? null,
+              })
             : null
     fixture = assembleRenderingFixture({
         resolved,

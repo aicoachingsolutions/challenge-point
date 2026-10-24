@@ -162,7 +162,9 @@ test('1. end to end on production data: SERVED (design step L14; was refused onl
     // changes.
     // Moved 24 October 2026 (R2), total 26 -> 27 and draft 22 -> 23: the Restarts and ball out sentence naming the restarts the activity does
     // not use (his reply filed 27 October 2026, item 4; dead-ball-wording.unit.ts), DRAFT; nothing approved changes.
-    assert.deepEqual(fact(evidence.acceptance, 'sentences'), { total: 27, approved: 4, draft: 23 })
+    // Moved 24 October 2026 (R3), total 27 -> 28 and draft 23 -> 24: "There is no offside" (his reply filed 27 October 2026, item 2;
+    // departed-law-wording.unit.ts), DRAFT; nothing approved changes.
+    assert.deepEqual(fact(evidence.acceptance, 'sentences'), { total: 28, approved: 4, draft: 24 })
     assert.deepEqual(evidence.sections.instructions.filter(i => i.wording === 'APPROVED').map(i => i.text), ['When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone', HIS_ITEM_1, HIS_W3, HIS_W2])
     // Measured at this stage: 19 Gate A checks per block, all PASS; the 9 cross-block checks; 11 owed invariants per block.
     // Re-pointed 21 October 2026 (stage 2D): 10 cross-block checks, RB-L joining.
@@ -218,7 +220,8 @@ test('2. the nine items: his words from the record, each resolved to elements, c
     // Moved 21 October 2026 (stage 2D), 27 -> 28: every block's markings set out once (test 1).
     // Moved 24 October 2026 (R1), 28 -> 26: the throw-in and end-line sentences withdrawn (test 1).
     // Moved 24 October 2026 (R2), 26 -> 27: the sentence naming the restarts the activity does not use (test 1).
-    assert.equal(byId.R8.sentences.length, 27)
+    // Moved 24 October 2026 (R3), 27 -> 28: "There is no offside" (test 1).
+    assert.equal(byId.R8.sentences.length, 28)
     // Stage 2D (21 October 2026): RB-L joins the cross-block checks (test 1), and an item's checks are the ones his review request lists for
     // it (the record's data, unchanged), so R7 still reads the nine.
     assert.ok(byId.R7.checks.map(c => c.checkId).join() === 'RB-1,RB-2,RB-3,RB-4,RB-5,RB-6,RB-7,RB-8,RB-M')

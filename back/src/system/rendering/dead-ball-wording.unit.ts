@@ -138,7 +138,8 @@ test('the loader refuses (V9): a key other than the common value, wrong slots, n
         alter(damaged)
         const why = draftCoachWordingUnusableBecause(damaged, index, laws)
         assert.ok(why && pattern.test(why), `${what}: ${why}`)
-        assert.deepEqual(draftCoachWordingLoadOf(damaged, index, laws).wording, { objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [] }, `${what}: an unusable file loads as no wording at all`)
+        // Re-pointed 24 October 2026 (R3): the wording gains departedLaws, empty like every other list where the file cannot be used.
+        assert.deepEqual(draftCoachWordingLoadOf(damaged, index, laws).wording, { objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [] }, `${what}: an unusable file loads as no wording at all`)
     }
     refused(f => (f.deadBallRestart[SPEC.perTrigger] = copy(f.deadBallRestart[SPEC.common])), /only the common restart has words of its own/, 'words for the per-trigger value')
     refused(f => (f.deadBallRestart.TEST_ONLY = copy(f.deadBallRestart[SPEC.common])), /keyed by no common value/, 'a key off the register')
@@ -175,8 +176,9 @@ test('production A01 at 12/1, 12/2 and 11/1: one How it works sentence for every
         assert.equal(restarts[0].section, RESTARTS, what)
         assert.ok(restarts[0].from.includes(POLICY), `${what}: it cites the policy`)
         assert.ok(restarts[0].parts!.every(part => part.from.includes(POLICY)), `${what}: each of its parts rests on the policy`)
-        // 4.3: the Details are no more than before R1 (the throw-in and end-line sentences gone, the Restarts sentence added).
-        assert.equal(details.length, 27, what)
+        // 4.3: the Details are no more than before R1 (the throw-in and end-line sentences gone, the Restarts sentence added). Re-pointed 24
+        // October 2026 (R3): 28, with "There is no offside" (departed-law-wording.unit.ts); was 27.
+        assert.equal(details.length, 28, what)
         assert.ok(details.length <= DETAILS_BEFORE_R1, what)
         assert.equal(new Set(details.map(instruction => instruction.text)).size, details.length, `${what}: no sentence is said twice`)
         for (const noun of ['throw-ins', 'free kicks', 'goes out of play', 'stop play for a foul', 'restarts it whenever the ball is dead']) {
@@ -202,7 +204,8 @@ test('the projection is proved by its consumers: each block\'s fixture carries t
             assert.ok(evidence, `${what}: ${block.blockId}`)
             assert.deepEqual(block.fixture.defaultLaws, { status: 'ACCOUNT_OF_THIS_GAME', realization: 'A01-R1', laws: evidence.laws.map(entry => ({ law: entry.law, end: entry.end, status: entry.status })) }, `${what}: ${block.blockId}`)
             const departed = block.fixture.defaultLaws.laws.filter((entry: any) => entry.status === 'DEPARTED').map((entry: any) => entry.law)
-            assert.deepEqual([...new Set(departed)].sort(), ['LAW-13', 'LAW-15', 'LAW-8', 'LAW-8-DB'], `${what}: the zone version departs from the throw-in and free kicks, and no goal-end restart can arise`)
+            // Re-pointed 24 October 2026 (R3): and from offside (LAW-11), which A01-R1 records on itself.
+            assert.deepEqual([...new Set(departed)].sort(), ['LAW-11', 'LAW-13', 'LAW-15', 'LAW-8', 'LAW-8-DB'], `${what}: the zone version departs from the throw-in and free kicks, and no goal-end restart can arise`)
             // The renderer and fidelity read it: the block's own render says exactly these nouns, and fidelity finds nothing to refuse.
             const rendered = renderConcreteGame(block.fixture)
             assert.equal(said(rendered.instructions, ZONE_RESTARTS).length, 1, `${what}: ${block.blockId}`)
@@ -275,7 +278,9 @@ test('fidelity (V9) refuses a dead ball said twice or not at all, and a Restarts
     // No account carried (Q2, for each noun).
     const noAccount = copy(block)
     delete noAccount.defaultLaws
-    assert.equal(v9(checkFidelity(noAccount, rendered).findings, 'the game carries no default-laws account').length, 2, 'no account')
+    // Re-pointed 24 October 2026 (R3): read on the sentences naming restarts - "There is no offside" said with no account is refused too, by
+    // its own clause (departed-law-wording.unit.ts).
+    assert.equal(v9(checkFidelity(noAccount, rendered).findings, 'the game carries no default-laws account').filter(finding => finding.what.includes('says there are no')).length, 2, 'no account')
     // A per-trigger policy (Q2), and then the dead-ball clause is vacuous.
     const perTrigger = copy(block)
     perTrigger.game.restartPolicy.deadBall = SPEC.perTrigger
@@ -294,7 +299,8 @@ test('fidelity (V9) refuses the held normal-rules sentence wherever anything is 
     const withNormal = (game: any) => checkFidelity(game, { ...rendered, instructions: [...rendered.instructions, normal] }).findings
     const owed = v9(withNormal(block), 'says the normal rules apply')
     assert.equal(owed.length, 1)
-    assert.ok(owed[0].what.includes('owes an adaptation of LAW-11, LAW-12-GK'), owed[0].what)
+    // Re-pointed 24 October 2026 (R3): offside is departed from, so the goalkeeper's handling alone is owed (his item 5 keeps it open).
+    assert.ok(owed[0].what.includes('owes an adaptation of LAW-12-GK:'), owed[0].what)
     const noAccount = copy(block)
     delete noAccount.defaultLaws
     assert.ok(v9(withNormal(noAccount), 'the game carries no default-laws account: it is said only where nothing is owed').length)

@@ -181,6 +181,10 @@ test('1. the review draft of A01 (TEST-ONLY: the table as at stage M5): every se
         // a stoppage or while play is on), whenever you stop play for a foul and whenever you stop play for any other reason".
         `How it works: The building team's ${ROLE} starts play, and restarts it whenever the ball is dead: after either team scores, whenever the ball goes out of play, whenever you stop play for a foul, when you judge that an attack has run its course, and whenever you stop play for any other reason`,
         'How it works: Before each of these restarts, the building team and the pressing team each set up on their own side of the marked line; once play restarts, every player is free to move anywhere',
+        // Added 24 October 2026 (R3, DRAFT, the d27 design's stage R3): his reply filed 27 October 2026, item 2 ("I approve no offside for
+        // this initial realization, with that modification communicated once to the coach."), said once from the default-laws account,
+        // which records A01-R1's departure from LAW-11 (departed-law-wording.unit.ts). The zone version's coverage is OUR READING.
+        'How it works: There is no offside',
         // Moved 17 October 2026 (stage M3, design step L9; his reply filed 19 October 2026, items 1 and 4): the team-neutral "A team
         // scores 1 point by getting the ball under control into the zone it is attacking: ..." is no longer said, because the building
         // role's credit is confined to its build-out episode (row B8). The pressing role, whose bound is the whole game (A01-R1-B8-2),

@@ -22,6 +22,10 @@
  * restart after every dead ball (`deadBallRestart`, keyed by the register's common value of row RP1) and the coach's noun for each restart
  * law of the Sport Profile (`restartLawNouns`), read by the renderer's restart sentences and by fidelity (V9), which also reads the held
  * normal-rules sentence to refuse it wherever an adaptation is owed.
+ *
+ * R3, 24 October 2026 (the d27 design's stage R3), for his reply filed 27 October 2026, item 2: the one sentence for a law an activity
+ * departs from without replacing it (`departedLaws`, keyed by a Sport Profile law that is no restart law), read by the renderer's How it
+ * works and by fidelity (V9).
  */
 import fs from 'node:fs'
 import path from 'node:path'
@@ -145,6 +149,22 @@ export interface RestartLawNoun {
     basis: WordingBasis
 }
 
+/**
+ * **The one sentence for a law an activity departs from without replacing it** — R3, 24 October 2026 (the d27 design's stage R3, its
+ * section 2.8: *"[No restriction on position], said once, in both versions"*). Christian, reply filed 27 October 2026, item 2: *"I approve
+ * no [restriction on position] for this initial realization, with that modification communicated once to the coach."* (his noun bracketed:
+ * the coupling ratchet keeps a sport's nouns out of this layer; the data file quotes him whole). Keyed by the id of a law the Sport
+ * Profile's defaultLaws block names and does not mark a restart law (a restart law is named by the Restarts and ball out sentence, from
+ * `restartLawNouns`, so no law is told twice); `words` is the whole sentence, with no slot and no final full stop (an instruction carries
+ * none). Read by the renderer (said once, in How it works, where the game's default-laws account records the law as departed from) and by
+ * fidelity (V9: a law departed from for communication is cited by exactly one sentence).
+ */
+export interface DepartedLawWording {
+    law: string
+    words: string
+    basis: WordingBasis
+}
+
 export interface DraftCoachWording {
     objectKinds: ObjectKindWording[]
     facings: FacingWording[]
@@ -157,6 +177,8 @@ export interface DraftCoachWording {
     deadBallRestart: Record<string, DeadBallRestartWording>
     /** R2: the coach's noun for each restart law, in the order said (empty where the file carries none). */
     restartLawNouns: RestartLawNoun[]
+    /** R3: the one sentence for each law an activity departs from without replacing it (empty where the file carries none). */
+    departedLaws: DepartedLawWording[]
 }
 
 /** The wording as loaded, and why it could not be used (then it is empty). */
@@ -166,7 +188,8 @@ export interface DraftCoachWordingLoad {
 }
 
 const filled = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0
-const FILE_KEYS = new Set(['about', 'status', 'entryShape', 'objectKinds', 'facings', 'scoringAtObjects', 'normalLaws', 'triggers', 'deadBallRestart', 'restartLawNouns'])
+const FILE_KEYS = new Set(['about', 'status', 'entryShape', 'objectKinds', 'facings', 'scoringAtObjects', 'normalLaws', 'triggers', 'deadBallRestart', 'restartLawNouns', 'departedLaws'])
+const DEPARTED_LAW_KEYS = new Set(['law', 'words', 'basis'])
 const NORMAL_LAWS_KEYS = new Set(['words', 'held', 'basis'])
 const TRIGGER_KEYS = new Set(['trigger', 'phrase', 'basis'])
 const DEAD_BALL_KEYS = new Set(['starts', 'restarts', 'noOtherRestarts', 'basis'])
@@ -327,10 +350,34 @@ export function draftCoachWordingUnusableBecause(file: any, index: RegisterIndex
             if (basis) return `${which}: ${basis}`
         }
     }
+    /**
+     * R3 (24 October 2026; the d27 design's section 2.9, V9): the one sentence for each law an activity departs from without replacing it -
+     * a law the Sport Profile names, never one it marks a restart law (that one is named by the Restarts and ball out sentence, so a law is
+     * never told twice), once, its words whole with no slot and no final full stop, with his words for it.
+     */
+    if (file.departedLaws !== undefined) {
+        if (!Array.isArray(file.departedLaws)) return 'its departedLaws entry is not a list'
+        if (file.departedLaws.length && !laws) return 'it lists departedLaws, and the Sport Profile names no default laws'
+        const named = new Set<string>()
+        for (const [n, entry] of (file.departedLaws as any[]).entries()) {
+            const which = `departed law ${n + 1}`
+            if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return `${which} is not an object`
+            for (const key of Object.keys(entry)) if (!DEPARTED_LAW_KEYS.has(key)) return `${which} carries "${key}"`
+            const law = (laws?.laws ?? []).find(candidate => candidate.id === entry.law)
+            if (!filled(entry.law) || !law) return `${which} names ${JSON.stringify(entry.law)}, which is no law the Sport Profile's defaultLaws block names`
+            if (law.restart) return `${which} names ${entry.law}, which the Sport Profile marks as a restart law: a restart law is named by the Restarts and ball out sentence (restartLawNouns), never by a sentence of its own`
+            if (named.has(entry.law)) return `${which} lists ${entry.law} again`
+            named.add(entry.law)
+            if (!filled(entry.words) || slotsIn(entry.words).length || strayBrace(entry.words)) return `${which}: its words are missing or hold a slot`
+            if (entry.words.trim().endsWith('.')) return `${which}: its words end with a full stop, which no instruction carries`
+            const basis = basisUnusableBecause(entry.basis)
+            if (basis) return `${which}: ${basis}`
+        }
+    }
     return null
 }
 
-const EMPTY: DraftCoachWording = { objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [] }
+const EMPTY: DraftCoachWording = { objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [] }
 
 /** The wording from a parsed file, copied, or none with why. */
 export function draftCoachWordingLoadOf(file: any, index: RegisterIndex, laws: DefaultLaws | null = loadSportDefaultLaws()): DraftCoachWordingLoad {
@@ -345,6 +392,7 @@ export function draftCoachWordingLoadOf(file: any, index: RegisterIndex, laws: D
             triggers: file.triggers === undefined ? [] : JSON.parse(JSON.stringify(file.triggers)),
             deadBallRestart: file.deadBallRestart === undefined ? {} : JSON.parse(JSON.stringify(file.deadBallRestart)),
             restartLawNouns: file.restartLawNouns === undefined ? [] : JSON.parse(JSON.stringify(file.restartLawNouns)),
+            departedLaws: file.departedLaws === undefined ? [] : JSON.parse(JSON.stringify(file.departedLaws)),
         },
         why: null,
     }
@@ -368,6 +416,11 @@ export function deadBallRestartWording(value: unknown, wording: DraftCoachWordin
 /** The coach's nouns for the restart laws, in the order said (R2). */
 export function restartLawNouns(wording: DraftCoachWording = draftCoachWordingLoad().wording): RestartLawNoun[] {
     return wording.restartLawNouns.map(entry => ({ ...entry, basis: { words: [...entry.basis.words], citedAs: entry.basis.citedAs } }))
+}
+
+/** The one sentence for each law an activity departs from without replacing it, in the order listed (R3). */
+export function departedLawWordings(wording: DraftCoachWording = draftCoachWordingLoad().wording): DepartedLawWording[] {
+    return wording.departedLaws.map(entry => ({ ...entry, basis: { words: [...entry.basis.words], citedAs: entry.basis.citedAs } }))
 }
 
 /** The slots a DRAFT template holds, by name (R1: whether a phrase names the object played with, so its sentence cites the object). */

@@ -102,8 +102,45 @@ export interface RenderingFixtureParts {
      * The same reading the build makes for the administrator's review evidence (`realization/default-laws-check.ts` blockLawAccountOf, over
      * the realized game and the composed items of the realization being tried), carried as each law's id, place and status only, and given
      * only where that realization declares `defaultLawsCheck`. Absent, the fixture is exactly what it was.
+     *
+     * R3, 24 October 2026: a sentence telling the coach the activity departs from a law it removes without replacing it cites that law's
+     * entries here (`defaultLawPath`), as a sentence setting out a mark cites the physical layout.
      */
     defaultLaws?: { realization: string; laws: { law: string; end: 0 | 1 | null; status: string }[] }
+}
+
+/**
+ * **Where a sentence cites one law of the game's default-laws account** — R3, 24 October 2026 (the d27 design's stage R3: *"fidelity: a law
+ * departed from for communication is cited by exactly one sentence"*). Christian, reply filed 27 October 2026, item 2: *"I approve no
+ * [restriction on position] for this initial realization, with that modification communicated once to the coach."* (his noun bracketed for
+ * the coupling ratchet). The account sits beside the game in the fixture, as the physical layout does, so a law's entries are cited at
+ * `defaultLaws.laws[<law id>]` (every place it is accounted for at once). Read by the renderer, placement (`sections.ts`, the root's kind),
+ * fidelity and the review evidence; nothing here decides anything.
+ */
+export const DEFAULT_LAWS_ROOT = 'defaultLaws'
+export const defaultLawPath = (law: string): string => `${DEFAULT_LAWS_ROOT}.laws[${law}]`
+
+/** One law at one place, as the fixture carries the account. */
+export interface FixtureLawEntry {
+    law: string
+    end: 0 | 1 | null
+    status: string
+}
+
+/** The account a fixture carries, law by law and place by place, or null where it carries none (R3). */
+export function fixtureLawAccount(fixture: unknown): FixtureLawEntry[] | null {
+    const laws = (fixture as { defaultLaws?: { laws?: unknown } } | null | undefined)?.defaultLaws?.laws
+    return Array.isArray(laws) ? (laws as FixtureLawEntry[]) : null
+}
+
+/**
+ * **Whether the account records the law as departed from, and nowhere as anything a coach could still meet** (R3): DEPARTED at some place
+ * and, at every other place it is accounted for, DEPARTED or NOT_APPLICABLE (where it cannot arise). Only then may a coach be told the
+ * activity has none of it; a law that applies or is owed an adaptation anywhere may not be said away.
+ */
+export function departedThroughout(account: FixtureLawEntry[], law: string): boolean {
+    const entries = account.filter(entry => entry.law === law)
+    return entries.some(entry => entry.status === 'DEPARTED') && entries.every(entry => entry.status === 'DEPARTED' || entry.status === 'NOT_APPLICABLE')
 }
 
 export function assembleRenderingFixture({ resolved, realized, entailed, envelope, accepted, postRealizationValidated, roleNouns, roleHolders, reassignmentNouns, adjustments, alternatives, withdrawnChoices, methodNouns, defaultLaws }: RenderingFixtureParts): Record<string, unknown> {

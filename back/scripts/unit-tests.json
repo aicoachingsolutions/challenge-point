@@ -124,5 +124,6 @@
     "./src/system/rendering/session-resources.unit.ts",
     "./src/system/rendering/goal-version-knowledge.unit.ts",
     "./src/system/rendering/goal-version-communication.unit.ts",
-    "./src/system/rendering/dead-ball-wording.unit.ts"
+    "./src/system/rendering/dead-ball-wording.unit.ts",
+    "./src/system/rendering/departed-law-wording.unit.ts"
 ]

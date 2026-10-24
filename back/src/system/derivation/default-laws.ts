@@ -18,6 +18,15 @@
  * absence the departure rests on) and says how strictly its activity is held to the account (`defaultLawsCheck`: ENFORCE or REPORT, with
  * a reason and his words; there is no default). The account itself is computed after realization (`realization/default-laws-check.ts`).
  *
+ * **R3, 24 October 2026 (the d27 design's stage R3, its sections 0.5 and 2.6): a departure the realization itself records.** *"Departures
+ * sit on the item that replaces a law. A realization-level `departsFrom` holds a law the activity removes without replacing it"*; *"Both are
+ * validated by the same departureRefusals."* Christian, reply filed 27 October 2026, item 2: *"I approve no [restriction on position] for
+ * this initial realization, with that modification communicated once to the coach."* (his noun bracketed: the coupling ratchet keeps a
+ * sport's nouns out of this layer; the provisional-realizations file quotes him whole). Such a law has no item to carry its departure,
+ * because nothing in the game replaces it, so the realization records it beside its items (`departsFrom` on the realization), held to
+ * exactly the rules an item's departures are held to (`departureRefusals`), and the account reads it beside its items' departures, cited by
+ * the realization that records it (`RealizationDepartures`).
+ *
  * **The predicates are closed and sport-neutral; what they name is data.** Law ids, object kinds, region functions and performer rows are
  * the profile's; this file names none of them. Each predicate reads an existing register row, or says plainly that nothing represents
  * what it asks:
@@ -80,7 +89,10 @@ export type DepartureExtent = (typeof DEPARTURE_EXTENTS)[number]
 export const LAW_LISTED_FOR = ['ADAPTATION', 'DEPARTURE'] as const
 export type LawListedFor = (typeof LAW_LISTED_FOR)[number]
 
-/** The item field a departure is recorded in, and the realization field its strictness is declared in. */
+/**
+ * The item field a departure is recorded in, and the realization field its strictness is declared in. R3 (24 October 2026): a realization
+ * records a departure of its own in the same field, beside its items (`RealizationDepartures`).
+ */
 export const DEPARTS_FROM_KEY = 'departsFrom'
 export const DEFAULT_LAWS_CHECK_KEY = 'defaultLawsCheck'
 
@@ -139,6 +151,18 @@ export interface LawDeparture {
     part?: string
     /** The precondition whose absence the departure rests on: where it holds, the departure's reason is false and an adaptation is owed. */
     whilePreconditionAbsent?: LawPredicate
+}
+
+/**
+ * **The departures a realization records on itself, and which realization records them** — R3, 24 October 2026 (the d27 design's section
+ * 2.6: *"Realization-level `departsFrom`, for a law the activity removes without replacing it. The field is added beside the item departures,
+ * validated by the same departureRefusals, and read by the check."*; *"A01-R2 inherits it, following the defaultLawsCheck inheritance
+ * pattern."*). `recordedBy` is the realization whose own entry they are: the realization itself, or, for a variant stating none of its own,
+ * its base - as a variant's kept items keep their base's ids. The account cites each departure by it, as it cites an item's by the item.
+ */
+export interface RealizationDepartures {
+    recordedBy: string
+    departures: LawDeparture[]
 }
 
 /** How strictly a realization's activity is held to the account (`defaultLawsCheck`), with why and his words. */
@@ -272,6 +296,7 @@ const DEPARTURE_KEYS = new Set(['law', 'because', 'basis', 'extent', 'part', 'wh
  * **Everything wrong with the departures an item records, as sentences** (`departsFrom`). A non-empty list; each entry names a law the
  * profile lists, once per item, says why (ours) and quotes his words for it with where, covers the WHOLE of the law or a PART it names, and
  * may rest on the absence of one of that law's own preconditions - only one of its own, so the condition is closed by the profile.
+ * R3 (24 October 2026): the departures a realization records on itself are held to exactly these rules (`corpus.ts`).
  */
 export function departureRefusals(departures: unknown, laws: DefaultLaw[], at: string, index: RegisterIndex): string[] {
     if (!Array.isArray(departures) || !departures.length) return [`${at} records its departures as something other than a non-empty list`]

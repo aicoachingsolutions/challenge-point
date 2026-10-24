@@ -21,8 +21,9 @@ import { effectiveValue, scaleExactly } from '../derivation/rational'
 import { conditionScopeNotEvaluable } from '../derivation/resolved-game'
 import { ApprovedWording, approvedWording } from './approved-wording'
 import { CoachFacingExclusion, exclusionFor } from './coach-facing-exclusions'
-import { draftCoachWordingLoad, restartLawNouns, scoringAtObjectWording } from './draft-coach-wording'
+import { departedLawWordings, draftCoachWordingLoad, restartLawNouns, scoringAtObjectWording } from './draft-coach-wording'
 import { layoutLeafNumberAt, MARK_UNION_ONCE, PhysicalLayout, Remarking, somethingMoves } from './physical-layout'
+import { DEFAULT_LAWS_ROOT, defaultLawPath, departedThroughout, fixtureLawAccount } from './rendering-fixture'
 import {
     ADJUSTING,
     approvedSentences,
@@ -949,6 +950,57 @@ function deadBallFindings(fixture: any, rendered: RenderedActivity): FidelityFin
     return findings
 }
 
+/**
+ * **A law the activity removes without replacing it, told once and only where it is removed** — R3, 24 October 2026, NEW clauses
+ * (TIGHTENINGS), the d27 design's stage R3 (*"fidelity: a law departed from for communication is cited by exactly one sentence"*) and
+ * section 2.9, V9 (*"a law departed from for communication (LAW-11) is cited by exactly one served sentence"*). Christian, reply filed 27
+ * October 2026, item 2: *"I approve no [restriction on position] for this initial realization, with that modification communicated once to
+ * the coach."* (his noun bracketed for the coupling ratchet). Independent of the renderer, read from the fixture's default-laws account
+ * (`rendering-fixture.ts`: each law's id, place and status) and the DRAFT wording data's sentence for each such law (`departedLaws`):
+ *
+ *   - a sentence saying a law's words is refused where the game carries no account, where the account does not record the law as departed
+ *     from at some place and as nothing but departed from or not applicable at every other (`departedThroughout`), or where it does not cite
+ *     the law's entries (`defaultLawPath`) (Q2);
+ *   - the law's words and its entries are said and cited by one sentence, once: a second sentence saying them or citing the entries, or a
+ *     sentence citing them that does not say them, is refused (Q2);
+ *   - where the account records the law so, no sentence telling the coach is a loss (Q3: his "communicated once");
+ *   - a sentence citing a law of the account for which the data holds no sentence is refused (Q2): nothing else may cite the account.
+ *
+ * Every game with no account, saying no such words and citing no law, owes nothing here.
+ */
+function departedLawFindings(fixture: any, rendered: RenderedActivity): FidelityFinding[] {
+    const findings: FidelityFinding[] = []
+    const account = fixtureLawAccount(fixture)
+    const entries = departedLawWordings()
+    for (const entry of entries) {
+        const at = defaultLawPath(entry.law)
+        const removed = !!account && departedThroughout(account, entry.law)
+        const saying = rendered.instructions.filter(i => i.text.includes(entry.words))
+        const citing = rendered.instructions.filter(i => i.from.includes(at))
+        for (const instruction of saying) {
+            if (!removed) {
+                findings.push({
+                    question: 2,
+                    severity: 'VIOLATION',
+                    what: `"${instruction.text}" tells the coach the activity departs from ${entry.law}, and ${account ? `the game's default-laws account does not record ${entry.law} as departed from, and as nothing a coach could still meet anywhere else` : 'the game carries no default-laws account'}`,
+                })
+            }
+            if (!instruction.from.includes(at)) findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" tells the coach the activity departs from ${entry.law} and does not cite ${at}` })
+        }
+        for (const instruction of citing.filter(i => !saying.includes(i))) findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" cites ${at} and does not say "${entry.words}"` })
+        const said = [...new Set([...saying, ...citing])]
+        if (said.length > 1) findings.push({ question: 2, severity: 'VIOLATION', what: `${said.length} sentences tell the coach the activity departs from ${entry.law} (${said.map(i => `"${i.text}"`).join('; ')}): it is said once` })
+        if (removed && !said.length) findings.push({ question: 3, severity: 'VIOLATION', what: `the game's default-laws account records ${entry.law} as departed from, and no sentence tells the coach "${entry.words}"` })
+    }
+    const worded = new Set(entries.map(entry => defaultLawPath(entry.law)))
+    for (const instruction of rendered.instructions) {
+        for (const path of instruction.from.filter(p => p === DEFAULT_LAWS_ROOT || p.startsWith(`${DEFAULT_LAWS_ROOT}.`) || p.startsWith(`${DEFAULT_LAWS_ROOT}[`))) {
+            if (!worded.has(path)) findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" cites ${path}, a part of the game's default-laws account for which no sentence is written` })
+        }
+    }
+    return findings
+}
+
 function remarkingFindings(fixture: any, rendered: RenderedActivity): FidelityFinding[] {
     const remarking: Remarking | null = Array.isArray(fixture?.remarking?.changes) ? fixture.remarking : null
     if (!remarking) return []
@@ -1583,6 +1635,7 @@ export function checkFidelity(
     }
 
     findings.push(...deadBallFindings(fixture, rendered))
+    findings.push(...departedLawFindings(fixture, rendered))
 
     // ── Q5 — a coach could lay it out and play it ───────────────────────────────────────────────
     const sections = new Set(rendered.instructions.map(i => i.section))

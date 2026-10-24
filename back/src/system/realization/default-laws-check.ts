@@ -34,11 +34,16 @@
  * readable list of is UNKNOWN, never ABSENT; and each entry carries the law's note from the profile (which decision answers it), so an
  * administrator reading an owed adaptation sees what settles it.
  *
+ * **R3, 24 October 2026 (the d27 design's stage R3, its section 2.6: *"The field is added beside the item departures, validated by the same
+ * departureRefusals, and read by the check. `defaultLawsAccountOf` passes realization.items only today"*).** The departures a realization
+ * records on itself, for a law its activity removes without replacing it (`RealizationDepartures`), are read beside its items' departures,
+ * each cited by the realization that records it as an item's is cited by the item; every rule above reads them exactly as an item's.
+ *
  * Sport-neutral: law ids, object kinds, region functions and performer rows are the profile's data; the rows and leaves are the register's.
  */
 import { bindingOf, regionFunctionsOf, SportBoundRegions } from '../derivation/bound-regions'
 import { roleHolderNames } from '../derivation/designation'
-import { CitedWords, DefaultLaws, DefaultLawsCheck, DefaultLawsCheckMode, departuresOf, LawDeparture, LawPredicate, LawStatus, samePredicate } from '../derivation/default-laws'
+import { CitedWords, DefaultLaws, DefaultLawsCheck, DefaultLawsCheckMode, departuresOf, LawDeparture, LawPredicate, LawStatus, RealizationDepartures, samePredicate } from '../derivation/default-laws'
 import { RegisterIndex } from '../derivation/register'
 import { splitPath } from '../derivation/resolved-game'
 import { ContractItem, RoleBlock } from '../derivation/types'
@@ -48,7 +53,7 @@ import { attackingEndIn } from './team-ends'
 /** What a precondition is found to be at one place. */
 export type PredicateReading = 'PRESENT' | 'ABSENT' | 'UNKNOWN'
 
-/** A departure as the account cites it: the item, what it covers, why, and his words. */
+/** A departure as the account cites it: the item (R3: or the realization that records it on itself), what it covers, why, and his words. */
 export interface DepartureCitation {
     item: string
     extent: LawDeparture['extent']
@@ -315,12 +320,19 @@ export function blockLawAccountOf(input: {
     items: ContractItem[]
     /** H3: the Sport Profile's bound-region block the build used, whose pairings give a bound region's mark; absent or null: none given. */
     boundRegions?: SportBoundRegions | null
+    /** R3: the departures the realization records on itself, cited by the realization recording them; absent or null: none. */
+    realizationDepartures?: RealizationDepartures | null
 }): BlockLawAccount {
     const { game, index, roleBlock, laws } = input
     const boundRegions = input.boundRegions ?? null
     const lengthM = axisLengths(input.session)?.along ?? null
     const ends = endsOf(game, index, roleBlock, lengthM)
-    const departures = input.items.flatMap(item => departuresOf(item).map(departure => ({ item: item.itemId, departure })))
+    const onItself = input.realizationDepartures ?? null
+    const departures = [
+        ...input.items.flatMap(item => departuresOf(item).map(departure => ({ item: item.itemId, departure }))),
+        // R3: read exactly as an item's, cited by the realization that records them.
+        ...(onItself ? onItself.departures.map(departure => ({ item: onItself.recordedBy, departure: JSON.parse(JSON.stringify(departure)) as LawDeparture })) : []),
+    ]
     const entries: LawAccountEntry[] = []
     const commonRestart = commonDeadBallRestartOf(game, index)
     for (const law of laws.laws) {
@@ -398,7 +410,7 @@ export function blockLawAccountOf(input: {
  * items of the realization the build received. `owed` holds one sentence per law owed an adaptation, per block and place.
  */
 export function defaultLawsAccountOf(input: {
-    realization: { provisionalId: string; items: ContractItem[]; defaultLawsCheck?: DefaultLawsCheck } | null | undefined
+    realization: { provisionalId: string; items: ContractItem[]; defaultLawsCheck?: DefaultLawsCheck; realizationDepartures?: RealizationDepartures } | null | undefined
     laws: DefaultLaws | null
     blocks: { blockId: string; game: unknown; roleBlock: RoleBlock | null }[]
     index: RegisterIndex
@@ -410,7 +422,9 @@ export function defaultLawsAccountOf(input: {
     const realization = input.realization
     if (!realization?.defaultLawsCheck || !input.laws) return null
     const laws = input.laws
-    const blocks = input.blocks.map(block => blockLawAccountOf({ ...block, index: input.index, session: input.session, laws, items: realization.items, boundRegions: input.boundRegions ?? null }))
+    const blocks = input.blocks.map(block =>
+        blockLawAccountOf({ ...block, index: input.index, session: input.session, laws, items: realization.items, boundRegions: input.boundRegions ?? null, realizationDepartures: realization.realizationDepartures ?? null }),
+    )
     const inBlock = (blockId: string) => (input.blocks.length > 1 ? `block ${blockId}: ` : '')
     const owed = blocks.flatMap(block =>
         block.laws.filter(entry => entry.status === 'ADAPTATION_OWED').map(entry => `${inBlock(block.blockId)}${entry.law} (${entry.cites}) at ${entry.at}: an adaptation is owed - ${entry.why}`),

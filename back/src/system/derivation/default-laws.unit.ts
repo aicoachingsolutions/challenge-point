@@ -31,6 +31,16 @@
  * and owes four (offside, handling); the X5 condition and the part departure are exercised on TEST-ONLY copies; and the common-restart clause
  * makes a restart law that would apply owed, and none where the game keeps a restart per trigger.
  *
+ * **Re-pointed 24 October 2026 (R3, the d27 design's stage R3, its sections 2.6 and 2.10)** for his reply filed 27 October 2026, item 2 ("I
+ * approve no offside for this initial realization, with that modification communicated once to the coach."): A01-R1 records its departure
+ * from LAW-11 on itself (the realization-level departsFrom, WHOLE), validated by the same rules as an item's and refused where an item departs
+ * from the same law, inherited by A01-R2; the zone account departs from offside and owes only the goalkeeper's handling (two, one per block);
+ * the goal copy owes two as well, and under ENFORCE is refused naming only LAW-12-GK; the coach is told once, "There is no offside" (DRAFT),
+ * so the build with every annotation taken out differs by that sentence and the Restarts sentence, and by nothing else - now pinned on the
+ * acceptance, the items and the overview's evidence too (the R2 review's should-fix); and mutations: the departure taken out makes LAW-11
+ * owed (served under REPORT with no such sentence; refused under ENFORCE naming it), and moved to A01-R2 alone it covers the goal version
+ * only (the design's reversal of OUR READING).
+ *
  * Nothing here changes a production file. TEST-ONLY copies are labelled and held in memory.
  *
  * Run: npx ts-node --files -r tsconfig-paths/register ./src/system/derivation/default-laws.unit.ts
@@ -180,6 +190,23 @@ test("A01-R1's items record the departures his rulings already state, no value c
     const inheriting = copy(raw)
     delete inheriting.realizations.find((r: any) => r.id === R2).defaultLawsCheck
     assert.equal(loadProvisionalRealizations(inheriting).find(r => r.provisionalId === R2)!.defaultLawsCheck!.mode, 'REPORT')
+    // R3 (24 October 2026): A01-R1 records on itself the departure from a law its activity removes without replacing it - offside, the whole
+    // of it, in his item 2 words - beside its items; A01-R2 states none on itself and inherits it, cited by A01-R1.
+    assert.deepEqual(r1.departsFrom.map((d: any) => [d.law, d.extent, d.whilePreconditionAbsent ?? null, d.part ?? null]), [['LAW-11', 'WHOLE', null, null]])
+    assert.deepEqual(r1.departsFrom[0].basis, { words: ['I approve no offside for this initial realization, with that modification communicated once to the coach.'], citedAs: 'his reply filed 27 October 2026, item 2' })
+    assert.ok(r1.departsFrom[0].because.includes('OUR READING') && r1.departsFrom[0].because.includes('"2. Offside, both versions"'), 'the zone coverage is labelled OUR READING, with the question we put to him')
+    assert.equal(raw.realizations.find((r: any) => r.id === R2).departsFrom, undefined)
+    assert.ok(!r1.items.some((item: any) => (item.departsFrom ?? []).some((d: any) => d.law === 'LAW-11')), 'no item carries it: nothing in the game replaces the law')
+    assert.deepEqual([of(R1).realizationDepartures!.recordedBy, of(R1).realizationDepartures!.departures.map(d => d.law)], [R1, ['LAW-11']])
+    assert.deepEqual(of(R2).realizationDepartures, of(R1).realizationDepartures, 'inherited whole, cited by the realization recording it')
+    // TEST-ONLY: a variant stating its own replaces its base's, cited by itself; a realization stating none and based on none has none.
+    const own = copy(raw)
+    own.realizations.find((r: any) => r.id === R2).departsFrom = [{ ...copy(r1.departsFrom[0]), because: 'TEST-ONLY' }]
+    assert.deepEqual(loadProvisionalRealizations(own).find(r => r.provisionalId === R2)!.realizationDepartures!.recordedBy, R2)
+    assert.ok(loaded.filter(r => r.basedOn === undefined && r.provisionalId !== R1).every(r => r.realizationDepartures === undefined))
+    // The R1 review's carried should-fix: A01-R1's REPORT now says why in his 27 October words - offside answered (item 2), handling open (item 5).
+    const because = r1.defaultLawsCheck.because
+    assert.ok(because.includes('AMENDED 24 October 2026 (R3') && because.includes('"For now, preserve the validated target-zone version without silently adding new handling restrictions."') && because.includes('item 5'), because)
 })
 
 test('the gate refuses a departure it cannot read, a strictness outside the list, and a departure nothing reads', () => {
@@ -202,20 +229,41 @@ test('the gate refuses a departure it cannot read, a strictness outside the list
     refused(f => (departure(f, 'A01-R1-RP1-1')[4].extent = 'MOST'), /none of WHOLE, PART/, 'an extent outside the list')
     refused(f => (departure(f, 'A01-R1-T2-1')[0].appliesTo = 'TEST-ONLY'), /carries "appliesTo"/, 'an unknown key')
     refused(f => (f.realizations.find((r: any) => r.id === R2).defaultLawsCheck.mode = 'WARN'), /none of ENFORCE, REPORT \(there is no default\)/, 'a strictness outside the list')
-    refused(f => delete f.realizations.find((r: any) => r.id === R1).defaultLawsCheck, /records departures from the normal laws \(A01-R1-T2-1, A01-R1-RP1-1\) and declares no default-laws check/, 'departures nothing reads')
+    // Re-pointed 24 October 2026 (R3): the departure A01-R1 records on itself is named among what nothing would read.
+    refused(f => delete f.realizations.find((r: any) => r.id === R1).defaultLawsCheck, /records departures from the normal laws \(A01-R1-T2-1, A01-R1-RP1-1, the realization itself\) and declares no default-laws check/, 'departures nothing reads')
+    // R3 (24 October 2026): the departures a realization records on itself are held to exactly an item's rules.
+    const onItself = (file: any, id: string = R1) => file.realizations.find((r: any) => r.id === id).departsFrom
+    refused(f => (onItself(f)[0].law = 'LAW-99'), /realization A01-R1 \(on itself\) departure 1 departs from "LAW-99", which is no law the Sport Profile names as a default/, 'on itself: a law the profile does not name')
+    refused(f => onItself(f).push(copy(onItself(f)[0])), /\(on itself\) departure 2 departs from LAW-11 a second time/, 'on itself: a law twice')
+    refused(f => (onItself(f)[0].basis = { words: [], citedAs: 'TEST-ONLY' }), /\(on itself\) departure 1: its basis quotes none of his words/, 'on itself: no words of his')
+    refused(f => delete onItself(f)[0].because, /\(on itself\) departure 1 does not say why/, 'on itself: no reason')
+    refused(f => (onItself(f)[0].extent = 'PART'), /\(on itself\) departure 1 covers part of the law and does not say which part/, 'on itself: a part not named')
+    refused(f => (onItself(f)[0].whilePreconditionAbsent = { predicate: 'OBJECT_OF_KIND_AT_END', kind: 'goal' }), /rests on the absence of a precondition LAW-11 does not have/, 'on itself: a condition not the law\'s own')
+    refused(f => (onItself(f)[0].appliesTo = 'TEST-ONLY'), /\(on itself\) departure 1 carries "appliesTo"/, 'on itself: an unknown key')
+    refused(f => (f.realizations.find((r: any) => r.id === R1).departsFrom = []), /\(on itself\) records its departures as something other than a non-empty list/, 'on itself: an empty list')
+    // NEW (a tightening): one law, one record - a law removed without replacement is recorded on the realization, one an item replaces on that item.
+    refused(f => onItself(f).push({ ...copy(departure(f, 'A01-R1-T2-1')[0]) }), /realization A01-R1 departs from LAW-8 on itself and on its item A01-R1-T2-1: a law the activity removes without replacing it is recorded on the realization, a law an item replaces on that item, never both/, 'one law on the realization and an item')
+    refused(f => (f.realizations.find((r: any) => r.id === R2).items[0].departsFrom = copy(onItself(f))), /realization A01-R2 departs from LAW-11 on its base A01-R1 and on its item A01-R2-O1-1/, 'a variant\'s item departing from a law its base records on itself')
+    refused(f => (f.realizations.find((r: any) => r.id === R2).departsFrom = [{ ...copy(onItself(f)[0]), law: 'LAW-77' }]), /realization A01-R2 \(on itself\) departure 1 departs from "LAW-77"/, 'a variant\'s own departure on itself, held to the same rules')
+    refused(f => {
+        delete f.realizations.find((r: any) => r.id === R1).defaultLawsCheck
+        delete f.realizations.find((r: any) => r.id === R2).defaultLawsCheck
+        for (const item of f.realizations.find((r: any) => r.id === R1).items) delete item.departsFrom
+    }, /realization A01-R2 records departures from the normal laws \(its base A01-R1 itself\) and declares no default-laws check/, 'an inherited departure on itself nothing reads')
     assert.equal(defaultLawsCheckRefusal({ mode: 'REPORT', because: 'TEST-ONLY', basis: { words: ['TEST-ONLY'], citedAs: 'TEST-ONLY' } }), null)
     assert.match(defaultLawsCheckRefusal({ mode: 'REPORT', basis: { words: ['TEST-ONLY'], citedAs: 'TEST-ONLY' } })!, /without saying why/)
     // Without the profile's block, neither a check nor a departure is admitted.
     const withoutBlock = validateProvisionalRealizations(raw, undefined, undefined, undefined, undefined, undefined, undefined, undefined, null)
     assert.ok(withoutBlock.some(error => error.includes('declares a default-laws check, and the Sport Profile names no default laws')))
     assert.ok(withoutBlock.some(error => error.includes('records a departure from the normal laws, and the Sport Profile names no default laws')))
+    assert.ok(withoutBlock.some(error => error.includes('realization A01-R1 records a departure from the normal laws on itself, and the Sport Profile names no default laws')))
 })
 
 // ── 3. The zone version, REPORT ──────────────────────────────────────────────────────────────────────────
 const admin = (players: number, keepers: number, objects?: Record<string, unknown>) =>
     buildActivityForReview({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(players, keepers, objects) } as any, { includeDrafts: true })
 
-test('A01-R1 at 12/1, 12/2 and 11/1, REPORT: LAW-8 and the common restart departed, LAW-11 and LAW-12-GK owed, LAW-14/16/17 not applicable; served', () => {
+test('A01-R1 at 12/1, 12/2 and 11/1, REPORT: LAW-8, the common restart and offside departed, LAW-12-GK owed, LAW-14/16/17 not applicable; served', () => {
     for (const [players, keepers] of [[12, 1], [12, 2], [11, 1]]) {
         const label = `${players}/${keepers}`
         const served = admin(players, keepers) as ServedActivity
@@ -225,7 +273,10 @@ test('A01-R1 at 12/1, 12/2 and 11/1, REPORT: LAW-8 and the common restart depart
         for (const at of [0, 1]) {
             const law8 = statusOf(account, at, 'LAW-8').game
             assert.deepEqual([law8.status, items(law8.departedBy)], ['DEPARTED', ['A01-R1-T2-1']], label)
-            assert.equal(statusOf(account, at, 'LAW-11').game.status, 'ADAPTATION_OWED', label)
+            // Re-pointed 24 October 2026 (R3): offside is departed from, the whole of it, cited by the realization that records it on itself,
+            // in his reply filed 27 October 2026, item 2 words. Was ADAPTATION_OWED.
+            const offside = statusOf(account, at, 'LAW-11').game
+            assert.deepEqual([offside.status, items(offside.departedBy), offside.departedBy[0].extent, offside.departedBy[0].basis.citedAs, offside.why], ['DEPARTED', [R1], 'WHOLE', 'his reply filed 27 October 2026, item 2', `departed from by ${R1}`], label)
             const handling = statusOf(account, at, 'LAW-12-GK').game
             assert.equal(handling.status, 'ADAPTATION_OWED', label)
             assert.deepEqual(handling.preconditions.map(p => [p.list, p.predicate.predicate, p.reading]), [['applicableWhen', 'SPECIALIZED_PERFORMER_PRESENT', 'PRESENT'], ['requires', 'REGION_BOUND_TO_OBJECT', 'ABSENT']])
@@ -247,22 +298,33 @@ test('A01-R1 at 12/1, 12/2 and 11/1, REPORT: LAW-8 and the common restart depart
         }
         // Each block's ends are named by who defends them in it.
         assert.deepEqual(account.blocks.map(block => block.ends.map(end => end.defendedBy[0])), [['ROLE_HOLDER_BUILDING', 'ROLE_HOLDER_PRESSING'], ['ROLE_HOLDER_PRESSING', 'ROLE_HOLDER_BUILDING']], label)
-        assert.deepEqual(account.owed.map(line => line.split(': ')[1].split(' ')[0]), ['LAW-11', 'LAW-12-GK', 'LAW-11', 'LAW-12-GK'], label)
+        // Re-pointed 24 October 2026 (R3): only the goalkeeper's handling is owed, in each block (his item 5 keeps it open). Was four.
+        assert.deepEqual(account.owed.map(line => line.split(': ')[1].split(' ')[0]), ['LAW-12-GK', 'LAW-12-GK'], label)
         // The held sentence: DRAFT, from the wording data, and said nowhere a coach reads.
         assert.deepEqual(account.heldSentence, { text: 'Otherwise, normal soccer rules apply.', status: 'DRAFT_HELD_NOT_SERVED', basis: { words: draftCoachWordingLoad().wording.normalLaws!.basis.words, citedAs: 'his reply filed 26 October 2026, item 10' } })
-        const coachText = JSON.stringify([served.rendered, served.overview ?? null, served.diagram ?? null])
+        // Re-pointed 24 October 2026 (R3): read on the words a coach reads - the sentences, the overview and the diagram - since the one
+        // sentence telling the coach there is no offside cites that law's entries in the account (its provenance names the law's id, as every
+        // sentence's provenance names the elements it says). Was the whole rendering, provenance included.
+        const coachText = JSON.stringify([served.rendered.instructions.map(i => i.text), served.overview ?? null, served.diagram ?? null])
         assert.ok(!coachText.includes('normal soccer rules') && !coachText.includes('LAW-'), `${label}: nothing a coach reads names the normal laws`)
+        // R3: the one sentence for the law it removes without replacing it, said once, in How it works, citing only that law's entries.
+        const told = served.rendered.instructions.filter(i => i.text.includes('offside'))
+        assert.deepEqual(told.map(i => [i.text, i.section, i.from]), [['There is no offside', 'How it works', ['defaultLaws.laws[LAW-11]']]], label)
     }
     // A coach's answer carries no evidence, so no account.
     const coach = buildActivityForReview({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(12, 1) } as any, { includeDrafts: false }) as ServedActivity
     assert.equal(coach.evidence, undefined)
 })
 
-/** TEST-ONLY: the realizations file with every default-laws annotation taken out (the departures and both checks), as before H2. */
+/**
+ * TEST-ONLY: the realizations file with every default-laws annotation taken out (the departures and both checks), as before H2. R3: the
+ * departures a realization records on itself go too.
+ */
 const unannotated = (): any => {
     const file = readJson(PROVISIONAL_REALIZATIONS_FILE)
     for (const realization of file.realizations) {
         delete realization.defaultLawsCheck
+        delete realization.departsFrom
         for (const item of realization.items) delete item.departsFrom
     }
     return file
@@ -276,7 +338,46 @@ const unannotated = (): any => {
  * and by nothing else: every other sentence, the overview, the diagram and the account a coach reads are the same. Was: the same activity.
  */
 const RESTARTS_SENTENCE = 'There are no throw-ins or free kicks in this activity; fouls still matter, so deal with them appropriately'
-test('what a coach reads changes only by the account\'s Restarts sentence: the same build with every annotation taken out of a copy says everything else the same, and gains no account', () => {
+/**
+ * R3 (24 October 2026, the d27 design's stage R3: '"There is no offside." said once'; his reply filed 27 October 2026, item 2): the account
+ * says a second thing to the coach - that the activity has no offside - so the build with every annotation taken out differs by these two
+ * sentences and by what counts them, and by nothing else. The R2 review's should-fix (a test-strength gap) is carried: the acceptance is
+ * compared with only its sentence counts moved, the nine items whole, and the overview's evidence with only its sentence-dependent fields moved.
+ */
+const OFFSIDE_SENTENCE = 'There is no offside'
+const ACCOUNT_SENTENCES = [RESTARTS_SENTENCE, OFFSIDE_SENTENCE]
+/**
+ * Which of his review request's items the account's two sentences bear on (measured 24 October 2026, R3): the restarts item (R6) the
+ * Restarts sentence, and the complete text (R8) both.
+ */
+const ACCOUNT_ITEMS: [string, string][] = [
+    ['R6', RESTARTS_SENTENCE],
+    ['R8', OFFSIDE_SENTENCE],
+    ['R8', RESTARTS_SENTENCE],
+]
+/**
+ * The two values are the same but for each `blockIndex` (a Details sentence's place in its block) at or after `from` in the bare build, which
+ * is one more in production (a sentence said before it); every other leaf is equal.
+ */
+function shifted(production: unknown, bare: unknown, from: number, at: string): void {
+    if (Array.isArray(bare)) {
+        assert.ok(Array.isArray(production) && production.length === bare.length, `${at}: a list of ${bare.length}`)
+        bare.forEach((value, i) => shifted((production as unknown[])[i], value, from, `${at}[${i}]`))
+        return
+    }
+    if (bare && typeof bare === 'object') {
+        assert.ok(production && typeof production === 'object' && !Array.isArray(production), `${at}: an object`)
+        assert.deepEqual(Object.keys(production as object).sort(), Object.keys(bare).sort(), `${at}: its keys`)
+        for (const [key, value] of Object.entries(bare)) {
+            const own = (production as Record<string, unknown>)[key]
+            if (key === 'blockIndex' && typeof value === 'number') assert.equal(own, value >= from ? value + 1 : value, `${at}.${key}`)
+            else shifted(own, value, from, `${at}.${key}`)
+        }
+        return
+    }
+    assert.deepEqual(production, bare, at)
+}
+test('what a coach reads changes only by the account\'s two sentences: the same build with every annotation taken out of a copy says everything else the same, and gains no account', () => {
     for (const [players, keepers] of [[12, 1], [12, 2], [11, 1]]) {
         const label = `${players}/${keepers}`
         const request = { kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(players, keepers) } as any
@@ -284,27 +385,59 @@ test('what a coach reads changes only by the account\'s Restarts sentence: the s
         const bare = buildActivityUnderAuthorizationRecords(request, learningGoalAuthorizations(), { review: { includeDrafts: true }, realizations: loadProvisionalRealizations(unannotated()) }).activity as ServedActivity
         assert.equal(bare.outcome, 'served', label)
         for (const key of ['overview', 'diagram', 'account', 'title', 'subtitle', 'diagramDraft'] as const) assert.deepEqual(production[key], bare[key], `${label}: ${key}`)
-        // The Restarts sentence, from the account: said once with it, never without it; every other sentence the same.
-        assert.deepEqual(production.rendered.instructions.filter(i => i.text === RESTARTS_SENTENCE).length, 1, label)
-        assert.ok(!bare.rendered.instructions.some(i => i.text.startsWith('There are no ')), `${label}: no account, no Restarts sentence`)
-        assert.deepEqual({ ...production.rendered, instructions: production.rendered.instructions.filter(i => i.text !== RESTARTS_SENTENCE) }, bare.rendered, `${label}: rendered`)
-        // What counts the sentences: one more with the account, nothing else.
-        assert.deepEqual({ ...production.integrity, instructions: production.integrity.instructions - 1 }, bare.integrity, `${label}: integrity`)
+        // The account's sentences: each said once with it, never without it; every other sentence the same.
+        for (const sentence of ACCOUNT_SENTENCES) assert.deepEqual(production.rendered.instructions.filter(i => i.text === sentence).length, 1, `${label}: ${sentence}`)
+        assert.ok(!bare.rendered.instructions.some(i => i.text.startsWith('There are no ') || i.text.startsWith('There is no ')), `${label}: no account, neither sentence`)
+        const without = (instructions: { text: string }[]) => instructions.filter(i => !ACCOUNT_SENTENCES.includes(i.text))
+        assert.deepEqual({ ...production.rendered, instructions: without(production.rendered.instructions) }, bare.rendered, `${label}: rendered`)
+        // What counts the sentences: two more with the account, nothing else.
+        const more = ACCOUNT_SENTENCES.length
+        assert.deepEqual({ ...production.integrity, instructions: production.integrity.instructions - more }, bare.integrity, `${label}: integrity`)
         assert.deepEqual(
-            { ...production.roleBlocks, blocks: production.roleBlocks!.blocks.map((block: any) => ({ ...block, integrity: { ...block.integrity, instructions: block.integrity.instructions - 1 } })) },
+            { ...production.roleBlocks, blocks: production.roleBlocks!.blocks.map((block: any) => ({ ...block, integrity: { ...block.integrity, instructions: block.integrity.instructions - more } })) },
             bare.roleBlocks,
             `${label}: roleBlocks`,
         )
         const { reading: productionReading, ...productionDraft } = production.overviewDraft!
         const { reading: bareReading, ...bareDraft } = bare.overviewDraft!
-        assert.deepEqual(productionDraft, bareDraft, `${label}: overviewDraft`)
+        // R3: the offside sentence closes How it works, so every Details sentence after it sits one place later in its block: the drafts are
+        // the same but for each such index moved by one (`shifted`), and nothing else.
+        const after = production.rendered.instructions.findIndex(i => i.text === OFFSIDE_SENTENCE)
+        assert.ok(after > 0, label)
+        shifted(productionDraft, bareDraft, after, `${label}: overviewDraft`)
         assert.deepEqual({ ...productionReading!, detailsWords: 0 }, { ...bareReading!, detailsWords: 0 }, `${label}: the overview's reading, but the Details' word count`)
-        // A realization declaring no check gains no account (the evidence's sentence lists and counts differ by the one sentence).
+        // A realization declaring no check gains no account (the evidence's sentence lists and counts differ by the two sentences).
         assert.equal(bare.evidence!.defaultLaws, undefined, label)
-        const { defaultLaws: _account, measured: _digests, acceptance: _a, items: _i, sections: _s, overview: _o, ...rest } = production.evidence!
-        const { measured: _bareDigests, acceptance: _ba, items: _bi, sections: _bs, overview: _bo, ...bareRest } = bare.evidence!
-        assert.deepEqual(rest, bareRest, `${label}: the evidence gains the account and the one sentence, and nothing else`)
-        assert.deepEqual(production.evidence!.sections.instructions.filter(i => i.text !== RESTARTS_SENTENCE).map(i => i.text), bare.evidence!.sections.instructions.map(i => i.text), label)
+        const { defaultLaws: _account, measured: _digests, acceptance: _a, items: _i, sections: _s, overview: _o, provenance: _p, ...rest } = production.evidence!
+        const { measured: _bareDigests, acceptance: _ba, items: _bi, sections: _bs, overview: _bo, provenance: _bp, ...bareRest } = bare.evidence!
+        assert.deepEqual(rest, bareRest, `${label}: the evidence gains the account and the two sentences, and nothing else`)
+        assert.deepEqual(without(production.evidence!.sections.instructions).map(i => i.text), bare.evidence!.sections.instructions.map(i => i.text), label)
+        // The provenance: one element more, the offside sentence's citation of LAW-11's entries in the account; every other the same.
+        const { elements, ...provenance } = production.evidence!.provenance
+        const { elements: bareElements, ...bareProvenance } = bare.evidence!.provenance
+        assert.deepEqual(provenance, bareProvenance, `${label}: provenance`)
+        assert.deepEqual(elements.filter(element => element.path !== 'defaultLaws.laws[LAW-11]'), bareElements, `${label}: the provenance's elements, but the account's`)
+        assert.equal(elements.length, bareElements.length + 1, label)
+        // The overview's evidence: the same but for the Details places moved by the offside sentence, and the Details' word count by exactly
+        // the two sentences' words.
+        const accountWords = ACCOUNT_SENTENCES.reduce((n, sentence) => n + sentence.split(/\s+/).length, 0)
+        const overviewEvidence = production.evidence!.overview as any
+        assert.equal(overviewEvidence.reading.detailsWords, (bare.evidence!.overview as any).reading.detailsWords + accountWords, `${label}: the Details' words`)
+        shifted({ ...overviewEvidence, reading: { ...overviewEvidence.reading, detailsWords: overviewEvidence.reading.detailsWords - accountWords } }, bare.evidence!.overview, after, `${label}: the overview's evidence`)
+        // The R2 review's should-fix: the acceptance with only its sentence counts moved (two more DRAFT sentences), and the nine items whole.
+        const counted = (acceptance: { what: string; value: any }[], by: number) => acceptance.map(fact => (fact.what === 'sentences' ? { ...fact, value: { ...fact.value, draft: fact.value.draft - by, total: fact.value.total - by } } : fact))
+        assert.deepEqual(counted(production.evidence!.acceptance as any, more), bare.evidence!.acceptance, `${label}: the acceptance, but two more DRAFT sentences`)
+        // The nine items: each lists the sentences bearing on it by their place, so with the account's two sentences taken out of production's
+        // lists and every later place moved back, the items are the bare build's whole; which items the two sentences bear on is pinned.
+        const accountAt = production.rendered.instructions.flatMap((i, n) => (ACCOUNT_SENTENCES.includes(i.text) ? [n] : []))
+        const back = (n: number) => n - accountAt.filter(at => at < n).length
+        const itemsWithout = (list: any[]) => list.map(item => ({ ...item, sentences: (item.sentences as number[]).filter(n => !accountAt.includes(n)).map(back) }))
+        assert.deepEqual(itemsWithout(production.evidence!.items as any[]), bare.evidence!.items, `${label}: the nine items, but the account's two sentences`)
+        assert.deepEqual(
+            (production.evidence!.items as any[]).flatMap(item => (item.sentences as number[]).filter(n => accountAt.includes(n)).map(n => [item.id, production.rendered.instructions[n].text])),
+            ACCOUNT_ITEMS,
+            `${label}: the items the account's sentences bear on`,
+        )
     }
 })
 
@@ -346,9 +479,13 @@ test('the TEST-ONLY goal copy: LAW-14, LAW-16 and LAW-17 departed at the goal en
                 assert.deepEqual([entry.end0.status, items(entry.end0.departedBy), items(entry.end0.noLongerHolds), items(entry.end0.departedInPart), entry.end1.status], ['DEPARTED', ['A01-R1-RP1-1'], [], [], 'NOT_APPLICABLE'], `${label} ${law}`)
             }
             for (const law of ['LAW-8-DB', 'LAW-13', 'LAW-15']) assert.deepEqual([statusOf(account, at, law).game.status, items(statusOf(account, at, law).game.departedBy)], ['DEPARTED', ['A01-R1-RP1-1']], `${label} ${law}`)
-            assert.deepEqual([statusOf(account, at, 'LAW-8').game.status, statusOf(account, at, 'LAW-11').game.status, statusOf(account, at, 'LAW-12-GK').game.status], ['DEPARTED', 'ADAPTATION_OWED', 'ADAPTATION_OWED'])
+            // Re-pointed 24 October 2026 (R3): offside is departed from, inherited from A01-R1, which records it on itself. Was owed.
+            assert.deepEqual([statusOf(account, at, 'LAW-8').game.status, statusOf(account, at, 'LAW-11').game.status, items(statusOf(account, at, 'LAW-11').game.departedBy), statusOf(account, at, 'LAW-12-GK').game.status], ['DEPARTED', 'DEPARTED', [R1], 'ADAPTATION_OWED'])
         }
-        assert.equal(account.owed.length, 4, `${label}: two laws owed in each block`)
+        // Re-pointed 24 October 2026 (R3): only the goalkeeper's handling is owed, in each block (the design's 2.6: "After R3 it owes two").
+        assert.deepEqual(account.owed.map(line => line.split(': ')[1].split(' ')[0]), ['LAW-12-GK', 'LAW-12-GK'], `${label}: one law owed in each block`)
+        // The goal version tells the coach once too (the design's 2.8: "Offside, said once, in both versions").
+        assert.equal(served.rendered.instructions.filter(i => i.text === OFFSIDE_SENTENCE).length, 1, label)
     }
 })
 
@@ -358,10 +495,11 @@ test('under the ENFORCE it records, the goal copy (its two decisions completed o
         const refused = goalBuild(players, keepers).activity as RefusedActivity
         assert.deepEqual([refused.outcome, refused.stage], ['refused', 'validation'], label)
         assert.equal(refused.summary, "Where this activity departs from the sport's normal rules has not all been decided yet, so it is not being shown.")
-        // Re-pointed 24 October 2026 (R1): four adaptations, down from ten - the common restart departs from the three restart laws.
-        assert.equal(refused.reasons[0], `the provisional realization ${R2} holds its activity to the normal laws (ENFORCE), and 4 adaptations are owed`)
-        for (const law of ['LAW-11', 'LAW-12-GK']) assert.equal(refused.reasons.filter(reason => reason.includes(`: ${law} (`)).length, 2, `${label} ${law}: named in both blocks`)
-        for (const law of ['LAW-8', 'LAW-8-DB', 'LAW-13', 'LAW-14', 'LAW-15', 'LAW-16', 'LAW-17']) assert.ok(!refused.reasons.some(reason => reason.includes(`${law} (`)), `${label}: ${law} is departed from, not owed`)
+        // Re-pointed 24 October 2026 (R1): four adaptations, down from ten - the common restart departs from the three restart laws. Re-pointed
+        // 24 October 2026 (R3): two - offside is departed from (inherited from A01-R1); the goalkeeper's handling waits on the goal's penalty area.
+        assert.equal(refused.reasons[0], `the provisional realization ${R2} holds its activity to the normal laws (ENFORCE), and 2 adaptations are owed`)
+        assert.equal(refused.reasons.filter(reason => reason.includes(': LAW-12-GK (')).length, 2, `${label} LAW-12-GK: named in both blocks`)
+        for (const law of ['LAW-8', 'LAW-8-DB', 'LAW-11', 'LAW-13', 'LAW-14', 'LAW-15', 'LAW-16', 'LAW-17']) assert.ok(!refused.reasons.some(reason => reason.includes(`${law} (`)), `${label}: ${law} is departed from, not owed`)
         // A knowledge gap, never a fallback: the zone version behind it is not tried.
         assert.deepEqual((refused.account.realizationSelection as any[]).map(entry => [entry.realization, entry.outcome, entry.stage]), [[R2, 'REFUSED', 'validation'], [R1, 'NOT_TRIED', null]], label)
         assert.equal(refused.evidence!.defaultLaws!.mode, 'ENFORCE')
@@ -427,7 +565,8 @@ test('mutation: removing one departure flips DEPARTED to ADAPTATION_OWED; removi
         const law8 = statusOf(mutated.evidence!.defaultLaws!, at, 'LAW-8').game
         assert.deepEqual([law8.status, items(law8.departedBy)], ['ADAPTATION_OWED', []])
     }
-    assert.equal(mutated.evidence!.defaultLaws!.owed.length, 6)
+    // Re-pointed 24 October 2026 (R3): the kick-off and the goalkeeper's handling in each block (offside is departed from). Was 6.
+    assert.equal(mutated.evidence!.defaultLaws!.owed.length, 4)
     // Re-pointed 24 October 2026 (R1): the condition mechanism (the design of 26 October's X5) is exercised on a TEST-ONLY copy, since no
     // production departure rests on an absence any more. With the common restart's LAW-17 departure resting on there being no goal at that
     // end, its reason is false at the goal end and an adaptation is owed there; without the condition, it is DEPARTED, as production records.
@@ -451,6 +590,53 @@ test('mutation: removing one departure flips DEPARTED to ADAPTATION_OWED; removi
     assert.equal(bare.end0.status, 'ADAPTATION_OWED')
     assert.ok(bare.end0.why.includes('is COMMON') && bare.end0.why.includes('this restart law cannot apply as written'), bare.end0.why)
     assert.equal(bare.end1.status, 'NOT_APPLICABLE')
+})
+
+/**
+ * R3 (24 October 2026; the d27 design's 4.2 mutation "remove the offside departure: LAW-11 owed, refused under ENFORCE", and its 4.5 "zone-
+ * version offside (R3), reversible by moving the LAW-11 departure to A01-R2 only"): TEST-ONLY copies of the realizations file.
+ */
+test('mutation: the departure on the realization taken out makes LAW-11 owed - served under REPORT with no sentence, refused under ENFORCE naming it; moved to A01-R2 it covers the goal version only', () => {
+    const withoutOffside = (file: any) => delete file.realizations.find((r: any) => r.id === R1).departsFrom
+    const zone = buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(12, 1) } as any, learningGoalAuthorizations(), {
+        review: { includeDrafts: true },
+        realizations: loadProvisionalRealizations((() => {
+            const file = readJson(PROVISIONAL_REALIZATIONS_FILE)
+            withoutOffside(file)
+            return file
+        })()),
+    }).activity as ServedActivity
+    assert.equal(zone.outcome, 'served', 'REPORT refuses nothing')
+    for (const at of [0, 1]) {
+        const offside = statusOf(zone.evidence!.defaultLaws!, at, 'LAW-11').game
+        assert.deepEqual([offside.status, items(offside.departedBy)], ['ADAPTATION_OWED', []])
+    }
+    assert.equal(zone.evidence!.defaultLaws!.owed.length, 4)
+    assert.ok(!zone.rendered.instructions.some(i => i.text === OFFSIDE_SENTENCE), 'a law owed is never said away')
+    const refused = goalBuild(12, 1, withoutOffside).activity as RefusedActivity
+    assert.deepEqual([refused.outcome, refused.stage, refused.reasons[0]], ['refused', 'validation', `the provisional realization ${R2} holds its activity to the normal laws (ENFORCE), and 4 adaptations are owed`])
+    assert.equal(refused.reasons.filter(reason => reason.includes(': LAW-11 (')).length, 2, 'named in both blocks')
+    // Moved to the goal version alone (the reversal of OUR READING): the zone version owes it and says nothing; the goal version departs from it.
+    const moved = (file: any) => {
+        const r1 = file.realizations.find((r: any) => r.id === R1)
+        file.realizations.find((r: any) => r.id === R2).departsFrom = r1.departsFrom
+        delete r1.departsFrom
+    }
+    const zoneMoved = buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(12, 1) } as any, learningGoalAuthorizations(), {
+        review: { includeDrafts: true },
+        realizations: loadProvisionalRealizations((() => {
+            const file = readJson(PROVISIONAL_REALIZATIONS_FILE)
+            moved(file)
+            return file
+        })()),
+    }).activity as ServedActivity
+    assert.deepEqual([zoneMoved.outcome, statusOf(zoneMoved.evidence!.defaultLaws!, 0, 'LAW-11').game.status, zoneMoved.rendered.instructions.some(i => i.text === OFFSIDE_SENTENCE)], ['served', 'ADAPTATION_OWED', false])
+    const goalMoved = goalBuild(12, 1, file => {
+        REPORT(file)
+        moved(file)
+    }).activity as ServedActivity
+    const offside = statusOf(goalMoved.evidence!.defaultLaws!, 0, 'LAW-11').game
+    assert.deepEqual([goalMoved.outcome, offside.status, items(offside.departedBy), goalMoved.rendered.instructions.filter(i => i.text === OFFSIDE_SENTENCE).length], ['served', 'DEPARTED', [R2], 1])
 })
 
 console.log(`default-laws.unit.ts — ${passed} passed`)
