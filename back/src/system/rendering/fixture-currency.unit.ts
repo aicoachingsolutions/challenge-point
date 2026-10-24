@@ -247,6 +247,12 @@
  * So `inputDigest` / `fromDigest` (f85ab1f4 → 438b9935), the audit digest (e47757d8 → 6a7c644e), the `registerVersion` sentence and
  * that one entry moved, and `git diff` of the fixture shows nothing else; the rendering suite pins the A04 text, which did not change.
  *
+ * **Re-frozen 24 October 2026 (R2): `af033ad3` → `62780cc4`. The GAME did not move; only the register version's sentence did.** Version
+ * 23's sentence said that no note was altered, and one was (the participants block's PERFORMER_OF_AWARDED_TEAM provenance, R1); it now says
+ * so (an AMENDED sentence, the R1 review's should-fix). So `inputDigest` / `fromDigest` (438b9935 → a6228f61), the audit digest (6a7c644e →
+ * 930b70c9) and the `registerVersion` sentence moved, and `git diff` of the fixture shows those four values and nothing else. The Golden
+ * Case keeps a restart per trigger, so the R2 restart words (draft-coach-wording.json) say nothing of it and its rendering is unchanged.
+ *
  * **Since stage K3 a fixture may be COMPOSED from two role blocks** (`build-activity.ts`, `role-blocks.ts`): block one's
  * fixture with a `roleBlocks` block carrying each block's own fixture whole. The Golden Case is a single game and is
  * frozen as one; the composed shape is guarded below by key identity, so a future frozen two-block fixture cannot lose a

@@ -437,7 +437,8 @@ test('every other goal and demonstration keeps a restart per trigger: the check 
     for (const goalId of ['A04', 'D02']) {
         const input = derivationInputFor(selectFor(goalId, null))
         const staged: any = runStages0to10({ ...input, envelope: sessionOf(12, 0) })
-        if (!staged.gates) continue
+        // R2 (24 October 2026, the R1 review's should-fix): the gates must run, so this pin of vacuity can never pass by checking nothing.
+        assert.ok(staged.gates, `${goalId}: the staged run holds its gates`)
         assert.deepEqual(verdicts(deadBall(staged)), [['PASS', 0], ['PASS', 0], ['PASS', 0], ['PASS', 0]], goalId)
     }
 })

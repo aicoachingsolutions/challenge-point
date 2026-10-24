@@ -158,7 +158,13 @@ test('2. How to score in the order shown to him, and APPROVED exactly for his se
         // separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity."), so no sentence names it and no block
         // carries the sport's restart noun; the ball going out is said in the DRAFT restart sentence. Was: the touchline sentence, DRAFT, its
         // noun his approved word carried into each block as APPROVED sport coach vocabulary.
-        assert.deepEqual(instructions.filter(i => i.text.includes('throw-in')), [], what)
+        // Re-pointed 24 October 2026 (R2): one sentence names the throw-in now, to say there are none (DRAFT, Restarts and ball out, from the
+        // default-laws account: dead-ball-wording.unit.ts). Was: no sentence named it.
+        assert.deepEqual(
+            instructions.filter(i => i.text.includes('throw-in')).map(i => [i.section, i.text, i.wording]),
+            [['Restarts and ball out', 'There are no throw-ins or free kicks in this activity; fouls still matter, so deal with them appropriately', 'DRAFT']],
+            what,
+        )
         assert.deepEqual(instructions.filter(i => i.text.includes('whenever the ball goes out of play')).map(i => i.wording), ['DRAFT'], what)
         const blocks: any[] = ((buildActivityWithFixture(requestAt(players, keepers)).fixture as any)?.roleBlocks?.blocks ?? []).map((b: any) => b.fixture)
         assert.equal(blocks.length, 2, what)

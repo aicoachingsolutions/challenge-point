@@ -55,7 +55,7 @@ import { NO_FURTHER_VALUE } from '../derivation/types'
 import { CONDITION_ROW, conditionScopeNotEvaluable } from '../derivation/resolved-game'
 import { ApprovedTemplateSentence, approvedTemplateSentences, approvedWording, ApprovedWording, canonicalJson, fillTemplate, POSSESSION_CONTINUES, WordingMatch } from './approved-wording'
 import { exclusionFor } from './coach-facing-exclusions'
-import { facingWording, fillSlots, objectKindWording, scoresAtAnObject, scoringAtObjectWording, slotsOf, triggerWording } from './draft-coach-wording'
+import { deadBallRestartWording, facingWording, fillSlots, objectKindWording, restartLawNouns, scoresAtAnObject, scoringAtObjectWording, slotsOf, triggerWording, triggerWordingOrder } from './draft-coach-wording'
 import { eventKindOf, genericOf } from './game-reading'
 import { MARK_UNION_ONCE, MarkingChange, PhysicalLayout, Remarking, somethingMoves } from './physical-layout'
 import { ADJUSTING, assignSection, inSectionOrder, PLAY_STATE_UNREADABLE, RESTARTS, ROLE_EXCHANGE, Section, SectionFacts, TransitionReading, When } from './sections'
@@ -678,6 +678,17 @@ const participants = (): RegisterIndex => {
 }
 /** The end-exchange capability (register version 18, row B10; stage D, 23 October 2026), read through the same register, once. */
 const endAssignmentSpec = () => participants().endAssignment
+/** The register index the renderer reads, read once (R2: the fidelity check reads the dead-ball block's rows through the same index). */
+export const rendererRegister = (): RegisterIndex => participants()
+/**
+ * **The register's dead-ball block where the game holds its common value, or null** — R2, 24 October 2026 (register version 23, row RP1).
+ * Read through the same register the renderer reads, so the restart sentences and the fidelity check (V9) agree on which games hold the
+ * common restart and how each trigger is classed; a game keeping a restart per trigger, or a register without the block, gives null.
+ */
+export function commonDeadBallRestartIn(game: unknown): NonNullable<RegisterIndex['deadBallRestart']> | null {
+    const spec = participants().deadBallRestart
+    return spec && String(spec.path).split('.').reduce<any>((node, key) => (node == null ? undefined : node[key]), game) === spec.common ? spec : null
+}
 /** The scoring event that is ENTRY into a target region, worded for that value only (its other kinds keep the line wording). */
 const ZONE_ENTRY_EVENT = 'target_zone_entered'
 
@@ -2485,11 +2496,19 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
      * (`draft-coach-wording.ts` triggerWording) has that phrase, its slot {carrier} filled with the kind of the object played with; any
      * other has the table's words above, exactly as before; a trigger with neither has none, so its restart stays uncarried and fidelity
      * refuses it. `carrier` says whether the phrase names the object, so the part saying it cites the object's kind.
+     *
+     * **R2, 24 October 2026: the data words are the common restart's moments only** (the d27 design's stage R2, section 2.8; the R1 review's
+     * should-fix: in a game keeping a restart per trigger, two triggers sharing one phrase would claim more than a group holding only one of
+     * them). Read only where the game's dead-ball restart policy is the register's common value (`commonPolicy`, read through the register's
+     * dead-ball block: its row's path and its common value, so no row or value is named here); every other game is said by the table above and
+     * the out-of-play sentences below, exactly as before R1.
      */
+    const deadBall = participants().deadBallRestart
+    const commonPolicy = !!deadBall && fieldOf(game, deadBall.path) === deadBall.common
     const triggerPhraseOf = (transition: any): { words: string; carrier: boolean } | null => {
         const trigger = triggerOf(transition)
         if (!trigger) return null
-        const entry = triggerWording(trigger)
+        const entry = commonPolicy ? triggerWording(trigger) : null
         if (entry) {
             const words = fillSlots(entry.phrase, objectNoun ? { carrier: objectNoun } : {})
             return words === null ? null : { words, carrier: slotsOf(entry.phrase).includes('carrier') }
@@ -2588,12 +2607,38 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
      * path. Read through the register (the block's row, path, value and classes), so no row, value or trigger is named here; a game keeping a
      * restart per trigger, or holding none, is said exactly as before.
      */
-    const deadBall = participants().deadBallRestart
+    const classOfTrigger = (transition: any) => deadBall?.classOf.get(triggerOf(transition) ?? '') ?? null
     const commonRestartPath = (group: any[]): string[] => {
-        if (!deadBall || fieldOf(game, deadBall.path) !== deadBall.common) return []
-        const dead = restarting.filter(t => deadBall.classOf.get(triggerOf(t) ?? '') === 'STOPS_PLAY')
+        if (!deadBall || !commonPolicy) return []
+        const dead = restarting.filter(t => classOfTrigger(t) === 'STOPS_PLAY')
         return dead.length && dead.every(t => group.includes(t)) ? [deadBall.path] : []
     }
+    /**
+     * **The common restart said as one rule, and the sport's restarts it replaces** — R2, 24 October 2026 (the d27 design's stage R2, section
+     * 2.8). Christian, reply filed 27 October 2026, item 4: *"Ball becomes dead: initiate a new [specialized-role] build-out."* and *"There should
+     * be no separate [restarts of the sport] for this activity."*; item 3: *"If a foul or infringement requires a stoppage, the coach addresses
+     * it appropriately and restarts the build-out."* (his nouns bracketed for the coupling ratchet; the data file quotes him whole).
+     *
+     * Where a group says the policy (`commonRestartPath`: the common value, every dead-ball transition in the group), every other transition
+     * of the group is one the block classes as no stoppage (the start), at least one is, and the DRAFT data has the common value's words
+     * (`draft-coach-wording.ts` deadBallRestart), the group's WHEN sentence is said as one rule: "{Taker} starts play" (citing the awardee and
+     * taker, and the start's play state and trigger), ", and restarts it whenever the {carrier} is dead" (citing the policy, each dead-ball
+     * transition's play state and the object), then the moments, each dead-ball trigger's phrase in the order the data lists them, joined
+     * ": ", ", " and ", and ". Any other group is said exactly as before (R1's form).
+     */
+    const commonWording = deadBall && commonPolicy ? deadBallRestartWording(deadBall.common) : null
+    const commonFormOf = (group: any[]): { starters: any[]; dead: any[] } | null => {
+        if (!commonWording || !commonRestartPath(group).length) return null
+        const starters = group.filter(t => classOfTrigger(t) === 'NOT_A_STOPPAGE')
+        const dead = group.filter(t => classOfTrigger(t) === 'STOPS_PLAY')
+        return starters.length && starters.length + dead.length === group.length ? { starters, dead } : null
+    }
+    /**
+     * The laws this game's default-laws account records as departed from at any place (the fixture's account, `rendering-fixture.ts`; R2),
+     * whose restart nouns the Restarts and ball out sentence names, in the data's order. None where the game carries no account.
+     */
+    const departedLaws = new Set<string>((((fixture as any).defaultLaws?.laws ?? []) as { law: string; status: string }[]).filter(entry => entry.status === 'DEPARTED').map(entry => entry.law))
+    const orList = (items: string[]) => (items.length > 1 ? `${items.slice(0, -1).join(', ')} or ${items[items.length - 1]}` : items[0] ?? '')
     /** The qualifiers a transition holds (T1a-T1c), cited by the words that say when it happens (R1: "goes out of play" says them all). */
     const qualifierPaths = (transition: any): string[] => Object.keys(transition?.qualifiers ?? {}).map(field => pathAt(transition, `qualifiers.${field}`))
     const saidInGroup = new Set<any>()
@@ -2604,8 +2649,19 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
      */
     const triggerOrder = participants().vocabularies.get('trigger') ?? []
     const byTriggerOrder = (a: any, b: any) => triggerOrder.indexOf(triggerOf(a) ?? '') - triggerOrder.indexOf(triggerOf(b) ?? '')
+    /**
+     * R2 (24 October 2026): under the common restart the moments are said in the order the DRAFT data lists their phrases (the d27 design's
+     * sentence: a score, the ball going out, a foul, the coach's conclusion, any other reason), a trigger it does not list after them in the
+     * register's order.
+     */
+    const dataOrder = (transition: any) => {
+        const listed = triggerWordingOrder(triggerOf(transition))
+        return listed >= 0 ? listed : triggerOrder.length + triggerOrder.indexOf(triggerOf(transition) ?? '')
+    }
+    const byDataOrder = (a: any, b: any) => dataOrder(a) - dataOrder(b)
     for (const held of restartGroups.values()) {
-        const group = [...held].sort(byTriggerOrder)
+        const group = [...held].sort(commonFormOf(held) ? byDataOrder : byTriggerOrder)
+        const common = commonFormOf(group)
         const [first] = group
         const taker = takerOf(first)!
         const who = group.flatMap(t => [pathAt(t, 'awardedTo'), pathAt(t, 'placement.actor')])
@@ -2619,26 +2675,70 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
          * qualifier and no object, is cited exactly as before.
          */
         const phrases: { words: string; carrier: boolean; transitions: any[] }[] = []
-        for (const transition of group) {
+        // R2: under the common form the start is said by its lead ("starts play"), so the moments are the dead-ball transitions only.
+        for (const transition of common ? common.dead : group) {
             const phrase = triggerPhraseOf(transition)!
             const same = phrases.find(entry => entry.words === phrase.words)
             if (same) same.transitions.push(transition)
             else phrases.push({ ...phrase, transitions: [transition] })
         }
+        const lastJoiner = common && phrases.length > 2 ? ', and ' : ' and '
         const moments = phrases.flatMap((entry, k) => {
             const [words, aside] = asideOf(entry.words)
             const qualifiers = entry.transitions.flatMap(qualifierPaths)
             const cited = [...entry.transitions.map(t => pathAt(t, 'selector')), ...qualifiers, ...(entry.carrier ? objectPath : [])]
-            const joiner = k === 0 ? ': ' : k === phrases.length - 1 ? ' and ' : ', '
+            const joiner = k === 0 ? ': ' : k === phrases.length - 1 ? lastJoiner : ', '
             return [part(partStatus(qualifiers), `${joiner}${words}`, cited), ...(aside === null ? [] : [part(partStatus(qualifiers), aside, cited)])]
         })
         const policy = commonRestartPath(group)
         for (const transition of group) saidInGroup.add(transition)
-        instructions.push(joined('How it works', [part(partStatus([...who, ...stops, ...policy]), `${capital(taker)} restarts play`, [...who, ...stops, ...policy]), ...moments]))
+        if (common && commonWording) {
+            const startFields = [...who, ...common.starters.flatMap(t => [pathAt(t, 'playState'), pathAt(t, 'selector')])]
+            const restartFields = [...policy, ...common.dead.map(t => pathAt(t, 'playState')), ...(slotsOf(commonWording.restarts).includes('carrier') ? objectPath : [])]
+            const starts = fillSlots(commonWording.starts, { taker })!
+            const restarts = fillSlots(commonWording.restarts, objectNoun ? { carrier: objectNoun } : {})
+            instructions.push(
+                joined('How it works', [
+                    part(partStatus(startFields), capital(starts), startFields),
+                    ...(restarts === null ? [] : [part(partStatus(restartFields), `, and ${restarts}`, restartFields)]),
+                    ...moments,
+                ]),
+            )
+        } else {
+            instructions.push(joined('How it works', [part(partStatus([...who, ...stops, ...policy]), `${capital(taker)} restarts play`, [...who, ...stops, ...policy]), ...moments]))
+        }
         if (placementResetsAt(group)) sayPlacement(group)
         instructions.push(joined(RESTARTS, [part(partStatus([...who, ...methods]), `${capital(taker)} restarts play ${METHOD_PHRASE[first.placement.method](objectNoun!)}`, [...who, ...methods, ...objectPath])]))
         const bound = coachDecides(first.placement.region)
         say(RESTARTS, partStatus([...locations, ...who]), `You choose where ${taker} restarts play${bound ? `, ${bound}` : ''}`, [...locations, ...who])
+        /**
+         * **Which of the sport's restarts the activity does not use** — R2 (the d27 design's section 2.8: *"Restarts is one new sentence, citing
+         * game::RP1. It names only the restart laws the account records as DEPARTED that have a noun in `restartLawNouns`"*). Said once, for the
+         * group that says the common restart, where the game's default-laws account (the fixture's) records a restart law with a noun as
+         * departed from at some place: "There are no {nouns} in this activity", the nouns in the data's order, then each named noun's `then`
+         * after "; " (for the restart a foul is sanctioned by: his item 3, fouls still matter). Its first part cites the policy and the team
+         * every dead-ball restart is awarded to (each dead-ball transition's awardee: the one restart that replaces each restart it names,
+         * read for the team it is said for); a `then` part cites the policy. A game with no account, or none of whose departed laws has a
+         * noun, has no such sentence.
+         *
+         * The design's words close on "before the [specialized-role] restarts" (2.8, its role noun bracketed for the coupling ratchet); they
+         * are not said: a sentence naming the specialized role with "before" is refused by fidelity's role-ordering rule (his D6,
+         * `ROLE_ORDERING`), and the How it works sentence already says the restart after a foul stoppage (the design's 4.3: no fact said
+         * twice).
+         */
+        if (common && commonWording) {
+            const named = restartLawNouns().filter(entry => departedLaws.has(entry.law))
+            const sentence = named.length ? fillSlots(commonWording.noOtherRestarts, { restarts: orList(named.map(entry => entry.noun)) }) : null
+            if (sentence) {
+                const awarded = [...policy, ...common.dead.map(t => pathAt(t, 'awardedTo'))]
+                instructions.push(
+                    joined(RESTARTS, [
+                        part(partStatus(awarded), sentence, awarded),
+                        ...named.filter(entry => entry.then).map(entry => part(partStatus(policy), `; ${entry.then}`, policy)),
+                    ]),
+                )
+            }
+        }
     }
 
     // Ordinary restarts when the object goes out of play, one sentence per trigger where its transitions restart alike. R1 (24 October

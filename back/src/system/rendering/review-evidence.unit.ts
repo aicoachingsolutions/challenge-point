@@ -160,7 +160,9 @@ test('1. end to end on production data: SERVED (design step L14; was refused onl
     // Moved 24 October 2026 (R1), total 28 -> 26 and draft 24 -> 22: his reply filed 27 October 2026, item 4 - the touchline throw-in and
     // the end-line restart are withdrawn, and the ball going out is said in the restart sentence (communication.unit.ts 1); nothing approved
     // changes.
-    assert.deepEqual(fact(evidence.acceptance, 'sentences'), { total: 26, approved: 4, draft: 22 })
+    // Moved 24 October 2026 (R2), total 26 -> 27 and draft 22 -> 23: the Restarts and ball out sentence naming the restarts the activity does
+    // not use (his reply filed 27 October 2026, item 4; dead-ball-wording.unit.ts), DRAFT; nothing approved changes.
+    assert.deepEqual(fact(evidence.acceptance, 'sentences'), { total: 27, approved: 4, draft: 23 })
     assert.deepEqual(evidence.sections.instructions.filter(i => i.wording === 'APPROVED').map(i => i.text), ['When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone', HIS_ITEM_1, HIS_W3, HIS_W2])
     // Measured at this stage: 19 Gate A checks per block, all PASS; the 9 cross-block checks; 11 owed invariants per block.
     // Re-pointed 21 October 2026 (stage 2D): 10 cross-block checks, RB-L joining.
@@ -215,7 +217,8 @@ test('2. the nine items: his words from the record, each resolved to elements, c
     // Moved 21 October 2026 (stage 2C), 29 -> 27: the two mirrored target sentences are each said once (test 1).
     // Moved 21 October 2026 (stage 2D), 27 -> 28: every block's markings set out once (test 1).
     // Moved 24 October 2026 (R1), 28 -> 26: the throw-in and end-line sentences withdrawn (test 1).
-    assert.equal(byId.R8.sentences.length, 26)
+    // Moved 24 October 2026 (R2), 26 -> 27: the sentence naming the restarts the activity does not use (test 1).
+    assert.equal(byId.R8.sentences.length, 27)
     // Stage 2D (21 October 2026): RB-L joins the cross-block checks (test 1), and an item's checks are the ones his review request lists for
     // it (the record's data, unchanged), so R7 still reads the nine.
     assert.ok(byId.R7.checks.map(c => c.checkId).join() === 'RB-1,RB-2,RB-3,RB-4,RB-5,RB-6,RB-7,RB-8,RB-M')
@@ -232,7 +235,9 @@ test('3. provenance: his three layers and the standings, every cited path traced
     // The restart rests on his provisional choices (the taker among them), the ball on the sport profile. Re-pointed 21 October 2026
     // (stage 2B): it is said as WHEN ("... restarts play: {triggers}") and HOW ("... restarts play from the feet, ..."); both name the
     // taker and rest on it, and only HOW names the ball. Was one sentence resting on both.
-    const restartWhen = said(`The building team's ${ROLE} restarts play:`)
+    // Re-pointed 24 October 2026 (R2): the WHEN opens with the common restart's rule ("... starts play, and restarts it whenever the ball is
+    // dead: ..."). Was: "... restarts play: ...".
+    const restartWhen = said(`The building team's ${ROLE} starts play, and restarts it whenever the ball is dead:`)
     const restartHow = said(`The building team's ${ROLE} restarts play from the feet`)
     for (const restart of [restartWhen, restartHow]) assert.ok(restart.sources.some(s => s.standing === 'PROVISIONAL' && s.ref === 'provisional:A01-R1::A01-R1-T3-1'), restart.text)
     assert.ok(restartHow.sources.some(s => s.layer === 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS' && s.standing === 'APPROVED'))
@@ -354,9 +359,12 @@ test('5. the specialized role as a deep support option, and no prescription, as 
     // now names its own restart ("You choose where the building team's goalkeeper restarts play, ..."), so three DRAFT sentences name the
     // role where one did; none carries a word of obligation or a prescription finding.
     assert.equal(naming.length, 7)
+    // Re-pointed 24 October 2026 (R2): the WHEN opens with the common restart's rule ("The building team's goalkeeper starts play, and restarts
+    // it whenever the ball is dead: ..."), still naming the role with no word of obligation; the Restarts and ball out sentence added in R2
+    // names no role. Was: "The building team's goalkeeper restarts play".
     assert.deepEqual(
-        naming.filter((s: any) => s.text.includes(`building team's ${ROLE} restarts play`)).map((s: any) => s.text.split(',')[0].split(':')[0]),
-        [`The building team's ${ROLE} restarts play`, `The building team's ${ROLE} restarts play from the feet`, `You choose where the building team's ${ROLE} restarts play`],
+        naming.filter((s: any) => s.text.includes(`building team's ${ROLE} `)).map((s: any) => s.text.split(',')[0].split(':')[0]),
+        [`The building team's ${ROLE} starts play`, `The building team's ${ROLE} restarts play from the feet`, `You choose where the building team's ${ROLE} restarts play`],
     )
     assert.ok(naming.every((s: any) => s.q4.length === 0))
     assert.deepEqual(naming.filter((s: any) => s.obligationWords.length).map((s: any) => [s.text, s.obligationWords]), [[HIS_ITEM_1, [String(/\bmust\b/i)]], [HIS_W3, [String(/\bcan ?not\b/i), String(/\buntil\b/i)]]])

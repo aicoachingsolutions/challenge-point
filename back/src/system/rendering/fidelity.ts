@@ -21,9 +21,28 @@ import { effectiveValue, scaleExactly } from '../derivation/rational'
 import { conditionScopeNotEvaluable } from '../derivation/resolved-game'
 import { ApprovedWording, approvedWording } from './approved-wording'
 import { CoachFacingExclusion, exclusionFor } from './coach-facing-exclusions'
-import { scoringAtObjectWording } from './draft-coach-wording'
+import { draftCoachWordingLoad, restartLawNouns, scoringAtObjectWording } from './draft-coach-wording'
 import { layoutLeafNumberAt, MARK_UNION_ONCE, PhysicalLayout, Remarking, somethingMoves } from './physical-layout'
-import { ADJUSTING, approvedSentences, Binding, combinedStatus, ENDS_ON_WORDING, Instruction, MOVE_MARKINGS, MOVED_MARK_QUALIFICATIONS, NOTHING_RE_MARKED, RenderedActivity, ROLE_EXCHANGE, roleKeyedPositions, scoringWordingOf, sectionFactsOf, SourceStatus, UNBOUNDED_CREDIT } from './render-concrete-game'
+import {
+    ADJUSTING,
+    approvedSentences,
+    Binding,
+    combinedStatus,
+    commonDeadBallRestartIn,
+    ENDS_ON_WORDING,
+    Instruction,
+    MOVE_MARKINGS,
+    MOVED_MARK_QUALIFICATIONS,
+    NOTHING_RE_MARKED,
+    RenderedActivity,
+    rendererRegister,
+    ROLE_EXCHANGE,
+    roleKeyedPositions,
+    scoringWordingOf,
+    sectionFactsOf,
+    SourceStatus,
+    UNBOUNDED_CREDIT,
+} from './render-concrete-game'
 import { eventKindOf, eventKindPathsOf, readPath, roleElementsOf } from './game-reading'
 import { firstReadUncarried } from './sections'
 
@@ -847,6 +866,89 @@ export function saysWord(text: string, word: string): boolean {
     return false
 }
 
+/**
+ * **The one restart after every dead ball, said once; the sport's restarts it replaces, named only where departed from; the normal rules,
+ * never while something is owed** — R2, 24 October 2026, NEW clauses (TIGHTENINGS), the d27 design's section 2.9, V9: *"each dead-ball
+ * transition is said exactly once; the Restarts sentence is said once and cites game::RP1. It is refused where RP1 is not COMMON, where it
+ * names a law that is not DEPARTED, or where it omits a DEPARTED restart law that has a noun; [...] the normal-rules sentence is refused
+ * where anything is owed"*. Christian, reply filed 27 October 2026, item 4: *"Ball remains live: play continues, including after possession
+ * changes. Ball becomes dead: initiate a new [specialized-role] build-out."* (his noun bracketed for the coupling ratchet). Independent of
+ * the renderer, read from the game through the register's dead-ball block (`commonDeadBallRestartIn`: the policy's row, its common value,
+ * each trigger's class and the transition rows), the fixture's default-laws account (`rendering-fixture.ts`) and the DRAFT wording data's
+ * restart nouns and held normal-rules sentence:
+ *
+ *   - where the game holds the common restart, each transition that stops play on a trigger the block classes as making the ball dead is
+ *     said by exactly one sentence: one citing its play state and its trigger together (none: lost, Q3; more: said twice, Q2);
+ *   - a sentence naming a restart noun (as a whole word) is the Restarts and ball out sentence: refused where the game does not hold the
+ *     common restart, where it does not cite the policy, where it names a restart whose law the account does not record as departed from
+ *     at some place (or the game carries no account), or where it is said twice (Q2); and where the account records a departed restart law
+ *     with a noun, no such sentence, or one leaving that noun out, is a loss (Q3);
+ *   - a sentence saying the held normal-rules words is refused where the game carries no account or the account owes an adaptation (Q2):
+ *     his item 5 forbids silently adding a restriction, and "normal rules apply" where a law is owed would add one.
+ *
+ * Every game keeping a restart per trigger, naming no restart noun and not saying the normal rules owes nothing here.
+ */
+function deadBallFindings(fixture: any, rendered: RenderedActivity): FidelityFinding[] {
+    const findings: FidelityFinding[] = []
+    const game = fixture?.game
+    const spec = commonDeadBallRestartIn(game)
+    const account: { law: string; status: string }[] | null = Array.isArray(fixture?.defaultLaws?.laws) ? fixture.defaultLaws.laws : null
+    if (spec) {
+        const index = rendererRegister()
+        const leafOf = (row: string) => String(index.rows.get(row)?.path ?? '').split('[].').pop() ?? ''
+        const container = String(index.rows.get(spec.transitionRow)?.path ?? '').replace(/\[\]$/, '')
+        const playState = leafOf(spec.playStateRow)
+        const triggerOf = (transition: any): string | null => {
+            const term = (transition?.selector ?? []).find((t: any) => t?.attribute === spec.triggerAttribute && t?.op === '=')
+            return term ? String(term.value) : null
+        }
+        const held: any[] = Array.isArray(readPath(game, container)) ? (readPath(game, container) as any[]) : []
+        for (const transition of held) {
+            const trigger = triggerOf(transition)
+            if (transition?.[playState] !== spec.stops || spec.classOf.get(trigger ?? '') !== 'STOPS_PLAY') continue
+            const at = `${container}[${transition.elementId}]`
+            const saying = rendered.instructions.filter(i => i.from.includes(`${at}.${playState}`) && i.from.includes(`${at}.selector`))
+            if (saying.length === 1) continue
+            findings.push(
+                saying.length
+                    ? { question: 2, severity: 'VIOLATION', what: `${at} (${trigger}) makes the ball dead under the game's common restart (${spec.path}) and is said by ${saying.length} sentences (${saying.map(i => `"${i.text}"`).join('; ')}): each dead ball is said once` }
+                    : { question: 3, severity: 'VIOLATION', what: `${at} (${trigger}) makes the ball dead under the game's common restart (${spec.path}) and no sentence says when it happens and that play restarts` },
+            )
+        }
+    }
+    const nouns = restartLawNouns()
+    const departed = new Set((account ?? []).filter(entry => entry.status === 'DEPARTED').map(entry => entry.law))
+    const naming = rendered.instructions.filter(i => nouns.some(entry => saysWord(i.text, entry.noun)))
+    for (const instruction of naming) {
+        const said = nouns.filter(entry => saysWord(instruction.text, entry.noun))
+        if (!spec) {
+            findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" names restarts this activity does not use (${said.map(entry => entry.noun).join(', ')}), and the game's dead-ball restart policy is not the common one` })
+            continue
+        }
+        if (!instruction.from.includes(spec.path)) findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" names restarts this activity does not use and does not cite the game's dead-ball restart policy (${spec.path})` })
+        for (const entry of said.filter(noun => !departed.has(noun.law))) {
+            findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" says there are no ${entry.noun}, and ${account ? `the game's default-laws account does not record ${entry.law} as departed from` : 'the game carries no default-laws account'}` })
+        }
+    }
+    if (naming.length > 1) findings.push({ question: 2, severity: 'VIOLATION', what: `${naming.length} sentences name the restarts this activity does not use (${naming.map(i => `"${i.text}"`).join('; ')}): it is said once` })
+    if (spec) {
+        for (const entry of nouns.filter(noun => departed.has(noun.law))) {
+            if (naming.some(instruction => saysWord(instruction.text, entry.noun))) continue
+            findings.push({ question: 3, severity: 'VIOLATION', what: `the game's default-laws account records ${entry.law} as departed from under the common restart (${spec.path}), and no sentence tells the coach there are no ${entry.noun}` })
+        }
+    }
+    const normal = draftCoachWordingLoad().wording.normalLaws
+    const normalWords = normal ? normal.words.replace(/\.$/, '') : null
+    if (normalWords) {
+        const owed = account === null ? null : account.filter(entry => entry.status === 'ADAPTATION_OWED').map(entry => entry.law)
+        for (const instruction of rendered.instructions.filter(i => i.text.includes(normalWords))) {
+            if (owed !== null && !owed.length) continue
+            findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" says the normal rules apply, and ${owed === null ? 'the game carries no default-laws account' : `the game's default-laws account owes an adaptation of ${[...new Set(owed)].join(', ')}`}: it is said only where nothing is owed` })
+        }
+    }
+    return findings
+}
+
 function remarkingFindings(fixture: any, rendered: RenderedActivity): FidelityFinding[] {
     const remarking: Remarking | null = Array.isArray(fixture?.remarking?.changes) ? fixture.remarking : null
     if (!remarking) return []
@@ -1479,6 +1581,8 @@ export function checkFidelity(
             findings.push({ question: 4, severity: 'VIOLATION', what: `"${instruction.text}" is approved wording for "${own.section}" and is placed in "${instruction.section}"` })
         }
     }
+
+    findings.push(...deadBallFindings(fixture, rendered))
 
     // ── Q5 — a coach could lay it out and play it ───────────────────────────────────────────────
     const sections = new Set(rendered.instructions.map(i => i.section))

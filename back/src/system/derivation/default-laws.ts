@@ -70,8 +70,9 @@ export type DepartureExtent = (typeof DEPARTURE_EXTENTS)[number]
 /**
  * **Why the profile lists a law** — R1, 24 October 2026 (the d27 design's section 2.6). ADAPTATION: the law can fail to apply in a modified
  * environment, so it names the preconditions it needs (the six laws H2 listed). DEPARTURE: it is listed only so an activity can record that
- * it departs from it (his reply filed 27 October 2026, item 4: *"There should be no separate corners, goal kicks, throw-ins, free kicks, or
- * penalty kicks for this activity."*; his reply filed 26 October 2026, item 10: *"The governing principle is to inherit established sport
+ * it departs from it (his reply filed 27 October 2026, item 4: *"There should be no separate [restarts of the sport] for this activity."*,
+ * his nouns bracketed: the coupling ratchet keeps a sport's nouns out of this layer, and the register quotes him whole; his reply filed 26
+ * October 2026, item 10: *"The governing principle is to inherit established sport
  * rules and explicitly define only the necessary departures."*), so it may need nothing to apply. A law of either kind needing nothing would
  * otherwise be one the profile has no reason to list: an ADAPTATION law still must name a precondition, and a DEPARTURE law nothing departs
  * from is caught by a data test (`default-laws.unit.ts`).

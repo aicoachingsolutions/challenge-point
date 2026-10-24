@@ -95,9 +95,18 @@ export interface RenderingFixtureParts {
      * exactly what it was.
      */
     methodNouns?: { trigger: string; method: string; article: string; noun: string; approvedBy: { words: string; citedAs: string }[] }[]
+    /**
+     * **This game's default-laws account, law by law and place by place** — R2, 24 October 2026 (the d27 design's section 2.8: *"under
+     * COMMON the Restarts sentence is added from the account"*; V9: fidelity refuses a Restarts sentence naming a law the account does not
+     * record as departed from, one leaving out a departed restart law with a noun, and the normal-rules sentence wherever anything is owed).
+     * The same reading the build makes for the administrator's review evidence (`realization/default-laws-check.ts` blockLawAccountOf, over
+     * the realized game and the composed items of the realization being tried), carried as each law's id, place and status only, and given
+     * only where that realization declares `defaultLawsCheck`. Absent, the fixture is exactly what it was.
+     */
+    defaultLaws?: { realization: string; laws: { law: string; end: 0 | 1 | null; status: string }[] }
 }
 
-export function assembleRenderingFixture({ resolved, realized, entailed, envelope, accepted, postRealizationValidated, roleNouns, roleHolders, reassignmentNouns, adjustments, alternatives, withdrawnChoices, methodNouns }: RenderingFixtureParts): Record<string, unknown> {
+export function assembleRenderingFixture({ resolved, realized, entailed, envelope, accepted, postRealizationValidated, roleNouns, roleHolders, reassignmentNouns, adjustments, alternatives, withdrawnChoices, methodNouns, defaultLaws }: RenderingFixtureParts): Record<string, unknown> {
     const pathOf = new Map(resolved.derived.map(entry => [entry.lineId, entry.path]))
     return {
         provenance: resolved.provenance,
@@ -139,5 +148,6 @@ export function assembleRenderingFixture({ resolved, realized, entailed, envelop
         ...(alternatives?.length ? { alternatives: JSON.parse(JSON.stringify(alternatives)) } : {}),
         ...(withdrawnChoices?.length ? { withdrawnChoices: JSON.parse(JSON.stringify(withdrawnChoices)) } : {}),
         ...(methodNouns?.length ? { methodNouns: { status: 'APPROVED', entries: JSON.parse(JSON.stringify(methodNouns)) } } : {}),
+        ...(defaultLaws ? { defaultLaws: { status: 'ACCOUNT_OF_THIS_GAME', realization: defaultLaws.realization, laws: defaultLaws.laws.map(entry => ({ law: entry.law, end: entry.end, status: entry.status })) } } : {}),
     }
 }

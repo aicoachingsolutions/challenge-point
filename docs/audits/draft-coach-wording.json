@@ -1,12 +1,14 @@
 {
-  "about": "DRAFT coach wording, NOT APPROVED. Added 23 October 2026 (Stage G of the design of 25 October 2026, section 3) for the goal version of the build-out activity: the words the renderer (back/src/system/rendering/render-concrete-game.ts) may say for an object a game sets out and for a team that scores at an object, keyed by register vocabulary values (the O2.kind of an object, the V1.kind of a scoring event) and never by an activity, a goal or an element, so no scoring kind or sport noun is written in an engine file (the design's no-exception ratchet: 'New wording for a goal comes from data, never from a branch beside ZONE_ENTRY_EVENT'). Every sentence built from these words is DRAFT, awaiting his approval, and is shown to an administrator as draft wording; none is approved-coach-wording.json, which changes only after his approval. The words follow his rulings, each quoted verbatim with the reply it is filed in ('basis'); where a clause states a rule of the game, the game must entail it where it is said (the renderer's gates, named per clause), and fidelity holds every sentence to the game as it holds every other DRAFT sentence. Read through AUDITS_DIR, so the bundled server finds it in dist/knowledge; build.js copies it. Nothing served for real uses it until the goal version is selectable: its two open decisions (goal suitability, the penalty area) are his.",
+  "about": "DRAFT coach wording, NOT APPROVED. Added 23 October 2026 (Stage G of the design of 25 October 2026, section 3) for the goal version of the build-out activity: the words the renderer (back/src/system/rendering/render-concrete-game.ts) may say for an object a game sets out and for a team that scores at an object, keyed by register vocabulary values (the O2.kind of an object, the V1.kind of a scoring event) and never by an activity, a goal or an element, so no scoring kind or sport noun is written in an engine file (the design's no-exception ratchet: 'New wording for a goal comes from data, never from a branch beside ZONE_ENTRY_EVENT'). Every sentence built from these words is DRAFT, awaiting his approval, and is shown to an administrator as draft wording; none is approved-coach-wording.json, which changes only after his approval. The words follow his rulings, each quoted verbatim with the reply it is filed in ('basis'); where a clause states a rule of the game, the game must entail it where it is said (the renderer's gates, named per clause), and fidelity holds every sentence to the game as it holds every other DRAFT sentence. Read through AUDITS_DIR, so the bundled server finds it in dist/knowledge; build.js copies it. Nothing served for real uses it until the goal version is selectable: its two open decisions (goal suitability, the penalty area) are his. AMENDED 24 October 2026 (R1 and R2, the d27 design's stage R1 and R2, its section 2.8), for his reply filed 27 October 2026, items 3 and 4: the words of the one restart after every dead ball (triggers, deadBallRestart, restartLawNouns) are said in the served zone version too, as he directed for both versions ('I want the same restart principle for both the physical-goal and target-zone versions.'); each is DRAFT, awaiting his approval.",
   "status": "DRAFT",
   "entryShape": {
     "objectKinds": "[{ kind: a member of the register's O2.kind vocabulary, standsOutsideArea: the words said after an object of this kind is placed on an end line, saying where its structure stands (a clause, starting ', '), basis: { words: [his words verbatim], citedAs } }] - said only for an object the game places on an end line with no depth inside the area (its realized along interval one point on an end line)",
     "facings": "[{ facing: a member of the register's O6.facing vocabulary (the facing row objectGeometry names), words: the words said, after ', ', for an object placed facing that way (no slot), basis }] - added by the Stage G review fix, 23 October 2026, so the words for a facing come from data as every other word of the placing sentence does; a facing with no entry has no words, so the placing sentence is not said and fidelity refuses the game",
     "scoringAtObjects": "[{ event: a member of the register's V1.kind vocabulary whose target, by the register's roleScoring.targetTypes map, is an object of targetKind, targetKind: a member of the O2.kind vocabulary, lead: how a team scores by the event, with the slots {carrier} (the kind of the object played with) and {target} (the kind of the object scored at), basis, clauses: [{ text: the words said after the lead, with the slot {carrier} only, starting with their own joining punctuation, states: MEANING (what the event itself counts, said wherever the lead is said) | NO_OTHER_SCORE (that nothing else scores for the team, said only where the team scores by an event of its own, register row B9, and no occurrence that also counts, row V27, names its team), basis }] }]",
-    "normalLaws": "{ words: the one Coach Details sentence the d26 design holds for the sport's normal laws (whole, no slot: the sport's noun is data here), held: why it is held and not said, basis } - added 23 October 2026 (H2, the d26 design's build step 2, section 3.2: 'One DRAFT Coach Details sentence, \"Otherwise, normal soccer rules apply\", with the sport noun from data.' 'The served zone text is unchanged until he approves.'). HELD: no renderer reads it; the default-laws account in the administrator's review evidence shows it as held",
-    "triggers": "[{ trigger: a member of the register's trigger vocabulary, phrase: the words said for when a restart on that trigger happens, in the restart sentence's list of moments ('The building team's goalkeeper restarts play: ...'), with the slot {carrier} (the kind of the object played with) and no other, basis }] - added 24 October 2026 (R1, the d27 design's stage R1, its section 2.8: 'The trigger phrases come from data. draft-coach-wording.json gains a triggers map'), for his reply filed 27 October 2026, items 3 and 4, so the ball going out and the coach's stoppages, which now restart play the one way his item 4 gives, are said in that sentence; read before the renderer's own table, and two triggers with the same phrase are said once. Only the triggers the common restart needs are listed; the other restart words of his item 4 (the restart said once for every dead ball, which restarts are no longer used) are the d27 design's stage R2"
+    "normalLaws": "{ words: the one Coach Details sentence the d26 design holds for the sport's normal laws (whole, no slot: the sport's noun is data here), held: why it is held and not said, basis } - added 23 October 2026 (H2, the d26 design's build step 2, section 3.2: 'One DRAFT Coach Details sentence, \"Otherwise, normal soccer rules apply\", with the sport noun from data.' 'The served zone text is unchanged until he approves.'). HELD: no renderer reads it; the default-laws account in the administrator's review evidence shows it as held. AMENDED 24 October 2026 (R2, the d27 design's section 2.9, V9: 'the normal-rules sentence is refused where anything is owed'): fidelity reads it too, and refuses any sentence saying it where the game's default-laws account owes an adaptation, or where the game has no account; still no renderer says it (the d27 design's stage L)",
+    "triggers": "[{ trigger: a member of the register's trigger vocabulary, phrase: the words said for when a restart on that trigger happens, in the restart sentence's list of moments ('The building team's goalkeeper restarts play: ...'), with the slot {carrier} (the kind of the object played with) and no other, basis }] - added 24 October 2026 (R1, the d27 design's stage R1, its section 2.8: 'The trigger phrases come from data. draft-coach-wording.json gains a triggers map'), for his reply filed 27 October 2026, items 3 and 4, so the ball going out and the coach's stoppages, which now restart play the one way his item 4 gives, are said in that sentence; read before the renderer's own table, and two triggers with the same phrase are said once. Only the triggers the common restart needs are listed; the other restart words of his item 4 (the restart said once for every dead ball, which restarts are no longer used) are the d27 design's stage R2. AMENDED 24 October 2026 (R2, the d27 design's stage R2, its section 2.8): these phrases are the moments of the COMMON restart only - read only for a game whose dead-ball restart policy (register row RP1) is the common value, so a game keeping a restart per trigger is said exactly as before R1 (a ball going out over one line is never said as 'goes out of play' for both, the R1 review's should-fix); said in the order listed here; SCORE and COACH_JUDGED_EPISODE_CONCLUSION are listed too, the latter without the renderer's bracketed '(at a stoppage or while play is on)', which the design drops because under the common restart every coach stoppage restarts play the same way",
+    "deadBallRestart": "{ <the register's deadBallRestart common value>: { starts: how the restart's taker starts play, with the slot {taker} and no other, restarts: that the taker restarts play whenever the ball is dead, with the slot {carrier} at most, said after ', and ' and before the moments (the triggers above), noOtherRestarts: the Restarts and ball out sentence saying which of the sport's restarts the activity does not use, with the slot {restarts} (the nouns below, listed) and no other, basis } } - added 24 October 2026 (R2, the d27 design's stage R2, its section 2.8: 'draft-coach-wording.json gains a triggers map, a deadBallRestart.COMMON entry and restartLawNouns, each with his words'), for his reply filed 27 October 2026, item 4. Said only for a game whose dead-ball restart policy is that value, where one group of restarts holds every transition the register's block classes as making the ball dead and the start: the How it works sentence 'The building team's goalkeeper starts play, and restarts it whenever the ball is dead: ...' (the design's 'every time' is 'whenever' here: fidelity's obligation lexicon refuses '(every|each) time'), and, after that group's restart sentences, the Restarts and ball out sentence, from the default-laws account of the game (the laws it records as DEPARTED). Its first part cites restartPolicy.deadBall",
+    "restartLawNouns": "[{ law: the id of a law the Sport Profile's defaultLaws block names, marked restart, noun: the coach's plural noun for that restart (no slot), then: optional words said after '; ' where the noun is said (no slot), basis }] - added 24 October 2026 (R2, the d27 design's stage R2, its section 2.8: 'It names only the restart laws the account records as DEPARTED that have a noun in restartLawNouns'). The nouns are said in the order listed, joined '..., ... or ...'; a restart law with no entry here (the kick-off, the dropped ball) has no noun, because the How it works sentence already says the start and every stoppage. Read by the renderer's Restarts and ball out sentence and by fidelity, which refuses a sentence naming a restart whose law the game's account does not record as departed from, one leaving out a departed restart law that has a noun here, and one said where the game's dead-ball restart policy is not the common value"
   },
   "normalLaws": {
     "words": "Otherwise, normal soccer rules apply.",
@@ -67,6 +69,14 @@
   ],
   "triggers": [
     {
+      "trigger": "SCORE",
+      "phrase": "after either team scores",
+      "basis": {
+        "words": ["Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.", "A goal or target-zone score.", "Controlled progression beyond the marked line that completes a scoring episode."],
+        "citedAs": "his reply filed 27 October 2026, item 4"
+      }
+    },
+    {
       "trigger": "OUT_TOUCHLINE",
       "phrase": "whenever the {carrier} goes out of play",
       "basis": {
@@ -91,11 +101,73 @@
       }
     },
     {
+      "trigger": "COACH_JUDGED_EPISODE_CONCLUSION",
+      "phrase": "when you judge that an attack has run its course",
+      "basis": {
+        "words": ["An episode concludes when either team scores or when the coach judges that the meaningful attacking opportunity has ended."],
+        "citedAs": "his reply filed 17 October 2026, item D5"
+      }
+    },
+    {
       "trigger": "COACH_DIRECTED_STOPPAGE",
       "phrase": "whenever you stop play for any other reason",
       "basis": {
         "words": ["A coach-directed stoppage."],
         "citedAs": "his reply filed 27 October 2026, item 4"
+      }
+    }
+  ],
+  "deadBallRestart": {
+    "COMMON": {
+      "starts": "{taker} starts play",
+      "restarts": "restarts it whenever the {carrier} is dead",
+      "noOtherRestarts": "There are no {restarts} in this activity",
+      "basis": {
+        "words": ["Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.", "Ball becomes dead: initiate a new goalkeeper build-out.", "There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity."],
+        "citedAs": "his reply filed 27 October 2026, item 4"
+      }
+    }
+  },
+  "restartLawNouns": [
+    {
+      "law": "LAW-15",
+      "noun": "throw-ins",
+      "basis": {
+        "words": ["There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity."],
+        "citedAs": "his reply filed 27 October 2026, item 4"
+      }
+    },
+    {
+      "law": "LAW-17",
+      "noun": "corners",
+      "basis": {
+        "words": ["There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity."],
+        "citedAs": "his reply filed 27 October 2026, item 4"
+      }
+    },
+    {
+      "law": "LAW-16",
+      "noun": "goal kicks",
+      "basis": {
+        "words": ["There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity."],
+        "citedAs": "his reply filed 27 October 2026, item 4"
+      }
+    },
+    {
+      "law": "LAW-13",
+      "noun": "free kicks",
+      "then": "fouls still matter, so deal with them appropriately",
+      "basis": {
+        "words": ["There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity.", "If a foul or infringement requires a stoppage, the coach addresses it appropriately and restarts the build-out.", "Normal expectations for safe and fair play remain in effect.", "We are simplifying the restart, not disregarding fouls or player safety."],
+        "citedAs": "his reply filed 27 October 2026, items 3 and 4"
+      }
+    },
+    {
+      "law": "LAW-14",
+      "noun": "penalties",
+      "basis": {
+        "words": ["Although penalties are authentic parts of soccer, they shift attention toward a different performance problem.", "For this activity, a dead ball should result in a new goalkeeper-initiated build-out, not a penalty kick or another set-piece restart.", "There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity."],
+        "citedAs": "his reply filed 27 October 2026, items 3 and 4"
       }
     }
   ]

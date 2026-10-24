@@ -174,7 +174,12 @@ test('1. the review draft of A01 (TEST-ONLY: the table as at stage M5): every se
         // same way, so they join this sentence's moments, worded in the DRAFT data (draft-coach-wording.json triggers; the two out-of-play
         // triggers share one phrase, said once). Was: "... restarts play: at the start, after either team scores and whenever you decide
         // that an attack has run its course (at a stoppage or while play is on)".
-        `How it works: The building team's ${ROLE} restarts play: at the start, after either team scores, whenever the ball goes out of play, whenever you decide that an attack has run its course (at a stoppage or while play is on), whenever you stop play for a foul and whenever you stop play for any other reason`,
+        // Moved 24 October 2026 (R2, DRAFT, the d27 design's section 2.8): the common restart said as one rule - the taker starts play and
+        // restarts it whenever the ball is dead (the policy, row RP1), then the moments in the data's order, the coach's conclusion without
+        // its bracketed aside (under the common restart every coach stoppage restarts play the same way). Was (R1): "... restarts play: at
+        // the start, after either team scores, whenever the ball goes out of play, whenever you decide that an attack has run its course (at
+        // a stoppage or while play is on), whenever you stop play for a foul and whenever you stop play for any other reason".
+        `How it works: The building team's ${ROLE} starts play, and restarts it whenever the ball is dead: after either team scores, whenever the ball goes out of play, whenever you stop play for a foul, when you judge that an attack has run its course, and whenever you stop play for any other reason`,
         'How it works: Before each of these restarts, the building team and the pressing team each set up on their own side of the marked line; once play restarts, every player is free to move anywhere',
         // Moved 17 October 2026 (stage M3, design step L9; his reply filed 19 October 2026, items 1 and 4): the team-neutral "A team
         // scores 1 point by getting the ball under control into the zone it is attacking: ..." is no longer said, because the building
@@ -217,6 +222,10 @@ test('1. the review draft of A01 (TEST-ONLY: the table as at stage M5): every se
         // sentence is unchanged: his "conventional throw-in" has no data route to the renderer yet (a wording point put to him).
         `Restarts and ball out: The building team's ${ROLE} restarts play from the feet, with the ball still or moving`,
         `Restarts and ball out: You choose where the building team's ${ROLE} restarts play, consistent with the intended build-out situation, in front of the pressing team's target zone`,
+        // Added 24 October 2026 (R2, DRAFT, the d27 design's section 2.8): the sport's restarts the activity does not use, from its
+        // default-laws account (the laws it departs from that have a noun: the throw-in and free kicks; no goal, so no other can arise), and
+        // his item 3 for fouls; cites the policy.
+        'Restarts and ball out: There are no throw-ins or free kicks in this activity; fouls still matter, so deal with them appropriately',
         // Removed 24 October 2026 (R1): the touchline throw-in and the end-line restart, withdrawn from the activity by his reply filed 27
         // October 2026, item 4 ("There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this
         // activity."); the ball going out is said in the restart sentence above. Were: "If the ball goes out over a touchline, a player of
@@ -810,32 +819,42 @@ test('10. (stage 3E) each clause its own part: every citation sits on the words 
     const said = served.rendered.instructions
     // The restart moments (the WHEN sentence): the taker, then each trigger's phrase citing its own selector, then the aside closing the
     // last phrase, citing what that phrase cites.
-    const restarts = said.find(i => i.section === 'How it works' && / restarts play: /.test(i.text))!
+    const restarts = said.find(i => i.section === 'How it works' && / restarts it whenever the ball is dead: /.test(i.text))!
     const parts = restarts.parts!
     assert.equal(parts.map(p => p.text).join(''), restarts.text)
     // Re-pointed 24 October 2026 (R1): his reply filed 27 October 2026, item 4 - the ball going out (one phrase for both lines, citing both
     // triggers, their qualifiers and the object it names) and the coach's two other stoppages join the moments, in the register's trigger
     // order; the lead cites the dead-ball restart policy it now states. Was: ': at the start', ', after either team scores', ' and whenever
     // you decide that an attack has run its course', ' (at a stoppage or while play is on)'.
-    assert.deepEqual(parts.slice(1).map(p => p.text), [
-        ': at the start',
-        ', after either team scores',
+    // Re-pointed 24 October 2026 (R2, the d27 design's section 2.8): the common restart said as one rule - the start in the lead's first
+    // part ("starts play", citing the awardee and taker and the start's play state and trigger), the policy in its second (", and restarts
+    // it whenever the ball is dead", citing the policy, each dead-ball play state and the object), then the moments in the DRAFT data's
+    // order, the coach's conclusion with no aside. Was (R1): ': at the start', ', after either team scores', ', whenever the ball goes out of
+    // play', ', whenever you decide that an attack has run its course', ' (at a stoppage or while play is on)', ', whenever you stop play
+    // for a foul', ' and whenever you stop play for any other reason'.
+    assert.deepEqual(parts.map(p => p.text), [
+        `The building team's ${ROLE} starts play`,
+        ', and restarts it whenever the ball is dead',
+        ': after either team scores',
         ', whenever the ball goes out of play',
-        ', whenever you decide that an attack has run its course',
-        ' (at a stoppage or while play is on)',
         ', whenever you stop play for a foul',
-        ' and whenever you stop play for any other reason',
+        ', when you judge that an attack has run its course',
+        ', and whenever you stop play for any other reason',
     ])
-    const selectors = parts.slice(1).map(p => p.from)
-    for (const at of [0, 1, 3, 5, 6]) assert.ok(selectors[at].length === 1 && selectors[at][0].endsWith('.selector'), JSON.stringify(selectors[at]))
-    assert.equal(new Set([0, 1, 3, 5, 6].map(at => selectors[at][0])).size, 5, 'each moment its own trigger')
-    assert.deepEqual(selectors[4], selectors[3], 'the aside cites the trigger it qualifies')
-    const out = selectors[2]
+    const selectors = parts.slice(2).map(p => p.from)
+    for (const at of [0, 2, 3, 4]) assert.ok(selectors[at].length === 1 && selectors[at][0].endsWith('.selector'), JSON.stringify(selectors[at]))
+    assert.equal(new Set([0, 2, 3, 4].map(at => selectors[at][0])).size, 4, 'each moment its own trigger')
+    const out = selectors[1]
     assert.equal(out.filter(path => path.endsWith('.selector')).length, 2, 'one phrase for the two out-of-play triggers, citing both')
     assert.deepEqual(out.filter(path => path.includes('.qualifiers.')).map(path => path.split('.qualifiers.')[1]).sort(), ['endLine', 'lastTouch', 'lastTouch', 'region'], 'and every qualifier it says')
     assert.ok(out.some(path => path.startsWith('objects[') && path.endsWith('.kind')), 'and the object it names')
-    assert.ok(parts[0].from.every(path => !path.endsWith('.selector')))
-    assert.ok(parts[0].from.includes('restartPolicy.deadBall'), 'the lead states the one restart for every dead ball')
+    // The lead: the start's trigger and play state with the taker; then the policy, every dead ball's play state and the object.
+    assert.equal(parts[0].from.filter(path => path.endsWith('.selector')).length, 1, 'the start is said by "starts play"')
+    assert.ok(!parts[0].from.includes('restartPolicy.deadBall'))
+    assert.ok(parts[1].from.includes('restartPolicy.deadBall'), 'the lead states the one restart for every dead ball')
+    assert.equal(parts[1].from.filter(path => path.endsWith('.playState')).length, 6, 'each of the six dead balls stops play')
+    assert.ok(parts[1].from.some(path => path.startsWith('objects[') && path.endsWith('.kind')), 'and the object it names')
+    assert.ok(parts[1].from.every(path => !path.endsWith('.selector')))
     assert.deepEqual([...new Set(parts.flatMap(p => p.from))].sort(), [...restarts.from].sort())
     // The pressing team's way to score: its lead, citing everything the sentence cites, and the elaboration of the event, citing the event.
     const pressing = said.find(i => i.section === 'How to score' && i.text.startsWith('Pressing team: Score'))!

@@ -234,7 +234,9 @@ test('6b. the served A01 activity reads in section order, at every session, with
         // Moved 21 October 2026 (stage 2B), 2 -> 4: the opening restart's HOW and where it is taken, before the two ball-out restarts.
         // Moved 24 October 2026 (R1), 4 -> 2: the two ball-out restarts are withdrawn (his reply filed 27 October 2026, item 4); the HOW and
         // where the restart is taken stay, said of every restart after a dead ball.
-        assert.equal(instructions.filter(i => i.section === RESTARTS).length, 2)
+        // Moved 24 October 2026 (R2), 2 -> 3: the sentence naming the restarts the activity does not use (his reply filed 27 October 2026,
+        // item 4), placed here by the policy it cites (row RP1, a restart fact).
+        assert.equal(instructions.filter(i => i.section === RESTARTS).length, 3)
         assert.ok(instructions.filter(i => i.section === RESTARTS).every(i => i.when === 'ADMINISTER' && i.block === undefined))
     }
 })
@@ -416,6 +418,13 @@ const TAKER = `The building team's ${ROLE} restarts play`
  */
 const MOMENTS = 'at the start, after either team scores, whenever the ball goes out of play, whenever you decide that an attack has run its course (at a stoppage or while play is on), whenever you stop play for a foul and whenever you stop play for any other reason'
 const ONE_SENTENCE = `${TAKER} from the feet, with the ball still or moving: ${MOMENTS}`
+/**
+ * R2, 24 October 2026 (the d27 design's section 2.8, DRAFT): the WHEN is said as the common restart's one rule - the taker starts play and
+ * restarts it whenever the ball is dead, then the moments in the DRAFT data's order - so it no longer starts "{taker} restarts play:" and its
+ * words are no longer the one sentence's (above, kept as the record of what was said until R1).
+ */
+const COMMON_LEAD = `The building team's ${ROLE} starts play, and restarts it whenever the ball is dead:`
+const COMMON_MOMENTS = 'after either team scores, whenever the ball goes out of play, whenever you stop play for a foul, when you judge that an attack has run its course, and whenever you stop play for any other reason'
 
 test('14. the opening restart is said as WHEN (How it works, before the start placement) and HOW and WHERE (Restarts and ball out), at every session, from the one sentence\'s words and citations', () => {
     const counts = new Set<number>()
@@ -428,12 +437,14 @@ test('14. the opening restart is said as WHEN (How it works, before the start pl
             assert.equal(found.length, 1, `${what}: one sentence starting "${start}"`)
             return found[0]
         }
-        const when = one(`${TAKER}:`)
+        // Re-pointed 24 October 2026 (R2): the WHEN opens with the common restart's rule (COMMON_LEAD, above). Was: `${TAKER}:`.
+        const when = one(COMMON_LEAD)
         const how = one(`${TAKER} `)
         const where = one(`You choose where the building team's ${ROLE} restarts play`)
-        // The words: the one sentence cut at the colon, its taker said again at the start of HOW; WHERE names its own restart.
-        assert.equal(`${how.text}${when.text.slice(TAKER.length)}`, ONE_SENTENCE, what)
-        assert.equal(when.text, `${TAKER}: ${MOMENTS}`, what)
+        // The words: the WHEN the common restart's rule and its moments (R2; until R1 the one sentence cut at the colon, its taker said again
+        // at the start of HOW: ONE_SENTENCE, MOMENTS); WHERE names its own restart.
+        assert.equal(when.text, `${COMMON_LEAD} ${COMMON_MOMENTS}`, what)
+        assert.ok(ONE_SENTENCE.startsWith(how.text), `${what}: the HOW is still the one sentence's opening words`)
         assert.equal(how.text, `${TAKER} from the feet, with the ball still or moving`, what)
         assert.equal(where.text, `You choose where the building team's ${ROLE} restarts play, consistent with the intended build-out situation, in front of the pressing team's target zone`, what)
         assert.ok(!instructions.some(i => i.text.includes('each of these restarts is taken')), `${what}: no dangling "these restarts" in Restarts and ball out`)
@@ -445,7 +456,10 @@ test('14. the opening restart is said as WHEN (How it works, before the start pl
         assert.ok(instructions[instructions.indexOf(when) + 1].text.startsWith('Before each of these restarts'), `${what}: the start placement follows the WHEN directly`)
         const restarts = instructions.filter(i => i.section === RESTARTS)
         // Re-pointed 24 October 2026 (R1): the two ball-out restarts that followed are withdrawn (his reply filed 27 October 2026, item 4).
-        assert.deepEqual(restarts, [how, where], what)
+        // Re-pointed 24 October 2026 (R2): and the sentence naming the restarts the activity does not use follows them (dead-ball-wording.unit.ts).
+        assert.deepEqual(restarts.slice(0, 2), [how, where], what)
+        assert.equal(restarts.length, 3, what)
+        assert.ok(restarts[2].text.startsWith('There are no '), what)
         assert.deepEqual([how.when, where.when], ['ADMINISTER', 'ADMINISTER'], what)
         assert.equal(where.status, 'COACH_CHOICE', `${what}: where it is taken is the coach's`)
         // The citations, in both blocks: every path the one sentence cited is cited again; the taker (awardee and taker), named by both
@@ -464,7 +478,7 @@ test('14. the opening restart is said as WHEN (How it works, before the start pl
                 assert.equal(found.length, 1, `${inBlock}: one sentence of its own starting "${start}"`)
                 return found[0]
             }
-            const [ownWhen, ownHow, ownWhere] = [ownOne(`${TAKER}:`), ownOne(`${TAKER} `), ownOne(`You choose where the building team's ${ROLE} restarts play`)]
+            const [ownWhen, ownHow, ownWhere] = [ownOne(COMMON_LEAD), ownOne(`${TAKER} `), ownOne(`You choose where the building team's ${ROLE} restarts play`)]
             assert.deepEqual([ownWhen, ownHow, ownWhere].map(i => [i.section, i.text]), [when, how, where].map(i => [i.section, i.text]), `${inBlock}: its own words and sections are the composed ones`)
             const facts = sectionFactsOf(block)
             const openers = (block.game.transitions as any[]).filter(t => facts.transitionKind(String(t.elementId)) === 'EPISODE_OPENER')
@@ -499,7 +513,8 @@ test('15. the first read carries every path read for understanding and beginning
     const [block] = a01Blocks.map(b => b.fixture)
     const facts = sectionFactsOf(block)
     const rendered = renderConcreteGame(block)
-    const when = rendered.instructions.find(i => i.text.startsWith(`${TAKER}:`))!
+    // Re-pointed 24 October 2026 (R2): the WHEN opens with the common restart's rule. Was: `${TAKER}:`.
+    const when = rendered.instructions.find(i => i.text.startsWith(COMMON_LEAD))!
     const openers = (block.game.transitions as any[]).filter(t => facts.transitionKind(String(t.elementId)) === 'EPISODE_OPENER')
     // The taker and the play state of each opening restart are cited in the first read only by the WHEN. (Its triggers' selectors are
     // also cited by the start placement, its antecedent, so they stay carried: the check reads citations, not words.)

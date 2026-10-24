@@ -268,19 +268,43 @@ const unannotated = (): any => {
     return file
 }
 
-test('nothing a coach reads changes: the same build with every annotation taken out of a copy is the same activity, and gains no account', () => {
+/**
+ * Re-pointed 24 October 2026 (R2, the d27 design's section 2.8: "under COMMON the Restarts sentence is added from the account"; his reply
+ * filed 27 October 2026, item 4: "There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this
+ * activity."): the account now says one thing to the coach - which of the sport's restarts the activity does not use - so the build with every
+ * annotation taken out differs by exactly that sentence, and by what counts it (the sentence counts, the Details' word count read as evidence),
+ * and by nothing else: every other sentence, the overview, the diagram and the account a coach reads are the same. Was: the same activity.
+ */
+const RESTARTS_SENTENCE = 'There are no throw-ins or free kicks in this activity; fouls still matter, so deal with them appropriately'
+test('what a coach reads changes only by the account\'s Restarts sentence: the same build with every annotation taken out of a copy says everything else the same, and gains no account', () => {
     for (const [players, keepers] of [[12, 1], [12, 2], [11, 1]]) {
         const label = `${players}/${keepers}`
         const request = { kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(players, keepers) } as any
         const production = buildActivityUnderAuthorizationRecords(request, learningGoalAuthorizations(), { review: { includeDrafts: true } }).activity as ServedActivity
         const bare = buildActivityUnderAuthorizationRecords(request, learningGoalAuthorizations(), { review: { includeDrafts: true }, realizations: loadProvisionalRealizations(unannotated()) }).activity as ServedActivity
         assert.equal(bare.outcome, 'served', label)
-        for (const key of ['rendered', 'overview', 'diagram', 'roleBlocks', 'integrity', 'account', 'title', 'subtitle', 'overviewDraft', 'diagramDraft'] as const) assert.deepEqual(production[key], bare[key], `${label}: ${key}`)
-        // A realization declaring no check gains no account; every other part of the evidence is the same.
+        for (const key of ['overview', 'diagram', 'account', 'title', 'subtitle', 'diagramDraft'] as const) assert.deepEqual(production[key], bare[key], `${label}: ${key}`)
+        // The Restarts sentence, from the account: said once with it, never without it; every other sentence the same.
+        assert.deepEqual(production.rendered.instructions.filter(i => i.text === RESTARTS_SENTENCE).length, 1, label)
+        assert.ok(!bare.rendered.instructions.some(i => i.text.startsWith('There are no ')), `${label}: no account, no Restarts sentence`)
+        assert.deepEqual({ ...production.rendered, instructions: production.rendered.instructions.filter(i => i.text !== RESTARTS_SENTENCE) }, bare.rendered, `${label}: rendered`)
+        // What counts the sentences: one more with the account, nothing else.
+        assert.deepEqual({ ...production.integrity, instructions: production.integrity.instructions - 1 }, bare.integrity, `${label}: integrity`)
+        assert.deepEqual(
+            { ...production.roleBlocks, blocks: production.roleBlocks!.blocks.map((block: any) => ({ ...block, integrity: { ...block.integrity, instructions: block.integrity.instructions - 1 } })) },
+            bare.roleBlocks,
+            `${label}: roleBlocks`,
+        )
+        const { reading: productionReading, ...productionDraft } = production.overviewDraft!
+        const { reading: bareReading, ...bareDraft } = bare.overviewDraft!
+        assert.deepEqual(productionDraft, bareDraft, `${label}: overviewDraft`)
+        assert.deepEqual({ ...productionReading!, detailsWords: 0 }, { ...bareReading!, detailsWords: 0 }, `${label}: the overview's reading, but the Details' word count`)
+        // A realization declaring no check gains no account (the evidence's sentence lists and counts differ by the one sentence).
         assert.equal(bare.evidence!.defaultLaws, undefined, label)
-        const { defaultLaws: _account, measured: _digests, ...rest } = production.evidence!
-        const { measured: _bareDigests, ...bareRest } = bare.evidence!
-        assert.deepEqual(rest, bareRest, `${label}: the evidence gains the account and nothing else`)
+        const { defaultLaws: _account, measured: _digests, acceptance: _a, items: _i, sections: _s, overview: _o, ...rest } = production.evidence!
+        const { measured: _bareDigests, acceptance: _ba, items: _bi, sections: _bs, overview: _bo, ...bareRest } = bare.evidence!
+        assert.deepEqual(rest, bareRest, `${label}: the evidence gains the account and the one sentence, and nothing else`)
+        assert.deepEqual(production.evidence!.sections.instructions.filter(i => i.text !== RESTARTS_SENTENCE).map(i => i.text), bare.evidence!.sections.instructions.map(i => i.text), label)
     }
 })
 

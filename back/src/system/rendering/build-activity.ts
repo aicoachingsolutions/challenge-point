@@ -48,7 +48,7 @@ import { LoadedContract, RoleBlock } from '../derivation/types'
 import { gpLibrary } from '../knowledge-core/gp-library'
 import { completeConcreteGame, ObjectAvailabilityRefusal, objectAvailabilityRefusal, rosterRefusal, RosterRefusal } from '../realization/assemble-concrete-game'
 import { boundRegionAccountOf, BoundRegionRefusal, boundRegionRefusalAfter, boundRegionRefusalBefore } from '../realization/bound-region-check'
-import { DefaultLawsAccount, defaultLawsAccountOf } from '../realization/default-laws-check'
+import { blockLawAccountOf, DefaultLawsAccount, defaultLawsAccountOf } from '../realization/default-laws-check'
 import { runPostRealizationGates } from '../realization/post-realization-gate'
 import { realizeWithJustifiedDefaults, StrandedCount } from '../realization/justified-defaults'
 import { checkRealization, isRefused, Realized } from '../realization/realize'
@@ -2348,6 +2348,22 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
     const methodNouns = (loadSportCoachVocabulary()?.restartMethodNouns ?? []).filter(entry =>
         ((realized.game as any).transitions ?? []).some((transition: any) => triggerOfTransition(transition) === entry.trigger && transition?.placement?.method === entry.method),
     )
+    /**
+     * **This game's default-laws account, for the renderer and fidelity** — R2, 24 October 2026 (the d27 design's section 2.8: *"under COMMON
+     * the Restarts sentence is added from the account"*). Christian, reply filed 27 October 2026, item 4: *"There should be no separate
+     * [restarts of the sport] for this activity."* (his nouns bracketed: the coupling ratchet keeps a sport's nouns out of this layer). The
+     * same reading the build makes for the administrator once both blocks are built (`lawAccountOf`, above: `blockLawAccountOf` over this
+     * realized game, the composed items of the realization being tried and the session), made here for this one game before it is rendered,
+     * and only where that realization declares `defaultLawsCheck`; every other game assembles exactly as before. Carried as each law's id,
+     * place and status (`rendering-fixture.ts`); a test holds it equal to the review evidence's account, block by block.
+     */
+    const tried = realizationOf(selection)
+    const triedReceived = tried ? ((input.contracts as LoadedContract[]).find(contract => contract.contractId === tried.contractId) as ProvisionalRealization | undefined) : undefined
+    const lawsForAccount = triedReceived?.defaultLawsCheck ? loadSportDefaultLaws() : null
+    const gameLaws =
+        tried && triedReceived && lawsForAccount
+            ? blockLawAccountOf({ blockId: input.roleBlock?.blockId ?? 'game', game: realized.game, roleBlock: input.roleBlock ?? null, index, session, laws: lawsForAccount, items: triedReceived.items, boundRegions })
+            : null
     fixture = assembleRenderingFixture({
         resolved,
         realized,
@@ -2362,6 +2378,7 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
         // What a provisional realization withdrew from the game form's choices, with why (stage K5); absent elsewhere.
         ...(supplied.withdrawn.length ? { withdrawnChoices: supplied.withdrawn } : {}),
         ...(methodNouns.length ? { methodNouns } : {}),
+        ...(gameLaws ? { defaultLaws: { realization: tried!.provisionalId, laws: gameLaws.laws.map(entry => ({ law: entry.law, end: entry.end, status: entry.status })) } } : {}),
     })
 
     /**

@@ -1762,7 +1762,7 @@ function gaEpisodeReachable(ctx: GateContext): CheckOutcome {
  * `GA-DEAD-BALL-RESTART` — where a game's dead-ball restart policy is the common value, every dead ball restarts play the one way. Added 24
  * October 2026 (register version 23, row RP1 and the deadBallRestart block; R1, the d27 design's stage R1, its section 2.3) for his reply
  * filed 27 October 2026, item 4: *"Whenever the ball becomes dead, play resets to a new [specialized-role]-initiated build-out."* *"There
- * should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity."* *"Ball remains live: play continues,
+ * should be no separate [restarts of the sport] for this activity."* *"Ball remains live: play continues,
  * including after possession changes."* *"Please ensure this is represented through a general, knowledge-authorized restart mechanism rather
  * than activity-specific code."* (His role noun and the sport's restart nouns are quoted from the register; the coupling ratchet keeps a
  * sport's nouns out of this layer, so only the bracketed form is written here.)
