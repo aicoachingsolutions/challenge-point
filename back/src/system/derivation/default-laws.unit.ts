@@ -467,6 +467,13 @@ const goalBuild = (players: number, keepers: number, alter: (file: any) => void 
     const record = records.find(r => r.learningGoalId === 'A01') as any
     record.realizations = record.realizations.map((entry: any) => (entry.realization === R2 ? { realization: entry.realization, words: entry.words, citedAs: entry.citedAs } : entry))
     const file = readJson(PROVISIONAL_REALIZATIONS_FILE)
+    // Re-pointed 24 October 2026 (K2): A01-R2 now records its goal's penalty area (A01-R2-S2-1 to S7-1, pinned in
+    // goal-version-penalty-area.unit.ts, where its account owes nothing). This stand-in hands the build no bound-region block for its
+    // TEST-ONLY 5 m goal, so those items would be realized with no pairing to word them, and the build is refused at communication (fidelity
+    // Q3, measured); they are left out of the copy, in memory, so the stand-in is the no-region goal it was before K2 and LAW-12-GK stays
+    // owed, as the tests below measure.
+    const variant = file.realizations.find((r: any) => r.id === R2)
+    variant.items = variant.items.filter((i: any) => i.selector !== 'noun=zone & functions ∋ penalty-area')
     file.realizations.find((r: any) => r.id === R2).objectSuitability = [{ kind: 'goal', widthM: { min: 1, max: 10 }, ruledOn: 'TEST-ONLY', by: 'TEST-ONLY', citedAs: 'TEST-ONLY', words: ['TEST-ONLY'] }]
     alter(file)
     return buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(players, keepers, GOAL) } as any, records, { realizations: loadProvisionalRealizations(file), review: { includeDrafts: true }, boundRegions: null })

@@ -350,6 +350,11 @@ test('the TEST-ONLY goal completion: its Restarts sentence names the goal end\'s
     record.realizations = record.realizations.map((entry: any) => (entry.realization === 'A01-R2' ? { realization: entry.realization, words: entry.words, citedAs: entry.citedAs } : entry))
     const file = readJson(PROVISIONAL_REALIZATIONS_FILE)
     const variant = file.realizations.find((r: any) => r.id === 'A01-R2')
+    // Re-pointed 24 October 2026 (K2): A01-R2 now records its goal's penalty area (A01-R2-S2-1 to S7-1, pinned in
+    // goal-version-penalty-area.unit.ts). This completion hands the build no bound-region block for its TEST-ONLY 5 m goal, so those items
+    // would be realized with no pairing to word them, and the build is refused at communication (fidelity Q3, measured); they are left out
+    // of the copy, in memory, so the completion is the no-region goal it was before K2.
+    variant.items = variant.items.filter((i: any) => i.selector !== 'noun=zone & functions ∋ penalty-area')
     variant.objectSuitability = [{ kind: 'goal', widthM: { min: 1, max: 10 }, ruledOn: 'TEST-ONLY', by: 'TEST-ONLY', citedAs: 'TEST-ONLY', words: ['TEST-ONLY'] }]
     variant.defaultLawsCheck = { mode: 'REPORT', because: 'TEST-ONLY: D-DEFAULT-LAWS completed in memory', basis: { words: ['TEST-ONLY'], citedAs: 'TEST-ONLY' } }
     for (const [players, keepers] of [[12, 1], [11, 1]] as const) {

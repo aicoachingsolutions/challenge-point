@@ -127,6 +127,11 @@ interface RegionOptions {
 const fileWith = (options: RegionOptions = {}) => {
     const file = readJson(PROVISIONAL_REALIZATIONS_FILE)
     const variant = file.realizations.find((r: any) => r.id === R2)
+    // Re-pointed 24 October 2026 (K2): A01-R2 now records its goal's penalty area (A01-R2-S2-1 to S7-1, the production FA 5v5 pairing,
+    // pinned in goal-version-penalty-area.unit.ts). This copy sets out its own TEST-ONLY area items below (or none, region: false), each
+    // changed where asked, and a defended goal holds exactly one penalty-area zone (BOUND-REGION-GOAL), so the production five are left out
+    // of the copy, in memory; everything else is as before.
+    variant.items = variant.items.filter((i: any) => i.selector !== 'noun=zone & functions ∋ penalty-area')
     variant.objectSuitability = [{ kind: 'goal', widthM: { min: 1, max: 10 }, ruledOn: 'TEST-ONLY', by: 'TEST-ONLY', citedAs: 'TEST-ONLY', words: ['TEST-ONLY'] }]
     variant.defaultLawsCheck = { mode: 'REPORT', because: 'TEST-ONLY: D-DEFAULT-LAWS completed in memory', basis: { words: ['TEST-ONLY'], citedAs: 'TEST-ONLY' } }
     const template = variant.items.find((i: any) => i.id === `${R2}-O5-1`)

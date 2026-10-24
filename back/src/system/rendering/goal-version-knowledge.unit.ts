@@ -183,7 +183,9 @@ test("A01's record: the goal version first, listed waiting on the two open decis
 
 // ── 4. A01-R2, composed ──────────────────────────────────────────────────────────────────────────────────
 const WITHDRAWN = ['A01-R1-S5-3', 'A01-R1-S5-4', 'A01-R1-V27-1', 'A01-R1-V29-1', 'A01-R1-V30-1', 'A01-R1-V31-1', 'A01-R1-T4-4', 'A01-R1-B8-2']
-const ADDED = ['O1-1', 'O4-1', 'O5-1', 'O6-1', 'O7-1', 'J2-1', 'B9-1', 'B10-1', 'B8-2', 'T4-5'].map(id => `${R2}-${id}`)
+// Re-pointed 24 October 2026 (K2, the d27 design's stage K2): A01-R2 adds its goal's penalty area, five items (the zone, its two positions,
+// its width and its binding to the goal with the FA 5v5 pairing), so the composition is still pinned element for element, with them.
+const ADDED =['O1-1', 'O4-1', 'O5-1', 'O6-1', 'O7-1', 'J2-1', 'B9-1', 'B10-1', 'B8-2', 'T4-5', 'S2-1', 'S5-1', 'S6-1', 'S6-2', 'S7-1'].map(id => `${R2}-${id}`)
 
 test('A01-R2 is A01-R1 minus its withdrawals plus its additions, element for element, its references re-pointed to it', () => {
     const base = provisionalRealizationNamed('A01-R1')!
@@ -195,12 +197,15 @@ test('A01-R2 is A01-R1 minus its withdrawals plus its additions, element for ele
     assert.deepEqual([variant.basedOn, variant.withdrawn!.map(w => w.itemId), raw.items.map((i: any) => i.id)], ['A01-R1', WITHDRAWN, ADDED])
     assert.ok(variant.withdrawn!.every(w => /his reply filed 2[56] October 2026/.test(w.because)), 'each withdrawal says why, in his words')
     assert.ok(!JSON.stringify(variant.items).includes('"contractId":"provisional:A01-R1"'))
-    // Every addition is his choice for this activity, in his words of 25 or 26 October.
+    // Every addition is his choice for this activity, in his words of 25 or 26 October (since K2, five in his words of 27 October).
     for (const item of raw.items) {
         assert.deepEqual([item.category, item.basis], ['PROVISIONAL_REALIZATION_CHOICE', 'OWNER_RULING'], item.id)
         // Re-pointed 24 October 2026 (R1): A01-R2-T4-5 is widened to every dead ball and bound to the building team's side of the marked line,
         // so it cites his reply filed 27 October 2026, items 4 and 6, after its own words of 26 October.
         if (item.id === `${R2}-T4-5`) assert.equal(item.citedAs, 'his reply filed 26 October 2026, item 8; his reply filed 27 October 2026, items 4 and 6')
+        // Re-pointed 24 October 2026 (K2): the penalty area's five items cite his reply filed 27 October 2026, item 1 (the goal and its area
+        // from one authorized source; the 1b principle he approves in that item) and item 3 (the spot neither marked nor used).
+        else if (['S2-1', 'S5-1', 'S6-1', 'S6-2', 'S7-1'].some(id => item.id === `${R2}-${id}`)) assert.equal(item.citedAs, 'his reply filed 27 October 2026, items 1 and 3', item.id)
         else assert.match(item.citedAs, /^his reply filed 2[56] October 2026, item \d+$/, item.id)
     }
     const byId = new Map(variant.items.map(item => [item.itemId, item as any]))
@@ -226,7 +231,10 @@ test('A01-R2 is A01-R1 minus its withdrawals plus its additions, element for ele
     // K1 records the exact FA object, while the remaining decisions stay gapped; testing boundaries remain A01-R1's.
     assert.deepEqual(variant.objectSuitability!.map(r => [r.kind, r.attributes, r.widthM]), [['goal', { type: ['scaled'] }, { min: 3.6576, max: 3.6576 }]])
     assert.deepEqual([variant.testingBoundaries!.players, variant.testingBoundaries!.areas], [base.testingBoundaries!.players, base.testingBoundaries!.areas])
-    // Nothing for a penalty area, a handling region or a handling rule (his item 7 open), and no regain score.
+    // No regain score and no placement of the pressing team's area. Re-pointed 24 October 2026 (K2): this comment read "Nothing for a penalty
+    // area, a handling region or a handling rule (his item 7 open), and no regain score."; the penalty area is now held (A01-R2-S2-1 to S7-1,
+    // pinned whole in goal-version-penalty-area.unit.ts, which also pins that it adds no other region and no rule), and the two assertions
+    // below are unchanged.
     assert.ok(!variant.items.some(item => ['V27', 'V29', 'V30', 'V31'].includes(String(item.row))))
     assert.ok(!variant.items.some(item => item.row === 'S5' && String(item.selector).includes('ROLE_HOLDER_PRESSING')))
 })
@@ -301,6 +309,11 @@ const completed = (alter: (variant: any) => void = () => undefined) => {
     record.realizations = record.realizations.map((entry: any) => (entry.realization === R2 ? { realization: entry.realization, words: entry.words, citedAs: entry.citedAs } : entry))
     const file = readJson(PROVISIONAL_REALIZATIONS_FILE)
     const variant = file.realizations.find((r: any) => r.id === R2)
+    // Re-pointed 24 October 2026 (K2): A01-R2 now records its goal's penalty area (A01-R2-S2-1 to S7-1, pinned in
+    // goal-version-penalty-area.unit.ts). This completion hands the build no bound-region block for its TEST-ONLY 5 m goal, so those items
+    // would be realized with no pairing to word them, and the build is refused at communication (fidelity Q3, measured); they are left out
+    // of the copy, in memory, so the completion is the no-region goal it was before K2.
+    variant.items = variant.items.filter((i: any) => i.selector !== 'noun=zone & functions ∋ penalty-area')
     variant.objectSuitability = [{ kind: 'goal', widthM: { min: 1, max: 10 }, ruledOn: 'TEST-ONLY', by: 'TEST-ONLY', citedAs: 'TEST-ONLY', words: ['TEST-ONLY'] }]
     variant.defaultLawsCheck = { mode: 'REPORT', because: 'TEST-ONLY: D-DEFAULT-LAWS completed in memory', basis: { words: ['TEST-ONLY'], citedAs: 'TEST-ONLY' } }
     alter(variant)

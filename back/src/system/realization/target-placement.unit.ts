@@ -329,9 +329,11 @@ test('the 40 x 30 m testing boundary lives in data: another area is told the sta
     // Re-pointed 26 October 2026 (Stage F): the goal version A01-R2 keeps A01-R1's pressure reference (A01-R1-S5-1) and writes its goal on
     // the building team's end line with an offset of 0 m (A01-R2-O4-1); it withdraws the 5 m area (A01-R1-S5-3) and carries A01-R1's
     // testing boundaries, so every metric value it holds is in a realization naming its area too.
+    // Re-pointed 24 October 2026 (K2): its goal's penalty area adds two, the FA 5v5 pairing's depth (A01-R2-S5-1, 0-9 m from the goal's end
+    // line) and width (A01-R2-S6-2, 15 m), in the same realization, which names its area.
     assert.deepEqual(
         metric,
-        [['A01-R1', 'A01-R1-S5-1', true], ['A01-R1', 'A01-R1-S5-3', true], ['A01-R2', 'A01-R1-S5-1', true], ['A01-R2', 'A01-R2-O4-1', true]],
+        [['A01-R1', 'A01-R1-S5-1', true], ['A01-R1', 'A01-R1-S5-3', true], ['A01-R2', 'A01-R1-S5-1', true], ['A01-R2', 'A01-R2-O4-1', true], ['A01-R2', 'A01-R2-S5-1', true], ['A01-R2', 'A01-R2-S6-2', true]],
         'every metric starting value sits in a realization whose testing boundaries name its area',
     )
 })
