@@ -31,9 +31,12 @@
  *
  * Nothing here names a Learning Goal, a game form, a context, a role or a scoring kind.
  */
-import { BoundedSelection, knowledgeKey } from '../derivation/run-bounded-selection'
+import { ProvisionalRealization, provisionalRealizationNamed } from '../derivation/corpus'
+import { BoundedSelection, contractCoverage, knowledgeKey } from '../derivation/run-bounded-selection'
+import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { guidedGoalText, guidedSelectionHints } from '../sport-module/guided-selection'
 import { generateSelection } from '../test-library/generateSelection'
+import { learningGoalAuthorizations, LearningGoalAuthorization, realizationAlternativesOf } from '../test-library/learning-goal-authorizations'
 import type { TestLibrarySelectionResult } from '../test-library/types'
 import { ActivityReviewBody, reviewActivityBuild } from './activity-review'
 import type { ActivityBuild, InputDigest, RefusedActivity, ServedActivity } from './build-activity'
@@ -172,6 +175,130 @@ export const UNCONSUMED_INPUTS_NOTE = {
 export function unconsumedInputsNote(planning: { practiceSituationId?: unknown; learningStage?: unknown } | null | undefined): string | null {
     if (!UNCONSUMED_INPUTS_NOTE.approved) return null
     return planning && (planning.practiceSituationId || planning.learningStage) ? UNCONSUMED_INPUTS_NOTE.words : null
+}
+
+/* ----------------------------------------------------------- disclosure before input (H4) ----------------------------------------------------------- */
+
+/**
+ * **What the planning conversation asks that the checked pathway does not read — disclosed BEFORE the coach answers** — H4, 23 October 2026
+ * (the d26 design's build step 6, its section 5.3, Option A). Christian, reply filed 26 October 2026, item 9(b): *"Your proposed sentence is
+ * acceptable in principle:"* *"The practice situation you chose, where your players are with this learning, and any note you added do not
+ * change this activity yet."* *"However, I would prefer coaches to receive that information before investing effort in inputs that are not
+ * currently used, where practical."* *"Please keep this disclosure concise and ensure that the application does not imply capabilities that
+ * are not yet functional."*
+ *
+ * The three planning inputs the conversation offers after the goal. Which of them the checked pathway reads is decided from data, below.
+ */
+export type PlanningInput = 'PRACTICE_SITUATION' | 'LEARNING_STAGE' | 'NOTE'
+
+/**
+ * **The field of the checked pathway's inputs each planning input reaches, or null for none.** Typed against `LiveCheckedInputs`, so a field
+ * named here exists there: the learning stage and the note reach no field (the live route builds a checked activity from the goal, the
+ * situation and the length, and selects a guided goal from the registry's own words, never the coach's), and the situation reaches one. A
+ * field added to `LiveCheckedInputs` for the stage or the note is read only once it is named here (a test pins the route's call).
+ */
+export const PLANNING_INPUT_FIELD: Readonly<Record<PlanningInput, keyof LiveCheckedInputs | null>> = { PRACTICE_SITUATION: 'practiceSituationId', LEARNING_STAGE: null, NOTE: null }
+
+/**
+ * **The disclosure line — DRAFT.** His accepted sentence put in the present tense, because it is read before the choices are made (OUR
+ * READING, put to him in the note sent to him: *"The disclosure sentence you accepted appears before the inputs, in the present tense"*). Said
+ * only where the inputs the checked pathway does not read are exactly the three it names (`names`); otherwise withheld, never composed from
+ * fragments. `accepted` is his sentence as he accepted it.
+ */
+export const INPUT_USE_NOTE = {
+    status: 'DRAFT' as const,
+    words: 'The practice situation you choose, where your players are with this learning, and any note you add do not change this activity yet.',
+    names: ['PRACTICE_SITUATION', 'LEARNING_STAGE', 'NOTE'] as PlanningInput[],
+    accepted: { words: UNCONSUMED_INPUTS_NOTE.words, citedAs: 'his reply filed 26 October 2026, item 9(b) ("acceptable in principle")' },
+}
+
+/** **The mark on a practice situation the activity does not cover — DRAFT.** The d26 design's section 5.3. */
+export const NOT_COVERED_WORDS = 'Not covered by this activity yet.'
+
+/** What a goal's checked pathway reads of the planning inputs, as GET /session-planning surfaces it beside each goal (`inputUse`). */
+export interface PlanningInputUse {
+    learningGoalId: string
+    pathway: LivePathway
+    /** The planning inputs the checked pathway does not read, in the conversation's order. */
+    unread: PlanningInput[]
+    /** The offered practice situations every alternative the goal's record lets the build try was not designed for, in the model's order. */
+    notCovered: string[]
+    /** The disclosure line, where `unread` is exactly what it names; otherwise null. */
+    note: { words: string; status: 'DRAFT' } | null
+    /** The mark for a situation in `notCovered`, where there is one; otherwise null. */
+    notCoveredWords: string | null
+}
+
+/** Tests only: COPIES of the records, the realizations and the contract test, run through the identical computation (the G6 pattern). */
+export interface PlanningInputUseOptions {
+    records?: LearningGoalAuthorization[]
+    realizations?: ProvisionalRealization[]
+    contracted?: (knowledgeId: string) => boolean
+}
+
+let inputUseMemo: Record<string, PlanningInputUse> | null = null
+
+/**
+ * **What each guided goal's checked pathway reads of the planning inputs** — for every goal of the planning model's own registry (no goal id
+ * is written here), selected as the live route selects it (`liveSelectionFor`; under COPIES of the records, the same text and hints over
+ * them). A goal the route builds by generation, or refuses at selection, gets no entry: generation reads all three inputs, and a refusal is
+ * said where it happens (the design's F1, which needs his words). For a goal built by the checked pathway:
+ *   - `unread`: the inputs that reach no field (`PLANNING_INPUT_FIELD`); and the practice situation where the goal offers some and none of
+ *     those it covers has a contract the derivation loads, since only a contract lets a situation change the game (one without is
+ *     recorded and contributes nothing, `selectedWithoutContract`) and one not covered is refused before any game is derived;
+ *   - `notCovered`: the offered situations that EVERY alternative the record lets the build try lists as one it was not designed for
+ *     (`notWithPracticeSituations`), so a later alternative that covers a situation keeps it available; none where no alternative is
+ *     listed;
+ *   - `note`: the DRAFT line, only where `unread` is exactly the three inputs it names.
+ * The default (the files') is computed once per process.
+ */
+export function planningInputUse(options: PlanningInputUseOptions = {}): Record<string, PlanningInputUse> {
+    const testing = options.records !== undefined || options.realizations !== undefined || options.contracted !== undefined
+    if (!testing && inputUseMemo) return JSON.parse(JSON.stringify(inputUseMemo)) as Record<string, PlanningInputUse>
+    const records = options.records ?? learningGoalAuthorizations()
+    const provisionalIds = options.realizations?.map(realization => realization.provisionalId)
+    const resolve = (id: string): ProvisionalRealization | null => (options.realizations ? (options.realizations.find(realization => realization.provisionalId === id) ?? null) : provisionalRealizationNamed(id))
+    const contracted = options.contracted ?? ((id: string) => contractCoverage([{ id, role: 'practice situation' }]).contracted.length > 0)
+    const use: Record<string, PlanningInputUse> = {}
+    for (const goal of sessionPlanningModel.learningGoals() as Record<string, unknown>[]) {
+        const learningGoalId = String(goal.ID)
+        let selection: TestLibrarySelectionResult
+        try {
+            if (options.records === undefined && options.realizations === undefined) selection = liveSelectionFor(learningGoalId)
+            else {
+                const text = guidedGoalText(learningGoalId)
+                selection = generateSelection({ learningGoals: [text], learningGoalId }, guidedSelectionHints(learningGoalId, text, records, provisionalIds).hints)
+            }
+        } catch {
+            continue // refused at selection: no disclosure here (the route says so where it refuses)
+        }
+        if (livePathwayOf(selection) !== CHECKED_CHAIN) continue
+        const offered = (sessionPlanningModel.practiceSituationsFor(learningGoalId) as Record<string, unknown>[]).map(situation => String(situation.ID))
+        const record = records.find(entry => entry.learningGoalId === learningGoalId) ?? null
+        const tried = realizationAlternativesOf(record)
+            .filter(alternative => alternative.selectable)
+            .map(alternative => resolve(alternative.realization))
+        const notFor = tried.map(realization => new Set((realization?.notWithPracticeSituations ?? []).map(situation => situation.id)))
+        const notCovered = notFor.length ? offered.filter(id => notFor.every(ids => ids.has(id))) : []
+        // A situation not covered is refused before any game is derived, so its contract is never loaded: only a covered situation with a
+        // contract can change the game (measured 23 October 2026: one of the record-backed goal's situations has a contract and is the one
+        // its activity was not designed for).
+        const covered = offered.filter(id => !notCovered.includes(id))
+        const unread = (Object.keys(PLANNING_INPUT_FIELD) as PlanningInput[]).filter(input =>
+            PLANNING_INPUT_FIELD[input] === null ? true : offered.length > 0 && !covered.some(id => contracted(id)),
+        )
+        const exactly = unread.length === INPUT_USE_NOTE.names.length && INPUT_USE_NOTE.names.every(input => unread.includes(input))
+        use[learningGoalId] = {
+            learningGoalId,
+            pathway: CHECKED_CHAIN,
+            unread,
+            notCovered,
+            note: exactly ? { words: INPUT_USE_NOTE.words, status: INPUT_USE_NOTE.status } : null,
+            notCoveredWords: notCovered.length ? NOT_COVERED_WORDS : null,
+        }
+    }
+    if (!testing) inputUseMemo = use
+    return JSON.parse(JSON.stringify(use)) as Record<string, PlanningInputUse>
 }
 
 /* ------------------------------------------------------------------ saving (L3) ------------------------------------------------------------------ */

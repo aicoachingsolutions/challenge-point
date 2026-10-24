@@ -127,6 +127,9 @@ const server = app.listen(0, '127.0.0.1', async () => {
     try {
         // What the review page is offered: the goals, demonstrations and roles the route itself lists.
         snapshot['review/options'] = await capture(port, 'GET', '/api/app/checked-activity')
+        // H4 (23 October 2026): what the planning conversation is offered, whole - since H4 with `inputUse`, the disclosure each goal's
+        // checked pathway makes before the coach answers (the d26 design's section 5.3). A new key: every earlier one compares as it was.
+        snapshot['planning/registry'] = await capture(port, 'GET', '/api/app/session-planning')
         for (const matrixCase of matrix()) {
             stored = { _id: SESSION_ID, createdBy: USER_ID, playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: matrixCase.roles }
             for (const goal of goals) {

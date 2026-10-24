@@ -144,7 +144,9 @@ test('register version 16 holds the rows as data, in one versions entry quoting 
     // Re-pointed 23 October 2026 (stage E): version 19 (an object's availability as a session resource) supersedes 18.
     // Re-pointed 26 October 2026 (Stage F): version 20 (his rulings filed 26 October 2026 for the goal version) supersedes 19.
     // Re-pointed 23 October 2026 (H3): version 21 (a region bound to an object, his reply filed 26 October 2026, item 7) supersedes 20.
-    assert.ok(latest.startsWith('21, adds a region bound to an object, for his reply filed 26 October 2026, item 7'))
+    // Re-pointed 23 October 2026 (H4): version 22 (the type a session states for its objects, his reply filed 26 October 2026, item 4) supersedes 21.
+    assert.ok(latest.startsWith('22, adds the type a session states for its objects of a kind, for his reply filed 26 October 2026, item 4'))
+    assert.ok(latest.includes('Supersedes version 21, which adds a region bound to an object, for his reply filed 26 October 2026, item 7'))
     assert.ok(latest.includes('Supersedes version 20, which records his rulings filed 26 October 2026 for the goal version of the build-out activity'))
     assert.ok(latest.includes("Supersedes version 19, which adds an object's availability as a session resource"))
     assert.ok(latest.includes('Supersedes version 18, which adds the coach-controlled end exchange'))

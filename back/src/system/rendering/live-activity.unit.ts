@@ -15,6 +15,10 @@
  *     own stage, with no fallback; a record authorizing one constraint serves only what it authorizes; a record not yet evaluated stays the
  *     knowledge gap the route already answers;
  *   - the unconsumed-inputs sentence (decision 9(b)) is DRAFT and not served;
+ *   - H4, disclosure before input (the d26 design's section 5.3, Option A): GET /session-planning's `inputUse` - for the goal built by the
+ *     checked pathway, the three inputs it does not read, the situation it does not cover and the DRAFT line in the present tense; on
+ *     TEST-ONLY copies (G6) another goal given an evaluated, empty record shows the line, an unevaluated record shows none, a covered
+ *     situation's contract withholds it, and a covering alternative removes a situation from those marked;
  *   - L3, the save: the server's own build is kept only where every input digest is the one the coach saw;
  *   - L3 hardening (stage A re-review): an edit writes none of the stored-build fields, by a top-level key, a dotted path or an update
  *     operator, and an unexpected failure of the checked pathway is recorded under its own stage.
@@ -28,7 +32,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import { contractCoverage, knowledgeKey } from '../derivation/run-bounded-selection'
-import { provisionalRealizationNamed } from '../derivation/corpus'
+import { loadProvisionalRealizations, PROVISIONAL_REALIZATIONS_FILE, provisionalRealizationNamed, readJson } from '../derivation/corpus'
 import { guidedGoalText, guidedSelectionHints } from '../sport-module/guided-selection'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
 import { generateSelection, isSelectionKnowledgeGap } from '../test-library/generateSelection'
@@ -44,9 +48,13 @@ import {
     checkedSave,
     CheckedSaveRequestError,
     editableUpdateOf,
+    INPUT_USE_NOTE,
     liveCheckedActivity,
     livePathwayOf,
     liveSelectionFor,
+    NOT_COVERED_WORDS,
+    PLANNING_INPUT_FIELD,
+    planningInputUse,
     SAVE_NOT_AS_SHOWN,
     selectionDisagreements,
     UNCONSUMED_INPUTS_NOTE,
@@ -282,6 +290,106 @@ const refusedWith = (outcome: ReturnType<typeof liveCheckedActivity>, cause: str
     for (const planning of [null, {}, { practiceSituationId: 'any' }, { learningStage: 'building_understanding' }, { practiceSituationId: 'any', learningStage: 'any' }]) {
         assert.equal(unconsumedInputsNote(planning), null, JSON.stringify(planning))
     }
+}
+
+/* ── H4: disclosure before input (the d26 design's section 5.3, Option A) ─────────────────────────────────────────────────────── */
+{
+    const record = learningGoalAuthorizations().find(entry => entry.learningGoalId === GOAL)!
+    const offered = (id: string) => (sessionPlanningModel.practiceSituationsFor(id) as any[]).map(situation => String(situation.ID))
+    // Production: exactly the goals the live route builds by the checked pathway get an entry - today the one record-backed goal.
+    const use = planningInputUse()
+    assert.deepEqual(Object.keys(use), RECORD_GOALS, 'an entry exactly for each goal built by the checked pathway')
+    const own = use[GOAL]
+    const notFor = provisionalRealizationNamed(realizationAlternativesOf(record).find(alternative => alternative.selectable)!.realization)!.notWithPracticeSituations.map(situation => situation.id)
+    assert.deepEqual(own, {
+        learningGoalId: GOAL,
+        pathway: CHECKED_CHAIN,
+        unread: ['PRACTICE_SITUATION', 'LEARNING_STAGE', 'NOTE'],
+        notCovered: offered(GOAL).filter(id => notFor.includes(id)),
+        note: { words: INPUT_USE_NOTE.words, status: 'DRAFT' },
+        notCoveredWords: NOT_COVERED_WORDS,
+    })
+    assert.ok(own.notCovered.length === 1 && offered(GOAL).length > own.notCovered.length, 'one situation is not covered, and the others remain choosable')
+    // The words: his accepted sentence in the present tense (DRAFT), and the mark; the sentence he accepted is kept beside it, unserved.
+    assert.equal(INPUT_USE_NOTE.words, 'The practice situation you choose, where your players are with this learning, and any note you add do not change this activity yet.')
+    assert.equal(INPUT_USE_NOTE.accepted.words, UNCONSUMED_INPUTS_NOTE.words)
+    assert.equal(NOT_COVERED_WORDS, 'Not covered by this activity yet.')
+    // The situation it does not cover is refused by the live route exactly as the review page refuses it; the others build the same activity.
+    const refusedThere = liveCheckedActivity(stored(1), inputs({ practiceSituationId: own.notCovered[0] }), live)
+    assert.equal(refusedThere.outcome, 'refused')
+    // Computed once per process, and handed out as a copy.
+    use[GOAL].unread = []
+    assert.deepEqual(planningInputUse()[GOAL].unread, ['PRACTICE_SITUATION', 'LEARNING_STAGE', 'NOTE'])
+    // The stage and the note reach no field of the checked inputs; the route's call passes exactly the three fields it reads.
+    assert.deepEqual(PLANNING_INPUT_FIELD, { PRACTICE_SITUATION: 'practiceSituationId', LEARNING_STAGE: null, NOTE: null })
+    const routes = fs.readFileSync(path.join(__dirname, '../../routes/app.routes.ts'), 'utf8')
+    assert.ok(routes.includes('outcome = liveCheckedActivity(stored, { learningGoalId, practiceSituationId: planning?.practiceSituationId ?? null, durationMin: duration }, selection)'))
+    assert.ok(fs.readFileSync(path.join(__dirname, 'live-activity.ts'), 'utf8').includes('build({ learningGoalId: inputs.learningGoalId, practiceSituationId: inputs.practiceSituationId, durationMin: inputs.durationMin })'))
+    // GET /session-planning surfaces it beside the registry, deciding nothing itself.
+    assert.ok(routes.includes('inputUse: planningInputUse(),'))
+
+    // G6, TEST-ONLY copies of the records.
+    const testRecord = (goalId: string, authorizedConstraints: string[] | null): LearningGoalAuthorization => ({
+        learningGoalId: goalId,
+        contextId: 'TEST-ONLY',
+        gameProblemId: 'TEST-ONLY',
+        ruledOn: 'TEST-ONLY',
+        by: 'test',
+        ruling: ['TEST-ONLY: never production data'],
+        authorizedConstraints,
+        authorizedConstraintsFinding: 'TEST-ONLY',
+        excluded: [],
+        manipulations: [],
+    })
+    const generated = (sessionPlanningModel.learningGoals() as any[]).map(goal => String(goal.ID)).filter(id => {
+        try {
+            return livePathwayOf(liveSelectionFor(id, 'medium')) === 'GENERATION'
+        } catch {
+            return false
+        }
+    })
+    // (a) Another goal given an evaluated, empty record: built by the checked pathway, so it shows the line where it offers situations and
+    // none has a contract, and withholds it where it offers none (the line names the situation; it is never composed from fragments).
+    const withSituations = generated.find(id => offered(id).length > 0)!
+    const evaluated = planningInputUse({ records: [...learningGoalAuthorizations(), testRecord(withSituations, [])] })
+    assert.deepEqual(Object.keys(evaluated).sort(), [GOAL, withSituations].sort())
+    assert.deepEqual([evaluated[withSituations].unread, evaluated[withSituations].note, evaluated[withSituations].notCovered], [['PRACTICE_SITUATION', 'LEARNING_STAGE', 'NOTE'], { words: INPUT_USE_NOTE.words, status: 'DRAFT' }, []])
+    const withoutSituations = generated.find(id => offered(id).length === 0)
+    if (withoutSituations) {
+        const bare = planningInputUse({ records: [...learningGoalAuthorizations(), testRecord(withoutSituations, [])] })[withoutSituations]
+        assert.deepEqual([bare.unread, bare.note], [['LEARNING_STAGE', 'NOTE'], null], `${withoutSituations}: no situation, so the line is withheld`)
+    }
+    // (b) A record not yet evaluated: selection refuses it, so no line is shown for it.
+    const unevaluated = learningGoalAuthorizations().map(entry => (entry.learningGoalId === GOAL ? { ...entry, authorizedConstraints: null } : entry))
+    assert.deepEqual(Object.keys(planningInputUse({ records: unevaluated })), [], 'refused at selection: no disclosure')
+    // (c) A covered situation with a contract the derivation loads makes the situation read, so the line is withheld (the rest still
+    // reported). A situation NOT covered never reaches derivation, so its contract does not: in production the one not covered has one.
+    const firstCovered = offered(GOAL).find(id => !own.notCovered.includes(id))!
+    const contracted = planningInputUse({ contracted: id => id === firstCovered })[GOAL]
+    assert.deepEqual([contracted.unread, contracted.note], [['LEARNING_STAGE', 'NOTE'], null])
+    assert.deepEqual(contractCoverage([{ id: own.notCovered[0], role: 'practice situation' }]).contracted, [own.notCovered[0]], 'measured: the situation not covered has a contract')
+    assert.ok(offered(GOAL).filter(id => !own.notCovered.includes(id)).every(id => contractCoverage([{ id, role: 'practice situation' }]).contracted.length === 0), 'and no covered one does')
+    const onlyUncovered = planningInputUse({ contracted: id => own.notCovered.includes(id) })[GOAL]
+    assert.deepEqual(onlyUncovered.note, own.note, 'a contract on a situation not covered leaves the line as it is')
+    // (d) A later alternative that covers a situation keeps it available: TEST-ONLY, the goal version made selectable and covering it.
+    const file = readJson(PROVISIONAL_REALIZATIONS_FILE)
+    const variant = file.realizations.find((entry: any) => entry.id === record.realizations![0].realization)
+    variant.notWithPracticeSituations = []
+    const realizations = loadProvisionalRealizations(file)
+    const selectable = learningGoalAuthorizations().map(entry =>
+        entry.learningGoalId === GOAL ? { ...entry, realizations: entry.realizations!.map(alternative => ({ realization: alternative.realization, words: alternative.words, citedAs: alternative.citedAs })) } : entry,
+    )
+    const covered = planningInputUse({ records: selectable, realizations })[GOAL]
+    assert.deepEqual(covered.notCovered, [], 'every alternative must exclude a situation for it to be marked')
+    assert.equal(covered.notCoveredWords, null)
+    // And with both alternatives excluding it, it is marked again.
+    assert.deepEqual(planningInputUse({ records: selectable, realizations: loadProvisionalRealizations(readJson(PROVISIONAL_REALIZATIONS_FILE)) })[GOAL].notCovered, own.notCovered)
+    // The front shows the line before the answers, marks a situation not covered, lets the stage be skipped and drops the false helper.
+    const front = fs.readFileSync(path.join(__dirname, '../../../../front/src/app/SessionPlanningConversation.tsx'), 'utf8')
+    for (const shown of ['{inputUse?.note && <InputUseNote words={inputUse.note.words} />}', 'disabled={notCovered}', 'Continue without choosing', "{!noteUnread && <p className='mt-2 text-sm text-gray-500'>Optional — this adds detail to the activity.</p>}"]) {
+        assert.ok(front.includes(shown), shown)
+    }
+    assert.ok(front.indexOf('{inputUse?.note && <InputUseNote') < front.indexOf('{situations.map((situation) => {'), 'the line comes before the situations')
 }
 
 /* ── L3: the save keeps the server's own build only where it is the one the coach saw ───────────────────────────────────────────── */

@@ -33,7 +33,7 @@
  */
 import { parseSessionArea } from '../activity/playing-area'
 import { loadRegister } from '../derivation/corpus'
-import { indexRegister } from '../derivation/register'
+import { indexRegister, SessionResourceAttribute } from '../derivation/register'
 import type { StatedObjects } from '../derivation/types'
 
 export interface ActivitySession {
@@ -97,16 +97,31 @@ export function sessionResourceKinds(): string[] {
     return [...(indexRegister(loadRegister()).sessionResources?.kinds ?? [])]
 }
 
-/** What a build asks of a session's objects where it must (stage E): whether it has any, with their width, or only how wide they are. */
-export type ObjectQuestionAsks = 'AVAILABILITY' | 'WIDTH'
+/**
+ * **The attributes a session may state of its objects** (H4, register version 22): the register's `sessionResources.attributes`, each a kind,
+ * the attribute's name and its closed list of values - the only place an attribute or a value comes from. Empty without them.
+ */
+export function sessionResourceAttributes(): SessionResourceAttribute[] {
+    return (indexRegister(loadRegister()).sessionResources?.attributes ?? []).map(entry => ({ ...entry, values: [...entry.values] }))
+}
+
+/**
+ * What a build asks of a session's objects where it must (stage E): whether it has any, with their width, or only how wide they are - or (H4,
+ * register version 22) the value of one attribute the register lists for the kind, asked only by a rule that reads it.
+ */
+export type ObjectQuestionAsks = 'AVAILABILITY' | 'WIDTH' | 'ATTRIBUTE'
 
 /**
  * **The question a build asks where the activity it would build holds an object of a kind the session has not stated** (stage E, DRAFT
  * words), built from the kind's name as the register gives it. Asked only by a build whose game holds such an object, never by this
  * envelope: Christian, reply filed 25 October 2026, item 4, and the note sent to him, *"asked only when the preferred version needs [one]"*.
  */
-export const objectAvailabilityQuestion = (kind: string, asks: ObjectQuestionAsks): string =>
-    asks === 'WIDTH' ? `Say how wide this session's ${kind}s are, in metres, before building this activity.` : `Say how many ${kind}s this session has, and how wide they are, before building this activity.`
+export const objectAvailabilityQuestion = (kind: string, asks: ObjectQuestionAsks, attribute?: string): string =>
+    asks === 'ATTRIBUTE'
+        ? `Say what ${attribute} of ${kind} this session has before building this activity.`
+        : asks === 'WIDTH'
+          ? `Say how wide this session's ${kind}s are, in metres, before building this activity.`
+          : `Say how many ${kind}s this session has, and how wide they are, before building this activity.`
 
 const isRecord = (value: unknown): value is Record<string, unknown> => !!value && typeof value === 'object' && !Array.isArray(value)
 const absent = (value: unknown): boolean => value === undefined || value === null || value === ''
@@ -118,7 +133,7 @@ const absent = (value: unknown): boolean => value === undefined || value === nul
  * Unlike the roles, a kind nobody states is NOT asked for here: whether it is needed is the game's to say, and only a build whose game holds
  * an object of the kind asks (`objectAvailabilityQuestion`). Returns the statement (empty where none is made) and what could not be read.
  */
-function statedObjectsFrom(stored: unknown, review: unknown, kinds: string[]): { objects: Record<string, StatedObjects>; missing: string[] } {
+function statedObjectsFrom(stored: unknown, review: unknown, kinds: string[], attributes: SessionResourceAttribute[]): { objects: Record<string, StatedObjects>; missing: string[] } {
     const missing: string[] = []
     const merged = new Map<string, unknown>()
     for (const [source, value] of [['stored', stored], ['stated', review]] as const) {
@@ -149,12 +164,37 @@ function statedObjectsFrom(stored: unknown, review: unknown, kinds: string[]): {
             missing.push(`The width of the ${kind}s must be a number of metres, more than zero.`)
             continue
         }
-        objects[kind] = { count, ...(typeof width === 'number' ? { widthM: width } : {}) }
+        /**
+         * H4 (23 October 2026, register version 22): the attributes the register lists for the kind, each stated as one of its closed list's
+         * values or not at all. Absent (or blank) is NOT STATED and carried as nothing, never inferred; a value outside the list is refused
+         * in a sentence built from the attribute's name and the list (DRAFT), never coerced. Carried under the attribute's name, so a
+         * statement naming none carries exactly what it did before.
+         */
+        const stated: Record<string, string> = {}
+        let unreadable = false
+        for (const { attribute, values } of attributes.filter(entry => entry.kind === kind)) {
+            const value = isRecord(statement) ? statement[attribute] : undefined
+            if (absent(value)) continue
+            if (typeof value !== 'string' || !values.includes(value)) {
+                missing.push(`The ${attribute} of the ${kind}s must be one of: ${values.join(', ')}.`)
+                unreadable = true
+                continue
+            }
+            stated[attribute] = value
+        }
+        if (unreadable) continue
+        objects[kind] = { count, ...(typeof width === 'number' ? { widthM: width } : {}), ...stated }
     }
     return { objects, missing }
 }
 
-export function sessionEnvelopeFrom(stored: StoredSession, stated: StatedForReview, specializedRoles: string[] = specializedRoleNames(), objectKinds: string[] = sessionResourceKinds()): SessionEnvelope {
+export function sessionEnvelopeFrom(
+    stored: StoredSession,
+    stated: StatedForReview,
+    specializedRoles: string[] = specializedRoleNames(),
+    objectKinds: string[] = sessionResourceKinds(),
+    objectAttributes: SessionResourceAttribute[] = sessionResourceAttributes(),
+): SessionEnvelope {
     const missing: string[] = []
 
     // ── Players: a whole number of people, at least one ─────────────────────────────────────────────
@@ -249,7 +289,7 @@ export function sessionEnvelopeFrom(stored: StoredSession, stated: StatedForRevi
     }
 
     // ── Objects: stated, never assumed, and never asked for here (stage E) ─────────────────────────────
-    const objects = statedObjectsFrom(stored.objects, stated.objects, objectKinds)
+    const objects = statedObjectsFrom(stored.objects, stated.objects, objectKinds, objectAttributes)
     missing.push(...objects.missing)
 
     if (missing.length) return { outcome: 'not-stated', summary: missing[0], reasons: missing }

@@ -30,7 +30,7 @@ import Logger from '../logger'
 import LoggingService from '../services/logging.service'
 import { deriveInputConstraints } from '../system/input-constraints/deriveInputConstraints'
 import { ActivityReviewRequestError, activityReviewOptions, reviewActivity } from '../system/rendering/activity-review'
-import { CHECKED_CHAIN, CHECKED_PATHWAY_FAILURE_STAGE, CheckedSaveRequestError, checkedSave, editableUpdateOf, liveCheckedActivity, livePathwayOf, liveRefusalBody, unconsumedInputsNote } from '../system/rendering/live-activity'
+import { CHECKED_CHAIN, CHECKED_PATHWAY_FAILURE_STAGE, CheckedSaveRequestError, checkedSave, editableUpdateOf, liveCheckedActivity, livePathwayOf, liveRefusalBody, planningInputUse, unconsumedInputsNote } from '../system/rendering/live-activity'
 import { UnknownActivityRequest } from '../system/rendering/build-activity'
 import { buildPilotActivity, isPilotRefused } from '../system/rendering/build-pilot-activity'
 import { describeUnsupportedGoal, isKnownUnsupportedGoal } from '../system/session-planning/goal-support'
@@ -1500,6 +1500,12 @@ router.get(ROUTES.sessionPlanning, async (_req: Request, res: Response) => {
             // Surfaced so the unpopulated coach-to-knowledge bridge stays visible while it is filled
             // in, rather than being discovered when a coach reaches the end of the conversation.
             translation: translationStatus(),
+            // H4 (23 October 2026; the d26 design's section 5.3, Option A): for each goal the live route builds by the checked
+            // pathway, which of the planning inputs it does not read, the situations it does not cover and the DRAFT disclosure line,
+            // so the conversation says so BEFORE the coach answers (his reply filed 26 October 2026, item 9(b): "I would prefer
+            // coaches to receive that information before investing effort in inputs that are not currently used, where practical.").
+            // Decided by the engine from the data that routes a goal (`planningInputUse`); this route only surfaces it.
+            inputUse: planningInputUse(),
         })
     } catch (error) {
         return res.status(500).send({ error })

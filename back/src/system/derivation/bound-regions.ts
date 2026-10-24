@@ -168,6 +168,11 @@ export function boundRegionsRefusals(block: unknown, index: RegisterIndex): stri
         errors.push(...keysRefused(object, ['kind', 'type', 'widthM', 'heightM'], `${which}: its object`), ...keysRefused(region, ['function', 'widthM', 'depthM'], `${which}: its region`))
         if (!kinds.includes(String(object.kind))) errors.push(`${which} pairs the object kind ${JSON.stringify(object.kind)}, which is no member of the register's object-kind vocabulary`)
         if (!filled(object.type) || !measured(object.widthM) || !(object.heightM === null || measured(object.heightM))) errors.push(`${which} must state its object's type and width in metres, and its height in metres or null`)
+        // H4 (register version 22): a value it records for an attribute a session may state of its kind is one of that attribute's values,
+        // since the check matches it to the session's statement by equality; a value off the list would match no session, silently.
+        for (const { attribute, values } of (index.sessionResources?.attributes ?? []).filter(entry => entry.kind === String(object.kind))) {
+            if (object[attribute] !== undefined && !values.includes(String(object[attribute]))) errors.push(`${which} records the ${attribute} ${JSON.stringify(object[attribute])} for its object, which is none of the values a session may state (${values.join(', ')})`)
+        }
         if (!spec.functions.includes(String(region.function))) errors.push(`${which} pairs the region function ${JSON.stringify(region.function)}, which is no member of ${spec.functionRow}'s vocabulary`)
         if (!measured(region.widthM) || !measured(region.depthM)) errors.push(`${which} must state its region's width and depth in metres`)
         if (!required.has(`${String(object.kind)}|${String(region.function)}`)) errors.push(`${which} pairs the kind ${String(object.kind)} with the function ${String(region.function)}, which no requirement binds, so nothing would read it`)

@@ -263,6 +263,60 @@ export interface SessionResourcesRegister {
     countLeaf: string
     /** The object kinds a session states its availability of, in the register's order; each a member of the kind vocabulary. */
     kinds: string[]
+    /**
+     * **What else a session may state of its objects of a kind** — register version 22, 23 October 2026 (H4, the d26 design's build step 4,
+     * its S1). Christian, reply filed 26 October 2026, item 4: *"I agree that the coach should identify the available [object] type and
+     * dimensions, without the engine inventing them."* (His noun bracketed for the coupling ratchet; the register quotes him whole.) Each
+     * entry: a listed kind, the attribute's name (the key a statement carries it under, beside `count` and `widthM`) and its closed list of
+     * values, each quoting the words it is taken from (validated here, never read by a consumer). Empty for a register without them (one
+     * written before version 22): no attribute is read or asked for. Read by the session envelope (a stated value must be on the list) and by
+     * the bound-region check (a pairing recording an attribute matches only an object the session states with that value, and the build asks
+     * for it where it does and the session states none); nothing names an attribute or a value.
+     */
+    attributes: SessionResourceAttribute[]
+}
+
+/** One attribute a session may state of its objects of a kind (register version 22): its name and its closed list of values. */
+export interface SessionResourceAttribute {
+    kind: string
+    attribute: string
+    values: string[]
+}
+
+/** The keys a statement of objects already carries (`StatedObjects`): no attribute may take one of them. */
+const STATED_OBJECT_KEYS = ['count', 'widthM']
+
+/**
+ * The attributes a session may state of its objects (register version 22), validated as the rest of the block is (halt H1): each names a kind
+ * the block lists and an attribute name no statement already carries, each kind and attribute once, and a closed list of values, each once,
+ * each quoting words that contain it (`valueSources`: the words and where they are from), and no source for a value the list does not hold.
+ */
+function indexSessionResourceAttributes(entries: unknown, kinds: string[]): SessionResourceAttribute[] {
+    if (entries === undefined) return []
+    if (!Array.isArray(entries)) throw new HaltError('H1', 'sessionResources.attributes must be a list')
+    const seen = new Set<string>()
+    return entries.map((entry: any, i: number) => {
+        const which = `sessionResources.attributes[${i}]`
+        if (!entry || typeof entry !== 'object') throw new HaltError('H1', `${which} is not an object`)
+        const kind = String(entry.kind ?? '')
+        const attribute = String(entry.attribute ?? '')
+        if (!kinds.includes(kind)) throw new HaltError('H1', `${which} names the kind ${JSON.stringify(entry.kind)}, which sessionResources.kinds does not list`)
+        if (!attribute.trim() || STATED_OBJECT_KEYS.includes(attribute)) throw new HaltError('H1', `${which} must name an attribute other than ${STATED_OBJECT_KEYS.join(' and ')}`)
+        if (seen.has(`${kind}|${attribute}`)) throw new HaltError('H1', `${which}: the attribute ${attribute} of ${kind} is listed twice`)
+        seen.add(`${kind}|${attribute}`)
+        if (typeof entry.note !== 'string' || !entry.note.trim()) throw new HaltError('H1', `${which} must say what it is and why (note)`)
+        const values: string[] = Array.isArray(entry.values) ? entry.values.map(String) : []
+        if (!values.length || new Set(values).size !== values.length || values.some(value => !value.trim())) throw new HaltError('H1', `${which} must list at least one value, each once`)
+        const sources = entry.valueSources && typeof entry.valueSources === 'object' && !Array.isArray(entry.valueSources) ? (entry.valueSources as Record<string, any>) : {}
+        for (const value of values) {
+            const source = Object.prototype.hasOwnProperty.call(sources, value) ? sources[value] : undefined
+            const words = typeof source?.words === 'string' ? source.words : ''
+            if (!words.trim() || typeof source?.citedAs !== 'string' || !source.citedAs.trim()) throw new HaltError('H1', `${which}: the value ${value} must quote the words it is taken from and say where (valueSources.${value}: words, citedAs)`)
+            if (!words.toLowerCase().includes(value.toLowerCase())) throw new HaltError('H1', `${which}: the value ${value} is not in the words it quotes`)
+        }
+        for (const value of Object.keys(sources)) if (!values.includes(value)) throw new HaltError('H1', `${which}: valueSources names ${value}, which the list does not hold`)
+        return { kind, attribute, values }
+    })
 }
 
 /**
@@ -292,7 +346,7 @@ function indexSessionResources(block: any, rows: Map<string, RegisterRow>, vocab
     const kinds: string[] = Array.isArray(block.kinds) ? block.kinds.map(String) : []
     if (!kinds.length || new Set(kinds).size !== kinds.length) throw new HaltError('H1', 'sessionResources.kinds must list at least one kind, each once')
     for (const kind of kinds) if (!vocabulary.includes(kind)) throw new HaltError('H1', `sessionResources.kinds: ${kind} is not a member of the ${attributeRow.id}.${attribute} vocabulary`)
-    return { row, path: container, attribute, kindLeaf: leafOf(attributeRow.id), countRow, countLeaf: leafOf(countRow), kinds }
+    return { row, path: container, attribute, kindLeaf: leafOf(attributeRow.id), countRow, countLeaf: leafOf(countRow), kinds, attributes: indexSessionResourceAttributes(block.attributes, kinds) }
 }
 
 /**

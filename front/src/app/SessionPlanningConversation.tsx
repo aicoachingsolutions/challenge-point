@@ -71,23 +71,42 @@ interface Clarification {
     directions: ClarificationDirection[]
 }
 
+/**
+ * WHAT A GOAL'S ACTIVITY DOES NOT READ OF THE ANSWERS BELOW — H4, 23 October 2026 (the d26 design's section 5.3, Option A). Sent by the
+ * server beside each goal whose activity the live app builds by the checked pathway (`inputUse`), decided there from the data that routes
+ * the goal; nothing here decides it, and no goal is named. Christian, reply filed 26 October 2026, item 9(b): "I would prefer coaches to
+ * receive that information before investing effort in inputs that are not currently used, where practical." "Please keep this disclosure
+ * concise and ensure that the application does not imply capabilities that are not yet functional."
+ */
+interface InputUse {
+    learningGoalId: string
+    unread: ('PRACTICE_SITUATION' | 'LEARNING_STAGE' | 'NOTE' | string)[]
+    notCovered: string[]
+    note: { words: string; status: string } | null
+    notCoveredWords: string | null
+}
+
 interface PlanningRegistry {
     phases: PhaseGroup[]
     entryLanguage: EntryPhrase[]
     clarifications: Clarification[]
     translation: { total: number; populated: number; unpopulated: string[] }
+    /** H4: by goal id; absent for a goal built any other way (and from a server before H4). */
+    inputUse?: Record<string, InputUse>
 }
 
 /**
  * The coach's planning selections — only things a coach can reasonably know before practice.
  * `learningStage` is an Experience-Specification concept rather than a workbook one; see the header.
+ * It is null only where the goal's activity does not read it and the coach continued without choosing
+ * (H4); a goal whose activity reads it still requires it.
  */
 export interface PlanningSelection {
     learningGoalId: string
     learningGoalName: string
     practiceSituationId: string | null
     practiceSituationName: string | null
-    learningStage: string
+    learningStage: string | null
     duration: number
     additionalContext: string
 }
@@ -205,6 +224,14 @@ export default function SessionPlanningConversation({ onComplete, onCancel, subm
         return (registry?.clarifications ?? []).find((c) => c.term === needle) ?? null
     }, [registry, search])
     const situations = selectedGoal?.practiceSituations ?? []
+    /**
+     * H4: what this goal's activity does not read, as the server says (none for a goal it builds another way). The disclosure line is
+     * shown once, at the first step after the goal, BEFORE the coach answers; a situation the activity does not cover is shown and cannot
+     * be chosen; the Learning Stage may be skipped where it is not read; and the note box makes no claim to add detail where it does not.
+     */
+    const inputUse = (goalId && registry?.inputUse?.[goalId]) || null
+    const stageUnread = !!inputUse?.unread.includes('LEARNING_STAGE')
+    const noteUnread = !!inputUse?.unread.includes('NOTE')
 
     /**
      * Entry-language search. Matches the goal's own name AND the coach phrases mapped to it, so a
@@ -253,15 +280,17 @@ export default function SessionPlanningConversation({ onComplete, onCancel, subm
     }
 
     const complete = () => {
-        if (!selectedGoal || !learningStage || !duration) return
+        // The Learning Stage is required wherever the goal's activity reads it (H4: skippable only where it does not).
+        if (!selectedGoal || (!learningStage && !stageUnread) || !duration) return
         completedRef.current = true
-        const situation = situations.find((s) => s.id === situationId) ?? null
+        // A situation the activity does not cover cannot be chosen; one chosen under another goal is never carried (selectGoal clears it).
+        const situation = situations.find((s) => s.id === situationId && !inputUse?.notCovered.includes(s.id)) ?? null
         onComplete({
             learningGoalId: selectedGoal.id,
             learningGoalName: selectedGoal.name,
             practiceSituationId: situation?.id ?? null,
             practiceSituationName: situation?.name ?? null,
-            learningStage,
+            learningStage: learningStage ?? null,
             duration,
             additionalContext: additionalContext.trim(),
         })
@@ -367,22 +396,35 @@ export default function SessionPlanningConversation({ onComplete, onCancel, subm
             {step === 'situation' && selectedGoal && (
                 <div className='space-y-2'>
                     <p className='mb-4 text-gray-600'>{selectedGoal.name}</p>
-                    {situations.map((situation) => (
-                        <button
-                            key={situation.id}
-                            type='button'
-                            onClick={() => {
-                                setSituationId(situation.id)
-                                goNext()
-                            }}
-                            className={`w-full p-4 text-left border rounded-lg transition hover:border-blue-500 hover:bg-blue-50 ${
-                                situationId === situation.id ? 'border-blue-600 bg-blue-50' : 'border-gray-200'
-                            }`}
-                        >
-                            <span className='block font-medium text-gray-900'>{situation.name}</span>
-                            {situation.definition && <span className='block mt-1 text-sm text-gray-600'>{situation.definition}</span>}
-                        </button>
-                    ))}
+                    {/* H4: the first step after the goal says, before any answer, what the activity does not read. */}
+                    {inputUse?.note && <InputUseNote words={inputUse.note.words} />}
+                    {situations.map((situation) => {
+                        const notCovered = !!inputUse?.notCovered.includes(situation.id)
+                        return (
+                            <button
+                                key={situation.id}
+                                type='button'
+                                disabled={notCovered}
+                                aria-disabled={notCovered}
+                                onClick={() => {
+                                    if (notCovered) return
+                                    setSituationId(situation.id)
+                                    goNext()
+                                }}
+                                className={`w-full p-4 text-left border rounded-lg transition ${
+                                    notCovered
+                                        ? 'border-gray-200 bg-gray-50 cursor-not-allowed'
+                                        : `hover:border-blue-500 hover:bg-blue-50 ${situationId === situation.id ? 'border-blue-600 bg-blue-50' : 'border-gray-200'}`
+                                }`}
+                            >
+                                <span className={`block font-medium ${notCovered ? 'text-gray-500' : 'text-gray-900'}`}>{situation.name}</span>
+                                {situation.definition && <span className={`block mt-1 text-sm ${notCovered ? 'text-gray-400' : 'text-gray-600'}`}>{situation.definition}</span>}
+                                {notCovered && inputUse?.notCoveredWords && (
+                                    <span className='block mt-2 text-sm font-medium text-gray-600'>{inputUse.notCoveredWords}</span>
+                                )}
+                            </button>
+                        )
+                    })}
                     {/* Optional by design — the coach should not be forced to narrow if none fits. */}
                     <button type='button' onClick={goNext} className='pt-2 text-sm text-gray-500 underline'>
                         None of these — continue
@@ -392,6 +434,8 @@ export default function SessionPlanningConversation({ onComplete, onCancel, subm
 
             {step === 'stage' && (
                 <div className='space-y-2'>
+                    {/* H4: shown here only where there was no situation step before it, so the coach is told once. */}
+                    {inputUse?.note && situations.length === 0 && <InputUseNote words={inputUse.note.words} />}
                     {LEARNING_STAGES.map((option) => (
                         <button
                             key={option.value}
@@ -408,6 +452,19 @@ export default function SessionPlanningConversation({ onComplete, onCancel, subm
                             <span className='block mt-1 text-sm text-gray-600'>{option.description}</span>
                         </button>
                     ))}
+                    {/* H4: skippable only where the goal's activity does not read it; a choice made is still recorded with the request. */}
+                    {stageUnread && (
+                        <button
+                            type='button'
+                            onClick={() => {
+                                setLearningStage(null)
+                                goNext()
+                            }}
+                            className='pt-2 text-sm text-gray-500 underline'
+                        >
+                            Continue without choosing
+                        </button>
+                    )}
                 </div>
             )}
 
@@ -447,7 +504,8 @@ export default function SessionPlanningConversation({ onComplete, onCancel, subm
                             placeholder='e.g. We panic after winning possession.'
                             className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
                         />
-                        <p className='mt-2 text-sm text-gray-500'>Optional — this adds detail to the activity.</p>
+                        {/* H4: the claim is made only where the goal's activity reads the note; for one that does not, it was false. */}
+                        {!noteUnread && <p className='mt-2 text-sm text-gray-500'>Optional — this adds detail to the activity.</p>}
                     </div>
 
                     <Button onClick={complete} disabled={submitting}>
@@ -469,5 +527,17 @@ export default function SessionPlanningConversation({ onComplete, onCancel, subm
                 )}
             </div>
         </div>
+    )
+}
+
+/**
+ * THE DISCLOSURE LINE — H4 (DRAFT words, the server's). One concise line before the answers it concerns, in the present tense because it
+ * is read before they are given; the words are sent by the server and are never composed here.
+ */
+function InputUseNote({ words }: { words: string }) {
+    return (
+        <p role='note' className='p-3 mb-4 text-sm border rounded-lg text-slate-700 bg-slate-50 border-slate-200'>
+            {words}
+        </p>
     )
 }

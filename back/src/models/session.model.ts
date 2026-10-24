@@ -105,8 +105,13 @@ export interface ISession {
      * should not assume a physical goal exists simply because a goalkeeper was selected."* So it is its own field, never inferred from
      * `specializedRoles`, and an absent kind means NOT STATED — never none. It is availability, not involvement: an activity is asked to be
      * covered by it only where its game holds an object of the kind, and a build asks for it only then.
+     *
+     * H4 (23 October 2026, register version 22): beside the count and the width, the value of each attribute the register lists for the kind
+     * (its `sessionResources.attributes`), under the attribute's name - for goals, `type`: one of the register's closed list. Christian, reply
+     * filed 26 October 2026, item 4: *"I agree that the coach should identify the available goal type and dimensions, without the engine
+     * inventing them."* Absent means NOT STATED; the height is not asked (no authorized entry reads it).
      */
-    objects?: Record<string, { count: number; widthM?: number }>
+    objects?: Record<string, { count: number; widthM?: number; [attribute: string]: number | string | undefined }>
     coachComments?: string
     createdAt: Date
     updatedAt: Date

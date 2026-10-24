@@ -27,6 +27,12 @@
  *   8. the H2 review's should-fix 2, 3 and 5 in the account (an object's end read by its anchor, an unreadable collection UNKNOWN, the law's
  *      note carried); and production unchanged.
  *
+ *   9. (H4, register version 22; the d26 design's build step 4) a pairing recording a type matches only a goal the session states of that
+ *      type: unstated, the build asks through the question channel (review page and live route), never assuming Law 1.10's goal; another
+ *      type is a knowledge gap; a width no pairing has is a gap without the type being read or asked; the review page's answer reaches the
+ *      check through the review route; the loader and the build's TEST-ONLY option refuse a type off the register's list. Carried from the H3
+ *      review: an object anchored off both end lines reads absent from each; the bindings step's noun and two-regions cases measured.
+ *
  * Nothing here changes a production file. TEST-ONLY copies are labelled and held in memory; no scaled size is knowledge.
  *
  * Run: npx ts-node --files -r tsconfig-paths/register ./src/system/realization/bound-regions.unit.ts
@@ -38,9 +44,11 @@ import { boundRegionsRefusals, SportBoundRegions } from '../derivation/bound-reg
 import { defaultLawsRefusals } from '../derivation/default-laws'
 import { HaltError, indexRegister } from '../derivation/register'
 import { buildActivityForReview, buildActivityUnderAuthorizationRecords, RefusedActivity, ServedActivity } from '../rendering/build-activity'
+import { reviewRequestOf } from '../rendering/activity-review'
+import { liveRefusalBody } from '../rendering/live-activity'
 import { specializedRoleNames } from '../rendering/session-envelope'
 import { learningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
-import { BOUND_REGION_CHECK } from './bound-region-check'
+import { BOUND_REGION_CHECK, boundRegionRefusalBefore } from './bound-region-check'
 import { blockLawAccountOf } from './default-laws-check'
 
 let passed = 0
@@ -60,14 +68,22 @@ const R2 = 'A01-R2'
 const REGULATION_AREA: [number, number] = [45, 42]
 const PROTOTYPE_AREA: [number, number] = [40, 30]
 const FULL_SIZE = 7.32
-const sessionOf = (players: number, keepers: number, area: [number, number], goalWidth?: number) => ({
-    players,
-    lengthM: area[0],
-    widthM: area[1],
-    durationMin: 20,
-    roles: { ...none, [KEEPER]: keepers },
-    ...(goalWidth === undefined ? {} : { objects: { goal: { count: 1, widthM: goalWidth } } }),
-})
+/**
+ * H4 (register version 22): a session states its goals' type beside their count and width. Here a 7.32 m goal is stated 'full-size' (Law
+ * 1.10's goal, as a coach with one would state it) unless a test says otherwise; `null` states none. A goal of any other width states none
+ * unless asked: no pairing of its width reads a type, so none is asked for.
+ */
+const sessionOf = (players: number, keepers: number, area: [number, number], goalWidth?: number, goalType?: string | null) => {
+    const type = goalType === undefined ? (goalWidth === FULL_SIZE ? 'full-size' : null) : goalType
+    return {
+        players,
+        lengthM: area[0],
+        widthM: area[1],
+        durationMin: 20,
+        roles: { ...none, [KEEPER]: keepers },
+        ...(goalWidth === undefined ? {} : { objects: { goal: { count: 1, widthM: goalWidth, ...(type === null ? {} : { type }) } } }),
+    }
+}
 const ITEM_7_PAIRING = 'Use an existing regulation penalty area when the activity dimensions and setup permit it.'
 const blocks = loadSportBoundRegions()!
 const profileFile = (): any => readJson(blocks.file)
@@ -135,8 +151,8 @@ const fileWith = (options: RegionOptions = {}) => {
     }
     return file
 }
-const build = (players: number, keepers: number, area: [number, number], goalWidth: number, file: any, extra: { boundRegions?: SportBoundRegions | null; includeDrafts?: boolean } = {}) =>
-    buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(players, keepers, area, goalWidth) } as any, records(), {
+const build = (players: number, keepers: number, area: [number, number], goalWidth: number, file: any, extra: { boundRegions?: SportBoundRegions | null; includeDrafts?: boolean; goalType?: string | null } = {}) =>
+    buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(players, keepers, area, goalWidth, extra.goalType) } as any, records(), {
         realizations: loadProvisionalRealizations(file),
         review: { includeDrafts: extra.includeDrafts !== false },
         ...(extra.boundRegions !== undefined ? { boundRegions: extra.boundRegions } : {}),
@@ -158,7 +174,9 @@ test('register version 21: the function member, row S7 and the boundRegions bloc
         ['S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'O1'],
     )
     assert.deepEqual([spec.path, spec.objectPath, spec.nounLeaf, spec.functionLeaf, spec.alongLeaf, spec.acrossLeaf, spec.ofObjectLeaf, spec.functionAttribute], ['space.regions[]', 'objects[]', 'noun', 'functions', 'position.along', 'position.across', 'ofObject', 'functions'])
-    assert.ok(String(register.version).startsWith('21, adds a region bound to an object, for his reply filed 26 October 2026, item 7'))
+    // Re-pointed 23 October 2026 (H4): version 22 (the type a session states for its objects, his reply filed 26 October 2026, item 4) supersedes 21.
+    assert.ok(String(register.version).startsWith('22, adds the type a session states for its objects of a kind, for his reply filed 26 October 2026, item 4'))
+    assert.ok(String(register.version).includes('Supersedes version 21, which adds a region bound to an object, for his reply filed 26 October 2026, item 7'))
     for (const quote of [ITEM_7_PAIRING, 'This should be a general soccer environment capability rather than a Goalkeeper Build-Out exception.']) assert.ok(String(register.version).split('Supersedes version 20, ')[0].includes(`"${quote}"`), quote)
     const damaged = (alter: (r: any) => void, pattern: RegExp, what: string) => {
         const r = copy(register)
@@ -450,7 +468,8 @@ const withTestOnlyPairing = (): SportBoundRegions => {
         edition: null,
         citedAs: 'TEST-ONLY',
         formatConditions: { players: null, ageBand: null, pitch: null },
-        object: { kind: 'goal', type: 'TEST-ONLY', widthM: 5, heightM: null },
+        // H4: a type of the register's list (the validator holds a TEST-ONLY block to it now, as the profile's): 'scaled', stated by the session.
+        object: { kind: 'goal', type: 'scaled', widthM: 5, heightM: null },
         region: { function: 'penalty-area', widthM: 14, depthM: 7 },
         markM: null,
         borrows: ['object', 'region'],
@@ -471,7 +490,7 @@ test('TEST-ONLY: the goal version completed with a scaled pairing and its region
     assert.deepEqual(boundRegionsRefusals(asFile.boundRegions, index), [])
     for (const [players, keepers] of [[12, 1], [12, 2], [11, 1]]) {
         const label = `${players}/${keepers}`
-        const built = build(players, keepers, PROTOTYPE_AREA, 5, file, { boundRegions: withTestOnlyPairing() })
+        const built = build(players, keepers, PROTOTYPE_AREA, 5, file, { boundRegions: withTestOnlyPairing(), goalType: 'scaled' })
         const activity = built.activity as RefusedActivity
         assert.deepEqual([activity.outcome, activity.stage], ['refused', 'communication'], `${label}: ${activity.reasons.slice(0, 3).join(' | ')}`)
         for (const [region] of boundRegionsOf(built.fixture)) {
@@ -504,6 +523,95 @@ test("the account reads an object's end by its anchor, and a collection it canno
     // No readable game at all: every per-end law is owed, saying why (until H2's fix, NOT_APPLICABLE at both ends).
     for (const id of ['LAW-14', 'LAW-16', 'LAW-17']) assert.deepEqual(accountWith(undefined, id).laws.map(entry => entry.status), ['ADAPTATION_OWED', 'ADAPTATION_OWED'], id)
     assert.equal(accountWith(undefined, 'LAW-12-GK').laws[0].status, 'ADAPTATION_OWED')
+})
+
+test("the account reads an object anchored off both end lines as absent from each, not unknown (the H3 review's should-fix 7, carried in H4)", () => {
+    const { fixture } = regulationBuild(12, 1)
+    const block = fixture.roleBlocks.blocks[0]
+    const laws = loadSportDefaultLaws()!
+    const r2 = loadProvisionalRealizations().find(r => r.provisionalId === R2)!
+    const accountWith = (game: unknown) => blockLawAccountOf({ blockId: block.blockId, game, roleBlock: block.fixture.record.roleBlock, index, session: sessionOf(12, 1, REGULATION_AREA), laws: { ...copy(laws), laws: [laws.laws.find(law => law.id === 'LAW-17')!] }, items: r2.items, boundRegions: blocks })
+    // TEST-ONLY: the goal anchored at halfway, its position there too - it stands at neither end, so the law applies at neither.
+    const halfway = copy(block.fixture.game)
+    const along = goalOf({ fixture: { game: halfway } }).realizedGeometry.position.along
+    along.anchor = REGULATION_AREA[0] / 2
+    along.interval = { from: REGULATION_AREA[0] / 2, to: REGULATION_AREA[0] / 2 }
+    const read = accountWith(halfway).laws
+    assert.deepEqual(read.map(entry => entry.status), ['NOT_APPLICABLE', 'NOT_APPLICABLE'], read.map(entry => entry.why).join(' | '))
+})
+
+// ── 9. The type a session states (H4, register version 22) ─────────────────────────────────────────────
+test('H4: a pairing that records a type matches only a goal the session states of that type; unstated, the build ASKS, through the question channel', () => {
+    for (const area of [REGULATION_AREA, PROTOTYPE_AREA]) {
+        // Not stated: asked, never assumed to be Law 1.10's goal - at 45 x 42 m and at 40 x 30 m alike (the type decides a gap from a fallback).
+        const asked = build(12, 1, area, FULL_SIZE, fileWith(area === REGULATION_AREA ? { area } : {}), { goalType: null }).activity as RefusedActivity
+        assert.deepEqual([asked.outcome, asked.stage, asked.summary], ['refused', 'session', 'Say what type of goal this session has before building this activity.'], asked.reasons.join(' | '))
+        assert.deepEqual(asked.question, { kind: 'OBJECT_AVAILABILITY', objectKind: 'goal', asks: 'ATTRIBUTE', attribute: { name: 'type', values: ['full-size', 'scaled', 'mini-goal'] }, words: asked.summary, status: 'DRAFT' })
+        assert.ok(asked.reasons.some(reason => reason.includes('BOUND_REGION_OBJECT_NOT_STATED') && reason.includes('IFAB-LAW-1: type full-size')), asked.reasons.join(' | '))
+        assert.deepEqual(selectionOf(asked), [[R2, 'ASKED', 'OBJECT_AVAILABILITY_NOT_STATED', 'session'], ['A01-R1', 'NOT_TRIED', null, null]])
+        // The live route passes the question on, whole.
+        assert.deepEqual(liveRefusalBody(asked, null).question, asked.question)
+    }
+    // Stated as another type: no pairing matches, a knowledge gap (never the regulation area, never a fallback), saying the type read.
+    for (const type of ['scaled', 'mini-goal']) {
+        const gap = build(12, 1, REGULATION_AREA, FULL_SIZE, fileWith({ area: REGULATION_AREA }), { goalType: type }).activity as RefusedActivity
+        assert.deepEqual([gap.outcome, gap.stage, gap.summary], ['refused', 'knowledge', `The penalty area that goes with a goal 7.32 m wide (type: ${type}) has not been decided yet.`], gap.reasons.join(' | '))
+        assert.equal(gap.question, undefined)
+        assert.ok(gap.reasons.some(reason => reason.includes(`7.32 m wide, of the type ${type} as the session states it, and no authorized pairing`)), gap.reasons.join(' | '))
+        assert.deepEqual(selectionOf(gap)[1], ['A01-R1', 'NOT_TRIED', null, null])
+    }
+    // The review page's answer, as it sends it (the count and width already stated, with the type), read through the review route's own
+    // request builder over a stored session that states no type: the build then holds, and stops where the regulation build stops.
+    const storedSession = { playerCount: 12, fieldLength: String(REGULATION_AREA[0]), fieldWidth: String(REGULATION_AREA[1]), specializedRoles: { ...none, [KEEPER]: 1 }, objects: { goal: { count: 1, widthM: FULL_SIZE } } }
+    const answered = reviewRequestOf(storedSession, { learningGoalId: 'A01', durationMin: 20, objects: { goal: { count: 1, widthM: FULL_SIZE, type: 'full-size' } } })
+    assert.ok(!('refusal' in answered), JSON.stringify(answered))
+    const afterAnswer = buildActivityUnderAuthorizationRecords(answered as any, records(), { realizations: loadProvisionalRealizations(fileWith({ area: REGULATION_AREA })), review: { includeDrafts: false } }).activity as RefusedActivity
+    assert.deepEqual([afterAnswer.outcome, afterAnswer.stage, afterAnswer.question], ['refused', 'communication', undefined], afterAnswer.reasons.slice(0, 3).join(' | '))
+    // Stated full-size: exactly the regulation build above (it states it), and at 40 x 30 m the fallback of section 5.
+    // A width no pairing has is a gap without the type being read, so it is never asked for (his item 9(b)).
+    const fiveM = build(12, 1, PROTOTYPE_AREA, 5, fileWith({ region: false }), { goalType: null }).activity as RefusedActivity
+    assert.deepEqual([fiveM.stage, fiveM.question], ['knowledge', undefined])
+    // With a TEST-ONLY pairing of that width recording a type, the same goal is asked for its type, and a type it does not record is a gap.
+    const scaledFile = fileWith({ along: { term: 'own end (of team T)', forTeam: 'ROLE_HOLDER_BUILDING', offsetM: { from: 0, to: 7 }, asAuthored: 'TEST-ONLY' }, extentM: 14, pairing: 'TEST-ONLY-SCALED' })
+    const askedScaled = build(12, 1, PROTOTYPE_AREA, 5, scaledFile, { boundRegions: withTestOnlyPairing(), goalType: null }).activity as RefusedActivity
+    assert.deepEqual([askedScaled.stage, askedScaled.question?.asks, askedScaled.question?.attribute?.name], ['session', 'ATTRIBUTE', 'type'])
+    const otherType = build(12, 1, PROTOTYPE_AREA, 5, scaledFile, { boundRegions: withTestOnlyPairing(), goalType: 'full-size' }).activity as RefusedActivity
+    assert.deepEqual([otherType.stage, otherType.summary], ['knowledge', 'The penalty area that goes with a goal 5 m wide (type: full-size) has not been decided yet.'])
+})
+
+test("H4: the loader refuses a pairing whose type is none a session may state, and a TEST-ONLY block handed to the build is held to the same validator", () => {
+    const raw = profileFile()
+    const damaged = copy(raw)
+    damaged.boundRegions.pairings[0].object.type = 'TEST-ONLY'
+    assert.ok(boundRegionsRefusals(damaged.boundRegions, index).some(error => error.includes('records the type "TEST-ONLY" for its object, which is none of the values a session may state (full-size, scaled, mini-goal)')))
+    assert.throws(() => loadSportBoundRegions(() => damaged, index), /bound-region block is refused/)
+    // The H3 review's should-fix 5: the build's TEST-ONLY option now runs the validator (until H4 its comment said so and it only copied).
+    const bad = copy(blocks)
+    bad.pairings[0].object.type = 'TEST-ONLY'
+    assert.throws(() => build(12, 1, REGULATION_AREA, FULL_SIZE, fileWith({ area: REGULATION_AREA }), { boundRegions: bad }), /a TEST-ONLY bound-region block is refused by the validator/)
+    // And the citation label is Law 1.3's own (the H3 review's should-fix 1).
+    assert.ok(String(blocks.pairings[0].formatConditions.pitch).startsWith('Law 1.3 (Dimensions): '))
+})
+
+test("the bindings step, measured on the check itself (the H3 review's should-fix 3): a region of another noun, and an undefended object holding two", () => {
+    const { fixture } = regulationBuild(12, 1)
+    const game = fixture.roleBlocks.blocks[0].fixture.game
+    const envelope = sessionOf(12, 1, REGULATION_AREA, FULL_SIZE)
+    assert.equal(boundRegionRefusalBefore(index, game, envelope, blocks), null, 'the regulation game passes as built')
+    // TEST-ONLY: its bound region told as a band - the profile binds a zone.
+    const band = copy(game)
+    const region = (band.space.regions as any[]).find(entry => entry.ofObject)
+    region.noun = 'band'
+    const noun = boundRegionRefusalBefore(index, band, envelope, blocks)
+    assert.equal(noun?.cause, 'BOUND_REGION_INVALID')
+    assert.ok(noun?.cause === 'BOUND_REGION_INVALID' && noun.problems.some(problem => problem === `${region.elementId} is a band, and the Sport Profile (BOUND-REGION-GOAL) binds a zone`), JSON.stringify(noun))
+    // TEST-ONLY: the goal defended by no team, holding two regions bound to it.
+    const two = copy(game)
+    delete goalOf({ fixture: { game: two } }).defendedBy
+    const original = (two.space.regions as any[]).find(entry => entry.ofObject)
+    two.space.regions.push({ ...copy(original), elementId: `${original.elementId}-TEST-ONLY-SECOND` })
+    const twice = boundRegionRefusalBefore(index, two, envelope, blocks)
+    assert.ok(twice?.cause === 'BOUND_REGION_INVALID' && twice.problems.some(problem => problem === `c:provisional:${R2}:${R2}-O1-1 holds 2 regions of the function penalty-area bound to it, and the Sport Profile (BOUND-REGION-GOAL) binds one`), JSON.stringify(twice))
 })
 
 test('production is unchanged: A01 at 12/1, 12/2 and 11/1 served as the zone version, no bound region, the same activity with or without the block', () => {

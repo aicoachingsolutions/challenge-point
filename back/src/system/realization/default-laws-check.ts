@@ -155,10 +155,16 @@ function objectsAtEnd(objects: PlacedObject[], what: string, end: 0 | 1, lengthM
     if (lengthM === null) return { reading: 'UNKNOWN', why: 'the session states no area, so where the end lines lie is not known' }
     const line = end * lengthM
     const onLine = (at: number) => Math.abs(at - line) < SAME
-    const onAnyLine = (at: number) => Math.abs(at) < SAME || Math.abs(at - lengthM) < SAME
     const standing = objects.filter(object => (object.anchor !== null ? onLine(object.anchor) : !!object.along && onLine(object.along.from) && onLine(object.along.to)))
     if (standing.length) return { reading: 'PRESENT', why: `${standing.map(object => object.id).join(', ')} stands at the end line at ${line} m` }
-    const unread = objects.filter(object => (object.anchor === null ? !object.along || !(onAnyLine(object.along.from) && Math.abs(object.along.from - object.along.to) < SAME) : !onAnyLine(object.anchor)))
+    /**
+     * An object's ANCHOR is where it is placed from: an anchor off this end line - at the other end line or anywhere between, halfway say -
+     * is evidence the object is not at this end, so it reads ABSENT here (the H3 review, carried in H4: until then an object anchored off both
+     * end lines read UNKNOWN, which made the law owed and would have refused under ENFORCE). With no anchor, a position is read only where it
+     * is one point on an end line; anything else stays unread, as H3 left it (insufficient evidence is never a pass).
+     */
+    const onAnyLine = (at: number) => Math.abs(at) < SAME || Math.abs(at - lengthM) < SAME
+    const unread = objects.filter(object => object.anchor === null && (!object.along || !(onAnyLine(object.along.from) && Math.abs(object.along.from - object.along.to) < SAME)))
     if (unread.length) return { reading: 'UNKNOWN', why: `${unread.map(object => object.id).join(', ')} ${unread.length === 1 ? 'is' : 'are'} placed at no end line by an anchor or a position on the line, so whether ${unread.length === 1 ? 'it stands' : 'they stand'} at this end line cannot be read` }
     return { reading: 'ABSENT', why: `no ${what} stands at the end line at ${line} m (${objects.map(object => `${object.id} at ${object.anchor ?? object.along!.from} m`).join(', ')})` }
 }

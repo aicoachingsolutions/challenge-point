@@ -33,8 +33,8 @@
  *
  * It does not touch generation. Nothing here calls the frozen activity-generation path.
  */
-import { SportBoundRegions } from '../derivation/bound-regions'
-import { loadSportBoundRegions, loadSportCoachVocabulary, loadSportDefaultLaws, ProvisionalRealization, provisionalRealizationNamed, TestingBoundaries } from '../derivation/corpus'
+import { boundRegionsRefusals, SportBoundRegions } from '../derivation/bound-regions'
+import { loadRegister, loadSportBoundRegions, loadSportCoachVocabulary, loadSportDefaultLaws, ProvisionalRealization, provisionalRealizationNamed, TestingBoundaries } from '../derivation/corpus'
 import { isStampedHalt } from '../derivation/emit'
 import { runDerivation, runStages0to10, runStages0to5 } from '../derivation/engine'
 import { resolveRelativeCounts } from '../derivation/reassignment'
@@ -253,6 +253,11 @@ export interface SessionQuestion {
     kind: 'OBJECT_AVAILABILITY'
     objectKind: string
     asks: ObjectQuestionAsks
+    /**
+     * H4 (23 October 2026, register version 22): where `asks` is ATTRIBUTE, the attribute asked for and its closed list of values, both the
+     * register's (`sessionResources.attributes`), so the review page offers exactly those and names none itself. Absent on every other ask.
+     */
+    attribute?: { name: string; values: string[] }
     words: string
     status: 'DRAFT'
 }
@@ -766,15 +771,33 @@ function objectSummary(refusal: ObjectAvailabilityRefusal, subject: string): { s
  * region nobody has authorized for the session's object is the knowledge's, typed as nothing, so it refuses (his decision, not the coach's);
  * a binding that is not whole is the game's (structure before realization, validation after it).
  */
-function boundRegionSummary(refusal: BoundRegionRefusal, subject: string, session: ActivitySession, stage: 'structure' | 'validation'): { stage: ActivityStage; summary: string; applicability: Applicability | null } {
+function boundRegionSummary(refusal: BoundRegionRefusal, subject: string, session: ActivitySession, stage: 'structure' | 'validation'): { stage: ActivityStage; summary: string; applicability: Applicability | null; question?: SessionQuestion } {
     const words = (token: string) => token.split('-').join(' ')
     switch (refusal.cause) {
-        case 'BOUND_REGION_NOT_AUTHORIZED':
+        case 'BOUND_REGION_NOT_AUTHORIZED': {
+            // H4: the attributes the session states that the pairings were read by, after the width (DRAFT), so a coach sees why a goal of
+            // a width an entry pairs is still not paired.
+            const stated = Object.entries(refusal.stated ?? {}).map(([attribute, value]) => ` (${attribute}: ${value})`).join('')
             return {
                 stage: 'knowledge',
-                summary: `The ${words(refusal.regionFunction)} that goes with ${refusal.widthM === null ? `this session's ${refusal.kind}` : `a ${refusal.kind} ${refusal.widthM} m wide`} has not been decided yet.`,
+                summary: `The ${words(refusal.regionFunction)} that goes with ${refusal.widthM === null ? `this session's ${refusal.kind}` : `a ${refusal.kind} ${refusal.widthM} m wide${stated}`} has not been decided yet.`,
                 applicability: null,
             }
+        }
+        /**
+         * H4 (23 October 2026; register version 22): an attribute of the object a pairing of the stated width reads, which the session does not
+         * state - the session's to say, so ASKED through the question channel (reaching the review page and the live route), exactly as an
+         * unstated count or width is; the question names the attribute and its closed list, both the register's (DRAFT words).
+         */
+        case 'BOUND_REGION_OBJECT_NOT_STATED': {
+            const asked = objectAvailabilityQuestion(refusal.kind, 'ATTRIBUTE', refusal.attribute)
+            return {
+                stage: 'session',
+                summary: asked,
+                applicability: { verdict: 'ASK', cause: 'OBJECT_AVAILABILITY_NOT_STATED' },
+                question: { kind: 'OBJECT_AVAILABILITY', objectKind: refusal.kind, asks: 'ATTRIBUTE', attribute: { name: refusal.attribute, values: [...refusal.values] }, words: asked, status: 'DRAFT' },
+            }
+        }
         case 'BOUND_REGION_DOES_NOT_FIT':
             return {
                 stage: 'session',
@@ -1044,13 +1067,22 @@ export function buildActivityUnderAuthorizationRecords(
          */
         realizations?: ProvisionalRealization[]
         /**
-         * H3 (23 October 2026), tests only: the Sport Profile's bound-region block in place of the file's - loaded by the same validator over a
-         * TEST-ONLY copy (`loadSportBoundRegions`), so a TEST-ONLY pairing is held to the gate a real one would be; or null, none, which stands
-         * in for an open decision about the region an object needs (a TEST-ONLY completion naming it so). Absent: the file's.
+         * H3 (23 October 2026), tests only: the Sport Profile's bound-region block in place of the file's - a TEST-ONLY copy held to the same
+         * validator the file's block is (`boundRegionsRefusals`, which `loadSportBoundRegions` runs), so a TEST-ONLY pairing is held to the
+         * gate a real one would be and a copy it refuses throws; or null, none, which stands in for an open decision about the region an
+         * object needs (a TEST-ONLY completion naming it so). Absent: the file's. (Until the H4 carry of the H3 review this comment said the
+         * validator ran here, and it did not: the copy was only deep-copied.)
          */
         boundRegions?: SportBoundRegions | null
     } = {},
 ): ActivityBuild & { fixture: Record<string, unknown> | null } {
+    const givenBoundRegions = (block: SportBoundRegions | null | undefined): SportBoundRegions | null | undefined => {
+        if (block === undefined || block === null) return block
+        const copy = JSON.parse(JSON.stringify(block)) as SportBoundRegions
+        const errors = boundRegionsRefusals({ authority: copy.authority, requirements: copy.requirements, pairings: copy.pairings }, indexRegister(loadRegister()))
+        if (errors.length) throw new Error(`a TEST-ONLY bound-region block is refused by the validator the Sport Profile's is held to: ${errors.join('; ')}`)
+        return copy
+    }
     // The selection and the digests (live-app fix, 22 October 2026) are returned too, so a test of the live pathway can run it over COPIES of the
     // records exactly as the live route runs it over the file's (`live-activity.ts`); nothing that serves a coach calls this.
     return build(
@@ -1062,7 +1094,7 @@ export function buildActivityUnderAuthorizationRecords(
         options.alterSupplied ?? null,
         { includeDrafts: options.review?.includeDrafts === true },
         options.realizations ? JSON.parse(JSON.stringify(options.realizations)) : null,
-        options.boundRegions === undefined ? undefined : options.boundRegions === null ? null : (JSON.parse(JSON.stringify(options.boundRegions)) as SportBoundRegions),
+        givenBoundRegions(options.boundRegions),
     )
 }
 
@@ -2110,7 +2142,7 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
         const refusal = boundRegionRefusalBefore(index, resolved.game, input.envelope, boundRegions)
         if (refusal) {
             const said = boundRegionSummary(refusal, subject, session, 'structure')
-            return refuse(said.stage, said.summary, [`the regions bound to the game's objects do not hold before realization (${refusal.cause}): ${refusal.why}`], { applicability: said.applicability })
+            return refuse(said.stage, said.summary, [`the regions bound to the game's objects do not hold before realization (${refusal.cause}): ${refusal.why}`], { applicability: said.applicability, question: said.question })
         }
     }
 

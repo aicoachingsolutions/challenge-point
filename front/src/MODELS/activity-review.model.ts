@@ -28,21 +28,27 @@ export interface ActivitySession {
     objects?: Record<string, StatedObjects>
 }
 
-/** What a session states of one kind of object (stage E): how many, and how wide they are in metres, where it says. */
+/**
+ * What a session states of one kind of object (stage E): how many, and how wide they are in metres, where it says - and (H4, 23 October
+ * 2026) the value of each attribute the knowledge register lists for the kind, under the attribute's name (for goals, `type`).
+ */
 export interface StatedObjects {
     count: number
     widthM?: number
+    [attribute: string]: number | string | undefined
 }
 
 /**
  * What a refusal asks the coach, where the build stopped to ask (stage E, 23 October 2026): today, the session's objects of a kind the
- * activity needs and the session has not stated - whether it has any and how wide (`AVAILABILITY`), or only how wide (`WIDTH`). `words` is
- * the server's DRAFT question, the refusal's summary.
+ * activity needs and the session has not stated - whether it has any and how wide (`AVAILABILITY`), or only how wide (`WIDTH`), or (H4)
+ * the value of one attribute (`ATTRIBUTE`), with its name and closed list of values from the server. `words` is the server's DRAFT
+ * question, the refusal's summary.
  */
 export interface ReviewSessionQuestion {
     kind: 'OBJECT_AVAILABILITY' | string
     objectKind: string
-    asks: 'AVAILABILITY' | 'WIDTH' | string
+    asks: 'AVAILABILITY' | 'WIDTH' | 'ATTRIBUTE' | string
+    attribute?: { name: string; values: string[] }
     words: string
     status: string
 }

@@ -361,10 +361,22 @@ export interface Envelope {
     objects?: Record<string, StatedObjects>
 }
 
-/** What a session states of the objects of one kind (stage E): how many it has, and how wide they are, in metres, where it says. */
+/**
+ * What a session states of the objects of one kind (stage E): how many it has, and how wide they are, in metres, where it says - and (H4,
+ * register version 22) the value it states for each attribute the register lists for the kind (`sessionResources.attributes`), under the
+ * attribute's name, present only where stated. The stored session, the review's answer and the envelope carry this one shape.
+ */
 export interface StatedObjects {
     count: number
     widthM?: number
+    [attribute: string]: number | string | undefined
+}
+
+/** The value a session states for one attribute of its objects of a kind (H4), or null where it states none. */
+export function statedAttributeOf(objects: unknown, kind: string, attribute: string): string | null {
+    const stated = objects && typeof objects === 'object' && Object.prototype.hasOwnProperty.call(objects, kind) ? (objects as Record<string, unknown>)[kind] : undefined
+    const value = stated && typeof stated === 'object' ? (stated as Record<string, unknown>)[attribute] : undefined
+    return typeof value === 'string' && value.trim().length > 0 ? value : null
 }
 
 export interface DerivationInput {

@@ -36,18 +36,36 @@
  *
  * **No adaptation is read.** The design's N5 names one exception, an explicitly authorized adaptation (his item 10: *"Any specifically
  * authorized small-sided adaptations"*). None is authorized and nothing represents one, so every case above is refused as stated.
+ *
+ * **What the session states of the object, beyond its width** (H4, 23 October 2026, register version 22; the d26 design's build step 4).
+ * A pairing records its object's type (IFAB-LAW-1: Law 1.10's 'full-size' goal); the register lists the type as an attribute a session may
+ * state of its objects. Step 1 reads each attribute a pairing of the stated width records: a session stating another value matches no such
+ * pairing (a knowledge gap, as a goal of another width is); a session stating none is asked for it (BOUND_REGION_OBJECT_NOT_STATED), never
+ * assumed to hold the pairing's object. An attribute no such pairing records is never read or asked. This matches the pairing to the object
+ * as the session states it; which objects SUIT a realization is his decision 1 of the note sent to him, and nothing here decides it.
+ *
+ * **A limit, recorded (the H3 review).** Each object's region is held on its own: two defended objects at opposite ends whose regions would
+ * overlap along a short area both pass steps 1 to 3. No activity holds two defended objects; a combined fit is to be added with the first
+ * one that does, not assumed here.
  */
 import { bindingOf, BoundRegionPairing, BoundRegionRequirement, regionFunctionsOf, SportBoundRegions } from '../derivation/bound-regions'
 import { RegisterIndex } from '../derivation/register'
 import { splitPath } from '../derivation/resolved-game'
-import { teamEndPositionOf } from '../derivation/types'
+import { statedAttributeOf, teamEndPositionOf } from '../derivation/types'
 import { axisLengths } from './spatial'
 
 export const BOUND_REGION_CHECK = 'GA-BOUND-REGION'
 
 /** Why the game's bound regions do not hold, one closed cause each, with the facts a sentence is made from (the builder never reads `why`). */
 export type BoundRegionRefusal =
-    | { cause: 'BOUND_REGION_NOT_AUTHORIZED'; kind: string; regionFunction: string; widthM: number | null; why: string }
+    | { cause: 'BOUND_REGION_NOT_AUTHORIZED'; kind: string; regionFunction: string; widthM: number | null; stated: Record<string, string>; why: string }
+    /**
+     * H4 (23 October 2026, register version 22): a pairing of the width the session states records an attribute of its object (the register's
+     * `sessionResources.attributes`) the session does not state, so which pairing applies cannot be read: the session is ASKED, never
+     * assumed to have the pairing's object (the d26 design's S1: *"The coach states the type. The engine never infers it, and absent means not
+     * stated (it is asked)."*). Raised only where a pairing reads the attribute, so nothing is asked that nothing reads.
+     */
+    | { cause: 'BOUND_REGION_OBJECT_NOT_STATED'; kind: string; regionFunction: string; attribute: string; values: string[]; why: string }
     | { cause: 'BOUND_REGION_DOES_NOT_FIT'; kind: string; regionFunction: string; widthM: number; pairing: string; why: string }
     | { cause: 'BOUND_REGION_INVALID'; problems: string[]; why: string }
 
@@ -110,11 +128,22 @@ interface Subject {
     defended: boolean
     requirement: BoundRegionRequirement
     widthM: number | null
+    /** The pairings authorized for the object as the session states it: its width, and each attribute a pairing of that width records (H4). */
     pairings: BoundRegionPairing[]
+    /** H4: the attributes a pairing of the stated width records and the session does not state (asked), and those it states that were read. */
+    unstated: { attribute: string; values: string[] }[]
+    stated: Record<string, string>
+}
+
+/** The value a pairing records for an attribute of its object, or null (H4). */
+const recordedBy = (pairing: BoundRegionPairing, attribute: string): string | null => {
+    const value = (pairing.object as unknown as Record<string, unknown>)[attribute]
+    return typeof value === 'string' && value.length > 0 ? value : null
 }
 
 function subjectsOf(read: Read, block: SportBoundRegions, envelope: unknown, index: RegisterIndex): Subject[] {
     const found: Subject[] = []
+    const statedObjects = (envelope as { objects?: unknown } | undefined)?.objects
     for (const requirement of block.requirements) {
         for (const object of read.objects) {
             if (readAt(object, read.kindLeaf) !== requirement.object.kind) continue
@@ -123,8 +152,25 @@ function subjectsOf(read: Read, block: SportBoundRegions, envelope: unknown, ind
             const holdsOne = read.regions.some(region => bindingOf(region, index)?.objectId === id && regionFunctionsOf(region, index).includes(requirement.region.function))
             if (!defended && !holdsOne) continue
             const widthM = statedWidthOf(envelope, requirement.object.kind)
-            const pairings = block.pairings.filter(entry => entry.object.kind === requirement.object.kind && entry.region.function === requirement.region.function && widthM !== null && Math.abs(entry.object.widthM - widthM) < SAME)
-            found.push({ object, id, kind: requirement.object.kind, defended, requirement, widthM, pairings })
+            let pairings = block.pairings.filter(entry => entry.object.kind === requirement.object.kind && entry.region.function === requirement.region.function && widthM !== null && Math.abs(entry.object.widthM - widthM) < SAME)
+            /**
+             * H4 (register version 22): each attribute a session may state of the kind that a pairing of the stated width records is read -
+             * stated, a pairing recording another value does not match; not stated, it is asked (`unstated`), never assumed to be the
+             * pairing's. An attribute no such pairing records is not read, so a session is never asked for what nothing here uses.
+             */
+            const unstated: Subject['unstated'] = []
+            const stated: Record<string, string> = {}
+            for (const { attribute, values } of (index.sessionResources?.attributes ?? []).filter(entry => entry.kind === requirement.object.kind)) {
+                if (!pairings.some(entry => recordedBy(entry, attribute) !== null)) continue
+                const value = statedAttributeOf(statedObjects, requirement.object.kind, attribute)
+                if (value === null) {
+                    unstated.push({ attribute, values: [...values] })
+                    continue
+                }
+                stated[attribute] = value
+                pairings = pairings.filter(entry => recordedBy(entry, attribute) === null || recordedBy(entry, attribute) === value)
+            }
+            found.push({ object, id, kind: requirement.object.kind, defended, requirement, widthM, pairings, unstated, stated })
         }
     }
     return found
@@ -144,16 +190,30 @@ export function boundRegionRefusalBefore(index: RegisterIndex, game: unknown, en
     const read = readGame(index, game)
     if (!spec || !read || !block || !block.requirements.length) return null
     const subjects = subjectsOf(read, block, envelope, index)
-    // 1. Authorization: one authorized pairing for each object held, as the session states it.
+    // 1. Authorization: one authorized pairing for each object held, as the session states it. Where a pairing of the stated width records an
+    // attribute the session does not state (H4), the session is asked first: which pairing applies cannot be read without it.
     for (const entry of subjects) {
-        if (entry.pairings.length === 1) continue
         const fn = entry.requirement.region.function
         const what = entry.defended ? `${entry.id} is a defended ${entry.kind}` : `${entry.id} is a ${entry.kind} no team defends, holding a ${fn} region,`
+        if (entry.unstated.length) {
+            const [{ attribute, values }] = entry.unstated
+            const recording = block.pairings.filter(pairing => pairing.object.kind === entry.kind && pairing.region.function === fn && entry.widthM !== null && Math.abs(pairing.object.widthM - entry.widthM) < SAME && recordedBy(pairing, attribute) !== null)
+            return {
+                cause: 'BOUND_REGION_OBJECT_NOT_STATED',
+                kind: entry.kind,
+                regionFunction: fn,
+                attribute,
+                values,
+                why: `${BOUND_REGION_CHECK}: ${what} ${entry.widthM} m wide as the session states it, and the authorized pairing${recording.length === 1 ? '' : 's'} of that width (${recording.map(pairing => `${pairing.id}: ${attribute} ${recordedBy(pairing, attribute)}`).join('; ')}) record${recording.length === 1 ? 's' : ''} the ${attribute} of the ${entry.kind}, which the session does not state: absent means NOT STATED, so it is asked, never assumed`,
+            }
+        }
+        if (entry.pairings.length === 1) continue
+        const statedText = Object.entries(entry.stated).map(([attribute, value]) => `, of the ${attribute} ${value}`).join('')
         const why =
             entry.pairings.length === 0
-                ? `${what}${entry.widthM === null ? ' whose width the session does not state' : ` ${entry.widthM} m wide as the session states it`}, and no authorized pairing of the Sport Profile gives a ${fn} region for it (its pairings for the kind: ${pairingsText(block, entry.requirement)}); which ${fn} region goes with it is a knowledge decision nobody has made, so none is borrowed from another entry and none is clipped`
-                : `${what} ${entry.widthM} m wide, and ${entry.pairings.length} authorized pairings give a ${fn} region for it (${entry.pairings.map(p => p.id).join(', ')}); which applies is not decided`
-        return { cause: 'BOUND_REGION_NOT_AUTHORIZED', kind: entry.kind, regionFunction: fn, widthM: entry.widthM, why: `${BOUND_REGION_CHECK}: ${why}` }
+                ? `${what}${entry.widthM === null ? ' whose width the session does not state' : ` ${entry.widthM} m wide${statedText} as the session states it`}, and no authorized pairing of the Sport Profile gives a ${fn} region for it (its pairings for the kind: ${pairingsText(block, entry.requirement)}); which ${fn} region goes with it is a knowledge decision nobody has made, so none is borrowed from another entry and none is clipped`
+                : `${what} ${entry.widthM} m wide${statedText}, and ${entry.pairings.length} authorized pairings give a ${fn} region for it (${entry.pairings.map(p => p.id).join(', ')}); which applies is not decided`
+        return { cause: 'BOUND_REGION_NOT_AUTHORIZED', kind: entry.kind, regionFunction: fn, widthM: entry.widthM, stated: { ...entry.stated }, why: `${BOUND_REGION_CHECK}: ${why}` }
     }
     // 2. The bindings, whatever the session.
     const problems: string[] = []
@@ -191,6 +251,12 @@ export function boundRegionRefusalBefore(index: RegisterIndex, game: unknown, en
         const [region] = bound
         const regionId = String(region.elementId ?? '(no id)')
         const pairing = entry.pairings[0]
+        // Step 1 returned for every object without exactly one pairing (the H3 review): a reordering of the steps is refused here, named,
+        // never a TypeError at run time.
+        if (!pairing || entry.pairings.length !== 1) {
+            problems.push(`${entry.id}'s bindings were read before its pairing was authorized (the check's steps are out of order)`)
+            continue
+        }
         const cited = bindingOf(region, index)!.pairing
         if (cited !== pairing.id) problems.push(`${regionId} cites the pairing ${JSON.stringify(cited)}, and the one authorized pairing for ${entry.id} as the session states it is ${pairing.id}`)
         if (readAt(region, spec.nounLeaf) !== requirement.region.noun) problems.push(`${regionId} is a ${String(readAt(region, spec.nounLeaf))}, and the Sport Profile (${requirement.id}) binds a ${requirement.region.noun}`)
@@ -207,6 +273,11 @@ export function boundRegionRefusalBefore(index: RegisterIndex, game: unknown, en
     const axes = axisLengths((envelope ?? {}) as { lengthM?: number; widthM?: number })
     for (const entry of subjects) {
         const pairing = entry.pairings[0]
+        // As in step 2 (the H3 review): the fit is read only of an authorized pairing, so a reordering is refused here, named.
+        if (!pairing || entry.pairings.length !== 1) {
+            const problem = `${entry.id}'s fit was read before its pairing was authorized (the check's steps are out of order)`
+            return { cause: 'BOUND_REGION_INVALID', problems: [problem], why: `${BOUND_REGION_CHECK}: ${problem}` }
+        }
         if (axes && pairing.region.widthM < axes.across && pairing.region.depthM < axes.along) continue
         const fn = entry.requirement.region.function
         const area = axes ? `${axes.along} m long and ${axes.across} m wide` : 'of no stated size'

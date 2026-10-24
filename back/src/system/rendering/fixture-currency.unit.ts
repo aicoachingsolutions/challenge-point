@@ -235,6 +235,11 @@
  * sentence and those two entries moved, and `git diff` of the fixture shows nothing else; the rendering suite pins the A04 text, which
  * did not change.
  *
+ * **Re-frozen 23 October 2026 (H4): `5ff3dac6` → `86d685ea`. The GAME did not move; only the register version did.** Register version 22
+ * (his reply filed 26 October 2026, item 4) adds the type a session may state of its goals, in the sessionResources block, and no row:
+ * the Golden Case's lines are what they were. So `inputDigest` / `fromDigest` (3e76f565 → f85ab1f4), the audit digest (5a397b4e →
+ * e47757d8) and the `registerVersion` sentence moved, and `git diff` of the fixture shows those four values and nothing else.
+ *
  * **Since stage K3 a fixture may be COMPOSED from two role blocks** (`build-activity.ts`, `role-blocks.ts`): block one's
  * fixture with a `roleBlocks` block carrying each block's own fixture whole. The Golden Case is a single game and is
  * frozen as one; the composed shape is guarded below by key identity, so a future frozen two-block fixture cannot lose a
