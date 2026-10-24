@@ -41,6 +41,15 @@
    appropriate goalkeeper-defended goal." Add a data test pinning A01-R2's suitability equal to the FA entry's object, so the two
    can never drift apart.
 5. **The mark** is recorded but never drawn, placed or mentioned in coach text. Add a test for this.
+6. **The ATTRIBUTE question must not change the width the coach stated.** Claude's review of stage I found this problem: today a
+   goal stated at 3.6576 m and then answered with the IFAB choice silently becomes a 7.32 m goal, and the mini-goal choice drops
+   the width. When the question asks for an attribute of an object whose width is already stated, it offers:
+   - only the authorized choices whose `widthM` equals the stated width exactly;
+   - the attribute values (each keeping the stated width);
+   - none.
+
+   Generic code only: no kind, value or noun. Add tests for 3.6576 (the FA choice offered, IFAB not) and for a width no entry has
+   (only the attribute values and none).
 
 ## Prove (tests on the built bundle where they touch serving)
 
