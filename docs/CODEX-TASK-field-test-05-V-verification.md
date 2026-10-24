@@ -5,6 +5,22 @@
 
 This task mostly runs checks and writes a report. Commit only if a check finds a real code defect and you fix it.
 
+## Known before you start (from Claude's reviews of K1–K3): report these, do not change them
+
+- **Where things are.** K2 and K3 were built by Claude, not by Codex tasks 03/04: commits `f70e637`, `3efbe72` and `339078a`.
+  The goal version is **served** for the FA goal. The snapshot keys for it are named
+  `.../objects-pairing:FA-MINI-SOCCER-5V5-2026`. Save and situation cases also exist.
+- **Design 4.1 I(d) is not built.** A session with no goalkeeper and a goal that is unstated, or stated without its type, is
+  **asked** for its goal or type before being refused for the missing goalkeeper. The 4.2 table says "refused". Record it as a
+  known deviation; fixing it needs a design decision.
+- **Pin 4.3 "Organize" is not met.** The coach sheet never names the goal's size or the equipment (one 12 x 6 ft goal, cones,
+  three bib colours).
+- **Pin "no fact said twice" is in question.** "own side of the marked line" appears in the restart set-up sentence and the
+  restart-location sentence.
+
+Neither failing pin can be fixed mechanically: both need new or changed coach words, which are Christian's to review. Report
+them and **do not add a failing test**.
+
 ## 1. The verification matrix (design 4.2)
 
 - **Setup:** BUILT bundle, 40 x 30 m.
