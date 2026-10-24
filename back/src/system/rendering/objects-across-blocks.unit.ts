@@ -399,14 +399,16 @@ test('layoutOf (TEST-ONLY copies): an object one block places, an object placed 
 
 // ── 6. Only what actually moves ─────────────────────────────────────────────────────────────────────────
 test('the exchange says only what actually moves: an empty account names nothing and sets nothing out again; fidelity refuses "set out again" there', () => {
-    // TEST-ONLY: two blocks read alike (block 1's game twice) with the near zone short of a touchline in both, so the layout cannot apply and
-    // nothing moves: the account is given, empty.
+    // TEST-ONLY: two blocks read alike (block 1's game twice) with the marked line short of a touchline in both, so the layout cannot apply and
+    // nothing moves: the account is given, empty. Re-pointed 24 October 2026 (stage L, the d27 design's stage L(a): "physical-layout.ts sets
+    // out once any region that is not full width"): was the near ZONE short of a touchline, which is now an area set out once as itself (a
+    // rectangle) where it is at one place in every block; a LINE that does not run across the full width still stops the layout.
     const [first] = productionBlocks.map(bare)
     const twin: Block[] = [first, { blockId: productionBlocks[1].blockId, fixture: copy(first.fixture) }]
-    for (const entry of twin) entry.fixture.status.geometry.find((g: any) => g.path === `space.regions[${NEAR}].position.across`).geometry.interval = { from: 0, to: 29 }
+    for (const entry of twin) entry.fixture.status.geometry.find((g: any) => g.path === `space.regions[${LINE}].position.across`).geometry.interval = { from: 0, to: 29 }
     const still = layoutOf(twin, movers)
     assert.equal(still.applies, false)
-    assert.ok(still.why.some(why => why.startsWith(`${NEAR} does not run across the full width`)))
+    assert.ok(still.why.some(why => why.startsWith(`${LINE} does not run across the full width`)))
     assert.deepEqual(still.remarking, { lengthM: 40, changes: [] })
     // And with no mark inside the area at all (TEST-ONLY: every region on an end line): nothing to set out besides the area, none owed a
     // reason, and nothing moves, so the account is given empty too (until this stage: null in both cases).

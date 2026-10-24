@@ -169,8 +169,8 @@ export const KIND_OF_ROW: Record<string, Kind | 'TRANSITION' | 'NAME'> = {
     S4: 'ORGANISATION',
     S5: 'ORGANISATION',
     S6: 'ORGANISATION',
-    // The object a region is bound to (register version 21, H3, 23 October 2026): part of setting the region out, as its position. No
-    // sentence says it yet (its wording is Stage G's), so fidelity refuses a game that establishes it.
+    // The object a region is bound to (register version 21, H3, 23 October 2026): part of setting the region out, as its position. Since
+    // stage L (24 October 2026) the region's own Set up sentence cites it (render-concrete-game.ts, the DRAFT wording data's boundRegions).
     S7: 'ORGANISATION',
     SV1: 'ORGANISATION',
     DV1: 'ORGANISATION',
@@ -293,6 +293,9 @@ export const KIND_OF_ROW: Record<string, Kind | 'TRANSITION' | 'NAME'> = {
     B9: 'SCORING',
     // Whether the teams change ends at a coach-called block (register version 18, stage D, 23 October 2026): said with the exchange, as B3.
     B10: 'ROLE_EXCHANGE',
+    // How play restarts after every dead ball (register version 23, R1, 24 October 2026): a restart fact. Cited by the sentence saying when
+    // the restarts happen, which the episode's opening places in How it works; it never pulls a sentence there by itself.
+    RP1: 'RESTART',
 }
 
 /**
@@ -310,9 +313,23 @@ export const KIND_OF_ROW: Record<string, Kind | 'TRANSITION' | 'NAME'> = {
  * item 2, "If markings change location between blocks, the instructions should identify what needs to be adjusted."): cited by the
  * exchange sentence beside the regions it names, it decides no section (`null`), like the layout's policy, and is not owed to the first
  * read; the regions it names are cited by the Set up sentences that mark them.
+ *
+ * **And the game's default-laws account** (R3, 24 October 2026: `rendering-fixture.ts` `defaultLawPath`, the d27 design's stage R3; his
+ * reply filed 27 October 2026, item 2, "I approve no [restriction on position] for this initial realization, with that modification
+ * communicated once to the coach."): a law the activity removes without replacing it changes how play runs, so a sentence telling the coach
+ * so is placed with how play runs (How it works, read to understand and begin), as the design keeps it in Details ("[No restriction on
+ * position], handling and the normal rules stay in Details"). A restart law is never cited here (its noun is said in Restarts and ball out,
+ * citing the policy).
  */
 export const KIND_OF_ROOT: { root: string; kind: Kind | null }[] = [
     { root: 'adjustments', kind: 'ADJUSTMENT' },
+    // Stage L (24 October 2026): a clause saying what a law the account records as applying gives the coach (the handling inside a region
+    // bound to an object, the colour that tells its performer apart) qualifies a marking or the roster, so it decides no section; read before
+    // the account's general root.
+    { root: 'defaultLaws.applied', kind: null },
+    { root: 'defaultLaws', kind: 'IN_PLAY' },
+    // Stage L: the pairing a region bound to an object takes its figures from is cited beside the region it sets out, and decides nothing.
+    { root: 'boundRegions', kind: null },
     { root: 'envelope.roles', kind: 'PLAYERS' },
     { root: 'remarking', kind: null },
     { root: 'layout.policy', kind: null },

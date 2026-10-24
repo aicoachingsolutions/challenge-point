@@ -118,7 +118,12 @@ test('the DRAFT wording data loads, keyed by register vocabulary values, each cl
         const why = draftCoachWordingUnusableBecause(damaged, index)
         assert.ok(why && pattern.test(why), `${what}: ${why}`)
         // H2 (23 October 2026): with no held sentence for the normal laws either.
-        assert.deepEqual(draftCoachWordingLoadOf(damaged, index).wording, { objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null }, `${what}: an unusable file loads as no wording at all`)
+        // R1 (24 October 2026): and with no trigger phrases either (the triggers entry, his reply filed 27 October 2026, item 4).
+        // R2 (24 October 2026): nor the common restart's words, nor the restart nouns (dead-ball-wording.unit.ts pins their refusals).
+        // Re-pointed 24 October 2026 (R3): the wording gains departedLaws, empty like every other list where the file cannot be used.
+        // Re-pointed 24 October 2026 (stage L): and boundRegions and appliedLaws, empty likewise.
+        // Re-pointed 24 October 2026 (stage I): the empty wording gains objectChoices.
+        assert.deepEqual(draftCoachWordingLoadOf(damaged, index).wording, { objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [], boundRegions: [], appliedLaws: [], objectChoices: [] }, `${what}: an unusable file loads as no wording at all`)
     }
     refused(f => (f.status = 'APPROVED'), /every word here is DRAFT/, 'a file claiming approval')
     refused(f => (f.approvedBy = { who: 'TEST-ONLY' }), /approvedBy/, 'an approval key')
@@ -138,6 +143,15 @@ test('the DRAFT wording data loads, keyed by register vocabulary values, each cl
     refused(f => delete f.normalLaws.held, /does not say why it is held/, 'a held sentence not saying why')
     refused(f => (f.normalLaws.basis = { words: [], citedAs: 'his reply filed 26 October 2026, item 10' }), /quotes none of his words/, 'a held sentence with no words of his')
     refused(f => (f.normalLaws.servedAs = 'TEST-ONLY'), /normalLaws entry carries "servedAs"/, 'a held sentence with an unknown key')
+    // R1 (24 October 2026): the phrases for when a restart happens - a trigger of the register's vocabulary, once, a phrase holding no slot
+    // but {carrier}, his words - refused otherwise.
+    refused(f => (f.triggers[0].trigger = 'TEST_ONLY'), /no member of the register's trigger vocabulary/, 'a trigger outside the vocabulary')
+    // Re-pointed 24 October 2026 (R2): the list opens with SCORE now (the common restart's moments in the order said). Was: OUT_TOUCHLINE.
+    refused(f => f.triggers.push(copy(f.triggers[0])), /lists SCORE again/, 'a trigger listed twice')
+    refused(f => (f.triggers[0].phrase = 'whenever the {target} goes out'), /a slot other than \{carrier\}/, 'a phrase naming another slot')
+    refused(f => (f.triggers[2].basis = { words: [], citedAs: 'his reply filed 27 October 2026, item 4' }), /quotes none of his words/, 'a phrase with no words of his')
+    refused(f => (f.triggers[3].approved = true), /carries "approved"/, 'a phrase claiming approval')
+    refused(f => (f.triggers = { OUT_TOUCHLINE: 'TEST-ONLY' }), /triggers entry is not a list/, 'triggers not a list')
 })
 
 // ── 2 and 3. Served, every sentence ──────────────────────────────────────────────────────────────────────
@@ -158,8 +172,14 @@ test('completed in memory, the goal version is served at 12/1: every sentence, i
         '[Players] Divide 12 players into 2 teams: the building team has 6 outfield players and 1 goalkeeper; the pressing team has 5 outfield players',
         '[How it works] The building team starts with the ball',
         '[How it works] When possession changes, play carries on without a stoppage, and each team keeps attacking the same target',
-        "[How it works] The building team's goalkeeper restarts play: at the start, after either team scores and whenever you decide that an attack has run its course (at a stoppage or while play is on)",
+        // Re-pointed 24 October 2026 (R1): one restart for every dead ball (his reply filed 27 October 2026, item 4), so the moments widen
+        // and the throw-in and end-line sentences below are gone; the place is his item 6 region (DRAFT).
+        // Re-pointed 24 October 2026 (R2, DRAFT, the d27 design's section 2.8): the common restart said as one rule, as in the zone version.
+        "[How it works] The building team's goalkeeper starts play, and restarts it whenever the ball is dead: after either team scores, whenever the ball goes out of play, whenever you stop play for a foul, when you judge that an attack has run its course, and whenever you stop play for any other reason",
         '[How it works] Before each of these restarts, the building team and the pressing team each set up on their own side of the marked line; once play restarts, every player is free to move anywhere',
+        // Added 24 October 2026 (R3, DRAFT): his reply filed 27 October 2026, item 2, said once - the goal version inherits A01-R1's
+        // departure from LAW-11 (departed-law-wording.unit.ts).
+        '[How it works] There is no offside',
         "[How to score] Building team: Score by carrying the ball beyond the marked line or passing to a teammate who receives it under control beyond the line. The progression must begin with the goalkeeper's build-out and occur before the building team loses possession. Uncontrolled clearances do not score.",
         '[How to score] If the building team loses possession or plays the ball out, it cannot score again until the next goalkeeper restart.',
         `[How to score] ${PRESSING_LINE}`,
@@ -169,9 +189,10 @@ test('completed in memory, the goal version is served at 12/1: every sentence, i
         `[Role exchange] ${EXCHANGE}`,
         '[Role exchange] When you call the next block, 1 goalkeeper and 1 outfield player move to the team that becomes the building team, the goalkeeper staying with the goal',
         "[Restarts and ball out] The building team's goalkeeper restarts play from the feet, with the ball still or moving",
-        "[Restarts and ball out] You choose where the building team's goalkeeper restarts play, consistent with the intended build-out situation, within the authorized deep starting environment",
-        '[Restarts and ball out] If the ball goes out over a touchline, a player of the team that did not touch the ball last restarts play with a throw-in where the ball went out',
-        '[Restarts and ball out] If the ball goes out over either end line, a player of the team that did not touch the ball last restarts play where and how you choose, preserving meaningful game relationships rather than creating an automatic scoring shortcut',
+        "[Restarts and ball out] You choose where the building team's goalkeeper restarts play, consistent with the intended build-out situation, on the building team's side of the marked line",
+        // Added 24 October 2026 (R2, DRAFT): the restarts its account departs from, the goal end's too (his reply filed 27 October 2026,
+        // item 4: "There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity.").
+        '[Restarts and ball out] There are no throw-ins, corners, goal kicks, free kicks or penalties in this activity; fouls still matter, so deal with them appropriately',
         '[Adjusting the activity] You may choose to add a pressing player; with every player already in a team, reallocate someone or introduce an additional player: adding a pressing player can increase pressure but may also expose space behind the press',
         "[Adjusting the activity] You may choose to remove a build-out player, deciding where that player goes so every player is still accounted for, reducing the building team's available support options",
         '[Adjusting the activity] You may choose to move the marked line nearer to either end line',

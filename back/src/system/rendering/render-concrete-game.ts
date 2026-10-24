@@ -45,7 +45,7 @@
  * The standing rule that follows from that: **if a sentence here names something in the game, the name
  * comes from the game and the path is cited.** "Obvious in the sport" is not a source.
  */
-import { bindingOf } from '../derivation/bound-regions'
+import { bindingOf, regionFunctionsOf } from '../derivation/bound-regions'
 import { nonClaimState } from '../derivation/classify'
 import { loadRegister } from '../derivation/corpus'
 import { participantOf, sameParticipant } from '../derivation/participants'
@@ -55,9 +55,10 @@ import { NO_FURTHER_VALUE } from '../derivation/types'
 import { CONDITION_ROW, conditionScopeNotEvaluable } from '../derivation/resolved-game'
 import { ApprovedTemplateSentence, approvedTemplateSentences, approvedWording, ApprovedWording, canonicalJson, fillTemplate, POSSESSION_CONTINUES, WordingMatch } from './approved-wording'
 import { exclusionFor } from './coach-facing-exclusions'
-import { facingWording, fillSlots, objectKindWording, scoresAtAnObject, scoringAtObjectWording } from './draft-coach-wording'
+import { appliedLawReading, appliedLawWordings, boundRegionWording, deadBallRestartWording, departedLawWordings, facingWording, fillSlots, normalLawsWording, objectKindWording, restartLawNouns, scoresAtAnObject, scoringAtObjectWording, slotsOf, triggerWording, triggerWordingOrder } from './draft-coach-wording'
 import { eventKindOf, genericOf } from './game-reading'
-import { MARK_UNION_ONCE, MarkingChange, PhysicalLayout, Remarking, somethingMoves } from './physical-layout'
+import { LayoutRectangle, MARK_UNION_ONCE, MarkingChange, PhysicalLayout, Remarking, somethingMoves } from './physical-layout'
+import { appliedLawPath, appliesThroughout, boundRegionPath, DEFAULT_LAWS_OWED, defaultLawPath, departedThroughout, fixtureBoundRegion, fixtureLawAccount, owesNothing } from './rendering-fixture'
 import { ADJUSTING, assignSection, inSectionOrder, PLAY_STATE_UNREADABLE, RESTARTS, ROLE_EXCHANGE, Section, SectionFacts, TransitionReading, When } from './sections'
 
 // The two section names every importer has read from here since stages S-C1 and K3; since stage 2A they are named, with the rest
@@ -678,6 +679,17 @@ const participants = (): RegisterIndex => {
 }
 /** The end-exchange capability (register version 18, row B10; stage D, 23 October 2026), read through the same register, once. */
 const endAssignmentSpec = () => participants().endAssignment
+/** The register index the renderer reads, read once (R2: the fidelity check reads the dead-ball block's rows through the same index). */
+export const rendererRegister = (): RegisterIndex => participants()
+/**
+ * **The register's dead-ball block where the game holds its common value, or null** — R2, 24 October 2026 (register version 23, row RP1).
+ * Read through the same register the renderer reads, so the restart sentences and the fidelity check (V9) agree on which games hold the
+ * common restart and how each trigger is classed; a game keeping a restart per trigger, or a register without the block, gives null.
+ */
+export function commonDeadBallRestartIn(game: unknown): NonNullable<RegisterIndex['deadBallRestart']> | null {
+    const spec = participants().deadBallRestart
+    return spec && String(spec.path).split('.').reduce<any>((node, key) => (node == null ? undefined : node[key]), game) === spec.common ? spec : null
+}
 /** The scoring event that is ENTRY into a target region, worded for that value only (its other kinds keep the line wording). */
 const ZONE_ENTRY_EVENT = 'target_zone_entered'
 
@@ -1434,13 +1446,91 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
         return { lengthAxis, atAxis, length: (length?.to ?? 0) - (length?.from ?? 0), at: atAxis?.geometry.interval }
     }
     /**
-     * **A region bound to an object is said by no sentence yet** (H3, 23 October 2026; register version 21, row S7). Its words are Stage G's
-     * (the d26 design's N6, DRAFT, after his approval), so it is not handed to the sentences below: read as an ordinary region it would be
-     * told as a strip "along the touchline", which it is not. Unsaid, fidelity names it (Q5: a region with no marking instruction; Q3: its
-     * lines carried by nothing), so a game holding one is refused at communication, honestly, until its words exist. No production game
-     * holds one.
+     * **A region bound to an object is not handed to the sentences below** (H3, 23 October 2026; register version 21, row S7): read as an
+     * ordinary region it would be told as a strip "along the touchline", which it is not. Since stage L it has a sentence of its own
+     * (`boundRegionSentenceOf`, below); a bound region that sentence cannot say stays unsaid, and fidelity names it (Q5: a region with no
+     * marking instruction; Q3: its lines carried by nothing), so the game is refused at communication rather than mis-said. No production
+     * game holds one.
      */
     const regions: any[] = (game.space?.regions ?? []).filter((region: any) => !bindingOf(region, participants()))
+    const boundRegionsHeld: any[] = (game.space?.regions ?? []).filter((region: any) => !!bindingOf(region, participants()))
+    /** The game's default-laws account (the fixture's, R2), read by the bound region's clause, the roster's clause and the normal rules (stage L). */
+    const lawAccount = fixtureLawAccount(fixture)
+    /**
+     * **The Set up sentence for a region bound to an object** — stage L, 24 October 2026 (the d27 design's stage L(b), DRAFT): *"Mark the
+     * [object]'s [handling area]: {w} m wide, centred on the [object], and {d} m deep into the area; inside it the [performer] may handle the
+     * [carrier] as in a normal game."* (its nouns bracketed for the coupling ratchet; the DRAFT wording data holds them). Christian, reply filed 26 October 2026, item 7: *"Use an existing regulation [handling area] when the activity dimensions
+     * and setup permit it."* and *"The [performer]'s handling permissions and restrictions should follow the normal Laws of the Game within that
+     * area unless an authorized activity rule explicitly changes them."* (his nouns bracketed: the coupling ratchet keeps a sport's nouns out of
+     * this layer; the DRAFT wording data quotes him whole).
+     *
+     * Said only where the game holds exactly that: the region bound (row S7) to an object of a kind the DRAFT wording data has a sentence for
+     * with one of the region's functions (`boundRegionWording`: the noun and the sentence are data), the cited pairing carried in the fixture
+     * (`boundRegions`, the entry GA-BOUND-REGION held the region to) for that function, the region's realized depth along and width across
+     * exactly the pairing's, set out from the end line the object stands on and centred on it across. The figures are the pairing's, each bound
+     * to its leaf of the carried pairing (fidelity admits it there and holds it to the realized size). It cites the region's noun, functions,
+     * positions and binding, the object's kind, the pairing, and where the markings are set out once the region's rectangle in the layout.
+     *
+     * Then, where the DRAFT data has words for what a law gives inside such a region (`appliedLawWordings`, `inRegion`), the law's required
+     * preconditions bind that function to that kind (`appliedLawReading`) and the game's default-laws account records the law as applying at
+     * every place (`appliesThroughout`), the clause after "; ", {performer} the name of the specialized performer the law requires, citing the
+     * law's entries as applied (`appliedLawPath`) and the object played with. Anywhere else nothing is said, so fidelity refuses the game.
+     */
+    const boundRegionSentenceOf = (region: any, rectangle: LayoutRectangle | null): Instruction | null => {
+        const spec = participants().boundRegions
+        const binding = bindingOf(region, participants())
+        const object = binding ? objectById(binding.objectId) : null
+        if (!spec || !binding || !object || typeof object.kind !== 'string' || !objectSpec) return null
+        const id = String(region.elementId)
+        const functions = regionFunctionsOf(region, participants())
+        const wording = functions.map(member => boundRegionWording(member, object.kind)).find(Boolean) ?? null
+        const pairing = fixtureBoundRegion(fixture, id)?.pairing ?? null
+        const along = geometryFor(id, 'along')
+        const across = geometryFor(id, 'across')
+        const span = along?.geometry?.interval
+        const wide = across?.geometry?.interval
+        const at = geometryFor(object.elementId, 'along')?.geometry?.interval
+        const objectAcross = geometryFor(object.elementId, 'across')?.geometry?.interval
+        if (!wording || !pairing || pairing.region.function !== wording.function || !along?.path || !across?.path || !span || !wide || !at || !objectAcross) return null
+        const same = (a: number, b: number) => Math.abs(a - b) < 1e-9
+        const fromObjectEnd = at.from === at.to && ((at.from === 0 && same(span.from, 0)) || (at.from === areaLength && same(span.to, areaLength)))
+        const centred = same((wide.from + wide.to) / 2, (objectAcross.from + objectAcross.to) / 2)
+        if (!fromObjectEnd || !centred || !same(span.to - span.from, pairing.region.depthM) || !same(wide.to - wide.from, pairing.region.widthM)) return null
+        const text = fillSlots(wording.sentence, { object: object.kind, region: wording.noun, width: metres(pairing.region.widthM), depth: metres(pairing.region.depthM) })
+        if (text === null) return null
+        const widthAt = `${boundRegionPath(id)}.pairing.region.widthM`
+        const depthAt = `${boundRegionPath(id)}.pairing.region.depthM`
+        const bindings: Binding[] = [
+            { slot: wording.sentence.indexOf('{width}'), binding: { quantity: pairing.region.widthM, path: widthAt } },
+            { slot: wording.sentence.indexOf('{depth}'), binding: { quantity: pairing.region.depthM, path: depthAt } },
+        ]
+            .sort((a, b) => a.slot - b.slot)
+            .map(entry => entry.binding)
+        const base = `space.regions[${id}]`
+        const leadFrom = [
+            `${base}.noun`,
+            `${base}.${spec.functionLeaf}`,
+            `${base}.${spec.functionLeaf}[${wording.function}]`,
+            along.path,
+            across.path,
+            `${base}.${spec.ofObjectLeaf}`,
+            `objects[${object.elementId}].${objectSpec.kindLeaf}`,
+            widthAt,
+            depthAt,
+            ...(rectangle ? [`layout.rectangles[${rectangle.elementId}]`] : []),
+        ]
+        const parts = [part(statusAt([`${base}.noun`, along.path, across.path, `${base}.${spec.ofObjectLeaf}`], 'DERIVED'), text, leadFrom, bindings)]
+        for (const entry of appliedLawWordings()) {
+            const reading = appliedLawReading(entry.law)
+            if (!entry.inRegion || !lawAccount || !appliesThroughout(lawAccount, entry.law)) continue
+            if (!reading.regions.some(found => found.function === wording.function && found.kind === object.kind)) continue
+            const performer = reading.performerRows.map(row => participants().specializedRoleRows.get(row)).find((name): name is string => typeof name === 'string') ?? null
+            const clause = fillSlots(entry.inRegion.words, { ...(performer ? { performer } : {}), ...(carrier ? { carrier: String(carrier.kind) } : {}) })
+            if (clause === null) continue
+            parts.push(part('DERIVED', `; ${clause}`, [appliedLawPath(entry.law), ...(slotsOf(entry.inRegion.words).includes('carrier') && carrier ? [`objects[${carrier.elementId}].kind`] : [])]))
+        }
+        return joined('Set up', parts)
+    }
 
     /**
      * **Both end lines in one sentence — stage S-C2, 14 October 2026 (DRAFT).** His §7 asked for *"a clear starting
@@ -1720,6 +1810,13 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
             if (ranged?.preferred) instructions.push(ranged.preferred)
         }
     }
+    // Stage L: a region bound to an object, block by block where the markings are not set out once (with a layout, after the objects, below).
+    if (!layout) {
+        for (const region of boundRegionsHeld) {
+            const said = boundRegionSentenceOf(region, null)
+            if (said) instructions.push(said)
+        }
+    }
 
     /**
      * **The end zones set out once, and each role's target said by role — stage 2D, 21 October 2026 (DRAFT wording).** His item 7 above,
@@ -1810,6 +1907,16 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
                     ...(defender ? [part(statusAt([defendedAt], 'DERIVED'), `; the team with the active ${defender} defends it`, [defendedAt])] : []),
                 ]),
             )
+        }
+        /**
+         * Stage L (the d27 design's stage L(a) and (b)): each region bound to an object, set out once where the layout holds it as a rectangle for
+         * this block, said after the objects (an object it is bound to is placed first), citing its rectangle.
+         */
+        const thisBlock = String((fixture as any).record?.roleBlock?.blockId ?? '')
+        for (const region of boundRegionsHeld) {
+            const rectangle = (layout.rectangles ?? []).find(entry => entry.sources.some(source => source.regionId === String(region.elementId) && source.blockId === thisBlock)) ?? null
+            const said = rectangle ? boundRegionSentenceOf(region, rectangle) : null
+            if (said) instructions.push(said)
         }
         const layoutTarget = (region: any): { text: string; from: string[]; bindings: Binding[] } | null => {
             if (typeof region?.noun !== 'string' || region.noun === 'line') return null
@@ -2099,6 +2206,27 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
     const rosterParts = [...roster, ...rolesEach, ...(neutralPart ? [neutralPart] : [])]
     rolesNone.forEach(({ role, from }, i) => rosterParts.push(part('SESSION', `${neutralPart || i > 0 ? ' and' : ', with'} no ${role}s`, from)))
     rosterParts.push(...rolesUnused)
+    /**
+     * **The colour that tells a specialized performer apart** — stage L, 24 October 2026 (the d27 design's stage L(c), DRAFT: *"The Players
+     * sentence gains 'give the [performer] a colour neither team wears'"*). Christian, reply filed 27 October 2026, item 6: *"The [performer]
+     * should be visually distinguishable from the outfield players."* (his noun bracketed for the coupling ratchet; the data file quotes him
+     * whole, and names the law of the sport it also rests on). Said after "; " at the end of the roster sentence, where the DRAFT data has words
+     * for it (`appliedLawWordings`, `distinguished`) and the game's default-laws account records that law as applying at every place, {performer}
+     * the name of the specialized performer the law requires; citing the law's entries as applied and that performer's count in the teams. So it
+     * is said where the performer's handling law applies (the goal version) and not in the served zone version, which owes that law: its
+     * handling is his to decide (his reply filed 27 October 2026, item 5), and the colour shows who may handle (OUR READING, disclosed).
+     */
+    if (rosterParts.length && lawAccount) {
+        for (const entry of appliedLawWordings()) {
+            if (!entry.distinguished || !appliesThroughout(lawAccount, entry.law)) continue
+            const row = appliedLawReading(entry.law).performerRows.find(candidate => typeof participants().specializedRoleRows.get(candidate) === 'string')
+            const performer = row ? participants().specializedRoleRows.get(row)! : null
+            const leaf = row ? String(participants().rows.get(row)?.path ?? '').split('[].').pop() : null
+            const clause = performer ? fillSlots(entry.distinguished.words, { performer }) : null
+            if (!clause || !leaf) continue
+            rosterParts.push(part('DERIVED', `; ${clause}`, [appliedLawPath(entry.law), `performers.teams[].${leaf}`]))
+        }
+    }
     if (rosterParts.length) instructions.push(joined('Players', rosterParts))
     for (const adjusting of neutralAdjusting.filter(i => i.section === 'Players')) instructions.push(adjusting)
 
@@ -2477,8 +2605,36 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
     const partStatus = (paths: string[]): SourceStatus => combinedStatus(paths.map(p => statusOf.get(p) ?? 'DERIVED'))
     const restarting = transitionsHeld.filter(transition => transition?.playState === 'STOP_RESUME')
 
+    /**
+     * **When a restart happens, in DRAFT data words first** — R1, 24 October 2026 (the d27 design's stage R1, section 2.8: *"The trigger
+     * phrases come from data. draft-coach-wording.json gains a `triggers` map ... The renderer reads data before its TRIGGER_PHRASE
+     * table."*). Christian, reply filed 27 October 2026, item 4: *"Whenever the [object] becomes dead, play resets to a new
+     * [specialized-role]-initiated build-out."* (his nouns bracketed for the coupling ratchet). A trigger the DRAFT wording data words
+     * (`draft-coach-wording.ts` triggerWording) has that phrase, its slot {carrier} filled with the kind of the object played with; any
+     * other has the table's words above, exactly as before; a trigger with neither has none, so its restart stays uncarried and fidelity
+     * refuses it. `carrier` says whether the phrase names the object, so the part saying it cites the object's kind.
+     *
+     * **R2, 24 October 2026: the data words are the common restart's moments only** (the d27 design's stage R2, section 2.8; the R1 review's
+     * should-fix: in a game keeping a restart per trigger, two triggers sharing one phrase would claim more than a group holding only one of
+     * them). Read only where the game's dead-ball restart policy is the register's common value (`commonPolicy`, read through the register's
+     * dead-ball block: its row's path and its common value, so no row or value is named here); every other game is said by the table above and
+     * the out-of-play sentences below, exactly as before R1.
+     */
+    const deadBall = participants().deadBallRestart
+    const commonPolicy = !!deadBall && fieldOf(game, deadBall.path) === deadBall.common
+    const triggerPhraseOf = (transition: any): { words: string; carrier: boolean } | null => {
+        const trigger = triggerOf(transition)
+        if (!trigger) return null
+        const entry = commonPolicy ? triggerWording(trigger) : null
+        if (entry) {
+            const words = fillSlots(entry.phrase, objectNoun ? { carrier: objectNoun } : {})
+            return words === null ? null : { words, carrier: slotsOf(entry.phrase).includes('carrier') }
+        }
+        return TRIGGER_PHRASE[trigger] ? { words: TRIGGER_PHRASE[trigger], carrier: false } : null
+    }
+
     // The restarts awarded to a team holding a role, keyed on triggers the maps word: said together where they restart alike.
-    const roleRestarts = restarting.filter(t => teamNoun(t.awardedTo) && TRIGGER_PHRASE[triggerOf(t) ?? ''] && METHOD_PHRASE[t?.placement?.method] && takerOf(t) && coachDecides(t?.placement?.region) !== null && objectNoun)
+    const roleRestarts = restarting.filter(t => teamNoun(t.awardedTo) && triggerPhraseOf(t) && METHOD_PHRASE[t?.placement?.method] && takerOf(t) && coachDecides(t?.placement?.region) !== null && objectNoun)
     const restartGroups = new Map<string, any[]>()
     for (const transition of roleRestarts) {
         const key = JSON.stringify([transition.awardedTo, transition.placement.actor, transition.placement.method, transition.placement.region])
@@ -2560,29 +2716,153 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
      * is a part of its own citing the same selector: it says more of the same trigger (when the coach may judge it), so the words it
      * qualifies still say that trigger without it. The sentence's text, status and citations are exactly as before.
      */
-    for (const group of restartGroups.values()) {
+    /**
+     * **The one restart after every dead ball, cited where it is said** — R1, 24 October 2026 (register version 23, row RP1 and the
+     * deadBallRestart block). Christian, reply filed 27 October 2026, item 4: *"Ball becomes dead: initiate a new [specialized-role] build-out."*
+     * Where the game's dead-ball restart policy is the register's common value, the group that says when its restarts happen says the policy
+     * itself once it holds every transition that stops play on a trigger the block classes as making the ball dead: its lead cites the policy's
+     * path. Read through the register (the block's row, path, value and classes), so no row, value or trigger is named here; a game keeping a
+     * restart per trigger, or holding none, is said exactly as before.
+     */
+    const classOfTrigger = (transition: any) => deadBall?.classOf.get(triggerOf(transition) ?? '') ?? null
+    const commonRestartPath = (group: any[]): string[] => {
+        if (!deadBall || !commonPolicy) return []
+        const dead = restarting.filter(t => classOfTrigger(t) === 'STOPS_PLAY')
+        return dead.length && dead.every(t => group.includes(t)) ? [deadBall.path] : []
+    }
+    /**
+     * **The common restart said as one rule, and the sport's restarts it replaces** — R2, 24 October 2026 (the d27 design's stage R2, section
+     * 2.8). Christian, reply filed 27 October 2026, item 4: *"Ball becomes dead: initiate a new [specialized-role] build-out."* and *"There should
+     * be no separate [restarts of the sport] for this activity."*; item 3: *"If a foul or infringement requires a stoppage, the coach addresses
+     * it appropriately and restarts the build-out."* (his nouns bracketed for the coupling ratchet; the data file quotes him whole).
+     *
+     * Where a group says the policy (`commonRestartPath`: the common value, every dead-ball transition in the group), every other transition
+     * of the group is one the block classes as no stoppage (the start), at least one is, and the DRAFT data has the common value's words
+     * (`draft-coach-wording.ts` deadBallRestart), the group's WHEN sentence is said as one rule: "{Taker} starts play" (citing the awardee and
+     * taker, and the start's play state and trigger), ", and restarts it whenever the {carrier} is dead" (citing the policy, each dead-ball
+     * transition's play state and the object), then the moments, each dead-ball trigger's phrase in the order the data lists them, joined
+     * ": ", ", " and ", and ". Any other group is said exactly as before (R1's form).
+     */
+    const commonWording = deadBall && commonPolicy ? deadBallRestartWording(deadBall.common) : null
+    const commonFormOf = (group: any[]): { starters: any[]; dead: any[] } | null => {
+        if (!commonWording || !commonRestartPath(group).length) return null
+        const starters = group.filter(t => classOfTrigger(t) === 'NOT_A_STOPPAGE')
+        const dead = group.filter(t => classOfTrigger(t) === 'STOPS_PLAY')
+        return starters.length && starters.length + dead.length === group.length ? { starters, dead } : null
+    }
+    /**
+     * The laws this game's default-laws account records as departed from at any place (the fixture's account, `rendering-fixture.ts`; R2),
+     * whose restart nouns the Restarts and ball out sentence names, in the data's order. None where the game carries no account.
+     */
+    const departedLaws = new Set<string>((((fixture as any).defaultLaws?.laws ?? []) as { law: string; status: string }[]).filter(entry => entry.status === 'DEPARTED').map(entry => entry.law))
+    const orList = (items: string[]) => (items.length > 1 ? `${items.slice(0, -1).join(', ')} or ${items[items.length - 1]}` : items[0] ?? '')
+    /** The qualifiers a transition holds (T1a-T1c), cited by the words that say when it happens (R1: "goes out of play" says them all). */
+    const qualifierPaths = (transition: any): string[] => Object.keys(transition?.qualifiers ?? {}).map(field => pathAt(transition, `qualifiers.${field}`))
+    const saidInGroup = new Set<any>()
+    /**
+     * R1 (24 October 2026): a group's restarts are said in the order the register lists their triggers (its trigger vocabulary), so the start
+     * comes first and the moments read in one stable order whatever order the game holds its transitions in (a transition with qualifiers is
+     * held first, its lines coming first). A group of the start, a score and the coach's conclusion reads exactly as before.
+     */
+    const triggerOrder = participants().vocabularies.get('trigger') ?? []
+    const byTriggerOrder = (a: any, b: any) => triggerOrder.indexOf(triggerOf(a) ?? '') - triggerOrder.indexOf(triggerOf(b) ?? '')
+    /**
+     * R2 (24 October 2026): under the common restart the moments are said in the order the DRAFT data lists their phrases (the d27 design's
+     * sentence: a score, the ball going out, a foul, the coach's conclusion, any other reason), a trigger it does not list after them in the
+     * register's order.
+     */
+    const dataOrder = (transition: any) => {
+        const listed = triggerWordingOrder(triggerOf(transition))
+        return listed >= 0 ? listed : triggerOrder.length + triggerOrder.indexOf(triggerOf(transition) ?? '')
+    }
+    const byDataOrder = (a: any, b: any) => dataOrder(a) - dataOrder(b)
+    for (const held of restartGroups.values()) {
+        const group = [...held].sort(commonFormOf(held) ? byDataOrder : byTriggerOrder)
+        const common = commonFormOf(group)
         const [first] = group
         const taker = takerOf(first)!
         const who = group.flatMap(t => [pathAt(t, 'awardedTo'), pathAt(t, 'placement.actor')])
         const stops = group.map(t => pathAt(t, 'playState'))
         const methods = group.map(t => pathAt(t, 'placement.method'))
         const locations = group.map(t => pathAt(t, 'placement.region'))
-        const moments = group.flatMap((t, k) => {
-            const [words, aside] = asideOf(TRIGGER_PHRASE[triggerOf(t)!])
-            const selector = [pathAt(t, 'selector')]
-            const joiner = k === 0 ? ': ' : k === group.length - 1 ? ' and ' : ', '
-            return [part(partStatus([]), `${joiner}${words}`, selector), ...(aside === null ? [] : [part(partStatus([]), aside, selector)])]
+        /**
+         * R1 (24 October 2026): two triggers worded alike are said once, the one clause citing both (the ball going out over a touchline and
+         * over an end line: "whenever the ball goes out of play"), in the order the first of them is held; a clause cites the qualifiers of
+         * each transition it says and, where its words name the object, the object's kind. Every phrase said for one trigger alone, with no
+         * qualifier and no object, is cited exactly as before.
+         */
+        const phrases: { words: string; carrier: boolean; transitions: any[] }[] = []
+        // R2: under the common form the start is said by its lead ("starts play"), so the moments are the dead-ball transitions only.
+        for (const transition of common ? common.dead : group) {
+            const phrase = triggerPhraseOf(transition)!
+            const same = phrases.find(entry => entry.words === phrase.words)
+            if (same) same.transitions.push(transition)
+            else phrases.push({ ...phrase, transitions: [transition] })
+        }
+        const lastJoiner = common && phrases.length > 2 ? ', and ' : ' and '
+        const moments = phrases.flatMap((entry, k) => {
+            const [words, aside] = asideOf(entry.words)
+            const qualifiers = entry.transitions.flatMap(qualifierPaths)
+            const cited = [...entry.transitions.map(t => pathAt(t, 'selector')), ...qualifiers, ...(entry.carrier ? objectPath : [])]
+            const joiner = k === 0 ? ': ' : k === phrases.length - 1 ? lastJoiner : ', '
+            return [part(partStatus(qualifiers), `${joiner}${words}`, cited), ...(aside === null ? [] : [part(partStatus(qualifiers), aside, cited)])]
         })
-        instructions.push(joined('How it works', [part(partStatus([...who, ...stops]), `${capital(taker)} restarts play`, [...who, ...stops]), ...moments]))
+        const policy = commonRestartPath(group)
+        for (const transition of group) saidInGroup.add(transition)
+        if (common && commonWording) {
+            const startFields = [...who, ...common.starters.flatMap(t => [pathAt(t, 'playState'), pathAt(t, 'selector')])]
+            const restartFields = [...policy, ...common.dead.map(t => pathAt(t, 'playState')), ...(slotsOf(commonWording.restarts).includes('carrier') ? objectPath : [])]
+            const starts = fillSlots(commonWording.starts, { taker })!
+            const restarts = fillSlots(commonWording.restarts, objectNoun ? { carrier: objectNoun } : {})
+            instructions.push(
+                joined('How it works', [
+                    part(partStatus(startFields), capital(starts), startFields),
+                    ...(restarts === null ? [] : [part(partStatus(restartFields), `, and ${restarts}`, restartFields)]),
+                    ...moments,
+                ]),
+            )
+        } else {
+            instructions.push(joined('How it works', [part(partStatus([...who, ...stops, ...policy]), `${capital(taker)} restarts play`, [...who, ...stops, ...policy]), ...moments]))
+        }
         if (placementResetsAt(group)) sayPlacement(group)
         instructions.push(joined(RESTARTS, [part(partStatus([...who, ...methods]), `${capital(taker)} restarts play ${METHOD_PHRASE[first.placement.method](objectNoun!)}`, [...who, ...methods, ...objectPath])]))
         const bound = coachDecides(first.placement.region)
         say(RESTARTS, partStatus([...locations, ...who]), `You choose where ${taker} restarts play${bound ? `, ${bound}` : ''}`, [...locations, ...who])
+        /**
+         * **Which of the sport's restarts the activity does not use** — R2 (the d27 design's section 2.8: *"Restarts is one new sentence, citing
+         * game::RP1. It names only the restart laws the account records as DEPARTED that have a noun in `restartLawNouns`"*). Said once, for the
+         * group that says the common restart, where the game's default-laws account (the fixture's) records a restart law with a noun as
+         * departed from at some place: "There are no {nouns} in this activity", the nouns in the data's order, then each named noun's `then`
+         * after "; " (for the restart a foul is sanctioned by: his item 3, fouls still matter). Its first part cites the policy and the team
+         * every dead-ball restart is awarded to (each dead-ball transition's awardee: the one restart that replaces each restart it names,
+         * read for the team it is said for); a `then` part cites the policy. A game with no account, or none of whose departed laws has a
+         * noun, has no such sentence.
+         *
+         * The design's words close on "before the [specialized-role] restarts" (2.8, its role noun bracketed for the coupling ratchet); they
+         * are not said: a sentence naming the specialized role with "before" is refused by fidelity's role-ordering rule (his D6,
+         * `ROLE_ORDERING`), and the How it works sentence already says the restart after a foul stoppage (the design's 4.3: no fact said
+         * twice).
+         */
+        if (common && commonWording) {
+            const named = restartLawNouns().filter(entry => departedLaws.has(entry.law))
+            const sentence = named.length ? fillSlots(commonWording.noOtherRestarts, { restarts: orList(named.map(entry => entry.noun)) }) : null
+            if (sentence) {
+                const awarded = [...policy, ...common.dead.map(t => pathAt(t, 'awardedTo'))]
+                instructions.push(
+                    joined(RESTARTS, [
+                        part(partStatus(awarded), sentence, awarded),
+                        ...named.filter(entry => entry.then).map(entry => part(partStatus(policy), `; ${entry.then}`, policy)),
+                    ]),
+                )
+            }
+        }
     }
 
-    // Ordinary restarts when the object goes out of play, one sentence per trigger where its transitions restart alike.
+    // Ordinary restarts when the object goes out of play, one sentence per trigger where its transitions restart alike. R1 (24 October
+    // 2026): a transition already said in a role's restart group above (worded in data, his reply filed 27 October 2026, item 4) is not
+    // said again here.
     const outGroups = new Map<string, any[]>()
-    for (const transition of restarting.filter(t => OUT_OF_PLAY_TRIGGERS.includes(triggerOf(t) ?? '') && takerOf(t) && objectNoun)) {
+    for (const transition of restarting.filter(t => OUT_OF_PLAY_TRIGGERS.includes(triggerOf(t) ?? '') && !saidInGroup.has(t) && takerOf(t) && objectNoun)) {
         const key = JSON.stringify([triggerOf(transition), transition.qualifiers?.endLine ?? null, transition.awardedTo, transition.placement?.actor, transition.placement?.method, transition.placement?.region])
         outGroups.set(key, [...(outGroups.get(key) ?? []), transition])
     }
@@ -2637,6 +2917,37 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
             ]),
         )
     }
+
+    /**
+     * **A law the activity removes without replacing it, told once** — R3, 24 October 2026 (the d27 design's stage R3, its section 2.8:
+     * *"[No restriction on position], said once, in both versions"*). Christian, reply filed 27 October 2026, item 2: *"I approve no
+     * [restriction on position] for this initial realization, with that modification communicated once to the coach."* (his noun bracketed
+     * for the coupling ratchet; the data file quotes him whole). For each law the DRAFT wording data has a sentence for (`departedLaws`, keyed
+     * by a law that is no restart law), said once, in How it works, where the game's default-laws account (the fixture's) records it as
+     * departed from at some place and as nothing a coach could still meet at any other (`departedThroughout`), citing that law's entries in
+     * the account (`defaultLawPath`). A game with no account, or whose account records the law otherwise, has no such sentence; every game
+     * without an account is said exactly as before.
+     */
+    const departedSentences: InstructionPart[][] = []
+    for (const entry of departedLawWordings()) {
+        if (lawAccount && departedThroughout(lawAccount, entry.law)) departedSentences.push([part('DERIVED', entry.words, [defaultLawPath(entry.law)])])
+    }
+    /**
+     * **The sport's normal rules otherwise, said only where nothing is owed** — stage L, 24 October 2026 (the d27 design's section 2.8: *"It is
+     * served only where the default-laws account owes nothing."*). Christian, reply filed 27 October 2026, item 6: *"Where normal [sport] rules
+     * remain relevant during live play, they should continue to apply unless explicitly modified."* (his noun bracketed; the data file holds the
+     * sentence whole, so the sport's noun is data). Where the game's default-laws account (the fixture's) owes nothing at any place, the DRAFT
+     * words (`normalLawsWording`) close How it works, citing the account as owing nothing (`DEFAULT_LAWS_OWED`): after "; " at the end of the
+     * last sentence for a law the activity departs from, where one is said ("There is no [restriction]; otherwise, ..."), so the departures and
+     * what holds otherwise are read together and the goal version stays within the zone version's count of sentences (the design's 4.3); else
+     * as a sentence of its own. Never where anything is owed: in the served zone version, which owes the handling law, saying it would add a
+     * restriction silently (his reply filed 27 October 2026, item 5). A game with no account says nothing of it, exactly as before.
+     */
+    const normal = normalLawsWording()
+    const normalSaid = !!normal && !!lawAccount && owesNothing(lawAccount)
+    if (normal && normalSaid && departedSentences.length) departedSentences[departedSentences.length - 1].push(part('DERIVED', `; ${normal.words.charAt(0).toLowerCase()}${normal.words.slice(1)}`, [DEFAULT_LAWS_OWED]))
+    for (const parts of departedSentences) instructions.push(joined('How it works', parts))
+    if (normal && normalSaid && !departedSentences.length) say('How it works', 'DERIVED', normal.words, [DEFAULT_LAWS_OWED])
 
     // ── How to score ────────────────────────────────────────────────────────────────────────────
     const primary = game.value?.primaryEvent

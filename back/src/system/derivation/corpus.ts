@@ -20,7 +20,7 @@ import { ContractItem, DerivationInput, LoadedContract, ROLE_YIELD_KEY } from '.
 import { boundRegionsRefusals, SportBoundRegions } from './bound-regions'
 import { repairCorpusEncoding, RepairTally } from './corpus-repair'
 import { applyNoRowRestatement, RestatementTally } from './corpus-restatement'
-import { DefaultLaws, DefaultLawsCheck, defaultLawsCheckRefusal, defaultLawsRefusals, departureRefusals, DEFAULT_LAWS_CHECK_KEY, DEPARTS_FROM_KEY } from './default-laws'
+import { DefaultLaws, DefaultLawsCheck, defaultLawsCheckRefusal, defaultLawsRefusals, departureRefusals, DEFAULT_LAWS_CHECK_KEY, DEPARTS_FROM_KEY, LawDeparture, RealizationDepartures } from './default-laws'
 import { AUDITS_DIR } from './knowledge-root'
 import { objectPositionRefusal, ObjectPositionRows } from './object-extent'
 import { designationName, indexRegister, RegisterIndex } from './register'
@@ -253,6 +253,11 @@ export function loadSportDefaultLaws(read: (file: string) => any = readJson, ind
             applicableWhen: law.applicableWhen,
             requires: law.requires,
             note: law.note ? String(law.note) : null,
+            // R1 (24 October 2026): why the profile lists it and whether it is a restart law, both required and validated above.
+            // `restart` is read by the default-laws account's common-restart clause; `listedFor` by the data test holding every
+            // DEPARTURE law to a realization that departs from it.
+            listedFor: law.listedFor,
+            restart: law.restart === true,
         })),
     }
 }
@@ -458,6 +463,16 @@ export interface ProvisionalRealization extends LoadedContract {
      * (`departsFrom`) are read from its composed items, never projected apart from them.
      */
     defaultLawsCheck?: DefaultLawsCheck
+    /**
+     * **The departures it records on itself, for a law its activity removes without replacing it** (R3, 24 October 2026; the d27 design's
+     * section 2.6: *"Realization-level `departsFrom`, for a law the activity removes without replacing it. The field is added beside the item
+     * departures, validated by the same departureRefusals, and read by the check."*). Christian, reply filed 27 October 2026, item 2: *"I
+     * approve no [restriction on position] for this initial realization, with that modification communicated once to the coach."* (his noun
+     * bracketed for the coupling ratchet). Its own where the file states them, else its base's for a variant (*"A01-R2 inherits it, following
+     * the defaultLawsCheck inheritance pattern"*), cited by the realization whose entry they are; absent where neither states any. Read only by
+     * the default-laws account (`realization/default-laws-check.ts`), beside its composed items' departures.
+     */
+    realizationDepartures?: RealizationDepartures
 }
 
 /** What a realization's authorized knowledge says suits its objects of one kind (stage E): a width range in metres, in his cited words. */
@@ -602,6 +617,14 @@ export function validateProvisionalRealizations(
  * a named part, a precondition of that law's own); and no departure recorded where nothing reads it - a realization recording departures
  * (its own, or kept from its base) while declaring no check, own or inherited, is refused, because an account no build computes would hold
  * his words that nothing says. A declaration or a departure without the profile's block is refused likewise. Empty where nothing is refused.
+ *
+ * **R3, 24 October 2026 (the d27 design's sections 0.5 and 2.6): the departures a realization records on itself** (`departsFrom` beside its
+ * items, for a law its activity removes without replacing it: *"Both are validated by the same departureRefusals."*). Held to exactly an
+ * item's rules (`departureRefusals`), and counted with its items' where a check must read them (its own, or its base's for a variant stating
+ * none: inherited as the check is). Two NEW refusals, tightenings: a law it departs from on itself that one of its composed items (its own,
+ * or kept from its base) departs from too - the design's rule *"Departures sit on the item that replaces a law. A realization-level
+ * `departsFrom` holds a law the activity removes without replacing it"*, so one law has one record and the account never cites two for it;
+ * and, as for an item, a departure on itself that no check would read.
  */
 function defaultLawsDeclarationRefusals(realization: any, realizations: any[], which: string, items: any[], defaultLaws: DefaultLaws | null, indexOnce: () => RegisterIndex): string[] {
     const errors: string[] = []
@@ -617,13 +640,46 @@ function defaultLawsDeclarationRefusals(realization: any, realizations: any[], w
         if (!defaultLaws) errors.push(`${at} records a departure from the normal laws, and the Sport Profile names no default laws`)
         else errors.push(...departureRefusals(item[DEPARTS_FROM_KEY], defaultLaws.laws, at, indexOnce()))
     }
+    // R3: the departures it records on itself, held to an item's rules.
+    const own = realization && typeof realization === 'object' && DEPARTS_FROM_KEY in realization ? realization[DEPARTS_FROM_KEY] : undefined
+    if (own !== undefined) {
+        if (!defaultLaws) errors.push(`${which} records a departure from the normal laws on itself, and the Sport Profile names no default laws`)
+        else errors.push(...departureRefusals(own, defaultLaws.laws, `${which} (on itself)`, indexOnce()))
+    }
     const base = realization?.basedOn !== undefined ? realizations.find(candidate => candidate?.id === realization.basedOn) : undefined
     const declared = check !== undefined || (base !== undefined && base?.[DEFAULT_LAWS_CHECK_KEY] !== undefined)
     const withdrawn = new Set(((Array.isArray(realization?.withdraws) ? realization.withdraws : []) as any[]).map(entry => String(entry?.item ?? '')))
     const kept = base && Array.isArray(base.items) ? base.items.filter((item: any) => !withdrawn.has(String(item?.id ?? ''))) : []
     const recording = [...items, ...kept].filter((item: any) => !!item && typeof item === 'object' && DEPARTS_FROM_KEY in item)
-    if (recording.length && !declared) {
-        errors.push(`${which} records departures from the normal laws (${recording.map((item: any) => String(item.id)).join(', ')}) and declares no default-laws check, so nothing would read them`)
+    // R3: its own departures on itself, else its base's (a variant inherits them as it inherits the check), and who records them.
+    const inherited = own === undefined && base && typeof base === 'object' && DEPARTS_FROM_KEY in base ? base[DEPARTS_FROM_KEY] : undefined
+    const onItself = own ?? inherited
+    const recorder = own !== undefined ? 'itself' : `its base ${String(base?.id ?? '')}`
+    if (Array.isArray(onItself)) {
+        for (const law of [...new Set(onItself.map((departure: any) => String(departure?.law ?? '')))]) {
+            const alsoOn = recording.filter((item: any) => Array.isArray(item[DEPARTS_FROM_KEY]) && item[DEPARTS_FROM_KEY].some((departure: any) => String(departure?.law ?? '') === law))
+            if (alsoOn.length) {
+                errors.push(
+                    `${which} departs from ${law} on ${recorder} and on its item${alsoOn.length === 1 ? '' : 's'} ${alsoOn.map((item: any) => String(item.id)).join(', ')}: a law the activity removes without replacing it is recorded on the realization, a law an item replaces on that item, never both`,
+                )
+            }
+        }
+    }
+    /**
+     * Stage L, 24 October 2026 (the R3 review's should-fix, a NEW refusal, a tightening): a variant's own departures on itself replace its
+     * base's list whole (`loadProvisionalRealizations` reads its own, else its base's), unlike its items, which it keeps unless it withdraws
+     * them. So a variant stating a list on itself restates every law its base departs from on itself: a law left out would silently fall back
+     * to being owed (under ENFORCE, a refusal nobody chose).
+     */
+    if (Array.isArray(own) && base && typeof base === 'object' && Array.isArray(base[DEPARTS_FROM_KEY])) {
+        const stated = new Set(own.map((departure: any) => String(departure?.law ?? '')))
+        for (const law of [...new Set((base[DEPARTS_FROM_KEY] as any[]).map(departure => String(departure?.law ?? '')))]) {
+            if (!stated.has(law)) errors.push(`${which} states departures on itself and leaves out ${law}, which its base ${String(base.id ?? '')} departs from on itself: a variant's own list replaces its base's whole, so it restates every law of it (a law left out would silently be owed again)`)
+        }
+    }
+    if ((recording.length || onItself !== undefined) && !declared) {
+        const named = [...recording.map((item: any) => String(item.id)), ...(onItself !== undefined ? [own !== undefined ? 'the realization itself' : `${recorder} itself`] : [])]
+        errors.push(`${which} records departures from the normal laws (${named.join(', ')}) and declares no default-laws check, so nothing would read them`)
     }
     return errors
 }
@@ -832,6 +888,16 @@ export function loadProvisionalRealizations(file: any = readJson(PROVISIONAL_REA
      */
     const defaultLawsCheckOf = (realization: any): any =>
         realization[DEFAULT_LAWS_CHECK_KEY] ?? (realization.basedOn !== undefined ? rawById.get(String(realization.basedOn))[DEFAULT_LAWS_CHECK_KEY] : undefined)
+    /**
+     * The departures it records on itself (R3, 24 October 2026): its own where it states them, cited by itself, else its base's for a variant,
+     * cited by its base (read once, like its check), else none. The gate above has held each to an item's rules, refused a law also departed
+     * from by one of its composed items, and refused any no check reads.
+     */
+    const realizationDeparturesOf = (realization: any): RealizationDepartures | undefined => {
+        const recordedBy = realization[DEPARTS_FROM_KEY] !== undefined ? realization : realization.basedOn !== undefined ? rawById.get(String(realization.basedOn)) : undefined
+        const departures = recordedBy?.[DEPARTS_FROM_KEY]
+        return Array.isArray(departures) ? { recordedBy: String(recordedBy.id), departures: JSON.parse(JSON.stringify(departures)) as LawDeparture[] } : undefined
+    }
     return (copy.realizations as any[]).map(realization => ({
         contractId: String(realization.contractId),
         objectId: String(realization.contractId),
@@ -845,6 +911,7 @@ export function loadProvisionalRealizations(file: any = readJson(PROVISIONAL_REA
             : {}),
         ...(Array.isArray(realization.objectSuitability) ? { objectSuitability: JSON.parse(JSON.stringify(realization.objectSuitability)) as ObjectSuitability[] } : {}),
         ...(defaultLawsCheckOf(realization) !== undefined ? { defaultLawsCheck: JSON.parse(JSON.stringify(defaultLawsCheckOf(realization))) as DefaultLawsCheck } : {}),
+        ...(realizationDeparturesOf(realization) ? { realizationDepartures: realizationDeparturesOf(realization)! } : {}),
         declarations: [],
         relationshipRules: [],
         provisionalId: String(realization.id),

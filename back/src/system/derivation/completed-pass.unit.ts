@@ -50,10 +50,12 @@ test('COMPLETED_PASS is a registered trigger, and the vocabulary version records
     // 10 -> 11 and version 3 -> 4 on 15 October 2026 (stage K5): COACH_JUDGED_EPISODE_CONCLUSION, his M4 of 17 October,
     // is the next member (pinned in starts-and-restarts.unit.ts). COMPLETED_PASS was the one member version 3 added, and
     // version 4's entry keeps saying so.
-    assert.equal(index.vocabularies.get('trigger')!.length, 11, 'one member added, not several, by each version')
+    // 11 -> 13 and version 4 -> 5 on 24 October 2026 (R1): INFRINGEMENT_STOPPAGE and COACH_DIRECTED_STOPPAGE, two occasions of his reply
+    // filed 27 October 2026, item 4 (pinned in dead-ball-restart.unit.ts); version 5's entry keeps the earlier versions' words.
+    assert.equal(index.vocabularies.get('trigger')!.length, 13, 'the members each version added, and no others')
     assert.equal(index.vocabularies.get('trigger')!.indexOf('COMPLETED_PASS'), 9)
     const version = String(register.vocabularies.versions.trigger)
-    assert.match(version, /^4 /, 'the version is bumped, so a stored result can be known stale')
+    assert.match(version, /^5 /, 'the version is bumped, so a stored result can be known stale')
     assert.match(version, /Version 3, 2026-10-04: adds COMPLETED_PASS/, version)
 })
 
@@ -303,19 +305,26 @@ test('registering the member changed no verdict in any of the thirteen goals', (
      * D02 and TD02 +1, TA02 and A05 +4 (the targets and the channels), A03 and A06 +2 (the channels), the old A01 composition +4.
      * GA-NO-FAILED-LINE does not block on them, and GA-BOUND-REGION reads a silent line as no binding.
      */
-    const A01_COMPOSITION = { failed: 16, gateA: 'FAIL', reachable: true }
+    /**
+     * **19 · 24 October, R1 — every composition but A01 +1 failed line, measured; no verdict moves.** Register version 23 (his reply filed 27
+     * October 2026, item 4) adds the game-level row RP1, how play restarts after a dead ball. One game-level row is one line in every game
+     * (game::RP1), as B10's was; no corpus item writes it, so it is unauthored and nobody spoke for it ('no coverage'), GA-NO-FAILED-LINE does
+     * not block on it, every game keeps a restart per trigger, and GA-DEAD-BALL-RESTART passes vacuously. A01's zone version writes it
+     * (A01-R1-RP1-1, COMMON), so its line resolves and A01 stays at 17: the items its common restart withdrew held no failed line.
+     */
+    const A01_COMPOSITION = { failed: 17, gateA: 'FAIL', reachable: true }
     const expected: Record<string, { failed: number; gateA: string; reachable: boolean }> = {
         A01: { failed: 17, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
-        D01: { failed: 11, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
-        TA01: { failed: 21, gateA: 'FAIL', reachable: false },
-        TD01: { failed: 18, gateA: 'FAIL', reachable: false },
-        D02: { failed: 18, gateA: 'FAIL', reachable: false },
-        TA02: { failed: 14, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
-        TD02: { failed: 18, gateA: 'FAIL', reachable: false },
-        A03: { failed: 11, gateA: 'FAIL', reachable: true },
-        A04: { failed: 11, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
-        A05: { failed: 14, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
-        A06: { failed: 11, gateA: 'FAIL', reachable: true },
+        D01: { failed: 12, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
+        TA01: { failed: 22, gateA: 'FAIL', reachable: false },
+        TD01: { failed: 19, gateA: 'FAIL', reachable: false },
+        D02: { failed: 19, gateA: 'FAIL', reachable: false },
+        TA02: { failed: 15, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
+        TD02: { failed: 19, gateA: 'FAIL', reachable: false },
+        A03: { failed: 12, gateA: 'FAIL', reachable: true },
+        A04: { failed: 12, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
+        A05: { failed: 15, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
+        A06: { failed: 12, gateA: 'FAIL', reachable: true },
     }
     const gaps: string[] = []
     for (const goal of [...goals, 'A01 composition until 15 October']) {
@@ -343,6 +352,8 @@ test('registering the member changed no verdict in any of the thirteen goals', (
         assert.ok(!failedLines.includes('game::PS1'), `${goal}: the possession relation is bounded now, so it must not be a failed line`)
         assert.ok(failedLines.includes('game::P6c'), `${goal}: the neutral timing is spoken of by no contract this goal selects (row added 14 October 2026)`)
         assert.ok(failedLines.includes('game::B10'), `${goal}: the end assignment is spoken of by no contract this goal selects, so the game keeps its ends (row added 23 October 2026, stage D)`)
+        // R1 (24 October 2026): the dead-ball restart policy, spoken of only by A01's zone version.
+        assert.equal(failedLines.includes('game::RP1'), goal !== 'A01', `${goal}: the dead-ball restart policy is written by A01's zone version alone (row added 24 October 2026, R1)`)
         assert.ok(
             failedLines.includes('c:sport-profile:soccer:SPORT-SOCCER-01::O3'),
             `${goal}: the ball's count is deliberately unconstrained, so it stays a declared non-requirement and keeps the total steady`,
@@ -419,6 +430,9 @@ test('an item authoring the token is admitted WITH the member and rejected WITHO
         const input: any = gateComposition()
         input.register = JSON.parse(JSON.stringify(input.register))
         input.register.vocabularies.trigger = vocabulary
+        // R1 (24 October 2026): the dead-ball block classes every member of the trigger vocabulary and nothing else (register load, halt
+        // H1), so the copy that drops the member drops its class entry too; the copy that keeps it keeps the block as it is.
+        for (const cls of Object.values(input.register.deadBallRestart.classes) as any[]) cls.triggers = cls.triggers.filter((t: string) => vocabulary.includes(t))
         const pcg: any = input.contracts.find((c: any) => /PASS-COMBINATION/.test(String(c.contractId)))
         const model = (pcg.items as any[]).find(i => i.checkability && i.row === 'V18')
         pcg.items = [

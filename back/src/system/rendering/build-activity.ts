@@ -33,7 +33,7 @@
  *
  * It does not touch generation. Nothing here calls the frozen activity-generation path.
  */
-import { boundRegionsRefusals, SportBoundRegions } from '../derivation/bound-regions'
+import { bindingOf, boundRegionsRefusals, SportBoundRegions } from '../derivation/bound-regions'
 import { loadRegister, loadSportBoundRegions, loadSportCoachVocabulary, loadSportDefaultLaws, ProvisionalRealization, provisionalRealizationNamed, TestingBoundaries } from '../derivation/corpus'
 import { isStampedHalt } from '../derivation/emit'
 import { runDerivation, runStages0to10, runStages0to5 } from '../derivation/engine'
@@ -48,7 +48,7 @@ import { LoadedContract, RoleBlock } from '../derivation/types'
 import { gpLibrary } from '../knowledge-core/gp-library'
 import { completeConcreteGame, ObjectAvailabilityRefusal, objectAvailabilityRefusal, rosterRefusal, RosterRefusal } from '../realization/assemble-concrete-game'
 import { boundRegionAccountOf, BoundRegionRefusal, boundRegionRefusalAfter, boundRegionRefusalBefore } from '../realization/bound-region-check'
-import { DefaultLawsAccount, defaultLawsAccountOf } from '../realization/default-laws-check'
+import { blockLawAccountOf, DefaultLawsAccount, defaultLawsAccountOf } from '../realization/default-laws-check'
 import { runPostRealizationGates } from '../realization/post-realization-gate'
 import { realizeWithJustifiedDefaults, StrandedCount } from '../realization/justified-defaults'
 import { checkRealization, isRefused, Realized } from '../realization/realize'
@@ -77,6 +77,7 @@ import { assembleRenderingFixture } from './rendering-fixture'
 import { layoutMoversOf, layoutOf, remarkingSummary } from './physical-layout'
 import { checkRoleBlockComposition, checkRoleBlockLayout, checkRoleBlocks, composeRoleBlockActivity, RoleBlockCheck, roleBlockFixture } from './role-blocks'
 import { ActivitySession, availabilityQuestion, objectAvailabilityQuestion, ObjectQuestionAsks } from './session-envelope'
+import { choicesAnswering, choicesSuitedTo, ObjectChoice, objectChoicesOf } from './session-object-choices'
 
 export type { ActivitySession } from './session-envelope'
 
@@ -260,6 +261,15 @@ export interface SessionQuestion {
     attribute?: { name: string; values: string[] }
     words: string
     status: 'DRAFT'
+    /**
+     * **The choices the coach answers it by** — stage I, 24 October 2026 (the d27 design's stage I(a) and (c): the build's question offers the
+     * same choices as the session's own, including the ATTRIBUTE question; `session-object-choices.ts`). For the kind asked: each authorized
+     * object a Sport Profile pairing gives a region for, named with its document and size and stating its width and type exactly as the
+     * pairing records them; each attribute value the wording lists; another object whose width the coach enters; none. For an ATTRIBUTE ask,
+     * only those stating a value of the attribute, and none. Empty where the wording labels none for the kind (then the question is answered
+     * as before). DRAFT labels.
+     */
+    choices: ObjectChoice[]
 }
 
 /**
@@ -736,11 +746,19 @@ function rosterSummary(roster: RosterRefusal): { stage: ActivityStage; summary: 
  * build may try the next one; suitability nobody has decided, and a count the game itself leaves unsettled, are the knowledge's and the game's,
  * typed as nothing, so they refuse the activity.
  */
-function objectSummary(refusal: ObjectAvailabilityRefusal, subject: string): { stage: ActivityStage; summary: string; applicability: Applicability | null; question?: SessionQuestion } {
+function objectSummary(
+    refusal: ObjectAvailabilityRefusal,
+    subject: string,
+    session: ActivitySession,
+    boundRegions: SportBoundRegions | null,
+    index: ReturnType<typeof indexRegister>,
+): { stage: ActivityStage; summary: string; applicability: Applicability | null; question?: SessionQuestion } {
     switch (refusal.cause) {
         case 'OBJECT_AVAILABILITY_NOT_STATED': {
             const words = objectAvailabilityQuestion(refusal.kind, refusal.asks)
-            return { stage: 'session', summary: words, applicability: { verdict: 'ASK', cause: 'OBJECT_AVAILABILITY_NOT_STATED' }, question: { kind: 'OBJECT_AVAILABILITY', objectKind: refusal.kind, asks: refusal.asks, words, status: 'DRAFT' } }
+            // Stage I: the session's own choices for the kind, so the coach can state an authorized object exactly (`SessionQuestion.choices`).
+            const choices = objectChoicesOf(refusal.kind, index, boundRegions)
+            return { stage: 'session', summary: words, applicability: { verdict: 'ASK', cause: 'OBJECT_AVAILABILITY_NOT_STATED' }, question: { kind: 'OBJECT_AVAILABILITY', objectKind: refusal.kind, asks: refusal.asks, words, status: 'DRAFT', choices } }
         }
         case 'OBJECT_AVAILABILITY_SHORT':
             return {
@@ -756,9 +774,18 @@ function objectSummary(refusal: ObjectAvailabilityRefusal, subject: string): { s
              * Typed, an alternative nobody has decided the objects of would fall back to the next one quietly, visible only in the account. An
              * alternative waiting on that decision is listed with a gap status instead, and never tried (`realizationAlternativesOf`).
              */
-            return refusal.decided
-                ? { stage: 'session', summary: `The ${refusal.kind}s this session has do not suit this game.`, applicability: { verdict: 'NOT_APPLICABLE', cause: 'OBJECT_NOT_SUITABLE' } }
-                : { stage: 'knowledge', summary: `Which ${refusal.kind}s suit this game has not been decided yet.`, applicability: null }
+            if (!refusal.decided) return { stage: 'knowledge', summary: `Which ${refusal.kind}s suit this game has not been decided yet.`, applicability: null }
+            {
+                /**
+                 * Stage I (24 October 2026; the d27 design's stage I(b)): the sentence names the authorized objects this realization is built
+                 * for in this session (`choicesSuitedTo`: admitted by every suitability rule it reads, with a region that fits the area), by the
+                 * labels the session's question offers them under, so a coach who typed a rounded width can choose the object itself (DRAFT).
+                 * Where none is, it is said as before.
+                 */
+                const suited = choicesSuitedTo(refusal.kind, refusal.rules, session, index, boundRegions)
+                const builtFor = suited.length ? `; it is built for ${suited.map(choice => choice.label).join(' or ')}` : ''
+                return { stage: 'session', summary: `The ${refusal.kind}s this session has do not suit this game${builtFor}.`, applicability: { verdict: 'NOT_APPLICABLE', cause: 'OBJECT_NOT_SUITABLE' } }
+            }
         case 'OBJECT_INVOLVEMENT_NOT_SETTLED':
             return { stage: 'structure', summary: `The game this ${subject} selects is not yet described completely enough to be set up.`, applicability: null }
     }
@@ -771,7 +798,14 @@ function objectSummary(refusal: ObjectAvailabilityRefusal, subject: string): { s
  * region nobody has authorized for the session's object is the knowledge's, typed as nothing, so it refuses (his decision, not the coach's);
  * a binding that is not whole is the game's (structure before realization, validation after it).
  */
-function boundRegionSummary(refusal: BoundRegionRefusal, subject: string, session: ActivitySession, stage: 'structure' | 'validation'): { stage: ActivityStage; summary: string; applicability: Applicability | null; question?: SessionQuestion } {
+function boundRegionSummary(
+    refusal: BoundRegionRefusal,
+    subject: string,
+    session: ActivitySession,
+    stage: 'structure' | 'validation',
+    boundRegions: SportBoundRegions | null,
+    index: ReturnType<typeof indexRegister>,
+): { stage: ActivityStage; summary: string; applicability: Applicability | null; question?: SessionQuestion } {
     const words = (token: string) => token.split('-').join(' ')
     switch (refusal.cause) {
         case 'BOUND_REGION_NOT_AUTHORIZED': {
@@ -791,11 +825,13 @@ function boundRegionSummary(refusal: BoundRegionRefusal, subject: string, sessio
          */
         case 'BOUND_REGION_OBJECT_NOT_STATED': {
             const asked = objectAvailabilityQuestion(refusal.kind, 'ATTRIBUTE', refusal.attribute)
+            // Stage I: the session's own choices that state a value of the attribute, and none (`choicesAnswering`).
+            const choices = choicesAnswering(objectChoicesOf(refusal.kind, index, boundRegions), refusal.attribute)
             return {
                 stage: 'session',
                 summary: asked,
                 applicability: { verdict: 'ASK', cause: 'OBJECT_AVAILABILITY_NOT_STATED' },
-                question: { kind: 'OBJECT_AVAILABILITY', objectKind: refusal.kind, asks: 'ATTRIBUTE', attribute: { name: refusal.attribute, values: [...refusal.values] }, words: asked, status: 'DRAFT' },
+                question: { kind: 'OBJECT_AVAILABILITY', objectKind: refusal.kind, asks: 'ATTRIBUTE', attribute: { name: refusal.attribute, values: [...refusal.values] }, words: asked, status: 'DRAFT', choices },
             }
         }
         case 'BOUND_REGION_DOES_NOT_FIT':
@@ -2074,7 +2110,8 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
      * to the same statement. A game holding no object of a listed kind passes both without reading the session.
      */
     const objectsRefused = (refusal: ObjectAvailabilityRefusal, when: string): GameOutcome => {
-        const said = objectSummary(refusal, subject)
+        // Stage I: with the session, the bound-region block and the register, for the question's choices and the objects a realization is built for.
+        const said = objectSummary(refusal, subject, session, boundRegions, indexRegister(input.register))
         return refuse(said.stage, said.summary, [`the session's objects do not cover the game's ${when} (${refusal.cause}): ${refusal.why}`], { applicability: said.applicability, question: said.question })
     }
 
@@ -2141,7 +2178,7 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
     {
         const refusal = boundRegionRefusalBefore(index, resolved.game, input.envelope, boundRegions)
         if (refusal) {
-            const said = boundRegionSummary(refusal, subject, session, 'structure')
+            const said = boundRegionSummary(refusal, subject, session, 'structure', boundRegions, index)
             return refuse(said.stage, said.summary, [`the regions bound to the game's objects do not hold before realization (${refusal.cause}): ${refusal.why}`], { applicability: said.applicability, question: said.question })
         }
     }
@@ -2348,6 +2385,46 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
     const methodNouns = (loadSportCoachVocabulary()?.restartMethodNouns ?? []).filter(entry =>
         ((realized.game as any).transitions ?? []).some((transition: any) => triggerOfTransition(transition) === entry.trigger && transition?.placement?.method === entry.method),
     )
+    /**
+     * **This game's default-laws account, for the renderer and fidelity** — R2, 24 October 2026 (the d27 design's section 2.8: *"under COMMON
+     * the Restarts sentence is added from the account"*). Christian, reply filed 27 October 2026, item 4: *"There should be no separate
+     * [restarts of the sport] for this activity."* (his nouns bracketed: the coupling ratchet keeps a sport's nouns out of this layer). The
+     * same reading the build makes for the administrator once both blocks are built (`lawAccountOf`, above: `blockLawAccountOf` over this
+     * realized game, the composed items of the realization being tried and the session), made here for this one game before it is rendered,
+     * and only where that realization declares `defaultLawsCheck`; every other game assembles exactly as before. Carried as each law's id,
+     * place and status (`rendering-fixture.ts`); a test holds it equal to the review evidence's account, block by block.
+     */
+    const tried = realizationOf(selection)
+    const triedReceived = tried ? ((input.contracts as LoadedContract[]).find(contract => contract.contractId === tried.contractId) as ProvisionalRealization | undefined) : undefined
+    const lawsForAccount = triedReceived?.defaultLawsCheck ? loadSportDefaultLaws() : null
+    const gameLaws =
+        tried && triedReceived && lawsForAccount
+            ? blockLawAccountOf({
+                  blockId: input.roleBlock?.blockId ?? 'game',
+                  game: realized.game,
+                  roleBlock: input.roleBlock ?? null,
+                  index,
+                  session,
+                  laws: lawsForAccount,
+                  items: triedReceived.items,
+                  boundRegions,
+                  // R3 (24 October 2026): the departures the realization records on itself, read as the administrator's account reads them.
+                  realizationDepartures: triedReceived.realizationDepartures ?? null,
+              })
+            : null
+    /**
+     * **The pairing each bound region cites, for the renderer and fidelity** — stage L, 24 October 2026 (the d27 design's stage L(b): *"The Set
+     * up sentence for the box, figures read from the cited pairing"*). Christian, reply filed 26 October 2026, item 7: *"Use an existing
+     * regulation [handling area] when the activity dimensions and setup permit it."* (his noun bracketed for the coupling ratchet). For every
+     * region this realized game binds to an object (register row S7, read by `bindingOf`), the entry of the bound-region block this build
+     * checked it against (GA-BOUND-REGION held the realized region to that entry above), whole; null where the block holds no entry of the id
+     * cited (GA-BOUND-REGION refuses that before here). Every game binding no region assembles exactly as before.
+     */
+    const boundForFixture = ((((realized.game as any).space?.regions ?? []) as any[]) ?? []).flatMap(region => {
+        const binding = bindingOf(region, index)
+        if (!binding) return []
+        return [{ region: String(region?.elementId), objectId: binding.objectId, pairing: (boundRegions?.pairings ?? []).find(entry => entry.id === binding.pairing) ?? null }]
+    })
     fixture = assembleRenderingFixture({
         resolved,
         realized,
@@ -2362,6 +2439,25 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
         // What a provisional realization withdrew from the game form's choices, with why (stage K5); absent elsewhere.
         ...(supplied.withdrawn.length ? { withdrawnChoices: supplied.withdrawn } : {}),
         ...(methodNouns.length ? { methodNouns } : {}),
+        /**
+         * Stage L (the R3 review's should-fix): a law departed from at a place only by the departures the realization records on itself (a
+         * law its activity removes without replacing it) is marked so, so fidelity can hold its one sentence to the departure rather than to
+         * the wording data alone (his reply filed 27 October 2026, item 2: "communicated once to the coach").
+         */
+        ...(gameLaws
+            ? {
+                  defaultLaws: {
+                      realization: tried!.provisionalId,
+                      laws: gameLaws.laws.map(entry => ({
+                          law: entry.law,
+                          end: entry.end,
+                          status: entry.status,
+                          ...(entry.status === 'DEPARTED' && entry.departedBy.length > 0 && triedReceived?.realizationDepartures && entry.departedBy.every(citation => citation.item === triedReceived.realizationDepartures!.recordedBy) ? { removedByRealization: true } : {}),
+                      })),
+                  },
+              }
+            : {}),
+        ...(boundForFixture.length ? { boundRegions: boundForFixture } : {}),
     })
 
     /**

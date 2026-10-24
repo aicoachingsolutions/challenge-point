@@ -157,6 +157,13 @@ test('1. end to end on production data: SERVED (design step L14; was refused onl
     // Moved 21 October 2026 (stage 2D), total 27 -> 28 and draft 23 -> 24: every block's markings set out once (his reply filed 22
     // October 2026, item 7): the line at halfway, the end zones once, each role's target said by role, and the coach's choice of ends on
     // its own; "Each team attacks the zone at the other team's end ..." is no longer said (physical-layout.unit.ts); nothing approved changes.
+    // Moved 24 October 2026 (R1), total 28 -> 26 and draft 24 -> 22: his reply filed 27 October 2026, item 4 - the touchline throw-in and
+    // the end-line restart are withdrawn, and the ball going out is said in the restart sentence (communication.unit.ts 1); nothing approved
+    // changes.
+    // Moved 24 October 2026 (R2), total 26 -> 27 and draft 22 -> 23: the Restarts and ball out sentence naming the restarts the activity does
+    // not use (his reply filed 27 October 2026, item 4; dead-ball-wording.unit.ts), DRAFT; nothing approved changes.
+    // Moved 24 October 2026 (R3), total 27 -> 28 and draft 23 -> 24: "There is no offside" (his reply filed 27 October 2026, item 2;
+    // departed-law-wording.unit.ts), DRAFT; nothing approved changes.
     assert.deepEqual(fact(evidence.acceptance, 'sentences'), { total: 28, approved: 4, draft: 24 })
     assert.deepEqual(evidence.sections.instructions.filter(i => i.wording === 'APPROVED').map(i => i.text), ['When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone', HIS_ITEM_1, HIS_W3, HIS_W2])
     // Measured at this stage: 19 Gate A checks per block, all PASS; the 9 cross-block checks; 11 owed invariants per block.
@@ -165,9 +172,11 @@ test('1. end to end on production data: SERVED (design step L14; was refused onl
     // item 6), and its five clauses owed per block (22 -> 32), every one passing on applicable instances (participants-present.unit.ts).
     // Re-pointed 22 October 2026 (stage A): 21 Gate A checks per block (42), GA-ROLE-EVENTS joining (his reply filed 25 October 2026, item
     // 2), its target and yield clauses owed per block (32 -> 36), each passing on the two teams it examined (role-events.unit.ts).
-    assert.deepEqual(evidence.structure.summary.gateChecks, { PASS: 42 })
+    // Re-pointed 24 October 2026 (R1): 22 Gate A checks per block (44), GA-DEAD-BALL-RESTART joining (his reply filed 27 October 2026, item
+    // 4), its location clause owed per block (36 -> 38), passing on the six restarts after a dead ball (dead-ball-restart.unit.ts).
+    assert.deepEqual(evidence.structure.summary.gateChecks, { PASS: 44 })
     assert.deepEqual(evidence.structure.summary.crossBlock, { PASS: 10 })
-    assert.deepEqual(evidence.structure.summary.owed, { PASS: 36 })
+    assert.deepEqual(evidence.structure.summary.owed, { PASS: 38 })
     assert.equal(evidence.structure.composition.length, 0)
     // Only production data: the record names the realization, and no TEST-ONLY value is anywhere in what was built.
     assert.ok(!JSON.stringify(review).includes('TEST-ONLY'))
@@ -209,6 +218,9 @@ test('2. the nine items: his words from the record, each resolved to elements, c
     // Moved 21 October 2026 (stage 2B), 28 -> 29: the opening restart's WHEN and HOW are two sentences.
     // Moved 21 October 2026 (stage 2C), 29 -> 27: the two mirrored target sentences are each said once (test 1).
     // Moved 21 October 2026 (stage 2D), 27 -> 28: every block's markings set out once (test 1).
+    // Moved 24 October 2026 (R1), 28 -> 26: the throw-in and end-line sentences withdrawn (test 1).
+    // Moved 24 October 2026 (R2), 26 -> 27: the sentence naming the restarts the activity does not use (test 1).
+    // Moved 24 October 2026 (R3), 27 -> 28: "There is no offside" (test 1).
     assert.equal(byId.R8.sentences.length, 28)
     // Stage 2D (21 October 2026): RB-L joins the cross-block checks (test 1), and an item's checks are the ones his review request lists for
     // it (the record's data, unchanged), so R7 still reads the nine.
@@ -226,11 +238,17 @@ test('3. provenance: his three layers and the standings, every cited path traced
     // The restart rests on his provisional choices (the taker among them), the ball on the sport profile. Re-pointed 21 October 2026
     // (stage 2B): it is said as WHEN ("... restarts play: {triggers}") and HOW ("... restarts play from the feet, ..."); both name the
     // taker and rest on it, and only HOW names the ball. Was one sentence resting on both.
-    const restartWhen = said(`The building team's ${ROLE} restarts play:`)
+    // Re-pointed 24 October 2026 (R2): the WHEN opens with the common restart's rule ("... starts play, and restarts it whenever the ball is
+    // dead: ..."). Was: "... restarts play: ...".
+    const restartWhen = said(`The building team's ${ROLE} starts play, and restarts it whenever the ball is dead:`)
     const restartHow = said(`The building team's ${ROLE} restarts play from the feet`)
     for (const restart of [restartWhen, restartHow]) assert.ok(restart.sources.some(s => s.standing === 'PROVISIONAL' && s.ref === 'provisional:A01-R1::A01-R1-T3-1'), restart.text)
     assert.ok(restartHow.sources.some(s => s.layer === 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS' && s.standing === 'APPROVED'))
-    assert.ok(!restartWhen.sources.some(s => s.layer === 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS'), 'the WHEN names no ball')
+    // Re-pointed 24 October 2026 (R1): the WHEN names the ball now ("whenever the ball goes out of play", his reply filed 27 October 2026,
+    // item 4), so it rests on the sport profile's ball too, and on the dead-ball restart policy his item 4 gives (A01-R1-RP1-1). Was: 'the
+    // WHEN names no ball'.
+    assert.ok(restartWhen.sources.some(s => s.layer === 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS' && s.standing === 'APPROVED'), 'the WHEN names the ball')
+    assert.ok(restartWhen.sources.some(s => s.standing === 'PROVISIONAL' && s.ref === 'provisional:A01-R1::A01-R1-RP1-1'), 'and rests on the common restart')
     // The post-regain area's depth: the item bounding it is found (the fixture carries the bound without it).
     // Re-pointed 21 October 2026 (stage 2D): with every block's markings set out once, the sentence names the end zone the target is
     // ("The pressing team's target zone is the 5 m end zone at the building team's end"; was "Mark the pressing team's target zone at the
@@ -325,7 +343,9 @@ test('5. the specialized role as a deep support option, and no prescription, as 
         const onTeams = facts.filter(f => f.what.startsWith(`block ${blockId}: `) && f.what.includes(' on team '))
         assert.deepEqual(onTeams.map(f => [f.value, f.what.endsWith('holds the BUILDING role')]).sort(), [[0, false], [1, true]], `block ${i + 1}`)
         const takes = fact(facts, `block ${blockId}: transitions this role takes`)
-        assert.deepEqual(takes.map((t: any) => t.trigger), ['START', 'SCORE', 'COACH_JUDGED_EPISODE_CONCLUSION'])
+        // Re-pointed 24 October 2026 (R1): the role takes every restart after a dead ball too (his reply filed 27 October 2026, item 4:
+        // "Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out."), listed in the order the game holds them.
+        assert.deepEqual(takes.map((t: any) => t.trigger).sort(), ['COACH_DIRECTED_STOPPAGE', 'COACH_JUDGED_EPISODE_CONCLUSION', 'INFRINGEMENT_STOPPAGE', 'OUT_END_LINE', 'OUT_TOUCHLINE', 'SCORE', 'START'])
         assert.ok(takes.every((t: any) => t.awardedToRole === 'BUILDING' && t.beginsConditionedEpisode && t.method === 'FROM_THE_FEET'))
         // Nowhere else but as one arm of the origin's alternative: no access rule, condition of its own or value modifier names it.
         assert.deepEqual(fact(facts, `block ${blockId}: other places the game names the role (not a team count or a restart's taker)`), ['value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-18.a].referents.arms[0].takenBy'])
@@ -342,9 +362,12 @@ test('5. the specialized role as a deep support option, and no prescription, as 
     // now names its own restart ("You choose where the building team's goalkeeper restarts play, ..."), so three DRAFT sentences name the
     // role where one did; none carries a word of obligation or a prescription finding.
     assert.equal(naming.length, 7)
+    // Re-pointed 24 October 2026 (R2): the WHEN opens with the common restart's rule ("The building team's goalkeeper starts play, and restarts
+    // it whenever the ball is dead: ..."), still naming the role with no word of obligation; the Restarts and ball out sentence added in R2
+    // names no role. Was: "The building team's goalkeeper restarts play".
     assert.deepEqual(
-        naming.filter((s: any) => s.text.includes(`building team's ${ROLE} restarts play`)).map((s: any) => s.text.split(',')[0].split(':')[0]),
-        [`The building team's ${ROLE} restarts play`, `The building team's ${ROLE} restarts play from the feet`, `You choose where the building team's ${ROLE} restarts play`],
+        naming.filter((s: any) => s.text.includes(`building team's ${ROLE} `)).map((s: any) => s.text.split(',')[0].split(':')[0]),
+        [`The building team's ${ROLE} starts play`, `The building team's ${ROLE} restarts play from the feet`, `You choose where the building team's ${ROLE} restarts play`],
     )
     assert.ok(naming.every((s: any) => s.q4.length === 0))
     assert.deepEqual(naming.filter((s: any) => s.obligationWords.length).map((s: any) => [s.text, s.obligationWords]), [[HIS_ITEM_1, [String(/\bmust\b/i)]], [HIS_W3, [String(/\bcan ?not\b/i), String(/\buntil\b/i)]]])
@@ -663,10 +686,14 @@ test('10. (M3) items 4 and 5 show each role\'s credit and the regain score; the 
             support: [{ item: 'provisional:A01-R1::A01-R1-B8-1', basis: 'OWNER_RULING', citedAs: 'his reply filed 19 October 2026, item 1; item 3 C' }],
         })
         // As stage M1 measured on the gate (credit-episode.unit.ts): begun by the three goalkeeper restarts, ended by the change of
-        // possession and the two restarts after the building team plays the ball out, kept by the two awarded to it.
-        assert.deepEqual(fact(r4, "the transitions that begin the BUILDING role's credit (its episode begins)"), [T('T1-1'), T('T1-2'), T('T1-3')], `block ${i + 1}`)
-        assert.deepEqual([...fact(r4, 'the transitions that end it (each begins another episode)')].sort(), [T('T1-5'), T('T1-7'), 'c:restated:GF2:GF2-07.a'].sort())
-        assert.deepEqual(fact(r4, "the restarts that keep it (they begin no episode and are awarded to the team holding the BUILDING role)"), [T('T1-4'), T('T1-6')])
+        // possession and the two restarts after the building team plays the ball out, kept by the two awarded to it. Re-pointed 24 October
+        // 2026 (R1): his reply filed 27 October 2026, item 4 - every dead ball begins it with the goalkeeper's new build-out (seven
+        // beginnings), the change of possession alone ends it, and no restart keeps it ("once the building team loses possession, it cannot
+        // earn another progression point until a new goalkeeper-initiated build-out").
+        const STARTERS = ['T1-1', 'T1-10', 'T1-11', 'T1-2', 'T1-3', 'T1-8', 'T1-9'].map(T)
+        assert.deepEqual([...fact(r4, "the transitions that begin the BUILDING role's credit (its episode begins)")].sort(), [...STARTERS].sort(), `block ${i + 1}`)
+        assert.deepEqual([...fact(r4, 'the transitions that end it (each begins another episode)')].sort(), ['c:restated:GF2:GF2-07.a'])
+        assert.deepEqual(fact(r4, "the restarts that keep it (they begin no episode and are awarded to the team holding the BUILDING role)"), [])
         assert.deepEqual(fact(r4, 'transitions that neither end nor keep it'), [])
         const authority = fact(r4, 'the authority: the episode check (GA-EPISODE-REACHABLE) on this block, and its two credit clauses')
         assert.equal(authority.verdict, 'PASS')
@@ -685,8 +712,8 @@ test('10. (M3) items 4 and 5 show each role\'s credit and the regain score; the 
         ])
         // The transition table: which transitions begin and end the building role's credit.
         const rows = evidence.sections.restarts.filter(r => r.blockId === blockId)
-        assert.deepEqual(rows.filter(r => r.beginsCredit.length).map(r => [r.elementId, r.beginsCredit]), [T('T1-1'), T('T1-2'), T('T1-3')].map(id => [id, ['BUILDING']]))
-        assert.deepEqual(rows.filter(r => r.endsCredit.length).map(r => r.elementId).sort(), [T('T1-5'), T('T1-7'), 'c:restated:GF2:GF2-07.a'].sort())
+        assert.deepEqual(rows.filter(r => r.beginsCredit.length).map(r => [r.elementId, r.beginsCredit]).sort(), [...STARTERS].sort().map(id => [id, ['BUILDING']]))
+        assert.deepEqual(rows.filter(r => r.endsCredit.length).map(r => r.elementId).sort(), ['c:restated:GF2:GF2-07.a'])
     }
     // Items about no role carry no role facts.
     assert.ok(evidence.items.filter(i => !i.role).every(i => i.facts.every(b => b.facts.length === 0)))

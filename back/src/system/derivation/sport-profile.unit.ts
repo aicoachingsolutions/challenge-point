@@ -273,10 +273,14 @@ test('the coach vocabulary refuses an entry without his approval, for another sp
     assert.ok(validateSportCoachVocabulary(otherNoun, sportId).some(e => e.includes('the noun "TEST-ONLY-noun" is not in his cited words')))
 })
 
-test('key identity: A01 carries exactly the vocabulary entry its touchline transitions use, and a game with none carries none', () => {
+test('key identity: a game carries the vocabulary entry only where a transition uses it; A01 no longer does, and a game with none carries none', () => {
     const vocabulary = loadSportCoachVocabulary()!
+    // Re-pointed 24 October 2026 (R1): his reply filed 27 October 2026, item 4 ("There should be no separate corners, goal kicks, throw-ins,
+    // free kicks, or penalty kicks for this activity.") withdrew A01's touchline restart taken by hand, so no transition of its game holds that
+    // trigger and method and the entry does not cross. The entry itself stays valid sport data.
+    assert.deepEqual(vocabulary.restartMethodNouns.map(entry => [entry.trigger, entry.method, entry.noun]), [['OUT_TOUCHLINE', 'IN_HAND', 'throw-in']])
     const a01: any = buildActivityWithFixture({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { goalkeeper: 1 } } } as any).fixture
-    for (const block of a01.roleBlocks.blocks) assert.deepEqual(block.fixture.methodNouns, { status: 'APPROVED', entries: vocabulary.restartMethodNouns })
+    for (const block of a01.roleBlocks.blocks) assert.equal(block.fixture.methodNouns, undefined)
     const plain: any = buildActivityFromKnowledge(['GF2'], { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { goalkeeper: 0 } }).fixture
     assert.ok(plain && plain.game, 'the possession game alone builds a fixture')
     assert.equal(plain.methodNouns, undefined, 'no transition with that trigger and method, so nothing crosses')

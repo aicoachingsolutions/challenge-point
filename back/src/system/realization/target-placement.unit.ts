@@ -202,17 +202,24 @@ test('the pressure reference and the progression target are two elements with th
 })
 
 // ── 3. Re-established at build-out beginnings only ─────────────────────────────────────────────────────
-test('the starting placements are re-established at the start, after a score and at the coach-judged conclusion, and nowhere else', () => {
+/**
+ * Re-pointed 24 October 2026 (R1): his reply filed 27 October 2026, item 4 ("Whenever the ball becomes dead, play resets to a new
+ * goalkeeper-initiated build-out."). Every dead ball now begins a build-out episode, so the placements are re-established at every one - the
+ * start, a score, the coach's conclusion, the ball going out over a touchline or an end line, and the coach's stoppages for an infringement
+ * or any other reason - as his D4 asks ("re-established at the beginning of each new build-out episode"), and still never at a change of
+ * possession.
+ */
+test('the starting placements are re-established at every build-out beginning - the start and every dead ball - and never at a change of possession', () => {
     for (const { staged, post, block } of blocks) {
         for (const check of [preCheck(staged, 'GA-EPISODE-REACHABLE'), postCheck(post, 'GA-EPISODE-REACHABLE')]) {
             assert.deepEqual(clause(check, RESETS), { clause: RESETS, verdict: 'PASS', basis: 'EVALUATED', instances: 2 }, block.blockId)
-            const starters = ['A01-R1-T1-1', 'A01-R1-T1-2', 'A01-R1-T1-3'].map(id => `c:${R}:${id}`).join(', ')
+            const starters = ['A01-R1-T1-1', 'A01-R1-T1-10', 'A01-R1-T1-11', 'A01-R1-T1-2', 'A01-R1-T1-3', 'A01-R1-T1-8', 'A01-R1-T1-9'].map(id => `c:${R}:${id}`).join(', ')
             assert.ok(check.why.includes(`c:${R}:A01-R1-P8-1 at ${starters}`) && check.why.includes(`c:${R}:A01-R1-P8-2 at ${starters}`), check.why)
             // Re-pointed 17 October 2026 (stage M1): the reason now continues with the credit clauses (GA-EPISODE-REACHABLE clauses 4
             // and 5), which name every transition that ends or keeps the building role's credit; the placements' part is read up to them.
             const resets = check.why.split('re-established when an episode begins')[1].split('; credit confined to an episode')[0]
             assert.ok(check.why.includes('; credit confined to an episode'), 'the credit clauses say their part after it')
-            for (const never of ['A01-R1-T1-4', 'A01-R1-T1-5', 'A01-R1-T1-6', 'A01-R1-T1-7', 'GF2-07.a']) assert.ok(!resets.includes(never), `${never} re-establishes nothing`)
+            for (const never of ['GF2-07.a']) assert.ok(!resets.includes(never), `${never} re-establishes nothing`)
         }
     }
     // The clause bites: a copy whose placements name an episode no transition begins is refused at structure.

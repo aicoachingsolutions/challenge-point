@@ -113,7 +113,9 @@ test('register version 14 holds the rows as data, in one versions entry quoting 
     // Re-pointed 26 October 2026 (Stage F): version 20 (his rulings filed 26 October 2026 for the goal version) supersedes 19.
     // Re-pointed 23 October 2026 (H3): version 21 (a region bound to an object, his reply filed 26 October 2026, item 7) supersedes 20.
     // Re-pointed 23 October 2026 (H4): version 22 (the type a session states for its objects, his reply filed 26 October 2026, item 4) supersedes 21.
-    assert.ok(full.startsWith('22, adds the type a session states for its objects of a kind, for his reply filed 26 October 2026, item 4'))
+    // Re-pointed 24 October 2026 (R1): version 23 (one restart for every dead ball, his reply filed 27 October 2026, item 4) supersedes 22.
+    assert.ok(full.startsWith('23, adds one restart for every dead ball, for his reply filed 27 October 2026, item 4'))
+    assert.ok(full.includes('Supersedes version 22, which adds the type a session states for its objects of a kind, for his reply filed 26 October 2026, item 4'))
     assert.ok(full.includes('Supersedes version 21, which adds a region bound to an object, for his reply filed 26 October 2026, item 7'))
     assert.ok(full.includes('Supersedes version 20, which records his rulings filed 26 October 2026 for the goal version of the build-out activity'))
     assert.ok(full.includes("Supersedes version 19, which adds an object's availability as a session resource"))
@@ -142,7 +144,8 @@ test('register version 14 holds the rows as data, in one versions entry quoting 
     assert.equal(full.split('Supersedes version 19, ').length - 1, 1, 'version 19 superseded once, by version 20 (Stage F)')
     assert.equal(full.split('Supersedes version 20, ').length - 1, 1, 'version 20 superseded once, by version 21 (H3)')
     assert.equal(full.split('Supersedes version 21, ').length - 1, 1, 'version 21 superseded once, by version 22 (H4)')
-    assert.ok(!full.includes('Supersedes version 22'), 'version 22 is the current entry')
+    assert.equal(full.split('Supersedes version 22, ').length - 1, 1, 'version 22 superseded once, by version 23 (R1)')
+    assert.ok(!full.includes('Supersedes version 23'), 'version 23 is the current entry')
     const row = (id: string) => index.rows.get(id)!
     assert.deepEqual([row('B8').path, row('B8').ownerRow, row('B8').kind], ['activityRoles[].creditedWithin', 'B1', 'FIELD'])
     assert.deepEqual([row('V27').path, row('V27').kind, row('V27').selectorAttributes, row('V27').earnsValueOf], ['value.primaryEvent.alsoCounts[]', 'COLLECTION', ['team'], 'V2'])
@@ -199,7 +202,12 @@ test('his item 1 and 3 C are A01-R1 items on the role elements, in his words, an
     const pressing = item('A01-R1-B8-2')
     assert.deepEqual([pressing.row, pressing.selector, pressing.value, pressing.basis], ['B8', 'activityRole=PRESSING', 'WHOLE_GAME', 'OWNER_RULING'])
     assert.equal((pressing as any).words, 'The pressing team retains its separate objective of regaining possession and attacking the 5 m target area.')
-    assert.ok(String((item('A01-R1-T7-3') as any).basisEvidence).includes('CONFIRMED in his reply filed 19 October 2026, item 3 C'), 'T7-3 cites his 3 C confirmation')
+    // Re-pointed 24 October 2026 (R1): A01-R1-T7-3, which cited his 3 C confirmation, is withdrawn from the activity with the out-of-play
+    // restarts it bounded (his reply filed 27 October 2026, item 4), and the realization's note names it with that authority; his item 4
+    // restates the eligibility itself, which the common restart's item records.
+    assert.equal(realization.items.find(i => i.itemId === 'A01-R1-T7-3'), undefined)
+    assert.ok(String(JSON.parse(fs.readFileSync(path.join(CONFORMANCE_DIR, 'stage-b', 'provisional-realizations.json'), 'utf8')).realizations[0].note).includes('T7-2 and T7-3'))
+    assert.ok(String((item('A01-R1-RP1-1') as any).fitNote).includes('once the building team loses possession, it cannot earn another progression point until a new goalkeeper-initiated build-out'))
     // Not knowledge: no A01-R1 text, no B8 row and no bound written into the contracts or the restatements.
     for (const file of ['contracts.json', 'corpus-restatements.json']) {
         const text = fs.readFileSync(path.join(CONFORMANCE_DIR, 'stage-b', file), 'utf8')
@@ -226,13 +234,20 @@ test('production A01: GA-EPISODE-REACHABLE passes in both blocks with clauses 4 
         assert.equal(reach.verdict, 'PASS', `${block.blockId}: ${reach.why}`)
         assert.deepEqual(reach.clauses.map((c: any) => c.clause).slice(3), [BEGINS, ENDS], 'appended after the three existing clauses')
         assert.deepEqual(reach.clauses.map((c: any) => [c.verdict, c.basis]), Array(5).fill(['PASS', 'EVALUATED']))
-        assert.equal(reach.clauses[3].instances, 3, 'three beginnings, each awarded to the building role')
+        /**
+         * Re-pointed 24 October 2026 (R1): his reply filed 27 October 2026, item 4 - "Whenever the ball becomes dead, play resets to a new
+         * goalkeeper-initiated build-out." and "The existing scoring-eligibility condition also remains: once the building team loses
+         * possession, it cannot earn another progression point until a new goalkeeper-initiated build-out." Every restart after a dead ball
+         * now begins the credited episode with the goalkeeper (seven beginnings), the change of possession alone ends it, and no restart
+         * keeps it; the instances of clause 5 are still the change of possession and the seven restarts.
+         */
+        assert.equal(reach.clauses[3].instances, 7, 'seven beginnings, each awarded to the building role')
         assert.equal(reach.clauses[4].instances, 8, 'the change of possession and the seven restarts')
         const said = reach.why.slice(reach.why.indexOf('credit confined to an episode'))
         assert.ok(said.includes(`${R('B1-1')} (ROLE_HOLDER_BUILDING) earns its credit within BUILD_OUT_EPISODE`), said)
-        assert.ok(said.includes(`begun by ${R('T1-1')}, ${R('T1-2')}, ${R('T1-3')}`), 'begun by the start, the restart after a score and the coach-judged conclusion')
-        assert.ok(said.includes(`ended by ${R('T1-5')}, ${R('T1-7')}, c:restated:GF2:GF2-07.a`), 'ended by the restarts after the building team plays the ball out, and the change of possession')
-        assert.ok(said.includes(`kept by ${R('T1-4')}, ${R('T1-6')} (restarts awarded to ROLE_HOLDER_BUILDING that begin no episode)`), 'kept by the restarts after the pressing team plays the ball out')
+        assert.ok(said.includes(`begun by ${['T1-1', 'T1-10', 'T1-11', 'T1-2', 'T1-3', 'T1-8', 'T1-9'].map(R).join(', ')}`), `begun by the start and every restart after a dead ball: ${said}`)
+        assert.ok(said.includes('; ended by c:restated:GF2:GF2-07.a'), 'ended by the change of possession alone')
+        assert.ok(said.includes('kept by no transition (restarts awarded to ROLE_HOLDER_BUILDING that begin no episode)'), 'kept by no restart')
         assert.ok(!said.includes(R('B1-2')), 'the pressing role carries the whole game, so it is bound by nothing')
     }
 })
@@ -261,11 +276,23 @@ test('TEST-ONLY: a regain that would restore credit (RPC-001-17.a value "false")
     refusedAtStructure(builtWith(alter), 'a regain restoring credit')
 })
 
-test('TEST-ONLY: his 3 C reversed (A01-R1-T7-3 "false") fails clause 5 and is refused at structure', () => {
-    const alter = (contracts: LoadedContract[]) => void ((itemOf(contracts, 'provisional:A01-R1', 'A01-R1-T7-3') as any).value = 'false')
+/**
+ * Re-pointed 24 October 2026 (R1): A01-R1-T7-3 (his 3 C on the building team's ball out) is withdrawn with the restart it bounded; the same
+ * reversal is made on the common restart's own items - the touchline restart awarded to the pressing role and beginning no episode, so the
+ * pressing team would restart while the building team's credit ran on - and clause 5 refuses it as it refused T7-3 reversed.
+ */
+test('TEST-ONLY: his 3 C reversed (a restart awarded away from the building role that begins no episode) fails clause 5 and is refused at structure', () => {
+    const allBut = (trigger: string, selector: string) => selector.replace(`${trigger}, `, '').replace(`, ${trigger}}`, '}')
+    const alter = (contracts: LoadedContract[]) => {
+        const realization = contracts.find(c => c.contractId === 'provisional:A01-R1')!
+        for (const id of ['A01-R1-T2-1', 'A01-R1-T7-1']) (itemOf(contracts, 'provisional:A01-R1', id) as any).selector = allBut('OUT_TOUCHLINE', String(itemOf(contracts, 'provisional:A01-R1', id).selector))
+        const model = itemOf(contracts, 'provisional:A01-R1', 'A01-R1-T7-1') as any
+        realization.items.push({ ...model, itemId: 'A01-R1-TEST-ONLY-T2', row: 'T2', selector: 'trigger=OUT_TOUCHLINE', value: 'ROLE_HOLDER_PRESSING' } as any)
+        realization.items.push({ ...model, itemId: 'A01-R1-TEST-ONLY-T7', row: 'T7', selector: 'trigger=OUT_TOUCHLINE', value: 'false' } as any)
+    }
     for (const { block, staged } of a01Blocks(alter)) {
         assert.deepEqual(verdicts(staged), ['PASS', 'PASS', 'PASS', 'PASS', 'FAIL'], block.blockId)
-        for (const id of ['T1-5', 'T1-7']) assert.ok(reachOf(staged).why.includes(`${R(id)} (a restart awarded away from ROLE_HOLDER_BUILDING that begins no episode)`), id)
+        assert.ok(reachOf(staged).why.includes(`${R('T1-8')} (a restart awarded away from ROLE_HOLDER_BUILDING that begins no episode)`), reachOf(staged).why)
     }
     refusedAtStructure(builtWith(alter), 'his 3 C reversed')
 })
@@ -276,7 +303,8 @@ test('TEST-ONLY: the build-out beginnings awarded to the presser fail clause 4 w
         const clauses = verdicts(staged)
         assert.equal(clauses[1], 'PASS', `${block.blockId}: one awardee, so D7's clause alone would not see it`)
         assert.equal(clauses[3], 'FAIL', block.blockId)
-        assert.ok(reachOf(staged).why.includes(`(awarded away from ROLE_HOLDER_BUILDING: ${R('T1-1')}, ${R('T1-2')}, ${R('T1-3')})`))
+        // Re-pointed 24 October 2026 (R1): the seven beginnings since the common restart (his reply filed 27 October 2026, item 4).
+        assert.ok(reachOf(staged).why.includes(`(awarded away from ROLE_HOLDER_BUILDING: ${['T1-1', 'T1-10', 'T1-11', 'T1-2', 'T1-3', 'T1-8', 'T1-9'].map(R).join(', ')})`), reachOf(staged).why)
     }
     refusedAtStructure(builtWith(alter), 'beginnings awarded to the presser')
 })

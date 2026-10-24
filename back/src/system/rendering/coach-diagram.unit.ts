@@ -308,6 +308,9 @@ test('4. a D9 failure withholds the diagram only: the activity and its overview 
         module.diagramForServing = (input, context) => original(input, context, { project: (model, ctx) => ({ ...coachDiagramOf(model, ctx), legend: [] }) })
         for (const answer of [buildActivity(a01At(12, 1)) as ServedActivity, buildActivityForReview(a01At(12, 1), { includeDrafts: true }) as ServedActivity]) {
             assert.equal(answer.outcome, 'served')
+            // Re-pointed 24 October 2026 (R1): 28 -> 26, the throw-in and end-line sentences withdrawn (his reply filed 27 October 2026, item 4).
+            // Re-pointed 24 October 2026 (R2): 26 -> 27, the sentence naming the restarts the activity does not use (dead-ball-wording.unit.ts).
+            // Re-pointed 24 October 2026 (R3): 27 -> 28, "There is no offside" (departed-law-wording.unit.ts).
             assert.equal(answer.rendered.instructions.length, 28)
             assert.deepEqual(answer.rendered, coach.rendered)
             assert.deepEqual(answer.overview, coach.overview)

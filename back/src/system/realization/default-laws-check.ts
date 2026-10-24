@@ -18,6 +18,8 @@
  *   - otherwise ADAPTATION_OWED where an item departs from it on the absence of a precondition that now HOLDS (the departure's own reason is
  *     false here: the design's X5 - the end-line restarts approved for an end line without an object, kept where one now stands);
  *   - otherwise DEPARTED where an item departs from the whole of it, citing the items and his words;
+ *   - otherwise ADAPTATION_OWED where every `requires` precondition holds, the law is a restart law (`restart`) and the game holds the common
+ *     dead-ball restart (register row RP1; R1, 24 October 2026): the one restart replaces it, and nothing records the departure;
  *   - otherwise APPLIES where every `requires` precondition holds - nothing is said, and a departure from part of it is cited (the uncovered
  *     part is the law's own, which can apply);
  *   - otherwise ADAPTATION_OWED: a precondition is missing and nothing departs from the whole of it; a departure from part of it is cited.
@@ -32,11 +34,16 @@
  * readable list of is UNKNOWN, never ABSENT; and each entry carries the law's note from the profile (which decision answers it), so an
  * administrator reading an owed adaptation sees what settles it.
  *
+ * **R3, 24 October 2026 (the d27 design's stage R3, its section 2.6: *"The field is added beside the item departures, validated by the same
+ * departureRefusals, and read by the check. `defaultLawsAccountOf` passes realization.items only today"*).** The departures a realization
+ * records on itself, for a law its activity removes without replacing it (`RealizationDepartures`), are read beside its items' departures,
+ * each cited by the realization that records it as an item's is cited by the item; every rule above reads them exactly as an item's.
+ *
  * Sport-neutral: law ids, object kinds, region functions and performer rows are the profile's data; the rows and leaves are the register's.
  */
 import { bindingOf, regionFunctionsOf, SportBoundRegions } from '../derivation/bound-regions'
 import { roleHolderNames } from '../derivation/designation'
-import { CitedWords, DefaultLaws, DefaultLawsCheck, DefaultLawsCheckMode, departuresOf, LawDeparture, LawPredicate, LawStatus, samePredicate } from '../derivation/default-laws'
+import { CitedWords, DefaultLaws, DefaultLawsCheck, DefaultLawsCheckMode, departuresOf, LawDeparture, LawPredicate, LawStatus, RealizationDepartures, samePredicate } from '../derivation/default-laws'
 import { RegisterIndex } from '../derivation/register'
 import { splitPath } from '../derivation/resolved-game'
 import { ContractItem, RoleBlock } from '../derivation/types'
@@ -46,7 +53,7 @@ import { attackingEndIn } from './team-ends'
 /** What a precondition is found to be at one place. */
 export type PredicateReading = 'PRESENT' | 'ABSENT' | 'UNKNOWN'
 
-/** A departure as the account cites it: the item, what it covers, why, and his words. */
+/** A departure as the account cites it: the item (R3: or the realization that records it on itself), what it covers, why, and his words. */
 export interface DepartureCitation {
     item: string
     extent: LawDeparture['extent']
@@ -96,8 +103,12 @@ export interface DefaultLawsAccount {
     blocks: BlockLawAccount[]
     /** Every law owed an adaptation, one sentence per block and place: the refusal's reasons under ENFORCE; reported only under REPORT. */
     owed: string[]
-    /** The DRAFT sentence the design holds for the coach, never served by this account (null where no DRAFT wording carries it). */
-    heldSentence: { text: string; status: 'DRAFT_HELD_NOT_SERVED'; basis: CitedWords } | null
+    /**
+     * The DRAFT sentence the design holds for the coach (null where no DRAFT wording carries it). Stage L, 24 October 2026 (the d27 design's
+     * section 2.8: *"It is served only where the default-laws account owes nothing."*): `DRAFT_SAID_NOTHING_OWED` where this account owes
+     * nothing, so the renderer says it (fidelity holds the two together); `DRAFT_HELD_NOT_SERVED` wherever anything is owed.
+     */
+    heldSentence: { text: string; status: 'DRAFT_HELD_NOT_SERVED' | 'DRAFT_SAID_NOTHING_OWED'; basis: CitedWords } | null
 }
 
 const readAt = (root: unknown, path: string): unknown => path.split('.').reduce<any>((node, key) => (node === null || node === undefined ? undefined : node[key]), root)
@@ -278,6 +289,19 @@ const citationOf = (item: string, departure: LawDeparture): DepartureCitation =>
 const predicateText = (predicate: LawPredicate): string =>
     `${predicate.predicate}${['kind', 'function', 'row'].filter(key => (predicate as any)[key] !== undefined).map(key => ` ${key}=${(predicate as any)[key]}`).join('')}`
 
+/**
+ * **Whether the game holds the common dead-ball restart, said as a reason, or null** — R1, 24 October 2026 (the d27 design's section 2.6:
+ * *"Where RP1 is COMMON (read through the register block), a law marked `restart` that would APPLY becomes ADAPTATION_OWED."*). Christian,
+ * reply filed 27 October 2026, item 4: *"Whenever the ball becomes dead, play resets to a new [specialized-role]-initiated build-out."* Read
+ * from the realized game at the row the register's dead-ball block names, against its common value; a game holding anything else there
+ * (the per-trigger value, or nothing, as every game no item writes it for) keeps every restart law as before.
+ */
+function commonDeadBallRestartOf(game: unknown, index: RegisterIndex): string | null {
+    const spec = index.deadBallRestart
+    if (!spec) return null
+    return readAt(game, spec.path) === spec.common ? `the game's dead-ball restart policy (${spec.path}) is ${spec.common}: every dead ball restarts play the one designated way` : null
+}
+
 /** The end lines of the area and who defends each in this block (the role holders and setup assignments whose attacking end is the other). */
 function endsOf(game: unknown, index: RegisterIndex, roleBlock: RoleBlock | null, lengthM: number | null): BlockLawAccount['ends'] {
     const setup = [...index.designations.resolutions].filter(([, resolution]) => resolution.kind === 'SETUP_ASSIGNMENT').map(([name]) => name)
@@ -300,13 +324,21 @@ export function blockLawAccountOf(input: {
     items: ContractItem[]
     /** H3: the Sport Profile's bound-region block the build used, whose pairings give a bound region's mark; absent or null: none given. */
     boundRegions?: SportBoundRegions | null
+    /** R3: the departures the realization records on itself, cited by the realization recording them; absent or null: none. */
+    realizationDepartures?: RealizationDepartures | null
 }): BlockLawAccount {
     const { game, index, roleBlock, laws } = input
     const boundRegions = input.boundRegions ?? null
     const lengthM = axisLengths(input.session)?.along ?? null
     const ends = endsOf(game, index, roleBlock, lengthM)
-    const departures = input.items.flatMap(item => departuresOf(item).map(departure => ({ item: item.itemId, departure })))
+    const onItself = input.realizationDepartures ?? null
+    const departures = [
+        ...input.items.flatMap(item => departuresOf(item).map(departure => ({ item: item.itemId, departure }))),
+        // R3: read exactly as an item's, cited by the realization that records them.
+        ...(onItself ? onItself.departures.map(departure => ({ item: onItself.recordedBy, departure: JSON.parse(JSON.stringify(departure)) as LawDeparture })) : []),
+    ]
     const entries: LawAccountEntry[] = []
+    const commonRestart = commonDeadBallRestartOf(game, index)
     for (const law of laws.laws) {
         const places: Place[] = law.scope === 'PER_END' ? [{ end: 0, lengthM }, { end: 1, lengthM }] : [{ end: null, lengthM }]
         const own = departures.filter(entry => entry.departure.law === law.id)
@@ -360,6 +392,10 @@ export function blockLawAccountOf(input: {
                 } else if (entry.departedBy.length) {
                     entry.status = 'DEPARTED'
                     entry.why = `departed from by ${entry.departedBy.map(found => found.item).join(', ')}`
+                } else if (!missing.length && law.restart && commonRestart) {
+                    // R1 (24 October 2026): under the game's common dead-ball restart a restart law cannot apply as written, and nothing
+                    // records its departure, so an adaptation is owed - never APPLIES while the coach is told every dead ball restarts one way.
+                    entry.why = `every precondition holds, and ${commonRestart}, so this restart law cannot apply as written and nothing departs from the whole of it${inPart}`
                 } else if (!missing.length) {
                     entry.status = 'APPLIES'
                     entry.why = entry.departedInPart.length ? `every precondition holds, and it applies where ${entry.departedInPart.map(found => found.item).join(', ')} does not depart from it` : 'every precondition holds'
@@ -378,7 +414,7 @@ export function blockLawAccountOf(input: {
  * items of the realization the build received. `owed` holds one sentence per law owed an adaptation, per block and place.
  */
 export function defaultLawsAccountOf(input: {
-    realization: { provisionalId: string; items: ContractItem[]; defaultLawsCheck?: DefaultLawsCheck } | null | undefined
+    realization: { provisionalId: string; items: ContractItem[]; defaultLawsCheck?: DefaultLawsCheck; realizationDepartures?: RealizationDepartures } | null | undefined
     laws: DefaultLaws | null
     blocks: { blockId: string; game: unknown; roleBlock: RoleBlock | null }[]
     index: RegisterIndex
@@ -390,7 +426,9 @@ export function defaultLawsAccountOf(input: {
     const realization = input.realization
     if (!realization?.defaultLawsCheck || !input.laws) return null
     const laws = input.laws
-    const blocks = input.blocks.map(block => blockLawAccountOf({ ...block, index: input.index, session: input.session, laws, items: realization.items, boundRegions: input.boundRegions ?? null }))
+    const blocks = input.blocks.map(block =>
+        blockLawAccountOf({ ...block, index: input.index, session: input.session, laws, items: realization.items, boundRegions: input.boundRegions ?? null, realizationDepartures: realization.realizationDepartures ?? null }),
+    )
     const inBlock = (blockId: string) => (input.blocks.length > 1 ? `block ${blockId}: ` : '')
     const owed = blocks.flatMap(block =>
         block.laws.filter(entry => entry.status === 'ADAPTATION_OWED').map(entry => `${inBlock(block.blockId)}${entry.law} (${entry.cites}) at ${entry.at}: an adaptation is owed - ${entry.why}`),
@@ -403,6 +441,7 @@ export function defaultLawsAccountOf(input: {
         source: { file: laws.file, source: laws.source, edition: laws.edition, editionNote: laws.editionNote, authority: JSON.parse(JSON.stringify(laws.authority)) },
         blocks,
         owed,
-        heldSentence: input.heldSentence ? JSON.parse(JSON.stringify(input.heldSentence)) : null,
+        // Stage L: said where nothing is owed, held wherever anything is.
+        heldSentence: input.heldSentence ? { ...JSON.parse(JSON.stringify(input.heldSentence)), status: owed.length ? 'DRAFT_HELD_NOT_SERVED' : 'DRAFT_SAID_NOTHING_OWED' } : null,
     }
 }

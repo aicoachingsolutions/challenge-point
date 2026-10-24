@@ -106,8 +106,11 @@ test('one home: the file loads, A01-R1 is labelled his provisional choice, and o
     // October 2026, item 1 and item 3 C, as the credit bound on the two roles (B8 x2: the building role's BUILD_OUT_EPISODE, the
     // pressing role's WHOLE_GAME stated explicitly) - pinned in credit-episode.unit.ts. 49 -> 53 on 17 October 2026 (stage M2): his
     // reply filed 19 October 2026, item 2, as the occurrence that also counts as the primary event for the pressing role (V27, with
-    // its trigger V29, control V30 and exclusion V31) - pinned in also-counts.unit.ts.
-    assert.deepEqual([realization.provisionalId, realization.contractId, realization.category, realization.realizes, realization.items.length, realization.declarations.length], ['A01-R1', 'provisional:A01-R1', PROVISIONAL_REALIZATION_CHOICE, 'RPC-001', 53, 0])
+    // its trigger V29, control V30 and exclusion V31) - pinned in also-counts.unit.ts. 53 -> 46 on 24 October 2026 (R1): his reply filed
+    // 27 October 2026, item 4, the one common restart - six items added (the policy RP1, the four dead-ball elements, the last-touch
+    // qualifier) and thirteen removed (the throw-in and end-line restarts and their play state and episode boundaries) - pinned in
+    // dead-ball-restart.unit.ts.
+    assert.deepEqual([realization.provisionalId, realization.contractId, realization.category, realization.realizes, realization.items.length, realization.declarations.length], ['A01-R1', 'provisional:A01-R1', PROVISIONAL_REALIZATION_CHOICE, 'RPC-001', 46, 0])
     assert.equal(realization.realizationChoices, 'realization-choices-a01-r1.json')
     assert.ok(realization.words.includes('The priority remains producing one complete, representative Play Out from the Back activity through the normal generation pathway, without introducing unnecessary architecture or treating this first realization as the canonical version of the Learning Goal.'))
     // Re-pointed 26 October 2026 (Stage F): A01's record names its realizations as an ordered list - the goal version first, waiting on two
@@ -200,9 +203,15 @@ test('the realization moves exactly what its items establish — the role lines 
     // possession is entailed by the start's awardee (register version 12, PS1 entailedBy), so naming the realization moves
     // game::PS1 from the governed open choice to the realization's awardee. Every other line is as it was.
     const ps1 = (line: string) => line.startsWith('game::PS1|')
-    assert.deepEqual(lines(named).filter((line: string) => !own(line) && !ps1(line)), lines(unnamed).filter((line: string) => !ps1(line)))
+    // **24 October 2026 (R1): and the game-level dead-ball restart policy, which the realization's own item writes** (A01-R1-RP1-1, his
+    // reply filed 27 October 2026, item 4): a game-level line, so outside the realization's element lines, moved from 'no coverage' to COMMON.
+    const rp1 = (line: string) => line.startsWith('game::RP1|')
+    const byRule = (line: string) => ps1(line) || rp1(line)
+    assert.deepEqual(lines(named).filter((line: string) => !own(line) && !byRule(line)), lines(unnamed).filter((line: string) => !byRule(line)))
     assert.deepEqual(lines(unnamed).filter(ps1), ['game::PS1|open|FREE(a)||null'])
     assert.deepEqual(lines(named).filter(ps1), ['game::PS1|derived|RESOLVED:ENTAILED||"ROLE_HOLDER_BUILDING"'])
+    assert.deepEqual(lines(unnamed).filter(rp1), ['game::RP1|failed|NOT_AUTHORED|no coverage|null'])
+    assert.deepEqual(lines(named).filter(rp1), ['game::RP1|derived|RESOLVED:ENTAILED||"COMMON"'])
     // Its transitions (stage K5, 63 lines on rows T1a-T7 of eight elements) are pinned in starts-and-restarts.unit.ts.
     const transition = (line: string) => line.startsWith('c:provisional:A01-R1:A01-R1-T')
     assert.equal(lines(named).filter(transition).length, 63)
@@ -261,14 +270,16 @@ test('the realization moves exactly what its items establish — the role lines 
     // instance where the realization is not named).
     // A fourth since 22 October 2026 (GA-PARTICIPANTS-PRESENT, his reply filed 25 October 2026, item 6): the realization's takers, start
     // placements, roles and reassignment name participants, whose presence is owed to the instantiated teams.
+    // A fifth since 24 October 2026 (R1, GA-DEAD-BALL-RESTART, his reply filed 27 October 2026, item 4): the realization writes the common
+    // dead-ball restart, whose one location (the coach's) is owed to realization; with the realization not named it passes vacuously.
     const moved = (result: any) => result.gates.gateA.checks.map((c: any) => `${c.checkId}|${c.verdict}`)
     assert.deepEqual(
         moved(named).filter((x: string, i: number) => x !== moved(unnamed)[i]),
-        ['GA-EPISODE-REACHABLE|PASS', 'GA-PARTICIPANTS-PRESENT|DEFERRED_TO_REALIZATION', 'GA-RELATIVE-PLACEMENT|DEFERRED_TO_REALIZATION', 'GA-TRANSITION-COHERENCE|DEFERRED_TO_REALIZATION'],
+        ['GA-DEAD-BALL-RESTART|DEFERRED_TO_REALIZATION', 'GA-EPISODE-REACHABLE|PASS', 'GA-PARTICIPANTS-PRESENT|DEFERRED_TO_REALIZATION', 'GA-RELATIVE-PLACEMENT|DEFERRED_TO_REALIZATION', 'GA-TRANSITION-COHERENCE|DEFERRED_TO_REALIZATION'],
     )
     assert.deepEqual(
         moved(unnamed).filter((x: string, i: number) => x !== moved(named)[i]),
-        ['GA-EPISODE-REACHABLE|FAIL', 'GA-PARTICIPANTS-PRESENT|PASS', 'GA-RELATIVE-PLACEMENT|PASS', 'GA-TRANSITION-COHERENCE|PASS'],
+        ['GA-DEAD-BALL-RESTART|PASS', 'GA-EPISODE-REACHABLE|FAIL', 'GA-PARTICIPANTS-PRESENT|PASS', 'GA-RELATIVE-PLACEMENT|PASS', 'GA-TRANSITION-COHERENCE|PASS'],
     )
     assert.deepEqual(
         named.versions.objects.map((o: any) => o.id).filter((id: string) => !unnamed.versions.objects.some((u: any) => u.id === id)),
@@ -424,11 +435,18 @@ test('A01 with the From Goal Kicks practice situation is refused at knowledge wi
  */
 test('(M4, L11) confirmations A-F: his letters on the items they answer, shown in the provisional list; no reading left awaiting him', () => {
     const items = new Map(provisionalRealizationNamed('A01-R1')!.items.map(item => [item.itemId, item as any]))
+    /**
+     * Re-pointed 24 October 2026 (R1): confirmations A, B and C were recorded on the end-line restart items and the episode boundary off the
+     * building team (A01-R1-T4-3, T5-3, T3-3, T7-3), which his reply filed 27 October 2026, item 4 ("There should be no separate corners, goal
+     * kicks, throw-ins, free kicks, or penalty kicks for this activity.") withdrew from the activity; the realization's note names each with
+     * the authority it carried. D, E and F stay on their items.
+     */
+    const note = String(JSON.parse(fs.readFileSync(path.join(CONFORMANCE_DIR, 'stage-b/provisional-realizations.json'), 'utf8')).realizations.find((r: any) => r.id === 'A01-R1').note)
+    for (const [id, item] of [['A01-R1-T4-3', 'items 3 A and 3 B'], ['A01-R1-T5-3', 'items 3 A and 3 B'], ['A01-R1-T3-3', 'items 3 A and 3 B'], ['A01-R1-T7-3', 'item 3 C']]) {
+        assert.equal(items.get(id), undefined, `${id} withdrawn from the activity`)
+        assert.ok(note.includes(id.replace('A01-R1-', '')) && note.includes(`19 October 2026, ${item}`), `${id}: named in the note with ${item}`)
+    }
     const CONFIRMED: [string, string, string][] = [
-        ['A01-R1-T4-3', 'item 3 A', 'Yes. The coach determines both, with the understanding that ordinary restarts should preserve meaningful game relationships rather than create an automatic scoring shortcut.'],
-        ['A01-R1-T5-3', 'item 3 A', 'Yes. The coach determines both, with the understanding that ordinary restarts should preserve meaningful game relationships rather than create an automatic scoring shortcut.'],
-        ['A01-R1-T3-3', 'item 3 B', 'Yes. Any player from the team awarded the end-line restart may take it, consistent with that safeguard.'],
-        ['A01-R1-T7-3', 'item 3 C', 'Yes. The build-out scoring episode ends. Ordinary play may continue following the restart, but build-out scoring eligibility does not return until a new deliberate goalkeeper restart.'],
         ['A01-R1-P8-1', 'item 3 D', 'Yes. It includes the goalkeeper and outfield players.'],
         ['A01-R1-S6-1', 'item 3 E', 'Yes. It extends across the full width of the playing area.'],
         ['A01-R1-B7-2', 'item 3 F', 'With 5 outfield players plus a goalkeeper against 5 outfield players, only the goalkeeper changes teams at a role exchange. No additional outfield player transfer is required.'],
@@ -449,13 +467,10 @@ test('(M4, L11) confirmations A-F: his letters on the items they answer, shown i
         const shown = lists.provisionalChoices.find(entry => entry.sources.includes(`provisional:A01-R1::${id}`))!
         assert.ok(String(shown.words).endsWith(words) && String(shown.citedAs).includes('19 October 2026'), id)
     }
-    // His 3 A understanding bounds the coach's end-line choice in the realization choices, in our gerund form (DRAFT, labelled there).
+    // His 3 A understanding bounded the coach's end-line choice in the realization choices until 24 October 2026 (R1): the end-line
+    // restart is withdrawn from the activity (his reply filed 27 October 2026, item 4), and its four stand-ins with it.
     const choices = JSON.parse(fs.readFileSync(path.join(AUDITS_DIR, 'realization-choices-a01-r1.json'), 'utf8')).choices
-    for (const line of ['T1-6::T4', 'T1-6::T5', 'T1-7::T4', 'T1-7::T5']) {
-        const choice = choices.find((c: any) => c.lineId === `c:provisional:A01-R1:A01-R1-${line}`)
-        assert.equal(choice.value.coachDecides, 'preserving meaningful game relationships rather than creating an automatic scoring shortcut', line)
-        assert.ok(choice.because.includes('CONFIRMED in his reply filed 19 October 2026, item 3 A') && choice.because.includes('OUR gerund form'), line)
-    }
+    for (const line of ['T1-6::T4', 'T1-6::T5', 'T1-7::T4', 'T1-7::T5']) assert.equal(choices.find((c: any) => c.lineId === `c:provisional:A01-R1:A01-R1-${line}`), undefined, line)
 })
 
 console.log(`provisional-realization.unit.ts — ${passed} passed`)

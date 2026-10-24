@@ -783,7 +783,11 @@ export function rosterRefusal(ctx: GateContext, realized: Realized): RosterRefus
 export type ObjectAvailabilityRefusal =
     | { cause: 'OBJECT_AVAILABILITY_NOT_STATED'; kind: string; asks: 'AVAILABILITY' | 'WIDTH'; needed: number; why: string }
     | { cause: 'OBJECT_AVAILABILITY_SHORT'; kind: string; needed: number; available: number; why: string }
-    | { cause: 'OBJECT_NOT_SUITABLE'; kind: string; needed: number; available: number; widthM: number; decided: boolean; why: string }
+    /**
+     * `rules` (stage I, 24 October 2026): the suitability the realization's authorized knowledge states for the kind, as read (empty where
+     * nothing is decided), so the builder can say which objects it is built for (the d27 design's stage I(b)) without reading `why`.
+     */
+    | { cause: 'OBJECT_NOT_SUITABLE'; kind: string; needed: number; available: number; widthM: number; decided: boolean; rules: { min: number | null; max: number | null }[]; why: string }
     | { cause: 'OBJECT_INVOLVEMENT_NOT_SETTLED'; kind: string; why: string }
 
 /** What authorized knowledge says suits a realization's objects of one kind (`ProvisionalRealization.objectSuitability`), as the rule reads it. */
@@ -858,6 +862,7 @@ export function objectAvailabilityRefusal(index: GateContext['index'], game: unk
                 available: count,
                 widthM: width,
                 decided: false,
+                rules: [],
                 why: `${held}; the session states ${count}, ${width} m wide, and no authorized knowledge of this realization says which objects of the kind suit it (decision 4 of the note sent to him), so none is counted as suitable`,
             }
         }
@@ -870,6 +875,7 @@ export function objectAvailabilityRefusal(index: GateContext['index'], game: unk
                 available: count,
                 widthM: width,
                 decided: true,
+                rules: rules.map(rule => ({ min: rule.min, max: rule.max })),
                 why: `${held}; the session states ${count}, ${width} m wide, outside what ${failing.map(rule => `${rule.from} admits (${rule.min ?? 'no minimum'} to ${rule.max ?? 'no maximum'} m)`).join(' and ')}`,
             }
         }

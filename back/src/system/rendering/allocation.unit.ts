@@ -82,7 +82,15 @@ const SPATIAL_ROWS = ['S2', 'S5', 'S6', 'P8', 'P10', 'P10a', 'P10b']
  * pinned in also-counts.unit.ts; the allocation reads none of it.
  */
 const CREDIT_ROWS = ['B8', 'V27', 'V28', 'V29', 'V30', 'V31']
-const allocationOnly = (realization: any) => void (realization.items = realization.items.filter((item: any) => !String(item.row).startsWith('T') && !SPATIAL_ROWS.includes(String(item.row)) && !CREDIT_ROWS.includes(String(item.row))))
+/**
+ * Re-pointed again 24 October 2026 (R1): without the dead-ball restart policy too (row RP1, his reply filed 27 October 2026, item 4). It
+ * says every dead ball restarts the one way its transitions state, and the transitions are taken out above, so left in it fails
+ * GA-DEAD-BALL-RESTART's coverage clause (measured: refused at structure) - which is right, and pinned in dead-ball-restart.unit.ts; the
+ * allocation reads none of it.
+ */
+const RESTART_POLICY_ROWS = ['RP1']
+const allocationOnly = (realization: any) =>
+    void (realization.items = realization.items.filter((item: any) => !String(item.row).startsWith('T') && !SPATIAL_ROWS.includes(String(item.row)) && !CREDIT_ROWS.includes(String(item.row)) && !RESTART_POLICY_ROWS.includes(String(item.row))))
 const withRealization = (players: number, keepers: number, alter: (realization: any) => void = () => undefined) =>
     buildActivityFromKnowledge(['GF2'], sessionOf(players, keepers), {
         alter: contracts => {

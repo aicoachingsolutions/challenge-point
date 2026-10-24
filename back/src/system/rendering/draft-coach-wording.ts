@@ -17,11 +17,25 @@
  *
  * Read by the renderer (`render-concrete-game.ts`: the Set up sentence placing an object, and how a team scores at an object) and by the
  * fidelity check (`fidelity.ts` Q2: a scoring sentence for a kind with no wording is refused). Nothing here decides anything about a game.
+ *
+ * R2, 24 October 2026 (the d27 design's stage R2, its section 2.8), for his reply filed 27 October 2026, items 3 and 4: the words of the one
+ * restart after every dead ball (`deadBallRestart`, keyed by the register's common value of row RP1) and the coach's noun for each restart
+ * law of the Sport Profile (`restartLawNouns`), read by the renderer's restart sentences and by fidelity (V9), which also reads the held
+ * normal-rules sentence to refuse it wherever an adaptation is owed.
+ *
+ * R3, 24 October 2026 (the d27 design's stage R3), for his reply filed 27 October 2026, item 2: the one sentence for a law an activity
+ * departs from without replacing it (`departedLaws`, keyed by a Sport Profile law that is no restart law), read by the renderer's How it
+ * works and by fidelity (V9).
+ *
+ * Stage I, 24 October 2026 (the d27 design's stage I(a)), for his reply filed 26 October 2026, item 4: the labels of the choices a coach
+ * states a session's objects by (`objectChoices`, keyed by a kind the register's sessionResources block lists), read only by
+ * `session-object-choices.ts` (the session's question on the session form, the review page and the live page); no activity text says them.
  */
 import fs from 'node:fs'
 import path from 'node:path'
 
-import { loadRegister } from '../derivation/corpus'
+import { loadRegister, loadSportDefaultLaws } from '../derivation/corpus'
+import { DefaultLaws } from '../derivation/default-laws'
 import { AUDITS_DIR } from '../derivation/knowledge-root'
 import { indexRegister, RegisterIndex } from '../derivation/register'
 
@@ -83,11 +97,147 @@ export interface ScoringAtObjectWording {
  * should apply by default wherever they are applicable, unless an activity introduces an explicit, knowledge-authorized modification."*
  * Whole in the data file (so the sport's noun is data, never this layer's), with his words for it; read only by the default-laws account
  * of the review evidence (`realization/default-laws-check.ts`, `build-activity.ts`), which shows it held. No renderer reads it.
+ *
+ * **Stage L, 24 October 2026 (the d27 design's section 2.8: *"It is served only where the default-laws account owes nothing."*):** said, as the
+ * last clause of How it works, wherever the game's default-laws account owes nothing at any place (after the sentence for a law the activity
+ * departs from, where one is said: "...; otherwise, ..."), and held everywhere else (the zone version, while it owes the handling law: his
+ * reply filed 27 October 2026, item 5, forbids adding a restriction silently). Its words carry no final full stop, as no instruction does.
  */
 export interface NormalLawsWording {
     words: string
     held: string
     basis: WordingBasis
+}
+
+/**
+ * **When a restart happens, for a trigger the renderer's own table has no words for** — R1, 24 October 2026 (the d27 design's section 2.8:
+ * *"The trigger phrases come from data. draft-coach-wording.json gains a `triggers` map"*). Christian, reply filed 27 October 2026, item 4:
+ * *"Whenever the [object] becomes dead, play resets to a new [specialized-role]-initiated build-out."* and the occasions he lists (his nouns
+ * bracketed: the coupling ratchet keeps a sport's nouns out of this layer; the data file quotes him whole). Keyed by a member of the register's
+ * trigger vocabulary; the phrase may hold the slot {carrier} (the kind of the object played with) and nothing else. Read by the renderer's
+ * restart sentence (`render-concrete-game.ts`), before its own table; a trigger with neither has no words, so its restart is not said and
+ * fidelity refuses the game, exactly as before.
+ *
+ * **R2, 24 October 2026: the common restart's moments only, in the order listed** (the d27 design's section 2.8; the R1 review's should-fix:
+ * two triggers sharing a phrase claim more than a game holding only one of them would). Read only for a game whose dead-ball restart policy
+ * (register row RP1) is the register's common value, where every trigger the block classes as making the ball dead restarts play in the one
+ * group; a game keeping a restart per trigger is said by the renderer's own table and its out-of-play sentences, exactly as before R1.
+ */
+export interface TriggerWording {
+    trigger: string
+    phrase: string
+    basis: WordingBasis
+}
+
+/**
+ * **The words of the one restart after every dead ball** — R2, 24 October 2026 (the d27 design's stage R2, its section 2.8: *"draft-coach-
+ * wording.json gains a `triggers` map, a `deadBallRestart.COMMON` entry and `restartLawNouns`, each with his words"*). Christian, reply
+ * filed 27 October 2026, item 4: *"Ball becomes dead: initiate a new [specialized-role] build-out."* (his noun bracketed, as above). Keyed by
+ * the register's dead-ball block's common value (row RP1), never by an activity: `starts` ("{taker} starts play") and `restarts` ("restarts
+ * it whenever the {carrier} is dead") open the How it works sentence of a group of restarts holding the start and every dead-ball
+ * transition; `noOtherRestarts` ("There are no {restarts} in this activity") is the Restarts and ball out sentence, its slot the nouns below
+ * of the laws the game's default-laws account records as departed from. Read by the renderer only (`render-concrete-game.ts`).
+ */
+export interface DeadBallRestartWording {
+    starts: string
+    restarts: string
+    noOtherRestarts: string
+    basis: WordingBasis
+}
+
+/**
+ * **The coach's noun for a restart law the sport's profile names** — R2, 24 October 2026 (the d27 design's section 2.8: *"It names only the
+ * restart laws the account records as DEPARTED that have a noun in `restartLawNouns`"*). Keyed by the id of a law the Sport Profile's
+ * defaultLaws block names and marks `restart`; `then`, where given, is said after "; " wherever the noun is said (his item 3, for the restart
+ * a foul is sanctioned by: fouls still matter). Read by the renderer's Restarts and ball out sentence and by fidelity (V9), in the order listed.
+ */
+export interface RestartLawNoun {
+    law: string
+    noun: string
+    then?: string
+    basis: WordingBasis
+}
+
+/**
+ * **The one sentence for a law an activity departs from without replacing it** — R3, 24 October 2026 (the d27 design's stage R3, its
+ * section 2.8: *"[No restriction on position], said once, in both versions"*). Christian, reply filed 27 October 2026, item 2: *"I approve
+ * no [restriction on position] for this initial realization, with that modification communicated once to the coach."* (his noun bracketed:
+ * the coupling ratchet keeps a sport's nouns out of this layer; the data file quotes him whole). Keyed by the id of a law the Sport
+ * Profile's defaultLaws block names and does not mark a restart law (a restart law is named by the Restarts and ball out sentence, from
+ * `restartLawNouns`, so no law is told twice); `words` is the whole sentence, with no slot and no final full stop (an instruction carries
+ * none). Read by the renderer (said once, in How it works, where the game's default-laws account records the law as departed from) and by
+ * fidelity (V9: a law departed from for communication is cited by exactly one sentence).
+ */
+export interface DepartedLawWording {
+    law: string
+    words: string
+    basis: WordingBasis
+}
+
+/**
+ * **The Set up sentence for a region bound to an object** — stage L, 24 October 2026 (the d27 design's stage L(b): *"The Set up sentence for
+ * the box, figures read from the cited pairing (DRAFT): 'Mark the [object]'s [handling area]: {w} m wide, centred on the [object], and {d} m
+ * deep into the area; ...'"*; its nouns bracketed). Christian, reply filed 26 October 2026, item 7: *"Use an existing regulation [handling area] when the activity
+ * dimensions and setup permit it."* (his noun bracketed: the coupling ratchet keeps a sport's nouns out of this layer; the data file quotes
+ * him whole). Keyed by a member of the register's region-function vocabulary (the function row the boundRegions block names) and an object
+ * kind of the register's vocabulary, never by an activity: `noun` is what the coach calls such a region (no slot), `sentence` the whole
+ * Set up sentence with exactly the slots {object} (the kind of the object it is bound to), {region} (the noun), {width} and {depth} (the
+ * cited pairing's figures, in metres), and no final full stop. Read by the renderer (`render-concrete-game.ts`) and the diagram's label.
+ */
+export interface BoundRegionWording {
+    function: string
+    objectKind: string
+    noun: string
+    sentence: string
+    basis: WordingBasis
+}
+
+/** A clause of an applied law: its words and his words for it (stage L). `also` names a law of the sport the clause also rests on. */
+export interface AppliedLawClause {
+    words: string
+    basis: WordingBasis
+    also?: string
+}
+
+/**
+ * **What a law the account records as applying gives the coach to apply, in clauses** — stage L, 24 October 2026 (the d27 design's stage
+ * L(b) and (c): the bound region's sentence closes on what the law gives inside it, *"inside it the [performer] may handle the [carrier] as
+ * in a normal game"*, and the Players sentence gains *"give the [performer] a colour neither team wears"*). Christian, reply filed 27 October
+ * 2026, item 6: *"The [performer] should be visually distinguishable from the outfield players."* (his noun bracketed, as above). Keyed by
+ * a law the Sport Profile names that is no restart law: `inRegion` (slots {performer} and {carrier} only) is said after the Set up sentence
+ * of a region whose function that law's REGION_BOUND_TO_OBJECT precondition names; `distinguished` (exactly {performer}) is said in the
+ * Players sentence; each only where the game's default-laws account records the law as applying at every place, and {performer} is the
+ * name of the specialized performer the law's SPECIALIZED_PERFORMER_PRESENT precondition names. Read by the renderer and fidelity.
+ */
+export interface AppliedLawWording {
+    law: string
+    inRegion?: AppliedLawClause
+    distinguished?: AppliedLawClause
+}
+
+/** One label of a choice a coach states a session's objects by, and his words for it (stage I). */
+export interface ObjectChoiceLabel {
+    label: string
+    basis: WordingBasis
+}
+
+/**
+ * **The labels of the choices a coach states a session's objects of one kind by** — stage I, 24 October 2026 (the d27 design's stage I(a):
+ * *"The goal question offers the Sport Profile's authorized goals as choices, generated from `boundRegions.pairings` objects of kind goal,
+ * each named with its document and size in ft and m. Also offered: "a mini-goal or pop-up goal", "another goal (enter its width)" and
+ * "none"."*; its nouns are the data's). Christian, reply filed 26 October 2026, item 4: *"I agree that the coach should identify the
+ * available [object] type and dimensions, without the engine inventing them."* (his noun bracketed: the coupling ratchet keeps a sport's
+ * nouns out of this layer; the data file quotes him whole). Keyed by a kind the register's sessionResources block lists, never by an
+ * activity: `authorized` labels each object a Sport Profile pairing gives a region for (exactly the slots {kind}, {document} and {size});
+ * `attributeValues` label a choice stating one value of an attribute the register lists for the kind; `other` labels the choice whose
+ * width the coach enters; `none` the choice stating none. Read only by `session-object-choices.ts`; no activity text says them.
+ */
+export interface ObjectChoiceWording {
+    kind: string
+    authorized: ObjectChoiceLabel
+    attributeValues: (ObjectChoiceLabel & { attribute: string; value: string })[]
+    other: ObjectChoiceLabel
+    none: ObjectChoiceLabel
 }
 
 export interface DraftCoachWording {
@@ -96,6 +246,20 @@ export interface DraftCoachWording {
     scoringAtObjects: ScoringAtObjectWording[]
     /** H2: the held sentence for the sport's normal laws, or null where the file carries none. */
     normalLaws: NormalLawsWording | null
+    /** R1: the phrases for when a restart happens, by trigger (empty where the file carries none). R2: the common restart's moments only. */
+    triggers: TriggerWording[]
+    /** R2: the words of the common restart, by the policy value they are said for (empty where the file carries none). */
+    deadBallRestart: Record<string, DeadBallRestartWording>
+    /** R2: the coach's noun for each restart law, in the order said (empty where the file carries none). */
+    restartLawNouns: RestartLawNoun[]
+    /** R3: the one sentence for each law an activity departs from without replacing it (empty where the file carries none). */
+    departedLaws: DepartedLawWording[]
+    /** Stage L: the Set up sentence for a region bound to an object, by function and object kind (empty where the file carries none). */
+    boundRegions: BoundRegionWording[]
+    /** Stage L: the clauses for what a law the account records as applying gives the coach (empty where the file carries none). */
+    appliedLaws: AppliedLawWording[]
+    /** Stage I: the labels of the choices a coach states a session's objects by, by kind (empty where the file carries none). */
+    objectChoices: ObjectChoiceWording[]
 }
 
 /** The wording as loaded, and why it could not be used (then it is empty). */
@@ -105,8 +269,21 @@ export interface DraftCoachWordingLoad {
 }
 
 const filled = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0
-const FILE_KEYS = new Set(['about', 'status', 'entryShape', 'objectKinds', 'facings', 'scoringAtObjects', 'normalLaws'])
+const FILE_KEYS = new Set(['about', 'status', 'entryShape', 'objectKinds', 'facings', 'scoringAtObjects', 'normalLaws', 'triggers', 'deadBallRestart', 'restartLawNouns', 'departedLaws', 'boundRegions', 'appliedLaws', 'objectChoices'])
+const OBJECT_CHOICE_KEYS = new Set(['kind', 'authorized', 'attributeValues', 'other', 'none'])
+const CHOICE_LABEL_KEYS = new Set(['label', 'basis'])
+const ATTRIBUTE_CHOICE_KEYS = new Set(['attribute', 'value', 'label', 'basis'])
+const DEPARTED_LAW_KEYS = new Set(['law', 'words', 'basis'])
+const BOUND_REGION_KEYS = new Set(['function', 'objectKind', 'noun', 'sentence', 'basis'])
+const APPLIED_LAW_KEYS = new Set(['law', 'inRegion', 'distinguished'])
+const APPLIED_CLAUSE_KEYS = new Set(['words', 'basis', 'also'])
 const NORMAL_LAWS_KEYS = new Set(['words', 'held', 'basis'])
+const TRIGGER_KEYS = new Set(['trigger', 'phrase', 'basis'])
+const DEAD_BALL_KEYS = new Set(['starts', 'restarts', 'noOtherRestarts', 'basis'])
+const RESTART_NOUN_KEYS = new Set(['law', 'noun', 'then', 'basis'])
+/** A template whose slots are exactly these (each said at least once), with no stray brace (R2). */
+const slotsExactly = (text: unknown, slots: string[]): boolean =>
+    filled(text) && !strayBrace(text) && JSON.stringify([...new Set(slotsIn(text))].sort()) === JSON.stringify([...slots].sort())
 const OBJECT_KEYS = new Set(['kind', 'standsOutsideArea', 'basis'])
 const FACING_KEYS = new Set(['facing', 'words', 'basis'])
 const SCORING_KEYS = new Set(['event', 'targetKind', 'lead', 'basis', 'clauses'])
@@ -129,7 +306,7 @@ function basisUnusableBecause(basis: any): string | null {
  * only {carrier}, a known `states`, his words for each, and no kind or event listed twice. A facing entry (the Stage G review fix) names a
  * member of the register's facing vocabulary, once, with words holding no slot and his words for them.
  */
-export function draftCoachWordingUnusableBecause(file: any, index: RegisterIndex): string | null {
+export function draftCoachWordingUnusableBecause(file: any, index: RegisterIndex, laws: DefaultLaws | null = loadSportDefaultLaws()): string | null {
     if (!file || typeof file !== 'object' || Array.isArray(file)) return 'the file is not an object'
     for (const key of Object.keys(file)) if (!FILE_KEYS.has(key)) return `the file carries "${key}", which no such file holds (an approval belongs in approved-coach-wording.json, never here)`
     if (file.status !== 'DRAFT') return `its status is ${JSON.stringify(file.status)}: every word here is DRAFT until he approves it, and then it moves to approved-coach-wording.json`
@@ -196,18 +373,218 @@ export function draftCoachWordingUnusableBecause(file: any, index: RegisterIndex
         if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return 'its normalLaws entry is not an object'
         for (const key of Object.keys(entry)) if (!NORMAL_LAWS_KEYS.has(key)) return `its normalLaws entry carries "${key}"`
         if (!filled(entry.words) || slotsIn(entry.words).length || strayBrace(entry.words)) return 'its normalLaws words are missing or hold a slot'
+        // Stage L (24 October 2026): the words are said now, where nothing is owed, so they carry no final full stop, as no instruction does.
+        if (entry.words.trim().endsWith('.')) return 'its normalLaws words end with a full stop, which no instruction carries'
         if (!filled(entry.held)) return 'its normalLaws entry does not say why it is held (held)'
         const basis = basisUnusableBecause(entry.basis)
         if (basis) return `its normalLaws entry: ${basis}`
     }
+    // R1 (24 October 2026): the phrases for when a restart happens, where the file carries them - each a member of the register's trigger
+    // vocabulary, once, its phrase holding no slot but {carrier}, with his words for it.
+    if (file.triggers !== undefined) {
+        if (!Array.isArray(file.triggers)) return 'its triggers entry is not a list'
+        const triggerVocabulary = index.vocabularies.get('trigger') ?? []
+        const triggers = new Set<string>()
+        for (const [n, entry] of (file.triggers as any[]).entries()) {
+            const which = `trigger ${n + 1}`
+            if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return `${which} is not an object`
+            for (const key of Object.keys(entry)) if (!TRIGGER_KEYS.has(key)) return `${which} carries "${key}"`
+            if (!filled(entry.trigger) || !triggerVocabulary.includes(entry.trigger)) return `${which} names ${JSON.stringify(entry.trigger)}, which is no member of the register's trigger vocabulary`
+            if (triggers.has(entry.trigger)) return `${which} lists ${entry.trigger} again`
+            triggers.add(entry.trigger)
+            if (!filled(entry.phrase) || strayBrace(entry.phrase) || slotsIn(entry.phrase).some(slot => slot !== 'carrier')) return `${which}: its phrase is missing or holds a slot other than {carrier}`
+            const basis = basisUnusableBecause(entry.basis)
+            if (basis) return `${which}: ${basis}`
+        }
+    }
+    /**
+     * R2 (24 October 2026; the d27 design's section 2.9, V9: "the wording loader refuses a trigger key outside the vocabulary, a law key outside
+     * the profile, wrong slots, a COMMON entry without his words, and any claim of approval"): the common restart's words, keyed only by the
+     * register's dead-ball block's common value (the per-trigger value has no sentence of its own), each template with exactly its slots and
+     * his words for it; and each restart law's noun, a law the Sport Profile names and marks a restart, once, with no slot and his words. A
+     * claim of approval is refused as every other key no entry holds is (an approval belongs in approved-coach-wording.json).
+     */
+    if (file.deadBallRestart !== undefined) {
+        const entries = file.deadBallRestart
+        if (!entries || typeof entries !== 'object' || Array.isArray(entries)) return 'its deadBallRestart entry is not an object'
+        const spec = index.deadBallRestart
+        for (const [value, entry] of Object.entries(entries as Record<string, any>)) {
+            const which = `its deadBallRestart entry ${value}`
+            if (!spec || value !== spec.common) return `${which} is keyed by no common value of the register's deadBallRestart block${spec ? ` (${spec.common})` : ''}: only the common restart has words of its own`
+            if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return `${which} is not an object`
+            for (const key of Object.keys(entry)) if (!DEAD_BALL_KEYS.has(key)) return `${which} carries "${key}"`
+            if (!slotsExactly(entry.starts, ['taker'])) return `${which}: its starts must hold exactly the slot {taker}`
+            if (!filled(entry.restarts) || strayBrace(entry.restarts) || slotsIn(entry.restarts).some(slot => slot !== 'carrier')) return `${which}: its restarts is missing or holds a slot other than {carrier}`
+            if (!slotsExactly(entry.noOtherRestarts, ['restarts'])) return `${which}: its noOtherRestarts must hold exactly the slot {restarts}`
+            const basis = basisUnusableBecause(entry.basis)
+            if (basis) return `${which}: ${basis}`
+        }
+    }
+    if (file.restartLawNouns !== undefined) {
+        if (!Array.isArray(file.restartLawNouns)) return 'its restartLawNouns entry is not a list'
+        if (file.restartLawNouns.length && !laws) return 'it lists restartLawNouns, and the Sport Profile names no default laws'
+        const named = new Set<string>()
+        for (const [n, entry] of (file.restartLawNouns as any[]).entries()) {
+            const which = `restart law noun ${n + 1}`
+            if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return `${which} is not an object`
+            for (const key of Object.keys(entry)) if (!RESTART_NOUN_KEYS.has(key)) return `${which} carries "${key}"`
+            const law = (laws?.laws ?? []).find(candidate => candidate.id === entry.law)
+            if (!filled(entry.law) || !law) return `${which} names ${JSON.stringify(entry.law)}, which is no law the Sport Profile's defaultLaws block names`
+            if (!law.restart) return `${which} names ${entry.law}, which the Sport Profile does not mark as a restart law`
+            if (named.has(entry.law)) return `${which} lists ${entry.law} again`
+            named.add(entry.law)
+            if (!filled(entry.noun) || slotsIn(entry.noun).length || strayBrace(entry.noun)) return `${which}: its noun is missing or holds a slot`
+            if (entry.then !== undefined && (!filled(entry.then) || slotsIn(entry.then).length || strayBrace(entry.then))) return `${which}: its then is empty or holds a slot`
+            const basis = basisUnusableBecause(entry.basis)
+            if (basis) return `${which}: ${basis}`
+        }
+    }
+    /**
+     * R3 (24 October 2026; the d27 design's section 2.9, V9): the one sentence for each law an activity departs from without replacing it -
+     * a law the Sport Profile names, never one it marks a restart law (that one is named by the Restarts and ball out sentence, so a law is
+     * never told twice), once, its words whole with no slot and no final full stop, with his words for it.
+     */
+    if (file.departedLaws !== undefined) {
+        if (!Array.isArray(file.departedLaws)) return 'its departedLaws entry is not a list'
+        if (file.departedLaws.length && !laws) return 'it lists departedLaws, and the Sport Profile names no default laws'
+        const named = new Set<string>()
+        for (const [n, entry] of (file.departedLaws as any[]).entries()) {
+            const which = `departed law ${n + 1}`
+            if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return `${which} is not an object`
+            for (const key of Object.keys(entry)) if (!DEPARTED_LAW_KEYS.has(key)) return `${which} carries "${key}"`
+            const law = (laws?.laws ?? []).find(candidate => candidate.id === entry.law)
+            if (!filled(entry.law) || !law) return `${which} names ${JSON.stringify(entry.law)}, which is no law the Sport Profile's defaultLaws block names`
+            if (law.restart) return `${which} names ${entry.law}, which the Sport Profile marks as a restart law: a restart law is named by the Restarts and ball out sentence (restartLawNouns), never by a sentence of its own`
+            if (named.has(entry.law)) return `${which} lists ${entry.law} again`
+            named.add(entry.law)
+            if (!filled(entry.words) || slotsIn(entry.words).length || strayBrace(entry.words)) return `${which}: its words are missing or hold a slot`
+            if (entry.words.trim().endsWith('.')) return `${which}: its words end with a full stop, which no instruction carries`
+            const basis = basisUnusableBecause(entry.basis)
+            if (basis) return `${which}: ${basis}`
+        }
+    }
+    /**
+     * Stage L (24 October 2026; the d27 design's stage L(b) and (c)): the Set up sentence for a region bound to an object - a function of the
+     * register's region-function vocabulary and an object kind of its object vocabulary, the pair once, a noun with no slot, the sentence with
+     * exactly its four slots and no final full stop, his words for it.
+     */
+    if (file.boundRegions !== undefined) {
+        if (!Array.isArray(file.boundRegions)) return 'its boundRegions entry is not a list'
+        const spec = index.boundRegions
+        const functions = spec ? (index.vocabularies.get(`${spec.functionRow}.${spec.functionAttribute}`) ?? []) : []
+        const seen = new Set<string>()
+        for (const [n, entry] of (file.boundRegions as any[]).entries()) {
+            const which = `bound region ${n + 1}`
+            if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return `${which} is not an object`
+            for (const key of Object.keys(entry)) if (!BOUND_REGION_KEYS.has(key)) return `${which} carries "${key}"`
+            if (!filled(entry.function) || !functions.includes(entry.function)) return `${which} names the function ${JSON.stringify(entry.function)}, which is no member of the register's region-function vocabulary`
+            if (!filled(entry.objectKind) || !objectKinds.includes(entry.objectKind)) return `${which} names the object kind ${JSON.stringify(entry.objectKind)}, which is no object kind of the register's vocabulary`
+            if (seen.has(`${entry.function}|${entry.objectKind}`)) return `${which} lists ${entry.function} bound to ${entry.objectKind} again`
+            seen.add(`${entry.function}|${entry.objectKind}`)
+            if (!filled(entry.noun) || slotsIn(entry.noun).length || strayBrace(entry.noun)) return `${which}: its noun is missing or holds a slot`
+            if (!slotsExactly(entry.sentence, ['object', 'region', 'width', 'depth'])) return `${which}: its sentence must hold exactly the slots {object}, {region}, {width} and {depth}`
+            if (entry.sentence.trim().endsWith('.')) return `${which}: its sentence ends with a full stop, which no instruction carries`
+            const basis = basisUnusableBecause(entry.basis)
+            if (basis) return `${which}: ${basis}`
+        }
+    }
+    /**
+     * Stage L: what a law the account records as applying gives the coach - a law the Sport Profile names that is no restart law (a restart law
+     * is replaced or named, never applied as written here), once, with at least one clause; a clause in a region (`inRegion`) only for a law
+     * whose required preconditions hold a region bound to an object, its slots {performer} and {carrier} only; the clause that tells the
+     * performer apart (`distinguished`) exactly {performer}; {performer} only for a law whose required preconditions name a specialized
+     * performer; no final full stop; his words for each.
+     */
+    if (file.appliedLaws !== undefined) {
+        if (!Array.isArray(file.appliedLaws)) return 'its appliedLaws entry is not a list'
+        if (file.appliedLaws.length && !laws) return 'it lists appliedLaws, and the Sport Profile names no default laws'
+        const named = new Set<string>()
+        for (const [n, entry] of (file.appliedLaws as any[]).entries()) {
+            const which = `applied law ${n + 1}`
+            if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return `${which} is not an object`
+            for (const key of Object.keys(entry)) if (!APPLIED_LAW_KEYS.has(key)) return `${which} carries "${key}"`
+            const law = (laws?.laws ?? []).find(candidate => candidate.id === entry.law)
+            if (!filled(entry.law) || !law) return `${which} names ${JSON.stringify(entry.law)}, which is no law the Sport Profile's defaultLaws block names`
+            if (law.restart) return `${which} names ${entry.law}, which the Sport Profile marks as a restart law: a restart law is never said as applying as written`
+            if (named.has(entry.law)) return `${which} lists ${entry.law} again`
+            named.add(entry.law)
+            if (entry.inRegion === undefined && entry.distinguished === undefined) return `${which} holds no clause`
+            const regionPredicate = [...law.applicableWhen, ...law.requires].some(predicate => predicate.predicate === 'REGION_BOUND_TO_OBJECT')
+            const performerPredicate = [...law.applicableWhen, ...law.requires].some(predicate => predicate.predicate === 'SPECIALIZED_PERFORMER_PRESENT')
+            for (const [name, clause, slots, exact] of [
+                ['inRegion', entry.inRegion, ['performer', 'carrier'], false],
+                ['distinguished', entry.distinguished, ['performer'], true],
+            ] as [string, any, string[], boolean][]) {
+                if (clause === undefined) continue
+                const at = `${which}, its ${name} clause`
+                if (!clause || typeof clause !== 'object' || Array.isArray(clause)) return `${at} is not an object`
+                for (const key of Object.keys(clause)) if (!APPLIED_CLAUSE_KEYS.has(key)) return `${at} carries "${key}"`
+                if (exact ? !slotsExactly(clause.words, slots) : !filled(clause.words) || strayBrace(clause.words) || slotsIn(clause.words).some(slot => !slots.includes(slot))) {
+                    return `${at}: its words are missing or hold a slot other than ${slots.map(slot => `{${slot}}`).join(' and ')}${exact ? ', each once at least' : ''}`
+                }
+                if (clause.words.trim().endsWith('.')) return `${at}: its words end with a full stop, which no instruction carries`
+                if (slotsIn(clause.words).includes('performer') && !performerPredicate) return `${at} names the performer, and no precondition of ${entry.law} names a specialized performer, so none is named by it`
+                if (name === 'inRegion' && !regionPredicate) return `${at} is said inside a region, and no precondition of ${entry.law} is a region bound to an object`
+                if (clause.also !== undefined && !filled(clause.also)) return `${at}: its also is empty`
+                const basis = basisUnusableBecause(clause.basis)
+                if (basis) return `${at}: ${basis}`
+            }
+        }
+    }
+    /**
+     * Stage I (24 October 2026; the d27 design's stage I(a)): the labels of the choices a coach states a session's objects by - a kind the
+     * register's sessionResources block lists, once; the authorized label with exactly the slots {kind}, {document} and {size}; each
+     * attribute value one the register lists for the kind, once; every other label whole with no slot; his words for each.
+     */
+    if (file.objectChoices !== undefined) {
+        if (!Array.isArray(file.objectChoices)) return 'its objectChoices entry is not a list'
+        const sessionKinds = index.sessionResources?.kinds ?? []
+        const seen = new Set<string>()
+        const labelUnusable = (entry: any, at: string, slots: string[], keys: Set<string> = CHOICE_LABEL_KEYS): string | null => {
+            if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return `${at} is not an object`
+            for (const key of Object.keys(entry)) if (!keys.has(key)) return `${at} carries "${key}"`
+            if (slots.length ? !slotsExactly(entry.label, slots) : !filled(entry.label) || slotsIn(entry.label).length > 0 || strayBrace(entry.label)) {
+                return `${at}: its label is missing or ${slots.length ? `does not hold exactly the slots ${slots.map(slot => `{${slot}}`).join(', ')}` : 'holds a slot'}`
+            }
+            const basis = basisUnusableBecause(entry.basis)
+            return basis ? `${at}: ${basis}` : null
+        }
+        for (const [n, entry] of (file.objectChoices as any[]).entries()) {
+            const which = `object choices ${n + 1}`
+            if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return `${which} is not an object`
+            for (const key of Object.keys(entry)) if (!OBJECT_CHOICE_KEYS.has(key)) return `${which} carries "${key}"`
+            if (!filled(entry.kind) || !sessionKinds.includes(entry.kind)) return `${which} names ${JSON.stringify(entry.kind)}, which is no kind the register's sessionResources block lists`
+            if (seen.has(entry.kind)) return `${which} lists ${entry.kind} again`
+            seen.add(entry.kind)
+            const authorized = labelUnusable(entry.authorized, `${which}, its authorized label`, ['kind', 'document', 'size'])
+            if (authorized) return authorized
+            for (const [name, label] of [['other', entry.other], ['none', entry.none]] as [string, any][]) {
+                const why = labelUnusable(label, `${which}, its ${name} label`, [])
+                if (why) return why
+            }
+            if (!Array.isArray(entry.attributeValues)) return `${which} holds no attributeValues list (an empty list says none)`
+            const listed = (index.sessionResources?.attributes ?? []).filter(attribute => attribute.kind === entry.kind)
+            const values = new Set<string>()
+            for (const [k, choice] of (entry.attributeValues as any[]).entries()) {
+                const at = `${which}, attribute value ${k + 1}`
+                const why = labelUnusable(choice, at, [], ATTRIBUTE_CHOICE_KEYS)
+                if (why) return why
+                const attribute = listed.find(candidate => candidate.attribute === choice.attribute)
+                if (!attribute) return `${at} names the attribute ${JSON.stringify(choice.attribute)}, which the register lists for no ${entry.kind}`
+                if (!attribute.values.includes(choice.value)) return `${at} names the value ${JSON.stringify(choice.value)}, which is none of the ${choice.attribute} values the register lists (${attribute.values.join(', ')})`
+                if (values.has(`${choice.attribute}=${choice.value}`)) return `${at} lists ${choice.attribute} ${choice.value} again`
+                values.add(`${choice.attribute}=${choice.value}`)
+            }
+        }
+    }
     return null
 }
 
-const EMPTY: DraftCoachWording = { objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null }
+const EMPTY: DraftCoachWording = { objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [], boundRegions: [], appliedLaws: [], objectChoices: [] }
 
 /** The wording from a parsed file, copied, or none with why. */
-export function draftCoachWordingLoadOf(file: any, index: RegisterIndex): DraftCoachWordingLoad {
-    const why = draftCoachWordingUnusableBecause(file, index)
+export function draftCoachWordingLoadOf(file: any, index: RegisterIndex, laws: DefaultLaws | null = loadSportDefaultLaws()): DraftCoachWordingLoad {
+    const why = draftCoachWordingUnusableBecause(file, index, laws)
     if (why) return { wording: JSON.parse(JSON.stringify(EMPTY)), why: `${DRAFT_COACH_WORDING_SOURCE} cannot be used: ${why}` }
     return {
         wording: {
@@ -215,10 +592,80 @@ export function draftCoachWordingLoadOf(file: any, index: RegisterIndex): DraftC
             facings: JSON.parse(JSON.stringify(file.facings)),
             scoringAtObjects: JSON.parse(JSON.stringify(file.scoringAtObjects)),
             normalLaws: file.normalLaws === undefined ? null : JSON.parse(JSON.stringify(file.normalLaws)),
+            triggers: file.triggers === undefined ? [] : JSON.parse(JSON.stringify(file.triggers)),
+            deadBallRestart: file.deadBallRestart === undefined ? {} : JSON.parse(JSON.stringify(file.deadBallRestart)),
+            restartLawNouns: file.restartLawNouns === undefined ? [] : JSON.parse(JSON.stringify(file.restartLawNouns)),
+            departedLaws: file.departedLaws === undefined ? [] : JSON.parse(JSON.stringify(file.departedLaws)),
+            boundRegions: file.boundRegions === undefined ? [] : JSON.parse(JSON.stringify(file.boundRegions)),
+            appliedLaws: file.appliedLaws === undefined ? [] : JSON.parse(JSON.stringify(file.appliedLaws)),
+            objectChoices: file.objectChoices === undefined ? [] : JSON.parse(JSON.stringify(file.objectChoices)),
         },
         why: null,
     }
 }
+
+/** The DRAFT labels of the choices a coach states a session's objects of this kind by, or null where none are written (stage I). */
+export function objectChoiceWording(kind: unknown, wording: DraftCoachWording = draftCoachWordingLoad().wording): ObjectChoiceWording | null {
+    const found = wording.objectChoices.find(entry => entry.kind === kind)
+    return found ? (JSON.parse(JSON.stringify(found)) as ObjectChoiceWording) : null
+}
+
+/** The DRAFT Set up sentence for a region of this function bound to an object of this kind, or null where none is written (stage L). */
+export function boundRegionWording(regionFunction: unknown, objectKind: unknown, wording: DraftCoachWording = draftCoachWordingLoad().wording): BoundRegionWording | null {
+    return wording.boundRegions.find(entry => entry.function === regionFunction && entry.objectKind === objectKind) ?? null
+}
+
+/** The DRAFT clauses for what each law applying gives the coach, in the order listed (stage L). */
+export function appliedLawWordings(wording: DraftCoachWording = draftCoachWordingLoad().wording): AppliedLawWording[] {
+    return JSON.parse(JSON.stringify(wording.appliedLaws))
+}
+
+/**
+ * **What a law's required preconditions read, for the clauses of an applied law** (stage L): the region functions and object kinds of its
+ * REGION_BOUND_TO_OBJECT preconditions (where its `inRegion` clause is said) and the performer rows of its SPECIALIZED_PERFORMER_PRESENT ones
+ * (whose performer's name fills {performer}), from the Sport Profile's defaultLaws block; empty for a law it does not name.
+ */
+export function appliedLawReading(law: string, laws: DefaultLaws | null = loadSportDefaultLaws()): { regions: { function: string; kind: string }[]; performerRows: string[] } {
+    const found = (laws?.laws ?? []).find(candidate => candidate.id === law)
+    const requires = [...(found?.applicableWhen ?? []), ...(found?.requires ?? [])]
+    return {
+        regions: requires.filter(predicate => predicate.predicate === 'REGION_BOUND_TO_OBJECT').map(predicate => ({ function: String(predicate.function), kind: String(predicate.kind) })),
+        performerRows: requires.filter(predicate => predicate.predicate === 'SPECIALIZED_PERFORMER_PRESENT').map(predicate => String(predicate.row)),
+    }
+}
+
+/** The DRAFT normal-rules sentence, or null where the file carries none (stage L: said where the account owes nothing). */
+export function normalLawsWording(wording: DraftCoachWording = draftCoachWordingLoad().wording): NormalLawsWording | null {
+    return wording.normalLaws ? JSON.parse(JSON.stringify(wording.normalLaws)) : null
+}
+
+/** The DRAFT phrase for when a restart on this trigger happens, or null where none is written (R1). */
+export function triggerWording(trigger: unknown, wording: DraftCoachWording = draftCoachWordingLoad().wording): TriggerWording | null {
+    return wording.triggers.find(entry => entry.trigger === trigger) ?? null
+}
+
+/** Where the DRAFT data lists this trigger's phrase, or -1 (R2: the common restart's moments are said in the order listed). */
+export function triggerWordingOrder(trigger: unknown, wording: DraftCoachWording = draftCoachWordingLoad().wording): number {
+    return wording.triggers.findIndex(entry => entry.trigger === trigger)
+}
+
+/** The DRAFT words of the restart said for this dead-ball restart policy value, or null where none are written (R2). */
+export function deadBallRestartWording(value: unknown, wording: DraftCoachWording = draftCoachWordingLoad().wording): DeadBallRestartWording | null {
+    return typeof value === 'string' && Object.prototype.hasOwnProperty.call(wording.deadBallRestart, value) ? wording.deadBallRestart[value] : null
+}
+
+/** The coach's nouns for the restart laws, in the order said (R2). */
+export function restartLawNouns(wording: DraftCoachWording = draftCoachWordingLoad().wording): RestartLawNoun[] {
+    return wording.restartLawNouns.map(entry => ({ ...entry, basis: { words: [...entry.basis.words], citedAs: entry.basis.citedAs } }))
+}
+
+/** The one sentence for each law an activity departs from without replacing it, in the order listed (R3). */
+export function departedLawWordings(wording: DraftCoachWording = draftCoachWordingLoad().wording): DepartedLawWording[] {
+    return wording.departedLaws.map(entry => ({ ...entry, basis: { words: [...entry.basis.words], citedAs: entry.basis.citedAs } }))
+}
+
+/** The slots a DRAFT template holds, by name (R1: whether a phrase names the object played with, so its sentence cites the object). */
+export const slotsOf = (text: string): string[] => slotsIn(text)
 
 function readWording(): DraftCoachWordingLoad {
     try {

@@ -14,12 +14,13 @@ import { NumberField, SelectField, TextAreaField } from '@/form-control/fields'
 import ROUTES from '@/ROUTES'
 
 import { ActivityStatus, ChallengeLevels, IActivity } from '@/MODELS/activity.model'
-import type { ServedActivity } from '@/MODELS/activity-review.model'
-import { SessionStatus } from '@/MODELS/session.model'
+import type { ReviewSessionQuestion, ServedActivity, StatedObjects } from '@/MODELS/activity-review.model'
+import { ISession, SessionStatus } from '@/MODELS/session.model'
 
 import { api } from '@/services/api.service'
 
 import Button from '@/components/Button'
+import ObjectChoiceField from '@/components/ObjectChoiceField'
 import SessionPlanningConversation, { type PlanningSelection } from './SessionPlanningConversation'
 import ActivitySections from '@/components/ActivitySections'
 import { ActivityBlock } from './CheckedActivityBlock'
@@ -113,6 +114,13 @@ export default function ActivityGenerator() {
     const [useGuidedPlanning, setUseGuidedPlanning] = useState(true)
     const debugMode = debugToggle || new URLSearchParams(window.location.search).get('debug') === '1'
     const [debugTrace, setDebugTrace] = useState<Record<string, any> | null>(null)
+    /**
+     * Stage I (24 October 2026): the question a refused checked build asks about the session's equipment, the coach's answer to it, and the
+     * planning choices it was built from (so the activity is built again from exactly those once the answer is saved).
+     */
+    const [pendingQuestion, setPendingQuestion] = useState<ReviewSessionQuestion | null>(null)
+    const [pendingAnswer, setPendingAnswer] = useState<StatedObjects | undefined>(undefined)
+    const [lastPlanning, setLastPlanning] = useState<PlanningSelection | null>(null)
     const navigate = useNavigate()
 
     /**
@@ -161,6 +169,34 @@ export default function ActivityGenerator() {
         return Array.isArray(raw) ? raw.filter((s): s is string => typeof s === 'string') : []
     }
 
+    /** Stage I: a refused build's question about the session's equipment, where the response carries one with the server's words. */
+    const questionFrom = (raw: unknown): ReviewSessionQuestion | null => {
+        if (!raw || typeof raw !== 'object') return null
+        const question = raw as ReviewSessionQuestion
+        return typeof question.objectKind === 'string' && typeof question.words === 'string' ? question : null
+    }
+
+    /**
+     * Stage I: save the coach's answer to the session - the kind's statement replaced, every other kind kept as stored - then build again
+     * from the same planning choices. The session is read first so nothing else it states is lost; where it cannot be read or saved,
+     * nothing is built and the coach is told (DRAFT).
+     */
+    const answerPendingQuestion = async () => {
+        if (!id || !pendingQuestion || !pendingAnswer || !lastPlanning) return
+        const stored = await api<ISession>(`${ROUTES.app.session}/${id}`)
+        if (stored.error || !stored.data) {
+            setGenerationError('Your answer could not be saved to this session. Please try again.')
+            return
+        }
+        const objects = { ...(stored.data.objects ?? {}), [pendingQuestion.objectKind]: pendingAnswer }
+        const saved = await api(ROUTES.app.session, { _id: id, objects })
+        if (saved.error) {
+            setGenerationError('Your answer could not be saved to this session. Please try again.')
+            return
+        }
+        await generateFromPlanning(lastPlanning)
+    }
+
     /** The coach's own intentions, returned when they entered more than one. */
     const intentionsFrom = (payload: unknown): string[] => {
         if (!payload || typeof payload !== 'object') return []
@@ -202,6 +238,10 @@ export default function ActivityGenerator() {
         setSelectedChallengeLevel(RUNTIME_CHALLENGE_DEFAULT)
         setSelectedDuration(selection.duration)
         setSelectedLearningGoals([goalText])
+        // Stage I: kept, so an answer to the build's question builds again from the same choices.
+        setLastPlanning(selection)
+        setPendingQuestion(null)
+        setPendingAnswer(undefined)
         await generateActivities({
             challengeLevel: RUNTIME_CHALLENGE_DEFAULT,
             duration: selection.duration,
@@ -289,6 +329,9 @@ export default function ActivityGenerator() {
                 const errorPayload = wrapped ? payload : res
                 resetGenerationState(buildGenerationErrorMessage(errorPayload), suggestionsFrom(errorPayload))
                 setIntentionChoices(intentionsFrom(errorPayload))
+                // Stage I: the checked build's question about the session's equipment, where it stopped to ask one (guided planning only).
+                setPendingQuestion(override?.planning ? questionFrom(res.question) : null)
+                setPendingAnswer(undefined)
                 return
             }
 
@@ -570,9 +613,33 @@ export default function ActivityGenerator() {
                       * The server's one sentence when nothing could be built (22 October 2026, the live-app fix). The guided flow showed no
                       * message at all, so a refusal — the checked pathway's included — returned the coach to the conversation unexplained.
                       */}
-                    {generationError && (
+                    {/* Stage I: the refusal's sentence is the question's own words, said once, in the question below. */}
+                    {generationError && generationError !== pendingQuestion?.words && (
                         <div role='alert' className='max-w-2xl px-4 py-3 mx-auto mb-4 text-sm border rounded-xl border-amber-200 bg-amber-50 text-amber-800'>
                             <p>{generationError}</p>
+                        </div>
+                    )}
+                    {/*
+                      * Stage I (24 October 2026; the d27 design's stage I(c)): where the checked build stopped to ask about the session's
+                      * equipment, the question is answered here, by the same choices as the session's own question, and the answer is saved
+                      * to the session before the activity is built again - so what is built, and what Start Activity builds again, read the
+                      * same session. Until this, the question never reached this page and the coach saw only the refusal's sentence.
+                      */}
+                    {pendingQuestion && (
+                        <div className='max-w-2xl p-4 mx-auto mb-4 bg-white border rounded-xl border-amber-200'>
+                            <p className='font-medium text-gray-800'>{pendingQuestion.words}</p>
+                            <div className='mt-4'>
+                                <ObjectChoiceField
+                                    kind={pendingQuestion.objectKind}
+                                    choices={pendingQuestion.choices ?? []}
+                                    onChange={setPendingAnswer}
+                                    name={`live-objects-${pendingQuestion.objectKind}`}
+                                />
+                            </div>
+                            <p className='mt-2 text-sm text-gray-500'>Your answer is saved to this session.</p>
+                            <Button onClickAsync={() => answerPendingQuestion()} disabled={!pendingAnswer || !lastPlanning} className='mt-4 rounded-full'>
+                                Build the activity with this answer
+                            </Button>
                         </div>
                     )}
                     <SessionPlanningConversation onComplete={generateFromPlanning} />

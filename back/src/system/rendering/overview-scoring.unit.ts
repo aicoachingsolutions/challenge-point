@@ -111,9 +111,26 @@ const OVERVIEW_8 = 'The pressing team also scores by winning the ball inside tha
 /** His second and third sentences of the building rule (stage 3F: the origin; the exclusion). */
 const W1_S2 = "The progression must begin with the goalkeeper's build-out and occur before the building team loses possession."
 const W1_S3 = 'Uncontrolled clearances do not score.'
-/** Sentence 6 as the composer cuts it from Details 10: its own words up to the bracketed aside (no word added or changed). */
+/**
+ * Sentence 6 as the composer cut it from Details 10 until R1: its own words up to the bracketed aside (no word added or changed). Since R1
+ * (24 October 2026) the aside no longer closes Details 10 (the moments his reply filed 27 October 2026, item 4, adds follow it), so no cut
+ * gives it; kept to pin that.
+ */
 const OVERVIEW_6_CUT = "The building team's goalkeeper restarts play: at the start, after either team scores and whenever you decide that an attack has run its course."
-const DETAILS_10 = "The building team's goalkeeper restarts play: at the start, after either team scores and whenever you decide that an attack has run its course (at a stoppage or while play is on)"
+// Re-pointed 24 October 2026 (R1, DRAFT): the ball going out and the coach's two other stoppages join the restart moments (his reply filed
+// 27 October 2026, item 4). Was: "... at the start, after either team scores and whenever you decide that an attack has run its course (at a
+// stoppage or while play is on)".
+// Re-pointed 24 October 2026 (R2, DRAFT, the d27 design's section 2.8): the common restart said as one rule, the start in its lead, the
+// moments in the DRAFT data's order. Was (R1): "The building team's goalkeeper restarts play: at the start, after either team scores,
+// whenever the ball goes out of play, whenever you decide that an attack has run its course (at a stoppage or while play is on), whenever you
+// stop play for a foul and whenever you stop play for any other reason".
+const DETAILS_10 = "The building team's goalkeeper starts play, and restarts it whenever the ball is dead: after either team scores, whenever the ball goes out of play, whenever you stop play for a foul, when you judge that an attack has run its course, and whenever you stop play for any other reason"
+/**
+ * R2 (24 October 2026): the overview's statement of the common restart (DEAD_BALL_RESTART, ESSENTIAL, PROPOSED; the d27 design's O1),
+ * Details 10 cut before its moments - the composer says only Details words, so not the design's "Every time the ball is dead, the building
+ * team's goalkeeper restarts play.".
+ */
+const OVERVIEW_RESTART = "The building team's goalkeeper starts play, and restarts it whenever the ball is dead."
 const DETAILS_14 = 'Pressing team: Score by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside'
 const DETAILS_16 = 'Each score is worth 1 point'
 
@@ -317,16 +334,21 @@ test("3. production A01: each team's line saying how it scores first, then what 
             // that the scoring opportunity must begin from the goalkeeper's build-out (his item-4 example; the PROPOSED readings record), so
             // his second building sentence is said for the origin; the restart moments are restart procedure, left to Coach Details. Each
             // group opens with the line saying how the team scores. Was (stage 3E): OVERVIEW_4, OVERVIEW_5, OVERVIEW_6_CUT; OVERVIEW_7, OVERVIEW_8.
-            assert.deepEqual(textsOf(building), [OVERVIEW_4, W1_S2, OVERVIEW_5], at)
+            // Re-pointed 24 October 2026 (R2, his reply filed 27 October 2026, item 4: "This is the most important clarification."): the
+            // common restart is ESSENTIAL (DEAD_BALL_RESTART, PROPOSED), stated by Details 10 cut before its moments, which carries the pointer
+            // to the moments it leaves out. Was: OVERVIEW_4, W1_S2, OVERVIEW_5, with Details 10 pointed to by the group.
+            assert.deepEqual(textsOf(building), [OVERVIEW_4, W1_S2, OVERVIEW_5, OVERVIEW_RESTART], at)
             assert.deepEqual(
                 building.sentences.map(s => [s.place, s.wording, s.source, s.chosenBy, s.form, s.extractId, s.fullRule ? [s.fullRule.text, s.fullRule.because] : null]),
                 [
                     ['LEAD', 'DERIVED_FROM_APPROVED', { kind: 'APPROVED_ENTRY', id: 'A01-W1' }, 'SHORTEST_EXTRACT', 'EXTRACT', 'A01-W1:s1', [W1.sentence, ['DETAIL_LEFT_OUT', 'SHORTENED_WAY_TO_SCORE']]],
                     ['QUALIFICATION', 'DERIVED_FROM_APPROVED', { kind: 'APPROVED_ENTRY', id: 'A01-W1' }, 'SHORTEST_EXTRACT', 'EXTRACT', 'A01-W1:s2', null],
                     ['QUALIFICATION', 'APPROVED', { kind: 'APPROVED_ENTRY', id: 'A01-W3' }, 'APPROVED_ENTRY', 'WHOLE', null, null],
+                    ['QUALIFICATION', 'DRAFT', null, 'DETAILS_SENTENCE', 'SHORTENING', null, [DETAILS_10, ['DETAIL_LEFT_OUT']]],
                 ],
                 at,
             )
+            assert.deepEqual(building.sentences[3].drops, [': after either team scores, whenever the ball goes out of play, whenever you stop play for a foul, when you judge that an attack has run its course, and whenever you stop play for any other reason'], at)
             assert.deepEqual(textsOf(pressing), [OVERVIEW_7, OVERVIEW_8], at)
             assert.deepEqual(
                 pressing.sentences.map(s => [s.place, s.wording, s.source, s.chosenBy, s.form, s.extractId, s.fullRule ? [s.fullRule.text, s.fullRule.because] : null]),
@@ -342,12 +364,22 @@ test("3. production A01: each team's line saying how it scores first, then what 
             // Every sentence of his read by the record names it, his eligibility sentence said whole included (stage 3F); the DRAFT cut names
             // none. Re-pointed 24 October 2026 (C1, his reply filed 24 October 2026, item 1): the four readings these sentences are read by are
             // approved, so each names the approved record ("reading approved"). Was: the PROPOSED record, each.
-            assert.deepEqual([...building.sentences, ...pressing.sentences].map(s => s.reading), [APPROVED_READING_RECORD, APPROVED_READING_RECORD, APPROVED_READING_RECORD, null, APPROVED_READING_RECORD], at)
+            // Re-pointed 24 October 2026 (R2): the restart line, a DRAFT cut, names no record. Was: five sentences.
+            assert.deepEqual([...building.sentences, ...pressing.sentences].map(s => s.reading), [APPROVED_READING_RECORD, APPROVED_READING_RECORD, APPROVED_READING_RECORD, null, null, APPROVED_READING_RECORD], at)
             // Left to Details behind a pointer each: the restart moments (stage 3F: DETAIL) in the building team's group, the value of a score
-            // in both.
+            // in both. Re-pointed 24 October 2026 (R2): the restart line states the taker, the start and that every dead ball stops play (the
+            // lead's words); each moment it leaves out is pointed to by the line itself, and the group points only to the value. Was: no opener
+            // field stated, every one pointed to by the group.
             const opener = building.requirements.filter(r => r.rule === 'BOUNDED_EPISODE_OPENER')
-            assert.ok(opener.length > 0 && opener.every(r => r.class === 'DETAIL' && r.statedBy.length === 0 && r.pointedTo), at)
-            assert.deepEqual(building.fullRules.map(p => [p.text, p.because, p.paths]), [[DETAILS_10, ['DETAIL_LEFT_OUT'], opener.map(r => r.path)], [DETAILS_16, ['DETAIL_LEFT_OUT'], ['value.primaryEvent.value']]], at)
+            assert.ok(opener.length > 0 && opener.every(r => r.class === 'DETAIL'), at)
+            const left = opener.filter(r => r.statedBy.length === 0)
+            assert.ok(left.length > 0 && left.every(r => r.pointedTo) && left.every(r => r.path.endsWith('.selector') || r.path.includes('.qualifiers.')), `${at}: the moments are left out, behind the pointer`)
+            assert.ok(opener.filter(r => r.statedBy.length > 0).every(r => JSON.stringify(r.statedBy) === '[3]'), `${at}: what the restart line's words state`)
+            assert.deepEqual(building.sentences[3].fullRule!.paths, left.map(r => r.path), at)
+            assert.deepEqual(building.fullRules.map(p => [p.text, p.because, p.paths]), [[DETAILS_16, ['DETAIL_LEFT_OUT'], ['value.primaryEvent.value']]], at)
+            const restart = building.requirements.filter(r => r.rule === 'DEAD_BALL_RESTART')
+            assert.deepEqual(restart.map(r => [r.path, r.class, r.statedBy]), [['restartPolicy.deadBall', 'ESSENTIAL', [3]]], at)
+            assert.ok(!pressing.requirements.some(r => r.rule === 'DEAD_BALL_RESTART'), at)
             assert.deepEqual(pressing.fullRules.map(p => [p.text, p.because, p.paths]), [[DETAILS_16, ['DETAIL_LEFT_OUT'], ['value.primaryEvent.value']]], at)
             // Every extract is kept by the record now; no approved sentence is said whole for want of one, so no note.
             assert.deepEqual([building.extractsKeepingNothing, pressing.extractsKeepingNothing], [[], []], at)
@@ -388,7 +420,8 @@ test('4. the readings decide the words, never the composer: a TEST-ONLY copy of 
             assertComplete(building, at)
             assertComplete(pressing, at)
             assert.deepEqual(block.groups.map(textsOf), production.scoring.blocks[n].groups.map(textsOf), at)
-            assert.deepEqual([...building.sentences, ...pressing.sentences].map(s => s.reading), [null, null, null, null, null], at)
+            // Re-pointed 24 October 2026 (R2): six sentences, the common restart's line among them. Was: five.
+            assert.deepEqual([...building.sentences, ...pressing.sentences].map(s => s.reading), [null, null, null, null, null, null], at)
             assert.deepEqual([...new Set(building.sentences[0].states.map(s => s.class))], ['CONSTITUTIVE', 'ESSENTIAL'], at)
             // No reading at all: nothing of his can be shown to be stated, so both groups are withheld, each why naming the entry citing it.
             const [unreadBuilding, unreadPressing] = unread.scoring.blocks[n].groups
@@ -401,7 +434,8 @@ test('4. the readings decide the words, never the composer: a TEST-ONLY copy of 
     // Sentence 6 as the EXPECTED PRESENTATION writes it drops the colon and "that": a rewording, which no cut of Details 10 gives (the
     // composer never adds or changes a word). Since stage 3F neither is in the overview (the restart moments are left to Coach Details).
     assert.notEqual(OVERVIEW_6_CUT, OVERVIEW_6_AS_WRITTEN)
-    assert.ok(DETAILS_10.startsWith(OVERVIEW_6_CUT.slice(0, -1)))
+    // Re-pointed 24 October 2026 (R1): the stage 3F cut is no longer a prefix of Details 10 (the aside no longer closes it). Was: it was.
+    assert.ok(!DETAILS_10.startsWith(OVERVIEW_6_CUT.slice(0, -1)))
 })
 
 test('5. flipping a class, or what an exception follows from, changes the composed group: the table decides, not code', () => {
@@ -411,15 +445,19 @@ test('5. flipping a class, or what an exception follows from, changes the compos
     // the group needs but the eligibility, which his eligibility sentence states beside it. (Re-pointed 22 October 2026, stage 3F: was his
     // building rule whole and the restart cut; his eligibility sentence then counted as adding nothing because it cited nothing new.)
     const [exclusionEssential] = composed(essential('EXCLUSION_CONDITION'))
-    assert.deepEqual(textsOf(exclusionEssential), [W1.sentence, W3.sentence])
-    assert.deepEqual(exclusionEssential.sentences.map(s => [s.place, s.chosenBy, s.form, s.fullRule]), [['LEAD', 'APPROVED_ENTRY', 'WHOLE', null], ['QUALIFICATION', 'APPROVED_ENTRY', 'WHOLE', null]])
+    // Re-pointed 24 October 2026 (R2): and the common restart's line, ESSENTIAL (DEAD_BALL_RESTART), in every composition of the building
+    // team's group below where Details 10 is not said whole. Was: his two sentences alone.
+    assert.deepEqual(textsOf(exclusionEssential), [W1.sentence, W3.sentence, OVERVIEW_RESTART])
+    assert.deepEqual(exclusionEssential.sentences.slice(0, 2).map(s => [s.place, s.chosenBy, s.form, s.fullRule]), [['LEAD', 'APPROVED_ENTRY', 'WHOLE', null], ['QUALIFICATION', 'APPROVED_ENTRY', 'WHOLE', null]])
+    assert.deepEqual([exclusionEssential.sentences[2].place, exclusionEssential.sentences[2].chosenBy, exclusionEssential.sentences[2].form, exclusionEssential.sentences[2].fullRule?.text], ['QUALIFICATION', 'DETAILS_SENTENCE', 'SHORTENING', DETAILS_10])
     // The also-counts exclusion made ESSENTIAL: the regain sentence is said whole.
     const [, regainEssential] = composed(essential('ALSO_COUNTS_EXCLUSION'))
     assert.deepEqual(textsOf(regainEssential), [OVERVIEW_7, W2.sentence])
     // Stage 3F: the restart moments made ESSENTIAL again (their class before 3F): the restart cut is said, after the scoring sentences, and
     // nothing points to Details 10. (Re-pointed: was the flip to DETAIL, now the production class.)
     const [openerEssential] = composed(file => (ruleOf(file, 'BOUNDED_EPISODE_OPENER').class = 'ESSENTIAL'))
-    assert.deepEqual(textsOf(openerEssential), [OVERVIEW_4, W1_S2, OVERVIEW_5, OVERVIEW_6_CUT])
+    // Re-pointed 24 October 2026 (R1): with no aside cut left, Details 10 is said whole. Was: the restart cut, OVERVIEW_6_CUT.
+    assert.deepEqual(textsOf(openerEssential), [OVERVIEW_4, W1_S2, OVERVIEW_5, `${DETAILS_10}.`])
     assert.ok(!openerEssential.fullRules.some(p => p.text === DETAILS_10), JSON.stringify(openerEssential.fullRules))
     // The score's value made ESSENTIAL: "Each score is worth 1 point" is said, in both groups, and no longer pointed to.
     const valueEssential = composed(file => (ruleOf(file, 'SCORE_VALUE').class = 'ESSENTIAL'))
@@ -435,12 +473,12 @@ test('5. flipping a class, or what an exception follows from, changes the compos
     // to score): it is material, so his building rule holds nothing left to Coach Details and is said whole, as with the exclusion
     // ESSENTIAL; nothing points to it for a detail left out.
     const [ungoverned] = composed(file => (ruleOf(file, 'EXCLUSION_CONDITION').followsFrom = ['ALSO_COUNTS_CONTROL']))
-    assert.deepEqual(textsOf(ungoverned), [W1.sentence, W3.sentence])
+    assert.deepEqual(textsOf(ungoverned), [W1.sentence, W3.sentence, OVERVIEW_RESTART])
     assert.ok(ungoverned.requirements.filter(r => r.rule === 'EXCLUSION_CONDITION').every(r => r.statedBy.includes(0) && !r.pointedTo))
     assert.ok(W1.sentence.endsWith(W1_S3))
     // Following from nothing, it stays a DETAIL behind the pointer: what it follows from is a judgement of the table, never needed by code.
     const [plainDetail] = composed(file => delete ruleOf(file, 'EXCLUSION_CONDITION').followsFrom)
-    assert.deepEqual(textsOf(plainDetail), [OVERVIEW_4, W1_S2, OVERVIEW_5])
+    assert.deepEqual(textsOf(plainDetail), [OVERVIEW_4, W1_S2, OVERVIEW_5, OVERVIEW_RESTART])
 })
 
 test("6. without his eligibility sentence nothing states the building team's eligibility; read as stating it (TEST-ONLY), his second sentence makes it unnecessary", () => {
@@ -465,17 +503,18 @@ test("6. without his eligibility sentence nothing states the building team's eli
     }
     const [readTwo] = groupsOf(coachOverviewDraftOf('A01', blocks, undefined, { reading: secondStatesEligibility, wording: withoutW3 }))
     assertComplete(readTwo, 'second sentence read as stating the eligibility')
-    assert.deepEqual(textsOf(readTwo), [OVERVIEW_4, W1_S2])
+    // Re-pointed 24 October 2026 (R2): with the common restart's line (DEAD_BALL_RESTART, ESSENTIAL) after them. Was: his two sentences.
+    assert.deepEqual(textsOf(readTwo), [OVERVIEW_4, W1_S2, OVERVIEW_RESTART])
     const [withW3] = groupsOf(coachOverviewDraftOf('A01', blocksOf(fixture), undefined, { reading: secondStatesEligibility }))
     assertComplete(withW3, 'with his eligibility sentence in Details')
-    assert.deepEqual(textsOf(withW3), [OVERVIEW_4, W1_S2])
+    assert.deepEqual(textsOf(withW3), [OVERVIEW_4, W1_S2, OVERVIEW_RESTART])
     // In no case is the progression said without the bound and the origin.
     for (const group of [readTwo, withW3]) {
         assert.ok(states(group, 'PROGRESSION_CONDITION') && states(group, 'BOUNDED_CREDIT') && states(group, 'ORIGIN_CONDITION'))
     }
     // Under the record, with his eligibility sentence: the origin by his second sentence and the eligibility by his eligibility sentence (test 3).
     const [production] = groupsOf(coachOverviewDraftOf('A01', blocksOf(fixture)))
-    assert.deepEqual(textsOf(production), [OVERVIEW_4, W1_S2, OVERVIEW_5])
+    assert.deepEqual(textsOf(production), [OVERVIEW_4, W1_S2, OVERVIEW_5, OVERVIEW_RESTART])
 })
 
 test('7. nothing is left out by default: an unclassed scoring row withholds its groups; a way with no CONSTITUTIVE field cannot be shown', () => {
@@ -544,9 +583,15 @@ test('8. DRAFT shortenings are prefixes of their sentence, citing only the parts
     const served = admin(a01At(12, 1)).rendered.instructions
     const tenSaid = served.find(i => i.text === DETAILS_10)!
     const ten = draftShorteningsOf(tenSaid)
-    assert.deepEqual(ten.map(s => [s.cut, s.text]), [['ELABORATION', "The building team's goalkeeper restarts play."], ['ASIDE', OVERVIEW_6_CUT]])
-    assert.ok(ten[0].from.length > 0 && ten[0].from.every(p => !p.endsWith('.selector')))
-    assert.deepEqual(ten[1].from, tenSaid.from)
+    // Re-pointed 24 October 2026 (R1): Details 10 no longer ends with its aside (his reply filed 27 October 2026, item 4, adds moments after
+    // it), so its one cut is to its colon. Was: that cut and the cut to the aside (OVERVIEW_6_CUT), which kept every citation.
+    // Re-pointed 24 October 2026 (R2): its lead is the common restart's rule, so the cut to its colon is the overview's restart line, keeping
+    // the start's trigger (said by "starts play") and the policy, and none of the moments' triggers. Was: "The building team's goalkeeper
+    // restarts play.", keeping no trigger.
+    assert.deepEqual(ten.map(s => [s.cut, s.text]), [['ELABORATION', OVERVIEW_RESTART]])
+    assert.equal(ten[0].from.filter(p => p.endsWith('.selector')).length, 1, 'the start, said by "starts play"')
+    assert.ok(ten[0].from.includes('restartPolicy.deadBall'))
+    assert.ok(ten[0].from.length < tenSaid.from.length)
     const fourteenSaid = served.find(i => i.text === DETAILS_14)!
     const fourteen = draftShorteningsOf(fourteenSaid)
     assert.deepEqual(fourteen.map(s => [s.cut, s.text, s.from]), [['ELABORATION', OVERVIEW_7, fourteenSaid.from]])

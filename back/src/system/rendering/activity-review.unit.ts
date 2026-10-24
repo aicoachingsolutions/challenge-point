@@ -373,7 +373,10 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
         // roles, 2 items (pinned in credit-episode.unit.ts), each one of his provisional choices.
         // 49 -> 53 on 17 October 2026 (stage M2): his reply filed 19 October 2026, item 2 - the occurrence that also counts as the
         // primary event for the pressing role, 4 items (pinned in also-counts.unit.ts), each one of his provisional choices.
-        assert.equal(a01.account.authorizationLists!.provisionalChoices.filter(e => e.from === 'provisional realization').length, 53, 'the roles, the exchange, the counts, the keeper, the reassignments, the transitions, the starting placements, the credit bounds and the regain score of the pressing role')
+        // 53 -> 46 on 24 October 2026 (R1): his reply filed 27 October 2026, item 4 - the one common restart: six items added (the policy,
+        // the four dead-ball elements, the last-touch qualifier) and thirteen removed (the throw-in and end-line restarts), pinned in
+        // dead-ball-restart.unit.ts, each one of his provisional choices.
+        assert.equal(a01.account.authorizationLists!.provisionalChoices.filter(e => e.from === 'provisional realization').length, 46, 'the roles, the exchange, the counts, the keeper, the reassignments, the common restart and its transitions, the starting placements, the credit bounds and the regain score of the pressing role')
         // The allocation's authority reaches the technical account of the refusal too (stage K4), read from the record; since stage
         // K6 with the Performer Configuration relationship the starting placements cite.
         assert.deepEqual(a01.account.allocation!.relationships.map(r => r.id), ['RPC-001~EM-0006', 'RPC-001~EM-0002'])
@@ -677,10 +680,13 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
     const staged: any = runStages0to10(input)
     const derived: any = runDerivation(input)
     const resolved: any = assembleResolvedGame(derived, staged.classes, indexRegister(input.register), input.contracts)
+    // Re-pointed 24 October 2026 (R1): his reply filed 27 October 2026, item 4 - the ball going out is one restart per line, no longer split
+    // by last touch, and the coach's stoppages for an infringement or any other reason are elements of their own; each begins the build-out
+    // episode with the goalkeeper.
     assert.deepEqual(
         resolved.game.transitions.map((t: any) => t.selector.find((term: any) => term.attribute === 'trigger')?.value).sort(),
-        ['COACH_JUDGED_EPISODE_CONCLUSION', 'OUT_END_LINE', 'OUT_END_LINE', 'OUT_TOUCHLINE', 'OUT_TOUCHLINE', 'POSSESSION_CHANGE', 'SCORE', 'START'],
-        'a start, an after-score restart and the coach-judged conclusion now begin the build-out episode',
+        ['COACH_DIRECTED_STOPPAGE', 'COACH_JUDGED_EPISODE_CONCLUSION', 'INFRINGEMENT_STOPPAGE', 'OUT_END_LINE', 'OUT_TOUCHLINE', 'POSSESSION_CHANGE', 'SCORE', 'START'],
+        'a start and every restart after a dead ball begin the build-out episode',
     )
     // Re-pointed 15 October 2026 (stage K6): a starting placement for each role, its group, its region (stated relative to the
     // pressure reference), its timing and the episode it is re-established at (rows P8-P10b, his D4 and his 18 October item 3).
@@ -1897,7 +1903,9 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
         const withoutTransitions = (contracts: any[]) => {
             withoutConditions(contracts)
             const realization = contracts.find(contract => contract.contractId === 'provisional:A01-R1')
-            realization.items = realization.items.filter((item: any) => !String(item.row).startsWith('T'))
+            // Re-pointed 24 October 2026 (R1): and the dead-ball restart policy (row RP1), which says the transitions taken out restart
+            // every dead ball the one way; left in, GA-DEAD-BALL-RESTART's coverage clause fails (pinned in dead-ball-restart.unit.ts).
+            realization.items = realization.items.filter((item: any) => !String(item.row).startsWith('T') && item.row !== 'RP1')
         }
         const noTransitionChoices = (supplied: any) => {
             placementsOut(supplied)

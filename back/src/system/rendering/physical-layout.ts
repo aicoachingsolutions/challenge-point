@@ -58,6 +58,17 @@
  *   - where the markings are presented block by block, what moves is read whenever every block could be read, and is an EMPTY account
  *     where nothing moves, so the exchange says only what actually moves (until this stage it said the markings written for the roles are
  *     "set out again" wherever no account was carried, whether or not anything moved).
+ *
+ * **Stage L, 24 October 2026: a region that does not run across the full width** (the d27 design's stage L(a): *"physical-layout.ts sets
+ * out once any region that is not full width, cited by its Set up sentence. A region in the same place in every block is set out once; one
+ * alternating between ends under KEPT is set out at both ends, of one size and mirrored (as the 5 m zones are). Today any region not running
+ * the full width stops the layout"*). Such a region, an area (not a line), is set out as itself (`layout.rectangles`), its edges its own
+ * outline and never marks across the area: one rectangle where it holds one place in every block (a region bound to an object that stays at
+ * its end under the end exchange); one at each end where it holds two places that mirror each other along the length, of one size, at one
+ * place across, each touching an end line; anywhere else the layout stops, saying why, and what moves is read as before. A line short of a
+ * touchline still stops it (no sentence sets one out once). Every layout of full-width regions is exactly what it was (no `rectangles` key).
+ * The Set up sentence for a rectangle cites it (`render-concrete-game.ts`, a region bound to an object), fidelity Q5-L holds it to that
+ * sentence and to each block's realized region, and RB-L recomputes it.
  */
 import { EM_CANONICAL_SCHEMA } from '../knowledge-core/em-canonical'
 import type { LearningGoalAuthorization } from '../test-library/learning-goal-authorizations'
@@ -145,6 +156,23 @@ export interface LayoutInterval {
 }
 
 /**
+ * **A region that does not run across the full width, set out once** — stage L, 24 October 2026 (the d27 design's stage L(a): *"physical-
+ * layout.ts sets out once any region that is not full width, cited by its Set up sentence. A region in the same place in every block is set
+ * out once; one alternating between ends under KEPT is set out at both ends, of one size and mirrored (as the 5 m zones are)."*). Its edges
+ * are its own outline, never marks across the area. `end` is the end line it is set out from (0 or the length), or null where it touches
+ * neither or both; `sources` each block's region it is (a rectangle set out at both ends is the region of the blocks that place it there).
+ */
+export interface LayoutRectangle {
+    elementId: string
+    along: LayoutInterval
+    across: LayoutInterval
+    depthM: number
+    widthM: number
+    end: number | null
+    sources: LayoutSource[]
+}
+
+/**
  * **An object set out once** (stage C): a physical object a block's game positions, at one place in every block. `objectId` is the object's
  * own element id, `kind` its kind as the game holds it (data, never a word of this module), and `sources` each block's path to it.
  */
@@ -168,6 +196,11 @@ export interface PhysicalLayout {
     movedBy: LayoutMove[]
     /** Stage C: the objects set out once. Present only where a block's game positions an object, so a layout of regions only is unchanged. */
     objects?: LayoutObject[]
+    /**
+     * Stage L: the regions not across the full width, set out once (or at both ends, mirrored). Present only where a block's game holds one,
+     * so every layout of full-width regions is exactly what it was.
+     */
+    rectangles?: LayoutRectangle[]
 }
 
 /**
@@ -281,6 +314,8 @@ interface ReadRegion {
     region: any
     /** Stage C: the end line its along position is measured from in this block, where its realization records one. */
     anchor: number | null
+    /** Stage L: its realized interval across the area. */
+    across: LayoutInterval
 }
 
 /** A block's object as realized along and across (stage C). */
@@ -310,10 +345,15 @@ export function layoutOf(blocks: { blockId: string; fixture: any }[], movers: La
         return { applies: false, layout: null, why: ['the blocks were built for different areas'], remarking: null }
     }
 
-    // Every region of every block, as realized: full width, inside the area.
+    /**
+     * Every region of every block, as realized, inside the area. A region across the full width is set out by marks across the area (`read`);
+     * since stage L a region that is not, and is an area rather than a line, is set out as itself (`insets`, below), its edges its own
+     * outline and never marks. A line that does not run across the full width still stops the layout: no sentence sets one out once.
+     */
     const why: string[] = []
     let readable = true
     const read: ReadRegion[] = []
+    const insets: ReadRegion[] = []
     for (const block of blocks) {
         for (const region of (block.fixture?.game?.space?.regions ?? []) as any[]) {
             const regionId = String(region?.elementId)
@@ -325,9 +365,13 @@ export function layoutOf(blocks: { blockId: string; fixture: any }[], movers: La
                 readable = false
                 continue
             }
-            if (across.from !== 0 || across.to !== widthM) why.push(`${regionId} does not run across the full width in block ${block.blockId}, so a mark across the area cannot set it out`)
+            const fullWidth = across.from === 0 && across.to === widthM
+            const anArea = along.from < along.to && across.from < across.to && across.from >= 0 && across.to <= widthM
+            if (!fullWidth && !anArea) why.push(`${regionId} does not run across the full width in block ${block.blockId}, so a mark across the area cannot set it out`)
             if (along.from < 0 || along.to > lengthM || along.from > along.to) why.push(`${regionId} is not inside the area along its length in block ${block.blockId}`)
-            read.push({ blockId: block.blockId, regionId, path, from: along.from, to: along.to, line: along.from === along.to, region, anchor: anchorAt(block.fixture, path) })
+            const entry: ReadRegion = { blockId: block.blockId, regionId, path, from: along.from, to: along.to, line: along.from === along.to, region, anchor: anchorAt(block.fixture, path), across }
+            if (!fullWidth && anArea) insets.push(entry)
+            else read.push(entry)
         }
     }
     /**
@@ -351,8 +395,11 @@ export function layoutOf(blocks: { blockId: string; fixture: any }[], movers: La
             objectsRead.push({ blockId: block.blockId, objectId, kind: typeof object?.kind === 'string' ? object.kind : null, path, along, across })
         }
     }
-    /** Not set out once, with why, and what moves (empty where nothing does, stage C) where every region and object could be read. */
-    const no = (...reasons: string[]): LayoutDecision => ({ applies: false, layout: null, why: reasons, remarking: readable ? remarkingOf(blocks, read, objectsRead, lengthM) : null })
+    /**
+     * Not set out once, with why, and what moves (empty where nothing does, stage C) where every region and object could be read. Stage L:
+     * what moves reads every region as it always did, a region not across the full width among them.
+     */
+    const no = (...reasons: string[]): LayoutDecision => ({ applies: false, layout: null, why: reasons, remarking: readable ? remarkingOf(blocks, [...read, ...insets], objectsRead, lengthM) : null })
     const inside = (x: number) => x > 0 && x < lengthM
     /**
      * Every line element inside the area holds one position in every block, and that position is one the activity has words for once:
@@ -396,6 +443,47 @@ export function layoutOf(blocks: { blockId: string; fixture: any }[], movers: La
         }
         fixedObjects.push({ elementId: `object-${fixedObjects.length + 1}`, objectId, kind, along: held[0].along, across: held[0].across, sources: held.map(entry => ({ blockId: entry.blockId, path: entry.path })) })
     }
+    /**
+     * **Stage L: every region not across the full width, set out as itself** (the d27 design's stage L(a)). Held at one place in every block,
+     * it is one rectangle (a region bound to an object that stays put under the end exchange, say). Held at two places that are each other's
+     * mirror along the length, of one size, at the same place across, each touching an end line (alternating between the ends while the
+     * teams keep their ends), it is one rectangle at each end, as the end zones are set out once at both ends. Anywhere else it would be
+     * re-marked at the exchange, so the layout stops, with why, and what moves is read as before.
+     */
+    const rectangles: LayoutRectangle[] = []
+    const endOf = (span: LayoutInterval): number | null => (span.from === 0 && span.to !== lengthM ? 0 : span.to === lengthM && span.from !== 0 ? lengthM : null)
+    const rectangleOf = (held: ReadRegion[]) => {
+        const [first] = held
+        const along = { from: first.from, to: first.to }
+        const across = { from: first.across.from, to: first.across.to }
+        rectangles.push({ elementId: `rectangle-${rectangles.length + 1}`, along, across, depthM: along.to - along.from, widthM: across.to - across.from, end: endOf(along), sources: held.map(entry => ({ blockId: entry.blockId, regionId: entry.regionId, path: entry.path })) })
+    }
+    for (const regionId of [...new Set(insets.map(entry => entry.regionId))]) {
+        const held = insets.filter(entry => entry.regionId === regionId)
+        const placeOf = (entry: ReadRegion) => JSON.stringify([entry.from, entry.to, entry.across.from, entry.across.to])
+        const places = [...new Set(held.map(placeOf))]
+        const where = held.map(entry => `${entry.from}-${entry.to} m along and ${entry.across.from}-${entry.across.to} m across in block ${entry.blockId}`).join('; ')
+        if (held.length === blocks.length && places.length === 1) {
+            rectangleOf(held)
+            continue
+        }
+        const [a, b] = places.map(place => held.filter(entry => placeOf(entry) === place))
+        const mirrored =
+            held.length === blocks.length &&
+            places.length === 2 &&
+            a[0].from === lengthM - b[0].to &&
+            a[0].to === lengthM - b[0].from &&
+            a[0].across.from === b[0].across.from &&
+            a[0].across.to === b[0].across.to &&
+            endOf({ from: a[0].from, to: a[0].to }) !== null &&
+            endOf({ from: b[0].from, to: b[0].to }) !== null
+        if (mirrored) {
+            rectangleOf(a)
+            rectangleOf(b)
+            continue
+        }
+        why.push(`the region ${regionId}, which does not run across the full width, is not at one place in every block, nor one of one size at each end, mirrored (${where}), so it would be re-marked at the exchange`)
+    }
     if (why.length) return no(...why)
 
     /**
@@ -403,7 +491,8 @@ export function layoutOf(blocks: { blockId: string; fixture: any }[], movers: La
      * object held at one place, which each block's own Set up then places); nothing moves, so the account of what moves is empty (stage C).
      */
     const at = [...new Set(read.flatMap(entry => [entry.from, entry.to]).filter(inside))].sort((a, b) => a - b)
-    if (!at.length) return { applies: false, layout: null, why: [], remarking: remarkingOf(blocks, read, objectsRead, lengthM) }
+    // Stage L: a region set out as itself is something to set out too, with or without a mark.
+    if (!at.length && !rectangles.length) return { applies: false, layout: null, why: [], remarking: remarkingOf(blocks, [...read, ...insets], objectsRead, lengthM) }
     const marks: LayoutMark[] = at.map((x, i) => ({
         elementId: `mark-${i + 1}`,
         at: x,
@@ -461,10 +550,15 @@ export function layoutOf(blocks: { blockId: string; fixture: any }[], movers: La
             widthM,
             marks,
             zones,
-            regions: read.map(entry => ({ blockId: entry.blockId, path: entry.path, from: entry.from, to: entry.to })),
+            // Stage L: every region of every block, a region set out as itself among them, in the order each block holds them.
+            regions: [...read, ...insets]
+                .sort((x, y) => blocks.findIndex(block => block.blockId === x.blockId) - blocks.findIndex(block => block.blockId === y.blockId))
+                .map(entry => ({ blockId: entry.blockId, path: entry.path, from: entry.from, to: entry.to })),
             movedBy,
             // Stage C: only where an object is positioned, so a layout of regions only is exactly what it was.
             ...(fixedObjects.length ? { objects: fixedObjects } : {}),
+            // Stage L: only where a region does not run across the full width, so every other layout is exactly what it was.
+            ...(rectangles.length ? { rectangles } : {}),
         },
         why: [],
         remarking: null,

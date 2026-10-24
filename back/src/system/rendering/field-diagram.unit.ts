@@ -95,6 +95,9 @@ test('1. A01 at 12/1, 12/2 and 11/1: drawn from each block\'s game, set out once
     for (const [players, keepers] of [[12, 1], [12, 2], [11, 1]] as const) {
         const what = `A01 ${players}/${keepers}`
         const { input, activity } = inputOf(a01At(players, keepers))
+        // Re-pointed 24 October 2026 (R1): 28 -> 26, the throw-in and end-line sentences withdrawn (his reply filed 27 October 2026, item 4).
+        // Re-pointed 24 October 2026 (R2): 26 -> 27, the sentence naming the restarts the activity does not use (dead-ball-wording.unit.ts).
+        // Re-pointed 24 October 2026 (R3): 27 -> 28, "There is no offside" (departed-law-wording.unit.ts).
         assert.equal(activity.rendered.instructions.length, 28, `${what}: the activity is served with its 28 sentences`)
         const draft = activity.diagramDraft!
         assert.ok(draft, `${what}: the administrator's answer carries the diagram`)
@@ -393,6 +396,9 @@ test('6. on the real chain a diagram failure withholds the diagram only: the act
         }
         const admin = buildActivityForReview(a01At(12, 1), { includeDrafts: true }) as ServedActivity
         assert.equal(admin.outcome, 'served')
+        // Re-pointed 24 October 2026 (R1): 28 -> 26, the throw-in and end-line sentences withdrawn (his reply filed 27 October 2026, item 4).
+        // Re-pointed 24 October 2026 (R2): 26 -> 27, the sentence naming the restarts the activity does not use (dead-ball-wording.unit.ts).
+        // Re-pointed 24 October 2026 (R3): 27 -> 28, "There is no offside" (departed-law-wording.unit.ts).
         assert.equal(admin.rendered.instructions.length, 28)
         assert.deepEqual(admin.rendered, coach.rendered)
         assert.deepEqual(admin.overview, coach.overview)

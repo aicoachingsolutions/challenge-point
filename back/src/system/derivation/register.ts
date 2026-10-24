@@ -782,6 +782,154 @@ function indexEndAssignment(block: any, rows: Map<string, RegisterRow>, vocabula
 }
 
 /**
+ * **One restart for every dead ball — register version 23, 24 October 2026 (R1, the d27 design's stage R1, its section 2.3).** Christian,
+ * reply filed 27 October 2026, item 4: *"I want the same restart principle for both the physical-goal and target-zone versions."*
+ * *"Whenever the ball becomes dead, play resets to a new [specialized-role]-initiated build-out."* *"Please ensure this is represented
+ * through a general, knowledge-authorized restart mechanism rather than activity-specific code."* (His role noun is bracketed: the coupling
+ * ratchet keeps a sport's nouns out of this layer; the register quotes him whole.)
+ *
+ * The block names a game-level row with a closed list of two values - each trigger keeping its own restart (`perTrigger`, what a game no item
+ * writes the row for is played as) or every dead ball resolving to one restart (`common`) - the transition rows that restart is read from, and
+ * a CLASS for every member of the trigger vocabulary, exactly once, so a trigger added later cannot slip past the policy. The classes are the
+ * engine's closed list (`DEAD_BALL_CLASSES`): what makes the ball dead (`STOPS_PLAY`), what happens while it stays live (`IN_PLAY`), what the
+ * activity's own transition decides (`BY_TRANSITION`) and what is no stoppage at all (`NOT_A_STOPPAGE`). Read by GA-DEAD-BALL-RESTART
+ * (`gates.ts`) and the default-laws account (`realization/default-laws-check.ts`), only where the row is the common value; no trigger, row
+ * or value is named there.
+ */
+export const DEAD_BALL_CLASSES = ['STOPS_PLAY', 'IN_PLAY', 'BY_TRANSITION', 'NOT_A_STOPPAGE'] as const
+export type DeadBallClass = (typeof DEAD_BALL_CLASSES)[number]
+
+export interface DeadBallRestartRegister {
+    /** The game-level FIELD row holding the policy (`restartPolicy.deadBall`), and its path. */
+    row: string
+    path: string
+    /** The closed list, in the register's order, and its two members. */
+    values: string[]
+    perTrigger: string
+    common: string
+    /** What the common value means, in his words. */
+    commonMeans: { words: string[]; citedAs: string }
+    /** The transition collection, the selector attribute naming a transition's trigger, and the rows a restart is read from. */
+    transitionRow: string
+    triggerAttribute: string
+    playStateRow: string
+    awardeeRow: string
+    takerRow: string
+    locationRow: string
+    methodRow: string
+    startsEpisodeRow: string
+    /** The play states (members of the play-state row's vocabulary): play stops and restarts, or play continues. */
+    stops: string
+    continues: string
+    /** Each trigger of the vocabulary and its class. */
+    classOf: Map<string, DeadBallClass>
+}
+
+/**
+ * The dead-ball block, validated as the rest of the register is (halt H1): its row a game-level FIELD row, its vocabulary exactly the two
+ * values it names, its meaning quoted; its transition rows the collection and FIELD rows of it the restart is read from, the play states
+ * members of the play-state row's list; and its classes the closed list, every member of the trigger vocabulary classified once and nothing
+ * else. A register without the block (one written before version 23) has no common restart, and every game keeps a restart per trigger.
+ */
+function indexDeadBallRestart(block: any, rows: Map<string, RegisterRow>, vocabularies: Map<string, string[]>): DeadBallRestartRegister | null {
+    if (!block || typeof block !== 'object') return null
+    if (typeof block.note !== 'string' || !block.note.trim()) throw new HaltError('H1', 'deadBallRestart must say what it is and why (note)')
+    const row = String(block.row ?? '')
+    const entry = rows.get(row)
+    if (entry?.kind !== 'FIELD' || entry.ownerRow) throw new HaltError('H1', `deadBallRestart.row ${row} is not a game-level FIELD row`)
+    const values = vocabularies.get(String(block.vocabulary ?? ''))
+    if (!values || values.length !== 2) throw new HaltError('H1', `deadBallRestart.vocabulary ${block.vocabulary} must be a vocabulary of exactly two values`)
+    const [perTrigger, common] = [String(block.perTrigger ?? ''), String(block.common ?? '')]
+    if (!values.includes(perTrigger) || !values.includes(common) || perTrigger === common) throw new HaltError('H1', `deadBallRestart: perTrigger (${perTrigger}) and common (${common}) must be the two different members of ${block.vocabulary}`)
+    const means = block.commonMeans
+    const words: unknown[] = Array.isArray(means?.words) ? means.words : []
+    if (!words.length || !words.every(word => typeof word === 'string' && word.trim()) || typeof means?.citedAs !== 'string' || !means.citedAs.trim()) {
+        throw new HaltError('H1', 'deadBallRestart.commonMeans must quote his words and say where (words, citedAs)')
+    }
+    const transitions = block.transitions ?? {}
+    const transitionRow = String(transitions.row ?? '')
+    const collection = rows.get(transitionRow)
+    const triggerAttribute = String(transitions.attribute ?? '')
+    if (collection?.kind !== 'COLLECTION' || !(collection.selectorAttributes ?? []).includes(triggerAttribute)) {
+        throw new HaltError('H1', `deadBallRestart.transitions names ${transitionRow}, which is no COLLECTION row carrying the selector attribute ${triggerAttribute}`)
+    }
+    const field = (key: string): string => {
+        const id = String(transitions[key] ?? '')
+        if (rows.get(id)?.kind !== 'FIELD' || rows.get(id)?.ownerRow !== transitionRow) throw new HaltError('H1', `deadBallRestart.transitions.${key} ${id} is not a FIELD row owned by ${transitionRow}`)
+        return id
+    }
+    const playStateRow = field('playState')
+    const [stops, continues] = [String(transitions.stops ?? ''), String(transitions.continues ?? '')]
+    // The play-state row's closed list, keyed as the register keys a FIELD row's list: the row and its path's leaf (T6.playState).
+    const playStates = vocabularies.get(`${playStateRow}.${String(rows.get(playStateRow)!.path).split('.').pop()}`) ?? []
+    if (!playStates.includes(stops) || !playStates.includes(continues) || stops === continues) throw new HaltError('H1', `deadBallRestart: stops (${stops}) and continues (${continues}) must be two different members of ${playStateRow}'s vocabulary`)
+    const triggers = vocabularies.get(triggerAttribute)
+    if (!triggers || !triggers.length) throw new HaltError('H1', `deadBallRestart: the selector attribute ${triggerAttribute} has no vocabulary to classify`)
+    const classOf = new Map<string, DeadBallClass>()
+    const classes = block.classes && typeof block.classes === 'object' ? block.classes : {}
+    for (const [name, raw] of Object.entries(classes as Record<string, any>)) {
+        if (!(DEAD_BALL_CLASSES as readonly string[]).includes(name)) throw new HaltError('H1', `deadBallRestart.classes names ${name}, which is none of ${DEAD_BALL_CLASSES.join(', ')}`)
+        if (typeof raw?.basis !== 'string' || !raw.basis.trim()) throw new HaltError('H1', `deadBallRestart.classes.${name} does not say on what basis its triggers are classed (basis)`)
+        for (const trigger of Array.isArray(raw?.triggers) ? raw.triggers.map(String) : []) {
+            if (!triggers.includes(trigger)) throw new HaltError('H1', `deadBallRestart.classes.${name} classes ${trigger}, which is no member of the ${triggerAttribute} vocabulary`)
+            if (classOf.has(trigger)) throw new HaltError('H1', `deadBallRestart classes ${trigger} twice (${classOf.get(trigger)} and ${name})`)
+            classOf.set(trigger, name as DeadBallClass)
+        }
+    }
+    const unclassified = triggers.filter(trigger => !classOf.has(trigger))
+    if (unclassified.length) throw new HaltError('H1', `deadBallRestart leaves ${unclassified.join(', ')} unclassified: every member of the ${triggerAttribute} vocabulary must be classed once, so no trigger slips past the policy`)
+    return {
+        row,
+        path: String(entry.path),
+        values: [...values],
+        perTrigger,
+        common,
+        commonMeans: { words: words.map(String), citedAs: String(means.citedAs) },
+        transitionRow,
+        triggerAttribute,
+        playStateRow,
+        awardeeRow: field('awardee'),
+        takerRow: field('taker'),
+        locationRow: field('location'),
+        methodRow: field('method'),
+        startsEpisodeRow: field('startsEpisode'),
+        stops,
+        continues,
+        classOf,
+    }
+}
+
+/**
+ * **A trigger's machine-readable semantics, validated where it states them (register version 23).** Two fields are read by the engine: a
+ * structural prerequisite (`engine.ts` constructTriggers, since version 12) must name a COLLECTION row carrying the selector attribute it
+ * names and a member of that attribute's vocabulary, or the trigger it makes reachable would rest on nothing the game can hold; and a
+ * trigger defined as a residual (`excludes`, version 23) must name other members of the trigger vocabulary, so what it excludes is
+ * checkable. Every other field is prose, read by people. A register stating neither validates nothing here.
+ */
+function validateTriggerSemantics(semantics: unknown, rows: Map<string, RegisterRow>, vocabularies: Map<string, string[]>): void {
+    if (!semantics || typeof semantics !== 'object') return
+    const triggers = vocabularies.get('trigger') ?? []
+    for (const [name, entry] of Object.entries(semantics as Record<string, any>)) {
+        if (!entry || typeof entry !== 'object') continue
+        const prerequisite = entry.structuralPrerequisite
+        if (prerequisite !== undefined) {
+            const collection = rows.get(String(prerequisite?.collectionRow ?? ''))
+            const attribute = String(prerequisite?.selectorAttribute ?? '')
+            const members = vocabularies.get(attribute)
+            if (collection?.kind !== 'COLLECTION' || !(collection.selectorAttributes ?? []).includes(attribute) || !members || !members.includes(String(prerequisite?.value))) {
+                throw new HaltError('H1', `triggerSemantics.${name}.structuralPrerequisite must name a COLLECTION row, a selector attribute it carries and a member of that attribute's vocabulary`)
+            }
+        }
+        if (entry.excludes !== undefined) {
+            const excluded: unknown[] = Array.isArray(entry.excludes) ? entry.excludes : []
+            if (!excluded.length || excluded.some(other => typeof other !== 'string' || other === name || !triggers.includes(other)) || new Set(excluded).size !== excluded.length) {
+                throw new HaltError('H1', `triggerSemantics.${name}.excludes must name other members of the trigger vocabulary, each once`)
+            }
+        }
+    }
+}
+
+/**
  * **Which participant a value names, where it is not a specialized role — register version 15, 22 October 2026.** Christian,
  * reply filed 25 October 2026, item 6: *"Any participant or role required by an activity must actually be present in the
  * authorized configuration."* *"This safeguard should not depend on particular wording or on the current realization's existing
@@ -937,6 +1085,8 @@ export interface RegisterIndex {
     sessionResources: SessionResourcesRegister | null
     /** The bound-region capability's rows (register version 21, his reply filed 26 October 2026, item 7), or null without them. */
     boundRegions: BoundRegionRegister | null
+    /** The dead-ball restart policy's row and trigger classes (register version 23, his reply filed 27 October 2026, item 4), or null without them. */
+    deadBallRestart: DeadBallRestartRegister | null
     registerVersion: string
 }
 
@@ -1161,6 +1311,7 @@ export function indexRegister(register: any): RegisterIndex {
     }
 
     validateRelativeTerms(register.relativeTerms)
+    validateTriggerSemantics(register.vocabularies?.triggerSemantics, rows, vocabularies)
     const citable = new Set<string>((register.citableStandingDecisions || []).map((d: any) => d.id).filter(Boolean))
     const designations = indexDesignations(register.teamDesignations, rows)
     const roleBlocks = indexRoleBlocks(register.roleBlocks, rows, vocabularies, designations)
@@ -1203,6 +1354,7 @@ export function indexRegister(register: any): RegisterIndex {
         objectGeometry,
         sessionResources: indexSessionResources(register.sessionResources, rows, vocabularies),
         boundRegions: indexBoundRegions(register.boundRegions, rows, vocabularies, objectGeometry),
+        deadBallRestart: indexDeadBallRestart(register.deadBallRestart, rows, vocabularies),
         registerVersion: register.version,
     }
 }

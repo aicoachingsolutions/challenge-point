@@ -1,5 +1,5 @@
 {
-    "about": "PROVISIONAL REALIZATIONS: his provisional realization choices for one Learning Goal's activity, held as contract-shaped contributions so the engine builds them exactly as it builds any other knowledge, while every item stays marked as his choice for that activity and never as canonical knowledge. Added 15 October 2026 (stage K2) for his reply filed 17 October 2026: 'The priority remains producing one complete, representative Play Out from the Back activity through the normal generation pathway, without introducing unnecessary architecture or treating this first realization as the canonical version of the Learning Goal.' and, of the post-regain area, 'I also agree that the post-regain area is a provisional realization choice, not canonical Goalkeeper Build-Out knowledge.' HOW IT IS READ (back/src/system/derivation/corpus.ts, loadProvisionalRealizations): a realization joins a derivation ONLY where the selected goal's authorization record names it (learning-goal-authorizations.json, provisionalRealization); nothing selects it otherwise, and no goal is named in code. It is never written into contracts.json, never keyed to the context it realizes, and never applied as a restatement. Its shape is the Sport Profile's precedent (SD-17: a source outside the representation enters as items under its own contract), with three differences the loader enforces and refuses the whole file on: every item has basis OWNER_RULING, quotes him (words, citedAs) and carries category PROVISIONAL_REALIZATION_CHOICE, which reaches every support entry and the rendering fixture; a realization holds NO declaration (a provisional choice says what this activity does, never what knowledge does not constrain, so no qualified or unqualified non-claim can enter through this file, and his M6 disjointness proof is never needed here); and an item may not name a designation refused below. realizationChoices names the realization-choices file whose entries REPLACE the game form's for the lines they list, each replacement declared (supplied-realization.ts). notWithPracticeSituations lists the practice situations the realization was not designed for: that combination is refused, not built. ADDED 26 October 2026 (Stage F): A01-R2, the goal version, a VARIANT of A01-R1 (basedOn, withdraws, its own items; composed once at load, corpus.ts), recording his replies filed 25 and 26 October 2026 in his words; A01's record lists it before A01-R1, waiting on two decisions of his (goal suitability; the penalty area), so it is never tried until he makes them. ADDED 23 October 2026 (H2, the d26 design's build step 2, for his reply filed 26 October 2026, item 10: 'The normal Laws of the Game should apply by default wherever they are applicable, unless an activity introduces an explicit, knowledge-authorized modification.'): an item may record its departures from the sport's normal laws (departsFrom: the law, why, his words, the whole of it or a named part, and optionally the precondition whose absence it rests on), and a realization declares how strictly its activity is held to the default-laws account (defaultLawsCheck: ENFORCE or REPORT, why, his words; a variant inherits its base's unless it states its own). Both are validated against the Sport Profile's defaultLaws block and read only by that account (corpus.ts; realization/default-laws-check.ts); no value of any item changes. A01-R2 now waits on a third decision of his as well (D-DEFAULT-LAWS: the adaptations its account names as owed).",
+    "about": "PROVISIONAL REALIZATIONS: his provisional realization choices for one Learning Goal's activity, held as contract-shaped contributions so the engine builds them exactly as it builds any other knowledge, while every item stays marked as his choice for that activity and never as canonical knowledge. Added 15 October 2026 (stage K2) for his reply filed 17 October 2026: 'The priority remains producing one complete, representative Play Out from the Back activity through the normal generation pathway, without introducing unnecessary architecture or treating this first realization as the canonical version of the Learning Goal.' and, of the post-regain area, 'I also agree that the post-regain area is a provisional realization choice, not canonical Goalkeeper Build-Out knowledge.' HOW IT IS READ (back/src/system/derivation/corpus.ts, loadProvisionalRealizations): a realization joins a derivation ONLY where the selected goal's authorization record names it (learning-goal-authorizations.json, provisionalRealization); nothing selects it otherwise, and no goal is named in code. It is never written into contracts.json, never keyed to the context it realizes, and never applied as a restatement. Its shape is the Sport Profile's precedent (SD-17: a source outside the representation enters as items under its own contract), with three differences the loader enforces and refuses the whole file on: every item has basis OWNER_RULING, quotes him (words, citedAs) and carries category PROVISIONAL_REALIZATION_CHOICE, which reaches every support entry and the rendering fixture; a realization holds NO declaration (a provisional choice says what this activity does, never what knowledge does not constrain, so no qualified or unqualified non-claim can enter through this file, and his M6 disjointness proof is never needed here); and an item may not name a designation refused below. realizationChoices names the realization-choices file whose entries REPLACE the game form's for the lines they list, each replacement declared (supplied-realization.ts). notWithPracticeSituations lists the practice situations the realization was not designed for: that combination is refused, not built. ADDED 26 October 2026 (Stage F): A01-R2, the goal version, a VARIANT of A01-R1 (basedOn, withdraws, its own items; composed once at load, corpus.ts), recording his replies filed 25 and 26 October 2026 in his words; A01's record lists it before A01-R1, waiting on two decisions of his (goal suitability; the penalty area), so it is never tried until he makes them. ADDED 23 October 2026 (H2, the d26 design's build step 2, for his reply filed 26 October 2026, item 10: 'The normal Laws of the Game should apply by default wherever they are applicable, unless an activity introduces an explicit, knowledge-authorized modification.'): an item may record its departures from the sport's normal laws (departsFrom: the law, why, his words, the whole of it or a named part, and optionally the precondition whose absence it rests on), and a realization declares how strictly its activity is held to the default-laws account (defaultLawsCheck: ENFORCE or REPORT, why, his words; a variant inherits its base's unless it states its own). Both are validated against the Sport Profile's defaultLaws block and read only by that account (corpus.ts; realization/default-laws-check.ts); no value of any item changes. A01-R2 now waits on a third decision of his as well (D-DEFAULT-LAWS: the adaptations its account names as owed). ADDED 24 October 2026 (R3, the d27 design's stage R3, its sections 0.5 and 2.6: 'A realization-level departsFrom holds a law the activity removes without replacing it'): a realization may record on itself, beside its items, a departure from a law its activity removes without replacing it (departsFrom on the realization, the same shape as an item's), validated by the same rules, refused where one of its items departs from the same law, read by the same account and cited by the realization; a variant stating none inherits its base's, as it inherits the check.",
     "refusedDesignations": {
         "designations": ["ATTACKING_TEAM", "DEFENDING_TEAM", "BUILD_OUT_TEAM", "CONCEDING_TEAM"],
         "words": "Please use the assigned team roles rather than referring generically to \"the defending team,\" since possession and defensive responsibilities change during play.",
@@ -23,7 +23,7 @@
             "realizationChoices": "realization-choices-a01-r1.json",
             "defaultLawsCheck": {
                 "mode": "REPORT",
-                "because": "ADDED 23 October 2026 (H2, the d26 design's build step 2, section 3.2; ours). The zone version was validated and served before his principle of 26 October, and the laws its account names as owed (offside; the goalkeeper's handling where no penalty area exists) are put to him in the note sent to him (decisions 2 and 5). So its account is reported to an administrator and the served activity does not stop while he answers; it moves to ENFORCE once he has ruled on them.",
+                "because": "ADDED 23 October 2026 (H2, the d26 design's build step 2, section 3.2; ours). The zone version was validated and served before his principle of 26 October, and the laws its account names as owed (offside; the goalkeeper's handling where no penalty area exists) are put to him in the note sent to him (decisions 2 and 5). So its account is reported to an administrator and the served activity does not stop while he answers; it moves to ENFORCE once he has ruled on them. AMENDED 24 October 2026 (R3, the d27 design's stage R3; ours, the R1 review's carried should-fix): his reply filed 27 October 2026 rules on offside (item 2: \"I approve no offside for this initial realization, with that modification communicated once to the coach.\"), now recorded as this realization's own departure (departsFrom, below), so the one law its account still names as owed is the goalkeeper's handling where no penalty area exists, which he keeps open for this version (item 5: \"I would not finalize your proposed feet-only interpretation yet.\" \"For now, preserve the validated target-zone version without silently adding new handling restrictions.\" \"This should not hold up the initial goal-based realization.\"). So the account stays reported to an administrator, the served activity does not stop, and nothing adds a handling statement or restriction; it moves to ENFORCE once he has ruled on handling in this version.",
                 "basis": {
                     "words": [
                         "The normal Laws of the Game should apply by default wherever they are applicable, unless an activity introduces an explicit, knowledge-authorized modification.",
@@ -32,14 +32,25 @@
                     "citedAs": "his reply filed 26 October 2026, items 10 and 12"
                 }
             },
+            "departsFrom": [
+                {
+                    "law": "LAW-11",
+                    "because": "ADDED 24 October 2026 (R3, the d27 design's stage R3, its sections 0.5 and 2.6; ours). He approves no offside for this initial realization, said once to the coach, and would rather observe whether players waiting near a scoring target undermine the activity than add a mechanism now. Nothing in the game replaces the law, so no item carries the departure: it is recorded on the realization itself, for the whole of the law. That it holds for this zone version as well as the goal version, which inherits it, is OUR READING: the question we put to him on 26 October was headed \"2. Offside, both versions\", and his answer says \"for this initial realization\". The note to him discloses the reading; recording the departure on A01-R2 alone would reverse it.",
+                    "basis": {
+                        "words": ["I approve no offside for this initial realization, with that modification communicated once to the coach."],
+                        "citedAs": "his reply filed 27 October 2026, item 2"
+                    },
+                    "extent": "WHOLE"
+                }
+            ],
             "notWithPracticeSituations": [
                 {
                     "id": "A01-02",
                     "basis": "OUR_READING",
-                    "because": "His decisions of 17 October describe a build-out begun by the building team's goalkeeper or a controlled defensive restart, at a location the coach chooses; the From Goal Kicks practice situation brings its own formal restart, which he keeps apart: 'Please preserve the distinction between a controlled defensive restart and a formal goal kick. If the coach selects a formal goal kick, the applicable Laws of the Game should govern it. The three facts you've identified can be recorded, but they should be treated as part of that specific restart type, not imposed on all build-out starts.' (Christian, 15 October 2026, item 4 - his first reply of that day). That this first activity does not cover the situation is our reading, put to him in our email of 17 October: 'This provisional activity does not cover the From Goal Kicks practice situation. That combination is refused for now.'"
+                    "because": "His decisions of 17 October describe a build-out begun by the building team's goalkeeper or a controlled defensive restart, at a location the coach chooses; the From Goal Kicks practice situation brings its own formal restart, which he keeps apart: 'Please preserve the distinction between a controlled defensive restart and a formal goal kick. If the coach selects a formal goal kick, the applicable Laws of the Game should govern it. The three facts you've identified can be recorded, but they should be treated as part of that specific restart type, not imposed on all build-out starts.' (Christian, 15 October 2026, item 4 - his first reply of that day). That this first activity does not cover the situation is our reading, put to him in our email of 17 October: 'This provisional activity does not cover the From Goal Kicks practice situation. That combination is refused for now.' AMENDED 24 October 2026 (R1): his reply filed 27 October 2026, item 4, now says it for this activity: \"There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity.\" The exclusion is also structural since then: a goal-kick restart in this activity's game would differ from the one common restart, which GA-DEAD-BALL-RESTART refuses."
                 }
             ],
-            "note": "EMPTY AT LANDING, 15 October 2026 (stage K2): the carrier, its loader, its gate on the record and its replacement realization choices land before the choices themselves. The items his 17 October decisions authorize (the role blocks, the allocation by role, the start and restart transitions, the starting relationship and the targets keyed by role) join in later stages, each when the engine can carry it, so that no item enters a game the engine would misread. Measured at landing: with this realization empty every Learning Goal, every demonstration and the A04 fixture derive byte-identically. FIRST ITEMS, 15 October 2026 (stage K3): the role blocks of his D2(a) and M1 - the two roles (A01-R1-B1-1, A01-R1-B1-2) and how they pass between the teams (A01-R1-B3-1, the coach calls the next block, the exchange vocabulary's one member). The engine now derives a game holding them as two complete games, one per role block, and checks the two against each other (RB-1 to RB-8). They change no production outcome: the authorization record's gap entries still refuse A01 at 'knowledge', before derivation; behind those entries (a TEST-ONLY copy) each block stops where the single game stopped, at GA-EPISODE-REACHABLE. ALLOCATION AND REASSIGNMENT, 15 October 2026 (stage K4): his D6 starting configurations by role (A01-R1-P2-1, A01-R1-P2-2, each citing the relationship RPC-001~EM-0006 he confirmed on 18 October, under which the possession game's equal-numbers item defers, ruling C56), one goalkeeper for the building role (A01-R1-P3-1), and his 18 October answer to RD-1 as a reassignment kept apart from the role exchange (A01-R1-B4-1/B7-1 the goalkeeper, A01-R1-B4-2/B7-2 one outfield player, register version 11), with his testing boundaries held as data (testingBoundaries). Measured on the possession game with this realization (no context): 12 players give 6 + goalkeeper against 5 in both blocks, every cross-block check passing; 13 and 10 are refused as not decided; 11 is refused at the membership check (testingBoundaries.note). The record's three allocation entries are carried; A01 is refused at 'knowledge' on six entries (was eight), and behind them still at GA-EPISODE-REACHABLE. STARTS AND RESTARTS, 15 October 2026 (stage K5): his D1(a), D5, D7, M3 and M4 of 17 October and his 18 October answer to RD-2 as transitions - the start, the after-score restart and the coach-judged conclusion (A01-R1-T1-1..3), each stopping and restarting play, awarded to the team holding the building role and taken by its goalkeeper from the feet at a location the coach chooses (A01-R1-T6-1, T7-1, T2-1, T3-1, T4-1, T5-1); and four ordinary out-of-play restarts partitioned by who touched the ball last (A01-R1-T1-4..7, T1b-1, T1c-1, T6-2, T7-2, T7-3, T3-2..3, T4-2..3, T5-2..3) - a throw-in where the ball crossed a touchline, the coach's method and place on an end line, the episode continuing off the pressing team and the build-out ending off the building team. Register version 12 carries the capabilities (the coach-judged trigger, FROM_THE_FEET, the coach's restart location and method, the opening holder of possession entailed by the start's awardee), and ruling C58 types the build-out begin condition in his acknowledged wording, so GA-EPISODE-REACHABLE passes in both blocks with one awardee. Measured: the record's three restart entries are carried; A01 is refused at 'knowledge' on three entries, and behind them each block stops on the progression reference (RPC-001-18.d, open text, stage K6). That the end-line place is the coach's too, and that any player of the awarded team takes an end-line restart, are our readings of his item 2, put to him for a one-line confirmation. CREDIT BOUND, 17 October 2026 (stage M1): his reply filed 19 October 2026, item 1 and item 3 C, as row B8 (register version 14) on the two roles - the building team's credit confined to the build-out episode (A01-R1-B8-1) and the pressing team's stated as the whole game (A01-R1-B8-2) - with A01-R1-T7-3 now citing his 3 C confirmation. GA-EPISODE-REACHABLE's fourth and fifth clauses decide it in both blocks. ALSO COUNTS, 17 October 2026 (stage M2): his reply filed 19 October 2026, item 2, as row V27 (register version 14) for the pressing role only - a controlled regain inside the target it attacks counts as the one primary event and earns its value (A01-R1-V27-1; trigger A01-R1-V29-1, control A01-R1-V30-1, exclusion A01-R1-V31-1, in his words). GA-ONE-PRIMARY-EVENT's added clauses decide it in both blocks, and it is said only in approved words, so until he approves a sentence the activity is refused at communication naming its four fields. APPROVED WORDS, 18 October 2026 (design step L14): his reply filed 20 October 2026 approved the regain sentence as written (item 1, entry A01-W2) and gave, in his own wording, the sentence that the building team cannot score again until the next goalkeeper restart (item 2, entry A01-W3), so the activity is served through the checked review pathway; every other coach sentence is still a draft.",
+            "note": "EMPTY AT LANDING, 15 October 2026 (stage K2): the carrier, its loader, its gate on the record and its replacement realization choices land before the choices themselves. The items his 17 October decisions authorize (the role blocks, the allocation by role, the start and restart transitions, the starting relationship and the targets keyed by role) join in later stages, each when the engine can carry it, so that no item enters a game the engine would misread. Measured at landing: with this realization empty every Learning Goal, every demonstration and the A04 fixture derive byte-identically. FIRST ITEMS, 15 October 2026 (stage K3): the role blocks of his D2(a) and M1 - the two roles (A01-R1-B1-1, A01-R1-B1-2) and how they pass between the teams (A01-R1-B3-1, the coach calls the next block, the exchange vocabulary's one member). The engine now derives a game holding them as two complete games, one per role block, and checks the two against each other (RB-1 to RB-8). They change no production outcome: the authorization record's gap entries still refuse A01 at 'knowledge', before derivation; behind those entries (a TEST-ONLY copy) each block stops where the single game stopped, at GA-EPISODE-REACHABLE. ALLOCATION AND REASSIGNMENT, 15 October 2026 (stage K4): his D6 starting configurations by role (A01-R1-P2-1, A01-R1-P2-2, each citing the relationship RPC-001~EM-0006 he confirmed on 18 October, under which the possession game's equal-numbers item defers, ruling C56), one goalkeeper for the building role (A01-R1-P3-1), and his 18 October answer to RD-1 as a reassignment kept apart from the role exchange (A01-R1-B4-1/B7-1 the goalkeeper, A01-R1-B4-2/B7-2 one outfield player, register version 11), with his testing boundaries held as data (testingBoundaries). Measured on the possession game with this realization (no context): 12 players give 6 + goalkeeper against 5 in both blocks, every cross-block check passing; 13 and 10 are refused as not decided; 11 is refused at the membership check (testingBoundaries.note). The record's three allocation entries are carried; A01 is refused at 'knowledge' on six entries (was eight), and behind them still at GA-EPISODE-REACHABLE. STARTS AND RESTARTS, 15 October 2026 (stage K5): his D1(a), D5, D7, M3 and M4 of 17 October and his 18 October answer to RD-2 as transitions - the start, the after-score restart and the coach-judged conclusion (A01-R1-T1-1..3), each stopping and restarting play, awarded to the team holding the building role and taken by its goalkeeper from the feet at a location the coach chooses (A01-R1-T6-1, T7-1, T2-1, T3-1, T4-1, T5-1); and four ordinary out-of-play restarts partitioned by who touched the ball last (A01-R1-T1-4..7, T1b-1, T1c-1, T6-2, T7-2, T7-3, T3-2..3, T4-2..3, T5-2..3) - a throw-in where the ball crossed a touchline, the coach's method and place on an end line, the episode continuing off the pressing team and the build-out ending off the building team. Register version 12 carries the capabilities (the coach-judged trigger, FROM_THE_FEET, the coach's restart location and method, the opening holder of possession entailed by the start's awardee), and ruling C58 types the build-out begin condition in his acknowledged wording, so GA-EPISODE-REACHABLE passes in both blocks with one awardee. Measured: the record's three restart entries are carried; A01 is refused at 'knowledge' on three entries, and behind them each block stops on the progression reference (RPC-001-18.d, open text, stage K6). That the end-line place is the coach's too, and that any player of the awarded team takes an end-line restart, are our readings of his item 2, put to him for a one-line confirmation. CREDIT BOUND, 17 October 2026 (stage M1): his reply filed 19 October 2026, item 1 and item 3 C, as row B8 (register version 14) on the two roles - the building team's credit confined to the build-out episode (A01-R1-B8-1) and the pressing team's stated as the whole game (A01-R1-B8-2) - with A01-R1-T7-3 now citing his 3 C confirmation. GA-EPISODE-REACHABLE's fourth and fifth clauses decide it in both blocks. ALSO COUNTS, 17 October 2026 (stage M2): his reply filed 19 October 2026, item 2, as row V27 (register version 14) for the pressing role only - a controlled regain inside the target it attacks counts as the one primary event and earns its value (A01-R1-V27-1; trigger A01-R1-V29-1, control A01-R1-V30-1, exclusion A01-R1-V31-1, in his words). GA-ONE-PRIMARY-EVENT's added clauses decide it in both blocks, and it is said only in approved words, so until he approves a sentence the activity is refused at communication naming its four fields. APPROVED WORDS, 18 October 2026 (design step L14): his reply filed 20 October 2026 approved the regain sentence as written (item 1, entry A01-W2) and gave, in his own wording, the sentence that the building team cannot score again until the next goalkeeper restart (item 2, entry A01-W3), so the activity is served through the checked review pathway; every other coach sentence is still a draft. ONE COMMON RESTART, 24 October 2026 (R1, the d27 design's stage R1, its section 2.5): his reply filed 27 October 2026, item 4 (\"I want the same restart principle for both the physical-goal and target-zone versions.\" \"Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.\" \"There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity.\" \"Please ensure this is represented through a general, knowledge-authorized restart mechanism rather than activity-specific code.\"), with item 3 (\"If a foul or infringement requires a stoppage, the coach addresses it appropriately and restarts the build-out.\") and item 9 (\"The restart simplification should supersede our earlier consideration of separate penalty, corner, and goal-kick procedures.\"). A01-R1-RP1-1 writes the register's dead-ball restart policy (row RP1, COMMON) and records the restarts of the normal laws it replaces; the ball going out and the coach's stoppages are transition elements of their own (A01-R1-T1-8 over a touchline, T1-9 over either end line, T1-10 for an infringement, T1-11 for any other reason, with A01-R1-T1a-1: whoever touched the ball last); and the restart items of the start, a score and the coach's conclusion are widened to every one of them (A01-R1-T6-1, T2-1, T3-1, T4-1, T4-4, T5-1, and T7-1 beside SD-14), so every dead ball restarts with the building team's goalkeeper's new build-out, from the feet, where the coach chooses, beginning an episode - which GA-DEAD-BALL-RESTART holds in both blocks. RE-CITED, values unchanged: A01-R1-T1b-1 and T1c-1, until then citing his reply filed 18 October 2026, item 2, now his item 4. WITHDRAWN FROM THIS ACTIVITY (a realization that is no variant cannot withdraw, so each is named here with its authority and what supersedes it): A01-R1-T1-4, T1-5 (the touchline restart partitioned by last touch) and T3-2, T4-2, T5-2 (a player of the awarded team, where the ball went out, by hand) on his reply filed 18 October 2026, item 2 (\"Touchline: conventional throw-in where the ball crossed the line, taken by the team that did not touch it last.\") and 19 October 2026, item 4 (the throw-in wording); A01-R1-T1-6, T1-7 (the end-line restart partitioned by last touch) and T3-3, T4-3, T5-3 (any player of the awarded team, where and how the coach chose) on his reply filed 18 October 2026, item 2 (\"End line: coach-selected restart method, using the approved M3 capability.\") and 19 October 2026, items 3 A and 3 B; A01-R1-T6-2 (play stops when the ball goes out) on his reply filed 18 October 2026, item 2; A01-R1-T7-2 and T7-3 (the episode continuing off the pressing team and ending off the building team) on his reply filed 17 October 2026, D5 (\"A ball going out does not automatically have to end the episode. An ordinary restart can preserve continuity when appropriate.\"), 18 October 2026, item 2 and 19 October 2026, item 3 C - each superseded by his reply filed 27 October 2026, item 4 (\"There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity.\" \"Ball becomes dead: initiate a new goalkeeper build-out.\"). His 26 October item 11 \"may\" for shots that go out is superseded the same way (A01-R1-T1-3 no longer departs from part of LAW-16). KEPT, his item 4 restating it: \"The existing scoring-eligibility condition also remains: once the building team loses possession, it cannot earn another progression point until a new goalkeeper-initiated build-out.\" (A01-R1-B8-1, unchanged), and \"If the pressing team regains possession, it should have the opportunity to attack the goal or target zone immediately.\" (A01-R1-B8-2, the regain score, unchanged); live play, including after a change of possession, is unchanged (\"Ball remains live: play continues, including after possession changes.\"). Goalkeeper handling in this zone version (his item 5) stays open: nothing here adds or removes a handling statement or restriction. NO OFFSIDE, 24 October 2026 (R3, the d27 design's stage R3): his reply filed 27 October 2026, item 2 (\"I approve no offside for this initial realization, with that modification communicated once to the coach.\" \"Rather than introducing a new offside mechanism now, I’d prefer to observe whether this actually undermines the activity.\"), recorded as this realization's own departure from LAW-11 (departsFrom, beside the items: nothing in the game replaces the law, so no item carries it), WHOLE, which the goal version inherits; that it covers this zone version too is OUR READING, given with the departure. The coach is told once (the DRAFT sentence of draft-coach-wording.json departedLaws). No item, value or rule is added for where a player may stand: what he asked to observe stays visible as limitation L2 of A01's review request. Goalkeeper handling in this zone version stays open (his item 5), and the default-laws account still names it as owed.",
             "items": [
                 {
                     "id": "A01-R1-B1-1",
@@ -288,30 +299,15 @@
                     "structuralClause": "whole item",
                     "category": "PROVISIONAL_REALIZATION_CHOICE",
                     "choice": "The coach may judge that the episode has concluded, during play or at a stoppage, and the activity restarts.",
-                    "departsFrom": [
-                        {
-                            "law": "LAW-16",
-                            "because": "ADDED 23 October 2026 (H2; ours, recording his rulings, no value changed). Where a shot goes over the end line a goal stands on, the coach may conclude the episode and restart the goalkeeper's build-out instead of a goal kick. His \"may\" covers only that: where the coach does not conclude, and for every other ball over that line, the law is not departed from here.",
-                            "basis": {
-                                "words": [
-                                    "Shots going out: The coach may conclude the episode and restart the goalkeeper's build-out under the already authorized activity structure. We do not need an additional scoring mechanism.",
-                                    "At any stoppage, the coach may instead conclude the current episode and initiate another build-out."
-                                ],
-                                "citedAs": "his reply filed 26 October 2026, item 11; his reply filed 18 October 2026, item 2"
-                            },
-                            "extent": "PART",
-                            "part": "a shot that goes over the end line a goal stands on, when the coach concludes the episode"
-                        }
-                    ],
                     "words": "An episode concludes when either team scores or when the coach judges that the meaningful attacking opportunity has ended. The coach may make that judgment at a stoppage or during play.",
                     "citedAs": "his reply filed 17 October 2026, D5",
                     "basisEvidence": "Christian, reply filed 17 October 2026, D5: \"An episode concludes when either team scores or when the coach judges that the meaningful attacking opportunity has ended.\" \"The coach may make that judgment at a stoppage or during play.\" M4: \"M4 — Coach-judged episode conclusion: Approved.\" \"Support one explicit coach-judged event representing the conclusion of a meaningful episode.\" \"Do not substitute a timer, possession change, or arbitrary pass count.\" reply filed 18 October 2026, item 2: \"At any stoppage, the coach may instead conclude the current episode and initiate another build-out.\"",
-                    "fitNote": "Establishes the coach-judged conclusion transition element (row T1) on the trigger registered for his M4 (register version 12, trigger version 4, with its semantics). Reachable because the game holds a start element (the trigger's structural prerequisite, our operational proposal). No timer, possession change or pass count stands in for it."
+                    "fitNote": "Establishes the coach-judged conclusion transition element (row T1) on the trigger registered for his M4 (register version 12, trigger version 4, with its semantics). Reachable because the game holds a start element (the trigger's structural prerequisite, our operational proposal). No timer, possession change or pass count stands in for it. AMENDED 24 October 2026 (R1): its part departure from LAW-16 (a shot over the end line a goal stands on, when the coach concludes the episode; his reply filed 26 October 2026, item 11, \"The coach may conclude the episode and restart the goalkeeper's build-out under the already authorized activity structure.\") is withdrawn, because his reply filed 27 October 2026, item 4, makes every ball over that line a goalkeeper restart (\"Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.\"): A01-R1-RP1-1 departs from the whole of LAW-16, and the coach's \"may\" no longer decides it."
                 },
                 {
                     "id": "A01-R1-T6-1",
                     "row": "T6",
-                    "selector": "trigger ∈ {START, SCORE, COACH_JUDGED_EPISODE_CONCLUSION}",
+                    "selector": "trigger ∈ {START, SCORE, COACH_JUDGED_EPISODE_CONCLUSION, OUT_TOUCHLINE, OUT_END_LINE, INFRINGEMENT_STOPPAGE, COACH_DIRECTED_STOPPAGE}",
                     "requirement": "EQUALS",
                     "value": "STOP_RESUME",
                     "valueStatus": "REQUIRED_RANGE",
@@ -321,16 +317,16 @@
                     "checkability": "STRUCTURAL",
                     "structuralClause": "whole item",
                     "category": "PROVISIONAL_REALIZATION_CHOICE",
-                    "choice": "Play stops and restarts at the start, after a score and when the coach concludes the episode.",
-                    "words": "The activity then restarts to create another opportunity to solve the build-out problem. … When a new build-out episode begins: … The designated building team restarts.",
-                    "citedAs": "his reply filed 17 October 2026, D1 and D5",
-                    "basisEvidence": "Christian, reply filed 17 October 2026, D1: \"The activity then restarts to create another opportunity to solve the build-out problem.\" D5: \"When a new build-out episode begins:\" \"The designated building team restarts.\" \"The coach chooses an appropriate restart location consistent with the intended build-out situation.\" \"This preserves the distinction between ordinary game restarts and deliberate learning-oriented restarts.\"",
-                    "fitNote": "The play state of the three transitions that begin a build-out episode. Their taker, location and method apply only to a transition that stops and restarts (register applicability, RC-20), so each needs this. A change of possession is NOT among them: it continues (GF2-17, SD-20), as his D1 asks - \"this decision does not mean stopping play immediately after a defensive regain\"."
+                    "choice": "Play stops and restarts at the start and every time the ball is dead: after a score, when the coach concludes the episode, when the ball goes out and when the coach stops play for an infringement or any other reason.",
+                    "words": "The activity then restarts to create another opportunity to solve the build-out problem. … When a new build-out episode begins: … The designated building team restarts. … Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.",
+                    "citedAs": "his reply filed 17 October 2026, D1 and D5; his reply filed 27 October 2026, item 4",
+                    "basisEvidence": "Christian, reply filed 17 October 2026, D1: \"The activity then restarts to create another opportunity to solve the build-out problem.\" D5: \"When a new build-out episode begins:\" \"The designated building team restarts.\" \"The coach chooses an appropriate restart location consistent with the intended build-out situation.\" \"This preserves the distinction between ordinary game restarts and deliberate learning-oriented restarts.\" Reply filed 27 October 2026, item 4 (WIDENED 24 October 2026, R1): \"Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.\" \"Ball becomes dead: initiate a new goalkeeper build-out.\"",
+                    "fitNote": "The play state of the three transitions that begin a build-out episode. Their taker, location and method apply only to a transition that stops and restarts (register applicability, RC-20), so each needs this. A change of possession is NOT among them: it continues (GF2-17, SD-20), as his D1 asks - \"this decision does not mean stopping play immediately after a defensive regain\". WIDENED 24 October 2026 (R1) from the start, a score and the coach's conclusion to every trigger that makes the ball dead (A01-R1-RP1-1, his item 4): the ball going out (A01-R1-T1-8, T1-9) and the coach's two other stoppages (A01-R1-T1-10, T1-11). On the two out-of-play triggers it displaces the possession game's preferred default (GF2-16.b, STOP_RESUME, the same value; SD-90), as A01-R1-T6-2 did until then."
                 },
                 {
                     "id": "A01-R1-T7-1",
                     "row": "T7",
-                    "selector": "trigger=COACH_JUDGED_EPISODE_CONCLUSION",
+                    "selector": "trigger ∈ {COACH_JUDGED_EPISODE_CONCLUSION, OUT_TOUCHLINE, OUT_END_LINE, INFRINGEMENT_STOPPAGE, COACH_DIRECTED_STOPPAGE}",
                     "requirement": "EQUALS",
                     "value": "true",
                     "valueStatus": "REQUIRED_RANGE",
@@ -340,16 +336,16 @@
                     "checkability": "STRUCTURAL",
                     "structuralClause": "whole item",
                     "category": "PROVISIONAL_REALIZATION_CHOICE",
-                    "choice": "After the coach concludes an episode, a new one begins.",
-                    "words": "An episode concludes when either team scores or when the coach judges that the meaningful attacking opportunity has ended. … When a new build-out episode begins: … The designated building team restarts.",
-                    "citedAs": "his reply filed 17 October 2026, D5",
-                    "basisEvidence": "Christian, reply filed 17 October 2026, D5: \"An episode concludes when either team scores or when the coach judges that the meaningful attacking opportunity has ended.\" \"When a new build-out episode begins:\" \"The designated building team restarts.\" reply filed 18 October 2026, item 2: \"At any stoppage, the coach may instead conclude the current episode and initiate another build-out.\"",
-                    "fitNote": "The restart after the coach's judgement begins an episode (row T7). SD-14 already gives the start and the after-score restart their episode boundary; the coach's conclusion is not among the triggers SD-14 names, so it is stated here."
+                    "choice": "Every restart after a dead ball begins a new episode: after the coach concludes one, when the ball goes out and when the coach stops play (after a score, SD-14 says so).",
+                    "words": "An episode concludes when either team scores or when the coach judges that the meaningful attacking opportunity has ended. … When a new build-out episode begins: … The designated building team restarts. … Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.",
+                    "citedAs": "his reply filed 17 October 2026, D5; his reply filed 27 October 2026, item 4",
+                    "basisEvidence": "Christian, reply filed 17 October 2026, D5: \"An episode concludes when either team scores or when the coach judges that the meaningful attacking opportunity has ended.\" \"When a new build-out episode begins:\" \"The designated building team restarts.\" reply filed 18 October 2026, item 2: \"At any stoppage, the coach may instead conclude the current episode and initiate another build-out.\" Reply filed 27 October 2026, item 4 (WIDENED 24 October 2026, R1): \"Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.\" \"Ball becomes dead: initiate a new goalkeeper build-out.\"",
+                    "fitNote": "The restart after the coach's judgement begins an episode (row T7). SD-14 already gives the start and the after-score restart their episode boundary; the coach's conclusion is not among the triggers SD-14 names, so it is stated here. WIDENED 24 October 2026 (R1) to the ball going out and the coach's two other stoppages (A01-R1-T1-8 to T1-11): each restart is a new goalkeeper-initiated build-out (his item 4), so each begins an episode, and the building team's scoring eligibility returns only there (A01-R1-B8-1; his item 4, \"once the building team loses possession, it cannot earn another progression point until a new goalkeeper-initiated build-out\"). A score keeps SD-14's boundary (boolean true), which GA-DEAD-BALL-RESTART compares with this item's \"true\" after normalization. Until then the out-of-play restarts were split by who played the ball out: the episode continued off the pressing team (A01-R1-T7-2) and ended off the building team (A01-R1-T7-3)."
                 },
                 {
                     "id": "A01-R1-T2-1",
                     "row": "T2",
-                    "selector": "trigger ∈ {START, SCORE, COACH_JUDGED_EPISODE_CONCLUSION}",
+                    "selector": "trigger ∈ {START, SCORE, COACH_JUDGED_EPISODE_CONCLUSION, OUT_TOUCHLINE, OUT_END_LINE, INFRINGEMENT_STOPPAGE, COACH_DIRECTED_STOPPAGE}",
                     "requirement": "EQUALS",
                     "value": "ROLE_HOLDER_BUILDING",
                     "valueStatus": "REQUIRED_RANGE",
@@ -359,7 +355,7 @@
                     "checkability": "STRUCTURAL",
                     "structuralClause": "whole item",
                     "category": "PROVISIONAL_REALIZATION_CHOICE",
-                    "choice": "The team holding the building role in the block takes the start and every build-out restart, whichever team scored.",
+                    "choice": "The team holding the building role in the block takes the start and every restart after a dead ball, whichever team scored or played the ball out.",
                     "departsFrom": [
                         {
                             "law": "LAW-8",
@@ -376,15 +372,15 @@
                             "extent": "WHOLE"
                         }
                     ],
-                    "words": "The designated building team restarts. … Only the building team initiates new build-out episodes.",
-                    "citedAs": "his reply filed 17 October 2026, D5 and D7",
-                    "basisEvidence": "Christian, reply filed 17 October 2026, D5: \"When a new build-out episode begins:\" \"The designated building team restarts.\" D7: \"Only the building team initiates new build-out episodes.\" \"Please use the assigned team roles rather than referring generically to \"the defending team,\" since possession and defensive responsibilities change during play.\"",
-                    "fitNote": "Awarded by the role the team holds for the block (ROLE_HOLDER_BUILDING, block-scoped), never to the team scored against and never by possession: his 15 October conceding-team rule stays the symmetric alternative. With the awardee entailed here, the possession game's free choice of which team starts does not arise; the opening holder of possession is the start's awardee (stage K5, realization)."
+                    "words": "The designated building team restarts. … Only the building team initiates new build-out episodes. … Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.",
+                    "citedAs": "his reply filed 17 October 2026, D5 and D7; his reply filed 27 October 2026, item 4",
+                    "basisEvidence": "Christian, reply filed 17 October 2026, D5: \"When a new build-out episode begins:\" \"The designated building team restarts.\" D7: \"Only the building team initiates new build-out episodes.\" \"Please use the assigned team roles rather than referring generically to \"the defending team,\" since possession and defensive responsibilities change during play.\" Reply filed 27 October 2026, item 4 (WIDENED 24 October 2026, R1): \"Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.\" \"Ball becomes dead: initiate a new goalkeeper build-out.\"",
+                    "fitNote": "Awarded by the role the team holds for the block (ROLE_HOLDER_BUILDING, block-scoped), never to the team scored against and never by possession: his 15 October conceding-team rule stays the symmetric alternative. With the awardee entailed here, the possession game's free choice of which team starts does not arise; the opening holder of possession is the start's awardee (stage K5, realization). WIDENED 24 October 2026 (R1) from the start, a score and the coach's conclusion to every trigger that makes the ball dead (A01-R1-RP1-1, his item 4): the ball going out (A01-R1-T1-8, T1-9) and the coach's two other stoppages (A01-R1-T1-10, T1-11). On the two out-of-play triggers it displaces the possession game's preferred default (GF2-16.a, NOT_LAST_TOUCH, \"Restart conditions: ball out of play restarts from the team that didn't touch it last.\"; SD-90, a different value), which until then gave the touchline and end-line restarts to the team that did not touch the ball last. Its departure from LAW-8 (the kick-off) is unchanged."
                 },
                 {
                     "id": "A01-R1-T3-1",
                     "row": "T3",
-                    "selector": "trigger ∈ {START, SCORE, COACH_JUDGED_EPISODE_CONCLUSION}",
+                    "selector": "trigger ∈ {START, SCORE, COACH_JUDGED_EPISODE_CONCLUSION, OUT_TOUCHLINE, OUT_END_LINE, INFRINGEMENT_STOPPAGE, COACH_DIRECTED_STOPPAGE}",
                     "requirement": "EQUALS",
                     "value": "goalkeeper",
                     "valueStatus": "REQUIRED_RANGE",
@@ -394,16 +390,16 @@
                     "checkability": "STRUCTURAL",
                     "structuralClause": "whole item",
                     "category": "PROVISIONAL_REALIZATION_CHOICE",
-                    "choice": "The building team's goalkeeper takes the start and every build-out restart.",
-                    "words": "The initial demonstration may use goalkeeper distribution from the feet. … For this first asymmetrical activity, I favor one active goalkeeper serving the team currently building out.",
-                    "citedAs": "his reply filed 17 October 2026, D5 and D6",
-                    "basisEvidence": "Christian, reply filed 17 October 2026, D5: \"The initial demonstration may use goalkeeper distribution from the feet.\" \"The goalkeeper should remain an active participant who can receive, recycle possession, and change the point of attack.\" D6: \"For this first asymmetrical activity, I favor one active goalkeeper serving the team currently building out.\" M3: \"Support goalkeeper or controlled defensive starts, coach-selected restart locations, and activity-specific restart methods.\"",
-                    "fitNote": "The goalkeeper arm of the context's build-out origin (\"Initiated from the goalkeeper or a controlled defensive restart\", RPC-PROP-132). The other arm, a controlled defensive restart, stays in the knowledge (RPC-001-15.b, ruling C58) and is not built for this first activity: his \"may use\" is a choice for the initial demonstration, never a requirement of the context. The goalkeeper is the one the building role's team holds (A01-R1-P3-1)."
+                    "choice": "The building team's goalkeeper takes the start and every restart after a dead ball.",
+                    "words": "The initial demonstration may use goalkeeper distribution from the feet. … For this first asymmetrical activity, I favor one active goalkeeper serving the team currently building out. … Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.",
+                    "citedAs": "his reply filed 17 October 2026, D5 and D6; his reply filed 27 October 2026, item 4",
+                    "basisEvidence": "Christian, reply filed 17 October 2026, D5: \"The initial demonstration may use goalkeeper distribution from the feet.\" \"The goalkeeper should remain an active participant who can receive, recycle possession, and change the point of attack.\" D6: \"For this first asymmetrical activity, I favor one active goalkeeper serving the team currently building out.\" M3: \"Support goalkeeper or controlled defensive starts, coach-selected restart locations, and activity-specific restart methods.\" Reply filed 27 October 2026, item 4 (WIDENED 24 October 2026, R1): \"Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.\" \"Ball becomes dead: initiate a new goalkeeper build-out.\"",
+                    "fitNote": "The goalkeeper arm of the context's build-out origin (\"Initiated from the goalkeeper or a controlled defensive restart\", RPC-PROP-132). The other arm, a controlled defensive restart, stays in the knowledge (RPC-001-15.b, ruling C58) and is not built for this first activity: his \"may use\" is a choice for the initial demonstration, never a requirement of the context. The goalkeeper is the one the building role's team holds (A01-R1-P3-1). WIDENED 24 October 2026 (R1) from the start, a score and the coach's conclusion to every trigger that makes the ball dead (A01-R1-RP1-1, his item 4): the ball going out (A01-R1-T1-8, T1-9) and the coach's two other stoppages (A01-R1-T1-10, T1-11). Every such restart is taken by the goalkeeper, so each meets the typed begin condition (ruling C58) and begins a build-out episode."
                 },
                 {
                     "id": "A01-R1-T4-1",
                     "row": "T4",
-                    "selector": "trigger ∈ {START, SCORE, COACH_JUDGED_EPISODE_CONCLUSION}",
+                    "selector": "trigger ∈ {START, SCORE, COACH_JUDGED_EPISODE_CONCLUSION, OUT_TOUCHLINE, OUT_END_LINE, INFRINGEMENT_STOPPAGE, COACH_DIRECTED_STOPPAGE}",
                     "requirement": "RANGE",
                     "value": "a location the coach chooses, consistent with the intended build-out situation",
                     "valueStatus": "REQUIRED_RANGE",
@@ -413,16 +409,16 @@
                     "checkability": "STRUCTURAL",
                     "structuralClause": "whole item",
                     "category": "PROVISIONAL_REALIZATION_CHOICE",
-                    "choice": "The coach chooses where each build-out restarts.",
-                    "words": "The coach chooses an appropriate restart location consistent with the intended build-out situation.",
-                    "citedAs": "his reply filed 17 October 2026, D5",
-                    "basisEvidence": "Christian, reply filed 17 October 2026, D5: \"The coach chooses an appropriate restart location consistent with the intended build-out situation.\" \"The restart should recreate a representative opportunity to solve the Learning Goal.\" \"No mandatory goalkeeper pass, prescribed passing sequence, or fixed restart location is needed.\" M3: \"Support goalkeeper or controlled defensive starts, coach-selected restart locations, and activity-specific restart methods.\" \"These choices must remain distinguishable from universal requirements.\"",
-                    "fitNote": "A range in words: the coach's choice of location bounded only by his words, which register version 12 lets open (T4 fillableRequires, an SD-15 extension) and realization closes as COACH_DECIDES. No region, no distance, no \"own half\" and no fixed location is written. Where the goalkeeper begins relative to the pressing team's post-regain area (his D3) joins with that area (stage K6)."
+                    "choice": "The coach chooses where each build-out restarts, at the start and after every dead ball.",
+                    "words": "The coach chooses an appropriate restart location consistent with the intended build-out situation. … Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.",
+                    "citedAs": "his reply filed 17 October 2026, D5; his reply filed 27 October 2026, item 4",
+                    "basisEvidence": "Christian, reply filed 17 October 2026, D5: \"The coach chooses an appropriate restart location consistent with the intended build-out situation.\" \"The restart should recreate a representative opportunity to solve the Learning Goal.\" \"No mandatory goalkeeper pass, prescribed passing sequence, or fixed restart location is needed.\" M3: \"Support goalkeeper or controlled defensive starts, coach-selected restart locations, and activity-specific restart methods.\" \"These choices must remain distinguishable from universal requirements.\" Reply filed 27 October 2026, item 4 (WIDENED 24 October 2026, R1): \"Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.\" \"Ball becomes dead: initiate a new goalkeeper build-out.\"",
+                    "fitNote": "A range in words: the coach's choice of location bounded only by his words, which register version 12 lets open (T4 fillableRequires, an SD-15 extension) and realization closes as COACH_DECIDES. No region, no distance, no \"own half\" and no fixed location is written. Where the goalkeeper begins relative to the pressing team's post-regain area (his D3) joins with that area (stage K6). WIDENED 24 October 2026 (R1) from the start, a score and the coach's conclusion to every trigger that makes the ball dead (A01-R1-RP1-1, his item 4): the ball going out (A01-R1-T1-8, T1-9) and the coach's two other stoppages (A01-R1-T1-10, T1-11). One stand-in closes the location of each (realization-choices-a01-r1.json), so the restart's location is one value, which GA-DEAD-BALL-RESTART compares once realized."
                 },
                 {
                     "id": "A01-R1-T5-1",
                     "row": "T5",
-                    "selector": "trigger ∈ {START, SCORE, COACH_JUDGED_EPISODE_CONCLUSION}",
+                    "selector": "trigger ∈ {START, SCORE, COACH_JUDGED_EPISODE_CONCLUSION, OUT_TOUCHLINE, OUT_END_LINE, INFRINGEMENT_STOPPAGE, COACH_DIRECTED_STOPPAGE}",
                     "requirement": "EQUALS",
                     "value": "FROM_THE_FEET",
                     "valueStatus": "REQUIRED_RANGE",
@@ -432,94 +428,18 @@
                     "checkability": "STRUCTURAL",
                     "structuralClause": "whole item",
                     "category": "PROVISIONAL_REALIZATION_CHOICE",
-                    "choice": "The goalkeeper plays the ball from their feet at the start and every build-out restart; the ball need not be stationary.",
-                    "words": "The initial demonstration may use goalkeeper distribution from the feet. … The goalkeeper may receive and play from the feet; a stationary-ball restart should not be universally required.",
-                    "citedAs": "his reply filed 17 October 2026, D5",
-                    "basisEvidence": "Christian, reply filed 17 October 2026, D5: \"The initial demonstration may use goalkeeper distribution from the feet.\" \"The goalkeeper may receive and play from the feet; a stationary-ball restart should not be universally required.\" M3: \"Support goalkeeper or controlled defensive starts, coach-selected restart locations, and activity-specific restart methods.\" His 16 October reply, item 6.i: \"Goalkeeper distribution: Starting from the feet is acceptable for this initial realization. It should not become a universal requirement for all goalkeeper build-out activities.\"",
-                    "fitNote": "The method registered for his D5 (T5.method version 2, FROM_THE_FEET, with its semantics): not in hand, not necessarily a stationary ball. Who delivers a ball the goalkeeper receives is not settled and is not stated."
+                    "choice": "The goalkeeper plays the ball from their feet at the start and every restart after a dead ball; the ball need not be stationary.",
+                    "words": "The initial demonstration may use goalkeeper distribution from the feet. … The goalkeeper may receive and play from the feet; a stationary-ball restart should not be universally required. … Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.",
+                    "citedAs": "his reply filed 17 October 2026, D5; his reply filed 27 October 2026, item 4",
+                    "basisEvidence": "Christian, reply filed 17 October 2026, D5: \"The initial demonstration may use goalkeeper distribution from the feet.\" \"The goalkeeper may receive and play from the feet; a stationary-ball restart should not be universally required.\" M3: \"Support goalkeeper or controlled defensive starts, coach-selected restart locations, and activity-specific restart methods.\" His 16 October reply, item 6.i: \"Goalkeeper distribution: Starting from the feet is acceptable for this initial realization. It should not become a universal requirement for all goalkeeper build-out activities.\" Reply filed 27 October 2026, item 4 (WIDENED 24 October 2026, R1): \"Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.\" \"Ball becomes dead: initiate a new goalkeeper build-out.\"",
+                    "fitNote": "The method registered for his D5 (T5.method version 2, FROM_THE_FEET, with its semantics): not in hand, not necessarily a stationary ball. Who delivers a ball the goalkeeper receives is not settled and is not stated. WIDENED 24 October 2026 (R1) from the start, a score and the coach's conclusion to every trigger that makes the ball dead (A01-R1-RP1-1, his item 4): the ball going out (A01-R1-T1-8, T1-9) and the coach's two other stoppages (A01-R1-T1-10, T1-11)."
                 },
                 {
-                    "id": "A01-R1-T1-4",
-                    "row": "T1",
-                    "selector": "trigger=OUT_TOUCHLINE AND qualifier.lastTouch=ROLE_HOLDER_PRESSING",
-                    "requirement": "EXISTS",
-                    "value": "N/A",
-                    "valueStatus": "N/A",
-                    "strictness": "REQUIRED",
-                    "scope": "WHOLE_GAME",
-                    "basis": "OWNER_RULING",
-                    "checkability": "STRUCTURAL",
-                    "structuralClause": "whole item",
-                    "category": "PROVISIONAL_REALIZATION_CHOICE",
-                    "choice": "When the pressing team plays the ball over a touchline, the building team restarts and the episode continues.",
-                    "words": "Touchline: conventional throw-in where the ball crossed the line, taken by the team that did not touch it last. … I agree that these ordinary restarts are distinct from deliberately initiating a new build-out episode.",
-                    "citedAs": "his reply filed 18 October 2026, item 2",
-                    "basisEvidence": "Christian, reply filed 18 October 2026, item 2: \"Approve your recommendation:\" \"Touchline: conventional throw-in where the ball crossed the line, taken by the team that did not touch it last.\" \"I agree that these ordinary restarts are distinct from deliberately initiating a new build-out episode.\" reply filed 17 October 2026, D5: \"A ball going out does not automatically have to end the episode. An ordinary restart can preserve continuity when appropriate.\" \"This preserves the distinction between ordinary game restarts and deliberate learning-oriented restarts.\"",
-                    "fitNote": "One of four ordinary out-of-play elements, partitioned by who touched the ball last (register selector attribute qualifier.lastTouch), so that whether the episode continues can be said per element. Who restarts is the possession game's (GF2-16.a, the team that did not touch it last), which his item 2 confirms for the touchline."
-                },
-                {
-                    "id": "A01-R1-T1-5",
-                    "row": "T1",
-                    "selector": "trigger=OUT_TOUCHLINE AND qualifier.lastTouch=ROLE_HOLDER_BUILDING",
-                    "requirement": "EXISTS",
-                    "value": "N/A",
-                    "valueStatus": "N/A",
-                    "strictness": "REQUIRED",
-                    "scope": "WHOLE_GAME",
-                    "basis": "OWNER_RULING",
-                    "checkability": "STRUCTURAL",
-                    "structuralClause": "whole item",
-                    "category": "PROVISIONAL_REALIZATION_CHOICE",
-                    "choice": "When the building team plays the ball over a touchline, the pressing team restarts.",
-                    "words": "Touchline: conventional throw-in where the ball crossed the line, taken by the team that did not touch it last. … I agree that these ordinary restarts are distinct from deliberately initiating a new build-out episode.",
-                    "citedAs": "his reply filed 18 October 2026, item 2",
-                    "basisEvidence": "Christian, reply filed 18 October 2026, item 2: \"Approve your recommendation:\" \"Touchline: conventional throw-in where the ball crossed the line, taken by the team that did not touch it last.\" \"I agree that these ordinary restarts are distinct from deliberately initiating a new build-out episode.\" reply filed 17 October 2026, D5: \"A ball going out does not automatically have to end the episode. An ordinary restart can preserve continuity when appropriate.\"",
-                    "fitNote": "The second touchline element: off the building team, so the restart goes to the pressing team (GF2-16.a)."
-                },
-                {
-                    "id": "A01-R1-T1-6",
-                    "row": "T1",
-                    "selector": "trigger=OUT_END_LINE AND qualifier.lastTouch=ROLE_HOLDER_PRESSING",
-                    "requirement": "EXISTS",
-                    "value": "N/A",
-                    "valueStatus": "N/A",
-                    "strictness": "REQUIRED",
-                    "scope": "WHOLE_GAME",
-                    "basis": "OWNER_RULING",
-                    "checkability": "STRUCTURAL",
-                    "structuralClause": "whole item",
-                    "category": "PROVISIONAL_REALIZATION_CHOICE",
-                    "choice": "When the pressing team plays the ball over an end line, the building team restarts and the episode continues.",
-                    "words": "End line: coach-selected restart method, using the approved M3 capability. I agree that these ordinary restarts are distinct from deliberately initiating a new build-out episode.",
-                    "citedAs": "his reply filed 18 October 2026, item 2",
-                    "basisEvidence": "Christian, reply filed 18 October 2026, item 2: \"Approve your recommendation:\" \"End line: coach-selected restart method, using the approved M3 capability.\" \"I agree that these ordinary restarts are distinct from deliberately initiating a new build-out episode.\" reply filed 17 October 2026, D5: \"A ball going out does not automatically have to end the episode. An ordinary restart can preserve continuity when appropriate.\" \"This preserves the distinction between ordinary game restarts and deliberate learning-oriented restarts.\"",
-                    "fitNote": "The first end-line element: off the pressing team, so the restart goes to the building team (GF2-16.a). Either end line: whose end line was crossed decides nothing his answer distinguishes (A01-R1-T1b-1)."
-                },
-                {
-                    "id": "A01-R1-T1-7",
-                    "row": "T1",
-                    "selector": "trigger=OUT_END_LINE AND qualifier.lastTouch=ROLE_HOLDER_BUILDING",
-                    "requirement": "EXISTS",
-                    "value": "N/A",
-                    "valueStatus": "N/A",
-                    "strictness": "REQUIRED",
-                    "scope": "WHOLE_GAME",
-                    "basis": "OWNER_RULING",
-                    "checkability": "STRUCTURAL",
-                    "structuralClause": "whole item",
-                    "category": "PROVISIONAL_REALIZATION_CHOICE",
-                    "choice": "When the building team plays the ball over an end line, the pressing team restarts.",
-                    "words": "End line: coach-selected restart method, using the approved M3 capability. I agree that these ordinary restarts are distinct from deliberately initiating a new build-out episode.",
-                    "citedAs": "his reply filed 18 October 2026, item 2",
-                    "basisEvidence": "Christian, reply filed 18 October 2026, item 2: \"Approve your recommendation:\" \"End line: coach-selected restart method, using the approved M3 capability.\" \"I agree that these ordinary restarts are distinct from deliberately initiating a new build-out episode.\" reply filed 17 October 2026, D5: \"A ball going out does not automatically have to end the episode. An ordinary restart can preserve continuity when appropriate.\"",
-                    "fitNote": "The second end-line element: off the building team, so the restart goes to the pressing team (GF2-16.a)."
-                },
-                {
-                    "id": "A01-R1-T7-2",
-                    "row": "T7",
-                    "selector": "trigger ∈ {OUT_TOUCHLINE, OUT_END_LINE} AND qualifier.lastTouch=ROLE_HOLDER_PRESSING",
+                    "id": "A01-R1-RP1-1",
+                    "row": "RP1",
+                    "selector": "*",
                     "requirement": "EQUALS",
-                    "value": "false",
+                    "value": "COMMON",
                     "valueStatus": "REQUIRED_RANGE",
                     "strictness": "REQUIRED",
                     "scope": "WHOLE_GAME",
@@ -527,18 +447,169 @@
                     "checkability": "STRUCTURAL",
                     "structuralClause": "whole item",
                     "category": "PROVISIONAL_REALIZATION_CHOICE",
-                    "choice": "An ordinary restart after the pressing team plays the ball out does not begin a new episode: the building team keeps the ball and the episode continues.",
-                    "words": "A ball going out does not automatically have to end the episode. An ordinary restart can preserve continuity when appropriate. … I agree that these ordinary restarts are distinct from deliberately initiating a new build-out episode.",
-                    "citedAs": "his reply filed 17 October 2026, D5; his reply filed 18 October 2026, item 2",
-                    "basisEvidence": "Christian, reply filed 17 October 2026, D5: \"A ball going out does not automatically have to end the episode. An ordinary restart can preserve continuity when appropriate.\" \"This preserves the distinction between ordinary game restarts and deliberate learning-oriented restarts.\" reply filed 18 October 2026, item 2: \"I agree that these ordinary restarts are distinct from deliberately initiating a new build-out episode.\"",
-                    "fitNote": "Row T7 (SD-14's episode boundary) false: the team that had the ball restarts, so no episode ends and none begins, and the build-out episode's conditions go on applying. This alone does not mark the restart as ordinary: what marks a build-out start is the context's typed begin condition (ruling C58), which these restarts do not meet."
+                    "choice": "Every dead ball restarts play the same way: the building team's goalkeeper starts a new build-out, and there is no separate set-piece restart.",
+                    "departsFrom": [
+                        {
+                            "law": "LAW-8-DB",
+                            "because": "ADDED 24 October 2026 (R1; ours, recording his ruling). When the coach stops play for any other reason, the building team's goalkeeper restarts with a new build-out, instead of the dropped ball the Laws give where play is stopped and no other restart applies.",
+                            "basis": {
+                                "words": [
+                                    "Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.",
+                                    "A coach-directed stoppage."
+                                ],
+                                "citedAs": "his reply filed 27 October 2026, item 4"
+                            },
+                            "extent": "WHOLE"
+                        },
+                        {
+                            "law": "LAW-13",
+                            "because": "ADDED 24 October 2026 (R1; ours, recording his ruling). When the coach stops play for a foul or another infringement, the coach addresses it and the building team's goalkeeper restarts with a new build-out, instead of a free kick. What is a foul stays the law's: only the restart is departed from.",
+                            "basis": {
+                                "words": [
+                                    "If a foul or infringement requires a stoppage, the coach addresses it appropriately and restarts the build-out.",
+                                    "Normal expectations for safe and fair play remain in effect. We are simplifying the restart, not disregarding fouls or player safety.",
+                                    "There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity."
+                                ],
+                                "citedAs": "his reply filed 27 October 2026, items 3 and 4"
+                            },
+                            "extent": "WHOLE"
+                        },
+                        {
+                            "law": "LAW-14",
+                            "because": "ADDED 24 October 2026 (R1; ours, recording his ruling). Where a goal stands, no penalty kick is awarded: the dead ball restarts with the goalkeeper's new build-out. Where no goal stands the law does not apply at all, and this departure is not what says so.",
+                            "basis": {
+                                "words": [
+                                    "For this activity, a dead ball should result in a new goalkeeper-initiated build-out, not a penalty kick or another set-piece restart.",
+                                    "This replaces the previous consideration of a penalty kick from a marked or unmarked spot."
+                                ],
+                                "citedAs": "his reply filed 27 October 2026, item 3"
+                            },
+                            "extent": "WHOLE"
+                        },
+                        {
+                            "law": "LAW-15",
+                            "because": "ADDED 24 October 2026 (R1; ours, recording his ruling). When the ball goes over a touchline, the building team's goalkeeper restarts with a new build-out, instead of a throw-in to the team that did not touch the ball last.",
+                            "basis": {
+                                "words": [
+                                    "The ball going out of bounds.",
+                                    "There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity."
+                                ],
+                                "citedAs": "his reply filed 27 October 2026, item 4"
+                            },
+                            "extent": "WHOLE"
+                        },
+                        {
+                            "law": "LAW-16",
+                            "because": "ADDED 24 October 2026 (R1; ours, recording his ruling). When the ball goes over the end line a goal stands on, the building team's goalkeeper restarts with a new build-out, instead of a goal kick, whatever the coach judges: it covers the shot the coach concludes (A01-R1-T1-3's part departure until 24 October 2026) and every other ball over that line.",
+                            "basis": {
+                                "words": [
+                                    "The ball going out of bounds.",
+                                    "There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity."
+                                ],
+                                "citedAs": "his reply filed 27 October 2026, item 4"
+                            },
+                            "extent": "WHOLE"
+                        },
+                        {
+                            "law": "LAW-17",
+                            "because": "ADDED 24 October 2026 (R1; ours, recording his ruling). When the ball goes over the end line a goal stands on, the building team's goalkeeper restarts with a new build-out, instead of a corner kick.",
+                            "basis": {
+                                "words": [
+                                    "The ball going out of bounds.",
+                                    "There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity."
+                                ],
+                                "citedAs": "his reply filed 27 October 2026, item 4"
+                            },
+                            "extent": "WHOLE"
+                        }
+                    ],
+                    "words": "Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out. … There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity.",
+                    "citedAs": "his reply filed 27 October 2026, item 4",
+                    "basisEvidence": "Christian, reply filed 27 October 2026, item 4 (\"4. Balls out of play — One common restart mechanism\"): \"This is the most important clarification.\" \"I want the same restart principle for both the physical-goal and target-zone versions.\" \"Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.\" \"There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity.\" \"These are all legitimate parts of soccer, but they introduce additional game problems that can reduce the time players spend encountering the specific problem we want them to solve.\" \"Ball remains live: play continues, including after possession changes.\" \"Ball becomes dead: initiate a new goalkeeper build-out.\" \"Please ensure this is represented through a general, knowledge-authorized restart mechanism rather than activity-specific code.\" Item 9: \"The restart simplification should supersede our earlier consideration of separate penalty, corner, and goal-kick procedures.\"",
+                    "fitNote": "Row RP1 (register version 23), COMMON: every trigger the register's deadBallRestart block classes STOPS_PLAY resolves to the one designated restart, which GA-DEAD-BALL-RESTART holds in every block, before and after realization - each has a transition element (A01-R1-T1-2, T1-3, T1-8, T1-9, T1-10, T1-11), each stops and restarts play (A01-R1-T6-1), every restart after a dead ball has one awardee (A01-R1-T2-1), taker (A01-R1-T3-1), location (A01-R1-T4-1 and T4-4, closed by one stand-in), method (A01-R1-T5-1) and episode boundary (A01-R1-T7-1; SD-14 for a score), and every trigger in play continues (a change of possession, GF2-17 and SD-20). The restart his words name is the one these items already stated for the start, a score and the coach's conclusion; this item says it is the only one. The restarts of the sport's normal laws it replaces are recorded on it (departsFrom, WHOLE): the dropped ball, free kicks, penalty kicks, the throw-in, goal kicks and corner kicks; the kick-off is A01-R1-T2-1's. Live play is unchanged: the building team's scoring eligibility (A01-R1-B8-1; his item 4, \"once the building team loses possession, it cannot earn another progression point until a new goalkeeper-initiated build-out\") and the pressing team's attack after a regain (A01-R1-B8-2) hold as before. The goal version (A01-R2) keeps this item, so \"the same restart principle for both\" holds by composition, not by code. OUR ENGINEERING, labelled so: the row, its token and this composition."
                 },
                 {
-                    "id": "A01-R1-T7-3",
-                    "row": "T7",
-                    "selector": "trigger ∈ {OUT_TOUCHLINE, OUT_END_LINE} AND qualifier.lastTouch=ROLE_HOLDER_BUILDING",
+                    "id": "A01-R1-T1-8",
+                    "row": "T1",
+                    "selector": "trigger=OUT_TOUCHLINE",
+                    "requirement": "EXISTS",
+                    "value": "N/A",
+                    "valueStatus": "N/A",
+                    "strictness": "REQUIRED",
+                    "scope": "WHOLE_GAME",
+                    "basis": "OWNER_RULING",
+                    "checkability": "STRUCTURAL",
+                    "structuralClause": "whole item",
+                    "category": "PROVISIONAL_REALIZATION_CHOICE",
+                    "choice": "When the ball goes over a touchline, play stops and the building team's goalkeeper restarts with a new build-out.",
+                    "words": "The ball going out of bounds.",
+                    "citedAs": "his reply filed 27 October 2026, item 4",
+                    "basisEvidence": "Christian, reply filed 27 October 2026, item 4: \"Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.\" \"That includes:\" \"The ball going out of bounds.\" \"There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity.\"",
+                    "fitNote": "Establishes the touchline transition element (row T1), one element whoever touched the ball last (A01-R1-T1a-1). Its restart is the one A01-R1-RP1-1 names, stated by the widened A01-R1-T6-1, T2-1, T3-1, T4-1, T4-4, T5-1 and T7-1. It replaces A01-R1-T1-4 and T1-5, the throw-in partitioned by who touched the ball last (his reply filed 18 October 2026, item 2), withdrawn for this activity by his item 4 (the realization's note names them with their authority)."
+                },
+                {
+                    "id": "A01-R1-T1-9",
+                    "row": "T1",
+                    "selector": "trigger=OUT_END_LINE",
+                    "requirement": "EXISTS",
+                    "value": "N/A",
+                    "valueStatus": "N/A",
+                    "strictness": "REQUIRED",
+                    "scope": "WHOLE_GAME",
+                    "basis": "OWNER_RULING",
+                    "checkability": "STRUCTURAL",
+                    "structuralClause": "whole item",
+                    "category": "PROVISIONAL_REALIZATION_CHOICE",
+                    "choice": "When the ball goes over either end line, play stops and the building team's goalkeeper restarts with a new build-out.",
+                    "words": "The ball going out of bounds.",
+                    "citedAs": "his reply filed 27 October 2026, item 4",
+                    "basisEvidence": "Christian, reply filed 27 October 2026, item 4: \"Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.\" \"That includes:\" \"The ball going out of bounds.\" \"There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity.\"",
+                    "fitNote": "Establishes the end-line transition element (row T1), one element whichever team's end line the ball crosses (A01-R1-T1b-1) and whoever touched it last (A01-R1-T1a-1). Its restart is the one A01-R1-RP1-1 names, stated by the widened A01-R1-T6-1, T2-1, T3-1, T4-1, T4-4, T5-1 and T7-1. It replaces A01-R1-T1-6 and T1-7, the end-line restart taken where and how the coach chose (his reply filed 18 October 2026, item 2; 19 October 2026, items 3 A and 3 B), withdrawn for this activity by his item 4 (the realization's note names them with their authority)."
+                },
+                {
+                    "id": "A01-R1-T1-10",
+                    "row": "T1",
+                    "selector": "trigger=INFRINGEMENT_STOPPAGE",
+                    "requirement": "EXISTS",
+                    "value": "N/A",
+                    "valueStatus": "N/A",
+                    "strictness": "REQUIRED",
+                    "scope": "WHOLE_GAME",
+                    "basis": "OWNER_RULING",
+                    "checkability": "STRUCTURAL",
+                    "structuralClause": "whole item",
+                    "category": "PROVISIONAL_REALIZATION_CHOICE",
+                    "choice": "When the coach stops play for a foul or another infringement, the coach deals with it and the building team's goalkeeper restarts with a new build-out.",
+                    "words": "A foul or infringement requiring play to stop. … If a foul or infringement requires a stoppage, the coach addresses it appropriately and restarts the build-out.",
+                    "citedAs": "his reply filed 27 October 2026, items 4 and 3",
+                    "basisEvidence": "Christian, reply filed 27 October 2026, item 4: \"Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.\" \"That includes:\" \"A foul or infringement requiring play to stop.\" Item 3: \"If a foul or infringement requires a stoppage, the coach addresses it appropriately and restarts the build-out.\" \"Normal expectations for safe and fair play remain in effect. We are simplifying the restart, not disregarding fouls or player safety.\"",
+                    "fitNote": "Establishes the infringement-stoppage transition element (row T1) on the trigger registered for his item 4 (register version 23, trigger version 5, with its semantics). Reachable because the game holds a start element (the trigger's structural prerequisite, our operational proposal). Nothing about the foul itself, who committed it or a sanction is written: the coach addresses it (his item 3), and what is a foul stays the sport's normal law."
+                },
+                {
+                    "id": "A01-R1-T1-11",
+                    "row": "T1",
+                    "selector": "trigger=COACH_DIRECTED_STOPPAGE",
+                    "requirement": "EXISTS",
+                    "value": "N/A",
+                    "valueStatus": "N/A",
+                    "strictness": "REQUIRED",
+                    "scope": "WHOLE_GAME",
+                    "basis": "OWNER_RULING",
+                    "checkability": "STRUCTURAL",
+                    "structuralClause": "whole item",
+                    "category": "PROVISIONAL_REALIZATION_CHOICE",
+                    "choice": "When the coach stops play for any other reason, the building team's goalkeeper restarts with a new build-out.",
+                    "words": "A coach-directed stoppage.",
+                    "citedAs": "his reply filed 27 October 2026, item 4",
+                    "basisEvidence": "Christian, reply filed 27 October 2026, item 4: \"Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.\" \"That includes:\" \"A coach-directed stoppage.\"",
+                    "fitNote": "Establishes the coach-directed stoppage transition element (row T1) on the trigger registered for his item 4 (register version 23, trigger version 5), a residual: a stoppage the coach makes to conclude an episode is A01-R1-T1-3's, and one for an infringement is A01-R1-T1-10's, so the triggers stay mutually exclusive. Reachable because the game holds a start element (the trigger's structural prerequisite, our operational proposal). Why the coach stops play is not recorded."
+                },
+                {
+                    "id": "A01-R1-T1a-1",
+                    "row": "T1a",
+                    "selector": "trigger ∈ {OUT_TOUCHLINE, OUT_END_LINE}",
                     "requirement": "EQUALS",
-                    "value": "true",
+                    "value": "EACH_TEAM",
                     "valueStatus": "REQUIRED_RANGE",
                     "strictness": "REQUIRED",
                     "scope": "WHOLE_GAME",
@@ -546,11 +617,11 @@
                     "checkability": "STRUCTURAL",
                     "structuralClause": "whole item",
                     "category": "PROVISIONAL_REALIZATION_CHOICE",
-                    "choice": "An ordinary restart after the building team plays the ball out ends its build-out episode: the pressing team now has the ball.",
-                    "words": "Touchline: conventional throw-in where the ball crossed the line, taken by the team that did not touch it last. … End line: coach-selected restart method, using the approved M3 capability. … Yes. The build-out scoring episode ends. Ordinary play may continue following the restart, but build-out scoring eligibility does not return until a new deliberate goalkeeper restart.",
-                    "citedAs": "his reply filed 18 October 2026, item 2; his reply filed 19 October 2026, item 3 C",
-                    "basisEvidence": "Christian, reply filed 18 October 2026, item 2: \"Approve your recommendation:\" \"Touchline: conventional throw-in where the ball crossed the line, taken by the team that did not touch it last.\" \"End line: coach-selected restart method, using the approved M3 capability.\" - approving the recommendation of our email of 17 October, which stated this consequence beside it (our words): \"If the building team plays the ball out, the pressing team restarts. Under your context's end condition \"Possession is lost\", the build-out then ends, so its scoring conditions stop applying. Play continues, and the episode in your D5 sense runs on until a score or your call.\" The end condition: \"Possession is lost.\" (RPC-PROP-005, END_CONDITION, CORE; RPC-001-17.a). CONFIRMED in his reply filed 19 October 2026, item 3 C (added 17 October 2026, stage M1): \"Yes. The build-out scoring episode ends. Ordinary play may continue following the restart, but build-out scoring eligibility does not return until a new deliberate goalkeeper restart.\" Since then GA-EPISODE-REACHABLE's fifth clause refuses this item reversed: with the building team's credit confined to the build-out episode (A01-R1-B8-1), a restart awarded away from it that began no episode would let its credit run on.",
-                    "fitNote": "Row T7 true: possession passes to the pressing team at the restart, so an attacking episode of the pressing team begins (SD-14's boundary, as at a change of possession, RPC-001-17.a) and the build-out episode ends. It is NOT a build-out start: the pressing team's restart does not meet the typed begin condition (ruling C58). His D5 episode, which a score or the coach concludes, runs on (the consequence our email stated and he approved)."
+                    "choice": "The restart after the ball goes out is the same whichever team touched it last.",
+                    "words": "The ball going out of bounds. … Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.",
+                    "citedAs": "his reply filed 27 October 2026, item 4",
+                    "basisEvidence": "Christian, reply filed 27 October 2026, item 4: \"Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.\" \"That includes:\" \"The ball going out of bounds.\" \"There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity.\"",
+                    "fitNote": "Row T1a (who touched the ball last, which the register applies to the two out-of-play triggers) on the two out-of-play elements: each team (EACH_TEAM, the canonical designation A01-R1-T1b-1 already uses). His item 4 gives one restart whoever played the ball out, so the elements are not split by last touch; without this the line is a coverage gap. Until 24 October 2026 the elements were partitioned by it (A01-R1-T1-4 to T1-7), because his 18 October restart went to the team that did not touch the ball last."
                 },
                 {
                     "id": "A01-R1-T1b-1",
@@ -565,11 +636,11 @@
                     "checkability": "STRUCTURAL",
                     "structuralClause": "whole item",
                     "category": "PROVISIONAL_REALIZATION_CHOICE",
-                    "choice": "The end-line restart is the same whichever team's end line the ball crosses.",
-                    "words": "End line: coach-selected restart method, using the approved M3 capability.",
-                    "citedAs": "his reply filed 18 October 2026, item 2",
-                    "basisEvidence": "Christian, reply filed 18 October 2026, item 2: \"Approve your recommendation:\" \"End line: coach-selected restart method, using the approved M3 capability.\"",
-                    "fitNote": "Row T1b (whose end line was crossed) on the two end-line elements: each team's end line (EACH_TEAM). His answer gives one end-line restart and does not distinguish the two ends, so the elements are not split by end line; without this the line is a coverage gap (the possession game and the context never examined the qualifiers). Partitioning by end line as well would add two elements saying the same thing."
+                    "choice": "The restart is the same whichever team's end line the ball crosses.",
+                    "words": "Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.",
+                    "citedAs": "his reply filed 27 October 2026, item 4",
+                    "basisEvidence": "Christian, reply filed 27 October 2026, item 4: \"Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.\" \"The ball going out of bounds.\" RE-CITED 24 October 2026 (R1), the value unchanged: until then this item cited his reply filed 18 October 2026, item 2 (\"End line: coach-selected restart method, using the approved M3 capability.\"), which his item 4 supersedes for this activity (\"There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity.\").",
+                    "fitNote": "Row T1b (whose end line was crossed) on the end-line element: each team's end line (EACH_TEAM). His item 4 gives one restart whichever end line the ball crosses, so the element is not split by end line; without this the line is a coverage gap (the possession game and the context never examined the qualifiers). Partitioning by end line as well would add an element saying the same thing."
                 },
                 {
                     "id": "A01-R1-T1c-1",
@@ -586,202 +657,11 @@
                     "checkability": "STRUCTURAL",
                     "structuralClause": "whole item",
                     "category": "PROVISIONAL_REALIZATION_CHOICE",
-                    "choice": "The touchline restart applies wherever the ball crosses a touchline.",
-                    "words": "Touchline: conventional throw-in where the ball crossed the line, taken by the team that did not touch it last.",
-                    "citedAs": "his reply filed 18 October 2026, item 2",
-                    "basisEvidence": "Christian, reply filed 18 October 2026, item 2: \"Touchline: conventional throw-in where the ball crossed the line, taken by the team that did not touch it last.\"",
-                    "fitNote": "Row T1c (the region qualifier, which the register keeps for a touchline because \"the restart place genuinely is where the ball crossed\") on the two touchline elements: wherever the ball crossed, the dynamic location the throw-in is taken from (A01-R1-T4-2). The elements are not split by region; without this the line is a coverage gap."
-                },
-                {
-                    "id": "A01-R1-T6-2",
-                    "row": "T6",
-                    "selector": "trigger ∈ {OUT_TOUCHLINE, OUT_END_LINE}",
-                    "requirement": "EQUALS",
-                    "value": "STOP_RESUME",
-                    "valueStatus": "REQUIRED_RANGE",
-                    "strictness": "REQUIRED",
-                    "scope": "WHOLE_GAME",
-                    "basis": "OWNER_RULING",
-                    "checkability": "STRUCTURAL",
-                    "structuralClause": "whole item",
-                    "category": "PROVISIONAL_REALIZATION_CHOICE",
-                    "choice": "When the ball goes out, play stops and restarts.",
-                    "words": "Touchline: conventional throw-in where the ball crossed the line, taken by the team that did not touch it last. … End line: coach-selected restart method, using the approved M3 capability.",
-                    "citedAs": "his reply filed 18 October 2026, item 2",
-                    "basisEvidence": "Christian, reply filed 18 October 2026, item 2: \"Approve your recommendation:\" \"Touchline: conventional throw-in where the ball crossed the line, taken by the team that did not touch it last.\" \"End line: coach-selected restart method, using the approved M3 capability.\" The possession game authors the same play state as a preferred default (GF2-16.b, STOP_RESUME).",
-                    "fitNote": "Row T6: a throw-in and a coach-selected end-line restart both put the ball back into play from a stoppage. The possession game's preferred default says the same (GF2-16.b), and his answer is what makes it this activity's."
-                },
-                {
-                    "id": "A01-R1-T3-2",
-                    "row": "T3",
-                    "selector": "trigger=OUT_TOUCHLINE",
-                    "requirement": "EQUALS",
-                    "value": "a player of the team in this element's T2",
-                    "valueStatus": "REQUIRED_RANGE",
-                    "strictness": "REQUIRED",
-                    "scope": "WHOLE_GAME",
-                    "basis": "OWNER_RULING",
-                    "checkability": "STRUCTURAL",
-                    "structuralClause": "whole item",
-                    "category": "PROVISIONAL_REALIZATION_CHOICE",
-                    "choice": "A player of the team awarded the throw-in takes it.",
-                    "words": "Touchline: conventional throw-in where the ball crossed the line, taken by the team that did not touch it last.",
-                    "citedAs": "his reply filed 18 October 2026, item 2",
-                    "basisEvidence": "Christian, reply filed 18 October 2026, item 2: \"Touchline: conventional throw-in where the ball crossed the line, taken by the team that did not touch it last.\"",
-                    "fitNote": "\"taken by the team that did not touch it last\": a player of the awarded team, no role named (the wording of the value follows the From Goal Kicks situation's own taker item)."
-                },
-                {
-                    "id": "A01-R1-T4-2",
-                    "row": "T4",
-                    "selector": "trigger=OUT_TOUCHLINE",
-                    "requirement": "EQUALS",
-                    "value": {
-                        "dynamic": "where the ball went out"
-                    },
-                    "valueStatus": "REQUIRED_RANGE",
-                    "strictness": "REQUIRED",
-                    "scope": "WHOLE_GAME",
-                    "basis": "OWNER_RULING",
-                    "checkability": "STRUCTURAL",
-                    "structuralClause": "whole item",
-                    "category": "PROVISIONAL_REALIZATION_CHOICE",
-                    "choice": "The throw-in is taken where the ball crossed the touchline.",
-                    "words": "Touchline: conventional throw-in where the ball crossed the line, taken by the team that did not touch it last.",
-                    "citedAs": "his reply filed 18 October 2026, item 2",
-                    "basisEvidence": "Christian, reply filed 18 October 2026, item 2: \"Touchline: conventional throw-in where the ball crossed the line, taken by the team that did not touch it last.\"",
-                    "fitNote": "\"where the ball crossed the line\", written in the register's own form for this row (T4 valueType: \"region reference, or 'where the ball went out'\"), typed as a dynamic location: a place with no position in the representation, which no geometric check compares (gates.ts, §1.9) and which names no region."
-                },
-                {
-                    "id": "A01-R1-T5-2",
-                    "row": "T5",
-                    "selector": "trigger=OUT_TOUCHLINE",
-                    "requirement": "EQUALS",
-                    "value": "IN_HAND",
-                    "valueStatus": "REQUIRED_RANGE",
-                    "strictness": "REQUIRED",
-                    "scope": "WHOLE_GAME",
-                    "basis": "OWNER_RULING",
-                    "checkability": "STRUCTURAL",
-                    "structuralClause": "whole item",
-                    "category": "PROVISIONAL_REALIZATION_CHOICE",
-                    "choice": "The touchline restart is a throw-in.",
-                    "words": "Touchline: conventional throw-in where the ball crossed the line, taken by the team that did not touch it last.",
-                    "citedAs": "his reply filed 18 October 2026, item 2",
-                    "basisEvidence": "Christian, reply filed 18 October 2026, item 2: \"Touchline: conventional throw-in where the ball crossed the line, taken by the team that did not touch it last.\"",
-                    "fitNote": "\"conventional throw-in\": the ball is put back into play by hand, the register's IN_HAND (T5.method)."
-                },
-                {
-                    "id": "A01-R1-T3-3",
-                    "row": "T3",
-                    "selector": "trigger=OUT_END_LINE",
-                    "requirement": "EQUALS",
-                    "value": "a player of the team in this element's T2",
-                    "valueStatus": "REQUIRED_RANGE",
-                    "strictness": "REQUIRED",
-                    "scope": "WHOLE_GAME",
-                    "basis": "OWNER_RULING",
-                    "checkability": "STRUCTURAL",
-                    "structuralClause": "whole item",
-                    "category": "PROVISIONAL_REALIZATION_CHOICE",
-                    "choice": "A player of the team awarded the end-line restart takes it.",
-                    "words": "End line: coach-selected restart method, using the approved M3 capability. I agree that these ordinary restarts are distinct from deliberately initiating a new build-out episode. … Yes. Any player from the team awarded the end-line restart may take it, consistent with that safeguard.",
-                    "citedAs": "his reply filed 18 October 2026, item 2; his reply filed 19 October 2026, item 3 B",
-                    "basisEvidence": "Christian, reply filed 18 October 2026, item 2: \"Approve your recommendation:\" \"End line: coach-selected restart method, using the approved M3 capability.\" \"I agree that these ordinary restarts are distinct from deliberately initiating a new build-out episode.\" Who restarts is the possession game's (GF2-16.a, the team that did not touch it last), which our email of 17 October put to him beside the recommendation he approved: \"The possession game says which team restarts: the team that did not touch it last.\" CONFIRMED in his reply filed 19 October 2026, item 3 B (added 17 October 2026, stage M4): \"Yes. Any player from the team awarded the end-line restart may take it, consistent with that safeguard.\" - the safeguard being his item 3 A's, \"with the understanding that ordinary restarts should preserve meaningful game relationships rather than create an automatic scoring shortcut.\" \"These are approved for the current activity configuration.\"",
-                    "fitNote": "CONFIRMED in his reply filed 19 October 2026, item 3 B (stage M4); until then OUR READING, put to him for a one-line confirmation: his 18 October answer makes the end-line method the coach's and names no taker; a player of the team the possession game awards it to takes it, as on the touchline, with no role named. A goalkeeper taking it would not make it a build-out start: an ordinary restart is not one (ruling C58, his item 2)."
-                },
-                {
-                    "id": "A01-R1-T4-3",
-                    "row": "T4",
-                    "selector": "trigger=OUT_END_LINE",
-                    "requirement": "RANGE",
-                    "value": "a location the coach selects for the restart",
-                    "valueStatus": "REQUIRED_RANGE",
-                    "strictness": "REQUIRED",
-                    "scope": "WHOLE_GAME",
-                    "basis": "OWNER_RULING",
-                    "checkability": "STRUCTURAL",
-                    "structuralClause": "whole item",
-                    "category": "PROVISIONAL_REALIZATION_CHOICE",
-                    "choice": "The coach selects where the end-line restart is taken.",
-                    "departsFrom": [
-                        {
-                            "law": "LAW-16",
-                            "because": "ADDED 23 October 2026 (H2; ours, recording his rulings, no value changed). The coach selects where the end-line restart is taken, instead of a goal kick from the goal area. OUR READING of when it holds: his approval answered our email of 17 October, which proposed the coach's choice because the game's missing goals leave the Laws silent on an end line (A01-R1-T5-3's fitNote), so the departure holds while no goal stands on that end line, and an adaptation is owed again where one does (the d26 design's finding X5).",
-                            "basis": {
-                                "words": [
-                                    "End line: coach-selected restart method, using the approved M3 capability.",
-                                    "A. End-line restart location and method: Yes. The coach determines both, with the understanding that ordinary restarts should preserve meaningful game relationships rather than create an automatic scoring shortcut."
-                                ],
-                                "citedAs": "his reply filed 18 October 2026, item 2; his reply filed 19 October 2026, item 3 A"
-                            },
-                            "extent": "WHOLE",
-                            "whilePreconditionAbsent": { "predicate": "OBJECT_OF_KIND_AT_END", "kind": "goal" }
-                        },
-                        {
-                            "law": "LAW-17",
-                            "because": "ADDED 23 October 2026 (H2; ours, recording his rulings, no value changed). The coach selects where the end-line restart is taken, instead of a corner kick from the corner. OUR READING of when it holds, as for LAW-16: while no goal stands on that end line (the d26 design's finding X5).",
-                            "basis": {
-                                "words": [
-                                    "End line: coach-selected restart method, using the approved M3 capability.",
-                                    "A. End-line restart location and method: Yes. The coach determines both, with the understanding that ordinary restarts should preserve meaningful game relationships rather than create an automatic scoring shortcut."
-                                ],
-                                "citedAs": "his reply filed 18 October 2026, item 2; his reply filed 19 October 2026, item 3 A"
-                            },
-                            "extent": "WHOLE",
-                            "whilePreconditionAbsent": { "predicate": "OBJECT_OF_KIND_AT_END", "kind": "goal" }
-                        }
-                    ],
-                    "words": "End line: coach-selected restart method, using the approved M3 capability. … Yes. The coach determines both, with the understanding that ordinary restarts should preserve meaningful game relationships rather than create an automatic scoring shortcut.",
-                    "citedAs": "his reply filed 18 October 2026, item 2; his reply filed 19 October 2026, item 3 A",
-                    "basisEvidence": "Christian, reply filed 18 October 2026, item 2: \"End line: coach-selected restart method, using the approved M3 capability.\" reply filed 17 October 2026, M3: \"Support goalkeeper or controlled defensive starts, coach-selected restart locations, and activity-specific restart methods.\" \"These choices must remain distinguishable from universal requirements.\" CONFIRMED in his reply filed 19 October 2026, item 3 A (added 17 October 2026, stage M4): \"A. End-line restart location and method: Yes. The coach determines both, with the understanding that ordinary restarts should preserve meaningful game relationships rather than create an automatic scoring shortcut.\" \"These are approved for the current activity configuration.\"",
-                    "fitNote": "CONFIRMED in his reply filed 19 October 2026, item 3 A (stage M4); until then OUR READING, put to him for a one-line confirmation: \"using the approved M3 capability\" read as the capability he approved as a whole, so the coach selects where as well as how (M3: \"coach-selected restart locations, and activity-specific restart methods\"). A range in words, opened by register version 12 (T4 fillableRequires) and closed as COACH_DECIDES; no location is written. Since 17 October 2026 (stage M4) the value no longer carries his phrase 'using the approved M3 capability' as our gloss: that phrase is his, and stays in his quoted words only. His 3 A understanding is the bound the realization choices record for the coach (realization-choices-a01-r1.json, T1-6 and T1-7, our gerund form, DRAFT)."
-                },
-                {
-                    "id": "A01-R1-T5-3",
-                    "row": "T5",
-                    "selector": "trigger=OUT_END_LINE",
-                    "requirement": "RANGE",
-                    "value": "a restart method the coach selects",
-                    "valueStatus": "REQUIRED_RANGE",
-                    "strictness": "REQUIRED",
-                    "scope": "WHOLE_GAME",
-                    "basis": "OWNER_RULING",
-                    "checkability": "STRUCTURAL",
-                    "structuralClause": "whole item",
-                    "category": "PROVISIONAL_REALIZATION_CHOICE",
-                    "choice": "The coach selects how the end-line restart is taken.",
-                    "departsFrom": [
-                        {
-                            "law": "LAW-16",
-                            "because": "ADDED 23 October 2026 (H2; ours, recording his rulings, no value changed). The coach selects how the end-line restart is taken, instead of a goal kick. OUR READING of when it holds: this item's own fitNote says the game's missing goals leave the Laws silent on it (our email of 17 October, which his approval answered), so the departure holds while no goal stands on that end line, and an adaptation is owed again where one does (the d26 design's finding X5).",
-                            "basis": {
-                                "words": [
-                                    "End line: coach-selected restart method, using the approved M3 capability.",
-                                    "A. End-line restart location and method: Yes. The coach determines both, with the understanding that ordinary restarts should preserve meaningful game relationships rather than create an automatic scoring shortcut."
-                                ],
-                                "citedAs": "his reply filed 18 October 2026, item 2; his reply filed 19 October 2026, item 3 A"
-                            },
-                            "extent": "WHOLE",
-                            "whilePreconditionAbsent": { "predicate": "OBJECT_OF_KIND_AT_END", "kind": "goal" }
-                        },
-                        {
-                            "law": "LAW-17",
-                            "because": "ADDED 23 October 2026 (H2; ours, recording his rulings, no value changed). The coach selects how the end-line restart is taken, instead of a corner kick. OUR READING of when it holds, as for LAW-16: while no goal stands on that end line (the d26 design's finding X5).",
-                            "basis": {
-                                "words": [
-                                    "End line: coach-selected restart method, using the approved M3 capability.",
-                                    "A. End-line restart location and method: Yes. The coach determines both, with the understanding that ordinary restarts should preserve meaningful game relationships rather than create an automatic scoring shortcut."
-                                ],
-                                "citedAs": "his reply filed 18 October 2026, item 2; his reply filed 19 October 2026, item 3 A"
-                            },
-                            "extent": "WHOLE",
-                            "whilePreconditionAbsent": { "predicate": "OBJECT_OF_KIND_AT_END", "kind": "goal" }
-                        }
-                    ],
-                    "words": "End line: coach-selected restart method, using the approved M3 capability. … Yes. The coach determines both, with the understanding that ordinary restarts should preserve meaningful game relationships rather than create an automatic scoring shortcut.",
-                    "citedAs": "his reply filed 18 October 2026, item 2; his reply filed 19 October 2026, item 3 A",
-                    "basisEvidence": "Christian, reply filed 18 October 2026, item 2: \"Approve your recommendation:\" \"End line: coach-selected restart method, using the approved M3 capability.\" reply filed 17 October 2026, M3: \"Support goalkeeper or controlled defensive starts, coach-selected restart locations, and activity-specific restart methods.\" CONFIRMED in his reply filed 19 October 2026, item 3 A (added 17 October 2026, stage M4): \"A. End-line restart location and method: Yes. The coach determines both, with the understanding that ordinary restarts should preserve meaningful game relationships rather than create an automatic scoring shortcut.\"",
-                    "fitNote": "The coach's method: a range in words, opened by register version 12 (T5 fillableRequires, his M3 \"activity-specific restart methods\") and closed as COACH_DECIDES. No method from the list is chosen for him, and the game's missing goals leave the Laws silent on it (our email of 17 October). Since 17 October 2026 (stage M4) the value no longer carries his phrase 'using the approved M3 capability' as our gloss; it stays in his quoted words only."
+                    "choice": "The restart applies wherever the ball crosses a touchline.",
+                    "words": "The ball going out of bounds.",
+                    "citedAs": "his reply filed 27 October 2026, item 4",
+                    "basisEvidence": "Christian, reply filed 27 October 2026, item 4: \"The ball going out of bounds.\" \"Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.\" RE-CITED 24 October 2026 (R1), the value unchanged: until then this item cited his reply filed 18 October 2026, item 2 (\"Touchline: conventional throw-in where the ball crossed the line, taken by the team that did not touch it last.\"), which his item 4 supersedes for this activity (\"There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity.\").",
+                    "fitNote": "Row T1c (the region qualifier, which the register keeps for a touchline) on the touchline element: wherever the ball crossed. It qualifies the trigger only: where the restart is taken is the coach's choice (A01-R1-T4-1, T4-4), no longer where the ball went out, so this value names no restart place. The element is not split by region; without this the line is a coverage gap."
                 },
                 {
                     "id": "A01-R1-S2-1",
@@ -1054,7 +934,7 @@
                     "words": "That relationship should be re-established at the beginning of each new build-out episode.",
                     "citedAs": "his reply filed 17 October 2026, D4",
                     "basisEvidence": "Christian, reply filed 17 October 2026, D4: \"That relationship should be re-established at the beginning of each new build-out episode.\" Christian, M5: \"M5 — Team starting placement: Approved. Support a relationship-based starting arrangement that can be stated clearly to the coach and re-established at build-out restarts. No universal starting distance or formation.\" Christian, reply filed 18 October 2026, item 3: \"The building team's initial positioning requirement should not prevent players from advancing into useful positions as play develops.\"",
-                    "fitNote": "EM-0002 EMP-0013 Timing, \"Conditional reset\" (register P10a): at the start, and again at every transition that begins the episode A01-R1-P10b-1 names - the start, the build-out after a score and the coach-judged conclusion, which the typed begin condition picks out (ruling C58, GA-EPISODE-REACHABLE) - never at an ordinary throw-in or end-line restart and never at a change of possession. A starting placement, never a standing one: his item 3, \"The building team's initial positioning requirement should not prevent players from advancing into useful positions as play develops.\""
+                    "fitNote": "EM-0002 EMP-0013 Timing, \"Conditional reset\" (register P10a): at the start, and again at every transition that begins the episode A01-R1-P10b-1 names - the start, the build-out after a score and the coach-judged conclusion, which the typed begin condition picks out (ruling C58, GA-EPISODE-REACHABLE) - never at an ordinary throw-in or end-line restart and never at a change of possession. A starting placement, never a standing one: his item 3, \"The building team's initial positioning requirement should not prevent players from advancing into useful positions as play develops.\" AMENDED 24 October 2026 (R1): there is no ordinary throw-in or end-line restart any more (his reply filed 27 October 2026, item 4: \"There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity.\"): every restart after a dead ball begins a build-out episode (A01-R1-T1-8 to T1-11 with the widened restart items), so both placements are re-established at every dead ball, as his D4 asks, and still never at a change of possession."
                 },
                 {
                     "id": "A01-R1-P10b-1",
@@ -1079,7 +959,7 @@
                 {
                     "id": "A01-R1-T4-4",
                     "row": "T4",
-                    "selector": "trigger ∈ {START, SCORE, COACH_JUDGED_EPISODE_CONCLUSION}",
+                    "selector": "trigger ∈ {START, SCORE, COACH_JUDGED_EPISODE_CONCLUSION, OUT_TOUCHLINE, OUT_END_LINE, INFRINGEMENT_STOPPAGE, COACH_DIRECTED_STOPPAGE}",
                     "requirement": "RANGE",
                     "value": "in front of the pressing team's post-regain area",
                     "valueStatus": "REQUIRED_RANGE",
@@ -1089,11 +969,11 @@
                     "checkability": "STRUCTURAL",
                     "structuralClause": "whole item",
                     "category": "PROVISIONAL_REALIZATION_CHOICE",
-                    "choice": "The coach's restart location for each build-out is in front of the pressing team's post-regain area, where the goalkeeper begins.",
-                    "words": "I agree with your proposal to begin with the building goalkeeper positioned in front of the post-regain area, provided the resulting layout is coherent and representative.",
-                    "citedAs": "his reply filed 17 October 2026, D3",
-                    "basisEvidence": "Christian, reply filed 17 October 2026, D3: \"I agree with your proposal to begin with the building goalkeeper positioned in front of the post-regain area, provided the resulting layout is coherent and representative.\" Christian, D5: \"The coach chooses an appropriate restart location consistent with the intended build-out situation.\" \"No mandatory goalkeeper pass, prescribed passing sequence, or fixed restart location is needed.\"",
-                    "fitNote": "A second range in words on the same restart location as A01-R1-T4-1: the goalkeeper takes the start and every build-out restart (A01-R1-T3-1), so where the restart is taken is where the goalkeeper begins, and his D3 agreement places it in front of the post-regain area. Still the coach's choice (COACH_DECIDES, register version 12 T4 fillableRequires: every bound a range in words of his) - no fixed location, no region and no distance is written."
+                    "choice": "The coach's restart location for each build-out, at the start and after every dead ball, is in front of the pressing team's post-regain area, where the goalkeeper begins.",
+                    "words": "I agree with your proposal to begin with the building goalkeeper positioned in front of the post-regain area, provided the resulting layout is coherent and representative. … Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.",
+                    "citedAs": "his reply filed 17 October 2026, D3; his reply filed 27 October 2026, item 4",
+                    "basisEvidence": "Christian, reply filed 17 October 2026, D3: \"I agree with your proposal to begin with the building goalkeeper positioned in front of the post-regain area, provided the resulting layout is coherent and representative.\" Christian, D5: \"The coach chooses an appropriate restart location consistent with the intended build-out situation.\" \"No mandatory goalkeeper pass, prescribed passing sequence, or fixed restart location is needed.\" Reply filed 27 October 2026, item 4 (WIDENED 24 October 2026, R1): \"Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.\" \"Ball becomes dead: initiate a new goalkeeper build-out.\"",
+                    "fitNote": "A second range in words on the same restart location as A01-R1-T4-1: the goalkeeper takes the start and every build-out restart (A01-R1-T3-1), so where the restart is taken is where the goalkeeper begins, and his D3 agreement places it in front of the post-regain area. Still the coach's choice (COACH_DECIDES, register version 12 T4 fillableRequires: every bound a range in words of his) - no fixed location, no region and no distance is written. WIDENED 24 October 2026 (R1) from the start, a score and the coach's conclusion to every trigger that makes the ball dead (A01-R1-RP1-1, his item 4): the ball going out (A01-R1-T1-8, T1-9) and the coach's two other stoppages (A01-R1-T1-10, T1-11)."
                 },
                 {
                     "id": "A01-R1-B8-1",
@@ -1112,7 +992,7 @@
                     "words": "The important distinction is that the building team's scoring opportunity applies only during an active build-out episode. If the building team loses possession, that scoring opportunity ends. If it subsequently regains possession, play may continue, but the original build-out scoring opportunity is not restored. A deliberate goalkeeper restart is required to initiate another opportunity to earn a build-out point.",
                     "citedAs": "his reply filed 19 October 2026, item 1; item 3 C",
                     "basisEvidence": "Christian, reply filed 19 October 2026, item 1: \"The important distinction is that the building team's scoring opportunity applies only during an active build-out episode.\" \"If the building team loses possession, that scoring opportunity ends. If it subsequently regains possession, play may continue, but the original build-out scoring opportunity is not restored. A deliberate goalkeeper restart is required to initiate another opportunity to earn a build-out point.\" \"This is intentional. Although counterpressing, regaining possession, and exploiting attacking transitions are meaningful parts of the game, they are not the primary Learning Goal for this activity.\" \"Please ensure the underlying scoring eligibility reflects this distinction, rather than relying solely on the coach-facing wording.\" Item 3 C: \"Yes. The build-out scoring episode ends. Ordinary play may continue following the restart, but build-out scoring eligibility does not return until a new deliberate goalkeeper restart.\" Item 3: \"These are approved for the current activity configuration.\" CONSISTENT existing knowledge, cited as consistent and not as the authority: RPC-001-11.b (with KR-02 and KR-03) places the build-out objective within the build-out episode, and SD-36 scopes the build-out conditions to that episode (\"It does NOT automatically extend to subsequent attacking episodes.\"); none of them says that the build-out team scores only there, so the bound rests on his item 1 and item 3 C.",
-                    "fitNote": "OUR GLOSS, labelled so: row B8 (register version 14) on the building role's element - its holder earns the primary event's credit only inside a BUILD_OUT_EPISODE, begun by the transitions the typed begin condition picks out (ruling C58: the start, the restart after a score and the coach-judged conclusion, A01-R1-T1-1..3, taken by its goalkeeper and awarded to it) and ended by every transition that begins another episode (the change of possession, GF2-07.a; the restarts after it plays the ball out, A01-R1-T1-5 and T1-7, which A01-R1-T7-3 makes begin one). GA-EPISODE-REACHABLE's fourth clause checks the first half and its fifth the second, so a reversal of either is refused at structure. A provisional choice for this activity, not Goalkeeper Build-Out knowledge: nothing is written into RPC-001, GF2 or the restatements, and his D1(b) continued-play alternative stays open for any other realization. Said to the coach only in approved words (render-concrete-game.ts WORDED_ONLY): his build-out sentence (entry A01-W1, his reply filed 19 October 2026, item 1) and, since 18 October 2026, his eligibility sentence (entry A01-W3, his reply filed 20 October 2026, item 2)."
+                    "fitNote": "OUR GLOSS, labelled so: row B8 (register version 14) on the building role's element - its holder earns the primary event's credit only inside a BUILD_OUT_EPISODE, begun by the transitions the typed begin condition picks out (ruling C58: the start, the restart after a score and the coach-judged conclusion, A01-R1-T1-1..3, taken by its goalkeeper and awarded to it) and ended by every transition that begins another episode (the change of possession, GF2-07.a; the restarts after it plays the ball out, A01-R1-T1-5 and T1-7, which A01-R1-T7-3 makes begin one). GA-EPISODE-REACHABLE's fourth clause checks the first half and its fifth the second, so a reversal of either is refused at structure. AMENDED 24 October 2026 (R2; this gloss only, no value changed): A01-R1-T1-5, T1-7 and T7-3 were withdrawn on 24 October 2026 (R1) by his reply filed 27 October 2026, item 4 ('Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.'), so every dead ball - the ball going out over either line (A01-R1-T1-8, T1-9), a foul stoppage (T1-10) and any other coach stoppage (T1-11), beside the score and the coach-judged conclusion - is a goalkeeper restart awarded to the building team that A01-R1-T7-1 makes begin a new episode: each ends the episode it falls in and begins the next, and the typed begin condition picks each one out. A provisional choice for this activity, not Goalkeeper Build-Out knowledge: nothing is written into RPC-001, GF2 or the restatements, and his D1(b) continued-play alternative stays open for any other realization. Said to the coach only in approved words (render-concrete-game.ts WORDED_ONLY): his build-out sentence (entry A01-W1, his reply filed 19 October 2026, item 1) and, since 18 October 2026, his eligibility sentence (entry A01-W3, his reply filed 20 October 2026, item 2)."
                 },
                 {
                     "id": "A01-R1-B8-2",
@@ -1238,7 +1118,7 @@
             "realizationChoices": "realization-choices-a01-r2.json",
             "defaultLawsCheck": {
                 "mode": "ENFORCE",
-                "because": "ADDED 23 October 2026 (H2, the d26 design's build step 2, section 3.2; ours). The goal version is built under his principle of 26 October, so it is never served owing an adaptation: until every law its account names as owed is departed from in his words or can apply, a build of it is refused at validation, naming each one, and never falls back to the zone version. It is listed and never tried while A01's record says it waits on D-GOAL-SUITABILITY, D-PENALTY-AREA and D-DEFAULT-LAWS. It inherits the departures A01-R1's kept items record; the end-line restarts among them rest on the absence of a goal on that end line, which the goal end does not have.",
+                "because": "ADDED 23 October 2026 (H2, the d26 design's build step 2, section 3.2; ours). The goal version is built under his principle of 26 October, so it is never served owing an adaptation: until every law its account names as owed is departed from in his words or can apply, a build of it is refused at validation, naming each one, and never falls back to the zone version. It is listed and never tried while A01's record says it waits on D-GOAL-SUITABILITY, D-PENALTY-AREA and D-DEFAULT-LAWS. It inherits the departures A01-R1's kept items record; the end-line restarts among them rest on the absence of a goal on that end line, which the goal end does not have. AMENDED 24 October 2026 (R1): those end-line restarts are withdrawn from A01-R1, and it now inherits A01-R1-RP1-1, the one common restart (his reply filed 27 October 2026, item 4: \"I want the same restart principle for both the physical-goal and target-zone versions.\"), whose departures from the dropped ball, free kicks, penalty kicks, the throw-in, goal kicks and corner kicks hold at the goal end as at the other. AMENDED 24 October 2026 (R3): it states no departure on itself, so it inherits A01-R1's (departsFrom on the realization, as it inherits A01-R1's check where it states none): no offside, for the whole of the law (his reply filed 27 October 2026, item 2: \"I approve no offside for this initial realization, with that modification communicated once to the coach.\"). What its account still owes is the goalkeeper's handling, until its goal's penalty area is bound (his item 1).",
                 "basis": {
                     "words": [
                         "Where a normal law cannot apply directly because of the modified field, scoring structure, or game format, the system should identify the relevant adaptation rather than silently assume conventional conditions exist.",
@@ -1265,7 +1145,7 @@
                 { "item": "A01-R1-T4-4", "because": "The goalkeeper's restart in front of the post-regain area has no area to stand in front of in the goal version; his reply filed 26 October 2026, item 8 (\"8. Goalkeeper restart — Approve Option (a)\") drops that bound: \"The coach may select the goalkeeper's restart location, consistent with the intended build-out situation.\" The bound he gave instead is A01-R2-T4-5." },
                 { "item": "A01-R1-B8-2", "because": "Re-cited, not changed (the design's K16): its words name the 5 m target area, which the goal version does not hold (his reply filed 26 October 2026, item 12: \"The former 5 m target-zone scoring lines should not carry into it.\"). A01-R2-B8-2 states the same value (the pressing team's credit is not confined to an episode) on his words for the goal version." }
             ],
-            "note": "THE GOAL VERSION of the build-out activity, added 26 October 2026 (Stage F), as a VARIANT of A01-R1 (basedOn; its items are A01-R1's without the eight it withdraws, then its own, composed once at load). LISTED, NEVER TRIED: A01's record names it first, waiting on two decisions of his (D-GOAL-SUITABILITY; D-PENALTY-AREA) - his reply filed 26 October 2026, item 12: \"Where an actual knowledge decision remains necessary—particularly regarding goal suitability or the penalty-area geometry—please bring back the smallest supported options rather than introducing assumptions.\" - so the zone version (A01-R1) is served exactly as before, and the account and the review evidence name this one and why it was not tried. WHAT IT HOLDS (each item in his words): one goal (A01-R2-O1-1), centred on the building team's end line, facing into the playing area, with no depth inside it (A01-R2-O4-1, O5-1, O6-1; his item 5); defended by the team with the active goalkeeper in each block (A01-R2-O7-1, his item 6, PROVISIONAL with that status stated); the pressing team's objective referencing it (A01-R2-J2-1) and the pressing team scoring by a goal (A01-R2-B9-1), each citing the context scoring relationship he confirmed (RPC-001~SCORING-goal, his item 1); the teams changing ends at the coach-called block with the roles while the goal and the goalkeeper stay at the same end (A01-R2-B10-1, his item 3); the pressing team's credit across every episode (A01-R2-B8-2, re-cited); and the coach's goalkeeper restart within the authorized deep starting environment (A01-R2-T4-5, his item 8). The building team keeps A01-R1's target, scoring event and build-out conditions (his item 1: \"Building team: Controlled progression beyond the marked line during an active goalkeeper-initiated build-out.\"). WHAT IT DOES NOT HOLD: the 5 m area and its regain score (withdrawn, his item 12); a penalty area, a handling region or a handling rule (D-PENALTY-AREA open; his item 7 refuses \"an undefined area that the coach simply points out\" and \"a feet-only goalkeeper restriction as the default for this realization\", so neither is written); a suitability for its goal (D-GOAL-SUITABILITY open); any law needing an explicit adaptation in this small-sided environment (his item 10: \"The offside question, for example, may need an explicit ruling for this small-sided environment, but we should not expand the current work into a comprehensive reconstruction of soccer's laws.\" - not filled); a positional rule for the goalkeeper (his item 6: \"I don't want to prescribe goalkeeper movement solutions through a special positioning rule.\"). OWN GOALS (his item 10, \"I agree that an own goal against the building team counts for the pressing team in the goal-based realization.\"; item 11, \"Own goals: Apply the normal soccer rule.\") need no item: a score is the ball entering the goal the pressing team's objective references, whoever touched it last (OUR READING, recorded on the scoring relationship). SHOTS GOING OUT (his item 11, \"Shots going out: The coach may conclude the episode and restart the goalkeeper's build-out under the already authorized activity structure. We do not need an additional scoring mechanism.\") are carried by A01-R1's kept items (the coach-judged conclusion A01-R1-T1-3 and the end-line restarts A01-R1-T1-6, T1-7, T4-3, T5-3); nothing is added. A DEPARTURE, REPORTED: the pressing team's objective reference is written by the end designation (team=TEAM_AT_AXIS_END, the end the pressing role holds in both blocks under the end exchange) and not by the role, because an objective is individuated by its setup designation and a role-keyed reference does not attach (the design of 25 October 2026, Stage B; measured TEST-ONLY then). That departs from our own application of his D7 sentence in refusedDesignations (\"it narrows what this file may say\"); the designation is not one the file refuses, and GA-ROLE-EVENTS clause 4 refuses the version if the pressing role ever stood at the other end (the ends kept).",
+            "note": "THE GOAL VERSION of the build-out activity, added 26 October 2026 (Stage F), as a VARIANT of A01-R1 (basedOn; its items are A01-R1's without the eight it withdraws, then its own, composed once at load). LISTED, NEVER TRIED: A01's record names it first, waiting on two decisions of his (D-GOAL-SUITABILITY; D-PENALTY-AREA) - his reply filed 26 October 2026, item 12: \"Where an actual knowledge decision remains necessary—particularly regarding goal suitability or the penalty-area geometry—please bring back the smallest supported options rather than introducing assumptions.\" - so the zone version (A01-R1) is served exactly as before, and the account and the review evidence name this one and why it was not tried. WHAT IT HOLDS (each item in his words): one goal (A01-R2-O1-1), centred on the building team's end line, facing into the playing area, with no depth inside it (A01-R2-O4-1, O5-1, O6-1; his item 5); defended by the team with the active goalkeeper in each block (A01-R2-O7-1, his item 6, PROVISIONAL with that status stated); the pressing team's objective referencing it (A01-R2-J2-1) and the pressing team scoring by a goal (A01-R2-B9-1), each citing the context scoring relationship he confirmed (RPC-001~SCORING-goal, his item 1); the teams changing ends at the coach-called block with the roles while the goal and the goalkeeper stay at the same end (A01-R2-B10-1, his item 3); the pressing team's credit across every episode (A01-R2-B8-2, re-cited); and the coach's goalkeeper restart within the authorized deep starting environment (A01-R2-T4-5, his item 8). The building team keeps A01-R1's target, scoring event and build-out conditions (his item 1: \"Building team: Controlled progression beyond the marked line during an active goalkeeper-initiated build-out.\"). WHAT IT DOES NOT HOLD: the 5 m area and its regain score (withdrawn, his item 12); a penalty area, a handling region or a handling rule (D-PENALTY-AREA open; his item 7 refuses \"an undefined area that the coach simply points out\" and \"a feet-only goalkeeper restriction as the default for this realization\", so neither is written); a suitability for its goal (D-GOAL-SUITABILITY open); any law needing an explicit adaptation in this small-sided environment (his item 10: \"The offside question, for example, may need an explicit ruling for this small-sided environment, but we should not expand the current work into a comprehensive reconstruction of soccer's laws.\" - not filled); a positional rule for the goalkeeper (his item 6: \"I don't want to prescribe goalkeeper movement solutions through a special positioning rule.\"). OWN GOALS (his item 10, \"I agree that an own goal against the building team counts for the pressing team in the goal-based realization.\"; item 11, \"Own goals: Apply the normal soccer rule.\") need no item: a score is the ball entering the goal the pressing team's objective references, whoever touched it last (OUR READING, recorded on the scoring relationship). SHOTS GOING OUT (his item 11, \"Shots going out: The coach may conclude the episode and restart the goalkeeper's build-out under the already authorized activity structure. We do not need an additional scoring mechanism.\") are carried by A01-R1's kept items (the coach-judged conclusion A01-R1-T1-3 and the end-line restarts A01-R1-T1-6, T1-7, T4-3, T5-3); nothing is added. RESTATED 24 October 2026 (R1): his reply filed 27 October 2026, item 4 (\"I want the same restart principle for both the physical-goal and target-zone versions.\" \"Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.\" \"There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity.\"), so a shot over the goal line, and every other ball over it, takes the common restart this version inherits from A01-R1 (A01-R1-RP1-1, the out-of-play elements A01-R1-T1-8 and T1-9 and the widened restart items); the end-line restarts named above are withdrawn from A01-R1, and this version's own restart bound (A01-R2-T4-5) is widened to every dead ball and bound, in his item 6 words, to the building team's side of the marked line. A DEPARTURE, REPORTED: the pressing team's objective reference is written by the end designation (team=TEAM_AT_AXIS_END, the end the pressing role holds in both blocks under the end exchange) and not by the role, because an objective is individuated by its setup designation and a role-keyed reference does not attach (the design of 25 October 2026, Stage B; measured TEST-ONLY then). That departs from our own application of his D7 sentence in refusedDesignations (\"it narrows what this file may say\"); the designation is not one the file refuses, and GA-ROLE-EVENTS clause 4 refuses the version if the pressing role ever stood at the other end (the ends kept). RESTATED 24 October 2026 (R3): offside, named above as not filled, is answered by his reply filed 27 October 2026, item 2 (\"I approve no offside for this initial realization, with that modification communicated once to the coach.\"), recorded on A01-R1 itself and inherited here (this version states no departure on itself).",
             "testingBoundaries": {
                 "players": [11, 12],
                 "areas": [{ "lengthM": 40, "widthM": 30 }],
@@ -1469,7 +1349,7 @@
                 {
                     "id": "A01-R2-T4-5",
                     "row": "T4",
-                    "selector": "trigger ∈ {START, SCORE, COACH_JUDGED_EPISODE_CONCLUSION}",
+                    "selector": "trigger ∈ {START, SCORE, COACH_JUDGED_EPISODE_CONCLUSION, OUT_TOUCHLINE, OUT_END_LINE, INFRINGEMENT_STOPPAGE, COACH_DIRECTED_STOPPAGE}",
                     "requirement": "RANGE",
                     "value": "within the authorized deep starting environment, rather than arbitrary locations anywhere on the field",
                     "valueStatus": "REQUIRED_RANGE",
@@ -1479,11 +1359,11 @@
                     "checkability": "STRUCTURAL",
                     "structuralClause": "whole item",
                     "category": "PROVISIONAL_REALIZATION_CHOICE",
-                    "choice": "The coach chooses where the goalkeeper restarts each build-out, within the authorized deep starting environment.",
-                    "words": "This flexibility should operate within the authorized deep starting environment, rather than permit arbitrary locations anywhere on the field.",
-                    "citedAs": "his reply filed 26 October 2026, item 8",
-                    "basisEvidence": "Christian, reply filed 26 October 2026, item 8 (\"8. Goalkeeper restart — Approve Option (a)\"): \"The coach may select the goalkeeper's restart location, consistent with the intended build-out situation.\" \"This flexibility should operate within the authorized deep starting environment, rather than permit arbitrary locations anywhere on the field.\" \"The restart should recreate a representative opportunity to build possession from the back.\" \"We should not require a particular passing sequence, stationary-ball start, or predetermined distribution solution.\"",
-                    "fitNote": "A second range in words on the coach's restart location, beside A01-R1-T4-1 (kept), in place of A01-R1-T4-4 (withdrawn): still the coach's choice (COACH_DECIDES, register version 12), and no region, distance or fixed location is written. THE BINDING IS PROPOSED, NOT RULED: which element of the realization is the authorized deep starting environment is not clear from it - OUR READING, unconfirmed, would be the space the building team starts in, short of the pressure reference (A01-R1-P8-1, P10-1) - so his words are recorded as the bound and no structural reference is written until he says which element it is. No passing sequence, stationary-ball start or distribution solution is written. The goalkeeper's restart method stays from the feet (A01-R1-T5-1, kept, his 17 October D5: \"The goalkeeper may receive and play from the feet; a stationary-ball restart should not be universally required.\"): OUR READING, for his check, is that his item 8's \"predetermined distribution solution\" means what the goalkeeper does with the ball after the restart, not how the restart is taken."
+                    "choice": "The coach chooses where the goalkeeper restarts each build-out, at the start and after every dead ball, within the authorized deep starting environment: the building team's side of the marked line.",
+                    "words": "This flexibility should operate within the authorized deep starting environment, rather than permit arbitrary locations anywhere on the field. … Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out. … The building team’s side of the marked progression line is an acceptable initial restart region.",
+                    "citedAs": "his reply filed 26 October 2026, item 8; his reply filed 27 October 2026, items 4 and 6",
+                    "basisEvidence": "Christian, reply filed 26 October 2026, item 8 (\"8. Goalkeeper restart — Approve Option (a)\"): \"The coach may select the goalkeeper's restart location, consistent with the intended build-out situation.\" \"This flexibility should operate within the authorized deep starting environment, rather than permit arbitrary locations anywhere on the field.\" \"The restart should recreate a representative opportunity to build possession from the back.\" \"We should not require a particular passing sequence, stationary-ball start, or predetermined distribution solution.\" Reply filed 27 October 2026, item 4 (WIDENED 24 October 2026, R1): \"Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.\" \"I want the same restart principle for both the physical-goal and target-zone versions.\" Item 6 (\"Deep starting environment\"): \"The building team’s side of the marked progression line is an acceptable initial restart region.\" \"The coach retains flexibility within that region to create representative build-out situations.\"",
+                    "fitNote": "A second range in words on the coach's restart location, beside A01-R1-T4-1 (kept), in place of A01-R1-T4-4 (withdrawn): still the coach's choice (COACH_DECIDES, register version 12), and no region, distance or fixed location is written. THE BINDING, RULED (recorded 24 October 2026, R1): his reply filed 27 October 2026, item 6, \"The building team’s side of the marked progression line is an acceptable initial restart region.\" \"The coach retains flexibility within that region to create representative build-out situations.\" So the authorized deep starting environment is the building team's side of the marked line - the space the building team starts in, short of the pressure reference (A01-R1-P8-1, P10-1), which until then was OUR READING, put to him. His words stay a range in words, the coach's choice: no structural reference is written, as no check binds a location that names no region. WIDENED the same day to every trigger that makes the ball dead, with the kept A01-R1-T4-1 (his item 4, \"I want the same restart principle for both the physical-goal and target-zone versions.\"). No passing sequence, stationary-ball start or distribution solution is written. The goalkeeper's restart method stays from the feet (A01-R1-T5-1, kept, his 17 October D5: \"The goalkeeper may receive and play from the feet; a stationary-ball restart should not be universally required.\"): OUR READING, for his check, is that his item 8's \"predetermined distribution solution\" means what the goalkeeper does with the ball after the restart, not how the restart is taken."
                 }
             ]
         }

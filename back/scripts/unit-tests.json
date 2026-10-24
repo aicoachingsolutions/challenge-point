@@ -78,6 +78,7 @@
     "./src/system/derivation/variant-testing-area.unit.ts",
     "./src/system/derivation/default-laws.unit.ts",
     "./src/system/realization/bound-regions.unit.ts",
+    "./src/system/derivation/dead-ball-restart.unit.ts",
     "./src/system/derivation/role-blocks.unit.ts",
     "./src/system/derivation/affiliation-timing.unit.ts",
     "./src/system/derivation/practical.unit.ts",
@@ -122,5 +123,9 @@
     "./src/system/rendering/end-exchange.unit.ts",
     "./src/system/rendering/session-resources.unit.ts",
     "./src/system/rendering/goal-version-knowledge.unit.ts",
-    "./src/system/rendering/goal-version-communication.unit.ts"
+    "./src/system/rendering/goal-version-communication.unit.ts",
+    "./src/system/rendering/dead-ball-wording.unit.ts",
+    "./src/system/rendering/departed-law-wording.unit.ts",
+    "./src/system/rendering/bound-region-communication.unit.ts",
+    "./src/system/rendering/object-choices.unit.ts"
 ]

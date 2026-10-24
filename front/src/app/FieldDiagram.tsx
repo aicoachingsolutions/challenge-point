@@ -40,6 +40,17 @@
  * server's sentences (#1f2937, 14.68:1 on white), shown under the drawing; nothing moves on the drawing. The legend's three words for these
  * are the server's; its arrow swatch is #4b5563 (7.56:1 on white).
  *
+ * Stage L (24 October 2026; the d27 design's stage L(e) and (f)). A marked area that is no zone across the width (a region bound to an
+ * object, the goal version's penalty area) is drawn grey, never in the target green: a #e5e7eb fill (1.18:1 on the area, so never the only
+ * carrier; 1.02:1 against the target fill by luminance but 12.7 or more apart in Lab under every colour-vision simulation, and the two never
+ * overlap) with the markings' grey edge #6b7280 (4.63:1 on the area, 3.90:1 on the fill), and the server's label in #374151 (8.33:1 on the
+ * fill), set inside it along the edge that is on no end line. A specialized performer's marker is a pill in a third colour, a #fde047 fill
+ * with a #854d0e edge (6.56:1 on the area, 6.85:1 on white) and #1f2937 text (11.14:1 on the fill), drawn with the object it defends, just
+ * inside the area in front of it (never as a player's position: it is where the object is, in every block, whichever team the performer is
+ * with). Its fill is apart from both team colours by hue and by lightness (luminance 5.08:1 against the blue and 5.54:1 against the orange;
+ * under protanopia, deuteranopia and tritanopia, Machado 2009, at least 3.87:1 and 57 apart in Lab), so colour is never the only carrier:
+ * the pill says the performer in words, and the legend says "own colour". Measured by the stage's contrast script (l-contrast.js).
+ *
  * Landscape at 520 px of container width and over, portrait below it (the area turned upright, its first end line at the bottom). Every
  * SVG id is prefixed by React's useId, so several diagrams on one page never share an arrowhead or a title. NO NUMBER, POSITION OR WORD OF
  * THE ACTIVITY IS TYPED HERE: every one is the server's. What is typed is presentation: colours, sizes, offsets and the orientation's
@@ -68,6 +79,11 @@ const STYLE = {
     badgeFill: '#ffffff',
     badgeEdge: '#6b7280',
     badgeText: '#374151',
+    /** Stage L: a marked area's fill (grey, never the target green), and a specialized performer's marker in a third colour. */
+    areaFill: '#e5e7eb',
+    keeperFill: '#fde047',
+    keeperEdge: '#854d0e',
+    keeperText: '#1f2937',
 }
 
 /**
@@ -214,11 +230,24 @@ function BlockDrawing({ diagram, block, orientation, uid }: { diagram: CoachDiag
             return { target, entry, inward, offsetM, strip: inward > 0 ? { from: entry, to: entry + stripM } : { from: entry - stripM, to: entry } }
         })
 
-    // Each team's words, centred in the part of its starting area that no marked zone and no zone label takes.
+    // Stage L: each marked area's label, inside it along the edge on no end line (as a target zone's label sits by its entry edge).
+    const areas = block.areas ?? []
+    const areaLabels = areas
+        .filter((area) => area.label)
+        .map((area) => {
+            const atStart = area.along.from === 0
+            const entry = atStart ? area.along.to : area.along.from
+            const inward = atStart ? -1 : 1
+            const depth = area.along.to - area.along.from
+            const offsetM = Math.min(depth / 2, size.zoneOffset / S)
+            return { area, entry, inward, offsetM }
+        })
+
+    // Each team's words, centred in the part of its starting area that no marked zone, marked area and no zone label takes.
     const teamPlaces = block.teams.map((team, index) => {
         if (!team.start || !(team.noun || team.label)) return { team, index, place: null }
         let { from, to } = team.start.along
-        const takers = [...block.zones.map((zone) => zone.along), ...zoneLabels.map((label) => label.strip)]
+        const takers = [...block.zones.map((zone) => zone.along), ...areas.map((area) => area.along), ...zoneLabels.map((label) => label.strip)]
         for (const span of takers) {
             if (span.from <= from && span.to >= to) continue
             if (span.from <= from && span.to > from) from = span.to
@@ -268,9 +297,17 @@ function BlockDrawing({ diagram, block, orientation, uid }: { diagram: CoachDiag
                     </g>
                 ))}
 
-            {/* 3. The markings, the same in every block where they are set out once: zone outlines and lines; the marked line bold. */}
+            {/* Stage L: each marked area's grey fill (never the target green), under the markings. */}
+            {areas.map((area, index) => (
+                <rect key={`area-fill-${index}`} {...rect(area.along, area.across)} fill={STYLE.areaFill} />
+            ))}
+
+            {/* 3. The markings, the same in every block where they are set out once: zone and area outlines and lines; the marked line bold. */}
             {block.zones.map((zone, index) => (
                 <rect key={`zone-${index}`} {...rect(zone.along, zone.across)} fill='none' stroke={STYLE.marking} strokeWidth={1.5} />
+            ))}
+            {areas.map((area, index) => (
+                <rect key={`area-${index}`} {...rect(area.along, area.across)} fill='none' stroke={STYLE.marking} strokeWidth={1.5} />
             ))}
             {block.lines.map((line, index) => {
                 const [x1, y1] = P(line.along.from, line.across.from)
@@ -371,6 +408,49 @@ function BlockDrawing({ diagram, block, orientation, uid }: { diagram: CoachDiag
                     <text key={`object-label-${index}`} x={x} y={y + size.tiny + 2} fontSize={size.tiny} fill={STYLE.zoneText} textAnchor='middle'>
                         {object.label}
                     </text>
+                )
+            })}
+
+            {/* Stage L: each marked area's label, in neutral text, inside it along the edge on no end line (lying down it runs along that edge). */}
+            {areaLabels.map(({ area, entry, inward, offsetM }, index) => {
+                const [x, y] = P(entry + inward * offsetM, (area.across.from + area.across.to) / 2)
+                return (
+                    <text
+                        key={`area-label-${index}`}
+                        x={x}
+                        y={y}
+                        fontSize={size.tiny}
+                        fontWeight={600}
+                        fill={STYLE.zoneText}
+                        textAnchor='middle'
+                        dominantBaseline='central'
+                        transform={landscape ? `rotate(-90 ${x} ${y})` : undefined}
+                    >
+                        {area.label}
+                    </text>
+                )
+            })}
+            {/*
+              * Stage L: each specialized performer's marker, a pill in its own colour drawn with the object it defends: for an object on an end
+              * line, just inside the area in front of the object's own label (lying down it runs along the end line); for any other object,
+              * beside it. Presentation offsets only, never a position of the activity.
+              */}
+            {(block.keepers ?? []).map((keeper, index) => {
+                const pillH = size.tiny + 7
+                const pillW = textWidth(keeper.label, size.tiny) + 14
+                const end = endLineOf(keeper.along)
+                const [cx, cy] =
+                    end !== null
+                        ? P(end + ((end === 0 ? 1 : -1) * (size.tiny + 4 + size.tiny / 2 + 6 + pillH / 2)) / S, (keeper.across.from + keeper.across.to) / 2)
+                        : P((keeper.along.from + keeper.along.to) / 2, keeper.across.to + (pillH + 6) / S)
+                const rotate = landscape && end !== null ? `rotate(-90 ${cx} ${cy})` : undefined
+                return (
+                    <g key={`keeper-${index}`} transform={rotate}>
+                        <rect x={cx - pillW / 2} y={cy - pillH / 2} width={pillW} height={pillH} rx={pillH / 2} fill={STYLE.keeperFill} stroke={STYLE.keeperEdge} strokeWidth={1.2} />
+                        <text x={cx} y={cy} fontSize={size.tiny} fontWeight={600} fill={STYLE.keeperText} textAnchor='middle' dominantBaseline='central'>
+                            {keeper.label}
+                        </text>
+                    </g>
                 )
             })}
 
@@ -567,6 +647,9 @@ function Legend({ diagram }: { diagram: CoachDiagram }) {
             )
         if (kind === 'TARGET_LINE') return <line x1={1} y1={7} x2={25} y2={7} stroke={STYLE.targetLine} strokeWidth={4} />
         if (kind === 'STARTING_AREA') return <rect x={1.5} y={1.5} width={23} height={11} rx={3} fill='none' stroke={STYLE.outline} strokeWidth={1.4} strokeDasharray='5 3' />
+        // Stage L: a marked area as on the field (grey fill, grey edge), and a specialized performer's marker colour (its pill).
+        if (kind === 'MARKED_AREA') return <rect x={1.5} y={1.5} width={23} height={11} fill={STYLE.areaFill} stroke={STYLE.marking} strokeWidth={1.4} />
+        if (kind === 'KEEPER') return <rect x={1.5} y={2} width={23} height={10} rx={5} fill={STYLE.keeperFill} stroke={STYLE.keeperEdge} strokeWidth={1.2} />
         return null
     }
     return (

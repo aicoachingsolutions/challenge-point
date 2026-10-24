@@ -29,8 +29,8 @@
    "by": "Christian",
    "ruledOn": "2026-10-26"
   },
-  "restates": "deliberatelyNotContributed[0], with his authority (item 10): no law is authored as an item or a line of the game; the Laws are named as the default, and the laws below are listed only because each can fail to apply in a modified environment.",
-  "note": "Added 23 October 2026 (H2, the d26 design's build step 2, its section 3.2). A declaration, never items: his item 10 excludes reconstructing the laws as representation. Only the laws that can fail to apply in a modified environment and matter for the two build-out realizations are listed; every other law applies by default and is not listed. Each law's preconditions are written in the engine's closed, sport-neutral predicate vocabulary (back/src/system/derivation/default-laws.ts): applicableWhen says when the law can apply at all, requires what it needs to apply directly. The law ids, the names and the 'penalty-area' token are ours (DRAFT); the facts are cited by IFAB law number. An activity's provisional realization records its departures on its own items (departsFrom) and declares how strictly its activity is held (defaultLawsCheck); the account is computed after realization and shown to an administrator (back/src/system/realization/default-laws-check.ts). The five decisions of the note sent to him (the goal and the penalty area, the same-source pairing rule, offside, penalty kicks, the goal line, handling in the zone version) are his and are not filled here.",
+  "restates": "deliberatelyNotContributed[0], with his authority (item 10): no law is authored as an item or a line of the game; the Laws are named as the default, and the laws below are listed only because each can fail to apply in a modified environment. AMENDED 24 October 2026 (R1): or, listed for DEPARTURE, only because an activity departs from it.",
+  "note": "Added 23 October 2026 (H2, the d26 design's build step 2, its section 3.2). A declaration, never items: his item 10 excludes reconstructing the laws as representation. Only the laws that can fail to apply in a modified environment and matter for the two build-out realizations are listed; every other law applies by default and is not listed. Each law's preconditions are written in the engine's closed, sport-neutral predicate vocabulary (back/src/system/derivation/default-laws.ts): applicableWhen says when the law can apply at all, requires what it needs to apply directly. The law ids, the names and the 'penalty-area' token are ours (DRAFT); the facts are cited by IFAB law number. An activity's provisional realization records its departures on its own items (departsFrom) and declares how strictly its activity is held (defaultLawsCheck); the account is computed after realization and shown to an administrator (back/src/system/realization/default-laws-check.ts). The five decisions of the note sent to him (the goal and the penalty area, the same-source pairing rule, offside, penalty kicks, the goal line, handling in the zone version) are his and are not filled here. AMENDED 24 October 2026 (R1, the d27 design's section 2.6): each law says why it is listed (listedFor: ADAPTATION, a law that can fail to apply in a modified environment, which names the preconditions it needs; or DEPARTURE, a law listed only so an activity can record that it departs from it, which may need nothing to apply) and whether it is a law of how play restarts (restart, read by the account where a game holds the common dead-ball restart of register row RP1). Three laws are listed for DEPARTURE beside the six (LAW-8-DB, LAW-13, LAW-15), for his reply filed 27 October 2026, items 3 and 4 (\"There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity.\"), so every restart his common restart replaces is departed from explicitly (his reply filed 26 October 2026, item 10: \"The governing principle is to inherit established sport rules and explicitly define only the necessary departures.\"). Penalty kicks and the ball over the goal line (decisions 3 and 4) are answered for the build-out activity by those items; offside (decision 2) is answered by his item 2 and is not carried here; the goal and its penalty area (decision 1) and handling in the zone version (his item 5) are not filled here. AMENDED 24 October 2026 (R3, the d27 design's stage R3, its section 2.6): offside is now carried, as a departure an activity's realization records on itself (a law it removes without replacing it, so no item carries it), never here; an activity's realization records its departures on its own items or, for such a law, on itself.",
   "laws": [
    {
     "id": "LAW-8",
@@ -39,7 +39,20 @@
     "scope": "GAME",
     "applicableWhen": [],
     "requires": [{ "predicate": "UNREPRESENTED", "what": "the centre mark a kick-off is taken from: no register row holds it" }],
-    "note": "Only the kick-off is listed (the d26 design's section 3.2); the dropped ball of Law 8.2 is not."
+    "note": "Only the kick-off is listed under this id (the d26 design's section 3.2). AMENDED 24 October 2026 (R1): the dropped ball of Law 8.2 is listed apart, as LAW-8-DB, so a departure from the kick-off stays a departure from the kick-off alone.",
+    "listedFor": "ADAPTATION",
+    "restart": true
+   },
+   {
+    "id": "LAW-8-DB",
+    "cites": "Law 8 (The Start and Restart of Play), 8.2 the dropped ball",
+    "name": "the dropped ball",
+    "scope": "GAME",
+    "applicableWhen": [],
+    "requires": [],
+    "note": "Listed 24 October 2026 (R1, the d27 design's section 2.6) only so an activity can record that it departs from it: the restart the Laws give where play is stopped and no other restart applies (IFAB Law 8.2), the case of a stoppage the coach makes. Kept apart from LAW-8, the kick-off. His reply filed 27 October 2026, item 4: \"Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.\" \"A coach-directed stoppage.\" The id and the name are ours (DRAFT).",
+    "listedFor": "DEPARTURE",
+    "restart": true
    },
    {
     "id": "LAW-11",
@@ -48,7 +61,9 @@
     "scope": "GAME",
     "applicableWhen": [],
     "requires": [{ "predicate": "UNREPRESENTED", "what": "a fixed halfway line: no register row holds the halfway line of Law 1, and the build-out activities' only halfway marking is the marked line the coach may move" }],
-    "note": "Decision 2 of the note sent to him (offside, both versions) answers it; until he decides, nothing departs from it."
+    "note": "Decision 2 of the note sent to him (offside, both versions) answers it; until he decides, nothing departs from it. AMENDED 24 October 2026 (R3, the d27 design's stage R3): answered for the build-out activity, his reply filed 27 October 2026, item 2: \"I approve no offside for this initial realization, with that modification communicated once to the coach.\" Nothing in the activity's game replaces the law, so the departure is recorded on the realization itself (A01-R1, departsFrom beside its items; the goal version A01-R2 inherits it); that it covers the zone version too is OUR READING, disclosed to him.",
+    "listedFor": "ADAPTATION",
+    "restart": false
    },
    {
     "id": "LAW-12-GK",
@@ -57,6 +72,8 @@
     "scope": "GAME",
     "applicableWhen": [{ "predicate": "SPECIALIZED_PERFORMER_PRESENT", "row": "P3" }],
     "requires": [{ "predicate": "REGION_BOUND_TO_OBJECT", "function": "penalty-area", "kind": "goal" }],
+    "listedFor": "ADAPTATION",
+    "restart": false,
     "note": "His reply filed 26 October 2026, item 7: \"The goalkeeper's handling permissions and restrictions should follow the normal Laws of the Game within that area unless an authorized activity rule explicitly changes them.\" The region-function token 'penalty-area' is ours (DRAFT); since 23 October 2026 (H3, register version 21) it is a member of the register's region-function list, and the boundRegions block below binds it to a defended goal, with the regulation pairing alone authorized. The penalty area's geometry for any other goal is decision 1 of the note sent to him, and handling in the zone version is decision 5. Where a goalkeeper plays and no penalty area exists, the law's purpose remains, so an adaptation is owed."
    },
    {
@@ -69,7 +86,31 @@
      { "predicate": "REGION_BOUND_TO_OBJECT", "function": "penalty-area", "kind": "goal" },
      { "predicate": "BOUND_REGION_MARK", "function": "penalty-area" }
     ],
-    "note": "Decision 3 of the note sent to him (penalty kicks) answers it at an end where a goal stands."
+    "note": "Decision 3 of the note sent to him (penalty kicks) answers it at an end where a goal stands. AMENDED 24 October 2026 (R1): answered for the build-out activity, his reply filed 27 October 2026, item 3: \"Although penalties are authentic parts of soccer, they shift attention toward a different performance problem.\" \"For this activity, a dead ball should result in a new goalkeeper-initiated build-out, not a penalty kick or another set-piece restart.\" \"The penalty-area specification may include a penalty spot, but this activity does not need to mark or use it.\" An activity holding his common restart departs from it (A01-R1-RP1-1).",
+    "listedFor": "ADAPTATION",
+    "restart": true
+   },
+   {
+    "id": "LAW-13",
+    "cites": "Law 13 (Free Kicks)",
+    "name": "the free kick",
+    "scope": "GAME",
+    "applicableWhen": [],
+    "requires": [],
+    "note": "Listed 24 October 2026 (R1, the d27 design's section 2.6) only so an activity can record that it departs from it: the restart after a foul or another infringement (IFAB Law 13). His reply filed 27 October 2026, item 3: \"If a foul or infringement requires a stoppage, the coach addresses it appropriately and restarts the build-out.\" \"Normal expectations for safe and fair play remain in effect. We are simplifying the restart, not disregarding fouls or player safety.\" A departure from it departs from the restart only: what is a foul stays the law's. The id and the name are ours (DRAFT).",
+    "listedFor": "DEPARTURE",
+    "restart": true
+   },
+   {
+    "id": "LAW-15",
+    "cites": "Law 15 (The Throw-in)",
+    "name": "the throw-in",
+    "scope": "GAME",
+    "applicableWhen": [],
+    "requires": [],
+    "note": "Listed 24 October 2026 (R1, the d27 design's section 2.6) only so an activity can record that it departs from it: the restart after the ball passes over a touchline (IFAB Law 15). His reply filed 27 October 2026, item 4: \"There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity.\" The id and the name are ours (DRAFT).",
+    "listedFor": "DEPARTURE",
+    "restart": true
    },
    {
     "id": "LAW-16",
@@ -78,7 +119,9 @@
     "scope": "PER_END",
     "applicableWhen": [{ "predicate": "OBJECT_OF_KIND_AT_END", "kind": "goal" }],
     "requires": [{ "predicate": "UNREPRESENTED", "what": "the goal area a goal kick is taken from (Law 1.5): his reply filed 26 October 2026, item 12, lists only the physical goal, the marked progression reference and whatever penalty-area marking handling needs" }],
-    "note": "Decision 4 of the note sent to him (the ball over the building team's goal line) answers it at an end where a goal stands."
+    "note": "Decision 4 of the note sent to him (the ball over the building team's goal line) answers it at an end where a goal stands. AMENDED 24 October 2026 (R1): answered for the build-out activity, his reply filed 27 October 2026, item 4: \"There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity.\" An activity holding his common restart departs from it (A01-R1-RP1-1).",
+    "listedFor": "ADAPTATION",
+    "restart": true
    },
    {
     "id": "LAW-17",
@@ -87,7 +130,9 @@
     "scope": "PER_END",
     "applicableWhen": [{ "predicate": "OBJECT_OF_KIND_AT_END", "kind": "goal" }],
     "requires": [],
-    "note": "Decision 4 of the note sent to him answers it at an end where a goal stands."
+    "note": "Decision 4 of the note sent to him answers it at an end where a goal stands. AMENDED 24 October 2026 (R1): answered for the build-out activity, his reply filed 27 October 2026, item 4: \"There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity.\" An activity holding his common restart departs from it (A01-R1-RP1-1).",
+    "listedFor": "ADAPTATION",
+    "restart": true
    }
   ]
  },

@@ -1003,7 +1003,12 @@ test('the corpus run reproduces the reported figures exactly', () => {
      * bound to, owned by the regions row. The corpus holds six region classes, so six lines, each unauthored and unspoken: no corpus item
      * binds a region to an object, so no region is bound. Nothing resolves and nothing blocks.
      */
-    assert.equal(result.run.counts.lines, 149)
+    /**
+     * **150 since 24 October 2026 (R1)**: register version 23 (his reply filed 27 October 2026, item 4) adds the game-level row RP1, how play
+     * restarts after a dead ball. One game-level row, one line (game::RP1), as B10 added one; no corpus item writes it, so it is unauthored
+     * and unspoken and the game keeps a restart per trigger (absent means PER_TRIGGER). Nothing resolves and nothing blocks.
+     */
+    assert.equal(result.run.counts.lines, 150)
     /**
      * **61, up from 59.** The same restatement establishes `perceptual-reference` on BOTH channels rather
      * than on a third region of its own, so two S4 lines now resolve where none did. The functions rows
@@ -1076,9 +1081,12 @@ test('the corpus run reproduces the reported figures exactly', () => {
     // **36 since H3, 23 October 2026 (register version 21).** Row S7 (the object a region is bound to) on each of the corpus's six region
     // classes: no item binds one, so each line is unauthored and unspoken ('no coverage') and the region is bound to nothing; it blocks
     // nothing (GA-BOUND-REGION reads a silent line as no binding).
-    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 36)
+    // **37 since R1, 24 October 2026 (register version 23).** The game-level row RP1 (how play restarts after a dead ball): no corpus item
+    // writes it, so game::RP1 is unauthored and unspoken ('no coverage'), and the game keeps a restart per trigger; it blocks nothing
+    // (GA-DEAD-BALL-RESTART is vacuous where nothing writes the policy).
+    assert.equal(result.run.counts['verdict:NOT_AUTHORED'], 37)
     assert.equal(result.failures.filter((f: any) => f.kind === 'REFERENCE_DEFECT').length, 0, 'cluster 3 cleared the whole population')
-    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 36, 'one GAP per unauthored line, and none for a withdrawn one -- 36 since H3 (S7), tracking the NOT_AUTHORED count above')
+    assert.equal(result.failures.filter((f: any) => f.kind === 'GAP').length, 37, 'one GAP per unauthored line, and none for a withdrawn one -- 37 since R1 (RP1), tracking the NOT_AUTHORED count above')
     // 17 since C33: the removed third region took its one open S5 line (a channel along-extent) with it.
     // **18 since ruling C42.** The two new target regions each bring an open across-extent and an open noun,
     // and the retired shared target took its two with it, so the balance is one more than before.
@@ -1253,7 +1261,11 @@ test('the twenty-one Gate A checks are all present, and GA-RESIDUAL-SPACE is gon
     // Twenty-one since 22 October 2026 (stage A, register version 16): GA-ROLE-EVENTS checks that one primary scoring event per role is
     // coherent and compatible (his reply filed 25 October 2026, item 2: "The engine should verify that the objectives are coherent and
     // compatible rather than simply allow any combination of scoring events."). See role-events.unit.ts.
-    assert.equal(ids.length, 21)
+    // Twenty-two since 24 October 2026 (R1, register version 23): GA-DEAD-BALL-RESTART checks that every dead ball restarts play the one
+    // way where a game's restart policy is the common one (his reply filed 27 October 2026, item 4: "Please ensure this is represented
+    // through a general, knowledge-authorized restart mechanism rather than activity-specific code."). See dead-ball-restart.unit.ts.
+    assert.equal(ids.length, 22)
+    assert.ok(ids.includes('GA-DEAD-BALL-RESTART'))
     assert.ok(ids.includes('GA-ROLE-EVENTS'))
     assert.ok(ids.includes('GA-PARTICIPANTS-PRESENT'))
     assert.ok(ids.includes('GA-RELATIVE-PLACEMENT'))

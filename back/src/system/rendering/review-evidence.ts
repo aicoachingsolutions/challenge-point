@@ -43,6 +43,8 @@ import { along, asList, container, creditOf, eventKindOf, genericOf, holderOf, m
 import type { OverviewEvidence } from './overview-fidelity'
 import { layoutNumbersAt, MARK_ONCE_RULE, remarkingPlaceAt } from './physical-layout'
 import { Instruction, RenderedActivity, wordedFieldRows } from './render-concrete-game'
+import { appliedLawWordings, draftCoachWordingLoad } from './draft-coach-wording'
+import { APPLIED_LAWS_ROOT, BOUND_REGIONS_ROOT, DEFAULT_LAWS_OWED, DEFAULT_LAWS_ROOT, fixtureBoundRegion, fixtureLawAccount } from './rendering-fixture'
 import type { RoleBlockCheck } from './role-blocks'
 import { SectionLabel, sectionLabelsOf } from './sections'
 import type { ActivitySession } from './session-envelope'
@@ -443,7 +445,7 @@ function boundingItemsOf(path: string, block: EvidenceBlock, index: RegisterInde
  */
 const inBlock = (block: EvidenceBlock): string => (Object.keys(block.holders ?? {}).length ? `block ${block.blockId}: ` : '')
 
-function sourcesOf(path: string, block: EvidenceBlock, items: Map<string, any>, adjustments: Map<string, any>, relationships: Map<string, any>, index: RegisterIndex): EvidenceSource[] {
+function sourcesOf(path: string, block: EvidenceBlock, items: Map<string, any>, adjustments: Map<string, any>, relationships: Map<string, any>, index: RegisterIndex, account: DefaultLawsAccount | null = null): EvidenceSource[] {
     const status = block.fixture?.status ?? {}
     const generic = genericOf(path)
     const found: EvidenceSource[] = []
@@ -522,6 +524,53 @@ function sourcesOf(path: string, block: EvidenceBlock, items: Map<string, any>, 
         found.push({ layer: 'GENERAL_ENGINE_MECHANISM', standing: 'OUR_READING', ref: "markings that move at the exchange (every block's realized edges compared)", detail: `${inBlock(block)}${path}${place ? (place.at === null ? ' = no such mark here' : ` = ${place.at} m`) : ''}` })
     }
     if (path.startsWith('envelope.')) found.push({ layer: 'SESSION_INPUT', standing: 'SESSION', ref: 'session', detail: path })
+    /**
+     * **A law of the game's default-laws account** (R3, 24 October 2026; `rendering-fixture.ts` `defaultLawPath`): the Sport Profile's naming
+     * of the sport's laws as the default, on his authority, with the law's status at each place in this block as the fixture carries it; and
+     * each departure the administrator's account cites for it in this block (an item, or the realization that records it on itself), with
+     * where his words for it are filed. Read from the account the build computed, the block found by its id (or the one block of a game not
+     * played in blocks).
+     */
+    /**
+     * **The account as owing nothing** (stage L, 24 October 2026; `rendering-fixture.ts` `DEFAULT_LAWS_OWED`): the sentence telling the coach
+     * the sport's normal rules apply otherwise rests on the account owing nothing in this block, on the Sport Profile's authority, and on the
+     * DRAFT wording data's words for it (his words, where they are filed).
+     */
+    if (path === DEFAULT_LAWS_OWED) {
+        const here = fixtureLawAccount(block.fixture) ?? []
+        const owed = here.filter(entry => entry.status === 'ADAPTATION_OWED').map(entry => entry.law)
+        if (account) found.push({ layer: 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS', standing: 'APPROVED', ref: `the sport's normal laws as the default (${account.source.authority.citedAs})`, detail: `${inBlock(block)}${owed.length ? `owes ${[...new Set(owed)].join(', ')}` : `owes nothing (${here.length} entries)`}` })
+        const normal = draftCoachWordingLoad().wording.normalLaws
+        if (normal) found.push({ layer: 'ACTIVITY_REALIZATION_CHOICE', standing: 'PROVISIONAL', ref: 'DRAFT normal-rules sentence', detail: normal.basis.citedAs })
+        return found
+    }
+    /**
+     * **The pairing a bound region's figures come from** (stage L; `rendering-fixture.ts` `boundRegionPath`): the entry of the Sport Profile's
+     * bound-region block the build checked the region against, named with its document, citation and authority, and what the cited leaf
+     * holds in this block.
+     */
+    if (path.startsWith(`${BOUND_REGIONS_ROOT}.`)) {
+        const head = `${BOUND_REGIONS_ROOT}.regions[`
+        const id = path.startsWith(head) ? path.slice(head.length, path.indexOf(']', head.length)) : ''
+        const pairing = fixtureBoundRegion(block.fixture, id)?.pairing ?? null
+        if (pairing) {
+            found.push({ layer: 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS', standing: 'APPROVED', ref: `pairing ${pairing.id} (${pairing.document}, ${pairing.citedAs})`, detail: `${inBlock(block)}${pairing.region.function} ${pairing.region.widthM} m wide by ${pairing.region.depthM} m deep, with a ${pairing.object.kind} ${pairing.object.widthM} m wide; authority: ${pairing.authority.citedAs}` })
+        }
+        return found
+    }
+    if (path.startsWith(`${DEFAULT_LAWS_ROOT}.`)) {
+        const law = path.slice(path.indexOf('[') + 1, path.indexOf(']'))
+        const here = (fixtureLawAccount(block.fixture) ?? []).filter(entry => entry.law === law)
+        const accountBlock = account ? (account.blocks.find(entry => entry.blockId === block.blockId) ?? (account.blocks.length === 1 ? account.blocks[0] : null)) : null
+        const entries = (accountBlock?.laws ?? []).filter(entry => entry.law === law)
+        if (account) found.push({ layer: 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS', standing: 'APPROVED', ref: `the sport's normal laws as the default (${account.source.authority.citedAs})`, detail: `${inBlock(block)}${law}${entries[0] ? ` (${entries[0].cites})` : ''}: ${here.map(entry => `${entry.end === null ? 'the game' : `end ${entry.end}`} ${entry.status}`).join(', ') || 'not in this block\'s account'}` })
+        for (const citation of entries.flatMap(entry => entry.departedBy)) found.push({ layer: 'ACTIVITY_REALIZATION_CHOICE', standing: 'PROVISIONAL', ref: `departure recorded by ${citation.item} (${citation.extent})`, detail: citation.basis.citedAs })
+        // Stage L: a law cited as applied, with the DRAFT clauses written for what it gives the coach (his words, where they are filed).
+        if (path.startsWith(`${APPLIED_LAWS_ROOT}[`)) {
+            const clauses = appliedLawWordings().find(entry => entry.law === law)
+            for (const clause of [clauses?.inRegion, clauses?.distinguished].filter(Boolean)) found.push({ layer: 'ACTIVITY_REALIZATION_CHOICE', standing: 'PROVISIONAL', ref: `DRAFT clause for ${law}`, detail: `${clause!.basis.citedAs}${clause!.also ? `; also ${clause!.also}` : ''}` })
+        }
+    }
     if (!found.length) {
         // The element's own establishing item: every element id names the item that established it.
         const first = segmentsOf(path).find(s => s.id)
@@ -568,7 +617,8 @@ const STRUCTURE_CHECKS: Record<'playerTotals' | 'spatial' | 'scoring' | 'restart
     spatial: ['GA-ENVELOPE-FIT', 'GA-LAYOUT-FEASIBLE', 'GA-DIRECTION', 'GA-RELATIVE-PLACEMENT', 'GA-REGION-FUNCTION'],
     // GA-ROLE-EVENTS (22 October 2026, stage A, his reply filed 25 October 2026, item 2): how each team scores, so scoring.
     scoring: ['GA-ONE-PRIMARY-EVENT', 'GA-ROLE-EVENTS', 'GA-OBJECTIVE-SETS', 'GA-REFERENCE-INTEGRITY', 'GA-EPISODE-REACHABLE', 'GA-MODIFIER-OVERLAP', 'GA-EFFECT-TYPED', 'GA-INFORMATION', 'GA-TIME-WINDOWS'],
-    restarts: ['GA-TRANSITION-COHERENCE', 'GA-TRIGGER-REACHABLE', 'GA-TRIGGER-UNIQUE', 'GA-EPISODE-REACHABLE'],
+    // GA-DEAD-BALL-RESTART (24 October 2026, R1, his reply filed 27 October 2026, item 4): one restart for every dead ball, so restarts.
+    restarts: ['GA-TRANSITION-COHERENCE', 'GA-TRIGGER-REACHABLE', 'GA-TRIGGER-UNIQUE', 'GA-EPISODE-REACHABLE', 'GA-DEAD-BALL-RESTART'],
 }
 
 /** A check as the report shows it: its verdict, how many clauses it ran, the vacuous ones by name, and every clause that did not pass. */
@@ -663,7 +713,7 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
             return [{ block, from: counterpart ? counterpart.from : instruction.from }]
         })
     const instructions: InstructionEvidence[] = composed.instructions.map((instruction: Instruction, i) => {
-        const sources = dedupe(citedIn(instruction).flatMap(({ block, from }) => from.flatMap(path => sourcesOf(path, block, blockItems[blocks.indexOf(block)], adjustments, relationships, index))))
+        const sources = dedupe(citedIn(instruction).flatMap(({ block, from }) => from.flatMap(path => sourcesOf(path, block, blockItems[blocks.indexOf(block)], adjustments, relationships, index, input.defaultLaws ?? null))))
         const { wording, source } = detailsWordingOf(instruction.text, said)
         return {
             index: i,
@@ -715,7 +765,7 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
     for (const path of withheld) for (const block of blocks) note(path, block.blockId)
     const untraced: string[] = []
     const elements: ElementProvenance[] = [...paths.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([path, where]) => {
-        const sources = dedupe(blocks.filter(block => where.has(block.blockId)).flatMap(block => sourcesOf(path, block, blockItems[blocks.indexOf(block)], adjustments, relationships, index)))
+        const sources = dedupe(blocks.filter(block => where.has(block.blockId)).flatMap(block => sourcesOf(path, block, blockItems[blocks.indexOf(block)], adjustments, relationships, index, input.defaultLaws ?? null)))
         if (withheld.includes(path)) sources.push({ layer: 'GENERAL_ENGINE_MECHANISM', standing: 'GAP', ref: 'awaiting approved wording', detail: `row ${rowAt(path) ?? '?'}: no approved sentence says it yet` })
         if (!sources.length) untraced.push(path)
         return { path, row: rowAt(path), blocks: [...where].sort(), layers: layersOf(sources), standings: standingsOf(sources), sources }

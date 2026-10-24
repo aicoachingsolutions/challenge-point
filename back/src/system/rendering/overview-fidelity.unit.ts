@@ -114,7 +114,15 @@ const entryOf = (id: string): ApprovedWording => approvedWording().find(entry =>
 const W1 = entryOf('A01-W1')
 const W2 = entryOf('A01-W2')
 const W3 = entryOf('A01-W3')
-const DETAILS_10 = "The building team's goalkeeper restarts play: at the start, after either team scores and whenever you decide that an attack has run its course (at a stoppage or while play is on)"
+// Re-pointed 24 October 2026 (R1, DRAFT): the ball going out and the coach's two other stoppages join the restart moments (his reply filed
+// 27 October 2026, item 4). Was: "... at the start, after either team scores and whenever you decide that an attack has run its course (at a
+// stoppage or while play is on)".
+// Re-pointed 24 October 2026 (R2, DRAFT, the d27 design's section 2.8): the common restart said as one rule. Was (R1): "The building team's
+// goalkeeper restarts play: at the start, after either team scores, whenever the ball goes out of play, whenever you decide that an attack has
+// run its course (at a stoppage or while play is on), whenever you stop play for a foul and whenever you stop play for any other reason".
+const DETAILS_10 = "The building team's goalkeeper starts play, and restarts it whenever the ball is dead: after either team scores, whenever the ball goes out of play, whenever you stop play for a foul, when you judge that an attack has run its course, and whenever you stop play for any other reason"
+/** R2: the overview's statement of the common restart (DEAD_BALL_RESTART, ESSENTIAL, PROPOSED), Details 10 cut before its moments. */
+const OVERVIEW_RESTART = "The building team's goalkeeper starts play, and restarts it whenever the ball is dead."
 const DETAILS_14 = 'Pressing team: Score by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside'
 const DETAILS_16 = 'Each score is worth 1 point'
 /** The BUILD PLAN's EXPECTED PRESENTATION, overview sentences 4-8 as written there. */
@@ -124,7 +132,10 @@ const OVERVIEW_7 = 'Pressing team: Score by getting the ball under control into 
 const OVERVIEW_8 = 'The pressing team also scores by winning the ball inside that zone, provided it genuinely establishes possession.'
 /** His second sentence of the building rule: since stage 3F the overview's statement of the build-out origin. */
 const W1_S2 = "The progression must begin with the goalkeeper's build-out and occur before the building team loses possession."
-/** Sentence 6 as the composer cuts it from Details 10 (stage 3E): Details 10's own words up to the bracketed aside, no word added or changed. */
+/**
+ * Sentence 6 as the composer cut it from Details 10 (stage 3E) until R1: Details 10's own words up to the bracketed aside. Since R1 (24
+ * October 2026) the aside no longer closes Details 10, so no cut gives it; the overview never says it.
+ */
 const OVERVIEW_6_CUT = "The building team's goalkeeper restarts play: at the start, after either team scores and whenever you decide that an attack has run its course."
 /** His illustrative building line (reply filed 22 October 2026, item 5): "illustrative wording for evaluation, not a new canonical knowledge entry". */
 const HIS_BUILDING_LINE = 'The building team scores by progressing beyond the line under control.'
@@ -179,29 +190,35 @@ test('T1. the A01 overview agrees with Details in both blocks and is served to c
         // the regain clause's "that zone" right after the pressing team's line naming it); the restart moments behind the building team's
         // own pointer; "Each score is worth 1 point", every team's, once after the groups. Was (stage 3F): both leads, then the three
         // qualifications, then both pointers.
+        // Re-pointed 24 October 2026 (R2, his reply filed 27 October 2026, item 4: "This is the most important clarification."): the common
+        // restart is stated under the building team (DEAD_BALL_RESTART, ESSENTIAL, PROPOSED), Details 10 cut before its moments, the line
+        // carrying the pointer to them. Was: no line, and the pointer to Details 10 under the building team.
         assert.deepEqual(
             admin.overview!.scoring.groups.map(group => [group.label, group.lines.map(line => line.text), group.fullRules.map(pointer => [pointer.section, pointer.text])]),
             [
-                ['Building team', [OVERVIEW_4, W1_S2, OVERVIEW_5], [['How it works', DETAILS_10]]],
+                ['Building team', [OVERVIEW_4, W1_S2, OVERVIEW_5, OVERVIEW_RESTART], []],
                 ['Pressing team', [OVERVIEW_7, OVERVIEW_8], []],
             ],
             what,
         )
+        assert.deepEqual(admin.overview!.scoring.groups[0].lines[3].fullRule, { label: FULL_RULE_LABEL, section: 'How it works', text: DETAILS_10 }, what)
         assert.deepEqual(admin.overview!.scoring.fullRules.map(pointer => [pointer.section, pointer.text]), [['How to score', DETAILS_16]], what)
         assert.ok(admin.overview!.game.indexOf('building team') < admin.overview!.game.indexOf('pressing team'), `${what}: the game sentence names the teams in the groups' order`)
-        assert.deepEqual(first.groups.map(group => group.sentences.map(sentence => sentence.form)), [['EXTRACT', 'EXTRACT', 'WHOLE'], ['SHORTENING', 'EXTRACT']], what)
+        assert.deepEqual(first.groups.map(group => group.sentences.map(sentence => sentence.form)), [['EXTRACT', 'EXTRACT', 'WHOLE', 'SHORTENING'], ['SHORTENING', 'EXTRACT']], what)
         assert.deepEqual(lines(admin.overview).map(line => line.text).sort(), first.groups.flatMap(g => g.sentences.map(s => s.text)).sort(), what)
     }
     // With a TEST-ONLY reading of the same covers (naming no record): the same words, with their statuses; it agrees under that reading.
     assertPasses(readCheck(READ_DRAFT), 'TEST-ONLY reading')
     for (const block of READ_DRAFT.scoring.blocks) {
         const [building, pressing] = block.groups
-        assert.deepEqual(texts(building), [OVERVIEW_4, W1_S2, OVERVIEW_5])
+        // Re-pointed 24 October 2026 (R2): and the common restart's line, DRAFT, a qualification under the building team.
+        assert.deepEqual(texts(building), [OVERVIEW_4, W1_S2, OVERVIEW_5, OVERVIEW_RESTART])
         assert.deepEqual(texts(pressing), [OVERVIEW_7, OVERVIEW_8])
-        assert.deepEqual([...building.sentences, ...pressing.sentences].map(s => s.wording), ['DERIVED_FROM_APPROVED', 'DERIVED_FROM_APPROVED', 'APPROVED', 'DRAFT', 'DERIVED_FROM_APPROVED'])
-        assert.deepEqual([...building.sentences, ...pressing.sentences].map(s => s.place), ['LEAD', 'QUALIFICATION', 'QUALIFICATION', 'LEAD', 'QUALIFICATION'])
-        // The restart moments: no sentence of the overview; a pointer to Details 10.
-        assert.ok(!texts(building).includes(OVERVIEW_6_CUT) && building.fullRules.some(pointer => pointer.text === DETAILS_10))
+        assert.deepEqual([...building.sentences, ...pressing.sentences].map(s => s.wording), ['DERIVED_FROM_APPROVED', 'DERIVED_FROM_APPROVED', 'APPROVED', 'DRAFT', 'DRAFT', 'DERIVED_FROM_APPROVED'])
+        assert.deepEqual([...building.sentences, ...pressing.sentences].map(s => s.place), ['LEAD', 'QUALIFICATION', 'QUALIFICATION', 'QUALIFICATION', 'LEAD', 'QUALIFICATION'])
+        // The restart moments: no sentence of the overview; a pointer to Details 10, carried by the common restart's line (R2; was: by the group).
+        assert.ok(!texts(building).includes(OVERVIEW_6_CUT) && building.sentences.some(sentence => sentence.fullRule?.text === DETAILS_10))
+        assert.ok(!building.fullRules.some(pointer => pointer.text === DETAILS_10))
     }
 })
 
@@ -505,9 +522,10 @@ test('T17. the restart moments left out with no pointer are refused; said, where
     // Re-pointed 22 October 2026 (stage 3F, his reply filed 23 October 2026, item 6): the restart moments are restart procedure (DETAIL, the
     // PROPOSED table), so the overview points to Details 10 for them, and dropping that pointer is a silent omission. Was: omitting the
     // restart cut, ESSENTIAL.
+    // Re-pointed 24 October 2026 (R2): the pointer is carried by the common restart's line, so it is dropped from the line. Was: from the group.
     const result = check(
         everyBlock(PROD_DRAFT, groups => {
-            groups[0].fullRules = groups[0].fullRules.filter(pointer => pointer.text !== DETAILS_10)
+            for (const sentence of groups[0].sentences) if (sentence.fullRule?.text === DETAILS_10) sentence.fullRule = null
         }),
         PROD.games,
         PROD.served,
@@ -517,9 +535,13 @@ test('T17. the restart moments left out with no pointer are refused; said, where
     const opener = essentialsTable()
     opener.table!.rules.find(rule => rule.id === 'BOUNDED_EPISODE_OPENER')!.class = 'ESSENTIAL'
     const withCut = compose(PROD.games, { essentials: opener })
-    assert.ok(texts(withCut.scoring.blocks[0].groups[0]).includes(OVERVIEW_6_CUT))
+    // Re-pointed 24 October 2026 (R1): with no aside cut left (his reply filed 27 October 2026, item 4, adds moments after it), Details 10 is
+    // said whole. Was: the restart cut, OVERVIEW_6_CUT.
+    const said = `${DETAILS_10}.`
+    assert.ok(texts(withCut.scoring.blocks[0].groups[0]).includes(said))
+    assert.ok(!texts(withCut.scoring.blocks[0].groups[0]).includes(OVERVIEW_6_CUT))
     assertPasses(check(withCut, PROD.games, PROD.served, { essentials: opener }), 'ESSENTIAL restart moments, said')
-    const omitted = everyBlock(withCut, groups => (groups[0].sentences = groups[0].sentences.filter(sentence => sentence.text !== OVERVIEW_6_CUT)))
+    const omitted = everyBlock(withCut, groups => (groups[0].sentences = groups[0].sentences.filter(sentence => sentence.text !== said)))
     assertRefused(check(omitted, PROD.games, PROD.served, { essentials: opener }), '7.4', 'rule BOUNDED_EPISODE_OPENER) is stated by no sentence of the building team', 'ESSENTIAL, omitted')
 })
 
@@ -653,7 +675,9 @@ test("the restart sentence rendered as ONE part (TEST-ONLY, the 3C review's prob
     assertPasses(check(draft, games, PROD.served, { essentials: opener }), 'one part, said whole')
     // A forged group using the cut, claiming what Details 10 cites: refused (its kept words cite nothing whole; the moments are unstated).
     const at = (group: ScoringGroup) => group.sentences.findIndex(sentence => sentence.text === `${DETAILS_10}.`)
-    const forged = everyBlock(draft, groups => Object.assign(groups[0].sentences[at(groups[0])], { text: "The building team's goalkeeper restarts play.", form: 'SHORTENING' }))
+    // Re-pointed 24 October 2026 (R2): the cut to Details 10's colon is the common restart's line now. Was: "The building team's goalkeeper
+    // restarts play.".
+    const forged = everyBlock(draft, groups => Object.assign(groups[0].sentences[at(groups[0])], { text: OVERVIEW_RESTART, form: 'SHORTENING' }))
     const result = check(forged, games, PROD.served, { essentials: opener })
     assertRefused(result, '7.4', 'rule BOUNDED_EPISODE_OPENER) is stated by no sentence', 'forged cut')
     assertRefused(result, '7.1', 'is a cut of a Details sentence and cites', 'its citations')
@@ -692,6 +716,8 @@ test('the coach receives words and "full rule" pointers only; every pointer lead
             ['LEAD', 'DERIVED_FROM_APPROVED', 'A01-W1', LABEL],
             ['QUALIFICATION', 'DERIVED_FROM_APPROVED', 'A01-W1', LABEL],
             ['QUALIFICATION', 'APPROVED', 'A01-W3', LABEL],
+            // Added 24 October 2026 (R2): the common restart's line, a DRAFT cut of Details 10, read by no record.
+            ['QUALIFICATION', 'DRAFT', null, null],
             ['LEAD', 'DRAFT', null, null],
             ['QUALIFICATION', 'DERIVED_FROM_APPROVED', 'A01-W2', LABEL],
         ],
@@ -818,11 +844,11 @@ test("stage 3E: the evidence is the draft's, pointers and labels included; a rea
     const presented = draft.presented!.scoring.flatMap(group => group.sentences)
     assert.deepEqual(evidence.sentences.filter(s => s.part === 'scoring').map(s => [s.text, s.fullRule, s.reading, s.place]), presented.map(s => [s.text, s.fullRule, s.reading, s.place]))
     const pointed = evidence.sentences.filter(s => s.fullRule)
-    assert.deepEqual(pointed.map(s => s.fullRule!.text), [W1.sentence, DETAILS_14, W2.sentence])
+    // Re-pointed 24 October 2026 (R2): the pointer to Details 10 is carried by the common restart's line. Was: by the building team's group.
+    assert.deepEqual(pointed.map(s => s.fullRule!.text), [W1.sentence, DETAILS_10, DETAILS_14, W2.sentence])
     assert.ok(pointed.every(s => s.fullRule!.label === FULL_RULE_LABEL && s.fullRule!.labelStatus === 'DRAFT'))
     assert.deepEqual(evidence.fullRules, draft.presented!.scoring.flatMap(group => group.fullRules.map(pointer => ({ group: group.group, ...pointer }))))
     assert.deepEqual(evidence.fullRules.map(p => [p.group, p.text, p.label, p.labelStatus]), [
-        ['BUILDING', DETAILS_10, FULL_RULE_LABEL, 'DRAFT'],
         ['BUILDING', DETAILS_16, FULL_RULE_LABEL, 'DRAFT'],
         ['PRESSING', DETAILS_16, FULL_RULE_LABEL, 'DRAFT'],
     ])
@@ -870,7 +896,8 @@ test("stage 3F: his example — his first building sentence with his eligibility
     const example = everyBlock(SERVED_DRAFT, groups => {
         groups[0].sentences = groups[0].sentences.filter(sentence => sentence.text !== W1_S2)
     })
-    assert.deepEqual(texts(example.scoring.blocks[0].groups[0]), [OVERVIEW_4, W3.sentence])
+    // Re-pointed 24 October 2026 (R2): the common restart's line stays (ESSENTIAL, DEAD_BALL_RESTART); it states no origin either.
+    assert.deepEqual(texts(example.scoring.blocks[0].groups[0]), [OVERVIEW_4, W3.sentence, OVERVIEW_RESTART])
     const result = check(example, PROD.games, PROD.served)
     assertRefused(result, '7.4', 'rule ORIGIN_CONDITION) is stated by no sentence of the building team\'s group: a pointer never excuses it', 'his example')
     // Only the origin: the eligibility is stated (by his eligibility sentence), the progression and the control by his first sentence.
@@ -914,7 +941,8 @@ test("stage 3F (the 3E review's should-fix 2): a team's group states only how th
         groups[0].sentences.push({ ...copy(groups[1].sentences[1]), place: 'QUALIFICATION' })
     })
     const result = check(misplaced, PROD.games, PROD.served)
-    assertRefused(result, '7.4', `the building team's sentence 4 "${OVERVIEW_8}" states value.primaryEvent.alsoCounts`, 'misplaced regain')
+    // Re-pointed 24 October 2026 (R2): the copied clause is the building team's fifth sentence now (the common restart's line is its fourth).
+    assertRefused(result, '7.4', `the building team's sentence 5 "${OVERVIEW_8}" states value.primaryEvent.alsoCounts`, 'misplaced regain')
     assertRefused(result, '7.4', 'which is how the pressing team scores: a team\'s group says only how that team scores', 'whose it is')
     // Re-pointed 22 October 2026 (polish pass P1): the membership rule now sees it too (it states nothing the building team's group must
     // account for); no other question does. Was: only the role check.
@@ -965,7 +993,9 @@ test('stage 3F: each group opens with exactly one line saying how the team score
         assert.deepEqual(group.lines.map(line => line.text), presented.scoring[n].sentences.map(s => s.text))
         assert.equal(presented.scoring[n].sentences[0].place, 'LEAD', 'each group opens with its lead')
     })
-    assert.deepEqual(served.overview!.scoring.groups.map(group => group.fullRules.map(p => p.text)), [[DETAILS_10], []])
+    // Re-pointed 24 October 2026 (R2): the restart pointer is carried by the common restart's line. Was: [[DETAILS_10], []].
+    assert.deepEqual(served.overview!.scoring.groups.map(group => group.fullRules.map(p => p.text)), [[], []])
+    assert.deepEqual(served.overview!.scoring.groups[0].lines.map(line => line.fullRule?.text ?? null), [W1.sentence, null, null, DETAILS_10])
     assert.deepEqual(served.overview!.scoring.fullRules.map(p => p.text), [DETAILS_16])
 })
 
@@ -977,7 +1007,9 @@ test('polish pass P1: each sentence is held to its own team; the coach is served
         groups[0].sentences.push(clause)
     })
     const movedResult = check(moved, PROD.games, PROD.served)
-    assertRefused(movedResult, '7.4', `the building team's sentence 4 "${OVERVIEW_8}" states nothing the building team's group must account for`, 'a sentence under the other team')
+    // Re-pointed 24 October 2026 (R2): the building team's group holds four sentences now (the common restart's line), so the moved clause is
+    // its fifth. Was: sentence 4.
+    assertRefused(movedResult, '7.4', `the building team's sentence 5 "${OVERVIEW_8}" states nothing the building team's group must account for`, 'a sentence under the other team')
     // Q7.5: a group named with a noun the game does not read for its role is refused (its heading would name another team).
     const renamed = everyBlock(SERVED_DRAFT, groups => (groups[0].noun = 'pressing team'))
     assertRefused(check(renamed, PROD.games, PROD.served), '7.5', 'the building team\'s group is named "pressing team"', 'a group under another team\'s noun')
@@ -997,16 +1029,21 @@ test('polish pass P1: each sentence is held to its own team; the coach is served
     refusedHere(findingsFor(served => served.scoring.groups[0].lines.push(served.scoring.groups[1].lines.pop()!)), 'are not the building team\'s group', 'a line moved to the other team')
     refusedHere(findingsFor(served => served.scoring.groups.reverse()), 'is shown under "Pressing team"', 'groups swapped under their headings')
     refusedHere(findingsFor(served => (served.scoring.groups[1].label = 'Building team')), 'where its heading is "Pressing team"', 'a heading changed')
-    refusedHere(findingsFor(served => served.scoring.groups[1].fullRules.push(served.scoring.groups[0].fullRules[0])), 'and it is not the pressing team\'s', 'a pointer under the other team')
-    refusedHere(findingsFor(served => served.scoring.fullRules.push(served.scoring.groups[0].fullRules.pop()!)), 'not every team\'s group has it', 'one team\'s pointer shown as every team\'s')
-    refusedHere(findingsFor(served => served.scoring.groups[0].fullRules.pop()), 'the building team\'s pointer to', 'a team\'s pointer dropped')
+    // Re-pointed 24 October 2026 (R2): the building team's own pointer (to Details 10) is carried by its common restart line, and the only
+    // group pointer is the score's value, every team's, shown once after the groups; so the building team's pointer is taken from that line,
+    // and a group's pointer dropped is the value's. Was: the building team's group pointer to Details 10, in all three.
+    const restartPointer = (served: CoachOverview) => served.scoring.groups[0].lines.find(line => line.fullRule?.text === DETAILS_10)!.fullRule!
+    refusedHere(findingsFor(served => served.scoring.groups[1].fullRules.push(restartPointer(served))), 'and it is not the pressing team\'s', 'a pointer under the other team')
+    refusedHere(findingsFor(served => served.scoring.fullRules.push(restartPointer(served))), 'not every team\'s group has it', 'one team\'s pointer shown as every team\'s')
+    refusedHere(findingsFor(served => served.scoring.fullRules.pop()), 'the building team\'s pointer to', 'a team\'s pointer dropped')
     refusedHere(findingsFor(served => (served.scoring.groups[0].lines[0].fullRule = null)), 'carries a pointer that is not its own sentence\'s', 'a line\'s pointer dropped')
     refusedHere(findingsFor(() => undefined, ['PRESSING', 'BUILDING']), 'the game sentence names the teams in the order', 'groups not in the game sentence\'s order')
     // One group (a game without roles): its pointers stay with it; nothing is shown after the groups as every team's.
     const single = { ...presented, scoring: [{ ...presented.scoring[0] }] }
     const one = coachOverviewOf(single)
     assert.deepEqual(one.scoring.fullRules, [])
-    assert.deepEqual(one.scoring.groups[0].fullRules.map(pointer => pointer.text), [DETAILS_10, DETAILS_16])
+    // Re-pointed 24 October 2026 (R2): Details 10's pointer stays on its line. Was: [DETAILS_10, DETAILS_16].
+    assert.deepEqual(one.scoring.groups[0].fullRules.map(pointer => pointer.text), [DETAILS_16])
 })
 
 test('stage 3F: an exception is material where the condition it follows from is unstated; the evidence names what states each element', () => {
@@ -1031,7 +1068,13 @@ test('stage 3F: an exception is material where the condition it follows from is 
     assert.deepEqual(element(0, 'BOUNDED_CREDIT').statedBy, [OVERVIEW_5])
     assert.deepEqual([element(0, 'EXCLUSION_CONDITION').material, element(0, 'EXCLUSION_CONDITION').pointer?.text], [false, W1.sentence])
     assert.ok(element(0, 'EXCLUSION_CONDITION').because.includes('follows from CONTROL_CONDITION, which this group states'))
-    assert.ok(meaning[0].elements.filter(entry => entry.rule === 'BOUNDED_EPISODE_OPENER').every(entry => !entry.material && entry.pointer?.text === DETAILS_10))
+    // Re-pointed 24 October 2026 (R2): the restart line states the start whole (its trigger in "starts play", its taker and play state), so
+    // that element is complete and needs no pointer; every other opener points to Details 10. And the common restart is stated by its line.
+    // Was: every opener pointed to Details 10.
+    const openers = meaning[0].elements.filter(entry => entry.rule === 'BOUNDED_EPISODE_OPENER')
+    assert.ok(openers.every(entry => !entry.material && (entry.complete ? entry.pointer === null : entry.pointer?.text === DETAILS_10)), JSON.stringify(openers.map(entry => [entry.element, entry.complete, entry.pointer?.text ?? null])))
+    assert.equal(openers.filter(entry => entry.complete).length, 1, 'the start')
+    assert.deepEqual([element(0, 'DEAD_BALL_RESTART').material, element(0, 'DEAD_BALL_RESTART').statedBy], [true, [OVERVIEW_RESTART]])
     assert.deepEqual(element(1, 'ALSO_COUNTS_CONTROL').statedBy, [OVERVIEW_8])
     assert.deepEqual([element(1, 'ALSO_COUNTS_EXCLUSION').material, element(1, 'ALSO_COUNTS_EXCLUSION').pointer?.text], [false, W2.sentence])
     assert.deepEqual(element(1, 'SCORING_EVENT').statedBy, [OVERVIEW_7])

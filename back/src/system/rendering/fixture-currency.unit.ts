@@ -240,6 +240,19 @@
  * the Golden Case's lines are what they were. So `inputDigest` / `fromDigest` (3e76f565 → f85ab1f4), the audit digest (5a397b4e →
  * e47757d8) and the `registerVersion` sentence moved, and `git diff` of the fixture shows those four values and nothing else.
  *
+ * **Re-frozen 24 October 2026 (R1): `86d685ea` → `af033ad3`. The GAME did not move; the register version did, and one line nobody
+ * speaks for was added.** Register version 23 (his reply filed 27 October 2026, item 4) adds row RP1, the game's dead-ball restart
+ * policy, and two trigger members. The Golden Case states no policy, so it gains one line no contract speaks of (`restartPolicy.deadBall`,
+ * `game::RP1`, 'no coverage'), listed with the game's other lines that establish nothing, and GA-DEAD-BALL-RESTART passes it vacuously.
+ * So `inputDigest` / `fromDigest` (f85ab1f4 → 438b9935), the audit digest (e47757d8 → 6a7c644e), the `registerVersion` sentence and
+ * that one entry moved, and `git diff` of the fixture shows nothing else; the rendering suite pins the A04 text, which did not change.
+ *
+ * **Re-frozen 24 October 2026 (R2): `af033ad3` → `62780cc4`. The GAME did not move; only the register version's sentence did.** Version
+ * 23's sentence said that no note was altered, and one was (the participants block's PERFORMER_OF_AWARDED_TEAM provenance, R1); it now says
+ * so (an AMENDED sentence, the R1 review's should-fix). So `inputDigest` / `fromDigest` (438b9935 → a6228f61), the audit digest (6a7c644e →
+ * 930b70c9) and the `registerVersion` sentence moved, and `git diff` of the fixture shows those four values and nothing else. The Golden
+ * Case keeps a restart per trigger, so the R2 restart words (draft-coach-wording.json) say nothing of it and its rendering is unchanged.
+ *
  * **Since stage K3 a fixture may be COMPOSED from two role blocks** (`build-activity.ts`, `role-blocks.ts`): block one's
  * fixture with a `roleBlocks` block carrying each block's own fixture whole. The Golden Case is a single game and is
  * frozen as one; the composed shape is guarded below by key identity, so a future frozen two-block fixture cannot lose a
