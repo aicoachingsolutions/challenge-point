@@ -1,8 +1,10 @@
 # Frontend regression tests
 
-Run `npm test` from `front/`. Vitest uses the production Vite aliases and React plugin with jsdom.
-The tests exercise real components and form/API serialization. Only authentication and the fetch
-boundary are replaced; no server or credentials are needed.
+Run `npm test` from `front/`; the Checks workflow's front job runs it too. Vitest uses the production
+Vite aliases and React plugin with jsdom. The tests exercise real components and form/API
+serialization. Only authentication and the fetch boundary are replaced; no server or credentials are
+needed. `api()` turns a failed request into an ordinary error, so the fetch double records any URL it
+does not serve and fails that test in `afterEach`.
 
 `fixtures/a01.json` contains four unchanged response bodies copied from the built-bundle
 `codex-output/snap-06.json`. Its `provenance` records the snapshot SHA-256 and exact response keys.

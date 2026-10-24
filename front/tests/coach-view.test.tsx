@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { ActivityReviewRequest, ServedActivity } from '@/MODELS/activity-review.model'
 import { ActivityBlock } from '@/app/CheckedActivityBlock'
@@ -23,9 +23,25 @@ const faChoice = authorized.find((choice) => choice.states.widthM === 3.6576)!
 const otherChoice = question.choices.find((choice) => choice.enters.includes('widthM'))!
 const goal = fixture.options.goals.find((entry) => entry.name === activity.title)!
 
+function stringLeaves(value: unknown): string[] {
+    if (typeof value === 'string') return [value]
+    if (Array.isArray(value)) return value.flatMap(stringLeaves)
+    if (value !== null && typeof value === 'object') return Object.values(value).flatMap(stringLeaves)
+    return []
+}
+// The words the served activity gives the coach: title, subtitle, overview, diagram and Details sentences.
+const coachText = [activity.title, activity.subtitle, ...stringLeaves(activity.overview), ...stringLeaves(activity.diagram),
+    ...activity.rendered.instructions.map((line) => line.text)].join('\n')
+// The account's own strings (citations, notes, ids) of 12 characters or more, short ones being too ambiguous to search
+// for, less those a coach-facing text above also says (here the four adjustments' coach words, which Coach Details shows).
+const accountOnly = [...new Set(stringLeaves(activity.account))].filter((text) => text.length >= 12 && !coachText.includes(text))
+
 type PostedSession = { objects?: Record<string, { count: number; widthM?: number; type?: string }> }
 const reviewPosts: ActivityReviewRequest[] = []
 const sessionPosts: PostedSession[] = []
+// api() catches whatever the double throws and hands the page an ordinary error, so a request this double
+// does not serve would otherwise pass unnoticed. Each one is recorded here and fails its test in afterEach.
+const unexpectedRequests: string[] = []
 // Adapt the snapshot's session envelope to the stored-session API's field names.
 const storedSession = {
     _id: 'test-session',
@@ -39,6 +55,7 @@ const storedSession = {
 beforeEach(() => {
     reviewPosts.length = 0
     sessionPosts.length = 0
+    unexpectedRequests.length = 0
     localStorage.setItem('token', JSON.stringify({ accessToken: 'offline', refreshToken: 'offline', tokenType: 'Bearer' }))
     vi.stubGlobal('fetch', vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
         const url = String(input)
@@ -53,9 +70,16 @@ beforeEach(() => {
         else if (url.endsWith('/session') && init?.body) {
             sessionPosts.push(JSON.parse(String(init.body)) as PostedSession)
             body = { data: { _id: 'saved-session' } }
-        } else throw new Error(`Unexpected offline request: ${url}`)
+        } else {
+            unexpectedRequests.push(url)
+            throw new Error(`Unexpected offline request: ${url}`)
+        }
         return Promise.resolve(new Response(JSON.stringify(body), { status: 200 }))
     }))
+})
+
+afterEach(() => {
+    expect(unexpectedRequests).toEqual([])
 })
 
 function renderPage(page: 'review' | 'session') {
@@ -85,31 +109,66 @@ async function askGoalQuestion() {
     await screen.findAllByText(question.words)
 }
 
+type Interval = { from: number; to: number }
+type Box = { x: number; y: number; width: number; height: number }
+const number = (element: Element, attribute: string) => Number(element.getAttribute(attribute))
+// Rounded so a drawing and the data it was drawn from compare as plain values, with readable failures.
+const round = (value: number) => Math.round(value * 1000) / 1000
+const roundBox = ({ x, y, width, height }: Box): Box => ({ x: round(x), y: round(y), width: round(width), height: round(height) })
+const box = (element: Element): Box => ({
+    x: number(element, 'x'), y: number(element, 'y'), width: number(element, 'width'), height: number(element, 'height'),
+})
+const ends = (element: Element) => ['x1', 'y1', 'x2', 'y2'].map((attribute) => round(number(element, attribute)))
+
 describe('FieldDiagram', () => {
-    it.each([800, 400])('draws the area, halfway line and green target at container width %i', (width) => {
+    it.each([800, 400])('draws the area, marked line and green target zone where the diagram data puts them at container width %i', (width) => {
         vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({
             x: 0, y: 0, left: 0, top: 0, right: width, bottom: 600, width, height: 600, toJSON: () => ({}),
         })
         render(<FieldDiagram diagram={diagram} />)
-        const svg = screen.getByRole('img', { name: diagram.blocks[0].title })
-        const area = svg.querySelector('rect[fill="#f9fafb"]')!
-        const target = svg.querySelector('rect[fill="#bbf7d0"]')!
-        const edge = svg.querySelector('rect[stroke="#15803d"]')!
-        const halfway = svg.querySelector('line[stroke="#111827"]')!
-        const number = (element: Element, attribute: string) => Number(element.getAttribute(attribute))
-        expect(area).not.toBeNull()
-        expect(target).not.toBeNull()
-        expect(edge).not.toBeNull()
-        expect(halfway).not.toBeNull()
-        const along = width >= 520 ? 'width' : 'height'
-        const across = width >= 520 ? 'height' : 'width'
-        expect(number(area, along) / number(area, across)).toBeCloseTo(diagram.area.lengthM / diagram.area.widthM)
-        expect(number(target, along)).toBe(number(area, along) / 2)
-        expect(number(target, across)).toBe(number(area, across))
-        const axis = width >= 520 ? 'x' : 'y'
-        expect(number(halfway, `${axis}1`)).toBe(number(area, axis) + number(area, along) / 2)
-        expect(number(halfway, `${axis}2`)).toBe(number(halfway, `${axis}1`))
-        expect(number(target, axis)).toBe(width >= 520 ? number(halfway, 'x1') : number(area, 'y'))
+        // FieldDiagram's documented orientation: lying down from 520 px, along the length left to right;
+        // upright below it, along the length bottom to top (the first end line at the bottom).
+        const landscape = width >= 520
+        const { lengthM, widthM } = diagram.area
+        for (const block of diagram.blocks) {
+            fireEvent.click(screen.getByRole('tab', { name: block.label }))
+            const svg = screen.getByRole('img', { name: block.title })
+            const area = svg.querySelector('rect[fill="#f9fafb"]')
+            expect(area).not.toBeNull()
+            const pitch = box(area)
+            const along = landscape ? pitch.width : pitch.height
+            const across = landscape ? pitch.height : pitch.width
+            expect(along / across).toBeCloseTo(lengthM / widthM)
+            // Metres to drawing units, measured from the drawn area itself rather than the component's sizes.
+            const metre = along / lengthM
+            const place = (a: number, c: number) => (landscape
+                ? [pitch.x + a * metre, pitch.y + c * metre]
+                : [pitch.x + c * metre, pitch.y + (lengthM - a) * metre])
+            const expectedBox = (a: Interval, c: Interval) => {
+                const [x1, y1] = place(a.from, c.from)
+                const [x2, y2] = place(a.to, c.to)
+                return roundBox({ x: Math.min(x1, x2), y: Math.min(y1, y2), width: Math.abs(x2 - x1), height: Math.abs(y2 - y1) })
+            }
+
+            const zones = block.targets.filter((target) => !target.line)
+            expect(zones.length).toBeGreaterThan(0)
+            const drawnZones = Array.from(svg.querySelectorAll('rect[fill="#bbf7d0"]'), (element) => roundBox(box(element)))
+            expect(drawnZones).toEqual(zones.map((zone) => expectedBox(zone.along, zone.across)))
+            // Each zone's green edge runs just inside it.
+            const edges = Array.from(svg.querySelectorAll('rect[fill="none"][stroke="#15803d"]'), box)
+            for (const zone of drawnZones) {
+                expect(edges.some((edge) => edge.x > zone.x && edge.y > zone.y
+                    && edge.x + edge.width < zone.x + zone.width && edge.y + edge.height < zone.y + zone.height)).toBe(true)
+            }
+
+            const marked = block.lines.filter((line) => line.markedLine)
+            expect(marked.length).toBeGreaterThan(0)
+            const drawnLines = Array.from(svg.querySelectorAll('line[stroke="#111827"]'), ends)
+            for (const line of marked) {
+                const expected = [...place(line.along.from, line.across.from), ...place(line.along.to, line.across.to)]
+                expect(drawnLines).toContainEqual(expected.map(round))
+            }
+        }
     })
 
     it('keeps team colours across blocks while the displayed roles swap', () => {
@@ -179,6 +238,8 @@ describe('CheckedActivityBlock', () => {
         }
         for (const block of activity.roleBlocks.blocks) expect(visible.textContent).not.toContain(block.blockId)
         expect(visible.textContent).not.toContain(goal.id)
+        expect(accountOnly.length).toBeGreaterThan(0)
+        expect(accountOnly.filter((text) => visible.textContent.includes(text))).toEqual([])
     })
 
     it('opens Coach Details on request and reveals the fixture instructions', () => {
@@ -242,7 +303,7 @@ describe('SessionForm', () => {
         await screen.findByText('Saved')
     })
 
-    it('does not truncate an authorized choice value supplied to the session numeric control', () => {
+    it('NumberField (step any) displays 3.6576 exactly and reports a typed 7.32 unrounded', () => {
         const onChange = vi.fn()
         render(<NumberField value={faChoice.states.widthM} onChange={onChange} step='any' />)
         const width = screen.getByRole<HTMLInputElement>('spinbutton')
