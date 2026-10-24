@@ -199,16 +199,17 @@ test('register version 21: the function member, row S7 and the boundRegions bloc
 })
 
 // ── 2. The Sport Profile ─────────────────────────────────────────────────────────────────────────────────
-test("the profile's boundRegions block: his item 7 words, one requirement, exactly ONE pairing (IFAB Law 1.6 with Law 1.10), no scaled entry", () => {
+test("the profile's boundRegions block: one requirement, his explicit same-format principle, and the IFAB and FA 5v5 pairings (K1)", () => {
     assert.deepEqual([blocks.authority.citedAs, blocks.authority.by, blocks.authority.ruledOn], ['his reply filed 26 October 2026, item 7', 'Christian', '2026-10-26'])
     for (const quote of [ITEM_7_PAIRING, 'When a smaller field is necessary, use an explicitly defined and knowledge-authorized scaled penalty area.', 'I would not approve an undefined area that the coach simply points out, nor a feet-only goalkeeper restriction as the default for this realization.']) {
         assert.ok(blocks.authority.words.includes(quote), quote)
     }
     assert.deepEqual(
         blocks.requirements.map(r => [r.id, r.object.kind, r.object.whenDefended, r.region.noun, r.region.function, r.basis.citedAs]),
-        [['BOUND-REGION-GOAL', 'goal', true, 'zone', 'penalty-area', 'his reply filed 26 October 2026, item 7']],
+        // K1 replaces our reading with his explicit same-format principle in the later reply's item 1 (1b).
+        [['BOUND-REGION-GOAL', 'goal', true, 'zone', 'penalty-area', 'his reply filed 27 October 2026, item 1']],
     )
-    assert.deepEqual(blocks.pairings.map(p => p.id), ['IFAB-LAW-1'], 'the regulation entry alone: no scaled entry is recorded')
+    assert.deepEqual(blocks.pairings.map(p => p.id), ['IFAB-LAW-1', 'FA-MINI-SOCCER-5V5-2026'], 'K1 records exactly the regulation and FA 5v5 entries')
     const [ifab] = blocks.pairings
     assert.deepEqual(
         [ifab.document, ifab.edition, ifab.citedAs, ifab.object, ifab.region, ifab.markM, ifab.borrows, ifab.authority],
@@ -502,7 +503,7 @@ test('TEST-ONLY: the goal version completed with a scaled pairing and its region
     // The TEST-ONLY pairing passes the same validator a real one would.
     const asFile = { ...profileFile(), boundRegions: (() => {
         const raw = profileFile().boundRegions
-        raw.pairings.push(copy(withTestOnlyPairing().pairings[1]))
+        raw.pairings.push(copy(withTestOnlyPairing().pairings.find(p => p.id === "TEST-ONLY-SCALED")!))
         return raw
     })() }
     assert.deepEqual(boundRegionsRefusals(asFile.boundRegions, index), [])
@@ -574,7 +575,10 @@ test('H4: a pairing that records a type matches only a goal the session states o
         assert.deepEqual(rest, { kind: 'OBJECT_AVAILABILITY', objectKind: 'goal', asks: 'ATTRIBUTE', attribute: { name: 'type', values: ['full-size', 'scaled', 'mini-goal'] }, words: asked.summary, status: 'DRAFT' })
         assert.deepEqual(choices.map(choice => [choice.id, choice.label, choice.states]), [
             ['pairing:IFAB-LAW-1', 'the goal in IFAB Laws of the Game, 7.32 m x 2.44 m', { type: 'full-size', widthM: 7.32 }],
-            ['attribute:type=mini-goal', 'a mini-goal or pop-up goal', { type: 'mini-goal' }],
+            // K1 ATTRIBUTE answers keep the already stated width, for every type.
+            ['attribute:type=full-size', 'full-size', { type: 'full-size', widthM: 7.32 }],
+            ['attribute:type=scaled', 'scaled', { type: 'scaled', widthM: 7.32 }],
+            ['attribute:type=mini-goal', 'a mini-goal or pop-up goal', { type: 'mini-goal', widthM: 7.32 }],
             ['none', 'none', { count: 0 }],
         ])
         assert.ok(asked.reasons.some(reason => reason.includes('BOUND_REGION_OBJECT_NOT_STATED') && reason.includes('IFAB-LAW-1: type full-size')), asked.reasons.join(' | '))

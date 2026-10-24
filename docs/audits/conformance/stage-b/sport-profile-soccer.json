@@ -151,20 +151,25 @@
    "by": "Christian",
    "ruledOn": "2026-10-26"
   },
-  "note": "Added 23 October 2026 (H3, the d26 design's build step 3, its N3 and N5; register version 21). A declaration beside the profile's contribution, never items, like defaultLaws: which object kinds need a region bound to them (requirements), and the pairings authorized so far, each one named document giving an object, its region and its mark together - only that geometry comes with an entry (borrows), never the document's other provisions. That this table lives in the Sport Profile is OUR READING (the d26 design's N3): the profile admits constitutive sport structure when the selected game rules require it and no existing authoritative source supplies it (the ownership rule above), his item 10 selects the normal Laws, which key the goalkeeper's handling on a penalty area, and no knowledge source in the repository supplies one. BUILT WITH THE REGULATION ENTRY ONLY. A pairing is matched by the width the session states for its object, and nothing else: whether a smaller goal on a field wide enough for the regulation area takes that area or its own format's (the same-source pairing rule, decision 1b of the note sent to him) is his, so such a goal matches no entry and is a knowledge gap - never given the regulation area, never a scaled one. No scaled entry is recorded and no scaled size is assumed: a scaled entry is added only when he authorizes one named document (decision 1 of the note sent to him), with its values confirmed against that document's current edition. The goal type, height and format conditions are shown with the entry on the review page and are matched by nothing until a session can state them (the d26 design's build step 4). AMENDED 23 October 2026 (H4, register version 22): a session can now state its goals' type, from the register's closed list (full-size, scaled, mini-goal), so an entry is matched by the width AND the type the session states - an entry's type is one of that list's values - and where an entry of the stated width records a type the session does not state, the build asks for it, never assuming the entry's goal; a goal of another type is a knowledge gap, exactly as a goal of another width is. The height and the format conditions are still matched by nothing: no session is asked for a goal's height until an authorized entry reads it (his reply filed 26 October 2026, item 9(b)). Which goals suit a realization stays his decision 1. The requirement's id, the region noun and the 'penalty-area' token are ours (DRAFT).",
+  "note": "Added 23 October 2026 (H3, the d26 design's build step 3, its N3 and N5; register version 21). A declaration beside the profile's contribution, never items, like defaultLaws: which object kinds need a region bound to them (requirements), and the pairings authorized so far, each one named document giving an object, its region and its mark together - only that geometry comes with an entry (borrows), never the document's other provisions. That this table lives in the Sport Profile is OUR READING (the d26 design's N3): the profile admits constitutive sport structure when the selected game rules require it and no existing authoritative source supplies it (the ownership rule above), his item 10 selects the normal Laws, which key the goalkeeper's handling on a penalty area, and no knowledge source in the repository supplies one. BUILT WITH THE REGULATION ENTRY ONLY. A pairing is matched by the width the session states for its object, and nothing else: whether a smaller goal on a field wide enough for the regulation area takes that area or its own format's (the same-source pairing rule, decision 1b of the note sent to him) is his, so such a goal matches no entry and is a knowledge gap - never given the regulation area, never a scaled one. No scaled entry is recorded and no scaled size is assumed: a scaled entry is added only when he authorizes one named document (decision 1 of the note sent to him), with its values confirmed against that document's current edition. The goal type, height and format conditions are shown with the entry on the review page and are matched by nothing until a session can state them (the d26 design's build step 4). AMENDED 23 October 2026 (H4, register version 22): a session can now state its goals' type, from the register's closed list (full-size, scaled, mini-goal), so an entry is matched by the width AND the type the session states - an entry's type is one of that list's values - and where an entry of the stated width records a type the session does not state, the build asks for it, never assuming the entry's goal; a goal of another type is a knowledge gap, exactly as a goal of another width is. The height and the format conditions are still matched by nothing: no session is asked for a goal's height until an authorized entry reads it (his reply filed 26 October 2026, item 9(b)). Which goals suit a realization stays his decision 1. The requirement's id, the region noun and the 'penalty-area' token are ours (DRAFT). AMENDED 24 October 2026 (K1, the d27 design sections 1.1-1.7): the named FA 5v5 pairing is recorded, geometry only, as an initial field-test candidate (his reply filed 27 October 2026, item 1). Suitability now reads the stated type before width. Height and format conditions remain descriptive. The penalty mark is recorded but neither marked nor used (his reply filed 27 October 2026, item 3).",
   "requirements": [
    {
     "id": "BOUND-REGION-GOAL",
-    "object": { "kind": "goal", "whenDefended": true },
-    "region": { "noun": "zone", "function": "penalty-area" },
+    "object": {
+     "kind": "goal",
+     "whenDefended": true
+    },
+    "region": {
+     "noun": "zone",
+     "function": "penalty-area"
+    },
     "cites": "IFAB Laws of the Game, Law 1.6 (The Penalty Area: an area set out from the goal line in front of each goal) and Law 12 (Fouls and Misconduct: the goalkeeper's handling within its own penalty area)",
-    "because": "OUR READING of his item 7 with item 10 (ours). A goal a team's goalkeeper defends (register row O7) has its penalty area: the normal Laws key the goalkeeper's handling on it, he refuses an undefined area the coach points out and a feet-only default, and he asks for a defined, knowledge-authorized area. So such a goal holds exactly one zone of the function penalty-area bound to it (register row S7), whose geometry is the one authorized pairing for that goal; where no pairing is authorized the activity is refused as a knowledge gap, and where the paired area does not fit the session's area the realization does not apply to that session. A goal no goalkeeper defends needs none here (whenDefended).",
+    "because": "a goal’s penalty-area geometry should ordinarily come from the same authorized format. Any exception should be explicit and supported by the intended learning design.",
     "basis": {
      "words": [
-      "The goalkeeper's handling permissions and restrictions should follow the normal Laws of the Game within that area unless an authorized activity rule explicitly changes them.",
-      "I would not approve an undefined area that the coach simply points out, nor a feet-only goalkeeper restriction as the default for this realization."
+      "a goal’s penalty-area geometry should ordinarily come from the same authorized format. Any exception should be explicit and supported by the intended learning design."
      ],
-     "citedAs": "his reply filed 26 October 2026, item 7"
+     "citedAs": "his reply filed 27 October 2026, item 1"
     }
    }
   ],
@@ -179,15 +184,67 @@
      "ageBand": null,
      "pitch": "Law 1.3 (Dimensions): touchline 90-120 m and goal line 45-90 m, the touchline longer than the goal line - far larger than any practice area here, so it is shown and never read as a condition on this geometry"
     },
-    "object": { "kind": "goal", "type": "full-size", "widthM": 7.32, "heightM": 2.44 },
-    "region": { "function": "penalty-area", "widthM": 40.32, "depthM": 16.5 },
+    "object": {
+     "kind": "goal",
+     "type": "full-size",
+     "widthM": 7.32,
+     "heightM": 2.44
+    },
+    "region": {
+     "function": "penalty-area",
+     "widthM": 40.32,
+     "depthM": 16.5
+    },
     "markM": 11,
-    "borrows": ["object", "region", "mark"],
+    "borrows": [
+     "object",
+     "region",
+     "mark"
+    ],
     "authority": {
-     "words": ["Use an existing regulation penalty area when the activity dimensions and setup permit it."],
+     "words": [
+      "Use an existing regulation penalty area when the activity dimensions and setup permit it."
+     ],
      "citedAs": "his reply filed 26 October 2026, item 7"
     },
     "note": "The regulation geometry, cited by IFAB law number (the d26 design read Laws 1 and 12 from theifab.com, which showed the 2026/27 edition as current; he names no edition, as in defaultLaws). Law 1.10: the goal is 7.32 m between the posts and 2.44 m to the crossbar. Law 1.6: the penalty area is set out 16.5 m from the inside of each goalpost, 16.5 m into the field of play, so 40.32 m wide with this goal; the penalty mark is 11 m from the midpoint between the goalposts. The type 'full-size' is the Goalkeeper Included Condition's own word (\"Use full-size or scaled goals depending on field dimensions.\", which he approved in his reply filed 26 October 2026, item 4). The mark is shown here; whether a spot is marked or paced, and whether penalty kicks apply at all, is decision 3 of the note sent to him, so no row records a spot. The players and age band are null: the Laws state neither as a condition on this geometry."
+   },
+   {
+    "id": "FA-MINI-SOCCER-5V5-2026",
+    "document": "The Mini-Soccer and Youth Futsal Handbook (England Football / The FA)",
+    "edition": "Version updated August 2026 (2026/2027 season)",
+    "citedAs": "Mini-Soccer Law 1, Playing Area: goal size in the text; the 5v5 area and mark as labelled on the Law 1 diagram; https://cdn.englandfootball.com/-/media/EnglandFootball/Files/play-and-participate/youth-football/Mini-Soccer-Handbook-2026-27.pdf",
+    "formatConditions": {
+     "players": "5v5: the maximum number of players is 5, subject to the power-play rules (Law 3, U8s-U9s)",
+     "ageBand": "U8/U9 (Law 1)",
+     "pitch": "37 m x 27 m (Law 1 diagram; a maximum, p.16)"
+    },
+    "object": {
+     "kind": "goal",
+     "type": "scaled",
+     "widthM": 3.6576,
+     "heightM": 1.8288
+    },
+    "region": {
+     "function": "penalty-area",
+     "widthM": 15,
+     "depthM": 9
+    },
+    "markM": 6,
+    "borrows": [
+     "object",
+     "region",
+     "mark"
+    ],
+    "authority": {
+     "words": [
+      "Please verify the applicable FA specification and keep the goal, penalty area, and penalty spot dimensions from the same authorized source rather than combining unrelated formats.",
+      "Let’s treat the proposed configuration as an initial field-test candidate rather than assuming it is optimal.",
+      "a goal’s penalty-area geometry should ordinarily come from the same authorized format. Any exception should be explicit and supported by the intended learning design."
+     ],
+     "citedAs": "his reply filed 27 October 2026, item 1"
+    },
+    "note": "The goal is stated in feet (12ft x 6ft); widthM/heightM are the exact conversion at 0.3048 m per foot (ours; The FA's 2012 metric guide rounds to 3.66 x 1.83 m, not used). The depth is printed 9 m; The FA's 2012 metric guide gave 8 m and the 2025 edition 9 yd (8.2296 m) (1.3 (a)). The diagram does not name the rectangle or the dot; 'penalty area' and 'mark' are our reading from Laws 8, 12 and 14 of the same handbook. type 'scaled' is our reading of the Goalkeeper Included Condition's 'full-size or scaled goals'. Its other provisions (retreat line, pass or dribble-in, distances, heading law) do not come with it. Used at 40 x 30 m, larger than its pitch, chosen by space per player. The 9 m depth may be a misprint; we use 9 m as printed. his reply filed 27 October 2026, item 3: \"The penalty-area specification may include a penalty spot, but this activity does not need to mark or use it.\""
    }
   ]
  },

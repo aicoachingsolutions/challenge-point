@@ -34,6 +34,8 @@ import path from 'node:path'
 
 import { SportBoundRegions } from '../derivation/bound-regions'
 import { loadProvisionalRealizations, loadRegister, loadSportBoundRegions, PROVISIONAL_REALIZATIONS_FILE, readJson } from '../derivation/corpus'
+import { objectAvailabilityRefusal } from '../realization/assemble-concrete-game'
+import { validateProvisionalRealizations } from '../derivation/corpus'
 import { indexRegister } from '../derivation/register'
 import { learningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
 import { reviewRequestOf } from './activity-review'
@@ -66,6 +68,8 @@ const IFAB_LABEL = 'the goal in IFAB Laws of the Game, 7.32 m x 2.44 m'
 /** TEST-ONLY: the profile's bound-region block with the d27 design's FA 5v5 entry (1.6) beside the IFAB one - a stand-in for K1. */
 const blockWithFa = (): SportBoundRegions => {
     const block = copy(loadSportBoundRegions()!)
+    // K1: replace the production FA entry with this test's deliberately labelled copy.
+    block.pairings = block.pairings.filter(entry => entry.id !== "FA-MINI-SOCCER-5V5-2026")
     block.pairings.push({
         id: FA_ID,
         document: FA_DOCUMENT,
@@ -145,11 +149,11 @@ test('the DRAFT wording data: one entry per kind the register lists, his words f
     const words = objectChoiceWording(KIND)!
     assert.deepEqual(
         [words.authorized.label, words.attributeValues.map(entry => [entry.attribute, entry.value, entry.label]), words.other.label, words.none.label],
-        ['the {kind} in {document}, {size}', [['type', 'mini-goal', 'a mini-goal or pop-up goal']], 'another goal (enter its width)', 'none'],
+        ['the {kind} in {document}, {size}', [['type', 'full-size', 'full-size'], ['type', 'scaled', 'scaled'], ['type', 'mini-goal', 'a mini-goal or pop-up goal']], 'another goal (enter its width)', 'none'],
     )
     // His words, verbatim, with where they are filed.
     assert.deepEqual(words.authorized.basis, { words: ['I agree that the coach should identify the available goal type and dimensions, without the engine inventing them.'], citedAs: 'his reply filed 26 October 2026, item 4' })
-    assert.deepEqual(words.attributeValues[0].basis, { words: ['A mini-goal is not automatically equivalent to an appropriate goalkeeper-defended goal.'], citedAs: 'his reply filed 27 October 2026, item 6' })
+    assert.deepEqual(words.attributeValues[2].basis, { words: ['A mini-goal is not automatically equivalent to an appropriate goalkeeper-defended goal.'], citedAs: 'his reply filed 27 October 2026, item 6' })
     assert.deepEqual(words.other.basis, words.authorized.basis)
     assert.deepEqual(words.none.basis, { words: ['Do not infer a goal from the presence of a goalkeeper or silently treat missing information as confirmation that no goal exists.'], citedAs: 'his reply filed 26 October 2026, item 11' })
     assert.equal(objectChoiceWording('TEST-ONLY'), null)
@@ -170,7 +174,7 @@ test('the DRAFT wording data: one entry per kind the register lists, his words f
     refused(entry => (entry.none.label = ''), /its none label: its label is missing or holds a slot/, 'no label')
     refused(entry => (entry.attributeValues[0].value = 'portable'), /names the value "portable", which is none of the type values the register lists/, 'a value off the list')
     refused(entry => (entry.attributeValues[0].attribute = 'colour'), /names the attribute "colour", which the register lists for no goal/, 'an attribute not listed')
-    refused(entry => entry.attributeValues.push(copy(entry.attributeValues[0])), /lists type mini-goal again/, 'a value twice')
+    refused(entry => entry.attributeValues.push(copy(entry.attributeValues[0])), /lists type full-size again/, 'a value twice')
     refused(entry => (entry.other.basis = { words: [], citedAs: 'his reply filed 26 October 2026, item 4' }), /its other label: its basis quotes none of his words/, 'no words of his')
     refused(entry => (entry.none.basis.citedAs = 'TEST-ONLY'), /does not say which of his replies/, 'no reply named')
     refused(entry => (entry.approved = true), /carries "approved"/, 'a claim of approval')
@@ -195,6 +199,8 @@ test('production: the regulation goal, a mini-goal, another goal and none, each 
     const choices = objectChoicesOf(KIND)
     assert.deepEqual(choices.map(choice => [choice.id, choice.label, choice.states, choice.enters, choice.status]), [
         ['pairing:IFAB-LAW-1', IFAB_LABEL, { type: 'full-size', widthM: 7.32 }, ['count'], 'DRAFT'],
+        // K1 adds exactly one authorized production choice.
+        ['pairing:FA-MINI-SOCCER-5V5-2026', 'the goal in The Mini-Soccer and Youth Futsal Handbook (England Football / The FA), 12 ft x 6 ft (3.6576 m x 1.8288 m)', { type: 'scaled', widthM: 3.6576 }, ['count'], 'DRAFT'],
         ['attribute:type=mini-goal', 'a mini-goal or pop-up goal', { type: 'mini-goal' }, ['count'], 'DRAFT'],
         ['other', 'another goal (enter its width)', {}, ['count', 'widthM'], 'DRAFT'],
         ['none', 'none', { count: 0 }, [], 'DRAFT'],
@@ -204,7 +210,7 @@ test('production: the regulation goal, a mini-goal, another goal and none, each 
     assert.ok(choices.every(choice => !('heightM' in choice.states)))
     assert.deepEqual(sessionObjectChoices(), { kinds: [{ kind: KIND, choices }] })
     assert.deepEqual(objectChoicesOf('TEST-ONLY'), [], 'a kind the register does not list has none')
-    assert.deepEqual(objectChoicesOf(KIND, index, null).map(choice => choice.id), ['attribute:type=mini-goal', 'other', 'none'], 'no block: no authorized goal')
+    assert.deepEqual(objectChoicesOf(KIND, index, null).map(choice => choice.id), ['attribute:type=full-size', 'attribute:type=scaled', 'attribute:type=mini-goal', 'other', 'none'], 'no block: no authorized goal')
     const routes = fs.readFileSync(path.join(__dirname, '../../routes/app.routes.ts'), 'utf8')
     const route = routes.indexOf('router.get(`${ROUTES.session}/object-choices`')
     assert.ok(route > 0 && route < routes.indexOf('model: Session,'), 'registered before the session routes, so the path is never read as an id')
@@ -258,7 +264,7 @@ test("a goal typed at The FA's rounded 3.66 m is another goal: it does not suit 
     assert.deepEqual(choicesSuitedTo(KIND, [{ min: 1, max: 10 }], { lengthM: 45, widthM: 42 }, index, blockWithFa()).map(choice => choice.id), ['pairing:IFAB-LAW-1', `pairing:${FA_ID}`])
     assert.deepEqual(choicesSuitedTo(KIND, [], { lengthM: 40, widthM: 30 }, index, blockWithFa()), [], 'nothing decided: nothing named')
     // With no authorized goal that suits and fits, the sentence is said as before.
-    const unnamed = goalBuild(sessionWith({ [KIND]: { count: 1, widthM: 12 } }), { block: loadSportBoundRegions() }) as ServedActivity
+    const unnamed = goalBuild(sessionWith({ [KIND]: { count: 1, widthM: 12 } }), { block: { ...loadSportBoundRegions()!, pairings: [loadSportBoundRegions()!.pairings[0]] } }) as ServedActivity
     assert.deepEqual(selectionOf(unnamed)[0], [R2, 'NOT_APPLICABLE', 'OBJECT_NOT_SUITABLE'])
     assert.equal((unnamed.account.realizationSelection as any[])[0].summary, 'The goals this session has do not suit this game.')
 })
@@ -275,8 +281,8 @@ test("the build's question carries the choices: all of them where it asks how ma
     // A goal of the FA width with no type: asked for the type, by the choices that state one.
     const attribute = goalBuild(sessionWith({ [KIND]: { count: 1, widthM: FA_WIDTH } })) as RefusedActivity
     assert.deepEqual([attribute.stage, attribute.question?.asks, attribute.question?.attribute?.name], ['session', 'ATTRIBUTE', 'type'], attribute.reasons.join(' | '))
-    assert.deepEqual(attribute.question!.choices, choicesAnswering(all, 'type'))
-    assert.deepEqual(attribute.question!.choices.map(choice => choice.id), ['pairing:IFAB-LAW-1', `pairing:${FA_ID}`, 'attribute:type=mini-goal', 'none'])
+    assert.deepEqual(attribute.question!.choices, choicesAnswering(all, 'type', FA_WIDTH, KIND))
+    assert.deepEqual(attribute.question!.choices.map(choice => choice.id), [`pairing:${FA_ID}`, 'attribute:type=full-size', 'attribute:type=scaled', 'attribute:type=mini-goal', 'none'])
     // Answered by the FA choice, through the review route's own request builder: served, the goal version.
     const storedSession = { playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: { ...none, [KEEPER]: 1 } }
     for (const asked of [undefined, { [KIND]: { count: 1, widthM: FA_WIDTH } }]) {
@@ -319,6 +325,94 @@ test('production unchanged: A01 serves the zone version whatever the session sta
         for (const key of ['rendered', 'overview', 'diagram'] as const) assert.deepEqual(activity[key], production[key], `${JSON.stringify(objects)}: ${key}`)
         assert.deepEqual(selectionOf(activity), [['A01-R2', 'NOT_SELECTABLE', 'MISSING_KNOWLEDGE'], ['A01-R1', 'SELECTED', null]])
     }
+})
+
+
+// K1: production knowledge and serving paths. Later knowledge gaps are lifted only in memory where explicitly stated.
+const faProduction = () => loadSportBoundRegions()!.pairings.find(p => p.id === 'FA-MINI-SOCCER-5V5-2026')!
+const suitabilityProduction = () => loadProvisionalRealizations().find(r => r.provisionalId === R2)!.objectSuitability!
+const k1Build = (statement: Record<string, unknown>, mutate = false) => {
+    const file = readJson(PROVISIONAL_REALIZATIONS_FILE)
+    if (mutate) delete file.realizations.find((r: any) => r.id === R2).objectSuitability[0].attributes
+    return buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionWith({ [KIND]: statement }) } as any, recordsOf(), { realizations: loadProvisionalRealizations(file), review: { includeDrafts: true } }).activity
+}
+test('K1 data: suitability equals exactly the FA object and the production choice reads it', () => {
+    const object = faProduction().object
+    const rule = suitabilityProduction()[0]
+    assert.deepEqual({ kind: rule.kind, type: rule.attributes!.type[0], widthM: rule.widthM.min }, { kind: object.kind, type: object.type, widthM: object.widthM })
+    assert.equal(rule.widthM.max, object.widthM)
+    assert.deepEqual(rule.attributes, { type: [object.type!] })
+    const choice = sessionObjectChoices().kinds.find(k => k.kind === KIND)!.choices.find(c => c.id === 'pairing:' + faProduction().id)!
+    assert.deepEqual(choice.states, { type: object.type, widthM: object.widthM })
+    assert.ok(choice.label.endsWith('12 ft x 6 ft (3.6576 m x 1.8288 m)'))
+    assert.equal(faProduction().markM, 6)
+})
+test('K1 validation refuses an unlisted attribute, an unlisted value, an empty value list and malformed attributes', () => {
+    for (const attributes of [{ colour: ['scaled'] }, { type: ['portable'] }, { type: [] }, []]) {
+        const file = readJson(PROVISIONAL_REALIZATIONS_FILE)
+        file.realizations.find((r: any) => r.id === R2).objectSuitability[0].attributes = attributes
+        assert.ok(validateProvisionalRealizations(file).some(e => /object suitability.*(attribute|values)/.test(e)), JSON.stringify(attributes))
+        assert.throws(() => loadProvisionalRealizations(file), /integrity gate/)
+    }
+})
+test('K1 suitability: type precedes width; only the exact scaled object passes; missing type asks', () => {
+    const contracts = [{ contractId: 'provisional:' + R2, objectSuitability: suitabilityProduction() }] as any
+    const game = { objects: [{ elementId: 'TEST-ONLY', kind: KIND }] }
+    const rule = (statement: Record<string, unknown>) => objectAvailabilityRefusal(index, game, { objects: { [KIND]: { count: 1, ...statement } } }, contracts)
+    assert.equal(rule({ type: 'scaled', widthM: FA_WIDTH }), null)
+    for (const statement of [{type:'full-size',widthM:7.32}, {type:'full-size',widthM:FA_WIDTH}, {type:'mini-goal'}, {type:'mini-goal',widthM:FA_WIDTH}, {type:'mini-goal',widthM:1}, {type:'scaled',widthM:3.66}, {type:'scaled',widthM:4}]) {
+        assert.deepEqual([rule(statement)?.cause, (rule(statement) as any)?.decided], ['OBJECT_NOT_SUITABLE', true], JSON.stringify(statement))
+        const activity = k1Build({ count: 1, ...statement }) as ServedActivity
+        assert.equal(activity.outcome, 'served')
+        assert.deepEqual(selectionOf(activity), [[R2, 'NOT_APPLICABLE', 'OBJECT_NOT_SUITABLE'], ['A01-R1', 'SELECTED', null]])
+        assert.match((activity.account.realizationSelection as any[])[0].summary, /do not suit this game; it is built for .*12 ft x 6 ft/)
+    }
+    const asked = k1Build({ count:1, widthM:FA_WIDTH }) as RefusedActivity
+    assert.deepEqual([asked.stage, asked.question?.asks], ['session','ATTRIBUTE'])
+    assert.deepEqual(liveRefusalBody(asked, null).question, asked.question)
+    const production = buildActivityForReview({ kind:'learning-goal', goalId:'A01', situationId:null, session:sessionWith({[KIND]:{count:1,type:'scaled',widthM:FA_WIDTH}}) } as any, { includeDrafts: true }) as ServedActivity
+    assert.deepEqual(selectionOf(production), [[R2,'NOT_SELECTABLE','MISSING_KNOWLEDGE'], ['A01-R1','SELECTED',null]])
+})
+test('K1 ATTRIBUTE choices preserve a stated width, even where no authorized entry matches it', () => {
+    for (const widthM of [FA_WIDTH, 4.125]) {
+        const choices = choicesAnswering(objectChoicesOf(KIND), 'type', widthM, KIND)
+        assert.deepEqual(choices.filter(c => c.from).map(c => c.id), widthM === FA_WIDTH ? ['pairing:' + faProduction().id] : [])
+        assert.deepEqual(choices.filter(c => c.id.startsWith('attribute:')).map(c => c.states.type), ['full-size','scaled','mini-goal'])
+        for (const choice of choices.filter(c => c.id !== 'none')) {
+            assert.equal(choice.states.widthM, widthM)
+            const answer = reviewRequestOf({playerCount:12,fieldLength:'40',fieldWidth:'30',specializedRoles:{...none,[KEEPER]:1}}, { learningGoalId:'A01', durationMin:20, objects:{[KIND]:{...choice.states,count:1}} })
+            assert.equal((answer as any).session.objects[KIND].widthM, widthM)
+        }
+        assert.equal(choices[choices.length - 1].id, 'none')
+    }
+    const attributes = suitabilityProduction()[0].attributes
+    assert.deepEqual(choicesSuitedTo(KIND, [{min:FA_WIDTH,max:FA_WIDTH,attributes:{type:['mini-goal']}}], {lengthM:40,widthM:30}), [])
+    assert.deepEqual(choicesSuitedTo(KIND, [{min:FA_WIDTH,max:FA_WIDTH,attributes}], {lengthM:40,widthM:30}).map(c=>c.id), ['pairing:' + faProduction().id])
+})
+test('K1 mutation: dropping suitability attributes exposes GA-BOUND-REGION authorization refusal', () => {
+    const activity = k1Build({count:1,type:'mini-goal',widthM:FA_WIDTH}, true) as RefusedActivity
+    assert.equal(activity.outcome, 'refused')
+    assert.equal(activity.stage, 'knowledge')
+    assert.ok(activity.reasons.some(r => r.includes('BOUND_REGION_NOT_AUTHORIZED')), activity.reasons.join(' | '))
+    assert.deepEqual(suitabilityProduction()[0].attributes, {type:['scaled']}, 'mutation was held in memory only')
+})
+test('K1 the FA mark is recorded but never placed, drawn or said to the coach', () => {
+    const file = fileFor({min:FA_WIDTH,max:FA_WIDTH})
+    const variant = file.realizations.find((r:any)=>r.id===R2)
+    variant.objectSuitability = suitabilityProduction()
+    for (const item of variant.items) if (item.value?.pairing === FA_ID) item.value.pairing = faProduction().id
+    const build = (block: SportBoundRegions) => buildActivityUnderAuthorizationRecords({kind:'learning-goal',goalId:'A01',situationId:null,session:sessionWith({[KIND]:{count:1,type:'scaled',widthM:FA_WIDTH}})} as any, recordsOf(), {realizations:loadProvisionalRealizations(file),boundRegions:block,review:{includeDrafts:true}}).activity as ServedActivity
+    const block = loadSportBoundRegions()!
+    const activity = build(block)
+    assert.equal(activity.outcome, 'served', (activity as any).reasons?.join(' | '))
+    const changed = copy(block)
+    changed.pairings.find(p=>p.id===faProduction().id)!.markM=123.456
+    const other = build(changed)
+    assert.equal(other.outcome, 'served')
+    for (const key of ['rendered','overview','diagram','diagramDraft'] as const) {
+        assert.deepEqual((other as any)[key], (activity as any)[key], key + ' must not consume markM')
+    }
+    assert.ok(!/penalty (spot|mark)|123\.456|\b6 m/.test(JSON.stringify([activity.rendered,activity.overview,activity.diagram])), 'no spot or mark instruction or shape')
 })
 
 console.log(`object-choices.unit.ts — ${passed} passed`)

@@ -223,8 +223,8 @@ test('A01-R2 is A01-R1 minus its withdrawals plus its additions, element for ele
         'This flexibility should operate within the authorized deep starting environment, rather than permit arbitrary locations anywhere on the field. … Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out. … The building team’s side of the marked progression line is an acceptable initial restart region.',
     )
     assert.ok(bound.fitNote.includes('THE BINDING, RULED') && !bound.fitNote.includes('THE BINDING IS PROPOSED, NOT RULED') && !JSON.stringify(bound.value).includes('structuralRef'))
-    // No suitability is stated and none is invented; the testing boundaries are A01-R1's.
-    assert.equal(variant.objectSuitability, undefined)
+    // K1 records the exact FA object, while the remaining decisions stay gapped; testing boundaries remain A01-R1's.
+    assert.deepEqual(variant.objectSuitability!.map(r => [r.kind, r.attributes, r.widthM]), [['goal', { type: ['scaled'] }, { min: 3.6576, max: 3.6576 }]])
     assert.deepEqual([variant.testingBoundaries!.players, variant.testingBoundaries!.areas], [base.testingBoundaries!.players, base.testingBoundaries!.areas])
     // Nothing for a penalty area, a handling region or a handling rule (his item 7 open), and no regain score.
     assert.ok(!variant.items.some(item => ['V27', 'V29', 'V30', 'V31'].includes(String(item.row))))

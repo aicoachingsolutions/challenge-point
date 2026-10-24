@@ -228,6 +228,8 @@
         }
       },
       "attributeValues": [
+        {"attribute":"type","value":"full-size","label":"full-size","basis":{"words":["I agree that the coach should identify the available goal type and dimensions, without the engine inventing them."],"citedAs":"his reply filed 26 October 2026, item 4"}},
+        {"attribute":"type","value":"scaled","label":"scaled","basis":{"words":["I agree that the coach should identify the available goal type and dimensions, without the engine inventing them."],"citedAs":"his reply filed 26 October 2026, item 4"}},
         {
           "attribute": "type",
           "value": "mini-goal",

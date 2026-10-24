@@ -377,10 +377,10 @@ test('a variant equals its base minus its withdrawals plus its additions, elemen
     assert.ok(!JSON.stringify(variant.items).includes('"contractId":"provisional:A01-R1"'))
     assert.ok(JSON.stringify(variant.items).includes(`"contractId":"provisional:${V}"`))
     assert.deepEqual(variant.objectSuitability![0].widthM, { min: 1, max: 10 })
-    // Production holds no suitability. Re-pointed 26 October 2026 (Stage F): it holds one variant, A01-R2, the goal version (pinned in
-    // goal-version-knowledge.unit.ts), and still no suitability: which goals suit it is his open decision.
+    // K1: production keeps one variant, A01-R2, whose suitability is now authorized; the other gaps still prevent selection.
     assert.deepEqual(loadProvisionalRealizations().filter(r => r.basedOn !== undefined).map(r => [r.provisionalId, r.basedOn]), [['A01-R2', 'A01-R1']])
-    assert.ok(loadProvisionalRealizations().every(r => r.objectSuitability === undefined))
+    // K1 now records suitability only for the goal variant; the base still states none.
+    assert.deepEqual(loadProvisionalRealizations().filter(r => r.objectSuitability !== undefined).map(r => r.provisionalId), ['A01-R2'])
 })
 
 test('the integrity gate refuses a variant that would drop, duplicate or dangle, and a suitability without his words', () => {

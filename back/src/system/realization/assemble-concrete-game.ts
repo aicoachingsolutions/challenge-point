@@ -781,18 +781,20 @@ export function rosterRefusal(ctx: GateContext, realized: Realized): RosterRefus
  *   - OBJECT_INVOLVEMENT_NOT_SETTLED: the game holds an object of the kind whose count is not a whole number, so how many it needs is unknown.
  */
 export type ObjectAvailabilityRefusal =
+    | { cause: 'OBJECT_ATTRIBUTE_NOT_STATED'; kind: string; attribute: string; values: string[]; widthM: number; why: string }
     | { cause: 'OBJECT_AVAILABILITY_NOT_STATED'; kind: string; asks: 'AVAILABILITY' | 'WIDTH'; needed: number; why: string }
     | { cause: 'OBJECT_AVAILABILITY_SHORT'; kind: string; needed: number; available: number; why: string }
     /**
      * `rules` (stage I, 24 October 2026): the suitability the realization's authorized knowledge states for the kind, as read (empty where
      * nothing is decided), so the builder can say which objects it is built for (the d27 design's stage I(b)) without reading `why`.
      */
-    | { cause: 'OBJECT_NOT_SUITABLE'; kind: string; needed: number; available: number; widthM: number; decided: boolean; rules: { min: number | null; max: number | null }[]; why: string }
+    | { cause: 'OBJECT_NOT_SUITABLE'; kind: string; needed: number; available: number; widthM: number | null; decided: boolean; rules: { min: number | null; max: number | null; attributes?: Record<string, string[]> }[]; why: string }
     | { cause: 'OBJECT_INVOLVEMENT_NOT_SETTLED'; kind: string; why: string }
 
 /** What authorized knowledge says suits a realization's objects of one kind (`ProvisionalRealization.objectSuitability`), as the rule reads it. */
 interface SuitabilityRead {
     from: string
+    attributes?: Record<string, string[]>
     min: number | null
     max: number | null
 }
@@ -834,7 +836,7 @@ export function objectInvolvementOf(game: unknown, index: GateContext['index']):
 export function objectAvailabilityRefusal(index: GateContext['index'], game: unknown, envelope: unknown, contracts: LoadedContract[]): ObjectAvailabilityRefusal | null {
     const involvement = objectInvolvementOf(game, index)
     if (!involvement) return null
-    const stated = (envelope as { objects?: Record<string, { count?: unknown; widthM?: unknown }> } | undefined)?.objects
+    const stated = (envelope as { objects?: Record<string, Record<string, unknown>> } | undefined)?.objects
     for (const { kind, needed, elements, unsettled } of involvement) {
         if (unsettled) return { cause: 'OBJECT_INVOLVEMENT_NOT_SETTLED', kind, why: unsettled }
         if (needed === 0) continue
@@ -846,14 +848,23 @@ export function objectAvailabilityRefusal(index: GateContext['index'], game: unk
         }
         if (count < needed) return { cause: 'OBJECT_AVAILABILITY_SHORT', kind, needed, available: count, why: `${held}, and the session states ${count}` }
         const width = statement.widthM
-        if (typeof width !== 'number' || !Number.isFinite(width) || width <= 0) {
-            return { cause: 'OBJECT_AVAILABILITY_NOT_STATED', kind, asks: 'WIDTH', needed, why: `${held}, and the session states ${count} without saying how wide they are` }
-        }
         const rules: SuitabilityRead[] = contracts.flatMap(contract =>
             ((contract as { objectSuitability?: ObjectSuitability[] }).objectSuitability ?? [])
                 .filter(rule => rule.kind === kind)
-                .map(rule => ({ from: `${contract.contractId} (${rule.citedAs})`, min: rule.widthM.min, max: rule.widthM.max })),
+                .map(rule => ({ from: `${contract.contractId} (${rule.citedAs})`, min: rule.widthM.min, max: rule.widthM.max, ...(rule.attributes ? { attributes: rule.attributes } : {}) })),
         )
+        // A stated attribute can settle unsuitability even before a width is known. Missing attributes are asked only after width fits.
+        const offList = rules.filter(rule => Object.entries(rule.attributes ?? {}).some(([attribute, allowed]) =>
+            typeof statement[attribute] === 'string' && !allowed.includes(statement[attribute] as string)))
+        if (offList.length) return {
+            cause: 'OBJECT_NOT_SUITABLE', kind, needed, available: count,
+            widthM: typeof width === 'number' ? width : null, decided: true,
+            rules: rules.map(({ min, max, attributes }) => ({ min, max, ...(attributes ? { attributes } : {}) })),
+            why: `${held}; the stated attributes are outside what ${offList.map(rule => rule.from).join(' and ')} admits`,
+        }
+        if (typeof width !== 'number' || !Number.isFinite(width) || width <= 0) {
+            return { cause: 'OBJECT_AVAILABILITY_NOT_STATED', kind, asks: 'WIDTH', needed, why: `${held}, and the session states ${count} without saying how wide they are` }
+        }
         if (!rules.length) {
             return {
                 cause: 'OBJECT_NOT_SUITABLE',
@@ -875,9 +886,14 @@ export function objectAvailabilityRefusal(index: GateContext['index'], game: unk
                 available: count,
                 widthM: width,
                 decided: true,
-                rules: rules.map(rule => ({ min: rule.min, max: rule.max })),
+                rules: rules.map(({ min, max, attributes }) => ({ min, max, ...(attributes ? { attributes } : {}) })),
                 why: `${held}; the session states ${count}, ${width} m wide, outside what ${failing.map(rule => `${rule.from} admits (${rule.min ?? 'no minimum'} to ${rule.max ?? 'no maximum'} m)`).join(' and ')}`,
             }
+        }
+        for (const rule of rules) for (const attribute of Object.keys(rule.attributes ?? {})) {
+            if (typeof statement[attribute] === 'string' && (statement[attribute] as string).length) continue
+            const values = index.sessionResources?.attributes?.find(entry => entry.kind === kind && entry.attribute === attribute)?.values ?? []
+            return { cause: 'OBJECT_ATTRIBUTE_NOT_STATED', kind, attribute, values: [...values], widthM: width, why: `${held}; the suitability reads ${attribute}, which the session does not state` }
         }
     }
     return null

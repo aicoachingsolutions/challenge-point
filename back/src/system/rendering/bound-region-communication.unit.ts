@@ -85,6 +85,8 @@ const IFAB: Spec = { id: 'IFAB-LAW-1', area: [45, 42], goal: 7.32, type: 'full-s
 /** TEST-ONLY: the profile's bound-region block with the FA 5v5 entry beside the IFAB one (a stand-in for K1, never knowledge). */
 const blockWithFa = (): SportBoundRegions => {
     const block = copy(loadSportBoundRegions()!)
+    // K1: replace the production FA entry with this test's deliberately labelled copy.
+    block.pairings = block.pairings.filter(entry => entry.id !== "FA-MINI-SOCCER-5V5-2026")
     block.pairings.push({
         id: FA.id,
         document: 'TEST-ONLY: The Mini-Soccer and Youth Futsal Handbook (England Football / The FA), the d27 design section 1.6',

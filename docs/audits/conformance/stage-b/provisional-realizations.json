@@ -1102,6 +1102,28 @@
         },
         {
             "id": "A01-R2",
+            "objectSuitability": [
+                {
+                    "kind": "goal",
+                    "attributes": {
+                        "type": [
+                            "scaled"
+                        ]
+                    },
+                    "widthM": {
+                        "min": 3.6576,
+                        "max": 3.6576
+                    },
+                    "ruledOn": "2026-10-27",
+                    "by": "Christian",
+                    "citedAs": "his reply filed 27 October 2026, item 1; his reply filed 27 October 2026, item 6",
+                    "words": [
+                        "Please verify the applicable FA specification and keep the goal, penalty area, and penalty spot dimensions from the same authorized source rather than combining unrelated formats.",
+                        "Let’s treat the proposed configuration as an initial field-test candidate rather than assuming it is optimal.",
+                        "A mini-goal is not automatically equivalent to an appropriate goalkeeper-defended goal."
+                    ]
+                }
+            ],
             "contractId": "provisional:A01-R2",
             "category": "PROVISIONAL_REALIZATION_CHOICE",
             "realizes": "RPC-001",
