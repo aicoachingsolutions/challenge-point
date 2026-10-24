@@ -1758,6 +1758,159 @@ function gaEpisodeReachable(ctx: GateContext): CheckOutcome {
     )
 }
 
+/**
+ * `GA-DEAD-BALL-RESTART` — where a game's dead-ball restart policy is the common value, every dead ball restarts play the one way. Added 24
+ * October 2026 (register version 23, row RP1 and the deadBallRestart block; R1, the d27 design's stage R1, its section 2.3) for his reply
+ * filed 27 October 2026, item 4: *"Whenever the ball becomes dead, play resets to a new [specialized-role]-initiated build-out."* *"There
+ * should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity."* *"Ball remains live: play continues,
+ * including after possession changes."* *"Please ensure this is represented through a general, knowledge-authorized restart mechanism rather
+ * than activity-specific code."* (His role noun and the sport's restart nouns are quoted from the register; the coupling ratchet keeps a
+ * sport's nouns out of this layer, so only the bracketed form is written here.)
+ *
+ * **Generic, and vacuous unless the policy is the common value.** It names no trigger, row or value: the register's block names the policy
+ * row, its two values, the transition rows and the class of every trigger (`register.ts` indexDeadBallRestart). A game no item writes the
+ * policy for, or one keeping a restart per trigger, passes all four clauses with no applicable instance (SD-54). A policy addressed and not
+ * resolved blocks every clause by name; one resolved to a value outside the list fails every clause. Under the common value:
+ *
+ *   - **COVERED** — every reachable trigger (SD-44, `ctx.triggers`) classed STOPS_PLAY has a transition element, so no dead ball falls back to
+ *     an unstated or default restart. A transition whose trigger no `=` term fixes might cover one, so it withholds rather than fails;
+ *   - **STOPS** — each transition on such a trigger stops and restarts play (the block's play-state row is its `stops` value);
+ *   - **ONE_RESTART** — every transition that stops play and whose trigger is not classed NOT_A_STOPPAGE (the restarts after a dead ball:
+ *     the start is no dead ball) has one awardee (compared as canonical designations, `designationKey`), one taker (one participant, read
+ *     through the register, `sameParticipant`: two texts naming no registered participant identify nobody, so the clause withholds, SD-63),
+ *     one location and one method (the values themselves; a coach-decided location is open until realization closes it, so the clause
+ *     DEFERS and is asked again of the concrete game, where the realized stand-ins are compared) and one episode boundary, compared after
+ *     normalization (`String(value)`, as `buildOutStarters` reads it: a standing decision's boolean and an item's "true" are one value);
+ *   - **LIVE** — every transition on a trigger classed IN_PLAY lets play continue (the block's `continues` value), which guards SD-20's yield
+ *     to an item that would create a stoppage at a change of possession.
+ *
+ * It adds no transition and derives nothing: a realization writes the policy and states its own transitions; this proves them complete and
+ * uniform. Four clauses on every path (SD-53).
+ */
+export const DEAD_BALL_CHECK = 'GA-DEAD-BALL-RESTART'
+export const DEAD_BALL_COVERED_CLAUSE = 'every reachable trigger that makes the ball dead has a transition element'
+export const DEAD_BALL_STOPS_CLAUSE = 'every transition on a trigger that makes the ball dead stops and restarts play'
+export const DEAD_BALL_ONE_RESTART_CLAUSE = 'every transition that restarts play after the ball is dead restarts it the same way'
+export const DEAD_BALL_LIVE_CLAUSE = 'every transition on a trigger in play lets play continue'
+
+function gaDeadBallRestart(ctx: GateContext): CheckOutcome {
+    const COVERED = DEAD_BALL_COVERED_CLAUSE
+    const STOPS = DEAD_BALL_STOPS_CLAUSE
+    const ONE_RESTART = DEAD_BALL_ONE_RESTART_CLAUSE
+    const LIVE = DEAD_BALL_LIVE_CLAUSE
+    const probe = new Probe(ctx, DEAD_BALL_CHECK)
+    const spec = ctx.index.deadBallRestart
+    const all = (make: (clause: string) => ClauseResult, why: string) => result(DEAD_BALL_CHECK, probe, [COVERED, STOPS, ONE_RESTART, LIVE].map(make), why)
+    if (!spec) return all(clause => pass(clause, 0), 'the register names no dead-ball restart policy, so every trigger keeps its own restart')
+
+    // The policy, as `endAssignmentOf` reads the end assignment: a line no contribution addresses is the per-trigger value.
+    const policyLine = `game::${spec.row}`
+    const record = ctx.derived.get(policyLine)
+    const addressed = !!record && (record.entailing.length > 0 || record.bounding.length > 0 || record.narrowing.length > 0 || record.undetermined.length > 0 || !!record.open)
+    if (!addressed) {
+        probe.peek(policyLine)
+        return all(clause => pass(clause, 0), `${policyLine} is addressed by no contribution, so the game keeps a restart per trigger (${spec.perTrigger})`)
+    }
+    const policy = probe.cell(policyLine)
+    if (policy.state !== 'DERIVED') return all(clause => notEvaluable(clause), `${policyLine} is addressed and not established (${policy.state}), so how play restarts after a dead ball is not known`)
+    const value = String(policy.value)
+    if (!spec.values.includes(value)) return all(clause => fail(clause), `${policyLine} holds ${JSON.stringify(policy.value)}, which is none of ${spec.values.join(', ')}`)
+    if (value !== spec.common) return all(clause => pass(clause, 0), `${policyLine} is ${value}: every trigger keeps its own restart`)
+
+    const triggerOf = (cls: ElementClass): string | null => {
+        const term = (cls.constraints?.terms || []).find(t => t.attribute === spec.triggerAttribute && t.op === '=')
+        return term && term.op === '=' ? String(term.value) : null
+    }
+    const transitions = classesOn(ctx, spec.transitionRow)
+    const unfixed = transitions.filter(t => triggerOf(t) === null).map(t => t.classId)
+    const classOf = (cls: ElementClass) => {
+        const trigger = triggerOf(cls)
+        return trigger === null ? null : (spec.classOf.get(trigger) ?? null)
+    }
+    const said: string[] = []
+
+    // COVERED: a reachable trigger is named bare or with its argument (`REGION_ENTRY{r}`); only the name is classed.
+    const reachableStopping = [...new Set(ctx.triggers.map(trigger => trigger.split('{')[0]))].filter(trigger => spec.classOf.get(trigger) === 'STOPS_PLAY').sort()
+    const uncovered = reachableStopping.filter(trigger => !transitions.some(t => triggerOf(t) === trigger))
+    const covered = uncovered.length && !unfixed.length ? fail(COVERED, reachableStopping.length) : unfixed.length ? notEvaluable(COVERED) : pass(COVERED, reachableStopping.length)
+    said.push(`${reachableStopping.length} reachable trigger(s) make the ball dead (${reachableStopping.join(', ') || 'none'})` + (uncovered.length ? `; no transition element for ${uncovered.join(', ')}` : ''))
+    if (unfixed.length) said.push(`${unfixed.length} transition(s) keyed on no single trigger, so what they cover is not decided: ${unfixed.join(', ')}`)
+
+    // STOPS: each transition on a stopping trigger stops and restarts play.
+    const stopping = transitions.filter(t => classOf(t) === 'STOPS_PLAY')
+    const continuing: string[] = []
+    let stopsBlocked = false
+    for (const transition of stopping) {
+        const cell = probe.cell(lineOf(transition.classId, spec.playStateRow))
+        if (cell.state !== 'DERIVED') stopsBlocked = true
+        else if (String(cell.value) !== spec.stops) continuing.push(`${transition.classId} (${triggerOf(transition)}: ${String(cell.value)})`)
+    }
+    const stops = continuing.length ? fail(STOPS, stopping.length) : stopsBlocked ? notEvaluable(STOPS) : pass(STOPS, stopping.length)
+    if (continuing.length) said.push(`play does not stop at ${continuing.join('; ')}`)
+
+    // ONE_RESTART: every restart after a dead ball has one awardee, taker, location, method and episode boundary.
+    const restarting: ElementClass[] = []
+    let oneBlocked = unfixed.length > 0
+    for (const transition of transitions) {
+        const kind = classOf(transition)
+        if (kind === null || kind === 'NOT_A_STOPPAGE') continue
+        const state = probe.peek(lineOf(transition.classId, spec.playStateRow))
+        if (state.state !== 'DERIVED') {
+            probe.cell(lineOf(transition.classId, spec.playStateRow))
+            oneBlocked = true
+            continue
+        }
+        if (String(state.value) === spec.stops) restarting.push(transition)
+    }
+    type Read = { classId: string; key: string } | 'OPEN' | 'BLOCKED'
+    const properties: { name: string; row: string; keyOf: (value: unknown) => string | null }[] = [
+        { name: 'awardee', row: spec.awardeeRow, keyOf: value => designationKey(ctx.index, value) },
+        // A taker is compared as a participant; a value naming none identifies nobody, so it withholds (SD-63).
+        { name: 'taker', row: spec.takerRow, keyOf: value => { const found = participantOf(ctx.index, value); return found ? JSON.stringify([found.kind, found.row ?? null, found.value]) : null } },
+        { name: 'location', row: spec.locationRow, keyOf: value => JSON.stringify(value) },
+        { name: 'method', row: spec.methodRow, keyOf: value => JSON.stringify(value) },
+        { name: 'episode boundary', row: spec.startsEpisodeRow, keyOf: value => String(value) },
+    ]
+    const differing: string[] = []
+    let oneOpen = false
+    for (const property of properties) {
+        const reads: Read[] = restarting.map(transition => {
+            const cell = probe.cell(lineOf(transition.classId, property.row))
+            if (cell.state === 'OPEN') return 'OPEN'
+            if (cell.state !== 'DERIVED') return 'BLOCKED'
+            const key = property.keyOf(cell.value)
+            return key === null ? 'BLOCKED' : { classId: transition.classId, key }
+        })
+        if (reads.includes('BLOCKED')) oneBlocked = true
+        if (reads.includes('OPEN')) oneOpen = true
+        const known = reads.filter((read): read is { classId: string; key: string } => typeof read === 'object')
+        const keys = [...new Set(known.map(read => read.key))]
+        if (keys.length > 1) differing.push(`${property.name} (${keys.map(key => `${key} at ${known.filter(read => read.key === key).map(read => read.classId).join(', ')}`).join('; ')})`)
+    }
+    const oneRestart = differing.length
+        ? fail(ONE_RESTART, restarting.length)
+        : oneBlocked
+          ? notEvaluable(ONE_RESTART)
+          : oneOpen
+            ? deferred(ONE_RESTART, 'the realized location, method and awardee of each transition that restarts play after the ball is dead')
+            : pass(ONE_RESTART, restarting.length)
+    said.push(`${restarting.length} transition(s) restart play after the ball is dead (${restarting.map(t => `${t.classId}: ${triggerOf(t)}`).join('; ') || 'none'})` + (differing.length ? `; they differ in ${differing.join('; ')}` : ''))
+
+    // LIVE: every transition on a trigger in play lets play continue.
+    const inPlay = transitions.filter(t => classOf(t) === 'IN_PLAY')
+    const stopped: string[] = []
+    let liveBlocked = false
+    for (const transition of inPlay) {
+        const cell = probe.cell(lineOf(transition.classId, spec.playStateRow))
+        if (cell.state !== 'DERIVED') liveBlocked = true
+        else if (String(cell.value) !== spec.continues) stopped.push(`${transition.classId} (${triggerOf(transition)}: ${String(cell.value)})`)
+    }
+    const live = stopped.length ? fail(LIVE, inPlay.length) : liveBlocked ? notEvaluable(LIVE) : pass(LIVE, inPlay.length)
+    said.push(`${inPlay.length} transition(s) on a trigger in play` + (stopped.length ? `; play stops at ${stopped.join('; ')}` : ''))
+
+    return result(DEAD_BALL_CHECK, probe, [covered, stops, oneRestart, live], `${policyLine} is ${spec.common}: ${said.join('; ')}`)
+}
+
 /** `GA-TRANSITION-COHERENCE` — `CONTINUE` ⇒ no placement; `STOP_RESUME` ⇒ taker and region. */
 function gaTransitionCoherence(ctx: GateContext): CheckOutcome {
     const CONTINUE_CLAUSE = 'a CONTINUE transition carries no placement'
@@ -4501,6 +4654,8 @@ const GATE_A_CHECKS: ((ctx: GateContext) => CheckOutcome)[] = [
     gaParticipantsPresent,
     // Twenty-first, added 22 October 2026 (register version 16) for his reply filed 25 October 2026, item 2.
     gaRoleEvents,
+    // Twenty-second, added 24 October 2026 (register version 23) for his reply filed 27 October 2026, item 4.
+    gaDeadBallRestart,
 ]
 
 export interface GateOutcome {

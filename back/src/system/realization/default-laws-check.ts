@@ -18,6 +18,8 @@
  *   - otherwise ADAPTATION_OWED where an item departs from it on the absence of a precondition that now HOLDS (the departure's own reason is
  *     false here: the design's X5 - the end-line restarts approved for an end line without an object, kept where one now stands);
  *   - otherwise DEPARTED where an item departs from the whole of it, citing the items and his words;
+ *   - otherwise ADAPTATION_OWED where every `requires` precondition holds, the law is a restart law (`restart`) and the game holds the common
+ *     dead-ball restart (register row RP1; R1, 24 October 2026): the one restart replaces it, and nothing records the departure;
  *   - otherwise APPLIES where every `requires` precondition holds - nothing is said, and a departure from part of it is cited (the uncovered
  *     part is the law's own, which can apply);
  *   - otherwise ADAPTATION_OWED: a precondition is missing and nothing departs from the whole of it; a departure from part of it is cited.
@@ -278,6 +280,19 @@ const citationOf = (item: string, departure: LawDeparture): DepartureCitation =>
 const predicateText = (predicate: LawPredicate): string =>
     `${predicate.predicate}${['kind', 'function', 'row'].filter(key => (predicate as any)[key] !== undefined).map(key => ` ${key}=${(predicate as any)[key]}`).join('')}`
 
+/**
+ * **Whether the game holds the common dead-ball restart, said as a reason, or null** — R1, 24 October 2026 (the d27 design's section 2.6:
+ * *"Where RP1 is COMMON (read through the register block), a law marked `restart` that would APPLY becomes ADAPTATION_OWED."*). Christian,
+ * reply filed 27 October 2026, item 4: *"Whenever the ball becomes dead, play resets to a new [specialized-role]-initiated build-out."* Read
+ * from the realized game at the row the register's dead-ball block names, against its common value; a game holding anything else there
+ * (the per-trigger value, or nothing, as every game no item writes it for) keeps every restart law as before.
+ */
+function commonDeadBallRestartOf(game: unknown, index: RegisterIndex): string | null {
+    const spec = index.deadBallRestart
+    if (!spec) return null
+    return readAt(game, spec.path) === spec.common ? `the game's dead-ball restart policy (${spec.path}) is ${spec.common}: every dead ball restarts play the one designated way` : null
+}
+
 /** The end lines of the area and who defends each in this block (the role holders and setup assignments whose attacking end is the other). */
 function endsOf(game: unknown, index: RegisterIndex, roleBlock: RoleBlock | null, lengthM: number | null): BlockLawAccount['ends'] {
     const setup = [...index.designations.resolutions].filter(([, resolution]) => resolution.kind === 'SETUP_ASSIGNMENT').map(([name]) => name)
@@ -307,6 +322,7 @@ export function blockLawAccountOf(input: {
     const ends = endsOf(game, index, roleBlock, lengthM)
     const departures = input.items.flatMap(item => departuresOf(item).map(departure => ({ item: item.itemId, departure })))
     const entries: LawAccountEntry[] = []
+    const commonRestart = commonDeadBallRestartOf(game, index)
     for (const law of laws.laws) {
         const places: Place[] = law.scope === 'PER_END' ? [{ end: 0, lengthM }, { end: 1, lengthM }] : [{ end: null, lengthM }]
         const own = departures.filter(entry => entry.departure.law === law.id)
@@ -360,6 +376,10 @@ export function blockLawAccountOf(input: {
                 } else if (entry.departedBy.length) {
                     entry.status = 'DEPARTED'
                     entry.why = `departed from by ${entry.departedBy.map(found => found.item).join(', ')}`
+                } else if (!missing.length && law.restart && commonRestart) {
+                    // R1 (24 October 2026): under the game's common dead-ball restart a restart law cannot apply as written, and nothing
+                    // records its departure, so an adaptation is owed - never APPLIES while the coach is told every dead ball restarts one way.
+                    entry.why = `every precondition holds, and ${commonRestart}, so this restart law cannot apply as written and nothing departs from the whole of it${inPart}`
                 } else if (!missing.length) {
                     entry.status = 'APPLIES'
                     entry.why = entry.departedInPart.length ? `every precondition holds, and it applies where ${entry.departedInPart.map(found => found.item).join(', ')} does not depart from it` : 'every precondition holds'

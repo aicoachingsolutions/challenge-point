@@ -150,14 +150,19 @@ test('3. a transition is placed by what it holds; a TEST-ONLY game whose every c
     const trigger = (t: any) => (t.selector ?? []).find((s: any) => s.attribute === 'trigger' && s.op === '=')?.value
     const facts = sectionFactsOf(block)
     const byKind = (kind: string) => transitions.filter(t => facts.transitionKind(String(t.elementId)) === kind).map(t => String(trigger(t)))
-    assert.deepEqual(byKind('EPISODE_OPENER').sort(), ['COACH_JUDGED_EPISODE_CONCLUSION', 'SCORE', 'START'], 'the start, and the restarts that begin the bounded episode, open it')
-    assert.deepEqual([...new Set(byKind('RESTART'))].sort(), ['OUT_END_LINE', 'OUT_TOUCHLINE'], 'the ball going out opens nothing')
+    // Re-pointed 24 October 2026 (R1): his reply filed 27 October 2026, item 4 ("Whenever the ball becomes dead, play resets to a new
+    // goalkeeper-initiated build-out.") - every dead ball now begins the bounded episode with the goalkeeper, so every restart opens it and
+    // none is a restart that opens nothing. Was: the start, a score and the coach's conclusion opened it, and the ball going out opened nothing.
+    assert.deepEqual(byKind('EPISODE_OPENER').sort(), ['COACH_DIRECTED_STOPPAGE', 'COACH_JUDGED_EPISODE_CONCLUSION', 'INFRINGEMENT_STOPPAGE', 'OUT_END_LINE', 'OUT_TOUCHLINE', 'SCORE', 'START'], 'the start, and the restarts that begin the bounded episode, open it')
+    assert.deepEqual(byKind('RESTART'), [], 'no restart opens nothing')
     assert.deepEqual(byKind('IN_PLAY'), ['POSSESSION_CHANGE'], 'a turnover keeps play going')
-    // TEST-ONLY: no role's credit is bounded, so no begin condition is read; only the start opens play.
+    // TEST-ONLY: no role's credit is bounded, so no begin condition is read; only the start opens play, and every other restart is one that
+    // opens nothing (the reading the ball going out had in production until R1).
     const unbounded = JSON.parse(JSON.stringify(block))
     for (const element of unbounded.game.activityRoles) element.creditedWithin = 'WHOLE_GAME'
     const plain = sectionFactsOf(unbounded)
     assert.deepEqual(transitions.filter(t => plain.transitionKind(String(t.elementId)) === 'EPISODE_OPENER').map(t => String(trigger(t))), ['START'])
+    assert.deepEqual(transitions.filter(t => plain.transitionKind(String(t.elementId)) === 'RESTART').map(t => String(trigger(t))).sort(), ['COACH_DIRECTED_STOPPAGE', 'COACH_JUDGED_EPISODE_CONCLUSION', 'INFRINGEMENT_STOPPAGE', 'OUT_END_LINE', 'OUT_TOUCHLINE', 'SCORE'])
     assert.equal(plain.transitionKind('TEST-ONLY'), null)
 })
 
@@ -193,11 +198,13 @@ test('5. against every producer proposal, the ONLY moves are the duration to Whe
             moved.set(placed.section, new Set([...(moved.get(placed.section) ?? []), proposed.text]))
         }
     }
-    // The moves happen, so the comparison bites: in A01, the duration, and both ball-out restarts.
+    // The moves happen, so the comparison bites: in A01, the duration. Re-pointed 24 October 2026 (R1): the two ball-out restarts that moved
+    // to Restarts and ball out are withdrawn (his reply filed 27 October 2026, item 4: "There should be no separate corners, goal kicks,
+    // throw-ins, free kicks, or penalty kicks for this activity."), and the ball going out is said in the restart sentence, which opens the
+    // episode, so no production sentence moves there now; the RESTART reading is held by test 3's TEST-ONLY copy.
     assert.deepEqual([...(moved.get(WHEN_IT_ENDS) ?? [])], ['Play for 20 minutes'])
     const restarts = [...(moved.get(RESTARTS) ?? [])]
-    assert.equal(restarts.length, 2, JSON.stringify(restarts))
-    assert.ok(restarts.every(text => text.startsWith('If the ball goes out over ')), JSON.stringify(restarts))
+    assert.equal(restarts.length, 0, JSON.stringify(restarts))
 })
 
 test('6a. when is the section\'s reading, tier is when\'s, and every rendering reads in section order with nothing added, dropped or reworded', () => {
@@ -225,7 +232,9 @@ test('6b. the served A01 activity reads in section order, at every session, with
         assert.deepEqual([...new Set(instructions.map(i => i.section))], ['Set up', 'Players', 'How it works', 'How to score', WHEN_IT_ENDS, 'Role exchange', RESTARTS, 'Adjusting the activity'])
         assert.deepEqual(instructions.filter(i => i.section === WHEN_IT_ENDS).map(i => i.text), ['Play for 20 minutes'])
         // Moved 21 October 2026 (stage 2B), 2 -> 4: the opening restart's HOW and where it is taken, before the two ball-out restarts.
-        assert.equal(instructions.filter(i => i.section === RESTARTS).length, 4)
+        // Moved 24 October 2026 (R1), 4 -> 2: the two ball-out restarts are withdrawn (his reply filed 27 October 2026, item 4); the HOW and
+        // where the restart is taken stay, said of every restart after a dead ball.
+        assert.equal(instructions.filter(i => i.section === RESTARTS).length, 2)
         assert.ok(instructions.filter(i => i.section === RESTARTS).every(i => i.when === 'ADMINISTER' && i.block === undefined))
     }
 })
@@ -384,7 +393,9 @@ test('13. an opener is read per field (when / who / how); every transition row h
         if (reading === 'EPISODE_OPENER') assert.deepEqual(kinds, ['EPISODE_OPENER', 'EPISODE_OPENER', 'OPENER_TAKER', 'OPENER_TAKER', 'RESTART', 'RESTART'], id)
         else assert.deepEqual(kinds, Array(6).fill(reading), id)
     }
-    assert.deepEqual(Object.fromEntries(readAs), { EPISODE_OPENER: 3, RESTART: 4, IN_PLAY: 1 }, 'the opening restarts, the ball going out, the turnover')
+    // Re-pointed 24 October 2026 (R1): every restart after a dead ball opens the bounded episode (his reply filed 27 October 2026, item 4),
+    // so seven openers, no restart that opens nothing, and the turnover. Was: { EPISODE_OPENER: 3, RESTART: 4, IN_PLAY: 1 }.
+    assert.deepEqual(Object.fromEntries(readAs), { EPISODE_OPENER: 7, IN_PLAY: 1 }, 'the start and every restart after a dead ball, and the turnover')
     // A transition row the field table does not read is refused loudly where an opener cites it (TEST-ONLY row); any other reads whole.
     const testOnlyRows = rowIndexOf([...((loadRegister().rows ?? []) as any[]).map(row => ({ id: String(row.id), path: String(row.path) })), { id: 'TEST-ONLY-T', path: 'transitions[].testOnly' }])
     try {
@@ -398,8 +409,13 @@ test('13. an opener is read per field (when / who / how); every transition row h
 
 /** His role's noun is the session's (data), read as every test here reads it. */
 const TAKER = `The building team's ${ROLE} restarts play`
-/** The one sentence said until stage 2B (served at every session, snapshot of stage 2A). */
-const ONE_SENTENCE = `${TAKER} from the feet, with the ball still or moving: at the start, after either team scores and whenever you decide that an attack has run its course (at a stoppage or while play is on)`
+/**
+ * The one sentence said until stage 2B (served at every session, snapshot of stage 2A), with the moments it would say since 24 October 2026
+ * (R1: his reply filed 27 October 2026, item 4, the ball going out and the coach's two other stoppages joining the restarts). Was: "... :
+ * at the start, after either team scores and whenever you decide that an attack has run its course (at a stoppage or while play is on)".
+ */
+const MOMENTS = 'at the start, after either team scores, whenever the ball goes out of play, whenever you decide that an attack has run its course (at a stoppage or while play is on), whenever you stop play for a foul and whenever you stop play for any other reason'
+const ONE_SENTENCE = `${TAKER} from the feet, with the ball still or moving: ${MOMENTS}`
 
 test('14. the opening restart is said as WHEN (How it works, before the start placement) and HOW and WHERE (Restarts and ball out), at every session, from the one sentence\'s words and citations', () => {
     const counts = new Set<number>()
@@ -417,7 +433,7 @@ test('14. the opening restart is said as WHEN (How it works, before the start pl
         const where = one(`You choose where the building team's ${ROLE} restarts play`)
         // The words: the one sentence cut at the colon, its taker said again at the start of HOW; WHERE names its own restart.
         assert.equal(`${how.text}${when.text.slice(TAKER.length)}`, ONE_SENTENCE, what)
-        assert.equal(when.text, `${TAKER}: at the start, after either team scores and whenever you decide that an attack has run its course (at a stoppage or while play is on)`, what)
+        assert.equal(when.text, `${TAKER}: ${MOMENTS}`, what)
         assert.equal(how.text, `${TAKER} from the feet, with the ball still or moving`, what)
         assert.equal(where.text, `You choose where the building team's ${ROLE} restarts play, consistent with the intended build-out situation, in front of the pressing team's target zone`, what)
         assert.ok(!instructions.some(i => i.text.includes('each of these restarts is taken')), `${what}: no dangling "these restarts" in Restarts and ball out`)
@@ -428,8 +444,8 @@ test('14. the opening restart is said as WHEN (How it works, before the start pl
         assert.deepEqual([when.section, when.when], ['How it works', 'UNDERSTAND_AND_BEGIN'], what)
         assert.ok(instructions[instructions.indexOf(when) + 1].text.startsWith('Before each of these restarts'), `${what}: the start placement follows the WHEN directly`)
         const restarts = instructions.filter(i => i.section === RESTARTS)
-        assert.deepEqual(restarts.slice(0, 2), [how, where], what)
-        assert.ok(restarts.slice(2).every(i => i.text.startsWith('If the ball goes out over ')), what)
+        // Re-pointed 24 October 2026 (R1): the two ball-out restarts that followed are withdrawn (his reply filed 27 October 2026, item 4).
+        assert.deepEqual(restarts, [how, where], what)
         assert.deepEqual([how.when, where.when], ['ADMINISTER', 'ADMINISTER'], what)
         assert.equal(where.status, 'COACH_CHOICE', `${what}: where it is taken is the coach's`)
         // The citations, in both blocks: every path the one sentence cited is cited again; the taker (awardee and taker), named by both
@@ -452,14 +468,19 @@ test('14. the opening restart is said as WHEN (How it works, before the start pl
             assert.deepEqual([ownWhen, ownHow, ownWhere].map(i => [i.section, i.text]), [when, how, where].map(i => [i.section, i.text]), `${inBlock}: its own words and sections are the composed ones`)
             const facts = sectionFactsOf(block)
             const openers = (block.game.transitions as any[]).filter(t => facts.transitionKind(String(t.elementId)) === 'EPISODE_OPENER')
-            assert.equal(openers.length, 3, inBlock)
+            // Re-pointed 24 October 2026 (R1): seven openers (every dead ball, his reply filed 27 October 2026, item 4), and the WHEN cites the
+            // qualifiers of the two out-of-play restarts it says, the object its out-of-play phrase names (the HOW names it too, so it is
+            // cited by both) and the dead-ball restart policy it states. Was: three openers, the object named by the HOW alone.
+            assert.equal(openers.length, 7, inBlock)
             const at = (t: any, field: string) => `transitions[${t.elementId}].${field}`
             const object = `objects[${(block.game.objects as any[]).find(o => typeof o?.kind === 'string').elementId}].kind`
-            const cited = [...openers.flatMap(t => ['awardedTo', 'placement.actor', 'placement.method', 'playState', 'selector'].map(field => at(t, field))), object]
+            const qualifiers = openers.flatMap(t => Object.keys(t.qualifiers ?? {}).map(field => at(t, `qualifiers.${field}`)))
+            assert.equal(qualifiers.length, 4, `${inBlock}: the touchline's last touch and region, the end line's last touch and end line`)
+            const cited = [...openers.flatMap(t => ['awardedTo', 'placement.actor', 'placement.method', 'playState', 'selector'].map(field => at(t, field))), ...qualifiers, object, 'restartPolicy.deadBall']
             assert.deepEqual([...new Set([...ownWhen.from, ...ownHow.from])].sort(), [...cited].sort(), `${inBlock}: the one sentence's paths and nothing else`)
             for (const path_ of cited) {
-                const taker = path_.endsWith('.awardedTo') || path_.endsWith('.placement.actor')
-                assert.equal([ownWhen, ownHow].filter(i => i.from.includes(path_)).length, taker ? 2 : 1, `${inBlock}: ${path_}`)
+                const both = path_.endsWith('.awardedTo') || path_.endsWith('.placement.actor') || path_ === object
+                assert.equal([ownWhen, ownHow].filter(i => i.from.includes(path_)).length, both ? 2 : 1, `${inBlock}: ${path_}`)
             }
             assert.deepEqual([...ownWhere.from].sort(), openers.flatMap(t => ['placement.region', 'awardedTo', 'placement.actor'].map(field => at(t, field))).sort(), inBlock)
             assert.deepEqual([when, how, where].map(i => [...i.from].sort()), [ownWhen, ownHow, ownWhere].map(i => [...i.from].sort()), `${inBlock}: the composed sentences cite exactly what this block's own do`)
@@ -482,7 +503,11 @@ test('15. the first read carries every path read for understanding and beginning
     const openers = (block.game.transitions as any[]).filter(t => facts.transitionKind(String(t.elementId)) === 'EPISODE_OPENER')
     // The taker and the play state of each opening restart are cited in the first read only by the WHEN. (Its triggers' selectors are
     // also cited by the start placement, its antecedent, so they stay carried: the check reads citations, not words.)
-    const expected = openers.flatMap(t => ['awardedTo', 'placement.actor', 'playState'].map(field => `transitions[${t.elementId}].${field}`)).sort()
+    // Re-pointed 24 October 2026 (R1): and the qualifiers of the out-of-play openers (rows T1a-T1c, a WHEN field of an opener), which only
+    // the WHEN cites since the ball going out joined its moments (his reply filed 27 October 2026, item 4).
+    const expected = openers
+        .flatMap(t => [...['awardedTo', 'placement.actor', 'playState'].map(field => `transitions[${t.elementId}].${field}`), ...Object.keys(t.qualifiers ?? {}).map(field => `transitions[${t.elementId}].qualifiers.${field}`)])
+        .sort()
     const toRestarts = (i: Instruction): Instruction => ({ ...i, section: RESTARTS, when: 'ADMINISTER' })
     const moved = { ...rendered, instructions: rendered.instructions.map(i => (i === when ? toRestarts(i) : i)) }
     assert.deepEqual([...firstReadUncarried(moved.instructions, facts)].sort(), expected)

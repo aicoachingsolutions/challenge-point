@@ -95,7 +95,8 @@ test('1. A01 at 12/1, 12/2 and 11/1: drawn from each block\'s game, set out once
     for (const [players, keepers] of [[12, 1], [12, 2], [11, 1]] as const) {
         const what = `A01 ${players}/${keepers}`
         const { input, activity } = inputOf(a01At(players, keepers))
-        assert.equal(activity.rendered.instructions.length, 28, `${what}: the activity is served with its 28 sentences`)
+        // Re-pointed 24 October 2026 (R1): 28 -> 26, the throw-in and end-line sentences withdrawn (his reply filed 27 October 2026, item 4).
+        assert.equal(activity.rendered.instructions.length, 26, `${what}: the activity is served with its 26 sentences`)
         const draft = activity.diagramDraft!
         assert.ok(draft, `${what}: the administrator's answer carries the diagram`)
         // Re-pointed 22 October 2026 (stage 5B): the build's draft is the served one (`diagramForServing`), the model exactly these games'.
@@ -393,7 +394,8 @@ test('6. on the real chain a diagram failure withholds the diagram only: the act
         }
         const admin = buildActivityForReview(a01At(12, 1), { includeDrafts: true }) as ServedActivity
         assert.equal(admin.outcome, 'served')
-        assert.equal(admin.rendered.instructions.length, 28)
+        // Re-pointed 24 October 2026 (R1): 28 -> 26, the throw-in and end-line sentences withdrawn (his reply filed 27 October 2026, item 4).
+        assert.equal(admin.rendered.instructions.length, 26)
         assert.deepEqual(admin.rendered, coach.rendered)
         assert.deepEqual(admin.overview, coach.overview)
         assert.equal(admin.diagramDraft!.verdict, 'WITHHELD')

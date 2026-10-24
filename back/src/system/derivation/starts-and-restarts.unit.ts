@@ -119,7 +119,10 @@ test('register version 12 carries the capabilities as data, each in his words or
     assert.ok(String(register.version).includes('Supersedes version 12, which adds starts and restarts built from knowledge and the coach-judged episode conclusion'))
     assert.ok(String(register.version).includes('Supersedes version 11'), 'the version history is kept')
     assert.ok(index.vocabularies.get('trigger')!.includes(TOKEN))
-    assert.ok(index.vocabularyVersions.trigger.startsWith('4 (2026-10-15, register version 12'))
+    // Re-pointed 24 October 2026 (R1): trigger version 5 (two coach stoppages, his reply filed 27 October 2026, item 4) supersedes 4 and keeps
+    // its entry.
+    assert.ok(index.vocabularyVersions.trigger.startsWith('5 (2026-10-24, register version 23'))
+    assert.ok(index.vocabularyVersions.trigger.includes('Version 4, 2026-10-15, register version 12 - adds COACH_JUDGED_EPISODE_CONCLUSION'))
     const semantics: any = index.triggerSemantics[TOKEN]
     for (const words of [
         'M4 — Coach-judged episode conclusion: Approved.',
@@ -303,13 +306,18 @@ test('GA-EPISODE-REACHABLE passes in each block of A01: the start, the after-sco
         // item 1 and item 3 C): the building role's credit is begun only by those three, each awarded to it, and ended by every
         // transition that can take possession from it (credit-episode.unit.ts).
         assert.deepEqual(reach.clauses.map((c: any) => c.verdict), ['PASS', 'PASS', 'PASS', 'PASS', 'PASS'])
-        assert.equal(reach.clauses[1].instances, 3, 'three transitions begin the build-out episode')
-        for (const id of ['A01-R1-T1-1: START', 'A01-R1-T1-2: SCORE', `A01-R1-T1-3: ${TOKEN}`]) assert.ok(reach.why.includes(`c:provisional:A01-R1:${id}`), id)
+        /**
+         * Re-pointed 24 October 2026 (R1): his reply filed 27 October 2026, item 4 ("Whenever the ball becomes dead, play resets to a new
+         * goalkeeper-initiated build-out."). Every dead ball now begins the build-out episode with the building team's goalkeeper - the ball
+         * going out over a touchline or an end line and the coach's stoppages for an infringement or any other reason, beside the start, a
+         * score and the coach's conclusion - so seven transitions begin it, all awarded to the building role; there is no ordinary restart
+         * any more, and the change of possession still never begins one.
+         */
+        assert.equal(reach.clauses[1].instances, 7, 'seven transitions begin the build-out episode')
+        for (const id of ['A01-R1-T1-1: START', 'A01-R1-T1-2: SCORE', `A01-R1-T1-3: ${TOKEN}`, 'A01-R1-T1-8: OUT_TOUCHLINE', 'A01-R1-T1-9: OUT_END_LINE', 'A01-R1-T1-10: INFRINGEMENT_STOPPAGE', 'A01-R1-T1-11: COACH_DIRECTED_STOPPAGE'])
+            assert.ok(reach.why.includes(`c:provisional:A01-R1:${id}`), id)
         assert.ok(reach.why.includes('awarded to ROLE_HOLDER_BUILDING'), 'only the building team initiates new build-out episodes (his D7)')
-        // Ordinary restarts never begin one; the change of possession never does.
-        for (const ruled of ['A01-R1-T1-4 (begins no episode)', 'A01-R1-T1-6 (begins no episode)', 'GF2-07.a (a possession change begins an attacking episode, never a build-out one)'])
-            assert.ok(reach.why.includes(ruled), ruled)
-        for (const id of ['A01-R1-T1-5', 'A01-R1-T1-7']) assert.ok(reach.why.includes(`${id} (taken by "a player of the team in this element's T2": it meets no arm of the begin condition)`), `${id}: the pressing team's ordinary restart is not a build-out start`)
+        assert.ok(reach.why.includes('ruled out: c:restated:GF2:GF2-07.a (a possession change begins an attacking episode, never a build-out one)'), reach.why)
         assert.equal(check(staged, 'GA-REFERENCE-INTEGRITY').clauses[0].verdict, 'PASS')
     }
 })
@@ -318,7 +326,8 @@ test('the two clauses bite: a second awardee fails, no starter fails, and withou
     // TEST-ONLY: the after-score restart awarded to the pressing role — two awardees.
     const [split] = a01Blocks(contracts => {
         const realization = contracts.find(c => c.contractId === 'provisional:A01-R1')!
-        realizationItem(contracts, 'A01-R1-T2-1').selector = 'trigger ∈ {START, COACH_JUDGED_EPISODE_CONCLUSION}'
+        // Re-pointed 24 October 2026 (R1): the widened award keeps every other restart; only the score's is taken out.
+        realizationItem(contracts, 'A01-R1-T2-1').selector = 'trigger ∈ {START, COACH_JUDGED_EPISODE_CONCLUSION, OUT_TOUCHLINE, OUT_END_LINE, INFRINGEMENT_STOPPAGE, COACH_DIRECTED_STOPPAGE}'
         realization.items.push({ ...realizationItem(contracts, 'A01-R1-T2-1'), itemId: 'A01-R1-TEST-ONLY', selector: 'trigger=SCORE', value: 'ROLE_HOLDER_PRESSING' })
     })
     // The third clause (stage K6): the placements are still re-established at the three starters. The fourth (stage M1, 17 October
@@ -364,11 +373,18 @@ test('the begin condition counts only for its own episode, and the two referent 
     // ... while on T4, where the register opens the coach's choice, it is exempt: the realized game passes the post-realization
     // gate with the stand-ins in place (the 'communication' stop pinned in the realization test below).
 
-    // TEST-ONLY: a begin-condition referent written as a restart location (T4) — read as text there, never skipped.
-    const [placed] = a01Blocks(contracts => void (realizationItem(contracts, 'A01-R1-T4-2').value = origin(contracts).value))
+    // TEST-ONLY: a begin-condition referent written as a restart location (T4) — read as text there, never skipped. Re-pointed 24 October
+    // 2026 (R1): the touchline's own location item (A01-R1-T4-2) is withdrawn, so the touchline's restart location is taken out of the
+    // coach's two ranges and a TEST-ONLY item writes the referent there instead.
+    const [placed] = a01Blocks(contracts => {
+        const all = 'trigger ∈ {START, SCORE, COACH_JUDGED_EPISODE_CONCLUSION, OUT_END_LINE, INFRINGEMENT_STOPPAGE, COACH_DIRECTED_STOPPAGE}'
+        for (const id of ['A01-R1-T4-1', 'A01-R1-T4-4']) realizationItem(contracts, id).selector = all
+        const realization = contracts.find(c => c.contractId === 'provisional:A01-R1')!
+        realization.items.push({ ...realizationItem(contracts, 'A01-R1-T2-1'), itemId: 'A01-R1-TEST-ONLY', row: 'T4', selector: 'trigger=OUT_TOUCHLINE', value: origin(contracts).value, departsFrom: undefined } as any)
+    })
     const located = check(placed.staged, 'GA-REFERENCE-INTEGRITY')
     assert.notEqual(located.clauses[1].verdict, 'PASS', located.why)
-    assert.ok(JSON.stringify(located.blockedBy).includes('A01-R1-T1-4::T4') || located.clauses[1].verdict === 'FAIL', located.why)
+    assert.ok(JSON.stringify(located.blockedBy).includes('A01-R1-T1-8::T4') || located.clauses[1].verdict === 'FAIL', located.why)
     // The production begin condition is unaffected: it types the build-out condition and the clause is not blocked by it.
     const [x] = a01Blocks()
     assert.equal(check(x.staged, 'GA-EPISODE-REACHABLE').verdict, 'PASS')
@@ -379,14 +395,16 @@ test('the begin condition counts only for its own episode, and the two referent 
 test("A01-R1's transitions as his decisions establish them, and no timer, window, pass count, conceding award or stopped turnover", () => {
     const [x] = a01Blocks()
     const transitions = x.staged.classes.filter((c: any) => c.row === 'T1')
+    // Re-pointed 24 October 2026 (R1): his reply filed 27 October 2026, item 4 - the ball going out is one element per line, no longer
+    // partitioned by who touched it last, and the coach's stoppages for an infringement or any other reason are elements of their own.
     assert.deepEqual(
         transitions.map((c: any) => c.constraints.terms.map((t: any) => `${t.attribute}=${t.value}`).join(' & ')).sort(),
         [
+            'trigger=COACH_DIRECTED_STOPPAGE',
             `trigger=${TOKEN}`,
-            'trigger=OUT_END_LINE & qualifier.lastTouch=ROLE_HOLDER_BUILDING',
-            'trigger=OUT_END_LINE & qualifier.lastTouch=ROLE_HOLDER_PRESSING',
-            'trigger=OUT_TOUCHLINE & qualifier.lastTouch=ROLE_HOLDER_BUILDING',
-            'trigger=OUT_TOUCHLINE & qualifier.lastTouch=ROLE_HOLDER_PRESSING',
+            'trigger=INFRINGEMENT_STOPPAGE',
+            'trigger=OUT_END_LINE',
+            'trigger=OUT_TOUCHLINE',
             'trigger=POSSESSION_CHANGE',
             'trigger=SCORE',
             'trigger=START',
@@ -394,7 +412,7 @@ test("A01-R1's transitions as his decisions establish them, and no timer, window
     )
     const value = (lineId: string) => x.staged.derived.lines.get(lineId)?.entailing?.[0]?.value
     assert.equal(value(`${classIdOf(x.staged, 'POSSESSION_CHANGE')}::T6`), 'CONTINUE', 'a regain does not stop play (his D1)')
-    for (const trigger of ['START', 'SCORE', TOKEN]) {
+    for (const trigger of ['START', 'SCORE', TOKEN, 'OUT_TOUCHLINE', 'OUT_END_LINE', 'INFRINGEMENT_STOPPAGE', 'COACH_DIRECTED_STOPPAGE']) {
         const id = classIdOf(x.staged, trigger)
         assert.equal(value(`${id}::T6`), 'STOP_RESUME', trigger)
         assert.equal(value(`${id}::T2`), 'ROLE_HOLDER_BUILDING', trigger)
@@ -410,8 +428,10 @@ test("A01-R1's transitions as his decisions establish them, and no timer, window
     }
     assert.ok(!x.staged.triggers.some((t: string) => t.startsWith('TIME_EXPIRY')), 'no timer')
     assert.ok(!x.staged.classes.some((c: any) => c.row === 'V23'), 'no time window')
-    const pressing = 'qualifier.lastTouch=ROLE_HOLDER_PRESSING'
-    for (const c of transitions.filter((t: any) => t.constraints.terms.some((term: any) => `${term.attribute}=${term.value}` === pressing))) assert.equal(String(value(`${c.classId}::T7`)), 'false', 'off the pressing team: the episode continues')
+    // Re-pointed 24 October 2026 (R1): no restart continues an episode any more - every dead ball begins a new one (A01-R1-T7-1; SD-14 for
+    // the start and a score), and the out-of-play elements carry who touched the ball last as each team (A01-R1-T1a-1).
+    for (const trigger of ['OUT_TOUCHLINE', 'OUT_END_LINE', 'INFRINGEMENT_STOPPAGE', 'COACH_DIRECTED_STOPPAGE', TOKEN]) assert.equal(String(value(`${classIdOf(x.staged, trigger)}::T7`)), 'true', `${trigger}: a new build-out episode begins`)
+    for (const trigger of ['OUT_TOUCHLINE', 'OUT_END_LINE']) assert.equal(value(`${classIdOf(x.staged, trigger)}::T1a`), 'EACH_TEAM', trigger)
     const realization = provisionalRealizationNamed('A01-R1')!
     const named = JSON.stringify(realization.items.map(i => [i.selector, i.value]))
     for (const forbidden of ['CONCEDING_TEAM', 'TIME_EXPIRY', 'COMPLETED_PASS', 'FIRST_FORWARD_PASS', 'V23', 'V24', 'V25', 'V26']) assert.ok(!named.includes(forbidden), forbidden)

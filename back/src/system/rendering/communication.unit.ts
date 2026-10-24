@@ -169,7 +169,12 @@ test('1. the review draft of A01 (TEST-ONLY: the table as at stage M5): every se
         // the start placement, his D4) and HOW (Restarts and ball out, below). Was: "The building team's goalkeeper restarts play from
         // the feet, with the ball still or moving: at the start, after either team scores and whenever you decide that an attack has
         // run its course (at a stoppage or while play is on)".
-        `How it works: The building team's ${ROLE} restarts play: at the start, after either team scores and whenever you decide that an attack has run its course (at a stoppage or while play is on)`,
+        // Moved 24 October 2026 (R1, DRAFT): his reply filed 27 October 2026, item 4 ("Whenever the ball becomes dead, play resets to a new
+        // goalkeeper-initiated build-out.") - the ball going out and the coach's stoppages for a foul or any other reason restart play the
+        // same way, so they join this sentence's moments, worded in the DRAFT data (draft-coach-wording.json triggers; the two out-of-play
+        // triggers share one phrase, said once). Was: "... restarts play: at the start, after either team scores and whenever you decide
+        // that an attack has run its course (at a stoppage or while play is on)".
+        `How it works: The building team's ${ROLE} restarts play: at the start, after either team scores, whenever the ball goes out of play, whenever you decide that an attack has run its course (at a stoppage or while play is on), whenever you stop play for a foul and whenever you stop play for any other reason`,
         'How it works: Before each of these restarts, the building team and the pressing team each set up on their own side of the marked line; once play restarts, every player is free to move anywhere',
         // Moved 17 October 2026 (stage M3, design step L9; his reply filed 19 October 2026, items 1 and 4): the team-neutral "A team
         // scores 1 point by getting the ball under control into the zone it is attacking: ..." is no longer said, because the building
@@ -212,8 +217,12 @@ test('1. the review draft of A01 (TEST-ONLY: the table as at stage M5): every se
         // sentence is unchanged: his "conventional throw-in" has no data route to the renderer yet (a wording point put to him).
         `Restarts and ball out: The building team's ${ROLE} restarts play from the feet, with the ball still or moving`,
         `Restarts and ball out: You choose where the building team's ${ROLE} restarts play, consistent with the intended build-out situation, in front of the pressing team's target zone`,
-        'Restarts and ball out: If the ball goes out over a touchline, a player of the team that did not touch the ball last restarts play with a throw-in where the ball went out',
-        'Restarts and ball out: If the ball goes out over either end line, a player of the team that did not touch the ball last restarts play where and how you choose, preserving meaningful game relationships rather than creating an automatic scoring shortcut',
+        // Removed 24 October 2026 (R1): the touchline throw-in and the end-line restart, withdrawn from the activity by his reply filed 27
+        // October 2026, item 4 ("There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this
+        // activity."); the ball going out is said in the restart sentence above. Were: "If the ball goes out over a touchline, a player of
+        // the team that did not touch the ball last restarts play with a throw-in where the ball went out" and "If the ball goes out over
+        // either end line, a player of the team that did not touch the ball last restarts play where and how you choose, preserving
+        // meaningful game relationships rather than creating an automatic scoring shortcut".
         // Moved 17 October 2026 (stage M4, design step L11, DRAFT coachWords): his reply filed 19 October 2026, item 4, "The coach-facing
         // suggestions should not imply those changes can occur without accounting for every player." Was "... additional numbers
         // forward: adding ..." and "You may choose to remove a build-out player, reducing the building team's available support options".
@@ -804,13 +813,30 @@ test('10. (stage 3E) each clause its own part: every citation sits on the words 
     const restarts = said.find(i => i.section === 'How it works' && / restarts play: /.test(i.text))!
     const parts = restarts.parts!
     assert.equal(parts.map(p => p.text).join(''), restarts.text)
-    assert.deepEqual(parts.slice(1).map(p => p.text), [': at the start', ', after either team scores', ' and whenever you decide that an attack has run its course', ' (at a stoppage or while play is on)'])
+    // Re-pointed 24 October 2026 (R1): his reply filed 27 October 2026, item 4 - the ball going out (one phrase for both lines, citing both
+    // triggers, their qualifiers and the object it names) and the coach's two other stoppages join the moments, in the register's trigger
+    // order; the lead cites the dead-ball restart policy it now states. Was: ': at the start', ', after either team scores', ' and whenever
+    // you decide that an attack has run its course', ' (at a stoppage or while play is on)'.
+    assert.deepEqual(parts.slice(1).map(p => p.text), [
+        ': at the start',
+        ', after either team scores',
+        ', whenever the ball goes out of play',
+        ', whenever you decide that an attack has run its course',
+        ' (at a stoppage or while play is on)',
+        ', whenever you stop play for a foul',
+        ' and whenever you stop play for any other reason',
+    ])
     const selectors = parts.slice(1).map(p => p.from)
-    assert.ok(selectors.every(from => from.length === 1 && from[0].endsWith('.selector')), JSON.stringify(selectors))
-    assert.equal(new Set(selectors.slice(0, 3).map(from => from[0])).size, 3, 'each moment its own trigger')
-    assert.deepEqual(selectors[3], selectors[2], 'the aside cites the trigger it qualifies')
+    for (const at of [0, 1, 3, 5, 6]) assert.ok(selectors[at].length === 1 && selectors[at][0].endsWith('.selector'), JSON.stringify(selectors[at]))
+    assert.equal(new Set([0, 1, 3, 5, 6].map(at => selectors[at][0])).size, 5, 'each moment its own trigger')
+    assert.deepEqual(selectors[4], selectors[3], 'the aside cites the trigger it qualifies')
+    const out = selectors[2]
+    assert.equal(out.filter(path => path.endsWith('.selector')).length, 2, 'one phrase for the two out-of-play triggers, citing both')
+    assert.deepEqual(out.filter(path => path.includes('.qualifiers.')).map(path => path.split('.qualifiers.')[1]).sort(), ['endLine', 'lastTouch', 'lastTouch', 'region'], 'and every qualifier it says')
+    assert.ok(out.some(path => path.startsWith('objects[') && path.endsWith('.kind')), 'and the object it names')
     assert.ok(parts[0].from.every(path => !path.endsWith('.selector')))
-    assert.deepEqual([...new Set(parts.flatMap(p => p.from))], restarts.from)
+    assert.ok(parts[0].from.includes('restartPolicy.deadBall'), 'the lead states the one restart for every dead ball')
+    assert.deepEqual([...new Set(parts.flatMap(p => p.from))].sort(), [...restarts.from].sort())
     // The pressing team's way to score: its lead, citing everything the sentence cites, and the elaboration of the event, citing the event.
     const pressing = said.find(i => i.section === 'How to score' && i.text.startsWith('Pressing team: Score'))!
     assert.deepEqual(pressing.parts!.map(p => p.text), ['Pressing team: Score by getting the ball under control into its target zone', ': running it in, or passing to a teammate who receives it under control inside'])

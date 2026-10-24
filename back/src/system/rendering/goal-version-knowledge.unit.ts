@@ -198,7 +198,10 @@ test('A01-R2 is A01-R1 minus its withdrawals plus its additions, element for ele
     // Every addition is his choice for this activity, in his words of 25 or 26 October.
     for (const item of raw.items) {
         assert.deepEqual([item.category, item.basis], ['PROVISIONAL_REALIZATION_CHOICE', 'OWNER_RULING'], item.id)
-        assert.match(item.citedAs, /^his reply filed 2[56] October 2026, item \d+$/, item.id)
+        // Re-pointed 24 October 2026 (R1): A01-R2-T4-5 is widened to every dead ball and bound to the building team's side of the marked line,
+        // so it cites his reply filed 27 October 2026, items 4 and 6, after its own words of 26 October.
+        if (item.id === `${R2}-T4-5`) assert.equal(item.citedAs, 'his reply filed 26 October 2026, item 8; his reply filed 27 October 2026, items 4 and 6')
+        else assert.match(item.citedAs, /^his reply filed 2[56] October 2026, item \d+$/, item.id)
     }
     const byId = new Map(variant.items.map(item => [item.itemId, item as any]))
     // The goal: on the building team's end line, centred, facing in, no depth, defended by the goalkeeper's team.
@@ -212,10 +215,14 @@ test('A01-R2 is A01-R1 minus its withdrawals plus its additions, element for ele
     assert.deepEqual([byId.get(`${R2}-B9-1`).value, byId.get(`${R2}-B9-1`).authorizedBy], ['goal', 'RPC-001~SCORING-goal'])
     assert.deepEqual([byId.get(`${R2}-J2-1`).value.structuralRef, byId.get(`${R2}-J2-1`).authorizedBy], [{ contractId: `provisional:${R2}`, itemId: `${R2}-O1-1` }, 'RPC-001~SCORING-goal'])
     assert.equal(byId.get(`${R2}-B10-1`).value, 'EXCHANGED')
-    // The restart bound: his words, the binding PROPOSED.
+    // The restart bound: his words. Re-pointed 24 October 2026 (R1): his reply filed 27 October 2026, items 4 and 6, appended to his item 8
+    // words, and the binding RULED (item 6: the building team's side of the marked line), still no typed reference in the value.
     const bound = byId.get(`${R2}-T4-5`)
-    assert.equal(bound.words, 'This flexibility should operate within the authorized deep starting environment, rather than permit arbitrary locations anywhere on the field.')
-    assert.ok(bound.fitNote.includes('THE BINDING IS PROPOSED, NOT RULED') && !JSON.stringify(bound.value).includes('structuralRef'))
+    assert.equal(
+        bound.words,
+        'This flexibility should operate within the authorized deep starting environment, rather than permit arbitrary locations anywhere on the field. … Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out. … The building team’s side of the marked progression line is an acceptable initial restart region.',
+    )
+    assert.ok(bound.fitNote.includes('THE BINDING, RULED') && !bound.fitNote.includes('THE BINDING IS PROPOSED, NOT RULED') && !JSON.stringify(bound.value).includes('structuralRef'))
     // No suitability is stated and none is invented; the testing boundaries are A01-R1's.
     assert.equal(variant.objectSuitability, undefined)
     assert.deepEqual([variant.testingBoundaries!.players, variant.testingBoundaries!.areas], [base.testingBoundaries!.players, base.testingBoundaries!.areas])
@@ -235,15 +242,19 @@ test("A01-R2's realization choices: A01-R1's re-pointed, the game form's noun fo
         [`c:provisional:${R2}:A01-R1-T1-1::T4`, null],
         [`c:provisional:${R2}:A01-R1-T1-2::T4`, null],
         [`c:provisional:${R2}:A01-R1-T1-3::T4`, null],
-        [`c:provisional:${R2}:A01-R1-T1-6::T4`, null],
-        [`c:provisional:${R2}:A01-R1-T1-7::T4`, null],
-        [`c:provisional:${R2}:A01-R1-T1-6::T5`, null],
-        [`c:provisional:${R2}:A01-R1-T1-7::T5`, null],
+        // Re-pointed 24 October 2026 (R1): the end-line stand-ins (T1-6, T1-7 at T4 and T5) go with their items (his reply filed 27 October
+        // 2026, item 4); the four new dead-ball moments take the restart place, his item 6 region (DRAFT).
+        [`c:provisional:${R2}:A01-R1-T1-8::T4`, null],
+        [`c:provisional:${R2}:A01-R1-T1-9::T4`, null],
+        [`c:provisional:${R2}:A01-R1-T1-10::T4`, null],
+        [`c:provisional:${R2}:A01-R1-T1-11::T4`, null],
         ['game::PS1', 'a04-realization-choices.json'],
     ])
     assert.equal(choices[0].value, undefined, 'a withdrawal carries no value')
     assert.deepEqual([choices[1].value, choices[2].value], ['zone', 'target_zone_entered'])
-    for (const c of choices.slice(3, 6)) assert.equal(c.value.coachDecides, 'consistent with the intended build-out situation, within the authorized deep starting environment')
+    // Re-pointed 24 October 2026 (R1): his reply filed 27 October 2026, item 6: "The building team’s side of the marked progression line is
+    // an acceptable initial restart region." Was: "within the authorized deep starting environment" (his item 8 words) for T1-1..3 only.
+    for (const c of choices.slice(3, 10)) assert.equal(c.value.coachDecides, "consistent with the intended build-out situation, on the building team's side of the marked line")
     assert.ok(!JSON.stringify(choices).includes('target zone"') && !JSON.stringify(choices).includes('post-regain area,'), 'no stand-in names the area the goal version does not hold')
 })
 

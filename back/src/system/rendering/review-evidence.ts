@@ -568,7 +568,8 @@ const STRUCTURE_CHECKS: Record<'playerTotals' | 'spatial' | 'scoring' | 'restart
     spatial: ['GA-ENVELOPE-FIT', 'GA-LAYOUT-FEASIBLE', 'GA-DIRECTION', 'GA-RELATIVE-PLACEMENT', 'GA-REGION-FUNCTION'],
     // GA-ROLE-EVENTS (22 October 2026, stage A, his reply filed 25 October 2026, item 2): how each team scores, so scoring.
     scoring: ['GA-ONE-PRIMARY-EVENT', 'GA-ROLE-EVENTS', 'GA-OBJECTIVE-SETS', 'GA-REFERENCE-INTEGRITY', 'GA-EPISODE-REACHABLE', 'GA-MODIFIER-OVERLAP', 'GA-EFFECT-TYPED', 'GA-INFORMATION', 'GA-TIME-WINDOWS'],
-    restarts: ['GA-TRANSITION-COHERENCE', 'GA-TRIGGER-REACHABLE', 'GA-TRIGGER-UNIQUE', 'GA-EPISODE-REACHABLE'],
+    // GA-DEAD-BALL-RESTART (24 October 2026, R1, his reply filed 27 October 2026, item 4): one restart for every dead ball, so restarts.
+    restarts: ['GA-TRANSITION-COHERENCE', 'GA-TRIGGER-REACHABLE', 'GA-TRIGGER-UNIQUE', 'GA-EPISODE-REACHABLE', 'GA-DEAD-BALL-RESTART'],
 }
 
 /** A check as the report shows it: its verdict, how many clauses it ran, the vacuous ones by name, and every clause that did not pass. */

@@ -81,13 +81,15 @@ test('register version 19 holds the session resources as data, in one versions e
     // Re-pointed 26 October 2026 (Stage F): version 20 (his rulings filed 26 October 2026 for the goal version) supersedes 19, once.
     // Re-pointed 23 October 2026 (H3): version 21 (a region bound to an object, his reply filed 26 October 2026, item 7) supersedes 20, once.
     // Re-pointed 23 October 2026 (H4): version 22 (the type a session states for its objects, his reply filed 26 October 2026, item 4) supersedes 21.
-    assert.match(String(register.version), /^22, adds the type a session states for its objects of a kind, .*Supersedes version 21, which adds a region bound to an object, .*Supersedes version 20, which records his rulings filed 26 October 2026 for the goal version of the build-out activity .*Supersedes version 19, which adds an object's availability as a session resource, for his reply filed 25 October 2026, item 4 /)
+    // Re-pointed 24 October 2026 (R1): version 23 (one restart for every dead ball, his reply filed 27 October 2026, item 4) supersedes 22.
+    assert.match(String(register.version), /^23, adds one restart for every dead ball, .*Supersedes version 22, which adds the type a session states for its objects of a kind, .*Supersedes version 21, which adds a region bound to an object, .*Supersedes version 20, which records his rulings filed 26 October 2026 for the goal version of the build-out activity .*Supersedes version 19, which adds an object's availability as a session resource, for his reply filed 25 October 2026, item 4 /)
     assert.ok(String(register.version).includes('"Please add the general ability to represent goal availability as a session resource and use authorized knowledge relationships when determining which scoring configuration can be selected."'))
     assert.equal(String(register.version).split('Supersedes version 18, which adds the coach-controlled end exchange, ').length - 1, 1, 'version 18 superseded once')
     assert.equal(String(register.version).split('Supersedes version 19, ').length - 1, 1, 'version 19 superseded once')
     assert.equal(String(register.version).split('Supersedes version 20, ').length - 1, 1, 'version 20 superseded once')
     assert.equal(String(register.version).split('Supersedes version 21, ').length - 1, 1, 'version 21 superseded once, by version 22 (H4)')
-    assert.ok(!String(register.version).includes('Supersedes version 22'), 'version 22 is the current entry')
+    assert.equal(String(register.version).split('Supersedes version 22, ').length - 1, 1, 'version 22 superseded once, by version 23 (R1)')
+    assert.ok(!String(register.version).includes('Supersedes version 23'), 'version 23 is the current entry')
     assert.deepEqual([spec.row, spec.attribute, spec.countRow, spec.kinds], ['O1', 'kind', 'O3', ['goal']])
     assert.deepEqual([spec.path, spec.kindLeaf, spec.countLeaf], ['objects[]', 'kind', 'count'])
     assert.deepEqual(sessionResourceKinds(), spec.kinds, 'the envelope reads the kinds from the register')
@@ -159,7 +161,8 @@ test('H4: register version 22 lists one attribute for the kind, type, a closed l
     assert.deepEqual(entry.valueSources['full-size'].words, 'Use full-size or scaled goals depending on field dimensions.')
     assert.deepEqual(entry.valueSources.scaled.words, 'Use full-size or scaled goals depending on field dimensions.')
     assert.deepEqual(entry.valueSources['mini-goal'], { words: 'This is different from substituting an unattended mini-goal.', citedAs: 'his reply filed 26 October 2026, item 4' })
-    assert.ok(String(register.version).startsWith('22, adds the type a session states for its objects of a kind, for his reply filed 26 October 2026, item 4 ("I approve using the relevant Goalkeeper Included Condition:" "Use full-size or scaled goals depending on field dimensions."'))
+    // Re-pointed 24 October 2026 (R1): version 23 supersedes 22, so version 22's entry is read where it now stands, whole.
+    assert.ok(String(register.version).includes('Supersedes version 22, which adds the type a session states for its objects of a kind, for his reply filed 26 October 2026, item 4 ("I approve using the relevant Goalkeeper Included Condition:" "Use full-size or scaled goals depending on field dimensions."'))
     assert.ok(String(register.version).split('Supersedes version 21, ')[0].includes('"I agree that the coach should identify the available goal type and dimensions, without the engine inventing them."'))
     // The height is not an attribute: no authorized entry reads it, so nothing asks for it.
     assert.ok(!spec.attributes.some(attribute => /height/i.test(attribute.attribute)))

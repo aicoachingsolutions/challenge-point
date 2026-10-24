@@ -293,6 +293,9 @@ export const KIND_OF_ROW: Record<string, Kind | 'TRANSITION' | 'NAME'> = {
     B9: 'SCORING',
     // Whether the teams change ends at a coach-called block (register version 18, stage D, 23 October 2026): said with the exchange, as B3.
     B10: 'ROLE_EXCHANGE',
+    // How play restarts after every dead ball (register version 23, R1, 24 October 2026): a restart fact. Cited by the sentence saying when
+    // the restarts happen, which the episode's opening places in How it works; it never pulls a sentence there by itself.
+    RP1: 'RESTART',
 }
 
 /**

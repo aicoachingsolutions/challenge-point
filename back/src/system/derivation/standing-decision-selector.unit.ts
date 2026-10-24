@@ -215,11 +215,15 @@ test('A04 is unaffected: its only transition is a POSSESSION_CHANGE', () => {
     // **11 since 23 October 2026 (H3)**: register version 21 adds row S7 (the object a region is bound to, his reply filed 26 October 2026,
     // item 7). No contract A04 selects binds a region, so each of its two target regions gains one NOT_AUTHORED line ('no coverage'),
     // which moves no gate verdict: neither region is bound to anything.
+    // **12 since 24 October 2026 (R1)**: register version 23 adds the game-level row RP1 (how play restarts after a dead ball, his reply
+    // filed 27 October 2026, item 4). No contract A04 selects writes it, so game::RP1 is NOT_AUTHORED ('no coverage'), moves no gate verdict,
+    // and the game keeps a restart per trigger.
     const failed = (result.resolution ?? []).filter((e: any) => e.state === 'failed')
     assert.ok(failed.some((e: any) => e.lineId === 'game::P6c' && e.reason === 'not constrained'))
     assert.ok(failed.some((e: any) => e.lineId === 'game::B10'))
     assert.deepEqual(failed.filter((e: any) => String(e.lineId).endsWith('::S7')).map((e: any) => e.lineId), ['c:restated:GF2:GF2-03.e::S7', 'c:restated:GF2:GF2-03.f::S7'])
-    assert.equal(failed.length, 11, 'eleven failed lines: 6 after Wide Zone left on 8 October, 7 since the directional arrangement of 9 October added a second target and a second objective, 8 since P6c (14 October), 9 since B10 (23 October), and 11 since S7 (H3, 23 October)')
+    assert.equal(failed.length, 12, 'twelve failed lines: 6 after Wide Zone left on 8 October, 7 since the directional arrangement of 9 October added a second target and a second objective, 8 since P6c (14 October), 9 since B10 (23 October), 11 since S7 (H3, 23 October), and 12 since RP1 (R1, 24 October)')
+    assert.ok(failed.some((e: any) => e.lineId === 'game::RP1'), 'the dead-ball restart policy nobody writes for A04: it keeps a restart per trigger')
     const t7 = result.resolution.find((e: any) => /GF2-07\.a::T7$/.test(String(e.lineId)))
     assert.equal(t7?.value, true, 'and it still begins an episode, legitimately')
 })

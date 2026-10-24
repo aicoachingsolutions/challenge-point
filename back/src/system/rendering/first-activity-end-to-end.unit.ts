@@ -101,10 +101,12 @@ test('1. production: SERVED at 12 players (1 and 2 goalkeepers) and 11 - every s
         // filed 25 October 2026, item 6 (participants-present.unit.ts).
         // Re-pointed 22 October 2026 (stage A): GA-ROLE-EVENTS joins each block (40 -> 42) with its target and yield clauses owed (32 -> 36),
         // his reply filed 25 October 2026, item 2 (role-events.unit.ts).
-        assert.deepEqual(evidence.structure.summary.gateChecks, { PASS: 42 }, what)
+        // Re-pointed 24 October 2026 (R1): GA-DEAD-BALL-RESTART joins each block (42 -> 44) with its location clause owed (36 -> 38), his
+        // reply filed 27 October 2026, item 4 (dead-ball-restart.unit.ts).
+        assert.deepEqual(evidence.structure.summary.gateChecks, { PASS: 44 }, what)
         // Re-pointed 21 October 2026 (stage 2D): ten, RB-L joining (the markings set out once are the blocks' own).
         assert.deepEqual(evidence.structure.summary.crossBlock, { PASS: 10 }, what)
-        assert.deepEqual(evidence.structure.summary.owed, { PASS: 36 }, what)
+        assert.deepEqual(evidence.structure.summary.owed, { PASS: 38 }, what)
         assert.equal(evidence.structure.composition.length, 0, what)
         assert.deepEqual(fact(evidence.acceptance, 'fidelity violations in the text that is said'), [], what)
         assert.equal(fact(evidence.acceptance, 'fields awaiting approved wording'), 0, what)
@@ -152,15 +154,15 @@ test('2. How to score in the order shown to him, and APPROVED exactly for his se
         const instructions = served.evidence!.sections.instructions
         assert.deepEqual(instructions.filter(i => i.wording === 'APPROVED').map(i => i.text), [HIS_POSSESSION, HIS_ITEM_1, HIS_W3, HIS_W2], what)
         assert.equal(instructions.filter(i => i.wording === 'DRAFT').length, instructions.length - 4, what)
-        // The touchline sentence is DRAFT; its noun is his approved word, carried into each block as APPROVED sport coach vocabulary.
-        const touchline = instructions.filter(i => i.text.includes('throw-in'))
-        assert.deepEqual(touchline.map(i => i.wording), ['DRAFT'], what)
+        // Re-pointed 24 October 2026 (R1): there is no throw-in any more (his reply filed 27 October 2026, item 4: "There should be no
+        // separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity."), so no sentence names it and no block
+        // carries the sport's restart noun; the ball going out is said in the DRAFT restart sentence. Was: the touchline sentence, DRAFT, its
+        // noun his approved word carried into each block as APPROVED sport coach vocabulary.
+        assert.deepEqual(instructions.filter(i => i.text.includes('throw-in')), [], what)
+        assert.deepEqual(instructions.filter(i => i.text.includes('whenever the ball goes out of play')).map(i => i.wording), ['DRAFT'], what)
         const blocks: any[] = ((buildActivityWithFixture(requestAt(players, keepers)).fixture as any)?.roleBlocks?.blocks ?? []).map((b: any) => b.fixture)
         assert.equal(blocks.length, 2, what)
-        for (const block of blocks) {
-            assert.equal(block.methodNouns?.status, 'APPROVED', what)
-            assert.deepEqual(block.methodNouns.entries.map((e: any) => e.noun), ['throw-in'], what)
-        }
+        for (const block of blocks) assert.equal(block.methodNouns, undefined, what)
     }
 })
 

@@ -111,9 +111,16 @@ const OVERVIEW_8 = 'The pressing team also scores by winning the ball inside tha
 /** His second and third sentences of the building rule (stage 3F: the origin; the exclusion). */
 const W1_S2 = "The progression must begin with the goalkeeper's build-out and occur before the building team loses possession."
 const W1_S3 = 'Uncontrolled clearances do not score.'
-/** Sentence 6 as the composer cuts it from Details 10: its own words up to the bracketed aside (no word added or changed). */
+/**
+ * Sentence 6 as the composer cut it from Details 10 until R1: its own words up to the bracketed aside (no word added or changed). Since R1
+ * (24 October 2026) the aside no longer closes Details 10 (the moments his reply filed 27 October 2026, item 4, adds follow it), so no cut
+ * gives it; kept to pin that.
+ */
 const OVERVIEW_6_CUT = "The building team's goalkeeper restarts play: at the start, after either team scores and whenever you decide that an attack has run its course."
-const DETAILS_10 = "The building team's goalkeeper restarts play: at the start, after either team scores and whenever you decide that an attack has run its course (at a stoppage or while play is on)"
+// Re-pointed 24 October 2026 (R1, DRAFT): the ball going out and the coach's two other stoppages join the restart moments (his reply filed
+// 27 October 2026, item 4). Was: "... at the start, after either team scores and whenever you decide that an attack has run its course (at a
+// stoppage or while play is on)".
+const DETAILS_10 = "The building team's goalkeeper restarts play: at the start, after either team scores, whenever the ball goes out of play, whenever you decide that an attack has run its course (at a stoppage or while play is on), whenever you stop play for a foul and whenever you stop play for any other reason"
 const DETAILS_14 = 'Pressing team: Score by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside'
 const DETAILS_16 = 'Each score is worth 1 point'
 
@@ -401,7 +408,8 @@ test('4. the readings decide the words, never the composer: a TEST-ONLY copy of 
     // Sentence 6 as the EXPECTED PRESENTATION writes it drops the colon and "that": a rewording, which no cut of Details 10 gives (the
     // composer never adds or changes a word). Since stage 3F neither is in the overview (the restart moments are left to Coach Details).
     assert.notEqual(OVERVIEW_6_CUT, OVERVIEW_6_AS_WRITTEN)
-    assert.ok(DETAILS_10.startsWith(OVERVIEW_6_CUT.slice(0, -1)))
+    // Re-pointed 24 October 2026 (R1): the stage 3F cut is no longer a prefix of Details 10 (the aside no longer closes it). Was: it was.
+    assert.ok(!DETAILS_10.startsWith(OVERVIEW_6_CUT.slice(0, -1)))
 })
 
 test('5. flipping a class, or what an exception follows from, changes the composed group: the table decides, not code', () => {
@@ -419,7 +427,8 @@ test('5. flipping a class, or what an exception follows from, changes the compos
     // Stage 3F: the restart moments made ESSENTIAL again (their class before 3F): the restart cut is said, after the scoring sentences, and
     // nothing points to Details 10. (Re-pointed: was the flip to DETAIL, now the production class.)
     const [openerEssential] = composed(file => (ruleOf(file, 'BOUNDED_EPISODE_OPENER').class = 'ESSENTIAL'))
-    assert.deepEqual(textsOf(openerEssential), [OVERVIEW_4, W1_S2, OVERVIEW_5, OVERVIEW_6_CUT])
+    // Re-pointed 24 October 2026 (R1): with no aside cut left, Details 10 is said whole. Was: the restart cut, OVERVIEW_6_CUT.
+    assert.deepEqual(textsOf(openerEssential), [OVERVIEW_4, W1_S2, OVERVIEW_5, `${DETAILS_10}.`])
     assert.ok(!openerEssential.fullRules.some(p => p.text === DETAILS_10), JSON.stringify(openerEssential.fullRules))
     // The score's value made ESSENTIAL: "Each score is worth 1 point" is said, in both groups, and no longer pointed to.
     const valueEssential = composed(file => (ruleOf(file, 'SCORE_VALUE').class = 'ESSENTIAL'))
@@ -544,9 +553,11 @@ test('8. DRAFT shortenings are prefixes of their sentence, citing only the parts
     const served = admin(a01At(12, 1)).rendered.instructions
     const tenSaid = served.find(i => i.text === DETAILS_10)!
     const ten = draftShorteningsOf(tenSaid)
-    assert.deepEqual(ten.map(s => [s.cut, s.text]), [['ELABORATION', "The building team's goalkeeper restarts play."], ['ASIDE', OVERVIEW_6_CUT]])
+    // Re-pointed 24 October 2026 (R1): Details 10 no longer ends with its aside (his reply filed 27 October 2026, item 4, adds moments after
+    // it), so its one cut is to its colon. Was: that cut and the cut to the aside (OVERVIEW_6_CUT), which kept every citation.
+    assert.deepEqual(ten.map(s => [s.cut, s.text]), [['ELABORATION', "The building team's goalkeeper restarts play."]])
     assert.ok(ten[0].from.length > 0 && ten[0].from.every(p => !p.endsWith('.selector')))
-    assert.deepEqual(ten[1].from, tenSaid.from)
+    assert.ok(ten[0].from.length < tenSaid.from.length)
     const fourteenSaid = served.find(i => i.text === DETAILS_14)!
     const fourteen = draftShorteningsOf(fourteenSaid)
     assert.deepEqual(fourteen.map(s => [s.cut, s.text, s.from]), [['ELABORATION', OVERVIEW_7, fourteenSaid.from]])

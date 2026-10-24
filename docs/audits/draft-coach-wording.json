@@ -5,7 +5,8 @@
     "objectKinds": "[{ kind: a member of the register's O2.kind vocabulary, standsOutsideArea: the words said after an object of this kind is placed on an end line, saying where its structure stands (a clause, starting ', '), basis: { words: [his words verbatim], citedAs } }] - said only for an object the game places on an end line with no depth inside the area (its realized along interval one point on an end line)",
     "facings": "[{ facing: a member of the register's O6.facing vocabulary (the facing row objectGeometry names), words: the words said, after ', ', for an object placed facing that way (no slot), basis }] - added by the Stage G review fix, 23 October 2026, so the words for a facing come from data as every other word of the placing sentence does; a facing with no entry has no words, so the placing sentence is not said and fidelity refuses the game",
     "scoringAtObjects": "[{ event: a member of the register's V1.kind vocabulary whose target, by the register's roleScoring.targetTypes map, is an object of targetKind, targetKind: a member of the O2.kind vocabulary, lead: how a team scores by the event, with the slots {carrier} (the kind of the object played with) and {target} (the kind of the object scored at), basis, clauses: [{ text: the words said after the lead, with the slot {carrier} only, starting with their own joining punctuation, states: MEANING (what the event itself counts, said wherever the lead is said) | NO_OTHER_SCORE (that nothing else scores for the team, said only where the team scores by an event of its own, register row B9, and no occurrence that also counts, row V27, names its team), basis }] }]",
-    "normalLaws": "{ words: the one Coach Details sentence the d26 design holds for the sport's normal laws (whole, no slot: the sport's noun is data here), held: why it is held and not said, basis } - added 23 October 2026 (H2, the d26 design's build step 2, section 3.2: 'One DRAFT Coach Details sentence, \"Otherwise, normal soccer rules apply\", with the sport noun from data.' 'The served zone text is unchanged until he approves.'). HELD: no renderer reads it; the default-laws account in the administrator's review evidence shows it as held"
+    "normalLaws": "{ words: the one Coach Details sentence the d26 design holds for the sport's normal laws (whole, no slot: the sport's noun is data here), held: why it is held and not said, basis } - added 23 October 2026 (H2, the d26 design's build step 2, section 3.2: 'One DRAFT Coach Details sentence, \"Otherwise, normal soccer rules apply\", with the sport noun from data.' 'The served zone text is unchanged until he approves.'). HELD: no renderer reads it; the default-laws account in the administrator's review evidence shows it as held",
+    "triggers": "[{ trigger: a member of the register's trigger vocabulary, phrase: the words said for when a restart on that trigger happens, in the restart sentence's list of moments ('The building team's goalkeeper restarts play: ...'), with the slot {carrier} (the kind of the object played with) and no other, basis }] - added 24 October 2026 (R1, the d27 design's stage R1, its section 2.8: 'The trigger phrases come from data. draft-coach-wording.json gains a triggers map'), for his reply filed 27 October 2026, items 3 and 4, so the ball going out and the coach's stoppages, which now restart play the one way his item 4 gives, are said in that sentence; read before the renderer's own table, and two triggers with the same phrase are said once. Only the triggers the common restart needs are listed; the other restart words of his item 4 (the restart said once for every dead ball, which restarts are no longer used) are the d27 design's stage R2"
   },
   "normalLaws": {
     "words": "Otherwise, normal soccer rules apply.",
@@ -62,6 +63,40 @@
           }
         }
       ]
+    }
+  ],
+  "triggers": [
+    {
+      "trigger": "OUT_TOUCHLINE",
+      "phrase": "whenever the {carrier} goes out of play",
+      "basis": {
+        "words": ["Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.", "The ball going out of bounds."],
+        "citedAs": "his reply filed 27 October 2026, item 4"
+      }
+    },
+    {
+      "trigger": "OUT_END_LINE",
+      "phrase": "whenever the {carrier} goes out of play",
+      "basis": {
+        "words": ["Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.", "The ball going out of bounds."],
+        "citedAs": "his reply filed 27 October 2026, item 4"
+      }
+    },
+    {
+      "trigger": "INFRINGEMENT_STOPPAGE",
+      "phrase": "whenever you stop play for a foul",
+      "basis": {
+        "words": ["A foul or infringement requiring play to stop.", "If a foul or infringement requires a stoppage, the coach addresses it appropriately and restarts the build-out."],
+        "citedAs": "his reply filed 27 October 2026, items 3 and 4"
+      }
+    },
+    {
+      "trigger": "COACH_DIRECTED_STOPPAGE",
+      "phrase": "whenever you stop play for any other reason",
+      "basis": {
+        "words": ["A coach-directed stoppage."],
+        "citedAs": "his reply filed 27 October 2026, item 4"
+      }
     }
   ]
 }

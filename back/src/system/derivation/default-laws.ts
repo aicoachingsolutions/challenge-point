@@ -67,6 +67,18 @@ export type DefaultLawsCheckMode = (typeof DEFAULT_LAWS_CHECK_MODES)[number]
 export const DEPARTURE_EXTENTS = ['WHOLE', 'PART'] as const
 export type DepartureExtent = (typeof DEPARTURE_EXTENTS)[number]
 
+/**
+ * **Why the profile lists a law** — R1, 24 October 2026 (the d27 design's section 2.6). ADAPTATION: the law can fail to apply in a modified
+ * environment, so it names the preconditions it needs (the six laws H2 listed). DEPARTURE: it is listed only so an activity can record that
+ * it departs from it (his reply filed 27 October 2026, item 4: *"There should be no separate corners, goal kicks, throw-ins, free kicks, or
+ * penalty kicks for this activity."*; his reply filed 26 October 2026, item 10: *"The governing principle is to inherit established sport
+ * rules and explicitly define only the necessary departures."*), so it may need nothing to apply. A law of either kind needing nothing would
+ * otherwise be one the profile has no reason to list: an ADAPTATION law still must name a precondition, and a DEPARTURE law nothing departs
+ * from is caught by a data test (`default-laws.unit.ts`).
+ */
+export const LAW_LISTED_FOR = ['ADAPTATION', 'DEPARTURE'] as const
+export type LawListedFor = (typeof LAW_LISTED_FOR)[number]
+
 /** The item field a departure is recorded in, and the realization field its strictness is declared in. */
 export const DEPARTS_FROM_KEY = 'departsFrom'
 export const DEFAULT_LAWS_CHECK_KEY = 'defaultLawsCheck'
@@ -96,6 +108,13 @@ export interface DefaultLaw {
     /** Every one must hold for the law to apply directly; where one does not and nothing departs from it, an adaptation is owed. */
     requires: LawPredicate[]
     note: string | null
+    /** Why the profile lists it (R1): a law that can fail to apply (ADAPTATION), or one listed for an activity to depart from (DEPARTURE). */
+    listedFor: LawListedFor
+    /**
+     * Whether it is a law of how play restarts (R1): under a game's common dead-ball restart (register row RP1) such a law cannot apply as
+     * written, so where it would apply and nothing departs from it, the account says an adaptation is owed (`default-laws-check.ts`).
+     */
+    restart: boolean
 }
 
 /** The Sport Profile's default-laws block as derivation receives it. */
@@ -173,7 +192,7 @@ export function samePredicate(a: LawPredicate | undefined, b: LawPredicate | und
 }
 
 const BLOCK_KEYS = new Set(['source', 'edition', 'editionNote', 'authority', 'restates', 'note', 'laws'])
-const LAW_KEYS = new Set(['id', 'cites', 'name', 'scope', 'applicableWhen', 'requires', 'note'])
+const LAW_KEYS = new Set(['id', 'cites', 'name', 'scope', 'applicableWhen', 'requires', 'note', 'listedFor', 'restart'])
 const AUTHORITY_KEYS = new Set(['words', 'citedAs', 'by', 'ruledOn'])
 
 /**
@@ -182,6 +201,12 @@ const AUTHORITY_KEYS = new Set(['words', 'citedAs', 'by', 'ruledOn'])
  * why; his words with where, who and when; what it restates; and each law once, with what it cites, our name for it, a scope of the closed
  * list and its preconditions in the closed predicate vocabulary. A law that needs nothing to apply would be one the profile has no reason
  * to list, so each names at least one precondition.
+ *
+ * **R1, 24 October 2026 (the d27 design's section 2.6): the last rule narrows, and two fields are required.** Each law says why it is listed
+ * (`listedFor`, closed: ADAPTATION or DEPARTURE) and whether it is a law of how play restarts (`restart`, a boolean, never defaulted). A
+ * DEPARTURE law is listed so an activity can record its departure from it, and may need nothing to apply; an ADAPTATION law needing nothing
+ * is refused as before. The loosening is bounded and compensated: only a law declared DEPARTURE escapes the rule, and a data test requires
+ * that some realization departs from every such law (`default-laws.unit.ts`), so none is listed that nothing reads.
  */
 export function defaultLawsRefusals(block: unknown, index: RegisterIndex): string[] {
     if (!isObject(block)) return ['the default-laws block is not an object']
@@ -214,6 +239,8 @@ export function defaultLawsRefusals(block: unknown, index: RegisterIndex): strin
         if (!filled(law.cites) || !filled(law.name)) errors.push(`${which} must say which law it cites and give it a name (cites, name)`)
         if (!(LAW_SCOPES as readonly unknown[]).includes(law.scope)) errors.push(`${which} is accounted for ${JSON.stringify(law.scope)}, which is none of ${LAW_SCOPES.join(', ')}`)
         if (law.note !== null && law.note !== undefined && !filled(law.note)) errors.push(`${which} carries an empty note`)
+        if (!(LAW_LISTED_FOR as readonly unknown[]).includes(law.listedFor)) errors.push(`${which} is listed for ${JSON.stringify(law.listedFor)}, which is none of ${LAW_LISTED_FOR.join(', ')}`)
+        if (typeof law.restart !== 'boolean') errors.push(`${which} does not say whether it is a law of how play restarts (restart: true or false)`)
         const lists = ['applicableWhen', 'requires'] as const
         for (const list of lists) {
             if (!Array.isArray(law[list])) {
@@ -230,8 +257,9 @@ export function defaultLawsRefusals(block: unknown, index: RegisterIndex): strin
                 }
             }
         }
-        if (Array.isArray(law.applicableWhen) && Array.isArray(law.requires) && !law.applicableWhen.length && !law.requires.length) {
-            errors.push(`${which} needs nothing to apply, so the profile has no reason to list it`)
+        // R1: a law listed for an activity to depart from may need nothing to apply; any other law needing nothing is still refused.
+        if (Array.isArray(law.applicableWhen) && Array.isArray(law.requires) && !law.applicableWhen.length && !law.requires.length && law.listedFor !== 'DEPARTURE') {
+            errors.push(`${which} needs nothing to apply, so the profile has no reason to list it (unless it is listed for an activity to depart from: listedFor DEPARTURE)`)
         }
     }
     return errors

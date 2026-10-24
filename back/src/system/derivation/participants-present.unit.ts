@@ -86,6 +86,21 @@ const dropItems = (...ids: string[]) => (contracts: LoadedContract[]) => {
     assert.equal(before - realization.items.length, ids.length, `TEST-ONLY copy: ${ids.join(', ')} removed`)
 }
 const CHECK_CLAUSES = Object.values(PARTICIPANT_CLAUSES)
+/**
+ * Re-pointed 24 October 2026 (R1): the touchline restart's own taker (A01-R1-T3-2, a player of the team awarded the throw-in) is withdrawn
+ * with the throw-in (his reply filed 27 October 2026, item 4: "There should be no separate corners, goal kicks, throw-ins, free kicks, or
+ * penalty kicks for this activity."), and every restart after a dead ball is the goalkeeper's. So where a test needs a restart whose taker
+ * it can reword, a TEST-ONLY copy gives the touchline restart a taker of its own - taken out of A01-R1-T3-1's widened selector - and takes
+ * the common restart out (A01-R1-RP1-1), so that restart may differ from the one restart (GA-DEAD-BALL-RESTART would refuse it at
+ * structure otherwise, which dead-ball-restart.unit.ts pins).
+ */
+const touchlineTaker = (value: string) => (contracts: LoadedContract[]) => {
+    const t31 = itemOf(contracts, 'A01-R1-T3-1')
+    assert.ok(String(t31.selector).includes('OUT_TOUCHLINE, '), 'the goalkeeper takes the touchline restart in production')
+    t31.selector = String(t31.selector).replace('OUT_TOUCHLINE, ', '')
+    realizationOf(contracts).items.push({ ...copy(t31), itemId: 'TEST-ONLY-T3-TOUCHLINE', selector: 'trigger=OUT_TOUCHLINE', value } as any)
+    dropItems('A01-R1-RP1-1')(contracts)
+}
 
 /**
  * The chain one block is built by (the steps `buildOneGame` takes up to and including the post-realization gates), over a TEST-ONLY
@@ -154,7 +169,9 @@ test('register version 15 types the participant forms as data, in one versions e
     // Re-pointed 26 October 2026 (Stage F): version 20 (his rulings filed 26 October 2026 for the goal version) supersedes 19.
     // Re-pointed 23 October 2026 (H3): version 21 (a region bound to an object, his reply filed 26 October 2026, item 7) supersedes 20.
     // Re-pointed 23 October 2026 (H4): version 22 (the type a session states for its objects, his reply filed 26 October 2026, item 4) supersedes 21.
-    assert.ok(full.startsWith('22, adds the type a session states for its objects of a kind, for his reply filed 26 October 2026, item 4'))
+    // Re-pointed 24 October 2026 (R1): version 23 (one restart for every dead ball, his reply filed 27 October 2026, item 4) supersedes 22.
+    assert.ok(full.startsWith('23, adds one restart for every dead ball, for his reply filed 27 October 2026, item 4'))
+    assert.ok(full.includes('Supersedes version 22, which adds the type a session states for its objects of a kind, for his reply filed 26 October 2026, item 4'))
     assert.ok(full.includes('Supersedes version 21, which adds a region bound to an object, for his reply filed 26 October 2026, item 7'))
     assert.ok(full.includes('Supersedes version 20, which records his rulings filed 26 October 2026 for the goal version of the build-out activity'))
     assert.ok(full.includes("Supersedes version 19, which adds an object's availability as a session resource"))
@@ -179,8 +196,11 @@ test('register version 15 types the participant forms as data, in one versions e
         'three forms, each a value the knowledge already writes',
     )
     // Each form types a value the knowledge writes, whole: the taker of A01-R1's ordinary restarts and the neutral participation group.
+    // Re-pointed 24 October 2026 (R1): A01-R1's ordinary restarts are withdrawn (his reply filed 27 October 2026, item 4), so no production
+    // item of A01 writes the awarded team's player any more; the form is the register's, unchanged, and exercised on TEST-ONLY items here.
     const contracts = derivationInputFor(a01()).contracts as LoadedContract[]
-    assert.equal(itemOf(contracts, 'A01-R1-T3-2').value, PLAYER_FORM)
+    assert.ok(!realizationOf(contracts).items.some(i => i.value === PLAYER_FORM), 'no A01-R1 item writes it since R1')
+    assert.ok(!realizationOf(contracts).items.some(i => i.itemId === 'A01-R1-T3-2' || i.itemId === 'A01-R1-T3-3'))
     assert.ok(index.participants!.forms.every(form => form.coachNoun === null || register.participants.note.includes('coachNoun is DRAFT')), 'coach nouns are DRAFT')
 })
 
@@ -236,7 +256,9 @@ test('production A01: deferred to the instantiated teams before realization, and
                 assert.equal(clauseOf(check, requirement).basis, 'EVALUATED', `${label}: ${requirement} ranged over applicable instances`)
             }
             assert.equal(clauseOf(check, 'TAKER').instances, 7, `${label}: seven restarts carry a taker`)
-            assert.equal(clauseOf(check, 'BEGIN_ARM').instances, 3, `${label}: three restarts meet the begin condition's taker`)
+            // Re-pointed 24 October 2026 (R1): every restart after a dead ball is the goalkeeper's (his reply filed 27 October 2026, item 4),
+            // so all seven meet the begin condition's taker. Was 3: the start, a score and the coach's conclusion.
+            assert.equal(clauseOf(check, 'BEGIN_ARM').instances, 7, `${label}: seven restarts meet the begin condition's taker`)
             assert.deepEqual(post!.missingParticipants, [], label)
             assert.ok(post!.owed.some(o => o.checkId === PARTICIPANTS_CHECK && o.verdict === 'PASS'), `${label}: owed and paid`)
         }
@@ -290,9 +312,7 @@ test('TEST-ONLY: without the count but with the reassignment kept, the goalkeepe
 
 test('TEST-ONLY: a taker reworded so the register types nobody is withheld before realization, whatever the wording', () => {
     for (const wording of [`the ${KEEPER}`, 'a player of STARTING_TEAM taking a controlled defensive restart']) {
-        const activity = builtWith(sessionOf(12, 1), contracts => {
-            itemOf(contracts, 'A01-R1-T3-2').value = wording
-        }) as RefusedActivity
+        const activity = builtWith(sessionOf(12, 1), touchlineTaker(wording)) as RefusedActivity
         assert.equal(activity.outcome, 'refused', wording)
         assert.equal(activity.stage, 'structure', `${wording}: ${activity.summary}`)
         assert.ok(activity.reasons.some(reason => reason.includes(`cannot be evaluated, so it is not satisfied: ${PARTICIPANTS_CHECK}`)), `${wording}: ${activity.reasons.join(' | ').slice(0, 500)}`)
@@ -336,7 +356,7 @@ test('TEST-ONLY register copy: a taker naming a second specialized role FAILS wi
     const withRole = (count: string) => (contracts: LoadedContract[]) => {
         const realization = realizationOf(contracts)
         realization.items.push({ ...copy(itemOf(contracts, 'A01-R1-P3-1')), itemId: 'TEST-ONLY-P3T', row: 'P3T', selector: '*', value: count })
-        itemOf(contracts, 'A01-R1-T3-2').value = OTHER
+        touchlineTaker(OTHER)(contracts)
     }
     const none = chain(a01(), sessionOf(12, 1, { [OTHER]: 0 }), { register: registerCopy, alter: withRole('0') })
     for (const { block, post, stoppedAt } of none) {
@@ -344,7 +364,8 @@ test('TEST-ONLY register copy: a taker naming a second specialized role FAILS wi
         const taker = clauseOf(postCheck(post), 'TAKER')
         assert.equal(taker.verdict, 'FAIL', block?.blockId)
         const missing = post!.missingParticipants.filter(entry => entry.requirement === 'TAKER')
-        assert.deepEqual([...new Set(missing.map(entry => entry.element.split(' ')[0]))].sort(), [R('T1-4'), R('T1-5')], 'the two touchline restarts')
+        // Re-pointed 24 October 2026 (R1): one touchline restart, no longer partitioned by who touched the ball last (was T1-4 and T1-5).
+        assert.deepEqual([...new Set(missing.map(entry => entry.element.split(' ')[0]))].sort(), [R('T1-8')], 'the touchline restart')
         assert.ok(missing.every(entry => entry.missing.kind === 'SPECIALIZED_ROLE' && entry.missing.row === 'P3T' && entry.missing.name === OTHER && entry.teams.length === 1 && entry.teams[0].holds === 0))
         assert.ok(!post!.missingParticipants.some(entry => entry.missing.name === KEEPER), 'the goalkeeper restarts still hold')
     }
@@ -420,17 +441,16 @@ test('P1b TEST-ONLY: a start placement for a counted group the game holds none o
 })
 
 test('P1b TEST-ONLY: a restart taken by a counted group the game holds none of is refused at STRUCTURE naming the group, for no particular team', () => {
-    const alter = (contracts: LoadedContract[]) => {
-        itemOf(contracts, 'A01-R1-T3-2').value = GROUP_FORM.value
-    }
+    // Re-pointed 24 October 2026 (R1): on the touchline restart's own TEST-ONLY taker (was A01-R1-T3-2, withdrawn), one restart (was two).
+    const alter = touchlineTaker(GROUP_FORM.value)
     for (const { pre, preMissing } of chain(a01(), sessionOf(12, 1), { alter })) {
         assert.equal(clauseOf(pre, 'TAKER').verdict, 'FAIL')
-        assert.deepEqual(recordsOf(preMissing), [R('T1-4'), R('T1-5')].map(id => ['TAKER', id, 'COUNTED_GROUP', GROUP_NOUN, []]), 'the two touchline restarts')
+        assert.deepEqual(recordsOf(preMissing), [R('T1-8')].map(id => ['TAKER', id, 'COUNTED_GROUP', GROUP_NOUN, []]), 'the touchline restart')
     }
     const activity = builtWith(sessionOf(12, 1), alter) as RefusedActivity
     assert.equal(activity.stage, 'structure')
     assert.equal(activity.summary, `This game needs a ${GROUP_NOUN} to restart play, and the team set-up has none.`)
-    for (const id of ['T1-4', 'T1-5']) {
+    for (const id of ['T1-8']) {
         assert.equal(activity.reasons.filter(reason => reason.includes(`(${PARTICIPANTS_CHECK}, TAKER): ${R(id)} [OUT_TOUCHLINE] (T3) requires 1 ${GROUP_NOUN} counted by ${GROUP_ROW}; game::${GROUP_ROW} holds 0`)).length, 2, id)
     }
 })

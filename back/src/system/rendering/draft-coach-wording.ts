@@ -90,12 +90,29 @@ export interface NormalLawsWording {
     basis: WordingBasis
 }
 
+/**
+ * **When a restart happens, for a trigger the renderer's own table has no words for** — R1, 24 October 2026 (the d27 design's section 2.8:
+ * *"The trigger phrases come from data. draft-coach-wording.json gains a `triggers` map"*). Christian, reply filed 27 October 2026, item 4:
+ * *"Whenever the [object] becomes dead, play resets to a new [specialized-role]-initiated build-out."* and the occasions he lists (his nouns
+ * bracketed: the coupling ratchet keeps a sport's nouns out of this layer; the data file quotes him whole). Keyed by a member of the register's
+ * trigger vocabulary; the phrase may hold the slot {carrier} (the kind of the object played with) and nothing else. Read by the renderer's
+ * restart sentence (`render-concrete-game.ts`), before its own table; a trigger with neither has no words, so its restart is not said and
+ * fidelity refuses the game, exactly as before.
+ */
+export interface TriggerWording {
+    trigger: string
+    phrase: string
+    basis: WordingBasis
+}
+
 export interface DraftCoachWording {
     objectKinds: ObjectKindWording[]
     facings: FacingWording[]
     scoringAtObjects: ScoringAtObjectWording[]
     /** H2: the held sentence for the sport's normal laws, or null where the file carries none. */
     normalLaws: NormalLawsWording | null
+    /** R1: the phrases for when a restart happens, by trigger (empty where the file carries none). */
+    triggers: TriggerWording[]
 }
 
 /** The wording as loaded, and why it could not be used (then it is empty). */
@@ -105,8 +122,9 @@ export interface DraftCoachWordingLoad {
 }
 
 const filled = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0
-const FILE_KEYS = new Set(['about', 'status', 'entryShape', 'objectKinds', 'facings', 'scoringAtObjects', 'normalLaws'])
+const FILE_KEYS = new Set(['about', 'status', 'entryShape', 'objectKinds', 'facings', 'scoringAtObjects', 'normalLaws', 'triggers'])
 const NORMAL_LAWS_KEYS = new Set(['words', 'held', 'basis'])
+const TRIGGER_KEYS = new Set(['trigger', 'phrase', 'basis'])
 const OBJECT_KEYS = new Set(['kind', 'standsOutsideArea', 'basis'])
 const FACING_KEYS = new Set(['facing', 'words', 'basis'])
 const SCORING_KEYS = new Set(['event', 'targetKind', 'lead', 'basis', 'clauses'])
@@ -200,10 +218,28 @@ export function draftCoachWordingUnusableBecause(file: any, index: RegisterIndex
         const basis = basisUnusableBecause(entry.basis)
         if (basis) return `its normalLaws entry: ${basis}`
     }
+    // R1 (24 October 2026): the phrases for when a restart happens, where the file carries them - each a member of the register's trigger
+    // vocabulary, once, its phrase holding no slot but {carrier}, with his words for it.
+    if (file.triggers !== undefined) {
+        if (!Array.isArray(file.triggers)) return 'its triggers entry is not a list'
+        const triggerVocabulary = index.vocabularies.get('trigger') ?? []
+        const triggers = new Set<string>()
+        for (const [n, entry] of (file.triggers as any[]).entries()) {
+            const which = `trigger ${n + 1}`
+            if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return `${which} is not an object`
+            for (const key of Object.keys(entry)) if (!TRIGGER_KEYS.has(key)) return `${which} carries "${key}"`
+            if (!filled(entry.trigger) || !triggerVocabulary.includes(entry.trigger)) return `${which} names ${JSON.stringify(entry.trigger)}, which is no member of the register's trigger vocabulary`
+            if (triggers.has(entry.trigger)) return `${which} lists ${entry.trigger} again`
+            triggers.add(entry.trigger)
+            if (!filled(entry.phrase) || strayBrace(entry.phrase) || slotsIn(entry.phrase).some(slot => slot !== 'carrier')) return `${which}: its phrase is missing or holds a slot other than {carrier}`
+            const basis = basisUnusableBecause(entry.basis)
+            if (basis) return `${which}: ${basis}`
+        }
+    }
     return null
 }
 
-const EMPTY: DraftCoachWording = { objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null }
+const EMPTY: DraftCoachWording = { objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [] }
 
 /** The wording from a parsed file, copied, or none with why. */
 export function draftCoachWordingLoadOf(file: any, index: RegisterIndex): DraftCoachWordingLoad {
@@ -215,10 +251,19 @@ export function draftCoachWordingLoadOf(file: any, index: RegisterIndex): DraftC
             facings: JSON.parse(JSON.stringify(file.facings)),
             scoringAtObjects: JSON.parse(JSON.stringify(file.scoringAtObjects)),
             normalLaws: file.normalLaws === undefined ? null : JSON.parse(JSON.stringify(file.normalLaws)),
+            triggers: file.triggers === undefined ? [] : JSON.parse(JSON.stringify(file.triggers)),
         },
         why: null,
     }
 }
+
+/** The DRAFT phrase for when a restart on this trigger happens, or null where none is written (R1). */
+export function triggerWording(trigger: unknown, wording: DraftCoachWording = draftCoachWordingLoad().wording): TriggerWording | null {
+    return wording.triggers.find(entry => entry.trigger === trigger) ?? null
+}
+
+/** The slots a DRAFT template holds, by name (R1: whether a phrase names the object played with, so its sentence cites the object). */
+export const slotsOf = (text: string): string[] => slotsIn(text)
 
 function readWording(): DraftCoachWordingLoad {
     try {

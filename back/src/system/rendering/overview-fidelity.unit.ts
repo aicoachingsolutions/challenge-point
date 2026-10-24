@@ -114,7 +114,10 @@ const entryOf = (id: string): ApprovedWording => approvedWording().find(entry =>
 const W1 = entryOf('A01-W1')
 const W2 = entryOf('A01-W2')
 const W3 = entryOf('A01-W3')
-const DETAILS_10 = "The building team's goalkeeper restarts play: at the start, after either team scores and whenever you decide that an attack has run its course (at a stoppage or while play is on)"
+// Re-pointed 24 October 2026 (R1, DRAFT): the ball going out and the coach's two other stoppages join the restart moments (his reply filed
+// 27 October 2026, item 4). Was: "... at the start, after either team scores and whenever you decide that an attack has run its course (at a
+// stoppage or while play is on)".
+const DETAILS_10 = "The building team's goalkeeper restarts play: at the start, after either team scores, whenever the ball goes out of play, whenever you decide that an attack has run its course (at a stoppage or while play is on), whenever you stop play for a foul and whenever you stop play for any other reason"
 const DETAILS_14 = 'Pressing team: Score by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside'
 const DETAILS_16 = 'Each score is worth 1 point'
 /** The BUILD PLAN's EXPECTED PRESENTATION, overview sentences 4-8 as written there. */
@@ -124,7 +127,10 @@ const OVERVIEW_7 = 'Pressing team: Score by getting the ball under control into 
 const OVERVIEW_8 = 'The pressing team also scores by winning the ball inside that zone, provided it genuinely establishes possession.'
 /** His second sentence of the building rule: since stage 3F the overview's statement of the build-out origin. */
 const W1_S2 = "The progression must begin with the goalkeeper's build-out and occur before the building team loses possession."
-/** Sentence 6 as the composer cuts it from Details 10 (stage 3E): Details 10's own words up to the bracketed aside, no word added or changed. */
+/**
+ * Sentence 6 as the composer cut it from Details 10 (stage 3E) until R1: Details 10's own words up to the bracketed aside. Since R1 (24
+ * October 2026) the aside no longer closes Details 10, so no cut gives it; the overview never says it.
+ */
 const OVERVIEW_6_CUT = "The building team's goalkeeper restarts play: at the start, after either team scores and whenever you decide that an attack has run its course."
 /** His illustrative building line (reply filed 22 October 2026, item 5): "illustrative wording for evaluation, not a new canonical knowledge entry". */
 const HIS_BUILDING_LINE = 'The building team scores by progressing beyond the line under control.'
@@ -517,9 +523,13 @@ test('T17. the restart moments left out with no pointer are refused; said, where
     const opener = essentialsTable()
     opener.table!.rules.find(rule => rule.id === 'BOUNDED_EPISODE_OPENER')!.class = 'ESSENTIAL'
     const withCut = compose(PROD.games, { essentials: opener })
-    assert.ok(texts(withCut.scoring.blocks[0].groups[0]).includes(OVERVIEW_6_CUT))
+    // Re-pointed 24 October 2026 (R1): with no aside cut left (his reply filed 27 October 2026, item 4, adds moments after it), Details 10 is
+    // said whole. Was: the restart cut, OVERVIEW_6_CUT.
+    const said = `${DETAILS_10}.`
+    assert.ok(texts(withCut.scoring.blocks[0].groups[0]).includes(said))
+    assert.ok(!texts(withCut.scoring.blocks[0].groups[0]).includes(OVERVIEW_6_CUT))
     assertPasses(check(withCut, PROD.games, PROD.served, { essentials: opener }), 'ESSENTIAL restart moments, said')
-    const omitted = everyBlock(withCut, groups => (groups[0].sentences = groups[0].sentences.filter(sentence => sentence.text !== OVERVIEW_6_CUT)))
+    const omitted = everyBlock(withCut, groups => (groups[0].sentences = groups[0].sentences.filter(sentence => sentence.text !== said)))
     assertRefused(check(omitted, PROD.games, PROD.served, { essentials: opener }), '7.4', 'rule BOUNDED_EPISODE_OPENER) is stated by no sentence of the building team', 'ESSENTIAL, omitted')
 })
 

@@ -377,8 +377,11 @@ test('(M5, L13) the origin arm his sentence leaves unnamed cannot occur: no tran
             assert.deepEqual(named, [ROLE], 'the one arm his sentence names')
             assert.ok(!JSON.stringify(transitions).includes('restartKind'), 'no transition carries a restart kind')
             // The beginnings awarded to the building role's holder (GA-EPISODE-REACHABLE's starters: start, after a score, the coach's call).
+            // Re-pointed 24 October 2026 (R1): and every other dead ball (his reply filed 27 October 2026, item 4: "Whenever the ball becomes
+            // dead, play resets to a new goalkeeper-initiated build-out."), each taken by the arm he names; compared as a set, the game holding
+            // its transitions in no order that matters here.
             const beginnings = transitions.filter(t => String(t.startsEpisode) === 'true' && t.playState === 'STOP_RESUME' && t.awardedTo === 'ROLE_HOLDER_BUILDING')
-            assert.deepEqual(beginnings.map(t => t.selector.find((s: any) => s.attribute === 'trigger').value), ['START', 'SCORE', 'COACH_JUDGED_EPISODE_CONCLUSION'])
+            assert.deepEqual(beginnings.map(t => t.selector.find((s: any) => s.attribute === 'trigger').value).sort(), ['COACH_DIRECTED_STOPPAGE', 'COACH_JUDGED_EPISODE_CONCLUSION', 'INFRINGEMENT_STOPPAGE', 'OUT_END_LINE', 'OUT_TOUCHLINE', 'SCORE', 'START'])
             assert.ok(beginnings.every(t => named.includes(t.placement.actor)), JSON.stringify(beginnings.map(t => t.placement)))
         }
     }

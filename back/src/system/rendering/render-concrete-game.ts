@@ -55,7 +55,7 @@ import { NO_FURTHER_VALUE } from '../derivation/types'
 import { CONDITION_ROW, conditionScopeNotEvaluable } from '../derivation/resolved-game'
 import { ApprovedTemplateSentence, approvedTemplateSentences, approvedWording, ApprovedWording, canonicalJson, fillTemplate, POSSESSION_CONTINUES, WordingMatch } from './approved-wording'
 import { exclusionFor } from './coach-facing-exclusions'
-import { facingWording, fillSlots, objectKindWording, scoresAtAnObject, scoringAtObjectWording } from './draft-coach-wording'
+import { facingWording, fillSlots, objectKindWording, scoresAtAnObject, scoringAtObjectWording, slotsOf, triggerWording } from './draft-coach-wording'
 import { eventKindOf, genericOf } from './game-reading'
 import { MARK_UNION_ONCE, MarkingChange, PhysicalLayout, Remarking, somethingMoves } from './physical-layout'
 import { ADJUSTING, assignSection, inSectionOrder, PLAY_STATE_UNREADABLE, RESTARTS, ROLE_EXCHANGE, Section, SectionFacts, TransitionReading, When } from './sections'
@@ -2477,8 +2477,28 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
     const partStatus = (paths: string[]): SourceStatus => combinedStatus(paths.map(p => statusOf.get(p) ?? 'DERIVED'))
     const restarting = transitionsHeld.filter(transition => transition?.playState === 'STOP_RESUME')
 
+    /**
+     * **When a restart happens, in DRAFT data words first** — R1, 24 October 2026 (the d27 design's stage R1, section 2.8: *"The trigger
+     * phrases come from data. draft-coach-wording.json gains a `triggers` map ... The renderer reads data before its TRIGGER_PHRASE
+     * table."*). Christian, reply filed 27 October 2026, item 4: *"Whenever the [object] becomes dead, play resets to a new
+     * [specialized-role]-initiated build-out."* (his nouns bracketed for the coupling ratchet). A trigger the DRAFT wording data words
+     * (`draft-coach-wording.ts` triggerWording) has that phrase, its slot {carrier} filled with the kind of the object played with; any
+     * other has the table's words above, exactly as before; a trigger with neither has none, so its restart stays uncarried and fidelity
+     * refuses it. `carrier` says whether the phrase names the object, so the part saying it cites the object's kind.
+     */
+    const triggerPhraseOf = (transition: any): { words: string; carrier: boolean } | null => {
+        const trigger = triggerOf(transition)
+        if (!trigger) return null
+        const entry = triggerWording(trigger)
+        if (entry) {
+            const words = fillSlots(entry.phrase, objectNoun ? { carrier: objectNoun } : {})
+            return words === null ? null : { words, carrier: slotsOf(entry.phrase).includes('carrier') }
+        }
+        return TRIGGER_PHRASE[trigger] ? { words: TRIGGER_PHRASE[trigger], carrier: false } : null
+    }
+
     // The restarts awarded to a team holding a role, keyed on triggers the maps word: said together where they restart alike.
-    const roleRestarts = restarting.filter(t => teamNoun(t.awardedTo) && TRIGGER_PHRASE[triggerOf(t) ?? ''] && METHOD_PHRASE[t?.placement?.method] && takerOf(t) && coachDecides(t?.placement?.region) !== null && objectNoun)
+    const roleRestarts = restarting.filter(t => teamNoun(t.awardedTo) && triggerPhraseOf(t) && METHOD_PHRASE[t?.placement?.method] && takerOf(t) && coachDecides(t?.placement?.region) !== null && objectNoun)
     const restartGroups = new Map<string, any[]>()
     for (const transition of roleRestarts) {
         const key = JSON.stringify([transition.awardedTo, transition.placement.actor, transition.placement.method, transition.placement.region])
@@ -2560,29 +2580,72 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
      * is a part of its own citing the same selector: it says more of the same trigger (when the coach may judge it), so the words it
      * qualifies still say that trigger without it. The sentence's text, status and citations are exactly as before.
      */
-    for (const group of restartGroups.values()) {
+    /**
+     * **The one restart after every dead ball, cited where it is said** — R1, 24 October 2026 (register version 23, row RP1 and the
+     * deadBallRestart block). Christian, reply filed 27 October 2026, item 4: *"Ball becomes dead: initiate a new [specialized-role] build-out."*
+     * Where the game's dead-ball restart policy is the register's common value, the group that says when its restarts happen says the policy
+     * itself once it holds every transition that stops play on a trigger the block classes as making the ball dead: its lead cites the policy's
+     * path. Read through the register (the block's row, path, value and classes), so no row, value or trigger is named here; a game keeping a
+     * restart per trigger, or holding none, is said exactly as before.
+     */
+    const deadBall = participants().deadBallRestart
+    const commonRestartPath = (group: any[]): string[] => {
+        if (!deadBall || fieldOf(game, deadBall.path) !== deadBall.common) return []
+        const dead = restarting.filter(t => deadBall.classOf.get(triggerOf(t) ?? '') === 'STOPS_PLAY')
+        return dead.length && dead.every(t => group.includes(t)) ? [deadBall.path] : []
+    }
+    /** The qualifiers a transition holds (T1a-T1c), cited by the words that say when it happens (R1: "goes out of play" says them all). */
+    const qualifierPaths = (transition: any): string[] => Object.keys(transition?.qualifiers ?? {}).map(field => pathAt(transition, `qualifiers.${field}`))
+    const saidInGroup = new Set<any>()
+    /**
+     * R1 (24 October 2026): a group's restarts are said in the order the register lists their triggers (its trigger vocabulary), so the start
+     * comes first and the moments read in one stable order whatever order the game holds its transitions in (a transition with qualifiers is
+     * held first, its lines coming first). A group of the start, a score and the coach's conclusion reads exactly as before.
+     */
+    const triggerOrder = participants().vocabularies.get('trigger') ?? []
+    const byTriggerOrder = (a: any, b: any) => triggerOrder.indexOf(triggerOf(a) ?? '') - triggerOrder.indexOf(triggerOf(b) ?? '')
+    for (const held of restartGroups.values()) {
+        const group = [...held].sort(byTriggerOrder)
         const [first] = group
         const taker = takerOf(first)!
         const who = group.flatMap(t => [pathAt(t, 'awardedTo'), pathAt(t, 'placement.actor')])
         const stops = group.map(t => pathAt(t, 'playState'))
         const methods = group.map(t => pathAt(t, 'placement.method'))
         const locations = group.map(t => pathAt(t, 'placement.region'))
-        const moments = group.flatMap((t, k) => {
-            const [words, aside] = asideOf(TRIGGER_PHRASE[triggerOf(t)!])
-            const selector = [pathAt(t, 'selector')]
-            const joiner = k === 0 ? ': ' : k === group.length - 1 ? ' and ' : ', '
-            return [part(partStatus([]), `${joiner}${words}`, selector), ...(aside === null ? [] : [part(partStatus([]), aside, selector)])]
+        /**
+         * R1 (24 October 2026): two triggers worded alike are said once, the one clause citing both (the ball going out over a touchline and
+         * over an end line: "whenever the ball goes out of play"), in the order the first of them is held; a clause cites the qualifiers of
+         * each transition it says and, where its words name the object, the object's kind. Every phrase said for one trigger alone, with no
+         * qualifier and no object, is cited exactly as before.
+         */
+        const phrases: { words: string; carrier: boolean; transitions: any[] }[] = []
+        for (const transition of group) {
+            const phrase = triggerPhraseOf(transition)!
+            const same = phrases.find(entry => entry.words === phrase.words)
+            if (same) same.transitions.push(transition)
+            else phrases.push({ ...phrase, transitions: [transition] })
+        }
+        const moments = phrases.flatMap((entry, k) => {
+            const [words, aside] = asideOf(entry.words)
+            const qualifiers = entry.transitions.flatMap(qualifierPaths)
+            const cited = [...entry.transitions.map(t => pathAt(t, 'selector')), ...qualifiers, ...(entry.carrier ? objectPath : [])]
+            const joiner = k === 0 ? ': ' : k === phrases.length - 1 ? ' and ' : ', '
+            return [part(partStatus(qualifiers), `${joiner}${words}`, cited), ...(aside === null ? [] : [part(partStatus(qualifiers), aside, cited)])]
         })
-        instructions.push(joined('How it works', [part(partStatus([...who, ...stops]), `${capital(taker)} restarts play`, [...who, ...stops]), ...moments]))
+        const policy = commonRestartPath(group)
+        for (const transition of group) saidInGroup.add(transition)
+        instructions.push(joined('How it works', [part(partStatus([...who, ...stops, ...policy]), `${capital(taker)} restarts play`, [...who, ...stops, ...policy]), ...moments]))
         if (placementResetsAt(group)) sayPlacement(group)
         instructions.push(joined(RESTARTS, [part(partStatus([...who, ...methods]), `${capital(taker)} restarts play ${METHOD_PHRASE[first.placement.method](objectNoun!)}`, [...who, ...methods, ...objectPath])]))
         const bound = coachDecides(first.placement.region)
         say(RESTARTS, partStatus([...locations, ...who]), `You choose where ${taker} restarts play${bound ? `, ${bound}` : ''}`, [...locations, ...who])
     }
 
-    // Ordinary restarts when the object goes out of play, one sentence per trigger where its transitions restart alike.
+    // Ordinary restarts when the object goes out of play, one sentence per trigger where its transitions restart alike. R1 (24 October
+    // 2026): a transition already said in a role's restart group above (worded in data, his reply filed 27 October 2026, item 4) is not
+    // said again here.
     const outGroups = new Map<string, any[]>()
-    for (const transition of restarting.filter(t => OUT_OF_PLAY_TRIGGERS.includes(triggerOf(t) ?? '') && takerOf(t) && objectNoun)) {
+    for (const transition of restarting.filter(t => OUT_OF_PLAY_TRIGGERS.includes(triggerOf(t) ?? '') && !saidInGroup.has(t) && takerOf(t) && objectNoun)) {
         const key = JSON.stringify([triggerOf(transition), transition.qualifiers?.endLine ?? null, transition.awardedTo, transition.placement?.actor, transition.placement?.method, transition.placement?.region])
         outGroups.set(key, [...(outGroups.get(key) ?? []), transition])
     }

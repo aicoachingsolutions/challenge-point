@@ -23,6 +23,14 @@
  *   6. a realization declaring no check gains no account; and mutations - a departure removed flips DEPARTED to ADAPTATION_OWED, a condition
  *      removed flips the goal end's owed law to DEPARTED.
  *
+ * **Re-pointed 24 October 2026 (R1, the d27 design's section 2.6 and 2.10)** for his reply filed 27 October 2026, items 3 and 4 (the one
+ * common restart): nine laws, each saying why it is listed (ADAPTATION or DEPARTURE) and whether it is a restart law, the three DEPARTURE laws
+ * each departed from by a realization; A01-R1's departures are A01-R1-T2-1's and the common restart's (A01-R1-RP1-1, WHOLE, six laws), the
+ * end-line restarts and A01-R1-T1-3's part departure gone with what they recorded; the zone account departs from the dropped ball, free kicks
+ * and the throw-in, LAW-14/16/17 not applicable at both ends and recorded by nothing; the goal copy departs from LAW-14/16/17 at the goal end
+ * and owes four (offside, handling); the X5 condition and the part departure are exercised on TEST-ONLY copies; and the common-restart clause
+ * makes a restart law that would apply owed, and none where the game keeps a restart per trigger.
+ *
  * Nothing here changes a production file. TEST-ONLY copies are labelled and held in memory.
  *
  * Run: npx ts-node --files -r tsconfig-paths/register ./src/system/derivation/default-laws.unit.ts
@@ -61,7 +69,6 @@ const ITEM_10 = [
     "The offside question, for example, may need an explicit ruling for this small-sided environment, but we should not expand the current work into a comprehensive reconstruction of soccer's laws.",
     'The governing principle is to inherit established sport rules and explicitly define only the necessary departures.',
 ]
-const LAWS = ['LAW-8', 'LAW-11', 'LAW-12-GK', 'LAW-14', 'LAW-16', 'LAW-17']
 const laws = loadSportDefaultLaws()!
 /** The Sport Profile file as authored (a fresh copy each time). */
 const profileFile = (): any => readJson(laws.file)
@@ -72,7 +79,7 @@ const statusOf = (account: DefaultLawsAccount, blockAt: number, law: string) =>
 const items = (entries: { item: string }[]) => entries.map(entry => entry.item)
 
 // ── 1. The block in the Sport Profile ────────────────────────────────────────────────────────────────────
-test("the profile's defaultLaws block: his item 10 words, the restatement, and six laws in the closed vocabulary", () => {
+test("the profile's defaultLaws block: his item 10 words, the restatement, and nine laws in the closed vocabulary, each listed for a reason", () => {
     assert.deepEqual([laws.source, laws.edition, laws.authority.citedAs, laws.authority.by, laws.authority.ruledOn], ['IFAB Laws of the Game', null, 'his reply filed 26 October 2026, item 10', 'Christian', '2026-10-26'])
     assert.deepEqual(laws.authority.words, ITEM_10, 'his item 10, verbatim and whole sentences')
     assert.ok(laws.editionNote.startsWith('He names no edition.'))
@@ -81,7 +88,31 @@ test("the profile's defaultLaws block: his item 10 words, the restatement, and s
     assert.ok(raw.deliberatelyNotContributed[0].includes(`"${ITEM_10[0]}"`), 'restated with his authority, his words quoted')
     assert.ok(raw.deliberatelyNotContributed[0].includes('Until this restatement the entry read: "Ordinary Laws of the Game: out-of-play behaviour, restarts, offside, legal actions."'), 'the old reading kept, quoted')
     assert.ok(raw.defaultLaws.restates.startsWith('deliberatelyNotContributed[0]'))
-    assert.deepEqual(laws.laws.map(law => [law.id, law.scope]), [['LAW-8', 'GAME'], ['LAW-11', 'GAME'], ['LAW-12-GK', 'GAME'], ['LAW-14', 'PER_END'], ['LAW-16', 'PER_END'], ['LAW-17', 'PER_END']])
+    // Re-pointed 24 October 2026 (R1, the d27 design's section 2.6): nine laws, each saying why it is listed and whether it is a restart law;
+    // the three listed for DEPARTURE (the dropped ball, free kicks, the throw-in) need nothing to apply, for his reply filed 27 October 2026,
+    // items 3 and 4.
+    assert.deepEqual(
+        laws.laws.map(law => [law.id, law.scope, law.listedFor, law.restart]),
+        [
+            ['LAW-8', 'GAME', 'ADAPTATION', true],
+            ['LAW-8-DB', 'GAME', 'DEPARTURE', true],
+            ['LAW-11', 'GAME', 'ADAPTATION', false],
+            ['LAW-12-GK', 'GAME', 'ADAPTATION', false],
+            ['LAW-14', 'PER_END', 'ADAPTATION', true],
+            ['LAW-13', 'GAME', 'DEPARTURE', true],
+            ['LAW-15', 'GAME', 'DEPARTURE', true],
+            ['LAW-16', 'PER_END', 'ADAPTATION', true],
+            ['LAW-17', 'PER_END', 'ADAPTATION', true],
+        ],
+    )
+    for (const law of laws.laws.filter(entry => entry.listedFor === 'DEPARTURE')) {
+        assert.deepEqual([law.applicableWhen, law.requires], [[], []], `${law.id}: listed only to be departed from`)
+        assert.ok(String(law.note).startsWith('Listed 24 October 2026 (R1') && String(law.note).includes('His reply filed 27 October 2026'), law.id)
+    }
+    // A law listed for DEPARTURE must be departed from by some realization, or the profile lists it for nothing (the loader's narrowed rule,
+    // compensated here).
+    const departed = new Set(loadProvisionalRealizations().flatMap(r => r.items.flatMap(item => ((item as any).departsFrom ?? []).map((d: any) => d.law))))
+    for (const law of laws.laws.filter(entry => entry.listedFor === 'DEPARTURE')) assert.ok(departed.has(law.id), `${law.id} is departed from by a realization`)
     const predicates = laws.laws.flatMap(law => [...law.applicableWhen, ...law.requires].map(p => p.predicate))
     assert.deepEqual([...new Set(predicates)].sort(), [...LAW_PREDICATES].sort(), 'every predicate of the closed list is used, and no other')
     // A declaration, never items: the profile's contribution is what it was.
@@ -98,16 +129,23 @@ test('the loader refuses the block whole on any defect: unknown keys, a law twic
         assert.ok(errors.some(error => pattern.test(error)), `${what}: ${errors.join(' | ')}`)
         assert.throws(() => loadSportDefaultLaws(() => damaged, index), /default-laws block is refused/, what)
     }
+    const at = (b: any, id: string) => b.laws.find((law: any) => law.id === id)
     refused(b => (b.appliesTo = 'TEST-ONLY'), /carries "appliesTo"/, 'an unknown key')
     refused(b => b.laws.push(copy(b.laws[0])), /LAW-8 is listed twice/, 'a law twice')
-    refused(b => (b.laws[0].requires[0].predicate = 'TEST-ONLY'), /none of OBJECT_OF_KIND_AT_END/, 'a predicate outside the closed list')
-    refused(b => (b.laws[3].applicableWhen[0].row = 'P3'), /does not take/, 'an argument the predicate does not take')
-    refused(b => (b.laws[3].applicableWhen[0].kind = 'TEST-ONLY'), /no member of the register's object-kind vocabulary/, 'an object kind outside the vocabulary')
-    refused(b => (b.laws[2].applicableWhen[0].row = 'P2'), /no specialized performer row/, 'a row that is no specialized performer')
+    refused(b => (at(b, 'LAW-8').requires[0].predicate = 'TEST-ONLY'), /none of OBJECT_OF_KIND_AT_END/, 'a predicate outside the closed list')
+    refused(b => (at(b, 'LAW-14').applicableWhen[0].row = 'P3'), /does not take/, 'an argument the predicate does not take')
+    refused(b => (at(b, 'LAW-14').applicableWhen[0].kind = 'TEST-ONLY'), /no member of the register's object-kind vocabulary/, 'an object kind outside the vocabulary')
+    refused(b => (at(b, 'LAW-12-GK').applicableWhen[0].row = 'P2'), /no specialized performer row/, 'a row that is no specialized performer')
     refused(b => (b.authority.words = []), /must quote his words/, 'no words of his')
     refused(b => delete b.edition, /does not say none is named/, 'an edition neither named nor null')
-    refused(b => (b.laws[5].applicableWhen = []), /needs nothing to apply/, 'a law needing nothing')
-    refused(b => (b.laws[1].scope = 'PER_BLOCK'), /none of GAME, PER_END/, 'a scope outside the list')
+    refused(b => (at(b, 'LAW-17').applicableWhen = []), /needs nothing to apply/, 'a law needing nothing')
+    refused(b => (at(b, 'LAW-11').scope = 'PER_BLOCK'), /none of GAME, PER_END/, 'a scope outside the list')
+    // R1 (24 October 2026): why a law is listed and whether it is a restart law are required; only a DEPARTURE law may need nothing.
+    refused(b => delete at(b, 'LAW-13').listedFor, /is listed for undefined, which is none of ADAPTATION, DEPARTURE/, 'no reason for listing')
+    refused(b => (at(b, 'LAW-13').listedFor = 'TEST-ONLY'), /none of ADAPTATION, DEPARTURE/, 'a reason off the list')
+    refused(b => (at(b, 'LAW-13').listedFor = 'ADAPTATION'), /LAW-13 needs nothing to apply/, 'a law needing nothing, listed for adaptation')
+    refused(b => delete at(b, 'LAW-15').restart, /does not say whether it is a law of how play restarts/, 'no restart flag')
+    refused(b => (at(b, 'LAW-15').restart = 'yes'), /does not say whether it is a law of how play restarts/, 'a restart flag that is no boolean')
     // The profile's items may record no departure: only an activity's realization does.
     const marked = copy(raw)
     marked.result.items[0].departsFrom = [{ law: 'LAW-8' }]
@@ -119,23 +157,25 @@ test("A01-R1's items record the departures his rulings already state, no value c
     const raw = readJson(PROVISIONAL_REALIZATIONS_FILE)
     const r1 = raw.realizations.find((r: any) => r.id === R1)
     const recorded = r1.items.filter((item: any) => item.departsFrom).map((item: any) => [item.id, item.departsFrom.map((d: any) => [d.law, d.extent, d.whilePreconditionAbsent?.predicate ?? null])])
+    // Re-pointed 24 October 2026 (R1): his reply filed 27 October 2026, items 3 and 4, record the one common restart (A01-R1-RP1-1), which
+    // departs from the whole of every restart it replaces; the part departure of A01-R1-T1-3 and the end-line restarts' departures (A01-R1-T4-3,
+    // T5-3, withdrawn) go with what they recorded.
     assert.deepEqual(recorded, [
-        ['A01-R1-T1-3', [['LAW-16', 'PART', null]]],
         ['A01-R1-T2-1', [['LAW-8', 'WHOLE', null]]],
-        ['A01-R1-T4-3', [['LAW-16', 'WHOLE', 'OBJECT_OF_KIND_AT_END'], ['LAW-17', 'WHOLE', 'OBJECT_OF_KIND_AT_END']]],
-        ['A01-R1-T5-3', [['LAW-16', 'WHOLE', 'OBJECT_OF_KIND_AT_END'], ['LAW-17', 'WHOLE', 'OBJECT_OF_KIND_AT_END']]],
+        ['A01-R1-RP1-1', ['LAW-8-DB', 'LAW-13', 'LAW-14', 'LAW-15', 'LAW-16', 'LAW-17'].map(law => [law, 'WHOLE', null])],
     ])
     // His words, verbatim, where he said them.
-    const t13 = r1.items.find((item: any) => item.id === 'A01-R1-T1-3').departsFrom[0]
-    assert.ok(t13.basis.words.includes("Shots going out: The coach may conclude the episode and restart the goalkeeper's build-out under the already authorized activity structure. We do not need an additional scoring mechanism."))
-    assert.equal(t13.basis.citedAs, 'his reply filed 26 October 2026, item 11; his reply filed 18 October 2026, item 2')
+    const rp1 = r1.items.find((item: any) => item.id === 'A01-R1-RP1-1').departsFrom
+    assert.ok(rp1.find((d: any) => d.law === 'LAW-14').basis.words.includes('For this activity, a dead ball should result in a new goalkeeper-initiated build-out, not a penalty kick or another set-piece restart.'))
+    assert.equal(rp1.find((d: any) => d.law === 'LAW-14').basis.citedAs, 'his reply filed 27 October 2026, item 3')
+    assert.ok(rp1.find((d: any) => d.law === 'LAW-15').basis.words.includes('There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity.'))
     assert.ok(r1.items.find((item: any) => item.id === 'A01-R1-T2-1').departsFrom[0].basis.words.includes('The coach initiating a new goalkeeper build-out after a completed episode.'))
-    // A01-R2 records none of its own; it keeps all four.
+    // A01-R2 records none of its own; it keeps both.
     assert.ok(!raw.realizations.find((r: any) => r.id === R2).items.some((item: any) => item.departsFrom))
     const loaded = loadProvisionalRealizations()
     const of = (id: string) => loaded.find(r => r.provisionalId === id)!
     assert.deepEqual([of(R1).defaultLawsCheck!.mode, of(R2).defaultLawsCheck!.mode], ['REPORT', 'ENFORCE'])
-    assert.deepEqual(of(R2).items.filter(item => item.departsFrom).map(item => item.itemId), ['A01-R1-T1-3', 'A01-R1-T2-1', 'A01-R1-T4-3', 'A01-R1-T5-3'])
+    assert.deepEqual(of(R2).items.filter(item => item.departsFrom).map(item => item.itemId), ['A01-R1-T2-1', 'A01-R1-RP1-1'])
     // A variant stating no check inherits its base's, as it inherits its items.
     const inheriting = copy(raw)
     delete inheriting.realizations.find((r: any) => r.id === R2).defaultLawsCheck
@@ -156,12 +196,13 @@ test('the gate refuses a departure it cannot read, a strictness outside the list
     refused(f => (departure(f, 'A01-R1-T2-1')[0].law = 'LAW-99'), /departs from "LAW-99", which is no law the Sport Profile names as a default/, 'a law the profile does not name')
     refused(f => departure(f, 'A01-R1-T2-1').push(copy(departure(f, 'A01-R1-T2-1')[0])), /departs from LAW-8 a second time/, 'a law twice on one item')
     refused(f => (departure(f, 'A01-R1-T2-1')[0].basis = { words: [], citedAs: 'TEST-ONLY' }), /quotes none of his words/, 'no words of his')
-    refused(f => delete departure(f, 'A01-R1-T1-3')[0].part, /does not say which part/, 'a part not named')
-    refused(f => (departure(f, 'A01-R1-T4-3')[0].whilePreconditionAbsent = { predicate: 'SPECIALIZED_PERFORMER_PRESENT', row: 'P3' }), /rests on the absence of a precondition LAW-16 does not have/, 'a condition not the law\'s own')
-    refused(f => (departure(f, 'A01-R1-T4-3')[0].extent = 'MOST'), /none of WHOLE, PART/, 'an extent outside the list')
+    // Re-pointed 24 October 2026 (R1): the departures A01-R1-RP1-1 records stand in for the withdrawn items' (LAW-16 is its fifth).
+    refused(f => (departure(f, 'A01-R1-RP1-1')[4].extent = 'PART'), /does not say which part/, 'a part not named')
+    refused(f => (departure(f, 'A01-R1-RP1-1')[4].whilePreconditionAbsent = { predicate: 'SPECIALIZED_PERFORMER_PRESENT', row: 'P3' }), /rests on the absence of a precondition LAW-16 does not have/, 'a condition not the law\'s own')
+    refused(f => (departure(f, 'A01-R1-RP1-1')[4].extent = 'MOST'), /none of WHOLE, PART/, 'an extent outside the list')
     refused(f => (departure(f, 'A01-R1-T2-1')[0].appliesTo = 'TEST-ONLY'), /carries "appliesTo"/, 'an unknown key')
     refused(f => (f.realizations.find((r: any) => r.id === R2).defaultLawsCheck.mode = 'WARN'), /none of ENFORCE, REPORT \(there is no default\)/, 'a strictness outside the list')
-    refused(f => delete f.realizations.find((r: any) => r.id === R1).defaultLawsCheck, /records departures from the normal laws \(A01-R1-T1-3, A01-R1-T2-1, A01-R1-T4-3, A01-R1-T5-3\) and declares no default-laws check/, 'departures nothing reads')
+    refused(f => delete f.realizations.find((r: any) => r.id === R1).defaultLawsCheck, /records departures from the normal laws \(A01-R1-T2-1, A01-R1-RP1-1\) and declares no default-laws check/, 'departures nothing reads')
     assert.equal(defaultLawsCheckRefusal({ mode: 'REPORT', because: 'TEST-ONLY', basis: { words: ['TEST-ONLY'], citedAs: 'TEST-ONLY' } }), null)
     assert.match(defaultLawsCheckRefusal({ mode: 'REPORT', basis: { words: ['TEST-ONLY'], citedAs: 'TEST-ONLY' } })!, /without saying why/)
     // Without the profile's block, neither a check nor a departure is admitted.
@@ -174,7 +215,7 @@ test('the gate refuses a departure it cannot read, a strictness outside the list
 const admin = (players: number, keepers: number, objects?: Record<string, unknown>) =>
     buildActivityForReview({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(players, keepers, objects) } as any, { includeDrafts: true })
 
-test('A01-R1 at 12/1, 12/2 and 11/1, REPORT: LAW-8 departed, LAW-11 and LAW-12-GK owed, LAW-14/16/17 not applicable at both ends; served', () => {
+test('A01-R1 at 12/1, 12/2 and 11/1, REPORT: LAW-8 and the common restart departed, LAW-11 and LAW-12-GK owed, LAW-14/16/17 not applicable; served', () => {
     for (const [players, keepers] of [[12, 1], [12, 2], [11, 1]]) {
         const label = `${players}/${keepers}`
         const served = admin(players, keepers) as ServedActivity
@@ -192,8 +233,16 @@ test('A01-R1 at 12/1, 12/2 and 11/1, REPORT: LAW-8 departed, LAW-11 and LAW-12-G
                 for (const end of ['end0', 'end1']) {
                     const entry = statusOf(account, at, law)[end]
                     assert.equal(entry.status, 'NOT_APPLICABLE', `${label} ${law} ${end}`)
-                    assert.deepEqual(items(entry.recordedBy), law === 'LAW-14' ? [] : ['A01-R1-T4-3', 'A01-R1-T5-3'], `${label} ${law} ${end}: the end-line restarts recorded`)
+                    // Re-pointed 24 October 2026 (R1): the end-line restarts that recorded LAW-16 and LAW-17 here are withdrawn; the common
+                    // restart's departure rests on no absence, so it records nothing where no goal stands (the design's 2.6: "the T4-3/T5-3
+                    // citations go").
+                    assert.deepEqual(items(entry.recordedBy), [], `${label} ${law} ${end}`)
                 }
+            }
+            // R1: the restarts the common restart replaces and that can apply here are departed from by it, in his words.
+            for (const law of ['LAW-8-DB', 'LAW-13', 'LAW-15']) {
+                const entry = statusOf(account, at, law).game
+                assert.deepEqual([entry.status, items(entry.departedBy)], ['DEPARTED', ['A01-R1-RP1-1']], `${label} ${law}`)
             }
         }
         // Each block's ends are named by who defends them in it.
@@ -252,7 +301,13 @@ const goalBuild = (players: number, keepers: number, alter: (file: any) => void 
 }
 const REPORT = (file: any) => (file.realizations.find((r: any) => r.id === R2).defaultLawsCheck = { mode: 'REPORT', because: 'TEST-ONLY', basis: { words: ['TEST-ONLY'], citedAs: 'TEST-ONLY' } })
 
-test('the TEST-ONLY goal copy: LAW-17 owed at the goal end, not applicable at the other; LAW-16 owed and partly departed from; in both blocks', () => {
+/**
+ * Re-pointed 24 October 2026 (R1, the d27 design's section 2.6): the goal version inherits the one common restart (A01-R1-RP1-1), whose
+ * departures hold at the goal end as at the other, so penalty kicks, goal kicks and corner kicks are DEPARTED where the goal stands and not
+ * applicable at the other end; the end-line restarts' X5 citations go with them. What the copy still owes is offside and the goalkeeper's
+ * handling, in each block (four, down from ten): offside waits on the next stage (his item 2), handling on the goal's penalty area.
+ */
+test('the TEST-ONLY goal copy: LAW-14, LAW-16 and LAW-17 departed at the goal end by the common restart, not applicable at the other; in both blocks', () => {
     for (const [players, keepers] of [[12, 1], [12, 2], [11, 1]]) {
         const label = `${players}/${keepers}`
         const served = goalBuild(players, keepers, REPORT).activity as ServedActivity
@@ -262,20 +317,14 @@ test('the TEST-ONLY goal copy: LAW-17 owed at the goal end, not applicable at th
         for (const at of [0, 1]) {
             // The goal stands on the end line at 0 m in both blocks, defended by the team holding the building role (the ends exchanged).
             assert.deepEqual(account.blocks[at].ends.map(end => [end.atM, end.defendedBy[0]]), [[0, 'ROLE_HOLDER_BUILDING'], [40, 'ROLE_HOLDER_PRESSING']], label)
-            const corner = statusOf(account, at, 'LAW-17')
-            assert.deepEqual([corner.end0.status, corner.end1.status], ['ADAPTATION_OWED', 'NOT_APPLICABLE'], label)
-            assert.deepEqual(items(corner.end0.noLongerHolds), ['A01-R1-T4-3', 'A01-R1-T5-3'], `${label}: the kept end-line restarts' reason is false at the goal end (X5)`)
-            assert.deepEqual(items(corner.end1.recordedBy), ['A01-R1-T4-3', 'A01-R1-T5-3'])
-            const kick = statusOf(account, at, 'LAW-16')
-            assert.deepEqual([kick.end0.status, items(kick.end0.departedInPart), items(kick.end0.noLongerHolds)], ['ADAPTATION_OWED', ['A01-R1-T1-3'], ['A01-R1-T4-3', 'A01-R1-T5-3']], label)
-            assert.ok(kick.end0.why.endsWith('A01-R1-T1-3 departs from part of it'), kick.end0.why)
-            assert.equal(kick.end0.departedInPart[0].part, 'a shot that goes over the end line a goal stands on, when the coach concludes the episode')
-            assert.equal(kick.end1.status, 'NOT_APPLICABLE')
-            const penalty = statusOf(account, at, 'LAW-14')
-            assert.deepEqual([penalty.end0.status, penalty.end1.status], ['ADAPTATION_OWED', 'NOT_APPLICABLE'], label)
+            for (const law of ['LAW-14', 'LAW-16', 'LAW-17']) {
+                const entry = statusOf(account, at, law)
+                assert.deepEqual([entry.end0.status, items(entry.end0.departedBy), items(entry.end0.noLongerHolds), items(entry.end0.departedInPart), entry.end1.status], ['DEPARTED', ['A01-R1-RP1-1'], [], [], 'NOT_APPLICABLE'], `${label} ${law}`)
+            }
+            for (const law of ['LAW-8-DB', 'LAW-13', 'LAW-15']) assert.deepEqual([statusOf(account, at, law).game.status, items(statusOf(account, at, law).game.departedBy)], ['DEPARTED', ['A01-R1-RP1-1']], `${label} ${law}`)
             assert.deepEqual([statusOf(account, at, 'LAW-8').game.status, statusOf(account, at, 'LAW-11').game.status, statusOf(account, at, 'LAW-12-GK').game.status], ['DEPARTED', 'ADAPTATION_OWED', 'ADAPTATION_OWED'])
         }
-        assert.equal(account.owed.length, 10, `${label}: five laws owed in each block`)
+        assert.equal(account.owed.length, 4, `${label}: two laws owed in each block`)
     }
 })
 
@@ -285,9 +334,10 @@ test('under the ENFORCE it records, the goal copy (its two decisions completed o
         const refused = goalBuild(players, keepers).activity as RefusedActivity
         assert.deepEqual([refused.outcome, refused.stage], ['refused', 'validation'], label)
         assert.equal(refused.summary, "Where this activity departs from the sport's normal rules has not all been decided yet, so it is not being shown.")
-        assert.equal(refused.reasons[0], `the provisional realization ${R2} holds its activity to the normal laws (ENFORCE), and 10 adaptations are owed`)
-        for (const law of ['LAW-11', 'LAW-12-GK', 'LAW-14', 'LAW-16', 'LAW-17']) assert.equal(refused.reasons.filter(reason => reason.includes(`: ${law} (`)).length, 2, `${label} ${law}: named in both blocks`)
-        assert.ok(!refused.reasons.some(reason => reason.includes('LAW-8 (')), 'the departed law is not owed')
+        // Re-pointed 24 October 2026 (R1): four adaptations, down from ten - the common restart departs from the three restart laws.
+        assert.equal(refused.reasons[0], `the provisional realization ${R2} holds its activity to the normal laws (ENFORCE), and 4 adaptations are owed`)
+        for (const law of ['LAW-11', 'LAW-12-GK']) assert.equal(refused.reasons.filter(reason => reason.includes(`: ${law} (`)).length, 2, `${label} ${law}: named in both blocks`)
+        for (const law of ['LAW-8', 'LAW-8-DB', 'LAW-13', 'LAW-14', 'LAW-15', 'LAW-16', 'LAW-17']) assert.ok(!refused.reasons.some(reason => reason.includes(`${law} (`)), `${label}: ${law} is departed from, not owed`)
         // A knowledge gap, never a fallback: the zone version behind it is not tried.
         assert.deepEqual((refused.account.realizationSelection as any[]).map(entry => [entry.realization, entry.outcome, entry.stage]), [[R2, 'REFUSED', 'validation'], [R1, 'NOT_TRIED', null]], label)
         assert.equal(refused.evidence!.defaultLaws!.mode, 'ENFORCE')
@@ -322,8 +372,25 @@ test('UNREPRESENTED never yields APPLIES; an unreadable precondition never passe
     assert.deepEqual(unread.laws.map(entry => entry.status), ['ADAPTATION_OWED', 'ADAPTATION_OWED'])
     assert.ok(unread.laws[0].why.includes('cannot be read') && unread.laws[0].why.includes('insufficient evidence is never a pass'), unread.laws[0].why)
     // A departure from part of a law whose preconditions all hold is cited, and the rest of the law applies (the uncovered part is its own).
-    const partOnly = accountWith(lawsWith({ id: 'LAW-16', cites: 'TEST-ONLY', name: 'TEST-ONLY', scope: 'PER_END', applicableWhen: [{ predicate: 'OBJECT_OF_KIND_AT_END', kind: 'goal' }], requires: [], note: null }), block.fixture.game, r2.items.filter(item => item.itemId === 'A01-R1-T1-3'))
+    // Re-pointed 24 October 2026 (R1): no production item records a part departure since the common restart replaced A01-R1-T1-3's, so the
+    // item is a TEST-ONLY copy of it carrying the part it recorded.
+    const partItem: any = { ...copy(r2.items.find(item => item.itemId === 'A01-R1-T1-3')!), departsFrom: [{ law: 'LAW-16', because: 'TEST-ONLY', basis: { words: ['TEST-ONLY'], citedAs: 'TEST-ONLY' }, extent: 'PART', part: 'a shot that goes over the end line a goal stands on, when the coach concludes the episode' }] }
+    const partOnly = accountWith(lawsWith({ id: 'LAW-16', cites: 'TEST-ONLY', name: 'TEST-ONLY', scope: 'PER_END', applicableWhen: [{ predicate: 'OBJECT_OF_KIND_AT_END', kind: 'goal' }], requires: [], note: null }), block.fixture.game, [partItem])
     assert.deepEqual([partOnly.laws[0].status, items(partOnly.laws[0].departedInPart)], ['APPLIES', ['A01-R1-T1-3']])
+    // R1 (24 October 2026): the common-restart clause. Under the game's common dead-ball restart a restart law whose preconditions all hold
+    // and that nothing departs from is owed - never APPLIES; the same law not marked a restart law applies; and a game keeping a restart per
+    // trigger leaves the restart law applying.
+    assert.equal(block.fixture.game.restartPolicy?.deadBall, 'COMMON', 'the goal copy holds the common restart (inherited A01-R1-RP1-1)')
+    const restartLaw = { id: 'TEST-ONLY', cites: 'TEST-ONLY', name: 'TEST-ONLY', scope: 'GAME', applicableWhen: [], requires: [], note: null, listedFor: 'DEPARTURE', restart: true }
+    const common = accountWith(lawsWith(restartLaw), block.fixture.game, [])
+    assert.equal(common.laws[0].status, 'ADAPTATION_OWED')
+    assert.ok(common.laws[0].why.includes("the game's dead-ball restart policy (restartPolicy.deadBall) is COMMON"), common.laws[0].why)
+    assert.equal(accountWith(lawsWith({ ...restartLaw, restart: false }), block.fixture.game, []).laws[0].status, 'APPLIES')
+    const perTrigger = copy(block.fixture.game)
+    perTrigger.restartPolicy.deadBall = 'PER_TRIGGER'
+    assert.equal(accountWith(lawsWith(restartLaw), perTrigger, []).laws[0].status, 'APPLIES')
+    delete perTrigger.restartPolicy
+    assert.equal(accountWith(lawsWith(restartLaw), perTrigger, []).laws[0].status, 'APPLIES')
 })
 
 // ── 6. Mutations ─────────────────────────────────────────────────────────────────────────────────────────
@@ -337,13 +404,29 @@ test('mutation: removing one departure flips DEPARTED to ADAPTATION_OWED; removi
         assert.deepEqual([law8.status, items(law8.departedBy)], ['ADAPTATION_OWED', []])
     }
     assert.equal(mutated.evidence!.defaultLaws!.owed.length, 6)
-    // The end-line restarts without the condition they rest on: at the goal end they depart from LAW-17 as recorded, and it is DEPARTED.
-    const unconditioned = goalBuild(12, 1, file => {
+    // Re-pointed 24 October 2026 (R1): the condition mechanism (the design of 26 October's X5) is exercised on a TEST-ONLY copy, since no
+    // production departure rests on an absence any more. With the common restart's LAW-17 departure resting on there being no goal at that
+    // end, its reason is false at the goal end and an adaptation is owed there; without the condition, it is DEPARTED, as production records.
+    const conditioned = goalBuild(12, 1, file => {
         REPORT(file)
-        for (const id of ['A01-R1-T4-3', 'A01-R1-T5-3']) for (const departure of file.realizations.find((r: any) => r.id === R1).items.find((item: any) => item.id === id).departsFrom) delete departure.whilePreconditionAbsent
+        const departure = file.realizations.find((r: any) => r.id === R1).items.find((item: any) => item.id === 'A01-R1-RP1-1').departsFrom.find((d: any) => d.law === 'LAW-17')
+        departure.whilePreconditionAbsent = { predicate: 'OBJECT_OF_KIND_AT_END', kind: 'goal' }
     }).activity as ServedActivity
-    const corner = statusOf(unconditioned.evidence!.defaultLaws!, 0, 'LAW-17')
-    assert.deepEqual([corner.end0.status, items(corner.end0.departedBy), corner.end1.status], ['DEPARTED', ['A01-R1-T4-3', 'A01-R1-T5-3'], 'NOT_APPLICABLE'])
+    const owedCorner = statusOf(conditioned.evidence!.defaultLaws!, 0, 'LAW-17')
+    assert.deepEqual([owedCorner.end0.status, items(owedCorner.end0.noLongerHolds), owedCorner.end1.status, items(owedCorner.end1.recordedBy)], ['ADAPTATION_OWED', ['A01-R1-RP1-1'], 'NOT_APPLICABLE', ['A01-R1-RP1-1']])
+    const corner = statusOf((goalBuild(12, 1, REPORT).activity as ServedActivity).evidence!.defaultLaws!, 0, 'LAW-17')
+    assert.deepEqual([corner.end0.status, items(corner.end0.departedBy), corner.end1.status], ['DEPARTED', ['A01-R1-RP1-1'], 'NOT_APPLICABLE'])
+    // R1: the common restart's departure from LAW-17 taken out of a copy: the corner would apply at the goal end (it requires nothing), and
+    // the common-restart clause makes it owed - never APPLIES while the coach is told every dead ball restarts one way.
+    const undeparted = goalBuild(12, 1, file => {
+        REPORT(file)
+        const rp1 = file.realizations.find((r: any) => r.id === R1).items.find((item: any) => item.id === 'A01-R1-RP1-1')
+        rp1.departsFrom = rp1.departsFrom.filter((d: any) => d.law !== 'LAW-17')
+    }).activity as ServedActivity
+    const bare = statusOf(undeparted.evidence!.defaultLaws!, 0, 'LAW-17')
+    assert.equal(bare.end0.status, 'ADAPTATION_OWED')
+    assert.ok(bare.end0.why.includes('is COMMON') && bare.end0.why.includes('this restart law cannot apply as written'), bare.end0.why)
+    assert.equal(bare.end1.status, 'NOT_APPLICABLE')
 })
 
 console.log(`default-laws.unit.ts — ${passed} passed`)

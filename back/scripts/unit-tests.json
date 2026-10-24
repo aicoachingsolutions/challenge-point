@@ -78,6 +78,7 @@
     "./src/system/derivation/variant-testing-area.unit.ts",
     "./src/system/derivation/default-laws.unit.ts",
     "./src/system/realization/bound-regions.unit.ts",
+    "./src/system/derivation/dead-ball-restart.unit.ts",
     "./src/system/derivation/role-blocks.unit.ts",
     "./src/system/derivation/affiliation-timing.unit.ts",
     "./src/system/derivation/practical.unit.ts",

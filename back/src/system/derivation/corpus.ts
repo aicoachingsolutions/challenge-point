@@ -253,6 +253,11 @@ export function loadSportDefaultLaws(read: (file: string) => any = readJson, ind
             applicableWhen: law.applicableWhen,
             requires: law.requires,
             note: law.note ? String(law.note) : null,
+            // R1 (24 October 2026): why the profile lists it and whether it is a restart law, both required and validated above.
+            // `restart` is read by the default-laws account's common-restart clause; `listedFor` by the data test holding every
+            // DEPARTURE law to a realization that departs from it.
+            listedFor: law.listedFor,
+            restart: law.restart === true,
         })),
     }
 }

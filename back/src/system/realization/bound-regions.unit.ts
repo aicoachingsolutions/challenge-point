@@ -15,8 +15,8 @@
  *      pairing (IFAB Law 1.6 with Law 1.10), no scaled entry, the profile's items unchanged; and its loader refusing every defect;
  *   3. the default-laws loader, tightened (the H2 review's should-fix 1, and the token step 3 was to check);
  *   4. TEST-ONLY, a 45 m long area with a 42 m end line and a full-size 7.32 m goal: the regulation area is placed 40.32 x 16.5 m, centred,
- *      0.84 m clear each side, at the goal in both blocks under the end exchange; LAW-12-GK applies and LAW-14 is owed at the goal end; the
- *      build stops at communication, the area's words being Stage G's; the review evidence shows the pairing whole;
+ *      0.84 m clear each side, at the goal in both blocks under the end exchange; LAW-12-GK applies and LAW-14 is owed at the goal end (since R1,
+ *      24 October 2026: departed from there by A01-R1-RP1-1, its mark still read); the build stops at communication, the area's words being Stage G's; the review evidence shows the pairing whole;
  *   5. TEST-ONLY, the same goal at 40 x 30 m: BOUND_REGION_DOES_NOT_FIT, the zone version served as production serves it, the reason on the
  *      review page; without the region items, refused (a broken alternative is never hidden behind the next one);
  *   6. TEST-ONLY refusals: a defended goal with no bound region; a region bound to a non-goal object, off-centre, not touching the goal's
@@ -175,7 +175,9 @@ test('register version 21: the function member, row S7 and the boundRegions bloc
     )
     assert.deepEqual([spec.path, spec.objectPath, spec.nounLeaf, spec.functionLeaf, spec.alongLeaf, spec.acrossLeaf, spec.ofObjectLeaf, spec.functionAttribute], ['space.regions[]', 'objects[]', 'noun', 'functions', 'position.along', 'position.across', 'ofObject', 'functions'])
     // Re-pointed 23 October 2026 (H4): version 22 (the type a session states for its objects, his reply filed 26 October 2026, item 4) supersedes 21.
-    assert.ok(String(register.version).startsWith('22, adds the type a session states for its objects of a kind, for his reply filed 26 October 2026, item 4'))
+    // Re-pointed 24 October 2026 (R1): version 23 (one restart for every dead ball, his reply filed 27 October 2026, item 4) supersedes 22.
+    assert.ok(String(register.version).startsWith('23, adds one restart for every dead ball, for his reply filed 27 October 2026, item 4'))
+    assert.ok(String(register.version).includes('Supersedes version 22, which adds the type a session states for its objects of a kind, for his reply filed 26 October 2026, item 4'))
     assert.ok(String(register.version).includes('Supersedes version 21, which adds a region bound to an object, for his reply filed 26 October 2026, item 7'))
     for (const quote of [ITEM_7_PAIRING, 'This should be a general soccer environment capability rather than a Goalkeeper Build-Out exception.']) assert.ok(String(register.version).split('Supersedes version 20, ')[0].includes(`"${quote}"`), quote)
     const damaged = (alter: (r: any) => void, pattern: RegExp, what: string) => {
@@ -259,16 +261,18 @@ test('the default-laws loader refuses what nothing represents as a condition of 
         alter(damaged.laws)
         return defaultLawsRefusals(damaged, index)
     }
+    // Re-pointed 24 October 2026 (R1): the laws are found by id, since R1 listed LAW-8-DB, LAW-13 and LAW-15 among them (the positions moved).
+    const law = (laws: any[], id: string) => laws.find(entry => entry.id === id)
     // The H2 review's should-fix 1: LAW-11's condition moved to applicableWhen would make it not applicable everywhere - a silent pass.
     const silent = refusals(laws => {
-        laws[1].applicableWhen = laws[1].requires
-        laws[1].requires = []
+        law(laws, 'LAW-11').applicableWhen = law(laws, 'LAW-11').requires
+        law(laws, 'LAW-11').requires = []
     })
     assert.ok(silent.some(error => error.includes('default law LAW-11: applicableWhen 1 rests on what the representation does not hold (UNREPRESENTED)')), silent.join(' | '))
     // Step 3 makes the bound-region predicates readable, so they may be a law's condition of applying.
-    assert.deepEqual(refusals(laws => (laws[3].applicableWhen = [...laws[3].applicableWhen, laws[3].requires[0]])), [])
+    assert.deepEqual(refusals(laws => (law(laws, 'LAW-14').applicableWhen = [...law(laws, 'LAW-14').applicableWhen, law(laws, 'LAW-14').requires[0]])), [])
     // The function token is the register's: one outside its list is refused, as is any without the register's bound-region rows.
-    assert.ok(refusals(laws => (laws[2].requires[0].function = 'TEST-ONLY')).some(error => error.includes('names the region function "TEST-ONLY", which is no member of S4\'s vocabulary')))
+    assert.ok(refusals(laws => (law(laws, 'LAW-12-GK').requires[0].function = 'TEST-ONLY')).some(error => error.includes('names the region function "TEST-ONLY", which is no member of S4\'s vocabulary')))
     const withoutRows = copy(register)
     delete withoutRows.boundRegions
     assert.ok(defaultLawsRefusals(raw.defaultLaws, indexRegister(withoutRows)).some(error => error.includes('the register names no bound-region rows')))
@@ -314,7 +318,7 @@ test('TEST-ONLY 45 x 42 m, a full-size 7.32 m goal: the regulation area is place
     }
 })
 
-test('the regulation area is evaluated by the default laws: LAW-12-GK applies, LAW-14 is owed at the goal end (its mark), not applicable at the other', () => {
+test('the regulation area is evaluated by the default laws: LAW-12-GK applies, LAW-14 is departed from at the goal end (its mark still read), not applicable at the other', () => {
     const { activity } = regulationBuild(12, 1)
     const account = activity.evidence!.defaultLaws!
     for (const block of account.blocks) {
@@ -323,12 +327,17 @@ test('the regulation area is evaluated by the default laws: LAW-12-GK applies, L
         assert.equal(handling.status, 'APPLIES')
         assert.deepEqual(handling.preconditions.map(p => [p.predicate.predicate, p.reading]), [['SPECIALIZED_PERFORMER_PRESENT', 'PRESENT'], ['REGION_BOUND_TO_OBJECT', 'PRESENT']])
         const penalty = at('LAW-14', 0)
-        assert.equal(penalty.status, 'ADAPTATION_OWED')
+        // Re-pointed 24 October 2026 (R1): was ADAPTATION_OWED. A01-R1-RP1-1 (inherited) departs from the whole of LAW-14 by his reply filed
+        // 27 October 2026, item 4: "There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this
+        // activity." Its preconditions are still read, the mark still ABSENT.
+        assert.equal(penalty.status, 'DEPARTED')
+        assert.deepEqual(penalty.departedBy.map(found => found.item), ['A01-R1-RP1-1'])
         assert.deepEqual(penalty.preconditions.map(p => [p.predicate.predicate, p.reading]), [['OBJECT_OF_KIND_AT_END', 'PRESENT'], ['REGION_BOUND_TO_OBJECT', 'PRESENT'], ['BOUND_REGION_MARK', 'ABSENT']])
         assert.ok(penalty.preconditions[2].why.includes('pairing IFAB-LAW-1 gives a mark at 11 m') && penalty.preconditions[2].why.includes('no row records the spot'), penalty.preconditions[2].why)
         assert.equal(at('LAW-14', 1).status, 'NOT_APPLICABLE')
         // The H2 review's should-fix 5: each entry carries the profile's note, so what settles an owed law is said beside it.
-        assert.equal(penalty.note, 'Decision 3 of the note sent to him (penalty kicks) answers it at an end where a goal stands.')
+        // R1: the note is AMENDED (his item 3 answers it for the build-out activity), its first sentence kept.
+        assert.ok(penalty.note.startsWith('Decision 3 of the note sent to him (penalty kicks) answers it at an end where a goal stands. AMENDED 24 October 2026 (R1)'), penalty.note)
     }
 })
 
@@ -499,7 +508,8 @@ test('TEST-ONLY: the goal version completed with a scaled pairing and its region
         const account = activity.evidence!.defaultLaws!
         assert.equal(account.blocks[0].laws.find(entry => entry.law === 'LAW-12-GK')!.status, 'APPLIES', label)
         const penalty = account.blocks[0].laws.find(entry => entry.law === 'LAW-14' && entry.end === 0)!
-        assert.ok(penalty.status === 'ADAPTATION_OWED' && penalty.preconditions[2].why.includes('pairing TEST-ONLY-SCALED gives no mark'), penalty.preconditions[2].why)
+        // Re-pointed 24 October 2026 (R1): DEPARTED by A01-R1-RP1-1 (his reply filed 27 October 2026, item 4); the mark still read. Was: ADAPTATION_OWED.
+        assert.ok(penalty.status === 'DEPARTED' && penalty.preconditions[2].why.includes('pairing TEST-ONLY-SCALED gives no mark'), penalty.preconditions[2].why)
     }
 })
 
@@ -514,7 +524,9 @@ test("the account reads an object's end by its anchor, and a collection it canno
     // TEST-ONLY: the goal moved 1.5 m into the area, its anchor still its end line: it still stands at that end (until H2's fix, NOT_APPLICABLE).
     const moved = copy(block.fixture.game)
     goalOf({ fixture: { game: moved } }).realizedGeometry.position.along.interval = { from: 1.5, to: 1.5 }
-    assert.deepEqual(accountWith(moved, 'LAW-17').laws.map(entry => entry.status), ['ADAPTATION_OWED', 'NOT_APPLICABLE'])
+    // Re-pointed 24 October 2026 (R1): at the goal's end LAW-17 is now DEPARTED by A01-R1-RP1-1 (his reply filed 27 October 2026, item 4),
+    // which still shows the goal read at that end and not at the other. Was: ADAPTATION_OWED there.
+    assert.deepEqual(accountWith(moved, 'LAW-17').laws.map(entry => entry.status), ['DEPARTED', 'NOT_APPLICABLE'])
     // With no anchor either, off every end line: unknown, so owed - never not applicable.
     delete goalOf({ fixture: { game: moved } }).realizedGeometry.position.along.anchor
     const unread = accountWith(moved, 'LAW-17').laws
