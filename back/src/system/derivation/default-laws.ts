@@ -21,13 +21,18 @@
  * **The predicates are closed and sport-neutral; what they name is data.** Law ids, object kinds, region functions and performer rows are
  * the profile's; this file names none of them. Each predicate reads an existing register row, or says plainly that nothing represents
  * what it asks:
- *   - `OBJECT_OF_KIND_AT_END {kind}`: an object of that kind (the register's objectGeometry rows) stands on that end line;
- *   - `REGION_BOUND_TO_OBJECT {function, kind}`: a region with that function is bound to an object of that kind. No register row binds a
- *     region to an object yet (the design's N2, build step 3), so it is ABSENT in every game today - never assumed present;
- *   - `BOUND_REGION_MARK {function}`: that region's authorized pairing gives a mark. No pairing table exists yet (N3), so ABSENT likewise;
+ *   - `OBJECT_OF_KIND_AT_END {kind}`: an object of that kind (the register's objectGeometry rows) stands at that end line - its realized
+ *     along anchor is that end (the design's "whose O4 anchor is that end");
+ *   - `REGION_BOUND_TO_OBJECT {function, kind}`: a region with that function is bound to an object of that kind (register version 21: row
+ *     S7, the boundRegions block; H3, the design's N2), at that end line where the law is accounted for per end. Its function is a member
+ *     of the register's region-function list (H3 tightened this: until the list held the member, the token was not checked);
+ *   - `BOUND_REGION_MARK {function}`: that region's authorized pairing (the Sport Profile's boundRegions block, the design's N3) gives a
+ *     mark, and the realization records the spot. No row records a spot (whether it is marked or paced is decision 3 of the note sent to
+ *     him), so where a pairing gives a mark it is still ABSENT, saying so;
  *   - `SPECIALIZED_PERFORMER_PRESENT {row}`: a team holds a performer on that specialized row (the register's specializedRole rows);
  *   - `UNREPRESENTED {what}`: the representation has no row for it. Always ABSENT, so a law resting on it can only be DEPARTED from or
- *     owed, never said to apply.
+ *     owed, never said to apply - and so it is refused in a law's `applicableWhen` (H3, the H2 review's should-fix 1): there it would make
+ *     the law NOT_APPLICABLE everywhere, a silent pass.
  *
  * Insufficient evidence is never a pass: a predicate that cannot be read is UNKNOWN, and a law resting on it is owed.
  */
@@ -152,6 +157,12 @@ export function lawPredicateRefusal(value: unknown, index: RegisterIndex): strin
     for (const key of wanted) if (!filled(value[key])) return `gives ${name} no ${key}`
     if ('kind' in value && !objectKindsOf(index).includes(String(value.kind))) return `names the object kind ${JSON.stringify(value.kind)}, which is no member of the register's object-kind vocabulary`
     if ('row' in value && !index.specializedRoleRows.has(String(value.row))) return `names the row ${JSON.stringify(value.row)}, which is no specialized performer row of the register`
+    // H3 (register version 21): a region function is a member of the register's region-function list, which the bound-region block names.
+    if ('function' in value) {
+        const spec = index.boundRegions
+        if (!spec) return `names the region function ${JSON.stringify(value.function)}, and the register names no bound-region rows`
+        if (!spec.functions.includes(String(value.function))) return `names the region function ${JSON.stringify(value.function)}, which is no member of ${spec.functionRow}'s vocabulary`
+    }
     return null
 }
 
@@ -212,6 +223,11 @@ export function defaultLawsRefusals(block: unknown, index: RegisterIndex): strin
             for (const [j, predicate] of (law[list] as unknown[]).entries()) {
                 const refused = lawPredicateRefusal(predicate, index)
                 if (refused) errors.push(`${which}: ${list} ${j + 1} ${refused}`)
+                // H3 (the H2 review's should-fix 1): what nothing represents is always absent, so as a condition of applying at all it would
+                // make the law NOT_APPLICABLE everywhere - a silent pass. It may only be what a law requires (owed, or departed from).
+                else if (list === 'applicableWhen' && isObject(predicate) && predicate.predicate === 'UNREPRESENTED') {
+                    errors.push(`${which}: applicableWhen ${j + 1} rests on what the representation does not hold (UNREPRESENTED), which would make the law not applicable everywhere; it may only be required`)
+                }
             }
         }
         if (Array.isArray(law.applicableWhen) && Array.isArray(law.requires) && !law.applicableWhen.length && !law.requires.length) {

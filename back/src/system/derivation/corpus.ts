@@ -17,6 +17,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import { ContractItem, DerivationInput, LoadedContract, ROLE_YIELD_KEY } from './types'
+import { boundRegionsRefusals, SportBoundRegions } from './bound-regions'
 import { repairCorpusEncoding, RepairTally } from './corpus-repair'
 import { applyNoRowRestatement, RestatementTally } from './corpus-restatement'
 import { DefaultLaws, DefaultLawsCheck, defaultLawsCheckRefusal, defaultLawsRefusals, departureRefusals, DEFAULT_LAWS_CHECK_KEY, DEPARTS_FROM_KEY } from './default-laws'
@@ -252,6 +253,53 @@ export function loadSportDefaultLaws(read: (file: string) => any = readJson, ind
             applicableWhen: law.applicableWhen,
             requires: law.requires,
             note: law.note ? String(law.note) : null,
+        })),
+    }
+}
+
+/**
+ * **The regions a sport binds to its objects, and the authorized pairings their geometry comes from** — H3, 23 October 2026 (the d26 design's
+ * build step 3, its N3 and N5; register version 21). Christian, reply filed 26 October 2026, item 7: *"Use an existing regulation [handling
+ * area] when the activity dimensions and setup permit it."* *"Do not assume a scaled dimension without knowledge support."* (His nouns
+ * bracketed for the coupling ratchet; the profile quotes him whole.) The Sport Profile carries a declaration block beside its contribution
+ * (`boundRegions`, never items): which object kinds need a region of which noun and function bound to them when defended, and the pairings
+ * authorized so far, each one named document giving an object, its region and its mark together (`bound-regions.ts`). Where the table lives
+ * is OUR READING, recorded in the block's note (the design's N3: a sport's constitutive structure the selected rules require). Validated
+ * beside the profile's own loader and refused whole on ANY defect (a pairing that slipped through would decide what a coach marks). Null
+ * where the profile carries no block. `read` is a parameter ONLY so a test can hand a copy through the same refusal; production passes none.
+ */
+export function loadSportBoundRegions(read: (file: string) => any = readJson, index = indexRegister(loadRegister())): SportBoundRegions | null {
+    const [file] = sportProfileFiles()
+    const raw = read(file)
+    if (raw?.boundRegions === undefined) return null
+    const errors = boundRegionsRefusals(raw.boundRegions, index)
+    if (errors.length) throw new Error(`the Sport Profile ${file} bound-region block is refused: ${errors.join('; ')}`)
+    const block = JSON.parse(JSON.stringify(raw.boundRegions))
+    const words = (value: any) => ({ words: (value.words as unknown[]).map(String), citedAs: String(value.citedAs) })
+    return {
+        file,
+        sportId: String(raw.sportId),
+        authority: { ...words(block.authority), by: String(block.authority.by), ruledOn: String(block.authority.ruledOn) },
+        requirements: (block.requirements as any[]).map(requirement => ({
+            id: String(requirement.id),
+            object: { kind: String(requirement.object.kind), whenDefended: true as const },
+            region: { noun: String(requirement.region.noun), function: String(requirement.region.function) },
+            cites: String(requirement.cites),
+            because: String(requirement.because),
+            basis: words(requirement.basis),
+        })),
+        pairings: (block.pairings as any[]).map(pairing => ({
+            id: String(pairing.id),
+            document: String(pairing.document),
+            edition: pairing.edition === null ? null : String(pairing.edition),
+            citedAs: String(pairing.citedAs),
+            formatConditions: { players: pairing.formatConditions.players, ageBand: pairing.formatConditions.ageBand, pitch: pairing.formatConditions.pitch },
+            object: { kind: String(pairing.object.kind), type: String(pairing.object.type), widthM: Number(pairing.object.widthM), heightM: pairing.object.heightM === null ? null : Number(pairing.object.heightM) },
+            region: { function: String(pairing.region.function), widthM: Number(pairing.region.widthM), depthM: Number(pairing.region.depthM) },
+            markM: pairing.markM === null ? null : Number(pairing.markM),
+            borrows: (pairing.borrows as unknown[]).map(String),
+            authority: words(pairing.authority),
+            note: pairing.note ? String(pairing.note) : null,
         })),
     }
 }

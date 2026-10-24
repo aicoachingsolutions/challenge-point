@@ -61,7 +61,10 @@ const R2 = 'A01-R2'
 /**
  * TEST-ONLY, in memory: the record lists the goal version as one that can be tried, and its goal a suitability (as in Stage F's test). H2 (23
  * October 2026): and D-DEFAULT-LAWS completed too - the copy's default-laws check is REPORT (TEST-ONLY) in place of the ENFORCE it records,
- * standing in for his rulings on the owed laws; every sentence is what it was (goal-version-knowledge.unit.ts says why).
+ * standing in for his rulings on the owed laws; every sentence is what it was (goal-version-knowledge.unit.ts says why). H3 (23 October
+ * 2026): and D-PENALTY-AREA completed by a stand-in too - the build is handed no bound-region block (`boundRegions: null`, TEST-ONLY), so
+ * no region is required of the goal; with the Sport Profile's block in force this 5 m goal is refused as a knowledge gap (no authorized
+ * pairing gives it a penalty area, bound-regions.unit.ts), and a region it held could not yet be said (its words are Stage G's).
  */
 const completed = () => {
     const records = learningGoalAuthorizations()
@@ -78,7 +81,7 @@ const goalVersion = (players: number, keepers: number) => {
     const key = `${players}/${keepers}`
     if (!built.has(key)) {
         const { records, realizations } = completed()
-        const result = buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(players, keepers, GOAL) } as any, records, { realizations, review: { includeDrafts: true } })
+        const result = buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(players, keepers, GOAL) } as any, records, { realizations, review: { includeDrafts: true }, boundRegions: null })
         assert.equal(result.activity.outcome, 'served', `${key}: ${JSON.stringify((result.activity as RefusedActivity).reasons ?? null)}`)
         built.set(key, { activity: result.activity as ServedActivity, fixture: result.fixture })
     }

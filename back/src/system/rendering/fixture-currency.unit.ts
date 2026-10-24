@@ -227,6 +227,14 @@
  * diff` of the fixture shows those four values and nothing else. The rendered instructions before and after (npm run render:a04):
  * identical apart from the two digests the run prints.
  *
+ * **Re-frozen 23 October 2026 (H3): `4a58a37d` → `5ff3dac6`. The GAME did not move; the register version did, and two lines nobody
+ * speaks for were added.** Register version 21 (his reply filed 26 October 2026, item 7) adds row S7, the object a region is bound to,
+ * owned by the regions row. The Golden Case binds no region, so each of its two target regions gains one line no contract speaks of
+ * (`space.regions[c:restated:GF2:GF2-03.e].ofObject` and `...03.f`, 'no coverage'), listed with the game's other lines that establish
+ * nothing. So `inputDigest` / `fromDigest` (ee3143c1 → 3e76f565), the audit digest (728450a4 → 5a397b4e), the `registerVersion`
+ * sentence and those two entries moved, and `git diff` of the fixture shows nothing else; the rendering suite pins the A04 text, which
+ * did not change.
+ *
  * **Since stage K3 a fixture may be COMPOSED from two role blocks** (`build-activity.ts`, `role-blocks.ts`): block one's
  * fixture with a `roleBlocks` block carrying each block's own fixture whole. The Golden Case is a single game and is
  * frozen as one; the composed shape is guarded below by key identity, so a future frozen two-block fixture cannot lose a

@@ -236,7 +236,11 @@ test('nothing a coach reads changes: the same build with every annotation taken 
 })
 
 // ── 4. The goal version, TEST-ONLY ───────────────────────────────────────────────────────────────────────
-/** TEST-ONLY, in memory: the record lists the goal version as one that can be tried and its goal a suitability; `mode` replaces its check. */
+/**
+ * TEST-ONLY, in memory: the record lists the goal version as one that can be tried and its goal a suitability; `mode` replaces its check. H3
+ * (23 October 2026): and no bound-region block is handed to the build (`boundRegions: null`), a stand-in for D-PENALTY-AREA, so the 5 m goal
+ * is required no region (with the profile's block in force it is a knowledge gap, bound-regions.unit.ts): every law reads as before.
+ */
 const goalBuild = (players: number, keepers: number, alter: (file: any) => void = () => undefined) => {
     const records = learningGoalAuthorizations()
     const record = records.find(r => r.learningGoalId === 'A01') as any
@@ -244,7 +248,7 @@ const goalBuild = (players: number, keepers: number, alter: (file: any) => void 
     const file = readJson(PROVISIONAL_REALIZATIONS_FILE)
     file.realizations.find((r: any) => r.id === R2).objectSuitability = [{ kind: 'goal', widthM: { min: 1, max: 10 }, ruledOn: 'TEST-ONLY', by: 'TEST-ONLY', citedAs: 'TEST-ONLY', words: ['TEST-ONLY'] }]
     alter(file)
-    return buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(players, keepers, GOAL) } as any, records, { realizations: loadProvisionalRealizations(file), review: { includeDrafts: true } })
+    return buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(players, keepers, GOAL) } as any, records, { realizations: loadProvisionalRealizations(file), review: { includeDrafts: true }, boundRegions: null })
 }
 const REPORT = (file: any) => (file.realizations.find((r: any) => r.id === R2).defaultLawsCheck = { mode: 'REPORT', because: 'TEST-ONLY', basis: { words: ['TEST-ONLY'], citedAs: 'TEST-ONLY' } })
 

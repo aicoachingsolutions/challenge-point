@@ -278,7 +278,11 @@ test('with goals stated or not, the zone version is served exactly as before, an
  * H2 (23 October 2026): the goal version now also waits on D-DEFAULT-LAWS and declares ENFORCE, so completing the record in memory completes
  * that decision too: the copy's default-laws check is REPORT (TEST-ONLY), standing in for his rulings on the owed laws - the account is still
  * computed and every game, item and sentence is what it was. With ENFORCE as recorded, the same completion is refused at validation
- * (default-laws.unit.ts).
+ * (default-laws.unit.ts). H3 (23 October 2026): D-PENALTY-AREA is completed by a stand-in too - the build is handed no bound-region block
+ * (`boundRegions: null`, TEST-ONLY), so no region is required of the goal. With the Sport Profile's block in force, this 5 m goal is
+ * refused as a knowledge gap before realization (no authorized pairing gives it a penalty area) and nothing behind it is tried; a
+ * completion that also gives the goal a TEST-ONLY pairing and its region builds through every check in both blocks and stops at
+ * communication, the region's words being Stage G's (bound-regions.unit.ts).
  */
 const completed = (alter: (variant: any) => void = () => undefined) => {
     const records = learningGoalAuthorizations()
@@ -293,7 +297,7 @@ const completed = (alter: (variant: any) => void = () => undefined) => {
 }
 const buildCompleted = (players: number, keepers: number, alter?: (variant: any) => void) => {
     const { records, realizations } = completed(alter)
-    return buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(players, keepers, GOAL) } as any, records, { realizations, review: { includeDrafts: true } })
+    return buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(players, keepers, GOAL) } as any, records, { realizations, review: { includeDrafts: true }, boundRegions: null })
 }
 
 test('completed in memory, A01-R2 passes every structural, realization and cross-block check in both blocks at 12/1, 12/2 and 11/1 (since Stage G, served in DRAFT words)', () => {

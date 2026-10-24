@@ -741,6 +741,49 @@ export interface ReviewEvidence {
      * sentence held for the coach. Present only where the realization declares the check; shown as sent, in the technical panel.
      */
     defaultLaws?: ReviewDefaultLawsAccount
+    /**
+     * H3 (23 October 2026): the regions bound to the games' objects — per block, each region, the object it is bound to and who defends it,
+     * where it lies, and the authorized pairing it cites whole (document, citation, format conditions, the object's type and size, the
+     * region's size, its mark, what it borrows, Christian's words). Present only where some game holds a bound region; shown as sent.
+     */
+    boundRegions?: ReviewBoundRegionAccount
+}
+
+/** One authorized pairing (H3), as the server sends it: one named document's object, region and mark together. */
+export interface ReviewBoundRegionPairing {
+    id: string
+    document: string
+    edition: string | null
+    citedAs: string
+    formatConditions: { players: string | null; ageBand: string | null; pitch: string | null }
+    object: { kind: string; type: string; widthM: number; heightM: number | null }
+    region: { function: string; widthM: number; depthM: number }
+    markM: number | null
+    borrows: string[]
+    authority: { words: string[]; citedAs: string }
+    note: string | null
+}
+
+/** The regions bound to the games' objects (H3), as the server sends them. */
+export interface ReviewBoundRegionAccount {
+    status: 'ACCOUNT_FOR_REVIEW'
+    check: string
+    source: { file: string; authority: { words: string[]; citedAs: string; by: string; ruledOn: string } }
+    requirements: { id: string; object: { kind: string; whenDefended: boolean }; region: { noun: string; function: string }; cites: string; because: string; basis: { words: string[]; citedAs: string } }[]
+    blocks: {
+        blockId: string
+        bindings: {
+            region: string
+            noun: string | null
+            functions: string[]
+            object: string
+            kind: string | null
+            defendedBy: string | null
+            pairing: ReviewBoundRegionPairing | null
+            along: { from: number; to: number } | null
+            across: { from: number; to: number } | null
+        }[]
+    }[]
 }
 
 /** One departure the default-laws account cites: the item, what it covers, why, and Christian's words for it. */
@@ -767,6 +810,8 @@ export interface ReviewDefaultLawsAccount {
             law: string
             cites: string
             name: string
+            /** H3: the Sport Profile's note on the law (which decision answers it), or null; absent from an account sent before H3. */
+            note?: string | null
             end: 0 | 1 | null
             at: string
             status: 'APPLIES' | 'DEPARTED' | 'NOT_APPLICABLE' | 'ADAPTATION_OWED'

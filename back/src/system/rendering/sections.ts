@@ -169,6 +169,9 @@ export const KIND_OF_ROW: Record<string, Kind | 'TRANSITION' | 'NAME'> = {
     S4: 'ORGANISATION',
     S5: 'ORGANISATION',
     S6: 'ORGANISATION',
+    // The object a region is bound to (register version 21, H3, 23 October 2026): part of setting the region out, as its position. No
+    // sentence says it yet (its wording is Stage G's), so fidelity refuses a game that establishes it.
+    S7: 'ORGANISATION',
     SV1: 'ORGANISATION',
     DV1: 'ORGANISATION',
     // Performers: picking sides. A group's participation state is how a group plays, said where its group is named (stage 2A keeps it

@@ -45,6 +45,7 @@
  * The standing rule that follows from that: **if a sentence here names something in the game, the name
  * comes from the game and the path is cited.** "Obvious in the sport" is not a source.
  */
+import { bindingOf } from '../derivation/bound-regions'
 import { nonClaimState } from '../derivation/classify'
 import { loadRegister } from '../derivation/corpus'
 import { participantOf, sameParticipant } from '../derivation/participants'
@@ -1432,7 +1433,14 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
         const length = lengthAxis?.geometry.interval
         return { lengthAxis, atAxis, length: (length?.to ?? 0) - (length?.from ?? 0), at: atAxis?.geometry.interval }
     }
-    const regions: any[] = game.space?.regions ?? []
+    /**
+     * **A region bound to an object is said by no sentence yet** (H3, 23 October 2026; register version 21, row S7). Its words are Stage G's
+     * (the d26 design's N6, DRAFT, after his approval), so it is not handed to the sentences below: read as an ordinary region it would be
+     * told as a strip "along the touchline", which it is not. Unsaid, fidelity names it (Q5: a region with no marking instruction; Q3: its
+     * lines carried by nothing), so a game holding one is refused at communication, honestly, until its words exist. No production game
+     * holds one.
+     */
+    const regions: any[] = (game.space?.regions ?? []).filter((region: any) => !bindingOf(region, participants()))
 
     /**
      * **Both end lines in one sentence — stage S-C2, 14 October 2026 (DRAFT).** His §7 asked for *"a clear starting

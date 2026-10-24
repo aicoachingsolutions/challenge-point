@@ -57,7 +57,7 @@
     "scope": "GAME",
     "applicableWhen": [{ "predicate": "SPECIALIZED_PERFORMER_PRESENT", "row": "P3" }],
     "requires": [{ "predicate": "REGION_BOUND_TO_OBJECT", "function": "penalty-area", "kind": "goal" }],
-    "note": "His reply filed 26 October 2026, item 7: \"The goalkeeper's handling permissions and restrictions should follow the normal Laws of the Game within that area unless an authorized activity rule explicitly changes them.\" The region-function token 'penalty-area' is ours (DRAFT) and no register vocabulary holds it yet (the d26 design's N1, build step 3); the penalty area's geometry is decision 1 of the note sent to him, and handling in the zone version is decision 5. Where a goalkeeper plays and no penalty area exists, the law's purpose remains, so an adaptation is owed."
+    "note": "His reply filed 26 October 2026, item 7: \"The goalkeeper's handling permissions and restrictions should follow the normal Laws of the Game within that area unless an authorized activity rule explicitly changes them.\" The region-function token 'penalty-area' is ours (DRAFT); since 23 October 2026 (H3, register version 21) it is a member of the register's region-function list, and the boundRegions block below binds it to a defended goal, with the regulation pairing alone authorized. The penalty area's geometry for any other goal is decision 1 of the note sent to him, and handling in the zone version is decision 5. Where a goalkeeper plays and no penalty area exists, the law's purpose remains, so an adaptation is owed."
    },
    {
     "id": "LAW-14",
@@ -88,6 +88,61 @@
     "applicableWhen": [{ "predicate": "OBJECT_OF_KIND_AT_END", "kind": "goal" }],
     "requires": [],
     "note": "Decision 4 of the note sent to him answers it at an end where a goal stands."
+   }
+  ]
+ },
+ "boundRegions": {
+  "authority": {
+   "words": [
+    "My preference is for standard soccer goalkeeper handling rules to apply, using a regulation penalty area whenever the playing environment can accommodate it appropriately.",
+    "The penalty area is an existing, meaningful part of the sport. We should avoid inventing a new handling region when an established one can serve the activity.",
+    "Use an existing regulation penalty area when the activity dimensions and setup permit it.",
+    "When a smaller field is necessary, use an explicitly defined and knowledge-authorized scaled penalty area.",
+    "I would not approve an undefined area that the coach simply points out, nor a feet-only goalkeeper restriction as the default for this realization.",
+    "Please investigate the smallest reusable method for representing an authorized penalty area, including its geometry and relationship to the goal and playing space. Do not assume a scaled dimension without knowledge support.",
+    "This should be a general soccer environment capability rather than a Goalkeeper Build-Out exception."
+   ],
+   "citedAs": "his reply filed 26 October 2026, item 7",
+   "by": "Christian",
+   "ruledOn": "2026-10-26"
+  },
+  "note": "Added 23 October 2026 (H3, the d26 design's build step 3, its N3 and N5; register version 21). A declaration beside the profile's contribution, never items, like defaultLaws: which object kinds need a region bound to them (requirements), and the pairings authorized so far, each one named document giving an object, its region and its mark together - only that geometry comes with an entry (borrows), never the document's other provisions. That this table lives in the Sport Profile is OUR READING (the d26 design's N3): the profile admits constitutive sport structure when the selected game rules require it and no existing authoritative source supplies it (the ownership rule above), his item 10 selects the normal Laws, which key the goalkeeper's handling on a penalty area, and no knowledge source in the repository supplies one. BUILT WITH THE REGULATION ENTRY ONLY. A pairing is matched by the width the session states for its object, and nothing else: whether a smaller goal on a field wide enough for the regulation area takes that area or its own format's (the same-source pairing rule, decision 1b of the note sent to him) is his, so such a goal matches no entry and is a knowledge gap - never given the regulation area, never a scaled one. No scaled entry is recorded and no scaled size is assumed: a scaled entry is added only when he authorizes one named document (decision 1 of the note sent to him), with its values confirmed against that document's current edition. The goal type, height and format conditions are shown with the entry on the review page and are matched by nothing until a session can state them (the d26 design's build step 4). The requirement's id, the region noun and the 'penalty-area' token are ours (DRAFT).",
+  "requirements": [
+   {
+    "id": "BOUND-REGION-GOAL",
+    "object": { "kind": "goal", "whenDefended": true },
+    "region": { "noun": "zone", "function": "penalty-area" },
+    "cites": "IFAB Laws of the Game, Law 1.6 (The Penalty Area: an area set out from the goal line in front of each goal) and Law 12 (Fouls and Misconduct: the goalkeeper's handling within its own penalty area)",
+    "because": "OUR READING of his item 7 with item 10 (ours). A goal a team's goalkeeper defends (register row O7) has its penalty area: the normal Laws key the goalkeeper's handling on it, he refuses an undefined area the coach points out and a feet-only default, and he asks for a defined, knowledge-authorized area. So such a goal holds exactly one zone of the function penalty-area bound to it (register row S7), whose geometry is the one authorized pairing for that goal; where no pairing is authorized the activity is refused as a knowledge gap, and where the paired area does not fit the session's area the realization does not apply to that session. A goal no goalkeeper defends needs none here (whenDefended).",
+    "basis": {
+     "words": [
+      "The goalkeeper's handling permissions and restrictions should follow the normal Laws of the Game within that area unless an authorized activity rule explicitly changes them.",
+      "I would not approve an undefined area that the coach simply points out, nor a feet-only goalkeeper restriction as the default for this realization."
+     ],
+     "citedAs": "his reply filed 26 October 2026, item 7"
+    }
+   }
+  ],
+  "pairings": [
+   {
+    "id": "IFAB-LAW-1",
+    "document": "IFAB Laws of the Game",
+    "edition": null,
+    "citedAs": "Law 1.6 (The Penalty Area) and Law 1.10 (Goals)",
+    "formatConditions": {
+     "players": null,
+     "ageBand": null,
+     "pitch": "Law 1.3 (Field surface and dimensions): touchline 90-120 m and goal line 45-90 m, the touchline longer than the goal line - far larger than any practice area here, so it is shown and never read as a condition on this geometry"
+    },
+    "object": { "kind": "goal", "type": "full-size", "widthM": 7.32, "heightM": 2.44 },
+    "region": { "function": "penalty-area", "widthM": 40.32, "depthM": 16.5 },
+    "markM": 11,
+    "borrows": ["object", "region", "mark"],
+    "authority": {
+     "words": ["Use an existing regulation penalty area when the activity dimensions and setup permit it."],
+     "citedAs": "his reply filed 26 October 2026, item 7"
+    },
+    "note": "The regulation geometry, cited by IFAB law number (the d26 design read Laws 1 and 12 from theifab.com, which showed the 2026/27 edition as current; he names no edition, as in defaultLaws). Law 1.10: the goal is 7.32 m between the posts and 2.44 m to the crossbar. Law 1.6: the penalty area is set out 16.5 m from the inside of each goalpost, 16.5 m into the field of play, so 40.32 m wide with this goal; the penalty mark is 11 m from the midpoint between the goalposts. The type 'full-size' is the Goalkeeper Included Condition's own word (\"Use full-size or scaled goals depending on field dimensions.\", which he approved in his reply filed 26 October 2026, item 4). The mark is shown here; whether a spot is marked or paced, and whether penalty kicks apply at all, is decision 3 of the note sent to him, so no row records a spot. The players and age band are null: the Laws state neither as a condition on this geometry."
    }
   ]
  },

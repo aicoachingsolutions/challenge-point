@@ -24,8 +24,17 @@
  * A precondition that cannot be read (UNKNOWN) is never a pass: a law resting on one is owed, saying so. UNREPRESENTED is always absent, so
  * a law resting on it is departed from or owed, never said to apply.
  *
+ * **H3, 23 October 2026 (the d26 design's build step 3; register version 21).** The two bound-region predicates are read from the game: a
+ * region bound to an object (row S7, the register's boundRegions block) with the function asked for, and the mark its cited pairing gives
+ * (the Sport Profile's boundRegions block), so the laws resting on them are evaluated where a game holds such a region (the design: "LAW-12-GK
+ * and LAW-14 are evaluated from N2 and N3"). Carried from the H2 review: an object stands at an end line where its realized along ANCHOR is
+ * that end (the design's predicate), an object standing off every end line with no anchor is UNKNOWN, and a collection the game holds no
+ * readable list of is UNKNOWN, never ABSENT; and each entry carries the law's note from the profile (which decision answers it), so an
+ * administrator reading an owed adaptation sees what settles it.
+ *
  * Sport-neutral: law ids, object kinds, region functions and performer rows are the profile's data; the rows and leaves are the register's.
  */
+import { bindingOf, regionFunctionsOf, SportBoundRegions } from '../derivation/bound-regions'
 import { roleHolderNames } from '../derivation/designation'
 import { CitedWords, DefaultLaws, DefaultLawsCheck, DefaultLawsCheckMode, departuresOf, LawDeparture, LawPredicate, LawStatus, samePredicate } from '../derivation/default-laws'
 import { RegisterIndex } from '../derivation/register'
@@ -52,6 +61,8 @@ export interface LawAccountEntry {
     law: string
     cites: string
     name: string
+    /** The profile's note on the law (which decision answers it, his words where it quotes them), or null (H3, the H2 review's should-fix 5). */
+    note: string | null
     /** Null for the game; for a law accounted for per end line, the end (0 or 1, a fraction of the along axis). */
     end: 0 | 1 | null
     at: string
@@ -102,38 +113,121 @@ interface Reading {
     why: string
 }
 
-/** The objects of a kind the game holds, each with its realized along interval (null where it was not placed). */
-function objectsOfKind(game: unknown, index: RegisterIndex, kind: string): { id: string; along: { from: number; to: number } | null }[] {
+/** One object as the account reads it: its id, kind, realized along anchor and interval (null where it was not placed). */
+interface PlacedObject {
+    id: string
+    kind: unknown
+    anchor: number | null
+    along: { from: number; to: number } | null
+}
+
+/**
+ * The objects the game holds, each with its realized along anchor and interval; null where the game holds no readable list of objects (H3,
+ * the H2 review's should-fix 3: a collection that cannot be read is UNKNOWN to every reader, never an empty one).
+ */
+function placedObjects(game: unknown, index: RegisterIndex): PlacedObject[] | null {
     const rows = index.objectGeometry
     if (!rows) return []
     const container = splitPath(String(index.rows.get(rows.row)?.path ?? '')).container
     const objects = container ? readAt(game, container) : undefined
-    if (!Array.isArray(objects)) return []
-    return objects
-        .filter((object: any) => readAt(object, rows.kindLeaf) === kind)
-        .map((object: any) => {
-            const interval = readAt(object?.realizedGeometry, rows.alongLeaf) as { interval?: { from?: unknown; to?: unknown } } | undefined
-            const from = interval?.interval?.from
-            const to = interval?.interval?.to
-            return { id: String(object?.elementId ?? '(no id)'), along: typeof from === 'number' && typeof to === 'number' ? { from, to } : null }
-        })
+    if (!Array.isArray(objects)) return null
+    return objects.map((object: any) => {
+        const geometry = readAt(object?.realizedGeometry, rows.alongLeaf) as { anchor?: unknown; interval?: { from?: unknown; to?: unknown } } | undefined
+        const from = geometry?.interval?.from
+        const to = geometry?.interval?.to
+        return {
+            id: String(object?.elementId ?? '(no id)'),
+            kind: readAt(object, rows.kindLeaf),
+            anchor: typeof geometry?.anchor === 'number' && Number.isFinite(geometry.anchor) ? geometry.anchor : null,
+            along: typeof from === 'number' && typeof to === 'number' ? { from, to } : null,
+        }
+    })
 }
 
-/** Whether an object of the kind stands on the end line at `end` (its realized along interval the one point on that line). */
-function objectAtEnd(game: unknown, index: RegisterIndex, kind: string, end: 0 | 1, lengthM: number | null): Reading {
-    const objects = objectsOfKind(game, index, kind)
-    if (!objects.length) return { reading: 'ABSENT', why: `the game holds no object of the kind ${kind}` }
+/**
+ * **Whether some of the given objects stand at the end line at `end`** — H3 (the H2 review's should-fix 2): read by the object's realized
+ * along ANCHOR, the end line its position is stated from (the design: "an O1 element of that kind whose O4 anchor is that end"), and only
+ * where it has none by its realized interval being the one point on that line. An object with neither an anchor nor an interval on an end
+ * line cannot be read here, so it is UNKNOWN, never absent: a goal moved 1.5 m into the area with its anchor kept still stands at its end.
+ */
+function objectsAtEnd(objects: PlacedObject[], what: string, end: 0 | 1, lengthM: number | null): Reading {
+    if (!objects.length) return { reading: 'ABSENT', why: `the game holds no ${what}` }
     if (lengthM === null) return { reading: 'UNKNOWN', why: 'the session states no area, so where the end lines lie is not known' }
     const line = end * lengthM
-    const standing = objects.filter(object => object.along && Math.abs(object.along.from - line) < SAME && Math.abs(object.along.to - line) < SAME)
-    if (standing.length) return { reading: 'PRESENT', why: `${standing.map(object => object.id).join(', ')} stands on the end line at ${line} m` }
-    const unplaced = objects.filter(object => !object.along)
-    if (unplaced.length) return { reading: 'UNKNOWN', why: `${unplaced.map(object => object.id).join(', ')} was not placed, so whether it stands on this end line cannot be read` }
-    return { reading: 'ABSENT', why: `no object of the kind ${kind} stands on the end line at ${line} m (${objects.map(object => `${object.id} at ${object.along!.from}-${object.along!.to} m`).join(', ')})` }
+    const onLine = (at: number) => Math.abs(at - line) < SAME
+    const onAnyLine = (at: number) => Math.abs(at) < SAME || Math.abs(at - lengthM) < SAME
+    const standing = objects.filter(object => (object.anchor !== null ? onLine(object.anchor) : !!object.along && onLine(object.along.from) && onLine(object.along.to)))
+    if (standing.length) return { reading: 'PRESENT', why: `${standing.map(object => object.id).join(', ')} stands at the end line at ${line} m` }
+    const unread = objects.filter(object => (object.anchor === null ? !object.along || !(onAnyLine(object.along.from) && Math.abs(object.along.from - object.along.to) < SAME) : !onAnyLine(object.anchor)))
+    if (unread.length) return { reading: 'UNKNOWN', why: `${unread.map(object => object.id).join(', ')} ${unread.length === 1 ? 'is' : 'are'} placed at no end line by an anchor or a position on the line, so whether ${unread.length === 1 ? 'it stands' : 'they stand'} at this end line cannot be read` }
+    return { reading: 'ABSENT', why: `no ${what} stands at the end line at ${line} m (${objects.map(object => `${object.id} at ${object.anchor ?? object.along!.from} m`).join(', ')})` }
+}
+
+/** Whether an object of the kind stands at the end line at `end`. */
+function objectAtEnd(game: unknown, index: RegisterIndex, kind: string, end: 0 | 1, lengthM: number | null): Reading {
+    const objects = placedObjects(game, index)
+    if (objects === null) return { reading: 'UNKNOWN', why: 'the game holds no readable list of objects, so whether one stands at this end line cannot be read' }
+    return objectsAtEnd(objects.filter(object => object.kind === kind), `object of the kind ${kind}`, end, lengthM)
+}
+
+/** The regions with a function that are bound to an object, each with the object it is bound to as the game holds it; null where unreadable. */
+function boundRegionsOf(game: unknown, index: RegisterIndex, regionFunction: string): { region: string; object: PlacedObject | null; objectId: string; pairing: string | null }[] | null {
+    const spec = index.boundRegions
+    if (!spec) return []
+    const container = splitPath(spec.path).container
+    const regions = container ? readAt(game, container) : undefined
+    const objects = placedObjects(game, index)
+    if (!Array.isArray(regions) || objects === null) return null
+    return regions
+        .filter(region => regionFunctionsOf(region, index).includes(regionFunction))
+        .map(region => ({ region, binding: bindingOf(region, index) }))
+        .filter((entry): entry is { region: any; binding: { objectId: string; pairing: string | null } } => !!entry.binding)
+        .map(({ region, binding }) => ({ region: String(region?.elementId ?? '(no id)'), object: objects.find(object => object.id === binding.objectId) ?? null, objectId: binding.objectId, pairing: binding.pairing }))
+}
+
+/**
+ * **REGION_BOUND_TO_OBJECT {function, kind}** (H3): a region with the function is bound to an object of the kind the game holds - for the
+ * game anywhere, and per end line only where that object stands at that end. Read from the register's bound-region rows and the game.
+ */
+function regionBoundToObject(game: unknown, index: RegisterIndex, predicate: LawPredicate, place: Place): Reading {
+    if (!index.boundRegions) return { reading: 'ABSENT', why: 'the register names no row binding a region to an object' }
+    const bound = boundRegionsOf(game, index, String(predicate.function))
+    if (bound === null) return { reading: 'UNKNOWN', why: `the game holds no readable list of regions or objects, so whether a region with the function ${predicate.function} is bound to an object of the kind ${predicate.kind} cannot be read` }
+    const ofKind = bound.filter(entry => entry.object?.kind === predicate.kind)
+    if (!ofKind.length) return { reading: 'ABSENT', why: `no region with the function ${predicate.function} is bound to an object of the kind ${predicate.kind}${bound.length ? ` (${bound.map(entry => `${entry.region} is bound to ${entry.objectId}`).join(', ')})` : ''}` }
+    const said = ofKind.map(entry => `${entry.region} is bound to ${entry.objectId}`).join(', ')
+    if (place.end === null) return { reading: 'PRESENT', why: said }
+    const atEnd = objectsAtEnd(ofKind.map(entry => entry.object!), `object of the kind ${predicate.kind} with a region with the function ${predicate.function} bound to it`, place.end, place.lengthM)
+    return atEnd.reading === 'PRESENT' ? { reading: 'PRESENT', why: `${said}, and ${atEnd.why}` } : atEnd
+}
+
+/**
+ * **BOUND_REGION_MARK {function}** (H3): the region with the function bound to an object (at this end line, where the law is accounted for
+ * per end) has a pairing that gives a mark, and the realization records the spot. Nothing records a spot, so a pairing giving one still
+ * reads ABSENT, saying which pairing gives it and where; a pairing the profile does not hold is UNKNOWN.
+ */
+function boundRegionMark(game: unknown, index: RegisterIndex, predicate: LawPredicate, place: Place, boundRegions: SportBoundRegions | null): Reading {
+    if (!index.boundRegions) return { reading: 'ABSENT', why: 'the register names no row binding a region to an object' }
+    const bound = boundRegionsOf(game, index, String(predicate.function))
+    if (bound === null) return { reading: 'UNKNOWN', why: `the game holds no readable list of regions or objects, so whether a region with the function ${predicate.function} has a mark cannot be read` }
+    let here = bound
+    if (place.end !== null) {
+        const placed = bound.filter(entry => entry.object)
+        here = placed.filter(entry => objectsAtEnd([entry.object!], 'object', place.end!, place.lengthM).reading === 'PRESENT')
+        if (!here.length && placed.some(entry => objectsAtEnd([entry.object!], 'object', place.end!, place.lengthM).reading === 'UNKNOWN')) return { reading: 'UNKNOWN', why: `whether a region with the function ${predicate.function} is bound to an object at this end line cannot be read` }
+    }
+    if (!here.length) return { reading: 'ABSENT', why: `no region with the function ${predicate.function} is bound to an object${place.end === null ? '' : ' at this end line'}, so no pairing gives it a mark` }
+    const marks: string[] = []
+    for (const entry of here) {
+        const pairing = boundRegions?.pairings.find(candidate => candidate.id === entry.pairing)
+        if (!pairing) return { reading: 'UNKNOWN', why: `${entry.region} cites the pairing ${JSON.stringify(entry.pairing)}, which the Sport Profile's bound-region block given does not hold, so its mark cannot be read` }
+        marks.push(pairing.markM === null ? `${entry.region}'s pairing ${pairing.id} gives no mark` : `${entry.region}'s pairing ${pairing.id} gives a mark at ${pairing.markM} m (${pairing.document}, ${pairing.citedAs})`)
+    }
+    return { reading: 'ABSENT', why: `${marks.join('; ')}, and no row records the spot the mark is taken from (whether it is marked or paced is not represented)` }
 }
 
 /** What one predicate is at one place. Closed: every member of the vocabulary is answered here, and nothing else is. */
-function readPredicate(predicate: LawPredicate, game: unknown, index: RegisterIndex, place: Place): Reading {
+function readPredicate(predicate: LawPredicate, game: unknown, index: RegisterIndex, place: Place, boundRegions: SportBoundRegions | null): Reading {
     switch (predicate.predicate) {
         case 'OBJECT_OF_KIND_AT_END': {
             const kind = String(predicate.kind)
@@ -156,12 +250,9 @@ function readPredicate(predicate: LawPredicate, game: unknown, index: RegisterIn
             return { reading: 'UNKNOWN', why: `a team states no count on ${predicate.row} (${path})` }
         }
         case 'REGION_BOUND_TO_OBJECT':
-            return {
-                reading: 'ABSENT',
-                why: `no region with the function ${predicate.function} is bound to an object of the kind ${predicate.kind}: no register row binds a region to an object yet (the d26 design's N2, build step 3)`,
-            }
+            return regionBoundToObject(game, index, predicate, place)
         case 'BOUND_REGION_MARK':
-            return { reading: 'ABSENT', why: `no authorized pairing gives the region with the function ${predicate.function} a mark: no pairing table exists yet (the d26 design's N3, build step 3)` }
+            return boundRegionMark(game, index, predicate, place, boundRegions)
         case 'UNREPRESENTED':
             return { reading: 'ABSENT', why: `the representation holds no row for it: ${predicate.what}` }
     }
@@ -193,8 +284,19 @@ function endsOf(game: unknown, index: RegisterIndex, roleBlock: RoleBlock | null
 }
 
 /** One block's account: every law the profile names, at each of its places, read from the realized game and the items it was derived from. */
-export function blockLawAccountOf(input: { blockId: string; game: unknown; roleBlock: RoleBlock | null; index: RegisterIndex; session: { lengthM?: number; widthM?: number }; laws: DefaultLaws; items: ContractItem[] }): BlockLawAccount {
+export function blockLawAccountOf(input: {
+    blockId: string
+    game: unknown
+    roleBlock: RoleBlock | null
+    index: RegisterIndex
+    session: { lengthM?: number; widthM?: number }
+    laws: DefaultLaws
+    items: ContractItem[]
+    /** H3: the Sport Profile's bound-region block the build used, whose pairings give a bound region's mark; absent or null: none given. */
+    boundRegions?: SportBoundRegions | null
+}): BlockLawAccount {
     const { game, index, roleBlock, laws } = input
+    const boundRegions = input.boundRegions ?? null
     const lengthM = axisLengths(input.session)?.along ?? null
     const ends = endsOf(game, index, roleBlock, lengthM)
     const departures = input.items.flatMap(item => departuresOf(item).map(departure => ({ item: item.itemId, departure })))
@@ -203,10 +305,10 @@ export function blockLawAccountOf(input: { blockId: string; game: unknown; roleB
         const places: Place[] = law.scope === 'PER_END' ? [{ end: 0, lengthM }, { end: 1, lengthM }] : [{ end: null, lengthM }]
         const own = departures.filter(entry => entry.departure.law === law.id)
         for (const place of places) {
-            const read = (list: 'applicableWhen' | 'requires') => (list === 'applicableWhen' ? law.applicableWhen : law.requires).map(predicate => ({ list, predicate, ...readPredicate(predicate, game, index, place) }))
+            const read = (list: 'applicableWhen' | 'requires') => (list === 'applicableWhen' ? law.applicableWhen : law.requires).map(predicate => ({ list, predicate, ...readPredicate(predicate, game, index, place, boundRegions) }))
             const applicable = read('applicableWhen')
             const required = read('requires')
-            const conditionOf = (departure: LawDeparture): Reading | null => (departure.whilePreconditionAbsent ? readPredicate(departure.whilePreconditionAbsent, game, index, place) : null)
+            const conditionOf = (departure: LawDeparture): Reading | null => (departure.whilePreconditionAbsent ? readPredicate(departure.whilePreconditionAbsent, game, index, place, boundRegions) : null)
             const holding = own.filter(entry => (conditionOf(entry.departure)?.reading ?? 'ABSENT') === 'ABSENT')
             const failing = own.filter(entry => {
                 const condition = conditionOf(entry.departure)
@@ -217,6 +319,7 @@ export function blockLawAccountOf(input: { blockId: string; game: unknown; roleB
                 law: law.id,
                 cites: law.cites,
                 name: law.name,
+                note: law.note,
                 end: place.end,
                 at: endText,
                 status: 'ADAPTATION_OWED',
@@ -275,11 +378,13 @@ export function defaultLawsAccountOf(input: {
     index: RegisterIndex
     session: { lengthM?: number; widthM?: number }
     heldSentence: DefaultLawsAccount['heldSentence']
+    /** H3: the Sport Profile's bound-region block the build used (its pairings give a bound region's mark); absent or null: none given. */
+    boundRegions?: SportBoundRegions | null
 }): DefaultLawsAccount | null {
     const realization = input.realization
     if (!realization?.defaultLawsCheck || !input.laws) return null
     const laws = input.laws
-    const blocks = input.blocks.map(block => blockLawAccountOf({ ...block, index: input.index, session: input.session, laws, items: realization.items }))
+    const blocks = input.blocks.map(block => blockLawAccountOf({ ...block, index: input.index, session: input.session, laws, items: realization.items, boundRegions: input.boundRegions ?? null }))
     const inBlock = (blockId: string) => (input.blocks.length > 1 ? `block ${blockId}: ` : '')
     const owed = blocks.flatMap(block =>
         block.laws.filter(entry => entry.status === 'ADAPTATION_OWED').map(entry => `${inBlock(block.blockId)}${entry.law} (${entry.cites}) at ${entry.at}: an adaptation is owed - ${entry.why}`),

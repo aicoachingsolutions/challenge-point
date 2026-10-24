@@ -33,7 +33,8 @@
  *
  * It does not touch generation. Nothing here calls the frozen activity-generation path.
  */
-import { loadSportCoachVocabulary, loadSportDefaultLaws, ProvisionalRealization, provisionalRealizationNamed, TestingBoundaries } from '../derivation/corpus'
+import { SportBoundRegions } from '../derivation/bound-regions'
+import { loadSportBoundRegions, loadSportCoachVocabulary, loadSportDefaultLaws, ProvisionalRealization, provisionalRealizationNamed, TestingBoundaries } from '../derivation/corpus'
 import { isStampedHalt } from '../derivation/emit'
 import { runDerivation, runStages0to10, runStages0to5 } from '../derivation/engine'
 import { resolveRelativeCounts } from '../derivation/reassignment'
@@ -46,6 +47,7 @@ import { BoundedSelection, CONTEXT_ROLE, contractCoverage, derivationInputFor, G
 import { LoadedContract, RoleBlock } from '../derivation/types'
 import { gpLibrary } from '../knowledge-core/gp-library'
 import { completeConcreteGame, ObjectAvailabilityRefusal, objectAvailabilityRefusal, rosterRefusal, RosterRefusal } from '../realization/assemble-concrete-game'
+import { boundRegionAccountOf, BoundRegionRefusal, boundRegionRefusalAfter, boundRegionRefusalBefore } from '../realization/bound-region-check'
 import { DefaultLawsAccount, defaultLawsAccountOf } from '../realization/default-laws-check'
 import { runPostRealizationGates } from '../realization/post-realization-gate'
 import { realizeWithJustifiedDefaults, StrandedCount } from '../realization/justified-defaults'
@@ -229,8 +231,14 @@ export interface RealizationSelectionEntry {
  * values were not given for (TESTING_AREA), and a practice situation it was not designed for (PRACTICE_SITUATION). It stops to ask on the
  * two the session has not stated (AVAILABILITY_NOT_STATED, OBJECT_AVAILABILITY_NOT_STATED). Any refusal without a cause refuses the
  * activity, so a broken alternative is never hidden behind the next one (the design's risk 7).
+ *
+ * **BOUND_REGION_DOES_NOT_FIT** (H3, 23 October 2026; the d26 design's build step 3, its N5): the region the one authorized pairing gives
+ * the session's object does not fit inside the session's area, so the realization does not apply to this session (`bound-region-check.ts`).
+ * Typed only where nothing else about the bound regions is wrong; a region nobody has authorized for the object (BOUND_REGION_NOT_AUTHORIZED)
+ * is a knowledge gap and refuses, never falls back. Christian, reply filed 26 October 2026, item 7: *"Use an existing regulation [handling
+ * area] when the activity dimensions and setup permit it."* (His noun bracketed for the coupling ratchet.)
  */
-export type NotApplicableCause = 'AVAILABILITY_SHORT' | 'OBJECT_AVAILABILITY_SHORT' | 'OBJECT_NOT_SUITABLE' | 'TESTING_AREA' | 'PRACTICE_SITUATION'
+export type NotApplicableCause = 'AVAILABILITY_SHORT' | 'OBJECT_AVAILABILITY_SHORT' | 'OBJECT_NOT_SUITABLE' | 'TESTING_AREA' | 'PRACTICE_SITUATION' | 'BOUND_REGION_DOES_NOT_FIT'
 export type AskCause = 'AVAILABILITY_NOT_STATED' | 'OBJECT_AVAILABILITY_NOT_STATED'
 export type Applicability = { verdict: 'NOT_APPLICABLE'; cause: NotApplicableCause } | { verdict: 'ASK'; cause: AskCause }
 
@@ -752,6 +760,37 @@ function objectSummary(refusal: ObjectAvailabilityRefusal, subject: string): { s
 }
 
 /**
+ * **The bound-region check's cause, as the sentence a coach can act on** — H3, 23 October 2026 (DRAFT words, built from the region function's
+ * token and the object kind as the profile and the register give them, the session's numbers and the area's; none is written for a particular
+ * kind). A region the one authorized pairing gives that does not fit the area is the session's (the build may try the next alternative); a
+ * region nobody has authorized for the session's object is the knowledge's, typed as nothing, so it refuses (his decision, not the coach's);
+ * a binding that is not whole is the game's (structure before realization, validation after it).
+ */
+function boundRegionSummary(refusal: BoundRegionRefusal, subject: string, session: ActivitySession, stage: 'structure' | 'validation'): { stage: ActivityStage; summary: string; applicability: Applicability | null } {
+    const words = (token: string) => token.split('-').join(' ')
+    switch (refusal.cause) {
+        case 'BOUND_REGION_NOT_AUTHORIZED':
+            return {
+                stage: 'knowledge',
+                summary: `The ${words(refusal.regionFunction)} that goes with ${refusal.widthM === null ? `this session's ${refusal.kind}` : `a ${refusal.kind} ${refusal.widthM} m wide`} has not been decided yet.`,
+                applicability: null,
+            }
+        case 'BOUND_REGION_DOES_NOT_FIT':
+            return {
+                stage: 'session',
+                summary: `The ${words(refusal.regionFunction)} that goes with a ${refusal.kind} ${refusal.widthM} m wide does not fit in a ${session.lengthM} x ${session.widthM} m area.`,
+                applicability: { verdict: 'NOT_APPLICABLE', cause: 'BOUND_REGION_DOES_NOT_FIT' },
+            }
+        case 'BOUND_REGION_INVALID':
+            return {
+                stage,
+                summary: stage === 'structure' ? `The game this ${subject} selects is not yet described completely enough to be set up.` : 'The game built for this activity did not pass its own checks, so it is not being shown.',
+                applicability: null,
+            }
+    }
+}
+
+/**
  * **A count the session cannot field at ANY preferred value, as the sentence a coach can act on.**
  *
  * Where the knowledge prefers a range for a count and this session's roster admits none of it, no rule
@@ -1004,11 +1043,27 @@ export function buildActivityUnderAuthorizationRecords(
          * composed exactly as a real one would be. Absent: the file's.
          */
         realizations?: ProvisionalRealization[]
+        /**
+         * H3 (23 October 2026), tests only: the Sport Profile's bound-region block in place of the file's - loaded by the same validator over a
+         * TEST-ONLY copy (`loadSportBoundRegions`), so a TEST-ONLY pairing is held to the gate a real one would be; or null, none, which stands
+         * in for an open decision about the region an object needs (a TEST-ONLY completion naming it so). Absent: the file's.
+         */
+        boundRegions?: SportBoundRegions | null
     } = {},
 ): ActivityBuild & { fixture: Record<string, unknown> | null } {
     // The selection and the digests (live-app fix, 22 October 2026) are returned too, so a test of the live pathway can run it over COPIES of the
     // records exactly as the live route runs it over the file's (`live-activity.ts`); nothing that serves a coach calls this.
-    return build(request, options.alter ?? null, null, options.alterSelection ?? null, JSON.parse(JSON.stringify(records)), options.alterSupplied ?? null, { includeDrafts: options.review?.includeDrafts === true }, options.realizations ? JSON.parse(JSON.stringify(options.realizations)) : null)
+    return build(
+        request,
+        options.alter ?? null,
+        null,
+        options.alterSelection ?? null,
+        JSON.parse(JSON.stringify(records)),
+        options.alterSupplied ?? null,
+        { includeDrafts: options.review?.includeDrafts === true },
+        options.realizations ? JSON.parse(JSON.stringify(options.realizations)) : null,
+        options.boundRegions === undefined ? undefined : options.boundRegions === null ? null : (JSON.parse(JSON.stringify(options.boundRegions)) as SportBoundRegions),
+    )
 }
 
 function build(
@@ -1029,7 +1084,13 @@ function build(
      * place of the file's (a TEST-ONLY variant, say). Null: the file's (`provisionalRealizationNamed`).
      */
     realizations: ProvisionalRealization[] | null = null,
+    /**
+     * Tests only (`buildActivityUnderAuthorizationRecords`, H3): the Sport Profile's bound-region block in place of the file's (a TEST-ONLY
+     * copy), or null for none. Undefined: the file's (`loadSportBoundRegions`), read once here for every game of this build.
+     */
+    boundRegionsGiven: SportBoundRegions | null | undefined = undefined,
 ): ActivityBuild & { fixture: Record<string, unknown> | null } {
+    const boundRegions: SportBoundRegions | null = boundRegionsGiven === undefined ? loadSportBoundRegions() : boundRegionsGiven
     const { kind, title, subtitle } = composed ? { kind: 'mechanism-demonstration' as const, title: composed.join(' + '), subtitle: null } : describeRequest(request)
     // "This goal …" for a Learning Goal and "This demonstration …" for a demonstration: a demonstration is
     // never described to a coach as a goal, in a refusal any more than in a title.
@@ -1329,7 +1390,7 @@ function build(
             ...(typeof entry.coachWords === 'string' ? { coachWords: entry.coachWords } : {}),
         }))
         const alternatives = deferral.deferred.map(alternativeOf)
-        const game: GameContext = { subject, session, selection, context, alterSupplied, adjustments, alternatives }
+        const game: GameContext = { subject, session, selection, context, alterSupplied, adjustments, alternatives, boundRegions }
         /**
          * A game built through to communication becomes the served activity; one refused on the way says where. `games` are the games it was
          * rendered from, each with its block id, for the input digests the live save compares (L3, 22 October 2026); nothing served carries them.
@@ -1424,8 +1485,12 @@ function build(
                 index: roleIndex,
                 session,
                 heldSentence: held ? { text: held.words, status: 'DRAFT_HELD_NOT_SERVED', basis: { words: [...held.basis.words], citedAs: held.basis.citedAs } } : null,
+                // H3: the bound-region block this build checked the games against, whose pairings give a bound region's mark.
+                boundRegions,
             })
         }
+        // The summary is DRAFT coach wording (H3 carries the H2 review's should-fix 6: it was not labelled so), reachable only where a
+        // realization declares ENFORCE and owes an adaptation - on 23 October 2026 only a TEST-ONLY completion of the goal version does.
         const lawRefusalOf = (lawAccount: DefaultLawsAccount | null): ReturnType<typeof refuse> | null =>
             lawAccount && lawAccount.mode === 'ENFORCE' && lawAccount.owed.length
                 ? refuse('validation', `Where this activity departs from the sport's normal rules has not all been decided yet, so it is not being shown.`, [
@@ -1569,7 +1634,7 @@ function build(
                  * games as built, the cross-block checks and the composition. Never on a coach's answer.
                  */
                 const evidenceOf = (outcome: string, overview: OverviewEvidence | null = null) =>
-                    reviewEvidenceFor(review, goalSelection, account, roleIndex, session, outcome, composed, composition, checks, games.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, ...(entry.block.ends ? { ends: { ...entry.block.ends } } : {}), fixture: entry.fixture, contracts: entry.contracts, rendered: entry.rendered, ...entry.evidence })), layoutFallback, overview, lawAccount)
+                    reviewEvidenceFor(review, goalSelection, account, roleIndex, session, outcome, composed, composition, checks, games.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, ...(entry.block.ends ? { ends: { ...entry.block.ends } } : {}), fixture: entry.fixture, contracts: entry.contracts, rendered: entry.rendered, ...entry.evidence })), layoutFallback, overview, lawAccount, boundRegions)
                 /** The admin-only draft of the composed activity (stage K7), attached to a refusal at communication where it was asked for. */
                 const withDraft = (refusal: ReturnType<typeof refuse>) => {
                     if (review.includeDrafts) (refusal.activity as RefusedActivity).draft = reviewDraftOf(games.map(entry => entry.fixture), composed, [...games.flatMap(entry => entry.violations), ...violations])
@@ -1664,7 +1729,7 @@ function build(
             // The admin-only draft (stage K7): only on a refusal at communication, only where the review asked for it.
             if (review.includeDrafts && one.communication) (refusal.activity as RefusedActivity).draft = reviewDraftOf([one.fixture], one.communication.rendered, one.communication.violations)
             // And the admin-only review evidence (stage K8), where the goal's record asks for one.
-            const evidence = one.communication && one.fixture ? reviewEvidenceFor(review, goalSelection, account, roleIndex, session, lawRefusal ? 'validation' : one.stage, one.communication.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.communication.contracts, rendered: one.communication.rendered, ...one.communication.evidence }], null, null, lawAccount) : null
+            const evidence = one.communication && one.fixture ? reviewEvidenceFor(review, goalSelection, account, roleIndex, session, lawRefusal ? 'validation' : one.stage, one.communication.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.communication.contracts, rendered: one.communication.rendered, ...one.communication.evidence }], null, null, lawAccount, boundRegions) : null
             if (evidence) (refusal.activity as RefusedActivity).evidence = evidence
             return refusal
         }
@@ -1673,13 +1738,13 @@ function build(
         const oneLawRefusal = lawRefusalOf(oneLawAccount)
         if (oneLawRefusal) {
             fixture = one.fixture
-            const evidence = reviewEvidenceFor(review, goalSelection, account, roleIndex, session, 'validation', one.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.contracts, rendered: one.rendered, ...one.evidence }], null, null, oneLawAccount)
+            const evidence = reviewEvidenceFor(review, goalSelection, account, roleIndex, session, 'validation', one.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.contracts, rendered: one.rendered, ...one.evidence }], null, null, oneLawAccount, boundRegions)
             if (evidence) (oneLawRefusal.activity as RefusedActivity).evidence = evidence
             return oneLawRefusal
         }
         // Stage 3D: the overview of the one game, checked against its Details (which are what a coach is served).
         const overview = overviewOf([{ blockId: ONE_GAME, fixture: one.fixture, rendered: one.rendered }], one.rendered.instructions)
-        const evidence = reviewEvidenceFor(review, goalSelection, account, roleIndex, session, 'served', one.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.contracts, rendered: one.rendered, ...one.evidence }], null, overview.evidence, oneLawAccount)
+        const evidence = reviewEvidenceFor(review, goalSelection, account, roleIndex, session, 'served', one.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.contracts, rendered: one.rendered, ...one.evidence }], null, overview.evidence, oneLawAccount, boundRegions)
         return serve(one, { ...(evidence ? { evidence } : {}), ...overviewKeys(overview), ...diagramKeys([{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, rendered: one.rendered.instructions }], one.rendered.instructions, null) }, [{ blockId: ONE_GAME, fixture: one.fixture }])
     }
 
@@ -1837,10 +1902,18 @@ function reviewEvidenceFor(
     overview: OverviewEvidence | null = null,
     /** H2: the default-laws account, where the realization the games were derived through declares the check (admin-only); null elsewhere. */
     defaultLaws: DefaultLawsAccount | null = null,
+    /** H3: the bound-region block the games were checked against; the account of their bound regions is read from it (admin-only). */
+    boundRegions: SportBoundRegions | null = null,
 ): ReviewEvidence | null {
     const record = goalSelection?.authorization
     if (!review.includeDrafts || !record?.reviewRequest) return null
     return reviewEvidenceOf({
+        // H3: every region bound to an object in the games as built, with the pairing it cites; null (and so absent) where no game holds one.
+        boundRegions: boundRegionAccountOf(
+            index,
+            blocks.map(block => ({ blockId: block.blockId, game: (block.fixture as { game?: unknown } | null)?.game })),
+            boundRegions,
+        ),
         outcome,
         session,
         blocks,
@@ -1875,6 +1948,8 @@ interface GameContext {
     adjustments: { id: string; words: string; consequence: string | null; citedAs: string; coachWords?: string }[]
     /** What defers in this composition (ruling C56), for the fixture. Empty wherever nothing defers. */
     alternatives: Alternative[]
+    /** H3: the Sport Profile's bound-region block the bound-region check reads (the file's, or a test's copy); null where there is none. */
+    boundRegions: SportBoundRegions | null
 }
 
 /** One game built from its derivation input to communication, or the stage it stopped at. */
@@ -1948,7 +2023,7 @@ const STAGE_ORDER: ActivityStage[] = ['session', 'selection', 'knowledge', 'stru
  * K3) so that a game played in role blocks runs it once per block. Every refusal sentence, reason and order is what it
  * was: measured, every goal and demonstration answers byte-identically through the review route.
  */
-function buildOneGame(input: any, { subject, session, selection, context, alterSupplied, adjustments, alternatives }: GameContext): GameOutcome {
+function buildOneGame(input: any, { subject, session, selection, context, alterSupplied, adjustments, alternatives, boundRegions }: GameContext): GameOutcome {
     let fixture: any = null
     // Stage E: a typed applicability refusal carries its type (and an ASK its question) for the build's loop; every other refusal is as before.
     const refuse = (stage: ActivityStage, summary: string, reasons: string[], typed: { applicability?: Applicability | null; question?: SessionQuestion } = {}): GameOutcome => ({
@@ -2024,6 +2099,20 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
         const refusal = objectAvailabilityRefusal(index, resolved.game, input.envelope, input.contracts)
         if (refusal) return objectsRefused(refusal, 'before realization')
     }
+    /**
+     * **H3 (23 October 2026; the d26 design's build step 3, its N5): the regions bound to the game's objects, before realization**
+     * (`bound-region-check.ts`, GA-BOUND-REGION) - after the objects, so the order a session meets is its testing area, its objects, then this.
+     * Before the realizer, because a region an authorized pairing gives that does not fit the area is a typed applicability refusal (the
+     * build may try the next alternative), which the realizer's own refusal of a centred extent reaching a touchline would not be. A game
+     * holding no defended object of a kind the Sport Profile binds a region to, and no region of a function it binds, passes untouched.
+     */
+    {
+        const refusal = boundRegionRefusalBefore(index, resolved.game, input.envelope, boundRegions)
+        if (refusal) {
+            const said = boundRegionSummary(refusal, subject, session, 'structure')
+            return refuse(said.stage, said.summary, [`the regions bound to the game's objects do not hold before realization (${refusal.cause}): ${refusal.why}`], { applicability: said.applicability })
+        }
+    }
 
     /**
      * **Realization input, by the selected game form.** See `supplied-realization`: the choices close what a
@@ -2093,6 +2182,13 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
     const invalid: string[] = []
     for (const [name, entries] of Object.entries(acceptance)) if ((entries as unknown[]).length) invalid.push(`${name}: ${JSON.stringify(entries)}`)
     const acceptanceBroken = invalid.length > 0
+    /**
+     * H3: the regions bound to the game's objects, after realization - each lies from its object's end line exactly as its pairing says,
+     * centred on it, inside the touchlines (`bound-region-check.ts`). A break here is a validation refusal, and it keeps a staffing shortfall
+     * beside it from being typed (below): the roster is then not the one thing wrong with this game.
+     */
+    const boundAfter = boundRegionRefusalAfter(index, realized.game, input.envelope, boundRegions)
+    if (boundAfter) invalid.push(`the regions bound to the game's objects do not hold after realization (${boundAfter.cause}): ${boundAfter.why}`)
     if (!post.validated) {
         /**
          * **What the gates reported is carried, not summarised away.** This used to push one fixed sentence —
@@ -2107,7 +2203,7 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
         // stated is asked. Every other roster cause is typed as nothing, as before. Typed ONLY where the roster is the one thing wrong with
         // this game (`onlyTheRosterStopped`, the stage E fix): beside a broken realization or a check that fails, it is typed as nothing, so
         // the alternative refuses the activity rather than falling back with the break behind it.
-        const typedRoster = onlyTheRosterStopped(acceptanceBroken, post)
+        const typedRoster = !boundAfter && onlyTheRosterStopped(acceptanceBroken, post)
         const rosterApplicability: Applicability | null = !typedRoster
             ? null
             : roster?.cause === 'AVAILABILITY_SHORT'

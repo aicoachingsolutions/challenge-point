@@ -296,6 +296,103 @@ function indexSessionResources(block: any, rows: Map<string, RegisterRow>, vocab
 }
 
 /**
+ * **Where the bound-region capability finds its rows** — register version 21, 23 October 2026 (H3, the d26 design's build step 3, its N1,
+ * N2 and N5). Christian, reply filed 26 October 2026, item 7: *"Please investigate the smallest reusable method for representing an
+ * authorized [handling area], including its geometry and relationship to the [object] and playing space. Do not assume a scaled dimension
+ * without knowledge support."* *"This should be a general [sport] environment capability rather than a [Learning Goal] exception."* (His
+ * nouns bracketed: the coupling ratchet keeps a sport's nouns out of this layer; the register quotes him whole.) Read by the bound-region
+ * check (`realization/bound-region-check.ts`, GA-BOUND-REGION), the default-laws account (`realization/default-laws-check.ts`), the Sport
+ * Profile's loader (`corpus.ts` loadSportBoundRegions) and the renderer (which says no sentence for a bound region yet); no row, leaf,
+ * function or kind is written in any of them.
+ */
+export interface BoundRegionRegister {
+    /** The regions collection (S2) and its path; the noun (S3), function (S4), along (S5), across (S6) and bound-object (S7) rows. */
+    row: string
+    path: string
+    nounRow: string
+    functionRow: string
+    alongRow: string
+    acrossRow: string
+    ofObjectRow: string
+    /** The objects collection a region is bound to (O1), and its path. */
+    objectRow: string
+    objectPath: string
+    /** The leaves on a region element: its noun, functions, along and across positions, and binding; the selector attribute naming its functions. */
+    nounLeaf: string
+    functionLeaf: string
+    alongLeaf: string
+    acrossLeaf: string
+    ofObjectLeaf: string
+    functionAttribute: string
+    /** The closed lists a bound region's noun and function are members of (S3's and S4's vocabularies), in the register's order. */
+    nouns: string[]
+    functions: string[]
+}
+
+/**
+ * The bound-region block, validated as the rest of the register is (halt H1): its row a COLLECTION; the noun, function, along, across and
+ * bound-object rows FIELD rows it owns, at the leaves their roles need (the along and across positions ending .along and .across); the noun
+ * and function rows carrying a selector attribute with a vocabulary; the object row a COLLECTION, the objects collection the object-geometry
+ * block names where the register has one. A register without the block (one written before version 21) has none: no region is bound to an
+ * object, the check has nothing to read, and the default-laws predicates naming a bound region read it absent.
+ */
+function indexBoundRegions(block: any, rows: Map<string, RegisterRow>, vocabularies: Map<string, string[]>, objectGeometry: ObjectGeometryRegister | null): BoundRegionRegister | null {
+    if (!block || typeof block !== 'object') return null
+    if (typeof block.note !== 'string' || !block.note.trim()) throw new HaltError('H1', 'boundRegions must say what it is and why (note)')
+    const name = (key: string) => String(block[key] ?? '')
+    const row = name('row')
+    const collection = rows.get(row)
+    if (collection?.kind !== 'COLLECTION') throw new HaltError('H1', `boundRegions.row ${row} is not a COLLECTION row`)
+    const container = String(collection.path)
+    const leafOf = (id: string) => {
+        const path = String(rows.get(id)?.path ?? '')
+        return path.startsWith(`${container}.`) ? path.slice(container.length + 1) : ''
+    }
+    const owned = (key: string, ending: string): string => {
+        const id = name(key)
+        if (rows.get(id)?.kind !== 'FIELD' || rows.get(id)?.ownerRow !== row) throw new HaltError('H1', `boundRegions.${key} ${id} is not a FIELD row owned by ${row}`)
+        if (!leafOf(id) || !leafOf(id).endsWith(ending)) throw new HaltError('H1', `boundRegions.${key} ${id} does not sit at a leaf ending ${JSON.stringify(ending)}`)
+        return id
+    }
+    const nounRow = owned('nounRow', '')
+    const functionRow = owned('functionRow', '')
+    const alongRow = owned('alongRow', '.along')
+    const acrossRow = owned('acrossRow', '.across')
+    const ofObjectRow = owned('ofObjectRow', '')
+    const vocabularyOf = (id: string): { attribute: string; members: string[] } => {
+        const attribute = rows.get(id)?.selectorAttribute
+        const members = attribute ? vocabularies.get(`${id}.${attribute}`) : undefined
+        if (!attribute || !members || !members.length) throw new HaltError('H1', `boundRegions: ${id} carries no selector attribute with a vocabulary`)
+        return { attribute, members: [...members] }
+    }
+    const nouns = vocabularyOf(nounRow)
+    const functions = vocabularyOf(functionRow)
+    const objectRow = name('objectRow')
+    const objects = rows.get(objectRow)
+    if (objects?.kind !== 'COLLECTION') throw new HaltError('H1', `boundRegions.objectRow ${objectRow} is not a COLLECTION row`)
+    if (objectGeometry && objectGeometry.row !== objectRow) throw new HaltError('H1', `boundRegions.objectRow ${objectRow} is not the objects collection the object-geometry block names (${objectGeometry.row})`)
+    return {
+        row,
+        path: container,
+        nounRow,
+        functionRow,
+        alongRow,
+        acrossRow,
+        ofObjectRow,
+        objectRow,
+        objectPath: String(objects.path),
+        nounLeaf: leafOf(nounRow),
+        functionLeaf: leafOf(functionRow),
+        alongLeaf: leafOf(alongRow),
+        acrossLeaf: leafOf(acrossRow),
+        ofObjectLeaf: leafOf(ofObjectRow),
+        functionAttribute: functions.attribute,
+        nouns: nouns.members,
+        functions: functions.members,
+    }
+}
+
+/**
  * **A machine-readable relative term the engine composes, validated at load (halt H1)** — register version 17, 23 October 2026, for RC-21's
  * `central` (kind `centred`). A centred term fixes the element's centre on one axis (`at` 0.5 of it) and states no extent; where its extent may
  * come from is a closed list the realizer implements (`CENTRED_EXTENT_SOURCES`). Any other kind is read as it always was.
@@ -784,6 +881,8 @@ export interface RegisterIndex {
     objectGeometry: ObjectGeometryRegister | null
     /** The objects a session states its availability of (register version 19, his reply filed 25 October 2026, item 4), or null without them. */
     sessionResources: SessionResourcesRegister | null
+    /** The bound-region capability's rows (register version 21, his reply filed 26 October 2026, item 7), or null without them. */
+    boundRegions: BoundRegionRegister | null
     registerVersion: string
 }
 
@@ -1011,6 +1110,7 @@ export function indexRegister(register: any): RegisterIndex {
     const citable = new Set<string>((register.citableStandingDecisions || []).map((d: any) => d.id).filter(Boolean))
     const designations = indexDesignations(register.teamDesignations, rows)
     const roleBlocks = indexRoleBlocks(register.roleBlocks, rows, vocabularies, designations)
+    const objectGeometry = indexObjectGeometry(register.objectGeometry, rows, vocabularies)
 
     return {
         rows,
@@ -1046,8 +1146,9 @@ export function indexRegister(register: any): RegisterIndex {
         endAssignment: indexEndAssignment(register.endAssignment, rows, vocabularies, roleBlocks, designations),
         participants: indexParticipants(register.participants, rows, designations),
         roleScoring: indexRoleScoring(register.roleScoring, rows, vocabularies, roleBlocks),
-        objectGeometry: indexObjectGeometry(register.objectGeometry, rows, vocabularies),
+        objectGeometry,
         sessionResources: indexSessionResources(register.sessionResources, rows, vocabularies),
+        boundRegions: indexBoundRegions(register.boundRegions, rows, vocabularies, objectGeometry),
         registerVersion: register.version,
     }
 }

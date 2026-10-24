@@ -26,6 +26,7 @@
  */
 import { RegisterIndex } from '../derivation/register'
 import { roleHolderNames } from '../derivation/designation'
+import type { BoundRegionAccount } from '../realization/bound-region-check'
 import type { DefaultLawsAccount } from '../realization/default-laws-check'
 import { CREDIT_BEGINS_CLAUSE, CREDIT_ENDS_CLAUSE } from '../derivation/gates'
 import { LoadedContract } from '../derivation/types'
@@ -104,6 +105,8 @@ export interface EvidenceInput {
     overview?: OverviewEvidence | null
     /** H2: the default-laws account the build computed (`realization/default-laws-check.ts`); absent or null where no realization declares the check. */
     defaultLaws?: DefaultLawsAccount | null
+    /** H3: the regions bound to the games' objects as the build checked them (`realization/bound-region-check.ts`); absent or null where no game holds one. */
+    boundRegions?: BoundRegionAccount | null
 }
 
 /** Why the markings are not set out once for this build, and which move at the exchange (admin-only, hardening H1; stage 2G). */
@@ -218,6 +221,13 @@ export interface ReviewEvidence {
      * shown as held. Present only where the realization the games were derived through declares `defaultLawsCheck`; for an administrator.
      */
     defaultLaws?: DefaultLawsAccount
+    /**
+     * **H3, 23 October 2026: the regions bound to the games' objects** (the d26 design's N3: each pairing's format conditions are *"data shown
+     * on the review page"*) — per block, every region bound to an object, the object and who defends it, where the region lies, and the
+     * authorized pairing it cites whole: its document and citation, its format conditions, the object's type and size, the region's size, its
+     * mark and what it borrows, with his words. Present only where some game holds a bound region; for an administrator.
+     */
+    boundRegions?: BoundRegionAccount
 }
 
 export interface ItemEvidence {
@@ -1178,5 +1188,7 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
         ...(input.overview ? { overview: JSON.parse(JSON.stringify(input.overview)) as OverviewEvidence } : {}),
         // H2: the default-laws account, as the build computed it (copied, never recomputed here); only where the realization declares the check.
         ...(input.defaultLaws ? { defaultLaws: JSON.parse(JSON.stringify(input.defaultLaws)) as DefaultLawsAccount } : {}),
+        // H3: the regions bound to the games' objects, as the build read them (copied); only where some game holds one.
+        ...(input.boundRegions ? { boundRegions: JSON.parse(JSON.stringify(input.boundRegions)) as BoundRegionAccount } : {}),
     }
 }

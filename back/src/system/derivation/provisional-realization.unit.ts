@@ -214,6 +214,9 @@ test('the realization moves exactly what its items establish — the role lines 
         'c:provisional:A01-R1:A01-R1-S2-1::S4|failed|NOT_AUTHORED|not constrained|null',
         'c:provisional:A01-R1:A01-R1-S2-1::S5|derived|RESOLVED:ENTAILED||{"term":"own end (of team T)","forTeam":"ROLE_HOLDER_BUILDING","offsetM":{"from":20,"to":20},"asAuthored":"20 m from the building team\'s end line"}',
         'c:provisional:A01-R1:A01-R1-S2-1::S6|derived|RESOLVED:ENTAILED||{"term":"full extent (of an axis)","asAuthored":"across the area, touchline to touchline"}',
+        // H3 (23 October 2026, register version 21): row S7, the object a region is bound to. No item binds the pressure reference, so
+        // its line is unauthored and unspoken ('no coverage'): it is bound to nothing, and nothing blocks on it.
+        'c:provisional:A01-R1:A01-R1-S2-1::S7|failed|NOT_AUTHORED|no coverage|null',
         'c:provisional:A01-R1:A01-R1-P8-1::P9|derived|RESOLVED:ENTAILED||"ROLE_HOLDER_BUILDING"',
         'c:provisional:A01-R1:A01-R1-P8-2::P9|derived|RESOLVED:ENTAILED||"ROLE_HOLDER_PRESSING"',
         'c:provisional:A01-R1:A01-R1-P8-1::P10|derived|RESOLVED:ENTAILED||{"term":"beyond X (for team T)","of":{"structuralRef":{"contractId":"provisional:A01-R1","itemId":"A01-R1-S2-1"},"asAuthored":"the pressure reference"},"forTeam":"ROLE_HOLDER_PRESSING","asAuthored":"short of the pressure/progression line"}',

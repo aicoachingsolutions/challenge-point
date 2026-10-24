@@ -77,11 +77,13 @@ const halts = (damage: (r: any) => void, message: RegExp, label: string) => {
 // ── 1. The register ──────────────────────────────────────────────────────────────────────────────────────
 test('register version 19 holds the session resources as data, in one versions entry quoting him, chained after 18', () => {
     // Re-pointed 26 October 2026 (Stage F): version 20 (his rulings filed 26 October 2026 for the goal version) supersedes 19, once.
-    assert.match(String(register.version), /^20, records his rulings filed 26 October 2026 for the goal version of the build-out activity .*Supersedes version 19, which adds an object's availability as a session resource, for his reply filed 25 October 2026, item 4 /)
+    // Re-pointed 23 October 2026 (H3): version 21 (a region bound to an object, his reply filed 26 October 2026, item 7) supersedes 20, once.
+    assert.match(String(register.version), /^21, adds a region bound to an object, .*Supersedes version 20, which records his rulings filed 26 October 2026 for the goal version of the build-out activity .*Supersedes version 19, which adds an object's availability as a session resource, for his reply filed 25 October 2026, item 4 /)
     assert.ok(String(register.version).includes('"Please add the general ability to represent goal availability as a session resource and use authorized knowledge relationships when determining which scoring configuration can be selected."'))
     assert.equal(String(register.version).split('Supersedes version 18, which adds the coach-controlled end exchange, ').length - 1, 1, 'version 18 superseded once')
     assert.equal(String(register.version).split('Supersedes version 19, ').length - 1, 1, 'version 19 superseded once')
-    assert.ok(!String(register.version).includes('Supersedes version 20'), 'version 20 is the current entry')
+    assert.equal(String(register.version).split('Supersedes version 20, ').length - 1, 1, 'version 20 superseded once')
+    assert.ok(!String(register.version).includes('Supersedes version 21'), 'version 21 is the current entry')
     assert.deepEqual([spec.row, spec.attribute, spec.countRow, spec.kinds], ['O1', 'kind', 'O3', ['goal']])
     assert.deepEqual([spec.path, spec.kindLeaf, spec.countLeaf], ['objects[]', 'kind', 'count'])
     assert.deepEqual(sessionResourceKinds(), spec.kinds, 'the envelope reads the kinds from the register')
