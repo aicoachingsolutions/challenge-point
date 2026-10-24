@@ -169,6 +169,16 @@ const server = app.listen(0, '127.0.0.1', async () => {
             const objectCases = [
                 { id: 'objects-none', objects: Object.fromEntries(kinds.map(kind => [kind, { count: 0 }])) },
                 { id: 'objects-one', objects: Object.fromEntries(kinds.map(kind => [kind, { count: 1, widthM: 5 }])) },
+                /**
+                 * K3 (24 October 2026, the d27 design's stage K3): one object of each choice the session form offers from an authorized pairing
+                 * (a choice whose `from` names one), stated exactly as the form states it - one, with the choice's own statement (its type and
+                 * width) - read from the choices route captured above, so nothing here names a kind, a pairing or a width. Since K3 one of them
+                 * is the goal a goal version is built for, so these keys show it served through the review route and the live route; the
+                 * others show what a statement that suits nothing changes. New keys: every earlier one compares as it was.
+                 */
+                ...((snapshot['session/object-choices']?.body?.kinds ?? []) as any[]).flatMap(entry =>
+                    ((entry.choices ?? []) as any[]).filter(choice => Array.isArray(choice.from) && choice.from.length).map(choice => ({ id: `objects-${choice.id}`, objects: { [entry.kind]: { count: 1, ...choice.states } } })),
+                ),
             ]
             for (const objectCase of objectCases) {
                 stored = { _id: SESSION_ID, createdBy: USER_ID, playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: withRoles.roles, objects: objectCase.objects }

@@ -28,6 +28,11 @@
  *
  * Nothing here changes a production file: every TEST-ONLY change is a copy in memory.
  *
+ * Re-pointed 24 October 2026 (K3, the d27 design's stage K3): his reply filed 27 October 2026 settles the goal version's three decisions, so
+ * items 2, 3 and 6 now read: 2. the K2 lines stay as written (old words kept), and the gaps are settled by his words (K3); 3. the REAL
+ * records, nothing lifted in memory any more; 6. production serves the goal version for the FA goal, exactly as the build in 3 does, with its
+ * bound region. Item 5 gains the off-centre mutation in the object form a record would write (the K2 review's should-fix).
+ *
  * Run: npx ts-node --files -r tsconfig-paths/register ./src/system/rendering/goal-version-penalty-area.unit.ts
  */
 import assert from 'node:assert/strict'
@@ -79,13 +84,12 @@ const sessionOf = (players = 12, keepers = 1) => ({
     objects: { goal: { count: 1, widthM: pairing.object.widthM, type: pairing.object.type! } },
 })
 const requestOf = (players = 12, keepers = 1) => ({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(players, keepers) }) as const
-/** TEST-ONLY: every production realization item, the real FA entry and ENFORCE as recorded; only A01's record lists the goal version as tried. */
-const recordsOf = () => {
-    const records = learningGoalAuthorizations()
-    const record = records.find(r => r.learningGoalId === 'A01') as any
-    record.realizations = record.realizations.map((entry: any) => (entry.realization === R2 ? { realization: entry.realization, words: entry.words, citedAs: entry.citedAs } : entry))
-    return records
-}
+/**
+ * Every production realization item, the real FA entry and ENFORCE as recorded. Re-pointed 24 October 2026 (K3): the production records, as
+ * they are; until K3 A01's record was copied here listing the goal version as tried (its three gaps lifted in memory, TEST-ONLY), which the
+ * record itself now does.
+ */
+const recordsOf = () => learningGoalAuthorizations()
 const productionFile = () => readJson(PROVISIONAL_REALIZATIONS_FILE)
 const build = (file = productionFile(), players = 12, keepers = 1, extra: { includeDrafts?: boolean; boundRegions?: null } = {}) =>
     buildActivityUnderAuthorizationRecords(requestOf(players, keepers), recordsOf(), {
@@ -133,7 +137,8 @@ test('the five items: one penalty-area zone, at the goal by its designation, cen
 })
 
 // ── 2. The notes ─────────────────────────────────────────────────────────────────────────────────────────
-test('the notes the items made untrue are amended, dated, the old words kept; the gaps stay open', () => {
+// Re-pointed 24 October 2026 (K3): was "...; the gaps stay open". The K2 lines are pinned as written; the gaps are settled at K3.
+test('the notes the items made untrue are amended, dated, the old words kept; the gaps are settled at K3, after them', () => {
     const variant = variantOf(productionFile())
     const amended = (text: string, old: string, what: string) => {
         assert.ok(text.includes(old), `${what}: the old words are kept`)
@@ -150,15 +155,23 @@ test('the notes the items made untrue are amended, dated, the old words kept; th
     const penalty = amended(gap('D-PENALTY-AREA').note!, 'Until he decides, no penalty area, handling region or handling rule is written for the goal version and nothing represents one', 'D-PENALTY-AREA')
     assert.ok([ITEM_1_APPROVAL, ITEM_1B, ITEM_3_SPOT].every(sentence => penalty.includes(`"${sentence}"`)))
     amended(gap('D-DEFAULT-LAWS').note!, "What the goal version still owes is the goalkeeper's handling (LAW-12-GK), in each block, until its goal's penalty area is bound (decision 1, his item 1).", 'D-DEFAULT-LAWS')
-    for (const id of ['D-GOAL-SUITABILITY', 'D-PENALTY-AREA', 'D-DEFAULT-LAWS']) assert.equal(gap(id).settledBy, undefined, `${id} stays open until K3`)
+    // Re-pointed 24 October 2026 (K3): settled by his reply filed 27 October 2026 (pinned whole in learning-goal-authorizations.unit.ts), each
+    // note keeping its K2 line and adding a K3 line after it; the goal version waits on nothing and is tried.
+    for (const id of ['D-GOAL-SUITABILITY', 'D-PENALTY-AREA', 'D-DEFAULT-LAWS']) {
+        assert.ok((gap(id).settledBy ?? []).length > 0, `${id} is settled by his words`)
+        assert.ok(gap(id).note!.indexOf('AMENDED 24 October 2026 (K3') > Math.max(gap(id).note!.indexOf('AMENDED 24 October 2026 (K2'), gap(id).note!.indexOf('AMENDED 24 October 2026 (K1')), `${id}: the K3 line after the earlier ones`)
+    }
     assert.deepEqual((record.realizations as any[]).map(entry => [entry.realization, entry.status ?? null, entry.gaps ?? null]), [
-        [R2, 'MISSING_KNOWLEDGE', ['D-GOAL-SUITABILITY', 'D-PENALTY-AREA', 'D-DEFAULT-LAWS']],
+        [R2, null, null],
         ['A01-R1', null, null],
     ])
+    // The K2 lines on the realization stay as written, and K3 adds its own after them.
+    for (const text of [variant.note as string, variant.defaultLawsCheck.because as string]) assert.ok(text.indexOf('AMENDED 24 October 2026 (K3') > text.indexOf('AMENDED 24 October 2026 (K2'))
 })
 
 // ── 3. The real records, gaps lifted in memory ───────────────────────────────────────────────────────────
-test('TEST-ONLY, the real records: 0-9 m along and 7.5-22.5 m across at the goal in both blocks while the teams change ends; GA-BOUND-REGION passes; the account owes nothing', () => {
+// Re-pointed 24 October 2026 (K3): the real records with nothing lifted in memory (was "TEST-ONLY, the real records", A01's gaps lifted).
+test('the real records: 0-9 m along and 7.5-22.5 m across at the goal in both blocks while the teams change ends; GA-BOUND-REGION passes; the account owes nothing', () => {
     for (const [players, keepers] of ROLE_CASES) {
         const label = `${players}/${keepers}`
         const built = build(productionFile(), players, keepers)
@@ -251,6 +264,18 @@ test('TEST-ONLY mutations: off-centre, another width and another depth are each 
     }
     const itemOf = (items: any[], id: string) => items.find(i => i.id === `${R2}-${id}`)
     refusedBy('off-centre', items => (itemOf(items, 'S6-1').value = 'touchline-adjacent'), 'validation', 'the region is not centred on the object')
+    // Added 24 October 2026 (K3; the K2 review's should-fix): the object form a record would write, { term, asAuthored }, measured on the
+    // built layout. Still refused at validation in both blocks, never falling back, by its own message: the term places nothing (no realized
+    // position across), and the envelope fit fails beside it.
+    {
+        const file = copy(original)
+        itemOf(variantOf(file).items, 'S6-1').value = { term: 'touchline-adjacent', asAuthored: 'TEST-ONLY' }
+        const activity = build(file).activity as RefusedActivity
+        assert.deepEqual([activity.outcome, activity.stage], ['refused', 'validation'], `off-centre (object form): ${JSON.stringify(activity.reasons ?? null)}`)
+        assert.equal(activity.reasons.filter(r => r.includes('GA-BOUND-REGION') && r.includes('holds no realized position along and across the area')).length, 2, `off-centre (object form), in both blocks: ${activity.reasons.join(' | ')}`)
+        assert.ok(activity.reasons.some(r => r.includes('GA-ENVELOPE-FIT')), activity.reasons.join(' | '))
+        assert.deepEqual(activity.account.realizationSelection!.map(r => [r.realization, r.outcome]), [[R2, 'REFUSED'], ['A01-R1', 'NOT_TRIED']], 'off-centre (object form): no fall back')
+    }
     for (const width of [14, 16]) {
         refusedBy(`${width} m wide`, items => Object.assign(itemOf(items, 'S6-2'), { value: `${width} m wide (TEST-ONLY)`, typedBound: { min: width, max: width } }), 'validation', `is ${width} m wide across the area, and ${PAIRING} gives 15 m`)
     }
@@ -263,13 +288,16 @@ test('TEST-ONLY mutations: off-centre, another width and another depth are each 
 })
 
 // ── 6. Production ────────────────────────────────────────────────────────────────────────────────────────
-test('production: the goal version is still listed and never tried; A01 serves the zone version with no bound region', () => {
+// Re-pointed 24 October 2026 (K3): was "production: the goal version is still listed and never tried; A01 serves the zone version with no
+// bound region". Production now serves the goal version for the FA goal - exactly the real-record build above - its area bound and said once.
+test('production: with the FA goal the goal version is served, its penalty area bound and said once, exactly as the real-record build', () => {
     for (const [players, keepers] of ROLE_CASES) {
         const activity = buildActivityForReview(requestOf(players, keepers), { includeDrafts: true }) as ServedActivity
         assert.equal(activity.outcome, 'served')
-        assert.deepEqual(activity.account.realizationSelection!.map(r => [r.realization, r.outcome, r.cause]), [[R2, 'NOT_SELECTABLE', 'MISSING_KNOWLEDGE'], ['A01-R1', 'SELECTED', null]])
-        assert.equal(activity.evidence!.boundRegions, undefined)
-        assert.ok(!activity.rendered.instructions.some(i => i.text.includes('penalty area')))
+        assert.deepEqual(activity.account.realizationSelection!.map(r => [r.realization, r.outcome, r.cause]), [[R2, 'SELECTED', null], ['A01-R1', 'NOT_TRIED', null]])
+        assert.deepEqual(activity.evidence!.boundRegions!.blocks.map(b => b.bindings.map(r => [r.region, r.pairing!.id])), [0, 1].map(() => [[REGION, PAIRING]]))
+        assert.equal(activity.rendered.instructions.filter(i => i.text === BOX).length, 1)
+        assert.deepEqual(activity, build(productionFile(), players, keepers).activity, `${players}/${keepers}: the review route's builder and the real-record build agree`)
     }
 })
 

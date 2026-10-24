@@ -27,6 +27,15 @@
  *
  * Nothing here changes a production file. The TEST-ONLY completion is a copy of the record and of the realizations file, in memory.
  *
+ * Re-pointed 24 October 2026 (K3, the d27 design's stage K3): his reply filed 27 October 2026 settles the three decisions (D-GOAL-SUITABILITY
+ * by items 1 and 6, D-PENALTY-AREA by item 1, D-DEFAULT-LAWS by items 2, 3, 4 and 6), so items 3 and 5 above now read: 3. A01's record lists
+ * the goal version first, TRIED, and the zone version second, the three decisions settled by his words (and a copy listing the goal version
+ * waiting on any of them again is refused); 5. a session that has not said what goals it has is asked; with none, or a goal that does not
+ * suit, the zone version is served exactly as before, the account naming the goal version and why it did not apply; with the FA 5v5 goal the
+ * goal version is served and reaches the realizer. Item 6's TEST-ONLY completion (a 5 m goal, a 1-10 m suitability, REPORT, no bound-region
+ * block) is kept as a stand-in for the structural and protection-link checks it pins; the real goal version is pinned in
+ * goal-version-communication.unit.ts, goal-version-penalty-area.unit.ts and goal-version-switch.unit.ts.
+ *
  * Run: npx ts-node --files -r tsconfig-paths/register ./src/system/rendering/goal-version-knowledge.unit.ts
  */
 import assert from 'node:assert/strict'
@@ -62,6 +71,7 @@ const SUPERSEDED = ['restated:GF2::GF2-19', 'restated:GF2::GF2-03.b', 'restated:
 const HIS_ITEM_1 = 'The opposing team may have a different primary scoring event where authorized by the selected context.'
 const R2 = 'A01-R2'
 // H2 (23 October 2026): the goal version waits on a third decision of his, the adaptations its default-laws account names as owed.
+// K3 (24 October 2026): all three settled by his reply filed 27 October 2026; the name is kept as the three the goal version waited on.
 const OPEN = ['D-GOAL-SUITABILITY', 'D-PENALTY-AREA', 'D-DEFAULT-LAWS']
 const itemOf = (contractId: string, itemId: string) => loadCorpusContracts().find(c => c.contractId === contractId)!.items.find(i => i.itemId === itemId)! as any
 const a01 = (records: LearningGoalAuthorization[] = learningGoalAuthorizations()) => records.find(r => r.learningGoalId === 'A01')!
@@ -155,25 +165,31 @@ test('the context scoring relationship he confirmed: one role, one event, two ro
 })
 
 // ── 3. The record ────────────────────────────────────────────────────────────────────────────────────────
-test("A01's record: the goal version first, listed waiting on the two open decisions and never tried; the zone version second", () => {
+// Re-pointed 24 October 2026 (K3): was "A01's record: the goal version first, listed waiting on the two open decisions and never tried; the zone
+// version second". His reply filed 27 October 2026 settles the three, so the goal version is tried first.
+test("A01's record: the goal version first, tried, its three decisions settled by his words; the zone version second", () => {
     const record = a01()
     assert.equal(record.provisionalRealization, undefined, 'one way of naming realizations: the list')
     assert.deepEqual(realizationAlternativesOf(record).map(a => [a.realization, a.selectable, a.status, a.gaps, a.citedAs]), [
-        [R2, false, 'MISSING_KNOWLEDGE', OPEN, 'his reply filed 25 October 2026, item 3'],
+        [R2, true, null, [], 'his reply filed 25 October 2026, item 3'],
         ['A01-R1', true, null, [], 'his reply filed 25 October 2026, item 4'],
     ])
     const gaps = OPEN.map(id => record.gaps!.find(gap => gap.id === id)!)
     for (const gap of gaps) {
         assert.equal(gap.kind, 'DECISION')
-        assert.equal(gap.settledBy, undefined, `${gap.id} is open: no words of his settle it`)
+        assert.ok((gap.settledBy ?? []).length > 0 && gap.settledBy!.every(said => said.citedAs.startsWith('his reply filed 27 October 2026, item ')), `${gap.id} is settled by his words`)
+        // The old words are kept, the K3 line after them.
         assert.ok(gap.note!.startsWith(gap.id === 'D-DEFAULT-LAWS' ? "OPEN, his (added 23 October 2026, H2, the d26 design's build step 2)." : 'OPEN, his (added 26 October 2026, Stage F).'), gap.id)
+        assert.ok(gap.note!.includes('AMENDED 24 October 2026 (K3'), gap.id)
     }
     assert.ok(gaps[0].note!.includes('"However, the presence of a full-size goal should not automatically establish its suitability for every playing area."'))
     assert.ok(gaps[1].note!.includes('"Please investigate the smallest reusable method for representing an authorized penalty area, including its geometry and relationship to the goal and playing space. Do not assume a scaled dimension without knowledge support."'))
-    // Settling either while the goal version waits on it is refused, as for an entry.
+    // The Stage F rule, the other way round now: a copy listing the goal version waiting again on any of the three, settled, is refused.
     for (const id of OPEN) {
         const damaged = learningGoalAuthorizations()
-        a01(damaged).gaps!.find(gap => gap.id === id)!.settledBy = [{ words: 'TEST-ONLY', citedAs: 'TEST-ONLY' }]
+        const alternative = (a01(damaged).realizations as any[]).find(entry => entry.realization === R2)
+        alternative.status = 'MISSING_KNOWLEDGE'
+        alternative.gaps = [id]
         assert.ok(validateLearningGoalAuthorizations(damaged).some(error => error.includes(`the gap ${id} is marked settled, and the alternative realization ${R2} still waits on it`)), id)
     }
     // His provisional choices that described the zone are scoped to it, in his words.
@@ -185,7 +201,7 @@ test("A01's record: the goal version first, listed waiting on the two open decis
 const WITHDRAWN = ['A01-R1-S5-3', 'A01-R1-S5-4', 'A01-R1-V27-1', 'A01-R1-V29-1', 'A01-R1-V30-1', 'A01-R1-V31-1', 'A01-R1-T4-4', 'A01-R1-B8-2']
 // Re-pointed 24 October 2026 (K2, the d27 design's stage K2): A01-R2 adds its goal's penalty area, five items (the zone, its two positions,
 // its width and its binding to the goal with the FA 5v5 pairing), so the composition is still pinned element for element, with them.
-const ADDED =['O1-1', 'O4-1', 'O5-1', 'O6-1', 'O7-1', 'J2-1', 'B9-1', 'B10-1', 'B8-2', 'T4-5', 'S2-1', 'S5-1', 'S6-1', 'S6-2', 'S7-1'].map(id => `${R2}-${id}`)
+const ADDED = ['O1-1', 'O4-1', 'O5-1', 'O6-1', 'O7-1', 'J2-1', 'B9-1', 'B10-1', 'B8-2', 'T4-5', 'S2-1', 'S5-1', 'S6-1', 'S6-2', 'S7-1'].map(id => `${R2}-${id}`)
 
 test('A01-R2 is A01-R1 minus its withdrawals plus its additions, element for element, its references re-pointed to it', () => {
     const base = provisionalRealizationNamed('A01-R1')!
@@ -266,29 +282,45 @@ test("A01-R2's realization choices: A01-R1's re-pointed, the game form's noun fo
     assert.ok(!JSON.stringify(choices).includes('target zone"') && !JSON.stringify(choices).includes('post-regain area,'), 'no stand-in names the area the goal version does not hold')
 })
 
-// ── 5. Listed, never tried ───────────────────────────────────────────────────────────────────────────────
+// ── 5. Tried first (was: listed, never tried) ──────────────────────────────────────────────────────────────
 const outcomesOf = (activity: any) => (activity.account.realizationSelection as any[]).map(entry => [entry.realization, entry.outcome, entry.cause, entry.gaps])
-const NOT_TRIED = [R2, 'NOT_SELECTABLE', 'MISSING_KNOWLEDGE', OPEN]
+/** The FA 5v5 goal as a coach states it from the list (stage I): count, type and width as the Sport Profile's pairing records them. */
+const FA_GOAL = { goal: { count: 1, type: 'scaled', widthM: 3.6576 } }
 
-test('with goals stated or not, the zone version is served exactly as before, and the account and evidence name the goal version and why', () => {
+/**
+ * Re-pointed 24 October 2026 (K3): was "with goals stated or not, the zone version is served exactly as before, and the account and evidence
+ * name the goal version and why" (the goal version NOT_SELECTABLE, waiting on the three decisions, never reaching the realizer). His reply
+ * filed 27 October 2026 settles them, so the goal version is tried first: a session that has not said what goals it has is asked (his reply
+ * filed 26 October 2026, item 11); with none, or a goal its suitability does not admit (this file's 5 m goal), the zone version is served
+ * exactly as for none, the account and evidence naming the goal version and why it did not apply; with the FA goal the goal version is served
+ * and is what the realizer reads.
+ */
+test('the goal version is tried first: unstated goals are asked; none or an unsuitable goal serve the zone version exactly; the FA goal reaches the realizer', () => {
     for (const [players, keepers] of [[12, 1], [12, 2], [11, 1]]) {
-        const plain = buildActivityForReview({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(players, keepers) } as any, { includeDrafts: true }) as ServedActivity
-        assert.equal(plain.outcome, 'served', `${players}/${keepers}`)
-        assert.deepEqual(outcomesOf(plain), [NOT_TRIED, ['A01-R1', 'SELECTED', null, []]], `${players}/${keepers}`)
-        const fact = plain.evidence!.pathway.facts[plain.evidence!.pathway.facts.length - 1]
-        assert.equal(fact.value[0], `${R2}: NOT_SELECTABLE (MISSING_KNOWLEDGE); waits on ${OPEN.join(', ')}; its place in the order: his reply filed 25 October 2026, item 3`)
-        for (const objects of [{ goal: { count: 0 } }, GOAL]) {
-            const stated = buildActivityForReview({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(players, keepers, objects) } as any, { includeDrafts: true }) as ServedActivity
-            assert.equal(stated.outcome, 'served', `${players}/${keepers} ${JSON.stringify(objects)}`)
-            for (const key of ['rendered', 'overview', 'diagram', 'roleBlocks', 'integrity', 'account', 'title', 'subtitle'] as const) assert.deepEqual(stated[key], plain[key], `${players}/${keepers} ${JSON.stringify(objects)}: ${key}`)
-        }
+        const label = `${players}/${keepers}`
+        const asked = buildActivityForReview({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(players, keepers) } as any, { includeDrafts: true }) as RefusedActivity
+        assert.deepEqual([asked.outcome, asked.stage, asked.question?.asks, outcomesOf(asked)], ['refused', 'session', 'AVAILABILITY', [[R2, 'ASKED', 'OBJECT_AVAILABILITY_NOT_STATED', []], ['A01-R1', 'NOT_TRIED', null, []]]], label)
+        const none = buildActivityForReview({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(players, keepers, { goal: { count: 0 } }) } as any, { includeDrafts: true }) as ServedActivity
+        assert.equal(none.outcome, 'served', label)
+        assert.deepEqual(outcomesOf(none), [[R2, 'NOT_APPLICABLE', 'OBJECT_AVAILABILITY_SHORT', []], ['A01-R1', 'SELECTED', null, []]], label)
+        const fact = none.evidence!.pathway.facts[none.evidence!.pathway.facts.length - 1] as { value: string[] }
+        assert.ok(fact.value[0].startsWith(`${R2}: NOT_APPLICABLE (OBJECT_AVAILABILITY_SHORT)`) && !fact.value[0].includes('waits on'), fact.value[0])
+        const unsuitable = buildActivityForReview({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(players, keepers, GOAL) } as any, { includeDrafts: true }) as ServedActivity
+        assert.equal(unsuitable.outcome, 'served', label)
+        assert.deepEqual(outcomesOf(unsuitable), [[R2, 'NOT_APPLICABLE', 'OBJECT_NOT_SUITABLE', []], ['A01-R1', 'SELECTED', null, []]], label)
+        for (const key of ['rendered', 'overview', 'diagram', 'roleBlocks', 'integrity', 'title', 'subtitle'] as const) assert.deepEqual(unsuitable[key], none[key], `${label}: ${key}`)
     }
-    // The goal version never reaches the realizer: only A01-R1's choices are read.
+    // A goal that does not suit never reaches the realizer as the goal version: only A01-R1's choices are read, and no goal is added to it.
     const seen: string[] = []
     const built = buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(12, 1, GOAL) } as any, learningGoalAuthorizations(), { alterSupplied: (_supplied, realization) => void seen.push(realization?.provisionalId ?? 'none') })
     assert.equal(built.activity.outcome, 'served')
     assert.ok(seen.length > 0 && seen.every(id => id === 'A01-R1'), seen.join(', '))
     for (const block of (built.fixture as any).roleBlocks.blocks as any[]) assert.ok(!(block.fixture.game.objects as any[]).some(object => object.kind === 'goal'), 'no goal is added to the zone version')
+    // The FA goal: the goal version is built, and only its choices are read.
+    const goalSeen: string[] = []
+    const goal = buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(12, 1, FA_GOAL) } as any, learningGoalAuthorizations(), { alterSupplied: (_supplied, realization) => void goalSeen.push(realization?.provisionalId ?? 'none') })
+    assert.deepEqual([goal.activity.outcome, outcomesOf(goal.activity)], ['served', [[R2, 'SELECTED', null, []], ['A01-R1', 'NOT_TRIED', null, []]]])
+    assert.ok(goalSeen.length > 0 && goalSeen.every(id => id === R2), goalSeen.join(', '))
 })
 
 // ── 6. The TEST-ONLY completion of the two open decisions ────────────────────────────────────────────────

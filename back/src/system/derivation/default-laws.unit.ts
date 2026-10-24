@@ -68,7 +68,14 @@ const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T
 const index = indexRegister(loadRegister())
 const KEEPER = specializedRoleNames()[0]
 const none = Object.fromEntries(specializedRoleNames().map(role => [role, 0]))
-const sessionOf = (players: number, keepers: number, objects?: Record<string, unknown>) => ({ players, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [KEEPER]: keepers }, ...(objects ? { objects } : {}) })
+/**
+ * Re-pointed 24 October 2026 (K3, the d27 design's stage K3): a session given no objects here states that it has no goal, so A01's build
+ * serves the zone version (A01-R1) these tests read, exactly as before. Since K3 A01's record tries the goal version (A01-R2) first, and a
+ * session that has not said what goals it has is asked first (his reply filed 26 October 2026, item 11: "Do not infer a goal from the
+ * presence of a goalkeeper or silently treat missing information as confirmation that no goal exists."). The real goal version's account
+ * (ENFORCE, owing nothing) is pinned in goal-version-switch.unit.ts and goal-version-penalty-area.unit.ts.
+ */
+const sessionOf = (players: number, keepers: number, objects?: Record<string, unknown>) => ({ players, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [KEEPER]: keepers }, objects: objects ?? { goal: { count: 0 } } })
 const GOAL = { goal: { count: 1, widthM: 5 } }
 const R1 = 'A01-R1'
 const R2 = 'A01-R2'

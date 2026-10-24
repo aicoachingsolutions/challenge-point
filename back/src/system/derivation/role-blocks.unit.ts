@@ -26,7 +26,7 @@ import { buildActivityFromKnowledge } from '../rendering/build-activity'
 import { mechanismDemonstration, MECHANISM_DEMONSTRATIONS } from '../rendering/mechanism-demonstrations'
 import { specializedRoleNames } from '../rendering/session-envelope'
 import { sessionPlanningModel } from '../session-planning/session-planning-model'
-import { loadProvisionalRealizations, loadRegister } from './corpus'
+import { loadProvisionalRealizations, loadRegister, provisionalRealizationNamed } from './corpus'
 import { designationEntry, designationKey, holderInBlock, memberDesignations, roleHolderNames, roleOfHolder } from './designation'
 import { isStampedHalt } from './emit'
 import { runDerivation, runStages0to10, runStages0to2, runStages0to5 } from './engine'
@@ -248,7 +248,18 @@ test('roleBlocksOf: the two entailed blocks for A01, NONE for every other goal a
         const staged: any = runStages0to5(input)
         return roleBlocksOf(staged.classes, staged.derived.lines, index)
     }
-    const a01 = found(derivationInputFor(selectFor('A01', null)))
+    // Re-pointed 24 October 2026 (K3, the d27 design's stage K3): A01's record lists the goal version (A01-R2) as tried, first, so where no
+    // realization is threaded derivation reads A01-R2, whose teams change ends at the exchange (A01-R2-B10-1): its blocks carry the ends
+    // too, pinned here. This test is about A01-R1's blocks (the ends kept), so A01-R1 is threaded, as the build threads the alternative it
+    // tries; what it pins of A01-R1 is unchanged.
+    const preferred = found(derivationInputFor(selectFor('A01', null)))
+    assert.equal(preferred.kind, 'BLOCKS')
+    if (preferred.kind !== 'BLOCKS') return
+    assert.deepEqual(preferred.blocks.map(block => [block.holders, block.ends]), [
+        [blockX.holders, { TEAM_AT_AXIS_START: 'TEAM_AT_AXIS_START', TEAM_AT_AXIS_END: 'TEAM_AT_AXIS_END' }],
+        [blockX.holders, { TEAM_AT_AXIS_START: 'TEAM_AT_AXIS_END', TEAM_AT_AXIS_END: 'TEAM_AT_AXIS_START' }],
+    ], 'the goal version: the building role at the goal end in both blocks, the teams changing ends')
+    const a01 = found(derivationInputFor({ ...selectFor('A01', null), realization: provisionalRealizationNamed('A01-R1') }))
     assert.equal(a01.kind, 'BLOCKS')
     if (a01.kind !== 'BLOCKS') return
     assert.deepEqual(a01.blocks, [blockX, blockY], 'the two bijections, in the register list order; which is played first is the coach')
@@ -310,7 +321,8 @@ test('A01-R1 carries the two roles and the exchange, each his choice in his word
  * with no block, so a reader of the game can tell his first-activity choice from canonical knowledge.
  */
 test('A01-R1\'s role lines carry its category on every support entry, in both blocks (key identity, the real chain)', () => {
-    const input = derivationInputFor(selectFor('A01', null))
+    // Re-pointed 24 October 2026 (K3): A01-R1 threaded, as above (since K3 the record's preferred realization is A01-R2).
+    const input = derivationInputFor({ ...selectFor('A01', null), realization: provisionalRealizationNamed('A01-R1') })
     for (const roleBlock of [undefined, blockX, blockY]) {
         const run = { ...input, ...(roleBlock ? { roleBlock } : {}) }
         const result: any = runDerivation(run)

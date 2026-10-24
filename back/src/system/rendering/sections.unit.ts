@@ -92,7 +92,11 @@ console.log('one section and when-needed assigner (stages 2A and 2B)')
 const ROLE = specializedRoleNames()[0]
 const none = Object.fromEntries(specializedRoleNames().map(role => [role, 0]))
 const sessionOf = (players: number, keepers: number) => ({ players, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [ROLE]: keepers } })
-const a01 = (players: number, keepers: number) => buildActivityWithFixture({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(players, keepers) })
+// Re-pointed 24 October 2026 (K3, the d27 design's stage K3): A01's session states that it has no goal, so the zone version (A01-R1) is built
+// exactly as before. Since K3 A01's record tries the goal version first, and a session that has not said what goals it has is asked first
+// (his reply filed 26 October 2026, item 11: "Do not infer a goal from the presence of a goalkeeper or silently treat missing information as
+// confirmation that no goal exists."). The demonstrations keep the session as it was.
+const a01 = (players: number, keepers: number) => buildActivityWithFixture({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: { ...sessionOf(players, keepers), objects: { goal: { count: 0 } } } })
 const a01Sessions: [number, number][] = [
     [12, 1],
     [12, 2],

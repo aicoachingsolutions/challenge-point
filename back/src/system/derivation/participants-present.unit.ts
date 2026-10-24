@@ -46,7 +46,7 @@ import { runPostRealizationGates } from '../realization/post-realization-gate'
 import { isRefused, Realized } from '../realization/realize'
 import { isNoSuppliedRealization, suppliedRealizationFor } from '../realization/supplied-realization'
 import { contextManipulationRelationships, learningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
-import { loadRegister } from './corpus'
+import { loadRegister, provisionalRealizationNamed } from './corpus'
 import { isStampedHalt } from './emit'
 import { runDerivation, runStages0to10, runStages0to5 } from './engine'
 import { decidedAtTransition } from './designation'
@@ -76,7 +76,13 @@ const KEEPER = specializedRoleNames()[0]
 const KEEPER_ROW = [...index.specializedRoleRows].find(([, name]) => name === KEEPER)![0]
 const PLAYER_FORM = index.participants!.forms.find(form => form.kind === 'PERFORMER_OF_AWARDED_TEAM')!.value
 const R = (id: string) => `c:provisional:A01-R1:A01-R1-${id}`
-const sessionOf = (players: number, keepers: number, extra: Record<string, number> = {}) => ({ players, lengthM: 40, widthM: 30, durationMin: 20, roles: { [KEEPER]: keepers, ...extra } })
+/**
+ * Re-pointed 24 October 2026 (K3, the d27 design's stage K3): the session states that it has no goal, the derivation harness threads A01-R1
+ * (a01), and a TEST-ONLY alteration of the whole pathway alters A01-R1's copy alone, so what this file pins of the zone version is read
+ * exactly as before. Since K3 A01's record lists the goal version (A01-R2) as tried, first: where no realization is threaded derivation reads
+ * it, the build tries it first, and a session that has not said what goals it has is asked first (his reply filed 26 October 2026, item 11).
+ */
+const sessionOf = (players: number, keepers: number, extra: Record<string, number> = {}) => ({ players, lengthM: 40, widthM: 30, durationMin: 20, roles: { [KEEPER]: keepers, ...extra }, objects: { goal: { count: 0 } } })
 const realizationOf = (contracts: LoadedContract[]) => contracts.find(c => c.contractId === 'provisional:A01-R1')!
 const itemOf = (contracts: LoadedContract[], itemId: string) => realizationOf(contracts).items.find(i => i.itemId === itemId)!
 const dropItems = (...ids: string[]) => (contracts: LoadedContract[]) => {
@@ -151,12 +157,12 @@ function chain(
         return { block, pre, preMissing, post, notOwed, stoppedAt: null }
     })
 }
-const a01 = () => selectFor('A01', null)
+const a01 = () => ({ ...selectFor('A01', null), realization: provisionalRealizationNamed('A01-R1') })
 const postCheck = (post: any) => post.gateA.checks.find((c: any) => c.checkId === PARTICIPANTS_CHECK)
 const clauseOf = (check: any, requirement: keyof typeof PARTICIPANT_CLAUSES) => check.clauses.find((c: any) => c.clause === PARTICIPANT_CLAUSES[requirement])
 /** The whole pathway as an administrator's review asks it, over a TEST-ONLY copy of the contracts. */
 const builtWith = (session: any, alter: (contracts: LoadedContract[]) => void) =>
-    buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, learningGoalAuthorizations(), { alter, review: { includeDrafts: true } }).activity
+    buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, learningGoalAuthorizations(), { alter: contracts => void (contracts.some(c => c.contractId === 'provisional:A01-R1') && alter(contracts)), review: { includeDrafts: true } }).activity
 
 // ── 1. The register ─────────────────────────────────────────────────────────────────────────────────────
 test('register version 15 types the participant forms as data, in one versions entry quoting him', () => {

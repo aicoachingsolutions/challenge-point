@@ -157,7 +157,11 @@ test('a cover that does not hold exactly leaves the field withheld', () => {
  */
 const ROLE = specializedRoleNames()[0]
 const noRoles = Object.fromEntries(specializedRoleNames().map(role => [role, 0]))
-const a01Session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...noRoles, [ROLE]: 1 } }
+// Re-pointed 24 October 2026 (K3, the d27 design's stage K3): A01's session states that it has no goal, so the zone version (A01-R1) is built
+// exactly as before. Since K3 A01's record tries the goal version first, and a session that has not said what goals it has is asked first
+// (his reply filed 26 October 2026, item 11: "Do not infer a goal from the presence of a goalkeeper or silently treat missing information as
+// confirmation that no goal exists.").
+const a01Session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...noRoles, [ROLE]: 1 }, objects: { goal: { count: 0 } } }
 const a01Block: any = (buildActivityWithFixture({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: a01Session }).fixture as any).roleBlocks.blocks[0].fixture
 const HIS_ITEM_1 =
     "Building team: Score by carrying the ball beyond the marked line or passing to a teammate who receives it under control beyond the line. The progression must begin with the goalkeeper's build-out and occur before the building team loses possession. Uncontrolled clearances do not score."
@@ -303,7 +307,8 @@ test('(M4, L10) a template without his approval, whose sentence is not in the qu
 })
 
 test('(M4, L10) the renderer says the record: A01 reads his sentence verbatim, a TEST-ONLY template moves it, no template says nothing', () => {
-    const a01 = buildActivityWithFixture({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...Object.fromEntries(specializedRoleNames().map(r => [r, 0])), [specializedRoleNames()[0]]: 1 } } } as any)
+    // Re-pointed 24 October 2026 (K3): the session states no goal, as a01Session does (the zone version).
+    const a01 = buildActivityWithFixture({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...Object.fromEntries(specializedRoleNames().map(r => [r, 0])), [specializedRoleNames()[0]]: 1 }, objects: { goal: { count: 0 } } } } as any)
     const block = (a01.fixture as any).roleBlocks.blocks[0].fixture
     const possession = (rendered: ReturnType<typeof renderConcreteGame>) => rendered.instructions.filter(i => i.text.startsWith('When possession changes')).map(i => i.text)
     assert.deepEqual(possession(renderConcreteGame(block)), [HIS_POSSESSION_SENTENCE.replace(/\.$/, '')], 'his words, from the record')

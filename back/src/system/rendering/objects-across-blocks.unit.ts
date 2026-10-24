@@ -58,7 +58,19 @@ const index = indexRegister(loadRegister())
 const roles = index.roleBlocks!.roles
 const KEEPER = specializedRoleNames()[0]
 const none = Object.fromEntries(specializedRoleNames().map(role => [role, 0]))
-const sessionOf = (extra: Record<string, unknown> = {}) => ({ players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [KEEPER]: 1 }, ...extra })
+/**
+ * Re-pointed 24 October 2026 (K3, the d27 design's stage K3): a session states that it has no goal unless a test states its own, so A01's
+ * build serves the zone version (A01-R1) this file pins, exactly as before. Since K3 A01's record tries the goal version (A01-R2) first, and a
+ * session that has not said what goals it has is asked first (his reply filed 26 October 2026, item 11: "Do not infer a goal from the
+ * presence of a goalkeeper or silently treat missing information as confirmation that no goal exists.").
+ */
+const sessionOf = (extra: Record<string, unknown> = {}) => ({ players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [KEEPER]: 1 }, objects: { goal: { count: 0 } }, ...extra })
+/**
+ * Re-pointed 24 October 2026 (K3): TEST-ONLY, a copy of the records in which A01's lists its zone version alone, so a TEST-ONLY goal written
+ * onto A01-R1 is built exactly as before; since K3 the real goal version is tried first and would decide for any goal stated (not suiting, or
+ * asking). The real goal version is pinned in goal-version-switch.unit.ts.
+ */
+const zoneAloneRecords = () => learningGoalAuthorizations().map(record => (record.learningGoalId === 'A01' ? { ...record, realizations: (record.realizations ?? []).filter(entry => entry.realization === 'A01-R1') } : record))
 const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value))
 const movers = layoutMoversOf(learningGoalAuthorization('A01'))
 type Block = { blockId: string; fixture: any }
@@ -113,7 +125,7 @@ const testItem = (itemId: string, row: string, selector: string, requirement: st
  */
 const TEST_SUITABILITY = [{ kind: 'goal', widthM: { min: 1, max: 10 }, ruledOn: 'TEST-ONLY', by: 'TEST-ONLY', citedAs: 'TEST-ONLY', words: ['TEST-ONLY'] }]
 const withGoal = (team: string) =>
-    buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: sessionOf({ objects: { goal: { count: 1, widthM: 5 } } }) } as any, learningGoalAuthorizations(), {
+    buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: sessionOf({ objects: { goal: { count: 1, widthM: 5 } } }) } as any, zoneAloneRecords(), {
         alter: contracts => {
             ;(contracts.find(contract => contract.contractId === P)! as any).objectSuitability = TEST_SUITABILITY
             contracts

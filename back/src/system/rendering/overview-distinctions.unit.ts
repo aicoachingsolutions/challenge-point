@@ -48,7 +48,11 @@ const a01At = (players: number, keepers: number) => ({
     kind: 'learning-goal' as const,
     goalId: 'A01',
     situationId: null,
-    session: { players, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [ROLE]: keepers } },
+    // Re-pointed 24 October 2026 (K3, the d27 design's stage K3): the session states that it has no goal, so the zone version (A01-R1) is
+    // built exactly as before. Since K3 A01's record tries the goal version first, and a session that has not said what goals it has is asked
+    // first (his reply filed 26 October 2026, item 11: "Do not infer a goal from the presence of a goalkeeper or silently treat missing
+    // information as confirmation that no goal exists.").
+    session: { players, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [ROLE]: keepers }, objects: { goal: { count: 0 } } },
 })
 const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value))
 const entryOf = (id: string): ApprovedWording => approvedWording().find(entry => entry.id === id)!

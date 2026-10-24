@@ -68,7 +68,16 @@ console.log = () => undefined
 const [ROLE] = specializedRoleNames()
 const none = Object.fromEntries(specializedRoleNames().map(role => [role, 0]))
 /** A stored session as Mongo holds one. */
-const stored = (keepers: number, over: Record<string, unknown> = {}) => ({ playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: { ...none, [ROLE]: keepers }, ...over })
+/**
+ * Re-pointed 24 October 2026 (K3, the d27 design's stage K3): a stored session states that it has no goal unless a test states its own. Since
+ * K3 the record-backed goal's record tries its goal version first, and a session that has not said what goals it has is asked first (his
+ * reply filed 26 October 2026, item 11: "Do not infer a goal from the presence of a goalkeeper or silently treat missing information as
+ * confirmation that no goal exists."); with none stated it is the zone version, as before. The goal version, with the goal a coach states
+ * from the list (the FA 5v5 goal), is served by the live pathway exactly as the review page serves it too (below).
+ */
+const NO_GOAL = { goal: { count: 0 } }
+const FA_GOAL = { goal: { count: 1, type: 'scaled', widthM: 3.6576 } }
+const stored = (keepers: number, over: Record<string, unknown> = {}) => ({ playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: { ...none, [ROLE]: keepers }, objects: NO_GOAL, ...over })
 const NOT_PASSED = 'The game built for this activity did not pass its own checks, so it is not being shown.'
 const RECORD_GOALS = learningGoalAuthorizations().map(record => record.learningGoalId)
 assert.equal(RECORD_GOALS.length, 1, 'one goal has an authorization record today; this file is written for that state and must be revisited when another does')
@@ -117,9 +126,10 @@ const refusedWith = (outcome: ReturnType<typeof liveCheckedActivity>, cause: str
 
 /* ── The record-backed goal on the live pathway is the review page's activity ────────────────────────────────────────────────────── */
 {
-    for (const [players, keepers] of [[12, 1], [12, 2], [11, 1]]) {
-        const session = stored(keepers, { playerCount: players })
-        const outcome = served(liveCheckedActivity(session, inputs(), live), `${GOAL} at ${players}/${keepers}`)
+    // Re-pointed 24 October 2026 (K3): each role case with no goal (the zone version) and with the FA 5v5 goal (the goal version).
+    for (const [players, keepers, objects] of [[12, 1, NO_GOAL], [12, 2, NO_GOAL], [11, 1, NO_GOAL], [12, 1, FA_GOAL], [12, 2, FA_GOAL], [11, 1, FA_GOAL]] as const) {
+        const session = stored(keepers, { playerCount: players, objects })
+        const outcome = served(liveCheckedActivity(session, inputs(), live), `${GOAL} at ${players}/${keepers} ${JSON.stringify(objects)}`)
         const review = reviewActivity(session, { learningGoalId: GOAL, durationMin: 20 })
         assert.deepEqual(outcome.activity, review, `${GOAL} at ${players}/${keepers}: the live activity is the review page's, whole`)
         assert.deepEqual(outcome.activity.account.constraints, [], 'no library constraint is served')
@@ -260,7 +270,8 @@ const refusedWith = (outcome: ReturnType<typeof liveCheckedActivity>, cause: str
     // the authorized one passes, any other is refused. The live selection's copy carries the same constraint, so G3 agrees.
     const carrying = (id: string, authorizes: string[] | null) => (): ActivityBuild =>
         buildActivityUnderAuthorizationRecords(
-            { kind: 'learning-goal', goalId: GOAL, situationId: null, session: { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [ROLE]: 1 } } },
+            // Re-pointed 24 October 2026 (K3): the session states no goal, as stored(1) does (NO_GOAL above).
+            { kind: 'learning-goal', goalId: GOAL, situationId: null, session: { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [ROLE]: 1 }, objects: NO_GOAL } },
             learningGoalAuthorizations(),
             {
                 alterSelection: selection => {

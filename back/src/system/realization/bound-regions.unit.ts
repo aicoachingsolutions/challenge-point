@@ -716,10 +716,17 @@ test("the bindings step, measured on the check itself (the H3 review's should-fi
     assert.ok(twice?.cause === 'BOUND_REGION_INVALID' && twice.problems.some(problem => problem === `c:provisional:${R2}:${R2}-O1-1 holds 2 regions of the function penalty-area bound to it, and the Sport Profile (BOUND-REGION-GOAL) binds one`), JSON.stringify(twice))
 })
 
+/**
+ * Re-pointed 24 October 2026 (K3, the d27 design's stage K3): the session states that it has no goal. Since K3 A01's record tries the goal
+ * version (A01-R2) first, and a session that has not said what goals it has is asked first (his reply filed 26 October 2026, item 11: "Do not
+ * infer a goal from the presence of a goalkeeper or silently treat missing information as confirmation that no goal exists."). With no goal
+ * the zone version is served, binding no region, exactly as before; with the FA 5v5 goal the goal version is served, its penalty area bound
+ * (goal-version-switch.unit.ts, goal-version-penalty-area.unit.ts).
+ */
 test('production is unchanged: A01 at 12/1, 12/2 and 11/1 served as the zone version, no bound region, the same activity with or without the block', () => {
     for (const [players, keepers] of [[12, 1], [12, 2], [11, 1]]) {
         const label = `${players}/${keepers}`
-        const request = { kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(players, keepers, PROTOTYPE_AREA) } as any
+        const request = { kind: 'learning-goal', goalId: 'A01', situationId: null, session: { ...sessionOf(players, keepers, PROTOTYPE_AREA), objects: { goal: { count: 0 } } } } as any
         const production = buildActivityUnderAuthorizationRecords(request, learningGoalAuthorizations(), { review: { includeDrafts: true } })
         const withoutBlock = buildActivityUnderAuthorizationRecords(request, learningGoalAuthorizations(), { review: { includeDrafts: true }, boundRegions: null })
         const served = production.activity as ServedActivity

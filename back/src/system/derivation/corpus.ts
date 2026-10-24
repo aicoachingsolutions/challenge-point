@@ -835,7 +835,8 @@ function repointedTo(value: unknown, from: string, to: string): unknown {
  * lower not above the upper), in his cited words with who ruled it and when. His decision 4 of the note sent to him is still open: no
  * production realization carries an entry, and a realization carrying one without his words is refused whole. AMENDED 24 October 2026
  * (K1): his reply filed 27 October 2026, items 1 and 6 gives A01-R2 one entry (type scaled, exactly 3.6576 m wide), the only production
- * entry; the gap that recorded the decision (D-GOAL-SUITABILITY) is lifted at K3. An entry's optional `attributes` names, for each attribute
+ * entry; the gap that recorded the decision (D-GOAL-SUITABILITY) is lifted at K3. AMENDED 24 October 2026 (K3): it is, settled by his words
+ * in the authorization record, and the realization carrying the entry is tried first. An entry's optional `attributes` names, for each attribute
  * the register's sessionResources lists for the kind, a non-empty list of that attribute's registered values: an unlisted attribute or
  * value, an empty list and anything but an object of lists are refused.
  */

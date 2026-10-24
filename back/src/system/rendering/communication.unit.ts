@@ -67,7 +67,14 @@ console.log('communication of the first complete activity (stage K7)')
 const ROLE = specializedRoleNames()[0]
 const none = Object.fromEntries(specializedRoleNames().map(role => [role, 0]))
 const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [ROLE]: 1 } }
-const a01 = { kind: 'learning-goal' as const, goalId: 'A01', situationId: null, session }
+/**
+ * Re-pointed 24 October 2026 (K3, the d27 design's stage K3): A01's session states that it has no goal, so the zone version (A01-R1) this
+ * file pins is built exactly as before. Since K3 A01's record tries the goal version first, and a session that has not said what goals it
+ * has is asked before anything is built (his reply filed 26 October 2026, item 11: "Do not infer a goal from the presence of a goalkeeper or
+ * silently treat missing information as confirmation that no goal exists."). The demonstrations keep the session as it was.
+ */
+const NO_GOAL = { goal: { count: 0 } }
+const a01 = { kind: 'learning-goal' as const, goalId: 'A01', situationId: null, session: { ...session, objects: NO_GOAL } }
 const index = indexRegister(loadRegister())
 
 /**
@@ -315,7 +322,8 @@ test('2. key identity: the draft reaches the administrator\'s review answer and 
     assert.deepEqual(Object.keys(draft!).sort(), ['fidelity', 'instructions', 'status', 'withheld'])
     assert.deepEqual(Object.keys(draft!.instructions[0]).filter(key => ['wording', 'provisionalSources'].includes(key)).sort(), ['provisionalSources', 'wording'])
     // The review route: the coach whose session it is receives no draft; an administrator does.
-    const stored: any = { _id: 'TEST-ONLY', createdBy: 'TEST-ONLY', playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: { ...none, [ROLE]: 1 } }
+    // Re-pointed 24 October 2026 (K3): the stored session states no goal too, as a01's does (the zone version; see NO_GOAL above).
+    const stored: any = { _id: 'TEST-ONLY', createdBy: 'TEST-ONLY', playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: { ...none, [ROLE]: 1 }, objects: NO_GOAL }
     // Re-pointed 18 October 2026 (design step L14): measured on the TEST-ONLY table as at stage M5, the refusal at communication a draft
     // belongs to (production is served: below).
     const coach = asAtStageM5(() => reviewActivity(stored, { learningGoalId: 'A01', durationMin: 20 })) as RefusedActivity
@@ -719,7 +727,8 @@ test('9. (stage 2C) a sentence the role blocks say alike by role is said once: b
         assert.deepEqual(instruction.parts, one[0].parts, 'block 1\'s parts, exactly')
     }
     // Production at the other served sessions: two goalkeepers, and 11 players.
-    for (const other of [{ ...session, roles: { ...none, [ROLE]: 2 } }, { ...session, players: 11 }]) {
+    // Re-pointed 24 October 2026 (K3): each states no goal, as a01's session does (the zone version, above).
+    for (const other of [{ ...session, objects: NO_GOAL, roles: { ...none, [ROLE]: 2 } }, { ...session, objects: NO_GOAL, players: 11 }]) {
         const activity = buildActivity({ ...a01, session: other }) as ServedActivity
         assert.equal(activity.outcome, 'served', JSON.stringify(other))
         assert.equal(activity.rendered.instructions.filter(i => i.counterparts).length, 2, JSON.stringify(other))

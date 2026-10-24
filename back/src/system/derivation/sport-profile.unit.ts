@@ -279,8 +279,14 @@ test('key identity: a game carries the vocabulary entry only where a transition 
     // free kicks, or penalty kicks for this activity.") withdrew A01's touchline restart taken by hand, so no transition of its game holds that
     // trigger and method and the entry does not cross. The entry itself stays valid sport data.
     assert.deepEqual(vocabulary.restartMethodNouns.map(entry => [entry.trigger, entry.method, entry.noun]), [['OUT_TOUCHLINE', 'IN_HAND', 'throw-in']])
-    const a01: any = buildActivityWithFixture({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { goalkeeper: 1 } } } as any).fixture
-    for (const block of a01.roleBlocks.blocks) assert.equal(block.fixture.methodNouns, undefined)
+    // Re-pointed 24 October 2026 (K3, the d27 design's stage K3): the session states its goals, since a session that has not said what goals it
+    // has is asked first now that A01's record tries the goal version first (his reply filed 26 October 2026, item 11). Both versions are read:
+    // no goal (the zone version, A01-R1, as before) and the FA 5v5 goal (the goal version, A01-R2, which inherits the same common restart).
+    for (const goal of [{ count: 0 }, { count: 1, type: 'scaled', widthM: 3.6576 }]) {
+        const a01: any = buildActivityWithFixture({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { goalkeeper: 1 }, objects: { goal } } } as any).fixture
+        assert.equal(a01.roleBlocks.blocks.length, 2, JSON.stringify(goal))
+        for (const block of a01.roleBlocks.blocks) assert.equal(block.fixture.methodNouns, undefined, JSON.stringify(goal))
+    }
     const plain: any = buildActivityFromKnowledge(['GF2'], { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { goalkeeper: 0 } }).fixture
     assert.ok(plain && plain.game, 'the possession game alone builds a fixture')
     assert.equal(plain.methodNouns, undefined, 'no transition with that trigger and method, so nothing crosses')

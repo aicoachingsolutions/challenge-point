@@ -68,11 +68,17 @@ const BEGINS = 'every role whose scoring credit is confined to an episode holds 
 const ENDS = 'every transition that can take possession from such a role begins another episode'
 const R = (id: string) => `c:provisional:A01-R1:A01-R1-${id}`
 const KEEPER = specializedRoleNames()[0]
-const sessionOf = (players = 12, keepers = 1) => ({ players, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...Object.fromEntries(specializedRoleNames().map(r => [r, 0])), [KEEPER]: keepers } })
+/**
+ * Re-pointed 24 October 2026 (K3, the d27 design's stage K3): the session states that it has no goal, the derivation harness threads A01-R1,
+ * and a TEST-ONLY alteration of the whole pathway alters A01-R1's copy alone, so what this file pins of the zone version is read exactly as
+ * before. Since K3 A01's record lists the goal version (A01-R2) as tried, first: where no realization is threaded derivation reads it, the
+ * build tries it first, and a session that has not said what goals it has is asked first (his reply filed 26 October 2026, item 11).
+ */
+const sessionOf = (players = 12, keepers = 1) => ({ players, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...Object.fromEntries(specializedRoleNames().map(r => [r, 0])), [KEEPER]: keepers }, objects: { goal: { count: 0 } } })
 
 /** A01 as derivation receives it, per block, with a TEST-ONLY alteration of a copy of its contracts. */
 const a01Input = (alter: (contracts: LoadedContract[]) => void = () => undefined): DerivationInput => {
-    const input: any = { ...derivationInputFor(selectFor('A01', null)), envelope: sessionOf() }
+    const input: any = { ...derivationInputFor({ ...selectFor('A01', null), realization: provisionalRealizationNamed('A01-R1') }), envelope: sessionOf() }
     input.contracts = JSON.parse(JSON.stringify(input.contracts))
     alter(input.contracts)
     input.contracts = applyRealizationDeferrals(input.contracts, contextManipulationRelationships(), index).contracts
@@ -90,7 +96,7 @@ const verdicts = (staged: any) => reachOf(staged).clauses.map((c: any) => c.verd
 const itemOf = (contracts: LoadedContract[], contractId: string, itemId: string) => contracts.find(c => c.contractId === contractId)!.items.find(i => i.itemId === itemId)!
 /** The whole pathway on the same TEST-ONLY copy: where it stops, and why. */
 const builtWith = (alter: (contracts: LoadedContract[]) => void) =>
-    buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: sessionOf() }, learningGoalAuthorizations(), { alter }).activity as RefusedActivity
+    buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: sessionOf() }, learningGoalAuthorizations(), { alter: contracts => void (contracts.some(c => c.contractId === 'provisional:A01-R1') && alter(contracts)) }).activity as RefusedActivity
 const refusedAtStructure = (activity: RefusedActivity, label: string) => {
     assert.equal(activity.outcome, 'refused', label)
     assert.equal(activity.stage, 'structure', `${label}: ${activity.reasons.join(' | ')}`)

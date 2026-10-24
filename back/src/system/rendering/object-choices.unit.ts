@@ -259,8 +259,9 @@ test("a goal typed at The FA's rounded 3.66 m is another goal: it does not suit 
     assert.equal(activity.outcome, 'served', JSON.stringify((activity as any).reasons?.slice(0, 3) ?? null))
     assert.deepEqual(selectionOf(activity), [[R2, 'NOT_APPLICABLE', 'OBJECT_NOT_SUITABLE'], ['A01-R1', 'SELECTED', null]])
     assert.equal((activity.account.realizationSelection as any[])[0].summary, `The goals this session has do not suit this game; it is built for ${FA_LABEL}.`)
-    // The zone version, exactly as production serves it.
-    const production = buildActivityForReview({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionWith(undefined) } as any, { includeDrafts: true }) as ServedActivity
+    // The zone version, exactly as production serves it. Re-pointed 24 October 2026 (K3): to a session stating no goal - since K3 one that has
+    // not said what goals it has is asked (his reply filed 26 October 2026, item 11).
+    const production = buildActivityForReview({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionWith({ [KIND]: { count: 0 } }) } as any, { includeDrafts: true }) as ServedActivity
     assert.deepEqual(activity.rendered, production.rendered)
     // The authorized goals a realization is built for: admitted by its suitability AND with an area that fits the session's.
     assert.deepEqual(choicesSuitedTo(KIND, [exactly], { lengthM: 40, widthM: 30 }, index, blockWithFa()).map(choice => choice.id), [`pairing:${FA_ID}`])
@@ -321,14 +322,26 @@ test('the front: the session form, the review page and the live page answer by t
 })
 
 // ── 8. Production unchanged ──────────────────────────────────────────────────────────────────────────────
-test('production unchanged: A01 serves the zone version whatever the session states, and asks nothing', () => {
-    const production = buildActivityForReview({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionWith(undefined) } as any, { includeDrafts: true }) as ServedActivity
-    assert.equal(production.outcome, 'served')
-    for (const objects of [{ [KIND]: stated('pairing:IFAB-LAW-1', 1) }, { [KIND]: { count: 1, widthM: 3.66 } }, { [KIND]: { count: 0 } }]) {
+/**
+ * Re-pointed 24 October 2026 (K3, the d27 design's stage K3): his reply filed 27 October 2026 settles the goal version's three decisions, so
+ * production tries it first. Was: "production unchanged: A01 serves the zone version whatever the session states, and asks nothing" (the goal
+ * version listed and never tried). Now, by the choices themselves: a session that has not said what goals it has is ASKED, with every choice
+ * (his reply filed 26 October 2026, item 11); the FA 5v5 choice serves the goal version; the regulation goal, 3.66 m and none serve the zone
+ * version, its words, overview and diagram identical to the build with none, the goal version named with why it does not apply.
+ */
+test('production since K3: no goals stated asks with every choice; the FA choice serves the goal version; any other choice serves the zone version unchanged', () => {
+    const asked = buildActivityForReview({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionWith(undefined) } as any, { includeDrafts: true }) as RefusedActivity
+    assert.deepEqual([asked.outcome, asked.stage, asked.question?.asks, selectionOf(asked)], ['refused', 'session', 'AVAILABILITY', [['A01-R2', 'ASKED', 'OBJECT_AVAILABILITY_NOT_STATED'], ['A01-R1', 'NOT_TRIED', null]]])
+    assert.deepEqual(asked.question!.choices!.map(choice => choice.id), sessionObjectChoices().kinds.find(k => k.kind === KIND)!.choices.map(choice => choice.id), 'every production choice is offered')
+    const goal = buildActivityForReview({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionWith({ [KIND]: { count: 1, ...sessionObjectChoices().kinds.find(k => k.kind === KIND)!.choices.find(choice => choice.id === 'pairing:FA-MINI-SOCCER-5V5-2026')!.states } }) } as any, { includeDrafts: true }) as ServedActivity
+    assert.deepEqual([goal.outcome, selectionOf(goal)], ['served', [['A01-R2', 'SELECTED', null], ['A01-R1', 'NOT_TRIED', null]]])
+    const none = buildActivityForReview({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionWith({ [KIND]: { count: 0 } }) } as any, { includeDrafts: true }) as ServedActivity
+    assert.deepEqual([none.outcome, selectionOf(none)], ['served', [['A01-R2', 'NOT_APPLICABLE', 'OBJECT_AVAILABILITY_SHORT'], ['A01-R1', 'SELECTED', null]]])
+    for (const objects of [{ [KIND]: stated('pairing:IFAB-LAW-1', 1) }, { [KIND]: { count: 1, widthM: 3.66 } }]) {
         const activity = buildActivityForReview({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionWith(objects) } as any, { includeDrafts: true }) as ServedActivity
         assert.equal(activity.outcome, 'served', JSON.stringify(objects))
-        for (const key of ['rendered', 'overview', 'diagram'] as const) assert.deepEqual(activity[key], production[key], `${JSON.stringify(objects)}: ${key}`)
-        assert.deepEqual(selectionOf(activity), [['A01-R2', 'NOT_SELECTABLE', 'MISSING_KNOWLEDGE'], ['A01-R1', 'SELECTED', null]])
+        for (const key of ['rendered', 'overview', 'diagram'] as const) assert.deepEqual(activity[key], none[key], `${JSON.stringify(objects)}: ${key}`)
+        assert.deepEqual(selectionOf(activity), [['A01-R2', 'NOT_APPLICABLE', 'OBJECT_NOT_SUITABLE'], ['A01-R1', 'SELECTED', null]])
     }
 })
 
@@ -370,8 +383,9 @@ test('K1 data: suitability equals exactly the FA object and the production choic
         const amended = text.indexOf('AMENDED 24 October 2026 (K1)')
         assert.ok(text.includes(old) && amended > text.indexOf(old) && text.slice(amended).includes('his reply filed 27 October 2026, items 1 and 6'), old)
     }
-    // The gap itself stays open until K3 lifts it.
-    assert.equal(gap.settledBy, undefined)
+    // The gap itself stayed open until K3 lifted it. Re-pointed 24 October 2026 (K3): settled by his reply filed 27 October 2026, items 1
+    // and 6 (pinned whole in learning-goal-authorizations.unit.ts).
+    assert.deepEqual(gap.settledBy!.map(said => said.citedAs), ['his reply filed 27 October 2026, item 1', 'his reply filed 27 October 2026, item 1', 'his reply filed 27 October 2026, item 1', 'his reply filed 27 October 2026, item 6'])
 })
 test('K1 validation refuses an unlisted attribute, an unlisted value, an empty value list and malformed attributes', () => {
     for (const attributes of [{ colour: ['scaled'] }, { type: ['portable'] }, { type: [] }, []]) {
@@ -397,7 +411,8 @@ test('K1 suitability: type precedes width; only the exact scaled object passes; 
     assert.deepEqual([asked.stage, asked.question?.asks], ['session','ATTRIBUTE'])
     assert.deepEqual(liveRefusalBody(asked, null).question, asked.question)
     const production = buildActivityForReview({ kind:'learning-goal', goalId:'A01', situationId:null, session:sessionWith({[KIND]:{count:1,type:'scaled',widthM:FA_WIDTH}}) } as any, { includeDrafts: true }) as ServedActivity
-    assert.deepEqual(selectionOf(production), [[R2,'NOT_SELECTABLE','MISSING_KNOWLEDGE'], ['A01-R1','SELECTED',null]])
+    // Re-pointed 24 October 2026 (K3): production tries the goal version now, and the exact FA statement selects it (was: NOT_SELECTABLE).
+    assert.deepEqual(selectionOf(production), [[R2,'SELECTED',null], ['A01-R1','NOT_TRIED',null]])
 })
 test('K1 ATTRIBUTE choices preserve a stated width, even where no authorized entry matches it', () => {
     for (const widthM of [FA_WIDTH, 4.125]) {

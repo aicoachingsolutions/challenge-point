@@ -187,9 +187,12 @@ test('the repair removes exactly one application and leaves the rest', () => {
     // Four since 15 October 2026 (stage K5): A01's provisional realization A01-R1 forms the first START and SCORE elements
     // any goal holds, and SD-14 gives each its episode boundary — the two applications its own selector names. SD-13 still
     // fires nowhere: their method is FROM_THE_FEET, not a stationary-ball or kickoff START, and SD-20 nowhere either.
+    // Re-pointed 24 October 2026 (K3, the d27 design's stage K3): A01's record lists the goal version (A01-R2) as tried, first, so with no
+    // realization threaded A01 derives A01-R2, a variant that keeps A01-R1's START and SCORE items under their own ids in its own contract:
+    // the same two applications, now on c:provisional:A01-R2:A01-R1-T1-1 and T1-2 (were c:provisional:A01-R1:...). Nothing else moves.
     assert.deepEqual(
         [...pairs].sort(),
-        ['c:blind:GF4:I06::T7 <- SD-14', 'c:provisional:A01-R1:A01-R1-T1-1::T7 <- SD-14', 'c:provisional:A01-R1:A01-R1-T1-2::T7 <- SD-14', 'c:restated:GF2:GF2-07.a::T7 <- SD-14'],
+        ['c:blind:GF4:I06::T7 <- SD-14', 'c:provisional:A01-R2:A01-R1-T1-1::T7 <- SD-14', 'c:provisional:A01-R2:A01-R1-T1-2::T7 <- SD-14', 'c:restated:GF2:GF2-07.a::T7 <- SD-14'],
         `exactly the two legitimate applications remain; got ${JSON.stringify([...pairs])}`,
     )
 })

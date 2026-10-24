@@ -21,7 +21,7 @@
  */
 import assert from 'node:assert/strict'
 
-import { corpusInput } from './corpus'
+import { corpusInput, provisionalRealizationNamed } from './corpus'
 import { runDerivation, runStages0to10 } from './engine'
 import { runGates } from './gates'
 import { indexRegister } from './register'
@@ -312,6 +312,14 @@ test('registering the member changed no verdict in any of the thirteen goals', (
      * not block on it, every game keeps a restart per trigger, and GA-DEAD-BALL-RESTART passes vacuously. A01's zone version writes it
      * (A01-R1-RP1-1, COMMON), so its line resolves and A01 stays at 17: the items its common restart withdrew held no failed line.
      */
+    /**
+     * **20 · 24 October, K3 — no row moves; A01's realization is now threaded, measured.** His reply filed 27 October 2026 settles the goal
+     * version's three decisions, so A01's record lists A01-R2 as tried, first, and where no realization is threaded derivation reads it. The
+     * goal version is built only per role block (its teams change ends at the coach-called block, A01-R2-B10-1); derived here with no role
+     * block, as this table always derives, it holds 18 failed lines and Gate A FAILS on GA-NO-FAILED-LINE (measured), which says nothing
+     * about the game the build serves per block (goal-version-switch.unit.ts). So A01's row keeps describing the zone version, A01-R1,
+     * threaded exactly as the build threads the alternative it tries; its 17 lines and its verdict are unchanged.
+     */
     const A01_COMPOSITION = { failed: 17, gateA: 'FAIL', reachable: true }
     const expected: Record<string, { failed: number; gateA: string; reachable: boolean }> = {
         A01: { failed: 17, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
@@ -335,6 +343,8 @@ test('registering the member changed no verdict in any of the thirteen goals', (
         } else {
             try {
                 selection = selectFor(goal, null)
+                // K3 (note 20): A01's zone version threaded; every other goal names no realization.
+                if (goal === 'A01') selection = { ...selection, realization: provisionalRealizationNamed('A01-R1') }
             } catch (error) {
                 if (!(error instanceof GoalSelectionGap)) throw error
                 gaps.push(goal)

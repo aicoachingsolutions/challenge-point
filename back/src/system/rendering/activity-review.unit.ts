@@ -48,6 +48,21 @@ const none = Object.fromEntries(ROLES.map(role => [role, 0]))
 
 /** A stored session as Mongo holds one: the count a number, the area two bare numeric strings in metres. */
 const stored = (over: Record<string, unknown> = {}) => ({ playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: { ...none }, ...over })
+/**
+ * Re-pointed 24 October 2026 (K3, the d27 design's stage K3): A01's stored sessions state that they have no goal (`objects: NO_GOAL`). Since K3
+ * A01's record tries the goal version (A01-R2) first, and a session that has not said what goals it has is asked first (his reply filed 26
+ * October 2026, item 11: "Do not infer a goal from the presence of a goalkeeper or silently treat missing information as confirmation that no
+ * goal exists."); with none stated the goal version does not apply and A01 is the zone version (A01-R1) this file pins, exactly as before.
+ * The question itself is pinned in goal-version-switch.unit.ts and session-resources.unit.ts.
+ */
+const NO_GOAL = { goal: { count: 0 } }
+/**
+ * Re-pointed 24 October 2026 (K3): a TEST-ONLY alteration of A01's contracts or realization choices is applied to the zone version's attempt
+ * alone. The goal version is tried first and, the session stating no goal, does not apply; left unaltered it stops at that, as production
+ * does, and the build moves on to the zone version the alteration is for.
+ */
+const zoneOnly = (alter: (contracts: any[]) => void) => (contracts: any[]) => void (contracts.some(contract => contract.contractId === 'provisional:A01-R1') && alter(contracts))
+const zoneOnlySupplied = (alter: (supplied: any) => void) => (supplied: any, provisional: any) => void (provisional?.provisionalId === 'A01-R1' && alter(supplied))
 
 const served = (activity: ServedActivity | RefusedActivity, what: string): ServedActivity => {
     assert.equal(activity.outcome, 'served', `${what} must be served; refused at ${(activity as RefusedActivity).stage}: ${JSON.stringify((activity as RefusedActivity).reasons)}`)
@@ -271,7 +286,8 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
     const options = activityReviewOptions()
     assert.deepEqual(options.goals.map(g => g.id).sort(), Object.keys(expected).sort(), 'every goal the page offers is accounted for here')
     for (const [goalId, [stage, summary, formBuilt, because]] of Object.entries(expected)) {
-        const activity = refused(reviewActivity(stored(), { learningGoalId: goalId, durationMin: 20 }), goalId)
+        // Re-pointed 24 October 2026 (K3): A01's stored session states no goal (NO_GOAL above); every other goal's is as it was.
+        const activity = refused(reviewActivity(stored(goalId === 'A01' ? { objects: NO_GOAL } : {}), { learningGoalId: goalId, durationMin: 20 }), goalId)
         assert.equal(activity.stage, stage, `${goalId} must stop at ${stage}; it stopped at ${activity.stage}: ${JSON.stringify(activity.reasons)}`)
         assert.equal(activity.summary, summary, goalId)
         plain(activity, goalId)
@@ -317,7 +333,7 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
      * panel reads exactly these fields.
      */
     {
-        const a01 = refused(reviewActivity(stored(), { learningGoalId: 'A01', durationMin: 20 }), 'A01')
+        const a01 = refused(reviewActivity(stored({ objects: NO_GOAL }), { learningGoalId: 'A01', durationMin: 20 }), 'A01')
         const record = learningGoalAuthorization('A01')!
         // Re-pointed later on 15 October 2026: `zeroConstraintRuling: null` and `gap: NO_AUTHORIZED_CONSTRAINTS` became
         // the general principle the evaluated set was read under (16 October reply, item 1) and no gap — A01 now
@@ -359,8 +375,11 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
         // expectation is the record together with that realization, exactly as the builder reads it.
         // Re-pointed 26 October 2026 (Stage F): the record names its realizations as an ordered list, and the realization the activity is
         // built with is the first that can be tried, A01-R1 (the goal version, A01-R2, is listed waiting on two decisions of his).
-        const used = realizationAlternativesOf(record).find(alternative => alternative.selectable)!.realization
-        assert.equal(used, 'A01-R1')
+        // Re-pointed 24 October 2026 (K3): both are tried now, in the record's order; with no goal stated the goal version does not apply
+        // (OBJECT_AVAILABILITY_SHORT), and the realization the account is built with is the one tried last, A01-R1 (here short of a goalkeeper).
+        assert.deepEqual(realizationAlternativesOf(record).map(alternative => [alternative.realization, alternative.selectable]), [['A01-R2', true], ['A01-R1', true]])
+        assert.deepEqual(a01.account.realizationSelection!.map(entry => [entry.realization, entry.outcome, entry.cause]), [['A01-R2', 'NOT_APPLICABLE', 'OBJECT_AVAILABILITY_SHORT'], ['A01-R1', 'NOT_APPLICABLE', 'AVAILABILITY_SHORT']])
+        const used = 'A01-R1'
         assert.deepEqual(a01.account.authorizationLists, authorizationLists(record, provisionalRealizationNamed(used)), 'the three lists, exactly as the record and its realization give them')
         // 3 -> 10 on 15 October 2026 (stage K4): with his D6 counts by role, the building role's keeper and his RD-1 answer as
         // two reassignments with their counts (pinned in allocation.unit.ts), each one of his provisional choices.
@@ -387,10 +406,12 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
         // 15 -> 16 on 23 October 2026 (H2): the adaptations the goal version's default-laws account names as owed (D-DEFAULT-LAWS), open and
         // his (his reply filed 26 October 2026, item 10), needed by that alternative realization alone and refusing nothing here.
         assert.equal(a01.account.authorizationLists!.gaps.length, 16)
-        assert.deepEqual(a01.account.authorizationLists!.gaps.slice(13).map(gap => [gap.id, gap.neededBy]), [
-            ['D-GOAL-SUITABILITY', ['the alternative realization A01-R2']],
-            ['D-PENALTY-AREA', ['the alternative realization A01-R2']],
-            ['D-DEFAULT-LAWS', ['the alternative realization A01-R2']],
+        // Re-pointed 24 October 2026 (K3): settled by his reply filed 27 October 2026, and needed by nothing (was: each needed by the alternative
+        // realization A01-R2, listed waiting on them).
+        assert.deepEqual(a01.account.authorizationLists!.gaps.slice(13).map(gap => [gap.id, gap.neededBy, (gap.settledBy ?? []).length > 0]), [
+            ['D-GOAL-SUITABILITY', [], true],
+            ['D-PENALTY-AREA', [], true],
+            ['D-DEFAULT-LAWS', [], true],
         ])
         assert.equal(a01.account.gameProblem?.gameProblemId, 'GP-005')
         assert.equal(a01.account.gameProblem?.status, 'APPROVED')
@@ -485,7 +506,7 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
             }
         }
         for (const keepers of [2, 0]) {
-            const ask = () => reviewActivity(stored({ specializedRoles: { ...none, [ROLE]: keepers } }), { learningGoalId: 'A01', durationMin: 20 })
+            const ask = () => reviewActivity(stored({ specializedRoles: { ...none, [ROLE]: keepers }, objects: NO_GOAL }), { learningGoalId: 'A01', durationMin: 20 })
             const production = ask()
             if (keepers) {
                 const servedNow = served(production, `A01, ${keepers} of ${ROLE}`)
@@ -501,13 +522,17 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
                 const atSession = refused(production, `A01, ${keepers} of ${ROLE}`)
                 assert.equal(atSession.stage, 'session', JSON.stringify(atSession.reasons))
                 assert.equal(atSession.summary, `This game needs 1 ${ROLE} in all and the session has 0.`)
-                assert.ok(!atSession.reasons.some(reason => reason.includes('authorization record')), 'no record entry stops it')
+                // Re-pointed 24 October 2026 (K3): both realizations are tried, so the reasons open with the sentence naming the record's
+                // exhausted alternatives (each was tried: the goal version short of a goal, the zone version of a goalkeeper); no record ENTRY
+                // stops it.
+                assert.equal(atSession.reasons[0], 'none of the 2 realizations the authorization record of A01 authorizes applies to this session; each was tried in its order')
+                assert.ok(!atSession.reasons.slice(1).some(reason => reason.includes('authorization record')), 'no record entry stops it')
             }
             assert.deepEqual(production.account.constraints, [], 'no library constraint was selected')
             assert.equal(production.account.context?.inThisActivity, true, 'the context is in the game')
 
             // Behind it, on the copy: the same build, because the record has no gap entry left to set aside.
-            const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [ROLE]: keepers } }
+            const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [ROLE]: keepers }, objects: NO_GOAL }
             const reached = buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, withoutGapEntries()).activity
             assert.equal(reached.outcome, production.outcome)
             if (reached.outcome === 'served') assert.deepEqual(reached.rendered.instructions, (production as ServedActivity).rendered.instructions)
@@ -620,7 +645,8 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
 {
     const record = learningGoalAuthorization('A01')!
     const defined = new Set(record.gaps!.map(gap => gap.id))
-    const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: none }
+    // Re-pointed 24 October 2026 (K3): the session states no goal (see NO_GOAL above).
+    const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: none, objects: NO_GOAL }
     // [where it stops, the stop as the chain reports it, what would move it]
     // **Every stop this table listed moved out on 15 October 2026 (stage K6): the work succeeding.** The two spatial record entries
     // ("starting positions — the defending team's starting relationship", D4/M5; "progression references — where each target
@@ -676,7 +702,9 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
     // constraint). Re-pointed 15 October 2026 (stage K5): it holds the realization's start, after-score and coach-judged
     // conclusion elements and four ordinary out-of-play restarts beside the possession change (it held the possession change
     // alone until then).
-    const input: any = derivationInputFor(selectFor('A01', null))
+    // Re-pointed 24 October 2026 (K3): A01-R1 threaded, as the build threads the alternative it tries (the record's preferred one, read where
+    // none is threaded, is the goal version since K3).
+    const input: any = derivationInputFor({ ...selectFor('A01', null), realization: provisionalRealizationNamed('A01-R1') })
     const staged: any = runStages0to10(input)
     const derived: any = runDerivation(input)
     const resolved: any = assembleResolvedGame(derived, staged.classes, indexRegister(input.register), input.contracts)
@@ -1715,7 +1743,8 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
     // One specialized performer available since 15 October 2026 (stage K4): A01-R1 now involves one for the building role
     // (his D6, A01-R1-P3-1), so with none available this copy stops at the roster (AVAILABILITY_SHORT) before the guard —
     // measured. The block is about the guard, so the session states what the realization needs.
-    const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [ROLE]: 1 } }
+    // Re-pointed 24 October 2026 (K3): and that it has no goal (NO_GOAL above), so the build reaches the zone version this block alters.
+    const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [ROLE]: 1 }, objects: NO_GOAL }
     const PENDING = ['18.a', '18.b', '18.c', '18.d', '18.e', '18.f', '18.g', '19.a', '19.b', '11.a', '11.b', '08.c', '13', '14.a', '02', '03'].map(id => `RPC-001-${id}`)
     /**
      * Re-pointed 15 October 2026 (stage K6): the copy also takes out A01-R1's starting values and placements (rows S2, S5, S6,
@@ -1763,7 +1792,7 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
      * this block is about the guard behind it. Measured: the outcomes below are unchanged.
      */
     const a01 = { kind: 'learning-goal' as const, goalId: 'A01', session }
-    const underTestRuling = (alter: (contracts: any[]) => void) => buildActivityUnderAuthorizationRecords(a01, withoutGapEntries(), { alter, alterSupplied: linesBack }).activity
+    const underTestRuling = (alter: (contracts: any[]) => void) => buildActivityUnderAuthorizationRecords(a01, withoutGapEntries(), { alter: zoneOnly(alter), alterSupplied: zoneOnlySupplied(linesBack) }).activity
     /**
      * **Re-pointed 15 October 2026 (his 9.8): refused at `communication` -> SERVED, over this TEST-ONLY copy, measured.**
      * What stopped it at communication was TWO balls — the context's own (RPC-001-10.a) beside the Sport Profile's —
@@ -1789,7 +1818,7 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
      * taken out on this copy nothing is withheld and the copy is served — the guard having passed, which is what this block is about.
      * Production keeps the condition and stops at communication on its wording (pinned above).
      */
-    const reached = buildActivityUnderAuthorizationRecords(a01, withoutGapEntries(), { alter: trimmed, alterSupplied: linesBack })
+    const reached = buildActivityUnderAuthorizationRecords(a01, withoutGapEntries(), { alter: zoneOnly(trimmed), alterSupplied: zoneOnlySupplied(linesBack) })
     const passed = served(reached.activity, 'A01 over the trimmed copy')
     assert.ok(passed.rendered.instructions.some(i => i.from.includes('possession.team')), 'the opening holder is said')
     assert.ok(passed.rendered.instructions.some(i => i.from.some(path => path.endsWith('.awardedTo'))), 'the restarts are said')
@@ -1869,9 +1898,10 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
 
     // Re-pointed 15 October 2026 (stage H3) over the records with their gap entries set aside (TEST-ONLY): production A01
     // now stops before derivation on its record's gaps, goalkeeper positioning among them (D6, M2, M3). Measured unchanged.
-    const overCopy = (session: any, alter: (contracts: any[]) => void) => buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, withoutGapEntries(), { alter, alterSupplied: placementsOut }).activity
+    const overCopy = (session: any, alter: (contracts: any[]) => void) => buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, withoutGapEntries(), { alter: zoneOnly(alter), alterSupplied: zoneOnlySupplied(placementsOut) }).activity
     for (const keepers of [2, 0]) {
-        const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [ROLE]: keepers } }
+        // Re-pointed 24 October 2026 (K3): the session states no goal (NO_GOAL above), so the build reaches the zone version this block alters.
+        const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [ROLE]: keepers }, objects: NO_GOAL }
         const before = refused(overCopy(session, asBeforeC53), `A01 before C53, ${keepers} of ${ROLE}`)
         // Re-pointed 15 October 2026 (stage K3): A01-R1 carries the role blocks, so the game is built once per block and
         // the same roster stop is reported in each block, named by it. Measured: both blocks, the same cause.
@@ -1914,7 +1944,7 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
             supplied.withdrawn = []
         }
         const now = served(
-            buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, withoutGapEntries(), { alter: withoutTransitions, alterSupplied: noTransitionChoices }).activity,
+            buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, withoutGapEntries(), { alter: zoneOnly(withoutTransitions), alterSupplied: zoneOnlySupplied(noTransitionChoices) }).activity,
             `A01 after C53, ${keepers} of ${ROLE}`,
         )
         // Re-pointed 21 October 2026 (stage 2D): ten cross-block checks, RB-L (the markings set out once are the blocks' own) joining.

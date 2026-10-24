@@ -841,7 +841,8 @@ export function objectInvolvementOf(game: unknown, index: GateContext['index']):
  * production data every stated object of a listed kind is OBJECT_NOT_SUITABLE with `decided: false`; no served game holds one. AMENDED 24
  * October 2026 (K1): production now records one, on A01-R2 (one object of type scaled, exactly 3.6576 m wide; his reply filed 27 October
  * 2026, items 1 and 6), read by its attributes before its width; A01-R2 is still listed and never tried until K3, so no served game holds
- * an object yet.
+ * an object yet. AMENDED 24 October 2026 (K3): that realization is tried first now (its decisions settled by his words in the authorization
+ * record), so a served game holds the object where the session states one this rule admits.
  */
 export function objectAvailabilityRefusal(index: GateContext['index'], game: unknown, envelope: unknown, contracts: LoadedContract[]): ObjectAvailabilityRefusal | null {
     const involvement = objectInvolvementOf(game, index)

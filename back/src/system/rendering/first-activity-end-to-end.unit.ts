@@ -49,7 +49,11 @@ console.log('the first complete activity end to end, served on his approved scor
 const ROLE = specializedRoleNames()[0]
 const none = Object.fromEntries(specializedRoleNames().map(role => [role, 0]))
 const SESSIONS: [number, number][] = [[12, 1], [12, 2], [11, 1]]
-const requestAt = (players: number, keepers: number) => ({ kind: 'learning-goal' as const, goalId: 'A01', situationId: null, session: { players, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [ROLE]: keepers } } })
+// Re-pointed 24 October 2026 (K3, the d27 design's stage K3): the session states that it has no goal, so the zone version (A01-R1) is built
+// exactly as before. Since K3 A01's record tries the goal version first, and a session that has not said what goals it has is asked first
+// (his reply filed 26 October 2026, item 11: "Do not infer a goal from the presence of a goalkeeper or silently treat missing information as
+// confirmation that no goal exists.").
+const requestAt = (players: number, keepers: number) => ({ kind: 'learning-goal' as const, goalId: 'A01', situationId: null, session: { players, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [ROLE]: keepers }, objects: { goal: { count: 0 } } } })
 const BLOCKS = ['BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END', 'BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START']
 const fact = (facts: { what: string; value: unknown }[], what: string): any => {
     const found = facts.find(f => f.what === what)

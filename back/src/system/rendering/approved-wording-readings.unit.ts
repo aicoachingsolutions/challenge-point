@@ -370,7 +370,9 @@ test('3. an unusable record gives no reading, and the overview is withheld (sinc
     assert.equal(coverReadingOf(unusable), NO_RECORDED_READING)
     const ROLE = specializedRoleNames()[0]
     const none = Object.fromEntries(specializedRoleNames().map(role => [role, 0]))
-    const fixture: any = buildActivityWithFixture({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [ROLE]: 1 } } }).fixture
+    // Re-pointed 24 October 2026 (K3, the d27 design's stage K3): the session states that it has no goal, so the zone version (A01-R1) is built
+    // exactly as before; since K3 a session that has not said what goals it has is asked first (his reply filed 26 October 2026, item 11).
+    const fixture: any = buildActivityWithFixture({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [ROLE]: 1 }, objects: { goal: { count: 0 } } } }).fixture
     const blocks = (fixture.roleBlocks.blocks as any[]).map(block => ({ blockId: block.blockId, fixture: block.fixture }))
     const withoutRecord = coachOverviewDraftOf('A01', blocks, game => extractsFor(game, { reading: coverReadingOf(unusable) }), { readings: unusable })
     const [building, pressing] = withoutRecord.scoring.blocks[0].groups

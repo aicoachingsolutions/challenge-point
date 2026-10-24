@@ -13,7 +13,7 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 
-import { corpusInput, loadCorpusContracts, loadRegister } from '../derivation/corpus'
+import { corpusInput, loadCorpusContracts, loadRegister, provisionalRealizationNamed } from '../derivation/corpus'
 import { isStampedHalt } from '../derivation/emit'
 import { runDerivation, runStages0to10 } from '../derivation/engine'
 import { indexRegister } from '../derivation/register'
@@ -993,6 +993,11 @@ test('five goals are realization-authorized, they are three games, and the other
         let selection
         try {
             selection = selectFor(goal, null)
+            // Re-pointed 24 October 2026 (K3, the d27 design's stage K3): A01's record lists the goal version (A01-R2) as tried, first, and
+            // where no realization is threaded derivation reads it; the goal version is built only per role block (its teams change ends),
+            // and derived here with none, as this table derives, it is not authorized (GA-NO-FAILED-LINE, measured). So A01 keeps its zone
+            // version, A01-R1, threaded as the build threads the alternative it tries; its row is unchanged.
+            if (goal === 'A01') selection = { ...selection, realization: provisionalRealizationNamed('A01-R1') }
         } catch (error) {
             if (!(error instanceof GoalSelectionGap)) throw error
             gaps.push(goal)
