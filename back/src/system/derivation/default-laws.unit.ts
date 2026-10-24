@@ -41,6 +41,12 @@
  * owed (served under REPORT with no such sentence; refused under ENFORCE naming it), and moved to A01-R2 alone it covers the goal version
  * only (the design's reversal of OUR READING).
  *
+ * **Re-pointed 24 October 2026 (the completeness audit of the field-test build, item 1)** for his reply filed 27 October 2026, item 6
+ * ("Goalkeeper identification: The goalkeeper should be visually distinguishable from the outfield players. Stable team identities and clear
+ * role labels remain important in the diagram."): ten laws, the tenth LAW-4-GK (IFAB Law 4.3, the goalkeeper's colours), listed for
+ * ADAPTATION with the one precondition that a goalkeeper plays and nothing required, so it is never owed; it APPLIES in both blocks of the
+ * zone version (whose owed laws are unchanged: the handling, in each block) and is NOT_APPLICABLE where no team holds a goalkeeper.
+ *
  * Nothing here changes a production file. TEST-ONLY copies are labelled and held in memory.
  *
  * Run: npx ts-node --files -r tsconfig-paths/register ./src/system/derivation/default-laws.unit.ts
@@ -96,7 +102,7 @@ const statusOf = (account: DefaultLawsAccount, blockAt: number, law: string) =>
 const items = (entries: { item: string }[]) => entries.map(entry => entry.item)
 
 // ── 1. The block in the Sport Profile ────────────────────────────────────────────────────────────────────
-test("the profile's defaultLaws block: his item 10 words, the restatement, and nine laws in the closed vocabulary, each listed for a reason", () => {
+test("the profile's defaultLaws block: his item 10 words, the restatement, and ten laws in the closed vocabulary, each listed for a reason", () => {
     assert.deepEqual([laws.source, laws.edition, laws.authority.citedAs, laws.authority.by, laws.authority.ruledOn], ['IFAB Laws of the Game', null, 'his reply filed 26 October 2026, item 10', 'Christian', '2026-10-26'])
     assert.deepEqual(laws.authority.words, ITEM_10, 'his item 10, verbatim and whole sentences')
     assert.ok(laws.editionNote.startsWith('He names no edition.'))
@@ -120,8 +126,16 @@ test("the profile's defaultLaws block: his item 10 words, the restatement, and n
             ['LAW-15', 'GAME', 'DEPARTURE', true],
             ['LAW-16', 'PER_END', 'ADAPTATION', true],
             ['LAW-17', 'PER_END', 'ADAPTATION', true],
+            // Re-pointed 24 October 2026 (the completeness audit, item 1): the goalkeeper's colours, listed after the nine.
+            ['LAW-4-GK', 'GAME', 'ADAPTATION', false],
         ],
     )
+    // The completeness audit, item 1: LAW-4-GK arises only where a goalkeeper plays and needs nothing the representation holds (never owed);
+    // its note cites IFAB Law 4.3 and quotes his item 6 whole.
+    const colours = laws.laws.find(law => law.id === 'LAW-4-GK')!
+    assert.deepEqual([colours.applicableWhen, colours.requires], [[{ predicate: 'SPECIALIZED_PERFORMER_PRESENT', row: 'P3' }], []])
+    assert.ok(String(colours.note).includes('"Each goalkeeper must wear colours that are distinguishable from the other players and the match officials"'), 'IFAB Law 4.3, as stage L cited it')
+    assert.ok(String(colours.note).includes('"Goalkeeper identification: The goalkeeper should be visually distinguishable from the outfield players. Stable team identities and clear role labels remain important in the diagram."'), 'his item 6, whole')
     for (const law of laws.laws.filter(entry => entry.listedFor === 'DEPARTURE')) {
         assert.deepEqual([law.applicableWhen, law.requires], [[], []], `${law.id}: listed only to be departed from`)
         assert.ok(String(law.note).startsWith('Listed 24 October 2026 (R1') && String(law.note).includes('His reply filed 27 October 2026'), law.id)
@@ -299,6 +313,9 @@ test('A01-R1 at 12/1, 12/2 and 11/1, REPORT: LAW-8, the common restart and offsi
             const handling = statusOf(account, at, 'LAW-12-GK').game
             assert.equal(handling.status, 'ADAPTATION_OWED', label)
             assert.deepEqual(handling.preconditions.map(p => [p.list, p.predicate.predicate, p.reading]), [['applicableWhen', 'SPECIALIZED_PERFORMER_PRESENT', 'PRESENT'], ['requires', 'REGION_BOUND_TO_OBJECT', 'ABSENT']])
+            // The completeness audit, item 1: the goalkeeper's colours apply in each block of the zone version (a goalkeeper plays in both).
+            const colours = statusOf(account, at, 'LAW-4-GK').game
+            assert.deepEqual([colours.status, colours.preconditions.map(p => [p.list, p.predicate.predicate, p.reading])], ['APPLIES', [['applicableWhen', 'SPECIALIZED_PERFORMER_PRESENT', 'PRESENT']]], `${label} LAW-4-GK`)
             for (const law of ['LAW-14', 'LAW-16', 'LAW-17']) {
                 for (const end of ['end0', 'end1']) {
                     const entry = statusOf(account, at, law)[end]
@@ -378,6 +395,22 @@ const ACCOUNT_ITEMS: [string, string][] = [
     ['R8', RESTARTS_SENTENCE],
 ]
 /**
+ * Re-pointed 24 October 2026 (the completeness audit of the field-test build, item 1; his reply filed 27 October 2026, item 6: "Goalkeeper
+ * identification: The goalkeeper should be visually distinguishable from the outfield players. Stable team identities and clear role labels
+ * remain important in the diagram."): the account says a third thing to the coach, inside a sentence rather than as one - the clause closing
+ * the roster sentence, written for LAW-4-GK, which applies wherever a goalkeeper plays. `uncoloured` takes that clause out of production's
+ * values (the words from every string ending with them, its part from every list of parts, its citation from every list of paths), so the
+ * comparison below still says what it said: nothing else a coach reads differs.
+ */
+const COLOUR = '; give the goalkeeper a colour neither team wears'
+const COLOUR_AT = 'defaultLaws.applied[LAW-4-GK]'
+const uncoloured = (value: any): any => {
+    if (typeof value === 'string') return value.endsWith(COLOUR) ? value.slice(0, -COLOUR.length) : value
+    if (Array.isArray(value)) return value.filter(entry => entry !== COLOUR_AT && !(entry && typeof entry === 'object' && entry.text === COLOUR)).map(uncoloured)
+    if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([key, entry]) => [key, uncoloured(entry)]))
+    return value
+}
+/**
  * The two values are the same but for each `blockIndex` (a Details sentence's place in its block) at or after `from` in the bare build, which
  * is one more in production (a sentence said before it); every other leaf is equal.
  */
@@ -406,12 +439,21 @@ test('what a coach reads changes only by the account\'s two sentences: the same 
         const production = buildActivityUnderAuthorizationRecords(request, learningGoalAuthorizations(), { review: { includeDrafts: true } }).activity as ServedActivity
         const bare = buildActivityUnderAuthorizationRecords(request, learningGoalAuthorizations(), { review: { includeDrafts: true }, realizations: loadProvisionalRealizations(unannotated()) }).activity as ServedActivity
         assert.equal(bare.outcome, 'served', label)
-        for (const key of ['overview', 'diagram', 'account', 'title', 'subtitle', 'diagramDraft'] as const) assert.deepEqual(production[key], bare[key], `${label}: ${key}`)
+        for (const key of ['overview', 'diagram', 'account', 'title', 'subtitle'] as const) assert.deepEqual(production[key], bare[key], `${label}: ${key}`)
+        // The completeness audit, item 1: the administrator's diagram model carries the roster sentence's words; with the clause taken out
+        // it is the bare build's.
+        assert.deepEqual(uncoloured(production.diagramDraft), bare.diagramDraft, `${label}: diagramDraft, but the colour clause`)
         // The account's sentences: each said once with it, never without it; every other sentence the same.
         for (const sentence of ACCOUNT_SENTENCES) assert.deepEqual(production.rendered.instructions.filter(i => i.text === sentence).length, 1, `${label}: ${sentence}`)
         assert.ok(!bare.rendered.instructions.some(i => i.text.startsWith('There are no ') || i.text.startsWith('There is no ')), `${label}: no account, neither sentence`)
+        // The completeness audit, item 1: the colour clause closes the roster sentence once with the account, citing LAW-4-GK as applied,
+        // and is never said without it.
+        const roster = production.rendered.instructions.filter(i => i.section === 'Players' && i.text.endsWith(COLOUR))
+        assert.equal(roster.length, 1, `${label}: the colour clause closes one roster sentence`)
+        assert.deepEqual(roster[0].parts!.filter(part => part.text === COLOUR).map(part => part.from[0]), [COLOUR_AT], label)
+        assert.ok(!JSON.stringify(bare.rendered).includes('colour'), `${label}: no account, no colour clause`)
         const without = (instructions: { text: string }[]) => instructions.filter(i => !ACCOUNT_SENTENCES.includes(i.text))
-        assert.deepEqual({ ...production.rendered, instructions: without(production.rendered.instructions) }, bare.rendered, `${label}: rendered`)
+        assert.deepEqual(uncoloured({ ...production.rendered, instructions: without(production.rendered.instructions) }), bare.rendered, `${label}: rendered`)
         // What counts the sentences: two more with the account, nothing else.
         const more = ACCOUNT_SENTENCES.length
         assert.deepEqual({ ...production.integrity, instructions: production.integrity.instructions - more }, bare.integrity, `${label}: integrity`)
@@ -426,26 +468,27 @@ test('what a coach reads changes only by the account\'s two sentences: the same 
         // the same but for each such index moved by one (`shifted`), and nothing else.
         const after = production.rendered.instructions.findIndex(i => i.text === OFFSIDE_SENTENCE)
         assert.ok(after > 0, label)
-        shifted(productionDraft, bareDraft, after, `${label}: overviewDraft`)
+        shifted(uncoloured(productionDraft), bareDraft, after, `${label}: overviewDraft`)
         assert.deepEqual({ ...productionReading!, detailsWords: 0 }, { ...bareReading!, detailsWords: 0 }, `${label}: the overview's reading, but the Details' word count`)
         // A realization declaring no check gains no account (the evidence's sentence lists and counts differ by the two sentences).
         assert.equal(bare.evidence!.defaultLaws, undefined, label)
         const { defaultLaws: _account, measured: _digests, acceptance: _a, items: _i, sections: _s, overview: _o, provenance: _p, ...rest } = production.evidence!
         const { measured: _bareDigests, acceptance: _ba, items: _bi, sections: _bs, overview: _bo, provenance: _bp, ...bareRest } = bare.evidence!
         assert.deepEqual(rest, bareRest, `${label}: the evidence gains the account and the two sentences, and nothing else`)
-        assert.deepEqual(without(production.evidence!.sections.instructions).map(i => i.text), bare.evidence!.sections.instructions.map(i => i.text), label)
+        assert.deepEqual(without(production.evidence!.sections.instructions).map(i => uncoloured(i.text)), bare.evidence!.sections.instructions.map(i => i.text), label)
         // The provenance: one element more, the offside sentence's citation of LAW-11's entries in the account; every other the same.
+        // Re-pointed 24 October 2026 (the completeness audit, item 1): and one more again, the colour clause's citation of LAW-4-GK as applied.
         const { elements, ...provenance } = production.evidence!.provenance
         const { elements: bareElements, ...bareProvenance } = bare.evidence!.provenance
         assert.deepEqual(provenance, bareProvenance, `${label}: provenance`)
-        assert.deepEqual(elements.filter(element => element.path !== 'defaultLaws.laws[LAW-11]'), bareElements, `${label}: the provenance's elements, but the account's`)
-        assert.equal(elements.length, bareElements.length + 1, label)
+        assert.deepEqual(elements.filter(element => element.path !== 'defaultLaws.laws[LAW-11]' && element.path !== COLOUR_AT), bareElements, `${label}: the provenance's elements, but the account's`)
+        assert.equal(elements.length, bareElements.length + 2, label)
         // The overview's evidence: the same but for the Details places moved by the offside sentence, and the Details' word count by exactly
-        // the two sentences' words.
-        const accountWords = ACCOUNT_SENTENCES.reduce((n, sentence) => n + sentence.split(/\s+/).length, 0)
+        // the two sentences' words (and, since the completeness audit's item 1, the colour clause's).
+        const accountWords = ACCOUNT_SENTENCES.reduce((n, sentence) => n + sentence.split(/\s+/).length, 0) + COLOUR.trim().split(/\s+/).length - 1
         const overviewEvidence = production.evidence!.overview as any
         assert.equal(overviewEvidence.reading.detailsWords, (bare.evidence!.overview as any).reading.detailsWords + accountWords, `${label}: the Details' words`)
-        shifted({ ...overviewEvidence, reading: { ...overviewEvidence.reading, detailsWords: overviewEvidence.reading.detailsWords - accountWords } }, bare.evidence!.overview, after, `${label}: the overview's evidence`)
+        shifted(uncoloured({ ...overviewEvidence, reading: { ...overviewEvidence.reading, detailsWords: overviewEvidence.reading.detailsWords - accountWords } }), bare.evidence!.overview, after, `${label}: the overview's evidence`)
         // The R2 review's should-fix: the acceptance with only its sentence counts moved (two more DRAFT sentences), and the nine items whole.
         const counted = (acceptance: { what: string; value: any }[], by: number) => acceptance.map(fact => (fact.what === 'sentences' ? { ...fact, value: { ...fact.value, draft: fact.value.draft - by, total: fact.value.total - by } } : fact))
         assert.deepEqual(counted(production.evidence!.acceptance as any, more), bare.evidence!.acceptance, `${label}: the acceptance, but two more DRAFT sentences`)
@@ -556,6 +599,15 @@ test('UNREPRESENTED never yields APPLIES; an unreadable precondition never passe
     // TEST-ONLY control: a law whose every precondition holds, and which nothing departs from, applies.
     const holding = accountWith(lawsWith({ id: 'TEST-ONLY', cites: 'TEST-ONLY', name: 'TEST-ONLY', scope: 'PER_END', applicableWhen: [], requires: [{ predicate: 'OBJECT_OF_KIND_AT_END', kind: 'goal' }], note: null }))
     assert.deepEqual(holding.laws.map(entry => entry.status), ['APPLIES', 'ADAPTATION_OWED'], 'at the goal end it applies; at the other, the goal is missing')
+    // The completeness audit, item 1: the goalkeeper's colours apply where a team holds a goalkeeper, and where no team does (TEST-ONLY: every
+    // team's count on the goalkeeper row set to 0) they are not applicable, so nothing is said or owed for them - never applying, never owed.
+    const colours = laws.laws.find(law => law.id === 'LAW-4-GK')!
+    assert.equal(accountWith(lawsWith(colours)).laws[0].status, 'APPLIES', 'a goalkeeper plays')
+    const keeperLeaf = String(index.rows.get('P3')?.path ?? '').split('[].').pop()!
+    const noKeeper = copy(block.fixture.game)
+    for (const team of noKeeper.performers.teams) team[keeperLeaf] = 0
+    const without = accountWith(lawsWith(colours), noKeeper).laws[0]
+    assert.deepEqual([without.status, without.preconditions.map(p => p.reading)], ['NOT_APPLICABLE', ['ABSENT']], 'no team holds a goalkeeper')
     // TEST-ONLY: the goal with its realized place taken out cannot be read, so LAW-17 there is owed, saying so - never not applicable.
     const unplaced = copy(block.fixture.game)
     for (const object of unplaced.objects) delete object.realizedGeometry

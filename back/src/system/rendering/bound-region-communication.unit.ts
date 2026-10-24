@@ -34,6 +34,14 @@
  *   9. production unchanged: A01's zone version says no area, no colour and no normal rules (his item 5), its layout holds no rectangle, and
  *      its account holds the sentence.
  *
+ * Re-pointed 24 October 2026 (the completeness audit of the field-test build, item 1; his reply filed 27 October 2026, item 6: "Goalkeeper
+ * identification: The goalkeeper should be visually distinguishable from the outfield players. Stable team identities and clear role labels
+ * remain important in the diagram."): the colour clause is written for LAW-4-GK (IFAB Law 4.3, the goalkeeper's colours), not for the
+ * handling law, so items 1, 3, 5 and 7 read it there, and item 9 changes: the zone version now says the colour (once, citing LAW-4-GK as
+ * applied) and still no area, no handling and no normal rules; the handling law owed no longer takes the colour with it, a colour law owed
+ * does, and the colour said twice is refused (Q2). The zone version's diagram still holds no goalkeeper marker: a marker is placed with the
+ * goal its performer defends, and the zone version has none.
+ *
  * Run: npx ts-node --files -r tsconfig-paths/register ./src/system/rendering/bound-region-communication.unit.ts
  */
 import assert from 'node:assert/strict'
@@ -69,6 +77,8 @@ const R2 = 'A01-R2'
 const REGION = `c:provisional:${R2}:${R2}-TEST-S2`
 const GOAL = `c:provisional:${R2}:${R2}-O1-1`
 const LAW = 'LAW-12-GK'
+/** The completeness audit, item 1: the law the colour clause is written for (IFAB Law 4.3), since that audit. */
+const COLOUR_LAW = 'LAW-4-GK'
 
 /** A TEST-ONLY pairing and the area it sets out: the d27 design's FA 5v5 entry (1.6), and the IFAB entry the profile holds. */
 interface Spec {
@@ -207,11 +217,15 @@ test('the DRAFT wording data: the area\'s sentence, the applied law\'s two claus
     assert.deepEqual([area.noun, area.sentence, area.basis.citedAs], ['penalty area', "Mark the {object}'s {region}: {width} wide, centred on the {object}, and {depth} deep into the area", 'his reply filed 26 October 2026, items 7 and 12'])
     assert.ok(area.basis.words.includes('Use an existing regulation penalty area when the activity dimensions and setup permit it.'))
     assert.equal(boundRegionWording('penalty-area', 'ball'), null, 'a kind with no entry has no sentence')
-    const [applied] = appliedLawWordings()
-    assert.deepEqual([applied.law, applied.inRegion!.words, applied.distinguished!.words], [LAW, 'inside it the {performer} can handle the {carrier} as in a normal game', 'give the {performer} a colour neither team wears'])
+    // Re-pointed 24 October 2026 (the completeness audit, item 1): the handling law holds its clause in a region alone; the colour clause,
+    // unchanged (its words, his words and its also), is written for LAW-4-GK. Was: one entry, LAW-12-GK, holding both.
+    const [applied, colours] = appliedLawWordings()
+    assert.deepEqual([applied.law, applied.inRegion!.words, applied.distinguished], [LAW, 'inside it the {performer} can handle the {carrier} as in a normal game', undefined])
     assert.ok(applied.inRegion!.basis.words.includes("The goalkeeper's handling permissions and restrictions should follow the normal Laws of the Game within that area unless an authorized activity rule explicitly changes them."))
-    assert.deepEqual(applied.distinguished!.basis, { words: ['The goalkeeper should be visually distinguishable from the outfield players.'], citedAs: 'his reply filed 27 October 2026, item 6' })
-    assert.ok(applied.distinguished!.also!.startsWith('IFAB Laws of the Game, Law 4.3'))
+    assert.deepEqual([colours.law, colours.inRegion, colours.distinguished!.words], [COLOUR_LAW, undefined, 'give the {performer} a colour neither team wears'])
+    assert.deepEqual(colours.distinguished!.basis, { words: ['The goalkeeper should be visually distinguishable from the outfield players.'], citedAs: 'his reply filed 27 October 2026, item 6' })
+    assert.ok(colours.distinguished!.also!.startsWith('IFAB Laws of the Game, Law 4.3'))
+    assert.equal(appliedLawWordings().length, 2)
     assert.equal(normalLawsWording()!.words, 'Otherwise, normal soccer rules apply during play')
     assert.ok(normalLawsWording()!.basis.words.includes('Where normal soccer rules remain relevant during live play, they should continue to apply unless explicitly modified.'))
     const file = JSON.parse(fs.readFileSync(DRAFT_COACH_WORDING_FILE, 'utf8'))
@@ -235,9 +249,13 @@ test('the DRAFT wording data: the area\'s sentence, the applied law\'s two claus
     refuses(f => f.appliedLaws.push(copy(f.appliedLaws[0])), /lists LAW-12-GK again/, 'a law twice')
     refuses(f => (f.appliedLaws[0] = { law: LAW }), /holds no clause/, 'no clause')
     refuses(f => (f.appliedLaws[0].inRegion.words = 'inside it the {object} counts'), /a slot other than \{performer\} and \{carrier\}/, 'a clause with another slot')
-    refuses(f => (f.appliedLaws[0].distinguished.words = 'give everyone a colour'), /a slot other than \{performer\}, each once at least/, 'the colour clause without its performer')
+    // Re-pointed 24 October 2026 (the completeness audit, item 1): the colour clause is the second entry's (LAW-4-GK). Was appliedLaws[0].
+    refuses(f => (f.appliedLaws[1].distinguished.words = 'give everyone a colour'), /a slot other than \{performer\}, each once at least/, 'the colour clause without its performer')
     refuses(f => (f.appliedLaws[0].law = 'LAW-11'), /no precondition of LAW-11 (names a specialized performer|is a region bound to an object)/, 'a clause a law\'s preconditions do not support')
-    refuses(f => (f.appliedLaws[0].distinguished.basis = { words: [], citedAs: 'his reply filed 27 October 2026, item 6' }), /quotes none of his words/, 'a clause with no words of his')
+    refuses(f => (f.appliedLaws[1].distinguished.basis = { words: [], citedAs: 'his reply filed 27 October 2026, item 6' }), /quotes none of his words/, 'a clause with no words of his')
+    // The completeness audit, item 1: the colours law binds no region, so a clause inside a region is refused for it; and it is listed once.
+    refuses(f => (f.appliedLaws[1].inRegion = copy(f.appliedLaws[0].inRegion)), /is said inside a region, and no precondition of LAW-4-GK is a region bound to an object/, 'a region clause for the colours law')
+    refuses(f => f.appliedLaws.push(copy(f.appliedLaws[1])), /lists LAW-4-GK again/, 'the colours law twice')
     refuses(f => (f.normalLaws.words = 'Otherwise, normal soccer rules apply during play.'), /normalLaws words end with a full stop/, 'the normal rules with a final full stop')
 })
 
@@ -367,22 +385,31 @@ test("the area's sentence: the pairing's figures bound to its leaves, the region
     assert.deepEqual(fixture.roleBlocks.blocks[0].fixture.boundRegions.regions.map((entry: any) => [entry.elementId, entry.objectId, entry.pairing.id, entry.pairing.region]), [[REGION, GOAL, FA.id, { function: 'penalty-area', widthM: 15, depthM: 9 }]])
 })
 
-test('the colour clause closes the roster where the handling law applies; the normal rules close How it works where nothing is owed; each cites the account, and the zone version says none of them', () => {
+// Re-pointed 24 October 2026 (the completeness audit, item 1): the colour clause closes the roster where the colours law applies (wherever a
+// goalkeeper plays), citing LAW-4-GK; the zone version says it too, once, and none of the others. Was: where the handling law applies, and
+// the zone version said none of them.
+test('the colour clause closes the roster where the colours law applies; the normal rules close How it works where nothing is owed; each cites the account, and the zone version says the colour alone', () => {
     const { activity } = served(FA, 12, 1)
     const roster = activity.rendered.instructions.find(instruction => instruction.section === 'Players')!
     const colour = roster.parts![roster.parts!.length - 1]
-    assert.deepEqual([colour.text, colour.from], [COLOUR, [appliedLawPath(LAW), `performers.teams[].${KEEPER}`]])
+    assert.deepEqual([colour.text, colour.from], [COLOUR, [appliedLawPath(COLOUR_LAW), `performers.teams[].${KEEPER}`]])
     const how = activity.rendered.instructions.find(instruction => instruction.text === OFFSIDE_AND_NORMAL)!
     assert.deepEqual(how.parts!.map(part => [part.text, part.from]), [
         ['There is no offside', [defaultLawPath('LAW-11')]],
         ['; otherwise, normal soccer rules apply during play', [DEFAULT_LAWS_OWED]],
     ])
     assert.equal(how.section, 'How it works')
-    // The zone version owes the handling law (his item 5 keeps it open): no area, no handling words, no colour, no normal rules.
+    // The zone version owes the handling law (his item 5 keeps it open): no area, no handling words, no normal rules. Re-pointed 24 October
+    // 2026 (the completeness audit, item 1): and the colour, once, closing its roster, citing LAW-4-GK as applied (a goalkeeper plays in it,
+    // and changes team at every exchange). Was: no colour either.
     for (const [players, keepers] of [[12, 1], [12, 2], [11, 1]]) {
         const zone = zoneVersion(players, keepers)
-        const said = JSON.stringify(zone.rendered.instructions.map(instruction => [instruction.text, instruction.from]))
+        const others = zone.rendered.instructions.map(instruction => ({ ...instruction, text: instruction.text.endsWith(COLOUR) ? instruction.text.slice(0, -COLOUR.length) : instruction.text, from: instruction.from.filter(path => path !== appliedLawPath(COLOUR_LAW)) }))
+        const said = JSON.stringify(others.map(instruction => [instruction.text, instruction.from]))
         for (const absent of ['penalty area', 'handle', 'colour', 'normal soccer rules', 'defaultLaws.applied', DEFAULT_LAWS_OWED]) assert.ok(!said.includes(absent), `${players}/${keepers}: "${absent}"`)
+        const colours = zone.rendered.instructions.flatMap(instruction => (instruction.parts ?? []).filter(part => part.text.includes('colour')).map(part => [instruction.section, part.text, part.from]))
+        assert.deepEqual(colours, [['Players', COLOUR, [appliedLawPath(COLOUR_LAW), `performers.teams[].${KEEPER}`]]], `${players}/${keepers}: the colour, once`)
+        assert.equal(zone.integrity.fidelityViolations, 0, `${players}/${keepers}`)
         assert.ok(zone.rendered.instructions.some(instruction => instruction.text === 'There is no offside'), 'its offside sentence stands alone')
     }
 })
@@ -401,6 +428,8 @@ test('the account owes nothing, so the held sentence is said (DRAFT_SAID_NOTHING
     const account = activity.evidence!.defaultLaws!
     assert.deepEqual(account.owed, [])
     assert.deepEqual(account.blocks.map(block => block.laws.filter(entry => entry.law === LAW).map(entry => entry.status)), [['APPLIES'], ['APPLIES']])
+    // The completeness audit, item 1: and the goalkeeper's colours, in both blocks.
+    assert.deepEqual(account.blocks.map(block => block.laws.filter(entry => entry.law === COLOUR_LAW).map(entry => entry.status)), [['APPLIES'], ['APPLIES']])
     assert.equal(account.heldSentence!.status, 'DRAFT_SAID_NOTHING_OWED')
     assert.equal(zoneVersion(12, 1).evidence!.defaultLaws!.heldSentence!.status, 'DRAFT_HELD_NOT_SERVED', 'the zone version holds it')
     const enforced = served(FA, 12, 1, { mode: 'ENFORCE' }).activity
@@ -448,16 +477,27 @@ test('fidelity refuses: the handling clause where the law does not apply, the co
     const { fixture } = served(FA, 12, 1)
     const block = copy(fixture.roleBlocks.blocks[0].fixture)
     const rendered = renderConcreteGame(block)
-    // TEST-ONLY: the account owes the handling law. The rendering as served is refused (the clause, the colour, the normal rules), the
-    // renderer then says none of them, and the area has no relationship left (Q5).
+    // TEST-ONLY: the account owes the handling law. The rendering as served is refused (the clause, the normal rules), the renderer then
+    // says neither, and the area has no relationship left (Q5). Re-pointed 24 October 2026 (the completeness audit, item 1): the colour rests
+    // on LAW-4-GK, which still applies, so it is neither refused nor dropped (as in the zone version, which owes the handling law). Was: the
+    // colour refused and dropped with the handling.
     const owing = copy(block)
     owing.defaultLaws.laws = owing.defaultLaws.laws.map((entry: any) => (entry.law === LAW ? { ...entry, status: 'ADAPTATION_OWED' } : entry))
     const asServed = checkFidelity(owing, rendered).findings
     refused(asServed, 2, `says what ${LAW} gives the coach, and the game's default-laws account does not record ${LAW} as applying at every place`, 'owed')
     refused(asServed, 2, `says the normal rules apply, and the game's default-laws account owes an adaptation of ${LAW}`, 'owed')
     refused(asServed, 5, `a coach is instructed to mark ${REGION}, and nothing in the concrete game establishes what changes`, 'owed: no relationship')
+    assert.ok(!violations(asServed).some(finding => finding.what.includes(COLOUR_LAW) || finding.what.includes('colour')), JSON.stringify(violations(asServed).map(f => f.what)))
     const reRendered = renderConcreteGame(owing).instructions.map(i => i.text)
-    assert.ok(reRendered.includes("Mark the goal's penalty area: 15 m wide, centred on the goal, and 9 m deep into the area") && !reRendered.some(text => text.includes('handle') || text.includes('colour') || text.includes('normal soccer rules')), reRendered.join(' | '))
+    assert.ok(reRendered.includes("Mark the goal's penalty area: 15 m wide, centred on the goal, and 9 m deep into the area") && !reRendered.some(text => text.includes('handle') || text.includes('normal soccer rules')), reRendered.join(' | '))
+    assert.equal(reRendered.filter(text => text.endsWith(COLOUR)).length, 1, 'the colour still closes the roster')
+    // The completeness audit, item 1 (TEST-ONLY): the account records the colours law as not applying (a stand-in for a game holding no
+    // goalkeeper). The colour as served is refused (Q2), and the renderer says no colour.
+    const uncoloured = copy(block)
+    uncoloured.defaultLaws.laws = uncoloured.defaultLaws.laws.map((entry: any) => (entry.law === COLOUR_LAW ? { ...entry, status: 'NOT_APPLICABLE' } : entry))
+    refused(checkFidelity(uncoloured, rendered).findings, 2, `says what ${COLOUR_LAW} gives the coach, and the game's default-laws account does not record ${COLOUR_LAW} as applying at every place`, 'colours law not applying')
+    assert.ok(!renderConcreteGame(uncoloured).instructions.some(i => i.text.includes('colour')), 'no colour said where the colours law does not apply')
+    assert.deepEqual(violations(checkFidelity(uncoloured, renderConcreteGame(uncoloured)).findings).filter(f => f.what.includes('colour')), [], 'and none required')
     // As served, the area's relationship is the law (a NOTE naming it).
     assert.ok(checkFidelity(block, rendered).findings.some(f => f.question === 5 && f.severity === 'NOTE' && f.what === `${REGION} participates operationally via ${appliedLawPath(LAW)} (${LAW} applies inside it, as the game's default-laws account records)`))
     // The colour clause lost where the law applies (Q3).
@@ -466,13 +506,22 @@ test('fidelity refuses: the handling clause where the law does not apply, the co
     roster.parts = roster.parts!.filter(part => part.text !== COLOUR)
     roster.text = roster.parts.map(part => part.text).join('')
     roster.from = [...new Set(roster.parts.flatMap(part => part.from))]
-    refused(checkFidelity(block, noColour).findings, 3, `records ${LAW} as applying, and the roster sentence does not tell the coach "give the goalkeeper a colour neither team wears"`, 'colour lost')
+    // Re-pointed 24 October 2026 (the completeness audit, item 1): the law named is the colours law. Was LAW-12-GK.
+    refused(checkFidelity(block, noColour).findings, 3, `records ${COLOUR_LAW} as applying, and the roster sentence does not tell the coach "give the goalkeeper a colour neither team wears"`, 'colour lost')
+    // The completeness audit, item 1, a new clause (a tightening): the colour said twice is refused (Q2), here a second roster part saying it.
+    const twice = copy(rendered)
+    const doubled = twice.instructions.find(i => i.section === 'Players')!
+    doubled.parts = [...doubled.parts!, copy(doubled.parts![doubled.parts!.length - 1])]
+    doubled.text = doubled.parts.map(part => part.text).join('')
+    refused(checkFidelity(block, twice).findings, 2, `2 statements tell the coach "give the goalkeeper a colour neither team wears"`, 'colour said twice')
+    assert.deepEqual(violations(checkFidelity(block, rendered).findings), [], 'the block as served')
     // A part citing the law as applied that says none of its clauses.
     const wrongWords = copy(rendered)
     const said = wrongWords.instructions.find(i => i.section === 'Players')!
     said.parts![said.parts!.length - 1].text = '; give everyone bibs'
     said.text = said.parts!.map(part => part.text).join('')
-    refused(checkFidelity(block, wrongWords).findings, 2, `cites ${appliedLawPath(LAW)} and says none of the words written for ${LAW}`, 'wrong words')
+    // Re-pointed 24 October 2026 (the completeness audit, item 1): the part altered is the colour clause's, which cites LAW-4-GK. Was LAW-12-GK.
+    refused(checkFidelity(block, wrongWords).findings, 2, `cites ${appliedLawPath(COLOUR_LAW)} and says none of the words written for ${COLOUR_LAW}`, 'wrong words')
     // A law cited as applied that the data writes nothing for (LAW-8, TEST-ONLY): nothing else may cite the account.
     const stray = copy(rendered)
     stray.instructions.find(i => i.section === 'Players')!.parts![0].from.push(appliedLawPath('LAW-8'))
@@ -582,7 +631,8 @@ test('the review evidence traces each new sentence: the pairing, the law as appl
     assert.ok(how.some(source => source.ref === 'DRAFT normal-rules sentence' && source.detail === 'his reply filed 26 October 2026, item 10; his reply filed 27 October 2026, item 6'), JSON.stringify(how))
     assert.ok(how.some(source => source.ref.startsWith("the sport's normal laws as the default") && String(source.detail).includes('owes nothing')), JSON.stringify(how))
     const roster = evidence.sections.instructions.find(instruction => instruction.section === 'Players')!.sources
-    assert.ok(roster.some(source => source.ref === `DRAFT clause for ${LAW}` && String(source.detail).includes('his reply filed 27 October 2026, item 6')), JSON.stringify(roster))
+    // Re-pointed 24 October 2026 (the completeness audit, item 1): the colour clause is LAW-4-GK's. Was LAW-12-GK's.
+    assert.ok(roster.some(source => source.ref === `DRAFT clause for ${COLOUR_LAW}` && String(source.detail).includes('his reply filed 27 October 2026, item 6')), JSON.stringify(roster))
 })
 
 // ── 8. KEPT, end to end ──────────────────────────────────────────────────────────────────────────────────
@@ -603,7 +653,10 @@ test('production is unchanged: A01 at 12/1, 12/2 and 11/1 binds no region, its l
             assert.equal('rectangles' in (block.fixture.layout ?? {}), false)
             assert.equal(block.fixture.boundRegions, undefined)
         }
+        // The completeness audit, item 1: the zone version now says the colour, and its diagram still draws no goalkeeper marker - a marker is
+        // placed with the goal its performer defends (O7), and the zone version has none; no other placement is invented (a limitation).
         assert.ok(!('areas' in (zone.activity as ServedActivity).diagram!.blocks[0]) && !('keepers' in (zone.activity as ServedActivity).diagram!.blocks[0]))
+        assert.ok((zone.activity as ServedActivity).rendered.instructions.some(i => i.section === 'Players' && i.text.endsWith(COLOUR)))
     }
 })
 
