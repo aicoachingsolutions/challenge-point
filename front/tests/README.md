@@ -31,6 +31,18 @@ The A01 FA response supplies the activity, diagram and session values; the A01 r
 the goal question; the other two responses supply review options and session equipment choices.
 Activity sentences and choice labels are never invented in the tests.
 
+`fixtures/pathway-notice.json` (the live-app status notice, 25 October 2026; his reply filed 26 October 2026, item 9(a))
+feeds `pathway-notice.test.tsx`. Its `checkedResult` (the live checked activity) and `registry` (the planning
+conversation's registry) are unchanged bodies from the built-bundle regression snapshot `impl.json`, which is
+byte-identical to `Z-verify1.json` (SHA-256 in `provenance`). The generated choice (`legacyResult`) and the saved
+activities (`legacySaved`, `earlierSaved`, `checkedSaved`, `sessionList`) cannot come from that snapshot, whose stubbed
+model answers empty so every generation there is refused: they are unchanged bodies from a TEST-ONLY probe of the REAL
+router on the same built bundle whose stubbed model answers a polish for three activities. The words that polish
+supplies (title, setup, objective, coaching focus, how to play) are marked TEST-ONLY; every other field, the notice
+included, is the server's own. The checked build is stored once (`checkedResult.checkedActivity`); each other copy was
+verified deep-equal to it before it was removed, and the test puts it back. The notice's words are never written in the
+test: every assertion reads them from the body the server sent.
+
 Tests and fixtures live outside `src/` and `public/`. The production tsconfig includes only `src/`,
 and Vite's production entry does not import tests. `tsconfig.test.json` provides type-aware lint
 coverage and can be checked with `npx tsc --project tsconfig.test.json --noEmit` independently.

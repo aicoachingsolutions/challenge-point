@@ -22,6 +22,7 @@ import { camelCaseToTitleCase } from '@/utils/scary-utils'
 
 import Button from '@/components/Button'
 import Loading from '@/components/Loading'
+import PathwayNotice from '@/components/PathwayNotice'
 
 // Create options array from ChallengeLevels enum
 const challengeLevelOptions = Object.entries(ChallengeLevels).map(([text, value]) => ({
@@ -392,6 +393,8 @@ function ActivityCard({ activity, onClick }: { activity: IActivity; onClick: () 
                         {camelCaseToTitleCase(activity.activityStatus)}
                     </span>
                 </div>
+                {/* The live-app status notice (25 October 2026): its short status, as sent with an activity the checked pathway did not build. */}
+                <PathwayNotice notice={activity.pathwayNotice} compact className='mb-4' />
 
                 {/*
                   * Rendered only when there is something to read. The Coach Communication Standard

@@ -30,6 +30,10 @@
  * Stage I, 24 October 2026 (the d27 design's stage I(a)), for his reply filed 26 October 2026, item 4: the labels of the choices a coach
  * states a session's objects by (`objectChoices`, keyed by a kind the register's sessionResources block lists), read only by
  * `session-object-choices.ts` (the session's question on the session form, the review page and the live page); no activity text says them.
+ *
+ * The live-app status notice, 25 October 2026, for his reply filed 26 October 2026, item 9(a): the status and notice a coach reads beside an
+ * activity the checked pathway did not build (`notCheckedNotice`), read only by `live-activity.ts`, which serves it by the pathway; no
+ * activity text says it and fidelity does not read it.
  */
 import fs from 'node:fs'
 import path from 'node:path'
@@ -309,7 +313,24 @@ export interface AdjustmentLimitsWording {
     basis: WordingBasis
 }
 
+/**
+ * **The status a coach reads beside an activity the checked pathway did not build** — the live-app status notice, 25 October 2026.
+ * Christian, reply filed 26 October 2026, item 9(a): *"The live application should use checked generation whenever an activity has an
+ * evaluated, knowledge-authorized design."* *"Other Learning Goals may continue through their existing pathway during this transitional
+ * period, provided their status and limitations are not misrepresented."* `label` is the short status (shown where activities are listed),
+ * `words` the notice beside the activity, saying what it is and what it is not; neither holds a slot. Read by no renderer and no fidelity
+ * check: `live-activity.ts` serves it by the pathway (the generate response, every read of a stored activity not recorded as built by the
+ * checked chain), and the front shows it as data.
+ */
+export interface NotCheckedNoticeWording {
+    label: string
+    words: string
+    basis: WordingBasis
+}
+
 export interface DraftCoachWording {
+    /** The live-app status notice: the status and notice beside an activity the checked pathway did not build, or null where the file carries none. */
+    notCheckedNotice: NotCheckedNoticeWording | null
     /** P2: the words for how far a moved line may go, or null where the file carries none. */
     adjustmentLimits: AdjustmentLimitsWording | null
     /** P1: the words for how a restart is taken by a method, by method (empty where the file carries none). */
@@ -346,8 +367,9 @@ export interface DraftCoachWordingLoad {
 }
 
 const filled = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0
-const FILE_KEYS = new Set(['about', 'status', 'entryShape', 'objectKinds', 'facings', 'scoringAtObjects', 'normalLaws', 'triggers', 'deadBallRestart', 'restartLawNouns', 'departedLaws', 'boundRegions', 'appliedLaws', 'objectChoices', 'methods', 'equipment', 'adjustmentLimits'])
+const FILE_KEYS = new Set(['about', 'status', 'entryShape', 'objectKinds', 'facings', 'scoringAtObjects', 'normalLaws', 'triggers', 'deadBallRestart', 'restartLawNouns', 'departedLaws', 'boundRegions', 'appliedLaws', 'objectChoices', 'methods', 'equipment', 'adjustmentLimits', 'notCheckedNotice'])
 const ADJUSTMENT_LIMIT_KEYS = new Set(['nearest', 'farthest', 'both', 'outside', 'basis'])
+const NOT_CHECKED_NOTICE_KEYS = new Set(['label', 'words', 'basis'])
 const METHOD_KEYS = new Set(['method', 'phrase', 'basis'])
 const EQUIPMENT_KEYS = new Set(['parts', 'states', 'when', 'basis'])
 const OBJECT_CHOICE_KEYS = new Set(['kind', 'authorized', 'attributeValues', 'other', 'none'])
@@ -745,10 +767,24 @@ export function draftCoachWordingUnusableBecause(file: any, index: RegisterIndex
         const basis = basisUnusableBecause(entry.basis)
         if (basis) return `its adjustmentLimits entry: ${basis}`
     }
+    /**
+     * The live-app status notice (25 October 2026), for his reply filed 26 October 2026, item 9(a): the status and the notice beside an activity
+     * the checked pathway did not build - an object of exactly its label, its words and his words, the label and the words each filled and
+     * holding no slot and no stray brace (nothing is filled into them: they are said whole wherever they are said).
+     */
+    if (file.notCheckedNotice !== undefined) {
+        const entry = file.notCheckedNotice
+        if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return 'its notCheckedNotice entry is not an object'
+        for (const key of Object.keys(entry)) if (!NOT_CHECKED_NOTICE_KEYS.has(key)) return `its notCheckedNotice entry carries "${key}"`
+        if (!slotsExactly(entry.label, [])) return 'its notCheckedNotice label is missing or holds a slot or a stray brace'
+        if (!slotsExactly(entry.words, [])) return 'its notCheckedNotice words are missing or hold a slot or a stray brace'
+        const basis = basisUnusableBecause(entry.basis)
+        if (basis) return `its notCheckedNotice entry: ${basis}`
+    }
     return null
 }
 
-const EMPTY: DraftCoachWording = { adjustmentLimits: null, methods: [], equipment: [], objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [], boundRegions: [], endRegions: [], appliedLaws: [], objectChoices: [] }
+const EMPTY: DraftCoachWording = { notCheckedNotice: null, adjustmentLimits: null, methods: [], equipment: [], objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [], boundRegions: [], endRegions: [], appliedLaws: [], objectChoices: [] }
 
 /** The wording from a parsed file, copied, or none with why. */
 export function draftCoachWordingLoadOf(file: any, index: RegisterIndex, laws: DefaultLaws | null = loadSportDefaultLaws()): DraftCoachWordingLoad {
@@ -756,6 +792,7 @@ export function draftCoachWordingLoadOf(file: any, index: RegisterIndex, laws: D
     if (why) return { wording: JSON.parse(JSON.stringify(EMPTY)), why: `${DRAFT_COACH_WORDING_SOURCE} cannot be used: ${why}` }
     return {
         wording: {
+            notCheckedNotice: file.notCheckedNotice === undefined ? null : JSON.parse(JSON.stringify(file.notCheckedNotice)),
             adjustmentLimits: file.adjustmentLimits === undefined ? null : JSON.parse(JSON.stringify(file.adjustmentLimits)),
             methods: file.methods === undefined ? [] : JSON.parse(JSON.stringify(file.methods)),
             equipment: file.equipment === undefined ? [] : JSON.parse(JSON.stringify(file.equipment)),
@@ -846,6 +883,11 @@ export function normalLawsWording(wording: DraftCoachWording = draftCoachWording
 /** The DRAFT phrase for how a restart taken by this method is said, or null where none is written (P1). */
 export function methodWording(method: unknown, wording: DraftCoachWording = draftCoachWordingLoad().wording): MethodWording | null {
     return wording.methods.find(entry => entry.method === method) ?? null
+}
+
+/** The DRAFT status and notice beside an activity the checked pathway did not build, or null where none are written (the live-app status notice). */
+export function notCheckedNoticeWording(wording: DraftCoachWording = draftCoachWordingLoad().wording): NotCheckedNoticeWording | null {
+    return wording.notCheckedNotice ? (JSON.parse(JSON.stringify(wording.notCheckedNotice)) as NotCheckedNoticeWording) : null
 }
 
 /** The DRAFT words for how far a moved line may go, or null where none are written (P2). */

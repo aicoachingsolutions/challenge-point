@@ -30,7 +30,7 @@ import Logger from '../logger'
 import LoggingService from '../services/logging.service'
 import { deriveInputConstraints } from '../system/input-constraints/deriveInputConstraints'
 import { ActivityReviewRequestError, activityReviewOptions, reviewActivity } from '../system/rendering/activity-review'
-import { CHECKED_CHAIN, CHECKED_PATHWAY_FAILURE_STAGE, CheckedSaveRequestError, checkedSave, editableUpdateOf, liveCheckedActivity, livePathwayOf, liveRefusalBody, planningInputUse, unconsumedInputsNote } from '../system/rendering/live-activity'
+import { CHECKED_CHAIN, CHECKED_PATHWAY_FAILURE_STAGE, CheckedSaveRequestError, checkedSave, editableUpdateOf, liveCheckedActivity, livePathwayOf, liveRefusalBody, notCheckedNotice, planningInputUse, unconsumedInputsNote, withPathwayNotice } from '../system/rendering/live-activity'
 import { UnknownActivityRequest } from '../system/rendering/build-activity'
 import { buildPilotActivity, isPilotRefused } from '../system/rendering/build-pilot-activity'
 import { sessionObjectChoices } from '../system/rendering/session-object-choices'
@@ -1345,6 +1345,13 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
         // stays silent — Quiet Assistance means a notice must be able to change the coach's next
         // decision, and "I understood you exactly" cannot.
         const resolutionNotice = buildResolutionNotice(selection.resolution.status)
+        /**
+         * **Every activity this route generates is said to be unchecked** — the live-app status notice, 25 October 2026. Christian, reply
+         * filed 26 October 2026, item 9(a): *"Other Learning Goals may continue through their existing pathway during this transitional
+         * period, provided their status and limitations are not misrepresented."* Served whole, for the choice as a whole, from the wording
+         * data (`notCheckedNotice`, DRAFT); decided by the pathway, never by a goal: only the checked pathway above returns without it.
+         */
+        const pathwayNotice = notCheckedNotice()
 
         if (debug && debugTrace) {
             debugTrace.validation = { aiStagePass: true, failureStage: null, failureReason: null }
@@ -1353,6 +1360,7 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                 debugTrace,
                 resolutionStatus: selection.resolution.status,
                 ...(resolutionNotice ? { notice: resolutionNotice } : {}),
+                ...(pathwayNotice ? { pathwayNotice } : {}),
             })
         }
         // Wrapped object rather than a bare array so the notice has somewhere to live. The client
@@ -1361,6 +1369,7 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
             activities: compressedActivities,
             resolutionStatus: selection.resolution.status,
             ...(resolutionNotice ? { notice: resolutionNotice } : {}),
+            ...(pathwayNotice ? { pathwayNotice } : {}),
         })
     } catch (error) {
         // An unexpected failure of the checked pathway is its own, never the generation route's model stage (stage A re-review).
@@ -1513,6 +1522,17 @@ router.get(ROUTES.sessionPlanning, async (_req: Request, res: Response) => {
     }
 })
 
+/**
+ * **A stored activity as every read serves it** — the live-app status notice, 25 October 2026 (his reply filed 26 October 2026, item 9(a):
+ * *"provided their status and limitations are not misrepresented"*): the document as it was always sent, with the DRAFT notice beside it
+ * wherever its recorded pathway is not the checked one (`withPathwayNotice`), so a coach who opens or lists a saved activity later is told
+ * what it is. The stored document is not changed.
+ */
+const servedActivity = (activity: unknown): Record<string, unknown> => {
+    const document = activity as { toJSON?: () => Record<string, unknown> } | null
+    return withPathwayNotice(typeof document?.toJSON === 'function' ? document.toJSON() : { ...(activity as Record<string, unknown>) })
+}
+
 router.get(`${ROUTES.activity}/my-activities`, async (req: Request, res: Response) => {
     try {
         const userSessions = await Session.find({ createdBy: res.locals.sessionUser })
@@ -1521,7 +1541,7 @@ router.get(`${ROUTES.activity}/my-activities`, async (req: Request, res: Respons
             session: { $in: userSessions.map((session) => session._id) },
         }).populate('session')
 
-        return res.status(200).send(activities)
+        return res.status(200).send(activities.map(servedActivity))
     } catch (error) {
         return res.status(500).send({ error })
     }
@@ -1531,7 +1551,7 @@ router.get(`${ROUTES.activity}/session/:id`, async (req: Request, res: Response)
     try {
         const activities = await Activity.find({ session: req.params.id })
 
-        return res.status(200).send(activities)
+        return res.status(200).send(activities.map(servedActivity))
     } catch (error) {
         return res.status(500).send({ error })
     }
@@ -1763,6 +1783,8 @@ BaseRoutes(router, {
     route: ROUTES.activity,
     excludedRoutes: ['delete', 'post'],
     populate: ['session'],
+    // The live-app status notice (25 October 2026): the activity page reads a saved activity here, so it carries the notice by its pathway.
+    transform: withPathwayNotice,
 })
 
 // AffordanceConstraint routes

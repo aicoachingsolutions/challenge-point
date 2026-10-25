@@ -132,5 +132,6 @@
     "./src/system/rendering/goal-version-switch.unit.ts",
     "./src/system/rendering/oct28-refinements.unit.ts",
     "./src/system/rendering/zone-penalty-area.unit.ts",
-    "./src/system/rendering/geometry-compatibility.unit.ts"
+    "./src/system/rendering/geometry-compatibility.unit.ts",
+    "./src/system/rendering/pathway-notice.unit.ts"
 ]
