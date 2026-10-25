@@ -9236,3 +9236,40 @@ Open: the penalty area overlaps the pressing team's 5 m target zone at the build
 are unchanged, but whether the goalkeeper's handling there changes the pressing team's regains is a design judgment for him. Block-by-
 block marking (a line moved at the exchange) is refused at communication in the zone version when the area must move with the
 goalkeeper (TEST-ONLY copies only; no production configuration does this). The 9 m depth stays provisional (item 8).
+
+### 25 October — Z, review round 1: the zone diagram's targets kept whole, the label on the block's own area, the team words fitted
+
+Fixes the Z review's must-fix and its cheap should-fixes. Scoring, eligibility, knowledge items and every approved sentence are unchanged.
+- Occlusion (must-fix; RC3 1.2 "misrepresent nothing", 8.3 "Each block's view emphasizes its active scoring objectives over other marked
+  zones"). Since Z both penalty areas of the zone version lie on active target zones in both blocks: the pressing team's 5 m end zone at
+  one end, the building team's zone at the other. `FieldDiagram.tsx` drew the areas' opaque grey fill over the targets. It now draws each
+  area's fill FIRST, then the targets (fill and green edge, whole), then the areas' grey edges with the other markings. An area on a target
+  shows as its grey edge on the green (3.99:1). The Stage L comment's "the two never overlap" carries a dated AMENDED line. Where any area
+  lies on a target, the legend's swatch shows the area both ways (half grey, half green, in its grey edge); otherwise it is as before.
+- Label (should-fix; RC3 8.3 "carries no label about another block"; his item 11). `labelledRectangleOf` (`field-diagram.ts`) now labels a
+  region set out at each end on the rectangle THIS block's own game holds it in. That is the building team's end, where its goalkeeper
+  handles. It was the first rectangle in every block, which in block 2 labelled the inert area. D6 holds it per block. D3 compares the
+  markings set out once without the areas' labels (each block labels its own); every place, line, zone and other word is still compared.
+  Dated AMENDED comments. The goal version (one rectangle in both blocks) is unchanged.
+- Crowding (should-fix; RC3 8.4). A team's words now keep `WORDS.gap` clear of marked zones, marked areas, zone labels and their own dashed
+  starting area. Widths are measured in the page's font where the browser can (OffscreenCanvas) and estimated in tests. The role badge is as
+  wide as its words. Where the words do not fit: upright, every badge sits beside its label; lying down, every team's words shrink alike
+  (never below 0.8), and a count wraps only if still too wide. Zone labels have a target-green halo. No word changes.
+- Spelling (should-fix): the zone version's DRAFT equipment sentence is spelled as his approved goal-version sentence ("two team colors
+  plus a distinct goalkeeper color"), with its distinguishing words. The old text is kept in a dated AMENDED line in the wording file's
+  `about`. It is still DRAFT. Tests that looked for 'colour' alone now look for either spelling.
+Evidence: `npm test` FILES 134 FAILED 0 (`zone-penalty-area.unit.ts` gains the label per block and a TEST-ONLY mutation test: the label on
+the other block's area, no label, a label on both, an area moved in one block, each refused). Snapshot `Z-fix1.json` vs `P2-impl.json`:
+34 of 391 keys, all A01. Against `Z-impl.json`: 15 keys, all A01 zone-version twins (`objects-none`, `objects-one`, `answered-none`,
+`IFAB-LAW-1`): block 2's two area labels swap, and the equipment sentence's spelling changes. The goal version (FA 5v5), the demos and every
+other goal are unchanged. Live equals review for all 10 twins. Front: 23 tests (5 new, on the new
+`fixtures/zone-diagram.json`: render order and geometry, the legend swatch, the team words clear of the areas, in both orientations; all
+five fail on the Z diagram), tsc (prod and test), build; lint 891 (backlog 901; the changed files at their baseline of 29 max-len
+warnings). Screenshots `scratchpad/cd/build/zf-shots/` (both versions, both blocks, 375 and 1280, and the zone Coach Details at 375). The
+harness found no occlusion, no crowding and no text overlap in any of the eight diagram views.
+Open: (1) the moved line toward the far end: with an area at each end, a line moved more than 31 m from the building team's end line lies
+inside the other end's (inert) penalty area. A01-R1-S5-6's fitNote records this as unvalidated, and ADJ-3 states no far-side limit. Whether
+that is incompatible geometry under his item 2 is his question; it is put to him, and nothing is added. (2) The zone diagram still draws
+no goalkeeper marker and has no "goalkeeper: own colour" legend entry. A marker is placed with the goal its performer defends, and the
+zone version has none. Placing one in the area bound to the goalkeeper's end would be a new placement rule (model keys, D2 checks, the
+front), so it is deferred, not done here.

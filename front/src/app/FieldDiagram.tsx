@@ -45,12 +45,28 @@
  * object, the goal version's penalty area) is drawn grey, never in the target green: a #e5e7eb fill (1.18:1 on the area, so never the only
  * carrier; 1.02:1 against the target fill by luminance but 12.7 or more apart in Lab under every colour-vision simulation, and the two never
  * overlap) with the markings' grey edge #6b7280 (4.63:1 on the area, 3.90:1 on the fill), and the server's label in #374151 (8.33:1 on the
- * fill), set inside it along the edge that is on no end line. A specialized performer's marker is a pill in a third colour, a #fde047 fill
+ * fill), set inside it along the edge that is on no end line. AMENDED 25 October 2026 (the Z review, round 1): "the two never overlap" is no
+ * longer true. Since Z a penalty area is marked at each end of the zone version, and each lies partly or wholly inside an active target
+ * zone in both blocks (the pressing team's 5 m end zone at one end, the building team's zone at the other). An active target is never
+ * hidden (RC3 1.2: the diagram must "misrepresent nothing"; 8.3: "Each block's view emphasizes its active scoring objectives over other
+ * marked zones"). So each area's grey fill is drawn first, under the targets. Where an area lies on a target it shows as its grey edge on the
+ * target green (3.99:1 there), and the target's fill and green edge stay whole. Its edge is drawn with the other markings, over the
+ * targets, as every marking is. Where any area lies on a target, the legend's swatch shows the area both ways: half grey, half green,
+ * inside the grey edge. A specialized performer's marker is a pill in a third colour, a #fde047 fill
  * with a #854d0e edge (6.56:1 on the area, 6.85:1 on white) and #1f2937 text (11.14:1 on the fill), drawn with the object it defends, just
  * inside the area in front of it (never as a player's position: it is where the object is, in every block, whichever team the performer is
  * with). Its fill is apart from both team colours by hue and by lightness (luminance 5.08:1 against the blue and 5.54:1 against the orange;
  * under protanopia, deuteranopia and tritanopia, Machado 2009, at least 3.87:1 and 57 apart in Lab), so colour is never the only carrier:
  * the pill says the performer in words, and the legend says "own colour". Measured by the stage's contrast script (l-contrast.js).
+ *
+ * A team's words fit their free space (the Z review, round 1, 25 October 2026; RC3 8.4: "Hatching, overlapping labels and competing elements
+ * are minimized."). A team's words are its label, role badge and counts. They sit in the part of its starting area that no marked zone,
+ * marked area or zone label takes along the length. They keep WORDS.gap clear of each of those and of their own dashed starting area. Lying
+ * down, that free part limits how wide the words are (measured in the page's own font where the browser can); upright, how tall. The role
+ * badge is as wide as its measured words. Where the words do not fit, every team's words in the block shrink
+ * alike, no further than WORDS.minScale. Where they still do not fit, lying down a count wraps at a space, and upright the role badge sits
+ * beside the label. A zone label has a halo in the target green, so a marking under it never runs through its letters. No word is changed,
+ * dropped or moved off its team.
  *
  * Landscape at 520 px of container width and over, portrait below it (the area turned upright, its first end line at the bottom). Every
  * SVG id is prefixed by React's useId, so several diagrams on one page never share an arrowhead or a title. NO NUMBER, POSITION OR WORD OF
@@ -108,8 +124,62 @@ const SIZES = {
 
 type Orientation = keyof typeof SIZES
 
+/**
+ * The Z review, round 1 (25 October 2026): a team's words keep `gap` (viewBox units) clear of every marked zone, marked area and zone label
+ * along the length, and of their dashed starting area; where they do not fit their free part they shrink, no further than `minScale`.
+ * Presentation only.
+ */
+const WORDS = { gap: 4, minScale: 0.8 }
+
 const teamColour = (identity: number) => STYLE.teams[identity % STYLE.teams.length]
 const textWidth = (text: string, size: number) => text.length * size * 0.55
+/**
+ * The Z review, round 1: a team's words' width in viewBox units at `size` and `weight`, measured in the page's own font where the browser
+ * can (an OffscreenCanvas), so that words are shrunk or wrapped only where they truly do not fit; elsewhere (a test environment) the
+ * estimate textWidth, which is generous.
+ */
+let measurer: OffscreenCanvasRenderingContext2D | null | undefined
+const measuredWidth = (text: string, size: number, weight: number) => {
+    if (measurer === undefined) {
+        try {
+            measurer = typeof OffscreenCanvas === 'undefined' ? null : new OffscreenCanvas(1, 1).getContext('2d')
+        } catch {
+            measurer = null
+        }
+    }
+    if (!measurer) return textWidth(text, size)
+    measurer.font = `${weight} ${size}px ${STYLE.font}`
+    return measurer.measureText(text).width
+}
+/** Whether two intervals share more than an edge. */
+const overlapping = (a: DiagramInterval, b: DiagramInterval) => a.from < b.to && b.from < a.to
+/** A line of words wrapped at its spaces to `width` (viewBox units), as `widthOf` measures; a word wider than `width` keeps a line of its own. */
+const wrapped = (line: string, width: number, widthOf: (text: string) => number): string[] => {
+    const out: string[] = []
+    for (const word of line.split(' ')) {
+        const last = out.length ? out[out.length - 1] : null
+        if (last !== null && widthOf(`${last} ${word}`) <= width) out[out.length - 1] = `${last} ${word}`
+        else out.push(word)
+    }
+    return out
+}
+
+/** How one team's words are laid out: the scale, whether the role badge sits beside the label (upright only), the count lines, the sizes. */
+interface WordsLayout {
+    k: number
+    beside: boolean
+    lines: string[]
+    labelSize: number
+    smallSize: number
+    badgeH: number
+    badgeW: number
+    lineGap: number
+    wordW: number
+    /** The widest of the label row and the count lines. */
+    widest: number
+    /** The height of the words, and lying down the arrow's row beneath them. */
+    total: number
+}
 
 export default function FieldDiagram({ diagram }: { diagram: CoachDiagram }) {
     const uid = `fd${useId().replace(/[^A-Za-z0-9_-]/g, '')}`
@@ -221,7 +291,9 @@ function BlockDrawing({ diagram, block, orientation, uid }: { diagram: CoachDiag
             const inward = target.along.from === 0 ? -1 : 1
             const depth = target.along.to - target.along.from
             const offsetM = Math.min(depth / 2, size.zoneOffset / S)
-            const stripM = Math.min(depth, (size.zoneOffset + size.tiny + 6) / S)
+            // The strip the label takes along the length, to the far side of its line box (0.65 of its size from its middle, as drawn), the
+            // Z review, round 1; a team's words keep WORDS.gap from it. Was: (zoneOffset + tiny + 6) / S, a margin of its own.
+            const stripM = Math.min(depth, offsetM + (size.tiny * 0.65) / S)
             return { target, entry, inward, offsetM, strip: inward > 0 ? { from: entry, to: entry + stripM } : { from: entry - stripM, to: entry } }
         })
 
@@ -238,18 +310,75 @@ function BlockDrawing({ diagram, block, orientation, uid }: { diagram: CoachDiag
             return { area, entry, inward, offsetM }
         })
 
-    // Each team's words, centred in the part of its starting area that no marked zone, marked area and no zone label takes.
+    /**
+     * Each team's words, centred in the part of its starting area that no marked zone, marked area and no zone label takes. Since the Z review,
+     * round 1, they keep WORDS.gap clear of each of those and of the team's own dashed starting area (drawn size.inset inside it).
+     */
+    const gapM = WORDS.gap / S
+    const insetM = (size.inset + WORDS.gap) / S
     const teamPlaces = block.teams.map((team, index) => {
         if (!team.start || !(team.noun || team.label)) return { team, index, place: null }
-        let { from, to } = team.start.along
+        const inside = { from: team.start.along.from + insetM, to: team.start.along.to - insetM }
+        let { from, to } = inside
         const takers = [...block.zones.map((zone) => zone.along), ...areas.map((area) => area.along), ...zoneLabels.map((label) => label.strip)]
-        for (const span of takers) {
+        for (const taken of takers) {
+            const span = { from: taken.from - gapM, to: taken.to + gapM }
             if (span.from <= from && span.to >= to) continue
             if (span.from <= from && span.to > from) from = span.to
             if (span.to >= to && span.from < to) to = span.from
         }
-        if (to <= from) ({ from, to } = team.start.along)
-        return { team, index, place: { from, to, across: (team.start.across.from + team.start.across.to) / 2 } }
+        if (to <= from) ({ from, to } = inside)
+        const acrossRoom = (team.start.across.to - team.start.across.from) * S - 2 * size.inset
+        return { team, index, place: { from, to, across: (team.start.across.from + team.start.across.to) / 2, acrossRoom } }
+    })
+
+    /**
+     * The Z review, round 1: each team's words laid out at a scale `k`. Lying down the words are as wide as their widest line; upright, as tall
+     * as their rows. `wrapTo` wraps each count at its spaces to that width; `beside` sets the role badge beside the label (upright, where the
+     * row and the arrow beside it fit across the starting area). Lying down, the arrow's row beneath the words keeps its size, as its arrowhead
+     * does (`arrowRow`).
+     */
+    const arrowRow = size.small + 4
+    const layoutAt =(team: (typeof block.teams)[number], k: number, wrapTo: number | null, beside: boolean, acrossRoom: number): WordsLayout => {
+        const word = team.label ?? team.noun ?? ''
+        const role = team.label && team.noun ? team.noun : null
+        const labelSize = size.label * k
+        const smallSize = size.small * k
+        const badgeH = smallSize + 7 * k
+        const badgeW = role ? measuredWidth(role, smallSize, 600) + 14 * k : 0
+        const lineGap = smallSize + 4 * k
+        const countWidth = (text: string) => measuredWidth(text, smallSize, 400)
+        const lines = wrapTo === null ? team.counts : team.counts.flatMap((line) => wrapped(line, wrapTo, countWidth))
+        const wordW = measuredWidth(word, labelSize, 700)
+        const rowW = wordW + 8 * k + badgeW
+        const placed = beside && !!role && rowW + 34 <= acrossRoom
+        const countsW = lines.map(countWidth)
+        const widest = Math.max(placed ? rowW : Math.max(wordW, badgeW), ...countsW)
+        const total = placed
+            ? Math.max(labelSize, badgeH) + lines.length * lineGap + 0.25 * smallSize
+            : labelSize + 4 * k + (role ? badgeH + 6 * k : 0) + lines.length * lineGap + (landscape ? arrowRow : 0)
+        return { k, beside: placed, lines, labelSize, smallSize, badgeH, badgeW, lineGap, wordW, widest, total }
+    }
+    const extentOf = (layout: WordsLayout) => (landscape ? layout.widest : layout.total)
+    const roomOf = (place: { from: number; to: number }) => (place.to - place.from) * S
+    /**
+     * Every team's words in the block alike: as drawn before wherever all of them fit. Otherwise, upright, every team's role badge sits beside
+     * its label; lying down, every team's words shrink. Either way at one scale, the smallest any team needs, never below WORDS.minScale; lying
+     * down, a team whose words are still too wide has its counts wrapped at that scale.
+     */
+    const placed = teamPlaces.filter((entry): entry is typeof entry & { place: NonNullable<typeof entry.place> } => !!entry.place)
+    const allFit = placed.every(({ team, place }) => extentOf(layoutAt(team, 1, null, false, place.acrossRoom)) <= roomOf(place))
+    const wordsScale = allFit
+        ? 1
+        : Math.max(
+              WORDS.minScale,
+              Math.min(1, ...placed.map(({ team, place }) => roomOf(place) / extentOf(layoutAt(team, 1, null, !landscape, place.acrossRoom)))),
+          )
+    const layouts = teamPlaces.map(({ team, place }) => {
+        if (!place) return null
+        if (allFit || !landscape) return layoutAt(team, wordsScale, null, !allFit, place.acrossRoom)
+        const plain = layoutAt(team, wordsScale, null, false, place.acrossRoom)
+        return extentOf(plain) <= roomOf(place) ? plain : layoutAt(team, wordsScale, roomOf(place), false, place.acrossRoom)
     })
 
     const rails = block.dimensions.filter((d) => d.kind === 'ZONE_DEPTH' || d.kind === 'LINE_OFFSET')
@@ -281,8 +410,15 @@ function BlockDrawing({ diagram, block, orientation, uid }: { diagram: CoachDiag
                 </marker>
             </defs>
 
-            {/* 1. The area. 2. The active target zones: one look, whichever team attacks them: the green fill and a green edge just inside. */}
+            {/*
+              * 1. The area. Stage L: each marked area's grey fill (never the target green), under the markings; since the Z review, round 1,
+              * also under the active targets, so that an area lying on a target never hides any of it (it shows there as its grey edge).
+              */}
             <rect {...pitch} fill={STYLE.area} />
+            {areas.map((area, index) => (
+                <rect key={`area-fill-${index}`} {...rect(area.along, area.across)} fill={STYLE.areaFill} />
+            ))}
+            {/* 2. The active target zones: one look, whichever team attacks them: the green fill and a green edge just inside. */}
             {block.targets
                 .filter((target) => !target.line)
                 .map((target, index) => (
@@ -291,11 +427,6 @@ function BlockDrawing({ diagram, block, orientation, uid }: { diagram: CoachDiag
                         <rect {...rect(target.along, target.across, TARGET_EDGE.inset)} fill='none' stroke={STYLE.targetLine} strokeWidth={TARGET_EDGE.width} />
                     </g>
                 ))}
-
-            {/* Stage L: each marked area's grey fill (never the target green), under the markings. */}
-            {areas.map((area, index) => (
-                <rect key={`area-fill-${index}`} {...rect(area.along, area.across)} fill={STYLE.areaFill} />
-            ))}
 
             {/* 3. The markings, the same in every block where they are set out once: zone and area outlines and lines; the marked line bold. */}
             {block.zones.map((zone, index) => (
@@ -356,7 +487,10 @@ function BlockDrawing({ diagram, block, orientation, uid }: { diagram: CoachDiag
                 ) : null
             )}
 
-            {/* 5. Each active target zone's label, in neutral text: lying down it runs along the entry edge; upright, across it. */}
+            {/*
+              * 5. Each active target zone's label, in neutral text: lying down it runs along the entry edge; upright, across it. Since the Z
+              * review, round 1, with a halo in the target green, so a marking under it (an area's edge) never runs through its letters.
+              */}
             {zoneLabels.map(({ target, entry, inward, offsetM }, index) => {
                 const [x, y] = P(entry + inward * offsetM, (target.across.from + target.across.to) / 2)
                 return (
@@ -367,6 +501,10 @@ function BlockDrawing({ diagram, block, orientation, uid }: { diagram: CoachDiag
                         fontSize={size.tiny}
                         fontWeight={600}
                         fill={STYLE.zoneText}
+                        stroke={STYLE.targetFill}
+                        strokeWidth={3}
+                        strokeLinejoin='round'
+                        paintOrder='stroke'
                         textAnchor='middle'
                         dominantBaseline='central'
                         transform={landscape ? `rotate(-90 ${x} ${y})` : undefined}
@@ -458,13 +596,12 @@ function BlockDrawing({ diagram, block, orientation, uid }: { diagram: CoachDiag
                 const marker = `url(#${uid}-arrow-${team.identity})`
                 const word = team.label ?? team.noun
                 const role = team.label && team.noun ? team.noun : null
-                const badgeH = size.small + 7
-                const badgeW = role ? textWidth(role, size.small) + 14 : 0
-                const badge = (x: number, top: number) =>
+                // The role badge, centred on x from top, at the sizes of its layout (the Z review, round 1: scaled with the words).
+                const badge = (x: number, top: number, fontSize = size.small, h = size.small + 7, w = role ? textWidth(role, size.small) + 14 : 0) =>
                     role ? (
                         <g>
-                            <rect x={x - badgeW / 2} y={top} width={badgeW} height={badgeH} rx={badgeH / 2} fill={STYLE.badgeFill} stroke={STYLE.badgeEdge} strokeWidth={1} />
-                            <text x={x} y={top + badgeH / 2} fontSize={size.small} fontWeight={600} fill={STYLE.badgeText} textAnchor='middle' dominantBaseline='central'>
+                            <rect x={x - w / 2} y={top} width={w} height={h} rx={h / 2} fill={STYLE.badgeFill} stroke={STYLE.badgeEdge} strokeWidth={1} />
+                            <text x={x} y={top + h / 2} fontSize={fontSize} fontWeight={600} fill={STYLE.badgeText} textAnchor='middle' dominantBaseline='central'>
                                 {role}
                             </text>
                         </g>
@@ -492,39 +629,48 @@ function BlockDrawing({ diagram, block, orientation, uid }: { diagram: CoachDiag
                         </g>
                     )
                 }
+                const layout = layouts[index]!
+                const { k, lines, labelSize, smallSize, badgeH, badgeW, lineGap } = layout
                 const midA = (place.from + place.to) / 2
                 const [cx, cy] = P(midA, place.across)
-                const lines = team.counts
-                const lineGap = size.small + 4
-                const roleRow = role ? badgeH + 6 : 0
-                // The words (and, lying down, the arrow's row beneath them) centred on the free part's middle.
-                const total = size.label + 4 + roleRow + lines.length * lineGap + (landscape ? lineGap : 0)
-                const firstY = cy - total / 2 + size.label * 0.85
-                const countsTop = firstY + 4 + roleRow
+                // The words (and, lying down, the arrow's row beneath them) centred on the free part's middle, at their layout's sizes.
+                const top = cy - layout.total / 2
+                // Stacked: the label, the badge under it, the counts. Beside (upright, where stacked does not fit): the label and badge on one row.
+                const rowH = Math.max(labelSize, badgeH)
+                const firstY = layout.beside ? top + rowH / 2 : top + labelSize * 0.85
+                const countsTop = layout.beside ? top + rowH : firstY + 4 * k + (role ? badgeH + 6 * k : 0)
+                const rowLeft = cx - (layout.wordW + 8 * k + badgeW) / 2
                 const arrow = (() => {
                     if (team.attacks.length !== 1) return null
                     const dir = team.attacks[0] > midA ? 1 : -1
                     const halfM = Math.min((place.to - place.from) * 0.28, (size.zoneOffset * 3) / S)
                     if (landscape) {
-                        const y = countsTop + lines.length * lineGap + lineGap * 0.7
+                        const y = countsTop + lines.length * lineGap + arrowRow * 0.7
                         const [x1] = P(midA - dir * halfM, 0)
                         const [x2] = P(midA + dir * halfM, 0)
                         return <line x1={x1} y1={y} x2={x2} y2={y} stroke={colour} strokeWidth={size.arrow} markerEnd={marker} />
                     }
-                    const widest = Math.max(textWidth(word ?? '', size.label), badgeW, ...lines.map((line) => textWidth(line, size.small)))
-                    const x = cx + widest / 2 + 14
+                    const x = cx + layout.widest / 2 + 14
                     const [, y1] = P(midA - dir * halfM, 0)
                     const [, y2] = P(midA + dir * halfM, 0)
                     return <line x1={x} y1={y1} x2={x} y2={y2} stroke={colour} strokeWidth={size.arrow} markerEnd={marker} />
                 })()
                 return (
                     <g key={`team-${index}`} fill={colour}>
-                        <text x={cx} y={firstY} fontSize={size.label} fontWeight={700} textAnchor='middle'>
-                            {word}
-                        </text>
-                        {badge(cx, firstY + 6)}
+                        {layout.beside ? (
+                            <text x={rowLeft} y={firstY} fontSize={labelSize} fontWeight={700} textAnchor='start' dominantBaseline='central'>
+                                {word}
+                            </text>
+                        ) : (
+                            <text x={cx} y={firstY} fontSize={labelSize} fontWeight={700} textAnchor='middle'>
+                                {word}
+                            </text>
+                        )}
+                        {layout.beside
+                            ? badge(rowLeft + layout.wordW + 8 * k + badgeW / 2, firstY - badgeH / 2, smallSize, badgeH, badgeW)
+                            : badge(cx, firstY + 6 * k, smallSize, badgeH, badgeW)}
                         {lines.map((line, n) => (
-                            <text key={n} x={cx} y={countsTop + (n + 1) * lineGap} fontSize={size.small} textAnchor='middle'>
+                            <text key={n} x={cx} y={countsTop + (n + 1) * lineGap} fontSize={smallSize} textAnchor='middle'>
                                 {line}
                             </text>
                         ))}
@@ -613,6 +759,10 @@ function Legend({ diagram }: { diagram: CoachDiagram }) {
     if (!diagram.legend.length && !diagram.counts.length) return null
     // Stage C2: the teams' colours, one square each, in the order of their places.
     const identities = [...new Set(diagram.blocks.flatMap((block) => block.teams.map((team) => team.identity)))].sort((a, b) => a - b)
+    // The Z review, round 1: whether a marked area lies on an active target zone in some block (drawn there as its grey edge on the green).
+    const onTarget = (block: CoachDiagramBlock, area: { along: DiagramInterval; across: DiagramInterval }) =>
+        block.targets.some((target) => !target.line && overlapping(area.along, target.along) && overlapping(area.across, target.across))
+    const areaOnTarget = diagram.blocks.some((block) => (block.areas ?? []).some((area) => onTarget(block, area)))
     const widthOf = (kind: string) => (kind === 'TEAM_COLOUR' ? Math.max(26, identities.length * 12 + 2) : 26)
     // Each swatch drawn as the mark it explains: an active target zone as on the field, its fill with the green edge just inside (P2).
     const swatch = (kind: string) => {
@@ -642,7 +792,16 @@ function Legend({ diagram }: { diagram: CoachDiagram }) {
             )
         if (kind === 'TARGET_LINE') return <line x1={1} y1={7} x2={25} y2={7} stroke={STYLE.targetLine} strokeWidth={4} />
         if (kind === 'STARTING_AREA') return <rect x={1.5} y={1.5} width={23} height={11} rx={3} fill='none' stroke={STYLE.outline} strokeWidth={1.4} strokeDasharray='5 3' />
-        // Stage L: a marked area as on the field (grey fill, grey edge), and a specialized performer's marker colour (its pill).
+        // Stage L: a marked area as on the field (grey fill, grey edge), and a specialized performer's marker colour (its pill). The Z review,
+        // round 1: where an area lies on an active target zone, the swatch shows it both ways, half grey and half target green, in its grey edge.
+        if (kind === 'MARKED_AREA' && areaOnTarget)
+            return (
+                <g>
+                    <rect x={1.5} y={1.5} width={11.5} height={11} fill={STYLE.areaFill} />
+                    <rect x={13} y={1.5} width={11.5} height={11} fill={STYLE.targetFill} />
+                    <rect x={1.5} y={1.5} width={23} height={11} fill='none' stroke={STYLE.marking} strokeWidth={1.4} />
+                </g>
+            )
         if (kind === 'MARKED_AREA') return <rect x={1.5} y={1.5} width={23} height={11} fill={STYLE.areaFill} stroke={STYLE.marking} strokeWidth={1.4} />
         if (kind === 'KEEPER') return <rect x={1.5} y={2} width={23} height={10} rx={5} fill={STYLE.keeperFill} stroke={STYLE.keeperEdge} strokeWidth={1.2} />
         return null

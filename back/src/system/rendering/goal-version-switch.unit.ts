@@ -84,7 +84,8 @@ const COLOUR = '; give the goalkeeper a colour neither team wears'
  * his words in the goal version, our DRAFT mirror in the zone version), citing LAW-4-GK, and no longer by the roster (RC3 3.4).
  */
 const GOAL_COLOUR = ', and two team colors plus a distinct goalkeeper color'
-const ZONE_COLOUR = ', and two team colours plus a distinct goalkeeper colour'
+// Re-pointed 25 October 2026 (the Z review, round 1): spelled as GOAL_COLOUR, his approved words. Was: 'colours' and 'colour'.
+const ZONE_COLOUR = ', and two team colors plus a distinct goalkeeper color'
 const OFFSIDE_AND_NORMAL = 'There is no offside; otherwise, normal soccer rules apply during play'
 const RESTART = "The building team's goalkeeper starts play, and restarts it whenever the ball is dead"
 const W = (id: string) => approvedWording().find(entry => entry.id === id)!.sentence
@@ -182,8 +183,8 @@ test('none, and every goal that does not suit: the zone version served exactly a
         ], `${label}: the zone version's own area, its handling and the normal rules, each said once`)
         // Re-pointed 25 October 2026 (P1): the colour is told once, by the zone version's own equipment sentence (DRAFT; his reply filed 28
         // October 2026, item 3), first in Set up, citing LAW-4-GK; the roster no longer closes with it. Was: once, closing the roster.
-        const zoneRoster = zone.rendered.instructions.filter(instruction => instruction.text.includes('colour'))
-        assert.deepEqual(zoneRoster.map(instruction => [instruction.section, instruction.text.endsWith(ZONE_COLOUR), instruction.text.split('distinct goalkeeper colour').length - 1]), [['Set up', true, 1]], `${label}: the colour, once, in the equipment sentence`)
+        const zoneRoster = zone.rendered.instructions.filter(instruction => instruction.text.includes('colour') || instruction.text.includes('color'))
+        assert.deepEqual(zoneRoster.map(instruction => [instruction.section, instruction.text.endsWith(ZONE_COLOUR), instruction.text.split('distinct goalkeeper color').length - 1]), [['Set up', true, 1]], `${label}: the colour, once, in the equipment sentence`)
         assert.deepEqual(zoneRoster[0].parts!.filter(part => part.text === ZONE_COLOUR).map(part => part.from), [['performers.teams', 'defaultLaws.applied[LAW-4-GK]', `performers.teams[].${KEEPER}`]], label)
         assert.ok(zone.diagram!.blocks.every(block => !('keepers' in block)), `${label}: no goalkeeper marker in the zone version's diagram`)
         assert.deepEqual((viaLive(stored(players, keepers, NO_GOAL)) as { activity: ServedActivity }).activity, zone, `${label}: live equals review`)

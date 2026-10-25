@@ -159,7 +159,7 @@ test('1. the review draft of A01 (TEST-ONLY: the table as at stage M5): every se
         // Added 25 October 2026 (P1, DRAFT): his reply filed 28 October 2026, item 3 ("Yes, please include a concise equipment list." "The
         // target-zone version should have its own corresponding requirements."), the zone version's equipment from the DRAFT data, first in
         // Set up; it tells the role apart by colour, so the roster no longer does (RC3 3.4, below).
-        `Set up: Balls, cones or field markers, and two team colours plus a distinct ${ROLE} colour`,
+        `Set up: Balls, cones or field markers, and two team colors plus a distinct ${ROLE} color`,
         'Set up: Mark out an area 40 m long by 30 m wide',
         // Moved 21 October 2026 (stage 2D, his reply filed 22 October 2026, item 7: "For this particular 40 × 30 m configuration, we can
         // also simplify setup by marking the halfway line and both 5 m end zones at the beginning. Role exchanges should not require

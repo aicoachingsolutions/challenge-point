@@ -22,6 +22,11 @@ authored gap note gaining a dated line. `fixtures/bound-regions.json` (Z) holds 
 of both versions exactly as that snapshot's review evidence carries them (keys and path in its `provenance`): the zone
 version's penalty area bound to the end of the team holding the goalkeeper row (his reply filed 28 October 2026, item 7),
 the goal version's bound to its goal, for the review page's `BoundRegionEvidence`.
+`fixtures/zone-diagram.json` (the Z review, round 1, 25 October 2026) holds the zone version's coach diagram exactly as
+the built-bundle regression snapshot `Z-fix1.json` serves it (key `review/A01/goalkeeper-1/objects-none`, path
+`body.diagram`; its SHA-256 in `provenance`): a penalty area marked at each end, each lying on an active target zone in
+both blocks, for `FieldDiagram`'s render order, legend swatch and team-words placement. The other three fixtures were
+checked unchanged in that snapshot, so their provenance (`Z-impl.json`) stands.
 The A01 FA response supplies the activity, diagram and session values; the A01 refusal supplies
 the goal question; the other two responses supply review options and session equipment choices.
 Activity sentences and choice labels are never invented in the tests.

@@ -119,8 +119,15 @@ test('1. A01 at 12/1, 12/2 and 11/1: drawn from each block\'s game, set out once
         assert.equal(model.blocks.length, 2)
         // The markings: the physical layout, the same in both blocks (his reply filed 23 October 2026, item 2), and nothing else.
         const layout = input.games[0].fixture.layout
+        /**
+         * Re-pointed 25 October 2026 (the Z review, round 1): the same in every block but the marked areas' labels - the penalty area set out at
+         * each end is labelled, in each block, on the rectangle that block's own game holds it in (at its building team's end). Was: the whole
+         * markings the same, the label on the first rectangle in both blocks.
+         */
+        const unlabelled = (markings: any) => ({ ...markings, areas: (markings.areas ?? []).map((area: any) => ({ ...area, label: null })) })
+        assert.deepEqual(model.blocks.map(block => (block.markings.areas ?? []).map(area => area.label?.text ?? null)), [['penalty area', null], [null, 'penalty area']], `${what}: one label per block`)
         for (const block of model.blocks) {
-            assert.deepEqual(block.markings, model.blocks[0].markings, `${what}: the markings are the same in every block`)
+            assert.deepEqual(unlabelled(block.markings), unlabelled(model.blocks[0].markings), `${what}: the markings are the same in every block`)
             assert.deepEqual(block.markings.lines.map(line => line.along.from), layout.marks.map((mark: any) => mark.at))
             assert.deepEqual(block.markings.zones.map(zone => [zone.along.from, zone.along.to]), layout.zones.map((zone: any) => [zone.from, zone.to]))
             assert.deepEqual(block.markings.lines.filter(line => line.markedLine).map(line => [line.along.from, line.label!.text, line.label!.status]), [[20, 'marked line', 'HIS_TERM']])

@@ -82,7 +82,8 @@ const demo = (id: string) => buildActivityForReview({ kind: 'mechanism-demonstra
 
 const HOW = `The building team's ${KEEPER} restarts play by passing, rolling, throwing or dribbling the ball into play`
 const HIS_EQUIPMENT = 'One 12 × 6 ft goalkeeper-defended goal, balls, cones or field markers, and two team colors plus a distinct goalkeeper color'
-const ZONE_EQUIPMENT = 'Balls, cones or field markers, and two team colours plus a distinct goalkeeper colour'
+// Re-pointed 25 October 2026 (the Z review, round 1): spelled as his approved goal-version sentence above. Was: 'colours' and 'colour'.
+const ZONE_EQUIPMENT = 'Balls, cones or field markers, and two team colors plus a distinct goalkeeper color'
 const FIRST_BLOCK = 'Decide which team builds first'
 const POSSESSION = 'When possession changes, play carries on without a stoppage, and each team keeps attacking the same target'
 const W3 = 'If the building team loses possession, it cannot score again until the next goalkeeper restart.'

@@ -19,7 +19,8 @@
  *   3. served at 12/1, 12/2 and 11/1 (KEPT ends, the area alternating with the goalkeeper): the Set up sentence, the normal-rules clause, the
  *      folded adjustment, all DRAFT, coach and administrator alike, live equal to review; the area realized from each block's building end;
  *      GA-BOUND-REGION's evidence; the account owing nothing (LAW-12-GK applies through REGION_OF_PERFORMER); the diagram (two grey areas, one
- *      label, the same in both blocks, never a target);
+ *      label in each block, on the area at that block's building team's end (since the Z review, round 1; was: the same in both blocks), never
+ *      a target; the checks refusing the label on the other block's area, and an area moved in one block);
  *   4. scoring and eligibility unchanged: each block's game, the area set aside, is the zone version's game before Z (a TEST-ONLY copy without
  *      the six items, REPORT), its eligibility, regain and restart checks passing as before, his W2 and W3 said as approved;
  *   5. the goal version (EXCHANGED) at 12/1, 12/2 and 11/1: the six withdrawn, its own area at its goal, said as before, its account
@@ -44,6 +45,7 @@ import authorizationRecord from '../test-library/library/learning-goal-authoriza
 import { reviewActivity } from './activity-review'
 import { buildActivity, buildActivityUnderAuthorizationRecords, RefusedActivity, ServedActivity } from './build-activity'
 import { checkFidelity } from './fidelity'
+import { checkFieldDiagram, DiagramInput, fieldDiagramDraftOf } from './field-diagram'
 import { liveCheckedActivity, liveSelectionFor } from './live-activity'
 import { renderConcreteGame } from './render-concrete-game'
 import { specializedRoleNames } from './session-envelope'
@@ -330,20 +332,72 @@ test('the area at the building team\'s end in each block (0-9 m, then 31-40 m; 7
     }
 })
 
-test('the diagram: both areas grey (no target), one "penalty area" label, the same in both blocks; the description says it is marked at each end line; nothing about another block', () => {
+/**
+ * Re-pointed 25 October 2026 (the Z review, round 1; RC3 8.3: "carries no label about another block"; his reply filed 28 October 2026, item
+ * 11: "I'd prefer the selected block's diagram to focus on the immediate configuration, with the role-exchange procedures explained once in
+ * Coach Details."): each block labels the area at its own building team's end, the one its goalkeeper uses, and leaves the other unlabelled.
+ * Was: the 0-9 m area labelled in both blocks, so block 2 labelled the inert area at its pressing team's end.
+ */
+test('the diagram: both areas grey (no target), one "penalty area" label in each block, on the area at that block\'s building team\'s end; the description says it is marked at each end line; nothing about another block', () => {
     const activity = served(build(NO_GOAL), 'zone 12/1')
     const diagram = activity.diagram!
-    for (const block of diagram.blocks as any[]) {
+    const labelled = [
+        ['penalty area', null],
+        [null, 'penalty area'],
+    ]
+    for (const [n, block] of (diagram.blocks as any[]).entries()) {
         assert.deepEqual(block.areas, [
-            { along: { from: 0, to: 9 }, across: { from: 7.5, to: 22.5 }, label: 'penalty area' },
-            { along: { from: 31, to: 40 }, across: { from: 7.5, to: 22.5 }, label: null },
+            { along: { from: 0, to: 9 }, across: { from: 7.5, to: 22.5 }, label: labelled[n][0] },
+            { along: { from: 31, to: 40 }, across: { from: 7.5, to: 22.5 }, label: labelled[n][1] },
         ])
+        // The labelled area is at the end the block's building team attacks away from (its own end), where its goalkeeper restarts.
+        const building = (block.teams as any[]).find(team => team.noun === 'building team')
+        const own = building.attacks[0] === 40 ? 0 : 40
+        assert.ok(block.areas.some((area: any) => area.label && (area.along.from === own || area.along.to === own)), `block ${n + 1}: the labelled area is at the building team's end`)
         assert.ok(!(block.targets as any[]).some(target => target.across.from === 7.5), 'never a target')
         assert.ok(block.desc.includes('A penalty area 15 m wide and 9 m deep is marked at each end line.'), block.desc)
         assert.ok(!/When you (call|return to) this block/.test(block.desc))
     }
     assert.deepEqual(diagram.legend.filter(entry => entry.kind === 'MARKED_AREA'), [{ kind: 'MARKED_AREA', text: 'penalty area' }])
     assert.equal(activity.diagramDraft!.verdict, 'DRAWN')
+})
+
+/**
+ * Added 25 October 2026 (the Z review, round 1): the field model's checks hold the label to the block's own rectangle (D6) and every other part
+ * of the markings set out once to the first block's (D3, the areas' labels set aside since each block labels its own). TEST-ONLY copies of the
+ * model, each refused.
+ */
+test('the diagram\'s checks: the label on the other block\'s area, no label, a label on both, and an area moved in one block are each refused', () => {
+    const result = build(NO_GOAL)
+    const activity = served(result, 'zone 12/1')
+    const games = blocksOf(result.fixture).map(block => ({ blockId: block.blockId, holders: { ...(block.fixture.record?.roleBlock?.holders ?? {}) }, fixture: block.fixture, rendered: renderConcreteGame(block.fixture).instructions }))
+    const input: DiagramInput = { session: activity.session, games, served: activity.rendered.instructions, roleBlocks: activity.roleBlocks!.blocks.map(block => ({ blockId: block.blockId, holders: { ...block.holders } })), index }
+    const draft = fieldDiagramDraftOf(input)
+    assert.equal(draft.verdict, 'DRAWN', JSON.stringify(draft.findings))
+    const model = draft.diagram!
+    assert.deepEqual(checkFieldDiagram(model, input), [])
+    assert.deepEqual(model.blocks.map(block => (block.markings.areas ?? []).map(area => [area.elementId, area.label?.text ?? null])), [
+        [['rectangle-1', 'penalty area'], ['rectangle-2', null]],
+        [['rectangle-1', null], ['rectangle-2', 'penalty area']],
+    ])
+    const findingsOf = (alter: (m: any) => void) => {
+        const altered = copy(model)
+        alter(altered)
+        return checkFieldDiagram(altered, input)
+    }
+    const refused = (findings: { rule: string; what: string }[], rule: string, includes: string, what: string) => assert.ok(findings.some(f => f.rule === rule && f.what.includes(includes)), `${what}: ${JSON.stringify(findings)}`)
+    // Block 2 as Z first drew it: the label on the first block's area.
+    const asBefore = findingsOf(m => {
+        m.blocks[1].markings.areas[0].label = copy(m.blocks[0].markings.areas[0].label)
+        m.blocks[1].markings.areas[1].label = null
+    })
+    refused(asBefore, 'D6', 'the marked area rectangle-1 is labelled "penalty area", and its region\'s one label in this block is on rectangle-2', 'the other block\'s area labelled')
+    refused(asBefore, 'D6', 'the marked area rectangle-2 is labelled by nothing', 'its own area unlabelled')
+    refused(findingsOf(m => (m.blocks[1].markings.areas[1].label = null)), 'D6', 'the marked area rectangle-2 is labelled by nothing', 'no label')
+    refused(findingsOf(m => (m.blocks[1].markings.areas[0].label = copy(m.blocks[1].markings.areas[1].label))), 'D6', 'the marked area rectangle-1 is labelled "penalty area"', 'a label on both')
+    const moved = findingsOf(m => (m.blocks[1].markings.areas[0].along = { from: 0, to: 8 }))
+    refused(moved, 'D3', 'the markings set out once differ from the first block\'s', 'an area moved in one block')
+    refused(moved, 'D2', 'the marked area rectangle-1 is not drawn where the layout sets it out', 'an area moved in one block')
 })
 
 // ── 4. Scoring and eligibility unchanged ───────────────────────────────────────────────────────────────────

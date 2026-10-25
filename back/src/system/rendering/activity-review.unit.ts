@@ -1977,7 +1977,7 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
         // Re-pointed 25 October 2026 (P1; his reply filed 28 October 2026, item 3, with RC3 3.4): the zone version's equipment sentence (DRAFT)
         // tells the role apart, first in Set up, so the roster no longer closes with the colour clause.
         assert.equal(roster!.text, `Divide 12 players into 2 teams: the building team has 1 ${ROLE} and 6 other players; the pressing team has 5 other players`)
-        assert.equal(now.rendered.instructions[0].text, `Balls, cones or field markers, and two team colours plus a distinct ${ROLE} colour`)
+        assert.equal(now.rendered.instructions[0].text, `Balls, cones or field markers, and two team colors plus a distinct ${ROLE} color`)
         /**
          * Through the GOAL pathway (the record crosses into each block's fixture) the two adjustments he authorized reach the
          * composed activity — K4 review, 15 October 2026: allocation.unit.ts proves them on a constructed fixture only, so

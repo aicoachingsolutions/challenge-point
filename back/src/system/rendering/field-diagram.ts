@@ -454,12 +454,23 @@ const boundRegionNounOf = (fixture: any, index: RegisterIndex, regionId: string)
 }
 
 /**
- * **The one rectangle of a region that carries its label** (Z, 25 October 2026): a region set out once at one place has its one rectangle; a
- * region set out at each end (two mirrored rectangles: the performer's end alternates between blocks) is labelled once, on the first rectangle
- * the layout lists for it, in every block alike, since its one Set up sentence names both (RC3 8.3: nothing about another block, and the
- * markings set out once are the same in every block). Every other rectangle of that region is drawn unlabelled.
+ * **The one rectangle of a region that carries its label in a block** (Z, 25 October 2026): a region set out once at one place has its one
+ * rectangle, labelled in every block; a region set out at each end (two mirrored rectangles: the performer's end alternates between blocks) is
+ * labelled once per block, on the rectangle this block's own game holds it in (the layout's source for this block), since its one Set up
+ * sentence names both. Every other rectangle of that region is drawn unlabelled in that block. Only where no rectangle of the region is this
+ * block's own is the first the layout lists labelled.
+ *
+ * AMENDED 25 October 2026 (the Z review, round 1; RC3 8.3: "Each block's view emphasizes its active scoring objectives over other marked
+ * zones, retains physical markings used later, and carries no label about another block."; his reply filed 28 October 2026, item 11: "I'd
+ * prefer the selected block's diagram to focus on the immediate configuration, with the role-exchange procedures explained once in Coach
+ * Details."). Was: "labelled once, on the first rectangle the layout lists for it, in every block alike", which in the second block labelled
+ * the rectangle at the other end (the first block's) and left the one this block's game holds unlabelled.
  */
-const labelledRectangleOf = (layout: any, regionId: string): string | null => asList(layout?.rectangles).find(entry => asList(entry?.sources).some((source: any) => source?.regionId === regionId))?.elementId ?? null
+const labelledRectangleOf = (layout: any, regionId: string, blockId: string): string | null => {
+    const held = asList(layout?.rectangles).filter(entry => asList(entry?.sources).some((source: any) => source?.regionId === regionId))
+    const own = held.find(entry => asList(entry?.sources).some((source: any) => source?.regionId === regionId && source?.blockId === blockId))
+    return (own ?? held[0])?.elementId ?? null
+}
 /** Whether this game binds the region to an object (register row S7), so it is drawn as a marked area, never as a zone (stage L). */
 const isBoundRegion = (fixture: any, index: RegisterIndex, regionId: string): boolean => {
     const region = asList(fixture?.game?.space?.regions).find(entry => String(entry?.elementId) === regionId)
@@ -588,10 +599,11 @@ export function buildFieldDiagram(input: DiagramInput): { diagram: FieldDiagram 
                 const sentence = setUp.find(instruction => instruction.from.some(path => path === `layout.rectangles[${rectangle.elementId}]` || path.startsWith(`layout.rectangles[${rectangle.elementId}].`)))
                 /**
                  * Z (25 October 2026): a rectangle set out for another block (a region set out at each end) is the same region, which this
-                 * block's game holds too: it is named from there, and labelled only where it is the region's one labelled rectangle.
+                 * block's game holds too: it is named from there, and labelled only where it is the region's labelled rectangle in this block
+                 * (since the Z review, round 1, the one this block's own game holds it in; was: the first the layout lists, in every block alike).
                  */
                 const source = own ?? rectangle.sources.find(entry => asList(fixture?.game?.space?.regions).some((region: any) => String(region?.elementId) === entry.regionId))
-                const noun = source && labelledRectangleOf(layout, source.regionId) === rectangle.elementId ? boundRegionNounOf(fixture, index, source.regionId) : null
+                const noun = source && labelledRectangleOf(layout, source.regionId, blockId) === rectangle.elementId ? boundRegionNounOf(fixture, index, source.regionId) : null
                 const area: DiagramArea = {
                     elementId: rectangle.elementId,
                     along: { ...rectangle.along },
@@ -1202,12 +1214,13 @@ export function checkFieldDiagram(diagram: FieldDiagram, input: DiagramInput): D
             const across = layout ? rectangle?.across : intervalAt(fixture, regionPaths(area.elementId).across)
             if (!along || !across || !same(along, area.along) || !same(across, area.across)) finding('D2', blockId, `the marked area ${area.elementId} is not drawn where ${layout ? 'the layout sets it out' : "this block's game puts it"}`)
             const own = layout ? rectangle?.sources.find(source => source.blockId === blockId)?.regionId : area.elementId
-            // Z: a rectangle of a region set out at each end, read from the region this block's game holds; labelled only where it is the region's one labelled rectangle.
+            // Z: a rectangle of a region set out at each end, read from the region this block's game holds; labelled only where it is the region's
+            // labelled rectangle in this block (since the Z review, round 1, the one this block's own game holds it in; was: the first listed, in every block).
             const regionOf = layout ? own ?? rectangle?.sources.find(entry => asList(fixture?.game?.space?.regions).some((region: any) => String(region?.elementId) === entry.regionId))?.regionId : area.elementId
-            const labelled = !layout || (!!regionOf && labelledRectangleOf(layout, regionOf) === area.elementId)
+            const labelled = !layout || (!!regionOf && labelledRectangleOf(layout, regionOf, blockId) === area.elementId)
             const noun = regionOf ? boundRegionNounOf(fixture, index, regionOf) : null
             if (labelled && (!area.label || area.label.text !== noun)) finding('D6', blockId, `the marked area ${area.elementId} is labelled ${area.label ? `"${area.label.text}"` : 'by nothing'}, and the region it is is called ${noun ? `"${noun}"` : 'by no noun'}`)
-            if (!labelled && area.label) finding('D6', blockId, `the marked area ${area.elementId} is labelled "${area.label.text}", and its region's one label is on ${regionOf ? labelledRectangleOf(layout, regionOf) : 'no rectangle'}`)
+            if (!labelled && area.label) finding('D6', blockId, `the marked area ${area.elementId} is labelled "${area.label.text}", and its region's one label in this block is on ${regionOf ? labelledRectangleOf(layout, regionOf, blockId) : 'no rectangle'}`)
             if (!noun) finding('D6', blockId, `the marked area ${area.elementId} is a region called by no noun`)
             checkWord(area.label, null, blockId, rendered, ordinal)
         }
@@ -1229,8 +1242,15 @@ export function checkFieldDiagram(diagram: FieldDiagram, input: DiagramInput): D
                 ...(layout.rectangles ?? []).flatMap(rectangle => rectangle.sources.map(source => source.regionId)),
             ])
             for (const id of regionsCitedBy(setUp)) if (!sources.has(id) && !targetRegions.has(id)) finding('D3', blockId, `Set up marks ${id} and it is neither a marking drawn nor a target`)
+            /**
+             * AMENDED 25 October 2026 (the Z review, round 1): the markings set out once are compared with the first block's without their marked
+             * areas' labels, since a region set out at each end is labelled on the rectangle this block's own game holds it in
+             * (`labelledRectangleOf`), which D6 holds in each block above (that rectangle by its noun, every other by nothing); every line, zone
+             * and area, its place, and every other word still equals the first block's. Was: the whole markings, the areas' labels included.
+             */
             const first = diagram.blocks[0]
-            if (JSON.stringify(first.markings) !== JSON.stringify(block.markings)) finding('D3', blockId, 'the markings set out once differ from the first block\'s')
+            const placed = (markings: DiagramMarkings) => JSON.stringify({ ...markings, ...(markings.areas ? { areas: markings.areas.map(area => ({ ...area, label: null })) } : {}) })
+            if (placed(first.markings) !== placed(block.markings)) finding('D3', blockId, 'the markings set out once differ from the first block\'s')
         } else {
             for (const id of regionsCitedBy(setUp)) if (!drawnLines.has(id) && !drawnZones.has(id) && !drawnAreas.has(id)) finding('D3', blockId, `Set up marks ${id} and it is not drawn`)
         }

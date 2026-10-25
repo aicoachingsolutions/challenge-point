@@ -432,9 +432,9 @@ const ACCOUNT_SENTENCES = [RESTARTS_SENTENCE, OFFSIDE_SENTENCE]
  * role item (R1: it cites the teams and the goalkeeper's count, rows P1 and P3) and on the complete text (R8), where it is said first.
  */
 const ACCOUNT_ITEMS: [string, string][] = [
-    ['R1', 'Balls, cones or field markers, and two team colours plus a distinct goalkeeper colour'],
+    ['R1', 'Balls, cones or field markers, and two team colors plus a distinct goalkeeper color'],
     ['R6', RESTARTS_SENTENCE],
-    ['R8', 'Balls, cones or field markers, and two team colours plus a distinct goalkeeper colour'],
+    ['R8', 'Balls, cones or field markers, and two team colors plus a distinct goalkeeper color'],
     ['R8', OFFSIDE_SENTENCE],
     ['R8', RESTARTS_SENTENCE],
 ]
@@ -455,8 +455,10 @@ const COLOUR_AT = 'defaultLaws.applied[LAW-4-GK]'
  * applying, so the sentence is said only with the account; the roster's clause is no longer said in either build. So the build with every
  * annotation taken out differs by three sentences (`ACCOUNT_SAID`) and by what counts them, and by nothing else.
  */
-const EQUIPMENT_SENTENCE = 'Balls, cones or field markers, and two team colours plus a distinct goalkeeper colour'
-const EQUIPMENT_COLOUR = ', and two team colours plus a distinct goalkeeper colour'
+// Re-pointed 25 October 2026 (the Z review, round 1): spelled as his approved goal-version sentence (his reply filed 28 October 2026, item 3).
+// Was: 'two team colours plus a distinct goalkeeper colour' (here and in ACCOUNT_ITEMS above).
+const EQUIPMENT_SENTENCE = 'Balls, cones or field markers, and two team colors plus a distinct goalkeeper color'
+const EQUIPMENT_COLOUR = ', and two team colors plus a distinct goalkeeper color'
 const ACCOUNT_SAID = [...ACCOUNT_SENTENCES, EQUIPMENT_SENTENCE]
 /** P1: a bare build's sentence place, read in production, where the account's sentences (`accountAt`, production places) sit among them. */
 const placeIn = (accountAt: number[]) => (bare: number): number => {
@@ -523,7 +525,7 @@ test('what a coach reads changes only by the account\'s sentences (three since P
         assert.equal(production.rendered.instructions.filter(i => i.section === 'Players' && i.text.endsWith(COLOUR)).length, 0, `${label}: no roster closes with the colour clause`)
         const equipment = production.rendered.instructions.find(i => i.text === EQUIPMENT_SENTENCE)!
         assert.deepEqual([equipment.section, equipment.parts!.filter(part => part.from.includes(COLOUR_AT)).map(part => part.text)], ['Set up', [EQUIPMENT_COLOUR]], label)
-        assert.ok(!JSON.stringify(bare.rendered).includes('colour'), `${label}: no account, no colour clause`)
+        assert.ok(!JSON.stringify(bare.rendered).includes('colour') && !JSON.stringify(bare.rendered).includes('color'), `${label}: no account, no colour clause`)
         const without = (instructions: { text: string }[]) => instructions.filter(i => !ACCOUNT_SAID.includes(i.text))
         assert.deepEqual(uncoloured({ ...production.rendered, instructions: without(production.rendered.instructions) }), bare.rendered, `${label}: rendered`)
         // What counts the sentences: two more with the account, nothing else. Re-pointed 25 October 2026 (P1): three.
