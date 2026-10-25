@@ -65,10 +65,25 @@ const METRES_PER_FOOT = 0.3048
 const SAME = 1e-9
 
 /** A number of metres as a whole number of feet, or null where it is not one (exactly, within floating point). */
-function wholeFeet(metres: number): number | null {
+export function wholeFeet(metres: number): number | null {
+    if (typeof metres !== 'number' || !Number.isFinite(metres)) return null
     const feet = metres / METRES_PER_FOOT
     const whole = Math.round(feet)
     return whole > 0 && Math.abs(feet - whole) < SAME ? whole : null
+}
+
+/**
+ * **An object's size as his equipment sentence states it: width by height in whole feet, "12 × 6 ft"** — P1, 25 October 2026, his reply
+ * filed 28 October 2026, item 3 (*"One 12 × 6 ft [specialized-role]-defended [object], ..."*, his figures and his multiplication sign; his nouns
+ * bracketed for the coupling ratchet). Only where both
+ * figures are a whole number of feet at 0.3048 m per foot (a document that states them in feet, recorded as their exact conversion); null
+ * otherwise, so no figure nobody stated is rounded to a foot. Read by the renderer's equipment sentence, which binds each figure to the
+ * pairing's metres (fidelity admits exactly this conversion and nothing else).
+ */
+export function feetSizeWords(widthM: number, heightM: number): string | null {
+    const width = wholeFeet(widthM)
+    const height = wholeFeet(heightM)
+    return width === null || height === null ? null : `${width} × ${height} ft`
 }
 
 /** An object's size as a coach reads it: width by height in metres, or width alone; also in feet where every figure is a whole number of feet. */

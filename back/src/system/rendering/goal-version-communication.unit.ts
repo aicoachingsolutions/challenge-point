@@ -125,7 +125,8 @@ test('the DRAFT wording data loads, keyed by register vocabulary values, each cl
         // Re-pointed 24 October 2026 (R3): the wording gains departedLaws, empty like every other list where the file cannot be used.
         // Re-pointed 24 October 2026 (stage L): and boundRegions and appliedLaws, empty likewise.
         // Re-pointed 24 October 2026 (stage I): the empty wording gains objectChoices.
-        assert.deepEqual(draftCoachWordingLoadOf(damaged, index).wording, { objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [], boundRegions: [], appliedLaws: [], objectChoices: [] }, `${what}: an unusable file loads as no wording at all`)
+        // Re-pointed 25 October 2026 (P1): and methods and equipment (his reply filed 28 October 2026, items 1 and 3).
+        assert.deepEqual(draftCoachWordingLoadOf(damaged, index).wording, { methods: [], equipment: [], objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [], boundRegions: [], appliedLaws: [], objectChoices: [] }, `${what}: an unusable file loads as no wording at all`)
     }
     refused(f => (f.status = 'APPROVED'), /every word here is DRAFT/, 'a file claiming approval')
     refused(f => (f.approvedBy = { who: 'TEST-ONLY' }), /approvedBy/, 'an approval key')
@@ -166,10 +167,18 @@ const EXCHANGE =
 const BOX = "Mark the goal's penalty area: 15 m wide, centred on the goal, and 9 m deep into the area; inside it the goalkeeper can handle the ball as in a normal game"
 const COLOUR = '; give the goalkeeper a colour neither team wears'
 const OFFSIDE_AND_NORMAL = 'There is no offside; otherwise, normal soccer rules apply during play'
+/**
+ * Added 25 October 2026 (P1): his reply filed 28 October 2026, item 3, verbatim (approved wording, the EQUIPMENT template), as an instruction
+ * says it; the goal's figures are the FA 5v5 pairing's, in whole feet. It names the goalkeeper's own colour, so the roster no longer closes with
+ * COLOUR (RC3 3.4: each idea once within a level; our DRAFT clause yields to his sentence).
+ */
+const HIS_EQUIPMENT = 'One 12 × 6 ft goalkeeper-defended goal, balls, cones or field markers, and two team colors plus a distinct goalkeeper color'
 
 test('the real goal version is served at 12/1: every sentence, in reading order, his three scoring sentences unchanged', () => {
     const { activity } = goalVersion(12, 1)
     assert.deepEqual(textsOf(activity), [
+        // Added 25 October 2026 (P1): his equipment sentence, first in Set up (his reply filed 28 October 2026, item 3).
+        `[Set up] ${HIS_EQUIPMENT}`,
         '[Set up] Mark out an area 40 m long by 30 m wide',
         '[Set up] Mark a line across the area at halfway, 20 m from each end line',
         `[Set up] ${SET_UP_PLACING}`,
@@ -177,12 +186,14 @@ test('the real goal version is served at 12/1: every sentence, in reading order,
         `[Set up] ${BOX}`,
         "[Set up] The building team's target zone is everything beyond the marked line, up to the pressing team's end line",
         "[Set up] The pressing team's target is the goal",
-        '[Set up] Decide which team starts at which end',
+        // Moved 25 October 2026 (P1): his words, reply filed 28 October 2026, item 4. Was "Decide which team starts at which end" (DRAFT).
+        '[Set up] Decide which team builds first',
         // Re-pointed 24 October 2026 (K3): the roster closes with the goalkeeper's colour (LAW-12-GK applies at every place). AMENDED 24
         // October 2026 (the completeness audit, item 1): the colour rests on LAW-4-GK (the goalkeeper's colours) since, not on LAW-12-GK; the
-        // words are the same.
-        `[Players] Divide 12 players into 2 teams: the building team has 6 outfield players and 1 goalkeeper; the pressing team has 5 outfield players${COLOUR}`,
-        '[How it works] The building team starts with the ball',
+        // words are the same. Re-pointed 25 October 2026 (P1): his equipment sentence says the goalkeeper's colour, so the roster does not.
+        '[Players] Divide 12 players into 2 teams: the building team has 6 outfield players and 1 goalkeeper; the pressing team has 5 outfield players',
+        // Removed 25 October 2026 (P1; his reply filed 28 October 2026, item 6): "The building team starts with the ball", which the start says.
+        // Re-pointed 25 October 2026 (P1): "the same target" is now his approved wording (his reply filed 28 October 2026, item 5).
         '[How it works] When possession changes, play carries on without a stoppage, and each team keeps attacking the same target',
         // Re-pointed 24 October 2026 (R1): one restart for every dead ball (his reply filed 27 October 2026, item 4), so the moments widen
         // and the throw-in and end-line sentences below are gone; the place is his item 6 region (DRAFT).
@@ -194,15 +205,20 @@ test('the real goal version is served at 12/1: every sentence, in reading order,
         // rules are folded after it (his reply filed 27 October 2026, item 6); the stand-in's REPORT account owed LAW-12-GK and said no more.
         `[How it works] ${OFFSIDE_AND_NORMAL}`,
         "[How to score] Building team: Score by carrying the ball beyond the marked line or passing to a teammate who receives it under control beyond the line. The progression must begin with the goalkeeper's build-out and occur before the building team loses possession. Uncontrolled clearances do not score.",
-        '[How to score] If the building team loses possession or plays the ball out, it cannot score again until the next goalkeeper restart.',
+        // Re-pointed 25 October 2026 (P1): his simplified sentence (his reply filed 28 October 2026, item 9).
+        '[How to score] If the building team loses possession, it cannot score again until the next goalkeeper restart.',
         `[How to score] ${PRESSING_LINE}`,
         '[How to score] Each score is worth 1 point',
         '[When it ends] Play for 20 minutes',
         '[Role exchange] Play in blocks: in each block one team is the building team and the other is the pressing team',
         `[Role exchange] ${EXCHANGE}`,
         '[Role exchange] When you call the next block, 1 goalkeeper and 1 outfield player move to the team that becomes the building team, the goalkeeper staying with the goal',
-        "[Restarts and ball out] The building team's goalkeeper restarts play from the feet, with the ball still or moving",
-        "[Restarts and ball out] You choose where the building team's goalkeeper restarts play, consistent with the intended build-out situation, on the building team's side of the marked line",
+        // Re-pointed 25 October 2026 (P1): his reply filed 28 October 2026, item 1 (DRAFT words for TAKER_CHOOSES). Was "... from the feet, with
+        // the ball still or moving".
+        "[Restarts and ball out] The building team's goalkeeper restarts play by passing, rolling, throwing or dribbling the ball into play",
+        // Re-pointed 25 October 2026 (P1; his reply filed 28 October 2026, item 6): the bound's last clause (", on the building team's side of
+        // the marked line") is said once, by the start placement above, which already puts the building team there before every restart.
+        "[Restarts and ball out] You choose where the building team's goalkeeper restarts play, consistent with the intended build-out situation",
         // Added 24 October 2026 (R2, DRAFT): the restarts its account departs from, the goal end's too (his reply filed 27 October 2026,
         // item 4: "There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity.").
         '[Restarts and ball out] There are no throw-ins, corners, goal kicks, free kicks or penalties in this activity; fouls still matter, so deal with them appropriately',
@@ -225,11 +241,16 @@ test('the real goal version is served at 12/1: every sentence, in reading order,
 
 test('at 12/2 and 11/1 the same words, the counts as the roster has them, and the goalkeeper alone at 11 staying with the goal', () => {
     // Re-pointed 24 October 2026 (K3): each roster closes with the goalkeeper's colour, and the area and the normal rules are said too.
+    // Re-pointed 25 October 2026 (P1): the colour is said by his equipment sentence, so no roster closes with it (RC3 3.4).
     const at12by2 = goalVersion(12, 2).activity
-    assert.equal(sentenceOf(at12by2, 'Divide').text, `Divide 12 players into 2 teams: the building team has 1 goalkeeper and 6 other players; the pressing team has 5 other players${COLOUR}`)
+    assert.equal(sentenceOf(at12by2, 'Divide').text, 'Divide 12 players into 2 teams: the building team has 1 goalkeeper and 6 other players; the pressing team has 5 other players')
     assert.equal(sentenceOf(at12by2, 'When you call the next block, 1').text, 'When you call the next block, 1 goalkeeper and 1 outfield player move to the team that becomes the building team, the goalkeeper staying with the goal')
     const at11 = goalVersion(11, 1).activity
-    assert.equal(sentenceOf(at11, 'Divide').text, `Divide 11 players into 2 teams: the building team has 5 outfield players and 1 goalkeeper; the pressing team has 5 outfield players${COLOUR}`)
+    assert.equal(sentenceOf(at11, 'Divide').text, 'Divide 11 players into 2 teams: the building team has 5 outfield players and 1 goalkeeper; the pressing team has 5 outfield players')
+    for (const activity of [at12by2, at11]) {
+        assert.equal(activity.rendered.instructions[0].text, HIS_EQUIPMENT)
+        assert.ok(!JSON.stringify(activity.rendered.instructions.map(instruction => instruction.text)).includes(COLOUR.slice(2)))
+    }
     assert.equal(sentenceOf(at11, 'When you call the next block, 1').text, 'When you call the next block, 1 goalkeeper moves to the team that becomes the building team, staying with the goal')
     for (const activity of [at12by2, at11]) {
         for (const text of [SET_UP_PLACING, BOX, OFFSIDE_AND_NORMAL, PRESSING_LINE, EXCHANGE, "The pressing team's target is the goal"]) assert.ok(activity.rendered.instructions.some(instruction => instruction.text === text), text)
@@ -340,7 +361,14 @@ test('the diagram draws the goal where the game puts it, at the session\'s width
     const teamA = (block: any) => block.teams.find((team: any) => team.label === 'Team A')
     assert.deepEqual([teamA(first).identity, teamA(first).noun, teamA(first).attacks], [0, 'building team', [40]])
     assert.deepEqual([teamA(second).identity, teamA(second).noun, teamA(second).attacks], [0, 'pressing team', [0]])
-    assert.deepEqual(second.exchange, ['When you call this block, 1 goalkeeper and 1 outfield player move from Team A to Team B, which becomes the building team.'])
+    // Re-pointed 25 October 2026 (P1; his reply filed 28 October 2026, item 11: "I'd prefer the selected block's diagram to focus on the
+    // immediate configuration, with the role-exchange procedures explained once in Coach Details."): no block carries an exchange sentence,
+    // and no description says what moves. Was: block 2's "When you call this block, 1 goalkeeper and 1 outfield player move from Team A to
+    // Team B, which becomes the building team." The Role exchange section still says what moves (test 2 above).
+    for (const block of [first, second]) {
+        assert.ok(!('exchange' in block), 'no exchange sentence beside the drawing')
+        assert.ok(!/When you (call|return to) this block|move from Team/.test(block.desc), block.desc)
+    }
 })
 
 // ── 6. What fidelity holds ───────────────────────────────────────────────────────────────────────────────
@@ -401,10 +429,13 @@ test('the zone version is said exactly as before: its target words, its exchange
     for (const [players, keepers] of [[12, 1], [12, 2], [11, 1]]) {
         const zone = zoneVersion(players, keepers)
         const texts = zone.rendered.instructions.map(instruction => instruction.text)
-        assert.ok(texts.includes('When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone'))
+        // Re-pointed 25 October 2026 (P1): his reply filed 28 October 2026, item 5 - both versions keep attacking "the same target" now ("This
+        // accommodates both scoring configurations without changing the intended meaning."). Was "... the same zone" here.
+        assert.ok(texts.includes('When possession changes, play carries on without a stoppage, and each team keeps attacking the same target'))
+        assert.ok(!texts.some(text => text.includes('attacking the same zone')))
         assert.ok(texts.includes('Each team keeps its end for the whole activity. When you call the next block the teams exchange roles, not ends: each team now attacks the target zone of its new role, and nothing is re-marked unless you have moved the marked line; there is no set block length'))
         assert.ok(texts.some(text => text.startsWith('The pressing team also scores by winning the ball inside that zone')))
-        assert.ok(!texts.some(text => /staying with|Place a|the same target\b|target is the/.test(text)), texts.join(' | '))
+        assert.ok(!texts.some(text => /staying with|Place a|target is the/.test(text)), texts.join(' | '))
     }
 })
 

@@ -389,8 +389,14 @@ const ACCOUNT_SENTENCES = [RESTARTS_SENTENCE, OFFSIDE_SENTENCE]
  * Which of his review request's items the account's two sentences bear on (measured 24 October 2026, R3): the restarts item (R6) the
  * Restarts sentence, and the complete text (R8) both.
  */
+/*
+ * Re-pointed 25 October 2026 (P1, measured): and the equipment sentence (EQUIPMENT_SENTENCE, below) bears on the player allocation and goalkeeper
+ * role item (R1: it cites the teams and the goalkeeper's count, rows P1 and P3) and on the complete text (R8), where it is said first.
+ */
 const ACCOUNT_ITEMS: [string, string][] = [
+    ['R1', 'Balls, cones or field markers, and two team colours plus a distinct goalkeeper colour'],
     ['R6', RESTARTS_SENTENCE],
+    ['R8', 'Balls, cones or field markers, and two team colours plus a distinct goalkeeper colour'],
     ['R8', OFFSIDE_SENTENCE],
     ['R8', RESTARTS_SENTENCE],
 ]
@@ -404,6 +410,22 @@ const ACCOUNT_ITEMS: [string, string][] = [
  */
 const COLOUR = '; give the goalkeeper a colour neither team wears'
 const COLOUR_AT = 'defaultLaws.applied[LAW-4-GK]'
+/**
+ * Re-pointed 25 October 2026 (P1; his reply filed 28 October 2026, item 3: "Yes, please include a concise equipment list." "The target-zone
+ * version should have its own corresponding requirements."; with RC3 3.4): the account's third thing is said by a sentence of its own again -
+ * the zone version's equipment sentence (DRAFT), whose last part tells the goalkeeper apart under LAW-4-GK, a law only the account records as
+ * applying, so the sentence is said only with the account; the roster's clause is no longer said in either build. So the build with every
+ * annotation taken out differs by three sentences (`ACCOUNT_SAID`) and by what counts them, and by nothing else.
+ */
+const EQUIPMENT_SENTENCE = 'Balls, cones or field markers, and two team colours plus a distinct goalkeeper colour'
+const EQUIPMENT_COLOUR = ', and two team colours plus a distinct goalkeeper colour'
+const ACCOUNT_SAID = [...ACCOUNT_SENTENCES, EQUIPMENT_SENTENCE]
+/** P1: a bare build's sentence place, read in production, where the account's sentences (`accountAt`, production places) sit among them. */
+const placeIn = (accountAt: number[]) => (bare: number): number => {
+    let at = bare
+    for (const account of [...accountAt].sort((a, b) => a - b)) if (account <= at) at++
+    return at
+}
 const uncoloured = (value: any): any => {
     if (typeof value === 'string') return value.endsWith(COLOUR) ? value.slice(0, -COLOUR.length) : value
     if (Array.isArray(value)) return value.filter(entry => entry !== COLOUR_AT && !(entry && typeof entry === 'object' && entry.text === COLOUR)).map(uncoloured)
@@ -412,12 +434,14 @@ const uncoloured = (value: any): any => {
 }
 /**
  * The two values are the same but for each `blockIndex` (a Details sentence's place in its block) at or after `from` in the bare build, which
- * is one more in production (a sentence said before it); every other leaf is equal.
+ * is one more in production (a sentence said before it); every other leaf is equal. Re-pointed 25 October 2026 (P1): `place` maps a bare place
+ * to production's (`placeIn`, every account sentence said before it moving it on by one), since the equipment sentence is said first and the
+ * offside sentence later, so places move by one or by two. Was: `from`, one place.
  */
-function shifted(production: unknown, bare: unknown, from: number, at: string): void {
+function shifted(production: unknown, bare: unknown, place: (bare: number) => number, at: string): void {
     if (Array.isArray(bare)) {
         assert.ok(Array.isArray(production) && production.length === bare.length, `${at}: a list of ${bare.length}`)
-        bare.forEach((value, i) => shifted((production as unknown[])[i], value, from, `${at}[${i}]`))
+        bare.forEach((value, i) => shifted((production as unknown[])[i], value, place, `${at}[${i}]`))
         return
     }
     if (bare && typeof bare === 'object') {
@@ -425,14 +449,14 @@ function shifted(production: unknown, bare: unknown, from: number, at: string): 
         assert.deepEqual(Object.keys(production as object).sort(), Object.keys(bare).sort(), `${at}: its keys`)
         for (const [key, value] of Object.entries(bare)) {
             const own = (production as Record<string, unknown>)[key]
-            if (key === 'blockIndex' && typeof value === 'number') assert.equal(own, value >= from ? value + 1 : value, `${at}.${key}`)
-            else shifted(own, value, from, `${at}.${key}`)
+            if (key === 'blockIndex' && typeof value === 'number') assert.equal(own, place(value), `${at}.${key}`)
+            else shifted(own, value, place, `${at}.${key}`)
         }
         return
     }
     assert.deepEqual(production, bare, at)
 }
-test('what a coach reads changes only by the account\'s two sentences: the same build with every annotation taken out of a copy says everything else the same, and gains no account', () => {
+test('what a coach reads changes only by the account\'s sentences (three since P1): the same build with every annotation taken out of a copy says everything else the same, and gains no account', () => {
     for (const [players, keepers] of [[12, 1], [12, 2], [11, 1]]) {
         const label = `${players}/${keepers}`
         const request = { kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(players, keepers) } as any
@@ -443,19 +467,21 @@ test('what a coach reads changes only by the account\'s two sentences: the same 
         // The completeness audit, item 1: the administrator's diagram model carries the roster sentence's words; with the clause taken out
         // it is the bare build's.
         assert.deepEqual(uncoloured(production.diagramDraft), bare.diagramDraft, `${label}: diagramDraft, but the colour clause`)
-        // The account's sentences: each said once with it, never without it; every other sentence the same.
-        for (const sentence of ACCOUNT_SENTENCES) assert.deepEqual(production.rendered.instructions.filter(i => i.text === sentence).length, 1, `${label}: ${sentence}`)
-        assert.ok(!bare.rendered.instructions.some(i => i.text.startsWith('There are no ') || i.text.startsWith('There is no ')), `${label}: no account, neither sentence`)
+        // The account's sentences: each said once with it, never without it; every other sentence the same. Re-pointed 25 October 2026 (P1):
+        // three, the equipment sentence among them (`ACCOUNT_SAID`).
+        for (const sentence of ACCOUNT_SAID) assert.deepEqual(production.rendered.instructions.filter(i => i.text === sentence).length, 1, `${label}: ${sentence}`)
+        assert.ok(!bare.rendered.instructions.some(i => i.text.startsWith('There are no ') || i.text.startsWith('There is no ') || i.text === EQUIPMENT_SENTENCE), `${label}: no account, none of the three`)
         // The completeness audit, item 1: the colour clause closes the roster sentence once with the account, citing LAW-4-GK as applied,
-        // and is never said without it.
-        const roster = production.rendered.instructions.filter(i => i.section === 'Players' && i.text.endsWith(COLOUR))
-        assert.equal(roster.length, 1, `${label}: the colour clause closes one roster sentence`)
-        assert.deepEqual(roster[0].parts!.filter(part => part.text === COLOUR).map(part => part.from[0]), [COLOUR_AT], label)
+        // and is never said without it. Re-pointed 25 October 2026 (P1; his reply filed 28 October 2026, item 3, with RC3 3.4): the colour is
+        // told once with the account by the equipment sentence's last part, citing LAW-4-GK as applied; no roster closes with the clause.
+        assert.equal(production.rendered.instructions.filter(i => i.section === 'Players' && i.text.endsWith(COLOUR)).length, 0, `${label}: no roster closes with the colour clause`)
+        const equipment = production.rendered.instructions.find(i => i.text === EQUIPMENT_SENTENCE)!
+        assert.deepEqual([equipment.section, equipment.parts!.filter(part => part.from.includes(COLOUR_AT)).map(part => part.text)], ['Set up', [EQUIPMENT_COLOUR]], label)
         assert.ok(!JSON.stringify(bare.rendered).includes('colour'), `${label}: no account, no colour clause`)
-        const without = (instructions: { text: string }[]) => instructions.filter(i => !ACCOUNT_SENTENCES.includes(i.text))
+        const without = (instructions: { text: string }[]) => instructions.filter(i => !ACCOUNT_SAID.includes(i.text))
         assert.deepEqual(uncoloured({ ...production.rendered, instructions: without(production.rendered.instructions) }), bare.rendered, `${label}: rendered`)
-        // What counts the sentences: two more with the account, nothing else.
-        const more = ACCOUNT_SENTENCES.length
+        // What counts the sentences: two more with the account, nothing else. Re-pointed 25 October 2026 (P1): three.
+        const more = ACCOUNT_SAID.length
         assert.deepEqual({ ...production.integrity, instructions: production.integrity.instructions - more }, bare.integrity, `${label}: integrity`)
         assert.deepEqual(
             { ...production.roleBlocks, blocks: production.roleBlocks!.blocks.map((block: any) => ({ ...block, integrity: { ...block.integrity, instructions: block.integrity.instructions - more } })) },
@@ -468,7 +494,9 @@ test('what a coach reads changes only by the account\'s two sentences: the same 
         // the same but for each such index moved by one (`shifted`), and nothing else.
         const after = production.rendered.instructions.findIndex(i => i.text === OFFSIDE_SENTENCE)
         assert.ok(after > 0, label)
-        shifted(uncoloured(productionDraft), bareDraft, after, `${label}: overviewDraft`)
+        // Re-pointed 25 October 2026 (P1): every place after an account sentence moves on, the equipment sentence (said first) included.
+        const accountPlaces = production.rendered.instructions.flatMap((i, n) => (ACCOUNT_SAID.includes(i.text) ? [n] : []))
+        shifted(uncoloured(productionDraft), bareDraft, placeIn(accountPlaces), `${label}: overviewDraft`)
         assert.deepEqual({ ...productionReading!, detailsWords: 0 }, { ...bareReading!, detailsWords: 0 }, `${label}: the overview's reading, but the Details' word count`)
         // A realization declaring no check gains no account (the evidence's sentence lists and counts differ by the two sentences).
         assert.equal(bare.evidence!.defaultLaws, undefined, label)
@@ -481,23 +509,40 @@ test('what a coach reads changes only by the account\'s two sentences: the same 
         const { elements, ...provenance } = production.evidence!.provenance
         const { elements: bareElements, ...bareProvenance } = bare.evidence!.provenance
         assert.deepEqual(provenance, bareProvenance, `${label}: provenance`)
-        assert.deepEqual(elements.filter(element => element.path !== 'defaultLaws.laws[LAW-11]' && element.path !== COLOUR_AT), bareElements, `${label}: the provenance's elements, but the account's`)
-        assert.equal(elements.length, bareElements.length + 2, label)
+        // Re-pointed 25 October 2026 (P1): and one more, the object played with as an element (the equipment sentence's "balls" cites it;
+        // nothing else does), beside the LAW-11 entry and LAW-4-GK as applied, which the equipment sentence cites now in place of the roster.
+        const ball = 'objects[c:sport-profile:soccer:SPORT-SOCCER-01]'
+        assert.deepEqual(elements.filter(element => element.path !== 'defaultLaws.laws[LAW-11]' && element.path !== COLOUR_AT && element.path !== ball), bareElements, `${label}: the provenance's elements, but the account's`)
+        assert.equal(elements.length, bareElements.length + 3, label)
         // The overview's evidence: the same but for the Details places moved by the offside sentence, and the Details' word count by exactly
-        // the two sentences' words (and, since the completeness audit's item 1, the colour clause's).
-        const accountWords = ACCOUNT_SENTENCES.reduce((n, sentence) => n + sentence.split(/\s+/).length, 0) + COLOUR.trim().split(/\s+/).length - 1
+        // the two sentences' words (and, since the completeness audit's item 1, the colour clause's). Re-pointed 25 October 2026 (P1): the three
+        // sentences' words (the roster's clause is no longer said in either build), and the places moved by each.
+        const accountWords = ACCOUNT_SAID.reduce((n, sentence) => n + sentence.split(/\s+/).length, 0)
         const overviewEvidence = production.evidence!.overview as any
         assert.equal(overviewEvidence.reading.detailsWords, (bare.evidence!.overview as any).reading.detailsWords + accountWords, `${label}: the Details' words`)
-        shifted(uncoloured({ ...overviewEvidence, reading: { ...overviewEvidence.reading, detailsWords: overviewEvidence.reading.detailsWords - accountWords } }), bare.evidence!.overview, after, `${label}: the overview's evidence`)
+        shifted(uncoloured({ ...overviewEvidence, reading: { ...overviewEvidence.reading, detailsWords: overviewEvidence.reading.detailsWords - accountWords } }), bare.evidence!.overview, placeIn(accountPlaces), `${label}: the overview's evidence`)
         // The R2 review's should-fix: the acceptance with only its sentence counts moved (two more DRAFT sentences), and the nine items whole.
+        // Re-pointed 25 October 2026 (P1): three more DRAFT sentences.
         const counted = (acceptance: { what: string; value: any }[], by: number) => acceptance.map(fact => (fact.what === 'sentences' ? { ...fact, value: { ...fact.value, draft: fact.value.draft - by, total: fact.value.total - by } } : fact))
-        assert.deepEqual(counted(production.evidence!.acceptance as any, more), bare.evidence!.acceptance, `${label}: the acceptance, but two more DRAFT sentences`)
+        assert.deepEqual(counted(production.evidence!.acceptance as any, more), bare.evidence!.acceptance, `${label}: the acceptance, but three more DRAFT sentences`)
         // The nine items: each lists the sentences bearing on it by their place, so with the account's two sentences taken out of production's
         // lists and every later place moved back, the items are the bare build's whole; which items the two sentences bear on is pinned.
-        const accountAt = production.rendered.instructions.flatMap((i, n) => (ACCOUNT_SENTENCES.includes(i.text) ? [n] : []))
+        // Re-pointed 25 October 2026 (P1): the account's three sentences.
+        const accountAt = accountPlaces
         const back = (n: number) => n - accountAt.filter(at => at < n).length
         const itemsWithout = (list: any[]) => list.map(item => ({ ...item, sentences: (item.sentences as number[]).filter(n => !accountAt.includes(n)).map(back) }))
-        assert.deepEqual(itemsWithout(production.evidence!.items as any[]), bare.evidence!.items, `${label}: the nine items, but the account's two sentences`)
+        /**
+         * Re-pointed 25 October 2026 (P1): an item lists the fields its sentences cite in the order they are first cited, and the equipment
+         * sentence, said first, cites the goalkeeper's count before the roster does; so the fields are compared as sets (each list of
+         * { path, ... } entries ordered by path, in both builds), every value whole. Was: compared in their order.
+         */
+        const byPath = (value: any): any =>
+            Array.isArray(value)
+                ? (value.length && value.every(entry => entry && typeof entry === 'object' && typeof entry.path === 'string') ? [...value].sort((a, b) => String(a.path).localeCompare(String(b.path))) : value).map(byPath)
+                : value && typeof value === 'object'
+                  ? Object.fromEntries(Object.entries(value).map(([key, entry]) => [key, byPath(entry)]))
+                  : value
+        assert.deepEqual(byPath(itemsWithout(production.evidence!.items as any[])), byPath(bare.evidence!.items), `${label}: the nine items, but the account's sentences`)
         assert.deepEqual(
             (production.evidence!.items as any[]).flatMap(item => (item.sentences as number[]).filter(n => accountAt.includes(n)).map(n => [item.id, production.rendered.instructions[n].text])),
             ACCOUNT_ITEMS,

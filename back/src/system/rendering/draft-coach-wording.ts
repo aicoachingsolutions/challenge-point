@@ -38,6 +38,7 @@ import { loadRegister, loadSportDefaultLaws } from '../derivation/corpus'
 import { DefaultLaws } from '../derivation/default-laws'
 import { AUDITS_DIR } from '../derivation/knowledge-root'
 import { indexRegister, RegisterIndex } from '../derivation/register'
+import { equipmentShapeUnusableBecause, EquipmentPartState, EquipmentWhen } from './approved-wording'
 
 export const DRAFT_COACH_WORDING_FILE = path.join(AUDITS_DIR, 'draft-coach-wording.json')
 export const DRAFT_COACH_WORDING_SOURCE = 'docs/audits/draft-coach-wording.json' as const
@@ -240,7 +241,38 @@ export interface ObjectChoiceWording {
     none: ObjectChoiceLabel
 }
 
+/**
+ * **How a restart is taken by a method, for a method the renderer's own table has no words for** — P1, 25 October 2026. Christian, reply
+ * filed 28 October 2026, item 1: *"The [specialized role] should be able to restart by [the four methods he names] the [object]
+ * into play."* and *"I don't want to prescribe a particular distribution method when the environment can preserve multiple solutions."* (his
+ * nouns bracketed: the coupling ratchet keeps a sport's nouns out of this layer; the data file quotes him whole). Keyed by a member of the
+ * register's T5.method vocabulary; the phrase follows "{taker} restarts play " and may hold the slot {carrier} and nothing else. Read by the
+ * renderer's restart sentences before its own table, so a method with neither has no words and its restart stays unsaid (fidelity refuses).
+ */
+export interface MethodWording {
+    method: string
+    phrase: string
+    basis: WordingBasis
+}
+
+/**
+ * **A DRAFT equipment sentence** — P1, 25 October 2026. Christian, reply filed 28 October 2026, item 3: *"Yes, please include a concise
+ * equipment list."* and *"The target-zone version should have its own corresponding requirements."* The shape of the approved EQUIPMENT
+ * template (`approved-wording.ts`, `equipmentShapeUnusableBecause` checks both alike): its parts, what each states and what a game must hold
+ * for every word to be true. Tried after every approved one by the renderer (`render-concrete-game.ts` equipmentSentence).
+ */
+export interface EquipmentWording {
+    parts: string[]
+    states: EquipmentPartState[]
+    when: EquipmentWhen
+    basis: WordingBasis
+}
+
 export interface DraftCoachWording {
+    /** P1: the words for how a restart is taken by a method, by method (empty where the file carries none). */
+    methods: MethodWording[]
+    /** P1: the DRAFT equipment sentences, in the order tried (empty where the file carries none). */
+    equipment: EquipmentWording[]
     objectKinds: ObjectKindWording[]
     facings: FacingWording[]
     scoringAtObjects: ScoringAtObjectWording[]
@@ -269,7 +301,9 @@ export interface DraftCoachWordingLoad {
 }
 
 const filled = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0
-const FILE_KEYS = new Set(['about', 'status', 'entryShape', 'objectKinds', 'facings', 'scoringAtObjects', 'normalLaws', 'triggers', 'deadBallRestart', 'restartLawNouns', 'departedLaws', 'boundRegions', 'appliedLaws', 'objectChoices'])
+const FILE_KEYS = new Set(['about', 'status', 'entryShape', 'objectKinds', 'facings', 'scoringAtObjects', 'normalLaws', 'triggers', 'deadBallRestart', 'restartLawNouns', 'departedLaws', 'boundRegions', 'appliedLaws', 'objectChoices', 'methods', 'equipment'])
+const METHOD_KEYS = new Set(['method', 'phrase', 'basis'])
+const EQUIPMENT_KEYS = new Set(['parts', 'states', 'when', 'basis'])
 const OBJECT_CHOICE_KEYS = new Set(['kind', 'authorized', 'attributeValues', 'other', 'none'])
 const CHOICE_LABEL_KEYS = new Set(['label', 'basis'])
 const ATTRIBUTE_CHOICE_KEYS = new Set(['attribute', 'value', 'label', 'basis'])
@@ -577,10 +611,54 @@ export function draftCoachWordingUnusableBecause(file: any, index: RegisterIndex
             }
         }
     }
+    /**
+     * P1 (25 October 2026), for his reply filed 28 October 2026, item 1: the words for how a restart is taken by a method - a member of the
+     * register's T5.method vocabulary, once, its phrase holding no slot but {carrier}, with his words for it.
+     */
+    if (file.methods !== undefined) {
+        if (!Array.isArray(file.methods)) return 'its methods entry is not a list'
+        const methodVocabulary = index.vocabularies.get('T5.method') ?? []
+        const seen = new Set<string>()
+        for (const [n, entry] of (file.methods as any[]).entries()) {
+            const which = `method ${n + 1}`
+            if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return `${which} is not an object`
+            for (const key of Object.keys(entry)) if (!METHOD_KEYS.has(key)) return `${which} carries "${key}"`
+            if (!filled(entry.method) || !methodVocabulary.includes(entry.method)) return `${which} names ${JSON.stringify(entry.method)}, which is no member of the register's T5.method vocabulary`
+            if (seen.has(entry.method)) return `${which} lists ${entry.method} again`
+            seen.add(entry.method)
+            if (!filled(entry.phrase) || strayBrace(entry.phrase) || slotsIn(entry.phrase).some(slot => slot !== 'carrier')) return `${which}: its phrase is missing or holds a slot other than {carrier}`
+            const basis = basisUnusableBecause(entry.basis)
+            if (basis) return `${which}: ${basis}`
+        }
+    }
+    /**
+     * P1 (25 October 2026), for his reply filed 28 October 2026, item 3: each DRAFT equipment sentence in the approved template's shape
+     * (`equipmentShapeUnusableBecause`), its kinds members of the register's object vocabulary and its performers specialized roles the
+     * register names, with his words for it.
+     */
+    if (file.equipment !== undefined) {
+        if (!Array.isArray(file.equipment)) return 'its equipment entry is not a list'
+        const performers = new Set([...index.specializedRoleRows.values()].map(String))
+        for (const [n, entry] of (file.equipment as any[]).entries()) {
+            const which = `equipment ${n + 1}`
+            if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return `${which} is not an object`
+            for (const key of Object.keys(entry)) if (!EQUIPMENT_KEYS.has(key)) return `${which} carries "${key}"`
+            const shape = equipmentShapeUnusableBecause(entry.parts, entry.states, entry.when)
+            if (shape) return `${which}: ${shape}`
+            for (const part of entry.parts as string[]) if (strayBrace(part)) return `${which}: a part holds a stray brace`
+            if (!objectKinds.includes(entry.when.carrier)) return `${which} names the object played with ${JSON.stringify(entry.when.carrier)}, which is no object kind of the register's vocabulary`
+            if (entry.when.targetObject && !objectKinds.includes(entry.when.targetObject.kind)) return `${which} names the target object kind ${JSON.stringify(entry.when.targetObject.kind)}, which is no object kind of the register's vocabulary`
+            for (const performer of [entry.when.distinguishes.performer, ...(entry.when.targetObject ? [entry.when.targetObject.defendedBy] : [])]) {
+                if (!performers.has(performer)) return `${which} names ${JSON.stringify(performer)}, which is no specialized role the register names`
+            }
+            const basis = basisUnusableBecause(entry.basis)
+            if (basis) return `${which}: ${basis}`
+        }
+    }
     return null
 }
 
-const EMPTY: DraftCoachWording = { objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [], boundRegions: [], appliedLaws: [], objectChoices: [] }
+const EMPTY: DraftCoachWording = { methods: [], equipment: [], objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [], boundRegions: [], appliedLaws: [], objectChoices: [] }
 
 /** The wording from a parsed file, copied, or none with why. */
 export function draftCoachWordingLoadOf(file: any, index: RegisterIndex, laws: DefaultLaws | null = loadSportDefaultLaws()): DraftCoachWordingLoad {
@@ -588,6 +666,8 @@ export function draftCoachWordingLoadOf(file: any, index: RegisterIndex, laws: D
     if (why) return { wording: JSON.parse(JSON.stringify(EMPTY)), why: `${DRAFT_COACH_WORDING_SOURCE} cannot be used: ${why}` }
     return {
         wording: {
+            methods: file.methods === undefined ? [] : JSON.parse(JSON.stringify(file.methods)),
+            equipment: file.equipment === undefined ? [] : JSON.parse(JSON.stringify(file.equipment)),
             objectKinds: JSON.parse(JSON.stringify(file.objectKinds)),
             facings: JSON.parse(JSON.stringify(file.facings)),
             scoringAtObjects: JSON.parse(JSON.stringify(file.scoringAtObjects)),
@@ -637,6 +717,16 @@ export function appliedLawReading(law: string, laws: DefaultLaws | null = loadSp
 /** The DRAFT normal-rules sentence, or null where the file carries none (stage L: said where the account owes nothing). */
 export function normalLawsWording(wording: DraftCoachWording = draftCoachWordingLoad().wording): NormalLawsWording | null {
     return wording.normalLaws ? JSON.parse(JSON.stringify(wording.normalLaws)) : null
+}
+
+/** The DRAFT phrase for how a restart taken by this method is said, or null where none is written (P1). */
+export function methodWording(method: unknown, wording: DraftCoachWording = draftCoachWordingLoad().wording): MethodWording | null {
+    return wording.methods.find(entry => entry.method === method) ?? null
+}
+
+/** The DRAFT equipment sentences, in the order the renderer tries them after the approved ones (P1). */
+export function equipmentWordings(wording: DraftCoachWording = draftCoachWordingLoad().wording): EquipmentWording[] {
+    return JSON.parse(JSON.stringify(wording.equipment))
 }
 
 /** The DRAFT phrase for when a restart on this trigger happens, or null where none is written (R1). */

@@ -269,7 +269,7 @@
         {
             "entry": "A01-W3",
             "parts": [{ "sentence": 1, "part": "WHOLE_SENTENCE" }],
-            "words": "If the building team loses possession or plays the ball out, it cannot score again until the next goalkeeper restart.",
+            "words": "If the building team loses possession, it cannot score again until the next goalkeeper restart.",
             "status": "APPROVED",
             "approvedBy": {
                 "who": "Christian",
@@ -283,7 +283,7 @@
                     "row": "B8",
                     "element": { "base": "activityRoles", "field": "activityRole", "equals": "BUILDING" },
                     "statedBy": "it cannot score again until the next goalkeeper restart",
-                    "why": "The building role's credit bound, its scoring eligibility: once it loses possession or plays the ball out its scoring stops, and only the next goalkeeper restart opens another episode in which it can score. His reply filed 20 October 2026, item 2: 'Coaches should understand that regaining possession does not restore the original build-out scoring opportunity.'",
+                    "why": "The building role's credit bound, its scoring eligibility: once it loses possession or plays the ball out its scoring stops, and only the next goalkeeper restart opens another episode in which it can score. His reply filed 20 October 2026, item 2: 'Coaches should understand that regaining possession does not restore the original build-out scoring opportunity.' AMENDED 25 October 2026 (P1): the words read are now his simplified sentence of his reply filed 28 October 2026, item 9 ('I approve simplifying the sentence to:' 'If the building team loses possession, it cannot score again until the next goalkeeper restart.'), which A01-W3 holds; the words that state this cover are the same, and so is what they state, in his words: 'Because every dead ball now produces a goalkeeper restart, the separate reference to playing the ball out is unnecessary.' 'This is a communication simplification, not a change in scoring eligibility.' The reading's approval (his reply filed 24 October 2026) was given for the words before; that it carries to these is OUR READING of his item 9, put to him.",
                     "note": "the building role's credit bound (B8 = BUILD_OUT_EPISODE, A01-R1-B8-1: its holder scores only inside a build-out episode"
                 }
             ],

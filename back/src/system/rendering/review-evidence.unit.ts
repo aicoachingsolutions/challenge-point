@@ -86,7 +86,8 @@ const HIS_ITEM_1 =
 /** His reply filed 20 October 2026, item 1 ("Approved as written."): production entry A01-W2 since design step L14. */
 const HIS_W2 = 'The pressing team also scores by winning the ball inside that zone, provided it genuinely establishes possession; a contested touch, deflection or loose ball does not count.'
 /** His reply filed 20 October 2026, item 2 (his own wording): production entry A01-W3 since design step L14. */
-const HIS_W3 = 'If the building team loses possession or plays the ball out, it cannot score again until the next goalkeeper restart.'
+// Re-pointed 25 October 2026 (P1): his simplified sentence, his reply filed 28 October 2026, item 9 (the 20 October one is kept superseded).
+const HIS_W3 = 'If the building team loses possession, it cannot score again until the next goalkeeper restart.'
 
 /*
  * Re-pointed 18 October 2026 (design step L14): production A01 is SERVED (his reply filed 20 October 2026, items 1 and 2: entries A01-W2
@@ -171,8 +172,12 @@ test('1. end to end on production data: SERVED (design step L14; was refused onl
     // not use (his reply filed 27 October 2026, item 4; dead-ball-wording.unit.ts), DRAFT; nothing approved changes.
     // Moved 24 October 2026 (R3), total 27 -> 28 and draft 23 -> 24: "There is no offside" (his reply filed 27 October 2026, item 2;
     // departed-law-wording.unit.ts), DRAFT; nothing approved changes.
-    assert.deepEqual(fact(evidence.acceptance, 'sentences'), { total: 28, approved: 4, draft: 24 })
-    assert.deepEqual(evidence.sections.instructions.filter(i => i.wording === 'APPROVED').map(i => i.text), ['When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone', HIS_ITEM_1, HIS_W3, HIS_W2])
+    // Moved 25 October 2026 (P1), total 28 -> 28, approved 4 -> 5 and draft 24 -> 23: his reply filed 28 October 2026 - the equipment
+    // sentence (item 3; the zone version's own, DRAFT) is said first, "The building team starts with the ball" is no longer said (item 6:
+    // the start says it), and "Decide which team builds first." (item 4) is approved wording in place of a DRAFT sentence; the possession
+    // sentence (item 5) and A01-W3 (item 9) stay approved in his new words.
+    assert.deepEqual(fact(evidence.acceptance, 'sentences'), { total: 28, approved: 5, draft: 23 })
+    assert.deepEqual(evidence.sections.instructions.filter(i => i.wording === 'APPROVED').map(i => i.text), ['Decide which team builds first', 'When possession changes, play carries on without a stoppage, and each team keeps attacking the same target', HIS_ITEM_1, HIS_W3, HIS_W2])
     // Measured at this stage: 19 Gate A checks per block, all PASS; the 9 cross-block checks; 11 owed invariants per block.
     // Re-pointed 21 October 2026 (stage 2D): 10 cross-block checks, RB-L joining.
     // Re-pointed 22 October 2026: 20 Gate A checks per block (40), GA-PARTICIPANTS-PRESENT joining (his reply filed 25 October 2026,
@@ -248,7 +253,8 @@ test('3. provenance: his three layers and the standings, every cited path traced
     // Re-pointed 24 October 2026 (R2): the WHEN opens with the common restart's rule ("... starts play, and restarts it whenever the ball is
     // dead: ..."). Was: "... restarts play: ...".
     const restartWhen = said(`The building team's ${ROLE} starts play, and restarts it whenever the ball is dead:`)
-    const restartHow = said(`The building team's ${ROLE} restarts play from the feet`)
+    // Re-pointed 25 October 2026 (P1): the HOW says the four methods his reply filed 28 October 2026, item 1 names (was "from the feet").
+    const restartHow = said(`The building team's ${ROLE} restarts play by passing, rolling, throwing or dribbling`)
     for (const restart of [restartWhen, restartHow]) assert.ok(restart.sources.some(s => s.standing === 'PROVISIONAL' && s.ref === 'provisional:A01-R1::A01-R1-T3-1'), restart.text)
     assert.ok(restartHow.sources.some(s => s.layer === 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS' && s.standing === 'APPROVED'))
     // Re-pointed 24 October 2026 (R1): the WHEN names the ball now ("whenever the ball goes out of play", his reply filed 27 October 2026,
@@ -356,7 +362,8 @@ test('5. the specialized role as a deep support option, and no prescription, as 
         // Re-pointed 24 October 2026 (R1): the role takes every restart after a dead ball too (his reply filed 27 October 2026, item 4:
         // "Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out."), listed in the order the game holds them.
         assert.deepEqual(takes.map((t: any) => t.trigger).sort(), ['COACH_DIRECTED_STOPPAGE', 'COACH_JUDGED_EPISODE_CONCLUSION', 'INFRINGEMENT_STOPPAGE', 'OUT_END_LINE', 'OUT_TOUCHLINE', 'SCORE', 'START'])
-        assert.ok(takes.every((t: any) => t.awardedToRole === 'BUILDING' && t.beginsConditionedEpisode && t.method === 'FROM_THE_FEET'))
+        // Re-pointed 25 October 2026 (P1): the method is TAKER_CHOOSES (his reply filed 28 October 2026, item 1; was FROM_THE_FEET).
+        assert.ok(takes.every((t: any) => t.awardedToRole === 'BUILDING' && t.beginsConditionedEpisode && t.method === 'TAKER_CHOOSES'))
         // Nowhere else but as one arm of the origin's alternative: no access rule, condition of its own or value modifier names it.
         assert.deepEqual(fact(facts, `block ${blockId}: other places the game names the role (not a team count or a restart's taker)`), ['value.primaryEvent.conditions[c:restated:RPC-001:RPC-001-18.a].referents.arms[0].takenBy'])
     }
@@ -371,13 +378,15 @@ test('5. the specialized role as a deep support option, and no prescription, as 
     // Moved 21 October 2026 (stage 2B), 5 -> 7: the opening restart is said as WHEN and HOW, both naming its taker, and where it is taken
     // now names its own restart ("You choose where the building team's goalkeeper restarts play, ..."), so three DRAFT sentences name the
     // role where one did; none carries a word of obligation or a prescription finding.
-    assert.equal(naming.length, 7)
+    // Moved 25 October 2026 (P1), 7 -> 8: the equipment sentence names the role ("a distinct goalkeeper colour", his reply filed 28 October
+    // 2026, item 3; the zone version's own, DRAFT), with no word of obligation or prescription finding.
+    assert.equal(naming.length, 8)
     // Re-pointed 24 October 2026 (R2): the WHEN opens with the common restart's rule ("The building team's goalkeeper starts play, and restarts
     // it whenever the ball is dead: ..."), still naming the role with no word of obligation; the Restarts and ball out sentence added in R2
     // names no role. Was: "The building team's goalkeeper restarts play".
     assert.deepEqual(
         naming.filter((s: any) => s.text.includes(`building team's ${ROLE} `)).map((s: any) => s.text.split(',')[0].split(':')[0]),
-        [`The building team's ${ROLE} starts play`, `The building team's ${ROLE} restarts play from the feet`, `You choose where the building team's ${ROLE} restarts play`],
+        [`The building team's ${ROLE} starts play`, `The building team's ${ROLE} restarts play by passing`, `You choose where the building team's ${ROLE} restarts play`],
     )
     assert.ok(naming.every((s: any) => s.q4.length === 0))
     assert.deepEqual(naming.filter((s: any) => s.obligationWords.length).map((s: any) => [s.text, s.obligationWords]), [[HIS_ITEM_1, [String(/\bmust\b/i)]], [HIS_W3, [String(/\bcan ?not\b/i), String(/\buntil\b/i)]]])

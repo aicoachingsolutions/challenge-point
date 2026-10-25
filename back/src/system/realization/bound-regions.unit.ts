@@ -193,7 +193,7 @@ test('register version 21: the function member, row S7 and the boundRegions bloc
     assert.deepEqual([spec.path, spec.objectPath, spec.nounLeaf, spec.functionLeaf, spec.alongLeaf, spec.acrossLeaf, spec.ofObjectLeaf, spec.functionAttribute], ['space.regions[]', 'objects[]', 'noun', 'functions', 'position.along', 'position.across', 'ofObject', 'functions'])
     // Re-pointed 23 October 2026 (H4): version 22 (the type a session states for its objects, his reply filed 26 October 2026, item 4) supersedes 21.
     // Re-pointed 24 October 2026 (R1): version 23 (one restart for every dead ball, his reply filed 27 October 2026, item 4) supersedes 22.
-    assert.ok(String(register.version).startsWith('23, adds one restart for every dead ball, for his reply filed 27 October 2026, item 4'))
+    assert.ok(String(register.version).includes('Supersedes version 23, which adds one restart for every dead ball, for his reply filed 27 October 2026, item 4'), 'version 23 is kept, beneath version 24 (P1, 25 October 2026)')
     assert.ok(String(register.version).includes('Supersedes version 22, which adds the type a session states for its objects of a kind, for his reply filed 26 October 2026, item 4'))
     assert.ok(String(register.version).includes('Supersedes version 21, which adds a region bound to an object, for his reply filed 26 October 2026, item 7'))
     for (const quote of [ITEM_7_PAIRING, 'This should be a general soccer environment capability rather than a Goalkeeper Build-Out exception.']) assert.ok(String(register.version).split('Supersedes version 20, ')[0].includes(`"${quote}"`), quote)

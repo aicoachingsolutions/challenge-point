@@ -382,11 +382,9 @@ export interface CoachDiagramBlock {
      * neutral arrows; null otherwise (and where none can be said, the arrows of unnamed teams are not drawn).
      */
     caption: string | null
-    /**
-     * Stage C2 (his reply filed 24 October 2026, item 4): what moves at the exchange into this block, the server's sentences (DRAFT), shown
-     * beside the drawing; empty where nothing moves or the game is not played in blocks. Optional for an answer served before C2.
-     */
-    exchange?: string[]
+    // REMOVED 25 October 2026 (P1, his reply filed 28 October 2026, item 11): `exchange`, the stage C2 sentences saying what moves at the
+    // exchange into the block. The server no longer sends them: the diagram shows the block's own starting configuration, and Coach Details
+    // say what moves ("with the role-exchange procedures explained once in Coach Details").
     lines: { along: DiagramInterval; across: DiagramInterval; markedLine: boolean; label: string | null }[]
     zones: { along: DiagramInterval; across: DiagramInterval; state: 'TARGET' | 'INSIDE_TARGET' | 'MARKED' | string }[]
     targets: { along: DiagramInterval; across: DiagramInterval; line: boolean; label: string | null }[]

@@ -455,11 +455,13 @@ const isBoundRegion = (fixture: any, index: RegisterIndex, regionId: string): bo
     return !!region && !!bindingOf(region, index)
 }
 /**
- * **The roster's clause telling a specialized performer apart** (stage L): the part of the Players sentence citing a law as applied
- * (`defaultLaws.applied[...]`) and that performer's count in the teams, and saying its name; or undefined.
+ * **The clause telling a specialized performer apart** (stage L): the part citing a law as applied (`defaultLaws.applied[...]`) and that
+ * performer's count in the teams, and saying its name; or undefined. Until P1 it was read in the Players sentence only; since P1 (25 October
+ * 2026, his reply filed 28 October 2026, item 3, with RC3 3.4) the equipment sentence says it where it names the performer's colour, and the
+ * Players sentence then does not, so it is read in whichever served sentence carries it (fidelity holds it to exactly one).
  */
-const colourClauseOf = (players: Instruction | undefined, leaf: string, name: string) =>
-    players?.parts?.find(part => part.from.some(path => path.startsWith(`${APPLIED_LAWS_ROOT}[`)) && part.from.includes(`performers.teams[].${leaf}`) && part.text.includes(name))
+const colourClauseIn = (sentences: Instruction[], leaf: string, name: string) =>
+    sentences.flatMap(sentence => sentence.parts ?? []).find(part => part.from.some(path => path.startsWith(`${APPLIED_LAWS_ROOT}[`)) && part.from.includes(`performers.teams[].${leaf}`) && part.text.includes(name))
 
 /**
  * Where a Set up sentence states a region's extent as limits the coach chooses within, not a value: it cites the region's position and
@@ -863,7 +865,7 @@ export function buildFieldDiagram(input: DiagramInput): { diagram: FieldDiagram 
             const row = defendedLeaf ? held?.[defendedLeaf] : undefined
             const name = row === undefined ? undefined : index.specializedRoleRows.get(String(row))
             if (typeof name !== 'string') continue
-            const clause = colourClauseOf(players, performerLeafOf(index, String(row)), name)
+            const clause = colourClauseIn(rendered, performerLeafOf(index, String(row)), name)
             if (!clause || !players) continue
             keepers.push({ object: object.elementId, along: { ...object.along }, across: { ...object.across }, label: carried(name, players), cites: [`objects[${object.elementId}].${defendedLeaf}`, ...clause.from] })
         }
@@ -1229,13 +1231,13 @@ export function checkFieldDiagram(diagram: FieldDiagram, input: DiagramInput): D
             if (!object || !same(object.along, keeper.along) || !same(object.across, keeper.across)) finding('D2', blockId, `the marker with ${keeper.object} is not drawn with the object it defends, where this block draws it`)
             const performer = performerOf(keeper.object)
             if (!performer || keeper.label.text !== performer.name) finding('D2', blockId, `the marker with ${keeper.object} is labelled "${keeper.label.text}", and the object is defended by ${performer ? `the ${performer.name}` : 'no specialized performer'}`)
-            else if (!colourClauseOf(servedPlayers, performer.leaf, performer.name)) finding('D2', blockId, `the marker with ${keeper.object} is drawn in a colour of its own, and no served roster sentence tells the coach to give the ${performer.name} one`)
+            else if (!colourClauseIn(rendered.filter(servedSays), performer.leaf, performer.name)) finding('D2', blockId, `the marker with ${keeper.object} is drawn in a colour of its own, and no served sentence tells the coach to give the ${performer.name} one`)
             checkWord(keeper.label, null, blockId, rendered, ordinal, performer?.name ?? null)
         }
         for (const object of block.objects) {
             const performer = performerOf(object.elementId)
-            if (performer && colourClauseOf(servedPlayers, performer.leaf, performer.name) && !(block.keepers ?? []).some(keeper => keeper.object === object.elementId)) {
-                finding('D2', blockId, `the served roster sentence gives the ${performer.name} defending ${object.elementId} a colour of its own, and no marker is drawn with it`)
+            if (performer && colourClauseIn(rendered.filter(servedSays), performer.leaf, performer.name) && !(block.keepers ?? []).some(keeper => keeper.object === object.elementId)) {
+                finding('D2', blockId, `a served sentence gives the ${performer.name} defending ${object.elementId} a colour of its own, and no marker is drawn with it`)
             }
         }
         // Each marked zone's state, read again from the targets' geometry.

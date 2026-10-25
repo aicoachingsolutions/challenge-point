@@ -8959,6 +8959,9 @@ What is served now (the review route and the live route agree; 40 x 30 m; the d2
   AMENDED 24 October 2026 (the completeness audit of the field-test build, item 1): the zone version now also closes its Players sentence with "give the goalkeeper a
   colour neither team wears" (DRAFT), at 12/1, 12/2 and 11/1: the clause is written for LAW-4-GK (IFAB Law 4.3) since, not for the
   handling law. In the goal version the same clause rests on LAW-4-GK too; its words are unchanged.
+  AMENDED 25 October 2026 (P1, his reply filed 28 October 2026, item 3): neither version's Players sentence says the colour any more: each
+  version's equipment sentence (his words in the goal version, our DRAFT mirror in the zone version), first in Set up, tells the goalkeeper
+  apart, citing LAW-4-GK (RC3 3.4: each idea once within a level). See the 25 October P1 entry at the end.
 - Goals not stated: ASKED, every choice offered (26 Oct item 11: never inferred from a goalkeeper). No goalkeeper: refused (both versions).
   Any area other than 40 x 30 m: refused (TESTING_AREA, both versions).
 - The developer runners (`npm run realize -- A01`, `npm run first:game -- A01`) derive the record's first alternative, A01-R2, with no role
@@ -9012,6 +9015,8 @@ bundles a probe beside a copy of `back/dist/knowledge` and drives the real revie
   the Coach details says what to bring, or the goal's size), and decision 6, two overlapping sentence pairs - "The building team starts
   with the ball" / "The building team's goalkeeper starts play", and "own side of the marked line" / "on the building team's side of the
   marked line". Still no failing test: the words are his to choose.
+  AMENDED 25 October 2026 (P1): he chose (his reply filed 28 October 2026, items 3 and 6); both are built and pinned
+  (`back/src/system/rendering/oct28-refinements.unit.ts`). See the 25 October P1 entry at the end.
 - The field-test observation sheet (4.4): `C:/Users/Administrator/Downloads/codex-output/Field-test observation sheet.txt`, DRAFT,
   for Christian, not coach-facing. Review fix: question 8 asked only whether players wait "near the goal". His 27 Oct item 2 speaks of
   players near "a scoring target", and the earlier discussion it refers to (his 18 Oct item 6) was about players staying beyond the
@@ -9100,11 +9105,51 @@ Known limitations (recorded, not fixed):
 - `front/tests/fixtures/a01.json` (copied from `snap-06.json`) keeps the goal version's roster citation of LAW-12-GK; the served body
   now cites LAW-4-GK. The visible words are the same, and no front test reads the citation; re-copy it from a later snapshot when the
   front tests are next touched.
+  AMENDED 25 October 2026 (P1): re-copied from the P1 snapshot (`P1-impl.json`, same four keys, provenance updated), so it holds the served
+  body since his reply filed 28 October 2026 (the equipment sentence, no exchange sentence in the diagram).
 - Design 4.1 I(d) is not built (a 3.6576 m goal of unstated type with no goalkeeper is asked its type before being refused).
 - Stage Z (goalkeeper handling in the zone version) waits on his answer (27 Oct item 5).
 
 What stays open:
 - His review of every DRAFT coach sentence (the colour clause in the zone version is new to it), and his answers to the 28 October
   email's six decisions.
+  AMENDED 25 October 2026 (P1): he answered them in his reply filed 28 October 2026 (Part 1); items 1, 3, 4, 5, 6, 9 and 11 are built (the
+  P1 entry below); items 2, 7 and 8 are later stages.
 - The front lint backlog (901), and the NumberField label bug.
 - A manual Render deploy of the back end once #141 and this audit are merged.
+
+### 25 October — P1: his reply filed 28 October 2026, Part 1 (items 1, 3, 4, 5, 6, 9, 11), in both versions of Play Out from the Back
+
+His words are in `scratchpad/christian-2026-10-28.txt`; every quotation P1 wrote was byte-checked against it. What a coach reads now (both
+versions, 12/1, 12/2, 11/1; 28 Details each, nothing said twice; fidelity 0; live equals review):
+- Item 1 (restart method). Knowledge: register version 24 adds `TAKER_CHOOSES` to the T5.method list (version 3, with semantics: no
+  method prescribed, the taker chooses among his four); A01-R1-T5-1 holds it (A01-R2 inherits it), the FROM_THE_FEET value, choice, words
+  and evidence kept verbatim in a dated AMENDED line; the notes that said "from the feet" (A01-R2-T4-5, the realization note, three entries
+  of A01's authorization record) carry AMENDED lines. Words: DRAFT data (`draft-coach-wording.json` `methods`): "The building team's
+  goalkeeper restarts play by passing, rolling, throwing or dribbling the ball into play". The A04 fixture re-frozen (digests and the
+  version sentence only).
+- Item 3 (equipment). First in Set up (RC3 5.2 "How do I organize it?"; not in the Overview, whose parameters RC3 4.3 lists as area, players
+  and duration - his to change). Goal version: his sentence verbatim, APPROVED (`approved-coach-wording.json` template EQUIPMENT), "12 × 6
+  ft" read from the cited FA pairing's object in whole feet (bound AS WHOLE_FEET; fidelity admits exactly that conversion at a pairing
+  object leaf, a narrow extension). Zone version: DRAFT "Balls, cones or field markers, and two team colours plus a distinct goalkeeper
+  colour" (`equipment`). Each entry says what the game must hold (`when`); none matches the demonstrations. The goalkeeper's colour is now
+  told by the equipment sentence only (RC3 3.4: our DRAFT roster clause yields to his approved words); fidelity's LAW-4-GK rules accept the
+  equipment's declared words in place of the roster clause, still exactly once; the diagram's marker reads the clause wherever it is said.
+  His sentence spells "color", our DRAFT text "colour": flagged for him.
+- Item 4: "Decide which team builds first" (APPROVED template FIRST_BLOCK_CHOICE, its role BUILDING read from the record), both versions.
+- Item 5: POSSESSION_CONTINUES now his replacement clause ("the same target", the 19 October sentence kept in `superseded`); the slot takes
+  the record's example word for every target that is not a line; the demonstrations keep "line" (DRAFT).
+- Item 6: two general rendering rules. (a) Where a restart group holds the START transition awarded to the team the game names as starting in
+  possession, its lead cites `possession.team` and "The building team starts with the ball" is not said. (b) Where the start placement is
+  said with a restart group, a restart-location bound ending in the taker's team's own side of the marked line (the renderer's own words for
+  it) is said without that clause: goal version "You choose where ... restarts play, consistent with the intended build-out situation"; the
+  game keeps the whole bound; the zone version's bound is said whole. Fidelity Q3 and the first-read test still cover every path (moving the
+  WHEN out of the first read is now refused for `possession.team` too).
+- Item 9: A01-W3 is "If the building team loses possession, it cannot score again until the next goalkeeper restart.", the 20 October
+  sentence kept in `superseded` with his 28 October words; covers and the game's eligibility unchanged (B8 BUILD_OUT_EPISODE); the W3
+  reading's words follow, its approval carried as OUR READING (flagged).
+- Item 11: the coach's diagram carries no exchange sentence (field removed, D9 refuses one); the Role exchange section keeps the procedure.
+- Item 10: no change (no offside, once, in both).
+Evidence: `npm test` FILES 132 FAILED 0 (new `oct28-refinements.unit.ts`; four mutants killed); snapshot `P1-impl.json` vs
+`C/snap-review.json`: 50 keys changed - A01 (text, account notes, digests, evidence, diagram) and the neutral-players demonstration's diagram
+losing its always-empty `exchange: []` key (nothing coach-visible); screenshots `scratchpad/cd/build/p1-shots/`.

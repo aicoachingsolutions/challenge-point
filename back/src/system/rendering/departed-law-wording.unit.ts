@@ -101,7 +101,8 @@ test('the loader refuses: a law the profile does not name or marks a restart law
     assert.equal(draftCoachWordingUnusableBecause(file, index), null)
     // Re-pointed 24 October 2026 (stage L): the wording gains boundRegions and appliedLaws, empty like every other list where the file cannot be used.
     // Re-pointed 24 October 2026 (stage I): the empty wording gains objectChoices.
-    const empty = { objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [], boundRegions: [], appliedLaws: [], objectChoices: [] }
+    // Re-pointed 25 October 2026 (P1): and methods and equipment (his reply filed 28 October 2026, items 1 and 3).
+    const empty = { methods: [], equipment: [], objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [], boundRegions: [], appliedLaws: [], objectChoices: [] }
     const refused = (alter: (f: any) => void, pattern: RegExp, what: string, laws = loadSportDefaultLaws()) => {
         const damaged = copy(file)
         alter(damaged)

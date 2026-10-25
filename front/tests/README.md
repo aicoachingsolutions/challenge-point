@@ -8,6 +8,9 @@ does not serve and fails that test in `afterEach`.
 
 `fixtures/a01.json` contains four unchanged response bodies copied from the built-bundle
 `codex-output/snap-06.json`. Its `provenance` records the snapshot SHA-256 and exact response keys.
+Re-copied 25 October 2026 (P1) from the built-bundle regression snapshot `P1-impl.json` (the same four
+keys, the bodies unchanged; its SHA-256 in `provenance`), so the activity is the one served since his
+reply filed 28 October 2026: the equipment sentence, no exchange sentence in the diagram.
 The A01 FA response supplies the activity, diagram and session values; the A01 refusal supplies
 the goal question; the other two responses supply review options and session equipment choices.
 Activity sentences and choice labels are never invented in the tests.

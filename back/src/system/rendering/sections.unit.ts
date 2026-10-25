@@ -448,8 +448,11 @@ test('14. the opening restart is said as WHEN (How it works, before the start pl
         // The words: the WHEN the common restart's rule and its moments (R2; until R1 the one sentence cut at the colon, its taker said again
         // at the start of HOW: ONE_SENTENCE, MOMENTS); WHERE names its own restart.
         assert.equal(when.text, `${COMMON_LEAD} ${COMMON_MOMENTS}`, what)
-        assert.ok(ONE_SENTENCE.startsWith(how.text), `${what}: the HOW is still the one sentence's opening words`)
-        assert.equal(how.text, `${TAKER} from the feet, with the ball still or moving`, what)
+        // Re-pointed 25 October 2026 (P1): the HOW says the method of his reply filed 28 October 2026, item 1 (TAKER_CHOOSES, its words from
+        // the DRAFT data), so it is no longer ONE_SENTENCE's opening words ("from the feet, with the ball still or moving"); the taker opens it
+        // as before.
+        assert.ok(ONE_SENTENCE.startsWith(`${TAKER} `) && how.text.startsWith(`${TAKER} `), `${what}: the HOW still opens with the one sentence's taker`)
+        assert.equal(how.text, `${TAKER} by passing, rolling, throwing or dribbling the ball into play`, what)
         assert.equal(where.text, `You choose where the building team's ${ROLE} restarts play, consistent with the intended build-out situation, in front of the pressing team's target zone`, what)
         assert.ok(!instructions.some(i => i.text.includes('each of these restarts is taken')), `${what}: no dangling "these restarts" in Restarts and ball out`)
         assert.deepEqual([when, how, where].map(i => i.quantities), [[], [], []], `${what}: no number in any half`)
@@ -494,7 +497,10 @@ test('14. the opening restart is said as WHEN (How it works, before the start pl
             const object = `objects[${(block.game.objects as any[]).find(o => typeof o?.kind === 'string').elementId}].kind`
             const qualifiers = openers.flatMap(t => Object.keys(t.qualifiers ?? {}).map(field => at(t, `qualifiers.${field}`)))
             assert.equal(qualifiers.length, 4, `${inBlock}: the touchline's last touch and region, the end line's last touch and end line`)
-            const cited = [...openers.flatMap(t => ['awardedTo', 'placement.actor', 'placement.method', 'playState', 'selector'].map(field => at(t, field))), ...qualifiers, object, 'restartPolicy.deadBall']
+            // Re-pointed 25 October 2026 (P1; his reply filed 28 October 2026, item 6: "The goalkeeper starting play already establishes that
+            // the building team begins in possession."): the WHEN's lead also cites the initial holder of possession, which the separate
+            // "The building team starts with the ball" cited until then (cited once, by the WHEN).
+            const cited = [...openers.flatMap(t => ['awardedTo', 'placement.actor', 'placement.method', 'playState', 'selector'].map(field => at(t, field))), ...qualifiers, object, 'restartPolicy.deadBall', 'possession.team']
             assert.deepEqual([...new Set([...ownWhen.from, ...ownHow.from])].sort(), [...cited].sort(), `${inBlock}: the one sentence's paths and nothing else`)
             for (const path_ of cited) {
                 const both = path_.endsWith('.awardedTo') || path_.endsWith('.placement.actor') || path_ === object
@@ -524,9 +530,13 @@ test('15. the first read carries every path read for understanding and beginning
     // also cited by the start placement, its antecedent, so they stay carried: the check reads citations, not words.)
     // Re-pointed 24 October 2026 (R1): and the qualifiers of the out-of-play openers (rows T1a-T1c, a WHEN field of an opener), which only
     // the WHEN cites since the ball going out joined its moments (his reply filed 27 October 2026, item 4).
-    const expected = openers
-        .flatMap(t => [...['awardedTo', 'placement.actor', 'playState'].map(field => `transitions[${t.elementId}].${field}`), ...Object.keys(t.qualifiers ?? {}).map(field => `transitions[${t.elementId}].qualifiers.${field}`)])
-        .sort()
+    // Re-pointed 25 October 2026 (P1; his reply filed 28 October 2026, item 6): and the initial holder of possession, which only the WHEN's
+    // lead cites since "The building team starts with the ball" is no longer said - so moving the WHEN out of the first read is refused for it
+    // too: the consolidation keeps the relation carried where the coach reads how play begins.
+    const expected = [
+        ...openers.flatMap(t => [...['awardedTo', 'placement.actor', 'playState'].map(field => `transitions[${t.elementId}].${field}`), ...Object.keys(t.qualifiers ?? {}).map(field => `transitions[${t.elementId}].qualifiers.${field}`)]),
+        'possession.team',
+    ].sort()
     const toRestarts = (i: Instruction): Instruction => ({ ...i, section: RESTARTS, when: 'ADMINISTER' })
     const moved = { ...rendered, instructions: rendered.instructions.map(i => (i === when ? toRestarts(i) : i)) }
     assert.deepEqual([...firstReadUncarried(moved.instructions, facts)].sort(), expected)

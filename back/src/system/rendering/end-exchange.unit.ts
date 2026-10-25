@@ -161,7 +161,8 @@ test('the register carries the end exchange as data (version 18): a game-level r
     // Re-pointed 23 October 2026 (H3): version 21 (a region bound to an object, his reply filed 26 October 2026, item 7) supersedes 20, once.
     // Re-pointed 23 October 2026 (H4): version 22 (the type a session states for its objects, his reply filed 26 October 2026, item 4) supersedes 21.
     // Re-pointed 24 October 2026 (R1): version 23 (one restart for every dead ball, his reply filed 27 October 2026, item 4) supersedes 22.
-    assert.match(String(register.version), /^23, adds one restart for every dead ball, .*Supersedes version 22, which adds the type a session states for its objects of a kind, .*Supersedes version 21, which adds a region bound to an object, .*Supersedes version 20, which records his rulings filed 26 October 2026 for the goal version of the build-out activity .*Supersedes version 19, which adds an object's availability as a session resource, .*Supersedes version 18, which adds the coach-controlled end exchange, .*Supersedes version 17, which adds object targets and the geometry a goal needs, .*Supersedes version 16, which adds one primary scoring event per role, /)
+    // Re-pointed 25 October 2026 (P1): version 24 (the restart method TAKER_CHOOSES, his reply filed 28 October 2026, item 1) supersedes 23.
+    assert.match(String(register.version), /^24, adds one member to the restart-method list, .*Supersedes version 23, which adds one restart for every dead ball, .*Supersedes version 22, which adds the type a session states for its objects of a kind, .*Supersedes version 21, which adds a region bound to an object, .*Supersedes version 20, which records his rulings filed 26 October 2026 for the goal version of the build-out activity .*Supersedes version 19, which adds an object's availability as a session resource, .*Supersedes version 18, which adds the coach-controlled end exchange, .*Supersedes version 17, which adds object targets and the geometry a goal needs, .*Supersedes version 16, which adds one primary scoring event per role, /)
     assert.ok(String(register.version).includes('"Team-end assignments may change between coach-controlled blocks when the authorized activity configuration requires it."'), 'the version entry quotes item 5')
     assert.equal(String(register.version).split('Supersedes version 17, ').length - 1, 1)
     assert.equal(String(register.version).split('Supersedes version 18, ').length - 1, 1)
@@ -169,7 +170,7 @@ test('the register carries the end exchange as data (version 18): a game-level r
     assert.equal(String(register.version).split('Supersedes version 20, ').length - 1, 1)
     assert.equal(String(register.version).split('Supersedes version 21, ').length - 1, 1, 'version 21 superseded once, by version 22 (H4)')
     assert.equal(String(register.version).split('Supersedes version 22, ').length - 1, 1, 'version 22 superseded once, by version 23 (R1)')
-    assert.ok(!String(register.version).includes('Supersedes version 23'), 'version 23 is the current entry')
+    assert.ok(String(register.version).startsWith('24, adds one member to the restart-method list, for his reply filed 28 October 2026, item 1') && !String(register.version).includes('Supersedes version 24'), 'version 24 is the current entry (P1, 25 October 2026)')
     /**
      * Re-pointed 26 October 2026 (Stage F): the glosses S3 restates WERE untouched until his reply filed 26 October 2026, item 3 approved S3
      * word for word ("I approve both statements:"); ruling C62 restates them. The ends stay kept in every game that states no exchange - only

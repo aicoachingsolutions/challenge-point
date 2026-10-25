@@ -120,7 +120,7 @@ test('register version 14 holds the rows as data, in one versions entry quoting 
     // Re-pointed 23 October 2026 (H3): version 21 (a region bound to an object, his reply filed 26 October 2026, item 7) supersedes 20.
     // Re-pointed 23 October 2026 (H4): version 22 (the type a session states for its objects, his reply filed 26 October 2026, item 4) supersedes 21.
     // Re-pointed 24 October 2026 (R1): version 23 (one restart for every dead ball, his reply filed 27 October 2026, item 4) supersedes 22.
-    assert.ok(full.startsWith('23, adds one restart for every dead ball, for his reply filed 27 October 2026, item 4'))
+    assert.ok(full.includes('Supersedes version 23, which adds one restart for every dead ball, for his reply filed 27 October 2026, item 4'), 'version 23 is kept, beneath version 24 (P1, 25 October 2026)')
     assert.ok(full.includes('Supersedes version 22, which adds the type a session states for its objects of a kind, for his reply filed 26 October 2026, item 4'))
     assert.ok(full.includes('Supersedes version 21, which adds a region bound to an object, for his reply filed 26 October 2026, item 7'))
     assert.ok(full.includes('Supersedes version 20, which records his rulings filed 26 October 2026 for the goal version of the build-out activity'))
@@ -151,7 +151,7 @@ test('register version 14 holds the rows as data, in one versions entry quoting 
     assert.equal(full.split('Supersedes version 20, ').length - 1, 1, 'version 20 superseded once, by version 21 (H3)')
     assert.equal(full.split('Supersedes version 21, ').length - 1, 1, 'version 21 superseded once, by version 22 (H4)')
     assert.equal(full.split('Supersedes version 22, ').length - 1, 1, 'version 22 superseded once, by version 23 (R1)')
-    assert.ok(!full.includes('Supersedes version 23'), 'version 23 is the current entry')
+    assert.ok(full.startsWith('24, adds one member to the restart-method list, for his reply filed 28 October 2026, item 1') && !full.includes('Supersedes version 24'), 'version 24 is the current entry (P1, 25 October 2026)')
     const row = (id: string) => index.rows.get(id)!
     assert.deepEqual([row('B8').path, row('B8').ownerRow, row('B8').kind], ['activityRoles[].creditedWithin', 'B1', 'FIELD'])
     assert.deepEqual([row('V27').path, row('V27').kind, row('V27').selectorAttributes, row('V27').earnsValueOf], ['value.primaryEvent.alsoCounts[]', 'COLLECTION', ['team'], 'V2'])

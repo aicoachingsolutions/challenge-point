@@ -79,6 +79,12 @@ const texts = (activity: ServedActivity) => activity.rendered.instructions.map(i
 const ROLE_CASES = [[12, 1], [12, 2], [11, 1]] as const
 const BOX = "Mark the goal's penalty area: 15 m wide, centred on the goal, and 9 m deep into the area; inside it the goalkeeper can handle the ball as in a normal game"
 const COLOUR = '; give the goalkeeper a colour neither team wears'
+/**
+ * Added 25 October 2026 (P1): the goalkeeper's colour is told by the equipment sentence's last part (his reply filed 28 October 2026, item 3:
+ * his words in the goal version, our DRAFT mirror in the zone version), citing LAW-4-GK, and no longer by the roster (RC3 3.4).
+ */
+const GOAL_COLOUR = ', and two team colors plus a distinct goalkeeper color'
+const ZONE_COLOUR = ', and two team colours plus a distinct goalkeeper colour'
 const OFFSIDE_AND_NORMAL = 'There is no offside; otherwise, normal soccer rules apply during play'
 const RESTART = "The building team's goalkeeper starts play, and restarts it whenever the ball is dead"
 const W = (id: string) => approvedWording().find(entry => entry.id === id)!.sentence
@@ -104,9 +110,12 @@ test('the FA 5v5 goal at 12/1, 12/2 and 11/1: the goal version served, as the de
         // The penalty area set out once, in its own Set up sentence; no spot and no goal area.
         assert.deepEqual(coach.rendered.instructions.filter(instruction => instruction.text === BOX).map(instruction => instruction.section), ['Set up'], label)
         assert.ok(!said.some(text => /penalty (spot|mark)|goal area|\b6 m\b/i.test(text)), label)
-        // The goalkeeper's colour closes the roster, and its marker is drawn with the goal in both blocks.
+        // The goalkeeper's colour closes the roster, and its marker is drawn with the goal in both blocks. Re-pointed 25 October 2026 (P1): the
+        // colour is told by his equipment sentence, first in Set up; the roster no longer closes with it.
         const roster = coach.rendered.instructions.filter(instruction => instruction.section === 'Players')
-        assert.ok(roster.length === 1 && roster[0].text.endsWith(COLOUR), label)
+        assert.ok(roster.length === 1 && !roster[0].text.endsWith(COLOUR), label)
+        const equipment = coach.rendered.instructions[0]
+        assert.ok(equipment.section === 'Set up' && equipment.text.endsWith(GOAL_COLOUR), label)
         if (keepers === 2) assert.ok(roster[0].text.includes('1 goalkeeper and 6 other players'), `${label}: the second goalkeeper plays among the other players`)
         for (const block of coach.diagram!.blocks) {
             assert.deepEqual(block.keepers, [{ along: { from: 0, to: 0 }, across: { from: 13.1712, to: 16.8288 }, label: KEEPER }], label)
@@ -135,7 +144,8 @@ test('the FA 5v5 goal at 12/1, 12/2 and 11/1: the goal version served, as the de
         assert.deepEqual(laws.blocks.map(block => block.laws.filter(entry => entry.law === 'LAW-12-GK').map(entry => entry.status)), [['APPLIES'], ['APPLIES']], label)
         // The completeness audit, item 1: the goalkeeper's colours apply in each block, and the colour clause cites that law.
         assert.deepEqual(laws.blocks.map(block => block.laws.filter(entry => entry.law === 'LAW-4-GK').map(entry => entry.status)), [['APPLIES'], ['APPLIES']], label)
-        assert.deepEqual(roster[0].parts!.filter(part => part.text === COLOUR).map(part => part.from[0]), ['defaultLaws.applied[LAW-4-GK]'], label)
+        // Re-pointed 25 October 2026 (P1): the part telling the goalkeeper apart is the equipment sentence's, and it cites that law.
+        assert.deepEqual(equipment.parts!.filter(part => part.text === GOAL_COLOUR).map(part => part.from[1]), ['defaultLaws.applied[LAW-4-GK]'], label)
         assert.deepEqual(admin.evidence!.provenance.lists!.gapsStillNeeded, [], `${label}: no decision is still needed`)
         // The live pathway: the review page's activity, whole.
         const outcome = viaLive(session)
@@ -162,9 +172,11 @@ test('none, and every goal that does not suit: the zone version served exactly a
         // Re-pointed 24 October 2026 (the completeness audit, item 1): the zone version closes its roster with the goalkeeper's colour, once,
         // citing LAW-4-GK, and says none of the goal version's other sentences; its diagram draws no goalkeeper marker. Was: no colour either.
         assert.ok(!texts(zone).some(text => /penalty area|handle|normal soccer rules/.test(text)), `${label}: the zone version says none of the goal version's other sentences`)
+        // Re-pointed 25 October 2026 (P1): the colour is told once, by the zone version's own equipment sentence (DRAFT; his reply filed 28
+        // October 2026, item 3), first in Set up, citing LAW-4-GK; the roster no longer closes with it. Was: once, closing the roster.
         const zoneRoster = zone.rendered.instructions.filter(instruction => instruction.text.includes('colour'))
-        assert.deepEqual(zoneRoster.map(instruction => [instruction.section, instruction.text.endsWith(COLOUR), instruction.text.split('colour').length - 1]), [['Players', true, 1]], `${label}: the colour, once, closing the roster`)
-        assert.deepEqual(zoneRoster[0].parts!.filter(part => part.text === COLOUR).map(part => part.from), [['defaultLaws.applied[LAW-4-GK]', `performers.teams[].${KEEPER}`]], label)
+        assert.deepEqual(zoneRoster.map(instruction => [instruction.section, instruction.text.endsWith(ZONE_COLOUR), instruction.text.split('distinct goalkeeper colour').length - 1]), [['Set up', true, 1]], `${label}: the colour, once, in the equipment sentence`)
+        assert.deepEqual(zoneRoster[0].parts!.filter(part => part.text === ZONE_COLOUR).map(part => part.from), [['performers.teams', 'defaultLaws.applied[LAW-4-GK]', `performers.teams[].${KEEPER}`]], label)
         assert.ok(zone.diagram!.blocks.every(block => !('keepers' in block)), `${label}: no goalkeeper marker in the zone version's diagram`)
         assert.deepEqual((viaLive(stored(players, keepers, NO_GOAL)) as { activity: ServedActivity }).activity, zone, `${label}: live equals review`)
         for (const [what, goal] of unsuitable) {

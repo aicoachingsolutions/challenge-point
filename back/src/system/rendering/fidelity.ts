@@ -21,11 +21,12 @@ import { loadSportDefaultLaws } from '../derivation/corpus'
 import { practical, PracticalKind, practicalRequirement } from '../derivation/practical'
 import { effectiveValue, scaleExactly } from '../derivation/rational'
 import { conditionScopeNotEvaluable } from '../derivation/resolved-game'
-import { ApprovedWording, approvedWording } from './approved-wording'
+import { ApprovedWording, approvedWording, approvedTemplateSentences, EQUIPMENT_KIND } from './approved-wording'
 import { CoachFacingExclusion, exclusionFor } from './coach-facing-exclusions'
-import { appliedLawReading, appliedLawWordings, departedLawWordings, draftCoachWordingLoad, fillSlots, restartLawNouns, scoringAtObjectWording } from './draft-coach-wording'
+import { appliedLawReading, appliedLawWordings, departedLawWordings, draftCoachWordingLoad, equipmentWordings, fillSlots, restartLawNouns, scoringAtObjectWording } from './draft-coach-wording'
 import { layoutLeafNumberAt, MARK_UNION_ONCE, PhysicalLayout, Remarking, somethingMoves } from './physical-layout'
 import { appliedLawPath, appliesThroughout, BOUND_REGIONS_ROOT, boundRegionPath, DEFAULT_LAWS_OWED, DEFAULT_LAWS_ROOT, defaultLawPath, departedThroughout, fixtureBoundRegion, fixtureLawAccount, owesNothing } from './rendering-fixture'
+import { wholeFeet } from './session-object-choices'
 import {
     ADJUSTING,
     approvedSentences,
@@ -596,6 +597,30 @@ export function boundRegionLeafNumberAt(fixture: unknown, path: string): number[
     return typeof value === 'number' && Number.isFinite(value) ? [value] : []
 }
 
+/** The leaves of a carried pairing's object a sentence may say in whole feet (P1): its width and height. */
+export const PAIRING_OBJECT_FEET_LEAVES = ['pairing.object.widthM', 'pairing.object.heightM'] as const
+
+/**
+ * **A figure of a carried pairing's object, as a whole number of feet** — P1, 25 October 2026, a validation EXTENSION, narrow. Christian,
+ * reply filed 28 October 2026, item 3: *"One 12 × 6 ft [specialized-role]-defended [object], ..."* (his nouns bracketed for the coupling
+ * ratchet): his figures are the object's width and height in feet, which the pairing records as their exact conversion at 0.3048 m per
+ * foot. For a path that is exactly such a leaf of a pairing the fixture carries (`PAIRING_OBJECT_FEET_LEAVES`), the figure as a whole number
+ * of feet, as a list of one; empty for every other path, and for a figure that is not a whole number of feet (nothing is rounded). Admitted
+ * only for a number a sentence binds AS WHOLE_FEET to that very path it cites (Q2, by binding), or that it cites the path of (Q2).
+ */
+export function pairingObjectFeetAt(fixture: unknown, path: string): number[] {
+    const head = `${BOUND_REGIONS_ROOT}.regions[`
+    if (!path.startsWith(head)) return []
+    const close = path.indexOf(']', head.length)
+    if (close < 0 || path.charAt(close + 1) !== '.') return []
+    const leaf = path.slice(close + 2)
+    if (!(PAIRING_OBJECT_FEET_LEAVES as readonly string[]).includes(leaf)) return []
+    const object = fixtureBoundRegion(fixture, path.slice(head.length, close))?.pairing?.object
+    const metres = leaf === 'pairing.object.widthM' ? object?.widthM : object?.heightM
+    const feet = typeof metres === 'number' ? wholeFeet(metres) : null
+    return feet === null ? [] : [feet]
+}
+
 /**
  * A quantity is supported if the game contains it as a value, OR if it is the size of a collection the
  * instruction cites. "2 teams" is not an invention — the game contains two team members — but the 2 is a
@@ -615,6 +640,8 @@ function supportedQuantity(fixture: any, instruction: Pick<Instruction, 'from'>,
     if (instruction.from.some(path => layoutLeafNumberAt(fixture.layout, path).includes(quantity))) return true
     // Stage L: and a figure of the pairing a bound region cites, for a sentence citing that leaf of it (`boundRegionLeafNumberAt`).
     if (instruction.from.some(path => boundRegionLeafNumberAt(fixture, path).includes(quantity))) return true
+    // P1 (25 October 2026): a figure of a carried pairing's object in whole feet, for a sentence citing exactly that leaf.
+    if (instruction.from.some(path => pairingObjectFeetAt(fixture, path).includes(quantity))) return true
     for (const path of instruction.from) {
         const collection = path.split('.').reduce<any>((node, key) => (node == null ? node : node[key]), fixture.game)
         if (Array.isArray(collection) && collection.length === quantity) return true
@@ -1169,7 +1196,22 @@ function appliedLawFindings(fixture: any, rendered: RenderedActivity): FidelityF
         const values: Record<string, string> = { ...(performer ? { performer } : {}), ...(carrier ? { carrier: String(carrier.kind) } : {}) }
         const inRegion = entry.inRegion ? fillSlots(entry.inRegion.words, values) : null
         const distinguished = entry.distinguished ? fillSlots(entry.distinguished.words, values) : null
-        const clauses = [inRegion, distinguished].filter((clause): clause is string => !!clause)
+        /**
+         * P1 (25 October 2026; his reply filed 28 October 2026, item 3, with RC3 3.4): the words an equipment sentence tells the same performer
+         * apart by (`when.distinguishes`, of every usable approved equipment template and every DRAFT equipment entry naming that performer),
+         * where it says them in place of the roster's clause. They count as the clause wherever the clause is counted below: a part citing the
+         * law must say one of them; together they are said once; and the law applying is told by the roster sentence or by a Set up sentence
+         * saying them. Nothing else moves.
+         */
+        const equipmentForms =
+            distinguished && performer
+                ? [
+                      ...approvedTemplateSentences().filter(template => template.kind === EQUIPMENT_KIND && template.when?.distinguishes?.performer === performer).map(template => template.when!.distinguishes.words),
+                      ...equipmentWordings().filter(wording => wording.when.distinguishes.performer === performer).map(wording => wording.when.distinguishes.words),
+                  ]
+                : []
+        const tellsApart = distinguished ? [distinguished, ...equipmentForms] : []
+        const clauses = [inRegion, ...tellsApart].filter((clause): clause is string => !!clause)
         /**
          * AMENDED 24 October 2026 (the completeness audit of the field-test build, item 1), a NEW clause (a TIGHTENING): the clause telling the
          * performer apart is said once. Since the DRAFT data writes it for the law of the performer's colours, which the Sport Profile lists
@@ -1178,7 +1220,7 @@ function appliedLawFindings(fixture: any, rendered: RenderedActivity): FidelityF
          * saying it in more than one statement is refused (Q2), wherever the game's account stands.
          */
         if (distinguished) {
-            const saying = rendered.instructions.flatMap(i => (i.parts?.length ? i.parts : [{ text: i.text, from: i.from }])).filter(statement => statement.text.includes(distinguished))
+            const saying = rendered.instructions.flatMap(i => (i.parts?.length ? i.parts : [{ text: i.text, from: i.from }])).filter(statement => tellsApart.some(form => statement.text.includes(form)))
             if (saying.length > 1) findings.push({ question: 2, severity: 'VIOLATION', what: `${saying.length} statements tell the coach "${distinguished}" (${saying.map(statement => `"${statement.text}"`).join('; ')}): it is said once` })
         }
         for (const instruction of rendered.instructions.filter(i => i.from.includes(at))) {
@@ -1192,7 +1234,9 @@ function appliedLawFindings(fixture: any, rendered: RenderedActivity): FidelityF
         if (!applies) continue
         if (distinguished) {
             const roster = rendered.instructions.find(i => i.section === 'Players' && i.from.includes('envelope.players'))
-            if (!roster || !roster.from.includes(at)) findings.push({ question: 3, severity: 'VIOLATION', what: `the game's default-laws account records ${entry.law} as applying, and the roster sentence does not tell the coach "${distinguished}"` })
+            // P1: or the equipment sentence says it, in Set up, citing the law and saying words written to tell that performer apart.
+            const equipment = rendered.instructions.find(i => i.section === 'Set up' && i.from.includes(at) && equipmentForms.some(form => i.text.includes(form)))
+            if ((!roster || !roster.from.includes(at)) && !equipment) findings.push({ question: 3, severity: 'VIOLATION', what: `the game's default-laws account records ${entry.law} as applying, and neither the roster sentence nor an equipment sentence tells the coach "${distinguished}"` })
         }
         if (inRegion) {
             for (const region of (fixture?.game?.space?.regions ?? []) as any[]) {
@@ -1427,11 +1471,16 @@ export function checkFidelity(
              * neutral players and 1 is only the least it may hold — the same "which number is which" hole this check
              * was built to close, one level down. A binding marked `REQUIRED_LIMIT` is admitted only as a required
              * limit; an unmarked one only as a value the property holds (or starts at, or its effective value).
+             *
+             * P1 (25 October 2026, a narrow EXTENSION): a binding marked `WHOLE_FEET` is admitted only where its path is a leaf of a carried
+             * pairing's object and the number is that figure's exact whole-feet conversion (`pairingObjectFeetAt`), and nothing else is.
              */
             const admitted =
                 statement.status === 'PREFERENCE'
                     ? [range?.preferred?.min, range?.preferred?.max].some(limit => stated(limit) && limit === quantity)
-                    : as === 'REQUIRED_LIMIT'
+                    : as === 'WHOLE_FEET'
+                      ? pairingObjectFeetAt(fixture, path).includes(quantity)
+                      : as === 'REQUIRED_LIMIT'
                       ? requiredLimit
                       : heldAt(fixture, path).some(n => n === quantity && (asStarting || !stated(begun) || n !== begun || [range?.required?.min, range?.required?.max].includes(n))) ||
                       (asStarting && stated(begun) && begun === quantity) ||

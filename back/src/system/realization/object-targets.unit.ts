@@ -100,7 +100,7 @@ test('register version 17 holds the rows as data, in one versions entry quoting 
     // Re-pointed 23 October 2026 (H3): version 21 (a region bound to an object, his reply filed 26 October 2026, item 7) supersedes 20.
     // Re-pointed 23 October 2026 (H4): version 22 (the type a session states for its objects, his reply filed 26 October 2026, item 4) supersedes 21.
     // Re-pointed 24 October 2026 (R1): version 23 (one restart for every dead ball, his reply filed 27 October 2026, item 4) supersedes 22.
-    assert.ok(latest.startsWith('23, adds one restart for every dead ball, for his reply filed 27 October 2026, item 4'))
+    assert.ok(latest.includes('Supersedes version 23, which adds one restart for every dead ball, for his reply filed 27 October 2026, item 4'), 'version 23 is kept, beneath version 24 (P1, 25 October 2026)')
     assert.ok(latest.includes('Supersedes version 22, which adds the type a session states for its objects of a kind, for his reply filed 26 October 2026, item 4'))
     assert.ok(latest.includes('Supersedes version 21, which adds a region bound to an object, for his reply filed 26 October 2026, item 7'))
     assert.ok(latest.includes('Supersedes version 20, which records his rulings filed 26 October 2026 for the goal version of the build-out activity'))
@@ -110,7 +110,7 @@ test('register version 17 holds the rows as data, in one versions entry quoting 
     assert.equal(latest.split('Supersedes version 20, ').length - 1, 1, 'version 20 superseded once, by version 21 (H3)')
     assert.equal(latest.split('Supersedes version 21, ').length - 1, 1, 'version 21 superseded once, by version 22 (H4)')
     assert.equal(latest.split('Supersedes version 22, ').length - 1, 1, 'version 22 superseded once, by version 23 (R1)')
-    assert.ok(!latest.includes('Supersedes version 23'), 'version 23 is the current entry')
+    assert.ok(latest.startsWith('24, adds one member to the restart-method list, for his reply filed 28 October 2026, item 1') && !latest.includes('Supersedes version 24'), 'version 24 is the current entry (P1, 25 October 2026)')
     const full = `17, ${latest.split('Supersedes version 17, which ')[1]}`
     assert.ok(full.startsWith('17, adds object targets and the geometry a goal needs, for his reply filed 25 October 2026, item 3'))
     for (const quote of HIS_ITEM_3) assert.ok(full.split('Supersedes version 16, ')[0].includes(`"${quote}"`), quote)
@@ -528,7 +528,8 @@ test('integration review fix (TEST-ONLY goal version): no sentence calls a targe
         for (const instruction of activity.rendered.instructions) {
             for (const pattern of [...LINE_WORDS, ...TARGET_AS_LINE]) assert.ok(!pattern.test(instruction.text), `${ends}: "${instruction.text}" calls a target a line`)
             // The carrier: the target object is never what the teams start with, put out of play or restart with.
-            assert.ok(!/\bstarts with the goal\b|\bthe goal goes out\b|\bthe goal still or moving\b|\btouch the goal last\b/.test(instruction.text), `${ends}: "${instruction.text}" plays with the target object`)
+            // P1 (25 October 2026): and the restart method's words ("... or dribbling the [object] into play") never name the target object.
+            assert.ok(!/\bstarts with the goal\b|\bthe goal goes out\b|\bthe goal still or moving\b|\btouch the goal last\b|\bthe goal into play\b/.test(instruction.text), `${ends}: "${instruction.text}" plays with the target object`)
         }
         assert.deepEqual(activity.rendered.withheld, [], `${ends}: nothing is withheld`)
         const target = activity.rendered.instructions.find(instruction => instruction.text === "The pressing team's target is the goal")
@@ -539,7 +540,9 @@ test('integration review fix (TEST-ONLY goal version): no sentence calls a targe
         const referenced = new Set(((blockFixture?.game?.objectives ?? []) as any[]).map(o => o?.reference?.structuralRef).filter(Boolean).map((ref: any) => `c:${ref.contractId}:${ref.itemId}`))
         const played = ((blockFixture?.game?.objects ?? []) as any[]).find(object => typeof object?.kind === 'string' && !referenced.has(String(object.elementId)))
         assert.ok(played && played.kind !== 'goal', `${ends}: the played object is read`)
-        assert.ok(activity.rendered.instructions.some(instruction => instruction.text.includes(`starts with the ${played.kind}`)), `${ends}: ${activity.rendered.instructions.map(i => i.text).join(' | ')}`)
+        // Re-pointed 25 October 2026 (P1; his reply filed 28 October 2026, item 6): "The building team starts with the [object]" is no longer said
+        // where the start says it, so the played object is read where the restart sentence names it ("... whenever the [object] is dead").
+        assert.ok(activity.rendered.instructions.some(instruction => instruction.text.includes(`the ${played.kind}`) && instruction.from.includes(`objects[${played.elementId}].kind`)), `${ends}: ${activity.rendered.instructions.map(i => i.text).join(' | ')}`)
     }
     // Under KEPT (no draft: block 2 is refused before realization) block 1 still withholds the object target's reference.
     const kept = reasonsOf(goalBuild(), BLOCK_1)

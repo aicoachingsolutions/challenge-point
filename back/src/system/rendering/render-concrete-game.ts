@@ -53,13 +53,14 @@ import { indexRegister, RegisterIndex } from '../derivation/register'
 import { effectiveValue } from '../derivation/rational'
 import { NO_FURTHER_VALUE } from '../derivation/types'
 import { CONDITION_ROW, conditionScopeNotEvaluable } from '../derivation/resolved-game'
-import { ApprovedTemplateSentence, approvedTemplateSentences, approvedWording, ApprovedWording, canonicalJson, fillTemplate, POSSESSION_CONTINUES, WordingMatch } from './approved-wording'
+import { ApprovedTemplateSentence, approvedTemplateSentences, approvedWording, ApprovedWording, canonicalJson, EQUIPMENT_KIND, EquipmentPartState, EquipmentWhen, fillTemplate, FIRST_BLOCK_CHOICE, POSSESSION_CONTINUES, WordingMatch } from './approved-wording'
 import { exclusionFor } from './coach-facing-exclusions'
-import { appliedLawReading, appliedLawWordings, boundRegionWording, deadBallRestartWording, departedLawWordings, facingWording, fillSlots, normalLawsWording, objectKindWording, restartLawNouns, scoresAtAnObject, scoringAtObjectWording, slotsOf, triggerWording, triggerWordingOrder } from './draft-coach-wording'
+import { appliedLawReading, appliedLawWordings, boundRegionWording, deadBallRestartWording, departedLawWordings, equipmentWordings, facingWording, fillSlots, methodWording, normalLawsWording, objectKindWording, restartLawNouns, scoresAtAnObject, scoringAtObjectWording, slotsOf, triggerWording, triggerWordingOrder } from './draft-coach-wording'
 import { eventKindOf, genericOf } from './game-reading'
 import { LayoutRectangle, MARK_UNION_ONCE, MarkingChange, PhysicalLayout, Remarking, somethingMoves } from './physical-layout'
 import { appliedLawPath, appliesThroughout, boundRegionPath, DEFAULT_LAWS_OWED, defaultLawPath, departedThroughout, fixtureBoundRegion, fixtureLawAccount, owesNothing } from './rendering-fixture'
 import { ADJUSTING, assignSection, inSectionOrder, PLAY_STATE_UNREADABLE, RESTARTS, ROLE_EXCHANGE, Section, SectionFacts, TransitionReading, When } from './sections'
+import { feetSizeWords, wholeFeet } from './session-object-choices'
 
 // The two section names every importer has read from here since stages S-C1 and K3; since stage 2A they are named, with the rest
 // of the sections, in `sections.ts`, the one place a section is decided.
@@ -136,8 +137,12 @@ export interface Binding {
      * (14 October 2026), a tightening: a binding that did not say which it was let a part state a required limit
      * as the value — *"with 1 neutral player"* passed Q2 where the game holds 2 and 1 is only the floor, because a
      * required limit was admitted for any binding. Absent, the number is the property's value.
+     *
+     * `WHOLE_FEET` (P1, 25 October 2026, his reply filed 28 October 2026, item 3: *"One 12 × 6 ft [defended object], ..."*, his noun
+     * bracketed) where the number is the property's metres said as a whole number of feet at 0.3048 m per foot: admitted by fidelity only
+     * at a figure of a carried pairing's object, and only as its exact conversion.
      */
-    as?: 'REQUIRED_LIMIT'
+    as?: 'REQUIRED_LIMIT' | 'WHOLE_FEET'
 }
 
 /**
@@ -1406,6 +1411,97 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
     const remarking: Remarking | null = !layout && Array.isArray(fixture.remarking?.changes) ? (fixture.remarking as Remarking) : null
 
     // ── Set up ──────────────────────────────────────────────────────────────────────────────────
+    /**
+     * **What the coach needs, said first** — P1, 25 October 2026. Christian, reply filed 28 October 2026, item 3: *"Yes, please include a
+     * concise equipment list."*, his sentence for the goal version (approved wording, the EQUIPMENT template of approved-coach-wording.json)
+     * and *"The target-zone version should have its own corresponding requirements."* (DRAFT, draft-coach-wording.json `equipment`); *"The
+     * [object] dimensions matter because this realization requires an appropriate [specialized-role]-defended [object], not simply any
+     * available [object]."* (his nouns bracketed for the coupling ratchet; the data files quote him whole).
+     *
+     * Where it goes: Coach Details, Set up, first. RC3 5.2 has Setup answer "How do I organize it?", and what to bring is needed before
+     * anything is marked; RC3 4.3 lists the Overview's basic parameters as area, players and duration, so nothing is added to the Overview
+     * (that classification is his to approve, 3.3). The section itself is assigned from what the sentence cites (`sections.ts`): the objects
+     * it names, which are organisation.
+     *
+     * Which words: every usable approved equipment template (`kind` EQUIPMENT), then every DRAFT equipment entry, in order; the first whose
+     * `when` this game holds is said. `when` names everything its words claim, read from the game and never from an activity:
+     *   - `targetObject`: exactly one object an objective references, of the kind named, its defending row (O7) naming the performer named,
+     *     with a region bound to it whose carried pairing (`boundRegions`, the entry GA-BOUND-REGION held it to) gives the object's width and
+     *     height in whole feet ({size}, "12 × 6 ft"); or null: no objective references an object;
+     *   - `carrier`: the kind of the object played with; `teams`: how many teams the game holds;
+     *   - `distinguishes`: a law the DRAFT data writes a `distinguished` clause for applies at every place in the game's default-laws account,
+     *     and the specialized performer it requires is the one named.
+     * Each part cites what it states (`states`): TARGET_OBJECT the object, its kind, its defending row and the pairing's two figures, each
+     * figure bound AS WHOLE_FEET (fidelity admits exactly that conversion); CARRIER the object played with and its kind; TEAMS_AND_PERFORMER
+     * the teams (the count bound to them) and the law's entry and the performer's count, as the Players clause does. So the colour that tells
+     * the performer apart is said here, and the Players sentence does not say it again (`distinguishedInEquipment`): RC3 3.4, each idea once
+     * within a level, approved wording excepted, so our DRAFT clause yields to his sentence (and, in the zone version, to its DRAFT mirror).
+     * A game holding none of these says nothing, exactly as before.
+     */
+    const distinguishedInEquipment = new Set<string>()
+    {
+        const equipmentLaws = fixtureLawAccount(fixture)
+        const candidates: { parts: string[]; states: EquipmentPartState[]; when: EquipmentWhen; example?: Record<string, string> }[] = [
+            ...templates.filter(template => template.kind === EQUIPMENT_KIND && Array.isArray(template.states) && !!template.when).map(template => ({ parts: template.parts, states: template.states!, when: template.when!, example: template.example })),
+            ...equipmentWordings().map(entry => ({ parts: entry.parts, states: entry.states, when: entry.when })),
+        ]
+        const teamsHeld: any[] = Array.isArray(game.performers?.teams) ? game.performers.teams : []
+        const targetObjects = objectsHeld.filter(object => referencedObject(object))
+        const performerNameOf = (row: unknown) => participants().specializedRoleRows.get(String(row))
+        for (const candidate of candidates) {
+            const { when } = candidate
+            if (!carrier || carrier.kind !== when.carrier || teamsHeld.length !== when.teams) continue
+            // The law that tells the named performer apart, applying throughout, and the performer's count in the teams.
+            const told = equipmentLaws
+                ? appliedLawWordings()
+                      .filter(entry => !!entry.distinguished && appliesThroughout(equipmentLaws, entry.law))
+                      .map(entry => {
+                          const row = appliedLawReading(entry.law).performerRows.find(candidateRow => performerNameOf(candidateRow) === when.distinguishes.performer)
+                          const leaf = row ? String(participants().rows.get(row)?.path ?? '').split('[].').pop() : null
+                          return row && leaf ? { law: entry.law, leaf } : null
+                      })
+                      .find(Boolean) ?? null
+                : null
+            if (!told) continue
+            // The object a team scores at, where the words name one: exactly one, of the kind, defended by the team holding the performer.
+            let target: { object: any; widthPath: string; heightPath: string; widthFt: number; heightFt: number; size: string } | null = null
+            if (when.targetObject) {
+                const named = targetObjects.filter(object => object.kind === when.targetObject!.kind)
+                const object = named.length === 1 && targetObjects.length === 1 ? named[0] : null
+                if (!object || !defendedByLeaf || performerNameOf(object[defendedByLeaf]) !== when.targetObject.defendedBy) continue
+                const region = ((game.space?.regions ?? []) as any[]).find(candidateRegion => bindingOf(candidateRegion, participants())?.objectId === String(object.elementId))
+                const pairing = region ? fixtureBoundRegion(fixture, String(region.elementId))?.pairing ?? null : null
+                const size = pairing && typeof pairing.object?.heightM === 'number' ? feetSizeWords(pairing.object.widthM, pairing.object.heightM) : null
+                if (!region || !pairing || !size) continue
+                const at = `${boundRegionPath(String(region.elementId))}.pairing.object`
+                target = { object, widthPath: `${at}.widthM`, heightPath: `${at}.heightM`, widthFt: wholeFeet(pairing.object.widthM)!, heightFt: wholeFeet(pairing.object.heightM)!, size }
+            } else if (targetObjects.length) continue
+            const parts: InstructionPart[] = []
+            for (const [n, words] of candidate.parts.entries()) {
+                const state = candidate.states[n]
+                if (state === 'TARGET_OBJECT' && target) {
+                    const text = fillSlots(words, { size: target.size })
+                    if (text === null) break
+                    const objectAt = `objects[${target.object.elementId}]`
+                    const bindings: Binding[] = words.includes('{size}')
+                        ? [
+                              { quantity: target.widthFt, path: target.widthPath, as: 'WHOLE_FEET' },
+                              { quantity: target.heightFt, path: target.heightPath, as: 'WHOLE_FEET' },
+                          ]
+                        : []
+                    parts.push(part('DERIVED', text, [objectAt, `${objectAt}.kind`, `${objectAt}.${defendedByLeaf}`, ...(bindings.length ? [target.widthPath, target.heightPath] : [])], bindings))
+                } else if (state === 'CARRIER') {
+                    parts.push(part('DERIVED', words, [`objects[${carrier.elementId}]`, `objects[${carrier.elementId}].kind`]))
+                } else if (state === 'TEAMS_AND_PERFORMER') {
+                    parts.push(part(statusAt(['performers.teams'], 'DERIVED'), words, ['performers.teams', appliedLawPath(told.law), `performers.teams[].${told.leaf}`], [{ quantity: teamsHeld.length, path: 'performers.teams' }]))
+                } else break
+            }
+            if (parts.length !== candidate.parts.length) continue
+            instructions.push(joined('Set up', parts))
+            distinguishedInEquipment.add(told.law)
+            break
+        }
+    }
     const area = game.envelope?.area
     if (area) {
         say(
@@ -2225,7 +2321,8 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
      */
     if (rosterParts.length && lawAccount) {
         for (const entry of appliedLawWordings()) {
-            if (!entry.distinguished || !appliesThroughout(lawAccount, entry.law)) continue
+            // P1 (25 October 2026, his reply filed 28 October 2026, item 3; RC3 3.4): not said again where the equipment sentence said it.
+            if (!entry.distinguished || !appliesThroughout(lawAccount, entry.law) || distinguishedInEquipment.has(entry.law)) continue
             const row = appliedLawReading(entry.law).performerRows.find(candidate => typeof participants().specializedRoleRows.get(candidate) === 'string')
             const performer = row ? participants().specializedRoleRows.get(row)! : null
             const leaf = row ? String(participants().rows.get(row)?.path ?? '').split('[].').pop() : null
@@ -2376,6 +2473,8 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
      * word "ball" uncited until this stage. With no object it says "starts in possession".
      */
     const holder = game.possession?.team
+    /** P1: the sentence saying which role's team starts in possession, where one is said (taken out below where the start says it). */
+    let possessionHeldBy: { holder: string; sentence: Instruction } | null = null
     if (holder && teams.length) {
         const held = teams.some((t: any) => String(t.elementId) === String(holder))
         if (held) {
@@ -2417,6 +2516,16 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
                 carrier ? `The ${teamNoun(holder)} starts with the ${carrier.kind}` : `The ${teamNoun(holder)} starts in possession`,
                 ['possession.team', ...(carrier ? [`objects[${carrier.elementId}].kind`] : [])],
             )
+            /**
+             * **Said by the sentence saying who starts play, where there is one** — P1, 25 October 2026 (a general rendering rule). Christian,
+             * reply filed 28 October 2026, item 6: *"Yes, please consolidate both pairs of overlapping statements."* *"The [specialized role]
+             * starting play already establishes that the building team begins in possession."* (his role noun bracketed for the coupling
+             * ratchet) and *"Please apply RC3's established non-redundancy requirements."* (RC3 3.4: each idea stated once within a level). The
+             * sentence is kept here, in its place, and taken out again where the restart sentences below say that a player of this same team
+             * starts play (a group holding the START transition, awarded to this team): that sentence then cites `possession.team`, so the
+             * relation is still carried and still cited (fidelity Q3). Where no such sentence is said, this one stays, exactly as before.
+             */
+            possessionHeldBy = { holder: String(holder), sentence: instructions[instructions.length - 1] }
         } else {
             observations.push(
                 `\`possession.team\` names ${String(holder)}, which is not one of the game's own teams, so the activity says nothing ` +
@@ -2544,7 +2653,19 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
         const [playsOn, keepsAttacking] = possessionTemplate.parts
         // The integration review fix (above): the second part only with a noun every target takes; otherwise withheld, never "line". Stage G:
         // where the targets are of different kinds, each one the game holds, "target" (a generalization of his words, DRAFT, as "line" is).
-        const keeps = targetWord ? fillTemplate([keepsAttacking], { targetNoun: targetWord }) : null
+        /**
+         * P1, 25 October 2026: his word, for every target that is not a line. His reply filed 28 October 2026, item 5: *"I approve replacing
+         * "each team keeps attacking the same zone" with: "Each team keeps attacking the same target.""* and *"This accommodates both scoring
+         * configurations without changing the intended meaning."* The slot takes the approved template's own example word (his "target", read
+         * from the record, never written here) wherever the objectives' targets are not all lines and the second part could be said at all:
+         * the zone targets (where the regions' noun "zone" was said until now) and targets of different kinds alike, citing what each objective
+         * references (the word names that, not a region's noun). Line targets keep "line", exactly as before (a generalization of his words,
+         * DRAFT); a game whose targets take no word is withheld, exactly as before.
+         */
+        const approvedWord = typeof possessionTemplate.example?.targetNoun === 'string' ? possessionTemplate.example.targetNoun : null
+        const possessionWord = lineTargets ? targetWord : targetWord && approvedWord ? approvedWord : targetWord
+        const possessionWordPaths = !lineTargets && targetWord && approvedWord ? objectives.map(o => `objectives[${o.elementId}].reference`) : targetWordPaths
+        const keeps = possessionWord ? fillTemplate([keepsAttacking], { targetNoun: possessionWord }) : null
         if (!targetWord && directional && game.value?.primaryEvent) withholdTargetNouns(`The second part of the possession sentence ("${keepsAttacking}")`)
         instructions.push(
             joined('How it works', [
@@ -2554,7 +2675,7 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
                     continuingOnPossessionChange.flatMap(transition => [`transitions[${transition.elementId}].playState`, `transitions[${transition.elementId}].selector`]),
                 ),
                 ...(directional && game.value?.primaryEvent && keeps
-                    ? [part(statusAt([`objectives[${objectives[0].elementId}].team`], 'DERIVED'), keeps, [`objectives[${objectives[0].elementId}].team`, 'transitions', ...targetWordPaths])]
+                    ? [part(statusAt([`objectives[${objectives[0].elementId}].team`], 'DERIVED'), keeps, [`objectives[${objectives[0].elementId}].team`, 'transitions', ...possessionWordPaths])]
                     : []),
             ]),
         )
@@ -2591,6 +2712,20 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
     const transitionsHeld: any[] = game.transitions ?? []
     const objectNoun = carrier ? String(carrier.kind) : null
     const objectPath = carrier ? [`objects[${carrier.elementId}].kind`] : []
+    /**
+     * **How a restart is taken, in DRAFT data words first** — P1, 25 October 2026. Christian, reply filed 28 October 2026, item 1: *"The
+     * [specialized role] should be able to restart by [the four methods he names] the [object] into play."* and *"I don't want to
+     * prescribe a particular distribution method when the environment can preserve multiple solutions."* (his nouns bracketed for the coupling
+     * ratchet; the data file quotes him whole). A method the DRAFT wording data words (`draft-coach-wording.ts` methodWording) has that phrase,
+     * its slot {carrier} filled with the kind of the object played with; any other has the table's words above, exactly as before; a method
+     * with neither has none, so its restart stays unsaid and fidelity refuses it. Every part saying it cites the object's kind already.
+     */
+    const methodPhraseOf = (method: unknown): string | null => {
+        if (typeof method !== 'string' || !objectNoun) return null
+        const entry = methodWording(method)
+        if (entry) return fillSlots(entry.phrase, { carrier: objectNoun })
+        return METHOD_PHRASE[method] ? METHOD_PHRASE[method](objectNoun) : null
+    }
     const triggerOf = (transition: any): string | null => {
         const term = (transition?.selector ?? []).find((t: any) => t?.attribute === 'trigger' && t?.op === '=')
         return term ? String(term.value) : null
@@ -2641,7 +2776,7 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
     }
 
     // The restarts awarded to a team holding a role, keyed on triggers the maps word: said together where they restart alike.
-    const roleRestarts = restarting.filter(t => teamNoun(t.awardedTo) && triggerPhraseOf(t) && METHOD_PHRASE[t?.placement?.method] && takerOf(t) && coachDecides(t?.placement?.region) !== null && objectNoun)
+    const roleRestarts = restarting.filter(t => teamNoun(t.awardedTo) && triggerPhraseOf(t) && methodPhraseOf(t?.placement?.method) !== null && takerOf(t) && coachDecides(t?.placement?.region) !== null && objectNoun)
     const restartGroups = new Map<string, any[]>()
     for (const transition of roleRestarts) {
         const key = JSON.stringify([transition.awardedTo, transition.placement.actor, transition.placement.method, transition.placement.region])
@@ -2816,8 +2951,20 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
         })
         const policy = commonRestartPath(group)
         for (const transition of group) saidInGroup.add(transition)
+        /**
+         * P1 (25 October 2026, his reply filed 28 October 2026, item 6, above at `possessionHeldBy`): where this group holds the transition that
+         * starts play and is awarded to the team the game names as starting in possession, the sentence saying that team's player starts play
+         * says the possession too: its lead cites `possession.team`, and the separate possession sentence is taken out.
+         */
+        const startsInPossession =
+            !!possessionHeldBy && group.some(t => triggerOf(t) === 'START' && String(t?.awardedTo) === possessionHeldBy!.holder) ? ['possession.team'] : []
+        if (startsInPossession.length) {
+            const at = instructions.indexOf(possessionHeldBy!.sentence)
+            if (at >= 0) instructions.splice(at, 1)
+            possessionHeldBy = null
+        }
         if (common && commonWording) {
-            const startFields = [...who, ...common.starters.flatMap(t => [pathAt(t, 'playState'), pathAt(t, 'selector')])]
+            const startFields = [...who, ...common.starters.flatMap(t => [pathAt(t, 'playState'), pathAt(t, 'selector')]), ...startsInPossession]
             const restartFields = [...policy, ...common.dead.map(t => pathAt(t, 'playState')), ...(slotsOf(commonWording.restarts).includes('carrier') ? objectPath : [])]
             const starts = fillSlots(commonWording.starts, { taker })!
             const restarts = fillSlots(commonWording.restarts, objectNoun ? { carrier: objectNoun } : {})
@@ -2829,11 +2976,29 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
                 ]),
             )
         } else {
-            instructions.push(joined('How it works', [part(partStatus([...who, ...stops, ...policy]), `${capital(taker)} restarts play`, [...who, ...stops, ...policy]), ...moments]))
+            const lead = [...who, ...stops, ...policy, ...startsInPossession]
+            instructions.push(joined('How it works', [part(partStatus(lead), `${capital(taker)} restarts play`, lead), ...moments]))
         }
-        if (placementResetsAt(group)) sayPlacement(group)
-        instructions.push(joined(RESTARTS, [part(partStatus([...who, ...methods]), `${capital(taker)} restarts play ${METHOD_PHRASE[first.placement.method](objectNoun!)}`, [...who, ...methods, ...objectPath])]))
-        const bound = coachDecides(first.placement.region)
+        const placementSaid = placementResetsAt(group)
+        if (placementSaid) sayPlacement(group)
+        instructions.push(joined(RESTARTS, [part(partStatus([...who, ...methods]), `${capital(taker)} restarts play ${methodPhraseOf(first.placement.method)!}`, [...who, ...methods, ...objectPath])]))
+        /**
+         * **Where the restart is taken, without repeating where its taker's team sets up** — P1, 25 October 2026 (a general rendering rule).
+         * Christian, reply filed 28 October 2026, item 6: *"Similarly, the instructions about starting positions and [specialized role] restart
+         * locations should appear where they're most useful without repeating the same information."* and *"Please apply RC3's established
+         * non-redundancy requirements."* (his role noun bracketed for the coupling ratchet). Where the start placement is said with this group
+         * ("Before each of these restarts, ..."), it already tells the coach that the taker's team sets up on its own side of the marked line
+         * before every one of these restarts; a recorded bound on the coach's choice of restart location (the realization choice's words) that
+         * ends with exactly that region in the renderer's own words (", on the {team}'s side of the marked line") says it a second time, so
+         * that last clause is not said here: the starting positions are said once, with the restart moments, where the coach reads how play
+         * begins, and the restart's location stays in Restarts and ball out with the rest of its bound. Read from the game (the taker's team, its
+         * placement and the side it is on), never from an activity; the bound's words are kept whole in the game and its citations are
+         * unchanged. Any other bound is said whole, exactly as before.
+         */
+        const recordedBound = coachDecides(first.placement.region)
+        const takerTeam = teamNoun(first.awardedTo)
+        const sameSide = placementSaid && takerTeam && sayablePlacements.some(p => sideOf(p) === 'own side' && teamNoun(p.group) === takerTeam) ? `, on the ${takerTeam}'s side of the marked line` : null
+        const bound = recordedBound && sameSide && recordedBound.endsWith(sameSide) && recordedBound.length > sameSide.length ? recordedBound.slice(0, -sameSide.length) : recordedBound
         say(RESTARTS, partStatus([...locations, ...who]), `You choose where ${taker} restarts play${bound ? `, ${bound}` : ''}`, [...locations, ...who])
         /**
          * **Which of the sport's restarts the activity does not use** — R2 (the d27 design's section 2.8: *"Restarts is one new sentence, citing
@@ -2880,7 +3045,7 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
         const region = first.placement?.region
         const method = first.placement?.method
         const dynamic = region && typeof region === 'object' && typeof region.dynamic === 'string' ? String(region.dynamic) : null
-        const fixedMethod = typeof method === 'string' && METHOD_PHRASE[method] ? METHOD_PHRASE[method](objectNoun!) : null
+        const fixedMethod = methodPhraseOf(method)
         const choiceOfPlace = coachDecides(region)
         const choiceOfMethod = coachDecides(method)
         /**
@@ -3177,7 +3342,19 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
             // sentence names no target, and each role's target sentence above says what it attacks.
             if (layout && (targetNoun || differentTargets)) {
                 const teamPaths = objectives.map(o => `objectives[${o.elementId}].team`)
-                say('Set up', statusAt(teamPaths, 'DERIVED'), 'Decide which team starts at which end', [...teamPaths, 'envelope.area.length_m'])
+                /**
+                 * **Which team builds first, in his words** — P1, 25 October 2026. Christian, reply filed 28 October 2026, item 4: *"Please
+                 * replace "Decide which team starts at which end" with: "Decide which team builds first." That's simpler and more accurate."*
+                 * Where the approved template FIRST_BLOCK_CHOICE names a role this game holds (an element of the role vocabulary with that role,
+                 * and every objective's team a role holder of the game's roles), his sentence is said in place of the DRAFT one, citing what that
+                 * one cited (each objective's team, and the area's length whose ends the role holders take) and the role element his words name.
+                 * The role is read from the record (`role`), so none is named here; any other game says what it did.
+                 */
+                const firstBlock = templates.find(template => template.id === FIRST_BLOCK_CHOICE && typeof template.role === 'string' && !!roleNounOf[template.role])
+                const roleElement = firstBlock ? ((game.activityRoles ?? []) as any[]).find(element => element?.activityRole === firstBlock.role) : null
+                const firstWords = firstBlock && roleElement && objectives.every(o => !!teamNoun(o.team)) ? fillTemplate(firstBlock.parts, firstBlock.example) : null
+                if (firstWords) say('Set up', statusAt(teamPaths, 'DERIVED'), firstWords, [...teamPaths, 'envelope.area.length_m', `activityRoles[${roleElement.elementId}].activityRole`])
+                else say('Set up', statusAt(teamPaths, 'DERIVED'), 'Decide which team starts at which end', [...teamPaths, 'envelope.area.length_m'])
             } else {
                 /**
                  * Stage D, 23 October 2026 (DRAFT): where the teams change ends at the coach-called block (row B10), "the ends stay the same for

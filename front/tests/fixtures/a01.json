@@ -775,7 +775,7 @@
             "aspect": "where the team building out starts",
             "category": "PROVISIONAL_REALIZATION_CHOICE",
             "gaps": [],
-            "note": "His choice, carried since 15 October 2026 (stage K5, below; amended 17 October 2026, stage M4, because this note opened 'the engine cannot carry it yet', which its own tail contradicted). Until stage K5 the engine could not carry it: the game built from the possession game and this context held no start transition element (its only transition was a possession change, measured 15 October 2026), so nothing established where or how a build-out begins. Capability M3. Until 15 October 2026 (stage H3) this was AUTHORIZED_BY_RULING; MISSING_CAPABILITY did not exist as a status. Carried since 15 October 2026 (stage K5) by the provisional realization A01-R1: the building team starts and restarts every build-out (A01-R1-T2-1), its goalkeeper takes it (A01-R1-T3-1) from the feet (A01-R1-T5-1), at a location the coach chooses (A01-R1-T4-1, his D5 'The coach chooses an appropriate restart location consistent with the intended build-out situation.'), closed COACH_DECIDES - capability M3 (register version 12: T4 and T5 open only on his or authored ranges in words). Where the building team's outfield players start (his 18 October item 3) is carried since stage K6 (15 October 2026): short of the pressure reference, re-established at every build-out (A01-R1-P8-1, A01-R1-P10-1). Until stage K5 this was MISSING_CAPABILITY, waiting on M3.",
+            "note": "His choice, carried since 15 October 2026 (stage K5, below; amended 17 October 2026, stage M4, because this note opened 'the engine cannot carry it yet', which its own tail contradicted). Until stage K5 the engine could not carry it: the game built from the possession game and this context held no start transition element (its only transition was a possession change, measured 15 October 2026), so nothing established where or how a build-out begins. Capability M3. Until 15 October 2026 (stage H3) this was AUTHORIZED_BY_RULING; MISSING_CAPABILITY did not exist as a status. Carried since 15 October 2026 (stage K5) by the provisional realization A01-R1: the building team starts and restarts every build-out (A01-R1-T2-1), its goalkeeper takes it (A01-R1-T3-1) from the feet (A01-R1-T5-1), at a location the coach chooses (A01-R1-T4-1, his D5 'The coach chooses an appropriate restart location consistent with the intended build-out situation.'), closed COACH_DECIDES - capability M3 (register version 12: T4 and T5 open only on his or authored ranges in words). Where the building team's outfield players start (his 18 October item 3) is carried since stage K6 (15 October 2026): short of the pressure reference, re-established at every build-out (A01-R1-P8-1, A01-R1-P10-1). Until stage K5 this was MISSING_CAPABILITY, waiting on M3. AMENDED 25 October 2026 (P1; his reply filed 28 October 2026, item 1: \"The goalkeeper should be able to restart by passing, rolling, throwing, or dribbling the ball into play.\" \"I don't want to prescribe a particular distribution method when the environment can preserve multiple solutions.\"): A01-R1-T5-1 now holds TAKER_CHOOSES (register version 24), not from the feet: the goalkeeper restarts by passing, rolling, throwing or dribbling the ball into play, as the goalkeeper chooses.",
             "phrase": "starting positions",
             "phraseFrom": "Christian, 15 October 2026, item 1",
             "registerRows": [
@@ -874,7 +874,7 @@
             "aspect": null,
             "category": "PROVISIONAL_REALIZATION_CHOICE",
             "gaps": [],
-            "note": "The goalkeeper COUNT is carried since 15 October 2026 (stage K4): one goalkeeper for the team holding the building role in each block (A01-R1-P3-1, his D6 'For this first asymmetrical activity, I favor one active goalkeeper serving the team currently building out.'), moving with the role at each exchange by the recorded reassignment (A01-R1-B4-1/B7-1, his 18 October item 1). What still waits is the goalkeeper's part in starting a build-out (T3, his D5 'The initial demonstration may use goalkeeper distribution from the feet.'), capability M3; D6 and M2 no longer stand behind this entry. Before stage K4: measured 15 October 2026 (C53), with two goalkeepers available the roster gave each team six outfield players and no goalkeeper, and the entry also waited on D6 and M2. His 15 October item 3 ('one goalkeeper per team for the initial symmetrical build-out demonstration') framed the symmetric game and is superseded by his 16 October items 2 and 7 and his 17 October D6. Until 15 October 2026 (stage H3) this was AUTHORIZED_BY_RULING. Carried since 15 October 2026 (stage K5): the goalkeeper takes the start and every build-out restart (A01-R1-T3-1, his D5 'The initial demonstration may use goalkeeper distribution from the feet.', from the feet, A01-R1-T5-1), on capability M3 (register version 12), and the begin condition is typed in his acknowledged wording (ruling C58). Where the goalkeeper begins relative to the pressing team's post-regain area (his D3, 'I agree with your proposal to begin with the building goalkeeper positioned in front of the post-regain area, provided the resulting layout is coherent and representative.') is carried since stage K6 (15 October 2026) as a second range in words on the coach's restart location (A01-R1-T4-4): in front of the post-regain area, still the coach's choice. Until stage K5 this was MISSING_CAPABILITY, waiting on M3.",
+            "note": "The goalkeeper COUNT is carried since 15 October 2026 (stage K4): one goalkeeper for the team holding the building role in each block (A01-R1-P3-1, his D6 'For this first asymmetrical activity, I favor one active goalkeeper serving the team currently building out.'), moving with the role at each exchange by the recorded reassignment (A01-R1-B4-1/B7-1, his 18 October item 1). What still waits is the goalkeeper's part in starting a build-out (T3, his D5 'The initial demonstration may use goalkeeper distribution from the feet.'), capability M3; D6 and M2 no longer stand behind this entry. Before stage K4: measured 15 October 2026 (C53), with two goalkeepers available the roster gave each team six outfield players and no goalkeeper, and the entry also waited on D6 and M2. His 15 October item 3 ('one goalkeeper per team for the initial symmetrical build-out demonstration') framed the symmetric game and is superseded by his 16 October items 2 and 7 and his 17 October D6. Until 15 October 2026 (stage H3) this was AUTHORIZED_BY_RULING. Carried since 15 October 2026 (stage K5): the goalkeeper takes the start and every build-out restart (A01-R1-T3-1, his D5 'The initial demonstration may use goalkeeper distribution from the feet.', from the feet, A01-R1-T5-1), on capability M3 (register version 12), and the begin condition is typed in his acknowledged wording (ruling C58). Where the goalkeeper begins relative to the pressing team's post-regain area (his D3, 'I agree with your proposal to begin with the building goalkeeper positioned in front of the post-regain area, provided the resulting layout is coherent and representative.') is carried since stage K6 (15 October 2026) as a second range in words on the coach's restart location (A01-R1-T4-4): in front of the post-regain area, still the coach's choice. Until stage K5 this was MISSING_CAPABILITY, waiting on M3. AMENDED 25 October 2026 (P1; his reply filed 28 October 2026, item 1: \"The goalkeeper should be able to restart by passing, rolling, throwing, or dribbling the ball into play.\" \"I don't want to prescribe a particular distribution method when the environment can preserve multiple solutions.\"): A01-R1-T5-1 now holds TAKER_CHOOSES (register version 24), not from the feet: the goalkeeper takes the start and every build-out restart by passing, rolling, throwing or dribbling the ball into play, as the goalkeeper chooses.",
             "phrase": "goalkeeper positioning",
             "phraseFrom": "Christian, 15 October 2026, item 1",
             "registerRows": [
@@ -988,7 +988,7 @@
             "choice": "A new build-out episode begins with a goalkeeper or controlled defensive restart once the previous episode has meaningfully concluded, without interrupting a promising attack; after a score play stops and restarts, at a location the coach selects.",
             "citedAs": "his reply received 15 October 2026 (16 October reply), item 6 and 6.ii",
             "gaps": [],
-            "note": "Nothing in the knowledge means 'the episode has concluded' (the trigger list is closed: a score, the ball going out, a change of possession, a completed pass and the like), and the game holds no start or score transition element, so no build-out episode can begin (measured 15 October 2026: GA-EPISODE-REACHABLE). The restart location as the coach's choice extends what a coach decides and needs his ruling (D5, M3). Whether reaching the progression target is a score that stops play is D1: his 6.ii answered a question we had framed around the far-end zone. The possession game's ordinary out-of-play rule is not the preferred restart here (6.iii). Carried since 15 October 2026 (stage K5), on his 17 October D1, D5, M3 and M4 and his 18 October items 2 and 4: A01-R1's start, after-score and coach-judged conclusion transitions stop and restart play, are awarded to the team holding the building role and taken by its goalkeeper from the feet at a location the coach chooses (A01-R1-T1-1..3, T6-1, T7-1, T2-1, T3-1, T4-1, T5-1); the coach-judged conclusion is the trigger registered for his M4 (register version 12); ball out is an ordinary restart partitioned by who touched it last - a throw-in on the touchline, the coach's method on the end line - that continues the episode off the pressing team and ends the build-out off the building team (A01-R1-T1-4..7 and their items); and the build-out begin condition is typed in his acknowledged wording (ruling C58), so GA-EPISODE-REACHABLE passes in both blocks with one awardee. That the end-line location is the coach's too, and who takes an end-line restart, were our readings put to him for a one-line confirmation; CONFIRMED in his reply filed 19 October 2026, items 3 A and 3 B (recorded 17 October 2026, stage M4, on A01-R1-T4-3, A01-R1-T5-3 and A01-R1-T3-3). Until stage K5 this was MISSING_CAPABILITY, waiting on D1, D5, M3 and M4. AMENDED 24 October 2026 (R1, the d27 design's stage R1): his reply filed 27 October 2026, item 4 (\"Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.\" \"There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity.\" \"Please ensure this is represented through a general, knowledge-authorized restart mechanism rather than activity-specific code.\"), supersedes the ordinary out-of-play restarts for this activity: the register's dead-ball restart policy (row RP1, register version 23) is COMMON in A01-R1 (A01-R1-RP1-1), the ball going out and the coach's stoppages for an infringement or any other reason are transition elements of their own (A01-R1-T1-8 to T1-11), and the start, after-score and coach-judged restart items are widened to every one of them, so every dead ball restarts with the building team's goalkeeper's new build-out, from the feet, where the coach chooses, beginning a build-out episode; GA-DEAD-BALL-RESTART holds it in both blocks. The throw-in and end-line items above (A01-R1-T1-4..7 and their items) are withdrawn for this activity and named with their authority in the realization's note. Live play, the building team's scoring eligibility (his item 4: \"once the building team loses possession, it cannot earn another progression point until a new goalkeeper-initiated build-out\") and the pressing team's attack after a regain are unchanged.",
+            "note": "Nothing in the knowledge means 'the episode has concluded' (the trigger list is closed: a score, the ball going out, a change of possession, a completed pass and the like), and the game holds no start or score transition element, so no build-out episode can begin (measured 15 October 2026: GA-EPISODE-REACHABLE). The restart location as the coach's choice extends what a coach decides and needs his ruling (D5, M3). Whether reaching the progression target is a score that stops play is D1: his 6.ii answered a question we had framed around the far-end zone. The possession game's ordinary out-of-play rule is not the preferred restart here (6.iii). Carried since 15 October 2026 (stage K5), on his 17 October D1, D5, M3 and M4 and his 18 October items 2 and 4: A01-R1's start, after-score and coach-judged conclusion transitions stop and restart play, are awarded to the team holding the building role and taken by its goalkeeper from the feet at a location the coach chooses (A01-R1-T1-1..3, T6-1, T7-1, T2-1, T3-1, T4-1, T5-1); the coach-judged conclusion is the trigger registered for his M4 (register version 12); ball out is an ordinary restart partitioned by who touched it last - a throw-in on the touchline, the coach's method on the end line - that continues the episode off the pressing team and ends the build-out off the building team (A01-R1-T1-4..7 and their items); and the build-out begin condition is typed in his acknowledged wording (ruling C58), so GA-EPISODE-REACHABLE passes in both blocks with one awardee. That the end-line location is the coach's too, and who takes an end-line restart, were our readings put to him for a one-line confirmation; CONFIRMED in his reply filed 19 October 2026, items 3 A and 3 B (recorded 17 October 2026, stage M4, on A01-R1-T4-3, A01-R1-T5-3 and A01-R1-T3-3). Until stage K5 this was MISSING_CAPABILITY, waiting on D1, D5, M3 and M4. AMENDED 24 October 2026 (R1, the d27 design's stage R1): his reply filed 27 October 2026, item 4 (\"Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.\" \"There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity.\" \"Please ensure this is represented through a general, knowledge-authorized restart mechanism rather than activity-specific code.\"), supersedes the ordinary out-of-play restarts for this activity: the register's dead-ball restart policy (row RP1, register version 23) is COMMON in A01-R1 (A01-R1-RP1-1), the ball going out and the coach's stoppages for an infringement or any other reason are transition elements of their own (A01-R1-T1-8 to T1-11), and the start, after-score and coach-judged restart items are widened to every one of them, so every dead ball restarts with the building team's goalkeeper's new build-out, from the feet, where the coach chooses, beginning a build-out episode; GA-DEAD-BALL-RESTART holds it in both blocks. The throw-in and end-line items above (A01-R1-T1-4..7 and their items) are withdrawn for this activity and named with their authority in the realization's note. Live play, the building team's scoring eligibility (his item 4: \"once the building team loses possession, it cannot earn another progression point until a new goalkeeper-initiated build-out\") and the pressing team's attack after a regain are unchanged. AMENDED 25 October 2026 (P1; his reply filed 28 October 2026, item 1: \"The goalkeeper should be able to restart by passing, rolling, throwing, or dribbling the ball into play.\" \"I don't want to prescribe a particular distribution method when the environment can preserve multiple solutions.\"): no restart is taken from the feet any more. A01-R1-T5-1 now holds TAKER_CHOOSES (register version 24): the goalkeeper restarts by passing, rolling, throwing or dribbling the ball into play, as the goalkeeper chooses. 'from the feet' above describes the value it replaced.",
             "ruledOn": "2026-10-15",
             "status": "AUTHORIZED_BY_RULING",
             "words": "For this first activity, I favor returning to a goalkeeper or controlled defensive restart when an episode has meaningfully concluded. However, the activity should not interrupt a promising attacking or counterattacking opportunity simply because the initial build-out objective has been achieved. … After a score: Yes, play stops and restarts. The coach can select an appropriate authorized restart location, consistent with the intended build-out situation."
@@ -1620,7 +1620,7 @@
             "from": "provisional choice",
             "gaps": [],
             "label": "A new build-out episode begins with a goalkeeper or controlled defensive restart once the previous episode has meaningfully concluded, without interrupting a promising attack; after a score play stops and restarts, at a location the coach selects.",
-            "note": "Nothing in the knowledge means 'the episode has concluded' (the trigger list is closed: a score, the ball going out, a change of possession, a completed pass and the like), and the game holds no start or score transition element, so no build-out episode can begin (measured 15 October 2026: GA-EPISODE-REACHABLE). The restart location as the coach's choice extends what a coach decides and needs his ruling (D5, M3). Whether reaching the progression target is a score that stops play is D1: his 6.ii answered a question we had framed around the far-end zone. The possession game's ordinary out-of-play rule is not the preferred restart here (6.iii). Carried since 15 October 2026 (stage K5), on his 17 October D1, D5, M3 and M4 and his 18 October items 2 and 4: A01-R1's start, after-score and coach-judged conclusion transitions stop and restart play, are awarded to the team holding the building role and taken by its goalkeeper from the feet at a location the coach chooses (A01-R1-T1-1..3, T6-1, T7-1, T2-1, T3-1, T4-1, T5-1); the coach-judged conclusion is the trigger registered for his M4 (register version 12); ball out is an ordinary restart partitioned by who touched it last - a throw-in on the touchline, the coach's method on the end line - that continues the episode off the pressing team and ends the build-out off the building team (A01-R1-T1-4..7 and their items); and the build-out begin condition is typed in his acknowledged wording (ruling C58), so GA-EPISODE-REACHABLE passes in both blocks with one awardee. That the end-line location is the coach's too, and who takes an end-line restart, were our readings put to him for a one-line confirmation; CONFIRMED in his reply filed 19 October 2026, items 3 A and 3 B (recorded 17 October 2026, stage M4, on A01-R1-T4-3, A01-R1-T5-3 and A01-R1-T3-3). Until stage K5 this was MISSING_CAPABILITY, waiting on D1, D5, M3 and M4. AMENDED 24 October 2026 (R1, the d27 design's stage R1): his reply filed 27 October 2026, item 4 (\"Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.\" \"There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity.\" \"Please ensure this is represented through a general, knowledge-authorized restart mechanism rather than activity-specific code.\"), supersedes the ordinary out-of-play restarts for this activity: the register's dead-ball restart policy (row RP1, register version 23) is COMMON in A01-R1 (A01-R1-RP1-1), the ball going out and the coach's stoppages for an infringement or any other reason are transition elements of their own (A01-R1-T1-8 to T1-11), and the start, after-score and coach-judged restart items are widened to every one of them, so every dead ball restarts with the building team's goalkeeper's new build-out, from the feet, where the coach chooses, beginning a build-out episode; GA-DEAD-BALL-RESTART holds it in both blocks. The throw-in and end-line items above (A01-R1-T1-4..7 and their items) are withdrawn for this activity and named with their authority in the realization's note. Live play, the building team's scoring eligibility (his item 4: \"once the building team loses possession, it cannot earn another progression point until a new goalkeeper-initiated build-out\") and the pressing team's attack after a regain are unchanged.",
+            "note": "Nothing in the knowledge means 'the episode has concluded' (the trigger list is closed: a score, the ball going out, a change of possession, a completed pass and the like), and the game holds no start or score transition element, so no build-out episode can begin (measured 15 October 2026: GA-EPISODE-REACHABLE). The restart location as the coach's choice extends what a coach decides and needs his ruling (D5, M3). Whether reaching the progression target is a score that stops play is D1: his 6.ii answered a question we had framed around the far-end zone. The possession game's ordinary out-of-play rule is not the preferred restart here (6.iii). Carried since 15 October 2026 (stage K5), on his 17 October D1, D5, M3 and M4 and his 18 October items 2 and 4: A01-R1's start, after-score and coach-judged conclusion transitions stop and restart play, are awarded to the team holding the building role and taken by its goalkeeper from the feet at a location the coach chooses (A01-R1-T1-1..3, T6-1, T7-1, T2-1, T3-1, T4-1, T5-1); the coach-judged conclusion is the trigger registered for his M4 (register version 12); ball out is an ordinary restart partitioned by who touched it last - a throw-in on the touchline, the coach's method on the end line - that continues the episode off the pressing team and ends the build-out off the building team (A01-R1-T1-4..7 and their items); and the build-out begin condition is typed in his acknowledged wording (ruling C58), so GA-EPISODE-REACHABLE passes in both blocks with one awardee. That the end-line location is the coach's too, and who takes an end-line restart, were our readings put to him for a one-line confirmation; CONFIRMED in his reply filed 19 October 2026, items 3 A and 3 B (recorded 17 October 2026, stage M4, on A01-R1-T4-3, A01-R1-T5-3 and A01-R1-T3-3). Until stage K5 this was MISSING_CAPABILITY, waiting on D1, D5, M3 and M4. AMENDED 24 October 2026 (R1, the d27 design's stage R1): his reply filed 27 October 2026, item 4 (\"Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.\" \"There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity.\" \"Please ensure this is represented through a general, knowledge-authorized restart mechanism rather than activity-specific code.\"), supersedes the ordinary out-of-play restarts for this activity: the register's dead-ball restart policy (row RP1, register version 23) is COMMON in A01-R1 (A01-R1-RP1-1), the ball going out and the coach's stoppages for an infringement or any other reason are transition elements of their own (A01-R1-T1-8 to T1-11), and the start, after-score and coach-judged restart items are widened to every one of them, so every dead ball restarts with the building team's goalkeeper's new build-out, from the feet, where the coach chooses, beginning a build-out episode; GA-DEAD-BALL-RESTART holds it in both blocks. The throw-in and end-line items above (A01-R1-T1-4..7 and their items) are withdrawn for this activity and named with their authority in the realization's note. Live play, the building team's scoring eligibility (his item 4: \"once the building team loses possession, it cannot earn another progression point until a new goalkeeper-initiated build-out\") and the pressing team's attack after a regain are unchanged. AMENDED 25 October 2026 (P1; his reply filed 28 October 2026, item 1: \"The goalkeeper should be able to restart by passing, rolling, throwing, or dribbling the ball into play.\" \"I don't want to prescribe a particular distribution method when the environment can preserve multiple solutions.\"): no restart is taken from the feet any more. A01-R1-T5-1 now holds TAKER_CHOOSES (register version 24): the goalkeeper restarts by passing, rolling, throwing or dribbling the ball into play, as the goalkeeper chooses. 'from the feet' above describes the value it replaced.",
             "sources": [],
             "status": "AUTHORIZED_BY_RULING",
             "words": "For this first activity, I favor returning to a goalkeeper or controlled defensive restart when an episode has meaningfully concluded. However, the activity should not interrupt a promising attacking or counterattacking opportunity simply because the initial build-out objective has been achieved. … After a score: Yes, play stops and restarts. The coach can select an appropriate authorized restart location, consistent with the intended build-out situation."
@@ -1650,7 +1650,7 @@
             "from": "manipulation",
             "gaps": [],
             "label": "starting positions — where the team building out starts",
-            "note": "His choice, carried since 15 October 2026 (stage K5, below; amended 17 October 2026, stage M4, because this note opened 'the engine cannot carry it yet', which its own tail contradicted). Until stage K5 the engine could not carry it: the game built from the possession game and this context held no start transition element (its only transition was a possession change, measured 15 October 2026), so nothing established where or how a build-out begins. Capability M3. Until 15 October 2026 (stage H3) this was AUTHORIZED_BY_RULING; MISSING_CAPABILITY did not exist as a status. Carried since 15 October 2026 (stage K5) by the provisional realization A01-R1: the building team starts and restarts every build-out (A01-R1-T2-1), its goalkeeper takes it (A01-R1-T3-1) from the feet (A01-R1-T5-1), at a location the coach chooses (A01-R1-T4-1, his D5 'The coach chooses an appropriate restart location consistent with the intended build-out situation.'), closed COACH_DECIDES - capability M3 (register version 12: T4 and T5 open only on his or authored ranges in words). Where the building team's outfield players start (his 18 October item 3) is carried since stage K6 (15 October 2026): short of the pressure reference, re-established at every build-out (A01-R1-P8-1, A01-R1-P10-1). Until stage K5 this was MISSING_CAPABILITY, waiting on M3.",
+            "note": "His choice, carried since 15 October 2026 (stage K5, below; amended 17 October 2026, stage M4, because this note opened 'the engine cannot carry it yet', which its own tail contradicted). Until stage K5 the engine could not carry it: the game built from the possession game and this context held no start transition element (its only transition was a possession change, measured 15 October 2026), so nothing established where or how a build-out begins. Capability M3. Until 15 October 2026 (stage H3) this was AUTHORIZED_BY_RULING; MISSING_CAPABILITY did not exist as a status. Carried since 15 October 2026 (stage K5) by the provisional realization A01-R1: the building team starts and restarts every build-out (A01-R1-T2-1), its goalkeeper takes it (A01-R1-T3-1) from the feet (A01-R1-T5-1), at a location the coach chooses (A01-R1-T4-1, his D5 'The coach chooses an appropriate restart location consistent with the intended build-out situation.'), closed COACH_DECIDES - capability M3 (register version 12: T4 and T5 open only on his or authored ranges in words). Where the building team's outfield players start (his 18 October item 3) is carried since stage K6 (15 October 2026): short of the pressure reference, re-established at every build-out (A01-R1-P8-1, A01-R1-P10-1). Until stage K5 this was MISSING_CAPABILITY, waiting on M3. AMENDED 25 October 2026 (P1; his reply filed 28 October 2026, item 1: \"The goalkeeper should be able to restart by passing, rolling, throwing, or dribbling the ball into play.\" \"I don't want to prescribe a particular distribution method when the environment can preserve multiple solutions.\"): A01-R1-T5-1 now holds TAKER_CHOOSES (register version 24), not from the feet: the goalkeeper restarts by passing, rolling, throwing or dribbling the ball into play, as the goalkeeper chooses.",
             "sources": [
               "Christian, 15 October 2026, item 4: 'I agree with starting possession from the goalkeeper for the two-goalkeeper realization. The coach may choose an appropriate starting location, provided it remains consistent with the intended restart.' His 16 October reply, item 2: 'One team begins by building out from its goalkeeper or a controlled defensive restart.' and 6.i: 'Goalkeeper distribution: Starting from the feet is acceptable for this initial realization. It should not become a universal requirement for all goalkeeper build-out activities.'"
             ],
@@ -1698,7 +1698,7 @@
             "from": "manipulation",
             "gaps": [],
             "label": "goalkeeper positioning",
-            "note": "The goalkeeper COUNT is carried since 15 October 2026 (stage K4): one goalkeeper for the team holding the building role in each block (A01-R1-P3-1, his D6 'For this first asymmetrical activity, I favor one active goalkeeper serving the team currently building out.'), moving with the role at each exchange by the recorded reassignment (A01-R1-B4-1/B7-1, his 18 October item 1). What still waits is the goalkeeper's part in starting a build-out (T3, his D5 'The initial demonstration may use goalkeeper distribution from the feet.'), capability M3; D6 and M2 no longer stand behind this entry. Before stage K4: measured 15 October 2026 (C53), with two goalkeepers available the roster gave each team six outfield players and no goalkeeper, and the entry also waited on D6 and M2. His 15 October item 3 ('one goalkeeper per team for the initial symmetrical build-out demonstration') framed the symmetric game and is superseded by his 16 October items 2 and 7 and his 17 October D6. Until 15 October 2026 (stage H3) this was AUTHORIZED_BY_RULING. Carried since 15 October 2026 (stage K5): the goalkeeper takes the start and every build-out restart (A01-R1-T3-1, his D5 'The initial demonstration may use goalkeeper distribution from the feet.', from the feet, A01-R1-T5-1), on capability M3 (register version 12), and the begin condition is typed in his acknowledged wording (ruling C58). Where the goalkeeper begins relative to the pressing team's post-regain area (his D3, 'I agree with your proposal to begin with the building goalkeeper positioned in front of the post-regain area, provided the resulting layout is coherent and representative.') is carried since stage K6 (15 October 2026) as a second range in words on the coach's restart location (A01-R1-T4-4): in front of the post-regain area, still the coach's choice. Until stage K5 this was MISSING_CAPABILITY, waiting on M3.",
+            "note": "The goalkeeper COUNT is carried since 15 October 2026 (stage K4): one goalkeeper for the team holding the building role in each block (A01-R1-P3-1, his D6 'For this first asymmetrical activity, I favor one active goalkeeper serving the team currently building out.'), moving with the role at each exchange by the recorded reassignment (A01-R1-B4-1/B7-1, his 18 October item 1). What still waits is the goalkeeper's part in starting a build-out (T3, his D5 'The initial demonstration may use goalkeeper distribution from the feet.'), capability M3; D6 and M2 no longer stand behind this entry. Before stage K4: measured 15 October 2026 (C53), with two goalkeepers available the roster gave each team six outfield players and no goalkeeper, and the entry also waited on D6 and M2. His 15 October item 3 ('one goalkeeper per team for the initial symmetrical build-out demonstration') framed the symmetric game and is superseded by his 16 October items 2 and 7 and his 17 October D6. Until 15 October 2026 (stage H3) this was AUTHORIZED_BY_RULING. Carried since 15 October 2026 (stage K5): the goalkeeper takes the start and every build-out restart (A01-R1-T3-1, his D5 'The initial demonstration may use goalkeeper distribution from the feet.', from the feet, A01-R1-T5-1), on capability M3 (register version 12), and the begin condition is typed in his acknowledged wording (ruling C58). Where the goalkeeper begins relative to the pressing team's post-regain area (his D3, 'I agree with your proposal to begin with the building goalkeeper positioned in front of the post-regain area, provided the resulting layout is coherent and representative.') is carried since stage K6 (15 October 2026) as a second range in words on the coach's restart location (A01-R1-T4-4): in front of the post-regain area, still the coach's choice. Until stage K5 this was MISSING_CAPABILITY, waiting on M3. AMENDED 25 October 2026 (P1; his reply filed 28 October 2026, item 1: \"The goalkeeper should be able to restart by passing, rolling, throwing, or dribbling the ball into play.\" \"I don't want to prescribe a particular distribution method when the environment can preserve multiple solutions.\"): A01-R1-T5-1 now holds TAKER_CHOOSES (register version 24), not from the feet: the goalkeeper takes the start and every build-out restart by passing, rolling, throwing or dribbling the ball into play, as the goalkeeper chooses.",
             "sources": [
               "His 16 October reply, item 7: 'I approve two goalkeepers for the initial 12-player, 40 × 30 m demonstration if that configuration is supported by the selected game form.' 'However, the broader goalkeeper-or-controlled-restart alternative must remain intact.' 'Two goalkeepers should not become a universal requirement for Play Out from the Back.' Item 9.4: 'Goalkeeper-or-controlled-restart alternative: Approved.' (ruling C53: the context no longer requires a goalkeeper on every team)."
             ],
@@ -1946,16 +1946,16 @@
             "words": "The coach chooses an appropriate restart location consistent with the intended build-out situation. … Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out."
           },
           {
-            "citedAs": "his reply filed 17 October 2026, D5; his reply filed 27 October 2026, item 4",
+            "citedAs": "his reply filed 28 October 2026, item 1; his reply filed 27 October 2026, item 4",
             "from": "provisional realization",
             "gaps": [],
-            "label": "The goalkeeper plays the ball from their feet at the start and every restart after a dead ball; the ball need not be stationary.",
+            "label": "No restart method is prescribed: at the start and every restart after a dead ball the goalkeeper puts the ball into play by passing, rolling, throwing or dribbling it, as the goalkeeper chooses.",
             "note": null,
             "sources": [
               "provisional:A01-R2::A01-R1-T5-1"
             ],
             "status": null,
-            "words": "The initial demonstration may use goalkeeper distribution from the feet. … The goalkeeper may receive and play from the feet; a stationary-ball restart should not be universally required. … Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out."
+            "words": "The goalkeeper should be able to restart by passing, rolling, throwing, or dribbling the ball into play. … I don't want to prescribe a particular distribution method when the environment can preserve multiple solutions. … The essential requirement is that a new build-out begins with the goalkeeper, not that the goalkeeper uses a specific technique. … Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out."
           },
           {
             "citedAs": "his reply filed 27 October 2026, item 4",
@@ -2451,7 +2451,7 @@
             }
           ],
           "caption": null,
-          "desc": "40 m by 30 m area. A marked line across the area, 20 m from the building team's end line. A penalty area 15 m wide and 9 m deep is marked at the building team's end line. The building team's target zone is the 20 m at the pressing team's end. The goal is placed on the building team's end line: the pressing team's target. The goalkeeper wears a colour of its own and defends the goal. Team A, the building team: 6 outfield players and 1 goalkeeper; starting area from its end line to the marked line; attacks toward the pressing team's end. Team B, the pressing team: 5 outfield players; starting area from its end line to the marked line; attacks toward the building team's end. When you return to this block, 1 goalkeeper and 1 outfield player move from Team B to Team A, which becomes the building team.",
+          "desc": "40 m by 30 m area. A marked line across the area, 20 m from the building team's end line. A penalty area 15 m wide and 9 m deep is marked at the building team's end line. The building team's target zone is the 20 m at the pressing team's end. The goal is placed on the building team's end line: the pressing team's target. The goalkeeper wears a colour of its own and defends the goal. Team A, the building team: 6 outfield players and 1 goalkeeper; starting area from its end line to the marked line; attacks toward the pressing team's end. Team B, the pressing team: 5 outfield players; starting area from its end line to the marked line; attacks toward the building team's end.",
           "dimensions": [
             {
               "axis": "along",
@@ -2474,9 +2474,6 @@
               "label": "20 m",
               "to": 20
             }
-          ],
-          "exchange": [
-            "When you return to this block, 1 goalkeeper and 1 outfield player move from Team B to Team A, which becomes the building team."
           ],
           "keepers": [
             {
@@ -2597,7 +2594,7 @@
             }
           ],
           "caption": null,
-          "desc": "40 m by 30 m area. A marked line across the area, 20 m from the building team's end line. A penalty area 15 m wide and 9 m deep is marked at the building team's end line. The building team's target zone is the 20 m at the pressing team's end. The goal is placed on the building team's end line: the pressing team's target. The goalkeeper wears a colour of its own and defends the goal. Team B, the building team: 6 outfield players and 1 goalkeeper; starting area from its end line to the marked line; attacks toward the pressing team's end. Team A, the pressing team: 5 outfield players; starting area from its end line to the marked line; attacks toward the building team's end. When you call this block, 1 goalkeeper and 1 outfield player move from Team A to Team B, which becomes the building team.",
+          "desc": "40 m by 30 m area. A marked line across the area, 20 m from the building team's end line. A penalty area 15 m wide and 9 m deep is marked at the building team's end line. The building team's target zone is the 20 m at the pressing team's end. The goal is placed on the building team's end line: the pressing team's target. The goalkeeper wears a colour of its own and defends the goal. Team B, the building team: 6 outfield players and 1 goalkeeper; starting area from its end line to the marked line; attacks toward the pressing team's end. Team A, the pressing team: 5 outfield players; starting area from its end line to the marked line; attacks toward the building team's end.",
           "dimensions": [
             {
               "axis": "along",
@@ -2620,9 +2617,6 @@
               "label": "20 m",
               "to": 20
             }
-          ],
-          "exchange": [
-            "When you call this block, 1 goalkeeper and 1 outfield player move from Team A to Team B, which becomes the building team."
           ],
           "keepers": [
             {
@@ -2811,7 +2805,7 @@
               },
               {
                 "fullRule": null,
-                "text": "If the building team loses possession or plays the ball out, it cannot score again until the next goalkeeper restart."
+                "text": "If the building team loses possession, it cannot score again until the next goalkeeper restart."
               },
               {
                 "fullRule": {
@@ -2848,6 +2842,87 @@
         "Realization chose \"target_zone_entered\" among [\"line_crossed\",\"target_zone_entered\"] for value.primaryEvent.kind. The alternative not taken (\"line_crossed\") is not offered to the coach: no approved wording describes it, and saying it would need facts the game does not hold."
       ],
       "instructions": [
+        {
+          "from": [
+            "objects[c:provisional:A01-R2:A01-R2-O1-1]",
+            "objects[c:provisional:A01-R2:A01-R2-O1-1].kind",
+            "objects[c:provisional:A01-R2:A01-R2-O1-1].defendedBy",
+            "boundRegions.regions[c:provisional:A01-R2:A01-R2-S2-1].pairing.object.widthM",
+            "boundRegions.regions[c:provisional:A01-R2:A01-R2-S2-1].pairing.object.heightM",
+            "objects[c:sport-profile:soccer:SPORT-SOCCER-01]",
+            "objects[c:sport-profile:soccer:SPORT-SOCCER-01].kind",
+            "performers.teams",
+            "defaultLaws.applied[LAW-4-GK]",
+            "performers.teams[].goalkeeper"
+          ],
+          "parts": [
+            {
+              "bindings": [
+                {
+                  "as": "WHOLE_FEET",
+                  "path": "boundRegions.regions[c:provisional:A01-R2:A01-R2-S2-1].pairing.object.widthM",
+                  "quantity": 12
+                },
+                {
+                  "as": "WHOLE_FEET",
+                  "path": "boundRegions.regions[c:provisional:A01-R2:A01-R2-S2-1].pairing.object.heightM",
+                  "quantity": 6
+                }
+              ],
+              "from": [
+                "objects[c:provisional:A01-R2:A01-R2-O1-1]",
+                "objects[c:provisional:A01-R2:A01-R2-O1-1].kind",
+                "objects[c:provisional:A01-R2:A01-R2-O1-1].defendedBy",
+                "boundRegions.regions[c:provisional:A01-R2:A01-R2-S2-1].pairing.object.widthM",
+                "boundRegions.regions[c:provisional:A01-R2:A01-R2-S2-1].pairing.object.heightM"
+              ],
+              "quantities": [
+                12,
+                6
+              ],
+              "status": "DERIVED",
+              "text": "One 12 × 6 ft goalkeeper-defended goal, "
+            },
+            {
+              "bindings": [],
+              "from": [
+                "objects[c:sport-profile:soccer:SPORT-SOCCER-01]",
+                "objects[c:sport-profile:soccer:SPORT-SOCCER-01].kind"
+              ],
+              "quantities": [],
+              "status": "DERIVED",
+              "text": "balls, cones or field markers"
+            },
+            {
+              "bindings": [
+                {
+                  "path": "performers.teams",
+                  "quantity": 2
+                }
+              ],
+              "from": [
+                "performers.teams",
+                "defaultLaws.applied[LAW-4-GK]",
+                "performers.teams[].goalkeeper"
+              ],
+              "quantities": [
+                2
+              ],
+              "status": "DERIVED",
+              "text": ", and two team colors plus a distinct goalkeeper color"
+            }
+          ],
+          "quantities": [
+            12,
+            6,
+            2
+          ],
+          "section": "Set up",
+          "status": "DERIVED",
+          "text": "One 12 × 6 ft goalkeeper-defended goal, balls, cones or field markers, and two team colors plus a distinct goalkeeper color",
+          "tier": "setup",
+          "when": "UNDERSTAND_AND_BEGIN"
+        },
         {
           "from": [
             "envelope.area.length_m",
@@ -3127,7 +3202,8 @@
           "from": [
             "objectives[c:restated:GF2:GF2-08.c].team",
             "objectives[c:restated:GF2:GF2-08.e].team",
-            "envelope.area.length_m"
+            "envelope.area.length_m",
+            "activityRoles[c:provisional:A01-R2:A01-R1-B1-1].activityRole"
           ],
           "parts": [
             {
@@ -3135,17 +3211,18 @@
               "from": [
                 "objectives[c:restated:GF2:GF2-08.c].team",
                 "objectives[c:restated:GF2:GF2-08.e].team",
-                "envelope.area.length_m"
+                "envelope.area.length_m",
+                "activityRoles[c:provisional:A01-R2:A01-R1-B1-1].activityRole"
               ],
               "quantities": [],
               "status": "DERIVED",
-              "text": "Decide which team starts at which end"
+              "text": "Decide which team builds first"
             }
           ],
           "quantities": [],
           "section": "Set up",
           "status": "DERIVED",
-          "text": "Decide which team starts at which end",
+          "text": "Decide which team builds first",
           "tier": "setup",
           "when": "UNDERSTAND_AND_BEGIN"
         },
@@ -3154,8 +3231,7 @@
             "envelope.players",
             "performers.teams",
             "performers.teams[].outfieldCount",
-            "performers.teams[].goalkeeper",
-            "defaultLaws.applied[LAW-12-GK]"
+            "performers.teams[].goalkeeper"
           ],
           "parts": [
             {
@@ -3237,16 +3313,6 @@
               ],
               "status": "DERIVED",
               "text": "; the pressing team has 5 outfield players"
-            },
-            {
-              "bindings": [],
-              "from": [
-                "defaultLaws.applied[LAW-12-GK]",
-                "performers.teams[].goalkeeper"
-              ],
-              "quantities": [],
-              "status": "DERIVED",
-              "text": "; give the goalkeeper a colour neither team wears"
             }
           ],
           "quantities": [
@@ -3258,31 +3324,7 @@
           ],
           "section": "Players",
           "status": "DERIVED",
-          "text": "Divide 12 players into 2 teams: the building team has 6 outfield players and 1 goalkeeper; the pressing team has 5 outfield players; give the goalkeeper a colour neither team wears",
-          "tier": "setup",
-          "when": "UNDERSTAND_AND_BEGIN"
-        },
-        {
-          "from": [
-            "possession.team",
-            "objects[c:sport-profile:soccer:SPORT-SOCCER-01].kind"
-          ],
-          "parts": [
-            {
-              "bindings": [],
-              "from": [
-                "possession.team",
-                "objects[c:sport-profile:soccer:SPORT-SOCCER-01].kind"
-              ],
-              "quantities": [],
-              "status": "DERIVED",
-              "text": "The building team starts with the ball"
-            }
-          ],
-          "quantities": [],
-          "section": "How it works",
-          "status": "DERIVED",
-          "text": "The building team starts with the ball",
+          "text": "Divide 12 players into 2 teams: the building team has 6 outfield players and 1 goalkeeper; the pressing team has 5 outfield players",
           "tier": "setup",
           "when": "UNDERSTAND_AND_BEGIN"
         },
@@ -3344,6 +3386,7 @@
             "transitions[c:provisional:A01-R2:A01-R1-T1-1].placement.actor",
             "transitions[c:provisional:A01-R2:A01-R1-T1-1].playState",
             "transitions[c:provisional:A01-R2:A01-R1-T1-1].selector",
+            "possession.team",
             "restartPolicy.deadBall",
             "transitions[c:provisional:A01-R2:A01-R1-T1-2].playState",
             "transitions[c:provisional:A01-R2:A01-R1-T1-8].playState",
@@ -3382,7 +3425,8 @@
                 "transitions[c:provisional:A01-R2:A01-R1-T1-1].awardedTo",
                 "transitions[c:provisional:A01-R2:A01-R1-T1-1].placement.actor",
                 "transitions[c:provisional:A01-R2:A01-R1-T1-1].playState",
-                "transitions[c:provisional:A01-R2:A01-R1-T1-1].selector"
+                "transitions[c:provisional:A01-R2:A01-R1-T1-1].selector",
+                "possession.team"
               ],
               "quantities": [],
               "status": "DERIVED",
@@ -3617,13 +3661,13 @@
               ],
               "quantities": [],
               "status": "DERIVED",
-              "text": "If the building team loses possession or plays the ball out, it cannot score again until the next goalkeeper restart."
+              "text": "If the building team loses possession, it cannot score again until the next goalkeeper restart."
             }
           ],
           "quantities": [],
           "section": "How to score",
           "status": "DERIVED",
-          "text": "If the building team loses possession or plays the ball out, it cannot score again until the next goalkeeper restart.",
+          "text": "If the building team loses possession, it cannot score again until the next goalkeeper restart.",
           "tier": "setup",
           "when": "UNDERSTAND_AND_BEGIN"
         },
@@ -3927,13 +3971,13 @@
               ],
               "quantities": [],
               "status": "DERIVED",
-              "text": "The building team's goalkeeper restarts play from the feet, with the ball still or moving"
+              "text": "The building team's goalkeeper restarts play by passing, rolling, throwing or dribbling the ball into play"
             }
           ],
           "quantities": [],
           "section": "Restarts and ball out",
           "status": "DERIVED",
-          "text": "The building team's goalkeeper restarts play from the feet, with the ball still or moving",
+          "text": "The building team's goalkeeper restarts play by passing, rolling, throwing or dribbling the ball into play",
           "tier": "setup",
           "when": "ADMINISTER"
         },
@@ -3989,13 +4033,13 @@
               ],
               "quantities": [],
               "status": "COACH_CHOICE",
-              "text": "You choose where the building team's goalkeeper restarts play, consistent with the intended build-out situation, on the building team's side of the marked line"
+              "text": "You choose where the building team's goalkeeper restarts play, consistent with the intended build-out situation"
             }
           ],
           "quantities": [],
           "section": "Restarts and ball out",
           "status": "COACH_CHOICE",
-          "text": "You choose where the building team's goalkeeper restarts play, consistent with the intended build-out situation, on the building team's side of the marked line",
+          "text": "You choose where the building team's goalkeeper restarts play, consistent with the intended build-out situation",
           "tier": "setup",
           "when": "ADMINISTER"
         },
@@ -5245,7 +5289,7 @@
             "aspect": "where the team building out starts",
             "category": "PROVISIONAL_REALIZATION_CHOICE",
             "gaps": [],
-            "note": "His choice, carried since 15 October 2026 (stage K5, below; amended 17 October 2026, stage M4, because this note opened 'the engine cannot carry it yet', which its own tail contradicted). Until stage K5 the engine could not carry it: the game built from the possession game and this context held no start transition element (its only transition was a possession change, measured 15 October 2026), so nothing established where or how a build-out begins. Capability M3. Until 15 October 2026 (stage H3) this was AUTHORIZED_BY_RULING; MISSING_CAPABILITY did not exist as a status. Carried since 15 October 2026 (stage K5) by the provisional realization A01-R1: the building team starts and restarts every build-out (A01-R1-T2-1), its goalkeeper takes it (A01-R1-T3-1) from the feet (A01-R1-T5-1), at a location the coach chooses (A01-R1-T4-1, his D5 'The coach chooses an appropriate restart location consistent with the intended build-out situation.'), closed COACH_DECIDES - capability M3 (register version 12: T4 and T5 open only on his or authored ranges in words). Where the building team's outfield players start (his 18 October item 3) is carried since stage K6 (15 October 2026): short of the pressure reference, re-established at every build-out (A01-R1-P8-1, A01-R1-P10-1). Until stage K5 this was MISSING_CAPABILITY, waiting on M3.",
+            "note": "His choice, carried since 15 October 2026 (stage K5, below; amended 17 October 2026, stage M4, because this note opened 'the engine cannot carry it yet', which its own tail contradicted). Until stage K5 the engine could not carry it: the game built from the possession game and this context held no start transition element (its only transition was a possession change, measured 15 October 2026), so nothing established where or how a build-out begins. Capability M3. Until 15 October 2026 (stage H3) this was AUTHORIZED_BY_RULING; MISSING_CAPABILITY did not exist as a status. Carried since 15 October 2026 (stage K5) by the provisional realization A01-R1: the building team starts and restarts every build-out (A01-R1-T2-1), its goalkeeper takes it (A01-R1-T3-1) from the feet (A01-R1-T5-1), at a location the coach chooses (A01-R1-T4-1, his D5 'The coach chooses an appropriate restart location consistent with the intended build-out situation.'), closed COACH_DECIDES - capability M3 (register version 12: T4 and T5 open only on his or authored ranges in words). Where the building team's outfield players start (his 18 October item 3) is carried since stage K6 (15 October 2026): short of the pressure reference, re-established at every build-out (A01-R1-P8-1, A01-R1-P10-1). Until stage K5 this was MISSING_CAPABILITY, waiting on M3. AMENDED 25 October 2026 (P1; his reply filed 28 October 2026, item 1: \"The goalkeeper should be able to restart by passing, rolling, throwing, or dribbling the ball into play.\" \"I don't want to prescribe a particular distribution method when the environment can preserve multiple solutions.\"): A01-R1-T5-1 now holds TAKER_CHOOSES (register version 24), not from the feet: the goalkeeper restarts by passing, rolling, throwing or dribbling the ball into play, as the goalkeeper chooses.",
             "phrase": "starting positions",
             "phraseFrom": "Christian, 15 October 2026, item 1",
             "registerRows": [
@@ -5344,7 +5388,7 @@
             "aspect": null,
             "category": "PROVISIONAL_REALIZATION_CHOICE",
             "gaps": [],
-            "note": "The goalkeeper COUNT is carried since 15 October 2026 (stage K4): one goalkeeper for the team holding the building role in each block (A01-R1-P3-1, his D6 'For this first asymmetrical activity, I favor one active goalkeeper serving the team currently building out.'), moving with the role at each exchange by the recorded reassignment (A01-R1-B4-1/B7-1, his 18 October item 1). What still waits is the goalkeeper's part in starting a build-out (T3, his D5 'The initial demonstration may use goalkeeper distribution from the feet.'), capability M3; D6 and M2 no longer stand behind this entry. Before stage K4: measured 15 October 2026 (C53), with two goalkeepers available the roster gave each team six outfield players and no goalkeeper, and the entry also waited on D6 and M2. His 15 October item 3 ('one goalkeeper per team for the initial symmetrical build-out demonstration') framed the symmetric game and is superseded by his 16 October items 2 and 7 and his 17 October D6. Until 15 October 2026 (stage H3) this was AUTHORIZED_BY_RULING. Carried since 15 October 2026 (stage K5): the goalkeeper takes the start and every build-out restart (A01-R1-T3-1, his D5 'The initial demonstration may use goalkeeper distribution from the feet.', from the feet, A01-R1-T5-1), on capability M3 (register version 12), and the begin condition is typed in his acknowledged wording (ruling C58). Where the goalkeeper begins relative to the pressing team's post-regain area (his D3, 'I agree with your proposal to begin with the building goalkeeper positioned in front of the post-regain area, provided the resulting layout is coherent and representative.') is carried since stage K6 (15 October 2026) as a second range in words on the coach's restart location (A01-R1-T4-4): in front of the post-regain area, still the coach's choice. Until stage K5 this was MISSING_CAPABILITY, waiting on M3.",
+            "note": "The goalkeeper COUNT is carried since 15 October 2026 (stage K4): one goalkeeper for the team holding the building role in each block (A01-R1-P3-1, his D6 'For this first asymmetrical activity, I favor one active goalkeeper serving the team currently building out.'), moving with the role at each exchange by the recorded reassignment (A01-R1-B4-1/B7-1, his 18 October item 1). What still waits is the goalkeeper's part in starting a build-out (T3, his D5 'The initial demonstration may use goalkeeper distribution from the feet.'), capability M3; D6 and M2 no longer stand behind this entry. Before stage K4: measured 15 October 2026 (C53), with two goalkeepers available the roster gave each team six outfield players and no goalkeeper, and the entry also waited on D6 and M2. His 15 October item 3 ('one goalkeeper per team for the initial symmetrical build-out demonstration') framed the symmetric game and is superseded by his 16 October items 2 and 7 and his 17 October D6. Until 15 October 2026 (stage H3) this was AUTHORIZED_BY_RULING. Carried since 15 October 2026 (stage K5): the goalkeeper takes the start and every build-out restart (A01-R1-T3-1, his D5 'The initial demonstration may use goalkeeper distribution from the feet.', from the feet, A01-R1-T5-1), on capability M3 (register version 12), and the begin condition is typed in his acknowledged wording (ruling C58). Where the goalkeeper begins relative to the pressing team's post-regain area (his D3, 'I agree with your proposal to begin with the building goalkeeper positioned in front of the post-regain area, provided the resulting layout is coherent and representative.') is carried since stage K6 (15 October 2026) as a second range in words on the coach's restart location (A01-R1-T4-4): in front of the post-regain area, still the coach's choice. Until stage K5 this was MISSING_CAPABILITY, waiting on M3. AMENDED 25 October 2026 (P1; his reply filed 28 October 2026, item 1: \"The goalkeeper should be able to restart by passing, rolling, throwing, or dribbling the ball into play.\" \"I don't want to prescribe a particular distribution method when the environment can preserve multiple solutions.\"): A01-R1-T5-1 now holds TAKER_CHOOSES (register version 24), not from the feet: the goalkeeper takes the start and every build-out restart by passing, rolling, throwing or dribbling the ball into play, as the goalkeeper chooses.",
             "phrase": "goalkeeper positioning",
             "phraseFrom": "Christian, 15 October 2026, item 1",
             "registerRows": [
@@ -5458,7 +5502,7 @@
             "choice": "A new build-out episode begins with a goalkeeper or controlled defensive restart once the previous episode has meaningfully concluded, without interrupting a promising attack; after a score play stops and restarts, at a location the coach selects.",
             "citedAs": "his reply received 15 October 2026 (16 October reply), item 6 and 6.ii",
             "gaps": [],
-            "note": "Nothing in the knowledge means 'the episode has concluded' (the trigger list is closed: a score, the ball going out, a change of possession, a completed pass and the like), and the game holds no start or score transition element, so no build-out episode can begin (measured 15 October 2026: GA-EPISODE-REACHABLE). The restart location as the coach's choice extends what a coach decides and needs his ruling (D5, M3). Whether reaching the progression target is a score that stops play is D1: his 6.ii answered a question we had framed around the far-end zone. The possession game's ordinary out-of-play rule is not the preferred restart here (6.iii). Carried since 15 October 2026 (stage K5), on his 17 October D1, D5, M3 and M4 and his 18 October items 2 and 4: A01-R1's start, after-score and coach-judged conclusion transitions stop and restart play, are awarded to the team holding the building role and taken by its goalkeeper from the feet at a location the coach chooses (A01-R1-T1-1..3, T6-1, T7-1, T2-1, T3-1, T4-1, T5-1); the coach-judged conclusion is the trigger registered for his M4 (register version 12); ball out is an ordinary restart partitioned by who touched it last - a throw-in on the touchline, the coach's method on the end line - that continues the episode off the pressing team and ends the build-out off the building team (A01-R1-T1-4..7 and their items); and the build-out begin condition is typed in his acknowledged wording (ruling C58), so GA-EPISODE-REACHABLE passes in both blocks with one awardee. That the end-line location is the coach's too, and who takes an end-line restart, were our readings put to him for a one-line confirmation; CONFIRMED in his reply filed 19 October 2026, items 3 A and 3 B (recorded 17 October 2026, stage M4, on A01-R1-T4-3, A01-R1-T5-3 and A01-R1-T3-3). Until stage K5 this was MISSING_CAPABILITY, waiting on D1, D5, M3 and M4. AMENDED 24 October 2026 (R1, the d27 design's stage R1): his reply filed 27 October 2026, item 4 (\"Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.\" \"There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity.\" \"Please ensure this is represented through a general, knowledge-authorized restart mechanism rather than activity-specific code.\"), supersedes the ordinary out-of-play restarts for this activity: the register's dead-ball restart policy (row RP1, register version 23) is COMMON in A01-R1 (A01-R1-RP1-1), the ball going out and the coach's stoppages for an infringement or any other reason are transition elements of their own (A01-R1-T1-8 to T1-11), and the start, after-score and coach-judged restart items are widened to every one of them, so every dead ball restarts with the building team's goalkeeper's new build-out, from the feet, where the coach chooses, beginning a build-out episode; GA-DEAD-BALL-RESTART holds it in both blocks. The throw-in and end-line items above (A01-R1-T1-4..7 and their items) are withdrawn for this activity and named with their authority in the realization's note. Live play, the building team's scoring eligibility (his item 4: \"once the building team loses possession, it cannot earn another progression point until a new goalkeeper-initiated build-out\") and the pressing team's attack after a regain are unchanged.",
+            "note": "Nothing in the knowledge means 'the episode has concluded' (the trigger list is closed: a score, the ball going out, a change of possession, a completed pass and the like), and the game holds no start or score transition element, so no build-out episode can begin (measured 15 October 2026: GA-EPISODE-REACHABLE). The restart location as the coach's choice extends what a coach decides and needs his ruling (D5, M3). Whether reaching the progression target is a score that stops play is D1: his 6.ii answered a question we had framed around the far-end zone. The possession game's ordinary out-of-play rule is not the preferred restart here (6.iii). Carried since 15 October 2026 (stage K5), on his 17 October D1, D5, M3 and M4 and his 18 October items 2 and 4: A01-R1's start, after-score and coach-judged conclusion transitions stop and restart play, are awarded to the team holding the building role and taken by its goalkeeper from the feet at a location the coach chooses (A01-R1-T1-1..3, T6-1, T7-1, T2-1, T3-1, T4-1, T5-1); the coach-judged conclusion is the trigger registered for his M4 (register version 12); ball out is an ordinary restart partitioned by who touched it last - a throw-in on the touchline, the coach's method on the end line - that continues the episode off the pressing team and ends the build-out off the building team (A01-R1-T1-4..7 and their items); and the build-out begin condition is typed in his acknowledged wording (ruling C58), so GA-EPISODE-REACHABLE passes in both blocks with one awardee. That the end-line location is the coach's too, and who takes an end-line restart, were our readings put to him for a one-line confirmation; CONFIRMED in his reply filed 19 October 2026, items 3 A and 3 B (recorded 17 October 2026, stage M4, on A01-R1-T4-3, A01-R1-T5-3 and A01-R1-T3-3). Until stage K5 this was MISSING_CAPABILITY, waiting on D1, D5, M3 and M4. AMENDED 24 October 2026 (R1, the d27 design's stage R1): his reply filed 27 October 2026, item 4 (\"Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.\" \"There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity.\" \"Please ensure this is represented through a general, knowledge-authorized restart mechanism rather than activity-specific code.\"), supersedes the ordinary out-of-play restarts for this activity: the register's dead-ball restart policy (row RP1, register version 23) is COMMON in A01-R1 (A01-R1-RP1-1), the ball going out and the coach's stoppages for an infringement or any other reason are transition elements of their own (A01-R1-T1-8 to T1-11), and the start, after-score and coach-judged restart items are widened to every one of them, so every dead ball restarts with the building team's goalkeeper's new build-out, from the feet, where the coach chooses, beginning a build-out episode; GA-DEAD-BALL-RESTART holds it in both blocks. The throw-in and end-line items above (A01-R1-T1-4..7 and their items) are withdrawn for this activity and named with their authority in the realization's note. Live play, the building team's scoring eligibility (his item 4: \"once the building team loses possession, it cannot earn another progression point until a new goalkeeper-initiated build-out\") and the pressing team's attack after a regain are unchanged. AMENDED 25 October 2026 (P1; his reply filed 28 October 2026, item 1: \"The goalkeeper should be able to restart by passing, rolling, throwing, or dribbling the ball into play.\" \"I don't want to prescribe a particular distribution method when the environment can preserve multiple solutions.\"): no restart is taken from the feet any more. A01-R1-T5-1 now holds TAKER_CHOOSES (register version 24): the goalkeeper restarts by passing, rolling, throwing or dribbling the ball into play, as the goalkeeper chooses. 'from the feet' above describes the value it replaced.",
             "ruledOn": "2026-10-15",
             "status": "AUTHORIZED_BY_RULING",
             "words": "For this first activity, I favor returning to a goalkeeper or controlled defensive restart when an episode has meaningfully concluded. However, the activity should not interrupt a promising attacking or counterattacking opportunity simply because the initial build-out objective has been achieved. … After a score: Yes, play stops and restarts. The coach can select an appropriate authorized restart location, consistent with the intended build-out situation."
@@ -6090,7 +6134,7 @@
             "from": "provisional choice",
             "gaps": [],
             "label": "A new build-out episode begins with a goalkeeper or controlled defensive restart once the previous episode has meaningfully concluded, without interrupting a promising attack; after a score play stops and restarts, at a location the coach selects.",
-            "note": "Nothing in the knowledge means 'the episode has concluded' (the trigger list is closed: a score, the ball going out, a change of possession, a completed pass and the like), and the game holds no start or score transition element, so no build-out episode can begin (measured 15 October 2026: GA-EPISODE-REACHABLE). The restart location as the coach's choice extends what a coach decides and needs his ruling (D5, M3). Whether reaching the progression target is a score that stops play is D1: his 6.ii answered a question we had framed around the far-end zone. The possession game's ordinary out-of-play rule is not the preferred restart here (6.iii). Carried since 15 October 2026 (stage K5), on his 17 October D1, D5, M3 and M4 and his 18 October items 2 and 4: A01-R1's start, after-score and coach-judged conclusion transitions stop and restart play, are awarded to the team holding the building role and taken by its goalkeeper from the feet at a location the coach chooses (A01-R1-T1-1..3, T6-1, T7-1, T2-1, T3-1, T4-1, T5-1); the coach-judged conclusion is the trigger registered for his M4 (register version 12); ball out is an ordinary restart partitioned by who touched it last - a throw-in on the touchline, the coach's method on the end line - that continues the episode off the pressing team and ends the build-out off the building team (A01-R1-T1-4..7 and their items); and the build-out begin condition is typed in his acknowledged wording (ruling C58), so GA-EPISODE-REACHABLE passes in both blocks with one awardee. That the end-line location is the coach's too, and who takes an end-line restart, were our readings put to him for a one-line confirmation; CONFIRMED in his reply filed 19 October 2026, items 3 A and 3 B (recorded 17 October 2026, stage M4, on A01-R1-T4-3, A01-R1-T5-3 and A01-R1-T3-3). Until stage K5 this was MISSING_CAPABILITY, waiting on D1, D5, M3 and M4. AMENDED 24 October 2026 (R1, the d27 design's stage R1): his reply filed 27 October 2026, item 4 (\"Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.\" \"There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity.\" \"Please ensure this is represented through a general, knowledge-authorized restart mechanism rather than activity-specific code.\"), supersedes the ordinary out-of-play restarts for this activity: the register's dead-ball restart policy (row RP1, register version 23) is COMMON in A01-R1 (A01-R1-RP1-1), the ball going out and the coach's stoppages for an infringement or any other reason are transition elements of their own (A01-R1-T1-8 to T1-11), and the start, after-score and coach-judged restart items are widened to every one of them, so every dead ball restarts with the building team's goalkeeper's new build-out, from the feet, where the coach chooses, beginning a build-out episode; GA-DEAD-BALL-RESTART holds it in both blocks. The throw-in and end-line items above (A01-R1-T1-4..7 and their items) are withdrawn for this activity and named with their authority in the realization's note. Live play, the building team's scoring eligibility (his item 4: \"once the building team loses possession, it cannot earn another progression point until a new goalkeeper-initiated build-out\") and the pressing team's attack after a regain are unchanged.",
+            "note": "Nothing in the knowledge means 'the episode has concluded' (the trigger list is closed: a score, the ball going out, a change of possession, a completed pass and the like), and the game holds no start or score transition element, so no build-out episode can begin (measured 15 October 2026: GA-EPISODE-REACHABLE). The restart location as the coach's choice extends what a coach decides and needs his ruling (D5, M3). Whether reaching the progression target is a score that stops play is D1: his 6.ii answered a question we had framed around the far-end zone. The possession game's ordinary out-of-play rule is not the preferred restart here (6.iii). Carried since 15 October 2026 (stage K5), on his 17 October D1, D5, M3 and M4 and his 18 October items 2 and 4: A01-R1's start, after-score and coach-judged conclusion transitions stop and restart play, are awarded to the team holding the building role and taken by its goalkeeper from the feet at a location the coach chooses (A01-R1-T1-1..3, T6-1, T7-1, T2-1, T3-1, T4-1, T5-1); the coach-judged conclusion is the trigger registered for his M4 (register version 12); ball out is an ordinary restart partitioned by who touched it last - a throw-in on the touchline, the coach's method on the end line - that continues the episode off the pressing team and ends the build-out off the building team (A01-R1-T1-4..7 and their items); and the build-out begin condition is typed in his acknowledged wording (ruling C58), so GA-EPISODE-REACHABLE passes in both blocks with one awardee. That the end-line location is the coach's too, and who takes an end-line restart, were our readings put to him for a one-line confirmation; CONFIRMED in his reply filed 19 October 2026, items 3 A and 3 B (recorded 17 October 2026, stage M4, on A01-R1-T4-3, A01-R1-T5-3 and A01-R1-T3-3). Until stage K5 this was MISSING_CAPABILITY, waiting on D1, D5, M3 and M4. AMENDED 24 October 2026 (R1, the d27 design's stage R1): his reply filed 27 October 2026, item 4 (\"Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.\" \"There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity.\" \"Please ensure this is represented through a general, knowledge-authorized restart mechanism rather than activity-specific code.\"), supersedes the ordinary out-of-play restarts for this activity: the register's dead-ball restart policy (row RP1, register version 23) is COMMON in A01-R1 (A01-R1-RP1-1), the ball going out and the coach's stoppages for an infringement or any other reason are transition elements of their own (A01-R1-T1-8 to T1-11), and the start, after-score and coach-judged restart items are widened to every one of them, so every dead ball restarts with the building team's goalkeeper's new build-out, from the feet, where the coach chooses, beginning a build-out episode; GA-DEAD-BALL-RESTART holds it in both blocks. The throw-in and end-line items above (A01-R1-T1-4..7 and their items) are withdrawn for this activity and named with their authority in the realization's note. Live play, the building team's scoring eligibility (his item 4: \"once the building team loses possession, it cannot earn another progression point until a new goalkeeper-initiated build-out\") and the pressing team's attack after a regain are unchanged. AMENDED 25 October 2026 (P1; his reply filed 28 October 2026, item 1: \"The goalkeeper should be able to restart by passing, rolling, throwing, or dribbling the ball into play.\" \"I don't want to prescribe a particular distribution method when the environment can preserve multiple solutions.\"): no restart is taken from the feet any more. A01-R1-T5-1 now holds TAKER_CHOOSES (register version 24): the goalkeeper restarts by passing, rolling, throwing or dribbling the ball into play, as the goalkeeper chooses. 'from the feet' above describes the value it replaced.",
             "sources": [],
             "status": "AUTHORIZED_BY_RULING",
             "words": "For this first activity, I favor returning to a goalkeeper or controlled defensive restart when an episode has meaningfully concluded. However, the activity should not interrupt a promising attacking or counterattacking opportunity simply because the initial build-out objective has been achieved. … After a score: Yes, play stops and restarts. The coach can select an appropriate authorized restart location, consistent with the intended build-out situation."
@@ -6120,7 +6164,7 @@
             "from": "manipulation",
             "gaps": [],
             "label": "starting positions — where the team building out starts",
-            "note": "His choice, carried since 15 October 2026 (stage K5, below; amended 17 October 2026, stage M4, because this note opened 'the engine cannot carry it yet', which its own tail contradicted). Until stage K5 the engine could not carry it: the game built from the possession game and this context held no start transition element (its only transition was a possession change, measured 15 October 2026), so nothing established where or how a build-out begins. Capability M3. Until 15 October 2026 (stage H3) this was AUTHORIZED_BY_RULING; MISSING_CAPABILITY did not exist as a status. Carried since 15 October 2026 (stage K5) by the provisional realization A01-R1: the building team starts and restarts every build-out (A01-R1-T2-1), its goalkeeper takes it (A01-R1-T3-1) from the feet (A01-R1-T5-1), at a location the coach chooses (A01-R1-T4-1, his D5 'The coach chooses an appropriate restart location consistent with the intended build-out situation.'), closed COACH_DECIDES - capability M3 (register version 12: T4 and T5 open only on his or authored ranges in words). Where the building team's outfield players start (his 18 October item 3) is carried since stage K6 (15 October 2026): short of the pressure reference, re-established at every build-out (A01-R1-P8-1, A01-R1-P10-1). Until stage K5 this was MISSING_CAPABILITY, waiting on M3.",
+            "note": "His choice, carried since 15 October 2026 (stage K5, below; amended 17 October 2026, stage M4, because this note opened 'the engine cannot carry it yet', which its own tail contradicted). Until stage K5 the engine could not carry it: the game built from the possession game and this context held no start transition element (its only transition was a possession change, measured 15 October 2026), so nothing established where or how a build-out begins. Capability M3. Until 15 October 2026 (stage H3) this was AUTHORIZED_BY_RULING; MISSING_CAPABILITY did not exist as a status. Carried since 15 October 2026 (stage K5) by the provisional realization A01-R1: the building team starts and restarts every build-out (A01-R1-T2-1), its goalkeeper takes it (A01-R1-T3-1) from the feet (A01-R1-T5-1), at a location the coach chooses (A01-R1-T4-1, his D5 'The coach chooses an appropriate restart location consistent with the intended build-out situation.'), closed COACH_DECIDES - capability M3 (register version 12: T4 and T5 open only on his or authored ranges in words). Where the building team's outfield players start (his 18 October item 3) is carried since stage K6 (15 October 2026): short of the pressure reference, re-established at every build-out (A01-R1-P8-1, A01-R1-P10-1). Until stage K5 this was MISSING_CAPABILITY, waiting on M3. AMENDED 25 October 2026 (P1; his reply filed 28 October 2026, item 1: \"The goalkeeper should be able to restart by passing, rolling, throwing, or dribbling the ball into play.\" \"I don't want to prescribe a particular distribution method when the environment can preserve multiple solutions.\"): A01-R1-T5-1 now holds TAKER_CHOOSES (register version 24), not from the feet: the goalkeeper restarts by passing, rolling, throwing or dribbling the ball into play, as the goalkeeper chooses.",
             "sources": [
               "Christian, 15 October 2026, item 4: 'I agree with starting possession from the goalkeeper for the two-goalkeeper realization. The coach may choose an appropriate starting location, provided it remains consistent with the intended restart.' His 16 October reply, item 2: 'One team begins by building out from its goalkeeper or a controlled defensive restart.' and 6.i: 'Goalkeeper distribution: Starting from the feet is acceptable for this initial realization. It should not become a universal requirement for all goalkeeper build-out activities.'"
             ],
@@ -6168,7 +6212,7 @@
             "from": "manipulation",
             "gaps": [],
             "label": "goalkeeper positioning",
-            "note": "The goalkeeper COUNT is carried since 15 October 2026 (stage K4): one goalkeeper for the team holding the building role in each block (A01-R1-P3-1, his D6 'For this first asymmetrical activity, I favor one active goalkeeper serving the team currently building out.'), moving with the role at each exchange by the recorded reassignment (A01-R1-B4-1/B7-1, his 18 October item 1). What still waits is the goalkeeper's part in starting a build-out (T3, his D5 'The initial demonstration may use goalkeeper distribution from the feet.'), capability M3; D6 and M2 no longer stand behind this entry. Before stage K4: measured 15 October 2026 (C53), with two goalkeepers available the roster gave each team six outfield players and no goalkeeper, and the entry also waited on D6 and M2. His 15 October item 3 ('one goalkeeper per team for the initial symmetrical build-out demonstration') framed the symmetric game and is superseded by his 16 October items 2 and 7 and his 17 October D6. Until 15 October 2026 (stage H3) this was AUTHORIZED_BY_RULING. Carried since 15 October 2026 (stage K5): the goalkeeper takes the start and every build-out restart (A01-R1-T3-1, his D5 'The initial demonstration may use goalkeeper distribution from the feet.', from the feet, A01-R1-T5-1), on capability M3 (register version 12), and the begin condition is typed in his acknowledged wording (ruling C58). Where the goalkeeper begins relative to the pressing team's post-regain area (his D3, 'I agree with your proposal to begin with the building goalkeeper positioned in front of the post-regain area, provided the resulting layout is coherent and representative.') is carried since stage K6 (15 October 2026) as a second range in words on the coach's restart location (A01-R1-T4-4): in front of the post-regain area, still the coach's choice. Until stage K5 this was MISSING_CAPABILITY, waiting on M3.",
+            "note": "The goalkeeper COUNT is carried since 15 October 2026 (stage K4): one goalkeeper for the team holding the building role in each block (A01-R1-P3-1, his D6 'For this first asymmetrical activity, I favor one active goalkeeper serving the team currently building out.'), moving with the role at each exchange by the recorded reassignment (A01-R1-B4-1/B7-1, his 18 October item 1). What still waits is the goalkeeper's part in starting a build-out (T3, his D5 'The initial demonstration may use goalkeeper distribution from the feet.'), capability M3; D6 and M2 no longer stand behind this entry. Before stage K4: measured 15 October 2026 (C53), with two goalkeepers available the roster gave each team six outfield players and no goalkeeper, and the entry also waited on D6 and M2. His 15 October item 3 ('one goalkeeper per team for the initial symmetrical build-out demonstration') framed the symmetric game and is superseded by his 16 October items 2 and 7 and his 17 October D6. Until 15 October 2026 (stage H3) this was AUTHORIZED_BY_RULING. Carried since 15 October 2026 (stage K5): the goalkeeper takes the start and every build-out restart (A01-R1-T3-1, his D5 'The initial demonstration may use goalkeeper distribution from the feet.', from the feet, A01-R1-T5-1), on capability M3 (register version 12), and the begin condition is typed in his acknowledged wording (ruling C58). Where the goalkeeper begins relative to the pressing team's post-regain area (his D3, 'I agree with your proposal to begin with the building goalkeeper positioned in front of the post-regain area, provided the resulting layout is coherent and representative.') is carried since stage K6 (15 October 2026) as a second range in words on the coach's restart location (A01-R1-T4-4): in front of the post-regain area, still the coach's choice. Until stage K5 this was MISSING_CAPABILITY, waiting on M3. AMENDED 25 October 2026 (P1; his reply filed 28 October 2026, item 1: \"The goalkeeper should be able to restart by passing, rolling, throwing, or dribbling the ball into play.\" \"I don't want to prescribe a particular distribution method when the environment can preserve multiple solutions.\"): A01-R1-T5-1 now holds TAKER_CHOOSES (register version 24), not from the feet: the goalkeeper takes the start and every build-out restart by passing, rolling, throwing or dribbling the ball into play, as the goalkeeper chooses.",
             "sources": [
               "His 16 October reply, item 7: 'I approve two goalkeepers for the initial 12-player, 40 × 30 m demonstration if that configuration is supported by the selected game form.' 'However, the broader goalkeeper-or-controlled-restart alternative must remain intact.' 'Two goalkeepers should not become a universal requirement for Play Out from the Back.' Item 9.4: 'Goalkeeper-or-controlled-restart alternative: Approved.' (ruling C53: the context no longer requires a goalkeeper on every team)."
             ],
@@ -6416,16 +6460,16 @@
             "words": "The coach chooses an appropriate restart location consistent with the intended build-out situation. … Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out."
           },
           {
-            "citedAs": "his reply filed 17 October 2026, D5; his reply filed 27 October 2026, item 4",
+            "citedAs": "his reply filed 28 October 2026, item 1; his reply filed 27 October 2026, item 4",
             "from": "provisional realization",
             "gaps": [],
-            "label": "The goalkeeper plays the ball from their feet at the start and every restart after a dead ball; the ball need not be stationary.",
+            "label": "No restart method is prescribed: at the start and every restart after a dead ball the goalkeeper puts the ball into play by passing, rolling, throwing or dribbling it, as the goalkeeper chooses.",
             "note": null,
             "sources": [
               "provisional:A01-R2::A01-R1-T5-1"
             ],
             "status": null,
-            "words": "The initial demonstration may use goalkeeper distribution from the feet. … The goalkeeper may receive and play from the feet; a stationary-ball restart should not be universally required. … Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out."
+            "words": "The goalkeeper should be able to restart by passing, rolling, throwing, or dribbling the ball into play. … I don't want to prescribe a particular distribution method when the environment can preserve multiple solutions. … The essential requirement is that a new build-out begins with the goalkeeper, not that the goalkeeper uses a specific technique. … Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out."
           },
           {
             "citedAs": "his reply filed 27 October 2026, item 4",
@@ -7173,8 +7217,8 @@
     ]
   },
   "provenance": {
-    "snapshot": "snap-06.json",
-    "sha256": "655c79762924286c7fc3c3dfd43665ad2579b9ae3c50c93194c154cbdd321a78",
+    "snapshot": "P1-impl.json",
+    "sha256": "2617a259a3aaa7b29b8638440b29b6ddcf004688f9f64e0569a1f82817aeef89",
     "entries": {
       "activity": "review/A01/goalkeeper-1/objects-pairing:FA-MINI-SOCCER-5V5-2026",
       "refusal": "review/A01/goalkeeper-1",

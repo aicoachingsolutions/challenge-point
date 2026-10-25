@@ -36,9 +36,10 @@
  * block (its noun) is drawn apart, in a neutral badge (#374151 text on white, 10.31:1; a #6b7280 edge, 4.83:1 on white, 4.63:1 on the
  * area, 3.99:1 on the target fill), so colour says the team, the badge the role and the arrow the direction. The two first team colours
  * differ by hue (blue and a dark orange, the pair that stays apart in the common colour-vision deficiencies), not by lightness (1.09:1
- * between them), so colour is never the only carrier: the label says the team in words. What moves at the exchange into the block is the
- * server's sentences (#1f2937, 14.68:1 on white), shown under the drawing; nothing moves on the drawing. The legend's three words for these
- * are the server's; its arrow swatch is #4b5563 (7.56:1 on white).
+ * between them), so colour is never the only carrier: the label says the team in words. Nothing moves on the drawing, and since P1 (25
+ * October 2026, his reply filed 28 October 2026, item 11: "I'd prefer the selected block's diagram to focus on the immediate configuration,
+ * with the role-exchange procedures explained once in Coach Details.") no sentence about the exchange is shown under it either: the stage C2
+ * exchange sentences are no longer served. The legend's three words for these are the server's; its arrow swatch is #4b5563 (7.56:1 on white).
  *
  * Stage L (24 October 2026; the d27 design's stage L(e) and (f)). A marked area that is no zone across the width (a region bound to an
  * object, the goal version's penalty area) is drawn grey, never in the target green: a #e5e7eb fill (1.18:1 on the area, so never the only
@@ -178,12 +179,6 @@ export default function FieldDiagram({ diagram }: { diagram: CoachDiagram }) {
             >
                 <BlockDrawing diagram={diagram} block={blocks[at]} orientation={orientation} uid={`${uid}-${at}`} />
                 {blocks[at].caption && <p className='mt-1 text-xs text-gray-700'>{blocks[at].caption}</p>}
-                {/* Stage C2: what moves at the exchange into this block, in the server's words. */}
-                {(blocks[at].exchange ?? []).map((sentence, index) => (
-                    <p key={index} className='mt-1 text-sm leading-snug text-gray-800'>
-                        {sentence}
-                    </p>
-                ))}
                 <Legend diagram={diagram} />
             </div>
         </div>

@@ -1,5 +1,5 @@
 {
-    "about": "Coach-facing wording Christian has APPROVED for parts of a game the renderer otherwise cannot say: primary-event conditions (register V4-V6) and information rules (V16-V22), and later the modifier criterion and termination (V8c, V8d). His order of 14 October 2026, Step 4 component 3: 'Enable accurate coach-facing communication of scoring conditions and information rules, using approved language.' An entry is used only when it carries approvedBy with who, a date, his words verbatim and the communication standard it was reviewed under; the loader ignores any other entry and a data test fails it. Wording is data, so no sport term enters universal code. Starts EMPTY on 14 October 2026: until he approves a sentence, every such field is withheld and the activity is refused at communication rather than paraphrased. The first entry, A01-W1, was added 18 October 2026 (stage M5): his own sentence for the build-out scoring rule, reply filed 19 October 2026, item 1. A01-W2 and A01-W3 were added 18 October 2026 (design step L14): his reply filed 20 October 2026, item 1 (the pressing team's regain score, our draft approved as written) and item 2 (the building team's scoring eligibility, in his own simplified wording). His approval covers these sentences only: \"I understand that the remaining coach-facing sentences are still drafts, so this approval applies specifically to the two scoring statements, not yet to the entire activity.\"",
+    "about": "Coach-facing wording Christian has APPROVED for parts of a game the renderer otherwise cannot say: primary-event conditions (register V4-V6) and information rules (V16-V22), and later the modifier criterion and termination (V8c, V8d). His order of 14 October 2026, Step 4 component 3: 'Enable accurate coach-facing communication of scoring conditions and information rules, using approved language.' An entry is used only when it carries approvedBy with who, a date, his words verbatim and the communication standard it was reviewed under; the loader ignores any other entry and a data test fails it. Wording is data, so no sport term enters universal code. Starts EMPTY on 14 October 2026: until he approves a sentence, every such field is withheld and the activity is refused at communication rather than paraphrased. The first entry, A01-W1, was added 18 October 2026 (stage M5): his own sentence for the build-out scoring rule, reply filed 19 October 2026, item 1. A01-W2 and A01-W3 were added 18 October 2026 (design step L14): his reply filed 20 October 2026, item 1 (the pressing team's regain score, our draft approved as written) and item 2 (the building team's scoring eligibility, in his own simplified wording). His approval covers these sentences only: \"I understand that the remaining coach-facing sentences are still drafts, so this approval applies specifically to the two scoring statements, not yet to the entire activity.\" AMENDED 25 October 2026 (P1, his reply filed 28 October 2026, items 3, 4, 5 and 9): A01-W3 now holds his simplified sentence of item 9 (\"I approve simplifying the sentence to:\" \"If the building team loses possession, it cannot score again until the next goalkeeper restart.\"), its 20 October sentence kept below it as superseded, with his words (\"This is a communication simplification, not a change in scoring eligibility.\"); the template POSSESSION_CONTINUES now holds his item 5 wording (\"Each team keeps attacking the same target.\"), its 19 October sentence kept as superseded; and two template sentences are added, FIRST_BLOCK_CHOICE (item 4, \"Decide which team builds first.\") and EQUIPMENT (item 3, \"One 12 × 6 ft goalkeeper-defended goal, balls, cones or field markers, and two team colors plus a distinct goalkeeper color.\"). A superseded sentence is never said and never matched: it is the record of what he approved before.",
     "entryShape": {
         "id": "a stable id for the entry",
         "covers": "[{ row: 'V3' (a condition's scope)|'V4'|'V5'|'V6'|'V8c'|'V8d'|'V16'..'V22'|'B8' (a role's credit bound)|'V28'..'V31' (an occurrence that also counts as the primary event), match: { equals: <JSON value> } | { refersToOwnCondition: true }, element?: { base: '<a collection said only in approved words, e.g. activityRoles or value.primaryEvent.conditions>', field: '<a field of its elements>', equals: <JSON value> } }] - without `element`, every cover must hold on one element for the entry to apply, and it is said once per such element; with `element` on EVERY cover (stage M3, 17 October 2026), each locator must pick out exactly one element, every cover must hold on its own element, a located condition authored for less than every score needs its exact V3 cover, and the sentence is said ONCE citing every covered field (no slots); equality is canonical JSON, key order ignored (documentation only; the rows said only in approved words are render-concrete-game.ts WORDED_ONLY; B8 and V28-V31 listed 17 October 2026, stages M1 and M2)",
@@ -7,7 +7,8 @@
         "slots": "{ slotName: { field: '<field of the same element>' } } - filled only from cited game values",
         "section": "Set up | Players | How it works | How to score | What to watch",
         "approvedBy": "{ who, date, quote, ccs }",
-        "note": "optional, documentation only (added 18 October 2026, stage M5): what the entry's match values are and whose words they are; never read by the renderer"
+        "note": "optional, documentation only (added 18 October 2026, stage M5): what the entry's match values are and whose words they are; never read by the renderer",
+        "superseded": "optional (added 25 October 2026, P1, his reply filed 28 October 2026, item 9): [{ sentence, approvedBy: { who, date, quote, ccs }, supersededBy: { who, date, quote, citedAs } }] - the sentences he approved for this entry before its current one, oldest first, each with its own approval and his words replacing it; never said and never matched (the loader refuses an entry whose record is incomplete, and one whose superseded sentence is its current one)"
     },
     "entries": [
         {
@@ -116,15 +117,32 @@
                     "element": { "base": "value.primaryEvent.conditions", "field": "type", "equals": "origin" }
                 }
             ],
-            "sentence": "If the building team loses possession or plays the ball out, it cannot score again until the next goalkeeper restart.",
+            "sentence": "If the building team loses possession, it cannot score again until the next goalkeeper restart.",
             "section": "How to score",
             "approvedBy": {
                 "who": "Christian",
-                "date": "2026-10-20",
-                "quote": "2. Building team's scoring eligibility — Include, with simplified wording.\n\n\"If the building team loses possession or plays the ball out, it cannot score again until the next goalkeeper restart.\"\n\nI think this clarification is useful because play continues after turnovers. Coaches should understand that regaining possession does not restore the original build-out scoring opportunity.",
-                "ccs": "Coach Communication Standard RC2: his own simplified wording, replacing our draft, sentence 2 of our email of 19 October 2026 (\"Play Out from the Back - one sentence to approve, then the activity is served\"), in his reply filed 20 October 2026, item 2"
+                "date": "2026-10-28",
+                "quote": "9. Build-out scoring eligibility\nI approve simplifying the sentence to:\n\"If the building team loses possession, it cannot score again until the next goalkeeper restart.\"\nBecause every dead ball now produces a goalkeeper restart, the separate reference to playing the ball out is unnecessary.\nThis is a communication simplification, not a change in scoring eligibility.",
+                "ccs": "Coach Communication Standard RC3: his own simplified wording of his approved sentence of 20 October 2026 (superseded, below), answering the last point but one of our email 'Play Out from the Back - the goal version is ready to field-test' (section 'STILL OPEN FROM OUR 27 OCTOBER EMAIL': tell us if you would like \"or plays the ball out\" dropped), in his reply filed 28 October 2026, item 9"
             },
-            "note": "Added 18 October 2026 (design step L14); his reply filed 20 October 2026, item 2, in HIS wording, which replaces our draft. One sentence for the building team's scoring eligibility, said once, for his reply filed 19 October 2026, item 4 (the scoring instructions must make clear that continuing to attack does not restore the building team's eligibility). It covers what the sentence says and nothing more: the building role's credit bound (B8 = BUILD_OUT_EPISODE, A01-R1-B8-1: its holder scores only inside a build-out episode, which ends when it loses possession - the change of possession, GF2-07.a - or plays the ball out - the restarts after it, A01-R1-T1-5 and T1-7, which A01-R1-T7-3 makes begin another episode - and which only a goalkeeper restart begins, A01-R1-T1-1..3), and the origin condition that names that restart (RPC-001-18.a: its type, its exact scope and its referents, the same values as A01-W1, whose note explains the goalkeeper-only reading of the two arms; a test pins that no episode starter of A01 carries a restart kind). Those episode-ending transitions are not fields an entry can cover (the renderer says them in its own How it works sentences); what this sentence says about them is the B8 episode they end, checked by GA-EPISODE-REACHABLE clauses 4 and 5. The progression, control and exclusion conditions are NOT covered: this sentence does not say them. Two entries covering one field (MEASURED, approved-wording.unit.ts and first-activity-end-to-end.unit.ts): each located entry is said once where all its own covers hold, independently of the other, citing the fields it covers; a field is withheld only where no entry says it. So B8 and the origin's three fields are cited by A01-W1 and by A01-W3, and neither entry decides the other: without A01-W1 the three conditions only it covers are withheld (refused), and without A01-W3 the fields are still said by A01-W1, so a test pins that the served activity says this sentence once. Its place in How to score, straight after A01-W1, follows from citing the building role's bound (render-concrete-game.ts scoringInRoleOrder, then table order). If any of these values changes, the entry stops matching (a safe failure for these fields, which A01-W1 also says). AMENDED 24 October 2026 (R2, the d27 design's section 2.8, the R1 review's should-fix; this note only, his sentence, covers and approval unchanged): the restarts after the ball goes out named above (A01-R1-T1-5 and T1-7, which A01-R1-T7-3 made begin another episode) were withdrawn on 24 October 2026 (R1) by his reply filed 27 October 2026, item 4 ('Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.'); the ball going out is now A01-R1-T1-8 and T1-9, which A01-R1-T7-1 makes begin a new episode, each a goalkeeper restart awarded to the building team. The sentence stays true: under the common restart 'or plays the ball out' is always followed at once by a goalkeeper restart, so that clause gives the coach nothing further to apply; it is flagged for him (the design offers to shorten it), never edited here."
+            "superseded": [
+                {
+                    "sentence": "If the building team loses possession or plays the ball out, it cannot score again until the next goalkeeper restart.",
+                    "approvedBy": {
+                        "who": "Christian",
+                        "date": "2026-10-20",
+                        "quote": "2. Building team's scoring eligibility — Include, with simplified wording.\n\n\"If the building team loses possession or plays the ball out, it cannot score again until the next goalkeeper restart.\"\n\nI think this clarification is useful because play continues after turnovers. Coaches should understand that regaining possession does not restore the original build-out scoring opportunity.",
+                        "ccs": "Coach Communication Standard RC2: his own simplified wording, replacing our draft, sentence 2 of our email of 19 October 2026 (\"Play Out from the Back - one sentence to approve, then the activity is served\"), in his reply filed 20 October 2026, item 2"
+                    },
+                    "supersededBy": {
+                        "who": "Christian",
+                        "date": "2026-10-28",
+                        "quote": "Because every dead ball now produces a goalkeeper restart, the separate reference to playing the ball out is unnecessary.\nThis is a communication simplification, not a change in scoring eligibility.",
+                        "citedAs": "his reply filed 28 October 2026, item 9"
+                    }
+                }
+            ],
+            "note": "Added 18 October 2026 (design step L14); his reply filed 20 October 2026, item 2, in HIS wording, which replaces our draft. One sentence for the building team's scoring eligibility, said once, for his reply filed 19 October 2026, item 4 (the scoring instructions must make clear that continuing to attack does not restore the building team's eligibility). It covers what the sentence says and nothing more: the building role's credit bound (B8 = BUILD_OUT_EPISODE, A01-R1-B8-1: its holder scores only inside a build-out episode, which ends when it loses possession - the change of possession, GF2-07.a - or plays the ball out - the restarts after it, A01-R1-T1-5 and T1-7, which A01-R1-T7-3 makes begin another episode - and which only a goalkeeper restart begins, A01-R1-T1-1..3), and the origin condition that names that restart (RPC-001-18.a: its type, its exact scope and its referents, the same values as A01-W1, whose note explains the goalkeeper-only reading of the two arms; a test pins that no episode starter of A01 carries a restart kind). Those episode-ending transitions are not fields an entry can cover (the renderer says them in its own How it works sentences); what this sentence says about them is the B8 episode they end, checked by GA-EPISODE-REACHABLE clauses 4 and 5. The progression, control and exclusion conditions are NOT covered: this sentence does not say them. Two entries covering one field (MEASURED, approved-wording.unit.ts and first-activity-end-to-end.unit.ts): each located entry is said once where all its own covers hold, independently of the other, citing the fields it covers; a field is withheld only where no entry says it. So B8 and the origin's three fields are cited by A01-W1 and by A01-W3, and neither entry decides the other: without A01-W1 the three conditions only it covers are withheld (refused), and without A01-W3 the fields are still said by A01-W1, so a test pins that the served activity says this sentence once. Its place in How to score, straight after A01-W1, follows from citing the building role's bound (render-concrete-game.ts scoringInRoleOrder, then table order). If any of these values changes, the entry stops matching (a safe failure for these fields, which A01-W1 also says). AMENDED 24 October 2026 (R2, the d27 design's section 2.8, the R1 review's should-fix; this note only, his sentence, covers and approval unchanged): the restarts after the ball goes out named above (A01-R1-T1-5 and T1-7, which A01-R1-T7-3 made begin another episode) were withdrawn on 24 October 2026 (R1) by his reply filed 27 October 2026, item 4 ('Whenever the ball becomes dead, play resets to a new goalkeeper-initiated build-out.'); the ball going out is now A01-R1-T1-8 and T1-9, which A01-R1-T7-1 makes begin a new episode, each a goalkeeper restart awarded to the building team. The sentence stays true: under the common restart 'or plays the ball out' is always followed at once by a goalkeeper restart, so that clause gives the coach nothing further to apply; it is flagged for him (the design offers to shorten it), never edited here. AMENDED 25 October 2026 (P1; his reply filed 28 October 2026, item 9: \"I approve simplifying the sentence to:\" \"If the building team loses possession, it cannot score again until the next goalkeeper restart.\" \"This is a communication simplification, not a change in scoring eligibility.\"): the sentence is now his simplified one, and the one this note describes above is kept in superseded with its 20 October approval. The covers are unchanged and so is what the sentence covers: the building role's credit bound and the origin condition. The episode a ball going out ends is still ended, by the goalkeeper restart that follows it (A01-R1-T1-8, T1-9, A01-R1-T7-1), as above; the sentence simply no longer names that moment, which the How it works sentence says (every dead ball is a goalkeeper restart). No game value changes."
         }
     ],
     "templateShape": {
@@ -134,25 +152,103 @@
         "parts": "the renderer's parts, in order; {slot} names a slot filled from a cited game value",
         "example": "{ slot: value } reproducing his sentence",
         "sentence": "his sentence, verbatim",
-        "approvedBy": "{ who, date, quote, ccs }"
+        "approvedBy": "{ who, date, quote, ccs } - and, where his approval replaces a clause of a sentence he approved before (added 25 October 2026, P1, his reply filed 28 October 2026, item 5), `replaces` (the clause he names, verbatim in the quote) and `with` (his replacement, verbatim in the quote): the sentence is then the last superseded sentence with that clause replaced (his replacement's capital and full stop taken from the clause it replaces), and his whole sentence need not stand in the quote",
+        "superseded": "optional (added 25 October 2026, P1): [{ sentence, example, approvedBy, supersededBy: { who, date, quote, citedAs } }] - what he approved for this template before, oldest first; never said and never matched",
+        "role": "optional (added 25 October 2026, P1, FIRST_BLOCK_CHOICE only): the role of the register's role vocabulary his words name; the template is said only in a game that holds that role",
+        "kind": "optional (added 25 October 2026, P1): EQUIPMENT for an equipment template, with `states` (what each part states, one per part: TARGET_OBJECT, CARRIER or TEAMS_AND_PERFORMER) and `when` (what the game must hold for every word to be true: targetObject { kind, defendedBy } or null for a game that sets out no object a team scores at, carrier, teams, distinguishes { performer, words: the words of the TEAMS_AND_PERFORMER part that tell that performer apart }); the same shape as the DRAFT equipment entries of draft-coach-wording.json, which are tried after every approved one"
     },
     "approvedTemplateSentences": [
         {
             "id": "POSSESSION_CONTINUES",
-            "renders": "A game whose transition keyed on a change of possession continues play, with one objective per team: the first part cites each such transition's play state and selector, the second the objectives' team and the targets' noun (render-concrete-game.ts, 'How it works'). The second part is said only where the two objectives name different teams; targetNoun is the referenced regions' one noun, and 'line' where they name no other.",
+            "renders": "A game whose transition keyed on a change of possession continues play, with one objective per team: the first part cites each such transition's play state and selector, the second the objectives' team and the targets' noun (render-concrete-game.ts, 'How it works'). The second part is said only where the two objectives name different teams; targetNoun is the referenced regions' one noun, and 'line' where they name no other. AMENDED 25 October 2026 (P1, his reply filed 28 October 2026, item 5): targetNoun is 'line' where every target is a line (said exactly as before, a generalization of his words, DRAFT) and otherwise the example's word, his 'target', for both scoring configurations (\"This accommodates both scoring configurations without changing the intended meaning.\"), citing what each objective references; never the regions' noun 'zone' any more.",
             "parts": [
                 "When possession changes, play carries on without a stoppage",
                 ", and each team keeps attacking the same {targetNoun}"
             ],
             "example": {
-                "targetNoun": "zone"
+                "targetNoun": "target"
             },
-            "sentence": "When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone.",
+            "sentence": "When possession changes, play carries on without a stoppage, and each team keeps attacking the same target.",
             "approvedBy": {
                 "who": "Christian",
-                "date": "2026-10-19",
-                "quote": "I approve both of your proposed revisions: … Use: \"When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone.\" For the second sentence, please ensure the surrounding scoring instructions make clear that continuing to attack does not automatically restore the building team's eligibility to score.",
-                "ccs": "Coach Communication Standard RC2: our draft, section 4 of our email of 18 October 2026, which put every sentence to him as a draft"
+                "date": "2026-10-28",
+                "quote": "5. Possession wording\nI approve replacing \"each team keeps attacking the same zone\" with:\n\"Each team keeps attacking the same target.\"\nThis accommodates both scoring configurations without changing the intended meaning.",
+                "ccs": "Coach Communication Standard RC3: his replacement for a clause of his approved sentence of 19 October 2026 (superseded, below), answering decision 5 of our email 'Play Out from the Back - the goal version is ready to field-test', in his reply filed 28 October 2026, item 5",
+                "replaces": "each team keeps attacking the same zone",
+                "with": "Each team keeps attacking the same target."
+            },
+            "superseded": [
+                {
+                    "sentence": "When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone.",
+                    "example": {
+                        "targetNoun": "zone"
+                    },
+                    "approvedBy": {
+                        "who": "Christian",
+                        "date": "2026-10-19",
+                        "quote": "I approve both of your proposed revisions: … Use: \"When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone.\" For the second sentence, please ensure the surrounding scoring instructions make clear that continuing to attack does not automatically restore the building team's eligibility to score.",
+                        "ccs": "Coach Communication Standard RC2: our draft, section 4 of our email of 18 October 2026, which put every sentence to him as a draft"
+                    },
+                    "supersededBy": {
+                        "who": "Christian",
+                        "date": "2026-10-28",
+                        "quote": "I approve replacing \"each team keeps attacking the same zone\" with:\n\"Each team keeps attacking the same target.\"\nThis accommodates both scoring configurations without changing the intended meaning.",
+                        "citedAs": "his reply filed 28 October 2026, item 5"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "FIRST_BLOCK_CHOICE",
+            "renders": "The coach's setup decision in a game played in role blocks whose markings are set out once, whose objectives' teams are the holders of the game's roles and whose targets have a noun other than a line, or are of different kinds (render-concrete-game.ts, Set up): which team holds the role `role` names in the first block. Said in place of the DRAFT sentence 'Decide which team starts at which end', citing what that sentence cited (each objective's team and the area's length, whose ends the role holders take) and the role element `role` names; only in a game that holds that role. Every other game says what it did.",
+            "role": "BUILDING",
+            "parts": [
+                "Decide which team builds first"
+            ],
+            "example": {},
+            "sentence": "Decide which team builds first.",
+            "approvedBy": {
+                "who": "Christian",
+                "date": "2026-10-28",
+                "quote": "4. Starting team\nPlease replace \"Decide which team starts at which end\" with:\n\"Decide which team builds first.\"\nThat's simpler and more accurate.",
+                "ccs": "Coach Communication Standard RC3: his wording, answering decision 4 of our email 'Play Out from the Back - the goal version is ready to field-test', in his reply filed 28 October 2026, item 4"
+            }
+        },
+        {
+            "id": "EQUIPMENT",
+            "kind": "EQUIPMENT",
+            "renders": "What the coach needs, as the first Set up sentence (render-concrete-game.ts equipmentSentence), in a game that holds everything `when` names: exactly one object a team scores at, of the kind named, defended by the team holding the performer named, whose size {size} is its bound region's cited pairing's object in whole feet (width x height); the played object of the kind named; exactly the teams counted; and the performer told apart by colour (the applied law's clause, which this sentence then says in place of the Players sentence's clause). Placed in Coach Details' Set up because RC3 5.2 has Setup answer 'How do I organize it?', and not in the Overview, whose basic parameters RC3 4.3 lists as area, players and duration.",
+            "parts": [
+                "One {size} goalkeeper-defended goal, ",
+                "balls, cones or field markers",
+                ", and two team colors plus a distinct goalkeeper color"
+            ],
+            "states": [
+                "TARGET_OBJECT",
+                "CARRIER",
+                "TEAMS_AND_PERFORMER"
+            ],
+            "when": {
+                "targetObject": {
+                    "kind": "goal",
+                    "defendedBy": "goalkeeper"
+                },
+                "carrier": "ball",
+                "teams": 2,
+                "distinguishes": {
+                    "performer": "goalkeeper",
+                    "words": "a distinct goalkeeper color"
+                }
+            },
+            "example": {
+                "size": "12 × 6 ft"
+            },
+            "sentence": "One 12 × 6 ft goalkeeper-defended goal, balls, cones or field markers, and two team colors plus a distinct goalkeeper color.",
+            "approvedBy": {
+                "who": "Christian",
+                "date": "2026-10-28",
+                "quote": "3. Equipment\nYes, please include a concise equipment list.\nFor the goal-based version:\n\"One 12 × 6 ft goalkeeper-defended goal, balls, cones or field markers, and two team colors plus a distinct goalkeeper color.\"\nThe target-zone version should have its own corresponding requirements.\nThe goal dimensions matter because this realization requires an appropriate goalkeeper-defended goal, not simply any available goal.",
+                "ccs": "Coach Communication Standard RC3: his wording, answering decision 3 of our email 'Play Out from the Back - the goal version is ready to field-test', in his reply filed 28 October 2026, item 3"
             }
         }
     ]

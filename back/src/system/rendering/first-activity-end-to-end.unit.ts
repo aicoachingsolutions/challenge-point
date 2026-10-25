@@ -66,10 +66,20 @@ const HIS_ITEM_1 =
     "Building team: Score by carrying the ball beyond the marked line or passing to a teammate who receives it under control beyond the line. The progression must begin with the goalkeeper's build-out and occur before the building team loses possession. Uncontrolled clearances do not score."
 /** His reply filed 20 October 2026, item 1, verbatim (our draft, approved as written): production entry A01-W2. */
 const HIS_W2 = 'The pressing team also scores by winning the ball inside that zone, provided it genuinely establishes possession; a contested touch, deflection or loose ball does not count.'
-/** His reply filed 20 October 2026, item 2, verbatim (his own wording): production entry A01-W3. */
-const HIS_W3 = 'If the building team loses possession or plays the ball out, it cannot score again until the next goalkeeper restart.'
-/** His reply filed 19 October 2026, item 4 (approved template sentence), as an instruction says it (no final full stop). */
-const HIS_POSSESSION = 'When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone'
+/**
+ * His reply filed 20 October 2026, item 2, verbatim (his own wording): production entry A01-W3. Re-pointed 25 October 2026 (P1): his simplified
+ * sentence, his reply filed 28 October 2026, item 9 ("This is a communication simplification, not a change in scoring eligibility."); the
+ * 20 October sentence is kept superseded in the record and is never said (HIS_W3_20_OCT).
+ */
+const HIS_W3 = 'If the building team loses possession, it cannot score again until the next goalkeeper restart.'
+const HIS_W3_20_OCT = 'If the building team loses possession or plays the ball out, it cannot score again until the next goalkeeper restart.'
+/**
+ * His reply filed 19 October 2026, item 4 (approved template sentence), as an instruction says it (no final full stop). Re-pointed 25 October
+ * 2026 (P1): his reply filed 28 October 2026, item 5 replaces its last clause ("Each team keeps attacking the same target.").
+ */
+const HIS_POSSESSION = 'When possession changes, play carries on without a stoppage, and each team keeps attacking the same target'
+/** His reply filed 28 October 2026, item 4 (approved template sentence FIRST_BLOCK_CHOICE), as an instruction says it (P1). */
+const HIS_FIRST_BLOCK = 'Decide which team builds first'
 /** The draft our 19 October email put to him as sentence 2; his item 2 replaced it, so it is never said. */
 const OUR_W3_DRAFT = 'Once the building team loses the ball, or plays it out of the area, its chance to score from that build-out is over, even if it wins the ball back later; its next chance starts with the next goalkeeper restart.'
 const ALSO = 'value.primaryEvent.alsoCounts[c:provisional:A01-R1:A01-R1-V27-1]'
@@ -156,8 +166,11 @@ test('2. How to score in the order shown to him, and APPROVED exactly for his se
         )
         // His approval covers his sentences only ("not yet to the entire activity"): every other sentence is a DRAFT.
         const instructions = served.evidence!.sections.instructions
-        assert.deepEqual(instructions.filter(i => i.wording === 'APPROVED').map(i => i.text), [HIS_POSSESSION, HIS_ITEM_1, HIS_W3, HIS_W2], what)
-        assert.equal(instructions.filter(i => i.wording === 'DRAFT').length, instructions.length - 4, what)
+        // Re-pointed 25 October 2026 (P1): his reply filed 28 October 2026, item 4 adds his first-block sentence (Set up, said first).
+        assert.deepEqual(instructions.filter(i => i.wording === 'APPROVED').map(i => i.text), [HIS_FIRST_BLOCK, HIS_POSSESSION, HIS_ITEM_1, HIS_W3, HIS_W2], what)
+        assert.equal(instructions.filter(i => i.wording === 'DRAFT').length, instructions.length - 5, what)
+        // P1: his 20 October eligibility sentence, superseded by his 28 October one, is never said.
+        assert.ok(!instructions.some(i => i.text === HIS_W3_20_OCT), what)
         // Re-pointed 24 October 2026 (R1): there is no throw-in any more (his reply filed 27 October 2026, item 4: "There should be no
         // separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity."), so no sentence names it and no block
         // carries the sport's restart noun; the ball going out is said in the DRAFT restart sentence. Was: the touchline sentence, DRAFT, its
