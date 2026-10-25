@@ -5,6 +5,7 @@ DRAFT, for Christian's review. Nothing here is coach-facing and nothing in the e
 | File | What it is | Status |
 |---|---|---|
 | `play-out-from-the-back-observation-sheet.txt` | The observation sheet for field-testing the goal version of Play Out from the Back (A01-R2). Sent to him with the 28 October 2026 email ("Play Out from the Back - the goal version is ready to field-test") | DRAFT, awaiting his review |
+| `play-out-from-the-back-pilot-instrument.txt` | Short practical pilot instrument for Play Out from the Back, from his reply filed 28 October 2026, Part 2; the longer observation sheet remains an optional reference | DRAFT, for review |
 
 Put under version control 24 October 2026 (the completeness audit of the field-test build, item 4). Until then the only
 copy was outside the repository (`scratchpad/send-oct28/Field-test observation sheet.txt`, the copy attached to the email; an
