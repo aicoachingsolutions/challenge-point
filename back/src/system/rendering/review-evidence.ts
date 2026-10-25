@@ -24,6 +24,7 @@
  *
  * Sport-neutral: role names, nouns, rows and the items he asked for are data; no goal, sport term or knowledge id is written here.
  */
+import { provisionalFigureOf } from '../derivation/bound-regions'
 import { RegisterIndex } from '../derivation/register'
 import { roleHolderNames } from '../derivation/designation'
 import type { BoundRegionAccount } from '../realization/bound-region-check'
@@ -440,6 +441,33 @@ function boundingItemsOf(path: string, block: EvidenceBlock, index: RegisterInde
 }
 
 /**
+ * **The items that bound an element relative to another element** — P2, 25 October 2026 (his reply filed 28 October 2026, item 2: *"the engine
+ * should prevent incompatible geometry through general validation rather than activity-specific restrictions."*). The fixture carries such a
+ * bound beside the element's value (`status.bounds`: RC-21's term, its typed referent and the team) but not the item that authored it, so the
+ * item is found by what it says: an item of the block's contracts on the path's row whose value is that relative position (the same term,
+ * referent and team). Read for any element; the targetOf reading above keeps its own wording for a target's line.
+ */
+function relativeBoundItemsOf(path: string, block: EvidenceBlock, index: RegisterIndex): { contractId: string; itemId: string }[] {
+    const row = rowOf(index, path)
+    const bounds = ((block.fixture?.status?.bounds ?? []) as any[]).find(entry => entry?.path === path)?.bounds ?? []
+    const relative = (bounds as any[]).filter(bound => bound?.kind === 'RELATIVE' && bound.of)
+    if (!row || !relative.length) return []
+    return (block.contracts ?? []).flatMap(contract =>
+        (contract.items ?? [])
+            .filter(item => {
+                const value = item.value as any
+                return (
+                    String(item.row) === row &&
+                    !!value &&
+                    typeof value === 'object' &&
+                    relative.some(bound => value.term === bound.term && value.forTeam === bound.forTeam && value.of?.structuralRef?.contractId === bound.of.contractId && value.of?.structuralRef?.itemId === bound.of.itemId)
+                )
+            })
+            .map(item => ({ contractId: contract.contractId, itemId: item.itemId })),
+    )
+}
+
+/**
  * Where a per-block fact is said beside its value (stage 2C, 21 October 2026): "block <id>: " in a game played in role blocks, whose blocks
  * are realized and entailed each on its own; nothing for a game not played in blocks.
  */
@@ -496,9 +524,15 @@ function sourcesOf(path: string, block: EvidenceBlock, items: Map<string, any>, 
         const relationship = entry ? relationships.get(entry.relationship) : null
         if (relationship) found.push(relationshipSource(String(relationship.id), relationships))
     }
-    for (const ref of boundingItemsOf(path, block, index)) {
+    const boundingTargets = boundingItemsOf(path, block, index)
+    for (const ref of boundingTargets) {
         const [item, ...authorizing] = itemSources(ref, items, null, relationships)
         found.push({ ...item, detail: `bounds this line for the team holding a role (${index.targetOf?.attribute ?? 'targetOf'})` }, ...authorizing)
+    }
+    // P2 (25 October 2026): an item bounding this element relative to another (a RELATIVE bound beside its value), which no targetOf reading finds.
+    for (const ref of relativeBoundItemsOf(path, block, index).filter(ref => !boundingTargets.some(other => other.contractId === ref.contractId && other.itemId === ref.itemId))) {
+        const [item, ...authorizing] = itemSources(ref, items, null, relationships)
+        found.push({ ...item, detail: 'bounds this element relative to another element (a relative position beside its value)' }, ...authorizing)
     }
     /**
      * **A path of the physical layout** (stage 2D, 21 October 2026, `physical-layout.ts`): the rule that sets every block's markings out
@@ -554,7 +588,24 @@ function sourcesOf(path: string, block: EvidenceBlock, items: Map<string, any>, 
         const id = path.startsWith(head) ? path.slice(head.length, path.indexOf(']', head.length)) : ''
         const pairing = fixtureBoundRegion(block.fixture, id)?.pairing ?? null
         if (pairing) {
-            found.push({ layer: 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS', standing: 'APPROVED', ref: `pairing ${pairing.id} (${pairing.document}, ${pairing.citedAs})`, detail: `${inBlock(block)}${pairing.region.function} ${pairing.region.widthM} m wide by ${pairing.region.depthM} m deep, with a ${pairing.object.kind} ${pairing.object.widthM} m wide; authority: ${pairing.authority.citedAs}` })
+            /**
+             * P2 (25 October 2026), his reply filed 28 October 2026, item 8 (*"I don't want an uncertain interpretation silently becoming canonical
+             * knowledge."*): a figure the pairing marks provisional is said so wherever the pairing is cited, and a path citing that figure
+             * gains a source of its own, PROVISIONAL, with the value applied, every source's statement of it and where his words are filed.
+             * A pairing marking nothing provisional is said exactly as before.
+             */
+            const marked = (leaf: string, said: string) => (provisionalFigureOf(pairing, leaf) ? `${said} (${provisionalFigureOf(pairing, leaf)!.status.toLowerCase()})` : said)
+            found.push({ layer: 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS', standing: 'APPROVED', ref: `pairing ${pairing.id} (${pairing.document}, ${pairing.citedAs})`, detail: `${inBlock(block)}${pairing.region.function} ${marked('region.widthM', `${pairing.region.widthM} m wide`)} by ${marked('region.depthM', `${pairing.region.depthM} m deep`)}, with a ${pairing.object.kind} ${marked('object.widthM', `${pairing.object.widthM} m wide`)}; authority: ${pairing.authority.citedAs}` })
+            const leaf = path.slice(`${head}${id}].pairing.`.length)
+            const figure = path.startsWith(`${head}${id}].pairing.`) ? provisionalFigureOf(pairing, leaf) : null
+            if (figure) {
+                found.push({
+                    layer: 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS',
+                    standing: 'PROVISIONAL',
+                    ref: `pairing ${pairing.id} ${figure.leaf}: ${figure.status} (${figure.authority.citedAs})`,
+                    detail: `${inBlock(block)}${figure.value} m applied: ${figure.applied} Sources: ${figure.sources.map(source => `${source.document}${source.edition ? ` (${source.edition})` : ''}, ${source.citedAs}: ${source.states}${source.states.replace(/\s/g, '') === `${source.metres}m` ? '' : ` (${source.metres} m)`}`).join('; ')}`,
+                })
+            }
         }
         return found
     }

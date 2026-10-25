@@ -5,11 +5,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ActivityReviewRequest, ServedActivity } from '@/MODELS/activity-review.model'
 import { ActivityBlock } from '@/app/CheckedActivityBlock'
 import FieldDiagram from '@/app/FieldDiagram'
-import ActivityReviewPage from '@/app/ActivityReviewPage'
+import ActivityReviewPage, { ProvisionalFigures } from '@/app/ActivityReviewPage'
+import type { ReviewBoundRegionPairing } from '@/MODELS/activity-review.model'
 import SessionForm from '@/forms/SessionForm'
 import { NumberField } from '@/form-control/fields'
 
 import fixture from './fixtures/a01.json'
+import faPairingFixture from './fixtures/fa-pairing.json'
 
 // Only authentication is replaced. FormWrapper, fields, resource hooks, API serialization,
 // and the review question all run unchanged; fetch is the offline server boundary below.
@@ -319,5 +321,27 @@ describe('SessionForm', () => {
         renderPage('session')
         fireEvent.click(await screen.findByRole('radio', { name: otherChoice.label }))
         expect(screen.getByRole('spinbutton', { name: 'How wide, in metres?' })).toBeTruthy()
+    })
+})
+
+// P2 (his reply filed 28 October 2026, item 8): the review evidence's provisional figure of a pairing, as the administrator's page shows it.
+// The pairing is copied unchanged from the built-bundle snapshot's administrator evidence (fixtures/fa-pairing.json, provenance recorded).
+describe('Review evidence: provisional figures', () => {
+    const pairing = faPairingFixture.pairing as unknown as ReviewBoundRegionPairing
+
+    it('shows each provisional figure with its status, the value applied, every source and his words', () => {
+        const { container } = render(<ProvisionalFigures pairing={pairing} />)
+        const [figure] = pairing.provisional
+        expect(container.textContent).toContain(`${figure.status}: ${figure.leaf} of ${pairing.id}, ${figure.value} m applied.`)
+        expect(figure.status).toBe('PROVISIONAL')
+        expect(container.textContent).toContain(figure.applied)
+        for (const source of figure.sources) expect(container.textContent).toContain(`${source.citedAs}: ${source.states} (${source.metres} m)`)
+        for (const words of figure.authority.words) expect(screen.getByText(words, { exact: false })).toBeTruthy()
+        expect(container.textContent).toContain(figure.authority.citedAs)
+    })
+
+    it('shows nothing for a pairing that marks no figure provisional', () => {
+        const { container } = render(<ProvisionalFigures pairing={{ ...pairing, provisional: undefined }} />)
+        expect(container.textContent).toBe('')
     })
 })

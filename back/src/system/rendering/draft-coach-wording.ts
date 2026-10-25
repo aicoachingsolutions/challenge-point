@@ -268,7 +268,26 @@ export interface EquipmentWording {
     basis: WordingBasis
 }
 
+/**
+ * **How far a moved line may go, said after the adjustment that moves it** — P2, 25 October 2026. Christian, reply filed 28 October 2026, item
+ * 2: *"The marked progression line should remain outside the [handling area]."* *"The coach should retain flexibility to adjust it within a valid
+ * range, but the engine should prevent incompatible geometry through general validation rather than activity-specific restrictions."* (his noun
+ * bracketed: the coupling ratchet keeps a sport's nouns out of this layer; the data file quotes him whole). `nearest`, `farthest` and `both` are
+ * the clause for the limits the bounds on the line give (`adjustment-range.ts`), with the slots {nearest} and/or {farthest} (metres) and {team}
+ * (the noun of the team whose end line the line is measured from); `outside` is said after them where every limit comes from one region with a
+ * noun, with the slot {referent}. Read by the renderer's Adjusting the activity sentence; fidelity holds every limit said to the bounds.
+ */
+export interface AdjustmentLimitsWording {
+    nearest: string
+    farthest: string
+    both: string
+    outside: string
+    basis: WordingBasis
+}
+
 export interface DraftCoachWording {
+    /** P2: the words for how far a moved line may go, or null where the file carries none. */
+    adjustmentLimits: AdjustmentLimitsWording | null
     /** P1: the words for how a restart is taken by a method, by method (empty where the file carries none). */
     methods: MethodWording[]
     /** P1: the DRAFT equipment sentences, in the order tried (empty where the file carries none). */
@@ -301,7 +320,8 @@ export interface DraftCoachWordingLoad {
 }
 
 const filled = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0
-const FILE_KEYS = new Set(['about', 'status', 'entryShape', 'objectKinds', 'facings', 'scoringAtObjects', 'normalLaws', 'triggers', 'deadBallRestart', 'restartLawNouns', 'departedLaws', 'boundRegions', 'appliedLaws', 'objectChoices', 'methods', 'equipment'])
+const FILE_KEYS = new Set(['about', 'status', 'entryShape', 'objectKinds', 'facings', 'scoringAtObjects', 'normalLaws', 'triggers', 'deadBallRestart', 'restartLawNouns', 'departedLaws', 'boundRegions', 'appliedLaws', 'objectChoices', 'methods', 'equipment', 'adjustmentLimits'])
+const ADJUSTMENT_LIMIT_KEYS = new Set(['nearest', 'farthest', 'both', 'outside', 'basis'])
 const METHOD_KEYS = new Set(['method', 'phrase', 'basis'])
 const EQUIPMENT_KEYS = new Set(['parts', 'states', 'when', 'basis'])
 const OBJECT_CHOICE_KEYS = new Set(['kind', 'authorized', 'attributeValues', 'other', 'none'])
@@ -655,10 +675,25 @@ export function draftCoachWordingUnusableBecause(file: any, index: RegisterIndex
             if (basis) return `${which}: ${basis}`
         }
     }
+    /**
+     * P2 (25 October 2026), for his reply filed 28 October 2026, item 2: the words for how far a moved line may go - an object of exactly its
+     * four clauses and his words, each clause holding exactly its slots ({nearest}, {farthest} and {team} as each names; {referent} alone).
+     */
+    if (file.adjustmentLimits !== undefined) {
+        const entry = file.adjustmentLimits
+        if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return 'its adjustmentLimits entry is not an object'
+        for (const key of Object.keys(entry)) if (!ADJUSTMENT_LIMIT_KEYS.has(key)) return `its adjustmentLimits entry carries "${key}"`
+        if (!slotsExactly(entry.nearest, ['nearest', 'team'])) return 'its adjustmentLimits nearest clause must hold exactly the slots {nearest} and {team}'
+        if (!slotsExactly(entry.farthest, ['farthest', 'team'])) return 'its adjustmentLimits farthest clause must hold exactly the slots {farthest} and {team}'
+        if (!slotsExactly(entry.both, ['nearest', 'farthest', 'team'])) return 'its adjustmentLimits both clause must hold exactly the slots {nearest}, {farthest} and {team}'
+        if (!slotsExactly(entry.outside, ['referent'])) return 'its adjustmentLimits outside clause must hold exactly the slot {referent}'
+        const basis = basisUnusableBecause(entry.basis)
+        if (basis) return `its adjustmentLimits entry: ${basis}`
+    }
     return null
 }
 
-const EMPTY: DraftCoachWording = { methods: [], equipment: [], objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [], boundRegions: [], appliedLaws: [], objectChoices: [] }
+const EMPTY: DraftCoachWording = { adjustmentLimits: null, methods: [], equipment: [], objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [], boundRegions: [], appliedLaws: [], objectChoices: [] }
 
 /** The wording from a parsed file, copied, or none with why. */
 export function draftCoachWordingLoadOf(file: any, index: RegisterIndex, laws: DefaultLaws | null = loadSportDefaultLaws()): DraftCoachWordingLoad {
@@ -666,6 +701,7 @@ export function draftCoachWordingLoadOf(file: any, index: RegisterIndex, laws: D
     if (why) return { wording: JSON.parse(JSON.stringify(EMPTY)), why: `${DRAFT_COACH_WORDING_SOURCE} cannot be used: ${why}` }
     return {
         wording: {
+            adjustmentLimits: file.adjustmentLimits === undefined ? null : JSON.parse(JSON.stringify(file.adjustmentLimits)),
             methods: file.methods === undefined ? [] : JSON.parse(JSON.stringify(file.methods)),
             equipment: file.equipment === undefined ? [] : JSON.parse(JSON.stringify(file.equipment)),
             objectKinds: JSON.parse(JSON.stringify(file.objectKinds)),
@@ -722,6 +758,11 @@ export function normalLawsWording(wording: DraftCoachWording = draftCoachWording
 /** The DRAFT phrase for how a restart taken by this method is said, or null where none is written (P1). */
 export function methodWording(method: unknown, wording: DraftCoachWording = draftCoachWordingLoad().wording): MethodWording | null {
     return wording.methods.find(entry => entry.method === method) ?? null
+}
+
+/** The DRAFT words for how far a moved line may go, or null where none are written (P2). */
+export function adjustmentLimitsWording(wording: DraftCoachWording = draftCoachWordingLoad().wording): AdjustmentLimitsWording | null {
+    return wording.adjustmentLimits ? (JSON.parse(JSON.stringify(wording.adjustmentLimits)) as AdjustmentLimitsWording) : null
 }
 
 /** The DRAFT equipment sentences, in the order the renderer tries them after the approved ones (P1). */

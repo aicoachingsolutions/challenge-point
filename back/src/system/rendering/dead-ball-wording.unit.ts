@@ -150,7 +150,7 @@ test('the loader refuses (V9): a key other than the common value, wrong slots, n
         // Re-pointed 24 October 2026 (stage L): and boundRegions and appliedLaws, empty likewise.
         // Re-pointed 24 October 2026 (stage I): the empty wording gains objectChoices.
         // Re-pointed 25 October 2026 (P1): and methods and equipment (his reply filed 28 October 2026, items 1 and 3).
-        assert.deepEqual(draftCoachWordingLoadOf(damaged, index, laws).wording, { methods: [], equipment: [], objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [], boundRegions: [], appliedLaws: [], objectChoices: [] }, `${what}: an unusable file loads as no wording at all`)
+        assert.deepEqual(draftCoachWordingLoadOf(damaged, index, laws).wording, { adjustmentLimits: null, methods: [], equipment: [], objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [], boundRegions: [], appliedLaws: [], objectChoices: [] }, `${what}: an unusable file loads as no wording at all`)
     }
     refused(f => (f.deadBallRestart[SPEC.perTrigger] = copy(f.deadBallRestart[SPEC.common])), /only the common restart has words of its own/, 'words for the per-trigger value')
     refused(f => (f.deadBallRestart.TEST_ONLY = copy(f.deadBallRestart[SPEC.common])), /keyed by no common value/, 'a key off the register')
@@ -362,7 +362,8 @@ test('the TEST-ONLY goal completion: its Restarts sentence names the goal end\'s
     // goal-version-penalty-area.unit.ts). This completion hands the build no bound-region block for its TEST-ONLY 5 m goal, so those items
     // would be realized with no pairing to word them, and the build is refused at communication (fidelity Q3, measured); they are left out
     // of the copy, in memory, so the completion is the no-region goal it was before K2.
-    variant.items = variant.items.filter((i: any) => i.selector !== 'noun=zone & functions ∋ penalty-area')
+    // Re-pointed 25 October 2026 (P2): and the item bounding the marked line relative to the penalty area (A01-R2-S5-2, his reply filed 28 October 2026, item 2), which names it.
+    variant.items = variant.items.filter((i: any) => i.selector !== 'noun=zone & functions ∋ penalty-area' && i.value?.of?.structuralRef?.itemId !== 'A01-R2-S2-1')
     variant.objectSuitability = [{ kind: 'goal', widthM: { min: 1, max: 10 }, ruledOn: 'TEST-ONLY', by: 'TEST-ONLY', citedAs: 'TEST-ONLY', words: ['TEST-ONLY'] }]
     variant.defaultLawsCheck = { mode: 'REPORT', because: 'TEST-ONLY: D-DEFAULT-LAWS completed in memory', basis: { words: ['TEST-ONLY'], citedAs: 'TEST-ONLY' } }
     for (const [players, keepers] of [[12, 1], [11, 1]] as const) {

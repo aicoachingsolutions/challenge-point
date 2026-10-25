@@ -54,8 +54,9 @@ import { effectiveValue } from '../derivation/rational'
 import { NO_FURTHER_VALUE } from '../derivation/types'
 import { CONDITION_ROW, conditionScopeNotEvaluable } from '../derivation/resolved-game'
 import { ApprovedTemplateSentence, approvedTemplateSentences, approvedWording, ApprovedWording, canonicalJson, EQUIPMENT_KIND, EquipmentPartState, EquipmentWhen, fillTemplate, FIRST_BLOCK_CHOICE, POSSESSION_CONTINUES, WordingMatch } from './approved-wording'
+import { adjustmentRangesOf } from './adjustment-range'
 import { exclusionFor } from './coach-facing-exclusions'
-import { appliedLawReading, appliedLawWordings, boundRegionWording, deadBallRestartWording, departedLawWordings, equipmentWordings, facingWording, fillSlots, methodWording, normalLawsWording, objectKindWording, restartLawNouns, scoresAtAnObject, scoringAtObjectWording, slotsOf, triggerWording, triggerWordingOrder } from './draft-coach-wording'
+import { adjustmentLimitsWording, appliedLawReading, appliedLawWordings, boundRegionWording, deadBallRestartWording, departedLawWordings, equipmentWordings, facingWording, fillSlots, methodWording, normalLawsWording, objectKindWording, restartLawNouns, scoresAtAnObject, scoringAtObjectWording, slotsOf, triggerWording, triggerWordingOrder } from './draft-coach-wording'
 import { eventKindOf, genericOf } from './game-reading'
 import { LayoutRectangle, MARK_UNION_ONCE, MarkingChange, PhysicalLayout, Remarking, somethingMoves } from './physical-layout'
 import { appliedLawPath, appliesThroughout, boundRegionPath, DEFAULT_LAWS_OWED, defaultLawPath, departedThroughout, fixtureBoundRegion, fixtureLawAccount, owesNothing } from './rendering-fixture'
@@ -141,8 +142,13 @@ export interface Binding {
      * `WHOLE_FEET` (P1, 25 October 2026, his reply filed 28 October 2026, item 3: *"One 12 × 6 ft [defended object], ..."*, his noun
      * bracketed) where the number is the property's metres said as a whole number of feet at 0.3048 m per foot: admitted by fidelity only
      * at a figure of a carried pairing's object, and only as its exact conversion.
+     *
+     * `ADJUSTMENT_LIMIT` (P2, 25 October 2026, his reply filed 28 October 2026, item 2: *"The coach should retain flexibility to adjust it within
+     * a valid range"*) where the number is how near to, or how far from, the end line it is measured from an authorized adjustment may move the
+     * line at that path: admitted by fidelity only where the bounds on that line, read on the realized geometry (`adjustment-range.ts`), give
+     * exactly that limit, for the adjustment the part cites (`adjustments[<id>].moves`).
      */
-    as?: 'REQUIRED_LIMIT' | 'WHOLE_FEET'
+    as?: 'REQUIRED_LIMIT' | 'WHOLE_FEET' | 'ADJUSTMENT_LIMIT'
 }
 
 /**
@@ -3810,6 +3816,51 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
      * sentence would be reworded as a recommendation of the knowledge, which this is not. Read from the authorization record
      * that crossed with the game (`adjustments`); nothing here names a role, a count or a challenge level.
      */
+    /**
+     * **How far the line an adjustment moves may go — P2, 25 October 2026 (DRAFT wording).** Christian, reply filed 28 October 2026, item 2:
+     * *"The coach should retain flexibility to adjust it within a valid range, but the engine should prevent incompatible geometry through general
+     * validation rather than activity-specific restrictions."* Where the line an authorized adjustment moves carries bounds (a relative position
+     * beside its value, which GA-RELATIVE-PLACEMENT holds on the realized geometry), the range those bounds give on this block's geometry
+     * (`adjustment-range.ts`) is said after the choice, in the DRAFT words of `adjustmentLimits`: the nearest and/or farthest it may be set from
+     * the end line it is measured from, each number bound AS ADJUSTMENT_LIMIT to the line's position, and, where every limit comes from one region
+     * with a noun (a region bound to an object, its noun from the DRAFT boundRegions words), that it stays outside that region. Cited: the line,
+     * the adjustment's `moves`, each referent's position, and, for a referent bound to an object, its pairing's depth (the figure its far edge is
+     * set out by, with that figure's status in the review evidence). An adjustment whose line carries no bound is said exactly as before; one whose
+     * range cannot be said (no team noun, no wording) is said without it, and fidelity refuses the activity for the range it does not say.
+     */
+    const ranges = adjustmentRangesOf(fixture, participants())
+    const limitPartOf = (adjustmentId: string): InstructionPart | null => {
+        const range = ranges.ranges.find(entry => entry.adjustmentId === adjustmentId)
+        const words = adjustmentLimitsWording()
+        const team = range ? teamNoun(range.forTeam) : null
+        if (!range || !words || !team) return null
+        const limits = [range.nearest, range.farthest].filter((limit): limit is NonNullable<typeof limit> => !!limit)
+        const template = range.nearest && range.farthest ? words.both : range.nearest ? words.nearest : words.farthest
+        const text = fillSlots(template, { team, ...(range.nearest ? { nearest: metres(range.nearest.metres) } : {}), ...(range.farthest ? { farthest: metres(range.farthest.metres) } : {}) })
+        if (!text) return null
+        const from = [range.path, `adjustments[${adjustmentId}].moves`, ...new Set(limits.map(limit => limit.referentPath))]
+        // One referent with a noun: a region bound to an object, named by the DRAFT boundRegions words for its function and the object's kind.
+        const referents = [...new Set(limits.map(limit => limit.referent))]
+        const region = referents.length === 1 ? ((game.space?.regions ?? []) as any[]).find(candidate => String(candidate?.elementId) === referents[0]) : null
+        const binding = region ? bindingOf(region, participants()) : null
+        const object = binding ? objectById(binding.objectId) : null
+        const kind = object ? fieldOf(object, objectSpec?.kindLeaf ?? 'kind') : null
+        const fn = region && kind ? regionFunctionsOf(region, participants()).find(candidate => !!boundRegionWording(candidate, kind)) : undefined
+        const noun = fn ? boundRegionWording(fn, kind)?.noun : undefined
+        const outside = noun ? fillSlots(words.outside, { referent: noun }) : null
+        const outsidePaths =
+            outside && region && binding
+                ? [
+                      `space.regions[${referents[0]}].noun`,
+                      `space.regions[${referents[0]}].functions[${fn}]`,
+                      `space.regions[${referents[0]}].ofObject`,
+                      `objects[${binding.objectId}].${objectSpec?.kindLeaf ?? 'kind'}`,
+                      ...(fixtureBoundRegion(fixture, referents[0])?.pairing ? [`${boundRegionPath(referents[0])}.pairing.region.depthM`] : []),
+                  ]
+                : []
+        const cited = [...new Set([...from, ...outsidePaths])]
+        return part(statusAt(cited, 'DERIVED'), `${text}${outside ?? ''}`, cited, limits.map(limit => ({ quantity: limit.metres, path: range.path, as: 'ADJUSTMENT_LIMIT' as const })))
+    }
     for (const adjustment of (fixture.adjustments?.entries ?? []) as { id: string; words: string; consequence: string | null; coachWords?: string }[]) {
         if (typeof adjustment?.words !== 'string' || !adjustment.words.trim()) continue
         /**
@@ -3834,10 +3885,13 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
         const movedLine = move ? regions.find((region: any) => String(region.elementId) === move.line) : null
         const measured = movedLine ? fromTeamEnd(movedLine) : null
         const movedAlong = movedLine ? geometryFor(movedLine.elementId, 'along')?.path : null
+        // P2: how far the moved line may go, where bounds on it limit that (absent for every adjustment whose line carries none).
+        const limited = limitPartOf(adjustment.id)
         if (move && measured && movedAlong) {
             instructions.push(
                 joined(ADJUSTING, [
                     part('COACH_CHOICE', phrase('COACH_CHOICE', choiceText), choicePaths),
+                    ...(limited ? [limited] : []),
                     part(
                         statusAt([movedAlong], 'DERIVED'),
                         `; it is measured from the ${measured.team}'s end line, so when the roles exchange, set it out again at the same distance from the new ${measured.team}'s end line`,
@@ -3845,6 +3899,10 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
                     ),
                 ]),
             )
+            continue
+        }
+        if (limited) {
+            instructions.push(joined(ADJUSTING, [part('COACH_CHOICE', phrase('COACH_CHOICE', choiceText), choicePaths), limited]))
             continue
         }
         say(ADJUSTING, 'COACH_CHOICE', choiceText, choicePaths)

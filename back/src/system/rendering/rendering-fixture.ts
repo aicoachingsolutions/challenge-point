@@ -74,9 +74,11 @@ export interface RenderingFixtureParts {
     reassignmentNouns?: Record<string, { singular: string; plural: string }>
     /**
      * The adjustments the goal's authorization record authorizes, in his words, given only where it has them — stage K4. Read
-     * by the renderer for "Adjusting the activity" alone. Absent, the fixture is exactly what it was.
+     * by the renderer for "Adjusting the activity" alone. Absent, the fixture is exactly what it was. `moves` (P2, 25 October 2026): the role
+     * whose position an adjustment's magnitude changes, only on such an adjustment, read by `adjustment-range.ts` (the renderer's limits on the
+     * line it moves, and fidelity's check of them).
      */
-    adjustments?: { id: string; words: string; consequence: string | null; citedAs: string; coachWords?: string }[]
+    adjustments?: { id: string; words: string; consequence: string | null; citedAs: string; coachWords?: string; moves?: { role: string } }[]
     /**
      * What defers in this composition (ruling C56), listed as the alternative with its provenance — stage K4. Absent wherever
      * nothing defers. `defersWith` (stage B review fix, 23 October 2026) names the item an entry yields together with, where it yields only

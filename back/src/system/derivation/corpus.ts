@@ -16,8 +16,8 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
-import { ContractItem, DerivationInput, LoadedContract, ROLE_YIELD_KEY } from './types'
-import { boundRegionsRefusals, SportBoundRegions } from './bound-regions'
+import { ContractItem, DerivationInput, LoadedContract, ROLE_YIELD_KEY, teamEndPositionOf } from './types'
+import { boundRegionsRefusals, PairingProvisionalFigure, pairingFigureAt, provisionalFigureOf, SportBoundRegions } from './bound-regions'
 import { repairCorpusEncoding, RepairTally } from './corpus-repair'
 import { applyNoRowRestatement, RestatementTally } from './corpus-restatement'
 import { DefaultLaws, DefaultLawsCheck, defaultLawsCheckRefusal, defaultLawsRefusals, departureRefusals, DEFAULT_LAWS_CHECK_KEY, DEPARTS_FROM_KEY, LawDeparture, RealizationDepartures } from './default-laws'
@@ -305,6 +305,12 @@ export function loadSportBoundRegions(read: (file: string) => any = readJson, in
             borrows: (pairing.borrows as unknown[]).map(String),
             authority: words(pairing.authority),
             note: pairing.note ? String(pairing.note) : null,
+            /**
+             * P2 (25 October 2026), his reply filed 28 October 2026, item 8 (`bound-regions.ts` PairingProvisionalFigure): the figures the entry
+             * marks provisional, copied whole where it marks any (validated above), so every consumer reads the one value with its status; absent
+             * where it marks none, so every other entry is exactly what it was.
+             */
+            ...(Array.isArray(pairing.provisional) ? { provisional: JSON.parse(JSON.stringify(pairing.provisional)) as PairingProvisionalFigure[] } : {}),
         })),
     }
 }
@@ -535,6 +541,8 @@ export function validateProvisionalRealizations(
     envelopeRows: ReadonlySet<string> = envelopeBoundedRows(indexRegister(loadRegister()).outerBound),
     // H2 (23 October 2026): the Sport Profile's default-laws block, which every departure an item records must name a law of; null without one.
     defaultLaws: DefaultLaws | null = loadSportDefaultLaws(),
+    // P2 (25 October 2026): the Sport Profile's bound-region block, whose provisional figures an item restating one must say it states; null without one.
+    boundRegions: SportBoundRegions | null = loadSportBoundRegions(),
 ): string[] {
     const errors: string[] = []
     // H2: the register indexed once, and only where a departure is read against it.
@@ -613,6 +621,84 @@ export function validateProvisionalRealizations(
         errors.push(...suitabilityRefusals(realization?.objectSuitability, which, objectKinds, indexOnce()))
         // H2 (23 October 2026): the departures its items record and the strictness it declares for the default-laws account.
         errors.push(...defaultLawsDeclarationRefusals(realization, realizations, which, items, defaultLaws, indexOnce))
+        // P2 (25 October 2026): a provisional figure of a pairing, restated by an item, is said to be one, with one value.
+        errors.push(...provisionalFigureDeclarationRefusals(realization, realizations, which, items, boundRegions, indexOnce))
+    }
+    return errors
+}
+
+/** The key on a provisional realization item saying which provisional figure of a pairing it restates (P2). */
+export const PROVISIONAL_FIGURE_KEY = 'provisionalFigure'
+
+/**
+ * **One value and one status for a provisional figure** — P2, 25 October 2026. Christian, reply filed 28 October 2026, item 8: *"I don't want
+ * an uncertain interpretation silently becoming canonical knowledge."* *"However, I wouldn't postpone an initial field test solely while
+ * awaiting clarification from [the governing body], provided the provisional dimensions are identified and consistently applied."* (his body
+ * bracketed; the Sport Profile quotes him whole). A pairing carries a figure's status (`bound-regions.ts` PairingProvisionalFigure); an item of a
+ * realization that positions or sizes the region bound to that pairing restates the figure in its own value (the region's along position as a
+ * distance from an end line restates its depth, a typed bound on its across extent its width: the register's bound-region rows), so:
+ *   - an item declaring the key names a pairing the Sport Profile holds and a figure that pairing marks provisional, sits on the row that restates
+ *     that figure for a region bound (by an item of the same composed realization) to that pairing, and states exactly its value;
+ *   - every item of the composed realization (its own and those kept from its base) restating a provisional figure of the pairing its region is
+ *     bound to declares it. A figure restated with another value, or restated without its status, is refused at load.
+ * Nothing here names a figure's number, a document or a kind: the rows are the register's, the figures and statuses the profile's.
+ */
+function provisionalFigureDeclarationRefusals(realization: any, realizations: any[], which: string, items: any[], block: SportBoundRegions | null, indexOnce: () => RegisterIndex): string[] {
+    const errors: string[] = []
+    const spec = indexOnce().boundRegions
+    const base = realization?.basedOn !== undefined ? realizations.find(candidate => candidate?.id === realization.basedOn) : undefined
+    const withdrawn = new Set(((Array.isArray(realization?.withdraws) ? realization.withdraws : []) as any[]).map(entry => String(entry?.item ?? '')))
+    const kept = base && Array.isArray(base.items) ? base.items.filter((item: any) => !withdrawn.has(String(item?.id ?? ''))) : []
+    const composed = [...kept, ...items].filter((item: any) => !!item && typeof item === 'object')
+    /** The figure an item restates by the row it sits on, and its value; null where it restates none. */
+    const stated = (item: any): { leaf: string; value: number } | null => {
+        if (!spec) return null
+        if (String(item.row) === spec.alongRow) {
+            const position = teamEndPositionOf(item.value)
+            return position ? { leaf: 'region.depthM', value: position.offsetM.to - position.offsetM.from } : null
+        }
+        const bound = item.typedBound
+        if (String(item.row) === spec.acrossRow && bound && typeof bound.min === 'number' && bound.min === bound.max) return { leaf: 'region.widthM', value: bound.min }
+        return null
+    }
+    // The pairing the region each selector names is bound to, by the binding item of the same composed realization.
+    const pairingOf = new Map<string, string>()
+    for (const item of composed) {
+        if (spec && String(item.row) === spec.ofObjectRow && typeof item.value?.pairing === 'string') pairingOf.set(String(item.selector), item.value.pairing)
+    }
+    for (const item of items) {
+        if (!item || typeof item !== 'object' || !(PROVISIONAL_FIGURE_KEY in item)) continue
+        const at = `${which} item ${String(item.id ?? '(no id)')}`
+        const declared = item[PROVISIONAL_FIGURE_KEY]
+        if (!declared || typeof declared !== 'object' || Array.isArray(declared) || Object.keys(declared).sort().join() !== 'leaf,pairing' || !filledText(declared.pairing) || !filledText(declared.leaf)) {
+            errors.push(`${at} says it states a provisional figure in some other form than { pairing, leaf }`)
+            continue
+        }
+        const pairing = block?.pairings.find(entry => entry.id === declared.pairing)
+        if (!pairing) {
+            errors.push(`${at} says it states a figure of the pairing ${declared.pairing}, which the Sport Profile does not hold`)
+            continue
+        }
+        const entry = provisionalFigureOf(pairing, declared.leaf)
+        if (!entry) {
+            errors.push(`${at} says it states ${declared.leaf} of ${declared.pairing} as provisional, and the pairing records that figure as it is (${String(pairingFigureAt(pairing, declared.leaf))}), not provisional`)
+            continue
+        }
+        if (pairingOf.get(String(item.selector)) !== declared.pairing) errors.push(`${at} says it states a figure of ${declared.pairing}, and its region is not bound to that pairing in this realization`)
+        const restated = stated(item)
+        if (!restated || restated.leaf !== declared.leaf) errors.push(`${at} says it states ${declared.leaf} of ${declared.pairing}, and its row and value restate ${restated ? restated.leaf : 'no figure of a bound region'}`)
+        else if (restated.value !== entry.value) errors.push(`${at} states ${restated.value} for ${declared.leaf} of ${declared.pairing}, whose ${entry.status} value is ${entry.value}: one figure has one value`)
+    }
+    for (const item of composed) {
+        const pairingId = pairingOf.get(String(item.selector))
+        const restated = pairingId ? stated(item) : null
+        const pairing = restated ? block?.pairings.find(entry => entry.id === pairingId) : undefined
+        const entry = pairing && restated ? provisionalFigureOf(pairing, restated.leaf) : null
+        if (!entry || !restated) continue
+        const declared = item[PROVISIONAL_FIGURE_KEY]
+        if (!declared || declared.pairing !== pairingId || declared.leaf !== restated.leaf) {
+            errors.push(`${which} item ${String(item.id ?? '(no id)')} restates ${restated.leaf} of the pairing ${pairingId} (${restated.value}), which the pairing marks ${entry.status}, and does not say so (${PROVISIONAL_FIGURE_KEY}): a provisional figure is never silently canonical`)
+        }
     }
     return errors
 }
@@ -876,8 +962,13 @@ function suitabilityRefusals(entries: unknown, which: string, objectKinds: strin
  * Every provisional realization, validated and as deep copies. `file` is a parameter ONLY so a test can load a copy
  * carrying a TEST-ONLY item through the same gate; production passes none.
  */
-export function loadProvisionalRealizations(file: any = readJson(PROVISIONAL_REALIZATIONS_FILE)): ProvisionalRealization[] {
-    const errors = validateProvisionalRealizations(file)
+/**
+ * `boundRegions` (P2, 25 October 2026) is a parameter ONLY so a test can hold a realization copy to a copy of the Sport Profile's bound-region
+ * block (the one-value rule of `provisionalFigureDeclarationRefusals`); production passes none, and the profile's own block is read.
+ */
+export function loadProvisionalRealizations(file: any = readJson(PROVISIONAL_REALIZATIONS_FILE), boundRegions?: SportBoundRegions | null): ProvisionalRealization[] {
+    const errors =
+        boundRegions === undefined ? validateProvisionalRealizations(file) : validateProvisionalRealizations(file, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, boundRegions)
     if (errors.length) throw new Error(`${PROVISIONAL_REALIZATIONS_FILE} failed its integrity gate: ${errors.join(' | ')}`)
     const copy = JSON.parse(JSON.stringify(file))
     /**

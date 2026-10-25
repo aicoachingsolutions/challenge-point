@@ -204,7 +204,8 @@ test("A01's record: the goal version first, tried, its three decisions settled b
 const WITHDRAWN = ['A01-R1-S5-3', 'A01-R1-S5-4', 'A01-R1-V27-1', 'A01-R1-V29-1', 'A01-R1-V30-1', 'A01-R1-V31-1', 'A01-R1-T4-4', 'A01-R1-B8-2']
 // Re-pointed 24 October 2026 (K2, the d27 design's stage K2): A01-R2 adds its goal's penalty area, five items (the zone, its two positions,
 // its width and its binding to the goal with the FA 5v5 pairing), so the composition is still pinned element for element, with them.
-const ADDED = ['O1-1', 'O4-1', 'O5-1', 'O6-1', 'O7-1', 'J2-1', 'B9-1', 'B10-1', 'B8-2', 'T4-5', 'S2-1', 'S5-1', 'S6-1', 'S6-2', 'S7-1'].map(id => `${R2}-${id}`)
+// Re-pointed 25 October 2026 (P2): and A01-R2-S5-2, the marked line's bound relative to the penalty area (his reply filed 28 October 2026, item 2).
+const ADDED = ['O1-1', 'O4-1', 'O5-1', 'O6-1', 'O7-1', 'J2-1', 'B9-1', 'B10-1', 'B8-2', 'T4-5', 'S2-1', 'S5-1', 'S6-1', 'S6-2', 'S7-1', 'S5-2'].map(id => `${R2}-${id}`)
 
 test('A01-R2 is A01-R1 minus its withdrawals plus its additions, element for element, its references re-pointed to it', () => {
     const base = provisionalRealizationNamed('A01-R1')!
@@ -225,6 +226,8 @@ test('A01-R2 is A01-R1 minus its withdrawals plus its additions, element for ele
         // Re-pointed 24 October 2026 (K2): the penalty area's five items cite his reply filed 27 October 2026, item 1 (the goal and its area
         // from one authorized source; the 1b principle he approves in that item) and item 3 (the spot neither marked nor used).
         else if (['S2-1', 'S5-1', 'S6-1', 'S6-2', 'S7-1'].some(id => item.id === `${R2}-${id}`)) assert.equal(item.citedAs, 'his reply filed 27 October 2026, items 1 and 3', item.id)
+        // Re-pointed 25 October 2026 (P2): the marked line's bound relative to the penalty area cites his reply filed 28 October 2026, item 2.
+        else if (item.id === `${R2}-S5-2`) assert.equal(item.citedAs, 'his reply filed 28 October 2026, item 2')
         else assert.match(item.citedAs, /^his reply filed 2[56] October 2026, item \d+$/, item.id)
     }
     const byId = new Map(variant.items.map(item => [item.itemId, item as any]))
@@ -348,7 +351,8 @@ const completed = (alter: (variant: any) => void = () => undefined) => {
     // goal-version-penalty-area.unit.ts). This completion hands the build no bound-region block for its TEST-ONLY 5 m goal, so those items
     // would be realized with no pairing to word them, and the build is refused at communication (fidelity Q3, measured); they are left out
     // of the copy, in memory, so the completion is the no-region goal it was before K2.
-    variant.items = variant.items.filter((i: any) => i.selector !== 'noun=zone & functions ∋ penalty-area')
+    // Re-pointed 25 October 2026 (P2): and the item bounding the marked line relative to the penalty area (A01-R2-S5-2, his reply filed 28 October 2026, item 2), which names it.
+    variant.items = variant.items.filter((i: any) => i.selector !== 'noun=zone & functions ∋ penalty-area' && i.value?.of?.structuralRef?.itemId !== 'A01-R2-S2-1')
     variant.objectSuitability = [{ kind: 'goal', widthM: { min: 1, max: 10 }, ruledOn: 'TEST-ONLY', by: 'TEST-ONLY', citedAs: 'TEST-ONLY', words: ['TEST-ONLY'] }]
     variant.defaultLawsCheck = { mode: 'REPORT', because: 'TEST-ONLY: D-DEFAULT-LAWS completed in memory', basis: { words: ['TEST-ONLY'], citedAs: 'TEST-ONLY' } }
     alter(variant)

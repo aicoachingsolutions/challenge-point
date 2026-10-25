@@ -258,7 +258,46 @@
      ],
      "citedAs": "his reply filed 27 October 2026, item 1"
     },
-    "note": "The goal is stated in feet (12ft x 6ft); widthM/heightM are the exact conversion at 0.3048 m per foot (ours; The FA's 2012 metric guide rounds to 3.66 x 1.83 m, not used). The depth is printed 9 m and may be a misprint: the 2025 edition gave 9 yd (= 8.2296 m) and The FA's 2012 metric guide 8 m; we use 9 m as printed. The diagram does not name the rectangle or the dot; 'penalty area' and 'mark' are our reading from Laws 8, 12 and 14 of the same handbook. type 'scaled' is our reading of the Goalkeeper Included Condition's 'full-size or scaled goals'. Its other provisions (retreat line, pass or dribble-in, distances, heading law) do not come with it. Used at 40 x 30 m, larger than its pitch, chosen by space per player. his reply filed 27 October 2026, item 3: \"The penalty-area specification may include a penalty spot, but this activity does not need to mark or use it.\""
+    "provisional": [
+     {
+      "leaf": "region.depthM",
+      "status": "PROVISIONAL",
+      "value": 9,
+      "sources": [
+       {
+        "document": "The Mini-Soccer and Youth Futsal Handbook (England Football / The FA)",
+        "edition": "Version updated August 2026 (2026/2027 season)",
+        "citedAs": "Mini-Soccer Law 1, Playing Area: the 5v5 area as labelled on the Law 1 diagram; https://cdn.englandfootball.com/-/media/EnglandFootball/Files/play-and-participate/youth-football/Mini-Soccer-Handbook-2026-27.pdf",
+        "states": "9 m",
+        "metres": 9
+       },
+       {
+        "document": "The Mini-Soccer Handbook (The FA)",
+        "edition": "2025 edition",
+        "citedAs": "the 5v5 box as 16 x 9 yd; https://www.thefa.com/-/media/cfa/westridingfa/files/clubs/mini-soccer-handbook-2025.ashx",
+        "states": "9 yd",
+        "metres": 8.2296
+       },
+       {
+        "document": "The FA's metric pitch size guide",
+        "edition": "2012",
+        "citedAs": "the 5v5 box as 15 x 8 m; https://www.thefa.com/-/media/cfa/cheshirefa/files/facilities/pitch-size-metric.ashx",
+        "states": "8 m",
+        "metres": 8
+       }
+      ],
+      "applied": "The current handbook's printed figure, 9 m, as the one value every use reads (his same-source rule, his reply filed 27 October 2026, item 1), until the authoritative specification is verified. 9 yd is the exact conversion at 0.9144 m per yard (ours).",
+      "authority": {
+       "words": [
+        "Please preserve source traceability and treat the 9 m dimension as provisional until we can verify the authoritative specification.",
+        "I don't want an uncertain interpretation silently becoming canonical knowledge.",
+        "However, I wouldn't postpone an initial field test solely while awaiting clarification from The FA, provided the provisional dimensions are identified and consistently applied."
+       ],
+       "citedAs": "his reply filed 28 October 2026, item 8"
+      }
+     }
+    ],
+    "note": "The goal is stated in feet (12ft x 6ft); widthM/heightM are the exact conversion at 0.3048 m per foot (ours; The FA's 2012 metric guide rounds to 3.66 x 1.83 m, not used). The depth is printed 9 m and may be a misprint: the 2025 edition gave 9 yd (= 8.2296 m) and The FA's 2012 metric guide 8 m; we use 9 m as printed. The diagram does not name the rectangle or the dot; 'penalty area' and 'mark' are our reading from Laws 8, 12 and 14 of the same handbook. type 'scaled' is our reading of the Goalkeeper Included Condition's 'full-size or scaled goals'. Its other provisions (retreat line, pass or dribble-in, distances, heading law) do not come with it. Used at 40 x 30 m, larger than its pitch, chosen by space per player. his reply filed 27 October 2026, item 3: \"The penalty-area specification may include a penalty spot, but this activity does not need to mark or use it.\" AMENDED 25 October 2026 (P2): \"we use 9 m as printed\" stands, and the depth is PROVISIONAL (provisional, below: its status, its three sources and his words), for his reply filed 28 October 2026, item 8: \"8. Penalty-area depth\" \"Please preserve source traceability and treat the 9 m dimension as provisional until we can verify the authoritative specification.\" \"I don't want an uncertain interpretation silently becoming canonical knowledge.\" \"However, I wouldn't postpone an initial field test solely while awaiting clarification from The FA, provided the provisional dimensions are identified and consistently applied.\" The loader validates the status and holds every realization item restating the figure to the same value and the same status; the administrator's review evidence shows it wherever the figure is cited. Coaches are not told it is provisional: the coach sheet tells a coach what to set out, and a figure's standing in the knowledge is not something a coach can act on before starting (the standard's test that a coach would say it before starting; RC3 2.3 and 3.3), so it is identified in the knowledge and the review evidence, where he and we read it, and applied as one value everywhere. Whether pilot coaches should also be told is his to decide (OUR READING of \"provided the provisional dimensions are identified\")."
    }
   ]
  },

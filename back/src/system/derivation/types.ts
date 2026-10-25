@@ -150,6 +150,13 @@ export interface ContractItem {
      * (`realization/default-laws-check.ts`) after realization. Derivation reads nothing of it.
      */
     departsFrom?: unknown
+    /**
+     * **The provisional figure of a pairing an item restates** (P2, 25 October 2026; his reply filed 28 October 2026, item 8): `{ pairing, leaf }`,
+     * naming the Sport Profile pairing and the figure it marks provisional that the item's own value restates (corpus.ts
+     * `provisionalFigureDeclarationRefusals`, which holds the two to one value and one status). Written only on a provisional realization's items
+     * and read only by that loader; derivation reads nothing of it.
+     */
+    provisionalFigure?: unknown
 }
 
 /**
@@ -186,6 +193,7 @@ const CONTRACT_ITEM_FIELDS: Record<keyof ContractItem, true> = {
     authorizedBy: true,
     [ROLE_YIELD_KEY]: true,
     departsFrom: true,
+    provisionalFigure: true,
 }
 
 /**

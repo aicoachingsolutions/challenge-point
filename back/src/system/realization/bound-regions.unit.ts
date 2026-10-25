@@ -131,7 +131,8 @@ const fileWith = (options: RegionOptions = {}) => {
     // pinned in goal-version-penalty-area.unit.ts). This copy sets out its own TEST-ONLY area items below (or none, region: false), each
     // changed where asked, and a defended goal holds exactly one penalty-area zone (BOUND-REGION-GOAL), so the production five are left out
     // of the copy, in memory; everything else is as before.
-    variant.items = variant.items.filter((i: any) => i.selector !== 'noun=zone & functions ∋ penalty-area')
+    // Re-pointed 25 October 2026 (P2): and the item bounding the marked line relative to the penalty area (A01-R2-S5-2, his reply filed 28 October 2026, item 2), which names it.
+    variant.items = variant.items.filter((i: any) => i.selector !== 'noun=zone & functions ∋ penalty-area' && i.value?.of?.structuralRef?.itemId !== 'A01-R2-S2-1')
     variant.objectSuitability = [{ kind: 'goal', widthM: { min: 1, max: 10 }, ruledOn: 'TEST-ONLY', by: 'TEST-ONLY', citedAs: 'TEST-ONLY', words: ['TEST-ONLY'] }]
     variant.defaultLawsCheck = { mode: 'REPORT', because: 'TEST-ONLY: D-DEFAULT-LAWS completed in memory', basis: { words: ['TEST-ONLY'], citedAs: 'TEST-ONLY' } }
     const template = variant.items.find((i: any) => i.id === `${R2}-O5-1`)
@@ -255,8 +256,11 @@ test("the profile's boundRegions block: one requirement, his explicit same-forma
 test('the FA 5v5 entry (K1, the d27 design section 1.6), whole: one document, its goal, its area and its mark, his item 1 words', () => {
     const fa = blocks.pairings.find(p => p.id === 'FA-MINI-SOCCER-5V5-2026')!
     const raw = profileFile().boundRegions.pairings.find((p: any) => p.id === 'FA-MINI-SOCCER-5V5-2026')
-    assert.deepEqual(Object.keys(raw), ['id', 'document', 'edition', 'citedAs', 'formatConditions', 'object', 'region', 'markM', 'borrows', 'authority', 'note'], 'no field beyond the type the loader accepts')
-    const { note, ...rest } = raw
+    // Re-pointed 25 October 2026 (P2): the entry marks its depth PROVISIONAL (his reply filed 28 October 2026, item 8), a field the loader now
+    // accepts and validates; the entry is pinned whole below without it, and the provisional figure whole in geometry-compatibility.unit.ts.
+    assert.deepEqual(Object.keys(raw), ['id', 'document', 'edition', 'citedAs', 'formatConditions', 'object', 'region', 'markM', 'borrows', 'authority', 'provisional', 'note'], 'no field beyond the type the loader accepts')
+    const { note, provisional, ...rest } = raw
+    assert.deepEqual([provisional.map((entry: any) => [entry.leaf, entry.status, entry.value]), fa.provisional], [[['region.depthM', 'PROVISIONAL', 9]], provisional], 'the depth alone is provisional, and the loader carries it as recorded')
     assert.deepEqual(rest, {
         id: 'FA-MINI-SOCCER-5V5-2026',
         document: 'The Mini-Soccer and Youth Futsal Handbook (England Football / The FA)',

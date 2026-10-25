@@ -45,6 +45,25 @@ export interface PairingFormatConditions {
     pitch: string | null
 }
 
+/**
+ * **A figure of a pairing that is PROVISIONAL, with where each source puts it and his words** — P2, 25 October 2026. Christian, reply filed
+ * 28 October 2026, item 8: *"Please preserve source traceability and treat the [figure] as provisional until we can verify the authoritative
+ * specification."* *"I don't want an uncertain interpretation silently becoming canonical knowledge."* *"However, I wouldn't postpone an initial
+ * field test solely while awaiting clarification from [the governing body], provided the provisional dimensions are identified and consistently
+ * applied."* (his words bracketed where they name a figure or a body; the Sport Profile quotes him whole). `leaf` names the figure on the pairing
+ * (`PAIRING_FIGURE_LEAVES`), `value` is the one value every use reads (equal to the pairing's own), `sources` each document's statement of it
+ * with its metres, one of them stating the value applied, `applied` why that value is the one used, and his words. The loader refuses anything
+ * else; a figure carrying no entry is as recorded, never marked here by default.
+ */
+export interface PairingProvisionalFigure {
+    leaf: string
+    status: 'PROVISIONAL'
+    value: number
+    sources: { document: string; edition: string | null; citedAs: string; states: string; metres: number }[]
+    applied: string
+    authority: CitedWords
+}
+
 /** One authorized pairing: an object of a kind and size, the region that goes with it, and its mark, from one named document or ruling. */
 export interface BoundRegionPairing {
     id: string
@@ -59,7 +78,28 @@ export interface BoundRegionPairing {
     borrows: string[]
     authority: CitedWords
     note: string | null
+    /** P2: the figures of the entry that are provisional, each with its sources and his words; absent where every figure is as recorded. */
+    provisional?: PairingProvisionalFigure[]
 }
+
+/** The figures of a pairing, by the leaf that names each (P2): what a provisional entry may name. */
+export const PAIRING_FIGURE_LEAVES = ['object.widthM', 'object.heightM', 'region.widthM', 'region.depthM', 'markM'] as const
+
+/** The pairing's own value of one of its figures, or null where it records none (P2). */
+export function pairingFigureAt(pairing: unknown, leaf: string): number | null {
+    if (!(PAIRING_FIGURE_LEAVES as readonly string[]).includes(leaf) || !pairing || typeof pairing !== 'object') return null
+    const value = leaf.split('.').reduce<any>((node, key) => (node === null || node === undefined ? undefined : node[key]), pairing)
+    return typeof value === 'number' && Number.isFinite(value) ? value : null
+}
+
+/** The provisional entry for one figure of a pairing, or null where that figure is as recorded (P2). */
+export function provisionalFigureOf(pairing: unknown, leaf: string): PairingProvisionalFigure | null {
+    const entries = pairing && typeof pairing === 'object' ? (pairing as { provisional?: unknown }).provisional : undefined
+    return Array.isArray(entries) ? ((entries as PairingProvisionalFigure[]).find(entry => entry?.leaf === leaf) ?? null) : null
+}
+
+/** The closed list of statuses a figure of a pairing may carry beside its recorded value (P2). */
+export const PAIRING_FIGURE_STATUSES = ['PROVISIONAL'] as const
 
 /** The Sport Profile's bound-region block as derivation receives it. */
 export interface SportBoundRegions {
@@ -153,7 +193,8 @@ export function boundRegionsRefusals(block: unknown, index: RegisterIndex): stri
             errors.push(`${which} is not an object`)
             continue
         }
-        errors.push(...keysRefused(pairing, ['id', 'document', 'edition', 'citedAs', 'formatConditions', 'object', 'region', 'markM', 'borrows', 'authority', 'note'], which))
+        errors.push(...keysRefused(pairing, ['id', 'document', 'edition', 'citedAs', 'formatConditions', 'object', 'region', 'markM', 'borrows', 'authority', 'note', 'provisional'], which))
+        if (pairing.provisional !== undefined) errors.push(...provisionalFigureRefusals(pairing, which))
         if (!filled(pairing.id)) errors.push(`${which} has no id`)
         else if (pairingIds.has(pairing.id)) errors.push(`${which} is listed twice`)
         if (filled(pairing.id)) pairingIds.add(pairing.id)
@@ -185,6 +226,55 @@ export function boundRegionsRefusals(block: unknown, index: RegisterIndex): stri
         const words = citedWordsRefusal(pairing.authority, `${which}: its authority`)
         if (words) errors.push(words)
         if (pairing.note !== undefined && pairing.note !== null && !filled(pairing.note)) errors.push(`${which} carries an empty note`)
+    }
+    return errors
+}
+
+/**
+ * **Everything wrong with a pairing's provisional figures, as sentences** (P2, 25 October 2026; his reply filed 28 October 2026, item 8, quoted
+ * on `PairingProvisionalFigure`). A list (an absent key says every figure is as recorded; an empty list is refused, as saying nothing); each
+ * entry names a figure of the pairing (`PAIRING_FIGURE_LEAVES`) the pairing records, once, a status of the closed list, the value every use
+ * reads, equal to the pairing's own (one value), at least two sources (a figure in doubt has more than one statement of it), each naming its
+ * document, its edition or null, where in it, what it states and that in metres, one of them stating the value applied, why that value is the
+ * one used, and his words. A value differing from the pairing's own would be two values for one figure, so it is refused.
+ */
+function provisionalFigureRefusals(pairing: Record<string, unknown>, which: string): string[] {
+    const errors: string[] = []
+    if (!Array.isArray(pairing.provisional) || !pairing.provisional.length) return [`${which} lists its provisional figures as something other than a non-empty list`]
+    const leaves = new Set<string>()
+    for (const [i, entry] of (pairing.provisional as unknown[]).entries()) {
+        const at = `${which}: provisional figure ${i + 1}`
+        if (!isObject(entry)) {
+            errors.push(`${at} is not an object`)
+            continue
+        }
+        errors.push(...keysRefused(entry, ['leaf', 'status', 'value', 'sources', 'applied', 'authority'], at))
+        const leaf = String(entry.leaf)
+        const recorded = pairingFigureAt(pairing, leaf)
+        if (!(PAIRING_FIGURE_LEAVES as readonly string[]).includes(leaf)) errors.push(`${at} names ${JSON.stringify(entry.leaf)}, which is no figure of a pairing (${PAIRING_FIGURE_LEAVES.join(', ')})`)
+        else if (recorded === null) errors.push(`${at} names ${leaf}, which the pairing records no value for`)
+        if (leaves.has(leaf)) errors.push(`${at} names ${leaf} a second time`)
+        leaves.add(leaf)
+        if (!(PAIRING_FIGURE_STATUSES as readonly string[]).includes(String(entry.status))) errors.push(`${at} carries the status ${JSON.stringify(entry.status)}, which is none of ${PAIRING_FIGURE_STATUSES.join(', ')}`)
+        if (!measured(entry.value)) errors.push(`${at} states no value in metres`)
+        else if (recorded !== null && entry.value !== recorded) errors.push(`${at} states ${entry.value} for ${leaf}, and the pairing records ${recorded}: one figure has one value`)
+        const sources: unknown[] = Array.isArray(entry.sources) ? entry.sources : []
+        if (sources.length < 2) errors.push(`${at} lists fewer than two sources, so nothing records why the figure is in doubt`)
+        for (const [j, source] of sources.entries()) {
+            const where = `${at}, source ${j + 1}`
+            if (!isObject(source)) {
+                errors.push(`${where} is not an object`)
+                continue
+            }
+            errors.push(...keysRefused(source, ['document', 'edition', 'citedAs', 'states', 'metres'], where))
+            if (!filled(source.document) || !filled(source.citedAs) || !filled(source.states)) errors.push(`${where} must name its document, where in it, and what it states (document, citedAs, states)`)
+            if (source.edition !== null && !filled(source.edition)) errors.push(`${where} names no edition, and does not say none is named (edition null)`)
+            if (!measured(source.metres)) errors.push(`${where} does not give what it states in metres`)
+        }
+        if (measured(entry.value) && !sources.some(source => isObject(source) && source.metres === entry.value)) errors.push(`${at} applies ${String(entry.value)}, which none of its sources states`)
+        if (!filled(entry.applied)) errors.push(`${at} does not say why its value is the one applied (applied)`)
+        const words = citedWordsRefusal(entry.authority, `${at}: its authority`)
+        if (words) errors.push(words)
     }
     return errors
 }

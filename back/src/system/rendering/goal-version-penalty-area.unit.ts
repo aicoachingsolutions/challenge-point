@@ -128,8 +128,11 @@ test('the five items: one penalty-area zone, at the goal by its designation, cen
         assert.deepEqual([item.words, item.citedAs], [WORDS, CITED], item.id)
         for (const sentence of [ITEM_1_APPROVAL, ITEM_1_VERIFY, ITEM_1B, ITEM_3_SPOT]) assert.ok(item.basisEvidence.includes(`"${sentence}"`), `${item.id}: ${sentence}`)
     }
-    // No spot and no goal area: only these five items sit on the region rows, the pairing's mark is data no item reads.
-    assert.deepEqual(variant.items.filter((i: any) => ['S2', 'S3', 'S4', 'S5', 'S6', 'S7'].includes(i.row)).map((i: any) => i.id), K2)
+    // No spot and no goal area: only these five items sit on the region rows, the pairing's mark is data no item reads. Re-pointed 25 October
+    // 2026 (P2): besides them, one item on S5 bounds the marked line relative to the area (A01-R2-S5-2, his reply filed 28 October 2026, item
+    // 2; pinned in geometry-compatibility.unit.ts); it places nothing.
+    assert.deepEqual(variant.items.filter((i: any) => ['S2', 'S3', 'S4', 'S5', 'S6', 'S7'].includes(i.row)).map((i: any) => i.id), [...K2, `${R2}-S5-2`])
+    assert.equal(variant.items.filter((i: any) => ['S2', 'S3', 'S4', 'S5', 'S6', 'S7'].includes(i.row) && i.selector === SELECTOR).length, K2.length)
     assert.equal(pairing.markM, 6)
     assert.ok(!variant.items.some((i: any) => /\bspot\b|\bmark\b|goal area/i.test(`${JSON.stringify(i.value ?? null)} ${i.selector}`)), 'no item places a spot, a mark or a goal area')
     // The realization's check is what it was: ENFORCE.
@@ -230,7 +233,8 @@ test('nothing else in the goal version changes: each block\'s game, its bound re
     const withoutArea = () => {
         const file = productionFile()
         const variant = variantOf(file)
-        variant.items = variant.items.filter((i: any) => !K2.includes(i.id))
+        // Re-pointed 25 October 2026 (P2): and the bound naming the area (A01-R2-S5-2), which cannot stand without it.
+        variant.items = variant.items.filter((i: any) => !K2.includes(i.id) && i.id !== `${R2}-S5-2`)
         variant.defaultLawsCheck = { mode: 'REPORT', because: 'TEST-ONLY', basis: { words: ['TEST-ONLY'], citedAs: 'TEST-ONLY' } }
         return file
     }
@@ -252,7 +256,8 @@ test('nothing else in the goal version changes: each block\'s game, its bound re
 })
 
 // ── 5. Mutations ─────────────────────────────────────────────────────────────────────────────────────────
-test('TEST-ONLY mutations: off-centre, another width and another depth are each refused at validation in both blocks, never falling back', () => {
+// Re-pointed 25 October 2026 (P2): another depth is refused at load since the depth is PROVISIONAL (was "...and another depth ... at validation").
+test('TEST-ONLY mutations: off-centre and another width are each refused at validation in both blocks, another depth at load, never falling back', () => {
     const original = productionFile()
     const refusedBy = (name: string, mutate: (items: any[]) => void, stage: string, reason: string) => {
         const file = copy(original)
@@ -279,11 +284,32 @@ test('TEST-ONLY mutations: off-centre, another width and another depth are each 
     for (const width of [14, 16]) {
         refusedBy(`${width} m wide`, items => Object.assign(itemOf(items, 'S6-2'), { value: `${width} m wide (TEST-ONLY)`, typedBound: { min: width, max: width } }), 'validation', `is ${width} m wide across the area, and ${PAIRING} gives 15 m`)
     }
+    /**
+     * Re-pointed 25 October 2026 (P2): another depth is now refused EARLIER, at load, before any build. The pairing marks its depth PROVISIONAL
+     * (his reply filed 28 October 2026, item 8: "I don't want an uncertain interpretation silently becoming canonical knowledge."), and the
+     * realization loader holds an item restating it to the one value, with its status: 8 m or 10 m on A01-R2-S5-1 is refused with the marker
+     * (one figure, one value), and without it (a provisional figure restated silently). Was refused at validation by GA-BOUND-REGION in both
+     * blocks; that clause stays measured at validation in bound-regions.unit.ts (the regulation pairing, which marks nothing provisional).
+     */
     for (const depth of [8, 10]) {
-        refusedBy(`${depth} m deep`, items => (itemOf(items, 'S5-1').value.offsetM = { from: 0, to: depth }), 'validation', `lies 0-${depth} m along the area; ${PAIRING} sets it out`)
+        const file = copy(original)
+        itemOf(variantOf(file).items, 'S5-1').value.offsetM = { from: 0, to: depth }
+        assert.throws(() => build(file), new RegExp(`A01-R2-S5-1 states ${depth} for region\\.depthM of ${PAIRING}, whose PROVISIONAL value is 9: one figure has one value`), `${depth} m deep`)
+        delete itemOf(variantOf(file).items, 'S5-1').provisionalFigure
+        assert.throws(() => build(file), new RegExp(`A01-R2-S5-1 restates region\\.depthM of the pairing ${PAIRING} \\(${depth}\\), which the pairing marks PROVISIONAL, and does not say so`), `${depth} m deep, unmarked`)
     }
     refusedBy('at the other end', items => (itemOf(items, 'S5-1').value.forTeam = 'ROLE_HOLDER_PRESSING'), 'structure', 'is not set out from the end line')
-    refusedBy('citing another pairing', items => (itemOf(items, 'S7-1').value.pairing = 'IFAB-LAW-1'), 'structure', `the one authorized pairing for ${GOAL} as the session states it is ${PAIRING}`)
+    // Re-pointed 25 October 2026 (P2): the area re-cited to another pairing no longer restates a provisional figure of the FA pairing, so its
+    // marker goes with the citation and the build is refused at structure by GA-BOUND-REGION, as before; kept, the marker is refused at load.
+    refusedBy('citing another pairing', items => {
+        itemOf(items, 'S7-1').value.pairing = 'IFAB-LAW-1'
+        delete itemOf(items, 'S5-1').provisionalFigure
+    }, 'structure', `the one authorized pairing for ${GOAL} as the session states it is ${PAIRING}`)
+    {
+        const file = copy(original)
+        itemOf(variantOf(file).items, 'S7-1').value.pairing = 'IFAB-LAW-1'
+        assert.throws(() => build(file), new RegExp(`A01-R2-S5-1 says it states a figure of ${PAIRING}, and its region is not bound to that pairing in this realization`), 'citing another pairing, the marker kept')
+    }
     assert.deepEqual(productionFile(), original, 'every mutation was made on a copy')
 })
 

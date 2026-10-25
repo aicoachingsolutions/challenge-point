@@ -781,6 +781,19 @@ export interface ReviewEvidence {
     boundRegions?: ReviewBoundRegionAccount
 }
 
+/**
+ * A figure of a pairing that is PROVISIONAL (P2, 25 October 2026; Christian's reply filed 28 October 2026, item 8), as the server sends it: which
+ * figure, its status, the one value applied, each source's statement of it in its own unit and in metres, why that value is applied, and his words.
+ */
+export interface ReviewPairingProvisionalFigure {
+    leaf: string
+    status: string
+    value: number
+    sources: { document: string; edition: string | null; citedAs: string; states: string; metres: number }[]
+    applied: string
+    authority: { words: string[]; citedAs: string }
+}
+
 /** One authorized pairing (H3), as the server sends it: one named document's object, region and mark together. */
 export interface ReviewBoundRegionPairing {
     id: string
@@ -794,6 +807,8 @@ export interface ReviewBoundRegionPairing {
     borrows: string[]
     authority: { words: string[]; citedAs: string }
     note: string | null
+    /** P2: the figures the entry marks provisional; absent where every figure is as recorded. */
+    provisional?: ReviewPairingProvisionalFigure[]
 }
 
 /** The regions bound to the games' objects (H3), as the server sends them. */

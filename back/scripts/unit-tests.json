@@ -130,5 +130,6 @@
     "./src/system/rendering/object-choices.unit.ts",
     "./src/system/rendering/goal-version-penalty-area.unit.ts",
     "./src/system/rendering/goal-version-switch.unit.ts",
-    "./src/system/rendering/oct28-refinements.unit.ts"
+    "./src/system/rendering/oct28-refinements.unit.ts",
+    "./src/system/rendering/geometry-compatibility.unit.ts"
 ]

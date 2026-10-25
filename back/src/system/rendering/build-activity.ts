@@ -1456,12 +1456,20 @@ function build(
          */
         // `coachWords` (stage K7): our DRAFT coach wording beside his words, carried only where an entry has it (his words are not always
         // a sentence a coach can be given as a choice: "The pressure reference should be adjustable in either direction.").
+        /**
+         * `moves` (P2, 25 October 2026): the role whose position an adjustment's magnitude changes, carried only for such an adjustment (the
+         * same reading the physical layout makes, `layoutMoversOf`: its parameter a Position Magnitude of the EM schema, and its role), so the
+         * renderer can say how far the line it moves may go, read from the bounds on that line (`adjustment-range.ts`), and fidelity can hold
+         * that to the bounds. His reply filed 28 October 2026, item 2: "The coach should retain flexibility to adjust it within a valid range".
+         */
+        const movers = new Map(layoutMoversOf(goalSelection?.authorization).map(mover => [mover.id, mover.role]))
         const adjustments = (goalSelection?.authorization?.authorizedAdjustments?.entries ?? []).map(entry => ({
             id: entry.id,
             words: entry.words,
             consequence: entry.consequence,
             citedAs: entry.citedAs,
             ...(typeof entry.coachWords === 'string' ? { coachWords: entry.coachWords } : {}),
+            ...(movers.has(entry.id) ? { moves: { role: movers.get(entry.id)! } } : {}),
         }))
         const alternatives = deferral.deferred.map(alternativeOf)
         const game: GameContext = { subject, session, selection, context, alterSupplied, adjustments, alternatives, boundRegions }
@@ -2019,7 +2027,7 @@ interface GameContext {
     /** Tests only. Since stage E it is handed the realization being tried as well, so an alteration can be one alternative's alone. */
     alterSupplied: ((supplied: SuppliedRealization, realization: ProvisionalRealization | null) => void) | null
     /** The record's authorized adjustments, in his words, for the fixture (stage K4). Empty for every other activity. */
-    adjustments: { id: string; words: string; consequence: string | null; citedAs: string; coachWords?: string }[]
+    adjustments: { id: string; words: string; consequence: string | null; citedAs: string; coachWords?: string; moves?: { role: string } }[]
     /** What defers in this composition (ruling C56), for the fixture. Empty wherever nothing defers. */
     alternatives: Alternative[]
     /** H3: the Sport Profile's bound-region block the bound-region check reads (the file's, or a test's copy); null where there is none. */

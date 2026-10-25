@@ -51,6 +51,7 @@ import {
     ActivityReviewRequest,
     ActivityReviewResult,
     RefusedActivity,
+    ReviewBoundRegionPairing,
     ReviewDraft,
     ReviewDraftInstruction,
     ReviewEvidence,
@@ -835,6 +836,55 @@ function His({ words, citedAs }: { words: string; citedAs: string }) {
     )
 }
 
+/** ' (PROVISIONAL)' after a figure the pairing marks provisional (P2), so the figure is never shown as settled; nothing for any other. */
+function provisionalMark(pairing: ReviewBoundRegionPairing, leaf: string): string {
+    const figure = (pairing.provisional ?? []).find((entry) => entry.leaf === leaf)
+    return figure ? ` (${figure.status})` : ''
+}
+
+/** A pairing's figures as the panel says them, each a figure the pairing marks provisional marked so (P2). */
+function pairingSizes(pairing: ReviewBoundRegionPairing): string {
+    const figure = (value: number, said: string, leaf: string) => `${value} m ${said}${provisionalMark(pairing, leaf)}`
+    const height = pairing.object.heightM !== null ? ` and ${figure(pairing.object.heightM, 'high', 'object.heightM')}` : ''
+    const mark = pairing.markM !== null ? `at ${pairing.markM} m${provisionalMark(pairing, 'markM')}` : 'none'
+    const region = `${figure(pairing.region.widthM, 'wide', 'region.widthM')} and ${figure(pairing.region.depthM, 'deep', 'region.depthM')}`
+    return `${figure(pairing.object.widthM, 'wide', 'object.widthM')}${height}; region ${region}; mark ${mark}`
+}
+
+/**
+ * **The figures of a pairing that are provisional, shown as the server sent them** — P2, 25 October 2026 (labels DRAFT). Christian, reply filed
+ * 28 October 2026, item 8: "Please preserve source traceability and treat the 9 m dimension as provisional until we can verify the authoritative
+ * specification." Each figure: its status and the one value applied, why that value is applied, every source's statement of it (its document,
+ * edition, where in it, what it states and that in metres), and his words. Nothing for a pairing marking no figure provisional.
+ */
+export function ProvisionalFigures({ pairing }: { pairing: ReviewBoundRegionPairing }) {
+    if (!pairing.provisional?.length) return null
+    return (
+        <span className='block space-y-1'>
+            {pairing.provisional.map((figure) => (
+                <span key={figure.leaf} className='block'>
+                    <span className='text-gray-800'>
+                        {figure.status}: {figure.leaf} of {pairing.id}, {figure.value} m applied.
+                    </span>{' '}
+                    {figure.applied}
+                    <span className='block'>
+                        Sources:{' '}
+                        {figure.sources
+                            .map((source) => {
+                                const edition = source.edition ? ` (${source.edition})` : ''
+                                return `${source.document}${edition}, ${source.citedAs}: ${source.states} (${source.metres} m)`
+                            })
+                            .join('; ')}
+                    </span>
+                    {figure.authority.words.map((words, at) => (
+                        <His key={at} words={words} citedAs={figure.authority.citedAs} />
+                    ))}
+                </span>
+            ))}
+        </span>
+    )
+}
+
 /** One collapsible part of the evidence. Closed until opened: the activity stays primary. */
 function EvidencePart({ title, children }: { title: string; children: React.ReactNode }) {
     const [open, setOpen] = useState(false)
@@ -1068,12 +1118,13 @@ function ReviewEvidencePanel({ evidence }: { evidence: ReviewEvidence }) {
                                                 <span className='block'>
                                                     Pairing {binding.pairing.id}: {binding.pairing.document}
                                                     {binding.pairing.edition ? ` (${binding.pairing.edition})` : ' (edition not named)'}, {binding.pairing.citedAs}; {binding.pairing.object.type} {binding.pairing.object.kind}{' '}
-                                                    {binding.pairing.object.widthM} m wide{binding.pairing.object.heightM !== null ? ` and ${binding.pairing.object.heightM} m high` : ''}; region {binding.pairing.region.widthM} m wide and{' '}
-                                                    {binding.pairing.region.depthM} m deep; mark {binding.pairing.markM !== null ? `at ${binding.pairing.markM} m` : 'none'}; borrows {binding.pairing.borrows.join(', ')}; format: players{' '}
+                                                    {pairingSizes(binding.pairing)}; borrows {binding.pairing.borrows.join(', ')};{' '}
+                                                    format: players{' '}
                                                     {binding.pairing.formatConditions.players ?? 'not stated'}, age band {binding.pairing.formatConditions.ageBand ?? 'not stated'}, pitch {binding.pairing.formatConditions.pitch ?? 'not stated'}
                                                     {binding.pairing.authority.words.map((words, at) => (
                                                         <His key={at} words={words} citedAs={binding.pairing!.authority.citedAs} />
                                                     ))}
+                                                    <ProvisionalFigures pairing={binding.pairing} />
                                                 </span>
                                             ) : (
                                                 <span className='block'>It cites no pairing the Sport Profile holds.</span>

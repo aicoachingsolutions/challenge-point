@@ -126,7 +126,7 @@ test('the DRAFT wording data loads, keyed by register vocabulary values, each cl
         // Re-pointed 24 October 2026 (stage L): and boundRegions and appliedLaws, empty likewise.
         // Re-pointed 24 October 2026 (stage I): the empty wording gains objectChoices.
         // Re-pointed 25 October 2026 (P1): and methods and equipment (his reply filed 28 October 2026, items 1 and 3).
-        assert.deepEqual(draftCoachWordingLoadOf(damaged, index).wording, { methods: [], equipment: [], objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [], boundRegions: [], appliedLaws: [], objectChoices: [] }, `${what}: an unusable file loads as no wording at all`)
+        assert.deepEqual(draftCoachWordingLoadOf(damaged, index).wording, { adjustmentLimits: null, methods: [], equipment: [], objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [], boundRegions: [], appliedLaws: [], objectChoices: [] }, `${what}: an unusable file loads as no wording at all`)
     }
     refused(f => (f.status = 'APPROVED'), /every word here is DRAFT/, 'a file claiming approval')
     refused(f => (f.approvedBy = { who: 'TEST-ONLY' }), /approvedBy/, 'an approval key')
@@ -224,7 +224,9 @@ test('the real goal version is served at 12/1: every sentence, in reading order,
         '[Restarts and ball out] There are no throw-ins, corners, goal kicks, free kicks or penalties in this activity; fouls still matter, so deal with them appropriately',
         '[Adjusting the activity] You may choose to add a pressing player; with every player already in a team, reallocate someone or introduce an additional player: adding a pressing player can increase pressure but may also expose space behind the press',
         "[Adjusting the activity] You may choose to remove a build-out player, deciding where that player goes so every player is still accounted for, reducing the building team's available support options",
-        '[Adjusting the activity] You may choose to move the marked line nearer to either end line',
+        // Re-pointed 25 October 2026 (P2; his reply filed 28 October 2026, item 2): the line's bound relative to the penalty area (A01-R2-S5-2)
+        // limits how near the building team's end line it may go, said from the bound (DRAFT words, adjustmentLimits).
+        "[Adjusting the activity] You may choose to move the marked line nearer to either end line, but no nearer than 9 m to the building team's end line, so that it stays outside the penalty area",
         '[Adjusting the activity] You may choose to change where the teams start when the pressure you see is not creating an appropriate challenge',
     ])
     // Nothing withheld, nothing said for one block only: the blocks say the same words (the ends exchanged, every role at the same end).

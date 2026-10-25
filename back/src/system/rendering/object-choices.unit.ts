@@ -105,7 +105,8 @@ const fileFor = (suitability: { min: number; max: number } = { min: 1, max: 10 }
     // Re-pointed 24 October 2026 (K2): A01-R2 now records its goal's penalty area (A01-R2-S2-1 to S7-1, the production FA 5v5 pairing,
     // pinned in goal-version-penalty-area.unit.ts). This copy sets out its own TEST-ONLY area items below, and a defended goal holds exactly
     // one penalty-area zone (BOUND-REGION-GOAL), so the production five are left out of the copy, in memory; everything else is as before.
-    variant.items = variant.items.filter((i: any) => i.selector !== 'noun=zone & functions ∋ penalty-area')
+    // Re-pointed 25 October 2026 (P2): and the item bounding the marked line relative to the penalty area (A01-R2-S5-2, his reply filed 28 October 2026, item 2), which names it.
+    variant.items = variant.items.filter((i: any) => i.selector !== 'noun=zone & functions ∋ penalty-area' && i.value?.of?.structuralRef?.itemId !== 'A01-R2-S2-1')
     variant.objectSuitability = [{ kind: KIND, widthM: suitability, ruledOn: 'TEST-ONLY', by: 'TEST-ONLY', citedAs: 'TEST-ONLY', words: ['TEST-ONLY'] }]
     variant.defaultLawsCheck = { mode: 'REPORT', because: 'TEST-ONLY: D-DEFAULT-LAWS completed in memory', basis: { words: ['TEST-ONLY'], citedAs: 'TEST-ONLY' } }
     const template = variant.items.find((i: any) => i.id === `${R2}-O5-1`)
@@ -509,6 +510,9 @@ test('K1 the FA mark is recorded but never placed, drawn or said to the coach', 
     const variant = file.realizations.find((r:any)=>r.id===R2)
     variant.objectSuitability = suitabilityProduction()
     for (const item of variant.items) if (item.value?.pairing === FA_ID) item.value.pairing = faProduction().id
+    // Re-pointed 25 October 2026 (P2): the production pairing marks its depth PROVISIONAL (his reply filed 28 October 2026, item 8), so the
+    // TEST-ONLY item restating that depth says so, as the loader requires (one value, one status).
+    variant.items.find((item: any) => item.id === `${R2}-TEST-S5`).provisionalFigure = { pairing: faProduction().id, leaf: 'region.depthM' }
     const build = (block: SportBoundRegions) => buildActivityUnderAuthorizationRecords({kind:'learning-goal',goalId:'A01',situationId:null,session:sessionWith({[KIND]:{count:1,type:'scaled',widthM:FA_WIDTH}})} as any, recordsOf(), {realizations:loadProvisionalRealizations(file),boundRegions:block,review:{includeDrafts:true}}).activity as ServedActivity
     const block = loadSportBoundRegions()!
     const activity = build(block)

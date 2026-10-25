@@ -11,6 +11,11 @@ does not serve and fails that test in `afterEach`.
 Re-copied 25 October 2026 (P1) from the built-bundle regression snapshot `P1-impl.json` (the same four
 keys, the bodies unchanged; its SHA-256 in `provenance`), so the activity is the one served since his
 reply filed 28 October 2026: the equipment sentence, no exchange sentence in the diagram.
+Re-copied 25 October 2026 (P2) from the built-bundle regression snapshot `P2-impl.json` (the same four keys, the
+bodies unchanged; its SHA-256 in `provenance`): the goal version's adjustment now says how near the building team's end
+line the marked line may go (his reply filed 28 October 2026, item 2). `fixtures/fa-pairing.json` (P2) holds the FA
+pairing exactly as the administrator's review evidence carries it in that snapshot (key and path in its `provenance`),
+with its provisional depth (his reply filed 28 October 2026, item 8), for the review page's `ProvisionalFigures`.
 The A01 FA response supplies the activity, diagram and session values; the A01 refusal supplies
 the goal question; the other two responses supply review options and session equipment choices.
 Activity sentences and choice labels are never invented in the tests.

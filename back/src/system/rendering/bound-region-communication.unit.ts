@@ -133,7 +133,8 @@ const fileFor = (spec: Spec, options: { mode?: 'REPORT' | 'ENFORCE'; ends?: stri
     // pinned in goal-version-penalty-area.unit.ts). This copy sets out its own TEST-ONLY area items below (each spec's pairing and size), and
     // a defended goal holds exactly one penalty-area zone (BOUND-REGION-GOAL), so the production five are left out of the copy, in memory;
     // everything else is as before.
-    variant.items = variant.items.filter((i: any) => i.selector !== 'noun=zone & functions ∋ penalty-area')
+    // Re-pointed 25 October 2026 (P2): and the item bounding the marked line relative to the penalty area (A01-R2-S5-2, his reply filed 28 October 2026, item 2), which names it.
+    variant.items = variant.items.filter((i: any) => i.selector !== 'noun=zone & functions ∋ penalty-area' && i.value?.of?.structuralRef?.itemId !== 'A01-R2-S2-1')
     variant.objectSuitability = [{ kind: 'goal', widthM: { min: 1, max: 10 }, ruledOn: 'TEST-ONLY', by: 'TEST-ONLY', citedAs: 'TEST-ONLY', words: ['TEST-ONLY'] }]
     variant.defaultLawsCheck = { mode: options.mode ?? 'REPORT', because: 'TEST-ONLY: D-DEFAULT-LAWS completed in memory', basis: { words: ['TEST-ONLY'], citedAs: 'TEST-ONLY' } }
     if (options.ends) variant.items.find((i: any) => i.id === `${R2}-B10-1`).value = options.ends
@@ -357,6 +358,9 @@ test('TEST-ONLY FA 5v5 pairing at 40 x 30 m under the end exchange: served at 12
         '[Restarts and ball out] There are no throw-ins, corners, goal kicks, free kicks or penalties in this activity; fouls still matter, so deal with them appropriately',
         '[Adjusting the activity] You may choose to add a pressing player; with every player already in a team, reallocate someone or introduce an additional player: adding a pressing player can increase pressure but may also expose space behind the press',
         "[Adjusting the activity] You may choose to remove a build-out player, deciding where that player goes so every player is still accounted for, reducing the building team's available support options",
+        // P2 (25 October 2026): unchanged here. This TEST-ONLY copy sets out its own area and leaves out the production bound on the line
+        // (A01-R2-S5-2, which names the production area), so no bound limits the line: the range comes from knowledge, never from an area's
+        // presence (the production sentence is pinned in goal-version-communication.unit.ts and geometry-compatibility.unit.ts).
         '[Adjusting the activity] You may choose to move the marked line nearer to either end line',
         '[Adjusting the activity] You may choose to change where the teams start when the pressure you see is not creating an appropriate challenge',
     ])

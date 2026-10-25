@@ -24,6 +24,7 @@ import { conditionScopeNotEvaluable } from '../derivation/resolved-game'
 import { ApprovedWording, approvedWording, approvedTemplateSentences, EQUIPMENT_KIND } from './approved-wording'
 import { CoachFacingExclusion, exclusionFor } from './coach-facing-exclusions'
 import { appliedLawReading, appliedLawWordings, departedLawWordings, draftCoachWordingLoad, equipmentWordings, fillSlots, restartLawNouns, scoringAtObjectWording } from './draft-coach-wording'
+import { adjustmentRangesOf } from './adjustment-range'
 import { layoutLeafNumberAt, MARK_UNION_ONCE, PhysicalLayout, Remarking, somethingMoves } from './physical-layout'
 import { appliedLawPath, appliesThroughout, BOUND_REGIONS_ROOT, boundRegionPath, DEFAULT_LAWS_OWED, DEFAULT_LAWS_ROOT, defaultLawPath, departedThroughout, fixtureBoundRegion, fixtureLawAccount, owesNothing } from './rendering-fixture'
 import { wholeFeet } from './session-object-choices'
@@ -642,6 +643,8 @@ function supportedQuantity(fixture: any, instruction: Pick<Instruction, 'from'>,
     if (instruction.from.some(path => boundRegionLeafNumberAt(fixture, path).includes(quantity))) return true
     // P1 (25 October 2026): a figure of a carried pairing's object in whole feet, for a sentence citing exactly that leaf.
     if (instruction.from.some(path => pairingObjectFeetAt(fixture, path).includes(quantity))) return true
+    // P2 (25 October 2026): a limit the bounds on a moved line give, for a sentence citing the adjustment that moves it and the line.
+    if (instruction.from.some(path => adjustmentLimitsAt(fixture, instruction, path).includes(quantity))) return true
     for (const path of instruction.from) {
         const collection = path.split('.').reduce<any>((node, key) => (node == null ? node : node[key]), fixture.game)
         if (Array.isArray(collection) && collection.length === quantity) return true
@@ -1107,6 +1110,56 @@ function departedLawFindings(fixture: any, rendered: RenderedActivity): Fidelity
 }
 
 /**
+ * **The limits the bounds on a moved line give, for a statement that cites the adjustment moving it** — P2, 25 October 2026. The range is read
+ * here from the fixture (`adjustment-range.ts`: the bounds beside the line's value, its referents' realized positions and the directions the game
+ * establishes), never from the renderer's sentence. A number is such a limit only for a statement citing the adjustment's `moves` and the line's
+ * position, and only where it IS the nearest or farthest the bounds give that line.
+ */
+function adjustmentLimitsAt(fixture: any, statement: Pick<Instruction, 'from'>, path: string): number[] {
+    return adjustmentRangesOf(fixture, rendererRegister())
+        .ranges.filter(range => range.path === path && statement.from.includes(path) && statement.from.includes(`adjustments[${range.adjustmentId}].moves`))
+        .flatMap(range => [range.nearest, range.farthest].filter((limit): limit is NonNullable<typeof limit> => !!limit).map(limit => limit.metres))
+}
+
+/**
+ * **How far an adjustment may move its line is said, truly, where the bounds on the line limit it** — P2, 25 October 2026, NEW clauses
+ * (TIGHTENINGS). Christian, reply filed 28 October 2026, item 2: *"The coach should retain flexibility to adjust it within a valid range, but the
+ * engine should prevent incompatible geometry through general validation rather than activity-specific restrictions."* GA-RELATIVE-PLACEMENT holds
+ * the line to its bounds on the realized geometry; a coach offered the choice to move it must be told the range those bounds leave, or the
+ * choice invites a configuration validation refuses. So, read from the fixture alone (`adjustment-range.ts`):
+ *   - every limit the bounds give a moved line is said by a statement citing the adjustment's `moves`, binding exactly that number AS
+ *     ADJUSTMENT_LIMIT to the line's position (Q3: a range lost);
+ *   - a bound on a moved line that cannot be read (another relation, an unplaced referent, a direction the game does not establish) is a
+ *     limit that cannot be told, so it is refused too (Q3);
+ *   - a number bound AS ADJUSTMENT_LIMIT that the bounds do not give is refused in Q2 (by binding).
+ * Every adjustment whose line carries no bound owes nothing here.
+ */
+function adjustmentLimitFindings(fixture: any, rendered: RenderedActivity): FidelityFinding[] {
+    const findings: FidelityFinding[] = []
+    const reading = adjustmentRangesOf(fixture, rendererRegister())
+    for (const problem of reading.unreadable) findings.push({ question: 3, severity: 'VIOLATION', what: `the range an adjustment may move a line in cannot be told: ${problem}` })
+    const statements = rendered.instructions.flatMap(instruction => statementsOf(instruction).statements)
+    for (const range of reading.ranges) {
+        for (const [side, limit] of [['nearest', range.nearest], ['farthest', range.farthest]] as const) {
+            if (!limit) continue
+            const said = statements.some(
+                statement =>
+                    statement.from.includes(`adjustments[${range.adjustmentId}].moves`) &&
+                    (statement.bindings ?? []).some(binding => binding.as === 'ADJUSTMENT_LIMIT' && binding.path === range.path && binding.quantity === limit.metres),
+            )
+            if (!said) {
+                findings.push({
+                    question: 3,
+                    severity: 'VIOLATION',
+                    what: `${range.adjustmentId} moves ${range.elementId}, and the bound "${limit.bound.term}" of ${limit.referent} for ${limit.bound.forTeam} sets the ${side} it may be set from the end line it is measured from at ${limit.metres} m, which no sentence offering the adjustment says`,
+                })
+            }
+        }
+    }
+    return findings
+}
+
+/**
  * **A region bound to an object is set out with its cited pairing's figures, and they are its realized size** — stage L, 24 October 2026,
  * NEW clauses (TIGHTENINGS), the compensating check for admitting a carried pairing's width and depth into a sentence (`boundRegionLeafNumberAt`).
  * Christian, reply filed 26 October 2026, item 7: *"Do not assume a scaled dimension without knowledge support."* Independent of the renderer,
@@ -1480,7 +1533,10 @@ export function checkFidelity(
                     ? [range?.preferred?.min, range?.preferred?.max].some(limit => stated(limit) && limit === quantity)
                     : as === 'WHOLE_FEET'
                       ? pairingObjectFeetAt(fixture, path).includes(quantity)
-                      : as === 'REQUIRED_LIMIT'
+                      : // P2 (25 October 2026, a narrow EXTENSION): a limit the bounds on a moved line give, for the adjustment the statement cites.
+                        as === 'ADJUSTMENT_LIMIT'
+                        ? adjustmentLimitsAt(fixture, statement, path).includes(quantity)
+                        : as === 'REQUIRED_LIMIT'
                       ? requiredLimit
                       : heldAt(fixture, path).some(n => n === quantity && (asStarting || !stated(begun) || n !== begun || [range?.required?.min, range?.required?.max].includes(n))) ||
                       (asStarting && stated(begun) && begun === quantity) ||
@@ -1561,7 +1617,8 @@ export function checkFidelity(
             instruction.from.flatMap(path => {
                 const begun = rangeAt.get(path)?.starting
                 // Stage 2D: and a number the physical layout holds at a leaf path the sentence cites (RB-L, Q5-L; leaf only since H3).
-                return [...heldAt(fixture, path).filter(n => asChoice || !stated(begun) || n !== begun), ...layoutLeafNumberAt(fixture.layout, path), ...boundRegionLeafNumberAt(fixture, path)]
+                // P2: and a limit the bounds on a moved line give, where the sentence cites the adjustment moving it (adjustmentLimitsAt).
+                return [...heldAt(fixture, path).filter(n => asChoice || !stated(begun) || n !== begun), ...layoutLeafNumberAt(fixture.layout, path), ...boundRegionLeafNumberAt(fixture, path), ...adjustmentLimitsAt(fixture, instruction, path)]
             }),
         )
         for (const range of about) {
@@ -1919,6 +1976,8 @@ export function checkFidelity(
     // Stage L: a bound region's figures, and what a law applying gives the coach.
     findings.push(...boundRegionFindings(fixture, rendered))
     findings.push(...appliedLawFindings(fixture, rendered))
+    // P2: how far an adjustment may move its line, said where the bounds on it give a limit, and only so.
+    findings.push(...adjustmentLimitFindings(fixture, rendered))
 
     // ── Q5 — a coach could lay it out and play it ───────────────────────────────────────────────
     const sections = new Set(rendered.instructions.map(i => i.section))

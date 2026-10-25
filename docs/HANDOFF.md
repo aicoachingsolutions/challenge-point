@@ -8981,6 +8981,8 @@ What stays open:
 - The 9 m depth, a soft default (design 1.3 (a)): the current FA handbook prints 9 m; The FA's 2012 metric guide gave 8 m, the 2025 edition
   9 yd (8.2296 m). We use 9 m as printed, under his same-source rule. If he asks for The FA to be checked first, the goal version waits on that
   answer; a correction is a one-entry data change.
+  AMENDED 25 October 2026 (P2): he answered (his reply filed 28 October 2026, item 8): the 9 m is PROVISIONAL, kept and applied, not
+  waited on. A correction is still a data change, now two entries held to one value by the loader (the pairing and A01-R2-S5-1). See the P2 entry.
 - Next: V (the verification matrix, the simplicity pins and the field-test observation sheet), then M (merge under the auto-merge rule).
   AMENDED 24 October 2026 (the completeness audit of the field-test build, item 5): both done. V is the next entry; M: pull request #139 merged as 6e38590 and #140 as de7e938.
 
@@ -9153,3 +9155,40 @@ versions, 12/1, 12/2, 11/1; 28 Details each, nothing said twice; fidelity 0; liv
 Evidence: `npm test` FILES 132 FAILED 0 (new `oct28-refinements.unit.ts`; four mutants killed); snapshot `P1-impl.json` vs
 `C/snap-review.json`: 50 keys changed - A01 (text, account notes, digests, evidence, diagram) and the neutral-players demonstration's diagram
 losing its always-empty `exchange: []` key (nothing coach-visible); screenshots `scratchpad/cd/build/p1-shots/`.
+
+### 25 October — P2: his reply filed 28 October 2026, items 2 and 8 (the marked line outside the penalty area; the 9 m depth provisional)
+
+His words are in `scratchpad/christian-2026-10-28.txt`; every quotation P2 wrote was byte-checked against it (`scratchpad/cd/build/review/oct28/p2-bytecheck.cjs`).
+- Item 2, knowledge. A01-R2-S5-2 (his item 2 words): a bound beside the marked line's value, RC-21's existing "beyond X (for team T)" (no new
+  term, no register change), X the penalty area (A01-R2-S2-1), T ROLE_HOLDER_BUILDING. It composes nothing; the line stays 20 m from the
+  building team's end line (A01-R1-S5-1). OUR READING, flagged to him in its fitNote: RC-21's "at or past" lets the line meet the area's far edge
+  (9 m) without entering it, while IFAB Law 1 makes a boundary line part of the area it bounds; "outside" read as this one directional relation.
+- Item 2, validation. GA-RELATIVE-PLACEMENT (unchanged, general) holds the bound on the realized geometry in both blocks: TEST-ONLY, the line at
+  5 m or 8.5 m is refused at validation in both blocks, never falling back to the zone version; at 9 m or 12 m it is served. Without the bound,
+  nothing refuses it: the rule is the knowledge item's, never code naming a line, goal or area.
+- Item 2, the coach's range. `rendering/adjustment-range.ts` (new, sport-neutral) reads the bounds on the line an authorized adjustment moves
+  (the adjustment's role carried as `adjustments[].moves`, from `layoutMoversOf`), on each block's realized geometry, with the direction each
+  bound's team attacks (`team-ends.ts`). The renderer appends DRAFT words (`draft-coach-wording.json` adjustmentLimits) to A01-ADJ-3 in the goal
+  version: "You may choose to move the marked line nearer to either end line, but no nearer than 9 m to the building team's end line, so that it
+  stays outside the penalty area" (9 bound AS ADJUSTMENT_LIMIT; cites the line, `adjustments[A01-ADJ-3].moves`, the area and its pairing depth).
+  Fidelity (tightenings): a limit the bounds give and no sentence says is refused (Q3); a limit said that the bounds do not give, or without the
+  adjustment cited, is refused (Q2 by binding); a bound it cannot read is refused (Q3). The zone version (no bound) says exactly what it said.
+  Generality: a synthetic fixture (other ids, the far end, both directions: limits 8 and 40) and a TEST-ONLY profile with a 12 m depth (the range
+  says 12 m) in `geometry-compatibility.unit.ts`.
+- Item 8. The FA pairing's depth carries `provisional` (status PROVISIONAL, value 9, sources: the current handbook 9 m, the 2025 edition 9 yd =
+  8.2296 m, the 2012 metric guide 8 m; why 9 m is applied; his words), validated by the bound-region loader (closed status list, the pairing's
+  own value, two or more sources, one stating the value). A01-R2-S5-1 restates the depth, so it carries `provisionalFigure` and the realization
+  loader holds the two to one value and one status (a silent restatement, or another value, refused at load: the goal-version depth mutations
+  of 8 m and 10 m are now refused at load, earlier than GA-BOUND-REGION, whose depth clause stays measured with the IFAB pairing). Review
+  evidence: the pairing source says "9 m deep (provisional)" and a depth citation gains a PROVISIONAL source with every source's figure (the
+  Set up box sentence and the new range clause both cite it); the review page's bound-region panel shows "(PROVISIONAL)" and the figure's
+  sources and his words (`ProvisionalFigures`, front test). DECIDED, recorded on the pairing's note: coaches are not told the figure is
+  provisional (a figure's standing is not something a coach would say or act on before starting; RC3 2.3, 3.3); whether pilot coaches should
+  be told is his.
+Evidence: `npm test` FILES 133 FAILED 0 (new `geometry-compatibility.unit.ts`, 11 tests; eight mutants killed, `p2-mutants.cjs`); snapshot
+`P2-impl.json` vs `P1-impl.json`: 31 keys, all A01 (the goal version's adjustment sentence; the A01-ADJ-3 record note and the new provisional
+choice in every A01 account; the goal version's evidence and digests); demos and non-A01 goals unchanged; live A01 equals review A01 for every
+served twin. Front: tests 16 passed, tsc, build; lint 899 (backlog 901). `front/tests/fixtures/a01.json` re-copied from `P2-impl.json`;
+`fa-pairing.json` added. Screenshots `scratchpad/cd/build/p2-shots/` (goal Coach Details at 375 and 1280).
+Open: his ruling on the boundary reading (at 9 m exactly); the zone version's line is held at validation by A01-R1-S5-4 (the pressing team's
+5 m area must lie short of it, OUR READING) but no range is stated there (the range reads bounds on the moved line only); stage Z.
