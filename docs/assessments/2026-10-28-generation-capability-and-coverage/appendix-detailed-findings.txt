@@ -12,7 +12,7 @@ How to use it
 1. METHOD, TERMS AND CAVEATS
 
 How this was measured
-- The findings come from running the built application (the main code line) as it stood before your 28 October Part 1 refinements: its routes (the coach review page and the live generation route), and for the reuse tests the engine function those routes call. Reading the code supplements this in places. The database and the AI service were simulated, and nothing connected to the outside. No code or knowledge was changed; the reuse tests used temporary test-only copies of knowledge.
+- The findings come from running the built application as it stood before your 28 October Part 1 refinements: its routes (the coach review page and the live generation route), and for the reuse tests the engine function those routes call. Reading the code supplements this in places. The database and the AI service were simulated, and nothing connected to the outside. No code or knowledge was changed; the reuse tests used temporary test-only copies of knowledge.
 - Play Out from the Back: 34 sessions, each changing one input. All 13 Learning Goals: 304 sessions. These covered every Practice Situation, Learning Stage and Challenge Level, a note, three durations, and 10, 12 or 14 players with 0, 1 or 2 goalkeepers. Reuse: the two Play Out from the Back versions were copied onto four other goals, and games without roles were tested for a fifth goal (section 5).
 - A second, independent run checked the coverage results and the reuse tests. Where it corrected the first run, this document gives the corrected finding. The Play Out from the Back facts were measured in two separate runs.
 - No real AI call was made. What the live app does with an AI answer was tested with a simulated, well-formed answer.
@@ -148,7 +148,7 @@ Finding 3b: refusals show only the first blocker, and mislabel it
   What doesn't: the engine stops at the first failing check, so later blockers stay hidden. For example, Create Scoring Chances is refused for its game form, and its missing context knowledge is never mentioned. The coach-facing sentence also says scoring "has not been built into the activity engine yet", even when the cause is knowledge that is not yet engine-readable.
   Why it matters: fixing one blocker reveals the next. The list above has every blocker we found, but a reviewer cannot see them on the page.
   Blocks a pilot? No.
-  Decision needed: none. We will propose corrected wording.
+  Decision needed: none now; we can propose corrected wording if you would like it.
 
 
 4. THE LIVE APPLICATION AND THE CHECKED PATHWAY (your Part 4)
@@ -297,7 +297,7 @@ Result: PARTIAL.
   What doesn't: restart sentences exist for the game form's own restarts and for the building team's goalkeeper, but not for other restarts a version assigns. Restarts to the conceding team are refused for every goal.
   Why it matters: most other activities restart without a goalkeeper.
   Blocks a pilot? No for Play Out from the Back. Yes for other goals.
-  Decision needed: should that list apply beyond Play Out from the Back?
+  Decision needed: the same as decision 5 below (whether role names may follow the goal, which this list now forbids for every goal).
 
 5.7 Coach communication (overview, details, diagram, team colours)
 Tested on: the served copies for Stay Organized, Defend 1v1 and Progress the Attack; configurations that differ from Play Out from the Back's exact values; Stay Organized's Practice Situations; and a plain Directional Possession game.
@@ -400,7 +400,7 @@ What the evidence does not establish
 
 Decisions needed from you
 1. Should the milestone's three goals be TA02, A03 and A04 (or A05), or others?
-2. Will you approve engine-readable restatements of Attack Development, Chance Creation and Positional Play Games? We will draft them from your libraries, as we did for Goalkeeper Build-Out.
+2. Should Attack Development, Chance Creation and Positional Play Games be restated in engine-readable form for your approval? We would draft them from your libraries, as we did for Goalkeeper Build-Out.
 3. A Game Problem for A04 or for A05.
 4. Your authorization for each of the three goals: which relationships, constraints and manipulations apply (none is allowed).
 5. May role names follow the goal (for example "attacking team" and "defending team")? This needs your wording.
