@@ -811,19 +811,36 @@ export interface ReviewBoundRegionPairing {
     provisional?: ReviewPairingProvisionalFigure[]
 }
 
+/**
+ * One Sport Profile bound-region requirement, as the server sends it: a region an object needs (H3), or (Z, 25 October 2026) a region permitted
+ * at the end of the team holding a performer row where no object of a kind stands there.
+ */
+export type ReviewBoundRegionRequirement = {
+    id: string
+    region: { noun: string; function: string }
+    cites: string
+    because: string
+    basis: { words: string[]; citedAs: string }
+} & ({ object: { kind: string; whenDefended: boolean } } | { performerEnd: { row: string; whereNoObjectOfKind: string }; permitted: true })
+
 /** The regions bound to the games' objects (H3), as the server sends them. */
 export interface ReviewBoundRegionAccount {
     status: 'ACCOUNT_FOR_REVIEW'
     check: string
     source: { file: string; authority: { words: string[]; citedAs: string; by: string; ruledOn: string } }
-    requirements: { id: string; object: { kind: string; whenDefended: boolean }; region: { noun: string; function: string }; cites: string; because: string; basis: { words: string[]; citedAs: string } }[]
+    /** Z (25 October 2026): a requirement binds a region to an object, or permits one at a performer's end (`performerEnd`, no object). */
+    requirements: ReviewBoundRegionRequirement[]
     blocks: {
         blockId: string
         bindings: {
             region: string
             noun: string | null
             functions: string[]
-            object: string
+            /** Null for a region bound to a performer's end (Z). */
+            object: string | null
+            /** Z: the performer row whose holder's end the region is bound to, and what it borrows of its pairing; absent for an object's region. */
+            performerEnd?: string
+            borrows?: string[]
             kind: string | null
             defendedBy: string | null
             pairing: ReviewBoundRegionPairing | null

@@ -110,7 +110,8 @@ test('register version 17 holds the rows as data, in one versions entry quoting 
     assert.equal(latest.split('Supersedes version 20, ').length - 1, 1, 'version 20 superseded once, by version 21 (H3)')
     assert.equal(latest.split('Supersedes version 21, ').length - 1, 1, 'version 21 superseded once, by version 22 (H4)')
     assert.equal(latest.split('Supersedes version 22, ').length - 1, 1, 'version 22 superseded once, by version 23 (R1)')
-    assert.ok(latest.startsWith('24, adds one member to the restart-method list, for his reply filed 28 October 2026, item 1') && !latest.includes('Supersedes version 24'), 'version 24 is the current entry (P1, 25 October 2026)')
+    assert.ok(latest.startsWith('25, adds a second, closed form to the bound-object row, for his reply filed 28 October 2026, item 7') && !latest.includes('Supersedes version 25'), 'version 25 is the current entry (Z, 25 October 2026)')
+    assert.equal(latest.split('Supersedes version 24, which adds one member to the restart-method list').length - 1, 1, 'version 24 (P1) superseded once, by version 25 (Z)')
     const full = `17, ${latest.split('Supersedes version 17, which ')[1]}`
     assert.ok(full.startsWith('17, adds object targets and the geometry a goal needs, for his reply filed 25 October 2026, item 3'))
     for (const quote of HIS_ITEM_3) assert.ok(full.split('Supersedes version 16, ')[0].includes(`"${quote}"`), quote)
@@ -288,8 +289,13 @@ const P = 'provisional:A01-R1'
 const GF2 = 'restated:GF2'
 const RPC = 'restated:RPC-001'
 const SUPERSEDED = [`${GF2}::GF2-19`, `${GF2}::GF2-03.b`, `${GF2}::GF2-06.a`, `${RPC}::RPC-001-08.a`]
-/** The design's F2 withdrawals from A01-R1 (S5-3, S5-4, V27-1, V29-1, V30-1, V31-1, T4-4), TEST-ONLY here. */
-const WITHDRAW = ['A01-R1-S5-3', 'A01-R1-S5-4', 'A01-R1-V27-1', 'A01-R1-V29-1', 'A01-R1-V30-1', 'A01-R1-V31-1', 'A01-R1-T4-4']
+/**
+ * The design's F2 withdrawals from A01-R1 (S5-3, S5-4, V27-1, V29-1, V30-1, V31-1, T4-4), TEST-ONLY here. Re-pointed 25 October 2026 (Z): and
+ * the zone version's penalty area at the goalkeeper's end (its six items, his reply filed 28 October 2026, item 7), which a goal standing at
+ * that end cannot keep (GA-BOUND-REGION refuses it, measured: "where a goal stands, its own requirement governs"), as the real goal version
+ * withdraws it.
+ */
+const WITHDRAW = ['A01-R1-S5-3', 'A01-R1-S5-4', 'A01-R1-V27-1', 'A01-R1-V29-1', 'A01-R1-V30-1', 'A01-R1-V31-1', 'A01-R1-T4-4', 'A01-R1-S2-2', 'A01-R1-S5-5', 'A01-R1-S6-2', 'A01-R1-S6-3', 'A01-R1-S7-1', 'A01-R1-S5-6']
 const TEST_RELATIONSHIP = {
     id: 'TEST-ONLY-SCORING',
     category: 'CONTEXT_SCORING_RELATIONSHIP',
@@ -387,6 +393,9 @@ const goalBuildWhole = (options: GoalOptions = {}): { activity: ServedActivity |
                 const p = contract(P)
                 ;(p as any).objectSuitability = [{ kind: 'goal', widthM: { min: 1, max: 30 }, ruledOn: 'TEST-ONLY', by: 'TEST-ONLY', citedAs: 'TEST-ONLY', words: ['TEST-ONLY'] }]
                 p.items = p.items.filter(i => !WITHDRAW.includes(i.itemId))
+                // Z (25 October 2026): without its penalty area this TEST-ONLY copy owes the goalkeeper's handling (no area belongs to the
+                // goalkeeper's team), so it is reported, as A01-R1 was before Z, never refused under the ENFORCE A01-R1 now declares.
+                if ((p as any).defaultLawsCheck) (p as any).defaultLawsCheck = { ...(p as any).defaultLawsCheck, mode: 'REPORT' }
                 p.items.push(
                     testItem('TEST-GOAL', 'O1', 'kind=goal', 'EXISTS', 'N/A'),
                     testItem('TEST-GOAL-ALONG', 'O4', 'kind=goal', 'POSITIONED', options.along ?? { ...ownEndOf('ROLE_HOLDER_BUILDING'), asAuthored: 'TEST-ONLY on the building team end line' }),

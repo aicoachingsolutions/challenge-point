@@ -120,8 +120,13 @@ test('item 2, knowledge: A01-R2-S5-2 bounds the marked line beyond the penalty a
     const adjustment = learningGoalAuthorizations().find(r => r.learningGoalId === 'A01')!.authorizedAdjustments!.entries.find(e => e.id === 'A01-ADJ-3')!
     assert.ok(adjustment.note!.startsWith('Recorded 15 October 2026 (stage K7)') && adjustment.note!.includes(`AMENDED 25 October 2026 (P2), for his reply filed 28 October 2026, item 2: "${I2_A}" "${I2_B}"`))
     assert.equal(adjustment.coachWords, 'move the marked line nearer to either end line', 'our DRAFT action words are unchanged')
-    // The zone version holds no such bound: no item of A01-R1 bounds its line.
-    assert.ok(!realizationOf(file, R1).items.some((i: any) => i.row === 'S5' && i.selector === item.selector && i.requirement === 'RANGE'))
+    // Re-pointed 25 October 2026 (Z): the zone version holds the same bound on its own penalty area since his reply filed 28 October 2026, item 7
+    // (A01-R1-S5-6, on A01-R1-S2-2; zone-penalty-area.unit.ts), which the goal version withdraws. Was: no item of A01-R1 bounds its line.
+    assert.deepEqual(
+        realizationOf(file, R1).items.filter((i: any) => i.row === 'S5' && i.selector === item.selector && i.requirement === 'RANGE').map((i: any) => [i.id, i.value.of.structuralRef.itemId, i.value.term, i.value.forTeam]),
+        [[`${R1}-S5-6`, `${R1}-S2-2`, 'beyond X (for team T)', 'ROLE_HOLDER_BUILDING']],
+    )
+    assert.ok(realizationOf(file, R2).withdraws.some((entry: any) => entry.item === `${R1}-S5-6`), 'the goal version withdraws it, keeping its own')
 })
 
 test('item 2, DRAFT words: adjustmentLimits in the DRAFT data, his words as basis, refused by the loader when damaged; nothing approved', () => {
@@ -186,16 +191,25 @@ test('item 2, served: the goal version states the range from the bound (no neare
     }
 })
 
-test('item 2, the zone version: its line carries no bound, so its sentence and its range are exactly as before', () => {
+/**
+ * Re-pointed 25 October 2026 (Z): since his reply filed 28 October 2026, item 7 the zone version holds the goalkeeper's penalty area at the
+ * goalkeeper's end and the same bound on it (A01-R1-S5-6), so its range is said from the bound as the goal version's is, and the consequence of
+ * moving the line no longer repeats the end line the limit names (RC3 3.4). Was: no bound, the sentence and range exactly as before P2.
+ */
+const MOVE_ZONE_LIMITED = "You may choose to move the marked line nearer to either end line, but no nearer than 9 m to the building team's end line, so that it stays outside the penalty area; when the roles exchange, set it out again at the same distance from the new building team's end line"
+test('item 2, the zone version: since Z its line carries the bound on its own penalty area, so its range is said from the bound, the end line named once', () => {
     for (const [players, keepers] of CASES) {
         const what = `zone ${players}/${keepers}`
         const result = build(NO_GOAL, players, keepers)
         const activity = served(result, what)
-        assert.deepEqual(moveSentence(activity).map(instruction => instruction.text), [MOVE_ZONE], what)
-        assert.ok(!texts(activity).some(text => text.includes('no nearer than')), what)
-        for (const fixture of blocksOf(result.fixture)) assert.deepEqual(adjustmentRangesOf(fixture, index), { ranges: [], unreadable: [] }, what)
+        assert.deepEqual(moveSentence(activity).map(instruction => instruction.text), [MOVE_ZONE_LIMITED], what)
+        assert.ok(!texts(activity).includes(MOVE_ZONE), `${what}: the old consequence, naming the end line twice, is not said`)
+        for (const fixture of blocksOf(result.fixture)) {
+            const ranges = adjustmentRangesOf(fixture, index)
+            assert.deepEqual([ranges.unreadable, ranges.ranges.map(range => [range.adjustmentId, range.nearest?.metres ?? null, range.farthest?.metres ?? null, range.forTeam])], [[], [['A01-ADJ-3', 9, null, 'ROLE_HOLDER_BUILDING']]], what)
+        }
         assert.equal(activity.integrity.fidelityViolations, 0, what)
-        assert.ok(!activity.rendered.instructions.some(instruction => instruction.from.includes(`space.regions[${ZONE_LINE}].position.along`) && instruction.parts.some(part => part.bindings.some(binding => binding.as === 'ADJUSTMENT_LIMIT'))), what)
+        assert.ok(activity.rendered.instructions.some(instruction => instruction.from.includes(`space.regions[${ZONE_LINE}].position.along`) && instruction.parts.some(part => part.bindings.some(binding => binding.as === 'ADJUSTMENT_LIMIT' && binding.quantity === 9))), what)
     }
 })
 
@@ -318,6 +332,9 @@ test('item 2, general: with a TEST-ONLY profile whose penalty-area depth is anot
     Object.assign(pairing.provisional![0].sources[0], { states: '12 m (TEST-ONLY)', metres: 12 })
     const file = productionFile()
     itemOf(file, R2, `${R2}-S5-1`).value.offsetM = { from: 0, to: 12 }
+    // Re-pointed 25 October 2026 (Z): the zone version restates the same figure (A01-R1-S5-5, its own area from the same entry), held to one value
+    // by the loader, so the TEST-ONLY copy restates it too.
+    itemOf(file, R1, `${R1}-S5-5`).value.offsetM = { from: 0, to: 12 }
     const activity = served(build(GOAL, 12, 1, file, block), 'depth 12 m')
     assert.deepEqual(moveSentence(activity).map(instruction => instruction.text), [MOVE_GOAL.replace('9 m', '12 m')])
     assert.ok(texts(activity).includes(BOX.replace('9 m deep', '12 m deep')))
@@ -390,8 +407,12 @@ test('item 8, one value and one status: A01-R2-S5-1 says it restates the provisi
     refusedFor('a pairing the profile does not hold', f => (itemOf(f, R2, `${R2}-S5-1`).provisionalFigure = { pairing: 'TEST-ONLY', leaf: 'region.depthM' }), /the pairing TEST-ONLY, which the Sport Profile does not hold/)
     refusedFor('another form', f => (itemOf(f, R2, `${R2}-S5-1`).provisionalFigure = 'FA'), /in some other form than \{ pairing, leaf \}/)
     refusedFor('on an item restating no figure', f => (itemOf(f, R2, `${R2}-S2-1`).provisionalFigure = { pairing: PAIRING, leaf: 'region.depthM' }), /A01-R2-S2-1 says it states region\.depthM of FA-MINI-SOCCER-5V5-2026, and its row and value restate no figure of a bound region/)
-    // The zone version restates nothing of a pairing, so it declares nothing.
-    assert.ok(!realizationOf(file, R1).items.some((i: any) => 'provisionalFigure' in i))
+    // Re-pointed 25 October 2026 (Z): the zone version restates the same depth for its own area (A01-R1-S5-5, his reply filed 28 October 2026,
+    // item 7), bound at its performer's end to the same pairing, so it declares it, and the loader holds it to the one value too (an 8 m area,
+    // TEST-ONLY, is refused at load). Was: it restated nothing of a pairing.
+    assert.deepEqual(realizationOf(file, R1).items.filter((i: any) => 'provisionalFigure' in i).map((i: any) => [i.id, i.provisionalFigure, i.value.offsetM]), [[`${R1}-S5-5`, { pairing: PAIRING, leaf: 'region.depthM' }, { from: 0, to: 9 }]])
+    refusedFor('the zone version at 8 m', f => (itemOf(f, R1, `${R1}-S5-5`).value.offsetM = { from: 0, to: 8 }), /A01-R1-S5-5 states 8 for region\.depthM of FA-MINI-SOCCER-5V5-2026, whose PROVISIONAL value is 9: one figure has one value/)
+    refusedFor('the zone version silent', f => delete itemOf(f, R1, `${R1}-S5-5`).provisionalFigure, /A01-R1-S5-5 restates region\.depthM of the pairing FA-MINI-SOCCER-5V5-2026 \(9\), which the pairing marks PROVISIONAL, and does not say so/)
 })
 
 test('item 8, identified: the review evidence shows the depth PROVISIONAL wherever it is cited, the account carries it; no coach text says it', () => {

@@ -303,7 +303,9 @@ test('items 10 and 11: no offside, once, in both versions; the diagram says no e
         assert.equal(exchange.length, 3, what)
         assert.ok(exchange.some(text => text.startsWith(`When you call the next block, 1 ${KEEPER}`)), `${what}: who moves`)
         assert.ok(exchange.some(text => text.includes('When you call the next block the teams')), `${what}: what changes`)
-        assert.equal(activity.rendered.instructions.length, 28, what)
+        // Re-pointed 25 October 2026 (Z): the zone version says one sentence more, its goalkeeper's penalty area (his reply filed 28 October 2026,
+        // item 7; zone-penalty-area.unit.ts). Was 28 in both versions.
+        assert.equal(activity.rendered.instructions.length, version === 'zone' ? 29 : 28, what)
         assert.equal(new Set(texts(activity)).size, texts(activity).length, `${what}: nothing said twice`)
     })
 })

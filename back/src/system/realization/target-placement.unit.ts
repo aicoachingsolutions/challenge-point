@@ -171,7 +171,9 @@ test('A01 realizes in both role blocks: his values, mirrored, every spatial gate
             assert.equal(postCheck(post, id).verdict, 'PASS', `${block.blockId}: ${id} ${postCheck(post, id).why}`)
         }
         assert.equal(clause(postCheck(post, 'GA-DIRECTION'), SEPARATED).verdict, 'PASS')
-        assert.equal(clause(postCheck(post, 'GA-RELATIVE-PLACEMENT'), HOLDS).instances, 4, 'the target, the post-regain relation and the two starting regions')
+        // Re-pointed 25 October 2026 (Z): and the marked line held outside the goalkeeper's penalty area (A01-R1-S5-6, his reply filed 28
+        // October 2026, items 2 and 7), a bound beside the line's value, held on the realized geometry in both blocks. Was 4.
+        assert.equal(clause(postCheck(post, 'GA-RELATIVE-PLACEMENT'), HOLDS).instances, 5, 'the target, the post-regain relation, the two starting regions and the line outside the penalty area')
         // The pressure reference: 20 m from the building team's end line, in both blocks (40 m long, so the same line).
         assert.deepEqual(interval(realized, PR_LINE), { from: 20, to: 20 })
     }
@@ -344,9 +346,11 @@ test('the 40 x 30 m testing boundary lives in data: another area is told the sta
     // testing boundaries, so every metric value it holds is in a realization naming its area too.
     // Re-pointed 24 October 2026 (K2): its goal's penalty area adds two, the FA 5v5 pairing's depth (A01-R2-S5-1, 0-9 m from the goal's end
     // line) and width (A01-R2-S6-2, 15 m), in the same realization, which names its area.
+    // Re-pointed 25 October 2026 (Z): the zone version's own penalty area adds its two (A01-R1-S5-5, 0-9 m from the building team's end line;
+    // A01-R1-S6-3, 15 m), in A01-R1, which names its area; the goal version withdraws both.
     assert.deepEqual(
         metric,
-        [['A01-R1', 'A01-R1-S5-1', true], ['A01-R1', 'A01-R1-S5-3', true], ['A01-R2', 'A01-R1-S5-1', true], ['A01-R2', 'A01-R2-O4-1', true], ['A01-R2', 'A01-R2-S5-1', true], ['A01-R2', 'A01-R2-S6-2', true]],
+        [['A01-R1', 'A01-R1-S5-1', true], ['A01-R1', 'A01-R1-S5-3', true], ['A01-R1', 'A01-R1-S5-5', true], ['A01-R1', 'A01-R1-S6-3', true], ['A01-R2', 'A01-R1-S5-1', true], ['A01-R2', 'A01-R2-O4-1', true], ['A01-R2', 'A01-R2-S5-1', true], ['A01-R2', 'A01-R2-S6-2', true]],
         'every metric starting value sits in a realization whose testing boundaries name its area',
     )
 })

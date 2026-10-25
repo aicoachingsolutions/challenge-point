@@ -101,7 +101,8 @@ test('the register carries the role-block capability as data (version 10), each 
     // Re-pointed 23 October 2026 (H4): version 22 (the type a session states for its objects, his reply filed 26 October 2026, item 4) supersedes 21.
     // Re-pointed 24 October 2026 (R1): version 23 (one restart for every dead ball, his reply filed 27 October 2026, item 4) supersedes 22.
     // Re-pointed 25 October 2026 (P1): version 24 (the restart method TAKER_CHOOSES, his reply filed 28 October 2026, item 1) supersedes 23.
-    assert.match(String(register.version), /^24, adds one member to the restart-method list, .*Supersedes version 23, which adds one restart for every dead ball, .*Supersedes version 22, which adds the type a session states for its objects of a kind, .*Supersedes version 21, which adds a region bound to an object, .*Supersedes version 20, which records his rulings filed 26 October 2026 for the goal version of the build-out activity .*Supersedes version 19, which adds an object's availability as a session resource, .*Supersedes version 18, which adds the coach-controlled end exchange,.*Supersedes version 17, which adds object targets and the geometry a goal needs, .*Supersedes version 16, which adds one primary scoring event per role, .*Supersedes version 15, which adds which participant a value names, .*Supersedes version 14, which adds a role's scoring credit.*Supersedes version 13, which adds positions stated relative .*Supersedes version 12, which adds starts and restarts .*Supersedes version 11, which adds participant reassignment .*Supersedes version 10, which adds role blocks for his M1/)
+    // Re-pointed 25 October 2026 (Z): version 25 (a region bound to the end of the team holding a specialized performer, his reply filed 28 October 2026, item 7) supersedes 24.
+    assert.match(String(register.version), /^25, adds a second, closed form to the bound-object row, .*Supersedes version 24, which adds one member to the restart-method list, .*Supersedes version 23, which adds one restart for every dead ball, .*Supersedes version 22, which adds the type a session states for its objects of a kind, .*Supersedes version 21, which adds a region bound to an object, .*Supersedes version 20, which records his rulings filed 26 October 2026 for the goal version of the build-out activity .*Supersedes version 19, which adds an object's availability as a session resource, .*Supersedes version 18, which adds the coach-controlled end exchange,.*Supersedes version 17, which adds object targets and the geometry a goal needs, .*Supersedes version 16, which adds one primary scoring event per role, .*Supersedes version 15, which adds which participant a value names, .*Supersedes version 14, which adds a role's scoring credit.*Supersedes version 13, which adds positions stated relative .*Supersedes version 12, which adds starts and restarts .*Supersedes version 11, which adds participant reassignment .*Supersedes version 10, which adds role blocks for his M1/)
     assert.ok(String(register.version).includes('Keep role assignments separate from fixed ends.'), 'the version entry quotes M1')
     assert.ok(String(register.version).includes('Supersedes version 9'), 'and keeps the history')
     assert.ok(index.rows.get('S2')!.selectorAttributes!.includes('targetOf'))
@@ -366,6 +367,12 @@ test('A01-R1\'s role lines carry its category on every support entry, in both bl
             'space.regions[c:provisional:A01-R1:A01-R1-S2-1].noun',
             'space.regions[c:provisional:A01-R1:A01-R1-S2-1].position.across',
             'space.regions[c:provisional:A01-R1:A01-R1-S2-1].position.along',
+            // 25 October 2026 (Z): the goalkeeper's penalty area (his reply filed 28 October 2026, item 7) - its noun, its binding to the end
+            // of the team with the goalkeeper and its two positions, lines A01-R1 supports with the same category.
+            'space.regions[c:provisional:A01-R1:A01-R1-S2-2].noun',
+            'space.regions[c:provisional:A01-R1:A01-R1-S2-2].ofObject',
+            'space.regions[c:provisional:A01-R1:A01-R1-S2-2].position.across',
+            'space.regions[c:provisional:A01-R1:A01-R1-S2-2].position.along',
             // 17 October 2026 (stage M2): the occurrence that also counts as the primary event for the pressing role (rows V28-V31,
             // his reply filed 19 October 2026, item 2) - lines A01-R1 supports with the same category, carried into the resolved game.
             'value.primaryEvent.alsoCounts[c:provisional:A01-R1:A01-R1-V27-1].control',

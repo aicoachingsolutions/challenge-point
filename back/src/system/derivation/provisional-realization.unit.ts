@@ -119,8 +119,10 @@ test('one home: the file loads, A01-R1 is labelled his provisional choice, and o
     // its trigger V29, control V30 and exclusion V31) - pinned in also-counts.unit.ts. 53 -> 46 on 24 October 2026 (R1): his reply filed
     // 27 October 2026, item 4, the one common restart - six items added (the policy RP1, the four dead-ball elements, the last-touch
     // qualifier) and thirteen removed (the throw-in and end-line restarts and their play state and episode boundaries) - pinned in
-    // dead-ball-restart.unit.ts.
-    assert.deepEqual([realization.provisionalId, realization.contractId, realization.category, realization.realizes, realization.items.length, realization.declarations.length], ['A01-R1', 'provisional:A01-R1', PROVISIONAL_REALIZATION_CHOICE, 'RPC-001', 46, 0])
+    // dead-ball-restart.unit.ts. 46 -> 52 on 25 October 2026 (Z): his reply filed 28 October 2026, item 7, the goalkeeper's penalty area at
+    // the goalkeeper's own end - the area (S2), its depth from the building team's end (S5), centred (S6), its width (S6), its binding to the
+    // end of the team with the goalkeeper (S7) and the marked line kept outside it (S5, item 2) - pinned in zone-penalty-area.unit.ts.
+    assert.deepEqual([realization.provisionalId, realization.contractId, realization.category, realization.realizes, realization.items.length, realization.declarations.length], ['A01-R1', 'provisional:A01-R1', PROVISIONAL_REALIZATION_CHOICE, 'RPC-001', 52, 0])
     assert.equal(realization.realizationChoices, 'realization-choices-a01-r1.json')
     assert.ok(realization.words.includes('The priority remains producing one complete, representative Play Out from the Back activity through the normal generation pathway, without introducing unnecessary architecture or treating this first realization as the canonical version of the Learning Goal.'))
     // Re-pointed 26 October 2026 (Stage F): A01's record names its realizations as an ordered list - the goal version first, waiting on two
@@ -237,13 +239,22 @@ test('the realization moves exactly what its items establish — the role lines 
         // 15 October 2026 (stage K6): the pressure reference's lines (its function line an established absence, as the targets'
         // are) and the two starting placements' fields, each placement re-established at the build-out episode's beginnings.
         // The targets' depth and relations add no line of their own: they bound the possession game's target lines.
+        // 25 October 2026 (Z): the goalkeeper's penalty area (his reply filed 28 October 2026, item 7), its lines beside the pressure
+        // reference's, row by row: its noun, its function line unconstrained (as every region's is), its depth from the building team's end
+        // line, centred, and its binding to the end of the team holding the goalkeeper (S7's second form). Its width bounds its across line
+        // and adds none of its own, as the targets' depth does.
         'c:provisional:A01-R1:A01-R1-S2-1::S3|derived|RESOLVED:ENTAILED||"line"',
+        'c:provisional:A01-R1:A01-R1-S2-2::S3|derived|RESOLVED:ENTAILED||"zone"',
         'c:provisional:A01-R1:A01-R1-S2-1::S4|failed|NOT_AUTHORED|not constrained|null',
+        'c:provisional:A01-R1:A01-R1-S2-2::S4|failed|NOT_AUTHORED|not constrained|null',
         'c:provisional:A01-R1:A01-R1-S2-1::S5|derived|RESOLVED:ENTAILED||{"term":"own end (of team T)","forTeam":"ROLE_HOLDER_BUILDING","offsetM":{"from":20,"to":20},"asAuthored":"20 m from the building team\'s end line"}',
+        'c:provisional:A01-R1:A01-R1-S2-2::S5|derived|RESOLVED:ENTAILED||{"term":"own end (of team T)","forTeam":"ROLE_HOLDER_BUILDING","offsetM":{"from":0,"to":9},"asAuthored":"from the building team\'s end line, 9 m into the area"}',
         'c:provisional:A01-R1:A01-R1-S2-1::S6|derived|RESOLVED:ENTAILED||{"term":"full extent (of an axis)","asAuthored":"across the area, touchline to touchline"}',
+        'c:provisional:A01-R1:A01-R1-S2-2::S6|derived|RESOLVED:ENTAILED||{"term":"central","asAuthored":"centred across the area"}',
         // H3 (23 October 2026, register version 21): row S7, the object a region is bound to. No item binds the pressure reference, so
         // its line is unauthored and unspoken ('no coverage'): it is bound to nothing, and nothing blocks on it.
         'c:provisional:A01-R1:A01-R1-S2-1::S7|failed|NOT_AUTHORED|no coverage|null',
+        'c:provisional:A01-R1:A01-R1-S2-2::S7|derived|RESOLVED:ENTAILED||{"performerEnd":"P3","pairing":"FA-MINI-SOCCER-5V5-2026","borrows":["region"],"asAuthored":"the goalkeeper\'s own penalty area, the FA 5v5 entry\'s area alone"}',
         'c:provisional:A01-R1:A01-R1-P8-1::P9|derived|RESOLVED:ENTAILED||"ROLE_HOLDER_BUILDING"',
         'c:provisional:A01-R1:A01-R1-P8-2::P9|derived|RESOLVED:ENTAILED||"ROLE_HOLDER_PRESSING"',
         'c:provisional:A01-R1:A01-R1-P8-1::P10|derived|RESOLVED:ENTAILED||{"term":"beyond X (for team T)","of":{"structuralRef":{"contractId":"provisional:A01-R1","itemId":"A01-R1-S2-1"},"asAuthored":"the pressure reference"},"forTeam":"ROLE_HOLDER_PRESSING","asAuthored":"short of the pressure/progression line"}',

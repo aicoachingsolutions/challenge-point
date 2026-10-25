@@ -45,7 +45,7 @@
  * The standing rule that follows from that: **if a sentence here names something in the game, the name
  * comes from the game and the path is cited.** "Obvious in the sport" is not a source.
  */
-import { bindingOf, regionFunctionsOf } from '../derivation/bound-regions'
+import { bindingOf, endBindingOf, objectBindingOf, regionFunctionsOf } from '../derivation/bound-regions'
 import { nonClaimState } from '../derivation/classify'
 import { loadRegister } from '../derivation/corpus'
 import { participantOf, sameParticipant } from '../derivation/participants'
@@ -56,7 +56,7 @@ import { CONDITION_ROW, conditionScopeNotEvaluable } from '../derivation/resolve
 import { ApprovedTemplateSentence, approvedTemplateSentences, approvedWording, ApprovedWording, canonicalJson, EQUIPMENT_KIND, EquipmentPartState, EquipmentWhen, fillTemplate, FIRST_BLOCK_CHOICE, POSSESSION_CONTINUES, WordingMatch } from './approved-wording'
 import { adjustmentRangesOf } from './adjustment-range'
 import { exclusionFor } from './coach-facing-exclusions'
-import { adjustmentLimitsWording, appliedLawReading, appliedLawWordings, boundRegionWording, deadBallRestartWording, departedLawWordings, equipmentWordings, facingWording, fillSlots, methodWording, normalLawsWording, objectKindWording, restartLawNouns, scoresAtAnObject, scoringAtObjectWording, slotsOf, triggerWording, triggerWordingOrder } from './draft-coach-wording'
+import { adjustmentLimitsWording, appliedLawReading, appliedLawWordings, boundRegionWording, deadBallRestartWording, departedLawWordings, endRegionWording, equipmentWordings, facingWording, fillSlots, lawReadsRegion, methodWording, normalLawsWording, objectKindWording, restartLawNouns, scoresAtAnObject, scoringAtObjectWording, slotsOf, triggerWording, triggerWordingOrder } from './draft-coach-wording'
 import { eventKindOf, genericOf } from './game-reading'
 import { LayoutRectangle, MARK_UNION_ONCE, MarkingChange, PhysicalLayout, Remarking, somethingMoves } from './physical-layout'
 import { appliedLawPath, appliesThroughout, boundRegionPath, DEFAULT_LAWS_OWED, defaultLawPath, departedThroughout, fixtureBoundRegion, fixtureLawAccount, owesNothing } from './rendering-fixture'
@@ -1475,7 +1475,7 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
                 const named = targetObjects.filter(object => object.kind === when.targetObject!.kind)
                 const object = named.length === 1 && targetObjects.length === 1 ? named[0] : null
                 if (!object || !defendedByLeaf || performerNameOf(object[defendedByLeaf]) !== when.targetObject.defendedBy) continue
-                const region = ((game.space?.regions ?? []) as any[]).find(candidateRegion => bindingOf(candidateRegion, participants())?.objectId === String(object.elementId))
+                const region = ((game.space?.regions ?? []) as any[]).find(candidateRegion => objectBindingOf(candidateRegion, participants())?.objectId === String(object.elementId))
                 const pairing = region ? fixtureBoundRegion(fixture, String(region.elementId))?.pairing ?? null : null
                 const size = pairing && typeof pairing.object?.heightM === 'number' ? feetSizeWords(pairing.object.widthM, pairing.object.heightM) : null
                 if (!region || !pairing || !size) continue
@@ -1580,7 +1580,10 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
      */
     const boundRegionSentenceOf = (region: any, rectangle: LayoutRectangle | null): Instruction | null => {
         const spec = participants().boundRegions
-        const binding = bindingOf(region, participants())
+        // Z (25 October 2026): a region bound to a performer's end has a sentence of its own (`endRegionSentenceOf`, below).
+        const ended = endBindingOf(region, participants())
+        if (ended) return endRegionSentenceOf(region, ended.row, rectangle)
+        const binding = objectBindingOf(region, participants())
         const object = binding ? objectById(binding.objectId) : null
         if (!spec || !binding || !object || typeof object.kind !== 'string' || !objectSpec) return null
         const id = String(region.elementId)
@@ -1625,11 +1628,94 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
         for (const entry of appliedLawWordings()) {
             const reading = appliedLawReading(entry.law)
             if (!entry.inRegion || !lawAccount || !appliesThroughout(lawAccount, entry.law)) continue
-            if (!reading.regions.some(found => found.function === wording.function && found.kind === object.kind)) continue
+            // Z: the law's region precondition reads this region (an object's region of its kind, or the region of its performer's team).
+            if (!reading.regions.some(found => found.function === wording.function && lawReadsRegion(found, region, game, participants()))) continue
             const performer = reading.performerRows.map(row => participants().specializedRoleRows.get(row)).find((name): name is string => typeof name === 'string') ?? null
             const clause = fillSlots(entry.inRegion.words, { ...(performer ? { performer } : {}), ...(carrier ? { carrier: String(carrier.kind) } : {}) })
             if (clause === null) continue
             parts.push(part('DERIVED', `; ${clause}`, [appliedLawPath(entry.law), ...(slotsOf(entry.inRegion.words).includes('carrier') && carrier ? [`objects[${carrier.elementId}].kind`] : [])]))
+        }
+        return joined('Set up', parts)
+    }
+
+    /**
+     * **The Set up sentence for a region bound to a performer's end** — Z, 25 October 2026 (register version 25, row S7's second form; DRAFT
+     * wording, `draft-coach-wording.json` boundRegions, the entry naming the performer row). Christian, reply filed 28 October 2026, item 7:
+     * *"I favor retaining a defined [specialized performer] handling area in the target-zone version."* *"My preference is to use the same
+     * authorized small-sided [handling-area] geometry where appropriate, even when the physical [object] is replaced by a target zone."* (his
+     * nouns bracketed: the coupling ratchet keeps a sport's nouns out of this layer; the data file quotes him whole).
+     *
+     * Said only where the game holds exactly that: the region bound (row S7, `performerEnd`) to the end of the team holding a performer row the
+     * DRAFT data has words for with one of the region's functions; set out from the end line a team defends (RC-21 "own end (of team T)", from
+     * 0 m) for a team with a role noun in this block; the cited pairing carried in the fixture for that function; its realized depth along and
+     * width across exactly the pairing's, from that end line, centred across the area. Where the markings are set out once (`layout`), the
+     * rectangles the layout holds it in, in any block, decide the words: two of the pairing's size at the two end lines (the performer's end
+     * alternates between blocks) say it is marked at each end (`eachEnd`); one says it is marked at that team's end (`oneEnd`), as block by
+     * block. The figures are the pairing's, each bound to its leaf of the carried pairing (fidelity admits it there and holds it to the realized
+     * size); it cites the region's noun, functions, positions and binding, the pairing's figures and every rectangle it names.
+     *
+     * Then, as for an object's region, the clause of a law the account records as applying throughout whose region precondition reads this
+     * region (`lawReadsRegion`): `inRegion.words` where it is marked at one end, `inRegion.oneOfEachEnd` (naming the team whose end holds the
+     * one it applies in, citing the region's along position) where it is marked at each end. Anywhere else nothing is said, so fidelity refuses.
+     */
+    const endRegionSentenceOf = (region: any, row: string, rectangle: LayoutRectangle | null): Instruction | null => {
+        const spec = participants().boundRegions
+        if (!spec) return null
+        const id = String(region.elementId)
+        const functions = regionFunctionsOf(region, participants())
+        const wording = functions.map(member => endRegionWording(member, row)).find(Boolean) ?? null
+        const pairing = fixtureBoundRegion(fixture, id)?.pairing ?? null
+        const along = geometryFor(id, 'along')
+        const across = geometryFor(id, 'across')
+        const span = along?.geometry?.interval
+        const wide = across?.geometry?.interval
+        const alongValue: any = fieldOf(region, spec.alongLeaf)
+        const team = alongValue && alongValue.term === OWN_END && alongValue.offsetM?.from === 0 ? teamNoun(alongValue.forTeam) : null
+        if (!wording || !pairing || pairing.region.function !== wording.function || !along?.path || !across?.path || !span || !wide || !team) return null
+        const same = (a: number, b: number) => Math.abs(a - b) < 1e-9
+        const fromAnEnd = same(span.from, 0) || same(span.to, areaLength)
+        const centred = same((wide.from + wide.to) / 2, areaWidth / 2)
+        if (!fromAnEnd || !centred || !same(span.to - span.from, pairing.region.depthM) || !same(wide.to - wide.from, pairing.region.widthM)) return null
+        // Where the markings are set out once: the rectangles the layout holds this region in, in any block; this block's must be one of them.
+        const rectangles = layout ? (layout.rectangles ?? []).filter(entry => entry.sources.some(source => source.regionId === id)) : []
+        if (layout && (!rectangle || !rectangles.includes(rectangle))) return null
+        const ofPairing = (entry: LayoutRectangle) => same(entry.depthM, pairing.region.depthM) && same(entry.widthM, pairing.region.widthM)
+        const eachEnd = rectangles.length === 2 && rectangles.every(ofPairing) && new Set(rectangles.map(entry => entry.end)).size === 2 && rectangles.every(entry => entry.end === 0 || entry.end === areaLength)
+        if (layout && !eachEnd && !(rectangles.length === 1 && ofPairing(rectangles[0]))) return null
+        const template = eachEnd ? wording.eachEnd : wording.oneEnd
+        const text = fillSlots(template, { region: wording.noun, width: metres(pairing.region.widthM), depth: metres(pairing.region.depthM), ...(eachEnd ? {} : { team }) })
+        if (text === null) return null
+        const widthAt = `${boundRegionPath(id)}.pairing.region.widthM`
+        const depthAt = `${boundRegionPath(id)}.pairing.region.depthM`
+        const bindings: Binding[] = [
+            { slot: template.indexOf('{width}'), binding: { quantity: pairing.region.widthM, path: widthAt } },
+            { slot: template.indexOf('{depth}'), binding: { quantity: pairing.region.depthM, path: depthAt } },
+        ]
+            .sort((a, b) => a.slot - b.slot)
+            .map(entry => entry.binding)
+        const base = `space.regions[${id}]`
+        const leadFrom = [
+            `${base}.noun`,
+            `${base}.${spec.functionLeaf}`,
+            `${base}.${spec.functionLeaf}[${wording.function}]`,
+            along.path,
+            across.path,
+            `${base}.${spec.ofObjectLeaf}`,
+            widthAt,
+            depthAt,
+            ...rectangles.map(entry => `layout.rectangles[${entry.elementId}]`),
+        ]
+        const parts = [part(statusAt([`${base}.noun`, along.path, across.path, `${base}.${spec.ofObjectLeaf}`], 'DERIVED'), text, leadFrom, bindings)]
+        for (const entry of appliedLawWordings()) {
+            const reading = appliedLawReading(entry.law)
+            if (!entry.inRegion || !lawAccount || !appliesThroughout(lawAccount, entry.law)) continue
+            if (!reading.regions.some(found => found.function === wording.function && lawReadsRegion(found, region, game, participants()))) continue
+            const words = eachEnd ? entry.inRegion.oneOfEachEnd : entry.inRegion.words
+            if (!words) continue
+            const performer = reading.performerRows.map(performerRow => participants().specializedRoleRows.get(performerRow)).find((name): name is string => typeof name === 'string') ?? null
+            const clause = fillSlots(words, { ...(performer ? { performer } : {}), ...(carrier ? { carrier: String(carrier.kind) } : {}), ...(eachEnd ? { team } : {}) })
+            if (clause === null) continue
+            parts.push(part('DERIVED', `; ${clause}`, [appliedLawPath(entry.law), ...(slotsOf(words).includes('carrier') && carrier ? [`objects[${carrier.elementId}].kind`] : []), ...(eachEnd ? [along.path] : [])]))
         }
         return joined('Set up', parts)
     }
@@ -3842,19 +3928,21 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
         // One referent with a noun: a region bound to an object, named by the DRAFT boundRegions words for its function and the object's kind.
         const referents = [...new Set(limits.map(limit => limit.referent))]
         const region = referents.length === 1 ? ((game.space?.regions ?? []) as any[]).find(candidate => String(candidate?.elementId) === referents[0]) : null
-        const binding = region ? bindingOf(region, participants()) : null
+        const binding = region ? objectBindingOf(region, participants()) : null
         const object = binding ? objectById(binding.objectId) : null
         const kind = object ? fieldOf(object, objectSpec?.kindLeaf ?? 'kind') : null
-        const fn = region && kind ? regionFunctionsOf(region, participants()).find(candidate => !!boundRegionWording(candidate, kind)) : undefined
-        const noun = fn ? boundRegionWording(fn, kind)?.noun : undefined
+        // Z (25 October 2026): or a region bound to a performer's end, named by the DRAFT words for its function and the performer row.
+        const ended = region ? endBindingOf(region, participants()) : null
+        const fn = region && kind ? regionFunctionsOf(region, participants()).find(candidate => !!boundRegionWording(candidate, kind)) : region && ended ? regionFunctionsOf(region, participants()).find(candidate => !!endRegionWording(candidate, ended.row)) : undefined
+        const noun = fn ? (kind ? boundRegionWording(fn, kind)?.noun : ended ? endRegionWording(fn, ended.row)?.noun : undefined) : undefined
         const outside = noun ? fillSlots(words.outside, { referent: noun }) : null
         const outsidePaths =
-            outside && region && binding
+            outside && region && (binding || ended)
                 ? [
                       `space.regions[${referents[0]}].noun`,
                       `space.regions[${referents[0]}].functions[${fn}]`,
                       `space.regions[${referents[0]}].ofObject`,
-                      `objects[${binding.objectId}].${objectSpec?.kindLeaf ?? 'kind'}`,
+                      ...(binding ? [`objects[${binding.objectId}].${objectSpec?.kindLeaf ?? 'kind'}`] : []),
                       ...(fixtureBoundRegion(fixture, referents[0])?.pairing ? [`${boundRegionPath(referents[0])}.pairing.region.depthM`] : []),
                   ]
                 : []
@@ -3887,6 +3975,14 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
         const movedAlong = movedLine ? geometryFor(movedLine.elementId, 'along')?.path : null
         // P2: how far the moved line may go, where bounds on it limit that (absent for every adjustment whose line carries none).
         const limited = limitPartOf(adjustment.id)
+        /**
+         * Z (25 October 2026), RC3 3.4 (nothing said twice in one sentence): where the limit clause already names the end line the line is
+         * measured from (its team is the moved line's own), the kept-end clause does not say it again ("it is measured from the {team}'s end
+         * line, so"): it says only what that means when the roles exchange, citing the same position and move. Every other adjustment's words
+         * are exactly what they were.
+         */
+        const limitRange = ranges.ranges.find(entry => entry.adjustmentId === adjustment.id)
+        const limitNamesEnd = !!limited && !!measured && !!limitRange && teamNoun(limitRange.forTeam) === measured.team
         if (move && measured && movedAlong) {
             instructions.push(
                 joined(ADJUSTING, [
@@ -3894,7 +3990,9 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
                     ...(limited ? [limited] : []),
                     part(
                         statusAt([movedAlong], 'DERIVED'),
-                        `; it is measured from the ${measured.team}'s end line, so when the roles exchange, set it out again at the same distance from the new ${measured.team}'s end line`,
+                        limitNamesEnd
+                            ? `; when the roles exchange, set it out again at the same distance from the new ${measured.team}'s end line`
+                            : `; it is measured from the ${measured.team}'s end line, so when the roles exchange, set it out again at the same distance from the new ${measured.team}'s end line`,
                         [movedAlong, `layout.movedBy[${move.elementId}]`],
                     ),
                 ]),

@@ -77,8 +77,8 @@
     }
   },
   "provenance": {
-    "snapshot": "P2-impl.json",
-    "sha256": "ec30d22ccb6ad72dc3d75bbd3f587f54f7f94a269f2eb1dc4da8e2503fb95def",
+    "snapshot": "Z-impl.json",
+    "sha256": "cae83e6ed2e1b187ca04721111bf557c16ed2a27d182765460ceaaf035445944",
     "key": "review-admin/A01/goalkeeper-1/objects-pairing:FA-MINI-SOCCER-5V5-2026",
     "path": "body.evidence.boundRegions.blocks[0].bindings[0].pairing"
   }

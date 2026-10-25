@@ -320,9 +320,15 @@ test('registering the member changed no verdict in any of the thirteen goals', (
      * about the game the build serves per block (goal-version-switch.unit.ts). So A01's row keeps describing the zone version, A01-R1,
      * threaded exactly as the build threads the alternative it tries; its 17 lines and its verdict are unchanged.
      */
+    /**
+     * **21 · 25 October, Z — A01 +1 failed line, measured; no verdict moves.** His reply filed 28 October 2026, item 7, gives the zone version
+     * the goalkeeper's penalty area at the goalkeeper's own end (A01-R1-S2-2 and the five items placing, sizing and binding it, register version
+     * 25). The new region carries the one line every region of this game carries unconstrained, its functions list (S4, 'not constrained');
+     * its S7 line is written (A01-R1-S7-1), so it adds none. A01's zone version holds 18 failed lines; Gate A is unchanged.
+     */
     const A01_COMPOSITION = { failed: 17, gateA: 'FAIL', reachable: true }
     const expected: Record<string, { failed: number; gateA: string; reachable: boolean }> = {
-        A01: { failed: 17, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
+        A01: { failed: 18, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
         D01: { failed: 12, gateA: 'DEFERRED_TO_REALIZATION', reachable: true },
         TA01: { failed: 22, gateA: 'FAIL', reachable: false },
         TD01: { failed: 19, gateA: 'FAIL', reachable: false },

@@ -586,7 +586,10 @@ function sourcesOf(path: string, block: EvidenceBlock, items: Map<string, any>, 
     if (path.startsWith(`${BOUND_REGIONS_ROOT}.`)) {
         const head = `${BOUND_REGIONS_ROOT}.regions[`
         const id = path.startsWith(head) ? path.slice(head.length, path.indexOf(']', head.length)) : ''
-        const pairing = fixtureBoundRegion(block.fixture, id)?.pairing ?? null
+        const carried = fixtureBoundRegion(block.fixture, id)
+        const pairing = carried?.pairing ?? null
+        // Z (25 October 2026): a region bound to a performer's end borrows its pairing's region alone, so the pairing's object is not said with it.
+        const regionOnly = !!carried?.borrows && !carried.borrows.includes('object')
         if (pairing) {
             /**
              * P2 (25 October 2026), his reply filed 28 October 2026, item 8 (*"I don't want an uncertain interpretation silently becoming canonical
@@ -595,7 +598,7 @@ function sourcesOf(path: string, block: EvidenceBlock, items: Map<string, any>, 
              * A pairing marking nothing provisional is said exactly as before.
              */
             const marked = (leaf: string, said: string) => (provisionalFigureOf(pairing, leaf) ? `${said} (${provisionalFigureOf(pairing, leaf)!.status.toLowerCase()})` : said)
-            found.push({ layer: 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS', standing: 'APPROVED', ref: `pairing ${pairing.id} (${pairing.document}, ${pairing.citedAs})`, detail: `${inBlock(block)}${pairing.region.function} ${marked('region.widthM', `${pairing.region.widthM} m wide`)} by ${marked('region.depthM', `${pairing.region.depthM} m deep`)}, with a ${pairing.object.kind} ${marked('object.widthM', `${pairing.object.widthM} m wide`)}; authority: ${pairing.authority.citedAs}` })
+            found.push({ layer: 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS', standing: 'APPROVED', ref: `pairing ${pairing.id} (${pairing.document}, ${pairing.citedAs})`, detail: `${inBlock(block)}${pairing.region.function} ${marked('region.widthM', `${pairing.region.widthM} m wide`)} by ${marked('region.depthM', `${pairing.region.depthM} m deep`)}, ${regionOnly ? `its region alone (borrowed at the end of the team holding ${carried!.performerEnd})` : `with a ${pairing.object.kind} ${marked('object.widthM', `${pairing.object.widthM} m wide`)}`}; authority: ${pairing.authority.citedAs}` })
             const leaf = path.slice(`${head}${id}].pairing.`.length)
             const figure = path.startsWith(`${head}${id}].pairing.`) ? provisionalFigureOf(pairing, leaf) : null
             if (figure) {

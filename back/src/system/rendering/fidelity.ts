@@ -16,14 +16,14 @@
  * every sentence must match the status of what produced it.
  */
 
-import { bindingOf, regionFunctionsOf } from '../derivation/bound-regions'
+import { bindingOf, endBindingOf, regionFunctionsOf } from '../derivation/bound-regions'
 import { loadSportDefaultLaws } from '../derivation/corpus'
 import { practical, PracticalKind, practicalRequirement } from '../derivation/practical'
 import { effectiveValue, scaleExactly } from '../derivation/rational'
 import { conditionScopeNotEvaluable } from '../derivation/resolved-game'
 import { ApprovedWording, approvedWording, approvedTemplateSentences, EQUIPMENT_KIND } from './approved-wording'
 import { CoachFacingExclusion, exclusionFor } from './coach-facing-exclusions'
-import { appliedLawReading, appliedLawWordings, departedLawWordings, draftCoachWordingLoad, equipmentWordings, fillSlots, restartLawNouns, scoringAtObjectWording } from './draft-coach-wording'
+import { appliedLawReading, appliedLawWordings, departedLawWordings, draftCoachWordingLoad, equipmentWordings, fillSlots, lawReadsRegion, restartLawNouns, scoringAtObjectWording } from './draft-coach-wording'
 import { adjustmentRangesOf } from './adjustment-range'
 import { layoutLeafNumberAt, MARK_UNION_ONCE, PhysicalLayout, Remarking, somethingMoves } from './physical-layout'
 import { appliedLawPath, appliesThroughout, BOUND_REGIONS_ROOT, boundRegionPath, DEFAULT_LAWS_OWED, DEFAULT_LAWS_ROOT, defaultLawPath, departedThroughout, fixtureBoundRegion, fixtureLawAccount, owesNothing } from './rendering-fixture'
@@ -616,7 +616,11 @@ export function pairingObjectFeetAt(fixture: unknown, path: string): number[] {
     if (close < 0 || path.charAt(close + 1) !== '.') return []
     const leaf = path.slice(close + 2)
     if (!(PAIRING_OBJECT_FEET_LEAVES as readonly string[]).includes(leaf)) return []
-    const object = fixtureBoundRegion(fixture, path.slice(head.length, close))?.pairing?.object
+    const carried = fixtureBoundRegion(fixture, path.slice(head.length, close))
+    // Z (25 October 2026), a TIGHTENING: a region bound to a performer's end borrows only its pairing's region, so the pairing's object is no
+    // figure any sentence may say for it.
+    if (carried?.borrows && !carried.borrows.includes('object')) return []
+    const object = carried?.pairing?.object
     const metres = leaf === 'pairing.object.widthM' ? object?.widthM : object?.heightM
     const feet = typeof metres === 'number' ? wholeFeet(metres) : null
     return feet === null ? [] : [feet]
@@ -1202,7 +1206,7 @@ function boundRegionFindings(fixture: any, rendered: RenderedActivity): Fidelity
         const marking = rendered.instructions.filter(i => i.section === 'Set up' && i.status !== 'PREFERENCE' && i.from.includes(`space.regions[${id}].noun`))
         for (const instruction of marking) {
             if (!instruction.from.includes(`${at}.pairing.region.widthM`) || !instruction.from.includes(`${at}.pairing.region.depthM`)) {
-                findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" marks ${id}, which is bound to ${binding.objectId}, and does not take its width and depth from the pairing it cites (${at})` })
+                findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" marks ${id}, which is bound to ${binding.to === 'OBJECT' ? binding.objectId : `the end of the team holding ${binding.row}`}, and does not take its width and depth from the pairing it cites (${at})` })
             }
         }
     }
@@ -1248,6 +1252,13 @@ function appliedLawFindings(fixture: any, rendered: RenderedActivity): FidelityF
         const performer = reading.performerRows.map(row => index.specializedRoleRows.get(row)).find((name): name is string => typeof name === 'string')
         const values: Record<string, string> = { ...(performer ? { performer } : {}), ...(carrier ? { carrier: String(carrier.kind) } : {}) }
         const inRegion = entry.inRegion ? fillSlots(entry.inRegion.words, values) : null
+        /**
+         * Z (25 October 2026): where a region is marked at each end, its clause names the team whose end holds the one it applies in
+         * (`inRegion.oneOfEachEnd`), filled here with each role noun the fixture carries: each is a form of the clause wherever the clause is
+         * counted below; which team it must name is held per region in the region loop.
+         */
+        const roleNouns = Object.values((fixture?.roleNouns?.nouns ?? {}) as Record<string, string>).filter(noun => typeof noun === 'string')
+        const eachEndForms = entry.inRegion?.oneOfEachEnd ? roleNouns.map(team => fillSlots(entry.inRegion!.oneOfEachEnd!, { ...values, team })).filter((form): form is string => !!form) : []
         const distinguished = entry.distinguished ? fillSlots(entry.distinguished.words, values) : null
         /**
          * P1 (25 October 2026; his reply filed 28 October 2026, item 3, with RC3 3.4): the words an equipment sentence tells the same performer
@@ -1264,7 +1275,7 @@ function appliedLawFindings(fixture: any, rendered: RenderedActivity): FidelityF
                   ]
                 : []
         const tellsApart = distinguished ? [distinguished, ...equipmentForms] : []
-        const clauses = [inRegion, ...tellsApart].filter((clause): clause is string => !!clause)
+        const clauses = [inRegion, ...eachEndForms, ...tellsApart].filter((clause): clause is string => !!clause)
         /**
          * AMENDED 24 October 2026 (the completeness audit of the field-test build, item 1), a NEW clause (a TIGHTENING): the clause telling the
          * performer apart is said once. Since the DRAFT data writes it for the law of the performer's colours, which the Sport Profile lists
@@ -1293,12 +1304,24 @@ function appliedLawFindings(fixture: any, rendered: RenderedActivity): FidelityF
         }
         if (inRegion) {
             for (const region of (fixture?.game?.space?.regions ?? []) as any[]) {
-                const binding = bindingOf(region, index)
-                const object = binding ? objects.find(candidate => String(candidate?.elementId) === binding.objectId) : null
-                const functions = regionFunctionsOf(region, index)
-                if (!object || !reading.regions.some(found => functions.includes(found.function) && found.kind === object.kind)) continue
+                // Z (25 October 2026): every region the law's region precondition reads (an object's region of its kind, or a performer's).
+                if (!reading.regions.some(found => lawReadsRegion(found, region, fixture?.game, index))) continue
                 const marking = rendered.instructions.filter(i => i.section === 'Set up' && i.status !== 'PREFERENCE' && i.from.includes(`space.regions[${region.elementId}].noun`))
                 if (!marking.some(i => i.from.includes(at))) findings.push({ question: 3, severity: 'VIOLATION', what: `the game's default-laws account records ${entry.law} as applying, and no sentence marking ${region.elementId} tells the coach "${inRegion}"` })
+                /**
+                 * Z, a NEW clause (a TIGHTENING): a region bound to a performer's end whose marking says the clause for a region marked at each
+                 * end names the team whose end it is set out from (the role noun of the holder its along position names), and no other.
+                 */
+                const ended = endBindingOf(region, index)
+                const alongValue = ended && index.boundRegions ? index.boundRegions.alongLeaf.split('.').reduce<any>((node, key) => (node == null ? undefined : node[key]), region) : undefined
+                const forTeam = alongValue && typeof alongValue === 'object' ? alongValue.forTeam : undefined
+                const holderRole = forTeam !== undefined ? (fixture?.roleNouns?.holders ?? {})[String(forTeam)] : undefined
+                const owner = typeof holderRole === 'string' ? (fixture?.roleNouns?.nouns ?? {})[holderRole] : undefined
+                for (const instruction of marking.filter(i => i.from.includes(at))) {
+                    const saidForms = eachEndForms.filter(form => instruction.text.includes(form))
+                    const right = typeof owner === 'string' && entry.inRegion?.oneOfEachEnd ? fillSlots(entry.inRegion.oneOfEachEnd, { ...values, team: owner }) : null
+                    if (saidForms.length && (!right || saidForms.some(form => form !== right))) findings.push({ question: 2, severity: 'VIOLATION', what: `"${instruction.text}" says which of the regions marked at each end ${entry.law} applies in, and names a team other than the one whose end ${region.elementId} is set out from (${typeof owner === 'string' ? owner : 'a team with no noun'})` })
+                }
             }
         }
     }
@@ -1311,7 +1334,8 @@ function appliedLawFindings(fixture: any, rendered: RenderedActivity): FidelityF
  * His ruling of 1 October: a marked feature must take part in *"at least one established operational relationship in the game. That could be
  * scoring, eligibility/access, value modification, transition behavior, information, or another represented game relationship."* A region
  * bound to an object (register row S7) whose function and object a law of the Sport Profile's defaultLaws requires (a REGION_BOUND_TO_OBJECT
- * precondition), where the game's default-laws account records that law as applying at every place, takes part in that law (the handling
+ * precondition; Z, 25 October 2026: or a region of either binding form belonging to the team holding the performer row a REGION_OF_PERFORMER
+ * precondition names), where the game's default-laws account records that law as applying at every place, takes part in that law (the handling
  * inside it), a represented relationship read from the account, not the game; the compensating check is the account's own reading of the
  * region (`default-laws-check.ts`) and appliedLawFindings, which holds the clause saying it. Every other region is read exactly as before.
  */
@@ -1320,10 +1344,10 @@ function defaultLawRelationshipsOf(fixture: any, region: any): string[] {
     const binding = bindingOf(region, index)
     const account = fixtureLawAccount(fixture)
     if (!binding || !account) return []
-    const object = ((fixture?.game?.objects ?? []) as any[]).find(candidate => String(candidate?.elementId) === binding.objectId)
-    const functions = regionFunctionsOf(region, index)
+    // Z (25 October 2026): a law whose region precondition reads this region - an object's region of its kind (REGION_BOUND_TO_OBJECT), or a
+    // region of the team holding its performer row (REGION_OF_PERFORMER: bound to an object that team defends, or to that team's end).
     return (loadSportDefaultLaws()?.laws ?? [])
-        .filter(law => law.requires.some(predicate => predicate.predicate === 'REGION_BOUND_TO_OBJECT' && functions.includes(String(predicate.function)) && object?.kind === predicate.kind) && appliesThroughout(account, law.id))
+        .filter(law => appliedLawReading(law.id).regions.some(found => law.requires.some(predicate => predicate.predicate === found.predicate) && lawReadsRegion(found, region, fixture?.game, index)) && appliesThroughout(account, law.id))
         .map(law => `${appliedLawPath(law.id)} (${law.id} applies inside it, as the game's default-laws account records)`)
 }
 

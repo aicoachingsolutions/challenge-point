@@ -126,7 +126,7 @@ test('the DRAFT wording data loads, keyed by register vocabulary values, each cl
         // Re-pointed 24 October 2026 (stage L): and boundRegions and appliedLaws, empty likewise.
         // Re-pointed 24 October 2026 (stage I): the empty wording gains objectChoices.
         // Re-pointed 25 October 2026 (P1): and methods and equipment (his reply filed 28 October 2026, items 1 and 3).
-        assert.deepEqual(draftCoachWordingLoadOf(damaged, index).wording, { adjustmentLimits: null, methods: [], equipment: [], objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [], boundRegions: [], appliedLaws: [], objectChoices: [] }, `${what}: an unusable file loads as no wording at all`)
+        assert.deepEqual(draftCoachWordingLoadOf(damaged, index).wording, { adjustmentLimits: null, methods: [], equipment: [], objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [], boundRegions: [], endRegions: [], appliedLaws: [], objectChoices: [] }, `${what}: an unusable file loads as no wording at all`)
     }
     refused(f => (f.status = 'APPROVED'), /every word here is DRAFT/, 'a file claiming approval')
     refused(f => (f.approvedBy = { who: 'TEST-ONLY' }), /approvedBy/, 'an approval key')

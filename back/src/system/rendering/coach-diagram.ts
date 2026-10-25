@@ -237,6 +237,8 @@ export const DIAGRAM_COMPOSITION = {
     together: (counts: string[]) => `${counts.join(' and ')}.`,
     // Stage L (24 October 2026, DRAFT): a marked area by its label, size and end line; a specialized performer's marker, with what it defends.
     markedArea: (label: string, width: string, depth: string, where: string | null) => `A ${label} ${width} wide and ${depth} deep is marked${where ? ` ${where}` : ''}.`,
+    // Z (25 October 2026, DRAFT): a marked area set out at each end line (one label for the two), where the description says both.
+    atEachEndLine: 'at each end line',
     keeper: (label: string, object: string | null) => `The ${label} wears a colour of its own${object ? ` and defends the ${object}` : ''}.`,
 } as const
 
@@ -366,7 +368,16 @@ function describeBlock(model: FieldDiagram, block: DiagramBlock): string {
     for (const area of block.markings.areas ?? []) {
         if (!area.label) continue
         const end = touched(area.along)
-        sentences.push(C.markedArea(area.label.text, metres(area.across.to - area.across.from), metres(area.along.to - area.along.from), end !== null ? C.zoneAt(endLineOf(end)) : null))
+        /**
+         * Z (25 October 2026): an unlabelled area of the same size and place across, mirrored at the other end line, is the same marking set
+         * out at each end (the field model labels such a pair once), so the one sentence says both; any other area is said as before.
+         */
+        const mirrored =
+            end !== null &&
+            (block.markings.areas ?? []).some(
+                other => other !== area && !other.label && same(other.across, area.across) && other.along.to - other.along.from === area.along.to - area.along.from && touched(other.along) !== null && touched(other.along) !== end,
+            )
+        sentences.push(C.markedArea(area.label.text, metres(area.across.to - area.across.from), metres(area.along.to - area.along.from), mirrored ? C.atEachEndLine : end !== null ? C.zoneAt(endLineOf(end)) : null))
     }
 
     // The active targets that are no marked zone and no object: a zone by its depth and end, a line by its end.

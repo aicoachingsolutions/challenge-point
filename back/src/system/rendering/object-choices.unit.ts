@@ -132,12 +132,22 @@ const fileFor = (suitability: { min: number; max: number } = { min: 1, max: 10 }
         item('S6-W', 'S6', 'RANGE', '15 m wide (TEST-ONLY)', { typedBound: { min: 15, max: 15 } }),
         item('S7', 'S7', 'EQUALS', { structuralRef: { contractId: `provisional:${R2}`, itemId: `${R2}-O1-1` }, pairing: FA_ID, asAuthored: 'TEST-ONLY' }),
     )
+    /**
+     * Re-pointed 25 October 2026 (Z): the zone version holds its own penalty area since his reply filed 28 October 2026, item 7, citing the
+     * production FA 5v5 entry, which this test's block replaces with its TEST-ONLY copy (`blockWithFa`), so this copy re-points the area to
+     * that copy (the same figures) and drops its provisional marker (the copy marks nothing provisional); the file is loaded against that
+     * block (`goalBuild`). The zone version is then said exactly as production says it.
+     */
+    const zone = file.realizations.find((r: any) => r.id === 'A01-R1')
+    zone.items.find((i: any) => i.id === 'A01-R1-S7-1').value.pairing = FA_ID
+    delete zone.items.find((i: any) => i.id === 'A01-R1-S5-5').provisionalFigure
     return file
 }
 const sessionWith = (objects: Record<string, unknown> | undefined, players = 12, keepers = 1) => ({ players, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [KEEPER]: keepers }, ...(objects ? { objects } : {}) })
 const goalBuild = (session: unknown, options: { suitability?: { min: number; max: number }; block?: SportBoundRegions | null; includeDrafts?: boolean } = {}) =>
     buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', situationId: null, session } as any, recordsOf(), {
-        realizations: loadProvisionalRealizations(fileFor(options.suitability)),
+        // Z: loaded against the TEST-ONLY block the zone version's area now cites (`fileFor`).
+        realizations: loadProvisionalRealizations(fileFor(options.suitability), blockWithFa()),
         review: { includeDrafts: options.includeDrafts !== false },
         boundRegions: options.block === undefined ? blockWithFa() : options.block,
     }).activity
@@ -513,6 +523,10 @@ test('K1 the FA mark is recorded but never placed, drawn or said to the coach', 
     // Re-pointed 25 October 2026 (P2): the production pairing marks its depth PROVISIONAL (his reply filed 28 October 2026, item 8), so the
     // TEST-ONLY item restating that depth says so, as the loader requires (one value, one status).
     variant.items.find((item: any) => item.id === `${R2}-TEST-S5`).provisionalFigure = { pairing: faProduction().id, leaf: 'region.depthM' }
+    // Re-pointed 25 October 2026 (Z): and the zone version's own area, re-pointed by `fileFor`, back to the production entry, as it is.
+    const zone = file.realizations.find((r: any) => r.id === 'A01-R1')
+    zone.items.find((item: any) => item.id === 'A01-R1-S7-1').value.pairing = faProduction().id
+    zone.items.find((item: any) => item.id === 'A01-R1-S5-5').provisionalFigure = { pairing: faProduction().id, leaf: 'region.depthM' }
     const build = (block: SportBoundRegions) => buildActivityUnderAuthorizationRecords({kind:'learning-goal',goalId:'A01',situationId:null,session:sessionWith({[KIND]:{count:1,type:'scaled',widthM:FA_WIDTH}})} as any, recordsOf(), {realizations:loadProvisionalRealizations(file),boundRegions:block,review:{includeDrafts:true}}).activity as ServedActivity
     const block = loadSportBoundRegions()!
     const activity = build(block)

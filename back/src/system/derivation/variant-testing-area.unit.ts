@@ -44,8 +44,12 @@ const register = loadRegister()
 const ENVELOPE_ROWS = envelopeBoundedRows(indexRegister(register).outerBound)
 const V = 'A01-RP'
 const at = (lengthM: number, widthM: number) => ({ players: 12, lengthM, widthM, durationMin: 20, roles: {} }) as any
-/** A01-R1's two values in metres (his 20 m pressure reference and his 5 m area), the only ones it holds. */
-const METRIC = ['A01-R1-S5-1', 'A01-R1-S5-3']
+/**
+ * A01-R1's values in metres (his 20 m pressure reference and his 5 m area), the only ones it held until Z. Re-pointed 25 October 2026 (Z): his
+ * reply filed 28 October 2026, item 7 adds the goalkeeper's penalty area, whose depth (A01-R1-S5-5, 9 m from the building team's end line) and
+ * width (A01-R1-S6-3, 15 m) are values in metres too.
+ */
+const METRIC = ['A01-R1-S5-1', 'A01-R1-S5-3', 'A01-R1-S5-5', 'A01-R1-S6-3']
 
 interface ProbeOptions {
     /** The variant's own statement; absent means it states none (the probe's case). */
@@ -132,8 +136,9 @@ test('a variant stating another area, or none, that keeps a value in metres from
     const other = probeFile({ boundaries: otherArea() })
     assert.deepEqual(errorsOf(other), METRIC.map(itemId => refusalFor(V, '60 x 40 m', itemId, '40 x 30 m')))
     assert.throws(() => loadProvisionalRealizations(other), /failed its integrity gate: .*states testing boundaries for 60 x 40 m and keeps A01-R1-S5-1/)
-    // The design's second case: a new area keeping only the pressure reference (A01-R1-S5-3 withdrawn) is refused for it alone.
-    assert.deepEqual(errorsOf(probeFile({ boundaries: otherArea(), withdraw: ['A01-R1-S5-3'] })), [refusalFor(V, '60 x 40 m', 'A01-R1-S5-1', '40 x 30 m')])
+    // The design's second case: a new area keeping only the pressure reference (A01-R1-S5-3 withdrawn) is refused for it alone. Re-pointed
+    // 25 October 2026 (Z): and for the penalty area's depth and width it keeps (the zone version's since his reply filed 28 October 2026, item 7).
+    assert.deepEqual(errorsOf(probeFile({ boundaries: otherArea(), withdraw: ['A01-R1-S5-3'] })), ['A01-R1-S5-1', 'A01-R1-S5-5', 'A01-R1-S6-3'].map(itemId => refusalFor(V, '60 x 40 m', itemId, '40 x 30 m')))
     // A statement of no boundaries (null), or boundaries naming no area, is another area too: it would leave the values with none.
     assert.deepEqual(errorsOf(probeFile({ boundaries: null })), METRIC.map(itemId => refusalFor(V, 'no area', itemId, '40 x 30 m')))
     const { areas: _areas, ...noAreas } = otherArea()
@@ -212,9 +217,13 @@ test('which items carry metres is read from the register\'s rows and the item\'s
     // Re-pointed 24 October 2026 (K2): the goal version's penalty area adds two values in metres, its depth from the goal's end line
     // (A01-R2-S5-1, an offset of 0-9 m) and its width (A01-R2-S6-2, a typed bound of 15 m), the FA 5v5 pairing's figures; both sit in A01-R2,
     // whose testing boundaries name its area (40 x 30 m), so a variant stating another area would have to withdraw or restate them too (H1).
+    // Re-pointed 25 October 2026 (Z): the zone version's own penalty area (his reply filed 28 October 2026, item 7) adds its two, its depth
+    // from the building team's end line (A01-R1-S5-5, 0-9 m) and its width (A01-R1-S6-3, 15 m); the goal version withdraws both.
     assert.deepEqual(metric, [
         ['A01-R1', 'A01-R1-S5-1', true],
         ['A01-R1', 'A01-R1-S5-3', true],
+        ['A01-R1', 'A01-R1-S5-5', true],
+        ['A01-R1', 'A01-R1-S6-3', true],
         ['A01-R2', 'A01-R1-S5-1', true],
         ['A01-R2', 'A01-R2-O4-1', true],
         ['A01-R2', 'A01-R2-S5-1', true],

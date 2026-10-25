@@ -175,10 +175,11 @@ test('1. A01 at 12/1, 12/2 and 11/1: one look and label per realized team in bot
             assert.deepEqual(exchange.bindings.map(binding => binding.path).sort(), exchangeSentence.parts!.flatMap(part => part.bindings.map(binding => binding.path)).sort())
         }
         // The legend: what a team's colour, the role badge and an arrow are, once each (DRAFT), and green target zones as before.
-        assert.deepEqual(diagram.legend.map(entry => entry.kind), ['MARKED_LINE', 'TARGET_ZONE', 'STARTING_AREA', 'TEAM_COLOUR', 'ROLE', 'ATTACK'])
+        // Re-pointed 25 October 2026 (Z): and the marked area, the zone version's penalty area (his reply filed 28 October 2026, item 7).
+        assert.deepEqual(diagram.legend.map(entry => entry.kind), ['MARKED_LINE', 'TARGET_ZONE', 'STARTING_AREA', 'TEAM_COLOUR', 'ROLE', 'ATTACK', 'MARKED_AREA'])
         assert.deepEqual(
             model.legend.filter(word => word.status === 'DRAFT').map(word => word.text),
-            [DIAGRAM_WORDS.draft.startingArea, DIAGRAM_WORDS.draft.teamColour, DIAGRAM_WORDS.draft.role, DIAGRAM_WORDS.draft.attack],
+            [DIAGRAM_WORDS.draft.startingArea, DIAGRAM_WORDS.draft.teamColour, DIAGRAM_WORDS.draft.role, DIAGRAM_WORDS.draft.attack, 'penalty area'],
         )
         // The targets are unchanged by C2: one look, labelled by the attacking team's role.
         assert.ok(diagram.blocks.every(block => block.targets.every(target => /^(building|pressing) team's target zone$/.test(target.label!))))

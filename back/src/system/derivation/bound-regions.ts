@@ -22,6 +22,19 @@
  *     other provisions. A region's items cite the entry they take their geometry from (the binding's `pairing`), and the check holds the
  *     realized region to that entry. An object no entry pairs with is a knowledge gap, never a reason to borrow another entry's region.
  *
+ * **Z, 25 October 2026: a region PERMITTED at the end line of the team holding a specialized performer, where no object stands** (register
+ * version 25, row S7's second, closed form). Christian, reply filed 28 October 2026, item 7: *"I favor retaining a defined [specialized
+ * performer] handling area in the target-zone version."* *"The absence of a physical [object] shouldn't automatically eliminate the
+ * [specialized performer]'s handling privileges or fundamentally alter the player's functional role during the build-out."* *"My preference is
+ * to use the same authorized small-sided [handling-area] geometry where appropriate, even when the physical [object] is replaced by a target
+ * zone."* (his nouns bracketed: the coupling ratchet keeps a sport's nouns out of this layer; the Sport Profile quotes him whole). A requirement
+ * of the second form (`performerEnd`) names a specialized performer row of the teams, the region's noun and function, and the object kind
+ * that function is bound to (`whereNoObjectOfKind`): where a team holds that performer and no object of that kind stands at the end line it
+ * defends, a region of the function MAY be bound to that end line (`permitted`, never required: a game holding the performer and no such
+ * region reads exactly what it did), its geometry the region alone of one authorized pairing it cites by id (`borrows` ["region"]). Its
+ * binding is to the team's end, never to an opponent's target, so a physical marking stays apart from any role-specific scoring
+ * relationship. The check (GA-BOUND-REGION) holds it per block, before and after realization.
+ *
  * Nothing here names an object kind, a function, a noun or a document: they are the profile's and the register's.
  */
 import { CitedWords } from './default-laws'
@@ -29,7 +42,7 @@ import { RegisterIndex } from './register'
 import { structuralRefOf } from './types'
 
 /** One object kind that needs a bound region: of which noun and function, when its object is defended, why (ours) and his words. */
-export interface BoundRegionRequirement {
+export interface ObjectBoundRegionRequirement {
     id: string
     object: { kind: string; whenDefended: true }
     region: { noun: string; function: string }
@@ -37,6 +50,35 @@ export interface BoundRegionRequirement {
     because: string
     basis: CitedWords
 }
+
+/**
+ * **A region permitted at the end line of the team holding a specialized performer** (Z, 25 October 2026; see the module note): the performer
+ * row of the teams (`performerEnd.row`), the object kind the region's function is bound to (`performerEnd.whereNoObjectOfKind`: where such an
+ * object stands at that end, the object's own requirement governs and this form is refused), `permitted` (the one form the check reads: never
+ * required), the region's noun and function, what it cites, why (ours) and his words.
+ */
+export interface PerformerEndRegionRequirement {
+    id: string
+    performerEnd: { row: string; whereNoObjectOfKind: string }
+    permitted: true
+    region: { noun: string; function: string }
+    cites: string
+    because: string
+    basis: CitedWords
+}
+
+/** A requirement of the bound-region block: an object's region (required where the object is defended), or a performer's end (permitted). */
+export type BoundRegionRequirement = ObjectBoundRegionRequirement | PerformerEndRegionRequirement
+
+/** Whether a requirement is of the object form. */
+export const isObjectRequirement = (requirement: BoundRegionRequirement): requirement is ObjectBoundRegionRequirement => 'object' in requirement && !!(requirement as ObjectBoundRegionRequirement).object
+
+/** The requirements of the object form, in the block's order. */
+export const objectRequirementsOf = (block: { requirements: BoundRegionRequirement[] } | null | undefined): ObjectBoundRegionRequirement[] => (block?.requirements ?? []).filter(isObjectRequirement)
+
+/** The requirements of the performer-end form (Z), in the block's order. */
+export const endRequirementsOf = (block: { requirements: BoundRegionRequirement[] } | null | undefined): PerformerEndRegionRequirement[] =>
+    (block?.requirements ?? []).filter((requirement): requirement is PerformerEndRegionRequirement => !isObjectRequirement(requirement))
 
 /** What a document says of the format its geometry belongs to: shown with the entry, never read back as "an area gives an object size". */
 export interface PairingFormatConditions {
@@ -159,10 +201,21 @@ export function boundRegionsRefusals(block: unknown, index: RegisterIndex): stri
     if (!requirements.length) errors.push('the bound-region block lists no requirement (requirements)')
     const required = new Set<string>()
     const ids = new Set<string>()
+    // Z (25 October 2026): the requirements of the performer-end form, validated after the object ones (each names a kind an object
+    // requirement binds its function to).
+    const endForms: { requirement: Record<string, unknown>; which: string }[] = []
     for (const [i, requirement] of requirements.entries()) {
         const which = `bound-region requirement ${isObject(requirement) && filled(requirement.id) ? requirement.id : i + 1}`
         if (!isObject(requirement)) {
             errors.push(`${which} is not an object`)
+            continue
+        }
+        if (requirement.performerEnd !== undefined || requirement.permitted !== undefined) {
+            if (requirement.object !== undefined) errors.push(`${which} names both an object and a performer's end, and a requirement is of one form`)
+            if (!filled(requirement.id)) errors.push(`${which} has no id`)
+            else if (ids.has(requirement.id)) errors.push(`${which} is listed twice`)
+            if (filled(requirement.id)) ids.add(requirement.id)
+            endForms.push({ requirement, which })
             continue
         }
         errors.push(...keysRefused(requirement, ['id', 'object', 'region', 'cites', 'because', 'basis'], which))
@@ -181,6 +234,38 @@ export function boundRegionsRefusals(block: unknown, index: RegisterIndex): stri
         const key = `${String(object.kind)}|${String(region.function)}`
         if (required.has(key)) errors.push(`${which} binds the function ${String(region.function)} to the kind ${String(object.kind)} a second time`)
         required.add(key)
+        if (!filled(requirement.cites) || !filled(requirement.because)) errors.push(`${which} must say what it cites and why (cites, because)`)
+        const basis = citedWordsRefusal(requirement.basis, `${which}: its basis`)
+        if (basis) errors.push(basis)
+    }
+    /**
+     * Z (25 October 2026; his reply filed 28 October 2026, item 7, quoted in the module note): a requirement of the performer-end form names a
+     * specialized performer row of the teams (the register's specializedRole rows, owned by its teams row), the object kind its function is
+     * bound to (`whereNoObjectOfKind`: exactly the kind an object requirement of this block binds that function to, so where such an object
+     * stands its own requirement governs), `permitted` true (the one form the check reads: permitted, never required), a region noun and
+     * function of the register's vocabularies, each row and function once, with what it cites, why and his words.
+     */
+    const teamsRow = index.designations.teamsRow ?? null
+    const ends = new Set<string>()
+    for (const { requirement, which } of endForms) {
+        errors.push(...keysRefused(requirement, ['id', 'performerEnd', 'permitted', 'region', 'cites', 'because', 'basis'], which))
+        const performerEnd = isObject(requirement.performerEnd) ? requirement.performerEnd : {}
+        const region = isObject(requirement.region) ? requirement.region : {}
+        errors.push(...keysRefused(performerEnd, ['row', 'whereNoObjectOfKind'], `${which}: its performer's end`), ...keysRefused(region, ['noun', 'function'], `${which}: its region`))
+        const row = String(performerEnd.row)
+        if (!index.specializedRoleRows.has(row)) errors.push(`${which} names the row ${JSON.stringify(performerEnd.row)}, which is no specialized performer row of the register`)
+        else if (!teamsRow || index.rows.get(row)?.ownerRow !== teamsRow) errors.push(`${which} names the row ${row}, which is no specialized performer row of the teams (${teamsRow ?? 'no teams row'})`)
+        if (requirement.permitted !== true) errors.push(`${which} must say its region is permitted (permitted true), the one form the check reads: a performer's end never requires a region`)
+        if (!spec.nouns.includes(String(region.noun))) errors.push(`${which} names the region noun ${JSON.stringify(region.noun)}, which is no member of ${spec.nounRow}'s vocabulary`)
+        if (!spec.functions.includes(String(region.function))) errors.push(`${which} names the region function ${JSON.stringify(region.function)}, which is no member of ${spec.functionRow}'s vocabulary`)
+        const bindingKinds = [...required].filter(key => key.endsWith(`|${String(region.function)}`)).map(key => key.slice(0, key.length - String(region.function).length - 1))
+        if (!kinds.includes(String(performerEnd.whereNoObjectOfKind))) errors.push(`${which} names the object kind ${JSON.stringify(performerEnd.whereNoObjectOfKind)}, which is no member of the register's object-kind vocabulary`)
+        else if (bindingKinds.length !== 1 || bindingKinds[0] !== String(performerEnd.whereNoObjectOfKind)) {
+            errors.push(`${which} is permitted where no ${String(performerEnd.whereNoObjectOfKind)} stands, and the block binds the function ${String(region.function)} to ${bindingKinds.length ? bindingKinds.join(' and ') : 'no object kind'}: it must name exactly the one kind an object requirement binds that function to`)
+        }
+        const key = `${row}|${String(region.function)}`
+        if (ends.has(key)) errors.push(`${which} permits the function ${String(region.function)} at the end of the team holding ${row} a second time`)
+        ends.add(key)
         if (!filled(requirement.cites) || !filled(requirement.because)) errors.push(`${which} must say what it cites and why (cites, because)`)
         const basis = citedWordsRefusal(requirement.basis, `${which}: its basis`)
         if (basis) errors.push(basis)
@@ -294,13 +379,79 @@ export function regionFunctionsOf(region: unknown, index: RegisterIndex): string
 /** The element a typed reference names in a game: the element the item it names established. */
 export const elementIdOf = (ref: { contractId: string; itemId: string }): string => `c:${ref.contractId}:${ref.itemId}`
 
-/** The object a region is bound to and the pairing it cites (the bound-object row's value), or null where nothing binds it. */
-export function bindingOf(region: unknown, index: RegisterIndex): { objectId: string; pairing: string | null } | null {
+/** A region bound to an object (the bound-object row's first form), with the pairing it cites. */
+export interface ObjectRegionBinding {
+    to: 'OBJECT'
+    objectId: string
+    pairing: string | null
+}
+
+/**
+ * **A region bound to the end line of the team holding a specialized performer** (Z, 25 October 2026; the bound-object row's second, closed
+ * form, register version 25): the performer row (`row`), the pairing it cites by id and what it borrows of it (only the region).
+ */
+export interface PerformerEndRegionBinding {
+    to: 'PERFORMER_END'
+    row: string
+    pairing: string | null
+    borrows: string[]
+}
+
+export type RegionBinding = ObjectRegionBinding | PerformerEndRegionBinding
+
+/** The keys the bound-object row's second form may carry (Z): the performer row, the pairing, what it borrows, and the words as authored. */
+const PERFORMER_END_BINDING_KEYS = ['performerEnd', 'pairing', 'borrows', 'asAuthored']
+
+/**
+ * **What a region is bound to and the pairing it cites (the bound-object row's value), or null where nothing binds it.** Two closed forms:
+ * a typed reference to an object (`{structuralRef, pairing}`, H3), or since Z (25 October 2026, register version 25) the end line of the team
+ * holding a specialized performer (`{performerEnd: <row>, pairing, borrows}`). A value of neither form, or of both, binds nothing, so a region
+ * of a function the Sport Profile binds that carries one is refused by GA-BOUND-REGION as bound to nothing (never read as a binding).
+ */
+export function bindingOf(region: unknown, index: RegisterIndex): RegionBinding | null {
     const spec = index.boundRegions
     if (!spec || !isObject(region)) return null
     const value = region[spec.ofObjectLeaf]
+    if (!isObject(value)) return null
     const ref = structuralRefOf(value)
-    if (!ref) return null
-    const pairing = isObject(value) && filled(value.pairing) ? value.pairing : null
-    return { objectId: elementIdOf(ref), pairing }
+    const pairing = filled(value.pairing) ? value.pairing : null
+    if (ref) return value.performerEnd === undefined ? { to: 'OBJECT', objectId: elementIdOf(ref), pairing } : null
+    if (!filled(value.performerEnd) || Object.keys(value).some(key => !PERFORMER_END_BINDING_KEYS.includes(key))) return null
+    const borrows = Array.isArray(value.borrows) && value.borrows.every(filled) ? (value.borrows as string[]).map(String) : []
+    return { to: 'PERFORMER_END', row: value.performerEnd, pairing, borrows }
+}
+
+/** The object a region is bound to, where it is bound to one (the first form), or null: what every reader of an object's region reads. */
+export function objectBindingOf(region: unknown, index: RegisterIndex): ObjectRegionBinding | null {
+    const binding = bindingOf(region, index)
+    return binding?.to === 'OBJECT' ? binding : null
+}
+
+/** The performer's end a region is bound to, where it is (the second form, Z), or null. */
+export function endBindingOf(region: unknown, index: RegisterIndex): PerformerEndRegionBinding | null {
+    const binding = bindingOf(region, index)
+    return binding?.to === 'PERFORMER_END' ? binding : null
+}
+
+/**
+ * **The specialized performer row a bound region belongs to, or null** (Z, 25 October 2026): for a region bound to an object, the row the
+ * object's defended-by line names (register row O7: defended by the team holding that performer); for a region bound to a performer's end,
+ * the row it names. Read by the default-laws predicate REGION_OF_PERFORMER and the readings of what a law gives inside such a region; a region
+ * bound to an object no team defends, or bound to nothing, belongs to no performer.
+ */
+export function performerRowOfRegion(region: unknown, game: unknown, index: RegisterIndex): string | null {
+    const binding = bindingOf(region, index)
+    if (!binding) return null
+    if (binding.to === 'PERFORMER_END') return binding.row
+    const spec = index.boundRegions
+    const defendedRow = index.roleScoring?.defendedByRow ?? null
+    if (!spec || !defendedRow) return null
+    const prefix = `${spec.objectPath}.`
+    const defendedPath = String(index.rows.get(defendedRow)?.path ?? '')
+    const leaf = defendedPath.startsWith(prefix) ? defendedPath.slice(prefix.length) : null
+    const container = spec.objectPath.endsWith('[]') ? spec.objectPath.slice(0, -2) : spec.objectPath
+    const objects = container.split('.').reduce<any>((node, key) => (node === null || node === undefined ? undefined : node[key]), game)
+    const object = Array.isArray(objects) ? objects.find((candidate: any) => String(candidate?.elementId) === binding.objectId) : undefined
+    const row = object && leaf ? object[leaf] : undefined
+    return typeof row === 'string' && row.trim().length > 0 ? row : null
 }

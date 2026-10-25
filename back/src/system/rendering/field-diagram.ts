@@ -74,12 +74,12 @@
  *
  * Nothing here names a goal, a role, a sport term or a value: every number comes from the game, every word from the table or a served sentence.
  */
-import { bindingOf, regionFunctionsOf } from '../derivation/bound-regions'
+import { bindingOf, endBindingOf, objectBindingOf, regionFunctionsOf } from '../derivation/bound-regions'
 import { isRegisteredDesignation, roleOfHolder } from '../derivation/designation'
 import { Reassignment, reassignmentsIn } from '../derivation/reassignment'
 import { RegisterIndex } from '../derivation/register'
 import { splitPath } from '../derivation/resolved-game'
-import { boundRegionWording } from './draft-coach-wording'
+import { boundRegionWording, endRegionWording } from './draft-coach-wording'
 import { asList, GameBlock, objectivesOf, readPath, teamsOf, transitionsOf } from './game-reading'
 import { layoutLeafNumberAt, MARK_UNION_ONCE, PhysicalLayout } from './physical-layout'
 import { APPLIED_LAWS_ROOT } from './rendering-fixture'
@@ -444,14 +444,26 @@ const regionsCitedBy = (instructions: Instruction[]): string[] => {
  */
 const boundRegionNounOf = (fixture: any, index: RegisterIndex, regionId: string): string | null => {
     const region = asList(fixture?.game?.space?.regions).find(entry => String(entry?.elementId) === regionId)
-    const binding = region ? bindingOf(region, index) : null
+    // Z (25 October 2026): a region bound to a performer's end, by the DRAFT words for its function and that performer row.
+    const ended = region ? endBindingOf(region, index) : null
+    if (ended) return regionFunctionsOf(region, index).map(member => endRegionWording(member, ended.row)).find(Boolean)?.noun ?? null
+    const binding = region ? objectBindingOf(region, index) : null
     const object = binding ? asList(fixture?.game?.objects).find(entry => String(entry?.elementId) === binding.objectId) : null
     if (!object || typeof object.kind !== 'string') return null
     return regionFunctionsOf(region, index).map(member => boundRegionWording(member, object.kind)).find(Boolean)?.noun ?? null
 }
+
+/**
+ * **The one rectangle of a region that carries its label** (Z, 25 October 2026): a region set out once at one place has its one rectangle; a
+ * region set out at each end (two mirrored rectangles: the performer's end alternates between blocks) is labelled once, on the first rectangle
+ * the layout lists for it, in every block alike, since its one Set up sentence names both (RC3 8.3: nothing about another block, and the
+ * markings set out once are the same in every block). Every other rectangle of that region is drawn unlabelled.
+ */
+const labelledRectangleOf = (layout: any, regionId: string): string | null => asList(layout?.rectangles).find(entry => asList(entry?.sources).some((source: any) => source?.regionId === regionId))?.elementId ?? null
 /** Whether this game binds the region to an object (register row S7), so it is drawn as a marked area, never as a zone (stage L). */
 const isBoundRegion = (fixture: any, index: RegisterIndex, regionId: string): boolean => {
     const region = asList(fixture?.game?.space?.regions).find(entry => String(entry?.elementId) === regionId)
+    // Either form of the binding row (Z: an object's region, or a performer's end).
     return !!region && !!bindingOf(region, index)
 }
 /**
@@ -574,7 +586,12 @@ export function buildFieldDiagram(input: DiagramInput): { diagram: FieldDiagram 
             for (const rectangle of layout.rectangles ?? []) {
                 const own = rectangle.sources.find(source => source.blockId === blockId)
                 const sentence = setUp.find(instruction => instruction.from.some(path => path === `layout.rectangles[${rectangle.elementId}]` || path.startsWith(`layout.rectangles[${rectangle.elementId}].`)))
-                const noun = own ? boundRegionNounOf(fixture, index, own.regionId) : null
+                /**
+                 * Z (25 October 2026): a rectangle set out for another block (a region set out at each end) is the same region, which this
+                 * block's game holds too: it is named from there, and labelled only where it is the region's one labelled rectangle.
+                 */
+                const source = own ?? rectangle.sources.find(entry => asList(fixture?.game?.space?.regions).some((region: any) => String(region?.elementId) === entry.regionId))
+                const noun = source && labelledRectangleOf(layout, source.regionId) === rectangle.elementId ? boundRegionNounOf(fixture, index, source.regionId) : null
                 const area: DiagramArea = {
                     elementId: rectangle.elementId,
                     along: { ...rectangle.along },
@@ -1185,8 +1202,13 @@ export function checkFieldDiagram(diagram: FieldDiagram, input: DiagramInput): D
             const across = layout ? rectangle?.across : intervalAt(fixture, regionPaths(area.elementId).across)
             if (!along || !across || !same(along, area.along) || !same(across, area.across)) finding('D2', blockId, `the marked area ${area.elementId} is not drawn where ${layout ? 'the layout sets it out' : "this block's game puts it"}`)
             const own = layout ? rectangle?.sources.find(source => source.blockId === blockId)?.regionId : area.elementId
-            const noun = own ? boundRegionNounOf(fixture, index, own) : null
-            if (!area.label || area.label.text !== noun) finding('D6', blockId, `the marked area ${area.elementId} is labelled ${area.label ? `"${area.label.text}"` : 'by nothing'}, and the region it is is called ${noun ? `"${noun}"` : 'by no noun'}`)
+            // Z: a rectangle of a region set out at each end, read from the region this block's game holds; labelled only where it is the region's one labelled rectangle.
+            const regionOf = layout ? own ?? rectangle?.sources.find(entry => asList(fixture?.game?.space?.regions).some((region: any) => String(region?.elementId) === entry.regionId))?.regionId : area.elementId
+            const labelled = !layout || (!!regionOf && labelledRectangleOf(layout, regionOf) === area.elementId)
+            const noun = regionOf ? boundRegionNounOf(fixture, index, regionOf) : null
+            if (labelled && (!area.label || area.label.text !== noun)) finding('D6', blockId, `the marked area ${area.elementId} is labelled ${area.label ? `"${area.label.text}"` : 'by nothing'}, and the region it is is called ${noun ? `"${noun}"` : 'by no noun'}`)
+            if (!labelled && area.label) finding('D6', blockId, `the marked area ${area.elementId} is labelled "${area.label.text}", and its region's one label is on ${regionOf ? labelledRectangleOf(layout, regionOf) : 'no rectangle'}`)
+            if (!noun) finding('D6', blockId, `the marked area ${area.elementId} is a region called by no noun`)
             checkWord(area.label, null, blockId, rendered, ordinal)
         }
         if (layout) {

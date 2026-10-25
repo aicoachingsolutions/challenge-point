@@ -173,6 +173,10 @@ test('1. the review draft of A01 (TEST-ONLY: the table as at stage M5): every se
         // clause the target sentences now carry and whose last clause the exchange sentence already says.
         'Set up: Mark a line across the area at halfway, 20 m from each end line',
         'Set up: Mark a 5 m end zone across the full width at each end',
+        // Added 25 October 2026 (Z, DRAFT): his reply filed 28 October 2026, item 7 ("I favor retaining a defined goalkeeper handling area in
+        // the target-zone version."), the goalkeeper's penalty area at the goalkeeper's own end, set out once at each end (the end alternates
+        // with the goalkeeper), with the handling clause of the law the account records as applying (zone-penalty-area.unit.ts).
+        `Set up: Mark a penalty area at each end: 15 m wide, centred on the end line, and 9 m deep into the area; inside the one at the building team's end, the ${ROLE} can handle the ball as in a normal game`,
         "Set up: The building team's target zone is everything beyond the marked line, up to the pressing team's end line, including the end zone there",
         "Set up: The pressing team's target zone is the 5 m end zone at the building team's end",
         // Moved 25 October 2026 (P1): his words, reply filed 28 October 2026, item 4 (FIRST_BLOCK_CHOICE). Was: "Decide which team starts at
@@ -214,7 +218,9 @@ test('1. the review draft of A01 (TEST-ONLY: the table as at stage M5): every se
         // Added 24 October 2026 (R3, DRAFT, the d27 design's stage R3): his reply filed 27 October 2026, item 2 ("I approve no offside for
         // this initial realization, with that modification communicated once to the coach."), said once from the default-laws account,
         // which records A01-R1's departure from LAW-11 (departed-law-wording.unit.ts). The zone version's coverage is OUR READING.
-        'How it works: There is no offside',
+        // Moved 25 October 2026 (Z, DRAFT): the account owes nothing since his reply filed 28 October 2026, item 7, so the normal-rules clause
+        // follows (as in the goal version). Was: "There is no offside".
+        'How it works: There is no offside; otherwise, normal soccer rules apply during play',
         // Moved 17 October 2026 (stage M3, design step L9; his reply filed 19 October 2026, items 1 and 4): the team-neutral "A team
         // scores 1 point by getting the ball under control into the zone it is attacking: ..." is no longer said, because the building
         // role's credit is confined to its build-out episode (row B8). The pressing role, whose bound is the whole game (A01-R1-B8-2),
@@ -280,7 +286,11 @@ test('1. the review draft of A01 (TEST-ONLY: the table as at stage M5): every se
         // Moved 21 October 2026 (stage 2D): the general consequence rule for an adjustment that moves a mark set out once (DRAFT clause,
         // from the line's own position: measured from the building team's end line). Was: "You may choose to move the marked line nearer to
         // either end line".
-        `${ADJUSTING}: You may choose to move the marked line nearer to either end line; it is measured from the building team's end line, so when the roles exchange, set it out again at the same distance from the new building team's end line`,
+        // Moved 25 October 2026 (Z, DRAFT): the line kept outside the goalkeeper's penalty area (A01-R1-S5-6, his reply filed 28 October 2026,
+        // items 2 and 7) gives the nearest it may go, said as in the goal version, and the end line it names is not said again (RC3 3.4). Was:
+        // "...; it is measured from the building team's end line, so when the roles exchange, set it out again at the same distance from the new
+        // building team's end line".
+        `${ADJUSTING}: You may choose to move the marked line nearer to either end line, but no nearer than 9 m to the building team's end line, so that it stays outside the penalty area; when the roles exchange, set it out again at the same distance from the new building team's end line`,
         `${ADJUSTING}: You may choose to change where the teams start when the pressure you see is not creating an appropriate challenge`,
     ])
     // Re-pointed 17 October 2026 (stage M4): one sentence is his approved words - the possession sentence, an approved template
@@ -646,7 +656,9 @@ test('5. the exchange: ends fixed AND what changes with the roles; separately, w
     assert.equal(exchange[1].text, 'Each team keeps its end for the whole activity. When you call the next block the teams exchange roles, not ends: each team now attacks the target zone of its new role, and nothing is re-marked unless you have moved the marked line; there is no set block length')
     assert.ok(!served.rendered.instructions.some(i => i.section === ROLE_EXCHANGE && i.text.includes('set out again')))
     const keyed = roleKeyedPositions(blockFixtures[0])
-    assert.deepEqual(keyed, ['space.regions[c:provisional:A01-R1:A01-R1-S2-1].position.along', 'space.regions[c:restated:GF2:GF2-03.e].position.along', 'space.regions[c:restated:GF2:GF2-03.f].position.along'])
+    // Re-pointed 25 October 2026 (Z): and the goalkeeper's penalty area, set out from the building team's end line (his reply filed 28 October
+    // 2026, item 7), a marking written for a role too, set out once at each end (so the exchange still re-marks nothing).
+    assert.deepEqual(keyed, ['space.regions[c:provisional:A01-R1:A01-R1-S2-1].position.along', 'space.regions[c:provisional:A01-R1:A01-R1-S2-2].position.along', 'space.regions[c:restated:GF2:GF2-03.e].position.along', 'space.regions[c:restated:GF2:GF2-03.f].position.along'])
     assert.deepEqual(roleKeyedPositions(blockFixtures[1]), keyed, 'the same markings in both blocks, so the sentence is said once')
     assert.ok(keyed.every(p => exchange[1].from.includes(p)), 'the ends-fixed sentence cites every marking written for a role')
     assert.ok(exchange[2].from.every(p => p.startsWith('reassignments[')), 'the reassignment is its own sentence (his item 1: separate capabilities)')

@@ -5,13 +5,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ActivityReviewRequest, ServedActivity } from '@/MODELS/activity-review.model'
 import { ActivityBlock } from '@/app/CheckedActivityBlock'
 import FieldDiagram from '@/app/FieldDiagram'
-import ActivityReviewPage, { ProvisionalFigures } from '@/app/ActivityReviewPage'
-import type { ReviewBoundRegionPairing } from '@/MODELS/activity-review.model'
+import ActivityReviewPage, { BoundRegionEvidence, ProvisionalFigures } from '@/app/ActivityReviewPage'
+import type { ReviewBoundRegionAccount, ReviewBoundRegionPairing } from '@/MODELS/activity-review.model'
 import SessionForm from '@/forms/SessionForm'
 import { NumberField } from '@/form-control/fields'
 
 import fixture from './fixtures/a01.json'
 import faPairingFixture from './fixtures/fa-pairing.json'
+import boundRegionsFixture from './fixtures/bound-regions.json'
 
 // Only authentication is replaced. FormWrapper, fields, resource hooks, API serialization,
 // and the review question all run unchanged; fetch is the offline server boundary below.
@@ -343,5 +344,41 @@ describe('Review evidence: provisional figures', () => {
     it('shows nothing for a pairing that marks no figure provisional', () => {
         const { container } = render(<ProvisionalFigures pairing={{ ...pairing, provisional: undefined }} />)
         expect(container.textContent).toBe('')
+    })
+})
+
+// Z (his reply filed 28 October 2026, item 7): the administrator's account of the regions bound in both versions, copied unchanged from the
+// built-bundle snapshot's review evidence (fixtures/bound-regions.json, provenance recorded): the zone version's penalty area bound to the end
+// of the team holding the goalkeeper row, the goal version's bound to its goal.
+describe('Review evidence: bound regions', () => {
+    const zone = boundRegionsFixture.zone as unknown as ReviewBoundRegionAccount
+    const goal = boundRegionsFixture.goal as unknown as ReviewBoundRegionAccount
+    const label = (blockId: string) => `Block for ${blockId}`
+    const AREA = 'c:provisional:A01-R1:A01-R1-S2-2'
+
+    it("shows the zone version's region as permitted at the goalkeeper's end, bound there in each block with what it borrows", () => {
+        const { container } = render(<BoundRegionEvidence account={zone} blockLabel={label} />)
+        const text = container.textContent ?? ''
+        const [requirement] = zone.requirements
+        expect(text).toContain('BOUND-REGION-PERFORMER-END: one zone of the function penalty-area is permitted at the end of the team holding P3,')
+        expect(text).toContain(`where no goal stands (${requirement.cites})`)
+        expect(text).not.toContain('needs one')
+        expect(zone.blocks.map((block) => block.blockId)).toHaveLength(2)
+        for (const block of zone.blocks) expect(text).toContain(label(block.blockId))
+        const said = `${AREA} (zone; penalty-area) bound to the end of the team holding P3, borrowing region of its pairing`
+        expect(text.split(said)).toHaveLength(3)
+        expect(text).toContain('Lies 0-9 m along and 7.5-22.5 m across the area')
+        expect(text).toContain('Lies 31-40 m along and 7.5-22.5 m across the area')
+        expect(text.split('Pairing FA-MINI-SOCCER-5V5-2026: ')).toHaveLength(3)
+        expect(text).not.toContain('bound to null')
+    })
+
+    it("shows the goal version's region as needed by its goal and bound to it, as before", () => {
+        const { container } = render(<BoundRegionEvidence account={goal} blockLabel={label} />)
+        const text = container.textContent ?? ''
+        expect(text).toContain('BOUND-REGION-GOAL: a goal that is defended needs one zone of the function penalty-area bound to it')
+        const said = '(zone; penalty-area) bound to c:provisional:A01-R2:A01-R2-O1-1 (goal), defended by the team holding P3'
+        expect(text.split(said)).toHaveLength(3)
+        expect(text).not.toContain('permitted at the end')
     })
 })

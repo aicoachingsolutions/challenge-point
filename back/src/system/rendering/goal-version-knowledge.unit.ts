@@ -201,7 +201,9 @@ test("A01's record: the goal version first, tried, its three decisions settled b
 })
 
 // ── 4. A01-R2, composed ──────────────────────────────────────────────────────────────────────────────────
-const WITHDRAWN = ['A01-R1-S5-3', 'A01-R1-S5-4', 'A01-R1-V27-1', 'A01-R1-V29-1', 'A01-R1-V30-1', 'A01-R1-V31-1', 'A01-R1-T4-4', 'A01-R1-B8-2']
+// Re-pointed 25 October 2026 (Z): and the zone version's penalty area at the goalkeeper's end, its six items (his reply filed 28 October 2026,
+// item 7), which the goal version withdraws, keeping its own area bound to its goal (his reply filed 27 October 2026, item 1, the 1b words).
+const WITHDRAWN = ['A01-R1-S5-3', 'A01-R1-S5-4', 'A01-R1-V27-1', 'A01-R1-V29-1', 'A01-R1-V30-1', 'A01-R1-V31-1', 'A01-R1-T4-4', 'A01-R1-B8-2', 'A01-R1-S2-2', 'A01-R1-S5-5', 'A01-R1-S6-2', 'A01-R1-S6-3', 'A01-R1-S7-1', 'A01-R1-S5-6']
 // Re-pointed 24 October 2026 (K2, the d27 design's stage K2): A01-R2 adds its goal's penalty area, five items (the zone, its two positions,
 // its width and its binding to the goal with the FA 5v5 pairing), so the composition is still pinned element for element, with them.
 // Re-pointed 25 October 2026 (P2): and A01-R2-S5-2, the marked line's bound relative to the penalty area (his reply filed 28 October 2026, item 2).
@@ -215,7 +217,9 @@ test('A01-R2 is A01-R1 minus its withdrawals plus its additions, element for ele
     assert.deepEqual(variant.items, [...base.items.filter(i => !WITHDRAWN.includes(i.itemId)).map(repoint), ...raw.items.map(({ id, ...rest }: any) => ({ itemId: id, ...rest }))])
     assert.equal(variant.items.length, base.items.length - WITHDRAWN.length + ADDED.length)
     assert.deepEqual([variant.basedOn, variant.withdrawn!.map(w => w.itemId), raw.items.map((i: any) => i.id)], ['A01-R1', WITHDRAWN, ADDED])
-    assert.ok(variant.withdrawn!.every(w => /his reply filed 2[56] October 2026/.test(w.because)), 'each withdrawal says why, in his words')
+    // Re-pointed 25 October 2026 (Z): the six withdrawals of the zone version's penalty area cite his replies filed 27 and 28 October 2026.
+    assert.ok(variant.withdrawn!.every(w => /his reply filed 2[5-8] October 2026/.test(w.because)), 'each withdrawal says why, in his words')
+    assert.ok(variant.withdrawn!.filter(w => WITHDRAWN.slice(8).includes(w.itemId)).every(w => w.because.includes('his reply filed 27 October 2026, item 1') && w.because.includes('his reply filed 28 October 2026, item')), 'the area withdrawn on the 1b words and his item 7')
     assert.ok(!JSON.stringify(variant.items).includes('"contractId":"provisional:A01-R1"'))
     // Every addition is his choice for this activity, in his words of 25 or 26 October (since K2, five in his words of 27 October).
     for (const item of raw.items) {

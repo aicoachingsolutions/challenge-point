@@ -120,7 +120,7 @@ export interface RenderingFixtureParts {
      * pairing's figures are not the region's realized size) and by the review evidence. Given only where the game holds a bound region; absent,
      * the fixture is exactly what it was.
      */
-    boundRegions?: { region: string; objectId: string; pairing: BoundRegionPairing | null }[]
+    boundRegions?: { region: string; objectId: string | null; pairing: BoundRegionPairing | null; performerEnd?: string; borrows?: string[] }[]
 }
 
 /**
@@ -130,11 +130,16 @@ export interface RenderingFixtureParts {
 export const BOUND_REGIONS_ROOT = 'boundRegions'
 export const boundRegionPath = (region: string): string => `${BOUND_REGIONS_ROOT}.regions[${region}]`
 
-/** One bound region as the fixture carries it: the region, the object it is bound to and the pairing it cites (stage L). */
+/**
+ * One bound region as the fixture carries it: the region, the object it is bound to and the pairing it cites (stage L). Z (25 October 2026): a
+ * region bound to a performer's end (row S7's second form) carries no object (null), the row (`performerEnd`) and what it borrows.
+ */
 export interface FixtureBoundRegion {
     elementId: string
-    objectId: string
+    objectId: string | null
     pairing: BoundRegionPairing | null
+    performerEnd?: string
+    borrows?: string[]
 }
 
 /** The bound region of that id the fixture carries, or null (stage L). */
@@ -254,6 +259,6 @@ export function assembleRenderingFixture({ resolved, realized, entailed, envelop
             ? { defaultLaws: { status: 'ACCOUNT_OF_THIS_GAME', realization: defaultLaws.realization, laws: defaultLaws.laws.map(entry => ({ law: entry.law, end: entry.end, status: entry.status, ...(entry.removedByRealization ? { removedByRealization: true } : {}) })) } }
             : {}),
         // Stage L: only where the game holds a region bound to an object, so every other fixture is exactly what it was.
-        ...(boundRegions?.length ? { boundRegions: { status: 'CITED_PAIRINGS', regions: boundRegions.map(entry => ({ elementId: entry.region, objectId: entry.objectId, pairing: entry.pairing ? JSON.parse(JSON.stringify(entry.pairing)) : null })) } } : {}),
+        ...(boundRegions?.length ? { boundRegions: { status: 'CITED_PAIRINGS', regions: boundRegions.map(entry => ({ elementId: entry.region, objectId: entry.objectId, ...(entry.performerEnd !== undefined ? { performerEnd: entry.performerEnd, borrows: [...(entry.borrows ?? [])] } : {}), pairing: entry.pairing ? JSON.parse(JSON.stringify(entry.pairing)) : null })) } } : {}),
     }
 }

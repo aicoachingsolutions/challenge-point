@@ -42,7 +42,7 @@
 import assert from 'node:assert/strict'
 
 import { loadProvisionalRealizations, loadRegister, loadSportBoundRegions, loadSportDefaultLaws, loadSportProfile, PROVISIONAL_REALIZATIONS_FILE, readJson } from '../derivation/corpus'
-import { boundRegionsRefusals, SportBoundRegions } from '../derivation/bound-regions'
+import { boundRegionsRefusals, endRequirementsOf, objectRequirementsOf, SportBoundRegions } from '../derivation/bound-regions'
 import { defaultLawsRefusals } from '../derivation/default-laws'
 import { HaltError, indexRegister } from '../derivation/register'
 import { buildActivityForReview, buildActivityUnderAuthorizationRecords, RefusedActivity, ServedActivity } from '../rendering/build-activity'
@@ -215,19 +215,23 @@ test('register version 21: the function member, row S7 and the boundRegions bloc
 })
 
 // ── 2. The Sport Profile ─────────────────────────────────────────────────────────────────────────────────
-test("the profile's boundRegions block: one requirement, his explicit same-format principle, and the IFAB and FA 5v5 pairings (K1)", () => {
+test("the profile's boundRegions block: one object requirement (and since Z a performer-end one), his explicit same-format principle, and the IFAB and FA 5v5 pairings (K1)", () => {
     assert.deepEqual([blocks.authority.citedAs, blocks.authority.by, blocks.authority.ruledOn], ['his reply filed 26 October 2026, item 7', 'Christian', '2026-10-26'])
     for (const quote of [ITEM_7_PAIRING, 'When a smaller field is necessary, use an explicitly defined and knowledge-authorized scaled penalty area.', 'I would not approve an undefined area that the coach simply points out, nor a feet-only goalkeeper restriction as the default for this realization.']) {
         assert.ok(blocks.authority.words.includes(quote), quote)
     }
     assert.deepEqual(
-        blocks.requirements.map(r => [r.id, r.object.kind, r.object.whenDefended, r.region.noun, r.region.function, r.basis.citedAs]),
+        objectRequirementsOf(blocks).map(r => [r.id, r.object.kind, r.object.whenDefended, r.region.noun, r.region.function, r.basis.citedAs]),
         // K1 replaces our reading with his explicit same-format principle in the later reply's item 1 (1b); re-pointed 24 October 2026 (K1
         // review): the basis keeps the item 7 words it cited before, beside the 1b words, so both replies are cited.
         [['BOUND-REGION-GOAL', 'goal', true, 'zone', 'penalty-area', 'his reply filed 27 October 2026, item 1; his reply filed 26 October 2026, item 7']],
     )
+    // Re-pointed 25 October 2026 (Z): the block holds a second requirement, of the performer-end form, after the object one (pinned whole in
+    // zone-penalty-area.unit.ts); the object requirement above is exactly what it was.
+    assert.deepEqual(blocks.requirements.map(r => r.id), ['BOUND-REGION-GOAL', 'BOUND-REGION-PERFORMER-END'])
+    assert.deepEqual(endRequirementsOf(blocks).map(r => [r.id, r.performerEnd, r.permitted, r.region]), [['BOUND-REGION-PERFORMER-END', { row: 'P3', whereNoObjectOfKind: 'goal' }, true, { noun: 'zone', function: 'penalty-area' }]])
     // K1 review: only 'because' is restated (the d27 design's 1.6); the basis is never replaced, and the reading it replaced is recorded.
-    const [requirement] = blocks.requirements
+    const [requirement] = objectRequirementsOf(blocks)
     assert.equal(requirement.because, ITEM_1B)
     assert.deepEqual(requirement.basis.words, [ITEM_1B, ITEM_7_HANDLING, ITEM_7_REFUSED])
     const note = profileFile().boundRegions.note as string
@@ -399,7 +403,9 @@ test('the regulation area is evaluated by the default laws: LAW-12-GK applies, L
         const at = (law: string, end: 0 | 1 | null) => block.laws.find(entry => entry.law === law && entry.end === end)!
         const handling = at('LAW-12-GK', null)
         assert.equal(handling.status, 'APPLIES')
-        assert.deepEqual(handling.preconditions.map(p => [p.predicate.predicate, p.reading]), [['SPECIALIZED_PERFORMER_PRESENT', 'PRESENT'], ['REGION_BOUND_TO_OBJECT', 'PRESENT']])
+        // Re-pointed 25 October 2026 (Z): LAW-12-GK requires REGION_OF_PERFORMER (a penalty area of the team holding the goalkeeper, bound to
+        // the goal that team defends, as here, or to that team's end), for his reply filed 28 October 2026, item 7. Was REGION_BOUND_TO_OBJECT.
+        assert.deepEqual(handling.preconditions.map(p => [p.predicate.predicate, p.reading]), [['SPECIALIZED_PERFORMER_PRESENT', 'PRESENT'], ['REGION_OF_PERFORMER', 'PRESENT']])
         const penalty = at('LAW-14', 0)
         // Re-pointed 24 October 2026 (R1): was ADAPTATION_OWED. A01-R1-RP1-1 (inherited) departs from the whole of LAW-14 by his reply filed
         // 27 October 2026, item 4: "There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this
@@ -458,7 +464,13 @@ test('TEST-ONLY 40 x 30 m with that goal admitted: BOUND_REGION_DOES_NOT_FIT, an
         assert.equal(entry.summary, 'The penalty area that goes with a goal 7.32 m wide does not fit in a 40 x 30 m area.')
         const fact = fallback.evidence!.pathway.facts.find(f => f.what.includes('account.realizationSelection'))!
         assert.ok((fact.value as string[]).includes(`${R2}: NOT_APPLICABLE (BOUND_REGION_DOES_NOT_FIT) at session: ${entry.summary}; its place in the order: ${entry.citedAs}`), JSON.stringify(fact.value))
-        assert.equal(fallback.evidence!.boundRegions, undefined, 'the zone version holds no bound region')
+        // Re-pointed 25 October 2026 (Z): the zone version holds a bound region of its own since his reply filed 28 October 2026, item 7 - the
+        // goalkeeper's penalty area, bound to the end of the team holding the goalkeeper, never to the session's goal (the zone version holds
+        // no object). Was: no bound region.
+        assert.deepEqual(fallback.evidence!.boundRegions!.blocks.map(block => block.bindings.map(binding => [binding.region, binding.object, binding.performerEnd, binding.pairing?.id])), [
+            [['c:provisional:A01-R1:A01-R1-S2-2', null, 'P3', 'FA-MINI-SOCCER-5V5-2026']],
+            [['c:provisional:A01-R1:A01-R1-S2-2', null, 'P3', 'FA-MINI-SOCCER-5V5-2026']],
+        ], 'the zone version holds only its own area, at the goalkeeper\'s end')
         // What a coach reads is the zone version production serves for the same session.
         const coach = build(players, keepers, PROTOTYPE_AREA, FULL_SIZE, fileWith(), { includeDrafts: false }).activity as ServedActivity
         const production = buildActivityForReview({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(players, keepers, PROTOTYPE_AREA, FULL_SIZE) } as any, { includeDrafts: false }) as ServedActivity
@@ -727,7 +739,13 @@ test("the bindings step, measured on the check itself (the H3 review's should-fi
  * the zone version is served, binding no region, exactly as before; with the FA 5v5 goal the goal version is served, its penalty area bound
  * (goal-version-switch.unit.ts, goal-version-penalty-area.unit.ts).
  */
-test('production is unchanged: A01 at 12/1, 12/2 and 11/1 served as the zone version, no bound region, the same activity with or without the block', () => {
+/**
+ * Re-pointed 25 October 2026 (Z): the zone version binds a region of its own since his reply filed 28 October 2026, item 7 - the goalkeeper's
+ * penalty area, bound to the end of the team holding the goalkeeper (register row S7's second form) - so the check reads it in production, and
+ * with the profile's block switched off (TEST-ONLY) the activity is refused: an area no pairing is carried for is never said, never served
+ * unchecked. Was: no bound region, the same activity with or without the block.
+ */
+test('production: A01 at 12/1, 12/2 and 11/1 served as the zone version, binding its own area to the goalkeeper\'s end; without the block, refused', () => {
     for (const [players, keepers] of [[12, 1], [12, 2], [11, 1]]) {
         const label = `${players}/${keepers}`
         const request = { kind: 'learning-goal', goalId: 'A01', situationId: null, session: { ...sessionOf(players, keepers, PROTOTYPE_AREA), objects: { goal: { count: 0 } } } } as any
@@ -735,9 +753,9 @@ test('production is unchanged: A01 at 12/1, 12/2 and 11/1 served as the zone ver
         const withoutBlock = buildActivityUnderAuthorizationRecords(request, learningGoalAuthorizations(), { review: { includeDrafts: true }, boundRegions: null })
         const served = production.activity as ServedActivity
         assert.equal(served.outcome, 'served', label)
-        assert.equal(served.evidence!.boundRegions, undefined, label)
-        assert.deepEqual(boundRegionsOf(production.fixture), [[], []], `${label}: the zone version binds no region`)
-        assert.deepEqual(production.activity, withoutBlock.activity, `${label}: the check reads nothing in production`)
+        assert.deepEqual(served.evidence!.boundRegions!.requirements.map(requirement => requirement.id), ['BOUND-REGION-PERFORMER-END'], label)
+        assert.deepEqual(boundRegionsOf(production.fixture).map(regions => regions.map(region => [region.elementId, region.ofObject])), [0, 1].map(() => [['c:provisional:A01-R1:A01-R1-S2-2', { performerEnd: 'P3', pairing: 'FA-MINI-SOCCER-5V5-2026', borrows: ['region'], asAuthored: "the goalkeeper's own penalty area, the FA 5v5 entry's area alone" }]]), `${label}: the zone version binds its own area to the goalkeeper's end`)
+        assert.equal(withoutBlock.activity.outcome, 'refused', `${label}: without the profile's block the area is never served unchecked`)
     }
 })
 

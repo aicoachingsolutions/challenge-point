@@ -17,13 +17,14 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import { ContractItem, DerivationInput, LoadedContract, ROLE_YIELD_KEY, teamEndPositionOf } from './types'
-import { boundRegionsRefusals, PairingProvisionalFigure, pairingFigureAt, provisionalFigureOf, SportBoundRegions } from './bound-regions'
+import { BoundRegionRequirement, boundRegionsRefusals, endRequirementsOf, PairingProvisionalFigure, pairingFigureAt, provisionalFigureOf, SportBoundRegions } from './bound-regions'
 import { repairCorpusEncoding, RepairTally } from './corpus-repair'
 import { applyNoRowRestatement, RestatementTally } from './corpus-restatement'
 import { DefaultLaws, DefaultLawsCheck, defaultLawsCheckRefusal, defaultLawsRefusals, departureRefusals, DEFAULT_LAWS_CHECK_KEY, DEPARTS_FROM_KEY, LawDeparture, RealizationDepartures } from './default-laws'
 import { AUDITS_DIR } from './knowledge-root'
 import { objectPositionRefusal, ObjectPositionRows } from './object-extent'
 import { designationName, indexRegister, RegisterIndex } from './register'
+import { parsePredicate } from './selector'
 
 export const CONFORMANCE_DIR = path.join(AUDITS_DIR, 'conformance')
 
@@ -285,14 +286,28 @@ export function loadSportBoundRegions(read: (file: string) => any = readJson, in
         file,
         sportId: String(raw.sportId),
         authority: { ...words(block.authority), by: String(block.authority.by), ruledOn: String(block.authority.ruledOn) },
-        requirements: (block.requirements as any[]).map(requirement => ({
-            id: String(requirement.id),
-            object: { kind: String(requirement.object.kind), whenDefended: true as const },
-            region: { noun: String(requirement.region.noun), function: String(requirement.region.function) },
-            cites: String(requirement.cites),
-            because: String(requirement.because),
-            basis: words(requirement.basis),
-        })),
+        // Z (25 October 2026): a requirement of the performer-end form (validated above) keeps its own fields; every object requirement is
+        // exactly what it was.
+        requirements: (block.requirements as any[]).map((requirement): BoundRegionRequirement =>
+            requirement.performerEnd !== undefined
+                ? {
+                      id: String(requirement.id),
+                      performerEnd: { row: String(requirement.performerEnd.row), whereNoObjectOfKind: String(requirement.performerEnd.whereNoObjectOfKind) },
+                      permitted: true as const,
+                      region: { noun: String(requirement.region.noun), function: String(requirement.region.function) },
+                      cites: String(requirement.cites),
+                      because: String(requirement.because),
+                      basis: words(requirement.basis),
+                  }
+                : {
+                      id: String(requirement.id),
+                      object: { kind: String(requirement.object.kind), whenDefended: true as const },
+                      region: { noun: String(requirement.region.noun), function: String(requirement.region.function) },
+                      cites: String(requirement.cites),
+                      because: String(requirement.because),
+                      basis: words(requirement.basis),
+                  },
+        ),
         pairings: (block.pairings as any[]).map(pairing => ({
             id: String(pairing.id),
             document: String(pairing.document),
@@ -623,6 +638,49 @@ export function validateProvisionalRealizations(
         errors.push(...defaultLawsDeclarationRefusals(realization, realizations, which, items, defaultLaws, indexOnce))
         // P2 (25 October 2026): a provisional figure of a pairing, restated by an item, is said to be one, with one value.
         errors.push(...provisionalFigureDeclarationRefusals(realization, realizations, which, items, boundRegions, indexOnce))
+        // Z (25 October 2026): a region bound to a performer's end, in the closed form the Sport Profile permits.
+        errors.push(...endBindingRefusals(which, items, boundRegions, indexOnce))
+    }
+    return errors
+}
+
+/**
+ * **A region bound to the end line of the team holding a specialized performer, as an item writes it** — Z, 25 October 2026 (register version
+ * 25, row S7's second, closed form). Christian, reply filed 28 October 2026, item 7: *"My preference is to use the same authorized small-sided
+ * [handling-area] geometry where appropriate, even when the physical [object] is replaced by a target zone."* (his nouns bracketed; the Sport
+ * Profile quotes him whole). An item on the bound-object row whose value names a performer's end (`performerEnd`) is refused at load unless:
+ * it is of that form alone (no typed reference to an object beside it, and nothing but the performer row, the pairing, what it borrows and the
+ * words as authored); the Sport Profile permits a region of a function its selector names at the end of the team holding that row (a
+ * requirement of the performer-end form); it cites a pairing the profile holds, by id, whose region is of that function and which lends its
+ * region; and it borrows exactly the region (["region"]): the pairing's object and mark never come with it. GA-BOUND-REGION holds the rest per
+ * block (the end, the performer's team, no object of the bound kind at that end, the geometry). Every item of the first form reads as before.
+ */
+function endBindingRefusals(which: string, items: any[], block: SportBoundRegions | null, indexOnce: () => RegisterIndex): string[] {
+    const errors: string[] = []
+    const holding = items.filter(item => item && typeof item === 'object' && item.value && typeof item.value === 'object' && item.value.performerEnd !== undefined)
+    if (!holding.length) return errors
+    const spec = indexOnce().boundRegions
+    for (const item of holding) {
+        const at = `${which} item ${String(item.id ?? '(no id)')}`
+        const value = item.value
+        if (!spec || String(item.row) !== spec.ofObjectRow) {
+            errors.push(`${at} names a performer's end (performerEnd) on ${String(item.row)}, which is not the row binding a region (${spec?.ofObjectRow ?? 'no such row'})`)
+            continue
+        }
+        const stray = Object.keys(value).filter(key => !['performerEnd', 'pairing', 'borrows', 'asAuthored'].includes(key))
+        if (stray.length) errors.push(`${at} binds its region to a performer's end and also carries ${stray.join(', ')}: the form holds only the performer row, the pairing, what it borrows and the words as authored`)
+        const parsed = parsePredicate(item.selector)
+        const functions = parsed.predicate ? parsed.predicate.terms.flatMap(term => (term.attribute === spec.functionAttribute && (term.op === 'CONTAINS' || term.op === '=') && 'value' in term ? [String(term.value)] : [])) : []
+        const requirement = endRequirementsOf(block).find(entry => entry.performerEnd.row === value.performerEnd && functions.includes(entry.region.function))
+        if (!requirement) {
+            errors.push(`${at} binds a region of ${functions.length ? functions.join(', ') : 'no function'} to the end of the team holding ${JSON.stringify(value.performerEnd)}, which the Sport Profile permits for none of those functions`)
+            continue
+        }
+        const pairing = typeof value.pairing === 'string' ? block?.pairings.find(entry => entry.id === value.pairing) : undefined
+        if (!pairing) errors.push(`${at} cites the pairing ${JSON.stringify(value.pairing)}, which the Sport Profile does not hold: a region at a performer's end takes its geometry from one authorized pairing, cited by id`)
+        else if (pairing.region.function !== requirement.region.function || !pairing.borrows.includes('region')) errors.push(`${at} cites ${pairing.id}, which lends no ${requirement.region.function} region`)
+        const borrows = Array.isArray(value.borrows) ? value.borrows.map(String) : null
+        if (!borrows || borrows.length !== 1 || borrows[0] !== 'region') errors.push(`${at} borrows ${JSON.stringify(value.borrows)}, and a region at a performer's end borrows exactly its pairing's region (["region"]): the object and the mark never come with it`)
     }
     return errors
 }

@@ -203,6 +203,15 @@ const zoneVersion = (players: number, keepers: number) => {
 const textsOf = (activity: ServedActivity) => activity.rendered.instructions.map(instruction => `[${instruction.section}] ${instruction.text}`)
 const blocksOf = (fixture: any): { blockId: string; fixture: any }[] => (fixture.roleBlocks.blocks as any[]).map(block => ({ blockId: block.blockId, fixture: block.fixture }))
 const bare = (entry: { blockId: string; fixture: any }) => ({ blockId: entry.blockId, fixture: { ...entry.fixture, layout: undefined, remarking: undefined } })
+/** Z (25 October 2026): the zone version's own penalty area at the goalkeeper's end, his reply filed 28 October 2026, item 7. */
+const ZONE_AREA = 'c:provisional:A01-R1:A01-R1-S2-2'
+/** TEST-ONLY (Z): a zone-version block without its own area, for the area cases written before it, which add a TEST-ONLY one. */
+const withoutZoneArea = (entry: { blockId: string; fixture: any }) => {
+    const fixture = JSON.parse(JSON.stringify(entry.fixture))
+    fixture.game.space.regions = fixture.game.space.regions.filter((region: any) => region.elementId !== ZONE_AREA)
+    fixture.status.geometry = fixture.status.geometry.filter((g: any) => !g.path.startsWith(`space.regions[${ZONE_AREA}]`))
+    return { blockId: entry.blockId, fixture }
+}
 const violations = (findings: FidelityFinding[]) => findings.filter(finding => finding.severity === 'VIOLATION')
 const refused = (findings: FidelityFinding[], question: number, includes: string, what: string) =>
     assert.ok(violations(findings).some(finding => finding.question === question && finding.what.includes(includes)), `${what}: expected Q${question} "${includes}", got ${JSON.stringify(violations(findings).map(f => `Q${f.question} ${f.what}`), null, 1)}`)
@@ -296,7 +305,9 @@ test('layoutOf: a region not across the full width is set out once where it stay
     // block - at 0-9 m in block 1 and 31-40 m in block 2: one at each end, of one size, mirrored.
     // Re-pointed 24 October 2026 (K3): the session states no goal (see zoneVersion).
     const zone = buildActivityWithFixture({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [KEEPER]: 1 }, objects: NO_GOAL } } as any)
-    const kept = blocksOf(zone.fixture).map(bare)
+    // Re-pointed 25 October 2026 (Z): without the zone version's own area (`withoutZoneArea`), which is exactly this TEST-ONLY one since his
+    // reply filed 28 October 2026, item 7 (pinned below), so the cases read only the TEST-ONLY box.
+    const kept = blocksOf(zone.fixture).map(bare).map(withoutZoneArea)
     const BOX = 'c:TEST-ONLY:BOX'
     const alternating = [withRegion(kept[0], BOX, { from: 0, to: 9 }, { from: 7.5, to: 22.5 }), withRegion(kept[1], BOX, { from: 31, to: 40 }, { from: 7.5, to: 22.5 })]
     const both = layoutOf(alternating)
@@ -320,8 +331,13 @@ test('layoutOf: a region not across the full width is set out once where it stay
     // At one place in every block under KEPT (a TEST-ONLY area at 0-9 m in both): one rectangle, from both blocks.
     const still = layoutOf([withRegion(kept[0], BOX, { from: 0, to: 9 }, { from: 7.5, to: 22.5 }), withRegion(kept[1], BOX, { from: 0, to: 9 }, { from: 7.5, to: 22.5 })])
     assert.deepEqual(still.layout!.rectangles!.map(r => r.sources.length), [2])
-    // Production: no rectangle, so its layout is exactly what it was (no rectangles key).
-    assert.equal('rectangles' in (blocksOf(zone.fixture)[0].fixture.layout ?? {}), false)
+    // Re-pointed 25 October 2026 (Z): production now holds this very case - the zone version's own penalty area at the goalkeeper's end (his
+    // reply filed 28 October 2026, item 7), at 0-9 m in block 1 and 31-40 m in block 2, set out once at each end. Was: no rectangle.
+    const productionLayout = blocksOf(zone.fixture)[0].fixture.layout
+    assert.deepEqual(productionLayout.rectangles.map((r: any) => [r.along, r.across, r.end, r.sources.map((source: any) => [source.blockId, source.regionId])]), [
+        [{ from: 0, to: 9 }, { from: 7.5, to: 22.5 }, 0, [[kept[0].blockId, ZONE_AREA]]],
+        [{ from: 31, to: 40 }, { from: 7.5, to: 22.5 }, 40, [[kept[1].blockId, ZONE_AREA]]],
+    ])
 })
 
 // ── 3. The goal version said ─────────────────────────────────────────────────────────────────────────────
@@ -409,7 +425,7 @@ test("the area's sentence: the pairing's figures bound to its leaves, the region
 // the zone version said none of them.
 // Re-pointed 25 October 2026 (P1; his reply filed 28 October 2026, item 3, with RC3 3.4): the colour is said by the equipment sentence's last
 // part (his words in the goal version, our DRAFT mirror in the zone version), citing LAW-4-GK as the roster clause did; the roster says it no more.
-test('the colour is told once, by the equipment sentence, where the colours law applies; the normal rules close How it works where nothing is owed; each cites the account, and the zone version says the colour alone', () => {
+test('the colour is told once, by the equipment sentence, where the colours law applies; the normal rules close How it works where nothing is owed; each cites the account, and the zone version says the colour once (since Z, with its own area\'s handling clause and the normal rules)', () => {
     const { activity } = served(FA, 12, 1)
     const roster = activity.rendered.instructions.find(instruction => instruction.section === 'Players')!
     assert.ok(!roster.parts!.some(part => part.from.includes(appliedLawPath(COLOUR_LAW))), 'the roster cites no colours law')
@@ -430,12 +446,23 @@ test('the colour is told once, by the equipment sentence, where the colours law 
         // Re-pointed 25 October 2026 (P1): every sentence but the equipment sentence (which says the colour, citing the law) says none of these.
         const others = zone.rendered.instructions.filter(instruction => !instruction.from.includes(appliedLawPath(COLOUR_LAW)))
         assert.equal(others.length, zone.rendered.instructions.length - 1, `${players}/${keepers}: one sentence cites the colours law`)
+        /**
+         * Re-pointed 25 October 2026 (Z): since his reply filed 28 October 2026, item 7 the zone version holds the goalkeeper's own penalty
+         * area and owes nothing: its area's sentence closes with the handling clause (its own words for an area marked at each end, citing the
+         * handling law as applied), and How it works closes with the normal-rules clause, as the goal version's does. Was: no area, no handling
+         * words, no normal rules, its offside sentence alone.
+         */
         const said = JSON.stringify(others.map(instruction => [instruction.text, instruction.from]))
-        for (const absent of ['penalty area', 'handle', 'colour', 'normal soccer rules', 'defaultLaws.applied', DEFAULT_LAWS_OWED]) assert.ok(!said.includes(absent), `${players}/${keepers}: "${absent}"`)
+        assert.ok(!said.includes('colour'), `${players}/${keepers}: "colour"`)
+        const area = others.find(instruction => instruction.text.startsWith('Mark a penalty area at each end'))!
+        assert.deepEqual(area.parts!.map(part => part.text), ['Mark a penalty area at each end: 15 m wide, centred on the end line, and 9 m deep into the area', "; inside the one at the building team's end, the goalkeeper can handle the ball as in a normal game"], `${players}/${keepers}`)
+        assert.ok(area.parts![1].from.includes(appliedLawPath(LAW)), `${players}/${keepers}: the clause cites the handling law as applied`)
+        assert.equal(others.filter(instruction => instruction.from.some(path => path.startsWith('defaultLaws.applied'))).length, 1, `${players}/${keepers}: only the area's sentence cites a law as applied, beside the equipment's colour`)
         const colours = zone.rendered.instructions.flatMap(instruction => (instruction.parts ?? []).filter(part => part.text.includes('colour')).map(part => [instruction.section, part.text, part.from]))
         assert.deepEqual(colours, [['Set up', ZONE_EQUIPMENT_COLOUR, ['performers.teams', appliedLawPath(COLOUR_LAW), `performers.teams[].${KEEPER}`]]], `${players}/${keepers}: the colour, once`)
         assert.equal(zone.integrity.fidelityViolations, 0, `${players}/${keepers}`)
-        assert.ok(zone.rendered.instructions.some(instruction => instruction.text === 'There is no offside'), 'its offside sentence stands alone')
+        const zoneHow = zone.rendered.instructions.find(instruction => instruction.text === OFFSIDE_AND_NORMAL)!
+        assert.deepEqual(zoneHow.parts!.map(part => [part.text, part.from]), [['There is no offside', [defaultLawPath('LAW-11')]], ['; otherwise, normal soccer rules apply during play', [DEFAULT_LAWS_OWED]]], `${players}/${keepers}: the normal rules close How it works`)
     }
 })
 
@@ -456,7 +483,8 @@ test('the account owes nothing, so the held sentence is said (DRAFT_SAID_NOTHING
     // The completeness audit, item 1: and the goalkeeper's colours, in both blocks.
     assert.deepEqual(account.blocks.map(block => block.laws.filter(entry => entry.law === COLOUR_LAW).map(entry => entry.status)), [['APPLIES'], ['APPLIES']])
     assert.equal(account.heldSentence!.status, 'DRAFT_SAID_NOTHING_OWED')
-    assert.equal(zoneVersion(12, 1).evidence!.defaultLaws!.heldSentence!.status, 'DRAFT_HELD_NOT_SERVED', 'the zone version holds it')
+    // Re-pointed 25 October 2026 (Z): the zone version owes nothing too since his reply filed 28 October 2026, item 7, so it says it. Was held.
+    assert.equal(zoneVersion(12, 1).evidence!.defaultLaws!.heldSentence!.status, 'DRAFT_SAID_NOTHING_OWED', 'the zone version says it too')
     const enforced = served(FA, 12, 1, { mode: 'ENFORCE' }).activity
     assert.deepEqual(enforced.rendered.instructions.map(i => i.text), activity.rendered.instructions.map(i => i.text))
 })
@@ -674,17 +702,26 @@ test('the goal version under KEPT (TEST-ONLY) is refused at structure before any
 // ── 9. Production ────────────────────────────────────────────────────────────────────────────────────────
 // Re-pointed 24 October 2026 (K3): the zone version, built for a session stating no goal (see zoneVersion); the real goal version, served
 // since K3 with the FA 5v5 goal, binds its penalty area (goal-version-switch.unit.ts, goal-version-communication.unit.ts).
-test('production is unchanged: A01 at 12/1, 12/2 and 11/1 binds no region, its layout holds no rectangle, its fixtures carry no pairing, and its account holds the sentence', () => {
+/**
+ * Re-pointed 25 October 2026 (Z): since his reply filed 28 October 2026, item 7 the zone version binds its own penalty area to the goalkeeper's
+ * end: its layout holds two rectangles, its fixtures carry the pairing (borrowing only the region), its diagram draws both areas with one label,
+ * still no goalkeeper marker. Was: no region bound, no rectangle, no pairing, no area drawn.
+ */
+test('production since Z: A01 at 12/1, 12/2 and 11/1 binds its own area to the goalkeeper\'s end, set out at each end, its pairing carried, both areas drawn with one label', () => {
     for (const [players, keepers] of [[12, 1], [12, 2], [11, 1]]) {
         const zone = buildActivityWithFixture({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: { players, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [KEEPER]: keepers }, objects: NO_GOAL } } as any)
         assert.equal(zone.activity.outcome, 'served')
         for (const block of blocksOf(zone.fixture)) {
-            assert.equal('rectangles' in (block.fixture.layout ?? {}), false)
-            assert.equal(block.fixture.boundRegions, undefined)
+            assert.deepEqual(block.fixture.layout.rectangles.map((r: any) => [r.along.from, r.along.to]), [[0, 9], [31, 40]])
+            assert.deepEqual(block.fixture.boundRegions.regions.map((entry: any) => [entry.elementId, entry.objectId, entry.performerEnd, entry.borrows, entry.pairing.id]), [[ZONE_AREA, null, 'P3', ['region'], 'FA-MINI-SOCCER-5V5-2026']])
         }
         // The completeness audit, item 1: the zone version now says the colour, and its diagram still draws no goalkeeper marker - a marker is
         // placed with the goal its performer defends (O7), and the zone version has none; no other placement is invented (a limitation).
-        assert.ok(!('areas' in (zone.activity as ServedActivity).diagram!.blocks[0]) && !('keepers' in (zone.activity as ServedActivity).diagram!.blocks[0]))
+        // Z: both areas drawn grey, one label, in every block alike; still no goalkeeper marker (the zone version has no goal for it).
+        for (const block of (zone.activity as ServedActivity).diagram!.blocks) {
+            assert.deepEqual((block as any).areas, [{ along: { from: 0, to: 9 }, across: { from: 7.5, to: 22.5 }, label: 'penalty area' }, { along: { from: 31, to: 40 }, across: { from: 7.5, to: 22.5 }, label: null }])
+            assert.ok(!('keepers' in block))
+        }
         // Re-pointed 25 October 2026 (P1): the zone version's own equipment sentence (DRAFT) tells the goalkeeper apart, and its roster does not.
         assert.ok((zone.activity as ServedActivity).rendered.instructions.some(i => i.section === 'Set up' && i.text.endsWith(ZONE_EQUIPMENT_COLOUR)))
         assert.ok(!(zone.activity as ServedActivity).rendered.instructions.some(i => i.section === 'Players' && i.text.endsWith(COLOUR)))

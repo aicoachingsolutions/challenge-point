@@ -16,6 +16,12 @@ bodies unchanged; its SHA-256 in `provenance`): the goal version's adjustment no
 line the marked line may go (his reply filed 28 October 2026, item 2). `fixtures/fa-pairing.json` (P2) holds the FA
 pairing exactly as the administrator's review evidence carries it in that snapshot (key and path in its `provenance`),
 with its provisional depth (his reply filed 28 October 2026, item 8), for the review page's `ProvisionalFigures`.
+Re-copied 25 October 2026 (Z) from the built-bundle regression snapshot `Z-impl.json` (the same four keys and the same
+pairing path, bodies unchanged; its SHA-256 in `provenance`): the goal version's activity is said as before, only an
+authored gap note gaining a dated line. `fixtures/bound-regions.json` (Z) holds the administrator's bound-region accounts
+of both versions exactly as that snapshot's review evidence carries them (keys and path in its `provenance`): the zone
+version's penalty area bound to the end of the team holding the goalkeeper row (his reply filed 28 October 2026, item 7),
+the goal version's bound to its goal, for the review page's `BoundRegionEvidence`.
 The A01 FA response supplies the activity, diagram and session values; the A01 refusal supplies
 the goal question; the other two responses supply review options and session equipment choices.
 Activity sentences and choice labels are never invented in the tests.

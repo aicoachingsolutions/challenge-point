@@ -171,7 +171,15 @@ test('none, and every goal that does not suit: the zone version served exactly a
         assert.deepEqual(selectionOf(zone), [[R2, 'NOT_APPLICABLE', 'OBJECT_AVAILABILITY_SHORT'], ['A01-R1', 'SELECTED', null]], label)
         // Re-pointed 24 October 2026 (the completeness audit, item 1): the zone version closes its roster with the goalkeeper's colour, once,
         // citing LAW-4-GK, and says none of the goal version's other sentences; its diagram draws no goalkeeper marker. Was: no colour either.
-        assert.ok(!texts(zone).some(text => /penalty area|handle|normal soccer rules/.test(text)), `${label}: the zone version says none of the goal version's other sentences`)
+        // Re-pointed 25 October 2026 (Z): since his reply filed 28 October 2026, item 7, the zone version marks the goalkeeper's own penalty area
+        // in a sentence of its own (DRAFT, at each end) with the handling clause, and closes How it works with the normal-rules clause, as the
+        // goal version does; it still says nothing of a goal. Was: none of "penalty area", "handle" or "normal soccer rules".
+        assert.ok(!texts(zone).some(text => /\bgoal\b/.test(text)), `${label}: the zone version says nothing of a goal`)
+        assert.deepEqual(texts(zone).filter(text => /penalty area|handle|normal soccer rules/.test(text)), [
+            "Mark a penalty area at each end: 15 m wide, centred on the end line, and 9 m deep into the area; inside the one at the building team's end, the goalkeeper can handle the ball as in a normal game",
+            OFFSIDE_AND_NORMAL,
+            "You may choose to move the marked line nearer to either end line, but no nearer than 9 m to the building team's end line, so that it stays outside the penalty area; when the roles exchange, set it out again at the same distance from the new building team's end line",
+        ], `${label}: the zone version's own area, its handling and the normal rules, each said once`)
         // Re-pointed 25 October 2026 (P1): the colour is told once, by the zone version's own equipment sentence (DRAFT; his reply filed 28
         // October 2026, item 3), first in Set up, citing LAW-4-GK; the roster no longer closes with it. Was: once, closing the roster.
         const zoneRoster = zone.rendered.instructions.filter(instruction => instruction.text.includes('colour'))

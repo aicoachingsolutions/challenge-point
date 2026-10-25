@@ -176,7 +176,10 @@ test('1. end to end on production data: SERVED (design step L14; was refused onl
     // sentence (item 3; the zone version's own, DRAFT) is said first, "The building team starts with the ball" is no longer said (item 6:
     // the start says it), and "Decide which team builds first." (item 4) is approved wording in place of a DRAFT sentence; the possession
     // sentence (item 5) and A01-W3 (item 9) stay approved in his new words.
-    assert.deepEqual(fact(evidence.acceptance, 'sentences'), { total: 28, approved: 5, draft: 23 })
+    // Moved 25 October 2026 (Z), total 28 -> 29 and draft 23 -> 24: his reply filed 28 October 2026, item 7 - the goalkeeper's penalty area
+    // marked at each end, with the handling clause, DRAFT (zone-penalty-area.unit.ts); the normal-rules clause joins the offside sentence and the
+    // line's limit joins A01-ADJ-3, adding no sentence; nothing approved changes.
+    assert.deepEqual(fact(evidence.acceptance, 'sentences'), { total: 29, approved: 5, draft: 24 })
     assert.deepEqual(evidence.sections.instructions.filter(i => i.wording === 'APPROVED').map(i => i.text), ['Decide which team builds first', 'When possession changes, play carries on without a stoppage, and each team keeps attacking the same target', HIS_ITEM_1, HIS_W3, HIS_W2])
     // Measured at this stage: 19 Gate A checks per block, all PASS; the 9 cross-block checks; 11 owed invariants per block.
     // Re-pointed 21 October 2026 (stage 2D): 10 cross-block checks, RB-L joining.
@@ -233,7 +236,8 @@ test('2. the nine items: his words from the record, each resolved to elements, c
     // Moved 24 October 2026 (R1), 28 -> 26: the throw-in and end-line sentences withdrawn (test 1).
     // Moved 24 October 2026 (R2), 26 -> 27: the sentence naming the restarts the activity does not use (test 1).
     // Moved 24 October 2026 (R3), 27 -> 28: "There is no offside" (test 1).
-    assert.equal(byId.R8.sentences.length, 28)
+    // Moved 25 October 2026 (Z), 28 -> 29: the goalkeeper's penalty area marked at each end (test 1; his reply filed 28 October 2026, item 7).
+    assert.equal(byId.R8.sentences.length, 29)
     // Stage 2D (21 October 2026): RB-L joins the cross-block checks (test 1), and an item's checks are the ones his review request lists for
     // it (the record's data, unchanged), so R7 still reads the nine.
     assert.ok(byId.R7.checks.map(c => c.checkId).join() === 'RB-1,RB-2,RB-3,RB-4,RB-5,RB-6,RB-7,RB-8,RB-M')
@@ -380,7 +384,9 @@ test('5. the specialized role as a deep support option, and no prescription, as 
     // role where one did; none carries a word of obligation or a prescription finding.
     // Moved 25 October 2026 (P1), 7 -> 8: the equipment sentence names the role ("a distinct goalkeeper colour", his reply filed 28 October
     // 2026, item 3; the zone version's own, DRAFT), with no word of obligation or prescription finding.
-    assert.equal(naming.length, 8)
+    // Moved 25 October 2026 (Z), 8 -> 9: the penalty area's sentence names the role in its handling clause ("the goalkeeper can handle the ball
+    // as in a normal game", his reply filed 28 October 2026, item 7; DRAFT), with no word of obligation or prescription finding.
+    assert.equal(naming.length, 9)
     // Re-pointed 24 October 2026 (R2): the WHEN opens with the common restart's rule ("The building team's goalkeeper starts play, and restarts
     // it whenever the ball is dead: ..."), still naming the role with no word of obligation; the Restarts and ball out sentence added in R2
     // names no role. Was: "The building team's goalkeeper restarts play".

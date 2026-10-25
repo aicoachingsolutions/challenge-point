@@ -51,6 +51,7 @@ import {
     ActivityReviewRequest,
     ActivityReviewResult,
     RefusedActivity,
+    ReviewBoundRegionAccount,
     ReviewBoundRegionPairing,
     ReviewDraft,
     ReviewDraftInstruction,
@@ -885,6 +886,95 @@ export function ProvisionalFigures({ pairing }: { pairing: ReviewBoundRegionPair
     )
 }
 
+type BoundRegionRequirement = ReviewBoundRegionAccount['requirements'][number]
+type BoundRegionBinding = ReviewBoundRegionAccount['blocks'][number]['bindings'][number]
+
+/** A requirement as the panel says it: needed by an object, or (Z) permitted at the end of the team holding a performer row. */
+function requirementSaid(requirement: BoundRegionRequirement): string {
+    const region = `${requirement.region.noun} of the function ${requirement.region.function}`
+    if ('object' in requirement) {
+        const defended = requirement.object.whenDefended ? ' that is defended' : ''
+        return `${requirement.id}: a ${requirement.object.kind}${defended} needs one ${region} bound to it (${requirement.cites})`
+    }
+    const { row, whereNoObjectOfKind } = requirement.performerEnd
+    const where = `where no ${whereNoObjectOfKind} stands`
+    return `${requirement.id}: one ${region} is permitted at the end of the team holding ${row}, ${where} (${requirement.cites})`
+}
+
+/** A binding as the panel says it: the region, and the object it is bound to, or (Z) the end it is bound to and what it borrows. */
+function bindingSaid(binding: BoundRegionBinding): string {
+    const region = `${binding.region} (${binding.noun ?? 'no noun'}; ${binding.functions.join(', ')})`
+    const borrows = (binding.borrows ?? []).join(', ') || 'nothing'
+    const to =
+        binding.object !== null
+            ? `bound to ${binding.object}`
+            : `bound to the end of the team holding ${binding.performerEnd ?? 'no row'}, borrowing ${borrows} of its pairing`
+    const kind = binding.kind ? ` (${binding.kind})` : ''
+    const defended = binding.defendedBy ? `, defended by the team holding ${binding.defendedBy}` : ''
+    return `${region} ${to}${kind}${defended}`
+}
+
+/** A pairing as the panel says it, whole: its document and citation, the object, its figures, what it borrows, its format conditions. */
+function pairingSaid(pairing: ReviewBoundRegionPairing): string {
+    const edition = pairing.edition ? ` (${pairing.edition})` : ' (edition not named)'
+    const conditions = pairing.formatConditions
+    const stated = (value: string | null) => value ?? 'not stated'
+    const format = `players ${stated(conditions.players)}, age band ${stated(conditions.ageBand)}, pitch ${stated(conditions.pitch)}`
+    const object = `${pairing.object.type} ${pairing.object.kind} ${pairingSizes(pairing)}`
+    const borrows = pairing.borrows.join(', ')
+    return `Pairing ${pairing.id}: ${pairing.document}${edition}, ${pairing.citedAs}; ${object}; borrows ${borrows}; format: ${format}`
+}
+
+/**
+ * H3 (23 October 2026): the regions bound to the games' objects, shown as sent. Z (25 October 2026): and a region bound to a performer's end
+ * (his reply filed 28 October 2026, item 7), its requirement shown as permitted there, never as needed, and its binding as the end of the team
+ * holding that row with what it borrows of its pairing. Labels are DRAFTS.
+ */
+export function BoundRegionEvidence({ account, blockLabel }: { account: ReviewBoundRegionAccount; blockLabel: (blockId: string) => string }) {
+    const line = 'text-xs text-gray-600 [overflow-wrap:anywhere]'
+    return (
+        <>
+            {account.source.authority.words.map((words, index) => (
+                <His key={index} words={words} citedAs={account.source.authority.citedAs} />
+            ))}
+            {account.requirements.map((requirement) => (
+                <p key={requirement.id} className={line}>
+                    {requirementSaid(requirement)}
+                </p>
+            ))}
+            {account.blocks.map((block) => (
+                <div key={block.blockId} className='space-y-1'>
+                    <p className='text-xs text-gray-500'>{blockLabel(block.blockId)}</p>
+                    <ul className='space-y-1'>
+                        {block.bindings.map((binding, index) => (
+                            <li key={index} className={line}>
+                                <span className='text-gray-800'>{bindingSaid(binding)}</span>
+                                {binding.along && binding.across && (
+                                    <span className='block'>
+                                        Lies {binding.along.from}-{binding.along.to} m along and
+                                        {` ${binding.across.from}-${binding.across.to} m across the area`}
+                                    </span>
+                                )}
+                                {binding.pairing ? (
+                                    <span className='block'>
+                                        {pairingSaid(binding.pairing)}
+                                        {binding.pairing.authority.words.map((words, at) => (
+                                            <His key={at} words={words} citedAs={binding.pairing.authority.citedAs} />
+                                        ))}
+                                        <ProvisionalFigures pairing={binding.pairing} />
+                                    </span>
+                                ) : (
+                                    <span className='block'>It cites no pairing the Sport Profile holds.</span>
+                                )}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            ))}
+        </>
+    )
+}
+
 /** One collapsible part of the evidence. Closed until opened: the activity stays primary. */
 function EvidencePart({ title, children }: { title: string; children: React.ReactNode }) {
     const [open, setOpen] = useState(false)
@@ -1086,54 +1176,12 @@ function ReviewEvidencePanel({ evidence }: { evidence: ReviewEvidence }) {
                   * who defends it, where it lies, and the authorized pairing it cites whole: its document and citation, its format conditions
                   * (shown, never matched), the object's type and size, the region's size, its mark, what it borrows, and his words. Present only
                   * where a game holds one (no production activity does). Labels are DRAFTS.
+                  * AMENDED 25 October 2026 (Z): both versions of Play Out from the Back now hold one (the goal version's at its goal since P1, the
+                  * zone version's at the goalkeeper's own end since his reply filed 28 October 2026, item 7); the part is `BoundRegionEvidence`.
                   */}
                 {evidence.boundRegions && (
-                    <EvidencePart title='Regions bound to objects'>
-                        {evidence.boundRegions.source.authority.words.map((words, index) => (
-                            <His key={index} words={words} citedAs={evidence.boundRegions!.source.authority.citedAs} />
-                        ))}
-                        {evidence.boundRegions.requirements.map((requirement) => (
-                            <p key={requirement.id} className='text-xs text-gray-600 [overflow-wrap:anywhere]'>
-                                {requirement.id}: a {requirement.object.kind}
-                                {requirement.object.whenDefended ? ' that is defended' : ''} needs one {requirement.region.noun} of the function {requirement.region.function} bound to it ({requirement.cites})
-                            </p>
-                        ))}
-                        {evidence.boundRegions.blocks.map((block) => (
-                            <div key={block.blockId} className='space-y-1'>
-                                <p className='text-xs text-gray-500'>{blockLabel(block.blockId)}</p>
-                                <ul className='space-y-1'>
-                                    {block.bindings.map((binding, index) => (
-                                        <li key={index} className='text-xs text-gray-600 [overflow-wrap:anywhere]'>
-                                            <span className='text-gray-800'>
-                                                {binding.region} ({binding.noun ?? 'no noun'}; {binding.functions.join(', ')}) bound to {binding.object}
-                                                {binding.kind ? ` (${binding.kind})` : ''}
-                                                {binding.defendedBy ? `, defended by the team holding ${binding.defendedBy}` : ''}
-                                            </span>
-                                            {binding.along && binding.across && (
-                                                <span className='block'>
-                                                    Lies {binding.along.from}-{binding.along.to} m along and {binding.across.from}-{binding.across.to} m across the area
-                                                </span>
-                                            )}
-                                            {binding.pairing ? (
-                                                <span className='block'>
-                                                    Pairing {binding.pairing.id}: {binding.pairing.document}
-                                                    {binding.pairing.edition ? ` (${binding.pairing.edition})` : ' (edition not named)'}, {binding.pairing.citedAs}; {binding.pairing.object.type} {binding.pairing.object.kind}{' '}
-                                                    {pairingSizes(binding.pairing)}; borrows {binding.pairing.borrows.join(', ')};{' '}
-                                                    format: players{' '}
-                                                    {binding.pairing.formatConditions.players ?? 'not stated'}, age band {binding.pairing.formatConditions.ageBand ?? 'not stated'}, pitch {binding.pairing.formatConditions.pitch ?? 'not stated'}
-                                                    {binding.pairing.authority.words.map((words, at) => (
-                                                        <His key={at} words={words} citedAs={binding.pairing!.authority.citedAs} />
-                                                    ))}
-                                                    <ProvisionalFigures pairing={binding.pairing} />
-                                                </span>
-                                            ) : (
-                                                <span className='block'>It cites no pairing the Sport Profile holds.</span>
-                                            )}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        ))}
+                    <EvidencePart title='Regions bound to objects or to a performer’s end'>
+                        <BoundRegionEvidence account={evidence.boundRegions} blockLabel={blockLabel} />
                     </EvidencePart>
                 )}
                 {/*

@@ -76,6 +76,16 @@ const movers = layoutMoversOf(learningGoalAuthorization('A01'))
 type Block = { blockId: string; fixture: any }
 const blocksOf = (fixture: any): Block[] => ((fixture?.roleBlocks?.blocks ?? []) as any[]).map(block => ({ blockId: block.blockId, fixture: block.fixture }))
 const bare = (entry: Block): Block => ({ blockId: entry.blockId, fixture: { ...copy(entry.fixture), layout: undefined, remarking: undefined } })
+/**
+ * TEST-ONLY (Z, 25 October 2026): a block without the zone version's penalty area (his reply filed 28 October 2026, item 7), for the geometry
+ * cases written before it that move only the lines and zones: left in, the area is a rectangle set out once, so the layout would apply.
+ */
+const withoutZoneArea = (entry: Block): Block => {
+    const fixture = copy(entry.fixture)
+    fixture.game.space.regions = fixture.game.space.regions.filter((region: any) => region.elementId !== 'c:provisional:A01-R1:A01-R1-S2-2')
+    fixture.status.geometry = fixture.status.geometry.filter((g: any) => !g.path.startsWith('space.regions[c:provisional:A01-R1:A01-R1-S2-2]'))
+    return { blockId: entry.blockId, fixture }
+}
 const P = 'provisional:A01-R1'
 const LINE = `c:${P}:A01-R1-S2-1`
 const NEAR = 'c:restated:GF2:GF2-03.e'
@@ -87,7 +97,11 @@ const q5 = (fixture: any, rendered: any) => checkFidelity(fixture, rendered).fin
 const RB1_WHAT = 'the same regions, objectives, transitions, primary event, conditions and teams in both blocks'
 const RB3_WHAT = 'two objectives of the scoring role and two target regions in each block, and no region a role-keyed selector created'
 /** The layout's keys before this stage: production's layout gains none. */
-const LAYOUT_KEYS = ['because', 'lengthM', 'marks', 'movedBy', 'policy', 'regions', 'widthM', 'zones']
+/**
+ * Re-pointed 25 October 2026 (Z): and the rectangles, the zone version's penalty area set out once at each end (his reply filed 28 October 2026,
+ * item 7); still no objects key, since the zone version places no object.
+ */
+const LAYOUT_KEYS = ['because', 'lengthM', 'marks', 'movedBy', 'policy', 'rectangles', 'regions', 'widthM', 'zones']
 const PRODUCTION_EXCHANGE =
     'Each team keeps its end for the whole activity. When you call the next block the teams exchange roles, not ends: each team now attacks the target zone of its new role, and nothing is re-marked unless you have moved the marked line; there is no set block length'
 
@@ -128,6 +142,14 @@ const withGoal = (team: string) =>
     buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: sessionOf({ objects: { goal: { count: 1, widthM: 5 } } }) } as any, zoneAloneRecords(), {
         alter: contracts => {
             ;(contracts.find(contract => contract.contractId === P)! as any).objectSuitability = TEST_SUITABILITY
+            /**
+             * Re-pointed 25 October 2026 (Z): the zone version's penalty area at the goalkeeper's end (his reply filed 28 October 2026, item 7)
+             * cannot stand where this TEST-ONLY goal stands (GA-BOUND-REGION refuses it at structure, measured), so the copy takes its six items
+             * out, as the goal version withdraws them, and declares REPORT, as A01-R1 did before Z (without the area it owes the handling law).
+             */
+            const zone = contracts.find(contract => contract.contractId === P)! as any
+            zone.items = zone.items.filter((item: ContractItem) => !['A01-R1-S2-2', 'A01-R1-S5-5', 'A01-R1-S6-2', 'A01-R1-S6-3', 'A01-R1-S7-1', 'A01-R1-S5-6'].includes(item.itemId))
+            if (zone.defaultLawsCheck) zone.defaultLawsCheck = { ...zone.defaultLawsCheck, mode: 'REPORT' }
             contracts
                 .find(contract => contract.contractId === P)!
                 .items.push(
@@ -424,7 +446,8 @@ test('the exchange says only what actually moves: an empty account names nothing
     assert.deepEqual(still.remarking, { lengthM: 40, changes: [] })
     // And with no mark inside the area at all (TEST-ONLY: every region on an end line): nothing to set out besides the area, none owed a
     // reason, and nothing moves, so the account is given empty too (until this stage: null in both cases).
-    const endLines = productionBlocks.map(bare)
+    // Re-pointed 25 October 2026 (Z): without the zone version's penalty area (`withoutZoneArea`), which this case does not move.
+    const endLines = productionBlocks.map(bare).map(withoutZoneArea)
     for (const entry of endLines) {
         for (const g of entry.fixture.status.geometry) {
             if (g.path === along(LINE) || g.path === along(NEAR)) g.geometry.interval = { from: 0, to: 0 }
@@ -443,7 +466,9 @@ test('the exchange says only what actually moves: an empty account names nothing
         'Each team keeps its end for the whole activity. When you call the next block the teams exchange roles, not ends: each team now attacks the target zone of its new role; there is no set block length',
     ])
     assert.ok(!exchange[0].text.includes(NOTHING_RE_MARKED))
-    assert.ok(fixture.game.space.regions.filter((region: any) => region.noun === 'zone').every((region: any) => exchange[0].from.includes(`space.regions[${region.elementId}].noun`)), 'the target noun is cited')
+    // Re-pointed 25 October 2026 (Z): the target zones' nouns; the zone version's penalty area is a zone too, bound to the goalkeeper's end and
+    // no target (his reply filed 28 October 2026, item 7), so this sentence does not name it.
+    assert.ok(fixture.game.space.regions.filter((region: any) => region.noun === 'zone' && !region.ofObject).every((region: any) => exchange[0].from.includes(`space.regions[${region.elementId}].noun`)), 'the target noun is cited')
     assert.ok(roleKeyedPositions(fixture).every(path => exchange[0].from.includes(path)) && roleKeyedPositions(fixture).length > 0)
     assert.deepEqual(q5(fixture, rendered), [])
     const unread = renderConcreteGame({ ...fixture, remarking: undefined }).instructions.find(i => i.section === ROLE_EXCHANGE && i.text.includes('set out again'))!

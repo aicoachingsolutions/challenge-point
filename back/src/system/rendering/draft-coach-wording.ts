@@ -35,7 +35,8 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import { loadRegister, loadSportDefaultLaws } from '../derivation/corpus'
-import { DefaultLaws } from '../derivation/default-laws'
+import { objectBindingOf, performerRowOfRegion, regionFunctionsOf } from '../derivation/bound-regions'
+import { DefaultLaws, REGION_PREDICATES } from '../derivation/default-laws'
 import { AUDITS_DIR } from '../derivation/knowledge-root'
 import { indexRegister, RegisterIndex } from '../derivation/register'
 import { equipmentShapeUnusableBecause, EquipmentPartState, EquipmentWhen } from './approved-wording'
@@ -193,11 +194,34 @@ export interface BoundRegionWording {
     basis: WordingBasis
 }
 
+/**
+ * **The Set up sentence for a region bound to a performer's end** — Z, 25 October 2026 (register version 25, row S7's second form; DRAFT).
+ * Christian, reply filed 28 October 2026, item 7: *"My preference is to use the same authorized small-sided [handling-area] geometry where
+ * appropriate, even when the physical [object] is replaced by a target zone."* (his nouns bracketed: the coupling ratchet keeps a sport's nouns
+ * out of this layer; the data file quotes him whole). Keyed by a region function and a specialized performer row: `noun` (no slot) is what the
+ * coach calls it and the diagram's label; `eachEnd` is said where the markings set out once hold it at both end lines (two mirrored rectangles:
+ * the performer's end alternates between blocks), with exactly the slots {region}, {width} and {depth}; `oneEnd` where they hold it at one
+ * (or block by block), with exactly {region}, {team} (the noun of the team whose end it is), {width} and {depth}. No final full stop.
+ */
+export interface EndRegionWording {
+    function: string
+    performerEnd: string
+    noun: string
+    eachEnd: string
+    oneEnd: string
+    basis: WordingBasis
+}
+
 /** A clause of an applied law: its words and his words for it (stage L). `also` names a law of the sport the clause also rests on. */
 export interface AppliedLawClause {
     words: string
     basis: WordingBasis
     also?: string
+    /**
+     * Z (25 October 2026; DRAFT): for an `inRegion` clause, its words where the region is marked at each end and the law gives it in the one at
+     * the end of the team holding the performer, with the slot {team} (that team's noun) and, as `words`, {performer} and {carrier} only.
+     */
+    oneOfEachEnd?: string
 }
 
 /**
@@ -307,6 +331,8 @@ export interface DraftCoachWording {
     departedLaws: DepartedLawWording[]
     /** Stage L: the Set up sentence for a region bound to an object, by function and object kind (empty where the file carries none). */
     boundRegions: BoundRegionWording[]
+    /** Z: the Set up sentences for a region bound to a performer's end, by function and performer row (empty where the file carries none). */
+    endRegions: EndRegionWording[]
     /** Stage L: the clauses for what a law the account records as applying gives the coach (empty where the file carries none). */
     appliedLaws: AppliedLawWording[]
     /** Stage I: the labels of the choices a coach states a session's objects by, by kind (empty where the file carries none). */
@@ -329,8 +355,9 @@ const CHOICE_LABEL_KEYS = new Set(['label', 'basis'])
 const ATTRIBUTE_CHOICE_KEYS = new Set(['attribute', 'value', 'label', 'basis'])
 const DEPARTED_LAW_KEYS = new Set(['law', 'words', 'basis'])
 const BOUND_REGION_KEYS = new Set(['function', 'objectKind', 'noun', 'sentence', 'basis'])
+const END_REGION_KEYS = new Set(['function', 'performerEnd', 'noun', 'eachEnd', 'oneEnd', 'basis'])
 const APPLIED_LAW_KEYS = new Set(['law', 'inRegion', 'distinguished'])
-const APPLIED_CLAUSE_KEYS = new Set(['words', 'basis', 'also'])
+const APPLIED_CLAUSE_KEYS = new Set(['words', 'basis', 'also', 'oneOfEachEnd'])
 const NORMAL_LAWS_KEYS = new Set(['words', 'held', 'basis'])
 const TRIGGER_KEYS = new Set(['trigger', 'phrase', 'basis'])
 const DEAD_BALL_KEYS = new Set(['starts', 'restarts', 'noOtherRestarts', 'basis'])
@@ -530,6 +557,25 @@ export function draftCoachWordingUnusableBecause(file: any, index: RegisterIndex
         for (const [n, entry] of (file.boundRegions as any[]).entries()) {
             const which = `bound region ${n + 1}`
             if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return `${which} is not an object`
+            /**
+             * Z (25 October 2026): an entry for a region bound to a performer's end - a function of the register's vocabulary and a specialized
+             * performer row of the register, the pair once, a noun with no slot, its two sentences each with exactly its slots and no final
+             * full stop, his words for it.
+             */
+            if (entry.performerEnd !== undefined) {
+                for (const key of Object.keys(entry)) if (!END_REGION_KEYS.has(key)) return `${which} carries "${key}"`
+                if (!filled(entry.function) || !functions.includes(entry.function)) return `${which} names the function ${JSON.stringify(entry.function)}, which is no member of the register's region-function vocabulary`
+                if (!filled(entry.performerEnd) || !index.specializedRoleRows.has(entry.performerEnd)) return `${which} names the row ${JSON.stringify(entry.performerEnd)}, which is no specialized performer row of the register`
+                if (seen.has(`${entry.function}|end:${entry.performerEnd}`)) return `${which} lists ${entry.function} at the end of the team holding ${entry.performerEnd} again`
+                seen.add(`${entry.function}|end:${entry.performerEnd}`)
+                if (!filled(entry.noun) || slotsIn(entry.noun).length || strayBrace(entry.noun)) return `${which}: its noun is missing or holds a slot`
+                if (!slotsExactly(entry.eachEnd, ['region', 'width', 'depth'])) return `${which}: its eachEnd sentence must hold exactly the slots {region}, {width} and {depth}`
+                if (!slotsExactly(entry.oneEnd, ['region', 'team', 'width', 'depth'])) return `${which}: its oneEnd sentence must hold exactly the slots {region}, {team}, {width} and {depth}`
+                if (entry.eachEnd.trim().endsWith('.') || entry.oneEnd.trim().endsWith('.')) return `${which}: a sentence ends with a full stop, which no instruction carries`
+                const endBasis = basisUnusableBecause(entry.basis)
+                if (endBasis) return `${which}: ${endBasis}`
+                continue
+            }
             for (const key of Object.keys(entry)) if (!BOUND_REGION_KEYS.has(key)) return `${which} carries "${key}"`
             if (!filled(entry.function) || !functions.includes(entry.function)) return `${which} names the function ${JSON.stringify(entry.function)}, which is no member of the register's region-function vocabulary`
             if (!filled(entry.objectKind) || !objectKinds.includes(entry.objectKind)) return `${which} names the object kind ${JSON.stringify(entry.objectKind)}, which is no object kind of the register's vocabulary`
@@ -563,7 +609,8 @@ export function draftCoachWordingUnusableBecause(file: any, index: RegisterIndex
             if (named.has(entry.law)) return `${which} lists ${entry.law} again`
             named.add(entry.law)
             if (entry.inRegion === undefined && entry.distinguished === undefined) return `${which} holds no clause`
-            const regionPredicate = [...law.applicableWhen, ...law.requires].some(predicate => predicate.predicate === 'REGION_BOUND_TO_OBJECT')
+            // Z (25 October 2026): either predicate that reads a region a law is keyed on (an object's region, or a performer's).
+            const regionPredicate = [...law.applicableWhen, ...law.requires].some(predicate => REGION_PREDICATES.includes(predicate.predicate))
             const performerPredicate = [...law.applicableWhen, ...law.requires].some(predicate => predicate.predicate === 'SPECIALIZED_PERFORMER_PRESENT')
             for (const [name, clause, slots, exact] of [
                 ['inRegion', entry.inRegion, ['performer', 'carrier'], false],
@@ -579,6 +626,14 @@ export function draftCoachWordingUnusableBecause(file: any, index: RegisterIndex
                 if (clause.words.trim().endsWith('.')) return `${at}: its words end with a full stop, which no instruction carries`
                 if (slotsIn(clause.words).includes('performer') && !performerPredicate) return `${at} names the performer, and no precondition of ${entry.law} names a specialized performer, so none is named by it`
                 if (name === 'inRegion' && !regionPredicate) return `${at} is said inside a region, and no precondition of ${entry.law} is a region bound to an object`
+                // Z: the words where the region is marked at each end - only for a clause inside a region, with {team} and otherwise its own slots.
+                if (clause.oneOfEachEnd !== undefined) {
+                    if (name !== 'inRegion') return `${at} carries words for a region marked at each end, and it is said in no region`
+                    if (!filled(clause.oneOfEachEnd) || strayBrace(clause.oneOfEachEnd) || !slotsIn(clause.oneOfEachEnd).includes('team') || slotsIn(clause.oneOfEachEnd).some(slot => !['team', ...slots].includes(slot))) {
+                        return `${at}: its oneOfEachEnd words are missing, do not name {team}, or hold a slot other than {team}, ${slots.map(slot => `{${slot}}`).join(' and ')}`
+                    }
+                    if (clause.oneOfEachEnd.trim().endsWith('.')) return `${at}: its oneOfEachEnd words end with a full stop, which no instruction carries`
+                }
                 if (clause.also !== undefined && !filled(clause.also)) return `${at}: its also is empty`
                 const basis = basisUnusableBecause(clause.basis)
                 if (basis) return `${at}: ${basis}`
@@ -693,7 +748,7 @@ export function draftCoachWordingUnusableBecause(file: any, index: RegisterIndex
     return null
 }
 
-const EMPTY: DraftCoachWording = { adjustmentLimits: null, methods: [], equipment: [], objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [], boundRegions: [], appliedLaws: [], objectChoices: [] }
+const EMPTY: DraftCoachWording = { adjustmentLimits: null, methods: [], equipment: [], objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [], boundRegions: [], endRegions: [], appliedLaws: [], objectChoices: [] }
 
 /** The wording from a parsed file, copied, or none with why. */
 export function draftCoachWordingLoadOf(file: any, index: RegisterIndex, laws: DefaultLaws | null = loadSportDefaultLaws()): DraftCoachWordingLoad {
@@ -712,7 +767,9 @@ export function draftCoachWordingLoadOf(file: any, index: RegisterIndex, laws: D
             deadBallRestart: file.deadBallRestart === undefined ? {} : JSON.parse(JSON.stringify(file.deadBallRestart)),
             restartLawNouns: file.restartLawNouns === undefined ? [] : JSON.parse(JSON.stringify(file.restartLawNouns)),
             departedLaws: file.departedLaws === undefined ? [] : JSON.parse(JSON.stringify(file.departedLaws)),
-            boundRegions: file.boundRegions === undefined ? [] : JSON.parse(JSON.stringify(file.boundRegions)),
+            // Z: the entries of the object form, and (apart) those of a performer's end, each list in the file's order.
+            boundRegions: file.boundRegions === undefined ? [] : JSON.parse(JSON.stringify((file.boundRegions as any[]).filter(entry => entry.performerEnd === undefined))),
+            endRegions: file.boundRegions === undefined ? [] : JSON.parse(JSON.stringify((file.boundRegions as any[]).filter(entry => entry.performerEnd !== undefined))),
             appliedLaws: file.appliedLaws === undefined ? [] : JSON.parse(JSON.stringify(file.appliedLaws)),
             objectChoices: file.objectChoices === undefined ? [] : JSON.parse(JSON.stringify(file.objectChoices)),
         },
@@ -731,6 +788,11 @@ export function boundRegionWording(regionFunction: unknown, objectKind: unknown,
     return wording.boundRegions.find(entry => entry.function === regionFunction && entry.objectKind === objectKind) ?? null
 }
 
+/** The DRAFT Set up sentences for a region of this function bound to the end of the team holding this performer row, or null (Z). */
+export function endRegionWording(regionFunction: unknown, row: unknown, wording: DraftCoachWording = draftCoachWordingLoad().wording): EndRegionWording | null {
+    return wording.endRegions.find(entry => entry.function === regionFunction && entry.performerEnd === row) ?? null
+}
+
 /** The DRAFT clauses for what each law applying gives the coach, in the order listed (stage L). */
 export function appliedLawWordings(wording: DraftCoachWording = draftCoachWordingLoad().wording): AppliedLawWording[] {
     return JSON.parse(JSON.stringify(wording.appliedLaws))
@@ -741,13 +803,39 @@ export function appliedLawWordings(wording: DraftCoachWording = draftCoachWordin
  * REGION_BOUND_TO_OBJECT preconditions (where its `inRegion` clause is said) and the performer rows of its SPECIALIZED_PERFORMER_PRESENT ones
  * (whose performer's name fills {performer}), from the Sport Profile's defaultLaws block; empty for a law it does not name.
  */
-export function appliedLawReading(law: string, laws: DefaultLaws | null = loadSportDefaultLaws()): { regions: { function: string; kind: string }[]; performerRows: string[] } {
+export function appliedLawReading(law: string, laws: DefaultLaws | null = loadSportDefaultLaws()): { regions: LawRegionReading[]; performerRows: string[] } {
     const found = (laws?.laws ?? []).find(candidate => candidate.id === law)
     const requires = [...(found?.applicableWhen ?? []), ...(found?.requires ?? [])]
     return {
-        regions: requires.filter(predicate => predicate.predicate === 'REGION_BOUND_TO_OBJECT').map(predicate => ({ function: String(predicate.function), kind: String(predicate.kind) })),
+        // Z (25 October 2026): either region predicate - an object's region of a kind, or a region of the team holding a performer row.
+        regions: requires
+            .filter(predicate => REGION_PREDICATES.includes(predicate.predicate))
+            .map(
+                (predicate): LawRegionReading =>
+                    predicate.predicate === 'REGION_BOUND_TO_OBJECT'
+                        ? { predicate: 'REGION_BOUND_TO_OBJECT', function: String(predicate.function), kind: String(predicate.kind) }
+                        : { predicate: 'REGION_OF_PERFORMER', function: String(predicate.function), row: String(predicate.row) },
+            ),
         performerRows: requires.filter(predicate => predicate.predicate === 'SPECIALIZED_PERFORMER_PRESENT').map(predicate => String(predicate.row)),
     }
+}
+
+/** One region precondition of a law, as `appliedLawReading` reads it: an object's region of a kind, or a region of a performer row's team (Z). */
+export type LawRegionReading = { predicate: 'REGION_BOUND_TO_OBJECT'; function: string; kind: string } | { predicate: 'REGION_OF_PERFORMER'; function: string; row: string }
+
+/**
+ * **Whether a law's region precondition reads this region of this game** (Z, 25 October 2026): the region serves the precondition's function
+ * and is bound to an object of its kind (REGION_BOUND_TO_OBJECT), or belongs to the team holding its performer row - bound to an object that
+ * team defends, or to that team's end (REGION_OF_PERFORMER, `performerRowOfRegion`). The one reading the renderer and fidelity share, so a
+ * clause is said for exactly the regions the default-laws account reads.
+ */
+export function lawReadsRegion(found: LawRegionReading, region: unknown, game: unknown, index: RegisterIndex): boolean {
+    if (!regionFunctionsOf(region, index).includes(found.function)) return false
+    if (found.predicate === 'REGION_OF_PERFORMER') return performerRowOfRegion(region, game, index) === found.row
+    const binding = objectBindingOf(region, index)
+    const objects = (game as { objects?: unknown } | null | undefined)?.objects
+    const object = binding && Array.isArray(objects) ? (objects as any[]).find(candidate => String(candidate?.elementId) === binding.objectId) : undefined
+    return !!object && object.kind === found.kind
 }
 
 /** The DRAFT normal-rules sentence, or null where the file carries none (stage L: said where the account owes nothing). */

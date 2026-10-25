@@ -9192,3 +9192,47 @@ served twin. Front: tests 16 passed, tsc, build; lint 899 (backlog 901). `front/
 `fa-pairing.json` added. Screenshots `scratchpad/cd/build/p2-shots/` (goal Coach Details at 375 and 1280).
 Open: his ruling on the boundary reading (at 9 m exactly); the zone version's line is held at validation by A01-R1-S5-4 (the pressing team's
 5 m area must lie short of it, OUR READING) but no range is stated there (the range reads bounds on the moved line only); stage Z.
+
+### 25 October — Z: his reply filed 28 October 2026, item 7 (the goalkeeper's handling area in the zone version)
+
+His words are in `scratchpad/christian-2026-10-28.txt`; every quotation Z wrote was byte-checked against the replies (`scratchpad/cd/build/review/oct28/z/z-bytecheck.cjs`).
+- Binding. The area is bound to the goalkeeper's OWN END, never to the pressing team's target: register row S7 gains a second, closed form
+  `{performerEnd: <a specialized performer row of the teams>, pairing, borrows: ["region"]}` (register version 25, versions entry
+  `S7.valueType` 2). The Sport Profile PERMITS it (`BOUND-REGION-PERFORMER-END`: row P3, a zone of the function penalty-area, only where no
+  goal stands at that end; permitted, never required), loader-validated. LAW-12-GK now requires `REGION_OF_PERFORMER {function, row}` (PRESENT
+  for a region bound to an object the P3 team defends, or to that team's end), its old predicate and 'so the zone version still owes this
+  law' kept in a dated AMENDED line; LAW-14 keeps `REGION_BOUND_TO_OBJECT`.
+- Knowledge. A01-R1 holds six OWNER_RULING items (S2-2 the zone; S5-5 the building team's own end 0-9 m, the depth PROVISIONAL with
+  `provisionalFigure`; S6-2 central; S6-3 15 m wide; S7-1 `{performerEnd: P3, pairing: FA-MINI-SOCCER-5V5-2026, borrows: ["region"]}`; S5-6
+  the marked line beyond the area for the building team, his item 2). Its default-laws check is ENFORCE (dated line, 'Was: REPORT.'). A01-R2
+  withdraws the six on his 1b words, keeping its own area at its goal (said byte-identically). His "the same" is pinned: the zone version's
+  area figures equal the goal version's (`zone-penalty-area.unit.ts`). Stale notes carry dated lines (the Sport Profile's boundRegions and
+  LAW-12-GK notes, the register notes, D-DEFAULT-LAWS note and description, A01-ADJ-3).
+- Engine (sport-neutral; ratchets unchanged). `bindingOf` returns OBJECT or PERFORMER_END and every consumer reads it; GA-BOUND-REGION
+  checks an end-bound region per block before and after realization (own end of the team holding the row, the end established by the block,
+  no object of the governing kind at that end, one per row and function per team, depth and width exact, centred, inside the touchlines);
+  the default-laws check reads `REGION_OF_PERFORMER`; fidelity and the draft-wording loader admit the new predicate; the renderer says a
+  mirrored end-bound area once ("at each end" with the one-of-each-end clause); the diagram draws both areas grey with one label.
+- What a coach reads (DRAFT, zone version, 12/1, 12/2, 11/1; 29 Details sentences, nothing said twice, fidelity 0, live equals review on
+  the built bundle; 11/2 and 12/3 served as before, every other size or count refused as before): Set up "Mark a penalty area at each end: 15 m wide, centred on the end line, and 9 m deep into the area; inside the one
+  at the building team's end, the goalkeeper can handle the ball as in a normal game"; How it works "There is no offside; otherwise, normal
+  soccer rules apply during play"; Adjusting "You may choose to move the marked line nearer to either end line, but no nearer than 9 m to
+  the building team's end line, so that it stays outside the penalty area; when the roles exchange, set it out again at the same distance
+  from the new building team's end line". The coach is not told the 9 m is provisional. The goal version says exactly what it said.
+- Scoring and eligibility unchanged (his "Please verify"): each block's game with the area set aside equals the zone version's game before
+  Z; every structural check passes as before; W2 and W3 said as approved; only blockIndex references in the Overview's scoring shift.
+- Mutations refused (TEST-ONLY): off-centre (authored: validation; realized: the check), 8 m depth (load), the end of the team with no
+  goalkeeper (validation, both blocks), two areas for one team (structure), an end binding where a goal stands (the check), no borrows or
+  no pairing (load and the check), the area removed (LAW-12-GK owed, refused under ENFORCE). The goal version with its withdrawal forgotten
+  is refused at structure by derivation collisions (Gate A), before GA-BOUND-REGION is reached.
+- Front: the admin review page's bound-region panel (`BoundRegionEvidence`, exported) shows a performer-end requirement as permitted and
+  its binding as the end of the team holding the row (the old code would have thrown on `requirement.object.kind`); front test with
+  `fixtures/bound-regions.json`. `a01.json` and `fa-pairing.json` re-copied from `Z-impl.json`.
+Evidence: `npm test` FILES 134 FAILED 0 (new `zone-penalty-area.unit.ts`, 10 tests); snapshot `Z-impl.json` vs `P2-impl.json`: 34 of 391
+keys, all A01 (the zone version's three sentences, diagram, evidence; the goal version's LAW-12-GK predicate, digests and register
+version; the amended gap strings in every A01 account); demos and non-A01 goals unchanged. Front: 18 tests, tsc, build; lint 891
+(backlog 901). Screenshots `scratchpad/cd/build/z-shots/`.
+Open: the penalty area overlaps the pressing team's 5 m target zone at the building team's end (0-5 m by 7.5-22.5 m): the scoring rules
+are unchanged, but whether the goalkeeper's handling there changes the pressing team's regains is a design judgment for him. Block-by-
+block marking (a line moved at the exchange) is refused at communication in the zone version when the area must move with the
+goalkeeper (TEST-ONLY copies only; no production configuration does this). The 9 m depth stays provisional (item 8).

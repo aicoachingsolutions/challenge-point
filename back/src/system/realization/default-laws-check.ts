@@ -39,9 +39,13 @@
  * records on itself, for a law its activity removes without replacing it (`RealizationDepartures`), are read beside its items' departures,
  * each cited by the realization that records it as an item's is cited by the item; every rule above reads them exactly as an item's.
  *
+ * **Z, 25 October 2026 (register version 25).** REGION_OF_PERFORMER is read from the game (`regionOfPerformer`): a region of the function
+ * bound to an object the team holding the row defends, or to that team's end. The two object predicates read only regions bound to an object
+ * (`boundRegionsOf`), so a game binding no region to a performer's end reads exactly what it did.
+ *
  * Sport-neutral: law ids, object kinds, region functions and performer rows are the profile's data; the rows and leaves are the register's.
  */
-import { bindingOf, regionFunctionsOf, SportBoundRegions } from '../derivation/bound-regions'
+import { bindingOf, objectBindingOf, ObjectRegionBinding, performerRowOfRegion, regionFunctionsOf, SportBoundRegions } from '../derivation/bound-regions'
 import { roleHolderNames } from '../derivation/designation'
 import { CitedWords, DefaultLaws, DefaultLawsCheck, DefaultLawsCheckMode, departuresOf, LawDeparture, LawPredicate, LawStatus, RealizationDepartures, samePredicate } from '../derivation/default-laws'
 import { RegisterIndex } from '../derivation/register'
@@ -187,7 +191,11 @@ function objectAtEnd(game: unknown, index: RegisterIndex, kind: string, end: 0 |
     return objectsAtEnd(objects.filter(object => object.kind === kind), `object of the kind ${kind}`, end, lengthM)
 }
 
-/** The regions with a function that are bound to an object, each with the object it is bound to as the game holds it; null where unreadable. */
+/**
+ * The regions with a function that are bound to an object, each with the object it is bound to as the game holds it; null where unreadable.
+ * Z (25 October 2026): only the first form of the binding row (an object); a region bound to a performer's end is read by REGION_OF_PERFORMER
+ * alone, so the two object predicates read exactly what they did.
+ */
 function boundRegionsOf(game: unknown, index: RegisterIndex, regionFunction: string): { region: string; object: PlacedObject | null; objectId: string; pairing: string | null }[] | null {
     const spec = index.boundRegions
     if (!spec) return []
@@ -197,9 +205,44 @@ function boundRegionsOf(game: unknown, index: RegisterIndex, regionFunction: str
     if (!Array.isArray(regions) || objects === null) return null
     return regions
         .filter(region => regionFunctionsOf(region, index).includes(regionFunction))
-        .map(region => ({ region, binding: bindingOf(region, index) }))
-        .filter((entry): entry is { region: any; binding: { objectId: string; pairing: string | null } } => !!entry.binding)
+        .map(region => ({ region, binding: objectBindingOf(region, index) }))
+        .filter((entry): entry is { region: any; binding: ObjectRegionBinding } => !!entry.binding)
         .map(({ region, binding }) => ({ region: String(region?.elementId ?? '(no id)'), object: objects.find(object => object.id === binding.objectId) ?? null, objectId: binding.objectId, pairing: binding.pairing }))
+}
+
+/**
+ * **REGION_OF_PERFORMER {function, row}** (Z, 25 October 2026, register version 25): a region with the function belongs to the team holding a
+ * performer on the row - bound to an object whose defended-by line names the row (O7), or bound to the end of the team holding the row (S7's
+ * second form) - for the game anywhere, and per end line only where that region's realized along position touches that end line. Christian,
+ * reply filed 28 October 2026, item 7: *"I favor retaining a defined [specialized performer] handling area in the target-zone version."* (his
+ * noun bracketed). Read from the register's bound-region rows and the game; a collection it cannot read is UNKNOWN, never absent. Where the
+ * region it reads stands, and that the team holding the row holds a performer in this block, GA-BOUND-REGION holds per block before an
+ * account is computed.
+ */
+function regionOfPerformer(game: unknown, index: RegisterIndex, predicate: LawPredicate, place: Place): Reading {
+    const spec = index.boundRegions
+    if (!spec) return { reading: 'ABSENT', why: 'the register names no row binding a region' }
+    const container = splitPath(spec.path).container
+    const regions = container ? readAt(game, container) : undefined
+    if (!Array.isArray(regions) || placedObjects(game, index) === null) return { reading: 'UNKNOWN', why: `the game holds no readable list of regions or objects, so whether a region with the function ${predicate.function} belongs to the team holding ${predicate.row} cannot be read` }
+    const fn = String(predicate.function)
+    const row = String(predicate.row)
+    const serving = regions.filter(region => regionFunctionsOf(region, index).includes(fn))
+    const belonging = serving.filter(region => performerRowOfRegion(region, game, index) === row)
+    const describe = (region: any) => {
+        const binding = bindingOf(region, index)
+        return binding?.to === 'PERFORMER_END' ? `${String(region?.elementId ?? '(no id)')} is bound to the end of the team holding ${binding.row}` : `${String(region?.elementId ?? '(no id)')} is bound to ${binding?.to === 'OBJECT' ? binding.objectId : 'nothing'}, defended by the team holding ${row}`
+    }
+    if (!belonging.length) return { reading: 'ABSENT', why: `no region with the function ${fn} belongs to the team holding ${row} (bound to an object it defends, or to its end)${serving.length ? ` (${serving.map(region => `${String(region?.elementId ?? '(no id)')} ${bindingOf(region, index) ? 'belongs to another' : 'is bound to nothing'}`).join(', ')})` : ''}` }
+    const said = belonging.map(describe).join(', ')
+    if (place.end === null) return { reading: 'PRESENT', why: said }
+    if (place.lengthM === null) return { reading: 'UNKNOWN', why: 'the session states no area, so where the end lines lie is not known' }
+    const line = place.end * place.lengthM
+    const touching = belonging.filter(region => {
+        const interval = (readAt(region, `realizedGeometry.${spec.alongLeaf}`) as { interval?: { from?: unknown; to?: unknown } } | undefined)?.interval
+        return interval && typeof interval.from === 'number' && typeof interval.to === 'number' && (Math.abs(interval.from - line) < SAME || Math.abs(interval.to - line) < SAME)
+    })
+    return touching.length ? { reading: 'PRESENT', why: `${said}, and ${touching.map(region => String(region?.elementId)).join(', ')} lies at the end line at ${line} m` } : { reading: 'ABSENT', why: `${said}, and none lies at the end line at ${line} m` }
 }
 
 /**
@@ -270,6 +313,8 @@ function readPredicate(predicate: LawPredicate, game: unknown, index: RegisterIn
             return regionBoundToObject(game, index, predicate, place)
         case 'BOUND_REGION_MARK':
             return boundRegionMark(game, index, predicate, place, boundRegions)
+        case 'REGION_OF_PERFORMER':
+            return regionOfPerformer(game, index, predicate, place)
         case 'UNREPRESENTED':
             return { reading: 'ABSENT', why: `the representation holds no row for it: ${predicate.what}` }
     }

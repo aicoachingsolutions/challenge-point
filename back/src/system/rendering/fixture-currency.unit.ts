@@ -260,6 +260,13 @@
  * `git diff` of the fixture shows those four values and nothing else. The Golden Case writes no restart method, so nothing of it is said
  * differently.
  *
+ * **Re-frozen 25 October 2026 (Z): `2462861d` → `58b89b1e`. The GAME did not move; only the register version did.** Register version
+ * 25 adds a second, closed form to the bound-object row S7 (the end line of the team holding a specialized performer) for his reply filed
+ * 28 October 2026, item 7 ("I favor retaining a defined goalkeeper handling area in the target-zone version."), written by one knowledge item
+ * (A01-R1-S7-1). So `inputDigest` / `fromDigest` (1c6d498d → bd6c87c9), the audit digest (42b2b98a → 4410d6c1) and the `registerVersion`
+ * sentence moved, and `git diff` of the fixture shows those four values and nothing else. The Golden Case binds no region, so nothing of it
+ * is said differently.
+ *
  * **Since stage K3 a fixture may be COMPOSED from two role blocks** (`build-activity.ts`, `role-blocks.ts`): block one's
  * fixture with a `roleBlocks` block carrying each block's own fixture whole. The Golden Case is a single game and is
  * frozen as one; the composed shape is guarded below by key identity, so a future frozen two-block fixture cannot lose a
