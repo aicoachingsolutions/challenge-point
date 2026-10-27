@@ -544,8 +544,11 @@ export function validateLearningGoalAuthorizations(
          * **The manipulations are a list, an empty one included** (E2, 27 October 2026, a TIGHTENING). The type requires the field and
          * every reader dereferences it (`neededRecordGaps`, `authorizationLists`), while this gate read it with `?? []`, so a record copy
          * that left it out passed the gate and crashed the build with a TypeError. Refused here instead, as a register-row list is below.
+         * The gate's own reads below take only a list (after the E2 review): a value present but not a list (`{}`, a word, a number) slipped
+         * past `?? []` and crashed THIS gate with a TypeError instead of being refused by the sentence above.
          */
         if (!Array.isArray(entry.manipulations)) errors.push(`${goal}: lists no manipulations (an empty list says it records none)`)
+        const manipulations: ManipulationRecord[] = Array.isArray(entry.manipulations) ? entry.manipulations : []
         if ('zeroConstraintRuling' in (entry as object)) errors.push(`${goal}: a per-goal zero-constraint ruling is not read; the general principle governs every record alike`)
         // Stage K8: a review request that cannot be read whole would let the review evidence silently omit what he asked to see.
         if (entry.reviewRequest !== undefined) errors.push(...validateReviewRequest(goal, entry.reviewRequest))
@@ -570,7 +573,7 @@ export function validateLearningGoalAuthorizations(
             if (gap.settledBy !== undefined) {
                 if (!Array.isArray(gap.settledBy) || !gap.settledBy.length || !gap.settledBy.every(w => filled(w?.words) && filled(w?.citedAs))) errors.push(`${goal}: the gap ${gap.id} is settled by no cited words of his`)
                 const waiting = [
-                    ...(entry.manipulations ?? []).filter(m => isGapStatus(m.status) && Array.isArray(m.gaps) && m.gaps.includes(gap.id)).map(m => m.phrase),
+                    ...manipulations.filter(m => isGapStatus(m.status) && Array.isArray(m.gaps) && m.gaps.includes(gap.id)).map(m => m.phrase),
                     ...(entry.provisionalChoices ?? []).filter(c => isGapStatus(c.status) && Array.isArray(c.gaps) && c.gaps.includes(gap.id)).map(c => c.choice),
                     // Stage F (26 October 2026): an alternative realization listed waiting on the gap waits on it as an entry does.
                     ...(Array.isArray(entry.realizations) ? entry.realizations : [])
@@ -662,7 +665,7 @@ export function validateLearningGoalAuthorizations(
                 errors.push(`${goal}: the exclusion of ${id} cross-references ${exclusion.heldBy}, which does not hold it`)
             }
         }
-        for (const [i, manipulation] of (entry.manipulations ?? []).entries()) {
+        for (const [i, manipulation] of manipulations.entries()) {
             const which = `${goal}: manipulation ${i + 1} (${manipulation.phrase || 'no phrase'})`
             if (!filled(manipulation.phrase) || !filled(manipulation.phraseFrom)) errors.push(`${which} quotes no phrase or names no source for it`)
             if (!filled(manipulation.source)) errors.push(`${which} cites no source`)

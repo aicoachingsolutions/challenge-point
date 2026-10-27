@@ -234,6 +234,11 @@ test('the gate refuses an entry without a citation', () => {
     // readers); it is refused here now. An empty list is an answer: the record records none.
     assert.ok(damaged(r => delete (r as any).manipulations).some(e => e.includes('A01: lists no manipulations (an empty list says it records none)')))
     assert.ok(damaged(r => ((r as any).manipulations = null)).some(e => e.includes('lists no manipulations')))
+    // After the E2 review: a value present but not a list slipped past the gate's own `?? []` reads and crashed the gate with a TypeError;
+    // it is refused by the same sentence now, never thrown.
+    for (const notAList of [{}, 'none', 3]) {
+        assert.ok(damaged(r => ((r as any).manipulations = notAList)).some(e => e.includes('A01: lists no manipulations (an empty list says it records none)')), JSON.stringify(notAList))
+    }
     assert.deepEqual(damaged(r => (r.authorizedConstraints = null)), [], 'null is an answer: not yet evaluated')
     assert.ok(damaged(r => (r.authorizedConstraintsFinding = '')).some(e => e.includes('carries no finding')))
 })
