@@ -30,7 +30,7 @@ import Logger from '../logger'
 import LoggingService from '../services/logging.service'
 import { deriveInputConstraints } from '../system/input-constraints/deriveInputConstraints'
 import { ActivityReviewRequestError, activityReviewOptions, reviewActivity } from '../system/rendering/activity-review'
-import { CHECKED_CHAIN, CHECKED_PATHWAY_FAILURE_STAGE, CheckedSaveRequestError, checkedSave, editableUpdateOf, liveCheckedActivity, livePathwayOf, liveRefusalBody, notCheckedNotice, planningInputUse, unconsumedInputsNote, withPathwayNotice } from '../system/rendering/live-activity'
+import { CHECKED_CHAIN, CHECKED_PATHWAY_FAILURE_STAGE, CheckedSaveRequestError, checkedSave, editableUpdateOf, liveCheckedActivity, livePathwayOf, liveRefusalBody, notCheckedNotice, planningInputUse, servedStoredActivity, unconsumedInputsNote, withPathwayNotice } from '../system/rendering/live-activity'
 import { UnknownActivityRequest } from '../system/rendering/build-activity'
 import { buildPilotActivity, isPilotRefused } from '../system/rendering/build-pilot-activity'
 import { sessionObjectChoices } from '../system/rendering/session-object-choices'
@@ -1522,17 +1522,12 @@ router.get(ROUTES.sessionPlanning, async (_req: Request, res: Response) => {
     }
 })
 
-/**
- * **A stored activity as every read serves it** — the live-app status notice, 25 October 2026 (his reply filed 26 October 2026, item 9(a):
- * *"provided their status and limitations are not misrepresented"*): the document as it was always sent, with the DRAFT notice beside it
- * wherever its recorded pathway is not the checked one (`withPathwayNotice`), so a coach who opens or lists a saved activity later is told
- * what it is. The stored document is not changed.
+/*
+ * The two list routes below serve each stored activity as `servedStoredActivity` does (live-activity.ts) — the live-app status notice, 25 October
+ * 2026 (his reply filed 26 October 2026, item 9(a): "provided their status and limitations are not misrepresented"): the document as it was
+ * always sent, with the DRAFT notice beside it wherever its recorded pathway is not the checked one, so a coach who lists a saved activity later
+ * is told what it is. The stored document is not changed.
  */
-const servedActivity = (activity: unknown): Record<string, unknown> => {
-    const document = activity as { toJSON?: () => Record<string, unknown> } | null
-    return withPathwayNotice(typeof document?.toJSON === 'function' ? document.toJSON() : { ...(activity as Record<string, unknown>) })
-}
-
 router.get(`${ROUTES.activity}/my-activities`, async (req: Request, res: Response) => {
     try {
         const userSessions = await Session.find({ createdBy: res.locals.sessionUser })
@@ -1541,7 +1536,7 @@ router.get(`${ROUTES.activity}/my-activities`, async (req: Request, res: Respons
             session: { $in: userSessions.map((session) => session._id) },
         }).populate('session')
 
-        return res.status(200).send(activities.map(servedActivity))
+        return res.status(200).send(activities.map(servedStoredActivity))
     } catch (error) {
         return res.status(500).send({ error })
     }
@@ -1551,7 +1546,7 @@ router.get(`${ROUTES.activity}/session/:id`, async (req: Request, res: Response)
     try {
         const activities = await Activity.find({ session: req.params.id })
 
-        return res.status(200).send(activities.map(servedActivity))
+        return res.status(200).send(activities.map(servedStoredActivity))
     } catch (error) {
         return res.status(500).send({ error })
     }

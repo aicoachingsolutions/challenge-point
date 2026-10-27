@@ -11,7 +11,8 @@
  *      activity saved before this notice (which records no pathway) included; a read adds it beside the stored fields and changes nothing
  *      else, and no update writes it;
  *   3. the live route: both of the generation route's served responses carry it, the checked pathway's does not, and every read of a stored
- *      activity carries it by its pathway (the route's own source, as live-activity.unit.ts reads it);
+ *      activity carries it by its pathway (the route's own source, as live-activity.unit.ts reads it); the two list routes run
+ *      `servedStoredActivity`, whose body is run here over real Activity documents (review round 1);
  *   4. no word of it is written in a back or front source file: the front renders what the server sends.
  * The response bodies themselves are measured through the REAL router on the built bundle (a TEST-ONLY stubbed model, outside the regression
  * snapshot, whose stubbed model answers empty, so its generation keys are refusals and carry no notice).
@@ -22,10 +23,11 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 
+import Activity from '../../models/activity.model'
 import { loadRegister } from '../derivation/corpus'
 import { indexRegister } from '../derivation/register'
 import { DRAFT_COACH_WORDING_FILE, draftCoachWordingLoad, draftCoachWordingLoadOf, draftCoachWordingUnusableBecause } from './draft-coach-wording'
-import { CHECKED_CHAIN, editableUpdateOf, notCheckedNotice, READ_ONLY_FIELDS, storedPathwayNotice, withPathwayNotice } from './live-activity'
+import { CHECKED_CHAIN, editableUpdateOf, notCheckedNotice, READ_ONLY_FIELDS, servedStoredActivity, storedPathwayNotice, withPathwayNotice } from './live-activity'
 
 let passed = 0
 function test(name: string, body: () => void): void {
@@ -128,6 +130,43 @@ test('a read serves the activity as stored, with the notice beside an unchecked 
     assert.deepEqual(editableUpdateOf(edit), { _id: 'TEST-ONLY-1', title: 'TEST-ONLY edited' }, 'no update writes the notice, nor the pathway it is read from')
 })
 
+test('the two list routes\' own body, over real Activity documents: a generated one is served with the notice, a checked one exactly as stored', () => {
+    // Real Mongoose documents of the activity model (no database: a document is built and serialized in memory), as the store answers the
+    // session's list and the coach's list. Review round 1: before this, no test ran the body those routes run.
+    const SESSION = '64b7f0c2a1b2c3d4e5f60718'
+    const generated = new Activity({
+        session: SESSION, activityStatus: 'inProgress', title: 'TEST-ONLY generated', constraint: 'TEST-ONLY', intent: 'TEST-ONLY', setup: 'TEST-ONLY',
+        extensions: ['TEST-ONLY'], scaffolding: ['TEST-ONLY'], playerGroupSizes: 6, equipmentNeeded: ['TEST-ONLY'], rules: ['TEST-ONLY'], scoringSystem: 'TEST-ONLY',
+        systemTrace: { archetypeId: 'TEST-ONLY', archetypeName: 'TEST-ONLY' }, learningPriorities: [{ description: 'TEST-ONLY', achieved: false }],
+    })
+    const checked = new Activity({
+        session: SESSION, activityStatus: 'inProgress', title: 'TEST-ONLY checked', pathway: CHECKED_CHAIN, checkedActivity: { outcome: 'served', title: 'TEST-ONLY' },
+        checkedInputs: { learningGoalId: 'TEST-ONLY', practiceSituationId: null, durationMin: 20 }, inputDigests: [{ blockId: 'TEST-ONLY', inputDigest: null }],
+    })
+    assert.equal(generated.get('pathway'), undefined, 'a generated save records no pathway')
+    assert.equal(checked.get('pathway'), CHECKED_CHAIN)
+
+    const servedGenerated = servedStoredActivity(generated)
+    assert.deepEqual(servedGenerated, { ...generated.toJSON(), pathwayNotice: notCheckedNotice() }, 'the generated document as it was always sent, and the notice beside it')
+    assert.ok(servedGenerated.pathwayNotice, 'the notice is there')
+    const servedChecked = servedStoredActivity(checked)
+    assert.deepEqual(servedChecked, checked.toJSON(), 'the checked document exactly as it was always sent')
+    assert.ok(!('pathwayNotice' in servedChecked), 'and no notice beside it')
+
+    // As the routes call it: over the list the store answers (each index a map hands it is ignored).
+    assert.deepEqual([generated, checked].map(servedStoredActivity), [{ ...generated.toJSON(), pathwayNotice: notice }, checked.toJSON()])
+    // The stored documents are not changed, and the store cannot hold a notice: the schema drops one handed to it.
+    assert.equal(generated.get('pathwayNotice'), undefined)
+    assert.ok(!('pathwayNotice' in generated.toJSON()))
+    const handed = new Activity({ session: SESSION, title: 'TEST-ONLY handed a notice', pathway: CHECKED_CHAIN, pathwayNotice: notice })
+    assert.ok(!('pathwayNotice' in handed.toJSON()), 'the activity model holds no notice')
+    assert.ok(!('pathwayNotice' in servedStoredActivity(handed)), 'so a checked document handed one is served without it')
+    // A plain object (no toJSON) is copied and served by the same rule.
+    const plain = { _id: 'TEST-ONLY-3', title: 'TEST-ONLY plain' }
+    assert.deepEqual(servedStoredActivity(plain), { ...plain, pathwayNotice: notice })
+    assert.deepEqual(plain, { _id: 'TEST-ONLY-3', title: 'TEST-ONLY plain' }, 'not changed')
+})
+
 test('the live route: both served generation responses carry the notice, the checked pathway\'s does not; every read of a stored activity carries it by its pathway', () => {
     // Read with its line endings as git keeps them (a Windows checkout writes CRLF).
     const read = (file: string) => fs.readFileSync(path.join(__dirname, file), 'utf8').split('\r\n').join('\n')
@@ -153,7 +192,16 @@ test('the live route: both served generation responses carry the notice, the che
 
     // Every read of a stored activity: the activity page (BaseRoutes GET /activity/:id and GET /activity), the session's list and the coach's list.
     assert.ok(routes.includes('    transform: withPathwayNotice,\n})'), 'the activity reads BaseRoutes serves carry it')
-    assert.equal(routes.split('activities.map(servedActivity)').length - 1, 2, 'the two list routes carry it')
+    // The two list routes run servedStoredActivity itself (its body is pinned above over real documents); the routes define no copy of it.
+    assert.equal(routes.split('activities.map(servedStoredActivity)').length - 1, 2, 'the two list routes carry it')
+    assert.ok(/import \{[^}]*\bservedStoredActivity\b[^}]*\} from '\.\.\/system\/rendering\/live-activity'/.test(routes), 'imported from live-activity.ts')
+    assert.equal(routes.split('servedStoredActivity').length - 1, 4, 'and named nowhere else in the routes: the import, the note above the lists, and the two lists')
+    assert.ok(!routes.includes('const servedActivity'), 'no local copy of the body')
+    for (const list of ['router.get(`${ROUTES.activity}/my-activities`', 'router.get(`${ROUTES.activity}/session/:id`']) {
+        const at = routes.indexOf(list)
+        assert.ok(at > 0, `${list} is found`)
+        assert.ok(routes.slice(at, routes.indexOf('\n})\n', at)).includes('.send(activities.map(servedStoredActivity))'), `${list} serves its list through it`)
+    }
     const helper = read('../../routes/helper.ts')
     assert.equal(helper.split('transform(excludeProperties(').length - 1, 2, 'both BaseRoutes reads apply it')
 })

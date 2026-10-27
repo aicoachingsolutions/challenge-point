@@ -69,6 +69,9 @@ export function livePathwayOf(selection: Pick<TestLibrarySelectionResult, 'selec
  * it. The notice is the short status (`label`, shown where activities are listed) and the words beside the activity, both DRAFT wording data
  * (`draft-coach-wording.json` notCheckedNotice, validated by its loader): no word of it is written here or in the front, and it is marked DRAFT
  * where it is served. Null where the wording file carries no usable notice.
+ *
+ * OPEN DECISION (review round 1): where it is null, the generation route serves its activities without a notice (fail-open), while the
+ * checked pathway refuses when its wording is unusable (fail-closed). Whether the generation route should refuse instead is not decided here.
  */
 export interface PathwayNotice {
     label: string
@@ -104,6 +107,18 @@ export function withPathwayNotice(activity: Record<string, unknown>, wording?: D
     for (const [key, value] of Object.entries(activity)) if (!READ_ONLY_FIELDS.includes(key)) own[key] = value
     const notice = storedPathwayNotice(activity, wording)
     return notice ? { ...own, pathwayNotice: notice } : own
+}
+
+/**
+ * **A stored activity document as the two list routes serve it** (the session's list, `/activity/session/:id`, and the coach's list,
+ * `/activity/my-activities`): the document's own JSON (`toJSON`, exactly what those routes sent before this notice; a plain object is copied),
+ * with the notice beside it by its recorded pathway (`withPathwayNotice`). Exported so a test runs the very body the routes run (review round 1
+ * of the live-app status notice). It takes ONE parameter, so the routes can hand it a list (`activities.map(servedStoredActivity)`) and the
+ * index a map passes never reaches `withPathwayNotice`'s wording parameter.
+ */
+export function servedStoredActivity(document: unknown): Record<string, unknown> {
+    const stored = document as { toJSON?: () => Record<string, unknown> } | null
+    return withPathwayNotice(typeof stored?.toJSON === 'function' ? stored.toJSON() : { ...(document as Record<string, unknown>) })
 }
 
 /** What the live route builds a checked activity from: the guided goal, the situation the coach chose, and the activity's length. */

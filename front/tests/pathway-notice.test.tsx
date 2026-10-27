@@ -33,6 +33,8 @@ let generateAnswer: unknown = null
 const saved: Record<string, Doc> = {
     'test-legacy': fixture.legacySaved as Doc,
     'test-earlier': fixture.earlierSaved as Doc,
+    'test-review': fixture.reviewSaved as Doc,
+    'test-completed': fixture.completedSaved as Doc,
     'test-checked': withBuild(fixture.checkedSaved as Doc),
 }
 const storedSession = {
@@ -116,6 +118,10 @@ describe('the status notice beside an activity the checked pathway did not build
         expect(fixture.checkedResult.pathway).toBe('CHECKED_CHAIN')
         expect(fixture.legacySaved.pathwayNotice).toEqual(notice)
         expect(fixture.earlierSaved.pathwayNotice).toEqual(notice)
+        expect(fixture.reviewSaved.pathwayNotice).toEqual(notice)
+        expect(fixture.completedSaved.pathwayNotice).toEqual(notice)
+        const statuses = [fixture.legacySaved, fixture.reviewSaved, fixture.completedSaved].map((doc) => doc.activityStatus)
+        expect(statuses).toEqual(['inProgress', 'review', 'completed'])
         expect('pathwayNotice' in fixture.checkedSaved).toBe(false)
     })
 
@@ -148,6 +154,27 @@ describe('the status notice beside an activity the checked pathway did not build
         await screen.findAllByRole('heading', { name: title })
         expectTheServersNotice(shownNotice())
         expect(document.querySelectorAll('[data-pathway-notice]')).toHaveLength(1)
+    })
+
+    // Review round 1: the notice belongs to the activity, not to one status's screen, so it is shown outside the In Progress / Ready to Start
+    // branch too. Each case first finds what only that status's screen shows (the server's status, not words written here for the notice).
+    it('a saved activity at the Review status shows the notice beside the review form', async () => {
+        openSaved('test-review')
+        await screen.findAllByRole('heading', { name: fixture.reviewSaved.title })
+        expect(document.querySelector('form')).not.toBeNull()
+        expect(screen.queryByRole('button', { name: 'Show full details' })).toBeNull()
+        expectTheServersNotice(shownNotice())
+        expect(document.querySelectorAll('[data-pathway-notice]')).toHaveLength(1)
+    })
+
+    it('a saved activity at the Completed status shows the notice above its summary', async () => {
+        openSaved('test-completed')
+        await screen.findAllByRole('heading', { name: fixture.completedSaved.title })
+        const summary = await screen.findByRole('heading', { name: 'Activity Summary' })
+        expect(screen.queryByRole('button', { name: 'Show full details' })).toBeNull()
+        expectTheServersNotice(shownNotice())
+        expect(document.querySelectorAll('[data-pathway-notice]')).toHaveLength(1)
+        expect(shownNotice().compareDocumentPosition(summary) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     })
 
     it('a saved checked activity opened later shows no notice', async () => {

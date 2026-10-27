@@ -1,6 +1,6 @@
 {
   "provenance": {
-    "about": "The live-app status notice (25 October 2026). checkedResult and registry are unchanged response bodies from the built-bundle regression snapshot named below. legacyResult, legacySaved, earlierSaved, checkedSaved and sessionList are unchanged response bodies from a TEST-ONLY probe of the REAL router on the same built bundle (back/dist/knowledge of this commit), with the session read, the signed-in user and the usage, log and activity stores stood in as the regression snapshot stands them in, and one difference: the generation client answers a TEST-ONLY polish for three activities (its title, setup, objective, coaching focus and how-to-play are marked TEST-ONLY; every other field is the pipeline's own). earlierSaved is a generated activity stored with no pathway, as every generated activity was stored before this notice and still is. The checked build is stored once, as checkedResult.checkedActivity: the probe's live answer, the read of the saved checked activity (checkedSaved) and its list entry each carried it whole and were verified deep-equal to it (and the read equal to the snapshot's save) before it was removed from them.",
+    "about": "The live-app status notice (25 October 2026; regenerated in review round 1 for the revised DRAFT wording and the Review and Completed cases). checkedResult and registry are unchanged response bodies from the built-bundle regression snapshot named below. legacyResult, legacySaved, earlierSaved, reviewSaved, completedSaved, checkedSaved and sessionList are unchanged response bodies from a TEST-ONLY probe of the REAL router on the same built bundle (back/dist/knowledge of this commit), with the session read, the signed-in user and the usage, log and activity stores stood in as the regression snapshot stands them in, and one difference: the generation client answers a TEST-ONLY polish for three activities (its title, setup, objective, coaching focus and how-to-play are marked TEST-ONLY; every other field is the pipeline's own). earlierSaved is a generated activity stored with no pathway, as every generated activity was stored before this notice and still is. reviewSaved and completedSaved are the same generated activity stored at the Review and Completed statuses. The checked build is stored once, as checkedResult.checkedActivity: the probe's live answer, the read of the saved checked activity (checkedSaved) and its list entry each carried it whole and were verified deep-equal to it (and the read equal to the snapshot's save) before it was removed from them.",
     "snapshot": {
       "file": "impl.json",
       "sha256": "dd660f5897b26e45528448461325f16a4217a71601ad1f2b0d89b3bf117df0ed",
@@ -11,12 +11,14 @@
       }
     },
     "probe": {
-      "file": "notice-probe-out.json",
-      "sha256": "e32350f4d2d056c9239165ed732101fc6ef1e7550b6ead825faa382e2dba8e03",
+      "file": "fix1-probe-out.json",
+      "sha256": "48383db9b14b1946e66c8dd587f3a0d60da1bd0f74c757795431448ba2fa6e8b",
       "entries": {
         "legacyResult": "live/D01",
         "legacySaved": "read/legacy (GET /activity/:id)",
         "earlierSaved": "read/old (GET /activity/:id)",
+        "reviewSaved": "read/review (GET /activity/:id)",
+        "completedSaved": "read/completed (GET /activity/:id)",
         "checkedSaved": "read/checked (GET /activity/:id)",
         "sessionList": "read/session-list (GET /activity/session/:id)"
       }
@@ -5797,8 +5799,8 @@
     ],
     "resolutionStatus": "matched",
     "pathwayNotice": {
-      "label": "Not yet checked",
-      "words": "This activity was written by AI, starting from a game and constraints chosen from Challenge Point's activity library. Its design has not been evaluated against Challenge Point's learning-design knowledge, so treat it as a starting point.",
+      "label": "Not checked",
+      "words": "The descriptions here were first written by AI around a game and constraints chosen from Challenge Point's library. The design has not been evaluated against Challenge Point's learning-design knowledge, so treat it as a starting point.",
       "status": "DRAFT"
     }
   },
@@ -5879,8 +5881,8 @@
     },
     "_id": "64b7f0c2a1b2c3d4e5f60801",
     "pathwayNotice": {
-      "label": "Not yet checked",
-      "words": "This activity was written by AI, starting from a game and constraints chosen from Challenge Point's activity library. Its design has not been evaluated against Challenge Point's learning-design knowledge, so treat it as a starting point.",
+      "label": "Not checked",
+      "words": "The descriptions here were first written by AI around a game and constraints chosen from Challenge Point's library. The design has not been evaluated against Challenge Point's learning-design knowledge, so treat it as a starting point.",
       "status": "DRAFT"
     }
   },
@@ -5961,8 +5963,172 @@
     },
     "_id": "64b7f0c2a1b2c3d4e5f60803",
     "pathwayNotice": {
-      "label": "Not yet checked",
-      "words": "This activity was written by AI, starting from a game and constraints chosen from Challenge Point's activity library. Its design has not been evaluated against Challenge Point's learning-design knowledge, so treat it as a starting point.",
+      "label": "Not checked",
+      "words": "The descriptions here were first written by AI around a game and constraints chosen from Challenge Point's library. The design has not been evaluated against Challenge Point's learning-design knowledge, so treat it as a starting point.",
+      "status": "DRAFT"
+    }
+  },
+  "reviewSaved": {
+    "activityStatus": "review",
+    "session": "64b7f0c2a1b2c3d4e5f60718",
+    "title": "TEST-ONLY stub activity 1 (in review)",
+    "constraint": "Players act based on visible cues created by the constraint. Compact area forces faster reads and tighter support decisions; space is at a premium and teams adapt their timing, passing angles, and movement based on the live pressure picture. Slow attacking progression. Reward slowing attacking progression.",
+    "intent": "TEST-ONLY stub objective 1.",
+    "setup": "TEST-ONLY stub setup 1: the words a model would write are stood in by this probe. Mark a protected zone at each end. Teams play 6v6. Play in a 40 x 30 m (44 x 33 yd) area.",
+    "extensions": [
+      "Two teams compete in the same direction, with one team trying to keep and progress possession toward the target while the other applies pressure and tries to regain to attack back. Even numbers."
+    ],
+    "scaffolding": [
+      "TEST-ONLY stub coaching focus 1.",
+      "Coach observation: focus on the live decisions — how players read pressure, space, and support, and how they adapt when the picture changes.",
+      "Session focus: Maintain possession with forward intent.",
+      "Possession kept under live pressure is scored when retention itself is the contest.",
+      "The defending team earns a point when attacks are forced away from protected space — defensive shape and compactness shape what the attack can access, and successful protection counts as advantage."
+    ],
+    "playerGroupSizes": 12,
+    "equipmentNeeded": [
+      "Cones to mark the area and its zones",
+      "Bibs for two teams",
+      "Balls"
+    ],
+    "affordancesUsed": [],
+    "constraintsUsed": [],
+    "challengeLevel": "medium",
+    "duration": 20,
+    "learningPriorities": [
+      {
+        "description": "Stay Organized",
+        "achieved": false
+      }
+    ],
+    "howToPlay": [],
+    "rules": [
+      "TEST-ONLY stub how to play 1.",
+      "Keep the ball and work it forward under pressure. Force it or lose it and the other team attacks straight away. Play does not stop.",
+      "Defenders can shield the ball, block the space, or use their body to push attackers where they want them.",
+      "When the ball changes hands, the next action goes straight away. No reset, no stoppage.",
+      "A regain only counts if your team plays forward with the next action. Win it and give it straight back and it does not count."
+    ],
+    "scoringSystem": "Earn a point when your team wins the ball before the other team gets into the protected zone. Points are worth most through the middle, then wide, then deep.",
+    "winCondition": "The team with more points when time is up wins.",
+    "pointsTracking": [],
+    "systemTrace": {
+      "primaryAffordanceId": "tl-v0-lens-space-protection-opportunity",
+      "supportingAffordanceIds": [
+        "tl-v0-lens-delay-or-deny-opportunity",
+        "tl-v0-lens-regain-opportunity"
+      ],
+      "archetypeId": "GF2",
+      "archetypeName": "Directional Possession Games",
+      "foundationConstraintId": "tl-v0-constraint-small-area-condition",
+      "consequenceConstraintId": "tl-v0-constraint-delay-reward",
+      "planning": {
+        "learningGoalId": "D01",
+        "learningGoalName": "Stay Organized",
+        "challengeLevel": "medium"
+      },
+      "primaryScoring": {
+        "contextId": "RPC-008",
+        "eventKey": "regain",
+        "objectKey": "zone",
+        "scoringRule": "Earn a point when your team wins the ball before the other team gets into the protected zone.",
+        "realizationCoverage": null,
+        "setupRequirement": "Mark a protected zone at each end.",
+        "setupEvidence": [
+          [
+            "protected zone",
+            "protected zones"
+          ]
+        ],
+        "qualifyingCondition": "The opponent is prevented from crossing the specified progression line, entering the protected zone, or reaching the realized attacking objective during the attacking sequence. No fixed time is intrinsic to this context; a particular realization may use time where appropriate."
+      }
+    },
+    "_id": "64b7f0c2a1b2c3d4e5f60804",
+    "pathwayNotice": {
+      "label": "Not checked",
+      "words": "The descriptions here were first written by AI around a game and constraints chosen from Challenge Point's library. The design has not been evaluated against Challenge Point's learning-design knowledge, so treat it as a starting point.",
+      "status": "DRAFT"
+    }
+  },
+  "completedSaved": {
+    "activityStatus": "completed",
+    "session": "64b7f0c2a1b2c3d4e5f60718",
+    "title": "TEST-ONLY stub activity 1 (completed)",
+    "constraint": "Players act based on visible cues created by the constraint. Compact area forces faster reads and tighter support decisions; space is at a premium and teams adapt their timing, passing angles, and movement based on the live pressure picture. Slow attacking progression. Reward slowing attacking progression.",
+    "intent": "TEST-ONLY stub objective 1.",
+    "setup": "TEST-ONLY stub setup 1: the words a model would write are stood in by this probe. Mark a protected zone at each end. Teams play 6v6. Play in a 40 x 30 m (44 x 33 yd) area.",
+    "extensions": [
+      "Two teams compete in the same direction, with one team trying to keep and progress possession toward the target while the other applies pressure and tries to regain to attack back. Even numbers."
+    ],
+    "scaffolding": [
+      "TEST-ONLY stub coaching focus 1.",
+      "Coach observation: focus on the live decisions — how players read pressure, space, and support, and how they adapt when the picture changes.",
+      "Session focus: Maintain possession with forward intent.",
+      "Possession kept under live pressure is scored when retention itself is the contest.",
+      "The defending team earns a point when attacks are forced away from protected space — defensive shape and compactness shape what the attack can access, and successful protection counts as advantage."
+    ],
+    "playerGroupSizes": 12,
+    "equipmentNeeded": [
+      "Cones to mark the area and its zones",
+      "Bibs for two teams",
+      "Balls"
+    ],
+    "affordancesUsed": [],
+    "constraintsUsed": [],
+    "challengeLevel": "medium",
+    "duration": 20,
+    "learningPriorities": [
+      {
+        "description": "Stay Organized",
+        "achieved": false
+      }
+    ],
+    "howToPlay": [],
+    "rules": [
+      "TEST-ONLY stub how to play 1.",
+      "Keep the ball and work it forward under pressure. Force it or lose it and the other team attacks straight away. Play does not stop.",
+      "Defenders can shield the ball, block the space, or use their body to push attackers where they want them.",
+      "When the ball changes hands, the next action goes straight away. No reset, no stoppage.",
+      "A regain only counts if your team plays forward with the next action. Win it and give it straight back and it does not count."
+    ],
+    "scoringSystem": "Earn a point when your team wins the ball before the other team gets into the protected zone. Points are worth most through the middle, then wide, then deep.",
+    "winCondition": "The team with more points when time is up wins.",
+    "pointsTracking": [],
+    "systemTrace": {
+      "primaryAffordanceId": "tl-v0-lens-space-protection-opportunity",
+      "supportingAffordanceIds": [
+        "tl-v0-lens-delay-or-deny-opportunity",
+        "tl-v0-lens-regain-opportunity"
+      ],
+      "archetypeId": "GF2",
+      "archetypeName": "Directional Possession Games",
+      "foundationConstraintId": "tl-v0-constraint-small-area-condition",
+      "consequenceConstraintId": "tl-v0-constraint-delay-reward",
+      "planning": {
+        "learningGoalId": "D01",
+        "learningGoalName": "Stay Organized",
+        "challengeLevel": "medium"
+      },
+      "primaryScoring": {
+        "contextId": "RPC-008",
+        "eventKey": "regain",
+        "objectKey": "zone",
+        "scoringRule": "Earn a point when your team wins the ball before the other team gets into the protected zone.",
+        "realizationCoverage": null,
+        "setupRequirement": "Mark a protected zone at each end.",
+        "setupEvidence": [
+          [
+            "protected zone",
+            "protected zones"
+          ]
+        ],
+        "qualifyingCondition": "The opponent is prevented from crossing the specified progression line, entering the protected zone, or reaching the realized attacking objective during the attacking sequence. No fixed time is intrinsic to this context; a particular realization may use time where appropriate."
+      }
+    },
+    "_id": "64b7f0c2a1b2c3d4e5f60805",
+    "pathwayNotice": {
+      "label": "Not checked",
+      "words": "The descriptions here were first written by AI around a game and constraints chosen from Challenge Point's library. The design has not been evaluated against Challenge Point's learning-design knowledge, so treat it as a starting point.",
       "status": "DRAFT"
     }
   },
@@ -6082,8 +6248,8 @@
       },
       "_id": "64b7f0c2a1b2c3d4e5f60801",
       "pathwayNotice": {
-        "label": "Not yet checked",
-        "words": "This activity was written by AI, starting from a game and constraints chosen from Challenge Point's activity library. Its design has not been evaluated against Challenge Point's learning-design knowledge, so treat it as a starting point.",
+        "label": "Not checked",
+        "words": "The descriptions here were first written by AI around a game and constraints chosen from Challenge Point's library. The design has not been evaluated against Challenge Point's learning-design knowledge, so treat it as a starting point.",
         "status": "DRAFT"
       }
     },
@@ -6202,8 +6368,172 @@
       },
       "_id": "64b7f0c2a1b2c3d4e5f60803",
       "pathwayNotice": {
-        "label": "Not yet checked",
-        "words": "This activity was written by AI, starting from a game and constraints chosen from Challenge Point's activity library. Its design has not been evaluated against Challenge Point's learning-design knowledge, so treat it as a starting point.",
+        "label": "Not checked",
+        "words": "The descriptions here were first written by AI around a game and constraints chosen from Challenge Point's library. The design has not been evaluated against Challenge Point's learning-design knowledge, so treat it as a starting point.",
+        "status": "DRAFT"
+      }
+    },
+    {
+      "activityStatus": "review",
+      "session": "64b7f0c2a1b2c3d4e5f60718",
+      "title": "TEST-ONLY stub activity 1 (in review)",
+      "constraint": "Players act based on visible cues created by the constraint. Compact area forces faster reads and tighter support decisions; space is at a premium and teams adapt their timing, passing angles, and movement based on the live pressure picture. Slow attacking progression. Reward slowing attacking progression.",
+      "intent": "TEST-ONLY stub objective 1.",
+      "setup": "TEST-ONLY stub setup 1: the words a model would write are stood in by this probe. Mark a protected zone at each end. Teams play 6v6. Play in a 40 x 30 m (44 x 33 yd) area.",
+      "extensions": [
+        "Two teams compete in the same direction, with one team trying to keep and progress possession toward the target while the other applies pressure and tries to regain to attack back. Even numbers."
+      ],
+      "scaffolding": [
+        "TEST-ONLY stub coaching focus 1.",
+        "Coach observation: focus on the live decisions — how players read pressure, space, and support, and how they adapt when the picture changes.",
+        "Session focus: Maintain possession with forward intent.",
+        "Possession kept under live pressure is scored when retention itself is the contest.",
+        "The defending team earns a point when attacks are forced away from protected space — defensive shape and compactness shape what the attack can access, and successful protection counts as advantage."
+      ],
+      "playerGroupSizes": 12,
+      "equipmentNeeded": [
+        "Cones to mark the area and its zones",
+        "Bibs for two teams",
+        "Balls"
+      ],
+      "affordancesUsed": [],
+      "constraintsUsed": [],
+      "challengeLevel": "medium",
+      "duration": 20,
+      "learningPriorities": [
+        {
+          "description": "Stay Organized",
+          "achieved": false
+        }
+      ],
+      "howToPlay": [],
+      "rules": [
+        "TEST-ONLY stub how to play 1.",
+        "Keep the ball and work it forward under pressure. Force it or lose it and the other team attacks straight away. Play does not stop.",
+        "Defenders can shield the ball, block the space, or use their body to push attackers where they want them.",
+        "When the ball changes hands, the next action goes straight away. No reset, no stoppage.",
+        "A regain only counts if your team plays forward with the next action. Win it and give it straight back and it does not count."
+      ],
+      "scoringSystem": "Earn a point when your team wins the ball before the other team gets into the protected zone. Points are worth most through the middle, then wide, then deep.",
+      "winCondition": "The team with more points when time is up wins.",
+      "pointsTracking": [],
+      "systemTrace": {
+        "primaryAffordanceId": "tl-v0-lens-space-protection-opportunity",
+        "supportingAffordanceIds": [
+          "tl-v0-lens-delay-or-deny-opportunity",
+          "tl-v0-lens-regain-opportunity"
+        ],
+        "archetypeId": "GF2",
+        "archetypeName": "Directional Possession Games",
+        "foundationConstraintId": "tl-v0-constraint-small-area-condition",
+        "consequenceConstraintId": "tl-v0-constraint-delay-reward",
+        "planning": {
+          "learningGoalId": "D01",
+          "learningGoalName": "Stay Organized",
+          "challengeLevel": "medium"
+        },
+        "primaryScoring": {
+          "contextId": "RPC-008",
+          "eventKey": "regain",
+          "objectKey": "zone",
+          "scoringRule": "Earn a point when your team wins the ball before the other team gets into the protected zone.",
+          "realizationCoverage": null,
+          "setupRequirement": "Mark a protected zone at each end.",
+          "setupEvidence": [
+            [
+              "protected zone",
+              "protected zones"
+            ]
+          ],
+          "qualifyingCondition": "The opponent is prevented from crossing the specified progression line, entering the protected zone, or reaching the realized attacking objective during the attacking sequence. No fixed time is intrinsic to this context; a particular realization may use time where appropriate."
+        }
+      },
+      "_id": "64b7f0c2a1b2c3d4e5f60804",
+      "pathwayNotice": {
+        "label": "Not checked",
+        "words": "The descriptions here were first written by AI around a game and constraints chosen from Challenge Point's library. The design has not been evaluated against Challenge Point's learning-design knowledge, so treat it as a starting point.",
+        "status": "DRAFT"
+      }
+    },
+    {
+      "activityStatus": "completed",
+      "session": "64b7f0c2a1b2c3d4e5f60718",
+      "title": "TEST-ONLY stub activity 1 (completed)",
+      "constraint": "Players act based on visible cues created by the constraint. Compact area forces faster reads and tighter support decisions; space is at a premium and teams adapt their timing, passing angles, and movement based on the live pressure picture. Slow attacking progression. Reward slowing attacking progression.",
+      "intent": "TEST-ONLY stub objective 1.",
+      "setup": "TEST-ONLY stub setup 1: the words a model would write are stood in by this probe. Mark a protected zone at each end. Teams play 6v6. Play in a 40 x 30 m (44 x 33 yd) area.",
+      "extensions": [
+        "Two teams compete in the same direction, with one team trying to keep and progress possession toward the target while the other applies pressure and tries to regain to attack back. Even numbers."
+      ],
+      "scaffolding": [
+        "TEST-ONLY stub coaching focus 1.",
+        "Coach observation: focus on the live decisions — how players read pressure, space, and support, and how they adapt when the picture changes.",
+        "Session focus: Maintain possession with forward intent.",
+        "Possession kept under live pressure is scored when retention itself is the contest.",
+        "The defending team earns a point when attacks are forced away from protected space — defensive shape and compactness shape what the attack can access, and successful protection counts as advantage."
+      ],
+      "playerGroupSizes": 12,
+      "equipmentNeeded": [
+        "Cones to mark the area and its zones",
+        "Bibs for two teams",
+        "Balls"
+      ],
+      "affordancesUsed": [],
+      "constraintsUsed": [],
+      "challengeLevel": "medium",
+      "duration": 20,
+      "learningPriorities": [
+        {
+          "description": "Stay Organized",
+          "achieved": false
+        }
+      ],
+      "howToPlay": [],
+      "rules": [
+        "TEST-ONLY stub how to play 1.",
+        "Keep the ball and work it forward under pressure. Force it or lose it and the other team attacks straight away. Play does not stop.",
+        "Defenders can shield the ball, block the space, or use their body to push attackers where they want them.",
+        "When the ball changes hands, the next action goes straight away. No reset, no stoppage.",
+        "A regain only counts if your team plays forward with the next action. Win it and give it straight back and it does not count."
+      ],
+      "scoringSystem": "Earn a point when your team wins the ball before the other team gets into the protected zone. Points are worth most through the middle, then wide, then deep.",
+      "winCondition": "The team with more points when time is up wins.",
+      "pointsTracking": [],
+      "systemTrace": {
+        "primaryAffordanceId": "tl-v0-lens-space-protection-opportunity",
+        "supportingAffordanceIds": [
+          "tl-v0-lens-delay-or-deny-opportunity",
+          "tl-v0-lens-regain-opportunity"
+        ],
+        "archetypeId": "GF2",
+        "archetypeName": "Directional Possession Games",
+        "foundationConstraintId": "tl-v0-constraint-small-area-condition",
+        "consequenceConstraintId": "tl-v0-constraint-delay-reward",
+        "planning": {
+          "learningGoalId": "D01",
+          "learningGoalName": "Stay Organized",
+          "challengeLevel": "medium"
+        },
+        "primaryScoring": {
+          "contextId": "RPC-008",
+          "eventKey": "regain",
+          "objectKey": "zone",
+          "scoringRule": "Earn a point when your team wins the ball before the other team gets into the protected zone.",
+          "realizationCoverage": null,
+          "setupRequirement": "Mark a protected zone at each end.",
+          "setupEvidence": [
+            [
+              "protected zone",
+              "protected zones"
+            ]
+          ],
+          "qualifyingCondition": "The opponent is prevented from crossing the specified progression line, entering the protected zone, or reaching the realized attacking objective during the attacking sequence. No fixed time is intrinsic to this context; a particular realization may use time where appropriate."
+        }
+      },
+      "_id": "64b7f0c2a1b2c3d4e5f60805",
+      "pathwayNotice": {
+        "label": "Not checked",
+        "words": "The descriptions here were first written by AI around a game and constraints chosen from Challenge Point's library. The design has not been evaluated against Challenge Point's learning-design knowledge, so treat it as a starting point.",
         "status": "DRAFT"
       }
     }

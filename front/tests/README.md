@@ -33,9 +33,10 @@ Activity sentences and choice labels are never invented in the tests.
 
 `fixtures/pathway-notice.json` (the live-app status notice, 25 October 2026; his reply filed 26 October 2026, item 9(a))
 feeds `pathway-notice.test.tsx`. Its `checkedResult` (the live checked activity) and `registry` (the planning
-conversation's registry) are unchanged bodies from the built-bundle regression snapshot `impl.json`, which is
+conversation's registry) are unchanged bodies from the built-bundle regression snapshot `fix1.json` (review round 1), which is
 byte-identical to `Z-verify1.json` (SHA-256 in `provenance`). The generated choice (`legacyResult`) and the saved
-activities (`legacySaved`, `earlierSaved`, `checkedSaved`, `sessionList`) cannot come from that snapshot, whose stubbed
+activities (`legacySaved`, `earlierSaved`, `reviewSaved` and `completedSaved` (the same generated activity at the Review and
+Completed statuses), `checkedSaved`, `sessionList`) cannot come from that snapshot, whose stubbed
 model answers empty so every generation there is refused: they are unchanged bodies from a TEST-ONLY probe of the REAL
 router on the same built bundle whose stubbed model answers a polish for three activities. The words that polish
 supplies (title, setup, objective, coaching focus, how to play) are marked TEST-ONLY; every other field, the notice
