@@ -19,9 +19,16 @@
  * its across interval meets exactly that one touchline AND its along interval runs the area's whole length; a line is said on an end line
  * only where it is one point at an end AND runs the area's whole width; "the touchline" of a region with no pair only in a game holding no
  * pair (beside one it names either touchline: (g)), and only where every region so said lies along the same one; "one" and "the opposite"
- * touchline only where the pair's other region lies along the other; "both end
- * lines" only where the two lines themselves sit at the two ends. Other sentences that place regions (a team's target zone, a line marked
- * from a team's end, a region bound to an object) read their own geometry and are not this file's subject.
+ * touchline only where the pair's other region lies along the other; "both end lines" only where the two lines themselves sit at the two ends.
+ *
+ * And, after the second E5a review (27 October 2026), the sentences that place by a team's end. Until then this header said they "read their
+ * own geometry"; they did not read enough of it: a team's target zone was said "at the {defender}'s end" wherever its span touched an end,
+ * either end, and a line "{n} from the {team}'s end line" wherever it lay inside the area, at any distance (the review's probes, on the path
+ * with no layout). Each team's end is now read from the game's objectives as the realizer placed by it (`gameReadingOf`), and such a sentence
+ * is said only where the realized geometry is at the end and the distance its words name: a target's span touches the end its defender
+ * defends (which its attacker attacks); a target "from the marked line" begins where the line is realized; a line is realized at its offset
+ * from the end line its team defends. Otherwise it is left unsaid and fidelity refuses, as above. A region bound to an object is placed by
+ * its own sentences (`bound-region-communication.unit.ts`) and is not this file's subject.
  *
  * Cases, each TEST-ONLY and each a copy in memory (no knowledge file is read for writing or changed):
  *   (a) full-width end zones in the no-role possession game, through the real chain (TEST-ONLY depths and the realizer's choices changed on a
@@ -38,6 +45,14 @@
  * Added after the second E5a review (27 October 2026), on a copy of (c)'s specimen:
  *   (g) the pair plus a region with no lateral of its own, on either touchline: "the touchline" would name either of the pair's, so the
  *       region is not said. Reverting it says "Mark a channel along the touchline" beside the pair, on each touchline alike.
+ * And on a copy of A01's first role block as the served goal builds it (the building team at the 0 end line):
+ *   (h) with no layout: the 5 m target moved to the other end; the line realized at 12 m; the line's offset 12 m realized 12 m from the other
+ *       team's end line; the target beyond the line beginning 5 m past it;
+ *   (i) with the layout: the 5 m target moved to the other end; the line realized at 12 m; the target beyond the line beginning past it.
+ * Reverting the guard says each where it is not: "at the building team's end" of a target at the pressing team's, "20 m from" (or "12 m
+ * from") "the building team's end line" of a line that is not, "from the marked line" of a target that begins elsewhere (on the layout path
+ * a target's sentence is reached only for a region the no-layout predicate answers, so there both copies must be reverted; measured 27
+ * October 2026).
  *
  * Run: npx ts-node --files -r tsconfig-paths/register ./src/system/rendering/placement-geometry.unit.ts
  */
@@ -47,7 +62,7 @@ import path from 'node:path'
 
 import { LoadedContract } from '../derivation/types'
 import { SuppliedRealization } from '../realization/supplied-realization'
-import { buildActivityFromKnowledge, RefusedActivity } from './build-activity'
+import { buildActivityFromKnowledge, buildActivityWithFixture, RefusedActivity } from './build-activity'
 import { checkFidelity } from './fidelity'
 import { renderConcreteGame } from './render-concrete-game'
 import { specializedRoleNames } from './session-envelope'
@@ -340,6 +355,103 @@ test('(g) beside a pair, a region with no lateral of its own is not said "along 
         )
         assert.deepEqual(unmarked(moved, rendered), [unmarkedSentence(third)], `beside ${beside}`)
     }
+})
+
+/* ── (h), (i) a team's end, read from the teams (after the second E5a review) ────────────────────────────────────────────────────── */
+/** A01's first role block, built once through the real chain as the served goal builds it (no goal object); every move is on a copy. */
+let a01Built: any = null
+const a01Block = (): any => {
+    if (!a01Built) {
+        const roles = { ...none, [specializedRoleNames()[0]]: 1 }
+        const built = buildActivityWithFixture({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: { ...session, roles, objects: { goal: { count: 0 } } } } as any)
+        assert.equal(built.activity.outcome, 'served', JSON.stringify((built.activity as any).reasons))
+        a01Built = (built.fixture as any).roleBlocks.blocks[0].fixture
+    }
+    return copy(a01Built)
+}
+/** The block's line, its target with a required depth, and its target beyond the line, found by their geometry, not by id. */
+const a01Regions = (block: any) => {
+    const along = (id: string) => (block.status.geometry as any[]).find(g => g.path.includes(`[${id}]`) && g.path.endsWith('.along'))?.geometry
+    const ids = (block.game.space.regions as any[]).map(r => String(r.elementId))
+    const line = ids.find(id => (block.game.space.regions as any[]).find(r => String(r.elementId) === id).noun === 'line' && along(id)?.interval?.from === 20)!
+    const deep = ids.find(id => along(id)?.extentBound?.requiredWithin?.min === 5)!
+    const beyond = ids.find(id => along(id)?.relation?.of && `c:${along(id).relation.of.contractId}:${along(id).relation.of.itemId}` === line)!
+    assert.ok(line && deep && beyond, 'the line at 20 m, the 5 m target and the target beyond the line')
+    assert.deepEqual([along(deep).interval, along(beyond).interval], [{ from: 0, to: 5 }, { from: 20, to: 40 }], 'the building team at the 0 end line')
+    return { line, deep, beyond }
+}
+
+test('(h) with no layout, a target is said at the defender\'s end, and a line at its distance from its team\'s end line, only where realized there', () => {
+    const asBuilt = a01Block()
+    delete asBuilt.layout
+    const { line, deep, beyond } = a01Regions(asBuilt)
+    const said = {
+        line: "Mark a line across the area, 20 m from the building team's end line",
+        deep: "Mark the pressing team's target zone at the building team's end, 5 m deep, across the full width",
+        beyond: "Mark the building team's target zone from the marked line to the pressing team's end line, across the full width",
+    }
+    // Control: as realized, each is said (the target beyond the line also cites the line's noun), and nothing is unmarked.
+    const control = renderConcreteGame(asBuilt)
+    assert.deepEqual([marking(control, line), marking(control, deep), marking(control, beyond)], [[said.line, said.beyond], [said.deep], [said.beyond]], texts(control))
+    assert.deepEqual(unmarked(asBuilt, control), [])
+    // Each TEST-ONLY move on a copy, with what must then be left unsaid, and the sentence that must still be said.
+    const cases: [string, (block: any) => void, string[], keyof typeof said][] = [
+        ['the 5 m target moved to the other end (the pressing team\'s own)', block => moveRegion(block, deep, 'along', { from: 35, to: 40 }), [deep], 'line'],
+        ['the line realized at 12 m, its offset still 20 m', block => moveRegion(block, line, 'along', { from: 12, to: 12 }), [line, beyond], 'deep'],
+        [
+            'the line\'s offset 12 m, realized 12 m from the OTHER team\'s end line (28 m)',
+            block => {
+                ;(block.game.space.regions as any[]).find(r => String(r.elementId) === line).position.along.offsetM = { from: 12, to: 12 }
+                moveRegion(block, line, 'along', { from: 28, to: 28 })
+            },
+            [line, beyond],
+            'deep',
+        ],
+        ['the target beyond the line beginning at 25 m, the line at 20 m', block => moveRegion(block, beyond, 'along', { from: 25, to: 40 }), [beyond], 'line'],
+    ]
+    // Every case is run and every failure reported together, so a reverted guard shows each case it lets through.
+    const failures = cases.flatMap(([label, move, unsaid, still]) => {
+        const moved = copy(asBuilt)
+        move(moved)
+        const rendered = renderConcreteGame(moved)
+        try {
+            for (const id of unsaid) assert.deepEqual(marking(rendered, id), [], `${id} is not said`)
+            assert.ok(rendered.instructions.some(i => i.text === said[still]), `"${said[still]}" is still said`)
+            assert.deepEqual(unmarked(moved, rendered).sort(), unsaid.map(unmarkedSentence).sort())
+            return []
+        } catch (error) {
+            return [`${label}: ${(error as Error).message.split('\n')[0]} | said: ${texts(rendered)}`]
+        }
+    })
+    assert.deepEqual(failures, [])
+})
+
+test('(i) with the layout, a target is said at the defender\'s end, and the line at halfway, only where realized there', () => {
+    const asBuilt = a01Block()
+    assert.ok(asBuilt.layout, 'the block carries its layout')
+    const { line, deep, beyond } = a01Regions(asBuilt)
+    const said = {
+        halfway: 'Mark a line across the area at halfway, 20 m from each end line',
+        deep: "The pressing team's target zone is the 5 m end zone at the building team's end",
+        beyond: "The building team's target zone is everything beyond the marked line, up to the pressing team's end line, including the end zone there",
+    }
+    const control = renderConcreteGame(asBuilt)
+    for (const text of Object.values(said)) assert.ok(control.instructions.some(i => i.text === text), `as realized: ${texts(control)}`)
+    const cases: [string, (block: any) => void, (keyof typeof said)[]][] = [
+        ['the 5 m target moved to the other end', block => moveRegion(block, deep, 'along', { from: 35, to: 40 }), ['deep']],
+        ['the line realized at 12 m', block => moveRegion(block, line, 'along', { from: 12, to: 12 }), ['halfway', 'beyond']],
+        ['the target beyond the line beginning at 25 m', block => moveRegion(block, beyond, 'along', { from: 25, to: 40 }), ['beyond']],
+    ]
+    const failures = cases.flatMap(([label, move, unsaid]) => {
+        const moved = copy(asBuilt)
+        move(moved)
+        const rendered = renderConcreteGame(moved)
+        const found = unsaid.filter(key => rendered.instructions.some(i => i.text === said[key])).map(key => `${label}: "${said[key]}" is said`)
+        // Refused either way: fidelity's layout check (Q5-L) or its marking check names what is no longer said where it lies.
+        if (!checkFidelity(moved, rendered).findings.some(f => f.question === 5 && f.severity === 'VIOLATION')) found.push(`${label}: not refused`)
+        return found
+    })
+    assert.deepEqual(failures, [])
 })
 
 console.log(`placement-geometry: ${passed} passed`)

@@ -53,6 +53,7 @@ import { indexRegister, RegisterIndex } from '../derivation/register'
 import { effectiveValue } from '../derivation/rational'
 import { NO_FURTHER_VALUE } from '../derivation/types'
 import { CONDITION_ROW, conditionScopeNotEvaluable } from '../derivation/resolved-game'
+import { attackingEndIn } from '../realization/team-ends'
 import { ApprovedTemplateSentence, approvedTemplateSentences, approvedWording, ApprovedWording, canonicalJson, EQUIPMENT_KIND, EquipmentPartState, EquipmentWhen, fillTemplate, FIRST_BLOCK_CHOICE, POSSESSION_CONTINUES, WordingMatch } from './approved-wording'
 import { adjustmentRangesOf } from './adjustment-range'
 import { exclusionFor } from './coach-facing-exclusions'
@@ -1128,6 +1129,37 @@ export function gameReadingOf(fixture: Fixture) {
     const areaWidth = Number(game.envelope?.area?.width_m)
 
     /**
+     * **Which end line a sentence naming a team's end means, read from the game's own objectives** — the second E5a review, 27 October 2026,
+     * a TIGHTENING. The sentences that place a target "at the {team}'s end" or a line "{n} from the {team}'s end line" checked only that the
+     * realized geometry touched an end (or lay inside the area), never which end or whose, nor the distance: on the path with no layout, a 5 m
+     * target zone moved to the other end was still "at the building team's end", and a line moved to 12 m still "20 m from the building
+     * team's end line", each with no fidelity finding (the review's probes). Each end is now read as the realizer placed by it (team-ends.ts,
+     * for this block), in metres along: 0 or the area's length, or null where the game does not establish it. A sentence whose realized
+     * geometry is not at the end and the distance its words name is not said, so fidelity refuses the activity (Q5: no marking instruction),
+     * as E5a leaves a region it cannot place unsaid. No new words.
+     */
+    const roleBlock = fixture.record?.roleBlock ?? null
+    const attackedEnd = (designation: unknown): number | null => {
+        const end = attackingEndIn(game, participants(), roleBlock, String(designation))
+        return end === null ? null : end * areaLength
+    }
+    /** The end line a team defends: the one it does not attack (RC-21's "own end (of team T)"). */
+    const defendedEnd = (designation: unknown): number | null => {
+        const end = attackingEndIn(game, participants(), roleBlock, String(designation))
+        return end === null ? null : (1 - end) * areaLength
+    }
+    /**
+     * The end line a team's target sentence names ("at the {defender}'s end", "up to the {defender}'s end line"): the end the one other team in
+     * the block defends (the team `otherTeamNoun` names), where it is also the end the attacking team attacks; null otherwise.
+     */
+    const targetEnd = (attacking: unknown): number | null => {
+        const role = roleOfDesignation(attacking)
+        const others = Object.keys(holdersInBlock).filter(other => other !== role && roleNounOf[other])
+        const end = role && others.length === 1 ? defendedEnd(holdersInBlock[others[0]]) : null
+        return end !== null && end === attackedEnd(attacking) ? end : null
+    }
+
+    /**
      * **A line marked across the area at a distance from the end line a team defends — stage K7 (DRAFT).** His reply filed 18 October
      * 2026, item 3: *"Pressure reference: 20 m from the building team's end line."* The game holds it as a line (S2) positioned by
      * RC-21's "own end (of team T)" with an offset in metres (S5 version 2), realized inside the area. It was said as a line "on the end
@@ -1146,13 +1178,24 @@ export function gameReadingOf(fixture: Fixture) {
         if (!at || at.from !== at.to || !(at.from > 0 && at.from < areaLength) || !across || across.from !== 0 || across.to !== areaWidth) return null
         return { team: teamNoun(along.forTeam)!, offset: offset.from }
     }
+    /**
+     * The second E5a review (above): whether a line `fromTeamEnd` reads is realized at its offset from the end line its team defends, measured
+     * as the realizer measures it. The sentences placing the line read this; `fromTeamEnd` and `markedLines` stay which line the game holds
+     * as the marked line, so the diagram's own check still names a line realized elsewhere ("not 20 m from ... end line").
+     */
+    const atItsOffset = (region: any): boolean => {
+        const positioned = fromTeamEnd(region)
+        const at = geometryFor(region.elementId, 'along')?.geometry?.interval
+        const end = positioned ? defendedEnd(region.position.along.forTeam) : null
+        return !!positioned && !!at && end !== null && at.from === (end === 0 ? positioned.offset : areaLength - positioned.offset)
+    }
     const markedLines = new Set<string>((game.space?.regions ?? []).filter((region: any) => fromTeamEnd(region)).map((region: any) => String(region.elementId)))
     const referencedBy = (region: any) =>
         (game.objectives ?? []).find((o: any) => {
             const ref = o?.reference?.structuralRef
             return ref && `c:${ref.contractId}:${ref.itemId}` === String(region.elementId)
         })
-    return { geometryFor, roleNounOf, holdersInBlock, roleOfDesignation, teamNoun, otherTeamNoun, areaLength, areaWidth, fromTeamEnd, markedLines, referencedBy }
+    return { geometryFor, roleNounOf, holdersInBlock, roleOfDesignation, teamNoun, otherTeamNoun, areaLength, areaWidth, fromTeamEnd, markedLines, referencedBy, targetEnd, atItsOffset }
 }
 
 /** One count a team holds, as the Players sentence says it ("6 outfield players", "1 <role>", "6 other players"). */
@@ -1398,7 +1441,7 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
      * Each team named by the role it holds in this block (stage K7, DRAFT nouns), the marked line (stage K7), and the objective that
      * references a region: read by `gameReadingOf` (above), moved out of here unchanged in stage 3A so the Coach Overview reads them alike.
      */
-    const { geometryFor, roleNounOf, holdersInBlock, roleOfDesignation, teamNoun, otherTeamNoun, areaLength, areaWidth, fromTeamEnd, markedLines, referencedBy } = gameReadingOf(fixture)
+    const { geometryFor, roleNounOf, holdersInBlock, roleOfDesignation, teamNoun, otherTeamNoun, areaLength, areaWidth, fromTeamEnd, markedLines, referencedBy, targetEnd, atItsOffset } = gameReadingOf(fixture)
     const capital = (text: string) => `${text.charAt(0).toUpperCase()}${text.slice(1)}`
     const listed = (items: string[]) => (items.length > 1 ? `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}` : items[0] ?? '')
     /**
@@ -1753,7 +1796,9 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
         const span = along?.geometry?.interval
         const wide = across?.geometry?.interval
         if (!objective || !attacker || !defender || !span || !wide || wide.from !== 0 || wide.to !== areaWidth || along.geometry.term !== ATTACKING_END) return null
-        if (!(span.from === 0 || span.to === areaLength)) return null
+        // The second E5a review (`gameReadingOf`): the span touches the end the words name, the defender's, not merely an end.
+        const end = targetEnd(objective.team)
+        if (end === null || !(end === 0 ? span.from === 0 : span.to === areaLength)) return null
         const from = [`space.regions[${region.elementId}].noun`, along.path, across.path, `objectives[${objective.elementId}].team`, `objectives[${objective.elementId}].reference`]
         const depth = along.geometry.extentBound?.requiredWithin
         if (depth && stated(depth.min) && depth.min === depth.max && span.to - span.from === depth.min) {
@@ -1762,6 +1807,8 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
         const of = along.geometry.relation?.of
         const referent = of ? `c:${of.contractId}:${of.itemId}` : null
         if (referent && markedLines.has(referent) && along.geometry.relation.term === BEYOND) {
+            // And it begins where the marked line is realized (a marked line is one point: `fromTeamEnd`).
+            if ((end === 0 ? span.to : span.from) !== geometryFor(referent, 'along')?.geometry?.interval?.from) return null
             return { text: `Mark the ${attacker}'s target ${region.noun} from the marked line to the ${defender}'s end line, across the full width`, from: [...from, `space.regions[${referent}].noun`], bindings: [] }
         }
         return null
@@ -1900,8 +1947,10 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
         const nounPath = `space.regions[${region.elementId}].noun`
         const status = statusOf.get(nounPath) ?? 'DERIVED'
 
-        // Stage K7 (DRAFT): a line marked at a distance from a team's end, and a team's target zone (above).
-        const positioned = fromTeamEnd(region)
+        // Stage K7 (DRAFT): a line marked at a distance from a team's end, and a team's target zone (above). Since the second E5a review a
+        // line is read here only where it is realized at its offset from that team's end line (`atItsOffset`), so each branch below says it
+        // there; one realized elsewhere is not said (it is on no end line either), and fidelity refuses it unmarked.
+        const positioned = atItsOffset(region) ? fromTeamEnd(region) : null
         /**
          * Stage 2D (DRAFT): a line held at one place in every block, set out once. "Halfway" is read from the values, never written as a
          * fact: said only where the layout holds the line at a mark twice whose position is the area's length, and the offset from the
@@ -2191,7 +2240,10 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
             const span = along?.geometry?.interval
             const wide = across?.geometry?.interval
             if (!objective || !attacker || !defender || !span || !wide || wide.from !== 0 || wide.to !== areaWidth || along.geometry.term !== ATTACKING_END) return null
-            if (!(span.from === 0 || span.to === areaLength)) return null
+            // The second E5a review, as `targetZone`: the span touches the defender's end, not merely an end. This is reached only for a
+            // region `targetZone` answers, so the two copies of the predicate back each other on this path.
+            const end = targetEnd(objective.team)
+            if (end === null || !(end === 0 ? span.from === 0 : span.to === areaLength)) return null
             const from = [`space.regions[${region.elementId}].noun`, along.path, across.path, `objectives[${objective.elementId}].team`, `objectives[${objective.elementId}].reference`, `objectives[${objective.elementId}].role`]
             const exact = layout.zones.find(zone => zone.from === span.from && zone.to === span.to)
             const depth = along.geometry.extentBound?.requiredWithin
@@ -2201,7 +2253,7 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
             const of = along.geometry.relation?.of
             const referent = of ? `c:${of.contractId}:${of.itemId}` : null
             if (referent && markedLines.has(referent) && along.geometry.relation.term === BEYOND) {
-                const end = span.to === areaLength ? areaLength : 0
+                if ((end === 0 ? span.to : span.from) !== geometryFor(referent, 'along')?.geometry?.interval?.from) return null
                 const inside = layout.zones.filter(zone => zone.from >= span.from && zone.to <= span.to && (zone.from === end || zone.to === end) && nounOfZone(zone))
                 const including = inside.length === 1 ? `, including the end ${nounOfZone(inside[0])} there` : ''
                 return {
