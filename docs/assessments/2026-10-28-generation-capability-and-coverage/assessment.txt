@@ -103,15 +103,15 @@ Earlier problems you named: contracted but unrenderable constraints, partly reso
 
 Unlock, by the blockers found:
 - Engine: coach wording for what new versions add; the two-to-four rule where an authorization names constraints; the geometry-check defect.
-- Knowledge: engine-readable Attack Development and Chance Creation (TA02, A05, A03, A04; scoring the engine already supports, except an attacking team aiming at a goal) and Positional Play Games (A03, later A02); your authorizations; a Game Problem for A04 or A05.
+- Knowledge: engine-readable Attack Development and Chance Creation (the contexts of Secure Possession, Progress the Attack, Create Scoring Chances and Beat Defenders 1v1; scoring the engine already supports, except an attacking team aiming at a goal) and Positional Play Games (Create Scoring Chances, later Play Through Pressure); your authorizations; a Game Problem for Beat Defenders 1v1 or Progress the Attack.
 
 Why: it reaches the largest group blocked only by knowledge and shared engine gaps, with no new kind of scoring. The five defending goals, the largest cluster, need more first (gap 6, two more contexts, Transition Games) and come next.
 
-Most likely moved closer: TA02 (only these blockers found; sufficiency untested), A03 (plus the defect fix if it uses a goal) and A04 (plus its Game Problem). A05 shares TA02's context and game form, so may not be distinct.
+Most likely moved closer: Secure Possession (TA02; only these blockers found; sufficiency untested), Create Scoring Chances (A03; plus the defect fix if it uses a goal) and Beat Defenders 1v1 (A04; plus its Game Problem). Progress the Attack (A05) shares Secure Possession's context and game form, so may not be distinct.
 
 Not established: whether goals can be built without versions authored for each (otherwise, the per-goal approach you want to avoid), or whether the three would be genuinely distinct.
 
-Decisions needed: (1) these three goals, or others? (2) whether Attack Development, Chance Creation and Positional Play Games should be restated in engine-readable form for your approval; (3) a Game Problem for A04 or A05; (4) your authorization for each (naming no constraints is allowed); (5) may role names follow the goal (for example "attacking team")? (6) later: the scoring ruling in gap 6.
+Decisions needed: (1) these three goals, or others? (2) whether Attack Development, Chance Creation and Positional Play Games should be restated in engine-readable form for your approval; (3) a Game Problem for Beat Defenders 1v1 or Progress the Attack; (4) your authorization for each (naming no constraints is allowed); (5) may role names follow the goal (for example "attacking team")? (6) later: the scoring ruling in gap 6.
 
 
 7. FINDINGS
@@ -132,10 +132,10 @@ Finding 2: it reaches coaches through the live app
 
 Finding 3: ten goals reach coaches as AI-written, unchecked activities
   What works: with a simulated AI answer, the live app produced readable activities.
-  What doesn't: unevaluated, unauthorized, unlabelled; some scoring the checked engine refuses; A04, A05 and A06 lack a Game Problem yet show no provisional label.
+  What doesn't: unevaluated and unauthorized. When measured, nothing told the coach so, which did not meet your 26 October condition (item 9(a)) that their "status and limitations are not misrepresented"; we have since added a "Not checked" notice (draft wording) to every AI-written activity. Some scoring the checked engine refuses; A04, A05 and A06 lack a Game Problem.
   Why it matters: coaches could judge Challenge Point by activities never checked against your acceptance test.
   Blocks a pilot? Yes, if pilot coaches use them.
-  Decision needed: keep, label as unchecked, or withhold them for the field test and pilot?
+  Decision needed: is the notice enough for the field test and the pilot, or should these activities be withheld until checked?
 
 Finding 4: coach inputs are mostly disconnected
   What works: for Play Out from the Back, equipment, players, goalkeepers and duration matter, and the coach is told which do not.
@@ -144,7 +144,7 @@ Finding 4: coach inputs are mostly disconnected
   Blocks a pilot? Yes for testing how the app responds; not the field test.
   Decision needed: what each input should change, starting with the four Practice Situations.
 
-Finding 5: the recent mechanisms are general in logic but give no other goal a valid activity yet
+Finding 5: five of the seven recent mechanisms are general in logic, but none gives another goal a valid activity yet
   What works: tested on other goals, the logic of per-team scoring, ends changing with roles, versions by equipment, required participants, and restarts under the normal Laws carried over.
   What doesn't: none of the seven yet gives a valid activity for another goal: the copies omitted each goal's context, and those that departed from Play Out from the Back's configuration stopped at coach wording.
   Why it matters: finishing, pressing and regaining are not yet reached.
