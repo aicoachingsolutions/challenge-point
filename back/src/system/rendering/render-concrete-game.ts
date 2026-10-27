@@ -1766,8 +1766,33 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
         }
         return null
     }
+    /**
+     * **A placement is said only where the realized geometry puts the region there** — E5a, 27 October 2026, a TIGHTENING (the engine
+     * design's section 8; Step 0 case e3). The sentences below place a line "on the end line itself" or call two lines "both end lines",
+     * and place any other region "along" a touchline; until E5a they did so for every region that reached them, whatever the game
+     * realized. A full-width zone at one end in a game whose teams have no role noun (so `targetZone` has no words for it) was served as
+     * "a zone along the touchline", fidelity 0, while the overview and the diagram put it at the end. Each placement is now read from the
+     * realized intervals: ON an end line is one point on the along axis at 0 or at the area's length; ALONG a touchline is an across
+     * interval meeting exactly one of the two touchlines (0 or the area's width); "one" and "the opposite" touchline also need the pair's
+     * other region along the other one. A region whose geometry does not match is not said at all, so fidelity refuses the activity (Q5: a
+     * region with no marking instruction) rather than a coach being told to mark it where it is not, as a bound region the renderer cannot
+     * say is left unsaid (above). No new words: where a region does lie is said only by sentences that already exist.
+     */
+    const onEndLine = (region: any): boolean => {
+        const at = geometryFor(region.elementId, 'along')?.geometry?.interval
+        return !!at && stated(at.from) && at.from === at.to && (at.from === 0 || at.from === areaLength)
+    }
+    /** The touchline (its across coordinate, 0 or the width) a region lies along, or null where it meets neither or both. */
+    const touchlineOf = (region: any): number | null => {
+        const across = geometryFor(region.elementId, 'across')?.geometry?.interval
+        if (!across || !stated(across.from) || !stated(across.to)) return null
+        const atStart = across.from === 0
+        const atEnd = across.to === areaWidth
+        return atStart === atEnd ? null : atStart ? 0 : areaWidth
+    }
     const mergeLines =
         lines.length === 2 &&
+        lines.every(onEndLine) &&
         endsDiffer &&
         lines.every(r => {
             const { at } = lineGeometry(r)
@@ -1788,6 +1813,15 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
     const lateralOf = (r: any) => (r.selector ?? []).find((t: any) => t.attribute === 'lateral')?.value
     const sides = regions.map(lateralOf).filter(Boolean)
     const paired = sides.length === 2 && new Set(sides).size === 2
+    /** E5a (above): whether the touchline the sentence would name is where the game realizes the region, and, for a pair, its partner on the other. */
+    const liesAlongItsTouchline = (region: any): boolean => {
+        const mine = touchlineOf(region)
+        const lateral = lateralOf(region)
+        if (mine === null || !paired || !lateral) return mine !== null
+        const partner = regions.find(other => other !== region && lateralOf(other) && lateralOf(other) !== lateral)
+        const theirs = partner ? touchlineOf(partner) : null
+        return theirs !== null && theirs !== mine
+    }
     /** Everything one non-line region's sentences need, read once so a merge can compare two of them. */
     const channelPlan = (region: any) => {
         const along = geometryFor(region.elementId, 'along')
@@ -1801,6 +1835,7 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
         const unfit = across?.geometry?.extentBound?.preferenceWithin
         return {
             where: !paired || !lateral ? 'along the touchline' : lateral === sides[0] ? 'along one touchline' : 'along the opposite touchline',
+            placed: liesAlongItsTouchline(region),
             length: (len?.to ?? 0) - (len?.from ?? 0),
             widest: (width?.to ?? 0) - (width?.from ?? 0),
             range: extentRange(across),
@@ -1817,6 +1852,7 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
     const mergeChannels = (() => {
         if (channels2.length !== 2 || !paired || !channels2.every(lateralOf) || new Set(channels2.map(r => r.noun)).size !== 1) return false
         const [a, b] = channels2.map(channelPlan)
+        if (!a.placed || !b.placed) return false
         if (!a.range?.required || !b.range?.required || a.saidFunctions.length || b.saidFunctions.length || !a.across || !b.across) return false
         const shape = (p: typeof a) => JSON.stringify([p.range!.required, p.range!.preferred, p.length, p.status, !!p.unfit])
         return shape(a) === shape(b)
@@ -1868,6 +1904,8 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
         }
 
         if (noun === 'line') {
+            // E5a: a line the game does not put on an end line is not said to be on one (nor observed as sitting there); fidelity refuses it unmarked.
+            if (!onEndLine(region)) continue
             const { lengthAxis, atAxis, length, at } = lineGeometry(region)
             if (mergeLines && region === lines[0]) {
                 const objectives = lines.map(referencedBy)
@@ -1905,6 +1943,8 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
             }
         } else {
             const plan = channelPlan(region)
+            // E5a: a region the game does not put along the touchline the sentence names is not said at all; fidelity refuses it unmarked.
+            if (!plan.placed) continue
             // The second of a merged pair was said with the first.
             if (mergeChannels && region === channels2[1]) continue
             const { where, length, widest, range, markingFrom, preferredFrom } = plan
