@@ -239,6 +239,31 @@ test('the gate refuses an entry without a citation', () => {
     for (const notAList of [{}, 'none', 3]) {
         assert.ok(damaged(r => ((r as any).manipulations = notAList)).some(e => e.includes('A01: lists no manipulations (an empty list says it records none)')), JSON.stringify(notAList))
     }
+    // After the second E2 review (27 October 2026): an entry that is not a record in a list the gate reads (`m.status` of null), and the
+    // gaps, provisional choices, existing knowledge or exclusions present but not a list (`.filter is not a function`), crashed the gate with
+    // a TypeError. Each is refused now by exactly one sentence, the gate's existing one for an entry that says nothing, never thrown.
+    const record = a01()
+    for (const notARecord of [null, 'none', 3]) {
+        const tag = JSON.stringify(notARecord)
+        assert.deepEqual(damaged(r => ((r as any).manipulations = [notARecord])), ['A01: manipulation 1 (no phrase) quotes no phrase or names no source for it'], tag)
+        assert.deepEqual(damaged(r => (r.manipulations as unknown[]).push(notARecord)), [`A01: manipulation ${record.manipulations.length + 1} (no phrase) quotes no phrase or names no source for it`], tag)
+        assert.deepEqual(damaged(r => (r.gaps as unknown[]).push(notARecord)), [`A01: gap ${record.gaps!.length + 1} must have an id, a kind (DECISION or CAPABILITY) and a one-line description`], tag)
+        assert.deepEqual(damaged(r => (r.provisionalChoices as unknown[]).push(notARecord)), [`A01: provisional choice ${record.provisionalChoices!.length + 1} must say what it is and cite who chose it, when, where and in his words`], tag)
+        assert.deepEqual(damaged(r => (r.existingKnowledge as unknown[]).push(notARecord)), [`A01: existing knowledge ${record.existingKnowledge!.length + 1} must say what is authorized and cite at least one source`], tag)
+        assert.deepEqual(damaged(r => (r.excluded as unknown[]).push(notARecord)), [`A01: exclusion ${record.excluded.length + 1} names no knowledge and cites no ruling`], tag)
+    }
+    for (const notAList of [{}, 'none', 3]) {
+        const tag = JSON.stringify(notAList)
+        assert.deepEqual(damaged(r => ((r as any).gaps = notAList)), ['A01: gaps must be a list (absent says it defines none)'], tag)
+        assert.deepEqual(damaged(r => ((r as any).provisionalChoices = notAList)), ['A01: provisionalChoices must be a list (absent says it records none)'], tag)
+        assert.deepEqual(damaged(r => ((r as any).existingKnowledge = notAList)), ['A01: existingKnowledge must be a list (absent says it lists none)'], tag)
+        assert.deepEqual(damaged(r => ((r as any).excluded = notAList)), ['A01: excluded must be a list (an empty list says it excludes none)'], tag)
+    }
+    // Absent or null still says the record lists none, as before.
+    for (const field of ['gaps', 'provisionalChoices', 'existingKnowledge'] as const) {
+        assert.deepEqual(damaged(r => delete (r as any)[field]), [], `${field} absent`)
+        assert.deepEqual(damaged(r => ((r as any)[field] = null)), [], `${field} null`)
+    }
     assert.deepEqual(damaged(r => (r.authorizedConstraints = null)), [], 'null is an answer: not yet evaluated')
     assert.ok(damaged(r => (r.authorizedConstraintsFinding = '')).some(e => e.includes('carries no finding')))
 })
