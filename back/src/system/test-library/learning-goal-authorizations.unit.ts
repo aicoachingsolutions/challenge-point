@@ -269,6 +269,30 @@ test('the gate refuses an entry without a citation', () => {
     assert.deepEqual(damaged(r => delete (r as any).excluded), ['A01: lists no exclusions (an empty list says it excludes none)'], 'excluded absent')
     assert.deepEqual(damaged(r => ((r as any).excluded = null)), ['A01: lists no exclusions (an empty list says it excludes none)'], 'excluded null')
     assert.deepEqual(damaged(r => (r.excluded = [])), [], 'an empty list excludes none')
+    // After the third E2 review: the four damaged copies it found, and an alternative's gaps not a list, crashed the gate with a TypeError
+    // instead of being refused. Each is exactly one refusal now, never thrown.
+    for (const notAList of [{}, 'none', 3]) {
+        // The authorized constraints present but not a list: refused, then `.map is not a function`.
+        assert.deepEqual(damaged(r => ((r as any).authorizedConstraints = notAList)), ['A01: authorizedConstraints must be a list (the evaluation) or null (not yet evaluated)'], JSON.stringify(notAList))
+    }
+    for (const notARecord of [null, undefined, 'none', 3]) {
+        const tag = String(JSON.stringify(notARecord))
+        // An alternative realization that is not a record, alone or after the record's own (`realization` of null for null or undefined;
+        // two sentences for a word or a number).
+        assert.deepEqual(damaged(r => (r.realizations = [notARecord as any])), ['A01: alternative realization 1 names no realization and does not quote him for its place in the order'], tag)
+        assert.deepEqual(damaged(r => (r.realizations as unknown[]).push(notARecord)), [`A01: alternative realization ${record.realizations!.length + 1} names no realization and does not quote him for its place in the order`], tag)
+        // A record list holding an entry that is not a record (`learningGoalId` of null; `'zeroConstraintRuling' in` a word or a number).
+        assert.deepEqual(validateLearningGoalAuthorizations([...learningGoalAuthorizations(), notARecord as any]), ['an authorization names no Learning Goal'], tag)
+    }
+    for (const notARecord of [null, 'none', 3, []]) {
+        // A review request present but not a record (`ruledOn` of null; six sentences for a word or a number).
+        assert.deepEqual(damaged(r => ((r as any).reviewRequest = notARecord)), ['A01: the review request is not a record (absent says the record holds none)'], JSON.stringify(notARecord))
+    }
+    // An alternative realization's gaps present but not a list: refused, then "is not iterable" in the gate's own read of the alternatives.
+    for (const notAList of [{}, 3]) {
+        const tag = JSON.stringify(notAList)
+        assert.deepEqual(damaged(r => Object.assign(r.realizations![0], { status: 'AUTHORIZED_BY_RULING', gaps: notAList })), ['A01: alternative realization 1 lists no gaps (an empty list says it waits on none)'], tag)
+    }
     assert.deepEqual(damaged(r => (r.authorizedConstraints = null)), [], 'null is an answer: not yet evaluated')
     assert.ok(damaged(r => (r.authorizedConstraintsFinding = '')).some(e => e.includes('carries no finding')))
 })
