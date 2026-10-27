@@ -1328,6 +1328,26 @@ function build(
     }
 
     /**
+     * **A constraint the goal's record authorizes and the engine cannot build is refused, never dropped** (E2, 27 October 2026; the summary
+     * is DRAFT coach wording, for his review). Until E2 a selected constraint with no contribution contract was only listed
+     * (`selectedWithoutContract`) and the game was derived without it, so an activity his record governs could be served without a
+     * constraint the record authorizes, and nothing a coach reads said so. Read from the record and the selection alone, for any record
+     * (no goal, context or constraint is named): only on a record-backed selection, and only for a constraint the record authorizes, matched
+     * by knowledge key as the hold and the exclusion are. A constraint a record does not authorize is the live route's G2 refusal
+     * (`unauthorizedConstraints`), and a goal whose pool comes from vocabulary keeps listing what has no contract.
+     */
+    const recordBacked = goalSelection?.constraintPool.source === 'AUTHORIZATION_RECORD'
+    const authorizedByRecord = new Set((goalSelection?.authorization?.authorizedConstraints ?? []).map(knowledgeKey))
+    const unbuilt = recordBacked ? selection.selected.filter(entry => entry.role.includes('constraint') && selection.missing.includes(entry.id) && authorizedByRecord.has(knowledgeKey(entry.id))) : []
+    if (unbuilt.length) {
+        return refuse(
+            'knowledge',
+            "This goal's authorized constraints have not all been built into the activity engine yet, so no activity can be built for it.",
+            unbuilt.map(entry => `the authorized constraint ${entry.id} has no contribution contract, so it cannot shape the game, and it is not dropped silently`),
+        )
+    }
+
+    /**
      * **One alternative realization, built through to communication or to the stage it stopped at** — stage E, 23 October 2026. Everything
      * from here on is what this function always did for the one realization a goal's record named (unchanged, and measured so: every goal
      * and demonstration answers as before), now run once per alternative the build tries, with the realization being tried threaded through

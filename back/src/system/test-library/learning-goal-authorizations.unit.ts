@@ -230,6 +230,10 @@ test('the gate refuses an entry without a citation', () => {
     assert.ok(damaged(r => (r.provisionalChoices![0].words = '')).some(e => e.includes('provisional choice 1 must say what it is and cite')))
     assert.ok(damaged(r => ((r.provisionalChoices![0] as any).category = 'GENERAL_PRINCIPLE')).some(e => e.includes('not labelled PROVISIONAL_REALIZATION_CHOICE')))
     assert.ok(damaged(r => delete (r as any).authorizedConstraints).some(e => e.includes('must be a list (the evaluation) or null (not yet evaluated)')))
+    // E2 (27 October 2026): a record with no manipulations list passed this gate and crashed the build (a TypeError in the record's
+    // readers); it is refused here now. An empty list is an answer: the record records none.
+    assert.ok(damaged(r => delete (r as any).manipulations).some(e => e.includes('A01: lists no manipulations (an empty list says it records none)')))
+    assert.ok(damaged(r => ((r as any).manipulations = null)).some(e => e.includes('lists no manipulations')))
     assert.deepEqual(damaged(r => (r.authorizedConstraints = null)), [], 'null is an answer: not yet evaluated')
     assert.ok(damaged(r => (r.authorizedConstraintsFinding = '')).some(e => e.includes('carries no finding')))
 })

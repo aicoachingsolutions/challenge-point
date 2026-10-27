@@ -540,6 +540,12 @@ export function validateLearningGoalAuthorizations(
         if (entry.authorizedConstraints !== null && !Array.isArray(entry.authorizedConstraints)) {
             errors.push(`${goal}: authorizedConstraints must be a list (the evaluation) or null (not yet evaluated)`)
         }
+        /**
+         * **The manipulations are a list, an empty one included** (E2, 27 October 2026, a TIGHTENING). The type requires the field and
+         * every reader dereferences it (`neededRecordGaps`, `authorizationLists`), while this gate read it with `?? []`, so a record copy
+         * that left it out passed the gate and crashed the build with a TypeError. Refused here instead, as a register-row list is below.
+         */
+        if (!Array.isArray(entry.manipulations)) errors.push(`${goal}: lists no manipulations (an empty list says it records none)`)
         if ('zeroConstraintRuling' in (entry as object)) errors.push(`${goal}: a per-goal zero-constraint ruling is not read; the general principle governs every record alike`)
         // Stage K8: a review request that cannot be read whole would let the review evidence silently omit what he asked to see.
         if (entry.reviewRequest !== undefined) errors.push(...validateReviewRequest(goal, entry.reviewRequest))

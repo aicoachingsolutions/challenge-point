@@ -281,8 +281,22 @@ const refusedWith = (outcome: ReturnType<typeof liveCheckedActivity>, cause: str
             },
         )
     const liveCarrying = (id: string) => ({ ...JSON.parse(JSON.stringify(live)), constraints: [{ id }] }) as TestLibrarySelectionResult
-    const servedOne = served(liveCheckedActivity(stored(1), inputs(), liveCarrying(authorized.id), carrying(authorized.id, [authorized.id])), 'the authorized constraint')
-    assert.deepEqual(servedOne.activity.account.constraints.map(c => c.id), [authorized.id], 'only what the record authorizes is served')
+    /**
+     * Re-pointed 27 October 2026 (E2): the served half carried an authorized constraint with NO contract, which the build listed and
+     * derived without. Since E2 the build refuses that at `knowledge` (asserted below), so the served half carries a CONTRACTED library
+     * constraint the record does not exclude and no ruling holds, authorized on the copy: the Neutral Player Condition (measured: served
+     * with A01 under its production record, the E2 design's probe e2-probe.txt). The two refusal halves keep their uncontracted constraint:
+     * it is not authorized there, so E2 does not fire and G2 still refuses.
+     */
+    const NPC = 'tl-v0-constraint-neutral-player-condition'
+    assert.ok(usable.some(c => c.id === NPC), 'neither held nor excluded by the record')
+    assert.deepEqual(contractCoverage([{ id: NPC, role: 'foundation constraint' }]).contracted, [NPC], 'contracted')
+    const servedOne = served(liveCheckedActivity(stored(1), inputs(), liveCarrying(NPC), carrying(NPC, [NPC])), 'the authorized constraint')
+    assert.deepEqual(servedOne.activity.account.constraints.map(c => c.id), [NPC], 'only what the record authorizes is served')
+    // E2: an authorized constraint with no contribution contract is the checked pathway's own refusal at knowledge, never served without it.
+    const unbuilt = refusedWith(liveCheckedActivity(stored(1), inputs(), liveCarrying(authorized.id), carrying(authorized.id, [authorized.id])), 'CHECKED_REFUSAL', 'an authorized constraint with no contract')
+    assert.equal(unbuilt.activity.stage, 'knowledge', JSON.stringify(unbuilt.activity.reasons))
+    assert.ok(unbuilt.activity.reasons.some(reason => reason.includes(`the authorized constraint ${authorized.id} has no contribution contract`)), JSON.stringify(unbuilt.activity.reasons))
     const unauthorized = refusedWith(liveCheckedActivity(stored(1), inputs(), liveCarrying(other.id), carrying(other.id, [authorized.id])), 'CONSTRAINT_NOT_AUTHORIZED', 'a constraint the record does not authorize')
     assert.equal(unauthorized.activity.summary, NOT_PASSED)
     assert.ok(unauthorized.activity.reasons[0].includes(other.id) && unauthorized.activity.reasons[0].includes('does not authorize it'))

@@ -27,7 +27,7 @@ import { loadCorpusContracts, loadRegister, provisionalRealizationNamed, readJso
 import { repairCorpusEncoding } from '../derivation/corpus-repair'
 import { runDerivation, runStages0to10 } from '../derivation/engine'
 import { assembleResolvedGame } from '../derivation/resolved-game'
-import { CONTEXT_ROLE, derivationInputFor, selectFor } from '../derivation/run-bounded-selection'
+import { CONTEXT_ROLE, contractCoverage, derivationInputFor, knowledgeKey, selectFor } from '../derivation/run-bounded-selection'
 import { indexRegister } from '../derivation/register'
 import { ActivityReviewRequestError, activityReviewOptions, reviewActivity } from './activity-review'
 import * as wordingModule from './approved-wording'
@@ -39,6 +39,7 @@ import { MECHANISM_DEMONSTRATIONS } from './mechanism-demonstrations'
 import { sessionEnvelopeFrom, specializedRoleNames } from './session-envelope'
 import { rpcLibrary } from '../sport-module/rpc-library'
 import { learningGoalSelectionHolds } from '../test-library/learning-design-holds'
+import { testLibraryRegistry } from '../test-library/library/registry'
 import { authorizationLists, learningGoalAuthorization, learningGoalAuthorizations, LearningGoalAuthorization, libraryConstraintPrinciple, realizationAlternativesOf } from '../test-library/learning-goal-authorizations'
 
 const ROLES = specializedRoleNames()
@@ -1701,6 +1702,56 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
     const ta02 = refused(reviewActivity(stored(), { learningGoalId: 'TA02', durationMin: 20 }), 'TA02')
     assert.ok(ta02.account.constraints!.some(c => c.title === 'Wide Zone Advantage'), 'TA02 still selects Wide Zone from its own candidates')
     assert.notEqual(ta02.summary, "This goal selects a rule that has been excluded from this goal's activities.")
+}
+
+/**
+ * ── E2, 27 October 2026: an authorized constraint with no contract is refused, never dropped ──────────
+ *
+ * Until E2 a constraint selected with no contribution contract was listed (`selectedWithoutContract`) and the game was derived without it,
+ * so a goal his record governs could be served without a constraint the record authorizes. Proved on A01 under its production record, with
+ * one uncontracted library constraint (TEST-ONLY: added to a COPY of the selection, and authorized only on that copy's record): authorized,
+ * the build refuses at `knowledge` naming it; the same constraint not authorized is served and listed, as before, because the refusal keys
+ * on authorization (an unauthorized constraint is the live route's G2 refusal). The summary is DRAFT coach wording. And a record copy with
+ * no manipulations list, which crashed the build with a TypeError before E2, is refused at selection by the records' integrity gate.
+ */
+{
+    const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...none, [ROLE]: 1 }, objects: NO_GOAL }
+    const record = learningGoalAuthorization('A01')!
+    const holds = new Set(learningGoalSelectionHolds().map(hold => knowledgeKey(hold.knowledgeId)))
+    const excluded = new Set(record.excluded.map(entry => knowledgeKey(entry.knowledgeId)))
+    const uncontracted = testLibraryRegistry
+        .selectableConstraints()
+        .filter(c => !holds.has(knowledgeKey(c.id)) && !excluded.has(knowledgeKey(c.id)) && contractCoverage([{ id: c.id, role: 'foundation constraint' }]).contracted.length === 0)
+    assert.ok(uncontracted.length > 0, 'a library constraint with no contract to stand in (TEST-ONLY)')
+    const [unbuilt] = uncontracted
+    const carrying = (authorize: boolean) =>
+        buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, learningGoalAuthorizations(), {
+            alterSelection: selection => {
+                selection.selected.push({ id: unbuilt.id, role: 'foundation constraint' })
+                if (authorize) selection.authorization = { ...selection.authorization!, authorizedConstraints: [unbuilt.id] }
+            },
+        }).activity
+
+    const refusal = refused(carrying(true), 'A01 carrying an authorized constraint with no contract (TEST-ONLY)')
+    assert.equal(refusal.stage, 'knowledge', JSON.stringify(refusal.reasons))
+    assert.equal(refusal.summary, "This goal's authorized constraints have not all been built into the activity engine yet, so no activity can be built for it.")
+    plain(refusal, 'A01 authorized constraint with no contract')
+    assert.deepEqual(refusal.reasons, [`the authorized constraint ${unbuilt.id} has no contribution contract, so it cannot shape the game, and it is not dropped silently`])
+    assert.deepEqual(refusal.account.selectedWithoutContract, [unbuilt.id], 'the account still lists it')
+
+    // Not authorized: served, and listed exactly as before E2 (the build does not read authorization for this; G2 on the live route does).
+    const listed = served(carrying(false), 'A01 carrying an unauthorized constraint with no contract (TEST-ONLY)')
+    assert.deepEqual(listed.account.selectedWithoutContract, [unbuilt.id])
+    // Production: A01's record authorizes none, so its own build is untouched.
+    assert.deepEqual(record.authorizedConstraints, [])
+    served(buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, learningGoalAuthorizations()).activity, 'A01 under its production record')
+
+    // A record copy with no manipulations list: refused at selection by the integrity gate, never a TypeError out of the build.
+    const withoutManipulations = learningGoalAuthorizations()
+    delete (withoutManipulations.find(entry => entry.learningGoalId === 'A01') as any).manipulations
+    const gated = refused(buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, withoutManipulations).activity, 'A01 under a record copy with no manipulations')
+    assert.equal(gated.stage, 'selection', JSON.stringify(gated.reasons))
+    assert.ok(gated.reasons.some(reason => reason.includes('the authorization records failed their integrity gate') && reason.includes('A01: lists no manipulations')), JSON.stringify(gated.reasons))
 }
 
 /**
