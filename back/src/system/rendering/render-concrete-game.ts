@@ -1828,22 +1828,31 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
     const lateralOf = (r: any) => (r.selector ?? []).find((t: any) => t.attribute === 'lateral')?.value
     const sides = regions.map(lateralOf).filter(Boolean)
     const paired = sides.length === 2 && new Set(sides).size === 2
-    /** The touchlines the regions said "along the touchline" (no pair) lie along: "the touchline" is one touchline only where this holds one. */
+    /**
+     * The touchlines the regions said "along the touchline" lie along: "the touchline" is one touchline only where this holds one. Only a game
+     * with no pair says it (below), so only such a game's regions are read.
+     */
     const unpairedTouchlines = new Set(
         regions
-            .filter(r => r.noun !== 'line' && !targetZone(r) && (!paired || !lateralOf(r)))
+            .filter(r => !paired && r.noun !== 'line' && !targetZone(r))
             .map(touchlineOf)
             .filter(side => side !== null),
     )
     /**
      * E5a (above): whether the touchline the sentence would name is where the game realizes the region, and, for a pair, its partner on the
      * other; for a region with no pair, whether every region said "along the touchline" lies along that same one.
+     *
+     * Beside a pair, a region with no lateral of its own is not said (after the second E5a review, 27 October 2026). The pair lies along
+     * both touchlines, so "the touchline" names either of them, and the sentence read the same whichever touchline the region was on (the
+     * review's probes: a third channel on either touchline beside the specimen's pair was "a channel along the touchline", and no fidelity
+     * finding named the placement). Left unsaid, fidelity refuses it (Q5: no marking instruction), as any region E5a cannot place.
      */
     const liesAlongItsTouchline = (region: any): boolean => {
         const mine = touchlineOf(region)
         const lateral = lateralOf(region)
         if (mine === null) return false
-        if (!paired || !lateral) return unpairedTouchlines.size === 1
+        if (paired && !lateral) return false
+        if (!paired) return unpairedTouchlines.size === 1
         const partner = regions.find(other => other !== region && lateralOf(other) && lateralOf(other) !== lateral)
         const theirs = partner ? touchlineOf(partner) : null
         return theirs !== null && theirs !== mine

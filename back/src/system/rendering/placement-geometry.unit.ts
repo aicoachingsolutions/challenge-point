@@ -17,8 +17,9 @@
  * What is guaranteed, and only for those sentences ("along the touchline", "along one / the opposite / each touchline", "on the end line
  * itself", "both end lines"). None of them says WHICH part of a touchline or an end line, so a region is said along a touchline only where
  * its across interval meets exactly that one touchline AND its along interval runs the area's whole length; a line is said on an end line
- * only where it is one point at an end AND runs the area's whole width; "the touchline" of a region with no pair only where every region so
- * said lies along the same one; "one" and "the opposite" touchline only where the pair's other region lies along the other; "both end
+ * only where it is one point at an end AND runs the area's whole width; "the touchline" of a region with no pair only in a game holding no
+ * pair (beside one it names either touchline: (g)), and only where every region so said lies along the same one; "one" and "the opposite"
+ * touchline only where the pair's other region lies along the other; "both end
  * lines" only where the two lines themselves sit at the two ends. Other sentences that place regions (a team's target zone, a line marked
  * from a team's end, a region bound to an object) read their own geometry and are not this file's subject.
  *
@@ -34,6 +35,9 @@
  *   (f) both lines at one end with a degenerate region at the other, which made the degenerate positions differ.
  * Reverting the narrowing says (d) "a zone along the touchline, 6 m long" twice and "on the end line itself" of a 10 m line, (e) "along the
  * touchline" of both, and (f) "Mark both end lines" (measured 27 October 2026).
+ * Added after the second E5a review (27 October 2026), on a copy of (c)'s specimen:
+ *   (g) the pair plus a region with no lateral of its own, on either touchline: "the touchline" would name either of the pair's, so the
+ *       region is not said. Reverting it says "Mark a channel along the touchline" beside the pair, on each touchline alike.
  *
  * Run: npx ts-node --files -r tsconfig-paths/register ./src/system/rendering/placement-geometry.unit.ts
  */
@@ -293,6 +297,48 @@ test('(f) "Mark both end lines" needs the two lines themselves at the two ends, 
     for (const id of lines) {
         assert.equal(marking(rendered, id).length, 1, texts(rendered))
         assert.match(marking(rendered, id)[0], /^Mark a line across one end of the area, 30 m long, on the end line itself$/, `both lines lie on the one end line: ${texts(rendered)}`)
+    }
+})
+
+/* ── (g) a region with no pair beside a pair (after the second E5a review) ───────────────────────────────────────────────────────── */
+test('(g) beside a pair, a region with no lateral of its own is not said "along the touchline", on either touchline', () => {
+    const specimen = JSON.parse(fs.readFileSync(SPECIMEN, 'utf8'))
+    const channels = regionIds(specimen, 'channel')
+    assert.equal(channels.length, 2)
+    const acrossOf = (id: string) => (specimen.status.geometry as any[]).find(g => g.path.includes(`[${id}]`) && g.path.endsWith('.across')).geometry.interval
+    assert.notDeepEqual(acrossOf(channels[0]), acrossOf(channels[1]), 'the pair lies along the two touchlines')
+    const third = 'c:restated:WIDE-ZONE-ADVANTAGE:TEST-ONLY-THIRD'
+    for (const beside of channels) {
+        // TEST-ONLY, on a copy: a third channel, the first one's region and geometry with its lateral taken out, referenced by the pair's value
+        // modifier (so it changes play, as the pair does), whole length, along the touchline `beside` lies along.
+        const moved = copy(specimen) as any
+        const twin = copy((moved.game.space.regions as any[]).find(r => String(r.elementId) === channels[0]))
+        twin.elementId = third
+        twin.selector = (twin.selector ?? []).filter((term: any) => term.attribute !== 'lateral')
+        moved.game.space.regions.push(twin)
+        for (const list of [moved.status.geometry, moved.status.derived ?? []] as any[][]) {
+            for (const entry of list.filter(e => typeof e.path === 'string' && e.path.includes(`[${channels[0]}]`))) {
+                const added = copy(entry)
+                added.path = added.path.split(`[${channels[0]}]`).join(`[${third}]`)
+                if (typeof added.lineId === 'string') added.lineId = added.lineId.split(channels[0]).join(third)
+                list.push(added)
+            }
+        }
+        const referents = moved.game.value.valueModifiers[0].condition.referents as any[]
+        const reference = copy(referents[0])
+        assert.ok(reference.structuralRef, 'the pair is referenced by the value modifier')
+        reference.structuralRef.itemId = 'TEST-ONLY-THIRD'
+        referents.push(reference)
+        moveRegion(moved, third, 'across', acrossOf(beside))
+        const rendered = renderConcreteGame(moved)
+        assert.deepEqual(marking(rendered, third), [], `beside ${beside}: the region with no lateral is not said: ${texts(rendered)}`)
+        assert.ok(!rendered.instructions.some(i => /along the touchline/.test(i.text)), texts(rendered))
+        assert.deepEqual(
+            channels.map(id => marking(rendered, id).filter(text => PLACEMENT.test(text)).length),
+            [1, 1],
+            `beside ${beside}: the pair is still said on one and the opposite touchline`,
+        )
+        assert.deepEqual(unmarked(moved, rendered), [unmarkedSentence(third)], `beside ${beside}`)
     }
 })
 
