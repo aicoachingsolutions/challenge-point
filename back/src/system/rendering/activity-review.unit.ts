@@ -63,6 +63,13 @@ const NO_GOAL = { goal: { count: 0 } }
  */
 const zoneOnly = (alter: (contracts: any[]) => void) => (contracts: any[]) => void (contracts.some(contract => contract.contractId === 'provisional:A01-R1') && alter(contracts))
 const zoneOnlySupplied = (alter: (supplied: any) => void) => (supplied: any, provisional: any) => void (provisional?.provisionalId === 'A01-R1' && alter(supplied))
+/**
+ * TEST-ONLY (Z, 25 October 2026): a copy of A01-R1 that takes its penalty area out owes the goalkeeper's handling (no area belongs to the
+ * goalkeeper's team), so it declares REPORT, as A01-R1 did before his reply filed 28 October 2026, item 7, never the ENFORCE it declares now.
+ */
+const reportedAsBeforeZ = (realization: any) => {
+    if (realization?.defaultLawsCheck) realization.defaultLawsCheck = { ...realization.defaultLawsCheck, mode: 'REPORT' }
+}
 
 const served = (activity: ServedActivity | RefusedActivity, what: string): ServedActivity => {
     assert.equal(activity.outcome, 'served', `${what} must be served; refused at ${(activity as RefusedActivity).stage}: ${JSON.stringify((activity as RefusedActivity).reasons)}`)
@@ -395,7 +402,9 @@ const withoutGapEntries = (): LearningGoalAuthorization[] =>
         // 53 -> 46 on 24 October 2026 (R1): his reply filed 27 October 2026, item 4 - the one common restart: six items added (the policy,
         // the four dead-ball elements, the last-touch qualifier) and thirteen removed (the throw-in and end-line restarts), pinned in
         // dead-ball-restart.unit.ts, each one of his provisional choices.
-        assert.equal(a01.account.authorizationLists!.provisionalChoices.filter(e => e.from === 'provisional realization').length, 46, 'the roles, the exchange, the counts, the keeper, the reassignments, the common restart and its transitions, the starting placements, the credit bounds and the regain score of the pressing role')
+        // 46 -> 52 on 25 October 2026 (Z): his reply filed 28 October 2026, item 7 - the goalkeeper's penalty area at the goalkeeper's own end
+        // and the marked line kept outside it, six items (pinned in zone-penalty-area.unit.ts), each one of his provisional choices.
+        assert.equal(a01.account.authorizationLists!.provisionalChoices.filter(e => e.from === 'provisional realization').length, 52, 'the roles, the exchange, the counts, the keeper, the reassignments, the common restart and its transitions, the starting placements, the credit bounds, the regain score of the pressing role and the goalkeeper\'s penalty area')
         // The allocation's authority reaches the technical account of the refusal too (stage K4), read from the record; since stage
         // K6 with the Performer Configuration relationship the starting placements cite.
         assert.deepEqual(a01.account.allocation!.relationships.map(r => r.id), ['RPC-001~EM-0006', 'RPC-001~EM-0002'])
@@ -1753,7 +1762,10 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
      * only the build-out conditions type; with the conditions taken out, GA-EPISODE-REACHABLE withholds on them (measured). The
      * block is about the guard, which reads none of them.
      */
-    const SPATIAL_ROWS = ['S2', 'S5', 'S6', 'P8', 'P10', 'P10a', 'P10b']
+    // Re-pointed 25 October 2026 (Z): and row S7, the binding of the goalkeeper's penalty area the zone version holds since his reply filed 28
+    // October 2026, item 7 (the area itself goes with S2, S5 and S6); without its area the copy owes the goalkeeper's handling, so it declares
+    // REPORT, as A01-R1 did before Z (`reportedAsBeforeZ`).
+    const SPATIAL_ROWS = ['S2', 'S5', 'S6', 'S7', 'P8', 'P10', 'P10a', 'P10b']
     /**
      * Re-pointed 17 October 2026 (stage M1): and the roles' credit bounds (row B8, his reply filed 19 October 2026, item 1 and item 3
      * C). The building role's bound is the build-out episode, whose beginnings only the build-out conditions type; with them taken out
@@ -1772,6 +1784,7 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
         rpc.items = rpc.items.filter((item: any) => !PENDING.includes(item.itemId))
         const realization = contracts.find(contract => contract.contractId === 'provisional:A01-R1')
         realization.items = realization.items.filter((item: any) => !SPATIAL_ROWS.includes(String(item.row)) && !CREDIT_ROWS.includes(String(item.row)) && item.itemId !== 'A01-R1-T4-4')
+        reportedAsBeforeZ(realization)
     }
     const linesBack = (supplied: any) => {
         for (const replaced of supplied.replaced) supplied.choices.find((choice: any) => choice.lineId === replaced.lineId).value = replaced.replacedValue
@@ -1863,7 +1876,10 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
     // realizer's choices put the possession game's line targets back (`placementsOut`): the placements are re-established at the
     // build-out episode's beginnings, which only those conditions type (without them GA-EPISODE-REACHABLE withholds, measured),
     // and this block is about the roster, which reads none of them.
-    const SPATIAL_ROWS = ['S2', 'S5', 'S6', 'P8', 'P10', 'P10a', 'P10b']
+    // Re-pointed 25 October 2026 (Z): and row S7, the binding of the goalkeeper's penalty area the zone version holds since his reply filed 28
+    // October 2026, item 7 (the area itself goes with S2, S5 and S6); without its area the copy owes the goalkeeper's handling, so it declares
+    // REPORT, as A01-R1 did before Z (`reportedAsBeforeZ`).
+    const SPATIAL_ROWS = ['S2', 'S5', 'S6', 'S7', 'P8', 'P10', 'P10a', 'P10b']
     // Re-pointed 17 October 2026 (stage M1): and the roles' credit bounds (row B8, his reply filed 19 October 2026, item 1 and item 3
     // C). The building role's bound is the build-out episode, which only those conditions type (without them GA-EPISODE-REACHABLE's
     // fourth clause withholds, measured: refused at structure); this block is about the roster, which reads none of it.
@@ -1877,6 +1893,7 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
         rpc.items = rpc.items.filter((item: any) => !CONDITIONS.includes(item.itemId))
         const realization = contracts.find(contract => contract.contractId === 'provisional:A01-R1')
         realization.items = realization.items.filter((item: any) => !SPATIAL_ROWS.includes(String(item.row)) && !CREDIT_ROWS.includes(String(item.row)) && item.itemId !== 'A01-R1-T4-4')
+        reportedAsBeforeZ(realization)
     }
     const placementsOut = (supplied: any) => {
         for (const replaced of supplied.replaced) supplied.choices.find((choice: any) => choice.lineId === replaced.lineId).value = replaced.replacedValue
@@ -1957,7 +1974,10 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
         // Re-pointed 24 October 2026 (the completeness audit of the field-test build, item 1; his reply filed 27 October 2026, item 6, "The
         // [specialized role] should be visually distinguishable from the outfield players."): the roster closes with the colour clause, written
         // for the law of the role's colours, which applies wherever a team holds the role (DRAFT). Was the same sentence without it.
-        assert.equal(roster!.text, `Divide 12 players into 2 teams: the building team has 1 ${ROLE} and 6 other players; the pressing team has 5 other players; give the ${ROLE} a colour neither team wears`)
+        // Re-pointed 25 October 2026 (P1; his reply filed 28 October 2026, item 3, with RC3 3.4): the zone version's equipment sentence (DRAFT)
+        // tells the role apart, first in Set up, so the roster no longer closes with the colour clause.
+        assert.equal(roster!.text, `Divide 12 players into 2 teams: the building team has 1 ${ROLE} and 6 other players; the pressing team has 5 other players`)
+        assert.equal(now.rendered.instructions[0].text, `Balls, cones or field markers, and two team colors plus a distinct ${ROLE} color`)
         /**
          * Through the GOAL pathway (the record crosses into each block's fixture) the two adjustments he authorized reach the
          * composed activity — K4 review, 15 October 2026: allocation.unit.ts proves them on a constructed fixture only, so

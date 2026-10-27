@@ -18,9 +18,11 @@ import {
     ApprovedWording,
     canonicalJson,
     fillTemplate,
+    FIRST_BLOCK_CHOICE,
     partitionWording,
     POSSESSION_CONTINUES,
     templateUnusableBecause,
+    unusableBecause,
     unapprovedTemplateSentences,
     unapprovedWording,
 } from './approved-wording'
@@ -280,30 +282,82 @@ test('(M3, L8) an entry mixing located and unlocated covers, or a located entry 
  * attacking the same zone." A template, not an entry: it translates fields the renderer already says.
  */
 const HIS_POSSESSION_SENTENCE = 'When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone.'
+/**
+ * **His replacement of its last clause — P1, 25 October 2026.** His reply filed 28 October 2026, item 5: "I approve replacing "each team keeps
+ * attacking the same zone" with: "Each team keeps attacking the same target."" and "This accommodates both scoring configurations without
+ * changing the intended meaning." The sentence is now the 19 October one with that clause replaced; the 19 October sentence is kept, superseded.
+ */
+const HIS_POSSESSION_SENTENCE_28 = 'When possession changes, play carries on without a stoppage, and each team keeps attacking the same target.'
+const HIS_FIRST_BLOCK_SENTENCE = 'Decide which team builds first.'
+const HIS_EQUIPMENT_SENTENCE = 'One 12 × 6 ft goalkeeper-defended goal, balls, cones or field markers, and two team colors plus a distinct goalkeeper color.'
+const templateById = (id: string) => approvedTemplateSentences().find(t => t.id === id)!
 
-test('(M4, L10) one approved template sentence, his words verbatim, reproduced exactly by its parts', () => {
+test('(M4, L10; P1) three approved template sentences, his words verbatim or his replacement of a clause, each reproduced exactly by its parts', () => {
     assert.deepEqual(unapprovedTemplateSentences(), [], 'the loader ignores these, and the data must not hold them')
     const templates = approvedTemplateSentences()
-    assert.deepEqual(templates.map(t => t.id), [POSSESSION_CONTINUES])
-    const [template] = templates
-    assert.equal(template.sentence, HIS_POSSESSION_SENTENCE)
-    assert.ok(template.approvedBy.quote.includes(HIS_POSSESSION_SENTENCE))
-    assert.equal(template.approvedBy.date, '2026-10-19')
+    // Re-pointed 25 October 2026 (P1): his reply filed 28 October 2026 adds FIRST_BLOCK_CHOICE (item 4) and EQUIPMENT (item 3).
+    assert.deepEqual(templates.map(t => t.id), [POSSESSION_CONTINUES, FIRST_BLOCK_CHOICE, 'EQUIPMENT'])
+    const template = templateById(POSSESSION_CONTINUES)
+    // Re-pointed 25 October 2026 (P1): his 28 October replacement of the last clause; the 19 October sentence kept beneath it, superseded.
+    assert.equal(template.sentence, HIS_POSSESSION_SENTENCE_28)
+    assert.equal(template.approvedBy.date, '2026-10-28')
+    assert.equal(template.approvedBy.replaces, 'each team keeps attacking the same zone')
+    assert.equal(template.approvedBy.with, 'Each team keeps attacking the same target.')
+    for (const words of [template.approvedBy.replaces!, template.approvedBy.with!, 'This accommodates both scoring configurations without changing the intended meaning.']) assert.ok(template.approvedBy.quote.includes(words), words)
+    assert.equal(template.superseded!.length, 1)
+    const [earlier] = template.superseded!
+    assert.equal(earlier.sentence, HIS_POSSESSION_SENTENCE)
+    assert.ok(earlier.approvedBy.quote.includes(HIS_POSSESSION_SENTENCE))
+    assert.equal(earlier.approvedBy.date, '2026-10-19')
+    assert.deepEqual([earlier.supersededBy.date, earlier.supersededBy.citedAs], ['2026-10-28', 'his reply filed 28 October 2026, item 5'])
     // His letter, verbatim.
     const letter = fs.readFileSync(path.resolve(__dirname, '../../../../docs/audits/approved-coach-wording.json'), 'utf8')
     assert.ok(letter.includes('"approvedTemplateSentences"'))
-    assert.equal(fillTemplate(template.parts, template.example), HIS_POSSESSION_SENTENCE.replace(/\.$/, ''))
+    assert.equal(fillTemplate(template.parts, template.example), HIS_POSSESSION_SENTENCE_28.replace(/\.$/, ''))
+    assert.equal(fillTemplate(template.parts, earlier.example!), HIS_POSSESSION_SENTENCE.replace(/\.$/, ''), 'the earlier sentence is the same parts with its own example')
+    // P1: his item 4 and item 3 sentences, verbatim inside his quotes, reproduced by their parts.
+    for (const [id, his] of [[FIRST_BLOCK_CHOICE, HIS_FIRST_BLOCK_SENTENCE], ['EQUIPMENT', HIS_EQUIPMENT_SENTENCE]]) {
+        const own = templateById(id)
+        assert.equal(own.sentence, his, id)
+        assert.ok(own.approvedBy.quote.includes(`"${his}"`), id)
+        assert.deepEqual([own.approvedBy.who, own.approvedBy.date], ['Christian', '2026-10-28'], id)
+        assert.equal(fillTemplate(own.parts, own.example), his.replace(/\.$/, ''), id)
+    }
+    assert.equal(templateById(FIRST_BLOCK_CHOICE).role, 'BUILDING')
+    const equipment = templateById('EQUIPMENT')
+    assert.deepEqual([equipment.kind, equipment.states, equipment.example], ['EQUIPMENT', ['TARGET_OBJECT', 'CARRIER', 'TEAMS_AND_PERFORMER'], { size: '12 × 6 ft' }])
+    assert.deepEqual(equipment.when, { targetObject: { kind: 'goal', defendedBy: 'goalkeeper' }, carrier: 'ball', teams: 2, distinguishes: { performer: 'goalkeeper', words: 'a distinct goalkeeper color' } })
 })
 
-test('(M4, L10) a template without his approval, whose sentence is not in the quote, or whose parts do not reproduce it, is not used', () => {
-    const [good] = approvedTemplateSentences()
-    const bad = (over: Record<string, unknown>) => templateUnusableBecause({ ...JSON.parse(JSON.stringify(good)), ...over })
+test('(M4, L10; P1) a template without his approval, whose sentence is not in the quote, or whose parts do not reproduce it, is not used', () => {
+    const good = templateById(POSSESSION_CONTINUES)
+    const bad = (over: Record<string, unknown>, base: any = good) => templateUnusableBecause({ ...JSON.parse(JSON.stringify(base)), ...over })
     assert.equal(templateUnusableBecause(good), null)
     assert.equal(bad({ approvedBy: { ...good.approvedBy, who: '' } }), 'it does not say who approved it')
-    assert.equal(bad({ approvedBy: { ...good.approvedBy, quote: 'something else he said' } }), 'his sentence is not in the quote of his approval')
-    assert.equal(bad({ parts: ['When possession changes, play carries on with no stoppage', good.parts[1]] }), `its parts with the example values read "When possession changes, play carries on with no stoppage, and each team keeps attacking the same zone", not his sentence`)
+    // Re-pointed 25 October 2026 (P1): POSSESSION_CONTINUES now replaces a clause, so a quote without his words is refused for that; a template
+    // holding his whole sentence (FIRST_BLOCK_CHOICE) is refused as before.
+    assert.equal(bad({ approvedBy: { ...good.approvedBy, quote: 'something else he said' } }), 'the clause it replaces, or his replacement, is not in the quote of his approval')
+    const first = templateById(FIRST_BLOCK_CHOICE)
+    assert.equal(bad({ approvedBy: { ...first.approvedBy, quote: 'something else he said' } }, first), 'his sentence is not in the quote of his approval')
+    assert.equal(bad({ parts: ['When possession changes, play carries on with no stoppage', good.parts[1]] }), `its parts with the example values read "When possession changes, play carries on with no stoppage, and each team keeps attacking the same target", not his sentence`)
     assert.equal(bad({ example: {} }), 'a slot of its parts has no example value')
     assert.equal(bad({ parts: [] }), 'it has no parts')
+    // P1: the replacement is held to his words and to what it replaced.
+    const { with: _with, ...noWith } = good.approvedBy
+    assert.equal(bad({ approvedBy: noWith }), 'it names a replacement without both the clause replaced and his replacement')
+    assert.equal(bad({ superseded: undefined }), 'it replaces a clause and keeps no sentence it was replaced in (superseded)')
+    assert.equal(bad({ sentence: 'When possession changes, play carries on without a stoppage, and each team keeps attacking the same goal.' }), 'his sentence is not the one he replaced with "each team keeps attacking the same zone" made "each team keeps attacking the same target"')
+    assert.equal(bad({ superseded: [{ ...good.superseded![0], sentence: 'When possession changes, play carries on.' }] }), 'the clause it replaces is not in the sentence it superseded')
+    assert.equal(bad({ superseded: [{ ...good.superseded![0], supersededBy: { ...good.superseded![0].supersededBy, citedAs: '' } }] }), 'superseded sentence 1 does not say who replaced it, when, in which words and where (supersededBy)')
+    assert.equal(bad({ superseded: [{ ...good.superseded![0], approvedBy: { ...good.superseded![0].approvedBy, quote: 'not his sentence' } }] }), 'superseded sentence 1 is not in the quote of its approval')
+    // P1: an equipment template's shape (approved-wording.ts equipmentShapeUnusableBecause), and states or when on any other template.
+    const equipment = templateById('EQUIPMENT')
+    assert.equal(templateUnusableBecause(equipment), null)
+    assert.equal(bad({ states: ['TARGET_OBJECT', 'CARRIER'] }, equipment), 'as an equipment template, it does not give one state per part')
+    assert.equal(bad({ when: { ...equipment.when, targetObject: null } }, equipment), 'as an equipment template, it states a target object exactly where it names none, or names one it does not state')
+    assert.equal(bad({ when: { ...equipment.when, distinguishes: { performer: 'goalkeeper', words: 'a goalkeeper colour of its own' } } }, equipment), 'as an equipment template, its distinguishing words are not in the part that states the teams and the performer')
+    assert.equal(bad({ kind: 'OTHER' }, equipment), 'its kind "OTHER" is not one a template has')
+    assert.equal(bad({ states: ['CARRIER'] }), 'it gives states or when without being an equipment template')
 })
 
 test('(M4, L10) the renderer says the record: A01 reads his sentence verbatim, a TEST-ONLY template moves it, no template says nothing', () => {
@@ -311,11 +365,15 @@ test('(M4, L10) the renderer says the record: A01 reads his sentence verbatim, a
     const a01 = buildActivityWithFixture({ kind: 'learning-goal', goalId: 'A01', situationId: null, session: { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...Object.fromEntries(specializedRoleNames().map(r => [r, 0])), [specializedRoleNames()[0]]: 1 }, objects: { goal: { count: 0 } } } } as any)
     const block = (a01.fixture as any).roleBlocks.blocks[0].fixture
     const possession = (rendered: ReturnType<typeof renderConcreteGame>) => rendered.instructions.filter(i => i.text.startsWith('When possession changes')).map(i => i.text)
-    assert.deepEqual(possession(renderConcreteGame(block)), [HIS_POSSESSION_SENTENCE.replace(/\.$/, '')], 'his words, from the record')
-    const [template] = approvedTemplateSentences()
+    // Re-pointed 25 October 2026 (P1): his 28 October sentence ("the same target"), the zone version's word being the record's example word.
+    assert.deepEqual(possession(renderConcreteGame(block)), [HIS_POSSESSION_SENTENCE_28.replace(/\.$/, '')], 'his words, from the record')
+    const template = templateById(POSSESSION_CONTINUES)
     const moved = { ...template, parts: ['TEST-ONLY first part', ', TEST-ONLY second part about the {targetNoun}'] }
     assert.deepEqual(possession(renderConcreteGame(block, approvedWording(), [moved])), [], 'the sentence follows the record, not code')
-    assert.ok(renderConcreteGame(block, approvedWording(), [moved]).instructions.some(i => i.text === 'TEST-ONLY first part, TEST-ONLY second part about the zone'))
+    assert.ok(renderConcreteGame(block, approvedWording(), [moved]).instructions.some(i => i.text === 'TEST-ONLY first part, TEST-ONLY second part about the target'))
+    // P1: the word itself follows the record: a TEST-ONLY example word is what a game whose targets are not lines says.
+    const reworded = { ...template, example: { targetNoun: 'TEST-ONLY-WORD' } }
+    assert.ok(renderConcreteGame(block, approvedWording(), [reworded]).instructions.some(i => i.text.endsWith('each team keeps attacking the same TEST-ONLY-WORD')))
     const without = renderConcreteGame(block, approvedWording(), [])
     assert.deepEqual(possession(without), [])
     assert.ok(without.coachingObservations.some(o => o.includes(POSSESSION_CONTINUES) && o.includes('not said rather than said in unapproved words')))
@@ -418,24 +476,52 @@ test('(M5) every field only approved words may say keeps its row whether it is s
  */
 const HIS_20_OCT_ITEM_1 = 'The pressing team also scores by winning the ball inside that zone, provided it genuinely establishes possession; a contested touch, deflection or loose ball does not count.'
 const HIS_20_OCT_ITEM_2 = 'If the building team loses possession or plays the ball out, it cannot score again until the next goalkeeper restart.'
+/**
+ * **His simplification of A01-W3 — P1, 25 October 2026.** His reply filed 28 October 2026, item 9: "I approve simplifying the sentence to:"
+ * "If the building team loses possession, it cannot score again until the next goalkeeper restart." "This is a communication simplification,
+ * not a change in scoring eligibility." A01-W3 holds it; his 20 October sentence is kept beneath it, superseded, with its approval.
+ */
+const HIS_28_OCT_ITEM_9 = 'If the building team loses possession, it cannot score again until the next goalkeeper restart.'
 const byId = (id: string) => approvedWording().find(e => e.id === id)!
 const ALSO = 'value.primaryEvent.alsoCounts'
 
-test('(L14) A01-W2 and A01-W3 are his sentences verbatim, with his approval of 20 October 2026: who, the date, his words in the quote, the standard', () => {
-    for (const [id, his, heading] of [
-        ['A01-W2', HIS_20_OCT_ITEM_1, "1. Pressing team's regain score — Approved as written."],
-        ['A01-W3', HIS_20_OCT_ITEM_2, "2. Building team's scoring eligibility — Include, with simplified wording."],
+test('(L14; P1) A01-W2 is his 20 October sentence verbatim and A01-W3 his 28 October one, each with his approval: who, the date, his words in the quote, the standard', () => {
+    for (const [id, his, heading, date, ccs] of [
+        ['A01-W2', HIS_20_OCT_ITEM_1, "1. Pressing team's regain score — Approved as written.", '2026-10-20', 'Coach Communication Standard RC2'],
+        // Re-pointed 25 October 2026 (P1): his reply filed 28 October 2026, item 9.
+        ['A01-W3', HIS_28_OCT_ITEM_9, '9. Build-out scoring eligibility', '2026-10-28', 'Coach Communication Standard RC3'],
     ]) {
         const e = byId(id)
         assert.equal(e.sentence, his, id)
         assert.equal(e.section, 'How to score', id)
-        assert.deepEqual([e.approvedBy.who, e.approvedBy.date], ['Christian', '2026-10-20'], id)
+        assert.deepEqual([e.approvedBy.who, e.approvedBy.date], ['Christian', date], id)
         assert.ok(e.approvedBy.quote.startsWith(heading), `${id}: his item heading opens the quote`)
         assert.ok(e.approvedBy.quote.includes(`"${his}"`), `${id}: his sentence is inside the quote of his approval`)
-        assert.ok(e.approvedBy.ccs.includes('Coach Communication Standard RC2'), id)
+        assert.ok(e.approvedBy.ccs.includes(ccs), id)
         assert.ok(e.covers.every(cover => cover.element), `${id}: every cover names its element, so it is said once`)
         assert.ok(!JSON.stringify(e).includes('TEST-ONLY'), id)
     }
+    // P1: his 20 October sentence for A01-W3, kept whole beneath the current one with its approval and his words replacing it.
+    const w3 = byId('A01-W3')
+    assert.equal(w3.superseded!.length, 1)
+    const [earlier] = w3.superseded!
+    assert.equal(earlier.sentence, HIS_20_OCT_ITEM_2)
+    assert.deepEqual([earlier.approvedBy.who, earlier.approvedBy.date], ['Christian', '2026-10-20'])
+    assert.ok(earlier.approvedBy.quote.startsWith("2. Building team's scoring eligibility — Include, with simplified wording."))
+    assert.ok(earlier.approvedBy.quote.includes(`"${HIS_20_OCT_ITEM_2}"`))
+    assert.ok(earlier.supersededBy.quote.includes('This is a communication simplification, not a change in scoring eligibility.'))
+    assert.deepEqual([earlier.supersededBy.date, earlier.supersededBy.citedAs], ['2026-10-28', 'his reply filed 28 October 2026, item 9'])
+    // The loader holds the record: a superseded sentence that is the current one, or one not in its own approval, makes the entry unusable.
+    const damaged = (alter: (e: any) => void) => {
+        const copy = JSON.parse(JSON.stringify(w3))
+        alter(copy)
+        return unusableBecause(copy)
+    }
+    assert.equal(unusableBecause(JSON.parse(JSON.stringify(w3))), null)
+    assert.equal(damaged(e => (e.superseded[0].sentence = e.sentence)), 'superseded sentence 1 is the current sentence')
+    assert.equal(damaged(e => (e.superseded[0].approvedBy.quote = 'not his sentence')), 'superseded sentence 1 is not in the quote of its approval')
+    assert.equal(damaged(e => (e.superseded = [])), 'its superseded record is not a list of sentences')
+    assert.equal(damaged(e => (e.approvedBy.quote = 'something else he said')), 'it replaces an earlier sentence, and its own is not in the quote of his approval')
 })
 
 test('(L14) key identity: A01-W2 covers exactly the four fields of the pressing team\'s regain element, with the values A01 holds in both blocks at 12 and 11 players', () => {
@@ -468,7 +554,7 @@ test('(L14) key identity: A01-W3 covers the building role\'s bound and the origi
     for (const [players, keepers] of a01Sessions) {
         for (const block of a01BlocksAt(players, keepers)) {
             const what = `${players} players, ${keepers} keepers`
-            const said = renderConcreteGame(block).instructions.filter(i => i.text === HIS_20_OCT_ITEM_2)
+            const said = renderConcreteGame(block).instructions.filter(i => i.text === HIS_28_OCT_ITEM_9)
             assert.equal(said.length, 1, `${what}: said once`)
             assert.deepEqual(said[0].from, [
                 'activityRoles[c:provisional:A01-R1:A01-R1-B1-1].creditedWithin',
@@ -489,21 +575,21 @@ test('(L14) MEASURED, two entries covering one field: each is said once where it
     // Production: A01-W1 and A01-W3 both cite the bound and the origin's three fields; each is said once and nothing is withheld.
     const both = renderConcreteGame(block)
     const citing = (path: string) => both.instructions.filter(i => i.from.includes(path)).map(i => i.text)
-    assert.deepEqual(citing('activityRoles[c:provisional:A01-R1:A01-R1-B1-1].creditedWithin'), [HIS_ITEM_1, HIS_20_OCT_ITEM_2])
+    assert.deepEqual(citing('activityRoles[c:provisional:A01-R1:A01-R1-B1-1].creditedWithin'), [HIS_ITEM_1, HIS_28_OCT_ITEM_9])
     assert.deepEqual(both.withheld, [])
     // Without A01-W1 (TEST-ONLY table): A01-W3 is still said, and the conditions only A01-W1 says are withheld (the activity refused).
     const withoutW1 = renderConcreteGame(block, [w2, w3])
-    assert.ok(textsOf(withoutW1).includes(HIS_20_OCT_ITEM_2))
+    assert.ok(textsOf(withoutW1).includes(HIS_28_OCT_ITEM_9))
     assert.deepEqual([...new Set(withoutW1.withheld.map(w => w.path.split('].')[0].split('[').pop()))], ['c:restated:RPC-001:RPC-001-18.c', 'c:restated:RPC-001:RPC-001-18.f', 'c:restated:RPC-001:RPC-001-19.a'])
     // Without A01-W3: every field is still said by A01-W1, so nothing would stop a build missing his eligibility sentence - which is
     // why first-activity-end-to-end.unit.ts pins that the served activity says it once.
     const withoutW3 = renderConcreteGame(block, [w1, w2])
     assert.deepEqual(withoutW3.withheld, [])
-    assert.ok(!textsOf(withoutW3).includes(HIS_20_OCT_ITEM_2))
+    assert.ok(!textsOf(withoutW3).includes(HIS_28_OCT_ITEM_9))
     // Table order decides the order of the two sentences citing one role's bound: W3 first in the table is said before W1.
     const scoring = (rendered: ReturnType<typeof renderConcreteGame>) => rendered.instructions.filter(i => i.section === 'How to score').map(i => i.text)
-    assert.deepEqual(scoring(both).slice(0, 2), [HIS_ITEM_1, HIS_20_OCT_ITEM_2], 'production: his build-out sentence, then his eligibility sentence')
-    assert.deepEqual(scoring(renderConcreteGame(block, [w3, w2, w1])).slice(0, 2), [HIS_20_OCT_ITEM_2, HIS_ITEM_1], 'the order is the table\'s')
+    assert.deepEqual(scoring(both).slice(0, 2), [HIS_ITEM_1, HIS_28_OCT_ITEM_9], 'production: his build-out sentence, then his eligibility sentence')
+    assert.deepEqual(scoring(renderConcreteGame(block, [w3, w2, w1])).slice(0, 2), [HIS_28_OCT_ITEM_9, HIS_ITEM_1], 'the order is the table\'s')
 })
 
 test('(L14) MEASURED: each field A01-W3 binds is needed - without the origin it may not name the goalkeeper, without the bound it is said after the pressing team\'s sentence', () => {
@@ -514,15 +600,15 @@ test('(L14) MEASURED: each field A01-W3 binds is needed - without the origin it 
     // Bound only (TEST-ONLY): said, but fidelity refuses it: an approved sentence may name the goalkeeper only where a field it covers names it (L8).
     const boundOnly = { ...w3, id: 'TEST-ONLY-W3-BOUND', covers: w3.covers.filter(cover => cover.row === 'B8') }
     const rendered = renderConcreteGame(block, [w1, w2, boundOnly])
-    assert.ok(rendered.instructions.some(i => i.text === HIS_20_OCT_ITEM_2))
+    assert.ok(rendered.instructions.some(i => i.text === HIS_28_OCT_ITEM_9))
     const refusals = checkFidelity(block, rendered, [w1, w2, boundOnly]).findings.filter(f => f.severity === 'VIOLATION')
-    assert.ok(refusals.some(f => f.question === 4 && f.what.includes(HIS_20_OCT_ITEM_2)), JSON.stringify(refusals))
+    assert.ok(refusals.some(f => f.question === 4 && f.what.includes(HIS_28_OCT_ITEM_9)), JSON.stringify(refusals))
     // Production: no fidelity violation.
     assert.deepEqual(checkFidelity(block, renderConcreteGame(block)).findings.filter(f => f.severity === 'VIOLATION'), [])
     // Origin only (TEST-ONLY): it no longer cites the building role's bound, so How to score no longer keeps it beside the build-out sentence.
     const originOnly = { ...w3, id: 'TEST-ONLY-W3-ORIGIN', covers: w3.covers.filter(cover => cover.row !== 'B8') }
     const scoring = renderConcreteGame(block, [w1, w2, originOnly]).instructions.filter(i => i.section === 'How to score').map(i => i.text)
-    assert.ok(scoring.indexOf(HIS_20_OCT_ITEM_2) > 1, JSON.stringify(scoring))
+    assert.ok(scoring.indexOf(HIS_28_OCT_ITEM_9) > 1, JSON.stringify(scoring))
 })
 
 console.log(`approved-wording.unit.ts — ${passed} passed`)

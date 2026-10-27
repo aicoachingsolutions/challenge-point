@@ -109,7 +109,9 @@ const W2 = entryOf('A01-W2')
 const W3 = entryOf('A01-W3')
 /** The BUILD PLAN's EXPECTED PRESENTATION, overview sentences 4, 5, 7 and 8, and its sentence 6 as written there (DRAFT). */
 const OVERVIEW_4 = 'Building team: Score by carrying the ball beyond the marked line or passing to a teammate who receives it under control beyond the line.'
-const OVERVIEW_5 = 'If the building team loses possession or plays the ball out, it cannot score again until the next goalkeeper restart.'
+// Re-pointed 25 October 2026 (P1): A01-W3 is his simplified sentence (his reply filed 28 October 2026, item 9: "This is a communication
+// simplification, not a change in scoring eligibility."), so the overview says it whole as it said the one before.
+const OVERVIEW_5 = 'If the building team loses possession, it cannot score again until the next goalkeeper restart.'
 const OVERVIEW_6_AS_WRITTEN = "The building team's goalkeeper restarts play at the start, after either team scores and whenever you decide an attack has run its course."
 const OVERVIEW_7 = 'Pressing team: Score by getting the ball under control into its target zone.'
 const OVERVIEW_8 = 'The pressing team also scores by winning the ball inside that zone, provided it genuinely establishes possession.'

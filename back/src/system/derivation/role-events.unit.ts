@@ -154,7 +154,7 @@ test('register version 16 holds the rows as data, in one versions entry quoting 
     // Re-pointed 23 October 2026 (H3): version 21 (a region bound to an object, his reply filed 26 October 2026, item 7) supersedes 20.
     // Re-pointed 23 October 2026 (H4): version 22 (the type a session states for its objects, his reply filed 26 October 2026, item 4) supersedes 21.
     // Re-pointed 24 October 2026 (R1): version 23 (one restart for every dead ball, his reply filed 27 October 2026, item 4) supersedes 22.
-    assert.ok(latest.startsWith('23, adds one restart for every dead ball, for his reply filed 27 October 2026, item 4'))
+    assert.ok(latest.includes('Supersedes version 23, which adds one restart for every dead ball, for his reply filed 27 October 2026, item 4'), 'version 23 is kept, beneath version 24 (P1, 25 October 2026)')
     assert.ok(latest.includes('Supersedes version 22, which adds the type a session states for its objects of a kind, for his reply filed 26 October 2026, item 4'))
     assert.ok(latest.includes('Supersedes version 21, which adds a region bound to an object, for his reply filed 26 October 2026, item 7'))
     assert.ok(latest.includes('Supersedes version 20, which records his rulings filed 26 October 2026 for the goal version of the build-out activity'))

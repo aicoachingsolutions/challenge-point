@@ -382,11 +382,9 @@ export interface CoachDiagramBlock {
      * neutral arrows; null otherwise (and where none can be said, the arrows of unnamed teams are not drawn).
      */
     caption: string | null
-    /**
-     * Stage C2 (his reply filed 24 October 2026, item 4): what moves at the exchange into this block, the server's sentences (DRAFT), shown
-     * beside the drawing; empty where nothing moves or the game is not played in blocks. Optional for an answer served before C2.
-     */
-    exchange?: string[]
+    // REMOVED 25 October 2026 (P1, his reply filed 28 October 2026, item 11): `exchange`, the stage C2 sentences saying what moves at the
+    // exchange into the block. The server no longer sends them: the diagram shows the block's own starting configuration, and Coach Details
+    // say what moves ("with the role-exchange procedures explained once in Coach Details").
     lines: { along: DiagramInterval; across: DiagramInterval; markedLine: boolean; label: string | null }[]
     zones: { along: DiagramInterval; across: DiagramInterval; state: 'TARGET' | 'INSIDE_TARGET' | 'MARKED' | string }[]
     targets: { along: DiagramInterval; across: DiagramInterval; line: boolean; label: string | null }[]
@@ -783,6 +781,19 @@ export interface ReviewEvidence {
     boundRegions?: ReviewBoundRegionAccount
 }
 
+/**
+ * A figure of a pairing that is PROVISIONAL (P2, 25 October 2026; Christian's reply filed 28 October 2026, item 8), as the server sends it: which
+ * figure, its status, the one value applied, each source's statement of it in its own unit and in metres, why that value is applied, and his words.
+ */
+export interface ReviewPairingProvisionalFigure {
+    leaf: string
+    status: string
+    value: number
+    sources: { document: string; edition: string | null; citedAs: string; states: string; metres: number }[]
+    applied: string
+    authority: { words: string[]; citedAs: string }
+}
+
 /** One authorized pairing (H3), as the server sends it: one named document's object, region and mark together. */
 export interface ReviewBoundRegionPairing {
     id: string
@@ -796,21 +807,40 @@ export interface ReviewBoundRegionPairing {
     borrows: string[]
     authority: { words: string[]; citedAs: string }
     note: string | null
+    /** P2: the figures the entry marks provisional; absent where every figure is as recorded. */
+    provisional?: ReviewPairingProvisionalFigure[]
 }
+
+/**
+ * One Sport Profile bound-region requirement, as the server sends it: a region an object needs (H3), or (Z, 25 October 2026) a region permitted
+ * at the end of the team holding a performer row where no object of a kind stands there.
+ */
+export type ReviewBoundRegionRequirement = {
+    id: string
+    region: { noun: string; function: string }
+    cites: string
+    because: string
+    basis: { words: string[]; citedAs: string }
+} & ({ object: { kind: string; whenDefended: boolean } } | { performerEnd: { row: string; whereNoObjectOfKind: string }; permitted: true })
 
 /** The regions bound to the games' objects (H3), as the server sends them. */
 export interface ReviewBoundRegionAccount {
     status: 'ACCOUNT_FOR_REVIEW'
     check: string
     source: { file: string; authority: { words: string[]; citedAs: string; by: string; ruledOn: string } }
-    requirements: { id: string; object: { kind: string; whenDefended: boolean }; region: { noun: string; function: string }; cites: string; because: string; basis: { words: string[]; citedAs: string } }[]
+    /** Z (25 October 2026): a requirement binds a region to an object, or permits one at a performer's end (`performerEnd`, no object). */
+    requirements: ReviewBoundRegionRequirement[]
     blocks: {
         blockId: string
         bindings: {
             region: string
             noun: string | null
             functions: string[]
-            object: string
+            /** Null for a region bound to a performer's end (Z). */
+            object: string | null
+            /** Z: the performer row whose holder's end the region is bound to, and what it borrows of its pairing; absent for an object's region. */
+            performerEnd?: string
+            borrows?: string[]
             kind: string | null
             defendedBy: string | null
             pairing: ReviewBoundRegionPairing | null

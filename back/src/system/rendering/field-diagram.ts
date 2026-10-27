@@ -74,12 +74,12 @@
  *
  * Nothing here names a goal, a role, a sport term or a value: every number comes from the game, every word from the table or a served sentence.
  */
-import { bindingOf, regionFunctionsOf } from '../derivation/bound-regions'
+import { bindingOf, endBindingOf, objectBindingOf, regionFunctionsOf } from '../derivation/bound-regions'
 import { isRegisteredDesignation, roleOfHolder } from '../derivation/designation'
 import { Reassignment, reassignmentsIn } from '../derivation/reassignment'
 import { RegisterIndex } from '../derivation/register'
 import { splitPath } from '../derivation/resolved-game'
-import { boundRegionWording } from './draft-coach-wording'
+import { boundRegionWording, endRegionWording } from './draft-coach-wording'
 import { asList, GameBlock, objectivesOf, readPath, teamsOf, transitionsOf } from './game-reading'
 import { layoutLeafNumberAt, MARK_UNION_ONCE, PhysicalLayout } from './physical-layout'
 import { APPLIED_LAWS_ROOT } from './rendering-fixture'
@@ -444,22 +444,47 @@ const regionsCitedBy = (instructions: Instruction[]): string[] => {
  */
 const boundRegionNounOf = (fixture: any, index: RegisterIndex, regionId: string): string | null => {
     const region = asList(fixture?.game?.space?.regions).find(entry => String(entry?.elementId) === regionId)
-    const binding = region ? bindingOf(region, index) : null
+    // Z (25 October 2026): a region bound to a performer's end, by the DRAFT words for its function and that performer row.
+    const ended = region ? endBindingOf(region, index) : null
+    if (ended) return regionFunctionsOf(region, index).map(member => endRegionWording(member, ended.row)).find(Boolean)?.noun ?? null
+    const binding = region ? objectBindingOf(region, index) : null
     const object = binding ? asList(fixture?.game?.objects).find(entry => String(entry?.elementId) === binding.objectId) : null
     if (!object || typeof object.kind !== 'string') return null
     return regionFunctionsOf(region, index).map(member => boundRegionWording(member, object.kind)).find(Boolean)?.noun ?? null
 }
+
+/**
+ * **The one rectangle of a region that carries its label in a block** (Z, 25 October 2026): a region set out once at one place has its one
+ * rectangle, labelled in every block; a region set out at each end (two mirrored rectangles: the performer's end alternates between blocks) is
+ * labelled once per block, on the rectangle this block's own game holds it in (the layout's source for this block), since its one Set up
+ * sentence names both. Every other rectangle of that region is drawn unlabelled in that block. Only where no rectangle of the region is this
+ * block's own is the first the layout lists labelled.
+ *
+ * AMENDED 25 October 2026 (the Z review, round 1; RC3 8.3: "Each block's view emphasizes its active scoring objectives over other marked
+ * zones, retains physical markings used later, and carries no label about another block."; his reply filed 28 October 2026, item 11: "I'd
+ * prefer the selected block's diagram to focus on the immediate configuration, with the role-exchange procedures explained once in Coach
+ * Details."). Was: "labelled once, on the first rectangle the layout lists for it, in every block alike", which in the second block labelled
+ * the rectangle at the other end (the first block's) and left the one this block's game holds unlabelled.
+ */
+const labelledRectangleOf = (layout: any, regionId: string, blockId: string): string | null => {
+    const held = asList(layout?.rectangles).filter(entry => asList(entry?.sources).some((source: any) => source?.regionId === regionId))
+    const own = held.find(entry => asList(entry?.sources).some((source: any) => source?.regionId === regionId && source?.blockId === blockId))
+    return (own ?? held[0])?.elementId ?? null
+}
 /** Whether this game binds the region to an object (register row S7), so it is drawn as a marked area, never as a zone (stage L). */
 const isBoundRegion = (fixture: any, index: RegisterIndex, regionId: string): boolean => {
     const region = asList(fixture?.game?.space?.regions).find(entry => String(entry?.elementId) === regionId)
+    // Either form of the binding row (Z: an object's region, or a performer's end).
     return !!region && !!bindingOf(region, index)
 }
 /**
- * **The roster's clause telling a specialized performer apart** (stage L): the part of the Players sentence citing a law as applied
- * (`defaultLaws.applied[...]`) and that performer's count in the teams, and saying its name; or undefined.
+ * **The clause telling a specialized performer apart** (stage L): the part citing a law as applied (`defaultLaws.applied[...]`) and that
+ * performer's count in the teams, and saying its name; or undefined. Until P1 it was read in the Players sentence only; since P1 (25 October
+ * 2026, his reply filed 28 October 2026, item 3, with RC3 3.4) the equipment sentence says it where it names the performer's colour, and the
+ * Players sentence then does not, so it is read in whichever served sentence carries it (fidelity holds it to exactly one).
  */
-const colourClauseOf = (players: Instruction | undefined, leaf: string, name: string) =>
-    players?.parts?.find(part => part.from.some(path => path.startsWith(`${APPLIED_LAWS_ROOT}[`)) && part.from.includes(`performers.teams[].${leaf}`) && part.text.includes(name))
+const colourClauseIn = (sentences: Instruction[], leaf: string, name: string) =>
+    sentences.flatMap(sentence => sentence.parts ?? []).find(part => part.from.some(path => path.startsWith(`${APPLIED_LAWS_ROOT}[`)) && part.from.includes(`performers.teams[].${leaf}`) && part.text.includes(name))
 
 /**
  * Where a Set up sentence states a region's extent as limits the coach chooses within, not a value: it cites the region's position and
@@ -572,7 +597,13 @@ export function buildFieldDiagram(input: DiagramInput): { diagram: FieldDiagram 
             for (const rectangle of layout.rectangles ?? []) {
                 const own = rectangle.sources.find(source => source.blockId === blockId)
                 const sentence = setUp.find(instruction => instruction.from.some(path => path === `layout.rectangles[${rectangle.elementId}]` || path.startsWith(`layout.rectangles[${rectangle.elementId}].`)))
-                const noun = own ? boundRegionNounOf(fixture, index, own.regionId) : null
+                /**
+                 * Z (25 October 2026): a rectangle set out for another block (a region set out at each end) is the same region, which this
+                 * block's game holds too: it is named from there, and labelled only where it is the region's labelled rectangle in this block
+                 * (since the Z review, round 1, the one this block's own game holds it in; was: the first the layout lists, in every block alike).
+                 */
+                const source = own ?? rectangle.sources.find(entry => asList(fixture?.game?.space?.regions).some((region: any) => String(region?.elementId) === entry.regionId))
+                const noun = source && labelledRectangleOf(layout, source.regionId, blockId) === rectangle.elementId ? boundRegionNounOf(fixture, index, source.regionId) : null
                 const area: DiagramArea = {
                     elementId: rectangle.elementId,
                     along: { ...rectangle.along },
@@ -863,7 +894,7 @@ export function buildFieldDiagram(input: DiagramInput): { diagram: FieldDiagram 
             const row = defendedLeaf ? held?.[defendedLeaf] : undefined
             const name = row === undefined ? undefined : index.specializedRoleRows.get(String(row))
             if (typeof name !== 'string') continue
-            const clause = colourClauseOf(players, performerLeafOf(index, String(row)), name)
+            const clause = colourClauseIn(rendered, performerLeafOf(index, String(row)), name)
             if (!clause || !players) continue
             keepers.push({ object: object.elementId, along: { ...object.along }, across: { ...object.across }, label: carried(name, players), cites: [`objects[${object.elementId}].${defendedLeaf}`, ...clause.from] })
         }
@@ -1183,8 +1214,14 @@ export function checkFieldDiagram(diagram: FieldDiagram, input: DiagramInput): D
             const across = layout ? rectangle?.across : intervalAt(fixture, regionPaths(area.elementId).across)
             if (!along || !across || !same(along, area.along) || !same(across, area.across)) finding('D2', blockId, `the marked area ${area.elementId} is not drawn where ${layout ? 'the layout sets it out' : "this block's game puts it"}`)
             const own = layout ? rectangle?.sources.find(source => source.blockId === blockId)?.regionId : area.elementId
-            const noun = own ? boundRegionNounOf(fixture, index, own) : null
-            if (!area.label || area.label.text !== noun) finding('D6', blockId, `the marked area ${area.elementId} is labelled ${area.label ? `"${area.label.text}"` : 'by nothing'}, and the region it is is called ${noun ? `"${noun}"` : 'by no noun'}`)
+            // Z: a rectangle of a region set out at each end, read from the region this block's game holds; labelled only where it is the region's
+            // labelled rectangle in this block (since the Z review, round 1, the one this block's own game holds it in; was: the first listed, in every block).
+            const regionOf = layout ? own ?? rectangle?.sources.find(entry => asList(fixture?.game?.space?.regions).some((region: any) => String(region?.elementId) === entry.regionId))?.regionId : area.elementId
+            const labelled = !layout || (!!regionOf && labelledRectangleOf(layout, regionOf, blockId) === area.elementId)
+            const noun = regionOf ? boundRegionNounOf(fixture, index, regionOf) : null
+            if (labelled && (!area.label || area.label.text !== noun)) finding('D6', blockId, `the marked area ${area.elementId} is labelled ${area.label ? `"${area.label.text}"` : 'by nothing'}, and the region it is is called ${noun ? `"${noun}"` : 'by no noun'}`)
+            if (!labelled && area.label) finding('D6', blockId, `the marked area ${area.elementId} is labelled "${area.label.text}", and its region's one label in this block is on ${regionOf ? labelledRectangleOf(layout, regionOf, blockId) : 'no rectangle'}`)
+            if (!noun) finding('D6', blockId, `the marked area ${area.elementId} is a region called by no noun`)
             checkWord(area.label, null, blockId, rendered, ordinal)
         }
         if (layout) {
@@ -1205,8 +1242,15 @@ export function checkFieldDiagram(diagram: FieldDiagram, input: DiagramInput): D
                 ...(layout.rectangles ?? []).flatMap(rectangle => rectangle.sources.map(source => source.regionId)),
             ])
             for (const id of regionsCitedBy(setUp)) if (!sources.has(id) && !targetRegions.has(id)) finding('D3', blockId, `Set up marks ${id} and it is neither a marking drawn nor a target`)
+            /**
+             * AMENDED 25 October 2026 (the Z review, round 1): the markings set out once are compared with the first block's without their marked
+             * areas' labels, since a region set out at each end is labelled on the rectangle this block's own game holds it in
+             * (`labelledRectangleOf`), which D6 holds in each block above (that rectangle by its noun, every other by nothing); every line, zone
+             * and area, its place, and every other word still equals the first block's. Was: the whole markings, the areas' labels included.
+             */
             const first = diagram.blocks[0]
-            if (JSON.stringify(first.markings) !== JSON.stringify(block.markings)) finding('D3', blockId, 'the markings set out once differ from the first block\'s')
+            const placed = (markings: DiagramMarkings) => JSON.stringify({ ...markings, ...(markings.areas ? { areas: markings.areas.map(area => ({ ...area, label: null })) } : {}) })
+            if (placed(first.markings) !== placed(block.markings)) finding('D3', blockId, 'the markings set out once differ from the first block\'s')
         } else {
             for (const id of regionsCitedBy(setUp)) if (!drawnLines.has(id) && !drawnZones.has(id) && !drawnAreas.has(id)) finding('D3', blockId, `Set up marks ${id} and it is not drawn`)
         }
@@ -1229,13 +1273,13 @@ export function checkFieldDiagram(diagram: FieldDiagram, input: DiagramInput): D
             if (!object || !same(object.along, keeper.along) || !same(object.across, keeper.across)) finding('D2', blockId, `the marker with ${keeper.object} is not drawn with the object it defends, where this block draws it`)
             const performer = performerOf(keeper.object)
             if (!performer || keeper.label.text !== performer.name) finding('D2', blockId, `the marker with ${keeper.object} is labelled "${keeper.label.text}", and the object is defended by ${performer ? `the ${performer.name}` : 'no specialized performer'}`)
-            else if (!colourClauseOf(servedPlayers, performer.leaf, performer.name)) finding('D2', blockId, `the marker with ${keeper.object} is drawn in a colour of its own, and no served roster sentence tells the coach to give the ${performer.name} one`)
+            else if (!colourClauseIn(rendered.filter(servedSays), performer.leaf, performer.name)) finding('D2', blockId, `the marker with ${keeper.object} is drawn in a colour of its own, and no served sentence tells the coach to give the ${performer.name} one`)
             checkWord(keeper.label, null, blockId, rendered, ordinal, performer?.name ?? null)
         }
         for (const object of block.objects) {
             const performer = performerOf(object.elementId)
-            if (performer && colourClauseOf(servedPlayers, performer.leaf, performer.name) && !(block.keepers ?? []).some(keeper => keeper.object === object.elementId)) {
-                finding('D2', blockId, `the served roster sentence gives the ${performer.name} defending ${object.elementId} a colour of its own, and no marker is drawn with it`)
+            if (performer && colourClauseIn(rendered.filter(servedSays), performer.leaf, performer.name) && !(block.keepers ?? []).some(keeper => keeper.object === object.elementId)) {
+                finding('D2', blockId, `a served sentence gives the ${performer.name} defending ${object.elementId} a colour of its own, and no marker is drawn with it`)
             }
         }
         // Each marked zone's state, read again from the targets' geometry.

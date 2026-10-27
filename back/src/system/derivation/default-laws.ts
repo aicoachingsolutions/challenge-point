@@ -38,6 +38,12 @@
  *   - `BOUND_REGION_MARK {function}`: that region's authorized pairing (the Sport Profile's boundRegions block, the design's N3) gives a
  *     mark, and the realization records the spot. No row records a spot (whether it is marked or paced is decision 3 of the note sent to
  *     him), so where a pairing gives a mark it is still ABSENT, saying so;
+ *   - `REGION_OF_PERFORMER {function, row}` (Z, 25 October 2026, register version 25): a region with that function belongs to the team
+ *     holding a performer on that specialized row - bound to an object that team defends (row O7 naming the row), or bound to that team's
+ *     own end line (row S7's second form, `performerEnd`). Christian, reply filed 28 October 2026, item 7: *"The absence of a physical
+ *     [object] shouldn't automatically eliminate the [specialized performer]'s handling privileges or fundamentally alter the player's
+ *     functional role during the build-out."* (his nouns bracketed; the Sport Profile quotes him whole). Per end line, only where that region
+ *     lies at that end line;
  *   - `SPECIALIZED_PERFORMER_PRESENT {row}`: a team holds a performer on that specialized row (the register's specializedRole rows);
  *   - `UNREPRESENTED {what}`: the representation has no row for it. Always ABSENT, so a law resting on it can only be DEPARTED from or
  *     owed, never said to apply - and so it is refused in a law's `applicableWhen` (H3, the H2 review's should-fix 1): there it would make
@@ -48,7 +54,7 @@
 import { RegisterIndex } from './register'
 
 /** The closed predicate vocabulary (the design's section 3.2). */
-export const LAW_PREDICATES = ['OBJECT_OF_KIND_AT_END', 'REGION_BOUND_TO_OBJECT', 'BOUND_REGION_MARK', 'SPECIALIZED_PERFORMER_PRESENT', 'UNREPRESENTED'] as const
+export const LAW_PREDICATES = ['OBJECT_OF_KIND_AT_END', 'REGION_BOUND_TO_OBJECT', 'BOUND_REGION_MARK', 'SPECIALIZED_PERFORMER_PRESENT', 'UNREPRESENTED', 'REGION_OF_PERFORMER'] as const
 export type LawPredicateName = (typeof LAW_PREDICATES)[number]
 
 /** The arguments each predicate takes, and only these. */
@@ -58,7 +64,12 @@ const PREDICATE_ARGUMENTS: Record<LawPredicateName, readonly string[]> = {
     BOUND_REGION_MARK: ['function'],
     SPECIALIZED_PERFORMER_PRESENT: ['row'],
     UNREPRESENTED: ['what'],
+    // Z (25 October 2026): a region with the function belonging to the team holding a performer on the row (its defended object or its end).
+    REGION_OF_PERFORMER: ['function', 'row'],
 }
+
+/** The predicates that read a region a law is keyed on, where a law may give the coach something inside it (Z: either form of binding). */
+export const REGION_PREDICATES: readonly LawPredicateName[] = ['REGION_BOUND_TO_OBJECT', 'REGION_OF_PERFORMER']
 
 /** One status per law and place (the design's section 3.2): APPLIES says nothing; the others are said, with why. */
 export const LAW_STATUSES = ['APPLIES', 'DEPARTED', 'NOT_APPLICABLE', 'ADAPTATION_OWED'] as const

@@ -13,7 +13,7 @@ import { useNavigate, useParams } from 'react-router'
 import { NumberField, SelectField, TextAreaField } from '@/form-control/fields'
 import ROUTES from '@/ROUTES'
 
-import { ActivityStatus, ChallengeLevels, IActivity } from '@/MODELS/activity.model'
+import { ActivityStatus, ChallengeLevels, IActivity, type IPathwayNotice } from '@/MODELS/activity.model'
 import type { ReviewSessionQuestion, ServedActivity, StatedObjects } from '@/MODELS/activity-review.model'
 import { ISession, SessionStatus } from '@/MODELS/session.model'
 
@@ -21,6 +21,7 @@ import { api } from '@/services/api.service'
 
 import Button from '@/components/Button'
 import ObjectChoiceField from '@/components/ObjectChoiceField'
+import PathwayNotice from '@/components/PathwayNotice'
 import SessionPlanningConversation, { type PlanningSelection } from './SessionPlanningConversation'
 import ActivitySections from '@/components/ActivitySections'
 import { ActivityBlock } from './CheckedActivityBlock'
@@ -101,6 +102,11 @@ export default function ActivityGenerator() {
     const [intentionChoices, setIntentionChoices] = useState<string[]>([])
     /** Set when the engine read the goal broadly rather than precisely. Null on a confident match. */
     const [resolutionNotice, setResolutionNotice] = useState<{ message: string; suggestions: string[] } | null>(null)
+    /**
+     * The live-app status notice (25 October 2026): what the server says beside the activities it generated (the checked pathway built none of
+     * them), shown above the choice exactly as sent. Null for a checked activity, which is sent without one.
+     */
+    const [pathwayNotice, setPathwayNotice] = useState<IPathwayNotice | null>(null)
     const [selectedChallengeLevel, setSelectedChallengeLevel] = useState<ChallengeLevels>()
     const [selectedDuration, setSelectedDuration] = useState<number>()
     const [selectedLearningGoals, setSelectedLearningGoals] = useState<string[]>([])
@@ -280,6 +286,7 @@ export default function ActivityGenerator() {
         setGenerationError(null)
         setGenerationSuggestions([])
         setResolutionNotice(null)
+        setPathwayNotice(null)
         setDebugTrace(null)
         setGenerationStatus('generation')
 
@@ -338,6 +345,8 @@ export default function ActivityGenerator() {
             // Only present when the engine read the goal broadly rather than precisely — a
             // confident match sends nothing, and the coach sees no banner at all.
             setResolutionNotice(wrapped && payload.notice ? payload.notice : null)
+            // The status the server sends beside activities the checked pathway did not build (the live-app status notice).
+            setPathwayNotice(wrapped && payload.pathwayNotice ? (payload.pathwayNotice as IPathwayNotice) : null)
             setCurrentActivityIndex(0)
             setGeneratedActivities(activities)
             setGenerationStatus('selection')
@@ -853,6 +862,8 @@ export default function ActivityGenerator() {
                             {generatedActivities.length} activities generated</p><p className='hidden sm:block'>•</p><p className='text-xs text-gray-400 sm:text-gray-600 sm:text-base'>Select the best fit for your session
                         </p>
                         </div>
+                        {/* The live-app status notice (25 October 2026): the server's words for these activities, once, above the choice. */}
+                        <PathwayNotice notice={pathwayNotice} className='w-full mt-4' />
                         {generationError && (
                             <div className='px-4 py-3 mt-4 text-sm border rounded-xl border-amber-200 bg-amber-50 text-amber-800'>
                                 {generationError}

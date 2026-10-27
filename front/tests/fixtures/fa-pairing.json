@@ -1,0 +1,85 @@
+{
+  "pairing": {
+    "authority": {
+      "citedAs": "his reply filed 27 October 2026, item 1",
+      "words": [
+        "I agree with using an established small-sided goal and its corresponding penalty area as the starting configuration for the 40 × 30 m activity.",
+        "Please verify the applicable FA specification and keep the goal, penalty area, and penalty spot dimensions from the same authorized source rather than combining unrelated formats.",
+        "Let’s treat the proposed configuration as an initial field-test candidate rather than assuming it is optimal.",
+        "a goal’s penalty-area geometry should ordinarily come from the same authorized format. Any exception should be explicit and supported by the intended learning design."
+      ]
+    },
+    "borrows": [
+      "object",
+      "region",
+      "mark"
+    ],
+    "citedAs": "Mini-Soccer Law 1, Playing Area: goal size in the text; the 5v5 area and mark as labelled on the Law 1 diagram; https://cdn.englandfootball.com/-/media/EnglandFootball/Files/play-and-participate/youth-football/Mini-Soccer-Handbook-2026-27.pdf",
+    "document": "The Mini-Soccer and Youth Futsal Handbook (England Football / The FA)",
+    "edition": "Version updated August 2026 (2026/2027 season)",
+    "formatConditions": {
+      "ageBand": "U8/U9 (Law 1)",
+      "pitch": "37 m x 27 m (Law 1 diagram; a maximum, p.16)",
+      "players": "5v5: the maximum number of players is 5, subject to the power-play rules (Law 3, U8s-U9s)"
+    },
+    "id": "FA-MINI-SOCCER-5V5-2026",
+    "markM": 6,
+    "note": "The goal is stated in feet (12ft x 6ft); widthM/heightM are the exact conversion at 0.3048 m per foot (ours; The FA's 2012 metric guide rounds to 3.66 x 1.83 m, not used). The depth is printed 9 m and may be a misprint: the 2025 edition gave 9 yd (= 8.2296 m) and The FA's 2012 metric guide 8 m; we use 9 m as printed. The diagram does not name the rectangle or the dot; 'penalty area' and 'mark' are our reading from Laws 8, 12 and 14 of the same handbook. type 'scaled' is our reading of the Goalkeeper Included Condition's 'full-size or scaled goals'. Its other provisions (retreat line, pass or dribble-in, distances, heading law) do not come with it. Used at 40 x 30 m, larger than its pitch, chosen by space per player. his reply filed 27 October 2026, item 3: \"The penalty-area specification may include a penalty spot, but this activity does not need to mark or use it.\" AMENDED 25 October 2026 (P2): \"we use 9 m as printed\" stands, and the depth is PROVISIONAL (provisional, below: its status, its three sources and his words), for his reply filed 28 October 2026, item 8: \"8. Penalty-area depth\" \"Please preserve source traceability and treat the 9 m dimension as provisional until we can verify the authoritative specification.\" \"I don't want an uncertain interpretation silently becoming canonical knowledge.\" \"However, I wouldn't postpone an initial field test solely while awaiting clarification from The FA, provided the provisional dimensions are identified and consistently applied.\" The loader validates the status and holds every realization item restating the figure to the same value and the same status; the administrator's review evidence shows it wherever the figure is cited. Coaches are not told it is provisional: the coach sheet tells a coach what to set out, and a figure's standing in the knowledge is not something a coach can act on before starting (the standard's test that a coach would say it before starting; RC3 2.3 and 3.3), so it is identified in the knowledge and the review evidence, where he and we read it, and applied as one value everywhere. Whether pilot coaches should also be told is his to decide (OUR READING of \"provided the provisional dimensions are identified\").",
+    "object": {
+      "heightM": 1.8288,
+      "kind": "goal",
+      "type": "scaled",
+      "widthM": 3.6576
+    },
+    "provisional": [
+      {
+        "applied": "The current handbook's printed figure, 9 m, as the one value every use reads (his same-source rule, his reply filed 27 October 2026, item 1), until the authoritative specification is verified. 9 yd is the exact conversion at 0.9144 m per yard (ours).",
+        "authority": {
+          "citedAs": "his reply filed 28 October 2026, item 8",
+          "words": [
+            "Please preserve source traceability and treat the 9 m dimension as provisional until we can verify the authoritative specification.",
+            "I don't want an uncertain interpretation silently becoming canonical knowledge.",
+            "However, I wouldn't postpone an initial field test solely while awaiting clarification from The FA, provided the provisional dimensions are identified and consistently applied."
+          ]
+        },
+        "leaf": "region.depthM",
+        "sources": [
+          {
+            "citedAs": "Mini-Soccer Law 1, Playing Area: the 5v5 area as labelled on the Law 1 diagram; https://cdn.englandfootball.com/-/media/EnglandFootball/Files/play-and-participate/youth-football/Mini-Soccer-Handbook-2026-27.pdf",
+            "document": "The Mini-Soccer and Youth Futsal Handbook (England Football / The FA)",
+            "edition": "Version updated August 2026 (2026/2027 season)",
+            "metres": 9,
+            "states": "9 m"
+          },
+          {
+            "citedAs": "the 5v5 box as 16 x 9 yd; https://www.thefa.com/-/media/cfa/westridingfa/files/clubs/mini-soccer-handbook-2025.ashx",
+            "document": "The Mini-Soccer Handbook (The FA)",
+            "edition": "2025 edition",
+            "metres": 8.2296,
+            "states": "9 yd"
+          },
+          {
+            "citedAs": "the 5v5 box as 15 x 8 m; https://www.thefa.com/-/media/cfa/cheshirefa/files/facilities/pitch-size-metric.ashx",
+            "document": "The FA's metric pitch size guide",
+            "edition": "2012",
+            "metres": 8,
+            "states": "8 m"
+          }
+        ],
+        "status": "PROVISIONAL",
+        "value": 9
+      }
+    ],
+    "region": {
+      "depthM": 9,
+      "function": "penalty-area",
+      "widthM": 15
+    }
+  },
+  "provenance": {
+    "snapshot": "Z-impl.json",
+    "sha256": "cae83e6ed2e1b187ca04721111bf557c16ed2a27d182765460ceaaf035445944",
+    "key": "review-admin/A01/goalkeeper-1/objects-pairing:FA-MINI-SOCCER-5V5-2026",
+    "path": "body.evidence.boundRegions.blocks[0].bindings[0].pairing"
+  }
+}

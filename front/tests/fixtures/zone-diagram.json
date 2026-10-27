@@ -1,0 +1,450 @@
+{
+  "diagram": {
+    "area": {
+      "lengthM": 40,
+      "widthM": 30
+    },
+    "blocks": [
+      {
+        "areas": [
+          {
+            "across": {
+              "from": 7.5,
+              "to": 22.5
+            },
+            "along": {
+              "from": 0,
+              "to": 9
+            },
+            "label": "penalty area"
+          },
+          {
+            "across": {
+              "from": 7.5,
+              "to": 22.5
+            },
+            "along": {
+              "from": 31,
+              "to": 40
+            },
+            "label": null
+          }
+        ],
+        "caption": null,
+        "desc": "40 m by 30 m area. A marked line across the area, 20 m from the building team's end line. A 5 m zone is marked across the area at the building team's end line: the pressing team's target zone. A 5 m zone is marked across the area at the pressing team's end line, inside the building team's target zone. A penalty area 15 m wide and 9 m deep is marked at each end line. The building team's target zone is the 20 m at the pressing team's end. Team A, the building team: 6 outfield players and 1 goalkeeper; starting area from its end line to the marked line; attacks toward the pressing team's end. Team B, the pressing team: 5 outfield players; starting area from its end line to the marked line; attacks toward the building team's end.",
+        "dimensions": [
+          {
+            "axis": "along",
+            "from": 0,
+            "kind": "AREA_LENGTH",
+            "label": "40 m",
+            "to": 40
+          },
+          {
+            "axis": "across",
+            "from": 0,
+            "kind": "AREA_WIDTH",
+            "label": "30 m",
+            "to": 30
+          },
+          {
+            "axis": "along",
+            "from": 0,
+            "kind": "ZONE_DEPTH",
+            "label": "5 m",
+            "to": 5
+          },
+          {
+            "axis": "along",
+            "from": 35,
+            "kind": "ZONE_DEPTH",
+            "label": "5 m",
+            "to": 40
+          },
+          {
+            "axis": "along",
+            "from": 0,
+            "kind": "LINE_OFFSET",
+            "label": "20 m",
+            "to": 20
+          }
+        ],
+        "label": "Block 1",
+        "lines": [
+          {
+            "across": {
+              "from": 0,
+              "to": 30
+            },
+            "along": {
+              "from": 5,
+              "to": 5
+            },
+            "label": null,
+            "markedLine": false
+          },
+          {
+            "across": {
+              "from": 0,
+              "to": 30
+            },
+            "along": {
+              "from": 20,
+              "to": 20
+            },
+            "label": "marked line",
+            "markedLine": true
+          },
+          {
+            "across": {
+              "from": 0,
+              "to": 30
+            },
+            "along": {
+              "from": 35,
+              "to": 35
+            },
+            "label": null,
+            "markedLine": false
+          }
+        ],
+        "objects": [],
+        "targets": [
+          {
+            "across": {
+              "from": 0,
+              "to": 30
+            },
+            "along": {
+              "from": 20,
+              "to": 40
+            },
+            "label": "building team's target zone",
+            "line": false
+          },
+          {
+            "across": {
+              "from": 0,
+              "to": 30
+            },
+            "along": {
+              "from": 0,
+              "to": 5
+            },
+            "label": "pressing team's target zone",
+            "line": false
+          }
+        ],
+        "teams": [
+          {
+            "attacks": [
+              40
+            ],
+            "counts": [
+              "6 outfield players",
+              "1 goalkeeper"
+            ],
+            "identity": 0,
+            "label": "Team A",
+            "noun": "building team",
+            "start": {
+              "across": {
+                "from": 0,
+                "to": 30
+              },
+              "along": {
+                "from": 0,
+                "to": 20
+              }
+            }
+          },
+          {
+            "attacks": [
+              0
+            ],
+            "counts": [
+              "5 outfield players"
+            ],
+            "identity": 1,
+            "label": "Team B",
+            "noun": "pressing team",
+            "start": {
+              "across": {
+                "from": 0,
+                "to": 30
+              },
+              "along": {
+                "from": 20,
+                "to": 40
+              }
+            }
+          }
+        ],
+        "title": "Play Out from the Back: Block 1",
+        "zones": [
+          {
+            "across": {
+              "from": 0,
+              "to": 30
+            },
+            "along": {
+              "from": 0,
+              "to": 5
+            },
+            "state": "TARGET"
+          },
+          {
+            "across": {
+              "from": 0,
+              "to": 30
+            },
+            "along": {
+              "from": 35,
+              "to": 40
+            },
+            "state": "INSIDE_TARGET"
+          }
+        ]
+      },
+      {
+        "areas": [
+          {
+            "across": {
+              "from": 7.5,
+              "to": 22.5
+            },
+            "along": {
+              "from": 0,
+              "to": 9
+            },
+            "label": null
+          },
+          {
+            "across": {
+              "from": 7.5,
+              "to": 22.5
+            },
+            "along": {
+              "from": 31,
+              "to": 40
+            },
+            "label": "penalty area"
+          }
+        ],
+        "caption": null,
+        "desc": "40 m by 30 m area. A marked line across the area, 20 m from the building team's end line. A 5 m zone is marked across the area at the pressing team's end line, inside the building team's target zone. A 5 m zone is marked across the area at the building team's end line: the pressing team's target zone. A penalty area 15 m wide and 9 m deep is marked at each end line. The building team's target zone is the 20 m at the pressing team's end. Team B, the building team: 6 outfield players and 1 goalkeeper; starting area from its end line to the marked line; attacks toward the pressing team's end. Team A, the pressing team: 5 outfield players; starting area from its end line to the marked line; attacks toward the building team's end.",
+        "dimensions": [
+          {
+            "axis": "along",
+            "from": 0,
+            "kind": "AREA_LENGTH",
+            "label": "40 m",
+            "to": 40
+          },
+          {
+            "axis": "across",
+            "from": 0,
+            "kind": "AREA_WIDTH",
+            "label": "30 m",
+            "to": 30
+          },
+          {
+            "axis": "along",
+            "from": 0,
+            "kind": "ZONE_DEPTH",
+            "label": "5 m",
+            "to": 5
+          },
+          {
+            "axis": "along",
+            "from": 35,
+            "kind": "ZONE_DEPTH",
+            "label": "5 m",
+            "to": 40
+          },
+          {
+            "axis": "along",
+            "from": 20,
+            "kind": "LINE_OFFSET",
+            "label": "20 m",
+            "to": 40
+          }
+        ],
+        "label": "Block 2",
+        "lines": [
+          {
+            "across": {
+              "from": 0,
+              "to": 30
+            },
+            "along": {
+              "from": 5,
+              "to": 5
+            },
+            "label": null,
+            "markedLine": false
+          },
+          {
+            "across": {
+              "from": 0,
+              "to": 30
+            },
+            "along": {
+              "from": 20,
+              "to": 20
+            },
+            "label": "marked line",
+            "markedLine": true
+          },
+          {
+            "across": {
+              "from": 0,
+              "to": 30
+            },
+            "along": {
+              "from": 35,
+              "to": 35
+            },
+            "label": null,
+            "markedLine": false
+          }
+        ],
+        "objects": [],
+        "targets": [
+          {
+            "across": {
+              "from": 0,
+              "to": 30
+            },
+            "along": {
+              "from": 35,
+              "to": 40
+            },
+            "label": "pressing team's target zone",
+            "line": false
+          },
+          {
+            "across": {
+              "from": 0,
+              "to": 30
+            },
+            "along": {
+              "from": 0,
+              "to": 20
+            },
+            "label": "building team's target zone",
+            "line": false
+          }
+        ],
+        "teams": [
+          {
+            "attacks": [
+              0
+            ],
+            "counts": [
+              "6 outfield players",
+              "1 goalkeeper"
+            ],
+            "identity": 1,
+            "label": "Team B",
+            "noun": "building team",
+            "start": {
+              "across": {
+                "from": 0,
+                "to": 30
+              },
+              "along": {
+                "from": 20,
+                "to": 40
+              }
+            }
+          },
+          {
+            "attacks": [
+              40
+            ],
+            "counts": [
+              "5 outfield players"
+            ],
+            "identity": 0,
+            "label": "Team A",
+            "noun": "pressing team",
+            "start": {
+              "across": {
+                "from": 0,
+                "to": 30
+              },
+              "along": {
+                "from": 0,
+                "to": 20
+              }
+            }
+          }
+        ],
+        "title": "Play Out from the Back: Block 2",
+        "zones": [
+          {
+            "across": {
+              "from": 0,
+              "to": 30
+            },
+            "along": {
+              "from": 0,
+              "to": 5
+            },
+            "state": "INSIDE_TARGET"
+          },
+          {
+            "across": {
+              "from": 0,
+              "to": 30
+            },
+            "along": {
+              "from": 35,
+              "to": 40
+            },
+            "state": "TARGET"
+          }
+        ]
+      }
+    ],
+    "counts": [],
+    "legend": [
+      {
+        "kind": "MARKED_LINE",
+        "text": "marked line"
+      },
+      {
+        "kind": "TARGET_ZONE",
+        "text": "target zone"
+      },
+      {
+        "kind": "STARTING_AREA",
+        "text": "starting area"
+      },
+      {
+        "kind": "TEAM_COLOUR",
+        "text": "team colour, kept in every block"
+      },
+      {
+        "kind": "ROLE",
+        "text": "role in this block"
+      },
+      {
+        "kind": "ATTACK",
+        "text": "attacking direction"
+      },
+      {
+        "kind": "MARKED_AREA",
+        "text": "penalty area"
+      }
+    ],
+    "tablistLabel": "Field diagram blocks"
+  },
+  "provenance": {
+    "snapshot": "Z-fix1.json",
+    "sha256": "dd660f5897b26e45528448461325f16a4217a71601ad1f2b0d89b3bf117df0ed",
+    "key": "review/A01/goalkeeper-1/objects-none",
+    "path": "body.diagram"
+  }
+}

@@ -103,7 +103,8 @@ test('1. A01 at 12/1, 12/2 and 11/1: drawn from each block\'s game, set out once
         // Re-pointed 24 October 2026 (R1): 28 -> 26, the throw-in and end-line sentences withdrawn (his reply filed 27 October 2026, item 4).
         // Re-pointed 24 October 2026 (R2): 26 -> 27, the sentence naming the restarts the activity does not use (dead-ball-wording.unit.ts).
         // Re-pointed 24 October 2026 (R3): 27 -> 28, "There is no offside" (departed-law-wording.unit.ts).
-        assert.equal(activity.rendered.instructions.length, 28, `${what}: the activity is served with its 28 sentences`)
+        // Re-pointed 25 October 2026 (Z): 28 -> 29, the goalkeeper's penalty area marked at each end (zone-penalty-area.unit.ts).
+        assert.equal(activity.rendered.instructions.length, 29, `${what}: the activity is served with its 29 sentences`)
         const draft = activity.diagramDraft!
         assert.ok(draft, `${what}: the administrator's answer carries the diagram`)
         // Re-pointed 22 October 2026 (stage 5B): the build's draft is the served one (`diagramForServing`), the model exactly these games'.
@@ -118,8 +119,15 @@ test('1. A01 at 12/1, 12/2 and 11/1: drawn from each block\'s game, set out once
         assert.equal(model.blocks.length, 2)
         // The markings: the physical layout, the same in both blocks (his reply filed 23 October 2026, item 2), and nothing else.
         const layout = input.games[0].fixture.layout
+        /**
+         * Re-pointed 25 October 2026 (the Z review, round 1): the same in every block but the marked areas' labels - the penalty area set out at
+         * each end is labelled, in each block, on the rectangle that block's own game holds it in (at its building team's end). Was: the whole
+         * markings the same, the label on the first rectangle in both blocks.
+         */
+        const unlabelled = (markings: any) => ({ ...markings, areas: (markings.areas ?? []).map((area: any) => ({ ...area, label: null })) })
+        assert.deepEqual(model.blocks.map(block => (block.markings.areas ?? []).map(area => area.label?.text ?? null)), [['penalty area', null], [null, 'penalty area']], `${what}: one label per block`)
         for (const block of model.blocks) {
-            assert.deepEqual(block.markings, model.blocks[0].markings, `${what}: the markings are the same in every block`)
+            assert.deepEqual(unlabelled(block.markings), unlabelled(model.blocks[0].markings), `${what}: the markings are the same in every block`)
             assert.deepEqual(block.markings.lines.map(line => line.along.from), layout.marks.map((mark: any) => mark.at))
             assert.deepEqual(block.markings.zones.map(zone => [zone.along.from, zone.along.to]), layout.zones.map((zone: any) => [zone.from, zone.to]))
             assert.deepEqual(block.markings.lines.filter(line => line.markedLine).map(line => [line.along.from, line.label!.text, line.label!.status]), [[20, 'marked line', 'HIS_TERM']])
@@ -193,6 +201,9 @@ test('1. A01 at 12/1, 12/2 and 11/1: drawn from each block\'s game, set out once
             ['team colour, kept in every block', 'DRAFT'],
             ['role in this block', 'DRAFT'],
             ['attacking direction', 'DRAFT'],
+            // Re-pointed 25 October 2026 (Z): the zone version's penalty area, a marked area named by its noun (DRAFT; his reply filed 28 October
+            // 2026, item 7).
+            ['penalty area', 'DRAFT'],
         ])
         assert.ok(draft.notes.some(note => note.startsWith('not drawn: where play restarts')), JSON.stringify(draft.notes))
         assert.ok(draft.notes.some(note => note.startsWith('not drawn: the authorized adjustments')), JSON.stringify(draft.notes))
@@ -405,7 +416,8 @@ test('6. on the real chain a diagram failure withholds the diagram only: the act
         // Re-pointed 24 October 2026 (R1): 28 -> 26, the throw-in and end-line sentences withdrawn (his reply filed 27 October 2026, item 4).
         // Re-pointed 24 October 2026 (R2): 26 -> 27, the sentence naming the restarts the activity does not use (dead-ball-wording.unit.ts).
         // Re-pointed 24 October 2026 (R3): 27 -> 28, "There is no offside" (departed-law-wording.unit.ts).
-        assert.equal(admin.rendered.instructions.length, 28)
+        // Re-pointed 25 October 2026 (Z): 28 -> 29, the goalkeeper's penalty area marked at each end (zone-penalty-area.unit.ts).
+        assert.equal(admin.rendered.instructions.length, 29)
         assert.deepEqual(admin.rendered, coach.rendered)
         assert.deepEqual(admin.overview, coach.overview)
         assert.equal(admin.diagramDraft!.verdict, 'WITHHELD')
@@ -530,6 +542,11 @@ test('8. markings presented block by block (TEST-ONLY 15 m line): each block\'s 
         if (!zone) return
         const item: any = zone.items.find(entry => entry.itemId === 'A01-R1-S5-1')
         item.value = { ...item.value, offsetM: { from: 15, to: 15 }, asAuthored: "TEST-ONLY 15 m from the building team's end line" }
+        // Re-pointed 25 October 2026 (Z): with the line off halfway the markings are presented block by block, and the zone version's penalty area
+        // at the goalkeeper's end (his reply filed 28 October 2026, item 7) would move at the exchange, which no Role exchange words name yet (fidelity
+        // Q5 refuses it, measured); so this TEST-ONLY copy also takes the area's six items out and declares REPORT, as A01-R1 did before Z.
+        zone.items = zone.items.filter(entry => !['A01-R1-S2-2', 'A01-R1-S5-5', 'A01-R1-S6-2', 'A01-R1-S6-3', 'A01-R1-S7-1', 'A01-R1-S5-6'].includes(entry.itemId))
+        if ((zone as any).defaultLawsCheck) (zone as any).defaultLawsCheck = { ...(zone as any).defaultLawsCheck, mode: 'REPORT' }
     }
     const { input, activity } = inputOf(a01At(12, 1), offsetFifteen)
     const draft = activity.diagramDraft!

@@ -1,0 +1,414 @@
+ASSESSMENT APPENDIX: DETAILED FINDINGS AND EVIDENCE
+Companion to the Generation Capability and Learning Goal Coverage Assessment (your message of 28 October, Parts 3 to 5)
+
+This appendix holds the detail behind the main document: the method and caveats, Play Out from the Back's variety, every blocker found for each goal, the live app and the coach inputs, the reuse results mechanism by mechanism, the gaps in full, and the supporting detail for the next increment. Like the main document, it assesses what exists now and proposes no new mechanisms.
+
+How to use it
+- A cross-reference such as "5.4" or "section 6, gap 4" points within this appendix.
+- Gap numbers 1 to 12 are the same as in the main document.
+- Findings here are numbered by section. The main document's Findings 1 to 5 correspond to Finding 2, Finding 4a, Finding 4b, Finding 4c and section 5 here.
+
+
+1. METHOD, TERMS AND CAVEATS
+
+How this was measured
+- The findings come from running the built application as it stood before your 28 October Part 1 refinements: its routes (the coach review page and the live generation route), and for the reuse tests the engine function those routes call. Reading the code supplements this in places. The database and the AI service were simulated, and nothing connected to the outside. No code or knowledge was changed; the reuse tests used temporary test-only copies of knowledge.
+- Play Out from the Back: 34 sessions, each changing one input. All 13 Learning Goals: 304 sessions. These covered every Practice Situation, Learning Stage and Challenge Level, a note, three durations, and 10, 12 or 14 players with 0, 1 or 2 goalkeepers. Reuse: the two Play Out from the Back versions were copied onto four other goals, and games without roles were tested for a fifth goal (section 5).
+- A second, independent run checked the coverage results and the reuse tests. Where it corrected the first run, this document gives the corrected finding. The Play Out from the Back facts were measured in two separate runs.
+- No real AI call was made. What the live app does with an AI answer was tested with a simulated, well-formed answer.
+- The Part 1 refinements change wording, how the goalkeeper may restart, the equipment list, the marked line's range and the zone version's goalkeeper handling area. None of this changes the number of activities. They also add a general check that keeps the marked line outside the penalty area; the reuse tests with goal versions were not re-run with it.
+
+Terms
+- Checked pathway: the knowledge-driven engine. It builds the game only from authored knowledge, runs every structural check, and tells the coach only what the game holds.
+- AI-written pathway (the legacy pathway in your message): code picks a game form, two to four library constraints and a scoring sentence. An AI language model (GPT-4o) then writes the activity. Only its format and basic mechanics are checked.
+- Engine-readable: a knowledge entry (a context, a game form or a constraint) restated in the engine's terms so the engine can build from it. We have called this a contribution contract.
+- Relationship: a confirmed link in your context library that permits a departure from the game form's normal rules. For example, the pressing team may score in a goal.
+- Authorization: your approval, for one goal, of the context, Game Problem, constraints and versions that apply. Only Play Out from the Back has one.
+- Version: a fully specified form of an activity. Play Out from the Back has two: the goal version and the zone version.
+- Coach wording: the sentences the engine uses to describe each part of a game to the coach, approved by you or drafted for your review. Anything without a sentence is refused.
+- Two-to-four rule: an authorization that names any library constraint must name two to four, with a required mix of constraint roles (for example, foundation and consequence constraints).
+- Geometry-check defect: an engine fault in the check that positions measured from an end line still hold once a penalty area is marked out (details in 5.4).
+
+Labels: each gap is tagged by what would close it, the same way as in the main document.
+- [knowledge]: soccer knowledge not yet engine-readable or not yet decided. A knowledge entry, or your ruling or approval, closes it, with no new code.
+- [knowledge: our draft, needs your ruling]: an interpretation we recorded that the engine relies on. Your ruling plus a knowledge entry changes it, with no new code.
+- [engine]: engine code that is missing or needs correcting.
+- [both]: needs both.
+
+
+2. PLAY OUT FROM THE BACK: VARIETY (your item 12)
+
+In short: one activity structure, the build-out-versus-press game on Directional Possession Games, in two equipment versions. The same session gets the identical activity every time. This is your "only one activity with several configurations" case.
+
+Resource alternatives: 2
+- Goal version. Used when the coach lists an FA 5v5 goal (12 x 6 ft) and has a goalkeeper. The pressing team attacks the goal, the goal's penalty area is marked, and the teams change ends at each new block.
+- Zone version. Used with no goal, a full-size goal, a mini-goal or a goal of another width. The pressing team attacks a 5 m zone and also scores by a controlled regain inside it. The teams keep their ends and exchange roles.
+- The versions differ in the pressing team's scoring as well as in equipment. They come as a package: a coach cannot choose the incentive separately.
+
+Parameter adjustments: very few are served
+- Players: only 11 or 12. At a new block, the goalkeeper changes team at 11 players; at 12, the goalkeeper and one outfield player do. Sessions of 8, 9, 10, 13, 14, 15 and 16 players are refused: "The team set-up for this activity has not been decided for [N] players."
+- Area: only 40 x 30 m. Areas of 30 x 20, 45 x 30, 50 x 35 and 60 x 40 m are refused: "The starting positions for this activity have not been decided for a [size] area."
+- Goalkeepers: a session with none is refused. With two available there is still one active goalkeeper. Only the wording of the team make-up changes.
+- Duration (15, 20 or 30 minutes) changes only the playing time.
+- Challenge Level: low, medium and high give the identical activity.
+- The text suggests four coach adjustments: add a pressing player, remove a build-out player, move the marked line, change starting positions. The engine generates none of them. Some, such as a different number of players, would take the session outside what is served.
+
+Constraint and incentive variations: 0
+- Your authorization for this goal names no library constraint, so none is selected. Your rulings exclude Wide Zone Advantage and the Pass Combination Gate, and the empty authorization sets aside every other candidate.
+- Goalkeeper Build-Out also approves scoring by crossing a line, through a gate, or to a target player. No input selects any of them. The line option is withheld for two reasons: no approved wording describes it, and describing it would need facts the game does not hold.
+- The equipment choice switches the pressing team's scoring between the goal and the zone with its regain score. Apart from that, no input changes the opposition's opportunities, the scoring consequences or the information available to players.
+
+Distinct activity structures: 1
+- Both versions are the same build-out-versus-press structure on Directional Possession Games.
+- Positional Play Games and Channel Games are also candidates for this goal. The code that chooses the game form picks Directional Possession Games at every Challenge Level, and the coach cannot choose another. Neither of the other two is engine-readable, so the checked engine would refuse them anyway.
+
+Inputs (details in section 4c): Against High Pressure, Through Central Areas and Through Wide Areas give the identical activity, so central and wide build-outs produce the same game. From Goal Kicks is refused. If the coach has not said what goals they have, the app asks.
+
+Finding 2: one activity, two equipment versions
+  What works: a complete, checked, authorized activity in two equipment versions. The version is chosen correctly from what the coach has, and it is identical on the review page and in the live app.
+  What doesn't: there is one structure and no selectable constraint or incentive variation. Only 40 x 30 m and 11-12 players are served. Situation, stage, challenge and note do not change the activity.
+  Why it matters: a coach who chooses this goal on two different days with the same session gets the same activity. The engine is serving one authored activity, not generating activities.
+  Blocks a pilot? It does not block the field test of this activity. It does block a pilot of the application, which needs meaningful choice.
+  Decision needed: what each Practice Situation should change (for example, what should Through Wide Areas do differently?), and whether to widen this goal now or unlock other goals first (section 7).
+
+
+3. LEARNING GOAL COVERAGE (your item 13)
+
+Goal                        Live app gives  Checked and  Game form selected      Library constraints selected
+                            today           authorized                           (of which engine-readable)
+A01 Play Out from the Back  Checked         Yes          Directional Possession  None, by your authorization
+D01 Stay Organized          AI-written      No           Directional Possession  3 (0)
+TA01 Attack Quickly         AI-written      No           Transition              4 (1)
+TD01 Recover Organization   AI-written      No           Transition              3 (0)
+A02 Play Through Pressure   Refused         No           Positional Play         None: cannot be combined
+D02 Win the Ball Back       AI-written      No           Transition              3 (0)
+TA02 Secure Possession      AI-written      No           Directional Possession  4 (1)
+TD02 Delay the Attack       AI-written      No           Transition              4 (0)
+A03 Create Scoring Chances  AI-written      No           Positional Play         4 (1)
+D03 Defend 1v1              Refused         No           Directional Possession  None: cannot be combined
+A04 Beat Defenders 1v1      AI-written      No           Directional Possession  2 (0)
+A05 Progress the Attack     AI-written      No           Directional Possession  4 (1)
+A06 Finish Attacks          AI-written      No           Finishing               4 (1)
+
+How to read the table
+- "Checked" means the checked pathway. "AI-written" means the AI-written pathway, which the engine does not check; the coach is not told this. "Refused" means refused at selection, before either pathway.
+- In the last column, the one engine-readable constraint is always Wide Zone Advantage. Even that cannot be used on its own (section 6, gap 4).
+- Affordance relationships in engine form: only Goalkeeper Build-Out has any. It has three: team composition, starting configuration, and the goal as the pressing team's target.
+- Game forms: only Directional Possession Games is fully engine-readable, and Transition Games is partly engine-readable. Positional Play Games and Finishing Games are not engine-readable.
+- Coach inputs: see section 4c. A02 and D03 are refused whatever the inputs.
+
+What blocks the checked pathway, goal by goal (every blocker found, not only the first)
+
+Common to all twelve goals other than A01: section 6, gaps 1 to 4 (no authorization; context not engine-readable; coach wording; none of the goal's own library constraints usable).
+
+Additional blockers:
+- D01 Stay Organized (Attack Prevention; Protect Space):
+  - Its context approves only winning the ball and denial as ways to score. Directional Possession Games does not allow either as the main score [knowledge: your ruling].
+  - The engine's list of scoring events it can evaluate has no entry for either [knowledge: our draft, needs your ruling].
+  - Not a blocker but a wording defect: the roles would be called the "building team" and the "pressing team".
+- TA01 Attack Quickly (Counterattack; Exploit Space):
+  - Transition Games is only partly engine-readable [knowledge].
+  - If its activity gives a team its own scoring event: on Transition Games, a scoring bonus may not stand beside such an event until you rule [engine: held for your ruling]. This bears on all four goals on Transition Games.
+  - Untested, so not counted as a blocker found: the engine has time windows after a change of possession, but no served game has used them.
+- TD01 Recover Organization (Counter-Press; Recover Position): Transition Games as for TA01, and the same scoring blockers as D01, since Transition Games does not allow winning the ball or denial as the main score either [knowledge: your ruling; and knowledge: our draft, needs your ruling].
+- A02 Play Through Pressure (High Press Escape; Maintain Possession):
+  - Its candidate constraints include no shaping constraint, and they cannot be combined on any game form its context allows [knowledge].
+  - Positional Play Games is not engine-readable [knowledge].
+- D02 Win the Ball Back (Counter-Press; Regain Possession): the same blockers as TD01.
+- TA02 Secure Possession (Attack Development; Maintain Possession):
+  - Only the four common blockers were found. The engine already supports its context's scoring (crossing a line or entering a zone).
+  - If its activity needed the teams to change ends between blocks without exchanging roles, that is not possible today [engine].
+- TD02 Delay the Attack (Counter-Press; Deny Space): the same blockers as TD01.
+- A03 Create Scoring Chances (Chance Creation; Establish Functional Object Control):
+  - Positional Play Games is not engine-readable [knowledge].
+  - A version with a physical goal would likely meet the geometry-check defect [engine]. This was not tested on this goal.
+- D03 Defend 1v1 (Attack Prevention; Regain Possession):
+  - Its Game Problem, Regain Possession, is a secondary Game Problem of Attack Prevention. But its candidate constraints are identical to Win the Ball Back's, and they combine only on Transition Games, which Attack Prevention does not list [knowledge].
+  - Its scoring has the same blockers as D01.
+- A04 Beat Defenders 1v1 (Chance Creation; Game Problem unresolved):
+  - It has no Game Problem [knowledge]. A Game Problem is needed for your authorization. The engine itself does not stop on this; it marks the activity provisional.
+  - Its candidates form a two-constraint selection, with the shaping and consequence roles unfilled [knowledge]. This matters only if library constraints are to shape its activity.
+- A05 Progress the Attack (Attack Development; Game Problem unresolved): it has no Game Problem, the same as A04.
+- A06 Finish Attacks (Finishing; Game Problem unresolved):
+  - It has no Game Problem, the same as A04.
+  - Finishing Games is not engine-readable [knowledge].
+  - A version with a physical goal would likely meet the geometry-check defect [engine]. This was not tested on this goal.
+  - The attacking team cannot attack a goal: only the pressing role can [both; see 5.1].
+  - A goal game in which both teams have a goalkeeper cannot be represented [knowledge: our draft, needs your ruling].
+
+Finding 3a: coverage
+  What works: one goal is complete, evaluated and authorized. Whatever the checked engine cannot build, it refuses rather than inventing.
+  What doesn't: twelve goals have no checked activity, and ten of them reach coaches through the AI-written pathway instead.
+  Why it matters: the checked pathway covers 1 of 13 goals, so the application's purpose is not yet demonstrated.
+  Blocks a pilot? Yes for a pilot of the application. No for the field test.
+  Decision needed: see section 7.
+
+Finding 3b: refusals show only the first blocker, and mislabel it
+  What works: every refusal has a stated cause.
+  What doesn't: the engine stops at the first failing check, so later blockers stay hidden. For example, Create Scoring Chances is refused for its game form, and its missing context knowledge is never mentioned. The coach-facing sentence also says scoring "has not been built into the activity engine yet", even when the cause is knowledge that is not yet engine-readable.
+  Why it matters: fixing one blocker reveals the next. The list above has every blocker we found, but a reviewer cannot see them on the page.
+  Blocks a pilot? No.
+  Decision needed: none now; we can propose corrected wording if you would like it.
+
+
+4. THE LIVE APPLICATION AND THE CHECKED PATHWAY (your Part 4)
+
+Finding 4a: Play Out from the Back is served through the live app
+- The live app's own generation route builds Play Out from the Back on the checked pathway, with no AI call. Its activity matched the review page word for word in every served case: 20 of 20 in the variety sessions and 39 of 39 in the coverage sessions.
+- The earlier mandatory library-constraint requirement no longer stops it. Its authorization names no library constraint, and it is served.
+- It is served when the session says what goals it has (or that it has none), with 11 or 12 players, at least one goalkeeper, 40 x 30 m, and any Practice Situation except From Goal Kicks.
+- The old requirement survives in two places. The checked engine still demands two to four constraints, with a required mix of roles, whenever a goal's authorization names any. The AI-written pathway always uses two to four.
+  What works: the checked activity reaches coaches through the real live route, exactly as you reviewed it.
+  What doesn't: it does so only within the limits above, and the constraint requirement still applies to any authorization that names constraints.
+  Why it matters: for this goal, the activity that is built is now the activity that coaches can get.
+  Blocks a pilot? No, for the field test of this activity.
+  Decision needed: none.
+
+Finding 4b: ten goals reach coaches as AI-written activities
+- For these ten goals the live app does not use the checked engine; it would only once a goal has your authorization. Instead:
+  - Code fixes a skeleton: a game form, two to four library constraints chosen by the code rather than authorized by you (mostly not engine-readable), and a scoring sentence from a hand-written table.
+  - GPT-4o writes the title, setup, objective, coaching focus and how to play.
+  - The result is checked only for format and basic mechanics, never by the checked engine's structural checks, the check that every coach sentence matches the game, the engine's coach wording, or an authorization.
+  - With a well-formed simulated AI answer, the coach received three activities to choose from, with no overview or diagram, and nothing saying they were unchecked, unauthorized or provisional. If the AI's answer fails twice, the coach sees "Activity could not be generated cleanly. Please try again."
+- The hand-written scoring includes events the checked engine cannot evaluate. Win the Ball Back, Recover Organization and Delay the Attack are scored by "Earn a point if your team wins the ball back before you reach five", with the coach counting out loud. Stay Organized is scored for winning the ball "before the other team gets into the protected zone".
+- A04, A05 and A06 have no approved Game Problem, yet are served with no provisional label, although your 14 October ruling asked for one. A03 and A06 run on game forms that are not engine-readable.
+- The review page refuses all ten, so for 10 of the 13 goals the review process and the live app disagree.
+- The goal's name never reaches the AI, and only the first two constraint titles do. Recover Organization and Delay the Attack therefore send identical requests to the AI, as do Secure Possession and Progress the Attack.
+- A goal typed in free text never reaches the checked pathway: it goes to the AI-written pathway or is refused (typing "Play Out from the Back" is refused).
+  What works: with a simulated well-formed AI answer, the live app produced a readable activity for each of these goals.
+  What doesn't: those activities are not evaluated and not authorized, and the coach is not told so. Their scoring includes events the checked engine refuses, and three have no approved Game Problem.
+  Why it matters: a pilot coach could judge Challenge Point by activities never checked against your acceptance test; when we measured, nothing told the coach which activity had been checked.
+  Blocks a pilot? Yes, if pilot coaches use any goal other than Play Out from the Back in the live app.
+  Decision needed: your 26 October ruling (item 9(a)) lets these goals continue "provided their status and limitations are not misrepresented". Since the measurement, every AI-written activity carries a "Not checked" notice (draft wording). Is that enough for the field test and the pilot, or should these goals be withheld until checked?
+
+Finding 4c: coach inputs are mostly disconnected
+
+Input               Play Out from the Back (checked)           The ten AI-written goals
+Practice Situation  Refuses From Goal Kicks; the other three   No effect on what the coach receives
+                    give the identical activity
+Learning Stage      No effect                                  Changes the AI's instruction
+Challenge Level     Not asked in guided planning, which sends  Same
+                    one default value (the free-text form
+                    asks for it as "Environmental Fit");
+                    no effect
+Note                No effect                                  No effect; never reaches the AI
+Goals available     Chooses the goal or zone version; asks     (not used)
+                    if not stated
+Players             11 or 12 served; others refused            Written into the setup after the AI writes
+                                                               (for example "6v6" becomes "5v5")
+Field size          40 x 30 m only; others refused             Written into the setup after the AI writes
+Goalkeepers         Zero refused; two changes only the         No effect
+                    wording of the team make-up
+Duration            Changes the playing time                   No effect
+
+- For Play Out from the Back, the app tells the coach that the Practice Situation, the Learning Stage and the note do not change the activity yet.
+- For the ten AI-written goals, the app tells the coach nothing, although the Practice Situation, the note and the Challenge Level have no effect there. Your 26 October item 9(b) already covers this.
+  What works: for Play Out from the Back, goals available, players, goalkeepers and duration have real consequences, and the coach is told which inputs do not.
+  What doesn't: the Practice Situation, Learning Stage, Challenge Level and note shape no checked activity, and the Challenge Level is never asked in guided planning. On the AI-written pathway only the Learning Stage reaches the AI, and the coach is not told.
+  Why it matters: your Part 4 requirement, that inputs have genuine consequences, is not met on either pathway.
+  Blocks a pilot? Yes, for a pilot that tests how the application responds to the coach. No, for the field test.
+  Decision needed: what each input should change in soccer terms, starting with Play Out from the Back's four Practice Situations. That knowledge is yours to supply.
+
+
+5. REUSE OF THE RECENT MECHANISMS (your item 14)
+
+How the reuse was tested
+- In test-only knowledge, the two Play Out from the Back versions were copied onto the game forms of four other goals: Stay Organized, Defend 1v1 and Progress the Attack on Directional Possession Games, and Win the Ball Back on Transition Games. Progress the Attack also stood in for Finishing and Create Scoring Chances, whose game forms are not engine-readable. For Secure Possession, games without roles were tested instead.
+- Every copy was run through the engine function that the review page and the live route call.
+
+Two caveats from the independent check apply to every result
+1. To get past the first refusal, the test had to leave out the goal's context. A "served" result therefore shows that the mechanism works for another goal's shape, not that a valid activity for that goal exists. For example, the served Stay Organized and Defend 1v1 copies score by entering a zone, which their context (Attack Prevention) does not approve. With the context kept, the engine would refuse them.
+2. Those copies are build-out games served under defending goals, and nothing in the engine objected (section 6, gap 11).
+
+5.1 Each team scoring its own way (role-specific scoring)
+Tested on: Stay Organized; Progress the Attack, also standing in for Finishing; Win the Ball Back; and Stay Organized with renamed roles.
+Result: PARTIAL. The scoring check itself works for another goal.
+- Pressing team scoring in a goal: it passes the scoring check. It is then stopped by the geometry-check defect (5.4) and by missing coach wording.
+- Building team scoring by crossing a line, while the pressing team scores in a zone: with the ends exchanged, it passes every check and stops at missing coach wording. With the ends kept, it is refused, because the markings at each end would have to change between blocks. Today, a different target for each role passes the engine's checks only when the ends are exchanged.
+- Winning the ball as a team's own score: refused. The engine's list of scoring events it can evaluate has no entry for winning the ball or for denial [knowledge: our draft, needs your ruling]. It is still open whether code is also needed. A score for winning the ball must also cite your relationship for its target, and our check could not yet make that pass. Winning the ball inside a zone already counts as an additional score, as in the zone version.
+- The attacking (possession) team attacking a goal, as in finishing: refused. Only the pressing role can attack a goal [engine]. In Directional Possession Games, one of your rulings lets a version replace only the objective of the team at the far end [knowledge].
+- Transition Games: refused, because it is only partly engine-readable [knowledge]. On it, a scoring bonus may not stand beside a team's own scoring event until you rule [engine: held for your ruling].
+- Roles named "attacking" and "defending": refused. The engine accepts only "building" and "pressing", so every goal, including Stay Organized, is told "building team" and "pressing team" [engine].
+- Scoring only inside a build-out episode cannot be reused. The engine has one kind of episode, the build-out, and it begins as Goalkeeper Build-Out defines it [knowledge: our draft, needs your ruling].
+  What works: each team can have its own scoring event and target, and the check is general.
+  What doesn't: only the pressing team can attack a goal; winning the ball cannot yet be a team's own score; only build-out episodes exist; the roles are always "building" and "pressing"; and each new combination lacks coach wording.
+  Why it matters: finishing, pressing and regaining, the uses you named, are exactly the ones it does not yet reach.
+  Blocks a pilot? Yes, for goals beyond Play Out from the Back.
+  Decision needed: how winning the ball and denial should count as a team's score, and in which game forms. Also, whether role names may follow the goal (for example "attacking team" and "defending team").
+
+5.2 Changing ends between blocks
+Tested on: Stay Organized (zone version with the ends changed; goal version with the ends kept) and Secure Possession (a game without roles changing ends).
+Result:
+- WORKS for games with roles: served with every check passed, subject to caveat 1. A goal version with the ends kept is refused, correctly.
+- FAILS for games without roles: teams can change ends only when they also exchange roles [engine].
+- Team reassignment at a new block was not tested as a separate mechanism. The Stay Organized copies carried Play Out from the Back's goalkeeper reassignment and passed the block checks. In the copy with a goalkeeper on each team, the reassignment had to be removed to pass them.
+  What works: changing ends at a new block, with its diagram and coach sentence, carries over to another goal.
+  What doesn't: a game without roles cannot change ends between blocks.
+  Why it matters: possession goals such as Secure Possession would need this if played in blocks.
+  Blocks a pilot? No.
+  Decision needed: none, unless your knowledge for such a goal calls for changing ends.
+
+5.3 Versions chosen from the equipment available
+Tested on: Stay Organized (goal version, then zone version, across six sessions), Progress the Attack (mini-goal version), and Stay Organized (full-size goal version).
+Result: PARTIAL.
+- Choosing a version and falling back work when the equipment is the only problem. The zone version is used with no goal, an unsuitable goal (such as a mini-goal where an FA goal is needed), one mini-goal where two are needed, or a full-size goal that does not fit 40 x 30 m. If goals are not stated, the app asks.
+- The geometry-check defect (5.4) refused the preferred goal versions tried. By design, a refusal at that stage does not fall back.
+- The defect also breaks the fallback at 0 goalkeepers and at 10 players. The goal version's refusal is left unclassified (its reason still names the shortfall), so the zone version is never tried. Play Out from the Back is not affected: at 0 goalkeepers it falls through correctly.
+  What works: choosing a version by the equipment available is general.
+  What doesn't: the geometry-check defect refused the goal versions tried (5.4) and, at 0 goalkeepers or 10 players, also stops the fallback.
+  Why it matters: any goal that needs a physical goal, such as finishing, depends on fixing it.
+  Blocks a pilot? No for the field test. Yes for an application pilot that includes any goal needing a physical goal.
+  Decision needed: none; it is an engine defect.
+
+5.4 Goals as targets, and penalty areas
+Tested on: Stay Organized (a goalkeeper-defended goal with its penalty area; a goal without its penalty area; both teams with a goalkeeper; and a control copy that kept Play Out from the Back's starting positions relative to the marked line).
+Result: FAILS, except in the control.
+- The penalty-area rule is general: a defended goal without its penalty area is refused, correctly.
+- One check confirms that positions measured from an end line still hold once the area is marked out. But once the area is marked out, the check skips the goal and the penalty area. It finds nothing left to measure and refuses the activity [engine: a defect, confirmed in the code by the independent check].
+- The control copy passed this check, because its starting positions are stated relative to the marked line, and stopped at coach wording. Play Out from the Back's goal version passes for the same reason, so the position of its goal is never re-checked after the area is marked out; the penalty area is checked separately.
+- A goal defended with a goalkeeper on each team cannot be represented [knowledge: our draft, needs your ruling].
+- Sentences about a goal are withheld outside Play Out from the Back's configuration [engine].
+  What works: the penalty-area relationship and its general check carry over.
+  What doesn't: the check defect refuses every goal version tried whose positions are all measured from an end line. Games with a goalkeeper on each team cannot be represented. Goal sentences exist only for Play Out from the Back.
+  Why it matters: the goal mechanism itself is held back by engine gaps (the check defect, goal wording) and by one draft entry of ours (one goalkeeper per defended goal). Finishing also needs its soccer knowledge: Finishing Games, the Finishing context and a Game Problem.
+  Blocks a pilot? No for the field test, because the goal version's penalty area is still checked. Yes for an application pilot that includes another goal with a physical goal.
+  Decision needed: none for the defect. Whether a goalkeeper on each team should be supported is a question for your finishing knowledge.
+
+5.5 Required participants and goalkeeper relationships
+Tested on: Stay Organized (the goalkeeper on the wrong team; a goalkeeper on both teams) and Secure Possession (restarts by any player, with no goalkeeper).
+Result: WORKS, with one communication gap.
+- A goalkeeper on the wrong team is refused with a clear coach sentence.
+- Restarts with no goalkeeper are accepted.
+- With a goalkeeper on both teams the activity is served, but the overview and diagram leave the goalkeepers out, the colour sentence stays singular, and the pressing team's goalkeeper is given no stated job [engine].
+  What works: the check that a version has the participants it needs is general, and its refusals carry clear coach sentences.
+  What doesn't: games with two goalkeepers are described incorrectly.
+  Why it matters: it is minor, but it affects finishing games and games with two goals.
+  Blocks a pilot? No.
+  Decision needed: none.
+
+5.6 One common restart, and the normal Laws by default
+Tested on: Stay Organized (Play Out from the Back's restart rule; the normal Laws with a goalkeeper but no penalty area) and Secure Possession (restarts to the team that did not touch the ball last; restarts to the conceding team).
+Result: PARTIAL.
+- The inherited goalkeeper restart is served, with correct wording (subject to caveat 1).
+- The normal-Laws account is general. It correctly reports that the goalkeeper's handling needs an adaptation when there is no penalty area.
+- The game form's own restarts are described, as in a plain Directional Possession game. A restart the version itself assigns is a different case. For example, a restart to the team that did not touch the ball last passes every check but has no coach wording, so it is refused [engine].
+- Restarts to the conceding team: a list of team descriptions that a version may not use ("attacking team", "defending team", "build-out team", "conceding team") applies to every goal. Any one of them stops the whole knowledge file of versions from loading. The list is ours, put to you on 17 October [knowledge: our draft, needs your ruling].
+  What works: the one-restart rule and the normal-Laws account are general.
+  What doesn't: restart sentences exist for the game form's own restarts and for the building team's goalkeeper, but not for other restarts a version assigns. Restarts to the conceding team are refused for every goal.
+  Why it matters: most other activities restart without a goalkeeper.
+  Blocks a pilot? No for Play Out from the Back. Yes for other goals.
+  Decision needed: the same as decision 5 below (whether role names may follow the goal, which this list now forbids for every goal).
+
+5.7 Coach communication (overview, details, diagram, team colours)
+Tested on: the served copies for Stay Organized, Defend 1v1 and Progress the Attack; configurations that differ from Play Out from the Back's exact values; Stay Organized's Practice Situations; and a plain Directional Possession game.
+Result: PARTIAL.
+- In the served copies, the overview carries the goal's own purpose ("Maintain collective defensive structure."), and the scoring groups and the diagram are built generally. But Stay Organized is told "The building team (6 outfield players and 1 goalkeeper) attacks the 5 m target zone...".
+- Coach wording exists today for Play Out from the Back's configurations, a plain Directional Possession game with its own restarts, the neutral-players demonstration, and the Wide Zone Advantage demonstration (without its diagram).
+- What a new version adds beyond these has no sentence, so it is refused [engine, plus your review of new wording]:
+  - a starting placement that applies only at the start of play;
+  - scoring that runs for the whole game;
+  - per-role scoring other than the goal version's;
+  - goal sentences in other configurations;
+  - restarts that the version itself assigns.
+  What works: the two-level page, the diagram, the team colours and the coach-sentence check are general in design.
+  What doesn't: the sentences cover only the configurations above, and the role names are fixed.
+  Why it matters: every test copy that departed from Play Out from the Back's configurations and passed the other checks stopped here, and it would likely stop every other goal.
+  Blocks a pilot? Yes, for any second goal.
+  Decision needed: your review of new coach sentences as they are drafted, as with Play Out from the Back.
+
+Overall: none of the seven mechanisms yet gives a valid activity for another goal (caveat 1). The logic generalizes in five of them: scoring per team, changing ends with roles, choosing versions, required participants, and restarts and Laws. What stops reuse is one engine defect, coach-wording coverage, the fixed two-role structure, draft entries of ours, and missing knowledge.
+
+
+6. RECURRING GAPS (your question 3)
+
+Ranked by how many of the twelve goals without a checked activity each one blocks:
+
+1. No authorization for the goal: 12 goals [knowledge: your decisions]. Without one, the live app keeps a goal on the AI-written pathway even if everything else is in place. A test authorization for Stay Organized moved it onto the checked pathway, where its context was then refused.
+2. The goal's context is not engine-readable and has no confirmed relationships: 12 goals [knowledge]. The contexts are High Press Escape, Attack Development, Chance Creation, Finishing, Counterattack, Counter-Press and Attack Prevention. Only Goalkeeper Build-Out is engine-readable.
+3. Coach wording for what a new version adds: likely all 12 goals, at the last step [engine, plus your wording review]. This was not measured goal by goal: no goal reaches that step today. Every test copy that departed from Play Out from the Back's configurations and passed the other checks stopped there.
+4. No goal can use any of its own library constraints on the checked pathway: 12 goals [both].
+   - 12 of the 13 constraints the goals select are not engine-readable [knowledge].
+   - An authorization that names any constraint must meet the two-to-four rule, with its required mix of roles. So even Wide Zone Advantage on its own is refused, for missing foundation and consequence constraints [engine].
+   - This blocks only activities shaped by library constraints. Your ruling that a library constraint is not mandatory lets an activity take its shape from the context, as Play Out from the Back does.
+5. The goal's game form is not engine-readable: 7 goals [knowledge]. Positional Play Games (A02, A03) and Finishing Games (A06) are not engine-readable. Transition Games (TA01, D02, TD01, TD02) is only partly engine-readable.
+6. Scoring by winning the ball: 5 goals (D01, D02, D03, TD01, TD02). Their contexts approve only winning the ball and denial as ways to score, and their game forms do not allow either as the main score [knowledge: your ruling]. The engine's list of scoring events it can evaluate also has no entry for them [knowledge: our draft, needs your ruling]. Whether code is also needed is still open (5.1).
+7. Unresolved Game Problem: 3 goals (A04, A05, A06) [knowledge]. A Game Problem is needed for your authorization. The checked engine does not stop on this; it marks the activity provisional.
+8. Candidate constraints that cannot form a selection: 2 goals (A02, D03) [knowledge]. Section 3 gives the details. A04's candidates do form a selection, but with its shaping and consequence roles unfilled.
+9. The geometry-check defect [engine]. It refused every goal version tried whose positions are all measured from an end line. One copy with starting positions relative to the marked line passed. It would likely block goal versions with a physical goal, such as one for finishing (A06).
+10. The fixed structure of the two-role game, which affects finishing games and games without roles:
+    - Only building and pressing roles exist [engine].
+    - Only the pressing role can attack a goal [both].
+    - Teams change ends only when they exchange roles [engine].
+    - There is one kind of episode [knowledge: our draft, needs your ruling].
+    - Only one team may have a goalkeeper defending a goal [knowledge: our draft, needs your ruling].
+Two further gaps block no build, but they bear on your acceptance test and Part 4:
+11. No engine check ties an activity to its goal's Game Problem or affordances: all goals [engine]. Relevance rests entirely on your authorization. In the reuse tests, a build-out game was served under Stay Organized and nothing objected.
+12. Coach inputs are disconnected: all 13 goals [both: engine code, plus your knowledge of what each input should change].
+
+Earlier problems you asked about: what remains and what is resolved
+- Constraints contracted but not renderable: partly resolved. The neutral-player demonstration is served in full. The Wide Zone Advantage demonstration (a scoring bonus) is served without its diagram. The Pass Combination Gate is still refused at the structural checks, and no goal can use any of these constraints (gap 4).
+- Missing game forms: remains. Of the four game forms the goals select, one is fully engine-readable and one partly. Channel Games is a candidate for eight goals but is never selected and is not engine-readable. The soccer module's six other game forms cannot be reached from any goal's candidates.
+- Mechanically valid selections that are not relevant to the intended affordances: resolved for selection on the checked pathway, where goals draw only on their own candidates and your authorization governs Play Out from the Back; but the engine itself does not check relevance (gap 11). It remains on the AI-written pathway: constraints are chosen by code rather than authorized by you, scoring comes from a hand-written table, the goal's name is never sent to the AI, and different goals send identical requests.
+- The mandatory library-constraint requirement: resolved for an authorization that names no constraints. It remains for an authorization that names any, and on the AI-written pathway.
+
+Finding 6a: the gaps are mostly soccer knowledge, plus a few general engine gaps
+  What works: the mechanisms built for Play Out from the Back exist in general form: scoring per team, goals and penalty areas, choosing versions, restarts and participants.
+  What doesn't: every other goal lacks engine-readable knowledge. Of the general engine gaps, coach wording (item 3) would likely stop each goal at the last step. Items 4, 9 and 10 stop the goals that need library constraints, a physical goal, or a structure the two-role game cannot express.
+  Why it matters: most gaps are soccer knowledge, which we draft and you decide. The engine gaps are few, but their size has not been measured. Coach wording grows with each new configuration, and each sentence needs your review.
+  Blocks a pilot? Yes, for a pilot of the application.
+  Decision needed: the knowledge decisions in section 7.
+
+Finding 6b: two of the earlier problems are only partly resolved
+  What works: selection on the checked pathway no longer borrows constraints or ignores its goal. The constraint requirement no longer blocks an authorization with no constraints.
+  What doesn't: game forms are still missing; contracted constraints still cannot all be shown; relevance is enforced by your authorization, not by the engine; and the AI-written pathway still makes selections that are valid but not relevant.
+  Why it matters: your acceptance test asks every activity to show why its constraints are relevant. Today only your authorization of each goal ensures that.
+  Blocks a pilot? Through the AI-written pathway, yes (finding 4b).
+  Decision needed: none now. For now, relevance rests on your authorization of each goal. Tell us if you want the engine itself to show relevance, and we will assess that separately.
+
+
+7. THE NEXT INCREMENT: SUPPORTING DETAIL (your question 4)
+
+The main document, section 6, gives the increment and the decisions. This section keeps the supporting detail.
+
+What to unlock: the smallest shared set, by the blockers found
+
+General engine gaps, shared across goals:
+- Coach wording for what new versions add beyond Play Out from the Back's configurations. Every test copy that departed from those configurations and passed the other checks stopped here (gap 3).
+- The two-to-four rule, with its required mix of roles, for authorizations that name constraints. Without resolving it, no goal can use a library constraint (gap 4). Your ruling filed 16 October already says a library constraint is not mandatory unless justified.
+- The geometry-check defect. It stops goal versions whose positions are all measured from an end line (gap 9). Fixing it would also mean the position of the goal in Play Out from the Back's goal version is re-checked after the area is marked out (5.4).
+
+Soccer knowledge, each item shared by two or more goals:
+- Attack Development and Chance Creation made engine-readable, with their relationships. The two contexts cover four goals: TA02, A05, A03 and A04. Their kinds of scoring are among those the engine already supports: crossing a line, entering a zone, a goal and a gate. One limit applies: if the attacking team's target is a goal, it meets the role limit in 5.1.
+- Positional Play Games made engine-readable, for A03 now and A02 later.
+- Your authorization for each chosen goal.
+- A Game Problem for A04 (or A05), needed for your authorization. A04's candidates lack shaping and consequence constraints, which matters only if library constraints are to shape its activity.
+
+Why this set
+- By the blockers found, it reaches the largest group of goals whose blockers are knowledge plus the shared engine gaps, and it needs no new kind of scoring.
+- The defending group of five goals is the largest single cluster, but before any of it can be built it needs your ruling on scoring by winning the ball, a change to our draft list of scoring events the engine can evaluate (and possibly code, 5.1), two more contexts made engine-readable, and, for three of the five, Transition Games completed. It is the natural increment after this one.
+
+Goals closest to the checked pathway, by the blockers found
+- TA02 Secure Possession (Attack Development on Directional Possession Games). Only three of these items were found blocking it: Attack Development (not yet engine-readable), your authorization (none yet), and coach wording. Whether clearing them is enough is untested.
+- A03 Create Scoring Chances (Chance Creation on Positional Play Games): Chance Creation and Positional Play Games (not yet engine-readable), your authorization and coach wording, plus the geometry-check defect if its version uses a goal.
+- A04 Beat Defenders 1v1 (Chance Creation on Directional Possession Games): Chance Creation, your authorization, a Game Problem, and coach wording.
+- Together these are three different pairings of context and game form.
+- A05 Progress the Attack needs the same kind of list as A04: Attack Development, your authorization, coach wording and a Game Problem. But it shares its context and game form with Secure Possession, and the two goals already send identical requests to the AI. It may not give a genuinely distinct activity.
+
+What the evidence does not establish
+- Whether a goal can be built from its context and game-form knowledge alone, without a version authored for it as Play Out from the Back had. If it cannot, each goal would need its own authored version, which is the per-goal approach you asked us to avoid. A plain Directional Possession game with no authored version can be built and described. That shows the game form is buildable, but not that a representative activity results. This is the first thing the increment should establish.
+- Whether the three resulting activities would be genuinely distinct. That depends on the knowledge you approve for each context.
+
+Decisions needed from you
+1. Should the milestone's three goals be TA02, A03 and A04 (or A05), or others?
+2. Should Attack Development, Chance Creation and Positional Play Games be restated in engine-readable form for your approval? We would draft them from your libraries, as we did for Goalkeeper Build-Out.
+3. A Game Problem for A04 or for A05.
+4. Your authorization for each of the three goals: which relationships, constraints and manipulations apply (none is allowed).
+5. May role names follow the goal (for example "attacking team" and "defending team")? This needs your wording.
+6. For the increment after this one: how winning the ball and denial should count as a team's score, and in which game forms.
+
+Finding 7: the next increment
+  What works: the shared engine pieces from Play Out from the Back exist, and four goals share two contexts whose scoring the engine already supports.
+  What doesn't: none of these goals can be built today, and whether goals need versions written for them alone is untested.
+  Why it matters: by the blockers found, this is the smallest shared set. The increment would establish whether it produces three representative activities.
+  Blocks a pilot? The application pilot is waiting on this.
+  Decision needed: items 1 to 5 above.

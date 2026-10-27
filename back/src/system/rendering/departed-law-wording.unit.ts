@@ -38,7 +38,7 @@ import { buildActivity, buildActivityUnderAuthorizationRecords, RefusedActivity,
 import { DRAFT_COACH_WORDING_FILE, draftCoachWordingLoad, draftCoachWordingLoadOf, draftCoachWordingUnusableBecause } from './draft-coach-wording'
 import { checkFidelity, FidelityFinding } from './fidelity'
 import { Instruction, renderConcreteGame, sectionFactsOf } from './render-concrete-game'
-import { defaultLawPath, departedThroughout } from './rendering-fixture'
+import { DEFAULT_LAWS_OWED, defaultLawPath, departedThroughout } from './rendering-fixture'
 import { kindOfPath } from './sections'
 import { specializedRoleNames } from './session-envelope'
 
@@ -82,7 +82,13 @@ const zone = (players: number, keepers: number) => {
     return built.get(key)!
 }
 const blocksOf = (fixture: any): { blockId: string; fixture: any }[] => fixture.roleBlocks.blocks
-const said = <T extends { text: string }>(instructions: T[], text: string): T[] => instructions.filter(instruction => instruction.text === text)
+/**
+ * The sentences saying `text`, whole or as one of their parts. Re-pointed 25 October 2026 (Z): the zone version owes nothing since his reply
+ * filed 28 October 2026, item 7, so its offside statement is the first part of the How it works sentence closing with the normal-rules clause
+ * (OFFSIDE_AND_NORMAL), as the goal version's is; where the account still owes something it stands alone, as before.
+ */
+const said = <T extends { text: string; parts?: { text: string }[] }>(instructions: T[], text: string): T[] => instructions.filter(instruction => instruction.text === text || (instruction.parts ?? []).some(part => part.text === text))
+const OFFSIDE_AND_NORMAL = 'There is no offside; otherwise, normal soccer rules apply during play'
 const violations = (findings: FidelityFinding[]) => findings.filter(finding => finding.severity === 'VIOLATION')
 const about = (findings: FidelityFinding[], includes: string) => violations(findings).filter(finding => finding.what.includes(includes))
 
@@ -101,7 +107,9 @@ test('the loader refuses: a law the profile does not name or marks a restart law
     assert.equal(draftCoachWordingUnusableBecause(file, index), null)
     // Re-pointed 24 October 2026 (stage L): the wording gains boundRegions and appliedLaws, empty like every other list where the file cannot be used.
     // Re-pointed 24 October 2026 (stage I): the empty wording gains objectChoices.
-    const empty = { objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [], boundRegions: [], appliedLaws: [], objectChoices: [] }
+    // Re-pointed 25 October 2026 (P1): and methods and equipment (his reply filed 28 October 2026, items 1 and 3).
+    // Re-pointed 25 October 2026 (the live-app status notice): and notCheckedNotice, null likewise (his reply filed 26 October 2026, item 9(a)).
+    const empty = { notCheckedNotice: null, adjustmentLimits: null, methods: [], equipment: [], objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [], boundRegions: [], endRegions: [], appliedLaws: [], objectChoices: [] }
     const refused = (alter: (f: any) => void, pattern: RegExp, what: string, laws = loadSportDefaultLaws()) => {
         const damaged = copy(file)
         alter(damaged)
@@ -122,24 +130,28 @@ test('the loader refuses: a law the profile does not name or marks a restart law
 })
 
 // ── 2. Production A01, the zone version ──────────────────────────────────────────────────────────────────────
-test('production A01 at 12/1, 12/2 and 11/1: "There is no offside" said once, in How it works, citing only LAW-11\'s entries; 28 Details; nothing said twice; coach and administrator alike', () => {
+test('production A01 at 12/1, 12/2 and 11/1: "There is no offside" said once, in How it works, its part citing only LAW-11\'s entries (since Z, closing with the normal-rules clause); 29 Details; nothing said twice; coach and administrator alike', () => {
     for (const [players, keepers] of [[12, 1], [12, 2], [11, 1]] as const) {
         const what = `A01 ${players}/${keepers}`
         const { activity } = zone(players, keepers)
         const details = activity.rendered.instructions
         const told = said(details, OFFSIDE)
         assert.equal(told.length, 1, what)
-        assert.deepEqual([told[0].section, told[0].when, told[0].status, told[0].from], ['How it works', 'UNDERSTAND_AND_BEGIN', 'DERIVED', [AT]], what)
+        // Re-pointed 25 October 2026 (Z): the statement is the sentence's first part, citing only LAW-11's entries; the normal-rules clause
+        // follows, citing the account's owing nothing. Was the sentence alone, citing [AT].
+        assert.deepEqual([told[0].text, told[0].section, told[0].when, told[0].status, told[0].from], [OFFSIDE_AND_NORMAL, 'How it works', 'UNDERSTAND_AND_BEGIN', 'DERIVED', [AT, DEFAULT_LAWS_OWED]], what)
+        assert.deepEqual(told[0].parts!.map(part => [part.text, part.from]), [[OFFSIDE, [AT]], ['; otherwise, normal soccer rules apply during play', [DEFAULT_LAWS_OWED]]], what)
         assert.equal(details.filter(instruction => instruction.text.includes('offside')).length, 1, `${what}: said once`)
         // It closes How it works: after the restart sentences, before How to score.
         const at = details.indexOf(told[0])
         assert.deepEqual([details[at - 1].section, details[at + 1].section], ['How it works', 'How to score'], what)
-        // 4.3: R2's 27 Details and this one; never more than before R1.
-        assert.equal(details.length, 28, what)
-        assert.ok(details.length <= DETAILS_BEFORE_R1, what)
+        // 4.3: R2's 27 Details and this one; never more than before R1. Re-pointed 25 October 2026 (Z): and the goalkeeper's penalty area's
+        // Set up sentence (his reply filed 28 October 2026, item 7), the one sentence above the pin.
+        assert.equal(details.length, 29, what)
+        assert.ok(details.length <= DETAILS_BEFORE_R1 + 1, what)
         assert.equal(new Set(details.map(instruction => instruction.text)).size, details.length, `${what}: no sentence is said twice`)
         // DRAFT: the evidence names its wording so.
-        const evidence = activity.evidence!.sections.instructions.find(entry => entry.text === OFFSIDE)!
+        const evidence = activity.evidence!.sections.instructions.find(entry => entry.text === OFFSIDE_AND_NORMAL)!
         assert.equal(evidence.wording, 'DRAFT', what)
         // A coach is served the same sentence.
         const coach = buildActivity(request(players, keepers)) as ServedActivity
@@ -152,13 +164,18 @@ test('production A01 at 12/1, 12/2 and 11/1: "There is no offside" said once, in
 test('the review evidence traces the sentence to the profile\'s laws (his item 10) and to the departure A01-R1 records on itself (his item 2); nothing untraced; limitation L2 carries his item 2 words', () => {
     const { activity } = zone(12, 1)
     const evidence = activity.evidence!
-    const entry = evidence.sections.instructions.find(instruction => instruction.text === OFFSIDE)!
+    // Re-pointed 25 October 2026 (Z): the sentence closes with the normal-rules clause, so its sources follow LAW-11's with the account's.
+    const entry = evidence.sections.instructions.find(instruction => instruction.text === OFFSIDE_AND_NORMAL)!
     assert.deepEqual(
         entry.sources.map(source => [source.layer, source.standing, source.ref, source.detail]),
         [
             ['SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS', 'APPROVED', "the sport's normal laws as the default (his reply filed 26 October 2026, item 10)", 'block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: LAW-11 (Law 11 (Offside)): the game DEPARTED'],
             ['ACTIVITY_REALIZATION_CHOICE', 'PROVISIONAL', 'departure recorded by A01-R1 (WHOLE)', 'his reply filed 27 October 2026, item 2'],
+            // Z (25 October 2026): the normal-rules clause's sources, block by block - the account owing nothing, and the DRAFT sentence.
+            ['SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS', 'APPROVED', "the sport's normal laws as the default (his reply filed 26 October 2026, item 10)", 'block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: owes nothing (13 entries)'],
+            ['ACTIVITY_REALIZATION_CHOICE', 'PROVISIONAL', 'DRAFT normal-rules sentence', 'his reply filed 26 October 2026, item 10; his reply filed 27 October 2026, item 6'],
             ['SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS', 'APPROVED', "the sport's normal laws as the default (his reply filed 26 October 2026, item 10)", 'block BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: LAW-11 (Law 11 (Offside)): the game DEPARTED'],
+            ['SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS', 'APPROVED', "the sport's normal laws as the default (his reply filed 26 October 2026, item 10)", 'block BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: owes nothing (13 entries)'],
         ],
     )
     assert.deepEqual(entry.layers, ['SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS', 'ACTIVITY_REALIZATION_CHOICE'])
@@ -214,7 +231,7 @@ test('fidelity refuses the sentence said twice, not said, said where the account
     // Said twice (Q2): a second sentence saying it.
     assert.ok(about(withInstructions(list => [...list, sentence(`${OFFSIDE} at any time`, [AT])]), '2 sentences tell the coach the activity departs from LAW-11').length, 'said twice')
     // Not said (Q3).
-    const lost = about(withInstructions(list => list.filter(i => i.text !== OFFSIDE)), 'records LAW-11 as departed from, and no sentence tells the coach "There is no offside"')
+    const lost = about(withInstructions(list => list.filter(i => !said([i], OFFSIDE).length)), 'records LAW-11 as departed from, and no sentence tells the coach "There is no offside"')
     assert.deepEqual(lost.map(f => f.question), [3], 'not said')
     // Said where the account owes the law (Q2), and the renderer then says nothing.
     const owed = copy(block)
@@ -232,7 +249,7 @@ test('fidelity refuses the sentence said twice, not said, said where the account
     assert.ok(about(checkFidelity(noAccount, rendered).findings, 'tells the coach the activity departs from LAW-11, and the game carries no default-laws account').length, 'no account')
     assert.equal(said(renderConcreteGame(noAccount).instructions, OFFSIDE).length, 0, 'no account, no sentence')
     // Said without citing the law's entries (Q2).
-    assert.ok(about(withInstructions(list => [...list.filter(i => i.text !== OFFSIDE), sentence(OFFSIDE, ['restartPolicy.deadBall'])]), 'does not cite defaultLaws.laws[LAW-11]').length, 'not citing')
+    assert.ok(about(withInstructions(list => [...list.filter(i => !said([i], OFFSIDE).length), sentence(OFFSIDE, ['restartPolicy.deadBall'])]), 'does not cite defaultLaws.laws[LAW-11]').length, 'not citing')
     // Its entries cited by a sentence that does not say it (Q2).
     assert.ok(about(withInstructions(list => [...list, sentence('Play on', [AT])]), 'cites defaultLaws.laws[LAW-11] and does not say "There is no offside"').length, 'cited by another sentence')
     // A law of the account cited that no sentence is written for (Q2).
@@ -260,7 +277,8 @@ test('the TEST-ONLY goal completion: "There is no offside" said once too (inheri
     // goal-version-penalty-area.unit.ts). This completion hands the build no bound-region block for its TEST-ONLY 5 m goal, so those items
     // would be realized with no pairing to word them, and the build is refused at communication (fidelity Q3, measured); they are left out
     // of the copy, in memory, so the completion is the no-region goal it was before K2.
-    variant.items = variant.items.filter((i: any) => i.selector !== 'noun=zone & functions ∋ penalty-area')
+    // Re-pointed 25 October 2026 (P2): and the item bounding the marked line relative to the penalty area (A01-R2-S5-2, his reply filed 28 October 2026, item 2), which names it.
+    variant.items = variant.items.filter((i: any) => i.selector !== 'noun=zone & functions ∋ penalty-area' && i.value?.of?.structuralRef?.itemId !== 'A01-R2-S2-1')
     variant.objectSuitability = [{ kind: 'goal', widthM: { min: 1, max: 10 }, ruledOn: 'TEST-ONLY', by: 'TEST-ONLY', citedAs: 'TEST-ONLY', words: ['TEST-ONLY'] }]
     variant.defaultLawsCheck = { mode: 'REPORT', because: 'TEST-ONLY: D-DEFAULT-LAWS completed in memory', basis: { words: ['TEST-ONLY'], citedAs: 'TEST-ONLY' } }
     for (const [players, keepers] of [[12, 1], [11, 1]] as const) {

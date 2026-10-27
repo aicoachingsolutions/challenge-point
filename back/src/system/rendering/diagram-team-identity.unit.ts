@@ -25,6 +25,11 @@
  *   5. D9 refuses each mutation of the coach's diagram (TEST-ONLY): a label, a look set by role, an exchange sentence reversed, dropped or
  *      naming another block, a legend word given another kind;
  *   6. nothing activity-specific or worded is typed in the page's FieldDiagram.tsx, and no team name in coach-diagram.ts.
+ *
+ * AMENDED 25 October 2026 (P1; his reply filed 28 October 2026, item 11: "I'd prefer the selected block's diagram to focus on the immediate
+ * configuration, with the role-exchange procedures explained once in Coach Details."): no block of the coach's diagram says what moves at the
+ * exchange into it any more, beside the drawing or in its description (items 1, 2, 3 and 5 pin that now); the model still holds each block's
+ * exchange, which D10 holds to the reassignments and both blocks' counts (item 4, unchanged), and the served Role exchange sentence says it once.
  */
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
@@ -140,11 +145,13 @@ test('1. A01 at 12/1, 12/2 and 11/1: one look and label per realized team in bot
             const labelOf = (handle: string) => block.teams[model.blocks[i].teams.findIndex(team => team.handle === handle)].label
             const to = labelOf(holderOf(i, 'BUILDING'))
             const from = labelOf(holderOf(1 - i, 'BUILDING'))
-            // The block the activity starts in says the move on coming back to it; nothing moves at kick-off.
-            const lead = i === 0 ? 'When you return to this block' : 'When you call this block'
-            const sentence = `${lead}, ${moving} ${verb} from ${from} to ${to}, which becomes the building team.`
-            assert.deepEqual(block.exchange, [sentence], `${what} block ${i + 1}`)
-            assert.ok(block.desc.endsWith(sentence), `${what} block ${i + 1}: the description says it last: ${block.desc}`)
+            // Re-pointed 25 October 2026 (P1; his reply filed 28 October 2026, item 11: "I'd prefer the selected block's diagram to focus on the
+            // immediate configuration, with the role-exchange procedures explained once in Coach Details."): no block says what moves at the
+            // exchange into it, beside the drawing or in its description; the served Role exchange sentence (read above) says it once, and the
+            // model still holds the exchange (D10 below). Was: "When you return to this block, ..." (block 1) and "When you call this block,
+            // ..." (block 2), "<performers> move from <label> to <label>, which becomes the building team.", also closing the description.
+            assert.ok(!('exchange' in block), `${what} block ${i + 1}: no exchange sentence`)
+            assert.ok(!/When you (call|return to) this block/.test(block.desc) && !block.desc.includes(`${moving} ${verb} from ${from} to ${to}`), `${what} block ${i + 1}: ${block.desc}`)
             assert.notEqual(to, from)
             // Both blocks' counts change exactly as it says: the team that becomes the building team gains, the other loses.
             const countsOf = (blockIndex: number, handle: string) => fixture.roleBlocks.blocks[blockIndex].fixture.game.performers.teams.find((team: any) => String(team.elementId) === handle)
@@ -168,10 +175,11 @@ test('1. A01 at 12/1, 12/2 and 11/1: one look and label per realized team in bot
             assert.deepEqual(exchange.bindings.map(binding => binding.path).sort(), exchangeSentence.parts!.flatMap(part => part.bindings.map(binding => binding.path)).sort())
         }
         // The legend: what a team's colour, the role badge and an arrow are, once each (DRAFT), and green target zones as before.
-        assert.deepEqual(diagram.legend.map(entry => entry.kind), ['MARKED_LINE', 'TARGET_ZONE', 'STARTING_AREA', 'TEAM_COLOUR', 'ROLE', 'ATTACK'])
+        // Re-pointed 25 October 2026 (Z): and the marked area, the zone version's penalty area (his reply filed 28 October 2026, item 7).
+        assert.deepEqual(diagram.legend.map(entry => entry.kind), ['MARKED_LINE', 'TARGET_ZONE', 'STARTING_AREA', 'TEAM_COLOUR', 'ROLE', 'ATTACK', 'MARKED_AREA'])
         assert.deepEqual(
             model.legend.filter(word => word.status === 'DRAFT').map(word => word.text),
-            [DIAGRAM_WORDS.draft.startingArea, DIAGRAM_WORDS.draft.teamColour, DIAGRAM_WORDS.draft.role, DIAGRAM_WORDS.draft.attack],
+            [DIAGRAM_WORDS.draft.startingArea, DIAGRAM_WORDS.draft.teamColour, DIAGRAM_WORDS.draft.role, DIAGRAM_WORDS.draft.attack, 'penalty area'],
         )
         // The targets are unchanged by C2: one look, labelled by the attacking team's role.
         assert.ok(diagram.blocks.every(block => block.targets.every(target => /^(building|pressing) team's target zone$/.test(target.label!))))
@@ -194,11 +202,11 @@ test('2. the look follows the realized team whichever block is shown first (TEST
         assert.equal(lookOf(coach, 0, label).noun, lookOf(PROD_COACH, 1, label).noun)
         assert.deepEqual(lookOf(coach, 0, label).start, lookOf(PROD_COACH, 1, label).start)
     }
-    // What moves follows the block; the lead follows its place: the block shown first, where the activity starts, says it on returning.
-    const what = (sentence: string) => sentence.slice(sentence.indexOf(', ') + 2)
-    assert.deepEqual(coach.blocks.map(block => block.exchange.map(what)), [PROD_COACH.blocks[1].exchange.map(what), PROD_COACH.blocks[0].exchange.map(what)])
-    assert.ok(coach.blocks[0].exchange.every(sentence => sentence.startsWith('When you return to this block, ')))
-    assert.ok(coach.blocks[1].exchange.every(sentence => sentence.startsWith('When you call this block, ')))
+    // Re-pointed 25 October 2026 (P1; his reply filed 28 October 2026, item 11): no block says what moves, whichever is shown first. Was: what
+    // moves followed the block, and the lead its place ("When you return to this block" for the block shown first).
+    assert.ok(coach.blocks.every(block => !('exchange' in block)))
+    // The model still holds what moves into each block, following the block (D10 holds it to the reassignments).
+    assert.deepEqual(draft.diagram!.blocks.map(block => block.exchanges.map(exchange => exchange.moving.text)), [PROD_MODEL.blocks[1].exchanges.map(exchange => exchange.moving.text), PROD_MODEL.blocks[0].exchanges.map(exchange => exchange.moving.text)])
 })
 
 test('3. the demonstrations under the same rules: unlabelled teams, no exchange, looks by place; the withheld one still withheld', () => {
@@ -209,7 +217,8 @@ test('3. the demonstrations under the same rules: unlabelled teams, no exchange,
         assert.deepEqual(checkFieldDiagram(model, neutral.input), [])
         assert.deepEqual(diagram.blocks[0].teams.map(team => [team.identity, team.label, team.noun]), [[0, null, null], [1, null, null]])
         assert.deepEqual(model.blocks[0].teams.map(team => team.position), [0, 1])
-        assert.deepEqual(diagram.blocks[0].exchange, [])
+        // Re-pointed 25 October 2026 (P1): no block of any diagram carries an exchange sentence now (his reply filed 28 October 2026, item 11).
+        assert.ok(!('exchange' in diagram.blocks[0]))
         assert.deepEqual(model.blocks[0].exchanges, [])
         assert.deepEqual(diagram.legend, [{ kind: 'TARGET_LINE', text: 'target line' }], 'one block, unnamed teams: no team words in the legend')
         assert.equal(diagram.blocks[0].desc, '40 m by 30 m area. Each team attacks the line at the other team\'s end. 2 teams of 5 and 2 neutral players.')
@@ -314,10 +323,11 @@ test('5. D9 refuses each mutation of the coach\'s diagram (TEST-ONLY)', () => {
         'its place among the realized teams is 1',
         'look by role',
     )
-    d9(mutate(d => (d.blocks[1].exchange = [...d.blocks[0].exchange])), 'the exchange sentences', 'exchange of the other block')
-    d9(mutate(d => (d.blocks[0].exchange = [])), 'the exchange sentences', 'exchange dropped')
-    d9(mutate(d => (d.blocks[1].exchange = [d.blocks[1].exchange[0].replace('this block', 'Block 2')])), 'the exchange sentences', 'exchange reworded')
-    d9(mutate(d => (d.blocks[1].exchange = [`${d.blocks[1].exchange[0]} Then Block 1.`])), 'names another block', 'other block named')
+    // Re-pointed 25 October 2026 (P1; his reply filed 28 October 2026, item 11): the coach's diagram carries no exchange sentence, so one added
+    // back is refused by the key check (D9), as any key the diagram does not carry is. Were: the exchange sentences of the other block, dropped,
+    // reworded, or naming another block, each refused against the model's.
+    d9(mutate(d => ((d.blocks[1] as any).exchange = ['When you call this block, 1 goalkeeper and 1 outfield player move from Team A to Team B, which becomes the building team.'])), 'block 2 holds exchange, which the coach\'s diagram does not carry', 'an exchange sentence added back')
+    d9(mutate(d => (d.blocks[1].desc = `${d.blocks[1].desc} Then Block 1.`)), 'names another block', 'other block named')
     d9(mutate(d => (d.legend.find(entry => entry.kind === 'ROLE')!.kind = 'TEAM_COLOUR')), 'the legend gives "role in this block" to TEAM_COLOUR', 'legend kind')
     d9(mutate(d => ((d.blocks[0].teams[0] as any).handle = 'c:restated:GF2:GF2-14.a#1')), 'holds handle', 'a data key served')
 })

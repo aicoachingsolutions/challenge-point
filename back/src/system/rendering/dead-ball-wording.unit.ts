@@ -149,7 +149,9 @@ test('the loader refuses (V9): a key other than the common value, wrong slots, n
         // Re-pointed 24 October 2026 (R3): the wording gains departedLaws, empty like every other list where the file cannot be used.
         // Re-pointed 24 October 2026 (stage L): and boundRegions and appliedLaws, empty likewise.
         // Re-pointed 24 October 2026 (stage I): the empty wording gains objectChoices.
-        assert.deepEqual(draftCoachWordingLoadOf(damaged, index, laws).wording, { objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [], boundRegions: [], appliedLaws: [], objectChoices: [] }, `${what}: an unusable file loads as no wording at all`)
+        // Re-pointed 25 October 2026 (P1): and methods and equipment (his reply filed 28 October 2026, items 1 and 3).
+        // Re-pointed 25 October 2026 (the live-app status notice): and notCheckedNotice, null likewise (his reply filed 26 October 2026, item 9(a)).
+        assert.deepEqual(draftCoachWordingLoadOf(damaged, index, laws).wording, { notCheckedNotice: null, adjustmentLimits: null, methods: [], equipment: [], objectKinds: [], facings: [], scoringAtObjects: [], normalLaws: null, triggers: [], deadBallRestart: {}, restartLawNouns: [], departedLaws: [], boundRegions: [], endRegions: [], appliedLaws: [], objectChoices: [] }, `${what}: an unusable file loads as no wording at all`)
     }
     refused(f => (f.deadBallRestart[SPEC.perTrigger] = copy(f.deadBallRestart[SPEC.common])), /only the common restart has words of its own/, 'words for the per-trigger value')
     refused(f => (f.deadBallRestart.TEST_ONLY = copy(f.deadBallRestart[SPEC.common])), /keyed by no common value/, 'a key off the register')
@@ -188,8 +190,10 @@ test('production A01 at 12/1, 12/2 and 11/1: one How it works sentence for every
         assert.ok(restarts[0].parts!.every(part => part.from.includes(POLICY)), `${what}: each of its parts rests on the policy`)
         // 4.3: the Details are no more than before R1 (the throw-in and end-line sentences gone, the Restarts sentence added). Re-pointed 24
         // October 2026 (R3): 28, with "There is no offside" (departed-law-wording.unit.ts); was 27.
-        assert.equal(details.length, 28, what)
-        assert.ok(details.length <= DETAILS_BEFORE_R1, what)
+        // Re-pointed 25 October 2026 (Z): 29, with the goalkeeper's penalty area's Set up sentence (his reply filed 28 October 2026, item 7), the
+        // one sentence above the pin.
+        assert.equal(details.length, 29, what)
+        assert.ok(details.length <= DETAILS_BEFORE_R1 + 1, what)
         assert.equal(new Set(details.map(instruction => instruction.text)).size, details.length, `${what}: no sentence is said twice`)
         for (const noun of ['throw-ins', 'free kicks', 'goes out of play', 'stop play for a foul', 'restarts it whenever the ball is dead']) {
             assert.equal(details.filter(instruction => instruction.text.includes(noun)).length, 1, `${what}: "${noun}" is said once`)
@@ -312,8 +316,15 @@ test('fidelity (V9) refuses a dead ball said twice or not at all, and a Restarts
 
 test('fidelity (V9) refuses the held normal-rules sentence wherever anything is owed or no account is carried, and passes it where nothing is owed', () => {
     const { fixture } = zone(12, 1)
+    /**
+     * Re-pointed 25 October 2026 (Z): the zone version owes nothing since his reply filed 28 October 2026, item 7, and says the clause itself
+     * (default-laws.unit.ts). The owed case is a TEST-ONLY copy of block one whose account owes the goalkeeper's handling, as it did before Z;
+     * its own rendering then says no normal-rules clause, and the clause added below is the one held to the account.
+     */
     const block = copy(blocksOf(fixture)[0].fixture)
+    block.defaultLaws.laws = block.defaultLaws.laws.map((entry: any) => (entry.law === 'LAW-12-GK' ? { ...entry, status: 'ADAPTATION_OWED' } : entry))
     const rendered = renderConcreteGame(block)
+    assert.ok(!rendered.instructions.some(instruction => instruction.text.includes('normal soccer rules')), 'the owed copy says no normal-rules clause')
     const words = draftCoachWordingLoad().wording.normalLaws!.words.replace(/\.$/, '')
     // Re-pointed 24 October 2026 (stage L): the sentence cites the account as owing nothing, as the renderer's now does (a sentence saying the
     // words without that citation is refused too: departed-law-wording.unit.ts and bound-region-communication.unit.ts pin it). Was: the policy.
@@ -361,7 +372,8 @@ test('the TEST-ONLY goal completion: its Restarts sentence names the goal end\'s
     // goal-version-penalty-area.unit.ts). This completion hands the build no bound-region block for its TEST-ONLY 5 m goal, so those items
     // would be realized with no pairing to word them, and the build is refused at communication (fidelity Q3, measured); they are left out
     // of the copy, in memory, so the completion is the no-region goal it was before K2.
-    variant.items = variant.items.filter((i: any) => i.selector !== 'noun=zone & functions ∋ penalty-area')
+    // Re-pointed 25 October 2026 (P2): and the item bounding the marked line relative to the penalty area (A01-R2-S5-2, his reply filed 28 October 2026, item 2), which names it.
+    variant.items = variant.items.filter((i: any) => i.selector !== 'noun=zone & functions ∋ penalty-area' && i.value?.of?.structuralRef?.itemId !== 'A01-R2-S2-1')
     variant.objectSuitability = [{ kind: 'goal', widthM: { min: 1, max: 10 }, ruledOn: 'TEST-ONLY', by: 'TEST-ONLY', citedAs: 'TEST-ONLY', words: ['TEST-ONLY'] }]
     variant.defaultLawsCheck = { mode: 'REPORT', because: 'TEST-ONLY: D-DEFAULT-LAWS completed in memory', basis: { words: ['TEST-ONLY'], citedAs: 'TEST-ONLY' } }
     for (const [players, keepers] of [[12, 1], [11, 1]] as const) {

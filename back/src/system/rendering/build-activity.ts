@@ -843,7 +843,11 @@ function boundRegionSummary(
         case 'BOUND_REGION_DOES_NOT_FIT':
             return {
                 stage: 'session',
-                summary: `The ${words(refusal.regionFunction)} that goes with a ${refusal.kind} ${refusal.widthM} m wide does not fit in a ${session.lengthM} x ${session.widthM} m area.`,
+                // Z (25 October 2026): a region at a performer's end goes with no object, so it is named by its function alone (DRAFT words).
+                summary:
+                    refusal.kind === null || refusal.widthM === null
+                        ? `The ${words(refusal.regionFunction)} this activity marks does not fit in a ${session.lengthM} x ${session.widthM} m area.`
+                        : `The ${words(refusal.regionFunction)} that goes with a ${refusal.kind} ${refusal.widthM} m wide does not fit in a ${session.lengthM} x ${session.widthM} m area.`,
                 applicability: { verdict: 'NOT_APPLICABLE', cause: 'BOUND_REGION_DOES_NOT_FIT' },
             }
         case 'BOUND_REGION_INVALID':
@@ -1456,12 +1460,20 @@ function build(
          */
         // `coachWords` (stage K7): our DRAFT coach wording beside his words, carried only where an entry has it (his words are not always
         // a sentence a coach can be given as a choice: "The pressure reference should be adjustable in either direction.").
+        /**
+         * `moves` (P2, 25 October 2026): the role whose position an adjustment's magnitude changes, carried only for such an adjustment (the
+         * same reading the physical layout makes, `layoutMoversOf`: its parameter a Position Magnitude of the EM schema, and its role), so the
+         * renderer can say how far the line it moves may go, read from the bounds on that line (`adjustment-range.ts`), and fidelity can hold
+         * that to the bounds. His reply filed 28 October 2026, item 2: "The coach should retain flexibility to adjust it within a valid range".
+         */
+        const movers = new Map(layoutMoversOf(goalSelection?.authorization).map(mover => [mover.id, mover.role]))
         const adjustments = (goalSelection?.authorization?.authorizedAdjustments?.entries ?? []).map(entry => ({
             id: entry.id,
             words: entry.words,
             consequence: entry.consequence,
             citedAs: entry.citedAs,
             ...(typeof entry.coachWords === 'string' ? { coachWords: entry.coachWords } : {}),
+            ...(movers.has(entry.id) ? { moves: { role: movers.get(entry.id)! } } : {}),
         }))
         const alternatives = deferral.deferred.map(alternativeOf)
         const game: GameContext = { subject, session, selection, context, alterSupplied, adjustments, alternatives, boundRegions }
@@ -2019,7 +2031,7 @@ interface GameContext {
     /** Tests only. Since stage E it is handed the realization being tried as well, so an alteration can be one alternative's alone. */
     alterSupplied: ((supplied: SuppliedRealization, realization: ProvisionalRealization | null) => void) | null
     /** The record's authorized adjustments, in his words, for the fixture (stage K4). Empty for every other activity. */
-    adjustments: { id: string; words: string; consequence: string | null; citedAs: string; coachWords?: string }[]
+    adjustments: { id: string; words: string; consequence: string | null; citedAs: string; coachWords?: string; moves?: { role: string } }[]
     /** What defers in this composition (ruling C56), for the fixture. Empty wherever nothing defers. */
     alternatives: Alternative[]
     /** H3: the Sport Profile's bound-region block the bound-region check reads (the file's, or a test's copy); null where there is none. */
@@ -2182,7 +2194,8 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
      * holding no defended object of a kind the Sport Profile binds a region to, and no region of a function it binds, passes untouched.
      */
     {
-        const refusal = boundRegionRefusalBefore(index, resolved.game, input.envelope, boundRegions)
+        // Z (25 October 2026): with the block's role holders, read only where a region is bound to a performer's end.
+        const refusal = boundRegionRefusalBefore(index, resolved.game, input.envelope, boundRegions, { roleBlock: input.roleBlock ?? null })
         if (refusal) {
             const said = boundRegionSummary(refusal, subject, session, 'structure', boundRegions, index)
             return refuse(said.stage, said.summary, [`the regions bound to the game's objects do not hold before realization (${refusal.cause}): ${refusal.why}`], { applicability: said.applicability, question: said.question })
@@ -2262,7 +2275,11 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
      * centred on it, inside the touchlines (`bound-region-check.ts`). A break here is a validation refusal, and it keeps a staffing shortfall
      * beside it from being typed (below): the roster is then not the one thing wrong with this game.
      */
-    const boundAfter = boundRegionRefusalAfter(index, realized.game, input.envelope, boundRegions)
+    // Z: with the block's role holders and its designation bindings (which realized team is which end-assigned team).
+    const boundAfter = boundRegionRefusalAfter(index, realized.game, input.envelope, boundRegions, {
+        roleBlock: (realized.record as any).roleBlock ?? input.roleBlock ?? null,
+        designationBindings: (realized.record as any).designationBindings ?? null,
+    })
     if (boundAfter) invalid.push(`the regions bound to the game's objects do not hold after realization (${boundAfter.cause}): ${boundAfter.why}`)
     if (!post.validated) {
         /**
@@ -2426,10 +2443,18 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
      * checked it against (GA-BOUND-REGION held the realized region to that entry above), whole; null where the block holds no entry of the id
      * cited (GA-BOUND-REGION refuses that before here). Every game binding no region assembles exactly as before.
      */
+    /**
+     * Z (25 October 2026): a region bound to a performer's end (row S7's second form) carries its pairing too, with the row in place of an
+     * object (`performerEnd`) and what it borrows, so its Set up sentence and fidelity read its figures from the entry GA-BOUND-REGION held it
+     * to. A region bound to an object is carried exactly as before.
+     */
     const boundForFixture = ((((realized.game as any).space?.regions ?? []) as any[]) ?? []).flatMap(region => {
         const binding = bindingOf(region, index)
         if (!binding) return []
-        return [{ region: String(region?.elementId), objectId: binding.objectId, pairing: (boundRegions?.pairings ?? []).find(entry => entry.id === binding.pairing) ?? null }]
+        const pairing = (boundRegions?.pairings ?? []).find(entry => entry.id === binding.pairing) ?? null
+        return binding.to === 'OBJECT'
+            ? [{ region: String(region?.elementId), objectId: binding.objectId, pairing }]
+            : [{ region: String(region?.elementId), objectId: null, performerEnd: binding.row, borrows: [...binding.borrows], pairing }]
     })
     fixture = assembleRenderingFixture({
         resolved,

@@ -83,14 +83,17 @@ test('register version 19 holds the session resources as data, in one versions e
     // Re-pointed 23 October 2026 (H3): version 21 (a region bound to an object, his reply filed 26 October 2026, item 7) supersedes 20, once.
     // Re-pointed 23 October 2026 (H4): version 22 (the type a session states for its objects, his reply filed 26 October 2026, item 4) supersedes 21.
     // Re-pointed 24 October 2026 (R1): version 23 (one restart for every dead ball, his reply filed 27 October 2026, item 4) supersedes 22.
-    assert.match(String(register.version), /^23, adds one restart for every dead ball, .*Supersedes version 22, which adds the type a session states for its objects of a kind, .*Supersedes version 21, which adds a region bound to an object, .*Supersedes version 20, which records his rulings filed 26 October 2026 for the goal version of the build-out activity .*Supersedes version 19, which adds an object's availability as a session resource, for his reply filed 25 October 2026, item 4 /)
+    // Re-pointed 25 October 2026 (P1): version 24 (the restart method TAKER_CHOOSES, his reply filed 28 October 2026, item 1) supersedes 23.
+    // Re-pointed 25 October 2026 (Z): version 25 (a region bound to the end of the team holding a specialized performer, his reply filed 28 October 2026, item 7) supersedes 24.
+    assert.match(String(register.version), /^25, adds a second, closed form to the bound-object row, .*Supersedes version 24, which adds one member to the restart-method list, .*Supersedes version 23, which adds one restart for every dead ball, .*Supersedes version 22, which adds the type a session states for its objects of a kind, .*Supersedes version 21, which adds a region bound to an object, .*Supersedes version 20, which records his rulings filed 26 October 2026 for the goal version of the build-out activity .*Supersedes version 19, which adds an object's availability as a session resource, for his reply filed 25 October 2026, item 4 /)
     assert.ok(String(register.version).includes('"Please add the general ability to represent goal availability as a session resource and use authorized knowledge relationships when determining which scoring configuration can be selected."'))
     assert.equal(String(register.version).split('Supersedes version 18, which adds the coach-controlled end exchange, ').length - 1, 1, 'version 18 superseded once')
     assert.equal(String(register.version).split('Supersedes version 19, ').length - 1, 1, 'version 19 superseded once')
     assert.equal(String(register.version).split('Supersedes version 20, ').length - 1, 1, 'version 20 superseded once')
     assert.equal(String(register.version).split('Supersedes version 21, ').length - 1, 1, 'version 21 superseded once, by version 22 (H4)')
     assert.equal(String(register.version).split('Supersedes version 22, ').length - 1, 1, 'version 22 superseded once, by version 23 (R1)')
-    assert.ok(!String(register.version).includes('Supersedes version 23'), 'version 23 is the current entry')
+    assert.ok(String(register.version).startsWith('25, adds a second, closed form to the bound-object row, for his reply filed 28 October 2026, item 7') && !String(register.version).includes('Supersedes version 25'), 'version 25 is the current entry (Z, 25 October 2026)')
+    assert.equal(String(register.version).split('Supersedes version 24, which adds one member to the restart-method list').length - 1, 1, 'version 24 (P1) superseded once, by version 25 (Z)')
     assert.deepEqual([spec.row, spec.attribute, spec.countRow, spec.kinds], ['O1', 'kind', 'O3', ['goal']])
     assert.deepEqual([spec.path, spec.kindLeaf, spec.countLeaf], ['objects[]', 'kind', 'count'])
     assert.deepEqual(sessionResourceKinds(), spec.kinds, 'the envelope reads the kinds from the register')
@@ -279,8 +282,12 @@ function pick(refusal: any): any {
 const GF2 = 'restated:GF2'
 const RPC = 'restated:RPC-001'
 const SUPERSEDED = [`${GF2}::GF2-19`, `${GF2}::GF2-03.b`, `${GF2}::GF2-06.a`, `${RPC}::RPC-001-08.a`]
-/** The design's F2 withdrawals from A01-R1, TEST-ONLY here. */
-const WITHDRAW = ['A01-R1-S5-3', 'A01-R1-S5-4', 'A01-R1-V27-1', 'A01-R1-V29-1', 'A01-R1-V30-1', 'A01-R1-V31-1', 'A01-R1-T4-4']
+/**
+ * The design's F2 withdrawals from A01-R1, TEST-ONLY here. Re-pointed 25 October 2026 (Z): and the zone version's penalty area at the
+ * goalkeeper's end (its six items, his reply filed 28 October 2026, item 7), which a goal standing at that end cannot keep (GA-BOUND-REGION
+ * refuses it, measured), as the real goal version withdraws it.
+ */
+const WITHDRAW = ['A01-R1-S5-3', 'A01-R1-S5-4', 'A01-R1-V27-1', 'A01-R1-V29-1', 'A01-R1-V30-1', 'A01-R1-V31-1', 'A01-R1-T4-4', 'A01-R1-S2-2', 'A01-R1-S5-5', 'A01-R1-S6-2', 'A01-R1-S6-3', 'A01-R1-S7-1', 'A01-R1-S5-6']
 const REL = { id: 'TEST-ONLY-SCORING', category: 'CONTEXT_SCORING_RELATIONSHIP', contextId: 'RPC-001', contextName: 'TEST-ONLY', scoringEvent: 'goal', role: 'PRESSING', rows: ['B9', 'J2'], supersedes: SUPERSEDED, via: ['TEST-ONLY'], identified: 'TEST-ONLY', status: 'CONFIRMED', confirmedOn: 'TEST-ONLY', confirmedBy: 'TEST-ONLY', citedAs: 'TEST-ONLY', words: ['TEST-ONLY'], note: null }
 const V = 'A01-RT'
 const item = (id: string, row: string, selector: string, requirement: string, value: unknown, extra: Record<string, unknown> = {}) => ({
@@ -330,6 +337,9 @@ const variantFile = (options: VariantOptions = {}) => {
         declarations: [],
         relationshipRules: [],
         basedOn: 'A01-R1',
+        // Z (25 October 2026): with the penalty area withdrawn this TEST-ONLY variant owes the goalkeeper's handling, so it declares REPORT
+        // (what it inherited before Z), never the ENFORCE A01-R1 now declares.
+        defaultLawsCheck: { ...copy(base.defaultLawsCheck), mode: 'REPORT' },
         withdraws: WITHDRAW.map(id => ({ item: id, because: 'TEST-ONLY' })),
         items: [
             item('GOAL', 'O1', `kind=${KIND}`, 'EXISTS', 'N/A'),

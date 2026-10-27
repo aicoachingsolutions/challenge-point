@@ -149,10 +149,17 @@ test('register version 12 carries the capabilities as data, each in his words or
     assert.ok(semantics.note.includes('the wording of this note is ours'))
 
     assert.ok(index.vocabularies.get('T5.method')!.includes('FROM_THE_FEET'))
-    assert.ok(index.vocabularyVersions['T5.method'].startsWith('2 (2026-10-15'))
+    // Re-pointed 25 October 2026 (P1, register version 24): version 3 adds TAKER_CHOOSES for his reply filed 28 October 2026, item 1; version 2
+    // (FROM_THE_FEET) is kept beneath it, and FROM_THE_FEET stays in the list with its semantics.
+    assert.ok(index.vocabularyVersions['T5.method'].startsWith('3 (2026-10-25, register version 24'))
+    assert.ok(index.vocabularyVersions['T5.method'].includes('Version 2: 2026-10-15 (register version 12, draft) - adds FROM_THE_FEET'))
     const feet = register.vocabularies['T5.methodSemantics'].FROM_THE_FEET
     assert.ok(feet.note.startsWith('OUR operational gloss'))
     assert.ok(feet.basisEvidence.includes('"The goalkeeper may receive and play from the feet; a stationary-ball restart should not be universally required."'))
+    assert.ok(index.vocabularies.get('T5.method')!.includes('TAKER_CHOOSES'))
+    const chooses = register.vocabularies['T5.methodSemantics'].TAKER_CHOOSES
+    assert.ok(chooses.note.startsWith('OUR operational gloss') && chooses.note.includes('no method is prescribed'))
+    assert.ok(chooses.basisEvidence.includes('"The goalkeeper should be able to restart by passing, rolling, throwing, or dribbling the ball into play."'))
 
     for (const row of ['T4', 'T5']) assert.deepEqual(index.fillableRequires.get(row), { requirement: ['RANGE'], basis: ['OWNER_RULING', 'AUTHORED'], bound: 'QUALITATIVE' }, row)
     assert.deepEqual(index.fillableWhen.get('T2'), { selectorAttribute: 'trigger', in: ['START'] })
@@ -426,7 +433,8 @@ test("A01-R1's transitions as his decisions establish them, and no timer, window
         assert.equal(value(`${id}::T6`), 'STOP_RESUME', trigger)
         assert.equal(value(`${id}::T2`), 'ROLE_HOLDER_BUILDING', trigger)
         assert.equal(value(`${id}::T3`), KEEPER, trigger)
-        assert.equal(value(`${id}::T5`), 'FROM_THE_FEET', trigger)
+        // Re-pointed 25 October 2026 (P1): A01-R1-T5-1 holds TAKER_CHOOSES for his reply filed 28 October 2026, item 1 (was FROM_THE_FEET).
+        assert.equal(value(`${id}::T5`), 'TAKER_CHOOSES', trigger)
         assert.equal(verdictOf(x.staged, `${id}::T4`), 'FREE(a)', `${trigger}: the coach chooses where (COACH_DECIDES), never a fixed location`)
         // Two ranges in words since stage K6 (15 October 2026): his D5 location and his D3 agreement that the goalkeeper begins in
         // front of the post-regain area (A01-R1-T4-4). Still the coach's: no region, no distance.
@@ -492,7 +500,11 @@ test('realization: the COACH_DECIDES stand-ins, the possession game initial-hold
     for (const transition of (built.fixture as any).game.transitions.filter((t: any) => t.playState === 'STOP_RESUME')) {
         assert.ok(said.some(i => i.from.includes(`transitions[${transition.elementId}].awardedTo`) && i.from.includes(`transitions[${transition.elementId}].playState`)), `${transition.elementId}: its restart is said with its awardee and play state`)
     }
-    assert.ok(said.some(i => i.from.includes('possession.team') && i.text === 'The building team starts with the ball'), 'the opening holder, by its role')
+    // Re-pointed 25 October 2026 (P1; his reply filed 28 October 2026, item 6: "The goalkeeper starting play already establishes that the
+    // building team begins in possession."): the opening holder is cited by the sentence saying the building team's goalkeeper starts play,
+    // and the separate "The building team starts with the ball" is no longer said.
+    assert.ok(said.some(i => i.from.includes('possession.team') && i.text.startsWith("The building team's goalkeeper starts play")), 'the opening holder, by the start')
+    assert.ok(!said.some(i => i.text === 'The building team starts with the ball'), 'said once')
     const fixture: any = built.fixture
     const coach = fixture.status.choices.filter((c: any) => String(c.lineId).startsWith('c:provisional:A01-R1:'))
     assert.equal(coach.length, 7)

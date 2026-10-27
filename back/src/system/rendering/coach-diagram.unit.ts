@@ -123,6 +123,9 @@ test('1. A01 at 12/1, 12/2 and 11/1: every viewer is served the checked model in
             { kind: 'TEAM_COLOUR', text: 'team colour, kept in every block' },
             { kind: 'ROLE', text: 'role in this block' },
             { kind: 'ATTACK', text: 'attacking direction' },
+            // Re-pointed 25 October 2026 (Z): the zone version draws the goalkeeper's penalty area (his reply filed 28 October 2026, item 7), a
+            // marked area, named in the legend by its noun (DRAFT), never the target colour.
+            { kind: 'MARKED_AREA', text: 'penalty area' },
         ])
         assert.equal(diagram.blocks.length, 2)
         const setUp = coach.rendered.instructions.filter(instruction => instruction.section === 'Set up').map(instruction => instruction.text.toLowerCase())
@@ -317,7 +320,8 @@ test('4. a D9 failure withholds the diagram only: the activity and its overview 
             // Re-pointed 24 October 2026 (R1): 28 -> 26, the throw-in and end-line sentences withdrawn (his reply filed 27 October 2026, item 4).
             // Re-pointed 24 October 2026 (R2): 26 -> 27, the sentence naming the restarts the activity does not use (dead-ball-wording.unit.ts).
             // Re-pointed 24 October 2026 (R3): 27 -> 28, "There is no offside" (departed-law-wording.unit.ts).
-            assert.equal(answer.rendered.instructions.length, 28)
+            // Re-pointed 25 October 2026 (Z): 28 -> 29, the goalkeeper's penalty area marked at each end (zone-penalty-area.unit.ts).
+            assert.equal(answer.rendered.instructions.length, 29)
             assert.deepEqual(answer.rendered, coach.rendered)
             assert.deepEqual(answer.overview, coach.overview)
             assert.ok(!('diagram' in answer))
@@ -346,6 +350,11 @@ test('5. markings presented block by block (TEST-ONLY 15 m line): each block\'s 
         if (!zone) return
         const item: any = zone.items.find(entry => entry.itemId === 'A01-R1-S5-1')
         item.value = { ...item.value, offsetM: { from: 15, to: 15 }, asAuthored: "TEST-ONLY 15 m from the building team's end line" }
+        // Re-pointed 25 October 2026 (Z): with the line off halfway the markings are presented block by block, and the zone version's penalty area
+        // at the goalkeeper's end (his reply filed 28 October 2026, item 7) would move at the exchange, which no Role exchange words name yet (fidelity
+        // Q5 refuses it, measured); so this TEST-ONLY copy also takes the area's six items out and declares REPORT, as A01-R1 did before Z.
+        zone.items = zone.items.filter(entry => !['A01-R1-S2-2', 'A01-R1-S5-5', 'A01-R1-S6-2', 'A01-R1-S6-3', 'A01-R1-S7-1', 'A01-R1-S5-6'].includes(entry.itemId))
+        if ((zone as any).defaultLawsCheck) (zone as any).defaultLawsCheck = { ...(zone as any).defaultLawsCheck, mode: 'REPORT' }
     }
     const { activity } = inputOf(a01At(12, 1), offsetFifteen)
     const diagram = activity.diagram!

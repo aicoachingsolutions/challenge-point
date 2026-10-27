@@ -493,7 +493,7 @@ export interface Placement {
 export interface Placeable {
     status: string
     from: string[]
-    parts?: { bindings: { path: string; as?: 'REQUIRED_LIMIT' }[] }[]
+    parts?: { bindings: { path: string; as?: 'REQUIRED_LIMIT' | 'WHOLE_FEET' | 'ADJUSTMENT_LIMIT' }[] }[]
 }
 
 /**

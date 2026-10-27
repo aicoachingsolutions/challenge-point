@@ -333,6 +333,11 @@ test('T6. "halfway" with the line at 15 m of 40 is refused; the moved build\'s o
         if (!zone) return
         const item: any = zone.items.find(entry => entry.itemId === 'A01-R1-S5-1')
         item.value = { ...item.value, offsetM: { from: 15, to: 15 }, asAuthored: "TEST-ONLY 15 m from the building team's end line" }
+        // Re-pointed 25 October 2026 (Z): with the line off halfway the markings are presented block by block, and the zone version's penalty area
+        // at the goalkeeper's end (his reply filed 28 October 2026, item 7) would move at the exchange, which no Role exchange words name yet (fidelity
+        // Q5 refuses it, measured); so this TEST-ONLY copy also takes the area's six items out and declares REPORT, as A01-R1 did before Z.
+        zone.items = zone.items.filter(entry => !['A01-R1-S2-2', 'A01-R1-S5-5', 'A01-R1-S6-2', 'A01-R1-S6-3', 'A01-R1-S7-1', 'A01-R1-S5-6'].includes(entry.itemId))
+        if ((zone as any).defaultLawsCheck) (zone as any).defaultLawsCheck = { ...(zone as any).defaultLawsCheck, mode: 'REPORT' }
     }
     const moved = buildActivityUnderAuthorizationRecords(a01At(12, 1), learningGoalAuthorizations(), { alter: offsetFifteen, review: { includeDrafts: true } })
     const activity = moved.activity as ServedActivity

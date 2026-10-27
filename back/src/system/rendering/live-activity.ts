@@ -40,6 +40,7 @@ import { learningGoalAuthorizations, LearningGoalAuthorization, realizationAlter
 import type { TestLibrarySelectionResult } from '../test-library/types'
 import { ActivityReviewBody, reviewActivityBuild } from './activity-review'
 import type { ActivityBuild, InputDigest, RefusedActivity, ServedActivity } from './build-activity'
+import { DraftCoachWording, notCheckedNoticeWording } from './draft-coach-wording'
 import type { StoredSession } from './session-envelope'
 
 /** Which pathway the live route builds a selection by. */
@@ -53,6 +54,71 @@ export const CHECKED_CHAIN: LivePathway = 'CHECKED_CHAIN'
  */
 export function livePathwayOf(selection: Pick<TestLibrarySelectionResult, 'selectionTrace'>): LivePathway {
     return selection.selectionTrace?.constraintPool?.constraintAuthority === 'AUTHORIZATION_RECORD' ? CHECKED_CHAIN : 'GENERATION'
+}
+
+/* ------------------------------------------------------- the status of an activity (the notice) ------------------------------------------------------- */
+
+/**
+ * **What a coach is told beside an activity the checked pathway did not build** — the live-app status notice, 25 October 2026. Christian,
+ * reply filed 26 October 2026, item 9(a): *"The live application should use checked generation whenever an activity has an evaluated,
+ * knowledge-authorized design."* *"Other Learning Goals may continue through their existing pathway during this transitional period, provided
+ * their status and limitations are not misrepresented."*
+ *
+ * Until this, nothing told a coach that an activity of the generation route (written by the model from a game and library constraints the
+ * code chose, held only to structural validators, never to the checked chain) is not checked, and nothing told the checked activity apart from
+ * it. The notice is the short status (`label`, shown where activities are listed) and the words beside the activity, both DRAFT wording data
+ * (`draft-coach-wording.json` notCheckedNotice, validated by its loader): no word of it is written here or in the front, and it is marked DRAFT
+ * where it is served. Null where the wording file carries no usable notice.
+ *
+ * OPEN DECISION (review round 1): where it is null, the generation route serves its activities without a notice (fail-open), while the
+ * checked pathway refuses when its wording is unusable (fail-closed). Whether the generation route should refuse instead is not decided here.
+ */
+export interface PathwayNotice {
+    label: string
+    words: string
+    status: 'DRAFT'
+}
+
+/** The notice beside an activity the checked pathway did not build, from the wording data, or null where it carries none. */
+export function notCheckedNotice(wording?: DraftCoachWording): PathwayNotice | null {
+    const entry = notCheckedNoticeWording(wording)
+    return entry ? { label: entry.label, words: entry.words, status: 'DRAFT' } : null
+}
+
+/**
+ * **The notice for a stored activity, by its recorded pathway and nothing else**: none where it records the checked pathway (the save of a
+ * checked build records CHECKED_CHAIN, and no update writes the pathway, `editableUpdateOf`), the notice otherwise. A generated activity records
+ * no pathway, and neither does any activity saved before this notice, so each is said to be unchecked, which it is. No goal, game or
+ * context is read.
+ */
+export function storedPathwayNotice(activity: { pathway?: unknown } | null | undefined, wording?: DraftCoachWording): PathwayNotice | null {
+    return activity?.pathway === CHECKED_CHAIN ? null : notCheckedNotice(wording)
+}
+
+/** The fields a read of a stored activity adds and the store never holds: no update writes them (`editableUpdateOf`). */
+export const READ_ONLY_FIELDS: readonly string[] = ['pathwayNotice']
+
+/**
+ * **A stored activity as a read serves it**: its own fields, less any field only a read adds, with the notice beside them where its recorded
+ * pathway is not the checked one (`storedPathwayNotice`). The stored copy is not changed. Used by every route that reads activities.
+ */
+export function withPathwayNotice(activity: Record<string, unknown>, wording?: DraftCoachWording): Record<string, unknown> {
+    const own: Record<string, unknown> = {}
+    for (const [key, value] of Object.entries(activity)) if (!READ_ONLY_FIELDS.includes(key)) own[key] = value
+    const notice = storedPathwayNotice(activity, wording)
+    return notice ? { ...own, pathwayNotice: notice } : own
+}
+
+/**
+ * **A stored activity document as the two list routes serve it** (the session's list, `/activity/session/:id`, and the coach's list,
+ * `/activity/my-activities`): the document's own JSON (`toJSON`, exactly what those routes sent before this notice; a plain object is copied),
+ * with the notice beside it by its recorded pathway (`withPathwayNotice`). Exported so a test runs the very body the routes run (review round 1
+ * of the live-app status notice). It takes ONE parameter, so the routes can hand it a list (`activities.map(servedStoredActivity)`) and the
+ * index a map passes never reaches `withPathwayNotice`'s wording parameter.
+ */
+export function servedStoredActivity(document: unknown): Record<string, unknown> {
+    const stored = document as { toJSON?: () => Record<string, unknown> } | null
+    return withPathwayNotice(typeof stored?.toJSON === 'function' ? stored.toJSON() : { ...(document as Record<string, unknown>) })
 }
 
 /** What the live route builds a checked activity from: the guided goal, the situation the coach chose, and the activity's length. */
@@ -317,12 +383,17 @@ export const STORED_BUILD_FIELDS: readonly string[] = ['checkedActivity', 'check
  * key except an update operator (any key beginning `$`: the edit route writes a document, never an operator, and no client sends one) and
  * any key whose first path segment is a stored-build field. Every other key passes exactly as before. Ownership is still not checked on this
  * route, as recorded.
+ *
+ * The live-app status notice (25 October 2026): nor a key whose first path segment is a field only a read adds (`READ_ONLY_FIELDS`, the
+ * notice). The activity review form posts back the activity it read, notice and all; the schema would drop it, and this keeps it so whatever
+ * the schema says, since the notice is the server's reading of the recorded pathway and never the client's.
  */
 export function editableUpdateOf(body: Record<string, unknown>): Record<string, unknown> {
     const update: Record<string, unknown> = {}
     for (const [key, value] of Object.entries(body)) {
         if (key.startsWith('$')) continue
         if (STORED_BUILD_FIELDS.includes(key.split('.')[0])) continue
+        if (READ_ONLY_FIELDS.includes(key.split('.')[0])) continue
         update[key] = value
     }
     return update

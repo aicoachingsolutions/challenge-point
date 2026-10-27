@@ -8959,6 +8959,9 @@ What is served now (the review route and the live route agree; 40 x 30 m; the d2
   AMENDED 24 October 2026 (the completeness audit of the field-test build, item 1): the zone version now also closes its Players sentence with "give the goalkeeper a
   colour neither team wears" (DRAFT), at 12/1, 12/2 and 11/1: the clause is written for LAW-4-GK (IFAB Law 4.3) since, not for the
   handling law. In the goal version the same clause rests on LAW-4-GK too; its words are unchanged.
+  AMENDED 25 October 2026 (P1, his reply filed 28 October 2026, item 3): neither version's Players sentence says the colour any more: each
+  version's equipment sentence (his words in the goal version, our DRAFT mirror in the zone version), first in Set up, tells the goalkeeper
+  apart, citing LAW-4-GK (RC3 3.4: each idea once within a level). See the 25 October P1 entry at the end.
 - Goals not stated: ASKED, every choice offered (26 Oct item 11: never inferred from a goalkeeper). No goalkeeper: refused (both versions).
   Any area other than 40 x 30 m: refused (TESTING_AREA, both versions).
 - The developer runners (`npm run realize -- A01`, `npm run first:game -- A01`) derive the record's first alternative, A01-R2, with no role
@@ -8978,6 +8981,8 @@ What stays open:
 - The 9 m depth, a soft default (design 1.3 (a)): the current FA handbook prints 9 m; The FA's 2012 metric guide gave 8 m, the 2025 edition
   9 yd (8.2296 m). We use 9 m as printed, under his same-source rule. If he asks for The FA to be checked first, the goal version waits on that
   answer; a correction is a one-entry data change.
+  AMENDED 25 October 2026 (P2): he answered (his reply filed 28 October 2026, item 8): the 9 m is PROVISIONAL, kept and applied, not
+  waited on. A correction is still a data change, now two entries held to one value by the loader (the pairing and A01-R2-S5-1). See the P2 entry.
 - Next: V (the verification matrix, the simplicity pins and the field-test observation sheet), then M (merge under the auto-merge rule).
   AMENDED 24 October 2026 (the completeness audit of the field-test build, item 5): both done. V is the next entry; M: pull request #139 merged as 6e38590 and #140 as de7e938.
 
@@ -9012,6 +9017,8 @@ bundles a probe beside a copy of `back/dist/knowledge` and drives the real revie
   the Coach details says what to bring, or the goal's size), and decision 6, two overlapping sentence pairs - "The building team starts
   with the ball" / "The building team's goalkeeper starts play", and "own side of the marked line" / "on the building team's side of the
   marked line". Still no failing test: the words are his to choose.
+  AMENDED 25 October 2026 (P1): he chose (his reply filed 28 October 2026, items 3 and 6); both are built and pinned
+  (`back/src/system/rendering/oct28-refinements.unit.ts`). See the 25 October P1 entry at the end.
 - The field-test observation sheet (4.4): `C:/Users/Administrator/Downloads/codex-output/Field-test observation sheet.txt`, DRAFT,
   for Christian, not coach-facing. Review fix: question 8 asked only whether players wait "near the goal". His 27 Oct item 2 speaks of
   players near "a scoring target", and the earlier discussion it refers to (his 18 Oct item 6) was about players staying beyond the
@@ -9100,11 +9107,169 @@ Known limitations (recorded, not fixed):
 - `front/tests/fixtures/a01.json` (copied from `snap-06.json`) keeps the goal version's roster citation of LAW-12-GK; the served body
   now cites LAW-4-GK. The visible words are the same, and no front test reads the citation; re-copy it from a later snapshot when the
   front tests are next touched.
+  AMENDED 25 October 2026 (P1): re-copied from the P1 snapshot (`P1-impl.json`, same four keys, provenance updated), so it holds the served
+  body since his reply filed 28 October 2026 (the equipment sentence, no exchange sentence in the diagram).
 - Design 4.1 I(d) is not built (a 3.6576 m goal of unstated type with no goalkeeper is asked its type before being refused).
 - Stage Z (goalkeeper handling in the zone version) waits on his answer (27 Oct item 5).
 
 What stays open:
 - His review of every DRAFT coach sentence (the colour clause in the zone version is new to it), and his answers to the 28 October
   email's six decisions.
+  AMENDED 25 October 2026 (P1): he answered them in his reply filed 28 October 2026 (Part 1); items 1, 3, 4, 5, 6, 9 and 11 are built (the
+  P1 entry below); items 2, 7 and 8 are later stages.
 - The front lint backlog (901), and the NumberField label bug.
 - A manual Render deploy of the back end once #141 and this audit are merged.
+
+### 25 October — P1: his reply filed 28 October 2026, Part 1 (items 1, 3, 4, 5, 6, 9, 11), in both versions of Play Out from the Back
+
+His words are in `scratchpad/christian-2026-10-28.txt`; every quotation P1 wrote was byte-checked against it. What a coach reads now (both
+versions, 12/1, 12/2, 11/1; 28 Details each, nothing said twice; fidelity 0; live equals review):
+- Item 1 (restart method). Knowledge: register version 24 adds `TAKER_CHOOSES` to the T5.method list (version 3, with semantics: no
+  method prescribed, the taker chooses among his four); A01-R1-T5-1 holds it (A01-R2 inherits it), the FROM_THE_FEET value, choice, words
+  and evidence kept verbatim in a dated AMENDED line; the notes that said "from the feet" (A01-R2-T4-5, the realization note, three entries
+  of A01's authorization record) carry AMENDED lines. Words: DRAFT data (`draft-coach-wording.json` `methods`): "The building team's
+  goalkeeper restarts play by passing, rolling, throwing or dribbling the ball into play". The A04 fixture re-frozen (digests and the
+  version sentence only).
+- Item 3 (equipment). First in Set up (RC3 5.2 "How do I organize it?"; not in the Overview, whose parameters RC3 4.3 lists as area, players
+  and duration - his to change). Goal version: his sentence verbatim, APPROVED (`approved-coach-wording.json` template EQUIPMENT), "12 × 6
+  ft" read from the cited FA pairing's object in whole feet (bound AS WHOLE_FEET; fidelity admits exactly that conversion at a pairing
+  object leaf, a narrow extension). Zone version: DRAFT "Balls, cones or field markers, and two team colours plus a distinct goalkeeper
+  colour" (`equipment`). Each entry says what the game must hold (`when`); none matches the demonstrations. The goalkeeper's colour is now
+  told by the equipment sentence only (RC3 3.4: our DRAFT roster clause yields to his approved words); fidelity's LAW-4-GK rules accept the
+  equipment's declared words in place of the roster clause, still exactly once; the diagram's marker reads the clause wherever it is said.
+  His sentence spells "color", our DRAFT text "colour": flagged for him.
+- Item 4: "Decide which team builds first" (APPROVED template FIRST_BLOCK_CHOICE, its role BUILDING read from the record), both versions.
+- Item 5: POSSESSION_CONTINUES now his replacement clause ("the same target", the 19 October sentence kept in `superseded`); the slot takes
+  the record's example word for every target that is not a line; the demonstrations keep "line" (DRAFT).
+- Item 6: two general rendering rules. (a) Where a restart group holds the START transition awarded to the team the game names as starting in
+  possession, its lead cites `possession.team` and "The building team starts with the ball" is not said. (b) Where the start placement is
+  said with a restart group, a restart-location bound ending in the taker's team's own side of the marked line (the renderer's own words for
+  it) is said without that clause: goal version "You choose where ... restarts play, consistent with the intended build-out situation"; the
+  game keeps the whole bound; the zone version's bound is said whole. Fidelity Q3 and the first-read test still cover every path (moving the
+  WHEN out of the first read is now refused for `possession.team` too).
+- Item 9: A01-W3 is "If the building team loses possession, it cannot score again until the next goalkeeper restart.", the 20 October
+  sentence kept in `superseded` with his 28 October words; covers and the game's eligibility unchanged (B8 BUILD_OUT_EPISODE); the W3
+  reading's words follow, its approval carried as OUR READING (flagged).
+- Item 11: the coach's diagram carries no exchange sentence (field removed, D9 refuses one); the Role exchange section keeps the procedure.
+- Item 10: no change (no offside, once, in both).
+Evidence: `npm test` FILES 132 FAILED 0 (new `oct28-refinements.unit.ts`; four mutants killed); snapshot `P1-impl.json` vs
+`C/snap-review.json`: 50 keys changed - A01 (text, account notes, digests, evidence, diagram) and the neutral-players demonstration's diagram
+losing its always-empty `exchange: []` key (nothing coach-visible); screenshots `scratchpad/cd/build/p1-shots/`.
+
+### 25 October — P2: his reply filed 28 October 2026, items 2 and 8 (the marked line outside the penalty area; the 9 m depth provisional)
+
+His words are in `scratchpad/christian-2026-10-28.txt`; every quotation P2 wrote was byte-checked against it (`scratchpad/cd/build/review/oct28/p2-bytecheck.cjs`).
+- Item 2, knowledge. A01-R2-S5-2 (his item 2 words): a bound beside the marked line's value, RC-21's existing "beyond X (for team T)" (no new
+  term, no register change), X the penalty area (A01-R2-S2-1), T ROLE_HOLDER_BUILDING. It composes nothing; the line stays 20 m from the
+  building team's end line (A01-R1-S5-1). OUR READING, flagged to him in its fitNote: RC-21's "at or past" lets the line meet the area's far edge
+  (9 m) without entering it, while IFAB Law 1 makes a boundary line part of the area it bounds; "outside" read as this one directional relation.
+- Item 2, validation. GA-RELATIVE-PLACEMENT (unchanged, general) holds the bound on the realized geometry in both blocks: TEST-ONLY, the line at
+  5 m or 8.5 m is refused at validation in both blocks, never falling back to the zone version; at 9 m or 12 m it is served. Without the bound,
+  nothing refuses it: the rule is the knowledge item's, never code naming a line, goal or area.
+- Item 2, the coach's range. `rendering/adjustment-range.ts` (new, sport-neutral) reads the bounds on the line an authorized adjustment moves
+  (the adjustment's role carried as `adjustments[].moves`, from `layoutMoversOf`), on each block's realized geometry, with the direction each
+  bound's team attacks (`team-ends.ts`). The renderer appends DRAFT words (`draft-coach-wording.json` adjustmentLimits) to A01-ADJ-3 in the goal
+  version: "You may choose to move the marked line nearer to either end line, but no nearer than 9 m to the building team's end line, so that it
+  stays outside the penalty area" (9 bound AS ADJUSTMENT_LIMIT; cites the line, `adjustments[A01-ADJ-3].moves`, the area and its pairing depth).
+  Fidelity (tightenings): a limit the bounds give and no sentence says is refused (Q3); a limit said that the bounds do not give, or without the
+  adjustment cited, is refused (Q2 by binding); a bound it cannot read is refused (Q3). The zone version (no bound) says exactly what it said.
+  Generality: a synthetic fixture (other ids, the far end, both directions: limits 8 and 40) and a TEST-ONLY profile with a 12 m depth (the range
+  says 12 m) in `geometry-compatibility.unit.ts`.
+- Item 8. The FA pairing's depth carries `provisional` (status PROVISIONAL, value 9, sources: the current handbook 9 m, the 2025 edition 9 yd =
+  8.2296 m, the 2012 metric guide 8 m; why 9 m is applied; his words), validated by the bound-region loader (closed status list, the pairing's
+  own value, two or more sources, one stating the value). A01-R2-S5-1 restates the depth, so it carries `provisionalFigure` and the realization
+  loader holds the two to one value and one status (a silent restatement, or another value, refused at load: the goal-version depth mutations
+  of 8 m and 10 m are now refused at load, earlier than GA-BOUND-REGION, whose depth clause stays measured with the IFAB pairing). Review
+  evidence: the pairing source says "9 m deep (provisional)" and a depth citation gains a PROVISIONAL source with every source's figure (the
+  Set up box sentence and the new range clause both cite it); the review page's bound-region panel shows "(PROVISIONAL)" and the figure's
+  sources and his words (`ProvisionalFigures`, front test). DECIDED, recorded on the pairing's note: coaches are not told the figure is
+  provisional (a figure's standing is not something a coach would say or act on before starting; RC3 2.3, 3.3); whether pilot coaches should
+  be told is his.
+Evidence: `npm test` FILES 133 FAILED 0 (new `geometry-compatibility.unit.ts`, 11 tests; eight mutants killed, `p2-mutants.cjs`); snapshot
+`P2-impl.json` vs `P1-impl.json`: 31 keys, all A01 (the goal version's adjustment sentence; the A01-ADJ-3 record note and the new provisional
+choice in every A01 account; the goal version's evidence and digests); demos and non-A01 goals unchanged; live A01 equals review A01 for every
+served twin. Front: tests 16 passed, tsc, build; lint 899 (backlog 901). `front/tests/fixtures/a01.json` re-copied from `P2-impl.json`;
+`fa-pairing.json` added. Screenshots `scratchpad/cd/build/p2-shots/` (goal Coach Details at 375 and 1280).
+Open: his ruling on the boundary reading (at 9 m exactly); the zone version's line is held at validation by A01-R1-S5-4 (the pressing team's
+5 m area must lie short of it, OUR READING) but no range is stated there (the range reads bounds on the moved line only); stage Z.
+
+### 25 October — Z: his reply filed 28 October 2026, item 7 (the goalkeeper's handling area in the zone version)
+
+His words are in `scratchpad/christian-2026-10-28.txt`; every quotation Z wrote was byte-checked against the replies (`scratchpad/cd/build/review/oct28/z/z-bytecheck.cjs`).
+- Binding. The area is bound to the goalkeeper's OWN END, never to the pressing team's target: register row S7 gains a second, closed form
+  `{performerEnd: <a specialized performer row of the teams>, pairing, borrows: ["region"]}` (register version 25, versions entry
+  `S7.valueType` 2). The Sport Profile PERMITS it (`BOUND-REGION-PERFORMER-END`: row P3, a zone of the function penalty-area, only where no
+  goal stands at that end; permitted, never required), loader-validated. LAW-12-GK now requires `REGION_OF_PERFORMER {function, row}` (PRESENT
+  for a region bound to an object the P3 team defends, or to that team's end), its old predicate and 'so the zone version still owes this
+  law' kept in a dated AMENDED line; LAW-14 keeps `REGION_BOUND_TO_OBJECT`.
+- Knowledge. A01-R1 holds six OWNER_RULING items (S2-2 the zone; S5-5 the building team's own end 0-9 m, the depth PROVISIONAL with
+  `provisionalFigure`; S6-2 central; S6-3 15 m wide; S7-1 `{performerEnd: P3, pairing: FA-MINI-SOCCER-5V5-2026, borrows: ["region"]}`; S5-6
+  the marked line beyond the area for the building team, his item 2). Its default-laws check is ENFORCE (dated line, 'Was: REPORT.'). A01-R2
+  withdraws the six on his 1b words, keeping its own area at its goal (said byte-identically). His "the same" is pinned: the zone version's
+  area figures equal the goal version's (`zone-penalty-area.unit.ts`). Stale notes carry dated lines (the Sport Profile's boundRegions and
+  LAW-12-GK notes, the register notes, D-DEFAULT-LAWS note and description, A01-ADJ-3).
+- Engine (sport-neutral; ratchets unchanged). `bindingOf` returns OBJECT or PERFORMER_END and every consumer reads it; GA-BOUND-REGION
+  checks an end-bound region per block before and after realization (own end of the team holding the row, the end established by the block,
+  no object of the governing kind at that end, one per row and function per team, depth and width exact, centred, inside the touchlines);
+  the default-laws check reads `REGION_OF_PERFORMER`; fidelity and the draft-wording loader admit the new predicate; the renderer says a
+  mirrored end-bound area once ("at each end" with the one-of-each-end clause); the diagram draws both areas grey with one label.
+- What a coach reads (DRAFT, zone version, 12/1, 12/2, 11/1; 29 Details sentences, nothing said twice, fidelity 0, live equals review on
+  the built bundle; 11/2 and 12/3 served as before, every other size or count refused as before): Set up "Mark a penalty area at each end: 15 m wide, centred on the end line, and 9 m deep into the area; inside the one
+  at the building team's end, the goalkeeper can handle the ball as in a normal game"; How it works "There is no offside; otherwise, normal
+  soccer rules apply during play"; Adjusting "You may choose to move the marked line nearer to either end line, but no nearer than 9 m to
+  the building team's end line, so that it stays outside the penalty area; when the roles exchange, set it out again at the same distance
+  from the new building team's end line". The coach is not told the 9 m is provisional. The goal version says exactly what it said.
+- Scoring and eligibility unchanged (his "Please verify"): each block's game with the area set aside equals the zone version's game before
+  Z; every structural check passes as before; W2 and W3 said as approved; only blockIndex references in the Overview's scoring shift.
+- Mutations refused (TEST-ONLY): off-centre (authored: validation; realized: the check), 8 m depth (load), the end of the team with no
+  goalkeeper (validation, both blocks), two areas for one team (structure), an end binding where a goal stands (the check), no borrows or
+  no pairing (load and the check), the area removed (LAW-12-GK owed, refused under ENFORCE). The goal version with its withdrawal forgotten
+  is refused at structure by derivation collisions (Gate A), before GA-BOUND-REGION is reached.
+- Front: the admin review page's bound-region panel (`BoundRegionEvidence`, exported) shows a performer-end requirement as permitted and
+  its binding as the end of the team holding the row (the old code would have thrown on `requirement.object.kind`); front test with
+  `fixtures/bound-regions.json`. `a01.json` and `fa-pairing.json` re-copied from `Z-impl.json`.
+Evidence: `npm test` FILES 134 FAILED 0 (new `zone-penalty-area.unit.ts`, 10 tests); snapshot `Z-impl.json` vs `P2-impl.json`: 34 of 391
+keys, all A01 (the zone version's three sentences, diagram, evidence; the goal version's LAW-12-GK predicate, digests and register
+version; the amended gap strings in every A01 account); demos and non-A01 goals unchanged. Front: 18 tests, tsc, build; lint 891
+(backlog 901). Screenshots `scratchpad/cd/build/z-shots/`.
+Open: the penalty area overlaps the pressing team's 5 m target zone at the building team's end (0-5 m by 7.5-22.5 m): the scoring rules
+are unchanged, but whether the goalkeeper's handling there changes the pressing team's regains is a design judgment for him. Block-by-
+block marking (a line moved at the exchange) is refused at communication in the zone version when the area must move with the
+goalkeeper (TEST-ONLY copies only; no production configuration does this). The 9 m depth stays provisional (item 8).
+
+### 25 October — Z, review round 1: the zone diagram's targets kept whole, the label on the block's own area, the team words fitted
+
+Fixes the Z review's must-fix and its cheap should-fixes. Scoring, eligibility, knowledge items and every approved sentence are unchanged.
+- Occlusion (must-fix; RC3 1.2 "misrepresent nothing", 8.3 "Each block's view emphasizes its active scoring objectives over other marked
+  zones"). Since Z both penalty areas of the zone version lie on active target zones in both blocks: the pressing team's 5 m end zone at
+  one end, the building team's zone at the other. `FieldDiagram.tsx` drew the areas' opaque grey fill over the targets. It now draws each
+  area's fill FIRST, then the targets (fill and green edge, whole), then the areas' grey edges with the other markings. An area on a target
+  shows as its grey edge on the green (3.99:1). The Stage L comment's "the two never overlap" carries a dated AMENDED line. Where any area
+  lies on a target, the legend's swatch shows the area both ways (half grey, half green, in its grey edge); otherwise it is as before.
+- Label (should-fix; RC3 8.3 "carries no label about another block"; his item 11). `labelledRectangleOf` (`field-diagram.ts`) now labels a
+  region set out at each end on the rectangle THIS block's own game holds it in. That is the building team's end, where its goalkeeper
+  handles. It was the first rectangle in every block, which in block 2 labelled the inert area. D6 holds it per block. D3 compares the
+  markings set out once without the areas' labels (each block labels its own); every place, line, zone and other word is still compared.
+  Dated AMENDED comments. The goal version (one rectangle in both blocks) is unchanged.
+- Crowding (should-fix; RC3 8.4). A team's words now keep `WORDS.gap` clear of marked zones, marked areas, zone labels and their own dashed
+  starting area. Widths are measured in the page's font where the browser can (OffscreenCanvas) and estimated in tests. The role badge is as
+  wide as its words. Where the words do not fit: upright, every badge sits beside its label; lying down, every team's words shrink alike
+  (never below 0.8), and a count wraps only if still too wide. Zone labels have a target-green halo. No word changes.
+- Spelling (should-fix): the zone version's DRAFT equipment sentence is spelled as his approved goal-version sentence ("two team colors
+  plus a distinct goalkeeper color"), with its distinguishing words. The old text is kept in a dated AMENDED line in the wording file's
+  `about`. It is still DRAFT. Tests that looked for 'colour' alone now look for either spelling.
+Evidence: `npm test` FILES 134 FAILED 0 (`zone-penalty-area.unit.ts` gains the label per block and a TEST-ONLY mutation test: the label on
+the other block's area, no label, a label on both, an area moved in one block, each refused). Snapshot `Z-fix1.json` vs `P2-impl.json`:
+34 of 391 keys, all A01. Against `Z-impl.json`: 15 keys, all A01 zone-version twins (`objects-none`, `objects-one`, `answered-none`,
+`IFAB-LAW-1`): block 2's two area labels swap, and the equipment sentence's spelling changes. The goal version (FA 5v5), the demos and every
+other goal are unchanged. Live equals review for all 10 twins. Front: 23 tests (5 new, on the new
+`fixtures/zone-diagram.json`: render order and geometry, the legend swatch, the team words clear of the areas, in both orientations; all
+five fail on the Z diagram), tsc (prod and test), build; lint 891 (backlog 901; the changed files at their baseline of 29 max-len
+warnings). Screenshots `scratchpad/cd/build/zf-shots/` (both versions, both blocks, 375 and 1280, and the zone Coach Details at 375). The
+harness found no occlusion, no crowding and no text overlap in any of the eight diagram views.
+Open: (1) the moved line toward the far end: with an area at each end, a line moved more than 31 m from the building team's end line lies
+inside the other end's (inert) penalty area. A01-R1-S5-6's fitNote records this as unvalidated, and ADJ-3 states no far-side limit. Whether
+that is incompatible geometry under his item 2 is his question; it is put to him, and nothing is added. (2) The zone diagram still draws
+no goalkeeper marker and has no "goalkeeper: own colour" legend entry. A marker is placed with the goal its performer defends, and the
+zone version has none. Placing one in the area bound to the goalkeeper's end would be a new placement rule (model keys, D2 checks, the
+front), so it is deferred, not done here.

@@ -27,6 +27,7 @@ import PracticeReportPrompt from '@/components/PracticeReportPrompt'
 import Button from '@/components/Button'
 import Loading from '@/components/Loading'
 import Modal from '@/components/Modal'
+import PathwayNotice from '@/components/PathwayNotice'
 import ActivityReviewForm from '@/forms/ActivityReviewForm'
 import { ActivityBlock } from './CheckedActivityBlock'
 
@@ -95,6 +96,11 @@ export default function ActivityPage() {
     return (
         <div className='flex flex-col gap-5 px-2 py-6'>
             <h2 className='pb-2 mb-5 text-xl font-semibold text-gray-800 border-b border-gray-200'>{activity?.title}</h2>
+            {/*
+              * The live-app status notice (25 October 2026): the server sends it with a saved activity the checked pathway did not build (one
+              * saved before the notice included), never with a checked one; shown as sent, whatever the activity's status.
+              */}
+            <PathwayNotice notice={activity?.pathwayNotice} />
 
             {(activity?.activityStatus === ActivityStatus['In Progress'] ||
                 activity?.activityStatus === ActivityStatus['Ready to Start']) && (

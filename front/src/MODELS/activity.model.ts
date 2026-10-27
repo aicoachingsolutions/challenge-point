@@ -39,6 +39,18 @@ export interface IPointsScored {
     points: number
 }
 
+/**
+ * **The status beside an activity the checked pathway did not build** — the live-app status notice, 25 October 2026 (Christian, reply filed
+ * 26 October 2026, item 9(a): "provided their status and limitations are not misrepresented"). Sent by the server, never written here: with the
+ * live route's generated activities (`pathwayNotice` beside them) and with every read of a saved activity not recorded as built by the checked
+ * pathway. `label` is the short status, `words` the notice; both DRAFT wording data, said whole.
+ */
+export interface IPathwayNotice {
+    label: string
+    words: string
+    status: 'DRAFT'
+}
+
 export interface ISystemTrace {
     primaryAffordanceId: string
     secondaryAffordanceId?: string
@@ -83,6 +95,8 @@ export interface IActivity {
      */
     pathway?: 'CHECKED_CHAIN'
     checkedActivity?: ServedActivity
+    /** The server's notice where the checked pathway did not build this activity (a read adds it; it is never stored). Absent on a checked one. */
+    pathwayNotice?: IPathwayNotice
     createdAt: Date
     updatedAt: Date
 }

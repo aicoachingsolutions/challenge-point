@@ -76,8 +76,20 @@ type Block = { blockId: string; fixture: any }
 const blocks: Block[] = ((built.fixture as any).roleBlocks.blocks as any[]).map(block => ({ blockId: block.blockId, fixture: block.fixture }))
 /** A block as it was before the layout or what moves was attached. */
 const bare = (entry: Block): Block => ({ blockId: entry.blockId, fixture: { ...entry.fixture, layout: undefined, remarking: undefined } })
+/**
+ * TEST-ONLY (Z, 25 October 2026): a block without the zone version's penalty area (his reply filed 28 October 2026, item 7), for the geometry
+ * cases written before it that move only the lines and zones: left in, the area is a rectangle set out once, so the layout would apply.
+ */
+const withoutZoneArea = (entry: Block): Block => {
+    const fixture = copy(entry.fixture)
+    fixture.game.space.regions = fixture.game.space.regions.filter((region: any) => region.elementId !== 'c:provisional:A01-R1:A01-R1-S2-2')
+    fixture.status.geometry = fixture.status.geometry.filter((g: any) => !g.path.startsWith('space.regions[c:provisional:A01-R1:A01-R1-S2-2]'))
+    return { blockId: entry.blockId, fixture }
+}
 const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value))
 const LINE = 'c:provisional:A01-R1:A01-R1-S2-1'
+/** Z (25 October 2026): the zone version's penalty area at the goalkeeper's end, his reply filed 28 October 2026, item 7. */
+const ZONE_AREA = 'c:provisional:A01-R1:A01-R1-S2-2'
 const NEAR = 'c:restated:GF2:GF2-03.e'
 const FAR = 'c:restated:GF2:GF2-03.f'
 const along = (id: string) => `space.regions[${id}].position.along`
@@ -102,6 +114,11 @@ const offsetFifteen = (contracts: LoadedContract[]) => {
     if (!zone) return
     const item: any = zone.items.find(entry => entry.itemId === 'A01-R1-S5-1')
     item.value = { ...item.value, offsetM: { from: 15, to: 15 }, asAuthored: 'TEST-ONLY 15 m from the building team\'s end line' }
+    // Re-pointed 25 October 2026 (Z): with the line off halfway the markings are presented block by block, and the zone version's penalty area
+    // at the goalkeeper's end (his reply filed 28 October 2026, item 7) would move at the exchange, which no Role exchange words name yet (fidelity
+    // Q5 refuses it, measured); so this TEST-ONLY copy also takes the area's six items out and declares REPORT, as A01-R1 did before Z.
+    zone.items = zone.items.filter(entry => !['A01-R1-S2-2', 'A01-R1-S5-5', 'A01-R1-S6-2', 'A01-R1-S6-3', 'A01-R1-S7-1', 'A01-R1-S5-6'].includes(entry.itemId))
+    if ((zone as any).defaultLawsCheck) (zone as any).defaultLawsCheck = { ...(zone as any).defaultLawsCheck, mode: 'REPORT' }
 }
 const fifteen = buildActivityUnderAuthorizationRecords(a01, learningGoalAuthorizations(), { alter: offsetFifteen })
 const fifteenServed = fifteen.activity as ServedActivity
@@ -164,6 +181,10 @@ function onFiftyMetres(): Block[] {
         fixture.envelope.lengthM = 50
         fixture.game.envelope.area.length_m = 50
         for (const g of fixture.status.geometry) if (geometry[g.path]) g.geometry.interval = { from: geometry[g.path][n][0], to: geometry[g.path][n][1] }
+        // Re-pointed 25 October 2026 (Z): the zone version's penalty area (his reply filed 28 October 2026, item 7) is taken out of this TEST-ONLY
+        // copy, whose lengths it was never rescaled to: what this case reads is the line and the zone. Was: no such region.
+        fixture.game.space.regions = fixture.game.space.regions.filter((region: any) => region.elementId !== ZONE_AREA)
+        fixture.status.geometry = fixture.status.geometry.filter((g: any) => !g.path.startsWith(`space.regions[${ZONE_AREA}]`))
         return { blockId: block.blockId, fixture }
     })
 }
@@ -199,7 +220,8 @@ test('2. TEST-ONLY 50 x 30 m: inadmissible, why is said, and what moves is read 
     // Lines only on the end lines (TEST-ONLY: every region degenerate at an end): the area's own edges, so nothing is set out and none is owed a reason.
     // Re-pointed 23 October 2026 (stage C): the blocks were read and nothing moves, so the account of what moves is given, empty (it was null,
     // which could not be told from "not read"; the exchange then said the markings are set out again whether or not anything moved).
-    const endLines = blocks.map(bare).map(entry => {
+    // Re-pointed 25 October 2026 (Z): without the zone version's penalty area (`withoutZoneArea`), which this case does not move.
+    const endLines = blocks.map(bare).map(withoutZoneArea).map(entry => {
         const fixture = copy(entry.fixture)
         for (const g of fixture.status.geometry) {
             if (g.path === along(LINE) || g.path === along(NEAR)) g.geometry.interval = { from: 0, to: 0 }
@@ -428,7 +450,10 @@ test('7. Q5-L with a layout: every mark and zone said, each region denoted once 
     }
     // (f) The adjustment that moves the line without its consequence (TEST-ONLY): refused.
     const moving = rendered.instructions.find(i => i.from.includes('layout.movedBy[A01-ADJ-3]') && i.section !== ROLE_EXCHANGE)!
-    assert.equal(moving.text, "You may choose to move the marked line nearer to either end line; it is measured from the building team's end line, so when the roles exchange, set it out again at the same distance from the new building team's end line")
+    // Re-pointed 25 October 2026 (Z): the zone version's line is kept outside its penalty area (A01-R1-S5-6, his reply filed 28 October 2026,
+    // items 2 and 7), so the limit is said, naming the building team's end line, and the consequence does not name it again (RC3 3.4). Was:
+    // "...; it is measured from the building team's end line, so when the roles exchange, ...".
+    assert.equal(moving.text, "You may choose to move the marked line nearer to either end line, but no nearer than 9 m to the building team's end line, so that it stays outside the penalty area; when the roles exchange, set it out again at the same distance from the new building team's end line")
     const bareChoice = rendered.instructions.map(i => (i === moving ? { ...i, text: i.parts![0].text, from: i.parts![0].from, parts: [i.parts![0]] } : i))
     assert.ok(q5(fixture, { ...rendered, instructions: bareChoice }).includes('A01-ADJ-3 moves a mark set out once, and its sentence does not say what that means when the roles exchange'))
     // (g) "Set out again" put back (TEST-ONLY): the block-by-block exchange in a layout set out once is refused, by citation and by words.
@@ -495,6 +520,10 @@ test('9. the composition pairs the target sentences under the role pairing and t
     assert.deepEqual([...pairing.entries()].filter(([from]) => from.startsWith('layout.')).sort(), [
         ['layout.marks[mark-1]', 'layout.marks[mark-3]'],
         ['layout.marks[mark-3]', 'layout.marks[mark-1]'],
+        // Re-pointed 25 October 2026 (Z): the zone version's penalty area set out at each end (his reply filed 28 October 2026, item 7), its two
+        // rectangles each other's mirror along the length, as the end zones are.
+        ['layout.rectangles[rectangle-1]', 'layout.rectangles[rectangle-2]'],
+        ['layout.rectangles[rectangle-2]', 'layout.rectangles[rectangle-1]'],
         ['layout.zones[zone-1]', 'layout.zones[zone-2]'],
         ['layout.zones[zone-2]', 'layout.zones[zone-1]'],
     ])

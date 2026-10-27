@@ -115,9 +115,10 @@ const verdicts = (check: any) => check.clauses.map((clause: any) => [clause.verd
 
 // ── 1. The register ─────────────────────────────────────────────────────────────────────────────────────
 test('register version 23: row RP1 and its list, the block classing every trigger once, the two triggers and their semantics', () => {
-    assert.ok(String(register.version).startsWith('23, adds one restart for every dead ball, for his reply filed 27 October 2026, item 4'))
+    assert.ok(String(register.version).includes('Supersedes version 23, which adds one restart for every dead ball, for his reply filed 27 October 2026, item 4'), 'version 23 is kept, beneath version 24 (P1, 25 October 2026)')
     assert.ok(String(register.version).includes('Supersedes version 22, which adds the type a session states for its objects of a kind'))
-    assert.ok(!String(register.version).includes('Supersedes version 23'), 'version 23 is the current entry')
+    assert.ok(String(register.version).startsWith('25, adds a second, closed form to the bound-object row, for his reply filed 28 October 2026, item 7') && !String(register.version).includes('Supersedes version 25'), 'version 25 is the current entry (Z, 25 October 2026)')
+    assert.equal(String(register.version).split('Supersedes version 24, which adds one member to the restart-method list').length - 1, 1, 'version 24 (P1) superseded once, by version 25 (Z)')
     const row = index.rows.get('RP1')!
     assert.deepEqual([row.path, row.kind, row.ownerRow ?? null], ['restartPolicy.deadBall', 'FIELD', null])
     assert.deepEqual(index.vocabularies.get('RP1.deadBall'), ['PER_TRIGGER', 'COMMON'])

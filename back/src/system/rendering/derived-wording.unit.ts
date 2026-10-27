@@ -134,9 +134,12 @@ test('1. Coach Details: each sentence\'s status is the rule\'s as before, now na
             assert.equal(instruction.wording, before, `${what}: ${instruction.text}`)
             assert.equal(instruction.wordingSource === null, instruction.wording === 'DRAFT', `${what}: a source exactly where approved`)
         }
+        // Re-pointed 25 October 2026 (P1): his reply filed 28 October 2026, item 4, "Decide which team builds first." (FIRST_BLOCK_CHOICE), is
+        // approved and said first, in Set up; the zone version's equipment sentence is DRAFT (his item 3: its own requirements), so not here.
         assert.deepEqual(
             instructions.filter(i => i.wording === 'APPROVED').map(i => [i.wordingSource, i.text === W1.sentence || i.text === W2.sentence || i.text === W3.sentence]),
             [
+                [{ kind: 'APPROVED_TEMPLATE', id: 'FIRST_BLOCK_CHOICE' }, false],
                 [{ kind: 'APPROVED_TEMPLATE', id: 'POSSESSION_CONTINUES' }, false],
                 [{ kind: 'APPROVED_ENTRY', id: 'A01-W1' }, true],
                 [{ kind: 'APPROVED_ENTRY', id: 'A01-W3' }, true],
@@ -154,7 +157,10 @@ test('1. Coach Details: each sentence\'s status is the rule\'s as before, now na
         }
     }
     // At the function: his template sentence word for word (no final full stop) is approved; filled with any other value it is DRAFT.
-    assert.deepEqual(detailsWordingOf('When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone', []), { wording: 'APPROVED', source: { kind: 'APPROVED_TEMPLATE', id: 'POSSESSION_CONTINUES' } })
+    // Re-pointed 25 October 2026 (P1): his sentence is now the 28 October one ("the same target", item 5); the 19 October one ("the same zone")
+    // is kept superseded in the record and never matched, so it is DRAFT if anything says it.
+    assert.deepEqual(detailsWordingOf('When possession changes, play carries on without a stoppage, and each team keeps attacking the same target', []), { wording: 'APPROVED', source: { kind: 'APPROVED_TEMPLATE', id: 'POSSESSION_CONTINUES' } })
+    assert.deepEqual(detailsWordingOf('When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone', []), { wording: 'DRAFT', source: null })
     assert.deepEqual(detailsWordingOf('When possession changes, play carries on without a stoppage, and each team keeps attacking the same line', []), { wording: 'DRAFT', source: null })
     assert.deepEqual(detailsWordingOf('TEST-ONLY words', [{ id: 'T', text: 'TEST-ONLY words', from: [] }]), { wording: 'APPROVED', source: { kind: 'APPROVED_ENTRY', id: 'T' } })
 })

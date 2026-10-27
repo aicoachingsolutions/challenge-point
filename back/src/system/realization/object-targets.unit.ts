@@ -100,7 +100,7 @@ test('register version 17 holds the rows as data, in one versions entry quoting 
     // Re-pointed 23 October 2026 (H3): version 21 (a region bound to an object, his reply filed 26 October 2026, item 7) supersedes 20.
     // Re-pointed 23 October 2026 (H4): version 22 (the type a session states for its objects, his reply filed 26 October 2026, item 4) supersedes 21.
     // Re-pointed 24 October 2026 (R1): version 23 (one restart for every dead ball, his reply filed 27 October 2026, item 4) supersedes 22.
-    assert.ok(latest.startsWith('23, adds one restart for every dead ball, for his reply filed 27 October 2026, item 4'))
+    assert.ok(latest.includes('Supersedes version 23, which adds one restart for every dead ball, for his reply filed 27 October 2026, item 4'), 'version 23 is kept, beneath version 24 (P1, 25 October 2026)')
     assert.ok(latest.includes('Supersedes version 22, which adds the type a session states for its objects of a kind, for his reply filed 26 October 2026, item 4'))
     assert.ok(latest.includes('Supersedes version 21, which adds a region bound to an object, for his reply filed 26 October 2026, item 7'))
     assert.ok(latest.includes('Supersedes version 20, which records his rulings filed 26 October 2026 for the goal version of the build-out activity'))
@@ -110,7 +110,8 @@ test('register version 17 holds the rows as data, in one versions entry quoting 
     assert.equal(latest.split('Supersedes version 20, ').length - 1, 1, 'version 20 superseded once, by version 21 (H3)')
     assert.equal(latest.split('Supersedes version 21, ').length - 1, 1, 'version 21 superseded once, by version 22 (H4)')
     assert.equal(latest.split('Supersedes version 22, ').length - 1, 1, 'version 22 superseded once, by version 23 (R1)')
-    assert.ok(!latest.includes('Supersedes version 23'), 'version 23 is the current entry')
+    assert.ok(latest.startsWith('25, adds a second, closed form to the bound-object row, for his reply filed 28 October 2026, item 7') && !latest.includes('Supersedes version 25'), 'version 25 is the current entry (Z, 25 October 2026)')
+    assert.equal(latest.split('Supersedes version 24, which adds one member to the restart-method list').length - 1, 1, 'version 24 (P1) superseded once, by version 25 (Z)')
     const full = `17, ${latest.split('Supersedes version 17, which ')[1]}`
     assert.ok(full.startsWith('17, adds object targets and the geometry a goal needs, for his reply filed 25 October 2026, item 3'))
     for (const quote of HIS_ITEM_3) assert.ok(full.split('Supersedes version 16, ')[0].includes(`"${quote}"`), quote)
@@ -288,8 +289,13 @@ const P = 'provisional:A01-R1'
 const GF2 = 'restated:GF2'
 const RPC = 'restated:RPC-001'
 const SUPERSEDED = [`${GF2}::GF2-19`, `${GF2}::GF2-03.b`, `${GF2}::GF2-06.a`, `${RPC}::RPC-001-08.a`]
-/** The design's F2 withdrawals from A01-R1 (S5-3, S5-4, V27-1, V29-1, V30-1, V31-1, T4-4), TEST-ONLY here. */
-const WITHDRAW = ['A01-R1-S5-3', 'A01-R1-S5-4', 'A01-R1-V27-1', 'A01-R1-V29-1', 'A01-R1-V30-1', 'A01-R1-V31-1', 'A01-R1-T4-4']
+/**
+ * The design's F2 withdrawals from A01-R1 (S5-3, S5-4, V27-1, V29-1, V30-1, V31-1, T4-4), TEST-ONLY here. Re-pointed 25 October 2026 (Z): and
+ * the zone version's penalty area at the goalkeeper's end (its six items, his reply filed 28 October 2026, item 7), which a goal standing at
+ * that end cannot keep (GA-BOUND-REGION refuses it, measured: "where a goal stands, its own requirement governs"), as the real goal version
+ * withdraws it.
+ */
+const WITHDRAW = ['A01-R1-S5-3', 'A01-R1-S5-4', 'A01-R1-V27-1', 'A01-R1-V29-1', 'A01-R1-V30-1', 'A01-R1-V31-1', 'A01-R1-T4-4', 'A01-R1-S2-2', 'A01-R1-S5-5', 'A01-R1-S6-2', 'A01-R1-S6-3', 'A01-R1-S7-1', 'A01-R1-S5-6']
 const TEST_RELATIONSHIP = {
     id: 'TEST-ONLY-SCORING',
     category: 'CONTEXT_SCORING_RELATIONSHIP',
@@ -387,6 +393,9 @@ const goalBuildWhole = (options: GoalOptions = {}): { activity: ServedActivity |
                 const p = contract(P)
                 ;(p as any).objectSuitability = [{ kind: 'goal', widthM: { min: 1, max: 30 }, ruledOn: 'TEST-ONLY', by: 'TEST-ONLY', citedAs: 'TEST-ONLY', words: ['TEST-ONLY'] }]
                 p.items = p.items.filter(i => !WITHDRAW.includes(i.itemId))
+                // Z (25 October 2026): without its penalty area this TEST-ONLY copy owes the goalkeeper's handling (no area belongs to the
+                // goalkeeper's team), so it is reported, as A01-R1 was before Z, never refused under the ENFORCE A01-R1 now declares.
+                if ((p as any).defaultLawsCheck) (p as any).defaultLawsCheck = { ...(p as any).defaultLawsCheck, mode: 'REPORT' }
                 p.items.push(
                     testItem('TEST-GOAL', 'O1', 'kind=goal', 'EXISTS', 'N/A'),
                     testItem('TEST-GOAL-ALONG', 'O4', 'kind=goal', 'POSITIONED', options.along ?? { ...ownEndOf('ROLE_HOLDER_BUILDING'), asAuthored: 'TEST-ONLY on the building team end line' }),
@@ -528,7 +537,8 @@ test('integration review fix (TEST-ONLY goal version): no sentence calls a targe
         for (const instruction of activity.rendered.instructions) {
             for (const pattern of [...LINE_WORDS, ...TARGET_AS_LINE]) assert.ok(!pattern.test(instruction.text), `${ends}: "${instruction.text}" calls a target a line`)
             // The carrier: the target object is never what the teams start with, put out of play or restart with.
-            assert.ok(!/\bstarts with the goal\b|\bthe goal goes out\b|\bthe goal still or moving\b|\btouch the goal last\b/.test(instruction.text), `${ends}: "${instruction.text}" plays with the target object`)
+            // P1 (25 October 2026): and the restart method's words ("... or dribbling the [object] into play") never name the target object.
+            assert.ok(!/\bstarts with the goal\b|\bthe goal goes out\b|\bthe goal still or moving\b|\btouch the goal last\b|\bthe goal into play\b/.test(instruction.text), `${ends}: "${instruction.text}" plays with the target object`)
         }
         assert.deepEqual(activity.rendered.withheld, [], `${ends}: nothing is withheld`)
         const target = activity.rendered.instructions.find(instruction => instruction.text === "The pressing team's target is the goal")
@@ -539,7 +549,9 @@ test('integration review fix (TEST-ONLY goal version): no sentence calls a targe
         const referenced = new Set(((blockFixture?.game?.objectives ?? []) as any[]).map(o => o?.reference?.structuralRef).filter(Boolean).map((ref: any) => `c:${ref.contractId}:${ref.itemId}`))
         const played = ((blockFixture?.game?.objects ?? []) as any[]).find(object => typeof object?.kind === 'string' && !referenced.has(String(object.elementId)))
         assert.ok(played && played.kind !== 'goal', `${ends}: the played object is read`)
-        assert.ok(activity.rendered.instructions.some(instruction => instruction.text.includes(`starts with the ${played.kind}`)), `${ends}: ${activity.rendered.instructions.map(i => i.text).join(' | ')}`)
+        // Re-pointed 25 October 2026 (P1; his reply filed 28 October 2026, item 6): "The building team starts with the [object]" is no longer said
+        // where the start says it, so the played object is read where the restart sentence names it ("... whenever the [object] is dead").
+        assert.ok(activity.rendered.instructions.some(instruction => instruction.text.includes(`the ${played.kind}`) && instruction.from.includes(`objects[${played.elementId}].kind`)), `${ends}: ${activity.rendered.instructions.map(i => i.text).join(' | ')}`)
     }
     // Under KEPT (no draft: block 2 is refused before realization) block 1 still withholds the object target's reference.
     const kept = reasonsOf(goalBuild(), BLOCK_1)

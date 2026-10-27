@@ -1,15 +1,19 @@
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { ActivityReviewRequest, ServedActivity } from '@/MODELS/activity-review.model'
+import type { ActivityReviewRequest, CoachDiagram, ServedActivity } from '@/MODELS/activity-review.model'
 import { ActivityBlock } from '@/app/CheckedActivityBlock'
 import FieldDiagram from '@/app/FieldDiagram'
-import ActivityReviewPage from '@/app/ActivityReviewPage'
+import ActivityReviewPage, { BoundRegionEvidence, ProvisionalFigures } from '@/app/ActivityReviewPage'
+import type { ReviewBoundRegionAccount, ReviewBoundRegionPairing } from '@/MODELS/activity-review.model'
 import SessionForm from '@/forms/SessionForm'
 import { NumberField } from '@/form-control/fields'
 
 import fixture from './fixtures/a01.json'
+import faPairingFixture from './fixtures/fa-pairing.json'
+import boundRegionsFixture from './fixtures/bound-regions.json'
+import zoneDiagramFixture from './fixtures/zone-diagram.json'
 
 // Only authentication is replaced. FormWrapper, fields, resource hooks, API serialization,
 // and the review question all run unchanged; fetch is the offline server boundary below.
@@ -206,6 +210,119 @@ describe('FieldDiagram', () => {
     })
 })
 
+// The Z review, round 1 (25 October 2026): the zone version's diagram, whose two penalty areas lie on active target zones in both blocks.
+const zoneDiagram = zoneDiagramFixture.diagram as unknown as CoachDiagram
+const overlapping = (a: Interval, b: Interval) => a.from < b.to && b.from < a.to
+const boxesMeet = (a: Box, b: Box) =>
+    Math.min(a.x + a.width, b.x + b.width) > Math.max(a.x, b.x) && Math.min(a.y + a.height, b.y + b.height) > Math.max(a.y, b.y)
+const boxInside = (a: Box, b: Box) => a.x >= b.x && a.y >= b.y && a.x + a.width <= b.x + b.width && a.y + a.height <= b.y + b.height
+const follows = (first: Element, second: Element) => (first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0
+const atWidth = (width: number) =>
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({
+        x: 0, y: 0, left: 0, top: 0, right: width, bottom: 600, width, height: 600, toJSON: () => ({}),
+    })
+// A drawn text's box from its own attributes, at FieldDiagram's documented width estimate (0.55 of the font size per character).
+const textBox = (element: Element): Box => {
+    const size = number(element, 'font-size')
+    const width = (element.textContent ?? '').length * size * 0.55
+    const x = number(element, 'x')
+    const left = element.getAttribute('text-anchor') === 'start' ? x : x - width / 2
+    const y = number(element, 'y')
+    // Centred on y, or on a baseline at y with 0.8 of the size above it and 0.2 below.
+    const top = element.getAttribute('dominant-baseline') === 'central' ? y - size / 2 : y - size * 0.8
+    return { x: left, y: top, width, height: size }
+}
+
+describe('FieldDiagram: marked areas on active target zones (the zone version)', () => {
+    it.each([800, 400])('paints no area fill over an active target, and keeps each area\'s grey edge over it, at container width %i', (width) => {
+        atWidth(width)
+        render(<FieldDiagram diagram={zoneDiagram} />)
+        let met = 0
+        for (const block of zoneDiagram.blocks) {
+            fireEvent.click(screen.getByRole('tab', { name: block.label }))
+            const svg = screen.getByRole('img', { name: block.title })
+            const areas = block.areas ?? []
+            const zones = block.targets.filter((target) => !target.line)
+            const areaFills = Array.from(svg.querySelectorAll('rect[fill="#e5e7eb"]'))
+            const targetFills = Array.from(svg.querySelectorAll('rect[fill="#bbf7d0"]'))
+            const greenEdges = Array.from(svg.querySelectorAll('rect[fill="none"][stroke="#15803d"]'))
+            const outlines = Array.from(svg.querySelectorAll('rect[fill="none"][stroke="#6b7280"]'))
+            expect(areaFills).toHaveLength(areas.length)
+            expect(targetFills).toHaveLength(zones.length)
+            // By render order: no area fill is painted after any target's fill or green edge, so no part of an active target is hidden.
+            for (const fill of areaFills) for (const mark of [...targetFills, ...greenEdges]) expect(follows(fill, mark)).toBe(true)
+            // By the data and the geometry drawn: each area lying on a target keeps its grey edge, drawn after the target, so it stays visible.
+            for (const [i, area] of areas.entries()) {
+                const edge = outlines.find((outline) => JSON.stringify(roundBox(box(outline))) === JSON.stringify(roundBox(box(areaFills[i]))))
+                expect(edge).toBeDefined()
+                for (const [j, zone] of zones.entries()) {
+                    if (!overlapping(area.along, zone.along) || !overlapping(area.across, zone.across)) continue
+                    met++
+                    expect(boxesMeet(box(areaFills[i]), box(targetFills[j]))).toBe(true)
+                    expect(follows(targetFills[j], edge)).toBe(true)
+                }
+            }
+            // One area label in each block, drawn inside the area the data labels.
+            const labelled = areas.filter((area) => area.label)
+            expect(labelled).toHaveLength(1)
+            const drawn = within(svg).getAllByText(labelled[0].label, { selector: 'text' })
+            expect(drawn).toHaveLength(1)
+            const at = areaFills[areas.indexOf(labelled[0])]
+            const [x, y] = [number(drawn[0], 'x'), number(drawn[0], 'y')]
+            expect(boxInside({ x, y, width: 0, height: 0 }, box(at))).toBe(true)
+        }
+        // The case this test exists for: an area on a target in every block.
+        expect(met).toBeGreaterThanOrEqual(zoneDiagram.blocks.length)
+    })
+
+    it('shows the marked area in the legend both ways where it lies on a target, and as before where it does not', () => {
+        render(<FieldDiagram diagram={zoneDiagram} />)
+        const text = zoneDiagram.legend.find((entry) => entry.kind === 'MARKED_AREA')!.text
+        // The legend's entry (the drawing labels an area with the same words).
+        const legendSwatch = (words: string) =>
+            screen.getAllByText(words).map((element) => element.closest('li')).find(Boolean)!.querySelector('svg')!
+        const swatch = legendSwatch(text)
+        expect(swatch.querySelector('rect[fill="#e5e7eb"]')).not.toBeNull()
+        expect(swatch.querySelector('rect[fill="#bbf7d0"]')).not.toBeNull()
+        expect(swatch.querySelector('rect[fill="none"][stroke="#6b7280"]')).not.toBeNull()
+        cleanup()
+        // The goal version's area lies on no active target zone: its swatch is the grey area alone.
+        render(<FieldDiagram diagram={diagram} />)
+        const goalText = diagram.legend.find((entry) => entry.kind === 'MARKED_AREA')!.text
+        const goalSwatch = legendSwatch(goalText)
+        expect(goalSwatch.querySelector('rect[fill="#e5e7eb"]')).not.toBeNull()
+        expect(goalSwatch.querySelector('rect[fill="#bbf7d0"]')).toBeNull()
+    })
+
+    it.each([800, 400])('keeps each team\'s words clear of the marked areas and inside their dashed starting area at container width %i', (width) => {
+        atWidth(width)
+        for (const shown of [zoneDiagram, diagram]) {
+            render(<FieldDiagram diagram={shown} />)
+            for (const block of shown.blocks) {
+                fireEvent.click(screen.getByRole('tab', { name: block.label }))
+                const svg = screen.getByRole('img', { name: block.title })
+                const areaBoxes = Array.from(svg.querySelectorAll('rect[fill="#e5e7eb"]'), box)
+                for (const team of block.teams) {
+                    const word = within(svg).getByText(team.label, { selector: 'text' })
+                    const group = word.parentElement
+                    const dashed = Array.from(svg.querySelectorAll('rect[stroke-dasharray]'))
+                        .find((rect) => rect.getAttribute('stroke') === group.getAttribute('fill'))!
+                    const pieces = [
+                        ...Array.from(group.querySelectorAll(':scope > text'), textBox),
+                        ...Array.from(group.querySelectorAll(':scope > g > rect'), box),
+                    ]
+                    expect(pieces.length).toBeGreaterThanOrEqual(3)
+                    for (const piece of pieces) {
+                        for (const area of areaBoxes) expect(boxesMeet(piece, area)).toBe(false)
+                        expect(boxInside(piece, box(dashed))).toBe(true)
+                    }
+                }
+            }
+            cleanup()
+        }
+    })
+})
+
 describe('CheckedActivityBlock', () => {
     it('shows every overview sentence before collapsed Coach Details', () => {
         render(<ActivityBlock activity={activity} />)
@@ -319,5 +436,63 @@ describe('SessionForm', () => {
         renderPage('session')
         fireEvent.click(await screen.findByRole('radio', { name: otherChoice.label }))
         expect(screen.getByRole('spinbutton', { name: 'How wide, in metres?' })).toBeTruthy()
+    })
+})
+
+// P2 (his reply filed 28 October 2026, item 8): the review evidence's provisional figure of a pairing, as the administrator's page shows it.
+// The pairing is copied unchanged from the built-bundle snapshot's administrator evidence (fixtures/fa-pairing.json, provenance recorded).
+describe('Review evidence: provisional figures', () => {
+    const pairing = faPairingFixture.pairing as unknown as ReviewBoundRegionPairing
+
+    it('shows each provisional figure with its status, the value applied, every source and his words', () => {
+        const { container } = render(<ProvisionalFigures pairing={pairing} />)
+        const [figure] = pairing.provisional
+        expect(container.textContent).toContain(`${figure.status}: ${figure.leaf} of ${pairing.id}, ${figure.value} m applied.`)
+        expect(figure.status).toBe('PROVISIONAL')
+        expect(container.textContent).toContain(figure.applied)
+        for (const source of figure.sources) expect(container.textContent).toContain(`${source.citedAs}: ${source.states} (${source.metres} m)`)
+        for (const words of figure.authority.words) expect(screen.getByText(words, { exact: false })).toBeTruthy()
+        expect(container.textContent).toContain(figure.authority.citedAs)
+    })
+
+    it('shows nothing for a pairing that marks no figure provisional', () => {
+        const { container } = render(<ProvisionalFigures pairing={{ ...pairing, provisional: undefined }} />)
+        expect(container.textContent).toBe('')
+    })
+})
+
+// Z (his reply filed 28 October 2026, item 7): the administrator's account of the regions bound in both versions, copied unchanged from the
+// built-bundle snapshot's review evidence (fixtures/bound-regions.json, provenance recorded): the zone version's penalty area bound to the end
+// of the team holding the goalkeeper row, the goal version's bound to its goal.
+describe('Review evidence: bound regions', () => {
+    const zone = boundRegionsFixture.zone as unknown as ReviewBoundRegionAccount
+    const goal = boundRegionsFixture.goal as unknown as ReviewBoundRegionAccount
+    const label = (blockId: string) => `Block for ${blockId}`
+    const AREA = 'c:provisional:A01-R1:A01-R1-S2-2'
+
+    it("shows the zone version's region as permitted at the goalkeeper's end, bound there in each block with what it borrows", () => {
+        const { container } = render(<BoundRegionEvidence account={zone} blockLabel={label} />)
+        const text = container.textContent ?? ''
+        const [requirement] = zone.requirements
+        expect(text).toContain('BOUND-REGION-PERFORMER-END: one zone of the function penalty-area is permitted at the end of the team holding P3,')
+        expect(text).toContain(`where no goal stands (${requirement.cites})`)
+        expect(text).not.toContain('needs one')
+        expect(zone.blocks.map((block) => block.blockId)).toHaveLength(2)
+        for (const block of zone.blocks) expect(text).toContain(label(block.blockId))
+        const said = `${AREA} (zone; penalty-area) bound to the end of the team holding P3, borrowing region of its pairing`
+        expect(text.split(said)).toHaveLength(3)
+        expect(text).toContain('Lies 0-9 m along and 7.5-22.5 m across the area')
+        expect(text).toContain('Lies 31-40 m along and 7.5-22.5 m across the area')
+        expect(text.split('Pairing FA-MINI-SOCCER-5V5-2026: ')).toHaveLength(3)
+        expect(text).not.toContain('bound to null')
+    })
+
+    it("shows the goal version's region as needed by its goal and bound to it, as before", () => {
+        const { container } = render(<BoundRegionEvidence account={goal} blockLabel={label} />)
+        const text = container.textContent ?? ''
+        expect(text).toContain('BOUND-REGION-GOAL: a goal that is defended needs one zone of the function penalty-area bound to it')
+        const said = '(zone; penalty-area) bound to c:provisional:A01-R2:A01-R2-O1-1 (goal), defended by the team holding P3'
+        expect(text.split(said)).toHaveLength(3)
+        expect(text).not.toContain('permitted at the end')
     })
 })

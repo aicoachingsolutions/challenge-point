@@ -109,8 +109,15 @@ const HIS_ITEM_1 =
     "Building team: Score by carrying the ball beyond the marked line or passing to a teammate who receives it under control beyond the line. The progression must begin with the goalkeeper's build-out and occur before the building team loses possession. Uncontrolled clearances do not score."
 /** His reply filed 20 October 2026, item 1 (our draft, "Approved as written."): production entry A01-W2 since design step L14. */
 const HIS_W2 = 'The pressing team also scores by winning the ball inside that zone, provided it genuinely establishes possession; a contested touch, deflection or loose ball does not count.'
-/** His reply filed 20 October 2026, item 2 (his own wording): production entry A01-W3 since design step L14. */
-const HIS_W3 = 'If the building team loses possession or plays the ball out, it cannot score again until the next goalkeeper restart.'
+/**
+ * His reply filed 20 October 2026, item 2 (his own wording): production entry A01-W3 since design step L14. Re-pointed 25 October 2026 (P1):
+ * his simplified sentence, his reply filed 28 October 2026, item 9 ("This is a communication simplification, not a change in scoring
+ * eligibility."); the 20 October sentence is kept superseded in the record.
+ */
+const HIS_W3 = 'If the building team loses possession, it cannot score again until the next goalkeeper restart.'
+/** His reply filed 28 October 2026, item 5 (POSSESSION_CONTINUES) and item 4 (FIRST_BLOCK_CHOICE), each as an instruction says it (P1). */
+const HIS_POSSESSION = 'When possession changes, play carries on without a stoppage, and each team keeps attacking the same target'
+const HIS_FIRST_BLOCK = 'Decide which team builds first'
 
 /** The sentences of a rendering by section and block, so a pin reads like the activity. */
 const sentences = (instructions: Instruction[]) => instructions.map(i => `${i.section}${i.block ? ` [${BLOCKS.indexOf(i.block) + 1}]` : ''}: ${i.text}`)
@@ -128,8 +135,9 @@ test('1p. production A01 is SERVED (design step L14): every sentence the game ho
     expected.splice(at(`How to score: ${HIS_ITEM_1}`) + 1, 0, `How to score: ${HIS_W3}`)
     expected.splice(expected.indexOf('How to score: Pressing team: Score by getting the ball under control into its target zone: running it in, or passing to a teammate who receives it under control inside') + 1, 0, `How to score: ${HIS_W2}`)
     assert.deepEqual(sentences(served.rendered.instructions), expected)
-    assert.deepEqual(served.evidence!.sections.instructions.filter(i => i.wording === 'APPROVED').map(i => i.text), ['When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone', HIS_ITEM_1, HIS_W3, HIS_W2])
-    assert.equal(served.evidence!.sections.instructions.filter(i => i.wording === 'DRAFT').length, served.rendered.instructions.length - 4, 'every other sentence is DRAFT')
+    // Re-pointed 25 October 2026 (P1): his reply filed 28 October 2026 makes five approved: item 4 (Set up), item 5 and item 9 in his new words.
+    assert.deepEqual(served.evidence!.sections.instructions.filter(i => i.wording === 'APPROVED').map(i => i.text), [HIS_FIRST_BLOCK, HIS_POSSESSION, HIS_ITEM_1, HIS_W3, HIS_W2])
+    assert.equal(served.evidence!.sections.instructions.filter(i => i.wording === 'DRAFT').length, served.rendered.instructions.length - 5, 'every other sentence is DRAFT')
 })
 
 /*
@@ -148,6 +156,10 @@ test('1. the review draft of A01 (TEST-ONLY: the table as at stage M5): every se
     // Restarts and ball out (were How it works, last); and block 2's two Set up sentences now follow block 1's in Set up (they were
     // listed after Role exchange, and the page already showed them under Set up).
     assert.deepEqual(sentences(draft.instructions), [
+        // Added 25 October 2026 (P1, DRAFT): his reply filed 28 October 2026, item 3 ("Yes, please include a concise equipment list." "The
+        // target-zone version should have its own corresponding requirements."), the zone version's equipment from the DRAFT data, first in
+        // Set up; it tells the role apart by colour, so the roster no longer does (RC3 3.4, below).
+        `Set up: Balls, cones or field markers, and two team colors plus a distinct ${ROLE} color`,
         'Set up: Mark out an area 40 m long by 30 m wide',
         // Moved 21 October 2026 (stage 2D, his reply filed 22 October 2026, item 7: "For this particular 40 × 30 m configuration, we can
         // also simplify setup by marking the halfway line and both 5 m end zones at the beginning. Role exchanges should not require
@@ -161,18 +173,30 @@ test('1. the review draft of A01 (TEST-ONLY: the table as at stage M5): every se
         // clause the target sentences now carry and whose last clause the exchange sentence already says.
         'Set up: Mark a line across the area at halfway, 20 m from each end line',
         'Set up: Mark a 5 m end zone across the full width at each end',
+        // Added 25 October 2026 (Z, DRAFT): his reply filed 28 October 2026, item 7 ("I favor retaining a defined goalkeeper handling area in
+        // the target-zone version."), the goalkeeper's penalty area at the goalkeeper's own end, set out once at each end (the end alternates
+        // with the goalkeeper), with the handling clause of the law the account records as applying (zone-penalty-area.unit.ts).
+        `Set up: Mark a penalty area at each end: 15 m wide, centred on the end line, and 9 m deep into the area; inside the one at the building team's end, the ${ROLE} can handle the ball as in a normal game`,
         "Set up: The building team's target zone is everything beyond the marked line, up to the pressing team's end line, including the end zone there",
         "Set up: The pressing team's target zone is the 5 m end zone at the building team's end",
-        'Set up: Decide which team starts at which end',
+        // Moved 25 October 2026 (P1): his words, reply filed 28 October 2026, item 4 (FIRST_BLOCK_CHOICE). Was: "Decide which team starts at
+        // which end" (DRAFT).
+        `Set up: ${HIS_FIRST_BLOCK}`,
         // Re-pointed 24 October 2026 (the completeness audit of the field-test build, item 1; his reply filed 27 October 2026, item 6, "The
         // [specialized role] should be visually distinguishable from the outfield players."): the roster closes with the colour clause
         // (DRAFT), written for the law of the role's colours, which applies wherever a team holds the role. Was the sentence without it.
-        `Players: Divide 12 players into 2 teams: the building team has 6 outfield players and 1 ${ROLE}; the pressing team has 5 outfield players; give the ${ROLE} a colour neither team wears`,
-        'How it works: The building team starts with the ball',
+        // Re-pointed 25 October 2026 (P1): the clause is no longer said here: the equipment sentence above tells the role apart (RC3 3.4,
+        // each idea once within a level). Was: "...; give the [role] a colour neither team wears".
+        `Players: Divide 12 players into 2 teams: the building team has 6 outfield players and 1 ${ROLE}; the pressing team has 5 outfield players`,
+        // Removed 25 October 2026 (P1; his reply filed 28 October 2026, item 6: "The goalkeeper starting play already establishes that the
+        // building team begins in possession."): "The building team starts with the ball", said now by the restart sentence's lead (which
+        // cites possession.team).
         // Moved 17 October 2026 (stage M4, design step L10): his approved words, reply filed 19 October 2026, item 4 (read from
         // approved-coach-wording.json approvedTemplateSentences). Was: "When possession changes, play carries on with no stoppage, and
         // the team that wins possession attacks the same zone it was already attacking".
-        'How it works: When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone',
+        // Moved 25 October 2026 (P1): his reply filed 28 October 2026, item 5 ("Each team keeps attacking the same target."). Was "... the
+        // same zone".
+        `How it works: ${HIS_POSSESSION}`,
         // Moved 21 October 2026 (stage 2B, his reply filed 22 October 2026, item 2: "the basic goalkeeper restart condition is essential
         // because it determines when the building team can score again. The complete procedural details of every restart should remain
         // accessible but do not all need to appear in the overview."): the one restart sentence is said as WHEN (here, directly before
@@ -194,7 +218,9 @@ test('1. the review draft of A01 (TEST-ONLY: the table as at stage M5): every se
         // Added 24 October 2026 (R3, DRAFT, the d27 design's stage R3): his reply filed 27 October 2026, item 2 ("I approve no offside for
         // this initial realization, with that modification communicated once to the coach."), said once from the default-laws account,
         // which records A01-R1's departure from LAW-11 (departed-law-wording.unit.ts). The zone version's coverage is OUR READING.
-        'How it works: There is no offside',
+        // Moved 25 October 2026 (Z, DRAFT): the account owes nothing since his reply filed 28 October 2026, item 7, so the normal-rules clause
+        // follows (as in the goal version). Was: "There is no offside".
+        'How it works: There is no offside; otherwise, normal soccer rules apply during play',
         // Moved 17 October 2026 (stage M3, design step L9; his reply filed 19 October 2026, items 1 and 4): the team-neutral "A team
         // scores 1 point by getting the ball under control into the zone it is attacking: ..." is no longer said, because the building
         // role's credit is confined to its build-out episode (row B8). The pressing role, whose bound is the whole game (A01-R1-B8-2),
@@ -234,7 +260,10 @@ test('1. the review draft of A01 (TEST-ONLY: the table as at stage M5): every se
         // team's post-regain area" and "... restarts play; you choose where (a location the coach selects for the restart, using the
         // approved M3 capability) and how (a restart method the coach selects, using the approved M3 capability)". The touchline
         // sentence is unchanged: his "conventional throw-in" has no data route to the renderer yet (a wording point put to him).
-        `Restarts and ball out: The building team's ${ROLE} restarts play from the feet, with the ball still or moving`,
+        // Moved 25 October 2026 (P1, DRAFT): his reply filed 28 October 2026, item 1 ("The goalkeeper should be able to restart by passing,
+        // rolling, throwing, or dribbling the ball into play."), the words of TAKER_CHOOSES from the DRAFT data. Was: "... restarts play from
+        // the feet, with the ball still or moving".
+        `Restarts and ball out: The building team's ${ROLE} restarts play by passing, rolling, throwing or dribbling the ball into play`,
         `Restarts and ball out: You choose where the building team's ${ROLE} restarts play, consistent with the intended build-out situation, in front of the pressing team's target zone`,
         // Added 24 October 2026 (R2, DRAFT, the d27 design's section 2.8): the sport's restarts the activity does not use, from its
         // default-laws account (the laws it departs from that have a noun: the throw-in and free kicks; no goal, so no other can arise), and
@@ -257,18 +286,24 @@ test('1. the review draft of A01 (TEST-ONLY: the table as at stage M5): every se
         // Moved 21 October 2026 (stage 2D): the general consequence rule for an adjustment that moves a mark set out once (DRAFT clause,
         // from the line's own position: measured from the building team's end line). Was: "You may choose to move the marked line nearer to
         // either end line".
-        `${ADJUSTING}: You may choose to move the marked line nearer to either end line; it is measured from the building team's end line, so when the roles exchange, set it out again at the same distance from the new building team's end line`,
+        // Moved 25 October 2026 (Z, DRAFT): the line kept outside the goalkeeper's penalty area (A01-R1-S5-6, his reply filed 28 October 2026,
+        // items 2 and 7) gives the nearest it may go, said as in the goal version, and the end line it names is not said again (RC3 3.4). Was:
+        // "...; it is measured from the building team's end line, so when the roles exchange, set it out again at the same distance from the new
+        // building team's end line".
+        `${ADJUSTING}: You may choose to move the marked line nearer to either end line, but no nearer than 9 m to the building team's end line, so that it stays outside the penalty area; when the roles exchange, set it out again at the same distance from the new building team's end line`,
         `${ADJUSTING}: You may choose to change where the teams start when the pressure you see is not creating an appropriate challenge`,
     ])
     // Re-pointed 17 October 2026 (stage M4): one sentence is his approved words - the possession sentence, an approved template
     // sentence (reply filed 19 October 2026, item 4); the entries table is still empty, so every other sentence is DRAFT.
     // Re-pointed 18 October 2026 (stage M5, design step L13): and his build-out sentence, the first approved entry (A01-W1); every
     // other sentence is DRAFT.
-    assert.deepEqual(draft.instructions.filter(i => i.wording === 'APPROVED').map(i => i.text), ['When possession changes, play carries on without a stoppage, and each team keeps attacking the same zone', HIS_ITEM_1])
-    assert.equal(draft.instructions.filter(i => i.wording === 'DRAFT').length, draft.instructions.length - 2, 'every other sentence is DRAFT')
-    // Provisional sources: the restarts rest on his provisional choices, the area on the session alone.
-    assert.deepEqual(draft.instructions[0].provisionalSources, [])
-    assert.ok(draft.instructions.find(i => i.text.includes('restarts play from the feet'))!.provisionalSources.includes('provisional:A01-R1::A01-R1-T3-1'))
+    // Re-pointed 25 October 2026 (P1): his reply filed 28 October 2026 adds item 4's sentence, and the possession sentence is item 5's.
+    assert.deepEqual(draft.instructions.filter(i => i.wording === 'APPROVED').map(i => i.text), [HIS_FIRST_BLOCK, HIS_POSSESSION, HIS_ITEM_1])
+    assert.equal(draft.instructions.filter(i => i.wording === 'DRAFT').length, draft.instructions.length - 3, 'every other sentence is DRAFT')
+    // Provisional sources: the restarts rest on his provisional choices, the area on the session alone. Re-pointed 25 October 2026 (P1): the
+    // area is read by its words (the equipment sentence is first now).
+    assert.deepEqual(draft.instructions.find(i => i.text.startsWith('Mark out an area'))!.provisionalSources, [])
+    assert.ok(draft.instructions.find(i => i.text.includes('restarts play by passing'))!.provisionalSources.includes('provisional:A01-R1::A01-R1-T3-1'))
     assert.ok(draft.instructions.find(i => i.text.includes('nearer to either end line'))!.provisionalSources.includes('record A01-ADJ-3'))
     // Stage 2D: the markings set out once rested on his recorded choice, named by its code (`record MARK_UNION_ONCE`). Re-pointed 21
     // October 2026 (stage 2G): they rest on his general presentation rule (reply filed 23 October 2026, item 2), which is no provisional
@@ -621,7 +656,9 @@ test('5. the exchange: ends fixed AND what changes with the roles; separately, w
     assert.equal(exchange[1].text, 'Each team keeps its end for the whole activity. When you call the next block the teams exchange roles, not ends: each team now attacks the target zone of its new role, and nothing is re-marked unless you have moved the marked line; there is no set block length')
     assert.ok(!served.rendered.instructions.some(i => i.section === ROLE_EXCHANGE && i.text.includes('set out again')))
     const keyed = roleKeyedPositions(blockFixtures[0])
-    assert.deepEqual(keyed, ['space.regions[c:provisional:A01-R1:A01-R1-S2-1].position.along', 'space.regions[c:restated:GF2:GF2-03.e].position.along', 'space.regions[c:restated:GF2:GF2-03.f].position.along'])
+    // Re-pointed 25 October 2026 (Z): and the goalkeeper's penalty area, set out from the building team's end line (his reply filed 28 October
+    // 2026, item 7), a marking written for a role too, set out once at each end (so the exchange still re-marks nothing).
+    assert.deepEqual(keyed, ['space.regions[c:provisional:A01-R1:A01-R1-S2-1].position.along', 'space.regions[c:provisional:A01-R1:A01-R1-S2-2].position.along', 'space.regions[c:restated:GF2:GF2-03.e].position.along', 'space.regions[c:restated:GF2:GF2-03.f].position.along'])
     assert.deepEqual(roleKeyedPositions(blockFixtures[1]), keyed, 'the same markings in both blocks, so the sentence is said once')
     assert.ok(keyed.every(p => exchange[1].from.includes(p)), 'the ends-fixed sentence cites every marking written for a role')
     assert.ok(exchange[2].from.every(p => p.startsWith('reassignments[')), 'the reassignment is its own sentence (his item 1: separate capabilities)')

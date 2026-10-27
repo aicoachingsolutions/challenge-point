@@ -11,6 +11,8 @@ interface RouteConfig {
     userSpecific?: boolean
     ownerField?: string
     ownerComparisonFunction?: (res: Response) => any
+    /** What each item a GET serves becomes, after its excluded properties are removed (the item as stored where absent). */
+    transform?: (item: Record<string, unknown>) => Record<string, unknown>
 }
 
 const BaseRoutes = (router: Router, config: RouteConfig) => {
@@ -24,6 +26,7 @@ const BaseRoutes = (router: Router, config: RouteConfig) => {
         userSpecific,
         ownerField = 'owner',
         ownerComparisonFunction,
+        transform = (item: Record<string, unknown>) => item,
     } = config
 
     // Helper function to exclude properties from an object
@@ -72,7 +75,7 @@ const BaseRoutes = (router: Router, config: RouteConfig) => {
                         .equals(ownerComparisonFunction ? ownerComparisonFunction(res) : res.locals.sessionUser._id)
                 }
                 const data = await query.exec()
-                const filteredData = data.map((item) => excludeProperties(item.toObject(), excludedGetProperties))
+                const filteredData = data.map((item) => transform(excludeProperties(item.toObject(), excludedGetProperties)))
                 return res.status(200).json(filteredData)
             } catch (error) {
                 return res.status(500).json({ error })
@@ -118,7 +121,7 @@ const BaseRoutes = (router: Router, config: RouteConfig) => {
                 if (!data) {
                     return res.status(404).json({ error: 'Not found' })
                 }
-                const filteredData = excludeProperties(data.toObject(), excludedGetProperties)
+                const filteredData = transform(excludeProperties(data.toObject(), excludedGetProperties))
                 return res.status(200).json(filteredData)
             } catch (error) {
                 return res.status(500).json({ error })
