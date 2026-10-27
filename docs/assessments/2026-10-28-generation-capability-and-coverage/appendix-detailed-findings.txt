@@ -177,7 +177,7 @@ Finding 4b: ten goals reach coaches as AI-written activities
 - A goal typed in free text never reaches the checked pathway: it goes to the AI-written pathway or is refused (typing "Play Out from the Back" is refused).
   What works: with a simulated well-formed AI answer, the live app produced a readable activity for each of these goals.
   What doesn't: those activities are not evaluated and not authorized, and the coach is not told so. Their scoring includes events the checked engine refuses, and three have no approved Game Problem.
-  Why it matters: a pilot coach could judge Challenge Point by activities never checked against your acceptance test, and nothing tells the coach which activity has been checked.
+  Why it matters: a pilot coach could judge Challenge Point by activities never checked against your acceptance test; when we measured, nothing told the coach which activity had been checked.
   Blocks a pilot? Yes, if pilot coaches use any goal other than Play Out from the Back in the live app.
   Decision needed: your 26 October ruling (item 9(a)) lets these goals continue "provided their status and limitations are not misrepresented". Since the measurement, every AI-written activity carries a "Not checked" notice (draft wording). Is that enough for the field test and the pilot, or should these goals be withheld until checked?
 

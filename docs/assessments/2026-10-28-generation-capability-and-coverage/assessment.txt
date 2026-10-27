@@ -19,7 +19,7 @@ Q1. Distinct Play Out from the Back activities
 One structure (build-out versus press, on Directional Possession Games) in two equipment versions, chosen by whether the coach has an FA 5v5 goal. Resource alternatives 2; parameter adjustments only 11 or 12 players and 40 x 30 m; constraint and incentive variations 0; distinct structures 1. The same session always gets the identical activity.
 
 Q2. Status of each Learning Goal
-Only A01 Play Out from the Back is built on the checked pathway, evaluated and authorized. Ten goals, refused by the checked engine, reach coaches as AI-written activities, with nothing saying they are unchecked. A02 Play Through Pressure and D03 Defend 1v1 are refused everywhere.
+Only A01 Play Out from the Back is built on the checked pathway, evaluated and authorized. Ten goals, refused by the checked engine, reach coaches as AI-written activities; when we measured, nothing said they were unchecked (a "Not checked" notice has since been added; Finding 3). A02 Play Through Pressure and D03 Defend 1v1 are refused everywhere.
 
 Q3. Recurring gaps
 Mostly soccer knowledge not yet engine-readable or decided: 7 of 8 contexts, 3 of 4 selected game forms (one partly), 12 of 13 selected library constraints, authorization for 12 goals, 3 unresolved Game Problems. Engine gaps are fewer, of unmeasured size. Some apparent engine gaps are draft entries of ours that your ruling would change; one, the list of scoring events the engine can evaluate, bears on all five defending goals (whether code is also needed is still open).
