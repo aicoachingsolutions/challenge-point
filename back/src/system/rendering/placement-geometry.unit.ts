@@ -1,6 +1,11 @@
 /**
- * **A region is never said to lie where the realized game does not put it** — E5a, 27 October 2026 (the engine design's section 8, made
- * unconditional by the review's S11; Step 0 case e3).
+ * **The renderer's marking sentences place a region along a touchline, or on an end line, only where its realized intervals put it
+ * there** — E5a, 27 October 2026 (the engine design's section 8 placement guard, made unconditional now; Step 0 case e3), narrowed after
+ * the E5a review the same day.
+ *
+ * Which mechanism: the design review (its S11) suggested making the design's fidelity Q5 placement CLAUSE unconditional. E5a does not add
+ * that clause: it guards the one source of the false sentences, the renderer's marking fallback, which reads the realized geometry rather
+ * than words, and leaves an unmatched region unsaid so the existing Q5 marking check refuses the activity.
  *
  * Step 0 measured a TEST-ONLY realized end zone in a game whose teams hold no role (so the target-zone sentence has no noun for either team)
  * served with "Mark a zone along the touchline, 6 m long and up to 30 m wide", fidelity 0, while the Coach Overview and the diagram put each
@@ -9,12 +14,26 @@
  * geometry does not match is not said at all, so fidelity refuses the activity (Q5: a region with no marking instruction). No new coach
  * words: the no-role end-zone sentence waits on his decision (D5), so such a game is refused, never served with a false sentence.
  *
- * Three cases, each TEST-ONLY and each a copy in memory (no knowledge file is read for writing or changed):
+ * What is guaranteed, and only for those sentences ("along the touchline", "along one / the opposite / each touchline", "on the end line
+ * itself", "both end lines"). None of them says WHICH part of a touchline or an end line, so a region is said along a touchline only where
+ * its across interval meets exactly that one touchline AND its along interval runs the area's whole length; a line is said on an end line
+ * only where it is one point at an end AND runs the area's whole width; "the touchline" of a region with no pair only where every region so
+ * said lies along the same one; "one" and "the opposite" touchline only where the pair's other region lies along the other; "both end
+ * lines" only where the two lines themselves sit at the two ends. Other sentences that place regions (a team's target zone, a line marked
+ * from a team's end, a region bound to an object) read their own geometry and are not this file's subject.
+ *
+ * Cases, each TEST-ONLY and each a copy in memory (no knowledge file is read for writing or changed):
  *   (a) full-width end zones in the no-role possession game, through the real chain (TEST-ONLY depths and the realizer's choices changed on a
  *       copy, the pattern of `realization/target-extents.unit.ts`);
  *   (b) one of two scoring lines moved off its end line, on a copy of the served game's fixture;
  *   (c) the two paired channels moved onto the same touchline, on a copy of the retired specimen fixture.
  * Reverting E5a serves (a) with the false sentence and says (b) "both end lines" and (c) "the opposite touchline" (measured 27 October 2026).
+ * Added after the E5a review (27 October 2026), each on a copy of (a)'s or (b)'s fixture:
+ *   (d) a region meeting one touchline but not running the whole length, and a line on an end line not running the whole width;
+ *   (e) two regions with no pair along opposite touchlines (and, as a control, the same touchline);
+ *   (f) both lines at one end with a degenerate region at the other, which made the degenerate positions differ.
+ * Reverting the narrowing says (d) "a zone along the touchline, 6 m long" twice and "on the end line itself" of a 10 m line, (e) "along the
+ * touchline" of both, and (f) "Mark both end lines" (measured 27 October 2026).
  *
  * Run: npx ts-node --files -r tsconfig-paths/register ./src/system/rendering/placement-geometry.unit.ts
  */
@@ -92,8 +111,24 @@ const asZones = (supplied: SuppliedRealization) => {
     }
 }
 
+/** Each game is built once through the real chain; every TEST-ONLY move is made on a copy, never on the built fixture. */
+type Built = ReturnType<typeof buildActivityFromKnowledge>
+const once = (make: () => Built): (() => Built) => {
+    let built: Built | null = null
+    return () => {
+        if (!built) built = make()
+        return built
+    }
+}
+const zoneGame = once(() => buildActivityFromKnowledge(['GF2'], session, { alter: withDepths, alterSupplied: asZones }))
+const servedGame = once(() => buildActivityFromKnowledge(['GF2'], session))
+const regionIds = (fixture: any, noun: string): string[] => (fixture.game.space.regions as any[]).filter(r => r.noun === noun).map(r => String(r.elementId))
+const alongInterval = (fixture: any, elementId: string) => (fixture.status.geometry as any[]).find(g => g.path.includes(`[${elementId}]`) && g.path.endsWith('.along'))?.geometry?.interval
+const unmarkedSentence = (elementId: string) => `region ${elementId} exists in the game and has no marking instruction`
+const texts = (rendered: ReturnType<typeof renderConcreteGame>) => JSON.stringify(rendered.instructions.map(i => i.text))
+
 test('(a) a full-width end zone in a game with no role nouns is refused, never served as "a zone along the touchline"', () => {
-    const { activity, fixture } = buildActivityFromKnowledge(['GF2'], session, { alter: withDepths, alterSupplied: asZones })
+    const { activity, fixture } = zoneGame()
     assert.equal(activity.outcome, 'refused', 'served: the false placement reached the coach')
     const refusal = activity as RefusedActivity
     assert.equal(refusal.stage, 'communication', JSON.stringify(refusal.reasons))
@@ -123,7 +158,7 @@ test('(a) a full-width end zone in a game with no role nouns is refused, never s
 
 /* ── (b) a scoring line moved off its end line ───────────────────────────────────────────────────────────────────────────────────── */
 test('(b) a line the game does not put on an end line is not said to be on one, nor one of "both end lines"', () => {
-    const { activity, fixture } = buildActivityFromKnowledge(['GF2'], session)
+    const { activity, fixture } = servedGame()
     assert.equal(activity.outcome, 'served', 'the possession game as the knowledge builds it')
     const served = renderConcreteGame(fixture as any)
     assert.ok(served.instructions.some(i => i.text === 'Mark both end lines: they are the scoring lines'), 'production: both lines on the end lines, said together')
@@ -163,6 +198,102 @@ test('(c) a pair is said on "one" and "the opposite" touchline only where the ga
     for (const id of channels) assert.deepEqual(marking(rendered, id), [], `${id} is not said "one" or "the opposite"`)
     assert.ok(!rendered.instructions.some(i => /touchline/.test(i.text)), JSON.stringify(rendered.instructions.map(i => i.text)))
     assert.deepEqual(unmarked(moved, rendered).sort(), channels.map(id => `region ${id} exists in the game and has no marking instruction`).sort())
+})
+
+/* ── (d) part of a touchline, part of an end line (after the E5a review) ─────────────────────────────────────────────────────────── */
+test('(d) a region along part of a touchline, or a line along part of an end line, is not said there: the sentence cannot say which part', () => {
+    const { fixture } = zoneGame()
+    const zones = regionIds(fixture, 'zone')
+    assert.equal(zones.length, 2)
+    const near = zones.find(id => alongInterval(fixture, id)?.from === 0)!
+    const far = zones.find(id => id !== near)!
+    assert.deepEqual(alongInterval(fixture, far), { from: 40 - ZONE_TEST_ONLY_M, to: 40 }, 'each zone at its own end')
+    // TEST-ONLY: both zones made half-width on the SAME touchline, each still at its own end (so only the length tells them apart).
+    const ends = copy(fixture) as any
+    for (const id of zones) moveRegion(ends, id, 'across', { from: 0, to: 15 })
+    // TEST-ONLY: and the near zone moved to the middle of the length, still on that touchline.
+    const middle = copy(ends) as any
+    moveRegion(middle, near, 'along', { from: 17, to: 23 })
+    for (const [label, moved] of [['at the ends', ends], ['one in the middle', middle]] as const) {
+        const rendered = renderConcreteGame(moved)
+        for (const id of zones) assert.deepEqual(marking(rendered, id), [], `${label}: ${id} runs part of the touchline and is not said along it`)
+        assert.ok(!rendered.instructions.some(i => /touchline/.test(i.text)), `${label}: ${texts(rendered)}`)
+        assert.deepEqual(unmarked(moved, rendered).sort(), zones.map(unmarkedSentence).sort(), label)
+    }
+
+    const { fixture: served } = servedGame()
+    const lines = regionIds(served, 'line')
+    assert.equal(lines.length, 2)
+    // TEST-ONLY: one line made to cover only 10 m to 20 m of its end line.
+    const part = copy(served) as any
+    moveRegion(part, lines[0], 'across', { from: 10, to: 20 })
+    const one = renderConcreteGame(part)
+    assert.deepEqual(marking(one, lines[0]), [], `the part-width line is not said on the end line: ${texts(one)}`)
+    assert.ok(!one.instructions.some(i => /both end lines/.test(i.text)), texts(one))
+    assert.equal(marking(one, lines[1]).length, 1, texts(one))
+    assert.match(marking(one, lines[1])[0], /, 30 m long, on the end line itself$/, 'the whole-width line is still said on its end line')
+    assert.deepEqual(unmarked(part, one), [unmarkedSentence(lines[0])])
+    // TEST-ONLY: and both lines so, one length: not "both end lines" either.
+    const both = copy(part) as any
+    moveRegion(both, lines[1], 'across', { from: 10, to: 20 })
+    const two = renderConcreteGame(both)
+    for (const id of lines) assert.deepEqual(marking(two, id), [], `${id} runs part of its end line and is not said on it`)
+    assert.ok(!two.instructions.some(i => /both end lines|end line itself/.test(i.text)), texts(two))
+    assert.deepEqual(unmarked(both, two).sort(), lines.map(unmarkedSentence).sort())
+})
+
+/* ── (e) two regions with no pair, on opposite touchlines (after the E5a review) ─────────────────────────────────────────────────── */
+test('(e) "the touchline" of regions with no pair is said only where every one so said lies along the same touchline', () => {
+    const { fixture } = zoneGame()
+    const zones = regionIds(fixture, 'zone')
+    assert.ok(zones.every(id => !(fixture as any).game.space.regions.find((r: any) => String(r.elementId) === id).selector?.some((t: any) => t.attribute === 'lateral')), 'neither zone has a pair')
+    // TEST-ONLY: both zones made to run the whole length, 10 m wide, one on each touchline.
+    const opposite = copy(fixture) as any
+    for (const id of zones) moveRegion(opposite, id, 'along', { from: 0, to: 40 })
+    moveRegion(opposite, zones[0], 'across', { from: 0, to: 10 })
+    moveRegion(opposite, zones[1], 'across', { from: 20, to: 30 })
+    const apart = renderConcreteGame(opposite)
+    for (const id of zones) assert.deepEqual(marking(apart, id), [], `${id} is not said "along the touchline" while the other lies along the other one`)
+    assert.ok(!apart.instructions.some(i => /touchline/.test(i.text)), texts(apart))
+    assert.deepEqual(unmarked(opposite, apart).sort(), zones.map(unmarkedSentence).sort())
+    // Control: both on the same touchline, the sentence that already exists is said of each.
+    const same = copy(opposite) as any
+    moveRegion(same, zones[1], 'across', { from: 0, to: 5 })
+    const together = renderConcreteGame(same)
+    for (const id of zones) {
+        assert.equal(marking(together, id).length, 1, texts(together))
+        assert.match(marking(together, id)[0], /^Mark a zone along the touchline, 40 m long and /, texts(together))
+    }
+    assert.deepEqual(unmarked(same, together), [])
+})
+
+/* ── (f) "both end lines" from the lines' own positions (after the E5a review) ───────────────────────────────────────────────────── */
+test('(f) "Mark both end lines" needs the two lines themselves at the two ends, not any two degenerate regions that differ', () => {
+    const { fixture } = servedGame()
+    const lines = regionIds(fixture, 'line')
+    const far = lines.find(id => alongInterval(fixture, id)?.from === 40)!
+    // TEST-ONLY: the far line moved onto the near end line, on a copy.
+    const moved = copy(fixture) as any
+    moveRegion(moved, far, 'along', { from: 0, to: 0 })
+    // TEST-ONLY: and a degenerate zone added at the far end (a copy of the far line's region and geometry), so two degenerate positions differ.
+    const extraId = 'c:TEST-ONLY:DEGENERATE'
+    const extra = copy((moved.game.space.regions as any[]).find(r => String(r.elementId) === far))
+    extra.elementId = extraId
+    extra.noun = 'zone'
+    moved.game.space.regions.push(extra)
+    for (const entry of (moved.status.geometry as any[]).filter(g => g.path.includes(`[${far}]`))) {
+        const twin = copy(entry)
+        twin.path = twin.path.split(`[${far}]`).join(`[${extraId}]`)
+        moved.status.geometry.push(twin)
+    }
+    moveRegion(moved, extraId, 'along', { from: 40, to: 40 })
+    moveRegion(moved, extraId, 'across', { from: 0, to: 10 })
+    const rendered = renderConcreteGame(moved)
+    assert.ok(!rendered.instructions.some(i => /both end lines/.test(i.text)), texts(rendered))
+    for (const id of lines) {
+        assert.equal(marking(rendered, id).length, 1, texts(rendered))
+        assert.match(marking(rendered, id)[0], /^Mark a line across one end of the area, 30 m long, on the end line itself$/, `both lines lie on the one end line: ${texts(rendered)}`)
+    }
 })
 
 console.log(`placement-geometry: ${passed} passed`)

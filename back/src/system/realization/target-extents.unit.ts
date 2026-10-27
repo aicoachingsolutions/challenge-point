@@ -28,13 +28,16 @@
  * touchline its realized geometry does not meet, and has no words yet for a zone at an end in a game whose teams hold no role
  * (his decision, D5), so each zone is left unsaid and the activity is REFUSED at communication (fidelity Q5: no marking
  * instruction) instead of served with the false sentence. The mechanism proof stands on the realized game, which travels with the
- * refusal; the scoring sentence's line words are still to repair before a zone target is used, and are not served either.
+ * refusal; the scoring sentence's line words are still to repair before a zone target is used, and are not served either. The second
+ * test's proof through the neutral-players demonstration reads the extents from the same composition's realized game (after the E5a
+ * review, which found the re-pointed test no longer proved them).
  *
  * Run: part of `npm test`.
  */
 import assert from 'node:assert/strict'
 
 import { buildActivityFromKnowledge, buildActivityOverAlteredKnowledge, RefusedActivity, ServedActivity } from '../rendering/build-activity'
+import { mechanismDemonstration } from '../rendering/mechanism-demonstrations'
 import { specializedRoleNames } from '../rendering/session-envelope'
 import { LoadedContract } from '../derivation/types'
 import { SuppliedRealization } from './supplied-realization'
@@ -129,12 +132,25 @@ test('the two target regions take separate extents under one event of a zone bei
     assert.notDeepEqual(near.interval.to - near.interval.from, far.interval.to - far.interval.from, 'the depths differ')
 })
 
-test('the same game through the altered-knowledge builder the review chain lends tests', () => {
+test('the neutral-players demonstration through the altered-knowledge builder: refused as above, and its realized game takes the separate extents', () => {
     // The neutral-players demonstration is the possession game plus neutrals, which touch neither target.
     // Re-pointed 27 October 2026 (E5a): it read each extent from the instruction citing the zone's position, the sentence that said the
-    // zone was "along the touchline"; that sentence is not said now, so the same game is refused for the same reason as above, and the
-    // extents are proved on the realized game (the first test).
-    zonesUnsaid(buildActivityOverAlteredKnowledge({ kind: 'mechanism-demonstration', demonstrationId: 'neutral-players', session }, withDepths, { alterSupplied: asZones }))
+    // zone was "along the touchline"; that sentence is not said now, so the demonstration is refused for the same reason as above.
+    const refused = buildActivityOverAlteredKnowledge({ kind: 'mechanism-demonstration', demonstrationId: 'neutral-players', session }, withDepths, { alterSupplied: asZones })
+    zonesUnsaid(refused)
+    // Restored after the E5a review: that builder returns no fixture, so the extents are read from the realized game of the SAME
+    // composition (the demonstration's own knowledge objects, the same alterations) through the builder that returns the game with its
+    // refusal, as the first test does. It is the same game: refused at the same stage for the same reasons.
+    const { activity, fixture } = buildActivityFromKnowledge(mechanismDemonstration('neutral-players')!.selected, session, { alter: withDepths, alterSupplied: asZones })
+    zonesUnsaid(activity)
+    assert.deepEqual((activity as RefusedActivity).reasons, (refused as RefusedActivity).reasons, 'the same game, refused for the same reasons')
+    assert.ok(fixture, 'the realized game travels with the refusal')
+    const extentOf = (itemId: string) => {
+        const interval = alongOf(fixture, itemId)?.interval
+        return interval ? interval.to - interval.from : null
+    }
+    assert.equal(extentOf('GF2-03.e'), NEAR_TEST_ONLY_M)
+    assert.equal(extentOf('GF2-03.f'), FAR_TEST_ONLY_M)
 })
 
 test('without a depth the zones cannot be set out: where each target sits is his decision (D3), not filled in', () => {

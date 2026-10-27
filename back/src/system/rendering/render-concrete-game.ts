@@ -1777,15 +1777,29 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
      * other region along the other one. A region whose geometry does not match is not said at all, so fidelity refuses the activity (Q5: a
      * region with no marking instruction) rather than a coach being told to mark it where it is not, as a bound region the renderer cannot
      * say is left unsaid (above). No new words: where a region does lie is said only by sentences that already exist.
+     *
+     * Narrowed after the E5a review (27 October 2026), because those sentences never say WHICH part of a touchline or an end line: a
+     * region meeting one touchline is said "along" it only where it also runs the area's whole length, and a line on an end line is said
+     * there only where it also runs the area's whole width (a half-width end zone and a mid-length strip were both "a zone along the
+     * touchline, 6 m long", and a 10 m line "on the end line itself", each fidelity 0). "The touchline", said of a region with no pair, is
+     * said only where every such region said along one lies along the same one (two on opposite touchlines were both "the touchline").
+     * "Both end lines" needs the two lines themselves at the two ends, 0 and the area's length, not any two degenerate regions that differ.
      */
     const onEndLine = (region: any): boolean => {
         const at = geometryFor(region.elementId, 'along')?.geometry?.interval
-        return !!at && stated(at.from) && at.from === at.to && (at.from === 0 || at.from === areaLength)
+        const across = geometryFor(region.elementId, 'across')?.geometry?.interval
+        if (!at || !stated(at.from) || at.from !== at.to || !(at.from === 0 || at.from === areaLength)) return false
+        return !!across && across.from === 0 && across.to === areaWidth
     }
-    /** The touchline (its across coordinate, 0 or the width) a region lies along, or null where it meets neither or both. */
+    /**
+     * The touchline (its across coordinate, 0 or the width) a region lies along, or null where it meets neither or both, or does not run the
+     * area's whole length (a sentence saying "along" a touchline does not say where along it).
+     */
     const touchlineOf = (region: any): number | null => {
         const across = geometryFor(region.elementId, 'across')?.geometry?.interval
+        const along = geometryFor(region.elementId, 'along')?.geometry?.interval
         if (!across || !stated(across.from) || !stated(across.to)) return null
+        if (!along || along.from !== 0 || along.to !== areaLength) return null
         const atStart = across.from === 0
         const atEnd = across.to === areaWidth
         return atStart === atEnd ? null : atStart ? 0 : areaWidth
@@ -1793,6 +1807,7 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
     const mergeLines =
         lines.length === 2 &&
         lines.every(onEndLine) &&
+        [0, areaLength].every(end => lines.some(r => geometryFor(r.elementId, 'along')?.geometry?.interval?.from === end)) &&
         endsDiffer &&
         lines.every(r => {
             const { at } = lineGeometry(r)
@@ -1813,11 +1828,22 @@ function produceRendering(fixture: Fixture, wording: ApprovedWording[], template
     const lateralOf = (r: any) => (r.selector ?? []).find((t: any) => t.attribute === 'lateral')?.value
     const sides = regions.map(lateralOf).filter(Boolean)
     const paired = sides.length === 2 && new Set(sides).size === 2
-    /** E5a (above): whether the touchline the sentence would name is where the game realizes the region, and, for a pair, its partner on the other. */
+    /** The touchlines the regions said "along the touchline" (no pair) lie along: "the touchline" is one touchline only where this holds one. */
+    const unpairedTouchlines = new Set(
+        regions
+            .filter(r => r.noun !== 'line' && !targetZone(r) && (!paired || !lateralOf(r)))
+            .map(touchlineOf)
+            .filter(side => side !== null),
+    )
+    /**
+     * E5a (above): whether the touchline the sentence would name is where the game realizes the region, and, for a pair, its partner on the
+     * other; for a region with no pair, whether every region said "along the touchline" lies along that same one.
+     */
     const liesAlongItsTouchline = (region: any): boolean => {
         const mine = touchlineOf(region)
         const lateral = lateralOf(region)
-        if (mine === null || !paired || !lateral) return mine !== null
+        if (mine === null) return false
+        if (!paired || !lateral) return unpairedTouchlines.size === 1
         const partner = regions.find(other => other !== region && lateralOf(other) && lateralOf(other) !== lateral)
         const theirs = partner ? touchlineOf(partner) : null
         return theirs !== null && theirs !== mine
