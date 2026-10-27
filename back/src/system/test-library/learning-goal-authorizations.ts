@@ -549,12 +549,20 @@ export function validateLearningGoalAuthorizations(
          */
         if (!Array.isArray(entry.manipulations)) errors.push(`${goal}: lists no manipulations (an empty list says it records none)`)
         /**
+         * **The exclusions are a list too, an empty one included** (after the third E2 review, 27 October 2026, a TIGHTENING). The type
+         * requires the field and its readers dereference it without a fallback (`authorizationOf` in build-activity.ts, the review
+         * evidence), while this gate read absent or null as "excludes none", so a record copy that left it out passed the gate and crashed
+         * the build with a TypeError, as the manipulations did before E2. Refused here instead, absent, null or any value not a list alike.
+         */
+        if (!Array.isArray(entry.excluded)) errors.push(`${goal}: lists no exclusions (an empty list says it excludes none)`)
+        /**
          * **Every list the gate reads is read as a list, and every entry it reads as a record** (after the second E2 review, 27 October 2026,
          * a TIGHTENING). An entry that is not a record (`null`, a word, a number) in the manipulations, the gaps, the provisional choices, the
-         * existing knowledge or the exclusions, and any of the last four present but not a list (`{}`, a word), crashed this gate with a
-         * TypeError (`m.status` of null, `.filter is not a function`) instead of being refused. Each is refused by a sentence and read as no
-         * entry, its place in the list kept so later entries are numbered as the record numbers them. Absent (or null) still says the record
-         * lists none, as before and as the readers below take it.
+         * existing knowledge or the exclusions, and the gaps, the provisional choices or the existing knowledge present but not a list (`{}`,
+         * a word), crashed this gate with a TypeError (`m.status` of null, `.filter is not a function`) instead of being refused. Each is
+         * refused by a sentence and read as no entry, its place in the list kept so later entries are numbered as the record numbers them.
+         * Absent (or null) gaps, provisional choices or existing knowledge still say the record lists none, as before and as their readers
+         * below take them (`?? []`); the manipulations and the exclusions, whose readers dereference them, must be lists (above).
          */
         const isRecord = (value: unknown): boolean => typeof value === 'object' && value !== null && !Array.isArray(value)
         const listed = <T>(field: string, value: unknown, absent: string): (T | null)[] => {
@@ -571,7 +579,7 @@ export function validateLearningGoalAuthorizations(
         const choiceEntries = listed<ProvisionalChoice>('provisionalChoices', entry.provisionalChoices, 'absent says it records none')
         const choices = choiceEntries.filter((c): c is ProvisionalChoice => c !== null)
         const knownEntries = listed<ExistingKnowledgeRecord>('existingKnowledge', entry.existingKnowledge, 'absent says it lists none')
-        const exclusionEntries = listed<AuthorizationExclusion>('excluded', entry.excluded, 'an empty list says it excludes none')
+        const exclusionEntries: (AuthorizationExclusion | null)[] = Array.isArray(entry.excluded) ? entry.excluded.map(e => (isRecord(e) ? e : null)) : []
         if ('zeroConstraintRuling' in (entry as object)) errors.push(`${goal}: a per-goal zero-constraint ruling is not read; the general principle governs every record alike`)
         // Stage K8: a review request that cannot be read whole would let the review evidence silently omit what he asked to see.
         if (entry.reviewRequest !== undefined) errors.push(...validateReviewRequest(goal, entry.reviewRequest))

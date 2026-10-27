@@ -257,13 +257,18 @@ test('the gate refuses an entry without a citation', () => {
         assert.deepEqual(damaged(r => ((r as any).gaps = notAList)), ['A01: gaps must be a list (absent says it defines none)'], tag)
         assert.deepEqual(damaged(r => ((r as any).provisionalChoices = notAList)), ['A01: provisionalChoices must be a list (absent says it records none)'], tag)
         assert.deepEqual(damaged(r => ((r as any).existingKnowledge = notAList)), ['A01: existingKnowledge must be a list (absent says it lists none)'], tag)
-        assert.deepEqual(damaged(r => ((r as any).excluded = notAList)), ['A01: excluded must be a list (an empty list says it excludes none)'], tag)
+        assert.deepEqual(damaged(r => ((r as any).excluded = notAList)), ['A01: lists no exclusions (an empty list says it excludes none)'], tag)
     }
-    // Absent or null still says the record lists none, as before.
+    // Absent or null still says the record lists none, as before, where the readers take it so (`?? []`).
     for (const field of ['gaps', 'provisionalChoices', 'existingKnowledge'] as const) {
         assert.deepEqual(damaged(r => delete (r as any)[field]), [], `${field} absent`)
         assert.deepEqual(damaged(r => ((r as any)[field] = null)), [], `${field} null`)
     }
+    // After the third E2 review (27 October 2026): the exclusions absent or null passed the gate, and the build then crashed with a TypeError
+    // (`authorizationOf` dereferences them). They are refused now, as the manipulations are; an empty list is an answer.
+    assert.deepEqual(damaged(r => delete (r as any).excluded), ['A01: lists no exclusions (an empty list says it excludes none)'], 'excluded absent')
+    assert.deepEqual(damaged(r => ((r as any).excluded = null)), ['A01: lists no exclusions (an empty list says it excludes none)'], 'excluded null')
+    assert.deepEqual(damaged(r => (r.excluded = [])), [], 'an empty list excludes none')
     assert.deepEqual(damaged(r => (r.authorizedConstraints = null)), [], 'null is an answer: not yet evaluated')
     assert.ok(damaged(r => (r.authorizedConstraintsFinding = '')).some(e => e.includes('carries no finding')))
 })
