@@ -8,7 +8,7 @@
     },
     {
       "finding": "verification, 28 October 2026: E8",
-      "change": "Gap E8 is no longer conditional on D2 or D3: the scope is held knowledge and the engine can evaluate only WHOLE_GAME (resolved-game.ts:289), so E8 is needed for any representative A05, and it is shared with Secure Possession."
+      "change": "Gap E8 is no longer conditional on D2 or D3: the scope is held knowledge and, for this game, the engine can evaluate only WHOLE_GAME (resolved-game.ts:289): its one narrower scope is Play Out from the Back's restart-begun, role-bounded build-out episode (gates.ts:1295, 1314-1328, 1519), and this game has neither a restart nor roles. So E8 is needed for any representative A05. Corrected by the lead, 28 October: what it shares with Secure Possession is the organized-possession sign (Secure Possession's end, A05's start), not the change-of-possession beginning the phase investigation sized."
     },
     {
       "finding": "verification, 28 October 2026: capabilities",

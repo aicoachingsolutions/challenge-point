@@ -3,8 +3,8 @@
 ## 0. In short (OUR READING on the measurements in section 3; rewritten 28 October 2026 after verification)
 
 - **What composes.** The engine serves a complete, checked activity for Progress the Attack only when six of his pending decisions are filled in for testing (TEST-ONLY stand-ins; a seventh only for the Coach Overview). What it serves is the plain possession game (Directional Possession, GF2) with Attack Development's scoring clause added as two DRAFT conditions. No engine code was added. It passes every check the engine implements (MEASURED, R2-ALL). His context validation protocol, RPC-VAL-011..015, is never evaluated, because no engine code reads it (VERIFIED, section 4).
-- **It is not demonstrably Progress the Attack** (OUR READING on MEASURED facts). It is the plain game plus two DRAFT conditions and one sentence (R7(1)). Removing the conditions changes nothing the engine notices (R6). The stand-ins depart from REQUIRED rows of his workbook, RPC-ID-011 and RPC-ID-013 (section 4).
-- **What remains: his decisions, plus one substantial reusable engine capability that is needed in every case.** His workbook already says when the attack begins: "Organized attacking possession is established." (RPC-PROP-034, `LIB:1751`). The engine can apply a scoring condition only across the whole game (VERIFIED, `resolved-game.ts:289`), so a score also counts straight after a turnover, which is Counterattack's moment. Recognizing when an attack begins is the general phase mechanism (E8) his reply asked us to identify (30 October, line 19). Secure Possession needs the same capability.
+- **It is not demonstrably Progress the Attack** (OUR READING on MEASURED facts). It is the plain game plus two DRAFT conditions and one sentence (R7(1)). Removing the conditions changes nothing the engine notices (R6). The ORIGIN stand-in departs from a REQUIRED row of his workbook, RPC-ID-011 (section 4). **Corrected 28 October (lead):** RPC-ID-013 is met, since possession alone never scores in this game; it was listed here in error.
+- **What remains: his decisions, plus one substantial reusable engine capability that is needed in every case.** His workbook already says when the attack begins: "Organized attacking possession is established." (RPC-PROP-034, `LIB:1751`). For this game the engine can apply the condition only across the whole game (`resolved-game.ts:289` for the whole-game reading). Its one narrower scope, Play Out from the Back's build-out episode, is a code list with one value (`gates.ts:1295`); its beginnings must be restarts (`gates.ts:1314-1328`) and its credit bound needs a team holding a role (`gates.ts:1519`), and this game has neither a restart nor roles (VERIFIED). So a score also counts straight after a turnover, which is Counterattack's moment. Recognizing when an attack begins is the general phase mechanism (E8) his reply asked us to identify (30 October, line 19). Secure Possession needs the same capability.
 - **Against Secure Possession.** Progress the Attack is better placed in the knowledge (VERIFIED). It is not easier to build (OUR READING): the moment organized attacking possession is established is Secure Possession's success and Progress the Attack's start. As his last paragraph asks, we report this before beginning E8.
 - **His two-goal objective.** Play Out from the Back reaches a complete activity through realization choices he approved item by item. No goal yet reaches one through composition alone, so a composed Progress the Attack would be the first (section 8).
 - **His decisions:** D1 (Game Problem), D2 (when an attack begins) and D3 (what counts as a score) now; D4, D5, D6 and D10 later (section 7).
@@ -153,7 +153,7 @@ Only one configuration was run in R0-R7. V1-E5 adds three. The probe scripts are
    - Objectives: each team attacks the far end line, fixed at setup. This comes from GF2's restated contract.
    - Scoring: "line_crossed" is an approved Attack Development event, "Valid primary scoring event 2 of 4, in the approved order." (RPC-REL-080). "target_zone_entered" is "Valid primary scoring event 1 of 4, in the approved order." (RPC-REL-079, `LIB:1276`). Choosing a line over a zone is a realizer input, not knowledge (`a04-realization-choices.json`).
    - Opposition: mirrored, because RPC-003-06 assumes it (ASSUMED; D4). No Attack Development row authorizes a defending event.
-   - **Consequence (corrected): not met by the context.** Play continuing on a turnover is GF2's generic consequence. The context's own consequence is N/A on ASSUMED item 09.b, and its only END_CONDITION is "Possession is lost." (RPC-PROP-037). RPC-VAL-014, which asks that "consequence" remain intact, is not evaluated. The account's `unfilledRoles: consequence` is a constraint-role gap (`selection-metadata.ts:20`), not a missing game consequence.
+   - **Consequence (corrected): not met by the context.** Play continuing on a turnover is GF2's generic consequence. The context's own consequence is N/A on ASSUMED item 09.b. Of its two END_CONDITION rows, RPC-PROP-036, "The attack shifts from improving conditions to directly creating an immediate scoring opportunity." (`LIB:1769`), and RPC-PROP-037, "Possession is lost." (`LIB:1778`), only RPC-PROP-037 concerns a change of possession. RPC-VAL-014, which asks that "consequence" remain intact, is not evaluated. The account's `unfilledRoles: consequence` is a constraint-role gap (`selection-metadata.ts:20`), not a missing game consequence.
    - **These are the plain possession game's elements** (R7(1)). Against the plain GF2 demonstration:
      - `objectives`, `objects`, `performers`, `space`, `possession` and `envelope` are identical;
      - `value.primaryEvent.conditions` is present only in A05 (the two DRAFT conditions, with TEST-ONLY referents);
@@ -178,7 +178,7 @@ The per-candidate grades are in `evidence/r3.summary.json` (MEASURED). Under eve
 
 **The relevance verdict rests on R7(1), R6 and these rows of his workbook** (rows VERIFIED; the judgement is OUR READING, made by hand):
 - RPC-ID-011, REQUIRED: "Organized attacking possession is already established." (`LIB:2787`). Also RPC-PROP-034 and RPC-PROP-035, both CORE BEGIN_CONDITION (`LIB:1751`, `1760`), and Library lines 570 and 580. The ORIGIN stand-in departs from all of them.
-- RPC-ID-013, REQUIRED: "Possession alone is insufficient as success." (`LIB:2803`).
+- RPC-ID-013, REQUIRED: "Possession alone is insufficient as success." (`LIB:2803`). **Corrected 28 October (lead): met**, since the game scores only by crossing the line; not a failure.
 - RPC-ID-012, REQUIRED: "The representative purpose is to improve attacking conditions." (`LIB:2795`).
 - RPC-PROP-042, DEGENERATE_SOLUTION: "Possession circulates without improving attacking conditions." (`LIB:1823`).
 - RPC-VAL-011, IDENTITY: "Remove title, objective, and Learning Goal; the activity must remain recognizable as the selected RPC." (`LIB:3351`; also Library line 715). With the labels removed, the game cannot be told apart from GF2 plus one sentence, or from the TA02 build.
@@ -191,7 +191,7 @@ His 30 October line 20 is secondary support: *"I do not approve option (a), whic
 
 | Id | Gap (MEASURED or VERIFIED) | Improvement | Size (ours) | Needs him first? |
 |---|---|---|---|---|
-| E8 | Only the WHOLE_GAME scope is evaluable (`resolved-game.ts:289`). The one episode kind, BUILD_OUT_EPISODE, is a code list (`gates.ts:1295`). Its beginnings must be restarts (`gates.ts:1314-1328`), and the team it bounds must hold a role (`gates.ts:1519`) | Episode kinds held as data, so a scoring condition can apply from an attack's starting condition. Play Out from the Back's kind is re-expressed as the first kind, with identical behaviour | large: 1-2 weeks in full. Our earlier phase investigation put the engine part at 300-500 lines, about two to three focused sessions, before tests | **Needed in every case** (corrected: the scope is held knowledge). D2 says how the start is recognized |
+| E8 | Beyond WHOLE_GAME (`resolved-game.ts:289`), the one evaluable scope is BUILD_OUT_EPISODE. That one episode kind, BUILD_OUT_EPISODE, is a code list (`gates.ts:1295`). Its beginnings must be restarts (`gates.ts:1314-1328`), and the team it bounds must hold a role (`gates.ts:1519`) | Episode kinds held as data, so a scoring condition can apply from an attack's starting condition. Play Out from the Back's kind is re-expressed as the first kind, with identical behaviour | large: 1-2 weeks in full. Our earlier phase investigation put the engine part at 300-500 lines, about two to three focused sessions, before tests | **Needed in every case** (corrected: the scope is held knowledge). D2 says how the start is recognized |
 | V-RPC | RPC-VAL rows are never read (`rpc-library.ts:438`, no caller) | Report each context's RPC-VAL rows on every build as review evidence, marked not checked and needing coach judgement, evaluating only what is structurally decidable | 1-2 days | no |
 | G3 | The unconditioned scoring sentence is said beside the conditioned one, in Details and the overview, and the overview check passes it (R2-ALL). **Corrected:** it is suppressed today only in games with roles, where credit is bounded or a role scores by its own event (`render-concrete-game.ts:3493-3532`) | No unconditioned team-neutral scoring sentence where the conditions are said in approved words; the value line is kept | 1-2 days | no |
 | J-COND | Our DRAFT join table has no rule for scoring conditions (R3) | Join rules for scoring conditions, as our DRAFT reading, graded under his three distinctions (30 October, lines 62-64) | 2-3 days, then his review | his review of the rules |
@@ -209,6 +209,7 @@ His 30 October line 20 is secondary support: *"I do not approve option (a), whic
 - G4 (restart silence as a separate limitation) is withdrawn. The Laws check already owes LAW-8, "the kick-off at the start and after a score" (`../../conformance/stage-b/sport-profile-soccer.json`, LAW-8). The restart itself is ours to propose (D5), then E6.
 
 **The smallest useful slice of E8 (OUR PROPOSAL; D2(a)).** An attack begins at a coach's restart that recreates organized possession and ends when possession is lost. Scoring is confined to that attack, for the team given the restart. This generalizes the restart-begun episode Play Out from the Back already uses, so the restart-only beginning test stays as it is. Checked against the code lines above and our earlier phase investigation (INFERRED), it still needs:
+0. a coach's restart in the game for the attack to begin at. Today the composed game holds only the change of possession (MEASURED, `evidence/v1-e1-edges.out.txt` E6), and GF2 leaves the restart after a score unauthored (`../../conformance/stage-b/contracts.json:4380`). It must come from reusable approved knowledge, not from an activity realization: our restart proposal (his 30 October line 49), then his approval, with his typed begin condition for it (PR-3; a ruled restatement only, `types.ts:651-659`), and its departures from the Laws held in reusable knowledge. Added at the game-form level, it also needs E-K4 so that Play Out from the Back does not move (`../ta02-composition/gf2-restart-restatement-notes.md:150-158`). A coach-played common restart on a test copy of GF2 was measured on 27 October to pass the structural checks and stop only at communication (our Secure Possession investigation's restart probe, outside the repository);
 1. episode kinds as data, read in place of the code list;
 2. a credit bound that needs no role block. This game has none, and today the bound requires a role holder (`gates.ts:1519`);
 3. following the team whose attack it is back to the restart that began it. Today an episode designation is not followed (`designation.ts:194-200`);
@@ -217,9 +218,9 @@ His 30 October line 20 is secondary support: *"I do not approve option (a), whic
 
 The safeguard is that Play Out from the Back's snapshot must show zero changed leaves.
 
-Consequence (OUR READING): after a turnover, the team that won the ball cannot score until the next coach's restart. That keeps Counterattack's moment out, and what follows a turnover becomes his decision (D4). Rough size (ours): about a week.
+Consequence (OUR READING): after a turnover, the team that won the ball cannot score until the next coach's restart. That keeps Counterattack's moment out, and what follows a turnover becomes his decision (D4). Rough size (ours, not sized separately): about a week for the episode part (items 1-5), plus a few days for the restart wording and its Laws handling (item 0). Our earlier phase investigation's 300-500 lines sized a different scope: an in-play beginning at a change of possession, explicitly excluding an organized-possession episode.
 
-Recognizing a start in live play (D2(b)) can follow later. It is the larger part, and it is shared with Secure Possession. Our phase investigation reads the same beginning as the phase that Attack Quickly, Win the Ball Back, Recover Organization and Delay the Attack turn on.
+Recognizing a start in live play (D2(b)) can follow later; it is larger. What it shares with Secure Possession is the sign itself: the moment organized attacking possession is established would end Secure Possession's phase and begin Progress the Attack's. The in-play beginning our phase investigation studied, a change of possession, is the one Attack Quickly, Secure Possession, Win the Ball Back, Recover Organization and Delay the Attack turn on. It is not Progress the Attack's beginning, and that investigation did not size a beginning at organized possession.
 
 None of these improvements makes the activity representative by itself.
 
@@ -259,7 +260,7 @@ None of these improvements makes the activity representative by itself.
 
   The decision lands in the planning model's translation (`SPM:665-668`), and the record must land with it (R5c). Our recommendation is procedural only. **Not asked (corrected):** whether secondaries stay deferred. He already ruled: *"Let's retain our existing decision to defer secondary Game Problems."* (15 October, line 9).
 - **D2. When does an attack begin, and how is it recognized? (restated, corrected)** The scope is not asked. It is held knowledge: RPC-PROP-034 and RPC-ID-011 (section 4), Library lines 570 and 580, and his 30 October line 14, *"Progress the Attack: Improving attacking conditions once organized possession has been established."* What is open:
-  - **(a) at a coach's restart that recreates organized possession.** This is the smaller engine step, generalizing Play Out from the Back's restart-begun episode (section 5).
+  - **(a) at a coach's restart that recreates organized possession.** This is the smaller engine step, generalizing Play Out from the Back's restart-begun episode (section 5). It also needs the restart arrangement first (section 5, item 0).
   - **(b) recognized in live play.** This is larger, and shared with Secure Possession.
 
   Also open: whether we may build the general capability, E8. For (b), an observable sign that organized attacking possession is established is ours to propose and his to approve. Under his option (d) the same sign marks Secure Possession's success. Our lean: (a) first, (b) later. WHOLE_GAME appears here only as labelled engineering evidence.
@@ -291,12 +292,12 @@ None of these improvements makes the activity representative by itself.
 
 **With identical stand-ins, the engine builds an identical game** (MEASURED, R7(2)). This holds by construction, so it shows that the engine cannot tell apart goals that share a context. **Corrected:** the committed "No better placed in the engine", labelled MEASURED, is OUR READING.
 
-**On the path to a representative activity, the cost is comparable, not lower** (OUR READING and INFERRED):
+**On the path to a representative activity, the cost is comparable, lower only if an attack may begin at a coach's restart (D2(a))** (OUR READING and INFERRED; corrected 28 October to match the report):
 - Both goals need E8 and the organized-possession sign.
 - Secure Possession also needs a context or transitional relationship, and counter-press reciprocity.
 - A05 also needs D1 and a representation of the advanced area.
 
-**Not yet representative** (MEASURED and OUR READING). What composes is the possession game with a clause on its score that nothing in the game makes observable (R7(1), R6). It is reached through a stand-in that departs from REQUIRED rows of his workbook (RPC-ID-011, RPC-ID-013; section 4). That fails his test: *"not simply reproduce a generic possession game under a different name."* (31 October, line 20).
+**Not yet representative** (MEASURED and OUR READING). What composes is the possession game with a clause on its score that nothing in the game makes observable (R7(1), R6). It is reached through a stand-in that departs from a REQUIRED row of his workbook (RPC-ID-011; section 4). That fails his test: *"not simply reproduce a generic possession game under a different name."* (31 October, line 20).
 
 **Not yet one reusable process for both goals** (VERIFIED facts; OUR READING of their import). His objective: *"Our immediate objective is to demonstrate two distinct Learning Goals producing complete, checked activities through the same reusable generation process."* (31 October, line 47).
 - Play Out from the Back is the one production record (`../../../../back/src/system/test-library/library/learning-goal-authorizations.json:126`, ruled 15 October 2026). It is completed by provisional realization choices he approved item by item (`../../conformance/stage-b/provisional-realizations.json`).
@@ -307,6 +308,7 @@ None of these improvements makes the activity representative by itself.
 
 Our suggested order:
 1. D1, D2 and D3 from him.
-2. The E8 slice he agrees under D2.
-3. The small reusable items (V-RPC, G3, STORE, G1, J-COND).
-4. E5/E11 only if D3 chooses a zone or an interior area.
+2. Our restart proposal, for his approval (section 5, item 0).
+3. The E8 slice he agrees under D2.
+4. The small reusable items (V-RPC, G3, STORE, G1, J-COND).
+5. E5/E11 only if D3 chooses a zone or an interior area.
