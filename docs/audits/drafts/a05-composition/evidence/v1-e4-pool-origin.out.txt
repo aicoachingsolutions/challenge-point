@@ -1,0 +1,10 @@
+A05 composition attempt probe. Worktree HEAD 2324a36. In-memory injection: none.
+text="Progress the Attack. Improve attacking conditions while maintaining purposeful possession."
+raw keys=["candidateArchetypeIds","candidateAffordanceLensIds","candidateConstraintIds","matchedSignals"]
+raw={"candidateArchetypeIds":["GF2","GF5","GF1","GF7","GF6"],"candidateAffordanceLensIds":["tl-v0-lens-possession-stability-opportunity","tl-v0-lens-space-creation-opportunity","tl-v0-lens-space-exploitation-opportunity","tl-v0-lens-line-breaking-opportunity","tl-v0-lens-transition-attack-opportunity","tl-v0-lens-finishing-opportunity"],"candidateConstraintIds":["tl-v0-constraint-central-density-condition","tl-v0-constraint-wide-zone-advantage","tl-v0-constraint-switch-of-play-bonus","tl-v0-constraint-turnover-reward","tl-v0-constraint-pass-combination-gate","tl-v0-constraint-progression-bonus"],"matchedSignals":["signalGroup:F_possession_passing","signalGroup:D_break_lines"]}
+probe "Progress the Attack." => pool=["tl-v0-constraint-progression-bonus","tl-v0-constraint-switch-of-play-bonus","tl-v0-constraint-wide-zone-advantage","tl-v0-constraint-central-density-condition"] gp=null
+probe "Improve attacking conditions while maintaining purposeful possession." => pool=["tl-v0-constraint-central-density-condition","tl-v0-constraint-wide-zone-advantage","tl-v0-constraint-switch-of-play-bonus","tl-v0-constraint-turnover-reward","tl-v0-constraint-pass-combination-gate"] gp=null
+probe "possession" => pool=["tl-v0-constraint-central-density-condition","tl-v0-constraint-wide-zone-advantage","tl-v0-constraint-switch-of-play-bonus","tl-v0-constraint-turnover-reward","tl-v0-constraint-pass-combination-gate"] gp=null
+probe "Progress" => pool=["tl-v0-constraint-progression-bonus","tl-v0-constraint-switch-of-play-bonus","tl-v0-constraint-wide-zone-advantage","tl-v0-constraint-central-density-condition"] gp=null
+probe "attacking conditions" => pool=["tl-v0-constraint-central-density-condition","tl-v0-constraint-wide-zone-advantage","tl-v0-constraint-progression-bonus","tl-v0-constraint-turnover-reward"] gp=null
+probe "purposeful" => pool=[] gp=null

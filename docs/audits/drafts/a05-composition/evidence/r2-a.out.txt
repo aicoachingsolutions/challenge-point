@@ -1,0 +1,189 @@
+A05 composition attempt probe. Worktree HEAD d119235. In-memory injection: none.
+store (TEST-ONLY combined copy; record gameProblemId replaced by the TEST-ONLY placeholder "TEST-ONLY-UNRESOLVED: no Game Problem assigned (stand-in for his decision D1)"): files=["a05-authorization.DRAFT.json","rpc-003-contract.DRAFT.json"] records=["A05:DRAFT:TEST-ONLY-UNRESOLVED: no Game Problem assigned (stand-in for his decision D1)"]
+
+## R2 one at a time (each on top of S0 = the TEST-ONLY Game Problem placeholder in the record only; laws under our DRAFT classification unless named)
+
+### R2-S0: Game Problem placeholder only (D1 stand-in, record only)
+outcome=refused stage=structure
+stages passed: session > selection > knowledge; REFUSED at structure
+summary: The game this goal selects is not yet described completely enough to be set up.
+  reason: Gate A is FAIL
+  reason: a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE
+  reason: 2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6
+account.title="Progress the Attack" provisional=true provisionalReason="no Game Problem is approved for this Learning Goal, so selection followed its wording - which is not an authoritative substitute for an approved mapping (ruling of 14 October)"
+account.gameProblem={"status":"UNRESOLVED","gameProblemId":null,"name":null,"inferredFromWording":"GP-015","governed":false}
+account.gameForm={"id":"GF2","name":"Directional Possession Games","contracted":true}
+account.context={"id":"RPC-003","name":"Attack Development","approvedScoringCondition":"Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.","inThisActivity":true,"contract":"DRAFT"}
+account.constraints=[] selectedWithoutContract=[] affordanceLenses=["Possession Stability Opportunity","Line-Breaking Opportunity","Space Creation Opportunity"]
+account.constraintSource={"source":"AUTHORIZATION_RECORD","constraintAuthority":"AUTHORIZATION_RECORD","constraintPrinciple":{"ruledOn":"2026-10-15","by":"Christian","principle":"A library constraint is not mandatory unless its inclusion is justified by the approved knowledge and intended learning environment."},"lensAuthority":"ENGINE_LENS","unfilledRoles":["foundation","shaping","consequence"],"heldByRuling":[],"gap":null}
+account.authorization={"learningGoalId":"A05","gameProblemId":"TEST-ONLY-UNRESOLVED: no Game Problem assigned (stand-in for his decision D1)","knowledgeStatus":"DRAFT","authorizedConstraints":[]}
+draftKnowledge: status=BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED records=["A05"] files=["a05-authorization.DRAFT.json","rpc-003-contract.DRAFT.json"] contracts=["restated:RPC-003"]
+
+### R2-S0+PR1 alone (D3 area stand-in: the target each team attacks)
+outcome=refused stage=structure
+stages passed: session > selection > knowledge; REFUSED at structure
+summary: The game this goal selects is not yet described completely enough to be set up.
+  reason: Gate A is FAIL
+  reason: a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE
+  reason: 2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6
+account.title="Progress the Attack" provisional=true provisionalReason="no Game Problem is approved for this Learning Goal, so selection followed its wording - which is not an authoritative substitute for an approved mapping (ruling of 14 October)"
+account.gameProblem={"status":"UNRESOLVED","gameProblemId":null,"name":null,"inferredFromWording":"GP-015","governed":false}
+account.gameForm={"id":"GF2","name":"Directional Possession Games","contracted":true}
+account.context={"id":"RPC-003","name":"Attack Development","approvedScoringCondition":"Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.","inThisActivity":true,"contract":"DRAFT"}
+account.constraints=[] selectedWithoutContract=[] affordanceLenses=["Possession Stability Opportunity","Line-Breaking Opportunity","Space Creation Opportunity"]
+account.constraintSource={"source":"AUTHORIZATION_RECORD","constraintAuthority":"AUTHORIZATION_RECORD","constraintPrinciple":{"ruledOn":"2026-10-15","by":"Christian","principle":"A library constraint is not mandatory unless its inclusion is justified by the approved knowledge and intended learning environment."},"lensAuthority":"ENGINE_LENS","unfilledRoles":["foundation","shaping","consequence"],"heldByRuling":[],"gap":null}
+account.authorization={"learningGoalId":"A05","gameProblemId":"TEST-ONLY-UNRESOLVED: no Game Problem assigned (stand-in for his decision D1)","knowledgeStatus":"DRAFT","authorizedConstraints":[]}
+draftKnowledge: status=BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED records=["A05"] files=["a05-authorization.DRAFT.json","rpc-003-contract.DRAFT.json"] contracts=["restated:RPC-003"]
+
+### R2-S0+PR2 alone (D3 control stand-in: judged at the target)
+outcome=refused stage=structure
+stages passed: session > selection > knowledge; REFUSED at structure
+summary: The game this goal selects is not yet described completely enough to be set up.
+  reason: Gate A is FAIL
+  reason: a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE
+  reason: 1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-10.a::V6
+account.title="Progress the Attack" provisional=true provisionalReason="no Game Problem is approved for this Learning Goal, so selection followed its wording - which is not an authoritative substitute for an approved mapping (ruling of 14 October)"
+account.gameProblem={"status":"UNRESOLVED","gameProblemId":null,"name":null,"inferredFromWording":"GP-015","governed":false}
+account.gameForm={"id":"GF2","name":"Directional Possession Games","contracted":true}
+account.context={"id":"RPC-003","name":"Attack Development","approvedScoringCondition":"Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.","inThisActivity":true,"contract":"DRAFT"}
+account.constraints=[] selectedWithoutContract=[] affordanceLenses=["Possession Stability Opportunity","Line-Breaking Opportunity","Space Creation Opportunity"]
+account.constraintSource={"source":"AUTHORIZATION_RECORD","constraintAuthority":"AUTHORIZATION_RECORD","constraintPrinciple":{"ruledOn":"2026-10-15","by":"Christian","principle":"A library constraint is not mandatory unless its inclusion is justified by the approved knowledge and intended learning environment."},"lensAuthority":"ENGINE_LENS","unfilledRoles":["foundation","shaping","consequence"],"heldByRuling":[],"gap":null}
+account.authorization={"learningGoalId":"A05","gameProblemId":"TEST-ONLY-UNRESOLVED: no Game Problem assigned (stand-in for his decision D1)","knowledgeStatus":"DRAFT","authorizedConstraints":[]}
+draftKnowledge: status=BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED records=["A05"] files=["a05-authorization.DRAFT.json","rpc-003-contract.DRAFT.json"] contracts=["restated:RPC-003"]
+
+### R2-S0+ORIGIN-WITHHELD alone (D2 stand-in: WHOLE_GAME, no starting condition)
+outcome=refused stage=structure
+stages passed: session > selection > knowledge; REFUSED at structure
+summary: The game this goal selects is not yet described completely enough to be set up.
+  reason: Gate A is FAIL
+  reason: a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE
+  reason: 1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5
+account.title="Progress the Attack" provisional=true provisionalReason="no Game Problem is approved for this Learning Goal, so selection followed its wording - which is not an authoritative substitute for an approved mapping (ruling of 14 October)"
+account.gameProblem={"status":"UNRESOLVED","gameProblemId":null,"name":null,"inferredFromWording":"GP-015","governed":false}
+account.gameForm={"id":"GF2","name":"Directional Possession Games","contracted":true}
+account.context={"id":"RPC-003","name":"Attack Development","approvedScoringCondition":"Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.","inThisActivity":true,"contract":"DRAFT"}
+account.constraints=[] selectedWithoutContract=[] affordanceLenses=["Possession Stability Opportunity","Line-Breaking Opportunity","Space Creation Opportunity"]
+account.constraintSource={"source":"AUTHORIZATION_RECORD","constraintAuthority":"AUTHORIZATION_RECORD","constraintPrinciple":{"ruledOn":"2026-10-15","by":"Christian","principle":"A library constraint is not mandatory unless its inclusion is justified by the approved knowledge and intended learning environment."},"lensAuthority":"ENGINE_LENS","unfilledRoles":["foundation","shaping","consequence"],"heldByRuling":[],"gap":null}
+account.authorization={"learningGoalId":"A05","gameProblemId":"TEST-ONLY-UNRESOLVED: no Game Problem assigned (stand-in for his decision D1)","knowledgeStatus":"DRAFT","authorizedConstraints":[]}
+draftKnowledge: status=BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED records=["A05"] files=["a05-authorization.DRAFT.json","rpc-003-contract.DRAFT.json"] contracts=["restated:RPC-003"]
+
+### R2-S0+LAW-11 PROCEDURAL alone (D5 stand-in)
+outcome=refused stage=structure
+stages passed: session > selection > knowledge; REFUSED at structure
+summary: The game this goal selects is not yet described completely enough to be set up.
+  reason: Gate A is FAIL
+  reason: a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE
+  reason: 2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6
+account.title="Progress the Attack" provisional=true provisionalReason="no Game Problem is approved for this Learning Goal, so selection followed its wording - which is not an authoritative substitute for an approved mapping (ruling of 14 October)"
+account.gameProblem={"status":"UNRESOLVED","gameProblemId":null,"name":null,"inferredFromWording":"GP-015","governed":false}
+account.gameForm={"id":"GF2","name":"Directional Possession Games","contracted":true}
+account.context={"id":"RPC-003","name":"Attack Development","approvedScoringCondition":"Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.","inThisActivity":true,"contract":"DRAFT"}
+account.constraints=[] selectedWithoutContract=[] affordanceLenses=["Possession Stability Opportunity","Line-Breaking Opportunity","Space Creation Opportunity"]
+account.constraintSource={"source":"AUTHORIZATION_RECORD","constraintAuthority":"AUTHORIZATION_RECORD","constraintPrinciple":{"ruledOn":"2026-10-15","by":"Christian","principle":"A library constraint is not mandatory unless its inclusion is justified by the approved knowledge and intended learning environment."},"lensAuthority":"ENGINE_LENS","unfilledRoles":["foundation","shaping","consequence"],"heldByRuling":[],"gap":null}
+account.authorization={"learningGoalId":"A05","gameProblemId":"TEST-ONLY-UNRESOLVED: no Game Problem assigned (stand-in for his decision D1)","knowledgeStatus":"DRAFT","authorizedConstraints":[]}
+draftKnowledge: status=BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED records=["A05"] files=["a05-authorization.DRAFT.json","rpc-003-contract.DRAFT.json"] contracts=["restated:RPC-003"]
+
+### R2-S0 with NO laws classification at all (production default: every owed adaptation counts MATERIAL)
+outcome=refused stage=structure
+stages passed: session > selection > knowledge; REFUSED at structure
+summary: The game this goal selects is not yet described completely enough to be set up.
+  reason: Gate A is FAIL
+  reason: a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE
+  reason: 2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6
+account.title="Progress the Attack" provisional=true provisionalReason="no Game Problem is approved for this Learning Goal, so selection followed its wording - which is not an authoritative substitute for an approved mapping (ruling of 14 October)"
+account.gameProblem={"status":"UNRESOLVED","gameProblemId":null,"name":null,"inferredFromWording":"GP-015","governed":false}
+account.gameForm={"id":"GF2","name":"Directional Possession Games","contracted":true}
+account.context={"id":"RPC-003","name":"Attack Development","approvedScoringCondition":"Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.","inThisActivity":true,"contract":"DRAFT"}
+account.constraints=[] selectedWithoutContract=[] affordanceLenses=["Possession Stability Opportunity","Line-Breaking Opportunity","Space Creation Opportunity"]
+account.constraintSource={"source":"AUTHORIZATION_RECORD","constraintAuthority":"AUTHORIZATION_RECORD","constraintPrinciple":{"ruledOn":"2026-10-15","by":"Christian","principle":"A library constraint is not mandatory unless its inclusion is justified by the approved knowledge and intended learning environment."},"lensAuthority":"ENGINE_LENS","unfilledRoles":["foundation","shaping","consequence"],"heldByRuling":[],"gap":null}
+account.authorization={"learningGoalId":"A05","gameProblemId":"TEST-ONLY-UNRESOLVED: no Game Problem assigned (stand-in for his decision D1)","knowledgeStatus":"DRAFT","authorizedConstraints":[]}
+draftKnowledge: status=BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED records=["A05"] files=["a05-authorization.DRAFT.json","rpc-003-contract.DRAFT.json"] contracts=["restated:RPC-003"]
+
+## R2 cumulative ladder
+
+### R2-L1: S0+PR1+PR2 (origin kept)
+outcome=refused stage=structure
+stages passed: session > selection > knowledge; REFUSED at structure
+summary: The game this goal selects is not yet described completely enough to be set up.
+  reason: Gate A is FAIL
+  reason: a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE
+  reason: 1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-10.a::V6
+account.title="Progress the Attack" provisional=true provisionalReason="no Game Problem is approved for this Learning Goal, so selection followed its wording - which is not an authoritative substitute for an approved mapping (ruling of 14 October)"
+account.gameProblem={"status":"UNRESOLVED","gameProblemId":null,"name":null,"inferredFromWording":"GP-015","governed":false}
+account.gameForm={"id":"GF2","name":"Directional Possession Games","contracted":true}
+account.context={"id":"RPC-003","name":"Attack Development","approvedScoringCondition":"Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.","inThisActivity":true,"contract":"DRAFT"}
+account.constraints=[] selectedWithoutContract=[] affordanceLenses=["Possession Stability Opportunity","Line-Breaking Opportunity","Space Creation Opportunity"]
+account.constraintSource={"source":"AUTHORIZATION_RECORD","constraintAuthority":"AUTHORIZATION_RECORD","constraintPrinciple":{"ruledOn":"2026-10-15","by":"Christian","principle":"A library constraint is not mandatory unless its inclusion is justified by the approved knowledge and intended learning environment."},"lensAuthority":"ENGINE_LENS","unfilledRoles":["foundation","shaping","consequence"],"heldByRuling":[],"gap":null}
+account.authorization={"learningGoalId":"A05","gameProblemId":"TEST-ONLY-UNRESOLVED: no Game Problem assigned (stand-in for his decision D1)","knowledgeStatus":"DRAFT","authorizedConstraints":[]}
+draftKnowledge: status=BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED records=["A05"] files=["a05-authorization.DRAFT.json","rpc-003-contract.DRAFT.json"] contracts=["restated:RPC-003"]
+
+### R2-L2: S0+PR1+PR2+ORIGIN-WITHHELD, our DRAFT laws classification
+outcome=refused stage=validation
+stages passed: session > selection > knowledge > structure > realization; REFUSED at validation
+summary: Where this activity departs from the sport's normal rules has not all been decided yet, so it is not being shown.
+  reason: the sport's default-laws check (BY_MATERIALITY, his reply filed 30 October 2026, item 4) holds this composed activity: 1 material adaptation is owed, which prevents approval
+  reason: LAW-11 (Law 11 (Offside)) at the game: an adaptation is owed - the representation holds no row for it: a fixed halfway line: no register row holds the halfway line of Law 1, and the build-out activities' only halfway marking is the marked line the coach may move; nothing departs from the whole of it [MATERIAL, as classified in docs/audits/drafts/laws-materiality.DRAFT.json, standing DRAFT - OUR READING of his materiality test, for his review: not his classification, and not production knowledge]
+  reason: reported for review, not refused: LAW-8 (Law 8 (The Start and Restart of Play), the kick-off) at the game: an adaptation is owed - the representation holds no row for it: the centre mark a kick-off is taken from: no register row holds it; nothing departs from the whole of it [PROCEDURAL, as classified in docs/audits/drafts/laws-materiality.DRAFT.json, standing DRAFT - OUR READING of his materiality test, for his review: not his classification, and not production knowledge]
+account.title="Progress the Attack" provisional=true provisionalReason="no Game Problem is approved for this Learning Goal, so selection followed its wording - which is not an authoritative substitute for an approved mapping (ruling of 14 October)"
+account.gameProblem={"status":"UNRESOLVED","gameProblemId":null,"name":null,"inferredFromWording":"GP-015","governed":false}
+account.gameForm={"id":"GF2","name":"Directional Possession Games","contracted":true}
+account.context={"id":"RPC-003","name":"Attack Development","approvedScoringCondition":"Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.","inThisActivity":true,"contract":"DRAFT"}
+account.constraints=[] selectedWithoutContract=[] affordanceLenses=["Possession Stability Opportunity","Line-Breaking Opportunity","Space Creation Opportunity"]
+account.constraintSource={"source":"AUTHORIZATION_RECORD","constraintAuthority":"AUTHORIZATION_RECORD","constraintPrinciple":{"ruledOn":"2026-10-15","by":"Christian","principle":"A library constraint is not mandatory unless its inclusion is justified by the approved knowledge and intended learning environment."},"lensAuthority":"ENGINE_LENS","unfilledRoles":["foundation","shaping","consequence"],"heldByRuling":[],"gap":null}
+account.authorization={"learningGoalId":"A05","gameProblemId":"TEST-ONLY-UNRESOLVED: no Game Problem assigned (stand-in for his decision D1)","knowledgeStatus":"DRAFT","authorizedConstraints":[]}
+lawsCheck.materiality={"classifiedBy":{"file":"docs/audits/drafts/laws-materiality.DRAFT.json","standing":"DRAFT - OUR READING of his materiality test, for his review: not his classification, and not production knowledge"},"owed":[{"blockId":"ONE_GAME","law":"LAW-8","end":null,"materiality":"PROCEDURAL","classified":true,"ourReading":"Owed where the representation holds no centre mark: only where the kick-off is taken from is missing. Which restart follows a success is part of the activity's essential design (his decision 4 for Secure Possession, not yet made), and once chosen it departs from this law; until then the kick-off's location is a procedural question, reported for review.","sentence":"LAW-8 (Law 8 (The Start and Restart of Play), the kick-off) at the game: an adaptation is owed - the representation holds no row for it: the centre mark a kick-off is taken from: no register row holds it; nothing departs from the whole of it [PROCEDURAL, as classified in docs/audits/drafts/laws-materiality.DRAFT.json, standing DRAFT - OUR READING of his materiality test, for his review: not his classification, and not production knowledge]"},{"blockId":"ONE_GAME","law":"LAW-11","end":null,"materiality":"MATERIAL","classified":true,"ourReading":"Owed where no fixed halfway line exists, as in every directional possession game measured. Whether it governs a small-sided game affects the activity's meaning wherever the success condition rewards reaching an area or a line: players could wait there and bypass the interaction with opposition pressure. The success condition for Secure Possession (his decision 2) is not agreed, so this classification holds it MATERIAL throughout (fail safe) until he rules on it for the environment or an activity records a departure; it would be PROCEDURAL only where the success condition rewards no area or line.","sentence":"LAW-11 (Law 11 (Offside)) at the game: an adaptation is owed - the representation holds no row for it: a fixed halfway line: no register row holds the halfway line of Law 1, and the build-out activities' only halfway marking is the marked line the coach may move; nothing departs from the whole of it [MATERIAL, as classified in docs/audits/drafts/laws-materiality.DRAFT.json, standing DRAFT - OUR READING of his materiality test, for his review: not his classification, and not production knowledge]"}],"material":["LAW-11 (Law 11 (Offside)) at the game: an adaptation is owed - the representation holds no row for it: a fixed halfway line: no register row holds the halfway line of Law 1, and the build-out activities' only halfway marking is the marked line the coach may move; nothing departs from the whole of it [MATERIAL, as classified in docs/audits/drafts/laws-materiality.DRAFT.json, standing DRAFT - OUR READING of his materiality test, for his review: not his classification, and not production knowledge]"],"reportedForReview":["LAW-8 (Law 8 (The Start and Restart of Play), the kick-off) at the game: an adaptation is owed - the representation holds no row for it: the centre mark a kick-off is taken from: no register row holds it; nothing departs from the whole of it [PROCEDURAL, as classified in docs/audits/drafts/laws-materiality.DRAFT.json, standing DRAFT - OUR READING of his materiality test, for his review: not his classification, and not production knowledge]"]}
+draftKnowledge: status=BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED records=["A05"] files=["a05-authorization.DRAFT.json","rpc-003-contract.DRAFT.json"] contracts=["restated:RPC-003"]
+  ADMIN-DRAFT [Set up] DERIVED :: Mark out an area 40 m long by 30 m wide
+  ADMIN-DRAFT [Set up] STARTING :: Mark both end lines: they are the scoring lines
+  ADMIN-DRAFT [Players] DERIVED :: Divide 12 players into 2 teams of 6, with no goalkeepers
+  ADMIN-DRAFT [How it works] COACH_CHOICE :: Pick which team starts with the ball and tell both teams before you start
+  ADMIN-DRAFT [How it works] STARTING :: When possession changes, play carries on without a stoppage, and each team keeps attacking the same line
+  ADMIN-DRAFT [How to score] STARTING :: A team scores 1 point by getting the ball across the line it is attacking
+  ADMIN-DRAFT [How to score] DERIVED :: Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game
+  ADMIN-DRAFT [When it ends] DERIVED :: Play for 20 minutes
+  ADMIN-DRAFT WITHHELD value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type AWAITING_APPROVED_WORDING
+  ADMIN-DRAFT WITHHELD value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents AWAITING_APPROVED_WORDING
+  ADMIN-DRAFT WITHHELD value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value AWAITING_APPROVED_WORDING
+  ADMIN-DRAFT WITHHELD value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type AWAITING_APPROVED_WORDING
+  ADMIN-DRAFT WITHHELD value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents AWAITING_APPROVED_WORDING
+  ADMIN-DRAFT WITHHELD value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value AWAITING_APPROVED_WORDING
+
+### R2-L3: S0+PR1+PR2+ORIGIN-WITHHELD+LAW-11 PROCEDURAL
+outcome=refused stage=communication
+stages passed: session > selection > knowledge > structure > realization > validation; REFUSED at communication
+summary: Part of this activity is still waiting for approved coach wording, so it is not being shown.
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type (V4)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents (V5)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value (V6)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type (V4)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents (V5)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value (V6)
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value is established by the game and no instruction carries it
+account.title="Progress the Attack" provisional=true provisionalReason="no Game Problem is approved for this Learning Goal, so selection followed its wording - which is not an authoritative substitute for an approved mapping (ruling of 14 October)"
+account.gameProblem={"status":"UNRESOLVED","gameProblemId":null,"name":null,"inferredFromWording":"GP-015","governed":false}
+account.gameForm={"id":"GF2","name":"Directional Possession Games","contracted":true}
+account.context={"id":"RPC-003","name":"Attack Development","approvedScoringCondition":"Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.","inThisActivity":true,"contract":"DRAFT"}
+account.constraints=[] selectedWithoutContract=[] affordanceLenses=["Possession Stability Opportunity","Line-Breaking Opportunity","Space Creation Opportunity"]
+account.constraintSource={"source":"AUTHORIZATION_RECORD","constraintAuthority":"AUTHORIZATION_RECORD","constraintPrinciple":{"ruledOn":"2026-10-15","by":"Christian","principle":"A library constraint is not mandatory unless its inclusion is justified by the approved knowledge and intended learning environment."},"lensAuthority":"ENGINE_LENS","unfilledRoles":["foundation","shaping","consequence"],"heldByRuling":[],"gap":null}
+account.authorization={"learningGoalId":"A05","gameProblemId":"TEST-ONLY-UNRESOLVED: no Game Problem assigned (stand-in for his decision D1)","knowledgeStatus":"DRAFT","authorizedConstraints":[]}
+lawsCheck.materiality={"classifiedBy":{"file":"TEST-ONLY","standing":"DRAFT - TEST-ONLY stand-in, LAW-11 PROCEDURAL: neither our reading nor his"},"owed":[{"blockId":"ONE_GAME","law":"LAW-8","end":null,"materiality":"PROCEDURAL","classified":true,"ourReading":"Owed where the representation holds no centre mark: only where the kick-off is taken from is missing. Which restart follows a success is part of the activity's essential design (his decision 4 for Secure Possession, not yet made), and once chosen it departs from this law; until then the kick-off's location is a procedural question, reported for review.","sentence":"LAW-8 (Law 8 (The Start and Restart of Play), the kick-off) at the game: an adaptation is owed - the representation holds no row for it: the centre mark a kick-off is taken from: no register row holds it; nothing departs from the whole of it [PROCEDURAL, as classified in TEST-ONLY, standing DRAFT - TEST-ONLY stand-in, LAW-11 PROCEDURAL: neither our reading nor his]"},{"blockId":"ONE_GAME","law":"LAW-11","end":null,"materiality":"PROCEDURAL","classified":true,"ourReading":"TEST-ONLY stand-in.","sentence":"LAW-11 (Law 11 (Offside)) at the game: an adaptation is owed - the representation holds no row for it: a fixed halfway line: no register row holds the halfway line of Law 1, and the build-out activities' only halfway marking is the marked line the coach may move; nothing departs from the whole of it [PROCEDURAL, as classified in TEST-ONLY, standing DRAFT - TEST-ONLY stand-in, LAW-11 PROCEDURAL: neither our reading nor his]"}],"material":[],"reportedForReview":["LAW-8 (Law 8 (The Start and Restart of Play), the kick-off) at the game: an adaptation is owed - the representation holds no row for it: the centre mark a kick-off is taken from: no register row holds it; nothing departs from the whole of it [PROCEDURAL, as classified in TEST-ONLY, standing DRAFT - TEST-ONLY stand-in, LAW-11 PROCEDURAL: neither our reading nor his]","LAW-11 (Law 11 (Offside)) at the game: an adaptation is owed - the representation holds no row for it: a fixed halfway line: no register row holds the halfway line of Law 1, and the build-out activities' only halfway marking is the marked line the coach may move; nothing departs from the whole of it [PROCEDURAL, as classified in TEST-ONLY, standing DRAFT - TEST-ONLY stand-in, LAW-11 PROCEDURAL: neither our reading nor his]"]}
+draftKnowledge: status=BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED records=["A05"] files=["a05-authorization.DRAFT.json","rpc-003-contract.DRAFT.json"] contracts=["restated:RPC-003"]
+  ADMIN-DRAFT [Set up] DERIVED :: Mark out an area 40 m long by 30 m wide
+  ADMIN-DRAFT [Set up] STARTING :: Mark both end lines: they are the scoring lines
+  ADMIN-DRAFT [Players] DERIVED :: Divide 12 players into 2 teams of 6, with no goalkeepers
+  ADMIN-DRAFT [How it works] COACH_CHOICE :: Pick which team starts with the ball and tell both teams before you start
+  ADMIN-DRAFT [How it works] STARTING :: When possession changes, play carries on without a stoppage, and each team keeps attacking the same line
+  ADMIN-DRAFT [How to score] STARTING :: A team scores 1 point by getting the ball across the line it is attacking
+  ADMIN-DRAFT [How to score] DERIVED :: Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game
+  ADMIN-DRAFT [When it ends] DERIVED :: Play for 20 minutes
+  ADMIN-DRAFT WITHHELD value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type AWAITING_APPROVED_WORDING
+  ADMIN-DRAFT WITHHELD value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents AWAITING_APPROVED_WORDING
+  ADMIN-DRAFT WITHHELD value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value AWAITING_APPROVED_WORDING
+  ADMIN-DRAFT WITHHELD value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type AWAITING_APPROVED_WORDING
+  ADMIN-DRAFT WITHHELD value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents AWAITING_APPROVED_WORDING
+  ADMIN-DRAFT WITHHELD value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value AWAITING_APPROVED_WORDING

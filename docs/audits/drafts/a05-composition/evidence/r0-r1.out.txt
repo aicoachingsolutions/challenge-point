@@ -1,0 +1,54 @@
+A05 composition attempt probe. Worktree HEAD d119235. In-memory injection: none.
+
+## R0: production path (no drafts, no stand-ins)
+
+### R0a: buildActivityForReview(A05, includeDrafts: true) - the administrator review build
+outcome=refused stage=knowledge
+stages passed: session > selection; REFUSED at knowledge
+summary: The scoring this goal's context calls for has not been built into the activity engine yet, so no activity can be built for it.
+  reason: the Representative Performance Context RPC-003 has no contribution contract, so its approved primary scoring event and qualifying condition cannot govern the game
+account.title="Progress the Attack" provisional=true provisionalReason="no Game Problem is approved for this Learning Goal, so selection followed its wording - which is not an authoritative substitute for an approved mapping (ruling of 14 October)"
+account.gameProblem={"status":"UNRESOLVED","gameProblemId":null,"name":null,"inferredFromWording":"GP-015","governed":false}
+account.gameForm={"id":"GF2","name":"Directional Possession Games","contracted":true}
+account.context={"id":"RPC-003","name":"Attack Development","approvedScoringCondition":"Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.","inThisActivity":false}
+account.constraints=["tl-v0-constraint-central-density-condition (no contract)","tl-v0-constraint-wide-zone-advantage","tl-v0-constraint-progression-bonus (no contract)","tl-v0-constraint-turnover-reward (no contract)"] selectedWithoutContract=["tl-v0-constraint-central-density-condition","tl-v0-constraint-progression-bonus","tl-v0-constraint-turnover-reward"] affordanceLenses=["Possession Stability Opportunity","Line-Breaking Opportunity","Space Creation Opportunity"]
+account.constraintSource={"source":"GOAL_CANDIDATES","constraintAuthority":"VOCABULARY_POOL","constraintPrinciple":null,"lensAuthority":"ENGINE_LENS","unfilledRoles":[],"heldByRuling":[{"id":"tl-v0-constraint-pass-combination-gate","title":"Pass Combination Gate","ruledOn":"2026-10-14"}],"gap":null}
+account.authorization=null
+
+### R0b: buildActivityWithSelection(A05) - the coach build
+outcome=refused stage=knowledge
+stages passed: session > selection; REFUSED at knowledge
+summary: The scoring this goal's context calls for has not been built into the activity engine yet, so no activity can be built for it.
+  reason: the Representative Performance Context RPC-003 has no contribution contract, so its approved primary scoring event and qualifying condition cannot govern the game
+account.title="Progress the Attack" provisional=true provisionalReason="no Game Problem is approved for this Learning Goal, so selection followed its wording - which is not an authoritative substitute for an approved mapping (ruling of 14 October)"
+account.gameProblem={"status":"UNRESOLVED","gameProblemId":null,"name":null,"inferredFromWording":"GP-015","governed":false}
+account.gameForm={"id":"GF2","name":"Directional Possession Games","contracted":true}
+account.context={"id":"RPC-003","name":"Attack Development","approvedScoringCondition":"Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.","inThisActivity":false}
+account.constraints=["tl-v0-constraint-central-density-condition (no contract)","tl-v0-constraint-wide-zone-advantage","tl-v0-constraint-progression-bonus (no contract)","tl-v0-constraint-turnover-reward (no contract)"] selectedWithoutContract=["tl-v0-constraint-central-density-condition","tl-v0-constraint-progression-bonus","tl-v0-constraint-turnover-reward"] affordanceLenses=["Possession Stability Opportunity","Line-Breaking Opportunity","Space Creation Opportunity"]
+account.constraintSource={"source":"GOAL_CANDIDATES","constraintAuthority":"VOCABULARY_POOL","constraintPrinciple":null,"lensAuthority":"ENGINE_LENS","unfilledRoles":[],"heldByRuling":[{"id":"tl-v0-constraint-pass-combination-gate","title":"Pass Combination Gate","ruledOn":"2026-10-14"}],"gap":null}
+account.authorization=null
+R0b selection: archetype=? selected=["GF2","tl-v0-constraint-central-density-condition","tl-v0-constraint-wide-zone-advantage","tl-v0-constraint-progression-bonus","tl-v0-constraint-turnover-reward","tl-v0-lens-possession-stability-opportunity","tl-v0-lens-line-breaking-opportunity","tl-v0-lens-space-creation-opportunity","RPC-003"]
+
+## R1: TEST-ONLY path, drafts as drafted (no stand-in)
+R1a STORE REFUSED (DraftStoreRefused): the draft store C:\Users\ADMINI~1\AppData\Local\Temp\a05-attempt-store-ethOio is refused whole: a05-authorization.DRAFT.json: the record gate refuses it as a draft: A05: the record names no context or Game Problem
+  store reason: a05-authorization.DRAFT.json: the record gate refuses it as a draft: A05: the record names no context or Game Problem
+R1a: the build never starts: stages passed (none); refused before session/selection by the draft store's record gate.
+
+R1b: the same drafts with the A05 record LEFT OUT (an omission, not a stand-in): the RPC-003 draft alone; A05 then keeps its vocabulary pool
+R1b store: files=["rpc-003-contract.DRAFT.json"] records=[]
+
+### R1b: A05 over the RPC-003 draft alone (no A05 record)
+outcome=refused stage=structure
+stages passed: session > selection > knowledge; REFUSED at structure
+summary: The game this goal selects is not yet described completely enough to be set up.
+  reason: Gate A is FAIL
+  reason: a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE
+  reason: 2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6
+account.title="Progress the Attack" provisional=true provisionalReason="no Game Problem is approved for this Learning Goal, so selection followed its wording - which is not an authoritative substitute for an approved mapping (ruling of 14 October)"
+account.gameProblem={"status":"UNRESOLVED","gameProblemId":null,"name":null,"inferredFromWording":"GP-015","governed":false}
+account.gameForm={"id":"GF2","name":"Directional Possession Games","contracted":true}
+account.context={"id":"RPC-003","name":"Attack Development","approvedScoringCondition":"Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.","inThisActivity":true,"contract":"DRAFT"}
+account.constraints=["tl-v0-constraint-central-density-condition (no contract)","tl-v0-constraint-wide-zone-advantage","tl-v0-constraint-progression-bonus (no contract)","tl-v0-constraint-turnover-reward (no contract)"] selectedWithoutContract=["tl-v0-constraint-central-density-condition","tl-v0-constraint-progression-bonus","tl-v0-constraint-turnover-reward"] affordanceLenses=["Possession Stability Opportunity","Line-Breaking Opportunity","Space Creation Opportunity"]
+account.constraintSource={"source":"GOAL_CANDIDATES","constraintAuthority":"VOCABULARY_POOL","constraintPrinciple":null,"lensAuthority":"ENGINE_LENS","unfilledRoles":[],"heldByRuling":[{"id":"tl-v0-constraint-pass-combination-gate","title":"Pass Combination Gate","ruledOn":"2026-10-14"}],"gap":null}
+account.authorization=null
+draftKnowledge: status=BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED records=[] files=["rpc-003-contract.DRAFT.json"] contracts=["restated:RPC-003"]
