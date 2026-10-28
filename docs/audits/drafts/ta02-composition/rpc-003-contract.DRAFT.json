@@ -1,0 +1,2423 @@
+{
+  "standing": "DRAFT - NOT APPROVED. Drafted for Christian's review (his reply filed 29 October 2026, item 1: \"Please draft the necessary engine-readable knowledge from our existing libraries for my review\"). Nothing here is in the engine's knowledge: where this file is stored in the repository, it is a document only (docs/audits/drafts/ta02-composition/); the engine loads none of it, and nothing here may be presented as approved knowledge. Basis AUTHORED means the quoted words are his workbook's; the restatement into items is ours and unreviewed.",
+  "corrections": [
+    {
+      "finding": "M1",
+      "change": "Notes section 5 no longer calls U2 a near-success: it reached the wording gate only after deleting PROP-134's origin clause and letting GF2's own end-line target stand for \"a more advanced representative area\". S5/O4 declaration notes and 11.b's fitNote now say the NON_CLAIMED reading is ours and that RPC-001's analog was NOT_AUTHORED. The NOT_AUTHORED alternative was measured (run U2n): it changes neither outcome nor game, so the uncorrected claim that it \"would refuse until he places it\" is withdrawn, and the placement is recorded as GF2's, not Attack Development's."
+    },
+    {
+      "finding": "M2",
+      "change": "The scope note on every condition item (10.a-12.b) no longer gives engine evaluability as a reason and no longer says a possession makes an attack. It quotes RPC-ID-011, RPC-PROP-034/035, RPC-TR-002/004/013 and RPC-ID-026 and says WHOLE_GAME over-applies the condition; evaluability is recorded as engine limitation E8. Those rows are now cited as sources."
+    },
+    {
+      "finding": "M3",
+      "change": "RPC-003-06 basis AUTHORED -> ASSUMED, fitNote begins OUR READING, GA-001 and RPC-REL-003 added as sources; the DV1 NON_CLAIMED declaration note says the item is an assumption."
+    },
+    {
+      "finding": "M4",
+      "change": "RPC-003-12.c (V5 [type=control] \"a more advanced representative area\", AUTHORED) dropped. V5 [type=control] declared UNDECLARED, \"Referent not stated; typing it is PR-2 (the C57 analog)\". PR-2 now proposes adding an item."
+    },
+    {
+      "finding": "K1 SHOULD-2",
+      "change": "PR-2 carries the question whether \"while maintaining\" is judged at the target or continuously, with his C57 words."
+    },
+    {
+      "finding": "K1 SHOULD-3",
+      "change": "RPC-003-08: \"Carried as the workbook says it\" replaced by \"OUR READING, as for RPC-001-15.a: START awards possession to one team.\""
+    },
+    {
+      "finding": "K1 SHOULD-5",
+      "change": "RPC-003-09.b cites RPC-VAL-014 (\"consequence, and representative information must remain intact where required\"); basis stays ASSUMED."
+    },
+    {
+      "finding": "Step 0 defect 1",
+      "change": "RPC-003-08 kept and marked as addressing no element in any composition (ledger L-14)."
+    },
+    {
+      "finding": "Step 0 defect 2",
+      "change": "T7 for START/SCORE/OUT_END_LINE/OUT_TOUCHLINE declared UNDECLARED with the open question tied to D1 (ledger L-13). Not declared NON_CLAIMED."
+    },
+    {
+      "finding": "N6",
+      "change": "RPC-003-09.a's fitNote restores RPC-001-17.a's word, \"the end of one episode is the start of the next (spec §5.7)\" (contracts.json, RPC-001-17.a); the K1 draft had changed \"episode\" to \"attack\", which reintroduced the reading M2 removed. It now adds that a possession change is an episode boundary, not the start of an Attack Development attack."
+    },
+    {
+      "finding": "N7",
+      "change": "PR-1 and PR-2 now quote his 16 October proviso on the RPC-001 analog in full (item 9 point 2, christian-2026-10-16.txt:111) beside the M8 words. PR-1 gains a question: typing the progression referent as GF2's target makes GF2's end line stand for \"a more advanced representative area\" (run U2n), so it is asked against the intended progression outcome, not because it composes."
+    },
+    {
+      "finding": "verification, date labels",
+      "change": "The reply received 15 October 2026 and called his 16 October reply (christian-2026-10-16.txt:1) is cited by one label, \"his 16 October reply\", with file:line: 04.a (:117), the scope note on 10.a-12.b (:112), PR-1 and PR-2 (:111)."
+    },
+    {
+      "finding": "verification, RPC-003-08",
+      "change": "Basis AUTHORED -> ASSUMED by the M3 standard: the workbook says nothing about a START transition, and RPC-ID-011 / RPC-PROP-034 do not speak of a starting state as RPC-001-15.a's row does. Inert either way (it addresses no element, MEASURED)."
+    },
+    {
+      "finding": "verification, declaration kinds",
+      "change": "V5 [type=control] and T7 [START, SCORE, OUT_END_LINE, OUT_TOUCHLINE] stay UNDECLARED; their notes now say why (the M4 prescription; the measurements were taken with it; NOT_AUTHORED would state the examined silence more exactly but would change only the verdict's subtype, derivation-rules-2026-09-18.md:159, unmeasured)."
+    },
+    {
+      "finding": "Library pass, 27 October 2026",
+      "change": "His RC1.1 Library (Attack Development section, held outside the repository) is folded in WITHOUT adding or changing any item, declaration or proposed ruling: no Library-only item is AUTHORED. Ledger L-10 now quotes the seven typical manipulations and five typical interaction regulations instead of calling the section unavailable; L-11 names the four never-staged affordance targets; L-06 names the fourth begin condition. libraryProposals points to the reconciliation (rpc-003-library-reconciliation.DRAFT.md), where each Library-only item is a proposal awaiting him. The standing line says where this file may be stored (a document only) instead of \"Nothing here is in the repository\"."
+    }
+  ],
+  "about": "The contribution contract for RPC-003 Attack Development, in the shape of the RPC-001 entry of docs/audits/conformance/stage-b/contracts.json (entry 0) as corpus-restatements.json leaves it, built from the RPC-003 workbook rows. `contractEntry` is that shape exactly, with two annotation keys on every item and on the entry, `standing` (DRAFT) and `source` (the workbook rows quoted, each with file and line). corpus.ts loadCorpusContracts passes unknown item keys through untouched (corpus.ts:93-96) and neither key is one the engine reads by name (types.ts ENGINE_ITEM_KEYS), so the two keys change nothing a derivation does; they are for review and for the draft store (E1). kind \"restated\" is chosen because knowledgeKey strips only \"restated:\" and \"blind:\" (derivation/knowledge-key.ts:13-17): any other prefix would never match the context id RPC-003. setIndex is omitted, as for the two blind entries, because this contract was not derived from a contributions file.",
+  "contractEntry": {
+    "kind": "restated",
+    "name": "RPC-003 Attack Development",
+    "standing": "DRAFT",
+    "result": {
+      "object": "RPC-003 Attack Development — DRAFTED 27 October 2026 from back/src/system/sport-module/rpc-library.rc1.json (the RPC-003 rows of the RC1.1 workbook projection), on register-2026-09-18.json version 25, for Christian's review (his reply filed 29 October 2026, item 1). CORRECTED the same day after an adversarial review (M1-M4, K1 SHOULD-1..6) and the Step 0 measurement. NOT APPROVED. Not in contracts.json. The engine loads none of it.",
+      "items": [
+        {
+          "id": "RPC-003-01.a",
+          "origId": "RPC-003-01",
+          "row": "P1",
+          "selector": "*",
+          "requirement": "COUNT",
+          "value": "2",
+          "strictness": "REQUIRED",
+          "valueStatus": "REQUIRED_RANGE",
+          "scope": "WHOLE_GAME",
+          "basis": "ASSUMED",
+          "basisEvidence": "Assumes \"Opposition can deny, redirect, or reverse progression.\" (GAK-0105) and \"Reciprocal progression toward meaningful external objectives.\" (GA-001) mean exactly two opposed teams; GA-001 binds via RPC-REL-003 (COMPATIBLE, strength REQUIRED: \"Soccer RPCs operate within Invasion ecological organization.\").",
+          "checkability": "STRUCTURAL",
+          "structuralClause": "—",
+          "fitNote": "The analog of RPC-001-01.a, with the same assumption: the number 2 is not verbatim, so it stays an assumed bound (REQUIRED_RANGE because it carries a value).",
+          "standing": "DRAFT",
+          "source": [
+            {
+              "rowId": "RPC-REL-003",
+              "table": "relationships",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 440,
+              "text": "GAME_ARCHETYPE GA-001 (COMPATIBLE, strength REQUIRED); notes: \"Soccer RPCs operate within Invasion ecological organization.\"; provenance: \"Game Archetype Canonical Reference v1.1\""
+            },
+            {
+              "rowId": "GA-001 Objective_Organization",
+              "table": "archetypes",
+              "file": "back/src/system/knowledge-core/game-archetype-workbook.rc1.1.json",
+              "line": 43,
+              "text": "Reciprocal progression toward meaningful external objectives."
+            },
+            {
+              "rowId": "GAK-0105 (GA-001-OIC-03)",
+              "table": "knowledge",
+              "file": "back/src/system/knowledge-core/game-archetype-workbook.rc1.1.json",
+              "line": 1467,
+              "text": "Opposition can deny, redirect, or reverse progression."
+            }
+          ]
+        },
+        {
+          "id": "RPC-003-01.b",
+          "origId": "RPC-003-01",
+          "row": "P1",
+          "selector": "*",
+          "requirement": "EXISTS",
+          "value": "an opposing team that can deny, redirect or reverse progression (play)",
+          "strictness": "REQUIRED",
+          "valueStatus": "N/A",
+          "scope": "WHOLE_GAME",
+          "basis": "AUTHORED",
+          "basisEvidence": "\"Opposition can deny, redirect, or reverse progression.\" (GAK-0105, GA-001-OIC-03, via RPC-REL-003); \"Opponent interaction, direction, consequence, and representative information must remain intact where required.\" (RPC-VAL-014)",
+          "checkability": "OUTSIDE_BOUNDARY",
+          "structuralClause": "—",
+          "fitNote": "The analog of RPC-001-01.b. Live, unscripted opposition is play, so the item is recorded on the nearest row and is inert (RC-31).",
+          "standing": "DRAFT",
+          "source": [
+            {
+              "rowId": "GAK-0105 (GA-001-OIC-03)",
+              "table": "knowledge",
+              "file": "back/src/system/knowledge-core/game-archetype-workbook.rc1.1.json",
+              "line": 1467,
+              "text": "Opposition can deny, redirect, or reverse progression."
+            },
+            {
+              "rowId": "RPC-REL-003",
+              "table": "relationships",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 440,
+              "text": "GAME_ARCHETYPE GA-001 (COMPATIBLE, strength REQUIRED); notes: \"Soccer RPCs operate within Invasion ecological organization.\"; provenance: \"Game Archetype Canonical Reference v1.1\""
+            },
+            {
+              "rowId": "RPC-VAL-014",
+              "table": "validation_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 3384,
+              "text": "Opponent interaction, direction, consequence, and representative information must remain intact where required.",
+              "domain": "REPRESENTATIVENESS",
+              "runtimeStage": "POST_ASSEMBLY"
+            }
+          ]
+        },
+        {
+          "id": "RPC-003-02",
+          "origId": "RPC-003-02",
+          "row": "S1",
+          "selector": "*",
+          "requirement": "EXISTS",
+          "value": "N/A",
+          "strictness": "REQUIRED",
+          "valueStatus": "N/A",
+          "scope": "WHOLE_GAME",
+          "basis": "AUTHORED",
+          "basisEvidence": "\"reaching a more advanced representative area\" (RPC-PROP-134, PRIMARY_SCORING_CONDITION)",
+          "checkability": "STRUCTURAL",
+          "structuralClause": "—",
+          "fitNote": "The analog of RPC-001-07. The axis is presupposed by \"more advanced\", not stated (AUTHORED by presupposition, the L-14 class). EXISTS, because no dimension is fixed.",
+          "standing": "DRAFT",
+          "source": [
+            {
+              "rowId": "RPC-PROP-134",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2651,
+              "text": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+              "category": "PRIMARY_SCORING_CONDITION",
+              "importance": "CORE",
+              "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
+            }
+          ]
+        },
+        {
+          "id": "RPC-003-03.a",
+          "origId": "RPC-003-03",
+          "row": "V1",
+          "selector": "*",
+          "requirement": "EQUALS",
+          "value": [
+            "target_zone_entered",
+            "line_crossed",
+            "gate",
+            "target_player"
+          ],
+          "strictness": "REQUIRED",
+          "valueStatus": "REQUIRED_RANGE",
+          "scope": "WHOLE_GAME",
+          "basis": "AUTHORED",
+          "basisEvidence": "\"Valid primary scoring event 1 of 4, in the approved order.\" (RPC-REL-079, target_zone_entered; RPC-REL-080, -081, -082 carry line_crossed, gate and target_player as 2-4; provenance \"Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)\")",
+          "checkability": "STRUCTURAL",
+          "structuralClause": "—",
+          "fitNote": "The analog of RPC-001-08.a, in its restated (SD-79) form: a typed list, marked ordered because the source orders it; the order is recorded and not applied (RC-29). RPC-003's approved order puts target_zone_entered FIRST (RPC-001 puts line_crossed first). With GF2-19 the permitted set narrows to {line_crossed, target_zone_entered} (INFERRED: the intersection the classifier makes). The role-yield marker (yieldsForRole) is NOT written: only a ruled item restatement quoting his words writes it (corpus-restatement.ts itemRestatementRefusal); it would be needed only for an asymmetric design (decision D3).",
+          "authoredOrder": true,
+          "standing": "DRAFT",
+          "source": [
+            {
+              "rowId": "RPC-REL-079",
+              "table": "relationships",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1276,
+              "text": "SCORING_EVENT target_zone_entered (COMPATIBLE, strength PRIMARY); notes: \"Valid primary scoring event 1 of 4, in the approved order.\"; provenance: \"Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)\""
+            },
+            {
+              "rowId": "RPC-REL-080",
+              "table": "relationships",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1287,
+              "text": "SCORING_EVENT line_crossed (COMPATIBLE, strength PRIMARY); notes: \"Valid primary scoring event 2 of 4, in the approved order.\"; provenance: \"Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)\""
+            },
+            {
+              "rowId": "RPC-REL-081",
+              "table": "relationships",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1298,
+              "text": "SCORING_EVENT gate (COMPATIBLE, strength PRIMARY); notes: \"Valid primary scoring event 3 of 4, in the approved order.\"; provenance: \"Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)\""
+            },
+            {
+              "rowId": "RPC-REL-082",
+              "table": "relationships",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1309,
+              "text": "SCORING_EVENT target_player (COMPATIBLE, strength PRIMARY); notes: \"Valid primary scoring event 4 of 4, in the approved order.\"; provenance: \"Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)\""
+            }
+          ]
+        },
+        {
+          "id": "RPC-003-03.b",
+          "origId": "RPC-003-03",
+          "row": "V0",
+          "selector": "*",
+          "requirement": "COUNT",
+          "value": "1",
+          "strictness": "REQUIRED",
+          "valueStatus": "REQUIRED_RANGE",
+          "scope": "WHOLE_GAME",
+          "basis": "ASSUMED",
+          "basisEvidence": "'Exactly one' comes from SD-06 (register citableStandingDecisions). RPC-003 authors a valid set of four events, not a count.",
+          "checkability": "STRUCTURAL",
+          "structuralClause": "—",
+          "fitNote": "The analog of RPC-001-08.b. Read as C60 restated it for RPC-001: the count of one is the game's primary event; another role's own event would be row B9, never a second element of V0. No RPC-003 row is the source: this is the standing decision, recorded as an assumed bound.",
+          "standing": "DRAFT",
+          "source": []
+        },
+        {
+          "id": "RPC-003-04.a",
+          "origId": "RPC-003-04",
+          "row": "O1",
+          "selector": "kind=ball",
+          "requirement": "EXISTS",
+          "value": "N/A",
+          "strictness": "REQUIRED",
+          "valueStatus": "N/A",
+          "scope": "WHOLE_GAME",
+          "basis": "AUTHORED",
+          "basisEvidence": "\"while maintaining attacking possession\" (RPC-PROP-134); \"Possession is lost.\" (RPC-PROP-037, END_CONDITION, CORE)",
+          "checkability": "STRUCTURAL",
+          "structuralClause": "—",
+          "fitNote": "The analog of RPC-001-10.a. A ball is presupposed by the quotes, not stated (L-14 class). COMPOSITION DEPENDENCY: RPC-001-10.a is identified with the Sport Profile ball (SPORT-SOCCER-01) only by realization-choices-rpc-001.json satisfiedByEstablished, on his ruling \"One ball shared between context and game: Approved.\" (his 16 October reply, item 9 point 8, christian-2026-10-16.txt:117), whose note says \"This is not a general merge rule\". The same identification for RPC-003 is his decision (D8b); without it this item is a second ball class.",
+          "standing": "DRAFT",
+          "source": [
+            {
+              "rowId": "RPC-PROP-134",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2651,
+              "text": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+              "category": "PRIMARY_SCORING_CONDITION",
+              "importance": "CORE",
+              "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
+            },
+            {
+              "rowId": "RPC-PROP-037",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1778,
+              "text": "Possession is lost.",
+              "category": "END_CONDITION",
+              "importance": "CORE",
+              "provenance": "Representative Performance Context Library RC1"
+            }
+          ]
+        },
+        {
+          "id": "RPC-003-04.b",
+          "origId": "RPC-003-04",
+          "row": "O1",
+          "selector": "kind=ball",
+          "requirement": "EXISTS",
+          "value": "contested; possession decidable at the scoring event and at loss of possession",
+          "strictness": "REQUIRED",
+          "valueStatus": "N/A",
+          "scope": "WHOLE_GAME",
+          "basis": "AUTHORED",
+          "basisEvidence": "\"while maintaining attacking possession\" (RPC-PROP-134); \"Possession is lost.\" (RPC-PROP-037)",
+          "checkability": "OUTSIDE_BOUNDARY",
+          "structuralClause": "—",
+          "fitNote": "The analog of RPC-001-10.b. Contest and possession are in-play judgements; inert (RC-31).",
+          "standing": "DRAFT",
+          "source": [
+            {
+              "rowId": "RPC-PROP-134",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2651,
+              "text": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+              "category": "PRIMARY_SCORING_CONDITION",
+              "importance": "CORE",
+              "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
+            },
+            {
+              "rowId": "RPC-PROP-037",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1778,
+              "text": "Possession is lost.",
+              "category": "END_CONDITION",
+              "importance": "CORE",
+              "provenance": "Representative Performance Context Library RC1"
+            }
+          ]
+        },
+        {
+          "id": "RPC-003-05",
+          "origId": "RPC-003-05",
+          "row": "V1",
+          "selector": "*",
+          "requirement": "EQUALS",
+          "value": "possession alone",
+          "strictness": "EXCLUSION",
+          "valueStatus": "REQUIRED_RANGE",
+          "scope": "WHOLE_GAME",
+          "basis": "AUTHORED",
+          "basisEvidence": "\"Reinforce measurable improvement in attacking conditions rather than possession alone.\" (RPC-STMT-014, PRIMARY_SCORING_IDENTITY); \"Possession alone is insufficient as success.\" (RPC-ID-013, identity_role REQUIRED); \"rather than possession alone\" (RPC-PROP-134); \"Primary scoring must reinforce the RPC Primary Scoring Identity and must not substitute an unrelated affordance outcome.\" (RPC-VAL-012, SCORING, POST_ASSEMBLY); cf. \"Possession circulates without improving attacking conditions.\" (RPC-PROP-042, DEGENERATE_SOLUTION, COMMON)",
+          "checkability": "STRUCTURAL",
+          "structuralClause": "—",
+          "fitNote": "The analog of RPC-001-12, stronger: three RPC-003 rows say it. The forbidden value is the workbook's own phrase; RPC-001-12's parenthesis (pass counts, keep-away, time in possession) is its restater's gloss and is NOT carried here - GF2-20 already forbids those kinds by name. The value is off the V1 list (the L-07 class) and already excluded by RPC-003-03.a, so the item binds nothing further; it keeps the identity statement visible to the review.",
+          "standing": "DRAFT",
+          "source": [
+            {
+              "rowId": "RPC-STMT-014",
+              "table": "statements",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 200,
+              "text": "Reinforce measurable improvement in attacking conditions rather than possession alone.",
+              "statementType": "PRIMARY_SCORING_IDENTITY"
+            },
+            {
+              "rowId": "RPC-ID-013",
+              "table": "identity_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2803,
+              "text": "Possession alone is insufficient as success.",
+              "identityRole": "REQUIRED"
+            },
+            {
+              "rowId": "RPC-PROP-134",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2651,
+              "text": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+              "category": "PRIMARY_SCORING_CONDITION",
+              "importance": "CORE",
+              "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
+            },
+            {
+              "rowId": "RPC-VAL-012",
+              "table": "validation_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 3362,
+              "text": "Primary scoring must reinforce the RPC Primary Scoring Identity and must not substitute an unrelated affordance outcome.",
+              "domain": "SCORING",
+              "runtimeStage": "POST_ASSEMBLY"
+            },
+            {
+              "rowId": "RPC-PROP-042",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1823,
+              "text": "Possession circulates without improving attacking conditions.",
+              "category": "DEGENERATE_SOLUTION",
+              "importance": "COMMON",
+              "provenance": "Representative Performance Context Library RC1"
+            }
+          ]
+        },
+        {
+          "id": "RPC-003-06",
+          "origId": "RPC-003-06",
+          "row": "DV1",
+          "selector": "*",
+          "requirement": "ORIENTED",
+          "value": "each team attacks toward its PRIMARY_SCORING reference and defends the opposite",
+          "strictness": "REQUIRED",
+          "valueStatus": "REQUIRED_RANGE",
+          "scope": "PER_TEAM",
+          "basis": "ASSUMED",
+          "basisEvidence": "\"Opponent interaction, direction, consequence, and representative information must remain intact where required.\" (RPC-VAL-014, REPRESENTATIVENESS, POST_ASSEMBLY) is read as requiring an orientation, as it was for RPC-001-13. RPC-VAL-014 names no team. 'Each team' is assumed from \"Reciprocal progression toward meaningful external objectives.\" (GA-001 Objective_Organization, via RPC-REL-003).",
+          "checkability": "PARTLY_STRUCTURAL",
+          "structuralClause": "Structural: direction computed from J3 and positions on S1. Outside: that direction stays intact in play.",
+          "fitNote": "OUR READING. 'each team' is ours, from GA-001 reciprocity (\"Reciprocal progression toward meaningful external objectives.\", via RPC-REL-003); RPC-001's restater narrowed the same phrase (RPC-001-13, whose kept fitNote reads \"The original says 'each team', but RPC-001 authors only the building team's side\"). It prejudges D3 (a symmetric design). Basis ASSUMED so that nothing grades it as his: the review evidence shows AUTHORED and OWNER_RULING items as APPROVED (review-evidence.ts:389-398). The DV1 NON_CLAIMED declaration (\"Whether the objectives are mirrored, symmetric or of the same kind is not authored.\") stays true, because this item is an assumption, not authored knowledge.",
+          "standing": "DRAFT",
+          "source": [
+            {
+              "rowId": "RPC-VAL-014",
+              "table": "validation_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 3384,
+              "text": "Opponent interaction, direction, consequence, and representative information must remain intact where required.",
+              "domain": "REPRESENTATIVENESS",
+              "runtimeStage": "POST_ASSEMBLY"
+            },
+            {
+              "rowId": "GA-001 Objective_Organization",
+              "table": "archetypes",
+              "file": "back/src/system/knowledge-core/game-archetype-workbook.rc1.1.json",
+              "line": 43,
+              "text": "Reciprocal progression toward meaningful external objectives."
+            },
+            {
+              "rowId": "RPC-REL-003",
+              "table": "relationships",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 440,
+              "text": "GAME_ARCHETYPE GA-001 (COMPATIBLE, strength REQUIRED); notes: \"Soccer RPCs operate within Invasion ecological organization.\"; provenance: \"Game Archetype Canonical Reference v1.1\""
+            }
+          ]
+        },
+        {
+          "id": "RPC-003-07",
+          "origId": "RPC-003-07",
+          "row": "J1",
+          "selector": "*",
+          "requirement": "RANGE",
+          "value": ">=1",
+          "strictness": "SUPPORTING",
+          "valueStatus": "REQUIRED_RANGE",
+          "scope": "PER_TEAM",
+          "basis": "AUTHORED",
+          "basisEvidence": "\"Reciprocal progression toward meaningful external objectives.\" (GA-001 Objective_Organization, knowledge-core/game-archetype-workbook.rc1.1.json, via RPC-REL-003)",
+          "checkability": "STRUCTURAL",
+          "structuralClause": "—",
+          "fitNote": "The analog of RPC-001-14.a in its typed (C38) form: minimum 1, no maximum, as authored.",
+          "typedBound": {
+            "min": 1,
+            "max": null
+          },
+          "standing": "DRAFT",
+          "source": [
+            {
+              "rowId": "GA-001 Objective_Organization",
+              "table": "archetypes",
+              "file": "back/src/system/knowledge-core/game-archetype-workbook.rc1.1.json",
+              "line": 43,
+              "text": "Reciprocal progression toward meaningful external objectives."
+            },
+            {
+              "rowId": "RPC-REL-003",
+              "table": "relationships",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 440,
+              "text": "GAME_ARCHETYPE GA-001 (COMPATIBLE, strength REQUIRED); notes: \"Soccer RPCs operate within Invasion ecological organization.\"; provenance: \"Game Archetype Canonical Reference v1.1\""
+            }
+          ]
+        },
+        {
+          "id": "RPC-003-08",
+          "origId": "RPC-003-08",
+          "row": "T2",
+          "selector": "trigger=START",
+          "requirement": "EXISTS",
+          "value": "N/A",
+          "strictness": "REQUIRED",
+          "valueStatus": "N/A",
+          "scope": "WHOLE_GAME",
+          "basis": "ASSUMED",
+          "basisEvidence": "\"Organized attacking possession is already established.\" (RPC-ID-011, identity_role REQUIRED); \"Organized attacking possession is established.\" (RPC-PROP-034, BEGIN_CONDITION, CORE)",
+          "checkability": "PARTLY_STRUCTURAL",
+          "structuralClause": "Structural (OUR READING, as for RPC-001-15.a): START awards possession to one team (T2 present), so the game does not begin with a contested ball. Outside: that the possession is organized and established in play.",
+          "fitNote": "BASIS ASSUMED (was AUTHORED; verification of 27 October 2026, by the M3 standard, because the review evidence grades AUTHORED as APPROVED): the workbook says nothing about a START transition, and RPC-ID-011 / RPC-PROP-034 speak of organized possession being established, not of a starting state as RPC-001-15.a's row does (\"Controlled defensive possession provides a stable starting state.\", RPC-ID-001). Inert either way. The analog of RPC-001-15.a. OUR READING, as for RPC-001-15.a: START awards possession to one team. The workbook says nothing about a START transition; the rows say only that organized possession is established. Which team starts stays free (SD-39). ADDRESSES NO ELEMENT IN ANY COMPOSITION (MEASURED, design/step0-results.md section 4 and the re-run in final/scripts/probe-out): no contribution in a GF2 composition establishes a START transition, so removing this item changes nothing. It is kept because it carries his REQUIRED identity row, and it is reported as inert, the same pattern as GF2-16.a/b. TENSION, for decision D1 (README Q1): TA02 reads \"Stabilize possession after regaining it.\" (session-planning-model.rc1.json:98), while this identity rule requires organized possession ALREADY established; the moment just after a regain is RPC-006 Counterattack's (RPC-ID-026 \"Possession has just been regained.\"). The conflict is reported, not resolved.",
+          "standing": "DRAFT",
+          "source": [
+            {
+              "rowId": "RPC-ID-011",
+              "table": "identity_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2787,
+              "text": "Organized attacking possession is already established.",
+              "identityRole": "REQUIRED"
+            },
+            {
+              "rowId": "RPC-PROP-034",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1751,
+              "text": "Organized attacking possession is established.",
+              "category": "BEGIN_CONDITION",
+              "importance": "CORE",
+              "provenance": "Representative Performance Context Library RC1"
+            },
+            {
+              "rowId": "RPC-ID-026",
+              "table": "identity_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2907,
+              "text": "Possession has just been regained.",
+              "identityRole": "REQUIRED"
+            }
+          ]
+        },
+        {
+          "id": "RPC-003-09.a",
+          "origId": "RPC-003-09",
+          "row": "T7",
+          "selector": "trigger=POSSESSION_CHANGE",
+          "requirement": "EQUALS",
+          "value": "true",
+          "strictness": "REQUIRED",
+          "valueStatus": "REQUIRED_RANGE",
+          "scope": "WHOLE_GAME",
+          "basis": "AUTHORED",
+          "basisEvidence": "\"Possession is lost.\" (RPC-PROP-037, END_CONDITION, CORE)",
+          "checkability": "STRUCTURAL",
+          "structuralClause": "—",
+          "fitNote": "The analog of RPC-001-17.a: the end of one episode is the start of the next (spec §5.7), an episode boundary, not the start of an Attack Development attack (see the scope note on 10.a-12.b). It does not require play to stop (GF2-17 keeps play on). Cf. RPC-TR-007, the context transition to Counter-Press when \"Possession is lost and an immediate defensive transition exists.\" (not carried; decision D3).",
+          "standing": "DRAFT",
+          "source": [
+            {
+              "rowId": "RPC-PROP-037",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1778,
+              "text": "Possession is lost.",
+              "category": "END_CONDITION",
+              "importance": "CORE",
+              "provenance": "Representative Performance Context Library RC1"
+            },
+            {
+              "rowId": "RPC-TR-007",
+              "table": "transitions",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 3089,
+              "text": "Possession is lost and an immediate defensive transition exists."
+            }
+          ]
+        },
+        {
+          "id": "RPC-003-09.b",
+          "origId": "RPC-003-09",
+          "row": "T6",
+          "selector": "trigger=POSSESSION_CHANGE",
+          "requirement": "EXISTS",
+          "value": "N/A",
+          "strictness": "REQUIRED",
+          "valueStatus": "N/A",
+          "scope": "WHOLE_GAME",
+          "basis": "ASSUMED",
+          "basisEvidence": "'Must have a defined consequence' is RPC-001-17.b's reading, kept as an assumption. RPC-PROP-037 authors only the end of the attack. Cf. \"consequence, and representative information must remain intact where required\" (RPC-VAL-014), which asks that a consequence remain intact where required but does not say a possession change must have one.",
+          "checkability": "STRUCTURAL",
+          "structuralClause": "—",
+          "fitNote": "The analog of RPC-001-17.b. Only the presence of a play state is required, not its value (GF2-17 gives CONTINUE). Basis stays ASSUMED: neither row states the requirement.",
+          "standing": "DRAFT",
+          "source": [
+            {
+              "rowId": "RPC-PROP-037",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1778,
+              "text": "Possession is lost.",
+              "category": "END_CONDITION",
+              "importance": "CORE",
+              "provenance": "Representative Performance Context Library RC1"
+            },
+            {
+              "rowId": "RPC-VAL-014",
+              "table": "validation_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 3384,
+              "text": "Opponent interaction, direction, consequence, and representative information must remain intact where required.",
+              "domain": "REPRESENTATIVENESS",
+              "runtimeStage": "POST_ASSEMBLY"
+            }
+          ]
+        },
+        {
+          "id": "RPC-003-10.a",
+          "origId": "RPC-003-10",
+          "row": "V3",
+          "selector": "type=origin",
+          "requirement": "EXISTS",
+          "value": "N/A",
+          "strictness": "REQUIRED",
+          "valueStatus": "N/A",
+          "scope": "WHOLE_GAME",
+          "basis": "AUTHORED",
+          "basisEvidence": "\"Purposeful advancement from the attack's starting condition\" (RPC-PROP-134)",
+          "checkability": "STRUCTURAL",
+          "structuralClause": "—",
+          "fitNote": "The analog of RPC-001-18.a. One compound condition split into typed conditions, as RPC-001-18 was. SCOPE WHOLE_GAME (DRAFT; decisions D1/D2, README Q1). Reasons: RPC-PROP-134 states no episode; the register's only episode scope, BUILD_OUT_EPISODE, is defined by RPC-001's build-out begin condition (contractEnums.scopeBuildOutEpisode, SD-36), so it cannot be borrowed; RPC-001's own conditions were WHOLE_GAME as written and were narrowed only by his ruling (C52, SD-36, his 16 October reply, item 9 point 3, christian-2026-10-16.txt:112). INFERRED, and in tension with RPC-ID-011 (\"Organized attacking possession is already established.\"), RPC-PROP-034 (\"Organized attacking possession is established.\"), RPC-PROP-035 (\"Immediate build-out or press-escape challenges are no longer the dominant problem.\") and RPC-TR-002/004/013 (\"Organized attack is established and improving attacking conditions becomes the primary purpose.\"; \"Coordinated pressure is escaped and organized attacking development is restored.\"; \"Transitional superiority disappears while possession remains and attack becomes organized.\"): the faithful scope is an Attack Development episode that begins once organized possession is established. That needs engine work (E8, episodes as data) and his ruling (D1/D2). WHOLE_GAME is drafted only as the one scope representable today, and it over-applies the condition to post-regain play, which the workbook gives to RPC-006 Counterattack (RPC-ID-026, \"Possession has just been regained.\"). A possession change (RPC-003-09.a, T7 true) is an episode boundary, not the start of an Attack Development attack. ENGINE LIMITATION, NOT A REASON (E8): WHOLE_GAME is the only scope the realization, the context guard and rendering evaluate (resolved-game.ts EVALUABLE_CONDITION_SCOPE).",
+          "standing": "DRAFT",
+          "source": [
+            {
+              "rowId": "RPC-PROP-134",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2651,
+              "text": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+              "category": "PRIMARY_SCORING_CONDITION",
+              "importance": "CORE",
+              "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
+            },
+            {
+              "rowId": "RPC-ID-011",
+              "table": "identity_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2787,
+              "text": "Organized attacking possession is already established.",
+              "identityRole": "REQUIRED"
+            },
+            {
+              "rowId": "RPC-PROP-034",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1751,
+              "text": "Organized attacking possession is established.",
+              "category": "BEGIN_CONDITION",
+              "importance": "CORE",
+              "provenance": "Representative Performance Context Library RC1"
+            },
+            {
+              "rowId": "RPC-PROP-035",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1760,
+              "text": "Immediate build-out or press-escape challenges are no longer the dominant problem.",
+              "category": "BEGIN_CONDITION",
+              "importance": "CORE",
+              "provenance": "Representative Performance Context Library RC1"
+            },
+            {
+              "rowId": "RPC-TR-002",
+              "table": "transitions",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 3039,
+              "text": "Organized attack is established and improving attacking conditions becomes the primary purpose."
+            },
+            {
+              "rowId": "RPC-TR-004",
+              "table": "transitions",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 3059,
+              "text": "Coordinated pressure is escaped and organized attacking development is restored."
+            },
+            {
+              "rowId": "RPC-TR-013",
+              "table": "transitions",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 3149,
+              "text": "Transitional superiority disappears while possession remains and attack becomes organized."
+            },
+            {
+              "rowId": "RPC-ID-026",
+              "table": "identity_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2907,
+              "text": "Possession has just been regained.",
+              "identityRole": "REQUIRED"
+            }
+          ]
+        },
+        {
+          "id": "RPC-003-10.b",
+          "origId": "RPC-003-10",
+          "row": "V5",
+          "selector": "type=origin",
+          "requirement": "EQUALS",
+          "value": "the attack's starting condition",
+          "strictness": "REQUIRED",
+          "valueStatus": "REQUIRED_RANGE",
+          "scope": "WHOLE_GAME",
+          "basis": "AUTHORED",
+          "basisEvidence": "\"the attack's starting condition\" (RPC-PROP-134)",
+          "checkability": "PARTLY_STRUCTURAL",
+          "structuralClause": "Structural: none until the referent is typed (a begin-condition referent names an episode scope that a transition begins, register V5 version 3). Outside: what the attack's starting condition is, judged in play.",
+          "fitNote": "The referent as authored, open text, never typed by us: the register says a typed referent is \"Written only by a ruled restatement ... never inferred from prose\" (register row V5). RPC-001-18.b was typed only by his C58 ruling, over an episode scope. What \"the attack's starting condition\" is for a composed game (any possession; a regain; a coach restart) is decision D1. SCOPE WHOLE_GAME (DRAFT; decisions D1/D2, README Q1). Reasons: RPC-PROP-134 states no episode; the register's only episode scope, BUILD_OUT_EPISODE, is defined by RPC-001's build-out begin condition (contractEnums.scopeBuildOutEpisode, SD-36), so it cannot be borrowed; RPC-001's own conditions were WHOLE_GAME as written and were narrowed only by his ruling (C52, SD-36, his 16 October reply, item 9 point 3, christian-2026-10-16.txt:112). INFERRED, and in tension with RPC-ID-011 (\"Organized attacking possession is already established.\"), RPC-PROP-034 (\"Organized attacking possession is established.\"), RPC-PROP-035 (\"Immediate build-out or press-escape challenges are no longer the dominant problem.\") and RPC-TR-002/004/013 (\"Organized attack is established and improving attacking conditions becomes the primary purpose.\"; \"Coordinated pressure is escaped and organized attacking development is restored.\"; \"Transitional superiority disappears while possession remains and attack becomes organized.\"): the faithful scope is an Attack Development episode that begins once organized possession is established. That needs engine work (E8, episodes as data) and his ruling (D1/D2). WHOLE_GAME is drafted only as the one scope representable today, and it over-applies the condition to post-regain play, which the workbook gives to RPC-006 Counterattack (RPC-ID-026, \"Possession has just been regained.\"). A possession change (RPC-003-09.a, T7 true) is an episode boundary, not the start of an Attack Development attack. ENGINE LIMITATION, NOT A REASON (E8): WHOLE_GAME is the only scope the realization, the context guard and rendering evaluate (resolved-game.ts EVALUABLE_CONDITION_SCOPE).",
+          "standing": "DRAFT",
+          "source": [
+            {
+              "rowId": "RPC-PROP-134",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2651,
+              "text": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+              "category": "PRIMARY_SCORING_CONDITION",
+              "importance": "CORE",
+              "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
+            },
+            {
+              "rowId": "RPC-ID-011",
+              "table": "identity_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2787,
+              "text": "Organized attacking possession is already established.",
+              "identityRole": "REQUIRED"
+            },
+            {
+              "rowId": "RPC-PROP-034",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1751,
+              "text": "Organized attacking possession is established.",
+              "category": "BEGIN_CONDITION",
+              "importance": "CORE",
+              "provenance": "Representative Performance Context Library RC1"
+            },
+            {
+              "rowId": "RPC-PROP-035",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1760,
+              "text": "Immediate build-out or press-escape challenges are no longer the dominant problem.",
+              "category": "BEGIN_CONDITION",
+              "importance": "CORE",
+              "provenance": "Representative Performance Context Library RC1"
+            },
+            {
+              "rowId": "RPC-TR-002",
+              "table": "transitions",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 3039,
+              "text": "Organized attack is established and improving attacking conditions becomes the primary purpose."
+            },
+            {
+              "rowId": "RPC-TR-004",
+              "table": "transitions",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 3059,
+              "text": "Coordinated pressure is escaped and organized attacking development is restored."
+            },
+            {
+              "rowId": "RPC-TR-013",
+              "table": "transitions",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 3149,
+              "text": "Transitional superiority disappears while possession remains and attack becomes organized."
+            },
+            {
+              "rowId": "RPC-ID-026",
+              "table": "identity_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2907,
+              "text": "Possession has just been regained.",
+              "identityRole": "REQUIRED"
+            }
+          ]
+        },
+        {
+          "id": "RPC-003-11.a",
+          "origId": "RPC-003-11",
+          "row": "V3",
+          "selector": "type=progression",
+          "requirement": "EXISTS",
+          "value": "N/A",
+          "strictness": "REQUIRED",
+          "valueStatus": "N/A",
+          "scope": "WHOLE_GAME",
+          "basis": "AUTHORED",
+          "basisEvidence": "\"reaching a more advanced representative area\" (RPC-PROP-134)",
+          "checkability": "STRUCTURAL",
+          "structuralClause": "—",
+          "fitNote": "The analog of RPC-001-18.c. SCOPE WHOLE_GAME (DRAFT; decisions D1/D2, README Q1). Reasons: RPC-PROP-134 states no episode; the register's only episode scope, BUILD_OUT_EPISODE, is defined by RPC-001's build-out begin condition (contractEnums.scopeBuildOutEpisode, SD-36), so it cannot be borrowed; RPC-001's own conditions were WHOLE_GAME as written and were narrowed only by his ruling (C52, SD-36, his 16 October reply, item 9 point 3, christian-2026-10-16.txt:112). INFERRED, and in tension with RPC-ID-011 (\"Organized attacking possession is already established.\"), RPC-PROP-034 (\"Organized attacking possession is established.\"), RPC-PROP-035 (\"Immediate build-out or press-escape challenges are no longer the dominant problem.\") and RPC-TR-002/004/013 (\"Organized attack is established and improving attacking conditions becomes the primary purpose.\"; \"Coordinated pressure is escaped and organized attacking development is restored.\"; \"Transitional superiority disappears while possession remains and attack becomes organized.\"): the faithful scope is an Attack Development episode that begins once organized possession is established. That needs engine work (E8, episodes as data) and his ruling (D1/D2). WHOLE_GAME is drafted only as the one scope representable today, and it over-applies the condition to post-regain play, which the workbook gives to RPC-006 Counterattack (RPC-ID-026, \"Possession has just been regained.\"). A possession change (RPC-003-09.a, T7 true) is an episode boundary, not the start of an Attack Development attack. ENGINE LIMITATION, NOT A REASON (E8): WHOLE_GAME is the only scope the realization, the context guard and rendering evaluate (resolved-game.ts EVALUABLE_CONDITION_SCOPE).",
+          "standing": "DRAFT",
+          "source": [
+            {
+              "rowId": "RPC-PROP-134",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2651,
+              "text": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+              "category": "PRIMARY_SCORING_CONDITION",
+              "importance": "CORE",
+              "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
+            },
+            {
+              "rowId": "RPC-ID-011",
+              "table": "identity_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2787,
+              "text": "Organized attacking possession is already established.",
+              "identityRole": "REQUIRED"
+            },
+            {
+              "rowId": "RPC-PROP-034",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1751,
+              "text": "Organized attacking possession is established.",
+              "category": "BEGIN_CONDITION",
+              "importance": "CORE",
+              "provenance": "Representative Performance Context Library RC1"
+            },
+            {
+              "rowId": "RPC-PROP-035",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1760,
+              "text": "Immediate build-out or press-escape challenges are no longer the dominant problem.",
+              "category": "BEGIN_CONDITION",
+              "importance": "CORE",
+              "provenance": "Representative Performance Context Library RC1"
+            },
+            {
+              "rowId": "RPC-TR-002",
+              "table": "transitions",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 3039,
+              "text": "Organized attack is established and improving attacking conditions becomes the primary purpose."
+            },
+            {
+              "rowId": "RPC-TR-004",
+              "table": "transitions",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 3059,
+              "text": "Coordinated pressure is escaped and organized attacking development is restored."
+            },
+            {
+              "rowId": "RPC-TR-013",
+              "table": "transitions",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 3149,
+              "text": "Transitional superiority disappears while possession remains and attack becomes organized."
+            },
+            {
+              "rowId": "RPC-ID-026",
+              "table": "identity_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2907,
+              "text": "Possession has just been regained.",
+              "identityRole": "REQUIRED"
+            }
+          ]
+        },
+        {
+          "id": "RPC-003-11.b",
+          "origId": "RPC-003-11",
+          "row": "V5",
+          "selector": "type=progression",
+          "requirement": "EQUALS",
+          "value": "a more advanced representative area",
+          "strictness": "REQUIRED",
+          "valueStatus": "REQUIRED_RANGE",
+          "scope": "WHOLE_GAME",
+          "basis": "AUTHORED",
+          "basisEvidence": "\"a more advanced representative area\" (RPC-PROP-134)",
+          "checkability": "PARTLY_STRUCTURAL",
+          "structuralClause": "Structural: once typed (proposed ruling PR-1), the PRIMARY_SCORING reference the scoring team attacks. Outside: what makes the area \"representative\", judged in play.",
+          "fitNote": "The referent as authored, open text (the analog of RPC-001-18.d before C59). Typing it as the objective reference of SCORING_TEAM (register V5 version 2) is proposed ruling PR-1 for him, as C59 was for RPC-001: the register admits that form only from a ruled restatement. Where the area lies is not authored here. GF2-04 places each target at the attacking end, and PR-1 would make that target stand for \"a more advanced representative area\". This draft reads Attack Development's silence on S5/O4 as NON_CLAIMED (OUR READING, ledger L-12); RPC-001's analog (\"how far beyond the first defenders\") was declared NOT_AUTHORED. MEASURED (final/scripts/probe-out, run U2n): the reading changes nothing in the line composition, because GF2-04 places the target either way, so nothing of Attack Development's \"more advanced representative area\" reaches the game beyond GF2's default target. Where the area lies is his decision D5 (README Q2). The RPC-003 engine wording \"two thirds of the way up\" is ENGINE_ONLY and is not used. SCOPE WHOLE_GAME (DRAFT; decisions D1/D2, README Q1). Reasons: RPC-PROP-134 states no episode; the register's only episode scope, BUILD_OUT_EPISODE, is defined by RPC-001's build-out begin condition (contractEnums.scopeBuildOutEpisode, SD-36), so it cannot be borrowed; RPC-001's own conditions were WHOLE_GAME as written and were narrowed only by his ruling (C52, SD-36, his 16 October reply, item 9 point 3, christian-2026-10-16.txt:112). INFERRED, and in tension with RPC-ID-011 (\"Organized attacking possession is already established.\"), RPC-PROP-034 (\"Organized attacking possession is established.\"), RPC-PROP-035 (\"Immediate build-out or press-escape challenges are no longer the dominant problem.\") and RPC-TR-002/004/013 (\"Organized attack is established and improving attacking conditions becomes the primary purpose.\"; \"Coordinated pressure is escaped and organized attacking development is restored.\"; \"Transitional superiority disappears while possession remains and attack becomes organized.\"): the faithful scope is an Attack Development episode that begins once organized possession is established. That needs engine work (E8, episodes as data) and his ruling (D1/D2). WHOLE_GAME is drafted only as the one scope representable today, and it over-applies the condition to post-regain play, which the workbook gives to RPC-006 Counterattack (RPC-ID-026, \"Possession has just been regained.\"). A possession change (RPC-003-09.a, T7 true) is an episode boundary, not the start of an Attack Development attack. ENGINE LIMITATION, NOT A REASON (E8): WHOLE_GAME is the only scope the realization, the context guard and rendering evaluate (resolved-game.ts EVALUABLE_CONDITION_SCOPE).",
+          "standing": "DRAFT",
+          "source": [
+            {
+              "rowId": "RPC-PROP-134",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2651,
+              "text": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+              "category": "PRIMARY_SCORING_CONDITION",
+              "importance": "CORE",
+              "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
+            },
+            {
+              "rowId": "RPC-ID-011",
+              "table": "identity_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2787,
+              "text": "Organized attacking possession is already established.",
+              "identityRole": "REQUIRED"
+            },
+            {
+              "rowId": "RPC-PROP-034",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1751,
+              "text": "Organized attacking possession is established.",
+              "category": "BEGIN_CONDITION",
+              "importance": "CORE",
+              "provenance": "Representative Performance Context Library RC1"
+            },
+            {
+              "rowId": "RPC-PROP-035",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1760,
+              "text": "Immediate build-out or press-escape challenges are no longer the dominant problem.",
+              "category": "BEGIN_CONDITION",
+              "importance": "CORE",
+              "provenance": "Representative Performance Context Library RC1"
+            },
+            {
+              "rowId": "RPC-TR-002",
+              "table": "transitions",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 3039,
+              "text": "Organized attack is established and improving attacking conditions becomes the primary purpose."
+            },
+            {
+              "rowId": "RPC-TR-004",
+              "table": "transitions",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 3059,
+              "text": "Coordinated pressure is escaped and organized attacking development is restored."
+            },
+            {
+              "rowId": "RPC-TR-013",
+              "table": "transitions",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 3149,
+              "text": "Transitional superiority disappears while possession remains and attack becomes organized."
+            },
+            {
+              "rowId": "RPC-ID-026",
+              "table": "identity_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2907,
+              "text": "Possession has just been regained.",
+              "identityRole": "REQUIRED"
+            }
+          ]
+        },
+        {
+          "id": "RPC-003-11.c",
+          "origId": "RPC-003-11",
+          "row": "V6",
+          "selector": "type=progression",
+          "requirement": "EQUALS",
+          "value": "more advanced",
+          "strictness": "REQUIRED",
+          "valueStatus": "REQUIRED_RANGE",
+          "scope": "WHOLE_GAME",
+          "basis": "AUTHORED",
+          "basisEvidence": "\"reaching a more advanced representative area\" (RPC-PROP-134)",
+          "checkability": "STRUCTURAL",
+          "structuralClause": "—",
+          "fitNote": "The analog of RPC-001-18.e (\"beyond\"): a verbatim qualitative term, ENTAILED (RC-34), relative to the attack's starting condition. \"Purposeful\" (the same row's \"Purposeful advancement\") is not a second value: it is what \"rather than possession alone\" means here, carried on V1 by RPC-003-05. SCOPE WHOLE_GAME (DRAFT; decisions D1/D2, README Q1). Reasons: RPC-PROP-134 states no episode; the register's only episode scope, BUILD_OUT_EPISODE, is defined by RPC-001's build-out begin condition (contractEnums.scopeBuildOutEpisode, SD-36), so it cannot be borrowed; RPC-001's own conditions were WHOLE_GAME as written and were narrowed only by his ruling (C52, SD-36, his 16 October reply, item 9 point 3, christian-2026-10-16.txt:112). INFERRED, and in tension with RPC-ID-011 (\"Organized attacking possession is already established.\"), RPC-PROP-034 (\"Organized attacking possession is established.\"), RPC-PROP-035 (\"Immediate build-out or press-escape challenges are no longer the dominant problem.\") and RPC-TR-002/004/013 (\"Organized attack is established and improving attacking conditions becomes the primary purpose.\"; \"Coordinated pressure is escaped and organized attacking development is restored.\"; \"Transitional superiority disappears while possession remains and attack becomes organized.\"): the faithful scope is an Attack Development episode that begins once organized possession is established. That needs engine work (E8, episodes as data) and his ruling (D1/D2). WHOLE_GAME is drafted only as the one scope representable today, and it over-applies the condition to post-regain play, which the workbook gives to RPC-006 Counterattack (RPC-ID-026, \"Possession has just been regained.\"). A possession change (RPC-003-09.a, T7 true) is an episode boundary, not the start of an Attack Development attack. ENGINE LIMITATION, NOT A REASON (E8): WHOLE_GAME is the only scope the realization, the context guard and rendering evaluate (resolved-game.ts EVALUABLE_CONDITION_SCOPE).",
+          "standing": "DRAFT",
+          "source": [
+            {
+              "rowId": "RPC-PROP-134",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2651,
+              "text": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+              "category": "PRIMARY_SCORING_CONDITION",
+              "importance": "CORE",
+              "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
+            },
+            {
+              "rowId": "RPC-ID-011",
+              "table": "identity_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2787,
+              "text": "Organized attacking possession is already established.",
+              "identityRole": "REQUIRED"
+            },
+            {
+              "rowId": "RPC-PROP-034",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1751,
+              "text": "Organized attacking possession is established.",
+              "category": "BEGIN_CONDITION",
+              "importance": "CORE",
+              "provenance": "Representative Performance Context Library RC1"
+            },
+            {
+              "rowId": "RPC-PROP-035",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1760,
+              "text": "Immediate build-out or press-escape challenges are no longer the dominant problem.",
+              "category": "BEGIN_CONDITION",
+              "importance": "CORE",
+              "provenance": "Representative Performance Context Library RC1"
+            },
+            {
+              "rowId": "RPC-TR-002",
+              "table": "transitions",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 3039,
+              "text": "Organized attack is established and improving attacking conditions becomes the primary purpose."
+            },
+            {
+              "rowId": "RPC-TR-004",
+              "table": "transitions",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 3059,
+              "text": "Coordinated pressure is escaped and organized attacking development is restored."
+            },
+            {
+              "rowId": "RPC-TR-013",
+              "table": "transitions",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 3149,
+              "text": "Transitional superiority disappears while possession remains and attack becomes organized."
+            },
+            {
+              "rowId": "RPC-ID-026",
+              "table": "identity_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2907,
+              "text": "Possession has just been regained.",
+              "identityRole": "REQUIRED"
+            }
+          ]
+        },
+        {
+          "id": "RPC-003-12.a",
+          "origId": "RPC-003-12",
+          "row": "V3",
+          "selector": "type=control",
+          "requirement": "EXISTS",
+          "value": "N/A",
+          "strictness": "REQUIRED",
+          "valueStatus": "N/A",
+          "scope": "WHOLE_GAME",
+          "basis": "AUTHORED",
+          "basisEvidence": "\"while maintaining attacking possession\" (RPC-PROP-134)",
+          "checkability": "STRUCTURAL",
+          "structuralClause": "—",
+          "fitNote": "The analog of RPC-001-18.f. SCOPE WHOLE_GAME (DRAFT; decisions D1/D2, README Q1). Reasons: RPC-PROP-134 states no episode; the register's only episode scope, BUILD_OUT_EPISODE, is defined by RPC-001's build-out begin condition (contractEnums.scopeBuildOutEpisode, SD-36), so it cannot be borrowed; RPC-001's own conditions were WHOLE_GAME as written and were narrowed only by his ruling (C52, SD-36, his 16 October reply, item 9 point 3, christian-2026-10-16.txt:112). INFERRED, and in tension with RPC-ID-011 (\"Organized attacking possession is already established.\"), RPC-PROP-034 (\"Organized attacking possession is established.\"), RPC-PROP-035 (\"Immediate build-out or press-escape challenges are no longer the dominant problem.\") and RPC-TR-002/004/013 (\"Organized attack is established and improving attacking conditions becomes the primary purpose.\"; \"Coordinated pressure is escaped and organized attacking development is restored.\"; \"Transitional superiority disappears while possession remains and attack becomes organized.\"): the faithful scope is an Attack Development episode that begins once organized possession is established. That needs engine work (E8, episodes as data) and his ruling (D1/D2). WHOLE_GAME is drafted only as the one scope representable today, and it over-applies the condition to post-regain play, which the workbook gives to RPC-006 Counterattack (RPC-ID-026, \"Possession has just been regained.\"). A possession change (RPC-003-09.a, T7 true) is an episode boundary, not the start of an Attack Development attack. ENGINE LIMITATION, NOT A REASON (E8): WHOLE_GAME is the only scope the realization, the context guard and rendering evaluate (resolved-game.ts EVALUABLE_CONDITION_SCOPE).",
+          "standing": "DRAFT",
+          "source": [
+            {
+              "rowId": "RPC-PROP-134",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2651,
+              "text": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+              "category": "PRIMARY_SCORING_CONDITION",
+              "importance": "CORE",
+              "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
+            },
+            {
+              "rowId": "RPC-ID-011",
+              "table": "identity_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2787,
+              "text": "Organized attacking possession is already established.",
+              "identityRole": "REQUIRED"
+            },
+            {
+              "rowId": "RPC-PROP-034",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1751,
+              "text": "Organized attacking possession is established.",
+              "category": "BEGIN_CONDITION",
+              "importance": "CORE",
+              "provenance": "Representative Performance Context Library RC1"
+            },
+            {
+              "rowId": "RPC-PROP-035",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1760,
+              "text": "Immediate build-out or press-escape challenges are no longer the dominant problem.",
+              "category": "BEGIN_CONDITION",
+              "importance": "CORE",
+              "provenance": "Representative Performance Context Library RC1"
+            },
+            {
+              "rowId": "RPC-TR-002",
+              "table": "transitions",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 3039,
+              "text": "Organized attack is established and improving attacking conditions becomes the primary purpose."
+            },
+            {
+              "rowId": "RPC-TR-004",
+              "table": "transitions",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 3059,
+              "text": "Coordinated pressure is escaped and organized attacking development is restored."
+            },
+            {
+              "rowId": "RPC-TR-013",
+              "table": "transitions",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 3149,
+              "text": "Transitional superiority disappears while possession remains and attack becomes organized."
+            },
+            {
+              "rowId": "RPC-ID-026",
+              "table": "identity_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2907,
+              "text": "Possession has just been regained.",
+              "identityRole": "REQUIRED"
+            }
+          ]
+        },
+        {
+          "id": "RPC-003-12.b",
+          "origId": "RPC-003-12",
+          "row": "V6",
+          "selector": "type=control",
+          "requirement": "EQUALS",
+          "value": "while maintaining attacking possession",
+          "strictness": "REQUIRED",
+          "valueStatus": "REQUIRED_RANGE",
+          "scope": "WHOLE_GAME",
+          "basis": "AUTHORED",
+          "basisEvidence": "\"while maintaining attacking possession\" (RPC-PROP-134)",
+          "checkability": "STRUCTURAL",
+          "structuralClause": "—",
+          "fitNote": "The analog of RPC-001-18.g, with a different predicate: MAINTAINING possession while reaching the area, not control ON ARRIVAL. A verbatim term, so ENTAILED (RC-34); it is not one of SD-15's two coach-judged terms, so whether it is a coach judgement in play (FREE(b)) is not decided here. The control's referent is NOT carried as an item: \"while maintaining attacking possession\" names no place, so V5 [type=control] is declared UNDECLARED, as RPC-001 left its control referent before his C57 ruling (M4 of the review). Typing it is proposed ruling PR-2. SCOPE WHOLE_GAME (DRAFT; decisions D1/D2, README Q1). Reasons: RPC-PROP-134 states no episode; the register's only episode scope, BUILD_OUT_EPISODE, is defined by RPC-001's build-out begin condition (contractEnums.scopeBuildOutEpisode, SD-36), so it cannot be borrowed; RPC-001's own conditions were WHOLE_GAME as written and were narrowed only by his ruling (C52, SD-36, his 16 October reply, item 9 point 3, christian-2026-10-16.txt:112). INFERRED, and in tension with RPC-ID-011 (\"Organized attacking possession is already established.\"), RPC-PROP-034 (\"Organized attacking possession is established.\"), RPC-PROP-035 (\"Immediate build-out or press-escape challenges are no longer the dominant problem.\") and RPC-TR-002/004/013 (\"Organized attack is established and improving attacking conditions becomes the primary purpose.\"; \"Coordinated pressure is escaped and organized attacking development is restored.\"; \"Transitional superiority disappears while possession remains and attack becomes organized.\"): the faithful scope is an Attack Development episode that begins once organized possession is established. That needs engine work (E8, episodes as data) and his ruling (D1/D2). WHOLE_GAME is drafted only as the one scope representable today, and it over-applies the condition to post-regain play, which the workbook gives to RPC-006 Counterattack (RPC-ID-026, \"Possession has just been regained.\"). A possession change (RPC-003-09.a, T7 true) is an episode boundary, not the start of an Attack Development attack. ENGINE LIMITATION, NOT A REASON (E8): WHOLE_GAME is the only scope the realization, the context guard and rendering evaluate (resolved-game.ts EVALUABLE_CONDITION_SCOPE).",
+          "standing": "DRAFT",
+          "source": [
+            {
+              "rowId": "RPC-PROP-134",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2651,
+              "text": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+              "category": "PRIMARY_SCORING_CONDITION",
+              "importance": "CORE",
+              "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
+            },
+            {
+              "rowId": "RPC-ID-011",
+              "table": "identity_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2787,
+              "text": "Organized attacking possession is already established.",
+              "identityRole": "REQUIRED"
+            },
+            {
+              "rowId": "RPC-PROP-034",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1751,
+              "text": "Organized attacking possession is established.",
+              "category": "BEGIN_CONDITION",
+              "importance": "CORE",
+              "provenance": "Representative Performance Context Library RC1"
+            },
+            {
+              "rowId": "RPC-PROP-035",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1760,
+              "text": "Immediate build-out or press-escape challenges are no longer the dominant problem.",
+              "category": "BEGIN_CONDITION",
+              "importance": "CORE",
+              "provenance": "Representative Performance Context Library RC1"
+            },
+            {
+              "rowId": "RPC-TR-002",
+              "table": "transitions",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 3039,
+              "text": "Organized attack is established and improving attacking conditions becomes the primary purpose."
+            },
+            {
+              "rowId": "RPC-TR-004",
+              "table": "transitions",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 3059,
+              "text": "Coordinated pressure is escaped and organized attacking development is restored."
+            },
+            {
+              "rowId": "RPC-TR-013",
+              "table": "transitions",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 3149,
+              "text": "Transitional superiority disappears while possession remains and attack becomes organized."
+            },
+            {
+              "rowId": "RPC-ID-026",
+              "table": "identity_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2907,
+              "text": "Possession has just been regained.",
+              "identityRole": "REQUIRED"
+            }
+          ]
+        },
+        {
+          "id": "RPC-003-13",
+          "origId": "RPC-003-13",
+          "row": "DV1",
+          "selector": "*",
+          "requirement": "COUNT",
+          "value": ">=2 progression and support options remain available (options, not elements)",
+          "strictness": "SUPPORTING",
+          "valueStatus": "REQUIRED_RANGE",
+          "scope": "PER_TEAM",
+          "basis": "AUTHORED",
+          "basisEvidence": "\"Multiple progression and support options remain available.\" (RPC-ID-014, identity_role SUPPORTING_IDENTITY); cf. \"Improve attacking conditions while preserving representative attacking possibilities.\" (RPC-STMT-013, PRIMARY_SUCCESS_IDENTITY)",
+          "checkability": "OUTSIDE_BOUNDARY",
+          "structuralClause": "—",
+          "fitNote": "The analog of RPC-001-22, but SUPPORTING, not REQUIRED: RPC-ID-014's role is SUPPORTING_IDENTITY (\"Supports recognition but is not independently defining.\", the workbook's controlled vocabulary), where RPC-001's RPC-ID-003 is REQUIRED. \">=2\" reads \"Multiple\" (RPC-001-22's reading). No row holds options, so DV1 is the nearest and nothing is forced; inert (RC-31).",
+          "standing": "DRAFT",
+          "source": [
+            {
+              "rowId": "RPC-ID-014",
+              "table": "identity_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2811,
+              "text": "Multiple progression and support options remain available.",
+              "identityRole": "SUPPORTING_IDENTITY"
+            },
+            {
+              "rowId": "RPC-STMT-013",
+              "table": "statements",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 192,
+              "text": "Improve attacking conditions while preserving representative attacking possibilities.",
+              "statementType": "PRIMARY_SUCCESS_IDENTITY"
+            }
+          ]
+        },
+        {
+          "id": "RPC-003-14.a",
+          "origId": "RPC-003-14",
+          "row": "V7",
+          "selector": "*",
+          "requirement": "EXISTS",
+          "value": "(forbidden) a modifier that makes an immediate genuine chance-creation window the dominant organizing problem",
+          "strictness": "EXCLUSION",
+          "valueStatus": "N/A",
+          "scope": "WHOLE_GAME",
+          "basis": "AUTHORED",
+          "basisEvidence": "\"An immediate genuine chance-creation window shifts ownership toward RPC-004.\" (RPC-ID-015, identity_role EXCLUSION); cf. \"The attack shifts from improving conditions to directly creating an immediate scoring opportunity.\" (RPC-PROP-036, END_CONDITION, CORE) and \"Generated structure must not satisfy an Exclusion identity rule more strongly than the selected RPC.\" (RPC-VAL-013, BOUNDARY, POST_SELECTION)",
+          "checkability": "OUTSIDE_BOUNDARY",
+          "structuralClause": "—",
+          "fitNote": "The analog of RPC-001-21.a (RPC-ID-005 there). Dominance is play, so it is an EXCLUSION with a play-level forbidden value; it does not forbid modifiers as such. Relevant to any incentive he authorizes for TA02 (decision D4): a bonus that turns the game into chance creation would cross into RPC-004.",
+          "standing": "DRAFT",
+          "source": [
+            {
+              "rowId": "RPC-ID-015",
+              "table": "identity_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2819,
+              "text": "An immediate genuine chance-creation window shifts ownership toward RPC-004.",
+              "identityRole": "EXCLUSION"
+            },
+            {
+              "rowId": "RPC-PROP-036",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1769,
+              "text": "The attack shifts from improving conditions to directly creating an immediate scoring opportunity.",
+              "category": "END_CONDITION",
+              "importance": "CORE",
+              "provenance": "Representative Performance Context Library RC1"
+            },
+            {
+              "rowId": "RPC-VAL-013",
+              "table": "validation_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 3373,
+              "text": "Generated structure must not satisfy an Exclusion identity rule more strongly than the selected RPC.",
+              "domain": "BOUNDARY",
+              "runtimeStage": "POST_SELECTION"
+            },
+            {
+              "rowId": "RPC-TR-006",
+              "table": "transitions",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 3079,
+              "text": "The representative objective changes from improving conditions to directly creating an immediate scoring opportunity."
+            }
+          ]
+        },
+        {
+          "id": "RPC-003-14.b",
+          "origId": "RPC-003-14",
+          "row": "V11",
+          "selector": "*",
+          "requirement": "EXISTS",
+          "value": "(forbidden) a consequence that makes an immediate genuine chance-creation window the dominant organizing problem",
+          "strictness": "EXCLUSION",
+          "valueStatus": "N/A",
+          "scope": "WHOLE_GAME",
+          "basis": "AUTHORED",
+          "basisEvidence": "\"An immediate genuine chance-creation window shifts ownership toward RPC-004.\" (RPC-ID-015, identity_role EXCLUSION); cf. \"The attack shifts from improving conditions to directly creating an immediate scoring opportunity.\" (RPC-PROP-036, END_CONDITION, CORE) and \"Generated structure must not satisfy an Exclusion identity rule more strongly than the selected RPC.\" (RPC-VAL-013, BOUNDARY, POST_SELECTION)",
+          "checkability": "OUTSIDE_BOUNDARY",
+          "structuralClause": "—",
+          "fitNote": "As RPC-003-14.a. It does not forbid consequences as such.",
+          "standing": "DRAFT",
+          "source": [
+            {
+              "rowId": "RPC-ID-015",
+              "table": "identity_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 2819,
+              "text": "An immediate genuine chance-creation window shifts ownership toward RPC-004.",
+              "identityRole": "EXCLUSION"
+            },
+            {
+              "rowId": "RPC-PROP-036",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1769,
+              "text": "The attack shifts from improving conditions to directly creating an immediate scoring opportunity.",
+              "category": "END_CONDITION",
+              "importance": "CORE",
+              "provenance": "Representative Performance Context Library RC1"
+            },
+            {
+              "rowId": "RPC-VAL-013",
+              "table": "validation_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 3373,
+              "text": "Generated structure must not satisfy an Exclusion identity rule more strongly than the selected RPC.",
+              "domain": "BOUNDARY",
+              "runtimeStage": "POST_SELECTION"
+            }
+          ]
+        },
+        {
+          "id": "RPC-003-15",
+          "origId": "RPC-003-15",
+          "row": "V15",
+          "selector": "subject ∈ {defensive organization and defensive shifting, teammate positioning and support, emerging space and progression opportunities, numerical or positional advantages}",
+          "requirement": "EXISTS",
+          "value": "(forbidden) an information rule that removes or hides the subject",
+          "strictness": "EXCLUSION",
+          "valueStatus": "N/A",
+          "scope": "WHOLE_GAME",
+          "basis": "AUTHORED",
+          "basisEvidence": "\"Defensive organization and defensive shifting.\" (RPC-PROP-038); \"Teammate positioning and support.\" (RPC-PROP-039); \"Emerging space and progression opportunities.\" (RPC-PROP-040); \"Numerical or positional advantages.\" (RPC-PROP-041); \"...representative information must remain intact where required.\" (RPC-VAL-014)",
+          "checkability": "PARTLY_STRUCTURAL",
+          "structuralClause": "Structural: no informationRules element on these subjects withholds them (a D013 holder narrower than ALL, or a delayed D007). Outside: what players perceive in play.",
+          "fitNote": "The analog of RPC-001-23. The four subjects are the workbook's four CORE information rows, lower-cased and without the full stop. RPC-001-23's \"from the player on the ball\" is its restater's gloss and is not carried. Selectors can use only 'subject'; the subjects are play-level, so the clause may match nothing.",
+          "standing": "DRAFT",
+          "source": [
+            {
+              "rowId": "RPC-PROP-038",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1787,
+              "text": "Defensive organization and defensive shifting.",
+              "category": "REPRESENTATIVE_INFORMATION",
+              "importance": "CORE",
+              "provenance": "Representative Performance Context Library RC1"
+            },
+            {
+              "rowId": "RPC-PROP-039",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1796,
+              "text": "Teammate positioning and support.",
+              "category": "REPRESENTATIVE_INFORMATION",
+              "importance": "CORE",
+              "provenance": "Representative Performance Context Library RC1"
+            },
+            {
+              "rowId": "RPC-PROP-040",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1805,
+              "text": "Emerging space and progression opportunities.",
+              "category": "REPRESENTATIVE_INFORMATION",
+              "importance": "CORE",
+              "provenance": "Representative Performance Context Library RC1"
+            },
+            {
+              "rowId": "RPC-PROP-041",
+              "table": "properties",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 1814,
+              "text": "Numerical or positional advantages.",
+              "category": "REPRESENTATIVE_INFORMATION",
+              "importance": "CORE",
+              "provenance": "Representative Performance Context Library RC1"
+            },
+            {
+              "rowId": "RPC-VAL-014",
+              "table": "validation_rules",
+              "file": "back/src/system/sport-module/rpc-library.rc1.json",
+              "line": 3384,
+              "text": "Opponent interaction, direction, consequence, and representative information must remain intact where required.",
+              "domain": "REPRESENTATIVENESS",
+              "runtimeStage": "POST_ASSEMBLY"
+            }
+          ]
+        }
+      ],
+      "originalPlacement": [
+        {
+          "origId": "RPC-REL-003",
+          "placement": "SPLIT",
+          "note": "P1 count of 2 (assumed, 01.a), live opposition (01.b, outside), J1 >=1 per team (07)."
+        },
+        {
+          "origId": "RPC-REL-079..082",
+          "placement": "PLACED",
+          "note": "V1 typed ordered list (03.a) and relationship rule RPC-003-RR-1."
+        },
+        {
+          "origId": "RPC-STMT-014",
+          "placement": "PLACED",
+          "note": "V1 EXCLUSION (05)."
+        },
+        {
+          "origId": "RPC-ID-011",
+          "placement": "PLACED",
+          "note": "T2 START present (08), partly structural (the START mapping is OUR READING); 08 addresses no element in any composition (MEASURED); tension with TA02 reported (D1). Also quoted in the condition items' scope note."
+        },
+        {
+          "origId": "RPC-PROP-034",
+          "placement": "PLACED",
+          "note": "With RPC-ID-011 on 08."
+        },
+        {
+          "origId": "RPC-PROP-037",
+          "placement": "SPLIT",
+          "note": "T7 true on POSSESSION_CHANGE (09.a, authored), T6 present (09.b, assumed); presupposes the ball (04.a/b)."
+        },
+        {
+          "origId": "RPC-PROP-038..041",
+          "placement": "PLACED",
+          "note": "V15 EXCLUSION by subject (15)."
+        },
+        {
+          "origId": "RPC-PROP-134",
+          "placement": "SPLIT",
+          "note": "S1 (02), O1 (04.a/b), V1 EXCLUSION (05), origin V3/V5 (10.a/b), progression V3/V5/V6 (11.a-c), control V3/V6 (12.a/b). Control V5 UNDECLARED: the referent is not stated (PR-2). Origin V6 NOT_AUTHORED (PR-3)."
+        },
+        {
+          "origId": "RPC-ID-013",
+          "placement": "PLACED",
+          "note": "With RPC-STMT-014 on 05."
+        },
+        {
+          "origId": "RPC-ID-014",
+          "placement": "PLACED",
+          "note": "DV1 COUNT, SUPPORTING, outside the boundary (13)."
+        },
+        {
+          "origId": "RPC-ID-015",
+          "placement": "SPLIT",
+          "note": "V7 and V11 EXCLUSION, outside the boundary (14.a/b)."
+        },
+        {
+          "origId": "RPC-VAL-012",
+          "placement": "PLACED",
+          "note": "Evidence on 05."
+        },
+        {
+          "origId": "RPC-VAL-013",
+          "placement": "PLACED",
+          "note": "Evidence on 14.a/b."
+        },
+        {
+          "origId": "RPC-VAL-014",
+          "placement": "SPLIT",
+          "note": "Evidence on 01.b, 06 (assumed), 09.b (assumed) and 15."
+        }
+      ],
+      "declarations": [
+        {
+          "row": "E1",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "RPC-003 authors no player count. Examined against the 67 RPC-003 workbook rows: RPC-003 is silent here (OUR reading of silence, DRAFT)."
+        },
+        {
+          "row": "E2",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "No authored dimension, ratio or minimum. RPC-PROP-047 (\"Manipulate field dimensions or numerical relationships.\") is a BEHAVIOR_ADJUSTMENT for in-session use, not a value."
+        },
+        {
+          "row": "E3",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "As E2."
+        },
+        {
+          "row": "E4",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "No duration, period structure or attack length. Examined against the 67 RPC-003 workbook rows: RPC-003 is silent here (OUR reading of silence, DRAFT)."
+        },
+        {
+          "row": "S1",
+          "declaration": "CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "RPC-003-02."
+        },
+        {
+          "row": "S2",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "No thirds, channels, lanes, grids or region count authored. Examined against the 67 RPC-003 workbook rows: RPC-003 is silent here (OUR reading of silence, DRAFT)."
+        },
+        {
+          "row": "S2",
+          "declaration": "UNDECLARED",
+          "selector": "noun=zone & functions∋objective-area",
+          "scope": "WHOLE_GAME",
+          "note": "The scoring area, where V1 is target_zone_entered, is that member's carrier; no item can require the carrier of whichever member is chosen (the L-01 class)."
+        },
+        {
+          "row": "S3",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "The kind of the scoring reference is not fixed beyond RPC-003-03.a's four events."
+        },
+        {
+          "row": "S4",
+          "declaration": "NON_CLAIMED",
+          "selector": "functions∋access",
+          "scope": "WHOLE_GAME",
+          "note": "No restricted areas authored."
+        },
+        {
+          "row": "S4",
+          "declaration": "UNDECLARED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "Other functions, such as the scoring zone's objective-area, are fixed only through selectors."
+        },
+        {
+          "row": "S5",
+          "declaration": "NON_CLAIMED",
+          "selector": "noun=zone & functions∋objective-area",
+          "scope": "WHOLE_GAME",
+          "note": "OUR READING of silence (ledger L-12), for his decision D5 (README Q2). RPC-003 authors only \"more advanced\" (carried on V6 by RPC-003-11.c), not where the area lies or how deep it is. The game form places its targets (GF2-04) at the end line. RPC-001's analog (\"how far beyond the first defenders\") was declared NOT_AUTHORED. MEASURED (final/scripts/probe-out, run U2n): declaring S5 and O4 NOT_AUTHORED instead changes neither the outcome nor the realized game of the line composition, because GF2-04 places the target either way. So the end-line placement comes from GF2, not from Attack Development, under either reading; an earlier draft's statement that NOT_AUTHORED would refuse was wrong."
+        },
+        {
+          "row": "S6",
+          "declaration": "NON_CLAIMED",
+          "selector": "noun=zone & functions∋objective-area",
+          "scope": "WHOLE_GAME",
+          "note": "Width of the scoring reference is not fixed."
+        },
+        {
+          "row": "SV1",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "PER_TEAM",
+          "note": "No halves or thirds authored. Examined against the 67 RPC-003 workbook rows: RPC-003 is silent here (OUR reading of silence, DRAFT)."
+        },
+        {
+          "row": "P1",
+          "declaration": "CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "RPC-003-01.a/.b."
+        },
+        {
+          "row": "P2",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "PER_TEAM",
+          "note": "No per-team number, and no balance or imbalance. RPC-PROP-047 names numerical relationships only as a behaviour adjustment; a context relationship to EM-0006 would need his confirmation (K5)."
+        },
+        {
+          "row": "P3",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "PER_TEAM",
+          "note": "No goalkeeper authored for either team. Examined against the 67 RPC-003 workbook rows: RPC-003 is silent here (OUR reading of silence, DRAFT)."
+        },
+        {
+          "row": "P4",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "No named roles authored; a target player is one of four permitted scoring events (RPC-REL-082), never required."
+        },
+        {
+          "row": "P5",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "Neutrals neither required nor prohibited. Examined against the 67 RPC-003 workbook rows: RPC-003 is silent here (OUR reading of silence, DRAFT)."
+        },
+        {
+          "row": "P6a",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "Neutrals' affiliation not authored."
+        },
+        {
+          "row": "P6b",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "Neutrals' affiliation not authored."
+        },
+        {
+          "row": "P6c",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "Neutrals' affiliation not authored (row added by C48; declared as every stage-B contract now declares it)."
+        },
+        {
+          "row": "P7",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "No neutrals authored."
+        },
+        {
+          "row": "P8",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "PER_TEAM",
+          "note": "No start placement authored. RPC-PROP-046 (\"Reshape attacking spacing.\") is a behaviour adjustment, not a start placement."
+        },
+        {
+          "row": "P9",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "No start placement authored."
+        },
+        {
+          "row": "P10",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "PER_TEAM",
+          "note": "No start placement authored."
+        },
+        {
+          "row": "O1",
+          "declaration": "CLAIMED",
+          "selector": "kind=ball",
+          "scope": "WHOLE_GAME",
+          "note": "RPC-003-04.a/.b."
+        },
+        {
+          "row": "O1",
+          "declaration": "NON_CLAIMED",
+          "selector": "kind=goal",
+          "scope": "WHOLE_GAME",
+          "note": "No goal required: goal is not among RPC-REL-079..082."
+        },
+        {
+          "row": "O1",
+          "declaration": "NON_CLAIMED",
+          "selector": "kind ∈ {line, gate}",
+          "scope": "WHOLE_GAME",
+          "note": "Whether a line or gate reference is shared or one per team is not authored."
+        },
+        {
+          "row": "O2",
+          "declaration": "NON_CLAIMED",
+          "selector": "kind=goal",
+          "scope": "WHOLE_GAME",
+          "note": "No goal required."
+        },
+        {
+          "row": "O2",
+          "declaration": "UNDECLARED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "Kinds are fixed only through O1 selectors."
+        },
+        {
+          "row": "O3",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "Object counts not authored."
+        },
+        {
+          "row": "O4",
+          "declaration": "NON_CLAIMED",
+          "selector": "kind ∈ {line, gate}",
+          "scope": "WHOLE_GAME",
+          "note": "OUR READING of silence, as S5 (ledger L-12; decision D5, README Q2): position beyond \"more advanced\" is not authored, so the game form places it. RPC-001's analog was NOT_AUTHORED."
+        },
+        {
+          "row": "O5",
+          "declaration": "NON_CLAIMED",
+          "selector": "kind ∈ {line, gate}",
+          "scope": "WHOLE_GAME",
+          "note": "Width and extent of the scoring reference not authored."
+        },
+        {
+          "row": "J1",
+          "declaration": "CLAIMED",
+          "selector": "*",
+          "scope": "PER_TEAM",
+          "note": "RPC-003-07."
+        },
+        {
+          "row": "J1",
+          "declaration": "NON_CLAIMED",
+          "selector": "role=REPRESENTATIVE",
+          "scope": "WHOLE_GAME",
+          "note": "Representative objectives are neither required nor forbidden."
+        },
+        {
+          "row": "J2",
+          "declaration": "UNDECLARED",
+          "selector": "role=PRIMARY_SCORING",
+          "scope": "WHOLE_GAME",
+          "note": "The reference is the V1 member's carrier (the L-01 class); no item."
+        },
+        {
+          "row": "J2",
+          "declaration": "NON_CLAIMED",
+          "selector": "role=REPRESENTATIVE",
+          "scope": "WHOLE_GAME",
+          "note": "Representative objectives are free."
+        },
+        {
+          "row": "J3",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "Which team attacks which reference, and whether it is shared, is not authored (GF2 C42 decides per-team targets)."
+        },
+        {
+          "row": "J4",
+          "declaration": "NON_CLAIMED",
+          "selector": "role=REPRESENTATIVE",
+          "scope": "WHOLE_GAME",
+          "note": "Any REPRESENTATIVE objective."
+        },
+        {
+          "row": "J4",
+          "declaration": "UNDECLARED",
+          "selector": "role=PRIMARY_SCORING",
+          "scope": "WHOLE_GAME",
+          "note": "Fixed only through J1 selectors (RC-16). No item is on this row."
+        },
+        {
+          "row": "J5",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "RPC-003 authors no objective set. Examined against the 67 RPC-003 workbook rows: RPC-003 is silent here (OUR reading of silence, DRAFT)."
+        },
+        {
+          "row": "J6",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "RPC-003 authors no objective set. Examined against the 67 RPC-003 workbook rows: RPC-003 is silent here (OUR reading of silence, DRAFT)."
+        },
+        {
+          "row": "J7",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "RPC-003 authors no objective set. Examined against the 67 RPC-003 workbook rows: RPC-003 is silent here (OUR reading of silence, DRAFT)."
+        },
+        {
+          "row": "J8",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "RPC-003 authors no objective set. Examined against the 67 RPC-003 workbook rows: RPC-003 is silent here (OUR reading of silence, DRAFT)."
+        },
+        {
+          "row": "J9",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "RPC-003 authors no objective set. Examined against the 67 RPC-003 workbook rows: RPC-003 is silent here (OUR reading of silence, DRAFT)."
+        },
+        {
+          "row": "J10",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "RPC-003 authors no objective set. Examined against the 67 RPC-003 workbook rows: RPC-003 is silent here (OUR reading of silence, DRAFT)."
+        },
+        {
+          "row": "J11a",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "RPC-003 authors no objective set. Examined against the 67 RPC-003 workbook rows: RPC-003 is silent here (OUR reading of silence, DRAFT)."
+        },
+        {
+          "row": "J11b",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "RPC-003 authors no objective set. Examined against the 67 RPC-003 workbook rows: RPC-003 is silent here (OUR reading of silence, DRAFT)."
+        },
+        {
+          "row": "J12",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "RPC-003 authors no objective set. Examined against the 67 RPC-003 workbook rows: RPC-003 is silent here (OUR reading of silence, DRAFT)."
+        },
+        {
+          "row": "DV1",
+          "declaration": "CLAIMED",
+          "selector": "*",
+          "scope": "PER_TEAM",
+          "note": "RPC-003-06, -13."
+        },
+        {
+          "row": "DV1",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "Whether the objectives are mirrored, symmetric or of the same kind is not authored. RPC-003-06 ASSUMES each team (basis ASSUMED, OUR READING, decision D3); nothing authored says so."
+        },
+        {
+          "row": "T1",
+          "declaration": "UNDECLARED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "No item is on the trigger collection; a transition exists only where it is reachable (SD-44) and some contribution establishes it."
+        },
+        {
+          "row": "T1a",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "Transition qualifiers not authored."
+        },
+        {
+          "row": "T1b",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "Transition qualifiers not authored."
+        },
+        {
+          "row": "T1c",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "Transition qualifiers not authored."
+        },
+        {
+          "row": "T2",
+          "declaration": "CLAIMED",
+          "selector": "trigger=START",
+          "scope": "WHOLE_GAME",
+          "note": "RPC-003-08."
+        },
+        {
+          "row": "T2",
+          "declaration": "NON_CLAIMED",
+          "selector": "trigger ∈ {SCORE, OUT_END_LINE, OUT_TOUCHLINE}",
+          "scope": "WHOLE_GAME",
+          "note": "Who restarts after a score or when the ball is out is not authored."
+        },
+        {
+          "row": "T3",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "Who takes the start or a restart is not authored (RPC-001's RPC-PROP-001 named actors; no RPC-003 row does)."
+        },
+        {
+          "row": "T4",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "Where the start or a restart is taken is not authored."
+        },
+        {
+          "row": "T5",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "How the start or a restart is taken is not authored."
+        },
+        {
+          "row": "T6",
+          "declaration": "CLAIMED",
+          "selector": "trigger=POSSESSION_CHANGE",
+          "scope": "WHOLE_GAME",
+          "note": "RPC-003-09.b."
+        },
+        {
+          "row": "T6",
+          "declaration": "NON_CLAIMED",
+          "selector": "trigger ∈ {SCORE, OUT_END_LINE, OUT_TOUCHLINE}",
+          "scope": "WHOLE_GAME",
+          "note": "Whether play stops after a score or when the ball is out is not authored."
+        },
+        {
+          "row": "T7",
+          "declaration": "CLAIMED",
+          "selector": "trigger=POSSESSION_CHANGE",
+          "scope": "WHOLE_GAME",
+          "note": "RPC-003-09.a."
+        },
+        {
+          "row": "T7",
+          "declaration": "UNDECLARED",
+          "selector": "trigger ∈ {START, SCORE, OUT_END_LINE, OUT_TOUCHLINE}",
+          "scope": "WHOLE_GAME",
+          "note": "OPEN QUESTION, tied to decision D1 (README Q1): whether a start, a score or a ball out of play begins a new attack is part of \"the attack's starting condition\" (RPC-PROP-134), which is not decided. MEASURED (design/step0-results.md runs f3/f4 against f3b/f4b, and the re-run in final/scripts/probe-out): with RPC-003-09.a making T7 a line every transition element must resolve, every out-of-play element the K4 draft adds fails Gate A on its T7 line under this contract. A NON_CLAIMED declaration here clears it (f3b/f4b), but that would decide D1 by our reading, so it is NOT made. Kept UNDECLARED, as the review's M4 prescribed, and every MEASURED outcome in these drafts was taken with it. The line was examined and found silent, which NOT_AUTHORED (a declared gap) would state more exactly; both kinds bar free choice alike (derivation-rules-2026-09-18.md:159), so switching would change only the verdict's subtype (DECLARED_GAP instead of COVERAGE): INFERRED, not measured."
+        },
+        {
+          "row": "V0",
+          "declaration": "CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "RPC-003-03.b (assumed; SD-06)."
+        },
+        {
+          "row": "V1",
+          "declaration": "CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "RPC-003-03.a. The choice among the four is not authored."
+        },
+        {
+          "row": "V1",
+          "declaration": "EXCLUDED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "RPC-003-05: possession alone."
+        },
+        {
+          "row": "V2",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "No point value authored."
+        },
+        {
+          "row": "V3",
+          "declaration": "CLAIMED",
+          "selector": "type ∈ {origin, progression, control}",
+          "scope": "WHOLE_GAME",
+          "note": "RPC-003-10.a, -11.a, -12.a."
+        },
+        {
+          "row": "V3",
+          "declaration": "NON_CLAIMED",
+          "selector": "type ∈ {eligibility, exclusion}",
+          "scope": "WHOLE_GAME",
+          "note": "No eligibility or exclusion-type condition authored; \"rather than possession alone\" is carried on V1 (RPC-003-05)."
+        },
+        {
+          "row": "V4",
+          "declaration": "UNDECLARED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "Types are fixed only through V3 selectors."
+        },
+        {
+          "row": "V5",
+          "declaration": "CLAIMED",
+          "selector": "type ∈ {origin, progression}",
+          "scope": "WHOLE_GAME",
+          "note": "RPC-003-10.b, -11.b (open text as authored; typing is proposed ruling PR-1 and decision D1)."
+        },
+        {
+          "row": "V5",
+          "declaration": "UNDECLARED",
+          "selector": "type=control",
+          "scope": "WHOLE_GAME",
+          "note": "Referent not stated: \"while maintaining attacking possession\" names no place. Typing it is PR-2 (the C57 analog). RPC-001 declares the same row UNDECLARED (\"Referents never examined.\"). Kept UNDECLARED, as the review's M4 prescribed, and every MEASURED outcome in these drafts was taken with it. The line was examined and found silent, which NOT_AUTHORED (a declared gap) would state more exactly; both kinds bar free choice alike (derivation-rules-2026-09-18.md:159), so switching would change only the verdict's subtype (DECLARED_GAP instead of COVERAGE): INFERRED, not measured."
+        },
+        {
+          "row": "V6",
+          "declaration": "CLAIMED",
+          "selector": "type ∈ {progression, control}",
+          "scope": "WHOLE_GAME",
+          "note": "RPC-003-11.c, -12.b."
+        },
+        {
+          "row": "V6",
+          "declaration": "NOT_AUTHORED",
+          "selector": "type=origin",
+          "scope": "WHOLE_GAME",
+          "note": "No value authored for the origin. Whether it needs one is his: the RPC-001 analog was his ruling C55 (his 9.9), \"needs no further value\", recorded as NO_FURTHER_VALUE, a qualifier only his statement may write (register contractEnums.declarationQualifierNote). Proposed ruling PR-3, needed only if D1 keeps the origin as a condition."
+        },
+        {
+          "row": "V7",
+          "declaration": "EXCLUDED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "RPC-003-14.a (outside boundary)."
+        },
+        {
+          "row": "V7",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "RPC-003 authors no modifiers. RPC-PROP-049 (\"Alter progression incentives without prescribing a solution.\") is a behaviour adjustment, not a modifier."
+        },
+        {
+          "row": "V8a",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "Value modifiers not authored."
+        },
+        {
+          "row": "V8b",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "Value modifiers not authored."
+        },
+        {
+          "row": "V9",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "Value modifiers not authored."
+        },
+        {
+          "row": "V10",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "Value modifiers not authored."
+        },
+        {
+          "row": "V11",
+          "declaration": "EXCLUDED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "RPC-003-14.b (outside boundary)."
+        },
+        {
+          "row": "V11",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "No consequence authored. RPC-PROP-048 (\"Encourage purposeful circulation through representative consequences.\") is a behaviour adjustment, not a consequence."
+        },
+        {
+          "row": "V12",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "Consequences not authored."
+        },
+        {
+          "row": "V13",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "Consequences not authored."
+        },
+        {
+          "row": "V14a",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "Consequences not authored."
+        },
+        {
+          "row": "V14b",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "Consequences not authored."
+        },
+        {
+          "row": "V14c",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "Consequences not authored."
+        },
+        {
+          "row": "V15",
+          "declaration": "EXCLUDED",
+          "selector": "subject ∈ {defensive organization and defensive shifting, teammate positioning and support, emerging space and progression opportunities, numerical or positional advantages}",
+          "scope": "WHOLE_GAME",
+          "note": "RPC-003-15."
+        },
+        {
+          "row": "V15",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "No information rule required; only forbids hiding the four sources."
+        },
+        {
+          "row": "V16",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "Information-expression dimensions and presets not authored."
+        },
+        {
+          "row": "V17",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "Information-expression dimensions and presets not authored."
+        },
+        {
+          "row": "V18",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "Information-expression dimensions and presets not authored."
+        },
+        {
+          "row": "V19",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "Information-expression dimensions and presets not authored."
+        },
+        {
+          "row": "V20",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "Information-expression dimensions and presets not authored."
+        },
+        {
+          "row": "V21",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "Information-expression dimensions and presets not authored."
+        },
+        {
+          "row": "V22",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "Information-expression dimensions and presets not authored."
+        },
+        {
+          "row": "V23",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "No countdown, time limit or time window authored."
+        },
+        {
+          "row": "V24",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "No countdown, time limit or time window authored."
+        },
+        {
+          "row": "V25",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "No countdown, time limit or time window authored."
+        },
+        {
+          "row": "V26",
+          "declaration": "NON_CLAIMED",
+          "selector": "*",
+          "scope": "WHOLE_GAME",
+          "note": "No countdown, time limit or time window authored."
+        }
+      ],
+      "relationshipRules": [
+        {
+          "id": "RPC-003-RR-1",
+          "owner": "RPC-003 (RPC-REL-079 to RPC-REL-082)",
+          "decides": "V1 [*] (the primary event kind) against another object's V1 requirement",
+          "outcome": "V1 takes a member of {target_zone_entered, line_crossed, gate, target_player}; a value outside the set loses, with RR-01 (the Context owns scoring). The authored order is recorded but not applied (RC-29), so it does not choose among members.",
+          "evidence": "\"Valid primary scoring event 1 of 4, in the approved order.\" (RPC-REL-079 notes; 080-082 say 2-4), provenance \"Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)\", sport-module/rpc-library.rc1.json",
+          "standing": "DRAFT"
+        }
+      ],
+      "ledger": [
+        {
+          "ref": "L-01",
+          "class": "SCHEMA",
+          "schemaScope": "STRUCTURAL",
+          "what": "Carrier of the scoring reference depends on the chosen V1 member",
+          "detail": "As RPC-001's L-01: the carrier of whichever of the four events is chosen (S2 zone, O1 line or gate, P4 target player) cannot be required by an item."
+        },
+        {
+          "ref": "L-02",
+          "class": "VOCABULARY",
+          "schemaScope": "N/A",
+          "what": "No RPC-003 episode scope",
+          "detail": "The register's only episode scope (BUILD_OUT_EPISODE) is RPC-001's. RPC-PROP-134's conditions are drafted WHOLE_GAME (decisions D1/D2) only because it is the one scope representable today. The workbook's begin rows (RPC-ID-011, RPC-PROP-034/035, RPC-TR-002/004/013) point to an Attack Development episode that begins once organized possession is established, so WHOLE_GAME over-applies the condition to post-regain play (RPC-ID-026, RPC-006). The faithful scope needs engine work (E8) and his ruling."
+        },
+        {
+          "ref": "L-03",
+          "class": "KNOWLEDGE",
+          "schemaScope": "N/A",
+          "what": "The origin referent is untyped",
+          "detail": "\"the attack's starting condition\" is carried as authored open text (10.b). Typing it as a begin condition needs an episode that a transition begins (register V5 version 3) and his ruling (D1)."
+        },
+        {
+          "ref": "L-04",
+          "class": "KNOWLEDGE",
+          "schemaScope": "N/A",
+          "what": "The progression referent is untyped; the control referent is not stated",
+          "detail": "The progression referent is carried as authored open text (\"a more advanced representative area\", 11.b); typing it as the objective reference of SCORING_TEAM is proposed ruling PR-1 (the C59 analog). The control clause (\"while maintaining attacking possession\") names no place, so V5 [type=control] is UNDECLARED, as RPC-001's was before C57; typing it is PR-2, which also asks whether \"while maintaining\" is judged at the target or continuously. The register admits a typed relational referent only from a ruled restatement (row V5)."
+        },
+        {
+          "ref": "L-05",
+          "class": "KNOWLEDGE",
+          "schemaScope": "N/A",
+          "what": "Origin V6 not authored",
+          "detail": "No parameter for the origin. RPC-001's analog was his C55 (\"needs no further value\"); for RPC-003 it is PR-3. Declared NOT_AUTHORED meanwhile, which blocks (MEASURED in the composition probe)."
+        },
+        {
+          "ref": "L-06",
+          "class": "KNOWLEDGE",
+          "schemaScope": "N/A",
+          "what": "Begin condition against TA02",
+          "detail": "RPC-ID-011 / RPC-PROP-034 require organized possession already established; TA02 reads \"after regaining it\" (D1). Carried as the workbook says; nothing resolves the tension. His RC1.1 Library has a fourth begin condition the workbook lacks, \"the attacking team has sufficient stability to intentionally improve its attacking position.\" (Library line 583); it is Library-only, not carried, and does not resolve the tension either (reconciliation LP-1, README Q1e)."
+        },
+        {
+          "ref": "L-07",
+          "class": "KNOWLEDGE",
+          "schemaScope": "N/A",
+          "what": "One ball",
+          "detail": "RPC-003-04.a needs the RPC-001 \"one ball shared\" identification to be extended (D8b, K8), or it is a second ball class."
+        },
+        {
+          "ref": "L-08",
+          "class": "KNOWLEDGE",
+          "schemaScope": "N/A",
+          "what": "No engine wording depended on",
+          "detail": "The RPC-003 COACH_RULES sentences (primary-scoring.ts:211-231, e.g. \"two thirds of the way up\") are ENGINE_ONLY and supported nothing under SD-21 (the C51 precedent); none is carried."
+        },
+        {
+          "ref": "L-09",
+          "class": "KNOWLEDGE",
+          "schemaScope": "N/A",
+          "what": "Strictness of RPC-ID-014",
+          "detail": "SUPPORTING_IDENTITY, so the routes item is SUPPORTING (RPC-001's analog is REQUIRED)."
+        },
+        {
+          "ref": "L-10",
+          "class": "KNOWLEDGE",
+          "schemaScope": "N/A",
+          "what": "Typical manipulations and regulations absent",
+          "detail": "The Attack Development section of the RC1.1 context document is not in the repository (the RPC-001 reconciliation measured 0 workbook rows for these lists in all eight contexts), but we hold his RC1.1 Library outside it. Its Typical Environmental Manipulations are Core \"field dimensions;\" \"player spacing;\" \"positional distribution.\" and Common \"progression zones;\" \"numerical balance;\" \"target positioning;\" \"directional incentives.\" (Library lines 668-677); its Typical Interaction Regulations are Core \"continuous play;\" \"directional progression.\" and Common \"progression incentives;\" \"numerical conditions;\" \"restart procedures.\" (Library lines 678-685). Nothing is carried from them: they are Library-only, and the workbook stays the executable authority (his 16 October reply, item 1, for Goalkeeper Build-Out; README Q8b). Which, if any, apply to Secure Possession is README Q8a (reconciliation LP-4, LP-5)."
+        },
+        {
+          "ref": "L-11",
+          "class": "KNOWLEDGE",
+          "schemaScope": "N/A",
+          "what": "Affordance targets deferred",
+          "detail": "RPC-MAP-103..107 are DEFERRED by his 13 September ruling (\"canonical Affordance Target ids are not to be inferred to reach runtime\"); not carried. His RC1.1 Library lists nine targets for Attack Development: these five, and four Common ones never staged, \"positional rotation\", \"diagonal progression\", \"wide progression\", \"central progression\" (Library lines 644-647; reconciliation LP-6, README Q6)."
+        },
+        {
+          "ref": "L-12",
+          "class": "KNOWLEDGE",
+          "schemaScope": "N/A",
+          "what": "Silence read as NON_CLAIMED",
+          "detail": "Every NON_CLAIMED declaration is our reading of the workbook's silence on that row, examined row by row (RPC-001's came from its original contribution's doesNotConstrain list). S5/O4 in particular: RPC-001's analog was NOT_AUTHORED. MEASURED (final/scripts/probe-out run U2n): in the line composition NOT_AUTHORED changes nothing, because GF2-04 places the target at the end line under either reading; the uncorrected notes' claim that NOT_AUTHORED \"would refuse until he places it\" was not true. The placement therefore comes from GF2, never from Attack Development's \"more advanced representative area\". Where that area is, and which reading is right, is D5 (README Q2)."
+        },
+        {
+          "ref": "L-13",
+          "class": "KNOWLEDGE",
+          "schemaScope": "N/A",
+          "what": "T7 for starts, scores and restarts is open",
+          "detail": "RPC-003-09.a makes T7 a line every transition element must resolve, and only POSSESSION_CHANGE is declared. MEASURED (step0 f3/f4; re-run in final/scripts/probe-out): every GF2 out-of-play element from the K4 draft then fails Gate A on T7 under this contract. Declared UNDECLARED and left open: whether a restart begins a new attack is part of \"the attack's starting condition\" (D1, README Q1). Declaring it NON_CLAIMED would clear the failure but decide D1 by our reading."
+        },
+        {
+          "ref": "L-14",
+          "class": "KNOWLEDGE",
+          "schemaScope": "N/A",
+          "what": "RPC-003-08 addresses no element",
+          "detail": "MEASURED (step0 ablation; re-run in final/scripts/probe-out): no contribution in any GF2 composition establishes a START transition, so 08 (T2 [trigger=START] EXISTS, carrying RPC-ID-011/PROP-034) changes nothing and is inert, like GF2-16.a/b. Kept, and reported. The served \"Pick which team starts with the ball\" is said with or without 08 (MEASURED: it is in plain GF2, understand/probe-demos.txt); INFERRED: it comes from the possession relationship's initial holder, which SPORT-SOCCER-02 leaves as a governed realization choice."
+        }
+      ],
+      "engineWordingDependedOn": [],
+      "conventionsUsed": [
+        {
+          "rc": "RC-6",
+          "where": "Every item with no value is N/A; items with EQUALS/RANGE/COUNT values are REQUIRED_RANGE"
+        },
+        {
+          "rc": "RC-7",
+          "where": "V6: CLAIMED (progression, control) beside NOT_AUTHORED (origin)"
+        },
+        {
+          "rc": "RC-10",
+          "where": "Every basis checked against rpc-library.rc1.json and game-archetype-workbook.rc1.1.json; engine wording (COACH_RULES) not used"
+        },
+        {
+          "rc": "RC-11",
+          "where": "All selectors, e.g. kind ∈ {line, gate}, type=progression, subject ∈ {...}"
+        },
+        {
+          "rc": "RC-13",
+          "where": "Declarations carry selectors and scopes (S2, S4, O1, J1, J2, J4, T2, T6, V3, V5, V6, V15)"
+        },
+        {
+          "rc": "RC-16",
+          "where": "V3 selectors fix the condition type"
+        },
+        {
+          "rc": "RC-29",
+          "where": "03.a ordered set recorded, order not applied"
+        },
+        {
+          "rc": "RC-31",
+          "where": "OUTSIDE_BOUNDARY items (01.b, 04.b, 13, 14.a, 14.b) placed on nearest rows as inert"
+        },
+        {
+          "rc": "RC-34",
+          "where": "11.c \"more advanced\" and 12.b \"while maintaining attacking possession\" as verbatim V6 terms"
+        }
+      ],
+      "difficulties": "Hardest part: RPC-PROP-134. It is one approved sentence with four parts (an origin, a progression, a control and a \"rather than possession alone\" exclusion), and none of the three conditions can be evaluated as written. The origin (\"the attack's starting condition\") is a state, not a place, and typing it needs an episode scope that does not exist for this context; its value line has no authored value. The progression referent is \"a more advanced representative area\": typing it as the target the scoring team attacks is the reading his C59 ruling approved for RPC-001, but the register admits it only from his ruling, so it stays open text here. The control clause (\"while maintaining attacking possession\") names no place, so its referent is left UNDECLARED, as RPC-001's was before C57. Beside that, the context's REQUIRED begin identity (organized possession already established) pulls against TA02's \"after regaining it\", and nothing in the workbook resolves it. WHOLE_GAME is drafted only because it is the one scope the engine represents today; the begin rows point to a narrower Attack Development episode (D1/D2, E8)."
+    }
+  },
+  "proposedRulings": [
+    {
+      "id": "PR-1",
+      "target": "RPC-003-11.b",
+      "analogOf": "C59 (RPC-001-18.d)",
+      "proposal": "Type the progression referent as {objectiveReferenceOf: \"SCORING_TEAM\", role: \"PRIMARY_SCORING\", asAuthored: \"a more advanced representative area - the target the scoring team attacks\"}.",
+      "question": "Typing the progression referent as the target the scoring team attacks makes GF2's own target (its end line, when the realizer chooses line targets) stand for \"a more advanced representative area\": MEASURED (run U2n), nothing of Attack Development's area reaches the game beyond GF2's default target, under either reading of the silence. Is that target the intended progression outcome for Secure Possession? Your proviso on the RPC-001 analog applies: \"Controlled arrival and long-clearance exclusion: Approved in principle, provided they are evaluated against the intended progression outcome and not merely whichever target the current engine can represent.\" (your 16 October reply, item 9 point 2, christian-2026-10-16.txt:111). It is asked against the intended progression outcome, not because it composes.",
+      "needs": "His ruling: the register admits a relational referent only from a ruled restatement (register row V5). Without it the condition is judged against open text."
+    },
+    {
+      "id": "PR-2",
+      "target": "V5 [type=control] (UNDECLARED in this draft; the ruling would add an item, proposed id RPC-003-12.c, as C57 added RPC-001-18.h)",
+      "analogOf": "C57 (RPC-001-18.h)",
+      "proposal": "Add an item typing the control referent as {objectiveReferenceOf: \"SCORING_TEAM\", role: \"PRIMARY_SCORING\", asAuthored: \"while maintaining attacking possession - the target the scoring team attacks\"}.",
+      "question": "Typing the referent as the target reduces \"while maintaining attacking possession\" to a judgement at the target, which is RPC-001's \"controlled on arrival\". Is that your meaning? The alternative, continuity from the attack's start to the target, needs the origin typed (D1) and an episode (E8). Your C57 words point toward the episode reading: \"Apply the qualifying conditions to the target and scoring episode actually being evaluated.\" (your reply filed 17 October 2026, M8, quoted in RPC-001-18.h's basisEvidence). The day before, you attached a proviso to the same knowledge for Goalkeeper Build-Out: \"Controlled arrival and long-clearance exclusion: Approved in principle, provided they are evaluated against the intended progression outcome and not merely whichever target the current engine can represent.\" (your 16 October reply, item 9 point 2, christian-2026-10-16.txt:111). Judging at the target is the form the engine can evaluate today; it should be chosen only if it is the intended outcome.",
+      "needs": "His ruling, as PR-1, and his answer to the question."
+    },
+    {
+      "id": "PR-3",
+      "target": "V6 [type=origin]",
+      "analogOf": "C55 (his 9.9, RPC-001 V6 [type=origin] NO_FURTHER_VALUE)",
+      "proposal": "Declare that the origin needs no further value (NON_CLAIMED, qualifier NO_FURTHER_VALUE), as he ruled for RPC-001.",
+      "needs": "Only if D1 keeps the origin as a condition with a typed begin referent. His statement; the qualifier may not be written on our reading (register contractEnums.declarationQualifierNote, his M6)."
+    },
+    {
+      "id": "PR-4",
+      "target": "realization-choices-rpc-003.json (new) + realization-choices-index.json",
+      "analogOf": "realization-choices-rpc-001.json satisfiedByEstablished",
+      "proposal": "One satisfiedByEstablished entry: c:restated:RPC-003:RPC-003-04.a satisfied by c:sport-profile:soccer:SPORT-SOCCER-01.",
+      "needs": "His confirmation that \"One ball shared between context and game: Approved.\" extends to Attack Development (that file's note: \"This is not a general merge rule\")."
+    },
+    {
+      "id": "PR-5",
+      "target": "RPC-003-03.a",
+      "analogOf": "C60",
+      "proposal": "Write yieldsForRole AUTHORIZED_ROLE_SCORING, so one role may score by its own event.",
+      "needs": "Only if he chooses an asymmetric design (D3); a ruled restatement quoting his words."
+    }
+  ],
+  "libraryProposals": {
+    "standing": "PROPOSALS AWAITING HIM. None is an item of this contract, and none is AUTHORED: AUTHORED here means quoted from his workbook, and these items are in his RC1.1 Library only.",
+    "recordedIn": "rpc-003-library-reconciliation.DRAFT.md (section 6)",
+    "proposals": [
+      {
+        "id": "LP-1",
+        "libraryItem": "Begin condition (4) and its defining sentence (Library lines 583-584)",
+        "readme": "Q1e"
+      },
+      {
+        "id": "LP-2",
+        "libraryItem": "End condition (4), Counterattack following regain by the opponent (Library line 590)",
+        "readme": "Q1e, Q3"
+      },
+      {
+        "id": "LP-3",
+        "libraryItem": "Boundaries: Goalkeeper Build-Out, High Press Escape, Counterattack (Library lines 709-712)",
+        "readme": "Q1e"
+      },
+      {
+        "id": "LP-4",
+        "libraryItem": "Typical Environmental Manipulations (Library lines 668-677)",
+        "readme": "Q8a"
+      },
+      {
+        "id": "LP-5",
+        "libraryItem": "Typical Interaction Regulations (Library lines 678-685)",
+        "readme": "Q8a"
+      },
+      {
+        "id": "LP-6",
+        "libraryItem": "Four never-staged affordance targets (Library lines 644-647)",
+        "readme": "Q6"
+      },
+      {
+        "id": "LP-7",
+        "libraryItem": "Three absent information items and the Core/Common tiers (Library lines 648-661)",
+        "readme": "Q8b"
+      },
+      {
+        "id": "LP-8",
+        "libraryItem": "The RC1.1 coach translation (Library line 720) against RPC-STMT-015, the RC1 sentence",
+        "readme": "Q2c"
+      },
+      {
+        "id": "LP-9",
+        "libraryItem": "The remaining nonblocking omissions (reconciliation rows 5, 6 and 13-20)",
+        "readme": "Q8b"
+      }
+    ]
+  }
+}

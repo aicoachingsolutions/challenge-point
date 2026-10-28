@@ -1,0 +1,119 @@
+
+### A plain GF2 (baseline)
+outcome=served
+instructions=8 overview=true diagram=true
+integrity={"gateA":"DEFERRED_TO_REALIZATION","realizationAuthorized":true,"acceptance":{"nothingClosedWithoutAuthority":[],"nothingLost":[],"nothingInvented":[]},"postRealizationValidated":true,"instructions":8,"fidelityViolations":0}
+  [Set up] Mark out an area 40 m long by 30 m wide
+  [Set up] Mark both end lines: they are the scoring lines
+  [Players] Divide 12 players into 2 teams of 6, with no goalkeepers
+  [How it works] Pick which team starts with the ball and tell both teams before you start
+  [How it works] When possession changes, play carries on without a stoppage, and each team keeps attacking the same line
+  [How to score] A team scores 1 point by getting the ball across the line it is attacking
+  [How to score] Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game
+  [When it ends] Play for 20 minutes
+
+### B GF2 + T1 OUT_TOUCHLINE and OUT_END_LINE only
+outcome=refused
+stage=structure
+summary=The game this demonstration selects is not yet described completely enough to be set up.
+  reason: Gate A is FAIL
+  reason: a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE
+  reason: 2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:GF2:TEST-ONLY-T1-EL::T3, c:restated:GF2:TEST-ONLY-T1-TL::T3
+
+### C B + T3 (a player of the awarded team)
+outcome=refused
+stage=structure
+summary=The game this demonstration selects is not yet described completely enough to be set up.
+  reason: Gate A is FAIL
+  reason: a pre-realization Gate A invariant fails: GA-TRANSITION-COHERENCE
+
+### D C + touchline T4/T5 as Law 15 gives; end line open
+outcome=refused
+stage=structure
+summary=The game this demonstration selects is not yet described completely enough to be set up.
+  reason: Gate A is FAIL
+  reason: a pre-realization Gate A invariant fails: GA-TRANSITION-COHERENCE
+
+### E D + end line T4/T5 coach-chooses RANGE (OWNER_RULING, TEST-ONLY words)
+outcome=refused
+stage=realization
+summary=A set-up decision for this game has not been made yet.
+  reason: realization refused
+  reason: c:restated:GF2:TEST-ONLY-T1-EL::T4 is open and was not chosen: a concrete game leaves no freedom unclosed
+  reason: c:restated:GF2:TEST-ONLY-T1-EL::T5 is open and was not chosen: a concrete game leaves no freedom unclosed
+
+### F D + end line T4/T5 fixed TEST-ONLY values
+outcome=refused
+stage=communication
+summary=Part of this activity cannot be explained to a coach yet, so it is not being shown.
+  reason: fidelity Q3: transitions[c:restated:GF2:TEST-ONLY-T1-EL].awardedTo is established by the game and no instruction carries it
+  reason: fidelity Q3: transitions[c:restated:GF2:TEST-ONLY-T1-EL].placement.actor is established by the game and no instruction carries it
+  reason: fidelity Q3: transitions[c:restated:GF2:TEST-ONLY-T1-EL].placement.region is established by the game and no instruction carries it
+  reason: fidelity Q3: transitions[c:restated:GF2:TEST-ONLY-T1-EL].placement.method is established by the game and no instruction carries it
+  reason: fidelity Q3: transitions[c:restated:GF2:TEST-ONLY-T1-EL].playState is established by the game and no instruction carries it
+
+### G touchline only (T1+T3+T4+T5), no end-line element
+outcome=served
+instructions=9 overview=true diagram=true
+integrity={"gateA":"DEFERRED_TO_REALIZATION","realizationAuthorized":true,"acceptance":{"nothingClosedWithoutAuthority":[],"nothingLost":[],"nothingInvented":[]},"postRealizationValidated":true,"instructions":9,"fidelityViolations":0}
+  [Set up] Mark out an area 40 m long by 30 m wide
+  [Set up] Mark both end lines: they are the scoring lines
+  [Players] Divide 12 players into 2 teams of 6, with no goalkeepers
+  [How it works] Pick which team starts with the ball and tell both teams before you start
+  [How it works] When possession changes, play carries on without a stoppage, and each team keeps attacking the same line
+  [How to score] A team scores 1 point by getting the ball across the line it is attacking
+  [How to score] Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game
+  [When it ends] Play for 20 minutes
+  [Restarts and ball out] If the ball goes out over a touchline, a player of the team that did not touch the ball last restarts play with a throw-in where the ball went out
+
+### H touchline T1 + T4/T5 only, no T3
+outcome=refused
+stage=structure
+summary=The game this demonstration selects is not yet described completely enough to be set up.
+  reason: Gate A is FAIL
+  reason: a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE
+  reason: 1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:GF2:TEST-ONLY-T1-TL::T3
+
+### E2 E + COACH_DECIDES closures for the end line (TEST-ONLY supplied choices)
+outcome=refused
+stage=communication
+summary=Part of this activity cannot be explained to a coach yet, so it is not being shown.
+  reason: fidelity Q3: transitions[c:restated:GF2:TEST-ONLY-T1-EL].awardedTo is established by the game and no instruction carries it
+  reason: fidelity Q3: transitions[c:restated:GF2:TEST-ONLY-T1-EL].placement.actor is established by the game and no instruction carries it
+  reason: fidelity Q3: transitions[c:restated:GF2:TEST-ONLY-T1-EL].playState is established by the game and no instruction carries it
+  reason: fidelity Q3: transitions[c:restated:GF2:TEST-ONLY-T1-EL].placement.region is established by the game and no instruction carries it
+  reason: fidelity Q3: transitions[c:restated:GF2:TEST-ONLY-T1-EL].placement.method is established by the game and no instruction carries it
+
+### S GF2 + touchline (as G) + T1 SCORE only
+outcome=refused
+stage=structure
+summary=The game this demonstration selects is not yet described completely enough to be set up.
+  reason: Gate A is FAIL
+  reason: a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE
+  reason: 5 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:GF2:TEST-ONLY-T1-SC::T2, c:restated:GF2:TEST-ONLY-T1-SC::T3, c:restated:GF2:TEST-ONLY-T1-SC::T4, c:restated:GF2:TEST-ONLY-T1-SC::T5, …
+
+### E3 E2 + T1b EACH_TEAM on the end-line element
+outcome=served
+instructions=10 overview=true diagram=true
+integrity={"gateA":"DEFERRED_TO_REALIZATION","realizationAuthorized":true,"acceptance":{"nothingClosedWithoutAuthority":[],"nothingLost":[],"nothingInvented":[]},"postRealizationValidated":true,"instructions":10,"fidelityViolations":0}
+  [Set up] Mark out an area 40 m long by 30 m wide
+  [Set up] Mark both end lines: they are the scoring lines
+  [Players] Divide 12 players into 2 teams of 6, with no goalkeepers
+  [How it works] Pick which team starts with the ball and tell both teams before you start
+  [How it works] When possession changes, play carries on without a stoppage, and each team keeps attacking the same line
+  [How to score] A team scores 1 point by getting the ball across the line it is attacking
+  [How to score] Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game
+  [When it ends] Play for 20 minutes
+  [Restarts and ball out] If the ball goes out over either end line, a player of the team that did not touch the ball last restarts play; you choose where (TEST-ONLY: a location the coach chooses on or behind the end line the ball crossed) and how (TEST-ONLY: a restart method the coach chooses)
+  [Restarts and ball out] If the ball goes out over a touchline, a player of the team that did not touch the ball last restarts play with a throw-in where the ball went out
+
+### F2 F + T1b EACH_TEAM (fixed STATIONARY_BALL at where it went out)
+outcome=refused
+stage=communication
+summary=Part of this activity cannot be explained to a coach yet, so it is not being shown.
+  reason: fidelity Q3: transitions[c:restated:GF2:TEST-ONLY-T1-EL].qualifiers.endLine is established by the game and no instruction carries it
+  reason: fidelity Q3: transitions[c:restated:GF2:TEST-ONLY-T1-EL].awardedTo is established by the game and no instruction carries it
+  reason: fidelity Q3: transitions[c:restated:GF2:TEST-ONLY-T1-EL].placement.actor is established by the game and no instruction carries it
+  reason: fidelity Q3: transitions[c:restated:GF2:TEST-ONLY-T1-EL].placement.region is established by the game and no instruction carries it
+  reason: fidelity Q3: transitions[c:restated:GF2:TEST-ONLY-T1-EL].placement.method is established by the game and no instruction carries it
+  reason: fidelity Q3: transitions[c:restated:GF2:TEST-ONLY-T1-EL].playState is established by the game and no instruction carries it

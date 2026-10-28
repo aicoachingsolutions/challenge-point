@@ -1,0 +1,44 @@
+ok scratchpad/christian-2026-10-16.txt L111 -> README.md, rpc-003-contract-notes.md, rpc-003-contract.DRAFT.json
+ok scratchpad/christian-2026-10-16.txt L40 -> README.md, ta02-candidate-evaluation.DRAFT.md
+ok scratchpad/christian-2026-10-16.txt L13 -> README.md, ta02-authorization.DRAFT.json, ta02-candidate-evaluation.DRAFT.md
+ok scratchpad/christian-2026-10-16.txt L10 -> ta02-authorization.DRAFT.json, ta02-relevance-claims.DRAFT.json, ta02-relevance-claims.DRAFT.md
+ok scratchpad/christian-2026-10-16.txt L112 -> rpc-003-contract-notes.md
+ok scratchpad/christian-2026-10-16.txt L117 -> README.md, rpc-003-contract-notes.md, rpc-003-contract.DRAFT.json
+ok scratchpad/christian-2026-10-16.txt L24 -> ta02-relevance-claims.DRAFT.json
+ok scratchpad/christian-2026-10-16.txt L1 (source only)
+ok scratchpad/christian-2026-10-26.txt L176 -> README.md, gf2-restart-restatement-notes.md, gf2-restart-restatement.DRAFT.json
+ok scratchpad/christian-2026-10-26.txt L178 -> README.md, gf2-restart-restatement-notes.md, gf2-restart-restatement.DRAFT.json
+ok scratchpad/christian-2026-10-26.txt L156 -> README.md, gf2-restart-restatement-notes.md, gf2-restart-restatement.DRAFT.json
+ok scratchpad/christian-2026-10-26.txt L180 -> README.md, gf2-restart-restatement-notes.md, gf2-restart-restatement.DRAFT.json, ta02-authorization.DRAFT.json
+ok scratchpad/christian-2026-10-24.txt L50 -> README.md
+ok scratchpad/christian-2026-10-24.txt L40 (source only)
+ok scratchpad/christian-2026-10-15.txt L12 -> ta02-candidate-evaluation.DRAFT.md
+ok scratchpad/christian-2026-10-15.txt L13 (source only)
+ok scratchpad/christian-2026-10-17.txt L137 -> README.md, rpc-003-contract-notes.md, rpc-003-contract.DRAFT.json
+ok docs/audits/conformance/stage-b/sport-profile-soccer.json L33 -> README.md, gf2-restart-restatement-notes.md, gf2-restart-restatement.DRAFT.json
+ok docs/audits/conformance/stage-b/sport-profile-soccer.json L33 -> gf2-restart-restatement.DRAFT.json
+ok docs/ENGAGE_WITH_PURPOSE.md L61 -> ta02-candidate-evaluation.DRAFT.md
+ok docs/ENGAGE_WITH_PURPOSE.md L59 -> ta02-candidate-evaluation.DRAFT.md
+ok docs/HANDOFF.md L7994-L7995 -> ta02-candidate-evaluation.DRAFT.md
+ok docs/HANDOFF.md L7993-L7994 (source only)
+ok docs/audits/conformance/stage-b/contracts.json RPC-001-15.a -> rpc-003-contract.DRAFT.json
+ok docs/audits/conformance/stage-b/contracts.json RPC-001-17.a -> rpc-003-contract.DRAFT.json
+ok back/src/system/knowledge-core/game-archetype-workbook.rc1.1.json GAK-0015 -> ta02-relevance-claims.DRAFT.json, ta02-relevance-claims.DRAFT.md
+ok back/src/system/knowledge-core/game-archetype-workbook.rc1.1.json GAK-0015 -> ta02-relevance-claims.DRAFT.json, ta02-relevance-claims.DRAFT.md
+ok back/src/system/test-library/library/learning-goal-authorizations.json  -> ta02-authorization.DRAFT.json
+ok back/src/system/sport-module/soccer-module.rc1-v3.json GF2 -> README.md, gf2-restart-restatement-notes.md, gf2-restart-restatement.DRAFT.json, ta02-authorization.DRAFT.json, ta02-relevance-claims.DRAFT.json
+ok fact: the GAK-0015 Knowledge_Statement is the text of all 18 COMPATIBLE Game Problem rows
+ok fact: GAK-0016 GP-016 CHARACTERISTIC
+ok fact: GAK-0016 at game-archetype-workbook.rc1.1.json:310
+ok fact: the profile lists 10 laws
+ok fact: LAW-16/17 applicableWhen OBJECT_OF_KIND_AT_END goal; LAW-17 requires []
+ok fact: register row T1 has qualifier.lastTouch and qualifier.endLine; T5 lists STATIONARY_BALL
+ok fact: review-evidence.ts:389-398 grades AUTHORED and OWNER_RULING as APPROVED
+ok K4: seven items, all in added[] or appliesStandingPrinciple.items
+ok K4: every item rulingStatus GIVEN
+ok K4: K4-D3 and K4-D4 carry proposedAdaptation with rulingStatus NOT_GIVEN
+ok K1: 19 AUTHORED, 5 ASSUMED (matches notes section 1)
+
+quotations checked: 29
+
+ALL VERIFICATION-PASS CHECKS PASS

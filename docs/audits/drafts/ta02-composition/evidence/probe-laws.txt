@@ -1,0 +1,30 @@
+
+### plain GF2: outcome=served; fixture keys: provenance,closure,envelope,game,record,status
+  LAW-8 @ the game: ADAPTATION_OWED - the representation holds no row for it: the centre mark a kick-off is taken from: no register row holds it; nothing departs from the whole of it
+  LAW-8-DB @ the game: APPLIES - every precondition holds
+  LAW-11 @ the game: ADAPTATION_OWED - the representation holds no row for it: a fixed halfway line: no register row holds the halfway line of Law 1, and the build-out activities' only halfway marking is the marked line the coach may move; nothing departs from the whole of it
+  LAW-12-GK @ the game: NOT_APPLICABLE - no team holds a performer on P3 (performers.teams[].goalkeeper)
+  LAW-14 @ the end line at 0 m (defended by TEAM_AT_AXIS_START): NOT_APPLICABLE - the game holds no object of the kind goal
+  LAW-14 @ the end line at 40 m (defended by TEAM_AT_AXIS_END): NOT_APPLICABLE - the game holds no object of the kind goal
+  LAW-13 @ the game: APPLIES - every precondition holds
+  LAW-15 @ the game: APPLIES - every precondition holds
+  LAW-16 @ the end line at 0 m (defended by TEAM_AT_AXIS_START): NOT_APPLICABLE - the game holds no object of the kind goal
+  LAW-16 @ the end line at 40 m (defended by TEAM_AT_AXIS_END): NOT_APPLICABLE - the game holds no object of the kind goal
+  LAW-17 @ the end line at 0 m (defended by TEAM_AT_AXIS_START): NOT_APPLICABLE - the game holds no object of the kind goal
+  LAW-17 @ the end line at 40 m (defended by TEAM_AT_AXIS_END): NOT_APPLICABLE - the game holds no object of the kind goal
+  LAW-4-GK @ the game: NOT_APPLICABLE - no team holds a performer on P3 (performers.teams[].goalkeeper)
+
+### GF2 + K4 touchline (TEST-ONLY): outcome=served; fixture keys: provenance,closure,envelope,game,record,status,methodNouns
+  LAW-8 @ the game: ADAPTATION_OWED - the representation holds no row for it: the centre mark a kick-off is taken from: no register row holds it; nothing departs from the whole of it
+  LAW-8-DB @ the game: APPLIES - every precondition holds
+  LAW-11 @ the game: ADAPTATION_OWED - the representation holds no row for it: a fixed halfway line: no register row holds the halfway line of Law 1, and the build-out activities' only halfway marking is the marked line the coach may move; nothing departs from the whole of it
+  LAW-12-GK @ the game: NOT_APPLICABLE - no team holds a performer on P3 (performers.teams[].goalkeeper)
+  LAW-14 @ the end line at 0 m (defended by TEAM_AT_AXIS_START): NOT_APPLICABLE - the game holds no object of the kind goal
+  LAW-14 @ the end line at 40 m (defended by TEAM_AT_AXIS_END): NOT_APPLICABLE - the game holds no object of the kind goal
+  LAW-13 @ the game: APPLIES - every precondition holds
+  LAW-15 @ the game: APPLIES - every precondition holds
+  LAW-16 @ the end line at 0 m (defended by TEAM_AT_AXIS_START): NOT_APPLICABLE - the game holds no object of the kind goal
+  LAW-16 @ the end line at 40 m (defended by TEAM_AT_AXIS_END): NOT_APPLICABLE - the game holds no object of the kind goal
+  LAW-17 @ the end line at 0 m (defended by TEAM_AT_AXIS_START): NOT_APPLICABLE - the game holds no object of the kind goal
+  LAW-17 @ the end line at 40 m (defended by TEAM_AT_AXIS_END): NOT_APPLICABLE - the game holds no object of the kind goal
+  LAW-4-GK @ the game: NOT_APPLICABLE - no team holds a performer on P3 (performers.teams[].goalkeeper)

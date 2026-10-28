@@ -1,0 +1,14 @@
+README.md: bytes=51868 control=0 bom=false mojibake=0 parse=n/a
+gf2-restart-restatement-notes.md: bytes=28288 control=0 bom=false mojibake=0 parse=n/a
+gf2-restart-restatement.DRAFT.json: bytes=56051 control=0 bom=false mojibake=0 parse=ok
+rpc-003-contract-notes.md: bytes=59273 control=0 bom=false mojibake=0 parse=n/a
+rpc-003-contract.DRAFT.json: bytes=135350 control=0 bom=false mojibake=0 parse=ok
+rpc-003-library-reconciliation.DRAFT.md: bytes=27761 control=0 bom=false mojibake=0 parse=n/a
+ta02-authorization.DRAFT.json: bytes=45763 control=0 bom=false mojibake=0 parse=ok
+ta02-candidate-evaluation.DRAFT.md: bytes=50391 control=0 bom=false mojibake=0 parse=n/a
+ta02-relevance-claims.DRAFT.json: bytes=63063 control=0 bom=false mojibake=0 parse=ok
+ta02-relevance-claims.DRAFT.md: bytes=17995 control=0 bom=false mojibake=0 parse=n/a
+
+quotes checked: 265; decision ids named across drafts: D1 D10 D11 D12 D2 D2b D3 D4 D4a D4b D5 D6 D7 D8 D8b D9 K4-1 K4-D1 K4-D2 K4-D3 K4-D4 K4-D5 PR-1 PR-2 PR-3 PR-4 PR-5
+
+ALL CHECKS PASS

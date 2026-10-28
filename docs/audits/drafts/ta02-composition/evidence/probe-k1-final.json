@@ -1,0 +1,1262 @@
+{
+ "generatedAt": "2026-10-27T21:02:12.285Z",
+ "worktree": "probe-ta02 @ f5d6d24",
+ "note": "TEST-ONLY measurement of the corrected drafts; nothing here is approved knowledge or his ruling",
+ "runs": [
+  {
+   "id": "D1",
+   "label": "GF2 + corrected draft as drafted",
+   "outcome": "refused",
+   "stage": "structure",
+   "summary": "The game this demonstration selects is not yet described completely enough to be set up.",
+   "reasons": [
+    "Gate A is FAIL",
+    "a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE",
+    "2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6"
+   ],
+   "integrity": null,
+   "instructions": [],
+   "draftInstructions": [],
+   "withheld": [],
+   "context": null
+  },
+  {
+   "id": "D2",
+   "label": "D1 without RPC-003-08 (T2 START)",
+   "outcome": "refused",
+   "stage": "structure",
+   "summary": "The game this demonstration selects is not yet described completely enough to be set up.",
+   "reasons": [
+    "Gate A is FAIL",
+    "a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE",
+    "2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6"
+   ],
+   "integrity": null,
+   "instructions": [],
+   "draftInstructions": [],
+   "withheld": [],
+   "context": null
+  },
+  {
+   "id": "D3",
+   "label": "D1 + PR-3",
+   "outcome": "refused",
+   "stage": "structure",
+   "summary": "The game this demonstration selects is not yet described completely enough to be set up.",
+   "reasons": [
+    "Gate A is FAIL",
+    "a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE",
+    "1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5"
+   ],
+   "integrity": null,
+   "instructions": [],
+   "draftInstructions": [],
+   "withheld": [],
+   "context": null
+  },
+  {
+   "id": "D4",
+   "label": "D3 + PR-4",
+   "outcome": "refused",
+   "stage": "structure",
+   "summary": "The game this demonstration selects is not yet described completely enough to be set up.",
+   "reasons": [
+    "Gate A is FAIL",
+    "a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE",
+    "1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5"
+   ],
+   "integrity": null,
+   "instructions": [],
+   "draftInstructions": [],
+   "withheld": [],
+   "context": null
+  },
+  {
+   "id": "D5",
+   "label": "D4 + PR-1 + PR-2 (origin kept)",
+   "outcome": "refused",
+   "stage": "structure",
+   "summary": "This demonstration selects a rule whose description is still incomplete, so the activity cannot be checked yet.",
+   "reasons": [
+    "Gate A is NOT_EVALUABLE",
+    "a pre-realization Gate A invariant cannot be evaluated, so it is not satisfied: GA-ONE-PRIMARY-EVENT, GA-REFERENCE-INTEGRITY"
+   ],
+   "integrity": null,
+   "instructions": [],
+   "draftInstructions": [],
+   "withheld": [],
+   "context": null
+  },
+  {
+   "id": "D8",
+   "label": "PR-4, origin and START removed, no PR-1/PR-2 (progression referent open text, control referent UNDECLARED)",
+   "outcome": "refused",
+   "stage": "structure",
+   "summary": "The game this demonstration selects is not yet described completely enough to be set up.",
+   "reasons": [
+    "Gate A is FAIL",
+    "a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE",
+    "1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5"
+   ],
+   "integrity": null,
+   "instructions": [],
+   "draftInstructions": [],
+   "withheld": [],
+   "context": null
+  },
+  {
+   "id": "D9",
+   "label": "PR-1 + PR-2, origin and START removed, NO PR-4",
+   "outcome": "refused",
+   "stage": "communication",
+   "summary": "Part of this activity is still waiting for approved coach wording, so it is not being shown.",
+   "reasons": [
+    "awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type (V4)",
+    "awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents (V5)",
+    "awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value (V6)",
+    "awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type (V4)",
+    "awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents (V5)",
+    "awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value (V6)",
+    "fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type is established by the game and no instruction carries it",
+    "fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents is established by the game and no instruction carries it",
+    "fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value is established by the game and no instruction carries it",
+    "fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type is established by the game and no instruction carries it",
+    "fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents is established by the game and no instruction carries it",
+    "fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value is established by the game and no instruction carries it",
+    "fidelity Q3: objects[c:sport-profile:soccer:SPORT-SOCCER-01].kind is established by the game and no instruction carries it"
+   ],
+   "integrity": null,
+   "instructions": [],
+   "draftInstructions": [],
+   "withheld": [],
+   "context": null,
+   "primaryEvent": {
+    "value": 1,
+    "conditions": [
+     {
+      "elementId": "c:restated:RPC-003:RPC-003-11.a",
+      "selector": [
+       {
+        "attribute": "type",
+        "op": "=",
+        "value": "progression"
+       }
+      ],
+      "type": "progression",
+      "referents": {
+       "objectiveReferenceOf": "SCORING_TEAM",
+       "role": "PRIMARY_SCORING",
+       "asAuthored": "a more advanced representative area - the target the scoring team attacks"
+      },
+      "value": "more advanced"
+     },
+     {
+      "elementId": "c:restated:RPC-003:RPC-003-12.a",
+      "selector": [
+       {
+        "attribute": "type",
+        "op": "=",
+        "value": "control"
+       }
+      ],
+      "type": "control",
+      "referents": {
+       "objectiveReferenceOf": "SCORING_TEAM",
+       "role": "PRIMARY_SCORING",
+       "asAuthored": "while maintaining attacking possession - the target the scoring team attacks"
+      },
+      "value": "while maintaining attacking possession"
+     }
+    ],
+    "kind": "line_crossed"
+   },
+   "transitions": [
+    {
+     "elementId": "c:restated:GF2:GF2-07.a",
+     "selector": [
+      {
+       "attribute": "trigger",
+       "op": "=",
+       "value": "POSSESSION_CHANGE"
+      }
+     ]
+    }
+   ],
+   "guard": {
+    "constituted": [
+     {
+      "type": "progression",
+      "itemId": "RPC-003-11.a"
+     },
+     {
+      "type": "control",
+      "itemId": "RPC-003-12.a"
+     }
+    ],
+    "findings": []
+   },
+   "gameHash": "6368f5d6b2"
+  },
+  {
+   "id": "D10",
+   "label": "PR-1 + PR-2 + PR-4, origin removed, START kept",
+   "outcome": "refused",
+   "stage": "communication",
+   "summary": "Part of this activity is still waiting for approved coach wording, so it is not being shown.",
+   "reasons": [
+    "awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type (V4)",
+    "awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents (V5)",
+    "awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value (V6)",
+    "awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type (V4)",
+    "awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents (V5)",
+    "awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value (V6)",
+    "fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type is established by the game and no instruction carries it",
+    "fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents is established by the game and no instruction carries it",
+    "fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value is established by the game and no instruction carries it",
+    "fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type is established by the game and no instruction carries it",
+    "fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents is established by the game and no instruction carries it",
+    "fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value is established by the game and no instruction carries it"
+   ],
+   "integrity": null,
+   "instructions": [],
+   "draftInstructions": [],
+   "withheld": [],
+   "context": null,
+   "primaryEvent": {
+    "value": 1,
+    "conditions": [
+     {
+      "elementId": "c:restated:RPC-003:RPC-003-11.a",
+      "selector": [
+       {
+        "attribute": "type",
+        "op": "=",
+        "value": "progression"
+       }
+      ],
+      "type": "progression",
+      "referents": {
+       "objectiveReferenceOf": "SCORING_TEAM",
+       "role": "PRIMARY_SCORING",
+       "asAuthored": "a more advanced representative area - the target the scoring team attacks"
+      },
+      "value": "more advanced"
+     },
+     {
+      "elementId": "c:restated:RPC-003:RPC-003-12.a",
+      "selector": [
+       {
+        "attribute": "type",
+        "op": "=",
+        "value": "control"
+       }
+      ],
+      "type": "control",
+      "referents": {
+       "objectiveReferenceOf": "SCORING_TEAM",
+       "role": "PRIMARY_SCORING",
+       "asAuthored": "while maintaining attacking possession - the target the scoring team attacks"
+      },
+      "value": "while maintaining attacking possession"
+     }
+    ],
+    "kind": "line_crossed"
+   },
+   "transitions": [
+    {
+     "elementId": "c:restated:GF2:GF2-07.a",
+     "selector": [
+      {
+       "attribute": "trigger",
+       "op": "=",
+       "value": "POSSESSION_CHANGE"
+      }
+     ]
+    }
+   ],
+   "guard": {
+    "constituted": [
+     {
+      "type": "progression",
+      "itemId": "RPC-003-11.a"
+     },
+     {
+      "type": "control",
+      "itemId": "RPC-003-12.a"
+     }
+    ],
+    "findings": []
+   },
+   "gameHash": "35dfe40e7a"
+  },
+  {
+   "id": "D11",
+   "label": "NEW: PR-1 + PR-4 without PR-2, origin removed (what M4 changes: control referent UNDECLARED)",
+   "outcome": "refused",
+   "stage": "structure",
+   "summary": "The game this demonstration selects is not yet described completely enough to be set up.",
+   "reasons": [
+    "Gate A is FAIL",
+    "a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE",
+    "1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5"
+   ],
+   "integrity": null,
+   "instructions": [],
+   "draftInstructions": [],
+   "withheld": [],
+   "context": null
+  },
+  {
+   "id": "U1",
+   "label": "TA02 (TEST-ONLY record []) + corrected draft as drafted (= step0 a0)",
+   "outcome": "refused",
+   "stage": "structure",
+   "summary": "The game this goal selects is not yet described completely enough to be set up.",
+   "reasons": [
+    "Gate A is FAIL",
+    "a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE",
+    "2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6"
+   ],
+   "integrity": null,
+   "instructions": [],
+   "draftInstructions": [],
+   "withheld": [],
+   "context": {
+    "id": "RPC-003",
+    "name": "Attack Development",
+    "approvedScoringCondition": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+    "inThisActivity": true
+   }
+  },
+  {
+   "id": "A1",
+   "label": "TA02 + PR-1..PR-4, origin kept (= step0 a1)",
+   "outcome": "refused",
+   "stage": "structure",
+   "summary": "This goal selects a rule whose description is still incomplete, so the activity cannot be checked yet.",
+   "reasons": [
+    "Gate A is NOT_EVALUABLE",
+    "a pre-realization Gate A invariant cannot be evaluated, so it is not satisfied: GA-ONE-PRIMARY-EVENT, GA-REFERENCE-INTEGRITY"
+   ],
+   "integrity": null,
+   "instructions": [],
+   "draftInstructions": [],
+   "withheld": [],
+   "context": {
+    "id": "RPC-003",
+    "name": "Attack Development",
+    "approvedScoringCondition": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+    "inThisActivity": true
+   }
+  },
+  {
+   "id": "U1b",
+   "label": "NEW: TA02 + PR-1 + PR-4, origin withheld, NO PR-2 (what M4 changes)",
+   "outcome": "refused",
+   "stage": "structure",
+   "summary": "The game this goal selects is not yet described completely enough to be set up.",
+   "reasons": [
+    "Gate A is FAIL",
+    "a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE",
+    "1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5"
+   ],
+   "integrity": null,
+   "instructions": [],
+   "draftInstructions": [],
+   "withheld": [],
+   "context": {
+    "id": "RPC-003",
+    "name": "Attack Development",
+    "approvedScoringCondition": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+    "inThisActivity": true
+   }
+  },
+  {
+   "id": "U2",
+   "label": "TA02 + PR-1 + PR-2 + PR-4, origin withheld (= step0 a2)",
+   "outcome": "refused",
+   "stage": "communication",
+   "summary": "Part of this activity is still waiting for approved coach wording, so it is not being shown.",
+   "reasons": [
+    "awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type (V4)",
+    "awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents (V5)",
+    "awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value (V6)",
+    "awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type (V4)",
+    "awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents (V5)",
+    "awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value (V6)",
+    "fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type is established by the game and no instruction carries it",
+    "fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents is established by the game and no instruction carries it",
+    "fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value is established by the game and no instruction carries it",
+    "fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type is established by the game and no instruction carries it",
+    "fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents is established by the game and no instruction carries it",
+    "fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value is established by the game and no instruction carries it"
+   ],
+   "integrity": null,
+   "instructions": [],
+   "draftInstructions": [
+    "[Set up] (DERIVED/DRAFT) Mark out an area 40 m long by 30 m wide",
+    "[Set up] (STARTING/DRAFT) Mark both end lines: they are the scoring lines",
+    "[Players] (DERIVED/DRAFT) Divide 12 players into 2 teams of 6, with no goalkeepers",
+    "[How it works] (COACH_CHOICE/DRAFT) Pick which team starts with the ball and tell both teams before you start",
+    "[How it works] (STARTING/DRAFT) When possession changes, play carries on without a stoppage, and each team keeps attacking the same line",
+    "[How to score] (STARTING/DRAFT) A team scores 1 point by getting the ball across the line it is attacking",
+    "[How to score] (DERIVED/DRAFT) Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game",
+    "[When it ends] (DERIVED/DRAFT) Play for 20 minutes"
+   ],
+   "withheld": [
+    "value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type :: AWAITING_APPROVED_WORDING",
+    "value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents :: AWAITING_APPROVED_WORDING",
+    "value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value :: AWAITING_APPROVED_WORDING",
+    "value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type :: AWAITING_APPROVED_WORDING",
+    "value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents :: AWAITING_APPROVED_WORDING",
+    "value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value :: AWAITING_APPROVED_WORDING"
+   ],
+   "context": {
+    "id": "RPC-003",
+    "name": "Attack Development",
+    "approvedScoringCondition": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+    "inThisActivity": true
+   },
+   "primaryEvent": {
+    "value": 1,
+    "conditions": [
+     {
+      "elementId": "c:restated:RPC-003:RPC-003-11.a",
+      "selector": [
+       {
+        "attribute": "type",
+        "op": "=",
+        "value": "progression"
+       }
+      ],
+      "type": "progression",
+      "referents": {
+       "objectiveReferenceOf": "SCORING_TEAM",
+       "role": "PRIMARY_SCORING",
+       "asAuthored": "a more advanced representative area - the target the scoring team attacks"
+      },
+      "value": "more advanced"
+     },
+     {
+      "elementId": "c:restated:RPC-003:RPC-003-12.a",
+      "selector": [
+       {
+        "attribute": "type",
+        "op": "=",
+        "value": "control"
+       }
+      ],
+      "type": "control",
+      "referents": {
+       "objectiveReferenceOf": "SCORING_TEAM",
+       "role": "PRIMARY_SCORING",
+       "asAuthored": "while maintaining attacking possession - the target the scoring team attacks"
+      },
+      "value": "while maintaining attacking possession"
+     }
+    ],
+    "kind": "line_crossed"
+   },
+   "transitions": [
+    {
+     "elementId": "c:restated:GF2:GF2-07.a",
+     "selector": [
+      {
+       "attribute": "trigger",
+       "op": "=",
+       "value": "POSSESSION_CHANGE"
+      }
+     ]
+    }
+   ],
+   "guard": {
+    "constituted": [
+     {
+      "type": "progression",
+      "itemId": "RPC-003-11.a"
+     },
+     {
+      "type": "control",
+      "itemId": "RPC-003-12.a"
+     }
+    ],
+    "findings": []
+   },
+   "gameHash": "35dfe40e7a"
+  },
+  {
+   "id": "U2-gk1",
+   "label": "U2 with 1 goalkeeper in the session",
+   "outcome": "refused",
+   "stage": "communication",
+   "summary": "Part of this activity is still waiting for approved coach wording, so it is not being shown.",
+   "reasons": [
+    "awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type (V4)",
+    "awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents (V5)",
+    "awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value (V6)",
+    "awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type (V4)",
+    "awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents (V5)",
+    "awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value (V6)",
+    "fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type is established by the game and no instruction carries it",
+    "fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents is established by the game and no instruction carries it",
+    "fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value is established by the game and no instruction carries it",
+    "fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type is established by the game and no instruction carries it",
+    "fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents is established by the game and no instruction carries it",
+    "fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value is established by the game and no instruction carries it"
+   ],
+   "integrity": null,
+   "instructions": [],
+   "draftInstructions": [
+    "[Set up] (DERIVED/DRAFT) Mark out an area 40 m long by 30 m wide",
+    "[Set up] (STARTING/DRAFT) Mark both end lines: they are the scoring lines",
+    "[Players] (DERIVED/DRAFT) Divide 12 players into 2 teams of 6; goalkeepers play as outfield players in this activity",
+    "[How it works] (COACH_CHOICE/DRAFT) Pick which team starts with the ball and tell both teams before you start",
+    "[How it works] (STARTING/DRAFT) When possession changes, play carries on without a stoppage, and each team keeps attacking the same line",
+    "[How to score] (STARTING/DRAFT) A team scores 1 point by getting the ball across the line it is attacking",
+    "[How to score] (DERIVED/DRAFT) Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game",
+    "[When it ends] (DERIVED/DRAFT) Play for 20 minutes"
+   ],
+   "withheld": [
+    "value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type :: AWAITING_APPROVED_WORDING",
+    "value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents :: AWAITING_APPROVED_WORDING",
+    "value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value :: AWAITING_APPROVED_WORDING",
+    "value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type :: AWAITING_APPROVED_WORDING",
+    "value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents :: AWAITING_APPROVED_WORDING",
+    "value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value :: AWAITING_APPROVED_WORDING"
+   ],
+   "context": {
+    "id": "RPC-003",
+    "name": "Attack Development",
+    "approvedScoringCondition": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+    "inThisActivity": true
+   },
+   "primaryEvent": {
+    "value": 1,
+    "conditions": [
+     {
+      "elementId": "c:restated:RPC-003:RPC-003-11.a",
+      "selector": [
+       {
+        "attribute": "type",
+        "op": "=",
+        "value": "progression"
+       }
+      ],
+      "type": "progression",
+      "referents": {
+       "objectiveReferenceOf": "SCORING_TEAM",
+       "role": "PRIMARY_SCORING",
+       "asAuthored": "a more advanced representative area - the target the scoring team attacks"
+      },
+      "value": "more advanced"
+     },
+     {
+      "elementId": "c:restated:RPC-003:RPC-003-12.a",
+      "selector": [
+       {
+        "attribute": "type",
+        "op": "=",
+        "value": "control"
+       }
+      ],
+      "type": "control",
+      "referents": {
+       "objectiveReferenceOf": "SCORING_TEAM",
+       "role": "PRIMARY_SCORING",
+       "asAuthored": "while maintaining attacking possession - the target the scoring team attacks"
+      },
+      "value": "while maintaining attacking possession"
+     }
+    ],
+    "kind": "line_crossed"
+   },
+   "transitions": [
+    {
+     "elementId": "c:restated:GF2:GF2-07.a",
+     "selector": [
+      {
+       "attribute": "trigger",
+       "op": "=",
+       "value": "POSSESSION_CHANGE"
+      }
+     ]
+    }
+   ],
+   "guard": {
+    "constituted": [
+     {
+      "type": "progression",
+      "itemId": "RPC-003-11.a"
+     },
+     {
+      "type": "control",
+      "itemId": "RPC-003-12.a"
+     }
+    ],
+    "findings": []
+   },
+   "gameHash": "35dfe40e7a"
+  },
+  {
+   "id": "U2n",
+   "label": "NEW: U2 with S5/O4 declared NOT_AUTHORED (RPC-001's reading of the same silence; M1)",
+   "outcome": "refused",
+   "stage": "communication",
+   "summary": "Part of this activity is still waiting for approved coach wording, so it is not being shown.",
+   "reasons": [
+    "awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type (V4)",
+    "awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents (V5)",
+    "awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value (V6)",
+    "awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type (V4)",
+    "awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents (V5)",
+    "awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value (V6)",
+    "fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type is established by the game and no instruction carries it",
+    "fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents is established by the game and no instruction carries it",
+    "fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value is established by the game and no instruction carries it",
+    "fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type is established by the game and no instruction carries it",
+    "fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents is established by the game and no instruction carries it",
+    "fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value is established by the game and no instruction carries it"
+   ],
+   "integrity": null,
+   "instructions": [],
+   "draftInstructions": [
+    "[Set up] (DERIVED/DRAFT) Mark out an area 40 m long by 30 m wide",
+    "[Set up] (STARTING/DRAFT) Mark both end lines: they are the scoring lines",
+    "[Players] (DERIVED/DRAFT) Divide 12 players into 2 teams of 6, with no goalkeepers",
+    "[How it works] (COACH_CHOICE/DRAFT) Pick which team starts with the ball and tell both teams before you start",
+    "[How it works] (STARTING/DRAFT) When possession changes, play carries on without a stoppage, and each team keeps attacking the same line",
+    "[How to score] (STARTING/DRAFT) A team scores 1 point by getting the ball across the line it is attacking",
+    "[How to score] (DERIVED/DRAFT) Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game",
+    "[When it ends] (DERIVED/DRAFT) Play for 20 minutes"
+   ],
+   "withheld": [
+    "value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type :: AWAITING_APPROVED_WORDING",
+    "value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents :: AWAITING_APPROVED_WORDING",
+    "value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value :: AWAITING_APPROVED_WORDING",
+    "value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type :: AWAITING_APPROVED_WORDING",
+    "value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents :: AWAITING_APPROVED_WORDING",
+    "value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value :: AWAITING_APPROVED_WORDING"
+   ],
+   "context": {
+    "id": "RPC-003",
+    "name": "Attack Development",
+    "approvedScoringCondition": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+    "inThisActivity": true
+   },
+   "primaryEvent": {
+    "value": 1,
+    "conditions": [
+     {
+      "elementId": "c:restated:RPC-003:RPC-003-11.a",
+      "selector": [
+       {
+        "attribute": "type",
+        "op": "=",
+        "value": "progression"
+       }
+      ],
+      "type": "progression",
+      "referents": {
+       "objectiveReferenceOf": "SCORING_TEAM",
+       "role": "PRIMARY_SCORING",
+       "asAuthored": "a more advanced representative area - the target the scoring team attacks"
+      },
+      "value": "more advanced"
+     },
+     {
+      "elementId": "c:restated:RPC-003:RPC-003-12.a",
+      "selector": [
+       {
+        "attribute": "type",
+        "op": "=",
+        "value": "control"
+       }
+      ],
+      "type": "control",
+      "referents": {
+       "objectiveReferenceOf": "SCORING_TEAM",
+       "role": "PRIMARY_SCORING",
+       "asAuthored": "while maintaining attacking possession - the target the scoring team attacks"
+      },
+      "value": "while maintaining attacking possession"
+     }
+    ],
+    "kind": "line_crossed"
+   },
+   "transitions": [
+    {
+     "elementId": "c:restated:GF2:GF2-07.a",
+     "selector": [
+      {
+       "attribute": "trigger",
+       "op": "=",
+       "value": "POSSESSION_CHANGE"
+      }
+     ]
+    }
+   ],
+   "guard": {
+    "constituted": [
+     {
+      "type": "progression",
+      "itemId": "RPC-003-11.a"
+     },
+     {
+      "type": "control",
+      "itemId": "RPC-003-12.a"
+     }
+    ],
+    "findings": []
+   },
+   "gameHash": "35dfe40e7a"
+  },
+  {
+   "id": "U3",
+   "label": "CONTROL ONLY, NOT A PROPOSAL: U2 with every PROP-134 condition removed (= step0 b1)",
+   "outcome": "served",
+   "stage": null,
+   "summary": null,
+   "reasons": [],
+   "integrity": {
+    "gateA": "DEFERRED_TO_REALIZATION",
+    "realizationAuthorized": true,
+    "acceptance": {
+     "nothingClosedWithoutAuthority": [],
+     "nothingLost": [],
+     "nothingInvented": []
+    },
+    "postRealizationValidated": true,
+    "instructions": 8,
+    "fidelityViolations": 0
+   },
+   "instructions": [
+    "[Set up] (DERIVED) Mark out an area 40 m long by 30 m wide",
+    "[Set up] (STARTING) Mark both end lines: they are the scoring lines",
+    "[Players] (DERIVED) Divide 12 players into 2 teams of 6, with no goalkeepers",
+    "[How it works] (COACH_CHOICE) Pick which team starts with the ball and tell both teams before you start",
+    "[How it works] (STARTING) When possession changes, play carries on without a stoppage, and each team keeps attacking the same line",
+    "[How to score] (STARTING) A team scores 1 point by getting the ball across the line it is attacking",
+    "[How to score] (DERIVED) Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game",
+    "[When it ends] (DERIVED) Play for 20 minutes"
+   ],
+   "draftInstructions": [],
+   "withheld": [],
+   "context": {
+    "id": "RPC-003",
+    "name": "Attack Development",
+    "approvedScoringCondition": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+    "inThisActivity": true
+   },
+   "primaryEvent": {
+    "value": 1,
+    "kind": "line_crossed"
+   },
+   "transitions": [
+    {
+     "elementId": "c:restated:GF2:GF2-07.a",
+     "selector": [
+      {
+       "attribute": "trigger",
+       "op": "=",
+       "value": "POSSESSION_CHANGE"
+      }
+     ]
+    }
+   ],
+   "guard": {
+    "constituted": [],
+    "findings": []
+   },
+   "gameHash": "414217eca2"
+  },
+  {
+   "id": "U4",
+   "label": "U3 without PR-4",
+   "outcome": "refused",
+   "stage": "communication",
+   "summary": "Part of this activity cannot be explained to a coach yet, so it is not being shown.",
+   "reasons": [
+    "fidelity Q3: objects[c:sport-profile:soccer:SPORT-SOCCER-01].kind is established by the game and no instruction carries it"
+   ],
+   "integrity": null,
+   "instructions": [],
+   "draftInstructions": [
+    "[Set up] (DERIVED/DRAFT) Mark out an area 40 m long by 30 m wide",
+    "[Set up] (STARTING/DRAFT) Mark both end lines: they are the scoring lines",
+    "[Players] (DERIVED/DRAFT) Divide 12 players into 2 teams of 6, with no goalkeepers",
+    "[How it works] (COACH_CHOICE/DRAFT) Pick which team starts with the ball and tell both teams before you start",
+    "[How it works] (STARTING/DRAFT) When possession changes, play carries on without a stoppage, and each team keeps attacking the same line",
+    "[How to score] (STARTING/DRAFT) A team scores 1 point by getting the ball across the line it is attacking",
+    "[How to score] (DERIVED/DRAFT) Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game",
+    "[When it ends] (DERIVED/DRAFT) Play for 20 minutes"
+   ],
+   "withheld": [],
+   "context": {
+    "id": "RPC-003",
+    "name": "Attack Development",
+    "approvedScoringCondition": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+    "inThisActivity": true
+   },
+   "primaryEvent": {
+    "value": 1,
+    "kind": "line_crossed"
+   },
+   "transitions": [
+    {
+     "elementId": "c:restated:GF2:GF2-07.a",
+     "selector": [
+      {
+       "attribute": "trigger",
+       "op": "=",
+       "value": "POSSESSION_CHANGE"
+      }
+     ]
+    }
+   ],
+   "guard": {
+    "constituted": [],
+    "findings": []
+   },
+   "gameHash": "483b3df35f"
+  },
+  {
+   "id": "F3",
+   "label": "TA02 + draft without conditions + PR-4 + corrected K4 touchline items (= step0 f3)",
+   "outcome": "refused",
+   "stage": "structure",
+   "summary": "The game this goal selects is not yet described completely enough to be set up.",
+   "reasons": [
+    "Gate A is FAIL",
+    "a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE",
+    "1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:GF2:GF2-16.c::T7"
+   ],
+   "integrity": null,
+   "instructions": [],
+   "draftInstructions": [],
+   "withheld": [],
+   "context": {
+    "id": "RPC-003",
+    "name": "Attack Development",
+    "approvedScoringCondition": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+    "inThisActivity": true
+   }
+  },
+  {
+   "id": "F4",
+   "label": "U2 + corrected K4 touchline items (= step0 f4)",
+   "outcome": "refused",
+   "stage": "structure",
+   "summary": "The game this goal selects is not yet described completely enough to be set up.",
+   "reasons": [
+    "Gate A is FAIL",
+    "a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE",
+    "1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:GF2:GF2-16.c::T7"
+   ],
+   "integrity": null,
+   "instructions": [],
+   "draftInstructions": [],
+   "withheld": [],
+   "context": {
+    "id": "RPC-003",
+    "name": "Attack Development",
+    "approvedScoringCondition": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+    "inThisActivity": true
+   }
+  },
+  {
+   "id": "F3c",
+   "label": "plain GF2 mechanism path (no TA02, no RPC-003) + corrected K4 touchline items (= step0 f3c)",
+   "outcome": "served",
+   "stage": null,
+   "summary": null,
+   "reasons": [],
+   "integrity": {
+    "gateA": "DEFERRED_TO_REALIZATION",
+    "realizationAuthorized": true,
+    "acceptance": {
+     "nothingClosedWithoutAuthority": [],
+     "nothingLost": [],
+     "nothingInvented": []
+    },
+    "postRealizationValidated": true,
+    "instructions": 9,
+    "fidelityViolations": 0
+   },
+   "instructions": [
+    "[Set up] (DERIVED) Mark out an area 40 m long by 30 m wide",
+    "[Set up] (STARTING) Mark both end lines: they are the scoring lines",
+    "[Players] (DERIVED) Divide 12 players into 2 teams of 6, with no goalkeepers",
+    "[How it works] (COACH_CHOICE) Pick which team starts with the ball and tell both teams before you start",
+    "[How it works] (STARTING) When possession changes, play carries on without a stoppage, and each team keeps attacking the same line",
+    "[How to score] (STARTING) A team scores 1 point by getting the ball across the line it is attacking",
+    "[How to score] (DERIVED) Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game",
+    "[When it ends] (DERIVED) Play for 20 minutes",
+    "[Restarts and ball out] (STARTING) If the ball goes out over a touchline, a player of the team that did not touch the ball last restarts play with a throw-in where the ball went out"
+   ],
+   "draftInstructions": [],
+   "withheld": [],
+   "context": null,
+   "primaryEvent": {
+    "value": 1,
+    "kind": "line_crossed"
+   },
+   "transitions": [
+    {
+     "elementId": "c:restated:GF2:GF2-16.c",
+     "selector": [
+      {
+       "attribute": "trigger",
+       "op": "=",
+       "value": "OUT_TOUCHLINE"
+      }
+     ]
+    },
+    {
+     "elementId": "c:restated:GF2:GF2-07.a",
+     "selector": [
+      {
+       "attribute": "trigger",
+       "op": "=",
+       "value": "POSSESSION_CHANGE"
+      }
+     ]
+    }
+   ],
+   "guard": null,
+   "gameHash": "3835724e15"
+  },
+  {
+   "id": "gateA-U1",
+   "verdict": "FAIL",
+   "pass": 14,
+   "total": 22,
+   "nonPass": [
+    {
+     "checkId": "GA-DIRECTION",
+     "verdict": "DEFERRED_TO_REALIZATION"
+    },
+    {
+     "checkId": "GA-ENVELOPE-FIT",
+     "verdict": "DEFERRED_TO_REALIZATION"
+    },
+    {
+     "checkId": "GA-LAYOUT-FEASIBLE",
+     "verdict": "DEFERRED_TO_REALIZATION"
+    },
+    {
+     "checkId": "GA-NO-FAILED-LINE",
+     "verdict": "FAIL"
+    },
+    {
+     "checkId": "GA-ONE-PRIMARY-EVENT",
+     "verdict": "NOT_EVALUABLE"
+    },
+    {
+     "checkId": "GA-REFERENCE-INTEGRITY",
+     "verdict": "NOT_EVALUABLE"
+    },
+    {
+     "checkId": "GA-ROLE-EVENTS",
+     "verdict": "DEFERRED_TO_REALIZATION"
+    },
+    {
+     "checkId": "GA-ROSTER-SUM",
+     "verdict": "DEFERRED_TO_REALIZATION"
+    }
+   ]
+  },
+  {
+   "id": "gateA-U1b",
+   "verdict": "FAIL",
+   "pass": 14,
+   "total": 22,
+   "nonPass": [
+    {
+     "checkId": "GA-DIRECTION",
+     "verdict": "DEFERRED_TO_REALIZATION"
+    },
+    {
+     "checkId": "GA-ENVELOPE-FIT",
+     "verdict": "DEFERRED_TO_REALIZATION"
+    },
+    {
+     "checkId": "GA-LAYOUT-FEASIBLE",
+     "verdict": "DEFERRED_TO_REALIZATION"
+    },
+    {
+     "checkId": "GA-NO-FAILED-LINE",
+     "verdict": "FAIL"
+    },
+    {
+     "checkId": "GA-ONE-PRIMARY-EVENT",
+     "verdict": "NOT_EVALUABLE"
+    },
+    {
+     "checkId": "GA-REFERENCE-INTEGRITY",
+     "verdict": "NOT_EVALUABLE"
+    },
+    {
+     "checkId": "GA-ROLE-EVENTS",
+     "verdict": "DEFERRED_TO_REALIZATION"
+    },
+    {
+     "checkId": "GA-ROSTER-SUM",
+     "verdict": "DEFERRED_TO_REALIZATION"
+    }
+   ]
+  },
+  {
+   "id": "gateA-U2",
+   "verdict": "DEFERRED_TO_REALIZATION",
+   "pass": 16,
+   "total": 22,
+   "nonPass": [
+    {
+     "checkId": "GA-DIRECTION",
+     "verdict": "DEFERRED_TO_REALIZATION"
+    },
+    {
+     "checkId": "GA-ENVELOPE-FIT",
+     "verdict": "DEFERRED_TO_REALIZATION"
+    },
+    {
+     "checkId": "GA-LAYOUT-FEASIBLE",
+     "verdict": "DEFERRED_TO_REALIZATION"
+    },
+    {
+     "checkId": "GA-ONE-PRIMARY-EVENT",
+     "verdict": "DEFERRED_TO_REALIZATION"
+    },
+    {
+     "checkId": "GA-ROLE-EVENTS",
+     "verdict": "DEFERRED_TO_REALIZATION"
+    },
+    {
+     "checkId": "GA-ROSTER-SUM",
+     "verdict": "DEFERRED_TO_REALIZATION"
+    }
+   ]
+  },
+  {
+   "id": "gateA-U2n",
+   "verdict": "DEFERRED_TO_REALIZATION",
+   "pass": 16,
+   "total": 22,
+   "nonPass": [
+    {
+     "checkId": "GA-DIRECTION",
+     "verdict": "DEFERRED_TO_REALIZATION"
+    },
+    {
+     "checkId": "GA-ENVELOPE-FIT",
+     "verdict": "DEFERRED_TO_REALIZATION"
+    },
+    {
+     "checkId": "GA-LAYOUT-FEASIBLE",
+     "verdict": "DEFERRED_TO_REALIZATION"
+    },
+    {
+     "checkId": "GA-ONE-PRIMARY-EVENT",
+     "verdict": "DEFERRED_TO_REALIZATION"
+    },
+    {
+     "checkId": "GA-ROLE-EVENTS",
+     "verdict": "DEFERRED_TO_REALIZATION"
+    },
+    {
+     "checkId": "GA-ROSTER-SUM",
+     "verdict": "DEFERRED_TO_REALIZATION"
+    }
+   ]
+  },
+  {
+   "id": "reach-U2",
+   "transitions": [
+    "c:restated:GF2:GF2-07.a [{\"attribute\":\"trigger\",\"op\":\"=\",\"value\":\"POSSESSION_CHANGE\"}]"
+   ],
+   "rpc00308Named": false
+  },
+  {
+   "id": "reach-U3",
+   "transitions": [
+    "c:restated:GF2:GF2-07.a [{\"attribute\":\"trigger\",\"op\":\"=\",\"value\":\"POSSESSION_CHANGE\"}]"
+   ],
+   "rpc00308Named": false
+  },
+  {
+   "id": "reach-F4",
+   "transitions": [],
+   "rpc00308Named": false
+  }
+ ],
+ "static": {
+  "items": 24,
+  "declarations": 101,
+  "k4Items": 7,
+  "defects": []
+ },
+ "ablation": {
+  "base": {
+   "outcome": "refused",
+   "stage": "communication",
+   "game": "35dfe40e7a",
+   "said": 8,
+   "withheld": 6,
+   "gate": "GA-DIRECTION=DEFERRED_TO_REALIZATION,GA-ENVELOPE-FIT=DEFERRED_TO_REALIZATION,GA-LAYOUT-FEASIBLE=DEFERRED_TO_REALIZATION,GA-ONE-PRIMARY-EVENT=DEFERRED_TO_REALIZATION,GA-ROLE-EVENTS=DEFERRED_TO_REALIZATION,GA-ROSTER-SUM=DEFERRED_TO_REALIZATION|pass=16"
+  },
+  "items": [
+   {
+    "item": "RPC-003-01.a",
+    "changed": false,
+    "diffs": []
+   },
+   {
+    "item": "RPC-003-01.b",
+    "changed": false,
+    "diffs": []
+   },
+   {
+    "item": "RPC-003-02",
+    "changed": false,
+    "diffs": []
+   },
+   {
+    "item": "RPC-003-03.a",
+    "changed": false,
+    "diffs": []
+   },
+   {
+    "item": "RPC-003-03.b",
+    "changed": false,
+    "diffs": []
+   },
+   {
+    "item": "RPC-003-04.a",
+    "changed": true,
+    "diffs": [
+     "OUTCOME refused @realization: This game cannot be set out in this session with the set-up decisions made for it. :: realization refused | the recorded identification of c:restated:RPC-003:RPC-003-04.a with c:sport-profile:soccer:SPORT-SOCCER-01 cannot stand: c:restated:RPC-003:RPC-003-04.a is not an established element of this game | the recorded identification of c:restated:RPC-003:RPC-003-04.a with c:sport-profile:soccer:SPORT-SOCCER-01 cannot stand: c:sport-profile:soccer:SPORT-SOCCER-01 is not an established element of the same collection in this game",
+     "GAME changed in: envelope, space, value, objectives, objects, transitions, performers, possession",
+     "SAID: +[] -[\"Mark out an area 40 m long by 30 m wide\",\"Mark both end lines: they are the scoring lines\",\"Divide 12 players into 2 teams of 6, with no goalkeepers\",\"Pick which team starts with the ball and tell both teams before you start\",\"When possession changes, play carries on without a stoppage, and each team keeps attacking the same line\",\"A team scores 1 point by getting the ball across the line it is attacking\",\"Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game\",\"Play for 20 minutes\"]",
+     "WITHHELD: 0 (was 6)"
+    ]
+   },
+   {
+    "item": "RPC-003-04.b",
+    "changed": false,
+    "diffs": []
+   },
+   {
+    "item": "RPC-003-05",
+    "changed": false,
+    "diffs": []
+   },
+   {
+    "item": "RPC-003-06",
+    "changed": false,
+    "diffs": []
+   },
+   {
+    "item": "RPC-003-07",
+    "changed": false,
+    "diffs": []
+   },
+   {
+    "item": "RPC-003-08",
+    "changed": false,
+    "diffs": []
+   },
+   {
+    "item": "RPC-003-09.a",
+    "changed": true,
+    "diffs": [
+     "GAME changed in: transitions"
+    ]
+   },
+   {
+    "item": "RPC-003-09.b",
+    "changed": false,
+    "diffs": []
+   },
+   {
+    "item": "RPC-003-11.a",
+    "changed": true,
+    "diffs": [
+     "GAME changed in: value",
+     "WITHHELD: 3 (was 6)"
+    ]
+   },
+   {
+    "item": "RPC-003-11.b",
+    "changed": true,
+    "diffs": [
+     "OUTCOME refused @structure: The game this goal selects is not yet described completely enough to be set up. :: Gate A is FAIL | a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE | 1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-11.a::V5",
+     "GAME changed in: envelope, space, value, objectives, objects, transitions, performers, possession",
+     "GATE A: GA-DIRECTION=DEFERRED_TO_REALIZATION,GA-ENVELOPE-FIT=DEFERRED_TO_REALIZATION,GA-LAYOUT-FEASIBLE=DEFERRED_TO_REALIZATION,GA-NO-FAILED-LINE=FAIL,GA-ONE-PRIMARY-EVENT=NOT_EVALUABLE,GA-REFERENCE-INTEGRITY=NOT_EVALUABLE,GA-ROLE-EVENTS=DEFERRED_TO_REALIZATION,GA-ROSTER-SUM=DEFERRED_TO_REALIZATION|pass=14 (was GA-DIRECTION=DEFERRED_TO_REALIZATION,GA-ENVELOPE-FIT=DEFERRED_TO_REALIZATION,GA-LAYOUT-FEASIBLE=DEFERRED_TO_REALIZATION,GA-ONE-PRIMARY-EVENT=DEFERRED_TO_REALIZATION,GA-ROLE-EVENTS=DEFERRED_TO_REALIZATION,GA-ROSTER-SUM=DEFERRED_TO_REALIZATION|pass=16)",
+     "SAID: +[] -[\"Mark out an area 40 m long by 30 m wide\",\"Mark both end lines: they are the scoring lines\",\"Divide 12 players into 2 teams of 6, with no goalkeepers\",\"Pick which team starts with the ball and tell both teams before you start\",\"When possession changes, play carries on without a stoppage, and each team keeps attacking the same line\",\"A team scores 1 point by getting the ball across the line it is attacking\",\"Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game\",\"Play for 20 minutes\"]",
+     "WITHHELD: 0 (was 6)"
+    ]
+   },
+   {
+    "item": "RPC-003-11.c",
+    "changed": true,
+    "diffs": [
+     "OUTCOME refused @structure: The game this goal selects is not yet described completely enough to be set up. :: Gate A is FAIL | a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE | 1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-11.a::V6",
+     "GAME changed in: envelope, space, value, objectives, objects, transitions, performers, possession",
+     "GATE A: GA-DIRECTION=DEFERRED_TO_REALIZATION,GA-ENVELOPE-FIT=DEFERRED_TO_REALIZATION,GA-LAYOUT-FEASIBLE=DEFERRED_TO_REALIZATION,GA-NO-FAILED-LINE=FAIL,GA-ONE-PRIMARY-EVENT=DEFERRED_TO_REALIZATION,GA-ROLE-EVENTS=DEFERRED_TO_REALIZATION,GA-ROSTER-SUM=DEFERRED_TO_REALIZATION|pass=15 (was GA-DIRECTION=DEFERRED_TO_REALIZATION,GA-ENVELOPE-FIT=DEFERRED_TO_REALIZATION,GA-LAYOUT-FEASIBLE=DEFERRED_TO_REALIZATION,GA-ONE-PRIMARY-EVENT=DEFERRED_TO_REALIZATION,GA-ROLE-EVENTS=DEFERRED_TO_REALIZATION,GA-ROSTER-SUM=DEFERRED_TO_REALIZATION|pass=16)",
+     "SAID: +[] -[\"Mark out an area 40 m long by 30 m wide\",\"Mark both end lines: they are the scoring lines\",\"Divide 12 players into 2 teams of 6, with no goalkeepers\",\"Pick which team starts with the ball and tell both teams before you start\",\"When possession changes, play carries on without a stoppage, and each team keeps attacking the same line\",\"A team scores 1 point by getting the ball across the line it is attacking\",\"Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game\",\"Play for 20 minutes\"]",
+     "WITHHELD: 0 (was 6)"
+    ]
+   },
+   {
+    "item": "RPC-003-12.a",
+    "changed": true,
+    "diffs": [
+     "GAME changed in: value",
+     "WITHHELD: 3 (was 6)"
+    ]
+   },
+   {
+    "item": "RPC-003-12.b",
+    "changed": true,
+    "diffs": [
+     "OUTCOME refused @structure: The game this goal selects is not yet described completely enough to be set up. :: Gate A is FAIL | a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE | 1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V6",
+     "GAME changed in: envelope, space, value, objectives, objects, transitions, performers, possession",
+     "GATE A: GA-DIRECTION=DEFERRED_TO_REALIZATION,GA-ENVELOPE-FIT=DEFERRED_TO_REALIZATION,GA-LAYOUT-FEASIBLE=DEFERRED_TO_REALIZATION,GA-NO-FAILED-LINE=FAIL,GA-ONE-PRIMARY-EVENT=DEFERRED_TO_REALIZATION,GA-ROLE-EVENTS=DEFERRED_TO_REALIZATION,GA-ROSTER-SUM=DEFERRED_TO_REALIZATION|pass=15 (was GA-DIRECTION=DEFERRED_TO_REALIZATION,GA-ENVELOPE-FIT=DEFERRED_TO_REALIZATION,GA-LAYOUT-FEASIBLE=DEFERRED_TO_REALIZATION,GA-ONE-PRIMARY-EVENT=DEFERRED_TO_REALIZATION,GA-ROLE-EVENTS=DEFERRED_TO_REALIZATION,GA-ROSTER-SUM=DEFERRED_TO_REALIZATION|pass=16)",
+     "SAID: +[] -[\"Mark out an area 40 m long by 30 m wide\",\"Mark both end lines: they are the scoring lines\",\"Divide 12 players into 2 teams of 6, with no goalkeepers\",\"Pick which team starts with the ball and tell both teams before you start\",\"When possession changes, play carries on without a stoppage, and each team keeps attacking the same line\",\"A team scores 1 point by getting the ball across the line it is attacking\",\"Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game\",\"Play for 20 minutes\"]",
+     "WITHHELD: 0 (was 6)"
+    ]
+   },
+   {
+    "item": "RPC-003-13",
+    "changed": false,
+    "diffs": []
+   },
+   {
+    "item": "RPC-003-14.a",
+    "changed": false,
+    "diffs": []
+   },
+   {
+    "item": "RPC-003-14.b",
+    "changed": false,
+    "diffs": []
+   },
+   {
+    "item": "RPC-003-15",
+    "changed": false,
+    "diffs": []
+   },
+   {
+    "item": "RPC-003-12.c",
+    "changed": true,
+    "diffs": [
+     "OUTCOME refused @structure: The game this goal selects is not yet described completely enough to be set up. :: Gate A is FAIL | a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE | 1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5",
+     "GAME changed in: envelope, space, value, objectives, objects, transitions, performers, possession",
+     "GATE A: GA-DIRECTION=DEFERRED_TO_REALIZATION,GA-ENVELOPE-FIT=DEFERRED_TO_REALIZATION,GA-LAYOUT-FEASIBLE=DEFERRED_TO_REALIZATION,GA-NO-FAILED-LINE=FAIL,GA-ONE-PRIMARY-EVENT=NOT_EVALUABLE,GA-REFERENCE-INTEGRITY=NOT_EVALUABLE,GA-ROLE-EVENTS=DEFERRED_TO_REALIZATION,GA-ROSTER-SUM=DEFERRED_TO_REALIZATION|pass=14 (was GA-DIRECTION=DEFERRED_TO_REALIZATION,GA-ENVELOPE-FIT=DEFERRED_TO_REALIZATION,GA-LAYOUT-FEASIBLE=DEFERRED_TO_REALIZATION,GA-ONE-PRIMARY-EVENT=DEFERRED_TO_REALIZATION,GA-ROLE-EVENTS=DEFERRED_TO_REALIZATION,GA-ROSTER-SUM=DEFERRED_TO_REALIZATION|pass=16)",
+     "SAID: +[] -[\"Mark out an area 40 m long by 30 m wide\",\"Mark both end lines: they are the scoring lines\",\"Divide 12 players into 2 teams of 6, with no goalkeepers\",\"Pick which team starts with the ball and tell both teams before you start\",\"When possession changes, play carries on without a stoppage, and each team keeps attacking the same line\",\"A team scores 1 point by getting the ball across the line it is attacking\",\"Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game\",\"Play for 20 minutes\"]",
+     "WITHHELD: 0 (was 6)"
+    ]
+   }
+  ]
+ }
+}

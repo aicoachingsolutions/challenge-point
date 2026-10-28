@@ -1,0 +1,43 @@
+(1) auto-scan: 123 Library citations, 217 quotations checked at their cited lines; per file: {"README.md":49,"rpc-003-contract-notes.md":37,"rpc-003-contract.DRAFT.json":17,"rpc-003-library-reconciliation.DRAFT.md":92,"ta02-candidate-evaluation.DRAFT.md":4,"ta02-relevance-claims.DRAFT.json":10,"ta02-relevance-claims.DRAFT.md":8}
+(2) hand list: 35 Library quotations checked at their lines and in their drafts
+(3) reply quotations: 26 checked at their lines and in their drafts (item headings confirmed for the date-and-item citations)
+ok fact: "Secure Possession" occurs 0 times in the RC1.1 Library extraction
+ok fact: RC1 Library lines 626-674 = RC1.1 Library lines 668-716, heading markers aside (manipulations, regulations, degenerate solutions, adjustments, boundaries, identity test)
+ok fact: rc11-rpc003.txt (evidence/rpc-library-rc1.1-lines-558-720.txt) = Library lines 558-720, line for line (LF line ends; the extraction has CRLF)
+ok fact: rc1-rpc003.txt (evidence/rpc-library-rc1-lines-508-679.txt) = RC1 Library lines 508-679, line for line (LF line ends; the extraction has CRLF)
+ok fact: session-planning-model.ts:76 records the rename as Christian, 13 Sep
+ok fact: HANDOFF.md:428 lists the rename under his RC1.1 decisions applied in 1248f02
+ok fact: commit 1248f02 subject quoted verbatim
+ok fact: SPM:98, :99, :100, :131, :769-773 hold the TA02 and A05 rows cited
+ok fact: RPC-STMT-015 (LIB:208) is word for word RC1 Library line 678
+ok fact: LIB line numbers cited for RPC-STMT-015, RPC-RC11-LG-011, RPC-REL-068, RPC-ID-015, RPC-PROP-047, RPC-VAL-013
+ok fact: his planning model as received (33b21a7, extracted to srccheck/data/spm-received.json) heads the routing column "Primary RPC ID"
+ok fact: the RPC-001 record quotes his RC1.1 Resolution 3 at line 65
+ok fact: none of his 16 October replies (14-29) names Attack Development or RPC-003
+ok K1: 24 items, 19 AUTHORED, 5 ASSUMED, none cites the Library (no Library-only item is AUTHORED)
+ok K1: libraryProposals lists LP-1..LP-9, standing PROPOSALS AWAITING HIM
+ok K2: Q9 removed from waitsOn and gaps
+ok K2: provenance re-indexed, gaps[0..19] for 20 gaps
+ok README: section 3 asks Q1-Q8
+ok README: Q9 recorded in section 5 as engine scope not to be built unless he asks
+ok: no draft still asks him to send the section (outside correction records)
+evidence probe-k1-final.txt: 39390 bytes <- <scratchpad>/cd/compose/final/scripts/probe-out/probe-k1-final.txt
+evidence probe-k1-final.json: 51082 bytes <- <scratchpad>/cd/compose/final/scripts/probe-out/probe-k1-final.json
+evidence k2-validator.txt: 752 bytes <- <scratchpad>/cd/compose/final/scripts/probe-out/k2-validator.txt
+evidence k2-validator-library.txt: 350 bytes <- <scratchpad>/cd/compose/final/scripts/probe-out/k2-validator-library.txt
+evidence step0-results.md: 37857 bytes <- <scratchpad>/cd/compose/design/step0-results.md
+evidence probe-laws.txt: 3379 bytes <- <scratchpad>/cd/compose/design/scripts/probe-laws.txt
+evidence probe-k4.txt: 8795 bytes <- <scratchpad>/cd/compose/design/scripts/probe-k4.txt
+evidence probe-k4-a01.txt: 11984 bytes <- <scratchpad>/cd/compose/design/scripts/probe-k4-a01.txt
+evidence cmp-attach.txt: 3593 bytes <- <scratchpad>/cd/compose/final/srccheck/data/cmp-attach.txt
+evidence cmp-received.txt: 11669 bytes <- <scratchpad>/cd/compose/final/srccheck/data/cmp-received.txt
+evidence validate-final.txt: 1026 bytes <- <scratchpad>/cd/compose/final/scripts/probe-out/validate-final.txt
+evidence validate-verify-pass.txt: 3787 bytes <- <scratchpad>/cd/compose/final/scripts/probe-out/validate-verify-pass.txt
+evidence validate-library.txt: this file (written below)
+evidence rpc-library-rc1.1-lines-558-720.txt: 6787 bytes <- <scratchpad>/cd/compose/final/srccheck/data/rc11-rpc003.txt
+evidence rpc-library-rc1-lines-508-679.txt: 6324 bytes <- <scratchpad>/cd/compose/final/srccheck/data/rc1-rpc003.txt
+evidence total (excluding this file): 186775 bytes
+
+Library quotations checked: 217 auto + 35 hand; reply quotations: 26
+
+ALL LIBRARY-PASS CHECKS PASS

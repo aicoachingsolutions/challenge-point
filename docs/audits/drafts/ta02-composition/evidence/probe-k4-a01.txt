@@ -1,0 +1,78 @@
+
+### A01 goal version (FA goal), unaltered: outcome=served instructions=28
+  [How it works] The building team's goalkeeper starts play, and restarts it whenever the ball is dead: after either team scores, whenever the ball goes out of play, whenever you stop play for a foul, when you judge that an attack has run its course, and whenever you stop play for any other reason
+  [How it works] Before each of these restarts, the building team and the pressing team each set up on their own side of the marked line; once play restarts, every player is free to move anywhere
+  [How to score] If the building team loses possession, it cannot score again until the next goalkeeper restart.
+  [Restarts and ball out] The building team's goalkeeper restarts play by passing, rolling, throwing or dribbling the ball into play
+  [Restarts and ball out] You choose where the building team's goalkeeper restarts play, consistent with the intended build-out situation
+
+### A01 goal version (FA goal), with the K4 items on GF2: outcome=refused stage=structure
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END|TEAM_AT_AXIS_START<TEAM_AT_AXIS_START,TEAM_AT_AXIS_END<TEAM_AT_AXIS_END: Gate A is FAIL
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END|TEAM_AT_AXIS_START<TEAM_AT_AXIS_START,TEAM_AT_AXIS_END<TEAM_AT_AXIS_END: a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE, GA-TRIGGER-UNIQUE
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END|TEAM_AT_AXIS_START<TEAM_AT_AXIS_START,TEAM_AT_AXIS_END<TEAM_AT_AXIS_END: 6 collision(s) remain
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END|TEAM_AT_AXIS_START<TEAM_AT_AXIS_START,TEAM_AT_AXIS_END<TEAM_AT_AXIS_END: 6 unresolved structural relationship(s) remain: c:provisional:A01-R2:A01-R1-T1-8::T3, c:provisional:A01-R2:A01-R1-T1-9::T3, c:restated:GF2:K4-T1-EL::T3, c:restated:GF2:K4-T1-TL::T3, c:provisional:A01-R2:A01-R1-T1-8::T5, c:restated:GF2:K4-T1-TL::T5
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END|TEAM_AT_AXIS_START<TEAM_AT_AXIS_END,TEAM_AT_AXIS_END<TEAM_AT_AXIS_START: Gate A is FAIL
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END|TEAM_AT_AXIS_START<TEAM_AT_AXIS_END,TEAM_AT_AXIS_END<TEAM_AT_AXIS_START: a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE, GA-TRIGGER-UNIQUE
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END|TEAM_AT_AXIS_START<TEAM_AT_AXIS_END,TEAM_AT_AXIS_END<TEAM_AT_AXIS_START: 6 collision(s) remain
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END|TEAM_AT_AXIS_START<TEAM_AT_AXIS_END,TEAM_AT_AXIS_END<TEAM_AT_AXIS_START: 6 unresolved structural relationship(s) remain: c:provisional:A01-R2:A01-R1-T1-8::T3, c:provisional:A01-R2:A01-R1-T1-9::T3, c:restated:GF2:K4-T1-EL::T3, c:restated:GF2:K4-T1-TL::T3, c:provisional:A01-R2:A01-R1-T1-8::T5, c:restated:GF2:K4-T1-TL::T5
+
+### A01 zone version (no goal), unaltered: outcome=served instructions=29
+  [How it works] The building team's goalkeeper starts play, and restarts it whenever the ball is dead: after either team scores, whenever the ball goes out of play, whenever you stop play for a foul, when you judge that an attack has run its course, and whenever you stop play for any other reason
+  [How it works] Before each of these restarts, the building team and the pressing team each set up on their own side of the marked line; once play restarts, every player is free to move anywhere
+  [How to score] If the building team loses possession, it cannot score again until the next goalkeeper restart.
+  [Restarts and ball out] The building team's goalkeeper restarts play by passing, rolling, throwing or dribbling the ball into play
+  [Restarts and ball out] You choose where the building team's goalkeeper restarts play, consistent with the intended build-out situation, in front of the pressing team's target zone
+
+### A01 zone version (no goal), with the K4 items on GF2: outcome=refused stage=structure
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END|TEAM_AT_AXIS_START<TEAM_AT_AXIS_START,TEAM_AT_AXIS_END<TEAM_AT_AXIS_END: Gate A is FAIL
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END|TEAM_AT_AXIS_START<TEAM_AT_AXIS_START,TEAM_AT_AXIS_END<TEAM_AT_AXIS_END: a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE, GA-TRIGGER-UNIQUE
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END|TEAM_AT_AXIS_START<TEAM_AT_AXIS_START,TEAM_AT_AXIS_END<TEAM_AT_AXIS_END: 6 collision(s) remain
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END|TEAM_AT_AXIS_START<TEAM_AT_AXIS_START,TEAM_AT_AXIS_END<TEAM_AT_AXIS_END: 6 unresolved structural relationship(s) remain: c:provisional:A01-R2:A01-R1-T1-8::T3, c:provisional:A01-R2:A01-R1-T1-9::T3, c:restated:GF2:K4-T1-EL::T3, c:restated:GF2:K4-T1-TL::T3, c:provisional:A01-R2:A01-R1-T1-8::T5, c:restated:GF2:K4-T1-TL::T5
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END|TEAM_AT_AXIS_START<TEAM_AT_AXIS_END,TEAM_AT_AXIS_END<TEAM_AT_AXIS_START: Gate A is FAIL
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END|TEAM_AT_AXIS_START<TEAM_AT_AXIS_END,TEAM_AT_AXIS_END<TEAM_AT_AXIS_START: a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE, GA-TRIGGER-UNIQUE
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END|TEAM_AT_AXIS_START<TEAM_AT_AXIS_END,TEAM_AT_AXIS_END<TEAM_AT_AXIS_START: 6 collision(s) remain
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END|TEAM_AT_AXIS_START<TEAM_AT_AXIS_END,TEAM_AT_AXIS_END<TEAM_AT_AXIS_START: 6 unresolved structural relationship(s) remain: c:provisional:A01-R2:A01-R1-T1-8::T3, c:provisional:A01-R2:A01-R1-T1-9::T3, c:restated:GF2:K4-T1-EL::T3, c:restated:GF2:K4-T1-TL::T3, c:provisional:A01-R2:A01-R1-T1-8::T5, c:restated:GF2:K4-T1-TL::T5
+
+### demonstration scoring-modifier, with the K4 items on GF2: outcome=served instructions=13
+  [Restarts and ball out] If the ball goes out over either end line, a player of the team that did not touch the ball last restarts play; you choose where (TEST-ONLY: a location the coach chooses) and how (TEST-ONLY: a method the coach chooses)
+  [Restarts and ball out] If the ball goes out over a touchline, a player of the team that did not touch the ball last restarts play with a throw-in where the ball went out
+
+### demonstration neutral-players, with the K4 items on GF2: outcome=served instructions=14
+  [Restarts and ball out] If the ball goes out over either end line, a player of the team that did not touch the ball last restarts play; you choose where (TEST-ONLY: a location the coach chooses) and how (TEST-ONLY: a method the coach chooses)
+  [Restarts and ball out] If the ball goes out over a touchline, a player of the team that did not touch the ball last restarts play with a throw-in where the ball went out
+### A01 goal version (FA goal), K4 value lines SUPPORTING/PREFERRED_DEFAULT: outcome=refused stage=structure
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END|TEAM_AT_AXIS_START<TEAM_AT_AXIS_START,TEAM_AT_AXIS_END<TEAM_AT_AXIS_END: Gate A is FAIL
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END|TEAM_AT_AXIS_START<TEAM_AT_AXIS_START,TEAM_AT_AXIS_END<TEAM_AT_AXIS_END: a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END|TEAM_AT_AXIS_START<TEAM_AT_AXIS_START,TEAM_AT_AXIS_END<TEAM_AT_AXIS_END: 2 unresolved properties are neither an authorized choice nor an authorized claim: c:provisional:A01-R2:A01-R1-T1-9::T4, c:restated:GF2:K4-T1-EL::T4
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END|TEAM_AT_AXIS_START<TEAM_AT_AXIS_END,TEAM_AT_AXIS_END<TEAM_AT_AXIS_START: Gate A is FAIL
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END|TEAM_AT_AXIS_START<TEAM_AT_AXIS_END,TEAM_AT_AXIS_END<TEAM_AT_AXIS_START: a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END|TEAM_AT_AXIS_START<TEAM_AT_AXIS_END,TEAM_AT_AXIS_END<TEAM_AT_AXIS_START: 2 unresolved properties are neither an authorized choice nor an authorized claim: c:provisional:A01-R2:A01-R1-T1-9::T4, c:restated:GF2:K4-T1-EL::T4
+
+### A01 goal version (FA goal), K4 all SUPPORTING (T1 too): outcome=refused stage=structure
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END|TEAM_AT_AXIS_START<TEAM_AT_AXIS_START,TEAM_AT_AXIS_END<TEAM_AT_AXIS_END: Gate A is FAIL
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END|TEAM_AT_AXIS_START<TEAM_AT_AXIS_START,TEAM_AT_AXIS_END<TEAM_AT_AXIS_END: a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END|TEAM_AT_AXIS_START<TEAM_AT_AXIS_START,TEAM_AT_AXIS_END<TEAM_AT_AXIS_END: 2 unresolved properties are neither an authorized choice nor an authorized claim: c:provisional:A01-R2:A01-R1-T1-9::T4, c:restated:GF2:K4-T1-EL::T4
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END|TEAM_AT_AXIS_START<TEAM_AT_AXIS_END,TEAM_AT_AXIS_END<TEAM_AT_AXIS_START: Gate A is FAIL
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END|TEAM_AT_AXIS_START<TEAM_AT_AXIS_END,TEAM_AT_AXIS_END<TEAM_AT_AXIS_START: a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END|TEAM_AT_AXIS_START<TEAM_AT_AXIS_END,TEAM_AT_AXIS_END<TEAM_AT_AXIS_START: 2 unresolved properties are neither an authorized choice nor an authorized claim: c:provisional:A01-R2:A01-R1-T1-9::T4, c:restated:GF2:K4-T1-EL::T4
+
+### demonstration scoring-modifier, K4 value lines SUPPORTING/PREFERRED_DEFAULT: outcome=refused stage=structure
+  reason: Gate A is FAIL
+  reason: a pre-realization Gate A invariant fails: GA-TRANSITION-COHERENCE
+### TOUCH-SOFT demonstration scoring-modifier: outcome=served instructions=12
+  [Restarts and ball out] If the ball goes out over a touchline, a player of the team that did not touch the ball last restarts play with a throw-in where the ball went out
+
+### TOUCH-SOFT plain GF2: outcome=served instructions=9
+  [Restarts and ball out] If the ball goes out over a touchline, a player of the team that did not touch the ball last restarts play with a throw-in where the ball went out
+
+### TOUCH-SOFT A01 goal version: outcome=refused stage=realization
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END|TEAM_AT_AXIS_START<TEAM_AT_AXIS_START,TEAM_AT_AXIS_END<TEAM_AT_AXIS_END: realization refused
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END|TEAM_AT_AXIS_START<TEAM_AT_AXIS_START,TEAM_AT_AXIS_END<TEAM_AT_AXIS_END: c:provisional:A01-R2:A01-R1-T1-8::T4: the resolved game does not list this line as open, so nothing authorizes a value for it
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END|TEAM_AT_AXIS_START<TEAM_AT_AXIS_END,TEAM_AT_AXIS_END<TEAM_AT_AXIS_START: realization refused
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END|TEAM_AT_AXIS_START<TEAM_AT_AXIS_END,TEAM_AT_AXIS_END<TEAM_AT_AXIS_START: c:provisional:A01-R2:A01-R1-T1-8::T4: the resolved game does not list this line as open, so nothing authorizes a value for it
+
+### TOUCH-SOFT A01 zone version: outcome=refused stage=realization
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: realization refused
+  reason: block BUILDING=TEAM_AT_AXIS_START,PRESSING=TEAM_AT_AXIS_END: c:provisional:A01-R1:A01-R1-T1-8::T4: the resolved game does not list this line as open, so nothing authorizes a value for it
+  reason: block BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: realization refused
+  reason: block BUILDING=TEAM_AT_AXIS_END,PRESSING=TEAM_AT_AXIS_START: c:provisional:A01-R1:A01-R1-T1-8::T4: the resolved game does not list this line as open, so nothing authorizes a value for it

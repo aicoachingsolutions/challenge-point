@@ -1,0 +1,1128 @@
+{
+  "about": "DRAFT element-to-affordance relevance claims for a composed TA02 Secure Possession activity (K6). Every claim is PROPOSED, for Christian's review, and none is approved. Each claim names the element (by the knowledge item that establishes it), the affordance it is claimed to serve, the relation, the knowledge rows that support it, and whether the support is authored knowledge or our reading. Paths are relative to the worktree C:/challenge-point/.claude/worktrees/serene-dewdney-c78e18 (HEAD f5d6d24). Nothing in the repo was changed. The 'consequence' sentences are OUR WORDING in plain language and are not coach-facing.",
+  "status": "DRAFT_FOR_REVIEW",
+  "standing": "DRAFT - PROPOSED claims, none approved. Nothing here is in the engine's knowledge: where this file is stored in the repository, it is a document only (docs/audits/drafts/ta02-composition/), and the engine loads none of it.",
+  "corrected": "2026-10-27, after the adversarial review (design/review-drafts.md M7, K6 SHOULD-1..4, section E.3)",
+  "corrections": [
+    {
+      "finding": "M7",
+      "change": "TA02-RC-07 now quotes both fields of GAK-0015 (Knowledge_Statement and Rationale). Its support level is AUTHORED_PREMISES_OUR_JOIN: the row relates GA-001 to GP-015 and names no affordance, so tying it to Open Pathway is our step. Gap G6 records that GP-015 is \"weakly diagnostic or usually subordinate\" within GA-001."
+    },
+    {
+      "finding": "K6 SHOULD-1",
+      "change": "Coverage no longer says every Essential affordance is served: FOI, OP and CIO are each served by a claim with authored premises; SA is not shown. G3 adds RPC-ID-014."
+    },
+    {
+      "finding": "K6 SHOULD-2",
+      "change": "GF-01: GF2's GP mapping is cited as entered by his authoring pass (commit 1c71f9a), AUTHORED_RELATIONSHIP; RPC-REL-028 moved to a context-gate note; the knowledge reason for capability 2 added (only GF2 of RPC-003's permitted forms maps to GP-015)."
+    },
+    {
+      "finding": "K6 SHOULD-3",
+      "change": "EL-12 START added, unclaimed: RPC-003-08 addresses no element in any composition (MEASURED), and it is in tension with TA02's \"after regaining it\" (D1)."
+    },
+    {
+      "finding": "K6 SHOULD-4 / E.3",
+      "change": "K1 is drafted: the composition description and crosswalk are updated and the crosswalk extended to every K1 item. RC-06's consequence no longer narrows \"while maintaining\" to arrival."
+    },
+    {
+      "finding": "E.1 (consistency with K4 M5)",
+      "change": "GF2's setup-guidance restart sentence (RC-10, EL-10) and its interaction-structure text (RC-03) are labelled LIBRARY_TEXT_DRAFT_MODULE with their commits; they are not established as his."
+    },
+    {
+      "finding": "final validation",
+      "change": "TA02-RC-C1 now quotes WIDEZONE-18.d exactly (the item has a curly apostrophe in \"player’s\"; the uncorrected draft typed a straight one)."
+    },
+    {
+      "finding": "final validation",
+      "change": "TA02-RC-02 cites GF2-07.b at contracts.json:3308 instead of a probe output file (same words)."
+    },
+    {
+      "finding": "verification, GAK-0015",
+      "change": "GAK-0015's Knowledge_Statement is presented as what it is: the workbook's gloss for the COMPATIBLE role, identical in all 18 COMPATIBLE Game Problem rows across GA-001..GA-006 (VERIFIED, verify2/gak.js), not a judgement specific to GP-015. RC-07, its support ref and gap G6 now say: GP-015's role in GA-001 is COMPATIBLE, while GP-016 Regain Possession is CHARACTERISTIC (GAK-0016); the GP-015-specific text is the Rationale."
+    },
+    {
+      "finding": "verification, RC-06",
+      "change": "RC-06's consequence no longer asserts the continuous reading (\"keeping the ball all the way there\"); it says \"while keeping possession\", neutral between PR-2's readings. Its reviewNote says proposed rulings PR-1 and PR-2, supplied TEST-ONLY as stand-ins, not his rulings."
+    },
+    {
+      "finding": "verification, date labels",
+      "change": "RC-03's support and GF-01's reviewNote cite the reply received 15 October 2026 by one label, \"his 16 October reply\", with file:line (christian-2026-10-16.txt:24, :10)."
+    },
+    {
+      "finding": "N1",
+      "change": "EL-10, EL-12 and RC-10 follow the corrected K4: the out-of-play items apply his 26 October principle with Laws 9, 15, 16 and 17; K4-1 is a confirmation only; the kick-off is proposed as Law 8 adapted."
+    },
+    {
+      "finding": "verification, Q6",
+      "change": "proposedGeneralShape.consequence cites his 24 October reply (christian-2026-10-24.txt:40, :50), which permits concise, knowledge-grounded consequence explanations in Coach Details, instead of asking whether such a line may ever appear."
+    },
+    {
+      "finding": "Library pass, 27 October 2026",
+      "change": "His RC1.1 Library (Attack Development section, held outside the repository) is folded in without changing any claim or support level. The RPC_MAP vocabulary now says the five staged targets are five of the Library's nine and names the four never staged (README Q6 option (b)); G3 no longer calls RPC-ID-014 the one authored row that names support and lists the Library's support items, which are Library-only, so Support Availability is still not shown; G4 notes the nine. The standing line says where this file may be stored (a document only)."
+    }
+  ],
+  "draftedOn": "2026-10-27",
+  "approved": false,
+  "by": "ours (Claude), for Christian",
+  "assumedComposition": {
+    "description": "What a TA02 composition contains under the smallest honest additions (SYNTHESIS section 0.4): GF2 + the drafted RPC-003 Attack Development contribution contract (K1, rpc-003-contract.DRAFT.json in this folder, corrected 27 October 2026) + the Soccer Sport Profile + the GF2 realization-choices file; NO TA02 realization record; NO library constraint (K3 recommends authorizedConstraints [] pending D4; the draft record is ta02-authorization.DRAFT.json).",
+    "gameForm": "GF2 Directional Possession Games (contract restated:GF2, docs/audits/conformance/stage-b/contracts.json:3143; 39 active items)",
+    "context": "RPC-003 Attack Development (no contract in the repository today; build-activity.ts:1323-1327 refuses for that reason; the K1 draft would supply one)",
+    "sportProfile": "docs/audits/conformance/stage-b/sport-profile-soccer.json (SPORT-SOCCER-01 :331, SPORT-SOCCER-02 :349)",
+    "constraints": [],
+    "conditionalOn": [
+      "D1 (how Attack Development governs TA02; README Q1)",
+      "D2 (PROP-134 carried as engine conditions, at what scope; README Q1/Q2)",
+      "D4 (constraints; README Q4)"
+    ]
+  },
+  "crosswalkToSiblingK1Draft": {
+    "file": "rpc-003-contract.DRAFT.json (same folder; the corrected K1 draft)",
+    "EL-01 two teams, live opposition": [
+      "RPC-003-01.a",
+      "RPC-003-01.b"
+    ],
+    "EL-03 ball and possession": [
+      "RPC-003-04.a",
+      "RPC-003-04.b"
+    ],
+    "EL-04 possession change ends the attack, play continues": [
+      "RPC-003-09.a",
+      "RPC-003-09.b"
+    ],
+    "EL-05 direction and an objective per team": [
+      "RPC-003-02",
+      "RPC-003-06 (ASSUMED)",
+      "RPC-003-07"
+    ],
+    "EL-06 scoring event": [
+      "RPC-003-03.a",
+      "RPC-003-03.b"
+    ],
+    "EL-07 scoring condition (PROP-134)": [
+      "RPC-003-10.a",
+      "RPC-003-10.b",
+      "RPC-003-11.a",
+      "RPC-003-11.b",
+      "RPC-003-11.c",
+      "RPC-003-12.a",
+      "RPC-003-12.b",
+      "V5 [type=control] UNDECLARED (PR-2)"
+    ],
+    "EL-08 possession alone excluded": [
+      "RPC-003-05"
+    ],
+    "EL-09 information exclusion": [
+      "RPC-003-15"
+    ],
+    "EL-11 boundary to RPC-004": [
+      "RPC-003-14.a",
+      "RPC-003-14.b"
+    ],
+    "EL-12 start": [
+      "RPC-003-08"
+    ],
+    "not an element (SUPPORTING, outside the boundary)": [
+      "RPC-003-13"
+    ]
+  },
+  "learningGoal": {
+    "id": "TA02",
+    "name": "Secure Possession",
+    "coachDefinition": "Stabilize possession after regaining it.",
+    "chooseThisWhen": "Immediately lose the ball after winning it.",
+    "commonMisclassification": "Attack Quickly",
+    "practiceSituation": {
+      "id": "TA02-01",
+      "name": "Under Immediate Pressure",
+      "definition": "Keep possession under pressure."
+    },
+    "source": "back/src/system/session-planning/session-planning-model.rc1.json:93-103, :269-275",
+    "label": "VERIFIED"
+  },
+  "gameProblem": {
+    "id": "GP-015",
+    "name": "Maintain Possession",
+    "definition": "Preserve a rule-defined state of legal object possession while continuing meaningful task performance.",
+    "primaryEcologicalCommitment": "Preserve possession state",
+    "translation": "Approved RC1 - Primary Representative Game Problem Translation (Cycle 8) (session-planning-model.rc1.json:646-651)",
+    "affordanceProfile": {
+      "vocabulary": "ATM_CAR_RC1_2",
+      "FOI": {
+        "name": "Functional Object Interaction",
+        "rating": "E"
+      },
+      "OP": {
+        "name": "Open Pathway",
+        "rating": "E"
+      },
+      "SA": {
+        "name": "Support Availability",
+        "rating": "E",
+        "flag": "SA flagged for field validation"
+      },
+      "CIO": {
+        "name": "Competitive Interaction Opportunity",
+        "rating": "E",
+        "scope": "Representative competitive opposition"
+      },
+      "validationStatus": "Approved; SA flagged for field validation",
+      "source": "back/src/system/knowledge-core/atm-workbook.rc1.2.json:28-32 (names, CIO scope), :187-195 (definition), :413-426 (ratings)",
+      "note": "The ATM holds the four dimensions by NAME only; no further definition of FOI/OP/SA/CIO exists in the repo (VERIFIED by grep). The ATM runs in shadow mode (generateSelection.ts:1143-1144, per SYNTHESIS C1)."
+    },
+    "label": "VERIFIED"
+  },
+  "vocabularies": [
+    {
+      "id": "ATM_CAR_RC1_2",
+      "what": "The four canonical affordance requirements, rated per Game Problem.",
+      "standing": "Approved resource (atm-workbook.rc1.2.json metadata resource_status 'Approved'); used here as the target vocabulary of every element-level claim.",
+      "decision": "D8: Christian decides whether the 'why' uses this vocabulary."
+    },
+    {
+      "id": "SOCCER_MODULE_COARSE",
+      "what": "Coarse soccer-module affordance ids (maintain_possession, create_space, break_lines, exploit_space, protect_space, regain_possession, ...).",
+      "standing": "DRAFT module (soccer-module.rc1-v3.json metadata module_status 'DRAFT', approved_by 'TBD'). Used here only at game-form level (GF2's own primary_affordance_ids). No authored mapping joins it to the ATM four (docs/HANDOFF.md:7536-7540, re-verified by grep)."
+    },
+    {
+      "id": "RPC_MAP_AFFORDANCE_TARGETS",
+      "what": "Five of the nine typical affordance targets his RC1.1 Library lists for Attack Development, staged as RPC-MAP-103..107 (Supporting player, Progression lane, Overload opportunity, Weak-side opportunity, Third-player support). The Library's other four, all Common, were never staged: \"positional rotation\", \"diagonal progression\", \"wide progression\", \"central progression\" (Library lines 644-647).",
+      "standing": "DEFERRED by Christian, 2026-09-13: 'canonical Affordance Target ids are not to be inferred to reach runtime' (rpc-library.rc1.json:4612-4660). NOT used as claim targets here; named only in gaps. The four never staged have no workbook row at all (reconciliation LP-6). For Goalkeeper Build-Out his ruling kept such targets in the reconciliation record: \"The third build-out origin, deferred affordance targets, and remaining nonblocking discrepancies can stay in the reconciliation record.\" (his reply filed 17 October 2026). Option (b) of README Q6 would mean lifting the deferral of the five and staging the four."
+    }
+  ],
+  "supportLevels": {
+    "AUTHORED_RELATIONSHIP": "An authored row itself relates the element's source to GP-015 or to the affordance (the join from element to that row is the contract's own basisEvidence). Ours is only the reading that the relation is a relevance relation.",
+    "AUTHORED_TEXT_CORRESPONDENCE": "Authored text on the element (an approved condition) states the same relation the Game Problem's definition commits to; the claim joining them is ours.",
+    "AUTHORED_PREMISES_OUR_JOIN": "Every premise is authored (the element's item and its basis, the affordance's rating and name), but no authored row joins them; the join is ours.",
+    "OUR_READING": "At least one premise of the claim is our reading of play or of coaching meaning; nothing authored states it."
+  },
+  "relations": {
+    "MAKES_AVAILABLE": "The element creates the opportunity at all (without it the affordance could not occur in this game).",
+    "SHAPES": "The element changes when, where or how often the opportunity occurs, or what losing it costs.",
+    "PROTECTS": "The element prevents a degenerate solution that would remove the opportunity or make it terminal.",
+    "PRESERVES_INFORMATION": "The element keeps the information the opportunity depends on available to players."
+  },
+  "elements": [
+    {
+      "id": "EL-01",
+      "description": "Two teams in live opposition; the team without the ball can deny, redirect or reverse progression.",
+      "establishedBy": [
+        {
+          "contractId": "restated:GF2",
+          "itemId": "GF2-14.a",
+          "row": "P1",
+          "value": "2",
+          "basis": "AUTHORED",
+          "path": "docs/audits/conformance/stage-b/contracts.json (GF2 entry :3143)"
+        },
+        {
+          "contractId": "restated:GF2",
+          "itemId": "GF2-13",
+          "row": "NO_ROW",
+          "value": "the out-of-possession team can deny, redirect or reverse progression toward the objective it defends",
+          "basis": "AUTHORED",
+          "basisEvidence": "GAK-0105 'Opposition can deny, redirect, or reverse progression.'",
+          "path": "contracts.json:3452"
+        },
+        {
+          "contractId": "restated:GF2",
+          "itemId": "GF2-15",
+          "row": "NO_ROW",
+          "value": "EXCLUSION: a team that is passive, scripted or unable to change the other team's progression",
+          "basis": "ASSUMED",
+          "basisEvidence": "GAK-0109"
+        },
+        {
+          "draft": "K1 RPC-003 items 01.a/01.b analog",
+          "source": "RPC-REL-003 GA-001 REQUIRED; RPC-VAL-014 'Opponent interaction, direction, consequence, and representative information must remain intact where required.' (rpc-library.rc1.json:3384)"
+        }
+      ],
+      "inComposition": "YES"
+    },
+    {
+      "id": "EL-02",
+      "description": "Equal outfield numbers per team; no absolute number (the session's players decide the count).",
+      "establishedBy": [
+        {
+          "contractId": "restated:GF2",
+          "itemId": "GF2-14.b",
+          "row": "P2",
+          "value": "equal to the other team's outfieldCount; no absolute number",
+          "basis": "OWNER_RULING",
+          "basisEvidence": "Christian, 2026-10-01: 'Promote GF2-14.b, equal outfield counts, from ASSUMED to owner-authored canonical knowledge.'",
+          "path": "contracts.json:3484"
+        }
+      ],
+      "inComposition": "YES"
+    },
+    {
+      "id": "EL-03",
+      "description": "One shared ball; possession is a rule-defined relationship between the teams and the ball, and it changes in play; a won ball is never given back.",
+      "establishedBy": [
+        {
+          "contractId": "sport-profile:soccer",
+          "itemId": "SPORT-SOCCER-01",
+          "row": "O1",
+          "basis": "OWNER_RULING",
+          "basisEvidence": "Christian, 2026-10-06: 'For this pilot scope it should establish only constitutive sport structure now demonstrated to be required: the game's functional object is a ball.'",
+          "path": "docs/audits/conformance/stage-b/sport-profile-soccer.json:331-347"
+        },
+        {
+          "contractId": "sport-profile:soccer",
+          "itemId": "SPORT-SOCCER-02",
+          "row": "PS1",
+          "basis": "OWNER_RULING",
+          "basisEvidence": "Christian, 2026-10-06: 'Authorize a bounds-only contribution establishing the possession relationship as a legitimate game structure over the participating opposing teams, while leaving its initial holder as a governed realization choice unless more specific authoritative knowledge constrains it.'",
+          "path": "sport-profile-soccer.json:349-365"
+        },
+        {
+          "contractId": "restated:GF2",
+          "itemId": "GF2-07.a",
+          "row": "T1",
+          "value": "a possession-change transition: the ball's owner is not fixed",
+          "basis": "AUTHORED",
+          "basisEvidence": "GA-001 Interaction_Organization 'Shared, adaptive, generally simultaneous access with reciprocal influence.'",
+          "path": "contracts.json:3292"
+        },
+        {
+          "contractId": "restated:GF2",
+          "itemId": "GF2-07.b",
+          "row": "T2",
+          "value": "EXCLUSION: LOST_BALL (a rule returning a won ball to the team that lost it)",
+          "basis": "ASSUMED"
+        }
+      ],
+      "inComposition": "YES"
+    },
+    {
+      "id": "EL-04",
+      "description": "Play continues on a turnover: no stoppage, the winner plays on from where it won the ball.",
+      "establishedBy": [
+        {
+          "contractId": "restated:GF2",
+          "itemId": "GF2-17",
+          "row": "T6",
+          "value": "CONTINUE",
+          "strictness": "SUPPORTING",
+          "basis": "AUTHORED",
+          "basisEvidence": "'Continuous directional circulation' (soccer-module.rc1-v3.json GF2.interaction_structure, :5360)",
+          "path": "contracts.json:3548"
+        }
+      ],
+      "servedAs": "When possession changes, play carries on without a stoppage, and each team keeps attacking the same line (understand/probe-demos.txt, plain GF2, measured by the reader probe)",
+      "inComposition": "YES"
+    },
+    {
+      "id": "EL-05",
+      "description": "Per-team directional targets at opposite ends, assigned at setup and fixed whoever has the ball; each team's target lies ahead of it.",
+      "establishedBy": [
+        {
+          "contractId": "restated:GF2",
+          "itemId": "GF2-03.e / GF2-03.f",
+          "row": "S2",
+          "basis": "OWNER_RULING",
+          "path": "docs/audits/conformance/stage-b/corpus-restatements.json:1212-1254"
+        },
+        {
+          "contractId": "restated:GF2",
+          "itemId": "GF2-08.c..f",
+          "row": "J1/J2",
+          "basis": "OWNER_RULING",
+          "basisEvidence": "Christian, 2026-10-09: 'each team attacks the target opposite its own assigned end, regardless of possession changes'",
+          "path": "corpus-restatements.json:1255-1321 (quote at :1266)"
+        },
+        {
+          "contractId": "restated:GF2",
+          "itemId": "GF2-09.a",
+          "row": "J1",
+          "basis": "AUTHORED",
+          "basisEvidence": "GAK-0103 'Meaningful external objectives remain live for both sides.'",
+          "path": "contracts.json:3356"
+        },
+        {
+          "contractId": "restated:GF2",
+          "itemId": "GF2-10",
+          "row": "DV1",
+          "basis": "AUTHORED",
+          "basisEvidence": "GAK-0104 'Progression changes access to the objective.'",
+          "path": "contracts.json:3388"
+        }
+      ],
+      "realizerChoice": "Target noun 'line' for both teams: docs/audits/a04-realization-choices.json, which says of itself it is a realizer's input, not knowledge (SYNTHESIS finding 6c).",
+      "inComposition": "YES"
+    },
+    {
+      "id": "EL-06",
+      "description": "Exactly one primary scoring event, from the intersection of GF2's and Attack Development's permitted events: line_crossed or target_zone_entered (the realizer picks line_crossed).",
+      "establishedBy": [
+        {
+          "contractId": "restated:GF2",
+          "itemId": "GF2-19",
+          "row": "V1",
+          "value": [
+            "line_crossed",
+            "target_zone_entered"
+          ],
+          "basis": "AUTHORED",
+          "path": "contracts.json:3580"
+        },
+        {
+          "draft": "K1 RPC-003 V1 permitted set",
+          "source": "RPC-REL-079..082 (rpc-library.rc1.json:1276-1309), 'Valid primary scoring event 1 of 4, in the approved order.' (Christian, 2026-09-13)"
+        },
+        {
+          "standingDecision": "SD-06",
+          "value": "exactly one primary scoring event",
+          "path": "docs/audits/conformance/register-2026-09-18.json:2268-2274"
+        }
+      ],
+      "inComposition": "YES (conditional on K1 existing)"
+    },
+    {
+      "id": "EL-07",
+      "description": "The scoring condition: a score counts as purposeful advancement into a more advanced area while the attacking team keeps possession.",
+      "establishedBy": [
+        {
+          "draft": "K1 RPC-003 condition items (V3/V5/V6), modeled on RPC-001-18.a..h",
+          "source": "RPC-PROP-134 PRIMARY_SCORING_CONDITION CORE 'Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.' (provenance 'Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)'; rpc-library.rc1.json:2651)"
+        }
+      ],
+      "inComposition": "CONDITIONAL on D1 and D2; the condition is WORDED_ONLY and needs his approved sentence (SYNTHESIS P8, D2); 'from the attack's starting condition' and 'a more advanced representative area' are undecided (D1, D5)"
+    },
+    {
+      "id": "EL-08",
+      "description": "Possession alone never scores, and no possession reward may outweigh or displace the progression event.",
+      "establishedBy": [
+        {
+          "contractId": "restated:GF2",
+          "itemId": "GF2-20",
+          "row": "V1",
+          "value": "{consecutive-pass count, keep-away, time-in-possession} (forbidden: retained possession alone as the scoring event)",
+          "strictness": "EXCLUSION",
+          "basis": "ASSUMED",
+          "basisEvidence": "GAK-0108 'Possession becomes the terminal objective rather than serving progression.'",
+          "path": "contracts.json:3596"
+        },
+        {
+          "contractId": "restated:GF2",
+          "itemId": "GF2-21",
+          "row": "NO_ROW",
+          "value": "a possession reward that outweighs or displaces the progression event (possession terminal rather than instrumental)",
+          "strictness": "EXCLUSION",
+          "basis": "ASSUMED",
+          "basisEvidence": "GAK-0015 (GP-015) 'Possession is compatible but remains instrumental to progression rather than terminal.'",
+          "path": "contracts.json:3612"
+        },
+        {
+          "draft": "K1 RPC-003 V1 exclusion (RPC-001-12 analog)",
+          "source": "RPC-ID-013 REQUIRED 'Possession alone is insufficient as success.' (rpc-library.rc1.json:2803); RPC-STMT-014 'Reinforce measurable improvement in attacking conditions rather than possession alone.' (:200); RPC-PROP-042 DEGENERATE 'Possession circulates without improving attacking conditions.' (:1823)"
+        }
+      ],
+      "inComposition": "YES (GF2 items); K1 part conditional"
+    },
+    {
+      "id": "EL-09",
+      "description": "Representative information stays available: no information rule hides defensive organization, teammates' positions and support, emerging space or numerical advantages.",
+      "establishedBy": [
+        {
+          "draft": "K1 RPC-003 V15 information exclusion (RPC-001-23 analog, contracts.json:698)",
+          "source": "RPC-PROP-038 'Defensive organization and defensive shifting.' (:1787); RPC-PROP-039 'Teammate positioning and support.' (:1796); RPC-PROP-040 'Emerging space and progression opportunities.' (:1805); RPC-PROP-041 'Numerical or positional advantages.' (:1814); all REPRESENTATIVE_INFORMATION, CORE; RPC-VAL-014 (:3384)"
+        }
+      ],
+      "inComposition": "CONDITIONAL on K1 carrying them",
+      "note": "An exclusion of this kind is met vacuously when the game holds no information rule at all (RPC-001-23's own fitNote: 'the clause may match nothing')."
+    },
+    {
+      "id": "EL-10",
+      "description": "Ball out of play: the team that did not touch it last restarts.",
+      "establishedBy": [
+        {
+          "contractId": "restated:GF2",
+          "itemId": "GF2-16.a",
+          "row": "T2",
+          "value": "NOT_LAST_TOUCH",
+          "strictness": "SUPPORTING",
+          "basis": "AUTHORED",
+          "basisEvidence": "'Restart conditions: ball out of play restarts from the team that didn't touch it last.' (GF2's library text, soccer-module.rc1-v3.json GF2.setup_guidance, :5378; written in commit 806f658, 14 May 2026, engineering, Claude co-authored; not established as his; cited AUTHORED by the corpus convention)"
+        },
+        {
+          "contractId": "restated:GF2",
+          "itemId": "GF2-16.b",
+          "row": "T6",
+          "value": "STOP_RESUME",
+          "strictness": "SUPPORTING",
+          "basis": "AUTHORED"
+        }
+      ],
+      "inComposition": "INERT today: GF2's only T1 element is the possession change, so these items address no element and no ball-out sentence is served (SYNTHESIS finding 6a). Needs K4 (the existence and end-line items, which apply his 26 October principle with Laws 9, 15, 16 and 17, and his confirmation of the end-line location, K4-D3; README Q5) and E-K4; under the RPC-003 draft also the T7 question (D1; README Q1)."
+    },
+    {
+      "id": "EL-11",
+      "description": "Identity boundary: an immediate genuine chance-creation window belongs to Final Third Creation (RPC-004), not to Attack Development.",
+      "establishedBy": [
+        {
+          "draft": "K1 RPC-003 V7/V11 boundary exclusion (RPC-001-21 analog)",
+          "source": "RPC-ID-015 EXCLUSION 'An immediate genuine chance-creation window shifts ownership toward RPC-004.' (rpc-library.rc1.json:2819)"
+        }
+      ],
+      "inComposition": "CONDITIONAL on K1",
+      "note": "No affordance claim is proposed: this is a context identity boundary, not an opportunity the environment offers."
+    },
+    {
+      "id": "EL-12",
+      "description": "The start: possession is awarded to one team when play begins (the START mapping of RPC-003-08 is OUR READING, as for RPC-001-15.a).",
+      "establishedBy": [
+        {
+          "draft": "K1 RPC-003-08 (T2 [trigger=START] EXISTS)",
+          "source": "RPC-ID-011 REQUIRED 'Organized attacking possession is already established.' (rpc-library.rc1.json:2787); RPC-PROP-034 BEGIN_CONDITION 'Organized attacking possession is established.' (:1751)"
+        }
+      ],
+      "inComposition": "NO ELEMENT. MEASURED (design/step0-results.md section 4; re-run final/scripts/probe-out/probe-k1-final.txt, ablation and reach): no composition holds a START transition, so RPC-003-08 changes nothing. The served sentence \"Pick which team starts with the ball and tell both teams before you start\" is said with or without it (it is in plain GF2); INFERRED: it comes from the possession relationship's initial holder, which SPORT-SOCCER-02 leaves as a governed realization choice. (The review read 08 as served; the measurement shows the sentence is GF2's.)",
+      "note": "No claim proposed. In tension with TA02's \"after regaining it\": the start RPC-003 requires is organized possession already established, while TA02 is about a just-won ball (D1; README Q1). How play starts under the normal Laws: Law 8's kick-off, adapted to the centre of the area, is proposed for his confirmation (K4-D4; README Q5)."
+    }
+  ],
+  "claims": [
+    {
+      "claimId": "TA02-RC-01",
+      "status": "PROPOSED",
+      "element": "EL-01",
+      "affordance": {
+        "vocabulary": "ATM_CAR_RC1_2",
+        "id": "CIO",
+        "name": "Competitive Interaction Opportunity",
+        "ratingForGP015": "E"
+      },
+      "relation": "MAKES_AVAILABLE",
+      "consequence": "There is always a live opponent who can take the ball or block the way forward, so keeping the ball is contested, not free.",
+      "support": [
+        {
+          "kind": "AUTHORED",
+          "ref": "ATM metadata cio_scope_clarification",
+          "quote": "Representative competitive opposition",
+          "path": "back/src/system/knowledge-core/atm-workbook.rc1.2.json:32"
+        },
+        {
+          "kind": "AUTHORED",
+          "ref": "ATM GP-015 CIO",
+          "quote": "E",
+          "path": "atm-workbook.rc1.2.json:413-426"
+        },
+        {
+          "kind": "AUTHORED",
+          "ref": "GAK-0105 via GF2-13",
+          "quote": "Opposition can deny, redirect, or reverse progression.",
+          "path": "back/src/system/knowledge-core/game-archetype-workbook.rc1.1.json:1467-1478"
+        },
+        {
+          "kind": "AUTHORED",
+          "ref": "RPC-VAL-014",
+          "quote": "Opponent interaction, direction, consequence, and representative information must remain intact where required.",
+          "path": "back/src/system/sport-module/rpc-library.rc1.json:3384"
+        }
+      ],
+      "supportLevel": "AUTHORED_PREMISES_OUR_JOIN",
+      "reviewNote": "Near-definitional: the ATM scopes CIO as representative competitive opposition, and GF2-13 is that opposition. Only the join is ours."
+    },
+    {
+      "claimId": "TA02-RC-02",
+      "status": "PROPOSED",
+      "element": "EL-03",
+      "affordance": {
+        "vocabulary": "ATM_CAR_RC1_2",
+        "id": "FOI",
+        "name": "Functional Object Interaction",
+        "ratingForGP015": "E"
+      },
+      "relation": "MAKES_AVAILABLE",
+      "consequence": "Possession is a real state of one shared ball that the other team can end, so preserving it is a problem players must solve; a ball that is won stays won.",
+      "support": [
+        {
+          "kind": "AUTHORED",
+          "ref": "GP-015 canonical_definition",
+          "quote": "Preserve a rule-defined state of legal object possession while continuing meaningful task performance.",
+          "path": "atm-workbook.rc1.2.json:187-195"
+        },
+        {
+          "kind": "OWNER_RULING",
+          "ref": "SPORT-SOCCER-02 (PS1)",
+          "quote": "Authorize a bounds-only contribution establishing the possession relationship as a legitimate game structure over the participating opposing teams, while leaving its initial holder as a governed realization choice unless more specific authoritative knowledge constrains it.",
+          "path": "docs/audits/conformance/stage-b/sport-profile-soccer.json:349-365"
+        },
+        {
+          "kind": "AUTHORED",
+          "ref": "GF2-07.a basis, GA-001 Interaction_Organization",
+          "quote": "Shared, adaptive, generally simultaneous access with reciprocal influence.",
+          "path": "contracts.json:3292"
+        },
+        {
+          "kind": "ASSUMED_ITEM",
+          "ref": "GF2-07.b (no give-back)",
+          "quote": "LOST_BALL (forbidden: a rule returning a won ball to the team that lost it)",
+          "path": "contracts.json:3308"
+        }
+      ],
+      "supportLevel": "AUTHORED_PREMISES_OUR_JOIN",
+      "reviewNote": "The GP-015 definition speaks of 'a rule-defined state of legal object possession'; SPORT-SOCCER-02 is that rule-defined state. GF2-07.b is ASSUMED, so its part of the claim is our reading."
+    },
+    {
+      "claimId": "TA02-RC-03",
+      "status": "PROPOSED",
+      "element": "EL-04",
+      "affordance": {
+        "vocabulary": "ATM_CAR_RC1_2",
+        "id": "CIO",
+        "name": "Competitive Interaction Opportunity",
+        "ratingForGP015": "E"
+      },
+      "learningGoalReading": {
+        "learningGoal": "TA02",
+        "rows": [
+          "Coach Definition: Stabilize possession after regaining it.",
+          "Choose This When...: Immediately lose the ball after winning it.",
+          "TA02-01: Keep possession under pressure."
+        ]
+      },
+      "relation": "SHAPES",
+      "consequence": "Because play never stops when the ball changes hands, every regain is immediately followed by the other team trying to win it straight back. The moment Secure Possession is about (just after winning the ball, under immediate pressure) happens again and again inside the game.",
+      "support": [
+        {
+          "kind": "LIBRARY_TEXT_DRAFT_MODULE",
+          "ref": "GF2-17 basis: GF2 interaction_structure (Test Library V0 text, commit 3980188; authorship not established; GF2-17 is cited AUTHORED by the corpus convention)",
+          "quote": "Continuous directional circulation",
+          "path": "contracts.json:3548; soccer-module.rc1-v3.json:5360"
+        },
+        {
+          "kind": "AUTHORED",
+          "ref": "TA02 Coach Definition / Choose This When / TA02-01",
+          "quote": "Stabilize possession after regaining it.",
+          "path": "session-planning-model.rc1.json:98-99, :274"
+        },
+        {
+          "kind": "AUTHORED",
+          "ref": "RPC-TR-007 (RPC-003 to RPC-007 Counter-Press)",
+          "quote": "Possession is lost and an immediate defensive transition exists.",
+          "path": "rpc-library.rc1.json:3089"
+        },
+        {
+          "kind": "HIS_WORDS_OTHER_GOAL",
+          "ref": "his 16 October reply (christian-2026-10-16.txt:24), A01 context",
+          "quote": "I don't want the activity to become a scripted passing exercise or a sequence that stops automatically whenever possession changes.",
+          "path": "scratchpad christian-2026-10-16.txt:24"
+        }
+      ],
+      "supportLevel": "OUR_READING",
+      "reviewNote": "The most TA02-specific claim in the composition, and it is our reading: no authored row says continuous play creates the post-regain situation. It is also not specific to TA02, because every GF2 game has GF2-17, so Progress the Attack (A05) would carry the same claim (D12). Attack Development itself ends at a loss of possession (RPC-PROP-037 'Possession is lost.'), so the post-regain moment is between contexts (D1)."
+    },
+    {
+      "claimId": "TA02-RC-04",
+      "status": "PROPOSED",
+      "element": "EL-05",
+      "affordance": {
+        "vocabulary": "ATM_CAR_RC1_2",
+        "id": "OP",
+        "name": "Open Pathway",
+        "ratingForGP015": "E"
+      },
+      "relation": "MAKES_AVAILABLE",
+      "consequence": "Each team has a fixed direction and a target ahead of it, so there are pathways forward, and they open and close as play moves. Keeping the ball has somewhere to go.",
+      "support": [
+        {
+          "kind": "AUTHORED",
+          "ref": "GAK-0104 via GF2-10",
+          "quote": "Progression changes access to the objective.",
+          "path": "game-archetype-workbook.rc1.1.json:1454-1465"
+        },
+        {
+          "kind": "AUTHORED",
+          "ref": "GAK-0103 via GF2-09.a",
+          "quote": "Meaningful external objectives remain live for both sides.",
+          "path": "game-archetype-workbook.rc1.1.json:1441-1452"
+        },
+        {
+          "kind": "AUTHORED",
+          "ref": "ATM GP-015 OP",
+          "quote": "E",
+          "path": "atm-workbook.rc1.2.json:413-426"
+        },
+        {
+          "kind": "AUTHORED",
+          "ref": "GP-015 definition, second clause",
+          "quote": "while continuing meaningful task performance",
+          "path": "atm-workbook.rc1.2.json:187-195"
+        }
+      ],
+      "supportLevel": "AUTHORED_PREMISES_OUR_JOIN"
+    },
+    {
+      "claimId": "TA02-RC-05",
+      "status": "PROPOSED",
+      "element": "EL-05 + EL-04",
+      "affordance": {
+        "vocabulary": "ATM_CAR_RC1_2",
+        "id": "CIO",
+        "name": "Competitive Interaction Opportunity",
+        "ratingForGP015": "E"
+      },
+      "learningGoalReading": {
+        "learningGoal": "TA02",
+        "rows": [
+          "Choose This When...: Immediately lose the ball after winning it."
+        ]
+      },
+      "relation": "SHAPES",
+      "consequence": "Each team keeps attacking the same end whoever has the ball, so losing a ball you have just won lets the other team attack your end straight away. Losing it has a real cost; keeping it has a real reward.",
+      "support": [
+        {
+          "kind": "OWNER_RULING",
+          "ref": "GF2-08.c..f basisEvidence",
+          "quote": "each team attacks the target opposite its own assigned end, regardless of possession changes",
+          "path": "docs/audits/conformance/stage-b/corpus-restatements.json:1266"
+        },
+        {
+          "kind": "HIS_WORDS_GENERAL_PRINCIPLE",
+          "ref": "his reply filed 25 October 2026",
+          "quote": "The central learning-design principle is that the opposition's objectives and scoring consequences should help create the affordances relevant to the selected Learning Goal.",
+          "path": "scratchpad christian-2026-10-25.txt:218"
+        },
+        {
+          "kind": "HIS_WORDS_OTHER_GOAL",
+          "ref": "his reply filed 27 October 2026, item 7 (Play Out from the Back list)",
+          "quote": "Meaningful consequences for losing possession in dangerous areas.",
+          "path": "scratchpad christian-2026-10-27.txt:72"
+        }
+      ],
+      "supportLevel": "AUTHORED_PREMISES_OUR_JOIN",
+      "reviewNote": "His 25 Oct principle is general; applying it to TA02 through GF2's per-team targets is ours. This is the game-integrated consequence that K3 weighs against an added Turnover Reward (D4b)."
+    },
+    {
+      "claimId": "TA02-RC-06",
+      "status": "PROPOSED",
+      "element": "EL-06 + EL-07",
+      "affordance": [
+        {
+          "vocabulary": "ATM_CAR_RC1_2",
+          "id": "FOI",
+          "name": "Functional Object Interaction",
+          "ratingForGP015": "E"
+        },
+        {
+          "vocabulary": "ATM_CAR_RC1_2",
+          "id": "OP",
+          "name": "Open Pathway",
+          "ratingForGP015": "E"
+        }
+      ],
+      "relation": "SHAPES",
+      "consequence": "A score needs both things at once: getting further forward while keeping possession. Securing the ball is a condition of success, never the success itself. (Whether \"while maintaining attacking possession\" is judged at the target or continuously is PR-2's question to him.)",
+      "support": [
+        {
+          "kind": "OWNER_RULING",
+          "ref": "RPC-PROP-134 (approved 13 September 2026)",
+          "quote": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+          "path": "rpc-library.rc1.json:2651"
+        },
+        {
+          "kind": "AUTHORED",
+          "ref": "GP-015 primary_ecological_commitment",
+          "quote": "Preserve possession state",
+          "path": "atm-workbook.rc1.2.json:187-195"
+        },
+        {
+          "kind": "AUTHORED",
+          "ref": "RPC-VAL-012",
+          "quote": "Primary scoring must reinforce the RPC Primary Scoring Identity and must not substitute an unrelated affordance outcome.",
+          "path": "rpc-library.rc1.json:3362"
+        },
+        {
+          "kind": "AUTHORED",
+          "ref": "GF2-19 permitted events",
+          "quote": "line_crossed; target_zone_entered",
+          "path": "contracts.json:3580; soccer-module.rc1-v3.json:5361"
+        }
+      ],
+      "supportLevel": "AUTHORED_TEXT_CORRESPONDENCE",
+      "conditionalOn": [
+        "D1",
+        "D2",
+        "D5",
+        "PR-1",
+        "PR-2"
+      ],
+      "reviewNote": "The strongest link to GP-015 in the composition: his approved condition says \"while maintaining attacking possession\", and GP-015 commits to \"Preserve possession state\". It holds only if PROP-134 is carried as engine conditions (D2), which needs his ruling on proposed rulings PR-1 and PR-2 (supplied only TEST-ONLY as stand-ins in the probes) and his approved sentence (WORDED_ONLY rows); and the origin clause cannot be carried today (K1 notes section 5). Without the conditions, EL-06 alone (a line crossed) supports OP only, and the FOI half of this claim falls away. This is the scoring element RPC-VAL-012 is checked against."
+    },
+    {
+      "claimId": "TA02-RC-07",
+      "status": "PROPOSED",
+      "element": "EL-08",
+      "affordance": {
+        "vocabulary": "ATM_CAR_RC1_2",
+        "id": "OP",
+        "name": "Open Pathway",
+        "ratingForGP015": "E"
+      },
+      "relation": "PROTECTS",
+      "consequence": "Keeping the ball can never be the aim by itself, so the game cannot collapse into keep-ball. Possession stays a means of going forward, which is what the Game Problem's 'while continuing meaningful task performance' asks.",
+      "support": [
+        {
+          "kind": "AUTHORED",
+          "ref": "GAK-0015 (GA-001 to GP-015, Knowledge_Role COMPATIBLE) Knowledge_Statement, cited by GF2-21; the workbook's generic gloss for the COMPATIBLE role, identical in all 18 COMPATIBLE Game Problem rows (GA-001..GA-006), not a judgement specific to GP-015",
+          "quote": "This Game Problem can occur within the archetype but is weakly diagnostic or usually subordinate.",
+          "path": "back/src/system/knowledge-core/game-archetype-workbook.rc1.1.json:297-307; contracts.json:3612"
+        },
+        {
+          "kind": "AUTHORED",
+          "ref": "GAK-0015 Rationale",
+          "quote": "Possession is compatible but remains instrumental to progression rather than terminal.",
+          "path": "back/src/system/knowledge-core/game-archetype-workbook.rc1.1.json:297-307"
+        },
+        {
+          "kind": "AUTHORED",
+          "ref": "GAK-0108 (GA-001-OIC-06), cited by GF2-20",
+          "quote": "Possession becomes the terminal objective rather than serving progression.",
+          "path": "game-archetype-workbook.rc1.1.json:1506-1517; contracts.json:3596"
+        },
+        {
+          "kind": "AUTHORED",
+          "ref": "RPC-ID-013",
+          "quote": "Possession alone is insufficient as success.",
+          "path": "rpc-library.rc1.json:2803"
+        },
+        {
+          "kind": "AUTHORED",
+          "ref": "RPC-PROP-042 (degenerate solution)",
+          "quote": "Possession circulates without improving attacking conditions.",
+          "path": "rpc-library.rc1.json:1823"
+        }
+      ],
+      "supportLevel": "AUTHORED_PREMISES_OUR_JOIN",
+      "reviewNote": "GAK-0015 relates GA-001 to GP-015 and names no affordance, so tying it to Open Pathway is our step (corrected from AUTHORED_RELATIONSHIP, review M7). What it says about GP-015 is its role: GP-015's role in GA-001 is COMPATIBLE (the workbook's gloss for that role, identical in all 18 COMPATIBLE Game Problem rows across GA-001..GA-006: \"can occur within the archetype but is weakly diagnostic or usually subordinate\"), while GP-016 Regain Possession is CHARACTERISTIC (GAK-0016, game-archetype-workbook.rc1.1.json:310). The part specific to GP-015 is its Rationale: \"Possession is compatible but remains instrumental to progression rather than terminal.\" GA-001 is the archetype of GF2 and of every RPC-003 form (gap G6). GF2-20 and GF2-21 are ASSUMED items, but their bases are authored."
+    },
+    {
+      "claimId": "TA02-RC-08",
+      "status": "PROPOSED",
+      "element": "EL-09",
+      "affordance": [
+        {
+          "vocabulary": "ATM_CAR_RC1_2",
+          "id": "SA",
+          "name": "Support Availability",
+          "ratingForGP015": "E"
+        },
+        {
+          "vocabulary": "ATM_CAR_RC1_2",
+          "id": "OP",
+          "name": "Open Pathway",
+          "ratingForGP015": "E"
+        },
+        {
+          "vocabulary": "ATM_CAR_RC1_2",
+          "id": "CIO",
+          "name": "Competitive Interaction Opportunity",
+          "ratingForGP015": "E"
+        }
+      ],
+      "relation": "PRESERVES_INFORMATION",
+      "consequence": "Nothing in the rules hides where teammates are, where space is opening, where a team has more players, or how the defence is shifting. The player who has just won the ball can see the options that keeping it depends on.",
+      "support": [
+        {
+          "kind": "AUTHORED",
+          "ref": "RPC-PROP-039",
+          "quote": "Teammate positioning and support.",
+          "path": "rpc-library.rc1.json:1796"
+        },
+        {
+          "kind": "AUTHORED",
+          "ref": "RPC-PROP-040",
+          "quote": "Emerging space and progression opportunities.",
+          "path": "rpc-library.rc1.json:1805"
+        },
+        {
+          "kind": "AUTHORED",
+          "ref": "RPC-PROP-038",
+          "quote": "Defensive organization and defensive shifting.",
+          "path": "rpc-library.rc1.json:1787"
+        },
+        {
+          "kind": "AUTHORED",
+          "ref": "RPC-PROP-041",
+          "quote": "Numerical or positional advantages.",
+          "path": "rpc-library.rc1.json:1814"
+        }
+      ],
+      "supportLevel": "AUTHORED_PREMISES_OUR_JOIN",
+      "conditionalOn": [
+        "K1 carries PROP-038..041 as a V15 exclusion"
+      ],
+      "reviewNote": "Preserving information is not creating opportunity: this claim says the composition does not remove what these affordances depend on. It is met vacuously when the game holds no information rule."
+    },
+    {
+      "claimId": "TA02-RC-09",
+      "status": "PROPOSED",
+      "element": "EL-02",
+      "affordance": {
+        "vocabulary": "ATM_CAR_RC1_2",
+        "id": "SA",
+        "name": "Support Availability",
+        "ratingForGP015": "E"
+      },
+      "relation": "SHAPES",
+      "consequence": "With equal numbers there is no spare player built into the game, so support for the player who has just won the ball has to come from teammates moving to offer it.",
+      "support": [
+        {
+          "kind": "OWNER_RULING",
+          "ref": "GF2-14.b",
+          "quote": "equal to the other team's outfieldCount; no absolute number",
+          "path": "contracts.json:3484"
+        },
+        {
+          "kind": "AUTHORED",
+          "ref": "RPC-ID-014 (SUPPORTING_IDENTITY)",
+          "quote": "Multiple progression and support options remain available.",
+          "path": "rpc-library.rc1.json:2811"
+        },
+        {
+          "kind": "AUTHORED",
+          "ref": "ATM GP-015 SA",
+          "quote": "Approved; SA flagged for field validation",
+          "path": "atm-workbook.rc1.2.json:425"
+        }
+      ],
+      "supportLevel": "OUR_READING",
+      "reviewNote": "The weakest of the four affordances in this composition: both SA claims (RC-08, RC-09) rest on our reading or on preserved information, and the ATM itself flags SA for field validation. Whether a numerical relationship should shape support after a regain is his D7 (Participant Composition via RPC-PROP-047), inert in composition until E10."
+    },
+    {
+      "claimId": "TA02-RC-10",
+      "status": "PROPOSED_INERT",
+      "element": "EL-10",
+      "affordance": {
+        "vocabulary": "ATM_CAR_RC1_2",
+        "id": "FOI",
+        "name": "Functional Object Interaction",
+        "ratingForGP015": "E"
+      },
+      "relation": "SHAPES",
+      "consequence": "Playing the ball out gives it to the other team, so losing control has the same cost as losing the ball to an opponent.",
+      "support": [
+        {
+          "kind": "LIBRARY_TEXT_DRAFT_MODULE",
+          "ref": "GF2-16.a basis: GF2 setup_guidance (written in commit 806f658; not established as his)",
+          "quote": "Restart conditions: ball out of play restarts from the team that didn't touch it last.",
+          "path": "soccer-module.rc1-v3.json:5378"
+        }
+      ],
+      "supportLevel": "OUR_READING",
+      "reviewNote": "Cannot attach today: GF2-16.a/b reach no element (SYNTHESIS finding 6a). Becomes live only with K4 (README Q5). The setup_guidance sentence was written in engineering (commit 806f658, 14 May 2026, Claude co-authored); the corpus cites it as AUTHORED by convention, and whether he adopts it is K4-1, now a confirmation only: Laws 9, 15, 16 and 17 already give its content under his 26 October principle (K4)."
+    }
+  ],
+  "conditionalClaims": [
+    {
+      "claimId": "TA02-RC-C1",
+      "status": "CONDITIONAL_ON_DECISION",
+      "decision": "D4a (Wide Zone Advantage)",
+      "element": "Wide Zone Advantage channels and value modifier (WIDEZONE-02.a, -03, -18.a..e; contracts.json:6485; corpus-restatements.json:1040-1192)",
+      "affordance": [
+        {
+          "vocabulary": "ATM_CAR_RC1_2",
+          "id": "OP",
+          "name": "Open Pathway",
+          "ratingForGP015": "E"
+        },
+        {
+          "vocabulary": "ATM_CAR_RC1_2",
+          "id": "FOI",
+          "name": "Functional Object Interaction",
+          "ratingForGP015": "E"
+        }
+      ],
+      "relation": "SHAPES",
+      "consequence": "A score is worth more after the attacking team touches the ball in a wide channel and keeps it, until possession changes, so wide space becomes a valued place to secure the ball. Losing the ball also loses the bonus.",
+      "support": [
+        {
+          "kind": "OWNER_RULING",
+          "ref": "WIDEZONE-18.d",
+          "quote": "a controlled attacking-team touch within a referent wide channel, where controlled means a touch after which the touching player’s team retains possession",
+          "path": "corpus-restatements.json:1172-1190"
+        },
+        {
+          "kind": "OWNER_RULING",
+          "ref": "WIDEZONE-18.e",
+          "quote": "POSSESSION_CHANGE",
+          "path": "corpus-restatements.json:1192"
+        },
+        {
+          "kind": "LIBRARY_TEXT_DRAFT_MODULE",
+          "ref": "targetAffordancePrimary",
+          "quote": "exploit_space",
+          "path": "back/src/system/test-library/csv/constraints.csv:9"
+        }
+      ],
+      "supportLevel": "OUR_READING",
+      "standingConcern": "INCENTIVE_ASSURANCE_CRITERIA.md:405-414 (rewards finding the space rather than using it) and the held magnitude (:489-494). Its documented neighbour is the context's PRIMARY GP-002 Exploit Space, not GP-015 (K3 section 3.2)."
+    }
+  ],
+  "gameFormLevelClaims": [
+    {
+      "claimId": "TA02-GF-01",
+      "status": "PROPOSED",
+      "subject": "GF2 Directional Possession Games, as a whole",
+      "target": [
+        {
+          "vocabulary": "GAME_PROBLEM",
+          "id": "GP-015"
+        },
+        {
+          "vocabulary": "SOCCER_MODULE_COARSE",
+          "id": "maintain_possession"
+        }
+      ],
+      "support": [
+        {
+          "kind": "AUTHORED_RELATIONSHIP",
+          "ref": "GF2 primary_game_problem_ids, entered by his authoring pass (commit 1c71f9a, 4 August 2026, \"Ingest Christian's authoring pass — the workbook is now the authority\")",
+          "quote": "GP-015; GP-001",
+          "path": "back/src/system/sport-module/soccer-module.rc1-v3.json:5348"
+        },
+        {
+          "kind": "LIBRARY_TEXT_DRAFT_MODULE",
+          "ref": "GF2 primary_affordance_ids (commit 63b7aad, Soccer Module extraction; not shown to be his)",
+          "quote": "maintain_possession; create_space; break_lines",
+          "path": "soccer-module.rc1-v3.json:5351"
+        },
+        {
+          "kind": "LIBRARY_TEXT_DRAFT_MODULE",
+          "ref": "GF2 objective (Test Library V0 text, commit 3980188; not shown to be his)",
+          "quote": "Maintain possession with forward intent",
+          "path": "soccer-module.rc1-v3.json:5347"
+        }
+      ],
+      "supportLevel": "AUTHORED_RELATIONSHIP",
+      "reviewNote": "The only documented relevance to GP-015 in TA02's whole selection, and it belongs to the game form: GF2's Game Problem mapping entered with his authoring pass (1c71f9a), inside a module whose status is DRAFT. This is why an empty constraint set is a defensible starting point: in the words of his 16 October reply, 'The game form and its inherent conditions may already create the affordances needed for the Learning Goal.' (christian-2026-10-16.txt:10; recorded at learning-goal-authorizations.json:11). The element-level claims above say how.",
+      "whyGF2Among": "Capability 2 (select a Game Form from authorized knowledge): of RPC-003's permitted forms, GF3 maps to \"GP-003; GP-001\", GF2 to \"GP-015; GP-001\" and GF7 to \"GP-001; GP-002\" (soccer-module.rc1-v3.json game_forms primary_game_problem_ids, :5389, :5343, :5573 blocks). Only GF2 is mapped to GP-015. VERIFIED.",
+      "contextGateNote": "RPC-REL-028 (rpc-library.rc1.json:715, \"GAME_FORM GF2 PRIMARY\", \"Mechanical resolution of RPC-MAP-034\") relates RPC-003 to GF2. It is why the context gate admits GF2; it is not support for GF2 → GP-015, so it was moved out of the support list."
+    }
+  ],
+  "coverage": {
+    "basis": "Which claims would serve each GP-015 Essential affordance in the assumed composition (claims with status PROPOSED only; INERT and CONDITIONAL listed separately).",
+    "FOI": {
+      "claims": [
+        "TA02-RC-02",
+        "TA02-RC-06"
+      ],
+      "inert": [
+        "TA02-RC-10"
+      ],
+      "strongestSupport": "AUTHORED_TEXT_CORRESPONDENCE (RC-06, conditional on D2)"
+    },
+    "OP": {
+      "claims": [
+        "TA02-RC-04",
+        "TA02-RC-06",
+        "TA02-RC-07",
+        "TA02-RC-08"
+      ],
+      "strongestSupport": "AUTHORED_PREMISES_OUR_JOIN (RC-04; RC-07 was AUTHORED_RELATIONSHIP before the M7 correction)"
+    },
+    "SA": {
+      "claims": [
+        "TA02-RC-08",
+        "TA02-RC-09"
+      ],
+      "strongestSupport": "none with authored premises that create support: RC-09 is OUR_READING and RC-08 is an information exclusion met vacuously when the game holds no information rule; SA is also flagged for field validation in the ATM. His RC1.1 Library's support items (G3) are Library-only and add no authored premise."
+    },
+    "CIO": {
+      "claims": [
+        "TA02-RC-01",
+        "TA02-RC-03",
+        "TA02-RC-05",
+        "TA02-RC-08"
+      ],
+      "strongestSupport": "AUTHORED_PREMISES_OUR_JOIN (RC-01, near-definitional)"
+    },
+    "everyEssentialServed": "NO. FOI, OP and CIO are each served by a claim with authored premises. SA is not shown: only our reading (RC-09) and a vacuously met exclusion (RC-08) touch it.",
+    "nonInheritedElementsWithoutClaim": [
+      "EL-11 (identity boundary; no affordance claim proposed by design)",
+      "EL-12 (start; RPC-003-08 addresses no element in any composition, MEASURED; in tension with TA02 \"after regaining it\", D1)"
+    ],
+    "scoringElementLinkedToRPC_VAL_012": "TA02-RC-06 (conditional on D2)"
+  },
+  "gaps": [
+    {
+      "id": "G1",
+      "what": "Nothing in the composition is specific to 'after regaining it' except continuous play on a turnover (EL-04), which every GF2 game has. Progress the Attack (A05) would compose the same game and carry the same claims.",
+      "decision": "D12 (distinctness); D1/D2 (tie scoring or conditions to the post-regain moment, which needs episodes as data, E8). README Q1."
+    },
+    {
+      "id": "G2",
+      "what": "TA02-01 'Under Immediate Pressure' ('Keep possession under pressure.') changes no element; RPC-003's begin condition PROP-035 says 'Immediate build-out or press-escape challenges are no longer the dominant problem.'",
+      "decision": "D11"
+    },
+    {
+      "id": "G3",
+      "what": "Support Availability is not shown: it rests on our reading (RC-09) and on an information exclusion met vacuously (RC-08). The one workbook identity row that names support options, RPC-ID-014 \"Multiple progression and support options remain available.\" (rpc-library.rc1.json:2811, SUPPORTING_IDENTITY), is carried by K1 item RPC-003-13 only as an inert outside-boundary item; RPC-PROP-039 \"Teammate positioning and support.\" names support only as information (RC-08). His RC1.1 Library names support more often: the Common information item \"supporting movement;\" (Library line 660), the identity characteristic \"coordinated support;\" (Library line 607), the targets \"supporting player\" and \"third-player support\" (Library lines 638, 643), and the adjustments \"improve supporting angles;\" and \"modify support positioning.\" (Library lines 698, 705). None is a workbook row, so none is an authored premise while the workbook is the executable authority (his 16 October reply, item 1, for Goalkeeper Build-Out; README Q8b); the gap stands.",
+      "decision": "D7 (numbers via Participant Composition) if he wants SA shaped (README Q8); D8 for whether the gap matters (README Q6); otherwise field validation, as the ATM already flags; reconciliation LP-6, LP-7 (README Q6, Q8b)"
+    },
+    {
+      "id": "G4",
+      "what": "No claim vocabulary has been chosen by him. Claims target the ATM four because they are approved and rate GP-015; the RPC-003 affordance targets are DEFERRED (five of the nine his Library lists; the other four were never staged) and the soccer coarse ids have no authored mapping to the ATM.",
+      "decision": "D8"
+    },
+    {
+      "id": "G5",
+      "what": "EL-07 (PROP-134) is the strongest GP-015 link and is not yet engine knowledge: no RPC-003 contract exists, and the condition is WORDED_ONLY.",
+      "decision": "D2 (and K1, K7)"
+    },
+    {
+      "id": "G6",
+      "what": "GAK-0015 (game-archetype-workbook.rc1.1.json:297) relates GA-001 to GP-015 (Maintain Possession). What it says about GP-015 is its role: GP-015's role in GA-001 is COMPATIBLE (the workbook's gloss for that role, identical in all 18 COMPATIBLE Game Problem rows across GA-001..GA-006: \"can occur within the archetype but is weakly diagnostic or usually subordinate\"), while GP-016 Regain Possession is CHARACTERISTIC (GAK-0016, game-archetype-workbook.rc1.1.json:310). The part specific to GP-015 is its Rationale: \"Possession is compatible but remains instrumental to progression rather than terminal.\" GA-001 is the archetype of GF2 and of every RPC-003 form, so within the composed game GP-015's role is COMPATIBLE, not CHARACTERISTIC as GP-016 Regain Possession is. VERIFIED (scratchpad cd/compose/verify2/gak.js over the workbook): the Knowledge_Statement is the same text in all 18 COMPATIBLE Game Problem rows. This bears on D1 (how Attack Development governs TA02) and D12 (whether TA02 can be distinct from Progress the Attack).",
+      "decision": "D1, D12 (README Q1)"
+    }
+  ],
+  "a01RationaleShape": {
+    "where": "back/src/system/test-library/library/learning-goal-authorizations.json:1026-1155 (A01 reviewRequest.rationale, 9 entries)",
+    "type": "back/src/system/test-library/learning-goal-authorizations.ts:355 'rationale: { feature: string; words: CitedWords[]; statements: string[] }[]'",
+    "validation": "learning-goal-authorizations.ts:407-411: each entry must name the feature and quote only his reasons, each cited; statements must be non-empty strings",
+    "consumer": "back/src/system/rendering/review-evidence.ts:1212-1223 (admin review evidence only; featureBasis 'OURS' at :359 and :1217; statements resolved only against rpcLibrary.properties(record.contextId)), summarized at :1290",
+    "fields": {
+      "feature": "Free-text label of an activity feature, OURS (for example 'The building team has more players than the pressing team (the starting configuration)').",
+      "words": "HIS reasons, verbatim, each with citedAs (for example his 17 Oct D6 words on numerical advantage).",
+      "statements": "RPC property ids of the record's own context only (for example RPC-PROP-017, RPC-PROP-132, RPC-PROP-010); ids outside that context resolve to null text."
+    },
+    "whatItCannotDoForComposition": [
+      "It is authored per activity version: the features are the realization's features and the reasons are his words given about that version. A composed activity has no such words, and the validator refuses an entry without them.",
+      "The feature is prose. It joins to no element, contract item or ElementProvenance, so nothing can check that the feature exists in the game.",
+      "It names no affordance and no Game Problem dimension, so it cannot show which of GP-015's Essential affordances an element serves, or that all are served.",
+      "Its statements may cite only the context's properties: not GF2 items, GAK rows, ATM rows, or constraint records.",
+      "It has no status (PROPOSED / APPROVED) and no separation of authored support from our reading beyond the single featureBasis 'OURS'."
+    ]
+  },
+  "proposedGeneralShape": {
+    "status": "PROPOSED, ours, for his review (D8 decides vocabulary and whether the check is a gate or evidence)",
+    "principle": "A relevance claim attaches to KNOWLEDGE, not to an activity version: (knowledge item that establishes an element) x (affordance in a vocabulary he approves) x (relation). It is written once and applies to every composition that contains the item, for every Game Problem whose profile rates that affordance. A goal-specific reading (item x Learning Goal row) is a separate, optional layer, flagged as such. Engine join (E7): ElementProvenance -> origin item -> claims on that item -> affordance -> GP profile rating.",
+    "claim": {
+      "claimId": "string, stable",
+      "status": "PROPOSED | APPROVED | REJECTED | INERT",
+      "establishedBy": "[{ contractId, itemId }] (the origin items; resolvable through ElementProvenance)",
+      "appliesWhen": "optional: other items that must also be present (for example EL-05 + EL-04)",
+      "affordance": "{ vocabulary: 'ATM_CAR_RC1_2' | other approved, id }",
+      "relation": "MAKES_AVAILABLE | SHAPES | PROTECTS | PRESERVES_INFORMATION",
+      "consequence": "plain-language environmental consequence (OURS until he approves wording; if coach-facing, a concise Coach Details consequence explanation, which his 24 October reply permits when grounded in authorized knowledge, christian-2026-10-24.txt:40, :50)",
+      "support": "[{ kind: AUTHORED | OWNER_RULING | AUTHORED_RELATIONSHIP | LIBRARY_TEXT_DRAFT_MODULE | HIS_WORDS_GENERAL_PRINCIPLE | HIS_WORDS_OTHER_GOAL | ASSUMED_ITEM, ref (row id), path (file:line or JSON path), quote (verbatim) }]",
+      "supportLevel": "AUTHORED_RELATIONSHIP | AUTHORED_TEXT_CORRESPONDENCE | AUTHORED_PREMISES_OUR_JOIN | OUR_READING",
+      "conditionalOn": "[decision ids or draft knowledge ids]",
+      "ruling": "his words and citation, only when status is APPROVED (never filled by us)"
+    },
+    "goalReading": {
+      "claimId": "references a general claim",
+      "learningGoalId": "string",
+      "rows": "[Learning Goal / Practice Situation row text, verbatim]",
+      "supportLevel": "as above (almost always OUR_READING until he rules)"
+    },
+    "checks": [
+      "Every non-inherited element in a composed game has at least one claim to an affordance its Game Problem rates Essential (reported, not a gate, unless he rules otherwise).",
+      "Every Essential affordance of the Game Problem is served by at least one non-INERT claim.",
+      "The primary scoring element carries a claim, and RPC-VAL-012 is reported against it.",
+      "A claim whose establishing item reaches no element in the realized game is reported INERT (the silent-loss lesson: a claim is proved only by a consumer)."
+    ],
+    "difference from A01's rationale": "A01's rationale is his reasons for one authored version; this shape is our proposed claims about reusable knowledge, approved claim by claim. The two can coexist: an approved claim may carry his words in 'ruling', which is what A01's 'words' are."
+  }
+}

@@ -1,0 +1,6 @@
+production records: A01; production alone: []
+K2 as drafted: 1 error(s): ["TA02: the record cites no ruling (ruledOn, by and his words are all required)"]
+K2 with TEST-ONLY ruling fields: 0 error(s): []
+TA02 build under K2 (TEST-ONLY ruling fields) + corrected K1 U2: refused @communication; withheld=6; reasons[0]=awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type (V4)
+  constraintSource={"source":"AUTHORIZATION_RECORD","constraintAuthority":"AUTHORIZATION_RECORD","constraintPrinciple":{"ruledOn":"2026-10-15","by":"Christian","principle":"A library constraint is not mandatory unless its inclusion is justified by the approved knowledge and intended learning environment."},"lensAuthor
+  constraints=[]
