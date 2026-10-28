@@ -34,6 +34,7 @@
     "./src/system/knowledge-core/em-canonical.unit.ts",
     "./src/system/knowledge-core/em-selection-metadata.unit.ts",
     "./src/system/knowledge-core/affordance-target-matrix.unit.ts",
+    "./src/system/knowledge-core/atm-workbook-projection.unit.ts",
     "./src/system/knowledge-core/gp-library.unit.ts",
     "./src/system/knowledge-core/game-archetype-library.unit.ts",
     "./src/system/knowledge-core/information-expression-library.unit.ts",

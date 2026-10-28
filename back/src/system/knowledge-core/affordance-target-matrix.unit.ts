@@ -12,7 +12,13 @@ import {
     AFFORDANCE_TARGET_MATRIX,
     AFFORDANCE_TARGET_MATRIX_BY_ID,
     AFFORDANCE_TARGET_MATRIX_VERSION,
+    ATM_METADATA_ROWS,
+    AtmMetadataRow,
+    CANONICAL_AFFORDANCE_DEFINITIONS,
     CANONICAL_AFFORDANCES,
+    affordanceDefinitionsFrom,
+    gameProblemMatrixNotes,
+    gameProblemNotesFrom,
     resolveAffordanceTargetProfile,
 } from './affordance-target-matrix'
 import { generateSelection } from '../test-library/generateSelection'
@@ -88,10 +94,51 @@ function testProfileRidesSelectionTraceInShadow(): void {
     assert.ok(selection.selectionTrace.versions?.knowledgeCore, 'Trace must stamp the Knowledge Core version.')
 }
 
+/**
+ * The workbook's notes, read through the loader (item B1): the four affordance definitions
+ * verbatim from Version Metadata D29-D32, and the per-Game-Problem notes D38 (GP-004) and D39 (GP-015). Until B1
+ * the projection dropped them; atm-workbook-projection.unit.ts proves they are carried, this proves they are READ.
+ */
+function testWorkbookNotesAreReadThroughTheLoader(): void {
+    assert.equal(CANONICAL_AFFORDANCE_DEFINITIONS['Support Availability'], 'Is coordinated interaction with another performer available?')
+    assert.equal(CANONICAL_AFFORDANCE_DEFINITIONS['Functional Object Interaction'], 'Can meaningful interaction with the task object be established?')
+    assert.equal(CANONICAL_AFFORDANCE_DEFINITIONS['Open Pathway'], 'Is a functional route available for performer or object interaction?')
+    assert.equal(
+        CANONICAL_AFFORDANCE_DEFINITIONS['Competitive Interaction Opportunity'],
+        'Is an opportunity available for direct or indirect adaptive competitor influence that can alter, constrain, contest, or disrupt developing interaction?'
+    )
+    assert.deepEqual(Object.keys(CANONICAL_AFFORDANCE_DEFINITIONS).sort(), [...CANONICAL_AFFORDANCES].sort())
+    assert.ok(Object.isFrozen(CANONICAL_AFFORDANCE_DEFINITIONS), 'the definitions are read-only')
+
+    assert.deepEqual(gameProblemMatrixNotes('GP-015'), [
+        { key: 'gp015_validation_flag', value: 'SA=E retained', notes: 'Direct legacy migration retained; field validation recommended.' },
+    ])
+    assert.deepEqual(gameProblemMatrixNotes('GP-004'), [
+        { key: 'gp004_audit_decision', value: 'SA=S', notes: 'Recover Position is performer-level; collective support is supportive rather than identity-defining.' },
+    ])
+    assert.deepEqual(gameProblemMatrixNotes('GP-001'), [], 'no notes where the workbook records none')
+    assert.ok(Object.isFrozen(gameProblemMatrixNotes('GP-015')) && Object.isFrozen(gameProblemMatrixNotes('GP-015')[0]))
+
+    assert.equal(ATM_METADATA_ROWS.length, 41, 'Version Metadata rows 4-44')
+    assert.equal(ATM_METADATA_ROWS.find((row) => row.metadata_key === 'gp015_validation_flag')?.required, false)
+    assert.ok(Object.isFrozen(ATM_METADATA_ROWS) && ATM_METADATA_ROWS.every((row) => Object.isFrozen(row)))
+
+    // The load-time gates refuse damaged rows rather than return a partial set.
+    const rows = ATM_METADATA_ROWS.map((row) => ({ ...row })) as AtmMetadataRow[]
+    const without = (key: string) => rows.filter((row) => row.metadata_key !== key)
+    assert.throws(() => affordanceDefinitionsFrom(without('car_sa_definition')), /no definition of Support Availability/)
+    const noNote = rows.map((row) => (row.metadata_key === 'car_sa_definition' ? { ...row, notes: undefined } : row))
+    assert.throws(() => affordanceDefinitionsFrom(noNote), /car_sa_definition carries no definition/)
+    assert.throws(() => affordanceDefinitionsFrom([...rows, { metadata_key: 'car_xx_definition', metadata_value: 'Something Else', notes: 'x' }]), /not a canonical affordance/)
+    assert.throws(() => affordanceDefinitionsFrom([...rows, { metadata_key: 'car_sx_definition', metadata_value: 'Support Availability', notes: 'x' }]), /Support Availability is defined twice/)
+    assert.throws(() => gameProblemNotesFrom([...rows, { metadata_key: 'gp099_flag', metadata_value: 'x' }], ['GP-004', 'GP-015']), /GP-099, which the Game Problem register lacks/)
+}
+
 function runAll(): void {
     testMatrixMatchesCanonicalRegister()
     testCompositeRuntimeResolution()
     testProfileRidesSelectionTraceInShadow()
+    testWorkbookNotesAreReadThroughTheLoader()
     console.log('affordance-target-matrix unit tests: all cases passed.')
 }
 
