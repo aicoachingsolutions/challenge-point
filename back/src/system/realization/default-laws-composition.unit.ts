@@ -169,6 +169,12 @@ test('the classification gate refuses every defect, and the loader refuses the f
         ...laws,
         check: { ...laws.check!, basis: { ...laws.check!.basis, words: laws.check!.basis.words.filter(words => words !== HIS_ITEM_4[3]) } },
     })
+    // A kind is named as a whole word: a sentence that only contains it inside another word (procedurally) does not name it.
+    {
+        const inside = 'Anything handled procedurally is noted.'
+        const against = { ...laws, check: { ...laws.check!, basis: { ...laws.check!.basis, words: laws.check!.basis.words.map(words => (words === HIS_ITEM_4[3] ? inside : words)) } } }
+        refused(f => (f.test.words = [HIS_ITEM_4[2], inside]), /the Sport Profile's check quotes no sentence of his naming PROCEDURAL/, 'a kind named only inside another word', against)
+    }
     refused(() => undefined, /the Sport Profile declares no check of the sport to hold it to/, 'a profile declaring no check', { ...laws, check: null })
     refused(f => (entry(f, 'LAW-8').law = 'LAW-99'), /classifies "LAW-99", which is no law the Sport Profile names/, 'a law the profile does not name')
     refused(f => f.classifications.push(copy(entry(f, 'LAW-11'))), /classification LAW-11 is classified twice/, 'a law twice')
