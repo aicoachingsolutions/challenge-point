@@ -324,6 +324,40 @@
    }
   ]
  },
+ "environmentElements": {
+  "note": "B2, 28 October 2026. OUR READING of where this lives, as for boundRegions: the playing environment is the Sport Profile, so the one element of play that more than one knowledge component refers to is recorded here, beside the contribution and never as an item, so no derivation input and no digest changes. Each element is the profile item that establishes it; referredToBy lists each knowledge component recorded as referring to it, how (IDENTIFIED: the component's own item is identified with this element by a recorded identification, kept as it is; REFERS: the component establishes no such element of its own), where that is recorded, and the ruling that authorizes it, in his words. Only the two components his rulings name are listed. Whether this representation extends to any other context is NOT decided, and nothing here applies it to one. Read by environment-elements.ts: the record is validated at load, and a concrete game holding a second element in the same collection with the same authored selector is refused before communication, unless a recorded identification lets this element stand for it.",
+  "elements": [
+   {
+    "item": "SPORT-SOCCER-01",
+    "what": "the one contested ball of play; its contest between the participating teams is SPORT-SOCCER-02",
+    "referredToBy": [
+     {
+      "object": "RPC-001",
+      "how": "IDENTIFIED",
+      "where": "docs/audits/realization-choices-rpc-001.json, satisfiedByEstablished: c:restated:RPC-001:RPC-001-10.a satisfied by this element (kept as it is)",
+      "ruling": {
+       "words": [
+        "8. One ball shared between context and game: Approved."
+       ],
+       "citedAs": "his reply received 15 October 2026 (his 16 October reply), item 9 point 8"
+      }
+     },
+     {
+      "object": "RPC-003",
+      "how": "REFERS",
+      "where": "docs/audits/drafts/ta02-composition/rpc-003-contract.DRAFT.json (DRAFT, not approved knowledge): RPC-003-04.a, its own establishing item, withdrawn on 28 October 2026; RPC-003-04.b, outside the boundary, establishes nothing",
+      "ruling": {
+       "words": [
+        "Yes. Attack Development should use one contested ball shared by the context and Game Form.",
+        "This should be a reusable representation of the actual playing environment, not an additional ball introduced because two knowledge components refer to possession."
+       ],
+       "citedAs": "his reply filed 30 October 2026, item 6"
+      }
+     }
+    ]
+   }
+  ]
+ },
  "result": {
   "object": "sport-profile:soccer",
   "items": [

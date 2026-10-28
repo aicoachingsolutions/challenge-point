@@ -135,5 +135,8 @@
     "./src/system/rendering/zone-penalty-area.unit.ts",
     "./src/system/rendering/geometry-compatibility.unit.ts",
     "./src/system/rendering/pathway-notice.unit.ts",
-    "./src/system/rendering/placement-geometry.unit.ts"
+    "./src/system/rendering/placement-geometry.unit.ts",
+    "./src/system/derivation/draft-store.unit.ts",
+    "./src/system/derivation/environment-elements.unit.ts",
+    "./src/system/rendering/draft-composition.unit.ts"
 ]

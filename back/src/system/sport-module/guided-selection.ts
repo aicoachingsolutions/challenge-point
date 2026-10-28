@@ -218,10 +218,12 @@ export function guidedSelectionHints(
      * builds over a TEST-ONLY set of realizations (`buildActivityUnderAuthorizationRecords` with `realizations`). Absent: the file's.
      */
     provisionalIds?: string[],
+    /** B2 (28 October 2026), TEST-ONLY: a draft store's DRAFT records are admitted, under their own inverted gate (never skipped). */
+    options: { draftsAdmitted?: boolean } = {},
 ): GuidedSelectionHints {
     // Records handed in are held to the loader's own gate (G1 review, 15 October 2026): a test copy that authorized
     // a held or excluded constraint, or cited no ruling, used to be read unchecked — the gate guarded only the file.
-    const damaged = validateLearningGoalAuthorizations(records, undefined, undefined, provisionalIds)
+    const damaged = validateLearningGoalAuthorizations(records, undefined, undefined, provisionalIds, options)
     if (damaged.length) throw new Error(`the authorization records failed their integrity gate: ${damaged.join(' | ')}`)
     const governed = governByApprovedGameProblem(learningGoalId, deriveInputConstraints(goalText))
     const authorization = learningGoalAuthorization(learningGoalId, records)

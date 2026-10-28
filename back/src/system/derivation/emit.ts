@@ -25,6 +25,7 @@ import {
     ItemRef,
     NamedDiagnostic,
     RefusalRecord,
+    DRAFT_KNOWLEDGE,
     ResolutionLine,
     RunReport,
     SupportRef,
@@ -58,6 +59,13 @@ export interface ResolutionEntry {
     permittedBy?: { authority: string; choiceSpace: unknown }
     /** SD-78's jointly permitted set, where the freedom is a choice among stated alternatives. */
     permitted?: unknown[]
+    /**
+     * **The draft items that narrow or bound this open line** (B2, 28 October 2026; the review's M6): carried only where an item the
+     * TEST-ONLY draft store loaded (category DRAFT_KNOWLEDGE) narrows or bounds it, each as its support with that category. A choice later
+     * closes the line by rule or by the realizer, so without this the draft item's share in what the line may take was dropped here and
+     * the choice was graded as approved. Absent on every line no draft item shapes, so every production result is unchanged.
+     */
+    draftShapedBy?: SupportRef[]
     resolvedBy?: 'ENTAILMENT' | 'STANDING_DECISION' | 'SESSION'
     support: SupportRef[]
     conditionalOn?: string
@@ -161,6 +169,8 @@ export interface EmitInput {
     run: RunReport
     stopped: { where: string; why: string }[]
     diagnostics: NamedDiagnostic[]
+    /** B2: the items of the input the TEST-ONLY draft store loaded (`contractId:itemId`), for `draftShapedBy`; absent or empty elsewhere. */
+    draftItems?: ReadonlySet<string>
 }
 
 /**
@@ -240,6 +250,12 @@ export function emit(input: EmitInput): DerivationResult | StampedHalt {
             // "choose" and does not say from what, so a realization layer could only invent the choice
             // space — which is the one thing it must never do. Carried, not recomputed.
             if (record?.narrowedTo) entry.permitted = [...record.narrowedTo.members]
+            const shaping = input.draftItems?.size
+                ? [...(record?.narrowing ?? []).map(n => n.support), ...(record?.bounding ?? []).map(b => b.support)].filter(
+                      (support): support is Extract<SupportRef, { kind: 'CONTRACT_ITEM' }> => support.kind === 'CONTRACT_ITEM' && input.draftItems!.has(`${support.contractId}:${support.itemId}`),
+                  )
+                : []
+            if (shaping.length) entry.draftShapedBy = shaping.map(support => ({ ...support, category: DRAFT_KNOWLEDGE }))
         }
         if (entry.lineState === 'CONDITIONAL' && (classified?.conditionalOn || line.conditionalOn)) {
             entry.conditionalOn = classified?.conditionalOn ?? line.conditionalOn

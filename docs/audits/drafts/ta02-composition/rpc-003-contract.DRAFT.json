@@ -60,6 +60,10 @@
     {
       "finding": "Library pass, 27 October 2026",
       "change": "His RC1.1 Library (Attack Development section, held outside the repository) is folded in WITHOUT adding or changing any item, declaration or proposed ruling: no Library-only item is AUTHORED. Ledger L-10 now quotes the seven typical manipulations and five typical interaction regulations instead of calling the section unavailable; L-11 names the four never-staged affordance targets; L-06 names the fourth begin condition. libraryProposals points to the reconciliation (rpc-003-library-reconciliation.DRAFT.md), where each Library-only item is a proposal awaiting him. The standing line says where this file may be stored (a document only) instead of \"Nothing here is in the repository\"."
+    },
+    {
+      "finding": "his reply filed 30 October 2026, item 6 (applied 28 October 2026, B2)",
+      "change": "One shared ball. RPC-003-04.a (O1 [kind=ball] EXISTS, the analog of RPC-001-10.a) is withdrawn from the items and kept whole under withdrawnItems: it was \"an additional ball introduced because two knowledge components refer to possession\", which his item 6 rules out. RPC-003-04.b stays (OUTSIDE_BOUNDARY, establishes nothing). The O1 [kind=ball] CLAIMED declaration now names 04.b and carries his item 6 words as its source; the RPC-PROP-037 and RPC-PROP-134 placement notes and ledger L-07 say 04.a is withdrawn; PR-4 is withdrawn. The Sport Profile records RPC-003 as referring to the environment's ball (environmentElements, beside RPC-001's existing identification, which is unchanged). No other item, declaration or proposed ruling changed. The notes file and README carry a dated note; their tables and ledger still show the 27 October draft."
     }
   ],
   "about": "The contribution contract for RPC-003 Attack Development, in the shape of the RPC-001 entry of docs/audits/conformance/stage-b/contracts.json (entry 0) as corpus-restatements.json leaves it, built from the RPC-003 workbook rows. `contractEntry` is that shape exactly, with two annotation keys on every item and on the entry, `standing` (DRAFT) and `source` (the workbook rows quoted, each with file and line). corpus.ts loadCorpusContracts passes unknown item keys through untouched (corpus.ts:93-96) and neither key is one the engine reads by name (types.ts ENGINE_ITEM_KEYS), so the two keys change nothing a derivation does; they are for review and for the draft store (E1). kind \"restated\" is chosen because knowledgeKey strips only \"restated:\" and \"blind:\" (derivation/knowledge-key.ts:13-17): any other prefix would never match the context id RPC-003. setIndex is omitted, as for the two blind entries, because this contract was not derived from a contributions file.",
@@ -251,45 +255,6 @@
           "fitNote": "The analog of RPC-001-08.b. Read as C60 restated it for RPC-001: the count of one is the game's primary event; another role's own event would be row B9, never a second element of V0. No RPC-003 row is the source: this is the standing decision, recorded as an assumed bound.",
           "standing": "DRAFT",
           "source": []
-        },
-        {
-          "id": "RPC-003-04.a",
-          "origId": "RPC-003-04",
-          "row": "O1",
-          "selector": "kind=ball",
-          "requirement": "EXISTS",
-          "value": "N/A",
-          "strictness": "REQUIRED",
-          "valueStatus": "N/A",
-          "scope": "WHOLE_GAME",
-          "basis": "AUTHORED",
-          "basisEvidence": "\"while maintaining attacking possession\" (RPC-PROP-134); \"Possession is lost.\" (RPC-PROP-037, END_CONDITION, CORE)",
-          "checkability": "STRUCTURAL",
-          "structuralClause": "—",
-          "fitNote": "The analog of RPC-001-10.a. A ball is presupposed by the quotes, not stated (L-14 class). COMPOSITION DEPENDENCY: RPC-001-10.a is identified with the Sport Profile ball (SPORT-SOCCER-01) only by realization-choices-rpc-001.json satisfiedByEstablished, on his ruling \"One ball shared between context and game: Approved.\" (his 16 October reply, item 9 point 8, christian-2026-10-16.txt:117), whose note says \"This is not a general merge rule\". The same identification for RPC-003 is his decision (D8b); without it this item is a second ball class.",
-          "standing": "DRAFT",
-          "source": [
-            {
-              "rowId": "RPC-PROP-134",
-              "table": "properties",
-              "file": "back/src/system/sport-module/rpc-library.rc1.json",
-              "line": 2651,
-              "text": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
-              "category": "PRIMARY_SCORING_CONDITION",
-              "importance": "CORE",
-              "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
-            },
-            {
-              "rowId": "RPC-PROP-037",
-              "table": "properties",
-              "file": "back/src/system/sport-module/rpc-library.rc1.json",
-              "line": 1778,
-              "text": "Possession is lost.",
-              "category": "END_CONDITION",
-              "importance": "CORE",
-              "provenance": "Representative Performance Context Library RC1"
-            }
-          ]
         },
         {
           "id": "RPC-003-04.b",
@@ -1426,7 +1391,7 @@
         {
           "origId": "RPC-PROP-037",
           "placement": "SPLIT",
-          "note": "T7 true on POSSESSION_CHANGE (09.a, authored), T6 present (09.b, assumed); presupposes the ball (04.a/b)."
+          "note": "T7 true on POSSESSION_CHANGE (09.a, authored), T6 present (09.b, assumed); presupposes the ball, the playing environment's (SPORT-SOCCER-01; 04.b; 04.a withdrawn 28 October 2026)."
         },
         {
           "origId": "RPC-PROP-038..041",
@@ -1436,7 +1401,7 @@
         {
           "origId": "RPC-PROP-134",
           "placement": "SPLIT",
-          "note": "S1 (02), O1 (04.a/b), V1 EXCLUSION (05), origin V3/V5 (10.a/b), progression V3/V5/V6 (11.a-c), control V3/V6 (12.a/b). Control V5 UNDECLARED: the referent is not stated (PR-2). Origin V6 NOT_AUTHORED (PR-3)."
+          "note": "S1 (02), O1 (04.b; 04.a withdrawn 28 October 2026: the ball is the environment's), V1 EXCLUSION (05), origin V3/V5 (10.a/b), progression V3/V5/V6 (11.a-c), control V3/V6 (12.a/b). Control V5 UNDECLARED: the referent is not stated (PR-2). Origin V6 NOT_AUTHORED (PR-3)."
         },
         {
           "origId": "RPC-ID-013",
@@ -1650,7 +1615,14 @@
           "declaration": "CLAIMED",
           "selector": "kind=ball",
           "scope": "WHOLE_GAME",
-          "note": "RPC-003-04.a/.b."
+          "note": "RPC-003-04.b (outside the boundary, so it establishes nothing). The ball is the playing environment's, SPORT-SOCCER-01 (with its contest, SPORT-SOCCER-02), which this context refers to and does not establish: RPC-003-04.a was withdrawn on 28 October 2026 (withdrawnItems), and the Sport Profile records RPC-003 as referring to that ball (environmentElements). Applying his words to this draft is ours.",
+          "source": {
+            "words": [
+              "Yes. Attack Development should use one contested ball shared by the context and Game Form.",
+              "This should be a reusable representation of the actual playing environment, not an additional ball introduced because two knowledge components refer to possession."
+            ],
+            "citedAs": "his reply filed 30 October 2026, item 6"
+          }
         },
         {
           "row": "O1",
@@ -2236,7 +2208,7 @@
           "class": "KNOWLEDGE",
           "schemaScope": "N/A",
           "what": "One ball",
-          "detail": "RPC-003-04.a needs the RPC-001 \"one ball shared\" identification to be extended (D8b, K8), or it is a second ball class."
+          "detail": "ANSWERED by his reply filed 30 October 2026, item 6 (README Q7): RPC-003-04.a is withdrawn (withdrawnItems) and this context refers to the playing environment's ball, SPORT-SOCCER-01, recorded in the Sport Profile's environmentElements; no identification is needed (PR-4 withdrawn). As drafted on 27 October 2026: RPC-003-04.a needs the RPC-001 \"one ball shared\" identification to be extended (D8b, K8), or it is a second ball class."
         },
         {
           "ref": "L-08",
@@ -2330,6 +2302,58 @@
       "difficulties": "Hardest part: RPC-PROP-134. It is one approved sentence with four parts (an origin, a progression, a control and a \"rather than possession alone\" exclusion), and none of the three conditions can be evaluated as written. The origin (\"the attack's starting condition\") is a state, not a place, and typing it needs an episode scope that does not exist for this context; its value line has no authored value. The progression referent is \"a more advanced representative area\": typing it as the target the scoring team attacks is the reading his C59 ruling approved for RPC-001, but the register admits it only from his ruling, so it stays open text here. The control clause (\"while maintaining attacking possession\") names no place, so its referent is left UNDECLARED, as RPC-001's was before C57. Beside that, the context's REQUIRED begin identity (organized possession already established) pulls against TA02's \"after regaining it\", and nothing in the workbook resolves it. WHOLE_GAME is drafted only because it is the one scope the engine represents today; the begin rows point to a narrower Attack Development episode (D1/D2, E8)."
     }
   },
+  "withdrawnItems": [
+    {
+      "item": {
+        "id": "RPC-003-04.a",
+        "origId": "RPC-003-04",
+        "row": "O1",
+        "selector": "kind=ball",
+        "requirement": "EXISTS",
+        "value": "N/A",
+        "strictness": "REQUIRED",
+        "valueStatus": "N/A",
+        "scope": "WHOLE_GAME",
+        "basis": "AUTHORED",
+        "basisEvidence": "\"while maintaining attacking possession\" (RPC-PROP-134); \"Possession is lost.\" (RPC-PROP-037, END_CONDITION, CORE)",
+        "checkability": "STRUCTURAL",
+        "structuralClause": "—",
+        "fitNote": "The analog of RPC-001-10.a. A ball is presupposed by the quotes, not stated (L-14 class). COMPOSITION DEPENDENCY: RPC-001-10.a is identified with the Sport Profile ball (SPORT-SOCCER-01) only by realization-choices-rpc-001.json satisfiedByEstablished, on his ruling \"One ball shared between context and game: Approved.\" (his 16 October reply, item 9 point 8, christian-2026-10-16.txt:117), whose note says \"This is not a general merge rule\". The same identification for RPC-003 is his decision (D8b); without it this item is a second ball class.",
+        "standing": "DRAFT",
+        "source": [
+          {
+            "rowId": "RPC-PROP-134",
+            "table": "properties",
+            "file": "back/src/system/sport-module/rpc-library.rc1.json",
+            "line": 2651,
+            "text": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.",
+            "category": "PRIMARY_SCORING_CONDITION",
+            "importance": "CORE",
+            "provenance": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
+          },
+          {
+            "rowId": "RPC-PROP-037",
+            "table": "properties",
+            "file": "back/src/system/sport-module/rpc-library.rc1.json",
+            "line": 1778,
+            "text": "Possession is lost.",
+            "category": "END_CONDITION",
+            "importance": "CORE",
+            "provenance": "Representative Performance Context Library RC1"
+          }
+        ]
+      },
+      "withdrawnOn": "2026-10-28",
+      "ruling": {
+        "words": [
+          "Yes. Attack Development should use one contested ball shared by the context and Game Form.",
+          "This should be a reusable representation of the actual playing environment, not an additional ball introduced because two knowledge components refer to possession."
+        ],
+        "citedAs": "his reply filed 30 October 2026, item 6"
+      },
+      "because": "Ours, applying his item 6: the ball is the playing environment's (Sport Profile SPORT-SOCCER-01 with its contest SPORT-SOCCER-02), so this context refers to it and does not establish a second one. Kept here whole, outside contractEntry, so the draft store never loads it and nothing of it is lost."
+    }
+  ],
   "proposedRulings": [
     {
       "id": "PR-1",
@@ -2359,7 +2383,8 @@
       "target": "realization-choices-rpc-003.json (new) + realization-choices-index.json",
       "analogOf": "realization-choices-rpc-001.json satisfiedByEstablished",
       "proposal": "One satisfiedByEstablished entry: c:restated:RPC-003:RPC-003-04.a satisfied by c:sport-profile:soccer:SPORT-SOCCER-01.",
-      "needs": "His confirmation that \"One ball shared between context and game: Approved.\" extends to Attack Development (that file's note: \"This is not a general merge rule\")."
+      "needs": "His confirmation that \"One ball shared between context and game: Approved.\" extends to Attack Development (that file's note: \"This is not a general merge rule\").",
+      "status": "WITHDRAWN 28 October 2026. his reply filed 30 October 2026, item 6 answers Q7 in general terms, so RPC-003-04.a, the item this identification would have merged away, is withdrawn instead (withdrawnItems): the context establishes no ball of its own, and no realization identification is needed."
     },
     {
       "id": "PR-5",

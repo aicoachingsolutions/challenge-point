@@ -34,7 +34,8 @@
  * It does not touch generation. Nothing here calls the frozen activity-generation path.
  */
 import { bindingOf, boundRegionsRefusals, SportBoundRegions } from '../derivation/bound-regions'
-import { loadRegister, loadSportBoundRegions, loadSportCoachVocabulary, loadSportDefaultLaws, ProvisionalRealization, provisionalRealizationNamed, TestingBoundaries } from '../derivation/corpus'
+import { loadRegister, loadSportBoundRegions, loadSportCoachVocabulary, loadSportDefaultLaws, loadSportEnvironmentElements, ProvisionalRealization, provisionalRealizationNamed, TestingBoundaries } from '../derivation/corpus'
+import { duplicateEnvironmentElements, SportEnvironmentElements } from '../derivation/environment-elements'
 import { isStampedHalt } from '../derivation/emit'
 import { runDerivation, runStages0to10, runStages0to5 } from '../derivation/engine'
 import { resolveRelativeCounts } from '../derivation/reassignment'
@@ -43,8 +44,8 @@ import { assembleResolvedGame, splitPath } from '../derivation/resolved-game'
 import { roleHolderNames, roleOfHolder } from '../derivation/designation'
 import { MissingParticipant, missingParticipantsIn, PARTICIPANTS_CHECK } from '../derivation/gates'
 import { roleBlocksOf } from '../derivation/role-blocks'
-import { BoundedSelection, CONTEXT_ROLE, contractCoverage, derivationInputFor, GoalSelectionGap, knowledgeKey, KnowledgeSelection, realizationOf, selectFor } from '../derivation/run-bounded-selection'
-import { LoadedContract, RoleBlock } from '../derivation/types'
+import { BoundedSelection, CONTEXT_ROLE, contractCoverage, derivationInputFor, DraftStoreContents, GoalSelectionGap, knowledgeKey, KnowledgeSelection, realizationOf, selectFor } from '../derivation/run-bounded-selection'
+import { DRAFT_KNOWLEDGE, DRAFT_KNOWLEDGE_VERSION, LoadedContract, RoleBlock } from '../derivation/types'
 import { gpLibrary } from '../knowledge-core/gp-library'
 import { completeConcreteGame, ObjectAvailabilityRefusal, objectAvailabilityRefusal, rosterRefusal, RosterRefusal } from '../realization/assemble-concrete-game'
 import { boundRegionAccountOf, BoundRegionRefusal, boundRegionRefusalAfter, boundRegionRefusalBefore } from '../realization/bound-region-check'
@@ -70,7 +71,7 @@ import { contextScoringFindings, EPISODE_REACHABLE_CHECK } from './context-scori
 import { draftCoachWordingLoad } from './draft-coach-wording'
 import { checkFidelity, FidelityFinding } from './fidelity'
 import { ReviewDraft, reviewDraftOf } from './review-draft'
-import { EvidenceBlock, LayoutFallback, ReviewEvidence, reviewEvidenceOf, withRealizationSelection } from './review-evidence'
+import { ElementProvenance, elementProvenanceOf, EvidenceBlock, LayoutFallback, ReviewEvidence, reviewEvidenceOf, withRealizationSelection } from './review-evidence'
 import { mechanismDemonstration } from './mechanism-demonstrations'
 import { Instruction, RenderedActivity, renderConcreteGame } from './render-concrete-game'
 import { assembleRenderingFixture } from './rendering-fixture'
@@ -117,8 +118,12 @@ export interface ActivityAccount {
      * refused rather than scored by a set-up choice. `inThisActivity` is READ from the selection - is the
      * context's own contract among what shapes the game - not asserted: true for RPC-001 (A01), false for
      * every context without a contract.
+     *
+     * `contract` (B2, 28 October 2026; the review's M3): `DRAFT` where the context's contract in this build is one of the TEST-ONLY draft
+     * store's, so `inThisActivity` can never read as his knowledge applied; absent wherever the contract is production knowledge (always, in
+     * production).
      */
-    context: { id: string; name: string | null; approvedScoringCondition: string | null; inThisActivity: boolean } | null
+    context: { id: string; name: string | null; approvedScoringCondition: string | null; inThisActivity: boolean; contract?: 'DRAFT' } | null
     gameForm: { id: string; name: string | null; contracted: boolean }
     affordanceLenses: string[]
     /**
@@ -418,6 +423,31 @@ export interface ServedActivity {
      * a served sentence carries.
      */
     diagram?: CoachDiagram
+    /** TEST-ONLY (B2, 28 October 2026): the account of a build made from the draft store; see `DraftKnowledgeAccount`. */
+    draftKnowledge?: DraftKnowledgeAccount
+}
+
+/**
+ * **What a build made from the TEST-ONLY draft store rested on, graded as the review evidence grades it** — B2, 28 October 2026 (E1-lite;
+ * the review's M2, M5 and M6). Present only on a build `buildActivityUnderAuthorizationRecords` made with a draft store, served or refused,
+ * and never on any route: no in-app view reads drafts. For an administrator's and a test's reading, never a coach's.
+ */
+export interface DraftKnowledgeAccount {
+    status: 'BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED'
+    /** The store: its folder, every DRAFT file it read, and every DRAFT file of the folder it does not read, with why. */
+    store: { folder: string; files: string[]; notRead: { file: string; why: string }[] }
+    /** The draft records the selection was offered (their goals). */
+    records: string[]
+    /** Every contract of this build's derivation input that the store loaded, with its items; empty where the build stopped before. */
+    contracts: { contractId: string; items: string[] }[]
+    /** Every draft declaration of this build's derivation input (a declaration can resolve lines on another contract's elements). */
+    declarations: { contractId: string; row: string; selector: string | null; declaration: string; note: string | null }[]
+    /**
+     * The provenance of every element of the game as built (the first block, for a game played in role blocks), by the review evidence's own
+     * reading (`elementProvenanceOf`): an element resting on a draft item shows the standing DRAFT and that item as a DRAFT source. Null where
+     * no game was assembled.
+     */
+    elements: ElementProvenance[] | null
 }
 
 /** The role blocks of a served activity, for the technical account (stage K3). */
@@ -484,6 +514,8 @@ export interface RefusedActivity {
      * by `buildActivityForReview` with `includeDrafts`, on a refusal at communication; never on a coach's, the pilot's or the live answer.
      */
     evidence?: ReviewEvidence
+    /** TEST-ONLY (B2, 28 October 2026): the account of a build made from the draft store; see `DraftKnowledgeAccount`. */
+    draftKnowledge?: DraftKnowledgeAccount
 }
 
 /**
@@ -547,6 +579,8 @@ function contextOf(contextId: string, selection: KnowledgeSelection): ActivityAc
         // Narrative, carried and never parsed - the library's own rule for this property.
         approvedScoringCondition: condition || null,
         inThisActivity: selection.contracted.some(id => knowledgeKey(id) === knowledgeKey(contextId)),
+        // B2: only where the context's contract is the draft store's (never in production).
+        ...((selection.draftContracts ?? []).some(contract => knowledgeKey(contract.contractId) === knowledgeKey(contextId)) ? { contract: 'DRAFT' as const } : {}),
     }
 }
 
@@ -1120,9 +1154,16 @@ export function buildActivityUnderAuthorizationRecords(
          * validator ran here, and it did not: the copy was only deep-copied.)
          */
         boundRegions?: SportBoundRegions | null
+        /**
+         * B2 (28 October 2026; E1-lite), tests only: the draft store to build over (`draft-store.ts` `loadDraftStore`, which no production
+         * module imports), its contracts made visible to selection's contract coverage and to derivation's input through the selection, its
+         * DRAFT records offered beside `records` under their own inverted gate, and the build's answer given a `draftKnowledge` account.
+         * Absent: no draft is read, and the build is exactly what it was.
+         */
+        drafts?: DraftStoreContents
     } = {},
 ): ActivityBuild & { fixture: Record<string, unknown> | null } {
-    const givenBoundRegions = (block: SportBoundRegions | null | undefined): SportBoundRegions | null | undefined => {
+    const givenBoundRegions =(block: SportBoundRegions | null | undefined): SportBoundRegions | null | undefined => {
         if (block === undefined || block === null) return block
         const copy = JSON.parse(JSON.stringify(block)) as SportBoundRegions
         const errors = boundRegionsRefusals({ authority: copy.authority, requirements: copy.requirements, pairings: copy.pairings }, indexRegister(loadRegister()))
@@ -1131,17 +1172,60 @@ export function buildActivityUnderAuthorizationRecords(
     }
     // The selection and the digests (live-app fix, 22 October 2026) are returned too, so a test of the live pathway can run it over COPIES of the
     // records exactly as the live route runs it over the file's (`live-activity.ts`); nothing that serves a coach calls this.
-    return build(
+    const drafts = options.drafts ? { store: JSON.parse(JSON.stringify(options.drafts)) as DraftStoreContents, seen: { contracts: null as LoadedContract[] | null } } : null
+    const built = build(
         request,
         options.alter ?? null,
         null,
         options.alterSelection ?? null,
-        JSON.parse(JSON.stringify(records)),
+        JSON.parse(JSON.stringify(drafts ? [...records, ...drafts.store.records] : records)),
         options.alterSupplied ?? null,
         { includeDrafts: options.review?.includeDrafts === true },
         options.realizations ? JSON.parse(JSON.stringify(options.realizations)) : null,
         givenBoundRegions(options.boundRegions),
+        drafts,
     )
+    if (drafts) built.activity.draftKnowledge = draftKnowledgeAccountOf(drafts.store, built, drafts.seen.contracts)
+    return built
+}
+
+/**
+ * **The account of a build made from the draft store** (B2, 28 October 2026; `DraftKnowledgeAccount`): read from the derivation input the
+ * build last assembled (after any TEST-ONLY alteration, so it describes what was derived), the selection, and the game as built.
+ */
+function draftKnowledgeAccountOf(store: DraftStoreContents, built: ActivityBuild & { fixture: Record<string, unknown> | null }, derived: LoadedContract[] | null): DraftKnowledgeAccount {
+    const isDraft = (contract: LoadedContract) => contract.knowledgeVersion === DRAFT_KNOWLEDGE_VERSION || (contract.items ?? []).some(item => item.category === DRAFT_KNOWLEDGE)
+    const input = derived ?? []
+    const activity = built.activity
+    const composed: RenderedActivity =
+        activity.outcome === 'served'
+            ? activity.rendered
+            : activity.draft
+              ? ({ instructions: activity.draft.instructions, withheld: activity.draft.withheld } as unknown as RenderedActivity)
+              : ({ instructions: [], withheld: [] } as unknown as RenderedActivity)
+    const block: EvidenceBlock = { blockId: ONE_GAME, holders: {}, fixture: built.fixture, contracts: input, rendered: composed, findings: [], gateChecks: [], owed: [] }
+    return {
+        status: 'BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED',
+        store: { folder: store.folder, files: [...store.files], notRead: store.notRead.map(entry => ({ ...entry })) },
+        records: store.records.map(record => record.learningGoalId),
+        contracts: input.filter(isDraft).map(contract => ({ contractId: contract.contractId, items: (contract.items ?? []).filter(item => item.category === DRAFT_KNOWLEDGE).map(item => item.itemId) })),
+        declarations: input.flatMap(contract =>
+            ((contract.declarations ?? []) as any[])
+                .filter(declaration => declaration?.category === DRAFT_KNOWLEDGE)
+                .map(declaration => ({ contractId: contract.contractId, row: String(declaration.row), selector: declaration.selector ?? null, declaration: String(declaration.declaration), note: declaration.note ?? null })),
+        ),
+        elements:
+            built.fixture && derived
+                ? elementProvenanceOf({
+                      blocks: [block],
+                      composed,
+                      adjustments: new Map(),
+                      relationships: new Map(contextRelationships().map(relationship => [relationship.id, relationship] as const)),
+                      index: indexRegister(loadRegister()),
+                      defaultLaws: null,
+                  }).elements
+                : null,
+    }
 }
 
 function build(
@@ -1167,8 +1251,15 @@ function build(
      * copy), or null for none. Undefined: the file's (`loadSportBoundRegions`), read once here for every game of this build.
      */
     boundRegionsGiven: SportBoundRegions | null | undefined = undefined,
+    /**
+     * B2, tests only (`buildActivityUnderAuthorizationRecords` with a draft store): the store, threaded into the goal's selection, and where
+     * the derivation input each attempt assembles is noted for the build's `draftKnowledge` account. Null: no draft is read.
+     */
+    drafts: { store: DraftStoreContents; seen: { contracts: LoadedContract[] | null } } | null = null,
 ): ActivityBuild & { fixture: Record<string, unknown> | null } {
     const boundRegions: SportBoundRegions | null = boundRegionsGiven === undefined ? loadSportBoundRegions() : boundRegionsGiven
+    // B2 (28 October 2026): the playing environment's elements, read once for every game of this build (the guard in `buildOneGame`).
+    const environment: SportEnvironmentElements | null = loadSportEnvironmentElements()
     const { kind, title, subtitle } = composed ? { kind: 'mechanism-demonstration' as const, title: composed.join(' + '), subtitle: null } : describeRequest(request)
     // "This goal …" for a Learning Goal and "This demonstration …" for a demonstration: a demonstration is
     // never described to a coach as a goal, in a refusal any more than in a title.
@@ -1211,7 +1302,13 @@ function build(
         selection = demonstrationSelection(composed)
     } else if (request.kind === 'learning-goal') {
         try {
-            goalSelection = selectFor(request.goalId, request.situationId ?? null, records, realizations ? realizations.map(realization => realization.provisionalId) : undefined)
+            goalSelection = selectFor(
+                request.goalId,
+                request.situationId ?? null,
+                records,
+                realizations ? realizations.map(realization => realization.provisionalId) : undefined,
+                drafts ? { contracts: drafts.store.contracts, draftsAdmitted: true } : undefined,
+            )
         } catch (error) {
             /**
              * **A knowledge gap is told apart from a selection that did not resolve.** Christian, 14 October
@@ -1234,7 +1331,7 @@ function build(
         if (alterSelection) {
             goalSelection = JSON.parse(JSON.stringify(goalSelection)) as BoundedSelection
             alterSelection(goalSelection)
-            Object.assign(goalSelection, contractCoverage(goalSelection.selected))
+            Object.assign(goalSelection, contractCoverage(goalSelection.selected, goalSelection.draftContracts ?? []))
         }
         selection = goalSelection
     } else {
@@ -1431,6 +1528,8 @@ function build(
         const relationships = contextRelationships()
         const deferral = applyRealizationDeferrals(input.contracts as LoadedContract[], relationships, indexRegister(input.register))
         input.contracts = applyRoleYields(deferral.contracts, relationships, indexRegister(input.register))
+        // B2, tests only: what this attempt derives from, for the draft-knowledge account (a copy; nothing reads it back into the build).
+        if (drafts) drafts.seen.contracts = JSON.parse(JSON.stringify(input.contracts)) as LoadedContract[]
         /**
          * **The record's lists read the provisional realization derivation actually received** (15 October 2026, stage K2), so
          * the review page and the game can never disagree about which provisional choices shaped it. Production passes the
@@ -1496,7 +1595,7 @@ function build(
             ...(movers.has(entry.id) ? { moves: { role: movers.get(entry.id)! } } : {}),
         }))
         const alternatives = deferral.deferred.map(alternativeOf)
-        const game: GameContext = { subject, session, selection, context, alterSupplied, adjustments, alternatives, boundRegions }
+        const game: GameContext = { subject, session, selection, context, alterSupplied, adjustments, alternatives, boundRegions, environment }
         /**
          * A game built through to communication becomes the served activity; one refused on the way says where. `games` are the games it was
          * rendered from, each with its block id, for the input digests the live save compares (L3, 22 October 2026); nothing served carries them.
@@ -2056,6 +2155,8 @@ interface GameContext {
     alternatives: Alternative[]
     /** H3: the Sport Profile's bound-region block the bound-region check reads (the file's, or a test's copy); null where there is none. */
     boundRegions: SportBoundRegions | null
+    /** B2: the Sport Profile's record of the playing environment's elements (`environment-elements.ts`); null where the profile carries none. */
+    environment: SportEnvironmentElements | null
 }
 
 /** One game built from its derivation input to communication, or the stage it stopped at. */
@@ -2129,7 +2230,7 @@ const STAGE_ORDER: ActivityStage[] = ['session', 'selection', 'knowledge', 'stru
  * K3) so that a game played in role blocks runs it once per block. Every refusal sentence, reason and order is what it
  * was: measured, every goal and demonstration answers byte-identically through the review route.
  */
-function buildOneGame(input: any, { subject, session, selection, context, alterSupplied, adjustments, alternatives, boundRegions }: GameContext): GameOutcome {
+function buildOneGame(input: any, { subject, session, selection, context, alterSupplied, adjustments, alternatives, boundRegions, environment }: GameContext): GameOutcome {
     let fixture: any = null
     // Stage E: a typed applicability refusal carries its type (and an ASK its question) for the build's loop; every other refusal is as before.
     const refuse = (stage: ActivityStage, summary: string, reasons: string[], typed: { applicability?: Applicability | null; question?: SessionQuestion } = {}): GameOutcome => ({
@@ -2301,6 +2402,16 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
         designationBindings: (realized.record as any).designationBindings ?? null,
     })
     if (boundAfter) invalid.push(`the regions bound to the game's objects do not hold after realization (${boundAfter.cause}): ${boundAfter.why}`)
+    /**
+     * **One element of the playing environment, not a second one because two components refer to it** — B2, 28 October 2026
+     * (`environment-elements.ts`, which quotes his reply filed 30 October 2026, item 6). After realization (a recorded identification has been
+     * applied, so the element it lets the environment's stand for is gone) and before communication: a second element beside an environment
+     * element, in its collection with its authored selector, is named and refuses the game here, where until now it was refused only at
+     * communication, indirectly (the renderer said the element once). Like a bound-region break, it keeps a staffing shortfall beside it
+     * from being typed: the roster is then not the one thing wrong. Empty for every game holding one such element.
+     */
+    const duplicates = duplicateEnvironmentElements(realized.game, environment)
+    invalid.push(...duplicates)
     if (!post.validated) {
         /**
          * **What the gates reported is carried, not summarised away.** This used to push one fixed sentence —
@@ -2315,7 +2426,7 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
         // stated is asked. Every other roster cause is typed as nothing, as before. Typed ONLY where the roster is the one thing wrong with
         // this game (`onlyTheRosterStopped`, the stage E fix): beside a broken realization or a check that fails, it is typed as nothing, so
         // the alternative refuses the activity rather than falling back with the break behind it.
-        const typedRoster = !boundAfter && onlyTheRosterStopped(acceptanceBroken, post)
+        const typedRoster = !boundAfter && !duplicates.length && onlyTheRosterStopped(acceptanceBroken, post)
         const rosterApplicability: Applicability | null = !typedRoster
             ? null
             : roster?.cause === 'AVAILABILITY_SHORT'

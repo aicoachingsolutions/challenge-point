@@ -29,7 +29,7 @@ import { runDerivation, runStages0to10 } from './engine'
 import { knowledgeKey } from './knowledge-key'
 import { indexRegister } from './register'
 import { assembleResolvedGame } from './resolved-game'
-import { DerivationInput, LoadedContract } from './types'
+import { DerivationInput, DRAFT_KNOWLEDGE_VERSION, LoadedContract } from './types'
 
 /**
  * Library ids and contract ids spell the same object differently; neither is rewritten.
@@ -69,6 +69,32 @@ export interface KnowledgeSelection {
      * which is what every caller outside the build's loop means and exactly what each read before stage E.
      */
     realization?: ProvisionalRealization | null
+    /**
+     * **TEST-ONLY: the contracts of the draft store this selection was made over** — B2, 28 October 2026 (E1-lite). Knowledge we drafted for
+     * his review, loaded and gated by `draft-store.ts` (which no production module imports: a static test pins it), each contract stamped
+     * knowledge version `draft` and each item and declaration category DRAFT_KNOWLEDGE. Plain data, so it survives the JSON copies the build
+     * makes of a selection. Set only by `buildActivityUnderAuthorizationRecords` given a draft store; absent on every production selection,
+     * so contract coverage, the derivation input and its provenance stamp read exactly what they read before.
+     */
+    draftContracts?: LoadedContract[]
+}
+
+/**
+ * **What the TEST-ONLY draft store hands a build** — B2, 28 October 2026 (E1-lite). Produced only by `draft-store.ts` `loadDraftStore`, after
+ * its gate admitted the whole store; declared here, beside the selection that carries its contracts, so no production module needs to import
+ * the store to read it. Plain data throughout.
+ */
+export interface DraftStoreContents {
+    /** The folder the store was read from. */
+    folder: string
+    /** Every DRAFT file the store read. */
+    files: string[]
+    /** Every DRAFT file of the folder the store does not read, with why: listed, never skipped silently. */
+    notRead: { file: string; why: string }[]
+    /** The draft contracts: knowledge version `draft`, every item and declaration category DRAFT_KNOWLEDGE. */
+    contracts: LoadedContract[]
+    /** The draft records: each `knowledgeStatus: 'DRAFT'`, citing no ruling. */
+    records: LearningGoalAuthorization[]
 }
 
 /**
@@ -83,8 +109,12 @@ export function realizationOf(selection: Pick<KnowledgeSelection, 'authorization
 }
 
 /** Split selected knowledge into what is contracted and what is not. One rule, for a goal and for a demonstration. */
-export function contractCoverage(selected: { id: string; role: string }[]): Pick<KnowledgeSelection, 'contracted' | 'missing'> {
-    const available = new Map(loadCorpusContracts().map(c => [key(c.contractId), c.contractId]))
+export function contractCoverage(
+    selected: { id: string; role: string }[],
+    /** B2, TEST-ONLY: the draft store's contracts (`KnowledgeSelection.draftContracts`), counted as contracted beside the corpus's. */
+    draftContracts: LoadedContract[] = [],
+): Pick<KnowledgeSelection, 'contracted' | 'missing'> {
+    const available = new Map([...loadCorpusContracts(), ...draftContracts].map(c => [key(c.contractId), c.contractId]))
     const knowledge = selected.filter(s => !s.role.startsWith('affordance lens'))
     return {
         contracted: knowledge.filter(s => available.has(key(s.id))).map(s => s.id),
@@ -186,6 +216,11 @@ export function selectFor(
     records: LearningGoalAuthorization[] = learningGoalAuthorizations(),
     /** Stage E, tests only: the provisional realization ids a TEST-ONLY set holds, which the records are checked against (`guidedSelectionHints`). */
     provisionalIds?: string[],
+    /**
+     * B2, TEST-ONLY: the draft store's contracts, and that its DRAFT records are admitted (`validateLearningGoalAuthorizations`
+     * `draftsAdmitted`). Absent on every production call, which selects exactly as before.
+     */
+    drafts?: { contracts: LoadedContract[]; draftsAdmitted: true },
 ): BoundedSelection {
     const goal: any = sessionPlanningModel.learningGoal(goalId)
     if (!goal) throw new Error(`no such learning goal: ${goalId}`)
@@ -199,7 +234,7 @@ export function selectFor(
      * coach could reach. An approved rule carried by one caller and not the other is the same loss as
      * an authored field dropped by a projection; it is closed the same way, by having one source.
      */
-    const guided = guidedSelectionHints(goalId, text, records, provisionalIds)
+    const guided = guidedSelectionHints(goalId, text, records, provisionalIds, drafts ? { draftsAdmitted: true } : {})
     let result: any
     try {
         result = generateSelection({ learningGoals: [text], learningGoalId: goalId } as any, guided.hints)
@@ -276,7 +311,9 @@ export function selectFor(
         goalName: String(goal['Learning Goal']),
         matchedSignalGroups: ((result.resolution?.matchedSignalGroups ?? []) as unknown[]).map(String),
         selected,
-        ...contractCoverage(selected),
+        ...contractCoverage(selected, drafts?.contracts ?? []),
+        // B2, TEST-ONLY: carried so every later reader of this selection (derivation's input, its stamp) reads the same draft contracts.
+        ...(drafts ? { draftContracts: JSON.parse(JSON.stringify(drafts.contracts)) as LoadedContract[] } : {}),
         practiceSituations: (sessionPlanningModel.practiceSituationsFor(goalId) as any[]).map(p => ({ id: p.ID, name: p['Practice Situation'] })),
         chosenSituation,
         gameProblem: guided.gameProblem,
@@ -293,7 +330,7 @@ export function selectFor(
  * It reads only WHICH objects were selected, so it takes exactly that — a goal's selection and a mechanism
  * demonstration's are the same thing to derivation, which has never known what a goal is.
  */
-export function derivationInputFor(selection: Pick<KnowledgeSelection, 'selected' | 'authorization' | 'realization'>): DerivationInput {
+export function derivationInputFor(selection: Pick<KnowledgeSelection, 'selected' | 'authorization' | 'realization' | 'draftContracts'>): DerivationInput {
     const wanted = new Set(selection.selected.map(s => key(s.id)))
     /**
      * **His provisional realization joins only where the goal's record names it** — 15 October 2026 (stage K2). Christian,
@@ -305,7 +342,9 @@ export function derivationInputFor(selection: Pick<KnowledgeSelection, 'selected
      * threaded one, and the record's preferred one otherwise (`realizationOf`).
      */
     const provisional = realizationOf(selection)
-    const selected: LoadedContract[] = [...loadCorpusContracts().filter(c => wanted.has(key(c.contractId))), ...(provisional ? [provisional] : [])]
+    // B2, TEST-ONLY: and a draft store's contracts for the objects selected, where the selection was made over one (absent in production).
+    const drafts = (selection.draftContracts ?? []).filter(c => wanted.has(key(c.contractId)))
+    const selected: LoadedContract[] = [...loadCorpusContracts().filter(c => wanted.has(key(c.contractId))), ...JSON.parse(JSON.stringify(drafts)), ...(provisional ? [provisional] : [])]
 
     /**
      * **The Sport Profile is added unconditionally, because it is constitutive rather than selected.**
@@ -322,7 +361,9 @@ export function derivationInputFor(selection: Pick<KnowledgeSelection, 'selected
      */
     const contracts: LoadedContract[] = [...selected, ...loadSportProfile()]
     return {
-        selection: contracts.map(c => ({ objectId: c.objectId, knowledgeVersion: 'stage-b' })),
+        // B2: a contract of the TEST-ONLY draft store is stamped as the draft it is, so a game built from it can never pass for one built from
+        // production knowledge; no production contract carries that version, so every production stamp is 'stage-b' as before.
+        selection: contracts.map(c => ({ objectId: c.objectId, knowledgeVersion: c.knowledgeVersion === DRAFT_KNOWLEDGE_VERSION ? DRAFT_KNOWLEDGE_VERSION : 'stage-b' })),
         contracts,
         // **A fresh copy per call.** `CORPUS_ENVELOPE` is a module constant, so returning it directly
         // handed every caller the SAME object: anything that varied the envelope — a test exercising a

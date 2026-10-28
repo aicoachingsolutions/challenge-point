@@ -30,7 +30,7 @@ import { roleHolderNames } from '../derivation/designation'
 import type { BoundRegionAccount } from '../realization/bound-region-check'
 import type { DefaultLawsAccount } from '../realization/default-laws-check'
 import { CREDIT_BEGINS_CLAUSE, CREDIT_ENDS_CLAUSE } from '../derivation/gates'
-import { LoadedContract } from '../derivation/types'
+import { DRAFT_KNOWLEDGE, LoadedContract } from '../derivation/types'
 import { contractCoverage } from '../derivation/run-bounded-selection'
 import { loadCorpusContracts } from '../derivation/corpus'
 import { parseSelector } from '../derivation/selector'
@@ -153,7 +153,11 @@ export function withRealizationSelection(
 }
 
 export type Layer = ReviewLayer | 'SESSION_INPUT'
-export type Standing = 'APPROVED' | 'PROVISIONAL' | 'GAP' | 'OUR_READING' | 'SESSION'
+/**
+ * B2 (28 October 2026): `DRAFT`, knowledge drafted by us and awaiting his review (category DRAFT_KNOWLEDGE, written only by the TEST-ONLY
+ * draft store). Never APPROVED, whatever basis the draft was written with; first in `STANDING_ORDER`, so it is never silently dropped.
+ */
+export type Standing = 'DRAFT' | 'APPROVED' | 'PROVISIONAL' | 'GAP' | 'OUR_READING' | 'SESSION'
 
 /** One source of an element: its layer, its standing and what it is. */
 export interface EvidenceSource {
@@ -390,6 +394,10 @@ const overlaps = (a: { from: number; to: number } | null, b: { from: number; to:
 function itemSource(ref: { contractId: string; itemId: string }, items: Map<string, any>, category: unknown): EvidenceSource {
     const item = items.get(`${ref.contractId}::${ref.itemId}`)
     const basis = item?.basis ? String(item.basis) : null
+    // B2 (28 October 2026): a draft item is DRAFT before anything else is read; its basis says what it was drafted with, never that it is approved.
+    if (category === DRAFT_KNOWLEDGE || item?.category === DRAFT_KNOWLEDGE) {
+        return { layer: 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS', standing: 'DRAFT', ref: `${ref.contractId}::${ref.itemId}`, detail: `DRAFT knowledge awaiting his review (drafted with basis ${basis ?? 'none'})` }
+    }
     if (category === 'PROVISIONAL_REALIZATION_CHOICE' || item?.category === 'PROVISIONAL_REALIZATION_CHOICE') {
         return { layer: 'ACTIVITY_REALIZATION_CHOICE', standing: 'PROVISIONAL', ref: `${ref.contractId}::${ref.itemId}`, detail: basis ? `basis ${basis}` : null }
     }
@@ -489,7 +497,13 @@ function sourcesOf(path: string, block: EvidenceBlock, items: Map<string, any>, 
     for (const choice of status.choices ?? []) {
         if (choice?.path !== path) continue
         const coach = choice.value && typeof choice.value === 'object' && 'coachDecides' in choice.value
-        if (choice.category === 'PROVISIONAL_REALIZATION_CHOICE') found.push({ layer: 'ACTIVITY_REALIZATION_CHOICE', standing: 'PROVISIONAL', ref: `choice ${choice.lineId}`, detail: coach ? 'the coach decides at the session' : null })
+        // B2 (28 October 2026; the review's M6): each draft item that narrowed or bounded the line the choice closed, as itself (DRAFT), before
+        // the choice's own authority, so a line a draft shaped is never graded as approved alone.
+        for (const ref of (choice.draftShapedBy ?? []) as { contractId?: string; itemId?: string }[]) {
+            found.push({ ...itemSource({ contractId: String(ref.contractId), itemId: String(ref.itemId) }, items, DRAFT_KNOWLEDGE), detail: `narrows or bounds what choice ${choice.lineId} may take: DRAFT knowledge awaiting his review` })
+        }
+        if (choice.category === DRAFT_KNOWLEDGE) found.push({ layer: 'ACTIVITY_REALIZATION_CHOICE', standing: 'DRAFT', ref: `choice ${choice.lineId}`, detail: 'a DRAFT realization choice awaiting his review' })
+        else if (choice.category === 'PROVISIONAL_REALIZATION_CHOICE') found.push({ layer: 'ACTIVITY_REALIZATION_CHOICE', standing: 'PROVISIONAL', ref: `choice ${choice.lineId}`, detail: coach ? 'the coach decides at the session' : null })
         else if (choice.authority) found.push({ layer: 'GENERAL_ENGINE_MECHANISM', standing: 'APPROVED', ref: `${choice.authority}${choice.defaultedBy ? ` (${choice.defaultedBy})` : ''}`, detail: `closed by rule (${choice.closure ?? 'rule'}), not chosen` })
         else found.push({ layer: 'ACTIVITY_REALIZATION_CHOICE', standing: 'OUR_READING', ref: `choice ${choice.lineId}`, detail: 'a realization choice not labelled his' })
         for (const bound of choice.within?.bounds ?? []) if (bound?.assumed) found.push({ layer: 'GENERAL_ENGINE_MECHANISM', standing: 'OUR_READING', ref: `bound of ${choice.lineId}`, detail: 'the bound is assumed' })
@@ -658,7 +672,9 @@ const dedupe = (sources: EvidenceSource[]): EvidenceSource[] => {
     return [...seen.values()]
 }
 const LAYER_ORDER: Layer[] = ['GENERAL_ENGINE_MECHANISM', 'SPORT_KNOWLEDGE_AND_AUTHORIZED_RELATIONSHIPS', 'ACTIVITY_REALIZATION_CHOICE', 'SESSION_INPUT']
-const STANDING_ORDER: Standing[] = ['APPROVED', 'PROVISIONAL', 'OUR_READING', 'SESSION', 'GAP']
+// B2 (28 October 2026; the review's M1): DRAFT first, so an element or sentence resting on a draft says so before anything else, and a
+// standing missing here can never be dropped silently (`standingsOf` keeps only the standings listed).
+const STANDING_ORDER: Standing[] = ['DRAFT', 'APPROVED', 'PROVISIONAL', 'OUR_READING', 'SESSION', 'GAP']
 const layersOf = (sources: EvidenceSource[]): Layer[] => LAYER_ORDER.filter(layer => sources.some(s => s.layer === layer))
 const standingsOf = (sources: EvidenceSource[]): Standing[] => STANDING_ORDER.filter(standing => sources.some(s => s.standing === standing))
 
@@ -736,14 +752,91 @@ const liveRouteFact = (constraintAuthority: string | null | undefined): string =
 const PLAIN_ABOUT =
     'Facts read from the games the checked pathway built, for an administrator\'s review; never served. Every verdict is a gate\'s or a cross-block check\'s (each refuses the build where it fails); every fact is read from the game; every quotation is read from the goal\'s authorization record. Nothing here claims how the activity plays.'
 
+/** Every item of a block's contracts, by `contractId::itemId`. */
+const itemsOfBlock = (block: Pick<EvidenceBlock, 'contracts'>) => new Map((block.contracts ?? []).flatMap(contract => (contract.items ?? []).map(item => [`${contract.contractId}::${item.itemId}`, item] as const)))
+
+/**
+ * What a sentence cites in each block that says it (stage 2C, 21 October 2026): a sentence under one block cites its `from` there; a
+ * sentence said once for blocks that say it alike by role cites its `from` in block 1 and, in every block it has a counterpart for,
+ * that counterpart's own citations (never block 1's paths read in the other block's game, where they are the other role's); any other
+ * sentence cites its `from` in every block. (B2: moved unchanged out of `reviewEvidenceOf`, for `elementProvenanceOf`.)
+ */
+const citedInOf =
+    (blocks: EvidenceBlock[]) =>
+    (instruction: Instruction): { block: EvidenceBlock; from: string[] }[] =>
+        blocks.flatMap(block => {
+            if (instruction.block) return instruction.block === block.blockId ? [{ block, from: instruction.from }] : []
+            const counterpart = (instruction.counterparts ?? []).find(entry => entry.blockId === block.blockId)
+            return [{ block, from: counterpart ? counterpart.from : instruction.from }]
+        })
+
+/**
+ * The row of a path: the register's, or — for a withheld field whose path the register does not spell (a condition's scope, row V3,
+ * is withheld at `…conditions[x].scope`) — the row the renderer reported it on. K8 review, 15 October 2026: read from the path alone,
+ * the four withheld scope fields had no row, so his item 4 listed 11 of the 15 fields its conditions wait on, and the provenance named
+ * their row '?'. (B2: moved unchanged out of `reviewEvidenceOf`.)
+ */
+function rowAtOf(index: RegisterIndex, composed: RenderedActivity, blocks: EvidenceBlock[]): (path: string) => string | null {
+    const withheldRow = new Map(composed.withheld.map(field => [field.path, String(field.row)] as const))
+    // Stage M5, 18 October 2026: and a field only approved words may say keeps its row once his sentence says it (wordedFieldRows):
+    // measured, the four build-out scopes lost row V3, and his item 4 its four scope elements, when his first approved entry said them.
+    const wordedRow = new Map(blocks.flatMap(block => wordedFieldRows(block.fixture?.game ?? {})).map(field => [field.path, field.row] as const))
+    return (path: string): string | null => rowOf(index, path) ?? withheldRow.get(path) ?? wordedRow.get(path) ?? null
+}
+
+/**
+ * **Element provenance: every path the fixtures carry or the sentences cite, merged across blocks, with its layers, standings and
+ * sources** — moved unchanged out of `reviewEvidenceOf` on 28 October 2026 (B2), so the account of a build made from the TEST-ONLY draft
+ * store (`build-activity.ts`, `draftKnowledge`) grades its elements by exactly the reading the review evidence uses: a standing it shows is
+ * the one the review page would show. `reviewEvidenceOf` calls it with what it read before, so its evidence is the same.
+ */
+export function elementProvenanceOf(input: {
+    blocks: EvidenceBlock[]
+    composed: RenderedActivity
+    adjustments: Map<string, any>
+    relationships: Map<string, any>
+    index: RegisterIndex
+    defaultLaws: DefaultLawsAccount | null
+}): {
+    elements: ElementProvenance[]
+    untraced: string[]
+    /** Every path noted, with the blocks it was noted in, in the order noted (the items of the review evidence read it in that order). */
+    paths: Map<string, Set<string>>
+} {
+    const { blocks, composed, adjustments, relationships, index } = input
+    const blockItems = blocks.map(itemsOfBlock)
+    const citedIn = citedInOf(blocks)
+    const withheld = composed.withheld.map(field => field.path)
+    const rowAt = rowAtOf(index, composed, blocks)
+    const paths = new Map<string, Set<string>>()
+    const note = (path: string, blockId: string) => {
+        if (!paths.has(path)) paths.set(path, new Set())
+        paths.get(path)!.add(blockId)
+    }
+    for (const block of blocks) {
+        const status = block.fixture?.status ?? {}
+        for (const entry of [...(status.derived ?? []), ...(status.choices ?? []), ...(status.geometry ?? [])]) if (entry?.path) note(String(entry.path), block.blockId)
+        for (const entry of status.entailed ?? []) note(String(entry.path ?? `${entry.collection}[${entry.handle}].${entry.leaf}`), block.blockId)
+    }
+    for (const instruction of composed.instructions) for (const { block, from } of citedIn(instruction)) for (const path of from) note(path, block.blockId)
+    for (const path of withheld) for (const block of blocks) note(path, block.blockId)
+    const untraced: string[] = []
+    const elements: ElementProvenance[] = [...paths.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([path, where]) => {
+        const sources = dedupe(blocks.filter(block => where.has(block.blockId)).flatMap(block => sourcesOf(path, block, blockItems[blocks.indexOf(block)], adjustments, relationships, index, input.defaultLaws)))
+        if (withheld.includes(path)) sources.push({ layer: 'GENERAL_ENGINE_MECHANISM', standing: 'GAP', ref: 'awaiting approved wording', detail: `row ${rowAt(path) ?? '?'}: no approved sentence says it yet` })
+        if (!sources.length) untraced.push(path)
+        return { path, row: rowAt(path), blocks: [...where].sort(), layers: layersOf(sources), standings: standingsOf(sources), sources }
+    })
+    return { elements, untraced, paths }
+}
+
 export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
     const { blocks, index, record, composed } = input
     const request = record.reviewRequest
     const adjustments = new Map<string, any>((record.authorizedAdjustments?.entries ?? []).map(entry => [entry.id, entry]))
     const relationships = new Map<string, any>(input.relationships.map(relationship => [relationship.id, relationship]))
     for (const block of blocks) for (const entry of asList(block.fixture?.adjustments?.entries ?? block.fixture?.adjustments)) if (entry?.id && !adjustments.has(entry.id)) adjustments.set(entry.id, entry)
-    const itemsOf = (block: EvidenceBlock) => new Map((block.contracts ?? []).flatMap(contract => (contract.items ?? []).map(item => [`${contract.contractId}::${item.itemId}`, item] as const)))
-    const blockItems = blocks.map(itemsOf)
+    const blockItems = blocks.map(itemsOfBlock)
     const roles = Object.keys(blocks[0]?.holders ?? {})
     const nouns: Record<string, string> = index.roleBlocks?.coachNouns ?? {}
 
@@ -754,18 +847,7 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
     // text — and now names which (`detailsWordingOf`).
     const said = blocks.flatMap(block => approvedEntriesSaid(block.fixture?.game ?? {}))
     const allFindings = [...blocks.flatMap(block => block.findings), ...input.compositionFindings]
-    /**
-     * What a sentence cites in each block that says it (stage 2C, 21 October 2026): a sentence under one block cites its `from` there; a
-     * sentence said once for blocks that say it alike by role cites its `from` in block 1 and, in every block it has a counterpart for,
-     * that counterpart's own citations (never block 1's paths read in the other block's game, where they are the other role's); any other
-     * sentence cites its `from` in every block.
-     */
-    const citedIn = (instruction: Instruction): { block: EvidenceBlock; from: string[] }[] =>
-        blocks.flatMap(block => {
-            if (instruction.block) return instruction.block === block.blockId ? [{ block, from: instruction.from }] : []
-            const counterpart = (instruction.counterparts ?? []).find(entry => entry.blockId === block.blockId)
-            return [{ block, from: counterpart ? counterpart.from : instruction.from }]
-        })
+    const citedIn = citedInOf(blocks)
     const instructions: InstructionEvidence[] = composed.instructions.map((instruction: Instruction, i) => {
         const sources = dedupe(citedIn(instruction).flatMap(({ block, from }) => from.flatMap(path => sourcesOf(path, block, blockItems[blocks.indexOf(block)], adjustments, relationships, index, input.defaultLaws ?? null))))
         const { wording, source } = detailsWordingOf(instruction.text, said)
@@ -789,41 +871,13 @@ export function reviewEvidenceOf(input: EvidenceInput): ReviewEvidence {
 
     /* Withheld fields: the parts awaiting approved wording, and which fidelity findings are about them rather than the text said. */
     const withheld = composed.withheld.map(field => field.path)
-    /**
-     * The row of a path: the register's, or — for a withheld field whose path the register does not spell (a condition's scope, row V3,
-     * is withheld at `…conditions[x].scope`) — the row the renderer reported it on. K8 review, 15 October 2026: read from the path alone,
-     * the four withheld scope fields had no row, so his item 4 listed 11 of the 15 fields its conditions wait on, and the provenance named
-     * their row '?'.
-     */
-    const withheldRow = new Map(composed.withheld.map(field => [field.path, String(field.row)] as const))
-    // Stage M5, 18 October 2026: and a field only approved words may say keeps its row once his sentence says it (wordedFieldRows):
-    // measured, the four build-out scopes lost row V3, and his item 4 its four scope elements, when his first approved entry said them.
-    const wordedRow = new Map(blocks.flatMap(block => wordedFieldRows(block.fixture?.game ?? {})).map(field => [field.path, field.row] as const))
-    const rowAt = (path: string): string | null => rowOf(index, path) ?? withheldRow.get(path) ?? wordedRow.get(path) ?? null
+    const rowAt = rowAtOf(index, composed, blocks)
     const aboutWithheld = (finding: FidelityFinding) => finding.question === 3 && withheld.some(path => finding.what.startsWith(`${path} `))
     const violations = allFindings.filter(f => f.severity === 'VIOLATION')
     const inSaidText = violations.filter(f => !aboutWithheld(f))
 
-    /* Element provenance: every path the fixtures carry or the sentences cite, merged across blocks. */
-    const paths = new Map<string, Set<string>>()
-    const note = (path: string, blockId: string) => {
-        if (!paths.has(path)) paths.set(path, new Set())
-        paths.get(path)!.add(blockId)
-    }
-    for (const block of blocks) {
-        const status = block.fixture?.status ?? {}
-        for (const entry of [...(status.derived ?? []), ...(status.choices ?? []), ...(status.geometry ?? [])]) if (entry?.path) note(String(entry.path), block.blockId)
-        for (const entry of status.entailed ?? []) note(String(entry.path ?? `${entry.collection}[${entry.handle}].${entry.leaf}`), block.blockId)
-    }
-    for (const instruction of composed.instructions) for (const { block, from } of citedIn(instruction)) for (const path of from) note(path, block.blockId)
-    for (const path of withheld) for (const block of blocks) note(path, block.blockId)
-    const untraced: string[] = []
-    const elements: ElementProvenance[] = [...paths.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([path, where]) => {
-        const sources = dedupe(blocks.filter(block => where.has(block.blockId)).flatMap(block => sourcesOf(path, block, blockItems[blocks.indexOf(block)], adjustments, relationships, index, input.defaultLaws ?? null)))
-        if (withheld.includes(path)) sources.push({ layer: 'GENERAL_ENGINE_MECHANISM', standing: 'GAP', ref: 'awaiting approved wording', detail: `row ${rowAt(path) ?? '?'}: no approved sentence says it yet` })
-        if (!sources.length) untraced.push(path)
-        return { path, row: rowAt(path), blocks: [...where].sort(), layers: layersOf(sources), standings: standingsOf(sources), sources }
-    })
+    /* Element provenance: every path the fixtures carry or the sentences cite, merged across blocks (B2: `elementProvenanceOf`, moved unchanged). */
+    const { elements, untraced, paths } = elementProvenanceOf({ blocks, composed, adjustments, relationships, index, defaultLaws: input.defaultLaws ?? null })
 
     /* Structural report, block by block. */
     const structure: StructuralReport = {
