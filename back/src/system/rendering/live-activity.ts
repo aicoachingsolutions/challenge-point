@@ -90,17 +90,12 @@ export function notCheckedNotice(wording?: DraftCoachWording): PathwayNotice | n
 export const NOT_CHECKED_NOTICE_STAGE = 'pathway-notice'
 
 /** Thrown where an activity the checked pathway did not build would be served without its notice: never the coach's words. */
-export class NotCheckedNoticeUnavailable extends Error {
-    constructor() {
-        super('the wording data carries no usable notCheckedNotice entry, so an activity the checked pathway did not build is not served without it')
-        this.name = 'NotCheckedNoticeUnavailable'
-    }
-}
+export class NotCheckedNoticeUnavailable extends Error {}
 
 /** The notice beside an activity the checked pathway did not build, or a refusal (`NotCheckedNoticeUnavailable`) where the wording carries none. */
 export function requiredNotCheckedNotice(wording?: DraftCoachWording): PathwayNotice {
     const notice = notCheckedNotice(wording)
-    if (!notice) throw new NotCheckedNoticeUnavailable()
+    if (!notice) throw new NotCheckedNoticeUnavailable('the wording data carries no usable notCheckedNotice entry, so an activity the checked pathway did not build is not served without it')
     return notice
 }
 

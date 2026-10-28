@@ -129,8 +129,12 @@ test('by the recorded pathway alone: CHECKED_CHAIN has no notice; every other st
     }
     assert.equal(storedPathwayNotice({ pathway: CHECKED_CHAIN }, without), null, 'a checked activity needs no notice, so it is still served')
     assert.deepEqual(requiredNotCheckedNotice(), notice, 'the shipped wording carries it, so nothing is refused today')
-    const refusal = new NotCheckedNoticeUnavailable()
+    let refusal: unknown = null
+    try { requiredNotCheckedNotice(without) } catch (error) { refusal = error }
+    assert.ok(refusal instanceof NotCheckedNoticeUnavailable && refusal.message.includes('notCheckedNotice'), 'the refusal says which entry is missing')
     assert.ok(!refusal.message.includes(entry.label) && !refusal.message.includes(entry.words), 'the refusal is not the notice and not a coach sentence')
+    // The read routes answer 500 with `{ error }`: an Error serializes with no own enumerable field, so no class name or message reaches the body.
+    assert.equal(JSON.stringify({ error: refusal }), '{"error":{}}', 'the read routes\' 500 body names nothing internal')
     assert.equal(NOT_CHECKED_NOTICE_STAGE, 'pathway-notice')
 })
 
