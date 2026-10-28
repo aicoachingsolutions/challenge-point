@@ -1,0 +1,20 @@
+item RPC-003-03.a.fitNote: goals=[] questions=["decision D3"]
+item RPC-003-08.fitNote: goals=["TA02"] questions=["decision D1","README Q1"]
+item RPC-003-09.a.fitNote: goals=[] questions=["decision D3"]
+item RPC-003-10.a.fitNote: goals=[] questions=["README Q1"]
+item RPC-003-10.b.fitNote: goals=[] questions=["decision D1","README Q1"]
+item RPC-003-11.a.fitNote: goals=[] questions=["README Q1"]
+item RPC-003-11.b.fitNote: goals=[] questions=["decision D5","README Q2","README Q1"]
+item RPC-003-11.c.fitNote: goals=[] questions=["README Q1"]
+item RPC-003-12.a.fitNote: goals=[] questions=["README Q1"]
+item RPC-003-12.b.fitNote: goals=[] questions=["README Q1"]
+item RPC-003-14.a.fitNote: goals=["TA02"] questions=["decision D4"]
+declaration 10 S5 noun=zone & functions∋objective-area.note: goals=[] questions=["decision D5","README Q2"]
+declaration 31 O4 kind ∈ {line, gate}.note: goals=[] questions=["decision D5","README Q2"]
+declaration 50 DV1 *.note: goals=[] questions=["decision D3"]
+declaration 63 T7 trigger ∈ {START, SCORE, OUT_END_LINE, OUT_TOUCHLINE}.note: goals=[] questions=["decision D1","README Q1"]
+declaration 71 V5 type ∈ {origin, progression}.note: goals=[] questions=["decision D1"]
+items naming a goal: 2 of 23
+declarations naming a goal: 0 of 101
+values (item.value) naming a goal: 0
+object: "RPC-003 Attack Development — DRAFTED 27 October 2026 from back/src/system/sport-module/rpc-library.rc1.json (the RPC-003 rows of the RC1.1 workbook projection), on register-2026-09-18.json version 25, for Christian's review (his reply filed 29 October 2026, item 1). CORRECTED the same day after an 

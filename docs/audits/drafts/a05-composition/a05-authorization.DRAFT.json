@@ -1,0 +1,105 @@
+{
+  "standing": "DRAFT - NOT RULED, NOT APPROVED. A draft authorization record for Progress the Attack (A05), for Christian's review (his reply filed 31 October 2026: the composition test moves from Secure Possession to Progress the Attack). Nothing here is in the engine's knowledge: where this file is stored in the repository, it is a document only (docs/audits/drafts/a05-composition/), and the engine loads none of it except through the TEST-ONLY draft store (back/src/system/derivation/draft-store.ts), which no production module imports. No field claims a ruling of his: ruledOn, by and ruling are empty. gameProblemId is EMPTY on purpose: A05's Game Problem is unresolved (session-planning-model.rc1.json:665-668, 'TBD'), and his reply asks that it 'should be addressed through our existing Game Problem Library rather than assigned merely to satisfy the engine' (christian-2026-10-31.txt:17). So the record gate refuses this record as drafted ('the record names no context or Game Problem', learning-goal-authorizations.ts:573), and that refusal is the first measured outcome of the A05 attempt (README section 3, run R1).",
+  "about": "The record in the production shape of learning-goal-authorizations.ts (LearningGoalAuthorization at d119235), in the shape of ../ta02-composition/ta02-authorization.DRAFT.json: learningGoalId, contextId, gameProblemId, ruledOn, by, ruling, authorizedConstraints, authorizedConstraintsFinding, existingKnowledge, gaps, excluded, manipulations. It names no provisional realization, no provisional choice, no adjustment and no review request (the draft store refuses a record carrying any of them, draft-store.ts:109, :457): the test is composition from reusable knowledge, not an authored activity version. What it holds is an evaluation (which library constraints are justified: none) and the gaps the attempt measured. The Attack Development context it routes to is NOT copied here: the attempt reuses ../ta02-composition/rpc-003-contract.DRAFT.json unchanged (README section 2). `provenance` maps each field to its source or to `ours`.",
+  "corrections": [],
+  "record": {
+    "learningGoalId": "A05",
+    "contextId": "RPC-003",
+    "gameProblemId": "",
+    "ruledOn": "",
+    "by": "",
+    "ruling": [],
+    "authorizedConstraints": [],
+    "authorizedConstraintsFinding": "DRAFT, OURS, NOT HIS RULING. No library constraint has a documented relationship to Attack Development (RPC-003), to any Game Problem RPC-003 lists (GP-001 Create Space and GP-002 Exploit Space PRIMARY, GP-005 Gain Access and GP-015 Maintain Possession SECONDARY, rpc-library.rc1.json:660-702) or to the four canonical affordances. RPC-003's relationship rows reach only the game archetype, Game Problem, game form, Learning Goal and scoring event libraries; its behaviour adjustments RPC-PROP-046..049 name no object; its affordance targets RPC-MAP-103..107 are DEFERRED by Christian on 13 September 2026; every Soccer Module realization row has universal_concept_id, primary_game_problem_ids and game_form_ids null; no authored mapping joins the constraints' targetAffordancePrimary vocabulary to the four canonical affordances; and A05's candidate pool (Central Density Condition, Wide Zone Advantage, Switch of Play Bonus, Turnover Reward, Progression Bonus, and the held Pass Combination Gate) was derived by the parser from the words 'possession' and 'Progress'. Central Density Condition, Switch of Play Bonus, Turnover Reward and Progression Bonus are not justified; Wide Zone Advantage carries a plausible relevance only on Library-only threads ('wide progression', 'abandoning width;'), which only his coaching judgement can establish (README decision D7); the Pass Combination Gate stays held. Under his principle ('A library constraint is not mandatory unless its inclusion is justified by the approved knowledge and intended learning environment.', his 16 October reply, item 1) the empty set is reported as a knowledge gap. Finding of 28 October 2026 (the A05 U4 investigation), for his review: it names no constraint as authorized.",
+    "existingKnowledge": [
+      {
+        "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
+        "what": "Two opposed teams, the opposition live and able to deny, redirect or reverse progression.",
+        "sources": ["RPC-REL-003 (GA-001, REQUIRED)", "contract item GF2-13", "RPC-VAL-014"],
+        "note": null
+      },
+      {
+        "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
+        "what": "Each team attacks its own target, the two targets at opposite ends, assigned at setup and fixed whoever has the ball.",
+        "sources": ["ruling C42 (9 October 2026)", "contract items GF2-08.c and GF2-08.e (to GF2-03.f and GF2-03.e)"],
+        "note": null
+      },
+      {
+        "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
+        "what": "One scoring event kind serves both targets: a line crossed or a zone entered, where GF2's permitted events meet Attack Development's approved ones.",
+        "sources": ["contract item GF2-19", "RPC-REL-079", "RPC-REL-080", "SD-06"],
+        "note": "Which of the two is used is a realizer choice today (a04-realization-choices.json chooses line), not knowledge; where \"a more advanced representative area\" lies is README decision D3."
+      },
+      {
+        "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
+        "what": "Possession alone never scores, and no possession reward may outweigh or displace the progression event.",
+        "sources": ["RPC-ID-013", "RPC-STMT-014", "contract items GF2-20 and GF2-21"],
+        "note": "GF2-20 and GF2-21 are ASSUMED items with authored bases (GAK-0108, GAK-0015)."
+      },
+      {
+        "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
+        "what": "When possession changes, play continues, and the team that won the ball attacks its own target at once.",
+        "sources": ["contract item GF2-17", "ruling C42 (9 October 2026)"],
+        "note": "GF2-17's basis, \"Continuous directional circulation\", is Test Library V0 text (commit 3980188) cited AUTHORED by the corpus convention."
+      },
+      {
+        "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
+        "what": "Attack Development's approved scoring condition governs what counts as a score.",
+        "sources": ["RPC-PROP-134"],
+        "note": "Approved knowledge, not yet in an engine-readable form he has ruled: the RPC-003 draft (../ta02-composition/rpc-003-contract.DRAFT.json) carries it, and its origin, its control referent and its scope wait on README decisions D2 and D3 and on his approved wording (D6)."
+      },
+      {
+        "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
+        "what": "Several progression and support options remain available to the team in possession.",
+        "sources": ["RPC-ID-014 (SUPPORTING_IDENTITY)"],
+        "note": "Supports recognition only; no element carries it (the RPC-003 draft's item RPC-003-13 is outside the boundary)."
+      }
+    ],
+    "gaps": [
+      { "id": "D1", "kind": "DECISION", "description": "A05's Game Problem, resolved through the Game Problem Library: which of Attack Development's listed problems (GP-001, GP-002 PRIMARY; GP-005, GP-015 SECONDARY) is primary, which method governs when the scoring condition and the game-form mapping disagree, and whether secondaries stay deferred.", "note": "README D1. Until it is decided this record cannot pass the record gate (gameProblemId empty) and every A05 build is labelled provisional." },
+      { "id": "D2", "kind": "DECISION", "description": "Where an Attack Development attack starts for this goal: every possession (the drafted WHOLE_GAME scope) or only once possession is organized, by what sign a coach can judge, and whether a restart begins a new attack.", "note": "README D2. Blocks the origin condition (RPC-003-10.a/b), the START item and every restart element under the RPC-003 draft." },
+      { "id": "D3", "kind": "DECISION", "description": "What counts as a score: where \"a more advanced representative area\" is (the far end line, an end zone of a stated depth, or an area short of it) and whether \"while maintaining attacking possession\" is judged at the target or kept from the attack's start, in a form a coach can observe.", "note": "README D3 (PR-1, PR-2)." },
+      { "id": "D4", "kind": "DECISION", "description": "The other team: the same objective at the far end (symmetric), or a defending objective with an event of its own.", "note": "README D4 (PR-5)." },
+      { "id": "D5", "kind": "DECISION", "description": "Restarts and offside in this environment: the start, after a score, the ball over an end line with no goal, and whether Law 11 applies, does not apply, or applies adapted.", "note": "README D5. Under our DRAFT classification LAW-11 is MATERIAL here, so it holds the build at validation until he rules or the success condition changes." },
+      { "id": "D6", "kind": "DECISION", "description": "Coach wording: an approved sentence for Attack Development's two scoring conditions (six fields), the reading of it the overview needs, and which coach translation applies (RPC-STMT-015 or the RC1.1 Library sentence).", "note": "README D6. Wording is keyed by values, so it can be worded only after D3, and it would serve every goal routed to Attack Development." },
+      { "id": "D7", "kind": "DECISION", "description": "Constraints: whether Wide Zone Advantage is relevant to Progress the Attack, and if so with what magnitude. Not asked: whether to accept the empty set, which his principle already makes the outcome where no constraint is justified.", "note": "README D7. authorizedConstraints [] above is our draft finding under his principle, not his answer." },
+      { "id": "D8", "kind": "DECISION", "description": "A confirmation only: that his 30 October ruling for Secure Possession (the Game Problem's Affordance Target Matrix row, not the deferred Attack Development targets) extends to Progress the Attack.", "note": "README D8. The attempt's relevance traces already apply it (OUR READING of its reach)." },
+      { "id": "D9", "kind": "DECISION", "description": "Which, if any, of the typical environmental manipulations and interaction regulations his RC1.1 Library lists for Attack Development apply to Progress the Attack (for example \"progression zones;\" and \"target positioning;\"), resolved explicitly as for Goalkeeper Build-Out.", "note": "README D9 (the TA02 reconciliation's LP-4, LP-5). manipulations [] above waits on it. It is also the only route we see in his existing material to knowledge that would make the activity more than the possession game (README section 6, MK1)." },
+      { "id": "E3", "kind": "CAPABILITY", "description": "A record-backed authorized set of any size is committed as authorized (no two-to-four foundation rule).", "note": "Conditional on D7 authorizing a set of one." },
+      { "id": "E5", "kind": "CAPABILITY", "description": "Set-up sentences for end zones and interior lines in games without role names.", "note": "Conditional on D3 choosing a zone or an interior area (with E11)." },
+      { "id": "E6", "kind": "CAPABILITY", "description": "Restart phrases as data, for any team with a phrase, including a restart after a score.", "note": "Conditional on D5." },
+      { "id": "E8", "kind": "CAPABILITY", "description": "Episodes as data, so a scoring condition can apply to an Attack Development attack that starts from a stated condition.", "note": "Conditional on D2 or D3 choosing a starting condition." },
+      { "id": "E11", "kind": "CAPABILITY", "description": "A context steering the game form's line-or-zone realizer choice.", "note": "Conditional on D3 choosing a zone." },
+      { "id": "G1", "kind": "CAPABILITY", "description": "A record shape that can state an unresolved Game Problem honestly, instead of requiring a filled id that nothing else reads.", "note": "README section 5. General; not A05-specific." },
+      { "id": "G2", "kind": "CAPABILITY", "description": "The draft store reads a shared context draft beside a goal's draft record, so one context draft serves every goal routed to it.", "note": "README section 5. General." },
+      { "id": "G3", "kind": "CAPABILITY", "description": "No unqualified team-neutral scoring sentence beside a primary event whose conditions are said in approved words.", "note": "README section 5. General." },
+      { "id": "G4", "kind": "CAPABILITY", "description": "A served activity says what happens after a score and when the ball leaves play over an end line, or is refused for the silence.", "note": "README section 5. General; needs D5 first." },
+      { "id": "G5", "kind": "CAPABILITY", "description": "Our DRAFT Sport Profile reads Laws 16 and 17 as not applicable at an end line without a goal; its encoding should follow the Laws.", "note": "README section 5. A correction to our DRAFT data, not to his knowledge." },
+      { "id": "G6", "kind": "CAPABILITY", "description": "An equipment sentence for a game with no distinguished performer.", "note": "README section 5. General; the words need his approval." }
+    ],
+    "excluded": [
+      {
+        "knowledgeId": "tl-v0-constraint-pass-combination-gate",
+        "ruledOn": "2026-10-14",
+        "by": "Christian",
+        "ruling": "Please keep the current Pass Combination Gate as a mechanism demonstration only. I do not want it reintroduced into learning-design examples until we've reviewed its ecological suitability.",
+        "heldBy": "learning-design-holds.json"
+      }
+    ],
+    "manipulations": []
+  },
+  "provenance": {
+    "learningGoalId": { "source": [{ "file": "back/src/system/session-planning/session-planning-model.rc1.json", "line": 130, "words": "Progress the Attack" }, { "file": "back/src/system/session-planning/session-planning-model.rc1.json", "line": 131, "words": "Improve attacking conditions while maintaining purposeful possession." }] },
+    "contextId": { "source": [{ "file": "back/src/system/session-planning/session-planning-model.rc1.json", "line": 729, "words": "RPC-003" }, { "file": "back/src/system/sport-module/rpc-library.rc1.json", "line": 1089, "words": "RPC-REL-062" }], "note": "The routing row (session-planning-model.rc1.json:727-731) is canonical RC1.1; RPC-REL-062 relates RPC-003 to A05 as PRIMARY (rpc-library.rc1.json:1089-1097)." },
+    "gameProblemId": { "ours": "EMPTY ON PURPOSE. A05's translation reads 'TBD' with the note 'Reference canonical Game Problem workbook' (session-planning-model.rc1.json:665-668). Candidates and evidence are in README decision D1; none is assigned." },
+    "ruledOn": { "ours": "NOT RULED. Empty, as the record gate requires of a DRAFT record (learning-goal-authorizations.ts:567-569)." },
+    "by": { "ours": "NOT RULED." },
+    "ruling": { "ours": "NOT RULED." },
+    "authorizedConstraints": { "ours": "Our draft finding under his 16 October principle (christian-2026-10-16.txt:13): no candidate has a documented relationship. Not his answer." },
+    "authorizedConstraintsFinding": { "ours": "Ours, from the A05 U4 investigation; every fact in it is cited in README decision D7." },
+    "existingKnowledge": { "ours": "Copied from ../ta02-composition/ta02-authorization.DRAFT.json, whose sources it keeps; every entry is about the game form or Attack Development, not about Secure Possession, so each carries over (one note re-pointed to this README)." },
+    "gaps": { "ours": "The decisions and capabilities the A05 attempt measured (README sections 3-6)." },
+    "excluded": { "source": [{ "file": "back/src/system/test-library/library/learning-design-holds.json", "words": "Please keep the current Pass Combination Gate as a mechanism demonstration only." }], "note": "Copied from the TA02 draft record; the hold already applies to every Learning Goal, so it changes nothing." },
+    "manipulations": { "ours": "None: no RPC-003 manipulation relationship exists (the only context-manipulation relationships are RPC-001's, learning-goal-authorizations.json:34-90). Whether any of the Library's typical manipulations apply is README D9." }
+  }
+}

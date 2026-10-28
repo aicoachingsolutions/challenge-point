@@ -1,0 +1,45 @@
+A05 composition attempt probe. Worktree HEAD d119235. In-memory injection: wording+reading.
+  TEST-ONLY injection active (NOT his wording, NOT his reading): entries now A01-W1, A01-W2, A01-W3, TEST-ONLY-A05-W; unapproved []; readings status PARTLY_APPROVED 
+A05 composed: served; plain GF2 demonstration: served; TA02 composed (same TEST-ONLY stand-ins): served
+
+## R7 (1) composed A05 (first) vs plain GF2 demonstration (second)
+  game.objectives: IDENTICAL
+  game.value: 1 difference(s)
+    value.primaryEvent.conditions: ONLY IN FIRST = [{"elementId":"c:restated:RPC-003:RPC-003-11.a","selector":[{"attribute":"type","op":"=","value":"progression"}],"type":"progression","referents":{"objectiveReferenceOf":"SCORING_TEAM","role":"PRIMARY_SCORING","asAuthored":"TEST-ONLY PR-1: not his ruling"},"value":"more advanced"},{"elementId":"c:restated:RPC-003:RPC-003-12.a","selector":[{"attribute":"type","op":"=","value":"control"}],"type":"co
+  game.transitions: 1 difference(s)
+    transitions.0.startsEpisode: "true" -> true
+  game.objects: IDENTICAL
+  game.performers: IDENTICAL
+  game.space: IDENTICAL
+  game.possession: IDENTICAL
+  game.envelope: IDENTICAL
+  game keys first=["envelope","space","value","objectives","objects","transitions","performers","possession"] second=["envelope","space","value","objectives","objects","transitions","performers","possession"] (constraints/modifiers/restrictions appear as keys only where a game holds them)
+  coach Details: 9 vs 8 instructions
+    only in first:  [How to score] TEST-ONLY sentence, not his wording: a team scores by getting the ball across the line it is attacking while keeping possession.
+  title/subtitle: ["Progress the Attack","Improve attacking conditions while maintaining purposeful possession."] vs ["GF2",null]
+  Coach Overview: 3 difference(s)
+    overview.purpose: "Improve attacking conditions while maintaining purposeful possession." -> null
+    overview.scoring.groups.0.lines.0.text: "TEST-ONLY sentence, not his wording: a team scores by getting the ball across the line it is attacking while keeping possession." -> "A team scores 1 point by getting the ball across the line it is attacking."
+    overview.scoring.groups.0.lines.1: ONLY IN FIRST = {"text":"A team scores 1 point by getting the ball across the line it is attacking.","fullRule":null}
+  diagram: 1 difference(s)
+    diagram.blocks.0.title: "Progress the Attack" -> "GF2"
+  provisional: true vs false; kind: learning-goal vs mechanism-demonstration
+
+## R7 (2) composed A05 (first) vs composed TA02 under the same TEST-ONLY stand-ins (second)
+  game.objectives: IDENTICAL
+  game.value: IDENTICAL
+  game.transitions: IDENTICAL
+  game.objects: IDENTICAL
+  game.performers: IDENTICAL
+  game.space: IDENTICAL
+  game.possession: IDENTICAL
+  game.envelope: IDENTICAL
+  game keys first=["envelope","space","value","objectives","objects","transitions","performers","possession"] second=["envelope","space","value","objectives","objects","transitions","performers","possession"] (constraints/modifiers/restrictions appear as keys only where a game holds them)
+  coach Details: 9 vs 9 instructions
+    IDENTICAL instruction texts
+  title/subtitle: ["Progress the Attack","Improve attacking conditions while maintaining purposeful possession."] vs ["Secure Possession","Stabilize possession after regaining it."]
+  Coach Overview: 1 difference(s)
+    overview.purpose: "Improve attacking conditions while maintaining purposeful possession." -> "Stabilize possession after regaining it."
+  diagram: 1 difference(s)
+    diagram.blocks.0.title: "Progress the Attack" -> "Secure Possession"
+  provisional: true vs false; kind: learning-goal vs learning-goal

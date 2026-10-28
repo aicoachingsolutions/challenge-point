@@ -1,0 +1,140 @@
+[
+  {
+    "gameProblem": null,
+    "essentialComposed": [],
+    "essentialPlain": null,
+    "affordancesTheContextRaisesAbovePlain": null,
+    "composedGaps": 1,
+    "plainGaps": null,
+    "gfMappedToGp": false,
+    "contextRowToGp": []
+  },
+  {
+    "gameProblem": "GP-002",
+    "essentialComposed": [
+      "FOI=INFERRED",
+      "OP=UNVERIFIED",
+      "CIO=INFERRED"
+    ],
+    "essentialPlain": [
+      "FOI=INFERRED",
+      "OP=UNVERIFIED",
+      "CIO=INFERRED"
+    ],
+    "affordancesTheContextRaisesAbovePlain": [],
+    "composedGaps": 10,
+    "plainGaps": 2,
+    "gfMappedToGp": false,
+    "contextRowToGp": [
+      "the context workbook, RPC-REL-024: COMPATIBLE PRIMARY"
+    ]
+  },
+  {
+    "gameProblem": "GP-001",
+    "essentialComposed": [
+      "OP=UNVERIFIED",
+      "CIO=INFERRED"
+    ],
+    "essentialPlain": [
+      "OP=UNVERIFIED",
+      "CIO=INFERRED"
+    ],
+    "affordancesTheContextRaisesAbovePlain": [],
+    "composedGaps": 9,
+    "plainGaps": 1,
+    "gfMappedToGp": true,
+    "contextRowToGp": [
+      "the context workbook, RPC-REL-023: COMPATIBLE PRIMARY"
+    ]
+  },
+  {
+    "gameProblem": "GP-005",
+    "essentialComposed": [
+      "FOI=INFERRED",
+      "OP=UNVERIFIED",
+      "CIO=INFERRED"
+    ],
+    "essentialPlain": [
+      "FOI=INFERRED",
+      "OP=UNVERIFIED",
+      "CIO=INFERRED"
+    ],
+    "affordancesTheContextRaisesAbovePlain": [],
+    "composedGaps": 9,
+    "plainGaps": 1,
+    "gfMappedToGp": true,
+    "contextRowToGp": [
+      "the context workbook, RPC-REL-025: COMPATIBLE SECONDARY"
+    ]
+  },
+  {
+    "gameProblem": "GP-015",
+    "essentialComposed": [
+      "FOI=INFERRED",
+      "OP=UNVERIFIED",
+      "SA=GAP",
+      "CIO=INFERRED"
+    ],
+    "essentialPlain": [
+      "FOI=INFERRED",
+      "OP=UNVERIFIED",
+      "SA=GAP",
+      "CIO=INFERRED"
+    ],
+    "affordancesTheContextRaisesAbovePlain": [],
+    "composedGaps": 10,
+    "plainGaps": 2,
+    "gfMappedToGp": true,
+    "contextRowToGp": [
+      "the context workbook, RPC-REL-026: COMPATIBLE SECONDARY"
+    ]
+  },
+  {
+    "gameProblem": "GP-003",
+    "essentialComposed": [
+      "OP=UNVERIFIED",
+      "CIO=INFERRED"
+    ],
+    "essentialPlain": [
+      "OP=UNVERIFIED",
+      "CIO=INFERRED"
+    ],
+    "affordancesTheContextRaisesAbovePlain": [],
+    "composedGaps": 11,
+    "plainGaps": 2,
+    "gfMappedToGp": false,
+    "contextRowToGp": []
+  },
+  {
+    "gameProblem": "GP-014",
+    "essentialComposed": [
+      "OP=UNVERIFIED",
+      "CIO=INFERRED"
+    ],
+    "essentialPlain": [
+      "OP=UNVERIFIED",
+      "CIO=INFERRED"
+    ],
+    "affordancesTheContextRaisesAbovePlain": [],
+    "composedGaps": 11,
+    "plainGaps": 2,
+    "gfMappedToGp": false,
+    "contextRowToGp": []
+  },
+  {
+    "gameProblem": "GP-009",
+    "essentialComposed": [
+      "OP=UNVERIFIED",
+      "CIO=INFERRED"
+    ],
+    "essentialPlain": [
+      "OP=UNVERIFIED",
+      "CIO=INFERRED"
+    ],
+    "affordancesTheContextRaisesAbovePlain": [],
+    "composedGaps": 11,
+    "plainGaps": 2,
+    "gfMappedToGp": false,
+    "contextRowToGp": []
+  }
+]
