@@ -71,6 +71,7 @@ import { contextScoringFindings, EPISODE_REACHABLE_CHECK } from './context-scori
 import { draftCoachWordingLoad } from './draft-coach-wording'
 import { checkFidelity, FidelityFinding } from './fidelity'
 import { ReviewDraft, reviewDraftOf } from './review-draft'
+import { RelevanceJoinRules, RelevanceTrace, relevanceTraceOf } from './relevance-trace'
 import { ElementProvenance, elementProvenanceOf, EvidenceBlock, LayoutFallback, ReviewEvidence, reviewEvidenceOf, withRealizationSelection } from './review-evidence'
 import { mechanismDemonstration } from './mechanism-demonstrations'
 import { Instruction, RenderedActivity, renderConcreteGame } from './render-concrete-game'
@@ -425,6 +426,8 @@ export interface ServedActivity {
     diagram?: CoachDiagram
     /** TEST-ONLY (B2, 28 October 2026): the account of a build made from the draft store; see `DraftKnowledgeAccount`. */
     draftKnowledge?: DraftKnowledgeAccount
+    /** TEST-ONLY (B3, 28 October 2026): the relevance trace of a composition-test build or a demonstration; see `relevanceOfBuilt`. */
+    relevance?: RelevanceTrace
 }
 
 /**
@@ -516,6 +519,8 @@ export interface RefusedActivity {
     evidence?: ReviewEvidence
     /** TEST-ONLY (B2, 28 October 2026): the account of a build made from the draft store; see `DraftKnowledgeAccount`. */
     draftKnowledge?: DraftKnowledgeAccount
+    /** TEST-ONLY (B3, 28 October 2026): the relevance trace of a composition-test build or a demonstration; see `relevanceOfBuilt`. */
+    relevance?: RelevanceTrace
 }
 
 /**
@@ -1086,10 +1091,20 @@ export function buildActivityFromKnowledge(
      * Also tests only, added 15 October 2026 (stage H3): the same COPIES `buildActivityOverAlteredKnowledge` alters — the
      * contracts and the realization choices — for a mechanism proof that needs the fixture it was realized into.
      */
-    options: { alter?: (contracts: LoadedContract[]) => void; alterSupplied?: (supplied: SuppliedRealization) => void } = {},
+    options: {
+        alter?: (contracts: LoadedContract[]) => void
+        alterSupplied?: (supplied: SuppliedRealization) => void
+        /**
+         * B3 (28 October 2026), tests only: attach the relevance trace (`relevance-trace.ts`) for this Game Problem, with the DRAFT join rules the
+         * test loaded (`draft-store.ts` `loadRelevanceJoinRules`). A demonstration resolves no Game Problem, so the test names it.
+         */
+        relevance?: { joinRules: RelevanceJoinRules; gameProblemId: string }
+    } = {},
 ): { activity: ServedActivity | RefusedActivity; fixture: Record<string, unknown> | null } {
-    const { activity, fixture } = build({ kind: 'mechanism-demonstration', demonstrationId: '', session }, options.alter ?? null, selected, null, learningGoalAuthorizations(), options.alterSupplied ?? null)
-    return { activity, fixture }
+    const observed = options.relevance ? { contracts: null as LoadedContract[] | null } : null
+    const built = build({ kind: 'mechanism-demonstration', demonstrationId: '', session }, options.alter ?? null, selected, null, learningGoalAuthorizations(), options.alterSupplied ?? null, { includeDrafts: false }, null, undefined, null, observed)
+    if (options.relevance && observed) built.activity.relevance = relevanceOfBuilt(built, observed.contracts, null, options.relevance)
+    return { activity: built.activity, fixture: built.fixture }
 }
 
 /**
@@ -1161,6 +1176,12 @@ export function buildActivityUnderAuthorizationRecords(
          * Absent: no draft is read, and the build is exactly what it was.
          */
         drafts?: DraftStoreContents
+        /**
+         * B3 (28 October 2026), tests only: attach the relevance trace (`relevance-trace.ts`) of this build — a composition test made from the
+         * draft store, or a goal's build compared beside one — with the DRAFT join rules the test loaded (`loadRelevanceJoinRules`). The Game
+         * Problem is the goal's, as selection resolved it, unless the test names one. Absent: no trace, and the build is exactly what it was.
+         */
+        relevance?: { joinRules: RelevanceJoinRules; gameProblemId?: string }
     } = {},
 ): ActivityBuild & { fixture: Record<string, unknown> | null } {
     const givenBoundRegions = (block: SportBoundRegions | null | undefined): SportBoundRegions | null | undefined => {
@@ -1173,6 +1194,7 @@ export function buildActivityUnderAuthorizationRecords(
     // The selection and the digests (live-app fix, 22 October 2026) are returned too, so a test of the live pathway can run it over COPIES of the
     // records exactly as the live route runs it over the file's (`live-activity.ts`); nothing that serves a coach calls this.
     const drafts = options.drafts ? { store: JSON.parse(JSON.stringify(options.drafts)) as DraftStoreContents, seen: { contracts: null as LoadedContract[] | null } } : null
+    const observed = options.relevance ? { contracts: null as LoadedContract[] | null } : null
     const built = build(
         request,
         options.alter ?? null,
@@ -1184,9 +1206,57 @@ export function buildActivityUnderAuthorizationRecords(
         options.realizations ? JSON.parse(JSON.stringify(options.realizations)) : null,
         givenBoundRegions(options.boundRegions),
         drafts,
+        observed,
     )
     if (drafts) built.activity.draftKnowledge = draftKnowledgeAccountOf(drafts.store, built, drafts.seen.contracts)
+    if (options.relevance && observed) built.activity.relevance = relevanceOfBuilt(built, observed.contracts, request.goalId, options.relevance)
     return built
+}
+
+/**
+ * **The relevance trace of a TEST-ONLY build** (B3, 28 October 2026; `relevance-trace.ts`): read from what the build hands back — the review
+ * evidence's own element provenance where the build made one (merged across role blocks), else the reading the draft account uses on the one
+ * game (`elementProvenanceOf` over the contracts this attempt derived from) — with every block's game, and the Game Problem selection resolved
+ * unless the test names one. Never called on a route: only `buildActivityUnderAuthorizationRecords` and `buildActivityFromKnowledge` reach it.
+ */
+function relevanceOfBuilt(
+    built: { activity: ServedActivity | RefusedActivity; fixture: Record<string, unknown> | null },
+    contracts: LoadedContract[] | null,
+    learningGoalId: string | null,
+    given: { joinRules: RelevanceJoinRules; gameProblemId?: string },
+): RelevanceTrace {
+    const activity = built.activity
+    const fixture: any = built.fixture
+    const index = indexRegister(loadRegister())
+    const blocks: any[] = Array.isArray(fixture?.roleBlocks?.blocks) ? fixture.roleBlocks.blocks : []
+    const games = fixture ? (blocks.length ? blocks.map(block => ({ blockId: String(block.blockId), holders: { ...(block.holders ?? {}) }, fixture: block.fixture })) : [{ blockId: ONE_GAME, holders: {}, fixture }]) : []
+    const composed: RenderedActivity =
+        activity.outcome === 'served'
+            ? activity.rendered
+            : activity.draft
+              ? ({ instructions: activity.draft.instructions, withheld: activity.draft.withheld } as unknown as RenderedActivity)
+              : ({ instructions: [], withheld: [] } as unknown as RenderedActivity)
+    const elements =
+        activity.evidence?.provenance?.elements ??
+        (fixture && contracts
+            ? elementProvenanceOf({
+                  blocks: [{ blockId: ONE_GAME, holders: {}, fixture, contracts, rendered: composed, findings: [], gateChecks: [], owed: [] }],
+                  composed,
+                  adjustments: new Map(),
+                  relationships: new Map(contextRelationships().map(relationship => [relationship.id, relationship] as const)),
+                  index,
+                  defaultLaws: null,
+              }).elements
+            : [])
+    return relevanceTraceOf({
+        elements,
+        contracts: contracts ?? [],
+        games,
+        gameProblemId: given.gameProblemId ?? activity.account?.gameProblem?.gameProblemId ?? null,
+        learningGoalId,
+        index,
+        joinRules: given.joinRules,
+    })
 }
 
 /**
@@ -1256,6 +1326,8 @@ function build(
      * the derivation input each attempt assembles is noted for the build's `draftKnowledge` account. Null: no draft is read.
      */
     drafts: { store: DraftStoreContents; seen: { contracts: LoadedContract[] | null } } | null = null,
+    /** B3, tests only (a build asked for its relevance trace): where the derivation input each attempt assembles is noted. Null: nothing is. */
+    observed: { contracts: LoadedContract[] | null } | null = null,
 ): ActivityBuild & { fixture: Record<string, unknown> | null } {
     const boundRegions: SportBoundRegions | null = boundRegionsGiven === undefined ? loadSportBoundRegions() : boundRegionsGiven
     // B2 (28 October 2026): the playing environment's elements, read once for every game of this build (the guard in `buildOneGame`).
@@ -1530,6 +1602,8 @@ function build(
         input.contracts = applyRoleYields(deferral.contracts, relationships, indexRegister(input.register))
         // B2, tests only: what this attempt derives from, for the draft-knowledge account (a copy; nothing reads it back into the build).
         if (drafts) drafts.seen.contracts = JSON.parse(JSON.stringify(input.contracts)) as LoadedContract[]
+        // B3, tests only: the same, for a build asked for its relevance trace.
+        if (observed) observed.contracts = JSON.parse(JSON.stringify(input.contracts)) as LoadedContract[]
         /**
          * **The record's lists read the provisional realization derivation actually received** (15 October 2026, stage K2), so
          * the review page and the game can never disagree about which provisional choices shaped it. Production passes the

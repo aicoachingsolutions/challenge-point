@@ -176,6 +176,20 @@ export function affordanceDefinitionsFrom(rows: ReadonlyArray<Readonly<AtmMetada
 
 export const CANONICAL_AFFORDANCE_DEFINITIONS: Readonly<Record<CanonicalAffordance, string>> = affordanceDefinitionsFrom(ATM_METADATA_ROWS)
 
+/** One Ratings Grid row exactly as the projection holds it (every column the workbook populates for it). */
+export type AtmRatingRowAsWritten = Readonly<Record<string, string>>
+
+/**
+ * **A Game Problem's Ratings Grid row, verbatim, or null** — B3, 28 October 2026, for the relevance trace (review evidence only; the matrix
+ * stays a compatibility resource, never a selector). Its per-row evidence (row_status, validation_status, evidence_type, evidence_source,
+ * confidence) is what a reader of a rating needs beside it: GP-015's validation_status says its Support Availability rating is flagged for
+ * field validation.
+ */
+export function atmRatingRowOf(gameProblemId: string): AtmRatingRowAsWritten | null {
+    const row = WB.ratings.find((r) => r.game_problem_id === gameProblemId)
+    return row ? Object.freeze(Object.fromEntries(Object.entries(row).map(([key, value]) => [key, String(value)]))) : null
+}
+
 /** One Version Metadata row whose key names a single Game Problem (gpNNN_…). */
 export interface AtmGameProblemKeyedRow {
     key: string

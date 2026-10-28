@@ -377,8 +377,8 @@ function rowOf(index: RegisterIndex, path: string): string | null {
     return null
 }
 
-/** The contract item an element id names (`c:<contract>:<item>`, an instance suffix `#n` dropped), or null. */
-function itemRefOf(elementId: string): { contractId: string; itemId: string } | null {
+/** The contract item an element id names (`c:<contract>:<item>`, an instance suffix `#n` dropped), or null. (B3: exported for the relevance trace.) */
+export function itemRefOf(elementId: string): { contractId: string; itemId: string } | null {
     if (!elementId.startsWith('c:')) return null
     const bare = elementId.slice(2).split('#')[0]
     const at = bare.lastIndexOf(':')
@@ -390,8 +390,11 @@ const overlaps = (a: { from: number; to: number } | null, b: { from: number; to:
 
 /* ------------------------------------------------------------------ provenance ------------------------------------------------------------------ */
 
-/** The source an item is, by what crossed with it: his provisional choice, or knowledge whose standing its basis gives. */
-function itemSource(ref: { contractId: string; itemId: string }, items: Map<string, any>, category: unknown): EvidenceSource {
+/**
+ * The source an item is, by what crossed with it: his provisional choice, or knowledge whose standing its basis gives. (B3: exported, so the
+ * relevance trace grades an element's establishing item by exactly this reading.)
+ */
+export function itemSource(ref: { contractId: string; itemId: string }, items: Map<string, any>, category: unknown): EvidenceSource {
     const item = items.get(`${ref.contractId}::${ref.itemId}`)
     const basis = item?.basis ? String(item.basis) : null
     // B2 (28 October 2026): a draft item is DRAFT before anything else is read; its basis says what it was drafted with, never that it is approved.

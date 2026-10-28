@@ -1,0 +1,76 @@
+{
+    "standing": "DRAFT",
+    "ours": true,
+    "title": "Relevance join rules: how the relevance trace joins a realized element to an affordance of the Affordance Target Matrix (DRAFT, ours)",
+    "about": "B3, 28 October 2026. Written by us for Christian's review, once, for every activity. NOT his, NOT approved, and read only by the TEST-ONLY relevance trace (back/src/system/rendering/relevance-trace.ts, loaded through back/src/system/derivation/draft-store.ts), which is review evidence for composition-test builds and demonstrations, never served and never a selection input. A rule names register rows (a kind of structure a realized game holds), the affordance, and words of that affordance's definition in the Affordance Target Matrix (its Version Metadata notes, carried since item B1) that the structure is read as an instance of; the loader refuses words not found verbatim in that definition. A link a rule makes is INFERRED only where the rule's ceiling is INFERRED and every premise the element rests on is approved knowledge; any other premise (an assumed bound, a choice not labelled his, a provisional choice, a draft) makes it UNVERIFIED. Our criterion for a ceiling: INFERRED where the structure IS what the quoted words name; UNVERIFIED where it only bears on what they name, which is our reading of play. An affordance whose entry says inference NONE takes no rule at all: the trace reports measured facts for it instead of a grade.",
+    "his": [
+        { "words": "Relationships explicitly authorized in our knowledge.", "citedAs": "his reply filed 30 October 2026, item 5" },
+        { "words": "Relationships inferred from existing authorized premises.", "citedAs": "his reply filed 30 October 2026, item 5" },
+        { "words": "Interpretations or hypotheses that remain unverified.", "citedAs": "his reply filed 30 October 2026, item 5" },
+        { "words": "Instead, I'd like the explanation mechanism to draw from reusable, traceable knowledge relationships rather than require me to authorize a new set of explanatory statements for every generated activity.", "citedAs": "his reply filed 30 October 2026, item 5" },
+        { "words": "Where a required relationship is missing, the system should identify that gap.", "citedAs": "his reply filed 30 October 2026, item 5" }
+    ],
+    "affordances": [
+        { "affordance": "Functional Object Interaction", "inference": "BY_RULE" },
+        { "affordance": "Open Pathway", "inference": "BY_RULE" },
+        {
+            "affordance": "Support Availability",
+            "inference": "NONE",
+            "why": "Ours: no register structure is coordinated interaction with another performer. Teammates, equal numbers or a team's size are performers, not coordination, so no rule may read support from them. The trace reports measured facts of the realized game (possession numbers, space per player, rules on direction, continuity on a possession change) and grades nothing.",
+            "his": [
+                { "words": "Please investigate whether the environment actually provides meaningful support opportunities rather than assuming they emerge simply because players have teammates.", "citedAs": "his reply filed 30 October 2026, item 5" },
+                { "words": "Field testing can help evaluate whether those opportunities materialize.", "citedAs": "his reply filed 30 October 2026, item 5" }
+            ]
+        },
+        { "affordance": "Competitive Interaction Opportunity", "inference": "BY_RULE" }
+    ],
+    "objectRule": {
+        "id": "J-OBJ",
+        "says": "Object level: a knowledge object of this game (a game form, a context) has an authored relationship to the Game Problem, and the Game Problem's row of the matrix rates this affordance Essential.",
+        "doesNotShow": "Anything about what an element of the game does: it is a statement about the object's authored relationships, not about the environment it builds."
+    },
+    "rules": [
+        {
+            "id": "J-FOI-OBJECT",
+            "affordance": "Functional Object Interaction",
+            "rows": ["O1", "O2"],
+            "where": { "selector": { "kind": "ball" } },
+            "anchor": { "metadataKey": "car_foi_definition", "words": "the task object" },
+            "ceiling": "INFERRED",
+            "structure": "the object of play: an object of kind ball (register O1, O2; register PS1 holds which team possesses the ball), never a goal, line or gate",
+            "shows": "The task object the definition asks about is in the game, established by knowledge.",
+            "doesNotShow": "Whether meaningful interaction with it can be established in play."
+        },
+        {
+            "id": "J-CIO-TEAMS",
+            "affordance": "Competitive Interaction Opportunity",
+            "rows": ["P1"],
+            "anchor": { "metadataKey": "car_cio_definition", "words": "adaptive competitor influence" },
+            "ceiling": "INFERRED",
+            "structure": "the teams the game holds (register P1)",
+            "shows": "Competitors are in the game: the teams it holds.",
+            "doesNotShow": "Whether their influence alters, constrains, contests or disrupts developing interaction in play."
+        },
+        {
+            "id": "J-OP-TARGET",
+            "affordance": "Open Pathway",
+            "rows": ["J2"],
+            "anchor": { "metadataKey": "car_op_definition", "words": "a functional route" },
+            "ceiling": "UNVERIFIED",
+            "structure": "the target an objective scores at (register J2)",
+            "shows": "Each objective has a target to reach. Our reading: a target gives a route toward it a function.",
+            "doesNotShow": "That any route is available in play; no register structure is a route."
+        },
+        {
+            "id": "J-CIO-TURNOVER",
+            "affordance": "Competitive Interaction Opportunity",
+            "rows": ["T6"],
+            "where": { "selector": { "trigger": "POSSESSION_CHANGE" }, "fields": { "playState": "CONTINUE" } },
+            "anchor": { "metadataKey": "car_cio_definition", "words": "contest, or disrupt developing interaction" },
+            "ceiling": "UNVERIFIED",
+            "structure": "play continuing when possession changes (register T6, on a transition triggered by a possession change)",
+            "shows": "Play does not stop when possession changes. Our reading: the team that has just won the object meets the other team's attempt to win it back at once.",
+            "doesNotShow": "That the attempt is made, how quickly, or with what effect."
+        }
+    ]
+}

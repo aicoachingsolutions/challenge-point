@@ -49,11 +49,13 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import { constitutedConditionTypes } from '../rendering/context-scoring-guard'
+import { RelevanceJoinRules, relevanceJoinRulesRefusals } from '../rendering/relevance-trace'
 import { PRIMARY_SCORING_CONDITION } from '../sport-module/rpc-library'
 import { learningGoalAuthorizations, LearningGoalAuthorization, validateLearningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
 import { loadCorpusContracts, loadProvisionalRealizations, loadRegister, loadSportProfile, objectIdOf } from './corpus'
 import { knowledgeKey } from './knowledge-key'
 import { AUDITS_DIR } from './knowledge-root'
+import { indexRegister } from './register'
 import { DraftStoreContents } from './run-bounded-selection'
 import { ContractItem, DRAFT_KNOWLEDGE, DRAFT_KNOWLEDGE_VERSION, LoadedContract, ROLE_YIELD_KEY } from './types'
 
@@ -113,6 +115,30 @@ export class DraftStoreRefused extends Error {
         super(`the draft store ${folder} is refused whole: ${reasons.join(' | ')}`)
         this.name = 'DraftStoreRefused'
     }
+}
+
+/**
+ * **TEST-ONLY: the relevance trace's join-rule table, ours and DRAFT, read once for every activity** — B3, 28 October 2026. Christian, his reply
+ * filed 30 October 2026, item 5: *"Instead, I'd like the explanation mechanism to draw from reusable, traceable knowledge relationships rather
+ * than require me to authorize a new set of explanatory statements for every generated activity."* So the rules that join an element to an
+ * affordance are one small table of ours for his review (`docs/audits/drafts/relevance-join-rules.DRAFT.json`), read here, beside the other
+ * drafts, and refused WHOLE on any defect the trace's own gate names (`relevanceJoinRulesRefusals`: closed keys, the four affordances once,
+ * no rule for an affordance marked NONE, register rows that exist, words verbatim in the affordance's definition). Like the store, never
+ * imported by a production module.
+ */
+export const RELEVANCE_JOIN_RULES_FILE = path.join(DRAFTS_DIR, 'relevance-join-rules.DRAFT.json')
+export function loadRelevanceJoinRules(file: string = RELEVANCE_JOIN_RULES_FILE): RelevanceJoinRules {
+    let raw: unknown
+    try {
+        raw = JSON.parse(fs.readFileSync(file, 'utf8').replace(/^﻿/, ''))
+    } catch (error) {
+        throw new DraftStoreRefused(file, [`the join-rule table does not parse: ${error instanceof Error ? error.message : String(error)}`])
+    }
+    const reasons = relevanceJoinRulesRefusals(raw, indexRegister(loadRegister()))
+    if (reasons.length) throw new DraftStoreRefused(file, reasons)
+    const repository = path.resolve(SYSTEM_DIR, '..', '..', '..')
+    const shown = path.relative(repository, path.resolve(file)).split(path.sep).join('/')
+    return { ...(JSON.parse(JSON.stringify(raw)) as Omit<RelevanceJoinRules, 'file'>), file: shown.startsWith('..') ? path.basename(file) : shown }
 }
 
 const filled = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0
