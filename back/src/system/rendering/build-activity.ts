@@ -35,6 +35,7 @@
  */
 import { bindingOf, boundRegionsRefusals, SportBoundRegions } from '../derivation/bound-regions'
 import { loadRegister, loadSportBoundRegions, loadSportCoachVocabulary, loadSportDefaultLaws, loadSportEnvironmentElements, ProvisionalRealization, provisionalRealizationNamed, TestingBoundaries } from '../derivation/corpus'
+import { LawsMateriality, lawsMaterialityRefusals } from '../derivation/default-laws'
 import { duplicateEnvironmentElements, SportEnvironmentElements } from '../derivation/environment-elements'
 import { isStampedHalt } from '../derivation/emit'
 import { runDerivation, runStages0to10, runStages0to5 } from '../derivation/engine'
@@ -428,6 +429,14 @@ export interface ServedActivity {
     draftKnowledge?: DraftKnowledgeAccount
     /** TEST-ONLY (B3, 28 October 2026): the relevance trace of a composition-test build or a demonstration; see `relevanceOfBuilt`. */
     relevance?: RelevanceTrace
+    /**
+     * **The sport's check of a composed activity, for an administrator only** (B4, 28 October 2026; `default-laws-check.ts`): the default-laws
+     * account the sport's check declared (`declaredBy: 'SPORT_PROFILE'`), with each owed adaptation MATERIAL or PROCEDURAL; on a served
+     * activity, what it owes is only PROCEDURAL, reported here for review. Carried only by the review build with drafts, and only where the
+     * sport's check (not a realization's own) held the activity, so the report never depends on a record asking for review evidence. Absent on
+     * every coach's answer and on every activity a realization's check holds (its account is in `evidence`, where the record asks for one).
+     */
+    lawsCheck?: DefaultLawsAccount
 }
 
 /**
@@ -521,6 +530,8 @@ export interface RefusedActivity {
     draftKnowledge?: DraftKnowledgeAccount
     /** TEST-ONLY (B3, 28 October 2026): the relevance trace of a composition-test build or a demonstration; see `relevanceOfBuilt`. */
     relevance?: RelevanceTrace
+    /** B4 (28 October 2026), for an administrator only: the sport's check of a composed activity; see `ServedActivity.lawsCheck`. */
+    lawsCheck?: DefaultLawsAccount
 }
 
 /**
@@ -1182,8 +1193,23 @@ export function buildActivityUnderAuthorizationRecords(
          * Problem is the goal's, as selection resolved it, unless the test names one. Absent: no trace, and the build is exactly what it was.
          */
         relevance?: { joinRules: RelevanceJoinRules; gameProblemId?: string }
+        /**
+         * B4 (28 October 2026), tests only: the classification of the profile's laws by his materiality test that the sport's check reads for
+         * a composed activity (`draft-store.ts` `loadLawsMateriality`, our DRAFT reading; or a TEST-ONLY copy of it), held again here to the
+         * gate the file is (`lawsMaterialityRefusals`), so a copy it refuses throws. Absent: nothing is classified, as in production, and every
+         * owed adaptation counts as MATERIAL.
+         */
+        lawsMateriality?: LawsMateriality
     } = {},
 ): ActivityBuild & { fixture: Record<string, unknown> | null } {
+    const givenMateriality = (given: LawsMateriality | undefined): LawsMateriality | null => {
+        if (!given) return null
+        const copy = JSON.parse(JSON.stringify(given)) as LawsMateriality
+        const { file: _file, ...raw } = copy
+        const errors = lawsMaterialityRefusals(raw, loadSportDefaultLaws())
+        if (errors.length) throw new Error(`a TEST-ONLY classification of the laws is refused by the gate the DRAFT file is held to: ${errors.join('; ')}`)
+        return copy
+    }
     const givenBoundRegions = (block: SportBoundRegions | null | undefined): SportBoundRegions | null | undefined => {
         if (block === undefined || block === null) return block
         const copy = JSON.parse(JSON.stringify(block)) as SportBoundRegions
@@ -1207,6 +1233,7 @@ export function buildActivityUnderAuthorizationRecords(
         givenBoundRegions(options.boundRegions),
         drafts,
         observed,
+        givenMateriality(options.lawsMateriality),
     )
     if (drafts) built.activity.draftKnowledge = draftKnowledgeAccountOf(drafts.store, built, drafts.seen.contracts)
     if (options.relevance && observed) built.activity.relevance = relevanceOfBuilt(built, observed.contracts, request.goalId, options.relevance)
@@ -1328,6 +1355,11 @@ function build(
     drafts: { store: DraftStoreContents; seen: { contracts: LoadedContract[] | null } } | null = null,
     /** B3, tests only (a build asked for its relevance trace): where the derivation input each attempt assembles is noted. Null: nothing is. */
     observed: { contracts: LoadedContract[] | null } | null = null,
+    /**
+     * B4, tests only (`buildActivityUnderAuthorizationRecords` `lawsMateriality`): the classification the sport's check reads for a composed
+     * activity. Null: none, as in production, so every owed adaptation counts as MATERIAL.
+     */
+    lawsMateriality: LawsMateriality | null = null,
 ): ActivityBuild & { fixture: Record<string, unknown> | null } {
     const boundRegions: SportBoundRegions | null = boundRegionsGiven === undefined ? loadSportBoundRegions() : boundRegionsGiven
     // B2 (28 October 2026): the playing environment's elements, read once for every game of this build (the guard in `buildOneGame`).
@@ -1754,9 +1786,17 @@ function build(
          * The design's DRAFT sentence for the coach is shown there as held, and nothing a coach reads changes.
          */
         const receivedRealization = provisionalRealization ? (((input.contracts as LoadedContract[]).find(contract => contract.contractId === provisionalRealization.contractId) as ProvisionalRealization | undefined) ?? null) : null
+        /**
+         * B4, 28 October 2026 (R8's E4a): a Learning Goal's activity is a composed one, held to the sport's own check where its realization
+         * declares none (`defaultLawsAccountOf` decides; a realization's own check still wins). Christian, his reply filed 30 October 2026,
+         * item 4: *"Material unresolved conflicts affecting the activity's meaning, safety, or structural validity should prevent approval."*
+         * Branches on the build's subject kind only, as the holds above do, naming no goal: an engineering demonstration is never held (his
+         * 13 October standard keeps engineering demonstrations apart from learning-design activities).
+         */
+        const composedCheck = kind === 'learning-goal' ? { materiality: lawsMateriality } : null
         const lawAccountOf = (games: { blockId: string; game: unknown; roleBlock: RoleBlock | null }[]): DefaultLawsAccount | null => {
-            if (!receivedRealization?.defaultLawsCheck) return null
-            const held = draftCoachWordingLoad().wording.normalLaws
+            if (!receivedRealization?.defaultLawsCheck && !composedCheck) return null
+            const held = receivedRealization?.defaultLawsCheck ? draftCoachWordingLoad().wording.normalLaws : null
             return defaultLawsAccountOf({
                 realization: receivedRealization,
                 laws: loadSportDefaultLaws(),
@@ -1766,17 +1806,36 @@ function build(
                 heldSentence: held ? { text: held.words, status: 'DRAFT_HELD_NOT_SERVED', basis: { words: [...held.basis.words], citedAs: held.basis.citedAs } } : null,
                 // H3: the bound-region block this build checked the games against, whose pairings give a bound region's mark.
                 boundRegions,
+                composed: composedCheck,
             })
         }
         // The summary is DRAFT coach wording (H3 carries the H2 review's should-fix 6: it was not labelled so), reachable only where a
         // realization declares ENFORCE and owes an adaptation - on 23 October 2026 only a TEST-ONLY completion of the goal version does.
-        const lawRefusalOf = (lawAccount: DefaultLawsAccount | null): ReturnType<typeof refuse> | null =>
-            lawAccount && lawAccount.mode === 'ENFORCE' && lawAccount.owed.length
-                ? refuse('validation', `Where this activity departs from the sport's normal rules has not all been decided yet, so it is not being shown.`, [
+        // B4: and where the sport's check holds a composed activity owing a MATERIAL adaptation (the same summary; the reasons name the check,
+        // each material adaptation, and then each procedural one, reported). A PROCEDURAL adaptation alone refuses nothing.
+        const lawRefusalOf = (lawAccount: DefaultLawsAccount | null): ReturnType<typeof refuse> | null => {
+            const summary = `Where this activity departs from the sport's normal rules has not all been decided yet, so it is not being shown.`
+            const materiality = lawAccount?.materiality
+            if (lawAccount && materiality) {
+                const n = materiality.material.length
+                return n
+                    ? refuse('validation', summary, [
+                          `the sport's default-laws check (${lawAccount.mode}, ${lawAccount.check.basis.citedAs}) holds this composed activity: ${n} material adaptation${n === 1 ? ' is' : 's are'} owed, which prevent${n === 1 ? 's' : ''} approval`,
+                          ...materiality.material,
+                          ...materiality.reportedForReview.map(sentence => `reported for review, not refused: ${sentence}`),
+                      ])
+                    : null
+            }
+            return lawAccount && lawAccount.mode === 'ENFORCE' && lawAccount.owed.length
+                ? refuse('validation', summary, [
                       `the provisional realization ${lawAccount.realization} holds its activity to the normal laws (ENFORCE), and ${lawAccount.owed.length} adaptation${lawAccount.owed.length === 1 ? ' is' : 's are'} owed`,
                       ...lawAccount.owed,
                   ])
                 : null
+        }
+        /** B4: the sport's check of a composed activity, for an administrator's review build only (`ServedActivity.lawsCheck`). */
+        const lawsCheckKeys = (lawAccount: DefaultLawsAccount | null): { lawsCheck?: DefaultLawsAccount } =>
+            review.includeDrafts && lawAccount?.declaredBy === 'SPORT_PROFILE' ? { lawsCheck: JSON.parse(JSON.stringify(lawAccount)) as DefaultLawsAccount } : {}
         const rolesRow = roleIndex.roleBlocks?.rolesRow
         /**
          * Stage D (23 October 2026, register version 18): a selection carrying an item on the end-assignment row (B10) is asked too, so an
@@ -1919,6 +1978,7 @@ function build(
                     if (review.includeDrafts) (refusal.activity as RefusedActivity).draft = reviewDraftOf(games.map(entry => entry.fixture), composed, [...games.flatMap(entry => entry.violations), ...violations], games.flatMap(entry => entry.contracts))
                     const evidence = evidenceOf(refusal.activity.outcome === 'refused' ? refusal.activity.stage : 'served')
                     if (evidence) (refusal.activity as RefusedActivity).evidence = evidence
+                    Object.assign(refusal.activity, lawsCheckKeys(lawAccount))
                     return refusal
                 }
                 // H2: under ENFORCE a game owing an adaptation is refused at validation, before any refusal at communication.
@@ -1969,6 +2029,8 @@ function build(
                         },
                         // Stage K8: the admin-only review evidence, where the goal's record asks for one; absent on every coach's answer.
                         ...((evidence => (evidence ? { evidence } : {}))(evidenceOf('served', overview.evidence))),
+                        // B4: the sport's check of a composed activity, for an administrator only (what it owes is procedural, reported).
+                        ...lawsCheckKeys(lawAccount),
                         // Stage 3D: the overview where it agrees (every viewer); its draft and the check's findings for an administrator only.
                         ...overviewKeys(overview),
                         // Stage 5A/5B: the diagram where it agrees (every viewer); its model and the checks' findings for an administrator only.
@@ -2010,6 +2072,7 @@ function build(
             // And the admin-only review evidence (stage K8), where the goal's record asks for one.
             const evidence = one.communication && one.fixture ? reviewEvidenceFor(review, goalSelection, account, roleIndex, session, lawRefusal ? 'validation' : one.stage, one.communication.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.communication.contracts, rendered: one.communication.rendered, ...one.communication.evidence }], null, null, lawAccount, boundRegions) : null
             if (evidence) (refusal.activity as RefusedActivity).evidence = evidence
+            Object.assign(refusal.activity, lawsCheckKeys(lawAccount))
             return refusal
         }
         // H2: the default-laws account of the one game, where the realization being tried declares the check; under ENFORCE, owed refuses.
@@ -2019,12 +2082,13 @@ function build(
             fixture = one.fixture
             const evidence = reviewEvidenceFor(review, goalSelection, account, roleIndex, session, 'validation', one.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.contracts, rendered: one.rendered, ...one.evidence }], null, null, oneLawAccount, boundRegions)
             if (evidence) (oneLawRefusal.activity as RefusedActivity).evidence = evidence
+            Object.assign(oneLawRefusal.activity, lawsCheckKeys(oneLawAccount))
             return oneLawRefusal
         }
         // Stage 3D: the overview of the one game, checked against its Details (which are what a coach is served).
         const overview = overviewOf([{ blockId: ONE_GAME, fixture: one.fixture, rendered: one.rendered }], one.rendered.instructions)
         const evidence = reviewEvidenceFor(review, goalSelection, account, roleIndex, session, 'served', one.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.contracts, rendered: one.rendered, ...one.evidence }], null, overview.evidence, oneLawAccount, boundRegions)
-        return serve(one, { ...(evidence ? { evidence } : {}), ...overviewKeys(overview), ...diagramKeys([{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, rendered: one.rendered.instructions }], one.rendered.instructions, null) }, [{ blockId: ONE_GAME, fixture: one.fixture }])
+        return serve(one, { ...(evidence ? { evidence } : {}), ...lawsCheckKeys(oneLawAccount), ...overviewKeys(overview), ...diagramKeys([{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, rendered: one.rendered.instructions }], one.rendered.instructions, null) }, [{ blockId: ONE_GAME, fixture: one.fixture }])
     }
 
     /**
@@ -2621,6 +2685,10 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
      * realized game, the composed items of the realization being tried and the session), made here for this one game before it is rendered,
      * and only where that realization declares `defaultLawsCheck`; every other game assembles exactly as before. Carried as each law's id,
      * place and status (`rendering-fixture.ts`); a test holds it equal to the review evidence's account, block by block.
+     *
+     * B4 (28 October 2026): only a realization's own check crosses here. The sport's check of a composed activity (`lawAccountOf`, above)
+     * goes to the build's refusal and the administrator only, never to the renderer, so it adds no coach wording: a composition's coach text
+     * is what it was without the check (`default-laws-composition.unit.ts` holds it so).
      */
     const tried = realizationOf(selection)
     const triedReceived = tried ? ((input.contracts as LoadedContract[]).find(contract => contract.contractId === tried.contractId) as ProvisionalRealization | undefined) : undefined

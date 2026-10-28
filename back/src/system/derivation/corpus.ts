@@ -262,6 +262,9 @@ export function loadSportDefaultLaws(read: (file: string) => any = readJson, ind
             listedFor: law.listedFor,
             restart: law.restart === true,
         })),
+        // B4 (28 October 2026): the sport's own check for a composed activity, validated above; read by the default-laws account
+        // (`default-laws-check.ts`) for a Learning Goal's activity whose realization declares no check. Null where the block declares none.
+        check: block.check === undefined ? null : { mode: block.check.mode, because: String(block.check.because), basis: { words: (block.check.basis.words as unknown[]).map(String), citedAs: String(block.check.basis.citedAs) } },
     }
 }
 

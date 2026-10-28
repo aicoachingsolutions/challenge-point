@@ -139,5 +139,6 @@
     "./src/system/derivation/draft-store.unit.ts",
     "./src/system/derivation/environment-elements.unit.ts",
     "./src/system/rendering/draft-composition.unit.ts",
-    "./src/system/rendering/relevance-trace.unit.ts"
+    "./src/system/rendering/relevance-trace.unit.ts",
+    "./src/system/realization/default-laws-composition.unit.ts"
 ]

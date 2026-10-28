@@ -52,7 +52,8 @@ import { constitutedConditionTypes } from '../rendering/context-scoring-guard'
 import { RelevanceJoinRules, relevanceJoinRulesRefusals } from '../rendering/relevance-trace'
 import { PRIMARY_SCORING_CONDITION } from '../sport-module/rpc-library'
 import { learningGoalAuthorizations, LearningGoalAuthorization, validateLearningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
-import { loadCorpusContracts, loadProvisionalRealizations, loadRegister, loadSportProfile, objectIdOf } from './corpus'
+import { loadCorpusContracts, loadProvisionalRealizations, loadRegister, loadSportDefaultLaws, loadSportProfile, objectIdOf } from './corpus'
+import { LawsMateriality, lawsMaterialityRefusals } from './default-laws'
 import { knowledgeKey } from './knowledge-key'
 import { AUDITS_DIR } from './knowledge-root'
 import { indexRegister } from './register'
@@ -140,6 +141,31 @@ export function loadRelevanceJoinRules(file: string = RELEVANCE_JOIN_RULES_FILE)
     const repository = path.resolve(SYSTEM_DIR, '..', '..', '..')
     const shown = path.relative(repository, path.resolve(file)).split(path.sep).join('/')
     return { ...(JSON.parse(JSON.stringify(raw)) as Omit<RelevanceJoinRules, 'file'>), file: shown.startsWith('..') ? path.basename(file) : shown }
+}
+
+/**
+ * **TEST-ONLY: our DRAFT classification of the profile's laws by his materiality test, read once for every composed activity** — B4, 28
+ * October 2026 (R8's E4a). Christian, his reply filed 30 October 2026, item 4: *"Material unresolved conflicts affecting the activity's
+ * meaning, safety, or structural validity should prevent approval."* *"Minor or nonessential procedural questions may be reported for review
+ * without stopping development."* The sport's check (the Sport Profile's `defaultLaws.check`) applies his distinction to each adaptation a
+ * composed activity owes; which law is which is a judgement of ours, not his, so it is one small file of ours for his review
+ * (`docs/audits/drafts/laws-materiality.DRAFT.json`), read here beside the other drafts and refused WHOLE on any defect the gate names
+ * (`lawsMaterialityRefusals`: DRAFT standing, his test quoted exactly as the check quotes it, laws the profile names each once, a kind of the
+ * two, our reading quoting nothing). Like the store, never imported by a production module, so no production build reads it.
+ */
+export const LAWS_MATERIALITY_FILE = path.join(DRAFTS_DIR, 'laws-materiality.DRAFT.json')
+export function loadLawsMateriality(file: string = LAWS_MATERIALITY_FILE): LawsMateriality {
+    let raw: unknown
+    try {
+        raw = JSON.parse(fs.readFileSync(file, 'utf8').replace(/^﻿/, ''))
+    } catch (error) {
+        throw new DraftStoreRefused(file, [`the classification of the laws does not parse: ${error instanceof Error ? error.message : String(error)}`])
+    }
+    const reasons = lawsMaterialityRefusals(raw, loadSportDefaultLaws())
+    if (reasons.length) throw new DraftStoreRefused(file, reasons)
+    const repository = path.resolve(SYSTEM_DIR, '..', '..', '..')
+    const shown = path.relative(repository, path.resolve(file)).split(path.sep).join('/')
+    return { ...(JSON.parse(JSON.stringify(raw)) as Omit<LawsMateriality, 'file'>), file: shown.startsWith('..') ? path.basename(file) : shown }
 }
 
 const filled = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0

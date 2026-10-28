@@ -150,6 +150,60 @@ export interface DefaultLaws {
     editionNote: string
     authority: CitedWords & { by: string; ruledOn: string }
     laws: DefaultLaw[]
+    /** B4: the sport's own check for a composed activity (`SportLawsCheck`); null where the block declares none. */
+    check: SportLawsCheck | null
+}
+
+/**
+ * **The sport's own check for a composed activity, by materiality** — B4, 28 October 2026 (R8's E4a, our proposal). Christian, his reply
+ * filed 30 October 2026, item 4: *"For [restriction on position] and other Laws of the Game adaptations, normal rules remain the starting
+ * point, with explicit modifications where necessary."* *"Material unresolved conflicts affecting the activity's meaning, safety, or
+ * structural validity should prevent approval."* *"Minor or nonessential procedural questions may be reported for review without stopping development."* *"We should
+ * avoid another extended investigation into every possible [sport] rule before establishing the activity's essential design."* (His nouns
+ * bracketed: the coupling ratchet keeps a sport's nouns out of this layer; the Sport Profile quotes him whole.)
+ *
+ * Until B4 an activity was held to the account only where its provisional realization declared a check (`defaultLawsCheck`), so a composed
+ * activity, one whose realization declares none or that has none, gained no account at all. The Sport Profile's default-laws block may now
+ * declare one check for the sport (`check`), held only to a Learning Goal's activity and only where no realization of its own declares one
+ * (a realization's own check still wins). Its one mode, BY_MATERIALITY, is his distinction applied per owed adaptation: one classified
+ * MATERIAL refuses the activity before it is served; one classified PROCEDURAL is reported for review and refuses nothing; one no
+ * classification names counts as MATERIAL (fail safe: an owed adaptation nobody has judged minor is never waved through). The
+ * classifications are not the check's: none is production knowledge. Ours are a DRAFT reading for his review, read only by composition-test
+ * builds (`LawsMateriality`, through the draft store), so a production composition, classified by nothing, is refused for whatever it owes.
+ */
+export const SPORT_LAWS_CHECK_MODES = ['BY_MATERIALITY'] as const
+export type SportLawsCheckMode = (typeof SPORT_LAWS_CHECK_MODES)[number]
+
+/** His two kinds of owed adaptation (his reply filed 30 October 2026, item 4): material (prevents approval) or procedural (reported). */
+export const LAW_MATERIALITIES = ['MATERIAL', 'PROCEDURAL'] as const
+export type LawMateriality = (typeof LAW_MATERIALITIES)[number]
+
+/** The sport's check for a composed activity (the Sport Profile's `defaultLaws.check`): its mode, why (ours), and his words for it. */
+export interface SportLawsCheck {
+    mode: SportLawsCheckMode
+    because: string
+    basis: CitedWords
+}
+
+/** One law's materiality, as a classification of ours reads it: which law, which kind, and our reading (never his words). */
+export interface LawMaterialityEntry {
+    law: string
+    materiality: LawMateriality
+    ourReading: string
+}
+
+/**
+ * **A classification of the profile's laws by his materiality test, as a DRAFT of ours** — B4. Never production knowledge: the file is read
+ * only by the draft store (`draft-store.ts` `loadLawsMateriality`), for composition-test builds, and held to `lawsMaterialityRefusals`.
+ */
+export interface LawsMateriality {
+    file: string
+    standing: string
+    readBy: string
+    note: string
+    /** His test, quoted exactly as the Sport Profile's check quotes it. */
+    test: CitedWords
+    classifications: LawMaterialityEntry[]
 }
 
 /** One departure an item records (`departsFrom`). */
@@ -227,7 +281,7 @@ export function samePredicate(a: LawPredicate | undefined, b: LawPredicate | und
     return PREDICATE_ARGUMENTS[a.predicate].every(key => (a as any)[key] === (b as any)[key])
 }
 
-const BLOCK_KEYS = new Set(['source', 'edition', 'editionNote', 'authority', 'restates', 'note', 'laws'])
+const BLOCK_KEYS = new Set(['source', 'edition', 'editionNote', 'authority', 'restates', 'note', 'laws', 'check'])
 const LAW_KEYS = new Set(['id', 'cites', 'name', 'scope', 'applicableWhen', 'requires', 'note', 'listedFor', 'restart'])
 const AUTHORITY_KEYS = new Set(['words', 'citedAs', 'by', 'ruledOn'])
 
@@ -259,6 +313,11 @@ export function defaultLawsRefusals(block: unknown, index: RegisterIndex): strin
         if (!Array.isArray(authority.words) || !authority.words.length || !authority.words.every(filled) || !filled(authority.citedAs) || !filled(authority.by) || !filled(authority.ruledOn)) {
             errors.push('the default-laws authority must quote his words and say where, by whom and when (words, citedAs, by, ruledOn)')
         }
+    }
+    // B4: the sport's own check for a composed activity, where the block declares one (absent: none, and no composition is held to one).
+    if (block.check !== undefined) {
+        const why = sportLawsCheckRefusal(block.check)
+        if (why) errors.push(`the default-laws block ${why}`)
     }
     if (!Array.isArray(block.laws) || !block.laws.length) return [...errors, 'the default-laws block lists no laws']
     const ids = new Set<string>()
@@ -351,6 +410,64 @@ export function defaultLawsCheckRefusal(check: unknown): string | null {
     if (!filled(check.because)) return 'declares its default-laws check without saying why (because)'
     const basis = citedWordsRefusal(check.basis)
     return basis ? `declares its default-laws check, and ${basis}` : null
+}
+
+/**
+ * **Why the sport's check cannot be used, or null** (B4): exactly its mode of the closed list (there is no default), why (ours), and his
+ * words with where he said them. The same three keys a realization's check has; only the mode list differs.
+ */
+export function sportLawsCheckRefusal(check: unknown): string | null {
+    if (!isObject(check)) return 'declares the sport\'s check as something other than an object (mode, because, basis)'
+    for (const key of Object.keys(check)) if (!CHECK_KEYS.has(key)) return `declares the sport's check with "${key}"`
+    if (!(SPORT_LAWS_CHECK_MODES as readonly unknown[]).includes(check.mode)) return `declares the sport's check ${JSON.stringify(check.mode)}, which is none of ${SPORT_LAWS_CHECK_MODES.join(', ')} (there is no default)`
+    if (!filled(check.because)) return 'declares the sport\'s check without saying why (because)'
+    const basis = citedWordsRefusal(check.basis)
+    return basis ? `declares the sport's check, and ${basis}` : null
+}
+
+const MATERIALITY_KEYS = new Set(['standing', 'readBy', 'note', 'test', 'classifications'])
+const CLASSIFICATION_KEYS = new Set(['law', 'materiality', 'ourReading'])
+
+/**
+ * **Everything wrong with a DRAFT classification of the profile's laws by his materiality test, as sentences; empty means it may be read**
+ * (B4). It stands DRAFT and says who reads it; its test is his, quoted exactly: each of its words one of the Sport Profile check's own, cited
+ * as the check cites them (so a paraphrase, or a test the sport declares no check for, is refused); and it classifies laws the profile names,
+ * each once, MATERIAL or PROCEDURAL, with our reading. Our reading quotes nothing (no double quotation marks, straight or curly): every word
+ * of it is ours, and a quotation there would read as his. A law it does not classify is not refused here: the account counts it MATERIAL.
+ */
+export function lawsMaterialityRefusals(raw: unknown, laws: DefaultLaws | null): string[] {
+    if (!isObject(raw)) return ['the classification is not an object']
+    const errors: string[] = []
+    for (const key of Object.keys(raw)) if (!MATERIALITY_KEYS.has(key)) errors.push(`the classification carries "${key}"`)
+    if (!filled(raw.standing) || !raw.standing.startsWith('DRAFT')) errors.push(`the classification does not stand DRAFT (its standing: ${JSON.stringify(raw.standing ?? null)})`)
+    if (!filled(raw.readBy)) errors.push('the classification does not say what reads it (readBy)')
+    if (!filled(raw.note)) errors.push('the classification carries no note of ours (note)')
+    const check = laws?.check ?? null
+    const test = citedWordsRefusal(raw.test)
+    if (test) errors.push(`the classification's test: ${test}`)
+    else if (!check) errors.push('the classification quotes a test, and the Sport Profile declares no check of the sport to hold it to')
+    else {
+        const given = raw.test as { words: string[]; citedAs: string }
+        if (given.citedAs !== check.basis.citedAs) errors.push(`the classification's test is cited as ${JSON.stringify(given.citedAs)}, and the Sport Profile's check cites his words as ${JSON.stringify(check.basis.citedAs)}`)
+        for (const words of given.words) if (!check.basis.words.includes(words)) errors.push(`the classification's test quotes "${words}", which is not one of the Sport Profile check's words exactly`)
+    }
+    if (!Array.isArray(raw.classifications) || !raw.classifications.length) return [...errors, 'the classification classifies no law']
+    const seen = new Set<string>()
+    for (const [i, entry] of (raw.classifications as unknown[]).entries()) {
+        const which = `classification ${isObject(entry) && filled(entry.law) ? entry.law : i + 1}`
+        if (!isObject(entry)) {
+            errors.push(`${which} is not an object`)
+            continue
+        }
+        for (const key of Object.keys(entry)) if (!CLASSIFICATION_KEYS.has(key)) errors.push(`${which} carries "${key}"`)
+        if (!laws?.laws.some(law => law.id === entry.law)) errors.push(`${which} classifies ${JSON.stringify(entry.law ?? null)}, which is no law the Sport Profile names as a default`)
+        else if (seen.has(String(entry.law))) errors.push(`${which} is classified twice`)
+        if (filled(entry.law)) seen.add(entry.law)
+        if (!(LAW_MATERIALITIES as readonly unknown[]).includes(entry.materiality)) errors.push(`${which} is classified ${JSON.stringify(entry.materiality ?? null)}, which is none of ${LAW_MATERIALITIES.join(', ')}`)
+        if (!filled(entry.ourReading)) errors.push(`${which} gives no reading of ours (ourReading)`)
+        else if (/["“”]/.test(entry.ourReading)) errors.push(`${which}: our reading quotes something, and every word of it is ours (a quotation there would read as his)`)
+    }
+    return errors
 }
 
 /** The departures an item records, as read (the loader has refused any it could not use); none where it records none. */

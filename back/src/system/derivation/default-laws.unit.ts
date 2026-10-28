@@ -54,6 +54,11 @@
  * handling clause; the mutation taking the offside departure out now refuses the zone version under ENFORCE, naming LAW-11 in both blocks.
  * Where this note says REPORT or the handling owed of the zone version above, it records what was pinned before Z.
  *
+ * **Re-pointed 28 October 2026 (B4)** for his reply filed 30 October 2026, item 4 (the general Laws check by materiality): a realization
+ * declaring no check gains no account of its own, and a Learning Goal's activity it realizes is now held to the sport's check instead; the
+ * builds with every annotation taken out are given a TEST-ONLY classification making every law procedural, so they still isolate what the
+ * annotations alone say, and their account is pinned as the sport's. The sport's check itself is pinned in default-laws-composition.unit.ts.
+ *
  * Nothing here changes a production file. TEST-ONLY copies are labelled and held in memory.
  *
  * Run: npx ts-node --files -r tsconfig-paths/register ./src/system/derivation/default-laws.unit.ts
@@ -66,7 +71,7 @@ import { specializedRoleNames } from '../rendering/session-envelope'
 import { blockLawAccountOf, DefaultLawsAccount } from '../realization/default-laws-check'
 import { learningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
 import { loadProvisionalRealizations, loadRegister, loadSportDefaultLaws, loadSportProfile, PROVISIONAL_REALIZATIONS_FILE, readJson, validateProvisionalRealizations } from './corpus'
-import { DefaultLaws, defaultLawsCheckRefusal, defaultLawsRefusals, LAW_PREDICATES } from './default-laws'
+import { DefaultLaws, defaultLawsCheckRefusal, defaultLawsRefusals, LAW_PREDICATES, LawsMateriality } from './default-laws'
 import { indexRegister } from './register'
 
 let passed = 0
@@ -390,6 +395,21 @@ const unannotated = (): any => {
     }
     return file
 }
+/**
+ * B4 (28 October 2026): a Learning Goal's activity whose realization declares no check is a composed one, held to the sport's own check
+ * (the Sport Profile's defaultLaws.check, BY_MATERIALITY), where every owed adaptation nothing classifies is MATERIAL and refuses. The builds
+ * with every annotation taken out are therefore given this TEST-ONLY classification, every law PROCEDURAL (neither our reading nor his), so
+ * the sport's check refuses nothing and they still isolate what the annotations alone say; its account goes to the administrator only and
+ * never to the renderer, so what a coach reads is what it was.
+ */
+const ALL_PROCEDURAL: LawsMateriality = {
+    file: 'TEST-ONLY',
+    standing: 'DRAFT - TEST-ONLY stand-in, every law PROCEDURAL: neither our reading nor his',
+    readBy: 'default-laws.unit.ts only',
+    note: 'TEST-ONLY',
+    test: { words: laws.check!.basis.words.filter(words => words.startsWith('Material') || words.startsWith('Minor')), citedAs: laws.check!.basis.citedAs },
+    classifications: laws.laws.map(law => ({ law: law.id, materiality: 'PROCEDURAL' as const, ourReading: 'TEST-ONLY stand-in.' })),
+}
 
 /**
  * TEST-ONLY (Z, 25 October 2026): the zone version as it was before his reply filed 28 October 2026, item 7 - its six penalty-area items taken
@@ -496,19 +516,20 @@ function shifted(production: unknown, bare: unknown, place: (bare: number) => nu
     }
     assert.deepEqual(production, bare, at)
 }
-test('what a coach reads changes only by the account\'s sentences (three since P1): the same build with every annotation taken out of a copy says everything else the same, and gains no account', () => {
+test('what a coach reads changes only by the account\'s sentences (three since P1): the same build with every annotation taken out of a copy says everything else the same, and gains no account of its own (B4: the sport\'s)', () => {
     for (const [players, keepers] of [[12, 1], [12, 2], [11, 1]]) {
         const label = `${players}/${keepers}`
         const request = { kind: 'learning-goal', goalId: 'A01', situationId: null, session: sessionOf(players, keepers) } as any
         // Z (25 October 2026): the production zone version, built with every annotation taken out of a copy, is refused at communication -
         // its penalty area has no meaning without the account (Q5), and is never served with an area the coach is told nothing about.
-        const zoneBare = buildActivityUnderAuthorizationRecords(request, learningGoalAuthorizations(), { review: { includeDrafts: true }, realizations: loadProvisionalRealizations(unannotated()) }).activity as RefusedActivity
+        // B4: given the TEST-ONLY classification (ALL_PROCEDURAL), so the sport's check refuses nothing and the refusal is still Q5's.
+        const zoneBare = buildActivityUnderAuthorizationRecords(request, learningGoalAuthorizations(), { review: { includeDrafts: true }, realizations: loadProvisionalRealizations(unannotated()), lawsMateriality: ALL_PROCEDURAL }).activity as RefusedActivity
         assert.deepEqual([zoneBare.outcome, zoneBare.stage], ['refused', 'communication'], label)
         assert.ok(zoneBare.reasons.some(reason => reason.includes('Q5') && reason.includes('A01-R1-S2-2')), `${label}: ${JSON.stringify(zoneBare.reasons)}`)
         // Re-pointed 25 October 2026 (Z): the comparison below is made on the zone version as it was before Z (`beforeZ`, TEST-ONLY), with and
         // without the annotations, so it still isolates what the annotations alone say.
         const production = buildActivityUnderAuthorizationRecords(request, learningGoalAuthorizations(), { review: { includeDrafts: true }, realizations: loadProvisionalRealizations(beforeZ(readJson(PROVISIONAL_REALIZATIONS_FILE))) }).activity as ServedActivity
-        const bare = buildActivityUnderAuthorizationRecords(request, learningGoalAuthorizations(), { review: { includeDrafts: true }, realizations: loadProvisionalRealizations(beforeZ(unannotated())) }).activity as ServedActivity
+        const bare = buildActivityUnderAuthorizationRecords(request, learningGoalAuthorizations(), { review: { includeDrafts: true }, realizations: loadProvisionalRealizations(beforeZ(unannotated())), lawsMateriality: ALL_PROCEDURAL }).activity as ServedActivity
         assert.equal(production.outcome, 'served', label)
         assert.equal(bare.outcome, 'served', label)
         for (const key of ['overview', 'diagram', 'account', 'title', 'subtitle'] as const) assert.deepEqual(production[key], bare[key], `${label}: ${key}`)
@@ -546,10 +567,19 @@ test('what a coach reads changes only by the account\'s sentences (three since P
         const accountPlaces = production.rendered.instructions.flatMap((i, n) => (ACCOUNT_SAID.includes(i.text) ? [n] : []))
         shifted(uncoloured(productionDraft), bareDraft, placeIn(accountPlaces), `${label}: overviewDraft`)
         assert.deepEqual({ ...productionReading!, detailsWords: 0 }, { ...bareReading!, detailsWords: 0 }, `${label}: the overview's reading, but the Details' word count`)
-        // A realization declaring no check gains no account (the evidence's sentence lists and counts differ by the two sentences).
-        assert.equal(bare.evidence!.defaultLaws, undefined, label)
+        // A realization declaring no check gains no account of its own (the evidence's sentence lists and counts differ by the two sentences).
+        // Re-pointed 28 October 2026 (B4): the sport's check holds it instead, so its account is the sport's (declared by the Sport Profile, no
+        // realization's), every owed adaptation reported under the TEST-ONLY classification and none material; the administrator's alone.
+        assert.equal(production.evidence!.defaultLaws!.declaredBy, undefined, label)
+        assert.equal(production.lawsCheck, undefined, `${label}: a realization's own check is never the sport's`)
+        const sportAccount = bare.evidence!.defaultLaws!
+        assert.deepEqual([sportAccount.declaredBy, sportAccount.mode, sportAccount.realization, sportAccount.heldSentence], ['SPORT_PROFILE', 'BY_MATERIALITY', R1, null], label)
+        assert.deepEqual(sportAccount.materiality!.material, [], label)
+        assert.equal(sportAccount.materiality!.reportedForReview.length, sportAccount.owed.length, label)
+        assert.ok(sportAccount.owed.length > 0, `${label}: the bare build owes what the annotations departed from`)
+        assert.deepEqual(bare.lawsCheck, sportAccount, `${label}: the same account on the administrator's activity`)
         const { defaultLaws: _account, measured: _digests, acceptance: _a, items: _i, sections: _s, overview: _o, provenance: _p, ...rest } = production.evidence!
-        const { measured: _bareDigests, acceptance: _ba, items: _bi, sections: _bs, overview: _bo, provenance: _bp, ...bareRest } = bare.evidence!
+        const { defaultLaws: _bareAccount, measured: _bareDigests, acceptance: _ba, items: _bi, sections: _bs, overview: _bo, provenance: _bp, ...bareRest } = bare.evidence!
         assert.deepEqual(rest, bareRest, `${label}: the evidence gains the account and the two sentences, and nothing else`)
         assert.deepEqual(without(production.evidence!.sections.instructions).map(i => uncoloured(i.text)), bare.evidence!.sections.instructions.map(i => i.text), label)
         // The provenance: one element more, the offside sentence's citation of LAW-11's entries in the account; every other the same.

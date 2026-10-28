@@ -1,0 +1,64 @@
+{
+    "standing": "DRAFT - OUR READING of his materiality test, for his review: not his classification, and not production knowledge",
+    "readBy": "B4, 28 October 2026. Read only by back/src/system/derivation/draft-store.ts (loadLawsMateriality), which no production module imports, for TEST-ONLY composition-test builds (buildActivityUnderAuthorizationRecords, option lawsMateriality). No route, view or production build reads it: in production nothing is classified, so the sport's check (the Sport Profile's defaultLaws.check) counts every owed adaptation as MATERIAL.",
+    "note": "Ours, written once for every composed activity, from R6 section (c3) of our 27 October investigation. Each law the Sport Profile lists is classified by our reading of his test (quoted exactly below, as the Sport Profile's check quotes it): MATERIAL where an owed adaptation of it would affect the activity's meaning, safety or structural validity, PROCEDURAL where it is a minor or nonessential procedural question. A law this file does not name counts as MATERIAL in the account (fail safe). Two material questions sit outside the listed laws and need no classification here: Law 12 fouls (safety) applies by default and is never departed from, and Law 9 (every dead ball needs a stated restart) is a structural check of the game, not of this account. Not corrected here, and waiting: the applicability of LAW-16 and LAW-17 without a goal (a blind spot of our DRAFT encoding), and the precedence of a specialized restart (E-K4). To be reported to him in a line, not put to him law by law.",
+    "test": {
+        "words": [
+            "Material unresolved conflicts affecting the activity's meaning, safety, or structural validity should prevent approval.",
+            "Minor or nonessential procedural questions may be reported for review without stopping development."
+        ],
+        "citedAs": "his reply filed 30 October 2026, item 4"
+    },
+    "classifications": [
+        {
+            "law": "LAW-8",
+            "materiality": "PROCEDURAL",
+            "ourReading": "Owed where the representation holds no centre mark: only where the kick-off is taken from is missing. Which restart follows a success is part of the activity's essential design (his decision 4 for Secure Possession, not yet made), and once chosen it departs from this law; until then the kick-off's location is a procedural question, reported for review."
+        },
+        {
+            "law": "LAW-8-DB",
+            "materiality": "PROCEDURAL",
+            "ourReading": "A restart procedure (the dropped ball). It needs nothing to apply, so it is owed only where a game holds the common dead-ball restart and records no departure from it."
+        },
+        {
+            "law": "LAW-11",
+            "materiality": "MATERIAL",
+            "ourReading": "Owed where no fixed halfway line exists, as in every directional possession game measured. Whether it governs a small-sided game affects the activity's meaning wherever the success condition rewards reaching an area or a line: players could wait there and bypass the interaction with opposition pressure. The success condition for Secure Possession (his decision 2) is not agreed, so this classification holds it MATERIAL throughout (fail safe) until he rules on it for the environment or an activity records a departure; it would be PROCEDURAL only where the success condition rewards no area or line."
+        },
+        {
+            "law": "LAW-12-GK",
+            "materiality": "MATERIAL",
+            "ourReading": "The goalkeeper's handling bears on the goalkeeper's functional role (his reply filed 28 October 2026, item 7) and, as we read it, on safety, so where a goalkeeper plays and the handling cannot apply as written, it is material. It arises only where a goalkeeper plays (its applicableWhen)."
+        },
+        {
+            "law": "LAW-14",
+            "materiality": "PROCEDURAL",
+            "ourReading": "A restart procedure, arising only where a goal stands at an end line. What counts as a foul stays Law 12, which nothing departs from."
+        },
+        {
+            "law": "LAW-13",
+            "materiality": "PROCEDURAL",
+            "ourReading": "The restart only. What counts as a foul is Law 12, which the profile does not list and nothing departs from, so safe and fair play is untouched by this classification."
+        },
+        {
+            "law": "LAW-15",
+            "materiality": "PROCEDURAL",
+            "ourReading": "A restart procedure. It needs nothing to apply, so it is owed only where a game holds the common dead-ball restart and records no departure from it."
+        },
+        {
+            "law": "LAW-16",
+            "materiality": "PROCEDURAL",
+            "ourReading": "Only where a goal kick is taken from is in question (the goal area is not represented). That our DRAFT encoding reads it as not applicable without a goal is a known blind spot, reported and not corrected here."
+        },
+        {
+            "law": "LAW-17",
+            "materiality": "PROCEDURAL",
+            "ourReading": "A restart procedure; it requires nothing once applicable. The same blind spot as LAW-16: our DRAFT encoding reads it as not applicable without a goal."
+        },
+        {
+            "law": "LAW-4-GK",
+            "materiality": "PROCEDURAL",
+            "ourReading": "The goalkeeper's colours. It requires nothing once a goalkeeper plays, so it is never owed."
+        }
+    ]
+}

@@ -20,6 +20,10 @@
  *     including (B2 review, on a constructed fixture) a count a draft item decided and an element instantiated to satisfy one;
  *   - a production build carries none of these keys.
  *
+ * B4 (28 October 2026): the sport's Laws check now holds the draft composition. Under our DRAFT classification (LAW-11 MATERIAL, LAW-8
+ * PROCEDURAL) the U2 build is refused at validation, naming LAW-11 and reporting LAW-8; the B2 measurement above is made under a TEST-ONLY
+ * stand-in classifying LAW-11 PROCEDURAL, where both laws are reported and nothing else changes.
+ *
  * Run: npm test
  */
 import assert from 'node:assert/strict'
@@ -28,7 +32,8 @@ import os from 'node:os'
 import path from 'node:path'
 
 import { loadSportEnvironmentElements } from '../derivation/corpus'
-import { DRAFTS_DIR, loadDraftStore } from '../derivation/draft-store'
+import { LawsMateriality } from '../derivation/default-laws'
+import { DRAFTS_DIR, loadDraftStore, loadLawsMateriality } from '../derivation/draft-store'
 import { runDerivation } from '../derivation/engine'
 import { derivationInputFor } from '../derivation/run-bounded-selection'
 import { DRAFT_KNOWLEDGE } from '../derivation/types'
@@ -68,8 +73,21 @@ const withoutOrigin = (contracts: any[]) => {
     rpc003(contracts).items = rpc003(contracts).items.filter((item: any) => !['RPC-003-10.a', 'RPC-003-10.b'].includes(item.itemId))
 }
 const U2_NO_IDENTIFICATION = (contracts: any[]) => [PR1, PR2, withoutOrigin].forEach(step => step(contracts))
-const build = (drafts: typeof store | undefined, alter?: (contracts: any[]) => void) =>
-    buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'TA02', session }, records, { ...(drafts ? { drafts } : {}), review: { includeDrafts: true }, ...(alter ? { alter } : {}) })
+const build = (drafts: typeof store | undefined, alter?: (contracts: any[]) => void, lawsMateriality?: LawsMateriality) =>
+    buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'TA02', session }, records, { ...(drafts ? { drafts } : {}), review: { includeDrafts: true }, ...(alter ? { alter } : {}), ...(lawsMateriality ? { lawsMateriality } : {}) })
+/**
+ * B4 (28 October 2026): the sport's Laws check holds a composed activity (his reply filed 30 October 2026, item 4). Our DRAFT classification
+ * reads LAW-11 as MATERIAL, so TA02's draft composition owing it is refused at validation before its wording is reached. To keep the B2
+ * measurement (one ball; refused only for his wording), the build is also made under this TEST-ONLY copy with LAW-11 PROCEDURAL, a stand-in
+ * for a ruling of his on it for this environment that he has not made: not our reading and not his.
+ */
+const ourMateriality = loadLawsMateriality()
+const LAW_11_PROCEDURAL: LawsMateriality = {
+    ...ourMateriality,
+    file: 'TEST-ONLY',
+    standing: 'DRAFT - TEST-ONLY stand-in, LAW-11 PROCEDURAL: neither our reading nor his',
+    classifications: ourMateriality.classifications.map(entry => (entry.law === 'LAW-11' ? { ...entry, materiality: 'PROCEDURAL' as const, ourReading: 'TEST-ONLY stand-in.' } : entry)),
+}
 
 /* ── The store is the only door ───────────────────────────────────────────────────────────────────────────────────────────── */
 {
@@ -104,12 +122,28 @@ const build = (drafts: typeof store | undefined, alter?: (contracts: any[]) => v
     assert.ok(versions.objects.some((entry: any) => entry.id === 'RPC-003' && entry.version === 'draft'))
 }
 
+/* ── B4: the same build under our DRAFT classification of the laws: refused at validation, LAW-11 material, LAW-8 reported ─── */
+{
+    const activity = build(store, U2_NO_IDENTIFICATION, ourMateriality).activity as RefusedActivity
+    assert.equal(activity.outcome, 'refused')
+    assert.equal(activity.stage, 'validation', activity.reasons.join(' | '))
+    assert.deepEqual(activity.reasons.map(reason => reason.split(' - ')[0]), [
+        "the sport's default-laws check (BY_MATERIALITY, his reply filed 30 October 2026, item 4) holds this composed activity: 1 material adaptation is owed, which prevents approval",
+        'LAW-11 (Law 11 (Offside)) at the game: an adaptation is owed',
+        'reported for review, not refused: LAW-8 (Law 8 (The Start and Restart of Play), the kick-off) at the game: an adaptation is owed',
+    ])
+    assert.deepEqual(activity.lawsCheck!.materiality!.classifiedBy, { file: ourMateriality.file, standing: ourMateriality.standing })
+}
+
 /* ── PR-1 + PR-2 as TEST-ONLY stand-ins, origin withheld, NO identification: one ball, refused only for his wording ───────── */
 {
-    const built = build(store, U2_NO_IDENTIFICATION)
+    // B4: under the TEST-ONLY stand-in classifying LAW-11 PROCEDURAL, so the sport's check refuses nothing and reports both laws.
+    const built = build(store, U2_NO_IDENTIFICATION, LAW_11_PROCEDURAL)
     const activity = built.activity as RefusedActivity
     assert.equal(activity.outcome, 'refused')
     assert.equal(activity.stage, 'communication')
+    assert.deepEqual(activity.lawsCheck!.materiality!.reportedForReview.map(sentence => sentence.split(' ')[0]), ['LAW-8', 'LAW-11'])
+    assert.deepEqual(activity.lawsCheck!.materiality!.material, [])
     // Exactly the six fields of the two conditions awaiting his approved wording, and fidelity's six on the same fields; nothing else.
     const conditions = ['RPC-003-11.a', 'RPC-003-12.a'].flatMap(id => ['type', 'referents', 'value'].map(leaf => `value.primaryEvent.conditions[c:restated:RPC-003:${id}].${leaf}`))
     assert.equal(activity.reasons.length, 12, activity.reasons.join(' | '))
@@ -201,7 +235,7 @@ const build = (drafts: typeof store | undefined, alter?: (contracts: any[]) => v
     const served: any = buildActivityForReview({ kind: 'learning-goal', goalId: 'A01', session: { ...session, roles: { ...roles, [keeper]: 1 }, objects: { goal: { count: 0 } } } }, { includeDrafts: true })
     assert.equal(served.outcome, 'served')
     const text = JSON.stringify(served)
-    for (const key of ['draftKnowledge', 'draftShapedBy', 'draftSources', DRAFT_KNOWLEDGE]) assert.ok(!text.includes(key), `no ${key} in a production answer`)
+    for (const key of ['draftKnowledge', 'draftShapedBy', 'draftSources', DRAFT_KNOWLEDGE, 'lawsCheck', 'laws-materiality']) assert.ok(!text.includes(key), `no ${key} in a production answer`)
     assert.equal(served.account.context.contract, undefined)
     assert.ok(!served.evidence.provenance.elements.some((element: any) => element.standings.includes('DRAFT')))
 }
