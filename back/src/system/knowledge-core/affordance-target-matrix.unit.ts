@@ -17,8 +17,9 @@ import {
     CANONICAL_AFFORDANCE_DEFINITIONS,
     CANONICAL_AFFORDANCES,
     affordanceDefinitionsFrom,
-    gameProblemMatrixNotes,
-    gameProblemNotesFrom,
+    gameProblemKeyedMetadataRows,
+    gameProblemKeyedMetadataRowsFrom,
+    metadataRowsAgreeingWith,
     resolveAffordanceTargetProfile,
 } from './affordance-target-matrix'
 import { generateSelection } from '../test-library/generateSelection'
@@ -110,14 +111,16 @@ function testWorkbookNotesAreReadThroughTheLoader(): void {
     assert.deepEqual(Object.keys(CANONICAL_AFFORDANCE_DEFINITIONS).sort(), [...CANONICAL_AFFORDANCES].sort())
     assert.ok(Object.isFrozen(CANONICAL_AFFORDANCE_DEFINITIONS), 'the definitions are read-only')
 
-    assert.deepEqual(gameProblemMatrixNotes('GP-015'), [
+    assert.deepEqual(gameProblemKeyedMetadataRows('GP-015'), [
         { key: 'gp015_validation_flag', value: 'SA=E retained', notes: 'Direct legacy migration retained; field validation recommended.' },
     ])
-    assert.deepEqual(gameProblemMatrixNotes('GP-004'), [
+    assert.deepEqual(gameProblemKeyedMetadataRows('GP-004'), [
         { key: 'gp004_audit_decision', value: 'SA=S', notes: 'Recover Position is performer-level; collective support is supportive rather than identity-defining.' },
     ])
-    assert.deepEqual(gameProblemMatrixNotes('GP-001'), [], 'no notes where the workbook records none')
-    assert.ok(Object.isFrozen(gameProblemMatrixNotes('GP-015')) && Object.isFrozen(gameProblemMatrixNotes('GP-015')[0]))
+    // Empty means only that no Version Metadata KEY names GP-001: the workbook still speaks of it elsewhere (B1 review).
+    assert.deepEqual(gameProblemKeyedMetadataRows('GP-001'), [], 'no Version Metadata key names GP-001')
+    assert.match(String(ATM_METADATA_ROWS.find((row) => row.metadata_key === 'legacy_direct_transfers')?.notes), /GP-001/, 'D41 names GP-001 in a note')
+    assert.ok(Object.isFrozen(gameProblemKeyedMetadataRows('GP-015')) && Object.isFrozen(gameProblemKeyedMetadataRows('GP-015')[0]))
 
     assert.equal(ATM_METADATA_ROWS.length, 41, 'Version Metadata rows 4-44')
     assert.equal(ATM_METADATA_ROWS.find((row) => row.metadata_key === 'gp015_validation_flag')?.required, false)
@@ -131,7 +134,20 @@ function testWorkbookNotesAreReadThroughTheLoader(): void {
     assert.throws(() => affordanceDefinitionsFrom(noNote), /car_sa_definition carries no definition/)
     assert.throws(() => affordanceDefinitionsFrom([...rows, { metadata_key: 'car_xx_definition', metadata_value: 'Something Else', notes: 'x' }]), /not a canonical affordance/)
     assert.throws(() => affordanceDefinitionsFrom([...rows, { metadata_key: 'car_sx_definition', metadata_value: 'Support Availability', notes: 'x' }]), /Support Availability is defined twice/)
-    assert.throws(() => gameProblemNotesFrom([...rows, { metadata_key: 'gp099_flag', metadata_value: 'x' }], ['GP-004', 'GP-015']), /GP-099, which the Game Problem register lacks/)
+    assert.throws(() => gameProblemKeyedMetadataRowsFrom([...rows, { metadata_key: 'gp099_flag', metadata_value: 'x' }], ['GP-004', 'GP-015']), /GP-099, which the Game Problem register lacks/)
+
+    // The rows and the long-standing metadata map must name the same keys, each once, with the same values (B1 review:
+    // a copy of resource_name in place of status_codes used to pass, because only the lengths and lookups were compared).
+    const map = Object.fromEntries(rows.map((row) => [row.metadata_key, row.metadata_value]))
+    assert.equal(metadataRowsAgreeingWith(rows, map).length, 41, 'the committed rows and map agree')
+    const resourceName = rows.find((row) => row.metadata_key === 'resource_name')!
+    const swapped = rows.map((row) => (row.metadata_key === 'status_codes' ? { ...resourceName } : row))
+    assert.throws(() => metadataRowsAgreeingWith(swapped, map), /metadataRows names "resource_name" twice/)
+    assert.throws(() => metadataRowsAgreeingWith([...rows, { ...resourceName }], map), /metadataRows names "resource_name" twice/)
+    assert.throws(() => metadataRowsAgreeingWith(without('status_codes'), map), /metadata names "status_codes", which metadataRows lacks/)
+    assert.throws(() => metadataRowsAgreeingWith([...rows, { metadata_key: 'extra_key', metadata_value: 'x' }], map), /metadataRows names "extra_key", which metadata lacks/)
+    assert.throws(() => metadataRowsAgreeingWith(rows, { ...map, resource_status: 'Candidate' }), /metadata "resource_status" differs between metadataRows and metadata/)
+    assert.throws(() => metadataRowsAgreeingWith(undefined, map), /carries no metadataRows/)
 }
 
 function runAll(): void {

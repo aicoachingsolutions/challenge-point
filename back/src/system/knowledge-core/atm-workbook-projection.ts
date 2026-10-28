@@ -23,8 +23,9 @@
  *
  * IT REFUSES RATHER THAN DROPS. A sheet not declared below, a populated cell above the header row other than the
  * title, a populated cell in a column with no header, a data row with no key, a duplicated key or header, a formula,
- * a non-integer number, a number in a non-general format, an error or date cell, and an element this reader does
- * not parse inside sheetData each throw, naming what was found. Each of those would otherwise be lost silently.
+ * a non-integer number, a number in a non-general format or naming a style the workbook does not define, an error or
+ * date cell, and an element this reader does not parse inside sheetData each throw, naming what was found. Each of
+ * those would otherwise be lost silently.
  *
  * Regenerate (from back/): node node_modules/ts-node/dist/bin.js --files src/scripts/project-atm-workbook.ts
  */
@@ -119,7 +120,9 @@ export function readAtmSheetCells(rawXml: string, sharedStrings: string[], numbe
                 } else {
                     const text = v[1]
                     if (!/^-?[0-9]+$/.test(text) || !Number.isSafeInteger(Number(text))) throw new Error(`ATM workbook: ${where} holds the non-integer number ${text}, which is refused`)
-                    const format = numberFormats[Number(attributes.s ?? 0)] ?? 0
+                    // No style named and no cellXfs at all is General; a style the workbook does not hold is refused.
+                    const format = attributes.s === undefined && !numberFormats.length ? 0 : numberFormats[Number(attributes.s ?? 0)]
+                    if (format === undefined) throw new Error(`ATM workbook: ${where} names style ${attributes.s ?? 0}, which the workbook's cellXfs does not hold, so its number format is unknown and it is refused`)
                     if (format !== 0) throw new Error(`ATM workbook: ${where} holds a number in format ${format} (a date or formatted number), which is refused`)
                     value = Number(text)
                 }

@@ -15,7 +15,7 @@
  * never hand-edit). Until item B1 (after his reply filed 30 October 2026) "completely" was not true: the Version Metadata sheet's
  * `required` and `notes` columns were dropped, his affordance definitions among them. Now
  * atm-workbook-projection.unit.ts re-reads the workbook and fails if any populated cell is missing from the JSON,
- * and the notes are read below (CANONICAL_AFFORDANCE_DEFINITIONS, gameProblemMatrixNotes). Ratings express representative NECESSITY
+ * and the notes are read below (CANONICAL_AFFORDANCE_DEFINITIONS, gameProblemKeyedMetadataRows). Ratings express representative NECESSITY
  * (E Essential / S Supportive / NR Not Required; Contextual retired, unused). Runtime (§10): preserve
  * every Essential; include Supportive when compatible; record matrix version + profile in the trace.
  * Shadow mode: profiles resolve for inspection and do NOT influence selection.
@@ -129,22 +129,27 @@ function toRow(r: AtmRatingRow): AffordanceTargetRow {
 
 /**
  * Every Version Metadata row, read-only, exactly as the workbook writes it (added for item B1). The
- * long-standing `metadata` map is the same sheet's key -> value view; the two are required to agree at load, so
- * neither can drift from the other.
+ * long-standing `metadata` map is the same sheet's key -> value view; the two are required to agree at load (each
+ * key once in the rows, the same set of keys in both, the same value under each), so neither can drift from the
+ * other.
  */
-export const ATM_METADATA_ROWS: ReadonlyArray<Readonly<AtmMetadataRow>> = metadataRowsFromWorkbook()
+export const ATM_METADATA_ROWS: ReadonlyArray<Readonly<AtmMetadataRow>> = metadataRowsAgreeingWith(WB.metadataRows, ATM_METADATA)
 
-function metadataRowsFromWorkbook(): ReadonlyArray<Readonly<AtmMetadataRow>> {
-    if (!Array.isArray(WB.metadataRows)) throw new Error('CAR matrix: the projection carries no metadataRows (regenerate it from the workbook).')
-    const keys = WB.metadataRows.map((row) => row.metadata_key)
-    const mapKeys = Object.keys(ATM_METADATA)
-    if (keys.length !== mapKeys.length || keys.some((key) => ATM_METADATA[key] === undefined)) {
-        throw new Error('CAR matrix: metadataRows and metadata name different keys.')
+export function metadataRowsAgreeingWith(
+    rows: ReadonlyArray<Readonly<AtmMetadataRow>> | undefined,
+    map: Readonly<Record<string, string | number | boolean>>
+): ReadonlyArray<Readonly<AtmMetadataRow>> {
+    if (!Array.isArray(rows)) throw new Error('CAR matrix: the projection carries no metadataRows (regenerate it from the workbook).')
+    const seen = new Set<string>()
+    for (const row of rows) {
+        if (seen.has(row.metadata_key)) throw new Error(`CAR matrix: metadataRows names "${row.metadata_key}" twice.`)
+        seen.add(row.metadata_key)
+        if (!Object.prototype.hasOwnProperty.call(map, row.metadata_key)) throw new Error(`CAR matrix: metadataRows names "${row.metadata_key}", which metadata lacks.`)
+        if (map[row.metadata_key] !== row.metadata_value) throw new Error(`CAR matrix: metadata "${row.metadata_key}" differs between metadataRows and metadata.`)
     }
-    for (const row of WB.metadataRows) {
-        if (ATM_METADATA[row.metadata_key] !== row.metadata_value) throw new Error(`CAR matrix: metadata "${row.metadata_key}" differs between metadataRows and metadata.`)
-    }
-    return Object.freeze(WB.metadataRows.map((row) => Object.freeze({ ...row })))
+    const absent = Object.keys(map).filter((key) => !seen.has(key))
+    if (absent.length) throw new Error(`CAR matrix: metadata names ${absent.map((key) => `"${key}"`).join(', ')}, which metadataRows lacks.`)
+    return Object.freeze(rows.map((row) => Object.freeze({ ...row })))
 }
 
 /**
@@ -171,46 +176,51 @@ export function affordanceDefinitionsFrom(rows: ReadonlyArray<Readonly<AtmMetada
 
 export const CANONICAL_AFFORDANCE_DEFINITIONS: Readonly<Record<CanonicalAffordance, string>> = affordanceDefinitionsFrom(ATM_METADATA_ROWS)
 
-/** One Version Metadata row that concerns a single Game Problem. */
-export interface AtmGameProblemNote {
+/** One Version Metadata row whose key names a single Game Problem (gpNNN_…). */
+export interface AtmGameProblemKeyedRow {
     key: string
     value: string | number | boolean
     notes?: string
 }
 
 /**
- * The Version Metadata rows that concern each Game Problem, with their notes: in RC1.2 the GP-004 audit decision
- * (D38) and the GP-015 validation flag (D39). The workbook names the Game Problem inside the key (gp004_…,
- * gp015_…); reading it that way is OUR reading of his key names, so a key naming a Game Problem the register
- * lacks is refused at load rather than attached to nothing.
+ * The Version Metadata rows whose metadata_key names a Game Problem (gpNNN_…), grouped by GP-ID, with their notes:
+ * in RC1.2 only gp004_audit_decision (D38) and gp015_validation_flag (D39). Reading the GP-ID out of the key is OUR
+ * reading of his key names, so a key naming a Game Problem the register lacks is refused at load rather than
+ * attached to nothing.
  */
-export function gameProblemNotesFrom(
+export function gameProblemKeyedMetadataRowsFrom(
     rows: ReadonlyArray<Readonly<AtmMetadataRow>>,
     registerIds: string[]
-): Readonly<Record<string, ReadonlyArray<Readonly<AtmGameProblemNote>>>> {
-    const byId: Record<string, Readonly<AtmGameProblemNote>[]> = {}
+): Readonly<Record<string, ReadonlyArray<Readonly<AtmGameProblemKeyedRow>>>> {
+    const byId: Record<string, Readonly<AtmGameProblemKeyedRow>[]> = {}
     for (const row of rows) {
         const match = row.metadata_key.match(/^gp(\d{3})_/)
         if (!match) continue
         const id = `GP-${match[1]}`
         if (!registerIds.includes(id)) throw new Error(`CAR matrix: ${row.metadata_key} names ${id}, which the Game Problem register lacks.`)
-        const note: AtmGameProblemNote = { key: row.metadata_key, value: row.metadata_value }
-        if (row.notes !== undefined) note.notes = row.notes
+        const keyed: AtmGameProblemKeyedRow = { key: row.metadata_key, value: row.metadata_value }
+        if (row.notes !== undefined) keyed.notes = row.notes
         if (!byId[id]) byId[id] = []
-        byId[id].push(Object.freeze(note))
+        byId[id].push(Object.freeze(keyed))
     }
-    return Object.freeze(Object.fromEntries(Object.entries(byId).map(([id, notes]) => [id, Object.freeze(notes)])))
+    return Object.freeze(Object.fromEntries(Object.entries(byId).map(([id, keyedRows]) => [id, Object.freeze(keyedRows)])))
 }
 
-const GAME_PROBLEM_MATRIX_NOTES = gameProblemNotesFrom(
+const GAME_PROBLEM_KEYED_METADATA_ROWS = gameProblemKeyedMetadataRowsFrom(
     ATM_METADATA_ROWS,
     WB.gameProblemRegistry.map((row) => row.game_problem_id)
 )
-const NO_NOTES: ReadonlyArray<Readonly<AtmGameProblemNote>> = Object.freeze([])
+const NO_KEYED_ROWS: ReadonlyArray<Readonly<AtmGameProblemKeyedRow>> = Object.freeze([])
 
-/** The matrix's notes on one Game Problem (by GP-ID), read-only; empty where the workbook records none. */
-export function gameProblemMatrixNotes(gameProblemId: string): ReadonlyArray<Readonly<AtmGameProblemNote>> {
-    return GAME_PROBLEM_MATRIX_NOTES[gameProblemId] ?? NO_NOTES
+/**
+ * The Version Metadata rows keyed to one Game Problem (by GP-ID, gpNNN_…), read-only. NOT everything the workbook
+ * says about that Game Problem: its Ratings Grid row carries per-row evidence (evidence_type, evidence_source,
+ * confidence, validation_status), and other Version Metadata rows name Game Problems in their notes (D41,
+ * legacy_direct_transfers, lists four). An empty result means only that no Version Metadata key names it.
+ */
+export function gameProblemKeyedMetadataRows(gameProblemId: string): ReadonlyArray<Readonly<AtmGameProblemKeyedRow>> {
+    return GAME_PROBLEM_KEYED_METADATA_ROWS[gameProblemId] ?? NO_KEYED_ROWS
 }
 
 /**
