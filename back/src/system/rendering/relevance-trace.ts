@@ -24,12 +24,18 @@
  *   - GAP: a required relationship is missing: no selected game form related to the Game Problem; a context without a row to it (or to the
  *     goal); an Essential affordance no element reaches at INFERRED; a shaping element (a context's, a constraint's, a realization's, a draft's)
  *     that no rule relates to any affordance of the profile.
+ * An element is SHAPING where a contract it rests on is a context's, a constraint's or a realization's, and also wherever any source it rests on
+ * is a realization choice his record marks PROVISIONAL, or anything DRAFT: such a source names no contract item (`choice game::V1`, `record
+ * <id>`, `DRAFT clause for <law>`), so its contracts alone would file it with the engine and its missing relationship would go unreported
+ * (B3 review, MF1). Only a ref that is exactly `<contract>::<item>`, of a contract the build derived from, counts as a knowledge item.
  * An object-level inference (rule J-OBJ: an object mapped to the Game Problem, which rates an affordance Essential) is labelled so: it says
  * what the object is mapped to, never what any element does.
  *
- * An affordance the table marks inference NONE (Support Availability) takes no rule: his item 5 asks us not to assume support *"simply because
- * players have teammates"*. Measured facts of the realized games are reported beside it instead — possession numbers, space per player, rules
- * on direction and eligibility, continuity on a possession change, targets per team (R5's SA-1..SA-4 and SA-6) — as facts, never as a grade.
+ * An affordance the table marks inference NONE (Support Availability) takes no rule, J-OBJ included: his item 5 asks us not to assume support
+ * *"simply because players have teammates"*; the matrix's own rating of it is still shown, AUTHORIZED, as the row he wrote. Measured facts of
+ * the realized games are reported beside it instead — possession numbers, space per player, rules on direction and eligibility, continuity on
+ * a possession change, targets per team (R5's SA-1..SA-4 and SA-6) — as facts, never as a grade. Each coverage row carries what its best links
+ * do not show, so a row at INFERRED is never read as the affordance established in play.
  *
  * Never served, never a selection input, never coach text: only the TEST-ONLY entry points of `build-activity.ts` attach it, and a static
  * test holds it out of every selection module's and coach-text module's imports. Sport-neutral: rows, terms and ids are data.
@@ -52,7 +58,7 @@ import {
 import { gameArchetypeLibrary } from '../knowledge-core/game-archetype-library'
 import { gameFormGameProblemMapping, GameFormGameProblemMapping, rpcLibrary } from '../sport-module/rpc-library'
 import { genericOf, objectivesOf, readPath, restrictionsOf, segmentsOf, teamsOf, termsOf, transitionsOf } from './game-reading'
-import { ElementProvenance, itemRefOf, itemSource } from './review-evidence'
+import { ElementProvenance, EvidenceSource, itemRefOf, itemSource } from './review-evidence'
 
 export type RelevanceGrade = 'AUTHORIZED' | 'INFERRED' | 'UNVERIFIED' | 'GAP'
 /** The trace's status, and the one string a test looks for to show a production answer never carries it. */
@@ -106,10 +112,14 @@ const citedWordsRefusals = (value: unknown, where: string): string[] =>
 const unknownKeys = (value: object, allowed: string[], where: string): string[] => Object.keys(value).filter(key => !allowed.includes(key)).map(key => `${where}: the key ${key} is not one this table holds`)
 const stringMap = (value: unknown): boolean => !!value && typeof value === 'object' && !Array.isArray(value) && Object.values(value).every(filled)
 
+/** The collection row a register row sits on: itself where it is a collection, else the collection that owns it; null for a game-level row. */
+const collectionRowOf = (row: string, index: RegisterIndex): string | null => (index.rows.get(row)?.kind === 'COLLECTION' ? row : (index.ownerRow.get(row) ?? null))
+
 /**
  * **Everything wrong with a join-rule table, as sentences; empty means it may be read.** Closed keys; the four canonical affordances once each;
  * an affordance marked NONE carries our reason and takes no rule; every rule names register rows the register holds, a definition row of the
- * matrix that defines the rule's own affordance, and words found verbatim in that definition.
+ * matrix that defines the rule's own affordance, and words found verbatim in that definition; a `where` names only selector attributes of the
+ * collection each of its rows sits on, and fields the register holds on that collection (a misspelt name would reach nothing, silently).
  */
 export function relevanceJoinRulesRefusals(raw: unknown, index: RegisterIndex): string[] {
     if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return ['the table is not an object']
@@ -164,6 +174,15 @@ export function relevanceJoinRulesRefusals(raw: unknown, index: RegisterIndex): 
             else {
                 errors.push(...unknownKeys(w, ['selector', 'fields'], `${where} where`))
                 if ((w.selector !== undefined && !stringMap(w.selector)) || (w.fields !== undefined && !stringMap(w.fields))) errors.push(`${where}: where's selector and fields must map names to values`)
+                else if (Array.isArray(rule.rows)) {
+                    for (const row of rule.rows.map(String).filter(id => index.rows.has(id))) {
+                        const collection = collectionRowOf(row, index)
+                        const attributes = (collection && index.rows.get(collection)?.selectorAttributes) || []
+                        for (const attribute of Object.keys(w.selector ?? {})) if (!attributes.includes(attribute)) errors.push(`${where}: ${attribute} is not a selector attribute of the collection ${row} sits on`)
+                        const fieldPath = (field: string) => (collection ? `${String(index.rows.get(collection)!.path)}.${field}` : null)
+                        for (const field of Object.keys(w.fields ?? {})) if (![...index.rows.values()].some(entry => String(entry.path) === fieldPath(field))) errors.push(`${where}: the register holds no field ${field} on the collection ${row} sits on`)
+                    }
+                }
             }
         }
         const anchor = rule.anchor
@@ -230,7 +249,8 @@ export interface RelevanceTrace {
     elementsRead: number
     /** Every element a rule reached, with its links. */
     elements: { path: string; row: string | null; layer: ElementLayer; links: RelevanceLink[] }[]
-    coverage: { affordance: CanonicalAffordance; rating: AffordanceTargetRating | null; required: boolean; best: RelevanceGrade; inferredBy: string[]; unverifiedBy: string[] }[]
+    /** `doesNotShow`: what the links at the best grade do not show (each rule's own words, once), so a row at INFERRED is never read as more. */
+    coverage: { affordance: CanonicalAffordance; rating: AffordanceTargetRating | null; required: boolean; best: RelevanceGrade; inferredBy: string[]; unverifiedBy: string[]; doesNotShow: string[] }[]
     gaps: RelevanceGap[]
     /** The elements no rule reached, by layer (a shaping one is a gap too). */
     notReached: { layer: ElementLayer; paths: string[] }[]
@@ -337,21 +357,19 @@ function holdsWhere(element: ElementProvenance, rule: RelevanceJoinRule, games: 
 }
 
 /**
- * The premises of an element: every source the review evidence gave it except the engine's adopted mechanisms (standing decisions, entailment,
- * realized geometry), the session, and the wording gap (a coach-sentence matter, not knowledge); and the item its own id names, graded by the
- * review evidence's reading (`itemSource`).
+ * The premises of an element, each with the layer the review evidence gives it: every source the review evidence gave it except the engine's
+ * adopted mechanisms (standing decisions, entailment, realized geometry), the session, and the wording gap (a coach-sentence matter, not
+ * knowledge); and the item its own id names, graded by the review evidence's reading (`itemSource`).
  */
-function premisesOf(element: ElementProvenance, items: Map<string, any>): RelevancePremise[] {
-    const premises: RelevancePremise[] = element.sources
-        .filter(source => source.layer !== 'SESSION_INPUT' && !(source.layer === 'GENERAL_ENGINE_MECHANISM' && (source.standing === 'APPROVED' || source.standing === 'GAP')))
-        .map(source => ({ ref: source.ref, standing: source.standing, detail: source.detail }))
+function premiseSourcesOf(element: ElementProvenance, items: Map<string, any>): EvidenceSource[] {
+    const sources: EvidenceSource[] = element.sources.filter(source => source.layer !== 'SESSION_INPUT' && !(source.layer === 'GENERAL_ENGINE_MECHANISM' && (source.standing === 'APPROVED' || source.standing === 'GAP')))
     const first = segmentsOf(element.path).find(segment => segment.id)
     const own = first?.id ? itemRefOf(first.id) : null
-    if (own && !premises.some(premise => premise.ref === `${own.contractId}::${own.itemId}`)) {
+    if (own && !sources.some(source => source.ref === `${own.contractId}::${own.itemId}`)) {
         const source = itemSource(own, items, null)
-        premises.push({ ref: source.ref, standing: source.standing, detail: `the item that established the element; ${source.detail ?? ''}`.trim() })
+        sources.push({ ...source, detail: `the item that established the element; ${source.detail ?? ''}`.trim() })
     }
-    return premises
+    return sources
 }
 
 /** The trace: read-only, deterministic; see the header. */
@@ -381,8 +399,8 @@ export function relevanceTraceOf(input: RelevanceTraceInput): RelevanceTrace {
 
     /* Object level: the authored rows, and the object-level inference. */
     const objectLevel: RelevanceLink[] = []
-    const authored = (from: string, to: string, source: string, says: string, affordance: CanonicalAffordance | null = null): RelevanceLink => ({
-        grade: 'AUTHORIZED', level: 'OBJECT', from, to, affordance, rule: null, source, premises: [], says, doesNotShow: null, why: 'one authored row makes this link',
+    const authored = (from: string, to: string, source: string, says: string, affordance: CanonicalAffordance | null = null, standing: string | null = null): RelevanceLink => ({
+        grade: 'AUTHORIZED', level: 'OBJECT', from, to, affordance, rule: null, source, premises: [], says, doesNotShow: null, why: `one authored row makes this link${standing ? `; ${standing}` : ''}`,
     })
     const ratingRow = gp ? readers.ratingRow(gp) : null
     if (gp && profile) for (const entry of rated) objectLevel.push(authored(gp, entry.affordance, `Affordance Target Matrix, Ratings Grid row ${gp}`, `rated ${entry.rating}`, entry.affordance))
@@ -393,7 +411,9 @@ export function relevanceTraceOf(input: RelevanceTraceInput): RelevanceTrace {
         const field = gp && mapping.primary.includes(gp) ? 'primary_game_problem_ids' : gp && mapping.secondary.includes(gp) ? 'secondary_game_problem_ids' : null
         if (gp && field) {
             const value = mapping.fields.find(entry => entry.field === field)?.value ?? null
-            objectLevel.push(authored(`game form ${form.objectId}`, gp, `the sport's module, game form ${form.objectId}, ${field}`, `${field}: ${JSON.stringify(value)}`))
+            // Who wrote the cell, and the module's own standing beside it, so AUTHORIZED is read with both (B3 review).
+            const standing = `${mapping.module.record}; the module's metadata: ${mapping.module.standing.map(entry => `${entry.field} ${JSON.stringify(entry.value)}`).join(', ')}`
+            objectLevel.push(authored(`game form ${form.objectId}`, gp, `the sport's module, game form ${form.objectId}, ${field}`, `${field}: ${JSON.stringify(value)}`, null, standing))
             mappedToGp.push(`game form ${form.objectId}`)
         }
         const archetype = gp && mapping.archetypeId ? readers.archetypeRow(mapping.archetypeId, gp) : null
@@ -423,8 +443,9 @@ export function relevanceTraceOf(input: RelevanceTraceInput): RelevanceTrace {
         }
         for (const form of forms) for (const row of rows.filter(entry => entry.library === 'GAME_FORM' && entry.relatedId === form.objectId)) objectLevel.push(authored(`context ${object.objectId}`, `game form ${form.objectId}`, `the context workbook, ${row.relationshipId}`, `${row.type} ${row.strength}`))
     }
+    // J-OBJ for each Essential affordance that takes a rule; one the table marks NONE keeps only the matrix's rating row (AUTHORIZED, above).
     for (const object of mappedToGp) {
-        for (const entry of rated.filter(candidate => candidate.required)) {
+        for (const entry of rated.filter(candidate => candidate.required && candidate.inference === 'BY_RULE')) {
             objectLevel.push({
                 grade: 'INFERRED', level: 'OBJECT', from: object, to: entry.affordance, affordance: entry.affordance, rule: joinRules.objectRule.id, source: null,
                 premises: [{ ref: `${object} -> ${gp}`, standing: 'APPROVED', detail: 'an authored row (above)' }, { ref: `${gp} -> ${entry.affordance}`, standing: 'APPROVED', detail: `rated ${entry.rating} (above)` }],
@@ -439,7 +460,13 @@ export function relevanceTraceOf(input: RelevanceTraceInput): RelevanceTrace {
         for (const item of contract.items ?? []) items.set(`${contract.contractId}::${item.itemId}`, item)
         for (const deferred of contract.deferredItems ?? []) items.set(`${contract.contractId}::${deferred.item.itemId}`, deferred.item)
     }
-    const contractOfRef = (ref: string): string | null => (ref.includes('::') ? ref.slice(0, ref.indexOf('::')) : null)
+    /** The contract a premise names: only a ref that is exactly `<contract>::<item>`, of a contract the build derived from (never `choice game::V1`). */
+    const contractOfRef = (ref: string): string | null => {
+        const at = ref.indexOf('::')
+        const contractId = at > 0 ? ref.slice(0, at) : ''
+        const itemId = at > 0 ? ref.slice(at + 2) : ''
+        return layerOfContract.has(contractId) && itemId.length > 0 && !/[\s:]/.test(itemId) ? contractId : null
+    }
     const elements: RelevanceTrace['elements'] = []
     const notReached = new Map<ElementLayer, string[]>()
     const notInGame: string[] = []
@@ -448,21 +475,26 @@ export function relevanceTraceOf(input: RelevanceTraceInput): RelevanceTrace {
             notInGame.push(element.path)
             continue
         }
-        const premises = premisesOf(element, items)
-        const layer = premises
-            .map(premise => contractOfRef(premise.ref))
-            .filter((id): id is string => !!id && layerOfContract.has(id))
-            .reduce<ElementLayer>((best, id) => (LAYER_RANK[layerOfContract.get(id)!] > LAYER_RANK[best] ? layerOfContract.get(id)! : best), 'ENGINE_OR_SESSION')
-        const knowledge = premises.filter(premise => !!contractOfRef(premise.ref))
+        const sources = premiseSourcesOf(element, items)
+        const premises: RelevancePremise[] = sources.map(source => ({ ref: source.ref, standing: source.standing, detail: source.detail }))
+        // A provisional realization choice, or anything DRAFT, makes the element SHAPING whatever (or whether) a contract its refs name (MF1).
+        const shapedByChoiceOrDraft = sources.some(source => source.standing === 'DRAFT' || (source.layer === 'ACTIVITY_REALIZATION_CHOICE' && source.standing === 'PROVISIONAL'))
+        const layer: ElementLayer = shapedByChoiceOrDraft
+            ? 'SHAPING'
+            : premises
+                  .map(premise => contractOfRef(premise.ref))
+                  .filter((id): id is string => id !== null)
+                  .reduce<ElementLayer>((best, id) => (LAYER_RANK[layerOfContract.get(id)!] > LAYER_RANK[best] ? layerOfContract.get(id)! : best), 'ENGINE_OR_SESSION')
+        const knowledge = premises.filter(premise => contractOfRef(premise.ref) !== null)
         const links: RelevanceLink[] = joinRules.rules
             .filter(rule => rated.some(entry => entry.affordance === rule.affordance) && onRows(element, rule.rows, index) && holdsWhere(element, rule, input.games))
             .map(rule => {
                 const notApproved = premises.filter(premise => premise.standing !== 'APPROVED')
-                const grade: RelevanceGrade = !knowledge.length || notApproved.length ? 'UNVERIFIED' : rule.ceiling
-                const why = !knowledge.length
-                    ? 'the element rests on no knowledge item (engine or session only)'
-                    : notApproved.length
-                      ? `a premise is not approved knowledge: ${notApproved.map(premise => `${premise.ref} (${premise.standing})`).join('; ')}`
+                const grade: RelevanceGrade = notApproved.length || !knowledge.length ? 'UNVERIFIED' : rule.ceiling
+                const why = notApproved.length
+                    ? `a premise is not approved knowledge: ${notApproved.map(premise => `${premise.ref} (${premise.standing})`).join('; ')}`
+                    : !knowledge.length
+                      ? 'the element rests on no contract item of the knowledge (only the engine\'s adopted mechanisms, the session, or approved sources that are no contract item)'
                       : rule.ceiling === 'INFERRED'
                         ? `every premise is approved knowledge, joined by ${rule.id} (ours, DRAFT)`
                         : `${rule.id} is a reading of play (its ceiling is UNVERIFIED)`
@@ -495,7 +527,8 @@ export function relevanceTraceOf(input: RelevanceTraceInput): RelevanceTrace {
                         : `${entry.affordance} is Essential and no element reaches it by approved premises and a join rule${unverifiedBy.length ? ` (only unverified readings: ${unverifiedBy.length})` : ''}`,
             })
         }
-        return { affordance: entry.affordance, rating: entry.rating, required: entry.required, best, inferredBy, unverifiedBy }
+        const doesNotShow = [...new Set(links.filter(link => link.grade === best && link.doesNotShow).map(link => link.doesNotShow!))]
+        return { affordance: entry.affordance, rating: entry.rating, required: entry.required, best, inferredBy, unverifiedBy, doesNotShow }
     })
 
     const noneAffordances = affordances.filter(entry => entry.inference === 'NONE').map(entry => entry.affordance)

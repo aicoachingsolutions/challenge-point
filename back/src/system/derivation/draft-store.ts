@@ -123,7 +123,8 @@ export class DraftStoreRefused extends Error {
  * than require me to authorize a new set of explanatory statements for every generated activity."* So the rules that join an element to an
  * affordance are one small table of ours for his review (`docs/audits/drafts/relevance-join-rules.DRAFT.json`), read here, beside the other
  * drafts, and refused WHOLE on any defect the trace's own gate names (`relevanceJoinRulesRefusals`: closed keys, the four affordances once,
- * no rule for an affordance marked NONE, register rows that exist, words verbatim in the affordance's definition). Like the store, never
+ * no rule for an affordance marked NONE, register rows that exist, selector attributes and fields the register holds on them (B3 review), words
+ * verbatim in the affordance's definition). Like the store, never
  * imported by a production module.
  */
 export const RELEVANCE_JOIN_RULES_FILE = path.join(DRAFTS_DIR, 'relevance-join-rules.DRAFT.json')

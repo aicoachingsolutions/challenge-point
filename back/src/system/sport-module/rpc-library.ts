@@ -453,9 +453,17 @@ export interface GameFormGameProblemMapping {
     secondary: string[]
     /** The three fields read, each with its value verbatim (null where the cell is empty). */
     fields: { field: string; value: string | null }[]
+    /**
+     * B3 review: the module's own standing (its metadata, verbatim) and our provenance record's account of who wrote these cells, so a link the
+     * trace grades AUTHORIZED on them shows both: the cells are his authoring pass, in a module whose metadata still says DRAFT.
+     */
+    module: { standing: { field: string; value: string | null }[]; record: string }
 }
 
 const GAME_FORM_MAPPING_FIELDS = ['canonical_game_archetype_id', 'primary_game_problem_ids', 'secondary_game_problem_ids'] as const
+const MODULE_STANDING_FIELDS = ['module_status', 'approved_by', 'approval_date'] as const
+const GAME_FORM_MAPPING_RECORD =
+    'our provenance record (docs/GAME_FORM_LIBRARY_PROVENANCE.md): canonical_game_archetype_id and primary_game_problem_ids on all eleven forms, and secondary_game_problem_ids on all but GF10, entered the module with his authoring pass ingested on 4 August 2026 (1c71f9a)'
 
 /**
  * **A game form's Game Problem mapping and archetype, read from the sport's module** — B3, 28 October 2026, for the relevance trace
@@ -466,6 +474,7 @@ const GAME_FORM_MAPPING_FIELDS = ['canonical_game_archetype_id', 'primary_game_p
  */
 export function gameFormGameProblemMapping(gameFormId: string): GameFormGameProblemMapping | null {
     const forms = (sportModuleWorkbook as unknown as { game_forms: RpcRow[] }).game_forms
+    const metadata = (sportModuleWorkbook as unknown as { metadata: Record<string, unknown> }).metadata
     const row = forms.find((r) => text(r, 'game_form_id') === gameFormId)
     if (!row) return null
     const ids = (column: string): string[] =>
@@ -479,6 +488,7 @@ export function gameFormGameProblemMapping(gameFormId: string): GameFormGameProb
         primary: ids('primary_game_problem_ids'),
         secondary: ids('secondary_game_problem_ids'),
         fields: GAME_FORM_MAPPING_FIELDS.map((field) => ({ field, value: row[field] === null || row[field] === undefined ? null : String(row[field]) })),
+        module: { standing: MODULE_STANDING_FIELDS.map((field) => ({ field, value: metadata[field] === null || metadata[field] === undefined ? null : String(metadata[field]) })), record: GAME_FORM_MAPPING_RECORD },
     }
 }
 

@@ -45,7 +45,7 @@
             "id": "J-CIO-TEAMS",
             "affordance": "Competitive Interaction Opportunity",
             "rows": ["P1"],
-            "anchor": { "metadataKey": "car_cio_definition", "words": "adaptive competitor influence" },
+            "anchor": { "metadataKey": "car_cio_definition", "words": "competitor" },
             "ceiling": "INFERRED",
             "structure": "the teams the game holds (register P1)",
             "shows": "Competitors are in the game: the teams it holds.",
