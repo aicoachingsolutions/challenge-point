@@ -1,0 +1,55 @@
+== A05 translation as the loader reads it: null
+== guided text: "Progress the Attack. Improve attacking conditions while maintaining purposeful possession."
+== production guidedSelectionHints(A05).gameProblem: {"status":"UNRESOLVED","gameProblemId":null,"inferredFromWording":"GP-015","governed":false}
+
+== (1a) single Game Problems: ATM row (by id)
+  GP-001 FOI=S OP=E SA=S CIO=E | row evidence: {"game_problem_id":"GP-001","canonical_name":"Create Space","FOI":"S","OP":"E","SA":"S","CIO":"E","row_status":"Approved","matrix_version":"RC1.2","evidence_type":"Direct legacy migration","evidence_source":"GP_CREATE_SPACE","confidence":"High","validation_status":"Approved"}
+  GP-002 FOI=E OP=E SA=S CIO=E | row evidence: {"game_problem_id":"GP-002","canonical_name":"Exploit Space","FOI":"E","OP":"E","SA":"S","CIO":"E","row_status":"Approved","matrix_version":"RC1.2","evidence_type":"Legacy-supported construction","evidence_source":"GP_PROGRESS_OBJECT|GP_TRANSITION_ATTACK","confidence":"High","validation_status":"Approved"}
+  GP-003 FOI=NR OP=E SA=S CIO=E | row evidence: {"game_problem_id":"GP-003","canonical_name":"Improve Position","FOI":"NR","OP":"E","SA":"S","CIO":"E","row_status":"Approved","matrix_version":"RC1.2","evidence_type":"Ontology-derived construction","confidence":"Medium-High","validation_status":"Approved"}
+  GP-005 FOI=E OP=E SA=S CIO=E | row evidence: {"game_problem_id":"GP-005","canonical_name":"Gain Access","FOI":"E","OP":"E","SA":"S","CIO":"E","row_status":"Approved","matrix_version":"RC1.2","evidence_type":"Legacy-supported construction","evidence_source":"GP_PROGRESS_OBJECT|GP_FINISH_ATTACK|GP_CREATE_NUMERICAL_ADVANTAGE","confidence":"High","validation_status":"Approved"}
+  GP-009 FOI=S OP=E SA=S CIO=E | row evidence: {"game_problem_id":"GP-009","canonical_name":"Escape Performer Control","FOI":"S","OP":"E","SA":"S","CIO":"E","row_status":"Approved","matrix_version":"RC1.2","evidence_type":"Ontology-derived construction","evidence_source":"GP_TRANSITION_ATTACK|GP_PROGRESS_OBJECT|GP_CREATE_SPACE","confidence":"Medium-High","validation_status":"Approved"}
+  GP-014 FOI=NR OP=E SA=S CIO=E | row evidence: {"game_problem_id":"GP-014","canonical_name":"Control Space","FOI":"NR","OP":"E","SA":"S","CIO":"E","row_status":"Approved","matrix_version":"RC1.2","evidence_type":"Ontology-derived construction","evidence_source":"GP_DELAY_PROGRESSION|GP_TRANSITION_DEFENSE","confidence":"Medium-High","validation_status":"Approved"}
+  GP-015 FOI=E OP=E SA=E CIO=E | row evidence: {"game_problem_id":"GP-015","canonical_name":"Maintain Possession","FOI":"E","OP":"E","SA":"E","CIO":"E","row_status":"Approved","matrix_version":"RC1.2","evidence_type":"Direct legacy migration","evidence_source":"GP_MAINTAIN_POSSESSION","confidence":"High","validation_status":"Approved; SA flagged for field validation"}
+
+== (1b) Primary + Secondary through resolveAffordanceTargetProfile (merge E>S>NR)
+  GP-001+GP-015 => primary GP-001 secondary GP-015 | FOI=E OP=E SA=E CIO=E
+  GP-002+GP-015 => primary GP-002 secondary GP-015 | FOI=E OP=E SA=E CIO=E
+  GP-005+GP-015 => primary GP-005 secondary GP-015 | FOI=E OP=E SA=E CIO=E
+  GP-001+GP-002 => primary GP-001 secondary GP-002 | FOI=E OP=E SA=S CIO=E
+  GP-002+GP-001 => primary GP-002 secondary GP-001 | FOI=E OP=E SA=S CIO=E
+  GP-001+GP-005 => primary GP-001 secondary GP-005 | FOI=E OP=E SA=S CIO=E
+  GP-002+GP-005 => primary GP-002 secondary GP-005 | FOI=E OP=E SA=S CIO=E
+  (same rule applied to matrix rows directly, for Game Problems with no signal group)
+  GP-003+GP-015 => FOI=E OP=E SA=E CIO=E
+  GP-003+GP-001 => FOI=S OP=E SA=S CIO=E
+  GP-014+GP-015 => FOI=E OP=E SA=E CIO=E
+
+== (2) selection under each candidate (TEST-ONLY approved argument; vocabulary pools; A05 has no authorization record)
+  GP-001: authority {"status":"APPROVED","gameProblemId":"GP-001","inferredFromWording":"GP-015","governed":true}
+     handed forms ["GF7","GF3","GF2"] | lenses ["tl-v0-lens-space-creation-opportunity","tl-v0-lens-space-exploitation-opportunity","tl-v0-lens-possession-stability-opportunity","tl-v0-lens-line-breaking-opportunity"] | signals ["signalGroup:C_spacing_support"]
+     handed constraints ["tl-v0-constraint-wide-zone-advantage","tl-v0-constraint-central-density-condition","tl-v0-constraint-switch-of-play-bonus","tl-v0-constraint-wide-utilization-bonus","tl-v0-constraint-support-lane-requirement"]
+     COMMITS GF2 ["central-density-condition","support-lane-requirement","wide-zone-advantage","wide-utilization-bonus"] | lenses ["Possession Stability Opportunity","Line-Breaking Opportunity","Space Creation Opportunity"]
+     trace ATP: primary GP-001 secondary null | FOI=S OP=E SA=S CIO=E
+  GP-002: authority {"status":"APPROVED","gameProblemId":"GP-002","inferredFromWording":"GP-015","governed":true}
+     handed forms ["GF2","GF7","GF3"] | lenses ["tl-v0-lens-line-breaking-opportunity","tl-v0-lens-space-exploitation-opportunity","tl-v0-lens-transition-attack-opportunity","tl-v0-lens-finishing-opportunity","tl-v0-lens-regain-opportunity","tl-v0-lens-delay-or-deny-opportunity","tl-v0-lens-possession-stability-opportunity"] | signals ["signalGroup:D_break_lines","signalGroup:H_transition"]
+     handed constraints ["tl-v0-constraint-progression-bonus","tl-v0-constraint-switch-of-play-bonus","tl-v0-constraint-wide-zone-advantage","tl-v0-constraint-central-density-condition","tl-v0-constraint-interception-reward","tl-v0-constraint-turnover-reward","tl-v0-constraint-transition-trigger","tl-v0-constraint-delay-reward","tl-v0-constraint-transition-bonus"]
+     COMMITS GF2 ["central-density-condition","wide-zone-advantage","progression-bonus","switch-of-play-bonus"] | lenses ["Possession Stability Opportunity","Line-Breaking Opportunity","Space Exploitation Opportunity"]
+     trace ATP: primary GP-002 secondary null | FOI=E OP=E SA=S CIO=E
+  GP-003: authority {"status":"APPROVED","gameProblemId":"GP-003","inferredFromWording":"GP-015","governed":true}
+     handed forms ["GF3","GF2","GF7"] | lenses [] | signals []
+     handed constraints []
+  GP-003: THREW SelectionKnowledgeGap NO_LENS_CANDIDATES A05: a knowledge gap (NO_LENS_CANDIDATES) - the goal's designated knowledge cannot be combined into a selection on GF2; unfilled roles: foundation, shaping, consequence; held by ruling: none. Nothing was drawn from outside the goal's candidates.
+  GP-005: authority {"status":"APPROVED","gameProblemId":"GP-005","inferredFromWording":"GP-015","governed":true}
+     handed forms ["GF2","GF3","GF7"] | lenses ["tl-v0-lens-space-exploitation-opportunity","tl-v0-lens-space-creation-opportunity","tl-v0-lens-line-breaking-opportunity","tl-v0-lens-possession-stability-opportunity"] | signals ["signalGroup:G_overload"]
+     handed constraints ["tl-v0-constraint-central-density-condition","tl-v0-constraint-wide-zone-advantage","tl-v0-constraint-progression-bonus","tl-v0-constraint-switch-of-play-bonus"]
+     COMMITS GF2 ["central-density-condition","wide-zone-advantage","progression-bonus","switch-of-play-bonus"] | lenses ["Possession Stability Opportunity","Line-Breaking Opportunity","Space Creation Opportunity"]
+     trace ATP: primary GP-005 secondary null | FOI=E OP=E SA=S CIO=E
+  GP-014: authority {"status":"APPROVED","gameProblemId":"GP-014","inferredFromWording":"GP-015","governed":true}
+     handed forms ["GF3","GF2","GF7"] | lenses [] | signals []
+     handed constraints []
+  GP-014: THREW SelectionKnowledgeGap NO_LENS_CANDIDATES A05: a knowledge gap (NO_LENS_CANDIDATES) - the goal's designated knowledge cannot be combined into a selection on GF2; unfilled roles: foundation, shaping, consequence; held by ruling: none. Nothing was drawn from outside the goal's candidates.
+  GP-015: authority {"status":"APPROVED","gameProblemId":"GP-015","inferredFromWording":"GP-015","governed":false}
+     handed forms ["GF2","GF7","GF3"] | lenses ["tl-v0-lens-possession-stability-opportunity","tl-v0-lens-space-creation-opportunity","tl-v0-lens-space-exploitation-opportunity","tl-v0-lens-line-breaking-opportunity","tl-v0-lens-transition-attack-opportunity","tl-v0-lens-finishing-opportunity"] | signals ["signalGroup:F_possession_passing","signalGroup:D_break_lines"]
+     handed constraints ["tl-v0-constraint-central-density-condition","tl-v0-constraint-wide-zone-advantage","tl-v0-constraint-switch-of-play-bonus","tl-v0-constraint-turnover-reward","tl-v0-constraint-pass-combination-gate","tl-v0-constraint-progression-bonus"]
+     COMMITS GF2 ["central-density-condition","wide-zone-advantage","progression-bonus","turnover-reward"] | lenses ["Possession Stability Opportunity","Line-Breaking Opportunity","Space Creation Opportunity"]
+     trace ATP: primary GP-015 secondary GP-002 | FOI=E OP=E SA=E CIO=E

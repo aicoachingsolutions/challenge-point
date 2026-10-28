@@ -1,0 +1,37 @@
+A05 composition attempt probe. Worktree HEAD 2324a36. In-memory injection: wording+reading.
+  TEST-ONLY injection active (NOT his wording, NOT his reading): entries now A01-W1, A01-W2, A01-W3, TEST-ONLY-A05-W; unapproved []; readings status PARTLY_APPROVED 
+
+## E1: the record gameProblemId varied (placeholder vs a register id vs a nonsense string)
+  record gameProblemId="GP-002": outcome=served; account.authorization.gameProblemId="GP-002"; account.gameProblem={"status":"UNRESOLVED","gameProblemId":null,"name":null,"inferredFromWording":"GP-015","governed":false}; relevance.gameProblem=null; identical to placeholder build (game, Details, overview, diagram, relevance, provisional)=true
+  record gameProblemId="GP-001": outcome=served; account.authorization.gameProblemId="GP-001"; account.gameProblem={"status":"UNRESOLVED","gameProblemId":null,"name":null,"inferredFromWording":"GP-015","governed":false}; relevance.gameProblem=null; identical to placeholder build (game, Details, overview, diagram, relevance, provisional)=true
+  record gameProblemId="x": outcome=served; account.authorization.gameProblemId="x"; account.gameProblem={"status":"UNRESOLVED","gameProblemId":null,"name":null,"inferredFromWording":"GP-015","governed":false}; relevance.gameProblem=null; identical to placeholder build (game, Details, overview, diagram, relevance, provisional)=true
+  record gameProblemId="   z": outcome=served; account.authorization.gameProblemId="   z"; account.gameProblem={"status":"UNRESOLVED","gameProblemId":null,"name":null,"inferredFromWording":"GP-015","governed":false}; relevance.gameProblem=null; identical to placeholder build (game, Details, overview, diagram, relevance, provisional)=true
+
+## E2: all stand-ins except GP (the record as drafted, gameProblemId empty)
+  STORE REFUSED: the draft store C:\Users\ADMINI~1\AppData\Local\Temp\a05-attempt-store-c2XZlk is refused whole: a05-authorization.DRAFT.json: the record gate refuses it as a draft: A05: the record names no context or Game Problem
+
+## E3: loadDraftStore of the a05-composition folder alone (read-only)
+  REFUSED: the draft store C:/challenge-point/.claude/worktrees/serene-dewdney-c78e18/docs/audits/drafts/a05-composition is refused whole: a05-authorization.DRAFT.json: the record gate refuses it as a draft: A05: the record names no context or Game Problem
+    reason: a05-authorization.DRAFT.json: the record gate refuses it as a draft: A05: the record names no context or Game Problem
+  E3b (record only, GP placeholder): LOADED files=["a05-authorization.DRAFT.json"]
+  E3b build: outcome=refused stage=knowledge; reasons=["the Representative Performance Context RPC-003 has no contribution contract, so its approved primary scoring event and qualifying condition cannot govern the game"]
+
+## E4: the RPC-003 draft with condition items removed in a TEMPORARY copy, loaded through the store
+  10.a-12.b (all conditions, as R6): items 23 -> 16; STORE REFUSED: the draft store C:\Users\ADMINI~1\AppData\Local\Temp\a05-v1-e4-0tARSt is refused whole: rpc-003-contract.DRAFT.json: the workbook's PRIMARY_SCORING_CONDITION row RPC-PROP-134 for RPC-003 is cited by no item constituting a scoring condition, so the drafted context would not carry its approved scoring condition
+  12.* only (control): items 23 -> 21; STORE LOADED
+    build (alter remaining stand-ins): outcome=refused stage=communication reasons=["awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type (V4)","awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents (V5)","awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value (V6)","fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type is established by the game and no instruction carries it","fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents is established by the game and no instruction carries it","fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value is established by the game and no instruction carries it"]
+  11.* only (progression): items 23 -> 20; STORE LOADED
+    build (alter remaining stand-ins): outcome=refused stage=communication reasons=["awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type (V4)","awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents (V5)","awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value (V6)","fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type is established by the game and no instruction carries it","fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents is established by the game and no instruction carries it","fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value is established by the game and no instruction carries it"]
+  10.* only (origin): items 23 -> 21; STORE LOADED
+    build (alter none): outcome=refused stage=structure reasons=["Gate A is FAIL","a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE","1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5"]
+
+## E5: R2-ALL stand-ins at other sessions
+  {"players":10,"lengthM":50,"widthM":35,"durationMin":15}: outcome=served stage= reasons=[]
+    players line: [Players] Divide 10 players into 2 teams of 5, with no goalkeepers; overview served=true
+  {"players":11,"lengthM":40,"widthM":30,"durationMin":20}: outcome=refused stage=session reasons=["a post-realization gate did not validate","GA-ROSTER-SUM — \"outfield + goalkeepers + neutrals = the session players\": NOT_EVALUABLE (4 subject line(s) failed: realized:c:restated:GF2:GF2-14.a#1::P2, realized:c:restated:GF2:GF2-14.a#1::P3, real","roster (DOES_NOT_DIVIDE): 11 session performers − 0 in specialized roles − 0 neutral leaves 11, which does not split into 2 whole equal teams"]
+  {"players":16,"lengthM":60,"widthM":40,"durationMin":25}: outcome=served stage= reasons=[]
+    players line: [Players] Divide 16 players into 2 teams of 8, with no goalkeepers; overview served=true
+
+## E6: R2-ALL realized objects and transitions
+  objects=[{"elementId":"c:sport-profile:soccer:SPORT-SOCCER-01","selector":[{"attribute":"kind","op":"=","value":"ball"}],"kind":"ball"}]
+  transitions=[{"id":"c:restated:GF2:GF2-07.a","selector":[{"attribute":"trigger","op":"=","value":"POSSESSION_CHANGE"}],"playState":"CONTINUE","startsEpisode":"true"}]

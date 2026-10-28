@@ -1,0 +1,15 @@
+A05 composition attempt probe. Worktree HEAD 2324a36. In-memory injection: reading.
+  TEST-ONLY injection active (NOT his wording, NOT his reading): entries now A01-W1, A01-W2, A01-W3; unapproved []; readings status UNUSABLE the reading of "TEST-ONLY-A05-W" [{"sentence":1,"part":"WHOLE_SENTENCE"}]: it names "TEST-ONLY-A05-W", which is not an approved entry
+all stand-ins except WORDING (READING injected alone): outcome=refused stage=communication
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type (V4)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents (V5)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value (V6)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type (V4)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents (V5)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value (V6)
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value is established by the game and no instruction carries it
