@@ -20,9 +20,12 @@
  * identification let the environment's element stand for it (which removes it from the game, so nothing is left to refuse). A component
  * whose knowledge means a second such element must say so and be ruled on; no such knowledge exists, and nothing here admits one.
  *
- * Validated beside the profile's own loader, and refused whole on any defect (`environmentElementsRefusals`). Names no sport, kind or
- * component: every one is the record's data.
+ * Validated beside the profile's own loader, and refused whole on any defect (`environmentElementsRefusals`). Held against the
+ * identifications actually recorded (`environmentIdentificationRefusals`, B2 review): a unit test reads every realization-choices file and
+ * requires every identification of an environment element to be listed IDENTIFIED, and every IDENTIFIED entry to have one. Names no sport,
+ * kind or component: every one is the record's data.
  */
+import { knowledgeKey } from './knowledge-key'
 import { LoadedContract } from './types'
 
 export const ENVIRONMENT_ELEMENTS_KEY = 'environmentElements'
@@ -123,6 +126,49 @@ export function environmentElementsFrom(raw: any, file: string, profile: LoadedC
             })),
         })),
     }
+}
+
+/** One recorded identification as a realization-choices file holds it (`satisfiedByEstablished`): the file, the class removed, the element standing for it. */
+export interface RecordedIdentification {
+    file: string
+    classId: string
+    satisfiedBy: string
+}
+
+/** The knowledge object a derived class belongs to: `c:<contractId>:<itemId>`, the contract's object by the one spelling rule. */
+function objectOfClass(classId: string): string {
+    const contractAndItem = classId.replace(/^c:/, '')
+    return knowledgeKey(contractAndItem.slice(0, Math.max(0, contractAndItem.lastIndexOf(':'))))
+}
+
+/**
+ * **The record against the identifications actually recorded** — B2 review, 28 October 2026. The record says which component is IDENTIFIED
+ * with an environment element; the realization-choices files say which identification exists. Nothing tied the two: an identification of an
+ * environment element by a component the record does not list as IDENTIFIED, or an IDENTIFIED entry with no identification behind it, passed
+ * silently. Each is named here, and an IDENTIFIED entry whose `where` does not name the file holding its identification. Pure: the caller
+ * hands every recorded identification (a unit test reads every realization-choices file the index and the provisional realizations name).
+ */
+export function environmentIdentificationRefusals(record: SportEnvironmentElements, identifications: RecordedIdentification[]): string[] {
+    const errors: string[] = []
+    for (const element of record.elements) {
+        const elementId = `c:${record.contractId}:${element.item}`
+        const ofElement = identifications.filter(entry => entry.satisfiedBy === elementId)
+        for (const entry of ofElement) {
+            const object = objectOfClass(entry.classId)
+            const referral = element.referredToBy.find(candidate => knowledgeKey(candidate.object) === object)
+            if (!referral || referral.how !== 'IDENTIFIED') {
+                errors.push(`${entry.file} identifies ${entry.classId} with ${elementId}, and the environment record does not list ${object} as IDENTIFIED with it${referral ? ` (it lists it as ${referral.how})` : ''}`)
+            } else if (!referral.where.includes(entry.file)) {
+                errors.push(`the environment record lists ${referral.object} as IDENTIFIED with ${elementId}, and its where does not name ${entry.file}, which holds the identification`)
+            }
+        }
+        for (const referral of element.referredToBy.filter(candidate => candidate.how === 'IDENTIFIED')) {
+            if (!ofElement.some(entry => objectOfClass(entry.classId) === knowledgeKey(referral.object))) {
+                errors.push(`the environment record lists ${referral.object} as IDENTIFIED with ${elementId}, and no realization-choices file records that identification`)
+            }
+        }
+    }
+    return errors
 }
 
 /** The collection of a game holding the element, by its path, or null where the game holds none. */
