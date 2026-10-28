@@ -1,0 +1,1097 @@
+{
+  "standing": "DRAFT - NOT RULED, NOT APPROVED. A draft authorization record for Secure Possession (TA02), for Christian's review (his reply filed 29 October 2026, item 1). Nothing here is in the engine's knowledge: where this file is stored in the repository, it is a document only (docs/audits/drafts/ta02-composition/), and the engine loads none of it. No field claims a ruling of his: ruledOn, by and ruling are empty, so the production validator refuses this record until his words exist.",
+  "about": "The record in the production shape of learning-goal-authorizations.ts (LearningGoalAuthorization at f5d6d24), with the fields the TEST-ONLY record of design/scripts/step0-probe*.ts used (learningGoalId, contextId, gameProblemId, ruledOn, by, ruling, authorizedConstraints, authorizedConstraintsFinding, excluded, manipulations) plus existingKnowledge and gaps (optional in the schema, present in A01's record). It names no provisional realization: the test is composition, not an authored activity version. `provenance` maps every leaf field of `record` to its source ({file, rows, words}, each quote checked verbatim against a checkout of f5d6d24 by scripts/verify-quote.js) or to `ours`.",
+  "differsFromTestOnlyRecord": [
+    "ruledOn / by / ruling: TEST-ONLY placeholders there; EMPTY here (not ruled).",
+    "authorizedConstraintsFinding: \"TEST-ONLY\" there; our drafted finding here (K3).",
+    "existingKnowledge and gaps: absent there; present here.",
+    "excluded: [] there; here the existing Pass Combination Gate hold, cross-referenced as A01's record does (it changes nothing: the hold already applies to every Learning Goal)."
+  ],
+  "measuredWithTheProductionValidator": "See final/scripts/probe-out/k2-validator.txt (scripts/k2-validate.ts): the record as drafted, and the same record with TEST-ONLY ruling fields, run through validateLearningGoalAuthorizations. Re-run after the Library pass of 27 October 2026 (which removed gap Q9 and changed gap and note texts only), validation only, against the f5d6d24 source: final/scripts/probe-out/k2-validator-library.txt (scripts/k2-validate-library.ts), with the same two results. The TA02 build half of the original probe needs a full checkout and was not re-run.",
+  "waitsOn": [
+    "Q1",
+    "Q2",
+    "Q3",
+    "Q4",
+    "Q5",
+    "Q6",
+    "Q7",
+    "Q8",
+    "E1",
+    "E4",
+    "E7",
+    "E-K4",
+    "E8",
+    "E3",
+    "E2",
+    "E5",
+    "E11",
+    "E6",
+    "E9",
+    "E13"
+  ],
+  "corrections": [
+    {
+      "finding": "N1",
+      "change": "Gap Q5 no longer says the normal Laws \"supply nothing\": Laws 9, 15, 16 and 17 decide the out-of-play restarts under his 26 October principle; what is asked is confirmation of the adaptations we identify (goal-kick and kick-off locations), offside and the E4 strictness."
+    },
+    {
+      "finding": "verification, Q4",
+      "change": "Gap Q4 no longer asks him to accept the empty set; his 16 October principle (christian-2026-10-16.txt:13) already makes it the outcome where nothing is justified. It asks only whether Wide Zone or Turnover Reward is justified, and D10."
+    },
+    {
+      "finding": "verification, Q6",
+      "change": "Gap Q6 no longer asks whether a coach-facing consequence line may ever appear; his 24 October reply (christian-2026-10-24.txt:40, :50) settles that. It asks which claims count as grounded in authorized knowledge."
+    },
+    {
+      "finding": "verification, branch state",
+      "change": "Gaps E2 and E5 carry a dated note: E2 landed at 5d56683 and E5a at d5c4b63, on the branch claude/serene-dewdney-c78e18, not yet on main."
+    },
+    {
+      "finding": "verification, date labels",
+      "change": "The manipulations provenance cites his first 15 October reply by file and line (christian-2026-10-15.txt:13)."
+    },
+    {
+      "finding": "Library pass, 27 October 2026",
+      "change": "His RC1.1 Library (Attack Development section, held outside the repository) is folded in. Gap Q8 no longer asks him to send the section: it asks which of its seven typical manipulations and five typical regulations apply (Q8a) and whether his Goalkeeper Build-Out rule for the Library and the workbook holds here (Q8b). Gap Q9 (the in-app draft view) is removed: it is no longer a question to him (README section 5). The manipulations provenance now says the list exists in his Library but no phrase of his names any item for Secure Possession. existingKnowledge[6] no longer calls RPC-ID-014 the one authored row naming support. Gap E1 says it is needed before a draft enters the engine's knowledge, not the repository. The standing line says where this file may be stored (a document only)."
+    }
+  ],
+  "record": {
+    "learningGoalId": "TA02",
+    "contextId": "RPC-003",
+    "gameProblemId": "GP-015",
+    "ruledOn": "",
+    "by": "",
+    "ruling": [],
+    "authorizedConstraints": [],
+    "authorizedConstraintsFinding": "DRAFT, OURS, NOT HIS RULING. No library constraint has a documented relationship to Attack Development (RPC-003), Maintain Possession (GP-015) or this goal's affordances. RPC-003's relationships in rpc-library.rc1.json reach only the game archetype, Game Problem, game form, Learning Goal and scoring event libraries, and it has no manipulation property naming an object; its affordance targets RPC-MAP-103..107 are DEFERRED by Christian on 13 September 2026 ('canonical Affordance Target ids are not to be inferred to reach runtime'); every Soccer Module realization row has universal_concept_id and primary_game_problem_ids null; no authored mapping joins the constraints' targetAffordancePrimary vocabulary to GP-015's four affordance requirements; the wording pool was derived by the parser. Only the game form, GF2, is documented for GP-015 (soccer-module GF2 primary_game_problem_ids 'GP-015; GP-001', entered with his 4 August 2026 authoring pass). Central Density Condition and Switch of Play Bonus are not justified; Wide Zone Advantage and Turnover Reward each carry a plausible relevance that only his coaching judgement can establish (README Q4); the Pass Combination Gate stays held. Finding of 27 October 2026 (ta02-candidate-evaluation.DRAFT.md), for his review: it names no constraint as authorized.",
+    "existingKnowledge": [
+      {
+        "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
+        "what": "Two opposed teams, the opposition live and able to deny, redirect or reverse progression.",
+        "sources": [
+          "RPC-REL-003 (GA-001, REQUIRED)",
+          "contract item GF2-13",
+          "RPC-VAL-014"
+        ],
+        "note": null
+      },
+      {
+        "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
+        "what": "Each team attacks its own target, the two targets at opposite ends, assigned at setup and fixed whoever has the ball.",
+        "sources": [
+          "ruling C42 (9 October 2026)",
+          "contract items GF2-08.c and GF2-08.e (to GF2-03.f and GF2-03.e)"
+        ],
+        "note": null
+      },
+      {
+        "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
+        "what": "One scoring event kind serves both targets: a line crossed or a zone entered, where GF2's permitted events meet Attack Development's approved ones.",
+        "sources": [
+          "contract item GF2-19",
+          "RPC-REL-079",
+          "RPC-REL-080",
+          "SD-06"
+        ],
+        "note": "Which of the two is used is a realizer choice today (a04-realization-choices.json chooses line), not knowledge; where \"a more advanced representative area\" lies is README Q2."
+      },
+      {
+        "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
+        "what": "Possession alone never scores, and no possession reward may outweigh or displace the progression event.",
+        "sources": [
+          "RPC-ID-013",
+          "RPC-STMT-014",
+          "contract items GF2-20 and GF2-21"
+        ],
+        "note": "GF2-20 and GF2-21 are ASSUMED items with authored bases (GAK-0108, GAK-0015)."
+      },
+      {
+        "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
+        "what": "When possession changes, play continues, and the team that won the ball attacks its own target at once.",
+        "sources": [
+          "contract item GF2-17",
+          "ruling C42 (9 October 2026)"
+        ],
+        "note": "GF2-17's basis, \"Continuous directional circulation\", is Test Library V0 text (commit 3980188) cited AUTHORED by the corpus convention."
+      },
+      {
+        "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
+        "what": "Attack Development's approved scoring condition governs what counts as a score.",
+        "sources": [
+          "RPC-PROP-134"
+        ],
+        "note": "Approved knowledge, not yet in an engine-readable form he has ruled: the K1 draft carries it, and its origin, its control referent and its scope wait on README Q1 and Q2 (PR-1, PR-2, PR-3) and on his approved wording."
+      },
+      {
+        "category": "EXISTING_KNOWLEDGE_TO_VERIFY",
+        "what": "Several progression and support options remain available to the team in possession.",
+        "sources": [
+          "RPC-ID-014 (SUPPORTING_IDENTITY)"
+        ],
+        "note": "Supports recognition only; no element carries it (K1 item RPC-003-13 is outside the boundary). Of the workbook rows it is the one identity row naming support options; RPC-PROP-039 \"Teammate positioning and support.\" names support as information and RPC-PROP-044 \"Static support limits future progression.\" as a degenerate solution. His RC1.1 Library names support more often (for example \"supporting movement;\", Library line 660, and \"coordinated support;\", Library line 607), all of it Library-only and so not an authored premise (K6 gap G3; reconciliation LP-6, LP-7)."
+      }
+    ],
+    "gaps": [
+      {
+        "id": "Q1",
+        "kind": "DECISION",
+        "description": "How Attack Development governs Secure Possession: what \"the attack's starting condition\" is for this goal, whether a restart begins a new attack, and whether the same game as Progress the Attack is acceptable.",
+        "note": "First question (README Q1). Blocks the origin condition, the condition scope, the START item and every restart element under the K1 draft."
+      },
+      {
+        "id": "Q2",
+        "kind": "DECISION",
+        "description": "What counts as a score: where \"a more advanced representative area\" is, whether \"while maintaining attacking possession\" is judged at the target or throughout, and the coach sentences for the conditions.",
+        "note": "README Q2 (PR-1, PR-2, D5, wording)."
+      },
+      {
+        "id": "Q3",
+        "kind": "DECISION",
+        "description": "The other team: the same objective at the far end (symmetric), or a counter-pressing team with an objective of its own.",
+        "note": "README Q3 (D3, PR-5)."
+      },
+      {
+        "id": "Q4",
+        "kind": "DECISION",
+        "description": "Constraints: whether Wide Zone Advantage or Turnover Reward is justified for this goal, and what \"authorized\" means for a set that is not two to four with a foundation constraint. Not asked: whether to accept the empty set, which his principle (\"A library constraint is not mandatory unless its inclusion is justified by the approved knowledge and intended learning environment.\", his 16 October reply, christian-2026-10-16.txt:13) already makes the outcome where no constraint is justified.",
+        "note": "README Q4 (D4b, D4a, D10; D4 is no longer asked). authorizedConstraints [] above is our draft finding under his principle, resting only on K3 section 2 (no documented relationship), not his answer."
+      },
+      {
+        "id": "Q5",
+        "kind": "DECISION",
+        "description": "Restarts: confirm, or depart from, the adaptations we identify where a normal law cannot apply directly in this game (where a goal kick is taken at an end line with no goal; where the kick-off is taken with no centre mark), offside, and how strictly owed adaptations are checked. Laws 9, 15, 16 and 17 already decide, under his 26 October principle, that the ball can go out over every line and who restarts at each.",
+        "note": "README Q5 (K4-1 as a confirmation only, K4-D3..D5, E4 strictness, E-K4). Not asked: the touchline (Law 15) and the end-line award and taker (Laws 16 and 17)."
+      },
+      {
+        "id": "Q6",
+        "kind": "DECISION",
+        "description": "How the activity shows why it is relevant: the affordance vocabulary, gate or review evidence, which consequence claims count as grounded in authorized knowledge (his 24 October reply already permits concise consequence explanations so grounded, in Coach Details: christian-2026-10-24.txt:40, :50), and each proposed claim.",
+        "note": "README Q6 (D8, K6 claims)."
+      },
+      {
+        "id": "Q7",
+        "kind": "DECISION",
+        "description": "Whether \"one ball shared between context and game\" extends to Attack Development.",
+        "note": "README Q7 (D8b, PR-4)."
+      },
+      {
+        "id": "Q8",
+        "kind": "DECISION",
+        "description": "Which, if any, of the seven typical environmental manipulations and five typical interaction regulations his RC1.1 Library lists for Attack Development apply to Secure Possession (Q8a); and whether his Goalkeeper Build-Out rule for the Library and the workbook holds for Attack Development: the workbook stays the executable authority, the reconciliation record is retained, and only an item this activity needs is resolved explicitly (Q8b).",
+        "note": "README Q8 (Q8a, Q8b; source material, D7; reconciliation LP-4, LP-5, LP-7, LP-9). manipulations [] above waits on Q8a. The section is not in the repository; we hold his RC1.1 Library outside it, so Q8 no longer asks him to send it."
+      },
+      {
+        "id": "E1",
+        "kind": "CAPABILITY",
+        "description": "A draft knowledge layer: a separate store, a DRAFT standing for every item from it, a draft label in provenance, never read by the live route or a coach's build.",
+        "note": "Required before any of these drafts enters the engine's knowledge (a file the engine loads); stored as documents under docs/audits/drafts/ta02-composition/ they need none (engine-design.md section 2)."
+      },
+      {
+        "id": "E4",
+        "kind": "CAPABILITY",
+        "description": "A default-laws account for compositions, read from knowledge rather than from a realization.",
+        "note": "engine-design.md section 4. Its strictness is part of Q5."
+      },
+      {
+        "id": "E7",
+        "kind": "CAPABILITY",
+        "description": "The relevance trace from element to knowledge item to proposed claim to affordance rating, as review evidence.",
+        "note": "engine-design.md section 6. Its vocabulary is Q6."
+      },
+      {
+        "id": "E-K4",
+        "kind": "CAPABILITY",
+        "description": "Game-form restart knowledge that does not disturb an activity's own restarts (Play Out from the Back).",
+        "note": "Needed before any GF2 restart item is applied (K4 notes section 6)."
+      },
+      {
+        "id": "E8",
+        "kind": "CAPABILITY",
+        "description": "Episodes as data, so a scoring condition can apply to an Attack Development episode or a post-regain episode.",
+        "note": "Conditional on Q1/Q2."
+      },
+      {
+        "id": "E3",
+        "kind": "CAPABILITY",
+        "description": "A record-backed authorized set of any size is committed as authorized (no two-to-four foundation rule).",
+        "note": "Conditional on Q4 authorizing a set that is not a two-to-four foundation set."
+      },
+      {
+        "id": "E2",
+        "kind": "CAPABILITY",
+        "description": "An authorized constraint with no contract is refused as a named gap, never silently dropped.",
+        "note": "Conditional on Q4 authorizing a constraint with no contract (for example Central Density or Turnover Reward). DATED 27 October 2026: E2 has since landed at commit 5d56683 on the branch claude/serene-dewdney-c78e18 (not yet on main); this record was drafted against f5d6d24."
+      },
+      {
+        "id": "E5",
+        "kind": "CAPABILITY",
+        "description": "Set-up sentences for end zones and interior lines in games without role names, and a fidelity check tying placement words to geometry.",
+        "note": "Conditional on Q2 choosing a zone or an interior area (with E11). DATED 27 October 2026: the placement-geometry half (E5a) has landed at commit d5c4b63 on the branch claude/serene-dewdney-c78e18 (not yet on main): a realized end zone in a game without role names is now refused at communication, not served with false set-up text. The end-zone and interior-line sentences still wait on his wording (D5)."
+      },
+      {
+        "id": "E11",
+        "kind": "CAPABILITY",
+        "description": "A context steering the game form's line-or-zone realizer choice.",
+        "note": "Conditional on Q2 choosing a zone."
+      },
+      {
+        "id": "E6",
+        "kind": "CAPABILITY",
+        "description": "Restart phrases as data, for any team with a phrase.",
+        "note": "Conditional on Q5 choosing a fixed end-line method or a restart after a score."
+      },
+      {
+        "id": "E9",
+        "kind": "CAPABILITY",
+        "description": "Role pairs other than building and pressing.",
+        "note": "Conditional on Q3 choosing a counter-pressing team."
+      },
+      {
+        "id": "E13",
+        "kind": "CAPABILITY",
+        "description": "Regain and denial made evaluable as a role's scoring event.",
+        "note": "Conditional on Q3 choosing a counter-pressing team."
+      }
+    ],
+    "excluded": [
+      {
+        "knowledgeId": "tl-v0-constraint-pass-combination-gate",
+        "ruledOn": "2026-10-14",
+        "by": "Christian",
+        "ruling": "Please keep the current Pass Combination Gate as a mechanism demonstration only. I do not want it reintroduced into learning-design examples until we've reviewed its ecological suitability.",
+        "heldBy": "learning-design-holds.json"
+      }
+    ],
+    "manipulations": []
+  },
+  "provenance": {
+    "learningGoalId": {
+      "source": [
+        {
+          "file": "back/src/system/session-planning/session-planning-model.rc1.json",
+          "rows": [
+            "TA02"
+          ],
+          "words": "Secure Possession"
+        },
+        {
+          "file": "back/src/system/session-planning/session-planning-model.rc1.json",
+          "rows": [
+            "TA02"
+          ],
+          "words": "Stabilize possession after regaining it."
+        }
+      ]
+    },
+    "contextId": {
+      "source": [
+        {
+          "file": "back/src/system/session-planning/session-planning-model.rc1.json",
+          "rows": [
+            "TA02"
+          ],
+          "words": "RPC-003"
+        },
+        {
+          "file": "back/src/system/session-planning/session-planning-model.rc1.json",
+          "rows": [
+            "TA02"
+          ],
+          "words": "Canonical RC1.1"
+        },
+        {
+          "file": "back/src/system/sport-module/rpc-library.rc1.json",
+          "rows": [
+            "RPC-REL-068"
+          ],
+          "words": "Resolved 'Secure Possession' to 'Secure Possession' by rule: exact Learning Goal name."
+        }
+      ],
+      "note": "The routing row (session-planning-model.rc1.json:769-773) is canonical; RPC-REL-068 relates RPC-003 to TA02 as SECONDARY. How Attack Development governs this goal is README Q1."
+    },
+    "gameProblemId": {
+      "source": [
+        {
+          "file": "back/src/system/session-planning/session-planning-model.rc1.json",
+          "rows": [
+            "TA02"
+          ],
+          "words": "GP-015"
+        },
+        {
+          "file": "back/src/system/session-planning/session-planning-model.rc1.json",
+          "rows": [
+            "TA02"
+          ],
+          "words": "Approved RC1 — Primary Representative Game Problem Translation (Cycle 8)."
+        }
+      ]
+    },
+    "ruledOn": {
+      "ours": "NOT RULED. No ruling of his exists for a TA02 record. Left empty so that the production validator refuses the record (\"the record cites no ruling (ruledOn, by and his words are all required)\", learning-goal-authorizations.ts:534-536), which keeps it from being loaded by accident."
+    },
+    "by": {
+      "ours": "NOT RULED, as ruledOn."
+    },
+    "ruling": {
+      "ours": "NOT RULED. His reply of 29 October asks for this draft; it is context for the record, not a ruling on its content.",
+      "citing": [
+        {
+          "file": "scratchpad/christian-2026-10-29.txt",
+          "rows": [
+            "L7"
+          ],
+          "words": "I agree with using Secure Possession as the initial test."
+        },
+        {
+          "file": "scratchpad/christian-2026-10-29.txt",
+          "rows": [
+            "L18"
+          ],
+          "words": "Please draft the necessary engine-readable knowledge from our existing libraries for my review, rather than asking me to construct another complete realization."
+        }
+      ]
+    },
+    "authorizedConstraints": {
+      "ours": "Our evaluation (ta02-candidate-evaluation.DRAFT.md, K3): no candidate has a documented relationship. An empty list is a legitimate outcome under his general principle, which is his and already recorded; applying it to TA02 is ours.",
+      "citing": [
+        {
+          "file": "back/src/system/test-library/library/learning-goal-authorizations.json",
+          "rows": [
+            "libraryConstraintPrinciple"
+          ],
+          "words": "A library constraint is not mandatory unless its inclusion is justified by the approved knowledge and intended learning environment."
+        },
+        {
+          "file": "back/src/system/test-library/library/learning-goal-authorizations.json",
+          "rows": [
+            "libraryConstraintPrinciple"
+          ],
+          "words": "The game form and its inherent conditions may already create the affordances needed for the Learning Goal."
+        }
+      ]
+    },
+    "authorizedConstraintsFinding": {
+      "ours": "Our wording, shaped on A01's finding (learning-goal-authorizations.json:153). The quoted deferral and mapping are his rows. The null Game Problem ids of the candidate realization rows (soccer-module.rc1-v3.json realization_id tl-v0-constraint-central-density-condition and the others) were read, not quoted: a null is not a quotable string.",
+      "citing": [
+        {
+          "file": "back/src/system/sport-module/rpc-library.rc1.json",
+          "rows": [
+            "RPC-MAP-103"
+          ],
+          "words": "canonical Affordance Target ids are not to be inferred to reach runtime"
+        },
+        {
+          "file": "back/src/system/sport-module/soccer-module.rc1-v3.json",
+          "rows": [
+            "GF2"
+          ],
+          "words": "GP-015; GP-001"
+        }
+      ]
+    },
+    "existingKnowledge[0].category": {
+      "ours": "The schema's label for what existing knowledge already authorizes (learning-goal-authorizations.ts ExistingKnowledgeRecord). Applying it is ours, for him to verify."
+    },
+    "existingKnowledge[0].what": {
+      "ours": "Our plain summary of the sources below."
+    },
+    "existingKnowledge[0].sources": {
+      "source": [
+        {
+          "file": "back/src/system/sport-module/rpc-library.rc1.json",
+          "rows": [
+            "RPC-REL-003"
+          ],
+          "words": "Soccer RPCs operate within Invasion ecological organization."
+        },
+        {
+          "file": "docs/audits/conformance/stage-b/contracts.json",
+          "rows": [
+            "GF2-13"
+          ],
+          "words": "the out-of-possession team can deny, redirect or reverse progression toward the objective it defends"
+        },
+        {
+          "file": "back/src/system/sport-module/rpc-library.rc1.json",
+          "rows": [
+            "RPC-VAL-014"
+          ],
+          "words": "Opponent interaction, direction, consequence, and representative information must remain intact where required."
+        }
+      ]
+    },
+    "existingKnowledge[0].note": {
+      "ours": "No note."
+    },
+    "existingKnowledge[1].category": {
+      "ours": "The schema's label for what existing knowledge already authorizes (learning-goal-authorizations.ts ExistingKnowledgeRecord). Applying it is ours, for him to verify."
+    },
+    "existingKnowledge[1].what": {
+      "ours": "Our plain summary of the sources below."
+    },
+    "existingKnowledge[1].sources": {
+      "source": [
+        {
+          "file": "docs/audits/conformance/stage-b/corpus-restatements.json",
+          "rows": [
+            "GF2-08.c"
+          ],
+          "words": "each team attacks the target opposite its own assigned end, regardless of possession changes"
+        },
+        {
+          "file": "docs/audits/conformance/stage-b/corpus-restatements.json",
+          "rows": [
+            "GF2-08.e"
+          ],
+          "words": "a primary scoring objective attacked by the team assigned to the axis-far end"
+        }
+      ]
+    },
+    "existingKnowledge[1].note": {
+      "ours": "No note."
+    },
+    "existingKnowledge[2].category": {
+      "ours": "The schema's label for what existing knowledge already authorizes (learning-goal-authorizations.ts ExistingKnowledgeRecord). Applying it is ours, for him to verify."
+    },
+    "existingKnowledge[2].what": {
+      "ours": "Our plain summary of the sources below."
+    },
+    "existingKnowledge[2].sources": {
+      "source": [
+        {
+          "file": "docs/audits/conformance/stage-b/contracts.json",
+          "rows": [
+            "GF2-19"
+          ],
+          "words": "line_crossed"
+        },
+        {
+          "file": "docs/audits/conformance/stage-b/contracts.json",
+          "rows": [
+            "GF2-19"
+          ],
+          "words": "target_zone_entered"
+        },
+        {
+          "file": "back/src/system/sport-module/rpc-library.rc1.json",
+          "rows": [
+            "RPC-REL-079"
+          ],
+          "words": "Valid primary scoring event 1 of 4, in the approved order."
+        },
+        {
+          "file": "back/src/system/sport-module/rpc-library.rc1.json",
+          "rows": [
+            "RPC-REL-080"
+          ],
+          "words": "line_crossed"
+        },
+        {
+          "file": "docs/audits/conformance/register-2026-09-18.json",
+          "rows": [
+            "SD-06"
+          ],
+          "words": "exactly one primary scoring event"
+        }
+      ]
+    },
+    "existingKnowledge[2].note": {
+      "ours": "Our note."
+    },
+    "existingKnowledge[3].category": {
+      "ours": "The schema's label for what existing knowledge already authorizes (learning-goal-authorizations.ts ExistingKnowledgeRecord). Applying it is ours, for him to verify."
+    },
+    "existingKnowledge[3].what": {
+      "ours": "Our plain summary of the sources below."
+    },
+    "existingKnowledge[3].sources": {
+      "source": [
+        {
+          "file": "back/src/system/sport-module/rpc-library.rc1.json",
+          "rows": [
+            "RPC-ID-013"
+          ],
+          "words": "Possession alone is insufficient as success."
+        },
+        {
+          "file": "back/src/system/sport-module/rpc-library.rc1.json",
+          "rows": [
+            "RPC-STMT-014"
+          ],
+          "words": "Reinforce measurable improvement in attacking conditions rather than possession alone."
+        },
+        {
+          "file": "docs/audits/conformance/stage-b/contracts.json",
+          "rows": [
+            "GF2-20"
+          ],
+          "words": "retained possession alone as the scoring event"
+        },
+        {
+          "file": "docs/audits/conformance/stage-b/contracts.json",
+          "rows": [
+            "GF2-21"
+          ],
+          "words": "a possession reward that outweighs or displaces the progression event"
+        }
+      ]
+    },
+    "existingKnowledge[3].note": {
+      "ours": "Our note."
+    },
+    "existingKnowledge[4].category": {
+      "ours": "The schema's label for what existing knowledge already authorizes (learning-goal-authorizations.ts ExistingKnowledgeRecord). Applying it is ours, for him to verify."
+    },
+    "existingKnowledge[4].what": {
+      "ours": "Our plain summary of the sources below."
+    },
+    "existingKnowledge[4].sources": {
+      "source": [
+        {
+          "file": "docs/audits/conformance/stage-b/contracts.json",
+          "rows": [
+            "GF2-17"
+          ],
+          "words": "CONTINUE"
+        },
+        {
+          "file": "docs/audits/conformance/stage-b/contracts.json",
+          "rows": [
+            "GF2-17"
+          ],
+          "words": "Continuous directional circulation"
+        },
+        {
+          "file": "docs/audits/conformance/stage-b/corpus-restatements.json",
+          "rows": [
+            "GF2-08.c"
+          ],
+          "words": "regardless of possession changes"
+        }
+      ]
+    },
+    "existingKnowledge[4].note": {
+      "ours": "Our note."
+    },
+    "existingKnowledge[5].category": {
+      "ours": "The schema's label for what existing knowledge already authorizes (learning-goal-authorizations.ts ExistingKnowledgeRecord). Applying it is ours, for him to verify."
+    },
+    "existingKnowledge[5].what": {
+      "ours": "Our plain summary of the sources below."
+    },
+    "existingKnowledge[5].sources": {
+      "source": [
+        {
+          "file": "back/src/system/sport-module/rpc-library.rc1.json",
+          "rows": [
+            "RPC-PROP-134"
+          ],
+          "words": "Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession."
+        },
+        {
+          "file": "back/src/system/sport-module/rpc-library.rc1.json",
+          "rows": [
+            "RPC-PROP-134"
+          ],
+          "words": "Christian, 2026-09-13: Primary Scoring Event approval (RC1.1)"
+        }
+      ]
+    },
+    "existingKnowledge[5].note": {
+      "ours": "Our note."
+    },
+    "existingKnowledge[6].category": {
+      "ours": "The schema's label for what existing knowledge already authorizes (learning-goal-authorizations.ts ExistingKnowledgeRecord). Applying it is ours, for him to verify."
+    },
+    "existingKnowledge[6].what": {
+      "ours": "Our plain summary of the sources below."
+    },
+    "existingKnowledge[6].sources": {
+      "source": [
+        {
+          "file": "back/src/system/sport-module/rpc-library.rc1.json",
+          "rows": [
+            "RPC-ID-014"
+          ],
+          "words": "Multiple progression and support options remain available."
+        },
+        {
+          "file": "back/src/system/sport-module/rpc-library.rc1.json",
+          "rows": [
+            "RPC-ID-014"
+          ],
+          "words": "SUPPORTING_IDENTITY"
+        }
+      ]
+    },
+    "existingKnowledge[6].note": {
+      "ours": "Our note.",
+      "citing": [
+        {
+          "file": "back/src/system/sport-module/rpc-library.rc1.json",
+          "rows": [
+            "RPC-PROP-039"
+          ],
+          "words": "Teammate positioning and support."
+        },
+        {
+          "file": "back/src/system/sport-module/rpc-library.rc1.json",
+          "rows": [
+            "RPC-PROP-044"
+          ],
+          "words": "Static support limits future progression."
+        },
+        {
+          "file": "scratchpad/rpc-library-rc1.1.txt",
+          "rows": [
+            "L660"
+          ],
+          "words": "supporting movement;"
+        },
+        {
+          "file": "scratchpad/rpc-library-rc1.1.txt",
+          "rows": [
+            "L607"
+          ],
+          "words": "coordinated support;"
+        }
+      ]
+    },
+    "gaps[0].id": {
+      "ours": "README decision or capability id."
+    },
+    "gaps[0].kind": {
+      "ours": "DECISION (his) or CAPABILITY (general engine work)."
+    },
+    "gaps[0].description": {
+      "ours": "Our wording, as put to him; never his words (RecordGapDefinition).",
+      "citing": [
+        {
+          "file": "back/src/system/session-planning/session-planning-model.rc1.json",
+          "rows": [
+            "TA02"
+          ],
+          "words": "Stabilize possession after regaining it."
+        },
+        {
+          "file": "back/src/system/sport-module/rpc-library.rc1.json",
+          "rows": [
+            "RPC-ID-011"
+          ],
+          "words": "Organized attacking possession is already established."
+        },
+        {
+          "file": "back/src/system/sport-module/rpc-library.rc1.json",
+          "rows": [
+            "RPC-ID-026"
+          ],
+          "words": "Possession has just been regained."
+        }
+      ]
+    },
+    "gaps[0].note": {
+      "ours": "Our note."
+    },
+    "gaps[1].id": {
+      "ours": "README decision or capability id."
+    },
+    "gaps[1].kind": {
+      "ours": "DECISION (his) or CAPABILITY (general engine work)."
+    },
+    "gaps[1].description": {
+      "ours": "Our wording, as put to him; never his words (RecordGapDefinition).",
+      "citing": [
+        {
+          "file": "back/src/system/sport-module/rpc-library.rc1.json",
+          "rows": [
+            "RPC-PROP-134"
+          ],
+          "words": "reaching a more advanced representative area while maintaining attacking possession"
+        }
+      ]
+    },
+    "gaps[1].note": {
+      "ours": "Our note."
+    },
+    "gaps[2].id": {
+      "ours": "README decision or capability id."
+    },
+    "gaps[2].kind": {
+      "ours": "DECISION (his) or CAPABILITY (general engine work)."
+    },
+    "gaps[2].description": {
+      "ours": "Our wording, as put to him; never his words (RecordGapDefinition).",
+      "citing": [
+        {
+          "file": "back/src/system/knowledge-core/game-archetype-workbook.rc1.1.json",
+          "rows": [
+            "GA-001"
+          ],
+          "words": "Reciprocal progression toward meaningful external objectives."
+        }
+      ]
+    },
+    "gaps[2].note": {
+      "ours": "Our note."
+    },
+    "gaps[3].id": {
+      "ours": "README decision or capability id."
+    },
+    "gaps[3].kind": {
+      "ours": "DECISION (his) or CAPABILITY (general engine work)."
+    },
+    "gaps[3].description": {
+      "ours": "Our wording, as put to him; never his words (RecordGapDefinition).",
+      "citing": [
+        {
+          "file": "back/src/system/test-library/library/learning-goal-authorizations.json",
+          "rows": [
+            "libraryConstraintPrinciple"
+          ],
+          "words": "A library constraint is not mandatory unless its inclusion is justified by the approved knowledge and intended learning environment."
+        }
+      ]
+    },
+    "gaps[3].note": {
+      "ours": "Our note."
+    },
+    "gaps[4].id": {
+      "ours": "README decision or capability id."
+    },
+    "gaps[4].kind": {
+      "ours": "DECISION (his) or CAPABILITY (general engine work)."
+    },
+    "gaps[4].description": {
+      "ours": "Our wording, as put to him; never his words (RecordGapDefinition).",
+      "citing": [
+        {
+          "file": "back/src/system/sport-module/soccer-module.rc1-v3.json",
+          "rows": [
+            "GF2"
+          ],
+          "words": "Restart conditions: ball out of play restarts from the team that didn't touch it last."
+        },
+        {
+          "file": "scratchpad/christian-2026-10-26.txt",
+          "rows": [],
+          "words": "The governing principle is to inherit established sport rules and explicitly define only the necessary departures."
+        }
+      ]
+    },
+    "gaps[4].note": {
+      "ours": "Our note."
+    },
+    "gaps[5].id": {
+      "ours": "README decision or capability id."
+    },
+    "gaps[5].kind": {
+      "ours": "DECISION (his) or CAPABILITY (general engine work)."
+    },
+    "gaps[5].description": {
+      "ours": "Our wording, as put to him; never his words (RecordGapDefinition).",
+      "citing": [
+        {
+          "file": "back/src/system/knowledge-core/atm-workbook.rc1.2.json",
+          "rows": [],
+          "words": "Support Availability"
+        }
+      ]
+    },
+    "gaps[5].note": {
+      "ours": "Our note."
+    },
+    "gaps[6].id": {
+      "ours": "README decision or capability id."
+    },
+    "gaps[6].kind": {
+      "ours": "DECISION (his) or CAPABILITY (general engine work)."
+    },
+    "gaps[6].description": {
+      "ours": "Our wording, as put to him; never his words (RecordGapDefinition).",
+      "citing": [
+        {
+          "file": "docs/audits/realization-choices-rpc-001.json",
+          "rows": [],
+          "words": "This is not a general merge rule"
+        }
+      ]
+    },
+    "gaps[6].note": {
+      "ours": "Our note."
+    },
+    "gaps[7].id": {
+      "ours": "README decision or capability id."
+    },
+    "gaps[7].kind": {
+      "ours": "DECISION (his) or CAPABILITY (general engine work)."
+    },
+    "gaps[7].description": {
+      "ours": "Our wording, as put to him; never his words (RecordGapDefinition).",
+      "citing": [
+        {
+          "file": "back/src/system/test-library/library/learning-goal-authorizations.json",
+          "rows": [],
+          "words": "RC1.1 Representative Performance Context Library (docx), RPC-001 Goalkeeper Build-Out, Typical Environmental Manipulations"
+        },
+        {
+          "file": "scratchpad/rpc-library-rc1.1.txt",
+          "rows": [
+            "L668"
+          ],
+          "words": "Typical Environmental Manipulations"
+        },
+        {
+          "file": "scratchpad/rpc-library-rc1.1.txt",
+          "rows": [
+            "L678"
+          ],
+          "words": "Typical Interaction Regulations"
+        }
+      ]
+    },
+    "gaps[7].note": {
+      "ours": "Our note."
+    },
+    "gaps[8].id": {
+      "ours": "README decision or capability id."
+    },
+    "gaps[8].kind": {
+      "ours": "DECISION (his) or CAPABILITY (general engine work)."
+    },
+    "gaps[8].description": {
+      "ours": "Our wording, as put to him; never his words (RecordGapDefinition)."
+    },
+    "gaps[8].note": {
+      "ours": "Our note."
+    },
+    "gaps[9].id": {
+      "ours": "README decision or capability id."
+    },
+    "gaps[9].kind": {
+      "ours": "DECISION (his) or CAPABILITY (general engine work)."
+    },
+    "gaps[9].description": {
+      "ours": "Our wording, as put to him; never his words (RecordGapDefinition)."
+    },
+    "gaps[9].note": {
+      "ours": "Our note."
+    },
+    "gaps[10].id": {
+      "ours": "README decision or capability id."
+    },
+    "gaps[10].kind": {
+      "ours": "DECISION (his) or CAPABILITY (general engine work)."
+    },
+    "gaps[10].description": {
+      "ours": "Our wording, as put to him; never his words (RecordGapDefinition)."
+    },
+    "gaps[10].note": {
+      "ours": "Our note."
+    },
+    "gaps[11].id": {
+      "ours": "README decision or capability id."
+    },
+    "gaps[11].kind": {
+      "ours": "DECISION (his) or CAPABILITY (general engine work)."
+    },
+    "gaps[11].description": {
+      "ours": "Our wording, as put to him; never his words (RecordGapDefinition)."
+    },
+    "gaps[11].note": {
+      "ours": "Our note."
+    },
+    "gaps[12].id": {
+      "ours": "README decision or capability id."
+    },
+    "gaps[12].kind": {
+      "ours": "DECISION (his) or CAPABILITY (general engine work)."
+    },
+    "gaps[12].description": {
+      "ours": "Our wording, as put to him; never his words (RecordGapDefinition)."
+    },
+    "gaps[12].note": {
+      "ours": "Our note."
+    },
+    "gaps[13].id": {
+      "ours": "README decision or capability id."
+    },
+    "gaps[13].kind": {
+      "ours": "DECISION (his) or CAPABILITY (general engine work)."
+    },
+    "gaps[13].description": {
+      "ours": "Our wording, as put to him; never his words (RecordGapDefinition)."
+    },
+    "gaps[13].note": {
+      "ours": "Our note."
+    },
+    "gaps[14].id": {
+      "ours": "README decision or capability id."
+    },
+    "gaps[14].kind": {
+      "ours": "DECISION (his) or CAPABILITY (general engine work)."
+    },
+    "gaps[14].description": {
+      "ours": "Our wording, as put to him; never his words (RecordGapDefinition)."
+    },
+    "gaps[14].note": {
+      "ours": "Our note."
+    },
+    "gaps[15].id": {
+      "ours": "README decision or capability id."
+    },
+    "gaps[15].kind": {
+      "ours": "DECISION (his) or CAPABILITY (general engine work)."
+    },
+    "gaps[15].description": {
+      "ours": "Our wording, as put to him; never his words (RecordGapDefinition)."
+    },
+    "gaps[15].note": {
+      "ours": "Our note."
+    },
+    "gaps[16].id": {
+      "ours": "README decision or capability id."
+    },
+    "gaps[16].kind": {
+      "ours": "DECISION (his) or CAPABILITY (general engine work)."
+    },
+    "gaps[16].description": {
+      "ours": "Our wording, as put to him; never his words (RecordGapDefinition)."
+    },
+    "gaps[16].note": {
+      "ours": "Our note."
+    },
+    "gaps[17].id": {
+      "ours": "README decision or capability id."
+    },
+    "gaps[17].kind": {
+      "ours": "DECISION (his) or CAPABILITY (general engine work)."
+    },
+    "gaps[17].description": {
+      "ours": "Our wording, as put to him; never his words (RecordGapDefinition)."
+    },
+    "gaps[17].note": {
+      "ours": "Our note."
+    },
+    "gaps[18].id": {
+      "ours": "README decision or capability id."
+    },
+    "gaps[18].kind": {
+      "ours": "DECISION (his) or CAPABILITY (general engine work)."
+    },
+    "gaps[18].description": {
+      "ours": "Our wording, as put to him; never his words (RecordGapDefinition)."
+    },
+    "gaps[18].note": {
+      "ours": "Our note."
+    },
+    "gaps[19].id": {
+      "ours": "README decision or capability id."
+    },
+    "gaps[19].kind": {
+      "ours": "DECISION (his) or CAPABILITY (general engine work)."
+    },
+    "gaps[19].description": {
+      "ours": "Our wording, as put to him; never his words (RecordGapDefinition)."
+    },
+    "gaps[19].note": {
+      "ours": "Our note."
+    },
+    "excluded[0].knowledgeId": {
+      "source": [
+        {
+          "file": "back/src/system/test-library/library/learning-design-holds.json",
+          "rows": [
+            "tl-v0-constraint-pass-combination-gate"
+          ],
+          "words": "tl-v0-constraint-pass-combination-gate"
+        }
+      ]
+    },
+    "excluded[0].ruledOn": {
+      "source": [
+        {
+          "file": "back/src/system/test-library/library/learning-design-holds.json",
+          "rows": [
+            "tl-v0-constraint-pass-combination-gate"
+          ],
+          "words": "2026-10-14"
+        }
+      ]
+    },
+    "excluded[0].by": {
+      "source": [
+        {
+          "file": "back/src/system/test-library/library/learning-design-holds.json",
+          "rows": [
+            "tl-v0-constraint-pass-combination-gate"
+          ],
+          "words": "Christian"
+        }
+      ]
+    },
+    "excluded[0].ruling": {
+      "source": [
+        {
+          "file": "back/src/system/test-library/library/learning-design-holds.json",
+          "rows": [
+            "tl-v0-constraint-pass-combination-gate"
+          ],
+          "words": "Please keep the current Pass Combination Gate as a mechanism demonstration only. I do not want it reintroduced into learning-design examples until we've reviewed its ecological suitability."
+        }
+      ],
+      "note": "His existing hold (learning-design examples in general), cross-referenced verbatim, as A01's record cross-references it. Not a new ruling."
+    },
+    "excluded[0].heldBy": {
+      "ours": "The cross-reference to the holds file that already holds it, the A01 pattern (learning-goal-authorizations.json:381-385)."
+    },
+    "manipulations": {
+      "ours": "EMPTY, AND THE EMPTY LIST IS OURS. A01's entries are phrases from his first 15 October reply (christian-2026-10-15.txt:13; the record cites them as \"Christian, 15 October 2026, item 1\") naming RPC-001's context manipulations, sourced to the RC1.1 context document's \"Typical Environmental Manipulations\" list. For Attack Development the list is not in the repository (git grep \"Typical Environmental Manipulations\" at f5d6d24 finds only RPC-001's, cited in learning-goal-authorizations.json), but his RC1.1 Library, which we hold outside it, has one: seven typical environmental manipulations and five typical interaction regulations (Library lines 668-685). No reply of his names any of them for Secure Possession, so no entry has a phrase of his, and none is listed. RPC-PROP-046..049 are BEHAVIOR_ADJUSTMENT rows (in-session guidance), not manipulations; listing them would be our reading. Waits on README Q8a (reconciliation LP-4, LP-5).",
+      "citing": [
+        {
+          "file": "back/src/system/sport-module/rpc-library.rc1.json",
+          "rows": [
+            "RPC-PROP-047"
+          ],
+          "words": "Manipulate field dimensions or numerical relationships."
+        },
+        {
+          "file": "back/src/system/sport-module/rpc-library.rc1.json",
+          "rows": [
+            "RPC-PROP-047"
+          ],
+          "words": "BEHAVIOR_ADJUSTMENT"
+        },
+        {
+          "file": "scratchpad/rpc-library-rc1.1.txt",
+          "rows": [
+            "L670-L672"
+          ],
+          "words": "field dimensions; player spacing; positional distribution."
+        },
+        {
+          "file": "scratchpad/rpc-library-rc1.1.txt",
+          "rows": [
+            "L674-L677"
+          ],
+          "words": "progression zones; numerical balance; target positioning; directional incentives."
+        },
+        {
+          "file": "scratchpad/rpc-library-rc1.1.txt",
+          "rows": [
+            "L680-L681"
+          ],
+          "words": "continuous play; directional progression."
+        },
+        {
+          "file": "scratchpad/rpc-library-rc1.1.txt",
+          "rows": [
+            "L683-L685"
+          ],
+          "words": "progression incentives; numerical conditions; restart procedures."
+        }
+      ]
+    }
+  }
+}

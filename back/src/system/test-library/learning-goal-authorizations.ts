@@ -500,13 +500,19 @@ export function realizationAlternativesOf(record: Pick<LearningGoalAuthorization
             citedAs: entry.citedAs,
             selectable: !(typeof entry.status === 'string' && isGapStatus(entry.status)),
             status: entry.status ?? null,
-            gaps: [...(entry.gaps ?? [])],
+            // Read only as a list (after the third E2 review, 27 October 2026): the gate refuses any other value, and a value that is not
+            // a list (`{}`, a number) made the gate's own call below throw ("is not iterable") instead of refusing. A record the gate admits
+            // carries a list, null or nothing here, so this reads every admitted record exactly as `?? []` did.
+            gaps: Array.isArray(entry.gaps) ? [...entry.gaps] : [],
         }))
     }
     return record.provisionalRealization ? [{ realization: record.provisionalRealization, words: null, citedAs: null, selectable: true, status: null, gaps: [] }] : []
 }
 
 const filled = (value: unknown): boolean => typeof value === 'string' && value.trim().length > 0
+
+/** A record (an object that is not a list), as the gate reads an entry: `null`, a word, a number or a list is none. */
+const isRecord = (value: unknown): boolean => typeof value === 'object' && value !== null && !Array.isArray(value)
 
 /** How an alternative realization waiting on a gap is named where the gap is listed (stage F): engine wording, never his. */
 const alternativeLabel = (realization: unknown): string => `the alternative realization ${String(realization)}`
@@ -527,6 +533,12 @@ export function validateLearningGoalAuthorizations(
     const held = new Set(holds.map((hold) => knowledgeKey(hold.knowledgeId)))
     const seen = new Set<string>()
     for (const entry of entries) {
+        // After the third E2 review (27 October 2026): an entry of the list that is not a record (`null`, a word, a number) threw a TypeError
+        // on `learningGoalId`. It is refused by the gate's existing sentence for an entry that names no goal, and read as no entry.
+        if (!isRecord(entry)) {
+            errors.push('an authorization names no Learning Goal')
+            continue
+        }
         const goal = entry.learningGoalId || '(no goal)'
         if (!filled(entry.learningGoalId)) errors.push('an authorization names no Learning Goal')
         if (seen.has(goal)) errors.push(`${goal}: more than one authorization record`)
@@ -540,9 +552,56 @@ export function validateLearningGoalAuthorizations(
         if (entry.authorizedConstraints !== null && !Array.isArray(entry.authorizedConstraints)) {
             errors.push(`${goal}: authorizedConstraints must be a list (the evaluation) or null (not yet evaluated)`)
         }
+        /**
+         * **The manipulations are a list, an empty one included** (E2, 27 October 2026, a TIGHTENING). The type requires the field and
+         * every reader dereferences it (`neededRecordGaps`, `authorizationLists`), while this gate read it with `?? []`, so a record copy
+         * that left it out passed the gate and crashed the build with a TypeError. Refused here instead, as a register-row list is below.
+         * The gate's own reads below take only a list (after the E2 review): a value present but not a list (`{}`, a word, a number) slipped
+         * past `?? []` and crashed THIS gate with a TypeError instead of being refused by the sentence above.
+         */
+        if (!Array.isArray(entry.manipulations)) errors.push(`${goal}: lists no manipulations (an empty list says it records none)`)
+        /**
+         * **The exclusions are a list too, an empty one included** (after the third E2 review, 27 October 2026, a TIGHTENING). The type
+         * requires the field and its readers dereference it without a fallback (`authorizationOf` in build-activity.ts, the review
+         * evidence), while this gate read absent or null as "excludes none", so a record copy that left it out passed the gate and crashed
+         * the build with a TypeError, as the manipulations did before E2. Refused here instead, absent, null or any value not a list alike.
+         */
+        if (!Array.isArray(entry.excluded)) errors.push(`${goal}: lists no exclusions (an empty list says it excludes none)`)
+        /**
+         * **The lists the gate reads entry by entry, read as lists and their entries as records** (after the second E2 review, 27 October
+         * 2026, a TIGHTENING; completed after the third). Each case below crashed this gate with a TypeError (`m.status` of null, `.filter
+         * is not a function`, `.map is not a function`, `realization` of null, `ruledOn` of null) or, for some words and numbers, was refused
+         * by several sentences that each named a missing field instead of the value that was wrong:
+         * - an entry that is not a record (`null`, a word, a number, a list) in the manipulations, the gaps, the provisional choices, the
+         *   existing knowledge, the exclusions or the alternative realizations (below), or in the list of records itself (above);
+         * - the gaps, the provisional choices, the existing knowledge or the authorized constraints present but not a list (`{}`, a word);
+         * - a review request present but not a record (`null`, a word).
+         * Each is refused by one sentence and an entry is read as no entry, its place in the list kept so later entries are numbered as the
+         * record numbers them. Absent (or null) gaps, provisional choices or existing knowledge still say the record lists none, as before
+         * and as their readers below take them (`?? []`); the manipulations and the exclusions, whose readers dereference them, must be lists
+         * (above). Not covered: the lists inside a review request, read by `validateReviewRequest` as before.
+         */
+        const listed = <T>(field: string, value: unknown, absent: string): (T | null)[] => {
+            if (value === undefined || value === null) return []
+            if (!Array.isArray(value)) {
+                errors.push(`${goal}: ${field} must be a list (${absent})`)
+                return []
+            }
+            return value.map(element => (isRecord(element) ? (element as T) : null))
+        }
+        const manipulationEntries: (ManipulationRecord | null)[] = Array.isArray(entry.manipulations) ? entry.manipulations.map(m => (isRecord(m) ? m : null)) : []
+        const manipulations = manipulationEntries.filter((m): m is ManipulationRecord => m !== null)
+        const gapEntries = listed<RecordGapDefinition>('gaps', entry.gaps, 'absent says it defines none')
+        const choiceEntries = listed<ProvisionalChoice>('provisionalChoices', entry.provisionalChoices, 'absent says it records none')
+        const choices = choiceEntries.filter((c): c is ProvisionalChoice => c !== null)
+        const knownEntries = listed<ExistingKnowledgeRecord>('existingKnowledge', entry.existingKnowledge, 'absent says it lists none')
+        const exclusionEntries: (AuthorizationExclusion | null)[] = Array.isArray(entry.excluded) ? entry.excluded.map(e => (isRecord(e) ? e : null)) : []
         if ('zeroConstraintRuling' in (entry as object)) errors.push(`${goal}: a per-goal zero-constraint ruling is not read; the general principle governs every record alike`)
         // Stage K8: a review request that cannot be read whole would let the review evidence silently omit what he asked to see.
-        if (entry.reviewRequest !== undefined) errors.push(...validateReviewRequest(goal, entry.reviewRequest))
+        if (entry.reviewRequest !== undefined) {
+            if (!isRecord(entry.reviewRequest)) errors.push(`${goal}: the review request is not a record (absent says the record holds none)`)
+            else errors.push(...validateReviewRequest(goal, entry.reviewRequest))
+        }
         // A record that names a provisional realization nobody can find would build the goal without the choices it asks for.
         if (entry.provisionalRealization !== undefined && (!filled(entry.provisionalRealization) || !provisionalIds.includes(String(entry.provisionalRealization)))) {
             errors.push(`${goal}: names the provisional realization ${entry.provisionalRealization}, which provisional-realizations.json does not hold`)
@@ -554,18 +613,19 @@ export function validateLearningGoalAuthorizations(
          * nothing would be a refusal citing a decision nobody can find.
          */
         const defined = new Set<string>()
-        for (const [i, gap] of (entry.gaps ?? []).entries()) {
-            if (!filled(gap.id) || !filled(gap.description) || !['DECISION', 'CAPABILITY'].includes(gap.kind)) {
+        for (const [i, gap] of gapEntries.entries()) {
+            if (gap === null || !filled(gap.id) || !filled(gap.description) || !['DECISION', 'CAPABILITY'].includes(gap.kind)) {
                 errors.push(`${goal}: gap ${i + 1} must have an id, a kind (DECISION or CAPABILITY) and a one-line description`)
             }
+            if (gap === null) continue
             if (defined.has(gap.id)) errors.push(`${goal}: the gap ${gap.id} is defined twice`)
             defined.add(gap.id)
             // Stage M4: settled only by his cited words, and never while an entry of the record still waits on it.
             if (gap.settledBy !== undefined) {
                 if (!Array.isArray(gap.settledBy) || !gap.settledBy.length || !gap.settledBy.every(w => filled(w?.words) && filled(w?.citedAs))) errors.push(`${goal}: the gap ${gap.id} is settled by no cited words of his`)
                 const waiting = [
-                    ...(entry.manipulations ?? []).filter(m => isGapStatus(m.status) && Array.isArray(m.gaps) && m.gaps.includes(gap.id)).map(m => m.phrase),
-                    ...(entry.provisionalChoices ?? []).filter(c => isGapStatus(c.status) && Array.isArray(c.gaps) && c.gaps.includes(gap.id)).map(c => c.choice),
+                    ...manipulations.filter(m => isGapStatus(m.status) && Array.isArray(m.gaps) && m.gaps.includes(gap.id)).map(m => m.phrase),
+                    ...choices.filter(c => isGapStatus(c.status) && Array.isArray(c.gaps) && c.gaps.includes(gap.id)).map(c => c.choice),
                     // Stage F (26 October 2026): an alternative realization listed waiting on the gap waits on it as an entry does.
                     ...(Array.isArray(entry.realizations) ? entry.realizations : [])
                         .filter(alternative => isGapStatus(String(alternative?.status)) && Array.isArray(alternative?.gaps) && alternative.gaps.includes(gap.id))
@@ -574,7 +634,11 @@ export function validateLearningGoalAuthorizations(
                 if (waiting.length) errors.push(`${goal}: the gap ${gap.id} is marked settled, and ${waiting.join('; ')} still waits on it`)
             }
         }
-        for (const [i, known] of (entry.existingKnowledge ?? []).entries()) {
+        for (const [i, known] of knownEntries.entries()) {
+            if (known === null) {
+                errors.push(`${goal}: existing knowledge ${i + 1} must say what is authorized and cite at least one source`)
+                continue
+            }
             if (known.category !== 'EXISTING_KNOWLEDGE_TO_VERIFY') errors.push(`${goal}: existing knowledge ${i + 1} is not labelled EXISTING_KNOWLEDGE_TO_VERIFY`)
             if (!filled(known.what) || !Array.isArray(known.sources) || !known.sources.length || !known.sources.every(filled)) {
                 errors.push(`${goal}: existing knowledge ${i + 1} must say what is authorized and cite at least one source`)
@@ -598,7 +662,11 @@ export function validateLearningGoalAuthorizations(
             if (status === 'AUTHORIZED_VIA_GAME_FORM_OR_SESSION' && category !== 'EXISTING_KNOWLEDGE_TO_VERIFY') found.push(`${which} is AUTHORIZED_VIA_GAME_FORM_OR_SESSION but not EXISTING_KNOWLEDGE_TO_VERIFY`)
             return found
         }
-        for (const [i, choice] of (entry.provisionalChoices ?? []).entries()) {
+        for (const [i, choice] of choiceEntries.entries()) {
+            if (choice === null) {
+                errors.push(`${goal}: provisional choice ${i + 1} must say what it is and cite who chose it, when, where and in his words`)
+                continue
+            }
             if (choice.category !== 'PROVISIONAL_REALIZATION_CHOICE') errors.push(`${goal}: provisional choice ${i + 1} is not labelled PROVISIONAL_REALIZATION_CHOICE`)
             if (!filled(choice.choice) || !filled(choice.ruledOn) || !filled(choice.by) || !filled(choice.citedAs) || !filled(choice.words)) {
                 errors.push(`${goal}: provisional choice ${i + 1} must say what it is and cite who chose it, when, where and in his words`)
@@ -626,8 +694,14 @@ export function validateLearningGoalAuthorizations(
             const list = Array.isArray(entry.realizations) ? entry.realizations : []
             if (!list.length) errors.push(`${goal}: lists no realization in realizations (absent says it names none)`)
             const named = new Set<string>()
+            const alternatives: RealizationAlternativeRecord[] = []
             for (const [i, alternative] of list.entries()) {
                 const which = `${goal}: alternative realization ${i + 1}`
+                if (!isRecord(alternative)) {
+                    errors.push(`${which} names no realization and does not quote him for its place in the order`)
+                    continue
+                }
+                alternatives.push(alternative)
                 if (!filled(alternative?.realization) || !provisionalIds.includes(String(alternative.realization))) errors.push(`${which} names the provisional realization ${alternative?.realization}, which provisional-realizations.json does not hold`)
                 if (named.has(String(alternative?.realization))) errors.push(`${which} names ${alternative.realization} a second time`)
                 named.add(String(alternative?.realization))
@@ -638,15 +712,22 @@ export function validateLearningGoalAuthorizations(
                     errors.push(...statusErrors(which, 'PROVISIONAL_REALIZATION_CHOICE', String(alternative.status), alternative.gaps ?? []))
                 }
             }
-            if (list.length && !realizationAlternativesOf(entry).some(alternative => alternative.selectable)) errors.push(`${goal}: no alternative realization it lists can be tried (each waits on a gap)`)
+            // Read from the entries that are records: an entry that is not one is refused above and read as no entry.
+            if (alternatives.length && !realizationAlternativesOf({ realizations: alternatives }).some(alternative => alternative.selectable)) errors.push(`${goal}: no alternative realization it lists can be tried (each waits on a gap)`)
         }
 
-        const authorized = new Set((entry.authorizedConstraints ?? []).map(knowledgeKey))
-        for (const id of entry.authorizedConstraints ?? []) {
+        // Read only as a list: a value that is not one is refused above ("must be a list"), and read as no list here.
+        const authorizedIds = Array.isArray(entry.authorizedConstraints) ? entry.authorizedConstraints : []
+        const authorized = new Set(authorizedIds.map(knowledgeKey))
+        for (const id of authorizedIds) {
             if (!selectable.has(knowledgeKey(id))) errors.push(`${goal}: authorizes ${id}, which the selectable library does not hold`)
             if (held.has(knowledgeKey(id))) errors.push(`${goal}: authorizes ${id}, which a ruling holds out of Learning Goal selection`)
         }
-        for (const exclusion of entry.excluded ?? []) {
+        for (const [i, exclusion] of exclusionEntries.entries()) {
+            if (exclusion === null) {
+                errors.push(`${goal}: exclusion ${i + 1} names no knowledge and cites no ruling`)
+                continue
+            }
             const id = exclusion.knowledgeId
             if (!selectable.has(knowledgeKey(id))) errors.push(`${goal}: excludes ${id}, which the selectable library does not hold`)
             if (authorized.has(knowledgeKey(id))) errors.push(`${goal}: ${id} is both authorized and excluded`)
@@ -656,7 +737,11 @@ export function validateLearningGoalAuthorizations(
                 errors.push(`${goal}: the exclusion of ${id} cross-references ${exclusion.heldBy}, which does not hold it`)
             }
         }
-        for (const [i, manipulation] of (entry.manipulations ?? []).entries()) {
+        for (const [i, manipulation] of manipulationEntries.entries()) {
+            if (manipulation === null) {
+                errors.push(`${goal}: manipulation ${i + 1} (no phrase) quotes no phrase or names no source for it`)
+                continue
+            }
             const which = `${goal}: manipulation ${i + 1} (${manipulation.phrase || 'no phrase'})`
             if (!filled(manipulation.phrase) || !filled(manipulation.phraseFrom)) errors.push(`${which} quotes no phrase or names no source for it`)
             if (!filled(manipulation.source)) errors.push(`${which} cites no source`)

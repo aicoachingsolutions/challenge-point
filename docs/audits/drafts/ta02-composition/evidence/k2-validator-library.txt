@@ -1,0 +1,4 @@
+source: f5d6d24 extraction; production records: A01; production alone: []
+K2 after the Library pass: 20 gaps (Q1 Q2 Q3 Q4 Q5 Q6 Q7 Q8 E1 E4 E7 E-K4 E8 E3 E2 E5 E11 E6 E9 E13); manipulations []
+K2 as drafted: 1 error(s): ["TA02: the record cites no ruling (ruledOn, by and his words are all required)"]
+K2 with TEST-ONLY ruling fields: 0 error(s): []

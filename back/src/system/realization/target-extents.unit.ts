@@ -24,11 +24,20 @@
  * choices close both targets as lines), so no coach is served it; it must be repaired before a zone target is used.
  * That is why the assertions below read the realized GAME, never the rendered text.
  *
+ * **Re-pointed 27 October 2026 (E5a, `rendering/placement-geometry.unit.ts`):** the renderer no longer places a region along a
+ * touchline its realized geometry does not meet, and has no words yet for a zone at an end in a game whose teams hold no role
+ * (his decision, D5), so each zone is left unsaid and the activity is REFUSED at communication (fidelity Q5: no marking
+ * instruction) instead of served with the false sentence. The mechanism proof stands on the realized game, which travels with the
+ * refusal; the scoring sentence's line words are still to repair before a zone target is used, and are not served either. The second
+ * test's proof through the neutral-players demonstration reads the extents from the same composition's realized game (after the E5a
+ * review, which found the re-pointed test no longer proved them).
+ *
  * Run: part of `npm test`.
  */
 import assert from 'node:assert/strict'
 
-import { buildActivityFromKnowledge, buildActivityOverAlteredKnowledge, ServedActivity } from '../rendering/build-activity'
+import { buildActivityFromKnowledge, buildActivityOverAlteredKnowledge, RefusedActivity, ServedActivity } from '../rendering/build-activity'
+import { mechanismDemonstration } from '../rendering/mechanism-demonstrations'
 import { specializedRoleNames } from '../rendering/session-envelope'
 import { LoadedContract } from '../derivation/types'
 import { SuppliedRealization } from './supplied-realization'
@@ -82,10 +91,25 @@ const asZones = (supplied: SuppliedRealization) => {
 
 const regionsOf = (fixture: any) => fixture.game.space.regions as any[]
 const alongOf = (fixture: any, itemId: string) => regionsOf(fixture).find(region => region.elementId === `c:restated:GF2:${itemId}`)?.realizedGeometry?.position?.along
+/** E5a: refused at communication for exactly this, each zone unsaid: no marking instruction, so its positions reach no sentence. */
+const zonesUnsaid = (activity: ServedActivity | RefusedActivity) => {
+    assert.equal(activity.outcome, 'refused', 'served: a zone at an end was said somewhere it is not (E5a)')
+    const refusal = activity as RefusedActivity
+    assert.equal(refusal.stage, 'communication', JSON.stringify(refusal.reasons))
+    const ids = ['GF2-03.e', 'GF2-03.f'].map(itemId => `c:restated:GF2:${itemId}`)
+    assert.deepEqual(
+        [...refusal.reasons].sort(),
+        [
+            ...ids.flatMap(id => ['along', 'across'].map(axis => `fidelity Q3: space.regions[${id}].position.${axis} is established by the game and no instruction carries it`)),
+            ...ids.map(id => `fidelity Q5: region ${id} exists in the game and has no marking instruction`),
+        ].sort(),
+    )
+}
 
 test('the two target regions take separate extents under one event of a zone being entered', () => {
     const { activity, fixture } = buildActivityFromKnowledge(['GF2'], session, { alter: withDepths, alterSupplied: asZones })
-    assert.equal(activity.outcome, 'served', JSON.stringify((activity as any).reasons))
+    // Re-pointed 27 October 2026 (E5a): was served, with each zone said "along the touchline"; refused now, the realized game read below.
+    zonesUnsaid(activity)
     const game = (fixture as any).game
     // One primary event, one kind, for both teams (SD-06).
     assert.deepEqual(game.value.primaryEvent, { value: 1, kind: 'target_zone_entered' })
@@ -108,12 +132,23 @@ test('the two target regions take separate extents under one event of a zone bei
     assert.notDeepEqual(near.interval.to - near.interval.from, far.interval.to - far.interval.from, 'the depths differ')
 })
 
-test('the same proof through the altered-knowledge builder the review chain lends tests', () => {
+test('the neutral-players demonstration through the altered-knowledge builder: refused as above, and its realized game takes the separate extents', () => {
     // The neutral-players demonstration is the possession game plus neutrals, which touch neither target.
-    const activity = buildActivityOverAlteredKnowledge({ kind: 'mechanism-demonstration', demonstrationId: 'neutral-players', session }, withDepths, { alterSupplied: asZones }) as ServedActivity
-    assert.equal(activity.outcome, 'served', JSON.stringify((activity as any).reasons))
-    // Read from what each instruction CITES and the numbers it carries, not from its words (see the header).
-    const extentOf = (itemId: string) => activity.rendered.instructions.find(i => i.from.includes(`space.regions[c:restated:GF2:${itemId}].position.along`))?.quantities?.[0]
+    // Re-pointed 27 October 2026 (E5a): it read each extent from the instruction citing the zone's position, the sentence that said the
+    // zone was "along the touchline"; that sentence is not said now, so the demonstration is refused for the same reason as above.
+    const refused = buildActivityOverAlteredKnowledge({ kind: 'mechanism-demonstration', demonstrationId: 'neutral-players', session }, withDepths, { alterSupplied: asZones })
+    zonesUnsaid(refused)
+    // Restored after the E5a review: that builder returns no fixture, so the extents are read from the realized game of the SAME
+    // composition (the demonstration's own knowledge objects, the same alterations) through the builder that returns the game with its
+    // refusal, as the first test does. It is the same game: refused at the same stage for the same reasons.
+    const { activity, fixture } = buildActivityFromKnowledge(mechanismDemonstration('neutral-players')!.selected, session, { alter: withDepths, alterSupplied: asZones })
+    zonesUnsaid(activity)
+    assert.deepEqual((activity as RefusedActivity).reasons, (refused as RefusedActivity).reasons, 'the same game, refused for the same reasons')
+    assert.ok(fixture, 'the realized game travels with the refusal')
+    const extentOf = (itemId: string) => {
+        const interval = alongOf(fixture, itemId)?.interval
+        return interval ? interval.to - interval.from : null
+    }
     assert.equal(extentOf('GF2-03.e'), NEAR_TEST_ONLY_M)
     assert.equal(extentOf('GF2-03.f'), FAR_TEST_ONLY_M)
 })

@@ -1,0 +1,547 @@
+{
+  "standing": "DRAFT - NOT RULED, NOT APPROVED. Drafted for Christian's review (his reply filed 29 October 2026, item 1). Nothing here is in the engine's knowledge: where this file is stored in the repository, it is a document only (docs/audits/drafts/ta02-composition/), and the engine loads none of it. Nothing here may be applied, alone or in part, before the decisions it names are his: MEASURED below, the two existence items alone refuse every GF2 game, and any out-of-play value at the game-form level changes A01 (engine limitation E-K4). Basis OWNER_RULING on an item names the ruling it rests on, and each item's rulingStatus says whether that ruling is given. Every item here rests on his standing principle (his reply filed 26 October 2026, item 10), which is given; applying it to GF2 is ours. The adaptations no ruling of his covers (where a goal kick or a kick-off is taken in this game) are proposals with rulingStatus NOT_GIVEN, never items. Loaded without E1, every OWNER_RULING item would show as APPROVED whatever its rulingStatus (rendering/review-evidence.ts:389-398).",
+  "corrections": [
+    {
+      "finding": "M5",
+      "change": "The key hisText is renamed gf2LibraryText; \"his own text\" / \"his text\" became \"GF2's library text (SM:5378)\"; a provenance block records that the sentence was written in engineering (commit 806f658, 14 May 2026, Claude co-authored) and that his adoption of it is not established; K4-1 now asks whether he adopts the sentence. The existence items 16.c/16.d carry basis OWNER_RULING with his adoption NOT GIVEN, instead of AUTHORED. SUPERSEDED IN PART by N1/N5 (verification, 27 October 2026): 16.c/16.d now rest on Law 9 under his given 26 October principle, and K4-1 is a confirmation only."
+    },
+    {
+      "finding": "K4 SHOULD-1",
+      "change": "\"the rule is the same at every boundary\" moved from whatItDecides to whatItDoesNotDecide, as a reading offered for confirmation (K4-D3). SUPERSEDED by N1: Laws 16 and 17 make the end-line award the same at either goal line, so T1b EACH_TEAM is the Laws', not a reading offered for confirmation."
+    },
+    {
+      "finding": "K4 SHOULD-2",
+      "change": "GF2-16.d's fitNote now says the scoring lines are the end lines only when the realizer chooses line targets (a04-realization-choices.json, not knowledge); GF2-03.b also permits zone."
+    },
+    {
+      "finding": "K4 SHOULD-3",
+      "change": "His 18 October A01 restart rulings (the throw-in approval, the M3 end-line capability) are marked A01-only and superseded for A01 by his 27 October item 4 common restart."
+    },
+    {
+      "finding": "K4 SHOULD-4",
+      "change": "The touchline values (16.e taker, 16.f location, 16.g method) are presented as applying his 26 October item 10 principle with IFAB Law 15, for confirmation only if GF2 should depart. K4-D1 and K4-D2 are no longer questions: the touchline taker is Law 15's, and the end-line taker moved into K4-D3 (item 16.i). Questions remain only where the Laws supply nothing: the end line with no goal (K4-D3), the start and the restart after a score (K4-D4), offside (K4-D5). SUPERSEDED IN PART by N1: the Laws do supply the end-line award and taker (Laws 16 and 17, items 16.h and 16.i); what remains open at the end line is only where the goal kick is taken and how the restart is said (K4-D3), and the kick-off's location (K4-D4), each proposed for his confirmation."
+    },
+    {
+      "finding": "N1",
+      "change": "The end line is no longer described as a place where no law gives a restart; that statement was false. VERIFIED (IFAB Laws 16 and 17, read at theifab.com on 27 October 2026): whenever the whole ball passes over a goal line without a score, the restart (a goal kick or a corner kick) goes to the team that did not touch the ball last, at either goal line, and the award needs no goal; only the goal kick's location, the goal area, has to be adapted. Our DRAFT Sport Profile marks LAW-16/17 NOT_APPLICABLE only because their applicableWhen (a goal at that end) was written for the build-out activities (sport-profile-soccer.json:33): our encoding's blind spot, not the Laws. 16.h (T1b EACH_TEAM) and 16.i (end-line taker) now rest on his 26 October item 10 with Laws 16/17, as 16.e rests on Law 15, and moved from K4-D3 into appliesStandingPrinciple.items. 16.c/16.d rest on Law 9 under the same principle. K4-D3 now leads with the adaptation his principle asks us to identify (a corner kick from the nearer corner; a goal kick from a location we propose) and asks only for confirmation or a departure; its taker / both-ends sub-question is deleted. K4-1 is a confirmation only (GF2's sentence adds nothing to Law 9). K4-D4 presents Law 8 adapted (the conceding team kicks off from the centre of the area) as the default, for confirmation or a departure."
+    },
+    {
+      "finding": "N4",
+      "change": "His 26 October offside sentence is quoted in full, including \"but we should not expand the current work into a comprehensive reconstruction of soccer's laws\", beside the E4 strictness, the profile-data correction and the adaptations not proposed."
+    },
+    {
+      "finding": "N5",
+      "change": "Every item carries a machine-readable rulingStatus. No item rests any longer on a ruling that is not given: 16.c/16.d (formerly OWNER_RULING on his adoption of GF2's sentence, NOT GIVEN) and 16.h/16.i (formerly OWNER_RULING on K4-D3, NOT GIVEN) now rest on his given 26 October principle with the Laws. The adaptations no ruling covers are proposals (conditionalOnDecision[].proposedAdaptation, rulingStatus NOT_GIVEN), shaped like K1's proposed rulings and kept out of the items."
+    },
+    {
+      "finding": "verification, laws count",
+      "change": "defaultLawsMachinery.whatItIs said \"11 laws\"; the profile lists 10 (sport-profile-soccer.json defaultLaws.laws: LAW-8, LAW-8-DB, LAW-11, LAW-12-GK, LAW-14, LAW-13, LAW-15, LAW-16, LAW-17, LAW-4-GK)."
+    },
+    {
+      "finding": "Library pass, 27 October 2026",
+      "change": "Standing line only: it says where this file may be stored (a document only, under docs/audits/drafts/ta02-composition/) instead of \"Nothing here is in the repository\". The Library's Attack Development regulations \"continuous play;\" and \"restart procedures.\" bear on restarts only through README Q8a; nothing in this draft changes."
+    }
+  ],
+  "about": "A minimal restatement that would make the possession game form's out-of-play restarts act, under the normal Laws as his 26 October principle inherits them (Law 9 for existence, Law 15 at the touchlines, Laws 16 and 17 at the end lines), with GF2's library restart sentence as agreeing text. GF2-16.a (T2 NOT_LAST_TOUCH) and GF2-16.b (T6 STOP_RESUME) address transitions keyed on OUT_END_LINE and OUT_TOUCHLINE, but no item of GF2 (or of any contract a plain GF2 composition selects) establishes such a transition: GF2's only T1 item is GF2-07.a (POSSESSION_CHANGE), and its T1 declaration for the other triggers is UNDECLARED (\"Existence of other transitions never examined (START, SCORE and out-of-play exist by construction, RC-19)\"), a convention SD-44 superseded. Shape: corpus-restatements.json `added[]` entries ({contractId, after, ruling, item, why}), each item in the shape of the GF2 items as loaded. `standing` and `rulingStatus` on each item are draft annotation keys (not engine keys, types.ts ENGINE_ITEM_KEYS). Ids GF2-16.c onward continue the GF2-16 family.",
+  "gf2LibraryText": {
+    "provenance": {
+      "statement": "Written 14 May 2026 in commit 806f658 (engineering, Claude co-authored: \"Populated setupGuidance for all 10 archetypes with typical physical setup\"), extracted into the Soccer Module (GF2 provenance \"Extracted from TEST_LIBRARY_V0_ARCHETYPES via extract-soccer-game-forms.ts\"), and carried through his 4 August authoring pass of the Game Forms sheet (commit 1c71f9a). That pass changed game archetype ids, Game Problem mappings and vocabulary; nothing shows that he authored or reviewed setup_guidance. Whether he adopted this sentence is not established. The corpus cites it as AUTHORED by convention (GF2-16.a/b).",
+      "label": "VERIFIED (git show 806f658 -- back/src/system/test-library/archetypes.ts; git log -S at f5d6d24)"
+    },
+    "gf2SetupGuidance": {
+      "quote": "Restart conditions: ball out of play restarts from the team that didn't touch it last.",
+      "file": "back/src/system/sport-module/soccer-module.rc1-v3.json",
+      "line": 5378,
+      "field": "game_forms[GF2].setup_guidance"
+    },
+    "gf2InteractionStructure": {
+      "quote": "Continuous directional circulation",
+      "file": "back/src/system/sport-module/soccer-module.rc1-v3.json",
+      "field": "game_forms[GF2].interaction_structure"
+    },
+    "existingItems": [
+      {
+        "id": "GF2-16.a",
+        "file": "docs/audits/conformance/stage-b/contracts.json",
+        "line": 3516,
+        "row": "T2",
+        "selector": "trigger ∈ {OUT_END_LINE, OUT_TOUCHLINE}",
+        "value": "NOT_LAST_TOUCH",
+        "strictness": "SUPPORTING",
+        "valueStatus": "PREFERRED_DEFAULT",
+        "basis": "AUTHORED (by the corpus convention above)"
+      },
+      {
+        "id": "GF2-16.b",
+        "file": "docs/audits/conformance/stage-b/contracts.json",
+        "line": 3532,
+        "row": "T6",
+        "selector": "trigger ∈ {OUT_END_LINE, OUT_TOUCHLINE}",
+        "value": "STOP_RESUME",
+        "strictness": "SUPPORTING",
+        "valueStatus": "PREFERRED_DEFAULT",
+        "basis": "AUTHORED (by the corpus convention above)"
+      },
+      {
+        "id": "GF2-17",
+        "file": "docs/audits/conformance/stage-b/contracts.json",
+        "line": 3548,
+        "row": "T6",
+        "selector": "trigger=POSSESSION_CHANGE",
+        "value": "CONTINUE",
+        "strictness": "SUPPORTING",
+        "valueStatus": "PREFERRED_DEFAULT",
+        "basis": "AUTHORED"
+      }
+    ],
+    "whatItDecides": [
+      "If adopted: that the ball can go out of play and that play then restarts: the transitions exist (T1) and stop play (T6 STOP_RESUME, GF2-16.b).",
+      "If adopted: who restarts: the team that did not touch the ball last (T2 NOT_LAST_TOUCH, GF2-16.a).",
+      "Nothing beyond the Laws. Law 9 already makes both out-of-play transitions exist and stop play, and Laws 15, 16 and 17 already give every such restart to the team that did not touch the ball last, at the touchlines and at either goal line, under his 26 October principle (16.c-16.i). Adopting the sentence is therefore a confirmation only (K4-1)."
+    ],
+    "whatItDoesNotDecide": [
+      "Which player of that team takes it (T3). \"restarts from the team\" implies one of its players; GF2 declares T3 for out of play UNDECLARED (\"Who takes an out-of-play restart was never examined.\"). Under his 26 October principle the Laws supply it: Law 15 at the touchline (16.e), Laws 16 and 17 at either end line (16.i).",
+      "From where (T4): GF2 declares T4 for out of play NON_CLAIMED (\"doesNotConstrain: restart location.\"). The Laws supply it at the touchline (Law 15, 16.f). At an end line Laws 16 and 17 place the restart in the corner area or the goal area; the goal area does not exist in GF2, so that location is adapted (K4-D3).",
+      "How (T5): GF2 declares T5 for out of play NON_CLAIMED (\"doesNotConstrain: whether restarts are timed or contested, read as the method\"). The Laws supply it at the touchline (Law 15, a throw-in, 16.g). At an end line Laws 16 and 17 make it a kick of a stationary ball (K4-D3).",
+      "That the rule is the same at every boundary. \"ball out of play\" names no line; Laws 16 and 17 do: the end-line award is the same at either goal line, so T1b EACH_TEAM is the Laws' (16.h), not a reading of GF2's silence. (The uncorrected draft offered it as a reading for his confirmation.)",
+      "What happens after a score: GF2 declares T2-T6 for trigger=SCORE NOT_AUTHORED (\"notAuthored: restart after a score.\"). Law 8 gives the kick-off, by the team that conceded, from a centre mark this game does not have (K4-D4).",
+      "Whether a restart begins a new attack (T7): GF2 declares T7 UNDECLARED. Under the RPC-003 draft this is open and tied to D1 (rpc-003-contract.DRAFT.json, ledger L-13)."
+    ],
+    "adoptionQuestion": {
+      "id": "K4-1",
+      "now": "A confirmation only (README Q5a). Law 9 already makes both out-of-play transitions exist under his 26 October principle, and Laws 15, 16 and 17 already give GF2-16.a/b's values (the team that did not touch the ball last; play stops and restarts), so the sentence adds nothing the Laws do not. He may confirm it as GF2 knowledge, or we stop citing it as a basis; no item depends on the answer."
+    }
+  },
+  "added": [
+    {
+      "contractId": "restated:GF2",
+      "after": "GF2-16.b",
+      "ruling": "his reply filed 26 October 2026, item 10 (standing principle; given), with IFAB Law 9",
+      "item": {
+        "itemId": "GF2-16.c",
+        "origId": "GF2-16",
+        "row": "T1",
+        "selector": "trigger=OUT_TOUCHLINE",
+        "requirement": "EXISTS",
+        "value": "N/A",
+        "valueStatus": "N/A",
+        "strictness": "REQUIRED",
+        "scope": "WHOLE_GAME",
+        "checkability": "STRUCTURAL",
+        "structuralClause": "whole item",
+        "standing": "DRAFT",
+        "rulingStatus": "GIVEN (his standing principle, his reply filed 26 October 2026, item 10; applying it to GF2 is ours, for his confirmation only if GF2 should depart)",
+        "basis": "OWNER_RULING",
+        "basisEvidence": "IFAB Law 9 (The Ball In and Out of Play): the ball is out of play once the whole ball has passed over a goal line or a touchline. Law 9 is not listed in our DRAFT Sport Profile, which lists only laws that can fail to apply in a modified environment; every other law applies by default (sport-profile-soccer.json:33). Inherited under his reply filed 26 October 2026, item 10: \"The normal Laws of the Game should apply by default wherever they are applicable, unless an activity introduces an explicit, knowledge-authorized modification.\" and \"The governing principle is to inherit established sport rules and explicitly define only the necessary departures.\" GF2's library text says the same (\"Restart conditions: ball out of play restarts from the team that didn't touch it last.\", soccer-module.rc1-v3.json:5378, game_forms[GF2].setup_guidance; provenance below: not established as his); adopting it adds nothing to Law 9 (K4-1, a confirmation only).",
+        "fitNote": "The transition GF2-16.a and GF2-16.b address, for the touchline. Law 9 makes it exist: the ball can go out over a touchline, and play then restarts (Law 15). The trigger is reachable wherever the session states a length and a width (derivation/engine.ts:243, SD-44). Existence only: every value of the transition comes from GF2-16.a/b and from the touchline items below. Formerly OWNER_RULING on his adoption of GF2's sentence (K4-1, NOT GIVEN); rebased on the Law and his given principle in the verification of 27 October 2026 (N1, N5). Strictness and value unchanged from the measured draft."
+      },
+      "why": "Applies his 26 October principle (Law 9): makes GF2's out-of-play rule act by establishing the transition it addresses. Today GF2-16.a/b reach no element in a GF2 composition, the plain game form is served with no ball-out sentence, and its acceptance still reports nothing lost (MEASURED: probe A)."
+    },
+    {
+      "contractId": "restated:GF2",
+      "after": "GF2-16.c",
+      "ruling": "his reply filed 26 October 2026, item 10 (standing principle; given), with IFAB Law 9",
+      "item": {
+        "itemId": "GF2-16.d",
+        "origId": "GF2-16",
+        "row": "T1",
+        "selector": "trigger=OUT_END_LINE",
+        "requirement": "EXISTS",
+        "value": "N/A",
+        "valueStatus": "N/A",
+        "strictness": "REQUIRED",
+        "scope": "WHOLE_GAME",
+        "checkability": "STRUCTURAL",
+        "structuralClause": "whole item",
+        "standing": "DRAFT",
+        "rulingStatus": "GIVEN (his standing principle, his reply filed 26 October 2026, item 10; applying it to GF2 is ours, for his confirmation only if GF2 should depart)",
+        "basis": "OWNER_RULING",
+        "basisEvidence": "IFAB Law 9 (The Ball In and Out of Play): the ball is out of play once the whole ball has passed over a goal line or a touchline. Law 9 is not listed in our DRAFT Sport Profile, which lists only laws that can fail to apply in a modified environment; every other law applies by default (sport-profile-soccer.json:33). Inherited under his reply filed 26 October 2026, item 10: \"The normal Laws of the Game should apply by default wherever they are applicable, unless an activity introduces an explicit, knowledge-authorized modification.\" and \"The governing principle is to inherit established sport rules and explicitly define only the necessary departures.\" GF2's library text says the same (\"Restart conditions: ball out of play restarts from the team that didn't touch it last.\", soccer-module.rc1-v3.json:5378, game_forms[GF2].setup_guidance; provenance below: not established as his); adopting it adds nothing to Law 9 (K4-1, a confirmation only).",
+        "fitNote": "As GF2-16.c, for the end lines (Law 9; the restart there is Laws 16 and 17's). When the realizer chooses line targets (docs/audits/a04-realization-choices.json, which calls itself a realizer's input, not knowledge), the scoring lines are the end lines (the served plain game: \"Mark both end lines: they are the scoring lines\"), so the end-line restart is the restart after a ball crosses a scoring line without scoring. GF2-03.b also permits zone targets; then the end line is behind the zone. Who restarts, and that it is the same at both end lines, are the Laws' (16.h, 16.i); only the location and method must be adapted (K4-D3)."
+      },
+      "why": "Applies his 26 October principle (Law 9), as GF2-16.c. Must not be applied without the end-line items (16.h, 16.i) and an end-line location and method (K4-D3): alone it refuses every GF2 game on T3 (MEASURED: probe B; step0 f1)."
+    }
+  ],
+  "appliesStandingPrinciple": {
+    "what": "The out-of-play restarts as the normal Laws give them: existence (Law 9; items 16.c and 16.d, in added[]), the touchline restart (Law 15; 16.e-16.g) and the end-line award (Laws 16 and 17; 16.h, 16.i). Not a question: his 26 October principle already decides them. Presented for confirmation only if GF2 should depart from the Laws here. What the Laws leave to adapt at an end line with no goal (where the goal kick is taken) is K4-D3; the kick-off is K4-D4.",
+    "hisPrinciple": {
+      "words": [
+        "The normal Laws of the Game should apply by default wherever they are applicable, unless an activity introduces an explicit, knowledge-authorized modification.",
+        "We should not need to redefine ordinary soccer rules separately for every Learning Goal, game form, or activity.",
+        "Where a normal law cannot apply directly because of the modified field, scoring structure, or game format, the system should identify the relevant adaptation rather than silently assume conventional conditions exist.",
+        "The offside question, for example, may need an explicit ruling for this small-sided environment, but we should not expand the current work into a comprehensive reconstruction of soccer's laws.",
+        "The governing principle is to inherit established sport rules and explicitly define only the necessary departures."
+      ],
+      "citedAs": "his reply filed 26 October 2026, item 10",
+      "by": "Christian",
+      "ruledOn": "2026-10-26"
+    },
+    "whatTheLawSupplies": {
+      "law": {
+        "id": "LAW-15",
+        "cites": "Law 15 (The Throw-in)",
+        "name": "the throw-in",
+        "scope": "GAME",
+        "applicableWhen": [],
+        "requires": [],
+        "listedFor": "DEPARTURE",
+        "restart": true
+      },
+      "taker": "a player of the team opposing the player who last touched the ball (agrees with GF2-16.a: NOT_LAST_TOUCH)",
+      "location": "where the ball crossed the touchline",
+      "method": "a throw-in (register T5 IN_HAND, with the sport's approved noun)",
+      "approvedNoun": {
+        "trigger": "OUT_TOUCHLINE",
+        "method": "IN_HAND",
+        "noun": "throw-in",
+        "approvedBy": [
+          {
+            "words": "Use \"throw-in\" rather than \"with the ball in hand.\"",
+            "citedAs": "his reply filed 19 October 2026, item 4"
+          },
+          {
+            "words": "Touchline: conventional throw-in where the ball crossed the line, taken by the team that did not touch it last.",
+            "citedAs": "his reply filed 18 October 2026, item 2",
+            "note": "(A01 only; superseded for A01 by his reply filed 27 October 2026, item 4, the common restart; cited here as wording and capability precedent, not as authority for GF2)"
+          }
+        ]
+      }
+    },
+    "items": [
+      {
+        "contractId": "restated:GF2",
+        "after": "GF2-16.d",
+        "ruling": "his reply filed 26 October 2026, item 10 (standing principle; given)",
+        "item": {
+          "itemId": "GF2-16.e",
+          "origId": "GF2-16",
+          "row": "T3",
+          "selector": "trigger=OUT_TOUCHLINE",
+          "requirement": "EQUALS",
+          "value": "a player of the team in this element's T2",
+          "strictness": "SUPPORTING",
+          "scope": "WHOLE_GAME",
+          "checkability": "STRUCTURAL",
+          "structuralClause": "whole item",
+          "standing": "DRAFT",
+          "rulingStatus": "GIVEN (his standing principle, his reply filed 26 October 2026, item 10; applying it to GF2 is ours, for his confirmation only if GF2 should depart)",
+          "valueStatus": "PREFERRED_DEFAULT",
+          "basis": "OWNER_RULING",
+          "basisEvidence": "IFAB Law 15 (sport-profile-soccer.json defaultLaws LAW-15), inherited under his reply filed 26 October 2026, item 10: \"The normal Laws of the Game should apply by default wherever they are applicable, unless an activity introduces an explicit, knowledge-authorized modification.\" and \"The governing principle is to inherit established sport rules and explicitly define only the necessary departures.\".",
+          "fitNote": "The taker is the law's, and agrees with GF2-16.a. SUPPORTING / PREFERRED_DEFAULT, the standing of GF2-16.a/b, so an activity's own restart rule departs from it (SD-08) rather than colliding: MEASURED, as REQUIRED it collides with A01-R1-T3-1 (goalkeeper) in both A01 versions. Not ASSUMED: an assumed value on T3 (not a fillable row) would be INVENTED (derivation-rules-2026-09-18.md, ASSUMED row). Earlier drafts put this item on both triggers and asked K4-D1; the end-line taker is now item 16.i, from Laws 16 and 17 under the same principle."
+        },
+        "why": "Without a taker every out-of-play transition fails Gate A (MEASURED: probe B, \"2 unresolved properties ... ::T3\")."
+      },
+      {
+        "contractId": "restated:GF2",
+        "after": "GF2-16.e",
+        "ruling": "his reply filed 26 October 2026, item 10 (standing principle; given)",
+        "item": {
+          "itemId": "GF2-16.f",
+          "origId": "GF2-16",
+          "row": "T4",
+          "selector": "trigger=OUT_TOUCHLINE",
+          "requirement": "EQUALS",
+          "value": {
+            "dynamic": "where the ball went out"
+          },
+          "strictness": "SUPPORTING",
+          "scope": "WHOLE_GAME",
+          "checkability": "STRUCTURAL",
+          "structuralClause": "whole item",
+          "standing": "DRAFT",
+          "rulingStatus": "GIVEN (his standing principle, his reply filed 26 October 2026, item 10; applying it to GF2 is ours, for his confirmation only if GF2 should depart)",
+          "valueStatus": "PREFERRED_DEFAULT",
+          "basis": "OWNER_RULING",
+          "basisEvidence": "IFAB Law 15 (sport-profile-soccer.json defaultLaws LAW-15), inherited under his reply filed 26 October 2026, item 10: \"The normal Laws of the Game should apply by default wherever they are applicable, unless an activity introduces an explicit, knowledge-authorized modification.\" and \"The governing principle is to inherit established sport rules and explicitly define only the necessary departures.\".",
+          "fitNote": "The value is the law's, not ours. The {dynamic} form is the one A01-R1-T1c-1 and the register's T4 valueType (\"or 'where the ball went out'\") use."
+        },
+        "why": "Supplies the touchline restart location as the Laws give it."
+      },
+      {
+        "contractId": "restated:GF2",
+        "after": "GF2-16.f",
+        "ruling": "his reply filed 26 October 2026, item 10 (standing principle; given)",
+        "item": {
+          "itemId": "GF2-16.g",
+          "origId": "GF2-16",
+          "row": "T5",
+          "selector": "trigger=OUT_TOUCHLINE",
+          "requirement": "EQUALS",
+          "value": "IN_HAND",
+          "strictness": "SUPPORTING",
+          "scope": "WHOLE_GAME",
+          "checkability": "STRUCTURAL",
+          "structuralClause": "whole item",
+          "standing": "DRAFT",
+          "rulingStatus": "GIVEN (his standing principle, his reply filed 26 October 2026, item 10; applying it to GF2 is ours, for his confirmation only if GF2 should depart)",
+          "valueStatus": "PREFERRED_DEFAULT",
+          "basis": "OWNER_RULING",
+          "basisEvidence": "IFAB Law 15, inherited under his reply filed 26 October 2026, item 10: \"The normal Laws of the Game should apply by default wherever they are applicable, unless an activity introduces an explicit, knowledge-authorized modification.\" and \"The governing principle is to inherit established sport rules and explicitly define only the necessary departures.\".",
+          "fitNote": "The renderer says it with the sport's approved noun, \"throw-in\" (sport-coach-vocabulary-soccer.json, approved in his reply filed 19 October 2026, item 4)."
+        },
+        "why": "Supplies the touchline restart method as the Laws give it."
+      },
+      {
+        "contractId": "restated:GF2",
+        "after": "GF2-16.g",
+        "ruling": "his reply filed 26 October 2026, item 10 (standing principle; given), with IFAB Laws 16 and 17",
+        "item": {
+          "itemId": "GF2-16.h",
+          "origId": "GF2-16",
+          "row": "T1b",
+          "selector": "trigger=OUT_END_LINE",
+          "requirement": "EQUALS",
+          "value": "EACH_TEAM",
+          "strictness": "REQUIRED",
+          "scope": "WHOLE_GAME",
+          "checkability": "STRUCTURAL",
+          "structuralClause": "whole item",
+          "standing": "DRAFT",
+          "rulingStatus": "GIVEN (his standing principle, his reply filed 26 October 2026, item 10; applying it to GF2 is ours, for his confirmation only if GF2 should depart)",
+          "valueStatus": "REQUIRED_RANGE",
+          "basis": "OWNER_RULING",
+          "basisEvidence": "IFAB Laws 16 and 17 (sport-profile-soccer.json defaultLaws LAW-16, LAW-17): the end-line award is the same at either goal line. Inherited under his reply filed 26 October 2026, item 10: \"The normal Laws of the Game should apply by default wherever they are applicable, unless an activity introduces an explicit, knowledge-authorized modification.\" and \"The governing principle is to inherit established sport rules and explicitly define only the necessary departures.\"",
+          "fitNote": "The Laws, not a reading of GF2's silence, make the end-line restart the same at both end lines. Formerly OWNER_RULING on his confirmation of a reading of GF2's silence (K4-D3, NOT GIVEN); rebased in the verification of 27 October 2026 (N1, N5). Value and strictness unchanged from the measured draft. Without T1b the end-line sentence cannot be said and fidelity refuses (MEASURED: probe E2 against E3). The Laws-account reads LAW-16/17 as NOT_APPLICABLE here only because our DRAFT Sport Profile lists LAW-16 and LAW-17 with applicableWhen OBJECT_OF_KIND_AT_END goal, a predicate written for the build-out activities: its note says \"Only the laws that can fail to apply in a modified environment and matter for the two build-out realizations are listed\" and \"The law ids, the names and the 'penalty-area' token are ours (DRAFT)\" (sport-profile-soccer.json:33): our encoding's blind spot, not the Laws."
+        },
+        "why": "Supplies the end-line award's scope as the Laws give it: the same at either goal line."
+      },
+      {
+        "contractId": "restated:GF2",
+        "after": "GF2-16.h",
+        "ruling": "his reply filed 26 October 2026, item 10 (standing principle; given), with IFAB Laws 16 and 17",
+        "item": {
+          "itemId": "GF2-16.i",
+          "origId": "GF2-16",
+          "row": "T3",
+          "selector": "trigger=OUT_END_LINE",
+          "requirement": "EQUALS",
+          "value": "a player of the team in this element's T2",
+          "strictness": "SUPPORTING",
+          "scope": "WHOLE_GAME",
+          "checkability": "STRUCTURAL",
+          "structuralClause": "whole item",
+          "standing": "DRAFT",
+          "rulingStatus": "GIVEN (his standing principle, his reply filed 26 October 2026, item 10; applying it to GF2 is ours, for his confirmation only if GF2 should depart)",
+          "valueStatus": "PREFERRED_DEFAULT",
+          "basis": "OWNER_RULING",
+          "basisEvidence": "IFAB Laws 16 and 17 (sport-profile-soccer.json defaultLaws LAW-16, LAW-17): a goal kick is taken by a player of the defending team and a corner kick by a player of the attacking team, in both cases a player of the team the restart is awarded to (GF2-16.a, T2 NOT_LAST_TOUCH). Inherited under his reply filed 26 October 2026, item 10: \"The normal Laws of the Game should apply by default wherever they are applicable, unless an activity introduces an explicit, knowledge-authorized modification.\" and \"The governing principle is to inherit established sport rules and explicitly define only the necessary departures.\"",
+          "fitNote": "The taker is the Laws', as 16.e's is Law 15's. Formerly half of 16.e (K4-D1), then OWNER_RULING on his reading of \"restarts from the team\" (K4-D3, NOT GIVEN); rebased in the verification of 27 October 2026 (N1, N5). SUPPORTING / PREFERRED_DEFAULT, the standing of 16.e, so an activity's own restart rule departs from it (SD-08). Not ASSUMED: an assumed value on T3, which is not a fillable row, would be INVENTED (derivation-rules-2026-09-18.md, ASSUMED row)."
+        },
+        "why": "Supplies the end-line taker as the Laws give it. Without a taker every out-of-play transition fails Gate A (MEASURED: probe B)."
+      }
+    ],
+    "measured": "Plain GF2 with GF2-16.c + 16.e + 16.f + 16.g (TEST-ONLY copies of the same rows, selectors and values) is SERVED, fidelity 0, with: \"If the ball goes out over a touchline, a player of the team that did not touch the ball last restarts play with a throw-in where the ball went out\" (probe G and TOUCH-SOFT; re-measured with the corrected draft items in final/scripts/probe-out, run f3c). The two served demonstrations are served with the same sentence added.",
+    "regression": "MEASURED: with these touchline items as SUPPORTING / PREFERRED_DEFAULT, A01 (both versions) is REFUSED at realization: \"c:provisional:A01-R1:A01-R1-T1-8::T4: the resolved game does not list this line as open\". The game form's preferred location reaches A01's own touchline transition (its selector matches that element) and resolves the location A01-R1-T4-1 leaves to the coach, so A01's COACH_DECIDES choice no longer applies. As REQUIRED they collide outright (GA-TRIGGER-UNIQUE, 6 collisions). Engine work E-K4 (below) or a change to A01's knowledge is needed before these can be applied, even though the principle that authorizes them is already his.",
+    "law9": "IFAB Law 9 (The Ball In and Out of Play): the ball is out of play once the whole ball has passed over a goal line or a touchline, on the ground or in the air. Under his principle this makes both out-of-play transitions exist (16.c, 16.d). Not listed in our DRAFT Sport Profile, which lists only the laws that can fail to apply in a modified environment (sport-profile-soccer.json:33). Read at theifab.com on 27 October 2026; paraphrased, not quoted.",
+    "whatTheLawsSupplyAtTheEndLine": {
+      "laws": [
+        "LAW-16 (Law 16, The Goal Kick)",
+        "LAW-17 (Law 17, The Corner Kick)"
+      ],
+      "award": "Whenever the whole ball passes over a goal line without a score: a goal kick if a player of the attacking team touched it last, a corner kick if a player of the defending team did. Either way the restart goes to the team that did not touch the ball last (agrees with GF2-16.a, NOT_LAST_TOUCH).",
+      "sameAtEitherLine": "The award is the same at either goal line, so T1b EACH_TEAM is the Laws' (16.h), not a reading of GF2's silence.",
+      "taker": "A player of the team awarded the restart: the defending team takes a goal kick, the attacking team a corner kick (16.i). In GF2 each team defends the end line behind the end it is assigned (each team attacks the target opposite its own assigned end, GF2-08.c-f), so which kick applies is decidable.",
+      "needsNoGoal": "Neither award depends on a goal standing at that end. Only the goal kick's location, the goal area of Law 1, does not exist in GF2. That location, and how the method is said, are what K4-D3 asks him to confirm.",
+      "whatTheLawsLeaveToAdapt": [
+        "where the goal kick is taken (the goal area does not exist): proposed in K4-D3",
+        "the corner kick's corner area (the corner arc is not marked; the corner of the playing area is): proposed in K4-D3",
+        "the opponents' distances (outside the penalty area at a goal kick; 9.15 m at a corner kick), which presuppose markings and dimensions this game does not have: not proposed (K4-D3)"
+      ],
+      "whyOurDraftProfileSaysNotApplicable": "MEASURED (probe-laws): the account reads LAW-16 and LAW-17 as NOT_APPLICABLE at both GF2 end lines (\"the game holds no object of the kind goal\"). That is because our DRAFT Sport Profile lists LAW-16 and LAW-17 with applicableWhen OBJECT_OF_KIND_AT_END goal, a predicate written for the build-out activities: its note says \"Only the laws that can fail to apply in a modified environment and matter for the two build-out realizations are listed\" and \"The law ids, the names and the 'penalty-area' token are ours (DRAFT)\" (sport-profile-soccer.json:33). It is our encoding's blind spot, not the Laws.",
+      "source": "IFAB Laws of the Game, Laws 16 and 17, read at theifab.com/laws/latest on 27 October 2026, cited by law number as the Sport Profile cites them; paraphrased, not quoted."
+    },
+    "endLineMeasured": "The end-line items 16.d, 16.h and 16.i were measured only inside the old option (a) of K4-D3, with TEST-ONLY coach-choice words (probe E3, served), and with option (b)'s fixed method (probe F2, refused at communication). The Laws-adapted location and method that K4-D3 now leads with were NOT measured."
+  },
+  "retiredQuestions": [
+    {
+      "id": "K4-D1",
+      "was": "Confirm that \"restarts from the team that didn't touch it last\" means a player of that team takes the restart (both out-of-play triggers).",
+      "now": "Not asked: Law 15 supplies the touchline taker (16.e) and Laws 16 and 17 the end-line taker (16.i), under his 26 October principle."
+    },
+    {
+      "id": "K4-D2",
+      "was": "Touchline: does GF2's touchline restart inherit the normal Law (IFAB Law 15, the throw-in)?",
+      "now": "Not asked: his 26 October principle already says the normal Laws apply by default (appliesStandingPrinciple). Confirmation is needed only if GF2 should depart."
+    }
+  ],
+  "conditionalOnDecision": [
+    {
+      "decision": "K4-D3",
+      "question": "End lines (no goal stands at a GF2 end line): where, and how, is the restart taken? Laws 16 and 17 already decide that there is one, who gets it (the team that did not touch the ball last) and that it is the same at either goal line (16.h, 16.i, applying his 26 October principle). Only the location and method need adapting, because the goal area a goal kick is taken from does not exist here. His principle asks us to identify that adaptation: we propose it below (proposedAdaptation) and ask him only to confirm it or name a departure.",
+      "whatTheLawsSupply": [
+        {
+          "id": "LAW-16",
+          "cites": "Law 16 (The Goal Kick)",
+          "name": "the goal kick",
+          "scope": "PER_END",
+          "applicableWhen": [
+            {
+              "predicate": "OBJECT_OF_KIND_AT_END",
+              "kind": "goal"
+            }
+          ],
+          "requires": [
+            {
+              "predicate": "UNREPRESENTED",
+              "what": "the goal area a goal kick is taken from (Law 1.5): his reply filed 26 October 2026, item 12, lists only the physical goal, the marked progression reference and whatever penalty-area marking handling needs"
+            }
+          ],
+          "listedFor": "ADAPTATION",
+          "restart": true
+        },
+        {
+          "id": "LAW-17",
+          "cites": "Law 17 (The Corner Kick)",
+          "name": "the corner kick",
+          "scope": "PER_END",
+          "applicableWhen": [
+            {
+              "predicate": "OBJECT_OF_KIND_AT_END",
+              "kind": "goal"
+            }
+          ],
+          "requires": [],
+          "listedFor": "ADAPTATION",
+          "restart": true
+        }
+      ],
+      "lawsAccountMeasured": "MEASURED (blockLawAccountOf over the realized plain GF2 game, probe-laws): LAW-16 and LAW-17 are NOT_APPLICABLE at both end lines (\"the game holds no object of the kind goal\"), so the account would report nothing owed for the end line, although OUT_END_LINE is reachable (engine.ts:243). That comes from our DRAFT encoding, not from the Laws: our DRAFT Sport Profile lists LAW-16 and LAW-17 with applicableWhen OBJECT_OF_KIND_AT_END goal, a predicate written for the build-out activities: its note says \"Only the laws that can fail to apply in a modified environment and matter for the two build-out realizations are listed\" and \"The law ids, the names and the 'penalty-area' token are ours (DRAFT)\" (sport-profile-soccer.json:33). Laws 16 and 17 award the end-line restart without a goal; only the goal kick's location needs adapting.",
+      "everyOptionUses": [
+        "GF2-16.d",
+        "GF2-16.h",
+        "GF2-16.i"
+      ],
+      "everyOptionUsesNote": "Now in added[] (16.d) and appliesStandingPrinciple.items (16.h, 16.i): they apply his 26 October principle with Laws 9, 16 and 17 and no longer wait on this decision.",
+      "proposedAdaptation": {
+        "rulingStatus": "NOT_GIVEN (our identification of the adaptation his 26 October principle asks for; for his confirmation or a departure)",
+        "principle": "Where a normal law cannot apply directly because of the modified field, scoring structure, or game format, the system should identify the relevant adaptation rather than silently assume conventional conditions exist.",
+        "principleCitedAs": "his reply filed 26 October 2026, item 10 (christian-2026-10-26.txt:176)",
+        "cornerKick": "When a player of the team defending that end line touched the ball last: a corner kick to the other team, the ball stationary, from the corner of the playing area nearer to where the ball went out (Law 17 places the ball in the corner area nearest that point; the corner arc is not marked, the corner of the area is).",
+        "goalKick": "When a player of the team attacking that end line touched the ball last: a goal kick to the team defending it, the ball stationary, from the middle of its own end line, where a goal and its goal area would stand. The location is OUR PROPOSAL: Law 16's goal area does not exist in GF2.",
+        "notProposed": "The opponents' distances at these restarts (outside the penalty area at a goal kick; 9.15 m at a corner kick) also presuppose markings and dimensions this game does not have. We have not proposed adaptations for them, within his limit: \"The offside question, for example, may need an explicit ruling for this small-sided environment, but we should not expand the current work into a comprehensive reconstruction of soccer's laws.\" (his reply filed 26 October 2026, item 10, christian-2026-10-26.txt:178).",
+        "asRows": "INFERRED; not drafted as items and NOT measured. T4 per end line and last toucher (row T1 has the selector attributes qualifier.endLine and qualifier.lastTouch, so a corner-kick element and a goal-kick element per end line may be expressible; not examined), and T5 STATIONARY_BALL for both. Probe F2 (T5 STATIONARY_BALL with T4 \"where the ball went out\") was refused at communication because the renderer has method phrases only for FROM_THE_FEET and IN_HAND (render-concrete-game.ts METHOD_PHRASE), so this needs at least E6, and his approval of the nouns \"corner kick\" and \"goal kick\" if a coach is to read them (as he approved \"throw-in\"), plus E-K4 for A01."
+      },
+      "options": [
+        {
+          "option": "laws",
+          "what": "Confirm the adaptation above (corner kick from the nearer corner; goal kick from the middle of the defending team's own end line). This is the default under his principle; the options below are departures from it.",
+          "measured": "NOT measured (proposedAdaptation.asRows).",
+          "engineNeeds": "E6 (a phrase for a stationary-ball kick, with his approved nouns), possibly two elements per end line keyed on the last toucher (not examined), plus E-K4 for A01."
+        },
+        {
+          "option": "a",
+          "what": "Departure: the coach chooses where and how, bounded in his words. This is the M3 capability he approved for A01's end line on 18 October: \"End line: coach-selected restart method, using the approved M3 capability.\" (A01 only; superseded for A01 by his reply filed 27 October 2026, item 4, the common restart; cited here as wording and capability precedent, not as authority for GF2). Uses 16.h and 16.i; needs T4 and T5 RANGE items in his words, REQUIRED, OWNER_RULING (fillableRequires: a RANGE in words on an OWNER_RULING or AUTHORED basis opens the line); two COACH_DECIDES entries in the game form's realization choices (a04-realization-choices.json) closing those lines.",
+          "measured": "SERVED on plain GF2 with TEST-ONLY words (probe E3): \"If the ball goes out over either end line, a player of the team that did not touch the ball last restarts play; you choose where (...) and how (...)\". Without T1b the sentence cannot be said and fidelity refuses (probe E2); without the realizer entries realization refuses (\"is open and was not chosen\", probe E). As PREFERRED_DEFAULT the RANGE does not open the line (TRANSITION-COHERENCE fails); as REQUIRED it meets A01-R1-T4-1's own RANGE on A01's end-line element and A01 is refused (GA-NO-FAILED-LINE on both elements' T4).",
+          "engineNeeds": "E-K4 for A01; nothing for plain GF2."
+        },
+        {
+          "option": "b",
+          "what": "Departure: a fixed location and method he names (for example a pass or dribble in from where the ball went out).",
+          "measured": "With T4 {dynamic} and T5 STATIONARY_BALL (TEST-ONLY) and T1b EACH_TEAM, refused at communication: fidelity Q3, no instruction carries the end-line transition (probe F2). The renderer has method phrases only for FROM_THE_FEET and IN_HAND (render-concrete-game.ts METHOD_PHRASE).",
+          "engineNeeds": "E6 (restart phrases as data) for any method other than FROM_THE_FEET / IN_HAND, plus E-K4 for A01."
+        },
+        {
+          "option": "c",
+          "what": "Departure: no separate end-line restart: the coach restarts by another rule he names (as his common restart did for A01).",
+          "engineNeeds": "Depends on the rule."
+        }
+      ]
+    },
+    {
+      "decision": "K4-D4",
+      "question": "How play starts, and what happens after a score. GF2 says nothing (T2-T6 for SCORE are NOT_AUTHORED in GF2's declarations, \"notAuthored: restart after a score.\"). Law 8 decides both: a kick-off to start play and, after a goal, a kick-off by the team that conceded, from the centre mark. Only the centre mark is missing. His principle asks us to identify the adaptation: we propose it below (proposedAdaptation) and ask him only to confirm it or name a departure. Today the composed game says \"Pick which team starts with the ball and tell both teams before you start\" and nothing after a score.",
+      "whatTheLawsSupply": [
+        {
+          "id": "LAW-8",
+          "cites": "Law 8 (The Start and Restart of Play), the kick-off",
+          "name": "the kick-off at the start and after a score",
+          "scope": "GAME",
+          "applicableWhen": [],
+          "requires": [
+            {
+              "predicate": "UNREPRESENTED",
+              "what": "the centre mark a kick-off is taken from: no register row holds it"
+            }
+          ],
+          "listedFor": "ADAPTATION",
+          "restart": true
+        }
+      ],
+      "lawsAccountMeasured": "MEASURED (probe-laws; step0 section 5 Q1): LAW-8 is ADAPTATION_OWED for every GF2 game (\"the centre mark a kick-off is taken from: no register row holds it\").",
+      "measured": "A T1 SCORE element alone (TEST-ONLY) fails Gate A on its T2, T3, T4, T5 and T6 lines (probe S): GF2's NOT_AUTHORED declarations block exactly as they should. Today a plain GF2 game is served saying nothing about what happens after a score (probe A).",
+      "proposedAdaptation": {
+        "rulingStatus": "NOT_GIVEN (our identification of the adaptation his 26 October principle asks for; for his confirmation or a departure)",
+        "principle": "Where a normal law cannot apply directly because of the modified field, scoring structure, or game format, the system should identify the relevant adaptation rather than silently assume conventional conditions exist.",
+        "principleCitedAs": "his reply filed 26 October 2026, item 10 (christian-2026-10-26.txt:176)",
+        "kickOff": "To start: a kick-off from the centre of the playing area by the team the coach picks (Law 8 has a toss decide; today's sentence already has the coach pick which team starts). After a score: a kick-off by the team that conceded, from the centre of the playing area. The centre of the area is OUR identification of where the missing centre mark would be.",
+        "notProposed": "Law 8's requirement that every player be in his own half, and the opponents' 9.15 m, presuppose a halfway line and a centre circle this game does not mark (LAW-11 already records the missing halfway line). Not proposed, within his limit: \"The offside question, for example, may need an explicit ruling for this small-sided environment, but we should not expand the current work into a comprehensive reconstruction of soccer's laws.\" (his reply filed 26 October 2026, item 10, christian-2026-10-26.txt:178).",
+        "asRows": "INFERRED; not drafted as items and NOT measured. A SCORE transition with T2 the conceding team (whether the T2 vocabulary can say it was not examined), T3 a player of that team, T4 the centre of the area, T5 STATIONARY_BALL, T6 STOP_RESUME. Probe S showed that a SCORE element needs every one of T2-T6 authored; the SCORE phrase admits only role teams (render-concrete-game.ts:2871, E6; not measured for a no-role game) and T5 STATIONARY_BALL has no method phrase (E6). Under the RPC-003 draft a SCORE element also needs the T7 answer (README Q1b)."
+      },
+      "options": [
+        "confirm the adapted kick-off above (the default under his principle)",
+        "departure: play continues (no stoppage)",
+        "departure: the conceding team restarts from its own end line",
+        "departure: a coach restart"
+      ],
+      "relatedTo": "The start also bears on D1 (README Q1): RPC-003-08 (T2 START, carrying RPC-ID-011 \"Organized attacking possession is already established.\") addresses no element today.",
+      "engineNeeds": "A SCORE transition with authored lines; phrases exist for SCORE (\"after either team scores\", TRIGGER_PHRASE) but only for role teams (render-concrete-game.ts:2871, E6) - not measured for a no-role game."
+    },
+    {
+      "decision": "K4-D5",
+      "question": "Offside in a GF2 game.",
+      "whatTheLawsSupply": [
+        {
+          "id": "LAW-11",
+          "cites": "Law 11 (Offside)",
+          "name": "offside",
+          "scope": "GAME",
+          "applicableWhen": [],
+          "requires": [
+            {
+              "predicate": "UNREPRESENTED",
+              "what": "a fixed halfway line: no register row holds the halfway line of Law 1, and the build-out activities' only halfway marking is the marked line the coach may move"
+            }
+          ],
+          "listedFor": "ADAPTATION",
+          "restart": false
+        }
+      ],
+      "lawsAccountMeasured": "MEASURED (probe-laws): LAW-11 is ADAPTATION_OWED for every GF2 game (\"a fixed halfway line: no register row holds the halfway line of Law 1\"). His A01 ruling (no offside) was for that activity (his reply filed 27 October 2026, item 2; 28 October, item 10). His 26 October item 10 named offside as needing an explicit ruling: \"The offside question, for example, may need an explicit ruling for this small-sided environment, but we should not expand the current work into a comprehensive reconstruction of soccer's laws.\"",
+      "engineNeeds": "E4: today no account exists without a realization declaring defaultLawsCheck (realization/default-laws-check.ts:472)."
+    }
+  ],
+  "defaultLawsMachinery": {
+    "whatItIs": "The Sport Profile names the Laws as the default in a declaration block (sport-profile-soccer.json defaultLaws: 10 laws, each with applicableWhen / requires predicates, listedFor ADAPTATION or DEPARTURE, and a restart flag), never as items: corpus.ts loadSportDefaultLaws, \"his item 10 excludes reconstructing the laws as representation\". realization/default-laws-check.ts blockLawAccountOf reads each law against a realized game as APPLIES / DEPARTED / NOT_APPLICABLE / ADAPTATION_OWED.",
+    "whatItCanSupply": "A STATUS per law, for an administrator (REPORT) or as a refusal (ENFORCE), and the DRAFT \"normal rules apply\" sentence where nothing is owed. MEASURED for plain GF2: LAW-8 and LAW-11 owed; LAW-8-DB, LAW-13, LAW-15 apply; LAW-12-GK, LAW-14, LAW-16, LAW-17, LAW-4-GK not applicable (LAW-16/17 only through our encoding's blind spot: see blindSpot).",
+    "whatItCannotSupply": "A value for T3, T4 or T5. The block holds no taker, location or method, and the account reads the game after derivation, so no law can close a transition line. The values must come from items. Their authority is his 26 October principle with the Laws: Law 15 at the touchline (16.e-16.g), Laws 16 and 17 at the end line (16.h, 16.i). Where a law's location presupposes a marking the game lacks (the goal area at an end line, the centre mark for a kick-off), the adaptation is ours to identify and his to confirm (K4-D3, K4-D4).",
+    "withoutARealization": "defaultLawsAccountOf returns null unless the realization declares defaultLawsCheck (realization/default-laws-check.ts:472, `if (!realization?.defaultLawsCheck || !input.laws) return null`), and the build reads the check only from the realization being tried (rendering/build-activity.ts lawAccountOf and gameLaws). A composed game has no realization, so it has no account, no departure check and no \"normal rules apply\" sentence. E4 (SYNTHESIS section 3) is the general fix: read the check from knowledge - a Sport-Profile default mode, or a context-contract field - with the strictness (REPORT or ENFORCE) his decision (README Q5). Under ENFORCE a plain GF2 composition would refuse until K4-D4 (LAW-8) and K4-D5 (LAW-11) are decided; under REPORT it would be served and the two owed adaptations listed for the administrator. His limit bears on how far E4 goes: \"The offside question, for example, may need an explicit ruling for this small-sided environment, but we should not expand the current work into a comprehensive reconstruction of soccer's laws.\" (his reply filed 26 October 2026, item 10, christian-2026-10-26.txt:178).",
+    "blindSpot": "LAW-16 and LAW-17 are PER_END with applicableWhen OBJECT_OF_KIND_AT_END goal, so the account reads them as NOT_APPLICABLE wherever no goal stands and reports nothing owed at a GF2 end line. That predicate is our DRAFT encoding, written for the build-out activities (the profile's note: \"Only the laws that can fail to apply in a modified environment and matter for the two build-out realizations are listed\" and \"The law ids, the names and the 'penalty-area' token are ours (DRAFT)\", sport-profile-soccer.json:33), not the Laws: Laws 16 and 17 award the end-line restart without a goal, and only the goal kick's location (the goal area) needs adapting. Correcting the predicate, so the account reports the goal kick's location as owed an adaptation where no goal stands, is a correction to our DRAFT data, not a new law and not engine code. It should stay within his limit: \"The offside question, for example, may need an explicit ruling for this small-sided environment, but we should not expand the current work into a comprehensive reconstruction of soccer's laws.\" (his reply filed 26 October 2026, item 10, christian-2026-10-26.txt:178)."
+  },
+  "engineLimitations": [
+    {
+      "id": "E-K4",
+      "what": "Out-of-play knowledge at the game-form level reaches an activity's own out-of-play transitions by selector and changes them, and two contributions establishing a transition for the same trigger make two elements.",
+      "measured": "A01 refused in every variant tried (REQUIRED: GA-TRIGGER-UNIQUE with 6 collisions; SUPPORTING/PREFERRED_DEFAULT: the coach-chosen location resolved away, realization refused; end-line RANGE: both elements' T4 unresolved).",
+      "generalFix": "Either (i) one transition element per trigger and qualifier set across contributions (the register keys transitions \"by trigger ... plus qualifiers\", row T1), each line reconciled by the existing rules; or (ii) a RANGE-in-words bound authored by a record-named provisional realization departs from another contribution's PREFERRED_DEFAULT value (SD-08) instead of being resolved by it. Data-driven, no activity named. Which is right is partly his: (i) touches the \"no other pair of elements is ever merged\" note of realization-choices-rpc-001.json.",
+      "size": "Medium",
+      "pins": "first-activity-end-to-end, dead-ball-restart, starts-and-restarts, participants-present unit files; A01 sentences byte-identical; snapshot diff."
+    },
+    {
+      "id": "E6",
+      "what": "Restart phrases exist only for FROM_THE_FEET and IN_HAND (METHOD_PHRASE) and for three triggers (TRIGGER_PHRASE); the role-restart sentence admits only role teams (render-concrete-game.ts:2871).",
+      "needed": "For the Laws-adapted end-line restart and the adapted kick-off (both stationary-ball kicks; K4-D3, K4-D4), for K4-D3's departure (b), and for a SCORE restart in a no-role game."
+    },
+    {
+      "id": "E4",
+      "what": "No default-laws account without a realization.",
+      "needed": "For K4-D4/D5 to be reported or enforced in a composed game."
+    }
+  ],
+  "measuredFiles": [
+    "design/scripts/probe-k4.ts and probe-k4.txt (plain GF2 variants A-H, E2, E3, F2, S; TEST-ONLY items with the same rows, selectors and values as the draft items, T1 with basis AUTHORED)",
+    "design/scripts/probe-k4-a01.ts and probe-k4-a01.txt (A01 both versions and both served demonstrations, with the K4 items)",
+    "design/scripts/probe-laws.ts and probe-laws.txt (the default-laws account over plain GF2, with and without the touchline restart)",
+    "final/scripts/probe-k1-final.ts and final/scripts/probe-out/probe-k1-final.txt (re-run with the corrected draft items, T1 with basis OWNER_RULING: f3, f4 under RPC-003 and f3c without it)"
+  ]
+}

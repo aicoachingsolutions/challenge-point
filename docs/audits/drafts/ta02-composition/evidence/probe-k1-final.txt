@@ -1,0 +1,308 @@
+STATIC: K1 24 items, 101 declarations; K4 7 items; 0 defects
+
+### D1: GF2 + corrected draft as drafted
+outcome=refused stage=structure
+summary=The game this demonstration selects is not yet described completely enough to be set up.
+  reason: Gate A is FAIL
+  reason: a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE
+  reason: 2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6
+
+### D2: D1 without RPC-003-08 (T2 START)
+outcome=refused stage=structure
+summary=The game this demonstration selects is not yet described completely enough to be set up.
+  reason: Gate A is FAIL
+  reason: a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE
+  reason: 2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6
+
+### D3: D1 + PR-3
+outcome=refused stage=structure
+summary=The game this demonstration selects is not yet described completely enough to be set up.
+  reason: Gate A is FAIL
+  reason: a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE
+  reason: 1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5
+
+### D4: D3 + PR-4
+outcome=refused stage=structure
+summary=The game this demonstration selects is not yet described completely enough to be set up.
+  reason: Gate A is FAIL
+  reason: a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE
+  reason: 1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5
+
+### D5: D4 + PR-1 + PR-2 (origin kept)
+outcome=refused stage=structure
+summary=This demonstration selects a rule whose description is still incomplete, so the activity cannot be checked yet.
+  reason: Gate A is NOT_EVALUABLE
+  reason: a pre-realization Gate A invariant cannot be evaluated, so it is not satisfied: GA-ONE-PRIMARY-EVENT, GA-REFERENCE-INTEGRITY
+
+### D8: PR-4, origin and START removed, no PR-1/PR-2 (progression referent open text, control referent UNDECLARED)
+outcome=refused stage=structure
+summary=The game this demonstration selects is not yet described completely enough to be set up.
+  reason: Gate A is FAIL
+  reason: a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE
+  reason: 1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5
+
+### D9: PR-1 + PR-2, origin and START removed, NO PR-4
+outcome=refused stage=communication
+summary=Part of this activity is still waiting for approved coach wording, so it is not being shown.
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type (V4)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents (V5)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value (V6)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type (V4)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents (V5)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value (V6)
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value is established by the game and no instruction carries it
+  reason: fidelity Q3: objects[c:sport-profile:soccer:SPORT-SOCCER-01].kind is established by the game and no instruction carries it
+guard: constituted=[{"type":"progression","itemId":"RPC-003-11.a"},{"type":"control","itemId":"RPC-003-12.a"}] findings=[]
+transitions=[{"elementId":"c:restated:GF2:GF2-07.a","selector":[{"attribute":"trigger","op":"=","value":"POSSESSION_CHANGE"}]}]
+
+### D10: PR-1 + PR-2 + PR-4, origin removed, START kept
+outcome=refused stage=communication
+summary=Part of this activity is still waiting for approved coach wording, so it is not being shown.
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type (V4)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents (V5)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value (V6)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type (V4)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents (V5)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value (V6)
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value is established by the game and no instruction carries it
+guard: constituted=[{"type":"progression","itemId":"RPC-003-11.a"},{"type":"control","itemId":"RPC-003-12.a"}] findings=[]
+transitions=[{"elementId":"c:restated:GF2:GF2-07.a","selector":[{"attribute":"trigger","op":"=","value":"POSSESSION_CHANGE"}]}]
+
+### D11: NEW: PR-1 + PR-4 without PR-2, origin removed (what M4 changes: control referent UNDECLARED)
+outcome=refused stage=structure
+summary=The game this demonstration selects is not yet described completely enough to be set up.
+  reason: Gate A is FAIL
+  reason: a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE
+  reason: 1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5
+
+### U1: TA02 (TEST-ONLY record []) + corrected draft as drafted (= step0 a0)
+outcome=refused stage=structure
+summary=The game this goal selects is not yet described completely enough to be set up.
+  reason: Gate A is FAIL
+  reason: a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE
+  reason: 2 unresolved properties are neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5, c:restated:RPC-003:RPC-003-10.a::V6
+account.context={"id":"RPC-003","name":"Attack Development","approvedScoringCondition":"Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.","inThisActivity":true}
+
+### A1: TA02 + PR-1..PR-4, origin kept (= step0 a1)
+outcome=refused stage=structure
+summary=This goal selects a rule whose description is still incomplete, so the activity cannot be checked yet.
+  reason: Gate A is NOT_EVALUABLE
+  reason: a pre-realization Gate A invariant cannot be evaluated, so it is not satisfied: GA-ONE-PRIMARY-EVENT, GA-REFERENCE-INTEGRITY
+account.context={"id":"RPC-003","name":"Attack Development","approvedScoringCondition":"Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.","inThisActivity":true}
+
+### U1b: NEW: TA02 + PR-1 + PR-4, origin withheld, NO PR-2 (what M4 changes)
+outcome=refused stage=structure
+summary=The game this goal selects is not yet described completely enough to be set up.
+  reason: Gate A is FAIL
+  reason: a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE
+  reason: 1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5
+account.context={"id":"RPC-003","name":"Attack Development","approvedScoringCondition":"Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.","inThisActivity":true}
+
+### U2: TA02 + PR-1 + PR-2 + PR-4, origin withheld (= step0 a2)
+outcome=refused stage=communication
+summary=Part of this activity is still waiting for approved coach wording, so it is not being shown.
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type (V4)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents (V5)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value (V6)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type (V4)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents (V5)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value (V6)
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value is established by the game and no instruction carries it
+account.context={"id":"RPC-003","name":"Attack Development","approvedScoringCondition":"Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.","inThisActivity":true}
+guard: constituted=[{"type":"progression","itemId":"RPC-003-11.a"},{"type":"control","itemId":"RPC-003-12.a"}] findings=[]
+transitions=[{"elementId":"c:restated:GF2:GF2-07.a","selector":[{"attribute":"trigger","op":"=","value":"POSSESSION_CHANGE"}]}]
+  DRAFT [Set up] (DERIVED/DRAFT) Mark out an area 40 m long by 30 m wide
+  DRAFT [Set up] (STARTING/DRAFT) Mark both end lines: they are the scoring lines
+  DRAFT [Players] (DERIVED/DRAFT) Divide 12 players into 2 teams of 6, with no goalkeepers
+  DRAFT [How it works] (COACH_CHOICE/DRAFT) Pick which team starts with the ball and tell both teams before you start
+  DRAFT [How it works] (STARTING/DRAFT) When possession changes, play carries on without a stoppage, and each team keeps attacking the same line
+  DRAFT [How to score] (STARTING/DRAFT) A team scores 1 point by getting the ball across the line it is attacking
+  DRAFT [How to score] (DERIVED/DRAFT) Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game
+  DRAFT [When it ends] (DERIVED/DRAFT) Play for 20 minutes
+  WITHHELD value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type :: AWAITING_APPROVED_WORDING
+  WITHHELD value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents :: AWAITING_APPROVED_WORDING
+  WITHHELD value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value :: AWAITING_APPROVED_WORDING
+  WITHHELD value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type :: AWAITING_APPROVED_WORDING
+  WITHHELD value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents :: AWAITING_APPROVED_WORDING
+  WITHHELD value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value :: AWAITING_APPROVED_WORDING
+
+### U2-gk1: U2 with 1 goalkeeper in the session
+outcome=refused stage=communication
+summary=Part of this activity is still waiting for approved coach wording, so it is not being shown.
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type (V4)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents (V5)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value (V6)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type (V4)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents (V5)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value (V6)
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value is established by the game and no instruction carries it
+account.context={"id":"RPC-003","name":"Attack Development","approvedScoringCondition":"Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.","inThisActivity":true}
+guard: constituted=[{"type":"progression","itemId":"RPC-003-11.a"},{"type":"control","itemId":"RPC-003-12.a"}] findings=[]
+transitions=[{"elementId":"c:restated:GF2:GF2-07.a","selector":[{"attribute":"trigger","op":"=","value":"POSSESSION_CHANGE"}]}]
+  DRAFT [Set up] (DERIVED/DRAFT) Mark out an area 40 m long by 30 m wide
+  DRAFT [Set up] (STARTING/DRAFT) Mark both end lines: they are the scoring lines
+  DRAFT [Players] (DERIVED/DRAFT) Divide 12 players into 2 teams of 6; goalkeepers play as outfield players in this activity
+  DRAFT [How it works] (COACH_CHOICE/DRAFT) Pick which team starts with the ball and tell both teams before you start
+  DRAFT [How it works] (STARTING/DRAFT) When possession changes, play carries on without a stoppage, and each team keeps attacking the same line
+  DRAFT [How to score] (STARTING/DRAFT) A team scores 1 point by getting the ball across the line it is attacking
+  DRAFT [How to score] (DERIVED/DRAFT) Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game
+  DRAFT [When it ends] (DERIVED/DRAFT) Play for 20 minutes
+  WITHHELD value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type :: AWAITING_APPROVED_WORDING
+  WITHHELD value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents :: AWAITING_APPROVED_WORDING
+  WITHHELD value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value :: AWAITING_APPROVED_WORDING
+  WITHHELD value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type :: AWAITING_APPROVED_WORDING
+  WITHHELD value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents :: AWAITING_APPROVED_WORDING
+  WITHHELD value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value :: AWAITING_APPROVED_WORDING
+
+### U2n: NEW: U2 with S5/O4 declared NOT_AUTHORED (RPC-001's reading of the same silence; M1)
+outcome=refused stage=communication
+summary=Part of this activity is still waiting for approved coach wording, so it is not being shown.
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type (V4)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents (V5)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value (V6)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type (V4)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents (V5)
+  reason: awaiting approved wording: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value (V6)
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents is established by the game and no instruction carries it
+  reason: fidelity Q3: value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value is established by the game and no instruction carries it
+account.context={"id":"RPC-003","name":"Attack Development","approvedScoringCondition":"Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.","inThisActivity":true}
+guard: constituted=[{"type":"progression","itemId":"RPC-003-11.a"},{"type":"control","itemId":"RPC-003-12.a"}] findings=[]
+transitions=[{"elementId":"c:restated:GF2:GF2-07.a","selector":[{"attribute":"trigger","op":"=","value":"POSSESSION_CHANGE"}]}]
+  DRAFT [Set up] (DERIVED/DRAFT) Mark out an area 40 m long by 30 m wide
+  DRAFT [Set up] (STARTING/DRAFT) Mark both end lines: they are the scoring lines
+  DRAFT [Players] (DERIVED/DRAFT) Divide 12 players into 2 teams of 6, with no goalkeepers
+  DRAFT [How it works] (COACH_CHOICE/DRAFT) Pick which team starts with the ball and tell both teams before you start
+  DRAFT [How it works] (STARTING/DRAFT) When possession changes, play carries on without a stoppage, and each team keeps attacking the same line
+  DRAFT [How to score] (STARTING/DRAFT) A team scores 1 point by getting the ball across the line it is attacking
+  DRAFT [How to score] (DERIVED/DRAFT) Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game
+  DRAFT [When it ends] (DERIVED/DRAFT) Play for 20 minutes
+  WITHHELD value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].type :: AWAITING_APPROVED_WORDING
+  WITHHELD value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].referents :: AWAITING_APPROVED_WORDING
+  WITHHELD value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-11.a].value :: AWAITING_APPROVED_WORDING
+  WITHHELD value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].type :: AWAITING_APPROVED_WORDING
+  WITHHELD value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].referents :: AWAITING_APPROVED_WORDING
+  WITHHELD value.primaryEvent.conditions[c:restated:RPC-003:RPC-003-12.a].value :: AWAITING_APPROVED_WORDING
+
+### U3: CONTROL ONLY, NOT A PROPOSAL: U2 with every PROP-134 condition removed (= step0 b1)
+outcome=served
+account.context={"id":"RPC-003","name":"Attack Development","approvedScoringCondition":"Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.","inThisActivity":true}
+integrity={"gateA":"DEFERRED_TO_REALIZATION","realizationAuthorized":true,"acceptance":{"nothingClosedWithoutAuthority":[],"nothingLost":[],"nothingInvented":[]},"postRealizationValidated":true,"instructions":8,"fidelityViolations":0}
+guard: constituted=[] findings=[]
+transitions=[{"elementId":"c:restated:GF2:GF2-07.a","selector":[{"attribute":"trigger","op":"=","value":"POSSESSION_CHANGE"}]}]
+  SERVED [Set up] (DERIVED) Mark out an area 40 m long by 30 m wide
+  SERVED [Set up] (STARTING) Mark both end lines: they are the scoring lines
+  SERVED [Players] (DERIVED) Divide 12 players into 2 teams of 6, with no goalkeepers
+  SERVED [How it works] (COACH_CHOICE) Pick which team starts with the ball and tell both teams before you start
+  SERVED [How it works] (STARTING) When possession changes, play carries on without a stoppage, and each team keeps attacking the same line
+  SERVED [How to score] (STARTING) A team scores 1 point by getting the ball across the line it is attacking
+  SERVED [How to score] (DERIVED) Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game
+  SERVED [When it ends] (DERIVED) Play for 20 minutes
+
+### U4: U3 without PR-4
+outcome=refused stage=communication
+summary=Part of this activity cannot be explained to a coach yet, so it is not being shown.
+  reason: fidelity Q3: objects[c:sport-profile:soccer:SPORT-SOCCER-01].kind is established by the game and no instruction carries it
+account.context={"id":"RPC-003","name":"Attack Development","approvedScoringCondition":"Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.","inThisActivity":true}
+guard: constituted=[] findings=[]
+transitions=[{"elementId":"c:restated:GF2:GF2-07.a","selector":[{"attribute":"trigger","op":"=","value":"POSSESSION_CHANGE"}]}]
+  DRAFT [Set up] (DERIVED/DRAFT) Mark out an area 40 m long by 30 m wide
+  DRAFT [Set up] (STARTING/DRAFT) Mark both end lines: they are the scoring lines
+  DRAFT [Players] (DERIVED/DRAFT) Divide 12 players into 2 teams of 6, with no goalkeepers
+  DRAFT [How it works] (COACH_CHOICE/DRAFT) Pick which team starts with the ball and tell both teams before you start
+  DRAFT [How it works] (STARTING/DRAFT) When possession changes, play carries on without a stoppage, and each team keeps attacking the same line
+  DRAFT [How to score] (STARTING/DRAFT) A team scores 1 point by getting the ball across the line it is attacking
+  DRAFT [How to score] (DERIVED/DRAFT) Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game
+  DRAFT [When it ends] (DERIVED/DRAFT) Play for 20 minutes
+
+### F3: TA02 + draft without conditions + PR-4 + corrected K4 touchline items (= step0 f3)
+outcome=refused stage=structure
+summary=The game this goal selects is not yet described completely enough to be set up.
+  reason: Gate A is FAIL
+  reason: a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE
+  reason: 1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:GF2:GF2-16.c::T7
+account.context={"id":"RPC-003","name":"Attack Development","approvedScoringCondition":"Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.","inThisActivity":true}
+
+### F4: U2 + corrected K4 touchline items (= step0 f4)
+outcome=refused stage=structure
+summary=The game this goal selects is not yet described completely enough to be set up.
+  reason: Gate A is FAIL
+  reason: a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE
+  reason: 1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:GF2:GF2-16.c::T7
+account.context={"id":"RPC-003","name":"Attack Development","approvedScoringCondition":"Purposeful advancement from the attack's starting condition rather than possession alone: reaching a more advanced representative area while maintaining attacking possession.","inThisActivity":true}
+
+### F3c: plain GF2 mechanism path (no TA02, no RPC-003) + corrected K4 touchline items (= step0 f3c)
+outcome=served
+integrity={"gateA":"DEFERRED_TO_REALIZATION","realizationAuthorized":true,"acceptance":{"nothingClosedWithoutAuthority":[],"nothingLost":[],"nothingInvented":[]},"postRealizationValidated":true,"instructions":9,"fidelityViolations":0}
+transitions=[{"elementId":"c:restated:GF2:GF2-16.c","selector":[{"attribute":"trigger","op":"=","value":"OUT_TOUCHLINE"}]},{"elementId":"c:restated:GF2:GF2-07.a","selector":[{"attribute":"trigger","op":"=","value":"POSSESSION_CHANGE"}]}]
+  SERVED [Set up] (DERIVED) Mark out an area 40 m long by 30 m wide
+  SERVED [Set up] (STARTING) Mark both end lines: they are the scoring lines
+  SERVED [Players] (DERIVED) Divide 12 players into 2 teams of 6, with no goalkeepers
+  SERVED [How it works] (COACH_CHOICE) Pick which team starts with the ball and tell both teams before you start
+  SERVED [How it works] (STARTING) When possession changes, play carries on without a stoppage, and each team keeps attacking the same line
+  SERVED [How to score] (STARTING) A team scores 1 point by getting the ball across the line it is attacking
+  SERVED [How to score] (DERIVED) Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game
+  SERVED [When it ends] (DERIVED) Play for 20 minutes
+  SERVED [Restarts and ball out] (STARTING) If the ball goes out over a touchline, a player of the team that did not touch the ball last restarts play with a throw-in where the ball went out
+
+GATE A U1 (pre-realization rerun): FAIL pass=14/22 nonPass=[{"checkId":"GA-DIRECTION","verdict":"DEFERRED_TO_REALIZATION"},{"checkId":"GA-ENVELOPE-FIT","verdict":"DEFERRED_TO_REALIZATION"},{"checkId":"GA-LAYOUT-FEASIBLE","verdict":"DEFERRED_TO_REALIZATION"},{"checkId":"GA-NO-FAILED-LINE","verdict":"FAIL"},{"checkId":"GA-ONE-PRIMARY-EVENT","verdict":"NOT_EVALUABLE"},{"checkId":"GA-REFERENCE-INTEGRITY","verdict":"NOT_EVALUABLE"},{"checkId":"GA-ROLE-EVENTS","verdict":"DEFERRED_TO_REALIZATION"},{"checkId":"GA-ROSTER-SUM","verdict":"DEFERRED_TO_REALIZATION"}]
+
+GATE A U1b (pre-realization rerun): FAIL pass=14/22 nonPass=[{"checkId":"GA-DIRECTION","verdict":"DEFERRED_TO_REALIZATION"},{"checkId":"GA-ENVELOPE-FIT","verdict":"DEFERRED_TO_REALIZATION"},{"checkId":"GA-LAYOUT-FEASIBLE","verdict":"DEFERRED_TO_REALIZATION"},{"checkId":"GA-NO-FAILED-LINE","verdict":"FAIL"},{"checkId":"GA-ONE-PRIMARY-EVENT","verdict":"NOT_EVALUABLE"},{"checkId":"GA-REFERENCE-INTEGRITY","verdict":"NOT_EVALUABLE"},{"checkId":"GA-ROLE-EVENTS","verdict":"DEFERRED_TO_REALIZATION"},{"checkId":"GA-ROSTER-SUM","verdict":"DEFERRED_TO_REALIZATION"}]
+
+GATE A U2 (pre-realization rerun): DEFERRED_TO_REALIZATION pass=16/22 nonPass=[{"checkId":"GA-DIRECTION","verdict":"DEFERRED_TO_REALIZATION"},{"checkId":"GA-ENVELOPE-FIT","verdict":"DEFERRED_TO_REALIZATION"},{"checkId":"GA-LAYOUT-FEASIBLE","verdict":"DEFERRED_TO_REALIZATION"},{"checkId":"GA-ONE-PRIMARY-EVENT","verdict":"DEFERRED_TO_REALIZATION"},{"checkId":"GA-ROLE-EVENTS","verdict":"DEFERRED_TO_REALIZATION"},{"checkId":"GA-ROSTER-SUM","verdict":"DEFERRED_TO_REALIZATION"}]
+
+GATE A U2n (pre-realization rerun): DEFERRED_TO_REALIZATION pass=16/22 nonPass=[{"checkId":"GA-DIRECTION","verdict":"DEFERRED_TO_REALIZATION"},{"checkId":"GA-ENVELOPE-FIT","verdict":"DEFERRED_TO_REALIZATION"},{"checkId":"GA-LAYOUT-FEASIBLE","verdict":"DEFERRED_TO_REALIZATION"},{"checkId":"GA-ONE-PRIMARY-EVENT","verdict":"DEFERRED_TO_REALIZATION"},{"checkId":"GA-ROLE-EVENTS","verdict":"DEFERRED_TO_REALIZATION"},{"checkId":"GA-ROSTER-SUM","verdict":"DEFERRED_TO_REALIZATION"}]
+
+ABLATION BASE (U2): refused @communication; game=35dfe40e7a; said=8; withheld=6; gate=GA-DIRECTION=DEFERRED_TO_REALIZATION,GA-ENVELOPE-FIT=DEFERRED_TO_REALIZATION,GA-LAYOUT-FEASIBLE=DEFERRED_TO_REALIZATION,GA-ONE-PRIMARY-EVENT=DEFERRED_TO_REALIZATION,GA-ROLE-EVENTS=DEFERRED_TO_REALIZATION,GA-ROSTER-SUM=DEFERRED_TO_REALIZATION|pass=16
+without RPC-003-01.a: NO CHANGE (same outcome, same realized game, same Gate A verdicts, same text, same withheld)
+without RPC-003-01.b: NO CHANGE (same outcome, same realized game, same Gate A verdicts, same text, same withheld)
+without RPC-003-02: NO CHANGE (same outcome, same realized game, same Gate A verdicts, same text, same withheld)
+without RPC-003-03.a: NO CHANGE (same outcome, same realized game, same Gate A verdicts, same text, same withheld)
+without RPC-003-03.b: NO CHANGE (same outcome, same realized game, same Gate A verdicts, same text, same withheld)
+without RPC-003-04.a: OUTCOME refused @realization: This game cannot be set out in this session with the set-up decisions made for it. :: realization refused | the recorded identification of c:restated:RPC-003:RPC-003-04.a with c:sport-profile:soccer:SPORT-SOCCER-01 cannot stand: c:restated:RPC-003:RPC-003-04.a is not an established element of this game | the recorded identification of c:restated:RPC-003:RPC-003-04.a with c:sport-profile:soccer:SPORT-SOCCER-01 cannot stand: c:sport-profile:soccer:SPORT-SOCCER-01 is not an established element of the same collection in this game ; GAME changed in: envelope, space, value, objectives, objects, transitions, performers, possession ; SAID: +[] -["Mark out an area 40 m long by 30 m wide","Mark both end lines: they are the scoring lines","Divide 12 players into 2 teams of 6, with no goalkeepers","Pick which team starts with the ball and tell both teams before you start","When possession changes, play carries on without a stoppage, and each team keeps attacking the same line","A team scores 1 point by getting the ball across the line it is attacking","Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game","Play for 20 minutes"] ; WITHHELD: 0 (was 6)
+without RPC-003-04.b: NO CHANGE (same outcome, same realized game, same Gate A verdicts, same text, same withheld)
+without RPC-003-05: NO CHANGE (same outcome, same realized game, same Gate A verdicts, same text, same withheld)
+without RPC-003-06: NO CHANGE (same outcome, same realized game, same Gate A verdicts, same text, same withheld)
+without RPC-003-07: NO CHANGE (same outcome, same realized game, same Gate A verdicts, same text, same withheld)
+without RPC-003-08: NO CHANGE (same outcome, same realized game, same Gate A verdicts, same text, same withheld)
+without RPC-003-09.a: GAME changed in: transitions
+without RPC-003-09.b: NO CHANGE (same outcome, same realized game, same Gate A verdicts, same text, same withheld)
+without RPC-003-11.a: GAME changed in: value ; WITHHELD: 3 (was 6)
+without RPC-003-11.b: OUTCOME refused @structure: The game this goal selects is not yet described completely enough to be set up. :: Gate A is FAIL | a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE | 1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-11.a::V5 ; GAME changed in: envelope, space, value, objectives, objects, transitions, performers, possession ; GATE A: GA-DIRECTION=DEFERRED_TO_REALIZATION,GA-ENVELOPE-FIT=DEFERRED_TO_REALIZATION,GA-LAYOUT-FEASIBLE=DEFERRED_TO_REALIZATION,GA-NO-FAILED-LINE=FAIL,GA-ONE-PRIMARY-EVENT=NOT_EVALUABLE,GA-REFERENCE-INTEGRITY=NOT_EVALUABLE,GA-ROLE-EVENTS=DEFERRED_TO_REALIZATION,GA-ROSTER-SUM=DEFERRED_TO_REALIZATION|pass=14 (was GA-DIRECTION=DEFERRED_TO_REALIZATION,GA-ENVELOPE-FIT=DEFERRED_TO_REALIZATION,GA-LAYOUT-FEASIBLE=DEFERRED_TO_REALIZATION,GA-ONE-PRIMARY-EVENT=DEFERRED_TO_REALIZATION,GA-ROLE-EVENTS=DEFERRED_TO_REALIZATION,GA-ROSTER-SUM=DEFERRED_TO_REALIZATION|pass=16) ; SAID: +[] -["Mark out an area 40 m long by 30 m wide","Mark both end lines: they are the scoring lines","Divide 12 players into 2 teams of 6, with no goalkeepers","Pick which team starts with the ball and tell both teams before you start","When possession changes, play carries on without a stoppage, and each team keeps attacking the same line","A team scores 1 point by getting the ball across the line it is attacking","Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game","Play for 20 minutes"] ; WITHHELD: 0 (was 6)
+without RPC-003-11.c: OUTCOME refused @structure: The game this goal selects is not yet described completely enough to be set up. :: Gate A is FAIL | a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE | 1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-11.a::V6 ; GAME changed in: envelope, space, value, objectives, objects, transitions, performers, possession ; GATE A: GA-DIRECTION=DEFERRED_TO_REALIZATION,GA-ENVELOPE-FIT=DEFERRED_TO_REALIZATION,GA-LAYOUT-FEASIBLE=DEFERRED_TO_REALIZATION,GA-NO-FAILED-LINE=FAIL,GA-ONE-PRIMARY-EVENT=DEFERRED_TO_REALIZATION,GA-ROLE-EVENTS=DEFERRED_TO_REALIZATION,GA-ROSTER-SUM=DEFERRED_TO_REALIZATION|pass=15 (was GA-DIRECTION=DEFERRED_TO_REALIZATION,GA-ENVELOPE-FIT=DEFERRED_TO_REALIZATION,GA-LAYOUT-FEASIBLE=DEFERRED_TO_REALIZATION,GA-ONE-PRIMARY-EVENT=DEFERRED_TO_REALIZATION,GA-ROLE-EVENTS=DEFERRED_TO_REALIZATION,GA-ROSTER-SUM=DEFERRED_TO_REALIZATION|pass=16) ; SAID: +[] -["Mark out an area 40 m long by 30 m wide","Mark both end lines: they are the scoring lines","Divide 12 players into 2 teams of 6, with no goalkeepers","Pick which team starts with the ball and tell both teams before you start","When possession changes, play carries on without a stoppage, and each team keeps attacking the same line","A team scores 1 point by getting the ball across the line it is attacking","Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game","Play for 20 minutes"] ; WITHHELD: 0 (was 6)
+without RPC-003-12.a: GAME changed in: value ; WITHHELD: 3 (was 6)
+without RPC-003-12.b: OUTCOME refused @structure: The game this goal selects is not yet described completely enough to be set up. :: Gate A is FAIL | a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE | 1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V6 ; GAME changed in: envelope, space, value, objectives, objects, transitions, performers, possession ; GATE A: GA-DIRECTION=DEFERRED_TO_REALIZATION,GA-ENVELOPE-FIT=DEFERRED_TO_REALIZATION,GA-LAYOUT-FEASIBLE=DEFERRED_TO_REALIZATION,GA-NO-FAILED-LINE=FAIL,GA-ONE-PRIMARY-EVENT=DEFERRED_TO_REALIZATION,GA-ROLE-EVENTS=DEFERRED_TO_REALIZATION,GA-ROSTER-SUM=DEFERRED_TO_REALIZATION|pass=15 (was GA-DIRECTION=DEFERRED_TO_REALIZATION,GA-ENVELOPE-FIT=DEFERRED_TO_REALIZATION,GA-LAYOUT-FEASIBLE=DEFERRED_TO_REALIZATION,GA-ONE-PRIMARY-EVENT=DEFERRED_TO_REALIZATION,GA-ROLE-EVENTS=DEFERRED_TO_REALIZATION,GA-ROSTER-SUM=DEFERRED_TO_REALIZATION|pass=16) ; SAID: +[] -["Mark out an area 40 m long by 30 m wide","Mark both end lines: they are the scoring lines","Divide 12 players into 2 teams of 6, with no goalkeepers","Pick which team starts with the ball and tell both teams before you start","When possession changes, play carries on without a stoppage, and each team keeps attacking the same line","A team scores 1 point by getting the ball across the line it is attacking","Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game","Play for 20 minutes"] ; WITHHELD: 0 (was 6)
+without RPC-003-13: NO CHANGE (same outcome, same realized game, same Gate A verdicts, same text, same withheld)
+without RPC-003-14.a: NO CHANGE (same outcome, same realized game, same Gate A verdicts, same text, same withheld)
+without RPC-003-14.b: NO CHANGE (same outcome, same realized game, same Gate A verdicts, same text, same withheld)
+without RPC-003-15: NO CHANGE (same outcome, same realized game, same Gate A verdicts, same text, same withheld)
+without RPC-003-12.c (the TEST-ONLY PR-2 item, not in the draft): OUTCOME refused @structure: The game this goal selects is not yet described completely enough to be set up. :: Gate A is FAIL | a pre-realization Gate A invariant fails: GA-NO-FAILED-LINE | 1 unresolved property is neither an authorized choice nor an authorized claim: c:restated:RPC-003:RPC-003-12.a::V5 ; GAME changed in: envelope, space, value, objectives, objects, transitions, performers, possession ; GATE A: GA-DIRECTION=DEFERRED_TO_REALIZATION,GA-ENVELOPE-FIT=DEFERRED_TO_REALIZATION,GA-LAYOUT-FEASIBLE=DEFERRED_TO_REALIZATION,GA-NO-FAILED-LINE=FAIL,GA-ONE-PRIMARY-EVENT=NOT_EVALUABLE,GA-REFERENCE-INTEGRITY=NOT_EVALUABLE,GA-ROLE-EVENTS=DEFERRED_TO_REALIZATION,GA-ROSTER-SUM=DEFERRED_TO_REALIZATION|pass=14 (was GA-DIRECTION=DEFERRED_TO_REALIZATION,GA-ENVELOPE-FIT=DEFERRED_TO_REALIZATION,GA-LAYOUT-FEASIBLE=DEFERRED_TO_REALIZATION,GA-ONE-PRIMARY-EVENT=DEFERRED_TO_REALIZATION,GA-ROLE-EVENTS=DEFERRED_TO_REALIZATION,GA-ROSTER-SUM=DEFERRED_TO_REALIZATION|pass=16) ; SAID: +[] -["Mark out an area 40 m long by 30 m wide","Mark both end lines: they are the scoring lines","Divide 12 players into 2 teams of 6, with no goalkeepers","Pick which team starts with the ball and tell both teams before you start","When possession changes, play carries on without a stoppage, and each team keeps attacking the same line","A team scores 1 point by getting the ball across the line it is attacking","Each team defends one line and attacks the other. Decide which team starts at which end; the ends stay the same for the whole game","Play for 20 minutes"] ; WITHHELD: 0 (was 6)
+
+REACH U2 (refused @communication): transitions=["c:restated:GF2:GF2-07.a [{\"attribute\":\"trigger\",\"op\":\"=\",\"value\":\"POSSESSION_CHANGE\"}]"]; RPC-003-08 named in fixture=false; any START transition=false
+
+REACH U3 (served): transitions=["c:restated:GF2:GF2-07.a [{\"attribute\":\"trigger\",\"op\":\"=\",\"value\":\"POSSESSION_CHANGE\"}]"]; RPC-003-08 named in fixture=false; any START transition=false
+
+REACH F4 (refused @structure): transitions=[]; RPC-003-08 named in fixture=false; any START transition=false

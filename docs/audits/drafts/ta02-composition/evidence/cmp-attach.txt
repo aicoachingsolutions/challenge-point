@@ -1,0 +1,93 @@
+# attach: RPC-003 rows vs rpc-library.rc1.json
+rows=71 verbatim=68 differs=0 missing_in_json=0 not_projected=3 json_only=0
+
+### Registry (1 rows mentioning RPC-003 / Attack Development) -> JSON registry
+- r4 RPC-003 VERBATIM
+
+### Statements (5 rows mentioning RPC-003 / Attack Development) -> JSON statements
+- r12 RPC-STMT-011 VERBATIM
+- r13 RPC-STMT-012 VERBATIM
+- r14 RPC-STMT-013 VERBATIM
+- r15 RPC-STMT-014 VERBATIM
+- r16 RPC-STMT-015 VERBATIM
+
+### Properties (18 rows mentioning RPC-003 / Attack Development) -> JSON properties
+- r35 RPC-PROP-034 VERBATIM
+- r36 RPC-PROP-035 VERBATIM
+- r37 RPC-PROP-036 VERBATIM
+- r38 RPC-PROP-037 VERBATIM
+- r39 RPC-PROP-038 VERBATIM
+- r40 RPC-PROP-039 VERBATIM
+- r41 RPC-PROP-040 VERBATIM
+- r42 RPC-PROP-041 VERBATIM
+- r43 RPC-PROP-042 VERBATIM
+- r44 RPC-PROP-043 VERBATIM
+- r45 RPC-PROP-044 VERBATIM
+- r46 RPC-PROP-045 VERBATIM
+- r47 RPC-PROP-046 VERBATIM
+- r48 RPC-PROP-047 VERBATIM
+- r49 RPC-PROP-048 VERBATIM
+- r50 RPC-PROP-049 VERBATIM
+- r85 RPC-PROP-084 VERBATIM
+- r135 RPC-PROP-134 VERBATIM
+
+### Identity Rules (5 rows mentioning RPC-003 / Attack Development) -> JSON identity_rules
+- r12 RPC-ID-011 VERBATIM
+- r13 RPC-ID-012 VERBATIM
+- r14 RPC-ID-013 VERBATIM
+- r15 RPC-ID-014 VERBATIM
+- r16 RPC-ID-015 VERBATIM
+
+### Context Transitions (6 rows mentioning RPC-003 / Attack Development) -> JSON transitions
+- r3 RPC-TR-002 VERBATIM
+- r5 RPC-TR-004 VERBATIM
+- r7 RPC-TR-006 VERBATIM
+- r8 RPC-TR-007 VERBATIM
+- r10 RPC-TR-009 VERBATIM
+- r14 RPC-TR-013 VERBATIM
+
+### Relationships (14 rows mentioning RPC-003 / Attack Development) -> JSON relationships
+- r4 RPC-REL-003 VERBATIM
+- r1015 RPC-REL-023 VERBATIM
+- r1016 RPC-REL-024 VERBATIM
+- r1017 RPC-REL-025 VERBATIM
+- r1018 RPC-REL-026 VERBATIM
+- r1019 RPC-REL-027 VERBATIM
+- r1020 RPC-REL-028 VERBATIM
+- r1021 RPC-REL-029 VERBATIM
+- r1054 RPC-REL-062 VERBATIM
+- r1060 RPC-REL-068 VERBATIM
+- r1071 RPC-REL-079 VERBATIM
+- r1072 RPC-REL-080 VERBATIM
+- r1073 RPC-REL-081 VERBATIM
+- r1074 RPC-REL-082 VERBATIM
+
+### Validation Rules (5 rows mentioning RPC-003 / Attack Development) -> JSON validation_rules
+- r12 RPC-VAL-011 VERBATIM
+- r13 RPC-VAL-012 VERBATIM
+- r14 RPC-VAL-013 VERBATIM
+- r15 RPC-VAL-014 VERBATIM
+- r16 RPC-VAL-015 VERBATIM
+
+### Implementation Staging (14 rows mentioning RPC-003 / Attack Development) -> JSON implementation_staging
+- r16 RPC-MAP-028 VERBATIM
+- r17 RPC-MAP-029 VERBATIM
+- r18 RPC-MAP-030 VERBATIM
+- r19 RPC-MAP-031 VERBATIM
+- r20 RPC-MAP-033 VERBATIM
+- r21 RPC-MAP-034 VERBATIM
+- r22 RPC-MAP-035 VERBATIM
+- r63 RPC-MAP-103 VERBATIM
+- r64 RPC-MAP-104 VERBATIM
+- r65 RPC-MAP-105 VERBATIM
+- r66 RPC-MAP-106 VERBATIM
+- r67 RPC-MAP-107 VERBATIM
+- r98 RPC-RC11-LG-005 VERBATIM
+- r104 RPC-RC11-LG-011 VERBATIM
+
+### RC1.1 Audit (3 rows mentioning RPC-003 / Attack Development) -> NOT PROJECTED to rpc-library.rc1.json
+- r4 NOT_PROJECTED {"A":"Action Item 1 — Game Forms","B":"RPC-003","C":"PASS","D":"Expected: Positional Play [PRIMARY], Directional Possession [PRIMARY], Channel [SECONDARY] | Actual: Positional Play [PRIMARY], Directional Possession [PRIMARY], Channel [SECONDARY]"}
+- r15 NOT_PROJECTED {"A":"Action Item 3 — Learning Goal Routing","B":"Progress the Attack","C":"PASS","D":"Expected: RPC-003 [PRIMARY] | Actual: [('RPC-003', 'PRIMARY', 'Canonical SPM ID: A05')]"}
+- r21 NOT_PROJECTED {"A":"Action Item 3 — Learning Goal Routing","B":"Secure Possession","C":"PASS","D":"Expected: RPC-003 [SECONDARY] | Actual: [('RPC-003', 'SECONDARY', 'Canonical SPM ID: TA02')]"}
+
+### JSON rows mentioning RPC-003 / Attack Development that are not in this workbook: 0
