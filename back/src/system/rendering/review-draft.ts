@@ -39,8 +39,10 @@ export interface DraftInstruction extends Instruction {
     provisionalSources: string[]
     /**
      * **The DRAFT knowledge the sentence rests on** — B2, 28 October 2026 (the review's M2). Knowledge we drafted for his review, loaded only
-     * by the TEST-ONLY draft store (category DRAFT_KNOWLEDGE): a derived value's supporting draft items (`contractId::itemId`), and each
-     * draft item that narrowed or bounded a line a choice closed. Kept apart from `provisionalSources`, which are his provisional choices,
+     * by the TEST-ONLY draft store (category DRAFT_KNOWLEDGE): a derived value's supporting draft items (`contractId::itemId`), each
+     * draft item that narrowed or bounded a line a choice closed, and (B2 review) each draft item that decided an entailed count or that an
+     * instantiated element satisfies. Not yet read: an item bounding a line through the register's targetOf reading or a relative bound,
+     * which the review evidence reads and grades DRAFT. Kept apart from `provisionalSources`, which are his provisional choices,
      * never ours. Present only where the sentence rests on some, so a build from production knowledge carries no such key.
      */
     draftSources?: string[]
@@ -79,18 +81,38 @@ function provisionalSourcesOf(fixture: any, paths: string[]): string[] {
     return [...found].sort()
 }
 
-/** B2 (28 October 2026): the DRAFT knowledge behind these paths in one fixture (see `DraftInstruction.draftSources`). */
-function draftSourcesOf(fixture: any, paths: string[]): string[] {
+/**
+ * B2 (28 October 2026): the DRAFT knowledge behind these paths in one fixture (see `DraftInstruction.draftSources`). `draftItems` is every
+ * item of the game's contracts stamped DRAFT_KNOWLEDGE (`contractId::itemId`): an entailment and an instantiation carry only the items that
+ * decided them, not their category, so they are read against it (B2 review: a sentence resting on a count a draft item decided carried
+ * neither draft nor provisional sources, which this field's sibling then read as approved knowledge).
+ */
+function draftSourcesOf(fixture: any, paths: string[], draftItems: ReadonlySet<string>): string[] {
     const found = new Set<string>()
     const status = fixture?.status ?? {}
+    const keyOf = (ref: any) => `${ref?.contractId}::${ref?.itemId}`
     for (const path of paths) {
         for (const derived of status.derived ?? []) {
             if (derived?.path !== path) continue
-            for (const support of derived.support ?? []) if (support?.category === DRAFT_KNOWLEDGE) found.add(`${support.contractId}::${support.itemId}`)
+            for (const support of derived.support ?? []) if (support?.category === DRAFT_KNOWLEDGE) found.add(keyOf(support))
         }
         for (const choice of status.choices ?? []) {
             if (choice?.path !== path) continue
-            for (const ref of choice.draftShapedBy ?? []) found.add(`${ref.contractId}::${ref.itemId}`)
+            for (const ref of choice.draftShapedBy ?? []) found.add(keyOf(ref))
+        }
+        // As `provisionalSourcesOf` reads an entailment: through every member of its collection.
+        for (const entailed of status.entailed ?? []) {
+            if (`${entailed?.collection}[].${entailed?.leaf}` !== path) continue
+            for (const ref of entailed.supportedBy ?? []) if (draftItems.has(keyOf(ref))) found.add(keyOf(ref))
+        }
+        // An element instantiated to satisfy an item (`c:<contract>:<item>`, an instance suffix dropped), on a path naming the element.
+        for (const instantiation of status.instantiations ?? []) {
+            const handle = String(instantiation?.handle ?? instantiation?.elementId ?? '')
+            const satisfies = String(instantiation?.satisfies ?? '')
+            if (!handle || !path.includes(`[${handle}]`) || !satisfies.startsWith('c:')) continue
+            const bare = satisfies.slice(2).split('#')[0]
+            const key = `${bare.slice(0, bare.lastIndexOf(':'))}::${bare.slice(bare.lastIndexOf(':') + 1)}`
+            if (draftItems.has(key)) found.add(key)
         }
     }
     return [...found].sort()
@@ -98,9 +120,11 @@ function draftSourcesOf(fixture: any, paths: string[]): string[] {
 
 /**
  * The review draft of a rendering refused at communication: `rendered` is what the renderer said (for a game in role blocks, the ONE
- * composed activity), `fixtures` the game(s) it was rendered from, `violations` every fidelity finding that refused it.
+ * composed activity), `fixtures` the game(s) it was rendered from, `violations` every fidelity finding that refused it, and `contracts`
+ * (B2 review) the contracts the games were derived from, whose DRAFT_KNOWLEDGE items an entailment or instantiation may rest on.
  */
-export function reviewDraftOf(fixtures: any[], rendered: RenderedActivity, violations: FidelityFinding[]): ReviewDraft {
+export function reviewDraftOf(fixtures: any[], rendered: RenderedActivity, violations: FidelityFinding[], contracts: { contractId: string; items?: { itemId: string; category?: unknown }[] }[] = []): ReviewDraft {
+    const draftItems = new Set(contracts.flatMap(contract => (contract.items ?? []).filter(item => item.category === DRAFT_KNOWLEDGE).map(item => `${contract.contractId}::${item.itemId}`)))
     const approved = fixtures.flatMap(fixture => approvedSentences(fixture?.game ?? {}))
     // Stage M4 (17 October 2026): a sentence that IS one of his approved template sentences, word for word, is approved wording too
     // (approved-wording.ts approvedTemplateSentences); the same template filled with any other value stays DRAFT.
@@ -112,7 +136,7 @@ export function reviewDraftOf(fixtures: any[], rendered: RenderedActivity, viola
         status: 'DRAFT_NOT_SERVED',
         instructions: rendered.instructions.map(instruction => {
             const cited = [...instruction.from, ...(instruction.counterparts ?? []).flatMap(entry => entry.from)]
-            const draftSources = [...new Set(fixtures.flatMap(fixture => draftSourcesOf(fixture, cited)))].sort()
+            const draftSources = [...new Set(fixtures.flatMap(fixture => draftSourcesOf(fixture, cited, draftItems)))].sort()
             return {
                 ...JSON.parse(JSON.stringify(instruction)),
                 wording: isApproved(instruction) ? 'APPROVED' : 'DRAFT',

@@ -2,8 +2,9 @@
  * Composing from the TEST-ONLY draft store, read at the build's own answer (B2, 28 October 2026; E1-lite and one shared ball). A projection is
  * proved only by a consumer, so every carry below is read where the build hands it back: `buildActivityUnderAuthorizationRecords` given the
  * real store of `docs/audits/drafts/ta02-composition/` (the RPC-003 Attack Development draft and the TA02 draft record), with no in-memory
- * loader patch and no TEST-ONLY record. His reply filed 30 October 2026, item 1, says the current Attack Development context does not
- * represent Secure Possession, so nothing here tries to make TA02 compose: these builds are measurements of the engine, and every one of them
+ * loader patch and no TEST-ONLY record. His reply filed 30 October 2026, item 1: *"I agree that the current Attack Development context doesn't
+ * adequately represent this moment, because it begins after organized possession has already been established."* So nothing here tries to
+ * make TA02 compose: these builds are measurements of the engine, and every one of them
  * that is served or near-served carries a TEST-ONLY stand-in labelled so.
  *
  * What is pinned:
@@ -15,7 +16,8 @@
  *   - the same over a TEST-ONLY copy with RPC-003-04.a reinstated: refused at validation, the second ball named (the guard);
  *   - the draft account: an element resting on a draft item shows DRAFT, never APPROVED alone; every draft item is a DRAFT source; the draft
  *     narrowing of the primary event's kind (an open line a choice closes) is a DRAFT source of that element; the draft declarations listed;
- *     the context's contract marked DRAFT; derivation's provenance stamp says `draft`; the review draft's sentences name their DRAFT sources;
+ *     the context's contract marked DRAFT; derivation's provenance stamp says `draft`; the review draft's sentences name their DRAFT sources,
+ *     including (B2 review, on a constructed fixture) a count a draft item decided and an element instantiated to satisfy one;
  *   - a production build carries none of these keys.
  *
  * Run: npm test
@@ -32,6 +34,7 @@ import { derivationInputFor } from '../derivation/run-bounded-selection'
 import { DRAFT_KNOWLEDGE } from '../derivation/types'
 import { learningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
 import { buildActivityForReview, buildActivityUnderAuthorizationRecords, RefusedActivity } from './build-activity'
+import { reviewDraftOf } from './review-draft'
 import { specializedRoleNames } from './session-envelope'
 
 const quiet = console.log
@@ -160,6 +163,36 @@ const build = (drafts: typeof store | undefined, alter?: (contracts: any[]) => v
     assert.equal(activity.outcome, 'refused')
     assert.equal(activity.stage, 'validation', activity.reasons.join(' | '))
     assert.ok(activity.reasons.some(reason => reason.startsWith('objects[c:restated:RPC-003:RPC-003-04.a] is a second element where the playing environment already has one') && reason.includes(ENVIRONMENT_ELEMENT)), activity.reasons.join(' | '))
+}
+
+/* ── The review draft reads an entailment and an instantiation a draft item decided (B2 review), on a constructed fixture ───── */
+{
+    // An entailment and an instantiation carry only the items that decided them, never their category, so the contracts say which are drafts.
+    const contracts = [{ contractId: 'restated:TEST-ONLY', items: [{ itemId: 'T-1', category: DRAFT_KNOWLEDGE }, { itemId: 'T-2', category: DRAFT_KNOWLEDGE }, { itemId: 'T-3' }] }]
+    const fixture = {
+        game: {},
+        status: {
+            entailed: [{ collection: 'teams', leaf: 'count', supportedBy: [{ contractId: 'restated:TEST-ONLY', itemId: 'T-1' }, { contractId: 'restated:TEST-ONLY', itemId: 'T-3' }] }],
+            instantiations: [{ handle: 'zone-1', satisfies: 'c:restated:TEST-ONLY:T-2#1' }],
+        },
+    }
+    const rendered = {
+        instructions: [
+            { section: 'TEST-ONLY', text: 'TEST-ONLY count', from: ['teams[].count'] },
+            { section: 'TEST-ONLY', text: 'TEST-ONLY zone', from: ['objects[zone-1].width'] },
+            { section: 'TEST-ONLY', text: 'TEST-ONLY other', from: ['field.length'] },
+        ],
+        withheld: [],
+    } as any
+    assert.deepEqual(
+        reviewDraftOf([fixture], rendered, [], contracts).instructions.map(instruction => instruction.draftSources),
+        [['restated:TEST-ONLY::T-1'], ['restated:TEST-ONLY::T-2'], undefined],
+        'a count a draft item decided, and an element instantiated to satisfy one, name it; an approved item does not',
+    )
+    assert.deepEqual(
+        reviewDraftOf([fixture], rendered, []).instructions.map(instruction => instruction.draftSources),
+        [undefined, undefined, undefined],
+    )
 }
 
 /* ── A production build carries none of it ───────────────────────────────────────────────────────────────────────────────── */
