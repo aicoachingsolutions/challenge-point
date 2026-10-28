@@ -77,11 +77,13 @@ not compared commit by commit.
 | 2026-08-04 06:09 -0400 | `1c71f9a38bb4ed093829879077ff756f013b4a7b` | "Ingest Christian's authoring pass — the workbook is now the authority". In `game_forms`: `canonical_game_archetype_id` and `primary_game_problem_ids` on all eleven, `secondary_game_problem_ids` on all but GF10, and GF10's `coach_vocabulary`. |
 | 2026-08-05 18:29 -0400 | `c05c223dbb0fe88f1ef5857e08f207b14ba1eb21` | "Twelfth case FIXED — all 12 decisions reproduce the baseline exactly". Four assembly fields on all eleven: `typical_affordances`, `setup_guidance`, `example_constraint_patterns`, `example_incentive_patterns`. |
 | 2026-09-13 19:55 -0400 | `e9545411ebbeedddcf21e1db2af99a2c572cec00` | "Resolve the primary scoring event before generation; guided goals select within their context". `scoring_structure_type` on all eleven. This is the last change to the module workbook. |
-| 2026-09-29 14:58 -0400 | `0a3170ea93b9e4fda05070e1d1f6480c745a2ad2` | "Apply the thirteen rulings: envelope bound, AM-04, vocabulary, reason codes". GF4 and GF8 `primary_affordance_ids` changed from "exploit_space; fast_attack; regain" to "exploit_space; attack_quickly; regain_possession" in the module JSON and in `archetypes.ts`. |
+| 2026-09-29 14:58 -0400 | `0a3170ea93b9e4fda05070e1d1f6480c745a2ad2` | "Apply the thirteen rulings: envelope bound, AM-04, vocabulary, reason codes". For GF4 and GF8: in the module JSON, `primary_affordance_ids` changed from "exploit_space; fast_attack; regain" to "exploit_space; attack_quickly; regain_possession"; in `archetypes.ts`, `primaryAffordances` changed from `["exploit_space","fast_attack","regain"]` to `["exploit_space","attack_quickly","regain_possession"]`. |
 
 **A difference between the copies (measured for this record).** The 29 September change was made in the module JSON
-and `archetypes.ts` only. The module workbook (Game Forms I6 and I10) and the CSV still hold
-"exploit_space; fast_attack; regain" for GF4 and GF8. This record reports the difference and does not resolve it.
+and `archetypes.ts` only. For GF4 and GF8 the other copies still hold the earlier ids, each in its own form: the
+module workbook (Game Forms I6 and I10) "exploit_space; fast_attack; regain"; the CSV the quoted, comma-separated
+field "exploit_space, fast_attack, regain"; the extraction record "exploit_space; fast_attack; regain" (it is
+unchanged since 2 August, as above). This record reports the difference and does not resolve it.
 
 ## Fingerprints of the CSV
 
