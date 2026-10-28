@@ -45,6 +45,8 @@ export interface OpenChoice {
     bounds: unknown[]
     /** `FREE(a)`, `FREE(b)` or `FREE(choice)` — which kind of freedom this is. */
     kind: string
+    /** B2 (28 October 2026): the draft items that narrow or bound the line (emit's `draftShapedBy`), carried only where there are any. */
+    draftShapedBy?: SupportRef[]
 }
 
 /** A line that is neither derived nor open. Absence is never a decision. */
@@ -581,6 +583,8 @@ export function assembleResolvedGame(result: DerivationResult, classes: ElementC
                 permitted: entry.permitted ? [...entry.permitted] : null,
                 bounds: entry.bounds ?? [],
                 kind: String(entry.verdict ?? ''),
+                // B2: an allowlist projection, so a field the open line carries is copied by name or lost; absent on every production line.
+                ...(entry.draftShapedBy?.length ? { draftShapedBy: entry.draftShapedBy.map(support => ({ ...support })) } : {}),
             })
             continue
         }

@@ -34,7 +34,9 @@
  * It does not touch generation. Nothing here calls the frozen activity-generation path.
  */
 import { bindingOf, boundRegionsRefusals, SportBoundRegions } from '../derivation/bound-regions'
-import { loadRegister, loadSportBoundRegions, loadSportCoachVocabulary, loadSportDefaultLaws, ProvisionalRealization, provisionalRealizationNamed, TestingBoundaries } from '../derivation/corpus'
+import { loadRegister, loadSportBoundRegions, loadSportCoachVocabulary, loadSportDefaultLaws, loadSportEnvironmentElements, ProvisionalRealization, provisionalRealizationNamed, TestingBoundaries } from '../derivation/corpus'
+import { LawsMateriality, lawsMaterialityRefusals } from '../derivation/default-laws'
+import { duplicateEnvironmentElements, SportEnvironmentElements } from '../derivation/environment-elements'
 import { isStampedHalt } from '../derivation/emit'
 import { runDerivation, runStages0to10, runStages0to5 } from '../derivation/engine'
 import { resolveRelativeCounts } from '../derivation/reassignment'
@@ -43,8 +45,8 @@ import { assembleResolvedGame, splitPath } from '../derivation/resolved-game'
 import { roleHolderNames, roleOfHolder } from '../derivation/designation'
 import { MissingParticipant, missingParticipantsIn, PARTICIPANTS_CHECK } from '../derivation/gates'
 import { roleBlocksOf } from '../derivation/role-blocks'
-import { BoundedSelection, CONTEXT_ROLE, contractCoverage, derivationInputFor, GoalSelectionGap, knowledgeKey, KnowledgeSelection, realizationOf, selectFor } from '../derivation/run-bounded-selection'
-import { LoadedContract, RoleBlock } from '../derivation/types'
+import { BoundedSelection, CONTEXT_ROLE, contractCoverage, derivationInputFor, DraftStoreContents, GoalSelectionGap, knowledgeKey, KnowledgeSelection, realizationOf, selectFor } from '../derivation/run-bounded-selection'
+import { DRAFT_KNOWLEDGE, DRAFT_KNOWLEDGE_VERSION, LoadedContract, RoleBlock } from '../derivation/types'
 import { gpLibrary } from '../knowledge-core/gp-library'
 import { completeConcreteGame, ObjectAvailabilityRefusal, objectAvailabilityRefusal, rosterRefusal, RosterRefusal } from '../realization/assemble-concrete-game'
 import { boundRegionAccountOf, BoundRegionRefusal, boundRegionRefusalAfter, boundRegionRefusalBefore } from '../realization/bound-region-check'
@@ -70,7 +72,8 @@ import { contextScoringFindings, EPISODE_REACHABLE_CHECK } from './context-scori
 import { draftCoachWordingLoad } from './draft-coach-wording'
 import { checkFidelity, FidelityFinding } from './fidelity'
 import { ReviewDraft, reviewDraftOf } from './review-draft'
-import { EvidenceBlock, LayoutFallback, ReviewEvidence, reviewEvidenceOf, withRealizationSelection } from './review-evidence'
+import { RelevanceJoinRules, RelevanceTrace, relevanceTraceOf } from './relevance-trace'
+import { ElementProvenance, elementProvenanceOf, EvidenceBlock, LayoutFallback, ReviewEvidence, reviewEvidenceOf, withRealizationSelection } from './review-evidence'
 import { mechanismDemonstration } from './mechanism-demonstrations'
 import { Instruction, RenderedActivity, renderConcreteGame } from './render-concrete-game'
 import { assembleRenderingFixture } from './rendering-fixture'
@@ -117,8 +120,12 @@ export interface ActivityAccount {
      * refused rather than scored by a set-up choice. `inThisActivity` is READ from the selection - is the
      * context's own contract among what shapes the game - not asserted: true for RPC-001 (A01), false for
      * every context without a contract.
+     *
+     * `contract` (B2, 28 October 2026; the review's M3): `DRAFT` where the context's contract in this build is one of the TEST-ONLY draft
+     * store's, so `inThisActivity` can never read as his knowledge applied; absent wherever the contract is production knowledge (always, in
+     * production).
      */
-    context: { id: string; name: string | null; approvedScoringCondition: string | null; inThisActivity: boolean } | null
+    context: { id: string; name: string | null; approvedScoringCondition: string | null; inThisActivity: boolean; contract?: 'DRAFT' } | null
     gameForm: { id: string; name: string | null; contracted: boolean }
     affordanceLenses: string[]
     /**
@@ -418,6 +425,41 @@ export interface ServedActivity {
      * a served sentence carries.
      */
     diagram?: CoachDiagram
+    /** TEST-ONLY (B2, 28 October 2026): the account of a build made from the draft store; see `DraftKnowledgeAccount`. */
+    draftKnowledge?: DraftKnowledgeAccount
+    /** TEST-ONLY (B3, 28 October 2026): the relevance trace of a composition-test build or a demonstration; see `relevanceOfBuilt`. */
+    relevance?: RelevanceTrace
+    /**
+     * **The sport's check of a composed activity, for an administrator only** (B4, 28 October 2026; `default-laws-check.ts`): the default-laws
+     * account the sport's check declared (`declaredBy: 'SPORT_PROFILE'`), with each owed adaptation MATERIAL or PROCEDURAL; on a served
+     * activity, what it owes is only PROCEDURAL, reported here for review. Carried only by the review build with drafts, and only where the
+     * sport's check (not a realization's own) held the activity, so the report never depends on a record asking for review evidence. Absent on
+     * every coach's answer and on every activity a realization's check holds (its account is in `evidence`, where the record asks for one).
+     */
+    lawsCheck?: DefaultLawsAccount
+}
+
+/**
+ * **What a build made from the TEST-ONLY draft store rested on, graded as the review evidence grades it** — B2, 28 October 2026 (E1-lite;
+ * the review's M2, M5 and M6). Present only on a build `buildActivityUnderAuthorizationRecords` made with a draft store, served or refused,
+ * and never on any route: no in-app view reads drafts. For an administrator's and a test's reading, never a coach's.
+ */
+export interface DraftKnowledgeAccount {
+    status: 'BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED'
+    /** The store: its folder, every DRAFT file it read, and every DRAFT file of the folder it does not read, with why. */
+    store: { folder: string; files: string[]; notRead: { file: string; why: string }[] }
+    /** The draft records the selection was offered (their goals). */
+    records: string[]
+    /** Every contract of this build's derivation input that the store loaded, with its items; empty where the build stopped before. */
+    contracts: { contractId: string; items: string[] }[]
+    /** Every draft declaration of this build's derivation input (a declaration can resolve lines on another contract's elements). */
+    declarations: { contractId: string; row: string; selector: string | null; declaration: string; note: string | null }[]
+    /**
+     * The provenance of every element of the game as built (the first block, for a game played in role blocks), by the review evidence's own
+     * reading (`elementProvenanceOf`): an element resting on a draft item shows the standing DRAFT and that item as a DRAFT source. Null where
+     * no game was assembled.
+     */
+    elements: ElementProvenance[] | null
 }
 
 /** The role blocks of a served activity, for the technical account (stage K3). */
@@ -484,6 +526,12 @@ export interface RefusedActivity {
      * by `buildActivityForReview` with `includeDrafts`, on a refusal at communication; never on a coach's, the pilot's or the live answer.
      */
     evidence?: ReviewEvidence
+    /** TEST-ONLY (B2, 28 October 2026): the account of a build made from the draft store; see `DraftKnowledgeAccount`. */
+    draftKnowledge?: DraftKnowledgeAccount
+    /** TEST-ONLY (B3, 28 October 2026): the relevance trace of a composition-test build or a demonstration; see `relevanceOfBuilt`. */
+    relevance?: RelevanceTrace
+    /** B4 (28 October 2026), for an administrator only: the sport's check of a composed activity; see `ServedActivity.lawsCheck`. */
+    lawsCheck?: DefaultLawsAccount
 }
 
 /**
@@ -547,6 +595,8 @@ function contextOf(contextId: string, selection: KnowledgeSelection): ActivityAc
         // Narrative, carried and never parsed - the library's own rule for this property.
         approvedScoringCondition: condition || null,
         inThisActivity: selection.contracted.some(id => knowledgeKey(id) === knowledgeKey(contextId)),
+        // B2: only where the context's contract is the draft store's (never in production).
+        ...((selection.draftContracts ?? []).some(contract => knowledgeKey(contract.contractId) === knowledgeKey(contextId)) ? { contract: 'DRAFT' as const } : {}),
     }
 }
 
@@ -1052,10 +1102,20 @@ export function buildActivityFromKnowledge(
      * Also tests only, added 15 October 2026 (stage H3): the same COPIES `buildActivityOverAlteredKnowledge` alters — the
      * contracts and the realization choices — for a mechanism proof that needs the fixture it was realized into.
      */
-    options: { alter?: (contracts: LoadedContract[]) => void; alterSupplied?: (supplied: SuppliedRealization) => void } = {},
+    options: {
+        alter?: (contracts: LoadedContract[]) => void
+        alterSupplied?: (supplied: SuppliedRealization) => void
+        /**
+         * B3 (28 October 2026), tests only: attach the relevance trace (`relevance-trace.ts`) for this Game Problem, with the DRAFT join rules the
+         * test loaded (`draft-store.ts` `loadRelevanceJoinRules`). A demonstration resolves no Game Problem, so the test names it.
+         */
+        relevance?: { joinRules: RelevanceJoinRules; gameProblemId: string }
+    } = {},
 ): { activity: ServedActivity | RefusedActivity; fixture: Record<string, unknown> | null } {
-    const { activity, fixture } = build({ kind: 'mechanism-demonstration', demonstrationId: '', session }, options.alter ?? null, selected, null, learningGoalAuthorizations(), options.alterSupplied ?? null)
-    return { activity, fixture }
+    const observed = options.relevance ? { contracts: null as LoadedContract[] | null } : null
+    const built = build({ kind: 'mechanism-demonstration', demonstrationId: '', session }, options.alter ?? null, selected, null, learningGoalAuthorizations(), options.alterSupplied ?? null, { includeDrafts: false }, null, undefined, null, observed)
+    if (options.relevance && observed) built.activity.relevance = relevanceOfBuilt(built, observed.contracts, null, options.relevance)
+    return { activity: built.activity, fixture: built.fixture }
 }
 
 /**
@@ -1120,8 +1180,36 @@ export function buildActivityUnderAuthorizationRecords(
          * validator ran here, and it did not: the copy was only deep-copied.)
          */
         boundRegions?: SportBoundRegions | null
+        /**
+         * B2 (28 October 2026; E1-lite), tests only: the draft store to build over (`draft-store.ts` `loadDraftStore`, which no production
+         * module imports), its contracts made visible to selection's contract coverage and to derivation's input through the selection, its
+         * DRAFT records offered beside `records` under their own inverted gate, and the build's answer given a `draftKnowledge` account.
+         * Absent: no draft is read, and the build is exactly what it was.
+         */
+        drafts?: DraftStoreContents
+        /**
+         * B3 (28 October 2026), tests only: attach the relevance trace (`relevance-trace.ts`) of this build — a composition test made from the
+         * draft store, or a goal's build compared beside one — with the DRAFT join rules the test loaded (`loadRelevanceJoinRules`). The Game
+         * Problem is the goal's, as selection resolved it, unless the test names one. Absent: no trace, and the build is exactly what it was.
+         */
+        relevance?: { joinRules: RelevanceJoinRules; gameProblemId?: string }
+        /**
+         * B4 (28 October 2026), tests only: the classification of the profile's laws by his materiality test that the sport's check reads for
+         * a composed activity (`draft-store.ts` `loadLawsMateriality`, our DRAFT reading; or a TEST-ONLY copy of it), held again here to the
+         * gate the file is (`lawsMaterialityRefusals`), so a copy it refuses throws. Absent: nothing is classified, as in production, and every
+         * owed adaptation counts as MATERIAL.
+         */
+        lawsMateriality?: LawsMateriality
     } = {},
 ): ActivityBuild & { fixture: Record<string, unknown> | null } {
+    const givenMateriality = (given: LawsMateriality | undefined): LawsMateriality | null => {
+        if (!given) return null
+        const copy = JSON.parse(JSON.stringify(given)) as LawsMateriality
+        const { file: _file, ...raw } = copy
+        const errors = lawsMaterialityRefusals(raw, loadSportDefaultLaws())
+        if (errors.length) throw new Error(`a TEST-ONLY classification of the laws is refused by the gate the DRAFT file is held to: ${errors.join('; ')}`)
+        return copy
+    }
     const givenBoundRegions = (block: SportBoundRegions | null | undefined): SportBoundRegions | null | undefined => {
         if (block === undefined || block === null) return block
         const copy = JSON.parse(JSON.stringify(block)) as SportBoundRegions
@@ -1131,17 +1219,110 @@ export function buildActivityUnderAuthorizationRecords(
     }
     // The selection and the digests (live-app fix, 22 October 2026) are returned too, so a test of the live pathway can run it over COPIES of the
     // records exactly as the live route runs it over the file's (`live-activity.ts`); nothing that serves a coach calls this.
-    return build(
+    const drafts = options.drafts ? { store: JSON.parse(JSON.stringify(options.drafts)) as DraftStoreContents, seen: { contracts: null as LoadedContract[] | null } } : null
+    const observed = options.relevance ? { contracts: null as LoadedContract[] | null } : null
+    const built = build(
         request,
         options.alter ?? null,
         null,
         options.alterSelection ?? null,
-        JSON.parse(JSON.stringify(records)),
+        JSON.parse(JSON.stringify(drafts ? [...records, ...drafts.store.records] : records)),
         options.alterSupplied ?? null,
         { includeDrafts: options.review?.includeDrafts === true },
         options.realizations ? JSON.parse(JSON.stringify(options.realizations)) : null,
         givenBoundRegions(options.boundRegions),
+        drafts,
+        observed,
+        givenMateriality(options.lawsMateriality),
     )
+    if (drafts) built.activity.draftKnowledge = draftKnowledgeAccountOf(drafts.store, built, drafts.seen.contracts)
+    if (options.relevance && observed) built.activity.relevance = relevanceOfBuilt(built, observed.contracts, request.goalId, options.relevance)
+    return built
+}
+
+/**
+ * **The relevance trace of a TEST-ONLY build** (B3, 28 October 2026; `relevance-trace.ts`): read from what the build hands back — the review
+ * evidence's own element provenance where the build made one (merged across role blocks), else the reading the draft account uses on the one
+ * game (`elementProvenanceOf` over the contracts this attempt derived from) — with every block's game, and the Game Problem selection resolved
+ * unless the test names one. Never called on a route: only `buildActivityUnderAuthorizationRecords` and `buildActivityFromKnowledge` reach it.
+ */
+function relevanceOfBuilt(
+    built: { activity: ServedActivity | RefusedActivity; fixture: Record<string, unknown> | null },
+    contracts: LoadedContract[] | null,
+    learningGoalId: string | null,
+    given: { joinRules: RelevanceJoinRules; gameProblemId?: string },
+): RelevanceTrace {
+    const activity = built.activity
+    const fixture: any = built.fixture
+    const index = indexRegister(loadRegister())
+    const blocks: any[] = Array.isArray(fixture?.roleBlocks?.blocks) ? fixture.roleBlocks.blocks : []
+    const games = fixture ? (blocks.length ? blocks.map(block => ({ blockId: String(block.blockId), holders: { ...(block.holders ?? {}) }, fixture: block.fixture })) : [{ blockId: ONE_GAME, holders: {}, fixture }]) : []
+    const composed: RenderedActivity =
+        activity.outcome === 'served'
+            ? activity.rendered
+            : activity.draft
+              ? ({ instructions: activity.draft.instructions, withheld: activity.draft.withheld } as unknown as RenderedActivity)
+              : ({ instructions: [], withheld: [] } as unknown as RenderedActivity)
+    const elements =
+        activity.evidence?.provenance?.elements ??
+        (fixture && contracts
+            ? elementProvenanceOf({
+                  blocks: [{ blockId: ONE_GAME, holders: {}, fixture, contracts, rendered: composed, findings: [], gateChecks: [], owed: [] }],
+                  composed,
+                  adjustments: new Map(),
+                  relationships: new Map(contextRelationships().map(relationship => [relationship.id, relationship] as const)),
+                  index,
+                  defaultLaws: null,
+              }).elements
+            : [])
+    return relevanceTraceOf({
+        elements,
+        contracts: contracts ?? [],
+        games,
+        gameProblemId: given.gameProblemId ?? activity.account?.gameProblem?.gameProblemId ?? null,
+        learningGoalId,
+        index,
+        joinRules: given.joinRules,
+    })
+}
+
+/**
+ * **The account of a build made from the draft store** (B2, 28 October 2026; `DraftKnowledgeAccount`): read from the derivation input the
+ * build last assembled (after any TEST-ONLY alteration, so it describes what was derived), the selection, and the game as built.
+ */
+function draftKnowledgeAccountOf(store: DraftStoreContents, built: ActivityBuild & { fixture: Record<string, unknown> | null }, derived: LoadedContract[] | null): DraftKnowledgeAccount {
+    const isDraft = (contract: LoadedContract) => contract.knowledgeVersion === DRAFT_KNOWLEDGE_VERSION || (contract.items ?? []).some(item => item.category === DRAFT_KNOWLEDGE)
+    const input = derived ?? []
+    const activity = built.activity
+    const composed: RenderedActivity =
+        activity.outcome === 'served'
+            ? activity.rendered
+            : activity.draft
+              ? ({ instructions: activity.draft.instructions, withheld: activity.draft.withheld } as unknown as RenderedActivity)
+              : ({ instructions: [], withheld: [] } as unknown as RenderedActivity)
+    const block: EvidenceBlock = { blockId: ONE_GAME, holders: {}, fixture: built.fixture, contracts: input, rendered: composed, findings: [], gateChecks: [], owed: [] }
+    return {
+        status: 'BUILT_FROM_DRAFT_KNOWLEDGE_NOT_APPROVED',
+        store: { folder: store.folder, files: [...store.files], notRead: store.notRead.map(entry => ({ ...entry })) },
+        records: store.records.map(record => record.learningGoalId),
+        contracts: input.filter(isDraft).map(contract => ({ contractId: contract.contractId, items: (contract.items ?? []).filter(item => item.category === DRAFT_KNOWLEDGE).map(item => item.itemId) })),
+        declarations: input.flatMap(contract =>
+            ((contract.declarations ?? []) as any[])
+                .filter(declaration => declaration?.category === DRAFT_KNOWLEDGE)
+                .map(declaration => ({ contractId: contract.contractId, row: String(declaration.row), selector: declaration.selector ?? null, declaration: String(declaration.declaration), note: declaration.note ?? null })),
+        ),
+        elements:
+            built.fixture && derived
+                ? elementProvenanceOf({
+                      blocks: [block],
+                      composed,
+                      adjustments: new Map(),
+                      relationships: new Map(contextRelationships().map(relationship => [relationship.id, relationship] as const)),
+                      index: indexRegister(loadRegister()),
+                      defaultLaws: null,
+                  }).elements
+                : null,
+    }
 }
 
 function build(
@@ -1167,8 +1348,22 @@ function build(
      * copy), or null for none. Undefined: the file's (`loadSportBoundRegions`), read once here for every game of this build.
      */
     boundRegionsGiven: SportBoundRegions | null | undefined = undefined,
+    /**
+     * B2, tests only (`buildActivityUnderAuthorizationRecords` with a draft store): the store, threaded into the goal's selection, and where
+     * the derivation input each attempt assembles is noted for the build's `draftKnowledge` account. Null: no draft is read.
+     */
+    drafts: { store: DraftStoreContents; seen: { contracts: LoadedContract[] | null } } | null = null,
+    /** B3, tests only (a build asked for its relevance trace): where the derivation input each attempt assembles is noted. Null: nothing is. */
+    observed: { contracts: LoadedContract[] | null } | null = null,
+    /**
+     * B4, tests only (`buildActivityUnderAuthorizationRecords` `lawsMateriality`): the classification the sport's check reads for a composed
+     * activity. Null: none, as in production, so every owed adaptation counts as MATERIAL.
+     */
+    lawsMateriality: LawsMateriality | null = null,
 ): ActivityBuild & { fixture: Record<string, unknown> | null } {
     const boundRegions: SportBoundRegions | null = boundRegionsGiven === undefined ? loadSportBoundRegions() : boundRegionsGiven
+    // B2 (28 October 2026): the playing environment's elements, read once for every game of this build (the guard in `buildOneGame`).
+    const environment: SportEnvironmentElements | null = loadSportEnvironmentElements()
     const { kind, title, subtitle } = composed ? { kind: 'mechanism-demonstration' as const, title: composed.join(' + '), subtitle: null } : describeRequest(request)
     // "This goal …" for a Learning Goal and "This demonstration …" for a demonstration: a demonstration is
     // never described to a coach as a goal, in a refusal any more than in a title.
@@ -1211,7 +1406,13 @@ function build(
         selection = demonstrationSelection(composed)
     } else if (request.kind === 'learning-goal') {
         try {
-            goalSelection = selectFor(request.goalId, request.situationId ?? null, records, realizations ? realizations.map(realization => realization.provisionalId) : undefined)
+            goalSelection = selectFor(
+                request.goalId,
+                request.situationId ?? null,
+                records,
+                realizations ? realizations.map(realization => realization.provisionalId) : undefined,
+                drafts ? { contracts: drafts.store.contracts, draftsAdmitted: true } : undefined,
+            )
         } catch (error) {
             /**
              * **A knowledge gap is told apart from a selection that did not resolve.** Christian, 14 October
@@ -1234,7 +1435,7 @@ function build(
         if (alterSelection) {
             goalSelection = JSON.parse(JSON.stringify(goalSelection)) as BoundedSelection
             alterSelection(goalSelection)
-            Object.assign(goalSelection, contractCoverage(goalSelection.selected))
+            Object.assign(goalSelection, contractCoverage(goalSelection.selected, goalSelection.draftContracts ?? []))
         }
         selection = goalSelection
     } else {
@@ -1431,6 +1632,10 @@ function build(
         const relationships = contextRelationships()
         const deferral = applyRealizationDeferrals(input.contracts as LoadedContract[], relationships, indexRegister(input.register))
         input.contracts = applyRoleYields(deferral.contracts, relationships, indexRegister(input.register))
+        // B2, tests only: what this attempt derives from, for the draft-knowledge account (a copy; nothing reads it back into the build).
+        if (drafts) drafts.seen.contracts = JSON.parse(JSON.stringify(input.contracts)) as LoadedContract[]
+        // B3, tests only: the same, for a build asked for its relevance trace.
+        if (observed) observed.contracts = JSON.parse(JSON.stringify(input.contracts)) as LoadedContract[]
         /**
          * **The record's lists read the provisional realization derivation actually received** (15 October 2026, stage K2), so
          * the review page and the game can never disagree about which provisional choices shaped it. Production passes the
@@ -1496,7 +1701,7 @@ function build(
             ...(movers.has(entry.id) ? { moves: { role: movers.get(entry.id)! } } : {}),
         }))
         const alternatives = deferral.deferred.map(alternativeOf)
-        const game: GameContext = { subject, session, selection, context, alterSupplied, adjustments, alternatives, boundRegions }
+        const game: GameContext = { subject, session, selection, context, alterSupplied, adjustments, alternatives, boundRegions, environment }
         /**
          * A game built through to communication becomes the served activity; one refused on the way says where. `games` are the games it was
          * rendered from, each with its block id, for the input digests the live save compares (L3, 22 October 2026); nothing served carries them.
@@ -1581,9 +1786,17 @@ function build(
          * The design's DRAFT sentence for the coach is shown there as held, and nothing a coach reads changes.
          */
         const receivedRealization = provisionalRealization ? (((input.contracts as LoadedContract[]).find(contract => contract.contractId === provisionalRealization.contractId) as ProvisionalRealization | undefined) ?? null) : null
+        /**
+         * B4, 28 October 2026 (R8's E4a): a Learning Goal's activity is a composed one, held to the sport's own check where its realization
+         * declares none (`defaultLawsAccountOf` decides; a realization's own check still wins). Christian, his reply filed 30 October 2026,
+         * item 4: *"Material unresolved conflicts affecting the activity's meaning, safety, or structural validity should prevent approval."*
+         * Branches on the build's subject kind only, as the holds above do, naming no goal: an engineering demonstration is never held (his
+         * 13 October standard keeps engineering demonstrations apart from learning-design activities).
+         */
+        const composedCheck = kind === 'learning-goal' ? { materiality: lawsMateriality } : null
         const lawAccountOf = (games: { blockId: string; game: unknown; roleBlock: RoleBlock | null }[]): DefaultLawsAccount | null => {
-            if (!receivedRealization?.defaultLawsCheck) return null
-            const held = draftCoachWordingLoad().wording.normalLaws
+            if (!receivedRealization?.defaultLawsCheck && !composedCheck) return null
+            const held = receivedRealization?.defaultLawsCheck ? draftCoachWordingLoad().wording.normalLaws : null
             return defaultLawsAccountOf({
                 realization: receivedRealization,
                 laws: loadSportDefaultLaws(),
@@ -1593,17 +1806,36 @@ function build(
                 heldSentence: held ? { text: held.words, status: 'DRAFT_HELD_NOT_SERVED', basis: { words: [...held.basis.words], citedAs: held.basis.citedAs } } : null,
                 // H3: the bound-region block this build checked the games against, whose pairings give a bound region's mark.
                 boundRegions,
+                composed: composedCheck,
             })
         }
         // The summary is DRAFT coach wording (H3 carries the H2 review's should-fix 6: it was not labelled so), reachable only where a
         // realization declares ENFORCE and owes an adaptation - on 23 October 2026 only a TEST-ONLY completion of the goal version does.
-        const lawRefusalOf = (lawAccount: DefaultLawsAccount | null): ReturnType<typeof refuse> | null =>
-            lawAccount && lawAccount.mode === 'ENFORCE' && lawAccount.owed.length
-                ? refuse('validation', `Where this activity departs from the sport's normal rules has not all been decided yet, so it is not being shown.`, [
+        // B4: and where the sport's check holds a composed activity owing a MATERIAL adaptation (the same summary; the reasons name the check,
+        // each material adaptation, and then each procedural one, reported). A PROCEDURAL adaptation alone refuses nothing.
+        const lawRefusalOf = (lawAccount: DefaultLawsAccount | null): ReturnType<typeof refuse> | null => {
+            const summary = `Where this activity departs from the sport's normal rules has not all been decided yet, so it is not being shown.`
+            const materiality = lawAccount?.materiality
+            if (lawAccount && materiality) {
+                const n = materiality.material.length
+                return n
+                    ? refuse('validation', summary, [
+                          `the sport's default-laws check (${lawAccount.mode}, ${lawAccount.check.basis.citedAs}) holds this composed activity: ${n} material adaptation${n === 1 ? ' is' : 's are'} owed, which prevent${n === 1 ? 's' : ''} approval`,
+                          ...materiality.material,
+                          ...materiality.reportedForReview.map(sentence => `reported for review, not refused: ${sentence}`),
+                      ])
+                    : null
+            }
+            return lawAccount && lawAccount.mode === 'ENFORCE' && lawAccount.owed.length
+                ? refuse('validation', summary, [
                       `the provisional realization ${lawAccount.realization} holds its activity to the normal laws (ENFORCE), and ${lawAccount.owed.length} adaptation${lawAccount.owed.length === 1 ? ' is' : 's are'} owed`,
                       ...lawAccount.owed,
                   ])
                 : null
+        }
+        /** B4: the sport's check of a composed activity, for an administrator's review build only (`ServedActivity.lawsCheck`). */
+        const lawsCheckKeys = (lawAccount: DefaultLawsAccount | null): { lawsCheck?: DefaultLawsAccount } =>
+            review.includeDrafts && lawAccount?.declaredBy === 'SPORT_PROFILE' ? { lawsCheck: JSON.parse(JSON.stringify(lawAccount)) as DefaultLawsAccount } : {}
         const rolesRow = roleIndex.roleBlocks?.rolesRow
         /**
          * Stage D (23 October 2026, register version 18): a selection carrying an item on the end-assignment row (B10) is asked too, so an
@@ -1743,9 +1975,10 @@ function build(
                     reviewEvidenceFor(review, goalSelection, account, roleIndex, session, outcome, composed, composition, checks, games.map(entry => ({ blockId: entry.block.blockId, holders: { ...entry.block.holders }, ...(entry.block.ends ? { ends: { ...entry.block.ends } } : {}), fixture: entry.fixture, contracts: entry.contracts, rendered: entry.rendered, ...entry.evidence })), layoutFallback, overview, lawAccount, boundRegions)
                 /** The admin-only draft of the composed activity (stage K7), attached to a refusal at communication where it was asked for. */
                 const withDraft = (refusal: ReturnType<typeof refuse>) => {
-                    if (review.includeDrafts) (refusal.activity as RefusedActivity).draft = reviewDraftOf(games.map(entry => entry.fixture), composed, [...games.flatMap(entry => entry.violations), ...violations])
+                    if (review.includeDrafts) (refusal.activity as RefusedActivity).draft = reviewDraftOf(games.map(entry => entry.fixture), composed, [...games.flatMap(entry => entry.violations), ...violations], games.flatMap(entry => entry.contracts))
                     const evidence = evidenceOf(refusal.activity.outcome === 'refused' ? refusal.activity.stage : 'served')
                     if (evidence) (refusal.activity as RefusedActivity).evidence = evidence
+                    Object.assign(refusal.activity, lawsCheckKeys(lawAccount))
                     return refusal
                 }
                 // H2: under ENFORCE a game owing an adaptation is refused at validation, before any refusal at communication.
@@ -1796,6 +2029,8 @@ function build(
                         },
                         // Stage K8: the admin-only review evidence, where the goal's record asks for one; absent on every coach's answer.
                         ...((evidence => (evidence ? { evidence } : {}))(evidenceOf('served', overview.evidence))),
+                        // B4: the sport's check of a composed activity, for an administrator only (what it owes is procedural, reported).
+                        ...lawsCheckKeys(lawAccount),
                         // Stage 3D: the overview where it agrees (every viewer); its draft and the check's findings for an administrator only.
                         ...overviewKeys(overview),
                         // Stage 5A/5B: the diagram where it agrees (every viewer); its model and the checks' findings for an administrator only.
@@ -1833,10 +2068,11 @@ function build(
             // Stage E: a typed applicability refusal keeps its type (and an ASK its question), exactly as a role block's does.
             const refusal = lawRefusal ?? refuse(one.stage, one.summary, one.reasons, one.applicability ?? null, one.question ?? null)
             // The admin-only draft (stage K7): only on a refusal at communication, only where the review asked for it.
-            if (review.includeDrafts && one.communication) (refusal.activity as RefusedActivity).draft = reviewDraftOf([one.fixture], one.communication.rendered, one.communication.violations)
+            if (review.includeDrafts && one.communication) (refusal.activity as RefusedActivity).draft = reviewDraftOf([one.fixture], one.communication.rendered, one.communication.violations, one.communication.contracts)
             // And the admin-only review evidence (stage K8), where the goal's record asks for one.
             const evidence = one.communication && one.fixture ? reviewEvidenceFor(review, goalSelection, account, roleIndex, session, lawRefusal ? 'validation' : one.stage, one.communication.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.communication.contracts, rendered: one.communication.rendered, ...one.communication.evidence }], null, null, lawAccount, boundRegions) : null
             if (evidence) (refusal.activity as RefusedActivity).evidence = evidence
+            Object.assign(refusal.activity, lawsCheckKeys(lawAccount))
             return refusal
         }
         // H2: the default-laws account of the one game, where the realization being tried declares the check; under ENFORCE, owed refuses.
@@ -1846,12 +2082,13 @@ function build(
             fixture = one.fixture
             const evidence = reviewEvidenceFor(review, goalSelection, account, roleIndex, session, 'validation', one.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.contracts, rendered: one.rendered, ...one.evidence }], null, null, oneLawAccount, boundRegions)
             if (evidence) (oneLawRefusal.activity as RefusedActivity).evidence = evidence
+            Object.assign(oneLawRefusal.activity, lawsCheckKeys(oneLawAccount))
             return oneLawRefusal
         }
         // Stage 3D: the overview of the one game, checked against its Details (which are what a coach is served).
         const overview = overviewOf([{ blockId: ONE_GAME, fixture: one.fixture, rendered: one.rendered }], one.rendered.instructions)
         const evidence = reviewEvidenceFor(review, goalSelection, account, roleIndex, session, 'served', one.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.contracts, rendered: one.rendered, ...one.evidence }], null, overview.evidence, oneLawAccount, boundRegions)
-        return serve(one, { ...(evidence ? { evidence } : {}), ...overviewKeys(overview), ...diagramKeys([{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, rendered: one.rendered.instructions }], one.rendered.instructions, null) }, [{ blockId: ONE_GAME, fixture: one.fixture }])
+        return serve(one, { ...(evidence ? { evidence } : {}), ...lawsCheckKeys(oneLawAccount), ...overviewKeys(overview), ...diagramKeys([{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, rendered: one.rendered.instructions }], one.rendered.instructions, null) }, [{ blockId: ONE_GAME, fixture: one.fixture }])
     }
 
     /**
@@ -2056,6 +2293,8 @@ interface GameContext {
     alternatives: Alternative[]
     /** H3: the Sport Profile's bound-region block the bound-region check reads (the file's, or a test's copy); null where there is none. */
     boundRegions: SportBoundRegions | null
+    /** B2: the Sport Profile's record of the playing environment's elements (`environment-elements.ts`); null where the profile carries none. */
+    environment: SportEnvironmentElements | null
 }
 
 /** One game built from its derivation input to communication, or the stage it stopped at. */
@@ -2129,7 +2368,7 @@ const STAGE_ORDER: ActivityStage[] = ['session', 'selection', 'knowledge', 'stru
  * K3) so that a game played in role blocks runs it once per block. Every refusal sentence, reason and order is what it
  * was: measured, every goal and demonstration answers byte-identically through the review route.
  */
-function buildOneGame(input: any, { subject, session, selection, context, alterSupplied, adjustments, alternatives, boundRegions }: GameContext): GameOutcome {
+function buildOneGame(input: any, { subject, session, selection, context, alterSupplied, adjustments, alternatives, boundRegions, environment }: GameContext): GameOutcome {
     let fixture: any = null
     // Stage E: a typed applicability refusal carries its type (and an ASK its question) for the build's loop; every other refusal is as before.
     const refuse = (stage: ActivityStage, summary: string, reasons: string[], typed: { applicability?: Applicability | null; question?: SessionQuestion } = {}): GameOutcome => ({
@@ -2301,6 +2540,16 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
         designationBindings: (realized.record as any).designationBindings ?? null,
     })
     if (boundAfter) invalid.push(`the regions bound to the game's objects do not hold after realization (${boundAfter.cause}): ${boundAfter.why}`)
+    /**
+     * **One element of the playing environment, not a second one because two components refer to it** — B2, 28 October 2026
+     * (`environment-elements.ts`, which quotes his reply filed 30 October 2026, item 6). After realization (a recorded identification has been
+     * applied, so the element it lets the environment's stand for is gone) and before communication: a second element beside an environment
+     * element, in its collection with its authored selector, is named and refuses the game here, where until now it was refused only at
+     * communication, indirectly (the renderer said the element once). Like a bound-region break, it keeps a staffing shortfall beside it
+     * from being typed: the roster is then not the one thing wrong. Empty for every game holding one such element.
+     */
+    const duplicates = duplicateEnvironmentElements(realized.game, environment)
+    invalid.push(...duplicates)
     if (!post.validated) {
         /**
          * **What the gates reported is carried, not summarised away.** This used to push one fixed sentence —
@@ -2315,7 +2564,7 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
         // stated is asked. Every other roster cause is typed as nothing, as before. Typed ONLY where the roster is the one thing wrong with
         // this game (`onlyTheRosterStopped`, the stage E fix): beside a broken realization or a check that fails, it is typed as nothing, so
         // the alternative refuses the activity rather than falling back with the break behind it.
-        const typedRoster = !boundAfter && onlyTheRosterStopped(acceptanceBroken, post)
+        const typedRoster = !boundAfter && !duplicates.length && onlyTheRosterStopped(acceptanceBroken, post)
         const rosterApplicability: Applicability | null = !typedRoster
             ? null
             : roster?.cause === 'AVAILABILITY_SHORT'
@@ -2436,6 +2685,10 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
      * realized game, the composed items of the realization being tried and the session), made here for this one game before it is rendered,
      * and only where that realization declares `defaultLawsCheck`; every other game assembles exactly as before. Carried as each law's id,
      * place and status (`rendering-fixture.ts`); a test holds it equal to the review evidence's account, block by block.
+     *
+     * B4 (28 October 2026): only a realization's own check crosses here. The sport's check of a composed activity (`lawAccountOf`, above)
+     * goes to the build's refusal and the administrator only, never to the renderer, so it adds no coach wording: a composition's coach text
+     * is what it was without the check (`default-laws-composition.unit.ts` holds it so).
      */
     const tried = realizationOf(selection)
     const triedReceived = tried ? ((input.contracts as LoadedContract[]).find(contract => contract.contractId === tried.contractId) as ProvisionalRealization | undefined) : undefined

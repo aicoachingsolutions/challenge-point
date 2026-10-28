@@ -445,6 +445,53 @@ export const rpcLibrary = {
     deferredStaging: (): RpcRow[] => WB.implementation_staging.filter((r) => text(r, 'mapping_status') === 'DEFERRED'),
 }
 
+/** One game form's authored relationship to Game Problems and its archetype, each field as the sport's module writes it. */
+export interface GameFormGameProblemMapping {
+    gameFormId: string
+    archetypeId: string | null
+    primary: string[]
+    secondary: string[]
+    /** The three fields read, each with its value verbatim (null where the cell is empty). */
+    fields: { field: string; value: string | null }[]
+    /**
+     * B3 review: the module's own standing (its metadata, verbatim) and our provenance record's account of who wrote these cells, so a link the
+     * trace grades AUTHORIZED on them shows both: the cells are his authoring pass, in a module whose metadata still says DRAFT.
+     */
+    module: { standing: { field: string; value: string | null }[]; record: string }
+}
+
+const GAME_FORM_MAPPING_FIELDS = ['canonical_game_archetype_id', 'primary_game_problem_ids', 'secondary_game_problem_ids'] as const
+const MODULE_STANDING_FIELDS = ['module_status', 'approved_by', 'approval_date'] as const
+const GAME_FORM_MAPPING_RECORD =
+    'our provenance record (docs/GAME_FORM_LIBRARY_PROVENANCE.md): canonical_game_archetype_id and primary_game_problem_ids on all eleven forms, and secondary_game_problem_ids on all but GF10, entered the module with his authoring pass ingested on 4 August 2026 (1c71f9a)'
+
+/**
+ * **A game form's Game Problem mapping and archetype, read from the sport's module** — B3, 28 October 2026, for the relevance trace
+ * (`rendering/relevance-trace.ts`, review evidence only, never a selection input). Our provenance record says these fields entered the module
+ * with his authoring pass of 4 August (`docs/GAME_FORM_LIBRARY_PROVENANCE.md`). Here because this sport-layer file already reads the module's
+ * game forms (to resolve the Relationships sheet's GAME_FORM ids), so sport-neutral code reaches them without naming the sport. Read, never
+ * inferred: the ids are the cell split at `;`, and each field is returned verbatim beside them. Null where the module holds no such form.
+ */
+export function gameFormGameProblemMapping(gameFormId: string): GameFormGameProblemMapping | null {
+    const forms = (sportModuleWorkbook as unknown as { game_forms: RpcRow[] }).game_forms
+    const metadata = (sportModuleWorkbook as unknown as { metadata: Record<string, unknown> }).metadata
+    const row = forms.find((r) => text(r, 'game_form_id') === gameFormId)
+    if (!row) return null
+    const ids = (column: string): string[] =>
+        text(row, column)
+            .split(';')
+            .map((id) => id.trim())
+            .filter(Boolean)
+    return {
+        gameFormId,
+        archetypeId: text(row, 'canonical_game_archetype_id') || null,
+        primary: ids('primary_game_problem_ids'),
+        secondary: ids('secondary_game_problem_ids'),
+        fields: GAME_FORM_MAPPING_FIELDS.map((field) => ({ field, value: row[field] === null || row[field] === undefined ? null : String(row[field]) })),
+        module: { standing: MODULE_STANDING_FIELDS.map((field) => ({ field, value: metadata[field] === null || metadata[field] === undefined ? null : String(metadata[field]) })), record: GAME_FORM_MAPPING_RECORD },
+    }
+}
+
 /** REQUIRED before PRIMARY before SECONDARY before SUPPORTING; unknown strengths sort last. */
 function strengthRank(strength: string): number {
     const order = ['REQUIRED', 'PRIMARY', 'SECONDARY', 'SUPPORTING']

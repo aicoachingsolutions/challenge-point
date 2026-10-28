@@ -21,6 +21,7 @@ import { BoundRegionRequirement, boundRegionsRefusals, endRequirementsOf, Pairin
 import { repairCorpusEncoding, RepairTally } from './corpus-repair'
 import { applyNoRowRestatement, RestatementTally } from './corpus-restatement'
 import { DefaultLaws, DefaultLawsCheck, defaultLawsCheckRefusal, defaultLawsRefusals, departureRefusals, DEFAULT_LAWS_CHECK_KEY, DEPARTS_FROM_KEY, LawDeparture, RealizationDepartures } from './default-laws'
+import { environmentElementsFrom, SportEnvironmentElements } from './environment-elements'
 import { AUDITS_DIR } from './knowledge-root'
 import { objectPositionRefusal, ObjectPositionRows } from './object-extent'
 import { designationName, indexRegister, RegisterIndex } from './register'
@@ -62,7 +63,8 @@ export const CORPUS_ENVELOPE = { players: 12, lengthM: 40, widthM: 30, durationM
  * emitted line ids, so the rule is explicit and stable: a bracketed code, else a leading code token
  * carrying a digit, else the name slugged. It invents no knowledge — only a stable handle.
  */
-function objectIdOf(name: string, index: number): string {
+// Exported on 28 October 2026 (B2) so the TEST-ONLY draft store names a drafted contract's object by exactly this rule; behaviour unchanged.
+export function objectIdOf(name: string, index: number): string {
     const text = String(name || '').trim()
     const bracketed = text.match(/\(([A-Z][A-Z0-9-]*)\)/)
     if (bracketed) return bracketed[1]
@@ -260,6 +262,9 @@ export function loadSportDefaultLaws(read: (file: string) => any = readJson, ind
             listedFor: law.listedFor,
             restart: law.restart === true,
         })),
+        // B4 (28 October 2026): the sport's own check for a composed activity, validated above; read by the default-laws account
+        // (`default-laws-check.ts`) for a Learning Goal's activity whose realization declares no check. Null where the block declares none.
+        check: block.check === undefined ? null : { mode: block.check.mode, because: String(block.check.because), basis: { words: (block.check.basis.words as unknown[]).map(String), citedAs: String(block.check.basis.citedAs) } },
     }
 }
 
@@ -328,6 +333,18 @@ export function loadSportBoundRegions(read: (file: string) => any = readJson, in
             ...(Array.isArray(pairing.provisional) ? { provisional: JSON.parse(JSON.stringify(pairing.provisional)) as PairingProvisionalFigure[] } : {}),
         })),
     }
+}
+
+/**
+ * **The playing environment's elements, and the knowledge components recorded as referring to each** — B2, 28 October 2026
+ * (`environment-elements.ts`, which quotes his reply filed 30 October 2026, item 6). A record beside the Sport Profile's contribution, never
+ * items, so no derivation input changes; validated against the profile's own items and refused whole on any defect. Null where the profile
+ * carries none. `read` is a parameter ONLY so a test can hand a copy through the same refusal; production passes none.
+ */
+export function loadSportEnvironmentElements(read: (file: string) => any = readJson): SportEnvironmentElements | null {
+    const [file] = sportProfileFiles()
+    const [profile] = loadSportProfile(read)
+    return environmentElementsFrom(read(file), file, profile)
 }
 
 /**

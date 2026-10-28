@@ -34,6 +34,7 @@
     "./src/system/knowledge-core/em-canonical.unit.ts",
     "./src/system/knowledge-core/em-selection-metadata.unit.ts",
     "./src/system/knowledge-core/affordance-target-matrix.unit.ts",
+    "./src/system/knowledge-core/atm-workbook-projection.unit.ts",
     "./src/system/knowledge-core/gp-library.unit.ts",
     "./src/system/knowledge-core/game-archetype-library.unit.ts",
     "./src/system/knowledge-core/information-expression-library.unit.ts",
@@ -134,5 +135,10 @@
     "./src/system/rendering/zone-penalty-area.unit.ts",
     "./src/system/rendering/geometry-compatibility.unit.ts",
     "./src/system/rendering/pathway-notice.unit.ts",
-    "./src/system/rendering/placement-geometry.unit.ts"
+    "./src/system/rendering/placement-geometry.unit.ts",
+    "./src/system/derivation/draft-store.unit.ts",
+    "./src/system/derivation/environment-elements.unit.ts",
+    "./src/system/rendering/draft-composition.unit.ts",
+    "./src/system/rendering/relevance-trace.unit.ts",
+    "./src/system/realization/default-laws-composition.unit.ts"
 ]

@@ -167,6 +167,17 @@ export interface ContractItem {
  * carries it on 22 October 2026: whether any item yields is his ruling (restatement S1 of the note sent to him).
  */
 export const ROLE_YIELD_KEY = 'yieldsForRole'
+
+/**
+ * **Knowledge drafted by us and awaiting his review** — B2, 28 October 2026 (E1-lite). Christian, reply filed 30 October 2026: *"The
+ * draft-knowledge separation, specialized restart precedence, and other necessary structural safeguards are appropriate general
+ * improvements."* The category the TEST-ONLY draft store (`draft-store.ts`) stamps on every item and declaration it loads, and the knowledge
+ * version it stamps on every contract it loads. It travels exactly as PROVISIONAL_REALIZATION_CHOICE does (an item's `category`, copied onto
+ * its support entry at assembly), and the review evidence grades it DRAFT whatever basis the draft was written with: a basis never lends a
+ * draft approval. No production item, declaration or contract carries either value; only the draft store writes them.
+ */
+export const DRAFT_KNOWLEDGE = 'DRAFT_KNOWLEDGE'
+export const DRAFT_KNOWLEDGE_VERSION = 'draft'
 export const ROLE_YIELD_MARKERS = ['AUTHORIZED_ROLE_SCORING'] as const
 
 /**
@@ -554,6 +565,7 @@ export type SupportRef =
     // `category` (15 October 2026, stage K2): the item's own category where it carries one — today only an item of a
     // record-named provisional realization, PROVISIONAL_REALIZATION_CHOICE. Added at assembly (resolved-game.ts), so a
     // reader of the game can tell his choice for one activity from canonical knowledge (his 16 October item 10).
+    // B2 (28 October 2026): or DRAFT_KNOWLEDGE, an item of the TEST-ONLY draft store, copied the same way.
     | { kind: 'CONTRACT_ITEM'; contractId: string; itemId: string; relation: 'ENTAILS' | 'NARROWS' | 'CARRIES'; category?: string }
     | { kind: 'STANDING_DECISION'; id: string }
     | { kind: 'SESSION'; row: string }

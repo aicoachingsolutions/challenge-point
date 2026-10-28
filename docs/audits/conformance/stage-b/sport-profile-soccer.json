@@ -31,6 +31,20 @@
   },
   "restates": "deliberatelyNotContributed[0], with his authority (item 10): no law is authored as an item or a line of the game; the Laws are named as the default, and the laws below are listed only because each can fail to apply in a modified environment. AMENDED 24 October 2026 (R1): or, listed for DEPARTURE, only because an activity departs from it.",
   "note": "Added 23 October 2026 (H2, the d26 design's build step 2, its section 3.2). A declaration, never items: his item 10 excludes reconstructing the laws as representation. Only the laws that can fail to apply in a modified environment and matter for the two build-out realizations are listed; every other law applies by default and is not listed. Each law's preconditions are written in the engine's closed, sport-neutral predicate vocabulary (back/src/system/derivation/default-laws.ts): applicableWhen says when the law can apply at all, requires what it needs to apply directly. The law ids, the names and the 'penalty-area' token are ours (DRAFT); the facts are cited by IFAB law number. An activity's provisional realization records its departures on its own items (departsFrom) and declares how strictly its activity is held (defaultLawsCheck); the account is computed after realization and shown to an administrator (back/src/system/realization/default-laws-check.ts). The five decisions of the note sent to him (the goal and the penalty area, the same-source pairing rule, offside, penalty kicks, the goal line, handling in the zone version) are his and are not filled here. AMENDED 24 October 2026 (R1, the d27 design's section 2.6): each law says why it is listed (listedFor: ADAPTATION, a law that can fail to apply in a modified environment, which names the preconditions it needs; or DEPARTURE, a law listed only so an activity can record that it departs from it, which may need nothing to apply) and whether it is a law of how play restarts (restart, read by the account where a game holds the common dead-ball restart of register row RP1). Three laws are listed for DEPARTURE beside the six (LAW-8-DB, LAW-13, LAW-15), for his reply filed 27 October 2026, items 3 and 4 (\"There should be no separate corners, goal kicks, throw-ins, free kicks, or penalty kicks for this activity.\"), so every restart his common restart replaces is departed from explicitly (his reply filed 26 October 2026, item 10: \"The governing principle is to inherit established sport rules and explicitly define only the necessary departures.\"). Penalty kicks and the ball over the goal line (decisions 3 and 4) are answered for the build-out activity by those items; offside (decision 2) is answered by his item 2 and is not carried here; the goal and its penalty area (decision 1) and handling in the zone version (his item 5) are not filled here. AMENDED 24 October 2026 (R3, the d27 design's stage R3, its section 2.6): offside is now carried, as a departure an activity's realization records on itself (a law it removes without replacing it, so no item carries it), never here; an activity's realization records its departures on its own items or, for such a law, on itself. AMENDED 24 October 2026 (the completeness audit of the field-test build, item 1): a tenth law is listed, LAW-4-GK (IFAB Law 4.3, the goalkeeper's colours), for ADAPTATION, after the nine, for his reply filed 27 October 2026, item 6 (\"Goalkeeper identification: The goalkeeper should be visually distinguishable from the outfield players. Stable team identities and clear role labels remain important in the diagram.\"), so the DRAFT clause telling the coach to give the goalkeeper a colour neither team wears rests on the law of the sport that requires it and is said wherever a goalkeeper plays in a game this account is computed for, in both build-out versions, not only where the handling law applies. Its note says why it is listed and why it is never owed. AMENDED 25 October 2026 (Z): 'handling in the zone version (his item 5) are not filled here' is no longer true of handling: his reply filed 28 October 2026, item 7 answers it (\"I favor retaining a defined goalkeeper handling area in the target-zone version.\"), and LAW-12-GK now reads REGION_OF_PERFORMER, which the zone version's penalty area at the goalkeeper's own end satisfies. Nothing else in this note changes.",
+  "check": {
+   "mode": "BY_MATERIALITY",
+   "because": "B4, 28 October 2026 (ours; R8's E4a). Until now only an activity whose provisional realization declares defaultLawsCheck was held to the account, so a composed activity gained none. This check is the sport's, held only to a Learning Goal's activity whose realization declares no check of its own (a realization's own check wins; engineering demonstrations are never held). Each adaptation the account finds owed is MATERIAL, and the activity is refused before it is served, or PROCEDURAL, and it is reported for review and refuses nothing. An owed adaptation no classification names counts as MATERIAL (fail safe). No classification is held here or anywhere in production knowledge: our classification of these laws is a DRAFT for his review (docs/audits/drafts/laws-materiality.DRAFT.json), read only by composition-test builds, so in production every owed adaptation counts as MATERIAL.",
+   "basis": {
+    "words": [
+     "For offside and other Laws of the Game adaptations, normal rules remain the starting point, with explicit modifications where necessary.",
+     "For the general Laws check, I favor this distinction:",
+     "Material unresolved conflicts affecting the activity's meaning, safety, or structural validity should prevent approval.",
+     "Minor or nonessential procedural questions may be reported for review without stopping development.",
+     "We should avoid another extended investigation into every possible soccer rule before establishing the activity's essential design."
+    ],
+    "citedAs": "his reply filed 30 October 2026, item 4"
+   }
+  },
   "laws": [
    {
     "id": "LAW-8",
@@ -321,6 +335,40 @@
      }
     ],
     "note": "The goal is stated in feet (12ft x 6ft); widthM/heightM are the exact conversion at 0.3048 m per foot (ours; The FA's 2012 metric guide rounds to 3.66 x 1.83 m, not used). The depth is printed 9 m and may be a misprint: the 2025 edition gave 9 yd (= 8.2296 m) and The FA's 2012 metric guide 8 m; we use 9 m as printed. The diagram does not name the rectangle or the dot; 'penalty area' and 'mark' are our reading from Laws 8, 12 and 14 of the same handbook. type 'scaled' is our reading of the Goalkeeper Included Condition's 'full-size or scaled goals'. Its other provisions (retreat line, pass or dribble-in, distances, heading law) do not come with it. Used at 40 x 30 m, larger than its pitch, chosen by space per player. his reply filed 27 October 2026, item 3: \"The penalty-area specification may include a penalty spot, but this activity does not need to mark or use it.\" AMENDED 25 October 2026 (P2): \"we use 9 m as printed\" stands, and the depth is PROVISIONAL (provisional, below: its status, its three sources and his words), for his reply filed 28 October 2026, item 8: \"8. Penalty-area depth\" \"Please preserve source traceability and treat the 9 m dimension as provisional until we can verify the authoritative specification.\" \"I don't want an uncertain interpretation silently becoming canonical knowledge.\" \"However, I wouldn't postpone an initial field test solely while awaiting clarification from The FA, provided the provisional dimensions are identified and consistently applied.\" The loader validates the status and holds every realization item restating the figure to the same value and the same status; the administrator's review evidence shows it wherever the figure is cited. Coaches are not told it is provisional: the coach sheet tells a coach what to set out, and a figure's standing in the knowledge is not something a coach can act on before starting (the standard's test that a coach would say it before starting; RC3 2.3 and 3.3), so it is identified in the knowledge and the review evidence, where he and we read it, and applied as one value everywhere. Whether pilot coaches should also be told is his to decide (OUR READING of \"provided the provisional dimensions are identified\")."
+   }
+  ]
+ },
+ "environmentElements": {
+  "note": "B2, 28 October 2026. OUR READING of where this lives, as for boundRegions: the playing environment is the Sport Profile, so the one element of play that more than one knowledge component refers to is recorded here, beside the contribution and never as an item, so no derivation input and no digest changes. Each element is the profile item that establishes it; referredToBy lists each knowledge component recorded as referring to it, how (IDENTIFIED: the component's own item is identified with this element by a recorded identification, kept as it is; REFERS: the component establishes no such element of its own), where that is recorded, and the ruling that authorizes it, in his words. Only the two components his rulings name are listed. Whether this representation extends to any other context is NOT decided, and nothing here applies it to one. Read by environment-elements.ts: the record is validated at load, and a concrete game holding a second element in the same collection with the same authored selector is refused before communication, unless a recorded identification lets this element stand for it.",
+  "elements": [
+   {
+    "item": "SPORT-SOCCER-01",
+    "what": "the one contested ball of play; its contest between the participating teams is SPORT-SOCCER-02",
+    "referredToBy": [
+     {
+      "object": "RPC-001",
+      "how": "IDENTIFIED",
+      "where": "docs/audits/realization-choices-rpc-001.json, satisfiedByEstablished: c:restated:RPC-001:RPC-001-10.a satisfied by this element (kept as it is)",
+      "ruling": {
+       "words": [
+        "8. One ball shared between context and game: Approved."
+       ],
+       "citedAs": "his reply received 15 October 2026 (his 16 October reply), item 9 point 8"
+      }
+     },
+     {
+      "object": "RPC-003",
+      "how": "REFERS",
+      "where": "docs/audits/drafts/ta02-composition/rpc-003-contract.DRAFT.json (DRAFT, not approved knowledge): RPC-003-04.a, its own establishing item, withdrawn on 28 October 2026; RPC-003-04.b, outside the boundary, establishes nothing",
+      "ruling": {
+       "words": [
+        "Yes. Attack Development should use one contested ball shared by the context and Game Form.",
+        "This should be a reusable representation of the actual playing environment, not an additional ball introduced because two knowledge components refer to possession."
+       ],
+       "citedAs": "his reply filed 30 October 2026, item 6"
+      }
+     }
+    ]
    }
   ]
  },

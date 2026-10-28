@@ -22,6 +22,7 @@ import { parseSelector, predicateKey, selectorApplies } from './selector'
 import {
     ContractItem,
     DerivationInput,
+    DRAFT_KNOWLEDGE,
     ElementClass,
     FailureRecord,
     ItemRef,
@@ -660,6 +661,8 @@ export function runDerivation(input: DerivationInput): DerivationResult | Stampe
         run: staged.run,
         stopped: staged.stopped,
         diagnostics: staged.diagnostics,
+        // B2 (28 October 2026): the items the TEST-ONLY draft store loaded, so an open line one of them shapes says so (emit's `draftShapedBy`).
+        draftItems: new Set(input.contracts.flatMap(contract => (contract.items ?? []).filter(item => item.category === DRAFT_KNOWLEDGE).map(item => `${contract.contractId}:${item.itemId}`))),
     })
 }
 

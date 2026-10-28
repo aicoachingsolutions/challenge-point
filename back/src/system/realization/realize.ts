@@ -32,7 +32,7 @@ import { scaleExactly } from '../derivation/rational'
 import { RegisterIndex } from '../derivation/register'
 import { DesignationBinding, designationKey, resolutionOf } from '../derivation/designation'
 import { objectPositionRefusal } from '../derivation/object-extent'
-import { Bounds, relativePositionOf, RoleBlock, StatedObjects } from '../derivation/types'
+import { Bounds, relativePositionOf, RoleBlock, StatedObjects, SupportRef } from '../derivation/types'
 import { realizeSpatialRelation, RealizedGeometry } from './spatial'
 import { attackingEndIn, attackingEndOf } from './team-ends'
 
@@ -183,6 +183,8 @@ export interface RecordedChoice extends Choice {
     closure: Closure
     /** Present where nobody chose this value: the rule under which it was closed anyway. */
     defaultedBy?: DefaultRule
+    /** B2 (28 October 2026): the draft items that narrowed or bounded the line (`OpenChoice.draftShapedBy`); absent where none did. */
+    draftShapedBy?: SupportRef[]
 }
 
 export interface RealizationRecord {
@@ -773,6 +775,9 @@ export function realize(
             within: { permitted: open.permitted ? [...open.permitted] : null, bounds: (open.bounds as Bounds[]).map(b => ({ ...b })) },
             closure: closureOf(open),
             ...(defaultedBy ? { defaultedBy } : {}),
+            // B2 (28 October 2026): the draft items that narrowed or bounded the line, so the review evidence grades the choice's share of
+            // them DRAFT (`review-evidence.ts`); absent on every line no draft item shapes.
+            ...(open.draftShapedBy?.length ? { draftShapedBy: open.draftShapedBy.map(support => ({ ...support })) } : {}),
         })
     }
 

@@ -452,5 +452,293 @@
    "confidence": "High",
    "validation_status": "Approved"
   }
+ ],
+ "metadataRows": [
+  {
+   "metadata_key": "resource_name",
+   "metadata_value": "Affordance Target Matrix",
+   "required": true,
+   "notes": "Canonical name retained to preserve implementation continuity."
+  },
+  {
+   "metadata_key": "resource_type",
+   "metadata_value": "Reasoning Resource",
+   "required": true,
+   "notes": "Not a Knowledge Library or Runtime Product."
+  },
+  {
+   "metadata_key": "resource_id",
+   "metadata_value": "ATM-RR-RC1",
+   "required": true,
+   "notes": "Stable resource identifier retained from RC1.1."
+  },
+  {
+   "metadata_key": "resource_version",
+   "metadata_value": "RC1.2",
+   "required": true,
+   "notes": "Canonical Game Problem alignment release."
+  },
+  {
+   "metadata_key": "workbook_release_version",
+   "metadata_value": "RC1.2",
+   "required": true,
+   "notes": "Replaces RC1.1 for canonical GP-aligned ingestion."
+  },
+  {
+   "metadata_key": "matrix_semantic_version",
+   "metadata_value": "RC1.2",
+   "required": true,
+   "notes": "Seventeen canonical rows and revised standalone CAR profiles."
+  },
+  {
+   "metadata_key": "resource_status",
+   "metadata_value": "Approved",
+   "required": true,
+   "notes": "Approved for ingestion and profile-aware composition."
+  },
+  {
+   "metadata_key": "release_type",
+   "metadata_value": "Canonical Register Alignment",
+   "required": true,
+   "notes": "Migrates from legacy 11-name registry to 17 canonical GP IDs."
+  },
+  {
+   "metadata_key": "runtime_stage",
+   "metadata_value": "Stage 3 — Affordance Target Profile Resolution",
+   "required": true,
+   "notes": "Consumed after canonical Game Problem resolution."
+  },
+  {
+   "metadata_key": "implementation_mode",
+   "metadata_value": "Shadow / Production-Ready Data",
+   "required": true,
+   "notes": "Coupling remains a developer release decision."
+  },
+  {
+   "metadata_key": "expected_matrix_rows",
+   "metadata_value": 17,
+   "required": true,
+   "notes": "Expected number of rows in Registry and Ratings Grid."
+  },
+  {
+   "metadata_key": "expected_car_columns",
+   "metadata_value": 4,
+   "required": true,
+   "notes": "FOI, OP, SA, CIO."
+  },
+  {
+   "metadata_key": "expected_rating_cells",
+   "metadata_value": 68,
+   "required": true,
+   "notes": "17 Game Problems × 4 CARs."
+  },
+  {
+   "metadata_key": "allowed_rating_codes",
+   "metadata_value": "E|S|NR",
+   "required": true,
+   "notes": "Contextual code C is inactive and absent from canonical ratings."
+  },
+  {
+   "metadata_key": "contextual_cells_used",
+   "metadata_value": 0,
+   "required": true,
+   "notes": "Must remain zero for this release."
+  },
+  {
+   "metadata_key": "primary_problem_required",
+   "metadata_value": true,
+   "required": true,
+   "notes": "Every execution resolves exactly one Primary Game Problem."
+  },
+  {
+   "metadata_key": "secondary_problem_supported",
+   "metadata_value": true,
+   "required": false,
+   "notes": "Runtime may admit zero or one explicit Secondary Game Problem."
+  },
+  {
+   "metadata_key": "merge_precedence",
+   "metadata_value": "E>S>NR",
+   "required": false,
+   "notes": "Strongest necessity wins; provenance retained."
+  },
+  {
+   "metadata_key": "compatible_game_problem_register",
+   "metadata_value": "Game Problem Canonical Register RC1 v1.0",
+   "required": true,
+   "notes": "Required compatibility contract."
+  },
+  {
+   "metadata_key": "compatible_composite_runtime",
+   "metadata_value": "Composite Game Problem Runtime RC1 v1.0",
+   "required": true,
+   "notes": "Required runtime compatibility contract."
+  },
+  {
+   "metadata_key": "compatible_reasoning_standard",
+   "metadata_value": "Challenge Point Reasoning Standard v1.0",
+   "required": true
+  },
+  {
+   "metadata_key": "compatible_engine_specification",
+   "metadata_value": "RC1 v2",
+   "required": true
+  },
+  {
+   "metadata_key": "compatible_execution_specification",
+   "metadata_value": "RC1 v2",
+   "required": true
+  },
+  {
+   "metadata_key": "compatible_interface_standard",
+   "metadata_value": "Knowledge Core Interface Standard RC1 v2",
+   "required": true
+  },
+  {
+   "metadata_key": "compatible_affordance_library",
+   "metadata_value": "RC1 v2",
+   "required": true,
+   "notes": "Defines FOI, OP, SA, and CIO."
+  },
+  {
+   "metadata_key": "car_foi_definition",
+   "metadata_value": "Functional Object Interaction",
+   "required": true,
+   "notes": "Can meaningful interaction with the task object be established?"
+  },
+  {
+   "metadata_key": "car_op_definition",
+   "metadata_value": "Open Pathway",
+   "required": true,
+   "notes": "Is a functional route available for performer or object interaction?"
+  },
+  {
+   "metadata_key": "car_sa_definition",
+   "metadata_value": "Support Availability",
+   "required": true,
+   "notes": "Is coordinated interaction with another performer available?"
+  },
+  {
+   "metadata_key": "car_cio_definition",
+   "metadata_value": "Competitive Interaction Opportunity",
+   "required": true,
+   "notes": "Is an opportunity available for direct or indirect adaptive competitor influence that can alter, constrain, contest, or disrupt developing interaction?"
+  },
+  {
+   "metadata_key": "cio_scope_clarification",
+   "metadata_value": "Representative competitive opposition",
+   "required": true,
+   "notes": "CIO does not require physical contact or object contact; it requires meaningful adaptive opposition or competitor influence. Applicability remains context-dependent outside competitive environments."
+  },
+  {
+   "metadata_key": "rating_E",
+   "metadata_value": "Essential",
+   "required": true,
+   "notes": "Required to preserve representative Game Problem identity."
+  },
+  {
+   "metadata_key": "rating_S",
+   "metadata_value": "Supportive",
+   "required": true,
+   "notes": "Strengthens representative interaction but is not identity-defining."
+  },
+  {
+   "metadata_key": "rating_NR",
+   "metadata_value": "Not Required",
+   "required": true,
+   "notes": "Not required to preserve representative Game Problem identity."
+  },
+  {
+   "metadata_key": "evidence_fields_required",
+   "metadata_value": true,
+   "required": true,
+   "notes": "Each row must include evidence type, source, confidence, and validation status."
+  },
+  {
+   "metadata_key": "gp004_audit_decision",
+   "metadata_value": "SA=S",
+   "required": true,
+   "notes": "Recover Position is performer-level; collective support is supportive rather than identity-defining."
+  },
+  {
+   "metadata_key": "gp015_validation_flag",
+   "metadata_value": "SA=E retained",
+   "required": false,
+   "notes": "Direct legacy migration retained; field validation recommended."
+  },
+  {
+   "metadata_key": "legacy_source_resource",
+   "metadata_value": "ATM RC1.1",
+   "required": true,
+   "notes": "Original 11-row ratings resource preserved as migration evidence."
+  },
+  {
+   "metadata_key": "legacy_direct_transfers",
+   "metadata_value": 4,
+   "required": true,
+   "notes": "GP-001, GP-012, GP-015, GP-016."
+  },
+  {
+   "metadata_key": "legacy_composite_rows",
+   "metadata_value": 7,
+   "required": true,
+   "notes": "Preserved through migration evidence and composite mappings."
+  },
+  {
+   "metadata_key": "shadow_equivalence_status",
+   "metadata_value": "Requires canonical alignment verification",
+   "required": true,
+   "notes": "Run loader and profile merge tests after ingestion."
+  },
+  {
+   "metadata_key": "status_codes",
+   "metadata_value": "Candidate|Shadow|Approved|Deprecated",
+   "required": true,
+   "notes": "Allowed lifecycle status values."
+  }
+ ],
+ "sheets": [
+  {
+   "name": "Game Problem Registry",
+   "title": "Affordance Target Matrix — Canonical Game Problem Registry",
+   "headers": [
+    "game_problem_id",
+    "canonical_name",
+    "canonical_definition",
+    "primary_ecological_commitment",
+    "relationship_domain",
+    "status",
+    "game_problem_version",
+    "matrix_version"
+   ]
+  },
+  {
+   "name": "Ratings Grid",
+   "title": "Affordance Target Matrix — Canonical Machine-Readable Ratings",
+   "headers": [
+    "game_problem_id",
+    "canonical_name",
+    "FOI",
+    "OP",
+    "SA",
+    "CIO",
+    "row_status",
+    "matrix_version",
+    "evidence_type",
+    "evidence_source",
+    "confidence",
+    "validation_status"
+   ]
+  },
+  {
+   "name": "Version Metadata",
+   "title": "Affordance Target Matrix — Version Metadata",
+   "headers": [
+    "metadata_key",
+    "metadata_value",
+    "required",
+    "notes"
+   ]
+  }
  ]
 }

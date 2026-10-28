@@ -23,7 +23,7 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 
-import { loadCorpusContracts, loadRegister, provisionalRealizationNamed, readJson } from '../derivation/corpus'
+import { loadCorpusContracts, loadRegister, loadSportDefaultLaws, provisionalRealizationNamed, readJson } from '../derivation/corpus'
 import { repairCorpusEncoding } from '../derivation/corpus-repair'
 import { runDerivation, runStages0to10 } from '../derivation/engine'
 import { assembleResolvedGame } from '../derivation/resolved-game'
@@ -1607,14 +1607,36 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
     const withoutContext = (selection: any) => {
         selection.selected = selection.selected.filter((entry: { role: string }) => entry.role !== 'representative performance context')
     }
-    const a05 = served(buildActivityOverAlteredSelection({ kind: 'learning-goal', goalId: 'A05', session }, withoutContext), 'A05 with its context left out')
+    /**
+     * Re-pointed 28 October 2026 (B4, his reply filed 30 October 2026, item 4): a Learning Goal's activity with no realization is a composed
+     * one, held to the sport's own Laws check, which counts every owed adaptation nothing classifies as MATERIAL. Built as before, A05 with its
+     * context left out owes LAW-8 and LAW-11 (no centre mark, no halfway line) and is refused at validation, still labelled provisional. The
+     * served comparison below is made under a TEST-ONLY classification making every law PROCEDURAL (neither our reading nor his), so the
+     * sport's check refuses nothing; its account never reaches the renderer, so the game is said exactly as before.
+     */
+    const asBuilt = refused(buildActivityOverAlteredSelection({ kind: 'learning-goal', goalId: 'A05', session }, withoutContext), 'A05 with its context left out, nothing classified')
+    assert.equal(asBuilt.stage, 'validation')
+    assert.ok(asBuilt.reasons[0].startsWith("the sport's default-laws check (BY_MATERIALITY, his reply filed 30 October 2026, item 4)"), asBuilt.reasons[0])
+    assert.deepEqual(asBuilt.reasons.slice(1).map(reason => reason.split(' ')[0]), ['LAW-8', 'LAW-11'])
+    assert.equal(asBuilt.account.provisional, true, 'the refusal is labelled provisional too')
+    const laws = loadSportDefaultLaws()!
+    const allProcedural = {
+        file: 'TEST-ONLY',
+        standing: 'DRAFT - TEST-ONLY stand-in, every law PROCEDURAL: neither our reading nor his',
+        readBy: 'activity-review.unit.ts only',
+        note: 'TEST-ONLY',
+        test: { words: laws.check!.basis.words.filter(words => words.startsWith('Material') || words.startsWith('Minor')), citedAs: laws.check!.basis.citedAs },
+        classifications: laws.laws.map(law => ({ law: law.id, materiality: 'PROCEDURAL' as const, ourReading: 'TEST-ONLY stand-in.' })),
+    }
+    const procedurally = (goalId: string) => buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId, session }, learningGoalAuthorizations(), { alterSelection: withoutContext, lawsMateriality: allProcedural }).activity
+    const a05 = served(procedurally('A05'), 'A05 with its context left out')
     assert.equal(a05.account.provisional, true, 'an UNRESOLVED Game Problem is provisional, served or not')
     assert.equal(a05.account.gameProblem?.status, 'UNRESOLVED')
     assert.equal(a05.account.context!.inThisActivity, false, 'and the account says the context is not in it')
     const modifier = served(reviewActivity(stored(), { demonstrationId: 'scoring-modifier', durationMin: 20 }), 'scoring-modifier')
     assert.deepEqual(a05.rendered.instructions.map(i => i.text), modifier.rendered.instructions.map(i => i.text), 'it is the Wide Zone demonstration\'s game: nothing else it selects has a contract')
 
-    const ta02 = served(buildActivityOverAlteredSelection({ kind: 'learning-goal', goalId: 'TA02', session }, withoutContext), 'TA02 with its context left out')
+    const ta02 = served(procedurally('TA02'), 'TA02 with its context left out')
     assert.equal(ta02.account.gameProblem?.status, 'APPROVED')
     assert.equal(ta02.account.provisional, false, 'an approved Game Problem is not provisional')
     assert.equal(ta02.account.provisionalReason, null)

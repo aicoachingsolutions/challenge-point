@@ -11,6 +11,10 @@
  * realization it received); every other game gains no account and is not checked, so the demonstrations and fixtures are untouched. The
  * strictness is the realization's: ENFORCE refuses an activity owing an adaptation (the build's validation stage, never a fallback: a law
  * owed is a decision of his, not a fact of the session); REPORT says what is owed, to an administrator, and refuses nothing.
+ * **B4, 28 October 2026 (R8's E4a):** and a composed activity, a Learning Goal's whose realization declares no check (or that has none), is
+ * held to the sport's own check where the Sport Profile declares one, BY_MATERIALITY: each owed adaptation MATERIAL (refused at validation)
+ * or PROCEDURAL (reported for review), and MATERIAL wherever nothing classifies it (`defaultLawsAccountOf`, below). A realization's own check
+ * still wins; demonstrations are still never held.
  *
  * **How each law is read**, at its place (the game, or one end line):
  *   - NOT_APPLICABLE where one of its `applicableWhen` preconditions is absent, with why; a departure resting on exactly that absence
@@ -47,7 +51,7 @@
  */
 import { bindingOf, objectBindingOf, ObjectRegionBinding, performerRowOfRegion, regionFunctionsOf, SportBoundRegions } from '../derivation/bound-regions'
 import { roleHolderNames } from '../derivation/designation'
-import { CitedWords, DefaultLaws, DefaultLawsCheck, DefaultLawsCheckMode, departuresOf, LawDeparture, LawPredicate, LawStatus, RealizationDepartures, samePredicate } from '../derivation/default-laws'
+import { CitedWords, DefaultLaws, DefaultLawsCheck, DefaultLawsCheckMode, departuresOf, LawDeparture, LawMateriality, LawPredicate, LawsMateriality, LawStatus, RealizationDepartures, samePredicate, SportLawsCheck, SportLawsCheckMode } from '../derivation/default-laws'
 import { RegisterIndex } from '../derivation/register'
 import { splitPath } from '../derivation/resolved-game'
 import { ContractItem, RoleBlock } from '../derivation/types'
@@ -97,12 +101,34 @@ export interface BlockLawAccount {
     laws: LawAccountEntry[]
 }
 
+/**
+ * **The sport's check of a composed activity, per owed adaptation** — B4, 28 October 2026 (R8's E4a). Christian, his reply filed 30 October
+ * 2026, item 4: *"Material unresolved conflicts affecting the activity's meaning, safety, or structural validity should prevent approval."*
+ * *"Minor or nonessential procedural questions may be reported for review without stopping development."* Each law owed an adaptation, per
+ * block and place, with the kind a classification gives it, or MATERIAL where none classifies it (fail safe). Present on an account only
+ * where the sport's check declared it (`declaredBy: 'SPORT_PROFILE'`); a realization's own account never carries it.
+ */
+export interface MaterialityAccount {
+    /** The classification read: a DRAFT of ours (composition-test builds only), named by its file and standing; null: none, so every owed law counts as MATERIAL. */
+    classifiedBy: { file: string; standing: string } | null
+    owed: { blockId: string; law: string; end: 0 | 1 | null; materiality: LawMateriality; classified: boolean; ourReading: string | null; sentence: string }[]
+    /** The owed adaptations that prevent approval: the build refuses at validation, naming each. */
+    material: string[]
+    /** The owed adaptations reported for review: the build is not stopped by them. */
+    reportedForReview: string[]
+}
+
 /** The account of one activity, for the review evidence (admin only) and, under ENFORCE, the build's refusal. */
 export interface DefaultLawsAccount {
     status: 'ACCOUNT_FOR_REVIEW'
-    realization: string
-    mode: DefaultLawsCheckMode
-    check: DefaultLawsCheck
+    /** The realization whose check this is; for the sport's check (B4), the realization the build tried, or null where it tried none. */
+    realization: string | null
+    mode: DefaultLawsCheckMode | SportLawsCheckMode
+    check: DefaultLawsCheck | SportLawsCheck
+    /** B4: present, `SPORT_PROFILE`, only where the sport's check declared this account; absent where a realization's own check did. */
+    declaredBy?: 'SPORT_PROFILE'
+    /** B4: the sport's check per owed adaptation; present only beside `declaredBy`. */
+    materiality?: MaterialityAccount
     source: { file: string; source: string; edition: string | null; editionNote: string; authority: DefaultLaws['authority'] }
     blocks: BlockLawAccount[]
     /** Every law owed an adaptation, one sentence per block and place: the refusal's reasons under ENFORCE; reported only under REPORT. */
@@ -455,8 +481,17 @@ export function blockLawAccountOf(input: {
 }
 
 /**
- * **The account of an activity, or null where its realization declares no check** — read from each block's realized game and the composed
- * items of the realization the build received. `owed` holds one sentence per law owed an adaptation, per block and place.
+ * **The account of an activity, or null where nothing holds it to one** — read from each block's realized game and the composed items of the
+ * realization the build received. `owed` holds one sentence per law owed an adaptation, per block and place.
+ *
+ * **B4, 28 October 2026: which check holds it.** A realization's own check, where it declares one, exactly as before (its account is byte for
+ * byte what it was). Otherwise, for a composed activity (`composed`, which the build passes for a Learning Goal's activity only: an engineering
+ * demonstration is never held), the sport's check where the Sport Profile declares one (`laws.check`), the account marked `declaredBy:
+ * 'SPORT_PROFILE'` and carrying each owed adaptation's materiality (`MaterialityAccount`) from the classification given, or MATERIAL where none
+ * classifies it. The items read for departures are still the realization's, where the build tried one (its departures are its own whatever
+ * check holds it), else none: only a provisional realization records a departure. The DRAFT normal-rules sentence is neither said nor held
+ * for such an account (`heldSentence` null): the renderer's copy of the account is a realization's alone, so a composition's coach text
+ * carries none of it, and no sentence is said for it.
  */
 export function defaultLawsAccountOf(input: {
     realization: { provisionalId: string; items: ContractItem[]; defaultLawsCheck?: DefaultLawsCheck; realizationDepartures?: RealizationDepartures } | null | undefined
@@ -467,26 +502,77 @@ export function defaultLawsAccountOf(input: {
     heldSentence: DefaultLawsAccount['heldSentence']
     /** H3: the Sport Profile's bound-region block the build used (its pairings give a bound region's mark); absent or null: none given. */
     boundRegions?: SportBoundRegions | null
+    /**
+     * B4: given only for a composed activity (a Learning Goal's), so the sport's check may hold it where its realization declares none, with
+     * the classification to read (a DRAFT of ours in a composition test; null in production: nothing is classified). Absent or null: only a
+     * realization's own check holds the activity, as before.
+     */
+    composed?: { materiality: LawsMateriality | null } | null
 }): DefaultLawsAccount | null {
     const realization = input.realization
-    if (!realization?.defaultLawsCheck || !input.laws) return null
+    if (!input.laws) return null
     const laws = input.laws
+    const own = realization?.defaultLawsCheck ?? null
+    const sport = !own && input.composed && laws.check ? laws.check : null
+    if (!own && !sport) return null
     const blocks = input.blocks.map(block =>
-        blockLawAccountOf({ ...block, index: input.index, session: input.session, laws, items: realization.items, boundRegions: input.boundRegions ?? null, realizationDepartures: realization.realizationDepartures ?? null }),
+        blockLawAccountOf({ ...block, index: input.index, session: input.session, laws, items: realization?.items ?? [], boundRegions: input.boundRegions ?? null, realizationDepartures: realization?.realizationDepartures ?? null }),
     )
     const inBlock = (blockId: string) => (input.blocks.length > 1 ? `block ${blockId}: ` : '')
-    const owed = blocks.flatMap(block =>
-        block.laws.filter(entry => entry.status === 'ADAPTATION_OWED').map(entry => `${inBlock(block.blockId)}${entry.law} (${entry.cites}) at ${entry.at}: an adaptation is owed - ${entry.why}`),
-    )
+    const sentenceOf = (blockId: string, entry: LawAccountEntry) => `${inBlock(blockId)}${entry.law} (${entry.cites}) at ${entry.at}: an adaptation is owed - ${entry.why}`
+    const owed = blocks.flatMap(block => block.laws.filter(entry => entry.status === 'ADAPTATION_OWED').map(entry => sentenceOf(block.blockId, entry)))
+    const source = { file: laws.file, source: laws.source, edition: laws.edition, editionNote: laws.editionNote, authority: JSON.parse(JSON.stringify(laws.authority)) }
+    if (own) {
+        return {
+            status: 'ACCOUNT_FOR_REVIEW',
+            realization: realization!.provisionalId,
+            mode: own.mode,
+            check: JSON.parse(JSON.stringify(own)),
+            source,
+            blocks,
+            owed,
+            // Stage L: said where nothing is owed, held wherever anything is.
+            heldSentence: input.heldSentence ? { ...JSON.parse(JSON.stringify(input.heldSentence)), status: owed.length ? 'DRAFT_HELD_NOT_SERVED' : 'DRAFT_SAID_NOTHING_OWED' } : null,
+        }
+    }
     return {
         status: 'ACCOUNT_FOR_REVIEW',
-        realization: realization.provisionalId,
-        mode: realization.defaultLawsCheck.mode,
-        check: JSON.parse(JSON.stringify(realization.defaultLawsCheck)),
-        source: { file: laws.file, source: laws.source, edition: laws.edition, editionNote: laws.editionNote, authority: JSON.parse(JSON.stringify(laws.authority)) },
+        realization: realization?.provisionalId ?? null,
+        mode: sport!.mode,
+        check: JSON.parse(JSON.stringify(sport)),
+        declaredBy: 'SPORT_PROFILE',
+        materiality: materialityAccountOf(blocks, input.composed?.materiality ?? null, sentenceOf),
+        source,
         blocks,
         owed,
-        // Stage L: said where nothing is owed, held wherever anything is.
-        heldSentence: input.heldSentence ? { ...JSON.parse(JSON.stringify(input.heldSentence)), status: owed.length ? 'DRAFT_HELD_NOT_SERVED' : 'DRAFT_SAID_NOTHING_OWED' } : null,
+        heldSentence: null,
+    }
+}
+
+/**
+ * **Each owed adaptation, MATERIAL or PROCEDURAL** (B4): the kind the classification gives its law, or MATERIAL where the classification is
+ * absent or does not name it (fail safe: his "should prevent approval" is the default for whatever nobody has judged minor). Each sentence is
+ * the account's own owed sentence, followed by its kind and where the kind comes from: the classification's file and its own standing (ours,
+ * DRAFT, or a test's stand-in), so none reads as his.
+ */
+function materialityAccountOf(blocks: BlockLawAccount[], given: LawsMateriality | null, sentenceOf: (blockId: string, entry: LawAccountEntry) => string): MaterialityAccount {
+    const owed = blocks.flatMap(block =>
+        block.laws
+            .filter(entry => entry.status === 'ADAPTATION_OWED')
+            .map(entry => {
+                const classified = given?.classifications.find(candidate => candidate.law === entry.law) ?? null
+                const materiality: LawMateriality = classified ? classified.materiality : 'MATERIAL'
+                // The classification's own standing says whose it is (ours, DRAFT; or a test's stand-in), so the sentence never reads as his.
+                const why = classified
+                    ? `${materiality}, as classified in ${given!.file}, standing ${given!.standing}`
+                    : `MATERIAL: no classification names ${entry.law}, so it counts as material (fail safe)`
+                return { blockId: block.blockId, law: entry.law, end: entry.end, materiality, classified: !!classified, ourReading: classified ? classified.ourReading : null, sentence: `${sentenceOf(block.blockId, entry)} [${why}]` }
+            }),
+    )
+    return {
+        classifiedBy: given ? { file: given.file, standing: given.standing } : null,
+        owed,
+        material: owed.filter(entry => entry.materiality === 'MATERIAL').map(entry => entry.sentence),
+        reportedForReview: owed.filter(entry => entry.materiality === 'PROCEDURAL').map(entry => entry.sentence),
     }
 }

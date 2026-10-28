@@ -462,6 +462,13 @@ export interface LearningGoalAuthorization {
     authorizedAdjustments?: AuthorizedAdjustments
     /** What he asked the next review of this goal's activity to show (stage K8, 15 October 2026), or absent. */
     reviewRequest?: ReviewRequest
+    /**
+     * **A record we drafted for his review** — B2, 28 October 2026 (E1-lite). Stamped only by the TEST-ONLY draft store (`draft-store.ts`) on
+     * the record it loads; admitted only where the gate is told drafts are admitted, and then held to the ruling requirement INVERTED (no
+     * ruling, no date, no ruler: nothing of ours may read as his). Absent on every production record, and a record carrying it in the
+     * production file stops the server at load.
+     */
+    knowledgeStatus?: 'DRAFT'
 }
 
 /** One alternative realization as a record lists it (stage E): the realization, his words for its place, and whether it can be tried now. */
@@ -526,7 +533,12 @@ export function validateLearningGoalAuthorizations(
     entries: LearningGoalAuthorization[],
     selectableIds: string[] = testLibraryRegistry.selectableConstraints().map((c) => c.id),
     holds: LearningDesignHold[] = learningGoalSelectionHolds(),
-    provisionalIds: string[] = loadProvisionalRealizations().map((realization) => realization.provisionalId)
+    provisionalIds: string[] = loadProvisionalRealizations().map((realization) => realization.provisionalId),
+    /**
+     * B2 (28 October 2026), TEST-ONLY: whether a DRAFT record (one the draft store stamped `knowledgeStatus: 'DRAFT'`) is admitted. Only the
+     * build given a draft store says so; the production gate at load passes nothing, so a DRAFT record in the production file is refused.
+     */
+    options: { draftsAdmitted?: boolean } = {}
 ): string[] {
     const errors: string[] = []
     const selectable = new Set(selectableIds.map(knowledgeKey))
@@ -543,7 +555,19 @@ export function validateLearningGoalAuthorizations(
         if (!filled(entry.learningGoalId)) errors.push('an authorization names no Learning Goal')
         if (seen.has(goal)) errors.push(`${goal}: more than one authorization record`)
         seen.add(goal)
-        if (!filled(entry.ruledOn) || !filled(entry.by) || !Array.isArray(entry.ruling) || !entry.ruling.length || !entry.ruling.every(filled)) {
+        /**
+         * **A DRAFT record: admitted only through the draft store, and then its ruling requirement is inverted, never skipped** (B2, 28 October
+         * 2026; E1-lite). A record we drafted cites no ruling of his, so it must carry none: no words, no date, no ruler. Given TEST-ONLY ruling
+         * words to pass the requirement below, it would read as his. Any other value of the marker is refused as well.
+         */
+        const draft = 'knowledgeStatus' in entry
+        if (draft && (entry.knowledgeStatus !== 'DRAFT' || options.draftsAdmitted !== true)) {
+            errors.push(`${goal}: a DRAFT record is read only through the TEST-ONLY draft store (knowledgeStatus ${JSON.stringify(entry.knowledgeStatus)})`)
+        } else if (draft) {
+            if (filled(entry.ruledOn) || filled(entry.by) || !Array.isArray(entry.ruling) || entry.ruling.length) {
+                errors.push(`${goal}: a DRAFT record cites no ruling of his (ruledOn, by and his words must all be empty)`)
+            }
+        } else if (!filled(entry.ruledOn) || !filled(entry.by) || !Array.isArray(entry.ruling) || !entry.ruling.length || !entry.ruling.every(filled)) {
             errors.push(`${goal}: the record cites no ruling (ruledOn, by and his words are all required)`)
         }
         if (!filled(entry.contextId) || !filled(entry.gameProblemId)) errors.push(`${goal}: the record names no context or Game Problem`)
