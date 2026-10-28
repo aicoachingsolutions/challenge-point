@@ -11,13 +11,17 @@
  *     drafted contract stamped (knowledge version `draft`, every item and declaration DRAFT_KNOWLEDGE) and the drafted record stamped DRAFT
  *     and citing no ruling; RPC-003-04.a, withdrawn on his reply filed 30 October 2026, item 6, is not loaded;
  *   - on TEST-ONLY copies, each refusal the gate names, each refusing the WHOLE store: a quotation not verbatim in the row it cites (in a
- *     source or in basisEvidence), a file or row the workbooks do not hold, an item claiming his words without sources, an item without our
+ *     source or in basisEvidence, short or curly-quoted, its ellipsis parts in order), a file or row the workbooks do not hold, an item
+ *     claiming his words without sources, an ASSUMED item citing no row that names no citable standing decision, an item without our
  *     reasoning, a key only a ruled restatement writes, an id production uses, a standing other than DRAFT, an object with a production
  *     contract, a drafted context whose primary scoring condition no constituting item cites (the U3 control), and a record citing a ruling,
  *     carrying what only his rulings give, or standing for a production goal;
+ *   - B2 review MF1: a source resolved to ONE row by its own table's primary key, its words required in the field it names (P1-P4 of the
+ *     reviewer's probe, each of which had loaded), a row named by a foreign key, a table the workbook does not hold, a qualifier the row does
+ *     not hold, a wrong line, and a field stated about the row that is not the row's;
  *   - the record gate: a DRAFT record is refused without `draftsAdmitted` (so one placed in the production file stops the server), and with it
  *     is held to the ruling requirement inverted;
- *   - no non-test module imports `draft-store.ts`.
+ *   - no non-test module imports `draft-store.ts` (statically, by require, or by a dynamic import()).
  *
  * Run: npm test
  */
@@ -73,12 +77,28 @@ function refused(dir: string, ...patterns: RegExp[]): string[] {
 {
     const store = loadDraftStore(REAL)
     assert.deepEqual(store.files, [CONTRACT, RECORD])
+    // B2 review (28 October 2026): the folder's DRAFT Markdown notes were skipped silently while the head of the store said every DRAFT file
+    // it does not read is listed. Every file marked DRAFT is now listed with why.
     assert.deepEqual(
         store.notRead.map(entry => entry.file),
-        ['gf2-restart-restatement.DRAFT.json', 'ta02-relevance-claims.DRAFT.json'],
+        [
+            'gf2-restart-restatement.DRAFT.json',
+            'rpc-003-library-reconciliation.DRAFT.md',
+            'ta02-candidate-evaluation.DRAFT.md',
+            'ta02-relevance-claims.DRAFT.json',
+            'ta02-relevance-claims.DRAFT.md',
+        ],
         'every DRAFT file of the folder the store does not read is listed, never skipped silently',
     )
-    assert.ok(store.notRead[0].why.includes('added[]') && store.notRead[1].why.includes('neither a contract entry nor an authorization record'))
+    assert.deepEqual(
+        fs.readdirSync(REAL_DIR).filter(name => name.includes('.DRAFT.')).sort(),
+        [...store.files, ...store.notRead.map(entry => entry.file)].sort(),
+        'read or listed: every DRAFT file of the folder, none left out',
+    )
+    const why = (file: string) => store.notRead.find(entry => entry.file === file)!.why
+    assert.ok(why('gf2-restart-restatement.DRAFT.json').includes('added[]'))
+    assert.ok(why('ta02-relevance-claims.DRAFT.json').includes('neither a contract entry nor an authorization record'))
+    for (const file of ['rpc-003-library-reconciliation.DRAFT.md', 'ta02-candidate-evaluation.DRAFT.md', 'ta02-relevance-claims.DRAFT.md']) assert.ok(why(file).includes('not a DRAFT JSON file'), file)
     assert.equal(store.contracts.length, 1)
     const [contract] = store.contracts
     assert.equal(contract.contractId, 'restated:RPC-003')
@@ -112,13 +132,13 @@ function refused(dir: string, ...patterns: RegExp[]): string[] {
         }),
         /RPC-003-02 source RPC-PROP-134: ".*" is not verbatim in the row it cites/,
     )
-    // A paraphrase of a quoted note of a rendered relationship row (only its quoted words are a quotation).
+    // A paraphrase of a quoted note of a rendered relationship row: the rendering is compared whole with the row's.
     refused(
         copyWith(CONTRACT, json => {
             const source = itemOf(json, 'RPC-003-01.a').source.find((entry: any) => entry.rowId === 'RPC-REL-003')
             source.text = source.text.replace('Invasion ecological organization', 'invasion organization')
         }),
-        /RPC-003-01\.a source RPC-REL-003: "Soccer RPCs operate within invasion organization\." is not verbatim/,
+        /RPC-003-01\.a source RPC-REL-003: ".*Soccer RPCs operate within invasion organization\..*" is not verbatim in the row it cites, nor that row's rendering/,
     )
     // A quotation in basisEvidence that is not in a row the item cites.
     refused(
@@ -126,6 +146,129 @@ function refused(dir: string, ...patterns: RegExp[]): string[] {
             itemOf(json, 'RPC-003-04.b').basisEvidence = '"while keeping possession of the ball" (RPC-PROP-134)'
         }),
         /RPC-003-04\.b basisEvidence quotes "while keeping possession of the ball", which is not verbatim/,
+    )
+    // B2 review: a short quotation and a curly-quoted one are quotations too (the gate read only straight quotes of 12 characters or more).
+    refused(
+        copyWith(CONTRACT, json => {
+            itemOf(json, 'RPC-003-04.b').basisEvidence = '"keep it" (RPC-PROP-037)'
+        }),
+        /RPC-003-04\.b basisEvidence quotes "keep it", which is not verbatim/,
+    )
+    refused(
+        copyWith(CONTRACT, json => {
+            itemOf(json, 'RPC-003-04.b').basisEvidence = '“Possession is kept.” (RPC-PROP-037)'
+        }),
+        /RPC-003-04\.b basisEvidence quotes "Possession is kept\.", which is not verbatim/,
+    )
+    // The parts an ellipsis separates stand in order, in one value.
+    refused(
+        copyWith(CONTRACT, json => {
+            itemOf(json, 'RPC-003-04.b').basisEvidence = '"is lost. ... Possession" (RPC-PROP-037)'
+        }),
+        /RPC-003-04\.b basisEvidence quotes "is lost\. \.\.\. Possession", which is not verbatim/,
+    )
+
+    /*
+     * B2 review MF1 (28 October 2026): a source is resolved to ONE row by its own table's primary key, and its words are required in the
+     * field it names. The store had collected every object any `…id` key of which held the cited id (foreign keys such as Archetype_ID on
+     * every knowledge record included) and checked the words against every field of every one: the reviewer's probe loaded P1-P4 below.
+     */
+    const archetypeSource = (json: any) => itemOf(json, 'RPC-003-01.a').source.find((entry: any) => entry.rowId === 'GA-001 Objective_Organization')
+    // P1: the GA-001 Objective_Organization source given another row's words (GAK-0001's Knowledge_Statement, whose Archetype_ID is GA-001).
+    refused(
+        copyWith(CONTRACT, json => {
+            archetypeSource(json).text = "This Game Problem is a constitutively recurring expression of the archetype's ecological organization."
+        }),
+        /RPC-003-01\.a source GA-001 Objective_Organization: "This Game Problem is a constitutively recurring expression of the archetype's ecological organization\." is not verbatim in the field Objective_Organization of the row it cites/,
+    )
+    // P2: the same source given the words of another field of the same row.
+    refused(
+        copyWith(CONTRACT, json => {
+            archetypeSource(json).text = 'Continuous reorganization of objective access, space, roles, and threat.'
+        }),
+        /RPC-003-01\.a source GA-001 Objective_Organization: "Continuous reorganization of objective access, space, roles, and threat\." is not verbatim in the field Objective_Organization/,
+    )
+    // P3: a source citing a context id (every row of the context holds it as rpc_id), with the words of one of its rows.
+    refused(
+        copyWith(CONTRACT, json => {
+            itemOf(json, 'RPC-003-02').source.push({ rowId: 'RPC-003', table: 'properties', file: 'back/src/system/sport-module/rpc-library.rc1.json', line: 1778, text: 'Possession is lost.' })
+        }),
+        /RPC-003-02 source RPC-003: back\/src\/system\/sport-module\/rpc-library\.rc1\.json holds no row RPC-003 in its table properties \(by its key property_id\); a source cites exactly one/,
+    )
+    // P4: a rendered relationship misstated outside its quotes (its related id and strength), every rendered field compared.
+    refused(
+        copyWith(CONTRACT, json => {
+            const source = itemOf(json, 'RPC-003-03.a').source.find((entry: any) => entry.rowId === 'RPC-REL-079')
+            source.text = source.text.replace('target_zone_entered', 'goal_scored').replace('strength PRIMARY', 'strength SECONDARY')
+        }),
+        /RPC-003-03\.a source RPC-REL-079: "SCORING_EVENT goal_scored \(COMPATIBLE, strength SECONDARY\).*" is not verbatim in the row it cites, nor that row's rendering/,
+    )
+    // A row named by a foreign key of its table (GA-001 is the Archetype_ID of 36 knowledge records, the Record_ID of none).
+    refused(
+        copyWith(CONTRACT, json => {
+            const source = itemOf(json, 'RPC-003-01.a').source.find((entry: any) => entry.table === 'knowledge')
+            source.rowId = 'GA-001'
+        }),
+        /RPC-003-01\.a source GA-001: back\/src\/system\/knowledge-core\/game-archetype-workbook\.rc1\.1\.json holds no row GA-001 in its table knowledge \(by its key Record_ID\)/,
+    )
+    // A table the cited workbook does not hold, and a source naming none.
+    refused(
+        copyWith(CONTRACT, json => {
+            itemOf(json, 'RPC-003-02').source[0].table = 'archetypes'
+        }),
+        /RPC-003-02 source RPC-PROP-134 names table "archetypes", which is not a table of back\/src\/system\/sport-module\/rpc-library\.rc1\.json this store reads/,
+    )
+    refused(
+        copyWith(CONTRACT, json => {
+            delete itemOf(json, 'RPC-003-02').source[0].table
+        }),
+        /RPC-003-02 source RPC-PROP-134 names table null/,
+    )
+    // A qualifier after the row id that is neither a field of the row nor, in parentheses, a value it holds.
+    refused(
+        copyWith(CONTRACT, json => {
+            itemOf(json, 'RPC-003-01.a').source.find((entry: any) => entry.table === 'knowledge').rowId = 'GAK-0105 (GA-001-OIC-99)'
+        }),
+        /RPC-003-01\.a source GAK-0105 \(GA-001-OIC-99\): "\(GA-001-OIC-99\)" after the row id is neither a field of GAK-0105 nor, in parentheses, a value it holds/,
+    )
+    // A line that is not the line holding the row's key (or the field cited).
+    refused(
+        copyWith(CONTRACT, json => {
+            itemOf(json, 'RPC-003-02').source[0].line = 2652
+        }),
+        /RPC-003-02 source RPC-PROP-134: line 2652 of back\/src\/system\/sport-module\/rpc-library\.rc1\.json is not the line holding property_id of RPC-PROP-134/,
+    )
+    refused(
+        copyWith(CONTRACT, json => {
+            archetypeSource(json).line = 41
+        }),
+        /RPC-003-01\.a source GA-001 Objective_Organization: line 41 of .* is not the line holding Objective_Organization of GA-001/,
+    )
+    // A field the source states about the row that is not the row's, and one this store does not read for the table.
+    refused(
+        copyWith(CONTRACT, json => {
+            itemOf(json, 'RPC-003-02').source[0].category = 'END_CONDITION'
+        }),
+        /RPC-003-02 source RPC-PROP-134 states category "END_CONDITION", and the row's property_category is "PRIMARY_SCORING_CONDITION"/,
+    )
+    refused(
+        copyWith(CONTRACT, json => {
+            itemOf(json, 'RPC-003-02').source[0].strength = 'PRIMARY'
+        }),
+        /RPC-003-02 source RPC-PROP-134 states strength, which is not a field this store reads for the table properties/,
+    )
+    // B2 review: an ASSUMED item citing no row names the standing decision it rests on (RPC-003-03.b names SD-06).
+    refused(
+        copyWith(CONTRACT, json => {
+            itemOf(json, 'RPC-003-03.b').basisEvidence = 'TEST-ONLY: exactly one, by our reading.'
+        }),
+        /RPC-003-03\.b is ASSUMED and cites no source row, and its basisEvidence names no standing decision it rests on/,
+    )
+    refused(
+        copyWith(CONTRACT, json => {
+            itemOf(json, 'RPC-003-03.b').basisEvidence = 'TEST-ONLY: exactly one, from SD-99.'
+        }),
+        /RPC-003-03\.b is ASSUMED and cites no source row/,
     )
     // A file outside the workbooks, and a row the workbook does not hold.
     refused(
@@ -292,7 +435,10 @@ function refused(dir: string, ...patterns: RegExp[]): string[] {
     }
     walk(SRC)
     assert.ok(files.length > 100, 'the scan reads the source tree')
-    const importers = files.filter(file => /(from|require\()\s*['"][^'"]*draft-store['"]/.test(fs.readFileSync(file, 'utf8'))).map(file => path.relative(SRC, file).split(path.sep).join('/'))
+    // A static import, a require, and (B2 review) a dynamic import(), which the scan had missed.
+    const IMPORTS = /(from|require\s*\(|import\s*\()\s*['"][^'"]*draft-store['"]/
+    assert.ok(["import('./draft-store')", "await import ( '../derivation/draft-store' )", "require('./draft-store')", "from './draft-store'"].every(text => IMPORTS.test(text)), 'the scan sees each form')
+    const importers = files.filter(file => IMPORTS.test(fs.readFileSync(file, 'utf8'))).map(file => path.relative(SRC, file).split(path.sep).join('/'))
     assert.deepEqual(importers, [], 'only unit tests import the TEST-ONLY draft store')
 }
 
