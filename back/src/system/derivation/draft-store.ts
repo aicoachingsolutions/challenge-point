@@ -150,8 +150,9 @@ export function loadRelevanceJoinRules(file: string = RELEVANCE_JOIN_RULES_FILE)
  * without stopping development."* The sport's check (the Sport Profile's `defaultLaws.check`) applies his distinction to each adaptation a
  * composed activity owes; which law is which is a judgement of ours, not his, so it is one small file of ours for his review
  * (`docs/audits/drafts/laws-materiality.DRAFT.json`), read here beside the other drafts and refused WHOLE on any defect the gate names
- * (`lawsMaterialityRefusals`: DRAFT standing, his test quoted exactly as the check quotes it, laws the profile names each once, a kind of the
- * two, our reading quoting nothing). Like the store, never imported by a production module, so no production build reads it.
+ * (`lawsMaterialityRefusals`: a DRAFT standing saying OUR READING or TEST-ONLY, his test quoted exactly as the check quotes it and both of
+ * its sentences quoted, laws the profile names each once, a kind of the two, our reading quoting nothing). Like the store, never imported by
+ * a production module, so no production build reads it.
  */
 export const LAWS_MATERIALITY_FILE = path.join(DRAFTS_DIR, 'laws-materiality.DRAFT.json')
 export function loadLawsMateriality(file: string = LAWS_MATERIALITY_FILE): LawsMateriality {

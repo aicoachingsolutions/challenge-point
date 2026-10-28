@@ -427,19 +427,30 @@ export function sportLawsCheckRefusal(check: unknown): string | null {
 
 const MATERIALITY_KEYS = new Set(['standing', 'readBy', 'note', 'test', 'classifications'])
 const CLASSIFICATION_KEYS = new Set(['law', 'materiality', 'ourReading'])
+/** Whose reading a classification is, one of which its standing must carry beside DRAFT: ours, or a test's stand-in. Never his. */
+const MATERIALITY_STANDING_LABELS = ['OUR READING', 'TEST-ONLY'] as const
+/** Whether one of his sentences names a kind of owed adaptation (MATERIAL, PROCEDURAL) as a whole word: his test's sentence for that kind. */
+const namesKind = (sentence: string, kind: LawMateriality): boolean => new RegExp(`\\b${kind}\\b`, 'i').test(sentence)
 
 /**
  * **Everything wrong with a DRAFT classification of the profile's laws by his materiality test, as sentences; empty means it may be read**
- * (B4). It stands DRAFT and says who reads it; its test is his, quoted exactly: each of its words one of the Sport Profile check's own, cited
- * as the check cites them (so a paraphrase, or a test the sport declares no check for, is refused); and it classifies laws the profile names,
- * each once, MATERIAL or PROCEDURAL, with our reading. Our reading quotes nothing (no double quotation marks, straight or curly): every word
- * of it is ours, and a quotation there would read as his. A law it does not classify is not refused here: the account counts it MATERIAL.
+ * (B4). It stands DRAFT and says whose reading it is (OUR READING or TEST-ONLY in its standing, so a stand-in never reads as his), and who
+ * reads it; its test is his, quoted exactly: each of its words one of the Sport Profile check's own, cited as the check cites them (so a
+ * paraphrase, or a test the sport declares no check for, is refused), and among them both sentences of his test, the one naming MATERIAL and
+ * the one naming PROCEDURAL (so a test quoting only a sentence beside them, or only one kind, is refused); and it classifies laws the
+ * profile names, each once, MATERIAL or PROCEDURAL, with our reading. Our reading quotes nothing (no double quotation marks, straight or
+ * curly): every word of it is ours, and a quotation there would read as his. A law it does not classify is not refused here: the account
+ * counts it MATERIAL.
  */
 export function lawsMaterialityRefusals(raw: unknown, laws: DefaultLaws | null): string[] {
     if (!isObject(raw)) return ['the classification is not an object']
     const errors: string[] = []
     for (const key of Object.keys(raw)) if (!MATERIALITY_KEYS.has(key)) errors.push(`the classification carries "${key}"`)
-    if (!filled(raw.standing) || !raw.standing.startsWith('DRAFT')) errors.push(`the classification does not stand DRAFT (its standing: ${JSON.stringify(raw.standing ?? null)})`)
+    const standing = raw.standing
+    if (!filled(standing) || !standing.startsWith('DRAFT')) errors.push(`the classification does not stand DRAFT (its standing: ${JSON.stringify(standing ?? null)})`)
+    else if (!MATERIALITY_STANDING_LABELS.some(label => standing.includes(label))) {
+        errors.push(`the classification's standing says neither ${MATERIALITY_STANDING_LABELS.join(' nor ')}, so it could read as his (its standing: ${JSON.stringify(standing)})`)
+    }
     if (!filled(raw.readBy)) errors.push('the classification does not say what reads it (readBy)')
     if (!filled(raw.note)) errors.push('the classification carries no note of ours (note)')
     const check = laws?.check ?? null
@@ -450,6 +461,13 @@ export function lawsMaterialityRefusals(raw: unknown, laws: DefaultLaws | null):
         const given = raw.test as { words: string[]; citedAs: string }
         if (given.citedAs !== check.basis.citedAs) errors.push(`the classification's test is cited as ${JSON.stringify(given.citedAs)}, and the Sport Profile's check cites his words as ${JSON.stringify(check.basis.citedAs)}`)
         for (const words of given.words) if (!check.basis.words.includes(words)) errors.push(`the classification's test quotes "${words}", which is not one of the Sport Profile check's words exactly`)
+        for (const kind of LAW_MATERIALITIES) {
+            const his = check.basis.words.filter(sentence => namesKind(sentence, kind))
+            if (!his.length) errors.push(`the Sport Profile's check quotes no sentence of his naming ${kind}, so no classification can quote his test for it`)
+            else if (!given.words.some(words => his.includes(words))) {
+                errors.push(`the classification's test does not quote his sentence naming ${kind} (${his.map(sentence => `"${sentence}"`).join(' or ')}): it must quote both sentences of his test`)
+            }
+        }
     }
     if (!Array.isArray(raw.classifications) || !raw.classifications.length) return [...errors, 'the classification classifies no law']
     const seen = new Set<string>()

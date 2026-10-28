@@ -14,7 +14,8 @@
  *      item 4; copied by the loader as authored; the block gate refusing a check it cannot read (no default mode, no foreign key, his words);
  *   2. our DRAFT classification (`docs/audits/drafts/laws-materiality.DRAFT.json`): ours, DRAFT, his test quoted exactly as the check quotes
  *      it, every profile law classified as R6 (c3) reads it (LAW-11 and LAW-12-GK MATERIAL, the rest PROCEDURAL); the gate refusing every
- *      defect; read only by the draft store (a static scan);
+ *      defect, including (since the B4 review) a DRAFT standing saying neither OUR READING nor TEST-ONLY, and a test that does not quote both
+ *      of his sentences, the material and the procedural; read only by the draft store (a static scan);
  *   3. the plain Directional Possession composition in a TEST-ONLY copy (the TA02 DRAFT record with its context taken out of a copy of the
  *      selection: the game form alone, under a Learning Goal's build), whose account owes LAW-8 and LAW-11 as probe-laws.txt measured:
  *        - nothing classified (as in production): refused at validation, both counted MATERIAL (fail safe);
@@ -146,12 +147,28 @@ test('the classification gate refuses every defect, and the loader refuses the f
     }
     const entry = (file: any, law: string) => file.classifications.find((candidate: any) => candidate.law === law)
     refused(f => (f.standing = 'APPROVED'), /does not stand DRAFT/, 'a standing that is not DRAFT')
+    // A DRAFT standing must also say whose reading it is, ours or a test's, so a stand-in never reads as his.
+    refused(f => (f.standing = 'DRAFT - approved by him'), /standing says neither OUR READING nor TEST-ONLY, so it could read as his/, 'a DRAFT standing that does not say whose reading it is')
+    for (const standing of ['DRAFT - OUR READING, retyped', 'DRAFT - TEST-ONLY stand-in']) assert.deepEqual(lawsMaterialityRefusals({ ...raw, standing }, laws), [], standing)
     refused(f => delete f.readBy, /does not say what reads it/, 'no reader named')
     refused(f => delete f.note, /carries no note of ours/, 'no note')
     refused(f => (f.ruledOn = '2026-10-30'), /the classification carries "ruledOn"/, 'a foreign key')
     refused(f => (f.test.words[0] = f.test.words[0].replace('should prevent approval', 'must prevent approval')), /is not one of the Sport Profile check's words exactly/, 'his test paraphrased')
     refused(f => (f.test.citedAs = 'his reply filed 29 October 2026, item 4'), /cites his words as "his reply filed 30 October 2026, item 4"/, 'his test cited elsewhere')
     refused(f => (f.test.words = []), /its basis quotes none of his words/, 'no test')
+    // His test is both of its sentences, the material and the procedural: one of them alone, or a sentence beside them, is not his test.
+    refused(f => (f.test.words = [HIS_ITEM_4[2]]), /does not quote his sentence naming PROCEDURAL \("Minor or nonessential procedural questions/, 'only the material sentence of his test')
+    refused(f => (f.test.words = [HIS_ITEM_4[3]]), /does not quote his sentence naming MATERIAL \("Material unresolved conflicts/, 'only the procedural sentence of his test')
+    {
+        const beside = copy(raw)
+        beside.test.words = [HIS_ITEM_4[1]]
+        const errors = lawsMaterialityRefusals(beside, laws)
+        for (const kind of ['MATERIAL', 'PROCEDURAL']) assert.ok(errors.some(error => error.includes(`does not quote his sentence naming ${kind}`)), `a sentence beside his test, for ${kind}: ${errors.join(' | ')}`)
+    }
+    refused(() => undefined, /the Sport Profile's check quotes no sentence of his naming PROCEDURAL/, 'a profile check without his procedural sentence', {
+        ...laws,
+        check: { ...laws.check!, basis: { ...laws.check!.basis, words: laws.check!.basis.words.filter(words => words !== HIS_ITEM_4[3]) } },
+    })
     refused(() => undefined, /the Sport Profile declares no check of the sport to hold it to/, 'a profile declaring no check', { ...laws, check: null })
     refused(f => (entry(f, 'LAW-8').law = 'LAW-99'), /classifies "LAW-99", which is no law the Sport Profile names/, 'a law the profile does not name')
     refused(f => f.classifications.push(copy(entry(f, 'LAW-11'))), /classification LAW-11 is classified twice/, 'a law twice')
