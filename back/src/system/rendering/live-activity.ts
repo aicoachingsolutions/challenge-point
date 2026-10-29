@@ -70,8 +70,9 @@ export function livePathwayOf(selection: Pick<TestLibrarySelectionResult, 'selec
  * (`draft-coach-wording.json` notCheckedNotice, validated by its loader): no word of it is written here or in the front, and it is marked DRAFT
  * where it is served. Null where the wording file carries no usable notice.
  *
- * OPEN DECISION (review round 1): where it is null, the generation route serves its activities without a notice (fail-open), while the
- * checked pathway refuses when its wording is unusable (fail-closed). Whether the generation route should refuse instead is not decided here.
+ * **Fail-closed** (decided by Joe, 28 October 2026; the open decision of review round 1): where the wording carries no usable notice, an
+ * activity the checked pathway did not build is refused rather than served without it (`requiredNotCheckedNotice`), as the checked pathway
+ * already refuses when its wording is unusable. Served without its notice, an unchecked activity would misrepresent its status.
  */
 export interface PathwayNotice {
     label: string
@@ -85,14 +86,27 @@ export function notCheckedNotice(wording?: DraftCoachWording): PathwayNotice | n
     return entry ? { label: entry.label, words: entry.words, status: 'DRAFT' } : null
 }
 
+/** The failure stage a refusal for want of the notice is recorded under (the generation route's usage events and debug trace). */
+export const NOT_CHECKED_NOTICE_STAGE = 'pathway-notice'
+
+/** Thrown where an activity the checked pathway did not build would be served without its notice: never the coach's words. */
+export class NotCheckedNoticeUnavailable extends Error {}
+
+/** The notice beside an activity the checked pathway did not build, or a refusal (`NotCheckedNoticeUnavailable`) where the wording carries none. */
+export function requiredNotCheckedNotice(wording?: DraftCoachWording): PathwayNotice {
+    const notice = notCheckedNotice(wording)
+    if (!notice) throw new NotCheckedNoticeUnavailable('the wording data carries no usable notCheckedNotice entry, so an activity the checked pathway did not build is not served without it')
+    return notice
+}
+
 /**
  * **The notice for a stored activity, by its recorded pathway and nothing else**: none where it records the checked pathway (the save of a
  * checked build records CHECKED_CHAIN, and no update writes the pathway, `editableUpdateOf`), the notice otherwise. A generated activity records
  * no pathway, and neither does any activity saved before this notice, so each is said to be unchecked, which it is. No goal, game or
- * context is read.
+ * context is read. Where the wording carries no notice, an unchecked activity is refused (`requiredNotCheckedNotice`); a checked one is not.
  */
 export function storedPathwayNotice(activity: { pathway?: unknown } | null | undefined, wording?: DraftCoachWording): PathwayNotice | null {
-    return activity?.pathway === CHECKED_CHAIN ? null : notCheckedNotice(wording)
+    return activity?.pathway === CHECKED_CHAIN ? null : requiredNotCheckedNotice(wording)
 }
 
 /** The fields a read of a stored activity adds and the store never holds: no update writes them (`editableUpdateOf`). */
@@ -100,7 +114,8 @@ export const READ_ONLY_FIELDS: readonly string[] = ['pathwayNotice']
 
 /**
  * **A stored activity as a read serves it**: its own fields, less any field only a read adds, with the notice beside them where its recorded
- * pathway is not the checked one (`storedPathwayNotice`). The stored copy is not changed. Used by every route that reads activities.
+ * pathway is not the checked one (`storedPathwayNotice`, which refuses an unchecked one where the wording carries no notice). The stored copy
+ * is not changed. Used by every route that reads activities.
  */
 export function withPathwayNotice(activity: Record<string, unknown>, wording?: DraftCoachWording): Record<string, unknown> {
     const own: Record<string, unknown> = {}

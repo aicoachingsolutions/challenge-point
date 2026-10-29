@@ -30,7 +30,7 @@ import Logger from '../logger'
 import LoggingService from '../services/logging.service'
 import { deriveInputConstraints } from '../system/input-constraints/deriveInputConstraints'
 import { ActivityReviewRequestError, activityReviewOptions, reviewActivity } from '../system/rendering/activity-review'
-import { CHECKED_CHAIN, CHECKED_PATHWAY_FAILURE_STAGE, CheckedSaveRequestError, checkedSave, editableUpdateOf, liveCheckedActivity, livePathwayOf, liveRefusalBody, notCheckedNotice, planningInputUse, servedStoredActivity, unconsumedInputsNote, withPathwayNotice } from '../system/rendering/live-activity'
+import { CHECKED_CHAIN, CHECKED_PATHWAY_FAILURE_STAGE, CheckedSaveRequestError, checkedSave, editableUpdateOf, liveCheckedActivity, livePathwayOf, liveRefusalBody, NOT_CHECKED_NOTICE_STAGE, NotCheckedNoticeUnavailable, planningInputUse, requiredNotCheckedNotice, servedStoredActivity, unconsumedInputsNote, withPathwayNotice } from '../system/rendering/live-activity'
 import { UnknownActivityRequest } from '../system/rendering/build-activity'
 import { buildPilotActivity, isPilotRefused } from '../system/rendering/build-pilot-activity'
 import { sessionObjectChoices } from '../system/rendering/session-object-choices'
@@ -1102,6 +1102,16 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
         // Unreachable: a record-backed selection never enters generation, whatever its constraints (G1).
         if (livePathwayOf(selection) === CHECKED_CHAIN) throw new Error('a record-backed selection reached the generation pathway')
 
+        /**
+         * **Every activity this route generates is said to be unchecked** — the live-app status notice, 25 October 2026. Christian, reply
+         * filed 26 October 2026, item 9(a): *"Other Learning Goals may continue through their existing pathway during this transitional
+         * period, provided their status and limitations are not misrepresented."* Served whole, for the choice as a whole, from the wording
+         * data (`notCheckedNotice`, DRAFT); decided by the pathway, never by a goal: only the checked pathway above returns without it.
+         * Fail-closed (28 October 2026): where the wording carries no notice nothing is generated, and the refusal is read here, before the
+         * model is called, so no model call is paid for an activity that could not be served.
+         */
+        const pathwayNotice = requiredNotCheckedNotice()
+
         // The primary scoring event is resolved BEFORE any activity text exists. An empty intersection
         // is refused rather than guessed: "Validation should fail rather than infer if the selected
         // realization cannot produce a valid event for the active Context."
@@ -1345,13 +1355,6 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
         // stays silent — Quiet Assistance means a notice must be able to change the coach's next
         // decision, and "I understood you exactly" cannot.
         const resolutionNotice = buildResolutionNotice(selection.resolution.status)
-        /**
-         * **Every activity this route generates is said to be unchecked** — the live-app status notice, 25 October 2026. Christian, reply
-         * filed 26 October 2026, item 9(a): *"Other Learning Goals may continue through their existing pathway during this transitional
-         * period, provided their status and limitations are not misrepresented."* Served whole, for the choice as a whole, from the wording
-         * data (`notCheckedNotice`, DRAFT); decided by the pathway, never by a goal: only the checked pathway above returns without it.
-         */
-        const pathwayNotice = notCheckedNotice()
 
         if (debug && debugTrace) {
             debugTrace.validation = { aiStagePass: true, failureStage: null, failureReason: null }
@@ -1360,7 +1363,7 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
                 debugTrace,
                 resolutionStatus: selection.resolution.status,
                 ...(resolutionNotice ? { notice: resolutionNotice } : {}),
-                ...(pathwayNotice ? { pathwayNotice } : {}),
+                pathwayNotice,
             })
         }
         // Wrapped object rather than a bare array so the notice has somewhere to live. The client
@@ -1369,11 +1372,13 @@ router.post(`${ROUTES.generateActivities}/:id`, async (req: Request, res: Respon
             activities: compressedActivities,
             resolutionStatus: selection.resolution.status,
             ...(resolutionNotice ? { notice: resolutionNotice } : {}),
-            ...(pathwayNotice ? { pathwayNotice } : {}),
+            pathwayNotice,
         })
     } catch (error) {
-        // An unexpected failure of the checked pathway is its own, never the generation route's model stage (stage A re-review).
-        const failureStage = error instanceof SystemPipelineError ? error.stage : checkedBuild ? CHECKED_PATHWAY_FAILURE_STAGE : 'ai-assembly'
+        // An unexpected failure of the checked pathway is its own, never the generation route's model stage (stage A re-review); nor is a
+        // refusal for want of the not-checked notice (fail-closed, 28 October 2026), which comes before any model call.
+        const failureStage =
+            error instanceof SystemPipelineError ? error.stage : error instanceof NotCheckedNoticeUnavailable ? NOT_CHECKED_NOTICE_STAGE : checkedBuild ? CHECKED_PATHWAY_FAILURE_STAGE : 'ai-assembly'
         recordUsageEvent({
             eventType: 'generation_failed',
             sessionId: req.params.id,

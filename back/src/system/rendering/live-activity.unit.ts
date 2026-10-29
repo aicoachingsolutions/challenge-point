@@ -518,7 +518,9 @@ const refusedWith = (outcome: ReturnType<typeof liveCheckedActivity>, cause: str
     const routes = fs.readFileSync(path.join(__dirname, '../../routes/app.routes.ts'), 'utf8')
     assert.ok(routes.includes('await Activity.findByIdAndUpdate(body._id, editableUpdateOf(body))'))
     assert.equal(routes.split('Activity.findByIdAndUpdate(').length - 1, 1, 'the one update of a stored activity')
-    assert.ok(routes.includes("const failureStage = error instanceof SystemPipelineError ? error.stage : checkedBuild ? CHECKED_PATHWAY_FAILURE_STAGE : 'ai-assembly'"))
+    // Re-pointed 28 October 2026 (the not-checked notice made fail-closed): a refusal for want of the notice has its own stage too, decided
+    // after a pipeline error's own stage and before the checked pathway's.
+    assert.ok(routes.includes("error instanceof SystemPipelineError ? error.stage : error instanceof NotCheckedNoticeUnavailable ? NOT_CHECKED_NOTICE_STAGE : checkedBuild ? CHECKED_PATHWAY_FAILURE_STAGE : 'ai-assembly'"))
     assert.equal(routes.split('checkedBuild = true').length - 1, 1, 'set only where the checked pathway is entered')
     assert.equal(CHECKED_PATHWAY_FAILURE_STAGE, 'checked-pathway')
 }

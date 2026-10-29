@@ -13,7 +13,10 @@
  *   3. the live route: both of the generation route's served responses carry it, the checked pathway's does not, and every read of a stored
  *      activity carries it by its pathway (the route's own source, as live-activity.unit.ts reads it); the two list routes run
  *      `servedStoredActivity`, whose body is run here over real Activity documents (review round 1);
- *   4. no word of it is written in a back or front source file: the front renders what the server sends.
+ *   4. no word of it is written in a back or front source file: the front renders what the server sends;
+ *   5. fail-closed (28 October 2026): where the wording carries no notice, an unchecked activity is refused, never served without it — the
+ *      generation route refuses before its model is called, under its own failure stage, and a read of a stored unchecked activity throws
+ *      (the read routes answer 500); a checked one is still served.
  * The response bodies themselves are measured through the REAL router on the built bundle (a TEST-ONLY stubbed model, outside the regression
  * snapshot, whose stubbed model answers empty, so its generation keys are refusals and carry no notice).
  *
@@ -27,7 +30,18 @@ import Activity from '../../models/activity.model'
 import { loadRegister } from '../derivation/corpus'
 import { indexRegister } from '../derivation/register'
 import { DRAFT_COACH_WORDING_FILE, draftCoachWordingLoad, draftCoachWordingLoadOf, draftCoachWordingUnusableBecause } from './draft-coach-wording'
-import { CHECKED_CHAIN, editableUpdateOf, notCheckedNotice, READ_ONLY_FIELDS, servedStoredActivity, storedPathwayNotice, withPathwayNotice } from './live-activity'
+import {
+    CHECKED_CHAIN,
+    editableUpdateOf,
+    NOT_CHECKED_NOTICE_STAGE,
+    notCheckedNotice,
+    NotCheckedNoticeUnavailable,
+    READ_ONLY_FIELDS,
+    requiredNotCheckedNotice,
+    servedStoredActivity,
+    storedPathwayNotice,
+    withPathwayNotice,
+} from './live-activity'
 
 let passed = 0
 function test(name: string, body: () => void): void {
@@ -82,6 +96,7 @@ test('the loader validates the entry: each damaged TEST-ONLY copy is refused, an
         assert.equal(load.wording.notCheckedNotice, null, `${what}: no notice`)
         assert.deepEqual(load.wording.equipment, [], `${what}: and no other wording either (fail-closed)`)
         assert.equal(notCheckedNotice(load.wording), null, `${what}: nothing is served from it`)
+        assert.throws(() => requiredNotCheckedNotice(load.wording), NotCheckedNoticeUnavailable, `${what}: so an unchecked activity is refused`)
     }
     // The entry is optional, as every later entry is: a file without it loads, and no notice is served from it.
     const without = copy(file)
@@ -106,8 +121,21 @@ test('by the recorded pathway alone: CHECKED_CHAIN has no notice; every other st
     }
     assert.deepEqual(storedPathwayNotice(null), notice, 'nothing recorded at all')
     assert.deepEqual(storedPathwayNotice(undefined), notice, 'nothing recorded at all')
+    // Fail-closed (28 October 2026): where the wording carries no notice, an unchecked activity is refused rather than served without it.
     const without = draftCoachWordingLoadOf({ ...copy(file), notCheckedNotice: undefined }, index).wording
-    assert.equal(storedPathwayNotice({}, without), null, 'no notice where the wording carries none')
+    assert.equal(without.notCheckedNotice, null, 'the wording carries no notice')
+    for (const stored of [{}, null, undefined, { pathway: 'GENERATION' }]) {
+        assert.throws(() => storedPathwayNotice(stored, without), NotCheckedNoticeUnavailable, `refused, not served without its notice: ${JSON.stringify(stored)}`)
+    }
+    assert.equal(storedPathwayNotice({ pathway: CHECKED_CHAIN }, without), null, 'a checked activity needs no notice, so it is still served')
+    assert.deepEqual(requiredNotCheckedNotice(), notice, 'the shipped wording carries it, so nothing is refused today')
+    let refusal: unknown = null
+    try { requiredNotCheckedNotice(without) } catch (error) { refusal = error }
+    assert.ok(refusal instanceof NotCheckedNoticeUnavailable && refusal.message.includes('notCheckedNotice'), 'the refusal says which entry is missing')
+    assert.ok(!refusal.message.includes(entry.label) && !refusal.message.includes(entry.words), 'the refusal is not the notice and not a coach sentence')
+    // The read routes answer 500 with `{ error }`: an Error serializes with no own enumerable field, so no class name or message reaches the body.
+    assert.equal(JSON.stringify({ error: refusal }), '{"error":{}}', 'the read routes\' 500 body names nothing internal')
+    assert.equal(NOT_CHECKED_NOTICE_STAGE, 'pathway-notice')
 })
 
 test('a read serves the activity as stored, with the notice beside an unchecked one only; nothing stored changes and no update writes it', () => {
@@ -124,6 +152,13 @@ test('a read serves the activity as stored, with the notice beside an unchecked 
     // A notice is never the client's or the store's: a copy carrying one (posted back by the review form, say) is read afresh.
     assert.deepEqual(withPathwayNotice({ ...checked, pathwayNotice: { label: 'TEST-ONLY' } }), checked, 'a checked activity sheds a notice it carries')
     assert.deepEqual(withPathwayNotice({ ...before, pathwayNotice: { label: 'TEST-ONLY' } }), { ...before, pathwayNotice: notice }, 'an unchecked one gets the server\'s')
+
+    // Fail-closed: where the wording carries no notice, the read of an unchecked activity throws (the read routes answer 500), and never
+    // serves it bare nor with a notice the stored copy carries; a checked one is read as before.
+    const without = draftCoachWordingLoadOf({ ...copy(file), notCheckedNotice: undefined }, index).wording
+    assert.throws(() => withPathwayNotice(legacy, without), NotCheckedNoticeUnavailable)
+    assert.throws(() => withPathwayNotice({ ...before, pathwayNotice: notice }, without), NotCheckedNoticeUnavailable)
+    assert.deepEqual(withPathwayNotice(checked, without), checked)
 
     assert.deepEqual(READ_ONLY_FIELDS, ['pathwayNotice'])
     const edit = { _id: 'TEST-ONLY-1', title: 'TEST-ONLY edited', pathwayNotice: notice, 'pathwayNotice.label': 'TEST-ONLY', pathway: CHECKED_CHAIN }
@@ -179,16 +214,23 @@ test('the live route: both served generation responses carry the notice, the che
     const checkedEnd = handler.indexOf("if (livePathwayOf(selection) === CHECKED_CHAIN) throw new Error('a record-backed selection reached the generation pathway')")
     assert.ok(checkedStart > 0 && checkedEnd > checkedStart, 'the checked branch is found')
     assert.ok(!handler.slice(checkedStart, checkedEnd).includes('pathwayNotice'), 'the checked pathway serves no notice')
-    // The notice is read once, from the wording data, with no argument: no goal, form or context decides it.
-    assert.equal(handler.split('const pathwayNotice = notCheckedNotice()\n').length - 1, 1)
-    assert.ok(handler.indexOf('const pathwayNotice = notCheckedNotice()') > checkedEnd, 'read only after the checked pathway has returned')
+    // The notice is read once, from the wording data, with no argument: no goal, form or context decides it. Fail-closed (28 October 2026):
+    // read by the function that refuses where the wording carries none, after the checked pathway has returned and before the model is called.
+    const noticeRead = 'const pathwayNotice = requiredNotCheckedNotice()'
+    assert.equal(handler.split(`${noticeRead}\n`).length - 1, 1)
+    assert.ok(!handler.includes('notCheckedNotice()'), 'never by the function that answers null')
+    assert.ok(handler.indexOf(noticeRead) > checkedEnd, 'read only after the checked pathway has returned')
+    const modelCall = handler.indexOf('assembleActivities(assemblyInput)')
+    assert.ok(modelCall > 0 && handler.indexOf(noticeRead) < modelCall, 'and before the model is called, so no call is paid for an activity that is refused')
+    // Its refusal is recorded under its own failure stage, never as the model's or the checked pathway's.
+    assert.ok(handler.includes('error instanceof NotCheckedNoticeUnavailable ? NOT_CHECKED_NOTICE_STAGE :'), 'its own failure stage')
     // Both 200 responses of the generation route (debug and not) carry it beside their activities.
     // Each response body runs to the line that closes it (a line holding only "})").
     const served = handler.split('return res.status(200).json({').slice(1).map(part => part.slice(0, part.search(/\n\s*\}\)\n/)))
     const generated = served.filter(part => part.includes('activities: compressedActivities'))
     assert.equal(generated.length, 2, 'the generation route serves activities in two places')
-    for (const part of generated) assert.ok(part.includes('...(pathwayNotice ? { pathwayNotice } : {}),'), 'each carries the notice')
-    assert.equal(handler.split('pathwayNotice').length - 1, 1 + 2 * 2, 'and nowhere else in the route: the read, and the two spreads (two mentions each)')
+    for (const part of generated) assert.ok(/\n\s*pathwayNotice,\n/.test(`${part}\n`), 'each carries the notice, always')
+    assert.equal(handler.split('pathwayNotice').length - 1, 1 + 2, 'and nowhere else in the route: the read, and the two responses')
 
     // Every read of a stored activity: the activity page (BaseRoutes GET /activity/:id and GET /activity), the session's list and the coach's list.
     assert.ok(routes.includes('    transform: withPathwayNotice,\n})'), 'the activity reads BaseRoutes serves carry it')
