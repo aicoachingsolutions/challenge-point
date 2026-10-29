@@ -69,6 +69,9 @@ async function preBuildOperations() {
             // Stage 3E (22 October 2026): the PROPOSED record of what parts of his approved wording state, read at module load by
             // approved-wording-readings.ts.
             'approved-wording-readings.json',
+            // The requirement account (29 October 2026): our DRAFT bindings, read lazily at the first administrator's review build by
+            // requirement-bindings.ts; outside every derivation input, so no digest moves.
+            'requirement-bindings.json',
             // Stage G (23 October 2026): the DRAFT coach wording for objects and for scoring at an object, read at first use by
             // draft-coach-wording.ts (the renderer and fidelity).
             'draft-coach-wording.json',

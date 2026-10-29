@@ -338,6 +338,8 @@ export interface ServedActivity {
     roleBlocks?: ReviewRoleBlocks
     /** The administrator-only review evidence (stage K8), where the goal's record asks for one; see `RefusedActivity.evidence`. */
     evidence?: ReviewEvidence
+    /** The administrator-only requirement account (29 October 2026), report only; see `RequirementAccount`. */
+    requirementAccount?: RequirementAccount
     /**
      * The Coach Overview (stage 3D, 21 October 2026; `back/src/system/rendering/overview-fidelity.ts`), served to every viewer: words and
      * "full rule" pointers only. Present only where the server's agreement check (Q7) found the overview agrees with the Coach Details in
@@ -663,6 +665,147 @@ export interface RefusedActivity {
      * review-evidence.ts`). Never served to a coach.
      */
     evidence?: ReviewEvidence
+    /** Only for an administrator, on a refusal after realization (29 October 2026): the requirement account, report only; see `RequirementAccount`. */
+    requirementAccount?: RequirementAccount
+}
+
+/**
+ * **The requirement account, for an administrator only** — 29 October 2026 (`back/src/system/rendering/requirement-account.ts`, its source of
+ * truth). Christian, his reply filed 3 November 2026, section 2: each generated activity accounted against the applicable, approved context
+ * requirements, component by component of its scoring condition, in his four categories and three standards. Every classification is ours
+ * and DRAFT; it refuses nothing. Typed as plain data, loosely where the server may add a value later (kinds, causes, sources are strings).
+ */
+export type RequirementAccountKind = 1 | 2 | 3 | 4
+
+export interface RequirementCarrier {
+    contractId: string
+    itemId: string
+    contractKind: string
+    row: string
+    selector: string | null
+    requirement: string
+    strictness: string
+    basis: string
+    category: string | null
+    scope: string | null
+    forward: { result: string; why: string; reach: string[] }
+    survives: { how: string; elementIds: string[]; vacuous: boolean; rereadInGame?: boolean }
+    value: { authored: unknown; realized: unknown[] } | null
+    byConstruction: boolean
+    relationship: string | null
+    condition: { carriedScope: unknown; episodeConfirmed: boolean; governs: boolean; elementFound: boolean; why: string | null } | null
+}
+
+export interface RequirementDeclaration {
+    contractId: string
+    contractKind: string
+    row: string
+    selector: string | null
+    declaration: string
+    qualifier: string
+    note: string | null
+    relationship: string | null
+}
+
+export interface RequirementFacet {
+    facetId: string
+    label: string
+    account: RequirementAccountKind
+    carriers: RequirementCarrier[]
+    declarations: RequirementDeclaration[]
+    considered: { contractId: string; itemId: string; contractKind: string | null; forward: string | null; why: string[] }[]
+    cause: string | null
+}
+
+export interface RequirementCause {
+    kind: string
+    detail: string
+}
+
+export interface RequirementPart {
+    rowId: string
+    rowSheet: string
+    rowRole: string
+    rowText: string
+    expectedEvidence: string | null
+    partId: string
+    partLabel: string
+    kind: string
+    component: string | null
+    rowSpan: string | null
+    account: RequirementAccountKind
+    accountWords: string
+    countsAsSatisfied: boolean
+    standard: string
+    standardWords: string
+    facets: RequirementFacet[]
+    guard: { kind: unknown; approvedEvents: string[]; approved: boolean; findings: string[]; relationshipIds: string[] } | null
+    observable: { text: string; source: string; citedAs: { file: string; table: string; rowId: string; field: string } | null; expect: string; standing: string } | null
+    observableIdentified: boolean
+    recordedOutside: { contractId: string; itemId: string }[]
+    sameReferent: { component: string; facet: string; evaluated: boolean; holds: boolean | null; detail: string } | null
+    byConstruction: boolean
+    vacuous: boolean
+    accountsFor: string[]
+    cause: RequirementCause | null
+    restsOnDraftKnowledge: boolean
+    classification: { standing: string; by: string; bindingsVersion: string | null; note: string | null }
+    perBlock: { blockId: string; account: RequirementAccountKind }[]
+}
+
+export interface RequirementScoringComponent {
+    component: string
+    label: string
+    rowSpans: string[]
+    account: RequirementAccountKind
+    perBlock: { blockId: string; account: RequirementAccountKind }[]
+    inPlay: RequirementAccountKind | null
+    byConstruction: boolean
+    cause: RequirementCause | null
+}
+
+export interface RequirementAccount {
+    status: string
+    about: string
+    /** BINDINGS_REFUSED or ERROR: why, once. */
+    reasons: string[]
+    contextId: string
+    contextName: string | null
+    outcome: string
+    bindings: { file: string | null; version: string | null; mode: string | null; standing: string }
+    contract: string
+    summary: {
+        headline: string
+        scoringConditionCarried: boolean
+        scoringCondition: {
+            state: string
+            rowId: string | null
+            rowText: string | null
+            components: RequirementScoringComponent[]
+            missing: { component: string; label: string; blocks: string[]; cause: RequirementCause }[]
+            notStructurallyRepresented: { component: string; label: string }[]
+            uncoveredWords: string | null
+            unaccountedBlocks: string[]
+        } | null
+        counts: Record<'1' | '2' | '3' | '4', number>
+        /** Of the parts in account 1, how many hold by absence and by construction (ours). */
+        representedHow: { byAbsence: number; byConstruction: number }
+        unsupported: { rowId: string; partId: string; label: string; cause: RequirementCause }[]
+        coachObservedWithoutObservable: { rowId: string; partId: string; label: string }[]
+        blocksDisagree: { rowId: string; partId: string; perBlock: { blockId: string; account: RequirementAccountKind }[] }[]
+    }
+    parts: RequirementPart[]
+    /** Each block: its parts only where they differ from the merged ones above; `partsIdenticalToMerged` counts the rest. */
+    blocks: { blockId: string; status: string; reasons: string[]; parts: Omit<RequirementPart, 'perBlock'>[]; partsIdenticalToMerged: number }[]
+    blocksWithoutAccount: { blockId: string; why: string }[]
+    notAccounted: { rowId: string; rowRole: string; rowText: string; why: string; standing: string; citedAsObservableBy: string[]; accountedInside: string | null }[]
+    alsoNotAccounted: string[]
+    accounts: { id: RequirementAccountKind; words: string }[]
+    standards: { id: string; words: string }[]
+    /** Our rule for coach observation (ours, DRAFT), with his words it reads. */
+    coachObservationRule: { rule: string; standing: string; by: string; his: { words: string; citedAs: string } }
+    citedAs: string
+    refusal: string
 }
 
 /** One fact the review evidence read from the game: what it is, and its value as the server sent it. */

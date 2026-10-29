@@ -1,0 +1,627 @@
+{
+  "about": "REQUIREMENT BINDINGS: how each applicable, approved context requirement is accounted for in a finished activity, part by part, in the four categories Christian supported and the three standards he asked to keep distinct, in his reply filed 3 November 2026, section 2. Read only by the requirement-account reader (back/src/system/rendering/requirement-account.ts) after realization, for an administrator's review build; never part of a derivation input, so no input digest moves. Every pattern finds carrying items by register row, selector term, requirement, strictness, scope, value and the kind of contract it sits in, never by item id, so any realization that carries a requirement is found to carry it and no Learning Goal is named. Each scoring-condition component pins the value and scope his approved knowledge carries, so a change to either reads as missing.",
+  "standing": "DRAFT - OUR CLASSIFICATION, NOT HIS. Every part, account kind, standard, pattern and observable below is ours, drafted for his review. Nothing here refuses an activity (his reply filed 3 November 2026: \"let's verify the classifications before enabling refusals broadly\").",
+  "schemaVersion": 1,
+  "version": "2026-11-03.2",
+  "applicability": {
+    "standing": "DRAFT",
+    "accounted": {
+      "identityRoles": ["REQUIRED", "EXCLUSION"],
+      "propertyCategories": ["PRIMARY_SCORING_CONDITION"],
+      "validationDomains": ["IDENTITY", "SCORING", "BOUNDARY", "REPRESENTATIVENESS", "DIVERSITY"]
+    },
+    "listedNotAccounted": {
+      "identityRoles": ["SUPPORTING_IDENTITY"],
+      "propertyCategories": ["BEGIN_CONDITION", "END_CONDITION", "REPRESENTATIVE_INFORMATION", "DEGENERATE_SOLUTION", "BEHAVIOR_ADJUSTMENT"],
+      "validationDomains": [],
+      "why": "Listed for review and not accounted in this increment: whether a supporting identity row, a context's core begin and end conditions, its representative information, its degenerate solutions or its behaviour adjustments belong to the applicable set is his decision."
+    },
+    "overReturnedAlternatives": {
+      "validationDomains": ["DIVERSITY"],
+      "why": "Evaluated over the alternatives a build returns; a build that returns one activity has none, so the row does not apply to it and is listed, never reported as missing."
+    }
+  },
+  "carriers": {
+    "standing": "DRAFT",
+    "eligibleBases": ["AUTHORED", "OWNER_RULING"],
+    "eligibleForward": ["SATISFIED"],
+    "gameFormRelationship": "an ACTIVE GAME_FORM relationship of the context, in his context workbook, to the selected game form"
+  },
+  "contexts": [
+    {
+      "contextId": "RPC-001",
+      "rows": [
+        {
+          "rowId": "RPC-ID-001",
+          "parts": [
+            {
+              "id": "start-awarded",
+              "label": "Play starts with possession awarded to one team",
+              "kind": "PATTERN",
+              "standard": "STRUCTURAL_VALIDITY",
+              "facets": [
+                {
+                  "id": "start",
+                  "label": "a start transition",
+                  "row": "T1",
+                  "requirement": ["EXISTS"],
+                  "terms": [{ "attribute": "trigger", "value": "START" }],
+                  "from": ["CONTEXT", "REALIZATION", "GAME_FORM"]
+                },
+                {
+                  "id": "awarded",
+                  "label": "the start awards possession to a team",
+                  "row": "T2",
+                  "terms": [{ "attribute": "trigger", "value": "START" }],
+                  "from": ["CONTEXT", "REALIZATION", "GAME_FORM"]
+                }
+              ],
+              "standingNote": "The item that cites this row restates it as an existence on a field row, which the engine reads as asserting nothing; the start and its award are carried by other items, so the pattern looks for what carries the row, not for what cites it. It reads the opening start only: that it awards possession to one team, and the value the finished game holds. The start of each later build-out episode is carried by the origin component's referent (a restart that begins a build-out episode), not here. Whether the possession is controlled and stable is judged in play, in the two parts below."
+            },
+            {
+              "id": "start-controlled-in-play",
+              "label": "At the start of each build-out episode, possession is controlled or play restarts from a controlled defensive restart, judged in play",
+              "kind": "COACH_OBSERVED",
+              "standard": "FIELD_EFFECTIVENESS",
+              "observable": {
+                "text": "Goalkeeper controls possession or play restarts from a controlled defensive restart.",
+                "source": "KNOWLEDGE_ROW",
+                "citedAs": {
+                  "file": "back/src/system/sport-module/rpc-library.rc1.json",
+                  "table": "properties",
+                  "rowId": "RPC-PROP-001",
+                  "field": "property_text"
+                }
+              },
+              "standingNote": "The choice of his begin condition as this part's observable is ours, DRAFT. It is read at the start of each build-out episode only, by our extension of his reply filed 16 October 2026, item 9, point 3, which scopes the scoring condition (\"Build-out condition applies only to build-out episodes: Approved.\"): an attack after a live regain is not judged by it, and a stationary ball is not required (his reply filed 17 October 2026, D5: \"The goalkeeper may receive and play from the feet; a stationary-ball restart should not be universally required.\")."
+            },
+            {
+              "id": "start-stable-in-play",
+              "label": "At the start of each build-out episode, the building team is stable enough to organize its attack, judged in play",
+              "kind": "COACH_OBSERVED",
+              "standard": "FIELD_EFFECTIVENESS",
+              "observable": {
+                "text": "The attacking team has sufficient stability to intentionally organize the beginning of the attack.",
+                "source": "KNOWLEDGE_ROW",
+                "citedAs": {
+                  "file": "back/src/system/sport-module/rpc-library.rc1.json",
+                  "table": "properties",
+                  "rowId": "RPC-PROP-002",
+                  "field": "property_text"
+                }
+              },
+              "standingNote": "The choice of his begin condition as this part's observable is ours, DRAFT: it states the stable half of the identity row in his own words."
+            }
+          ]
+        },
+        {
+          "rowId": "RPC-ID-002",
+          "parts": [
+            {
+              "id": "purpose",
+              "label": "The representative purpose: establishing organized attack",
+              "kind": "UNSUPPORTED",
+              "standard": "LEARNING_DESIGN_RELEVANCE",
+              "cause": {
+                "kind": "MISSING_KNOWLEDGE",
+                "detail": "No knowledge relationship carries the purpose. His reply filed 16 October 2026, item 4, links it to the scoring outcome, a candidate rather than a relationship: \"The intended outcome is controlled progression beyond meaningful defensive pressure, establishing the opportunity to continue an organized attack.\" His end condition RPC-PROP-003, \"Organized attack is established.\", and RPC-VAL-002's expected evidence, \"Scoring clearly rewards the representative purpose owned by the RPC.\", are candidate observables. The part stays unsupported because its standard is learning-design relevance, and our DRAFT rule admits coach observation for relevance only on expected evidence that names a coach's judgment. Whether the purpose should instead be observed in play, with his RPC-PROP-003, is his decision."
+              }
+            }
+          ]
+        },
+        {
+          "rowId": "RPC-ID-003",
+          "parts": [
+            {
+              "id": "progression-options",
+              "label": "Multiple future progression possibilities remain available",
+              "kind": "COACH_OBSERVED",
+              "standard": "FIELD_EFFECTIVENESS",
+              "observable": {
+                "text": "The player on the ball has more than one realistic way to progress, rather than one forced option.",
+                "source": "OURS",
+                "citedAs": null
+              },
+              "recordedOutsideBy": [
+                {
+                  "row": "DV1",
+                  "requirement": ["COUNT"],
+                  "from": ["CONTEXT", "REALIZATION", "GAME_FORM"]
+                }
+              ],
+              "standingNote": "The observable is drafted by us from his row, not his words. His words that may serve instead (his reply filed 16 October 2026, item 4): \"Success should permit multiple functional solutions, including carrying the ball, passing through or around pressure, and using a more direct option when appropriate.\""
+            }
+          ]
+        },
+        {
+          "rowId": "RPC-ID-005",
+          "parts": [
+            {
+              "id": "no-dominant-high-press",
+              "label": "Established coordinated high pressure does not become the dominant identity without transition to RPC-002",
+              "kind": "COACH_OBSERVED",
+              "standard": "FIELD_EFFECTIVENESS",
+              "observable": {
+                "text": "Coordinated high pressure becomes the defining representative problem.",
+                "source": "KNOWLEDGE_ROW",
+                "citedAs": {
+                  "file": "back/src/system/sport-module/rpc-library.rc1.json",
+                  "table": "properties",
+                  "rowId": "RPC-PROP-004",
+                  "field": "property_text"
+                },
+                "expect": "ABSENT"
+              },
+              "recordedOutsideBy": [
+                {
+                  "row": "V7",
+                  "strictness": ["EXCLUSION"],
+                  "from": ["CONTEXT", "REALIZATION", "GAME_FORM"]
+                },
+                {
+                  "row": "V11",
+                  "strictness": ["EXCLUSION"],
+                  "from": ["CONTEXT", "REALIZATION", "GAME_FORM"]
+                }
+              ],
+              "standingNote": "The choice of his end condition as this part's observable is ours, DRAFT: the coach watches that it does not become the activity's dominant problem. Pressure itself is part of the activity (his reply filed 17 October 2026, D4: \"Defenders should be permitted to press immediately unless a specific, authorized realization calls for a restriction.\"); where coordinated high pressure does become the defining problem, his workbook moves the activity to RPC-002 (his transition RPC-TR-001), so this is not a rule against pressing."
+            }
+          ]
+        },
+        {
+          "rowId": "RPC-PROP-132",
+          "parts": [
+            {
+              "id": "origin",
+              "label": "Initiated from the goalkeeper or a controlled defensive restart",
+              "kind": "SCORING_CONDITION_COMPONENT",
+              "component": "origin",
+              "rowSpan": "Initiated from the goalkeeper or a controlled defensive restart",
+              "standard": "STRUCTURAL_VALIDITY",
+              "facets": [
+                {
+                  "id": "condition",
+                  "label": "the origin condition on the realized primary event",
+                  "row": "V3",
+                  "requirement": ["EXISTS"],
+                  "strictness": ["REQUIRED"],
+                  "terms": [{ "attribute": "type", "value": "origin" }],
+                  "scope": ["BUILD_OUT_EPISODE"],
+                  "from": ["CONTEXT", "REALIZATION"]
+                },
+                {
+                  "id": "referents",
+                  "label": "what the origin is",
+                  "row": "V5",
+                  "terms": [{ "attribute": "type", "value": "origin" }],
+                  "scope": ["BUILD_OUT_EPISODE"],
+                  "value": {
+                    "beginsEpisodeOf": "BUILD_OUT_EPISODE",
+                    "arms": [{ "takenBy": "goalkeeper" }, { "restartKind": "CONTROLLED_DEFENSIVE_RESTART" }],
+                    "asAuthored": "A restart, taken by the goalkeeper or as a controlled defensive restart, that begins a build-out episode."
+                  },
+                  "from": ["CONTEXT", "REALIZATION"]
+                },
+                {
+                  "id": "no-further-value",
+                  "label": "the declaration that the origin needs no further value",
+                  "row": "V6",
+                  "terms": [{ "attribute": "type", "value": "origin" }],
+                  "declaration": { "kind": "NON_CLAIMED", "qualifier": "NO_FURTHER_VALUE" },
+                  "from": ["CONTEXT", "REALIZATION"]
+                }
+              ],
+              "standingNote": "His reply filed 19 October 2026, item 1, approves the coach wording \"while preserving the four conditions established in the knowledge\"; the four components of this row are those conditions, split by us. His reply filed 16 October 2026, item 9, point 9: \"Build-out origin needs no further value: Approved under the narrow authority ruling.\" The third facet reads that declaration, so that no further value is told apart from a value that is missing (his reply filed 17 October 2026, M6)."
+            },
+            {
+              "id": "episode-ends-on-loss",
+              "label": "A turnover ends the build-out episode, so a regain does not restore build-out scoring",
+              "kind": "PATTERN",
+              "component": "origin",
+              "standard": "STRUCTURAL_VALIDITY",
+              "facets": [
+                {
+                  "id": "possession-change-begins-episode",
+                  "label": "a possession change begins a new episode",
+                  "row": "T7",
+                  "terms": [{ "attribute": "trigger", "value": "POSSESSION_CHANGE" }],
+                  "value": "true",
+                  "from": ["CONTEXT", "REALIZATION", "GAME_FORM"]
+                }
+              ],
+              "accountsFor": ["RPC-PROP-005"],
+              "standingNote": "Our DRAFT reading of his eligibility ruling, his reply filed 19 October 2026, item 1: \"If the building team loses possession, that scoring opportunity ends. If it subsequently regains possession, play may continue, but the original build-out scoring opportunity is not restored.\" And item 3, C: \"build-out scoring eligibility does not return until a new deliberate goalkeeper restart.\" A possession change must begin a new episode in the finished game, so the episode-scoped condition cannot carry over a regain; it is read structurally because of his line: \"Please ensure the underlying scoring eligibility reflects this distinction, rather than relying solely on the coach-facing wording.\" It accounts, inside the scoring condition, for his end condition \"Possession is lost.\""
+            },
+            {
+              "id": "progression",
+              "label": "Progressing beyond the initial pressure or progression line",
+              "kind": "SCORING_CONDITION_COMPONENT",
+              "component": "progression",
+              "rowSpan": "progressing beyond the initial pressure or progression line",
+              "standard": "STRUCTURAL_VALIDITY",
+              "facets": [
+                {
+                  "id": "condition",
+                  "label": "the progression condition on the realized primary event",
+                  "row": "V3",
+                  "requirement": ["EXISTS"],
+                  "strictness": ["REQUIRED"],
+                  "terms": [{ "attribute": "type", "value": "progression" }],
+                  "scope": ["BUILD_OUT_EPISODE"],
+                  "from": ["CONTEXT", "REALIZATION"]
+                },
+                {
+                  "id": "referents",
+                  "label": "the line or target progressed beyond",
+                  "row": "V5",
+                  "terms": [{ "attribute": "type", "value": "progression" }],
+                  "scope": ["BUILD_OUT_EPISODE"],
+                  "value": {
+                    "objectiveReferenceOf": "SCORING_TEAM",
+                    "role": "PRIMARY_SCORING",
+                    "asAuthored": "the progression reference: where build-out success is measured - the target the scoring team attacks"
+                  },
+                  "byConstructionWhen": "RELATIONAL_REFERENT",
+                  "from": ["CONTEXT", "REALIZATION"]
+                },
+                {
+                  "id": "value",
+                  "label": "beyond it",
+                  "row": "V6",
+                  "terms": [{ "attribute": "type", "value": "progression" }],
+                  "scope": ["BUILD_OUT_EPISODE"],
+                  "value": "beyond",
+                  "from": ["CONTEXT", "REALIZATION"]
+                }
+              ],
+              "standingNote": "Its referent is the target the scoring team attacks, so the condition holds whenever the scoring event occurs; what makes the arrival a progression beyond the initial pressure is where that target is placed (his reply filed 17 October 2026, D3: \"I agree with your recommendation to position the building team's progression target relative to the defensive pressure reference, with the coach able to adjust its precise location.\"). His reply filed 16 October 2026, item 9, point 2, bears on it too: \"provided they are evaluated against the intended progression outcome and not merely whichever target the current engine can represent\"."
+            },
+            {
+              "id": "control",
+              "label": "With possession controlled on arrival",
+              "kind": "SCORING_CONDITION_COMPONENT",
+              "component": "control",
+              "rowSpan": "with possession controlled on arrival",
+              "standard": "STRUCTURAL_VALIDITY",
+              "facets": [
+                {
+                  "id": "condition",
+                  "label": "the control condition on the realized primary event",
+                  "row": "V3",
+                  "requirement": ["EXISTS"],
+                  "strictness": ["REQUIRED"],
+                  "terms": [{ "attribute": "type", "value": "control" }],
+                  "scope": ["BUILD_OUT_EPISODE"],
+                  "from": ["CONTEXT", "REALIZATION"]
+                },
+                {
+                  "id": "value",
+                  "label": "controlled on arrival",
+                  "row": "V6",
+                  "terms": [{ "attribute": "type", "value": "control" }],
+                  "scope": ["BUILD_OUT_EPISODE"],
+                  "value": "controlled on arrival",
+                  "from": ["CONTEXT", "REALIZATION"]
+                },
+                {
+                  "id": "referents",
+                  "label": "arrival at the target attacked",
+                  "row": "V5",
+                  "terms": [{ "attribute": "type", "value": "control" }],
+                  "scope": ["BUILD_OUT_EPISODE"],
+                  "value": {
+                    "objectiveReferenceOf": "SCORING_TEAM",
+                    "role": "PRIMARY_SCORING",
+                    "asAuthored": "with possession controlled on arrival - arrival at the target the scoring team attacks"
+                  },
+                  "from": ["CONTEXT", "REALIZATION"]
+                }
+              ],
+              "sameReferentAs": {
+                "component": "progression",
+                "facet": "referents",
+                "because": "His reply filed 16 October 2026, item 9, point 2: controlled arrival and the long-clearance exclusion are approved \"provided they are evaluated against the intended progression outcome and not merely whichever target the current engine can represent\"; and his reply filed 17 October 2026, M8: \"Apply the qualifying conditions to the target and scoring episode actually being evaluated.\""
+              }
+            },
+            {
+              "id": "exclusion",
+              "label": "A long clearance that happens to reach the target does not satisfy the event",
+              "kind": "SCORING_CONDITION_COMPONENT",
+              "component": "exclusion",
+              "rowSpan": "A long clearance that happens to reach the target does not satisfy the event.",
+              "standard": "STRUCTURAL_VALIDITY",
+              "facets": [
+                {
+                  "id": "condition",
+                  "label": "the exclusion condition on the realized primary event",
+                  "row": "V3",
+                  "requirement": ["EXISTS"],
+                  "strictness": ["REQUIRED"],
+                  "terms": [{ "attribute": "type", "value": "exclusion" }],
+                  "scope": ["BUILD_OUT_EPISODE"],
+                  "from": ["CONTEXT", "REALIZATION"]
+                },
+                {
+                  "id": "value",
+                  "label": "what is excluded",
+                  "row": "V6",
+                  "terms": [{ "attribute": "type", "value": "exclusion" }],
+                  "scope": ["BUILD_OUT_EPISODE"],
+                  "value": "a long clearance that happens to reach the target",
+                  "from": ["CONTEXT", "REALIZATION"]
+                },
+                {
+                  "id": "referents",
+                  "label": "the target it would reach",
+                  "row": "V5",
+                  "terms": [{ "attribute": "type", "value": "exclusion" }],
+                  "scope": ["BUILD_OUT_EPISODE"],
+                  "value": {
+                    "objectiveReferenceOf": "SCORING_TEAM",
+                    "role": "PRIMARY_SCORING",
+                    "asAuthored": "a long clearance that happens to reach the target - the target the scoring team attacks"
+                  },
+                  "from": ["CONTEXT", "REALIZATION"]
+                }
+              ],
+              "sameReferentAs": {
+                "component": "progression",
+                "facet": "referents",
+                "because": "His reply filed 16 October 2026, item 9, point 2: controlled arrival and the long-clearance exclusion are approved \"provided they are evaluated against the intended progression outcome and not merely whichever target the current engine can represent\"; and his reply filed 17 October 2026, M8: \"Apply the qualifying conditions to the target and scoring episode actually being evaluated.\""
+              }
+            },
+            {
+              "id": "progression-in-play",
+              "label": "Progression beyond the initial defensive pressure, not only arrival at the target, judged in play (our gloss)",
+              "kind": "COACH_OBSERVED",
+              "standard": "FIELD_EFFECTIVENESS",
+              "component": "progression",
+              "observable": {
+                "text": "progressing beyond the initial pressure or progression line",
+                "source": "KNOWLEDGE_ROW",
+                "citedAs": {
+                  "file": "back/src/system/sport-module/rpc-library.rc1.json",
+                  "table": "properties",
+                  "rowId": "RPC-PROP-132",
+                  "field": "property_text"
+                }
+              }
+            },
+            {
+              "id": "control-in-play",
+              "label": "Control on arrival, judged in play",
+              "kind": "COACH_OBSERVED",
+              "standard": "FIELD_EFFECTIVENESS",
+              "component": "control",
+              "observable": {
+                "text": "with possession controlled on arrival",
+                "source": "KNOWLEDGE_ROW",
+                "citedAs": {
+                  "file": "back/src/system/sport-module/rpc-library.rc1.json",
+                  "table": "properties",
+                  "rowId": "RPC-PROP-132",
+                  "field": "property_text"
+                }
+              }
+            },
+            {
+              "id": "exclusion-in-play",
+              "label": "Whether a ball was a long clearance that happened to reach the target, judged in play",
+              "kind": "COACH_OBSERVED",
+              "standard": "FIELD_EFFECTIVENESS",
+              "component": "exclusion",
+              "observable": {
+                "text": "A long clearance that happens to reach the target does not satisfy the event.",
+                "source": "KNOWLEDGE_ROW",
+                "citedAs": {
+                  "file": "back/src/system/sport-module/rpc-library.rc1.json",
+                  "table": "properties",
+                  "rowId": "RPC-PROP-132",
+                  "field": "property_text"
+                }
+              },
+              "standingNote": "His safeguard, to be read beside it: \"Please ensure this does not inadvertently prohibit a functional longer pass that is received under control beyond pressure.\" (his reply filed 17 October 2026, M8), and \"A longer pass received under control remains a valid solution.\" (his reply filed 19 October 2026, item 1)."
+            }
+          ]
+        },
+        {
+          "rowId": "RPC-VAL-001",
+          "parts": [
+            {
+              "id": "recognizable",
+              "label": "Recognizable as the context without its labels",
+              "kind": "COACH_OBSERVED",
+              "standard": "LEARNING_DESIGN_RELEVANCE",
+              "observable": {
+                "text": "An experienced coach identifies the activity as Goalkeeper Build-Out or a functionally equivalent description without relying on labels.",
+                "source": "WORKBOOK_EXPECTED_EVIDENCE",
+                "citedAs": null
+              },
+              "standingNote": "The choice of standard is ours, DRAFT, and it is in tension with his reply filed 2 November 2026: \"The engine should establish structural validity and provide grounded evidence for learning-design relevance. Field effectiveness requires observation.\" A coach's identification is observation, not grounded evidence. Kept here for his decision between relevance, field effectiveness, or a structural reading of his IDENTITY domain."
+            }
+          ]
+        },
+        {
+          "rowId": "RPC-VAL-002",
+          "parts": [
+            {
+              "id": "approved-event",
+              "label": "The primary scoring event is one the context approves",
+              "kind": "GUARD_EVENT_KIND",
+              "standard": "STRUCTURAL_VALIDITY"
+            },
+            {
+              "id": "no-unrelated-affordance",
+              "label": "Scoring does not substitute an unrelated affordance outcome",
+              "kind": "UNSUPPORTED",
+              "standard": "LEARNING_DESIGN_RELEVANCE",
+              "cause": {
+                "kind": "MISSING_KNOWLEDGE",
+                "detail": "No relationship between a scoring condition and an affordance exists in the knowledge, so whether scoring substitutes an unrelated affordance outcome cannot be established. The relevance trace that may later ground it is read only by tests and stands on DRAFT join rules, so it is not read here."
+              }
+            }
+          ]
+        },
+        {
+          "rowId": "RPC-VAL-003",
+          "parts": [
+            {
+              "id": "no-better-neighbour",
+              "label": "No neighbouring context better explains the activity",
+              "kind": "UNSUPPORTED",
+              "standard": "LEARNING_DESIGN_RELEVANCE",
+              "cause": {
+                "kind": "MISSING_KNOWLEDGE",
+                "detail": "His workbook relates this context to its neighbours: transitions to RPC-002 (CONDITIONAL, RPC-TR-001), RPC-003 (TYPICAL, RPC-TR-002) and RPC-007 (CONDITIONAL, RPC-TR-003), each on a condition stated in his words, and the exclusion row RPC-ID-005. Nothing yet compares how strongly the generated structure satisfies an exclusion identity rule against this context's identity, and his workbook's expected evidence names no coach judgment, so the row is not left to coach observation (DRAFT)."
+              }
+            }
+          ]
+        },
+        {
+          "rowId": "RPC-VAL-004",
+          "parts": [
+            {
+              "id": "opposition",
+              "label": "Opponent interaction: two opposed teams",
+              "kind": "PATTERN",
+              "standard": "STRUCTURAL_VALIDITY",
+              "facets": [
+                {
+                  "id": "teams",
+                  "label": "the count of opposed teams",
+                  "row": "P1",
+                  "requirement": ["COUNT"],
+                  "from": ["CONTEXT", "REALIZATION", "GAME_FORM"]
+                }
+              ]
+            },
+            {
+              "id": "direction",
+              "label": "Direction: each team attacks its own target",
+              "kind": "PATTERN",
+              "standard": "STRUCTURAL_VALIDITY",
+              "facets": [
+                {
+                  "id": "objective-start-team",
+                  "label": "an objective for the team at the axis start",
+                  "row": "J1",
+                  "requirement": ["EXISTS"],
+                  "terms": [
+                    { "attribute": "role", "value": "PRIMARY_SCORING" },
+                    { "attribute": "team", "value": "TEAM_AT_AXIS_START" }
+                  ],
+                  "from": ["CONTEXT", "REALIZATION", "GAME_FORM"]
+                },
+                {
+                  "id": "objective-end-team",
+                  "label": "an objective for the team at the axis end",
+                  "row": "J1",
+                  "requirement": ["EXISTS"],
+                  "terms": [
+                    { "attribute": "role", "value": "PRIMARY_SCORING" },
+                    { "attribute": "team", "value": "TEAM_AT_AXIS_END" }
+                  ],
+                  "from": ["CONTEXT", "REALIZATION", "GAME_FORM"]
+                },
+                {
+                  "id": "target-start-team",
+                  "label": "the target the axis-start team attacks",
+                  "row": "J2",
+                  "terms": [
+                    { "attribute": "role", "value": "PRIMARY_SCORING" },
+                    { "attribute": "team", "value": "TEAM_AT_AXIS_START" }
+                  ],
+                  "from": ["CONTEXT", "REALIZATION", "GAME_FORM"]
+                },
+                {
+                  "id": "target-end-team",
+                  "label": "the target the axis-end team attacks",
+                  "row": "J2",
+                  "terms": [
+                    { "attribute": "role", "value": "PRIMARY_SCORING" },
+                    { "attribute": "team", "value": "TEAM_AT_AXIS_END" }
+                  ],
+                  "from": ["CONTEXT", "REALIZATION", "GAME_FORM"]
+                }
+              ],
+              "standingNote": "The items that state direction as a computed view are not met in this engine; direction is carried by each team's objective and the target it attacks."
+            },
+            {
+              "id": "consequence",
+              "label": "Consequence: play continues through a turnover",
+              "kind": "PATTERN",
+              "standard": "STRUCTURAL_VALIDITY",
+              "facets": [
+                {
+                  "id": "play-continues",
+                  "label": "what a possession change does to play",
+                  "row": "T6",
+                  "terms": [{ "attribute": "trigger", "value": "POSSESSION_CHANGE" }],
+                  "value": "CONTINUE",
+                  "from": ["CONTEXT", "REALIZATION", "GAME_FORM"]
+                }
+              ],
+              "standingNote": "Bound to what a turnover does in play: play continues rather than stopping (his reply filed 16 October 2026, item 2: \"I don't want the activity to become a scripted passing exercise or a sequence that stops automatically whenever possession changes.\"). That the episode ends on a turnover is read inside the scoring condition (RPC-PROP-132, episode-ends-on-loss)."
+            },
+            {
+              "id": "information",
+              "label": "Representative information is not withheld",
+              "kind": "PATTERN",
+              "standard": "STRUCTURAL_VALIDITY",
+              "facets": [
+                {
+                  "id": "no-withholding",
+                  "label": "no information rule withholds it",
+                  "row": "V15",
+                  "strictness": ["EXCLUSION"],
+                  "from": ["CONTEXT", "REALIZATION", "GAME_FORM"]
+                }
+              ]
+            },
+            {
+              "id": "opposition-in-play",
+              "label": "Opposition can deny, redirect or reverse progression in play",
+              "kind": "COACH_OBSERVED",
+              "standard": "FIELD_EFFECTIVENESS",
+              "observable": {
+                "text": "Opposition can deny, redirect, or reverse progression.",
+                "source": "KNOWLEDGE_ROW",
+                "citedAs": {
+                  "file": "back/src/system/knowledge-core/game-archetype-workbook.rc1.1.json",
+                  "table": "knowledge",
+                  "rowId": "GAK-0105",
+                  "field": "Knowledge_Statement"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "rowId": "RPC-VAL-005",
+          "parts": [
+            {
+              "id": "alternatives-preserve-identity",
+              "label": "Each alternative realization preserves the context's identity",
+              "kind": "UNSUPPORTED",
+              "standard": "LEARNING_DESIGN_RELEVANCE",
+              "cause": {
+                "kind": "MISSING_IMPLEMENTATION",
+                "detail": "One build accounts only for the realization it built; the alternatives a record lists are accounted in their own builds, and no reader compares them yet."
+              }
+            },
+            {
+              "id": "alternatives-distinct",
+              "label": "Alternatives are educationally distinct",
+              "kind": "UNSUPPORTED",
+              "standard": "LEARNING_DESIGN_RELEVANCE",
+              "cause": {
+                "kind": "MISSING_KNOWLEDGE",
+                "detail": "No knowledge relationship grounds educational distinctness, and his workbook's expected evidence names no coach judgment, so the part is not left to coach observation (DRAFT)."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

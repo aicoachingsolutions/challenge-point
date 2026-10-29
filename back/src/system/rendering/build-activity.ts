@@ -68,7 +68,9 @@ import { CoachOverviewDraft, failedOverviewDraft } from './coach-overview'
 import { CoachDiagram, DiagramOutcome, diagramForServing } from './coach-diagram'
 import { failedDiagramDraft, FieldDiagramDraft } from './field-diagram'
 import { CoachOverview, OverviewEvidence, overviewEvidenceOf, overviewForServing, OverviewOutcome } from './overview-fidelity'
-import { contextScoringFindings, EPISODE_REACHABLE_CHECK } from './context-scoring-guard'
+import { contextScoringFindings, EPISODE_REACHABLE_CHECK, eventKindReadingOf } from './context-scoring-guard'
+import { BlockRequirementAccount, blockRequirementAccountOf, BlockRequirementInputs, failedBlockRequirementAccount, failedRequirementAccount, RequirementAccount, requirementAccountOf } from './requirement-account'
+import { BINDINGS_MODES, RequirementBindings, requirementBindingsLoad, requirementBindingsRefusals } from './requirement-bindings'
 import { draftCoachWordingLoad } from './draft-coach-wording'
 import { checkFidelity, FidelityFinding } from './fidelity'
 import { ReviewDraft, reviewDraftOf } from './review-draft'
@@ -437,6 +439,17 @@ export interface ServedActivity {
      * every coach's answer and on every activity a realization's check holds (its account is in `evidence`, where the record asks for one).
      */
     lawsCheck?: DefaultLawsAccount
+    /**
+     * **The requirement account, for an administrator only** (29 October 2026; `requirement-account.ts`). Christian, his reply filed 3 November
+     * 2026, section 2: *"Each generated activity should be evaluated against the applicable, approved context requirements, accounting for each
+     * component of a scoring condition rather than simply confirming that the condition exists."* Each applicable requirement of the context,
+     * part by part, in his four categories and three standards, every classification ours and DRAFT. Carried only by the review build with
+     * drafts (`buildActivityForReview`, the route's administrator check), served or refused after realization (wherever a block reached the
+     * context-scoring guard), never depending on a record asking for review evidence. It refuses nothing (*"let's verify the classifications
+     * before enabling refusals broadly"*): absent on every coach's, live, saved and pilot answer, and every other key of the activity is what it
+     * was without it.
+     */
+    requirementAccount?: RequirementAccount
 }
 
 /**
@@ -532,6 +545,8 @@ export interface RefusedActivity {
     relevance?: RelevanceTrace
     /** B4 (28 October 2026), for an administrator only: the sport's check of a composed activity; see `ServedActivity.lawsCheck`. */
     lawsCheck?: DefaultLawsAccount
+    /** 29 October 2026, for an administrator only, on a refusal after realization: the requirement account; see `ServedActivity.requirementAccount`. */
+    requirementAccount?: RequirementAccount
 }
 
 /**
@@ -1200,8 +1215,34 @@ export function buildActivityUnderAuthorizationRecords(
          * owed adaptation counts as MATERIAL.
          */
         lawsMateriality?: LawsMateriality
+        /**
+         * 29 October 2026, tests only: the requirement bindings an administrator's review build accounts with (`review.includeDrafts`), in place
+         * of the production file's — a TEST-ONLY copy, the draft store's (`draft-store.ts` `loadDraftRequirementBindings`), or the two merged
+         * (`mergeRequirementBindings`) — held again here to the gate the file is, in the mode it is stamped with (a draft's against `drafts`'
+         * contracts), so a copy it refuses throws. Absent: the production file's, read once.
+         */
+        requirementBindings?: RequirementBindings
+        /**
+         * 29 October 2026, tests only: handed, block by block, exactly the inputs the requirement account read (`BlockRequirementInputs`), so a
+         * test can read the account again over a TEST-ONLY change to the finished game (a value blanked, an element removed) without a second
+         * copy of the chain. Only an administrator's review build computes the account, so only it calls this.
+         */
+        observeRequirementInputs?: (inputs: BlockRequirementInputs) => void
     } = {},
 ): ActivityBuild & { fixture: Record<string, unknown> | null } {
+    // Round 2, R3 NIT 12: a TEST-ONLY option the build would ignore throws, as a refused copy does: only an administrator's review computes the account.
+    if ((options.requirementBindings || options.observeRequirementInputs) && options.review?.includeDrafts !== true) {
+        throw new Error('TEST-ONLY requirement bindings and their observer are read only by an administrator\'s review build (review: { includeDrafts: true })')
+    }
+    const givenBindings = (given: RequirementBindings | undefined): RequirementBindings | null => {
+        if (!given) return null
+        const copy = JSON.parse(JSON.stringify(given)) as RequirementBindings
+        const { file: _file, mode, ...raw } = copy
+        if (!(BINDINGS_MODES as readonly string[]).includes(mode)) throw new Error(`TEST-ONLY requirement bindings are stamped with no known mode (${JSON.stringify(mode)}; ${BINDINGS_MODES.join(', ')})`)
+        const errors = requirementBindingsRefusals(raw, { mode, draftContracts: options.drafts?.contracts })
+        if (errors.length) throw new Error(`TEST-ONLY requirement bindings are refused by the gate the file is held to: ${errors.join('; ')}`)
+        return copy
+    }
     const givenMateriality = (given: LawsMateriality | undefined): LawsMateriality | null => {
         if (!given) return null
         const copy = JSON.parse(JSON.stringify(given)) as LawsMateriality
@@ -1234,6 +1275,8 @@ export function buildActivityUnderAuthorizationRecords(
         drafts,
         observed,
         givenMateriality(options.lawsMateriality),
+        givenBindings(options.requirementBindings),
+        options.observeRequirementInputs ?? null,
     )
     if (drafts) built.activity.draftKnowledge = draftKnowledgeAccountOf(drafts.store, built, drafts.seen.contracts)
     if (options.relevance && observed) built.activity.relevance = relevanceOfBuilt(built, observed.contracts, request.goalId, options.relevance)
@@ -1360,10 +1403,24 @@ function build(
      * activity. Null: none, as in production, so every owed adaptation counts as MATERIAL.
      */
     lawsMateriality: LawsMateriality | null = null,
+    /** 29 October 2026, tests only (`buildActivityUnderAuthorizationRecords` `requirementBindings`): the bindings, already held to their gate. Null: the file's. */
+    requirementBindingsGiven: RequirementBindings | null = null,
+    /** 29 October 2026, tests only (`observeRequirementInputs`): handed each block's requirement-account inputs. Null: nothing is. */
+    observeRequirements: ((inputs: BlockRequirementInputs) => void) | null = null,
 ): ActivityBuild & { fixture: Record<string, unknown> | null } {
     const boundRegions: SportBoundRegions | null = boundRegionsGiven === undefined ? loadSportBoundRegions() : boundRegionsGiven
     // B2 (28 October 2026): the playing environment's elements, read once for every game of this build (the guard in `buildOneGame`).
     const environment: SportEnvironmentElements | null = loadSportEnvironmentElements()
+    /**
+     * The requirement account's bindings (his reply filed 3 November 2026, section 2), for an administrator's review build only: null for every
+     * other build, so a coach's, the live route's, the save's and the pilot's never read the file, never compute the account, and cannot be
+     * touched by either, even by a throw. Read once (`requirementBindingsLoad`); a refused file becomes the account's own status.
+     */
+    const requirements: GameContext['requirements'] = !review.includeDrafts
+        ? null
+        : requirementBindingsGiven
+          ? { bindings: requirementBindingsGiven, refused: null, observe: observeRequirements }
+          : (load => ({ bindings: load.bindings, refused: load.why ? [load.why] : null, observe: observeRequirements }))(requirementBindingsLoad())
     const { kind, title, subtitle } = composed ? { kind: 'mechanism-demonstration' as const, title: composed.join(' + '), subtitle: null } : describeRequest(request)
     // "This goal …" for a Learning Goal and "This demonstration …" for a demonstration: a demonstration is
     // never described to a coach as a goal, in a refusal any more than in a title.
@@ -1701,7 +1758,7 @@ function build(
             ...(movers.has(entry.id) ? { moves: { role: movers.get(entry.id)! } } : {}),
         }))
         const alternatives = deferral.deferred.map(alternativeOf)
-        const game: GameContext = { subject, session, selection, context, alterSupplied, adjustments, alternatives, boundRegions, environment }
+        const game: GameContext = { subject, session, selection, context, alterSupplied, adjustments, alternatives, boundRegions, environment, requirements }
         /**
          * A game built through to communication becomes the served activity; one refused on the way says where. `games` are the games it was
          * rendered from, each with its block id, for the input digests the live save compares (L3, 22 October 2026); nothing served carries them.
@@ -1836,6 +1893,31 @@ function build(
         /** B4: the sport's check of a composed activity, for an administrator's review build only (`ServedActivity.lawsCheck`). */
         const lawsCheckKeys = (lawAccount: DefaultLawsAccount | null): { lawsCheck?: DefaultLawsAccount } =>
             review.includeDrafts && lawAccount?.declaredBy === 'SPORT_PROFILE' ? { lawsCheck: JSON.parse(JSON.stringify(lawAccount)) as DefaultLawsAccount } : {}
+        /**
+         * **The requirement account of this activity, for an administrator's review build only** (29 October 2026; `ServedActivity.requirementAccount`):
+         * merged over the blocks, served or refused after realization, wherever a block reached the context-scoring guard; `{}` for every other
+         * build, so a coach's answer is exactly what it was. It refuses nothing, and a throw while merging becomes the account's own ERROR (the
+         * R-engine review's S4), never the route's 500.
+         */
+        const requirementKeys = (outcome: string, blocks: { blockId: string; requirements?: BlockRequirementAccount }[]): { requirementAccount?: RequirementAccount } => {
+            if (!requirements || !context || !blocks.some(block => block.requirements)) return {}
+            const draftContract = account.context?.contract === 'DRAFT'
+            try {
+                return {
+                    requirementAccount: requirementAccountOf({
+                        contextId: context.id,
+                        outcome,
+                        bindings: requirements.bindings,
+                        refused: requirements.refused,
+                        blocks: blocks.map(block => ({ blockId: block.blockId, account: block.requirements ?? null })),
+                        draftContract,
+                    }),
+                }
+            } catch (error) {
+                return { requirementAccount: failedRequirementAccount(context.id, outcome, error instanceof Error ? error.message : String(error), draftContract) }
+            }
+        }
+        const blockRequirementsOf = (list: { block: RoleBlock; outcome: GameOutcome }[]) => list.map(entry => ({ blockId: entry.block.blockId, requirements: entry.outcome.requirements }))
         const rolesRow = roleIndex.roleBlocks?.rolesRow
         /**
          * Stage D (23 October 2026, register version 18): a selection carrying an item on the end-assignment row (B10) is asked too, so an
@@ -1878,10 +1960,14 @@ function build(
                     const typed = typedStopOf(stopped)
                     if (typed) {
                         fixture = typed.outcome.fixture
+                        // A typed refusal is a session refusal the next alternative may answer: it carries no requirement account (the R-engine review's N6).
                         return refuse(typed.outcome.stage, typed.outcome.summary, stoppedReasons, typed.outcome.applicability, typed.outcome.question)
                     }
                     fixture = first.outcome.fixture
-                    return refuse(first.outcome.stage, first.outcome.summary, stoppedReasons)
+                    const stoppedRefusal = refuse(first.outcome.stage, first.outcome.summary, stoppedReasons)
+                    // A block that reached the guard is accounted; one that stopped before it is listed as not accounted (administrator only).
+                    Object.assign(stoppedRefusal.activity, requirementKeys(first.outcome.stage, blockRequirementsOf(blocks)))
+                    return stoppedRefusal
                 }
                 const gamesOf = (list: typeof blocks) =>
                     list.map(entry =>
@@ -1906,10 +1992,12 @@ function build(
                  */
                 const membershipOnly = failing.length > 0 && failing.every(check => check.checkId === 'RB-M')
                 if (failing.length) {
-                    return refuse('validation', membershipOnly ? `Who changes team when the roles exchange has not been decided for ${session.players} players, so this activity is not being shown.` : 'The game built for this activity did not pass its own checks, so it is not being shown.', [
+                    const crossBlockRefusal = refuse('validation', membershipOnly ? `Who changes team when the roles exchange has not been decided for ${session.players} players, so this activity is not being shown.` : 'The game built for this activity did not pass its own checks, so it is not being shown.', [
                         'the two role blocks do not agree as the exchange of each other',
                         ...failing.flatMap(check => check.problems.map(problem => `${check.checkId}: ${problem}`)),
                     ])
+                    Object.assign(crossBlockRefusal.activity, requirementKeys('validation', blockRequirementsOf(blocks)))
+                    return crossBlockRefusal
                 }
                 /**
                  * **Every block's markings set out once, wherever they occupy the same places** — stage 2D, 21 October 2026; a general
@@ -1948,10 +2036,12 @@ function build(
                 checks.push(layoutCheck)
                 fixture = { ...games[0].fixture, roleBlocks: roleBlockFixture(found, games.map(entry => ({ block: entry.block, fixture: entry.fixture })), checks, roleIndex) }
                 if (layoutCheck.verdict === 'FAIL') {
-                    return refuse('validation', 'The game built for this activity did not pass its own checks, so it is not being shown.', [
+                    const layoutRefusal = refuse('validation', 'The game built for this activity did not pass its own checks, so it is not being shown.', [
                         'the markings set out once are not the blocks\' own',
                         ...layoutCheck.problems.map(problem => `${layoutCheck.checkId}: ${problem}`),
                     ])
+                    Object.assign(layoutRefusal.activity, requirementKeys('validation', blockRequirementsOf(blocks)))
+                    return layoutRefusal
                 }
                 // H2: the default-laws account of the games as built, one per block, where the realization being tried declares the check.
                 const lawAccount = lawAccountOf(games.map(entry => ({ blockId: entry.block.blockId, game: (entry.fixture as any)?.game, roleBlock: entry.block })))
@@ -1979,6 +2069,7 @@ function build(
                     const evidence = evidenceOf(refusal.activity.outcome === 'refused' ? refusal.activity.stage : 'served')
                     if (evidence) (refusal.activity as RefusedActivity).evidence = evidence
                     Object.assign(refusal.activity, lawsCheckKeys(lawAccount))
+                    Object.assign(refusal.activity, requirementKeys(refusal.activity.outcome === 'refused' ? refusal.activity.stage : 'served', blockRequirementsOf(blocks)))
                     return refusal
                 }
                 // H2: under ENFORCE a game owing an adaptation is refused at validation, before any refusal at communication.
@@ -2031,6 +2122,8 @@ function build(
                         ...((evidence => (evidence ? { evidence } : {}))(evidenceOf('served', overview.evidence))),
                         // B4: the sport's check of a composed activity, for an administrator only (what it owes is procedural, reported).
                         ...lawsCheckKeys(lawAccount),
+                        // The requirement account, for an administrator only (report only).
+                        ...requirementKeys('served', blockRequirementsOf(blocks)),
                         // Stage 3D: the overview where it agrees (every viewer); its draft and the check's findings for an administrator only.
                         ...overviewKeys(overview),
                         // Stage 5A/5B: the diagram where it agrees (every viewer); its model and the checks' findings for an administrator only.
@@ -2073,6 +2166,8 @@ function build(
             const evidence = one.communication && one.fixture ? reviewEvidenceFor(review, goalSelection, account, roleIndex, session, lawRefusal ? 'validation' : one.stage, one.communication.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.communication.contracts, rendered: one.communication.rendered, ...one.communication.evidence }], null, null, lawAccount, boundRegions) : null
             if (evidence) (refusal.activity as RefusedActivity).evidence = evidence
             Object.assign(refusal.activity, lawsCheckKeys(lawAccount))
+            // The requirement account (administrator only): only where the game reached the guard; a refusal before it carries none.
+            Object.assign(refusal.activity, requirementKeys(refusal.activity.outcome === 'refused' ? refusal.activity.stage : 'served', [{ blockId: ONE_GAME, requirements: one.requirements }]))
             return refusal
         }
         // H2: the default-laws account of the one game, where the realization being tried declares the check; under ENFORCE, owed refuses.
@@ -2083,12 +2178,23 @@ function build(
             const evidence = reviewEvidenceFor(review, goalSelection, account, roleIndex, session, 'validation', one.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.contracts, rendered: one.rendered, ...one.evidence }], null, null, oneLawAccount, boundRegions)
             if (evidence) (oneLawRefusal.activity as RefusedActivity).evidence = evidence
             Object.assign(oneLawRefusal.activity, lawsCheckKeys(oneLawAccount))
+            Object.assign(oneLawRefusal.activity, requirementKeys('validation', [{ blockId: ONE_GAME, requirements: one.requirements }]))
             return oneLawRefusal
         }
         // Stage 3D: the overview of the one game, checked against its Details (which are what a coach is served).
         const overview = overviewOf([{ blockId: ONE_GAME, fixture: one.fixture, rendered: one.rendered }], one.rendered.instructions)
         const evidence = reviewEvidenceFor(review, goalSelection, account, roleIndex, session, 'served', one.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.contracts, rendered: one.rendered, ...one.evidence }], null, overview.evidence, oneLawAccount, boundRegions)
-        return serve(one, { ...(evidence ? { evidence } : {}), ...lawsCheckKeys(oneLawAccount), ...overviewKeys(overview), ...diagramKeys([{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, rendered: one.rendered.instructions }], one.rendered.instructions, null) }, [{ blockId: ONE_GAME, fixture: one.fixture }])
+        return serve(
+            one,
+            {
+                ...(evidence ? { evidence } : {}),
+                ...lawsCheckKeys(oneLawAccount),
+                ...requirementKeys('served', [{ blockId: ONE_GAME, requirements: one.requirements }]),
+                ...overviewKeys(overview),
+                ...diagramKeys([{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, rendered: one.rendered.instructions }], one.rendered.instructions, null),
+            },
+            [{ blockId: ONE_GAME, fixture: one.fixture }],
+        )
     }
 
     /**
@@ -2295,6 +2401,11 @@ interface GameContext {
     boundRegions: SportBoundRegions | null
     /** B2: the Sport Profile's record of the playing environment's elements (`environment-elements.ts`); null where the profile carries none. */
     environment: SportEnvironmentElements | null
+    /**
+     * 29 October 2026: the requirement account's bindings (or why they were refused), for an administrator's review build only; null for every
+     * other build, which then computes no account. `observe` is TEST-ONLY (`observeRequirementInputs`).
+     */
+    requirements: { bindings: RequirementBindings | null; refused: string[] | null; observe: ((inputs: BlockRequirementInputs) => void) | null } | null
 }
 
 /** One game built from its derivation input to communication, or the stage it stopped at. */
@@ -2320,6 +2431,8 @@ type GameOutcome =
           applicability?: Applicability
           /** Stage E: what the coach is asked, beside an ASK. */
           question?: SessionQuestion
+          /** 29 October 2026, administrator only: this block's requirement account, where it reached the context-scoring guard. */
+          requirements?: BlockRequirementAccount
       }
     | {
           outcome: 'built'
@@ -2332,6 +2445,8 @@ type GameOutcome =
           evidence: GameEvidence
           /** Stage 2D: the same game rendered and checked again with these fields added to its fixture (its physical layout, or since stage 2G what moves at the exchange). */
           recommunicate: (extra: Record<string, unknown>) => GameOutcome
+          /** 29 October 2026, administrator only: this block's requirement account. */
+          requirements?: BlockRequirementAccount
       }
 
 /**
@@ -2368,8 +2483,11 @@ const STAGE_ORDER: ActivityStage[] = ['session', 'selection', 'knowledge', 'stru
  * K3) so that a game played in role blocks runs it once per block. Every refusal sentence, reason and order is what it
  * was: measured, every goal and demonstration answers byte-identically through the review route.
  */
-function buildOneGame(input: any, { subject, session, selection, context, alterSupplied, adjustments, alternatives, boundRegions, environment }: GameContext): GameOutcome {
+function buildOneGame(input: any, { subject, session, selection, context, alterSupplied, adjustments, alternatives, boundRegions, environment, requirements }: GameContext): GameOutcome {
     let fixture: any = null
+    /** 29 October 2026: this block's requirement account, read right after the context-scoring guard; null where the build is not an administrator's review, or stopped before the guard. */
+    let blockRequirements: BlockRequirementAccount | null = null
+    const withRequirements = (outcome: GameOutcome): GameOutcome => (blockRequirements ? { ...outcome, requirements: blockRequirements } : outcome)
     // Stage E: a typed applicability refusal carries its type (and an ASK its question) for the build's loop; every other refusal is as before.
     const refuse = (stage: ActivityStage, summary: string, reasons: string[], typed: { applicability?: Applicability | null; question?: SessionQuestion } = {}): GameOutcome => ({
         outcome: 'refused',
@@ -2658,8 +2776,43 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
                       })
                 : []
         invalid.push(...contextScoringFindings(context.id, contract, realized.game, rpcLibrary.scoringEventsForContext(context.id), episodeCheck, alsoCountsSupport, roleEventSupport, index, contextRelationships()))
+        /**
+         * **The requirement account of this block, report only** (29 October 2026; `requirement-account.ts`), for an administrator's review build
+         * only: read after the guard, from the same realized game, the same episode check and the same readings of the event and of each
+         * condition (`eventKindReadingOf`, `conditionReadingOf`), with the forward results, classes and line verdicts derivation computed for
+         * this block. It pushes nothing onto `invalid` and changes no stage, summary or reason; a throw becomes the block account's ERROR.
+         * The checked pathway returns one activity, so the rows evaluated over returned alternatives do not apply (`alternativesReturned`).
+         */
+        if (requirements) {
+            const blockId = input.roleBlock?.blockId ?? ONE_GAME
+            try {
+                const inputs: BlockRequirementInputs = {
+                    blockId,
+                    contextId: context.id,
+                    bindings: requirements.bindings,
+                    refused: requirements.refused,
+                    contracts: input.contracts as LoadedContract[],
+                    forward: staged.forward ?? [],
+                    classes: staged.classes ?? [],
+                    classified: staged.classified ?? null,
+                    game: realized.game,
+                    standsFor: new Map(((realized.record as any).satisfiedByEstablished ?? []).map((entry: { classId: string; satisfiedBy: string }) => [entry.classId, entry.satisfiedBy] as [string, string])),
+                    episodeCheck,
+                    gameFormId: selection.selected.find(entry => entry.role === 'game form')?.id ?? null,
+                    selected: selection.selected.map(entry => ({ id: entry.id, role: entry.role })),
+                    eventKind: eventKindReadingOf(context.id, realized.game, rpcLibrary.scoringEventsForContext(context.id), alsoCountsSupport, roleEventSupport, index, contextRelationships()),
+                    alternativesReturned: false,
+                    index,
+                }
+                blockRequirements = blockRequirementAccountOf(inputs)
+                // TEST-ONLY: handed after the account is read, so an observer can never change what was read (R3 NIT 11); it must not mutate.
+                if (requirements.observe) requirements.observe(inputs)
+            } catch (error) {
+                blockRequirements = failedBlockRequirementAccount(blockId, context.id, error instanceof Error ? error.message : String(error))
+            }
+        }
     }
-    if (invalid.length) return refuse('validation', 'The game built for this activity did not pass its own checks, so it is not being shown.', invalid)
+    if (invalid.length) return withRequirements(refuse('validation', 'The game built for this activity did not pass its own checks, so it is not being shown.', invalid))
 
     // The one assembler, shared with the script that freezes the Golden Case, so the frozen fixture cannot
     // come to differ in shape from what is served. Both verdicts are read, not assumed, though a game that
@@ -2785,7 +2938,8 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
             findings: report.findings.map((finding: FidelityFinding) => ({ ...finding })),
         }
         // Stage K7: a refusal at communication carries what was rendered, for the admin-only review draft and the cross-block checks.
-        const atCommunication = (summary: string, reasons: string[]): GameOutcome => ({ outcome: 'refused', stage: 'communication', summary, reasons, fixture: assembled, communication: { rendered, violations, contracts: input.contracts, evidence }, recommunicate })
+        const atCommunication = (summary: string, reasons: string[]): GameOutcome =>
+            withRequirements({ outcome: 'refused', stage: 'communication', summary, reasons, fixture: assembled, communication: { rendered, violations, contracts: input.contracts, evidence }, recommunicate })
         /**
          * **Part of the game has no approved wording yet, so the activity is not shown** — chosen from the
          * renderer's typed `withheld` list, never from the fidelity text (which reports the same fields as
@@ -2806,7 +2960,7 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
             )
         }
 
-        return {
+        return withRequirements({
             outcome: 'built',
             fixture: assembled,
             rendered,
@@ -2822,7 +2976,7 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
             concreteChecks: post.gateA.checks.map(check => ({ checkId: check.checkId, verdict: String(check.verdict) })),
             evidence,
             recommunicate,
-        }
+        })
     }
     return communicate(fixture)
 }

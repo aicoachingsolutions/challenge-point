@@ -314,10 +314,11 @@ test('4. key identity: the evidence reaches the administrator\'s review of a goa
     // Re-pointed 21 October 2026 (stage 3A): beside the evidence, the administrator's answer carries the Coach Overview's parts as computed
     // for review (`overviewDraft`, admin-only until stage 3D); the coach's carries neither.
     // Re-pointed 22 October 2026 (stage 5A): and the field diagram's model and agreement check (`diagramDraft`, admin-only until stage 5B).
-    const { evidence: carried, overviewDraft, diagramDraft, ...rest } = review
-    assert.ok(carried && overviewDraft && diagramDraft && !('draft' in review))
-    assert.deepEqual(rest, plain, 'apart from the admin-only evidence, overview draft and diagram draft, the administrator receives what the coach receives')
-    assert.ok(!('evidence' in plain) && !('overviewDraft' in plain) && !('diagramDraft' in plain))
+    // Re-pointed 29 October 2026 (the requirement account, report only): and the requirement account (`requirementAccount`, admin-only).
+    const { evidence: carried, overviewDraft, diagramDraft, requirementAccount, ...rest } = review
+    assert.ok(carried && overviewDraft && diagramDraft && requirementAccount && !('draft' in review))
+    assert.deepEqual(rest, plain, 'apart from the admin-only evidence, overview draft, diagram draft and requirement account, the administrator receives what the coach receives')
+    assert.ok(!('evidence' in plain) && !('overviewDraft' in plain) && !('diagramDraft' in plain) && !('requirementAccount' in plain))
     assert.ok(!('reviewRequest' in (plain.account.authorization as object)), "the coach's account no longer copies the request")
     // Re-pointed 24 October 2026 (K3): the stored session states no goal, as a01's does.
     const stored: any = { _id: 'TEST-ONLY', createdBy: 'TEST-ONLY', playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: { ...none, [ROLE]: 1 }, objects: NO_GOAL }

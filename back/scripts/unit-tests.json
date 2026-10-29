@@ -140,5 +140,10 @@
     "./src/system/derivation/environment-elements.unit.ts",
     "./src/system/rendering/draft-composition.unit.ts",
     "./src/system/rendering/relevance-trace.unit.ts",
-    "./src/system/realization/default-laws-composition.unit.ts"
+    "./src/system/realization/default-laws-composition.unit.ts",
+    "./src/system/rendering/context-scoring-guard.unit.ts",
+    "./src/system/rendering/requirement-bindings.unit.ts",
+    "./src/system/rendering/requirement-account.unit.ts",
+    "./src/system/rendering/requirement-account-controls.unit.ts",
+    "./src/system/rendering/requirement-scoring-gate.unit.ts"
 ]

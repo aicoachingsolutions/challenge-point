@@ -40,7 +40,7 @@
  * already carries and prints them in the order the server sent them.
  */
 import { ArrowLeftCircleIcon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { Component, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { NumberField } from '@/form-control/fields'
 import ROUTES from '@/ROUTES'
@@ -51,6 +51,8 @@ import {
     ActivityReviewRequest,
     ActivityReviewResult,
     RefusedActivity,
+    RequirementAccount,
+    RequirementPart,
     ReviewBoundRegionAccount,
     ReviewBoundRegionPairing,
     ReviewDraft,
@@ -467,6 +469,12 @@ export default function ActivityReviewPage() {
                 )}
                 {result?.outcome === 'refused' && result.draft && <DraftBlock refusal={result} draft={result.draft} />}
                 {result?.evidence && <ReviewEvidencePanel evidence={result.evidence} />}
+                {/* The requirement account (29 October 2026), administrator only, report only: the server attaches it to an administrator's review alone. */}
+                {result?.requirementAccount && (
+                    <RequirementAccountBoundary key={`${result.requirementAccount.contextId}:${result.requirementAccount.outcome}:${result.requirementAccount.summary?.headline ?? ''}`}>
+                        <RequirementAccountPanel account={result.requirementAccount} />
+                    </RequirementAccountBoundary>
+                )}
 
                 {/* 5. Everything technical, secondary. */}
                 {result && <ArrivedAt result={result} />}
@@ -1297,6 +1305,302 @@ function ReviewEvidencePanel({ evidence }: { evidence: ReviewEvidence }) {
                     ))}
                     <p className='text-xs text-gray-500'>{evidence.rationale.judgement}</p>
                 </EvidencePart>
+            </div>
+        </section>
+    )
+}
+
+/** How a carrier's contract is named on the panel (DRAFT words). "His provisional choice" only where the item's basis is his ruling (N3). */
+function carrierKindSaid(kind: string, basis: string): string {
+    if (kind === 'CONTEXT') return "the context's knowledge"
+    if (kind === 'REALIZATION') return basis === 'OWNER_RULING' ? "this activity's realization (his provisional choice)" : basis ? `this activity's realization (basis ${basis})` : "this activity's realization"
+    if (kind === 'GAME_FORM') return 'the game form'
+    return kind
+}
+
+/** What a coach-observed part's observable is, and whose words (DRAFT labels; the choice of his row as the observable is always ours). */
+function observableSourceSaid(observable: NonNullable<RequirementPart['observable']>): string {
+    if (observable.source === 'WORKBOOK_EXPECTED_EVIDENCE') return "his workbook's expected evidence, chosen by us as the observable"
+    if (observable.source === 'KNOWLEDGE_ROW') return `his words (${observable.citedAs?.rowId ?? 'a knowledge row'}), chosen by us as the observable`
+    return 'drafted by us from his row text, not his words, awaiting his review'
+}
+
+/**
+ * **An account as a chip: his words for the category, quoted, and then — apart, and labelled ours — what this account does with it** (round 2,
+ * R2 M1). His category 3 is never followed by a sentence of ours in his voice: our rule is said as ours, beside his words it reads.
+ */
+function AccountChip({ part, account, words, rule }: { part?: Pick<RequirementPart, 'byConstruction' | 'vacuous'>; account: number; words: string; rule: RequirementAccount['coachObservationRule'] }) {
+    const tone = account === 4 ? 'bg-red-50 text-red-800 border-red-200' : account === 3 ? 'bg-amber-50 text-amber-800 border-amber-200' : 'bg-gray-50 text-gray-700 border-gray-200'
+    return (
+        <span className={`inline-block px-1.5 py-0.5 text-xs border rounded ${tone}`}>
+            {account} · &ldquo;{words}&rdquo;
+            {account === 3 && (
+                <span className='block'>
+                    {rule.rule} (ours, DRAFT; his words: &ldquo;{rule.his.words}&rdquo;)
+                </span>
+            )}
+            {part?.vacuous && <span className='block'>Holds by absence: nothing of its row is in the game (ours, DRAFT).</span>}
+            {part?.byConstruction && <span className='block'>Holds by construction: its referent is the target the scoring event reaches (ours, DRAFT).</span>}
+        </span>
+    )
+}
+
+/**
+ * **A guard around the requirement account** (round 2, R3 S3): an account of a shape this page does not expect (a deploy of the front ahead
+ * of, or behind, the back) shows one notice here and leaves the activity above on screen, never the app's fallback in its place.
+ */
+class RequirementAccountBoundary extends Component<{ children: React.ReactNode }, { failed: boolean }> {
+    state = { failed: false }
+    static getDerivedStateFromError() {
+        return { failed: true }
+    }
+    render() {
+        if (this.state.failed)
+            return (
+                <section role='alert' className='p-4 text-sm text-red-800 border border-red-200 rounded-lg bg-red-50'>
+                    The requirement account could not be shown (technical, administrators only). The activity above is unaffected.
+                </section>
+            )
+        return this.props.children
+    }
+}
+
+/**
+ * **The requirement account, for an administrator only — 29 October 2026 (labels DRAFT).** Christian, his reply filed 3 November 2026, section
+ * 2: *"Missing components of approved scoring conditions should not silently pass."* So the approved scoring condition comes first, outside
+ * any collapsible part, and a component that is missing — or a condition not accounted at all — is in a red box that cannot be missed. Then
+ * every requirement, part by part, with its account in his words (quoted), its standard, its carriers or observable or cause, and its DRAFT
+ * standing. His words are quoted and cited; ours are labelled ours. The panel's own words name no goal, demonstration or role; the evidence
+ * lines quote contract ids as the server sent them. It decides nothing: the server's account refuses nothing, and this shows it as sent.
+ */
+function RequirementAccountPanel({ account }: { account: RequirementAccount }) {
+    const words = (id: number) => account.accounts.find((entry) => entry.id === id)?.words ?? String(id)
+    const rule = account.coachObservationRule
+    const blockIds = [...account.blocks.map((block) => block.blockId), ...account.blocksWithoutAccount.map((block) => block.blockId)]
+    const blockLabel = (blockId: string) => {
+        const at = blockIds.indexOf(blockId)
+        return at >= 0 ? `Block ${at + 1}` : blockId
+    }
+    const scoring = account.summary.scoringCondition
+    const alert = !account.summary.scoringConditionCarried
+    const represented = account.summary.representedHow
+    const rows = account.parts.reduce<{ rowId: string; parts: RequirementPart[] }[]>((list, part) => {
+        const found = list.find((entry) => entry.rowId === part.rowId)
+        if (found) found.parts.push(part)
+        else list.push({ rowId: part.rowId, parts: [part] })
+        return list
+    }, [])
+    return (
+        <section className='bg-white border rounded-lg shadow-sm [overflow-wrap:anywhere]'>
+            <div className='px-4 pt-4 sm:px-6'>
+                <p className='text-sm font-medium text-gray-800'>Requirement account (technical, administrators only)</p>
+                <p className='mt-1 text-xs font-medium text-gray-700'>{account.about}</p>
+            </div>
+            <div className='px-4 pb-4 mt-3 space-y-3 sm:px-6'>
+                {/* The approved scoring condition first: a missing component, or a condition not accounted, cannot be missed. */}
+                {alert ? (
+                    <div role='alert' className='p-3 border border-red-200 rounded-lg bg-red-50'>
+                        <p className='text-sm font-medium text-red-800'>{account.summary.headline}</p>
+                        {(scoring?.missing ?? []).map((entry) => (
+                            <p key={entry.component} className='mt-1 text-xs text-red-800'>
+                                {entry.label}
+                                {entry.blocks.length > 0 && entry.blocks.length < account.blocks.length && ` (${entry.blocks.map(blockLabel).join(', ')})`}: {entry.cause.detail}
+                            </p>
+                        ))}
+                        {account.reasons.map((reason, index) => (
+                            <p key={index} className='mt-1 text-xs text-red-800'>
+                                {reason}
+                            </p>
+                        ))}
+                    </div>
+                ) : (
+                    <div className='p-3 border border-gray-200 rounded-lg bg-gray-50'>
+                        <p className='text-sm text-gray-800'>{account.summary.headline}</p>
+                    </div>
+                )}
+                {/* His categories and standards, quoted and cited once, so every chip below reads as his words (R3 NIT 7). */}
+                <div className='space-y-0.5'>
+                    <p className='text-xs text-gray-500'>His four categories and three standards:</p>
+                    {account.accounts.map((entry) => (
+                        <His key={`account-${entry.id}`} words={`${entry.id}. ${entry.words}`} citedAs={account.citedAs} />
+                    ))}
+                    {account.standards.map((entry) => (
+                        <His key={`standard-${entry.id}`} words={entry.words} citedAs={account.citedAs} />
+                    ))}
+                </div>
+                {scoring?.rowText && (
+                    <div className='space-y-1'>
+                        <p className='text-xs text-gray-500'>Approved scoring condition (his workbook, {scoring.rowId})</p>
+                        <p className='text-xs text-gray-700'>&ldquo;{scoring.rowText}&rdquo;</p>
+                        <ul className='space-y-1'>
+                            {scoring.components.map((component) => (
+                                <li key={component.component} className='text-xs text-gray-700'>
+                                    <span className='font-medium'>{component.label}</span>
+                                    {component.rowSpans.length > 0 && <span className='text-gray-500'> — his words: &ldquo;{component.rowSpans.join('”; “')}&rdquo;</span>}{' '}
+                                    <span className='block mt-0.5'>
+                                        structural <AccountChip part={{ byConstruction: component.byConstruction, vacuous: false }} account={component.account} words={words(component.account)} rule={rule} />
+                                        {component.inPlay !== null && (
+                                            <>
+                                                {' '}
+                                                · in play <AccountChip account={component.inPlay} words={words(component.inPlay)} rule={rule} />
+                                            </>
+                                        )}
+                                    </span>
+                                    {new Set(component.perBlock.map((block) => block.account)).size > 1 && (
+                                        <span className='block text-gray-500'>by block: {component.perBlock.map((block) => `${blockLabel(block.blockId)} ${block.account}`).join(', ')}</span>
+                                    )}
+                                </li>
+                            ))}
+                        </ul>
+                        {scoring.uncoveredWords && <p className='text-xs text-red-800'>Words of his row no component stands for: &ldquo;{scoring.uncoveredWords}&rdquo;</p>}
+                        {scoring.notStructurallyRepresented.length > 0 && (
+                            <p className='text-xs text-gray-500'>Only observed in play, never structurally represented: {scoring.notStructurallyRepresented.map((entry) => entry.label).join('; ')}</p>
+                        )}
+                    </div>
+                )}
+                {account.status === 'REPORT_ONLY' && (
+                    <>
+                        {/* Counts under his category words, quoted; what is ours is labelled ours (R2 M1, S7, N6). */}
+                        <ul className='space-y-0.5'>
+                            <li className='text-xs text-gray-600'>
+                                1 &ldquo;{words(1)}&rdquo;: {account.summary.counts['1']}
+                                {(represented.byAbsence > 0 || represented.byConstruction > 0) && ` (${represented.byAbsence} holds by absence, ${represented.byConstruction} by construction: ours, DRAFT)`}
+                            </li>
+                            <li className='text-xs text-gray-600'>
+                                2 &ldquo;{words(2)}&rdquo;: {account.summary.counts['2']}
+                            </li>
+                            <li className='text-xs text-gray-600'>
+                                3 &ldquo;{words(3)}&rdquo;: {account.summary.counts['3']} (not counted as satisfied here: our DRAFT reading of his &ldquo;{rule.his.words}&rdquo;)
+                            </li>
+                            <li className='text-xs text-gray-600'>
+                                4 &ldquo;{words(4)}&rdquo;: {account.summary.counts['4']}
+                            </li>
+                        </ul>
+                        {account.summary.unsupported.length > 0 && (
+                            <ul className='space-y-0.5'>
+                                {account.summary.unsupported.map((entry) => (
+                                    <li key={`${entry.rowId}:${entry.partId}`} className='text-xs text-gray-600'>
+                                        4 — {entry.label}: {entry.cause.detail}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                        {account.summary.coachObservedWithoutObservable.length > 0 && (
+                            <p className='text-xs text-gray-600'>Coach observation with no observable identified: {account.summary.coachObservedWithoutObservable.map((entry) => entry.label).join('; ')}</p>
+                        )}
+                        <EvidencePart title='Each requirement, part by part'>
+                            {rows.map((row) => (
+                                <div key={row.rowId} className='space-y-2'>
+                                    <p className='text-xs font-semibold text-gray-700'>
+                                        {row.rowId} · {row.parts[0].rowRole}: &ldquo;{row.parts[0].rowText}&rdquo;
+                                    </p>
+                                    {row.parts[0].expectedEvidence && <p className='pl-3 text-xs text-gray-500'>expected evidence: &ldquo;{row.parts[0].expectedEvidence}&rdquo;</p>}
+                                    {row.parts.map((part) => (
+                                        <div key={part.partId} className='pl-3 space-y-0.5'>
+                                            <p className='text-xs text-gray-700'>
+                                                <span className='font-medium'>{part.partLabel}</span> <AccountChip part={part} account={part.account} words={part.accountWords} rule={rule} />
+                                            </p>
+                                            <p className='text-xs text-gray-500'>&ldquo;{part.standardWords}&rdquo;</p>
+                                            {part.rowSpan && <p className='text-xs text-gray-500'>His words it stands for: &ldquo;{part.rowSpan}&rdquo;</p>}
+                                            {part.facets.map((facet, facetAt) => (
+                                                <div key={`${facet.facetId}:${facetAt}`} className='pl-3'>
+                                                    <p className='text-xs text-gray-600'>
+                                                        {facet.label}: {facet.account}
+                                                    </p>
+                                                    {facet.carriers.map((carrier, at) => (
+                                                        <p key={`${carrier.contractId}:${carrier.itemId}:${at}`} className='pl-3 text-xs text-gray-600'>
+                                                            {carrierKindSaid(carrier.contractKind, carrier.basis)} — {carrier.contractId}::{carrier.itemId}, row {carrier.row} ({carrier.requirement}, basis {carrier.basis}
+                                                            {carrier.scope ? `, scope ${carrier.scope}` : ''}); the engine&rsquo;s check: {carrier.forward.result} — {carrier.forward.why}; in the finished game: {carrier.survives.how}
+                                                            {carrier.survives.rereadInGame === false ? ' (holds per derivation, not re-read in the finished game)' : ''}
+                                                            {carrier.survives.vacuous ? ' (vacuous: nothing on that row is represented)' : ''}
+                                                            {carrier.value ? `; authored ${JSON.stringify(carrier.value.authored)}, the finished game holds ${carrier.value.realized.map((held) => JSON.stringify(held)).join(', ')}` : ''}
+                                                            {carrier.byConstruction ? '; holds by construction' : ''}
+                                                            {carrier.relationship ? `; via ${carrier.relationship}` : ''}
+                                                            {carrier.condition ? `; on the scoring event with scope ${JSON.stringify(carrier.condition.carriedScope)}${carrier.condition.episodeConfirmed ? ', episode confirmed' : ''}` : ''}
+                                                        </p>
+                                                    ))}
+                                                    {facet.declarations.map((declaration, at) => (
+                                                        <p key={`${declaration.contractId}:${declaration.qualifier}:${declaration.selector ?? '*'}:${at}`} className='pl-3 text-xs text-gray-600'>
+                                                            {carrierKindSaid(declaration.contractKind, '')} declares {declaration.row} {declaration.declaration} {declaration.qualifier}
+                                                            {declaration.selector ? ` (${declaration.selector})` : ''}
+                                                            {declaration.note ? ` — ${declaration.note}` : ''}
+                                                        </p>
+                                                    ))}
+                                                    {facet.considered.map((entry, at) => (
+                                                        <p key={`${entry.contractId}:${entry.itemId}:${at}`} className='pl-3 text-xs text-gray-400'>
+                                                            Considered, not counted — {entry.contractId}::{entry.itemId}: {entry.why.join('; ')}
+                                                        </p>
+                                                    ))}
+                                                </div>
+                                            ))}
+                                            {part.guard && (
+                                                <p className='pl-3 text-xs text-gray-600'>
+                                                    The realized event {JSON.stringify(part.guard.kind)}; the context approves {part.guard.approvedEvents.join(', ') || 'nothing'}
+                                                    {part.guard.relationshipIds.length > 0 && ` (${part.guard.relationshipIds.join(', ')})`}
+                                                    {part.guard.findings.length > 0 && `; the guard found: ${part.guard.findings.join(' | ')}`}
+                                                </p>
+                                            )}
+                                            {part.kind === 'COACH_OBSERVED' &&
+                                                (part.observable ? (
+                                                    <p className='pl-3 text-xs text-gray-600'>
+                                                        {part.observable.expect === 'ABSENT' ? "What the coach watches, which must not become the activity's dominant problem" : 'What the coach judges in play'}: &ldquo;{part.observable.text}&rdquo;{' '}
+                                                        <span className='text-gray-400'>({observableSourceSaid(part.observable)})</span>
+                                                    </p>
+                                                ) : (
+                                                    <p className='pl-3 text-xs text-gray-600'>Observable not identified.</p>
+                                                ))}
+                                            {part.recordedOutside.length > 0 && <p className='pl-3 text-xs text-gray-400'>Recorded outside the representation by {part.recordedOutside.map((entry) => `${entry.contractId}::${entry.itemId}`).join(', ')}</p>}
+                                            {part.sameReferent && <p className='pl-3 text-xs text-gray-600'>Against the {part.sameReferent.component} component: {part.sameReferent.detail}</p>}
+                                            {part.cause && <p className='pl-3 text-xs text-gray-600'>Why: {part.cause.detail}</p>}
+                                            {part.accountsFor.length > 0 && <p className='pl-3 text-xs text-gray-500'>Also accounts for {part.accountsFor.join(', ')} (ours, DRAFT)</p>}
+                                            <p className='pl-3 text-xs text-gray-400'>
+                                                Classification: DRAFT, ours ({part.classification.bindingsVersion ?? 'no version'}){part.restsOnDraftKnowledge ? ' · Rests on DRAFT knowledge' : ''}
+                                            </p>
+                                            {part.classification.note && <p className='pl-3 text-xs text-gray-400'>{part.classification.note}</p>}
+                                            {new Set(part.perBlock.map((block) => block.account)).size > 1 && (
+                                                <p className='pl-3 text-xs text-gray-500'>by block: {part.perBlock.map((block) => `${blockLabel(block.blockId)} ${block.account}`).join(', ')}</p>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            ))}
+                        </EvidencePart>
+                        <EvidencePart title='Not accounted'>
+                            <ul className='space-y-0.5'>
+                                {account.notAccounted.map((row) => (
+                                    <li key={row.rowId} className='text-xs text-gray-600'>
+                                        {row.rowId} · {row.rowRole} (
+                                        {row.standing === 'NOT_APPLICABLE' ? 'not applicable to this build' : row.standing === 'ACCOUNTED_INSIDE' ? `accounted inside ${row.accountedInside}` : 'not accounted'}): &ldquo;{row.rowText}&rdquo; — {row.why}
+                                        {row.citedAsObservableBy.length > 0 && ` Its words are the observable of ${row.citedAsObservableBy.join(', ')} (chosen by us).`}
+                                    </li>
+                                ))}
+                            </ul>
+                            {account.alsoNotAccounted.map((sentence, index) => (
+                                <p key={index} className='text-xs text-gray-600'>
+                                    {sentence}
+                                </p>
+                            ))}
+                        </EvidencePart>
+                        <EvidencePart title='Blocks'>
+                            <p className='text-xs text-gray-600'>
+                                Accounted: {account.blocks.map((block) => `${blockLabel(block.blockId)} (${block.status}; ${block.partsIdenticalToMerged} parts as above${block.parts.length ? `, ${block.parts.length} differing, listed by block` : ''})`).join(', ') || 'none'}
+                            </p>
+                            {account.blocksWithoutAccount.map((block) => (
+                                <p key={block.blockId} className='text-xs text-gray-600'>
+                                    Not accounted — {blockLabel(block.blockId)}: {block.why}
+                                </p>
+                            ))}
+                            {account.summary.blocksDisagree.map((entry) => (
+                                <p key={`${entry.rowId}:${entry.partId}`} className='text-xs text-gray-600'>
+                                    Blocks disagree — {entry.rowId} {entry.partId}: {entry.perBlock.map((block) => `${blockLabel(block.blockId)} ${block.account}`).join(', ')}
+                                </p>
+                            ))}
+                            <p className='text-xs text-gray-400'>
+                                Bindings: {account.bindings.file ?? 'none'} ({account.bindings.mode ?? 'no mode'}, {account.bindings.version ?? 'no version'}); the context&rsquo;s contract: {account.contract}. His words: {account.citedAs}.
+                            </p>
+                        </EvidencePart>
+                    </>
+                )}
             </div>
         </section>
     )
