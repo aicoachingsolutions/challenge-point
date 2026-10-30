@@ -1,0 +1,414 @@
+{
+  "about": "TEST-ONLY REQUIREMENT BINDINGS for the DRAFT Attack Development context contract (docs/audits/drafts/ta02-composition/rpc-003-contract.DRAFT.json). Read only by the TEST-ONLY draft-store loader (loadDraftRequirementBindings) and handed to a TEST-ONLY build; no production module reads this file. Held to the same gate as the production bindings, in its DRAFT mode, and in its MERGED mode once merged with them.",
+  "standing": "DRAFT - TEST-ONLY. OUR CLASSIFICATION OF A DRAFT CONTRACT, NOT HIS. The split of his Primary Scoring Condition into origin, progression and control is the draft contract's, ours and unreviewed; the meaning of \"from the attack's starting condition\" awaits his clarification (his reply filed 3 November 2026, section 3).",
+  "schemaVersion": 1,
+  "version": "2026-11-03.2-draft",
+  "applicability": {
+    "standing": "DRAFT",
+    "accounted": {
+      "identityRoles": ["REQUIRED", "EXCLUSION"],
+      "propertyCategories": ["PRIMARY_SCORING_CONDITION"],
+      "validationDomains": ["IDENTITY", "SCORING", "BOUNDARY", "REPRESENTATIVENESS", "DIVERSITY"]
+    },
+    "listedNotAccounted": {
+      "identityRoles": ["SUPPORTING_IDENTITY"],
+      "propertyCategories": ["BEGIN_CONDITION", "END_CONDITION", "REPRESENTATIVE_INFORMATION", "DEGENERATE_SOLUTION", "BEHAVIOR_ADJUSTMENT"],
+      "validationDomains": [],
+      "why": "Listed for review and not accounted in this increment: whether a supporting identity row, a context's core begin and end conditions, its representative information, its degenerate solutions or its behaviour adjustments belong to the applicable set is his decision."
+    },
+    "overReturnedAlternatives": {
+      "validationDomains": ["DIVERSITY"],
+      "why": "Evaluated over the alternatives a build returns; a build that returns one activity has none, so the row does not apply to it and is listed, never reported as missing."
+    }
+  },
+  "carriers": {
+    "standing": "DRAFT",
+    "eligibleBases": ["AUTHORED", "OWNER_RULING"],
+    "eligibleForward": ["SATISFIED"],
+    "gameFormRelationship": "an ACTIVE GAME_FORM relationship of the context, in his context workbook, to the selected game form"
+  },
+  "contexts": [
+    {
+      "contextId": "RPC-003",
+      "rows": [
+        {
+          "rowId": "RPC-ID-011",
+          "parts": [
+            {
+              "id": "organized-possession",
+              "label": "Organized attacking possession characterizes the activity's dominant learning opportunities, judged in play",
+              "kind": "COACH_OBSERVED",
+              "standard": "FIELD_EFFECTIVENESS",
+              "observable": null,
+              "standingNote": "Classified DRAFT under his reply filed 3 November 2026, section 3: \"I favor your decision 4(b): organized attacking possession should characterize the activity's dominant learning opportunities, rather than being a required state for every counted score.\" No observable is identified yet. The context also serves another Learning Goal (Secure Possession), so its context-level classification stays DRAFT."
+            }
+          ]
+        },
+        {
+          "rowId": "RPC-ID-012",
+          "parts": [
+            {
+              "id": "purpose",
+              "label": "The representative purpose: improving attacking conditions",
+              "kind": "UNSUPPORTED",
+              "standard": "LEARNING_DESIGN_RELEVANCE",
+              "cause": {
+                "kind": "MISSING_KNOWLEDGE",
+                "detail": "No knowledge relationship carries this purpose and no observable is identified for it; how a purpose row is carried is his decision."
+              }
+            }
+          ]
+        },
+        {
+          "rowId": "RPC-ID-013",
+          "parts": [
+            {
+              "id": "not-possession-alone",
+              "label": "Possession alone is not success: the scoring event is an arrival the context approves",
+              "kind": "GUARD_EVENT_KIND",
+              "standard": "STRUCTURAL_VALIDITY"
+            }
+          ]
+        },
+        {
+          "rowId": "RPC-ID-015",
+          "parts": [
+            {
+              "id": "no-chance-window-ownership",
+              "label": "An immediate genuine chance-creation window does not take over",
+              "kind": "COACH_OBSERVED",
+              "standard": "FIELD_EFFECTIVENESS",
+              "observable": null,
+              "recordedOutsideBy": [
+                {
+                  "row": "V7",
+                  "strictness": ["EXCLUSION"],
+                  "from": ["CONTEXT", "REALIZATION", "GAME_FORM"]
+                },
+                {
+                  "row": "V11",
+                  "strictness": ["EXCLUSION"],
+                  "from": ["CONTEXT", "REALIZATION", "GAME_FORM"]
+                }
+              ],
+              "standingNote": "No observable chosen, deliberately: his end condition RPC-PROP-036 names the shift (and his transition RPC-TR-006 to RPC-004), but under Approach B such moments are legitimate (his reply filed 3 November 2026, section 1: \"Transitions, counterattacking opportunities, and other legitimate game situations should remain available rather than being artificially invalidated.\"), so whether the coach watches for it as a failure is his decision."
+            }
+          ]
+        },
+        {
+          "rowId": "RPC-PROP-134",
+          "parts": [
+            {
+              "id": "origin",
+              "label": "From the attack's starting condition",
+              "kind": "SCORING_CONDITION_COMPONENT",
+              "component": "origin",
+              "rowSpan": "from the attack's starting condition",
+              "standard": "STRUCTURAL_VALIDITY",
+              "facets": [
+                {
+                  "id": "condition",
+                  "label": "the origin condition on the realized primary event",
+                  "row": "V3",
+                  "requirement": ["EXISTS"],
+                  "strictness": ["REQUIRED"],
+                  "terms": [{ "attribute": "type", "value": "origin" }],
+                  "from": ["CONTEXT", "REALIZATION"]
+                },
+                {
+                  "id": "referents",
+                  "label": "what the starting condition is",
+                  "row": "V5",
+                  "terms": [{ "attribute": "type", "value": "origin" }],
+                  "from": ["CONTEXT", "REALIZATION"]
+                }
+              ],
+              "standingNote": "Its meaning awaits his clarification (his reply filed 3 November 2026, section 3: \"I'd like us to settle its meaning from the intended learning problem, rather than choose the interpretation the engine can already implement.\")."
+            },
+            {
+              "id": "progression",
+              "label": "Reaching a more advanced representative area",
+              "kind": "SCORING_CONDITION_COMPONENT",
+              "component": "progression",
+              "rowSpan": "reaching a more advanced representative area",
+              "standard": "STRUCTURAL_VALIDITY",
+              "facets": [
+                {
+                  "id": "condition",
+                  "label": "the progression condition on the realized primary event",
+                  "row": "V3",
+                  "requirement": ["EXISTS"],
+                  "strictness": ["REQUIRED"],
+                  "terms": [{ "attribute": "type", "value": "progression" }],
+                  "from": ["CONTEXT", "REALIZATION"]
+                },
+                {
+                  "id": "referents",
+                  "label": "the area reached",
+                  "row": "V5",
+                  "terms": [{ "attribute": "type", "value": "progression" }],
+                  "byConstructionWhen": "RELATIONAL_REFERENT",
+                  "from": ["CONTEXT", "REALIZATION"]
+                },
+                {
+                  "id": "value",
+                  "label": "more advanced",
+                  "row": "V6",
+                  "terms": [{ "attribute": "type", "value": "progression" }],
+                  "from": ["CONTEXT", "REALIZATION"]
+                }
+              ],
+              "standingNote": "Where its referent is the target the scoring team attacks, the condition holds whenever the scoring event occurs; his reply filed 3 November 2026, section 3: \"My concern is that an advanced end zone may recognize a useful outcome without necessarily demonstrating improvement from the attack's starting situation.\""
+            },
+            {
+              "id": "control",
+              "label": "While maintaining attacking possession",
+              "kind": "SCORING_CONDITION_COMPONENT",
+              "component": "control",
+              "rowSpan": "while maintaining attacking possession",
+              "standard": "STRUCTURAL_VALIDITY",
+              "facets": [
+                {
+                  "id": "condition",
+                  "label": "the control condition on the realized primary event",
+                  "row": "V3",
+                  "requirement": ["EXISTS"],
+                  "strictness": ["REQUIRED"],
+                  "terms": [{ "attribute": "type", "value": "control" }],
+                  "from": ["CONTEXT", "REALIZATION"]
+                },
+                {
+                  "id": "value",
+                  "label": "possession maintained",
+                  "row": "V6",
+                  "terms": [{ "attribute": "type", "value": "control" }],
+                  "from": ["CONTEXT", "REALIZATION"]
+                }
+              ]
+            },
+            {
+              "id": "not-possession-alone",
+              "label": "Rather than possession alone",
+              "kind": "GUARD_EVENT_KIND",
+              "component": "not-possession-alone",
+              "rowSpan": "rather than possession alone",
+              "standard": "STRUCTURAL_VALIDITY"
+            },
+            {
+              "id": "advancement-in-play",
+              "label": "The advancement is purposeful, judged in play",
+              "kind": "COACH_OBSERVED",
+              "standard": "FIELD_EFFECTIVENESS",
+              "component": "progression",
+              "observable": {
+                "text": "Purposeful advancement from the attack's starting condition rather than possession alone",
+                "source": "KNOWLEDGE_ROW",
+                "citedAs": {
+                  "file": "back/src/system/sport-module/rpc-library.rc1.json",
+                  "table": "properties",
+                  "rowId": "RPC-PROP-134",
+                  "field": "property_text"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "rowId": "RPC-VAL-011",
+          "parts": [
+            {
+              "id": "recognizable",
+              "label": "Recognizable as the context without its labels",
+              "kind": "COACH_OBSERVED",
+              "standard": "LEARNING_DESIGN_RELEVANCE",
+              "observable": {
+                "text": "An experienced coach identifies the activity as Attack Development or a functionally equivalent description without relying on labels.",
+                "source": "WORKBOOK_EXPECTED_EVIDENCE",
+                "citedAs": null
+              }
+            }
+          ]
+        },
+        {
+          "rowId": "RPC-VAL-012",
+          "parts": [
+            {
+              "id": "approved-event",
+              "label": "The primary scoring event is one the context approves",
+              "kind": "GUARD_EVENT_KIND",
+              "standard": "STRUCTURAL_VALIDITY"
+            },
+            {
+              "id": "no-unrelated-affordance",
+              "label": "Scoring does not substitute an unrelated affordance outcome",
+              "kind": "UNSUPPORTED",
+              "standard": "LEARNING_DESIGN_RELEVANCE",
+              "cause": {
+                "kind": "MISSING_KNOWLEDGE",
+                "detail": "No relationship between a scoring condition and an affordance exists in the knowledge; his Attack Development affordance targets are deferred."
+              }
+            }
+          ]
+        },
+        {
+          "rowId": "RPC-VAL-013",
+          "parts": [
+            {
+              "id": "no-better-neighbour",
+              "label": "No neighbouring context better explains the activity",
+              "kind": "UNSUPPORTED",
+              "standard": "LEARNING_DESIGN_RELEVANCE",
+              "cause": {
+                "kind": "MISSING_KNOWLEDGE",
+                "detail": "His workbook relates this context to its neighbours: transitions to RPC-004 (CONDITIONAL, RPC-TR-006) and RPC-007 (CONDITIONAL, RPC-TR-007), each on a condition stated in his words, and the exclusion row RPC-ID-015. Nothing yet compares how strongly the generated structure satisfies an exclusion identity rule against this context's identity, and his workbook's expected evidence names no coach judgment, so the row is not left to coach observation (DRAFT)."
+              }
+            }
+          ]
+        },
+        {
+          "rowId": "RPC-VAL-014",
+          "parts": [
+            {
+              "id": "opposition",
+              "label": "Opponent interaction: two opposed teams",
+              "kind": "PATTERN",
+              "standard": "STRUCTURAL_VALIDITY",
+              "facets": [
+                {
+                  "id": "teams",
+                  "label": "the count of opposed teams",
+                  "row": "P1",
+                  "requirement": ["COUNT"],
+                  "from": ["CONTEXT", "REALIZATION", "GAME_FORM"]
+                }
+              ]
+            },
+            {
+              "id": "direction",
+              "label": "Direction: each team attacks its own target",
+              "kind": "PATTERN",
+              "standard": "STRUCTURAL_VALIDITY",
+              "facets": [
+                {
+                  "id": "objective-start-team",
+                  "label": "an objective for the team at the axis start",
+                  "row": "J1",
+                  "requirement": ["EXISTS"],
+                  "terms": [
+                    { "attribute": "role", "value": "PRIMARY_SCORING" },
+                    { "attribute": "team", "value": "TEAM_AT_AXIS_START" }
+                  ],
+                  "from": ["CONTEXT", "REALIZATION", "GAME_FORM"]
+                },
+                {
+                  "id": "objective-end-team",
+                  "label": "an objective for the team at the axis end",
+                  "row": "J1",
+                  "requirement": ["EXISTS"],
+                  "terms": [
+                    { "attribute": "role", "value": "PRIMARY_SCORING" },
+                    { "attribute": "team", "value": "TEAM_AT_AXIS_END" }
+                  ],
+                  "from": ["CONTEXT", "REALIZATION", "GAME_FORM"]
+                },
+                {
+                  "id": "target-start-team",
+                  "label": "the target the axis-start team attacks",
+                  "row": "J2",
+                  "terms": [
+                    { "attribute": "role", "value": "PRIMARY_SCORING" },
+                    { "attribute": "team", "value": "TEAM_AT_AXIS_START" }
+                  ],
+                  "from": ["CONTEXT", "REALIZATION", "GAME_FORM"]
+                },
+                {
+                  "id": "target-end-team",
+                  "label": "the target the axis-end team attacks",
+                  "row": "J2",
+                  "terms": [
+                    { "attribute": "role", "value": "PRIMARY_SCORING" },
+                    { "attribute": "team", "value": "TEAM_AT_AXIS_END" }
+                  ],
+                  "from": ["CONTEXT", "REALIZATION", "GAME_FORM"]
+                }
+              ]
+            },
+            {
+              "id": "consequence",
+              "label": "Consequence: play continues through a turnover",
+              "kind": "PATTERN",
+              "standard": "STRUCTURAL_VALIDITY",
+              "facets": [
+                {
+                  "id": "play-continues",
+                  "label": "what a possession change does to play",
+                  "row": "T6",
+                  "terms": [{ "attribute": "trigger", "value": "POSSESSION_CHANGE" }],
+                  "value": "CONTINUE",
+                  "from": ["CONTEXT", "REALIZATION", "GAME_FORM"]
+                }
+              ],
+              "standingNote": "Bound to what a turnover does in play: his reply filed 3 November 2026, section 4, keeps \"continuous play through turnovers\" among his provisional choices."
+            },
+            {
+              "id": "information",
+              "label": "Representative information is not withheld",
+              "kind": "PATTERN",
+              "standard": "STRUCTURAL_VALIDITY",
+              "facets": [
+                {
+                  "id": "no-withholding",
+                  "label": "no information rule withholds it",
+                  "row": "V15",
+                  "strictness": ["EXCLUSION"],
+                  "from": ["CONTEXT", "REALIZATION", "GAME_FORM"]
+                }
+              ]
+            },
+            {
+              "id": "opposition-in-play",
+              "label": "Opposition can deny, redirect or reverse progression in play",
+              "kind": "COACH_OBSERVED",
+              "standard": "FIELD_EFFECTIVENESS",
+              "observable": {
+                "text": "Opposition can deny, redirect, or reverse progression.",
+                "source": "KNOWLEDGE_ROW",
+                "citedAs": {
+                  "file": "back/src/system/knowledge-core/game-archetype-workbook.rc1.1.json",
+                  "table": "knowledge",
+                  "rowId": "GAK-0105",
+                  "field": "Knowledge_Statement"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "rowId": "RPC-VAL-015",
+          "parts": [
+            {
+              "id": "alternatives-preserve-identity",
+              "label": "Each alternative realization preserves the context's identity",
+              "kind": "UNSUPPORTED",
+              "standard": "LEARNING_DESIGN_RELEVANCE",
+              "cause": {
+                "kind": "MISSING_IMPLEMENTATION",
+                "detail": "One build accounts only for the realization it built; no reader compares alternatives yet."
+              }
+            },
+            {
+              "id": "alternatives-distinct",
+              "label": "Alternatives are educationally distinct",
+              "kind": "UNSUPPORTED",
+              "standard": "LEARNING_DESIGN_RELEVANCE",
+              "cause": {
+                "kind": "MISSING_KNOWLEDGE",
+                "detail": "No knowledge relationship grounds educational distinctness, and his workbook's expected evidence names no coach judgment, so the part is not left to coach observation (DRAFT)."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

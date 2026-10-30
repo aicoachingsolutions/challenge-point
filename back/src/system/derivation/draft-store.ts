@@ -50,6 +50,7 @@ import path from 'node:path'
 
 import { constitutedConditionTypes } from '../rendering/context-scoring-guard'
 import { RelevanceJoinRules, relevanceJoinRulesRefusals } from '../rendering/relevance-trace'
+import { RequirementBindings, RequirementBindingsRefused, requirementBindingsRefusals } from '../rendering/requirement-bindings'
 import { PRIMARY_SCORING_CONDITION } from '../sport-module/rpc-library'
 import { learningGoalAuthorizations, LearningGoalAuthorization, validateLearningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
 import { loadCorpusContracts, loadProvisionalRealizations, loadRegister, loadSportDefaultLaws, loadSportProfile, objectIdOf } from './corpus'
@@ -167,6 +168,61 @@ export function loadLawsMateriality(file: string = LAWS_MATERIALITY_FILE): LawsM
     const repository = path.resolve(SYSTEM_DIR, '..', '..', '..')
     const shown = path.relative(repository, path.resolve(file)).split(path.sep).join('/')
     return { ...(JSON.parse(JSON.stringify(raw)) as Omit<LawsMateriality, 'file'>), file: shown.startsWith('..') ? path.basename(file) : shown }
+}
+
+/**
+ * **TEST-ONLY: our DRAFT requirement bindings for the draft context contract, read for a TEST-ONLY build** — 29 October 2026 (the requirement
+ * account, report only). Christian, his reply filed 3 November 2026, section 2: *"Each generated activity should be evaluated against the
+ * applicable, approved context requirements, accounting for each component of a scoring condition rather than simply confirming that the
+ * condition exists."* The production bindings cover only contexts with a production contract, so the draft Attack Development contract's
+ * bindings are one small file of ours at the drafts root (`docs/audits/drafts/requirement-bindings-rpc-003.DRAFT.json`, outside every store
+ * folder, so no store lists it as unread), held here to the production file's own gate in its DRAFT mode, against this store's contracts, and
+ * refused WHOLE on any defect. Merged with the production bindings by `mergeRequirementBindings` for a build. Like the store, never imported
+ * by a production module.
+ */
+export const DRAFT_REQUIREMENT_BINDINGS_FILE = path.join(DRAFTS_DIR, 'requirement-bindings-rpc-003.DRAFT.json')
+export function loadDraftRequirementBindings(store: DraftStoreContents, file: string = DRAFT_REQUIREMENT_BINDINGS_FILE): RequirementBindings {
+    let raw: unknown
+    try {
+        raw = JSON.parse(fs.readFileSync(file, 'utf8').replace(/^﻿/, ''))
+    } catch (error) {
+        throw new DraftStoreRefused(file, [`the requirement bindings do not parse: ${error instanceof Error ? error.message : String(error)}`])
+    }
+    const reasons = requirementBindingsRefusals(raw, { mode: 'DRAFT', draftContracts: store.contracts })
+    if (reasons.length) throw new DraftStoreRefused(file, reasons)
+    const repository = path.resolve(SYSTEM_DIR, '..', '..', '..')
+    const shown = path.relative(repository, path.resolve(file)).split(path.sep).join('/')
+    return { ...(JSON.parse(JSON.stringify(raw)) as Omit<RequirementBindings, 'file' | 'mode'>), file: shown.startsWith('..') ? path.basename(file) : shown, mode: 'DRAFT' }
+}
+
+/**
+ * **TEST-ONLY: the production requirement bindings and the draft store's, merged** (the R-engine review's M1; moved here from the production
+ * module in round 2, R3 S5, so the production surface holds no TEST-ONLY composition). Refused unless the two share a schema version, an
+ * applicability and a carrier rule, and bind no context twice; stamped MERGED and TEST-ONLY, and held to the production file's gate in its
+ * MERGED mode before it is returned, so each context answers to exactly one contract.
+ */
+export function mergeRequirementBindings(production: RequirementBindings, draft: RequirementBindings, draftContracts: LoadedContract[]): RequirementBindings {
+    const reasons: string[] = []
+    if (production.mode !== 'PRODUCTION') reasons.push(`the first bindings are ${production.mode}, not PRODUCTION`)
+    if (draft.mode !== 'DRAFT') reasons.push(`the second bindings are ${draft.mode}, not DRAFT`)
+    if (production.schemaVersion !== draft.schemaVersion) reasons.push('the two bindings differ in schema version')
+    if (JSON.stringify(production.applicability) !== JSON.stringify(draft.applicability)) reasons.push('the two bindings differ in applicability')
+    if (JSON.stringify(production.carriers) !== JSON.stringify(draft.carriers)) reasons.push('the two bindings differ in their carrier rule')
+    for (const entry of draft.contexts) if (production.contexts.some(other => other.contextId === entry.contextId)) reasons.push(`${entry.contextId} is bound in both`)
+    const file = `${production.file} + ${draft.file}`
+    if (reasons.length) throw new RequirementBindingsRefused(file, reasons)
+    const merged: Omit<RequirementBindings, 'file' | 'mode'> = {
+        about: `TEST-ONLY: the production requirement bindings merged with the draft store's, for a TEST-ONLY build. ${draft.about}`,
+        standing: `DRAFT - TEST-ONLY. Merged from ${production.version} and ${draft.version}.`,
+        schemaVersion: 1,
+        version: `${production.version}+${draft.version}`,
+        applicability: JSON.parse(JSON.stringify(production.applicability)),
+        carriers: JSON.parse(JSON.stringify(production.carriers)),
+        contexts: JSON.parse(JSON.stringify([...production.contexts, ...draft.contexts])),
+    }
+    const refusals = requirementBindingsRefusals(merged, { mode: 'MERGED', draftContracts })
+    if (refusals.length) throw new RequirementBindingsRefused(file, refusals)
+    return { ...merged, file, mode: 'MERGED' }
 }
 
 const filled = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0

@@ -350,8 +350,12 @@ test('2. key identity: the draft reaches the administrator\'s review answer and 
     // The same build with and without the draft: identical but for the admin-only keys. Moved 15 October 2026 (stage K8): the
     // administrator's answer for a goal whose record carries his review request also carries `evidence` (review-evidence.unit.ts pins
     // it); taken out here beside the draft, the rest is still exactly the coach's answer.
-    const { draft, evidence, ...rest } = review
-    assert.ok(draft && evidence)
+    // Re-pointed 29 October 2026 (the requirement account, report only): the administrator's answer after realization also carries
+    // `requirementAccount` (requirement-account.unit.ts pins it); taken out here beside the draft and the evidence, the rest is still exactly
+    // the coach's answer, which carries none.
+    const { draft, evidence, requirementAccount, ...rest } = review
+    assert.ok(draft && evidence && requirementAccount)
+    assert.ok(!('requirementAccount' in plain), 'the coach\'s answer carries no requirement account')
     assert.deepEqual(rest, plain)
     assert.ok(!('draft' in plain), 'buildActivity never carries it')
     // Re-pointed 18 October 2026 (design step L14): on the TEST-ONLY table as at stage M5, like `plain`; and on production, served.
@@ -381,10 +385,12 @@ test('2. key identity: the draft reaches the administrator\'s review answer and 
     // Re-pointed 22 October 2026 (stage 5A): the administrator's served answer also carries the field diagram's model and agreement check
     // (`diagramDraft`, admin-only until stage 5B serves the diagram); the coach's does not, and nothing else differs.
     assert.ok(!('diagramDraft' in coachServed) && !!adminServed.diagramDraft, 'the diagram draft is the administrator\'s')
-    const { evidence: servedEvidence, overviewDraft: servedOverview, diagramDraft: servedDiagram, ...servedRest } = served
-    assert.ok(servedEvidence && servedOverview && servedDiagram)
-    assert.ok(!('diagramDraft' in servedPlain))
-    assert.deepEqual(servedRest, servedPlain, 'the served review answer is the coach\'s answer plus the evidence, the overview draft and the diagram draft')
+    // Re-pointed 29 October 2026: and the requirement account (admin-only, report only); the coach's carries none.
+    assert.ok(!('requirementAccount' in coachServed) && !!adminServed.requirementAccount, 'the requirement account is the administrator\'s')
+    const { evidence: servedEvidence, overviewDraft: servedOverview, diagramDraft: servedDiagram, requirementAccount: servedAccount, ...servedRest } = served
+    assert.ok(servedEvidence && servedOverview && servedDiagram && servedAccount)
+    assert.ok(!('diagramDraft' in servedPlain) && !('requirementAccount' in servedPlain))
+    assert.deepEqual(servedRest, servedPlain, 'the served review answer is the coach\'s answer plus the evidence, the overview draft, the diagram draft and the requirement account')
     assert.deepEqual(adminServed.rendered, coachServed.rendered)
     // A served activity never carries a draft, even when asked: a draft belongs to a refusal at communication only.
     for (const demonstration of MECHANISM_DEMONSTRATIONS) {

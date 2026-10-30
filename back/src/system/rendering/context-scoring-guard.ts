@@ -26,9 +26,15 @@
 import { CheckResult, EPISODE_SCOPES } from '../derivation/gates'
 import { RELATIONSHIP_CONFIRMED } from '../derivation/realization-deferral'
 import { RegisterIndex } from '../derivation/register'
-import { conditionScopeNotEvaluable, EVALUABLE_CONDITION_SCOPE } from '../derivation/resolved-game'
+import { CONDITION_ROW, conditionScopeNotEvaluable, EVALUABLE_CONDITION_SCOPE } from '../derivation/resolved-game'
 import { LoadedContract } from '../derivation/types'
 import { eventKindOf, registerIndex, roleElementsOf } from './game-reading'
+
+/**
+ * The selector prefix a constituting item names its condition type by (`type=<condition type>`), on the conditions row (`CONDITION_ROW`,
+ * named once in `resolved-game.ts`), so the requirement account reads conditions exactly as this guard does (29 October 2026).
+ */
+export const CONDITION_TYPE_PREFIX = 'type='
 
 /** The Gate A check that decides whether an episode a condition is authored for can begin in the game (gates.ts). */
 export const EPISODE_REACHABLE_CHECK = 'GA-EPISODE-REACHABLE'
@@ -187,16 +193,147 @@ export function alsoCountsFindings(contextId: string, game: any, approvedEvents:
 
 /** The condition types the context's contract constitutes, each with the item that constitutes it. */
 export function constitutedConditionTypes(contract: LoadedContract): { type: string; itemId: string }[] {
-    const prefix = 'type='
+    const prefix = CONDITION_TYPE_PREFIX
     return (contract.items ?? [])
-        .filter(item => String(item.row) === 'V3' && String(item.requirement) === 'EXISTS' && String(item.strictness) === 'REQUIRED')
+        .filter(item => String(item.row) === CONDITION_ROW && String(item.requirement) === 'EXISTS' && String(item.strictness) === 'REQUIRED')
         .filter(item => String(item.selector ?? '').startsWith(prefix))
         .map(item => ({ type: String(item.selector).slice(prefix.length).trim(), itemId: item.itemId }))
 }
 
 /**
+ * **One condition item, read exactly as the guard reads it** — 29 October 2026, moved out of `contextScoringFindings` unchanged (the
+ * requirement account's R-3; his reply filed 3 November 2026, section 2: *"accounting for each component of a scoring condition rather than
+ * simply confirming that the condition exists"*). `why` is EXACTLY the finding the guard pushes for this item today, in the same branch
+ * order — the type absent from the primary event, then a scope that did not arrive as authored, then a scope narrower than the whole game
+ * that the concrete game is not shown to begin — or null where the guard pushes none; `governs` is `why === null`. The rest is what the
+ * reading saw, for the requirement account's evidence: whether some condition of the type is present (the guard's own test), whether the
+ * item's OWN element is on the event (which the guard does not require: a reader may, report-only), the authored and carried scopes, and
+ * whether the episode is confirmed.
+ *
+ * An item whose selector is not `type=<condition type>` (an `IN`, a compound) has `type` null, never governs, and a `why` the guard never
+ * pushes: `contextScoringFindings` reads only the items `constitutedConditionTypes` returns, every one of which has a type.
+ */
+export interface ConditionReading {
+    contractId: string
+    itemId: string
+    type: string | null
+    /** Some condition of that type is on the realized primary event (the guard's test). */
+    present: boolean
+    /** The item's own element, `c:<contract>:<item>`, is on the realized primary event. */
+    elementFound: boolean
+    authoredScope: unknown
+    /** What arrived on the element; the evaluable scope where the element carries no scope key, as the guard reads it. */
+    carriedScope: unknown
+    scopeMatches: boolean
+    notEvaluable: string | null
+    episodeConfirmed: boolean
+    governs: boolean
+    why: string | null
+}
+
+export function conditionReadingOf(
+    contextId: string,
+    contract: LoadedContract,
+    itemId: string,
+    game: any,
+    episodeCheck?: CheckResult,
+    /** The type `constitutedConditionTypes` read for this item, where the caller has it (the guard): exactly the old loop's (round 2, R1 NIT 6). */
+    constitutedType?: string,
+): ConditionReading {
+    const item = (contract.items ?? []).find(entry => entry.itemId === itemId)
+    const selector = String(item?.selector ?? '')
+    const type = constitutedType ?? (selector.startsWith(CONDITION_TYPE_PREFIX) ? selector.slice(CONDITION_TYPE_PREFIX.length).trim() : null)
+    const event = game?.value?.primaryEvent
+    const conditions: any[] = Array.isArray(event?.conditions) ? event.conditions : []
+    const present = type !== null && conditions.some((condition: any) => String(condition?.type) === type)
+    /**
+     * **Present is not yet governing, where the condition was authored for less than every score** — 15 October
+     * 2026. The constituting item's own scope must have arrived on the condition (a projection is proved by its
+     * consumer), and a scope narrower than the whole game cannot be confirmed by a check that reads only whether
+     * the condition is there: it would be passing a condition on every score that was authored for some. His
+     * SD-36 and 16 October 9.3 ("Build-out condition applies only to build-out episodes: Approved.").
+     */
+    const authored = item?.scope
+    const element = conditions.find((condition: any) => String(condition?.elementId) === `c:${contract.contractId}:${itemId}`)
+    const carried = element && Object.prototype.hasOwnProperty.call(element, 'scope') ? element.scope : EVALUABLE_CONDITION_SCOPE
+    const notEvaluable = conditionScopeNotEvaluable(element)
+    const confirmed = episodeConfirmed(carried, episodeCheck)
+    let why: string | null = null
+    if (type === null) {
+        why = `${contract.contractId}::${itemId} does not name a condition type by its selector, so the context-scoring guard does not read it`
+    } else if (!present) {
+        why = `the ${type} condition ${contextId} constitutes (${itemId}) is not in the realized game's primary event`
+    } else if (element && authored !== undefined && String(carried) !== String(authored)) {
+        why = `the ${type} condition ${contextId} constitutes (${itemId}) is authored for the ${String(authored)} scope and reached the realized game as ${JSON.stringify(carried)}`
+    } else if (notEvaluable && !(authored !== undefined && String(carried) === String(authored) && confirmed)) {
+        // Carried with its authored scope (checked just above), and the concrete game begins that episode (stage K7): confirmed. Otherwise:
+        why = `the ${type} condition ${contextId} constitutes (${itemId}) cannot be confirmed to govern this game: ${notEvaluable}`
+    }
+    return {
+        contractId: contract.contractId,
+        itemId,
+        type,
+        present,
+        elementFound: !!element,
+        authoredScope: authored ?? null,
+        carriedScope: carried,
+        scopeMatches: authored === undefined || String(carried) === String(authored),
+        notEvaluable,
+        episodeConfirmed: confirmed,
+        governs: why === null,
+        why,
+    }
+}
+
+/**
+ * **The guard's reading of the realized primary event's kind, and of what else scores** — 29 October 2026, moved out of
+ * `contextScoringFindings` unchanged (R-3). `findings` is EXACTLY what the guard pushed first, in its order: each role's own event
+ * (`roleEventFindings`), each occurrence also counted (`alsoCountsFindings`), then the event kind where the context does not approve it.
+ * `roleEvents` lists each role scoring by an event of its own, for the requirement account's evidence (the guard reads them above).
+ */
+export interface EventKindReading {
+    kind: unknown
+    approvedEvents: string[]
+    approved: boolean
+    roleEvents: { elementId: string; role: string; kind: unknown }[]
+    /** Each occurrence the game also counts as its primary event (register V27), by element id. */
+    alsoCounts: string[]
+    findings: string[]
+}
+
+export function eventKindReadingOf(
+    contextId: string,
+    game: any,
+    approvedEvents: string[],
+    alsoCountsSupport?: AlsoCountsSupport[],
+    roleEventSupport?: RoleEventSupport[],
+    index?: RegisterIndex,
+    relationships?: ScoringAuthority[],
+): EventKindReading {
+    const findings: string[] = [...roleEventFindings(contextId, game, approvedEvents, roleEventSupport, index, relationships), ...alsoCountsFindings(contextId, game, approvedEvents, alsoCountsSupport)]
+    // Stage A: the game's primary event read through the one kind reader (a role's own event is the per-role clause's, above).
+    const kind = eventKindOf(game, null, index).kind
+    const approved = approvedEvents.includes(String(kind))
+    if (!approved) {
+        findings.push(
+            `the realized primary event is ${kind === undefined ? 'absent' : `"${kind}"`}, which the Representative Performance Context ${contextId} does not approve (it approves: ${approvedEvents.join(', ') || 'nothing'})`,
+        )
+    }
+    const roleEvents = roleElementsOf(game, index)
+        .map(({ elementId, role }) => ({ elementId, role, own: eventKindOf(game, role, index) }))
+        .filter(entry => entry.own.byRole)
+        .map(entry => ({ elementId: entry.elementId, role: entry.role, kind: entry.own.kind }))
+    const alsoCounts = (Array.isArray(game?.value?.primaryEvent?.alsoCounts) ? game.value.primaryEvent.alsoCounts : []).map((element: any) => String(element?.elementId))
+    return { kind, approvedEvents: [...approvedEvents], approved, roleEvents, alsoCounts, findings }
+}
+
+/**
  * What the realized game lacks of its context's approved scoring, as reasons for the technical account. Empty
  * where it carries all of it.
+ *
+ * 29 October 2026 (R-3): composed of the two readings above, which hold the body this function always ran, moved unchanged, so the
+ * requirement account reads conditions and the event kind exactly as this guard does; the findings, their words and their order are
+ * byte-identical (`context-scoring-guard.unit.ts` holds them to a copy of the function as it stood at 7fd9713).
  */
 export function contextScoringFindings(
     contextId: string,
@@ -214,40 +351,10 @@ export function contextScoringFindings(
     relationships?: ScoringAuthority[],
 ): string[] {
     if (!contract) return [`the contract of the Representative Performance Context ${contextId} did not reach the build, so its scoring cannot be checked`]
-    const findings: string[] = [...roleEventFindings(contextId, game, approvedEvents, roleEventSupport, index, relationships), ...alsoCountsFindings(contextId, game, approvedEvents, alsoCountsSupport)]
-    const event = game?.value?.primaryEvent
-    // Stage A: the game's primary event read through the one kind reader (a role's own event is the per-role clause's, above).
-    const kind = eventKindOf(game, null, index).kind
-    if (!approvedEvents.includes(String(kind))) {
-        findings.push(
-            `the realized primary event is ${kind === undefined ? 'absent' : `"${kind}"`}, which the Representative Performance Context ${contextId} does not approve (it approves: ${approvedEvents.join(', ') || 'nothing'})`,
-        )
-    }
-    const conditions: any[] = Array.isArray(event?.conditions) ? event.conditions : []
-    const present = new Set(conditions.map((condition: any) => String(condition?.type)))
+    const findings: string[] = [...eventKindReadingOf(contextId, game, approvedEvents, alsoCountsSupport, roleEventSupport, index, relationships).findings]
     for (const { type, itemId } of constitutedConditionTypes(contract)) {
-        if (!present.has(type)) {
-            findings.push(`the ${type} condition ${contextId} constitutes (${itemId}) is not in the realized game's primary event`)
-            continue
-        }
-        /**
-         * **Present is not yet governing, where the condition was authored for less than every score** — 15 October
-         * 2026. The constituting item's own scope must have arrived on the condition (a projection is proved by its
-         * consumer), and a scope narrower than the whole game cannot be confirmed by a check that reads only whether
-         * the condition is there: it would be passing a condition on every score that was authored for some. His
-         * SD-36 and 16 October 9.3 ("Build-out condition applies only to build-out episodes: Approved.").
-         */
-        const authored = (contract.items ?? []).find(item => item.itemId === itemId)?.scope
-        const element = conditions.find((condition: any) => String(condition?.elementId) === `c:${contract.contractId}:${itemId}`)
-        const carried = element && Object.prototype.hasOwnProperty.call(element, 'scope') ? element.scope : EVALUABLE_CONDITION_SCOPE
-        if (element && authored !== undefined && String(carried) !== String(authored)) {
-            findings.push(`the ${type} condition ${contextId} constitutes (${itemId}) is authored for the ${String(authored)} scope and reached the realized game as ${JSON.stringify(carried)}`)
-            continue
-        }
-        const notEvaluable = conditionScopeNotEvaluable(element)
-        // Carried with its authored scope (checked just above), and the concrete game begins that episode (stage K7).
-        if (notEvaluable && authored !== undefined && String(carried) === String(authored) && episodeConfirmed(carried, episodeCheck)) continue
-        if (notEvaluable) findings.push(`the ${type} condition ${contextId} constitutes (${itemId}) cannot be confirmed to govern this game: ${notEvaluable}`)
+        const { why } = conditionReadingOf(contextId, contract, itemId, game, episodeCheck, type)
+        if (why) findings.push(why)
     }
     return findings
 }
