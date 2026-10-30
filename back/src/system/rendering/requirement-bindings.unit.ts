@@ -22,6 +22,7 @@ import path from 'node:path'
 import { loadDraftRequirementBindings, loadDraftStore, mergeRequirementBindings } from '../derivation/draft-store'
 import { learningGoalAuthorizations, observationCriteriaApprovals, quotesOfHisReplies, validateObservationCriteriaApprovals } from '../test-library/learning-goal-authorizations'
 import { buildActivityUnderAuthorizationRecords, RefusedActivity, ServedActivity } from './build-activity'
+import { SCORING_REASON_HEAD } from './requirement-account'
 import { specializedRoleNames } from './session-envelope'
 import {
     applicableRows,
@@ -292,7 +293,7 @@ test('B10 (round 3b, R1 S1): each gate reason is located, and only a reason reac
         const administratorServed = build(elsewhere, true)
         assert.deepEqual([coachServed.outcome, administratorServed.outcome], ['served', 'served'])
         const account = administratorServed.requirementAccount!
-        assert.deepEqual([account.status, account.enforcement.applied, account.enforcement.findings], ['BINDINGS_REFUSED', true, []])
+        assert.deepEqual([account.status, account.enforcement.applied, account.enforcement.findings, account.enforcement.failures], ['BINDINGS_REFUSED', true, [], []])
         assert.ok(account.summary.headline.includes('No reason of the gate reaches what the enforcement reads'), account.summary.headline)
         assert.ok(!JSON.stringify(account).includes(dir), 'no absolute path')
         // A defect in the approved scoring condition's row: refused, fail-closed, on the coach's build too; the file named as read, no path.
@@ -300,9 +301,13 @@ test('B10 (round 3b, R1 S1): each gate reason is located, and only a reason reac
         const coachRefused = build(reaching, false) as RefusedActivity
         assert.deepEqual([coachRefused.outcome, coachRefused.stage, coachRefused.reasons.length], ['refused', 'validation', 2])
         assert.ok(coachRefused.reasons.every(reason => reason.includes('reaching.json failed its integrity gate where the approved scoring condition of RPC-001 is read')), JSON.stringify(coachRefused.reasons))
+        // Round 4 (his reply filed 5 November 2026, item 1): the classification cannot be read, so a verification failure, named so.
+        assert.ok(coachRefused.reasons.every(reason => reason.includes(SCORING_REASON_HEAD.VERIFICATION_FAILURE)), JSON.stringify(coachRefused.reasons))
         assert.ok(!coachRefused.reasons.join(' ').includes(dir), 'no absolute path')
-        // A defect at the file's top level: refused.
-        assert.equal((build(write('top.json', carriersLoose), false) as RefusedActivity).stage, 'validation')
+        // A defect at the file's top level: refused. The fix round (the R1 review's S4): a verification failure too, named so in every reason.
+        const topRefused = build(write('top.json', carriersLoose), false) as RefusedActivity
+        assert.equal(topRefused.stage, 'validation')
+        assert.ok(topRefused.reasons.length > 0 && topRefused.reasons.every(reason => reason.includes(SCORING_REASON_HEAD.VERIFICATION_FAILURE)), JSON.stringify(topRefused.reasons))
     } finally {
         fs.rmSync(dir, { recursive: true, force: true })
     }
@@ -327,6 +332,8 @@ test('B11 (round 3b, R3 N5): TEST-ONLY bindings given to a coach\'s build are re
     const refused = build(unclassified) as RefusedActivity
     assert.deepEqual([refused.outcome, refused.stage], ['refused', 'validation'])
     assert.equal(refused.reasons.filter(reason => reason.endsWith(`cannot be verified, so the activity is not served (fail-closed): words of RPC-PROP-132 that no part classifies: "on arrival"`)).length, 2, JSON.stringify(refused.reasons))
+    // Round 4: words no part classifies — a verification failure, named so at the reason's head.
+    assert.equal(refused.reasons.filter(reason => reason.includes(`${SCORING_REASON_HEAD.VERIFICATION_FAILURE}the components of RPC-001's approved scoring condition cannot be verified`)).length, 2, JSON.stringify(refused.reasons))
 })
 
 test('B12 (round 3c, S-D): his approvals of observation criteria are data in the authorization records, held to their gate there, and no engine code holds them', () => {

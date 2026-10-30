@@ -674,8 +674,9 @@ export interface RefusedActivity {
  * truth). Christian, his reply filed 3 November 2026, section 2: each generated activity accounted against the applicable, approved context
  * requirements, component by component of its scoring condition, in his four categories and three standards. Every classification is ours
  * and DRAFT; the account itself refuses nothing, and (round 3, his reply filed 4 November 2026, item 7) the build refuses an activity whose
- * approved scoring condition has a component missing or altered (`enforcement`). Typed as plain data, loosely where the server may add a
- * value later (kinds, causes, sources are strings).
+ * approved scoring condition has a component missing or altered (`enforcement`); as he approved retaining it (his reply filed 5 November 2026,
+ * item 1), one that cannot be verified is refused too, and each finding names its class. Typed as plain data, loosely where the server may add
+ * a value later (kinds, causes, sources are strings); the round-4 fields are optional, so a back without them renders as before.
  */
 export type RequirementAccountKind = 1 | 2 | 3 | 4
 
@@ -717,6 +718,25 @@ export interface RequirementFacet {
     declarations: RequirementDeclaration[]
     considered: { contractId: string; itemId: string; contractKind: string | null; forward: string | null; why: string[] }[]
     cause: string | null
+    /** Round 4: on a failing facet of an enforced part, what of it could not be established (ours, DRAFT); absent elsewhere. */
+    unverified?: string[]
+    /** Round 4, the fix round: on the same facets, what shows a condition not governing as authored (ours, DRAFT); absent elsewhere. */
+    shown?: string[]
+}
+
+/** Round 4 (his reply filed 5 November 2026, item 1): one finding of the enforcement, in one of his two classes. */
+export interface RequirementEnforcementFailure {
+    failureClass: string
+    source: string
+    rowId: string | null
+    component: string | null
+    partId: string | null
+    cause: string | null
+    /** Why it is in its class (ours, DRAFT). */
+    because: string
+    /** The refusal's reason, verbatim. */
+    reason: string
+    blocks: string[]
 }
 
 export interface RequirementCause {
@@ -839,6 +859,15 @@ export interface RequirementAccount {
         findings: string[]
         /** Round 3b: components classified only for coach observation, reported and never refused. */
         coachObservedOnly: { rowId: string; component: string; partId: string; words: string }[]
+        /** Round 4 (his reply filed 5 November 2026, item 1): the safeguard he approved, in his words. */
+        safeguard?: { words: string[]; citedAs: string }
+        /** Round 4: his two classes, his label and definition of each, in his order. */
+        classes?: { id: string; label: string; words: string; citedAs: string }[]
+        /** Round 4: which cause falls in which class (ours, DRAFT). */
+        classRule?: { rule: string; standing: string; by: string }
+        /** Round 4: each finding once, in its class, in the order of `findings`. */
+        failures?: RequirementEnforcementFailure[]
+        counts?: Record<string, number>
     }
 }
 

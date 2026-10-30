@@ -2867,8 +2867,8 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
          *   - **Round 3b** (the round-3 review's R1 S1-S3): the enforcement reads the bindings `enforcementBindingsFor` allows (a gate reason
          *     elsewhere in the file leaves the account refused, never the activity); it reuses the administrator's reading only where that read
          *     the same bindings in full, and otherwise reads the components on their own (`only: 'ENFORCED'`), so the administrator's build and
-         *     the coach's end alike; and nothing in it can throw out of the route — any failure becomes the fail-closed reason (ours beyond his
-         *     item 7, for his decision).
+         *     the coach's end alike; and nothing in it can throw out of the route — any failure becomes the fail-closed reason, a verification
+         *     failure (the safeguard he approved, his reply filed 5 November 2026, item 1; round 4: each finding names its class, unchanged here).
          */
         const productionContract = !(selection.draftContracts ?? []).some(entry => knowledgeKey(entry.contractId) === knowledgeKey(context.id))
         if (requirements.account || productionContract) {

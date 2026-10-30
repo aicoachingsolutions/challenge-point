@@ -1361,6 +1361,58 @@ function accountStatusSaid(account: RequirementAccount): string {
 }
 
 /**
+ * **What the enforcement found, in his two classes** — round 4 (his reply filed 5 November 2026, item 1: *"Both should prevent an activity from
+ * being served as checked, but the diagnostic report should clearly distinguish them."*). One group per class that holds a finding, in his
+ * order, under his label, with his definition quoted and cited and how many it holds; each finding's reason as the server gave it, and why it
+ * is in its class (ours, DRAFT). Read defensively: a back without the classes shows the plain red list, as before round 4. Nothing on a build
+ * that was served. Exported for its rendering test only.
+ */
+export function EnforcementFindings({ account, blockLabel }: { account: RequirementAccount; blockLabel: (blockId: string) => string }) {
+    const enforcement = account.enforcement
+    const failures = enforcement.failures ?? []
+    const classes = enforcement.classes ?? []
+    if (!failures.length || !classes.length)
+        return (
+            <>
+                {enforcement.findings.map((finding, index) => (
+                    <p key={index} className='text-xs text-red-800'>
+                        {finding}
+                    </p>
+                ))}
+            </>
+        )
+    // A class the page does not know (a back ahead of the front) is still shown, under its own id.
+    const groups = [...classes, ...[...new Set(failures.map((failure) => failure.failureClass))].filter((id) => !classes.some((entry) => entry.id === id)).map((id) => ({ id, label: id, words: '', citedAs: '' }))]
+    return (
+        <div className='space-y-1'>
+            {enforcement.classRule && <p className='text-xs text-gray-600'>{enforcement.classRule.rule} (ours, DRAFT)</p>}
+            {groups.map((entry) => {
+                const mine = failures.filter((failure) => failure.failureClass === entry.id)
+                if (!mine.length) return null
+                return (
+                    <div key={entry.id} role='group' aria-label={entry.label} className='p-2 mt-1 space-y-0.5 border border-red-200 rounded bg-red-50'>
+                        <p className='text-xs font-medium text-red-800'>
+                            {entry.label} ({mine.length})
+                        </p>
+                        {entry.words && <His words={`${entry.label}: ${entry.words}`} citedAs={entry.citedAs} />}
+                        {mine.map((failure, index) => (
+                            <div key={index}>
+                                <p className='text-xs text-red-800'>{failure.reason}</p>
+                                <p className='text-xs text-gray-600'>
+                                    {/* The server's `because` ends "(ours, DRAFT)" itself, so the label is not said twice (the R2 review's S6). */}
+                                    Why this class: {failure.because}
+                                    {failure.blocks.length > 0 && failure.blocks.length < account.blocks.length && ` (${failure.blocks.map(blockLabel).join(', ')})`}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                )
+            })}
+        </div>
+    )
+}
+
+/**
  * **A guard around the requirement account** (round 2, R3 S3): an account of a shape this page does not expect (a deploy of the front ahead
  * of, or behind, the back) shows one notice here and leaves the activity above on screen, never the app's fallback in its place.
  */
@@ -1388,7 +1440,8 @@ class RequirementAccountBoundary extends Component<{ children: React.ReactNode }
  * standing. His words are quoted and cited; ours are labelled ours. The panel's own words name no goal, demonstration or role; the evidence
  * lines quote contract ids as the server sent them. It decides nothing: it shows the server's account as sent. Round 3 (his reply filed 4
  * November 2026): what the build enforces, and what it found, comes next (item 7); every part says whether it is satisfied and where its
- * authority originates, two pieces of information side by side (item 2).
+ * authority originates, two pieces of information side by side (item 2). Round 4 (his reply filed 5 November 2026, item 1): what it found is
+ * grouped in his two classes (`EnforcementFindings`), and a failing facet says what of it could not be established.
  */
 function RequirementAccountPanel({ account }: { account: RequirementAccount }) {
     const words = (id: number) => account.accounts.find((entry) => entry.id === id)?.words ?? String(id)
@@ -1440,10 +1493,12 @@ function RequirementAccountPanel({ account }: { account: RequirementAccount }) {
                         <p className='text-sm text-gray-800'>{account.summary.headline}</p>
                     </div>
                 )}
-                {/* Round 3, his item 7: what the build enforces (ours, DRAFT), beside his words; what it found on this build, in red. */}
+                {/* Round 3, his item 7: what the build enforces (ours, DRAFT), beside his words; what it found on this build, in red. Round 4 (his reply
+                    filed 5 November 2026, item 1): the safeguard he approved, in his words, and what was found in his two classes, each group under his
+                    label and his definition; a back without the classes shows the plain list as before. */}
                 <div className='space-y-0.5'>
                     <p className='text-xs font-medium text-gray-700'>
-                        Enforcement ({account.enforcement.applied ? 'applied to this build' : "not applied: the context's contract is a draft"}; ours, DRAFT)
+                        Enforcement ({account.enforcement.applied ? 'applied to this build' : "not applied: the context's contract is a draft"}; which parts are components, and which class each finding is: ours, DRAFT)
                     </p>
                     <p className='text-xs text-gray-600'>
                         {account.enforcement.what} {account.enforcement.notEnforced}
@@ -1451,16 +1506,15 @@ function RequirementAccountPanel({ account }: { account: RequirementAccount }) {
                     {account.enforcement.his.words.map((sentence, index) => (
                         <His key={index} words={sentence} citedAs={account.enforcement.his.citedAs} />
                     ))}
+                    {(account.enforcement.safeguard?.words ?? []).map((sentence, index) => (
+                        <His key={`safeguard-${index}`} words={sentence} citedAs={account.enforcement.safeguard?.citedAs ?? ''} />
+                    ))}
                     {(account.enforcement.coachObservedOnly ?? []).map((entry) => (
                         <p key={`${entry.rowId}:${entry.partId}`} className='text-xs text-gray-600'>
                             Classified for coach observation only, judged in play and not enforced (ours, DRAFT): the {entry.component} component, &ldquo;{entry.words}&rdquo;
                         </p>
                     ))}
-                    {account.enforcement.findings.map((finding, index) => (
-                        <p key={index} className='text-xs text-red-800'>
-                            {finding}
-                        </p>
-                    ))}
+                    <EnforcementFindings account={account} blockLabel={blockLabel} />
                 </div>
                 {/* His categories and standards, quoted and cited once, so every chip below reads as his words (R3 NIT 7). */}
                 <div className='space-y-0.5'>
@@ -1548,7 +1602,7 @@ function RequirementAccountPanel({ account }: { account: RequirementAccount }) {
                                             {/* Round 3, his item 2: satisfied, and where its authority originates, side by side (DRAFT labels). */}
                                             <p className='text-xs text-gray-600'>
                                                 {part.satisfiedWords} Where its authority originates (ours, DRAFT): {part.authority.words}
-                                                {part.enforced ? ' · Enforced: missing or altered, it refuses the activity (ours, DRAFT).' : ''}
+                                                {part.enforced ? ' · Enforced: missing or altered, or not verifiable, it refuses the activity (ours, DRAFT).' : ''}
                                             </p>
                                             {part.rowSpan && <p className='text-xs text-gray-500'>His words it stands for: &ldquo;{part.rowSpan}&rdquo;</p>}
                                             {part.facets.map((facet, facetAt) => (
@@ -1578,6 +1632,18 @@ function RequirementAccountPanel({ account }: { account: RequirementAccount }) {
                                                     {facet.considered.map((entry, at) => (
                                                         <p key={`${entry.contractId}:${entry.itemId}:${at}`} className='pl-3 text-xs text-gray-400'>
                                                             Considered, not counted — {entry.contractId}::{entry.itemId}: {entry.why.join('; ')}
+                                                        </p>
+                                                    ))}
+                                                    {/* No class named here: a component with one facet shown failing beside this one is
+                                                        missing or altered, and its class is the Enforcement group's (the R2 review's S4). */}
+                                                    {(facet.unverified ?? []).map((text, at) => (
+                                                        <p key={`unverified:${at}`} className='pl-3 text-xs text-gray-600'>
+                                                            Could not be established (ours, DRAFT) — {text}
+                                                        </p>
+                                                    ))}
+                                                    {(facet.shown ?? []).map((text, at) => (
+                                                        <p key={`shown:${at}`} className='pl-3 text-xs text-gray-600'>
+                                                            Shown in the activity as built (ours, DRAFT) — {text}
                                                         </p>
                                                     ))}
                                                 </div>
