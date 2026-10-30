@@ -33,7 +33,7 @@ import { ActivityReviewRequestError, activityReviewOptions, reviewActivity } fro
 import * as wordingModule from './approved-wording'
 import { buildActivity, buildActivityFromKnowledge, buildActivityOverAlteredKnowledge, buildActivityOverAlteredSelection, buildActivityUnderAuthorizationRecords, RefusedActivity, ServedActivity, UnknownActivityRequest } from './build-activity'
 import { constitutedConditionTypes, contextScoringFindings } from './context-scoring-guard'
-import { SCORING_COMPONENTS_CHECK } from './requirement-account'
+import { SCORING_COMPONENTS_CHECK, SCORING_REASON_HEAD } from './requirement-account'
 import { renderConcreteGame } from './render-concrete-game'
 import { buildPilotActivity, isPilotRefused, PILOT_SESSION } from './build-pilot-activity'
 import { MECHANISM_DEMONSTRATIONS } from './mechanism-demonstrations'
@@ -1923,11 +1923,14 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
     const reached = buildActivityUnderAuthorizationRecords(a01, withoutGapEntries(), { alter: zoneOnly(trimmed), alterSupplied: zoneOnlySupplied(linesBack) })
     const stopped = refused(reached.activity, 'A01 over the trimmed copy')
     assert.equal(stopped.stage, 'validation', JSON.stringify(stopped.reasons))
+    // Round 4 (his reply filed 5 November 2026, item 1): each reason names its class — the conditions are gone from the contracts the
+    // activity was built from, read so, so every one is a missing or altered requirement.
     assert.ok(
-        stopped.reasons.length > 0 && stopped.reasons.every(reason => reason.includes(`${SCORING_COMPONENTS_CHECK}: the `) && reason.includes(" component of RPC-001's approved scoring condition") && reason.includes('is missing from the activity as built')),
+        stopped.reasons.length > 0 &&
+            stopped.reasons.every(reason => reason.includes(`${SCORING_REASON_HEAD.MISSING_OR_ALTERED}the `) && reason.includes(" component of RPC-001's approved scoring condition") && reason.includes('is missing from the activity as built')),
         `every reason is the enforcement's, none the guard's: ${JSON.stringify(stopped.reasons)}`,
     )
-    assert.deepEqual([...new Set(stopped.reasons.map(reason => reason.split(`${SCORING_COMPONENTS_CHECK}: the `)[1].split(' ')[0]))], ['origin', 'progression', 'control', 'exclusion'], 'one reason per component')
+    assert.deepEqual([...new Set(stopped.reasons.map(reason => reason.split(`${SCORING_REASON_HEAD.MISSING_OR_ALTERED}the `)[1].split(' ')[0]))], ['origin', 'progression', 'control', 'exclusion'], 'one reason per component')
     // Round 3b (R3 N2): pinned by count, so a duplicate cannot hide in the set — 4 components in each of 2 blocks.
     assert.equal(stopped.reasons.length, 8, JSON.stringify(stopped.reasons))
     const production = buildActivityUnderAuthorizationRecords(a01, learningGoalAuthorizations())
@@ -2074,7 +2077,7 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
             `A01 after C53 over the copy, ${keepers} of ${ROLE}`,
         )
         assert.equal(copy.stage, 'validation', JSON.stringify(copy.reasons))
-        assert.ok(copy.reasons.length > 0 && copy.reasons.every(reason => reason.includes(`${SCORING_COMPONENTS_CHECK}: the `)), JSON.stringify(copy.reasons))
+        assert.ok(copy.reasons.length > 0 && copy.reasons.every(reason => reason.includes(`${SCORING_REASON_HEAD.MISSING_OR_ALTERED}the `)), JSON.stringify(copy.reasons))
         // Round 3b (R3 N4): this is now the proof of C53 on the copy — the before-C53 copy is refused at validation too, on its roster; after
         // C53 no roster reason remains. Never loosen the `every` above to `some`.
         assert.ok(!copy.reasons.some(reason => reason.includes('roster (') || reason.includes('GA-ROSTER-SUM')), JSON.stringify(copy.reasons))

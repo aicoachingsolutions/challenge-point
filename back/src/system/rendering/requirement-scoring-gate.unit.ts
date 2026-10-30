@@ -19,7 +19,8 @@
  * component missing, every word of his row some component's or one a coach-observed part alone classifies (reported, never failed: round 3c,
  * the rule the runtime keeps), and every block accounted; a build without the account must have stopped
  * before realization (round 2, R1 S1 and S3). And at least one build of each such context must reach the guard, so the gate is never
- * vacuous.
+ * vacuous. Round 4 (his reply filed 5 November 2026, item 1): the enforcement's findings now carry his two classes, and the gate fails on a
+ * finding of either, exactly as it failed before.
  *
  * Run: npx ts-node --files -r tsconfig-paths/register ./src/system/rendering/requirement-scoring-gate.unit.ts
  */
@@ -71,6 +72,8 @@ function holdToGate(account: RequirementAccount, where: string): void {
     // Round 3: the enforcement was applied to this build, and found nothing — no enforced component missing or altered, and no word of his
     // row that no part classifies (both are its findings).
     assert.deepEqual([account.enforcement.applied, account.enforcement.findings], [true, []], `${where}: ${account.enforcement.findings.join(' | ')}`)
+    // Round 4 (his reply filed 5 November 2026, item 1): so nothing in either of his two classes — a finding of any class fails the gate.
+    assert.deepEqual([account.enforcement.failures, account.enforcement.counts], [[], { MISSING_OR_ALTERED: 0, VERIFICATION_FAILURE: 0 }], where)
     /**
      * Round 2, R1 S1, held since round 3c to the rule the runtime keeps (the recheck's S-B; his reply filed 4 November 2026, item 7: "I would
      * not yet extend refusal to every unsupported purpose statement, inferred affordance relationship, or coach-observed condition."): every
@@ -140,9 +143,13 @@ for (const context of contexts) {
     const coachOnly = without([enforcedPart.partId], 'served')
     holdToGate(coachOnly, 'TEST-ONLY: a component for coach observation only')
     assert.deepEqual(coachOnly.enforcement.coachObservedOnly.map(entry => [entry.component, entry.partId]), [[enforcedPart.component, observedPart.partId]], 'reported, not refused')
-    assert.throws(() => holdToGate(without([enforcedPart.partId, observedPart.partId], 'validation'), 'TEST-ONLY: words no part classifies'), assert.AssertionError)
+    const unclassified = without([enforcedPart.partId, observedPart.partId], 'validation')
+    assert.throws(() => holdToGate(unclassified, 'TEST-ONLY: words no part classifies'), assert.AssertionError)
     const missing = requirementAccountOf({ contextId, outcome: 'validation', bindings, refused: null, blocks: blocks.map(block => ({ blockId: block.blockId, account: { ...block, parts: block.parts.map(part => (part.partId === enforcedPart.partId ? { ...part, account: 4 as const, cause: { kind: 'NOT_CARRIED' as const, detail: 'TEST-ONLY' } } : part)) } })), draftContract: false })
     assert.throws(() => holdToGate(missing, 'TEST-ONLY: an enforced component missing'), assert.AssertionError)
+    // Round 4: the gate fails on both of his classes, as it failed on both before — a component shown missing, and words no part classifies.
+    assert.deepEqual(missing.enforcement.failures.map(failure => [failure.failureClass, failure.source]), [['MISSING_OR_ALTERED', 'COMPONENT']])
+    assert.deepEqual(unclassified.enforcement.failures.map(failure => [failure.failureClass, failure.source]), [['VERIFICATION_FAILURE', 'UNCLASSIFIED_WORDS']])
 }
 
 console.log = quiet

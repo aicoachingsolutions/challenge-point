@@ -25,6 +25,15 @@
  *   - S1: an exclusion over a row the game populates is not vacuous;
  *   - S7: an item in a constraint's contract is considered, named so, never counted;
  *   - T7: the TEST-ONLY RPC-003 draft, merged with the production bindings, the origin withheld: origin missing, the rest on DRAFT knowledge.
+ *   - Round 4 (his reply filed 5 November 2026, item 1: *"Both should prevent an activity from being served as checked, but the diagnostic
+ *     report should clearly distinguish them."*): every control above asserts the class of what it refuses on; and "5 November 2026: the two
+ *     classes" shows a check, an episode check or line verdicts missing, and a selector that does not normalise, each a verification failure
+ *     however its cause reads; an episode check that ran and decided FAIL, missing or altered; both classes together, on the pure function and
+ *     through the build, the coach's answer carrying neither class nor his words; and every remaining path-level source. The fix round: the
+ *     evidence words of a reach-clause and a later-clause FAIL pinned (the R2 review's M1); a condition of the approved type governing while the
+ *     component's own element is off the event (A5, ambiguous); the context's contract missing from a block, a verification failure; mixed
+ *     facets, whose words and detail are the failing facet's (the R3 review's S-3); and the merged parts, which the page renders, carrying the
+ *     facets' records (S-1).
  *
  * Round 1's S3 assertions were a CHARACTERIZATION of the gap (the guard did not catch a removed component; the build stopped only at
  * communication, for want of approved wording), to be inverted if he enabled refusal on a missing component. He did (his reply filed 4 November 2026, item 7), and
@@ -46,7 +55,17 @@ import { buildActivityUnderAuthorizationRecords, RefusedActivity, ServedActivity
 import { CONDITION_TYPE_PREFIX, constitutedConditionTypes } from './context-scoring-guard'
 import { CHECKED_CHAIN, checkedSave, liveCheckedActivity, liveSelectionFor, SAVE_NOT_AS_SHOWN } from './live-activity'
 import * as accountModule from './requirement-account'
-import { blockRequirementAccountOf, BlockRequirementInputs, requirementAccountOf, SCORING_COMPONENTS_CHECK, scoringComponentFindings } from './requirement-account'
+import {
+    blockRequirementAccountOf,
+    BlockRequirementInputs,
+    failClosedReading,
+    RequirementAccount,
+    requirementAccountOf,
+    SCORING_COMPONENTS_CHECK,
+    SCORING_REASON_HEAD,
+    scoringComponentFindings,
+    scoringComponentReading,
+} from './requirement-account'
 import { loadRequirementBindings, productionContextContract, productionContractedContexts, RequirementBindings } from './requirement-bindings'
 import { specializedRoleNames } from './session-envelope'
 
@@ -85,6 +104,14 @@ const records = learningGoalAuthorizations()
 const [CONTEXT] = productionContractedContexts()
 const BEFORE_REALIZATION = ['session', 'selection', 'knowledge', 'structure', 'realization']
 const bindings = loadRequirementBindings()
+/** Round 4: a refusal where a component cannot be verified is the safeguard he approved, and the headline says so. */
+const APPROVED = '(a verification failure: the safeguard he approved, his reply filed 5 November 2026, item 1)'
+/** Round 4: the administrator's account's findings in their classes — one per finding, in their order — as [class, source, component, cause, blocks]. */
+const classesIn = (account: RequirementAccount) => {
+    assert.deepEqual(account.enforcement.failures.map(failure => failure.reason), account.enforcement.findings, 'one failure per finding, in their order')
+    assert.equal(account.enforcement.counts.MISSING_OR_ALTERED + account.enforcement.counts.VERIFICATION_FAILURE, account.enforcement.findings.length)
+    return account.enforcement.failures.map(failure => [failure.failureClass, failure.source, failure.component, failure.cause, failure.blocks.length])
+}
 
 // ── S3 and T12, inverted in round 3: each constituted condition removed, in both versions ───────────────────────────────────────────────
 test('S3/T12 (round 3, enforced): each condition the context constitutes, removed (by row and selector): stopped before realization with no account, or refused at validation naming that component, on the coach\'s build and the administrator\'s alike', () => {
@@ -125,11 +152,13 @@ test('S3/T12 (round 3, enforced): each condition the context constitutes, remove
             // coach's build is refused at the validation stage, with the guard's own summary, each block's reason naming the component.
             const refusal = asCoach as RefusedActivity
             assert.deepEqual([refusal.outcome, refusal.stage, refusal.summary], ['refused', 'validation', 'The game built for this activity did not pass its own checks, so it is not being shown.'], where)
-            const named = refusal.reasons.filter(reason => reason.includes(`${SCORING_COMPONENTS_CHECK}: the ${type} component of ${CONTEXT}'s approved scoring condition (RPC-PROP-132), "`))
+            // Round 4: the reason names its class — read in the activity as built (no item of any contract matches), so missing or altered.
+            const named = refusal.reasons.filter(reason => reason.includes(`${SCORING_REASON_HEAD.MISSING_OR_ALTERED}the ${type} component of ${CONTEXT}'s approved scoring condition (RPC-PROP-132), "`))
             assert.equal(named.length, 2, `${where}: one reason per role block`)
             assert.ok(named.every(reason => reason.includes('is missing from the activity as built: ')), `${where}: ${named[0]}`)
             assert.deepEqual([account.enforcement.applied, account.enforcement.findings.length], [true, 1], `${where}: the account says what the build found`)
             assert.ok(refusal.reasons.some(reason => reason.endsWith(account.enforcement.findings[0])), `${where}: and it is the build's own reason`)
+            assert.deepEqual([classesIn(account), account.enforcement.counts], [[['MISSING_OR_ALTERED', 'COMPONENT', type, 'NOT_CARRIED', 2]], { MISSING_OR_ALTERED: 1, VERIFICATION_FAILURE: 0 }], where)
             outcomes.push(`${type}/${label}: ${refusal.stage}, ${type} missing`)
         }
     }
@@ -163,22 +192,27 @@ test('Round 3: on the coach\'s build a component altered in the knowledge is ref
             const where = `${type} altered, ${label}`
             assert.deepEqual([asCoach.outcome, asCoach.stage], ['refused', 'validation'], where)
             assert.deepEqual([asAdministrator.stage, asAdministrator.summary, asAdministrator.reasons], [asCoach.stage, asCoach.summary, asCoach.reasons], `${where}: the same refusal`)
-            const named = asCoach.reasons.filter(reason => reason.includes(`${SCORING_COMPONENTS_CHECK}: the ${type} component of ${CONTEXT}'s approved scoring condition`))
+            const named = asCoach.reasons.filter(reason => reason.includes(`${SCORING_REASON_HEAD.MISSING_OR_ALTERED}the ${type} component of ${CONTEXT}'s approved scoring condition`))
             assert.equal(named.length, 2, where)
             assert.ok(named.every(reason => reason.includes('is altered: ') && reason.includes(`its value is ${JSON.stringify(value)}; this facet asks ${JSON.stringify(asked)}`)), named[0])
             const altered = asAdministrator.requirementAccount!.parts.find(entry => entry.partId === type)!
             assert.deepEqual([altered.account, altered.cause!.kind, altered.satisfied, altered.enforced], [4, 'ALTERED', 'NO', true], where)
+            // Round 4: altered in the activity as built — missing or altered, in both blocks; nothing of it unverified.
+            assert.deepEqual(classesIn(asAdministrator.requirementAccount!), [['MISSING_OR_ALTERED', 'COMPONENT', type, 'ALTERED', 2]], where)
+            assert.ok(altered.facets.every(entry => entry.unverified === undefined), where)
         }
         // Bindings read as refused (a TEST-ONLY stand-in for a file the gate refuses or that cannot be read): fail-closed, on the coach's build too.
         const reason = 'TEST-ONLY: docs/audits/requirement-bindings.json failed its integrity gate'
         const refusedCoach = silently(() => buildActivityUnderAuthorizationRecords(request, records, { requirementBindingsRefused: [reason] }).activity) as RefusedActivity
         const refusedAdministrator = silently(() => buildActivityUnderAuthorizationRecords(request, records, { requirementBindingsRefused: [reason], review: { includeDrafts: true } }).activity) as RefusedActivity
         assert.deepEqual([refusedCoach.outcome, refusedCoach.stage], ['refused', 'validation'], label)
-        assert.deepEqual(refusedCoach.reasons.map(entry => entry.slice(entry.indexOf(SCORING_COMPONENTS_CHECK))), [1, 2].map(() => `${SCORING_COMPONENTS_CHECK}: the components of ${CONTEXT}'s approved scoring condition cannot be verified, so the activity is not served (fail-closed): the requirement bindings were refused: ${reason}`), label)
+        assert.deepEqual(refusedCoach.reasons.map(entry => entry.slice(entry.indexOf(SCORING_COMPONENTS_CHECK))), [1, 2].map(() => `${SCORING_REASON_HEAD.VERIFICATION_FAILURE}the components of ${CONTEXT}'s approved scoring condition cannot be verified, so the activity is not served (fail-closed): the requirement bindings were refused: ${reason}`), label)
         assert.deepEqual(refusedAdministrator.reasons, refusedCoach.reasons, label)
         const refusedAccount = refusedAdministrator.requirementAccount!
         assert.deepEqual([refusedAccount.status, refusedAccount.enforcement.applied, refusedAccount.enforcement.findings.length], ['BINDINGS_REFUSED', true, 1], label)
-        assert.ok(refusedAccount.summary.headline.endsWith('so the activity was refused at the validation stage (fail-closed: ours beyond his item 7, for his decision).'), refusedAccount.summary.headline)
+        // Round 4: a verification failure, the safeguard he approved, said so — no longer "ours beyond his item 7, for his decision".
+        assert.ok(refusedAccount.summary.headline.endsWith(`so the activity was refused at the validation stage ${APPROVED}.`), refusedAccount.summary.headline)
+        assert.deepEqual([classesIn(refusedAccount), refusedAccount.enforcement.counts], [[['VERIFICATION_FAILURE', 'BINDINGS_REFUSED', null, null, 2]], { MISSING_OR_ALTERED: 0, VERIFICATION_FAILURE: 1 }], label)
         // Measured and pinned: a widened origin scope and a moved exclusion referent never reach the guard; derivation stops them at structure.
         const scopeWidened = onContext(item => {
             if (['V3', 'V5'].includes(String(item.row)) && item.selector === `${CONDITION_TYPE_PREFIX}origin`) item.scope = 'WHOLE_GAME'
@@ -207,7 +241,7 @@ test('Round 3: on the coach\'s build a component altered in the knowledge is ref
     if (saved.outcome === 'refused') {
         assert.equal(saved.summary, SAVE_NOT_AS_SHOWN)
         assert.ok(saved.reasons[0].startsWith('building it again now refuses (CHECKED_REFUSAL)'), saved.reasons[0])
-        assert.equal(saved.reasons.filter(reason => reason.includes(`${SCORING_COMPONENTS_CHECK}: the control component of ${CONTEXT}'s approved scoring condition`)).length, 2)
+        assert.equal(saved.reasons.filter(reason => reason.includes(`${SCORING_REASON_HEAD.MISSING_OR_ALTERED}the control component of ${CONTEXT}'s approved scoring condition`)).length, 2)
     }
 })
 
@@ -247,6 +281,9 @@ test('Round 3: what a coach\'s build reads (only: ENFORCED) is exactly the full 
         assert.deepEqual(enforced.parts.map(entry => [entry.partId, entry.enforced, entry.account]), [['origin', true, 1], ['progression', true, 1], ['control', true, 1], ['exclusion', true, 1]], inputs.blockId)
         assert.deepEqual(full.parts.filter(entry => entry.enforced).map(entry => entry.partId), ['origin', 'progression', 'control', 'exclusion'], `${inputs.blockId}: the episode-ends-on-loss part is reported, not enforced`)
         assert.deepEqual([scoringComponentFindings(enforced, inputs.bindings), scoringComponentFindings(full, inputs.bindings)], [[], []], inputs.blockId)
+        // Round 4: nothing found, so nothing in either class; and no served part carries a record of what could not be established.
+        assert.deepEqual(scoringComponentReading(enforced, inputs.bindings).failures, [], inputs.blockId)
+        assert.ok(!JSON.stringify(full.parts).includes('"unverified"'), inputs.blockId)
     }
 })
 
@@ -263,6 +300,9 @@ test('M1: a value blanked in the finished game makes its component 4; presence o
     assert.equal(partIn(account, 'progression').account, 1, 'the others are untouched')
     const activity = requirementAccountOf({ contextId: CONTEXT, outcome: 'served', bindings, refused: null, blocks: [{ blockId: account.blockId, account }], draftContract: false })
     assert.deepEqual(activity.summary.scoringCondition!.missing.map(entry => entry.component), ['control'])
+    // Round 4 (A6): the element was found and its value is gone — shown in the finished game, so missing or altered; nothing unverified.
+    assert.deepEqual(activity.enforcement.failures.map(failure => [failure.failureClass, failure.component]), [['MISSING_OR_ALTERED', 'control']])
+    assert.equal(value.unverified, undefined)
 })
 
 test('M1: a referent that is not the progression outcome\'s makes the exclusion 4 — by its pin (R1 S2), and, with the pin set aside, by NOT_THE_SAME_REFERENT with his words why', () => {
@@ -272,8 +312,10 @@ test('M1: a referent that is not the progression outcome\'s makes the exclusion 
         for (const contract of contracts) for (const item of contract.items) if (String(item.row) === 'V5' && item.selector === `${CONDITION_TYPE_PREFIX}exclusion`) item.value = copy(elsewhere)
     }
     // The production bindings pin the referent his knowledge carries: the changed one is not counted (round 3: named ALTERED, not absent).
-    const pinned = partIn(reread(change), 'exclusion')
+    const pinnedAccount = reread(change)
+    const pinned = partIn(pinnedAccount, 'exclusion')
     assert.deepEqual([pinned.account, pinned.cause!.kind, pinned.sameReferent!.evaluated], [4, 'ALTERED', false])
+    assert.deepEqual(scoringComponentReading(pinnedAccount, bindings).failures.map(failure => [failure.failureClass, failure.component, failure.cause]), [['MISSING_OR_ALTERED', 'exclusion', 'ALTERED']], 'round 4')
     assert.ok(pinned.facets.find(entry => entry.facetId === 'referents')!.considered[0].why.some(why => why.startsWith('its value is {"objectiveReferenceOf":"SCORING_TEAM","role":"SECONDARY_SCORING"')), JSON.stringify(pinned.facets))
     // A TEST-ONLY copy of the bindings without that pin: the referent is then compared with the progression outcome's.
     const unpinned: RequirementBindings = copy(bindings)
@@ -284,6 +326,8 @@ test('M1: a referent that is not the progression outcome\'s makes the exclusion 
     assert.ok(exclusion.cause!.detail.includes('is not the referent of the progression component'), exclusion.cause!.detail)
     assert.ok(exclusion.cause!.detail.includes('His reply filed 16 October 2026, item 9, point 2'), exclusion.cause!.detail)
     assert.equal(partIn(account, 'control').account, 1, 'control stays on the progression outcome')
+    // Round 4: both referents read in the finished game, and not the same — missing or altered.
+    assert.deepEqual(scoringComponentReading(account, unpinned).failures.map(failure => [failure.failureClass, failure.component, failure.cause]), [['MISSING_OR_ALTERED', 'exclusion', 'NOT_THE_SAME_REFERENT']])
 })
 
 test('R1 S2: a component value or scope changed in the knowledge and the finished game alike reads 4: the pins hold his approved knowledge', () => {
@@ -318,6 +362,8 @@ test('R1 S2: a component value or scope changed in the knowledge and the finishe
     for (const account of [value, before, scope, widened]) {
         const activity = requirementAccountOf({ contextId: CONTEXT, outcome: 'served', bindings, refused: null, blocks: [{ blockId: account.blockId, account }], draftContract: false })
         assert.equal(activity.summary.scoringConditionCarried, false)
+        // Round 4: each a pin read against the activity as built — missing or altered, never unverified.
+        assert.ok(activity.enforcement.failures.length > 0 && activity.enforcement.failures.every(failure => failure.failureClass === 'MISSING_OR_ALTERED'), JSON.stringify(activity.enforcement.failures))
     }
 })
 
@@ -333,6 +379,8 @@ test('Round 3b (R3 S3): ALTERED is read only from an item the facet would count 
     const value = control.facets.find(entry => entry.facetId === 'value')!
     assert.deepEqual([control.account, value.cause, control.cause!.kind], [4, 'NOT_CARRIED', 'NOT_CARRIED'])
     assert.ok(value.considered.some(entry => entry.contractId === 'restated:GF2' && entry.why.some(why => why.includes('this facet takes carriers only from'))), JSON.stringify(value.considered))
+    // Round 4 (the design review's S2, option A): an item set aside by the carrier classification is evidence neither way — missing or altered.
+    assert.deepEqual([value.unverified, scoringComponentReading(account, bindings).failures.map(failure => [failure.failureClass, failure.component])], [undefined, [['MISSING_OR_ALTERED', 'control']]])
 })
 
 test('Round 3b (R1 S2): the administrator\'s full reading failing does not refuse — the components are read on their own, as on the coach\'s build, and both are served', () => {
@@ -345,7 +393,7 @@ test('Round 3b (R1 S2): the administrator\'s full reading failing does not refus
         const asCoach = silently(() => buildActivityUnderAuthorizationRecords(request, records).activity)
         assert.deepEqual([asAdministrator.outcome, asCoach.outcome], ['served', 'served'], label)
         const account = asAdministrator.requirementAccount!
-        assert.deepEqual([account.status, account.enforcement.applied, account.enforcement.findings], ['ERROR', true, []], label)
+        assert.deepEqual([account.status, account.enforcement.applied, account.enforcement.findings, account.enforcement.failures, account.enforcement.counts], ['ERROR', true, [], [], { MISSING_OR_ALTERED: 0, VERIFICATION_FAILURE: 0 }], label)
         assert.equal(account.summary.headline, "The requirement account could not be computed: the reader failed. The approved scoring condition's components were read on their own and were carried, so nothing was refused.", label)
     }
 })
@@ -359,7 +407,13 @@ test('Round 3b (R1 S3): the enforcement failing never throws out of the route �
         for (const review of [undefined, { includeDrafts: true }]) {
             const activity = silently(() => buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: session(VERSIONS[0][1]) }, records, review ? { review } : {}).activity) as RefusedActivity
             assert.deepEqual([activity.outcome, activity.stage], ['refused', 'validation'])
-            assert.equal(activity.reasons.filter(reason => reason.endsWith(`${SCORING_COMPONENTS_CHECK}: the components of ${CONTEXT}'s approved scoring condition cannot be verified, so the activity is not served (fail-closed): the enforcement failed: TEST-ONLY failure inside the enforcement`)).length, 2, JSON.stringify(activity.reasons))
+            assert.equal(activity.reasons.filter(reason => reason.endsWith(`${SCORING_REASON_HEAD.VERIFICATION_FAILURE}the components of ${CONTEXT}'s approved scoring condition cannot be verified, so the activity is not served (fail-closed): the enforcement failed: TEST-ONLY failure inside the enforcement`)).length, 2, JSON.stringify(activity.reasons))
+            // Round 4: the check itself malfunctioned — a verification failure, once, from both blocks, on the administrator's account.
+            if (review) {
+                const account = activity.requirementAccount!
+                assert.deepEqual(classesIn(account), [['VERIFICATION_FAILURE', 'ENFORCEMENT_FAILED', null, null, 2]])
+                assert.ok(account.summary.headline.endsWith(`Not verifiable: the enforcement itself failed. The activity was refused at the validation stage: a component that cannot be verified is refused too ${APPROVED}.`), account.summary.headline)
+            }
         }
     } finally {
         ;(accountModule as any).scoringComponentReading = original
@@ -383,7 +437,7 @@ test('M2: a turnover that no longer begins a new episode makes episode-ends-on-l
     assert.equal(activity.summary.scoringCondition!.missing[0].label, label)
     assert.equal(activity.summary.headline, `Missing from the approved scoring condition: ${label}. The activity was served without it. Only the components quoting his words are enforced, and nothing else refuses.`)
     // Round 3: reported, never enforced — the part is our reading of his ruling of 19 October, not words of the approved condition.
-    assert.deepEqual([loss.enforced, scoringComponentFindings(account, bindings), activity.enforcement.findings], [false, [], []])
+    assert.deepEqual([loss.enforced, scoringComponentFindings(account, bindings), activity.enforcement.findings, activity.enforcement.failures], [false, [], [], []])
     // In the knowledge: the context's own item set to false (a TEST-ONLY copy, by row and selector) stops the build before realization.
     for (const [label, objects] of VERSIONS) {
         const altered = silently(() =>
@@ -474,7 +528,7 @@ test('T7: the RPC-003 draft, merged bindings, origin withheld: origin missing, p
     const account = withdrawn.requirementAccount!
     assert.deepEqual([account.status, account.contract, account.bindings.mode], ['REPORT_ONLY', 'DRAFT', 'MERGED'])
     // Round 3: a TEST-ONLY draft contract is reported only — not enforced, so the origin's absence is not what refused it (communication did).
-    assert.deepEqual([account.enforcement.applied, account.enforcement.findings], [false, []])
+    assert.deepEqual([account.enforcement.applied, account.enforcement.findings, account.enforcement.failures, account.enforcement.counts], [false, [], [], { MISSING_OR_ALTERED: 0, VERIFICATION_FAILURE: 0 }])
     const scoring = account.summary.scoringCondition!
     assert.deepEqual(scoring.missing.map(entry => [entry.component, entry.cause.kind]), [['origin', 'NOT_CARRIED']])
     assert.deepEqual(scoring.components.map(entry => [entry.component, entry.account]), [['origin', 4], ['progression', 1], ['control', 1], ['not-possession-alone', 1]])
@@ -496,6 +550,268 @@ test('T7: the RPC-003 draft, merged bindings, origin withheld: origin missing, p
     const unbound = build({ alter: U2, lawsMateriality: LAW_11_PROCEDURAL }).requirementAccount!
     assert.deepEqual([unbound.summary.scoringCondition!.state, unbound.summary.scoringConditionCarried, unbound.bindings.mode], ['NOT_CLASSIFIED', false, 'PRODUCTION'])
     assert.ok(unbound.parts.every(entry => entry.kind === 'NO_BINDING' && entry.account === 4))
+})
+
+// ── 5 November 2026: the two classes (round 4, his reply filed 5 November 2026, item 1) ─────────────────────────────────────────────────
+/*
+ * "Missing or altered requirement: The finished activity demonstrably fails to preserve an approved condition." "Verification failure: The
+ * system cannot establish whether the condition is satisfied because its classification, supporting evidence, or check is missing or
+ * malfunctioning." Every control below is a TEST-ONLY change to a copy of what the account read (matched by register row and selector, never
+ * by id), measured on the zone version's first block; the class is never a function of the cause alone, so each says both.
+ */
+const COMPONENTS = ['origin', 'progression', 'control', 'exclusion']
+const BOTH = `The activity was refused at the validation stage on both: a missing or altered component of an approved scoring condition is enforced, and a component that cannot be verified is refused too ${APPROVED}.`
+/** The context's own item on a row with a condition type's selector, by row and selector only. */
+const contextItem = (row: string, type: string) => {
+    const contract = observed[0].contracts.find(entry => knowledgeKey(entry.contractId) === knowledgeKey(CONTEXT))!
+    const item = contract.items.find(entry => String(entry.row) === row && entry.selector === `${CONDITION_TYPE_PREFIX}${type}`)!
+    return `${contract.contractId}::${item.itemId}`
+}
+const withoutCheckOf = (key: string) => observed[0].forward.filter(outcome => `${outcome.item.contractId}::${outcome.item.itemId}` !== key)
+const classedIn = (reading: ReturnType<typeof scoringComponentReading>) => {
+    assert.deepEqual(reading.failures.map(failure => failure.reason), reading.findings, 'one failure per finding, in their order, by construction')
+    return reading.failures.map(failure => [failure.failureClass, failure.source, failure.component, failure.cause])
+}
+
+test('5 November 2026 (round 4): an engine check missing is a verification failure, never "missing" — though its cause reads NOT_CARRIED', () => {
+    const key = contextItem('V6', 'control')
+    const account = reread(() => undefined, bindings, { forward: withoutCheckOf(key) })
+    const reading = scoringComponentReading(account, bindings)
+    assert.deepEqual(classedIn(reading), [['VERIFICATION_FAILURE', 'COMPONENT', 'control', 'NOT_CARRIED']])
+    assert.ok(reading.findings[0].startsWith(`${SCORING_REASON_HEAD.VERIFICATION_FAILURE}the control component of ${CONTEXT}'s approved scoring condition (RPC-PROP-132), "with possession controlled on arrival", cannot be verified (`), reading.findings[0])
+    assert.ok(reading.findings[0].includes(`the engine's check of ${key} is absent`) && !reading.findings[0].includes('is missing from the activity as built'), reading.findings[0])
+    assert.deepEqual(partIn(account, 'control').facets.filter(entry => entry.account === 4).map(entry => [entry.facetId, entry.unverified]), [['value', [`the engine's check of ${key} is absent`]]])
+    assert.deepEqual(account.parts.filter(entry => entry.enforced && entry.account !== 4).map(entry => entry.partId), ['origin', 'progression', 'exclusion'], 'the other three carried')
+})
+
+test('5 November 2026 (round 4, the design review\'s M1): the episode check absent, undecided or vacuous is a verification failure; one that ran and decided FAIL is missing or altered — NOT_GOVERNING in every case', () => {
+    const check = copy(observed[0].episodeCheck!)
+    assert.deepEqual([check.verdict, check.clauses.every(clause => clause.verdict === 'PASS')], ['PASS', true], 'the real check passes')
+    const clauseAt = (at: number, change: Record<string, unknown>, verdict?: string) => ({ ...check, ...(verdict ? { verdict } : {}), clauses: check.clauses.map((clause, index) => (index === at ? { ...clause, ...change } : clause)) }) as any
+    const read = (episodeCheck: BlockRequirementInputs['episodeCheck']) => scoringComponentReading(reread(() => undefined, bindings, { episodeCheck }), bindings)
+    const everyOne = (failureClass: string) => COMPONENTS.map(component => [failureClass, 'COMPONENT', component, 'NOT_GOVERNING'])
+    // Absent: the check is missing.
+    const absent = read(undefined)
+    assert.deepEqual(classedIn(absent), everyOne('VERIFICATION_FAILURE'))
+    assert.ok(absent.findings.every(reason => !reason.includes('does not govern') && reason.includes('the episode check (GA-EPISODE-REACHABLE) was not given')), JSON.stringify(absent.findings))
+    // Ran and decided FAIL on its reach clause: the finished game cannot begin the episode the condition is authored for — shown.
+    const failed = read(clauseAt(0, { verdict: 'FAIL' }, 'FAIL'))
+    assert.deepEqual(classedIn(failed), everyOne('MISSING_OR_ALTERED'))
+    assert.ok(failed.findings.every(reason => reason.startsWith(SCORING_REASON_HEAD.MISSING_OR_ALTERED) && reason.includes('does not govern the realized scoring event')), JSON.stringify(failed.findings))
+    // The fix round (the R2 review's M1): the evidence words of a shown failure say what showed it — the episode check ran, and which clause
+    // decided FAIL, in the clause's own words — in the reason, in its `because`, and on the failing facet; never only "cannot be confirmed".
+    const reachShown = (component: string) =>
+        `the episode check (GA-EPISODE-REACHABLE) ran and decided FAIL on its reach clause ("${check.clauses[0].clause}"): the finished game cannot begin the BUILD_OUT_EPISODE episode ${contextItem(CONDITION_ROW, component)} is authored for`
+    for (const [at, component] of COMPONENTS.entries()) {
+        assert.ok(failed.findings[at].includes(`does not govern the realized scoring event (${reachShown(component)}): `), failed.findings[at])
+        assert.equal(failed.failures[at].because, `Read in the activity as built: ${reachShown(component)} (ours, DRAFT).`)
+    }
+    const reachAccount = reread(() => undefined, bindings, { episodeCheck: clauseAt(0, { verdict: 'FAIL' }, 'FAIL') })
+    assert.deepEqual(
+        partIn(reachAccount, 'origin').facets.filter(entry => entry.account === 4).map(entry => [entry.facetId, entry.shown, entry.unverified]),
+        [['condition', [reachShown('origin')], undefined]],
+    )
+    // Proved by its consumer: the administrator's merged parts, which the page renders, carry it.
+    const reachActivity = requirementAccountOf({ contextId: CONTEXT, outcome: 'validation', bindings, refused: null, blocks: [{ blockId: reachAccount.blockId, account: reachAccount }], draftContract: false })
+    assert.deepEqual(reachActivity.parts.find(part => part.partId === 'origin')!.facets.find(entry => entry.facetId === 'condition')!.shown, [reachShown('origin')])
+    // Ambiguous, proposed (ours, DRAFT): a decided FAIL on a later clause only (its awardee) — shown too, and said to be the later clause, its reach
+    // clause passing, and the reading ambiguous; never that the game cannot begin the episode, nor that it does not begin it.
+    const laterFailed = read(clauseAt(1, { verdict: 'FAIL' }, 'FAIL'))
+    assert.deepEqual(classedIn(laterFailed), everyOne('MISSING_OR_ALTERED'))
+    const laterShown = (component: string, reachVerdict = 'PASS', reachNote = '') =>
+        `the episode check (GA-EPISODE-REACHABLE) ran and decided FAIL on its clause 2 of ${check.clauses.length} ("${check.clauses[1].clause}"), while its reach clause gave ${reachVerdict}: the finished game does not hold the BUILD_OUT_EPISODE episode ${contextItem(CONDITION_ROW, component)} is authored for as that clause requires${reachNote} (a reading we hold as ambiguous, for his review)`
+    for (const [at, component] of COMPONENTS.entries()) {
+        assert.ok(laterFailed.findings[at].includes(`does not govern the realized scoring event (${laterShown(component)}): `), laterFailed.findings[at])
+        assert.equal(laterFailed.failures[at].because, `Read in the activity as built: ${laterShown(component)} (ours, DRAFT).`)
+        assert.ok(!/cannot begin|does not begin/.test(laterFailed.failures[at].because), laterFailed.failures[at].because)
+    }
+    // The same later-clause FAIL with its reach clause undecided: whether the game begins the episode is said not to be established.
+    const laterUndecided = read({ ...check, verdict: 'FAIL', clauses: check.clauses.map((clause, index) => (index === 0 ? { ...clause, verdict: 'DEFERRED_TO_REALIZATION' } : index === 1 ? { ...clause, verdict: 'FAIL' } : clause)) } as BlockRequirementInputs['episodeCheck'])
+    assert.deepEqual(classedIn(laterUndecided), everyOne('MISSING_OR_ALTERED'))
+    for (const [at, component] of COMPONENTS.entries())
+        assert.equal(laterUndecided.failures[at].because, `Read in the activity as built: ${laterShown(component, 'DEFERRED_TO_REALIZATION', ', and whether it begins that episode is not established')} (ours, DRAFT).`)
+    // Undecided (deferred to realization), and vacuous (passed without an applicable instance): the check decided nothing.
+    const deferred = read(clauseAt(0, { verdict: 'DEFERRED_TO_REALIZATION', basis: undefined }, 'DEFERRED_TO_REALIZATION'))
+    assert.deepEqual(classedIn(deferred), everyOne('VERIFICATION_FAILURE'))
+    assert.ok(deferred.findings.every(reason => reason.includes('decided nothing against it (its verdict DEFERRED_TO_REALIZATION')), deferred.findings[0])
+    const vacuous = read(clauseAt(0, { basis: 'NO_APPLICABLE_INSTANCES', instances: 0 }))
+    assert.deepEqual(classedIn(vacuous), everyOne('VERIFICATION_FAILURE'))
+    assert.ok(vacuous.findings.every(reason => reason.includes('passed without reading any condition authored for an episode')), vacuous.findings[0])
+    // Another check given in its place: not the one that decides the episode.
+    assert.deepEqual(classedIn(read({ ...check, checkId: 'TEST-ONLY-CHECK' })), everyOne('VERIFICATION_FAILURE'))
+})
+
+test('5 November 2026 (round 4, the fix round: the R2 review\'s M1 and S1): a condition of the approved type governing while the component\'s own element is not on the event (A5) is shown, said so, and flagged as a reading we hold as ambiguous', () => {
+    // A TEST-ONLY copy of the finished game: the origin condition on the event given another element id, its own element kept in the game elsewhere.
+    const account = reread(game => {
+        const condition = conditionsOf(game).find(entry => entry.type === 'origin')
+        game.testOnlyElsewhere = { elementId: condition.elementId }
+        condition.elementId = 'TEST-ONLY-other'
+    })
+    const item = contextItem(CONDITION_ROW, 'origin')
+    const note = `a condition of the origin type governs the realized scoring event, but ${item}'s own element (c:${item.replace('::', ':')}) is not on it (a reading we hold as ambiguous, for his review)`
+    const reading = scoringComponentReading(account, bindings)
+    assert.deepEqual(classedIn(reading), [['MISSING_OR_ALTERED', 'COMPONENT', 'origin', 'NOT_GOVERNING']])
+    assert.ok(reading.findings[0].includes(`does not govern the realized scoring event (${note}): `), reading.findings[0])
+    assert.equal(reading.failures[0].because, `Read in the activity as built: ${note} (ours, DRAFT).`)
+    assert.ok(!reading.failures[0].because.includes('absent'), 'never "its condition is absent", where a condition of its type governs')
+    // Its referents facet could not be read (the element is not where the register places it): mixed facets, so the words and the detail are
+    // the condition facet's, which demonstrably fails (the R3 review's S-3).
+    const origin = partIn(account, 'origin')
+    assert.deepEqual(origin.facets.filter(entry => entry.account === 4).map(entry => [entry.facetId, !!entry.shown?.length, !!entry.unverified?.length]), [['condition', true, false], ['referents', false, true]])
+    assert.ok(!reading.findings[0].includes(origin.facets.find(entry => entry.facetId === 'referents')!.label), reading.findings[0])
+})
+
+test('5 November 2026 (round 4, the fix round: the R2 review\'s S1, the R3 review\'s S-2): the context\'s contract missing from a block is a verification failure, named so in every facet that takes its carriers', () => {
+    const account = reread((_game, contracts) => {
+        contracts.splice(0, contracts.length, ...contracts.filter(contract => knowledgeKey(contract.contractId) !== knowledgeKey(CONTEXT)))
+    })
+    assert.deepEqual(classedIn(scoringComponentReading(account, bindings)), COMPONENTS.map(component => ['VERIFICATION_FAILURE', 'COMPONENT', component, partIn(account, component).cause!.kind]))
+    const missing = `the context's contract (${CONTEXT}) is not among the contracts this block was built from, so whether the activity carries the component cannot be established`
+    for (const component of COMPONENTS) {
+        const failing = partIn(account, component).facets.filter(entry => entry.account === 4)
+        assert.ok(failing.length > 0 && failing.every(entry => (entry.unverified ?? []).includes(missing)), `${component}: ${JSON.stringify(failing.map(entry => entry.unverified))}`)
+    }
+})
+
+test('5 November 2026 (round 4, the fix round: the R3 review\'s S-3): a component with one facet shown failing and another that cannot be established is missing or altered, its words and its detail both the failing facet\'s', () => {
+    // The episode check not given (every condition facet unverified) and the control value altered in the contract and the finished game alike.
+    const account = reread(
+        (game, contracts) => {
+            conditionsOf(game).find(condition => condition.type === 'control').value = 'TEST-ONLY anything'
+            for (const contract of contracts) for (const item of contract.items) if (String(item.row) === 'V6' && item.selector === `${CONDITION_TYPE_PREFIX}control`) item.value = 'TEST-ONLY anything'
+        },
+        bindings,
+        { episodeCheck: undefined },
+    )
+    const reading = scoringComponentReading(account, bindings)
+    const control = partIn(account, 'control')
+    assert.equal(control.cause!.kind, 'NOT_GOVERNING', "the part's own cause: its condition facet first")
+    assert.deepEqual(
+        classedIn(reading),
+        COMPONENTS.map(component => (component === 'control' ? ['MISSING_OR_ALTERED', 'COMPONENT', 'control', 'ALTERED'] : ['VERIFICATION_FAILURE', 'COMPONENT', component, 'NOT_GOVERNING'])),
+    )
+    const value = control.facets.find(entry => entry.facetId === 'value')!
+    const conditionFacet = control.facets.find(entry => entry.facetId === 'condition')!
+    assert.deepEqual([value.account, value.unverified, conditionFacet.account, !!conditionFacet.unverified?.length], [4, undefined, 4, true])
+    const reason = reading.findings[COMPONENTS.indexOf('control')]
+    assert.equal(
+        reason,
+        `${SCORING_REASON_HEAD.MISSING_OR_ALTERED}the control component of ${CONTEXT}'s approved scoring condition (RPC-PROP-132), "with possession controlled on arrival", is altered: what the activity holds is not what his approved knowledge carries (a pinned value or scope differs): ${value.label}: considered ${contextItem('V6', 'control')} (its value is "TEST-ONLY anything"; this facet asks "controlled on arrival")`,
+    )
+    assert.ok(!reason.includes(conditionFacet.label) && !reason.includes('was not given'), 'the facet that could not be established is not in its detail')
+})
+
+test('5 November 2026 (round 4): line verdicts missing are a verification failure — the evidence a check needs is missing', () => {
+    const account = reread(() => undefined, bindings, { classified: null })
+    assert.deepEqual(classedIn(scoringComponentReading(account, bindings)), COMPONENTS.map(component => ['VERIFICATION_FAILURE', 'COMPONENT', component, 'NOT_CARRIED']))
+    for (const component of COMPONENTS) {
+        const failing = partIn(account, component).facets.filter(entry => entry.account === 4)
+        assert.ok(failing.length > 0 && failing.every(entry => (entry.unverified ?? []).some(text => text.includes('(no line verdicts were given)'))), `${component}: ${JSON.stringify(failing.map(entry => entry.unverified))}`)
+    }
+})
+
+test('5 November 2026 (round 4, the design review\'s M2): an item whose selector does not normalise cannot be read — a verification failure; one that normalises to another value is read, and missing', () => {
+    const select = (selector: string) => (_game: any, contracts: LoadedContract[]) => {
+        for (const contract of contracts) if (knowledgeKey(contract.contractId) === knowledgeKey(CONTEXT)) for (const item of contract.items) if (String(item.row) === 'V6' && item.selector === `${CONDITION_TYPE_PREFIX}control`) item.selector = selector
+    }
+    const key = contextItem('V6', 'control')
+    for (const [selector, defect] of [
+        ['type control', 'no registered operator in: type control'],
+        ['colour=control', 'attribute "colour" is not a selector attribute of V3 (registered: type)'],
+    ] as const) {
+        const account = reread(select(selector))
+        assert.deepEqual(classedIn(scoringComponentReading(account, bindings)), [['VERIFICATION_FAILURE', 'COMPONENT', 'control', 'NOT_CARRIED']], selector)
+        const value = partIn(account, 'control').facets.find(entry => entry.facetId === 'value')!
+        // Considered, account and cause exactly as before: no item matches.
+        assert.deepEqual([value.account, value.cause, value.considered], [4, 'NOT_CARRIED', []], selector)
+        assert.deepEqual(value.unverified, [`the selector of ${key} does not normalise (${defect}), so whether it carries the component cannot be established`], selector)
+    }
+    // The design review measured "type==control ((": it normalises (attribute type, value "=control (("), so the item names another condition
+    // type, was read, and does not match — shown missing, as before.
+    const other = reread(select('type==control (('))
+    assert.deepEqual(classedIn(scoringComponentReading(other, bindings)), [['MISSING_OR_ALTERED', 'COMPONENT', 'control', 'NOT_CARRIED']])
+    assert.equal(partIn(other, 'control').facets.find(entry => entry.facetId === 'value')!.unverified, undefined)
+})
+
+test('5 November 2026 (round 4): both classes together, on the pure function — one component altered in the activity as built, another whose check is missing; each named in its class, and the headline says both', () => {
+    const account = reread(
+        (game, contracts) => {
+            conditionsOf(game).find(condition => condition.type === 'control').value = 'TEST-ONLY anything'
+            for (const contract of contracts) for (const item of contract.items) if (String(item.row) === 'V6' && item.selector === `${CONDITION_TYPE_PREFIX}control`) item.value = 'TEST-ONLY anything'
+        },
+        bindings,
+        { forward: withoutCheckOf(contextItem('V6', 'progression')) },
+    )
+    const reading = scoringComponentReading(account, bindings)
+    // In binding order: progression (its check missing), then control (altered).
+    assert.deepEqual(classedIn(reading), [
+        ['VERIFICATION_FAILURE', 'COMPONENT', 'progression', 'NOT_CARRIED'],
+        ['MISSING_OR_ALTERED', 'COMPONENT', 'control', 'ALTERED'],
+    ])
+    const activity = requirementAccountOf({ contextId: CONTEXT, outcome: 'validation', bindings, refused: null, blocks: [{ blockId: account.blockId, account }], draftContract: false })
+    assert.deepEqual([classesIn(activity), activity.enforcement.counts], [
+        [
+            ['VERIFICATION_FAILURE', 'COMPONENT', 'progression', 'NOT_CARRIED', 1],
+            ['MISSING_OR_ALTERED', 'COMPONENT', 'control', 'ALTERED', 1],
+        ],
+        { MISSING_OR_ALTERED: 1, VERIFICATION_FAILURE: 1 },
+    ])
+    const label = (component: string) => activity.summary.scoringCondition!.components.find(entry => entry.component === component)!.label
+    assert.equal(activity.summary.headline, `Missing or altered in the approved scoring condition: ${label('control')}. Not verifiable: ${label('progression')}. ${BOTH}`)
+    // The fix round (the R3 review's S-1): a projection is proved by its consumer — the administrator's merged parts, which the page renders,
+    // carry the facet's record of what could not be established.
+    assert.ok(activity.parts.find(part => part.partId === 'progression')!.facets.some(facet => !!facet.unverified?.length), JSON.stringify(activity.parts.find(part => part.partId === 'progression')!.facets))
+})
+
+test('5 November 2026 (round 4): both classes through the build — a component altered in the knowledge, and words no part classifies — refuse alike on the coach\'s build and the administrator\'s; only the administrator\'s account carries the classes', () => {
+    // A TEST-ONLY copy of the bindings (as B11 makes it): the control component's words cut to "with possession controlled" and its coach-observed
+    // part given no observable, so "on arrival" is classified by no part.
+    const unclassified: RequirementBindings = copy(bindings)
+    const row = unclassified.contexts.find(entry => entry.contextId === CONTEXT)!.rows.find(entry => entry.rowId === 'RPC-PROP-132')!
+    row.parts.find(entry => entry.id === 'control')!.rowSpan = 'with possession controlled'
+    ;(row.parts.find(entry => entry.id === 'control-in-play') as any).observable = null
+    const alter = (contracts: LoadedContract[]) => {
+        for (const contract of contracts) if (knowledgeKey(contract.contractId) === knowledgeKey(CONTEXT)) for (const item of contract.items) if (String(item.row) === 'V6' && item.selector === `${CONDITION_TYPE_PREFIX}progression`) item.value = 'before'
+    }
+    for (const [label, objects] of VERSIONS) {
+        const request = { kind: 'learning-goal' as const, goalId: 'A01', session: session(objects) }
+        const asCoach = silently(() => buildActivityUnderAuthorizationRecords(request, records, { alter, requirementBindings: unclassified }).activity) as RefusedActivity
+        const asAdministrator = silently(() => buildActivityUnderAuthorizationRecords(request, records, { alter, requirementBindings: unclassified, review: { includeDrafts: true } }).activity) as RefusedActivity
+        assert.deepEqual([asCoach.outcome, asCoach.stage, asCoach.summary], ['refused', 'validation', 'The game built for this activity did not pass its own checks, so it is not being shown.'], label)
+        assert.deepEqual([asAdministrator.stage, asAdministrator.summary, asAdministrator.reasons], [asCoach.stage, asCoach.summary, asCoach.reasons], `${label}: the same refusal`)
+        const ofHead = (text: string) => asCoach.reasons.filter(reason => reason.includes(text)).length
+        assert.equal(ofHead(`${SCORING_REASON_HEAD.MISSING_OR_ALTERED}the progression component of ${CONTEXT}'s approved scoring condition`), 2, label)
+        assert.equal(ofHead(`${SCORING_REASON_HEAD.VERIFICATION_FAILURE}the components of ${CONTEXT}'s approved scoring condition cannot be verified, so the activity is not served (fail-closed): words of RPC-PROP-132 that no part classifies: "on arrival"`), 2, label)
+        assert.equal(ofHead(SCORING_COMPONENTS_CHECK), 4, `${label}: one reason of each class per block, nothing else of the enforcement's`)
+        // The coach's answer carries no account, no class and none of his 5 November words.
+        assert.ok(!('requirementAccount' in asCoach), label)
+        assert.ok(!JSON.stringify(asCoach).includes('failureClass') && !JSON.stringify(asCoach).includes('his reply filed 5 November 2026'), label)
+        const account = asAdministrator.requirementAccount!
+        assert.deepEqual([classesIn(account), account.enforcement.counts], [
+            [
+                ['MISSING_OR_ALTERED', 'COMPONENT', 'progression', 'ALTERED', 2],
+                ['VERIFICATION_FAILURE', 'UNCLASSIFIED_WORDS', null, null, 2],
+            ],
+            { MISSING_OR_ALTERED: 1, VERIFICATION_FAILURE: 1 },
+        ], label)
+        const progression = account.summary.scoringCondition!.components.find(entry => entry.component === 'progression')!.label
+        assert.equal(account.summary.headline, `Missing or altered in the approved scoring condition: ${progression}. Not verifiable: words of his row that no part classifies. ${BOTH}`, label)
+    }
+})
+
+test('5 November 2026 (round 4): every remaining path-level source is a verification failure — no bindings read, the scoring row outside the applicable set, the enforcement itself failing', () => {
+    const account = blockRequirementAccountOf({ ...observed[0], only: 'ENFORCED' })
+    assert.deepEqual(classedIn(scoringComponentReading(account, null)), [['VERIFICATION_FAILURE', 'NO_BINDINGS', null, null]])
+    // A TEST-ONLY copy of the bindings whose applicability leaves the scoring condition's category out.
+    const outside: RequirementBindings = copy(bindings)
+    outside.applicability.accounted.propertyCategories = []
+    const reading = scoringComponentReading(account, outside)
+    assert.deepEqual(classedIn(reading), [['VERIFICATION_FAILURE', 'OUTSIDE_APPLICABLE_SET', null, null]])
+    assert.equal(reading.failures[0].rowId, 'RPC-PROP-132')
+    const failed = failClosedReading(CONTEXT, 'TEST-ONLY')
+    assert.deepEqual(classedIn(failed), [['VERIFICATION_FAILURE', 'ENFORCEMENT_FAILED', null, null]])
+    assert.equal(failed.findings[0], `${SCORING_REASON_HEAD.VERIFICATION_FAILURE}the components of ${CONTEXT}'s approved scoring condition cannot be verified, so the activity is not served (fail-closed): the enforcement failed: TEST-ONLY`)
 })
 
 console.log = quiet

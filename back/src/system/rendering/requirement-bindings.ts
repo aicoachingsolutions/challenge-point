@@ -14,8 +14,9 @@
  * mechanically verifiable."*): the structural parts of a production-contracted context's approved scoring condition quoting his words (its
  * components) are read on every build that reaches the context-scoring guard, and one that is missing or altered refuses the activity
  * (`requirement-account.ts` `scoringComponentReading`). Nothing else read from the file refuses: *"I would not yet extend refusal to every
- * unsupported purpose statement, inferred affordance relationship, or coach-observed condition."* (same item.) Fail-closed where the
- * components cannot be verified is our addition beyond his item 7, for his decision (`enforcementBindingsFor`).
+ * unsupported purpose statement, inferred affordance relationship, or coach-observed condition."* (same item.) Refusing where the
+ * components cannot be verified is the safeguard he approved, his reply filed 5 November 2026, item 1: a verification failure
+ * (`enforcementBindingsFor`; round 4).
  *
  * **What the file is.** One entry per contracted context (`docs/audits/requirement-bindings.json`), one per applicable row of his context
  * workbook, split into parts. Each part has a kind, one of his three standards, and either typed item patterns, the guard's reading of the
@@ -29,8 +30,8 @@
  * `build.js` beside the other runtime knowledge and found through `AUDITS_DIR`; read lazily, once, at the first build that needs it, never
  * at module load, so a defect in it cannot stop the server. Where it is refused or cannot be read, the account takes it as its own status;
  * a build is refused only where the file cannot be read or a gate reason reaches what the enforcement reads (round 3b,
- * `enforcementBindingsFor`), as the 28 October decision made the pathway notice fail-closed (PR #147). The unit test runs the gate on the
- * real file, so a defect fails CI first.
+ * `enforcementBindingsFor`): a verification failure, the safeguard he approved (round 4, his reply filed 5 November 2026, item 1). The
+ * unit test runs the gate on the real file, so a defect fails CI first.
  *
  * **Every workbook the gate reads comes from a bundled JSON module** (the R-engine review's M2): the context workbook and the archetype
  * workbook a KNOWLEDGE_ROW observable cites are imported here as modules, as `rpc-library.ts` imports them, and resolved by a fixed map —
@@ -1019,12 +1020,12 @@ export function requirementBindingsLoad(): RequirementBindingsRead {
 
 /**
  * **What the enforcement of one context's approved scoring condition may read, and what refuses it** — round 3b, 30 October 2026 (the
- * round-3 review's R1 S1, option b). Fail-closed is ours, not his item 7 (it approves refusing "missing or altered components of approved
- * scoring conditions"): an activity whose components cannot be verified is not served. It is limited to what that verification itself
- * needs. A gate reason found in the file as a whole (its top level, `applicability`, `carriers`, the list of contexts), in the built
- * context's own entry, or in its approved scoring condition's row refuses the build; a reason anywhere else — another row, another context —
- * leaves the account BINDINGS_REFUSED for the administrator, fails CI (the gate runs on the real file), and the components are enforced from
- * the file as read. A file that cannot be read or does not parse refuses.
+ * round-3 review's R1 S1, option b). Fail-closed is the safeguard he approved, his reply filed 5 November 2026, item 1 (round 4): an
+ * activity whose components cannot be verified is not served, and its refusal is a verification failure. It is limited to what that
+ * verification itself needs. A gate reason found in the file as a whole (its top level, `applicability`, `carriers`, the list of
+ * contexts), in the built context's own entry, or in its approved scoring condition's row refuses the build; a reason anywhere else —
+ * another row, another context — leaves the account BINDINGS_REFUSED for the administrator, fails CI (the gate runs on the real file),
+ * and the components are enforced from the file as read. A file that cannot be read or does not parse refuses.
  */
 export function enforcementBindingsFor(read: RequirementBindingsRead, contextId: string): { bindings: RequirementBindings | null; refused: string[] | null } {
     if (read.bindings) return { bindings: read.bindings, refused: null }
