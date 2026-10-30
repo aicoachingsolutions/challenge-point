@@ -121,6 +121,25 @@
             "note": "Added 26 October 2026 (Stage F). Context-level, so any Goalkeeper Build-Out realization may cite it; nothing in it names a goal of a Learning Goal or a team. It authorizes, for the ONE role it is confirmed for, that role's own primary scoring event (row B9, exactly this event) and its objective's reference (row J2), and it names the four items whose permitted sets that role may then depart from (GA-ROLE-EVENTS clause 6; applyRoleYields; the context-scoring guard). Such an event does not carry the context's Primary Scoring Identity (RPC-VAL-002: \"Primary scoring must reinforce the RPC Primary Scoring Identity and must not substitute an unrelated affordance outcome.\"): the building team's event does, and this one stands on his authorization alone. An own goal: his reply filed 26 October 2026, item 10, \"I agree that an own goal against the building team counts for the pressing team in the goal-based realization.\", and item 11, \"Own goals: Apply the normal soccer rule.\" - read by the event's own meaning, OUR READING: a score is the ball entering the goal the pressing team's objective references, credited to the team that objective names (J3), whoever touched the ball last; no row is added for it. Cited on 26 October 2026 only by the provisional realization A01-R2, which A01's record lists first and does not try until his two open decisions (goal suitability; the penalty area) are made. AMENDED 24 October 2026 (K3): those two decisions, and the third on the default laws, are settled by his reply filed 27 October 2026 (A01's gaps D-GOAL-SUITABILITY, D-PENALTY-AREA and D-DEFAULT-LAWS, each with his words), so A01-R2 is now tried first and is built where the session states a goal that suits it. It is still the only realization citing this relationship."
         }
     ],
+    "observationCriteriaApprovals": [
+        {
+            "id": "OBSERVATION-CRITERION-1",
+            "category": "OWNER_RULING",
+            "ruledOn": "2026-11-04",
+            "by": "Christian",
+            "citedAs": "his reply filed 4 November 2026, item 6",
+            "words": "Yes, I approve using the existing October 16 language as an observation criterion",
+            "alsoSaid": [
+                "These should remain possible solutions, not required behaviors."
+            ],
+            "approves": {
+                "words": "Success should permit multiple functional solutions, including carrying the ball, passing through or around pressure, and using a more direct option when appropriate.",
+                "citedAs": "his reply received 15 October 2026 (16 October reply), item 4",
+                "filedAs": "his reply filed 16 October 2026, item 4"
+            },
+            "note": "Added 30 October 2026 (requirement accounting, round 3c). An observable of the requirement bindings may stand on words of his only where he has approved them as an observation criterion, recorded here; the bindings gate reads this list (requirement-bindings.ts). It is outside every input digest, so it moves no selection, derivation or realization."
+        }
+    ],
     "authorizations": [
         {
             "learningGoalId": "A01",

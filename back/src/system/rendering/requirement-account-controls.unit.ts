@@ -7,8 +7,17 @@
  * TEST-ONLY change — to a copy of the contracts, matched by register row and selector and never by id, or to a copy of the finished game the
  * account read — and none is knowledge:
  *   - S3: each condition the production context constitutes, removed in turn, in both versions: either the build stops before realization
- *     (no account, the stage pinned) or the account names exactly that component missing; none is ever served with it missing and unnamed;
- *     and, report only, the administrator's build stops where the coach's does, with the same summary and reasons (T12);
+ *     (no account, the stage pinned) or the account names exactly that component missing; and, the administrator's build stops where the
+ *     coach's does, with the same summary and reasons (T12). Round 3 (his reply filed 4 November 2026, item 7: *"I approve beginning narrowly
+ *     with missing or altered components of approved scoring conditions, where those components are clearly defined, structurally
+ *     necessary, and mechanically verifiable."*): the round-1 characterization ("the guard did not catch it") is inverted — the coach's build
+ *     is refused at the validation stage, each block's reason naming the component;
+ *   - Round 3: a component's value altered in the knowledge is refused at validation, named altered; bindings read as refused (a TEST-ONLY
+ *     stand-in) refuse fail-closed; the save (Start Activity) refuses too; and what a coach's build reads (`only: 'ENFORCED'`) is exactly
+ *     the full reading of the parts quoting his words;
+ *   - Round 3b (the round-3 reviews): ALTERED is read only from an item the facet would count (R3 S3); the administrator's full reading
+ *     failing leaves the components read on their own, so both builds are served alike (R1 S2); the enforcement failing never throws out of
+ *     the route (R1 S3);
  *   - M1: a value blanked in the finished game, and a referent that is not the progression outcome's, each make their component 4;
  *   - M2: a turnover that no longer begins a new episode makes the episode-ends-on-loss part 4 (read on the finished game; the same change
  *     made in the knowledge stops the build at structure);
@@ -17,8 +26,9 @@
  *   - S7: an item in a constraint's contract is considered, named so, never counted;
  *   - T7: the TEST-ONLY RPC-003 draft, merged with the production bindings, the origin withheld: origin missing, the rest on DRAFT knowledge.
  *
- * The guard's assertions in S3 are a CHARACTERIZATION of today's gap (the guard does not catch a removed component; the build stops only at
- * communication, for want of approved wording): they are to be inverted if he enables refusal on a missing component.
+ * Round 1's S3 assertions were a CHARACTERIZATION of the gap (the guard did not catch a removed component; the build stopped only at
+ * communication, for want of approved wording), to be inverted if he enabled refusal on a missing component. He did (his reply filed 4 November 2026, item 7), and
+ * they are inverted.
  *
  * Run: npx ts-node --files -r tsconfig-paths/register ./src/system/rendering/requirement-account-controls.unit.ts
  */
@@ -31,9 +41,12 @@ import { knowledgeKey } from '../derivation/knowledge-key'
 import { CONDITION_ROW } from '../derivation/resolved-game'
 import { DRAFT_KNOWLEDGE, LoadedContract } from '../derivation/types'
 import { learningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
+import { ActivityReviewBody, reviewRequestOf } from './activity-review'
 import { buildActivityUnderAuthorizationRecords, RefusedActivity, ServedActivity } from './build-activity'
 import { CONDITION_TYPE_PREFIX, constitutedConditionTypes } from './context-scoring-guard'
-import { blockRequirementAccountOf, BlockRequirementInputs, requirementAccountOf } from './requirement-account'
+import { CHECKED_CHAIN, checkedSave, liveCheckedActivity, liveSelectionFor, SAVE_NOT_AS_SHOWN } from './live-activity'
+import * as accountModule from './requirement-account'
+import { blockRequirementAccountOf, BlockRequirementInputs, requirementAccountOf, SCORING_COMPONENTS_CHECK, scoringComponentFindings } from './requirement-account'
 import { loadRequirementBindings, productionContextContract, productionContractedContexts, RequirementBindings } from './requirement-bindings'
 import { specializedRoleNames } from './session-envelope'
 
@@ -57,7 +70,7 @@ const silently = <T>(run: () => T): T => {
         console.log = before
     }
 }
-quiet("the requirement account's controls (report only)")
+quiet("the requirement account's controls (round 3: the approved scoring condition's components enforced)")
 
 const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T
 const KEEPER = specializedRoleNames()[0]
@@ -73,8 +86,8 @@ const [CONTEXT] = productionContractedContexts()
 const BEFORE_REALIZATION = ['session', 'selection', 'knowledge', 'structure', 'realization']
 const bindings = loadRequirementBindings()
 
-// ── S3 and T12: each constituted condition removed, in both versions ────────────────────────────────────────────────────────────────────
-test('S3/T12: each condition the context constitutes, removed (by row and selector): stopped before realization with no account, or named missing; never served unnamed; report only', () => {
+// ── S3 and T12, inverted in round 3: each constituted condition removed, in both versions ───────────────────────────────────────────────
+test('S3/T12 (round 3, enforced): each condition the context constitutes, removed (by row and selector): stopped before realization with no account, or refused at validation naming that component, on the coach\'s build and the administrator\'s alike', () => {
     const types = constitutedConditionTypes(productionContextContract(CONTEXT)!).map(entry => entry.type)
     assert.ok(types.length >= 1, 'the production context constitutes conditions')
     const outcomes: string[] = []
@@ -89,11 +102,11 @@ test('S3/T12: each condition the context constitutes, removed (by row and select
             const asAdministrator = silently(() => buildActivityUnderAuthorizationRecords(request, records, { alter: remove, review: { includeDrafts: true } }).activity)
             const asCoach = silently(() => buildActivityUnderAuthorizationRecords(request, records, { alter: remove }).activity)
             const where = `${type} removed, ${label}`
-            // T12: report only. The administrator's build stops where the coach's does, saying the same.
+            // T12: the administrator's build stops where the coach's does, saying the same: the account adds nothing to the refusal.
             assert.equal(asAdministrator.outcome, asCoach.outcome, where)
             if (asAdministrator.outcome === 'refused') {
                 const coachRefusal = asCoach as RefusedActivity
-                assert.deepEqual([asAdministrator.stage, asAdministrator.summary, asAdministrator.reasons], [coachRefusal.stage, coachRefusal.summary, coachRefusal.reasons], `${where}: the account refuses nothing`)
+                assert.deepEqual([asAdministrator.stage, asAdministrator.summary, asAdministrator.reasons], [coachRefusal.stage, coachRefusal.summary, coachRefusal.reasons], `${where}: the same refusal`)
             }
             assert.ok(!('requirementAccount' in asCoach), `${where}: the coach's build carries none`)
             const account = asAdministrator.requirementAccount
@@ -107,26 +120,95 @@ test('S3/T12: each condition the context constitutes, removed (by row and select
             assert.deepEqual(scoring.missing.map(entry => [entry.component, entry.cause.kind]), [[type, 'NOT_CARRIED']], `${where}: exactly that component is named missing`)
             for (const other of scoring.components.filter(entry => entry.component !== type)) assert.notEqual(other.account, 4, `${where}: ${other.component} still carried`)
             assert.equal(account.summary.scoringConditionCarried, false, where)
-            assert.ok(account.summary.headline.startsWith('Missing from the approved scoring condition: '), account.summary.headline)
-            // CHARACTERIZATION of today's gap, to be inverted if he enables this refusal: the guard names nothing, and the build stops later.
-            const refusal = asAdministrator as RefusedActivity
-            assert.equal(asAdministrator.outcome, 'refused', `${where}: not served (today, for want of approved wording)`)
-            assert.notEqual(refusal.stage, 'validation', `${where}: the guard did not catch it`)
-            assert.ok(!refusal.reasons.some(reason => reason.includes(`${type} condition`)), `${where}: no reason names the ${type} condition`)
+            assert.ok(account.summary.headline.startsWith('Missing or altered in the approved scoring condition: '), account.summary.headline)
+            // Round 3, his reply filed 4 November 2026, item 7: the characterization of round 1 ("the guard did not catch it") is inverted. The
+            // coach's build is refused at the validation stage, with the guard's own summary, each block's reason naming the component.
+            const refusal = asCoach as RefusedActivity
+            assert.deepEqual([refusal.outcome, refusal.stage, refusal.summary], ['refused', 'validation', 'The game built for this activity did not pass its own checks, so it is not being shown.'], where)
+            const named = refusal.reasons.filter(reason => reason.includes(`${SCORING_COMPONENTS_CHECK}: the ${type} component of ${CONTEXT}'s approved scoring condition (RPC-PROP-132), "`))
+            assert.equal(named.length, 2, `${where}: one reason per role block`)
+            assert.ok(named.every(reason => reason.includes('is missing from the activity as built: ')), `${where}: ${named[0]}`)
+            assert.deepEqual([account.enforcement.applied, account.enforcement.findings.length], [true, 1], `${where}: the account says what the build found`)
+            assert.ok(refusal.reasons.some(reason => reason.endsWith(account.enforcement.findings[0])), `${where}: and it is the build's own reason`)
             outcomes.push(`${type}/${label}: ${refusal.stage}, ${type} missing`)
         }
     }
-    // The measured outcomes, pinned: the origin's removal stops the build at structure; each other component's reaches communication, named.
+    // The measured outcomes, pinned: the origin's removal stops the build at structure; each other component's is refused at validation, named.
     assert.deepEqual(outcomes, [
         'origin/zone: structure, no account',
         'origin/goal: structure, no account',
-        'progression/zone: communication, progression missing',
-        'progression/goal: communication, progression missing',
-        'control/zone: communication, control missing',
-        'control/goal: communication, control missing',
-        'exclusion/zone: communication, exclusion missing',
-        'exclusion/goal: communication, exclusion missing',
+        'progression/zone: validation, progression missing',
+        'progression/goal: validation, progression missing',
+        'control/zone: validation, control missing',
+        'control/goal: validation, control missing',
+        'exclusion/zone: validation, exclusion missing',
+        'exclusion/goal: validation, exclusion missing',
     ])
+})
+
+// ── Round 3: altered, fail-closed, and the save ─────────────────────────────────────────────────────────────────────────────────────────
+test('Round 3: on the coach\'s build a component altered in the knowledge is refused at validation, named altered; bindings read as refused refuse it fail-closed; the save (Start) refuses too', () => {
+    const onContext = (change: (item: LoadedContract['items'][number]) => void) => (contracts: LoadedContract[]) => {
+        for (const contract of contracts) if (knowledgeKey(contract.contractId) === knowledgeKey(CONTEXT)) contract.items.forEach(change)
+    }
+    const valueOf = (type: string, value: unknown) => onContext(item => {
+        if (String(item.row) === 'V6' && item.selector === `${CONDITION_TYPE_PREFIX}${type}`) item.value = value
+    })
+    for (const [label, objects] of VERSIONS) {
+        const request = { kind: 'learning-goal' as const, goalId: 'A01', session: session(objects) }
+        // A value his approved knowledge carries, changed in the knowledge: the pin reads it altered, and the build refuses at validation.
+        for (const [type, value, asked] of [['control', 'TEST-ONLY anything', 'controlled on arrival'], ['progression', 'before', 'beyond']] as const) {
+            const asCoach = silently(() => buildActivityUnderAuthorizationRecords(request, records, { alter: valueOf(type, value) }).activity) as RefusedActivity
+            const asAdministrator = silently(() => buildActivityUnderAuthorizationRecords(request, records, { alter: valueOf(type, value), review: { includeDrafts: true } }).activity) as RefusedActivity
+            const where = `${type} altered, ${label}`
+            assert.deepEqual([asCoach.outcome, asCoach.stage], ['refused', 'validation'], where)
+            assert.deepEqual([asAdministrator.stage, asAdministrator.summary, asAdministrator.reasons], [asCoach.stage, asCoach.summary, asCoach.reasons], `${where}: the same refusal`)
+            const named = asCoach.reasons.filter(reason => reason.includes(`${SCORING_COMPONENTS_CHECK}: the ${type} component of ${CONTEXT}'s approved scoring condition`))
+            assert.equal(named.length, 2, where)
+            assert.ok(named.every(reason => reason.includes('is altered: ') && reason.includes(`its value is ${JSON.stringify(value)}; this facet asks ${JSON.stringify(asked)}`)), named[0])
+            const altered = asAdministrator.requirementAccount!.parts.find(entry => entry.partId === type)!
+            assert.deepEqual([altered.account, altered.cause!.kind, altered.satisfied, altered.enforced], [4, 'ALTERED', 'NO', true], where)
+        }
+        // Bindings read as refused (a TEST-ONLY stand-in for a file the gate refuses or that cannot be read): fail-closed, on the coach's build too.
+        const reason = 'TEST-ONLY: docs/audits/requirement-bindings.json failed its integrity gate'
+        const refusedCoach = silently(() => buildActivityUnderAuthorizationRecords(request, records, { requirementBindingsRefused: [reason] }).activity) as RefusedActivity
+        const refusedAdministrator = silently(() => buildActivityUnderAuthorizationRecords(request, records, { requirementBindingsRefused: [reason], review: { includeDrafts: true } }).activity) as RefusedActivity
+        assert.deepEqual([refusedCoach.outcome, refusedCoach.stage], ['refused', 'validation'], label)
+        assert.deepEqual(refusedCoach.reasons.map(entry => entry.slice(entry.indexOf(SCORING_COMPONENTS_CHECK))), [1, 2].map(() => `${SCORING_COMPONENTS_CHECK}: the components of ${CONTEXT}'s approved scoring condition cannot be verified, so the activity is not served (fail-closed): the requirement bindings were refused: ${reason}`), label)
+        assert.deepEqual(refusedAdministrator.reasons, refusedCoach.reasons, label)
+        const refusedAccount = refusedAdministrator.requirementAccount!
+        assert.deepEqual([refusedAccount.status, refusedAccount.enforcement.applied, refusedAccount.enforcement.findings.length], ['BINDINGS_REFUSED', true, 1], label)
+        assert.ok(refusedAccount.summary.headline.endsWith('so the activity was refused at the validation stage (fail-closed: ours beyond his item 7, for his decision).'), refusedAccount.summary.headline)
+        // Measured and pinned: a widened origin scope and a moved exclusion referent never reach the guard; derivation stops them at structure.
+        const scopeWidened = onContext(item => {
+            if (['V3', 'V5'].includes(String(item.row)) && item.selector === `${CONDITION_TYPE_PREFIX}origin`) item.scope = 'WHOLE_GAME'
+        })
+        const referentMoved = onContext(item => {
+            if (String(item.row) === 'V5' && item.selector === `${CONDITION_TYPE_PREFIX}exclusion`) item.value = { objectiveReferenceOf: 'SCORING_TEAM', role: 'SECONDARY_SCORING', asAuthored: 'TEST-ONLY' }
+        })
+        for (const alter of [scopeWidened, referentMoved]) assert.equal((silently(() => buildActivityUnderAuthorizationRecords(request, records, { alter }).activity) as RefusedActivity).stage, 'structure', label)
+    }
+    // The save (Start Activity): the live route's rebuild, over the same TEST-ONLY copy, refuses, and says why.
+    const stored = { playerCount: 12, fieldLength: '40', fieldWidth: '30', specializedRoles: { ...none, [KEEPER]: 1 }, objects: { goal: { count: 0 } } } as any
+    const shown = silently(() => liveCheckedActivity(stored, { learningGoalId: 'A01', practiceSituationId: null, durationMin: 20 }, liveSelectionFor('A01', 'medium')))
+    assert.equal(shown.outcome, 'served', 'the unaltered activity is shown')
+    const removeControl = (contracts: LoadedContract[]) => {
+        for (const contract of contracts) if (knowledgeKey(contract.contractId) === knowledgeKey(CONTEXT)) contract.items = contract.items.filter(item => !([CONDITION_ROW, 'V5', 'V6'].includes(String(item.row)) && item.selector === `${CONDITION_TYPE_PREFIX}control`))
+    }
+    const rebuild = (body: ActivityReviewBody) => {
+        const request = reviewRequestOf(stored, body)
+        assert.ok(!('refusal' in request))
+        return buildActivityUnderAuthorizationRecords(request as any, records, { alter: removeControl })
+    }
+    const saved = silently(() =>
+        checkedSave(stored, { pathway: CHECKED_CHAIN, checkedInputs: { learningGoalId: 'A01', practiceSituationId: null, durationMin: 20 }, inputDigests: shown.outcome === 'served' ? shown.inputDigests : [], challengeLevel: 'medium' }, liveSelectionFor, rebuild),
+    )
+    assert.equal(saved.outcome, 'refused')
+    if (saved.outcome === 'refused') {
+        assert.equal(saved.summary, SAVE_NOT_AS_SHOWN)
+        assert.ok(saved.reasons[0].startsWith('building it again now refuses (CHECKED_REFUSAL)'), saved.reasons[0])
+        assert.equal(saved.reasons.filter(reason => reason.includes(`${SCORING_COMPONENTS_CHECK}: the control component of ${CONTEXT}'s approved scoring condition`)).length, 2)
+    }
 })
 
 // ── The inputs the account read, for the controls on the finished game ──────────────────────────────────────────────────────────────────
@@ -156,6 +238,18 @@ test('the observed inputs are exactly what the build accounted: re-read unchange
     }
 })
 
+// ── Round 3: the enforced reading is the full reading of the components ─────────────────────────────────────────────────────────────────
+test('Round 3: what a coach\'s build reads (only: ENFORCED) is exactly the full reading of the parts quoting his words, in every block, and nothing else', () => {
+    for (const inputs of observed) {
+        const full = blockRequirementAccountOf(inputs)
+        const enforced = blockRequirementAccountOf({ ...inputs, only: 'ENFORCED' })
+        assert.deepEqual(enforced.parts, full.parts.filter(entry => entry.rowSpan !== null), inputs.blockId)
+        assert.deepEqual(enforced.parts.map(entry => [entry.partId, entry.enforced, entry.account]), [['origin', true, 1], ['progression', true, 1], ['control', true, 1], ['exclusion', true, 1]], inputs.blockId)
+        assert.deepEqual(full.parts.filter(entry => entry.enforced).map(entry => entry.partId), ['origin', 'progression', 'control', 'exclusion'], `${inputs.blockId}: the episode-ends-on-loss part is reported, not enforced`)
+        assert.deepEqual([scoringComponentFindings(enforced, inputs.bindings), scoringComponentFindings(full, inputs.bindings)], [[], []], inputs.blockId)
+    }
+})
+
 // ── M1 ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 test('M1: a value blanked in the finished game makes its component 4; presence of the element is not enough', () => {
     const account = reread(game => {
@@ -177,9 +271,9 @@ test('M1: a referent that is not the progression outcome\'s makes the exclusion 
         conditionsOf(game).find(condition => condition.type === 'exclusion').referents = copy(elsewhere)
         for (const contract of contracts) for (const item of contract.items) if (String(item.row) === 'V5' && item.selector === `${CONDITION_TYPE_PREFIX}exclusion`) item.value = copy(elsewhere)
     }
-    // The production bindings pin the referent his knowledge carries: the changed one is not counted.
+    // The production bindings pin the referent his knowledge carries: the changed one is not counted (round 3: named ALTERED, not absent).
     const pinned = partIn(reread(change), 'exclusion')
-    assert.deepEqual([pinned.account, pinned.cause!.kind, pinned.sameReferent!.evaluated], [4, 'NOT_CARRIED', false])
+    assert.deepEqual([pinned.account, pinned.cause!.kind, pinned.sameReferent!.evaluated], [4, 'ALTERED', false])
     assert.ok(pinned.facets.find(entry => entry.facetId === 'referents')!.considered[0].why.some(why => why.startsWith('its value is {"objectiveReferenceOf":"SCORING_TEAM","role":"SECONDARY_SCORING"')), JSON.stringify(pinned.facets))
     // A TEST-ONLY copy of the bindings without that pin: the referent is then compared with the progression outcome's.
     const unpinned: RequirementBindings = copy(bindings)
@@ -227,6 +321,52 @@ test('R1 S2: a component value or scope changed in the knowledge and the finishe
     }
 })
 
+// ── Round 3b ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+test('Round 3b (R3 S3): ALTERED is read only from an item the facet would count — the context\'s item gone and a game form\'s other value beside it is missing, not altered', () => {
+    const account = reread((game, contracts) => {
+        conditionsOf(game).find(condition => condition.type === 'control').value = 'TEST-ONLY other'
+        for (const contract of contracts) if (knowledgeKey(contract.contractId) === knowledgeKey(CONTEXT)) contract.items = contract.items.filter(item => !(String(item.row) === 'V6' && item.selector === `${CONDITION_TYPE_PREFIX}control`))
+        const gameForm = contracts.find(contract => contract.contractId === 'restated:GF2')!
+        gameForm.items.push({ itemId: 'TEST-ONLY-V6', row: 'V6', selector: `${CONDITION_TYPE_PREFIX}control`, requirement: 'EQUALS', value: 'TEST-ONLY other', strictness: 'REQUIRED', scope: 'BUILD_OUT_EPISODE', basis: 'AUTHORED' } as any)
+    })
+    const control = partIn(account, 'control')
+    const value = control.facets.find(entry => entry.facetId === 'value')!
+    assert.deepEqual([control.account, value.cause, control.cause!.kind], [4, 'NOT_CARRIED', 'NOT_CARRIED'])
+    assert.ok(value.considered.some(entry => entry.contractId === 'restated:GF2' && entry.why.some(why => why.includes('this facet takes carriers only from'))), JSON.stringify(value.considered))
+})
+
+test('Round 3b (R1 S2): the administrator\'s full reading failing does not refuse — the components are read on their own, as on the coach\'s build, and both are served', () => {
+    for (const [label, objects] of VERSIONS) {
+        const request = { kind: 'learning-goal' as const, goalId: 'A01', session: session(objects) }
+        const throwing = () => {
+            throw new Error('TEST-ONLY failure after the full reading')
+        }
+        const asAdministrator = silently(() => buildActivityUnderAuthorizationRecords(request, records, { review: { includeDrafts: true }, observeRequirementInputs: throwing }).activity)
+        const asCoach = silently(() => buildActivityUnderAuthorizationRecords(request, records).activity)
+        assert.deepEqual([asAdministrator.outcome, asCoach.outcome], ['served', 'served'], label)
+        const account = asAdministrator.requirementAccount!
+        assert.deepEqual([account.status, account.enforcement.applied, account.enforcement.findings], ['ERROR', true, []], label)
+        assert.equal(account.summary.headline, "The requirement account could not be computed: the reader failed. The approved scoring condition's components were read on their own and were carried, so nothing was refused.", label)
+    }
+})
+
+test('Round 3b (R1 S3): the enforcement failing never throws out of the route — the build refuses, fail-closed, naming the failure', () => {
+    const original = accountModule.scoringComponentReading
+    try {
+        ;(accountModule as any).scoringComponentReading = () => {
+            throw new Error('TEST-ONLY failure inside the enforcement')
+        }
+        for (const review of [undefined, { includeDrafts: true }]) {
+            const activity = silently(() => buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session: session(VERSIONS[0][1]) }, records, review ? { review } : {}).activity) as RefusedActivity
+            assert.deepEqual([activity.outcome, activity.stage], ['refused', 'validation'])
+            assert.equal(activity.reasons.filter(reason => reason.endsWith(`${SCORING_COMPONENTS_CHECK}: the components of ${CONTEXT}'s approved scoring condition cannot be verified, so the activity is not served (fail-closed): the enforcement failed: TEST-ONLY failure inside the enforcement`)).length, 2, JSON.stringify(activity.reasons))
+        }
+    } finally {
+        ;(accountModule as any).scoringComponentReading = original
+    }
+    assert.equal(accountModule.scoringComponentReading, original, 'restored')
+})
+
 // ── M2 ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 test('M2: a turnover that no longer begins a new episode makes episode-ends-on-loss 4, so the origin is named missing; the same change in the knowledge stops the build at structure', () => {
     const account = reread(game => {
@@ -241,7 +381,9 @@ test('M2: a turnover that no longer begins a new episode makes episode-ends-on-l
     // R2 S2: his origin words are not said to be missing alone: the part that failed, ours, is named beside them.
     const label = 'Initiated from the goalkeeper or a controlled defensive restart: A turnover ends the build-out episode, so a regain does not restore build-out scoring (ours, DRAFT)'
     assert.equal(activity.summary.scoringCondition!.missing[0].label, label)
-    assert.equal(activity.summary.headline, `Missing from the approved scoring condition: ${label}. The activity was served without it. This account refuses nothing.`)
+    assert.equal(activity.summary.headline, `Missing from the approved scoring condition: ${label}. The activity was served without it. Only the components quoting his words are enforced, and nothing else refuses.`)
+    // Round 3: reported, never enforced — the part is our reading of his ruling of 19 October, not words of the approved condition.
+    assert.deepEqual([loss.enforced, scoringComponentFindings(account, bindings), activity.enforcement.findings], [false, [], []])
     // In the knowledge: the context's own item set to false (a TEST-ONLY copy, by row and selector) stops the build before realization.
     for (const [label, objects] of VERSIONS) {
         const altered = silently(() =>
@@ -331,6 +473,8 @@ test('T7: the RPC-003 draft, merged bindings, origin withheld: origin missing, p
     assert.deepEqual([withdrawn.outcome, withdrawn.stage], ['refused', 'communication'])
     const account = withdrawn.requirementAccount!
     assert.deepEqual([account.status, account.contract, account.bindings.mode], ['REPORT_ONLY', 'DRAFT', 'MERGED'])
+    // Round 3: a TEST-ONLY draft contract is reported only — not enforced, so the origin's absence is not what refused it (communication did).
+    assert.deepEqual([account.enforcement.applied, account.enforcement.findings], [false, []])
     const scoring = account.summary.scoringCondition!
     assert.deepEqual(scoring.missing.map(entry => [entry.component, entry.cause.kind]), [['origin', 'NOT_CARRIED']])
     assert.deepEqual(scoring.components.map(entry => [entry.component, entry.account]), [['origin', 4], ['progression', 1], ['control', 1], ['not-possession-alone', 1]])

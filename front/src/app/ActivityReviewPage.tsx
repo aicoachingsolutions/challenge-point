@@ -1318,18 +1318,22 @@ function carrierKindSaid(kind: string, basis: string): string {
     return kind
 }
 
-/** What a coach-observed part's observable is, and whose words (DRAFT labels; the choice of his row as the observable is always ours). */
+/** What a coach-observed part's observable is, and whose words (DRAFT labels). The choice of his row or his expected evidence as the observable is ours; a HIS_REPLY observable is one he approved as such (round 3b, R2 N9). */
 function observableSourceSaid(observable: NonNullable<RequirementPart['observable']>): string {
+    const cited = observable.citedAs
     if (observable.source === 'WORKBOOK_EXPECTED_EVIDENCE') return "his workbook's expected evidence, chosen by us as the observable"
-    if (observable.source === 'KNOWLEDGE_ROW') return `his words (${observable.citedAs?.rowId ?? 'a knowledge row'}), chosen by us as the observable`
+    if (observable.source === 'KNOWLEDGE_ROW') return `his words (${cited && 'rowId' in cited ? cited.rowId : 'a knowledge row'}), chosen by us as the observable`
+    // Round 3: his words from a reply, which he approved as an observation criterion (his reply filed 4 November 2026, item 6).
+    if (observable.source === 'HIS_REPLY') return cited && 'reply' in cited ? `his words (${cited.reply}), approved by him as an observation criterion (${cited.approvedBy})` : 'his words, approved by him as an observation criterion'
     return 'drafted by us from his row text, not his words, awaiting his review'
 }
 
 /**
  * **An account as a chip: his words for the category, quoted, and then — apart, and labelled ours — what this account does with it** (round 2,
- * R2 M1). His category 3 is never followed by a sentence of ours in his voice: our rule is said as ours, beside his words it reads.
+ * R2 M1). His category 3 is never followed by a sentence of ours in his voice: our rule is said as ours, beside his words it reads. Round 3
+ * (his reply filed 4 November 2026, item 3): a flag kept says what it means and what is still to be verified, ours, beside his words.
  */
-function AccountChip({ part, account, words, rule }: { part?: Pick<RequirementPart, 'byConstruction' | 'vacuous'>; account: number; words: string; rule: RequirementAccount['coachObservationRule'] }) {
+function AccountChip({ flag, account, words, rule }: { flag?: RequirementPart['flag']; account: number; words: string; rule: RequirementAccount['coachObservationRule'] }) {
     const tone = account === 4 ? 'bg-red-50 text-red-800 border-red-200' : account === 3 ? 'bg-amber-50 text-amber-800 border-amber-200' : 'bg-gray-50 text-gray-700 border-gray-200'
     return (
         <span className={`inline-block px-1.5 py-0.5 text-xs border rounded ${tone}`}>
@@ -1339,10 +1343,21 @@ function AccountChip({ part, account, words, rule }: { part?: Pick<RequirementPa
                     {rule.rule} (ours, DRAFT; his words: &ldquo;{rule.his.words}&rdquo;)
                 </span>
             )}
-            {part?.vacuous && <span className='block'>Holds by absence: nothing of its row is in the game (ours, DRAFT).</span>}
-            {part?.byConstruction && <span className='block'>Holds by construction: its referent is the target the scoring event reaches (ours, DRAFT).</span>}
+            {flag && (
+                <span className='block'>
+                    {flag.ours} His words: &ldquo;{flag.his.words.join(' ')}&rdquo; ({flag.his.citedAs})
+                </span>
+            )}
         </span>
     )
+}
+
+/** What the account's status means, in plain DRAFT words (round 3b): a report, and what of it is enforced on this build. */
+function accountStatusSaid(account: RequirementAccount): string {
+    if (account.status === 'REPORT_AND_ENFORCEMENT') return "A report; on this build the approved scoring condition's components quoting his words were enforced (ours, DRAFT)."
+    if (account.status === 'REPORT_ONLY') return "A report only: nothing was enforced on this build (the context's contract is a draft)."
+    // Round 3c (the recheck's NIT d): as the server's own headline says — a merge failure carries no findings, so the refusal's reasons are the record.
+    return `No report could be computed (${account.status === 'BINDINGS_REFUSED' ? 'the bindings were refused' : 'the reader failed'}); whether the build refused on a component of the approved scoring condition is in the refusal's reasons.`
 }
 
 /**
@@ -1371,7 +1386,9 @@ class RequirementAccountBoundary extends Component<{ children: React.ReactNode }
  * any collapsible part, and a component that is missing — or a condition not accounted at all — is in a red box that cannot be missed. Then
  * every requirement, part by part, with its account in his words (quoted), its standard, its carriers or observable or cause, and its DRAFT
  * standing. His words are quoted and cited; ours are labelled ours. The panel's own words name no goal, demonstration or role; the evidence
- * lines quote contract ids as the server sent them. It decides nothing: the server's account refuses nothing, and this shows it as sent.
+ * lines quote contract ids as the server sent them. It decides nothing: it shows the server's account as sent. Round 3 (his reply filed 4
+ * November 2026): what the build enforces, and what it found, comes next (item 7); every part says whether it is satisfied and where its
+ * authority originates, two pieces of information side by side (item 2).
  */
 function RequirementAccountPanel({ account }: { account: RequirementAccount }) {
     const words = (id: number) => account.accounts.find((entry) => entry.id === id)?.words ?? String(id)
@@ -1382,7 +1399,10 @@ function RequirementAccountPanel({ account }: { account: RequirementAccount }) {
         return at >= 0 ? `Block ${at + 1}` : blockId
     }
     const scoring = account.summary.scoringCondition
+    /** A component's flag, from its own part (round 3): the component list shows what the part shows. */
+    const componentFlag = (component: string) => account.parts.find((part) => part.rowId === scoring?.rowId && part.component === component && part.kind === 'SCORING_CONDITION_COMPONENT')?.flag ?? null
     const alert = !account.summary.scoringConditionCarried
+    const reported = account.status === 'REPORT_AND_ENFORCEMENT' || account.status === 'REPORT_ONLY'
     const represented = account.summary.representedHow
     const rows = account.parts.reduce<{ rowId: string; parts: RequirementPart[] }[]>((list, part) => {
         const found = list.find((entry) => entry.rowId === part.rowId)
@@ -1394,6 +1414,8 @@ function RequirementAccountPanel({ account }: { account: RequirementAccount }) {
         <section className='bg-white border rounded-lg shadow-sm [overflow-wrap:anywhere]'>
             <div className='px-4 pt-4 sm:px-6'>
                 <p className='text-sm font-medium text-gray-800'>Requirement account (technical, administrators only)</p>
+                {/* Round 3b: what this account is, said as it is — a report, and on a production contract its scoring condition's components enforced (ours, DRAFT). */}
+                <p className='mt-1 text-xs text-gray-600'>{accountStatusSaid(account)}</p>
                 <p className='mt-1 text-xs font-medium text-gray-700'>{account.about}</p>
             </div>
             <div className='px-4 pb-4 mt-3 space-y-3 sm:px-6'>
@@ -1418,6 +1440,28 @@ function RequirementAccountPanel({ account }: { account: RequirementAccount }) {
                         <p className='text-sm text-gray-800'>{account.summary.headline}</p>
                     </div>
                 )}
+                {/* Round 3, his item 7: what the build enforces (ours, DRAFT), beside his words; what it found on this build, in red. */}
+                <div className='space-y-0.5'>
+                    <p className='text-xs font-medium text-gray-700'>
+                        Enforcement ({account.enforcement.applied ? 'applied to this build' : "not applied: the context's contract is a draft"}; ours, DRAFT)
+                    </p>
+                    <p className='text-xs text-gray-600'>
+                        {account.enforcement.what} {account.enforcement.notEnforced}
+                    </p>
+                    {account.enforcement.his.words.map((sentence, index) => (
+                        <His key={index} words={sentence} citedAs={account.enforcement.his.citedAs} />
+                    ))}
+                    {(account.enforcement.coachObservedOnly ?? []).map((entry) => (
+                        <p key={`${entry.rowId}:${entry.partId}`} className='text-xs text-gray-600'>
+                            Classified for coach observation only, judged in play and not enforced (ours, DRAFT): the {entry.component} component, &ldquo;{entry.words}&rdquo;
+                        </p>
+                    ))}
+                    {account.enforcement.findings.map((finding, index) => (
+                        <p key={index} className='text-xs text-red-800'>
+                            {finding}
+                        </p>
+                    ))}
+                </div>
                 {/* His categories and standards, quoted and cited once, so every chip below reads as his words (R3 NIT 7). */}
                 <div className='space-y-0.5'>
                     <p className='text-xs text-gray-500'>His four categories and three standards:</p>
@@ -1438,7 +1482,7 @@ function RequirementAccountPanel({ account }: { account: RequirementAccount }) {
                                     <span className='font-medium'>{component.label}</span>
                                     {component.rowSpans.length > 0 && <span className='text-gray-500'> — his words: &ldquo;{component.rowSpans.join('”; “')}&rdquo;</span>}{' '}
                                     <span className='block mt-0.5'>
-                                        structural <AccountChip part={{ byConstruction: component.byConstruction, vacuous: false }} account={component.account} words={words(component.account)} rule={rule} />
+                                        structural <AccountChip flag={componentFlag(component.component)} account={component.account} words={words(component.account)} rule={rule} />
                                         {component.inPlay !== null && (
                                             <>
                                                 {' '}
@@ -1458,7 +1502,7 @@ function RequirementAccountPanel({ account }: { account: RequirementAccount }) {
                         )}
                     </div>
                 )}
-                {account.status === 'REPORT_ONLY' && (
+                {reported && (
                     <>
                         {/* Counts under his category words, quoted; what is ours is labelled ours (R2 M1, S7, N6). */}
                         <ul className='space-y-0.5'>
@@ -1498,9 +1542,14 @@ function RequirementAccountPanel({ account }: { account: RequirementAccount }) {
                                     {row.parts.map((part) => (
                                         <div key={part.partId} className='pl-3 space-y-0.5'>
                                             <p className='text-xs text-gray-700'>
-                                                <span className='font-medium'>{part.partLabel}</span> <AccountChip part={part} account={part.account} words={part.accountWords} rule={rule} />
+                                                <span className='font-medium'>{part.partLabel}</span> <AccountChip flag={part.flag} account={part.account} words={part.accountWords} rule={rule} />
                                             </p>
                                             <p className='text-xs text-gray-500'>&ldquo;{part.standardWords}&rdquo;</p>
+                                            {/* Round 3, his item 2: satisfied, and where its authority originates, side by side (DRAFT labels). */}
+                                            <p className='text-xs text-gray-600'>
+                                                {part.satisfiedWords} Where its authority originates (ours, DRAFT): {part.authority.words}
+                                                {part.enforced ? ' · Enforced: missing or altered, it refuses the activity (ours, DRAFT).' : ''}
+                                            </p>
                                             {part.rowSpan && <p className='text-xs text-gray-500'>His words it stands for: &ldquo;{part.rowSpan}&rdquo;</p>}
                                             {part.facets.map((facet, facetAt) => (
                                                 <div key={`${facet.facetId}:${facetAt}`} className='pl-3'>

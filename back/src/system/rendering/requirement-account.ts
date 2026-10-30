@@ -1,15 +1,31 @@
 /**
  * **The requirement account: each requirement of the activity's context in the applicable set, part by part, in his four categories and
- * three standards — report only** — 29 October 2026 (R-4 of the specification, with the reviews' corrections, rounds 1 and 2).
+ * three standards — a report, of which the approved scoring condition's components are enforced** — 29 October 2026 (R-4 of the
+ * specification, with the reviews' corrections, rounds 1 to 3b).
  *
  * Christian, his reply filed 3 November 2026, section 2: *"Each generated activity should be evaluated against the applicable, approved
  * context requirements, accounting for each component of a scoring condition rather than simply confirming that the condition exists."*
  * *"A requirement should not automatically count as satisfied merely because the coach could theoretically judge it."* *"Missing components
  * of approved scoring conditions should not silently pass."* And *"let's verify the classifications before enabling refusals broadly"*. So
- * this reads; it refuses nothing, scores nothing, is no selection input, and reaches no coach: the build attaches it only to an
- * administrator's review build (`build-activity.ts` `requirementAccount`), and a CI test holds every production-contracted context's builds
- * to it (`requirement-scoring-gate.unit.ts`), so in this increment a missing component is shown to an administrator and fails CI, and the
- * coach's build is neither refused nor annotated until he has verified the classifications.
+ * this reads; the account itself refuses nothing, scores nothing, is no selection input, and reaches no coach: the build attaches it only to
+ * an administrator's review build (`build-activity.ts` `requirementAccount`), and a CI test holds every production-contracted context's
+ * builds to it (`requirement-scoring-gate.unit.ts`).
+ *
+ * **One reading is enforced** (29 October 2026, round 3). His reply filed 4 November 2026, item 7: *"I approve beginning narrowly with missing or
+ * altered components of approved scoring conditions, where those components are clearly defined, structurally necessary, and mechanically
+ * verifiable."* *"I would not yet extend refusal to every unsupported purpose statement, inferred affordance relationship, or coach-observed
+ * condition."* So on every build of a production-contracted context that reaches the context-scoring guard, on every route, the build reads
+ * the approved scoring condition's components alone (`only: 'ENFORCED'`, so a coach's build computes nothing else) and
+ * `scoringComponentReading` names each structural part of that row quoting his words (a SCORING_CONDITION_COMPONENT, or a guard or pattern
+ * part given a span of his row) that is not carried — missing, altered (a pinned value or scope), not governing, or not on the same
+ * referent — and any words of his row that no part classifies; the build refuses on them at the validation stage. A component classified
+ * only for coach observation is reported, never refused (round 3b, the round-3 review's R2 M1). Where the components cannot be verified
+ * (bindings unreadable, or refused where the enforcement reads them; a reader that fails; a scoring condition not classified) the build
+ * refuses too — fail-closed, our addition beyond his item 7 for his decision, as the 28 October decision made the pathway notice (PR #147).
+ * Which parts are such components is our DRAFT reading (`SCORING_ENFORCEMENT`); every other part is reported, not enforced.
+ *
+ * **Satisfied, and where its authority originates** (round 3; his reply filed 4 November 2026, item 2: *"Those are two complementary pieces
+ * of information, not competing classifications."*): every part carries both, beside his four categories, which are unchanged.
  *
  * **What it reads, per block, right after the context-scoring guard** — the same realized game, the same readings: the block's derivation
  * input contracts (deferrals and role yields applied), the forward results, element classes and line verdicts derivation computed, the
@@ -65,10 +81,12 @@ import {
     canonical,
     CarrierKind,
     ContextRow,
+    contextRowsOf,
     ELIGIBLE_BASES,
     ItemPattern,
     KnowledgeRowCitation,
     ObservableSource,
+    ReplyCitation,
     RequirementBindings,
     RequirementStandard,
     RowSheet,
@@ -105,6 +123,83 @@ export const COACH_OBSERVATION_RULE = {
     his: { words: 'A requirement should not automatically count as satisfied merely because the coach could theoretically judge it.', citedAs: HIS_WORDS_CITED_AS },
 }
 
+/** His reply filed 4 November 2026 (round 3): the citation for each of his answers read below. */
+const HIS_4_NOVEMBER = (item: number) => `his reply filed 4 November 2026, item ${item}`
+
+/**
+ * **What the build enforces, and what it does not** (round 3; his reply filed 4 November 2026, item 7). Which parts are "clearly defined,
+ * structurally necessary, and mechanically verifiable" components is our DRAFT reading: a structural part of the approved scoring
+ * condition's row that quotes his words (`enforced`; the gate lets only a structural part naming a component quote them). A part of that row
+ * quoting none of his words — our reading of another ruling — is reported, not enforced.
+ */
+export const SCORING_ENFORCEMENT = {
+    scope: 'SCORING_CONDITION_COMPONENTS' as const,
+    what:
+        "A component of the approved scoring condition that quotes his words, missing or altered in the activity as built (its condition, a pinned value or scope, or its referent), refuses the activity at the validation stage, on every route. Fail-closed, and ours beyond his item 7 for his decision: where the components cannot be verified (a bindings file that cannot be read, or that the gate refuses where the enforcement reads it; a reader that fails; an approved scoring condition the bindings do not classify, or words of his row that no part classifies), the activity is refused too. Nothing else refuses.",
+    notEnforced:
+        "Every other part is reported and never refused. Unsupported and coach-observed parts are shown in their categories, a component classified only for coach observation among them; a structural part quoting none of his row's words (our reading of another ruling) is reported only. For a component that holds by construction (its referent the target the scoring event reaches), only that its condition and target are carried is enforced; whether the target's placement makes it meaningful progression stays flagged (his item 3).",
+    standing: 'DRAFT' as const,
+    by: 'OURS' as const,
+    his: {
+        words: [
+            'I approve beginning narrowly with missing or altered components of approved scoring conditions, where those components are clearly defined, structurally necessary, and mechanically verifiable.',
+            'I would not yet extend refusal to every unsupported purpose statement, inferred affordance relationship, or coach-observed condition.',
+            'Those should remain clearly flagged until we have established reliable criteria for evaluating them.',
+        ],
+        citedAs: HIS_4_NOVEMBER(7),
+    },
+}
+/** The check id a refusal's reasons carry (technical; DRAFT). */
+export const SCORING_COMPONENTS_CHECK = 'CS-SCORING-COMPONENTS'
+
+/**
+ * **Whether a part is satisfied, apart from where its authority originates** (round 3; his reply filed 4 November 2026, item 2: *"I'd like us
+ * to distinguish whether a requirement is satisfied from where its authority originates."*). YES for his categories 1 and 2 (a carrier is in
+ * the finished activity: *"provided the corresponding feature genuinely exists in the finished activity"*), NOT_COUNTED for 3 (our DRAFT
+ * rule), NO for 4.
+ */
+export type SatisfiedStanding = 'YES' | 'NO' | 'NOT_COUNTED'
+export const SATISFIED_WORDS: Record<SatisfiedStanding, string> = {
+    YES: 'Satisfied: what carries it is in the finished activity (ours, DRAFT).',
+    NOT_COUNTED: 'Not counted as satisfied in this account (coach observation; our DRAFT rule).',
+    NO: 'Not satisfied: unsupported or missing (ours, DRAFT).',
+}
+/** Round 3b (the round-3 review's R2 S3): a part satisfied only by absence says so, so its words never contradict its flag. */
+export const SATISFIED_BY_ABSENCE_WORDS = 'Satisfied only by absence: nothing in the finished activity restricts it; not yet supported by a check of the applicable rules (flag below; ours, DRAFT).'
+/** Where the authority for what carries a part originates (round 3, his item 2). Round 3b: only origins the reader produces (R2 N3). */
+export type AuthorityOrigin = 'CONTEXT_KNOWLEDGE' | 'PROVISIONAL_REALIZATION' | 'GAME_FORM_KNOWLEDGE'
+const AUTHORITY_OF_KIND: Record<CarrierKind, AuthorityOrigin> = { CONTEXT: 'CONTEXT_KNOWLEDGE', REALIZATION: 'PROVISIONAL_REALIZATION', GAME_FORM: 'GAME_FORM_KNOWLEDGE' }
+
+/**
+ * **The two flags, kept and worded in his distinction** (round 3; his reply filed 4 November 2026, item 3: *"Please retain both flags for
+ * now."*). The sentence of ours says what the flag means and what is still to be verified; his words are quoted beside it.
+ */
+export interface PartFlag {
+    kind: 'BY_ABSENCE' | 'BY_CONSTRUCTION'
+    ours: string
+    his: { words: string[]; citedAs: string }
+}
+export const PART_FLAGS: Record<PartFlag['kind'], PartFlag> = {
+    BY_ABSENCE: {
+        kind: 'BY_ABSENCE',
+        // Round 3b (R2 S3): the register row it reads is named where the flag is made (`byAbsenceFlag`); this is the sentence's frame.
+        ours: 'Satisfied only by the absence of any restriction: no rule on its register row is in the finished game. That conclusion is still to be supported by a check of the applicable rules and restrictions, which is not built (deferred; ours, DRAFT).',
+        // Round 3b (R2 N2): his words are about representative information, and the citation says so, so they are never read as about another row.
+        his: { words: ['However, this conclusion should be supported by a check of the applicable rules and restrictions, rather than simply an assumption that nothing is hidden.'], citedAs: `${HIS_4_NOVEMBER(3)}, on representative information` },
+    },
+    BY_CONSTRUCTION: {
+        kind: 'BY_CONSTRUCTION',
+        ours: "Holds whenever the scoring event occurs: its referent is the target the event reaches. Reaching the target does not by itself establish meaningful progression; the target's placement and its relationship to the intended Game Problem are still to be verified (ours, DRAFT).",
+        his: { words: ['Reaching a target should not automatically establish meaningful progression merely because the target is present.', "The target's placement and relationship to the intended Game Problem matter."], citedAs: `${HIS_4_NOVEMBER(3)}, on progression` },
+    },
+}
+/** A by-absence flag naming the register rows it reads (round 3b, R2 S3). */
+const byAbsenceFlag = (rows: string[]): PartFlag => ({
+    ...PART_FLAGS.BY_ABSENCE,
+    ours: PART_FLAGS.BY_ABSENCE.ours.replace('no rule on its register row is', `no rule on its register row (${rows.join(', ')}) is`),
+    his: { ...PART_FLAGS.BY_ABSENCE.his, words: [...PART_FLAGS.BY_ABSENCE.his.words] },
+})
+
 export type ComputedCause =
     | 'MISSING_KNOWLEDGE'
     | 'MISSING_IMPLEMENTATION'
@@ -114,6 +209,8 @@ export type ComputedCause =
     | 'VALUE_MISSING'
     | 'NOT_THE_SAME_REFERENT'
     | 'OBSERVABLE_NOT_IDENTIFIED'
+    /** Round 3: an item matched the pattern but holds a value or scope other than the one the pattern pins to his approved knowledge. */
+    | 'ALTERED'
 
 export interface CarrierEvidence {
     contractId: string
@@ -192,11 +289,20 @@ export interface RequirementPartAccount {
      * is, is put to him.
      */
     countsAsSatisfied: boolean
+    /** Round 3, his item 2: whether it is satisfied (`SATISFIED_WORDS`), apart from where its authority originates. */
+    satisfied: SatisfiedStanding
+    satisfiedWords: string
+    /** Round 3, his item 2: where the authority for what carries it originates; empty where nothing carries it. */
+    authority: { from: AuthorityOrigin[]; words: string }
+    /** Round 3, his item 3: a flag kept (by absence, by construction), in his distinction; null where none. */
+    flag: PartFlag | null
+    /** Round 3, his item 7: a missing or altered part refuses the activity (a component quoting his words); false for every other part. */
+    enforced: boolean
     standard: RequirementStandard
     standardWords: string
     facets: FacetAccount[]
     guard: (EventKindReading & { relationshipIds: string[] }) | null
-    observable: { text: string; source: ObservableSource; citedAs: KnowledgeRowCitation | null; expect: 'PRESENT' | 'ABSENT'; standing: 'DRAFT' } | null
+    observable: { text: string; source: ObservableSource; citedAs: KnowledgeRowCitation | ReplyCitation | null; expect: 'PRESENT' | 'ABSENT'; standing: 'DRAFT' } | null
     observableIdentified: boolean
     recordedOutside: { contractId: string; itemId: string }[]
     /** Control and exclusion against the progression outcome (M1): evaluated, and whether the referents are one. */
@@ -276,8 +382,13 @@ export interface RequirementSummary {
 }
 
 export interface RequirementAccount {
-    status: 'REPORT_ONLY' | 'BINDINGS_REFUSED' | 'ERROR'
-    /** What this is, and that it refuses nothing. */
+    /**
+     * Round 3b (the coordinator's item 5): what is true of this account. REPORT_AND_ENFORCEMENT: a report, and on this build the approved
+     * scoring condition's components quoting his words were enforced; REPORT_ONLY: a report, nothing enforced (a TEST-ONLY draft contract);
+     * BINDINGS_REFUSED or ERROR: no report could be computed (whether the build refused is `enforcement.findings`).
+     */
+    status: 'REPORT_AND_ENFORCEMENT' | 'REPORT_ONLY' | 'BINDINGS_REFUSED' | 'ERROR'
+    /** What this is, and what of it is enforced. */
     about: string
     /** BINDINGS_REFUSED or ERROR: why, once (R3 S4); empty otherwise. */
     reasons: string[]
@@ -302,12 +413,26 @@ export interface RequirementAccount {
     /** Our rule for coach observation, with his words it reads (R2 M1). */
     coachObservationRule: typeof COACH_OBSERVATION_RULE
     citedAs: typeof HIS_WORDS_CITED_AS
-    refusal: 'NONE_REPORT_ONLY'
+    /**
+     * Round 3, his item 7: what the build enforces — the approved scoring condition's components — and whether it did on this build
+     * (`applied`: the context's contract is a production one), with what it found (the refusal's reasons, where it refused). Round 3b:
+     * the components classified only for coach observation, reported and never refused (the round-3 review's R2 M1).
+     */
+    enforcement: typeof SCORING_ENFORCEMENT & { applied: boolean; findings: string[]; coachObservedOnly: CoachObservedOnly[] }
 }
 
-/** R2 S1 and N4: the applicable set is ours, and his words are "supported" (the categories) and "maintain" (the standards). */
+/** A component of the approved scoring condition classified only for coach observation: judged in play, reported, never refused (round 3b). */
+export interface CoachObservedOnly {
+    rowId: string
+    component: string
+    partId: string
+    /** The words of his row this part alone classifies — its observable covers them and no enforced span does (round 3c: word by word). */
+    words: string
+}
+
+/** R2 S1 and N4: the applicable set is ours, and his words are "supported" (the categories) and "maintain" (the standards). Round 3: what is enforced. */
 export const REQUIREMENT_ACCOUNT_ABOUT =
-    "How each requirement of this activity's context in the applicable set (our DRAFT) is accounted for, part by part, in the four categories Christian supported and the three standards he asked to keep distinct; the context's other approved rows are listed under Not accounted. Every classification is ours and DRAFT, for his review. Report only: nothing here refuses an activity."
+    "How each requirement of this activity's context in the applicable set (our DRAFT) is accounted for, part by part, in the four categories Christian supported and the three standards he asked to keep distinct; the context's other approved rows are listed under Not accounted. Every classification is ours and DRAFT, for his review. This is a report; one part of it is enforced: since his reply filed 4 November 2026, the build refuses an activity whose approved scoring condition has a component quoting his words missing or altered (Enforcement)."
 
 // ── Reading the finished game ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -382,6 +507,12 @@ export interface BlockRequirementInputs {
     /** Whether the build returns alternatives (S8). The checked pathway returns one activity. */
     alternativesReturned: boolean
     index: RegisterIndex
+    /**
+     * Round 3: 'ENFORCED' reads only what the build enforces — the parts of the approved scoring condition's row quoting his words, each
+     * exactly as the full reading reads it — for every build that is not an administrator's review (a coach's build computes
+     * nothing else). Absent: every applicable row.
+     */
+    only?: 'ENFORCED'
 }
 
 const EXISTENCE = ['EXISTS', 'COUNT', 'RANGE']
@@ -432,6 +563,8 @@ export function blockRequirementAccountOf(input: BlockRequirementInputs): BlockR
         const declarations: DeclarationEvidence[] = []
         const considered: ConsideredItem[] = []
         let notGoverning = false
+        /** Round 3: an item matched but held another value or scope than the pin (his approved knowledge): the part is altered, not absent. */
+        let altered = false
         if (facet.declaration) {
             // S2: a declaration of the contract, read where it is (the context's, the realization's, or the game form's through his relationship).
             for (const contract of input.contracts) {
@@ -471,9 +604,17 @@ export function blockRequirementAccountOf(input: BlockRequirementInputs): BlockR
                 if (!eligibleBases.includes(String(item.basis)))
                     why.push(`its basis is ${String(item.basis)}: only ${eligibleBases.join(' or ')} items carry a requirement (our extension of SD-83, "EXCLUSION, ASSUMED, ENGINE_ONLY, and OUTSIDE_BOUNDARY contributions do not establish existence.")`)
                 if (outcome?.result !== 'SATISFIED') why.push(`the engine's check is ${outcome?.result ?? 'absent'}${outcome?.why ? ` (${outcome.why})` : ''}`)
-                // Round 2, R1 S2: what the pattern pins of his approved knowledge.
-                if (facet.value !== undefined && !samePinnedValue(facet.value, item.value)) why.push(`its value is ${shown(item.value)}; this facet asks ${shown(facet.value)}`)
-                if (facet.scope && !facet.scope.includes(String(item.scope))) why.push(`its scope is ${String(item.scope)}; this facet asks ${facet.scope.join(' or ')}`)
+                // Round 2, R1 S2: what the pattern pins of his approved knowledge. Round 3b (the round-3 review's R3 S3): it reads ALTERED only
+                // from an item the facet would otherwise count — a contract kind it takes, an eligible basis — never from one it would not.
+                const wouldCount = !!kind && facet.from.includes(kind) && eligibleBases.includes(String(item.basis))
+                if (facet.value !== undefined && !samePinnedValue(facet.value, item.value)) {
+                    why.push(`its value is ${shown(item.value)}; this facet asks ${shown(facet.value)}`)
+                    if (wouldCount) altered = true
+                }
+                if (facet.scope && !facet.scope.includes(String(item.scope))) {
+                    why.push(`its scope is ${String(item.scope)}; this facet asks ${facet.scope.join(' or ')}`)
+                    if (wouldCount) altered = true
+                }
                 let survives: CarrierEvidence['survives'] | null = null
                 let value: CarrierEvidence['value'] = null
                 let byConstruction = false
@@ -556,17 +697,57 @@ export function blockRequirementAccountOf(input: BlockRequirementInputs): BlockR
             }
         }
         const account: 1 | 2 | 4 = !carriers.length ? 4 : carriers.some(carrier => carrier.contractKind !== 'GAME_FORM') ? 1 : 2
-        return { facetId: facet.id, label: facet.label, account, carriers, declarations, considered, cause: account === 4 ? (notGoverning ? 'NOT_GOVERNING' : 'NOT_CARRIED') : null }
+        return { facetId: facet.id, label: facet.label, account, carriers, declarations, considered, cause: account === 4 ? (notGoverning ? 'NOT_GOVERNING' : altered ? 'ALTERED' : 'NOT_CARRIED') : null }
     }
 
     const classification = (note: string | null) => ({ standing: 'DRAFT' as const, by: 'OURS' as const, bindingsVersion: bindings.version, note })
     const base = (row: ContextRow) => ({ rowId: row.rowId, rowSheet: row.sheet, rowRole: row.role, rowText: row.text, expectedEvidence: row.expectedEvidence })
-    const finish = (fields: Omit<RequirementPartAccount, 'accountWords' | 'countsAsSatisfied' | 'standardWords'>): RequirementPartAccount => ({
-        ...fields,
-        accountWords: HIS_ACCOUNTS[fields.account],
-        countsAsSatisfied: fields.account === 1 || fields.account === 2,
-        standardWords: HIS_STANDARDS[fields.standard],
-    })
+    type Derived = 'accountWords' | 'countsAsSatisfied' | 'standardWords' | 'satisfied' | 'satisfiedWords' | 'authority' | 'flag' | 'enforced'
+    /** Round 3, his item 2: where the authority for what carries a part originates, named by the contract it sits in (DRAFT words). */
+    const authorityWords = (kind: CarrierKind, contractId: string, relationship: string | null, basis: string | null): string =>
+        kind === 'CONTEXT'
+            ? `the context's knowledge (${knowledgeKey(contractId)})`
+            : kind === 'REALIZATION'
+              ? `this activity's provisional realization${basis === 'OWNER_RULING' ? ', his provisional choice' : ''} (${contractId})`
+              : // Round 3b (R2 N1): the relationship is the context's (his mapping, our resolution), not his alone.
+                `the Game Form's knowledge (${knowledgeKey(contractId)}${relationship ? `, through the context's relationship ${relationship}` : ''})`
+    const authorityOf = (fields: Omit<RequirementPartAccount, Derived>): RequirementPartAccount['authority'] => {
+        const entries: { origin: AuthorityOrigin; words: string }[] = []
+        const add = (origin: AuthorityOrigin, words: string) => {
+            if (!entries.some(entry => entry.words === words)) entries.push({ origin, words })
+        }
+        for (const facet of fields.facets) {
+            for (const carrier of facet.carriers) add(AUTHORITY_OF_KIND[carrier.contractKind], authorityWords(carrier.contractKind, carrier.contractId, carrier.relationship, carrier.basis))
+            for (const declaration of facet.declarations) add(AUTHORITY_OF_KIND[declaration.contractKind], authorityWords(declaration.contractKind, declaration.contractId, declaration.relationship, null))
+        }
+        if (fields.guard && fields.account !== 4) add('CONTEXT_KNOWLEDGE', `the context's knowledge: the scoring events it approves${fields.guard.relationshipIds.length ? ` (${fields.guard.relationshipIds.join(', ')})` : ''}`)
+        return {
+            from: [...new Set(entries.map(entry => entry.origin))],
+            // Round 3b (R2 N4): never "no authority" — a coach-observed part's observable has its own source, shown beside it.
+            words: entries.length
+                ? entries.map(entry => entry.words).join('; ')
+                : fields.kind === 'COACH_OBSERVED'
+                  ? "No feature of the activity carries it: the coach judges it in play (its observable's source is below)."
+                  : 'Nothing in the activity carries it.',
+        }
+    }
+    const finish = (fields: Omit<RequirementPartAccount, Derived>): RequirementPartAccount => {
+        const satisfied: SatisfiedStanding = fields.account === 1 || fields.account === 2 ? 'YES' : fields.account === 3 ? 'NOT_COUNTED' : 'NO'
+        const byAbsence = satisfied === 'YES' && fields.vacuous
+        const absentRows = [...new Set(fields.facets.flatMap(facet => facet.carriers.filter(carrier => carrier.survives.vacuous).map(carrier => carrier.row)))]
+        return {
+            ...fields,
+            accountWords: HIS_ACCOUNTS[fields.account],
+            countsAsSatisfied: satisfied === 'YES',
+            satisfied,
+            satisfiedWords: byAbsence ? SATISFIED_BY_ABSENCE_WORDS : SATISFIED_WORDS[satisfied],
+            authority: authorityOf(fields),
+            flag: fields.vacuous ? byAbsenceFlag(absentRows) : fields.byConstruction ? copied(PART_FLAGS.BY_CONSTRUCTION) : null,
+            // Round 3, his item 7 (our DRAFT reading): a structural component of the approved scoring condition that quotes his words.
+            enforced: STRUCTURAL.includes(fields.kind) && !!fields.rowSpan && fields.rowSheet === 'properties' && fields.rowRole === PRIMARY_SCORING_CONDITION,
+            standardWords: HIS_STANDARDS[fields.standard],
+        }
+    }
     const describe = (facets: FacetAccount[]): string =>
         facets
             .filter(facet => facet.account === 4)
@@ -630,7 +811,16 @@ export function blockRequirementAccountOf(input: BlockRequirementInputs): BlockR
         }
         const facets = (part.facets ?? []).map(facet => facetOf(part, facet))
         const worst = !facets.length || facets.some(facet => facet.account === 4) ? 4 : (Math.max(...facets.map(facet => facet.account)) as 1 | 2)
-        const causeKind: ComputedCause | null = worst !== 4 ? null : facets.some(facet => facet.cause === 'NOT_GOVERNING') ? 'NOT_GOVERNING' : facets.some(facet => facet.cause === 'VALUE_MISSING') && facets.every(facet => facet.account !== 4 || facet.cause === 'VALUE_MISSING') ? 'VALUE_MISSING' : 'NOT_CARRIED'
+        const causeKind: ComputedCause | null =
+            worst !== 4
+                ? null
+                : facets.some(facet => facet.cause === 'NOT_GOVERNING')
+                  ? 'NOT_GOVERNING'
+                  : facets.some(facet => facet.cause === 'ALTERED')
+                    ? 'ALTERED'
+                    : facets.some(facet => facet.cause === 'VALUE_MISSING') && facets.every(facet => facet.account !== 4 || facet.cause === 'VALUE_MISSING')
+                      ? 'VALUE_MISSING'
+                      : 'NOT_CARRIED'
         const carriers = facets.flatMap(facet => facet.carriers)
         return finish({
             ...common,
@@ -646,7 +836,10 @@ export function blockRequirementAccountOf(input: BlockRequirementInputs): BlockR
     const parts: RequirementPartAccount[] = []
     const notApplicable: BlockRequirementAccount['notApplicable'] = []
     const over = new Set(bindings.applicability.overReturnedAlternatives.validationDomains)
+    const enforcedOnly = input.only === 'ENFORCED'
     for (const row of applicableRows(contextId, bindings.applicability).accounted) {
+        // Round 3: what the build enforces only — the approved scoring condition's row, and of it only its components (below).
+        if (enforcedOnly && !(row.sheet === 'properties' && row.role === PRIMARY_SCORING_CONDITION)) continue
         if (!input.alternativesReturned && row.sheet === 'validation_rules' && over.has(row.role)) {
             notApplicable.push({ rowId: row.rowId, rowRole: row.role, rowText: row.text, why: bindings.applicability.overReturnedAlternatives.why })
             continue
@@ -680,9 +873,12 @@ export function blockRequirementAccountOf(input: BlockRequirementInputs): BlockR
             )
             continue
         }
-        const rowParts = binding.parts.map(part => partOf(row, part))
+        // Round 3: under `only: 'ENFORCED'`, the components quoting his words alone (the gate lets only a structural part naming a component
+        // quote them), each read exactly as below; the referent check reads components only, and every component quotes his words.
+        const bound = enforcedOnly ? binding.parts.filter(part => part.rowSpan !== undefined) : binding.parts
+        const rowParts = bound.map(part => partOf(row, part))
         // M1: control and exclusion are evaluated against the progression outcome, read from the referents the finished game holds.
-        for (const [at, part] of binding.parts.entries()) {
+        for (const [at, part] of bound.entries()) {
             const same = part.sameReferentAs
             if (!same) continue
             const account = rowParts[at]
@@ -715,13 +911,137 @@ const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one :
 /** A part's fields without its per-block accounts, as text, to tell a block's part from the merged one. */
 const partText = ({ perBlock: _perBlock, ...part }: MergedPart | (RequirementPartAccount & { perBlock?: unknown })) => canonical(part)
 
-/** Tokens of his row's text no span covers (S1): spans removed, whitespace collapsed, words kept. */
-function uncoveredWordsOf(text: string, spans: string[]): string | null {
-    if (!spans.length) return null
-    let rest = text.replace(/\s+/g, ' ')
-    for (const span of spans) rest = rest.split(span.replace(/\s+/g, ' ')).join(' ')
-    const words = rest.match(/[A-Za-z][A-Za-z'-]*/g) ?? []
-    return words.length ? words.join(' ') : null
+/**
+ * **Which characters of his row's text the spans cover** (round 3c, the recheck's S-A): whitespace collapsed, every occurrence of every span
+ * marked, in no order — so a shorter span never stops a longer one from matching, as removing them one after another did.
+ */
+function coverageOf(text: string, spans: string[]): { normalized: string; covered: boolean[] } {
+    const normalized = text.replace(/\s+/g, ' ')
+    const covered = new Array<boolean>(normalized.length).fill(false)
+    for (const span of spans) {
+        const wanted = span.replace(/\s+/g, ' ')
+        if (!wanted.length) continue
+        for (let at = normalized.indexOf(wanted); at >= 0; at = normalized.indexOf(wanted, at + 1)) covered.fill(true, at, at + wanted.length)
+    }
+    return { normalized, covered }
+}
+/** The words of a text, each with where it starts. */
+const wordsWithPlaces = (normalized: string): { word: string; at: number }[] => [...normalized.matchAll(/[A-Za-z][A-Za-z'-]*/g)].map(match => ({ word: match[0], at: match.index ?? 0 }))
+/** Words of his row's text no span covers, whole (a word counts as covered only where every letter is): every word where there is no span. */
+function wordsNotIn(text: string, spans: string[]): string | null {
+    const { normalized, covered } = coverageOf(text, spans)
+    const words = wordsWithPlaces(normalized).filter(entry => !covered.slice(entry.at, entry.at + entry.word.length).every(Boolean))
+    return words.length ? words.map(entry => entry.word).join(' ') : null
+}
+/** Tokens of his row's text no structural span covers (S1); null where no part quotes a span (the summary's reading). */
+const uncoveredWordsOf = (text: string, spans: string[]): string | null => (spans.length ? wordsNotIn(text, spans) : null)
+/** The spans the uncovered words are read against: every part quoting his words, which is every enforced component (round 3), so the account and the refusal read alike. */
+const enforcedSpans = (rowParts: { rowSpan: string | null }[]): string[] => rowParts.map(part => part.rowSpan).filter((span): span is string => !!span)
+
+/** What each computed cause means for an enforced component, in the refusal's technical reason (DRAFT words). */
+const FAILURE_WORDS: Partial<Record<ComputedCause, string>> = {
+    NOT_CARRIED: 'is missing from the activity as built',
+    VALUE_MISSING: 'is missing: no value is carried, and no declaration says it needs none',
+    ALTERED: 'is altered: what the activity holds is not what his approved knowledge carries (a pinned value or scope differs)',
+    NOT_GOVERNING: 'does not govern the realized scoring event',
+    NOT_THE_SAME_REFERENT: 'is not read on the same referent as the component it qualifies',
+    NO_BINDING: 'is not accounted in this block',
+}
+
+/** What the enforcement found on one block (round 3b): the refusal's reasons, and the components classified only for coach observation. */
+export interface ScoringEnforcementReading {
+    findings: string[]
+    coachObservedOnly: CoachObservedOnly[]
+}
+
+/**
+ * **What the build refuses on: the approved scoring condition's components, missing or altered** — 29 October 2026, round 3; round 3b, 30 October 2026. His reply filed 4
+ * November 2026, item 7: *"I approve beginning narrowly with missing or altered components of approved scoring conditions, where those
+ * components are clearly defined, structurally necessary, and mechanically verifiable."* One block's reading, the full account's or the
+ * enforced reading alone (`only: 'ENFORCED'`), gives the technical reasons the build refuses on at the validation stage, each naming the
+ * component, his row's words it stands for, and what failed; empty where every component is carried.
+ *
+ * **Which words are classified** (round 3b, the round-3 review's R2 M1): his row's words are read against every part that classifies them —
+ * the enforced components' spans, and the verbatim observable text of each coach-observed part of the same row that names a component and
+ * cites this row. A component classified only for coach observation is reported (`coachObservedOnly`), never refused: his item 7, *"I
+ * would not yet extend refusal to every unsupported purpose statement, inferred affordance relationship, or coach-observed condition."* Only
+ * words that no part classifies refuse.
+ *
+ * **Fail-closed, ours beyond his item 7, for his decision**: bindings refused or unreadable where the enforcement reads them (the caller's
+ * `enforcementBindingsFor`), a reader that failed, a scoring condition outside the applicable set or not classified at all, and words no
+ * part classifies, each refuse — an activity whose components cannot be verified is not served, as the 28 October decision made the pathway
+ * notice fail-closed (PR #147). A context whose workbook has no ACTIVE approved scoring condition gives nothing to enforce. Which parts the
+ * row binds is read from the bindings, so the full reading and the enforced one say the same. Pure: the caller decides whether to enforce (a
+ * production-contracted context's build, on every route).
+ */
+export function scoringComponentReading(account: BlockRequirementAccount, bindings: RequirementBindings | null): ScoringEnforcementReading {
+    const { contextId } = account
+    const cannot = (why: string) => `${SCORING_COMPONENTS_CHECK}: the components of ${contextId}'s approved scoring condition cannot be verified, so the activity is not served (fail-closed): ${why}`
+    if (account.status === 'BINDINGS_REFUSED') return { findings: [cannot(`the requirement bindings were refused: ${account.reasons.join(' | ')}`)], coachObservedOnly: [] }
+    if (account.status === 'ERROR') return { findings: [cannot(`the reader failed: ${account.reasons.join(' | ')}`)], coachObservedOnly: [] }
+    if (!bindings) return { findings: [cannot('no requirement bindings were read')], coachObservedOnly: [] }
+    const findings: string[] = []
+    const coachObservedOnly: CoachObservedOnly[] = []
+    const accounted = applicableRows(contextId, bindings.applicability).accounted
+    const contextBindings = bindings.contexts.find(entry => entry.contextId === contextId) ?? null
+    for (const row of contextRowsOf(contextId).filter(candidate => candidate.sheet === 'properties' && candidate.role === PRIMARY_SCORING_CONDITION)) {
+        if (!accounted.some(candidate => candidate.rowId === row.rowId)) {
+            findings.push(cannot(`its row ${row.rowId} is outside the applicable set of ${bindings.file}`))
+            continue
+        }
+        const binding = contextBindings?.rows.find(entry => entry.rowId === row.rowId) ?? null
+        if (!binding || !binding.parts.length) {
+            findings.push(cannot(`${row.rowId} is not classified into components in ${bindings.file}`))
+            continue
+        }
+        // The enforced components: the parts of the row quoting his words, each read from this block's own account.
+        const enforcedParts = binding.parts.filter(part => part.rowSpan !== undefined && STRUCTURAL.includes(part.kind))
+        for (const part of enforcedParts) {
+            const read = account.parts.find(entry => entry.rowId === row.rowId && entry.partId === part.id)
+            // Read by the account itself (1 or 2 carries it), never by a field derived from it.
+            if (read && (read.account === 1 || read.account === 2)) continue
+            const kind: ComputedCause = read ? (read.cause?.kind ?? 'NOT_CARRIED') : 'NO_BINDING'
+            const detail = read ? (read.cause?.detail ?? 'not carried') : `the ${part.id} part is bound but was not read in this block`
+            findings.push(`${SCORING_COMPONENTS_CHECK}: the ${part.component} component of ${contextId}'s approved scoring condition (${row.rowId}), "${part.rowSpan}", ${FAILURE_WORDS[kind] ?? `is not carried (${kind})`}: ${detail}`)
+        }
+        // Round 3b (R2 M1): words a coach-observed part classifies — its observable, verbatim in this row — are classified, judged in play.
+        const observed = binding.parts.filter(
+            part =>
+                part.kind === 'COACH_OBSERVED' &&
+                !!part.component &&
+                part.observable?.source === 'KNOWLEDGE_ROW' &&
+                (part.observable.citedAs as KnowledgeRowCitation | null)?.rowId === row.rowId &&
+                !!part.observable.text,
+        )
+        // Round 3c (the recheck's S-A): coverage is marked in character ranges, in no order. Each coach-observed part reports, word by word, the
+        // words of his row that it alone classifies — those no enforced span covers — whether or not its component also has an enforced part.
+        const structuralSpans = enforcedSpans(enforcedParts.map(part => ({ rowSpan: part.rowSpan ?? null })))
+        const structural = coverageOf(row.text, structuralSpans)
+        for (const part of observed) {
+            const own = coverageOf(row.text, [part.observable!.text])
+            const onlyObserved = wordsWithPlaces(own.normalized).filter(entry => {
+                const letters = (covered: boolean[]) => covered.slice(entry.at, entry.at + entry.word.length).every(Boolean)
+                return letters(own.covered) && !letters(structural.covered)
+            })
+            if (!onlyObserved.length) continue
+            if (coachObservedOnly.some(entry => entry.rowId === row.rowId && entry.partId === part.id)) continue
+            coachObservedOnly.push({ rowId: row.rowId, component: part.component!, partId: part.id, words: onlyObserved.map(entry => entry.word).join(' ') })
+        }
+        const unclassified = wordsNotIn(row.text, [...structuralSpans, ...observed.map(part => part.observable!.text)])
+        if (unclassified !== null) findings.push(cannot(`words of ${row.rowId} that no part classifies: "${unclassified}"`))
+    }
+    return { findings, coachObservedOnly }
+}
+/**
+ * **The fail-closed reading where the enforcement itself failed** (round 3b, the round-3 review's R1 S3): built from the message alone, with
+ * no other reading, so the build's last resort cannot throw out of the route.
+ */
+export function failClosedReading(contextId: string, message: string): ScoringEnforcementReading {
+    return { findings: [`${SCORING_COMPONENTS_CHECK}: the components of ${contextId}'s approved scoring condition cannot be verified, so the activity is not served (fail-closed): the enforcement failed: ${message}`], coachObservedOnly: [] }
+}
+/** The refusal's reasons alone (`scoringComponentReading`). */
+export function scoringComponentFindings(account: BlockRequirementAccount, bindings: RequirementBindings | null): string[] {
+    return scoringComponentReading(account, bindings).findings
 }
 
 export interface ActivityRequirementInputs {
@@ -730,7 +1050,12 @@ export interface ActivityRequirementInputs {
     outcome: string
     bindings: RequirementBindings | null
     refused: string[] | null
-    blocks: { blockId: string; account: BlockRequirementAccount | null }[]
+    /**
+     * Each block: its account, and (round 3b) what the build's enforcement found on it — read by the build itself from the bindings the
+     * enforcement may read (`enforcementBindingsFor`), which may differ from the account's where a gate reason reaches no enforced part. Where
+     * absent, the enforcement is read again here from the account.
+     */
+    blocks: { blockId: string; account: BlockRequirementAccount | null; enforcement?: ScoringEnforcementReading | null }[]
     draftContract: boolean
 }
 
@@ -741,21 +1066,25 @@ const standingOf = () => ({
     standards: (Object.keys(HIS_STANDARDS) as RequirementStandard[]).map(id => ({ id, words: HIS_STANDARDS[id] })),
     coachObservationRule: COACH_OBSERVATION_RULE,
     citedAs: HIS_WORDS_CITED_AS,
-    refusal: 'NONE_REPORT_ONLY' as const,
 })
+/** Round 3: the build enforces where the context's contract is a production one (a TEST-ONLY draft contract is reported only). */
+const enforcementOf = (applied: boolean, findings: string[], coachObservedOnly: CoachObservedOnly[]): RequirementAccount['enforcement'] => ({ ...copied(SCORING_ENFORCEMENT), applied, findings, coachObservedOnly: copied(coachObservedOnly) })
 
 export function requirementAccountOf(input: ActivityRequirementInputs): RequirementAccount {
     const { contextId, outcome, bindings } = input
     const accounted = input.blocks.filter(entry => entry.account?.status === 'ACCOUNTED').map(entry => entry.account!)
     const errored = input.blocks.map(entry => entry.account).filter((account): account is BlockRequirementAccount => account?.status === 'ERROR')
-    const status: RequirementAccount['status'] = input.refused || input.blocks.some(entry => entry.account?.status === 'BINDINGS_REFUSED') ? 'BINDINGS_REFUSED' : errored.length ? 'ERROR' : 'REPORT_ONLY'
+    // Round 3b (the coordinator's item 5): a report is a report; on a production contract its approved scoring condition's components are enforced.
+    const enforced = !input.draftContract
+    const status: RequirementAccount['status'] = input.refused || input.blocks.some(entry => entry.account?.status === 'BINDINGS_REFUSED') ? 'BINDINGS_REFUSED' : errored.length ? 'ERROR' : enforced ? 'REPORT_AND_ENFORCEMENT' : 'REPORT_ONLY'
+    const reported = status === 'REPORT_AND_ENFORCEMENT' || status === 'REPORT_ONLY'
     const blocksWithoutAccount = input.blocks.filter(entry => !entry.account).map(entry => ({ blockId: entry.blockId, why: 'it stopped before the context scoring guard' }))
     /** A block named as a reader counts it (R3 NIT 10): its position among the build's blocks, never its role holders. */
     const blockNumber = (blockId: string) => `block ${input.blocks.findIndex(entry => entry.blockId === blockId) + 1} of ${input.blocks.length}`
 
     // Merged by (row, part): the worst account over blocks; the fields of the first block (in block order) holding it (N5). Copied, never aliased.
     const parts: MergedPart[] = []
-    if (status === 'REPORT_ONLY') {
+    if (reported) {
         for (const block of accounted) {
             for (const part of block.parts) {
                 const merged = parts.find(entry => entry.rowId === part.rowId && entry.partId === part.partId)
@@ -772,7 +1101,14 @@ export function requirementAccountOf(input: ActivityRequirementInputs): Requirem
             for (const block of accounted) {
                 if (part.perBlock.some(entry => entry.blockId === block.blockId)) continue
                 part.perBlock.push({ blockId: block.blockId, account: 4 })
-                Object.assign(part, { account: 4 as AccountKind, accountWords: HIS_ACCOUNTS[4], countsAsSatisfied: false, cause: { kind: 'NO_BINDING' as const, detail: `${blockNumber(block.blockId)} holds no such part, so it is not accounted there` } })
+                Object.assign(part, {
+                    account: 4 as AccountKind,
+                    accountWords: HIS_ACCOUNTS[4],
+                    countsAsSatisfied: false,
+                    satisfied: 'NO' as const,
+                    satisfiedWords: SATISFIED_WORDS.NO,
+                    cause: { kind: 'NO_BINDING' as const, detail: `${blockNumber(block.blockId)} holds no such part, so it is not accounted there` },
+                })
             }
             part.perBlock.sort((a, b) => input.blocks.findIndex(entry => entry.blockId === a.blockId) - input.blocks.findIndex(entry => entry.blockId === b.blockId))
         }
@@ -784,7 +1120,7 @@ export function requirementAccountOf(input: ActivityRequirementInputs): Requirem
 
     // The approved scoring condition first.
     let scoringCondition: ScoringConditionSummary | null = null
-    if (bindings && status === 'REPORT_ONLY') {
+    if (bindings && reported) {
         const scoringRow = applicableRows(contextId, bindings.applicability).accounted.find(candidate => candidate.sheet === 'properties' && candidate.role === PRIMARY_SCORING_CONDITION) ?? null
         const unaccountedBlocks = blocksWithoutAccount.map(entry => entry.blockId)
         if (!scoringRow) scoringCondition = { state: 'NOT_APPLICABLE', rowId: null, rowText: null, components: [], missing: [], notStructurallyRepresented: [], uncoveredWords: null, unaccountedBlocks }
@@ -825,7 +1161,7 @@ export function requirementAccountOf(input: ActivityRequirementInputs): Requirem
                 components,
                 missing,
                 notStructurallyRepresented: otherNames.map(component => ({ component, label: rowParts.find(part => part.component === component)!.partLabel })),
-                uncoveredWords: uncoveredWordsOf(scoringRow.text, rowParts.map(part => part.rowSpan).filter((span): span is string => !!span)),
+                uncoveredWords: uncoveredWordsOf(scoringRow.text, enforcedSpans(rowParts)),
                 unaccountedBlocks,
             }
         }
@@ -834,26 +1170,59 @@ export function requirementAccountOf(input: ActivityRequirementInputs): Requirem
     const served = outcome === 'served'
     const asBuilt = served ? 'the activity as built' : `the activity as built (refused at the ${outcome} stage)`
     const sc = scoringCondition
-    const carried = !!sc && sc.state === 'ACCOUNTED' && sc.components.length > 0 && sc.missing.length === 0 && sc.unaccountedBlocks.length === 0 && sc.uncoveredWords === null && status === 'REPORT_ONLY'
+    const carried = !!sc && sc.state === 'ACCOUNTED' && sc.components.length > 0 && sc.missing.length === 0 && sc.unaccountedBlocks.length === 0 && sc.uncoveredWords === null && reported
+    // Round 3, his item 7: what the build found and refused on. Round 3b: as the build read it, from the bindings the enforcement may read,
+    // where it says so; otherwise read again here from each block's account. A TEST-ONLY draft contract enforces nothing.
+    const readings = enforced ? input.blocks.map(entry => (entry.enforcement !== undefined ? entry.enforcement : entry.account ? scoringComponentReading(entry.account, bindings) : null)).filter((reading): reading is ScoringEnforcementReading => !!reading) : []
+    const findings = [...new Set(readings.flatMap(reading => reading.findings))]
+    const coachObservedOnly = readings.flatMap(reading => reading.coachObservedOnly).filter((entry, at, all) => all.findIndex(other => other.rowId === entry.rowId && other.partId === entry.partId) === at)
+    /** Round 3b (the round-3 reviews' R2 S5, R3 S2): a state the enforcement refused never ends "refuses nothing"; it says the activity was refused. */
+    const refusedFailClosed = enforced && findings.length > 0
+    const failClosed = ' Its components cannot be verified, so the activity was refused at the validation stage (fail-closed: ours beyond his item 7, for his decision).'
+    /** What ends a headline where nothing was refused: on a production contract, only the components are enforced; on a draft one, nothing. */
+    const nothingRefused = enforced ? 'Only the components quoting his words are enforced, and nothing else refuses.' : 'This account refuses nothing.'
+    const coachOnlyWords = coachObservedOnly.map(entry => `"${entry.words}"`).join('; ')
     let headline: string
-    if (status === 'BINDINGS_REFUSED') headline = 'The requirement account could not be computed: the bindings file was refused. The activity is unchanged.'
-    else if (status === 'ERROR') headline = 'The requirement account could not be computed: the reader failed. The activity is unchanged.'
+    if (status === 'BINDINGS_REFUSED')
+        headline = `The requirement account could not be computed: the bindings file was refused. ${
+            !enforced
+                ? 'The activity is unchanged.'
+                : refusedFailClosed
+                  ? 'The components of the approved scoring condition cannot be verified where the enforcement reads them, so the activity was refused at the validation stage (fail-closed: ours beyond his item 7, for his decision).'
+                  : "No reason of the gate reaches what the enforcement reads, so the approved scoring condition's components were enforced from the file as read, and nothing was refused."
+        }`
+    else if (status === 'ERROR')
+        headline = `The requirement account could not be computed: the reader failed. ${
+            !enforced ? 'The activity is unchanged.' : refusedFailClosed ? 'Whether the components were carried could not be fully read, so the activity was refused at the validation stage (fail-closed: ours beyond his item 7, for his decision).' : 'The approved scoring condition\'s components were read on their own and were carried, so nothing was refused.'
+        }`
     else if (sc && sc.missing.length)
-        headline = `Missing from the approved scoring condition: ${sc.missing.map(entry => entry.label).join('; ')}. The activity was ${served ? 'served' : `refused at the ${outcome} stage`} without ${sc.missing.length === 1 ? 'it' : 'them'}. This account refuses nothing.`
-    else if (!sc || sc.state === 'NOT_APPLICABLE') headline = 'No approved scoring condition of this context is in the applicable set, so none is accounted. This account refuses nothing.'
-    else if (sc.state === 'NOT_CLASSIFIED') headline = 'The approved scoring condition has not been classified into components for this context, so whether its components are carried is not accounted. This account refuses nothing.'
-    else if (sc.state === 'NO_STRUCTURAL_COMPONENT') headline = 'No component of the approved scoring condition is structurally represented. This account refuses nothing.'
+        headline = refusedFailClosed
+            ? `Missing or altered in the approved scoring condition: ${sc.missing.map(entry => entry.label).join('; ')}. The activity was refused at the validation stage: a missing or altered component of an approved scoring condition is enforced.`
+            : `Missing from the approved scoring condition: ${sc.missing.map(entry => entry.label).join('; ')}. The activity was ${served ? 'served' : `refused at the ${outcome} stage`} without ${sc.missing.length === 1 ? 'it' : 'them'}. ${nothingRefused}`
+    else if (!sc || sc.state === 'NOT_APPLICABLE') headline = `No approved scoring condition of this context is in the applicable set, so none is accounted.${refusedFailClosed ? failClosed : ` ${nothingRefused}`}`
+    else if (sc.state === 'NOT_CLASSIFIED') headline = `The approved scoring condition has not been classified into components for this context, so whether its components are carried is not accounted.${refusedFailClosed ? failClosed : ` ${nothingRefused}`}`
+    else if (sc.state === 'NO_STRUCTURAL_COMPONENT')
+        headline = `No component of the approved scoring condition is structurally represented.${
+            refusedFailClosed ? failClosed : `${coachObservedOnly.length ? ` Classified for coach observation only, judged in play and not enforced (his item 7): ${coachOnlyWords}.` : ''} ${nothingRefused}`
+        }`
     else if (sc.unaccountedBlocks.length)
-        headline = `${sc.unaccountedBlocks.map(blockNumber).join(', ').replace(/^b/, 'B')} ${sc.unaccountedBlocks.length === 1 ? 'was' : 'were'} not accounted: ${sc.unaccountedBlocks.length === 1 ? 'it' : 'they'} stopped before the context scoring guard. This account refuses nothing.`
+        headline = `${sc.unaccountedBlocks.map(blockNumber).join(', ').replace(/^b/, 'B')} ${sc.unaccountedBlocks.length === 1 ? 'was' : 'were'} not accounted: ${sc.unaccountedBlocks.length === 1 ? 'it' : 'they'} stopped before the context scoring guard.${refusedFailClosed ? failClosed : ` ${nothingRefused}`}`
     else if (sc.uncoveredWords !== null)
-        // R1 S1: words of his approved scoring condition no component accounts for are named, never passed over.
-        headline = `Words of the approved scoring condition no component accounts for: "${sc.uncoveredWords}". Whether they are carried by ${asBuilt} is not accounted. This account refuses nothing.`
+        // R1 S1: words of his approved scoring condition no component accounts for are named, never passed over (round 3: enforced; round 3b:
+        // words a coach-observed part classifies are reported, not refused).
+        headline = refusedFailClosed
+            ? `Words of the approved scoring condition no component accounts for: "${sc.uncoveredWords}". Words no part classifies cannot be verified, so the activity was refused at the validation stage (fail-closed: ours beyond his item 7, for his decision).`
+            : coachObservedOnly.length
+              ? `Words of the approved scoring condition classified for coach observation only: ${coachOnlyWords}. They are judged in play, reported and not enforced (his item 7). ${nothingRefused}`
+              : `Words of the approved scoring condition no component accounts for: "${sc.uncoveredWords}". Whether they are carried by ${asBuilt} is not accounted. ${nothingRefused}`
     else {
         const constructed = sc.components.filter(entry => entry.byConstruction)
+        // Round 3, his item 3: the flag in his distinction — reaching the target is not, by itself, meaningful progression.
         const byConstruction = constructed.length
-            ? ` ${constructed.map(entry => entry.label).join('; ')} ${constructed.length === 1 ? 'holds' : 'hold'} by construction: ${constructed.length === 1 ? 'its referent is' : 'their referents are'} the target the scoring event reaches, so ${constructed.length === 1 ? 'it rests' : 'they rest'} on where that target is placed.`
+            ? ` ${constructed.map(entry => entry.label).join('; ')} ${constructed.length === 1 ? 'holds' : 'hold'} by construction: reaching the target does not by itself establish meaningful progression, and the target's placement and its relationship to the intended Game Problem are still to be verified (ours, DRAFT).`
             : ''
-        headline = `Every component of the approved scoring condition is carried by ${asBuilt}.${byConstruction} ${plural(counts['3'], 'requirement part depends', 'requirement parts depend')} on coach observation and ${plural(counts['4'], 'is', 'are')} unsupported or missing; this account refuses nothing.`
+        // Round 3b (R2 N9): beside the Enforcement block, "nothing else refuses" reads plainer than "this account refuses nothing".
+        headline = `Every component of the approved scoring condition is carried by ${asBuilt}.${byConstruction} ${plural(counts['3'], 'requirement part depends', 'requirement parts depend')} on coach observation and ${plural(counts['4'], 'is', 'are')} unsupported or missing. ${nothingRefused}`
     }
 
     // Every other row of his workbook, listed: not accounted, accounted inside another part, or not applicable to this build, with where it is cited.
@@ -862,7 +1231,7 @@ export function requirementAccountOf(input: ActivityRequirementInputs): Requirem
     if (bindings) {
         const contextBindings = bindings.contexts.find(entry => entry.contextId === contextId) ?? null
         const allParts = (contextBindings?.rows ?? []).flatMap(row => row.parts.map(part => ({ rowId: row.rowId, part })))
-        const citedBy = (rowId: string) => allParts.filter(entry => entry.part.observable?.source === 'KNOWLEDGE_ROW' && entry.part.observable.citedAs?.rowId === rowId).map(entry => `${entry.rowId} ${entry.part.id}`)
+        const citedBy = (rowId: string) => allParts.filter(entry => entry.part.observable?.source === 'KNOWLEDGE_ROW' && (entry.part.observable.citedAs as KnowledgeRowCitation | null)?.rowId === rowId).map(entry => `${entry.rowId} ${entry.part.id}`)
         const inside = (rowId: string) => {
             const found = allParts.find(entry => (entry.part.accountsFor ?? []).includes(rowId))
             return found ? `${found.rowId} ${found.part.id}` : null
@@ -877,7 +1246,8 @@ export function requirementAccountOf(input: ActivityRequirementInputs): Requirem
         const transitions = rpcLibrary.transitionsFrom(contextId).filter(row => String(row.status ?? '') === 'ACTIVE')
         if (transitions.length)
             alsoNotAccounted.push(
-                `His workbook's transitions from this context (${transitions.map(row => `${String(row.transition_id)} to ${String(row.to_rpc)}, ${String(row.transition_type)}`).join('; ')}) are on a sheet this account does not read; whether they belong to the applicable set is his decision (DRAFT).`,
+                // Round 3b (the round-3 review's R2 S1): he has decided — transitions remain review evidence (his reply filed 4 November 2026, item 1).
+                `His workbook's transitions from this context (${transitions.map(row => `${String(row.transition_id)} to ${String(row.to_rpc)}, ${String(row.transition_type)}`).join('; ')}) are on a sheet this account does not read; they remain review evidence (his reply filed 4 November 2026, item 1; DRAFT).`,
             )
     }
     if (accounted.some(block => block.roleScoring))
@@ -897,8 +1267,9 @@ export function requirementAccountOf(input: ActivityRequirementInputs): Requirem
 
     return {
         ...standingOf(),
+        enforcement: enforcementOf(enforced, findings, coachObservedOnly),
         status,
-        reasons: status === 'REPORT_ONLY' ? [] : [...new Set([...(input.refused ?? []), ...input.blocks.flatMap(entry => (entry.account && entry.account.status !== 'ACCOUNTED' ? entry.account.reasons : []))])],
+        reasons: reported ? [] : [...new Set([...(input.refused ?? []), ...input.blocks.flatMap(entry => (entry.account && entry.account.status !== 'ACCOUNTED' ? entry.account.reasons : []))])],
         contextId,
         contextName: rpcLibrary.context(contextId)?.name ?? null,
         outcome,
@@ -929,6 +1300,8 @@ export function requirementAccountOf(input: ActivityRequirementInputs): Requirem
 export function failedRequirementAccount(contextId: string, outcome: string, message: string, draftContract: boolean): RequirementAccount {
     return {
         ...standingOf(),
+        // The build's enforcement read each block itself; merging is what threw, so its findings are not repeated here.
+        enforcement: enforcementOf(!draftContract, [], []),
         status: 'ERROR',
         reasons: [message],
         contextId,
@@ -937,7 +1310,8 @@ export function failedRequirementAccount(contextId: string, outcome: string, mes
         bindings: { file: null, version: null, mode: null, standing: 'DRAFT' },
         contract: draftContract ? 'DRAFT' : 'PRODUCTION',
         summary: {
-            headline: 'The requirement account could not be computed: the reader failed. The activity is unchanged.',
+            // Round 3b (R2 N8, R3 S2): never "unchanged" — whether the build refused on a component is in its own refusal's reasons.
+            headline: `The requirement account could not be computed: merging its blocks failed. ${draftContract ? 'The activity is unchanged.' : "Whether the build refused on a component of the approved scoring condition is in the refusal's reasons, where it refused."}`,
             scoringConditionCarried: false,
             scoringCondition: null,
             counts: { '1': 0, '2': 0, '3': 0, '4': 0 },

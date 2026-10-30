@@ -1,12 +1,21 @@
 /**
  * **The requirement bindings: how each applicable, approved context requirement is accounted for, as data of ours for his review, and
- * the gate that file is held to** — 29 October 2026 (the requirement account, report only; R-1 and R-2 of its specification).
+ * the gate that file is held to** — 29 October 2026 (the requirement account; R-1 and R-2 of its specification): a report, of which the
+ * approved scoring condition's components are enforced since round 3.
  *
  * Christian, his reply filed 3 November 2026, section 2: *"Each generated activity should be evaluated against the applicable, approved
  * context requirements, accounting for each component of a scoring condition rather than simply confirming that the condition exists."*
  * *"For the initial increment, please proceed with the requirement report and review-page evidence."* And: *"let's verify the
  * classifications before enabling refusals broadly"*. So every classification in the file is OURS and DRAFT, shown on the review page for
- * his review, and nothing read from it refuses an activity (`requirement-account.ts`).
+ * his review (`requirement-account.ts`).
+ *
+ * **One reading is now enforced** (29 October 2026, round 3; his reply filed 4 November 2026, item 7: *"I approve beginning narrowly with
+ * missing or altered components of approved scoring conditions, where those components are clearly defined, structurally necessary, and
+ * mechanically verifiable."*): the structural parts of a production-contracted context's approved scoring condition quoting his words (its
+ * components) are read on every build that reaches the context-scoring guard, and one that is missing or altered refuses the activity
+ * (`requirement-account.ts` `scoringComponentReading`). Nothing else read from the file refuses: *"I would not yet extend refusal to every
+ * unsupported purpose statement, inferred affordance relationship, or coach-observed condition."* (same item.) Fail-closed where the
+ * components cannot be verified is our addition beyond his item 7, for his decision (`enforcementBindingsFor`).
  *
  * **What the file is.** One entry per contracted context (`docs/audits/requirement-bindings.json`), one per applicable row of his context
  * workbook, split into parts. Each part has a kind, one of his three standards, and either typed item patterns, the guard's reading of the
@@ -14,11 +23,14 @@
  * strictness, value and the kind of contract the item sits in — never by item id — so the file names no item, element, contract,
  * realization or Learning Goal (gate check 9), and the reader holds no activity-specific code.
  *
- * **Where it is read.** Only by the requirement-account reader, for an administrator's review build, after realization; never by
- * derivation, so it is outside every input digest (`derivation/engine.ts` `canonicalInput`). Bundled by `build.js` beside the other runtime
- * knowledge and found through `AUDITS_DIR`; read lazily, once, at the first administrator's review build, never at module load: a defect in
- * it must not stop the server or reach a coach's build (it becomes the account's own status). The unit test runs the gate on the real file,
- * so a defect still fails CI.
+ * **Where it is read.** Only by the requirement-account reader, after realization: in full for an administrator's review build, and (since
+ * round 3) for the approved scoring condition's components alone on every other build of a production-contracted context that reaches the
+ * context-scoring guard; never by derivation, so it is outside every input digest (`derivation/engine.ts` `canonicalInput`). Bundled by
+ * `build.js` beside the other runtime knowledge and found through `AUDITS_DIR`; read lazily, once, at the first build that needs it, never
+ * at module load, so a defect in it cannot stop the server. Where it is refused or cannot be read, the account takes it as its own status;
+ * a build is refused only where the file cannot be read or a gate reason reaches what the enforcement reads (round 3b,
+ * `enforcementBindingsFor`), as the 28 October decision made the pathway notice fail-closed (PR #147). The unit test runs the gate on the
+ * real file, so a defect fails CI first.
  *
  * **Every workbook the gate reads comes from a bundled JSON module** (the R-engine review's M2): the context workbook and the archetype
  * workbook a KNOWLEDGE_ROW observable cites are imported here as modules, as `rpc-library.ts` imports them, and resolved by a fixed map —
@@ -42,6 +54,7 @@ import path from 'node:path'
 
 import gameArchetypeWorkbook from '../knowledge-core/game-archetype-workbook.rc1.1.json'
 import rpcWorkbook from '../sport-module/rpc-library.rc1.json'
+import { observationCriteriaApprovals, quotesOfHisReplies } from '../test-library/learning-goal-authorizations'
 import { loadCorpusContracts, loadProvisionalRealizations, loadRegister, loadSportProfile } from '../derivation/corpus'
 import { knowledgeKey } from '../derivation/knowledge-key'
 import { AUDITS_DIR } from '../derivation/knowledge-root'
@@ -65,7 +78,12 @@ export type PartKind = (typeof PART_KINDS)[number]
 /** The kinds of contract a carrier may sit in. A constraint's or the Sport Profile's item is shown as considered, never counted (S7). */
 export const CARRIER_KINDS = ['CONTEXT', 'REALIZATION', 'GAME_FORM'] as const
 export type CarrierKind = (typeof CARRIER_KINDS)[number]
-export const OBSERVABLE_SOURCES = ['WORKBOOK_EXPECTED_EVIDENCE', 'KNOWLEDGE_ROW', 'OURS'] as const
+/**
+ * HIS_REPLY (29 October 2026, round 3): his own words in a reply, which he has approved as an observation criterion (his reply filed 4 November 2026,
+ * item 6), held to the authorization records: the words verbatim in a quote they hold, and the approval one they record (round 3c: his words
+ * and his approval are data there, `observationCriteriaApprovals`, never in this module).
+ */
+export const OBSERVABLE_SOURCES = ['WORKBOOK_EXPECTED_EVIDENCE', 'KNOWLEDGE_ROW', 'HIS_REPLY', 'OURS'] as const
 export type ObservableSource = (typeof OBSERVABLE_SOURCES)[number]
 /** Whether the coach watches for the observable to occur, or for it not to (an end condition naming what must not happen). */
 export const OBSERVABLE_EXPECTATIONS = ['PRESENT', 'ABSENT'] as const
@@ -114,10 +132,15 @@ export interface KnowledgeRowCitation {
     rowId: string
     field: string
 }
+/** A HIS_REPLY observable: the reply its words are from, and the reply approving them as an observation criterion. */
+export interface ReplyCitation {
+    reply: string
+    approvedBy: string
+}
 export interface Observable {
     text: string
     source: ObservableSource
-    citedAs: KnowledgeRowCitation | null
+    citedAs: KnowledgeRowCitation | ReplyCitation | null
     expect?: (typeof OBSERVABLE_EXPECTATIONS)[number]
 }
 /** Control and exclusion are evaluated against the progression outcome (the R-rulings review's M1; his replies filed 16 and 17 October 2026). */
@@ -187,6 +210,10 @@ export class RequirementBindingsRefused extends Error {
         readonly reasons: string[],
         /** The file could not be read at all (an I/O failure, perhaps transient): never memoized (round 2, R1 NIT 7). */
         readonly unreadable: boolean = false,
+        /** Round 3b: each gate reason with where it was found (empty where the file could not be read or parsed). */
+        readonly located: LocatedRefusal[] = [],
+        /** Round 3b: the file as read and stamped, where it parsed though the gate refused it. */
+        readonly asRead: RequirementBindings | null = null,
     ) {
         super(`${file} failed its integrity gate: ${reasons.join(' | ')}`)
         this.name = 'RequirementBindingsRefused'
@@ -312,6 +339,11 @@ function verbatimIn(quotation: string, values: string[]): boolean {
 }
 const ELLIPSES = ['...', '…']
 const hasEllipsis = (text: string): boolean => ELLIPSES.some(mark => text.includes(mark))
+/*
+ * Round 3c (the recheck's S-D): his approvals of words as observation criteria, and the quotes of his replies a HIS_REPLY observable is held
+ * to, are read from the authorization records through their loader (`observationCriteriaApprovals`, `quotesOfHisReplies`), never held in
+ * this engine module. The records are his rulings, gated on load, and outside every input digest.
+ */
 
 // ── The production knowledge the gate holds the file to, read once ─────────────────────────────────────────────────────────────────────
 
@@ -403,10 +435,36 @@ const CONTRACT_PREFIXES = ['restated:', 'provisional:', 'blind:', SPORT_PROFILE_
  *     file's `about` and `standing`; and, in PRODUCTION, no TEST-ONLY words (they mark test data).
  */
 export function requirementBindingsRefusals(raw: unknown, deps: { mode: BindingsMode; draftContracts?: LoadedContract[] }): string[] {
+    return locatedBindingsRefusals(raw, deps).map(entry => entry.reason)
+}
+
+/**
+ * **Where in the file a gate reason was found** (round 3b, 30 October 2026; the round-3 review's R1 S1, option b): the file as a whole
+ * (`contextId` null: its top level, `applicability`, `carriers`, the list of contexts, or a context entry the gate cannot name), one
+ * context's own entry (`rowId` null: bound twice, its contract, a row entry the gate cannot name), or one row of one context. The build's
+ * enforcement fails closed only on a reason that reaches what it reads (`enforcementBindingsFor`).
+ */
+export interface RefusalLocation {
+    contextId: string | null
+    rowId: string | null
+}
+export interface LocatedRefusal {
+    reason: string
+    at: RefusalLocation
+}
+const FILE_LEVEL: RefusalLocation = { contextId: null, rowId: null }
+
+/** The gate, each reason with where it was found; `requirementBindingsRefusals` is its reasons, in the same order. */
+export function locatedBindingsRefusals(raw: unknown, deps: { mode: BindingsMode; draftContracts?: LoadedContract[] }): LocatedRefusal[] {
     const reasons: string[] = []
+    const located: LocatedRefusal[] = []
+    /** Every reason pushed since the last flush, found at `at`. */
+    const flush = (at: RefusalLocation) => {
+        located.push(...reasons.splice(0).map(reason => ({ reason, at: { ...at } })))
+    }
     const known = gateKnowledge()
     const draftContracts = deps.draftContracts ?? []
-    if (!isObject(raw)) return ['the requirement bindings are not an object']
+    if (!isObject(raw)) return [{ reason: 'the requirement bindings are not an object', at: FILE_LEVEL }]
     closed('the file', raw, TOP_KEYS, reasons)
 
     // 1.
@@ -475,20 +533,24 @@ export function requirementBindingsRefusals(raw: unknown, deps: { mode: Bindings
     const contexts = raw.contexts
     if (!Array.isArray(contexts)) {
         reasons.push('the file has no list of contexts')
-        return reasons
+        flush(FILE_LEVEL)
+        return located
     }
+    flush(FILE_LEVEL)
     const draftOf = (contextId: string) => draftContracts.find(contract => knowledgeKey(contract.contractId) === knowledgeKey(contextId)) ?? null
     const bound = new Set<string>()
     for (const [at, entry] of contexts.entries()) {
         const where = `contexts[${at}]`
         if (!isObject(entry)) {
             reasons.push(`${where} is not an object`)
+            flush(FILE_LEVEL)
             continue
         }
         closed(where, entry, ['contextId', 'rows'], reasons)
         const contextId = String(entry.contextId ?? '')
         if (!known.contexts.has(contextId)) {
             reasons.push(`${where} names ${JSON.stringify(entry.contextId ?? null)}, which is not a context of his library`)
+            flush(FILE_LEVEL)
             continue
         }
         if (bound.has(contextId)) reasons.push(`${contextId} is bound twice`)
@@ -507,36 +569,75 @@ export function requirementBindingsRefusals(raw: unknown, deps: { mode: Bindings
             else if (!production && !draft) reasons.push(`${contextId} has neither a production contract nor a draft one`)
             contract = production ?? draft
         }
+        flush({ contextId, rowId: null })
         // S6: every role or category of an ACTIVE row of a bound context is accounted or listed.
         for (const row of contextRowsOf(contextId)) {
             const list = SHEETS.find(sheet => sheet.sheet === row.sheet)!.list
             if (!accounted[list].includes(row.role) && !listed[list].includes(row.role)) reasons.push(`${contextId}: ${row.rowId}'s ${row.role} is neither accounted nor listed in applicability (nothing of his workbook is dropped silently)`)
+            flush({ contextId, rowId: row.rowId })
         }
         // A context bound in MERGED mode to its production contract is held as PRODUCTION is (the pins); a draft one as DRAFT is.
-        contextRefusals(contextId, entry.rows, accounted, listed, contract, known, reasons, deps.mode === 'MERGED' ? (production ? 'PRODUCTION' : 'DRAFT') : deps.mode)
+        contextRefusals(contextId, entry.rows, accounted, listed, contract, known, reasons, deps.mode === 'MERGED' ? (production ? 'PRODUCTION' : 'DRAFT') : deps.mode, flush)
     }
-    if (deps.mode !== 'DRAFT') for (const contextId of productionContractedContexts()) if (!bound.has(contextId)) reasons.push(`${contextId} has a production contract and no bindings`)
+    /**
+     * Round 3b (the round-3 review's R1 S1): "every production-contracted context has bindings" is no longer a refusal of the whole file here,
+     * which would take every bound context's activity away at runtime the moment another context gained a production contract. It is held
+     * in CI instead (`requirement-bindings.unit.ts` B1, and the CI gate's own builds of each production-contracted context), and at runtime
+     * a context with no bindings fails closed on its own builds alone (`scoringComponentReading`: not classified).
+     */
 
-    // 9.
+    // 9. Each string read where it is, so its reason is located (round 3b): the file's own fields, each context's own, each row's.
     const prefixes = [...new Set([...CONTRACT_PREFIXES, ...draftContracts.map(contract => `${contract.contractId.split(':')[0]}:`)])]
     const itemIds = [...new Set([...known.itemIds, ...draftContracts.flatMap(contract => (contract.items ?? []).map(item => String(item.itemId)))])].filter(Boolean)
-    const { about: _about, standing: _standing, ...scanned } = raw
-    for (const text of stringsOf(scanned)) {
-        // Production knowledge carries no TEST-ONLY words: they mark test data, and the build's own tests read them as such.
-        if (deps.mode === 'PRODUCTION' && text.includes('TEST-ONLY')) reasons.push(`a production string says TEST-ONLY: ${JSON.stringify(text.slice(0, 120))}`)
-        for (const prefix of prefixes) if (text.includes(prefix)) reasons.push(`a string names a contract (${prefix}): ${JSON.stringify(text.slice(0, 120))}`)
-        for (const id of itemIds) if (text.includes(id)) reasons.push(`a string names the item ${id}: ${JSON.stringify(text.slice(0, 120))}`)
-        for (const id of known.realizationIds) if (text.includes(id)) reasons.push(`a string names the provisional realization ${id}: ${JSON.stringify(text.slice(0, 120))}`)
-        for (const token of text.match(/[A-Za-z0-9]+/g) ?? []) if (known.goalIds.has(token)) reasons.push(`a string names the Learning Goal ${token}: ${JSON.stringify(text.slice(0, 120))}`)
-        for (const token of text.match(/[A-Za-z0-9_-]+/g) ?? []) if (known.demonstrationIds.has(token)) reasons.push(`a string names the mechanism demonstration ${token}: ${JSON.stringify(text.slice(0, 120))}`)
+    const scan = (value: unknown) => {
+        for (const text of stringsOf(value)) {
+            // Production knowledge carries no TEST-ONLY words: they mark test data, and the build's own tests read them as such.
+            if (deps.mode === 'PRODUCTION' && text.includes('TEST-ONLY')) reasons.push(`a production string says TEST-ONLY: ${JSON.stringify(text.slice(0, 120))}`)
+            for (const prefix of prefixes) if (text.includes(prefix)) reasons.push(`a string names a contract (${prefix}): ${JSON.stringify(text.slice(0, 120))}`)
+            for (const id of itemIds) if (text.includes(id)) reasons.push(`a string names the item ${id}: ${JSON.stringify(text.slice(0, 120))}`)
+            for (const id of known.realizationIds) if (text.includes(id)) reasons.push(`a string names the provisional realization ${id}: ${JSON.stringify(text.slice(0, 120))}`)
+            for (const token of text.match(/[A-Za-z0-9]+/g) ?? []) if (known.goalIds.has(token)) reasons.push(`a string names the Learning Goal ${token}: ${JSON.stringify(text.slice(0, 120))}`)
+            for (const token of text.match(/[A-Za-z0-9_-]+/g) ?? []) if (known.demonstrationIds.has(token)) reasons.push(`a string names the mechanism demonstration ${token}: ${JSON.stringify(text.slice(0, 120))}`)
+        }
     }
-    return reasons
+    const { about: _about, standing: _standing, contexts: _contexts, ...fileFields } = raw
+    scan(fileFields)
+    flush(FILE_LEVEL)
+    for (const entry of contexts) {
+        if (!isObject(entry) || !known.contexts.has(String(entry.contextId ?? ''))) {
+            scan(entry)
+            flush(FILE_LEVEL)
+            continue
+        }
+        const contextId = String(entry.contextId)
+        const { rows: entryRows, ...ownFields } = entry
+        scan(ownFields)
+        flush({ contextId, rowId: null })
+        if (!Array.isArray(entryRows)) continue
+        for (const row of entryRows) {
+            scan(row)
+            const rowId = isObject(row) && filled(row.rowId) && contextRowsOf(contextId).some(candidate => candidate.rowId === row.rowId) ? String(row.rowId) : null
+            flush({ contextId, rowId })
+        }
+    }
+    return located
 }
 
-/** Checks 5 to 8 for one context. */
-function contextRefusals(contextId: string, rows: unknown, accounted: RoleLists, listed: RoleLists, contract: LoadedContract | null, known: GateKnowledge, reasons: string[], mode: BindingsMode): void {
+/** Checks 5 to 8 for one context; each reason flushed where it was found (round 3b). */
+function contextRefusals(
+    contextId: string,
+    rows: unknown,
+    accounted: RoleLists,
+    listed: RoleLists,
+    contract: LoadedContract | null,
+    known: GateKnowledge,
+    reasons: string[],
+    mode: BindingsMode,
+    flush: (at: RefusalLocation) => void,
+): void {
     if (!Array.isArray(rows)) {
         reasons.push(`${contextId}: no list of rows`)
+        flush({ contextId, rowId: null })
         return
     }
     const all = contextRowsOf(contextId)
@@ -544,7 +645,11 @@ function contextRefusals(contextId: string, rows: unknown, accounted: RoleLists,
     const seen = new Set<string>()
     const accountedFor = new Set<string>()
     const components = new Set<string>()
+    /** The row the reasons pushed in the loop's last iteration were found in: flushed at the top of each iteration and after the loop. */
+    let pending: RefusalLocation = { contextId, rowId: null }
     for (const [at, entry] of rows.entries()) {
+        flush(pending)
+        pending = { contextId, rowId: null }
         const where = `${contextId} rows[${at}]`
         if (!isObject(entry)) {
             reasons.push(`${where} is not an object`)
@@ -557,6 +662,8 @@ function contextRefusals(contextId: string, rows: unknown, accounted: RoleLists,
             reasons.push(`${where}: ${JSON.stringify(entry.rowId ?? null)} is not an ACTIVE row of ${contextId} in his workbook`)
             continue
         }
+        // A row bound twice is the context's, not one row's: which entry the reader takes is not settled.
+        pending = { contextId, rowId: seen.has(rowId) ? null : rowId }
         if (!applicable.some(candidate => candidate.rowId === rowId)) reasons.push(`${contextId}: ${rowId} (${row.role}) is outside the applicable set`)
         if (seen.has(rowId)) reasons.push(`${contextId}: ${rowId} is bound twice`)
         seen.add(rowId)
@@ -715,10 +822,20 @@ function contextRefusals(contextId: string, rows: unknown, accounted: RoleLists,
             if (!filled(same.because)) reasons.push(`${label}: sameReferentAs says no because`)
         }
     }
-    for (const row of applicable) if (!seen.has(row.rowId)) reasons.push(`${contextId}: the applicable row ${row.rowId} (${row.role}) has no entry`)
+    flush(pending)
+    for (const row of applicable) {
+        if (!seen.has(row.rowId)) reasons.push(`${contextId}: the applicable row ${row.rowId} (${row.role}) has no entry`)
+        flush({ contextId, rowId: row.rowId })
+    }
     // 8. Completeness against the contract: every condition type it constitutes is a component (a component it lacks is allowed: that is how
-    // a removed component shows as missing).
+    // a removed component shows as missing). Found in the approved scoring condition's row, where components are bound.
     if (contract) for (const { type, itemId } of constitutedConditionTypes(contract)) if (!components.has(type)) reasons.push(`${contextId}: its contract constitutes the ${type} condition (${itemId}, on ${CONDITION_ROW}), which no component binds; a binding may never omit a component the contract carries`)
+    flush({ contextId, rowId: scoringRowOf(contextId)?.rowId ?? null })
+}
+
+/** The ACTIVE approved scoring condition row of a context, where it has one (round 3b). */
+export function scoringRowOf(contextId: string): ContextRow | null {
+    return contextRowsOf(contextId).find(row => row.sheet === 'properties' && row.role === PRIMARY_SCORING_CONDITION) ?? null
 }
 
 /** Check 7: one facet (or, with `isFacet` false, a recordedOutsideBy pattern). */
@@ -809,6 +926,29 @@ function observableRefusals(label: string, observable: unknown, row: ContextRow,
         if (workbook.context && found[workbook.context] !== contextId) reasons.push(`${label}: ${String(cited.rowId)} is a row of ${String(found[workbook.context])}, not of ${contextId}`)
         if (!filled(cited.field) || !Object.prototype.hasOwnProperty.call(found, cited.field)) reasons.push(`${label}: ${JSON.stringify(cited.field ?? null)} is not a field of ${String(cited.rowId)}`)
         else if (!verbatimIn(text, [String(found[cited.field] ?? '')])) reasons.push(`${label}: ${JSON.stringify(text)} is not verbatim in ${String(cited.rowId)} ${String(cited.field)}`)
+    } else if (observable.source === 'HIS_REPLY') {
+        /**
+         * Round 3: his words from a reply, approved by him as an observation criterion. Round 3b (the round-3 review's R2 S4 and R3 S1): the
+         * words, the reply they are credited to, and the approval claimed are each checked. Round 3c (the recheck's S-D): all three against the
+         * authorization records — the words verbatim in a quote they hold; the approval one they record (`observationCriteriaApprovals`), for
+         * these words, given in the reply cited as `approvedBy`; and the reply cited as `reply` the one that approval names, as filed, for a
+         * quote the records credit to it — so no approval can be asserted that he did not give, and no data of his is held in this module.
+         */
+        const cited = observable.citedAs
+        if (!isObject(cited)) {
+            reasons.push(`${label}: a HIS_REPLY observable cites {reply, approvedBy}`)
+            return
+        }
+        closed(`${label} citedAs`, cited, ['reply', 'approvedBy'], reasons)
+        for (const key of ['reply', 'approvedBy']) if (!filled(cited[key]) || !String(cited[key]).startsWith('his reply filed ')) reasons.push(`${label}: citedAs.${key} names his reply ("his reply filed <date>, item <n>")`)
+        const quotes = quotesOfHisReplies()
+        if (!verbatimIn(text, quotes.map(entry => entry.words))) reasons.push(`${label}: ${JSON.stringify(text)} is not verbatim in the words of his replies the authorization records quote`)
+        const approval = observationCriteriaApprovals().find(entry => entry.citedAs === cited.approvedBy && norm(entry.approves.words) === norm(text)) ?? null
+        if (!approval) reasons.push(`${label}: ${JSON.stringify(cited.approvedBy ?? null)} is not an approval of his the authorization records hold for these words`)
+        else {
+            if (approval.approves.filedAs !== cited.reply) reasons.push(`${label}: the authorization records credit these words to ${JSON.stringify(approval.approves.filedAs)} (cited there as ${JSON.stringify(approval.approves.citedAs)}), not to ${JSON.stringify(cited.reply ?? null)}`)
+            if (!quotes.some(entry => entry.citedAs === approval.approves.citedAs && verbatimIn(text, [entry.words]))) reasons.push(`${label}: the authorization records hold no quote of these words cited as ${JSON.stringify(approval.approves.citedAs)}`)
+        }
     } else if (observable.source === 'OURS') {
         if (observable.citedAs !== null) reasons.push(`${label}: an observable of ours cites nothing (citedAs null)`)
     } else reasons.push(`${label}: unknown observable source ${JSON.stringify(observable.source ?? null)}`)
@@ -834,26 +974,62 @@ export function loadRequirementBindings(file: string = REQUIREMENT_BINDINGS_FILE
     } catch (error) {
         throw new RequirementBindingsRefused(shown, [`the file does not parse: ${withoutPath(error instanceof Error ? error.message : String(error))}`])
     }
-    const reasons = requirementBindingsRefusals(raw, { mode: 'PRODUCTION' })
-    if (reasons.length) throw new RequirementBindingsRefused(shown, reasons)
-    return { ...(JSON.parse(JSON.stringify(raw)) as Omit<RequirementBindings, 'file' | 'mode'>), file: shown, mode: 'PRODUCTION' }
+    const located = locatedBindingsRefusals(raw, { mode: 'PRODUCTION' })
+    const stamped = (): RequirementBindings => ({ ...(JSON.parse(JSON.stringify(raw)) as Omit<RequirementBindings, 'file' | 'mode'>), file: shown, mode: 'PRODUCTION' })
+    if (located.length) throw new RequirementBindingsRefused(shown, located.map(entry => entry.reason), false, located, isObject(raw) ? stamped() : null)
+    return stamped()
+}
+
+/** What reading the bindings gave (round 3b): the file held to its gate, or why not — each reason located — and, where it parsed, the file as read. */
+export interface RequirementBindingsRead {
+    /** The bindings, where the gate passed them; null otherwise (the account then stands BINDINGS_REFUSED). */
+    bindings: RequirementBindings | null
+    why: string | null
+    /** The gate's reasons, each with where it was found; empty where it passed or the file did not parse. */
+    located: LocatedRefusal[]
+    /** The file as read and stamped, where it parsed though the gate refused it: what the enforcement may read where no reason reaches it. */
+    asRead: RequirementBindings | null
+    /** The file could not be read at all (never remembered). */
+    unreadable: boolean
+}
+
+/** Read and gate a bindings file, the production loader's way, without remembering it (`requirementBindingsLoad` remembers the production file's). */
+export function readRequirementBindings(file: string = REQUIREMENT_BINDINGS_FILE): RequirementBindingsRead {
+    try {
+        return { bindings: loadRequirementBindings(file), why: null, located: [], asRead: null, unreadable: false }
+    } catch (error) {
+        const refused = error instanceof RequirementBindingsRefused ? error : null
+        return { bindings: null, why: error instanceof Error ? error.message : String(error), located: refused?.located ?? [], asRead: refused?.asRead ?? null, unreadable: refused?.unreadable ?? false }
+    }
 }
 
 /**
- * **Read once, at the first administrator's review build, never at module load** (the specification's 1.1): a malformed file must not
- * stop the server or a coach's build. A refusal becomes the account's own status, BINDINGS_REFUSED, beside an activity otherwise unchanged.
- * A file that could not be read at all is not remembered (round 2, R1 NIT 7): the next administrator's build reads it again, so a transient
- * failure does not disable the account until the server restarts; a file that was read and refused is.
+ * **Read once, at the first build that needs it, never at module load** (the specification's 1.1): a malformed file must not stop the
+ * server. A refusal becomes the account's own status, BINDINGS_REFUSED; whether it also refuses a build is `enforcementBindingsFor`'s to
+ * say. A file that could not be read at all is not remembered (round 2, R1 NIT 7): the next build reads it again, so a transient failure ends
+ * with the failure; a file that was read and refused is remembered.
  */
-let memo: { bindings: RequirementBindings | null; why: string | null } | null = null
-export function requirementBindingsLoad(): { bindings: RequirementBindings | null; why: string | null } {
+let memo: RequirementBindingsRead | null = null
+export function requirementBindingsLoad(): RequirementBindingsRead {
     if (memo) return memo
-    try {
-        memo = { bindings: loadRequirementBindings(), why: null }
-        return memo
-    } catch (error) {
-        const result = { bindings: null, why: error instanceof Error ? error.message : String(error) }
-        if (!(error instanceof RequirementBindingsRefused && error.unreadable)) memo = result
-        return result
-    }
+    const result = readRequirementBindings()
+    if (!result.unreadable) memo = result
+    return result
+}
+
+/**
+ * **What the enforcement of one context's approved scoring condition may read, and what refuses it** — round 3b, 30 October 2026 (the
+ * round-3 review's R1 S1, option b). Fail-closed is ours, not his item 7 (it approves refusing "missing or altered components of approved
+ * scoring conditions"): an activity whose components cannot be verified is not served. It is limited to what that verification itself
+ * needs. A gate reason found in the file as a whole (its top level, `applicability`, `carriers`, the list of contexts), in the built
+ * context's own entry, or in its approved scoring condition's row refuses the build; a reason anywhere else — another row, another context —
+ * leaves the account BINDINGS_REFUSED for the administrator, fails CI (the gate runs on the real file), and the components are enforced from
+ * the file as read. A file that cannot be read or does not parse refuses.
+ */
+export function enforcementBindingsFor(read: RequirementBindingsRead, contextId: string): { bindings: RequirementBindings | null; refused: string[] | null } {
+    if (read.bindings) return { bindings: read.bindings, refused: null }
+    if (!read.asRead) return { bindings: null, refused: [read.why ?? 'the requirement bindings were not read'] }
+    const scoringRow = scoringRowOf(contextId)?.rowId ?? null
+    const reaching = read.located.filter(entry => entry.at.contextId === null || (entry.at.contextId === contextId && (entry.at.rowId === null || entry.at.rowId === scoringRow)))
+    return reaching.length ? { bindings: null, refused: [`${read.asRead.file} failed its integrity gate where the approved scoring condition of ${contextId} is read: ${reaching.map(entry => entry.reason).join(' | ')}`] } : { bindings: read.asRead, refused: null }
 }

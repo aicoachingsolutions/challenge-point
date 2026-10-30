@@ -20,13 +20,16 @@ import os from 'node:os'
 import path from 'node:path'
 
 import { loadDraftRequirementBindings, loadDraftStore, mergeRequirementBindings } from '../derivation/draft-store'
-import { learningGoalAuthorizations } from '../test-library/learning-goal-authorizations'
-import { buildActivityUnderAuthorizationRecords } from './build-activity'
+import { learningGoalAuthorizations, observationCriteriaApprovals, quotesOfHisReplies, validateObservationCriteriaApprovals } from '../test-library/learning-goal-authorizations'
+import { buildActivityUnderAuthorizationRecords, RefusedActivity, ServedActivity } from './build-activity'
 import { specializedRoleNames } from './session-envelope'
 import {
     applicableRows,
+    enforcementBindingsFor,
     loadRequirementBindings,
+    locatedBindingsRefusals,
     productionContractedContexts,
+    readRequirementBindings,
     REQUIREMENT_BINDINGS_FILE,
     RequirementBindings,
     requirementBindingsLoad,
@@ -46,6 +49,16 @@ function test(name: string, body: () => void): void {
     quiet(`  ok  ${name}`)
 }
 quiet('the requirement bindings and their gate')
+/** A build with the selection's progress lines hushed (round 3b). */
+const silentlyBuild = (run: () => ServedActivity | RefusedActivity): ServedActivity | RefusedActivity => {
+    const before = console.log
+    console.log = () => undefined
+    try {
+        return run()
+    } finally {
+        console.log = before
+    }
+}
 
 const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T
 const production = loadRequirementBindings()
@@ -75,6 +88,8 @@ test('B1: the real file passes its gate, stamped PRODUCTION, binding every appli
     assert.ok(production.standing.startsWith('DRAFT - OUR CLASSIFICATION, NOT HIS'))
     assert.deepEqual(productionContractedContexts(), ['RPC-001'])
     assert.deepEqual(production.contexts.map(entry => entry.contextId), ['RPC-001'])
+    // Round 3b (R1 S1): moved here from the runtime gate — every production-contracted context has bindings in the production file (CI).
+    for (const contextId of productionContractedContexts()) assert.ok(production.contexts.some(entry => entry.contextId === contextId), `${contextId} has a production contract and no bindings`)
     // Three REQUIRED identity rows, one EXCLUSION, the scoring condition, five validation rows.
     assert.deepEqual(context().rows.map(row => row.rowId), ['RPC-ID-001', 'RPC-ID-002', 'RPC-ID-003', 'RPC-ID-005', 'RPC-PROP-132', 'RPC-VAL-001', 'RPC-VAL-002', 'RPC-VAL-003', 'RPC-VAL-004', 'RPC-VAL-005'])
     const rows = applicableRows('RPC-001', production.applicability)
@@ -97,7 +112,7 @@ test('B2: every check of the gate refuses a TEST-ONLY copy, naming the defect', 
     refuses('unknown part kind', bindings => (partOf(bindings, 'RPC-ID-002', 'purpose').kind = 'GUESS'), 'unknown kind "GUESS"')
     refuses('unknown standard', bindings => (partOf(bindings, 'RPC-ID-002', 'purpose').standard = 'VIBES'), 'unknown standard "VIBES"')
     refuses('coach observation as structural', bindings => (partOf(bindings, 'RPC-ID-003', 'progression-options').standard = 'STRUCTURAL_VALIDITY'), 'coach observation never takes STRUCTURAL_VALIDITY')
-    refuses('coach observation as relevance on our words (S5)', bindings => (partOf(bindings, 'RPC-ID-003', 'progression-options').standard = 'LEARNING_DESIGN_RELEVANCE'), "expected evidence naming a coach's judgment")
+    refuses('coach observation as relevance on anything but his expected evidence (S5)', bindings => (partOf(bindings, 'RPC-ID-003', 'progression-options').standard = 'LEARNING_DESIGN_RELEVANCE'), "expected evidence naming a coach's judgment")
     refuses('a pattern as field effectiveness', bindings => (partOf(bindings, 'RPC-VAL-004', 'opposition').standard = 'FIELD_EFFECTIVENESS'), 'takes STRUCTURAL_VALIDITY only')
     refuses('facet row not in the register', bindings => (partOf(bindings, 'RPC-VAL-004', 'opposition').facets[0].row = 'ZZ9'), 'is not in the register')
     refuses('term attribute not offered', bindings => (partOf(bindings, 'RPC-VAL-004', 'consequence').facets[0].terms[0].attribute = 'colour'), 'is not a selector attribute of T1')
@@ -119,6 +134,23 @@ test('B2: every check of the gate refuses a TEST-ONLY copy, naming the defect', 
     refuses('a component condition off the conditions row', bindings => (partOf(bindings, 'RPC-PROP-132', 'origin').facets[0].requirement = ['COUNT']), "a component's first facet is its condition on V3")
     refuses('expected evidence altered by a word', bindings => (partOf(bindings, 'RPC-VAL-001', 'recognizable').observable.text = partOf(raw, 'RPC-VAL-001', 'recognizable').observable.text.replace('experienced', 'expert')), "his row's expected evidence exactly")
     refuses('a knowledge row not verbatim', bindings => (partOf(bindings, 'RPC-PROP-132', 'control-in-play').observable.text = 'with the ball controlled on arrival'), 'is not verbatim in RPC-PROP-132 property_text')
+    // Round 3: his words from a reply, approved by him as an observation criterion (his reply filed 4 November 2026, item 6), held verbatim.
+    refuses('a reply observable not verbatim (round 3)', bindings => (partOf(bindings, 'RPC-ID-003', 'progression-options').observable.text = 'Success should permit several functional solutions.'), 'is not verbatim in the words of his replies the authorization records quote')
+    refuses('a reply observable citing no reply (round 3)', bindings => (partOf(bindings, 'RPC-ID-003', 'progression-options').observable.citedAs = null), 'a HIS_REPLY observable cites {reply, approvedBy}')
+    refuses('a reply observable whose approval names no reply (round 3)', bindings => (partOf(bindings, 'RPC-ID-003', 'progression-options').observable.citedAs.approvedBy = 'agreed in conversation'), 'citedAs.approvedBy names his reply')
+    // Round 3b (the round-3 reviews' R2 S4 and R3 S1): the reply cited and the approval claimed are checked, not only the words.
+    refuses('an approval he did not give (round 3b, R2 S4 a)', bindings => (partOf(bindings, 'RPC-ID-003', 'progression-options').observable.citedAs.approvedBy = 'his reply filed 1 January 2026, item 99'), 'is not an approval of his the authorization records hold')
+    refuses('his words credited to another reply (round 3b, R2 S4 b, R3 S1)', bindings => (partOf(bindings, 'RPC-ID-003', 'progression-options').observable.citedAs.reply = 'his reply filed 19 October 2026, item 1'), 'the authorization records credit these words to')
+    refuses(
+        'other words of his claimed approved under item 6 (round 3b, R2 S4 c)',
+        bindings => {
+            const part = partOf(bindings, 'RPC-ID-005', 'no-dominant-high-press')
+            part.observable = { text: 'The intended outcome is controlled progression beyond meaningful defensive pressure, establishing the opportunity to continue an organized attack.', source: 'HIS_REPLY', citedAs: { reply: 'his reply filed 16 October 2026, item 4', approvedBy: 'his reply filed 4 November 2026, item 6' }, expect: 'ABSENT' }
+        },
+        'is not an approval of his the authorization records hold',
+    )
+    // Round 3b (R3 N6): an observable of ours still cites nothing (the file now holds none, so the branch is exercised here).
+    refuses('an observable of ours that cites something (round 3b, R3 N6)', bindings => (partOf(bindings, 'RPC-ID-003', 'progression-options').observable.source = 'OURS'), 'an observable of ours cites nothing')
     refuses('an ellipsis (N2)', bindings => (partOf(bindings, 'RPC-PROP-132', 'progression-in-play').observable.text = 'progressing beyond ... line'), 'with an ellipsis')
     refuses('a knowledge row of another context', bindings => (partOf(bindings, 'RPC-ID-001', 'start-stable-in-play').observable.citedAs.rowId = 'RPC-PROP-034'), 'is a row of RPC-003, not of RPC-001')
     refuses('a workbook read by path', bindings => (partOf(bindings, 'RPC-VAL-004', 'opposition-in-play').observable.citedAs.file = 'back/data/some.json'), 'is not a workbook the gate reads')
@@ -169,9 +201,16 @@ test('B3: a malformed file throws RequirementBindingsRefused, and a TEST-ONLY bu
             () => buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, learningGoalAuthorizations(), { review: { includeDrafts: true }, requirementBindings: { ...malformed, file: 'TEST-ONLY', mode: 'PRODUCTION' } as RequirementBindings }),
             /TEST-ONLY requirement bindings are refused by the gate the file is held to/,
         )
-        // Round 2, R3 NIT 12: the TEST-ONLY options a coach's build would ignore throw; an unknown mode throws.
-        assert.throws(() => buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, learningGoalAuthorizations(), { requirementBindings: production }), /read only by an administrator's review build/)
-        assert.throws(() => buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, learningGoalAuthorizations(), { observeRequirementInputs: () => undefined }), /read only by an administrator's review build/)
+        // Round 2, R3 NIT 12: the TEST-ONLY options a coach's build would ignore throw; an unknown mode throws. Round 3: a coach's build of a
+        // production-contracted context reads the bindings for the enforced components, so TEST-ONLY bindings are read there (and held to the
+        // same gate, so a malformed copy still throws); the observer is still only an administrator's, and bindings given and read as refused
+        // together throw.
+        const coachGiven = buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, learningGoalAuthorizations(), { requirementBindings: production }).activity
+        assert.deepEqual([coachGiven.outcome, 'requirementAccount' in coachGiven], ['served', false])
+        assert.throws(() => buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, learningGoalAuthorizations(), { requirementBindings: { ...malformed, file: 'TEST-ONLY', mode: 'PRODUCTION' } as RequirementBindings }), /TEST-ONLY requirement bindings are refused by the gate the file is held to/)
+        assert.throws(() => buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, learningGoalAuthorizations(), { observeRequirementInputs: () => undefined }), /called only by an administrator's review build/)
+        assert.throws(() => buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, learningGoalAuthorizations(), { requirementBindings: production, requirementBindingsRefused: ['TEST-ONLY'] }), /either given or read as refused, not both/)
+        assert.throws(() => buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, learningGoalAuthorizations(), { requirementBindingsRefused: [] }), /name at least one reason/)
         assert.throws(
             () => buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, learningGoalAuthorizations(), { review: { includeDrafts: true }, requirementBindings: { ...production, mode: 'SOMETHING' as any } }),
             /stamped with no known mode/,
@@ -195,7 +234,10 @@ test('B5-B8: the draft bindings pass in DRAFT mode only; the production file in 
     assert.equal(draft.file, 'docs/audits/drafts/requirement-bindings-rpc-003.DRAFT.json')
     assert.deepEqual(requirementBindingsRefusals(draftRaw, { mode: 'DRAFT', draftContracts: store.contracts }), [])
     assert.ok(requirementBindingsRefusals(draftRaw, { mode: 'PRODUCTION' }).includes('RPC-003 has no production contract: its bindings belong in the TEST-ONLY draft bindings'))
-    assert.ok(requirementBindingsRefusals(draftRaw, { mode: 'MERGED', draftContracts: store.contracts }).includes('RPC-001 has a production contract and no bindings'))
+    // Round 3b (the round-3 review's R1 S1): "every production-contracted context has bindings" is held here, in CI, not by the runtime gate,
+    // which would refuse the whole file — and every bound context's activity with it — for one context's missing entry.
+    assert.ok(!requirementBindingsRefusals(draftRaw, { mode: 'MERGED', draftContracts: store.contracts }).some(reason => reason.includes('has a production contract and no bindings')), 'no longer a gate reason')
+    assert.ok(!draft.contexts.some(entry => productionContractedContexts().includes(entry.contextId)), 'the draft alone binds no production-contracted context')
     // In DRAFT mode the standing says TEST-ONLY.
     assert.ok(requirementBindingsRefusals({ ...copy(draftRaw), standing: 'DRAFT - ours' }, { mode: 'DRAFT', draftContracts: store.contracts }).some(reason => reason.includes('must start "DRAFT - TEST-ONLY"')))
     // B8: the production-only file.
@@ -212,6 +254,95 @@ test('B5-B8: the draft bindings pass in DRAFT mode only; the production file in 
     assert.throws(() => mergeRequirementBindings(production, { ...draft, contexts: [...draft.contexts, ...copy(production.contexts)] }, store.contracts), /RPC-001 is bound in both/)
     assert.throws(() => mergeRequirementBindings(production, { ...draft, applicability: { ...copy(draft.applicability), standing: 'DRAFT', accounted: { ...copy(draft.applicability.accounted), validationDomains: ['IDENTITY'] } } }, store.contracts), /differ in applicability/)
     assert.throws(() => mergeRequirementBindings(production, production, store.contracts), /not DRAFT/)
+})
+
+// ── B10 and B11 (round 3b) ──────────────────────────────────────────────────────────────────────────────────────────────────────────────
+test('B10 (round 3b, R1 S1): each gate reason is located, and only a reason reaching what the enforcement reads refuses a build; elsewhere, the account alone is refused', () => {
+    const recognizableAltered = (bindings: any) => (partOf(bindings, 'RPC-VAL-001', 'recognizable').observable.text = partOf(raw, 'RPC-VAL-001', 'recognizable').observable.text.replace('experienced', 'expert'))
+    const controlSpanBroken = (bindings: any) => (partOf(bindings, 'RPC-PROP-132', 'control').rowSpan = 'with the ball controlled on arrival')
+    const carriersLoose = (bindings: any) => (bindings.carriers.standing = 'APPROVED')
+    const altered = (alter: (bindings: any) => void) => {
+        const bindings: any = copy(raw)
+        alter(bindings)
+        return bindings
+    }
+    // Function level: where each reason was found, and the gate's reasons exactly, in its order.
+    assert.deepEqual(locatedBindingsRefusals(altered(recognizableAltered), { mode: 'PRODUCTION' }).map(entry => entry.at), [{ contextId: 'RPC-001', rowId: 'RPC-VAL-001' }])
+    const reachingRow = locatedBindingsRefusals(altered(controlSpanBroken), { mode: 'PRODUCTION' })
+    assert.ok(reachingRow.length > 0 && reachingRow.every(entry => entry.at.contextId === 'RPC-001' && entry.at.rowId === 'RPC-PROP-132'), JSON.stringify(reachingRow))
+    assert.ok(locatedBindingsRefusals(altered(carriersLoose), { mode: 'PRODUCTION' }).some(entry => entry.at.contextId === null))
+    for (const alter of [recognizableAltered, controlSpanBroken, carriersLoose]) assert.deepEqual(locatedBindingsRefusals(altered(alter), { mode: 'PRODUCTION' }).map(entry => entry.reason), requirementBindingsRefusals(altered(alter), { mode: 'PRODUCTION' }))
+    // End to end, through TEST-ONLY copies written to a scratch folder and read the production loader's way.
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'requirement-bindings-3b-'))
+    try {
+        const write = (name: string, alter: (bindings: any) => void) => {
+            const file = path.join(dir, name)
+            fs.writeFileSync(file, JSON.stringify(altered(alter)))
+            return file
+        }
+        const roles = Object.fromEntries(specializedRoleNames().map(role => [role, 0]))
+        const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...roles, [specializedRoleNames()[0]]: 1 }, objects: { goal: { count: 0 } } }
+        const build = (file: string, administrator: boolean) =>
+            silentlyBuild(() => buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, learningGoalAuthorizations(), { requirementBindingsFile: file, ...(administrator ? { review: { includeDrafts: true } } : {}) }).activity)
+        // A defect in a coach-observed part the enforcement never reads: the account is refused, for the administrator; no build is refused.
+        const elsewhere = write('elsewhere.json', recognizableAltered)
+        const read = readRequirementBindings(elsewhere)
+        assert.deepEqual([read.bindings, read.asRead !== null, enforcementBindingsFor(read, 'RPC-001').refused], [null, true, null])
+        const coachServed = build(elsewhere, false)
+        const administratorServed = build(elsewhere, true)
+        assert.deepEqual([coachServed.outcome, administratorServed.outcome], ['served', 'served'])
+        const account = administratorServed.requirementAccount!
+        assert.deepEqual([account.status, account.enforcement.applied, account.enforcement.findings], ['BINDINGS_REFUSED', true, []])
+        assert.ok(account.summary.headline.includes('No reason of the gate reaches what the enforcement reads'), account.summary.headline)
+        assert.ok(!JSON.stringify(account).includes(dir), 'no absolute path')
+        // A defect in the approved scoring condition's row: refused, fail-closed, on the coach's build too; the file named as read, no path.
+        const reaching = write('reaching.json', controlSpanBroken)
+        const coachRefused = build(reaching, false) as RefusedActivity
+        assert.deepEqual([coachRefused.outcome, coachRefused.stage, coachRefused.reasons.length], ['refused', 'validation', 2])
+        assert.ok(coachRefused.reasons.every(reason => reason.includes('reaching.json failed its integrity gate where the approved scoring condition of RPC-001 is read')), JSON.stringify(coachRefused.reasons))
+        assert.ok(!coachRefused.reasons.join(' ').includes(dir), 'no absolute path')
+        // A defect at the file's top level: refused.
+        assert.equal((build(write('top.json', carriersLoose), false) as RefusedActivity).stage, 'validation')
+    } finally {
+        fs.rmSync(dir, { recursive: true, force: true })
+    }
+})
+
+test('B11 (round 3b, R3 N5): TEST-ONLY bindings given to a coach\'s build are read there: a copy leaving words of his row unclassified refuses what the production file serves', () => {
+    const roles = Object.fromEntries(specializedRoleNames().map(role => [role, 0]))
+    const session = { players: 12, lengthM: 40, widthM: 30, durationMin: 20, roles: { ...roles, [specializedRoleNames()[0]]: 1 }, objects: { goal: { count: 0 } } }
+    // The control component's words cut to "with possession controlled", and its coach-observed part given no observable: "on arrival" is classified
+    // by no part. The copy passes the gate (the span is verbatim; a part may lack an observable), so only the enforcement reading it tells.
+    const unclassified: any = copy(production)
+    partOf(unclassified, 'RPC-PROP-132', 'control').rowSpan = 'with possession controlled'
+    partOf(unclassified, 'RPC-PROP-132', 'control-in-play').observable = null
+    const build = (requirementBindings?: RequirementBindings) => silentlyBuild(() => buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, learningGoalAuthorizations(), requirementBindings ? { requirementBindings } : {}).activity)
+    assert.equal(build().outcome, 'served')
+    assert.equal(build(production).outcome, 'served')
+    // Round 3c (the recheck's S-A): the span cut alone, the in-play observable intact: "on arrival" is classified by the coach-observed part, so
+    // the coach's build is served — read in no order, never a false "no part classifies".
+    const cutOnly: any = copy(production)
+    partOf(cutOnly, 'RPC-PROP-132', 'control').rowSpan = 'with possession controlled'
+    assert.equal(build(cutOnly).outcome, 'served')
+    const refused = build(unclassified) as RefusedActivity
+    assert.deepEqual([refused.outcome, refused.stage], ['refused', 'validation'])
+    assert.equal(refused.reasons.filter(reason => reason.endsWith(`cannot be verified, so the activity is not served (fail-closed): words of RPC-PROP-132 that no part classifies: "on arrival"`)).length, 2, JSON.stringify(refused.reasons))
+})
+
+test('B12 (round 3c, S-D): his approvals of observation criteria are data in the authorization records, held to their gate there, and no engine code holds them', () => {
+    const approvals = observationCriteriaApprovals()
+    assert.deepEqual(approvals.map(entry => [entry.id, entry.citedAs, entry.approves.filedAs]), [['OBSERVATION-CRITERION-1', 'his reply filed 4 November 2026, item 6', 'his reply filed 16 October 2026, item 4']])
+    assert.deepEqual(validateObservationCriteriaApprovals(approvals, quotesOfHisReplies()), [])
+    // The records' own gate refuses an approval of words they do not quote under the citation it gives, and one that cites no reply as filed.
+    const wrongCitation = copy(approvals)
+    wrongCitation[0].approves.citedAs = 'his reply filed 19 October 2026, item 1'
+    assert.ok(validateObservationCriteriaApprovals(wrongCitation, quotesOfHisReplies()).some(reason => reason.includes('these records hold no quote of')))
+    const notFiled = copy(approvals)
+    notFiled[0].citedAs = 'in conversation'
+    assert.ok(validateObservationCriteriaApprovals(notFiled, quotesOfHisReplies()).some(reason => reason.includes('cite the reply as filed')))
+    // No approval, quote or citation form of his is held in the engine module any more.
+    const code = fs.readFileSync(path.join(__dirname, 'requirement-bindings.ts'), 'utf8')
+    for (const words of [approvals[0].words, approvals[0].approves.words, approvals[0].approves.citedAs]) assert.ok(!code.includes(words), `requirement-bindings.ts holds ${JSON.stringify(words)}`)
 })
 
 // ── B9: read through bundled modules only (the R-engine review's M2) ────────────────────────────────────────────────────────────────────

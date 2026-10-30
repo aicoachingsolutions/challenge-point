@@ -914,7 +914,71 @@ export function validateContextManipulationRelationships(
     return errors
 }
 
+/**
+ * **His approval of words of his as an observation criterion** — 30 October 2026 (requirement accounting, round 3c; the recheck's S-D).
+ * His reply filed 4 November 2026, item 6: *"Yes, I approve using the existing October 16 language as an observation criterion"*. Held
+ * here, with his other rulings, never in engine code: the requirement bindings' gate lets a HIS_REPLY observable stand only on an approval
+ * listed here (`requirement-bindings.ts`). Outside every input digest (`derivation/engine.ts` `canonicalInput`; `realize.ts`), so it moves
+ * no selection, derivation or realization.
+ */
+export interface ObservationCriterionApproval {
+    id: string
+    category: 'OWNER_RULING'
+    ruledOn: string
+    by: string
+    /** The reply giving the approval, as filed. */
+    citedAs: string
+    /** His approving words, verbatim. */
+    words: string
+    /** Anything else he said of it, verbatim. */
+    alsoSaid?: string[]
+    /** The words approved: verbatim in a quote these records hold, with that quote's own citation, and the reply as filed. */
+    approves: { words: string; citedAs: string; filedAs: string }
+    note: string
+}
+
+/** Every `{words, citedAs}` quote of his replies these records hold (the approved words must be one of them). */
+function quotesOf(node: unknown, out: { words: string; citedAs: string }[] = []): { words: string; citedAs: string }[] {
+    if (Array.isArray(node)) node.forEach(entry => quotesOf(entry, out))
+    else if (node && typeof node === 'object') {
+        const entry = node as Record<string, unknown>
+        if (typeof entry.words === 'string' && typeof entry.citedAs === 'string' && entry.citedAs.startsWith('his reply')) out.push({ words: entry.words, citedAs: entry.citedAs })
+        Object.values(entry).forEach(value => quotesOf(value, out))
+    }
+    return out
+}
+
+/** The gate the approvals are held to: shape, his words, and the approved words verbatim in a quote these records credit as cited. */
+export function validateObservationCriteriaApprovals(approvals: unknown, quotes: { words: string; citedAs: string }[]): string[] {
+    const errors: string[] = []
+    if (approvals === undefined) return errors
+    if (!Array.isArray(approvals)) return ['observationCriteriaApprovals is not a list']
+    const norm = (text: string) => text.replace(/\s+/g, ' ').trim()
+    const seen = new Set<string>()
+    for (const [at, raw] of approvals.entries()) {
+        const entry = (raw && typeof raw === 'object' ? raw : {}) as Record<string, any>
+        const which = `observationCriteriaApprovals[${at}] ${typeof entry.id === 'string' ? entry.id : ''}`.trim()
+        const allowed = ['id', 'category', 'ruledOn', 'by', 'citedAs', 'words', 'alsoSaid', 'approves', 'note']
+        for (const key of Object.keys(entry)) if (!allowed.includes(key)) errors.push(`${which} carries the unknown key ${JSON.stringify(key)}`)
+        if (!filled(entry.id) || seen.has(entry.id)) errors.push(`${which} has no id, or one used twice`)
+        seen.add(entry.id)
+        if (entry.category !== 'OWNER_RULING') errors.push(`${which} is not labelled OWNER_RULING`)
+        if (!filled(entry.ruledOn) || !filled(entry.by) || !filled(entry.note)) errors.push(`${which} must say who ruled it, when, and why it is recorded`)
+        if (!filled(entry.citedAs) || !String(entry.citedAs).startsWith('his reply filed ') || !filled(entry.words)) errors.push(`${which} must quote his approving words and cite the reply as filed`)
+        if (entry.alsoSaid !== undefined && (!Array.isArray(entry.alsoSaid) || entry.alsoSaid.some((words: unknown) => !filled(words)))) errors.push(`${which} alsoSaid is not a list of his sentences`)
+        const approves = entry.approves && typeof entry.approves === 'object' ? (entry.approves as Record<string, unknown>) : null
+        if (!approves || !filled(approves.words) || !filled(approves.citedAs) || !filled(approves.filedAs) || !String(approves.filedAs).startsWith('his reply filed ')) {
+            errors.push(`${which} must name the words approved, the citation these records give them, and the reply as filed`)
+            continue
+        }
+        if (!quotes.some(quote => quote.citedAs === approves.citedAs && norm(quote.words).includes(norm(String(approves.words))))) errors.push(`${which}: these records hold no quote of ${JSON.stringify(approves.words)} cited as ${JSON.stringify(approves.citedAs)}`)
+    }
+    return errors
+}
+
 const RECORDS = record.authorizations as LearningGoalAuthorization[]
+const APPROVALS = ((record as { observationCriteriaApprovals?: ObservationCriterionApproval[] }).observationCriteriaApprovals ?? []) as ObservationCriterionApproval[]
+const QUOTES = quotesOf(record)
 const PRINCIPLE = (record as { libraryConstraintPrinciple?: LibraryConstraintPrinciple }).libraryConstraintPrinciple ?? null
 const ALLOCATION_PRINCIPLE = (record as { allocationPrinciple?: LibraryConstraintPrinciple }).allocationPrinciple ?? null
 const RELATIONSHIPS = ((record as { contextManipulationRelationships?: ContextManipulationRelationship[] }).contextManipulationRelationships ?? []) as ContextManipulationRelationship[]
@@ -926,8 +990,19 @@ const SCORING_RELATIONSHIPS = ((record as { contextScoringRelationships?: Contex
         ...validateAllocationPrinciple(ALLOCATION_PRINCIPLE),
         ...validateLearningGoalAuthorizations(RECORDS),
         ...validateContextManipulationRelationships(RELATIONSHIPS, RECORDS, undefined, SCORING_RELATIONSHIPS),
+        ...validateObservationCriteriaApprovals((record as { observationCriteriaApprovals?: unknown }).observationCriteriaApprovals, QUOTES),
     ]
     if (errors.length) throw new Error(`learning-goal-authorizations.json failed its integrity gate: ${errors.join(' | ')}`)
+}
+
+/** His approvals of words of his as observation criteria (round 3c), as copies. */
+export function observationCriteriaApprovals(): ObservationCriterionApproval[] {
+    return JSON.parse(JSON.stringify(APPROVALS)) as ObservationCriterionApproval[]
+}
+
+/** Every quote of his replies these records hold, as copies (round 3c: what a HIS_REPLY observable's words are held to). */
+export function quotesOfHisReplies(): { words: string; citedAs: string }[] {
+    return QUOTES.map(quote => ({ ...quote }))
 }
 
 /** His allocation principle (17 October 2026, D6), as a copy. */
