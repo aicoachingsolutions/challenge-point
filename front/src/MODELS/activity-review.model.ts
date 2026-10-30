@@ -338,7 +338,7 @@ export interface ServedActivity {
     roleBlocks?: ReviewRoleBlocks
     /** The administrator-only review evidence (stage K8), where the goal's record asks for one; see `RefusedActivity.evidence`. */
     evidence?: ReviewEvidence
-    /** The administrator-only requirement account (29 October 2026), report only; see `RequirementAccount`. */
+    /** The administrator-only requirement account (29 October 2026): a report, of which the approved scoring condition's components are enforced; see `RequirementAccount`. */
     requirementAccount?: RequirementAccount
     /**
      * The Coach Overview (stage 3D, 21 October 2026; `back/src/system/rendering/overview-fidelity.ts`), served to every viewer: words and
@@ -665,7 +665,7 @@ export interface RefusedActivity {
      * review-evidence.ts`). Never served to a coach.
      */
     evidence?: ReviewEvidence
-    /** Only for an administrator, on a refusal after realization (29 October 2026): the requirement account, report only; see `RequirementAccount`. */
+    /** Only for an administrator, on a refusal after realization (29 October 2026): the requirement account (a report; its scoring condition's components enforced); see `RequirementAccount`. */
     requirementAccount?: RequirementAccount
 }
 
@@ -673,7 +673,9 @@ export interface RefusedActivity {
  * **The requirement account, for an administrator only** — 29 October 2026 (`back/src/system/rendering/requirement-account.ts`, its source of
  * truth). Christian, his reply filed 3 November 2026, section 2: each generated activity accounted against the applicable, approved context
  * requirements, component by component of its scoring condition, in his four categories and three standards. Every classification is ours
- * and DRAFT; it refuses nothing. Typed as plain data, loosely where the server may add a value later (kinds, causes, sources are strings).
+ * and DRAFT; the account itself refuses nothing, and (round 3, his reply filed 4 November 2026, item 7) the build refuses an activity whose
+ * approved scoring condition has a component missing or altered (`enforcement`). Typed as plain data, loosely where the server may add a
+ * value later (kinds, causes, sources are strings).
  */
 export type RequirementAccountKind = 1 | 2 | 3 | 4
 
@@ -736,11 +738,25 @@ export interface RequirementPart {
     account: RequirementAccountKind
     accountWords: string
     countsAsSatisfied: boolean
+    /** Round 3, his item 2: whether it is satisfied, apart from where its authority originates. */
+    satisfied: string
+    satisfiedWords: string
+    authority: { from: string[]; words: string }
+    /** Round 3, his item 3: a flag kept, our sentence beside his words. */
+    flag: RequirementFlag | null
+    /** Round 3, his item 7: a missing or altered part refuses the activity. */
+    enforced: boolean
     standard: string
     standardWords: string
     facets: RequirementFacet[]
     guard: { kind: unknown; approvedEvents: string[]; approved: boolean; findings: string[]; relationshipIds: string[] } | null
-    observable: { text: string; source: string; citedAs: { file: string; table: string; rowId: string; field: string } | null; expect: string; standing: string } | null
+    observable: {
+        text: string
+        source: string
+        citedAs: { file: string; table: string; rowId: string; field: string } | { reply: string; approvedBy: string } | null
+        expect: string
+        standing: string
+    } | null
     observableIdentified: boolean
     recordedOutside: { contractId: string; itemId: string }[]
     sameReferent: { component: string; facet: string; evaluated: boolean; holds: boolean | null; detail: string } | null
@@ -751,6 +767,12 @@ export interface RequirementPart {
     restsOnDraftKnowledge: boolean
     classification: { standing: string; by: string; bindingsVersion: string | null; note: string | null }
     perBlock: { blockId: string; account: RequirementAccountKind }[]
+}
+
+export interface RequirementFlag {
+    kind: string
+    ours: string
+    his: { words: string[]; citedAs: string }
 }
 
 export interface RequirementScoringComponent {
@@ -805,7 +827,19 @@ export interface RequirementAccount {
     /** Our rule for coach observation (ours, DRAFT), with his words it reads. */
     coachObservationRule: { rule: string; standing: string; by: string; his: { words: string; citedAs: string } }
     citedAs: string
-    refusal: string
+    /** Round 3, his item 7: what the build enforces, whether it did on this build, and what it found (the refusal's reasons). */
+    enforcement: {
+        scope: string
+        what: string
+        notEnforced: string
+        standing: string
+        by: string
+        his: { words: string[]; citedAs: string }
+        applied: boolean
+        findings: string[]
+        /** Round 3b: components classified only for coach observation, reported and never refused. */
+        coachObservedOnly: { rowId: string; component: string; partId: string; words: string }[]
+    }
 }
 
 /** One fact the review evidence read from the game: what it is, and its value as the server sent it. */

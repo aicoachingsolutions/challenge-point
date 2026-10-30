@@ -33,6 +33,7 @@ import { ActivityReviewRequestError, activityReviewOptions, reviewActivity } fro
 import * as wordingModule from './approved-wording'
 import { buildActivity, buildActivityFromKnowledge, buildActivityOverAlteredKnowledge, buildActivityOverAlteredSelection, buildActivityUnderAuthorizationRecords, RefusedActivity, ServedActivity, UnknownActivityRequest } from './build-activity'
 import { constitutedConditionTypes, contextScoringFindings } from './context-scoring-guard'
+import { SCORING_COMPONENTS_CHECK } from './requirement-account'
 import { renderConcreteGame } from './render-concrete-game'
 import { buildPilotActivity, isPilotRefused, PILOT_SESSION } from './build-pilot-activity'
 import { MECHANISM_DEMONSTRATIONS } from './mechanism-demonstrations'
@@ -1820,6 +1821,11 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
  * build is refused at validation and the reason names the event. A missing condition cannot be driven through
  * the builder today — every constituted condition stops Gate A first (the referent faults Step 4 component 1
  * corrects) — so that half stays proven on constructed games above.
+ *
+ * Re-pointed 30 October 2026 (round 3b; the round-3 review's R3 N1): since round 3 (his reply filed 4 November 2026, item 7) the copy, its
+ * build-out conditions taken out, is refused at validation by the enforcement of the approved scoring condition's components — 8 reasons, one
+ * per component and block, none the guard's — and with the event withheld the guard adds exactly its own 2 (one per block). What the copy
+ * showed said (the opening holder, the restarts, the ball) is read on Play Out from the Back as production serves it.
  */
 {
     // One specialized performer available since 15 October 2026 (stage K4): A01-R1 now involves one for the building role
@@ -1904,11 +1910,31 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
      * taken out on this copy nothing is withheld and the copy is served — the guard having passed, which is what this block is about.
      * Production keeps the condition and stops at communication on its wording (pinned above).
      */
+    /**
+     * **Re-pointed 29 October 2026 (round 3; his reply filed 4 November 2026): SERVED -> refused at `validation`, over the same TEST-ONLY copy, measured — and the guard
+     * still names nothing.** His reply filed 4 November 2026, item 7: *"I approve beginning narrowly with missing or altered components of
+     * approved scoring conditions, where those components are clearly defined, structurally necessary, and mechanically verifiable."* This
+     * copy takes the build-out conditions out of the context's contract, and its game is the "technically valid but solves a different
+     * problem" activity his 16 October item 10 asked the engine to refuse: the build's enforcement of the approved scoring condition's
+     * components (`requirement-account.ts` `scoringComponentFindings`) now refuses it at validation. Every reason is that enforcement's, one
+     * per component and block; the guard itself adds none, which is what this block is about. The restarts, the opening holder and the ball,
+     * which this copy showed said, are read on Play Out from the Back as production serves it.
+     */
     const reached = buildActivityUnderAuthorizationRecords(a01, withoutGapEntries(), { alter: zoneOnly(trimmed), alterSupplied: zoneOnlySupplied(linesBack) })
-    const passed = served(reached.activity, 'A01 over the trimmed copy')
+    const stopped = refused(reached.activity, 'A01 over the trimmed copy')
+    assert.equal(stopped.stage, 'validation', JSON.stringify(stopped.reasons))
+    assert.ok(
+        stopped.reasons.length > 0 && stopped.reasons.every(reason => reason.includes(`${SCORING_COMPONENTS_CHECK}: the `) && reason.includes(" component of RPC-001's approved scoring condition") && reason.includes('is missing from the activity as built')),
+        `every reason is the enforcement's, none the guard's: ${JSON.stringify(stopped.reasons)}`,
+    )
+    assert.deepEqual([...new Set(stopped.reasons.map(reason => reason.split(`${SCORING_COMPONENTS_CHECK}: the `)[1].split(' ')[0]))], ['origin', 'progression', 'control', 'exclusion'], 'one reason per component')
+    // Round 3b (R3 N2): pinned by count, so a duplicate cannot hide in the set — 4 components in each of 2 blocks.
+    assert.equal(stopped.reasons.length, 8, JSON.stringify(stopped.reasons))
+    const production = buildActivityUnderAuthorizationRecords(a01, learningGoalAuthorizations())
+    const passed = served(production.activity, 'A01 as production serves it')
     assert.ok(passed.rendered.instructions.some(i => i.from.includes('possession.team')), 'the opening holder is said')
     assert.ok(passed.rendered.instructions.some(i => i.from.some(path => path.endsWith('.awardedTo'))), 'the restarts are said')
-    assert.equal(renderConcreteGame(reached.fixture as any).instructions.filter(i => /\bball\b/.test(i.text)).length > 0, true, 'the ball is still said')
+    assert.equal(renderConcreteGame(production.fixture as any).instructions.filter(i => /\bball\b/.test(i.text)).length > 0, true, 'the ball is still said')
 
     const read = rpcLibrary.scoringEventsForContext
     try {
@@ -1919,6 +1945,8 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
             guarded.reasons.some(reason => reason.includes('"line_crossed"') && reason.includes('RPC-001 does not approve')),
             `the reason names the realized event and the context: ${JSON.stringify(guarded.reasons)}`,
         )
+        // Round 3b (R3 N3): the copy is refused at validation even without the guard, so the guard is told by what it adds: exactly its 2 reasons.
+        assert.equal(guarded.reasons.filter(reason => !reason.includes(SCORING_COMPONENTS_CHECK)).length, 2, JSON.stringify(guarded.reasons))
         plain(guarded, 'the guard refusal')
     } finally {
         ;(rpcLibrary as any).scoringEventsForContext = read
@@ -2033,10 +2061,24 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
             for (const withdrawn of supplied.withdrawn) supplied.choices.push({ lineId: withdrawn.lineId, value: withdrawn.withdrawnValue, because: 'TEST-ONLY: restored with the transitions taken out' })
             supplied.withdrawn = []
         }
-        const now = served(
+        /**
+         * **Re-pointed 29 October 2026 (round 3; his reply filed 4 November 2026): the copy is refused at `validation`, and the allocation is read on Play Out from the Back as
+         * production serves it.** His reply filed 4 November 2026, item 7, approves refusing "missing or altered components of approved
+         * scoring conditions"; this copy takes the build-out conditions out of the context's contract, so the build's enforcement refuses it,
+         * every reason that enforcement's. Production now carries those conditions and is served at 12 players with 2 of the role, through
+         * the goal pathway, so the allocation this block proves is read there: the same checks, roster, equipment, adjustments and authority,
+         * the marked line's adjustment saying its 9 m bound (the copy had taken the spatial rows out with the conditions).
+         */
+        const copy = refused(
             buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, withoutGapEntries(), { alter: zoneOnly(withoutTransitions), alterSupplied: zoneOnlySupplied(noTransitionChoices) }).activity,
-            `A01 after C53, ${keepers} of ${ROLE}`,
+            `A01 after C53 over the copy, ${keepers} of ${ROLE}`,
         )
+        assert.equal(copy.stage, 'validation', JSON.stringify(copy.reasons))
+        assert.ok(copy.reasons.length > 0 && copy.reasons.every(reason => reason.includes(`${SCORING_COMPONENTS_CHECK}: the `)), JSON.stringify(copy.reasons))
+        // Round 3b (R3 N4): this is now the proof of C53 on the copy — the before-C53 copy is refused at validation too, on its roster; after
+        // C53 no roster reason remains. Never loosen the `every` above to `some`.
+        assert.ok(!copy.reasons.some(reason => reason.includes('roster (') || reason.includes('GA-ROSTER-SUM')), JSON.stringify(copy.reasons))
+        const now = served(buildActivityUnderAuthorizationRecords({ kind: 'learning-goal', goalId: 'A01', session }, learningGoalAuthorizations()).activity, `A01 after C53, ${keepers} of ${ROLE}, as production serves it`)
         // Re-pointed 21 October 2026 (stage 2D): ten cross-block checks, RB-L (the markings set out once are the blocks' own) joining.
         assert.deepEqual(now.roleBlocks?.checks.map(check => check.verdict), Array(10).fill('PASS'))
         const roster = now.rendered.instructions.find(instruction => instruction.text.startsWith('Divide 12 players into 2 teams'))
@@ -2068,7 +2110,9 @@ const VEHICLE = { demonstrationId: 'scoring-modifier' }
             [
                 ['adjust', 'COACH_CHOICE', null, 'You may choose to add a pressing player; with every player already in a team, reallocate someone or introduce an additional player: adding a pressing player can increase pressure but may also expose space behind the press'],
                 ['adjust', 'COACH_CHOICE', null, "You may choose to remove a build-out player, deciding where that player goes so every player is still accounted for, reducing the building team's available support options"],
-                ['adjust', 'COACH_CHOICE', null, 'You may choose to move the marked line nearer to either end line'],
+                // Re-pointed 29 October 2026 (round 3): read on production, which keeps the spatial rows the copy took out, so the marked line's
+                // adjustment says its bound (pinned word for word in communication.unit.ts and geometry-compatibility.unit.ts).
+                ['adjust', 'COACH_CHOICE', null, "You may choose to move the marked line nearer to either end line, but no nearer than 9 m to the building team's end line, so that it stays outside the penalty area; when the roles exchange, set it out again at the same distance from the new building team's end line"],
                 ['adjust', 'COACH_CHOICE', null, 'You may choose to change where the teams start when the pressure you see is not creating an appropriate challenge'],
             ],
         )

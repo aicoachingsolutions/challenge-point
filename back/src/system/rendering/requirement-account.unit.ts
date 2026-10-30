@@ -21,6 +21,9 @@
  *     digests unmoved;
  *   - T13: neither new module reaches selection or coach text;
  *   - T14 and M3: the activity-level account's states, including those no real build reaches today.
+ *   - Round 3 (his reply filed 4 November 2026): in T1/T2, every part's satisfied standing beside where its authority originates (item 2),
+ *     both flags in his distinction (item 3), the RPC-ID-003 observable in his approved words (item 6), the four enforced components and
+ *     the enforcement found nothing (item 7); in T14, what the build refuses on in each state, fail-closed where nothing can be verified.
  *
  * Run: npx ts-node --files -r tsconfig-paths/register ./src/system/rendering/requirement-account.unit.ts
  */
@@ -35,8 +38,8 @@ import { buildActivity, buildActivityForReview, buildActivityWithSelection, Refu
 import { buildPilotActivity } from './build-pilot-activity'
 import { checkedSave, liveCheckedActivity, liveSelectionFor } from './live-activity'
 import { MECHANISM_DEMONSTRATIONS } from './mechanism-demonstrations'
-import { BlockRequirementAccount, COACH_OBSERVATION_RULE, HIS_ACCOUNTS, HIS_STANDARDS, RequirementAccount, requirementAccountOf } from './requirement-account'
-import { loadRequirementBindings } from './requirement-bindings'
+import { BlockRequirementAccount, COACH_OBSERVATION_RULE, HIS_ACCOUNTS, HIS_STANDARDS, RequirementAccount, requirementAccountOf, SATISFIED_BY_ABSENCE_WORDS } from './requirement-account'
+import { KnowledgeRowCitation, loadRequirementBindings, RequirementBindings } from './requirement-bindings'
 import { specializedRoleNames } from './session-envelope'
 
 const quiet = console.log
@@ -55,7 +58,7 @@ const silently = <T>(run: () => T): T => {
         console.log = before
     }
 }
-quiet('the requirement account of Play Out from the Back (report only)')
+quiet("the requirement account of Play Out from the Back (round 3: the approved scoring condition's components enforced)")
 
 const KEEPER = specializedRoleNames()[0]
 const none = Object.fromEntries(specializedRoleNames().map(role => [role, 0]))
@@ -106,9 +109,13 @@ const facet = (account: RequirementAccount, rowId: string, partId: string, facet
 const REFERENT = (asAuthored: string) => ({ objectiveReferenceOf: 'SCORING_TEAM', role: 'PRIMARY_SCORING', asAuthored })
 
 function pinTable(label: string, account: RequirementAccount, realization: string): void {
-    assert.equal(account.status, 'REPORT_ONLY', label)
+    // Round 3b (the coordinator's item 5): a report, of which the approved scoring condition's components were enforced on this build.
+    assert.equal(account.status, 'REPORT_AND_ENFORCEMENT', label)
     assert.equal(account.contract, 'PRODUCTION', label)
-    assert.equal(account.refusal, 'NONE_REPORT_ONLY', label)
+    // Round 3, his item 7: the approved scoring condition's components are enforced on this build, and nothing was found.
+    assert.deepEqual([account.enforcement.scope, account.enforcement.applied, account.enforcement.findings, account.enforcement.coachObservedOnly, account.enforcement.standing, account.enforcement.his.citedAs], ['SCORING_CONDITION_COMPONENTS', true, [], [], 'DRAFT', 'his reply filed 4 November 2026, item 7'], label)
+    // Round 3b (R2 S5, the coordinator's item 4): the fail-closed refusals are stated, and stated as ours beyond his item 7.
+    assert.ok(account.enforcement.what.includes('Fail-closed, and ours beyond his item 7 for his decision'), account.enforcement.what)
     assert.deepEqual(account.bindings, { file: 'docs/audits/requirement-bindings.json', version: loadRequirementBindings().version, mode: 'PRODUCTION', standing: 'DRAFT' }, label)
     assert.deepEqual(account.parts.map(entry => [entry.rowId, entry.partId, entry.account, entry.standard]), TABLE, label)
     assert.equal(account.blocks.length, 2, `${label}: both role blocks are accounted`)
@@ -131,9 +138,48 @@ function pinTable(label: string, account: RequirementAccount, realization: strin
     assert.equal(account.summary.scoringConditionCarried, true, label)
     assert.equal(
         account.summary.headline,
-        'Every component of the approved scoring condition is carried by the activity as built. Progressing beyond the initial pressure or progression line holds by construction: its referent is the target the scoring event reaches, so it rests on where that target is placed. 9 requirement parts depend on coach observation and 3 are unsupported or missing; this account refuses nothing.',
+        "Every component of the approved scoring condition is carried by the activity as built. Progressing beyond the initial pressure or progression line holds by construction: reaching the target does not by itself establish meaningful progression, and the target's placement and its relationship to the intended Game Problem are still to be verified (ours, DRAFT). 9 requirement parts depend on coach observation and 3 are unsupported or missing. Only the components quoting his words are enforced, and nothing else refuses.",
         label,
     )
+    // Round 3, his reply filed 4 November 2026, item 2: satisfied, and where its authority originates, on every part, apart from his categories.
+    assert.deepEqual(
+        account.parts.map(entry => [entry.partId, entry.satisfied, entry.authority.from]),
+        TABLE.map(([, partId, kind]) => {
+            const from: Record<string, string[]> = {
+                'start-awarded': ['PROVISIONAL_REALIZATION'],
+                opposition: ['GAME_FORM_KNOWLEDGE'],
+                direction: realization === 'A01-R2' ? ['GAME_FORM_KNOWLEDGE', 'PROVISIONAL_REALIZATION'] : ['GAME_FORM_KNOWLEDGE'],
+                consequence: ['GAME_FORM_KNOWLEDGE'],
+            }
+            return [partId, kind === 3 ? 'NOT_COUNTED' : kind === 4 ? 'NO' : 'YES', kind === 3 || kind === 4 ? [] : (from[partId] ?? ['CONTEXT_KNOWLEDGE'])]
+        }),
+        `${label}: satisfied beside authority`,
+    )
+    assert.equal(part(account, 'RPC-VAL-004', 'opposition').authority.words, "the Game Form's knowledge (GF2, through the context's relationship RPC-REL-013)", label)
+    assert.equal(part(account, 'RPC-ID-001', 'start-awarded').authority.words, `this activity's provisional realization, his provisional choice (provisional:${realization})`, label)
+    assert.equal(part(account, 'RPC-VAL-002', 'approved-event').authority.words, "the context's knowledge: the scoring events it approves (RPC-REL-072)", label)
+    // Round 3, item 3: both flags kept, our sentence beside his words, cited.
+    assert.deepEqual(account.parts.filter(entry => entry.flag).map(entry => [entry.partId, entry.flag!.kind, entry.flag!.his.citedAs]), [
+        ['progression', 'BY_CONSTRUCTION', 'his reply filed 4 November 2026, item 3, on progression'],
+        ['information', 'BY_ABSENCE', 'his reply filed 4 November 2026, item 3, on representative information'],
+    ], label)
+    // Round 3b (R2 S3): the by-absence part's words never contradict its flag, and the flag names the register row it reads.
+    assert.equal(part(account, 'RPC-VAL-004', 'information').satisfiedWords, SATISFIED_BY_ABSENCE_WORDS, label)
+    assert.ok(part(account, 'RPC-VAL-004', 'information').flag!.ours.startsWith('Satisfied only by the absence of any restriction: no rule on its register row (V15) is in the finished game.'), label)
+    assert.equal(part(account, 'RPC-ID-003', 'progression-options').authority.words, "No feature of the activity carries it: the coach judges it in play (its observable's source is below).", label)
+    assert.deepEqual(part(account, 'RPC-PROP-132', 'progression').flag!.his.words, ['Reaching a target should not automatically establish meaningful progression merely because the target is present.', "The target's placement and relationship to the intended Game Problem matter."], label)
+    assert.deepEqual(part(account, 'RPC-VAL-004', 'information').flag!.his.words, ['However, this conclusion should be supported by a check of the applicable rules and restrictions, rather than simply an assumption that nothing is hidden.'], label)
+    // Round 3, item 7: the four components quoting his words are enforced; nothing else is, the episode ending on a turnover included.
+    assert.deepEqual(account.parts.filter(entry => entry.enforced).map(entry => entry.partId), COMPONENTS, label)
+    // Round 3, item 6: the RPC-ID-003 observable is his 16 October words, approved by him as an observation criterion.
+    assert.deepEqual(part(account, 'RPC-ID-003', 'progression-options').observable, {
+        text: 'Success should permit multiple functional solutions, including carrying the ball, passing through or around pressure, and using a more direct option when appropriate.',
+        source: 'HIS_REPLY',
+        citedAs: { reply: 'his reply filed 16 October 2026, item 4', approvedBy: 'his reply filed 4 November 2026, item 6' },
+        expect: 'PRESENT',
+        standing: 'DRAFT',
+    }, label)
+    assert.ok(part(account, 'RPC-ID-003', 'progression-options').classification.note!.includes('"These should remain possible solutions, not required behaviors."'), label)
     assert.deepEqual(account.summary.unsupported.map(entry => [entry.rowId, entry.partId, entry.cause.kind]), [
         ['RPC-ID-002', 'purpose', 'MISSING_KNOWLEDGE'],
         ['RPC-VAL-002', 'no-unrelated-affordance', 'MISSING_KNOWLEDGE'],
@@ -169,8 +215,8 @@ function pinTable(label: string, account: RequirementAccount, realization: strin
     assert.deepEqual(facet(account, 'RPC-ID-001', 'start-awarded', 'awarded').carriers[0].value, { authored: 'ROLE_HOLDER_BUILDING', realized: ['ROLE_HOLDER_BUILDING'] }, label)
     // His observables, in his words, for the start (the R-rulings review's M4) and the dominant identity (S10).
     assert.deepEqual(part(account, 'RPC-ID-001', 'start-controlled-in-play').observable!.citedAs, { file: 'back/src/system/sport-module/rpc-library.rc1.json', table: 'properties', rowId: 'RPC-PROP-001', field: 'property_text' }, label)
-    assert.deepEqual(part(account, 'RPC-ID-001', 'start-stable-in-play').observable!.citedAs!.rowId, 'RPC-PROP-002', label)
-    assert.deepEqual([part(account, 'RPC-ID-005', 'no-dominant-high-press').observable!.citedAs!.rowId, part(account, 'RPC-ID-005', 'no-dominant-high-press').observable!.expect], ['RPC-PROP-004', 'ABSENT'], label)
+    assert.deepEqual((part(account, 'RPC-ID-001', 'start-stable-in-play').observable!.citedAs as KnowledgeRowCitation).rowId, 'RPC-PROP-002', label)
+    assert.deepEqual([(part(account, 'RPC-ID-005', 'no-dominant-high-press').observable!.citedAs as KnowledgeRowCitation).rowId, part(account, 'RPC-ID-005', 'no-dominant-high-press').observable!.expect], ['RPC-PROP-004', 'ABSENT'], label)
     // Not accounted, every other row, with where each is cited or accounted; DIVERSITY does not apply to one activity (S8).
     const listed = Object.fromEntries(account.notAccounted.map(entry => [entry.rowId, entry]))
     assert.equal(account.notAccounted.length, 19, label)
@@ -392,58 +438,115 @@ test('T14/M3: refused bindings, an unclassified scoring condition, no structural
         parts: account.parts.map(({ perBlock, ...merged }) => ({ ...merged, account: perBlock.find(block => block.blockId === entry.blockId)!.account })),
     }))
     const block = (base: BlockRequirementAccount, change: (parts: BlockRequirementAccount['parts']) => BlockRequirementAccount['parts']): BlockRequirementAccount => ({ ...JSON.parse(JSON.stringify(base)), parts: change(JSON.parse(JSON.stringify(base.parts))) })
-    const of = (blocks: { blockId: string; account: BlockRequirementAccount | null }[], outcome = 'served', refused: string[] | null = null) => requirementAccountOf({ contextId: 'RPC-001', outcome, bindings, refused, blocks, draftContract: false })
+    type Blocks = { blockId: string; account: BlockRequirementAccount | null; enforcement?: { findings: string[]; coachObservedOnly: RequirementAccount['enforcement']['coachObservedOnly'] } }[]
+    const ofWith = (given: RequirementBindings, blocks: Blocks, outcome = 'served', refused: string[] | null = null, draftContract = false) => requirementAccountOf({ contextId: 'RPC-001', outcome, bindings: given, refused, blocks, draftContract })
+    const of = (blocks: Blocks, outcome = 'served', refused: string[] | null = null) => ofWith(bindings, blocks, outcome, refused)
+    // Round 3b: TEST-ONLY copies of the bindings with parts of the scoring row, or the row itself, taken out. The pure reader reads what it is given.
+    const bindingsWithout = (partIds: string[]): RequirementBindings => {
+        const copy: RequirementBindings = JSON.parse(JSON.stringify(bindings))
+        const row = copy.contexts[0].rows.find(entry => entry.rowId === 'RPC-PROP-132')!
+        row.parts = row.parts.filter(entry => !partIds.includes(entry.id))
+        return copy
+    }
+    const withoutScoringRow = (): RequirementBindings => {
+        const copy: RequirementBindings = JSON.parse(JSON.stringify(bindings))
+        copy.contexts[0].rows = copy.contexts[0].rows.filter(entry => entry.rowId !== 'RPC-PROP-132')
+        return copy
+    }
+    const partsWithout = (partIds: string[]) => (parts: BlockRequirementAccount['parts']) => parts.filter(entry => !(entry.rowId === 'RPC-PROP-132' && partIds.includes(entry.partId)))
+    const failClosed = (why: string) => `CS-SCORING-COMPONENTS: the components of RPC-001's approved scoring condition cannot be verified, so the activity is not served (fail-closed): ${why}`
+    const REFUSED_FAIL_CLOSED = ' Its components cannot be verified, so the activity was refused at the validation stage (fail-closed: ours beyond his item 7, for his decision).'
+    const NOTHING_ELSE = 'Only the components quoting his words are enforced, and nothing else refuses.'
     // The rebuilt blocks give back the account as served.
     assert.deepEqual(of([{ blockId: first.blockId, account: first }, { blockId: second.blockId, account: second }]), account)
-    // T14: the bindings file refused, its reason said once (R3 S4).
-    const refused = of(
-        [
-            { blockId: first.blockId, account: { ...first, status: 'BINDINGS_REFUSED', reasons: ['TEST-ONLY'], parts: [] } },
-            { blockId: second.blockId, account: { ...second, status: 'BINDINGS_REFUSED', reasons: ['TEST-ONLY'], parts: [] } },
-        ],
-        'served',
-        ['TEST-ONLY'],
-    )
+    // T14: the bindings file refused where the enforcement reads it, its reason said once (R3 S4); the build refused, fail-closed, and says so.
+    const refusedBlocks = (enforcement?: Blocks[number]['enforcement']): Blocks => [
+        { blockId: first.blockId, account: { ...first, status: 'BINDINGS_REFUSED', reasons: ['TEST-ONLY'], parts: [] }, ...(enforcement ? { enforcement } : {}) },
+        { blockId: second.blockId, account: { ...second, status: 'BINDINGS_REFUSED', reasons: ['TEST-ONLY'], parts: [] }, ...(enforcement ? { enforcement } : {}) },
+    ]
+    const refused = of(refusedBlocks(), 'validation', ['TEST-ONLY'])
     assert.deepEqual([refused.status, refused.parts.length, refused.summary.scoringConditionCarried, refused.reasons], ['BINDINGS_REFUSED', 0, false, ['TEST-ONLY']])
-    assert.equal(refused.summary.headline, 'The requirement account could not be computed: the bindings file was refused. The activity is unchanged.')
-    // M3: a scoring row with no binding (as a TEST-ONLY draft build over the production file shows it).
+    assert.equal(refused.summary.headline, 'The requirement account could not be computed: the bindings file was refused. The components of the approved scoring condition cannot be verified where the enforcement reads them, so the activity was refused at the validation stage (fail-closed: ours beyond his item 7, for his decision).')
+    assert.deepEqual(refused.enforcement.findings, [failClosed('the requirement bindings were refused: TEST-ONLY')])
+    // Round 3b (R1 S1): refused for the report, but no reason reaches what the enforcement reads — the build's own reading, handed in, found nothing.
+    const refusedElsewhere = of(refusedBlocks({ findings: [], coachObservedOnly: [] }), 'served', ['TEST-ONLY'])
+    assert.deepEqual([refusedElsewhere.status, refusedElsewhere.enforcement.findings], ['BINDINGS_REFUSED', []])
+    assert.equal(refusedElsewhere.summary.headline, "The requirement account could not be computed: the bindings file was refused. No reason of the gate reaches what the enforcement reads, so the approved scoring condition's components were enforced from the file as read, and nothing was refused.")
+    // M3: a scoring row the bindings do not classify (as a TEST-ONLY draft build over the production file shows it): refused, fail-closed (R3 S2).
     const unbound = (parts: BlockRequirementAccount['parts']) => [
         ...parts.filter(entry => entry.rowId !== 'RPC-PROP-132'),
         { ...parts.find(entry => entry.rowId === 'RPC-PROP-132')!, partId: 'not-classified', kind: 'NO_BINDING' as const, component: null, rowSpan: null, account: 4 as const, facets: [], cause: { kind: 'NO_BINDING' as const, detail: 'TEST-ONLY' } },
     ]
-    const notClassified = of([{ blockId: first.blockId, account: block(first, unbound) }])
+    const notClassified = ofWith(withoutScoringRow(), [{ blockId: first.blockId, account: block(first, unbound) }], 'validation')
     assert.deepEqual([notClassified.summary.scoringCondition!.state, notClassified.summary.scoringConditionCarried], ['NOT_CLASSIFIED', false])
-    assert.equal(notClassified.summary.headline, 'The approved scoring condition has not been classified into components for this context, so whether its components are carried is not accounted. This account refuses nothing.')
-    // M3: no structural component at all (only coach-observed parts on the scoring row).
-    const observedOnly = of([{ blockId: first.blockId, account: block(first, parts => parts.filter(entry => entry.rowId !== 'RPC-PROP-132' || entry.kind === 'COACH_OBSERVED')) }])
+    assert.equal(notClassified.summary.headline, `The approved scoring condition has not been classified into components for this context, so whether its components are carried is not accounted.${REFUSED_FAIL_CLOSED}`)
+    assert.deepEqual(notClassified.enforcement.findings, [failClosed('RPC-PROP-132 is not classified into components in docs/audits/requirement-bindings.json')])
+    // M3, re-pointed in round 3b (the round-3 review's R2 M1): only coach-observed parts on the scoring row. The three components they classify are
+    // reported, never refused; only the origin's words, which no part classifies, refuse — fail-closed.
+    const structuralParts = ['origin', 'episode-ends-on-loss', 'progression', 'control', 'exclusion']
+    const observedOnly = ofWith(bindingsWithout(structuralParts), [{ blockId: first.blockId, account: block(first, partsWithout(structuralParts)) }], 'validation')
     assert.deepEqual([observedOnly.summary.scoringCondition!.state, observedOnly.summary.scoringConditionCarried], ['NO_STRUCTURAL_COMPONENT', false])
-    assert.equal(observedOnly.summary.headline, 'No component of the approved scoring condition is structurally represented. This account refuses nothing.')
+    assert.equal(observedOnly.summary.headline, `No component of the approved scoring condition is structurally represented.${REFUSED_FAIL_CLOSED}`)
+    assert.deepEqual(observedOnly.enforcement.findings, [failClosed('words of RPC-PROP-132 that no part classifies: "Initiated from the goalkeeper or a controlled defensive restart"')])
+    assert.deepEqual(observedOnly.enforcement.coachObservedOnly.map(entry => entry.component), ['progression', 'control', 'exclusion'])
     assert.deepEqual(observedOnly.summary.scoringCondition!.notStructurallyRepresented.map(entry => entry.component), ['progression', 'control', 'exclusion'])
+    // Round 3b (R2 M1), the control component classified only for coach observation: reported and flagged as judged in play, never refused.
+    const coachOnly = ofWith(bindingsWithout(['control']), [first, second].map(entry => ({ blockId: entry.blockId, account: block(entry, partsWithout(['control'])) })))
+    assert.deepEqual([coachOnly.enforcement.findings, coachOnly.enforcement.coachObservedOnly], [[], [{ rowId: 'RPC-PROP-132', component: 'control', partId: 'control-in-play', words: 'with possession controlled on arrival' }]])
+    assert.deepEqual([coachOnly.summary.scoringCondition!.uncoveredWords, coachOnly.summary.scoringConditionCarried, coachOnly.summary.scoringCondition!.notStructurallyRepresented.map(entry => entry.component)], ['with possession controlled on arrival', false, ['control']])
+    assert.equal(coachOnly.summary.headline, `Words of the approved scoring condition classified for coach observation only: "with possession controlled on arrival". They are judged in play, reported and not enforced (his item 7). ${NOTHING_ELSE}`)
+    // Round 3c (the recheck's S-A): coverage is read in no order. Control's span cut to "with possession controlled", its in-play observable intact:
+    // "on arrival" is classified by the coach-observed part — reported word by word, never refused, and no false "no part classifies".
+    const cutBindings: RequirementBindings = JSON.parse(JSON.stringify(bindings))
+    cutBindings.contexts[0].rows.find(entry => entry.rowId === 'RPC-PROP-132')!.parts.find(entry => entry.id === 'control')!.rowSpan = 'with possession controlled'
+    const cutParts = (parts: BlockRequirementAccount['parts']) => parts.map(entry => (entry.rowId === 'RPC-PROP-132' && entry.partId === 'control' ? { ...entry, rowSpan: 'with possession controlled' } : entry))
+    const cut = ofWith(cutBindings, [first, second].map(entry => ({ blockId: entry.blockId, account: block(entry, cutParts) })), 'served')
+    assert.deepEqual([cut.enforcement.findings, cut.enforcement.coachObservedOnly], [[], [{ rowId: 'RPC-PROP-132', component: 'control', partId: 'control-in-play', words: 'on arrival' }]])
+    assert.ok(!cut.summary.headline.includes('no part classifies') && !cut.enforcement.findings.some(finding => finding.includes('no part classifies')), 'no false reason')
+    assert.deepEqual([cut.summary.scoringCondition!.uncoveredWords, cut.summary.scoringConditionCarried], ['on arrival', false])
+    assert.equal(cut.summary.headline, `Words of the approved scoring condition classified for coach observation only: "on arrival". They are judged in play, reported and not enforced (his item 7). ${NOTHING_ELSE}`)
     // M3: one block stopped before the guard.
     const halfway = of([{ blockId: first.blockId, account: first }, { blockId: second.blockId, account: null }], 'validation')
     assert.deepEqual([halfway.summary.scoringCondition!.unaccountedBlocks, halfway.summary.scoringConditionCarried, halfway.blocksWithoutAccount], [[second.blockId], false, [{ blockId: second.blockId, why: 'it stopped before the context scoring guard' }]])
-    assert.equal(halfway.summary.headline, 'Block 2 of 2 was not accounted: it stopped before the context scoring guard. This account refuses nothing.', 'counted, never named by its role holders (R3 NIT 10)')
+    assert.equal(halfway.summary.headline, `Block 2 of 2 was not accounted: it stopped before the context scoring guard. ${NOTHING_ELSE}`, 'counted, never named by its role holders (R3 NIT 10)')
     // The components read 4 in no block they were not accounted in, and the unaccounted block is not counted favourable (R1 NIT 1).
     assert.ok(halfway.summary.scoringCondition!.components.every(entry => entry.perBlock.length === 1 && entry.perBlock[0].blockId === first.blockId))
-    // M3: served with a component missing in one block (no real build reaches this today): named first, block by block.
-    const servedMissing = of([{ blockId: first.blockId, account: first }, { blockId: second.blockId, account: block(second, parts => parts.map(entry => (entry.partId === 'control' ? { ...entry, account: 4, cause: { kind: 'NOT_CARRIED', detail: 'TEST-ONLY' } } : entry))) }])
-    assert.deepEqual(servedMissing.summary.scoringCondition!.missing.map(entry => [entry.component, entry.blocks, entry.cause.kind]), [['control', [second.blockId], 'NOT_CARRIED']])
-    assert.deepEqual(servedMissing.summary.blocksDisagree.map(entry => entry.partId), ['control'])
-    assert.equal(servedMissing.summary.headline, 'Missing from the approved scoring condition: With possession controlled on arrival. The activity was served without it. This account refuses nothing.')
-    assert.equal(servedMissing.summary.scoringConditionCarried, false)
-    // A block's ERROR: the account says the reader failed, and carries no parts.
-    const errored = of([{ blockId: first.blockId, account: { ...first, status: 'ERROR', reasons: ['TEST-ONLY'], parts: [] } }])
-    assert.deepEqual([errored.status, errored.parts.length, errored.summary.headline], ['ERROR', 0, 'The requirement account could not be computed: the reader failed. The activity is unchanged.'])
+    // M3: a component missing in one block: named first, block by block; what the build refused on is that very block's; the headline says it refused.
+    const missingInOne = of([{ blockId: first.blockId, account: first }, { blockId: second.blockId, account: block(second, parts => parts.map(entry => (entry.partId === 'control' ? { ...entry, account: 4, countsAsSatisfied: false, cause: { kind: 'NOT_CARRIED', detail: 'TEST-ONLY' } } : entry))) }], 'validation')
+    assert.deepEqual(missingInOne.summary.scoringCondition!.missing.map(entry => [entry.component, entry.blocks, entry.cause.kind]), [['control', [second.blockId], 'NOT_CARRIED']])
+    assert.deepEqual(missingInOne.summary.blocksDisagree.map(entry => entry.partId), ['control'])
+    assert.equal(missingInOne.summary.scoringConditionCarried, false)
+    assert.deepEqual(missingInOne.enforcement.findings, [`CS-SCORING-COMPONENTS: the control component of RPC-001's approved scoring condition (RPC-PROP-132), "with possession controlled on arrival", is missing from the activity as built: TEST-ONLY`])
+    assert.equal(missingInOne.summary.headline, 'Missing or altered in the approved scoring condition: With possession controlled on arrival. The activity was refused at the validation stage: a missing or altered component of an approved scoring condition is enforced.')
+    // Round 3b: a component the bindings bind but a block's account does not hold is not accounted there, and refuses.
+    const unread = of([{ blockId: first.blockId, account: block(first, partsWithout(['control'])) }], 'validation')
+    assert.deepEqual(unread.enforcement.findings, [`CS-SCORING-COMPONENTS: the control component of RPC-001's approved scoring condition (RPC-PROP-132), "with possession controlled on arrival", is not accounted in this block: the control part is bound but was not read in this block`])
+    // A TEST-ONLY draft contract is reported only: nothing is enforced, whatever is missing, and the account says it is a report only.
+    const draft = ofWith(bindings, [{ blockId: first.blockId, account: first }, { blockId: second.blockId, account: block(second, parts => parts.map(entry => (entry.partId === 'control' ? { ...entry, account: 4, countsAsSatisfied: false, cause: { kind: 'NOT_CARRIED', detail: 'TEST-ONLY' } } : entry))) }], 'communication', null, true)
+    assert.deepEqual([draft.status, draft.enforcement.applied, draft.enforcement.findings], ['REPORT_ONLY', false, []])
+    assert.equal(draft.summary.headline, 'Missing from the approved scoring condition: With possession controlled on arrival. The activity was refused at the communication stage without it. This account refuses nothing.')
+    // A block's ERROR: the account says the reader failed, carries no parts, and (with no reading of the build's own) the build refused, fail-closed.
+    const erroredBlock = { blockId: first.blockId, account: { ...first, status: 'ERROR' as const, reasons: ['TEST-ONLY'], parts: [] } }
+    const errored = of([erroredBlock], 'validation')
+    assert.deepEqual([errored.status, errored.parts.length, errored.summary.headline], ['ERROR', 0, 'The requirement account could not be computed: the reader failed. Whether the components were carried could not be fully read, so the activity was refused at the validation stage (fail-closed: ours beyond his item 7, for his decision).'])
+    // Round 3b (R1 S2): the full reading failed, but the build read the components on their own and they were carried: nothing refused.
+    const erroredReadAlone = of([{ ...erroredBlock, enforcement: { findings: [], coachObservedOnly: [] } }])
+    assert.deepEqual([erroredReadAlone.status, erroredReadAlone.enforcement.findings, erroredReadAlone.summary.headline], ['ERROR', [], "The requirement account could not be computed: the reader failed. The approved scoring condition's components were read on their own and were carried, so nothing was refused."])
     // Round 2, R3 S2: a block that lacks a part another block has reads 4 for it, never the favourable value; the component is named missing.
     const lacking = of([{ blockId: first.blockId, account: block(first, parts => parts.filter(entry => entry.partId !== 'control')) }, { blockId: second.blockId, account: second }])
     const control = lacking.parts.find(entry => entry.partId === 'control')!
-    assert.deepEqual([control.account, control.perBlock.map(entry => [entry.blockId, entry.account]), control.cause!.kind], [4, [[first.blockId, 4], [second.blockId, 1]], 'NO_BINDING'])
+    assert.deepEqual([control.account, control.satisfied, control.perBlock.map(entry => [entry.blockId, entry.account]), control.cause!.kind], [4, 'NO', [[first.blockId, 4], [second.blockId, 1]], 'NO_BINDING'])
     assert.equal(control.cause!.detail, 'block 1 of 2 holds no such part, so it is not accounted there')
     assert.deepEqual([lacking.summary.scoringCondition!.missing.map(entry => [entry.component, entry.blocks]), lacking.summary.scoringConditionCarried], [[['control', [first.blockId]]], false])
-    // Round 2, R1 S1: a component dropped from every block (and so from the bindings) leaves his words uncovered: never "every component carried".
-    const dropped = of([first, second].map(entry => ({ blockId: entry.blockId, account: block(entry, parts => parts.filter(part => part.component !== 'control')) })))
+    // Round 2, R1 S1, re-pointed in round 3b: a component dropped from the bindings and every block, its coach-observed part with it, leaves words
+    // that no part classifies: never "every component carried", and the build refuses, fail-closed.
+    const droppedParts = ['control', 'control-in-play']
+    const droppedBlocks = (outcome: string, draftContract = false) => ofWith(bindingsWithout(droppedParts), [first, second].map(entry => ({ blockId: entry.blockId, account: block(entry, partsWithout(droppedParts)) })), outcome, null, draftContract)
+    const dropped = droppedBlocks('validation')
     assert.deepEqual([dropped.summary.scoringCondition!.missing, dropped.summary.scoringCondition!.uncoveredWords, dropped.summary.scoringConditionCarried], [[], 'with possession controlled on arrival', false])
-    assert.equal(dropped.summary.headline, 'Words of the approved scoring condition no component accounts for: "with possession controlled on arrival". Whether they are carried by the activity as built is not accounted. This account refuses nothing.')
+    assert.deepEqual(dropped.enforcement.findings, [failClosed('words of RPC-PROP-132 that no part classifies: "with possession controlled on arrival"')])
+    assert.equal(dropped.summary.headline, 'Words of the approved scoring condition no component accounts for: "with possession controlled on arrival". Words no part classifies cannot be verified, so the activity was refused at the validation stage (fail-closed: ours beyond his item 7, for his decision).')
+    assert.equal(droppedBlocks('served', true).summary.headline, 'Words of the approved scoring condition no component accounts for: "with possession controlled on arrival". Whether they are carried by the activity as built is not accounted. This account refuses nothing.')
     // Round 2, R1 NIT 2: a refused activity's carried headline says it was refused.
     const refusedLater = of([{ blockId: first.blockId, account: first }, { blockId: second.blockId, account: second }], 'communication')
     assert.ok(refusedLater.summary.headline.startsWith('Every component of the approved scoring condition is carried by the activity as built (refused at the communication stage).'), refusedLater.summary.headline)

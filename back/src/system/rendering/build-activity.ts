@@ -69,8 +69,27 @@ import { CoachDiagram, DiagramOutcome, diagramForServing } from './coach-diagram
 import { failedDiagramDraft, FieldDiagramDraft } from './field-diagram'
 import { CoachOverview, OverviewEvidence, overviewEvidenceOf, overviewForServing, OverviewOutcome } from './overview-fidelity'
 import { contextScoringFindings, EPISODE_REACHABLE_CHECK, eventKindReadingOf } from './context-scoring-guard'
-import { BlockRequirementAccount, blockRequirementAccountOf, BlockRequirementInputs, failedBlockRequirementAccount, failedRequirementAccount, RequirementAccount, requirementAccountOf } from './requirement-account'
-import { BINDINGS_MODES, RequirementBindings, requirementBindingsLoad, requirementBindingsRefusals } from './requirement-bindings'
+import {
+    BlockRequirementAccount,
+    blockRequirementAccountOf,
+    BlockRequirementInputs,
+    failedBlockRequirementAccount,
+    failedRequirementAccount,
+    RequirementAccount,
+    requirementAccountOf,
+    failClosedReading,
+    scoringComponentReading,
+    ScoringEnforcementReading,
+} from './requirement-account'
+import {
+    BINDINGS_MODES,
+    enforcementBindingsFor,
+    readRequirementBindings,
+    RequirementBindings,
+    RequirementBindingsRead,
+    requirementBindingsLoad,
+    requirementBindingsRefusals,
+} from './requirement-bindings'
 import { draftCoachWordingLoad } from './draft-coach-wording'
 import { checkFidelity, FidelityFinding } from './fidelity'
 import { ReviewDraft, reviewDraftOf } from './review-draft'
@@ -445,9 +464,10 @@ export interface ServedActivity {
      * component of a scoring condition rather than simply confirming that the condition exists."* Each applicable requirement of the context,
      * part by part, in his four categories and three standards, every classification ours and DRAFT. Carried only by the review build with
      * drafts (`buildActivityForReview`, the route's administrator check), served or refused after realization (wherever a block reached the
-     * context-scoring guard), never depending on a record asking for review evidence. It refuses nothing (*"let's verify the classifications
-     * before enabling refusals broadly"*): absent on every coach's, live, saved and pilot answer, and every other key of the activity is what it
-     * was without it.
+     * context-scoring guard), never depending on a record asking for review evidence. The account itself refuses nothing: absent on every
+     * coach's, live, saved and pilot answer, and every other key of the activity is what it was without it. Round 3 (his reply filed 4 November
+     * 2026, item 7): the build — every build, not the account — refuses where a component of the approved scoring condition is missing or
+     * altered (`buildOneGame`), and the account says so (`enforcement`).
      */
     requirementAccount?: RequirementAccount
 }
@@ -1216,12 +1236,25 @@ export function buildActivityUnderAuthorizationRecords(
          */
         lawsMateriality?: LawsMateriality
         /**
-         * 29 October 2026, tests only: the requirement bindings an administrator's review build accounts with (`review.includeDrafts`), in place
-         * of the production file's — a TEST-ONLY copy, the draft store's (`draft-store.ts` `loadDraftRequirementBindings`), or the two merged
-         * (`mergeRequirementBindings`) — held again here to the gate the file is, in the mode it is stamped with (a draft's against `drafts`'
-         * contracts), so a copy it refuses throws. Absent: the production file's, read once.
+         * 29 October 2026, tests only: the requirement bindings the build reads, in place of the production file's — a TEST-ONLY copy, the draft
+         * store's (`draft-store.ts` `loadDraftRequirementBindings`), or the two merged (`mergeRequirementBindings`) — held again here to the
+         * gate the file is, in the mode it is stamped with (a draft's against `drafts`' contracts), so a copy it refuses throws. Read for the
+         * account by an administrator's review build, and (29 October 2026, round 3; his reply filed 4 November 2026) for the enforced scoring-condition components by every
+         * build of a production-contracted context, so it is accepted on a coach's build too. Absent: the production file's, read once.
          */
         requirementBindings?: RequirementBindings
+        /**
+         * 29 October 2026 (round 3; his reply filed 4 November 2026), tests only: the bindings read as refused, with these reasons — standing in for a file the gate refuses or
+         * that cannot be read, which no test may make of the real file — so the fail-closed refusal is shown on any build. Not with
+         * `requirementBindings`.
+         */
+        requirementBindingsRefused?: string[]
+        /**
+         * 30 October 2026 (round 3b), tests only: a bindings file the build reads exactly as the production loader reads the production file
+         * (`readRequirementBindings`: the same gate, each reason located), in place of it — a TEST-ONLY copy written to a scratch folder, so a
+         * test can show what a defect at one place in the file refuses and what it does not (`enforcementBindingsFor`). Not with the two above.
+         */
+        requirementBindingsFile?: string
         /**
          * 29 October 2026, tests only: handed, block by block, exactly the inputs the requirement account read (`BlockRequirementInputs`), so a
          * test can read the account again over a TEST-ONLY change to the finished game (a value blanked, an element removed) without a second
@@ -1230,10 +1263,16 @@ export function buildActivityUnderAuthorizationRecords(
         observeRequirementInputs?: (inputs: BlockRequirementInputs) => void
     } = {},
 ): ActivityBuild & { fixture: Record<string, unknown> | null } {
-    // Round 2, R3 NIT 12: a TEST-ONLY option the build would ignore throws, as a refused copy does: only an administrator's review computes the account.
-    if ((options.requirementBindings || options.observeRequirementInputs) && options.review?.includeDrafts !== true) {
-        throw new Error('TEST-ONLY requirement bindings and their observer are read only by an administrator\'s review build (review: { includeDrafts: true })')
+    // Round 2, R3 NIT 12: a TEST-ONLY option the build would ignore throws, as a refused copy does: only an administrator's review computes the
+    // account, so only it calls the observer. (Round 3: the bindings themselves are read by every build of a production-contracted context.)
+    if (options.observeRequirementInputs && options.review?.includeDrafts !== true) {
+        throw new Error("the TEST-ONLY observer of the requirement account's inputs is called only by an administrator's review build (review: { includeDrafts: true })")
     }
+    if (options.requirementBindings && options.requirementBindingsRefused) throw new Error('TEST-ONLY requirement bindings are either given or read as refused, not both')
+    if (options.requirementBindingsFile !== undefined && (options.requirementBindings || options.requirementBindingsRefused)) throw new Error('a TEST-ONLY bindings file is read in place of given or refused bindings, not beside them')
+    // Round 3b (R1 NIT 6): the refused stand-in names at least one reason, each a string.
+    if (options.requirementBindingsRefused && (!Array.isArray(options.requirementBindingsRefused) || !options.requirementBindingsRefused.length || options.requirementBindingsRefused.some(reason => typeof reason !== 'string')))
+        throw new Error('TEST-ONLY refused requirement bindings name at least one reason')
     const givenBindings = (given: RequirementBindings | undefined): RequirementBindings | null => {
         if (!given) return null
         const copy = JSON.parse(JSON.stringify(given)) as RequirementBindings
@@ -1277,6 +1316,8 @@ export function buildActivityUnderAuthorizationRecords(
         givenMateriality(options.lawsMateriality),
         givenBindings(options.requirementBindings),
         options.observeRequirementInputs ?? null,
+        options.requirementBindingsRefused ? [...options.requirementBindingsRefused] : null,
+        options.requirementBindingsFile ?? null,
     )
     if (drafts) built.activity.draftKnowledge = draftKnowledgeAccountOf(drafts.store, built, drafts.seen.contracts)
     if (options.relevance && observed) built.activity.relevance = relevanceOfBuilt(built, observed.contracts, request.goalId, options.relevance)
@@ -1407,20 +1448,38 @@ function build(
     requirementBindingsGiven: RequirementBindings | null = null,
     /** 29 October 2026, tests only (`observeRequirementInputs`): handed each block's requirement-account inputs. Null: nothing is. */
     observeRequirements: ((inputs: BlockRequirementInputs) => void) | null = null,
+    /** Round 3, tests only (`requirementBindingsRefused`): the bindings read as refused, with these reasons. Null: as read. */
+    requirementBindingsRefusedGiven: string[] | null = null,
+    /** Round 3b, tests only (`requirementBindingsFile`): a bindings file read the production loader's way, in place of the production file. */
+    requirementBindingsFileGiven: string | null = null,
 ): ActivityBuild & { fixture: Record<string, unknown> | null } {
     const boundRegions: SportBoundRegions | null = boundRegionsGiven === undefined ? loadSportBoundRegions() : boundRegionsGiven
     // B2 (28 October 2026): the playing environment's elements, read once for every game of this build (the guard in `buildOneGame`).
     const environment: SportEnvironmentElements | null = loadSportEnvironmentElements()
     /**
-     * The requirement account's bindings (his reply filed 3 November 2026, section 2), for an administrator's review build only: null for every
-     * other build, so a coach's, the live route's, the save's and the pilot's never read the file, never compute the account, and cannot be
-     * touched by either, even by a throw. Read once (`requirementBindingsLoad`); a refused file becomes the account's own status.
+     * The requirement bindings (his reply filed 3 November 2026, section 2), read lazily, once per build, only where a block of a contracted
+     * context reaches the context-scoring guard: in full for an administrator's review build (the account), and — round 3, his reply filed 4
+     * November 2026, item 7 — for the approved scoring condition's components on every build of a production-contracted context, whatever
+     * the route (a coach's, the live route's, the save's, the pilot's), which refuses where one is missing or altered. A refused file is the
+     * account's own status; it refuses the activity only where it cannot be read, or where a gate reason reaches what the enforcement reads
+     * (round 3b, `enforcementBindingsFor`). The process reads it once (`requirementBindingsLoad`). A TEST-ONLY copy, file, or refusal
+     * standing in for one, given to a test build, is read for both.
      */
-    const requirements: GameContext['requirements'] = !review.includeDrafts
-        ? null
-        : requirementBindingsGiven
-          ? { bindings: requirementBindingsGiven, refused: null, observe: observeRequirements }
-          : (load => ({ bindings: load.bindings, refused: load.why ? [load.why] : null, observe: observeRequirements }))(requirementBindingsLoad())
+    let bindingsRead: RequirementBindingsRead | null = null
+    const readBindings = (): RequirementBindingsRead =>
+        (bindingsRead ??= requirementBindingsRefusedGiven
+            ? { bindings: null, why: requirementBindingsRefusedGiven.join(' | '), located: [], asRead: null, unreadable: false }
+            : requirementBindingsGiven
+              ? { bindings: requirementBindingsGiven, why: null, located: [], asRead: null, unreadable: false }
+              : requirementBindingsFileGiven !== null
+                ? readRequirementBindings(requirementBindingsFileGiven)
+                : requirementBindingsLoad())
+    const requirements: GameContext['requirements'] = {
+        load: () => (read => ({ bindings: read.bindings, refused: read.bindings ? null : requirementBindingsRefusedGiven ? [...requirementBindingsRefusedGiven] : [read.why ?? 'the requirement bindings were not read'] }))(readBindings()),
+        forEnforcement: contextId => enforcementBindingsFor(readBindings(), contextId),
+        account: review.includeDrafts === true,
+        observe: review.includeDrafts ? observeRequirements : null,
+    }
     const { kind, title, subtitle } = composed ? { kind: 'mechanism-demonstration' as const, title: composed.join(' + '), subtitle: null } : describeRequest(request)
     // "This goal …" for a Learning Goal and "This demonstration …" for a demonstration: a demonstration is
     // never described to a coach as a goal, in a refusal any more than in a title.
@@ -1899,17 +1958,19 @@ function build(
          * build, so a coach's answer is exactly what it was. It refuses nothing, and a throw while merging becomes the account's own ERROR (the
          * R-engine review's S4), never the route's 500.
          */
-        const requirementKeys = (outcome: string, blocks: { blockId: string; requirements?: BlockRequirementAccount }[]): { requirementAccount?: RequirementAccount } => {
-            if (!requirements || !context || !blocks.some(block => block.requirements)) return {}
+        const requirementKeys = (outcome: string, blocks: { blockId: string; requirements?: BlockRequirementAccount; enforcement?: ScoringEnforcementReading }[]): { requirementAccount?: RequirementAccount } => {
+            if (!requirements.account || !context || !blocks.some(block => block.requirements)) return {}
             const draftContract = account.context?.contract === 'DRAFT'
             try {
+                const read = requirements.load()
                 return {
                     requirementAccount: requirementAccountOf({
                         contextId: context.id,
                         outcome,
-                        bindings: requirements.bindings,
-                        refused: requirements.refused,
-                        blocks: blocks.map(block => ({ blockId: block.blockId, account: block.requirements ?? null })),
+                        bindings: read.bindings,
+                        refused: read.refused,
+                        // Round 3b: with what the build's enforcement found on each block, as it read it (R1 S1, S2).
+                        blocks: blocks.map(block => ({ blockId: block.blockId, account: block.requirements ?? null, ...(block.enforcement ? { enforcement: block.enforcement } : {}) })),
                         draftContract,
                     }),
                 }
@@ -1917,7 +1978,7 @@ function build(
                 return { requirementAccount: failedRequirementAccount(context.id, outcome, error instanceof Error ? error.message : String(error), draftContract) }
             }
         }
-        const blockRequirementsOf = (list: { block: RoleBlock; outcome: GameOutcome }[]) => list.map(entry => ({ blockId: entry.block.blockId, requirements: entry.outcome.requirements }))
+        const blockRequirementsOf = (list: { block: RoleBlock; outcome: GameOutcome }[]) => list.map(entry => ({ blockId: entry.block.blockId, requirements: entry.outcome.requirements, enforcement: entry.outcome.enforcement }))
         const rolesRow = roleIndex.roleBlocks?.rolesRow
         /**
          * Stage D (23 October 2026, register version 18): a selection carrying an item on the end-assignment row (B10) is asked too, so an
@@ -2167,7 +2228,7 @@ function build(
             if (evidence) (refusal.activity as RefusedActivity).evidence = evidence
             Object.assign(refusal.activity, lawsCheckKeys(lawAccount))
             // The requirement account (administrator only): only where the game reached the guard; a refusal before it carries none.
-            Object.assign(refusal.activity, requirementKeys(refusal.activity.outcome === 'refused' ? refusal.activity.stage : 'served', [{ blockId: ONE_GAME, requirements: one.requirements }]))
+            Object.assign(refusal.activity, requirementKeys(refusal.activity.outcome === 'refused' ? refusal.activity.stage : 'served', [{ blockId: ONE_GAME, requirements: one.requirements, enforcement: one.enforcement }]))
             return refusal
         }
         // H2: the default-laws account of the one game, where the realization being tried declares the check; under ENFORCE, owed refuses.
@@ -2178,7 +2239,7 @@ function build(
             const evidence = reviewEvidenceFor(review, goalSelection, account, roleIndex, session, 'validation', one.rendered, [], [], [{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, contracts: one.contracts, rendered: one.rendered, ...one.evidence }], null, null, oneLawAccount, boundRegions)
             if (evidence) (oneLawRefusal.activity as RefusedActivity).evidence = evidence
             Object.assign(oneLawRefusal.activity, lawsCheckKeys(oneLawAccount))
-            Object.assign(oneLawRefusal.activity, requirementKeys('validation', [{ blockId: ONE_GAME, requirements: one.requirements }]))
+            Object.assign(oneLawRefusal.activity, requirementKeys('validation', [{ blockId: ONE_GAME, requirements: one.requirements, enforcement: one.enforcement }]))
             return oneLawRefusal
         }
         // Stage 3D: the overview of the one game, checked against its Details (which are what a coach is served).
@@ -2189,7 +2250,7 @@ function build(
             {
                 ...(evidence ? { evidence } : {}),
                 ...lawsCheckKeys(oneLawAccount),
-                ...requirementKeys('served', [{ blockId: ONE_GAME, requirements: one.requirements }]),
+                ...requirementKeys('served', [{ blockId: ONE_GAME, requirements: one.requirements, enforcement: one.enforcement }]),
                 ...overviewKeys(overview),
                 ...diagramKeys([{ blockId: ONE_GAME, holders: {}, fixture: one.fixture, rendered: one.rendered.instructions }], one.rendered.instructions, null),
             },
@@ -2402,10 +2463,18 @@ interface GameContext {
     /** B2: the Sport Profile's record of the playing environment's elements (`environment-elements.ts`); null where the profile carries none. */
     environment: SportEnvironmentElements | null
     /**
-     * 29 October 2026: the requirement account's bindings (or why they were refused), for an administrator's review build only; null for every
-     * other build, which then computes no account. `observe` is TEST-ONLY (`observeRequirementInputs`).
+     * 29 October 2026: the requirement bindings (or why they were refused), read lazily (`load`, once per build). `account`: an administrator's
+     * review build, which computes the full account; every other build computes, for a production-contracted context, only the approved
+     * scoring condition's components it enforces (round 3, his reply filed 4 November 2026, item 7). `observe` is TEST-ONLY
+     * (`observeRequirementInputs`), and only on an administrator's review build.
      */
-    requirements: { bindings: RequirementBindings | null; refused: string[] | null; observe: ((inputs: BlockRequirementInputs) => void) | null } | null
+    requirements: {
+        load: () => { bindings: RequirementBindings | null; refused: string[] | null }
+        /** Round 3b: the bindings the enforcement of one context may read, or what refuses it (`enforcementBindingsFor`). */
+        forEnforcement: (contextId: string) => { bindings: RequirementBindings | null; refused: string[] | null }
+        account: boolean
+        observe: ((inputs: BlockRequirementInputs) => void) | null
+    }
 }
 
 /** One game built from its derivation input to communication, or the stage it stopped at. */
@@ -2433,6 +2502,8 @@ type GameOutcome =
           question?: SessionQuestion
           /** 29 October 2026, administrator only: this block's requirement account, where it reached the context-scoring guard. */
           requirements?: BlockRequirementAccount
+          /** Round 3b, administrator only: what the build's enforcement found on this block, as it read it. */
+          enforcement?: ScoringEnforcementReading
       }
     | {
           outcome: 'built'
@@ -2447,6 +2518,8 @@ type GameOutcome =
           recommunicate: (extra: Record<string, unknown>) => GameOutcome
           /** 29 October 2026, administrator only: this block's requirement account. */
           requirements?: BlockRequirementAccount
+          /** Round 3b, administrator only: what the build's enforcement found on this block, as it read it. */
+          enforcement?: ScoringEnforcementReading
       }
 
 /**
@@ -2487,7 +2560,9 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
     let fixture: any = null
     /** 29 October 2026: this block's requirement account, read right after the context-scoring guard; null where the build is not an administrator's review, or stopped before the guard. */
     let blockRequirements: BlockRequirementAccount | null = null
-    const withRequirements = (outcome: GameOutcome): GameOutcome => (blockRequirements ? { ...outcome, requirements: blockRequirements } : outcome)
+    /** Round 3b: what the enforcement found on this block, kept beside the administrator's account (never on a coach's answer). */
+    let blockEnforcement: ScoringEnforcementReading | null = null
+    const withRequirements = (outcome: GameOutcome): GameOutcome => (blockRequirements ? { ...outcome, requirements: blockRequirements, ...(blockEnforcement ? { enforcement: blockEnforcement } : {}) } : outcome)
     // Stage E: a typed applicability refusal carries its type (and an ASK its question) for the build's loop; every other refusal is as before.
     const refuse = (stage: ActivityStage, summary: string, reasons: string[], typed: { applicability?: Applicability | null; question?: SessionQuestion } = {}): GameOutcome => ({
         outcome: 'refused',
@@ -2777,20 +2852,34 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
                 : []
         invalid.push(...contextScoringFindings(context.id, contract, realized.game, rpcLibrary.scoringEventsForContext(context.id), episodeCheck, alsoCountsSupport, roleEventSupport, index, contextRelationships()))
         /**
-         * **The requirement account of this block, report only** (29 October 2026; `requirement-account.ts`), for an administrator's review build
-         * only: read after the guard, from the same realized game, the same episode check and the same readings of the event and of each
-         * condition (`eventKindReadingOf`, `conditionReadingOf`), with the forward results, classes and line verdicts derivation computed for
-         * this block. It pushes nothing onto `invalid` and changes no stage, summary or reason; a throw becomes the block account's ERROR.
-         * The checked pathway returns one activity, so the rows evaluated over returned alternatives do not apply (`alternativesReturned`).
+         * **The requirement account of this block** (29 October 2026; `requirement-account.ts`): read after the guard, from the same realized
+         * game, the same episode check and the same readings of the event and of each condition (`eventKindReadingOf`, `conditionReadingOf`),
+         * with the forward results, classes and line verdicts derivation computed for this block. The checked pathway returns one activity, so
+         * the rows evaluated over returned alternatives do not apply (`alternativesReturned`).
+         *   - For an administrator's review build, in full (the report); a throw becomes the block account's ERROR.
+         *   - **Round 3: the approved scoring condition's components are enforced** (his reply filed 4 November 2026, item 7: *"I approve
+         *     beginning narrowly with missing or altered components of approved scoring conditions, where those components are clearly
+         *     defined, structurally necessary, and mechanically verifiable."*), on every build of a production-contracted context, whatever the
+         *     route: a component missing or altered is pushed onto `invalid` with its technical reason, so the activity is refused here at the
+         *     validation stage with the guard's own summary. A TEST-ONLY draft contract is reported only. Nothing else the account reads
+         *     refuses: *"I would not yet extend refusal to every unsupported purpose statement, inferred affordance relationship, or
+         *     coach-observed condition."* (same item).
+         *   - **Round 3b** (the round-3 review's R1 S1-S3): the enforcement reads the bindings `enforcementBindingsFor` allows (a gate reason
+         *     elsewhere in the file leaves the account refused, never the activity); it reuses the administrator's reading only where that read
+         *     the same bindings in full, and otherwise reads the components on their own (`only: 'ENFORCED'`), so the administrator's build and
+         *     the coach's end alike; and nothing in it can throw out of the route — any failure becomes the fail-closed reason (ours beyond his
+         *     item 7, for his decision).
          */
-        if (requirements) {
+        const productionContract = !(selection.draftContracts ?? []).some(entry => knowledgeKey(entry.contractId) === knowledgeKey(context.id))
+        if (requirements.account || productionContract) {
             const blockId = input.roleBlock?.blockId ?? ONE_GAME
+            const failed = (error: unknown) => failedBlockRequirementAccount(blockId, context.id, error instanceof Error ? error.message : String(error))
+            let base: Omit<BlockRequirementInputs, 'bindings' | 'refused'> | null = null
+            let baseFailure: BlockRequirementAccount | null = null
             try {
-                const inputs: BlockRequirementInputs = {
+                base = {
                     blockId,
                     contextId: context.id,
-                    bindings: requirements.bindings,
-                    refused: requirements.refused,
                     contracts: input.contracts as LoadedContract[],
                     forward: staged.forward ?? [],
                     classes: staged.classes ?? [],
@@ -2804,11 +2893,46 @@ function buildOneGame(input: any, { subject, session, selection, context, alterS
                     alternativesReturned: false,
                     index,
                 }
-                blockRequirements = blockRequirementAccountOf(inputs)
-                // TEST-ONLY: handed after the account is read, so an observer can never change what was read (R3 NIT 11); it must not mutate.
-                if (requirements.observe) requirements.observe(inputs)
             } catch (error) {
-                blockRequirements = failedBlockRequirementAccount(blockId, context.id, error instanceof Error ? error.message : String(error))
+                baseFailure = failed(error)
+            }
+            // The report, for an administrator's review build: every applicable row.
+            let reportBindings: RequirementBindings | null = null
+            if (requirements.account) {
+                if (!base) blockRequirements = baseFailure
+                else
+                    try {
+                        const read = requirements.load()
+                        reportBindings = read.bindings
+                        const inputs: BlockRequirementInputs = { ...base, bindings: read.bindings, refused: read.refused }
+                        blockRequirements = blockRequirementAccountOf(inputs)
+                        // TEST-ONLY: handed after the account is read, so an observer can never change what was read (R3 NIT 11); it must not mutate.
+                        if (requirements.observe) requirements.observe(inputs)
+                    } catch (error) {
+                        blockRequirements = failed(error)
+                    }
+            }
+            // The enforcement, on every build of a production-contracted context.
+            if (productionContract) {
+                let reading: ScoringEnforcementReading
+                try {
+                    const enforcing = requirements.forEnforcement(context.id)
+                    let read: BlockRequirementAccount
+                    if (blockRequirements && blockRequirements.status === 'ACCOUNTED' && enforcing.bindings !== null && enforcing.bindings === reportBindings) read = blockRequirements
+                    else if (!base) read = baseFailure ?? failed('the requirement inputs were not read')
+                    else
+                        try {
+                            read = blockRequirementAccountOf({ ...base, bindings: enforcing.bindings, refused: enforcing.refused, only: 'ENFORCED' })
+                        } catch (error) {
+                            read = failed(error)
+                        }
+                    reading = scoringComponentReading(read, enforcing.bindings)
+                } catch (error) {
+                    // The last resort reads nothing else, so nothing here can throw out of the route (R1 S3).
+                    reading = failClosedReading(context.id, error instanceof Error ? error.message : String(error))
+                }
+                blockEnforcement = reading
+                invalid.push(...reading.findings)
             }
         }
     }

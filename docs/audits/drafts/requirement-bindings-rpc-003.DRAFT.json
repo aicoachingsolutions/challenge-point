@@ -2,7 +2,7 @@
   "about": "TEST-ONLY REQUIREMENT BINDINGS for the DRAFT Attack Development context contract (docs/audits/drafts/ta02-composition/rpc-003-contract.DRAFT.json). Read only by the TEST-ONLY draft-store loader (loadDraftRequirementBindings) and handed to a TEST-ONLY build; no production module reads this file. Held to the same gate as the production bindings, in its DRAFT mode, and in its MERGED mode once merged with them.",
   "standing": "DRAFT - TEST-ONLY. OUR CLASSIFICATION OF A DRAFT CONTRACT, NOT HIS. The split of his Primary Scoring Condition into origin, progression and control is the draft contract's, ours and unreviewed; the meaning of \"from the attack's starting condition\" awaits his clarification (his reply filed 3 November 2026, section 3).",
   "schemaVersion": 1,
-  "version": "2026-11-03.2-draft",
+  "version": "2026-11-04.2-draft",
   "applicability": {
     "standing": "DRAFT",
     "accounted": {
@@ -14,7 +14,7 @@
       "identityRoles": ["SUPPORTING_IDENTITY"],
       "propertyCategories": ["BEGIN_CONDITION", "END_CONDITION", "REPRESENTATIVE_INFORMATION", "DEGENERATE_SOLUTION", "BEHAVIOR_ADJUSTMENT"],
       "validationDomains": [],
-      "why": "Listed for review and not accounted in this increment: whether a supporting identity row, a context's core begin and end conditions, its representative information, its degenerate solutions or its behaviour adjustments belong to the applicable set is his decision."
+      "why": "His reply filed 4 November 2026, item 1: \"Required beginning and ending conditions, exclusions, and representative information should be included where they are essential to the selected context's identity or the activity's functioning.\" \"Supporting identity statements, adjustments, degenerate solutions, and transitions should remain available as review evidence without automatically becoming mandatory structural requirements.\" Which begin and end conditions and which representative information are essential, and accounting them, is deferred (ours, DRAFT), reading his line in the same reply: \"I don't want to expand the validation framework further before attempting the next composition test.\""
     },
     "overReturnedAlternatives": {
       "validationDomains": ["DIVERSITY"],

@@ -1,8 +1,8 @@
 {
-  "about": "REQUIREMENT BINDINGS: how each applicable, approved context requirement is accounted for in a finished activity, part by part, in the four categories Christian supported and the three standards he asked to keep distinct, in his reply filed 3 November 2026, section 2. Read only by the requirement-account reader (back/src/system/rendering/requirement-account.ts) after realization, for an administrator's review build; never part of a derivation input, so no input digest moves. Every pattern finds carrying items by register row, selector term, requirement, strictness, scope, value and the kind of contract it sits in, never by item id, so any realization that carries a requirement is found to carry it and no Learning Goal is named. Each scoring-condition component pins the value and scope his approved knowledge carries, so a change to either reads as missing.",
-  "standing": "DRAFT - OUR CLASSIFICATION, NOT HIS. Every part, account kind, standard, pattern and observable below is ours, drafted for his review. Nothing here refuses an activity (his reply filed 3 November 2026: \"let's verify the classifications before enabling refusals broadly\").",
+  "about": "REQUIREMENT BINDINGS: how each applicable, approved context requirement is accounted for in a finished activity, part by part, in the four categories Christian supported and the three standards he asked to keep distinct, in his reply filed 3 November 2026, section 2. Read by the requirement-account reader (back/src/system/rendering/requirement-account.ts) after realization: in full for an administrator's review build and, since his reply filed 4 November 2026, item 7, for the approved scoring condition's components on every build of a production-contracted context that reaches the context-scoring guard, where a component quoting his words that is missing or altered refuses the activity; nothing else here refuses. Never part of a derivation input, so no input digest moves. Every pattern finds carrying items by register row, selector term, requirement, strictness, scope, value and the kind of contract it sits in, never by item id, so any realization that carries a requirement is found to carry it and no Learning Goal is named. Each scoring-condition component pins the value and scope his approved knowledge carries, so a change to either reads as altered.",
+  "standing": "DRAFT - OUR CLASSIFICATION, NOT HIS. Every part, account kind, standard, pattern and observable below is ours, drafted for his review. Only the approved scoring condition's components quoting his words refuse (his reply filed 4 November 2026, item 7); nothing else here refuses.",
   "schemaVersion": 1,
-  "version": "2026-11-03.2",
+  "version": "2026-11-04.2",
   "applicability": {
     "standing": "DRAFT",
     "accounted": {
@@ -14,7 +14,7 @@
       "identityRoles": ["SUPPORTING_IDENTITY"],
       "propertyCategories": ["BEGIN_CONDITION", "END_CONDITION", "REPRESENTATIVE_INFORMATION", "DEGENERATE_SOLUTION", "BEHAVIOR_ADJUSTMENT"],
       "validationDomains": [],
-      "why": "Listed for review and not accounted in this increment: whether a supporting identity row, a context's core begin and end conditions, its representative information, its degenerate solutions or its behaviour adjustments belong to the applicable set is his decision."
+      "why": "His reply filed 4 November 2026, item 1: \"Required beginning and ending conditions, exclusions, and representative information should be included where they are essential to the selected context's identity or the activity's functioning.\" \"Supporting identity statements, adjustments, degenerate solutions, and transitions should remain available as review evidence without automatically becoming mandatory structural requirements.\" Which begin and end conditions and which representative information are essential, and accounting them, is deferred (ours, DRAFT), reading his line in the same reply: \"I don't want to expand the validation framework further before attempting the next composition test.\""
     },
     "overReturnedAlternatives": {
       "validationDomains": ["DIVERSITY"],
@@ -104,7 +104,7 @@
               "standard": "LEARNING_DESIGN_RELEVANCE",
               "cause": {
                 "kind": "MISSING_KNOWLEDGE",
-                "detail": "No knowledge relationship carries the purpose. His reply filed 16 October 2026, item 4, links it to the scoring outcome, a candidate rather than a relationship: \"The intended outcome is controlled progression beyond meaningful defensive pressure, establishing the opportunity to continue an organized attack.\" His end condition RPC-PROP-003, \"Organized attack is established.\", and RPC-VAL-002's expected evidence, \"Scoring clearly rewards the representative purpose owned by the RPC.\", are candidate observables. The part stays unsupported because its standard is learning-design relevance, and our DRAFT rule admits coach observation for relevance only on expected evidence that names a coach's judgment. Whether the purpose should instead be observed in play, with his RPC-PROP-003, is his decision."
+                "detail": "No knowledge relationship carries the purpose. His reply filed 16 October 2026, item 4, links it to the scoring outcome, a candidate rather than a relationship: \"The intended outcome is controlled progression beyond meaningful defensive pressure, establishing the opportunity to continue an organized attack.\" His end condition RPC-PROP-003, \"Organized attack is established.\", and RPC-VAL-002's expected evidence, \"Scoring clearly rewards the representative purpose owned by the RPC.\", are candidate observables. His reply filed 4 November 2026, item 4, keeps the part unsupported: \"For now, keep the representative purpose classified as unsupported at the learning-design relevance level until an authorized relationship demonstrates how the activity's conditions are intended to support that purpose.\" \"The coach can observe whether organized attack becomes established, and that evidence is valuable.\" \"But observing the outcome is different from demonstrating that the activity was designed to invite it.\" \"I would like the engine eventually to provide a grounded explanation of that relationship rather than relying solely on the coach's judgment.\""
               }
             }
           ]
@@ -118,9 +118,12 @@
               "kind": "COACH_OBSERVED",
               "standard": "FIELD_EFFECTIVENESS",
               "observable": {
-                "text": "The player on the ball has more than one realistic way to progress, rather than one forced option.",
-                "source": "OURS",
-                "citedAs": null
+                "text": "Success should permit multiple functional solutions, including carrying the ball, passing through or around pressure, and using a more direct option when appropriate.",
+                "source": "HIS_REPLY",
+                "citedAs": {
+                  "reply": "his reply filed 16 October 2026, item 4",
+                  "approvedBy": "his reply filed 4 November 2026, item 6"
+                }
               },
               "recordedOutsideBy": [
                 {
@@ -129,7 +132,7 @@
                   "from": ["CONTEXT", "REALIZATION", "GAME_FORM"]
                 }
               ],
-              "standingNote": "The observable is drafted by us from his row, not his words. His words that may serve instead (his reply filed 16 October 2026, item 4): \"Success should permit multiple functional solutions, including carrying the ball, passing through or around pressure, and using a more direct option when appropriate.\""
+              "standingNote": "His words, approved by him as an observation criterion: his reply filed 4 November 2026, item 6, \"Yes, I approve using the existing October 16 language as an observation criterion\". They name possible solutions, not required behaviours: \"These should remain possible solutions, not required behaviors.\" \"The objective is to preserve meaningful opportunities for players to respond to the available information rather than prescribing how they must progress.\" Choosing coach observation and field effectiveness for this part is ours (DRAFT)."
             }
           ]
         },
@@ -230,7 +233,7 @@
                 }
               ],
               "accountsFor": ["RPC-PROP-005"],
-              "standingNote": "Our DRAFT reading of his eligibility ruling, his reply filed 19 October 2026, item 1: \"If the building team loses possession, that scoring opportunity ends. If it subsequently regains possession, play may continue, but the original build-out scoring opportunity is not restored.\" And item 3, C: \"build-out scoring eligibility does not return until a new deliberate goalkeeper restart.\" A possession change must begin a new episode in the finished game, so the episode-scoped condition cannot carry over a regain; it is read structurally because of his line: \"Please ensure the underlying scoring eligibility reflects this distinction, rather than relying solely on the coach-facing wording.\" It accounts, inside the scoring condition, for his end condition \"Possession is lost.\""
+              "standingNote": "Our DRAFT reading of his eligibility ruling, his reply filed 19 October 2026, item 1: \"If the building team loses possession, that scoring opportunity ends. If it subsequently regains possession, play may continue, but the original build-out scoring opportunity is not restored.\" And item 3, C: \"build-out scoring eligibility does not return until a new deliberate goalkeeper restart.\" A possession change must begin a new episode in the finished game, so the episode-scoped condition cannot carry over a regain; it is read structurally because of his line: \"Please ensure the underlying scoring eligibility reflects this distinction, rather than relying solely on the coach-facing wording.\" It accounts, inside the scoring condition, for his end condition \"Possession is lost.\" Not enforced (ours, DRAFT): it is our reading of his ruling of 19 October, not words of the approved scoring condition, so under his reply filed 4 November 2026, item 7, it stays reported, not enforced, and refuses nothing."
             },
             {
               "id": "progression",
@@ -274,7 +277,7 @@
                   "from": ["CONTEXT", "REALIZATION"]
                 }
               ],
-              "standingNote": "Its referent is the target the scoring team attacks, so the condition holds whenever the scoring event occurs; what makes the arrival a progression beyond the initial pressure is where that target is placed (his reply filed 17 October 2026, D3: \"I agree with your recommendation to position the building team's progression target relative to the defensive pressure reference, with the coach able to adjust its precise location.\"). His reply filed 16 October 2026, item 9, point 2, bears on it too: \"provided they are evaluated against the intended progression outcome and not merely whichever target the current engine can represent\"."
+              "standingNote": "Its referent is the target the scoring team attacks, so the condition holds whenever the scoring event occurs (by construction). Reaching that target does not by itself establish meaningful progression: his reply filed 4 November 2026, item 3, \"Reaching a target should not automatically establish meaningful progression merely because the target is present.\" \"The target's placement and relationship to the intended Game Problem matter. Please preserve this distinction in the report.\" The placement, and its relationship to the intended Game Problem, are still to be verified (ours, DRAFT). What places it: his reply filed 17 October 2026, D3: \"I agree with your recommendation to position the building team's progression target relative to the defensive pressure reference, with the coach able to adjust its precise location.\" His reply filed 16 October 2026, item 9, point 2, bears on it too: \"provided they are evaluated against the intended progression outcome and not merely whichever target the current engine can represent\"."
             },
             {
               "id": "control",
@@ -437,7 +440,7 @@
                 "source": "WORKBOOK_EXPECTED_EVIDENCE",
                 "citedAs": null
               },
-              "standingNote": "The choice of standard is ours, DRAFT, and it is in tension with his reply filed 2 November 2026: \"The engine should establish structural validity and provide grounded evidence for learning-design relevance. Field effectiveness requires observation.\" A coach's identification is observation, not grounded evidence. Kept here for his decision between relevance, field effectiveness, or a structural reading of his IDENTITY domain."
+              "standingNote": "Learning-design relevance, as his reply filed 4 November 2026, item 5, holds: \"I consider recognizability primarily a learning-design relevance criterion, potentially evaluated through expert coach judgment.\" Its limits, in his words: \"That judgment can help validate the design, but it should not be treated as proof of learning effectiveness.\" \"Field effectiveness is a separate question: whether players actually encounter and respond to the intended opportunities during play.\" So a coach's recognition is read here as a design check only: not counted as satisfied in this account (our DRAFT rule), and no evidence of field effectiveness."
             }
           ]
         },
@@ -566,6 +569,7 @@
             {
               "id": "information",
               "label": "Representative information is not withheld",
+              "standingNote": "Satisfied only by the absence of any restriction: no information rule exists, so nothing withholds representative information (ours, DRAFT). His reply filed 4 November 2026, item 3: \"A requirement may be satisfied because the activity does not restrict relevant information. However, this conclusion should be supported by a check of the applicable rules and restrictions, rather than simply an assumption that nothing is hidden.\" That check is not built: deferred (ours, DRAFT), reading his line in the same reply, \"I don't want to expand the validation framework further before attempting the next composition test.\" \"Neither flag necessarily invalidates Play Out from the Back, but both identify relationships worth verifying.\"",
               "kind": "PATTERN",
               "standard": "STRUCTURAL_VALIDITY",
               "facets": [
