@@ -254,8 +254,8 @@ No production file is changed. The changes are confined to `back/src/system/desi
 
 **The regression snapshot is unchanged.** `npm run snapshot` covers every live-route and review case.
 
-- The baseline was taken on `main` (`f534a62`) before any change. The new snapshot was taken with every Stage 2 change in place, including the review corrections.
-- Both files have sha-256 `a8420db066c34341366254b9e8063aa9c66688fd777a350ce9aa1d0a2c4da246`.
+- The baseline was taken on `main` (`f534a62`) before any change. A second snapshot was taken during the review corrections (14:41), before their last edits (14:47-14:48). So the snapshot was re-taken on the clean, committed tree at `0cfb34c` (15:34).
+- All three have sha-256 `a8420db066c34341366254b9e8063aa9c66688fd777a350ce9aa1d0a2c4da246`.
 - `npm run snapshot:diff` reports `KEYS 391  CHANGED 0  LEAVES 0  ONLY-BEFORE 0  ONLY-AFTER 0`.
 - Recorded in `evidence/regression-snapshot-comparison.txt`.
 
