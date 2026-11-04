@@ -1,0 +1,28 @@
+{
+    "standing": "OURS, proposed for Christian's review with the Stage 1 demonstration. These are the orderings and the one dominance rule the Game Form step uses. Each ordering is our reading of a controlled vocabulary or a column of approved knowledge, cited below; none of them is his ruling yet. Changing this file changes Game Form decisions, and nothing else does except the knowledge itself.",
+    "contextRelationshipStrength": {
+        "order": ["REQUIRED", "PRIMARY", "SECONDARY"],
+        "unordered": ["SUPPORTING"],
+        "basis": "The context library's controlled vocabulary, relationship_strength: REQUIRED 'Identity-critical or mandatory.', PRIMARY 'Major relationship.', SECONDARY 'Frequent but subordinate relationship.'. The vocabulary does not say how SUPPORTING ('Supporting relationship.') stands against SECONDARY, so a SUPPORTING row is left incomparable with a SECONDARY one and never decides a preference.",
+        "cites": [
+            { "file": "back/src/system/sport-module/rpc-library.rc1.json", "table": "controlled_vocabulary", "row": "relationship_strength" }
+        ]
+    },
+    "contextRelationshipType": {
+        "order": ["REQUIRED", "PREFERRED", "COMPATIBLE"],
+        "excludes": ["CONTRADICTORY"],
+        "basis": "The context library's controlled vocabulary, relationship_type: REQUIRED 'Required relationship.', PREFERRED 'Preferred relationship.', COMPATIBLE 'Compatible relationship.', CONTRADICTORY 'Contradictory relationship.'. A CONTRADICTORY row excludes the form. Every GAME_FORM row in RC1.1 is COMPATIBLE, so this ordering decides nothing today; it is here so a PREFERRED row, if he authors one, is honoured as a governed preference.",
+        "cites": [
+            { "file": "back/src/system/sport-module/rpc-library.rc1.json", "table": "controlled_vocabulary", "row": "relationship_type" }
+        ]
+    },
+    "formGameProblemDeclaration": {
+        "order": ["PRIMARY", "SECONDARY", "NONE"],
+        "basis": "The sport module's Game Form columns primary_game_problem_ids and secondary_game_problem_ids. Our reading of the column names: a Game Problem a form lists as primary is more strongly related to it than one it lists as secondary, and both more than one it does not list. The cells entered the module with Christian's authoring pass of 4 August 2026 (docs/GAME_FORM_LIBRARY_PROVENANCE.md), in a module whose metadata reads module_status DRAFT.",
+        "cites": [
+            { "file": "back/src/system/sport-module/soccer-module.rc1-v3.json", "table": "game_forms", "row": "primary_game_problem_ids; secondary_game_problem_ids" }
+        ]
+    },
+    "compatibilityGate": "A Game Form is a candidate only if the routed context relates it (ACTIVE, not CONTRADICTORY), the form's status is ACTIVE, its archetype is one the context relates to, the archetype workbook does not mark the primary Game Problem CONTRADICTORY for that archetype, and the form declares the resolved primary Game Problem (in either column). OUR RULE.",
+    "dominanceRule": "One candidate is preferred over another only if it is at least as strong on every dimension above and stronger on at least one (Pareto dominance over the orderings). Values an ordering leaves incomparable block dominance. No dimension is weighted, summed or ranked against another, and nothing is decided by order of listing or by any wording. If more than one candidate is left undominated, the result is INSUFFICIENT_EVIDENCE. OUR RULE, applying his E6 ruling."
+}

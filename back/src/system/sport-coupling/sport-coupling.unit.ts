@@ -69,6 +69,9 @@ const SPORT_LAYER_FILES = [
     // the sport layer for the same reason the context gate beside it does: the sport-neutral selector
     // receives candidate pools and never learns where they came from.
     'system/sport-module/guided-selection.ts',
+    // Hands the Soccer Module workbook to the sport-neutral design-reasoning stage (review pathway only). It names the module's file, so
+    // it sits in the sport layer and the stage itself never names a sport.
+    'system/sport-module/design-knowledge-sources.ts',
 ]
 
 const SPORT_TERMS = [

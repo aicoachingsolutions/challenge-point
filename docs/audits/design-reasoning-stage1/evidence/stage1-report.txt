@@ -1,0 +1,236 @@
+=== A01 Play Out from the Back ===
+1. Resolution: RESOLVED
+   Game Problems (APPROVED_TRANSLATION): primary GP-005; secondary none
+   Sources: session-planning-model.rc1.json engine_translation A01
+   Context: RPC-001 (routing row A01; library row RPC-REL-058 COMPATIBLE PRIMARY)
+     PRIMARY GP-005: RPC-REL-010 COMPATIBLE PRIMARY
+2. Affordance Requirement Profile
+   PRIMARY   GP-005: FOI=E OP=E SA=S CIO=E  (Approved; Approved; confidence High)
+   merged    : FOI=E OP=E SA=S CIO=E  [strongest necessity, merge_precedence E>S>NR (CAR metadata)]
+3. Game Form: INSUFFICIENT_EVIDENCE
+   Archetype workbook: GA-001 relates GP-005 CONSTITUTIVE. (GAK-0005)
+   GF2 compatible via RPC-REL-013 (CONTEXT_RELATIONSHIP_TYPE=COMPATIBLE; CONTEXT_RELATIONSHIP_STRENGTH=PRIMARY; FORM_DECLARES_PRIMARY GP-005=SECONDARY)
+   GF3 compatible via RPC-REL-014 (CONTEXT_RELATIONSHIP_TYPE=COMPATIBLE; CONTEXT_RELATIONSHIP_STRENGTH=PRIMARY; FORM_DECLARES_PRIMARY GP-005=SECONDARY)
+   GF7 compatible via RPC-REL-015 (CONTEXT_RELATIONSHIP_TYPE=COMPATIBLE; CONTEXT_RELATIONSHIP_STRENGTH=SECONDARY; FORM_DECLARES_PRIMARY GP-005=SECONDARY)
+   GF2 vs GF3: SAME_ON_EVERY_DIMENSION
+   GF2 vs GF7: A_DOMINATES; GF2 stronger on CONTEXT_RELATIONSHIP_STRENGTH
+   GF3 vs GF7: A_DOMINATES; GF3 stronger on CONTEXT_RELATIONSHIP_STRENGTH
+4. Unresolved ties, open decisions, missing knowledge
+   INSUFFICIENT EVIDENCE between GF2, GF3
+   missing basis: GF2 and GF3 are related identically on every dimension; no approved knowledge distinguishes them.
+
+=== A02 Play Through Pressure ===
+1. Resolution: RESOLVED
+   Game Problems (APPROVED_TRANSLATION): primary GP-015; secondary none
+   Sources: session-planning-model.rc1.json engine_translation A02
+   Context: RPC-002 (routing row A02; library row RPC-REL-059 COMPATIBLE PRIMARY)
+     PRIMARY GP-015: RPC-REL-018 COMPATIBLE SECONDARY
+2. Affordance Requirement Profile
+   PRIMARY   GP-015: FOI=E OP=E SA=E CIO=E  (Approved; Approved; SA flagged for field validation; confidence High)
+   merged    : FOI=E OP=E SA=E CIO=E  [strongest necessity, merge_precedence E>S>NR (CAR metadata)]
+3. Game Form: SELECTED -> GF2
+   Archetype workbook: GA-001 relates GP-015 COMPATIBLE. (GAK-0015)
+   GF2 compatible via RPC-REL-020 (CONTEXT_RELATIONSHIP_TYPE=COMPATIBLE; CONTEXT_RELATIONSHIP_STRENGTH=PRIMARY; FORM_DECLARES_PRIMARY GP-015=PRIMARY)
+   GF3 EXCLUDED via RPC-REL-021 (CONTEXT_RELATIONSHIP_TYPE=COMPATIBLE; CONTEXT_RELATIONSHIP_STRENGTH=PRIMARY; FORM_DECLARES_PRIMARY GP-015=NONE)
+      excluded: DECLARES_PRIMARY_GAME_PROBLEM: The form declares no relationship to the primary Game Problem GP-015 (primary: GP-003, GP-001; secondary: GP-005).
+   GF7 EXCLUDED via RPC-REL-022 (CONTEXT_RELATIONSHIP_TYPE=COMPATIBLE; CONTEXT_RELATIONSHIP_STRENGTH=SECONDARY; FORM_DECLARES_PRIMARY GP-015=NONE)
+      excluded: DECLARES_PRIMARY_GAME_PROBLEM: The form declares no relationship to the primary Game Problem GP-015 (primary: GP-001, GP-002; secondary: GP-005).
+4. Unresolved ties, open decisions, missing knowledge
+
+=== A03 Create Scoring Chances ===
+1. Resolution: RESOLVED
+   Game Problems (APPROVED_TRANSLATION): primary GP-006; secondary none
+   Sources: session-planning-model.rc1.json engine_translation A03
+   Context: RPC-004 (routing row A03; library row RPC-REL-060 COMPATIBLE PRIMARY)
+     PRIMARY GP-006: RPC-REL-031 COMPATIBLE PRIMARY
+2. Affordance Requirement Profile
+   PRIMARY   GP-006: FOI=E OP=S SA=S CIO=E  (Approved; Approved; confidence Medium-High)
+   merged    : FOI=E OP=S SA=S CIO=E  [strongest necessity, merge_precedence E>S>NR (CAR metadata)]
+3. Game Form: NO_COMPATIBLE_FORM
+   Archetype workbook: GA-001 relates GP-006 CHARACTERISTIC. (GAK-0006)
+   GF2 EXCLUDED via RPC-REL-035 (CONTEXT_RELATIONSHIP_TYPE=COMPATIBLE; CONTEXT_RELATIONSHIP_STRENGTH=SECONDARY; FORM_DECLARES_PRIMARY GP-006=NONE)
+      excluded: DECLARES_PRIMARY_GAME_PROBLEM: The form declares no relationship to the primary Game Problem GP-006 (primary: GP-015, GP-001; secondary: GP-005).
+   GF3 EXCLUDED via RPC-REL-034 (CONTEXT_RELATIONSHIP_TYPE=COMPATIBLE; CONTEXT_RELATIONSHIP_STRENGTH=PRIMARY; FORM_DECLARES_PRIMARY GP-006=NONE)
+      excluded: DECLARES_PRIMARY_GAME_PROBLEM: The form declares no relationship to the primary Game Problem GP-006 (primary: GP-003, GP-001; secondary: GP-005).
+   GF7 EXCLUDED via RPC-REL-036 (CONTEXT_RELATIONSHIP_TYPE=COMPATIBLE; CONTEXT_RELATIONSHIP_STRENGTH=SECONDARY; FORM_DECLARES_PRIMARY GP-006=NONE)
+      excluded: DECLARES_PRIMARY_GAME_PROBLEM: The form declares no relationship to the primary Game Problem GP-006 (primary: GP-001, GP-002; secondary: GP-005).
+4. Unresolved ties, open decisions, missing knowledge
+   missing (NO_FORM_DECLARES_GAME_PROBLEM): None of the forms RPC-004 relates (GF2, GF3, GF7) passes the compatibility gate; see each candidate's excludedBecause.
+
+=== A04 Beat Defenders 1v1 ===
+1. Resolution: UNRESOLVED
+   Context: RPC-004 (routing row A04; library row RPC-REL-061 COMPATIBLE SECONDARY)
+3. Game Form: NOT_EVALUATED
+4. Unresolved ties, open decisions, missing knowledge
+   missing (TRANSLATION_UNPOPULATED): The Engine Translation row holds no Game Problem, and no ruling of his supplies one.
+   missing (RESOLUTION_UNRESOLVED): Step 1 did not resolve a Game Problem and context, so no Game Form is evaluated.
+
+=== A05 Progress the Attack ===
+1. Resolution: RESOLVED
+   Game Problems (SCOPED_RULING, scope STAGE1_DEVELOPMENT_DEMONSTRATION): primary GP-001; secondary GP-002
+   Qualifier: "specifically in the context of progressing against organized opposition"
+   Sources: stage1-rulings.json rulings RUL-E1-A05; session-planning-model.rc1.json engine_translation A05
+   Context: RPC-003 (routing row A05; library row RPC-REL-062 COMPATIBLE PRIMARY)
+     PRIMARY GP-001: RPC-REL-023 COMPATIBLE PRIMARY
+     SECONDARY GP-002: RPC-REL-024 COMPATIBLE PRIMARY
+2. Affordance Requirement Profile
+   PRIMARY   GP-001: FOI=S OP=E SA=S CIO=E  (Approved; Approved; confidence High)
+   SECONDARY GP-002: FOI=E OP=E SA=S CIO=E  (Approved; Approved; confidence High)
+   merged    : FOI=E OP=E SA=S CIO=E  [strongest necessity, merge_precedence E>S>NR (CAR metadata)]
+   primary-wins: FOI=S OP=E SA=S CIO=E
+   DIVERGES on FOI (Functional Object Interaction): primary S, secondary E, merged E
+   Game Problem library: GP-001 same_domain GP-002
+3. Game Form: INSUFFICIENT_EVIDENCE
+   Archetype workbook: GA-001 relates GP-001 CONSTITUTIVE. (GAK-0001)
+   GF2 compatible via RPC-REL-028 (CONTEXT_RELATIONSHIP_TYPE=COMPATIBLE; CONTEXT_RELATIONSHIP_STRENGTH=PRIMARY; FORM_DECLARES_PRIMARY GP-001=PRIMARY; FORM_DECLARES_SECONDARY GP-002=NONE)
+   GF3 compatible via RPC-REL-027 (CONTEXT_RELATIONSHIP_TYPE=COMPATIBLE; CONTEXT_RELATIONSHIP_STRENGTH=PRIMARY; FORM_DECLARES_PRIMARY GP-001=PRIMARY; FORM_DECLARES_SECONDARY GP-002=NONE)
+   GF7 compatible via RPC-REL-029 (CONTEXT_RELATIONSHIP_TYPE=COMPATIBLE; CONTEXT_RELATIONSHIP_STRENGTH=SECONDARY; FORM_DECLARES_PRIMARY GP-001=PRIMARY; FORM_DECLARES_SECONDARY GP-002=PRIMARY)
+   GF2 vs GF3: SAME_ON_EVERY_DIMENSION
+   GF2 vs GF7: TRADEOFF; GF2 stronger on CONTEXT_RELATIONSHIP_STRENGTH; GF7 stronger on FORM_DECLARES_SECONDARY GP-002
+   GF3 vs GF7: TRADEOFF; GF3 stronger on CONTEXT_RELATIONSHIP_STRENGTH; GF7 stronger on FORM_DECLARES_SECONDARY GP-002
+4. Unresolved ties, open decisions, missing knowledge
+   INSUFFICIENT EVIDENCE between GF2, GF3, GF7
+   missing basis: GF2 and GF3 are related identically on every dimension; no approved knowledge distinguishes them.
+   missing basis: GF2 is stronger on CONTEXT_RELATIONSHIP_STRENGTH; GF7 is stronger on FORM_DECLARES_SECONDARY GP-002. No approved knowledge says which of these relationships should weigh more.
+   missing basis: GF3 is stronger on CONTEXT_RELATIONSHIP_STRENGTH; GF7 is stronger on FORM_DECLARES_SECONDARY GP-002. No approved knowledge says which of these relationships should weigh more.
+   OPEN OPEN-E1-MERGE-RULE: When the primary and secondary Game Problems rate a requirement differently, which rule governs the merged Affordance Requirement Profile: the CAR Matrix metadata's merge_precedence (strongest necessity, which the code implements), or 'Primary wins conflicts' (documented in docs/HANDOFF.md and the header of gp-library.ts)? The Composite Game Problem Runtime RC1 v1.0 specification itself is not in the repository.
+   REQUIREMENT REQ-E1-CONTEXT-SENSITIVE-RESOLUTION (RECORDED_NOT_IMPLEMENTED): The choice between the related Game Problems must depend on the interaction circumstances. A primary or secondary designation made for one execution is not a permanent hierarchy between them.
+
+=== A06 Finish Attacks ===
+1. Resolution: UNRESOLVED
+   Context: RPC-005 (routing row A06; library row RPC-REL-063 COMPATIBLE PRIMARY)
+3. Game Form: NOT_EVALUATED
+4. Unresolved ties, open decisions, missing knowledge
+   missing (TRANSLATION_UNPOPULATED): The Engine Translation row holds no Game Problem, and no ruling of his supplies one.
+   missing (RESOLUTION_UNRESOLVED): Step 1 did not resolve a Game Problem and context, so no Game Form is evaluated.
+
+=== D01 Stay Organized ===
+1. Resolution: RESOLVED
+   Game Problems (APPROVED_TRANSLATION): primary GP-012; secondary none
+   Sources: session-planning-model.rc1.json engine_translation D01
+   Context: RPC-008 (routing row D01; library row RPC-REL-064 COMPATIBLE PRIMARY)
+     PRIMARY GP-012: RPC-REL-053 COMPATIBLE PRIMARY
+2. Affordance Requirement Profile
+   PRIMARY   GP-012: FOI=NR OP=E SA=S CIO=E  (Approved; Approved; confidence High)
+   merged    : FOI=NR OP=E SA=S CIO=E  [strongest necessity, merge_precedence E>S>NR (CAR metadata)]
+3. Game Form: NO_COMPATIBLE_FORM
+   Archetype workbook: GA-001 relates GP-012 CONSTITUTIVE. (GAK-0012)
+   GF2 EXCLUDED via RPC-REL-056 (CONTEXT_RELATIONSHIP_TYPE=COMPATIBLE; CONTEXT_RELATIONSHIP_STRENGTH=SECONDARY; FORM_DECLARES_PRIMARY GP-012=NONE)
+      excluded: DECLARES_PRIMARY_GAME_PROBLEM: The form declares no relationship to the primary Game Problem GP-012 (primary: GP-015, GP-001; secondary: GP-005).
+   GF3 EXCLUDED via RPC-REL-055 (CONTEXT_RELATIONSHIP_TYPE=COMPATIBLE; CONTEXT_RELATIONSHIP_STRENGTH=PRIMARY; FORM_DECLARES_PRIMARY GP-012=NONE)
+      excluded: DECLARES_PRIMARY_GAME_PROBLEM: The form declares no relationship to the primary Game Problem GP-012 (primary: GP-003, GP-001; secondary: GP-005).
+   GF7 EXCLUDED via RPC-REL-057 (CONTEXT_RELATIONSHIP_TYPE=COMPATIBLE; CONTEXT_RELATIONSHIP_STRENGTH=SECONDARY; FORM_DECLARES_PRIMARY GP-012=NONE)
+      excluded: DECLARES_PRIMARY_GAME_PROBLEM: The form declares no relationship to the primary Game Problem GP-012 (primary: GP-001, GP-002; secondary: GP-005).
+4. Unresolved ties, open decisions, missing knowledge
+   missing (NO_FORM_DECLARES_GAME_PROBLEM): None of the forms RPC-008 relates (GF2, GF3, GF7) passes the compatibility gate; see each candidate's excludedBecause.
+
+=== D02 Win the Ball Back ===
+1. Resolution: RESOLVED
+   Game Problems (APPROVED_TRANSLATION): primary GP-016; secondary none
+   Sources: session-planning-model.rc1.json engine_translation D02
+   Context: RPC-007 (routing row D02; library row RPC-REL-065 COMPATIBLE PRIMARY)
+     PRIMARY GP-016: RPC-REL-049 COMPATIBLE PRIMARY
+2. Affordance Requirement Profile
+   PRIMARY   GP-016: FOI=E OP=E SA=S CIO=E  (Approved; Approved; confidence High)
+   merged    : FOI=E OP=E SA=S CIO=E  [strongest necessity, merge_precedence E>S>NR (CAR metadata)]
+3. Game Form: SELECTED -> GF4
+   Archetype workbook: GA-001 relates GP-016 CHARACTERISTIC. (GAK-0016)
+   GF2 EXCLUDED via RPC-REL-052 (CONTEXT_RELATIONSHIP_TYPE=COMPATIBLE; CONTEXT_RELATIONSHIP_STRENGTH=SECONDARY; FORM_DECLARES_PRIMARY GP-016=NONE)
+      excluded: DECLARES_PRIMARY_GAME_PROBLEM: The form declares no relationship to the primary Game Problem GP-016 (primary: GP-015, GP-001; secondary: GP-005).
+   GF4 compatible via RPC-REL-051 (CONTEXT_RELATIONSHIP_TYPE=COMPATIBLE; CONTEXT_RELATIONSHIP_STRENGTH=PRIMARY; FORM_DECLARES_PRIMARY GP-016=PRIMARY)
+4. Unresolved ties, open decisions, missing knowledge
+
+=== D03 Defend 1v1 ===
+1. Resolution: RESOLVED
+   Game Problems (APPROVED_TRANSLATION): primary GP-016; secondary none
+   Sources: session-planning-model.rc1.json engine_translation D03
+   Context: RPC-008 (routing row D03; library row RPC-REL-066 COMPATIBLE SECONDARY)
+     PRIMARY GP-016: RPC-REL-054 COMPATIBLE SECONDARY
+2. Affordance Requirement Profile
+   PRIMARY   GP-016: FOI=E OP=E SA=S CIO=E  (Approved; Approved; confidence High)
+   merged    : FOI=E OP=E SA=S CIO=E  [strongest necessity, merge_precedence E>S>NR (CAR metadata)]
+3. Game Form: NO_COMPATIBLE_FORM
+   Archetype workbook: GA-001 relates GP-016 CHARACTERISTIC. (GAK-0016)
+   GF2 EXCLUDED via RPC-REL-056 (CONTEXT_RELATIONSHIP_TYPE=COMPATIBLE; CONTEXT_RELATIONSHIP_STRENGTH=SECONDARY; FORM_DECLARES_PRIMARY GP-016=NONE)
+      excluded: DECLARES_PRIMARY_GAME_PROBLEM: The form declares no relationship to the primary Game Problem GP-016 (primary: GP-015, GP-001; secondary: GP-005).
+   GF3 EXCLUDED via RPC-REL-055 (CONTEXT_RELATIONSHIP_TYPE=COMPATIBLE; CONTEXT_RELATIONSHIP_STRENGTH=PRIMARY; FORM_DECLARES_PRIMARY GP-016=NONE)
+      excluded: DECLARES_PRIMARY_GAME_PROBLEM: The form declares no relationship to the primary Game Problem GP-016 (primary: GP-003, GP-001; secondary: GP-005).
+   GF7 EXCLUDED via RPC-REL-057 (CONTEXT_RELATIONSHIP_TYPE=COMPATIBLE; CONTEXT_RELATIONSHIP_STRENGTH=SECONDARY; FORM_DECLARES_PRIMARY GP-016=NONE)
+      excluded: DECLARES_PRIMARY_GAME_PROBLEM: The form declares no relationship to the primary Game Problem GP-016 (primary: GP-001, GP-002; secondary: GP-005).
+4. Unresolved ties, open decisions, missing knowledge
+   missing (NO_FORM_DECLARES_GAME_PROBLEM): None of the forms RPC-008 relates (GF2, GF3, GF7) passes the compatibility gate; see each candidate's excludedBecause.
+
+=== TA01 Attack Quickly ===
+1. Resolution: RESOLVED
+   Game Problems (APPROVED_TRANSLATION): primary GP-002; secondary none
+   Sources: session-planning-model.rc1.json engine_translation TA01
+   Context: RPC-006 (routing row TA01; library row RPC-REL-067 COMPATIBLE PRIMARY)
+     PRIMARY GP-002: RPC-REL-044 COMPATIBLE PRIMARY
+2. Affordance Requirement Profile
+   PRIMARY   GP-002: FOI=E OP=E SA=S CIO=E  (Approved; Approved; confidence High)
+   merged    : FOI=E OP=E SA=S CIO=E  [strongest necessity, merge_precedence E>S>NR (CAR metadata)]
+3. Game Form: SELECTED -> GF4
+   Archetype workbook: GA-001 relates GP-002 CHARACTERISTIC. (GAK-0002)
+   GF2 EXCLUDED via RPC-REL-048 (CONTEXT_RELATIONSHIP_TYPE=COMPATIBLE; CONTEXT_RELATIONSHIP_STRENGTH=SECONDARY; FORM_DECLARES_PRIMARY GP-002=NONE)
+      excluded: DECLARES_PRIMARY_GAME_PROBLEM: The form declares no relationship to the primary Game Problem GP-002 (primary: GP-015, GP-001; secondary: GP-005).
+   GF4 compatible via RPC-REL-047 (CONTEXT_RELATIONSHIP_TYPE=COMPATIBLE; CONTEXT_RELATIONSHIP_STRENGTH=PRIMARY; FORM_DECLARES_PRIMARY GP-002=PRIMARY)
+4. Unresolved ties, open decisions, missing knowledge
+
+=== TA02 Secure Possession ===
+1. Resolution: RESOLVED
+   Game Problems (APPROVED_TRANSLATION): primary GP-015; secondary none
+   Sources: session-planning-model.rc1.json engine_translation TA02
+   Context: RPC-003 (routing row TA02; library row RPC-REL-068 COMPATIBLE SECONDARY)
+     PRIMARY GP-015: RPC-REL-026 COMPATIBLE SECONDARY
+2. Affordance Requirement Profile
+   PRIMARY   GP-015: FOI=E OP=E SA=E CIO=E  (Approved; Approved; SA flagged for field validation; confidence High)
+   merged    : FOI=E OP=E SA=E CIO=E  [strongest necessity, merge_precedence E>S>NR (CAR metadata)]
+3. Game Form: SELECTED -> GF2
+   Archetype workbook: GA-001 relates GP-015 COMPATIBLE. (GAK-0015)
+   GF2 compatible via RPC-REL-028 (CONTEXT_RELATIONSHIP_TYPE=COMPATIBLE; CONTEXT_RELATIONSHIP_STRENGTH=PRIMARY; FORM_DECLARES_PRIMARY GP-015=PRIMARY)
+   GF3 EXCLUDED via RPC-REL-027 (CONTEXT_RELATIONSHIP_TYPE=COMPATIBLE; CONTEXT_RELATIONSHIP_STRENGTH=PRIMARY; FORM_DECLARES_PRIMARY GP-015=NONE)
+      excluded: DECLARES_PRIMARY_GAME_PROBLEM: The form declares no relationship to the primary Game Problem GP-015 (primary: GP-003, GP-001; secondary: GP-005).
+   GF7 EXCLUDED via RPC-REL-029 (CONTEXT_RELATIONSHIP_TYPE=COMPATIBLE; CONTEXT_RELATIONSHIP_STRENGTH=SECONDARY; FORM_DECLARES_PRIMARY GP-015=NONE)
+      excluded: DECLARES_PRIMARY_GAME_PROBLEM: The form declares no relationship to the primary Game Problem GP-015 (primary: GP-001, GP-002; secondary: GP-005).
+4. Unresolved ties, open decisions, missing knowledge
+   OPEN OPEN-E2-CONTEXT-FIT: The goal's defining moment, possession just regained under pressure, comes before RPC-003's REQUIRED identity rule RPC-ID-011 ('Organized attacking possession is already established.'). The context library cannot represent a regain-to-stabilization entry episode without contradicting approved rows. Which generalizable context-model decision should represent it: (a) one new canonical context using the existing registry, properties, identity rules and transitions, with an amendment to RPC-ID-026; or (b) transitions that can carry a bounded episode (a schema change)?
+
+=== TD01 Recover Organization ===
+1. Resolution: RESOLVED
+   Game Problems (APPROVED_TRANSLATION): primary GP-004; secondary none
+   Sources: session-planning-model.rc1.json engine_translation TD01
+   Context: RPC-007 (routing row TD01; library row RPC-REL-069 COMPATIBLE PRIMARY)
+     PRIMARY GP-004: no relationship row
+2. Affordance Requirement Profile
+   PRIMARY   GP-004: FOI=NR OP=E SA=S CIO=E  (Approved; Approved after horizontal audit; SA revised E→S; confidence High)
+   merged    : FOI=NR OP=E SA=S CIO=E  [strongest necessity, merge_precedence E>S>NR (CAR metadata)]
+3. Game Form: NO_COMPATIBLE_FORM
+   Archetype workbook: GA-001 relates GP-004 CHARACTERISTIC. (GAK-0004)
+   GF2 EXCLUDED via RPC-REL-052 (CONTEXT_RELATIONSHIP_TYPE=COMPATIBLE; CONTEXT_RELATIONSHIP_STRENGTH=SECONDARY; FORM_DECLARES_PRIMARY GP-004=NONE)
+      excluded: DECLARES_PRIMARY_GAME_PROBLEM: The form declares no relationship to the primary Game Problem GP-004 (primary: GP-015, GP-001; secondary: GP-005).
+   GF4 EXCLUDED via RPC-REL-051 (CONTEXT_RELATIONSHIP_TYPE=COMPATIBLE; CONTEXT_RELATIONSHIP_STRENGTH=PRIMARY; FORM_DECLARES_PRIMARY GP-004=NONE)
+      excluded: DECLARES_PRIMARY_GAME_PROBLEM: The form declares no relationship to the primary Game Problem GP-004 (primary: GP-016, GP-002; secondary: GP-005).
+4. Unresolved ties, open decisions, missing knowledge
+   missing (GAME_PROBLEM_NOT_RELATED_TO_CONTEXT): RPC-007 has no ACTIVE GAME_PROBLEM row for GP-004 (PRIMARY).
+   missing (NO_FORM_DECLARES_GAME_PROBLEM): None of the forms RPC-007 relates (GF2, GF4) passes the compatibility gate; see each candidate's excludedBecause.
+
+=== TD02 Delay the Attack ===
+1. Resolution: RESOLVED
+   Game Problems (APPROVED_TRANSLATION): primary GP-013; secondary none
+   Sources: session-planning-model.rc1.json engine_translation TD02
+   Context: RPC-007 (routing row TD02; library row RPC-REL-070 COMPATIBLE PRIMARY)
+     PRIMARY GP-013: no relationship row
+2. Affordance Requirement Profile
+   PRIMARY   GP-013: FOI=NR OP=E SA=S CIO=E  (Approved; Approved; confidence Medium-High)
+   merged    : FOI=NR OP=E SA=S CIO=E  [strongest necessity, merge_precedence E>S>NR (CAR metadata)]
+3. Game Form: NO_COMPATIBLE_FORM
+   Archetype workbook: GA-001 relates GP-013 CHARACTERISTIC. (GAK-0013)
+   GF2 EXCLUDED via RPC-REL-052 (CONTEXT_RELATIONSHIP_TYPE=COMPATIBLE; CONTEXT_RELATIONSHIP_STRENGTH=SECONDARY; FORM_DECLARES_PRIMARY GP-013=NONE)
+      excluded: DECLARES_PRIMARY_GAME_PROBLEM: The form declares no relationship to the primary Game Problem GP-013 (primary: GP-015, GP-001; secondary: GP-005).
+   GF4 EXCLUDED via RPC-REL-051 (CONTEXT_RELATIONSHIP_TYPE=COMPATIBLE; CONTEXT_RELATIONSHIP_STRENGTH=PRIMARY; FORM_DECLARES_PRIMARY GP-013=NONE)
+      excluded: DECLARES_PRIMARY_GAME_PROBLEM: The form declares no relationship to the primary Game Problem GP-013 (primary: GP-016, GP-002; secondary: GP-005).
+4. Unresolved ties, open decisions, missing knowledge
+   missing (GAME_PROBLEM_NOT_RELATED_TO_CONTEXT): RPC-007 has no ACTIVE GAME_PROBLEM row for GP-013 (PRIMARY).
+   missing (NO_FORM_DECLARES_GAME_PROBLEM): None of the forms RPC-007 relates (GF2, GF4) passes the compatibility gate; see each candidate's excludedBecause.
+
+wrote 13 results to ../docs/audits/design-reasoning-stage1/evidence/stage1-results.json
