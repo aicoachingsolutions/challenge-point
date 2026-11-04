@@ -1,0 +1,78 @@
+{
+    "standing": "TEST FIXTURE for the bounded Stage 2 demonstration, review pathway only. Every value in this file is a TEST INPUT that we chose to exercise the paired width comparison he authorized under D5 (reply received 4 November 2026). None is a coach's session, an observation, a recommendation or knowledge. The two deciding circumstances in each scenario are TEST ASSUMPTIONS: the engine never infers them from the dimensions or the player numbers.",
+    "learningGoalId": "A05",
+    "dimensions": "Length runs along the direction of play; width runs across it. Metres.",
+    "structuralActivity": {
+        "label": "The configured activity used for the structural conditions of each compatible Game Form",
+        "configuredArea": { "lengthM": 40, "widthM": 30, "standing": "TEST INPUT" },
+        "playersPerTeam": { "value": [6, 6], "standing": "TEST INPUT" }
+    },
+    "scenarios": [
+        {
+            "id": "S1",
+            "label": "W-H1 conditions: defenders can still organize, shift and contest; usable space does not already exist",
+            "configuredArea": { "lengthM": 40, "widthM": 30, "standing": "TEST INPUT" },
+            "availableSpace": { "lengthM": 40, "widthM": 40, "standing": "TEST INPUT" },
+            "playersPerTeam": { "value": [6, 6], "standing": "TEST INPUT" },
+            "decidingCircumstances": {
+                "defendersCanStillOrganizeShiftAndContest": { "value": true, "label": "TEST ASSUMPTION" },
+                "usableSpaceAlreadyExists": { "value": false, "label": "TEST ASSUMPTION" }
+            }
+        },
+        {
+            "id": "S2",
+            "label": "W-H2 conditions: usable space already exists; defenders cannot still organize, shift and contest",
+            "configuredArea": { "lengthM": 40, "widthM": 30, "standing": "TEST INPUT" },
+            "availableSpace": { "lengthM": 40, "widthM": 40, "standing": "TEST INPUT" },
+            "playersPerTeam": { "value": [6, 6], "standing": "TEST INPUT" },
+            "decidingCircumstances": {
+                "defendersCanStillOrganizeShiftAndContest": { "value": false, "label": "TEST ASSUMPTION" },
+                "usableSpaceAlreadyExists": { "value": true, "label": "TEST ASSUMPTION" }
+            }
+        },
+        {
+            "id": "S3",
+            "label": "Deciding circumstances not supplied",
+            "configuredArea": { "lengthM": 40, "widthM": 30, "standing": "TEST INPUT" },
+            "availableSpace": { "lengthM": 40, "widthM": 40, "standing": "TEST INPUT" },
+            "playersPerTeam": { "value": [6, 6], "standing": "TEST INPUT" },
+            "decidingCircumstances": {
+                "defendersCanStillOrganizeShiftAndContest": { "value": "NOT_SUPPLIED", "label": "TEST ASSUMPTION" },
+                "usableSpaceAlreadyExists": { "value": "NOT_SUPPLIED", "label": "TEST ASSUMPTION" }
+            }
+        },
+        {
+            "id": "S4",
+            "label": "Both deciding circumstances true: neither hypothesis's conditions hold",
+            "configuredArea": { "lengthM": 40, "widthM": 30, "standing": "TEST INPUT" },
+            "availableSpace": { "lengthM": 40, "widthM": 40, "standing": "TEST INPUT" },
+            "playersPerTeam": { "value": [6, 6], "standing": "TEST INPUT" },
+            "decidingCircumstances": {
+                "defendersCanStillOrganizeShiftAndContest": { "value": true, "label": "TEST ASSUMPTION" },
+                "usableSpaceAlreadyExists": { "value": true, "label": "TEST ASSUMPTION" }
+            }
+        },
+        {
+            "id": "S5",
+            "label": "W-H1 conditions, but the coach's available width is no wider than the configured width",
+            "configuredArea": { "lengthM": 40, "widthM": 30, "standing": "TEST INPUT" },
+            "availableSpace": { "lengthM": 40, "widthM": 30, "standing": "TEST INPUT" },
+            "playersPerTeam": { "value": [6, 6], "standing": "TEST INPUT" },
+            "decidingCircumstances": {
+                "defendersCanStillOrganizeShiftAndContest": { "value": true, "label": "TEST ASSUMPTION" },
+                "usableSpaceAlreadyExists": { "value": false, "label": "TEST ASSUMPTION" }
+            }
+        },
+        {
+            "id": "S6",
+            "label": "W-H1 conditions with unequal numbers (7 v 5)",
+            "configuredArea": { "lengthM": 40, "widthM": 30, "standing": "TEST INPUT" },
+            "availableSpace": { "lengthM": 40, "widthM": 40, "standing": "TEST INPUT" },
+            "playersPerTeam": { "value": [7, 5], "standing": "TEST INPUT" },
+            "decidingCircumstances": {
+                "defendersCanStillOrganizeShiftAndContest": { "value": true, "label": "TEST ASSUMPTION" },
+                "usableSpaceAlreadyExists": { "value": false, "label": "TEST ASSUMPTION" }
+            }
+        }
+    ]
+}

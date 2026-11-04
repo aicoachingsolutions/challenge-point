@@ -16,6 +16,13 @@
  * The readers are also required to agree with the existing loaders on the committed knowledge, so the stage reads the same knowledge the
  * rest of the engine does. Check 9 (A01 untouched) is the regression snapshot, run outside this file.
  *
+ * STAGE 2 AMENDMENTS (his reply to the Stage 2 decision package, received 4 November 2026). Steps 1 and 2 now run as his D1 and D3
+ * direct, so the expectations below changed where those rulings changed the output: the composite profile is primary-led with a union
+ * view and explicit findings (no "primary wins" profile, no open merge-rule decision); Game Forms are compatibility only, so the A05 and
+ * A01 ties are compatible alternatives GF2, GF3 and GF7, a context strength no longer moves any form decision, and a declaration change
+ * leaves alternatives rather than a dominance. The static tests now cover every .ts file of the stage, Stage 2's included. The Stage 2
+ * components have their own tests in `stage2.unit.ts`.
+ *
  * Run: part of `npm test`.
  */
 import assert from 'node:assert/strict'
@@ -43,9 +50,18 @@ import { runStage1, runStage1ForEveryGoal, Stage1Result } from './stage1'
 
 const HERE = __dirname
 const SRC = path.resolve(HERE, '..', '..')
-/** The stage itself. The demo runner prints display names for a reader and is checked separately. */
-const STAGE_FILES = ['knowledge.ts', 'resolve.ts', 'forms.ts', 'stage1.ts'].map((f) => path.join(HERE, f))
+/** The stage itself: every .ts file of the folder except the tests and the runners (which print display text for a reader). */
+const STAGE_FILES = fs
+    .readdirSync(HERE)
+    .filter((f) => f.endsWith('.ts') && !f.endsWith('.unit.ts') && !f.startsWith('run-'))
+    .sort()
+    .map((f) => path.join(HERE, f))
 const RUNNER = path.join(HERE, 'run-stage1-demo.ts')
+const RUNNERS = fs
+    .readdirSync(HERE)
+    .filter((f) => f.startsWith('run-') && f.endsWith('.ts'))
+    .sort()
+    .map((f) => path.join(HERE, f))
 
 const json = (value: unknown) => JSON.stringify(value)
 const byGoal = (results: Stage1Result[]) => Object.fromEntries(results.map((r) => [r.learningGoalId, r]))
@@ -114,7 +130,7 @@ function testReadersAgreeWithTheExistingLoaders(): void {
     }
 }
 
-/** The merge is the existing Composite Runtime's: for the same primary and secondary it gives the same merged profile. */
+/** The union view is the existing Composite Runtime's merge: for the same primary and secondary it gives the same ratings. */
 function testMergeEqualsTheExistingCompositeRuntime(): void {
     const name: Record<string, string> = { E: 'Essential', S: 'Supportive', NR: 'Not Required' }
     // Any composite the CAR register can form: each Game Problem the keyword map reaches, paired with each other one.
@@ -128,8 +144,9 @@ function testMergeEqualsTheExistingCompositeRuntime(): void {
             copy.rulings.scopedTranslations = [{ ...copy.rulings.scopedTranslations[0], learningGoalId: goal, primaryGameProblemIds: [existing.primaryGameProblemId as string], secondaryGameProblemIds: [existing.secondaryGameProblemId] }]
             const mine = runStage1(goal, copy).resolution.profile
             assert.ok(mine, `${first} + ${second}`)
+            const union = mine.unionView.perRequirement
             assert.deepEqual(
-                [name[mine.merged.ratings.FOI], name[mine.merged.ratings.OP], name[mine.merged.ratings.SA], name[mine.merged.ratings.CIO]],
+                [name[union.FOI.rating], name[union.OP.rating], name[union.SA.rating], name[union.CIO.rating]],
                 [existing.targets['Functional Object Interaction'], existing.targets['Open Pathway'], existing.targets['Support Availability'], existing.targets['Competitive Interaction Opportunity']],
                 `${existing.primaryGameProblemId} + ${existing.secondaryGameProblemId}`
             )
@@ -153,31 +170,30 @@ function testProgressTheAttackResolvesFromHisScopedRuling(): void {
     assert.equal(g.context?.goalRelationship?.relationshipId, 'RPC-REL-062')
     assert.deepEqual(g.context?.gameProblemRelationships.map((x) => `${x.gameProblemId} ${x.relationship?.relationshipId} ${x.relationship?.strength}`), ['GP-001 RPC-REL-023 PRIMARY', 'GP-002 RPC-REL-024 PRIMARY'])
 
-    // E1: the merge would conceal the distinction, so both rows, both rules and the divergence are reported.
+    assert.equal(g.gameProblems.continuedBy?.ruling, 'D1-4NOV', 'his D1 retains the designation for the Stage 2 demonstration')
+
+    // E1, as his D1 directs: both rows with role and provenance, the union view, the primary-led effective profile, the FOI finding.
     const p = g.profile
     assert.ok(p)
-    assert.deepEqual(p.perGameProblem.map((e) => [e.gameProblemId, e.role, e.ratings]), [
+    assert.deepEqual(p.rows.map((e) => [e.gameProblemId, e.role, e.ratings]), [
         ['GP-001', 'PRIMARY', { FOI: 'S', OP: 'E', SA: 'S', CIO: 'E' }],
         ['GP-002', 'SECONDARY', { FOI: 'E', OP: 'E', SA: 'S', CIO: 'E' }],
     ])
-    assert.deepEqual(p.merged.ratings, { FOI: 'E', OP: 'E', SA: 'S', CIO: 'E' })
-    assert.deepEqual(p.merged.ratings, p.perGameProblem[1].ratings, 'strongest necessity makes the composite identical to the secondary alone')
-    assert.deepEqual(p.underPrimaryWins?.ratings, { FOI: 'S', OP: 'E', SA: 'S', CIO: 'E' })
-    assert.deepEqual(p.divergent, [{ requirement: 'FOI', primary: 'S', secondary: 'E', merged: 'E' }])
+    assert.deepEqual(Object.fromEntries(Object.entries(p.unionView.perRequirement).map(([q, v]) => [q, v.rating])), { FOI: 'E', OP: 'E', SA: 'S', CIO: 'E' })
+    assert.equal(p.unionView.usedAsEffectiveProfile, false)
+    assert.deepEqual(p.effectiveProfile.ratings, { FOI: 'S', OP: 'E', SA: 'S', CIO: 'E' })
+    assert.deepEqual(p.findings.map((d) => [d.requirement, d.primary.rating, d.secondary.rating, d.outcome]), [['FOI', 'S', 'E', 'INSUFFICIENT_EVIDENCE']])
     assert.deepEqual(g.gameProblemRelationships.map((x) => `${x.source} ${x.relationship} ${x.target}`), ['GP-001 same_domain GP-002'])
-    assert.deepEqual(g.openDecisions.map((d) => d.id), ['OPEN-E1-MERGE-RULE'])
+    assert.deepEqual(g.openDecisions.map((d) => d.id), [], 'the merge-rule question is superseded by his D1')
     assert.deepEqual(g.requirements.map((q) => [q.id, q.status]), [['REQ-E1-CONTEXT-SENSITIVE-RESOLUTION', 'RECORDED_NOT_IMPLEMENTED']])
 
-    // Check 7: GF2 and GF3 are identical on every dimension; GF7 trades context strength for the secondary Game Problem.
+    // Check 7, as his D3 directs: GF2, GF3 and GF7 are compatible alternatives, with insufficient evidence to prefer one.
     const f = r.gameForm
-    assert.equal(f.status, 'INSUFFICIENT_EVIDENCE')
+    assert.equal(f.status, 'COMPATIBLE_ALTERNATIVES')
     assert.equal(f.selected, null)
     assert.deepEqual(f.compatible, ['GF2', 'GF3', 'GF7'])
-    assert.deepEqual(f.undominated, ['GF2', 'GF3', 'GF7'])
-    assert.deepEqual(f.comparisons.map((c) => `${c.a}-${c.b} ${c.outcome}`), ['GF2-GF3 SAME_ON_EVERY_DIMENSION', 'GF2-GF7 TRADEOFF', 'GF3-GF7 TRADEOFF'])
-    assert.equal(f.missingBasis.length, 3)
-    assert.match(f.missingBasis[0], /GF2 and GF3 are related identically on every dimension/)
-    assert.match(f.missingBasis[1], /GF7 is stronger on FORM_DECLARES_SECONDARY GP-002/)
+    assert.equal(f.preference.status, 'INSUFFICIENT_EVIDENCE')
+    assert.deepEqual(f.preference.whatCouldDistinguish.map((w) => [w.id, w.present]), [['K1', false], ['K2', false], ['K3', false], ['K4', false], ['K5', false]])
 }
 
 function testSecurePossessionResolvesOnItsApprovedRoutingWithTheContextDecisionOpen(): void {
@@ -190,22 +206,24 @@ function testSecurePossessionResolvesOnItsApprovedRoutingWithTheContextDecisionO
     assert.equal(g.context?.rpcId, 'RPC-003', 'not routed to Counterattack: his E2 ruling keeps the approved routing until the context decision is made')
     assert.equal(g.context?.goalRelationship?.strength, 'SECONDARY')
     assert.equal(g.context?.gameProblemRelationships[0].relationship?.strength, 'SECONDARY')
-    assert.deepEqual(g.profile?.merged.ratings, { FOI: 'E', OP: 'E', SA: 'E', CIO: 'E' })
-    assert.equal(g.profile?.underPrimaryWins, null)
-    assert.deepEqual(g.profile?.divergent, [])
-    assert.deepEqual(g.openDecisions.map((d) => d.id), ['OPEN-E2-CONTEXT-FIT'])
+    assert.deepEqual(g.profile?.effectiveProfile.ratings, { FOI: 'E', OP: 'E', SA: 'E', CIO: 'E' })
+    assert.deepEqual(g.profile?.rows.map((x) => x.role), ['PRIMARY'])
+    assert.deepEqual(g.profile?.findings, [])
+    assert.deepEqual(g.openDecisions.map((d) => d.id), ['OPEN-D2-POSSESSION-STABILIZATION'], 'his D2 supersedes the E2 question; the context stays under review')
     assert.deepEqual(g.requirements, [])
 
     const f = r.gameForm
     assert.equal(f.status, 'SELECTED')
     assert.equal(f.selected, 'GF2')
     assert.deepEqual(f.compatible, ['GF2'])
+    assert.match(f.statement, /the only Game Form with a governed relationship: compatibility, not demonstrated suitability/)
     for (const id of ['GF3', 'GF7']) {
         const c = f.candidates.find((x) => x.gameFormId === id)
         assert.ok(c && !c.compatible, id)
-        assert.deepEqual(c.excludedBecause.map((e) => e.split(':')[0]), ['DECLARES_PRIMARY_GAME_PROBLEM'], id)
+        assert.deepEqual(c.excludedBecause.map((e) => [e.check, e.reason]), [['DECLARES_PRIMARY_GAME_PROBLEM', 'NO_GOVERNED_RELATIONSHIP_ESTABLISHED']], id)
     }
-    assert.equal(f.candidates.find((x) => x.gameFormId === 'GF2')?.checks.find((c) => c.check === 'ARCHETYPE_GAME_PROBLEM')?.detail, 'GA-001 relates GP-015 COMPATIBLE.')
+    // R1.2 relabelled: the archetype relationship is non-contradiction only, never support.
+    assert.equal(f.candidates.find((x) => x.gameFormId === 'GF2')?.checks.find((c) => c.check === 'ARCHETYPE_GAME_PROBLEM')?.detail, 'GA-001 relates GP-015 COMPATIBLE: non-contradiction (compatibility) only; not support for the Game Form.')
 }
 
 // -------------------------------------------------------------------------------------------------------------------------------------
@@ -253,10 +271,16 @@ function testTheStageReachesNoKeywordParserOrTokenScorer(): void {
             'system/design-reasoning/knowledge.ts',
             'system/design-reasoning/resolve.ts',
             'system/design-reasoning/stage1.ts',
+            'system/design-reasoning/stage2.ts',
+            'system/design-reasoning/structural.ts',
+            'system/design-reasoning/trace.ts',
+            'system/design-reasoning/width-comparison.ts',
             'system/session-planning/session-planning-model.ts',
             'system/sport-module/design-knowledge-sources.ts',
         ]
     )
+    // And the JSON it reaches is the committed knowledge, his rulings, our review-only entries and the test fixture; never selection-basis.json.
+    assert.ok(!closure.some((f) => f.endsWith('selection-basis.json')), 'the withdrawn orderings are still reached')
     for (const f of STAGE_FILES) {
         const code = stripComments(fs.readFileSync(f, 'utf8'))
         for (const name of ['SIGNAL_GROUP_TO_GAME_PROBLEM', 'resolveAffordanceTargetProfile', 'learningGoalIdForPhrase', 'entry_language', 'signalGroup', 'matchedSignals', 'toLowerCase', 'includes(text', 'RegExp(']) {
@@ -272,8 +296,8 @@ function testTheStageReadsNoNarrativeColumn(): void {
         const code = stripComments(fs.readFileSync(f, 'utf8'))
         for (const column of narrative) assert.ok(!code.includes(`'${column}'`) && !code.includes(`"${column}"`), `${path.basename(f)} reads the narrative column ${column}`)
     }
-    assert.ok(fs.readFileSync(RUNNER, 'utf8').includes(`'Learning Goal'`), 'the runner is where the display name is read')
-    for (const f of STAGE_FILES) assert.ok(!fs.readFileSync(f, 'utf8').includes('run-stage1-demo'), `${path.basename(f)} imports the runner`)
+    for (const runner of RUNNERS) assert.ok(fs.readFileSync(runner, 'utf8').includes(`'Learning Goal'`), `${path.basename(runner)} is where the display name is read`)
+    for (const f of STAGE_FILES) for (const runner of RUNNERS) assert.ok(!fs.readFileSync(f, 'utf8').includes(path.basename(runner, '.ts')), `${path.basename(f)} imports ${path.basename(runner)}`)
 }
 
 const REWRITE = {
@@ -323,13 +347,27 @@ function testSwappingTwoGoalsWordingChangesNothing(): void {
 // -------------------------------------------------------------------------------------------------------------------------------------
 
 function testNoGoalOrKnowledgeIdAppearsInTheStageCode(): void {
-    const ids = goalIds(committedKnowledge())
+    const k = committedKnowledge()
+    const ids = goalIds(k)
     assert.equal(ids.length, 13)
-    for (const f of [...STAGE_FILES, RUNNER, path.join(SRC, 'system/sport-module/design-knowledge-sources.ts')]) {
+    // Ids that live in the stage's own data files: his rulings, our entries, the open decisions, the precondition ids.
+    const dataIds = [
+        ...k.stage2Rulings.rulings.map((r) => r.id),
+        ...k.conditionsOfUse.entries.map((e) => e.id),
+        ...k.rulings.scopedTranslations.map((r) => r.id),
+        ...k.rulings.requirements.map((r) => r.id),
+        ...k.rulings.openDecisions.map((d) => d.id),
+        ...k.stage2Rulings.openDecisions.map((d) => d.id),
+        ...k.stage2Rulings.relevance.structuralPreconditions.items.map((p) => p.id),
+    ]
+    const escape = (s: string) => s.split('').map((c) => (/[A-Za-z0-9]/.test(c) ? c : `\\${c}`)).join('')
+    assert.ok(STAGE_FILES.length >= 8, 'every .ts file of the stage is scanned')
+    for (const f of [...STAGE_FILES, ...RUNNERS, path.join(SRC, 'system/sport-module/design-knowledge-sources.ts')]) {
         const source = fs.readFileSync(f, 'utf8')
         for (const id of ids) assert.ok(!new RegExp(`\\b${id}\\b`).test(source), `${path.basename(f)} names the goal ${id}`)
-        // Nor any Game Problem, context or Game Form id: no special case for any of them, comments included.
-        assert.ok(!/\b(GP-\d{3}|RPC-\d{3}|RPC-REL-\d{3}|GF\d+|GA-\d{3})\b/.test(source), `${path.basename(f)} names a knowledge id`)
+        // Nor any Game Problem, context, Game Form, archetype or row id: no special case for any of them, comments included.
+        assert.ok(!/\b(GP-\d{3}|RPC-\d{3}|RPC-REL-\d{3}|RPC-PROP-\d{3}|RPC-ID-\d{3}|RPC-TR-\d{3}|GF\d+|GA-\d{3}|GAK-\d{4}|OIC-\d{2})\b/.test(source), `${path.basename(f)} names a knowledge id`)
+        for (const id of dataIds) assert.ok(!new RegExp(`(^|[^A-Za-z0-9-])${escape(id)}($|[^A-Za-z0-9-])`).test(source), `${path.basename(f)} names the data id ${id}`)
     }
 }
 
@@ -347,27 +385,28 @@ function testOneCarRatingMovesOnlyTheProfileThatReadsIt(): void {
     assert.deepEqual(diff.goals, ['A05'], 'only the goal whose resolution reads the GP-001 row')
     assert.ok(diff.paths.every((p) => p.startsWith('A05.resolution.')), `Game Form decisions moved: ${diff.paths.filter((p) => !p.startsWith('A05.resolution.')).join(', ')}`)
     const a05 = byGoal(after)['A05'].resolution
-    assert.deepEqual(a05.profile?.divergent, [], 'no divergence remains')
-    assert.deepEqual(a05.openDecisions.map((d) => d.id), [], 'so the merge-rule question no longer applies')
+    assert.deepEqual(a05.profile?.findings, [], 'no finding remains: the primary now rates FOI as strongly as the secondary')
+    assert.deepEqual(a05.profile?.effectiveProfile.ratings.FOI, 'E', 'the effective profile still takes the primary\'s own rating')
+    assert.deepEqual(a05.openDecisions.map((d) => d.id), [])
 }
 
-function testOneContextStrengthMovesOnlyTheFormDecisionsThatReadIt(): void {
+/** His D3 withdrew the strength ordering: a context strength changed in a test copy moves no form decision, only its own report. */
+function testOneContextStrengthMovesNoFormDecision(): void {
     const before = runStage1ForEveryGoal()
-    const k = committedKnowledge()
-    relationshipRow(k, 'RPC-REL-029')['relationship_strength'] = 'PRIMARY' // RPC-003 -> GF7
-    const after = byGoal(runStage1ForEveryGoal(k))
-    const diff = changes(before, Object.values(after))
-    assert.deepEqual(diff.goals, ['A05', 'TA02'], 'the two goals routed to that context')
-    assert.ok(diff.paths.every((p) => p.includes('.gameForm.')), 'no resolution moved')
-    assert.equal(after['A05'].gameForm.status, 'SELECTED')
-    assert.equal(after['A05'].gameForm.selected, 'GF7', 'GF7 now matches the others on context strength and is stronger on the secondary Game Problem')
-    assert.equal(after['TA02'].gameForm.selected, 'GF2', 'GF7 still declares nothing about GP-015')
-    // For the other goal only the changed row's own report moves: its strength, the check that quotes it, its dimension value.
-    assert.deepEqual(diff.paths.filter((p) => p.startsWith('TA02.')), [
-        'TA02.gameForm.candidates.2.checks.0.detail',
-        'TA02.gameForm.candidates.2.contextRelationship.strength',
-        'TA02.gameForm.candidates.2.dimensions.1.value',
-    ])
+    const decision = (r: Stage1Result) => json([r.gameForm.status, r.gameForm.selected, r.gameForm.compatible, r.gameForm.preference.status, r.gameForm.preference.preferred])
+    for (const strength of ['PRIMARY', 'REQUIRED', 'SUPPORTING']) {
+        const k = committedKnowledge()
+        relationshipRow(k, 'RPC-REL-029')['relationship_strength'] = strength // RPC-003 -> GF7
+        const after = byGoal(runStage1ForEveryGoal(k))
+        for (const r of before) assert.equal(decision(after[r.learningGoalId]), decision(r), `${r.learningGoalId} with GF7 ${strength}`)
+        const diff = changes(before, Object.values(after))
+        assert.deepEqual(diff.goals, ['A05', 'TA02'], 'only the two goals routed to that context report the changed row')
+        // Only the changed row's own report moves: its strength, the check that quotes it, the compatibility information, the trace role.
+        assert.ok(
+            diff.paths.every((p) => /\.gameForm\.(candidates\.\d+\.(contextRelationship\.strength|checks\.0\.detail|compatibilityInformation\.contextRelationshipStrength)|trace\.consulted\.\d+\.role)$/.test(p)),
+            `unexpected change: ${diff.paths.join(', ')}`
+        )
+    }
 }
 
 function testOneFormDeclarationMovesOnlyTheGoalsWhosePrimaryItNames(): void {
@@ -379,12 +418,14 @@ function testOneFormDeclarationMovesOnlyTheGoalsWhosePrimaryItNames(): void {
     // Every goal whose context relates GF3 sees the changed declaration reported; only the GP-015 goals' decisions can move.
     for (const id of diff.goals) assert.ok(diff.paths.filter((p) => p.startsWith(`${id}.`)).every((p) => p.includes('.gameForm.')), id)
     for (const id of ['A02', 'TA02']) {
-        assert.equal(after[id].gameForm.selected, 'GF2', id)
+        // GF2 declares GP-015 primary and GF3 now secondary: compatibility information only, so the two are alternatives (his D3).
+        assert.equal(after[id].gameForm.status, 'COMPATIBLE_ALTERNATIVES', id)
+        assert.equal(after[id].gameForm.selected, null, id)
         assert.deepEqual(after[id].gameForm.compatible, ['GF2', 'GF3'], id)
-        assert.deepEqual(after[id].gameForm.comparisons.map((c) => c.outcome), ['A_DOMINATES'], `${id}: GF2 declares GP-015 primary, GF3 secondary`)
+        assert.equal(after[id].gameForm.preference.status, 'INSUFFICIENT_EVIDENCE', id)
     }
     for (const id of goalIds(k).filter((g) => !['A02', 'TA02'].includes(g))) {
-        assert.equal(json([after[id].gameForm.status, after[id].gameForm.selected, after[id].gameForm.undominated]), json([byGoal(before)[id].gameForm.status, byGoal(before)[id].gameForm.selected, byGoal(before)[id].gameForm.undominated]), id)
+        assert.equal(json([after[id].gameForm.status, after[id].gameForm.selected, after[id].gameForm.compatible]), json([byGoal(before)[id].gameForm.status, byGoal(before)[id].gameForm.selected, byGoal(before)[id].gameForm.compatible]), id)
     }
 }
 
@@ -395,18 +436,25 @@ function testOneRulingMovesOnlyTheGoalItNames(): void {
     const after = byGoal(runStage1ForEveryGoal(k))
     assert.deepEqual(changes(before, Object.values(after)).goals, ['A05'])
     const a05 = after['A05']
-    assert.equal(a05.resolution.profile?.underPrimaryWins, null)
+    assert.deepEqual(a05.resolution.profile?.findings, [])
+    assert.deepEqual(a05.resolution.profile?.rows.map((r) => r.role), ['PRIMARY'])
     assert.deepEqual(a05.resolution.requirements, [], 'the recorded requirement applies only while both related Game Problems are resolved')
-    assert.deepEqual(a05.gameForm.undominated, ['GF2', 'GF3'], 'without the secondary, GF7 is dominated on context strength')
-    assert.equal(a05.gameForm.status, 'INSUFFICIENT_EVIDENCE')
+    assert.deepEqual(a05.gameForm.compatible, ['GF2', 'GF3', 'GF7'], 'no ordering: GF7 stays a compatible alternative without the secondary')
+    assert.equal(a05.gameForm.status, 'COMPATIBLE_ALTERNATIVES')
 }
 
-/** A governed preference, if he authors one, decides between forms the strengths cannot separate. */
+/** A governed preference, if he authors one, is honoured: reported as unconditional, the forms staying alternatives (his D3). */
 function testAPreferredRelationshipIsHonouredAsAGovernedPreference(): void {
     const k = committedKnowledge()
     relationshipRow(k, 'RPC-REL-028')['relationship_type'] = 'PREFERRED' // RPC-003 -> GF2
     const after = byGoal(runStage1ForEveryGoal(k))
-    assert.deepEqual(after['A05'].gameForm.undominated, ['GF2', 'GF7'], 'GF2 now dominates GF3; GF7 still trades against GF2')
+    const f = after['A05'].gameForm
+    assert.equal(f.status, 'COMPATIBLE_ALTERNATIVES')
+    assert.deepEqual(f.compatible, ['GF2', 'GF3', 'GF7'])
+    assert.equal(f.preference.status, 'UNCONDITIONAL_GOVERNED_PREFERENCE')
+    assert.deepEqual(f.preference.preferred, ['GF2'])
+    assert.match(f.preference.statement, /would still need conditions and a justification by its relevance to the intended learning problem/)
+    assert.equal(f.preference.whatCouldDistinguish.find((w) => w.id === 'K1')?.present, true)
     assert.equal(after['TA02'].gameForm.selected, 'GF2')
 }
 
@@ -475,24 +523,26 @@ function testEveryGoalGetsAnAnswerThatNamesItsBasisOrWhatIsMissing(): void {
     const summary: Record<string, string> = {}
     for (const r of results) {
         summary[r.learningGoalId] = `${r.resolution.status} ${r.gameForm.status}${r.gameForm.selected ? ` ${r.gameForm.selected}` : ''}`
-        if (r.gameForm.status === 'SELECTED') assert.deepEqual(r.gameForm.undominated, [r.gameForm.selected], r.learningGoalId)
-        else assert.ok(r.resolution.missing.length + r.gameForm.missing.length + r.gameForm.missingBasis.length > 0, `${r.learningGoalId} says nothing about why`)
+        if (r.gameForm.status === 'SELECTED') assert.deepEqual(r.gameForm.compatible, [r.gameForm.selected], r.learningGoalId)
+        else if (r.gameForm.status === 'COMPATIBLE_ALTERNATIVES') assert.equal(r.gameForm.preference.status, 'INSUFFICIENT_EVIDENCE', r.learningGoalId)
+        else assert.ok(r.resolution.missing.length + r.gameForm.missing.length > 0, `${r.learningGoalId} says nothing about why`)
     }
     assert.deepEqual(summary, {
-        A01: 'RESOLVED INSUFFICIENT_EVIDENCE',
+        A01: 'RESOLVED COMPATIBLE_ALTERNATIVES',
         A02: 'RESOLVED SELECTED GF2',
-        A03: 'RESOLVED NO_COMPATIBLE_FORM',
+        A03: 'RESOLVED NO_GOVERNED_RELATIONSHIP_ESTABLISHED',
         A04: 'UNRESOLVED NOT_EVALUATED',
-        A05: 'RESOLVED INSUFFICIENT_EVIDENCE',
+        A05: 'RESOLVED COMPATIBLE_ALTERNATIVES',
         A06: 'UNRESOLVED NOT_EVALUATED',
-        D01: 'RESOLVED NO_COMPATIBLE_FORM',
+        D01: 'RESOLVED NO_GOVERNED_RELATIONSHIP_ESTABLISHED',
         D02: 'RESOLVED SELECTED GF4',
-        D03: 'RESOLVED NO_COMPATIBLE_FORM',
+        D03: 'RESOLVED NO_GOVERNED_RELATIONSHIP_ESTABLISHED',
         TA01: 'RESOLVED SELECTED GF4',
         TA02: 'RESOLVED SELECTED GF2',
-        TD01: 'RESOLVED NO_COMPATIBLE_FORM',
-        TD02: 'RESOLVED NO_COMPATIBLE_FORM',
+        TD01: 'RESOLVED_NOT_RELATED_TO_CONTEXT NO_GOVERNED_RELATIONSHIP_ESTABLISHED',
+        TD02: 'RESOLVED_NOT_RELATED_TO_CONTEXT NO_GOVERNED_RELATIONSHIP_ESTABLISHED',
     })
+    assert.deepEqual(byGoal(results)['A01'].gameForm.compatible, ['GF2', 'GF3', 'GF7'], 'withdrawing the strength ordering leaves GF7 a compatible alternative for A01 too')
 }
 
 // -------------------------------------------------------------------------------------------------------------------------------------
@@ -522,7 +572,7 @@ testEveryDecisionIsIdenticalWhenTheWordingIsRewritten()
 testSwappingTwoGoalsWordingChangesNothing()
 testNoGoalOrKnowledgeIdAppearsInTheStageCode()
 testOneCarRatingMovesOnlyTheProfileThatReadsIt()
-testOneContextStrengthMovesOnlyTheFormDecisionsThatReadIt()
+testOneContextStrengthMovesNoFormDecision()
 testOneFormDeclarationMovesOnlyTheGoalsWhosePrimaryItNames()
 testOneRulingMovesOnlyTheGoalItNames()
 testAPreferredRelationshipIsHonouredAsAGovernedPreference()
@@ -534,4 +584,4 @@ testAGoalNotUsedInDevelopment()
 testEveryGoalGetsAnAnswerThatNamesItsBasisOrWhatIsMissing()
 testNothingOutsideTheStageImportsIt()
 
-console.log('design-reasoning Stage 1: all tests passed')
+console.log('design-reasoning Steps 1 and 2 (Stage 1, as amended for Stage 2): all tests passed')

@@ -1,23 +1,36 @@
 /**
- * **Stage 1, Step 1: knowledge-grounded resolution** — review pathway only (Christian's reply to the development proposal, received
- * 3 November 2026, item 8: *"Use approved Game Problem relationships, performance context and the CAR merge process to establish the
- * Affordance Requirement Profile."* *"Please ensure the reasoning is not dependent on the wording of the selected Learning Goal once its
- * approved identity and context have been resolved."*).
+ * **Step 1: knowledge-grounded resolution, with the primary-led composite profile** — review pathway only. Stage 1 (Christian's reply to
+ * the development proposal, received 3 November 2026, item 8: *"Use approved Game Problem relationships, performance context and the CAR
+ * merge process to establish the Affordance Requirement Profile."*), amended for Stage 2 by his reply to the Stage 2 decision package,
+ * received 4 November 2026, D1: *"I support your proposed primary-led interpretation for the review pathway."*
  *
  * The input is a Learning Goal's canonical id. Everything after it is read from relationship rows by id:
  *   1. the Game Problems: the Session Planning Model's approved Engine Translation; where that row is unpopulated, a scoped ruling of his in
- *      `stage1-rulings.json` (today only E1); otherwise UNRESOLVED, with the row's state named. A ruling never overrides a populated
- *      translation: that is reported as a conflict and nothing is resolved.
+ *      `stage1-rulings.json` (today only E1, which his D1 continues); otherwise UNRESOLVED, with the row's state named. A ruling never
+ *      overrides a populated translation: that is reported as a conflict and nothing is resolved.
  *   2. the context: the goal's RPC routing row, checked against the context library's own LEARNING_GOAL relationship row for the goal, and
- *      the context's relationship rows to each resolved Game Problem (a resolved Game Problem the context does not relate is reported).
- *   3. the Affordance Requirement Profile: each Game Problem's CAR row, kept separately with its role; the merged profile by the CAR
- *      metadata's own `merge_precedence`; the profile under "Primary wins conflicts" beside it; and every requirement on which the primary
- *      and secondary diverge. His E1 concern (*"I don't want the CAR merge to conceal meaningful distinctions between creating and exploiting
- *      space."*) is why the merged profile is never returned alone.
- *   4. the requirements and open decisions his rulings record, attached where their stated conditions hold (by ids, never by wording).
+ *      the context's relationship rows to each resolved Game Problem. Where the routed context has no row for the resolved primary Game
+ *      Problem, the status is RESOLVED_NOT_RELATED_TO_CONTEXT, not RESOLVED (the defect we reported in the decision package, item 6).
+ *   3. the composite profile, as D1 directs:
+ *        - `rows`: each Game Problem's CAR row, unchanged, with its role and provenance (*"Preserve each Game Problem's original CAR
+ *          profile, role and provenance."*);
+ *        - `unionView`: the strongest rating on each requirement under the CAR metadata's own `merge_precedence`, with every Game Problem
+ *          that supplies it (*"Retain the strongest-necessity merge as a union view showing all requirements and their sources."*). It is
+ *          labelled a union view and never used as the effective profile;
+ *        - `effectiveProfile`: primary-led, each requirement taking the primary's rating (*"Do not automatically promote the stronger
+ *          secondary requirement into the effective primary-led profile."*);
+ *        - `findings`: one per requirement the secondary rates more strongly than the primary, outcome INSUFFICIENT_EVIDENCE, because no
+ *          approved relationship establishes how to reconcile the difference (*"Where no approved relationship establishes how to
+ *          reconcile the difference, report insufficient evidence."*). The four outcomes we proposed are typed; only this one is reachable.
+ *      Stage 1's "primary wins" profile and its open merge-rule question are gone: 'Primary wins conflicts' was our paraphrase. D1 is
+ *      scoped to the isolated review pathway and is not an amendment of the canonical Composite specification, which is cited, not
+ *      amended. The CAR Matrix is unchanged.
+ *   4. the requirements and open decisions his rulings record, attached where their stated conditions hold (by ids, never by wording). A
+ *      decision a later ruling supersedes is no longer attached.
  *
- * No goal id appears in this file. Nothing here reads a goal's name, definition, entry language or any note; a static test pins both.
- * Never served, never a selection input of the live route, never coach text.
+ * Every decision carries its influence trace (`./trace.ts`). No goal id appears in this file. Nothing here reads a goal's name,
+ * definition, entry language or any note; a static test pins both. Never served, never a selection input of the live route, never coach
+ * text.
  */
 import {
     activeContextRelationships,
@@ -33,11 +46,15 @@ import {
     gameProblemExists,
     gameProblemRelationshipsAmong,
     learningGoalExists,
+    OpenDecision,
     RelationshipRow,
     routedContext,
+    ruling,
     SOURCE,
+    sourceStanding,
     translationRowExists,
 } from './knowledge'
+import { citeRef, EstablishedBy, InfluenceTrace, item, roleWord } from './trace'
 
 export type GameProblemRole = 'PRIMARY' | 'SECONDARY'
 
@@ -47,7 +64,7 @@ export interface MissingKnowledge {
     cites: Cite[]
 }
 
-export interface ProfileEntry {
+export interface CompositeRow {
     gameProblemId: string
     role: GameProblemRole
     ratings: Record<CarRequirement, string>
@@ -55,18 +72,47 @@ export interface ProfileEntry {
     validationStatus: string
     confidence: string
     evidenceType: string
-    cite: Cite
+    provenance: { carRow: Cite; roleSetBy: Cite[] }
 }
 
-export interface AffordanceRequirementProfile {
+export type FindingOutcome = 'INCLUDED' | 'NOT_INCLUDED' | 'CONFLICT_UNRESOLVED' | 'INSUFFICIENT_EVIDENCE'
+
+export interface CompositeFinding {
+    requirement: CarRequirement
+    requirementName: string
+    primary: { gameProblemId: string; rating: string }
+    secondary: { gameProblemId: string; rating: string }
+    outcome: FindingOutcome
+    possibleOutcomes: string[]
+    possibleOutcomesStanding: string
+    reason: string
+    description: string
+    promotedIntoEffectiveProfile: false
+    establishedBy: EstablishedBy
+    trace: InfluenceTrace
+}
+
+export interface CompositeProfile {
     requirementNames: Record<CarRequirement, string>
-    perGameProblem: ProfileEntry[]
-    /** The merged profile by the CAR metadata's merge_precedence (what the code's Composite Runtime implements). */
-    merged: { rule: string; ratings: Record<CarRequirement, string>; cite: Cite }
-    /** The profile under the documented "Primary wins conflicts" rule; null when there is no secondary to conflict with. */
-    underPrimaryWins: { rule: string; ratings: Record<CarRequirement, string>; cites: Cite[] } | null
-    /** Requirements on which the primary and the secondary Game Problem are rated differently. */
-    divergent: Array<{ requirement: CarRequirement; primary: string; secondary: string; merged: string }>
+    rows: CompositeRow[]
+    unionView: {
+        label: string
+        rule: string
+        perRequirement: Record<CarRequirement, { rating: string; suppliedBy: string[] }>
+        usedAsEffectiveProfile: false
+        establishedBy: EstablishedBy
+        trace: InfluenceTrace
+    }
+    effectiveProfile: {
+        label: string
+        rule: string
+        ratings: Record<CarRequirement, string>
+        scope: string
+        canonicalAmendment: boolean
+        establishedBy: EstablishedBy
+        trace: InfluenceTrace
+    }
+    findings: CompositeFinding[]
 }
 
 export interface ContextResolution {
@@ -76,11 +122,16 @@ export interface ContextResolution {
     runtimeStatus: string
     goalRelationship: RelationshipRow | null
     gameProblemRelationships: Array<{ gameProblemId: string; role: GameProblemRole; relationship: RelationshipRow | null }>
+    primaryRelatedToContext: boolean
+    establishedBy: EstablishedBy
+    trace: InfluenceTrace
 }
+
+export type ResolutionStatus = 'RESOLVED' | 'RESOLVED_NOT_RELATED_TO_CONTEXT' | 'UNRESOLVED'
 
 export interface DesignResolution {
     learningGoalId: string
-    status: 'RESOLVED' | 'UNRESOLVED'
+    status: ResolutionStatus
     gameProblems: {
         basis: 'APPROVED_TRANSLATION' | 'SCOPED_RULING' | null
         primary: string[]
@@ -89,9 +140,12 @@ export interface DesignResolution {
         scope: string | null
         qualifier: string | null
         rulingWords: string[]
+        continuedBy: { ruling: string; words: string[] } | null
+        establishedBy: EstablishedBy
+        trace: InfluenceTrace
     }
     context: ContextResolution | null
-    profile: AffordanceRequirementProfile | null
+    profile: CompositeProfile | null
     gameProblemRelationships: Array<{ source: string; relationship: string; target: string; cite: Cite }>
     requirements: Array<{ id: string; status: string; statement: string; words: string[]; whatIsMissing: string; cite: Cite }>
     openDecisions: Array<{ id: string; question: string; words: string[]; handling: string; cite: Cite }>
@@ -99,33 +153,34 @@ export interface DesignResolution {
 }
 
 const RULINGS = (row: string): Cite => ({ file: SOURCE.rulings, table: 'rulings', row })
+const STAGE2 = (row: string): Cite => ({ file: SOURCE.stage2Rulings, table: 'rulings', row })
 
-/** Merge per requirement by an explicit precedence (strongest first). An unknown code is reported, never guessed. */
-function mergeByPrecedence(
-    entries: ProfileEntry[],
+/** The strongest code under an explicit precedence (strongest first) and every Game Problem rated with it. Unknown codes are reported. */
+function unionByPrecedence(
+    rows: CompositeRow[],
     order: string[],
     missing: MissingKnowledge[],
     precedenceCite: Cite
-): Record<CarRequirement, string> {
-    const merged = {} as Record<CarRequirement, string>
+): Record<CarRequirement, { rating: string; suppliedBy: string[] }> {
+    const union = {} as Record<CarRequirement, { rating: string; suppliedBy: string[] }>
     for (const requirement of CAR_REQUIREMENTS) {
         let best: string | null = null
-        for (const entry of entries) {
-            const code = entry.ratings[requirement]
+        for (const row of rows) {
+            const code = row.ratings[requirement]
             const rank = order.indexOf(code)
             if (rank === -1) {
                 missing.push({
                     kind: 'CAR_RATING_OUTSIDE_PRECEDENCE',
-                    detail: `${entry.gameProblemId} ${requirement} is rated "${code}", which merge_precedence does not order.`,
-                    cites: [entry.cite, precedenceCite],
+                    detail: `${row.gameProblemId} ${requirement} is rated "${code}", which merge_precedence does not order.`,
+                    cites: [row.provenance.carRow, precedenceCite],
                 })
                 continue
             }
             if (best === null || rank < order.indexOf(best)) best = code
         }
-        merged[requirement] = best ?? ''
+        union[requirement] = { rating: best ?? '', suppliedBy: rows.filter((r) => best !== null && r.ratings[requirement] === best).map((r) => r.gameProblemId) }
     }
-    return merged
+    return union
 }
 
 export function resolveDesignContext(k: DesignKnowledge, learningGoalId: string): DesignResolution {
@@ -133,7 +188,18 @@ export function resolveDesignContext(k: DesignKnowledge, learningGoalId: string)
     const result: DesignResolution = {
         learningGoalId,
         status: 'UNRESOLVED',
-        gameProblems: { basis: null, primary: [], secondary: [], cites: [], scope: null, qualifier: null, rulingWords: [] },
+        gameProblems: {
+            basis: null,
+            primary: [],
+            secondary: [],
+            cites: [],
+            scope: null,
+            qualifier: null,
+            rulingWords: [],
+            continuedBy: null,
+            establishedBy: 'INSUFFICIENT EVIDENCE',
+            trace: { influencedBy: [], consulted: [], citedOnly: [] },
+        },
         context: null,
         profile: null,
         gameProblemRelationships: [],
@@ -149,6 +215,7 @@ export function resolveDesignContext(k: DesignKnowledge, learningGoalId: string)
     }
 
     // 1. Game Problems: the approved translation, else a scoped ruling, else unresolved.
+    const planningStanding = sourceStanding(k, 'planning')
     const translation = approvedTranslation(k, learningGoalId)
     const rulings = k.rulings.scopedTranslations.filter((r) => r.learningGoalId === learningGoalId)
     if (rulings.length > 1) {
@@ -164,17 +231,31 @@ export function resolveDesignContext(k: DesignKnowledge, learningGoalId: string)
             cites: [translation.cite, RULINGS(rulings[0].id)],
         })
     } else if (translation) {
-        result.gameProblems = { ...result.gameProblems, basis: 'APPROVED_TRANSLATION', primary: translation.primary, secondary: translation.secondary, cites: [translation.cite] }
+        result.gameProblems = {
+            ...result.gameProblems,
+            basis: 'APPROVED_TRANSLATION',
+            primary: translation.primary,
+            secondary: translation.secondary,
+            cites: [translation.cite],
+            establishedBy: 'APPROVED KNOWLEDGE',
+            trace: { influencedBy: [item(citeRef(translation.cite), planningStanding, 'the approved Engine Translation names the Game Problems and their roles', translation.cite)], consulted: [], citedOnly: [] },
+        }
     } else if (rulings.length === 1) {
-        const ruling = rulings[0]
+        const scoped = rulings[0]
+        const rowCite: Cite = { file: SOURCE.planning, table: 'engine_translation', row: learningGoalId }
+        const influencedBy = [item(`stage1-rulings.json ${scoped.id}`, sourceStanding(k, 'stage1Rulings'), 'his scoped ruling names the Game Problems and their roles', RULINGS(scoped.id))]
+        if (scoped.continuedBy) influencedBy.push(item(`stage2-rulings.json ${scoped.continuedBy.ruling}`, sourceStanding(k, 'stage2Rulings'), 'his later ruling retains the designation for this demonstration', STAGE2(scoped.continuedBy.ruling)))
         result.gameProblems = {
             basis: 'SCOPED_RULING',
-            primary: [...ruling.primaryGameProblemIds],
-            secondary: [...ruling.secondaryGameProblemIds],
-            cites: [RULINGS(ruling.id), { file: SOURCE.planning, table: 'engine_translation', row: learningGoalId }],
-            scope: ruling.scope,
-            qualifier: ruling.qualifier,
-            rulingWords: [...ruling.words],
+            primary: [...scoped.primaryGameProblemIds],
+            secondary: [...scoped.secondaryGameProblemIds],
+            cites: [RULINGS(scoped.id), rowCite],
+            scope: scoped.scope,
+            qualifier: scoped.qualifier,
+            rulingWords: [...scoped.words],
+            continuedBy: scoped.continuedBy ? { ruling: scoped.continuedBy.ruling, words: [...scoped.continuedBy.words] } : null,
+            establishedBy: 'RULING',
+            trace: { influencedBy, consulted: [item(citeRef(rowCite), planningStanding, 'the Engine Translation row is unpopulated, so a ruling may supply the Game Problems', rowCite)], citedOnly: [] },
         }
     } else {
         missing.push({
@@ -204,6 +285,7 @@ export function resolveDesignContext(k: DesignKnowledge, learningGoalId: string)
     }
 
     // 2. Context: routing, the library's own relationship row for the goal, and its rows to each resolved Game Problem.
+    const contextStanding = sourceStanding(k, 'contexts')
     const routing = routedContext(k, learningGoalId)
     if (!routing) {
         missing.push({ kind: 'ROUTING_MISSING', detail: 'The goal has no single RPC routing row.', cites: [{ file: SOURCE.planning, table: 'rpc_routing', row: learningGoalId }] })
@@ -215,17 +297,27 @@ export function resolveDesignContext(k: DesignKnowledge, learningGoalId: string)
             const goalRows = activeContextRelationships(k, routing.rpcId, 'LEARNING_GOAL').filter((r) => r.relatedId === learningGoalId)
             const roles: Array<[string, GameProblemRole]> = [...primary.map((id): [string, GameProblemRole] => [id, 'PRIMARY']), ...secondary.map((id): [string, GameProblemRole] => [id, 'SECONDARY'])]
             const gpRows = activeContextRelationships(k, routing.rpcId, 'GAME_PROBLEM')
+            const gameProblemRelationships = roles.map(([gameProblemId, role]) => ({ gameProblemId, role, relationship: gpRows.find((r) => r.relatedId === gameProblemId) ?? null }))
+            const primaryRelated = gameProblemRelationships.some((g) => g.role === 'PRIMARY' && g.relationship !== null)
+            const influencedBy = [
+                item(citeRef(routing.cite), planningStanding, `the routing row names ${routing.rpcId}`, routing.cite),
+                ...goalRows.map((r) => item(citeRef(r.cite), contextStanding, `the context library relates the goal to ${routing.rpcId} (${r.type} ${r.strength})`, r.cite)),
+                ...gameProblemRelationships.map((g) =>
+                    g.relationship
+                        ? item(citeRef(g.relationship.cite), contextStanding, `${routing.rpcId} relates the ${roleWord(g.role)} Game Problem ${g.gameProblemId} (${g.relationship.type} ${g.relationship.strength})`, g.relationship.cite)
+                        : item(`${citeRef({ file: SOURCE.contexts, table: 'relationships', row: `${routing.rpcId} GAME_PROBLEM ${g.gameProblemId}` })} (absent)`, contextStanding, `no ACTIVE row relates the ${roleWord(g.role)} Game Problem ${g.gameProblemId} to ${routing.rpcId}`)
+                ),
+            ]
             result.context = {
                 rpcId: routing.rpcId,
                 routing: routing.cite,
                 canonicalStatus: registry.canonicalStatus,
                 runtimeStatus: registry.runtimeStatus,
                 goalRelationship: goalRows.length === 1 ? goalRows[0] : null,
-                gameProblemRelationships: roles.map(([gameProblemId, role]) => ({
-                    gameProblemId,
-                    role,
-                    relationship: gpRows.find((r) => r.relatedId === gameProblemId) ?? null,
-                })),
+                gameProblemRelationships,
+                primaryRelatedToContext: primaryRelated,
+                establishedBy: 'APPROVED KNOWLEDGE',
+                trace: { influencedBy, consulted: [], citedOnly: [] },
             }
             if (goalRows.length !== 1) {
                 missing.push({
@@ -237,7 +329,7 @@ export function resolveDesignContext(k: DesignKnowledge, learningGoalId: string)
             if (registry.libraryRuntimeStatus !== 'ACTIVE') {
                 missing.push({ kind: 'CONTEXT_LIBRARY_NOT_ACTIVE', detail: `The context library's runtime_status reads "${registry.libraryRuntimeStatus}".`, cites: [{ file: SOURCE.contexts, table: 'metadata', row: 'runtime_status' }] })
             }
-            for (const entry of result.context.gameProblemRelationships) {
+            for (const entry of gameProblemRelationships) {
                 if (!entry.relationship) {
                     missing.push({
                         kind: 'GAME_PROBLEM_NOT_RELATED_TO_CONTEXT',
@@ -249,39 +341,86 @@ export function resolveDesignContext(k: DesignKnowledge, learningGoalId: string)
         }
     }
 
-    // 3. The Affordance Requirement Profile: each Game Problem's row with its role, the merge, the alternative, the divergences.
+    // 3. The composite profile (D1): rows with role and provenance, the union view, the primary-led effective profile, the findings.
     if (result.gameProblems.basis && primary.length === 1 && secondary.length <= 1) {
-        const entries: ProfileEntry[] = []
+        const carStanding = sourceStanding(k, 'car')
+        const rows: CompositeRow[] = []
         for (const [id, role] of [[primary[0], 'PRIMARY'], ...secondary.map((s) => [s, 'SECONDARY'])] as Array<[string, GameProblemRole]>) {
             const row = carRow(k, id)
             if (!row) {
                 missing.push({ kind: 'CAR_ROW_MISSING', detail: `The CAR Matrix has no row for ${id}.`, cites: [{ file: SOURCE.car, table: 'ratings', row: id }] })
                 continue
             }
-            entries.push({ gameProblemId: id, role, ratings: row.ratings, rowStatus: row.rowStatus, validationStatus: row.validationStatus, confidence: row.confidence, evidenceType: row.evidenceType, cite: row.cite })
+            rows.push({
+                gameProblemId: id,
+                role,
+                ratings: row.ratings,
+                rowStatus: row.rowStatus,
+                validationStatus: row.validationStatus,
+                confidence: row.confidence,
+                evidenceType: row.evidenceType,
+                provenance: { carRow: row.cite, roleSetBy: [...result.gameProblems.cites] },
+            })
         }
-        if (entries.length === 1 + secondary.length) {
+        if (rows.length === 1 + secondary.length) {
+            const d1 = k.stage2Rulings.compositeProfile
+            const d1Ruling = ruling(k, d1.ruling)
             const precedence = carMergePrecedence(k)
-            const merged = mergeByPrecedence(entries, precedence.order, missing, precedence.cite)
-            const primaryEntry = entries.find((e) => e.role === 'PRIMARY') as ProfileEntry
-            const secondaryEntry = entries.find((e) => e.role === 'SECONDARY')
+            const names = carRequirementNames(k)
+            const union = unionByPrecedence(rows, precedence.order, missing, precedence.cite)
+            const primaryRow = rows.find((r) => r.role === 'PRIMARY') as CompositeRow
+            const secondaryRow = rows.find((r) => r.role === 'SECONDARY')
+            const rowItem = (r: CompositeRow, role: string) => item(citeRef(r.provenance.carRow), carStanding, role, r.provenance.carRow)
+            const precedenceItem = item(citeRef(precedence.cite), carStanding, `merge_precedence ${precedence.asWritten}`, precedence.cite)
+            const d1Item = item(`stage2-rulings.json ${d1Ruling.id}`, sourceStanding(k, 'stage2Rulings'), `his ${d1Ruling.decision}: primary-led profile; a stronger secondary rating is kept as a finding, not promoted`, STAGE2(d1Ruling.id))
+            const citedOnly = d1.citedOnly.map((c) => item(c.ref, c.standing, `cited with its own status (${c.documentStatus}); decides nothing`))
+            const rank = (code: string) => precedence.order.indexOf(code)
+            if (d1.reconciliationRelationships.length) {
+                // No reconciliation relationship exists in his knowledge, and the shape of one is not his yet: fail closed rather than guess.
+                throw new Error('stage2-rulings.json lists reconciliation relationships, which the stage does not yet know how to apply')
+            }
             result.profile = {
-                requirementNames: carRequirementNames(k),
-                perGameProblem: entries,
-                merged: { rule: `strongest necessity, merge_precedence ${precedence.asWritten} (CAR metadata)`, ratings: merged, cite: precedence.cite },
-                underPrimaryWins: secondaryEntry
-                    ? {
-                          rule: 'Primary wins conflicts (documented in docs/HANDOFF.md and the gp-library.ts header; the Composite Runtime specification is not in the repository)',
-                          ratings: { ...primaryEntry.ratings },
-                          cites: [primaryEntry.cite],
-                      }
-                    : null,
-                divergent: secondaryEntry
-                    ? CAR_REQUIREMENTS.filter((req) => primaryEntry.ratings[req] !== secondaryEntry.ratings[req]).map((requirement) => ({
+                requirementNames: names,
+                rows,
+                unionView: {
+                    label: d1.unionViewWording,
+                    rule: `strongest necessity, merge_precedence ${precedence.asWritten} (CAR metadata)`,
+                    perRequirement: union,
+                    usedAsEffectiveProfile: false,
+                    establishedBy: 'APPROVED KNOWLEDGE',
+                    trace: { influencedBy: [...rows.map((r) => rowItem(r, `${roleWord(r.role)} Game Problem's ratings`)), precedenceItem], consulted: [d1Item], citedOnly: [] },
+                },
+                effectiveProfile: {
+                    label: d1.effectiveProfileWording,
+                    rule: d1.effectiveProfileRule,
+                    ratings: { ...primaryRow.ratings },
+                    scope: d1Ruling.scope,
+                    canonicalAmendment: d1Ruling.canonicalAmendment,
+                    establishedBy: 'RULING',
+                    trace: {
+                        influencedBy: [rowItem(primaryRow, 'the primary Game Problem\'s ratings, each taken unchanged'), d1Item],
+                        consulted: [...(secondaryRow ? [rowItem(secondaryRow, 'the secondary Game Problem\'s ratings, shown; never promoted')] : []), precedenceItem],
+                        citedOnly,
+                    },
+                },
+                findings: secondaryRow
+                    ? CAR_REQUIREMENTS.filter((req) => rank(secondaryRow.ratings[req]) !== -1 && rank(primaryRow.ratings[req]) !== -1 && rank(secondaryRow.ratings[req]) < rank(primaryRow.ratings[req])).map((requirement) => ({
                           requirement,
-                          primary: primaryEntry.ratings[requirement],
-                          secondary: secondaryEntry.ratings[requirement],
-                          merged: merged[requirement],
+                          requirementName: names[requirement],
+                          primary: { gameProblemId: primaryRow.gameProblemId, rating: primaryRow.ratings[requirement] },
+                          secondary: { gameProblemId: secondaryRow.gameProblemId, rating: secondaryRow.ratings[requirement] },
+                          outcome: 'INSUFFICIENT_EVIDENCE' as FindingOutcome,
+                          possibleOutcomes: [...d1.findingOutcomes],
+                          possibleOutcomesStanding: d1.findingOutcomesStanding,
+                          reason: d1.findingReason,
+                          description: d1.findingDescription,
+                          promotedIntoEffectiveProfile: false as const,
+                          establishedBy: 'INSUFFICIENT EVIDENCE' as EstablishedBy,
+                          trace: {
+                              influencedBy: [rowItem(primaryRow, `primary rates ${requirement} ${primaryRow.ratings[requirement]}`), rowItem(secondaryRow, `secondary rates ${requirement} ${secondaryRow.ratings[requirement]}`), precedenceItem, d1Item],
+                              consulted: [],
+                              citedOnly,
+                          },
                       }))
                     : [],
             }
@@ -289,19 +428,24 @@ export function resolveDesignContext(k: DesignKnowledge, learningGoalId: string)
         result.gameProblemRelationships = gameProblemRelationshipsAmong(k, [...primary, ...secondary])
     }
 
-    // 4. Requirements and open decisions his rulings record, attached by their stated conditions (ids only).
+    // 4. Requirements and open decisions his rulings record, attached by their stated conditions (ids only); superseded ones are not.
     const resolvedIds = [...primary, ...secondary]
     for (const requirement of k.rulings.requirements) {
         if (requirement.appliesWhenGameProblemsInclude.length && requirement.appliesWhenGameProblemsInclude.every((id) => resolvedIds.includes(id))) {
             result.requirements.push({ id: requirement.id, status: requirement.status, statement: requirement.statement, words: [...requirement.words], whatIsMissing: requirement.whatIsMissing, cite: RULINGS(requirement.id) })
         }
     }
-    for (const decision of k.rulings.openDecisions) {
+    const openDecisions: Array<[OpenDecision, Cite]> = [
+        ...k.rulings.openDecisions.map((d): [OpenDecision, Cite] => [d, RULINGS(d.id)]),
+        ...k.stage2Rulings.openDecisions.map((d): [OpenDecision, Cite] => [d, { file: SOURCE.stage2Rulings, table: 'openDecisions', row: d.id }]),
+    ]
+    for (const [decision, cite] of openDecisions) {
+        if (decision.supersededBy) continue
         const applies =
             decision.appliesWhen === 'SECONDARY_DIVERGES'
-                ? Boolean(result.profile && result.profile.divergent.length > 0)
+                ? Boolean(result.profile && result.profile.findings.length > 0)
                 : decision.learningGoalId === learningGoalId && (!decision.rpcId || decision.rpcId === result.context?.rpcId)
-        if (applies) result.openDecisions.push({ id: decision.id, question: decision.question, words: [...decision.words], handling: decision.handling, cite: RULINGS(decision.id) })
+        if (applies) result.openDecisions.push({ id: decision.id, question: decision.question, words: [...decision.words], handling: decision.handling, cite })
     }
 
     const blocking = new Set([
@@ -319,6 +463,7 @@ export function resolveDesignContext(k: DesignKnowledge, learningGoalId: string)
         'CAR_ROW_MISSING',
         'CAR_RATING_OUTSIDE_PRECEDENCE',
     ])
-    result.status = result.gameProblems.basis && result.context && result.profile && !missing.some((m) => blocking.has(m.kind)) ? 'RESOLVED' : 'UNRESOLVED'
+    const resolved = result.gameProblems.basis && result.context && result.profile && !missing.some((m) => blocking.has(m.kind))
+    result.status = !resolved ? 'UNRESOLVED' : result.context?.primaryRelatedToContext ? 'RESOLVED' : 'RESOLVED_NOT_RELATED_TO_CONTEXT'
     return result
 }

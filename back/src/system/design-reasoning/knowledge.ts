@@ -1,6 +1,13 @@
 /**
- * **The knowledge the design-reasoning stage reasons over, as one value that can be copied and changed in a test** — Stage 1, review pathway
- * only (Christian's reply to the development proposal, received 3 November 2026, item 8).
+ * **The knowledge the design-reasoning stage reasons over, as one value that can be copied and changed in a test** — Stages 1 and 2, review
+ * pathway only (Christian's reply to the development proposal, received 3 November 2026, item 8; his reply to the Stage 2 decision package,
+ * received 4 November 2026, which authorized "a bounded, review-only demonstration using the D1, D3, D5 and D6 directions").
+ *
+ * STAGE 2 CHANGES. His D3 withdrew our Game Form orderings, so `selection-basis.json` is no longer read (the repository history keeps it).
+ * Two review-only data files join the value: `stage2-rulings.json` (his D1-D6 words, and the structures they govern) and
+ * `conditions-of-use.stage2.json` (our conditions-of-use entries in the structure he approved under D5). Three readers are added, each
+ * taking ids, categories, roles and statuses only: a context's property row by id, an archetype's integrity-condition rows, and whether a
+ * value is in the context library's controlled vocabulary.
  *
  * WHY ONE VALUE. The proposal's acceptance checks 2 and 8 change the knowledge in a test copy (the goals' wording; one CAR rating, one context
  * strength, one form declaration, one ruling) and require exactly the dependent decisions to move. The existing loaders each bind to their own
@@ -22,8 +29,9 @@ import { gameProblemsForLearningGoal } from '../session-planning/session-plannin
 import sessionPlanningWorkbook from '../session-planning/session-planning-model.rc1.json'
 import { SPORT_MODULE_WORKBOOK_PATH, sportModuleWorkbookRows } from '../sport-module/design-knowledge-sources'
 import rpcWorkbook from '../sport-module/rpc-library.rc1.json'
-import selectionBasis from './selection-basis.json'
+import conditionsOfUse from './conditions-of-use.stage2.json'
 import stage1Rulings from './stage1-rulings.json'
+import stage2Rulings from './stage2-rulings.json'
 
 type Row = Record<string, unknown>
 
@@ -42,7 +50,9 @@ export const SOURCE = {
     archetypes: 'back/src/system/knowledge-core/game-archetype-workbook.rc1.1.json',
     sportModule: SPORT_MODULE_WORKBOOK_PATH,
     rulings: 'back/src/system/design-reasoning/stage1-rulings.json',
-    basis: 'back/src/system/design-reasoning/selection-basis.json',
+    stage2Rulings: 'back/src/system/design-reasoning/stage2-rulings.json',
+    conditionsOfUse: 'back/src/system/design-reasoning/conditions-of-use.stage2.json',
+    fixture: 'back/src/system/design-reasoning/width-scenarios.test-fixture.json',
 } as const
 
 export interface ScopedTranslation {
@@ -53,6 +63,8 @@ export interface ScopedTranslation {
     scope: string
     qualifier: string
     words: string[]
+    /** A later ruling of his that retains this designation (Stage 2: D1). */
+    continuedBy?: { ruling: string; file: string; words: string[]; note: string }
 }
 
 export interface RecordedRequirement {
@@ -72,6 +84,8 @@ export interface OpenDecision {
     question: string
     words: string[]
     handling: string
+    /** Set when a later ruling of his answers or replaces the question; a superseded decision is no longer attached to any result. */
+    supersededBy?: { ruling: string; file: string; note: string }
 }
 
 export interface Stage1Rulings {
@@ -82,33 +96,181 @@ export interface Stage1Rulings {
     openDecisions: OpenDecision[]
 }
 
-export interface Ordering {
-    order: string[]
-    unordered?: string[]
-    excludes?: string[]
-    basis: string
-    cites: Cite[]
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// Stage 2: his D1-D6 rulings and our conditions-of-use entries, as data (shapes only; the content is in the two JSON files)
+// ---------------------------------------------------------------------------------------------------------------------------------------
+
+/** The standing a source carries in the influence trace. TEST ASSUMPTION and TEST INPUT mark the fixture's values. */
+export type Standing = 'APPROVED' | 'RULING' | 'CANDIDATE' | 'REFERENCE ONLY' | 'OURS' | 'TEST ASSUMPTION' | 'TEST INPUT'
+
+export interface Ruling {
+    id: string
+    decision: string
+    subject: string
+    scope: string
+    canonicalAmendment: boolean
+    words: string[]
+    supersedes?: string[]
 }
 
-export interface SelectionBasis {
+export interface ReferenceCitation {
+    ref: string
+    standing: Standing
+    documentStatus: string
+    received: string
+    quotes: string[]
+    use: string
+}
+
+export interface IntegrityClassification {
+    conditionId: string
+    recordId: string
+    class: 'REQUIRED CONDITION' | 'BREACH DESCRIPTION'
+    structuralSignal: 'OPPOSITION_PRESENT' | 'CONTINUOUS_PLAY_BASELINE' | null
+}
+
+export interface Stage2Rulings {
     standing: string
-    contextRelationshipStrength: Ordering
-    contextRelationshipType: Ordering
-    formGameProblemDeclaration: Ordering
-    compatibilityGate: string
-    dominanceRule: string
+    source: string
+    sourceStandings: Record<string, { standing: Standing; basis: string } | string>
+    rulings: Ruling[]
+    compositeProfile: {
+        ruling: string
+        effectiveProfileRule: string
+        effectiveProfileWording: string
+        unionViewWording: string
+        findingOutcomes: string[]
+        findingOutcomesStanding: string
+        reconciliationRelationships: Array<{ id: string; requirement: string; outcome: string; words: string[] }>
+        findingReason: string
+        findingDescription: string
+        citedOnly: ReferenceCitation[]
+        carMergeNote: { ref: string; standing: Standing; quote: string; ourReading: string }
+    }
+    gameFormStep: {
+        ruling: string
+        gate: {
+            standing: string
+            excludedContextRelationshipTypes: string[]
+            excludedArchetypeGameProblemRoles: string[]
+            governedPreferenceTypes: string[]
+            vocabularyCite: Cite
+            vocabularyQuote: string
+        }
+        exclusionWording: string
+        selectedWording: string
+        alternativesWording: string
+        compatibilityLabel: string
+        archetypeLabel: string
+        governedPreferenceWording: string
+        whatCouldDistinguish: { standing: string; items: Array<{ id: string; what: string; check: 'GOVERNED_PREFERENCE_ROW' | 'RECORDED_ABSENT'; limitation: string }> }
+        conditionalPreferenceWords: string
+        defendingGoalsWords: string
+    }
+    relevance: {
+        ruling: string
+        structuralPreconditions: {
+            standing: string
+            appliesToArchetypeIds: string[]
+            label: string
+            items: Array<{ id: string; statement: string; requirement: string; signal: 'OPPOSITION_PRESENT' | null; ourIdentification: string }>
+        }
+        continuousPlayBaselineEntry: string
+        conditionsOfUseRuling: string
+        integrityConditions: {
+            standing: string
+            noVerdictQuote: string
+            noVerdictSource: { ref: string; standing: Standing }
+            classification: IntegrityClassification[]
+        }
+        authorizedDepartures: Array<{ learningGoalId: string; departure: string; words: string[] }>
+        authorizedDeparturesNote: string
+        frameworkRulesRun: { standing: string; rules: Array<{ id: string; rule: string }>; waiting: string }
+    }
+    widthComparison: { ruling: string; referenceCitationRuling: string; longTermRequirementRuling: string; authorizationRuling: string }
+    openDecisions: OpenDecision[]
+}
+
+export interface EntrySource {
+    ref: string
+    file?: string
+    standing: Standing
+    quote: string
+}
+
+export interface EntryAssumption {
+    id: string
+    statement: string
+    handling: 'DECIDING_CIRCUMSTANCE' | 'STRUCTURAL_CHECK' | 'BACKGROUND_UNVERIFIED'
+    circumstance?: string
+    check?: 'EQUAL_NUMBERS'
+    rule?: string
+}
+
+export type EvidenceClass = 'ESTABLISHED PRINCIPLE' | 'LOGICAL INFERENCE' | 'CAUSAL HYPOTHESIS' | 'REFERENCE KNOWLEDGE'
+export type PermittedEngineUse = 'TEST-ONLY COMPARISON' | 'STRUCTURAL CHECK AND UNCERTAINTY REPORTING' | 'TRACE CITATION ONLY' | 'DEFERRED'
+
+export interface ConditionOfUse {
+    id: string
+    statement: string
+    evidenceClass: EvidenceClass
+    kind: 'accepted conceptual or structural principle' | 'hypothesis'
+    contentStanding: string
+    appliesToGameProblemIds: string[]
+    appliesToArchetypeIds?: string[]
+    requirement?: string
+    sources: EntrySource[]
+    intendedInfluence: string
+    assumptions: EntryAssumption[]
+    limitations: string[]
+    failureModes?: Array<{ mode: string; source: EntrySource | null }>
+    comparison?: { invites: 'PRIMARY' | 'SECONDARY'; decidingCircumstances: Record<string, boolean> }
+    fieldEvidence: string
+    permittedEngineUse: PermittedEngineUse
+}
+
+export interface WidthRisk {
+    kind: 'ENTRY' | 'CONTEXT_PROPERTY' | 'INTEGRITY_CONDITION'
+    entryId?: string
+    propertyId?: string
+    expectedCategory?: string
+    conditionId?: string
+    quote?: string
+    link: string
+}
+
+export interface ConditionsOfUse {
+    standing: string
+    vocabulary: Record<string, unknown>
+    entries: ConditionOfUse[]
+    widthComparison: {
+        standing: string
+        hypotheses: string[]
+        circumstances: Array<{ key: string; label: string; futureSource: string }>
+        proposalBasis: string
+        proposalLabel: string
+        structuralFactLabel: string
+        structuralEntries: string[]
+        structuralChecks: Array<{ entryId: string; check: 'AREA' | 'NUMBERS'; standing: string }>
+        boundaryEntry: string
+        referenceEntries: string[]
+        deferredEntries: string[]
+        risksOfWidening: WidthRisk[]
+        longTermRequirementId: string
+    }
 }
 
 /** Every workbook the stage reads, whole. A test passes a changed deep copy; nothing else does. */
 export interface DesignKnowledge {
     planning: { learning_goals: Row[]; engine_translation: Row[]; rpc_routing: Row[] } & Row
-    contexts: { registry: Row[]; relationships: Row[]; controlled_vocabulary: Row[]; identity_rules: Row[] } & Row
+    contexts: { registry: Row[]; relationships: Row[]; controlled_vocabulary: Row[]; identity_rules: Row[]; properties: Row[] } & Row
     car: { metadata: Row; ratings: Row[] } & Row
     gameProblems: { gameProblems: Row[]; relationships: Row[] } & Row
     archetypes: { knowledge: Row[] } & Row
     sportModule: { metadata: Row; game_forms: Row[] } & Row
     rulings: Stage1Rulings
-    basis: SelectionBasis
+    stage2Rulings: Stage2Rulings
+    conditionsOfUse: ConditionsOfUse
 }
 
 const deepCopy = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T
@@ -123,8 +285,29 @@ export function committedKnowledge(): DesignKnowledge {
         archetypes: gameArchetypeWorkbook,
         sportModule: sportModuleWorkbookRows(),
         rulings: stage1Rulings,
-        basis: selectionBasis,
+        stage2Rulings,
+        conditionsOfUse,
     }) as unknown as DesignKnowledge
+}
+
+/** The standing the Stage 2 rulings file gives one of the stage's sources (planning, contexts, car, archetypes, sportModule, ...). */
+export function sourceStanding(k: DesignKnowledge, source: string): Standing {
+    const entry = k.stage2Rulings.sourceStandings[source]
+    return typeof entry === 'object' && entry ? entry.standing : 'OURS'
+}
+
+/** One of his rulings in the Stage 2 file, by id; a missing id is a broken data file, so it throws rather than guessing. */
+export function ruling(k: DesignKnowledge, id: string): Ruling {
+    const found = k.stage2Rulings.rulings.find((r) => r.id === id)
+    if (!found) throw new Error(`stage2-rulings.json holds no ruling ${id}`)
+    return found
+}
+
+/** One conditions-of-use entry, by id; a missing id is a broken data file, so it throws rather than guessing. */
+export function conditionOfUse(k: DesignKnowledge, id: string): ConditionOfUse {
+    const found = k.conditionsOfUse.entries.find((e) => e.id === id)
+    if (!found) throw new Error(`conditions-of-use.stage2.json holds no entry ${id}`)
+    return found
 }
 
 /** A cell as text; empty and null both read as ''. */
@@ -306,6 +489,42 @@ export function archetypeGameProblemRole(
             cell(r, 'Target_ID') === gameProblemId
     )
     return row ? { role: cell(row, 'Knowledge_Role'), cite: { file: SOURCE.archetypes, table: 'knowledge', row: cell(row, 'Record_ID') } } : null
+}
+
+/**
+ * Stage 2: the archetype workbook's ORGANIZATIONAL_INTEGRITY_CONDITION rows for one archetype, by their ids and role. Their statements are
+ * never read here: what a condition means for the demonstration comes from his D6 classification, held as data in `stage2-rulings.json`.
+ */
+export function archetypeIntegrityConditions(
+    k: DesignKnowledge,
+    archetypeId: string
+): Array<{ conditionId: string; recordId: string; role: string; cite: Cite }> {
+    return k.archetypes.knowledge
+        .filter((r) => cell(r, 'Archetype_ID') === archetypeId && cell(r, 'Knowledge_Type') === 'ORGANIZATIONAL_INTEGRITY_CONDITION')
+        .map((r) => ({ conditionId: cell(r, 'Target_ID'), recordId: cell(r, 'Record_ID'), role: cell(r, 'Knowledge_Role'), cite: { file: SOURCE.archetypes, table: 'knowledge', row: cell(r, 'Record_ID') } }))
+        .sort((a, b) => a.conditionId.localeCompare(b.conditionId, 'en', { numeric: true }))
+}
+
+/** Stage 2: one property row of the context library, by id: its context, category, importance and status (never its text). */
+export function contextProperty(
+    k: DesignKnowledge,
+    propertyId: string
+): { propertyId: string; rpcId: string; category: string; importance: string; status: string; cite: Cite } | null {
+    const row = (k.contexts.properties ?? []).find((r) => cell(r, 'property_id') === propertyId)
+    if (!row) return null
+    return {
+        propertyId,
+        rpcId: cell(row, 'rpc_id'),
+        category: cell(row, 'property_category'),
+        importance: cell(row, 'importance'),
+        status: cell(row, 'status'),
+        cite: { file: SOURCE.contexts, table: 'properties', row: propertyId },
+    }
+}
+
+/** Stage 2: whether a value is in one of the context library's controlled vocabularies (vocabulary and value columns only). */
+export function contextVocabularyHas(k: DesignKnowledge, vocabulary: string, value: string): boolean {
+    return k.contexts.controlled_vocabulary.some((r) => cell(r, 'vocabulary') === vocabulary && cell(r, 'value') === value)
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------

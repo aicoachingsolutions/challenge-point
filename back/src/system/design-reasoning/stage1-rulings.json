@@ -13,7 +13,15 @@
                 "For the initial development demonstration, let's proceed with:",
                 "GP-001 Create Space as primary, with GP-002 Exploit Space as secondary, specifically in the context of progressing against organized opposition.",
                 "For Stage 1, please use the scoped primary/secondary designation above, but record the need for context-sensitive resolution as an explicit requirement of the reusable reasoning process."
-            ]
+            ],
+            "continuedBy": {
+                "ruling": "D1-4NOV",
+                "file": "back/src/system/design-reasoning/stage2-rulings.json",
+                "words": [
+                    "For A05, this means retaining Create Space as the primary problem, while preserving Exploit Space's stronger Functional Object Interaction requirement as an unresolved secondary consideration."
+                ],
+                "note": "Added for Stage 2: his D1 (reply received 4 November 2026) retains this designation for the bounded demonstration on the review pathway. The scope label above is kept as filed."
+            }
         }
     ],
     "requirements": [
@@ -39,7 +47,12 @@
             "words": [
                 "Also, please confirm how the existing Composite Game Problem Runtime handles the relationship between these two problems. I don't want the CAR merge to conceal meaningful distinctions between creating and exploiting space."
             ],
-            "handling": "Both profiles are reported, with every requirement on which the primary and secondary diverge. Nothing in Stage 1 reads the merged profile alone."
+            "handling": "Both profiles are reported, with every requirement on which the primary and secondary diverge. Nothing in Stage 1 reads the merged profile alone.",
+            "supersededBy": {
+                "ruling": "D1-4NOV",
+                "file": "back/src/system/design-reasoning/stage2-rulings.json",
+                "note": "Superseded by his D1 (reply received 4 November 2026): primary-led effective profile, the strongest-necessity merge kept as a union view, a stronger secondary rating kept as an explicit finding. 'Primary wins conflicts' was our paraphrase, not his specification. The stage no longer attaches this open decision."
+            }
         },
         {
             "id": "OPEN-E2-CONTEXT-FIT",
@@ -52,7 +65,12 @@
                 "Please first confirm that the existing context architecture can support this episode distinction without contradicting RPC-003's approved begin conditions.",
                 "If it cannot, identify the smallest generalizable context-model decision required before implementing TA02. Please don't introduce a TA02-specific workaround."
             ],
-            "handling": "The goal is resolved on its approved routing (RPC-003) and this decision is reported as open. A ruling may change the context, and with it the compatible Game Forms."
+            "handling": "The goal is resolved on its approved routing (RPC-003) and this decision is reported as open. A ruling may change the context, and with it the compatible Game Forms.",
+            "supersededBy": {
+                "ruling": "D2-4NOV",
+                "file": "back/src/system/design-reasoning/stage2-rulings.json",
+                "note": "Superseded by his D2 (reply received 4 November 2026): Possession Stabilization continues as a proposed ninth context, its identity, transitions and scoring not yet approved, TA02 routing on hold. The stage now carries OPEN-D2-POSSESSION-STABILIZATION instead."
+            }
         }
     ]
 }

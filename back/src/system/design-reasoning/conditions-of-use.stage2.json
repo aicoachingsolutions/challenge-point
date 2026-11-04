@@ -1,0 +1,257 @@
+{
+    "standing": "Review-only conditions-of-use entries for the bounded Stage 2 demonstration, in the knowledge-entry structure Christian approved under D5 (reply received 4 November 2026). The structure is his; every entry's statement, class, assumptions, limitations and permitted use is OURS, for his review, unless a field says otherwise. Each source keeps its own standing. No entry is an empirically validated effect, and none has field evidence. This file is not the sport module's suitability_conditions or contraindications fields (those have a live reader) and changes no knowledge file. Only the review-only design-reasoning stage reads it.",
+    "vocabulary": {
+        "evidenceClass": ["ESTABLISHED PRINCIPLE", "LOGICAL INFERENCE", "CAUSAL HYPOTHESIS", "REFERENCE KNOWLEDGE"],
+        "kind": ["accepted conceptual or structural principle", "hypothesis"],
+        "sourceStanding": ["APPROVED", "RULING", "CANDIDATE", "REFERENCE ONLY", "OURS"],
+        "permittedEngineUse": ["TEST-ONLY COMPARISON", "STRUCTURAL CHECK AND UNCERTAINTY REPORTING", "TRACE CITATION ONLY", "DEFERRED"],
+        "kindNote": "OURS: 'accepted conceptual or structural principle' means a principle used as a design premise in this demonstration, never an empirically validated effect; his acceptance of the structure (D5) is not his acceptance of an entry's text."
+    },
+    "entries": [
+        {
+            "id": "W-P",
+            "statement": "Changing the playing area's width changes its geometric extent and, with it, spacing, movement opportunities and available action spaces for both teams. Whether usable space changes for either team depends on how performers are positioned and on their capabilities: space is relational, not geometric.",
+            "evidenceClass": "ESTABLISHED PRINCIPLE",
+            "kind": "accepted conceptual or structural principle",
+            "contentStanding": "OURS, for his review. Classed as a governing definition; its principle text rests on CANDIDATE and REFERENCE ONLY sources, which keep that provenance.",
+            "appliesToGameProblemIds": [],
+            "sources": [
+                { "ref": "EM schema v2.0-RC1, ecologicalGuidance EMG-0001 (EM-0001, Potential Value)", "file": "back/src/system/knowledge-core/em-schema.v2.0-rc1.json", "standing": "CANDIDATE", "quote": "Alters spacing, movement opportunities, and available action spaces." },
+                { "ref": "Populated Game Problem Library RC1, Space domain (document status line: Canonical)", "standing": "REFERENCE ONLY", "quote": "Space is understood relationally rather than geometrically." },
+                { "ref": "Context library RC1.1, RPC-PROP-047 (RPC-003, BEHAVIOR_ADJUSTMENT, ACTIVE)", "file": "back/src/system/sport-module/rpc-library.rc1.json", "standing": "APPROVED", "quote": "Manipulate field dimensions or numerical relationships." },
+                { "ref": "Christian, reply received 4 November 2026 (Stage 1 review)", "standing": "RULING", "quote": "An established principle that width changes spatial relationships is different from a verified claim that increasing width improves space creation for a particular group." }
+            ],
+            "intendedInfluence": "Width is a variable the trace reports, through the routed context's approved behaviour-adjustment row. The entry gives no direction and no value, and never selects or rejects a configuration.",
+            "assumptions": [],
+            "limitations": ["No direction: wider is not more of any affordance.", "No threshold.", "Because geometry is not space, it cannot say whether usable space increases."],
+            "fieldEvidence": "none",
+            "permittedEngineUse": "STRUCTURAL CHECK AND UNCERTAINTY REPORTING"
+        },
+        {
+            "id": "W-L1",
+            "statement": "If useful space is already available when attacks begin, Create Space is not the problem posed, and Exploit Space is. A configuration must not be justified for Create Space by adding space that already exists.",
+            "evidenceClass": "LOGICAL INFERENCE",
+            "kind": "accepted conceptual or structural principle",
+            "contentStanding": "OURS, for his review. Inference step: the two approved definitions divide on whether usable space already exists, so a state in which it exists belongs to Exploit Space.",
+            "appliesToGameProblemIds": ["GP-001", "GP-002"],
+            "sources": [
+                { "ref": "CAR Matrix RC1.2, gameProblemRegistry GP-001 canonical_definition (status Approved)", "file": "back/src/system/knowledge-core/atm-workbook.rc1.2.json", "standing": "APPROVED", "quote": "Create or enlarge usable space that enables future interaction opportunities." },
+                { "ref": "CAR Matrix RC1.2, gameProblemRegistry GP-002 canonical_definition (status Approved)", "file": "back/src/system/knowledge-core/atm-workbook.rc1.2.json", "standing": "APPROVED", "quote": "Use an existing spatial opportunity to produce functional advantage before it disappears." },
+                { "ref": "Christian, reply received 3 November 2026", "standing": "RULING", "quote": "When useful space is already available, exploiting it may be the immediate problem. Players shouldn't be encouraged to create space unnecessarily." },
+                { "ref": "Christian, reply received 4 November 2026 (Stage 1 review)", "standing": "RULING", "quote": "Create Space should not automatically govern every Progress the Attack situation when useful space is already available." }
+            ],
+            "intendedInfluence": "The trace states that Create Space's dominance depends on whether usable space already exists, and that this state is unverified. Before a session the engine cannot know it, so outside a stated test assumption the entry always returns insufficient evidence. It never switches the primary Game Problem.",
+            "assumptions": [],
+            "limitations": ["It tells the engine what to check, not how to know it: the state is emergent.", "No knowledge or existing input establishes the state; only coach observation or future feedback could."],
+            "fieldEvidence": "none",
+            "permittedEngineUse": "STRUCTURAL CHECK AND UNCERTAINTY REPORTING"
+        },
+        {
+            "id": "W-H1",
+            "statement": "Increasing playing width may create opportunities to move defenders and open pathways, so that attacks more often pose Create Space, if the defence is functionally organized and can still organize, shift and contest the added width.",
+            "evidenceClass": "CAUSAL HYPOTHESIS",
+            "kind": "hypothesis",
+            "contentStanding": "The conditional framing is his (his examples of 3 November and 31 October, and D5). The deciding conditions, assumptions and failure modes as written here are OURS.",
+            "appliesToGameProblemIds": ["GP-001"],
+            "sources": [
+                { "ref": "Christian, reply received 4 November 2026 (D5)", "standing": "RULING", "quote": "Conditions where increasing width might invite space creation because defenders can still organize, shift and contest." },
+                { "ref": "Christian, reply received 3 November 2026 (his example)", "standing": "RULING", "quote": "For example, increasing playing width might invite space creation if defenders can still organize, shift and contest the available space." },
+                { "ref": "Christian, reply received 31 October 2026 (his example)", "standing": "RULING", "quote": "For example, increasing playing width may create opportunities to move defenders and open pathways." },
+                { "ref": "Christian, reply received 31 October 2026 (his working definition of organized defence)", "standing": "RULING", "quote": "A defense is functionally organized when its players have sufficiently coordinated relationships to challenge progression, provide mutual support, and adapt collectively to the attacking team's changing opportunities." },
+                { "ref": "Context library RC1.1, RPC-PROP-038 (RPC-003, REPRESENTATIVE_INFORMATION, ACTIVE)", "file": "back/src/system/sport-module/rpc-library.rc1.json", "standing": "APPROVED", "quote": "Defensive organization and defensive shifting." }
+            ],
+            "intendedInfluence": "Test-only: a widening proposal may be compared for the primary Game Problem with its deciding circumstances supplied as test assumptions and its other assumptions shown. It never selects in production and is never presented as established.",
+            "assumptions": [
+                { "id": "W-H1(a)", "statement": "The defence is functionally organized, in his sense.", "handling": "DECIDING_CIRCUMSTANCE", "circumstance": "defendersCanStillOrganizeShiftAndContest" },
+                { "id": "W-H1(b)", "statement": "Numbers are roughly balanced, and no overload hands over a free player.", "handling": "STRUCTURAL_CHECK", "check": "EQUAL_NUMBERS", "rule": "'roughly balanced' has no approved threshold, and N-H1 is deferred, so equal numbers satisfy it and unequal numbers make it not evaluable." },
+                { "id": "W-H1(c)", "statement": "The defended objective makes moving play across worthwhile.", "handling": "BACKGROUND_UNVERIFIED" },
+                { "id": "W-H1(d)", "statement": "This group can perceive and use the width.", "handling": "BACKGROUND_UNVERIFIED" }
+            ],
+            "limitations": ["The deciding circumstances are emergent; the engine cannot establish them before players interact, so in this demonstration they are test assumptions."],
+            "failureModes": [
+                { "mode": "The width exceeds what the defenders can cover, so space is simply available (W-H2).", "source": null },
+                { "mode": "An organized defence deliberately concedes wide space, so the added width is low-value space.", "source": { "ref": "Christian, reply received 31 October 2026", "standing": "RULING", "quote": "An organized defense may deliberately allow certain spaces, defend deeper, or have a recovering player while maintaining meaningful collective organization." } },
+                { "mode": "A larger area lowers contest, and possession circulates without improving attacking conditions.", "source": { "ref": "Context library RC1.1, RPC-PROP-042 (RPC-003, DEGENERATE_SOLUTION, ACTIVE)", "standing": "APPROVED", "quote": "Possession circulates without improving attacking conditions." } },
+                { "mode": "Players do not perceive or use the width.", "source": { "ref": "Christian, reply received 15 October 2026", "standing": "RULING", "quote": "The appropriate challenge depends on the interaction between player numbers, available space, defensive organization, and the players' emerging responses." } },
+                { "mode": "Extreme geometry removes representative affordances (W-L2).", "source": { "ref": "EM schema v2.0-RC1, ecologicalGuidance EMG-0002 (EM-0001, Common Risk)", "standing": "CANDIDATE", "quote": "Extreme geometry may remove important representative affordances." } }
+            ],
+            "comparison": {
+                "invites": "PRIMARY",
+                "decidingCircumstances": { "defendersCanStillOrganizeShiftAndContest": true, "usableSpaceAlreadyExists": false }
+            },
+            "fieldEvidence": "none",
+            "permittedEngineUse": "TEST-ONLY COMPARISON"
+        },
+        {
+            "id": "W-H2",
+            "statement": "Width beyond what the defending players can cover by shifting together may make useful space available without players having to create it, making exploitation (Exploit Space) the more immediate problem. For a primary Create Space problem, that is a way the widening could undermine the learning intention.",
+            "evidenceClass": "CAUSAL HYPOTHESIS",
+            "kind": "hypothesis",
+            "contentStanding": "The conditional framing is his (his examples of 3 November and 31 October, and D5). The deciding conditions, assumptions and failure modes as written here are OURS.",
+            "appliesToGameProblemIds": ["GP-002"],
+            "sources": [
+                { "ref": "Christian, reply received 4 November 2026 (D5)", "standing": "RULING", "quote": "Conditions where additional width might instead provide usable space that already exists, making exploitation the more immediate problem." },
+                { "ref": "Christian, reply received 3 November 2026 (his example)", "standing": "RULING", "quote": "Under different conditions, the same change may merely provide space that already exists." },
+                { "ref": "Christian, reply received 31 October 2026 (his example)", "standing": "RULING", "quote": "In another configuration, it might simply make useful space available without requiring players to create it." }
+            ],
+            "intendedInfluence": "Test-only: the trace states this second reading beside W-H1, so neither is presented alone. Where its deciding circumstances hold as test assumptions, the widening is not offered for the primary Game Problem. It never switches the primary Game Problem and never selects in production.",
+            "assumptions": [
+                { "id": "W-H2(a)", "statement": "The defence may be functionally organized and still unable to cover the added width.", "handling": "DECIDING_CIRCUMSTANCE", "circumstance": "defendersCanStillOrganizeShiftAndContest" },
+                { "id": "W-H2(c)", "statement": "The defended objective makes moving play across worthwhile.", "handling": "BACKGROUND_UNVERIFIED" },
+                { "id": "W-H2(d)", "statement": "This group can perceive and use the width.", "handling": "BACKGROUND_UNVERIFIED" }
+            ],
+            "limitations": ["The deciding circumstances are emergent; the engine cannot establish them before players interact, so in this demonstration they are test assumptions."],
+            "failureModes": [
+                { "mode": "Defenders may still cover the width by compactness and anticipation; the result depends on the group.", "source": null },
+                { "mode": "An organized defence may concede the width deliberately and still pose a Create Space problem centrally.", "source": { "ref": "Christian, reply received 31 October 2026", "standing": "RULING", "quote": "An organized defense may deliberately allow certain spaces, defend deeper, or have a recovering player while maintaining meaningful collective organization." } }
+            ],
+            "comparison": {
+                "invites": "SECONDARY",
+                "decidingCircumstances": { "usableSpaceAlreadyExists": true, "defendersCanStillOrganizeShiftAndContest": false }
+            },
+            "fieldEvidence": "none",
+            "permittedEngineUse": "TEST-ONLY COMPARISON"
+        },
+        {
+            "id": "W-L2",
+            "statement": "An area so large, or so narrow, relative to the numbers that competitors can no longer close, follow, constrain or otherwise influence the developing interaction removes Competitive Interaction Opportunity, which these Game Problems rate Essential.",
+            "evidenceClass": "LOGICAL INFERENCE",
+            "kind": "accepted conceptual or structural principle",
+            "contentStanding": "OURS, for his review. Inference step: a configuration that removes what an Essential requirement needs fails that requirement.",
+            "appliesToGameProblemIds": ["GP-001", "GP-002", "GP-015"],
+            "requirement": "CIO",
+            "sources": [
+                { "ref": "EM schema v2.0-RC1, ecologicalGuidance EMG-0002 (EM-0001, Common Risk)", "file": "back/src/system/knowledge-core/em-schema.v2.0-rc1.json", "standing": "CANDIDATE", "quote": "Extreme geometry may remove important representative affordances." },
+                { "ref": "Game Archetype Canonical Reference v1.1, section 7, Engineering and Organizational Integrity", "standing": "REFERENCE ONLY", "quote": "increasing playing area dimensions may reduce Organizational Integrity if the resulting activity eliminates meaningful interaction between performers." },
+                { "ref": "CAR Matrix RC1.2, metadataRows, Competitive Interaction Opportunity definition", "file": "back/src/system/knowledge-core/atm-workbook.rc1.2.json", "standing": "APPROVED", "quote": "Is an opportunity available for direct or indirect adaptive competitor influence that can alter, constrain, contest, or disrupt developing interaction?" },
+                { "ref": "Game Archetype Workbook RC1.1, GAK-0105 (GA-001 integrity condition 3)", "file": "back/src/system/knowledge-core/game-archetype-workbook.rc1.1.json", "standing": "APPROVED", "quote": "Opposition can deny, redirect, or reverse progression." }
+            ],
+            "intendedInfluence": "Decides only where it is structurally certain, for example a team with no players, so that no competitor can influence the interaction. Otherwise it is reported as a risk of any widening, never as a verdict: 'extreme' is quantified nowhere in the knowledge.",
+            "assumptions": [],
+            "limitations": ["No approved bound on area, width or area per player exists; none is invented."],
+            "fieldEvidence": "none",
+            "permittedEngineUse": "STRUCTURAL CHECK AND UNCERTAINTY REPORTING"
+        },
+        {
+            "id": "N-P",
+            "statement": "Changing the number of performers in a group changes numerical interaction opportunities and local challenge. An added performer makes coordinated interaction structurally possible; it is not evidence that support occurs, that it is functional, or that learning improves.",
+            "evidenceClass": "ESTABLISHED PRINCIPLE",
+            "kind": "accepted conceptual or structural principle",
+            "contentStanding": "OURS, for his review. Classed as a governing definition; its principle text rests on a CANDIDATE source, which keeps that provenance; its limit rests on the CAR's approved Support Availability definition and his ruling.",
+            "appliesToGameProblemIds": [],
+            "sources": [
+                { "ref": "EM schema v2.0-RC1, ecologicalGuidance EMG-0011 (EM-0006, Potential Value)", "file": "back/src/system/knowledge-core/em-schema.v2.0-rc1.json", "standing": "CANDIDATE", "quote": "Changes numerical interaction opportunities and local challenge." },
+                { "ref": "CAR Matrix RC1.2, metadataRows, Support Availability definition", "file": "back/src/system/knowledge-core/atm-workbook.rc1.2.json", "standing": "APPROVED", "quote": "Is coordinated interaction with another performer available?" },
+                { "ref": "Christian, reply received 4 November 2026 (Stage 1 review)", "standing": "RULING", "quote": "Similarly, increasing numerical superiority may change available support relationships without guaranteeing functional support or improving learning." }
+            ],
+            "intendedInfluence": "Numbers are reported as structural facts, never as support and never as a challenge level.",
+            "assumptions": [],
+            "limitations": ["No direction and no threshold."],
+            "fieldEvidence": "none",
+            "permittedEngineUse": "STRUCTURAL CHECK AND UNCERTAINTY REPORTING"
+        },
+        {
+            "id": "N-L1",
+            "statement": "An overload large enough that the outnumbered team can no longer rebalance, constrain or disrupt the developing interaction trivializes the task and removes Competitive Interaction Opportunity.",
+            "evidenceClass": "LOGICAL INFERENCE",
+            "kind": "accepted conceptual or structural principle",
+            "contentStanding": "OURS, for his review.",
+            "appliesToGameProblemIds": ["GP-001", "GP-002", "GP-015"],
+            "requirement": "CIO",
+            "sources": [
+                { "ref": "EM schema v2.0-RC1, ecologicalGuidance EMG-0012 (EM-0006, Common Risk)", "file": "back/src/system/knowledge-core/em-schema.v2.0-rc1.json", "standing": "CANDIDATE", "quote": "Numerical changes can overwhelm or trivialize the task." },
+                { "ref": "Game Archetype Workbook RC1.1, GAK-0109 (GA-001 integrity condition 7, a breach description under D6)", "file": "back/src/system/knowledge-core/game-archetype-workbook.rc1.1.json", "standing": "APPROVED", "quote": "Opposition is passive, scripted, or unable to change progression." },
+                { "ref": "Affordance Target Matrix RC1, Relationship Rationale (legacy row Create Numerical Advantage)", "standing": "REFERENCE ONLY", "quote": "Competitors must retain opportunities to rebalance, constrain, or disrupt the developing numerical relationship." },
+                { "ref": "Christian, reply received 4 November 2026 (D5)", "standing": "RULING", "quote": "Numerical relationships may still participate in structural checks and uncertainty reporting." }
+            ],
+            "intendedInfluence": "Decides only where it is structurally certain (a team with no players). Otherwise unequal numbers are reported as uncertainty: no approved ratio exists.",
+            "assumptions": [],
+            "limitations": ["No approved ratio or bound exists; none is invented."],
+            "fieldEvidence": "none",
+            "permittedEngineUse": "STRUCTURAL CHECK AND UNCERTAINTY REPORTING"
+        },
+        {
+            "id": "N-H1",
+            "statement": "Against a functionally organized defence, a small attacking overload may invite players to create and find the free player (Create Space); a large or permanent overload may hand the free player over (Exploit Space).",
+            "evidenceClass": "CAUSAL HYPOTHESIS",
+            "kind": "hypothesis",
+            "contentStanding": "OURS. The nearest sentence in his knowledge draws no small-versus-large line.",
+            "appliesToGameProblemIds": ["GP-001", "GP-002"],
+            "sources": [
+                { "ref": "Game Archetype Canonical Reference v1.1", "standing": "REFERENCE ONLY", "quote": "Additional performers increase available passing options, alter defensive attention, and expand the range of potential affordances." },
+                { "ref": "Christian, reply received 4 November 2026 (D5)", "standing": "RULING", "quote": "I would defer N-H1 as a causal hypothesis until we've evaluated the width comparison." }
+            ],
+            "intendedInfluence": "None in this demonstration. Deferred as a causal hypothesis by his D5; numerical relationships take part only in structural checks and uncertainty reporting.",
+            "assumptions": [],
+            "limitations": ["Not evaluated."],
+            "failureModes": [],
+            "fieldEvidence": "none",
+            "permittedEngineUse": "DEFERRED"
+        },
+        {
+            "id": "C-BASE",
+            "statement": "In an Invasion activity the ball stays in play through a change of possession; play stops only where the Laws of the Game stop it or where an authorized departure states otherwise. Preserving this condition says nothing about what players should do after a change of possession, and it is separate from any regulation of what is permitted during play.",
+            "evidenceClass": "LOGICAL INFERENCE",
+            "kind": "accepted conceptual or structural principle",
+            "contentStanding": "The baseline is his (D5, and his reply of 4 November on continuous play). The wording is OURS. Its ecological basis, Invasion integrity condition 05, is APPROVED; that continuity aids learning stays a causal hypothesis and is not claimed here.",
+            "appliesToGameProblemIds": [],
+            "appliesToArchetypeIds": ["GA-001"],
+            "sources": [
+                { "ref": "Christian, reply received 4 November 2026 (D5)", "standing": "RULING", "quote": "I also support retaining continuous play as a baseline representative condition where applicable, separate from specific Interaction Regulations." },
+                { "ref": "Christian, reply received 4 November 2026 (Stage 1 review)", "standing": "RULING", "quote": "Regarding continuous play, I would initially treat it as a baseline representative game condition where applicable, rather than create a new Interaction Regulation Knowledge Object unless there is a specific additional regulation that needs to be represented." },
+                { "ref": "Christian, reply received 4 November 2026 (Stage 1 review)", "standing": "RULING", "quote": "Please retain the distinction between preserving continuous play and regulating what is permitted during that play." },
+                { "ref": "Christian, reply received 23 October 2026", "standing": "RULING", "quote": "The normal Laws of the Game should apply by default wherever they are applicable, unless an activity introduces an explicit, knowledge-authorized modification." },
+                { "ref": "Game Archetype Workbook RC1.1, GAK-0107 (GA-001 integrity condition 5)", "file": "back/src/system/knowledge-core/game-archetype-workbook.rc1.1.json", "standing": "APPROVED", "quote": "Meaningful events continuously reorganize space, roles, access, or threat." }
+            ],
+            "intendedInfluence": "Continuous play holds by design wherever no authorized departure is recorded. It is a baseline representative condition, not an Interaction Regulation, and no element is ever selected to obtain it.",
+            "assumptions": [],
+            "limitations": ["It does not decide restarts after a score.", "It does not regulate what is permitted during play.", "It implies nothing about pressing, counter-pressing or counterattacking."],
+            "fieldEvidence": "none",
+            "permittedEngineUse": "STRUCTURAL CHECK AND UNCERTAINTY REPORTING"
+        },
+        {
+            "id": "PGPL-CREATE-SPACE-BOUNDARY",
+            "statement": "If sufficient space already exists, the interaction problem is no longer Create Space.",
+            "evidenceClass": "REFERENCE KNOWLEDGE",
+            "kind": "accepted conceptual or structural principle",
+            "contentStanding": "His document's words, verbatim. The document's own status line reads Canonical; our standing for it is REFERENCE ONLY: it is held outside the application and is not ingested.",
+            "appliesToGameProblemIds": ["GP-001"],
+            "sources": [
+                { "ref": "Populated Game Problem Library RC1 Canonical Reference Part III, Create Space", "standing": "REFERENCE ONLY", "quote": "If sufficient space already exists, the interaction problem is no longer Create Space." },
+                { "ref": "Christian, reply received 4 November 2026", "standing": "RULING", "quote": "You may also cite the Populated Game Problem Library's Create Space boundary statement in audit and review traces as reference knowledge, provided its status remains explicit." },
+                { "ref": "Christian, reply received 4 November 2026", "standing": "RULING", "quote": "It should not be converted into an executable causal selection rule merely by being cited." }
+            ],
+            "intendedInfluence": "Shown in review traces as reference knowledge, with its status. It decides nothing: it never appears among what influenced a decision.",
+            "assumptions": [],
+            "limitations": ["Not an executable rule."],
+            "fieldEvidence": "none",
+            "permittedEngineUse": "TRACE CITATION ONLY"
+        }
+    ],
+    "widthComparison": {
+        "standing": "OURS: how the paired, test-only comparison he authorized under D5 is wired to the entries above.",
+        "hypotheses": ["W-H1", "W-H2"],
+        "circumstances": [
+            { "key": "defendersCanStillOrganizeShiftAndContest", "label": "defenders can still organize, shift and contest", "futureSource": "coach observation or future feedback; never geometry or player numbers" },
+            { "key": "usableSpaceAlreadyExists", "label": "usable space already exists", "futureSource": "coach observation or future feedback; never geometry or player numbers" }
+        ],
+        "proposalBasis": "the coach's available width is the only bound supplied; no knowledge sets the size of a widening",
+        "proposalLabel": "test-only proposed configuration on the review pathway; not eligible for production",
+        "structuralFactLabel": "structural fact; no approved threshold; not used to infer defensive organization or available space",
+        "structuralEntries": ["W-P", "N-P"],
+        "structuralChecks": [
+            { "entryId": "W-L2", "check": "AREA", "standing": "OURS: decides only where structurally certain (a team with no players); otherwise not certain, and any widening carries it as a reported risk." },
+            { "entryId": "N-L1", "check": "NUMBERS", "standing": "OURS: decides only where structurally certain (a team with no players); unequal numbers are reported as uncertainty, since no approved ratio exists." }
+        ],
+        "boundaryEntry": "W-L1",
+        "referenceEntries": ["PGPL-CREATE-SPACE-BOUNDARY"],
+        "deferredEntries": ["N-H1"],
+        "risksOfWidening": [
+            { "kind": "ENTRY", "entryId": "W-L2", "link": "OURS: any widening enlarges the area; W-L2 names the risk that competitors can no longer influence the interaction." },
+            { "kind": "CONTEXT_PROPERTY", "propertyId": "RPC-PROP-042", "expectedCategory": "DEGENERATE_SOLUTION", "quote": "Possession circulates without improving attacking conditions.", "link": "OURS: W-H1's failure mode (3); a larger area may lower contest." },
+            { "kind": "INTEGRITY_CONDITION", "conditionId": "GA-001-OIC-06", "quote": "Possession becomes the terminal objective rather than serving progression.", "link": "OURS: the breach that circulation without progression would describe." },
+            { "kind": "INTEGRITY_CONDITION", "conditionId": "GA-001-OIC-07", "quote": "Opposition is passive, scripted, or unable to change progression.", "link": "OURS: the breach that W-L2 would describe, if the opposition could no longer change progression." }
+        ],
+        "longTermRequirementId": "REQ-E1-CONTEXT-SENSITIVE-RESOLUTION"
+    }
+}
