@@ -7,7 +7,9 @@
  * The input is a Learning Goal's canonical id. Everything after it is read from relationship rows by id:
  *   1. the Game Problems: the Session Planning Model's approved Engine Translation; where that row is unpopulated, a scoped ruling of his in
  *      `stage1-rulings.json` (today only E1, which his D1 continues); otherwise UNRESOLVED, with the row's state named. A ruling never
- *      overrides a populated translation: that is reported as a conflict and nothing is resolved.
+ *      overrides a populated translation: that is reported as a conflict and nothing is resolved. So the unpopulated row is among what
+ *      decided a ruling's Game Problems, and the trace records it there; the role itself is set by the ruling (`roleSetBy`), which the
+ *      unpopulated row permits (`permittedBy`).
  *   2. the context: the goal's RPC routing row, checked against the context library's own LEARNING_GOAL relationship row for the goal, and
  *      the context's relationship rows to each resolved Game Problem. Where the routed context has no row for the resolved primary Game
  *      Problem, the status is RESOLVED_NOT_RELATED_TO_CONTEXT, not RESOLVED (the defect we reported in the decision package, item 6).
@@ -72,7 +74,8 @@ export interface CompositeRow {
     validationStatus: string
     confidence: string
     evidenceType: string
-    provenance: { carRow: Cite; roleSetBy: Cite[] }
+    /** The CAR row; what set the role (a translation row, or his ruling and its continuation); what permitted that (an unpopulated row). */
+    provenance: { carRow: Cite; roleSetBy: Cite[]; permittedBy: Cite[] }
 }
 
 export type FindingOutcome = 'INCLUDED' | 'NOT_INCLUDED' | 'CONFLICT_UNRESOLVED' | 'INSUFFICIENT_EVIDENCE'
@@ -137,6 +140,10 @@ export interface DesignResolution {
         primary: string[]
         secondary: string[]
         cites: Cite[]
+        /** What set the roles: the approved translation row, or his ruling (and the later ruling that continues it). */
+        roleSetBy: Cite[]
+        /** What permitted a ruling to set them: the Engine Translation row, unpopulated. Empty for an approved translation. */
+        permittedBy: Cite[]
         scope: string | null
         qualifier: string | null
         rulingWords: string[]
@@ -193,6 +200,8 @@ export function resolveDesignContext(k: DesignKnowledge, learningGoalId: string)
             primary: [],
             secondary: [],
             cites: [],
+            roleSetBy: [],
+            permittedBy: [],
             scope: null,
             qualifier: null,
             rulingWords: [],
@@ -218,18 +227,25 @@ export function resolveDesignContext(k: DesignKnowledge, learningGoalId: string)
     const planningStanding = sourceStanding(k, 'planning')
     const translation = approvedTranslation(k, learningGoalId)
     const rulings = k.rulings.scopedTranslations.filter((r) => r.learningGoalId === learningGoalId)
+    const rulingItem = (id: string, role: string) => item(`stage1-rulings.json ${id}`, sourceStanding(k, 'stage1Rulings'), role, RULINGS(id))
     if (rulings.length > 1) {
         missing.push({
             kind: 'RULINGS_CONFLICT',
             detail: `More than one scoped ruling names this goal (${rulings.map((r) => r.id).join(', ')}); none is applied.`,
             cites: rulings.map((r) => RULINGS(r.id)),
         })
+        result.gameProblems.trace = { influencedBy: rulings.map((r) => rulingItem(r.id, 'one of several scoped rulings naming the goal; none is applied')), consulted: [], citedOnly: [] }
     } else if (translation && rulings.length === 1) {
         missing.push({
             kind: 'RULING_WOULD_OVERRIDE_TRANSLATION',
             detail: `Scoped ruling ${rulings[0].id} names a goal whose Engine Translation is populated; a ruling never overrides an approved translation, so neither is applied.`,
             cites: [translation.cite, RULINGS(rulings[0].id)],
         })
+        result.gameProblems.trace = {
+            influencedBy: [item(citeRef(translation.cite), planningStanding, 'the Engine Translation row is populated', translation.cite), rulingItem(rulings[0].id, 'a scoped ruling naming the same goal; neither is applied')],
+            consulted: [],
+            citedOnly: [],
+        }
     } else if (translation) {
         result.gameProblems = {
             ...result.gameProblems,
@@ -237,27 +253,43 @@ export function resolveDesignContext(k: DesignKnowledge, learningGoalId: string)
             primary: translation.primary,
             secondary: translation.secondary,
             cites: [translation.cite],
+            roleSetBy: [translation.cite],
+            permittedBy: [],
             establishedBy: 'APPROVED KNOWLEDGE',
             trace: { influencedBy: [item(citeRef(translation.cite), planningStanding, 'the approved Engine Translation names the Game Problems and their roles', translation.cite)], consulted: [], citedOnly: [] },
         }
     } else if (rulings.length === 1) {
         const scoped = rulings[0]
         const rowCite: Cite = { file: SOURCE.planning, table: 'engine_translation', row: learningGoalId }
-        const influencedBy = [item(`stage1-rulings.json ${scoped.id}`, sourceStanding(k, 'stage1Rulings'), 'his scoped ruling names the Game Problems and their roles', RULINGS(scoped.id))]
-        if (scoped.continuedBy) influencedBy.push(item(`stage2-rulings.json ${scoped.continuedBy.ruling}`, sourceStanding(k, 'stage2Rulings'), 'his later ruling retains the designation for this demonstration', STAGE2(scoped.continuedBy.ruling)))
+        const influencedBy = [rulingItem(scoped.id, 'his scoped ruling names the Game Problems and their roles')]
+        const roleSetBy = [RULINGS(scoped.id)]
+        if (scoped.continuedBy) {
+            influencedBy.push(item(`stage2-rulings.json ${scoped.continuedBy.ruling}`, sourceStanding(k, 'stage2Rulings'), 'his later ruling retains the designation for this demonstration', STAGE2(scoped.continuedBy.ruling)))
+            roleSetBy.push(STAGE2(scoped.continuedBy.ruling))
+        }
+        // The unpopulated row decides too: populated, it would block the ruling (a ruling never overrides an approved translation).
+        influencedBy.push(item(citeRef(rowCite), planningStanding, 'the Engine Translation row is unpopulated, which permits a ruling to supply the Game Problems; populated, it would block the ruling', rowCite))
         result.gameProblems = {
             basis: 'SCOPED_RULING',
             primary: [...scoped.primaryGameProblemIds],
             secondary: [...scoped.secondaryGameProblemIds],
             cites: [RULINGS(scoped.id), rowCite],
+            roleSetBy,
+            permittedBy: [rowCite],
             scope: scoped.scope,
             qualifier: scoped.qualifier,
             rulingWords: [...scoped.words],
             continuedBy: scoped.continuedBy ? { ruling: scoped.continuedBy.ruling, words: [...scoped.continuedBy.words] } : null,
             establishedBy: 'RULING',
-            trace: { influencedBy, consulted: [item(citeRef(rowCite), planningStanding, 'the Engine Translation row is unpopulated, so a ruling may supply the Game Problems', rowCite)], citedOnly: [] },
+            trace: { influencedBy, consulted: [], citedOnly: [] },
         }
     } else {
+        const rowCite: Cite = { file: SOURCE.planning, table: 'engine_translation', row: learningGoalId }
+        result.gameProblems.trace = {
+            influencedBy: [item(citeRef(rowCite), planningStanding, translationRowExists(k, learningGoalId) ? 'the Engine Translation row holds no Game Problem, and no ruling of his supplies one' : 'the Session Planning Model has no Engine Translation row for this goal', rowCite)],
+            consulted: [],
+            citedOnly: [],
+        }
         missing.push({
             kind: translationRowExists(k, learningGoalId) ? 'TRANSLATION_UNPOPULATED' : 'TRANSLATION_ROW_MISSING',
             detail: translationRowExists(k, learningGoalId)
@@ -299,8 +331,11 @@ export function resolveDesignContext(k: DesignKnowledge, learningGoalId: string)
             const gpRows = activeContextRelationships(k, routing.rpcId, 'GAME_PROBLEM')
             const gameProblemRelationships = roles.map(([gameProblemId, role]) => ({ gameProblemId, role, relationship: gpRows.find((r) => r.relatedId === gameProblemId) ?? null }))
             const primaryRelated = gameProblemRelationships.some((g) => g.role === 'PRIMARY' && g.relationship !== null)
+            const libraryStatusCite: Cite = { file: SOURCE.contexts, table: 'metadata', row: 'runtime_status' }
             const influencedBy = [
                 item(citeRef(routing.cite), planningStanding, `the routing row names ${routing.rpcId}`, routing.cite),
+                item(citeRef(registry.cite), contextStanding, `the context registry holds ${routing.rpcId} (canonical ${registry.canonicalStatus}; runtime ${registry.runtimeStatus})`, registry.cite),
+                item(citeRef(libraryStatusCite), contextStanding, `the context library's runtime_status reads ${registry.libraryRuntimeStatus}`, libraryStatusCite),
                 ...goalRows.map((r) => item(citeRef(r.cite), contextStanding, `the context library relates the goal to ${routing.rpcId} (${r.type} ${r.strength})`, r.cite)),
                 ...gameProblemRelationships.map((g) =>
                     g.relationship
@@ -359,7 +394,7 @@ export function resolveDesignContext(k: DesignKnowledge, learningGoalId: string)
                 validationStatus: row.validationStatus,
                 confidence: row.confidence,
                 evidenceType: row.evidenceType,
-                provenance: { carRow: row.cite, roleSetBy: [...result.gameProblems.cites] },
+                provenance: { carRow: row.cite, roleSetBy: [...result.gameProblems.roleSetBy], permittedBy: [...result.gameProblems.permittedBy] },
             })
         }
         if (rows.length === 1 + secondary.length) {
@@ -373,7 +408,9 @@ export function resolveDesignContext(k: DesignKnowledge, learningGoalId: string)
             const rowItem = (r: CompositeRow, role: string) => item(citeRef(r.provenance.carRow), carStanding, role, r.provenance.carRow)
             const precedenceItem = item(citeRef(precedence.cite), carStanding, `merge_precedence ${precedence.asWritten}`, precedence.cite)
             const d1Item = item(`stage2-rulings.json ${d1Ruling.id}`, sourceStanding(k, 'stage2Rulings'), `his ${d1Ruling.decision}: primary-led profile; a stronger secondary rating is kept as a finding, not promoted`, STAGE2(d1Ruling.id))
-            const citedOnly = d1.citedOnly.map((c) => item(c.ref, c.standing, `cited with its own status (${c.documentStatus}); decides nothing`))
+            const citedOnly = d1.citedOnly.map((c) => item(c.ref, c.standing, `cited with its own status (${c.documentStatus}); decides nothing${c.tension ? '; a possible tension with D1 is noted for his reconciliation' : ''}`))
+            // Which Game Problems are merged, and in which role, is decided in part 1: by an approved translation, or by his ruling.
+            const basisItems = result.gameProblems.trace.influencedBy.map((i) => ({ ...i, role: `sets which Game Problems are merged, and their roles: ${i.role}` }))
             const rank = (code: string) => precedence.order.indexOf(code)
             if (d1.reconciliationRelationships.length) {
                 // No reconciliation relationship exists in his knowledge, and the shape of one is not his yet: fail closed rather than guess.
@@ -388,17 +425,21 @@ export function resolveDesignContext(k: DesignKnowledge, learningGoalId: string)
                     perRequirement: union,
                     usedAsEffectiveProfile: false,
                     establishedBy: 'APPROVED KNOWLEDGE',
-                    trace: { influencedBy: [...rows.map((r) => rowItem(r, `${roleWord(r.role)} Game Problem's ratings`)), precedenceItem], consulted: [d1Item], citedOnly: [] },
+                    trace: {
+                        influencedBy: [...rows.map((r) => rowItem(r, `${roleWord(r.role)} Game Problem's ratings`)), precedenceItem, ...basisItems],
+                        consulted: [d1Item, item(citeRef(precedence.cite), d1.carMergeNote.standing, `its note: ${d1.carMergeNote.ourReading}`, precedence.cite)],
+                        citedOnly: [],
+                    },
                 },
                 effectiveProfile: {
                     label: d1.effectiveProfileWording,
                     rule: d1.effectiveProfileRule,
                     ratings: { ...primaryRow.ratings },
-                    scope: d1Ruling.scope,
+                    scope: d1Ruling.scope ?? 'NOT STATED IN HIS WORDS',
                     canonicalAmendment: d1Ruling.canonicalAmendment,
                     establishedBy: 'RULING',
                     trace: {
-                        influencedBy: [rowItem(primaryRow, 'the primary Game Problem\'s ratings, each taken unchanged'), d1Item],
+                        influencedBy: [rowItem(primaryRow, 'the primary Game Problem\'s ratings, each taken unchanged'), d1Item, ...basisItems],
                         consulted: [...(secondaryRow ? [rowItem(secondaryRow, 'the secondary Game Problem\'s ratings, shown; never promoted')] : []), precedenceItem],
                         citedOnly,
                     },
@@ -417,7 +458,7 @@ export function resolveDesignContext(k: DesignKnowledge, learningGoalId: string)
                           promotedIntoEffectiveProfile: false as const,
                           establishedBy: 'INSUFFICIENT EVIDENCE' as EstablishedBy,
                           trace: {
-                              influencedBy: [rowItem(primaryRow, `primary rates ${requirement} ${primaryRow.ratings[requirement]}`), rowItem(secondaryRow, `secondary rates ${requirement} ${secondaryRow.ratings[requirement]}`), precedenceItem, d1Item],
+                              influencedBy: [rowItem(primaryRow, `primary rates ${requirement} ${primaryRow.ratings[requirement]}`), rowItem(secondaryRow, `secondary rates ${requirement} ${secondaryRow.ratings[requirement]}`), precedenceItem, d1Item, ...basisItems],
                               consulted: [],
                               citedOnly,
                           },

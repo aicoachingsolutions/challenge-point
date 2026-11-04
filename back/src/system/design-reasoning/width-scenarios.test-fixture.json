@@ -1,5 +1,5 @@
 {
-    "standing": "TEST FIXTURE for the bounded Stage 2 demonstration, review pathway only. Every value in this file is a TEST INPUT that we chose to exercise the paired width comparison he authorized under D5 (reply received 4 November 2026). None is a coach's session, an observation, a recommendation or knowledge. The two deciding circumstances in each scenario are TEST ASSUMPTIONS: the engine never infers them from the dimensions or the player numbers.",
+    "standing": "TEST FIXTURE for the bounded Stage 2 demonstration, review pathway only. Every value in this file is a TEST INPUT that we chose to exercise the paired width comparison he authorized under D5 (reply received 4 November 2026). None is a coach's session, an observation, a recommendation or knowledge. The two deciding circumstances in each scenario are TEST ASSUMPTIONS: the engine never infers them from the dimensions or the player numbers. Each circumstance states the area it describes (appliesTo): the area at the coach's available width, that is, the proposed widened area. Nothing is assumed about the configured area.",
     "learningGoalId": "A05",
     "dimensions": "Length runs along the direction of play; width runs across it. Metres.",
     "structuralActivity": {
@@ -10,24 +10,24 @@
     "scenarios": [
         {
             "id": "S1",
-            "label": "W-H1 conditions: defenders can still organize, shift and contest; usable space does not already exist",
+            "label": "W-H1 conditions: defenders can still organize, shift and contest the added width; usable space does not already exist",
             "configuredArea": { "lengthM": 40, "widthM": 30, "standing": "TEST INPUT" },
             "availableSpace": { "lengthM": 40, "widthM": 40, "standing": "TEST INPUT" },
             "playersPerTeam": { "value": [6, 6], "standing": "TEST INPUT" },
             "decidingCircumstances": {
-                "defendersCanStillOrganizeShiftAndContest": { "value": true, "label": "TEST ASSUMPTION" },
-                "usableSpaceAlreadyExists": { "value": false, "label": "TEST ASSUMPTION" }
+                "defendersCanStillOrganizeShiftAndContest": { "value": true, "label": "TEST ASSUMPTION", "appliesTo": "the area at the coach's available width (the proposed widened area), when attacks begin" },
+                "usableSpaceAlreadyExists": { "value": false, "label": "TEST ASSUMPTION", "appliesTo": "the area at the coach's available width (the proposed widened area), when attacks begin" }
             }
         },
         {
             "id": "S2",
-            "label": "W-H2 conditions: usable space already exists; defenders cannot still organize, shift and contest",
+            "label": "W-H2 conditions: usable space already exists; defenders can no longer organize, shift and contest the added width",
             "configuredArea": { "lengthM": 40, "widthM": 30, "standing": "TEST INPUT" },
             "availableSpace": { "lengthM": 40, "widthM": 40, "standing": "TEST INPUT" },
             "playersPerTeam": { "value": [6, 6], "standing": "TEST INPUT" },
             "decidingCircumstances": {
-                "defendersCanStillOrganizeShiftAndContest": { "value": false, "label": "TEST ASSUMPTION" },
-                "usableSpaceAlreadyExists": { "value": true, "label": "TEST ASSUMPTION" }
+                "defendersCanStillOrganizeShiftAndContest": { "value": false, "label": "TEST ASSUMPTION", "appliesTo": "the area at the coach's available width (the proposed widened area), when attacks begin" },
+                "usableSpaceAlreadyExists": { "value": true, "label": "TEST ASSUMPTION", "appliesTo": "the area at the coach's available width (the proposed widened area), when attacks begin" }
             }
         },
         {
@@ -37,8 +37,8 @@
             "availableSpace": { "lengthM": 40, "widthM": 40, "standing": "TEST INPUT" },
             "playersPerTeam": { "value": [6, 6], "standing": "TEST INPUT" },
             "decidingCircumstances": {
-                "defendersCanStillOrganizeShiftAndContest": { "value": "NOT_SUPPLIED", "label": "TEST ASSUMPTION" },
-                "usableSpaceAlreadyExists": { "value": "NOT_SUPPLIED", "label": "TEST ASSUMPTION" }
+                "defendersCanStillOrganizeShiftAndContest": { "value": "NOT_SUPPLIED", "label": "TEST ASSUMPTION", "appliesTo": "the area at the coach's available width (the proposed widened area), when attacks begin" },
+                "usableSpaceAlreadyExists": { "value": "NOT_SUPPLIED", "label": "TEST ASSUMPTION", "appliesTo": "the area at the coach's available width (the proposed widened area), when attacks begin" }
             }
         },
         {
@@ -48,8 +48,8 @@
             "availableSpace": { "lengthM": 40, "widthM": 40, "standing": "TEST INPUT" },
             "playersPerTeam": { "value": [6, 6], "standing": "TEST INPUT" },
             "decidingCircumstances": {
-                "defendersCanStillOrganizeShiftAndContest": { "value": true, "label": "TEST ASSUMPTION" },
-                "usableSpaceAlreadyExists": { "value": true, "label": "TEST ASSUMPTION" }
+                "defendersCanStillOrganizeShiftAndContest": { "value": true, "label": "TEST ASSUMPTION", "appliesTo": "the area at the coach's available width (the proposed widened area), when attacks begin" },
+                "usableSpaceAlreadyExists": { "value": true, "label": "TEST ASSUMPTION", "appliesTo": "the area at the coach's available width (the proposed widened area), when attacks begin" }
             }
         },
         {
@@ -59,8 +59,8 @@
             "availableSpace": { "lengthM": 40, "widthM": 30, "standing": "TEST INPUT" },
             "playersPerTeam": { "value": [6, 6], "standing": "TEST INPUT" },
             "decidingCircumstances": {
-                "defendersCanStillOrganizeShiftAndContest": { "value": true, "label": "TEST ASSUMPTION" },
-                "usableSpaceAlreadyExists": { "value": false, "label": "TEST ASSUMPTION" }
+                "defendersCanStillOrganizeShiftAndContest": { "value": true, "label": "TEST ASSUMPTION", "appliesTo": "the area at the coach's available width (here no wider than the configured area), when attacks begin" },
+                "usableSpaceAlreadyExists": { "value": false, "label": "TEST ASSUMPTION", "appliesTo": "the area at the coach's available width (here no wider than the configured area), when attacks begin" }
             }
         },
         {
@@ -70,8 +70,8 @@
             "availableSpace": { "lengthM": 40, "widthM": 40, "standing": "TEST INPUT" },
             "playersPerTeam": { "value": [7, 5], "standing": "TEST INPUT" },
             "decidingCircumstances": {
-                "defendersCanStillOrganizeShiftAndContest": { "value": true, "label": "TEST ASSUMPTION" },
-                "usableSpaceAlreadyExists": { "value": false, "label": "TEST ASSUMPTION" }
+                "defendersCanStillOrganizeShiftAndContest": { "value": true, "label": "TEST ASSUMPTION", "appliesTo": "the area at the coach's available width (the proposed widened area), when attacks begin" },
+                "usableSpaceAlreadyExists": { "value": false, "label": "TEST ASSUMPTION", "appliesTo": "the area at the coach's available width (the proposed widened area), when attacks begin" }
             }
         }
     ]

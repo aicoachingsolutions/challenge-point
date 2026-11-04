@@ -12,15 +12,19 @@
  *   1. Structural preconditions (test-only, evidence status INFERRED: each rests on one identification of ours, held in
  *      `stage2-rulings.json`). Present for a form whose archetype the data lists, with two teams that each have players. Each is labelled
  *      as present, not as evidence of ecological relevance, and as not distinguishing one Game Problem from another.
- *   2. The continuous-play baseline (the conditions-of-use entry whose data lists the form's archetype): it holds by design wherever no
- *      authorized departure is recorded. It is a baseline representative condition, not an Interaction Regulation.
+ *   2. The continuous-play baseline (the conditions-of-use entry whose data lists the form's archetype): it applies as the baseline default
+ *      wherever no authorized departure is recorded. No knowledge file this stage reads can record a departure and no activity is
+ *      assembled, so it is reported as a default, never as a condition evaluated and found to hold. It is a baseline representative
+ *      condition, not an Interaction Regulation.
  *   3. The archetype's organizational integrity conditions, read by id and role from the archetype workbook, each classified by his D6 as
  *      data (required condition or breach description). Integrity is a continuum, so no pass-or-fail verdict is printed. Before an activity
  *      is assembled (Step 3 is held), each required condition is to be expressed by the assembled activity and is not evaluable, except
- *      where the data records a structural signal (opposition present by design; the continuous-play baseline). Each breach description is
- *      a risk: indicated by the design, not indicated, or not evaluable.
+ *      where the data records a structural signal (opposition present; the continuous-play baseline default). The signals are OUR mapping
+ *      (INFERRED), not his D6: a conclusion resting on one carries evidence status INFERRED and a trace item of standing OURS. Each breach
+ *      description is a risk, not evaluable before activity assembly, except where the design makes it structurally certain (an opposing
+ *      team with no players); an opposing team with players does not show that the opposition can change progression.
  *
- * No condition's statement is read: the classification and the signals are his and ours, as data. No element-to-affordance relevance join
+ * No condition's statement is read: the classification is his and the signals are ours, as data. No element-to-affordance relevance join
  * is made, and nothing here excludes a design. No goal, Game Problem, context, Game Form, archetype or row id appears in this file.
  */
 import { archetypeIntegrityConditions, Cite, conditionOfUse, DesignKnowledge, IntegrityClassification, ruling, SOURCE, sourceStanding } from './knowledge'
@@ -65,6 +69,8 @@ export interface IntegrityConditionResult {
     status: IntegrityStatus
     detail: string
     cite: Cite
+    /** INFERRED where the status rests on a structural signal (our mapping); null otherwise. */
+    evidenceStatus: 'INFERRED' | null
     establishedBy: EstablishedBy
     testOnly: boolean
     trace: InfluenceTrace
@@ -72,7 +78,7 @@ export interface IntegrityConditionResult {
 
 export interface ContinuousPlayResult {
     entryId: string
-    status: 'HOLDS_BY_DESIGN' | 'DEPARTURE_RECORDED' | 'NOT_APPLICABLE'
+    status: 'APPLIES_AS_BASELINE_DEFAULT' | 'DEPARTURE_RECORDED' | 'NOT_APPLICABLE'
     detail: string
     notAnInteractionRegulation: true
     establishedBy: EstablishedBy
@@ -86,7 +92,7 @@ export interface StructuralEvaluation {
     activity: StructuralActivity | null
     preconditions: PreconditionResult[]
     continuousPlay: ContinuousPlayResult
-    integrity: { standing: string; noVerdict: string; noVerdictSource: string; conditions: IntegrityConditionResult[] }
+    integrity: { standing: string; wordingConfirmation: string; structuralSignalStanding: string; noVerdict: string; noVerdictSource: string; conditions: IntegrityConditionResult[] }
     conclusions: Conclusion[]
     missing: MissingKnowledge[]
 }
@@ -154,8 +160,8 @@ export function evaluateStructuralConditions(k: DesignKnowledge, resolution: Des
             ? { entryId: entry.id, status: 'DEPARTURE_RECORDED', detail: `Continuous play is the baseline, except where an authorized departure states otherwise: ${departures.map((d) => d.departure).join('; ')}.`, notAnInteractionRegulation: true, establishedBy: 'RULING', trace: { influencedBy: basisItems, consulted: ecological, citedOnly: [] } }
             : {
                   entryId: entry.id,
-                  status: 'HOLDS_BY_DESIGN',
-                  detail: 'Play continues through a change of possession by design: no authorized departure is recorded. A baseline representative condition, not an Interaction Regulation; it implies nothing about what players do after a change of possession.',
+                  status: 'APPLIES_AS_BASELINE_DEFAULT',
+                  detail: 'Continuous play applies as the baseline default: no knowledge file this stage reads can record a departure, and no activity is assembled, so this is a default, not a condition evaluated and found to hold. A baseline representative condition, not an Interaction Regulation; it implies nothing about what players do after a change of possession.',
                   notAnInteractionRegulation: true,
                   establishedBy: 'LOGICAL INFERENCE',
                   trace: { influencedBy: basisItems, consulted: ecological, citedOnly: [] },
@@ -172,42 +178,57 @@ export function evaluateStructuralConditions(k: DesignKnowledge, resolution: Des
     const conditions: IntegrityConditionResult[] = rows.map((row) => {
         const cls = classification.find((c) => c.conditionId === row.conditionId)
         const rowItem = item(citeRef(row.cite), sourceStanding(k, 'archetypes'), `${row.conditionId}, role ${row.role}`, row.cite)
-        const clsItem = item(`stage2-rulings.json relevance.integrityConditions ${row.conditionId}`, sourceStanding(k, 'stage2Rulings'), cls ? `his D6 classification: ${cls.class}` : 'not classified')
+        const clsItem = item(`stage2-rulings.json relevance.integrityConditions ${row.conditionId}`, sourceStanding(k, 'stage2Rulings'), cls ? `his D6 classification (the class only): ${cls.class}` : 'not classified')
         if (!cls) {
             missing.push({ kind: 'INTEGRITY_CONDITION_UNCLASSIFIED', detail: `${row.conditionId} has no classification in stage2-rulings.json.`, cites: [row.cite] })
-            return { conditionId: row.conditionId, recordId: row.recordId, workbookRole: row.role, class: 'UNCLASSIFIED', structuralSignal: null, status: 'UNCLASSIFIED', detail: 'Not classified; not evaluated.', cite: row.cite, establishedBy: 'INSUFFICIENT EVIDENCE', testOnly: false, trace: { influencedBy: [rowItem, clsItem], consulted: [], citedOnly: [] } }
+            return { conditionId: row.conditionId, recordId: row.recordId, workbookRole: row.role, class: 'UNCLASSIFIED', structuralSignal: null, status: 'UNCLASSIFIED', detail: 'Not classified; not evaluated.', cite: row.cite, evidenceStatus: null, establishedBy: 'INSUFFICIENT EVIDENCE', testOnly: false, trace: { influencedBy: [rowItem, clsItem], consulted: [], citedOnly: [] } }
         }
+        // The signal mapping is ours (INFERRED), never his D6: where a status rests on it, the trace says so with standing OURS.
+        const signalItem = cls.structuralSignal ? item(`stage2-rulings.json relevance.integrityConditions ${row.conditionId} structuralSignal`, 'OURS', `our mapping (INFERRED), not his D6: ${cls.structuralSignal}`) : null
         let status: IntegrityStatus
         let detail: string
         let establishedBy: EstablishedBy = 'INSUFFICIENT EVIDENCE'
+        let evidenceStatus: 'INFERRED' | null = null
         let testOnly = false
         const influencedBy: TraceItem[] = [rowItem, clsItem, d6Item]
         if (cls.class === 'REQUIRED CONDITION') {
             if (cls.structuralSignal === 'OPPOSITION_PRESENT' && (competitorPresent || competitorAbsent)) {
                 status = competitorPresent ? 'STRUCTURAL_SIGNAL_PRESENT' : 'STRUCTURAL_SIGNAL_ABSENT'
                 detail = competitorPresent
-                    ? 'Opposition is present by design (an opposing team with players). Whether the condition is expressed is emergent: to be expressed by the assembled activity; not evaluable before activity assembly.'
-                    : 'No opposing team with players: the design gives this condition nothing to be expressed through.'
+                    ? 'A structural signal of ours (INFERRED): an opposing team with players is present. Whether the condition is expressed is emergent: to be expressed by the assembled activity; not evaluable before activity assembly.'
+                    : 'A structural signal of ours (INFERRED): no opposing team with players, so the design gives this condition nothing to be expressed through.'
                 establishedBy = 'LOGICAL INFERENCE'
+                evidenceStatus = 'INFERRED'
                 testOnly = true
+                if (signalItem) influencedBy.push(signalItem)
                 if (activityItem) influencedBy.push(activityItem)
-            } else if (cls.structuralSignal === 'CONTINUOUS_PLAY_BASELINE' && continuousPlay.status === 'HOLDS_BY_DESIGN') {
+            } else if (cls.structuralSignal === 'CONTINUOUS_PLAY_BASELINE' && continuousPlay.status === 'APPLIES_AS_BASELINE_DEFAULT') {
                 status = 'STRUCTURAL_SIGNAL_PRESENT'
-                detail = `Supported by the continuous-play baseline (${continuousPlay.entryId}): play continues through changes of possession by design. Whether the condition is expressed is emergent: to be expressed by the assembled activity; not evaluable before activity assembly.`
+                detail = `A structural signal of ours (INFERRED): the continuous-play baseline default (${continuousPlay.entryId}) applies. Our link, not his: his D5 supports continuous play as a baseline but does not link it to this condition. Whether the condition is expressed is emergent: to be expressed by the assembled activity; not evaluable before activity assembly.`
                 establishedBy = 'LOGICAL INFERENCE'
+                evidenceStatus = 'INFERRED'
+                if (signalItem) influencedBy.push(signalItem)
                 influencedBy.push(item(`conditions-of-use.stage2.json ${continuousPlay.entryId}`, 'OURS', `continuous-play baseline ${continuousPlay.status}`))
             } else {
                 status = 'NOT_EVALUABLE_BEFORE_ACTIVITY_ASSEMBLY'
                 detail = 'To be expressed by the assembled activity; not evaluable before activity assembly (Step 3 is held).'
             }
         } else {
-            if (cls.structuralSignal === 'OPPOSITION_PRESENT' && (competitorPresent || competitorAbsent)) {
-                status = competitorPresent ? 'RISK_NOT_INDICATED_BY_DESIGN' : 'RISK_INDICATED_BY_DESIGN'
-                detail = competitorPresent
-                    ? 'A risk, not a verdict. Not indicated by the design: an opposing team with players is present. Whether it can change progression is emergent.'
-                    : 'A risk, not a verdict. Indicated by the design: no opposing team with players.'
+            if (cls.structuralSignal === 'OPPOSITION_PRESENT' && competitorAbsent) {
+                // Structurally certain only where no opposing team has players.
+                status = 'RISK_INDICATED_BY_DESIGN'
+                detail = 'A risk, not a verdict. Indicated by the design, a structural signal of ours (INFERRED): no opposing team with players.'
                 establishedBy = 'LOGICAL INFERENCE'
+                evidenceStatus = 'INFERRED'
                 testOnly = true
+                if (signalItem) influencedBy.push(signalItem)
+                if (activityItem) influencedBy.push(activityItem)
+            } else if (cls.structuralSignal === 'OPPOSITION_PRESENT' && competitorPresent) {
+                // Present players do not show that the opposition can change progression: that depends on the assembled activity and on play.
+                status = 'RISK_NOT_EVALUABLE'
+                detail = 'A risk, not a verdict. Not evaluable before activity assembly (Step 3 is held): an opposing team with players is present, but whether the opposition can change progression depends on the assembled activity and on play.'
+                testOnly = true
+                if (signalItem) influencedBy.push(signalItem)
                 if (activityItem) influencedBy.push(activityItem)
             } else {
                 status = 'RISK_NOT_EVALUABLE'
@@ -216,8 +237,8 @@ export function evaluateStructuralConditions(k: DesignKnowledge, resolution: Des
         }
         if (row.role !== 'CONDITION') missing.push({ kind: 'INTEGRITY_ROLE_CHANGED', detail: `${row.conditionId} has workbook role ${row.role}; his D6 classification was confirmed against role CONDITION.`, cites: [row.cite] })
         const trace: InfluenceTrace = { influencedBy, consulted: [], citedOnly: [item(d6.integrityConditions.noVerdictSource.ref, d6.integrityConditions.noVerdictSource.standing, 'integrity is a continuum, so no pass-or-fail verdict is printed')] }
-        conclusions.push({ id: `${form.gameFormId} ${row.conditionId}`, step, statement: `${row.conditionId} (${cls.class}): ${status}. ${detail}`, establishedBy, testOnly, trace })
-        return { conditionId: row.conditionId, recordId: row.recordId, workbookRole: row.role, class: cls.class, structuralSignal: cls.structuralSignal, status, detail, cite: row.cite, establishedBy, testOnly, trace }
+        conclusions.push({ id: `${form.gameFormId} ${row.conditionId}`, step, statement: `${row.conditionId} (${cls.class}): ${status}${evidenceStatus ? `; evidence status ${evidenceStatus}` : ''}. ${detail}`, establishedBy, testOnly, trace })
+        return { conditionId: row.conditionId, recordId: row.recordId, workbookRole: row.role, class: cls.class, structuralSignal: cls.structuralSignal, status, detail, cite: row.cite, evidenceStatus, establishedBy, testOnly, trace }
     })
 
     return {
@@ -227,7 +248,14 @@ export function evaluateStructuralConditions(k: DesignKnowledge, resolution: Des
         activity,
         preconditions,
         continuousPlay,
-        integrity: { standing: d6.integrityConditions.standing, noVerdict: d6.integrityConditions.noVerdictQuote, noVerdictSource: d6.integrityConditions.noVerdictSource.ref, conditions },
+        integrity: {
+            standing: d6.integrityConditions.standing,
+            wordingConfirmation: d6.integrityConditions.wordingConfirmation,
+            structuralSignalStanding: d6.integrityConditions.structuralSignalStanding,
+            noVerdict: d6.integrityConditions.noVerdictQuote,
+            noVerdictSource: d6.integrityConditions.noVerdictSource.ref,
+            conditions,
+        },
         conclusions,
         missing,
     }

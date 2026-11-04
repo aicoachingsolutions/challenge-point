@@ -13,12 +13,14 @@
         "conditionsOfUse": { "standing": "OURS", "basis": "Our entries, in the structure he approved under D5; each source inside an entry carries its own standing." },
         "fixture": { "standing": "TEST INPUT", "basis": "Test inputs and test assumptions we chose to exercise the paired width comparison; never a coach's session or an observation." }
     },
+    "scopeNote": "OURS. A ruling's scope is his only where his words state one; scopeWords quotes them. Where his words state none, scope is null. Whatever his scope, this stage applies every ruling on the isolated review pathway only: that application is ours.",
     "rulings": [
         {
             "id": "D1-4NOV",
             "decision": "D1",
             "subject": "Composite Game Problem profile: primary-led, with the secondary's stronger requirements kept as explicit findings",
             "scope": "ISOLATED_REVIEW_PATHWAY",
+            "scopeWords": ["This approves the proposed interpretation for the isolated review pathway, not yet as a permanent amendment to the canonical Composite specification."],
             "canonicalAmendment": false,
             "carMatrixUnchanged": true,
             "words": [
@@ -40,7 +42,7 @@
             "id": "D2-4NOV",
             "decision": "D2",
             "subject": "Possession Stabilization context: development continues; identity, transitions, scoring and TA02 routing held",
-            "scope": "ISOLATED_REVIEW_PATHWAY",
+            "scope": null,
             "canonicalAmendment": false,
             "words": [
                 "I support continuing the development of Possession Stabilization as a proposed ninth Representative Performance Context.",
@@ -54,7 +56,7 @@
             "id": "D3-4NOV",
             "decision": "D3",
             "subject": "Game Form relationships are compatibility information; our orderings withdrawn; the declaration gate kept, its exclusions reported as no governed relationship",
-            "scope": "ISOLATED_REVIEW_PATHWAY",
+            "scope": null,
             "canonicalAmendment": false,
             "words": [
                 "I agree with your recommendation to treat the current context strengths and Game Form primary/secondary declarations as compatibility information unless approved knowledge explicitly establishes a preference.",
@@ -72,7 +74,7 @@
             "id": "D4-4NOV",
             "decision": "D4",
             "subject": "Affordance vocabulary: four reclassifications confirmed, one provisional; classifications of meaning only",
-            "scope": "ISOLATED_REVIEW_PATHWAY",
+            "scope": null,
             "canonicalAmendment": false,
             "words": [
                 "I confirm the four previously agreed reclassifications:",
@@ -96,6 +98,7 @@
             "decision": "D5",
             "subject": "Conditions of use: entry structure approved; W-H1 and W-H2 authorized as a paired, test-only comparison; N-H1 deferred; widening on the review pathway within the coach's available space",
             "scope": "ISOLATED_REVIEW_PATHWAY",
+            "scopeWords": ["For the widening experiment, I approve using a proposed configuration of the activity's playing width on the isolated review pathway, provided it remains within the coach's available-space limits and any proposed adjustment is explicit."],
             "canonicalAmendment": false,
             "words": [
                 "I approve the proposed knowledge-entry structure, including evidence classification, source standing, intended influence, assumptions, limitations, field-evidence status and permitted engine use.",
@@ -117,7 +120,9 @@
             "id": "D6-4NOV",
             "decision": "D6",
             "subject": "Relevance rules: structural preconditions test-only; integrity conditions 01-05 required, 06-08 breach descriptions; framework principles for testing only",
-            "scope": "ISOLATED_REVIEW_PATHWAY",
+            "scope": "ISOLATED_TESTS",
+            "scopeWords": ["I agree that the ball as task object and the opposing team as competitor can serve as explicit structural preconditions in the isolated tests, without being treated as sufficient evidence of ecological relevance."],
+            "scopeCovers": "OURS: his scope words cover the two structural preconditions only.",
             "canonicalAmendment": false,
             "words": [
                 "I support your corrected classification and the principle that compatibility must never be presented as demonstrated relevance.",
@@ -136,7 +141,8 @@
             "id": "AUTH-4NOV",
             "decision": "Next development authorization",
             "subject": "A bounded, review-only demonstration using D1, D3, D5 and D6",
-            "scope": "ISOLATED_REVIEW_PATHWAY",
+            "scope": "BOUNDED_REVIEW_ONLY_DEMONSTRATION",
+            "scopeWords": ["I authorize a bounded, review-only demonstration using the D1, D3, D5 and D6 directions above."],
             "canonicalAmendment": false,
             "words": [
                 "I authorize a bounded, review-only demonstration using the D1, D3, D5 and D6 directions above.",
@@ -161,23 +167,47 @@
                 "ref": "Composite Game Problem Runtime Specification RC1 v1.0, section 5",
                 "standing": "REFERENCE ONLY",
                 "documentStatus": "Implementation Specification",
-                "received": "4 November 2026 (his document, held complete)",
+                "received": "a document matching the title, received with his reply of 4 November 2026 and held; it matches the 149 lines we had rebuilt and adds the 14 we lacked; its completeness is not confirmed by him, who will check whether it is complete",
                 "quotes": [
                     "The Primary Game Problem has priority throughout downstream reasoning.",
-                    "The Secondary Game Problem supplements—but never replaces—the Primary Game Problem."
+                    "The Secondary Game Problem supplements—but never replaces—the Primary Game Problem.",
+                    "It should influence the reasoning process only where it remains compatible with the Primary Game Problem."
                 ],
                 "use": "Cited in the trace with its own status. Cited, not amended. It decides nothing here; D1 decides."
             },
             {
-                "ref": "Composite Game Problem Runtime Specification RC1 v1.0, section 7",
+                "ref": "Composite Game Problem Runtime Specification RC1 v1.0, section 7, in full",
                 "standing": "REFERENCE ONLY",
                 "documentStatus": "Implementation Specification",
-                "received": "4 November 2026 (his document, held complete)",
+                "received": "a document matching the title, received with his reply of 4 November 2026 and held; it matches the 149 lines we had rebuilt and adds the 14 we lacked; its completeness is not confirmed by him, who will check whether it is complete",
                 "quotes": [
+                    "Each Game Problem contributes its associated Affordance Target Profile.",
+                    "Composite reasoning merges these profiles into a unified ecological objective.",
+                    "The merge should:",
+                    "preserve contributions from both Game Problems;",
+                    "eliminate duplicate affordance targets;",
                     "retain provenance for every selected affordance;",
-                    "avoid altering the canonical identity of either Game Problem."
+                    "avoid altering the canonical identity of either Game Problem.",
+                    "The merged ATP becomes the primary input to downstream ecological reasoning."
                 ],
-                "use": "Cited in the trace with its own status. Cited, not amended. It decides nothing here; D1 decides."
+                "use": "Cited in the trace with its own status. Cited, not amended. It decides nothing here; D1 decides.",
+                "tension": "OURS: a possible tension with D1's reading, for his reconciliation. Section 7 makes the merged profile the primary input to downstream ecological reasoning, where D1 keeps the strongest-necessity merge as a union view, never the effective profile."
+            },
+            {
+                "ref": "Composite Game Problem Runtime Specification RC1 v1.0, section 9 (Priority Resolution), in full",
+                "standing": "REFERENCE ONLY",
+                "documentStatus": "Implementation Specification",
+                "received": "a document matching the title, received with his reply of 4 November 2026 and held; it matches the 149 lines we had rebuilt and adds the 14 we lacked; its completeness is not confirmed by him, who will check whether it is complete",
+                "quotes": [
+                    "When the Primary and Secondary Game Problems generate competing recommendations:",
+                    "Preserve the intent of the Primary Game Problem.",
+                    "Incorporate the Secondary Game Problem where compatible.",
+                    "Prioritize representative interaction over equal weighting.",
+                    "Reduce the influence of the Secondary Game Problem if necessary.",
+                    "The objective is ecological coherence rather than equal representation."
+                ],
+                "use": "Cited in the trace with its own status. Cited, not amended. It decides nothing here; D1 decides.",
+                "tension": "OURS: directly on point for D1, for his reconciliation. Section 9 speaks of competing recommendations and of reducing the secondary's influence if necessary; D1 keeps a stronger secondary rating as an explicit finding at insufficient evidence. Whether the two readings agree is his to settle when he reconciles the complete original."
             }
         ],
         "carMergeNote": {
@@ -214,7 +244,11 @@
             ]
         },
         "conditionalPreferenceWords": "If additional knowledge eventually establishes why one form may be better suited under particular circumstances, that preference should be conditional, source-grounded and justified by its relevance to the intended learning problem.",
-        "defendingGoalsWords": "The missing defending-goal relationships can remain a separate knowledge-population finding."
+        "defendingGoalsWords": "The missing defending-goal relationships can remain a separate knowledge-population finding.",
+        "knowledgePopulationFinding": {
+            "standing": "OURS: which goals his sentence covers is our reading: the defending goals (D, TD) whose routed context relates no Game Form that declares their primary Game Problem. The finding is attached to their Step 2 result; it decides nothing.",
+            "learningGoalIds": ["D01", "D03", "TD01", "TD02"]
+        }
     },
     "relevance": {
         "ruling": "D6-4NOV",
@@ -230,7 +264,9 @@
         "continuousPlayBaselineEntry": "C-BASE",
         "conditionsOfUseRuling": "D5-4NOV",
         "integrityConditions": {
-            "standing": "Classification by his D6, subject to confirming the original wording. Wording CONFIRMED by us against the archetype workbook (rows GAK-0103 to GAK-0110, Knowledge_Role CONDITION for all eight; 01-05 are worded as states that preserve the archetype, 06-08 as breaches) and against the Game Archetype Canonical Reference v1.1, whose Invasion examples under Organizational Transformation and Organizational Collapse match 06-08. The workbook is unchanged.",
+            "standing": "The class of each condition (REQUIRED CONDITION or BREACH DESCRIPTION) is his D6, subject to confirming the original wording. The structuralSignal values are not his: see structuralSignalStanding. The workbook is unchanged.",
+            "wordingConfirmation": "OURS, for him to check; his acknowledgement is pending. We confirmed the wording against the archetype workbook (rows GAK-0103 to GAK-0110, Knowledge_Role CONDITION for all eight; 01-05 are worded as states that preserve the archetype, 06-08 as breaches) and against the Game Archetype Canonical Reference v1.1, whose Invasion examples under Organizational Transformation and Organizational Collapse match 06-08.",
+            "structuralSignalStanding": "OURS (INFERRED), not his D6: the structuralSignal values are our mapping, from our build spec. OPPOSITION_PRESENT on 03 and 07, and CONTINUOUS_PLAY_BASELINE on 05, are links of ours; his D5 supports continuous play as a baseline but does not link it to condition 05. A conclusion that rests on a signal carries evidence status INFERRED.",
             "noVerdictQuote": "Consequently, Organizational Integrity should be understood as a continuum describing ecological fidelity rather than a pass-or-fail judgement.",
             "noVerdictSource": { "ref": "Game Archetype Canonical Reference v1.1, section 7, Interpreting Organizational Integrity", "standing": "REFERENCE ONLY" },
             "classification": [
@@ -246,15 +282,15 @@
         },
         "authorizedDepartures": [],
         "authorizedDeparturesNote": "OURS: no authorized departure from continuous play is recorded in the knowledge this stage reads, for any goal. A01's checked pathway records its own authorized departures, which this stage does not read.",
-        "frameworkRulesRun": {
-            "standing": "OURS: rule texts from the E7 draft and the decision package, item 5. He approved the non-causal framework principles for further testing (D6). Only rules that neither exclude a design nor claim that an element serves an affordance run here. The Game Form gate is not one of them: it is Stage 1's gate, now supported by his D3.",
-            "rules": [
-                { "id": "R0.1", "rule": "the rationale is recorded at decision time: every decision carries the rows, rulings and test assumptions it read" },
-                { "id": "R2.1a", "rule": "no relevance through words: no decision reads a name, definition, note or statement" },
-                { "id": "R2.5", "rule": "primary and secondary Game Problems are each judged with their role, never through the merged profile alone" },
-                { "id": "R3.2", "rule": "a condition that cannot be evaluated gives insufficient evidence, never holds" },
-                { "id": "R4.4", "rule": "tradeoffs are reported, never weighted" },
-                { "id": "D6-COMPATIBILITY", "rule": "compatibility is never presented as relevance" }
+        "frameworkPrinciples": {
+            "standing": "OURS: the framework principles the stage was built to respect. Texts from the E7 draft and the decision package, item 5. He approved the non-causal framework principles for further testing (D6). No code evaluates these principles as rules; each names the test that pins it, or says it is not exercised. Only principles that neither exclude a design nor claim that an element serves an affordance are listed. The Game Form gate is not one of them: it is Stage 1's gate, now supported by his D3.",
+            "principles": [
+                { "id": "R0.1", "principle": "the rationale is recorded at decision time: every decision carries the rows, rulings and test assumptions that decided it", "pinnedBy": ["testInfluenceTraceNamesWhatDecides", "testConclusionGroupsKeepStandingsApart"], "exercised": "yes" },
+                { "id": "R2.1a", "principle": "no relevance through words: no decision reads a name, definition, note or statement", "pinnedBy": ["testWordingRewriteChangesNothing", "testTheStageReadsNoNarrativeColumn (Stage 1)"], "exercised": "yes" },
+                { "id": "R2.5", "principle": "primary and secondary Game Problems are each judged with their role, never through the merged profile alone", "pinnedBy": ["testA05CompositeProfile", "testNoPromotionForAnyPair"], "exercised": "yes" },
+                { "id": "R3.2", "principle": "a condition that cannot be evaluated gives insufficient evidence, never holds", "pinnedBy": ["testNotSuppliedGivesInsufficientEvidenceForEveryGeometry", "testATeamWithNoPlayers", "testStructuralConditionsOfTheA05Forms"], "exercised": "yes" },
+                { "id": "R4.4", "principle": "tradeoffs are reported, never weighted", "pinnedBy": [], "exercised": "no; the stage produces no tradeoffs, because Steps 3 to 5 are held" },
+                { "id": "D6-COMPATIBILITY", "principle": "compatibility is never presented as relevance", "pinnedBy": ["testA05AndA01AreCompatibleAlternatives", "testExclusionWording", "testConclusionGroupsKeepStandingsApart"], "exercised": "yes" }
             ],
             "waiting": "Every other draft rule waits for the rule-level source and status check he asked for, drafted separately."
         }
@@ -262,8 +298,7 @@
     "widthComparison": {
         "ruling": "D5-4NOV",
         "referenceCitationRuling": "AUTH-4NOV",
-        "longTermRequirementRuling": "D1-4NOV",
-        "authorizationRuling": "AUTH-4NOV"
+        "longTermRequirementRuling": "D1-4NOV"
     },
     "openDecisions": [
         {

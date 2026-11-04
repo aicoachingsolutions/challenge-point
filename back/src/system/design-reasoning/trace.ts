@@ -5,13 +5,16 @@
  * test-only hypotheses."*).
  *
  * Every decision of the stage carries an `InfluenceTrace`, written by the function that makes the decision, from the rows it read:
- *   - `influencedBy`: the rows, rulings or test assumptions whose values decided the outcome (changing one in a test copy moves it);
+ *   - `influencedBy`: the rows, rulings, entries or test assumptions whose values decided the outcome, or the rule that gave it (changing
+ *     one, within valid test inputs, in a test copy moves the outcome or that rule; a unit test pins this for the gate inputs);
  *   - `consulted`: read and shown, not decisive (for example compatibility information);
  *   - `citedOnly`: reference knowledge shown for context, which decides nothing (for example a document held outside the application).
  * Each item carries its standing (APPROVED, RULING, CANDIDATE, REFERENCE ONLY, OURS, TEST ASSUMPTION, TEST INPUT).
  *
- * Every conclusion carries `establishedBy`, so the report can separate what approved knowledge establishes from what only a test-only
- * hypothesis shows, and from where the evidence is insufficient. Nothing here is served, coach text or an authorization.
+ * Every conclusion carries `establishedBy`. The report groups conclusions by `establishedBy` and by the WEAKEST standing among the items
+ * that decided them, so approved knowledge is never shown beside a ruling of his, candidate data, an inference of ours or a test input:
+ * a conclusion is grouped as established through approved knowledge only where it is established by approved knowledge and every item
+ * that decided it is APPROVED. Nothing here is served, coach text or an authorization.
  */
 import { Cite, Standing } from './knowledge'
 
@@ -42,18 +45,64 @@ export interface Conclusion {
     trace: InfluenceTrace
 }
 
-/** The three groups the report keeps apart, as his authorization asks. */
-export type ConclusionGroup = 'ESTABLISHED THROUGH APPROVED KNOWLEDGE' | 'DEMONSTRATED ONLY UNDER TEST-ONLY HYPOTHESES' | 'INSUFFICIENT EVIDENCE'
+/** Standings from strongest to weakest, as the report ranks what decided a conclusion. REFERENCE ONLY never decides anything. */
+const STANDING_ORDER: Standing[] = ['APPROVED', 'RULING', 'PROVISIONAL', 'CANDIDATE', 'OURS', 'REFERENCE ONLY', 'TEST ASSUMPTION', 'TEST INPUT']
+
+/** The weakest standing among the items that decided a conclusion; null when nothing is recorded as deciding it. */
+export function weakestStanding(t: InfluenceTrace): Standing | null {
+    let weakest: Standing | null = null
+    for (const i of t.influencedBy) if (weakest === null || STANDING_ORDER.indexOf(i.standing) > STANDING_ORDER.indexOf(weakest)) weakest = i.standing
+    return weakest
+}
+
+/** The groups the report keeps apart, as his authorization asks, in the order the report prints them. */
+export const CONCLUSION_GROUPS = [
+    'ESTABLISHED THROUGH APPROVED KNOWLEDGE',
+    'ESTABLISHED BY HIS RULINGS',
+    'RESTS ON CANDIDATE DATA',
+    'RESTS ON OUR INFERENCE (NO TEST INPUT)',
+    'STRUCTURAL FINDINGS ON TEST INPUTS',
+    'DEMONSTRATED ONLY UNDER TEST-ONLY HYPOTHESES',
+    'INSUFFICIENT EVIDENCE',
+] as const
+export type ConclusionGroup = (typeof CONCLUSION_GROUPS)[number]
+
+/** What each group holds, printed under its heading. */
+export const CONCLUSION_GROUP_NOTES: Record<ConclusionGroup, string> = {
+    'ESTABLISHED THROUGH APPROVED KNOWLEDGE': 'Established by approved knowledge, and every row that decided it is APPROVED.',
+    'ESTABLISHED BY HIS RULINGS': 'Decided by a ruling of his, with approved knowledge; no candidate data, no entry or identification of ours, no test input. Each ruling keeps its own scope; D1 is approved for the isolated review pathway only, not as a canonical amendment.',
+    'RESTS ON CANDIDATE DATA': 'Among what decided it is CANDIDATE data: the sport module\'s Game Form declarations (module DRAFT), read under his D3 as compatibility information. Not approved knowledge.',
+    'RESTS ON OUR INFERENCE (NO TEST INPUT)': 'A logical inference of ours, or a conclusion that rests on an entry, identification or mapping of ours (OURS), with no test input. Not approved knowledge, and not his ruling.',
+    'STRUCTURAL FINDINGS ON TEST INPUTS': 'Structural findings that read a test input (team sizes, areas): not hypotheses, and not evidence of ecological relevance.',
+    'DEMONSTRATED ONLY UNDER TEST-ONLY HYPOTHESES': 'Results of the paired width comparison under test assumptions: not empirically established, not eligible for production.',
+    'INSUFFICIENT EVIDENCE': 'Where a condition cannot be evaluated, or nothing approved decides.',
+}
 
 export function conclusionGroup(c: Conclusion): ConclusionGroup {
     if (c.establishedBy === 'INSUFFICIENT EVIDENCE') return 'INSUFFICIENT EVIDENCE'
-    if (c.testOnly || c.establishedBy === 'TEST-ONLY HYPOTHESIS UNDER TEST ASSUMPTIONS') return 'DEMONSTRATED ONLY UNDER TEST-ONLY HYPOTHESES'
-    return 'ESTABLISHED THROUGH APPROVED KNOWLEDGE'
+    if (c.establishedBy === 'TEST-ONLY HYPOTHESIS UNDER TEST ASSUMPTIONS') return 'DEMONSTRATED ONLY UNDER TEST-ONLY HYPOTHESES'
+    const weakest = weakestStanding(c.trace)
+    if (c.testOnly || weakest === 'TEST ASSUMPTION' || weakest === 'TEST INPUT') return 'STRUCTURAL FINDINGS ON TEST INPUTS'
+    if (weakest === null || weakest === 'OURS' || weakest === 'REFERENCE ONLY' || c.establishedBy === 'LOGICAL INFERENCE') return 'RESTS ON OUR INFERENCE (NO TEST INPUT)'
+    if (weakest === 'CANDIDATE' || weakest === 'PROVISIONAL') return 'RESTS ON CANDIDATE DATA'
+    if (c.establishedBy === 'APPROVED KNOWLEDGE' && weakest === 'APPROVED') return 'ESTABLISHED THROUGH APPROVED KNOWLEDGE'
+    return 'ESTABLISHED BY HIS RULINGS'
 }
 
 export const emptyTrace = (): InfluenceTrace => ({ influencedBy: [], consulted: [], citedOnly: [] })
 
 export const item = (ref: string, standing: Standing, role: string, cite?: Cite): TraceItem => (cite ? { ref, standing, role, cite } : { ref, standing, role })
+
+/** Items with the same ref and role listed once, in the order first seen. */
+export function uniqueItems(items: TraceItem[]): TraceItem[] {
+    const seen = new Set<string>()
+    return items.filter((i) => {
+        const key = JSON.stringify([i.ref, i.role])
+        if (seen.has(key)) return false
+        seen.add(key)
+        return true
+    })
+}
 
 /** A role code as a word in a sentence (no case-folding of text anywhere in the stage: the static test bans it). */
 export const roleWord = (role: string): string => (role === 'PRIMARY' ? 'primary' : role === 'SECONDARY' ? 'secondary' : role)

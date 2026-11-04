@@ -100,14 +100,21 @@ export interface Stage1Rulings {
 // Stage 2: his D1-D6 rulings and our conditions-of-use entries, as data (shapes only; the content is in the two JSON files)
 // ---------------------------------------------------------------------------------------------------------------------------------------
 
-/** The standing a source carries in the influence trace. TEST ASSUMPTION and TEST INPUT mark the fixture's values. */
-export type Standing = 'APPROVED' | 'RULING' | 'CANDIDATE' | 'REFERENCE ONLY' | 'OURS' | 'TEST ASSUMPTION' | 'TEST INPUT'
+/**
+ * The standing a source carries. TEST ASSUMPTION and TEST INPUT mark the fixture's values. PROVISIONAL marks his words given as an
+ * illustrative example, not as a ruling (it appears among an entry's sources, never in an influence trace).
+ */
+export type Standing = 'APPROVED' | 'RULING' | 'PROVISIONAL' | 'CANDIDATE' | 'REFERENCE ONLY' | 'OURS' | 'TEST ASSUMPTION' | 'TEST INPUT'
 
 export interface Ruling {
     id: string
     decision: string
     subject: string
-    scope: string
+    /** His scope, only where his words state one (quoted in `scopeWords`); null where they state none. */
+    scope: string | null
+    scopeWords?: string[]
+    /** OURS: what his scope words cover, where they cover part of the ruling only. */
+    scopeCovers?: string
     canonicalAmendment: boolean
     words: string[]
     supersedes?: string[]
@@ -120,12 +127,15 @@ export interface ReferenceCitation {
     received: string
     quotes: string[]
     use: string
+    /** OURS: a possible tension with his D1 reading, noted for his reconciliation; decides nothing. */
+    tension?: string
 }
 
 export interface IntegrityClassification {
     conditionId: string
     recordId: string
     class: 'REQUIRED CONDITION' | 'BREACH DESCRIPTION'
+    /** OURS (INFERRED), not his D6: the structural signal we map to the condition. */
     structuralSignal: 'OPPOSITION_PRESENT' | 'CONTINUOUS_PLAY_BASELINE' | null
 }
 
@@ -166,6 +176,8 @@ export interface Stage2Rulings {
         whatCouldDistinguish: { standing: string; items: Array<{ id: string; what: string; check: 'GOVERNED_PREFERENCE_ROW' | 'RECORDED_ABSENT'; limitation: string }> }
         conditionalPreferenceWords: string
         defendingGoalsWords: string
+        /** OURS: the goals his D3 sentence on the missing defending-goal relationships covers, by id. */
+        knowledgePopulationFinding: { standing: string; learningGoalIds: string[] }
     }
     relevance: {
         ruling: string
@@ -179,15 +191,17 @@ export interface Stage2Rulings {
         conditionsOfUseRuling: string
         integrityConditions: {
             standing: string
+            wordingConfirmation: string
+            structuralSignalStanding: string
             noVerdictQuote: string
             noVerdictSource: { ref: string; standing: Standing }
             classification: IntegrityClassification[]
         }
         authorizedDepartures: Array<{ learningGoalId: string; departure: string; words: string[] }>
         authorizedDeparturesNote: string
-        frameworkRulesRun: { standing: string; rules: Array<{ id: string; rule: string }>; waiting: string }
+        frameworkPrinciples: { standing: string; principles: Array<{ id: string; principle: string; pinnedBy: string[]; exercised: string }>; waiting: string }
     }
-    widthComparison: { ruling: string; referenceCitationRuling: string; longTermRequirementRuling: string; authorizationRuling: string }
+    widthComparison: { ruling: string; referenceCitationRuling: string; longTermRequirementRuling: string }
     openDecisions: OpenDecision[]
 }
 
@@ -210,11 +224,13 @@ export interface EntryAssumption {
 export type EvidenceClass = 'ESTABLISHED PRINCIPLE' | 'LOGICAL INFERENCE' | 'CAUSAL HYPOTHESIS' | 'REFERENCE KNOWLEDGE'
 export type PermittedEngineUse = 'TEST-ONLY COMPARISON' | 'STRUCTURAL CHECK AND UNCERTAINTY REPORTING' | 'TRACE CITATION ONLY' | 'DEFERRED'
 
+export type EntryKind = 'conceptual or structural principle (proposed; pending his acceptance)' | 'hypothesis' | 'reference knowledge, cited only (not a premise)'
+
 export interface ConditionOfUse {
     id: string
     statement: string
     evidenceClass: EvidenceClass
-    kind: 'accepted conceptual or structural principle' | 'hypothesis'
+    kind: EntryKind
     contentStanding: string
     appliesToGameProblemIds: string[]
     appliesToArchetypeIds?: string[]
@@ -246,13 +262,18 @@ export interface ConditionsOfUse {
     widthComparison: {
         standing: string
         hypotheses: string[]
-        circumstances: Array<{ key: string; label: string; futureSource: string }>
+        /** OURS: each circumstance; `qualifierTensionWhen` names the value that sits uneasily with the qualifier of the ruling that set the primary. */
+        circumstances: Array<{ key: string; label: string; futureSource: string; qualifierTensionWhen?: boolean; qualifierTensionNote?: string }>
         proposalBasis: string
         proposalLabel: string
         structuralFactLabel: string
         structuralEntries: string[]
         structuralChecks: Array<{ entryId: string; check: 'AREA' | 'NUMBERS'; standing: string }>
         boundaryEntry: string
+        /** OURS: the role the boundary entry plays in a trace (consulted, never decisive). */
+        boundaryRole: string
+        /** OURS: where the not-offered consequence comes from, named in the trace of a scenario it decides. */
+        notOfferedBasis: string
         referenceEntries: string[]
         deferredEntries: string[]
         risksOfWidening: WidthRisk[]

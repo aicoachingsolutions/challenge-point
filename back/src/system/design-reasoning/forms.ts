@@ -25,12 +25,16 @@
  * D3. No such row exists; none is created.
  *
  * Every candidate shows its context strength and declarations labelled as compatibility information, and the archetype's relationship to
- * the primary Game Problem labelled as non-contradiction only. Not used, and said so: the composite profile, player ranges (declared on no
- * form), and every narrative field. No goal id appears in this file.
+ * the primary Game Problem labelled as non-contradiction only. The trace records every gate input among what decided the outcome (the
+ * context's form and archetype rows, the archetype workbook's row for the primary Game Problem, the form declarations, and what set the
+ * primary in Step 1), each labelled as a gate input, compatibility only; context strengths are consulted, never decisive. Where the data
+ * lists the goal, his D3 sentence on the missing defending-goal relationships is attached to a NO_GOVERNED_RELATIONSHIP_ESTABLISHED result
+ * as a knowledge-population finding. Not used, and said so: the composite profile, player ranges (declared on no form), and every narrative
+ * field. No goal id appears in this file.
  */
 import { activeContextRelationships, archetypeGameProblemRole, Cite, contextVocabularyHas, DesignKnowledge, gameFormDeclaration, RelationshipRow, ruling, SOURCE, sourceStanding } from './knowledge'
 import { DesignResolution, MissingKnowledge } from './resolve'
-import { citeRef, EstablishedBy, InfluenceTrace, item, roleWord, TraceItem } from './trace'
+import { citeRef, EstablishedBy, InfluenceTrace, item, roleWord, TraceItem, uniqueItems } from './trace'
 
 export type CheckResult = 'PASS' | 'FAIL' | 'NOT_DECLARED' | 'NOT_CHECKED'
 
@@ -81,6 +85,8 @@ export interface GameFormSelection {
         conditionalPreferenceWords: string | null
     }
     gate: { standing: string; ruling: string; excludedContextRelationshipTypes: string[]; excludedArchetypeGameProblemRoles: string[]; governedPreferenceTypes: string[] }
+    /** His D3 sentence on the missing defending-goal relationships, attached where the data lists the goal; it decides nothing. */
+    knowledgePopulationFinding: { words: string; standing: string; ruling: string } | null
     withdrawn: string
     notUsed: string[]
     establishedBy: EstablishedBy
@@ -126,7 +132,8 @@ export function selectGameForm(k: DesignKnowledge, resolution: DesignResolution)
             excludedArchetypeGameProblemRoles: [...gate.excludedArchetypeGameProblemRoles],
             governedPreferenceTypes: [...gate.governedPreferenceTypes],
         },
-        withdrawn: 'selection-basis.json (three orderings and the dominance rule), withdrawn by his D3; the repository history keeps it.',
+        knowledgePopulationFinding: null,
+        withdrawn:'selection-basis.json (three orderings and the dominance rule), withdrawn by his D3; the repository history keeps it.',
         notUsed: [...NOT_USED],
         establishedBy: 'INSUFFICIENT EVIDENCE',
         trace: { influencedBy: [], consulted: [], citedOnly: [] },
@@ -134,6 +141,7 @@ export function selectGameForm(k: DesignKnowledge, resolution: DesignResolution)
     }
     if (resolution.status === 'UNRESOLVED' || !resolution.context) {
         result.statement = 'Step 1 did not resolve a Game Problem and context, so no Game Form is evaluated.'
+        result.trace = { influencedBy: resolution.gameProblems.trace.influencedBy.map((i) => ({ ...i, role: `Step 1 did not resolve: ${i.role}` })), consulted: [], citedOnly: [] }
         missing.push({ kind: 'RESOLUTION_UNRESOLVED', detail: result.statement, cites: [] })
         return result
     }
@@ -151,8 +159,11 @@ export function selectGameForm(k: DesignKnowledge, resolution: DesignResolution)
     const resolvedRoles: Array<[string, string]> = [[primaryId, 'PRIMARY'], ...resolution.gameProblems.secondary.map((id): [string, string] => [id, 'SECONDARY'])]
     const archetypeRows = activeContextRelationships(k, rpcId, 'GAME_ARCHETYPE').filter((r) => !gate.excludedContextRelationshipTypes.includes(r.type))
     const contextArchetypes = archetypeRows.map((r) => r.relatedId)
-    const influencedBy: TraceItem[] = [d3Item]
+    // The primary Game Problem the gate tests comes from Step 1 (an approved translation, or his ruling), so what set it decides here too.
+    const basisItems = resolution.gameProblems.trace.influencedBy.map((i) => ({ ...i, role: `names the primary Game Problem the gate tests: ${i.role}` }))
+    const influencedBy: TraceItem[] = [d3Item, ...basisItems]
     const consulted: TraceItem[] = []
+    const gateInput = `gate input: ${d3.archetypeLabel}`
 
     for (const relationship of activeContextRelationships(k, rpcId, 'GAME_FORM')) {
         const form = gameFormDeclaration(k, relationship.relatedId)
@@ -172,17 +183,21 @@ export function selectGameForm(k: DesignKnowledge, resolution: DesignResolution)
             if (form.status === 'ACTIVE') pass('FORM_STATUS', 'status ACTIVE.', [form.cite])
             else fail('FORM_STATUS', 'FORM_NOT_ACTIVE', `status "${form.status}".`, [form.cite])
 
+            // The context's archetype rows decide the ARCHETYPE check: gate inputs, compatibility only.
+            for (const r of archetypeRows) influencedBy.push(item(citeRef(r.cite), contextStanding, `${rpcId} relates ${r.relatedId} (${r.type}); ${gateInput}`, r.cite))
             if (contextArchetypes.includes(form.archetypeId)) pass('ARCHETYPE', `The form's archetype ${form.archetypeId} is one ${rpcId} relates.`, [form.cite, ...archetypeRows.filter((r) => r.relatedId === form.archetypeId).map((r) => r.cite)])
             else fail('ARCHETYPE', 'ARCHETYPE_NOT_RELATED_TO_CONTEXT', `The form's archetype "${form.archetypeId}" is not one ${rpcId} relates (${contextArchetypes.join(', ') || 'none'}).`, [form.cite, ...archetypeRows.map((r) => r.cite)])
 
+            // The archetype workbook's row for the primary Game Problem decides the ARCHETYPE_GAME_PROBLEM check (an excluded role excludes).
             const archetypeRole = archetypeGameProblemRole(k, form.archetypeId, primaryId)
             if (!archetypeRole) {
                 checks.push({ check: 'ARCHETYPE_GAME_PROBLEM', result: 'NOT_DECLARED', detail: `The archetype workbook holds no row relating ${form.archetypeId} to ${primaryId}.`, cites: [{ file: SOURCE.archetypes, table: 'knowledge', row: `${form.archetypeId} GAME_PROBLEM_RELATIONSHIP ${primaryId}` }] })
             } else if (gate.excludedArchetypeGameProblemRoles.includes(archetypeRole.role)) {
                 fail('ARCHETYPE_GAME_PROBLEM', 'ARCHETYPE_MARKS_PRIMARY_EXCLUDED', `${form.archetypeId} relates ${primaryId} ${archetypeRole.role}.`, [archetypeRole.cite])
+                influencedBy.push(item(citeRef(archetypeRole.cite), archetypeStanding, `${form.archetypeId} relates ${primaryId} ${archetypeRole.role}: an excluded role, so the form is excluded`, archetypeRole.cite))
             } else {
                 pass('ARCHETYPE_GAME_PROBLEM', `${form.archetypeId} relates ${primaryId} ${archetypeRole.role}: ${d3.archetypeLabel}.`, [archetypeRole.cite])
-                consulted.push(item(citeRef(archetypeRole.cite), archetypeStanding, `${form.archetypeId} relates ${primaryId} ${archetypeRole.role}: ${d3.archetypeLabel}`, archetypeRole.cite))
+                influencedBy.push(item(citeRef(archetypeRole.cite), archetypeStanding, `${form.archetypeId} relates ${primaryId} ${archetypeRole.role}; ${gateInput}`, archetypeRole.cite))
             }
 
             const primaryDeclared = declared(form.primaryGameProblemIds, form.secondaryGameProblemIds, primaryId)
@@ -228,7 +243,7 @@ export function selectGameForm(k: DesignKnowledge, resolution: DesignResolution)
     // Listed in form-id order so the workbook's listing order never reaches a reader; the order carries no preference.
     const byId = (x: { gameFormId: string }, y: { gameFormId: string }) => x.gameFormId.localeCompare(y.gameFormId, 'en', { numeric: true })
     result.candidates.sort(byId)
-    const sortItems = (items: TraceItem[]) => items.sort((a, b) => a.ref.localeCompare(b.ref, 'en', { numeric: true }) || a.role.localeCompare(b.role))
+    const sortItems = (items: TraceItem[]) => uniqueItems(items).sort((a, b) => a.ref.localeCompare(b.ref, 'en', { numeric: true }) || a.role.localeCompare(b.role))
     result.trace = { influencedBy: sortItems(influencedBy), consulted: sortItems(consulted), citedOnly: [] }
     const compatible = result.candidates.filter((c) => c.compatible)
     result.compatible = compatible.map((c) => c.gameFormId)
@@ -243,6 +258,9 @@ export function selectGameForm(k: DesignKnowledge, resolution: DesignResolution)
             ? `None of the forms ${rpcId} relates (${result.candidates.map((c) => c.gameFormId).join(', ')}) passes the gate; ${d3.exclusionWording}. See each candidate's excludedBecause.`
             : `${rpcId} relates no Game Form.`
         if (result.candidates.length) missing.push({ kind: 'NO_GOVERNED_RELATIONSHIP_ESTABLISHED', detail: result.statement, cites: result.candidates.map((c) => c.contextRelationship.cite) })
+        if (d3.knowledgePopulationFinding.learningGoalIds.includes(resolution.learningGoalId)) {
+            result.knowledgePopulationFinding = { words: d3.defendingGoalsWords, standing: d3.knowledgePopulationFinding.standing, ruling: d3Ruling.id }
+        }
         return result
     }
 

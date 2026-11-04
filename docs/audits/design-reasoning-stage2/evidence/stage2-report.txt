@@ -1,7 +1,7 @@
 Design-reasoning Stage 2: bounded demonstration, review pathway only
-Standing: Review evidence only. Not served, not coach text, not an authorization. Compatible Game Forms are compatible with approved relationships, not demonstrated to be suitable. Width results are test-only comparisons of conditional hypotheses under test assumptions: not empirically established, not eligible for production. Passing the stage's tests is engineering evidence, not evidence of representative learning quality in the field.
+Standing: Review evidence only. Not served, not coach text, not an authorization. Compatible Game Forms pass a gate over approved context and archetype rows and the sport module's CANDIDATE Game Form declarations (module DRAFT), read under his D3 as compatibility information: compatibility, not demonstrated suitability. Width results are test-only comparisons of conditional hypotheses under test assumptions: not empirically established, not eligible for production. Passing the stage's tests is engineering evidence, not evidence of representative learning quality in the field.
 Authorized by Christian's reply to the Stage 2 decision package, received 4 November 2026 (D1, D3, D5, D6). Steps 3-5, production relevance joins, live routing changes and coach-facing use are not authorized and are not here.
-Test fixture: TEST FIXTURE for the bounded Stage 2 demonstration, review pathway only. Every value in this file is a TEST INPUT that we chose to exercise the paired width comparison he authorized under D5 (reply received 4 November 2026). None is a coach's session, an observation, a recommendation or knowledge. The two deciding circumstances in each scenario are TEST ASSUMPTIONS: the engine never infers them from the dimensions or the player numbers.
+Test fixture: TEST FIXTURE for the bounded Stage 2 demonstration, review pathway only. Every value in this file is a TEST INPUT that we chose to exercise the paired width comparison he authorized under D5 (reply received 4 November 2026). None is a coach's session, an observation, a recommendation or knowledge. The two deciding circumstances in each scenario are TEST ASSUMPTIONS: the engine never infers them from the dimensions or the player numbers. Each circumstance states the area it describes (appliesTo): the area at the coach's available width, that is, the proposed widened area. Nothing is assumed about the configured area.
 
 === PART A. A05 Progress the Attack: the bounded demonstration ===
 Step 1: RESOLVED
@@ -9,18 +9,24 @@ Step 1: RESOLVED
   Context: RPC-003 (routing row A05; library row RPC-REL-062 COMPATIBLE PRIMARY)
     PRIMARY GP-001: RPC-REL-023 COMPATIBLE PRIMARY
     SECONDARY GP-002: RPC-REL-024 COMPATIBLE PRIMARY
-  CAR row PRIMARY   GP-001: FOI=S OP=E SA=S CIO=E  (Approved; Approved; confidence High; role set by RUL-E1-A05, A05)
-  CAR row SECONDARY GP-002: FOI=E OP=E SA=S CIO=E  (Approved; Approved; confidence High; role set by RUL-E1-A05, A05)
+  CAR row PRIMARY   GP-001: FOI=S OP=E SA=S CIO=E  (Approved; Approved; confidence High; role set by RUL-E1-A05, D1-4NOV; permitted by the unpopulated engine_translation row A05)
+  CAR row SECONDARY GP-002: FOI=E OP=E SA=S CIO=E  (Approved; Approved; confidence High; role set by RUL-E1-A05, D1-4NOV; permitted by the unpopulated engine_translation row A05)
   Union view: FOI=E (GP-002) OP=E (GP-001, GP-002) SA=S (GP-001, GP-002) CIO=E (GP-001, GP-002)  [strongest necessity, merge_precedence E>S>NR (CAR metadata); never the effective profile]
   Effective profile: FOI=S OP=E SA=S CIO=E  [PRIMARY_LED; scope ISOLATED_REVIEW_PATHWAY; canonical amendment: no]
   FINDING FOI (Functional Object Interaction): primary GP-001 S, secondary GP-002 E -> INSUFFICIENT_EVIDENCE: no approved relationship establishes how to reconcile the difference; an unresolved secondary consideration; promoted into the effective profile: no
   Effective profile trace:
     influenced by: atm-workbook.rc1.2.json ratings GP-001 [APPROVED] the primary Game Problem's ratings, each taken unchanged
     influenced by: stage2-rulings.json D1-4NOV [RULING] his D1: primary-led profile; a stronger secondary rating is kept as a finding, not promoted
+    influenced by: stage1-rulings.json RUL-E1-A05 [RULING] sets which Game Problems are merged, and their roles: his scoped ruling names the Game Problems and their roles
+    influenced by: stage2-rulings.json D1-4NOV [RULING] sets which Game Problems are merged, and their roles: his later ruling retains the designation for this demonstration
+    influenced by: session-planning-model.rc1.json engine_translation A05 [APPROVED] sets which Game Problems are merged, and their roles: the Engine Translation row is unpopulated, which permits a ruling to supply the Game Problems; populated, it would block the ruling
     consulted: atm-workbook.rc1.2.json ratings GP-002 [APPROVED] the secondary Game Problem's ratings, shown; never promoted
     consulted: atm-workbook.rc1.2.json metadata merge_precedence [APPROVED] merge_precedence E>S>NR
     cited only: Composite Game Problem Runtime Specification RC1 v1.0, section 5 [REFERENCE ONLY] cited with its own status (Implementation Specification); decides nothing
-    cited only: Composite Game Problem Runtime Specification RC1 v1.0, section 7 [REFERENCE ONLY] cited with its own status (Implementation Specification); decides nothing
+    cited only: Composite Game Problem Runtime Specification RC1 v1.0, section 7, in full [REFERENCE ONLY] cited with its own status (Implementation Specification); decides nothing; a possible tension with D1 is noted for his reconciliation
+    cited only: Composite Game Problem Runtime Specification RC1 v1.0, section 9 (Priority Resolution), in full [REFERENCE ONLY] cited with its own status (Implementation Specification); decides nothing; a possible tension with D1 is noted for his reconciliation
+    Composite Game Problem Runtime Specification RC1 v1.0, section 7, in full (a document matching the title, received with his reply of 4 November 2026 and held; it matches the 149 lines we had rebuilt and adds the 14 we lacked; its completeness is not confirmed by him, who will check whether it is complete): OURS: a possible tension with D1's reading, for his reconciliation. Section 7 makes the merged profile the primary input to downstream ecological reasoning, where D1 keeps the strongest-necessity merge as a union view, never the effective profile.
+    Composite Game Problem Runtime Specification RC1 v1.0, section 9 (Priority Resolution), in full (a document matching the title, received with his reply of 4 November 2026 and held; it matches the 149 lines we had rebuilt and adds the 14 we lacked; its completeness is not confirmed by him, who will check whether it is complete): OURS: directly on point for D1, for his reconciliation. Section 9 speaks of competing recommendations and of reducing the secondary's influence if necessary; D1 keeps a stronger secondary rating as an explicit finding at insufficient evidence. Whether the two readings agree is his to settle when he reconciles the complete original.
 Step 2: COMPATIBLE_ALTERNATIVES (GF2, GF3, GF7)  [established by RULING]
   GF2, GF3, GF7: compatible alternatives; insufficient evidence to prefer one.
   GF2 compatible via RPC-REL-028: COMPATIBLE PRIMARY; declares GP-001 (primary): PRIMARY; declares GP-002 (secondary): NONE  [compatibility information, not a preference]
@@ -39,235 +45,299 @@ Step 2: COMPATIBLE_ALTERNATIVES (GF2, GF3, GF7)  [established by RULING]
   REQUIREMENT REQ-E1-CONTEXT-SENSITIVE-RESOLUTION (RECORDED_NOT_IMPLEMENTED): The choice between the related Game Problems must depend on the interaction circumstances. A primary or secondary designation made for one execution is not a permanent hierarchy between them.
 
 Structural conditions of each compatible Game Form (his D6; the continuous-play baseline under D5)
+  Integrity classification: The class of each condition (REQUIRED CONDITION or BREACH DESCRIPTION) is his D6, subject to confirming the original wording. The structuralSignal values are not his: see structuralSignalStanding. The workbook is unchanged.
+  Wording confirmation: OURS, for him to check; his acknowledgement is pending. We confirmed the wording against the archetype workbook (rows GAK-0103 to GAK-0110, Knowledge_Role CONDITION for all eight; 01-05 are worded as states that preserve the archetype, 06-08 as breaches) and against the Game Archetype Canonical Reference v1.1, whose Invasion examples under Organizational Transformation and Organizational Collapse match 06-08.
+  Structural signals: OURS (INFERRED), not his D6: the structuralSignal values are our mapping, from our build spec. OPPOSITION_PRESENT on 03 and 07, and CONTINUOUS_PLAY_BASELINE on 05, are links of ours; his D5 supports continuous play as a baseline but does not link it to condition 05. A conclusion that rests on a signal carries evidence status INFERRED.
   GF2 (archetype GA-001; configured activity 6 v 6, TEST INPUT)
     precondition 'the ball is the task object' (FOI): PRESENT; evidence status INFERRED; test-only. Two teams, each with players (6 v 6): structural precondition present; not evidence of ecological relevance; does not distinguish Create Space from Exploit Space.
     precondition 'an opposing team is a competitor' (CIO): PRESENT; evidence status INFERRED; test-only. Two teams, each with players (6 v 6): structural precondition present; not evidence of ecological relevance; does not distinguish Create Space from Exploit Space.
-    continuous play (C-BASE): HOLDS_BY_DESIGN. Play continues through a change of possession by design: no authorized departure is recorded. A baseline representative condition, not an Interaction Regulation; it implies nothing about what players do after a change of possession.
+    continuous play (C-BASE): APPLIES_AS_BASELINE_DEFAULT. Continuous play applies as the baseline default: no knowledge file this stage reads can record a departure, and no activity is assembled, so this is a default, not a condition evaluated and found to hold. A baseline representative condition, not an Interaction Regulation; it implies nothing about what players do after a change of possession.
     integrity conditions (no pass-or-fail verdict: "Consequently, Organizational Integrity should be understood as a continuum describing ecological fidelity rather than a pass-or-fail judgement.", Game Archetype Canonical Reference v1.1, section 7, Interpreting Organizational Integrity):
       GA-001-OIC-01 GAK-0103 [REQUIRED CONDITION] "Meaningful external objectives remain live for both sides.": NOT_EVALUABLE_BEFORE_ACTIVITY_ASSEMBLY. To be expressed by the assembled activity; not evaluable before activity assembly (Step 3 is held).
       GA-001-OIC-02 GAK-0104 [REQUIRED CONDITION] "Progression changes access to the objective.": NOT_EVALUABLE_BEFORE_ACTIVITY_ASSEMBLY. To be expressed by the assembled activity; not evaluable before activity assembly (Step 3 is held).
-      GA-001-OIC-03 GAK-0105 [REQUIRED CONDITION] "Opposition can deny, redirect, or reverse progression.": STRUCTURAL_SIGNAL_PRESENT. Opposition is present by design (an opposing team with players). Whether the condition is expressed is emergent: to be expressed by the assembled activity; not evaluable before activity assembly.
+      GA-001-OIC-03 GAK-0105 [REQUIRED CONDITION] "Opposition can deny, redirect, or reverse progression.": STRUCTURAL_SIGNAL_PRESENT; evidence status INFERRED. A structural signal of ours (INFERRED): an opposing team with players is present. Whether the condition is expressed is emergent: to be expressed by the assembled activity; not evaluable before activity assembly.
       GA-001-OIC-04 GAK-0106 [REQUIRED CONDITION] "Participants share an adaptive opportunity space.": NOT_EVALUABLE_BEFORE_ACTIVITY_ASSEMBLY. To be expressed by the assembled activity; not evaluable before activity assembly (Step 3 is held).
-      GA-001-OIC-05 GAK-0107 [REQUIRED CONDITION] "Meaningful events continuously reorganize space, roles, access, or threat.": STRUCTURAL_SIGNAL_PRESENT. Supported by the continuous-play baseline (C-BASE): play continues through changes of possession by design. Whether the condition is expressed is emergent: to be expressed by the assembled activity; not evaluable before activity assembly.
+      GA-001-OIC-05 GAK-0107 [REQUIRED CONDITION] "Meaningful events continuously reorganize space, roles, access, or threat.": STRUCTURAL_SIGNAL_PRESENT; evidence status INFERRED. A structural signal of ours (INFERRED): the continuous-play baseline default (C-BASE) applies. Our link, not his: his D5 supports continuous play as a baseline but does not link it to this condition. Whether the condition is expressed is emergent: to be expressed by the assembled activity; not evaluable before activity assembly.
       GA-001-OIC-06 GAK-0108 [BREACH DESCRIPTION] "Possession becomes the terminal objective rather than serving progression.": RISK_NOT_EVALUABLE. A risk, not a verdict. Not evaluable before activity assembly (Step 3 is held).
-      GA-001-OIC-07 GAK-0109 [BREACH DESCRIPTION] "Opposition is passive, scripted, or unable to change progression.": RISK_NOT_INDICATED_BY_DESIGN. A risk, not a verdict. Not indicated by the design: an opposing team with players is present. Whether it can change progression is emergent.
+      GA-001-OIC-07 GAK-0109 [BREACH DESCRIPTION] "Opposition is passive, scripted, or unable to change progression.": RISK_NOT_EVALUABLE. A risk, not a verdict. Not evaluable before activity assembly (Step 3 is held): an opposing team with players is present, but whether the opposition can change progression depends on the assembled activity and on play.
       GA-001-OIC-08 GAK-0110 [BREACH DESCRIPTION] "Attempts are independent with no reciprocal ecological influence.": RISK_NOT_EVALUABLE. A risk, not a verdict. Not evaluable before activity assembly (Step 3 is held).
   GF3 (archetype GA-001; configured activity 6 v 6, TEST INPUT)
     precondition 'the ball is the task object' (FOI): PRESENT; evidence status INFERRED; test-only. Two teams, each with players (6 v 6): structural precondition present; not evidence of ecological relevance; does not distinguish Create Space from Exploit Space.
     precondition 'an opposing team is a competitor' (CIO): PRESENT; evidence status INFERRED; test-only. Two teams, each with players (6 v 6): structural precondition present; not evidence of ecological relevance; does not distinguish Create Space from Exploit Space.
-    continuous play (C-BASE): HOLDS_BY_DESIGN. Play continues through a change of possession by design: no authorized departure is recorded. A baseline representative condition, not an Interaction Regulation; it implies nothing about what players do after a change of possession.
+    continuous play (C-BASE): APPLIES_AS_BASELINE_DEFAULT. Continuous play applies as the baseline default: no knowledge file this stage reads can record a departure, and no activity is assembled, so this is a default, not a condition evaluated and found to hold. A baseline representative condition, not an Interaction Regulation; it implies nothing about what players do after a change of possession.
     integrity conditions (no pass-or-fail verdict: "Consequently, Organizational Integrity should be understood as a continuum describing ecological fidelity rather than a pass-or-fail judgement.", Game Archetype Canonical Reference v1.1, section 7, Interpreting Organizational Integrity):
       GA-001-OIC-01 GAK-0103 [REQUIRED CONDITION] "Meaningful external objectives remain live for both sides.": NOT_EVALUABLE_BEFORE_ACTIVITY_ASSEMBLY. To be expressed by the assembled activity; not evaluable before activity assembly (Step 3 is held).
       GA-001-OIC-02 GAK-0104 [REQUIRED CONDITION] "Progression changes access to the objective.": NOT_EVALUABLE_BEFORE_ACTIVITY_ASSEMBLY. To be expressed by the assembled activity; not evaluable before activity assembly (Step 3 is held).
-      GA-001-OIC-03 GAK-0105 [REQUIRED CONDITION] "Opposition can deny, redirect, or reverse progression.": STRUCTURAL_SIGNAL_PRESENT. Opposition is present by design (an opposing team with players). Whether the condition is expressed is emergent: to be expressed by the assembled activity; not evaluable before activity assembly.
+      GA-001-OIC-03 GAK-0105 [REQUIRED CONDITION] "Opposition can deny, redirect, or reverse progression.": STRUCTURAL_SIGNAL_PRESENT; evidence status INFERRED. A structural signal of ours (INFERRED): an opposing team with players is present. Whether the condition is expressed is emergent: to be expressed by the assembled activity; not evaluable before activity assembly.
       GA-001-OIC-04 GAK-0106 [REQUIRED CONDITION] "Participants share an adaptive opportunity space.": NOT_EVALUABLE_BEFORE_ACTIVITY_ASSEMBLY. To be expressed by the assembled activity; not evaluable before activity assembly (Step 3 is held).
-      GA-001-OIC-05 GAK-0107 [REQUIRED CONDITION] "Meaningful events continuously reorganize space, roles, access, or threat.": STRUCTURAL_SIGNAL_PRESENT. Supported by the continuous-play baseline (C-BASE): play continues through changes of possession by design. Whether the condition is expressed is emergent: to be expressed by the assembled activity; not evaluable before activity assembly.
+      GA-001-OIC-05 GAK-0107 [REQUIRED CONDITION] "Meaningful events continuously reorganize space, roles, access, or threat.": STRUCTURAL_SIGNAL_PRESENT; evidence status INFERRED. A structural signal of ours (INFERRED): the continuous-play baseline default (C-BASE) applies. Our link, not his: his D5 supports continuous play as a baseline but does not link it to this condition. Whether the condition is expressed is emergent: to be expressed by the assembled activity; not evaluable before activity assembly.
       GA-001-OIC-06 GAK-0108 [BREACH DESCRIPTION] "Possession becomes the terminal objective rather than serving progression.": RISK_NOT_EVALUABLE. A risk, not a verdict. Not evaluable before activity assembly (Step 3 is held).
-      GA-001-OIC-07 GAK-0109 [BREACH DESCRIPTION] "Opposition is passive, scripted, or unable to change progression.": RISK_NOT_INDICATED_BY_DESIGN. A risk, not a verdict. Not indicated by the design: an opposing team with players is present. Whether it can change progression is emergent.
+      GA-001-OIC-07 GAK-0109 [BREACH DESCRIPTION] "Opposition is passive, scripted, or unable to change progression.": RISK_NOT_EVALUABLE. A risk, not a verdict. Not evaluable before activity assembly (Step 3 is held): an opposing team with players is present, but whether the opposition can change progression depends on the assembled activity and on play.
       GA-001-OIC-08 GAK-0110 [BREACH DESCRIPTION] "Attempts are independent with no reciprocal ecological influence.": RISK_NOT_EVALUABLE. A risk, not a verdict. Not evaluable before activity assembly (Step 3 is held).
   GF7 (archetype GA-001; configured activity 6 v 6, TEST INPUT)
     precondition 'the ball is the task object' (FOI): PRESENT; evidence status INFERRED; test-only. Two teams, each with players (6 v 6): structural precondition present; not evidence of ecological relevance; does not distinguish Create Space from Exploit Space.
     precondition 'an opposing team is a competitor' (CIO): PRESENT; evidence status INFERRED; test-only. Two teams, each with players (6 v 6): structural precondition present; not evidence of ecological relevance; does not distinguish Create Space from Exploit Space.
-    continuous play (C-BASE): HOLDS_BY_DESIGN. Play continues through a change of possession by design: no authorized departure is recorded. A baseline representative condition, not an Interaction Regulation; it implies nothing about what players do after a change of possession.
+    continuous play (C-BASE): APPLIES_AS_BASELINE_DEFAULT. Continuous play applies as the baseline default: no knowledge file this stage reads can record a departure, and no activity is assembled, so this is a default, not a condition evaluated and found to hold. A baseline representative condition, not an Interaction Regulation; it implies nothing about what players do after a change of possession.
     integrity conditions (no pass-or-fail verdict: "Consequently, Organizational Integrity should be understood as a continuum describing ecological fidelity rather than a pass-or-fail judgement.", Game Archetype Canonical Reference v1.1, section 7, Interpreting Organizational Integrity):
       GA-001-OIC-01 GAK-0103 [REQUIRED CONDITION] "Meaningful external objectives remain live for both sides.": NOT_EVALUABLE_BEFORE_ACTIVITY_ASSEMBLY. To be expressed by the assembled activity; not evaluable before activity assembly (Step 3 is held).
       GA-001-OIC-02 GAK-0104 [REQUIRED CONDITION] "Progression changes access to the objective.": NOT_EVALUABLE_BEFORE_ACTIVITY_ASSEMBLY. To be expressed by the assembled activity; not evaluable before activity assembly (Step 3 is held).
-      GA-001-OIC-03 GAK-0105 [REQUIRED CONDITION] "Opposition can deny, redirect, or reverse progression.": STRUCTURAL_SIGNAL_PRESENT. Opposition is present by design (an opposing team with players). Whether the condition is expressed is emergent: to be expressed by the assembled activity; not evaluable before activity assembly.
+      GA-001-OIC-03 GAK-0105 [REQUIRED CONDITION] "Opposition can deny, redirect, or reverse progression.": STRUCTURAL_SIGNAL_PRESENT; evidence status INFERRED. A structural signal of ours (INFERRED): an opposing team with players is present. Whether the condition is expressed is emergent: to be expressed by the assembled activity; not evaluable before activity assembly.
       GA-001-OIC-04 GAK-0106 [REQUIRED CONDITION] "Participants share an adaptive opportunity space.": NOT_EVALUABLE_BEFORE_ACTIVITY_ASSEMBLY. To be expressed by the assembled activity; not evaluable before activity assembly (Step 3 is held).
-      GA-001-OIC-05 GAK-0107 [REQUIRED CONDITION] "Meaningful events continuously reorganize space, roles, access, or threat.": STRUCTURAL_SIGNAL_PRESENT. Supported by the continuous-play baseline (C-BASE): play continues through changes of possession by design. Whether the condition is expressed is emergent: to be expressed by the assembled activity; not evaluable before activity assembly.
+      GA-001-OIC-05 GAK-0107 [REQUIRED CONDITION] "Meaningful events continuously reorganize space, roles, access, or threat.": STRUCTURAL_SIGNAL_PRESENT; evidence status INFERRED. A structural signal of ours (INFERRED): the continuous-play baseline default (C-BASE) applies. Our link, not his: his D5 supports continuous play as a baseline but does not link it to this condition. Whether the condition is expressed is emergent: to be expressed by the assembled activity; not evaluable before activity assembly.
       GA-001-OIC-06 GAK-0108 [BREACH DESCRIPTION] "Possession becomes the terminal objective rather than serving progression.": RISK_NOT_EVALUABLE. A risk, not a verdict. Not evaluable before activity assembly (Step 3 is held).
-      GA-001-OIC-07 GAK-0109 [BREACH DESCRIPTION] "Opposition is passive, scripted, or unable to change progression.": RISK_NOT_INDICATED_BY_DESIGN. A risk, not a verdict. Not indicated by the design: an opposing team with players is present. Whether it can change progression is emergent.
+      GA-001-OIC-07 GAK-0109 [BREACH DESCRIPTION] "Opposition is passive, scripted, or unable to change progression.": RISK_NOT_EVALUABLE. A risk, not a verdict. Not evaluable before activity assembly (Step 3 is held): an opposing team with players is present, but whether the opposition can change progression depends on the assembled activity and on play.
       GA-001-OIC-08 GAK-0110 [BREACH DESCRIPTION] "Attempts are independent with no reciprocal ecological influence.": RISK_NOT_EVALUABLE. A risk, not a verdict. Not evaluable before activity assembly (Step 3 is held).
 
 Paired width comparison (his D5): test-only; deciding circumstances are TEST ASSUMPTIONS; width runs across the direction of play
-  S1 W-H1 conditions: defenders can still organize, shift and contest; usable space does not already exist
-    inputs (TEST INPUT): configured 40 x 30 m; available 40 x 40 m; players 6 v 6; defendersCanStillOrganizeShiftAndContest=true; usableSpaceAlreadyExists=false (TEST ASSUMPTION)
+  S1 W-H1 conditions: defenders can still organize, shift and contest the added width; usable space does not already exist
+    inputs (TEST INPUT): configured 40 x 30 m; available 40 x 40 m; players 6 v 6; defendersCanStillOrganizeShiftAndContest=true; usableSpaceAlreadyExists=false (TEST ASSUMPTION; each describes the area at the coach's available width (the proposed widened area), when attacks begin)
     W-H1 (CAUSAL HYPOTHESIS; TEST-ONLY COMPARISON; invites the primary Game Problem GP-001): CONDITIONS_MET_UNDER_TEST_ASSUMPTIONS. Deciding conditions hold under the test assumptions. A test-only hypothesis; not empirically established; not eligible for production.
       deciding conditions: defendersCanStillOrganizeShiftAndContest requires true, supplied true; usableSpaceAlreadyExists requires false, supplied false
-      assumption W-H1(a), The defence is functionally organized, in his sense. Stands for defendersCanStillOrganizeShiftAndContest: SUPPLIED AS A TEST ASSUMPTION.
+      deciding circumstance W-H1(i): Defenders can still organize, shift and contest the added width. Stands for defendersCanStillOrganizeShiftAndContest = true: SUPPLIED AS A TEST ASSUMPTION.
+      deciding circumstance W-H1(ii): Usable space does not already exist. Stands for usableSpaceAlreadyExists = false: SUPPLIED AS A TEST ASSUMPTION.
       structural assumption W-H1(b): SATISFIED. Equal numbers (6 v 6) satisfy it.
+      UNVERIFIED BACKGROUND ASSUMPTION W-H1(a): The defence is functionally organized, in his sense.
       UNVERIFIED BACKGROUND ASSUMPTION W-H1(c): The defended objective makes moving play across worthwhile.
       UNVERIFIED BACKGROUND ASSUMPTION W-H1(d): This group can perceive and use the width.
     W-H2 (CAUSAL HYPOTHESIS; TEST-ONLY COMPARISON; invites the secondary Game Problem GP-002): CONDITIONS_NOT_MET. Deciding conditions do not hold under the test assumptions.
       deciding conditions: defendersCanStillOrganizeShiftAndContest requires false, supplied true; usableSpaceAlreadyExists requires true, supplied false
-      assumption W-H2(a), The defence may be functionally organized and still unable to cover the added width. Stands for defendersCanStillOrganizeShiftAndContest: SUPPLIED AS A TEST ASSUMPTION.
+      deciding circumstance W-H2(i): Usable space already exists. Stands for usableSpaceAlreadyExists = true: SUPPLIED AS A TEST ASSUMPTION.
+      deciding circumstance W-H2(ii): Defenders can no longer organize, shift and contest the added width. Stands for defendersCanStillOrganizeShiftAndContest = false: SUPPLIED AS A TEST ASSUMPTION.
+      UNVERIFIED BACKGROUND ASSUMPTION W-H2(a): The defence is functionally organized, in his sense: it may be organized and still unable to cover the added width.
       UNVERIFIED BACKGROUND ASSUMPTION W-H2(c): The defended objective makes moving play across worthwhile.
       UNVERIFIED BACKGROUND ASSUMPTION W-H2(d): This group can perceive and use the width.
-    OUTCOME PRIMARY_INVITATION_CONDITIONS_MET [established by TEST-ONLY HYPOTHESIS UNDER TEST ASSUMPTIONS]: W-H1's deciding conditions hold under the test assumptions; W-H2's do not. Test-only hypothesis (W-H1): widening from 30 m to 40 m might invite the primary problem (GP-001). Offered as the proposed configuration on the review pathway only; not empirically established; not eligible for production.
-    proposal: OFFERED_TEST_ONLY. Proposed configuration (test-only): widen the playing area from 30 m to 40 m; length unchanged at 40 m. A test-only hypothesis that widening might invite the primary problem (GP-001); not empirically established; not eligible for production. Basis: the coach's available width is the only bound supplied; no knowledge sets the size of a widening.
-    structural facts (structural fact; no approved threshold; not used to infer defensive organization or available space): 6 v 6, equal numbers yes; configured 1200 m2, 100 m2 per player; widened 1600 m2, 133.3 m2 per player
-    structural check W-L2: NOT_STRUCTURALLY_CERTAIN. Not structurally certain: both teams have players. The offered widening carries it as a reported risk.
+    OUTCOME PRIMARY_INVITATION_CONDITIONS_MET [rule: PRIMARY_INVITING_CONDITIONS_MET; established by TEST-ONLY HYPOTHESIS UNDER TEST ASSUMPTIONS]: W-H1's deciding conditions hold under the test assumptions; W-H2's do not. Test-only hypothesis (W-H1): widening from 30 m to 40 m might invite the primary problem (GP-001), assuming W-H1(a), W-H1(c) and W-H1(d), unverified. Offered as the proposed configuration on the review pathway only; not empirically established; not eligible for production.
+    proposal: OFFERED_TEST_ONLY. Proposed configuration (test-only): widen the playing area from 30 m to 40 m; length unchanged at 40 m. A test-only hypothesis that widening might invite the primary problem (GP-001), assuming W-H1(a), W-H1(c) and W-H1(d), unverified; W-H2's deciding conditions are not met under the test assumptions; not empirically established; not eligible for production. Basis: the coach's available width is the only bound supplied; no knowledge sets the size of a widening.
+    structural facts (structural fact; no approved threshold; not used to infer defensive organization or available space): 6 v 6 (TWO_TEAMS_WITH_PLAYERS), equal numbers yes; configured 1200 m2, 100 m2 per player; widened 1600 m2, 133.3 m2 per player
+    structural check W-L2: NOT_STRUCTURALLY_CERTAIN. Not structurally certain: both teams have players. This check reads team sizes only, not the area: no approved bound on area exists. The offered widening carries this entry as a reported risk.
     structural check N-L1: NOT_STRUCTURALLY_CERTAIN. Equal numbers (6 v 6): nothing to report.
     risk conditions-of-use.stage2.json W-L2 [OURS]: REPORTED_RISK. "increasing playing area dimensions may reduce Organizational Integrity if the resulting activity eliminates meaningful interaction between performers." (Game Archetype Canonical Reference v1.1, section 7, Engineering and Organizational Integrity (REFERENCE ONLY)) A risk, not a verdict: An area so large, or so narrow, relative to the numbers that competitors can no longer close, follow, constrain or otherwise influence the developing interaction removes Competitive Interaction Opportunity, which these Game Problems rate Essential. OURS: any widening enlarges the area; W-L2 names the risk that competitors can no longer influence the interaction.
     risk rpc-library.rc1.json properties RPC-PROP-042 [APPROVED]: REPORTED_RISK. "Possession circulates without improving attacking conditions." (rpc-library.rc1.json properties RPC-PROP-042) A risk, not a verdict: the routed context's approved DEGENERATE_SOLUTION (COMMON). OURS: W-H1's failure mode (3); a larger area may lower contest.
     risk game-archetype-workbook.rc1.1.json knowledge GAK-0108 (GA-001-OIC-06) [APPROVED]: REPORTED_RISK. "Possession becomes the terminal objective rather than serving progression." (game-archetype-workbook.rc1.1.json knowledge GAK-0108) A risk, not a verdict: a breach description under his D6. OURS: the breach that circulation without progression would describe.
     risk game-archetype-workbook.rc1.1.json knowledge GAK-0109 (GA-001-OIC-07) [APPROVED]: REPORTED_RISK. "Opposition is passive, scripted, or unable to change progression." (game-archetype-workbook.rc1.1.json knowledge GAK-0109) A risk, not a verdict: a breach description under his D6. OURS: the breach that W-L2 would describe, if the opposition could no longer change progression.
+    deferred, evaluated nowhere: N-H1 (DEFERRED)
     trace:
-      influenced by: width-scenarios.test-fixture.json S1.decidingCircumstances.defendersCanStillOrganizeShiftAndContest [TEST ASSUMPTION] defendersCanStillOrganizeShiftAndContest = true
-      influenced by: width-scenarios.test-fixture.json S1.decidingCircumstances.usableSpaceAlreadyExists [TEST ASSUMPTION] usableSpaceAlreadyExists = false
-      influenced by: conditions-of-use.stage2.json W-H1 [OURS] CAUSAL HYPOTHESIS, TEST-ONLY COMPARISON: invites the primary Game Problem's problem
-      influenced by: conditions-of-use.stage2.json W-H2 [OURS] CAUSAL HYPOTHESIS, TEST-ONLY COMPARISON: invites the secondary Game Problem's problem
+      influenced by: stage1-rulings.json RUL-E1-A05 [RULING] gates whether the comparison applies (Step 1 set the Game Problems): his scoped ruling names the Game Problems and their roles
+      influenced by: stage2-rulings.json D1-4NOV [RULING] gates whether the comparison applies (Step 1 set the Game Problems): his later ruling retains the designation for this demonstration
+      influenced by: session-planning-model.rc1.json engine_translation A05 [APPROVED] gates whether the comparison applies (Step 1 set the Game Problems): the Engine Translation row is unpopulated, which permits a ruling to supply the Game Problems; populated, it would block the ruling
+      influenced by: Step 2: COMPATIBLE_ALTERNATIVES (GF2, GF3, GF7) [CANDIDATE] gates whether the comparison applies: at least one compatible Game Form (standing: the weakest among what decided Step 2)
       influenced by: stage2-rulings.json D5-4NOV [RULING] his D5: the paired comparison is test-only; widening within the coach's available space
-      influenced by: width-scenarios.test-fixture.json S1.configuredArea [TEST INPUT] 40 x 30 m
+      influenced by: width-scenarios.test-fixture.json S1.configuredArea [TEST INPUT] 40 x 30 m; checked against the limits only, never used to infer organization or usable space
       influenced by: width-scenarios.test-fixture.json S1.availableSpace [TEST INPUT] 40 x 40 m (the limits)
-      consulted: conditions-of-use.stage2.json W-P [OURS] ESTABLISHED PRINCIPLE, STRUCTURAL CHECK AND UNCERTAINTY REPORTING: structural facts are reported, never used to infer organization or usable space
-      consulted: conditions-of-use.stage2.json N-P [OURS] ESTABLISHED PRINCIPLE, STRUCTURAL CHECK AND UNCERTAINTY REPORTING: structural facts are reported, never used to infer organization or usable space
-      consulted: width-scenarios.test-fixture.json S1.playersPerTeam [TEST INPUT] 6 v 6
+      influenced by: conditions-of-use.stage2.json W-H1 [OURS] CAUSAL HYPOTHESIS, TEST-ONLY COMPARISON (its sources: APPROVED, PROVISIONAL, RULING): invites the primary Game Problem's problem
+      influenced by: conditions-of-use.stage2.json W-H2 [OURS] CAUSAL HYPOTHESIS, TEST-ONLY COMPARISON (its sources: PROVISIONAL, RULING): invites the secondary Game Problem's problem
+      influenced by: width-scenarios.test-fixture.json S1.decidingCircumstances.defendersCanStillOrganizeShiftAndContest [TEST ASSUMPTION] defendersCanStillOrganizeShiftAndContest = true (describes the area at the coach's available width (the proposed widened area), when attacks begin)
+      influenced by: width-scenarios.test-fixture.json S1.decidingCircumstances.usableSpaceAlreadyExists [TEST ASSUMPTION] usableSpaceAlreadyExists = false (describes the area at the coach's available width (the proposed widened area), when attacks begin)
+      influenced by: width-scenarios.test-fixture.json S1.playersPerTeam [TEST INPUT] 6 v 6
+      influenced by: conditions-of-use.stage2.json W-H1 assumption W-H1(b) [OURS] structural check EQUAL_NUMBERS: SATISFIED; it gates the comparison
+      consulted: conditions-of-use.stage2.json W-P [OURS] ESTABLISHED PRINCIPLE, STRUCTURAL CHECK AND UNCERTAINTY REPORTING (its sources: APPROVED, CANDIDATE, REFERENCE ONLY, RULING): structural facts are reported, never used to infer organization or usable space
+      consulted: conditions-of-use.stage2.json N-P [OURS] ESTABLISHED PRINCIPLE, STRUCTURAL CHECK AND UNCERTAINTY REPORTING (its sources: APPROVED, CANDIDATE, RULING): structural facts are reported, never used to infer organization or usable space
       consulted: conditions-of-use.stage2.json W-L2 [OURS] representative risk of the widening: REPORTED_RISK
       consulted: rpc-library.rc1.json properties RPC-PROP-042 [APPROVED] representative risk of the widening: REPORTED_RISK
       consulted: game-archetype-workbook.rc1.1.json knowledge GAK-0108 (GA-001-OIC-06) [APPROVED] representative risk of the widening: REPORTED_RISK
       consulted: game-archetype-workbook.rc1.1.json knowledge GAK-0109 (GA-001-OIC-07) [APPROVED] representative risk of the widening: REPORTED_RISK
-  S2 W-H2 conditions: usable space already exists; defenders cannot still organize, shift and contest
-    inputs (TEST INPUT): configured 40 x 30 m; available 40 x 40 m; players 6 v 6; defendersCanStillOrganizeShiftAndContest=false; usableSpaceAlreadyExists=true (TEST ASSUMPTION)
+  S2 W-H2 conditions: usable space already exists; defenders can no longer organize, shift and contest the added width
+    inputs (TEST INPUT): configured 40 x 30 m; available 40 x 40 m; players 6 v 6; defendersCanStillOrganizeShiftAndContest=false; usableSpaceAlreadyExists=true (TEST ASSUMPTION; each describes the area at the coach's available width (the proposed widened area), when attacks begin)
     W-H1 (CAUSAL HYPOTHESIS; TEST-ONLY COMPARISON; invites the primary Game Problem GP-001): CONDITIONS_NOT_MET. Deciding conditions do not hold under the test assumptions.
       deciding conditions: defendersCanStillOrganizeShiftAndContest requires true, supplied false; usableSpaceAlreadyExists requires false, supplied true
-      assumption W-H1(a), The defence is functionally organized, in his sense. Stands for defendersCanStillOrganizeShiftAndContest: SUPPLIED AS A TEST ASSUMPTION.
+      deciding circumstance W-H1(i): Defenders can still organize, shift and contest the added width. Stands for defendersCanStillOrganizeShiftAndContest = true: SUPPLIED AS A TEST ASSUMPTION.
+      deciding circumstance W-H1(ii): Usable space does not already exist. Stands for usableSpaceAlreadyExists = false: SUPPLIED AS A TEST ASSUMPTION.
       structural assumption W-H1(b): SATISFIED. Equal numbers (6 v 6) satisfy it.
+      UNVERIFIED BACKGROUND ASSUMPTION W-H1(a): The defence is functionally organized, in his sense.
       UNVERIFIED BACKGROUND ASSUMPTION W-H1(c): The defended objective makes moving play across worthwhile.
       UNVERIFIED BACKGROUND ASSUMPTION W-H1(d): This group can perceive and use the width.
     W-H2 (CAUSAL HYPOTHESIS; TEST-ONLY COMPARISON; invites the secondary Game Problem GP-002): CONDITIONS_MET_UNDER_TEST_ASSUMPTIONS. Deciding conditions hold under the test assumptions. A test-only hypothesis; not empirically established; not eligible for production.
       deciding conditions: defendersCanStillOrganizeShiftAndContest requires false, supplied false; usableSpaceAlreadyExists requires true, supplied true
-      assumption W-H2(a), The defence may be functionally organized and still unable to cover the added width. Stands for defendersCanStillOrganizeShiftAndContest: SUPPLIED AS A TEST ASSUMPTION.
+      deciding circumstance W-H2(i): Usable space already exists. Stands for usableSpaceAlreadyExists = true: SUPPLIED AS A TEST ASSUMPTION.
+      deciding circumstance W-H2(ii): Defenders can no longer organize, shift and contest the added width. Stands for defendersCanStillOrganizeShiftAndContest = false: SUPPLIED AS A TEST ASSUMPTION.
+      UNVERIFIED BACKGROUND ASSUMPTION W-H2(a): The defence is functionally organized, in his sense: it may be organized and still unable to cover the added width.
       UNVERIFIED BACKGROUND ASSUMPTION W-H2(c): The defended objective makes moving play across worthwhile.
       UNVERIFIED BACKGROUND ASSUMPTION W-H2(d): This group can perceive and use the width.
-    OUTCOME SECONDARY_EXPLOITATION_CONDITIONS_MET [established by TEST-ONLY HYPOTHESIS UNDER TEST ASSUMPTIONS]: W-H2's deciding conditions hold under the test assumptions; W-H1's do not. Test-only hypothesis (W-H2): widening might make exploitation (GP-002, the secondary Game Problem's problem) the more immediate one, a way the manipulation could undermine the primary learning intention. The widening is not offered for the primary. The primary stays GP-001, as resolved. The longer-term requirement that the dominant Game Problem respond to the interaction circumstances is cited, not implemented; the boundary statement is cited as reference knowledge only.
+    OUTCOME SECONDARY_EXPLOITATION_CONDITIONS_MET [rule: SECONDARY_INVITING_CONDITIONS_MET; established by TEST-ONLY HYPOTHESIS UNDER TEST ASSUMPTIONS]: W-H2's deciding conditions hold under the test assumptions; W-H1's do not. Test-only hypothesis (W-H2): widening might make exploitation (GP-002, the secondary Game Problem's problem) the more immediate one, a way the manipulation could undermine the primary learning intention. The widening is not offered for the primary. The test assumptions describe the area at the coach's available width (the proposed widened area), when attacks begin; nothing is supplied about the configured area, so keeping the configured width is not shown to pose the primary problem either. The primary stays GP-001, as resolved. The longer-term requirement that the dominant Game Problem respond to the interaction circumstances is cited, not implemented; the boundary statement is cited as reference knowledge only. Reported tension, not acted on: under the test assumption defendersCanStillOrganizeShiftAndContest = false, the situation may fall outside the qualifier of the ruling that set the primary Game Problem ("specifically in the context of progressing against organized opposition"); OURS: a defence that can no longer organize, shift and contest the added width may no longer be organized opposition, unless the hypotheses' background assumption that the defence is functionally organized holds.
     proposal: NOT_OFFERED_FOR_PRIMARY. Widening from 30 m to 40 m is not offered for the primary Game Problem (GP-001). The configured width is kept.
-    structural facts (structural fact; no approved threshold; not used to infer defensive organization or available space): 6 v 6, equal numbers yes; configured 1200 m2, 100 m2 per player; widened 1600 m2, 133.3 m2 per player
-    structural check W-L2: NOT_STRUCTURALLY_CERTAIN. Not structurally certain: both teams have players. No widening is offered.
+    structural facts (structural fact; no approved threshold; not used to infer defensive organization or available space): 6 v 6 (TWO_TEAMS_WITH_PLAYERS), equal numbers yes; configured 1200 m2, 100 m2 per player; widened 1600 m2, 133.3 m2 per player
+    structural check W-L2: NOT_STRUCTURALLY_CERTAIN. Not structurally certain: both teams have players. This check reads team sizes only, not the area: no approved bound on area exists. No widening is offered.
     structural check N-L1: NOT_STRUCTURALLY_CERTAIN. Equal numbers (6 v 6): nothing to report.
+    deferred, evaluated nowhere: N-H1 (DEFERRED)
     trace:
-      influenced by: width-scenarios.test-fixture.json S2.decidingCircumstances.defendersCanStillOrganizeShiftAndContest [TEST ASSUMPTION] defendersCanStillOrganizeShiftAndContest = false
-      influenced by: width-scenarios.test-fixture.json S2.decidingCircumstances.usableSpaceAlreadyExists [TEST ASSUMPTION] usableSpaceAlreadyExists = true
-      influenced by: conditions-of-use.stage2.json W-H1 [OURS] CAUSAL HYPOTHESIS, TEST-ONLY COMPARISON: invites the primary Game Problem's problem
-      influenced by: conditions-of-use.stage2.json W-H2 [OURS] CAUSAL HYPOTHESIS, TEST-ONLY COMPARISON: invites the secondary Game Problem's problem
+      influenced by: stage1-rulings.json RUL-E1-A05 [RULING] gates whether the comparison applies (Step 1 set the Game Problems): his scoped ruling names the Game Problems and their roles
+      influenced by: stage2-rulings.json D1-4NOV [RULING] gates whether the comparison applies (Step 1 set the Game Problems): his later ruling retains the designation for this demonstration
+      influenced by: session-planning-model.rc1.json engine_translation A05 [APPROVED] gates whether the comparison applies (Step 1 set the Game Problems): the Engine Translation row is unpopulated, which permits a ruling to supply the Game Problems; populated, it would block the ruling
+      influenced by: Step 2: COMPATIBLE_ALTERNATIVES (GF2, GF3, GF7) [CANDIDATE] gates whether the comparison applies: at least one compatible Game Form (standing: the weakest among what decided Step 2)
       influenced by: stage2-rulings.json D5-4NOV [RULING] his D5: the paired comparison is test-only; widening within the coach's available space
-      influenced by: width-scenarios.test-fixture.json S2.configuredArea [TEST INPUT] 40 x 30 m
+      influenced by: width-scenarios.test-fixture.json S2.configuredArea [TEST INPUT] 40 x 30 m; checked against the limits only, never used to infer organization or usable space
       influenced by: width-scenarios.test-fixture.json S2.availableSpace [TEST INPUT] 40 x 40 m (the limits)
-      consulted: conditions-of-use.stage2.json W-P [OURS] ESTABLISHED PRINCIPLE, STRUCTURAL CHECK AND UNCERTAINTY REPORTING: structural facts are reported, never used to infer organization or usable space
-      consulted: conditions-of-use.stage2.json N-P [OURS] ESTABLISHED PRINCIPLE, STRUCTURAL CHECK AND UNCERTAINTY REPORTING: structural facts are reported, never used to infer organization or usable space
-      consulted: width-scenarios.test-fixture.json S2.playersPerTeam [TEST INPUT] 6 v 6
-      consulted: conditions-of-use.stage2.json W-L1 [OURS] LOGICAL INFERENCE, STRUCTURAL CHECK AND UNCERTAINTY REPORTING: under the test assumption that usable space already exists, Create Space would not be the problem posed; consulted, not decisive
+      influenced by: conditions-of-use.stage2.json W-H1 [OURS] CAUSAL HYPOTHESIS, TEST-ONLY COMPARISON (its sources: APPROVED, PROVISIONAL, RULING): invites the primary Game Problem's problem
+      influenced by: conditions-of-use.stage2.json W-H2 [OURS] CAUSAL HYPOTHESIS, TEST-ONLY COMPARISON (its sources: PROVISIONAL, RULING): invites the secondary Game Problem's problem; OURS: the secondary-inviting hypothesis's intended influence, in the paired test-only comparison he authorized under D5 (as the build spec reads it): where its deciding conditions hold under the test assumptions, the widening is not offered for the primary Game Problem. An outcome of the test-only comparison, not an exclusion rule.
+      influenced by: width-scenarios.test-fixture.json S2.decidingCircumstances.defendersCanStillOrganizeShiftAndContest [TEST ASSUMPTION] defendersCanStillOrganizeShiftAndContest = false (describes the area at the coach's available width (the proposed widened area), when attacks begin)
+      influenced by: width-scenarios.test-fixture.json S2.decidingCircumstances.usableSpaceAlreadyExists [TEST ASSUMPTION] usableSpaceAlreadyExists = true (describes the area at the coach's available width (the proposed widened area), when attacks begin)
+      influenced by: width-scenarios.test-fixture.json S2.playersPerTeam [TEST INPUT] 6 v 6
+      influenced by: conditions-of-use.stage2.json W-H1 assumption W-H1(b) [OURS] structural check EQUAL_NUMBERS: SATISFIED; it gates the comparison
+      consulted: conditions-of-use.stage2.json W-P [OURS] ESTABLISHED PRINCIPLE, STRUCTURAL CHECK AND UNCERTAINTY REPORTING (its sources: APPROVED, CANDIDATE, REFERENCE ONLY, RULING): structural facts are reported, never used to infer organization or usable space
+      consulted: conditions-of-use.stage2.json N-P [OURS] ESTABLISHED PRINCIPLE, STRUCTURAL CHECK AND UNCERTAINTY REPORTING (its sources: APPROVED, CANDIDATE, RULING): structural facts are reported, never used to infer organization or usable space
+      consulted: stage1-rulings.json rulings RUL-E1-A05 [RULING] reported tension, not acted on: the test assumption may fall outside the ruling's qualifier ("specifically in the context of progressing against organized opposition"); consulted, not decisive
+      consulted: conditions-of-use.stage2.json W-L1 [OURS] LOGICAL INFERENCE, STRUCTURAL CHECK AND UNCERTAINTY REPORTING (its sources: APPROVED, RULING): OURS: consulted, not decisive. Whether usable space already exists bears on whether the primary Game Problem's problem is posed; the paired comparison takes that state only as a test assumption, and this entry decides nothing.
       cited only: conditions-of-use.stage2.json PGPL-CREATE-SPACE-BOUNDARY [REFERENCE ONLY] REFERENCE KNOWLEDGE, TRACE CITATION ONLY: shown with its status; decides nothing
+      cited only: stage2-rulings.json AUTH-4NOV [RULING] his permission to cite the boundary statement in review traces as reference knowledge, its status explicit; not an executable rule
       cited only: stage1-rulings.json REQ-E1-CONTEXT-SENSITIVE-RESOLUTION [RULING] RECORDED_NOT_IMPLEMENTED: the dominant Game Problem must ultimately respond to the interaction circumstances
       cited only: stage2-rulings.json D1-4NOV [RULING] his longer-term requirement, restated in D1; cited, not implemented
   S3 Deciding circumstances not supplied
-    inputs (TEST INPUT): configured 40 x 30 m; available 40 x 40 m; players 6 v 6; defendersCanStillOrganizeShiftAndContest=NOT_SUPPLIED; usableSpaceAlreadyExists=NOT_SUPPLIED (TEST ASSUMPTION)
-    W-H1 (CAUSAL HYPOTHESIS; TEST-ONLY COMPARISON; invites the primary Game Problem GP-001): INSUFFICIENT_EVIDENCE. Not supplied: defenders can still organize, shift and contest (could come from coach observation or future feedback; never geometry or player numbers); usable space already exists (could come from coach observation or future feedback; never geometry or player numbers). The engine does not infer them from the dimensions or the player numbers.
+    inputs (TEST INPUT): configured 40 x 30 m; available 40 x 40 m; players 6 v 6; defendersCanStillOrganizeShiftAndContest=NOT_SUPPLIED; usableSpaceAlreadyExists=NOT_SUPPLIED (TEST ASSUMPTION; each describes the area at the coach's available width (the proposed widened area), when attacks begin)
+    W-H1 (CAUSAL HYPOTHESIS; TEST-ONLY COMPARISON; invites the primary Game Problem GP-001): INSUFFICIENT_EVIDENCE. Not supplied: defenders can still organize, shift and contest the added width (could come from coach observation or future feedback; never geometry or player numbers); usable space already exists (could come from coach observation or future feedback; never geometry or player numbers). The engine does not infer them from the dimensions or the player numbers.
       deciding conditions: defendersCanStillOrganizeShiftAndContest requires true, supplied NOT_SUPPLIED; usableSpaceAlreadyExists requires false, supplied NOT_SUPPLIED
-      assumption W-H1(a), The defence is functionally organized, in his sense. Stands for defendersCanStillOrganizeShiftAndContest: NOT SUPPLIED.
+      deciding circumstance W-H1(i): Defenders can still organize, shift and contest the added width. Stands for defendersCanStillOrganizeShiftAndContest = true: NOT SUPPLIED.
+      deciding circumstance W-H1(ii): Usable space does not already exist. Stands for usableSpaceAlreadyExists = false: NOT SUPPLIED.
       structural assumption W-H1(b): SATISFIED. Equal numbers (6 v 6) satisfy it.
+      UNVERIFIED BACKGROUND ASSUMPTION W-H1(a): The defence is functionally organized, in his sense.
       UNVERIFIED BACKGROUND ASSUMPTION W-H1(c): The defended objective makes moving play across worthwhile.
       UNVERIFIED BACKGROUND ASSUMPTION W-H1(d): This group can perceive and use the width.
-    W-H2 (CAUSAL HYPOTHESIS; TEST-ONLY COMPARISON; invites the secondary Game Problem GP-002): INSUFFICIENT_EVIDENCE. Not supplied: defenders can still organize, shift and contest (could come from coach observation or future feedback; never geometry or player numbers); usable space already exists (could come from coach observation or future feedback; never geometry or player numbers). The engine does not infer them from the dimensions or the player numbers.
+    W-H2 (CAUSAL HYPOTHESIS; TEST-ONLY COMPARISON; invites the secondary Game Problem GP-002): INSUFFICIENT_EVIDENCE. Not supplied: defenders can still organize, shift and contest the added width (could come from coach observation or future feedback; never geometry or player numbers); usable space already exists (could come from coach observation or future feedback; never geometry or player numbers). The engine does not infer them from the dimensions or the player numbers.
       deciding conditions: defendersCanStillOrganizeShiftAndContest requires false, supplied NOT_SUPPLIED; usableSpaceAlreadyExists requires true, supplied NOT_SUPPLIED
-      assumption W-H2(a), The defence may be functionally organized and still unable to cover the added width. Stands for defendersCanStillOrganizeShiftAndContest: NOT SUPPLIED.
+      deciding circumstance W-H2(i): Usable space already exists. Stands for usableSpaceAlreadyExists = true: NOT SUPPLIED.
+      deciding circumstance W-H2(ii): Defenders can no longer organize, shift and contest the added width. Stands for defendersCanStillOrganizeShiftAndContest = false: NOT SUPPLIED.
+      UNVERIFIED BACKGROUND ASSUMPTION W-H2(a): The defence is functionally organized, in his sense: it may be organized and still unable to cover the added width.
       UNVERIFIED BACKGROUND ASSUMPTION W-H2(c): The defended objective makes moving play across worthwhile.
       UNVERIFIED BACKGROUND ASSUMPTION W-H2(d): This group can perceive and use the width.
-    OUTCOME INSUFFICIENT_EVIDENCE [established by INSUFFICIENT EVIDENCE]: Not supplied: defenders can still organize, shift and contest (could come from coach observation or future feedback; never geometry or player numbers); usable space already exists (could come from coach observation or future feedback; never geometry or player numbers). The engine does not infer them from the dimensions or the player numbers. Insufficient evidence for both W-H1 and W-H2: no proposal, and the configured width (30 m) is kept.
+    OUTCOME INSUFFICIENT_EVIDENCE [rule: CIRCUMSTANCES_NOT_SUPPLIED; established by INSUFFICIENT EVIDENCE]: Not supplied: defenders can still organize, shift and contest the added width (could come from coach observation or future feedback; never geometry or player numbers); usable space already exists (could come from coach observation or future feedback; never geometry or player numbers). The engine does not infer them from the dimensions or the player numbers. Insufficient evidence for the pair (W-H1, W-H2): no proposal, and the configured width (30 m) is kept.
     proposal: NONE_INSUFFICIENT_EVIDENCE. No proposal. The configured width (30 m) is kept.
-    structural facts (structural fact; no approved threshold; not used to infer defensive organization or available space): 6 v 6, equal numbers yes; configured 1200 m2, 100 m2 per player
-    structural check W-L2: NOT_STRUCTURALLY_CERTAIN. Not structurally certain: both teams have players. No widening is offered.
+    structural facts (structural fact; no approved threshold; not used to infer defensive organization or available space): 6 v 6 (TWO_TEAMS_WITH_PLAYERS), equal numbers yes; configured 1200 m2, 100 m2 per player
+    structural check W-L2: NOT_STRUCTURALLY_CERTAIN. Not structurally certain: both teams have players. This check reads team sizes only, not the area: no approved bound on area exists. No widening is offered.
     structural check N-L1: NOT_STRUCTURALLY_CERTAIN. Equal numbers (6 v 6): nothing to report.
-    missing: defenders can still organize, shift and contest; could come from coach observation or future feedback; never geometry or player numbers
-    missing: usable space already exists; could come from coach observation or future feedback; never geometry or player numbers
+    missing circumstance: defenders can still organize, shift and contest the added width; could come from coach observation or future feedback; never geometry or player numbers
+    missing circumstance: usable space already exists; could come from coach observation or future feedback; never geometry or player numbers
+    deferred, evaluated nowhere: N-H1 (DEFERRED)
     trace:
-      influenced by: width-scenarios.test-fixture.json S3.decidingCircumstances.defendersCanStillOrganizeShiftAndContest [TEST ASSUMPTION] defendersCanStillOrganizeShiftAndContest = NOT_SUPPLIED
-      influenced by: width-scenarios.test-fixture.json S3.decidingCircumstances.usableSpaceAlreadyExists [TEST ASSUMPTION] usableSpaceAlreadyExists = NOT_SUPPLIED
-      influenced by: conditions-of-use.stage2.json W-H1 [OURS] CAUSAL HYPOTHESIS, TEST-ONLY COMPARISON: invites the primary Game Problem's problem
-      influenced by: conditions-of-use.stage2.json W-H2 [OURS] CAUSAL HYPOTHESIS, TEST-ONLY COMPARISON: invites the secondary Game Problem's problem
+      influenced by: stage1-rulings.json RUL-E1-A05 [RULING] gates whether the comparison applies (Step 1 set the Game Problems): his scoped ruling names the Game Problems and their roles
+      influenced by: stage2-rulings.json D1-4NOV [RULING] gates whether the comparison applies (Step 1 set the Game Problems): his later ruling retains the designation for this demonstration
+      influenced by: session-planning-model.rc1.json engine_translation A05 [APPROVED] gates whether the comparison applies (Step 1 set the Game Problems): the Engine Translation row is unpopulated, which permits a ruling to supply the Game Problems; populated, it would block the ruling
+      influenced by: Step 2: COMPATIBLE_ALTERNATIVES (GF2, GF3, GF7) [CANDIDATE] gates whether the comparison applies: at least one compatible Game Form (standing: the weakest among what decided Step 2)
       influenced by: stage2-rulings.json D5-4NOV [RULING] his D5: the paired comparison is test-only; widening within the coach's available space
-      consulted: conditions-of-use.stage2.json W-P [OURS] ESTABLISHED PRINCIPLE, STRUCTURAL CHECK AND UNCERTAINTY REPORTING: structural facts are reported, never used to infer organization or usable space
-      consulted: conditions-of-use.stage2.json N-P [OURS] ESTABLISHED PRINCIPLE, STRUCTURAL CHECK AND UNCERTAINTY REPORTING: structural facts are reported, never used to infer organization or usable space
+      influenced by: width-scenarios.test-fixture.json S3.configuredArea [TEST INPUT] 40 x 30 m; checked against the limits only, never used to infer organization or usable space
+      influenced by: width-scenarios.test-fixture.json S3.availableSpace [TEST INPUT] 40 x 40 m (the limits)
+      influenced by: conditions-of-use.stage2.json W-H1 [OURS] CAUSAL HYPOTHESIS, TEST-ONLY COMPARISON (its sources: APPROVED, PROVISIONAL, RULING): invites the primary Game Problem's problem
+      influenced by: conditions-of-use.stage2.json W-H2 [OURS] CAUSAL HYPOTHESIS, TEST-ONLY COMPARISON (its sources: PROVISIONAL, RULING): invites the secondary Game Problem's problem
+      influenced by: width-scenarios.test-fixture.json S3.decidingCircumstances.defendersCanStillOrganizeShiftAndContest [TEST ASSUMPTION] defendersCanStillOrganizeShiftAndContest = NOT_SUPPLIED (describes the area at the coach's available width (the proposed widened area), when attacks begin)
+      influenced by: width-scenarios.test-fixture.json S3.decidingCircumstances.usableSpaceAlreadyExists [TEST ASSUMPTION] usableSpaceAlreadyExists = NOT_SUPPLIED (describes the area at the coach's available width (the proposed widened area), when attacks begin)
       consulted: width-scenarios.test-fixture.json S3.playersPerTeam [TEST INPUT] 6 v 6
-      consulted: width-scenarios.test-fixture.json S3.configuredArea [TEST INPUT] 40 x 30 m
-      consulted: width-scenarios.test-fixture.json S3.availableSpace [TEST INPUT] 40 x 40 m (the limits)
+      consulted: conditions-of-use.stage2.json W-P [OURS] ESTABLISHED PRINCIPLE, STRUCTURAL CHECK AND UNCERTAINTY REPORTING (its sources: APPROVED, CANDIDATE, REFERENCE ONLY, RULING): structural facts are reported, never used to infer organization or usable space
+      consulted: conditions-of-use.stage2.json N-P [OURS] ESTABLISHED PRINCIPLE, STRUCTURAL CHECK AND UNCERTAINTY REPORTING (its sources: APPROVED, CANDIDATE, RULING): structural facts are reported, never used to infer organization or usable space
   S4 Both deciding circumstances true: neither hypothesis's conditions hold
-    inputs (TEST INPUT): configured 40 x 30 m; available 40 x 40 m; players 6 v 6; defendersCanStillOrganizeShiftAndContest=true; usableSpaceAlreadyExists=true (TEST ASSUMPTION)
-    W-H1 (CAUSAL HYPOTHESIS; TEST-ONLY COMPARISON; invites the primary Game Problem GP-001): INSUFFICIENT_EVIDENCE. The supplied circumstances meet neither hypothesis's deciding conditions; they decide neither (W-H2's failure modes include an organized defence that concedes width deliberately).
+    inputs (TEST INPUT): configured 40 x 30 m; available 40 x 40 m; players 6 v 6; defendersCanStillOrganizeShiftAndContest=true; usableSpaceAlreadyExists=true (TEST ASSUMPTION; each describes the area at the coach's available width (the proposed widened area), when attacks begin)
+    W-H1 (CAUSAL HYPOTHESIS; TEST-ONLY COMPARISON; invites the primary Game Problem GP-001): CONDITIONS_NOT_MET. Deciding conditions do not hold under the test assumptions; the pair decides neither.
       deciding conditions: defendersCanStillOrganizeShiftAndContest requires true, supplied true; usableSpaceAlreadyExists requires false, supplied true
-      assumption W-H1(a), The defence is functionally organized, in his sense. Stands for defendersCanStillOrganizeShiftAndContest: SUPPLIED AS A TEST ASSUMPTION.
+      deciding circumstance W-H1(i): Defenders can still organize, shift and contest the added width. Stands for defendersCanStillOrganizeShiftAndContest = true: SUPPLIED AS A TEST ASSUMPTION.
+      deciding circumstance W-H1(ii): Usable space does not already exist. Stands for usableSpaceAlreadyExists = false: SUPPLIED AS A TEST ASSUMPTION.
       structural assumption W-H1(b): SATISFIED. Equal numbers (6 v 6) satisfy it.
+      UNVERIFIED BACKGROUND ASSUMPTION W-H1(a): The defence is functionally organized, in his sense.
       UNVERIFIED BACKGROUND ASSUMPTION W-H1(c): The defended objective makes moving play across worthwhile.
       UNVERIFIED BACKGROUND ASSUMPTION W-H1(d): This group can perceive and use the width.
-    W-H2 (CAUSAL HYPOTHESIS; TEST-ONLY COMPARISON; invites the secondary Game Problem GP-002): INSUFFICIENT_EVIDENCE. The supplied circumstances meet neither hypothesis's deciding conditions; they decide neither (W-H2's failure modes include an organized defence that concedes width deliberately).
+    W-H2 (CAUSAL HYPOTHESIS; TEST-ONLY COMPARISON; invites the secondary Game Problem GP-002): CONDITIONS_NOT_MET. Deciding conditions do not hold under the test assumptions; the pair decides neither.
       deciding conditions: defendersCanStillOrganizeShiftAndContest requires false, supplied true; usableSpaceAlreadyExists requires true, supplied true
-      assumption W-H2(a), The defence may be functionally organized and still unable to cover the added width. Stands for defendersCanStillOrganizeShiftAndContest: SUPPLIED AS A TEST ASSUMPTION.
+      deciding circumstance W-H2(i): Usable space already exists. Stands for usableSpaceAlreadyExists = true: SUPPLIED AS A TEST ASSUMPTION.
+      deciding circumstance W-H2(ii): Defenders can no longer organize, shift and contest the added width. Stands for defendersCanStillOrganizeShiftAndContest = false: SUPPLIED AS A TEST ASSUMPTION.
+      UNVERIFIED BACKGROUND ASSUMPTION W-H2(a): The defence is functionally organized, in his sense: it may be organized and still unable to cover the added width.
       UNVERIFIED BACKGROUND ASSUMPTION W-H2(c): The defended objective makes moving play across worthwhile.
       UNVERIFIED BACKGROUND ASSUMPTION W-H2(d): This group can perceive and use the width.
-    OUTCOME INSUFFICIENT_EVIDENCE [established by INSUFFICIENT EVIDENCE]: The supplied circumstances meet neither hypothesis's deciding conditions; they decide neither (W-H2's failure modes include an organized defence that concedes width deliberately). Insufficient evidence for both W-H1 and W-H2: no proposal, and the configured width (30 m) is kept.
+    OUTCOME INSUFFICIENT_EVIDENCE [rule: NEITHER_DECIDES; established by INSUFFICIENT EVIDENCE]: The supplied circumstances meet neither hypothesis's deciding conditions; they decide neither (W-H2's failure modes include an organized defence that concedes width deliberately). Insufficient evidence for the pair (W-H1, W-H2): no proposal, and the configured width (30 m) is kept.
     proposal: NONE_INSUFFICIENT_EVIDENCE. No proposal. The configured width (30 m) is kept.
-    structural facts (structural fact; no approved threshold; not used to infer defensive organization or available space): 6 v 6, equal numbers yes; configured 1200 m2, 100 m2 per player
-    structural check W-L2: NOT_STRUCTURALLY_CERTAIN. Not structurally certain: both teams have players. No widening is offered.
+    structural facts (structural fact; no approved threshold; not used to infer defensive organization or available space): 6 v 6 (TWO_TEAMS_WITH_PLAYERS), equal numbers yes; configured 1200 m2, 100 m2 per player
+    structural check W-L2: NOT_STRUCTURALLY_CERTAIN. Not structurally certain: both teams have players. This check reads team sizes only, not the area: no approved bound on area exists. No widening is offered.
     structural check N-L1: NOT_STRUCTURALLY_CERTAIN. Equal numbers (6 v 6): nothing to report.
+    deferred, evaluated nowhere: N-H1 (DEFERRED)
     trace:
-      influenced by: width-scenarios.test-fixture.json S4.decidingCircumstances.defendersCanStillOrganizeShiftAndContest [TEST ASSUMPTION] defendersCanStillOrganizeShiftAndContest = true
-      influenced by: width-scenarios.test-fixture.json S4.decidingCircumstances.usableSpaceAlreadyExists [TEST ASSUMPTION] usableSpaceAlreadyExists = true
-      influenced by: conditions-of-use.stage2.json W-H1 [OURS] CAUSAL HYPOTHESIS, TEST-ONLY COMPARISON: invites the primary Game Problem's problem
-      influenced by: conditions-of-use.stage2.json W-H2 [OURS] CAUSAL HYPOTHESIS, TEST-ONLY COMPARISON: invites the secondary Game Problem's problem
+      influenced by: stage1-rulings.json RUL-E1-A05 [RULING] gates whether the comparison applies (Step 1 set the Game Problems): his scoped ruling names the Game Problems and their roles
+      influenced by: stage2-rulings.json D1-4NOV [RULING] gates whether the comparison applies (Step 1 set the Game Problems): his later ruling retains the designation for this demonstration
+      influenced by: session-planning-model.rc1.json engine_translation A05 [APPROVED] gates whether the comparison applies (Step 1 set the Game Problems): the Engine Translation row is unpopulated, which permits a ruling to supply the Game Problems; populated, it would block the ruling
+      influenced by: Step 2: COMPATIBLE_ALTERNATIVES (GF2, GF3, GF7) [CANDIDATE] gates whether the comparison applies: at least one compatible Game Form (standing: the weakest among what decided Step 2)
       influenced by: stage2-rulings.json D5-4NOV [RULING] his D5: the paired comparison is test-only; widening within the coach's available space
-      consulted: conditions-of-use.stage2.json W-P [OURS] ESTABLISHED PRINCIPLE, STRUCTURAL CHECK AND UNCERTAINTY REPORTING: structural facts are reported, never used to infer organization or usable space
-      consulted: conditions-of-use.stage2.json N-P [OURS] ESTABLISHED PRINCIPLE, STRUCTURAL CHECK AND UNCERTAINTY REPORTING: structural facts are reported, never used to infer organization or usable space
-      consulted: width-scenarios.test-fixture.json S4.playersPerTeam [TEST INPUT] 6 v 6
-      consulted: width-scenarios.test-fixture.json S4.configuredArea [TEST INPUT] 40 x 30 m
-      consulted: width-scenarios.test-fixture.json S4.availableSpace [TEST INPUT] 40 x 40 m (the limits)
+      influenced by: width-scenarios.test-fixture.json S4.configuredArea [TEST INPUT] 40 x 30 m; checked against the limits only, never used to infer organization or usable space
+      influenced by: width-scenarios.test-fixture.json S4.availableSpace [TEST INPUT] 40 x 40 m (the limits)
+      influenced by: conditions-of-use.stage2.json W-H1 [OURS] CAUSAL HYPOTHESIS, TEST-ONLY COMPARISON (its sources: APPROVED, PROVISIONAL, RULING): invites the primary Game Problem's problem
+      influenced by: conditions-of-use.stage2.json W-H2 [OURS] CAUSAL HYPOTHESIS, TEST-ONLY COMPARISON (its sources: PROVISIONAL, RULING): invites the secondary Game Problem's problem
+      influenced by: width-scenarios.test-fixture.json S4.decidingCircumstances.defendersCanStillOrganizeShiftAndContest [TEST ASSUMPTION] defendersCanStillOrganizeShiftAndContest = true (describes the area at the coach's available width (the proposed widened area), when attacks begin)
+      influenced by: width-scenarios.test-fixture.json S4.decidingCircumstances.usableSpaceAlreadyExists [TEST ASSUMPTION] usableSpaceAlreadyExists = true (describes the area at the coach's available width (the proposed widened area), when attacks begin)
+      influenced by: width-scenarios.test-fixture.json S4.playersPerTeam [TEST INPUT] 6 v 6
+      influenced by: conditions-of-use.stage2.json W-H1 assumption W-H1(b) [OURS] structural check EQUAL_NUMBERS: SATISFIED; it gates the comparison
+      consulted: conditions-of-use.stage2.json W-P [OURS] ESTABLISHED PRINCIPLE, STRUCTURAL CHECK AND UNCERTAINTY REPORTING (its sources: APPROVED, CANDIDATE, REFERENCE ONLY, RULING): structural facts are reported, never used to infer organization or usable space
+      consulted: conditions-of-use.stage2.json N-P [OURS] ESTABLISHED PRINCIPLE, STRUCTURAL CHECK AND UNCERTAINTY REPORTING (its sources: APPROVED, CANDIDATE, RULING): structural facts are reported, never used to infer organization or usable space
   S5 W-H1 conditions, but the coach's available width is no wider than the configured width
-    inputs (TEST INPUT): configured 40 x 30 m; available 40 x 30 m; players 6 v 6; defendersCanStillOrganizeShiftAndContest=true; usableSpaceAlreadyExists=false (TEST ASSUMPTION)
+    inputs (TEST INPUT): configured 40 x 30 m; available 40 x 30 m; players 6 v 6; defendersCanStillOrganizeShiftAndContest=true; usableSpaceAlreadyExists=false (TEST ASSUMPTION; each describes the area at the coach's available width (here no wider than the configured area), when attacks begin)
     W-H1 (CAUSAL HYPOTHESIS; TEST-ONLY COMPARISON; invites the primary Game Problem GP-001): CONDITIONS_MET_UNDER_TEST_ASSUMPTIONS. Deciding conditions hold under the test assumptions. A test-only hypothesis; not empirically established; not eligible for production.
       deciding conditions: defendersCanStillOrganizeShiftAndContest requires true, supplied true; usableSpaceAlreadyExists requires false, supplied false
-      assumption W-H1(a), The defence is functionally organized, in his sense. Stands for defendersCanStillOrganizeShiftAndContest: SUPPLIED AS A TEST ASSUMPTION.
+      deciding circumstance W-H1(i): Defenders can still organize, shift and contest the added width. Stands for defendersCanStillOrganizeShiftAndContest = true: SUPPLIED AS A TEST ASSUMPTION.
+      deciding circumstance W-H1(ii): Usable space does not already exist. Stands for usableSpaceAlreadyExists = false: SUPPLIED AS A TEST ASSUMPTION.
       structural assumption W-H1(b): SATISFIED. Equal numbers (6 v 6) satisfy it.
+      UNVERIFIED BACKGROUND ASSUMPTION W-H1(a): The defence is functionally organized, in his sense.
       UNVERIFIED BACKGROUND ASSUMPTION W-H1(c): The defended objective makes moving play across worthwhile.
       UNVERIFIED BACKGROUND ASSUMPTION W-H1(d): This group can perceive and use the width.
     W-H2 (CAUSAL HYPOTHESIS; TEST-ONLY COMPARISON; invites the secondary Game Problem GP-002): CONDITIONS_NOT_MET. Deciding conditions do not hold under the test assumptions.
       deciding conditions: defendersCanStillOrganizeShiftAndContest requires false, supplied true; usableSpaceAlreadyExists requires true, supplied false
-      assumption W-H2(a), The defence may be functionally organized and still unable to cover the added width. Stands for defendersCanStillOrganizeShiftAndContest: SUPPLIED AS A TEST ASSUMPTION.
+      deciding circumstance W-H2(i): Usable space already exists. Stands for usableSpaceAlreadyExists = true: SUPPLIED AS A TEST ASSUMPTION.
+      deciding circumstance W-H2(ii): Defenders can no longer organize, shift and contest the added width. Stands for defendersCanStillOrganizeShiftAndContest = false: SUPPLIED AS A TEST ASSUMPTION.
+      UNVERIFIED BACKGROUND ASSUMPTION W-H2(a): The defence is functionally organized, in his sense: it may be organized and still unable to cover the added width.
       UNVERIFIED BACKGROUND ASSUMPTION W-H2(c): The defended objective makes moving play across worthwhile.
       UNVERIFIED BACKGROUND ASSUMPTION W-H2(d): This group can perceive and use the width.
-    OUTCOME NO_ROOM_WITHIN_AVAILABLE_SPACE [established by TEST-ONLY HYPOTHESIS UNDER TEST ASSUMPTIONS]: W-H1's deciding conditions hold under the test assumptions; W-H2's do not. But no widening fits within the coach's available space, so nothing is proposed and the configured width (30 m) is kept.
-    proposal: NO_ROOM_WITHIN_AVAILABLE_SPACE. No widening can be proposed: the coach's available space (40 x 30 m) leaves no room beyond the configured 40 x 30 m. The configured width is kept.
-    structural facts (structural fact; no approved threshold; not used to infer defensive organization or available space): 6 v 6, equal numbers yes; configured 1200 m2, 100 m2 per player
-    structural check W-L2: NOT_STRUCTURALLY_CERTAIN. Not structurally certain: both teams have players. No widening is offered.
+    OUTCOME NO_ROOM_WITHIN_AVAILABLE_SPACE [rule: PRIMARY_INVITING_CONDITIONS_MET; established by TEST-ONLY HYPOTHESIS UNDER TEST ASSUMPTIONS]: W-H1's deciding conditions hold under the test assumptions; W-H2's do not. But no widening fits within the coach's available space, so nothing is proposed and the configured width (30 m), which lies within the limits, is kept.
+    proposal: NO_ROOM_WITHIN_AVAILABLE_SPACE. No widening can be proposed: the coach's available width (30 m) is no wider than the configured width (30 m). The configured width is kept.
+    structural facts (structural fact; no approved threshold; not used to infer defensive organization or available space): 6 v 6 (TWO_TEAMS_WITH_PLAYERS), equal numbers yes; configured 1200 m2, 100 m2 per player
+    structural check W-L2: NOT_STRUCTURALLY_CERTAIN. Not structurally certain: both teams have players. This check reads team sizes only, not the area: no approved bound on area exists. No widening is offered.
     structural check N-L1: NOT_STRUCTURALLY_CERTAIN. Equal numbers (6 v 6): nothing to report.
+    deferred, evaluated nowhere: N-H1 (DEFERRED)
     trace:
-      influenced by: width-scenarios.test-fixture.json S5.decidingCircumstances.defendersCanStillOrganizeShiftAndContest [TEST ASSUMPTION] defendersCanStillOrganizeShiftAndContest = true
-      influenced by: width-scenarios.test-fixture.json S5.decidingCircumstances.usableSpaceAlreadyExists [TEST ASSUMPTION] usableSpaceAlreadyExists = false
-      influenced by: conditions-of-use.stage2.json W-H1 [OURS] CAUSAL HYPOTHESIS, TEST-ONLY COMPARISON: invites the primary Game Problem's problem
-      influenced by: conditions-of-use.stage2.json W-H2 [OURS] CAUSAL HYPOTHESIS, TEST-ONLY COMPARISON: invites the secondary Game Problem's problem
+      influenced by: stage1-rulings.json RUL-E1-A05 [RULING] gates whether the comparison applies (Step 1 set the Game Problems): his scoped ruling names the Game Problems and their roles
+      influenced by: stage2-rulings.json D1-4NOV [RULING] gates whether the comparison applies (Step 1 set the Game Problems): his later ruling retains the designation for this demonstration
+      influenced by: session-planning-model.rc1.json engine_translation A05 [APPROVED] gates whether the comparison applies (Step 1 set the Game Problems): the Engine Translation row is unpopulated, which permits a ruling to supply the Game Problems; populated, it would block the ruling
+      influenced by: Step 2: COMPATIBLE_ALTERNATIVES (GF2, GF3, GF7) [CANDIDATE] gates whether the comparison applies: at least one compatible Game Form (standing: the weakest among what decided Step 2)
       influenced by: stage2-rulings.json D5-4NOV [RULING] his D5: the paired comparison is test-only; widening within the coach's available space
-      influenced by: width-scenarios.test-fixture.json S5.configuredArea [TEST INPUT] 40 x 30 m
+      influenced by: width-scenarios.test-fixture.json S5.configuredArea [TEST INPUT] 40 x 30 m; checked against the limits only, never used to infer organization or usable space
       influenced by: width-scenarios.test-fixture.json S5.availableSpace [TEST INPUT] 40 x 30 m (the limits)
-      consulted: conditions-of-use.stage2.json W-P [OURS] ESTABLISHED PRINCIPLE, STRUCTURAL CHECK AND UNCERTAINTY REPORTING: structural facts are reported, never used to infer organization or usable space
-      consulted: conditions-of-use.stage2.json N-P [OURS] ESTABLISHED PRINCIPLE, STRUCTURAL CHECK AND UNCERTAINTY REPORTING: structural facts are reported, never used to infer organization or usable space
-      consulted: width-scenarios.test-fixture.json S5.playersPerTeam [TEST INPUT] 6 v 6
+      influenced by: conditions-of-use.stage2.json W-H1 [OURS] CAUSAL HYPOTHESIS, TEST-ONLY COMPARISON (its sources: APPROVED, PROVISIONAL, RULING): invites the primary Game Problem's problem
+      influenced by: conditions-of-use.stage2.json W-H2 [OURS] CAUSAL HYPOTHESIS, TEST-ONLY COMPARISON (its sources: PROVISIONAL, RULING): invites the secondary Game Problem's problem
+      influenced by: width-scenarios.test-fixture.json S5.decidingCircumstances.defendersCanStillOrganizeShiftAndContest [TEST ASSUMPTION] defendersCanStillOrganizeShiftAndContest = true (describes the area at the coach's available width (here no wider than the configured area), when attacks begin)
+      influenced by: width-scenarios.test-fixture.json S5.decidingCircumstances.usableSpaceAlreadyExists [TEST ASSUMPTION] usableSpaceAlreadyExists = false (describes the area at the coach's available width (here no wider than the configured area), when attacks begin)
+      influenced by: width-scenarios.test-fixture.json S5.playersPerTeam [TEST INPUT] 6 v 6
+      influenced by: conditions-of-use.stage2.json W-H1 assumption W-H1(b) [OURS] structural check EQUAL_NUMBERS: SATISFIED; it gates the comparison
+      consulted: conditions-of-use.stage2.json W-P [OURS] ESTABLISHED PRINCIPLE, STRUCTURAL CHECK AND UNCERTAINTY REPORTING (its sources: APPROVED, CANDIDATE, REFERENCE ONLY, RULING): structural facts are reported, never used to infer organization or usable space
+      consulted: conditions-of-use.stage2.json N-P [OURS] ESTABLISHED PRINCIPLE, STRUCTURAL CHECK AND UNCERTAINTY REPORTING (its sources: APPROVED, CANDIDATE, RULING): structural facts are reported, never used to infer organization or usable space
   S6 W-H1 conditions with unequal numbers (7 v 5)
-    inputs (TEST INPUT): configured 40 x 30 m; available 40 x 40 m; players 7 v 5; defendersCanStillOrganizeShiftAndContest=true; usableSpaceAlreadyExists=false (TEST ASSUMPTION)
-    W-H1 (CAUSAL HYPOTHESIS; TEST-ONLY COMPARISON; invites the primary Game Problem GP-001): INSUFFICIENT_EVIDENCE. The paired comparison cannot be made: W-H1(b) is not evaluable with 7 v 5 (unequal numbers): 'roughly balanced' has no approved threshold, and N-H1 is deferred, so equal numbers satisfy it and unequal numbers make it not evaluable.
+    inputs (TEST INPUT): configured 40 x 30 m; available 40 x 40 m; players 7 v 5; defendersCanStillOrganizeShiftAndContest=true; usableSpaceAlreadyExists=false (TEST ASSUMPTION; each describes the area at the coach's available width (the proposed widened area), when attacks begin)
+    W-H1 (CAUSAL HYPOTHESIS; TEST-ONLY COMPARISON; invites the primary Game Problem GP-001): INSUFFICIENT_EVIDENCE. The paired comparison cannot be made: W-H1(b) is not evaluable with 7 v 5 (unequal numbers): 'roughly balanced' has no approved threshold, and N-H1 is deferred, so two equal team sizes, each a positive whole number, satisfy it; anything else makes it not evaluable.
       deciding conditions: defendersCanStillOrganizeShiftAndContest requires true, supplied true; usableSpaceAlreadyExists requires false, supplied false
-      assumption W-H1(a), The defence is functionally organized, in his sense. Stands for defendersCanStillOrganizeShiftAndContest: SUPPLIED AS A TEST ASSUMPTION.
-      structural assumption W-H1(b): NOT_EVALUABLE. W-H1(b) is not evaluable with 7 v 5 (unequal numbers): 'roughly balanced' has no approved threshold, and N-H1 is deferred, so equal numbers satisfy it and unequal numbers make it not evaluable.
+      deciding circumstance W-H1(i): Defenders can still organize, shift and contest the added width. Stands for defendersCanStillOrganizeShiftAndContest = true: SUPPLIED AS A TEST ASSUMPTION.
+      deciding circumstance W-H1(ii): Usable space does not already exist. Stands for usableSpaceAlreadyExists = false: SUPPLIED AS A TEST ASSUMPTION.
+      structural assumption W-H1(b): NOT_EVALUABLE. W-H1(b) is not evaluable with 7 v 5 (unequal numbers): 'roughly balanced' has no approved threshold, and N-H1 is deferred, so two equal team sizes, each a positive whole number, satisfy it; anything else makes it not evaluable.
+      UNVERIFIED BACKGROUND ASSUMPTION W-H1(a): The defence is functionally organized, in his sense.
       UNVERIFIED BACKGROUND ASSUMPTION W-H1(c): The defended objective makes moving play across worthwhile.
       UNVERIFIED BACKGROUND ASSUMPTION W-H1(d): This group can perceive and use the width.
-    W-H2 (CAUSAL HYPOTHESIS; TEST-ONLY COMPARISON; invites the secondary Game Problem GP-002): INSUFFICIENT_EVIDENCE. The paired comparison cannot be made: W-H1(b) is not evaluable with 7 v 5 (unequal numbers): 'roughly balanced' has no approved threshold, and N-H1 is deferred, so equal numbers satisfy it and unequal numbers make it not evaluable.
+    W-H2 (CAUSAL HYPOTHESIS; TEST-ONLY COMPARISON; invites the secondary Game Problem GP-002): INSUFFICIENT_EVIDENCE. The paired comparison cannot be made: W-H1(b) is not evaluable with 7 v 5 (unequal numbers): 'roughly balanced' has no approved threshold, and N-H1 is deferred, so two equal team sizes, each a positive whole number, satisfy it; anything else makes it not evaluable.
       deciding conditions: defendersCanStillOrganizeShiftAndContest requires false, supplied true; usableSpaceAlreadyExists requires true, supplied false
-      assumption W-H2(a), The defence may be functionally organized and still unable to cover the added width. Stands for defendersCanStillOrganizeShiftAndContest: SUPPLIED AS A TEST ASSUMPTION.
+      deciding circumstance W-H2(i): Usable space already exists. Stands for usableSpaceAlreadyExists = true: SUPPLIED AS A TEST ASSUMPTION.
+      deciding circumstance W-H2(ii): Defenders can no longer organize, shift and contest the added width. Stands for defendersCanStillOrganizeShiftAndContest = false: SUPPLIED AS A TEST ASSUMPTION.
+      UNVERIFIED BACKGROUND ASSUMPTION W-H2(a): The defence is functionally organized, in his sense: it may be organized and still unable to cover the added width.
       UNVERIFIED BACKGROUND ASSUMPTION W-H2(c): The defended objective makes moving play across worthwhile.
       UNVERIFIED BACKGROUND ASSUMPTION W-H2(d): This group can perceive and use the width.
-    OUTCOME INSUFFICIENT_EVIDENCE [established by INSUFFICIENT EVIDENCE]: The paired comparison cannot be made: W-H1(b) is not evaluable with 7 v 5 (unequal numbers): 'roughly balanced' has no approved threshold, and N-H1 is deferred, so equal numbers satisfy it and unequal numbers make it not evaluable. Insufficient evidence for both W-H1 and W-H2: no proposal, and the configured width (30 m) is kept.
+    OUTCOME INSUFFICIENT_EVIDENCE [rule: STRUCTURAL_ASSUMPTION_NOT_EVALUABLE; established by INSUFFICIENT EVIDENCE]: The paired comparison cannot be made: W-H1(b) is not evaluable with 7 v 5 (unequal numbers): 'roughly balanced' has no approved threshold, and N-H1 is deferred, so two equal team sizes, each a positive whole number, satisfy it; anything else makes it not evaluable. Insufficient evidence for the pair (W-H1, W-H2): no proposal, and the configured width (30 m) is kept.
     proposal: NONE_INSUFFICIENT_EVIDENCE. No proposal. The configured width (30 m) is kept.
-    structural facts (structural fact; no approved threshold; not used to infer defensive organization or available space): 7 v 5, equal numbers no; configured 1200 m2, 100 m2 per player
-    structural check W-L2: NOT_STRUCTURALLY_CERTAIN. Not structurally certain: both teams have players. No widening is offered.
+    structural facts (structural fact; no approved threshold; not used to infer defensive organization or available space): 7 v 5 (TWO_TEAMS_WITH_PLAYERS), equal numbers no; configured 1200 m2, 100 m2 per player
+    structural check W-L2: NOT_STRUCTURALLY_CERTAIN. Not structurally certain: both teams have players. This check reads team sizes only, not the area: no approved bound on area exists. No widening is offered.
     structural check N-L1: UNCERTAINTY_REPORTED. Unequal numbers (7 v 5): whether the outnumbered team can still rebalance, constrain or disrupt is not evaluable; no approved ratio exists.
+    deferred, evaluated nowhere: N-H1 (DEFERRED)
     trace:
-      influenced by: width-scenarios.test-fixture.json S6.decidingCircumstances.defendersCanStillOrganizeShiftAndContest [TEST ASSUMPTION] defendersCanStillOrganizeShiftAndContest = true
-      influenced by: width-scenarios.test-fixture.json S6.decidingCircumstances.usableSpaceAlreadyExists [TEST ASSUMPTION] usableSpaceAlreadyExists = false
-      influenced by: conditions-of-use.stage2.json W-H1 [OURS] CAUSAL HYPOTHESIS, TEST-ONLY COMPARISON: invites the primary Game Problem's problem
-      influenced by: conditions-of-use.stage2.json W-H2 [OURS] CAUSAL HYPOTHESIS, TEST-ONLY COMPARISON: invites the secondary Game Problem's problem
+      influenced by: stage1-rulings.json RUL-E1-A05 [RULING] gates whether the comparison applies (Step 1 set the Game Problems): his scoped ruling names the Game Problems and their roles
+      influenced by: stage2-rulings.json D1-4NOV [RULING] gates whether the comparison applies (Step 1 set the Game Problems): his later ruling retains the designation for this demonstration
+      influenced by: session-planning-model.rc1.json engine_translation A05 [APPROVED] gates whether the comparison applies (Step 1 set the Game Problems): the Engine Translation row is unpopulated, which permits a ruling to supply the Game Problems; populated, it would block the ruling
+      influenced by: Step 2: COMPATIBLE_ALTERNATIVES (GF2, GF3, GF7) [CANDIDATE] gates whether the comparison applies: at least one compatible Game Form (standing: the weakest among what decided Step 2)
       influenced by: stage2-rulings.json D5-4NOV [RULING] his D5: the paired comparison is test-only; widening within the coach's available space
+      influenced by: width-scenarios.test-fixture.json S6.configuredArea [TEST INPUT] 40 x 30 m; checked against the limits only, never used to infer organization or usable space
+      influenced by: width-scenarios.test-fixture.json S6.availableSpace [TEST INPUT] 40 x 40 m (the limits)
+      influenced by: conditions-of-use.stage2.json W-H1 [OURS] CAUSAL HYPOTHESIS, TEST-ONLY COMPARISON (its sources: APPROVED, PROVISIONAL, RULING): invites the primary Game Problem's problem
+      influenced by: conditions-of-use.stage2.json W-H2 [OURS] CAUSAL HYPOTHESIS, TEST-ONLY COMPARISON (its sources: PROVISIONAL, RULING): invites the secondary Game Problem's problem
+      influenced by: width-scenarios.test-fixture.json S6.decidingCircumstances.defendersCanStillOrganizeShiftAndContest [TEST ASSUMPTION] defendersCanStillOrganizeShiftAndContest = true (describes the area at the coach's available width (the proposed widened area), when attacks begin)
+      influenced by: width-scenarios.test-fixture.json S6.decidingCircumstances.usableSpaceAlreadyExists [TEST ASSUMPTION] usableSpaceAlreadyExists = false (describes the area at the coach's available width (the proposed widened area), when attacks begin)
       influenced by: width-scenarios.test-fixture.json S6.playersPerTeam [TEST INPUT] 7 v 5
-      consulted: conditions-of-use.stage2.json W-P [OURS] ESTABLISHED PRINCIPLE, STRUCTURAL CHECK AND UNCERTAINTY REPORTING: structural facts are reported, never used to infer organization or usable space
-      consulted: conditions-of-use.stage2.json N-P [OURS] ESTABLISHED PRINCIPLE, STRUCTURAL CHECK AND UNCERTAINTY REPORTING: structural facts are reported, never used to infer organization or usable space
-      consulted: width-scenarios.test-fixture.json S6.configuredArea [TEST INPUT] 40 x 30 m
-      consulted: width-scenarios.test-fixture.json S6.availableSpace [TEST INPUT] 40 x 40 m (the limits)
+      influenced by: conditions-of-use.stage2.json W-H1 assumption W-H1(b) [OURS] structural check EQUAL_NUMBERS: NOT_EVALUABLE; it gates the comparison
+      consulted: conditions-of-use.stage2.json W-P [OURS] ESTABLISHED PRINCIPLE, STRUCTURAL CHECK AND UNCERTAINTY REPORTING (its sources: APPROVED, CANDIDATE, REFERENCE ONLY, RULING): structural facts are reported, never used to infer organization or usable space
+      consulted: conditions-of-use.stage2.json N-P [OURS] ESTABLISHED PRINCIPLE, STRUCTURAL CHECK AND UNCERTAINTY REPORTING (its sources: APPROVED, CANDIDATE, RULING): structural facts are reported, never used to infer organization or usable space
 
 === PART B. Every goal through Steps 1 and 2 ===
 
@@ -334,8 +404,8 @@ Step 1: RESOLVED
   Context: RPC-003 (routing row A05; library row RPC-REL-062 COMPATIBLE PRIMARY)
     PRIMARY GP-001: RPC-REL-023 COMPATIBLE PRIMARY
     SECONDARY GP-002: RPC-REL-024 COMPATIBLE PRIMARY
-  CAR row PRIMARY   GP-001: FOI=S OP=E SA=S CIO=E  (Approved; Approved; confidence High; role set by RUL-E1-A05, A05)
-  CAR row SECONDARY GP-002: FOI=E OP=E SA=S CIO=E  (Approved; Approved; confidence High; role set by RUL-E1-A05, A05)
+  CAR row PRIMARY   GP-001: FOI=S OP=E SA=S CIO=E  (Approved; Approved; confidence High; role set by RUL-E1-A05, D1-4NOV; permitted by the unpopulated engine_translation row A05)
+  CAR row SECONDARY GP-002: FOI=E OP=E SA=S CIO=E  (Approved; Approved; confidence High; role set by RUL-E1-A05, D1-4NOV; permitted by the unpopulated engine_translation row A05)
   Union view: FOI=E (GP-002) OP=E (GP-001, GP-002) SA=S (GP-001, GP-002) CIO=E (GP-001, GP-002)  [strongest necessity, merge_precedence E>S>NR (CAR metadata); never the effective profile]
   Effective profile: FOI=S OP=E SA=S CIO=E  [PRIMARY_LED; scope ISOLATED_REVIEW_PATHWAY; canonical amendment: no]
   FINDING FOI (Functional Object Interaction): primary GP-001 S, secondary GP-002 E -> INSUFFICIENT_EVIDENCE: no approved relationship establishes how to reconcile the difference; an unresolved secondary consideration; promoted into the effective profile: no
@@ -371,6 +441,7 @@ Step 2: NO_GOVERNED_RELATIONSHIP_ESTABLISHED  [established by INSUFFICIENT EVIDE
     excluded (NO_GOVERNED_RELATIONSHIP_ESTABLISHED): The form declares no relationship to the primary Game Problem GP-012 (primary: GP-003, GP-001; secondary: GP-005): no governed relationship established; not evidence that the Game Form is ecologically unsuitable.
   GF7 EXCLUDED via RPC-REL-057: COMPATIBLE SECONDARY; declares GP-012 (primary): NONE  [compatibility information, not a preference]
     excluded (NO_GOVERNED_RELATIONSHIP_ESTABLISHED): The form declares no relationship to the primary Game Problem GP-012 (primary: GP-001, GP-002; secondary: GP-005): no governed relationship established; not evidence that the Game Form is ecologically unsuitable.
+  KNOWLEDGE-POPULATION FINDING (D3-4NOV): "The missing defending-goal relationships can remain a separate knowledge-population finding." (OURS: which goals his sentence covers is our reading: the defending goals (D, TD) whose routed context relates no Game Form that declares their primary Game Problem. The finding is attached to their Step 2 result; it decides nothing.)
   missing (NO_GOVERNED_RELATIONSHIP_ESTABLISHED): None of the forms RPC-008 relates (GF2, GF3, GF7) passes the gate; no governed relationship established; not evidence that the Game Form is ecologically unsuitable. See each candidate's excludedBecause.
 
 --- D02 Win the Ball Back ---
@@ -403,6 +474,7 @@ Step 2: NO_GOVERNED_RELATIONSHIP_ESTABLISHED  [established by INSUFFICIENT EVIDE
     excluded (NO_GOVERNED_RELATIONSHIP_ESTABLISHED): The form declares no relationship to the primary Game Problem GP-016 (primary: GP-003, GP-001; secondary: GP-005): no governed relationship established; not evidence that the Game Form is ecologically unsuitable.
   GF7 EXCLUDED via RPC-REL-057: COMPATIBLE SECONDARY; declares GP-016 (primary): NONE  [compatibility information, not a preference]
     excluded (NO_GOVERNED_RELATIONSHIP_ESTABLISHED): The form declares no relationship to the primary Game Problem GP-016 (primary: GP-001, GP-002; secondary: GP-005): no governed relationship established; not evidence that the Game Form is ecologically unsuitable.
+  KNOWLEDGE-POPULATION FINDING (D3-4NOV): "The missing defending-goal relationships can remain a separate knowledge-population finding." (OURS: which goals his sentence covers is our reading: the defending goals (D, TD) whose routed context relates no Game Form that declares their primary Game Problem. The finding is attached to their Step 2 result; it decides nothing.)
   missing (NO_GOVERNED_RELATIONSHIP_ESTABLISHED): None of the forms RPC-008 relates (GF2, GF3, GF7) passes the gate; no governed relationship established; not evidence that the Game Form is ecologically unsuitable. See each candidate's excludedBecause.
 
 --- TA01 Attack Quickly ---
@@ -450,6 +522,7 @@ Step 2: NO_GOVERNED_RELATIONSHIP_ESTABLISHED  [established by INSUFFICIENT EVIDE
     excluded (NO_GOVERNED_RELATIONSHIP_ESTABLISHED): The form declares no relationship to the primary Game Problem GP-004 (primary: GP-015, GP-001; secondary: GP-005): no governed relationship established; not evidence that the Game Form is ecologically unsuitable.
   GF4 EXCLUDED via RPC-REL-051: COMPATIBLE PRIMARY; declares GP-004 (primary): NONE  [compatibility information, not a preference]
     excluded (NO_GOVERNED_RELATIONSHIP_ESTABLISHED): The form declares no relationship to the primary Game Problem GP-004 (primary: GP-016, GP-002; secondary: GP-005): no governed relationship established; not evidence that the Game Form is ecologically unsuitable.
+  KNOWLEDGE-POPULATION FINDING (D3-4NOV): "The missing defending-goal relationships can remain a separate knowledge-population finding." (OURS: which goals his sentence covers is our reading: the defending goals (D, TD) whose routed context relates no Game Form that declares their primary Game Problem. The finding is attached to their Step 2 result; it decides nothing.)
   missing (GAME_PROBLEM_NOT_RELATED_TO_CONTEXT): RPC-007 has no ACTIVE GAME_PROBLEM row for GP-004 (PRIMARY).
   missing (NO_GOVERNED_RELATIONSHIP_ESTABLISHED): None of the forms RPC-007 relates (GF2, GF4) passes the gate; no governed relationship established; not evidence that the Game Form is ecologically unsuitable. See each candidate's excludedBecause.
 
@@ -467,149 +540,181 @@ Step 2: NO_GOVERNED_RELATIONSHIP_ESTABLISHED  [established by INSUFFICIENT EVIDE
     excluded (NO_GOVERNED_RELATIONSHIP_ESTABLISHED): The form declares no relationship to the primary Game Problem GP-013 (primary: GP-015, GP-001; secondary: GP-005): no governed relationship established; not evidence that the Game Form is ecologically unsuitable.
   GF4 EXCLUDED via RPC-REL-051: COMPATIBLE PRIMARY; declares GP-013 (primary): NONE  [compatibility information, not a preference]
     excluded (NO_GOVERNED_RELATIONSHIP_ESTABLISHED): The form declares no relationship to the primary Game Problem GP-013 (primary: GP-016, GP-002; secondary: GP-005): no governed relationship established; not evidence that the Game Form is ecologically unsuitable.
+  KNOWLEDGE-POPULATION FINDING (D3-4NOV): "The missing defending-goal relationships can remain a separate knowledge-population finding." (OURS: which goals his sentence covers is our reading: the defending goals (D, TD) whose routed context relates no Game Form that declares their primary Game Problem. The finding is attached to their Step 2 result; it decides nothing.)
   missing (GAME_PROBLEM_NOT_RELATED_TO_CONTEXT): RPC-007 has no ACTIVE GAME_PROBLEM row for GP-013 (PRIMARY).
   missing (NO_GOVERNED_RELATIONSHIP_ESTABLISHED): None of the forms RPC-007 relates (GF2, GF4) passes the gate; no governed relationship established; not evidence that the Game Form is ecologically unsuitable. See each candidate's excludedBecause.
 
-=== PART C. What the engine establishes, what it shows only under test-only hypotheses, and where the evidence is insufficient ===
+=== PART C. What approved knowledge establishes, what rests on his rulings, candidate data or our inference, what is shown only on test inputs or under test-only hypotheses, and where the evidence is insufficient ===
+Each conclusion is grouped by how it is established and by the weakest standing among what decided it.
 
 ESTABLISHED THROUGH APPROVED KNOWLEDGE
-  A01 step 1 game problems [APPROVED KNOWLEDGE]: Game Problems by APPROVED_TRANSLATION: primary GP-005; secondary none.
-  A01 step 1 context [APPROVED KNOWLEDGE]: Context RPC-001; status RESOLVED.
-  A01 step 1 effective profile [RULING]: Effective profile (PRIMARY_LED): FOI=E OP=E SA=S CIO=E.
-  A01 step 1 union view [APPROVED KNOWLEDGE]: Union view, never the effective profile: FOI=E (GP-005) OP=E (GP-005) SA=S (GP-005) CIO=E (GP-005).
-  A01 step 2 game form [RULING]: COMPATIBLE_ALTERNATIVES. GF2, GF3, GF7: compatible alternatives; insufficient evidence to prefer one.
-  A02 step 1 game problems [APPROVED KNOWLEDGE]: Game Problems by APPROVED_TRANSLATION: primary GP-015; secondary none.
-  A02 step 1 context [APPROVED KNOWLEDGE]: Context RPC-002; status RESOLVED.
-  A02 step 1 effective profile [RULING]: Effective profile (PRIMARY_LED): FOI=E OP=E SA=E CIO=E.
-  A02 step 1 union view [APPROVED KNOWLEDGE]: Union view, never the effective profile: FOI=E (GP-015) OP=E (GP-015) SA=E (GP-015) CIO=E (GP-015).
-  A02 step 2 game form [RULING]: SELECTED. GF2: the only Game Form with a governed relationship: compatibility, not demonstrated suitability.
-  A03 step 1 game problems [APPROVED KNOWLEDGE]: Game Problems by APPROVED_TRANSLATION: primary GP-006; secondary none.
-  A03 step 1 context [APPROVED KNOWLEDGE]: Context RPC-004; status RESOLVED.
-  A03 step 1 effective profile [RULING]: Effective profile (PRIMARY_LED): FOI=E OP=S SA=S CIO=E.
-  A03 step 1 union view [APPROVED KNOWLEDGE]: Union view, never the effective profile: FOI=E (GP-006) OP=S (GP-006) SA=S (GP-006) CIO=E (GP-006).
-  A04 step 1 context [APPROVED KNOWLEDGE]: Context RPC-004; status UNRESOLVED (TRANSLATION_UNPOPULATED).
-  A05 step 1 game problems [RULING]: Game Problems by SCOPED_RULING: primary GP-001; secondary GP-002.
-  A05 step 1 context [APPROVED KNOWLEDGE]: Context RPC-003; status RESOLVED.
-  A05 step 1 effective profile [RULING]: Effective profile (PRIMARY_LED): FOI=S OP=E SA=S CIO=E.
-  A05 step 1 union view [APPROVED KNOWLEDGE]: Union view, never the effective profile: FOI=E (GP-002) OP=E (GP-001, GP-002) SA=S (GP-001, GP-002) CIO=E (GP-001, GP-002).
-  A05 step 2 game form [RULING]: COMPATIBLE_ALTERNATIVES. GF2, GF3, GF7: compatible alternatives; insufficient evidence to prefer one.
-  A05 GF2 continuous play [LOGICAL INFERENCE]: Continuous-play baseline: HOLDS_BY_DESIGN. Play continues through a change of possession by design: no authorized departure is recorded. A baseline representative condition, not an Interaction Regulation; it implies nothing about what players do after a change of possession.
-  A05 GF2 GA-001-OIC-05 [LOGICAL INFERENCE]: GA-001-OIC-05 (REQUIRED CONDITION): STRUCTURAL_SIGNAL_PRESENT. Supported by the continuous-play baseline (C-BASE): play continues through changes of possession by design. Whether the condition is expressed is emergent: to be expressed by the assembled activity; not evaluable before activity assembly.
-  A05 GF3 continuous play [LOGICAL INFERENCE]: Continuous-play baseline: HOLDS_BY_DESIGN. Play continues through a change of possession by design: no authorized departure is recorded. A baseline representative condition, not an Interaction Regulation; it implies nothing about what players do after a change of possession.
-  A05 GF3 GA-001-OIC-05 [LOGICAL INFERENCE]: GA-001-OIC-05 (REQUIRED CONDITION): STRUCTURAL_SIGNAL_PRESENT. Supported by the continuous-play baseline (C-BASE): play continues through changes of possession by design. Whether the condition is expressed is emergent: to be expressed by the assembled activity; not evaluable before activity assembly.
-  A05 GF7 continuous play [LOGICAL INFERENCE]: Continuous-play baseline: HOLDS_BY_DESIGN. Play continues through a change of possession by design: no authorized departure is recorded. A baseline representative condition, not an Interaction Regulation; it implies nothing about what players do after a change of possession.
-  A05 GF7 GA-001-OIC-05 [LOGICAL INFERENCE]: GA-001-OIC-05 (REQUIRED CONDITION): STRUCTURAL_SIGNAL_PRESENT. Supported by the continuous-play baseline (C-BASE): play continues through changes of possession by design. Whether the condition is expressed is emergent: to be expressed by the assembled activity; not evaluable before activity assembly.
-  A06 step 1 context [APPROVED KNOWLEDGE]: Context RPC-005; status UNRESOLVED (TRANSLATION_UNPOPULATED).
-  D01 step 1 game problems [APPROVED KNOWLEDGE]: Game Problems by APPROVED_TRANSLATION: primary GP-012; secondary none.
-  D01 step 1 context [APPROVED KNOWLEDGE]: Context RPC-008; status RESOLVED.
-  D01 step 1 effective profile [RULING]: Effective profile (PRIMARY_LED): FOI=NR OP=E SA=S CIO=E.
-  D01 step 1 union view [APPROVED KNOWLEDGE]: Union view, never the effective profile: FOI=NR (GP-012) OP=E (GP-012) SA=S (GP-012) CIO=E (GP-012).
-  D02 step 1 game problems [APPROVED KNOWLEDGE]: Game Problems by APPROVED_TRANSLATION: primary GP-016; secondary none.
-  D02 step 1 context [APPROVED KNOWLEDGE]: Context RPC-007; status RESOLVED.
-  D02 step 1 effective profile [RULING]: Effective profile (PRIMARY_LED): FOI=E OP=E SA=S CIO=E.
-  D02 step 1 union view [APPROVED KNOWLEDGE]: Union view, never the effective profile: FOI=E (GP-016) OP=E (GP-016) SA=S (GP-016) CIO=E (GP-016).
-  D02 step 2 game form [RULING]: SELECTED. GF4: the only Game Form with a governed relationship: compatibility, not demonstrated suitability.
-  D03 step 1 game problems [APPROVED KNOWLEDGE]: Game Problems by APPROVED_TRANSLATION: primary GP-016; secondary none.
-  D03 step 1 context [APPROVED KNOWLEDGE]: Context RPC-008; status RESOLVED.
-  D03 step 1 effective profile [RULING]: Effective profile (PRIMARY_LED): FOI=E OP=E SA=S CIO=E.
-  D03 step 1 union view [APPROVED KNOWLEDGE]: Union view, never the effective profile: FOI=E (GP-016) OP=E (GP-016) SA=S (GP-016) CIO=E (GP-016).
-  TA01 step 1 game problems [APPROVED KNOWLEDGE]: Game Problems by APPROVED_TRANSLATION: primary GP-002; secondary none.
-  TA01 step 1 context [APPROVED KNOWLEDGE]: Context RPC-006; status RESOLVED.
-  TA01 step 1 effective profile [RULING]: Effective profile (PRIMARY_LED): FOI=E OP=E SA=S CIO=E.
-  TA01 step 1 union view [APPROVED KNOWLEDGE]: Union view, never the effective profile: FOI=E (GP-002) OP=E (GP-002) SA=S (GP-002) CIO=E (GP-002).
-  TA01 step 2 game form [RULING]: SELECTED. GF4: the only Game Form with a governed relationship: compatibility, not demonstrated suitability.
-  TA02 step 1 game problems [APPROVED KNOWLEDGE]: Game Problems by APPROVED_TRANSLATION: primary GP-015; secondary none.
-  TA02 step 1 context [APPROVED KNOWLEDGE]: Context RPC-003; status RESOLVED.
-  TA02 step 1 effective profile [RULING]: Effective profile (PRIMARY_LED): FOI=E OP=E SA=E CIO=E.
-  TA02 step 1 union view [APPROVED KNOWLEDGE]: Union view, never the effective profile: FOI=E (GP-015) OP=E (GP-015) SA=E (GP-015) CIO=E (GP-015).
-  TA02 step 2 game form [RULING]: SELECTED. GF2: the only Game Form with a governed relationship: compatibility, not demonstrated suitability.
-  TD01 step 1 game problems [APPROVED KNOWLEDGE]: Game Problems by APPROVED_TRANSLATION: primary GP-004; secondary none.
-  TD01 step 1 context [APPROVED KNOWLEDGE]: Context RPC-007; status RESOLVED_NOT_RELATED_TO_CONTEXT: the routed context has no relationship row for the resolved primary Game Problem.
-  TD01 step 1 effective profile [RULING]: Effective profile (PRIMARY_LED): FOI=NR OP=E SA=S CIO=E.
-  TD01 step 1 union view [APPROVED KNOWLEDGE]: Union view, never the effective profile: FOI=NR (GP-004) OP=E (GP-004) SA=S (GP-004) CIO=E (GP-004).
-  TD02 step 1 game problems [APPROVED KNOWLEDGE]: Game Problems by APPROVED_TRANSLATION: primary GP-013; secondary none.
-  TD02 step 1 context [APPROVED KNOWLEDGE]: Context RPC-007; status RESOLVED_NOT_RELATED_TO_CONTEXT: the routed context has no relationship row for the resolved primary Game Problem.
-  TD02 step 1 effective profile [RULING]: Effective profile (PRIMARY_LED): FOI=NR OP=E SA=S CIO=E.
-  TD02 step 1 union view [APPROVED KNOWLEDGE]: Union view, never the effective profile: FOI=NR (GP-013) OP=E (GP-013) SA=S (GP-013) CIO=E (GP-013).
+  (Established by approved knowledge, and every row that decided it is APPROVED.)
+  A01 step 1 game problems [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Game Problems by APPROVED_TRANSLATION: primary GP-005; secondary none.
+  A01 step 1 context [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Context RPC-001, by the routing row and the context library's row RPC-REL-058.
+  A01 step 1 status [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Status RESOLVED.
+  A01 step 1 union view [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Union view, never the effective profile: FOI=E (GP-005) OP=E (GP-005) SA=S (GP-005) CIO=E (GP-005).
+  A02 step 1 game problems [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Game Problems by APPROVED_TRANSLATION: primary GP-015; secondary none.
+  A02 step 1 context [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Context RPC-002, by the routing row and the context library's row RPC-REL-059.
+  A02 step 1 status [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Status RESOLVED.
+  A02 step 1 union view [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Union view, never the effective profile: FOI=E (GP-015) OP=E (GP-015) SA=E (GP-015) CIO=E (GP-015).
+  A03 step 1 game problems [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Game Problems by APPROVED_TRANSLATION: primary GP-006; secondary none.
+  A03 step 1 context [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Context RPC-004, by the routing row and the context library's row RPC-REL-060.
+  A03 step 1 status [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Status RESOLVED.
+  A03 step 1 union view [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Union view, never the effective profile: FOI=E (GP-006) OP=S (GP-006) SA=S (GP-006) CIO=E (GP-006).
+  A04 step 1 context [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Context RPC-004, by the routing row and the context library's row RPC-REL-061.
+  A05 step 1 context [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Context RPC-003, by the routing row and the context library's row RPC-REL-062.
+  A06 step 1 context [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Context RPC-005, by the routing row and the context library's row RPC-REL-063.
+  D01 step 1 game problems [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Game Problems by APPROVED_TRANSLATION: primary GP-012; secondary none.
+  D01 step 1 context [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Context RPC-008, by the routing row and the context library's row RPC-REL-064.
+  D01 step 1 status [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Status RESOLVED.
+  D01 step 1 union view [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Union view, never the effective profile: FOI=NR (GP-012) OP=E (GP-012) SA=S (GP-012) CIO=E (GP-012).
+  D02 step 1 game problems [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Game Problems by APPROVED_TRANSLATION: primary GP-016; secondary none.
+  D02 step 1 context [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Context RPC-007, by the routing row and the context library's row RPC-REL-065.
+  D02 step 1 status [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Status RESOLVED.
+  D02 step 1 union view [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Union view, never the effective profile: FOI=E (GP-016) OP=E (GP-016) SA=S (GP-016) CIO=E (GP-016).
+  D03 step 1 game problems [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Game Problems by APPROVED_TRANSLATION: primary GP-016; secondary none.
+  D03 step 1 context [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Context RPC-008, by the routing row and the context library's row RPC-REL-066.
+  D03 step 1 status [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Status RESOLVED.
+  D03 step 1 union view [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Union view, never the effective profile: FOI=E (GP-016) OP=E (GP-016) SA=S (GP-016) CIO=E (GP-016).
+  TA01 step 1 game problems [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Game Problems by APPROVED_TRANSLATION: primary GP-002; secondary none.
+  TA01 step 1 context [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Context RPC-006, by the routing row and the context library's row RPC-REL-067.
+  TA01 step 1 status [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Status RESOLVED.
+  TA01 step 1 union view [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Union view, never the effective profile: FOI=E (GP-002) OP=E (GP-002) SA=S (GP-002) CIO=E (GP-002).
+  TA02 step 1 game problems [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Game Problems by APPROVED_TRANSLATION: primary GP-015; secondary none.
+  TA02 step 1 context [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Context RPC-003, by the routing row and the context library's row RPC-REL-068.
+  TA02 step 1 status [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Status RESOLVED.
+  TA02 step 1 union view [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Union view, never the effective profile: FOI=E (GP-015) OP=E (GP-015) SA=E (GP-015) CIO=E (GP-015).
+  TD01 step 1 game problems [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Game Problems by APPROVED_TRANSLATION: primary GP-004; secondary none.
+  TD01 step 1 context [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Context RPC-007, by the routing row and the context library's row RPC-REL-069.
+  TD01 step 1 status [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Status RESOLVED_NOT_RELATED_TO_CONTEXT: the routed context has no relationship row for the resolved primary Game Problem.
+  TD01 step 1 union view [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Union view, never the effective profile: FOI=NR (GP-004) OP=E (GP-004) SA=S (GP-004) CIO=E (GP-004).
+  TD02 step 1 game problems [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Game Problems by APPROVED_TRANSLATION: primary GP-013; secondary none.
+  TD02 step 1 context [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Context RPC-007, by the routing row and the context library's row RPC-REL-070.
+  TD02 step 1 status [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Status RESOLVED_NOT_RELATED_TO_CONTEXT: the routed context has no relationship row for the resolved primary Game Problem.
+  TD02 step 1 union view [APPROVED KNOWLEDGE; weakest decisive source APPROVED]: Union view, never the effective profile: FOI=NR (GP-013) OP=E (GP-013) SA=S (GP-013) CIO=E (GP-013).
+
+ESTABLISHED BY HIS RULINGS
+  (Decided by a ruling of his, with approved knowledge; no candidate data, no entry or identification of ours, no test input. Each ruling keeps its own scope; D1 is approved for the isolated review pathway only, not as a canonical amendment.)
+  A01 step 1 effective profile [RULING; weakest decisive source RULING]: Effective profile (PRIMARY_LED): FOI=E OP=E SA=S CIO=E.
+  A02 step 1 effective profile [RULING; weakest decisive source RULING]: Effective profile (PRIMARY_LED): FOI=E OP=E SA=E CIO=E.
+  A03 step 1 effective profile [RULING; weakest decisive source RULING]: Effective profile (PRIMARY_LED): FOI=E OP=S SA=S CIO=E.
+  A05 step 1 game problems [RULING; weakest decisive source RULING]: Game Problems by SCOPED_RULING: primary GP-001; secondary GP-002.
+  A05 step 1 status [RULING; weakest decisive source RULING]: Status RESOLVED.
+  A05 step 1 effective profile [RULING; weakest decisive source RULING]: Effective profile (PRIMARY_LED): FOI=S OP=E SA=S CIO=E.
+  A05 step 1 union view [APPROVED KNOWLEDGE; weakest decisive source RULING]: Union view, never the effective profile: FOI=E (GP-002) OP=E (GP-001, GP-002) SA=S (GP-001, GP-002) CIO=E (GP-001, GP-002).
+  D01 step 1 effective profile [RULING; weakest decisive source RULING]: Effective profile (PRIMARY_LED): FOI=NR OP=E SA=S CIO=E.
+  D02 step 1 effective profile [RULING; weakest decisive source RULING]: Effective profile (PRIMARY_LED): FOI=E OP=E SA=S CIO=E.
+  D03 step 1 effective profile [RULING; weakest decisive source RULING]: Effective profile (PRIMARY_LED): FOI=E OP=E SA=S CIO=E.
+  TA01 step 1 effective profile [RULING; weakest decisive source RULING]: Effective profile (PRIMARY_LED): FOI=E OP=E SA=S CIO=E.
+  TA02 step 1 effective profile [RULING; weakest decisive source RULING]: Effective profile (PRIMARY_LED): FOI=E OP=E SA=E CIO=E.
+  TD01 step 1 effective profile [RULING; weakest decisive source RULING]: Effective profile (PRIMARY_LED): FOI=NR OP=E SA=S CIO=E.
+  TD02 step 1 effective profile [RULING; weakest decisive source RULING]: Effective profile (PRIMARY_LED): FOI=NR OP=E SA=S CIO=E.
+
+RESTS ON CANDIDATE DATA
+  (Among what decided it is CANDIDATE data: the sport module's Game Form declarations (module DRAFT), read under his D3 as compatibility information. Not approved knowledge.)
+  A01 step 2 game form [RULING; weakest decisive source CANDIDATE]: COMPATIBLE_ALTERNATIVES. GF2, GF3, GF7: compatible alternatives; insufficient evidence to prefer one.
+  A02 step 2 game form [RULING; weakest decisive source CANDIDATE]: SELECTED. GF2: the only Game Form with a governed relationship: compatibility, not demonstrated suitability.
+  A05 step 2 game form [RULING; weakest decisive source CANDIDATE]: COMPATIBLE_ALTERNATIVES. GF2, GF3, GF7: compatible alternatives; insufficient evidence to prefer one.
+  D02 step 2 game form [RULING; weakest decisive source CANDIDATE]: SELECTED. GF4: the only Game Form with a governed relationship: compatibility, not demonstrated suitability.
+  TA01 step 2 game form [RULING; weakest decisive source CANDIDATE]: SELECTED. GF4: the only Game Form with a governed relationship: compatibility, not demonstrated suitability.
+  TA02 step 2 game form [RULING; weakest decisive source CANDIDATE]: SELECTED. GF2: the only Game Form with a governed relationship: compatibility, not demonstrated suitability.
+
+RESTS ON OUR INFERENCE (NO TEST INPUT)
+  (A logical inference of ours, or a conclusion that rests on an entry, identification or mapping of ours (OURS), with no test input. Not approved knowledge, and not his ruling.)
+  A05 GF2 continuous play [LOGICAL INFERENCE; weakest decisive source OURS]: Continuous-play baseline: APPLIES_AS_BASELINE_DEFAULT. Continuous play applies as the baseline default: no knowledge file this stage reads can record a departure, and no activity is assembled, so this is a default, not a condition evaluated and found to hold. A baseline representative condition, not an Interaction Regulation; it implies nothing about what players do after a change of possession.
+  A05 GF2 GA-001-OIC-05 [LOGICAL INFERENCE; weakest decisive source OURS]: GA-001-OIC-05 (REQUIRED CONDITION): STRUCTURAL_SIGNAL_PRESENT; evidence status INFERRED. A structural signal of ours (INFERRED): the continuous-play baseline default (C-BASE) applies. Our link, not his: his D5 supports continuous play as a baseline but does not link it to this condition. Whether the condition is expressed is emergent: to be expressed by the assembled activity; not evaluable before activity assembly.
+  A05 GF3 continuous play [LOGICAL INFERENCE; weakest decisive source OURS]: Continuous-play baseline: APPLIES_AS_BASELINE_DEFAULT. Continuous play applies as the baseline default: no knowledge file this stage reads can record a departure, and no activity is assembled, so this is a default, not a condition evaluated and found to hold. A baseline representative condition, not an Interaction Regulation; it implies nothing about what players do after a change of possession.
+  A05 GF3 GA-001-OIC-05 [LOGICAL INFERENCE; weakest decisive source OURS]: GA-001-OIC-05 (REQUIRED CONDITION): STRUCTURAL_SIGNAL_PRESENT; evidence status INFERRED. A structural signal of ours (INFERRED): the continuous-play baseline default (C-BASE) applies. Our link, not his: his D5 supports continuous play as a baseline but does not link it to this condition. Whether the condition is expressed is emergent: to be expressed by the assembled activity; not evaluable before activity assembly.
+  A05 GF7 continuous play [LOGICAL INFERENCE; weakest decisive source OURS]: Continuous-play baseline: APPLIES_AS_BASELINE_DEFAULT. Continuous play applies as the baseline default: no knowledge file this stage reads can record a departure, and no activity is assembled, so this is a default, not a condition evaluated and found to hold. A baseline representative condition, not an Interaction Regulation; it implies nothing about what players do after a change of possession.
+  A05 GF7 GA-001-OIC-05 [LOGICAL INFERENCE; weakest decisive source OURS]: GA-001-OIC-05 (REQUIRED CONDITION): STRUCTURAL_SIGNAL_PRESENT; evidence status INFERRED. A structural signal of ours (INFERRED): the continuous-play baseline default (C-BASE) applies. Our link, not his: his D5 supports continuous play as a baseline but does not link it to this condition. Whether the condition is expressed is emergent: to be expressed by the assembled activity; not evaluable before activity assembly.
+
+STRUCTURAL FINDINGS ON TEST INPUTS
+  (Structural findings that read a test input (team sizes, areas): not hypotheses, and not evidence of ecological relevance.)
+  A05 GF2 PRE-TASK-OBJECT [LOGICAL INFERENCE; weakest decisive source TEST INPUT; test-only]: 'the ball is the task object' (FOI): PRESENT. Two teams, each with players (6 v 6): structural precondition present; not evidence of ecological relevance; does not distinguish Create Space from Exploit Space.
+  A05 GF2 PRE-COMPETITOR [LOGICAL INFERENCE; weakest decisive source TEST INPUT; test-only]: 'an opposing team is a competitor' (CIO): PRESENT. Two teams, each with players (6 v 6): structural precondition present; not evidence of ecological relevance; does not distinguish Create Space from Exploit Space.
+  A05 GF2 GA-001-OIC-03 [LOGICAL INFERENCE; weakest decisive source TEST INPUT; test-only]: GA-001-OIC-03 (REQUIRED CONDITION): STRUCTURAL_SIGNAL_PRESENT; evidence status INFERRED. A structural signal of ours (INFERRED): an opposing team with players is present. Whether the condition is expressed is emergent: to be expressed by the assembled activity; not evaluable before activity assembly.
+  A05 GF3 PRE-TASK-OBJECT [LOGICAL INFERENCE; weakest decisive source TEST INPUT; test-only]: 'the ball is the task object' (FOI): PRESENT. Two teams, each with players (6 v 6): structural precondition present; not evidence of ecological relevance; does not distinguish Create Space from Exploit Space.
+  A05 GF3 PRE-COMPETITOR [LOGICAL INFERENCE; weakest decisive source TEST INPUT; test-only]: 'an opposing team is a competitor' (CIO): PRESENT. Two teams, each with players (6 v 6): structural precondition present; not evidence of ecological relevance; does not distinguish Create Space from Exploit Space.
+  A05 GF3 GA-001-OIC-03 [LOGICAL INFERENCE; weakest decisive source TEST INPUT; test-only]: GA-001-OIC-03 (REQUIRED CONDITION): STRUCTURAL_SIGNAL_PRESENT; evidence status INFERRED. A structural signal of ours (INFERRED): an opposing team with players is present. Whether the condition is expressed is emergent: to be expressed by the assembled activity; not evaluable before activity assembly.
+  A05 GF7 PRE-TASK-OBJECT [LOGICAL INFERENCE; weakest decisive source TEST INPUT; test-only]: 'the ball is the task object' (FOI): PRESENT. Two teams, each with players (6 v 6): structural precondition present; not evidence of ecological relevance; does not distinguish Create Space from Exploit Space.
+  A05 GF7 PRE-COMPETITOR [LOGICAL INFERENCE; weakest decisive source TEST INPUT; test-only]: 'an opposing team is a competitor' (CIO): PRESENT. Two teams, each with players (6 v 6): structural precondition present; not evidence of ecological relevance; does not distinguish Create Space from Exploit Space.
+  A05 GF7 GA-001-OIC-03 [LOGICAL INFERENCE; weakest decisive source TEST INPUT; test-only]: GA-001-OIC-03 (REQUIRED CONDITION): STRUCTURAL_SIGNAL_PRESENT; evidence status INFERRED. A structural signal of ours (INFERRED): an opposing team with players is present. Whether the condition is expressed is emergent: to be expressed by the assembled activity; not evaluable before activity assembly.
+  A05 S1 W-L2 [LOGICAL INFERENCE; weakest decisive source TEST INPUT; test-only]: S1 W-L2: NOT_STRUCTURALLY_CERTAIN. Not structurally certain: both teams have players. This check reads team sizes only, not the area: no approved bound on area exists. The offered widening carries this entry as a reported risk.
+  A05 S1 N-L1 [LOGICAL INFERENCE; weakest decisive source TEST INPUT; test-only]: S1 N-L1: NOT_STRUCTURALLY_CERTAIN. Equal numbers (6 v 6): nothing to report.
+  A05 S2 W-L2 [LOGICAL INFERENCE; weakest decisive source TEST INPUT; test-only]: S2 W-L2: NOT_STRUCTURALLY_CERTAIN. Not structurally certain: both teams have players. This check reads team sizes only, not the area: no approved bound on area exists. No widening is offered.
+  A05 S2 N-L1 [LOGICAL INFERENCE; weakest decisive source TEST INPUT; test-only]: S2 N-L1: NOT_STRUCTURALLY_CERTAIN. Equal numbers (6 v 6): nothing to report.
+  A05 S3 W-L2 [LOGICAL INFERENCE; weakest decisive source TEST INPUT; test-only]: S3 W-L2: NOT_STRUCTURALLY_CERTAIN. Not structurally certain: both teams have players. This check reads team sizes only, not the area: no approved bound on area exists. No widening is offered.
+  A05 S3 N-L1 [LOGICAL INFERENCE; weakest decisive source TEST INPUT; test-only]: S3 N-L1: NOT_STRUCTURALLY_CERTAIN. Equal numbers (6 v 6): nothing to report.
+  A05 S4 W-L2 [LOGICAL INFERENCE; weakest decisive source TEST INPUT; test-only]: S4 W-L2: NOT_STRUCTURALLY_CERTAIN. Not structurally certain: both teams have players. This check reads team sizes only, not the area: no approved bound on area exists. No widening is offered.
+  A05 S4 N-L1 [LOGICAL INFERENCE; weakest decisive source TEST INPUT; test-only]: S4 N-L1: NOT_STRUCTURALLY_CERTAIN. Equal numbers (6 v 6): nothing to report.
+  A05 S5 proposal [LOGICAL INFERENCE; weakest decisive source TEST INPUT; test-only]: S5 proposal: NO_ROOM_WITHIN_AVAILABLE_SPACE. No widening can be proposed: the coach's available width (30 m) is no wider than the configured width (30 m). The configured width is kept.
+  A05 S5 W-L2 [LOGICAL INFERENCE; weakest decisive source TEST INPUT; test-only]: S5 W-L2: NOT_STRUCTURALLY_CERTAIN. Not structurally certain: both teams have players. This check reads team sizes only, not the area: no approved bound on area exists. No widening is offered.
+  A05 S5 N-L1 [LOGICAL INFERENCE; weakest decisive source TEST INPUT; test-only]: S5 N-L1: NOT_STRUCTURALLY_CERTAIN. Equal numbers (6 v 6): nothing to report.
+  A05 S6 W-L2 [LOGICAL INFERENCE; weakest decisive source TEST INPUT; test-only]: S6 W-L2: NOT_STRUCTURALLY_CERTAIN. Not structurally certain: both teams have players. This check reads team sizes only, not the area: no approved bound on area exists. No widening is offered.
 
 DEMONSTRATED ONLY UNDER TEST-ONLY HYPOTHESES
-  A05 GF2 PRE-TASK-OBJECT [LOGICAL INFERENCE; test-only]: 'the ball is the task object' (FOI): PRESENT. Two teams, each with players (6 v 6): structural precondition present; not evidence of ecological relevance; does not distinguish Create Space from Exploit Space.
-  A05 GF2 PRE-COMPETITOR [LOGICAL INFERENCE; test-only]: 'an opposing team is a competitor' (CIO): PRESENT. Two teams, each with players (6 v 6): structural precondition present; not evidence of ecological relevance; does not distinguish Create Space from Exploit Space.
-  A05 GF2 GA-001-OIC-03 [LOGICAL INFERENCE; test-only]: GA-001-OIC-03 (REQUIRED CONDITION): STRUCTURAL_SIGNAL_PRESENT. Opposition is present by design (an opposing team with players). Whether the condition is expressed is emergent: to be expressed by the assembled activity; not evaluable before activity assembly.
-  A05 GF2 GA-001-OIC-07 [LOGICAL INFERENCE; test-only]: GA-001-OIC-07 (BREACH DESCRIPTION): RISK_NOT_INDICATED_BY_DESIGN. A risk, not a verdict. Not indicated by the design: an opposing team with players is present. Whether it can change progression is emergent.
-  A05 GF3 PRE-TASK-OBJECT [LOGICAL INFERENCE; test-only]: 'the ball is the task object' (FOI): PRESENT. Two teams, each with players (6 v 6): structural precondition present; not evidence of ecological relevance; does not distinguish Create Space from Exploit Space.
-  A05 GF3 PRE-COMPETITOR [LOGICAL INFERENCE; test-only]: 'an opposing team is a competitor' (CIO): PRESENT. Two teams, each with players (6 v 6): structural precondition present; not evidence of ecological relevance; does not distinguish Create Space from Exploit Space.
-  A05 GF3 GA-001-OIC-03 [LOGICAL INFERENCE; test-only]: GA-001-OIC-03 (REQUIRED CONDITION): STRUCTURAL_SIGNAL_PRESENT. Opposition is present by design (an opposing team with players). Whether the condition is expressed is emergent: to be expressed by the assembled activity; not evaluable before activity assembly.
-  A05 GF3 GA-001-OIC-07 [LOGICAL INFERENCE; test-only]: GA-001-OIC-07 (BREACH DESCRIPTION): RISK_NOT_INDICATED_BY_DESIGN. A risk, not a verdict. Not indicated by the design: an opposing team with players is present. Whether it can change progression is emergent.
-  A05 GF7 PRE-TASK-OBJECT [LOGICAL INFERENCE; test-only]: 'the ball is the task object' (FOI): PRESENT. Two teams, each with players (6 v 6): structural precondition present; not evidence of ecological relevance; does not distinguish Create Space from Exploit Space.
-  A05 GF7 PRE-COMPETITOR [LOGICAL INFERENCE; test-only]: 'an opposing team is a competitor' (CIO): PRESENT. Two teams, each with players (6 v 6): structural precondition present; not evidence of ecological relevance; does not distinguish Create Space from Exploit Space.
-  A05 GF7 GA-001-OIC-03 [LOGICAL INFERENCE; test-only]: GA-001-OIC-03 (REQUIRED CONDITION): STRUCTURAL_SIGNAL_PRESENT. Opposition is present by design (an opposing team with players). Whether the condition is expressed is emergent: to be expressed by the assembled activity; not evaluable before activity assembly.
-  A05 GF7 GA-001-OIC-07 [LOGICAL INFERENCE; test-only]: GA-001-OIC-07 (BREACH DESCRIPTION): RISK_NOT_INDICATED_BY_DESIGN. A risk, not a verdict. Not indicated by the design: an opposing team with players is present. Whether it can change progression is emergent.
-  A05 S1 width comparison [TEST-ONLY HYPOTHESIS UNDER TEST ASSUMPTIONS; test-only]: S1: PRIMARY_INVITATION_CONDITIONS_MET. W-H1's deciding conditions hold under the test assumptions; W-H2's do not. Test-only hypothesis (W-H1): widening from 30 m to 40 m might invite the primary problem (GP-001). Offered as the proposed configuration on the review pathway only; not empirically established; not eligible for production.
-  A05 S1 proposal [TEST-ONLY HYPOTHESIS UNDER TEST ASSUMPTIONS; test-only]: S1 proposal: OFFERED_TEST_ONLY. Proposed configuration (test-only): widen the playing area from 30 m to 40 m; length unchanged at 40 m. A test-only hypothesis that widening might invite the primary problem (GP-001); not empirically established; not eligible for production.
-  A05 S1 W-L2 [LOGICAL INFERENCE; test-only]: S1 W-L2: NOT_STRUCTURALLY_CERTAIN. Not structurally certain: both teams have players. The offered widening carries it as a reported risk.
-  A05 S1 N-L1 [LOGICAL INFERENCE; test-only]: S1 N-L1: NOT_STRUCTURALLY_CERTAIN. Equal numbers (6 v 6): nothing to report.
-  A05 S2 width comparison [TEST-ONLY HYPOTHESIS UNDER TEST ASSUMPTIONS; test-only]: S2: SECONDARY_EXPLOITATION_CONDITIONS_MET. W-H2's deciding conditions hold under the test assumptions; W-H1's do not. Test-only hypothesis (W-H2): widening might make exploitation (GP-002, the secondary Game Problem's problem) the more immediate one, a way the manipulation could undermine the primary learning intention. The widening is not offered for the primary. The primary stays GP-001, as resolved. The longer-term requirement that the dominant Game Problem respond to the interaction circumstances is cited, not implemented; the boundary statement is cited as reference knowledge only.
-  A05 S2 proposal [TEST-ONLY HYPOTHESIS UNDER TEST ASSUMPTIONS; test-only]: S2 proposal: NOT_OFFERED_FOR_PRIMARY. Widening from 30 m to 40 m is not offered for the primary Game Problem (GP-001). The configured width is kept.
-  A05 S2 W-L2 [LOGICAL INFERENCE; test-only]: S2 W-L2: NOT_STRUCTURALLY_CERTAIN. Not structurally certain: both teams have players. No widening is offered.
-  A05 S2 N-L1 [LOGICAL INFERENCE; test-only]: S2 N-L1: NOT_STRUCTURALLY_CERTAIN. Equal numbers (6 v 6): nothing to report.
-  A05 S3 W-L2 [LOGICAL INFERENCE; test-only]: S3 W-L2: NOT_STRUCTURALLY_CERTAIN. Not structurally certain: both teams have players. No widening is offered.
-  A05 S3 N-L1 [LOGICAL INFERENCE; test-only]: S3 N-L1: NOT_STRUCTURALLY_CERTAIN. Equal numbers (6 v 6): nothing to report.
-  A05 S4 W-L2 [LOGICAL INFERENCE; test-only]: S4 W-L2: NOT_STRUCTURALLY_CERTAIN. Not structurally certain: both teams have players. No widening is offered.
-  A05 S4 N-L1 [LOGICAL INFERENCE; test-only]: S4 N-L1: NOT_STRUCTURALLY_CERTAIN. Equal numbers (6 v 6): nothing to report.
-  A05 S5 width comparison [TEST-ONLY HYPOTHESIS UNDER TEST ASSUMPTIONS; test-only]: S5: NO_ROOM_WITHIN_AVAILABLE_SPACE. W-H1's deciding conditions hold under the test assumptions; W-H2's do not. But no widening fits within the coach's available space, so nothing is proposed and the configured width (30 m) is kept.
-  A05 S5 proposal [LOGICAL INFERENCE; test-only]: S5 proposal: NO_ROOM_WITHIN_AVAILABLE_SPACE. No widening can be proposed: the coach's available space (40 x 30 m) leaves no room beyond the configured 40 x 30 m. The configured width is kept.
-  A05 S5 W-L2 [LOGICAL INFERENCE; test-only]: S5 W-L2: NOT_STRUCTURALLY_CERTAIN. Not structurally certain: both teams have players. No widening is offered.
-  A05 S5 N-L1 [LOGICAL INFERENCE; test-only]: S5 N-L1: NOT_STRUCTURALLY_CERTAIN. Equal numbers (6 v 6): nothing to report.
-  A05 S6 W-L2 [LOGICAL INFERENCE; test-only]: S6 W-L2: NOT_STRUCTURALLY_CERTAIN. Not structurally certain: both teams have players. No widening is offered.
+  (Results of the paired width comparison under test assumptions: not empirically established, not eligible for production.)
+  A05 S1 width comparison [TEST-ONLY HYPOTHESIS UNDER TEST ASSUMPTIONS; weakest decisive source TEST INPUT; test-only]: S1: PRIMARY_INVITATION_CONDITIONS_MET. W-H1's deciding conditions hold under the test assumptions; W-H2's do not. Test-only hypothesis (W-H1): widening from 30 m to 40 m might invite the primary problem (GP-001), assuming W-H1(a), W-H1(c) and W-H1(d), unverified. Offered as the proposed configuration on the review pathway only; not empirically established; not eligible for production.
+  A05 S1 proposal [TEST-ONLY HYPOTHESIS UNDER TEST ASSUMPTIONS; weakest decisive source TEST INPUT; test-only]: S1 proposal: OFFERED_TEST_ONLY. Proposed configuration (test-only): widen the playing area from 30 m to 40 m; length unchanged at 40 m. A test-only hypothesis that widening might invite the primary problem (GP-001), assuming W-H1(a), W-H1(c) and W-H1(d), unverified; W-H2's deciding conditions are not met under the test assumptions; not empirically established; not eligible for production.
+  A05 S2 width comparison [TEST-ONLY HYPOTHESIS UNDER TEST ASSUMPTIONS; weakest decisive source TEST INPUT; test-only]: S2: SECONDARY_EXPLOITATION_CONDITIONS_MET. W-H2's deciding conditions hold under the test assumptions; W-H1's do not. Test-only hypothesis (W-H2): widening might make exploitation (GP-002, the secondary Game Problem's problem) the more immediate one, a way the manipulation could undermine the primary learning intention. The widening is not offered for the primary. The test assumptions describe the area at the coach's available width (the proposed widened area), when attacks begin; nothing is supplied about the configured area, so keeping the configured width is not shown to pose the primary problem either. The primary stays GP-001, as resolved. The longer-term requirement that the dominant Game Problem respond to the interaction circumstances is cited, not implemented; the boundary statement is cited as reference knowledge only. Reported tension, not acted on: under the test assumption defendersCanStillOrganizeShiftAndContest = false, the situation may fall outside the qualifier of the ruling that set the primary Game Problem ("specifically in the context of progressing against organized opposition"); OURS: a defence that can no longer organize, shift and contest the added width may no longer be organized opposition, unless the hypotheses' background assumption that the defence is functionally organized holds.
+  A05 S2 proposal [TEST-ONLY HYPOTHESIS UNDER TEST ASSUMPTIONS; weakest decisive source TEST INPUT; test-only]: S2 proposal: NOT_OFFERED_FOR_PRIMARY. Widening from 30 m to 40 m is not offered for the primary Game Problem (GP-001). The configured width is kept.
+  A05 S5 width comparison [TEST-ONLY HYPOTHESIS UNDER TEST ASSUMPTIONS; weakest decisive source TEST INPUT; test-only]: S5: NO_ROOM_WITHIN_AVAILABLE_SPACE. W-H1's deciding conditions hold under the test assumptions; W-H2's do not. But no widening fits within the coach's available space, so nothing is proposed and the configured width (30 m), which lies within the limits, is kept.
 
 INSUFFICIENT EVIDENCE
-  A01 step 2 preference [INSUFFICIENT EVIDENCE]: Preference: INSUFFICIENT_EVIDENCE. Insufficient evidence to prefer one of GF2, GF3, GF7: no approved knowledge establishes a preference, and none is authored to resolve the tie.
-  A03 step 2 game form [INSUFFICIENT EVIDENCE]: NO_GOVERNED_RELATIONSHIP_ESTABLISHED. None of the forms RPC-004 relates (GF2, GF3, GF7) passes the gate; no governed relationship established; not evidence that the Game Form is ecologically unsuitable. See each candidate's excludedBecause.
-  A04 step 1 game problems [INSUFFICIENT EVIDENCE]: No Game Problem resolved (TRANSLATION_UNPOPULATED).
-  A04 step 2 game form [INSUFFICIENT EVIDENCE]: NOT_EVALUATED. Step 1 did not resolve a Game Problem and context, so no Game Form is evaluated.
-  A05 step 1 finding FOI [INSUFFICIENT EVIDENCE]: FOI (Functional Object Interaction): the secondary GP-002 rates it E, the primary GP-001 S; INSUFFICIENT_EVIDENCE: no approved relationship establishes how to reconcile the difference; an unresolved secondary consideration. Not promoted into the effective profile.
-  A05 step 2 preference [INSUFFICIENT EVIDENCE]: Preference: INSUFFICIENT_EVIDENCE. Insufficient evidence to prefer one of GF2, GF3, GF7: no approved knowledge establishes a preference, and none is authored to resolve the tie.
-  A05 GF2 GA-001-OIC-01 [INSUFFICIENT EVIDENCE]: GA-001-OIC-01 (REQUIRED CONDITION): NOT_EVALUABLE_BEFORE_ACTIVITY_ASSEMBLY. To be expressed by the assembled activity; not evaluable before activity assembly (Step 3 is held).
-  A05 GF2 GA-001-OIC-02 [INSUFFICIENT EVIDENCE]: GA-001-OIC-02 (REQUIRED CONDITION): NOT_EVALUABLE_BEFORE_ACTIVITY_ASSEMBLY. To be expressed by the assembled activity; not evaluable before activity assembly (Step 3 is held).
-  A05 GF2 GA-001-OIC-04 [INSUFFICIENT EVIDENCE]: GA-001-OIC-04 (REQUIRED CONDITION): NOT_EVALUABLE_BEFORE_ACTIVITY_ASSEMBLY. To be expressed by the assembled activity; not evaluable before activity assembly (Step 3 is held).
-  A05 GF2 GA-001-OIC-06 [INSUFFICIENT EVIDENCE]: GA-001-OIC-06 (BREACH DESCRIPTION): RISK_NOT_EVALUABLE. A risk, not a verdict. Not evaluable before activity assembly (Step 3 is held).
-  A05 GF2 GA-001-OIC-08 [INSUFFICIENT EVIDENCE]: GA-001-OIC-08 (BREACH DESCRIPTION): RISK_NOT_EVALUABLE. A risk, not a verdict. Not evaluable before activity assembly (Step 3 is held).
-  A05 GF3 GA-001-OIC-01 [INSUFFICIENT EVIDENCE]: GA-001-OIC-01 (REQUIRED CONDITION): NOT_EVALUABLE_BEFORE_ACTIVITY_ASSEMBLY. To be expressed by the assembled activity; not evaluable before activity assembly (Step 3 is held).
-  A05 GF3 GA-001-OIC-02 [INSUFFICIENT EVIDENCE]: GA-001-OIC-02 (REQUIRED CONDITION): NOT_EVALUABLE_BEFORE_ACTIVITY_ASSEMBLY. To be expressed by the assembled activity; not evaluable before activity assembly (Step 3 is held).
-  A05 GF3 GA-001-OIC-04 [INSUFFICIENT EVIDENCE]: GA-001-OIC-04 (REQUIRED CONDITION): NOT_EVALUABLE_BEFORE_ACTIVITY_ASSEMBLY. To be expressed by the assembled activity; not evaluable before activity assembly (Step 3 is held).
-  A05 GF3 GA-001-OIC-06 [INSUFFICIENT EVIDENCE]: GA-001-OIC-06 (BREACH DESCRIPTION): RISK_NOT_EVALUABLE. A risk, not a verdict. Not evaluable before activity assembly (Step 3 is held).
-  A05 GF3 GA-001-OIC-08 [INSUFFICIENT EVIDENCE]: GA-001-OIC-08 (BREACH DESCRIPTION): RISK_NOT_EVALUABLE. A risk, not a verdict. Not evaluable before activity assembly (Step 3 is held).
-  A05 GF7 GA-001-OIC-01 [INSUFFICIENT EVIDENCE]: GA-001-OIC-01 (REQUIRED CONDITION): NOT_EVALUABLE_BEFORE_ACTIVITY_ASSEMBLY. To be expressed by the assembled activity; not evaluable before activity assembly (Step 3 is held).
-  A05 GF7 GA-001-OIC-02 [INSUFFICIENT EVIDENCE]: GA-001-OIC-02 (REQUIRED CONDITION): NOT_EVALUABLE_BEFORE_ACTIVITY_ASSEMBLY. To be expressed by the assembled activity; not evaluable before activity assembly (Step 3 is held).
-  A05 GF7 GA-001-OIC-04 [INSUFFICIENT EVIDENCE]: GA-001-OIC-04 (REQUIRED CONDITION): NOT_EVALUABLE_BEFORE_ACTIVITY_ASSEMBLY. To be expressed by the assembled activity; not evaluable before activity assembly (Step 3 is held).
-  A05 GF7 GA-001-OIC-06 [INSUFFICIENT EVIDENCE]: GA-001-OIC-06 (BREACH DESCRIPTION): RISK_NOT_EVALUABLE. A risk, not a verdict. Not evaluable before activity assembly (Step 3 is held).
-  A05 GF7 GA-001-OIC-08 [INSUFFICIENT EVIDENCE]: GA-001-OIC-08 (BREACH DESCRIPTION): RISK_NOT_EVALUABLE. A risk, not a verdict. Not evaluable before activity assembly (Step 3 is held).
-  A05 S3 width comparison [INSUFFICIENT EVIDENCE; test-only]: S3: INSUFFICIENT_EVIDENCE. Not supplied: defenders can still organize, shift and contest (could come from coach observation or future feedback; never geometry or player numbers); usable space already exists (could come from coach observation or future feedback; never geometry or player numbers). The engine does not infer them from the dimensions or the player numbers. Insufficient evidence for both W-H1 and W-H2: no proposal, and the configured width (30 m) is kept.
-  A05 S3 proposal [INSUFFICIENT EVIDENCE; test-only]: S3 proposal: NONE_INSUFFICIENT_EVIDENCE. No proposal. The configured width (30 m) is kept.
-  A05 S4 width comparison [INSUFFICIENT EVIDENCE; test-only]: S4: INSUFFICIENT_EVIDENCE. The supplied circumstances meet neither hypothesis's deciding conditions; they decide neither (W-H2's failure modes include an organized defence that concedes width deliberately). Insufficient evidence for both W-H1 and W-H2: no proposal, and the configured width (30 m) is kept.
-  A05 S4 proposal [INSUFFICIENT EVIDENCE; test-only]: S4 proposal: NONE_INSUFFICIENT_EVIDENCE. No proposal. The configured width (30 m) is kept.
-  A05 S6 width comparison [INSUFFICIENT EVIDENCE; test-only]: S6: INSUFFICIENT_EVIDENCE. The paired comparison cannot be made: W-H1(b) is not evaluable with 7 v 5 (unequal numbers): 'roughly balanced' has no approved threshold, and N-H1 is deferred, so equal numbers satisfy it and unequal numbers make it not evaluable. Insufficient evidence for both W-H1 and W-H2: no proposal, and the configured width (30 m) is kept.
-  A05 S6 proposal [INSUFFICIENT EVIDENCE; test-only]: S6 proposal: NONE_INSUFFICIENT_EVIDENCE. No proposal. The configured width (30 m) is kept.
-  A05 S6 N-L1 [INSUFFICIENT EVIDENCE; test-only]: S6 N-L1: UNCERTAINTY_REPORTED. Unequal numbers (7 v 5): whether the outnumbered team can still rebalance, constrain or disrupt is not evaluable; no approved ratio exists.
-  A06 step 1 game problems [INSUFFICIENT EVIDENCE]: No Game Problem resolved (TRANSLATION_UNPOPULATED).
-  A06 step 2 game form [INSUFFICIENT EVIDENCE]: NOT_EVALUATED. Step 1 did not resolve a Game Problem and context, so no Game Form is evaluated.
-  D01 step 2 game form [INSUFFICIENT EVIDENCE]: NO_GOVERNED_RELATIONSHIP_ESTABLISHED. None of the forms RPC-008 relates (GF2, GF3, GF7) passes the gate; no governed relationship established; not evidence that the Game Form is ecologically unsuitable. See each candidate's excludedBecause.
-  D03 step 2 game form [INSUFFICIENT EVIDENCE]: NO_GOVERNED_RELATIONSHIP_ESTABLISHED. None of the forms RPC-008 relates (GF2, GF3, GF7) passes the gate; no governed relationship established; not evidence that the Game Form is ecologically unsuitable. See each candidate's excludedBecause.
-  TD01 step 2 game form [INSUFFICIENT EVIDENCE]: NO_GOVERNED_RELATIONSHIP_ESTABLISHED. None of the forms RPC-007 relates (GF2, GF4) passes the gate; no governed relationship established; not evidence that the Game Form is ecologically unsuitable. See each candidate's excludedBecause.
-  TD02 step 2 game form [INSUFFICIENT EVIDENCE]: NO_GOVERNED_RELATIONSHIP_ESTABLISHED. None of the forms RPC-007 relates (GF2, GF4) passes the gate; no governed relationship established; not evidence that the Game Form is ecologically unsuitable. See each candidate's excludedBecause.
+  (Where a condition cannot be evaluated, or nothing approved decides.)
+  A01 step 2 preference [INSUFFICIENT EVIDENCE; weakest decisive source CANDIDATE]: Preference: INSUFFICIENT_EVIDENCE. Insufficient evidence to prefer one of GF2, GF3, GF7: no approved knowledge establishes a preference, and none is authored to resolve the tie.
+  A03 step 2 game form [INSUFFICIENT EVIDENCE; weakest decisive source CANDIDATE]: NO_GOVERNED_RELATIONSHIP_ESTABLISHED. None of the forms RPC-004 relates (GF2, GF3, GF7) passes the gate; no governed relationship established; not evidence that the Game Form is ecologically unsuitable. See each candidate's excludedBecause.
+  A04 step 1 game problems [INSUFFICIENT EVIDENCE; weakest decisive source APPROVED]: No Game Problem resolved (TRANSLATION_UNPOPULATED).
+  A04 step 1 status [INSUFFICIENT EVIDENCE; weakest decisive source APPROVED]: Status UNRESOLVED (TRANSLATION_UNPOPULATED).
+  A04 step 2 game form [INSUFFICIENT EVIDENCE; weakest decisive source APPROVED]: NOT_EVALUATED. Step 1 did not resolve a Game Problem and context, so no Game Form is evaluated.
+  A05 step 1 finding FOI [INSUFFICIENT EVIDENCE; weakest decisive source RULING]: FOI (Functional Object Interaction): the secondary GP-002 rates it E, the primary GP-001 S; INSUFFICIENT_EVIDENCE: no approved relationship establishes how to reconcile the difference; an unresolved secondary consideration. Not promoted into the effective profile.
+  A05 step 2 preference [INSUFFICIENT EVIDENCE; weakest decisive source CANDIDATE]: Preference: INSUFFICIENT_EVIDENCE. Insufficient evidence to prefer one of GF2, GF3, GF7: no approved knowledge establishes a preference, and none is authored to resolve the tie.
+  A05 GF2 GA-001-OIC-01 [INSUFFICIENT EVIDENCE; weakest decisive source RULING]: GA-001-OIC-01 (REQUIRED CONDITION): NOT_EVALUABLE_BEFORE_ACTIVITY_ASSEMBLY. To be expressed by the assembled activity; not evaluable before activity assembly (Step 3 is held).
+  A05 GF2 GA-001-OIC-02 [INSUFFICIENT EVIDENCE; weakest decisive source RULING]: GA-001-OIC-02 (REQUIRED CONDITION): NOT_EVALUABLE_BEFORE_ACTIVITY_ASSEMBLY. To be expressed by the assembled activity; not evaluable before activity assembly (Step 3 is held).
+  A05 GF2 GA-001-OIC-04 [INSUFFICIENT EVIDENCE; weakest decisive source RULING]: GA-001-OIC-04 (REQUIRED CONDITION): NOT_EVALUABLE_BEFORE_ACTIVITY_ASSEMBLY. To be expressed by the assembled activity; not evaluable before activity assembly (Step 3 is held).
+  A05 GF2 GA-001-OIC-06 [INSUFFICIENT EVIDENCE; weakest decisive source RULING]: GA-001-OIC-06 (BREACH DESCRIPTION): RISK_NOT_EVALUABLE. A risk, not a verdict. Not evaluable before activity assembly (Step 3 is held).
+  A05 GF2 GA-001-OIC-07 [INSUFFICIENT EVIDENCE; weakest decisive source TEST INPUT; test-only]: GA-001-OIC-07 (BREACH DESCRIPTION): RISK_NOT_EVALUABLE. A risk, not a verdict. Not evaluable before activity assembly (Step 3 is held): an opposing team with players is present, but whether the opposition can change progression depends on the assembled activity and on play.
+  A05 GF2 GA-001-OIC-08 [INSUFFICIENT EVIDENCE; weakest decisive source RULING]: GA-001-OIC-08 (BREACH DESCRIPTION): RISK_NOT_EVALUABLE. A risk, not a verdict. Not evaluable before activity assembly (Step 3 is held).
+  A05 GF3 GA-001-OIC-01 [INSUFFICIENT EVIDENCE; weakest decisive source RULING]: GA-001-OIC-01 (REQUIRED CONDITION): NOT_EVALUABLE_BEFORE_ACTIVITY_ASSEMBLY. To be expressed by the assembled activity; not evaluable before activity assembly (Step 3 is held).
+  A05 GF3 GA-001-OIC-02 [INSUFFICIENT EVIDENCE; weakest decisive source RULING]: GA-001-OIC-02 (REQUIRED CONDITION): NOT_EVALUABLE_BEFORE_ACTIVITY_ASSEMBLY. To be expressed by the assembled activity; not evaluable before activity assembly (Step 3 is held).
+  A05 GF3 GA-001-OIC-04 [INSUFFICIENT EVIDENCE; weakest decisive source RULING]: GA-001-OIC-04 (REQUIRED CONDITION): NOT_EVALUABLE_BEFORE_ACTIVITY_ASSEMBLY. To be expressed by the assembled activity; not evaluable before activity assembly (Step 3 is held).
+  A05 GF3 GA-001-OIC-06 [INSUFFICIENT EVIDENCE; weakest decisive source RULING]: GA-001-OIC-06 (BREACH DESCRIPTION): RISK_NOT_EVALUABLE. A risk, not a verdict. Not evaluable before activity assembly (Step 3 is held).
+  A05 GF3 GA-001-OIC-07 [INSUFFICIENT EVIDENCE; weakest decisive source TEST INPUT; test-only]: GA-001-OIC-07 (BREACH DESCRIPTION): RISK_NOT_EVALUABLE. A risk, not a verdict. Not evaluable before activity assembly (Step 3 is held): an opposing team with players is present, but whether the opposition can change progression depends on the assembled activity and on play.
+  A05 GF3 GA-001-OIC-08 [INSUFFICIENT EVIDENCE; weakest decisive source RULING]: GA-001-OIC-08 (BREACH DESCRIPTION): RISK_NOT_EVALUABLE. A risk, not a verdict. Not evaluable before activity assembly (Step 3 is held).
+  A05 GF7 GA-001-OIC-01 [INSUFFICIENT EVIDENCE; weakest decisive source RULING]: GA-001-OIC-01 (REQUIRED CONDITION): NOT_EVALUABLE_BEFORE_ACTIVITY_ASSEMBLY. To be expressed by the assembled activity; not evaluable before activity assembly (Step 3 is held).
+  A05 GF7 GA-001-OIC-02 [INSUFFICIENT EVIDENCE; weakest decisive source RULING]: GA-001-OIC-02 (REQUIRED CONDITION): NOT_EVALUABLE_BEFORE_ACTIVITY_ASSEMBLY. To be expressed by the assembled activity; not evaluable before activity assembly (Step 3 is held).
+  A05 GF7 GA-001-OIC-04 [INSUFFICIENT EVIDENCE; weakest decisive source RULING]: GA-001-OIC-04 (REQUIRED CONDITION): NOT_EVALUABLE_BEFORE_ACTIVITY_ASSEMBLY. To be expressed by the assembled activity; not evaluable before activity assembly (Step 3 is held).
+  A05 GF7 GA-001-OIC-06 [INSUFFICIENT EVIDENCE; weakest decisive source RULING]: GA-001-OIC-06 (BREACH DESCRIPTION): RISK_NOT_EVALUABLE. A risk, not a verdict. Not evaluable before activity assembly (Step 3 is held).
+  A05 GF7 GA-001-OIC-07 [INSUFFICIENT EVIDENCE; weakest decisive source TEST INPUT; test-only]: GA-001-OIC-07 (BREACH DESCRIPTION): RISK_NOT_EVALUABLE. A risk, not a verdict. Not evaluable before activity assembly (Step 3 is held): an opposing team with players is present, but whether the opposition can change progression depends on the assembled activity and on play.
+  A05 GF7 GA-001-OIC-08 [INSUFFICIENT EVIDENCE; weakest decisive source RULING]: GA-001-OIC-08 (BREACH DESCRIPTION): RISK_NOT_EVALUABLE. A risk, not a verdict. Not evaluable before activity assembly (Step 3 is held).
+  A05 S3 width comparison [INSUFFICIENT EVIDENCE; weakest decisive source TEST INPUT; test-only]: S3: INSUFFICIENT_EVIDENCE. Not supplied: defenders can still organize, shift and contest the added width (could come from coach observation or future feedback; never geometry or player numbers); usable space already exists (could come from coach observation or future feedback; never geometry or player numbers). The engine does not infer them from the dimensions or the player numbers. Insufficient evidence for the pair (W-H1, W-H2): no proposal, and the configured width (30 m) is kept.
+  A05 S3 proposal [INSUFFICIENT EVIDENCE; weakest decisive source TEST INPUT; test-only]: S3 proposal: NONE_INSUFFICIENT_EVIDENCE. No proposal. The configured width (30 m) is kept.
+  A05 S4 width comparison [INSUFFICIENT EVIDENCE; weakest decisive source TEST INPUT; test-only]: S4: INSUFFICIENT_EVIDENCE. The supplied circumstances meet neither hypothesis's deciding conditions; they decide neither (W-H2's failure modes include an organized defence that concedes width deliberately). Insufficient evidence for the pair (W-H1, W-H2): no proposal, and the configured width (30 m) is kept.
+  A05 S4 proposal [INSUFFICIENT EVIDENCE; weakest decisive source TEST INPUT; test-only]: S4 proposal: NONE_INSUFFICIENT_EVIDENCE. No proposal. The configured width (30 m) is kept.
+  A05 S6 width comparison [INSUFFICIENT EVIDENCE; weakest decisive source TEST INPUT; test-only]: S6: INSUFFICIENT_EVIDENCE. The paired comparison cannot be made: W-H1(b) is not evaluable with 7 v 5 (unequal numbers): 'roughly balanced' has no approved threshold, and N-H1 is deferred, so two equal team sizes, each a positive whole number, satisfy it; anything else makes it not evaluable. Insufficient evidence for the pair (W-H1, W-H2): no proposal, and the configured width (30 m) is kept.
+  A05 S6 proposal [INSUFFICIENT EVIDENCE; weakest decisive source TEST INPUT; test-only]: S6 proposal: NONE_INSUFFICIENT_EVIDENCE. No proposal. The configured width (30 m) is kept.
+  A05 S6 N-L1 [INSUFFICIENT EVIDENCE; weakest decisive source TEST INPUT; test-only]: S6 N-L1: UNCERTAINTY_REPORTED. Unequal numbers (7 v 5): whether the outnumbered team can still rebalance, constrain or disrupt is not evaluable; no approved ratio exists.
+  A06 step 1 game problems [INSUFFICIENT EVIDENCE; weakest decisive source APPROVED]: No Game Problem resolved (TRANSLATION_UNPOPULATED).
+  A06 step 1 status [INSUFFICIENT EVIDENCE; weakest decisive source APPROVED]: Status UNRESOLVED (TRANSLATION_UNPOPULATED).
+  A06 step 2 game form [INSUFFICIENT EVIDENCE; weakest decisive source APPROVED]: NOT_EVALUATED. Step 1 did not resolve a Game Problem and context, so no Game Form is evaluated.
+  D01 step 2 game form [INSUFFICIENT EVIDENCE; weakest decisive source CANDIDATE]: NO_GOVERNED_RELATIONSHIP_ESTABLISHED. None of the forms RPC-008 relates (GF2, GF3, GF7) passes the gate; no governed relationship established; not evidence that the Game Form is ecologically unsuitable. See each candidate's excludedBecause. Knowledge-population finding (D3-4NOV): "The missing defending-goal relationships can remain a separate knowledge-population finding."
+  D03 step 2 game form [INSUFFICIENT EVIDENCE; weakest decisive source CANDIDATE]: NO_GOVERNED_RELATIONSHIP_ESTABLISHED. None of the forms RPC-008 relates (GF2, GF3, GF7) passes the gate; no governed relationship established; not evidence that the Game Form is ecologically unsuitable. See each candidate's excludedBecause. Knowledge-population finding (D3-4NOV): "The missing defending-goal relationships can remain a separate knowledge-population finding."
+  TD01 step 2 game form [INSUFFICIENT EVIDENCE; weakest decisive source CANDIDATE]: NO_GOVERNED_RELATIONSHIP_ESTABLISHED. None of the forms RPC-007 relates (GF2, GF4) passes the gate; no governed relationship established; not evidence that the Game Form is ecologically unsuitable. See each candidate's excludedBecause. Knowledge-population finding (D3-4NOV): "The missing defending-goal relationships can remain a separate knowledge-population finding."
+  TD02 step 2 game form [INSUFFICIENT EVIDENCE; weakest decisive source CANDIDATE]: NO_GOVERNED_RELATIONSHIP_ESTABLISHED. None of the forms RPC-007 relates (GF2, GF4) passes the gate; no governed relationship established; not evidence that the Game Form is ecologically unsuitable. See each candidate's excludedBecause. Knowledge-population finding (D3-4NOV): "The missing defending-goal relationships can remain a separate knowledge-population finding."
 
 === PART D. Conditions-of-use entries ===
 
 Conditions-of-use entries (structure approved under D5; content OURS unless a field says otherwise; field evidence: none for every entry)
-  W-P: ESTABLISHED PRINCIPLE; accepted conceptual or structural principle; permitted engine use STRUCTURAL CHECK AND UNCERTAINTY REPORTING; field evidence none
+  Kinds: OURS. 'conceptual or structural principle (proposed; pending his acceptance)': a principle this demonstration uses as a design premise, for his review. He approved the entry structure (D5), not any entry's text, so no entry is labelled accepted until he accepts it; none is an empirically validated effect. 'reference knowledge, cited only (not a premise)': shown in review traces with its status; it decides nothing and is no design premise. 'hypothesis': a causal hypothesis, used only as his D5 permits.
+  Source standings: OURS. PROVISIONAL: his words given as an illustrative example (our earlier records class these as his provisional examples), not a ruling. RULING: his words given as a decision.
+  W-P: ESTABLISHED PRINCIPLE; conceptual or structural principle (proposed; pending his acceptance); permitted engine use STRUCTURAL CHECK AND UNCERTAINTY REPORTING; field evidence none
     Changing the playing area's width changes its geometric extent and, with it, spacing, movement opportunities and available action spaces for both teams. Whether usable space changes for either team depends on how performers are positioned and on their capabilities: space is relational, not geometric.
     source [CANDIDATE] EM schema v2.0-RC1, ecologicalGuidance EMG-0001 (EM-0001, Potential Value): "Alters spacing, movement opportunities, and available action spaces."
     source [REFERENCE ONLY] Populated Game Problem Library RC1, Space domain (document status line: Canonical): "Space is understood relationally rather than geometrically."
     source [APPROVED] Context library RC1.1, RPC-PROP-047 (RPC-003, BEHAVIOR_ADJUSTMENT, ACTIVE): "Manipulate field dimensions or numerical relationships."
     source [RULING] Christian, reply received 4 November 2026 (Stage 1 review): "An established principle that width changes spatial relationships is different from a verified claim that increasing width improves space creation for a particular group."
-  W-L1: LOGICAL INFERENCE; accepted conceptual or structural principle; permitted engine use STRUCTURAL CHECK AND UNCERTAINTY REPORTING; field evidence none
-    If useful space is already available when attacks begin, Create Space is not the problem posed, and Exploit Space is. A configuration must not be justified for Create Space by adding space that already exists.
+  W-L1: LOGICAL INFERENCE; conceptual or structural principle (proposed; pending his acceptance); permitted engine use STRUCTURAL CHECK AND UNCERTAINTY REPORTING; field evidence none
+    If useful space already exists when attacks begin, Create Space is not the problem posed; exploiting it may be the immediate problem.
     source [APPROVED] CAR Matrix RC1.2, gameProblemRegistry GP-001 canonical_definition (status Approved): "Create or enlarge usable space that enables future interaction opportunities."
     source [APPROVED] CAR Matrix RC1.2, gameProblemRegistry GP-002 canonical_definition (status Approved): "Use an existing spatial opportunity to produce functional advantage before it disappears."
     source [RULING] Christian, reply received 3 November 2026: "When useful space is already available, exploiting it may be the immediate problem. Players shouldn't be encouraged to create space unnecessarily."
@@ -617,27 +722,27 @@ Conditions-of-use entries (structure approved under D5; content OURS unless a fi
   W-H1: CAUSAL HYPOTHESIS; hypothesis; permitted engine use TEST-ONLY COMPARISON; field evidence none
     Increasing playing width may create opportunities to move defenders and open pathways, so that attacks more often pose Create Space, if the defence is functionally organized and can still organize, shift and contest the added width.
     source [RULING] Christian, reply received 4 November 2026 (D5): "Conditions where increasing width might invite space creation because defenders can still organize, shift and contest."
-    source [RULING] Christian, reply received 3 November 2026 (his example): "For example, increasing playing width might invite space creation if defenders can still organize, shift and contest the available space."
-    source [RULING] Christian, reply received 31 October 2026 (his example): "For example, increasing playing width may create opportunities to move defenders and open pathways."
+    source [PROVISIONAL] Christian, reply received 3 November 2026 (his example): "For example, increasing playing width might invite space creation if defenders can still organize, shift and contest the available space."
+    source [PROVISIONAL] Christian, reply received 31 October 2026 (his example): "For example, increasing playing width may create opportunities to move defenders and open pathways."
     source [RULING] Christian, reply received 31 October 2026 (his working definition of organized defence): "A defense is functionally organized when its players have sufficiently coordinated relationships to challenge progression, provide mutual support, and adapt collectively to the attacking team's changing opportunities."
     source [APPROVED] Context library RC1.1, RPC-PROP-038 (RPC-003, REPRESENTATIVE_INFORMATION, ACTIVE): "Defensive organization and defensive shifting."
   W-H2: CAUSAL HYPOTHESIS; hypothesis; permitted engine use TEST-ONLY COMPARISON; field evidence none
     Width beyond what the defending players can cover by shifting together may make useful space available without players having to create it, making exploitation (Exploit Space) the more immediate problem. For a primary Create Space problem, that is a way the widening could undermine the learning intention.
     source [RULING] Christian, reply received 4 November 2026 (D5): "Conditions where additional width might instead provide usable space that already exists, making exploitation the more immediate problem."
-    source [RULING] Christian, reply received 3 November 2026 (his example): "Under different conditions, the same change may merely provide space that already exists."
-    source [RULING] Christian, reply received 31 October 2026 (his example): "In another configuration, it might simply make useful space available without requiring players to create it."
-  W-L2: LOGICAL INFERENCE; accepted conceptual or structural principle; permitted engine use STRUCTURAL CHECK AND UNCERTAINTY REPORTING; field evidence none
+    source [PROVISIONAL] Christian, reply received 3 November 2026 (his example): "Under different conditions, the same change may merely provide space that already exists."
+    source [PROVISIONAL] Christian, reply received 31 October 2026 (his example): "In another configuration, it might simply make useful space available without requiring players to create it."
+  W-L2: LOGICAL INFERENCE; conceptual or structural principle (proposed; pending his acceptance); permitted engine use STRUCTURAL CHECK AND UNCERTAINTY REPORTING; field evidence none
     An area so large, or so narrow, relative to the numbers that competitors can no longer close, follow, constrain or otherwise influence the developing interaction removes Competitive Interaction Opportunity, which these Game Problems rate Essential.
     source [CANDIDATE] EM schema v2.0-RC1, ecologicalGuidance EMG-0002 (EM-0001, Common Risk): "Extreme geometry may remove important representative affordances."
     source [REFERENCE ONLY] Game Archetype Canonical Reference v1.1, section 7, Engineering and Organizational Integrity: "increasing playing area dimensions may reduce Organizational Integrity if the resulting activity eliminates meaningful interaction between performers."
     source [APPROVED] CAR Matrix RC1.2, metadataRows, Competitive Interaction Opportunity definition: "Is an opportunity available for direct or indirect adaptive competitor influence that can alter, constrain, contest, or disrupt developing interaction?"
     source [APPROVED] Game Archetype Workbook RC1.1, GAK-0105 (GA-001 integrity condition 3): "Opposition can deny, redirect, or reverse progression."
-  N-P: ESTABLISHED PRINCIPLE; accepted conceptual or structural principle; permitted engine use STRUCTURAL CHECK AND UNCERTAINTY REPORTING; field evidence none
+  N-P: ESTABLISHED PRINCIPLE; conceptual or structural principle (proposed; pending his acceptance); permitted engine use STRUCTURAL CHECK AND UNCERTAINTY REPORTING; field evidence none
     Changing the number of performers in a group changes numerical interaction opportunities and local challenge. An added performer makes coordinated interaction structurally possible; it is not evidence that support occurs, that it is functional, or that learning improves.
     source [CANDIDATE] EM schema v2.0-RC1, ecologicalGuidance EMG-0011 (EM-0006, Potential Value): "Changes numerical interaction opportunities and local challenge."
     source [APPROVED] CAR Matrix RC1.2, metadataRows, Support Availability definition: "Is coordinated interaction with another performer available?"
     source [RULING] Christian, reply received 4 November 2026 (Stage 1 review): "Similarly, increasing numerical superiority may change available support relationships without guaranteeing functional support or improving learning."
-  N-L1: LOGICAL INFERENCE; accepted conceptual or structural principle; permitted engine use STRUCTURAL CHECK AND UNCERTAINTY REPORTING; field evidence none
+  N-L1: LOGICAL INFERENCE; conceptual or structural principle (proposed; pending his acceptance); permitted engine use STRUCTURAL CHECK AND UNCERTAINTY REPORTING; field evidence none
     An overload large enough that the outnumbered team can no longer rebalance, constrain or disrupt the developing interaction trivializes the task and removes Competitive Interaction Opportunity.
     source [CANDIDATE] EM schema v2.0-RC1, ecologicalGuidance EMG-0012 (EM-0006, Common Risk): "Numerical changes can overwhelm or trivialize the task."
     source [APPROVED] Game Archetype Workbook RC1.1, GAK-0109 (GA-001 integrity condition 7, a breach description under D6): "Opposition is passive, scripted, or unable to change progression."
@@ -647,25 +752,25 @@ Conditions-of-use entries (structure approved under D5; content OURS unless a fi
     Against a functionally organized defence, a small attacking overload may invite players to create and find the free player (Create Space); a large or permanent overload may hand the free player over (Exploit Space).
     source [REFERENCE ONLY] Game Archetype Canonical Reference v1.1: "Additional performers increase available passing options, alter defensive attention, and expand the range of potential affordances."
     source [RULING] Christian, reply received 4 November 2026 (D5): "I would defer N-H1 as a causal hypothesis until we've evaluated the width comparison."
-  C-BASE: LOGICAL INFERENCE; accepted conceptual or structural principle; permitted engine use STRUCTURAL CHECK AND UNCERTAINTY REPORTING; field evidence none
+  C-BASE: LOGICAL INFERENCE; conceptual or structural principle (proposed; pending his acceptance); permitted engine use STRUCTURAL CHECK AND UNCERTAINTY REPORTING; field evidence none
     In an Invasion activity the ball stays in play through a change of possession; play stops only where the Laws of the Game stop it or where an authorized departure states otherwise. Preserving this condition says nothing about what players should do after a change of possession, and it is separate from any regulation of what is permitted during play.
     source [RULING] Christian, reply received 4 November 2026 (D5): "I also support retaining continuous play as a baseline representative condition where applicable, separate from specific Interaction Regulations."
     source [RULING] Christian, reply received 4 November 2026 (Stage 1 review): "Regarding continuous play, I would initially treat it as a baseline representative game condition where applicable, rather than create a new Interaction Regulation Knowledge Object unless there is a specific additional regulation that needs to be represented."
     source [RULING] Christian, reply received 4 November 2026 (Stage 1 review): "Please retain the distinction between preserving continuous play and regulating what is permitted during that play."
     source [RULING] Christian, reply received 23 October 2026: "The normal Laws of the Game should apply by default wherever they are applicable, unless an activity introduces an explicit, knowledge-authorized modification."
     source [APPROVED] Game Archetype Workbook RC1.1, GAK-0107 (GA-001 integrity condition 5): "Meaningful events continuously reorganize space, roles, access, or threat."
-  PGPL-CREATE-SPACE-BOUNDARY: REFERENCE KNOWLEDGE; accepted conceptual or structural principle; permitted engine use TRACE CITATION ONLY; field evidence none
+  PGPL-CREATE-SPACE-BOUNDARY: REFERENCE KNOWLEDGE; reference knowledge, cited only (not a premise); permitted engine use TRACE CITATION ONLY; field evidence none
     If sufficient space already exists, the interaction problem is no longer Create Space.
     source [REFERENCE ONLY] Populated Game Problem Library RC1 Canonical Reference Part III, Create Space: "If sufficient space already exists, the interaction problem is no longer Create Space."
     source [RULING] Christian, reply received 4 November 2026: "You may also cite the Populated Game Problem Library's Create Space boundary statement in audit and review traces as reference knowledge, provided its status remains explicit."
     source [RULING] Christian, reply received 4 November 2026: "It should not be converted into an executable causal selection rule merely by being cited."
 
-=== PART E. Framework rules that ran ===
-  OURS: rule texts from the E7 draft and the decision package, item 5. He approved the non-causal framework principles for further testing (D6). Only rules that neither exclude a design nor claim that an element serves an affordance run here. The Game Form gate is not one of them: it is Stage 1's gate, now supported by his D3.
-  R0.1: the rationale is recorded at decision time: every decision carries the rows, rulings and test assumptions it read
-  R2.1a: no relevance through words: no decision reads a name, definition, note or statement
-  R2.5: primary and secondary Game Problems are each judged with their role, never through the merged profile alone
-  R3.2: a condition that cannot be evaluated gives insufficient evidence, never holds
-  R4.4: tradeoffs are reported, never weighted
-  D6-COMPATIBILITY: compatibility is never presented as relevance
+=== PART E. Framework principles the stage was built to respect ===
+  OURS: the framework principles the stage was built to respect. Texts from the E7 draft and the decision package, item 5. He approved the non-causal framework principles for further testing (D6). No code evaluates these principles as rules; each names the test that pins it, or says it is not exercised. Only principles that neither exclude a design nor claim that an element serves an affordance are listed. The Game Form gate is not one of them: it is Stage 1's gate, now supported by his D3.
+  R0.1: the rationale is recorded at decision time: every decision carries the rows, rulings and test assumptions that decided it. Exercised: yes. Pinned by: testInfluenceTraceNamesWhatDecides, testConclusionGroupsKeepStandingsApart.
+  R2.1a: no relevance through words: no decision reads a name, definition, note or statement. Exercised: yes. Pinned by: testWordingRewriteChangesNothing, testTheStageReadsNoNarrativeColumn (Stage 1).
+  R2.5: primary and secondary Game Problems are each judged with their role, never through the merged profile alone. Exercised: yes. Pinned by: testA05CompositeProfile, testNoPromotionForAnyPair.
+  R3.2: a condition that cannot be evaluated gives insufficient evidence, never holds. Exercised: yes. Pinned by: testNotSuppliedGivesInsufficientEvidenceForEveryGeometry, testATeamWithNoPlayers, testStructuralConditionsOfTheA05Forms.
+  R4.4: tradeoffs are reported, never weighted. Exercised: no; the stage produces no tradeoffs, because Steps 3 to 5 are held.
+  D6-COMPATIBILITY: compatibility is never presented as relevance. Exercised: yes. Pinned by: testA05AndA01AreCompatibleAlternatives, testExclusionWording, testConclusionGroupsKeepStandingsApart.
   Every other draft rule waits for the rule-level source and status check he asked for, drafted separately.

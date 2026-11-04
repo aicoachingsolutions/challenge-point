@@ -23,7 +23,7 @@ import path from 'node:path'
 
 import { cell, committedKnowledge, DesignKnowledge } from './knowledge'
 import { committedWidthFixture, runStage2, runStage2ForEveryGoal, Stage2Result } from './stage2'
-import { InfluenceTrace } from './trace'
+import { conclusionGroup, InfluenceTrace } from './trace'
 import { compareWidth, WidthFixture, WidthScenario } from './width-comparison'
 import { evaluateStructuralConditions } from './structural'
 
@@ -73,9 +73,10 @@ function testA05CompositeProfile(): void {
         ['GP-001', 'PRIMARY', 'S,E,S,E'],
         ['GP-002', 'SECONDARY', 'E,E,S,E'],
     ])
-    // Provenance: the CAR row each came from, and the ruling that set its role.
+    // Provenance: the CAR row each came from; the ruling (and its continuation) that set its role; the unpopulated row that permitted it.
     assert.deepEqual(p.rows.map((r) => r.provenance.carRow.row), ['GP-001', 'GP-002'])
-    for (const r of p.rows) assert.deepEqual(r.provenance.roleSetBy.map((c) => c.row), ['RUL-E1-A05', 'A05'])
+    for (const r of p.rows) assert.deepEqual(r.provenance.roleSetBy.map((c) => c.row), ['RUL-E1-A05', 'D1-4NOV'])
+    for (const r of p.rows) assert.deepEqual(r.provenance.permittedBy.map((c) => `${c.table} ${c.row}`), ['engine_translation A05'])
     // Union view: strongest necessity under merge_precedence, with its sources; labelled; never the effective profile.
     const u = p.unionView.perRequirement
     assert.deepEqual([u.FOI.rating, u.OP.rating, u.SA.rating, u.CIO.rating], ['E', 'E', 'S', 'E'])
@@ -214,7 +215,7 @@ function testEachWidthScenario(): void {
         S1: 'PRIMARY_INVITATION_CONDITIONS_MET | OFFERED_TEST_ONLY | W-H1:CONDITIONS_MET_UNDER_TEST_ASSUMPTIONS W-H2:CONDITIONS_NOT_MET',
         S2: 'SECONDARY_EXPLOITATION_CONDITIONS_MET | NOT_OFFERED_FOR_PRIMARY | W-H1:CONDITIONS_NOT_MET W-H2:CONDITIONS_MET_UNDER_TEST_ASSUMPTIONS',
         S3: 'INSUFFICIENT_EVIDENCE | NONE_INSUFFICIENT_EVIDENCE | W-H1:INSUFFICIENT_EVIDENCE W-H2:INSUFFICIENT_EVIDENCE',
-        S4: 'INSUFFICIENT_EVIDENCE | NONE_INSUFFICIENT_EVIDENCE | W-H1:INSUFFICIENT_EVIDENCE W-H2:INSUFFICIENT_EVIDENCE',
+        S4: 'INSUFFICIENT_EVIDENCE | NONE_INSUFFICIENT_EVIDENCE | W-H1:CONDITIONS_NOT_MET W-H2:CONDITIONS_NOT_MET',
         S5: 'NO_ROOM_WITHIN_AVAILABLE_SPACE | NO_ROOM_WITHIN_AVAILABLE_SPACE | W-H1:CONDITIONS_MET_UNDER_TEST_ASSUMPTIONS W-H2:CONDITIONS_NOT_MET',
         S6: 'INSUFFICIENT_EVIDENCE | NONE_INSUFFICIENT_EVIDENCE | W-H1:INSUFFICIENT_EVIDENCE W-H2:INSUFFICIENT_EVIDENCE',
     })
@@ -231,12 +232,26 @@ function testEachWidthScenario(): void {
     assert.deepEqual(w.S1.structuralFacts.configured, { lengthM: 40, widthM: 30, areaM2: 1200, areaPerPlayerM2: 100 })
     assert.deepEqual(w.S1.structuralFacts.widened, { lengthM: 40, widthM: 40, areaM2: 1600, areaPerPlayerM2: 133.3 })
     assert.equal(w.S1.configuredWidthKept, false)
+    // S1's proposal carries the hypothesis's unverified background assumptions and its pair's result.
+    assert.match(w.S1.proposal.statement, /assuming W-H1\(a\), W-H1\(c\) and W-H1\(d\), unverified; W-H2's deciding conditions are not met under the test assumptions/)
     // S2: not offered for the primary; the primary stays; the long-term requirement and the boundary sentence cited only.
     assert.equal(w.S2.primaryGameProblem.gameProblemId, 'GP-001')
     assert.equal(w.S2.configuredWidthKept, true)
     assert.match(w.S2.statement, /might make exploitation \(GP-002, the secondary Game Problem's problem\) the more immediate one/)
     assert.ok(w.S2.trace.citedOnly.some((i) => i.ref.endsWith('PGPL-CREATE-SPACE-BOUNDARY') && i.standing === 'REFERENCE ONLY'))
+    assert.ok(w.S2.trace.citedOnly.some((i) => i.ref.endsWith('AUTH-4NOV') && i.standing === 'RULING'), 'his permission is cited beside the boundary sentence')
     assert.ok(w.S2.trace.citedOnly.some((i) => i.ref.endsWith('REQ-E1-CONTEXT-SENSITIVE-RESOLUTION')))
+    // S2: the source of the not-offered consequence is named among what decided it (the secondary-inviting hypothesis's intended influence,
+    // ours); the boundary entry is consulted only, with its role from data, and no Game Problem name is hard-coded in the stage's role text.
+    assert.ok(w.S2.trace.influencedBy.some((i) => i.ref.endsWith(' W-H2') && i.role.includes('the widening is not offered for the primary Game Problem')))
+    assert.ok(w.S2.trace.consulted.some((i) => i.ref.endsWith(' W-L1') && i.role.includes('this entry decides nothing')))
+    assert.ok(!w.S2.trace.influencedBy.some((i) => i.ref.endsWith(' W-L1')))
+    // S2: the circumstances say which area they describe, and the result does not present keeping the configured width as safe.
+    assert.match(w.S2.statement, /The test assumptions describe the area at the coach's available width \(the proposed widened area\), when attacks begin; nothing is supplied about the configured area/)
+    // S2: the tension with the qualifier of the ruling that set the primary is reported, consulted, never acted on.
+    assert.match(w.S2.statement, /Reported tension, not acted on: .*\("specifically in the context of progressing against organized opposition"\)/)
+    assert.ok(w.S2.trace.consulted.some((i) => i.ref.endsWith('RUL-E1-A05') && i.role.startsWith('reported tension, not acted on')))
+    assert.ok(!/Reported tension/.test(w.S1.statement), 'S1 assumes the defence can still organize: no tension')
     // S3: what is missing and where it could come from in future; never geometry.
     assert.deepEqual(w.S3.missingCircumstances.map((m) => m.circumstance), ['defendersCanStillOrganizeShiftAndContest', 'usableSpaceAlreadyExists'])
     for (const m of w.S3.missingCircumstances) assert.match(m.futureSource, /coach observation or future feedback; never geometry/)
@@ -280,7 +295,11 @@ function testNotSuppliedGivesInsufficientEvidenceForEveryGeometry(): void {
     assert.equal(count, 3 * 4 * 4 * 7)
 }
 
-/** Across a grid, no proposal exceeds the coach's available width, the length never changes, and no room gives no proposal. */
+/**
+ * Across a grid, no proposal exceeds the coach's available width and the length never changes. No room gives no proposal and keeps the
+ * configured width, which lies within the limits; a configured area that already exceeds the limits gets its own outcome, with no proposal
+ * and no endorsement of the configured area.
+ */
 function testNeverProposesBeyondTheAvailableSpace(): void {
     const k = committedKnowledge()
     const r = runStage2('A05', k)
@@ -296,12 +315,64 @@ function testNeverProposesBeyondTheAvailableSpace(): void {
                 assert.ok((result.proposal.toWidthM as number) > scenario.configuredArea.widthM, json(scenario))
                 assert.equal(result.proposal.lengthM, scenario.configuredArea.lengthM)
                 assert.ok(scenario.configuredArea.lengthM <= scenario.availableSpace.lengthM)
+            } else if (extraWidth < 0 || extraLength < 0) {
+                assert.equal(result.outcome, 'CONFIGURED_AREA_EXCEEDS_AVAILABLE_SPACE', json(scenario))
+                assert.equal(result.proposal.status, 'NONE_CONFIGURED_AREA_EXCEEDS_AVAILABLE_SPACE', json(scenario))
+                assert.equal(result.configuredWidthKept, null, 'the configured area is not endorsed')
+                assert.ok(!/is kept/.test(result.statement) && !/is kept/.test(result.proposal.statement), json(scenario))
+                assert.ok(result.missing.some((m) => m.kind === 'CONFIGURED_AREA_OUTSIDE_AVAILABLE_SPACE'))
             } else {
                 assert.equal(result.proposal.status, 'NO_ROOM_WITHIN_AVAILABLE_SPACE', json(scenario))
-                assert.ok(extraWidth <= 0 || extraLength < 0, json(scenario))
+                assert.equal(extraWidth, 0, json(scenario))
                 assert.equal(result.configuredWidthKept, true)
             }
         }
+    }
+    // Under every combination of the circumstances, an area beyond the limits is never kept or proposed, and the hypotheses decide nothing there.
+    for (const defenders of [true, false, 'NOT_SUPPLIED'] as const) {
+        for (const usable of [true, false, 'NOT_SUPPLIED'] as const) {
+            const scenario: WidthScenario = JSON.parse(JSON.stringify(base))
+            scenario.availableSpace = { lengthM: 40, widthM: 25, standing: 'TEST INPUT' }
+            scenario.decidingCircumstances.defendersCanStillOrganizeShiftAndContest.value = defenders
+            scenario.decidingCircumstances.usableSpaceAlreadyExists.value = usable
+            const result = compareWidth(k, r.resolution, r.gameForm, scenario, 'grid')
+            assert.equal(result.outcome, 'CONFIGURED_AREA_EXCEEDS_AVAILABLE_SPACE', `${defenders}/${usable}`)
+            assert.equal(result.basis, 'CONFIGURED_AREA_EXCEEDS_AVAILABLE_SPACE')
+        }
+    }
+}
+
+/** Invalid team sizes and dimensions are reported as such, never offered a widening; three teams are not called a team with no players. */
+function testInvalidTestInputs(): void {
+    const k = committedKnowledge()
+    const r = runStage2('A05', k)
+    const base = a05Scenario(committedWidthFixture(), 'S1')
+    const run = (change: (s: WidthScenario) => void) => {
+        const s: WidthScenario = JSON.parse(JSON.stringify(base))
+        change(s)
+        return compareWidth(k, r.resolution, r.gameForm, s, 'test')
+    }
+    for (const [players, why] of [
+        [[4, 4, 4], 'the comparison takes two teams'],
+        [[5.5, 5.5], 'the team sizes are not whole numbers'],
+        [[0, 0], 'a team has no players'],
+        [[-2, -2], 'a team has no players'],
+        [[6, 0], 'a team has no players'],
+    ] as Array<[number[], string]>) {
+        const w = run((s) => (s.playersPerTeam = { value: players, standing: 'TEST INPUT' }))
+        assert.equal(w.outcome, 'INSUFFICIENT_EVIDENCE', json(players))
+        assert.equal(w.basis, 'STRUCTURAL_ASSUMPTION_NOT_EVALUABLE', json(players))
+        assert.equal(w.proposal.status, 'NONE_INSUFFICIENT_EVIDENCE', json(players))
+        assert.ok(w.statement.includes(why), `${json(players)}: ${w.statement}`)
+        assert.equal(w.structuralFacts.equalNumbers, false, json(players))
+        if (players.length !== 2) assert.ok(w.structuralChecks.every((c) => c.status === 'UNCERTAINTY_REPORTED' && !c.detail.includes('A team has no players')), json(players))
+    }
+    for (const width of [0, -10]) {
+        const w = run((s) => (s.configuredArea = { lengthM: 40, widthM: width, standing: 'TEST INPUT' }))
+        assert.equal(w.outcome, 'INVALID_TEST_INPUT', String(width))
+        assert.equal(w.proposal.status, 'NONE_INVALID_TEST_INPUT')
+        assert.ok(!w.proposal.statement.includes('widen the playing area'))
+        assert.equal(w.configuredWidthKept, null)
     }
 }
 
@@ -406,7 +477,9 @@ function testStructuralConditionsOfTheA05Forms(): void {
             ['PRE-COMPETITOR', 'PRESENT', 'INFERRED', true],
         ])
         for (const p of s.preconditions) assert.match(p.detail, /not evidence of ecological relevance; does not distinguish Create Space from Exploit Space/)
-        assert.equal(s.continuousPlay.status, 'HOLDS_BY_DESIGN')
+        // A default, never a condition evaluated and found to hold (no knowledge file can record a departure; no activity is assembled).
+        assert.equal(s.continuousPlay.status, 'APPLIES_AS_BASELINE_DEFAULT')
+        assert.ok(!/by design|holds/.test(s.continuousPlay.detail.split('not a condition evaluated and found to hold').join('')), s.continuousPlay.detail)
         assert.equal(s.continuousPlay.notAnInteractionRegulation, true)
         assert.deepEqual(Object.fromEntries(s.integrity.conditions.map((c) => [c.conditionId.slice(-2), c.status])), {
             '01': 'NOT_EVALUABLE_BEFORE_ACTIVITY_ASSEMBLY',
@@ -415,9 +488,17 @@ function testStructuralConditionsOfTheA05Forms(): void {
             '04': 'NOT_EVALUABLE_BEFORE_ACTIVITY_ASSEMBLY',
             '05': 'STRUCTURAL_SIGNAL_PRESENT',
             '06': 'RISK_NOT_EVALUABLE',
-            '07': 'RISK_NOT_INDICATED_BY_DESIGN',
+            '07': 'RISK_NOT_EVALUABLE',
             '08': 'RISK_NOT_EVALUABLE',
         })
+        // The signals are our mapping: every status resting on one is INFERRED and its trace names the mapping with standing OURS.
+        for (const c of s.integrity.conditions.filter((x) => x.status === 'STRUCTURAL_SIGNAL_PRESENT')) {
+            assert.equal(c.evidenceStatus, 'INFERRED', c.conditionId)
+            assert.ok(c.trace.influencedBy.some((i) => i.standing === 'OURS' && i.role.startsWith('our mapping (INFERRED), not his D6')), c.conditionId)
+            assert.ok(!c.trace.influencedBy.some((i) => i.standing === 'RULING' && i.role.includes(String(c.structuralSignal))), `${c.conditionId}: the signal is never credited to his ruling`)
+        }
+        assert.match(s.integrity.wordingConfirmation, /^OURS, for him to check; his acknowledgement is pending/)
+        assert.match(s.integrity.structuralSignalStanding, /^OURS \(INFERRED\), not his D6/)
         // A continuum, not a pass-or-fail judgement: no verdict anywhere in the structural output.
         const text = json(s)
         assert.ok(!/"(verdict|passed|failed|integrityHolds)"/.test(text) && !text.includes('"PASS"') && !text.includes('"FAIL"'), s.gameFormId)
@@ -425,7 +506,11 @@ function testStructuralConditionsOfTheA05Forms(): void {
     }
 }
 
-/** A team with no players: the structural signals turn, and W-L2 and N-L1 decide because it is structurally certain. */
+/**
+ * A team with no players: the structural signals turn; W-L2 and N-L1 report structural certainty and decide nothing (his D6 holds any rule
+ * that could exclude a design). The outcome is insufficient evidence through W-H1's structural assumption (b), which takes two equal team
+ * sizes, each a positive whole number, never through W-L2 or N-L1. Removing the two structural checks from the data moves no outcome.
+ */
 function testATeamWithNoPlayers(): void {
     const k = committedKnowledge()
     const r = runStage2('A05', k)
@@ -433,11 +518,230 @@ function testATeamWithNoPlayers(): void {
     assert.ok(s.preconditions.every((p) => p.status === 'ABSENT'))
     assert.equal(s.integrity.conditions.find((c) => c.conditionId.endsWith('03'))?.status, 'STRUCTURAL_SIGNAL_ABSENT')
     assert.equal(s.integrity.conditions.find((c) => c.conditionId.endsWith('07'))?.status, 'RISK_INDICATED_BY_DESIGN')
-    const scenario: WidthScenario = JSON.parse(JSON.stringify(a05Scenario(committedWidthFixture(), 'S1')))
-    scenario.playersPerTeam = { value: [6, 0], standing: 'TEST INPUT' }
-    const w = compareWidth(k, r.resolution, r.gameForm, scenario, 'test')
-    assert.deepEqual(w.structuralChecks.map((c) => [c.entryId, c.status]), [['W-L2', 'STRUCTURALLY_CERTAIN'], ['N-L1', 'STRUCTURALLY_CERTAIN']])
-    assert.equal(w.outcome, 'INSUFFICIENT_EVIDENCE')
+    const decisions = (knowledge: DesignKnowledge, players: number[]) =>
+        a05Fixture().scenarios.map((sc) => {
+            const scenario: WidthScenario = JSON.parse(JSON.stringify(sc))
+            scenario.playersPerTeam = { value: players, standing: 'TEST INPUT' }
+            const w = compareWidth(knowledge, r.resolution, r.gameForm, scenario, 'test')
+            return { w, decision: `${scenario.id} ${w.outcome} ${w.proposal.status} ${w.basis}` }
+        })
+    for (const players of [[6, 0], [0, 0], [0, 6], [-2, -2]]) {
+        for (const { w } of decisions(k, players)) {
+            assert.deepEqual(w.structuralChecks.map((c) => [c.entryId, c.status, c.decidesNothing]), [['W-L2', 'STRUCTURALLY_CERTAIN', true], ['N-L1', 'STRUCTURALLY_CERTAIN', true]], `${w.scenarioId} ${json(players)}`)
+            assert.notEqual(w.outcome, 'PRIMARY_INVITATION_CONDITIONS_MET', `${w.scenarioId} ${json(players)}: no widening is offered with a team that has no players`)
+            assert.notEqual(w.proposal.status, 'OFFERED_TEST_ONLY', `${w.scenarioId} ${json(players)}`)
+            if (w.basis !== 'CIRCUMSTANCES_NOT_SUPPLIED' && w.basis !== 'CONFIGURED_AREA_EXCEEDS_AVAILABLE_SPACE') {
+                assert.equal(w.basis, 'STRUCTURAL_ASSUMPTION_NOT_EVALUABLE', `${w.scenarioId} ${json(players)}`)
+                assert.ok(w.statement.includes('a team has no players, so no competitor can influence the interaction'), w.statement)
+            }
+        }
+        // The structural checks decide nothing: without them in the data, every decision is the same.
+        const without = committedKnowledge()
+        without.conditionsOfUse.widthComparison.structuralChecks = []
+        assert.deepEqual(decisions(without, players).map((d) => d.decision), decisions(k, players).map((d) => d.decision), json(players))
+    }
+    // Nor do they decide anything on the committed fixture.
+    const without = committedKnowledge()
+    without.conditionsOfUse.widthComparison.structuralChecks = []
+    assert.deepEqual(runStage2('A05', without).widthComparison.map((w) => [w.outcome, w.proposal.status, w.basis]), runStage2('A05', k).widthComparison.map((w) => [w.outcome, w.proposal.status, w.basis]))
+}
+
+const a05Fixture = () => committedWidthFixture()
+
+/** Both circumstances false decide neither, without the remark about a defence conceding width (which needs a defence that can organize). */
+function testNeitherDecidesRemarkOnlyWhereItApplies(): void {
+    const k = committedKnowledge()
+    const r = runStage2('A05', k)
+    const run = (defenders: boolean, usable: boolean) => {
+        const s: WidthScenario = JSON.parse(JSON.stringify(a05Scenario(committedWidthFixture(), 'S1')))
+        s.decidingCircumstances.defendersCanStillOrganizeShiftAndContest.value = defenders
+        s.decidingCircumstances.usableSpaceAlreadyExists.value = usable
+        return compareWidth(k, r.resolution, r.gameForm, s, 'test')
+    }
+    const bothFalse = run(false, false)
+    const bothTrue = run(true, true)
+    for (const w of [bothFalse, bothTrue]) {
+        assert.equal(w.outcome, 'INSUFFICIENT_EVIDENCE')
+        assert.equal(w.basis, 'NEITHER_DECIDES')
+        assert.deepEqual(w.hypotheses.map((h) => h.status), ['CONDITIONS_NOT_MET', 'CONDITIONS_NOT_MET'], 'each hypothesis keeps its own result; the pair decides neither')
+    }
+    assert.ok(!bothFalse.statement.includes('concedes width deliberately'), bothFalse.statement)
+    assert.ok(bothTrue.statement.includes('concedes width deliberately'), bothTrue.statement)
+}
+
+// -------------------------------------------------------------------------------------------------------------------------------------
+// D6: what decided each conclusion, and how the report groups it
+// -------------------------------------------------------------------------------------------------------------------------------------
+
+/**
+ * Approved knowledge is never grouped with a ruling of his, candidate data, an inference of ours or a test input; an unresolved status is
+ * never shown as established; structural findings on test inputs are never grouped with test-only hypotheses.
+ */
+function testConclusionGroupsKeepStandingsApart(): void {
+    const results = runStage2ForEveryGoal()
+    const all = results.flatMap((r) => r.conclusions.map((c) => ({ goal: r.learningGoalId, c, group: conclusionGroup(c) })))
+    const established: string[] = ['ESTABLISHED THROUGH APPROVED KNOWLEDGE', 'ESTABLISHED BY HIS RULINGS']
+    for (const { goal, c, group } of all) {
+        const label = `${goal} ${c.id}`
+        const standings = c.trace.influencedBy.map((i) => i.standing)
+        if (c.establishedBy !== 'INSUFFICIENT EVIDENCE') assert.ok(standings.length > 0, `${label}: an established conclusion names what decided it`)
+        if (group === 'ESTABLISHED THROUGH APPROVED KNOWLEDGE') {
+            assert.equal(c.establishedBy, 'APPROVED KNOWLEDGE', label)
+            assert.ok(standings.every((s) => s === 'APPROVED'), `${label}: ${standings.join(', ')}`)
+        }
+        if (established.includes(group)) {
+            assert.ok(!standings.some((s) => ['OURS', 'CANDIDATE', 'PROVISIONAL', 'REFERENCE ONLY', 'TEST ASSUMPTION', 'TEST INPUT'].includes(s)), `${label} in ${group}: ${standings.join(', ')}`)
+            assert.notEqual(c.establishedBy, 'LOGICAL INFERENCE', label)
+            assert.ok(!c.testOnly, label)
+            assert.ok(!c.statement.includes('UNRESOLVED'), `${label}: an unresolved status is never established`)
+        }
+        if (group === 'DEMONSTRATED ONLY UNDER TEST-ONLY HYPOTHESES') assert.equal(c.establishedBy, 'TEST-ONLY HYPOTHESIS UNDER TEST ASSUMPTIONS', label)
+        if (group === 'STRUCTURAL FINDINGS ON TEST INPUTS') assert.notEqual(c.establishedBy, 'TEST-ONLY HYPOTHESIS UNDER TEST ASSUMPTIONS', label)
+        if (c.statement.includes('UNRESOLVED (')) assert.equal(group, 'INSUFFICIENT EVIDENCE', label)
+    }
+    const groupOf = (goal: string, id: string) => all.find((x) => x.goal === goal && x.c.id === id)?.group
+    assert.equal(groupOf('A05', 'step 1 game problems'), 'ESTABLISHED BY HIS RULINGS', 'A05\'s Game Problems rest on his scoped ruling')
+    assert.equal(groupOf('A05', 'step 1 effective profile'), 'ESTABLISHED BY HIS RULINGS', 'D1, the review pathway only')
+    assert.equal(groupOf('A05', 'step 1 union view'), 'ESTABLISHED BY HIS RULINGS', 'which rows are merged rests on his ruling')
+    assert.equal(groupOf('TA02', 'step 1 union view'), 'ESTABLISHED THROUGH APPROVED KNOWLEDGE')
+    for (const goal of ['A01', 'A02', 'A05', 'D02', 'TA01', 'TA02']) assert.equal(groupOf(goal, 'step 2 game form'), 'RESTS ON CANDIDATE DATA', `${goal}: the form declarations are CANDIDATE`)
+    for (const form of ['GF2', 'GF3', 'GF7']) {
+        assert.equal(groupOf('A05', `${form} continuous play`), 'RESTS ON OUR INFERENCE (NO TEST INPUT)', form)
+        assert.equal(groupOf('A05', `${form} GA-001-OIC-05`), 'RESTS ON OUR INFERENCE (NO TEST INPUT)', form)
+        assert.equal(groupOf('A05', `${form} PRE-COMPETITOR`), 'STRUCTURAL FINDINGS ON TEST INPUTS', form)
+        assert.equal(groupOf('A05', `${form} GA-001-OIC-03`), 'STRUCTURAL FINDINGS ON TEST INPUTS', form)
+    }
+    assert.equal(groupOf('A05', 'S1 width comparison'), 'DEMONSTRATED ONLY UNDER TEST-ONLY HYPOTHESES')
+    assert.equal(groupOf('A05', 'S1 W-L2'), 'STRUCTURAL FINDINGS ON TEST INPUTS')
+    for (const goal of ['A04', 'A06']) assert.equal(groupOf(goal, 'step 1 status'), 'INSUFFICIENT EVIDENCE', goal)
+    // Every trace lists each item once.
+    for (const t of traces(results)) for (const list of [t.influencedBy, t.consulted, t.citedOnly]) assert.equal(new Set(list.map((i) => JSON.stringify([i.ref, i.role]))).size, list.length, json(list.map((i) => i.ref)))
+}
+
+/** A width scenario's decision: its outcome, its proposal and the rule that gave the outcome. */
+const widthDecision = (w: { outcome: string; proposal: { status: string }; basis: string }) => `${w.outcome} | ${w.proposal.status} | ${w.basis}`
+
+/**
+ * What the trace records as deciding does decide, and what it records as consulted does not: for the gate inputs of Steps 1 and 2 and for
+ * every test input and test assumption of every width scenario (including one whose configured area exceeds the limits), a change in a
+ * test copy moves the decision exactly when the item is in `influencedBy`.
+ */
+function testInfluenceTraceNamesWhatDecides(): void {
+    const committed = runStage2('A05')
+    const a05Form = (k: DesignKnowledge) => {
+        const f = runStage2('A05', k).gameForm
+        return json([f.status, f.compatible])
+    }
+    const inTrace = (list: InfluenceTrace['influencedBy'], fragment: string) => list.some((i) => i.ref.includes(fragment))
+
+    // (a) The archetype workbook's row for the primary Game Problem gates Step 2: in influencedBy, and a CONTRADICTORY role moves the decision.
+    const roleCite = committed.gameForm.candidates[0].checks.find((c) => c.check === 'ARCHETYPE_GAME_PROBLEM')?.cites[0].row as string
+    assert.ok(inTrace(committed.gameForm.trace.influencedBy, roleCite) && !inTrace(committed.gameForm.trace.consulted, roleCite), roleCite)
+    const k1 = committedKnowledge()
+    ;(k1.archetypes.knowledge.find((r) => cell(r, 'Record_ID') === roleCite) as Record<string, unknown>)['Knowledge_Role'] = 'CONTRADICTORY'
+    assert.notEqual(a05Form(k1), a05Form(committedKnowledge()), 'a CONTRADICTORY archetype role moves Step 2')
+
+    // (b) The context's archetype row gates Step 2: in influencedBy, and making it INACTIVE moves the decision.
+    const archetypeRow = committedKnowledge().contexts.relationships.find((r) => cell(r, 'rpc_id') === 'RPC-003' && cell(r, 'related_library') === 'GAME_ARCHETYPE') as Record<string, unknown>
+    const archetypeRowId = cell(archetypeRow, 'relationship_id')
+    assert.ok(inTrace(committed.gameForm.trace.influencedBy, archetypeRowId), archetypeRowId)
+    const k2 = committedKnowledge()
+    ;(k2.contexts.relationships.find((r) => cell(r, 'relationship_id') === archetypeRowId) as Record<string, unknown>)['status'] = 'INACTIVE'
+    assert.notEqual(a05Form(k2), a05Form(committedKnowledge()), 'an inactive archetype row moves Step 2')
+
+    // (c) A05's unpopulated Engine Translation row decides Step 1: in influencedBy, and populating it blocks the ruling.
+    assert.ok(inTrace(committed.resolution.gameProblems.trace.influencedBy, 'engine_translation A05'))
+    const k3 = committedKnowledge()
+    const row = k3.planning.engine_translation.find((r) => cell(r, 'Learning Goal ID') === 'A05') as Record<string, unknown>
+    row['Primary GP IDs'] = 'GP-002'
+    row['Secondary GP IDs'] = null
+    const blocked = runStage2('A05', k3).resolution
+    assert.equal(blocked.status, 'UNRESOLVED')
+    assert.ok(blocked.missing.some((m) => m.kind === 'RULING_WOULD_OVERRIDE_TRANSLATION'))
+
+    // (d) Every test input and test assumption of every width scenario.
+    const k = committedKnowledge()
+    const base = committedWidthFixture().scenarios
+    const exceeding: WidthScenario = JSON.parse(JSON.stringify(base.find((s) => s.id === 'S1')))
+    exceeding.id = 'S1-EXCEEDS'
+    exceeding.availableSpace = { lengthM: 40, widthM: 25, standing: 'TEST INPUT' }
+    const perturbations = (s: WidthScenario, what: string): Array<(x: WidthScenario) => void> => {
+        if (what === 'playersPerTeam') return [[7, 5], [5, 5], [0, 0], [5, 7]].map((p) => (x: WidthScenario) => (x.playersPerTeam = { value: p, standing: 'TEST INPUT' }))
+        if (what === 'configuredArea') return [s.availableSpace.widthM, s.availableSpace.widthM + 10, s.configuredArea.widthM - 5].map((wd) => (x: WidthScenario) => (x.configuredArea = { ...x.configuredArea, widthM: wd }))
+        if (what === 'availableSpace') return [s.configuredArea.widthM, s.configuredArea.widthM - 5, s.configuredArea.widthM + 20].map((wd) => (x: WidthScenario) => (x.availableSpace = { ...x.availableSpace, widthM: wd }))
+        // A circumstance alone, and with every other missing circumstance supplied (two missing circumstances decide jointly).
+        const key = what.split('.').pop() as string
+        return ([true, false, 'NOT_SUPPLIED'] as const).flatMap((v) => [false, true].map((fillOthers) => (x: WidthScenario) => {
+            for (const other of Object.keys(x.decidingCircumstances)) if (fillOthers && other !== key && x.decidingCircumstances[other].value === 'NOT_SUPPLIED') x.decidingCircumstances[other] = { ...x.decidingCircumstances[other], value: false }
+            x.decidingCircumstances[key] = { ...x.decidingCircumstances[key], value: v }
+        }))
+    }
+    let checked = 0
+    for (const scenario of [...base, exceeding]) {
+        const result = compareWidth(k, committed.resolution, committed.gameForm, scenario, 'fx')
+        const before = widthDecision(result)
+        for (const [list, decisive] of [[result.trace.influencedBy, true], [result.trace.consulted, false]] as const) {
+            for (const i of list.filter((x) => x.standing === 'TEST INPUT' || x.standing === 'TEST ASSUMPTION')) {
+                const what = i.ref.slice(`fx ${scenario.id}.`.length)
+                const moved = perturbations(scenario, what).some((change) => {
+                    const copy: WidthScenario = JSON.parse(JSON.stringify(scenario))
+                    change(copy)
+                    return widthDecision(compareWidth(k, committed.resolution, committed.gameForm, copy, 'fx')) !== before
+                })
+                assert.equal(moved, decisive, `${scenario.id} ${what}: ${decisive ? 'in influencedBy but no change moves the decision' : 'consulted but a change moves the decision'}`)
+                checked++
+            }
+        }
+    }
+    assert.ok(checked >= 7 * 5, `checked ${checked}`)
+    // In S1, S2 and S5 the team sizes gate the comparison, so they are in influencedBy (7 v 5 moves each decision); in S3 they are consulted.
+    const w = Object.fromEntries(committed.widthComparison.map((s) => [s.scenarioId, s]))
+    for (const id of ['S1', 'S2', 'S5']) assert.ok(w[id].trace.influencedBy.some((i) => i.ref.endsWith(`${id}.playersPerTeam`)), id)
+    assert.ok(w.S3.trace.consulted.some((i) => i.ref.endsWith('S3.playersPerTeam')))
+}
+
+/** His D3 sentence on the missing defending-goal relationships reaches the goals the data lists, and no other. */
+function testKnowledgePopulationFinding(): void {
+    const results = byGoal(runStage2ForEveryGoal())
+    for (const id of ['D01', 'D03', 'TD01', 'TD02']) assert.equal(results[id].gameForm.knowledgePopulationFinding?.words, 'The missing defending-goal relationships can remain a separate knowledge-population finding.', id)
+    for (const id of Object.keys(results).filter((g) => !['D01', 'D03', 'TD01', 'TD02'].includes(g))) assert.equal(results[id].gameForm.knowledgePopulationFinding, null, id)
+}
+
+/** The entries' kinds claim no acceptance he has not given; the reference sentence is no premise; his examples are not rulings. */
+function testEntryKindsAndStandingsClaimNoMoreThanHisWords(): void {
+    const k = committedKnowledge()
+    for (const e of k.conditionsOfUse.entries) assert.ok(!String(e.kind).startsWith('accepted'), `${e.id}: ${e.kind}`)
+    assert.equal(k.conditionsOfUse.entries.find((e) => e.id === 'PGPL-CREATE-SPACE-BOUNDARY')?.kind, 'reference knowledge, cited only (not a premise)')
+    for (const e of k.conditionsOfUse.entries) for (const s of e.sources) if (s.ref.includes('(his example)')) assert.equal(s.standing, 'PROVISIONAL', `${e.id}: ${s.ref}`)
+    // W-L1 is the version he was shown, hedged as his words were; it carries no prohibition.
+    const wl1 = k.conditionsOfUse.entries.find((e) => e.id === 'W-L1')
+    assert.ok(wl1 && wl1.statement.includes('exploiting it may be the immediate problem') && !wl1.statement.includes('must not'), wl1?.statement)
+    // One meaning per circumstance: each hypothesis states its deciding circumstances once, and the organized-defence assumption is background.
+    for (const id of ['W-H1', 'W-H2']) {
+        const e = k.conditionsOfUse.entries.find((x) => x.id === id)
+        const circumstances = (e?.assumptions ?? []).filter((a) => a.handling === 'DECIDING_CIRCUMSTANCE').map((a) => a.circumstance)
+        assert.deepEqual([...circumstances].sort(), Object.keys(e?.comparison?.decidingCircumstances ?? {}).sort(), id)
+        assert.ok((e?.assumptions ?? []).some((a) => a.handling === 'BACKGROUND_UNVERIFIED' && a.statement.startsWith('The defence is functionally organized, in his sense')), id)
+    }
+    // A ruling's scope is his only where his words state it.
+    for (const r of k.stage2Rulings.rulings) {
+        if (r.scope === null) assert.ok(!r.scopeWords, r.id)
+        else assert.ok(r.scopeWords && r.scopeWords.length > 0 && r.scopeWords.every((w) => r.words.includes(w) || k.stage2Rulings.rulings.some((x) => x.words.includes(w))), `${r.id}: a scope needs his words`)
+    }
+    assert.equal(k.stage2Rulings.rulings.find((r) => r.id === 'D3-4NOV')?.scope, null)
+    // The composite specification is not called complete; his completeness check is pending.
+    for (const c of k.stage2Rulings.compositeProfile.citedOnly) assert.ok(!c.received.includes('held complete') && c.received.includes('completeness is not confirmed by him'), c.ref)
+}
+
+/** Every framework principle names the tests that pin it (each a test that exists), or says it is not exercised. */
+function testEveryFrameworkPrincipleNamesItsTests(): void {
+    const k = committedKnowledge()
+    const sources = ['stage2.unit.ts', 'design-reasoning.unit.ts'].map((f) => fs.readFileSync(path.join(HERE, f), 'utf8')).join('\n')
+    for (const p of k.stage2Rulings.relevance.frameworkPrinciples.principles) {
+        if (p.exercised === 'yes') assert.ok(p.pinnedBy.length > 0, p.id)
+        else assert.ok(p.exercised.startsWith('no;') && p.pinnedBy.length === 0, p.id)
+        for (const name of p.pinnedBy) assert.ok(sources.includes(`function ${name.split(' (')[0]}(`), `${p.id}: no test named ${name}`)
+    }
 }
 
 // -------------------------------------------------------------------------------------------------------------------------------------
@@ -567,13 +871,20 @@ testExclusionWording()
 testEachWidthScenario()
 testNotSuppliedGivesInsufficientEvidenceForEveryGeometry()
 testNeverProposesBeyondTheAvailableSpace()
+testInvalidTestInputs()
 testBothHypothesesAreAlwaysReportedTogether()
 testNothingIsLabelledEstablishedOrProductionEligible()
 testTheBoundarySentenceNeverInfluencesADecision()
 testFlippingOneAssumptionMovesExactlyTheWidthOutcome()
+testNeitherDecidesRemarkOnlyWhereItApplies()
 testIntegrityClassificationMatchesTheWorkbook()
 testStructuralConditionsOfTheA05Forms()
 testATeamWithNoPlayers()
+testConclusionGroupsKeepStandingsApart()
+testInfluenceTraceNamesWhatDecides()
+testKnowledgePopulationFinding()
+testEntryKindsAndStandingsClaimNoMoreThanHisWords()
+testEveryFrameworkPrincipleNamesItsTests()
 testDataQuotesMatchTheRepositoryRows()
 testEntriesFollowTheApprovedStructure()
 testDeterminism()

@@ -36,7 +36,7 @@ export interface Stage2Result {
 }
 
 export const STAGE2_STANDING =
-    'Review evidence only. Not served, not coach text, not an authorization. Compatible Game Forms are compatible with approved relationships, not demonstrated to be suitable. Width results are test-only comparisons of conditional hypotheses under test assumptions: not empirically established, not eligible for production. Passing the stage\'s tests is engineering evidence, not evidence of representative learning quality in the field.'
+    'Review evidence only. Not served, not coach text, not an authorization. Compatible Game Forms pass a gate over approved context and archetype rows and the sport module\'s CANDIDATE Game Form declarations (module DRAFT), read under his D3 as compatibility information: compatibility, not demonstrated suitability. Width results are test-only comparisons of conditional hypotheses under test assumptions: not empirically established, not eligible for production. Passing the stage\'s tests is engineering evidence, not evidence of representative learning quality in the field.'
 
 /** The committed test fixture, as a fresh deep copy each call. */
 export function committedWidthFixture(): WidthFixture {
@@ -59,14 +59,23 @@ function stepConclusions(r: DesignResolution, f: GameFormSelection): Conclusion[
         out.push({
             id: 'step 1 context',
             step: 'Step 1',
-            statement: `Context ${r.context.rpcId}; status ${r.status}${
-                r.status === 'RESOLVED_NOT_RELATED_TO_CONTEXT' ? ': the routed context has no relationship row for the resolved primary Game Problem' : r.status === 'UNRESOLVED' ? ` (${r.missing.map((m) => m.kind).join(', ')})` : ''
-            }.`,
+            statement: `Context ${r.context.rpcId}, by the routing row${r.context.goalRelationship ? ` and the context library's row ${r.context.goalRelationship.relationshipId}` : ''}.`,
             establishedBy: r.context.establishedBy,
             testOnly: false,
             trace: r.context.trace,
         })
     }
+    // The status rests on what set the Game Problems and on the context; an unresolved status is insufficient evidence, never established.
+    out.push({
+        id: 'step 1 status',
+        step: 'Step 1',
+        statement: `Status ${r.status}${
+            r.status === 'RESOLVED_NOT_RELATED_TO_CONTEXT' ? ': the routed context has no relationship row for the resolved primary Game Problem' : r.status === 'UNRESOLVED' ? ` (${r.missing.map((m) => m.kind).join(', ')})` : ''
+        }.`,
+        establishedBy: r.status === 'UNRESOLVED' ? 'INSUFFICIENT EVIDENCE' : g.establishedBy,
+        testOnly: false,
+        trace: { influencedBy: [...g.trace.influencedBy, ...(r.context ? r.context.trace.influencedBy : [])], consulted: [], citedOnly: [] },
+    })
     if (r.profile) {
         const p = r.profile
         const show = (ratings: Record<string, string>) => Object.entries(ratings).map(([q, v]) => `${q}=${v}`).join(' ')
@@ -90,7 +99,7 @@ function stepConclusions(r: DesignResolution, f: GameFormSelection): Conclusion[
             })
         }
     }
-    out.push({ id: 'step 2 game form', step: 'Step 2', statement: `${f.status}. ${f.statement}`, establishedBy: f.establishedBy, testOnly: false, trace: f.trace })
+    out.push({ id: 'step 2 game form', step: 'Step 2', statement: `${f.status}. ${f.statement}${f.knowledgePopulationFinding ? ` Knowledge-population finding (${f.knowledgePopulationFinding.ruling}): "${f.knowledgePopulationFinding.words}"` : ''}`, establishedBy: f.establishedBy, testOnly: false, trace: f.trace })
     if (f.status === 'COMPATIBLE_ALTERNATIVES') {
         out.push({
             id: 'step 2 preference',
