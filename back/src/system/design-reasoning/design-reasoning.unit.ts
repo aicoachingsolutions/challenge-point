@@ -268,9 +268,13 @@ function testTheStageReachesNoKeywordParserOrTokenScorer(): void {
     // Everything it does reach is a knowledge file or a loader that reads only its own knowledge file.
     // ASSEMBLY EXPERIMENT AMENDMENT (Christian's second reply of 5 November 2026): the three new stage files join the closure; they import only
     // files already in it (and their own two JSON files), so the closure still reaches no loader beyond the two listed below.
+    // DRAFT DIAGRAM AMENDMENT (Christian's reply of 6 November 2026, section 9, l.84: "Please produce a draft diagram from the offline
+    // configuration record, without changing the live application or A01's diagram-generation pathway."): the diagram file joins the
+    // closure (13 files become 14); it imports only assembly.ts, already in it, so the closure still reaches no loader beyond the two below.
     assert.deepEqual(
         closure.filter((f) => f.endsWith('.ts')),
         [
+            'system/design-reasoning/assembly-diagram.ts',
             'system/design-reasoning/assembly-display.ts',
             'system/design-reasoning/assembly-review.ts',
             'system/design-reasoning/assembly.ts',

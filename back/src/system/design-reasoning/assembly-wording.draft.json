@@ -32,7 +32,7 @@
         { "id": "ov-players", "section": "OV-PARAMETERS", "text": "Players: {players.perTeam} v {players.perTeam}, equal numbers, no goalkeepers.", "expresses": ["players.perTeam", "teams.equalOutfield", "players.goalkeepers"], "whenValue": { "teams.equalOutfield": "EQUAL", "players.goalkeepers": 0 }, "status": "NEWLY PROPOSED" },
         { "id": "ov-duration", "section": "OV-PARAMETERS", "text": "Duration: {duration.blocks} blocks of {duration.blockMinutes} minutes, with a short break between blocks.", "expresses": ["duration.blocks", "duration.blockMinutes", "duration.breaks"], "whenValue": { "duration.breaks": "SHORT_BREAK_BETWEEN_BLOCKS" }, "status": "NEWLY PROPOSED" },
         { "id": "ov-scoring", "section": "OV-SCORING", "text": "A team scores a point when one of its players gets the ball under control in the target zone it attacks; there is no offside.", "expresses": ["scoring.event", "rules.offside"], "whenValue": { "scoring.event": "target_zone_entered", "rules.offside": "NONE" }, "status": "NEWLY PROPOSED" },
-        { "id": "ov-diagram", "section": "OV-DIAGRAM", "text": "Diagram: not drawn; the Overview is incomplete without it.", "expresses": [], "status": "NEWLY PROPOSED", "reviewOnly": true },
+        { "id": "ov-diagram", "section": "OV-DIAGRAM", "text": "DRAFT diagram drawn from the record (offline review only); not served.", "expresses": [], "status": "NEWLY PROPOSED", "reviewOnly": true },
         { "id": "st-area", "section": "CD-SETUP", "text": "Mark out an area {area.lengthM} m long and {area.widthM} m wide, with a halfway line and a centre mark.", "expresses": ["area.lengthM", "area.widthM", "area.halfwayLine", "area.centreMark"], "whenValue": { "area.halfwayLine": "MARKED", "area.centreMark": "MARKED" }, "status": "NEWLY PROPOSED" },
         { "id": "st-zones", "section": "CD-SETUP", "text": "At each end of the length, mark a target zone {endZones.depthM} m deep across the full width of the area; both target zones are inside the area.", "expresses": ["endZones.depthM", "endZones.placement", "area.includesEndZones", "scoring.event"], "whenValue": { "endZones.placement": "ONE_AT_EACH_END_FULL_WIDTH", "area.includesEndZones": true, "scoring.event": "target_zone_entered" }, "status": "NEWLY PROPOSED" },
         { "id": "st-positioning", "section": "CD-SETUP", "text": "The exact position of the target zones is not yet decided; this example puts them at the ends of the area.", "expresses": ["endZones.positioning", "endZones.placement", "scoring.event"], "whenValue": { "endZones.positioning": null, "endZones.placement": "ONE_AT_EACH_END_FULL_WIDTH", "scoring.event": "target_zone_entered" }, "status": "NEWLY PROPOSED", "reviewOnly": true, "scope": "GOAL" },
@@ -73,5 +73,198 @@
         { "id": "ob-uncertain", "section": "CD-WATCH", "text": "Uncertain: The coach cannot confidently distinguish the situation.", "expresses": ["observation.categories"], "whenValue": { "observation.categories": "CHRISTIANS_THREE_CATEGORIES" }, "status": "NEWLY PROPOSED", "quote": { "rulingRef": "ASM-30OCT-EVE-OBSERVATION" }, "scope": "GOAL" },
         { "id": "ob-legitimate", "section": "CD-WATCH", "text": "Both scoring situations remain legitimate.", "expresses": ["observation.categories"], "whenValue": { "observation.categories": "CHRISTIANS_THREE_CATEGORIES" }, "status": "NEWLY PROPOSED", "quote": { "rulingRef": "ASM-30OCT-EVE-OBSERVATION" }, "scope": "GOAL" },
         { "id": "ob-pointer", "section": "CD-WATCH", "text": "The categories do not decide whether an arrival in the target zone counts.", "expresses": ["observation.categories", "scoring.event"], "whenValue": { "observation.categories": "CHRISTIANS_THREE_CATEGORIES", "scoring.event": "target_zone_entered" }, "status": "NEWLY PROPOSED", "scope": "GOAL" }
-    ]
+    ],
+    "diagram": {
+        "standing": "OURS: DRAFT diagram words for the offline review copy (Christian's reply of 6 November, section 9); presentation only; not approved wording; not served.",
+        "banner": "DRAFT, offline review only: drawn from the manually authored {goal} configuration record; not generated from knowledge and not a served diagram.",
+        "teamLabels": [
+            "Team A",
+            "Team B"
+        ],
+        "teamAttacks": [
+            "TOWARD_END",
+            "TOWARD_START"
+        ],
+        "teamCount": "{playersPerTeam} players",
+        "zonePlaceholder": "Target-zone position: not decided; this example puts them at the ends.",
+        "caption": "Start: ordinary kick-off from the centre mark; opponents at least {startDistance} m from the ball until it is kicked (no circle is marked).",
+        "flagsTitle": "Flags (what prevents a fully accurate drawing):",
+        "flags": [
+            "Target-zone position: UNRESOLVED; the zones are drawn where the illustrative placement puts them, at the ends.",
+            "Which team attacks which end, and the teams' names, are not in the record: 'Team A' and 'Team B' are drawing labels only, and which arrow points which way is presentation.",
+            "Bib colours are not named in the record: the two team colours are presentation colours, never green.",
+            "Starting relationships are not drawn: the record holds an ordinary kick-off and our reading of 'own half' (OURS). Question: may each team's own half be drawn on that reading, labelled OURS?",
+            "The end-line restart's location is not drawn: it depends on where the ball went out; the exclusion is our illustrative choice, and the receiving distance is unresolved (R2)."
+        ],
+        "notDrawnTitle": "Not drawn, and why:",
+        "notDrawn": [
+            {
+                "what": "Goals",
+                "why": "none in the record (no goal stands at either end)"
+            },
+            {
+                "what": "A centre circle",
+                "why": "not among the markings; the coach judges {startDistance} m unaided (a gap reported, not filled)"
+            },
+            {
+                "what": "Players or positions",
+                "why": "no value holds them; the team counts are given in words"
+            },
+            {
+                "what": "Starting relationships",
+                "why": "the coach communication standard asks for them, but the record holds only an ordinary kick-off and our reading of 'own half'; see the question above"
+            },
+            {
+                "what": "The end-line restart location",
+                "why": "it depends on where the ball went out; our illustrative exclusion (never into or across a target zone) and an unresolved receiving distance (R2)"
+            },
+            {
+                "what": "The coach's position",
+                "why": "in no value (R4)"
+            },
+            {
+                "what": "Spare balls",
+                "why": "equipment, not a marking"
+            },
+            {
+                "what": "A principal-interaction region",
+                "why": "which region holds the principal interactions is not established (OURS)"
+            }
+        ],
+        "keyTitle": "Key (one line per value drawn: the value; Christian's class and the label; how it reached the record):",
+        "elements": [
+            {
+                "binding": "areaLength",
+                "name": "Area length (end line to end line, target zones included)"
+            },
+            {
+                "binding": "areaWidth",
+                "name": "Area width"
+            },
+            {
+                "binding": "includesEndZones",
+                "name": "Target zones inside the length"
+            },
+            {
+                "binding": "targetZoneDepth",
+                "name": "Target-zone depth (each zone)"
+            },
+            {
+                "binding": "targetZonePlacement",
+                "name": "Target-zone placement"
+            },
+            {
+                "binding": "targetZonePositioning",
+                "name": "Target-zone position"
+            },
+            {
+                "binding": "scoringEvent",
+                "name": "Target zones (one green)"
+            },
+            {
+                "binding": "halfwayLine",
+                "name": "Halfway line"
+            },
+            {
+                "binding": "centreMark",
+                "name": "Centre mark"
+            },
+            {
+                "binding": "markers",
+                "name": "Markings"
+            },
+            {
+                "binding": "teamCount",
+                "name": "Teams"
+            },
+            {
+                "binding": "playersPerTeam",
+                "name": "Players per team"
+            },
+            {
+                "binding": "equalNumbers",
+                "name": "Team numbers"
+            },
+            {
+                "binding": "keepers",
+                "name": "Goalkeepers"
+            },
+            {
+                "binding": "keepersCounted",
+                "name": "Goalkeepers counted"
+            },
+            {
+                "binding": "attackDirections",
+                "name": "Attacking directions (one arrow per team)"
+            },
+            {
+                "binding": "bibs",
+                "name": "Team colours"
+            },
+            {
+                "binding": "startMethod",
+                "name": "Start"
+            },
+            {
+                "binding": "startDistance",
+                "name": "Opponents' distance at the start"
+            },
+            {
+                "binding": "illustrativeForm",
+                "name": "Game Form"
+            },
+            {
+                "binding": "gameFormAlternatives",
+                "name": "Compatible alternatives (unranked)"
+            }
+        ],
+        "valueWords": {
+            "includesEndZones": {
+                "true": "yes, both inside the length"
+            },
+            "targetZonePlacement": {
+                "ONE_AT_EACH_END_FULL_WIDTH": "one at each end, across the full width"
+            },
+            "scoringEvent": {
+                "target_zone_entered": "the scoring target: a controlled arrival in the target zone a team attacks"
+            },
+            "halfwayLine": {
+                "MARKED": "marked; position computed: halfway along the length"
+            },
+            "centreMark": {
+                "MARKED": "marked; position computed: the centre of the area"
+            },
+            "markers": {
+                "AREA_HALFWAY_CENTRE_TARGET_ZONES": "the area, the halfway line, the centre mark and both target zones; nothing else"
+            },
+            "equalNumbers": {
+                "EQUAL": "equal"
+            },
+            "keepersCounted": {
+                "NO_GOALKEEPERS": "none to count"
+            },
+            "attackDirections": {
+                "EACH_ATTACKS_ONE_DEFENDS_THE_OTHER_ALL_GAME": "each team attacks one target zone and defends the other, all game"
+            },
+            "bibs": {
+                "ONE_COLOUR_PER_TEAM_KEPT_ALL_SESSION": "one colour per team, kept all session; no colour named"
+            },
+            "startMethod": {
+                "ORDINARY_KICKOFF": "an ordinary kick-off from the centre mark"
+            }
+        },
+        "units": {
+            "areaLength": " m",
+            "areaWidth": " m",
+            "targetZoneDepth": " m",
+            "startDistance": " m",
+            "keepers": " (no goalkeepers)"
+        },
+        "noValue": "no value",
+        "computed": {
+            "halfway": "position computed: halfway along the length (OURS)",
+            "centre": "position computed: the centre of the area (OURS)"
+        },
+        "measuredContext": "Measured context: A01's diagram path draws a chain-built GF2 line game and withholds end zones for want of a Set up sentence, so this review drawing is the only picture of end zones until the first blocking decision of the technical proposal is answered."
+    }
 }

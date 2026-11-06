@@ -4905,7 +4905,7 @@
           {
             "id": "ov-diagram",
             "section": "OV-DIAGRAM",
-            "text": "Diagram: not drawn; the Overview is incomplete without it.",
+            "text": "DRAFT diagram drawn from the record (offline review only); not served.",
             "expresses": [],
             "status": "NEWLY PROPOSED",
             "sixClass": null,
@@ -10847,7 +10847,7 @@
     {
       "id": "DEP-6",
       "what": "The RC3 diagram is drawn only from a realized game in the checked pathway",
-      "options": "(a) no diagram in this experiment, the dependency reported (as now); (b) a renderer change (live); (c) a DRAFT diagram drawn from the decision record outside the renderer and checked against the configuration paths, as DEP-1's third option does for text (not built here). Until one is chosen, the Coach Overview is incomplete against RC3 4.5 and Christian's 21 October list."
+      "options": "(a) no diagram in this experiment, the dependency reported (as now); (b) a renderer change (live); (c) a DRAFT diagram drawn from the decision record outside the renderer and checked against the configuration paths, as DEP-1's third option does for text. Built as (c), offline review only, as Christian's reply of 6 November (section 9) authorizes: evidence/assembly-diagram.svg; not served; A01's diagram pathway and the live application unchanged."
     },
     {
       "id": "DEP-7",
@@ -10903,8 +10903,8 @@
     "counts": {
       "SUBSTITUTED": 6,
       "WHEN_VALUE_PINNED": 35,
-      "STRUCTURAL": 17,
-      "EXEMPT_PRINTED_ONLY": 2
+      "STRUCTURAL": 18,
+      "EXEMPT_PRINTED_ONLY": 1
     },
     "results": [
       {
@@ -11009,8 +11009,8 @@
         "path": "area.goalkeepersCounted",
         "howReached": "ENTERED_ILLUSTRATIVE",
         "mutatedTo": "SENTINEL_MUTATION",
-        "outcome": "EXEMPT_PRINTED_ONLY",
-        "reason": "exempt from the coach text; the changed value is printed in the report only"
+        "outcome": "STRUCTURAL",
+        "reason": "no diagram words for the value SENTINEL_MUTATION"
       },
       {
         "path": "area.halfwayLine",
@@ -11328,6 +11328,1446 @@
         "reason": "exempt from the coach text; the changed value is printed in the report only"
       }
     ]
+  },
+  "diagram": {
+    "standing": "OURS: DRAFT diagram words for the offline review copy (Christian's reply of 6 November, section 9); presentation only; not approved wording; not served.",
+    "metres": {
+      "lengthM": 40,
+      "widthM": 30,
+      "depthM": 5,
+      "zones": [
+        {
+          "alongFromM": 0,
+          "alongToM": 5,
+          "acrossFromM": 0,
+          "acrossToM": 30
+        },
+        {
+          "alongFromM": 35,
+          "alongToM": 40,
+          "acrossFromM": 0,
+          "acrossToM": 30
+        }
+      ],
+      "halfwayAlongM": 20,
+      "centre": {
+        "alongM": 20,
+        "acrossM": 15
+      }
+    },
+    "values": [
+      {
+        "path": "area.lengthM",
+        "value": 40,
+        "sixClass": 5,
+        "howReached": "ENTERED_ILLUSTRATIVE",
+        "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      },
+      {
+        "path": "area.widthM",
+        "value": 30,
+        "sixClass": 5,
+        "howReached": "ENTERED_ILLUSTRATIVE",
+        "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      },
+      {
+        "path": "area.includesEndZones",
+        "value": true,
+        "sixClass": 5,
+        "howReached": "ENTERED_ILLUSTRATIVE",
+        "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      },
+      {
+        "path": "endZones.depthM",
+        "value": 5,
+        "sixClass": 5,
+        "howReached": "ENTERED_ILLUSTRATIVE",
+        "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      },
+      {
+        "path": "endZones.placement",
+        "value": "ONE_AT_EACH_END_FULL_WIDTH",
+        "sixClass": 5,
+        "howReached": "ENTERED_ILLUSTRATIVE",
+        "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      },
+      {
+        "path": "endZones.positioning",
+        "value": null,
+        "sixClass": 6,
+        "howReached": "UNRESOLVED",
+        "label": "UNRESOLVED: no authorized value; needs a knowledge decision"
+      },
+      {
+        "path": "scoring.event",
+        "value": "target_zone_entered",
+        "sixClass": 3,
+        "howReached": "ENTERED_EVIDENCED",
+        "label": "RULING, provisional"
+      },
+      {
+        "path": "area.halfwayLine",
+        "value": "MARKED",
+        "sixClass": 5,
+        "howReached": "ENTERED_ILLUSTRATIVE",
+        "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      },
+      {
+        "path": "area.centreMark",
+        "value": "MARKED",
+        "sixClass": 5,
+        "howReached": "ENTERED_ILLUSTRATIVE",
+        "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      },
+      {
+        "path": "equipment.markers",
+        "value": "AREA_HALFWAY_CENTRE_TARGET_ZONES",
+        "sixClass": 5,
+        "howReached": "ENTERED_ILLUSTRATIVE",
+        "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      },
+      {
+        "path": "teams.count",
+        "value": 2,
+        "sixClass": 2,
+        "howReached": "ENTERED_EVIDENCED",
+        "label": "RULING"
+      },
+      {
+        "path": "players.perTeam",
+        "value": 6,
+        "sixClass": 5,
+        "howReached": "ENTERED_ILLUSTRATIVE",
+        "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      },
+      {
+        "path": "teams.equalOutfield",
+        "value": "EQUAL",
+        "sixClass": 1,
+        "howReached": "ENTERED_EVIDENCED",
+        "label": "APPROVED"
+      },
+      {
+        "path": "players.goalkeepers",
+        "value": 0,
+        "sixClass": 5,
+        "howReached": "ENTERED_ILLUSTRATIVE",
+        "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      },
+      {
+        "path": "area.goalkeepersCounted",
+        "value": "NO_GOALKEEPERS",
+        "sixClass": 5,
+        "howReached": "ENTERED_ILLUSTRATIVE",
+        "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      },
+      {
+        "path": "directions",
+        "value": "EACH_ATTACKS_ONE_DEFENDS_THE_OTHER_ALL_GAME",
+        "sixClass": 2,
+        "howReached": "ENTERED_EVIDENCED",
+        "label": "RULING"
+      },
+      {
+        "path": "equipment.bibs",
+        "value": "ONE_COLOUR_PER_TEAM_KEPT_ALL_SESSION",
+        "sixClass": 5,
+        "howReached": "ENTERED_ILLUSTRATIVE",
+        "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      },
+      {
+        "path": "start.method",
+        "value": "ORDINARY_KICKOFF",
+        "sixClass": 3,
+        "howReached": "ENTERED_EVIDENCED",
+        "label": "RULING, provisional"
+      },
+      {
+        "path": "start.kickoffDistanceM",
+        "value": 9.15,
+        "sixClass": 2,
+        "howReached": "ENTERED_EVIDENCED",
+        "label": "RULING"
+      },
+      {
+        "path": "gameForm.illustrativeChoice",
+        "value": "GF2",
+        "sixClass": 5,
+        "howReached": "ENTERED_ILLUSTRATIVE",
+        "label": "ILLUSTRATIVE (for this offline test only; to be replaced before any production use)"
+      },
+      {
+        "path": "gameForm.alternatives",
+        "value": [
+          "GF3",
+          "GF7"
+        ],
+        "sixClass": 3,
+        "howReached": "READ_BY_CODE",
+        "label": "CANDIDATE"
+      }
+    ],
+    "readsPaths": [
+      "area.centreMark",
+      "area.goalkeepersCounted",
+      "area.halfwayLine",
+      "area.includesEndZones",
+      "area.lengthM",
+      "area.widthM",
+      "directions",
+      "endZones.depthM",
+      "endZones.placement",
+      "endZones.positioning",
+      "equipment.bibs",
+      "equipment.markers",
+      "gameForm.alternatives",
+      "gameForm.illustrativeChoice",
+      "players.goalkeepers",
+      "players.perTeam",
+      "scoring.event",
+      "start.kickoffDistanceM",
+      "start.method",
+      "teams.count",
+      "teams.equalOutfield"
+    ],
+    "shapes": [
+      {
+        "id": "dimension-length",
+        "kind": "dimension",
+        "x": 100,
+        "y": 87,
+        "x2": 660,
+        "y2": 87,
+        "colour": "#8a8a8a",
+        "readsPaths": [
+          "area.lengthM"
+        ]
+      },
+      {
+        "id": "arrow-1",
+        "kind": "arrow",
+        "x": 270,
+        "y": 113,
+        "x2": 620,
+        "y2": 113,
+        "colour": "#1f5fbf",
+        "readsPaths": [
+          "directions"
+        ]
+      },
+      {
+        "id": "area",
+        "kind": "outline",
+        "x": 100,
+        "y": 133,
+        "w": 560,
+        "h": 420,
+        "colour": "#333333",
+        "readsPaths": [
+          "area.lengthM",
+          "area.widthM"
+        ]
+      },
+      {
+        "id": "zone-1",
+        "kind": "zone",
+        "x": 100,
+        "y": 133,
+        "w": 70,
+        "h": 420,
+        "colour": "#2e9e4f",
+        "readsPaths": [
+          "endZones.placement",
+          "endZones.depthM",
+          "area.lengthM",
+          "area.widthM",
+          "scoring.event",
+          "area.includesEndZones"
+        ]
+      },
+      {
+        "id": "zone-2",
+        "kind": "zone",
+        "x": 590,
+        "y": 133,
+        "w": 70,
+        "h": 420,
+        "colour": "#2e9e4f",
+        "readsPaths": [
+          "endZones.placement",
+          "endZones.depthM",
+          "area.lengthM",
+          "area.widthM",
+          "scoring.event",
+          "area.includesEndZones"
+        ]
+      },
+      {
+        "id": "halfway-line",
+        "kind": "line",
+        "x": 380,
+        "y": 133,
+        "x2": 380,
+        "y2": 553,
+        "colour": "#8a8a8a",
+        "readsPaths": [
+          "area.halfwayLine",
+          "area.lengthM"
+        ],
+        "computed": "position computed: halfway along the length (OURS)"
+      },
+      {
+        "id": "centre-mark",
+        "kind": "mark",
+        "x": 380,
+        "y": 343,
+        "r": 3,
+        "colour": "#8a8a8a",
+        "readsPaths": [
+          "area.centreMark",
+          "area.lengthM",
+          "area.widthM"
+        ],
+        "computed": "position computed: the centre of the area (OURS)"
+      },
+      {
+        "id": "dimension-width",
+        "kind": "dimension",
+        "x": 680,
+        "y": 133,
+        "x2": 680,
+        "y2": 553,
+        "colour": "#8a8a8a",
+        "readsPaths": [
+          "area.widthM"
+        ]
+      },
+      {
+        "id": "arrow-2",
+        "kind": "arrow",
+        "x": 620,
+        "y": 577,
+        "x2": 270,
+        "y2": 577,
+        "colour": "#b5470f",
+        "readsPaths": [
+          "directions"
+        ]
+      }
+    ],
+    "texts": [
+      {
+        "id": "banner",
+        "text": "DRAFT, offline review only: drawn from the manually authored A05 configuration record; not generated from knowledge and not a served diagram.",
+        "x": 40,
+        "y": 53,
+        "w": 1099.8,
+        "h": 16.900000000000002,
+        "size": 13,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [],
+        "colour": "#7a4a00",
+        "weight": "bold"
+      },
+      {
+        "id": "label-length",
+        "text": "40 m",
+        "x": 380,
+        "y": 82,
+        "w": 26.4,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "middle",
+        "inside": false,
+        "readsPaths": [
+          "area.lengthM"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "team-1",
+        "text": "Team A: 6 players",
+        "x": 100,
+        "y": 117,
+        "w": 122.39999999999999,
+        "h": 15.600000000000001,
+        "size": 12,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "teams.count",
+          "players.perTeam",
+          "teams.equalOutfield"
+        ],
+        "colour": "#1f5fbf",
+        "weight": "bold"
+      },
+      {
+        "id": "label-depth-1",
+        "text": "5 m",
+        "x": 135,
+        "y": 151,
+        "w": 19.8,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "middle",
+        "inside": true,
+        "readsPaths": [
+          "endZones.depthM"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "label-depth-2",
+        "text": "5 m",
+        "x": 625,
+        "y": 151,
+        "w": 19.8,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "middle",
+        "inside": true,
+        "readsPaths": [
+          "endZones.depthM"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "placeholder-0",
+        "text": "Target-zone position: not decided;",
+        "x": 380,
+        "y": 179,
+        "w": 224.4,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "middle",
+        "inside": true,
+        "readsPaths": [
+          "endZones.positioning",
+          "endZones.placement"
+        ],
+        "colour": "#7a4a00",
+        "italic": true
+      },
+      {
+        "id": "placeholder-1",
+        "text": "this example puts them at the ends.",
+        "x": 380,
+        "y": 195,
+        "w": 231,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "middle",
+        "inside": true,
+        "readsPaths": [
+          "endZones.positioning",
+          "endZones.placement"
+        ],
+        "colour": "#7a4a00",
+        "italic": true
+      },
+      {
+        "id": "label-width",
+        "text": "30 m",
+        "x": 688,
+        "y": 347,
+        "w": 26.4,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "area.widthM"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "team-2",
+        "text": "Team B: 6 players",
+        "x": 100,
+        "y": 581,
+        "w": 122.39999999999999,
+        "h": 15.600000000000001,
+        "size": 12,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "teams.count",
+          "players.perTeam",
+          "teams.equalOutfield"
+        ],
+        "colour": "#b5470f",
+        "weight": "bold"
+      },
+      {
+        "id": "caption",
+        "text": "Start: ordinary kick-off from the centre mark; opponents at least 9.15 m from the ball until it is kicked (no circle is marked).",
+        "x": 40,
+        "y": 621,
+        "w": 921.5999999999999,
+        "h": 15.600000000000001,
+        "size": 12,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "start.method",
+          "start.kickoffDistanceM",
+          "area.centreMark"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "flags-title",
+        "text": "Flags (what prevents a fully accurate drawing):",
+        "x": 40,
+        "y": 645,
+        "w": 310.2,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [],
+        "colour": "#7a4a00",
+        "weight": "bold"
+      },
+      {
+        "id": "flag-1",
+        "text": "- Target-zone position: UNRESOLVED; the zones are drawn where the illustrative placement puts them, at the ends.",
+        "x": 40,
+        "y": 661,
+        "w": 739.1999999999999,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [],
+        "colour": "#7a4a00"
+      },
+      {
+        "id": "flag-2",
+        "text": "- Which team attacks which end, and the teams' names, are not in the record: 'Team A' and 'Team B' are drawing labels only, and which arrow points which way is presentation.",
+        "x": 40,
+        "y": 677,
+        "w": 1141.8,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [],
+        "colour": "#7a4a00"
+      },
+      {
+        "id": "flag-3",
+        "text": "- Bib colours are not named in the record: the two team colours are presentation colours, never green.",
+        "x": 40,
+        "y": 693,
+        "w": 673.1999999999999,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [],
+        "colour": "#7a4a00"
+      },
+      {
+        "id": "flag-4",
+        "text": "- Starting relationships are not drawn: the record holds an ordinary kick-off and our reading of 'own half' (OURS). Question: may each team's own half be drawn on that",
+        "x": 40,
+        "y": 709,
+        "w": 1102.2,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [],
+        "colour": "#7a4a00"
+      },
+      {
+        "id": "flag-4-1",
+        "text": "reading, labelled OURS?",
+        "x": 40,
+        "y": 725,
+        "w": 151.79999999999998,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [],
+        "colour": "#7a4a00"
+      },
+      {
+        "id": "flag-5",
+        "text": "- The end-line restart's location is not drawn: it depends on where the ball went out; the exclusion is our illustrative choice, and the receiving distance is unresolved (R2).",
+        "x": 40,
+        "y": 741,
+        "w": 1155,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [],
+        "colour": "#7a4a00"
+      },
+      {
+        "id": "not-drawn-title",
+        "text": "Not drawn, and why:",
+        "x": 40,
+        "y": 765,
+        "w": 125.39999999999999,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [],
+        "colour": "#222222",
+        "weight": "bold"
+      },
+      {
+        "id": "not-drawn-1",
+        "text": "- Goals: none in the record (no goal stands at either end)",
+        "x": 40,
+        "y": 781,
+        "w": 382.8,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [],
+        "colour": "#222222"
+      },
+      {
+        "id": "not-drawn-2",
+        "text": "- A centre circle: not among the markings; the coach judges 9.15 m unaided (a gap reported, not filled)",
+        "x": 40,
+        "y": 797,
+        "w": 679.8,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [],
+        "colour": "#222222"
+      },
+      {
+        "id": "not-drawn-3",
+        "text": "- Players or positions: no value holds them; the team counts are given in words",
+        "x": 40,
+        "y": 813,
+        "w": 521.4,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [],
+        "colour": "#222222"
+      },
+      {
+        "id": "not-drawn-4",
+        "text": "- Starting relationships: the coach communication standard asks for them, but the record holds only an ordinary kick-off and our reading of 'own half'; see the question above",
+        "x": 40,
+        "y": 829,
+        "w": 1148.3999999999999,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [],
+        "colour": "#222222"
+      },
+      {
+        "id": "not-drawn-5",
+        "text": "- The end-line restart location: it depends on where the ball went out; our illustrative exclusion (never into or across a target zone) and an unresolved receiving distance",
+        "x": 40,
+        "y": 845,
+        "w": 1135.2,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [],
+        "colour": "#222222"
+      },
+      {
+        "id": "not-drawn-5-1",
+        "text": "(R2)",
+        "x": 40,
+        "y": 861,
+        "w": 26.4,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [],
+        "colour": "#222222"
+      },
+      {
+        "id": "not-drawn-6",
+        "text": "- The coach's position: in no value (R4)",
+        "x": 40,
+        "y": 877,
+        "w": 264,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [],
+        "colour": "#222222"
+      },
+      {
+        "id": "not-drawn-7",
+        "text": "- Spare balls: equipment, not a marking",
+        "x": 40,
+        "y": 893,
+        "w": 257.4,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [],
+        "colour": "#222222"
+      },
+      {
+        "id": "not-drawn-8",
+        "text": "- A principal-interaction region: which region holds the principal interactions is not established (OURS)",
+        "x": 40,
+        "y": 909,
+        "w": 693,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-title",
+        "text": "Key (one line per value drawn: the value; Christian's class and the label; how it reached the record):",
+        "x": 40,
+        "y": 933,
+        "w": 673.1999999999999,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [],
+        "colour": "#222222",
+        "weight": "bold"
+      },
+      {
+        "id": "key-1",
+        "text": "- Area length (end line to end line, target zones included): 40 m; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced",
+        "x": 40,
+        "y": 949,
+        "w": 1122,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "area.lengthM"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-1-1",
+        "text": "before any production use); entered",
+        "x": 40,
+        "y": 965,
+        "w": 231,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "area.lengthM"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-2",
+        "text": "- Area width: 30 m; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use); entered",
+        "x": 40,
+        "y": 981,
+        "w": 1049.3999999999999,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "area.widthM"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-3",
+        "text": "- Target zones inside the length: yes, both inside the length; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before",
+        "x": 40,
+        "y": 997,
+        "w": 1141.8,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "area.includesEndZones"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-3-1",
+        "text": "any production use); entered",
+        "x": 40,
+        "y": 1013,
+        "w": 184.79999999999998,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "area.includesEndZones"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-4",
+        "text": "- Target-zone depth (each zone): 5 m; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use);",
+        "x": 40,
+        "y": 1029,
+        "w": 1115.3999999999999,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "endZones.depthM"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-4-1",
+        "text": "entered",
+        "x": 40,
+        "y": 1045,
+        "w": 46.199999999999996,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "endZones.depthM"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-5",
+        "text": "- Target-zone placement: one at each end, across the full width; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before",
+        "x": 40,
+        "y": 1061,
+        "w": 1155,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "endZones.placement"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-5-1",
+        "text": "any production use); entered",
+        "x": 40,
+        "y": 1077,
+        "w": 184.79999999999998,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "endZones.placement"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-6",
+        "text": "- Target-zone position: no value; class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision; entered",
+        "x": 40,
+        "y": 1093,
+        "w": 1016.4,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "endZones.positioning"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-7",
+        "text": "- Target zones (one green): the scoring target: a controlled arrival in the target zone a team attacks; class 3: Candidate or provisional knowledge; RULING, provisional;",
+        "x": 40,
+        "y": 1109,
+        "w": 1115.3999999999999,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "scoring.event"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-7-1",
+        "text": "entered",
+        "x": 40,
+        "y": 1125,
+        "w": 46.199999999999996,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "scoring.event"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-8",
+        "text": "- Halfway line: marked; position computed: halfway along the length; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced",
+        "x": 40,
+        "y": 1141,
+        "w": 1135.2,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "area.halfwayLine"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-8-1",
+        "text": "before any production use); entered",
+        "x": 40,
+        "y": 1157,
+        "w": 231,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "area.halfwayLine"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-9",
+        "text": "- Centre mark: marked; position computed: the centre of the area; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced",
+        "x": 40,
+        "y": 1173,
+        "w": 1115.3999999999999,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "area.centreMark"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-9-1",
+        "text": "before any production use); entered",
+        "x": 40,
+        "y": 1189,
+        "w": 231,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "area.centreMark"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-10",
+        "text": "- Markings: the area, the halfway line, the centre mark and both target zones; nothing else; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test",
+        "x": 40,
+        "y": 1205,
+        "w": 1155,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "equipment.markers"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-10-1",
+        "text": "only; to be replaced before any production use); entered",
+        "x": 40,
+        "y": 1221,
+        "w": 369.59999999999997,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "equipment.markers"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-11",
+        "text": "- Teams: 2; class 2: An explicit scoped ruling; RULING; entered",
+        "x": 40,
+        "y": 1237,
+        "w": 415.8,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "teams.count"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-12",
+        "text": "- Players per team: 6; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use); entered",
+        "x": 40,
+        "y": 1253,
+        "w": 1069.2,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "players.perTeam"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-13",
+        "text": "- Team numbers: equal; class 1: Approved canonical knowledge; APPROVED; entered",
+        "x": 40,
+        "y": 1269,
+        "w": 521.4,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "teams.equalOutfield"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-14",
+        "text": "- Goalkeepers: 0 (no goalkeepers); class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use); entered",
+        "x": 40,
+        "y": 1285,
+        "w": 1148.3999999999999,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "players.goalkeepers"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-15",
+        "text": "- Goalkeepers counted: none to count; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use);",
+        "x": 40,
+        "y": 1301,
+        "w": 1115.3999999999999,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "area.goalkeepersCounted"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-15-1",
+        "text": "entered",
+        "x": 40,
+        "y": 1317,
+        "w": 46.199999999999996,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "area.goalkeepersCounted"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-16",
+        "text": "- Attacking directions (one arrow per team): each team attacks one target zone and defends the other, all game; class 2: An explicit scoped ruling; RULING; entered",
+        "x": 40,
+        "y": 1333,
+        "w": 1075.8,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "directions"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-17",
+        "text": "- Team colours: one colour per team, kept all session; no colour named; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced",
+        "x": 40,
+        "y": 1349,
+        "w": 1155,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "equipment.bibs"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-17-1",
+        "text": "before any production use); entered",
+        "x": 40,
+        "y": 1365,
+        "w": 231,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "equipment.bibs"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-18",
+        "text": "- Start: an ordinary kick-off from the centre mark; class 3: Candidate or provisional knowledge; RULING, provisional; entered",
+        "x": 40,
+        "y": 1381,
+        "w": 825,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "start.method"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-19",
+        "text": "- Opponents' distance at the start: 9.15 m; class 2: An explicit scoped ruling; RULING; entered",
+        "x": 40,
+        "y": 1397,
+        "w": 627,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "start.kickoffDistanceM"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-20",
+        "text": "- Game Form: Directional Possession Games; class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use);",
+        "x": 40,
+        "y": 1413,
+        "w": 1148.3999999999999,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "gameForm.illustrativeChoice"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-20-1",
+        "text": "entered",
+        "x": 40,
+        "y": 1429,
+        "w": 46.199999999999996,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "gameForm.illustrativeChoice"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "key-21",
+        "text": "- Compatible alternatives (unranked): Positional Play Games and Channel Games; class 3: Candidate or provisional knowledge; CANDIDATE; read by code",
+        "x": 40,
+        "y": 1445,
+        "w": 970.1999999999999,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [
+          "gameForm.alternatives"
+        ],
+        "colour": "#222222"
+      },
+      {
+        "id": "context",
+        "text": "Measured context: A01's diagram path draws a chain-built GF2 line game and withholds end zones for want of a Set up sentence, so this review drawing is the only picture of end",
+        "x": 40,
+        "y": 1469,
+        "w": 1155,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [],
+        "colour": "#222222"
+      },
+      {
+        "id": "context-1",
+        "text": "zones until the first blocking decision of the technical proposal is answered.",
+        "x": 40,
+        "y": 1485,
+        "w": 514.8,
+        "h": 14.3,
+        "size": 11,
+        "anchor": "start",
+        "inside": false,
+        "readsPaths": [],
+        "colour": "#222222"
+      }
+    ],
+    "key": [
+      {
+        "path": "area.lengthM",
+        "element": "Area length (end line to end line, target zones included)",
+        "valueText": "40 m",
+        "classAndLabel": "class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+        "route": "entered"
+      },
+      {
+        "path": "area.widthM",
+        "element": "Area width",
+        "valueText": "30 m",
+        "classAndLabel": "class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+        "route": "entered"
+      },
+      {
+        "path": "area.includesEndZones",
+        "element": "Target zones inside the length",
+        "valueText": "yes, both inside the length",
+        "classAndLabel": "class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+        "route": "entered"
+      },
+      {
+        "path": "endZones.depthM",
+        "element": "Target-zone depth (each zone)",
+        "valueText": "5 m",
+        "classAndLabel": "class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+        "route": "entered"
+      },
+      {
+        "path": "endZones.placement",
+        "element": "Target-zone placement",
+        "valueText": "one at each end, across the full width",
+        "classAndLabel": "class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+        "route": "entered"
+      },
+      {
+        "path": "endZones.positioning",
+        "element": "Target-zone position",
+        "valueText": "no value",
+        "classAndLabel": "class 6: An unsupported or unresolved relationship; UNRESOLVED: no authorized value; needs a knowledge decision",
+        "route": "entered"
+      },
+      {
+        "path": "scoring.event",
+        "element": "Target zones (one green)",
+        "valueText": "the scoring target: a controlled arrival in the target zone a team attacks",
+        "classAndLabel": "class 3: Candidate or provisional knowledge; RULING, provisional",
+        "route": "entered"
+      },
+      {
+        "path": "area.halfwayLine",
+        "element": "Halfway line",
+        "valueText": "marked; position computed: halfway along the length",
+        "classAndLabel": "class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+        "route": "entered"
+      },
+      {
+        "path": "area.centreMark",
+        "element": "Centre mark",
+        "valueText": "marked; position computed: the centre of the area",
+        "classAndLabel": "class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+        "route": "entered"
+      },
+      {
+        "path": "equipment.markers",
+        "element": "Markings",
+        "valueText": "the area, the halfway line, the centre mark and both target zones; nothing else",
+        "classAndLabel": "class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+        "route": "entered"
+      },
+      {
+        "path": "teams.count",
+        "element": "Teams",
+        "valueText": "2",
+        "classAndLabel": "class 2: An explicit scoped ruling; RULING",
+        "route": "entered"
+      },
+      {
+        "path": "players.perTeam",
+        "element": "Players per team",
+        "valueText": "6",
+        "classAndLabel": "class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+        "route": "entered"
+      },
+      {
+        "path": "teams.equalOutfield",
+        "element": "Team numbers",
+        "valueText": "equal",
+        "classAndLabel": "class 1: Approved canonical knowledge; APPROVED",
+        "route": "entered"
+      },
+      {
+        "path": "players.goalkeepers",
+        "element": "Goalkeepers",
+        "valueText": "0 (no goalkeepers)",
+        "classAndLabel": "class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+        "route": "entered"
+      },
+      {
+        "path": "area.goalkeepersCounted",
+        "element": "Goalkeepers counted",
+        "valueText": "none to count",
+        "classAndLabel": "class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+        "route": "entered"
+      },
+      {
+        "path": "directions",
+        "element": "Attacking directions (one arrow per team)",
+        "valueText": "each team attacks one target zone and defends the other, all game",
+        "classAndLabel": "class 2: An explicit scoped ruling; RULING",
+        "route": "entered"
+      },
+      {
+        "path": "equipment.bibs",
+        "element": "Team colours",
+        "valueText": "one colour per team, kept all session; no colour named",
+        "classAndLabel": "class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+        "route": "entered"
+      },
+      {
+        "path": "start.method",
+        "element": "Start",
+        "valueText": "an ordinary kick-off from the centre mark",
+        "classAndLabel": "class 3: Candidate or provisional knowledge; RULING, provisional",
+        "route": "entered"
+      },
+      {
+        "path": "start.kickoffDistanceM",
+        "element": "Opponents' distance at the start",
+        "valueText": "9.15 m",
+        "classAndLabel": "class 2: An explicit scoped ruling; RULING",
+        "route": "entered"
+      },
+      {
+        "path": "gameForm.illustrativeChoice",
+        "element": "Game Form",
+        "valueText": "Directional Possession Games",
+        "classAndLabel": "class 5: An illustrative configuration choice; ILLUSTRATIVE (for this offline test only; to be replaced before any production use)",
+        "route": "entered"
+      },
+      {
+        "path": "gameForm.alternatives",
+        "element": "Compatible alternatives (unranked)",
+        "valueText": "Positional Play Games and Channel Games",
+        "classAndLabel": "class 3: Candidate or provisional knowledge; CANDIDATE",
+        "route": "read by code"
+      }
+    ],
+    "notDrawn": [
+      {
+        "what": "Goals",
+        "why": "none in the record (no goal stands at either end)"
+      },
+      {
+        "what": "A centre circle",
+        "why": "not among the markings; the coach judges 9.15 m unaided (a gap reported, not filled)"
+      },
+      {
+        "what": "Players or positions",
+        "why": "no value holds them; the team counts are given in words"
+      },
+      {
+        "what": "Starting relationships",
+        "why": "the coach communication standard asks for them, but the record holds only an ordinary kick-off and our reading of 'own half'; see the question above"
+      },
+      {
+        "what": "The end-line restart location",
+        "why": "it depends on where the ball went out; our illustrative exclusion (never into or across a target zone) and an unresolved receiving distance (R2)"
+      },
+      {
+        "what": "The coach's position",
+        "why": "in no value (R4)"
+      },
+      {
+        "what": "Spare balls",
+        "why": "equipment, not a marking"
+      },
+      {
+        "what": "A principal-interaction region",
+        "why": "which region holds the principal interactions is not established (OURS)"
+      }
+    ],
+    "flags": [
+      "Target-zone position: UNRESOLVED; the zones are drawn where the illustrative placement puts them, at the ends.",
+      "Which team attacks which end, and the teams' names, are not in the record: 'Team A' and 'Team B' are drawing labels only, and which arrow points which way is presentation.",
+      "Bib colours are not named in the record: the two team colours are presentation colours, never green.",
+      "Starting relationships are not drawn: the record holds an ordinary kick-off and our reading of 'own half' (OURS). Question: may each team's own half be drawn on that reading, labelled OURS?",
+      "The end-line restart's location is not drawn: it depends on where the ball went out; the exclusion is our illustrative choice, and the receiving distance is unresolved (R2)."
+    ],
+    "width": 1240,
+    "height": 1530,
+    "outline": {
+      "x": 100,
+      "y": 133,
+      "w": 560,
+      "h": 420
+    },
+    "colours": {
+      "zone": "#2e9e4f",
+      "teams": [
+        "#1f5fbf",
+        "#b5470f"
+      ],
+      "marking": "#8a8a8a",
+      "outline": "#333333"
+    }
   },
   "sixClasses": [
     {

@@ -27,6 +27,7 @@ import { DesignResolution, resolveDesignContext } from './resolve'
 import { evaluateStructuralConditions, StructuralEvaluation } from './structural'
 import { InfluenceTrace, TraceItem, weakestStanding } from './trace'
 import { compareWidth } from './width-comparison'
+import { assemblyDiagramOf, DiagramModel } from './assembly-diagram'
 import {
     AccountCounts,
     AccountLine,
@@ -234,6 +235,8 @@ export interface AssemblyRun {
     account: { lines: AccountLine[]; counts: AccountCounts }
     suitability: SuitabilityReview
     scenarios: ScenarioResult[]
+    /** The DRAFT diagram's model, drawn from the record (Christian's reply of 6 November, section 9); the runner writes its SVG. */
+    diagram: DiagramModel
 }
 
 /**
@@ -271,7 +274,8 @@ export function runAssembly(
     const account = requirementAccountOf(knowledge, experiment, activity)
     const suitability = suitabilityReview(knowledge, resolution, forms, experiment, activity)
     const scenarios = scenarioReview(knowledge, resolution, forms, experiment, activity)
-    return { experiment, wording, resolution, forms, display, activity, composed, design, account, suitability, scenarios }
+    const diagram = assemblyDiagramOf(activity, experiment, wording)
+    return { experiment, wording, resolution, forms, display, activity, composed, design, account, suitability, scenarios, diagram }
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
@@ -487,7 +491,8 @@ function frontAndParts(run: AssemblyRun, mutation: MutationLoop | null): string[
     const exam = x.restartExamination
     L.push(`- End-line restart (examined in Part 6), the verdict to report: ${exam.verdict}`)
     L.push(`- Identity: ${run.suitability.identityPoint.statement} ${run.suitability.scopeTension.statement} Suitability: ${run.suitability.addNothing.status} (${run.suitability.addNothing.statement})`)
-    L.push(`- Diagram: none is drawn, so the Coach Overview is incomplete against RC3 4.5 and against Christian's 21 October list, ${ref('diagram')}. The cause is an architectural dependency (Part 6), not missing information.`)
+    const diagramRuling = byId.get(x.reportRefs.diagramRuling.rulingRef) as AssemblyRuling
+    L.push(`- Diagram: a DRAFT diagram drawn from the record, offline review only, not served (evidence/assembly-diagram.svg; Part 1 prints its key, flags and what it does not draw), as Christian's reply of ${longDate(diagramRuling.received)} asks: ${diagramRuling.words.map((w) => `"${w}"`).join(' ')} It answers Christian's 21 October list, ${ref('diagram')}, for review only; the checked pathway's diagram generation and the live application are unchanged. ${run.diagram.flags.length} ambiguities are flagged on it.`)
     // An answered decision is never listed as open: it is printed apart, with what answered it.
     const blocks = (b: string) => x.openDecisions.filter((d) => d.blocks === b && !d.answeredBy)
     L.push(`- Blocks assembly: ${blocks('ASSEMBLY').length ? blocks('ASSEMBLY').map((d) => `${d.id}: ${d.question} (${d.handling})`).join(' / ') : 'none'}.`)
@@ -547,6 +552,16 @@ function activityPart(run: AssemblyRun): string[] {
         L.push(`  ${s.title} (RC3 ${s.rc3})`)
         for (const t of s.sentences) L.push(`    ${t.text}${t.marker ? ` ${t.marker}` : ''}${t.status !== 'NEWLY PROPOSED' ? ` {wording: ${t.status}}` : ''}`)
     }
+    // The DRAFT diagram (evidence/assembly-diagram.svg), its words as the drawing prints them: each key line's class and label are the ones
+    // this report prints for the same value.
+    const dg = run.diagram
+    L.push('', `DRAFT DIAGRAM (evidence/assembly-diagram.svg; ${dg.standing})`)
+    for (const t of dg.texts.filter((y) => y.id === 'banner' || y.id.startsWith('banner-') || y.id.startsWith('placeholder') || y.id.startsWith('caption'))) L.push(`  ${t.text}`)
+    L.push(`  Drawn: ${dg.shapes.map((s) => `${s.id}${s.computed ? ` (${s.computed})` : ''}`).join('; ')}. In metres: the area ${dg.metres.lengthM} x ${dg.metres.widthM}; zones ${dg.metres.zones.map((z) => `${z.alongFromM}-${z.alongToM} along, ${z.acrossFromM}-${z.acrossToM} across`).join(' and ')}; halfway at ${dg.metres.halfwayAlongM} along; centre mark at ${dg.metres.centre.alongM} along, ${dg.metres.centre.acrossM} across (both computed).`)
+    for (const [p, g] of Object.entries(x.placementGeometry)) L.push(`  Placement geometry for ${p} (${g.zones.map((z) => z.along).join(', ')}; ${g.across}): ${g.standing}`)
+    L.push(`  Flags: ${dg.flags.join(' / ')}`)
+    L.push(`  Not drawn: ${dg.notDrawn.map((d) => `${d.what} (${d.why})`).join('; ')}.`)
+    for (const k of dg.key) L.push(`  key: ${k.element}: ${k.valueText}; ${k.classAndLabel}; ${k.route}`)
     L.push('', 'DESIGN RATIONALE (generated from the decision trace: each line names the value, what decided it and its class, Christian\'s words in any role beside it, and what was only consulted; it is not evidence of ecological effectiveness)')
     for (const c of a.choices) L.push(`  ${rationaleLine(run, c)}`)
     return L
@@ -789,6 +804,7 @@ export function buildAssemblyReport(run: AssemblyRun, regression: RegressionReco
         dependencies: run.experiment.dependencies,
         regressionRecord: regression,
         mutationLoop: mutation,
+        diagram: run.diagram,
         sixClasses: SIX_CLASSES.map((c, i) => ({ class: (i + 1) as SixClass, words: c })),
         sixClassesFiledAs: run.experiment.reportRefs.sixClasses.rulingRef,
     }

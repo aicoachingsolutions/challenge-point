@@ -25,7 +25,8 @@
         "diagram": { "rulingRef": "ASM-21OCT-PRESENTATION", "quote": "The immediate understanding of the activity: learning purpose, one-sentence game description, basic parameters, essential scoring objectives, and a simple diagram." },
         "sixClasses": { "rulingRef": "ASM-AUTH-CLASSES" },
         "diagnostic": { "rulingRef": "ASM-06NOV-DIAGNOSTIC" },
-        "provenanceRuling": { "rulingRef": "ASM-06NOV-PROVENANCE" }
+        "provenanceRuling": { "rulingRef": "ASM-06NOV-PROVENANCE" },
+        "diagramRuling": { "rulingRef": "ASM-06NOV-DIAGRAM" }
     },
     "bindings": {
         "illustrativeForm": "gameForm.illustrativeChoice",
@@ -36,9 +37,23 @@
         "areaLength": "area.lengthM",
         "areaWidth": "area.widthM",
         "targetZoneDepth": "endZones.depthM",
-        "targetZonePlacement": "endZones.placement"
+        "targetZonePlacement": "endZones.placement",
+        "includesEndZones": "area.includesEndZones",
+        "equalNumbers": "teams.equalOutfield",
+        "keepers": "players.goalkeepers",
+        "keepersCounted": "area.goalkeepersCounted",
+        "halfwayLine": "area.halfwayLine",
+        "centreMark": "area.centreMark",
+        "markers": "equipment.markers",
+        "attackDirections": "directions",
+        "bibs": "equipment.bibs",
+        "startMethod": "start.method",
+        "startDistance": "start.kickoffDistanceM",
+        "targetZonePositioning": "endZones.positioning",
+        "gameFormAlternatives": "gameForm.alternatives"
     },
     "placementZoneCount": { "ONE_AT_EACH_END_FULL_WIDTH": 2 },
+    "placementGeometry": { "ONE_AT_EACH_END_FULL_WIDTH": { "standing": "OURS: our reading of our own illustrative value's name, for the DRAFT diagram only: one zone inward from each end line by the zone depth, across the full width.", "zones": [{ "along": "FROM_START" }, { "along": "FROM_END" }], "across": "FULL_WIDTH" } },
     "derived": [
         {
             "id": "area.perOutfieldTotalM2",
@@ -2429,7 +2444,7 @@
         { "id": "DEP-3", "what": "Episode scope (only the build-out episode is evaluable)", "options": "the starting condition is shown UNRESOLVED; no phase build." },
         { "id": "DEP-4", "what": "A role-less target-zone set-up sentence in the renderer (unverified on this head)", "options": "the line target (conflicts with Christian's end-zone ruling), a renderer change (live), or this experiment's text." },
         { "id": "DEP-5", "what": "No GF3 or GF7 contracts", "options": "list them as alternatives only." },
-        { "id": "DEP-6", "what": "The RC3 diagram is drawn only from a realized game in the checked pathway", "options": "(a) no diagram in this experiment, the dependency reported (as now); (b) a renderer change (live); (c) a DRAFT diagram drawn from the decision record outside the renderer and checked against the configuration paths, as DEP-1's third option does for text (not built here). Until one is chosen, the Coach Overview is incomplete against RC3 4.5 and Christian's 21 October list." },
+        { "id": "DEP-6", "what": "The RC3 diagram is drawn only from a realized game in the checked pathway", "options": "(a) no diagram in this experiment, the dependency reported (as now); (b) a renderer change (live); (c) a DRAFT diagram drawn from the decision record outside the renderer and checked against the configuration paths, as DEP-1's third option does for text. Built as (c), offline review only, as Christian's reply of 6 November (section 9) authorizes: evidence/assembly-diagram.svg; not served; A01's diagram pathway and the live application unchanged." },
         { "id": "DEP-7", "what": "The missing configuration step itself (Steps 3-5 held)", "options": "a labelled decision record, as here; or Christian's authorization of a configuration step." }
     ],
     "secondGoalNeeds": [

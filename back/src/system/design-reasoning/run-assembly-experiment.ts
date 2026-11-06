@@ -1,9 +1,10 @@
 /**
  * **The bounded activity-assembly experiment, offline** — `npm run design:assembly -- [--out <dir>]`.
  *
- * Runs the whole experiment (Christian's second reply of 5 November 2026) and writes two evidence files into
+ * Runs the whole experiment (Christian's second reply of 5 November 2026) and writes three evidence files into
  * `docs/audits/design-reasoning-assembly/evidence/` (or `--out`): `assembly-report.txt`, for a reader (the front, Parts 0 to 7, with the
- * activity as assembled in Part 1), and `assembly-results.json`, every value with what decided it. No time stamp, so two runs on the same
+ * activity as assembled in Part 1), `assembly-results.json`, every value with what decided it, and `assembly-diagram.svg`, the DRAFT
+ * diagram drawn from the record (Christian's reply of 6 November 2026, section 9; offline review only, not served). No time stamp, so two runs on the same
  * knowledge are byte-identical. No network, no database, no route: it reads the committed knowledge, the experiment record and the DRAFT
  * wording, nothing else.
  *
@@ -15,6 +16,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
+import { assemblyDiagramSvg } from './assembly-diagram'
 import { displayTextsFor } from './assembly-display'
 import { buildAssemblyReport, mutationLoop, runAssembly, validateRegressionRecord } from './assembly-review'
 
@@ -34,8 +36,9 @@ function main(): void {
     fs.mkdirSync(outDir, { recursive: true })
     fs.writeFileSync(path.join(outDir, 'assembly-report.txt'), report)
     fs.writeFileSync(path.join(outDir, 'assembly-results.json'), `${JSON.stringify(results, null, 2)}\n`)
+    fs.writeFileSync(path.join(outDir, 'assembly-diagram.svg'), assemblyDiagramSvg(run.diagram))
     console.log(report)
-    console.log(`wrote assembly-report.txt and assembly-results.json to ${path.relative(process.cwd(), outDir) || '.'}`)
+    console.log(`wrote assembly-report.txt, assembly-results.json and assembly-diagram.svg to ${path.relative(process.cwd(), outDir) || '.'}`)
 }
 
 main()

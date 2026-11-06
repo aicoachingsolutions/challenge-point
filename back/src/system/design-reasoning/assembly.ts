@@ -153,11 +153,44 @@ export interface AccountEntry {
 export type OpenDecisionClass = 'ASSEMBLY' | 'SCORING_FIDELITY_OR_PRODUCTION' | 'SUITABILITY' | 'NON_BLOCKING' | 'OUR_READING' | 'KNOWN_RISK'
 export const OPEN_DECISION_CLASSES: OpenDecisionClass[] = ['ASSEMBLY', 'SCORING_FIDELITY_OR_PRODUCTION', 'SUITABILITY', 'NON_BLOCKING', 'OUR_READING', 'KNOWN_RISK']
 
-export type ReportRefKey = 'experimentPurpose' | 'acceptance' | 'limits' | 'caveat' | 'futureFeedbackQuestion' | 'lawsPrinciple' | 'diagram' | 'sixClasses' | 'diagnostic' | 'provenanceRuling'
-export const REPORT_REF_KEYS: ReportRefKey[] = ['experimentPurpose', 'acceptance', 'limits', 'caveat', 'futureFeedbackQuestion', 'lawsPrinciple', 'diagram', 'sixClasses', 'diagnostic', 'provenanceRuling']
+export type ReportRefKey = 'experimentPurpose' | 'acceptance' | 'limits' | 'caveat' | 'futureFeedbackQuestion' | 'lawsPrinciple' | 'diagram' | 'sixClasses' | 'diagnostic' | 'provenanceRuling' | 'diagramRuling'
+export const REPORT_REF_KEYS: ReportRefKey[] = ['experimentPurpose', 'acceptance', 'limits', 'caveat', 'futureFeedbackQuestion', 'lawsPrinciple', 'diagram', 'sixClasses', 'diagnostic', 'provenanceRuling', 'diagramRuling']
 
-export type BindingKey = 'illustrativeForm' | 'scoringEvent' | 'scoringMeans' | 'teamCount' | 'playersPerTeam' | 'areaLength' | 'areaWidth' | 'targetZoneDepth' | 'targetZonePlacement'
-export const BINDING_KEYS: BindingKey[] = ['illustrativeForm', 'scoringEvent', 'scoringMeans', 'teamCount', 'playersPerTeam', 'areaLength', 'areaWidth', 'targetZoneDepth', 'targetZonePlacement']
+export type BindingKey =
+    | 'illustrativeForm'
+    | 'scoringEvent'
+    | 'scoringMeans'
+    | 'teamCount'
+    | 'playersPerTeam'
+    | 'areaLength'
+    | 'areaWidth'
+    | 'targetZoneDepth'
+    | 'targetZonePlacement'
+    // The DRAFT diagram's further reads (Christian's reply of 6 November, section 9): it reads paths only through these.
+    | 'includesEndZones'
+    | 'equalNumbers'
+    | 'keepers'
+    | 'keepersCounted'
+    | 'halfwayLine'
+    | 'centreMark'
+    | 'markers'
+    | 'attackDirections'
+    | 'bibs'
+    | 'startMethod'
+    | 'startDistance'
+    | 'targetZonePositioning'
+    | 'gameFormAlternatives'
+export const BINDING_KEYS: BindingKey[] = [
+    'illustrativeForm', 'scoringEvent', 'scoringMeans', 'teamCount', 'playersPerTeam', 'areaLength', 'areaWidth', 'targetZoneDepth', 'targetZonePlacement',
+    'includesEndZones', 'equalNumbers', 'keepers', 'keepersCounted', 'halfwayLine', 'centreMark', 'markers', 'attackDirections', 'bibs', 'startMethod', 'startDistance', 'targetZonePositioning', 'gameFormAlternatives',
+]
+
+/** Where a placement value puts its target zones, for the DRAFT diagram only (data, labelled OURS; an unmapped placement throws). */
+export interface PlacementGeometry {
+    standing: string
+    zones: Array<{ along: 'FROM_START' | 'FROM_END' }>
+    across: 'FULL_WIDTH'
+}
 
 export interface Experiment {
     standing: string
@@ -171,6 +204,8 @@ export interface Experiment {
     bindings: Record<BindingKey, string>
     /** How many target zones each placement value means (read by code; an unmapped placement throws). */
     placementZoneCount: Record<string, number>
+    /** Where each placement value puts its zones (OURS, data), read by the DRAFT diagram only; one entry per placement the count maps. */
+    placementGeometry: Record<string, PlacementGeometry>
     derived: Array<{ id: string; formula: 'AREA_PER_PLAYER_TOTAL' | 'AREA_PER_PLAYER_OUTSIDE_TARGET_ZONES'; label: string; note: string }>
     rulings: AssemblyRuling[]
     requiredPartsRulingRef: string
@@ -244,12 +279,83 @@ export interface WordingTemplate {
     scope?: 'GOAL' | 'CONTEXT'
 }
 
+/**
+ * The DRAFT diagram's words (Christian's reply of 6 November, section 9): every word the drawing prints, by binding key, never by path. A
+ * `{binding}` placeholder is filled with the value the binding names; `{goal}` in the banner with the record's goal id.
+ */
+export interface DiagramWords {
+    standing: string
+    banner: string
+    /** Drawing labels only (the record names no team). */
+    teamLabels: string[]
+    /** Which way each drawing label's arrow points: presentation (OURS), flagged; the record does not say which team attacks which end. */
+    teamAttacks: Array<'TOWARD_END' | 'TOWARD_START'>
+    teamCount: string
+    zonePlaceholder: string
+    caption: string
+    flagsTitle: string
+    flags: string[]
+    notDrawnTitle: string
+    notDrawn: Array<{ what: string; why: string }>
+    keyTitle: string
+    /** One key line per value drawn, in order. */
+    elements: Array<{ binding: BindingKey; name: string }>
+    valueWords: Partial<Record<BindingKey, Record<string, string>>>
+    units: Partial<Record<BindingKey, string>>
+    noValue: string
+    computed: { halfway: string; centre: string }
+    measuredContext: string
+}
+
 export interface Wording {
     standing: string
     keyedFor: { gameForm: string; scoringEvent: string; note: string }
     coachTerms: { targetZone: string; markedLine: string; source: string }
     sections: Array<{ id: string; level: 'Coach Overview' | 'Coach Details'; title: string; rc3: string }>
     templates: WordingTemplate[]
+    diagram: DiagramWords
+}
+
+const DIAGRAM_WORD_KEYS = ['standing', 'banner', 'teamLabels', 'teamAttacks', 'teamCount', 'zonePlaceholder', 'caption', 'flagsTitle', 'flags', 'notDrawnTitle', 'notDrawn', 'keyTitle', 'elements', 'valueWords', 'units', 'noValue', 'computed', 'measuredContext']
+
+/** The diagram words, validated by hand: known keys only, strings where strings belong, bindings that exist, no quotation mark. */
+function validateDiagramWords(where: string, raw: unknown): void {
+    const d = onlyKeys(where, raw, DIAGRAM_WORD_KEYS, DIAGRAM_WORD_KEYS)
+    const strings: string[] = []
+    for (const key of ['standing', 'banner', 'teamCount', 'zonePlaceholder', 'caption', 'flagsTitle', 'notDrawnTitle', 'keyTitle', 'noValue', 'measuredContext']) {
+        if (!isString(d[key])) throw new Error(`${where}.${key}: must be a string`)
+        strings.push(d[key] as string)
+    }
+    if (!isStringList(d.teamLabels) || (d.teamLabels as string[]).length < 2 || !isStringList(d.flags)) throw new Error(`${where}: teamLabels (two or more) and flags are lists of strings`)
+    strings.push(...(d.teamLabels as string[]), ...(d.flags as string[]))
+    const attacks = d.teamAttacks as unknown[]
+    if (!Array.isArray(attacks) || attacks.length !== (d.teamLabels as string[]).length || !attacks.every((a) => a === 'TOWARD_END' || a === 'TOWARD_START') || new Set(attacks).size !== 2) throw new Error(`${where}.teamAttacks: one direction per team label, both directions used`)
+    ;(d.notDrawn as unknown[]).forEach((n, i) => {
+        const o = onlyKeys(`${where}.notDrawn[${i}]`, n, ['what', 'why'], ['what', 'why'])
+        if (!isString(o.what) || !isString(o.why)) throw new Error(`${where}.notDrawn[${i}]: what and why are strings`)
+        strings.push(o.what as string, o.why as string)
+    })
+    const bindings = new Set<string>()
+    ;(d.elements as unknown[]).forEach((e, i) => {
+        const o = onlyKeys(`${where}.elements[${i}]`, e, ['binding', 'name'], ['binding', 'name'])
+        if (BINDING_KEYS.indexOf(o.binding as BindingKey) < 0 || bindings.has(o.binding as string)) throw new Error(`${where}.elements[${i}]: a binding key, listed once`)
+        bindings.add(o.binding as string)
+        if (!isString(o.name)) throw new Error(`${where}.elements[${i}]: name must be a string`)
+        strings.push(o.name as string)
+    })
+    for (const key of ['valueWords', 'units']) {
+        if (!isObject(d[key])) throw new Error(`${where}.${key}: an object keyed by binding`)
+        for (const [b, v] of Object.entries(d[key] as Record<string, unknown>)) {
+            if (BINDING_KEYS.indexOf(b as BindingKey) < 0) throw new Error(`${where}.${key}.${b}: not a binding key`)
+            if (key === 'units' && !isString(v)) throw new Error(`${where}.units.${b}: must be a string`)
+            if (key === 'valueWords' && (!isObject(v) || !Object.values(v).every(isString))) throw new Error(`${where}.valueWords.${b}: maps values to words`)
+            if (key === 'valueWords') strings.push(...Object.values(v as Record<string, string>))
+        }
+    }
+    const computed = onlyKeys(`${where}.computed`, d.computed, ['halfway', 'centre'], ['halfway', 'centre'])
+    if (!isString(computed.halfway) || !isString(computed.centre)) throw new Error(`${where}.computed: halfway and centre are strings`)
+    // The drawing quotes nothing: a double quotation mark would present words as Christian's that no check verifies.
+    for (const s of strings) if (s.indexOf('"') >= 0) throw new Error(`${where}: a quotation mark in a diagram word (${s.slice(0, 40)})`)
 }
 
 // An open decision of the experiment reuses the Stage 1/2 shape where it fits: the question, Christian's words (by reference) and the handling.
@@ -457,6 +563,8 @@ const TOP_KEYS = [
     // Christian's reply of 6 November: the change log (before and after, for every value or decision it retired or changed), the end-line
     // restart's examination (section 6) and our readings inside a premise (section 7).
     'changeLog', 'restartExamination', 'readingsInsidePremises',
+    // Section 9: the placement geometry the DRAFT diagram reads.
+    'placementGeometry',
 ]
 const RULING_KEYS = ['id', 'decision', 'subject', 'scope', 'scopeWords', 'scopeCovers', 'scopePaths', 'kind', 'establishesCanonicalKnowledge', 'canonicalAmendment', 'words', 'supersedes', 'received', 'file', 'provisional']
 const CHOICE_KEYS = ['path', 'value', 'valueIsEvidence', 'evidenceStates', 'declaredStatus', 'howReached', 'readBy', 'knowledgeRef', 'decidedBy', 'consulted', 'statusSetBy', 'permittedBy', 'readingOf', 'scopeSetBy', 'note']
@@ -641,6 +749,19 @@ export function validateExperiment(raw: unknown): Experiment {
     const bindings = onlyKeys('bindings', top.bindings, BINDING_KEYS, BINDING_KEYS)
     for (const [key, p] of Object.entries(bindings)) pathOk(`bindings.${key}`, p)
     if (!isObject(top.placementZoneCount) || !Object.values(top.placementZoneCount).every((n) => typeof n === 'number' && Number.isInteger(n) && n >= 0)) fail('placementZoneCount', 'maps each placement value to a whole number of target zones')
+    // The placement geometry: exactly the placements the count maps, each with as many zones as the count says, labelled ours.
+    if (!isObject(top.placementGeometry)) fail('placementGeometry', 'maps each placement value to where its zones lie')
+    if (JSON.stringify(Object.keys(top.placementGeometry).sort()) !== JSON.stringify(Object.keys(top.placementZoneCount).sort())) fail('placementGeometry', 'the same placements as placementZoneCount')
+    for (const [placement, g] of Object.entries(top.placementGeometry)) {
+        const o = onlyKeys(`placementGeometry.${placement}`, g, ['standing', 'zones', 'across'], ['standing', 'zones', 'across'])
+        if (!isString(o.standing) || (o.standing as string).indexOf('OURS') !== 0) fail(`placementGeometry.${placement}`, 'a standing labelled OURS')
+        if (o.across !== 'FULL_WIDTH') fail(`placementGeometry.${placement}`, `unknown extent across ${JSON.stringify(o.across)}`)
+        if (!Array.isArray(o.zones) || o.zones.length !== (top.placementZoneCount as Record<string, number>)[placement]) fail(`placementGeometry.${placement}`, 'as many zones as placementZoneCount says')
+        ;(o.zones as unknown[]).forEach((z, i) => {
+            const zz = onlyKeys(`placementGeometry.${placement}.zones[${i}]`, z, ['along'], ['along'])
+            if (zz.along !== 'FROM_START' && zz.along !== 'FROM_END') fail(`placementGeometry.${placement}.zones[${i}]`, 'along is FROM_START or FROM_END')
+        })
+    }
     ;(top.derived as unknown[]).forEach((d, i) => {
         const o = onlyKeys(`derived[${i}]`, d, ['id', 'formula', 'label', 'note'], ['id', 'formula', 'label', 'note'])
         if (['AREA_PER_PLAYER_TOTAL', 'AREA_PER_PLAYER_OUTSIDE_TARGET_ZONES'].indexOf(o.formula as string) < 0) fail(`derived[${i}]`, 'unknown formula')
@@ -849,8 +970,9 @@ export function validateExperiment(raw: unknown): Experiment {
 /** The DRAFT wording, validated against the record: known sections, known paths, `expresses` equal to its placeholders and whenValue keys. */
 export function validateWording(raw: unknown, experiment: Experiment): Wording {
     const where = 'assembly-wording.draft.json'
-    const top = onlyKeys(where, raw, ['standing', 'keyedFor', 'coachTerms', 'sections', 'templates'], ['standing', 'keyedFor', 'coachTerms', 'sections', 'templates'])
+    const top = onlyKeys(where, raw, ['standing', 'keyedFor', 'coachTerms', 'sections', 'templates', 'diagram'], ['standing', 'keyedFor', 'coachTerms', 'sections', 'templates', 'diagram'])
     if (!isString(top.standing)) throw new Error(`${where}: standing must be a string`)
+    validateDiagramWords(`${where} diagram`, top.diagram)
     const keyedFor = onlyKeys(`${where} keyedFor`, top.keyedFor, ['gameForm', 'scoringEvent', 'note'], ['gameForm', 'scoringEvent', 'note'])
     const coachTerms = onlyKeys(`${where} coachTerms`, top.coachTerms, ['targetZone', 'markedLine', 'source'], ['targetZone', 'markedLine', 'source'])
     for (const v of [...Object.values(keyedFor), ...Object.values(coachTerms)]) if (!isString(v)) throw new Error(`${where}: keyedFor and coachTerms hold strings`)

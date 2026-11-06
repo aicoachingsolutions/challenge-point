@@ -31,6 +31,7 @@ import path from 'node:path'
 
 import { namesRole, numbersIn, OBLIGATIONS, ROLE_ORDERING, TARGET_AS_LINE } from '../rendering/fidelity'
 import { rpcLibrary } from '../sport-module/rpc-library'
+import { assemblyDiagramOf, assemblyDiagramSvg, DiagramModel } from './assembly-diagram'
 import { displayCell, displayTextsFor, DISPLAY_ALLOWLIST } from './assembly-display'
 import {
     AssembledActivity,
@@ -162,7 +163,9 @@ function testB_expressesEqualsWhatTheTemplateSays(): void {
 // The kick-off distance left this list openly on 6 November: Christian's reply (section 8) now states it, so a changed number is refused by
 // the word its evidence uses ("9.15"), as every number Christian's words state is.
 const EXPECTED_SUBSTITUTED = ['players.perTeam', 'area.lengthM', 'area.widthM', 'endZones.depthM', 'duration.blocks', 'duration.blockMinutes']
-const EXPECTED_EXEMPT_PRINTED_ONLY = ['area.goalkeepersCounted', 'coachQuestion']
+// 6 November: the DRAFT diagram keys area.goalkeepersCounted through its own words, so a changed value is refused there (structural),
+// no longer printed in the report only.
+const EXPECTED_EXEMPT_PRINTED_ONLY = ['coachQuestion']
 /** Structural refusals beyond the values read by code and the unresolved ones, each with the check that refuses it. */
 const EXPECTED_STRUCTURAL_NAMED: Record<string, RegExp> = {
     'gameForm.illustrativeChoice': /namesValue: Christian's quoted words must contain the value/,
@@ -171,6 +174,7 @@ const EXPECTED_STRUCTURAL_NAMED: Record<string, RegExp> = {
     'scoring.event': /is not one of RPC-003's ACTIVE scoring events/,
     'scoring.qualifyingCondition.sep13Text': /valueIsEvidence: the value must equal its first decisive item's evidence/,
     'start.kickoffDistanceM': /evidenceStates "9\.15" states 9\.15, not the value 10\.15/,
+    'area.goalkeepersCounted': /no diagram words for the value SENTINEL_MUTATION/,
 }
 function testC_everyValueMutationIsClassified(): void {
     const x = BASE.experiment
@@ -193,15 +197,16 @@ function testC_everyValueMutationIsClassified(): void {
     }
     // Pins moved openly on 6 November: the restart's seven values replace two (five more pinned by whenValue, one more unresolved), and the
     // kick-off distance moves from substituted to structural.
-    assert.deepEqual(MUTATION.counts, { SUBSTITUTED: 6, WHEN_VALUE_PINNED: 35, STRUCTURAL: 17, EXEMPT_PRINTED_ONLY: 2 })
+    // And the DRAFT diagram (A2) refuses a changed area.goalkeepersCounted it has no words for: 17 structural become 18, 2 exempt become 1.
+    assert.deepEqual(MUTATION.counts, { SUBSTITUTED: 6, WHEN_VALUE_PINNED: 35, STRUCTURAL: 18, EXEMPT_PRINTED_ONLY: 1 })
     // A value Christian's words state, or a value the code reads, is never accepted with a changed value (C4-01).
     for (const r of MUTATION.results.filter((y) => y.outcome === 'SUBSTITUTED' || y.outcome === 'EXEMPT_PRINTED_ONLY')) assert.ok(r.howReached !== 'ENTERED_EVIDENCED' && r.howReached !== 'READ_BY_CODE', `${r.path}: a value Christian's words or the knowledge state was changed and accepted`)
     // The front and Part 5 print exactly these counts.
     assert.ok(REPORT_TEXT.includes(`Of the ${x.choices.length} recorded values, changed one at a time in a copy of the record: 6 are substituted into the coach text`))
     assert.ok(REPORT_TEXT.includes(`    substituted into the coach text, 6: ${EXPECTED_SUBSTITUTED.join(', ')};`))
     assert.ok(REPORT_TEXT.includes('    refused by a sentence written for the recorded value (whenValue), 35: '))
-    assert.ok(REPORT_TEXT.includes('    refused for structural reasons, 17: 8 read by code'))
-    assert.ok(REPORT_TEXT.includes(`    exempt from the coach text and printed in the report only, 2: ${EXPECTED_EXEMPT_PRINTED_ONLY.join(', ')}.`))
+    assert.ok(REPORT_TEXT.includes('    refused for structural reasons, 18: 8 read by code'))
+    assert.ok(REPORT_TEXT.includes(`    exempt from the coach text and printed in the report only, 1: ${EXPECTED_EXEMPT_PRINTED_ONLY.join(', ')}.`))
     // Bite: a refusal that does not name the changed value (here a crash in the display callback) fails the loop instead of counting.
     const crashing: Parameters<typeof runAssembly>[0] = (k, xx, r, f) => {
         if (xx.choices.find((c) => c.path === 'area.widthM')?.value === 31) throw new TypeError('planted crash')
@@ -1310,9 +1315,15 @@ function testO_flipTests(): void {
     // The number of target zones is read from the placement (C2-19): an unmapped placement refuses; the count moves the derived area.
     const x11 = rawX()
     x11.placementZoneCount = { ONE_AT_EACH_END_FULL_WIDTH: 1 }
+    // The placement geometry (6 November, for the DRAFT diagram) must draw as many zones as the count says, so it moves with it.
+    x11.placementGeometry.ONE_AT_EACH_END_FULL_WIDTH.zones = [{ along: 'FROM_START' }]
     assert.equal(run(committedKnowledge(), x11).activity.derived.find((d) => d.id === 'area.betweenTargetZonesM2')?.value, 87.5, 'one zone: (40 - 5) x 30 / 12')
+    const x11b = rawX()
+    x11b.placementZoneCount = { ONE_AT_EACH_END_FULL_WIDTH: 1 }
+    throwsWith(() => validateExperiment(x11b), 'bite: a zone count the placement geometry does not draw')
     const x12 = rawX()
     x12.placementZoneCount = { SOME_OTHER_PLACEMENT: 2 }
+    x12.placementGeometry = { SOME_OTHER_PLACEMENT: x12.placementGeometry.ONE_AT_EACH_END_FULL_WIDTH }
     assert.throws(() => run(committedKnowledge(), x12), /maps to no number of target zones/)
     assert.ok(BASE.activity.derived.find((d) => d.id === 'area.betweenTargetZonesM2')?.fromPaths.includes('endZones.placement'), 'the placement is among what the derived value rests on')
     // The Game Form line counts the compatible forms it names (C2-08): with two compatible forms it says two, and one alternative.
@@ -1657,6 +1668,108 @@ const contractViolations = (x: Experiment, items: Raw[]): string[] => {
 // Isolation and determinism (v)-(y)
 // -------------------------------------------------------------------------------------------------------------------------------------
 
+// -------------------------------------------------------------------------------------------------------------------------------------
+// The DRAFT diagram (Christian's reply of 6 November, section 9; DESIGN-6-v2 A2; U4 T1-T10)
+// -------------------------------------------------------------------------------------------------------------------------------------
+
+/** The text inside every <text> element of an SVG, unescaped. */
+const svgTexts = (svg: string): string[] => [...svg.matchAll(/<text[^>]*>([^<]*)<\/text>/g)].map((m) => m[1].split('&quot;').join('"').split('&lt;').join('<').split('&gt;').join('>').split('&amp;').join('&'))
+/** A text box's rectangle (top-left, width, height), as the model places it. */
+const boxOf = (t: DiagramModel['texts'][number]) => ({ x: t.anchor === 'middle' ? t.x - t.w / 2 : t.x, y: t.y - t.size, w: t.w, h: t.h })
+const overlaps = (a: ReturnType<typeof boxOf>, b: ReturnType<typeof boxOf>) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h
+/** Independent geometry for the committed record (U4 T7), written here: zones 0-5 and 35-40 m along, 0-30 m across; halfway 20; centre 20, 15. */
+const EXPECTED_GEOMETRY = { lengthM: 40, widthM: 30, depthM: 5, zones: [{ alongFromM: 0, alongToM: 5, acrossFromM: 0, acrossToM: 30 }, { alongFromM: 35, alongToM: 40, acrossFromM: 0, acrossToM: 30 }], halfwayAlongM: 20, centre: { alongM: 20, acrossM: 15 } }
+
+function testDiagram(): void {
+    const m = BASE.diagram
+    const svg = assemblyDiagramSvg(m)
+    const paths = new Set(BASE.experiment.choices.map((c) => c.path))
+    // T1 Trace: every element names the record paths it reads; every number the drawing prints is a value it reads or a class number.
+    for (const s of [...m.shapes, ...m.texts]) for (const p of s.readsPaths) assert.ok(paths.has(p), `${s.id}: ${p} is not a value of the record`)
+    const numbersRead = new Set(m.values.filter((v) => typeof v.value === 'number').map((v) => String(v.value)))
+    for (const t of svgTexts(svg)) for (const n of numbersIn(t)) assert.ok(numbersRead.has(String(n)) || [1, 2, 3, 4, 5, 6].includes(n), `a number the record does not hold: ${n} in "${t}"`)
+    // T7 Independent expectations: the geometry in metres for the committed record.
+    assert.deepEqual(m.metres, EXPECTED_GEOMETRY)
+    // T2 Coverage: every value of the parts for the Game Form and players and for the dimensions and layout, the directions and the
+    // markings, is drawn or keyed; nothing is skipped silently.
+    const parts = BASE.experiment.requiredParts.filter((p) => p.id === 'P2' || p.id === 'P3').flatMap((p) => p.paths)
+    for (const p of [...parts, 'directions', 'equipment.markers']) assert.ok(m.readsPaths.includes(p), `${p}: neither drawn nor keyed`)
+    // T4 Status: each key line's class and label are the report's for the same value; the three labels stay distinct.
+    for (const k of m.key) {
+        const c = BASE.activity.choices.find((y) => y.path === k.path) as AssembledActivity['choices'][number]
+        assert.equal(k.classAndLabel, `class ${c.sixClass}: ${SIX_CLASSES[c.sixClass - 1].slice(0, -1)}; ${EXPECTED_LABEL[k.path]}`, `${k.path}: the key's class and label are the report's`)
+        assert.ok(part2Block(k.path).includes(`; ${k.classAndLabel}`), `${k.path}: the same class and label in Part 2`)
+        assert.equal(k.route, c.howReached === 'READ_BY_CODE' ? 'read by code' : 'entered', k.path)
+    }
+    assert.deepEqual([...new Set(m.key.map((k) => k.classAndLabel.split('; ').slice(1).join('; ')))].filter((l) => [L_UNRESOLVED, L_OURS, L_ILLUSTRATIVE].includes(l)).sort(), [L_ILLUSTRATIVE, L_UNRESOLVED].sort(), 'the key shows ILLUSTRATIVE and UNRESOLVED values apart (no OURS value is drawn)')
+    // The unresolved position appears on the field only as the placeholder, never as a shape of its own.
+    assert.ok(m.shapes.every((s) => !s.readsPaths.includes('endZones.positioning')))
+    assert.deepEqual(m.texts.filter((t) => t.inside && t.readsPaths.includes('endZones.positioning')).map((t) => t.text).join(' '), 'Target-zone position: not decided; this example puts them at the ends.')
+    // T5 Absence: no goal, no centre circle, no player or position, no restart spot, no shaded middle region; exactly two zones, one green.
+    assert.deepEqual(m.shapes.filter((s) => s.kind === 'zone').map((s) => s.colour), [m.colours.zone, m.colours.zone])
+    assert.deepEqual(m.shapes.filter((s) => s.kind === 'mark').map((s) => [s.id, s.r]), [['centre-mark', 3]])
+    assert.deepEqual(m.shapes.map((s) => s.id).sort(), ['area', 'arrow-1', 'arrow-2', 'centre-mark', 'dimension-length', 'dimension-width', 'halfway-line', 'zone-1', 'zone-2'])
+    assert.ok(m.colours.teams.every((c) => c !== m.colours.zone) && m.colours.teams[0] !== m.colours.teams[1], 'team colours are not green and not alike')
+    assert.equal((svg.match(/<circle /g) ?? []).length, 1, 'one circle: the centre mark')
+    // Nothing team-coloured inside the area outline: team words and arrows lie above or below it (L5-28).
+    const o = m.outline
+    const insideOutline = (y: number) => y >= o.y && y <= o.y + o.h
+    for (const t of m.texts.filter((y) => y.id.startsWith('team-'))) assert.ok(!insideOutline(t.y) && !insideOutline(t.y - t.size) && !t.inside, t.id)
+    for (const s of m.shapes.filter((y) => y.kind === 'arrow')) assert.ok(!insideOutline(s.y) && !insideOutline(s.y2 as number), s.id)
+    for (const t of m.texts.filter((y) => y.inside)) assert.ok(!m.colours.teams.includes(t.colour), `${t.id}: team-coloured text inside the area`)
+    // On the field only the placeholder and the zone-depth labels; every other flag below the field.
+    assert.deepEqual([...new Set(m.texts.filter((t) => t.inside).map((t) => t.id.split('-')[0]))].sort(), ['label', 'placeholder'])
+    for (const t of m.texts.filter((y) => y.id.startsWith('flag') || y.id.startsWith('not-drawn') || y.id.startsWith('key') || y.id.startsWith('caption'))) assert.ok(t.y - t.size > o.y + o.h, `${t.id}: below the field`)
+    // No two text boxes overlap.
+    for (let i = 0; i < m.texts.length; i++) for (let j = i + 1; j < m.texts.length; j++) assert.ok(!overlaps(boxOf(m.texts[i]), boxOf(m.texts[j])), `${m.texts[i].id} overlaps ${m.texts[j].id}`)
+    // T6 Words: no path, data key or record id on the drawing; the marking words are carried by Set up sentences expressing the same values.
+    for (const t of svgTexts(svg)) {
+        assert.ok(![...paths].some((p) => p.includes('.') && t.includes(p)) && !/\b[A-Z]{2,}_[A-Z_]+\b/.test(t), `a path or data key on the drawing: "${t}"`)
+        assert.ok(!/\bASM-|\bAOD-|\bRPC-/.test(t), `an id on the drawing: "${t}"`)
+    }
+    const carried: Array<[string, string]> = [['halfway line', 'area.halfwayLine'], ['centre mark', 'area.centreMark'], ['target zone', 'endZones.depthM']]
+    for (const [word, p] of carried) assert.ok(sentences().some((s) => s.section === 'CD-SETUP' && s.expresses.includes(p) && s.text.includes(word)), `${word}: carried by a Set up sentence expressing ${p}`)
+    // The banner, the caption and the flags Christian's section 9 asks for (each from the DRAFT diagram words).
+    const all = svgTexts(svg).join(' ')
+    for (const s of ['DRAFT, offline review only: drawn from the manually authored A05 configuration record; not generated from knowledge and not a served diagram.', 'Start: ordinary kick-off from the centre mark; opponents at least 9.15 m from the ball until it is kicked (no circle is marked).']) assert.ok(all.includes(s), s)
+    assert.equal(m.flags.length, 5)
+    assert.deepEqual(m.notDrawn.map((n) => n.what), ['Goals', 'A centre circle', 'Players or positions', 'Starting relationships', 'The end-line restart location', "The coach's position", 'Spare balls', 'A principal-interaction region'])
+    // T3 Mutation: every value the diagram reads, changed in a copy of the record: refused with its path named, or the drawing changes.
+    for (const p of m.readsPaths) {
+        const x = rawX()
+        const c = x.choices.find((y: Raw) => y.path === p)
+        c.value = typeof c.value === 'number' ? c.value + 1 : typeof c.value === 'boolean' ? !c.value : 'SENTINEL_MUTATION'
+        let changed: string | null = null
+        try {
+            changed = assemblyDiagramSvg(run(committedKnowledge(), x).diagram)
+        } catch (e) {
+            assert.ok(String(e).includes(p), `${p}: refused for a reason that does not name it: ${String(e)}`)
+            continue
+        }
+        assert.notEqual(changed, svg, `${p}: read by the diagram, but a changed value leaves the drawing unchanged`)
+    }
+    // Fail closed: an unmapped placement, a value with no diagram words, and a position with a value each refuse, naming what.
+    const unmapped = rawX()
+    unmapped.placementGeometry = { SOME_OTHER_PLACEMENT: unmapped.placementGeometry.ONE_AT_EACH_END_FULL_WIDTH }
+    throwsWith(() => run(committedKnowledge(), unmapped), 'a placement geometry for another placement')
+    const noWords = rawW()
+    delete noWords.diagram.valueWords.markers
+    assert.throws(() => run(committedKnowledge(), rawX(), noWords), /assembly-diagram \(equipment\.markers\): no diagram words for the value AREA_HALFWAY_CENTRE_TARGET_ZONES/)
+    const r = run()
+    assert.throws(() => assemblyDiagramOf({ ...r.activity, choices: r.activity.choices.map((y) => (y.path === 'endZones.positioning' ? { ...y, value: 'DECIDED' } : y)) }, r.experiment, r.wording), /the zones' position has a value/)
+    const quoted = rawW()
+    quoted.diagram.flags[0] = 'A flag quoting "words of no one".'
+    throwsWith(() => validateWording(quoted, BASE.experiment), 'a quotation mark in a diagram word')
+    // T8 Isolation: only the review module, the runner and the unit tests import the diagram file; nothing outside the folder names it.
+    const importers = fs.readdirSync(HERE).filter((f) => f.endsWith('.ts') && f !== 'assembly-diagram.ts' && /from '\.\/assembly-diagram'/.test(fs.readFileSync(path.join(HERE, f), 'utf8')))
+    assert.deepEqual(importers.sort(), ['assembly-review.ts', 'assembly.unit.ts', 'run-assembly-experiment.ts'])
+    const outside = (dir: string): string[] => fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? outside(path.join(dir, e.name)) : e.name.endsWith('.ts') ? [path.join(dir, e.name)] : []))
+    assert.ok(outside(SRC).filter((f) => !f.startsWith(HERE + path.sep)).every((f) => !fs.readFileSync(f, 'utf8').includes('assembly-diagram')), 'nothing outside the folder names the diagram file')
+    // The results carry the model; the Overview's note points to the DRAFT diagram.
+    assert.ok(json((REPORT.results as { diagram: unknown }).diagram) === json(m))
+    assert.equal(sentences().find((s) => s.id === 'ov-diagram')?.text, 'DRAFT diagram drawn from the record (offline review only); not served.')
+}
+
 /** (v) Two runs are byte-identical, and the committed evidence is this code's output (C4-02), the committed regression record included. */
 function testV_determinism(): void {
     const again = buildAssemblyReport(run(), REGRESSION, mutationLoop(display))
@@ -1664,6 +1777,9 @@ function testV_determinism(): void {
     assert.equal(json(again.results), RESULTS_TEXT)
     assert.equal(fs.readFileSync(path.join(EVIDENCE, 'assembly-report.txt'), 'utf8'), REPORT_TEXT, 'the committed report is the code\'s output: re-run npm run design:assembly')
     assert.equal(fs.readFileSync(path.join(EVIDENCE, 'assembly-results.json'), 'utf8'), `${JSON.stringify(REPORT.results, null, 2)}\n`, 'the committed results are the code\'s output: re-run npm run design:assembly')
+    // The DRAFT diagram (6 November): two builds identical, and the committed SVG is the code's output.
+    assert.equal(assemblyDiagramSvg(run().diagram), assemblyDiagramSvg(BASE.diagram))
+    assert.equal(fs.readFileSync(path.join(EVIDENCE, 'assembly-diagram.svg'), 'utf8'), assemblyDiagramSvg(BASE.diagram), 'the committed diagram is the code\'s output: re-run npm run design:assembly')
     // Bite: one note changed in the record gives a report that is not the committed one (stale evidence is caught), and so does a
     // regression record other than the committed one.
     const x = rawX()
@@ -1794,7 +1910,8 @@ function testX_registered(): void {
 /** (y) No goal-specific literal in the stage code or runner (the experiment's own ids and paths included); none in the wording's templates. */
 function testY_noGoalSpecificLiterals(): void {
     const x = BASE.experiment
-    const files = ['assembly.ts', 'assembly-review.ts', 'assembly-display.ts', 'run-assembly-experiment.ts'].map((f) => path.join(HERE, f))
+    // 6 November: the DRAFT diagram file is held to the same rules (no record id, no path literal, no sport word; comments included).
+    const files = ['assembly.ts', 'assembly-review.ts', 'assembly-display.ts', 'assembly-diagram.ts', 'run-assembly-experiment.ts'].map((f) => path.join(HERE, f))
     const ids = [...x.rulings.map((r) => r.id), ...x.openDecisions.map((d) => d.id), ...x.requirementAccount.map((a) => a.id), ...x.dependencies.map((d) => d.id), ...x.scenarios.items.map((s) => s.id)]
     for (const f of files) {
         const source = fs.readFileSync(f, 'utf8')
@@ -1863,6 +1980,7 @@ testT_lawsAccount()
 testAccount_requirementAccount()
 testWordingScope()
 testU_contractItems()
+testDiagram()
 testV_determinism()
 testW_stage2Unchanged()
 testX_registered()
